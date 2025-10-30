@@ -519,6 +519,26 @@ export const migrateToVersion24 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion25 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  const options = dashboardConfig?.account?.['World 2']?.killRoy?.options;
+  if (Array.isArray(options)) {
+    if (options.length === 0) {
+      dashboardConfig.account['World 2'].killRoy.options = [
+        { name: 'general', checked: true, helperText: 'Alert when Killroy is available' },
+        { name: 'underHundredKills', checked: true, helperText: 'Alert when current Killroy has monsters below 100 kills (for equinox)' }
+      ]
+    }
+  }
+
+  dashboardConfig.version = 25;
+  return dashboardConfig
+}
+
 
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
@@ -595,6 +615,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 23) {
       migratedConfig = migrateToVersion24(migratedConfig);
+    }
+    if (migratedConfig?.version === 24) {
+      migratedConfig = migrateToVersion25(migratedConfig);
     }
 
   }

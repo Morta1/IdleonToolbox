@@ -17,7 +17,7 @@ import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 24,
+  version: 25,
   account: {
     General: {
       tasks: {
@@ -116,7 +116,13 @@ const baseTrackers = {
       },
       arcade: { checked: true, options: [{ name: 'balls', checked: true }] },
       weeklyBosses: { checked: true, options: [] },
-      killRoy: { checked: true, options: [] },
+      killRoy: {
+        checked: true,
+        options: [
+          { name: 'general', checked: true, helperText: 'Alert when Killroy is available' },
+          { name: 'underHundredKills', checked: true, helperText: 'Alert when current Killroy has monsters below 100 kills (for equinox)' }
+        ]
+      },
       kangaroo: {
         checked: true,
         options: [
@@ -526,22 +532,22 @@ const Dashboard = () => {
             <ToggleButton value="timers">Timers</ToggleButton>
           </ToggleButtonGroup>
           <Button variant={'outlined'} sx={{ textTransform: 'none', height: 32 }}
-                  startIcon={<IconSettingsFilled size={20}/>}
-                  onClick={() => setOpen(true)}>
+            startIcon={<IconSettingsFilled size={20} />}
+            onClick={() => setOpen(true)}>
             Configure alerts
           </Button>
         </Stack>
         <Stack gap={2}>
           {isDisplayed('account') ? <Account trackers={config?.account} characters={characters}
-                                             account={account} lastUpdated={lastUpdated}/> : null}
+            account={account} lastUpdated={lastUpdated} /> : null}
           {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
-                                                   account={account} lastUpdated={lastUpdated}/> : null}
+            account={account} lastUpdated={lastUpdated} /> : null}
           {isDisplayed('timers') ? <Etc characters={characters} account={account} trackers={config?.timers}
-                                        lastUpdated={lastUpdated}/> : null}
+            lastUpdated={lastUpdated} /> : null}
         </Stack>
       </Stack>
       <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open}
-                         onClose={() => setOpen(false)} config={config}/>
+        onClose={() => setOpen(false)} config={config} />
       {showWideSideBanner || showNarrowSideBanner ? <Box
         sx={{
           backgroundColor: isProd ? '' : '#d73333',

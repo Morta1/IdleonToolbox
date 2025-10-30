@@ -214,7 +214,9 @@ export const hasAvailableToolUpgrade = (character) => {
 }
 export const getDivinityAlert = (account, characters, character, lastUpdated, options) => {
   if (!options.divinityStyle.checked) return null;
-  const isMeditating = character?.afkTarget === 'Divinity' || (character?.afkTarget === 'Laboratory' && (account?.divinity?.linkedDeities?.[character?.playerId] === 4 || character?.secondLinkedDeityIndex === 4 || isCompanionBonusActive(account, 0)));
+  const pocketLinked = account?.hole?.godsLinks?.find(({ index }) => index === 4);
+  const isMeditating = character?.afkTarget === 'Divinity' || (character?.afkTarget === 'Laboratory' &&
+     (account?.divinity?.linkedDeities?.[character?.playerId] === 4 || character?.secondLinkedDeityIndex === 4 || pocketLinked || isCompanionBonusActive(account, 0)));
   if (isMeditating && character?.skillsInfo?.divinity?.level >= 80 && character?.divStyle?.name !== 'Mindful') {
     return { text: 'doesn\'t have mindful style equipped', icon: 'Div_Style_7' };
   }

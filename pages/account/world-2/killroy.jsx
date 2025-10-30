@@ -16,6 +16,7 @@ const MyComponent = () => {
   const { state } = useContext(AppContext);
   const { killroy } = state?.account || { deathNote: {} };
   const schedule = getKillroySchedule(state?.account, state?.characters, state?.account?.serverVars);
+
   return <>
     <NextSeo
       title="Killroy | Idleon Toolbox"
