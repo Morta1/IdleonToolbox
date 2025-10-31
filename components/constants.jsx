@@ -197,6 +197,15 @@ export const PAGES = {
         { label: 'beanstalk', icon: 'etc/beanstalk1' },
         { label: 'emperor', icon: 'data/Boss6' }
       ]
+    },
+    'world 7': {
+      icon: 'data/ClassIconsNA2',
+      categories: [
+        { label: 'S1', icon: 'data/ClassIconsNA2', tabs: [] },
+        { label: 'S2', icon: 'data/ClassIconsNA2', tabs: [] },
+        { label: 'S3', icon: 'data/ClassIconsNA2', tabs: [] },
+
+      ]
     }
 
   },

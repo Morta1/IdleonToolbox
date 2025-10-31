@@ -432,7 +432,8 @@ export const worlds = {
   2: 'Frostbite Tundra',
   3: 'Hyperion Nebula',
   4: 'Smolderin\' Plateau',
-  5: 'Spirited Valley'
+  5: 'Spirited Valley',
+  6: 'World 7'
 };
 
 const maxTimeValue = 9.007199254740992e+15;
@@ -679,7 +680,7 @@ export const isValidUrl = (url) => {
 }
 
 
-export const worldsArray = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5', 'World 6'];
+export const worldsArray = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5', 'World 6', 'World 7'];
 export const prefix = isProd ? '/' : '/';
 
 export const excludedPortals = {

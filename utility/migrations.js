@@ -539,6 +539,23 @@ export const migrateToVersion25 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion26 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (!dashboardConfig?.account) {
+    dashboardConfig.account = {};
+  }
+  if (!dashboardConfig?.account?.['World 7']) {
+    dashboardConfig.account['World 7'] = {};
+  }
+
+  dashboardConfig.version = 26;
+  return dashboardConfig
+}
+
 
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
@@ -618,6 +635,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 24) {
       migratedConfig = migrateToVersion25(migratedConfig);
+    }
+    if (migratedConfig?.version === 25) {
+      migratedConfig = migrateToVersion26(migratedConfig);
     }
 
   }

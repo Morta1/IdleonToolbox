@@ -19,7 +19,8 @@ import {
   getWorld3Alerts,
   getWorld4Alerts,
   getWorld5Alerts,
-  getWorld6Alerts
+  getWorld6Alerts,
+  getWorld7Alerts
 } from '@utility/dashboard/account';
 import useAlerts from '../hooks/useAlerts';
 
@@ -30,7 +31,8 @@ const alertsMap = {
   ['World 3']: getWorld3Alerts,
   ['World 4']: getWorld4Alerts,
   ['World 5']: getWorld5Alerts,
-  ['World 6']: getWorld6Alerts
+  ['World 6']: getWorld6Alerts,
+  ['World 7']: getWorld7Alerts
 }
 
 const Account = ({ account, characters, trackers, lastUpdated }) => {

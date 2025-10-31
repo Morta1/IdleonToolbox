@@ -182,7 +182,7 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData, charactersData);
   accountData.alchemy.vials = updateVials(accountData);
   let currentWorld = 0;
-  accountData.finishedWorlds = [1, 2, 3, 4, 5, 6]?.reduce((res, world) => {
+  accountData.finishedWorlds = [1, 2, 3, 4, 5, 6, 7]?.reduce((res, world) => {
     const finishedWorld = !!isWorldFinished(charactersData, world);
     if (finishedWorld) {
       currentWorld = world;

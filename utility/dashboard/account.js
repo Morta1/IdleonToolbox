@@ -973,6 +973,13 @@ export const getWorld6Alerts = (account, fields, options) => {
   }
   return alerts;
 };
+
+export const getWorld7Alerts = (account, fields, options) => {
+  const alerts = {};
+  if (!account?.finishedWorlds?.World6) return alerts;
+  // Placeholder: add World 7 systems when defined
+  return alerts;
+};
 export const areKeysOverdue = (account) => {
   const keys = account?.currencies?.KeysAll;
   const tickets = account?.currencies?.ColosseumTickets?.allTickets;
