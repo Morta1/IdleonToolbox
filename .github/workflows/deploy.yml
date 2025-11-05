@@ -24,7 +24,7 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
         run: |
-          npm install --legacy-peer-deps
+          npm install --legacy-peer-deps --include=dev
           npm run build
 
       - name: Deploy
