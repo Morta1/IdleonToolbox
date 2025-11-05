@@ -30,7 +30,7 @@ const Beanstalk = () => {
     const totalItems = getAllItems(state?.characters, state?.account)
     const totalOwnedItems = mergeItemsByOwner([...(totalItems || []), ...(equippedItems || [])]);
     return findItemInInventory(totalOwnedItems, name)
-  }, [state?.account]);
+  }, [state?.characters, state?.account]);
   const allCharactersMulti = state?.characters?.map((character) => {
     const multi = getGoldenFoodMulti(character, state?.account, state?.characters);
     return {
@@ -65,7 +65,13 @@ const Beanstalk = () => {
           name: playerName,
           value: amount
         }));
-        breakdown.sort((a, b) => a?.value - b?.value);
+        breakdown.sort((a, b) => a.value - b.value);
+        const totalEntry = breakdown.reduce((sum, item) => sum + item.value, 0);
+        breakdown.push({
+          name: 'Total',
+          value: totalEntry
+        });
+
         return <Card key={rawName} sx={{ width: 270 }}>
           <CardContent>
             <Typography variant={'body1'}>{cleanUnderscore(displayName)}</Typography>

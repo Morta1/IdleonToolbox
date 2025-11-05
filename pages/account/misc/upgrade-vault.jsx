@@ -1,9 +1,9 @@
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Divider, Stack, TextField, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import { cleanUnderscore, commaNotation, getCoinsArray, prefix } from '@utility/helpers';
 import InfoIcon from '@mui/icons-material/Info';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import CoinDisplay from '@components/common/CoinDisplay';
 import useCheckbox from '@components/common/useCheckbox';
@@ -13,6 +13,14 @@ const UpgradeVault = () => {
   const { state } = useContext(AppContext);
   const [CheckboxEl, hideMaxed] = useCheckbox('Hide maxed upgrades');
   const { upgrades, totalUpgradeLevels, nextUnlock } = state?.account?.upgradeVault;
+  const [searchText, setSearchText] = useState('');
+
+  const isUpgradeVisible = (upgrade) => {
+    if (searchText === '') return true;
+    return upgrade.description &&
+      cleanUnderscore(upgrade.description).toLowerCase().includes(searchText.toLowerCase()) || (upgrade.name &&
+        cleanUnderscore(upgrade.name).toLowerCase().includes(searchText.toLowerCase()));
+  };
 
   return <>
     <NextSeo
@@ -33,23 +41,34 @@ const UpgradeVault = () => {
       <CardTitleAndValue>
         <CheckboxEl/>
       </CardTitleAndValue>
+      <CardTitleAndValue>
+        <TextField
+          size="small"
+          label="Search by description or name"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          sx={{ width: 250 }}
+        />
+      </CardTitleAndValue>
     </Stack>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {upgrades?.map(({
-                        name,
-                        cost,
-                        description,
-                        bonus,
-                        monsterProgress,
-                        boneType,
-                        unlockLevel,
-                        maxLevel,
-                        level,
-                        costToMax,
-                        unlocked
-                      }, index) => {
+      {upgrades?.map((upgrade, index) => {
+        const {
+          name,
+          cost,
+          description,
+          bonus,
+          monsterProgress,
+          boneType,
+          unlockLevel,
+          maxLevel,
+          level,
+          costToMax,
+          unlocked
+        } = upgrade;
         const maxed = level >= maxLevel;
         if (maxed && hideMaxed) return null;
+        if (!isUpgradeVisible(upgrade)) return null;
         return (
           (<Card key={name + index}>
             <CardContent sx={{
