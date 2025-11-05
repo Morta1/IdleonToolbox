@@ -2,11 +2,12 @@ import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { getDeathNoteRank } from 'parsers/deathNote';
-import { cleanUnderscore, notateNumber, prefix, worlds } from 'utility/helpers';
+import { cleanUnderscore, notateNumber, numberWithCommas, prefix, worldColor, worlds } from 'utility/helpers';
 import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
-
-export const worldColor = ['#64b564', '#f1ac45', '#00bcd4', '#864ede', '#de4e4e', '#5FF1B4FF'];
+import { CardTitleAndValue } from '@components/common/styles';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
+import Tooltip from '@components/Tooltip';
 
 const DeathNote = () => {
   const { state } = useContext(AppContext);
@@ -18,6 +19,25 @@ const DeathNote = () => {
         title="Death Note | Idleon Toolbox"
         description="Keep track of death note progression"
       />
+      <Stack direction={'row'} alignItems={'center'} gap={2} mb={2}>
+        <CardTitleAndValue title={'Normal Monsters'}>
+          <Stack direction={'row'} alignItems={'center'} gap={1}>
+            <Typography>Legend</Typography>
+            <Tooltip title={<LegendTooltip/>}>
+              <IconInfoCircleFilled size={18}/>
+            </Tooltip>
+          </Stack>
+        </CardTitleAndValue>
+        <CardTitleAndValue title={'Minibosses'}>
+          <Stack direction={'row'} alignItems={'center'} gap={1}>
+            <Typography>Legend</Typography>
+            <Tooltip title={<MinibossLegendTooltip/>}>
+              <IconInfoCircleFilled size={18}/>
+            </Tooltip>
+          </Stack>
+        </CardTitleAndValue>
+      </Stack>
+
       <Stack direction={'row'} gap={2} justifyContent={'center'} flexWrap={'wrap'}>
         {Object.entries(deathNote)?.map(([worldIndex, { mobs, rank }], index) => {
           return <Card key={worldIndex + ' ' + index}>
@@ -53,5 +73,40 @@ const DeathNote = () => {
     </>
   );
 };
+
+const LegendTooltip = () => {
+  return <Stack gap={1}>
+    <LegendItem number={25_000} points={1} icon={`data/StatusSkull${0}`}/>
+    <LegendItem number={100_000} points={2} icon={`data/StatusSkull${1}`}/>
+    <LegendItem number={250_00} points={3} icon={`data/StatusSkull${2}`}/>
+    <LegendItem number={500_000} points={4} icon={`data/StatusSkull${3}`}/>
+    <LegendItem number={1e6} points={2} icon={`data/StatusSkull${4}`}/>
+    <LegendItem number={5e6} points={7} icon={`data/StatusSkull${5}`}/>
+    <LegendItem number={100e6} points={10} icon={`data/StatusSkull${6}`}/>
+    <LegendItem number={1e9} points={20} icon={'etc/EclipseSkull'}/>
+  </Stack>
+}
+
+const MinibossLegendTooltip = () => {
+  return <Stack gap={1}>
+    <LegendItem number={100} points={1} icon={`data/StatusSkull${0}`}/>
+    <LegendItem number={250} points={2} icon={`data/StatusSkull${1}`}/>
+    <LegendItem number={1000} points={3} icon={`data/StatusSkull${2}`}/>
+    <LegendItem number={5000} points={4} icon={`data/StatusSkull${3}`}/>
+    <LegendItem number={25000} points={5} icon={`data/StatusSkull${4}`}/>
+    <LegendItem number={100000} points={7} icon={`data/StatusSkull${5}`}/>
+    <LegendItem number={1e7} points={10} icon={`data/StatusSkull${6}`}/>
+  </Stack>
+}
+
+const LegendItem = ({ number, points, icon }) => {
+  return <Stack direction={'row'} alignItems={'center'}>
+    <img style={{ marginTop: -10 }} src={`${prefix}${icon}.png`} alt="skull-icon"/>
+    <Typography variant={'body1'} sx={{ mx: 1 }}>{numberWithCommas(number)}</Typography>
+    <Typography variant={'body1'} sx={{ whiteSpace: 'no-wrap' }}>{points > 1
+      ? `= ${points} points`
+      : `= ${points} point`}</Typography>
+  </Stack>
+}
 
 export default DeathNote;

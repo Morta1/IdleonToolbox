@@ -5,8 +5,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import React, { useContext, useMemo } from 'react';
 import { MonsterIcon } from './styles';
 import AutoGrid from '@components/common/AutoGrid';
-import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
-import { CardTitleAndValue } from '@components/common/styles';
+import { Breakdown, CardTitleAndValue } from '@components/common/styles';
 import useCheckbox from '@components/common/useCheckbox';
 import Timer from '@components/common/Timer';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -58,6 +57,7 @@ const PetCard = ({
     ? currentThreshold
     : 5, isShiny);
 
+
   return <Card variant={'outlined'}
                sx={{
                  width: 300,
@@ -65,9 +65,11 @@ const PetCard = ({
                  border: amount > 0 && (isShiny ? fencePet?.shiny > 0 : fencePet?.breedability > 0)
                    ? '1px solid'
                    : '',
-                 borderColor: amount > 0 && (isShiny ? fencePet?.shiny > 0 : fencePet?.breedability > 0)
-                   ? 'success.main'
-                   : ''
+                 borderColor: isShiny && level >= 20
+                   ? 'error.light'
+                   : amount > 0 && (isShiny ? fencePet?.shiny > 0 : fencePet?.breedability > 0)
+                     ? 'success.main'
+                     : ''
                }}>
     <CardContent>
       <Stack direction={'row'} alignItems={'center'} gap={1} sx={{ width: '100%' }}>
@@ -212,12 +214,24 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
     }, {});
   }, [reorderPets, isShiny, groupByStat]);
 
+  const totalLevels = pets.reduce((acc, pet) => (isShiny ? pet.shinyLevel : pet.breedingLevel) + acc, 0)
+
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-      <CardWithBreakdown title={isShiny ? 'Shiny multi' : 'Breedability multi'}
-                         notation={'MultiplierInfo'}
-                         value={`${multi?.value?.toFixed(2).replace('.00', '')}x`}
-                         breakdown={multi?.breakdown}/>
+      <CardTitleAndValue title={'Misc'} value={<Stack gap={1}>
+        <Stack direction={'row'} gap={.5} alignItems={'center'}>
+          <Typography variant={'body1'}>
+            Multi: {multi?.value?.toFixed(2).replace('.00', '')}x
+          </Typography>
+          <Tooltip title={<Breakdown breakdown={multi?.breakdown} notation={'MultiplierInfo'}/>}>
+            <IconInfoCircleFilled size={18}/>
+          </Tooltip>
+        </Stack>
+        <Typography variant={'body1'}>
+          Total levels: {totalLevels}
+        </Typography>
+      </Stack>}>
+      </CardTitleAndValue>
       <CardTitleAndValue title={'Options'} value={<Stack>
         <Element checked={showAllPets}/>
         {isShiny && <GroupElement checked={groupByStat}/>}

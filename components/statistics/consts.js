@@ -1,8 +1,7 @@
 // Nivo theme for statistics visualizations
-import { cleanUnderscore, notateNumber, number2letter } from '@utility/helpers';
+import { cleanUnderscore, notateNumber, number2letter, worldColor } from '@utility/helpers';
 import { cauldronColors, cauldronsIndexMapping } from '@parsers/alchemy';
 import { cauldrons, deathNote, monsters, prayers, stamps } from '../../data/website-data';
-import { worldColor } from '../../pages/account/world-3/death-note';
 import { altStampsMapping, stampsMapping } from '@parsers/stamps';
 import { CLASSES, getBaseClass } from '@parsers/talents';
 
