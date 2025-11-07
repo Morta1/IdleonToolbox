@@ -219,7 +219,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
   const secondAchievement = getAchievementStatus(account?.achievements, 379);
   const emperorBonus = getEmperorBonus(account, 8);
   const armorSetBonus = getArmorSetBonus(account, 'GODSHARD_SET')
-  const { bonusPerLevel, level } = account?.meritsDescriptions?.[5]?.[4];
+  const { bonusPerLevel, level } = account?.meritsDescriptions?.[5]?.[4] || {};
   let val;
 
   if (index === 20 || index === 22 || index === 24 || index === 31) {

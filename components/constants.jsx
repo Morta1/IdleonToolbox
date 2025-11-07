@@ -199,9 +199,9 @@ export const PAGES = {
       ]
     },
     'world 7': {
-      icon: 'data/ClassIconsNA2',
+      icon: 'etc/Spelunking',
       categories: [
-        { label: 'S1', icon: 'data/ClassIconsNA2', tabs: [] },
+        { label: 'Spelunking', icon: 'etc/Spelunking', tabs: [] },
         { label: 'S2', icon: 'data/ClassIconsNA2', tabs: [] },
         { label: 'S3', icon: 'data/ClassIconsNA2', tabs: [] },
 
