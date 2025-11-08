@@ -18,6 +18,10 @@ export const getHighscores = (idleonData, account) => {
       {
         name: 'hoops',
         score: account?.accountOptions?.[242] || 0
+      },
+      {
+        name: 'darts',
+        score: 0 // TODO: find dart score index
       }
     ])
   }

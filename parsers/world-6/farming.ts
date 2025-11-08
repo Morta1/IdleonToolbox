@@ -1,5 +1,5 @@
 import { tryToParse } from "@utility/helpers";
-import { marketInfo, ninjaExtraInfo, seedInfo } from '../../data/website-data';
+import { exoticMarketInfo, marketInfo, ninjaExtraInfo, seedInfo } from '../../data/website-data';
 import { getCharmBonus, isJadeBonusUnlocked } from "@parsers/world-6/sneaking";
 import { getStarSignBonus } from "@parsers/starSigns";
 import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from "@parsers/alchemy";
@@ -15,6 +15,8 @@ import { getMealsBonusByEffectOrStat } from "@parsers/cooking";
 import { getMonumentBonus } from "@parsers/world-5/caverns/bravery";
 import { getStampsBonusByEffect } from "@parsers/stamps";
 import { getEmperorBonus } from "./emperor";
+import LavaRand from '../../utility/lavaRand';
+
 
 export const getFarming = (idleonData: any, accountData: any, charactersData: any) => {
   const rawFarmingUpgrades = tryToParse(idleonData?.FarmUpg);
@@ -54,6 +56,43 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
       baseValue: bonus.includes('}') ? (1 + (level * bonusPerLvl) / 100) : level * bonusPerLvl
     }
   });
+  const availableExoticIndices = getExoticMarketRotation(account);
+
+  const exoticMarket = exoticMarketInfo?.map((upgrade, index) => {
+    const level = rawFarmingUpgrades?.[20 + index] ?? 0;
+
+    // Calculate the actual bonus based on the formula type
+    let calculatedBonus;
+    if (upgrade.type === 1) {
+      // Diminishing returns formula
+      calculatedBonus = upgrade.baseValue * (level / (1000 + level));
+    } else {
+      // Linear formula (x4 === 0)
+      calculatedBonus = upgrade.baseValue * level;
+    }
+
+    let displayText;
+    if (level === 0) {
+      displayText = upgrade.bonus.replace(/[{}$]/g, 0);
+    } else {
+      displayText = upgrade.bonus
+        .replace('{', Math.round(calculatedBonus * 100) / 100)
+        .replace('}', Math.round((1 + calculatedBonus / 100) * 100) / 100)
+        .replace('$', Math.ceil(calculatedBonus));
+    }
+
+    return {
+      ...upgrade,
+      level,
+      value: calculatedBonus, // Round for display,
+      isAvailableThisWeek: availableExoticIndices.includes(index),
+      displayText
+    }
+  }).filter(({ name }) => name !== 'NAME_MAGNI');
+
+  // Calculate total levels purchased (equivalent to ExoticFarmDN)
+  const totalExoticLevels = exoticMarket.reduce((sum, item) => sum + item.level, 0);
+
   let [farmingRanks, ranksProgress, upgradesLevels] = rawFarmingRanks || [];
   if (!Array.isArray(farmingRanks)) {
     farmingRanks = []
@@ -125,10 +164,13 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   const hasLandRank = getMarketBonus(market, "LAND_RANK");
   const achievementBonus = getAchievementStatus(account?.achievements, 363);
   const beanTrade = Math.pow(cropsForBeans, 0.5) * (1 + marketBonus / 100) * (1 + (25 * jadeUpgrade + 5 * achievementBonus) / 100);
+
   return {
     plot,
     crop: { ...rawFarmingCrop, beans },
     market,
+    exoticMarket,
+    totalExoticLevels,
     cropsFound: Object.keys(rawFarmingCrop || {}).length,
     cropsOnVine,
     instaGrow,
@@ -140,6 +182,37 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     totalRanks: farmingRanks?.reduce((sum: number, rank: number) => sum + rank, 0)
   };
 }
+
+export const getExoticMarketRotation = (account) => {
+  if (!account) return [];
+
+  const { timeAway } = account || {};
+  const currentWeek = Math.floor(timeAway?.GlobalTime / 604800); // 604800 seconds = 1 week
+  const seed = Math.round(100 * currentWeek);
+
+  const selectedUpgrades = [];
+
+  for (let i = 0; i < 8; i++) {
+    let attempts = 0;
+    let upgradeIndex;
+
+    // Keep trying until we find an upgrade not already selected
+    do {
+      const currentSeed = seed + i + attempts * 1000;
+      const rng = new LavaRand(currentSeed);
+      const random = rng.rand();
+
+      // Generate index between 0-59 (60 total exotic upgrades)
+      upgradeIndex = Math.floor(Math.max(0, Math.min(59, 60 * random)));
+
+      attempts++;
+    } while (selectedUpgrades.includes(upgradeIndex));
+
+    selectedUpgrades.push(upgradeIndex);
+  }
+
+  return selectedUpgrades;
+};
 
 export const getRanksTotalBonus = (ranks: any, index: number) => {
   return 0 === index ? (1 + ranks?.[3]?.bonus / 100) * (1 + ranks?.[10]?.bonus / 100) * (1 + ranks?.[15]?.bonus / 100)
@@ -299,6 +372,8 @@ const getCropDepotBonuses = (account: any) => {
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const pureOpalRhombolJewel = getJewelBonus(account?.lab?.jewels, 20, spelunkerObolMulti);
   const grimoireBonus = 1 + getGrimoireBonus(account?.grimoire?.upgrades, 22) / 100;
+  const exoticBonus = 1; // TODO: what is this
+  const extraBonus = (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus * exoticBonus;
 
   let bonuses = {
     damage: { name: 'DMG', value: 0 },
@@ -308,37 +383,44 @@ const getCropDepotBonuses = (account: any) => {
     cash: { name: 'Cash', value: 0 },
     shiny: { name: 'Pet Rate', value: 0 },
     critters: { name: 'Critters', value: 0 },
-    dropRate: { name: 'Drop Rate', value: 0 }
+    dropRate: { name: 'Drop Rate', value: 0 },
+    spelunky: { name: 'Spelunky', value: 0 }
   };
   if (isJadeBonusUnlocked(account, 'Reinforced_Science_Pencil')) {
-    bonuses.damage.value = 20 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
+    bonuses.damage.value = 20 * Math.round(account?.farming?.cropsFound) * extraBonus;
   }
   if (isJadeBonusUnlocked(account, 'Science_Pen')) {
-    bonuses.gamingEvo.value = Math.pow(1.02, Math.round(account?.farming?.cropsFound)) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
+    bonuses.gamingEvo.value = Math.pow(1.02, Math.round(account?.farming?.cropsFound)) * extraBonus;
   }
   if (isJadeBonusUnlocked(account, 'Science_Marker')) {
-    bonuses.jadeCoin.value = 8 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
+    bonuses.jadeCoin.value = 8 * Math.round(account?.farming?.cropsFound) * extraBonus;
   }
   if (isJadeBonusUnlocked(account, 'Science_Featherpen')) {
-    bonuses.cookingSpeed.value = Math.pow(1.1, Math.round(account?.farming?.cropsFound)) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
+    bonuses.cookingSpeed.value = Math.pow(1.1, Math.round(account?.farming?.cropsFound)) * extraBonus;
   }
   if (isJadeBonusUnlocked(account, 'Science_Environmentally_Sourced_Pencil')) {
-    bonuses.cash.value = 15 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
+    bonuses.cash.value = 15 * Math.round(account?.farming?.cropsFound) * extraBonus;
   }
   if (isJadeBonusUnlocked(account, 'Science_Crayon')) {
-    bonuses.shiny.value = 7 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
+    bonuses.shiny.value = 7 * Math.round(account?.farming?.cropsFound) * extraBonus;
   }
   if (isJadeBonusUnlocked(account, 'Science_Paintbrush')) {
-    bonuses.critters.value = 0.1 * Math.round(account?.farming?.cropsFound) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
+    bonuses.critters.value = 0.1 * Math.round(account?.farming?.cropsFound) * extraBonus;
   }
   if (isJadeBonusUnlocked(account, 'Science_Highlighter')) {
-    bonuses.dropRate.value = Math.round(Math.max(0, account?.farming?.cropsFound - 100)) * (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus;
+    bonuses.dropRate.value = Math.round(Math.max(0, account?.farming?.cropsFound - 100)) * extraBonus;
+  }
+  if (isJadeBonusUnlocked(account, 'Science_Fancy_Pen')) {
+    bonuses.spelunky.value = 5 * Math.round(Math.max(0, account?.farming?.cropsFound - 100 - 200)) * extraBonus;
   }
   return bonuses;
 }
 
 export const getMarketBonus = (market: any, bonusName: string, value = 'baseValue') => {
   return (market?.find(({ name }: { name: string }) => name === bonusName) as any)?.[value] ?? 0;
+}
+export const getExoticMarketBonus = (market: any, index: number) => {
+  return (market?.[index])?.value ?? 0;
 }
 
 export const getLandRank = (ranks: any, index: number) => {

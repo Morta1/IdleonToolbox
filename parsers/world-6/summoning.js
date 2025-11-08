@@ -78,13 +78,15 @@ const parseSummoning = (rawSummon, killRoyKills, account, serializedCharactersDa
       if (bonus) {
         if (acc[monsterData.bonusId]) {
           acc[monsterData.bonusId] += parseFloat(monsterData.bonusQty);
-        } else {
+        }
+        else {
           acc[monsterData.bonusId] = parseFloat(monsterData.bonusQty);
         }
         const whiteOrder = whiteBattleOrder.findIndex((rawName) => monsterData.enemyId === rawName);
         if (whiteOrder !== -1) {
           careerWins[0] += 1;
-        } else {
+        }
+        else {
           const deathNoteOrder = deathNote.find(({ rawName }) => monsterData.enemyId === rawName);
           if (deathNoteOrder) {
             careerWins[deathNoteOrder.world + 1] += 1;
@@ -219,12 +221,13 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
   const secondAchievement = getAchievementStatus(account?.achievements, 379);
   const emperorBonus = getEmperorBonus(account, 8);
   const armorSetBonus = getArmorSetBonus(account, 'GODSHARD_SET')
-  const { bonusPerLevel, level } = account?.meritsDescriptions?.[5]?.[4] || {};
+  const { bonusPerLevel, level } = account?.meritsDescriptions[5][4];
   let val;
 
   if (index === 20 || index === 22 || index === 24 || index === 31) {
     val = rawValue;
-  } else if (index === 19) {
+  }
+  else if (index === 19) {
     val = 3.5 * rawValue *
       (1 + charmBonus / 100) *
       (1 + (artifactBonus +
@@ -232,7 +235,8 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
         firstAchievement +
         secondAchievement +
         armorSetBonus) / 100);
-  } else if (index >= 20 && index <= 33) {
+  }
+  else if (index >= 20 && index <= 33) {
     const multiCalc = getLocalWinnerBonus(rawWinnerBonuses, account, 31);
     const multi = multiCalc === 0 ? 0 : multiCalc;
     val = rawValue *
@@ -244,7 +248,8 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
         armorSetBonus +
         emperorBonus +
         multi) / 100);
-  } else {
+  }
+  else {
     const multiCalc = getLocalWinnerBonus(rawWinnerBonuses, account, 31);
     const multi = multiCalc === 0 ? 0 : multiCalc;
     val = 3.5 * rawValue *

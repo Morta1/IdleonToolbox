@@ -18,11 +18,9 @@ import Timer from 'components/common/Timer';
 import InfoIcon from '@mui/icons-material/Info';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import MenuItem from '@mui/material/MenuItem';
-import { isArtifactAcquired } from '@parsers/sailing';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
-import { getGrimoireBonus } from '@parsers/grimoire';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 
 const maxTimeValue = 8.64e15;
@@ -59,7 +57,65 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
     return baseMeals;
   }
   const noMealLeftBehind = useMemo(() => getNoMealLeftBehind(meals, mealMaxLevel), [meals, mealMaxLevel]);
-  const noMealLeftBehindArray = useMemo(() => getNoMealLeftBehind(meals, mealMaxLevel, true), [meals, mealMaxLevel]);
+  const sortMealsBy = (meals, index, level = 0) => {
+    if (index === 0) return defaultMeals;
+    const mealsCopy = [...defaultMeals];
+    if (index === -3) {
+      mealsCopy.sort((a, b) => {
+        const aRibbonIndex = account?.grimoire?.ribbons?.[28 + a.index];
+        const bRibbonIndex = account?.grimoire?.ribbons?.[28 + b.index];
+        // Handle undefined values
+        if (aRibbonIndex === 0 && bRibbonIndex === 0) {
+          return 0; // Both are undefined, no change in order
+        }
+        if (aRibbonIndex === 0) {
+          return 1; // a goes after b
+        }
+        if (bRibbonIndex === 0) {
+          return -1; // b goes after a
+        }
+        return aRibbonIndex - bRibbonIndex;
+      });
+      return mealsCopy;
+    }
+    mealsCopy.sort((a, b) => {
+      if (level !== 0) {
+        if (a.level >= level) {
+          return 1;
+        }
+        else if (b.level >= level) {
+          return -1;
+        }
+      }
+      const aSortIndex = a?.breakpointTimes?.[index]?.timeToBp;
+      const bSortIndex = b?.breakpointTimes?.[index]?.timeToBp;
+      return aSortIndex - bSortIndex;
+    });
+    return mealsCopy;
+  }
+
+
+  const getBestMealsSpeedContribute = (meals) => {
+    let speedMeals = meals.filter((meal) => (meal?.stat === 'Mcook' || meal?.stat === 'KitchenEff' || meal?.stat === 'zMealFarm') && meal?.level < mealMaxLevel);
+    speedMeals = speedMeals.map((meal) => {
+      const { level, baseStat, shinyMulti, timeTillNextLevel, index } = meal;
+      const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
+      const ribbonBonus = getRibbonBonus(account, account?.grimoire?.ribbons?.[28 + index]);
+      const base = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * ribbonBonus * baseStat;
+      const currentBonus = base * level;
+      const nextLevelBonus = base * (level + 1);
+      return {
+        ...meal,
+        currentLevelBonus: notateNumber(currentBonus, 'MultiplierInfo'),
+        nextLevelBonus: notateNumber(nextLevelBonus, 'MultiplierInfo'),
+        bonusDiff: nextLevelBonus - currentBonus,
+        diff: (nextLevelBonus - currentBonus) / timeTillNextLevel
+      }
+    });
+    speedMeals.sort((a, b) => b.diff - a.diff);
+    return speedMeals;
+  }
+
 
   const getHighestOverflowingLadle = () => {
     const bloodBerserkers = characters?.filter((character) => checkCharClass(character?.class, CLASSES.Blood_Berserker));
@@ -135,13 +191,15 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
     let tempMeals = defaultMeals;
     if (sortBy === -3) {
       tempMeals = sortMealsBy(null, -3);
-    } else {
+    }
+    else {
       breakpoints.forEach((breakpoint, index) => {
         if (sortBy === breakpoint) {
           const mealsCopy = [...defaultMeals];
           if (sortBy === -2) {
             tempMeals = getNoMealLeftBehind(mealsCopy, mealMaxLevel, true);
-          } else {
+          }
+          else {
             tempMeals = sortMealsBy(mealsCopy, index, breakpoint);
           }
         }
@@ -155,7 +213,8 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
     }
     if (filters.includes('amethystRhinestone') && realAmethystRhinestone === 0) {
       setMealSpeed(totalMealSpeed * amethystRhinestone);
-    } else {
+    }
+    else {
       setMealSpeed(totalMealSpeed);
     }
     const speedMeals = getBestMealsSpeedContribute(tempMeals)
@@ -163,62 +222,6 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
     setLocalMeals(tempMeals)
   }, [filters, meals, mealMaxLevel, sortBy, mealSpeed, localEquinoxUpgrades, totalMealSpeed]);
 
-  const sortMealsBy = (meals, index, level = 0) => {
-    if (index === 0) return defaultMeals;
-    const mealsCopy = [...defaultMeals];
-    if (index === -3) {
-      mealsCopy.sort((a, b) => {
-        const aRibbonIndex = account?.grimoire?.ribbons?.[28 + a.index];
-        const bRibbonIndex = account?.grimoire?.ribbons?.[28 + b.index];
-        // Handle undefined values
-        if (aRibbonIndex === 0 && bRibbonIndex === 0) {
-          return 0; // Both are undefined, no change in order
-        }
-        if (aRibbonIndex === 0) {
-          return 1; // a goes after b
-        }
-        if (bRibbonIndex === 0) {
-          return -1; // b goes after a
-        }
-        return aRibbonIndex - bRibbonIndex;
-      });
-      return mealsCopy;
-    }
-    mealsCopy.sort((a, b) => {
-      if (level !== 0) {
-        if (a.level >= level) {
-          return 1;
-        } else if (b.level >= level) {
-          return -1;
-        }
-      }
-      const aSortIndex = a?.breakpointTimes?.[index]?.timeToBp;
-      const bSortIndex = b?.breakpointTimes?.[index]?.timeToBp;
-      return aSortIndex - bSortIndex;
-    });
-    return mealsCopy;
-  }
-
-  const getBestMealsSpeedContribute = (meals) => {
-    let speedMeals = meals.filter((meal) => (meal?.stat === 'Mcook' || meal?.stat === 'KitchenEff' || meal?.stat === 'zMealFarm') && meal?.level < mealMaxLevel);
-    speedMeals = speedMeals.map((meal) => {
-      const { level, baseStat, shinyMulti, timeTillNextLevel, index } = meal;
-      const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
-      const ribbonBonus = getRibbonBonus(account, account?.grimoire?.ribbons?.[28 + index]);
-      const base = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * ribbonBonus * baseStat;
-      const currentBonus = base * level;
-      const nextLevelBonus = base * (level + 1);
-      return {
-        ...meal,
-        currentLevelBonus: notateNumber(currentBonus, 'MultiplierInfo'),
-        nextLevelBonus: notateNumber(nextLevelBonus, 'MultiplierInfo'),
-        bonusDiff: nextLevelBonus - currentBonus,
-        diff: (nextLevelBonus - currentBonus) / timeTillNextLevel
-      }
-    });
-    speedMeals.sort((a, b) => b.diff - a.diff);
-    return speedMeals;
-  }
 
   const handleSortChange = (e) => {
     setSortBy(e.target.value);
@@ -259,7 +262,8 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
         </ToggleButton> : null}
       </ToggleButtonGroup>
       <Stack direction={'row'} alignItems={'center'} gap={3}>
-        <TextField size={'small'} sx={{ width: 150 }} label={'Sort by'} select value={sortBy} onChange={handleSortChange}>
+        <TextField size={'small'} sx={{ width: 150 }} label={'Sort by'} select value={sortBy}
+                   onChange={handleSortChange}>
           {breakpoints?.map((val) => (<MenuItem key={val} value={val}>
             {val === -1 ? 'Order' : val === 0 ? 'Time' : val === -2 ? 'NMLB' : val === -3 ? 'Ribbon' : `Time to ${val}`}
           </MenuItem>))}
@@ -273,7 +277,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
         })}
         <TextField size={'small'} label={'Food lust bosses'} type={'number'} value={foodLust}
                    slotProps={{
-                     htmlInput:{ min: 0, max: 14 }
+                     htmlInput: { min: 0, max: 14 }
                    }}
                    sx={{ width: 130 }}
                    onChange={({ target }) => setFoodLust(target.value)}/>
@@ -364,7 +368,8 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
                   <Stack>
                     <Typography>{cleanUnderscore(name)} (Lv. {level})</Typography>
                     {(ribbonIndex - 1) > 0 ? <Tooltip title={`${ribbonBonus}x (Rank ${ribbonIndex})`}>
-                      <img style={{ width: 24 }} src={`${prefix}data/Ribbon${Math.max(0, ribbonIndex - 1)}.png`} alt={`ribbon-${ribbonIndex}`}/>
+                      <img style={{ width: 24 }} src={`${prefix}data/Ribbon${Math.max(0, ribbonIndex - 1)}.png`}
+                           alt={`ribbon-${ribbonIndex}`}/>
                     </Tooltip> : null}
                   </Stack>
                 </Stack>

@@ -5,6 +5,15 @@ import React from 'react';
 export const patchNotes = [
   {
     'ver': '3.3.10',
+    'gameVer': '2.0.43',
+    'date': '28/09/2025',
+    'features': [
+      'Updated the website with version 2.0.43 data and assets',
+    ],
+    'fixes': []
+  },
+  {
+    'ver': '3.3.10',
     'gameVer': '2.0.41',
     'date': '28/09/2025',
     'features': [

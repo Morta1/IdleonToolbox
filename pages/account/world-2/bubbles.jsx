@@ -52,24 +52,16 @@ const Bubbles = () => {
   const [classDiscount, setClassDiscount] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [bargainTag, setBargainTag] = useState('0');
-  const [effThreshold, setEffThreshold] = useState(75);
+  const [effThreshold, setEffThreshold] = useLocalStorage({
+    key: `bubbles:effThreshold`,
+    defaultValue: 75
+  });
   const [levelThreshold, setLevelThreshold] = useState(100);
   const [showMissingLevels, setShowMissingLevels] = useState(true);
   const [hidePastThreshold, setHidePastThreshold] = useState(false);
   const [hidePastLevelThreshold, setHidePastLevelThreshold] = useState(false);
   const [bubblesGoals, setBubblesGoals] = useState();
-  const myFirstChemSet = useMemo(() => state?.account?.lab?.labBonuses?.find(bonus => bonus.name === 'My_1st_Chemistry_Set')?.active, [state?.account?.lab.vials]);
-
-  useEffect(() => {
-    const fromStorage = localStorage.getItem('effThreshold');
-    if (fromStorage) {
-      setEffThreshold(parseInt(fromStorage));
-    }
-    const levelFromStorage = localStorage.getItem('levelThreshold');
-    if (fromStorage) {
-      setLevelThreshold(parseInt(levelFromStorage));
-    }
-  }, []);
+  const myFirstChemSet = state?.account?.lab?.labBonuses?.find(bonus => bonus.name === 'My_1st_Chemistry_Set')?.active;
 
   const calcBubbleMatCost = (bubbleIndex, vialMultiplier = 1, bubbleLvl, baseCost, isLiquid, cauldronCostLvl,
                              undevelopedBubbleLv, barleyBrewLvl, lastBubbleLvl, classMultiplierLvl,
@@ -336,7 +328,7 @@ const Bubbles = () => {
             return <Stack direction={batchLayout ? 'row' : 'column'} alignItems={'center'} flexWrap={'wrap'}
                           key={cauldron + '' + cauldronIndex}>
               {bubbles?.map((bubble, index) => {
-                if (index > 29) return null;
+                // if (index > 29) return null;
                 const { level, itemReq, rawName, bubbleName, func, x1, x2, cauldron, bubbleIndex } = bubble;
                 const isPrisma = isPrismaBubble(state?.account, bubbleIndex);
                 const goalLevel = bubblesGoals?.[cauldron]?.[index] ? bubblesGoals?.[cauldron]?.[index] < level

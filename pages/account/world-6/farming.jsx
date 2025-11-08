@@ -10,11 +10,13 @@ import { CardTitleAndValue } from '@components/common/styles';
 import { commaNotation, getTabs, notateNumber } from '@utility/helpers';
 import RankDatabase from '@components/account/Worlds/World6/farming/RankDatabase';
 import { PAGES } from '@components/constants';
+ import ExoticMarket from '@components/account/Worlds/World6/farming/ExoticMarket';
 
 const Farming = () => {
   const { state } = useContext(AppContext);
   const {
     market,
+    exoticMarket,
     plot,
     crop,
     hasLandRank,
@@ -51,6 +53,7 @@ const Farming = () => {
             characters={state?.characters}
             account={state?.account}/>
       <Market market={market} crop={crop} />
+      <ExoticMarket market={exoticMarket} crop={crop} />
       <RankDatabase ranks={ranks} hasLandRank={hasLandRank}/>
       <Crop crop={crop} maxTimes={maxTimes}/>
     </Tabber>
