@@ -183,7 +183,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   };
 }
 
-export const getExoticMarketRotation = (account) => {
+export const getExoticMarketRotation = (account: any) => {
   if (!account) return [];
 
   const { timeAway } = account || {};
