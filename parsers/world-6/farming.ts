@@ -76,9 +76,9 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
       displayText = upgrade.bonus.replace(/[{}$]/g, "0");
     } else {
       displayText = upgrade.bonus
-        .replace('{', Math.round(calculatedBonus * 100) / 100)
-        .replace('}', Math.round((1 + calculatedBonus / 100) * 100) / 100)
-        .replace('$', Math.ceil(calculatedBonus));
+        .replace('{', Math.round(calculatedBonus * 100) / 100 + "")
+        .replace('}', Math.round((1 + calculatedBonus / 100) * 100) / 100 + "")
+        .replace('$', Math.ceil(calculatedBonus) + "");
     }
 
     return {
