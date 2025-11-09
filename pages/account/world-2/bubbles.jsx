@@ -330,6 +330,7 @@ const Bubbles = () => {
               {bubbles?.map((bubble, index) => {
                 // if (index > 29) return null;
                 const { level, itemReq, rawName, bubbleName, func, x1, x2, cauldron, bubbleIndex } = bubble;
+                if (!func) return null;
                 const isPrisma = isPrismaBubble(state?.account, bubbleIndex);
                 const goalLevel = bubblesGoals?.[cauldron]?.[index] ? bubblesGoals?.[cauldron]?.[index] < level
                   ? level
