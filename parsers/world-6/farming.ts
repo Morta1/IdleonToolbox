@@ -183,26 +183,24 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   };
 }
 
-export const getExoticMarketRotation = (account: any) => {
-  if (!account) return [];
+export const getExoticMarketRotation = (account: any): number[] => {
+  if (!account?.timeAway?.GlobalTime) return [];
 
-  const { timeAway } = account || {};
-  const currentWeek = Math.floor(timeAway?.GlobalTime / 604800); // 604800 seconds = 1 week
+  const currentWeek = Math.floor(account.timeAway.GlobalTime / 604_800); // 1 week in seconds
   const seed = Math.round(100 * currentWeek);
 
-  const selectedUpgrades = [];
+  const selectedUpgrades: number[] = [];
 
   for (let i = 0; i < 8; i++) {
     let attempts = 0;
-    let upgradeIndex;
+    let upgradeIndex: number;
 
-    // Keep trying until we find an upgrade not already selected
     do {
       const currentSeed = seed + i + attempts * 1000;
       const rng = new LavaRand(currentSeed);
       const random = rng.rand();
 
-      // Generate index between 0-59 (60 total exotic upgrades)
+      // Generate index 0–59
       upgradeIndex = Math.floor(Math.max(0, Math.min(59, 60 * random)));
 
       attempts++;
