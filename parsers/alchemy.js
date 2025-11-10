@@ -570,7 +570,7 @@ const getNblbBubbles = (acc, maxBubbleIndex, numberOfBubbles) => {
     .map((array) => array.filter(({
                                     level,
                                     index
-                                  }) => level >= 5 && index < maxBubbleIndex).sort((a, b) => a.level - b.level).filter(({ level }) => level < 1500));
+                                  }) => level >= 5 && index < maxBubbleIndex).sort((a, b) => a.level - b.level).filter(({ level }) => level < 1e4));
   const bubblePerCauldron = Math.ceil(Math.min(10, numberOfBubbles) / 4);
   const lowestBubbles = [];
   for (let j = 0; j < bubblesArrays.length; j++) {
@@ -637,7 +637,7 @@ export const getUpgradeableBubbles = (acc, characters) => {
     });
   });
 
-  const found = allBubbles.filter(({ level, index }) => level >= 2 && index < 15).filter(({ level }) => level < 1500);
+  const found = allBubbles.filter(({ level, index }) => level >= 2 && index < 15).filter(({ level }) => level < 1e4);
   const sorted = found.sort((a, b) => b.flatIndex - a.flatIndex).sort((a, b) => a.level - b.level);
   const jewel = acc?.lab?.jewels?.find(jewel => jewel.name === 'Pyrite_Rhinestone');
   if (jewel?.acquired) {
@@ -655,7 +655,7 @@ export const getUpgradeableBubbles = (acc, characters) => {
 
   upgradeableBubblesAmount = Math.min(10, upgradeableBubblesAmount)
   const normal = sorted.slice(0, upgradeableBubblesAmount);
-  const atomBubbles = getNblbBubbles(acc, 25, upgradeableBubblesAmount).map((bubble) => ({ ...bubble, lithium: true }));
+  const atomBubbles = getNblbBubbles(acc, 30, upgradeableBubblesAmount).map((bubble) => ({ ...bubble, lithium: true }));
 
   const minLevel = getNblbLevel(acc, characters, true);
   const maxLevel = getNblbLevel(acc, characters);
