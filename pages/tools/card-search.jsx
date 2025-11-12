@@ -10,7 +10,7 @@ import { NextSeo } from 'next-seo';
 
 const categoriesOrder = ['Card Sets', 'Blunder_Hills', 'Yum_Yum_Desert', 'Easy_Resources',
   'Medium_Resources', 'Frostbite_Tundra', 'Hard_Resources', 'Hyperion_Nebula', 'Smolderin\'_Plateau',
-  'Spirited_Valley', 'Dungeons',
+  'Spirited_Valley', 'Shimmerfin_Deep', 'Dungeons',
   'Bosses', 'Events'];
 
 const additionalEffects = {
@@ -141,11 +141,12 @@ export default function CardSearch() {
               const cardsArr = localCardObject[cardSet];
               if (!cardsArr || cardsArr?.length === 0) return null;
               const isCardSets = cardSet === 'Card Sets';
+              console.log(cardsArr)
               return (
                 <React.Fragment key={cardSet + '' + cardSetIndex}>
                   {isCardSets ? <Typography my={1} variant={'h4'}>Card Sets</Typography> :
                     <img src={`${prefix}etc/${cardSet}_Card_Header.png`}
-                         style={{ margin: '15px 0 10px 0' }}
+                         style={{ margin: '20px 0 10px 0' }}
                          alt=""
                     />}
                   <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: 600 }}>
