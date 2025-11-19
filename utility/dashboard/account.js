@@ -990,11 +990,11 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
           .filter(trophy => !trophy?.isEmpty && trophy?.rawName)
           .map(trophy => trophy.rawName)
       );
-      const ownedTrophies = totalOwnedItems?.filter(({ rawName, subType }) =>
-        rawName?.includes('Trophy') && subType !== "REPLICA_TROPHY"
+      const ownedTrophies = totalOwnedItems?.filter(({ rawName }) =>
+        rawName?.includes('Trophy')
       );
-      const missingTrophies = ownedTrophies?.filter(({ rawName }) =>
-        rawName && !trophiesUsedRawNames.has(rawName)
+      const missingTrophies = ownedTrophies?.filter(({ rawName, Type }) =>
+        rawName && !trophiesUsedRawNames.has(rawName) && (Type !== "REPLICA_TROPHY")
       );
       if (missingTrophies?.length > 0) {
         gallery.missingTrophies = missingTrophies.map(({ displayName, name, owner, rawName }) => ({
@@ -1011,12 +1011,13 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
           .filter(nametag => nametag?.rawName)
           .map(nametag => nametag.rawName)
       );
-      const ownedNametags = totalOwnedItems?.filter(({ rawName, subType }) =>
-        rawName?.includes('Nametag') && subType !== "REPLICA_TROPHY"
+      const ownedNametags = totalOwnedItems?.filter(({ rawName }) =>
+        rawName?.includes('Nametag')
       );
-      const missingNametags = ownedNametags?.filter(({ rawName }) =>
-        rawName && !nametagsUsedRawNames.has(rawName)
+      const missingNametags = ownedNametags?.filter(({ rawName, Type }) =>
+        rawName && !nametagsUsedRawNames.has(rawName) && (Type !== "REPLICA_NAMETAG")
       );
+      console.log('missingNametags', missingNametags);
       if (missingNametags?.length > 0) {
         gallery.missingNametags = missingNametags.map(({ displayName, name, owner, rawName }) => ({
           itemName: displayName || name,
