@@ -97,8 +97,8 @@ const getBellExpRate = (holesObject, accountData, t) => {
     const methodQuantity4 = getBellMethodQuantity(holesObject, 4, 0);
     const methodQuantity5 = getBellMethodQuantity(holesObject, 5, 0);
     const totalMethodQuantity = methodQuantity0 + methodQuantity2 + methodQuantity4 + methodQuantity5;
-    const jarBonus11 = getJarBonus({ holesObject, i: 11 });
-    const jarBonus36 = getJarBonus({ holesObject, i: 36 });
+    const jarBonus11 = getJarBonus({ holesObject, i: 11, account: accountData });
+    const jarBonus36 = getJarBonus({ holesObject, i: 36, account: accountData });
 
     const value = 10 * (1 + monumentBonus / 100)
       * (1 + measurementBonus / 100)

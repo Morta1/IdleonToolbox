@@ -6,7 +6,7 @@ import { calcTalentMaxLevel, calcTotalStarTalent } from '@parsers/talents';
 import { calcTotalQuestCompleted, getEventShopBonus } from '@parsers/misc';
 import { calcTotalTasks } from '@parsers/tasks';
 import { calcTotalAchievements } from '@parsers/achievements';
-import { calcObolsFound, calcTrophiesFound } from '@parsers/items';
+import { calcNametagsFound, calcObolsFound, calcTrophiesFound } from '@parsers/items';
 import { calcBubbleLevels, calcSigilsLevels, calcVialsLevels, getBubbleBonus } from '@parsers/alchemy';
 import { calcTotalKillsDigits } from '@parsers/deathNote';
 import { calcTotalAtomLevels } from '@parsers/atomCollider';
@@ -28,9 +28,9 @@ export const getTome = (idleonData, account, characters, serverVars) => {
   const bonusNames = ninjaExtraInfo[33].split(' ');
   const tomeQuantities = calcTomeQuantity(account, characters, idleonData);
   let totalPoints = 0;
-  const tome = tomeData.map((bonus, index) => {
+  let tome = tomeData.map((bonus, index) => {
     const realIndex = indexes.indexOf(index.toString());
-    const tomeLvReq = 40 * realIndex + (5 * Math.max(0, realIndex - 35) + 10 * Math.max(0, realIndex - 60)) + 350
+    const tomeLvReq = 40 * realIndex + (5 * Math.max(0, realIndex - 35) + (10 * Math.max(0, realIndex - 60) + (10 * Math.max(0, realIndex - 80) + 15 * Math.max(0, realIndex - 100)))) + 350;
     const quantity = tomeQuantities?.[index] || 0;
     const pointsPercent = calcPointsPercent(bonus, quantity);
     const color = .4 > pointsPercent ? '#ffc277' : .75 > pointsPercent ? '#d6dbe0' : .999 > pointsPercent
@@ -56,7 +56,7 @@ export const getTome = (idleonData, account, characters, serverVars) => {
     }
   ));
 
-  tome.sort((a, b) => a.index - b.index);
+  tome = tome.toSorted((a, b) => a.index - b.index);
   let tops = serverVars?.TomePct || []; // Use tops for consistency
   let top = -1; // Initialize top to -1 if no valid index is found
 
@@ -157,20 +157,26 @@ const calcPointsPercent = (bonus, quantity) => {
   if (0 === bonus?.x2) {
     if (0 > quantity) {
       return 0;
-    } else {
+    }
+    else {
       return Math.pow((1.7 * quantity) / (quantity + (bonus?.x1)), 0.7);
     }
-  } else if (1 === bonus?.x2) {
+  }
+  else if (1 === bonus?.x2) {
     return (2.4 * lavaLog(quantity)) / (2 * lavaLog(quantity) + (bonus?.x1));
-  } else if (2 === bonus?.x2) {
+  }
+  else if (2 === bonus?.x2) {
     return Math.min(1, quantity / (bonus?.x1));
-  } else if (3 === bonus?.x2) {
+  }
+  else if (3 === bonus?.x2) {
     if (quantity > 5 * (bonus?.x1)) {
       return 0;
-    } else {
+    }
+    else {
       return Math.pow((1.2 * (6 * (bonus?.x1) - quantity)) / (7 * (bonus?.x1) - quantity), 5);
     }
-  } else {
+  }
+  else {
     return 0;
   }
 }
@@ -275,7 +281,19 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(account?.hole?.totalLayerResources);
   quantities.push(account?.hole?.totalOpalsFound);
   quantities.push(Math.round(account.accountOptions?.[353] + 1));
-  quantities.push(account.accountOptions?.[369]); // 95
-  quantities.push(account.summoning?.totalSummoningStonesKills); // 96
+  quantities.push(account?.accountOptions?.[369]); // 95
+  quantities.push(account?.summoning?.totalSummoningStonesKills); // 96
+  quantities.push(account?.spelunking?.coralReefLevels?.reduce((sum, level) => sum + level, 0));
+  quantities.push(Math.max(...(account?.spelunking?.bestCaveLevels || [0]))); // 98
+  quantities.push(account?.sneaking?.totalNinjaUpgradeLevels);
+  quantities.push(account?.accountOptions?.[445]); // 100
+  quantities.push(account?.accountOptions?.[446]);
+  quantities.push(Math.max(...(account?.spelunking?.biggestHauls || [0]))); // 102
+  quantities.push(account?.spelunking?.totalUpgradeLevels); // 103
+  quantities.push(account?.spelunking?.discoveriesCount); // 104
+  quantities.push(account?.spelunking?.highestSpelunkingLevelCharacter); // 105
+  quantities.push(account?.accountOptions?.[443]); // 106
+  quantities.push(calcNametagsFound(account?.looty)); // 107
+
   return quantities;
 }

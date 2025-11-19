@@ -6,13 +6,17 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getAchievementStatus } from '@parsers/achievements';
+import { isSuperbitUnlocked } from '@parsers/gaming';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
+
 
 export const getBravery = (holesObject, accountData) => {
   const maxRethrow = getMaxRerolls(holesObject);
   const maxRetelling = getMonumentHourBonus({ holesObject, t: 0, i: 4 });
   const min = getBraveryMinDamage(holesObject, accountData);
   const max = getBraveryMaxDamage(holesObject, accountData);
-  const rewardMulti = getMonumentMultiReward(holesObject, 0) || 0;
+  const rewardMulti = getMonumentMultiReward(holesObject, 0, accountData) || 0;
   const timeForNextFight = 72E3 * (1 - rewardMulti);
   const opalChance = Math.min(0.5, Math.pow(0.5, holesObject?.opalsPerCavern?.[3])
     * (1 + getMonumentBonus({ holesObject, t: 0, i: 5 }) / 100));
@@ -72,7 +76,7 @@ export const getMonumentAfkBonus = (holesObject, accountData) => {
     + (getMonumentBonus({ holesObject, t: 1, i: 8 })
       + getMonumentBonus({ holesObject, t: 2, i: 8 })
       + (winBonus
-        + (getJarBonus({ holesObject, i: 19 })
+        + (getJarBonus({ holesObject, i: 19, account: accountData })
           / 1 + (getSchematicBonus({ holesObject, t: 81, i: 20 })
             + (getMeasurementBonus({ holesObject, accountData, t: 11 })
               + (arcadeBonus
@@ -87,7 +91,7 @@ export const getMonumentAfkBonus = (holesObject, accountData) => {
           + getMonumentBonus({ holesObject, t: 2, i: 8 })
       },
       { name: 'Summoning', value: winBonus },
-      { name: 'Jar', value: getJarBonus({ holesObject, i: 19 }) },
+      { name: 'Jar', value: getJarBonus({ holesObject, i: 19, account: accountData }) },
       { name: 'Schematic', value: getSchematicBonus({ holesObject, t: 81, i: 20 }) },
       { name: 'Measurement', value: getMeasurementBonus({ holesObject, accountData, t: 11 }) },
       { name: 'Arcade', value: arcadeBonus || 0 },
@@ -122,13 +126,19 @@ export const getMonumentAfkReq = (afkPercent, requiredHours, ownedAfkHours = 0) 
   });
 }
 
-export const getMonumentMultiReward = (holesObject, t) => {
-  const maxLinearTime = 1 === t ? 86400 * (2 +
-    getSchematicBonus({ holesObject, t: 70, i: 2 })
-    + 14 * getStudyBonus(holesObject, 9, 99))
-    : 86400 * (2 + getSchematicBonus({ holesObject, t: 70, i: 2 }));
-  return Math.min(holesObject?.extraCalculations?.[Math.round(11 + t)], maxLinearTime) / 72e3
-    + (Math.pow(1 + Math.max(0, holesObject?.extraCalculations?.[Math.round(11 + t)] - maxLinearTime) / 72e3, 0.3) - 1);
+export const getMonumentMultiReward = (holesObject, t, accountData) => {
+  const legendTalentBonus = getLegendTalentBonus(accountData, 27);
+  const superbitBonus = isSuperbitUnlocked(accountData, 'Monument_Infimulti') ? 1 : 0;
+
+
+  const maxLinearTime = 1 === t ? 86400 * (2 + (getSchematicBonus({ holesObject, t: 70, i: 2 }) + 10 * superbitBonus) +
+    (14 * getStudyBonus(holesObject, 9, 99) + legendTalentBonus / 24))
+    : 86400 * (2 + (getSchematicBonus({ holesObject, t: 70, i: 2 }) +
+      (10 * superbitBonus + legendTalentBonus / 24)));
+  return (Math.min(holesObject?.extraCalculations?.[Math.round(11 + t)], maxLinearTime) / 72e3
+    + (Math.pow(1 + Math.max(0, holesObject?.extraCalculations?.[Math.round(11 + t)] - maxLinearTime) / 72e3, 0.3) - 1))
+    * (1 + getMeritocracyBonus(accountData, 7) / 100)
+    * (1 + getLegendTalentBonus(accountData, 27) / 100);
 }
 
 const getBraveryMinDamage = (holesObject, accountData) => {
@@ -140,7 +150,7 @@ const getBraveryMinDamage = (holesObject, accountData) => {
 
 const getBraveryMaxDamage = (holesObject, accountData) => {
   return (25 + 10 * Math.floor(holesObject?.braveryMonument?.[0] / 6)
-      * getSchematicBonus({ holesObject, t: 24, i: 1 }))
+    * getSchematicBonus({ holesObject, t: 24, i: 1 }))
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 1 }) / 100)
     * (1 + (getSchematicBonus({ holesObject, t: 40, i: 10 }) * 0) / 100) * (1 + (10 * 0) / 100);
 }

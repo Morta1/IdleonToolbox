@@ -71,6 +71,7 @@ const parseSummoning = (rawSummon, killRoyKills, account, serializedCharactersDa
       allBattles[world + 1].push({ ...monsterData, ...extraData });
     }
   })
+
   let rawWinnerBonuses = wonBattles?.reduce((acc, enemyId) => {
     const monsterData = summoningEnemies.find((enemy) => enemy.enemyId === enemyId);
     if (monsterData && monsterData?.bonusId < 20) {
@@ -112,6 +113,7 @@ const parseSummoning = (rawSummon, killRoyKills, account, serializedCharactersDa
       baseValue: rawValue
     };
   });
+
   const gambitStuff = account?.hole?.holesObject?.gambitStuff;
   let upgrades = summoningUpgrades.map((upgrade, index) => {
     const doubled = gambitStuff && gambitStuff?.includes(index);
@@ -217,6 +219,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
   const rawValue = rawWinnerBonuses?.[index] || 0;
   const charmBonus = getCharmBonus(account, 'Crystal_Comb');
   const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'The_Winz_Lantern')?.bonus ?? 0;
+  const gemShopBonus = account?.gemShopPurchases?.find((value, index) => index === 11) ?? 0;
   const firstAchievement = getAchievementStatus(account?.achievements, 373);
   const secondAchievement = getAchievementStatus(account?.achievements, 379);
   const emperorBonus = getEmperorBonus(account, 8);
@@ -230,6 +233,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
   else if (index === 19) {
     val = 3.5 * rawValue *
       (1 + charmBonus / 100) *
+      (1 + (10 * gemShopBonus) / 100) *
       (1 + (artifactBonus +
         Math.min(10, level * bonusPerLevel) +
         firstAchievement +
@@ -241,6 +245,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
     const multi = multiCalc === 0 ? 0 : multiCalc;
     val = rawValue *
       (1 + charmBonus / 100) *
+      (1 + (10 * gemShopBonus) / 100) *
       (1 + (artifactBonus +
         Math.min(10, level * bonusPerLevel) +
         firstAchievement +
@@ -254,6 +259,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses, account, index) => {
     const multi = multiCalc === 0 ? 0 : multiCalc;
     val = 3.5 * rawValue *
       (1 + charmBonus / 100) *
+      (1 + (10 * gemShopBonus) / 100) *
       (1 + (artifactBonus +
         Math.min(10, level * bonusPerLevel) +
         firstAchievement +

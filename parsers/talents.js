@@ -18,6 +18,9 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { skillIndexMap } from '@parsers/parseMaps';
 import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 import { getTesseractBonus } from '@parsers/tesseract';
+import { isSuperbitUnlocked } from '@parsers/gaming';
+import { getLegendTalentBonus } from './world-7/legendTalents';
+import { getZenithBonus } from './statues';
 
 
 export const getTalentBonus = (talents = [], talentName, yBonus, useMaxLevel, addedLevels, useMaxAndAddedLevels, forceTalent = false) => {
@@ -217,9 +220,41 @@ export const getHighestMaxLevelTalentByClass = (characters, className, talentNam
   }, { maxLevel: 0 });
 }
 
-export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, account, character) => {
+export const getSuperTalentAddedLevels = (account, character) => {
+  return Math.round(50 + getLegendTalentBonus(account, 7) + getZenithBonus(account, 5));
+}
+
+export const getTalentAddedLevels = (talents, isPreset, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, account, character) => {
   // "AllTalentLV" == e
   let addedLevels = 0, breakdown;
+  const superTalentBonus = getSuperTalentAddedLevels(account);
+  let superTalentsInfo = {
+    talents: [],
+    bonus: 0,
+  }
+  const talentSpelunkArrays = account?.spelunking?.talentSpelunkArrays;
+  if (character?.playerId !== undefined && talentSpelunkArrays && Array.isArray(talentSpelunkArrays)) {
+    const characterIndex = character.playerId;
+    const presetMultiplier = isPreset ? 1 : 0;
+    const spelunkArrayIndex = Math.round(characterIndex + 12 * presetMultiplier);
+
+    const spelunkArray = talentSpelunkArrays[spelunkArrayIndex];
+    if (Array.isArray(spelunkArray) && spelunkArray.length > 0) {
+      superTalentsInfo.talents = spelunkArray
+        .filter(talentIndex => talentIndex !== undefined && talentIndex !== null && talentIndex !== -1)
+        .map(talentIndex => {
+          return {
+            talentIndex,
+            isPreset: !!isPreset
+          }
+        });
+
+      if (superTalentsInfo.talents.length > 0) {
+        superTalentsInfo.bonus = superTalentBonus;
+      }
+    }
+  }
+
   const pocketLinked = account?.hole?.godsLinks?.find(({ index }) => index === 1);
   if (isCompanionBonusActive(account, 0) || pocketLinked) {
     addedLevels += Math.ceil(getMinorDivinityBonus(character, account, 1));
@@ -255,6 +290,9 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
   addedLevels += getGrimoireBonus(account?.grimoire?.upgrades, 39);
   addedLevels += getArmorSetBonus(account, 'KATTLEKRUK_SET');
   addedLevels += Math.min(5, getTesseractBonus(account, 57));
+  const superbit = isSuperbitUnlocked(account, 'Timmy_Talented') ? 1 : 0;
+  const superbitBonus = Math.max(0, Math.floor(((character?.level - 500) / 100) * superbit));
+  addedLevels += superbitBonus;
 
   breakdown = [
     { title: 'Additive' },
@@ -286,33 +324,54 @@ export const getTalentAddedLevels = (talents, flatTalents, linkedDeity, secondLi
     {
       name: 'Ninja mastery',
       value: account.accountOptions?.[232] >= 3 ? 5 : 0
+    },
+    {
+      name: 'Superbit',
+      value: superbitBonus
+    },
+    {
+      name: 'Super talent (per talent)',
+      value: superTalentsInfo.bonus
     }
   ];
   return {
     value: addedLevels,
-    breakdown
+    breakdown,
+    superTalentsInfo
   };
 }
 
-export const applyTalentAddedLevels = (talents, flatTalents, addedLevels) => {
+export const applyTalentAddedLevels = (talents, flatTalents, addedLevels, superTalentsInfo, isPreset = false) => {
   if (flatTalents) {
-    return flatTalents.map((talent) => ({
-      ...talent,
-      level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex)
-        ? Math.floor(talent.level + addedLevels)
-        : talent.level,
-      baseLevel: talent.level
-    }));
+    return flatTalents.map((talent) => {
+      const superTalent = superTalentsInfo.talents.find(({ talentIndex }) => talentIndex === talent?.skillIndex);
+      const superTalentBonus = superTalent?.isPreset === isPreset ? superTalentsInfo.bonus : 0;
+
+      return {
+        ...talent,
+        level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex)
+          ? Math.floor(talent.level + addedLevels + superTalentBonus)
+          : talent.level,
+        baseLevel: talent.level,
+        isSuperTalent: !!superTalent
+      }
+    });
   }
   return Object.entries(talents).reduce((res, [key, data]) => {
     const { orderedTalents } = data;
-    const updatedTalents = orderedTalents?.map((talent) => ({
-      ...talent,
-      level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex)
-        ? Math.floor(talent.level + addedLevels)
-        : talent.level,
-      baseLevel: talent.level
-    }));
+    const updatedTalents = orderedTalents?.map((talent) => {
+      const superTalent = superTalentsInfo.talents.find(({ talentIndex }) => talentIndex === talent?.skillIndex);
+      const superTalentBonus = superTalent?.isPreset === isPreset ? superTalentsInfo.bonus : 0;
+
+      return {
+        ...talent,
+        level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex)
+          ? Math.floor(talent.level + addedLevels + superTalentBonus)
+          : talent.level,
+        baseLevel: talent.level,
+        isSuperTalent: !!superTalent
+      }
+    });
     return {
       ...res,
       [key]: {
@@ -324,7 +383,12 @@ export const applyTalentAddedLevels = (talents, flatTalents, addedLevels) => {
 }
 
 const isTalentExcluded = (skillIndex) => {
-  return 49 <= skillIndex && 59 >= skillIndex || 149 === skillIndex || 374 === skillIndex || 539 === skillIndex || 505 === skillIndex || 614 < skillIndex;
+  return 49 <= skillIndex && 59 >= skillIndex ||
+    149 === skillIndex ||
+    374 === skillIndex ||
+    539 === skillIndex ||
+    505 === skillIndex ||
+    614 < skillIndex;
 }
 
 export const getFamilyBonusValue = function (e, t, n, a) {
@@ -460,9 +524,9 @@ export const calcTotalStarTalent = (characters, account) => {
     const bribeBonus = getBribeBonus(account?.bribes, 'Star_Scraper');
     const fractalIsland = getIsland(account, 'Fractal');
     const fractalBonusUnlocked = fractalIsland?.shop?.find(({
-                                                              effect,
-                                                              unlocked
-                                                            }) => effect.includes('Star_Talent_Pts') && unlocked);
+      effect,
+      unlocked
+    }) => effect.includes('Star_Talent_Pts') && unlocked);
     const vaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 53);
     const companionBonus = isCompanionBonusActive(account, 20) ? account?.companions?.list?.at(20)?.bonus : 0;
     const totalStarPoints = Math.floor(character?.level - 1 + (basePoints + talentBonus + (account?.talentPoints?.[5]

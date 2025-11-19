@@ -16,45 +16,46 @@ import {
 } from '@mui/lab';
 import Tooltip from 'components/Tooltip';
 import CoinDisplay from 'components/common/CoinDisplay';
-import { cleanUnderscore, getCoinsArray, numberWithCommas, prefix } from 'utility/helpers';
+import { cleanUnderscore, getCoinsArray, numberWithCommas, prefix, worldColor } from 'utility/helpers';
 
-const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
+const WorldQuest = ({ quests, characters, totalCharacters, worldName, worldIndex }) => {
   const getQuestIndicator = (status) => {
     switch (status) {
       case 1:
-        return <CheckCircleIcon style={{ marginLeft: 'auto', fontSize: 24, color: '#23bb23' }}/>;
+        return <CheckCircleIcon style={{ marginLeft: 'auto', fontSize: 24, color: '#23bb23' }} />;
       case 0:
         return <RadioButtonCheckedIcon alt={''}
-                                       style={{ marginLeft: 'auto', width: 24, height: 24, fill: '#ff8d00' }}/>;
+          style={{ marginLeft: 'auto', width: 24, height: 24, fill: '#ff8d00' }} />;
       case -1:
-        return <RadioButtonUncheckedOutlinedIcon style={{ marginLeft: 'auto', color: '#868484' }}/>;
+        return <RadioButtonUncheckedOutlinedIcon style={{ marginLeft: 'auto', color: '#868484' }} />;
       default:
         return null;
     }
   }
+  const color = worldColor[worldIndex] || worldColor[0];
+
   return (
     <Box sx={{ width: { xs: 350, sm: 400 } }}>
-      <WorldBg src={`${prefix}npcs/${worldName}.png`}
-               onError={(e) => {
-                 e.target.src = `${prefix}data/Wb6.png`;
-                 e.target.style.width = 'auto';
-               }}
-               alt={`world-${worldName}-icon`}/>
+      <WorldTitle sx={{ justifySelf: 'flex-start', color: color }} variant="h6" component="h2">
+        {cleanUnderscore(worldName)}
+      </WorldTitle>
       {quests?.[worldName]?.map((npc, index) => {
         let forceCompletion;
         if (npc?.name === 'Picnic_Stowaway') {
           const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Live-Action_Entertainment');
           forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0;
-        } else if (npc?.name === 'Scripticus') {
+        }
+        else if (npc?.name === 'Scripticus') {
           const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Champion_of_the_Grasslands');
           forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0
-        } else if (npc?.name === 'Potti') {
+        }
+        else if (npc?.name === 'Potti') {
           // const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Spirit_of_the_Hero');
           // forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0
         }
         return <StyledAccordion key={npc?.name + index} TransitionProps={{ unmountOnExit: true }}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon/>}>
-            <img width={50} height={50} src={`${prefix}npcs/${npc?.name}.gif`} alt="npc-icon"/>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <img width={50} height={50} src={`${prefix}npcs/${npc?.name}.gif`} alt="npc-icon" />
             <span className={'npc-name'}>{cleanUnderscore(npc?.name)}</span>
             {getQuestIndicator(forceCompletion || npc?.questsStatus)}
           </AccordionSummary>
@@ -63,16 +64,16 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
               {npc?.npcQuests?.map((npcQuest, innerIndex) => {
                 const { Name, completed = [], progress = [] } = npcQuest;
                 return <TimelineItem key={npc?.name + '' + index + '' + innerIndex}>
-                  <TimelineOppositeContent sx={{ display: 'none' }}/>
+                  <TimelineOppositeContent sx={{ display: 'none' }} />
                   <TimelineSeparator>
-                    <Tooltip title={<QuestTooltip {...npcQuest} npcName={npc?.name}/>}>
+                    <Tooltip title={<QuestTooltip {...npcQuest} npcName={npc?.name} />}>
                       <TimelineDot
                         sx={{ width: 15, height: 15 }}
                         color={completed?.length === totalCharacters
                           ? 'success'
-                          : completed?.length === 0 && progress.length === 0 ? 'grey' : 'warning'}/>
+                          : completed?.length === 0 && progress.length === 0 ? 'grey' : 'warning'} />
                     </Tooltip>
-                    {innerIndex < npc?.npcQuests?.length - 1 ? <TimelineConnector/> : null}
+                    {innerIndex < npc?.npcQuests?.length - 1 ? <TimelineConnector /> : null}
                   </TimelineSeparator>
                   <TimelineContent>
                     <Typography>{cleanUnderscore(Name)}</Typography>
@@ -86,14 +87,14 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName }) => {
                               horizontal: 'right'
                             }}
                             badgeContent={<StatusIndicator
-                              color={status === 1 ? '#23bb23' : status === -1 ? '#868484' : '#ff8d00'}/>}>
+                              color={status === 1 ? '#23bb23' : status === -1 ? '#868484' : '#ff8d00'} />}>
                             <Tooltip
                               title={`${characters?.[charIndex]?.name} - ${status === 1 ? 'Completed' : status === -1
                                 ? 'Not yet unlocked'
                                 : 'In progress'}`}>
                               <Avatar
                                 alt="avatar-icon"
-                                src={`${prefix}data/ClassIcons${characters[charIndex]?.classIndex}.png`}/>
+                                src={`${prefix}data/ClassIcons${characters[charIndex]?.classIndex}.png`} />
                             </Tooltip>
                           </Badge>
                         })}
@@ -154,7 +155,7 @@ const QuestTooltip = ({ rewards, itemReq, customArray }) => {
       <Stack direction={'row'} gap={2}>
         {itemReq?.map(({ name, rawName, amount }, index) => {
           return <Stack alignItems={'center'} justifyContent={'center'} key={name + '' + index}>
-            <ItemIcon className={'item-img'} src={`${prefix}data/${rawName}.png`} alt="item-icon"/>
+            <ItemIcon className={'item-img'} src={`${prefix}data/${rawName}.png`} alt="item-icon" />
             <Typography className={'amount'}>{numberWithCommas(amount)}</Typography>
           </Stack>
         })}
@@ -168,26 +169,29 @@ const QuestTooltip = ({ rewards, itemReq, customArray }) => {
           if (rawName.includes('Experience')) {
             img = 'XP';
             expType = getExpType(parseInt(rawName?.replace('Experience', '')))
-          } else if (rawName.includes('Talent')) {
+          }
+          else if (rawName.includes('Talent')) {
             img = 'TalentBook1';
-          } else if (rawName.includes('Recipes')) {
+          }
+          else if (rawName.includes('Recipes')) {
             img = `SmithingRecipes${rawName[rawName.length - 1]}`;
-          } else {
+          }
+          else {
             img = rawName;
           }
           return <div className={'item-wrapper'} title={cleanUnderscore(name)} key={name + '' + index}>
             {rawName !== 'COIN' ? <Stack justifyContent={'center'} alignItems={'center'}>
-                <ItemIcon
-                  title={cleanUnderscore(name || rawName)}
-                  src={`${prefix}data/${img}.png`}
-                  alt="reward-icon"/>
-                {expType ? <Typography variant={'caption'}>{expType} exp</Typography> : null}
-                <Typography className={'amount'}>{numberWithCommas(amount)}</Typography>
-              </Stack> :
+              <ItemIcon
+                title={cleanUnderscore(name || rawName)}
+                src={`${prefix}data/${img}.png`}
+                alt="reward-icon" />
+              {expType ? <Typography variant={'caption'}>{expType} exp</Typography> : null}
+              <Typography className={'amount'}>{numberWithCommas(amount)}</Typography>
+            </Stack> :
               <div className={'coins'}>
                 <CoinDisplay title={''}
-                             noShadow
-                             money={getCoinsArray(amount)}/></div>}
+                  noShadow
+                  money={getCoinsArray(amount)} /></div>}
           </div>
         })}
       </Stack>
@@ -257,11 +261,11 @@ const StyledAccordionDetails = styled(AccordionDetails)`
   }
 `
 
-const WorldBg = styled.img`
-  width: 100%;
-  height: 53px;
-  object-fit: cover;
-  object-position: -20px;
+const WorldTitle = styled(Typography)`
+  font-weight: bold;
+  margin-bottom: 16px;
+  text-align: center;
+  text-transform: capitalize;
 `;
 
 export default WorldQuest;

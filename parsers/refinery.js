@@ -11,6 +11,7 @@ import { getArcadeBonus } from '@parsers/arcade';
 import { checkCharClass, CLASSES, getHighestTalentByClass } from '@parsers/talents';
 import { getFamilyBonusBonus } from '@parsers/family';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 
 export const getRefinery = (idleonData, storage, tasks) => {
   const refineryRaw = tryToParse(idleonData?.Refinery) || idleonData?.Refinery;
@@ -125,6 +126,7 @@ export const getRefineryCycles = (account, characters, lastUpdated) => {
     bonusBreakdown,
     bonus
   } = getRefineryCycleBonuses(account, characters, lastUpdated);
+  const legendBonus = getLegendTalentBonus(account, 19);
   const labCycleBonus = account?.lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active
     ? 3
     : 1;
@@ -159,13 +161,13 @@ export const getRefineryCycles = (account, characters, lastUpdated) => {
   ];
   const combustion = {
     name: 'Combustion',
-    time: Math.ceil(900 / ((1 + bonus / 100) * labCycleBonus)),
+    time: Math.ceil(900 / ((1 + bonus / 100) * labCycleBonus * (1 + legendBonus / 100))),
     timePast: account?.refinery?.timePastCombustion + timePassed,
     breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 900 * Math.pow(4, 0) }, ...breakdown]
   };
   const synthesis = {
     name: 'Synthesis',
-    time: Math.ceil(3600 / ((1 + bonus / 100) * labCycleBonus)),
+    time: Math.ceil(3600 / ((1 + bonus / 100) * labCycleBonus * (1 + legendBonus / 100))),
     timePast: account?.refinery?.timePastSynthesis + timePassed,
     breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 900 * Math.pow(4, 1) }, ...breakdown]
   }

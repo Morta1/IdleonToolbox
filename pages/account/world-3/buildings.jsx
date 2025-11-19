@@ -13,6 +13,8 @@ import { TitleAndValue } from '@components/common/styles';
 import InfoIcon from '@mui/icons-material/Info';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getEventShopBonus } from '@parsers/misc';
+import { getGildedBoostioBonus } from '@parsers/construction';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 
 const Buildings = () => {
   const { state } = useContext(AppContext);
@@ -59,19 +61,21 @@ const Buildings = () => {
       const items = getMaterialCosts(itemReq, level, maxLevel, bonusInc, costCruncher);
       const buildCost = getBuildCost(state?.account?.towers, level, bonusInc, tower?.index);
       const atom = state?.account?.atoms?.atoms?.find(({ name }) => name === 'Carbon_-_Wizard_Maximizer');
-      let extraLevels = getExtraMaxLevels(state?.account, maxLevel, atom?.level);
+      let extraLevels = getExtraMaxLevels(state?.account, maxLevel, atom?.level, tower?.index);
       maxLevel += extraLevels;
       const allBlueActive = state?.account?.lab.jewels?.slice(3, 7)?.every(({ active }) => active) ? 1 : 0;
       const jewelTrimmedSlot = state?.account?.lab.jewels?.[3]?.active ? 1 + allBlueActive : 0;
       const eventBonus = getEventShopBonus(state?.account, 14);
       const gambitSlot = getGambitBonus(state?.account, 9);
-      const trimmedSlots = jewelTrimmedSlot + (atomBonus ? 1 : 0) + gambitSlot + eventBonus;
+      const legendSlot = getLegendTalentBonus(state?.account, 33);
+      const trimmedSlots = jewelTrimmedSlot + (atomBonus ? 1 : 0) + Math.min(1, legendSlot) + gambitSlot + eventBonus;
       const isSlotTrimmed = slot !== -1 && slot < trimmedSlots;
+      const speedBoost = getGildedBoostioBonus(state?.account);
       if (isSlotTrimmed) {
         const timePassed = (new Date().getTime() - (state?.lastUpdated ?? 0)) / 1000;
-        progress += (3 + atomBonus / 100) * (timePassed / 3600) * buildSpeed;
+        progress += speedBoost * (timePassed / 3600) * buildSpeed;
       }
-      const trimmedSlotSpeed = (3 + atomBonus / 100) * buildSpeed;
+      const trimmedSlotSpeed = speedBoost * buildSpeed;
       const trimmedTimeLeft = (buildCost - progress) / (trimmedSlotSpeed) * 1000 * 3600;
       const timeLeft = (buildCost - progress) / buildSpeed * 1000 * 3600;
       const iterations = maxLevel - level;
@@ -157,7 +161,7 @@ const Buildings = () => {
       </Box>
       <CardTitleAndValue title={'Build Speed'} value={notateNumber(buildSpeed, 'Big')}/>
       <CardTitleAndValue title={'Trimmed Build Speed'}
-                         value={notateNumber((3 + atomBonus / 100) * buildSpeed, 'Big')}
+                         value={notateNumber((getGildedBoostioBonus(state?.account)) * buildSpeed, 'Big')}
                          breakdown={[{
                            name: 'Base (jewel)',
                            value: state?.account?.lab.jewels?.[3]

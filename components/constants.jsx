@@ -119,7 +119,7 @@ export const PAGES = {
     'world 4': {
       icon: 'data/Ladle',
       categories: [
-        { label: 'cooking', icon: 'data/ClassIcons51', tabs: ['Kitchens', 'Meals'] },
+        { label: 'cooking', icon: 'data/ClassIcons51', tabs: ['Meals', 'Kitchens'] },
         {
           label: 'breeding', icon: 'data/ClassIcons52',
           tabs: ['Pets', 'Territory', 'Upgrades', 'Arena'],
@@ -152,7 +152,7 @@ export const PAGES = {
             { tab: 'Chests', icon: 'data/SailChest5' }]
         },
         { label: 'divinity', icon: 'data/ClassIcons55' },
-        { label: 'gaming', icon: 'data/ClassIcons56', tabs: ['Imports', 'Superbits', 'Mutations', 'Log book'] },
+        { label: 'gaming', icon: 'data/ClassIcons56', tabs: ['Imports', 'Superbits', 'Mutations', 'Log book', 'Palette'] },
         {
           label: 'hole',
           icon: 'data/Quest90',
@@ -201,7 +201,17 @@ export const PAGES = {
     'world 7': {
       icon: 'etc/Spelunking',
       categories: [
-        { label: 'Spelunking', icon: 'etc/Spelunking', tabs: [] },
+        { label: 'spelunking', icon: 'etc/Spelunking', 
+          tabs: [{ tab: 'Upgrades', nestedTab: 'Upgrades' }, { tab: 'Lore', nestedTab: 'Lore' }, { tab: 'Elixirs', nestedTab: 'Elixirs' }], 
+          nestedTabs: [
+            { tab: 'Lore', nestedTab: 'Chapters' },
+            { tab: 'Lore', nestedTab: 'Bosses' }
+          ] },
+        { label: 'Gallery', icon: 'data/GalleryPodiumA3', tabs: ['Trophies', 'Nametags'] },
+        { label: 'LegendTalents', icon: 'etc/Whallamus', tabs: [] },
+        { label: 'coralReef', icon: 'data/ReefA1', tabs: ['Reef Upgrades', 'Coral Kid Upgrades', 'Dancing Coral'] },
+        { label: 'zenithMarket', icon: 'etc/Cluster', tabs: [] },
+        { label: 'clamWork', icon: 'data/ClamPearl0', tabs: ['Upgrades', 'Compensations'] },
         { label: 'S2', icon: 'data/ClassIconsNA2', tabs: [] },
         { label: 'S3', icon: 'data/ClassIconsNA2', tabs: [] },
 

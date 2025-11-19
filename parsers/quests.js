@@ -2,15 +2,16 @@ import { quests } from '../data/website-data';
 import { cloneObject } from '../utility/helpers';
 
 
-export const isWorldFinished = (characters, worldIndex) => {
+export const isWorldFinished = (characters, accountData, worldIndex) => {
   const worldGatekeeper = {
     1: 'Builder_Bird',
     2: 'Constructor_Crow',
     3: 'Carpenter_Cardinal',
     4: 'Muhmuguh',
-    5: 'Lafu_Shi'
+    5: 'Lafu_Shi' ,
+    6: accountData?.accountOptions?.[408]
   }
-  return characters?.some(({ npcDialog }) => npcDialog?.[worldGatekeeper?.[worldIndex]]);
+  return characters?.some(({ npcDialog }) => (!isNaN(worldGatekeeper?.[worldIndex]) && parseFloat(worldGatekeeper?.[worldIndex]) > 0) || npcDialog?.[worldGatekeeper?.[worldIndex]]);
 }
 
 export const getQuests = (characters) => {
@@ -175,71 +176,71 @@ export const worldNpcMap = {
     'world': ''
   },
   'Cowbo_Jones': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 0
   },
   'Fishpaste97': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 1
   },
   'Scubidew': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 2
   },
   'Whattso': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 3
   },
   'Bandit_Bob': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 4
   },
   'Carpetiem': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 5
   },
   'Centurion': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 6
   },
   'Goldric': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 7
   },
   'Snake_Jar': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 8
   },
   'Speccius': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 9
   },
   'XxX_Cattleprod_XxX': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 10
   },
   'Loominadi': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 11
   },
   'Wellington': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 12
   },
   'Djonnut': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 13
   },
   'Walupiggy': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 14
   },
   'Gangster_Gus': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 15
   },
   'Omar_Da_Ogar': {
-    'world': 'Yum-Yum_Desert',
+    'world': 'Yum_Yum_Desert',
     index: 16
   },
   'Builder_Bird': {
@@ -395,5 +396,21 @@ export const worldNpcMap = {
   'Potti': {
     world: 'Spirited_Valley',
     index: 9
+  },
+  'Sad_Urie':{
+    world: 'Shimmerfin_Deep',
+    index: 0
+  },
+  'Snootie':{
+    world: 'Shimmerfin_Deep',
+    index: 1
+  },
+  'Bloo_Radley':{
+    world: 'Shimmerfin_Deep',
+    index: 2
+  },
+  'Toobus_Goobus':{
+    world: 'Shimmerfin_Deep',
+    index: 3
   }
 };

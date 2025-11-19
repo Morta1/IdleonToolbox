@@ -20,6 +20,10 @@ import LavaRand from '../utility/lavaRand';
 import { getAchievementStatus } from './achievements';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { isPast } from 'date-fns';
+import { getJadeEmporiumBonus } from '@parsers/world-6/sneaking';
+import { isSuperbitUnlocked } from '@parsers/gaming';
+import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 
 export const getSailing = (idleonData, artifactsList, charactersData, account, serverVars, charactersLevels) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
@@ -203,7 +207,10 @@ const getCaptainsAndBoats = (sailingRaw, captainsRaw, boatsRaw, account, charact
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'FASTER_MINIMUM_BOAT_TRAVEL_TIME', highestLevelSiegeBreaker);
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Lower_Minimum_Travel_Time_for_Sailing');
   const amplifiedFamilyBonus = familyBonus * (1 + theFamilyGuy / 100);
-  const minimumTravelTime = Math.round(120 / (1 + (amplifiedFamilyBonus + shinyBonus) / 100));
+  const legendTalentBonus = getLegendTalentBonus(account, 11);
+  const gemShopBonus = account?.gemShopPurchases?.find((value, index) => index === 8) ?? 0;
+  const minimumTravelTime = Math.round(Math.max(15, 120 / (1 + (amplifiedFamilyBonus + (shinyBonus +
+    legendTalentBonus)) / 100) - 4 * gemShopBonus))
   const baseSpeed = getBaseSpeed(account, characters, artifactsList);
   let shopCaptains = captainsRaw?.slice(30, 34);
   shopCaptains = shopCaptains.map((captain, index) => getCaptain(captain, index, true))
@@ -274,8 +281,8 @@ const getBaseSpeed = (account, characters, artifactsList) => {
   const msaBonus = account?.msaTotalizer?.sailing?.value ?? 0;
 
   return (1 + (divinityMinorBonus
-      + (cardBonus
-        + bubbleBonus)) / 125)
+    + (cardBonus
+      + bubbleBonus)) / 125)
     * (1 + goharutGodBonus / 100)
     * (1 + purrmepGodBonus / 100)
     * (1 + voteBonus / 100)
@@ -388,14 +395,14 @@ const getBoatSpeedValue = (captain, island, speedLevel, baseSpeed, minimumTravel
   };
 }
 const getFinalBoatLoot = ({
-                            lootLevelMath,
-                            lootLevel,
-                            lootPileSigil,
-                            artifactBonus,
-                            firstCaptainBonus,
-                            secondCaptainBonus,
-                            talentBonus
-                          }) => {
+  lootLevelMath,
+  lootLevel,
+  lootPileSigil,
+  artifactBonus,
+  firstCaptainBonus,
+  secondCaptainBonus,
+  talentBonus
+}) => {
   return (5 + lootLevelMath * lootLevel) * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + artifactBonus)) / 100) * talentBonus;
 }
 const getBoatLootValue = (characters, account, artifactsList, boat, captain) => {
@@ -526,7 +533,9 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     const everyXMulti = artifact?.name === '10_AD_Tablet' || artifact?.name === 'Gummy_Orb' || artifact?.name === 'Jade_Rock';
     additionalData = `Looted items: ${lootedItems}`;
     const slabSovereignty = getLabBonus(account?.lab.labBonuses, 15); // gem multi
-    const math = artifact?.[multiplierType] * (1 + slabSovereignty / 100) * Math.floor(Math.max(0, lootedItems - 500) / 10);
+    const legendTalentBonus = getLegendTalentBonus(account, 23);
+    const meritocracyBonus = getMeritocracyBonus(account, 23);
+    const math = artifact?.[multiplierType] * (1 + slabSovereignty / 100) * (1 + legendTalentBonus / 100) * (1 + meritocracyBonus / 100) * Math.floor(Math.max(0, lootedItems - 500) / 10);
     bonus = everyXMulti && multiplierType !== 'baseBonus' ? artifact?.baseBonus * math : math;
   }
   else if (artifact?.name === 'Fauxory_Tusk' || artifact?.name === 'Genie_Lamp') {
@@ -599,7 +608,7 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
   else if (acquired === 3 && artifact?.eldritchFormDescription === 'The_artifact\'s_main_bonus_is_tripled!') {
     bonus *= 3;
   }
-  else if (acquired === 4 && artifact?.sovereignFormDescription === 'The_artifact\'s_main_bonus_is_quadrupled!') {
+  else if (acquired === 4 && (artifact?.sovereignFormDescription === 'The_artifact\'s_main_bonus_is_quadrupled!')) {
     bonus *= 4;
   }
   else if (acquired === 5 && artifact?.omnipotentFormDescription === 'The_artifact\'s_main_bonus_is_quintupled') {
@@ -622,4 +631,27 @@ export const calcTotalBoatLevels = (boats) => {
 }
 export const calcArtifactsAcquired = (boats) => {
   return boats?.reduce((res, { acquired }) => res + acquired, 0);
+}
+
+export const getSlabBonus = (account, index) => {
+  const jadeEmporiumBonus = getJadeEmporiumBonus(account, 'Jade_Coin_Magnetism');
+  const jadeEmporiumBonus2 = getJadeEmporiumBonus(account, 'Essence_Confetti');
+  const superbitBonus = isSuperbitUnlocked(account, 'Slabby_Spelunking');
+  const slabSovereignty = getLabBonus(account?.lab?.labBonuses, 15); // gem multi
+  const lootedItems = account?.looty?.rawLootedItems;
+  return 4 == index ? (1 == jadeEmporiumBonus ?
+    5 * (1 + slabSovereignty / 100)
+    * (1 + getMeritocracyBonus(account, 23) / 100)
+    * (1 + getLegendTalentBonus(account, 28) / 100)
+    * Math.floor(Math.max(0, lootedItems - 1e3) / 10) : 0)
+    : 5 == index ? (1 == jadeEmporiumBonus2 ?
+      3 * (1 + slabSovereignty / 100)
+      * (1 + getMeritocracyBonus(account, 23) / 100)
+      * (1 + getLegendTalentBonus(account, 28) / 100)
+      * Math.floor(Math.max(0, lootedItems - 1e3) / 10) : 0)
+      : 6 == index && superbitBonus
+        ? 3 * (1 + slabSovereignty / 100)
+        * (1 + getMeritocracyBonus(account, 23) / 100)
+        * (1 + getLegendTalentBonus(account, 28) / 100)
+        * Math.floor(Math.max(0, lootedItems - 1300) / 5) : 0;
 }

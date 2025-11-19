@@ -17,8 +17,7 @@ import { getStampsBonusByEffect } from "@parsers/stamps";
 import { getEmperorBonus } from "./emperor";
 import LavaRand from '../../utility/lavaRand';
 
-
-export const getFarming = (idleonData: any, accountData: any, charactersData: any) => {
+export const getFarming = (idleonData, accountData, charactersData) => {
   const rawFarmingUpgrades = tryToParse(idleonData?.FarmUpg);
   const rawFarmingPlot = tryToParse(idleonData?.FarmPlot);
   const rawFarmingCrop = tryToParse(idleonData?.FarmCrop);
@@ -26,8 +25,8 @@ export const getFarming = (idleonData: any, accountData: any, charactersData: an
   return parseFarming(rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFarmingRanks, accountData, charactersData);
 }
 
-const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCrop: any, rawFarmingRanks: any, account: any, charactersData: any) => {
-  const gemVineBonus = account?.gemShopPurchases?.find((value: number, index: number) => index === 139);
+const parseFarming = (rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFarmingRanks, account, charactersData) => {
+  const gemVineBonus = account?.gemShopPurchases?.find((value, index) => index === 139);
   const marketLevels = rawFarmingUpgrades?.slice(2, marketInfo.length + 2);
   const beans = rawFarmingUpgrades?.[1];
   const instaGrow = rawFarmingUpgrades?.[19];
@@ -103,13 +102,13 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   if (!Array.isArray(upgradesLevels)) {
     upgradesLevels = []
   }
-  const totalPoints = farmingRanks?.reduce((sum: number, level: number) => sum + level, 0)
-  const usedPoints = upgradesLevels?.reduce((sum: number, level: number) => sum + level, 0);
-  const unlocks = (ninjaExtraInfo?.[37] as any)?.split(' ');
-  const names = (ninjaExtraInfo?.[34] as any)?.split(' ');
-  const bases = (ninjaExtraInfo?.[36] as any)?.split(' ')?.map((base: string) => parseFloat(base));
+  const totalPoints = farmingRanks?.reduce((sum, level) => sum + level, 0)
+  const usedPoints = upgradesLevels?.reduce((sum, level) => sum + level, 0);
+  const unlocks = (ninjaExtraInfo?.[37])?.split(' ');
+  const names = (ninjaExtraInfo?.[34])?.split(' ');
+  const bases = (ninjaExtraInfo?.[36])?.split(' ')?.map((base) => parseFloat(base));
   const apocalypseWow = getHighestTalentByClass(charactersData, CLASSES.Death_Bringer, 'DANK_RANKS') ?? 0;
-  const ranks = (ninjaExtraInfo?.[35] as any)?.split(' ')?.map((description: string, index: number) => {
+  const ranks = (ninjaExtraInfo?.[35])?.split(' ')?.map((description, index) => {
     const name = names?.[index];
     const base = bases?.[index];
     const upgradeLevel = upgradesLevels?.[index];
@@ -127,7 +126,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     }
   });
 
-  const plot = rawFarmingPlot?.map(([seedType, progress, cropType, isLocked, cropQuantity, currentOG, cropProgress]: number[], cropIndex: number) => {
+  const plot = rawFarmingPlot?.map(([seedType, progress, cropType, isLocked, cropQuantity, currentOG, cropProgress], cropIndex) => {
     const seed = seedInfo?.[seedType];
     const type = Math.round(seed?.cropIdMin + cropType);
     const growthReq = 14400 * Math.pow(1.5, seedType);
@@ -155,7 +154,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   });
   const marketExtraPlots = getMarketBonus(market, "LAND_PLOTS");
   const cropsOnVine = Math.floor(1 + ((marketExtraPlots + 20 * gemVineBonus) / 100))
-  const cropsForBeans = Object.entries(rawFarmingCrop || {}).reduce((sum, [type, amount]: any) => {
+  const cropsForBeans = Object.entries(rawFarmingCrop || {}).reduce((sum, [type, amount]) => {
     const seed = seedInfo.find((seed) => parseFloat(type) >= seed.cropIdMin && parseFloat(type) <= seed.cropIdMax);
     return sum + (parseFloat(amount) * Math.pow(2.5, (seed?.seedId ?? 0)) * Math.pow(1.08, type - (seed?.cropIdMin ?? 0)));
   }, 0);
@@ -179,21 +178,21 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     totalPoints,
     usedPoints,
     hasLandRank,
-    totalRanks: farmingRanks?.reduce((sum: number, rank: number) => sum + rank, 0)
+    totalRanks: farmingRanks?.reduce((sum, rank) => sum + rank, 0)
   };
 }
 
-export const getExoticMarketRotation = (account: any): number[] => {
+export const getExoticMarketRotation = (account) => {
   if (!account?.timeAway?.GlobalTime) return [];
 
   const currentWeek = Math.floor(account.timeAway.GlobalTime / 604_800); // 1 week in seconds
   const seed = Math.round(100 * currentWeek);
 
-  const selectedUpgrades: number[] = [];
+  const selectedUpgrades = [];
 
   for (let i = 0; i < 8; i++) {
     let attempts = 0;
-    let upgradeIndex: number;
+    let upgradeIndex;
 
     do {
       const currentSeed = seed + i + attempts * 1000;
@@ -212,7 +211,7 @@ export const getExoticMarketRotation = (account: any): number[] => {
   return selectedUpgrades;
 };
 
-export const getRanksTotalBonus = (ranks: any, index: number) => {
+export const getRanksTotalBonus = (ranks, index) => {
   return 0 === index ? (1 + ranks?.[3]?.bonus / 100) * (1 + ranks?.[10]?.bonus / 100) * (1 + ranks?.[15]?.bonus / 100)
     : 1 === index ? ranks?.[8]?.bonus + ranks?.[17]?.bonus
       : 2 === index ? ranks?.[6]?.bonus + ranks?.[13]?.bonus
@@ -220,12 +219,12 @@ export const getRanksTotalBonus = (ranks: any, index: number) => {
           : 4 === index ? ranks?.[5]?.bonus + (ranks?.[12]?.bonus + ranks?.[16]?.bonus) : 1;
 }
 
-const getCropsWithStockEqualOrGreaterThan = (cropDepot: any, stockLimit: number): number => {
-  return Object.values(cropDepot)?.filter((value: any) => value >= stockLimit).length;
+const getCropsWithStockEqualOrGreaterThan = (cropDepot, stockLimit) => {
+  return Object.values(cropDepot)?.filter((value) => value >= stockLimit).length;
 }
 
-const getMarketUpgradeBonusValue = (marketUpgrades: any[], cropDepot: any, upgradeId: number): number => {
-  const upgrade = marketUpgrades.find((upgrade: any, index) => index === upgradeId);
+const getMarketUpgradeBonusValue = (marketUpgrades, cropDepot, upgradeId) => {
+  const upgrade = marketUpgrades.find((upgrade, index) => index === upgradeId);
 
   if (upgrade) {
     switch (upgradeId) {
@@ -254,8 +253,8 @@ const getMarketUpgradeBonusValue = (marketUpgrades: any[], cropDepot: any, upgra
   }
 }
 
-export const updateFarming = (characters: any, account: any) => {
-  const newMarket = account?.farming?.market?.map((upgrade: any, index: number) => {
+export const updateFarming = (characters, account) => {
+  const newMarket = account?.farming?.market?.map((upgrade, index) => {
     return {
       ...upgrade,
       value: getMarketUpgradeBonusValue(account?.farming?.market, account?.farming?.crop, index)
@@ -281,7 +280,7 @@ export const updateFarming = (characters: any, account: any) => {
     ];
     return { value, breakdown };
   });
-  const newPlot = account?.farming?.plot?.map((crop: any) => {
+  const newPlot = account?.farming?.plot?.map((crop) => {
     // OG Chance
     const marketOGChance = getMarketBonus(account?.farming?.market, "OG_FERTILIZER");
     const charmOGChange = getCharmBonus(account, 'Taffy_Disc');
@@ -327,7 +326,7 @@ const getNextUpgradesReq = ({
                               costExponent,
                               isUnique = true,
                               emperorCostCalc
-                            }: any) => {
+                            }) => {
   const upgradeMap = new Map();
 
   let extraLv = 0;
@@ -357,14 +356,14 @@ const getNextUpgradesReq = ({
   return Array.from(upgradeMap.entries()).map(([type, cost]) => ({ type, cost }));
 }
 
-const getCropType = ({ index, cropId, cropIdIncrement, level }: any) => {
+const getCropType = ({ index, cropId, cropIdIncrement, level }) => {
   return index === 0 ? Math.floor(cropId + cropIdIncrement *
       (level + (2 * Math.floor(level / 3) + Math.floor(level / 4))))
     : Math.floor(cropId + cropIdIncrement
       * level)
 }
 
-const getCropDepotBonuses = (account: any) => {
+const getCropDepotBonuses = (account) => {
   // 'CropSCbonus' == e
   const labBonus = getLabBonus(account?.lab?.labBonuses, 17);
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
@@ -409,23 +408,23 @@ const getCropDepotBonuses = (account: any) => {
     bonuses.dropRate.value = Math.round(Math.max(0, account?.farming?.cropsFound - 100)) * extraBonus;
   }
   if (isJadeBonusUnlocked(account, 'Science_Fancy_Pen')) {
-    bonuses.spelunky.value = 5 * Math.round(Math.max(0, account?.farming?.cropsFound - 100 - 200)) * extraBonus;
+    bonuses.spelunky.value = 5 * Math.round(Math.max(0, account?.farming?.cropsFound - 200)) * extraBonus;
   }
   return bonuses;
 }
 
-export const getMarketBonus = (market: any, bonusName: string, value = 'baseValue') => {
-  return (market?.find(({ name }: { name: string }) => name === bonusName) as any)?.[value] ?? 0;
+export const getMarketBonus = (market, bonusName, value = 'baseValue') => {
+  return (market?.find(({ name }) => name === bonusName))?.[value] ?? 0;
 }
-export const getExoticMarketBonus = (market: any, index: number) => {
-  return (market?.[index])?.value ?? 0;
+export const getExoticMarketBonus = (account, index) => {
+  return (account?.farming?.exoticMarket?.[index])?.value ?? 0;
 }
 
-export const getLandRank = (ranks: any, index: number) => {
+export const getLandRank = (ranks, index) => {
   return ranks?.[index]?.bonus;
 }
 
-export const getLandRankTotalBonus = (account: any, index: number) => {
+export const getLandRankTotalBonus = (account, index) => {
   return 0 === index ? (1 + getLandRank(account?.farming?.ranks, 3) / 100)
     * (1 + getLandRank(account?.farming?.ranks, 10) / 100) *
     (1 + getLandRank(account?.farming?.ranks, 15) / 100) :
@@ -441,7 +440,7 @@ export const getLandRankTotalBonus = (account: any, index: number) => {
               getLandRank(account?.farming?.ranks, 16)) : 1;
 }
 
-const calcCostToMax = ({ level, maxLvl, cost, costExponent, emperorCostCalc }: any) => {
+const calcCostToMax = ({ level, maxLvl, cost, costExponent, emperorCostCalc }) => {
   let costToMax = 0;
   for (let i = level; i < maxLvl; i++) {
     costToMax += emperorCostCalc * cost * Math.pow(costExponent, i)
@@ -449,7 +448,7 @@ const calcCostToMax = ({ level, maxLvl, cost, costExponent, emperorCostCalc }: a
   return costToMax ?? 0;
 }
 
-export const getTotalCrop = (plot: any[], market: any[], ranks: any[], account: any) => {
+export const getTotalCrop = (plot, market, ranks, account) => {
   return plot?.reduce((total, { seedType, cropQuantity, cropRawName, ogMulti, rank }) => {
     if (seedType === -1) return total;
     const { productDoubler } = getProductDoubler(market);
@@ -468,17 +467,17 @@ export const getTotalCrop = (plot: any[], market: any[], ranks: any[], account: 
   }, {});
 }
 
-export const getProductDoubler = (market: any[]): { productDoubler: any, percent: number, multi: number } => {
+export const getProductDoubler = (market) => {
   const productDoubler = (market?.[5]?.value || 0);
   const multi = productDoubler / 100;
   const percent = productDoubler % 100;
   return { productDoubler, percent, multi: Math.max(2, Math.floor(multi) + 1) };
 }
 
-export const getCropEvolution = (account: any, character: any, crop: any, forceStarSign: boolean) => {
+export const getCropEvolution = (account, character, crop, forceStarSign) => {
   const marketBonus1 = getMarketBonus(account?.farming?.market, "BIOLOGY_BOOST");
   const winBonus = getWinnerBonus(account, '<x Crop EVO');
-  const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 0 });
+  const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 0, account });
   const bubbleBonus1 = getBubbleBonus(account, 'W10AllCharz', false);
   const bubbleBonus2 = getBubbleBonus(account, 'CROPIUS_MAPPER', false);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '6FarmEvo');

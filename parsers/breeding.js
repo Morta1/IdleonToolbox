@@ -365,7 +365,7 @@ export const calcBreedabilityMulti = (account, characters) => {
     return acc;
   }, 0);
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Breed')
-  const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 1 });
+  const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 1, account });
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Breedability_Rate')?.bonus;
 
   return {
@@ -399,7 +399,7 @@ export const calcShinyLvMulti = (account, characters) => {
     return acc;
   }, 0);
   const summoningBonus = getWinnerBonus(account, '<x Shiny EXP', false);
-  const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 1 });
+  const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 1, account });
   const breedingBonus = calcUpgradeBonus(account?.breeding?.petUpgrades?.[12], 12, account);
 
   return {

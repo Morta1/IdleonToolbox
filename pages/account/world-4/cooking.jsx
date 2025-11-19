@@ -68,44 +68,44 @@ const Cooking = () => {
             }}
           >
             {characters?.map((character) => <MenuItem key={'option' + character.name}
-                                                      value={character?.playerId}>{character.name}</MenuItem>)}
+              value={character?.playerId}>{character.name}</MenuItem>)}
           </Select>
         </FormControl>
         <Stack direction={'row'} alignItems={'center'}>
           <FormControlLabel
             control={<Checkbox name={'enableNanoChip'}
-                               disabled={hasNanoAndGordonius()}
-                               checked={enableNanoChip}
-                               size={'small'}
+              disabled={hasNanoAndGordonius()}
+              checked={enableNanoChip}
+              size={'small'}
             />}
             onChange={(e) => setEnableNanoChip(!enableNanoChip)}
-            label={'Enable nano chip'}/>
+            label={'Enable nano chip'} />
           <Tooltip title={'Enabling nano chip assumes you have gordonius major star sign *active*'}>
             <InfoIcon fontSize={'small'}></InfoIcon>
           </Tooltip>
         </Stack>
       </Stack>
       <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'cooking')}>
-        <Kitchens {...cooking}
-                  kitchens={kitchens}
-                  achievements={achievements}
-                  lastUpdated={state?.lastUpdated}
-                  characters={state?.characters}
-                  totalMealSpeed={totalMealSpeed}
-                  lab={state?.account?.lab}
-                  equinoxUpgrades={state?.account?.equinox?.upgrades}
-                  account={state?.account}
-        />
         <Meals characters={state?.characters}
-               {...cooking}
-               kitchens={kitchens}
-               lab={state?.account?.lab}
-               achievements={achievements}
-               totalMealSpeed={totalMealSpeed}
-               account={state?.account}
-               artifacts={sailing?.artifacts}
-               mealMaxLevel={state?.account?.cooking?.mealMaxLevel}
-               equinoxUpgrades={state?.account?.equinox?.upgrades}
+          {...cooking}
+          kitchens={kitchens}
+          lab={state?.account?.lab}
+          achievements={achievements}
+          totalMealSpeed={totalMealSpeed}
+          account={state?.account}
+          artifacts={sailing?.artifacts}
+          mealMaxLevel={state?.account?.cooking?.mealMaxLevel}
+          equinoxUpgrades={state?.account?.equinox?.upgrades}
+        />
+        <Kitchens {...cooking}
+          kitchens={kitchens}
+          achievements={achievements}
+          lastUpdated={state?.lastUpdated}
+          characters={state?.characters}
+          totalMealSpeed={totalMealSpeed}
+          lab={state?.account?.lab}
+          equinoxUpgrades={state?.account?.equinox?.upgrades}
+          account={state?.account}
         />
       </Tabber>
     </>

@@ -2,11 +2,11 @@ import { commaNotation, notateNumber } from '@utility/helpers';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 import { getStudyBonus } from '@parsers/world-5/hole';
 
-export const getEvertree = (holesObject) => {
+export const getEvertree = (holesObject, accountData) => {
   const choppingEff = notateNumber(getEfficiency(holesObject), 'Big');
   const layer = holesObject?.extraCalculations?.[5];
   const choppedLogs = holesObject?.extraCalculations?.[4];
-  const reqLogs = (200 * Math.pow(2.2, 1 + layer)) / (1 + (getJarBonus({ holesObject, i: 5 }) +
+  const reqLogs = (200 * Math.pow(2.2, 1 + layer)) / (1 + (getJarBonus({ holesObject, i: 5, account: accountData }) +
     getStudyBonus(holesObject, 1, 0) *
     holesObject?.extraCalculations?.[1]
     + getStudyBonus(holesObject, 7, 0)

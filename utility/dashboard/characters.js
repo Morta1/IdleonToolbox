@@ -206,7 +206,7 @@ export const hasAvailableToolUpgrade = (character) => {
     const bestInSlot = Array.isArray(toolList)
       ? toolList?.findLast(({ lvReqToEquip }) => skillLv >= lvReqToEquip)
       : null;
-    if (bestInSlot && bestInSlot?.displayName !== tool?.name) {
+    if (bestInSlot && bestInSlot?.rawName !== tool?.rawName) {
       alerts.push(bestInSlot)
     }
     return alerts;

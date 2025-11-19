@@ -4,7 +4,7 @@ import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 const Upgrades = ({ upgrades }) => {
   return (
     (<Stack direction={'row'} flexWrap={'wrap'} gap={1}>
-      {upgrades?.map(({ rawName, level, name, description, modifier }, index) => {
+      {upgrades?.map(({ level, name, description, modifier }, index) => {
         const bonus = description?.includes('{')
           ? level * modifier
           : notateNumber(1 + level * modifier / 100, 'MultiplierInfo')

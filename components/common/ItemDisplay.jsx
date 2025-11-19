@@ -48,7 +48,8 @@ const ItemDisplay = ({
                        allowNegativeValues = true,
                        changes,
                        owners,
-                       showRawName
+                       showRawName,
+                       additionalInfo
                      }) => {
 
   const allDesc = [desc_line1, desc_line2, desc_line3, desc_line4, desc_line5, desc_line6, desc_line7, desc_line8];
@@ -136,6 +137,7 @@ const ItemDisplay = ({
               : value}/>)}
       </Stack>
     </> : null}
+    {additionalInfo ? additionalInfo : null}
   </> : null;
 };
 

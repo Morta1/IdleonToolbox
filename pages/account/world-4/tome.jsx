@@ -20,7 +20,7 @@ const Tome = () => {
   const { state } = useContext(AppContext);
   const [CheckboxEl, showThresholds] = useCheckbox('Show quantity thresholds');
 
-  return <>
+return <>
     <NextSeo
       title="Tome | Idleon Toolbox"
       description="Keep track of your tome bonuses and highscores"

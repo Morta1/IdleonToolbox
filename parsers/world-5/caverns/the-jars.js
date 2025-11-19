@@ -5,6 +5,7 @@ import { getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getStampsBonusByEffect } from '@parsers/stamps';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 
 
 const jarNames = [
@@ -24,10 +25,10 @@ export const getTheJars = (holesObject, jarsRaw, accountData) => {
   const jarEffects = holesInfo?.[65]?.split(' ');
   const jarTypes = Math.round(holesObject?.extraCalculations?.[37]);
   const unlockedSlots = getJarSlots({ holesObject });
-  const opalChance = getOpalChance({ holesObject });
-  const newCollectibleChance = getNewCollectibleChance(holesObject);
+  const opalChance = getOpalChance({ holesObject, account: accountData });
+  const newCollectibleChance = getNewCollectibleChance(holesObject, accountData);
   const newJarCost = getNewJarCost({ holesObject });
-  const enchantChance = getEnchantChance({ holesObject });
+  const enchantChance = getEnchantChance({ holesObject, account: accountData });
   const rupieValue = getRupieValue({ holesObject, accountData });
   const jarAesthetic = getJarAesthetic({ holesObject });
   const jars = jarNames.map((name, index) => {
@@ -60,7 +61,7 @@ export const getTheJars = (holesObject, jarsRaw, accountData) => {
 
   const collectibles = holesObject?.jarStuff?.slice(0, 40).map((level, index) => {
     const [name, bonusModifier, , description] = holesInfo?.[67]?.split(' ')?.[index]?.split('|');
-    const bonus = getJarBonus({ holesObject, i: index });
+    const bonus = getJarBonus({ holesObject, i: index, account: accountData });
     return {
       level,
       bonus,
@@ -103,21 +104,21 @@ const getRupieValue = ({ holesObject, accountData }) => {
   const schematicBonus2 = getSchematicBonus({ holesObject, t: 65, i: 2 });
   const schematicBonus3 = getSchematicBonus({ holesObject, t: 68, i: 4 });
   const accountOptionBonus = Math.max(1, Math.pow(1.5, accountData?.accountOptions?.[355]));
-  const lampBonus = 1 + getLampBonus({ holesObject, t: 99, i: 0 }) / 400;
+  const lampBonus = 1 + getLampBonus({ holesObject, t: 99, i: 0, account: accountData }) / 400;
   const monumentBonus = 1 + getMonumentBonus({ holesObject, t: 2, i: 1 }) / 100;
   const measurementBonus1 = getMeasurementBonus({ holesObject, accountData, t: 10 });
   const measurementBonus2 = getMeasurementBonus({ holesObject, accountData, t: 14 });
   const schematicBonus4 = Math.max(1, getSchematicBonus({ holesObject, t: 80, i: 1 })
     * Math.pow(1.1, holesObject?.extraCalculations?.[5]));
   const extraCalcBonus = 1 + holesObject?.extraCalculations?.[60] / 100;
-  const jarBonus1 = 1 + getJarBonus({ holesObject, i: 3 }) / 100;
-  const jarBonus2 = 1 + getJarBonus({ holesObject, i: 17 }) / 100;
-  const jarBonus3 = 1 + getJarBonus({ holesObject, i: 28 }) / 100;
-  const jarBonus4 = 1 + (getJarBonus({ holesObject, i: 0 })
-    + getJarBonus({ holesObject, i: 6 })
-    + getJarBonus({ holesObject, i: 13 })
-    + getJarBonus({ holesObject, i: 21 })
-    + getJarBonus({ holesObject, i: 33 })) / 100;
+  const jarBonus1 = 1 + getJarBonus({ holesObject, i: 3, account: accountData }) / 100;
+  const jarBonus2 = 1 + getJarBonus({ holesObject, i: 17, account: accountData }) / 100;
+  const jarBonus3 = 1 + getJarBonus({ holesObject, i: 28, account: accountData }) / 100;
+  const jarBonus4 = 1 + (getJarBonus({ holesObject, i: 0, account: accountData })
+    + getJarBonus({ holesObject, i: 6, account: accountData })
+    + getJarBonus({ holesObject, i: 13, account: accountData })
+    + getJarBonus({ holesObject, i: 21, account: accountData })
+    + getJarBonus({ holesObject, i: 33, account: accountData })) / 100;
   const stampBonusMultiplier = 1 + stampBonus / 100;
 
   const value = (1 + schematicBonus1 + schematicBonus2 + schematicBonus3)
@@ -151,9 +152,9 @@ const getRupieValue = ({ holesObject, accountData }) => {
 }
 
 const getProductionPerHour = ({ holesObject, accountData }) => {
-  return 36e3 * (1 + (getJarBonus({ holesObject, i: 1 })
-      + (getJarBonus({ holesObject, i: 15 })
-        + (getJarBonus({ holesObject, i: 24 })
+  return 36e3 * (1 + (getJarBonus({ holesObject, i: 1, account: accountData })
+      + (getJarBonus({ holesObject, i: 15, account: accountData })
+        + (getJarBonus({ holesObject, i: 24, account: accountData })
           + getMeasurementBonus({ holesObject, accountData, t: 12 })))) / 100)
     * (1 + (getSchematicBonus({ holesObject, t: 72, i: 10 })
       * lavaLog(holesObject?.extraCalculations?.[38])) / 100)
@@ -190,23 +191,24 @@ const getNewJarCost = ({ holesObject }) => {
     * Math.pow(4.8, holesObject?.extraCalculations?.[37]);
 }
 
-const getOpalChance = ({ holesObject }) => {
+const getOpalChance = ({ holesObject, account }) => {
   return 0.25
     * Math.pow(0.43, holesObject?.opalsPerCavern?.[10])
-    * (1 + getJarBonus({ holesObject, i: 2 }) / 100)
-    * (1 + getJarBonus({ holesObject, i: 14 }) / 100)
-    * (1 + getJarBonus({ holesObject, i: 27 }) / 100);
+    * (1 + getJarBonus({ holesObject, i: 2, account }) / 100)
+    * (1 + getJarBonus({ holesObject, i: 14, account }) / 100)
+    * (1 + getJarBonus({ holesObject, i: 27, account }) / 100);
 }
 
-export const getJarBonus = ({ holesObject, i }) => {
+export const getJarBonus = ({ holesObject, i, account }) => {
   const all = holesInfo?.[67].split(' ')?.[i];
-  return holesObject?.jarStuff?.[i] * parseFloat(all.split('|')[1]);
+  const legendTalentBonus = getLegendTalentBonus(account, 29);
+  return holesObject?.jarStuff?.[i] * parseFloat(all.split('|')[1]) * (1 + legendTalentBonus / 100);
 }
 
-export const getNewCollectibleChance = (holesObject) => {
+export const getNewCollectibleChance = (holesObject, account) => {
   const hasBUpg = getSchematicBonus({ holesObject, t: 76, i: 1 }) === 1;
-  const bonus7 = getJarBonus({ holesObject, i: 7 }) / 100;
-  const bonus25 = getJarBonus({ holesObject, i: 25 }) / 100;
+  const bonus7 = getJarBonus({ holesObject, i: 7, account }) / 100;
+  const bonus25 = getJarBonus({ holesObject, i: 25, account }) / 100;
 
   let dn3 = 0;
   if (hasBUpg) {
@@ -231,7 +233,7 @@ export const getNewCollectibleChance = (holesObject) => {
   return (base / denomination) / penalty;
 }
 
-const getEnchantChance = ({ holesObject }) => {
+const getEnchantChance = ({ holesObject, account }) => {
   let value = 0;
 
   for (let i = 0; i < 40; i++) {
@@ -242,10 +244,10 @@ const getEnchantChance = ({ holesObject }) => {
   }
 
   // Calculate final return value
-  const jarBonus1 = getJarBonus({ holesObject, i: 9 });
-  const jarBonus2 = getJarBonus({ holesObject, i: 18 });
-  const jarBonus3 = getJarBonus({ holesObject, i: 26 });
-  const jarBonus4 = getJarBonus({ holesObject, i: 34 });
+  const jarBonus1 = getJarBonus({ holesObject, i: 9, account });
+  const jarBonus2 = getJarBonus({ holesObject, i: 18, account });
+  const jarBonus3 = getJarBonus({ holesObject, i: 26, account });
+  const jarBonus4 = getJarBonus({ holesObject, i: 34, account });
   const studyBonus = 1 + getStudyBonus(holesObject, 10, 0) / 100;
 
   return (0.35 / (1 + (Math.pow(value, 1.23) + Math.pow(1.1, value)))) *

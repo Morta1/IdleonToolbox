@@ -10,6 +10,7 @@ import Superbits from '@components/account/Worlds/World5/Gaming/Superbits';
 import { PAGES } from '@components/constants';
 import { getBitsMulti } from '@parsers/gaming';
 import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
+import Palette from './Palette';
 
 const General = ({ account, characters, lastUpdated }) => {
   const {
@@ -62,6 +63,7 @@ const General = ({ account, characters, lastUpdated }) => {
       <Superbits superbits={superbitsUpgrades}/>
       <Mutations account={account} lastUpdated={lastUpdated}/>
       <LogBook logBook={account?.gaming?.logBook} ownedLogBooks={ownedLogBooks}/>
+      <Palette account={account}/>
     </Tabber>
   </>
 };

@@ -465,6 +465,23 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/Boss6'} /> : null}
             </Stack>
           </Stack> : null}
+          {!emptyAlertRows?.['World 7'] ? <Stack direction={'row'} gap={4}>
+            <Typography sx={{ flexShrink: 0 }} color={'text.secondary'}>World 7</Typography>
+            <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+              {alerts?.['World 7']?.gallery?.missingTrophies?.length > 0 ?
+                alerts?.['World 7']?.gallery?.missingTrophies?.map(({ itemName, owner, rawName }, index) =>
+                  <Alert
+                    key={`missing-trophy-${rawName}-${index}`}
+                    title={`${cleanUnderscore(itemName)} is missing from gallery (${owner})`}
+                    iconPath={`data/${rawName}`} />) : null}
+              {alerts?.['World 7']?.gallery?.missingNametags?.length > 0 ?
+                alerts?.['World 7']?.gallery?.missingNametags?.map(({ itemName, owner, rawName }, index) =>
+                  <Alert
+                    key={`missing-nametag-${rawName}-${index}`}
+                    title={`${cleanUnderscore(itemName)} is missing from gallery (${owner})`}
+                    iconPath={`data/${rawName}`} />) : null}
+            </Stack>
+          </Stack> : null}
         </Stack> : <Typography>There are no account alerts to display</Typography>}
       </CardContent>
     </Card>

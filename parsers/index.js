@@ -38,6 +38,7 @@ import {
   getSlab,
   getTypeGen
 } from './misc';
+import { getLegendTalents } from './world-7/legendTalents';
 import { getSaltLick } from './saltLick';
 import { getDungeons } from './dungeons';
 import { applyMealsMulti, getCooking, getKitchens } from './cooking';
@@ -72,6 +73,10 @@ import { getCompass } from '@parsers/compass';
 import { getEmperor } from '@parsers/world-6/emperor';
 import { getArmorSmithy } from '@parsers/misc/armorSmithy';
 import { getTesseract } from '@parsers/tesseract';
+import { getSpelunking } from '@parsers/world-7/spelunking';
+import { getGallery } from '@parsers/world-7/gallery';
+import { getCoralReef } from '@parsers/world-7/coralReef';
+import { getClamWork } from '@parsers/world-7/clamWork';
 
 export const parseData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime) => {
   try {
@@ -140,7 +145,9 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData);
   accountData.towers = getTowers(idleonData);
   accountData.shrines = getShrines(idleonData, accountData);
-  accountData.statues = getStatues(idleonData, serializedCharactersData);
+  const { statues, zenith } = getStatues(idleonData, serializedCharactersData, accountData);
+  accountData.statues = statues;
+  accountData.zenith = zenith;
   accountData.achievements = getAchievements(idleonData);
 
   accountData.lab.connectedPlayers = accountData.lab.connectedPlayers?.map((char) => ({
@@ -183,7 +190,7 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.alchemy.vials = updateVials(accountData);
   let currentWorld = 0;
   accountData.finishedWorlds = [1, 2, 3, 4, 5, 6, 7]?.reduce((res, world) => {
-    const finishedWorld = !!isWorldFinished(charactersData, world);
+    const finishedWorld = !!isWorldFinished(charactersData, accountData, world);
     if (finishedWorld) {
       currentWorld = world;
     }
@@ -201,6 +208,7 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   const artifacts = getArtifacts(idleonData, charactersData, accountData)
   accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, artifacts);
   accountData.alchemy.liquidCauldrons = getLiquidCauldrons(accountData);
+  accountData.spelunking = getSpelunking(idleonData, accountData, charactersData);
   accountData.gaming = getGaming(idleonData, charactersData, accountData, serverVars);
   // reapply atoms
   accountData.atoms = getAtoms(idleonData, accountData);
@@ -270,6 +278,10 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.voteBallot = getVoteBallot(idleonData, accountData);
   accountData.upgradeVault = getUpgradeVault(idleonData, accountData);
   accountData.emperor = getEmperor(idleonData, accountData);
+  accountData.legendTalents = getLegendTalents(idleonData, accountData);
+  accountData.gallery = getGallery(idleonData, accountData);
+  accountData.coralReef = getCoralReef(idleonData, accountData);
+  accountData.clamWork = getClamWork(idleonData, accountData);
 
   // Cleanup unnecessary data
   serializedCharactersData = null;

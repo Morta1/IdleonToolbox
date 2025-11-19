@@ -14,6 +14,7 @@ import { getRequirementAmount } from '@parsers/lab';
 import { getLandRank, getProductDoubler, getRanksTotalBonus } from '@parsers/world-6/farming';
 import { isPast } from 'date-fns';
 import { getIsland } from '@parsers/world-2/islands';
+import { addEquippedItems, mergeItemsByOwner } from '@parsers/items';
 
 export const getOptions = (data) => {
   return Object.entries(data)?.reduce((res, [fieldName, fieldData]) => {
@@ -974,10 +975,60 @@ export const getWorld6Alerts = (account, fields, options) => {
   return alerts;
 };
 
-export const getWorld7Alerts = (account, fields, options) => {
+export const getWorld7Alerts = (account, fields, options, characters) => {
   const alerts = {};
   if (!account?.finishedWorlds?.World6) return alerts;
-  // Placeholder: add World 7 systems when defined
+  const equippedItems = addEquippedItems(characters, true);
+  const totalItems = getAllItems(characters, account)
+  const totalOwnedItems = mergeItemsByOwner([...(totalItems || []), ...(equippedItems || [])]);
+  const gallery = {};
+  if (fields?.gallery?.checked) {
+    if (options?.gallery?.trophiesMissing?.checked) {
+      const trophiesUsed = account?.gallery?.trophiesUsed || [];
+      const trophiesUsedRawNames = new Set(
+        trophiesUsed
+          .filter(trophy => !trophy?.isEmpty && trophy?.rawName)
+          .map(trophy => trophy.rawName)
+      );
+      const ownedTrophies = totalOwnedItems?.filter(({ rawName, subType }) =>
+        rawName?.includes('Trophy') && subType !== "REPLICA_TROPHY"
+      );
+      const missingTrophies = ownedTrophies?.filter(({ rawName }) =>
+        rawName && !trophiesUsedRawNames.has(rawName)
+      );
+      if (missingTrophies?.length > 0) {
+        gallery.missingTrophies = missingTrophies.map(({ displayName, name, owner, rawName }) => ({
+          itemName: displayName || name,
+          owner: owner,
+          rawName: rawName
+        }));
+      }
+    }
+    if (options?.gallery?.nametagsMissing?.checked) {
+      const nametagsUsed = account?.gallery?.nametagsUsed || [];
+      const nametagsUsedRawNames = new Set(
+        nametagsUsed
+          .filter(nametag => nametag?.rawName)
+          .map(nametag => nametag.rawName)
+      );
+      const ownedNametags = totalOwnedItems?.filter(({ rawName, subType }) =>
+        rawName?.includes('Nametag') && subType !== "REPLICA_TROPHY"
+      );
+      const missingNametags = ownedNametags?.filter(({ rawName }) =>
+        rawName && !nametagsUsedRawNames.has(rawName)
+      );
+      if (missingNametags?.length > 0) {
+        gallery.missingNametags = missingNametags.map(({ displayName, name, owner, rawName }) => ({
+          itemName: displayName || name,
+          owner: owner,
+          rawName: rawName
+        }));
+      }
+    }
+  }
+  if (Object.keys(gallery).length > 0) {
+    alerts.gallery = gallery;
+  }
   return alerts;
 };
 export const areKeysOverdue = (account) => {

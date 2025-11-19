@@ -12,7 +12,7 @@ import { getStudyBonus } from '@parsers/world-5/hole';
 export const getWisdom = (holesObject,  accountData) => {
   const opalChance = Math.min(0.5, Math.pow(0.5, holesObject?.opalsPerCavern?.[12])
     * (1 + getMonumentHourBonus({ holesObject, t: 2, i: 5 }) / 100));
-  const rewardMulti = getMonumentMultiReward(holesObject, 2) || 0;
+  const rewardMulti = getMonumentMultiReward(holesObject, 2, accountData) || 0;
   const timeForNextFight = 72E3 * (1 - rewardMulti);
   const hours = holesObject?.braveryMonument?.[4] || 0;
   const hoursRewards = holesInfo?.[31]?.split(' ').slice(16);

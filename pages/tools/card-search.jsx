@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { Chip, InputAdornment, Stack, TextField, Typography } from '@mui/material';
+import { Chip, Checkbox, FormControlLabel, InputAdornment, Stack, TextField, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import { cards, cardSets, stats } from 'data/website-data';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -7,6 +7,7 @@ import styled from '@emotion/styled';
 import { AppContext } from 'components/common/context/AppProvider';
 import { CardAndBorder } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
+import { useLocalStorage } from '@mantine/hooks';
 
 const categoriesOrder = ['Card Sets', 'Blunder_Hills', 'Yum_Yum_Desert', 'Easy_Resources',
   'Medium_Resources', 'Frostbite_Tundra', 'Hard_Resources', 'Hyperion_Nebula', 'Smolderin\'_Plateau',
@@ -37,6 +38,11 @@ const additionalEffects = {
 export default function CardSearch() {
   const { state } = useContext(AppContext);
   const [value, setValue] = useState('');
+  const [hidePassives, setHidePassives] = useLocalStorage({
+    key: 'card-search:hidePassives',
+    defaultValue: false
+  });
+  
   const mapCards = (cardsArray, cardSets) => {
     const cardSetsObject = Object.values(cardSets).reduce((res, cardSet, realIndex) => ({
       ...res,
@@ -84,6 +90,9 @@ export default function CardSearch() {
     const newCards = Object.keys(cardsObject).reduce((res, cardSet) => {
       const cardsArr = cardsObject[cardSet];
       const sortedCardArr = cardsArr.filter(({ effect }) => {
+        if (hidePassives && (effect?.includes('(Passive)') || effect?.includes('(P)'))) {
+          return false;
+        }
         const cleanEffect = effect.replace(/[+%{]+_/, '').replace(/_/g, ' ');
         const isEffect = cleanEffect?.toLowerCase()?.includes(value.toLowerCase())
         const additionalEffect = additionalEffects[value.toLowerCase()]?.includes(cleanUnderscore(cleanEffect));
@@ -92,7 +101,7 @@ export default function CardSearch() {
       return { ...res, [cardSet]: sortedCardArr };
     }, {});
     setLocalCardObject(newCards);
-  }, [value]);
+  }, [value, hidePassives, cardsObject]);
   return (
     <>
       <NextSeo
@@ -100,19 +109,31 @@ export default function CardSearch() {
         description="Card search and filter by various tags e.g. Choppin, Catching, Worship, Attack etc"
       />
       <Main>
-        <StyledTextField
-          InputProps={{
-            endAdornment: (
-              <StyledInputAdornment onClick={() => setValue('')} position="end">
-                <ClearIcon/>
-              </StyledInputAdornment>
-            )
-          }}
-          label="Enter Card stat.."
-          type="text"
-          value={value}
-          onChange={({ target }) => setValue(target?.value)}
-        />
+        <Stack direction="row" alignItems="center" gap={2} mb={2}>
+          <StyledTextField
+            InputProps={{
+              endAdornment: (
+                <StyledInputAdornment onClick={() => setValue('')} position="end">
+                  <ClearIcon />
+                </StyledInputAdornment>
+              )
+            }}
+            label="Enter Card stat.."
+            type="text"
+            value={value}
+            onChange={({ target }) => setValue(target?.value)}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                size='small'
+                checked={hidePassives}
+                onChange={(e) => setHidePassives(e.target.checked)}
+              />
+            }
+            label="Hide Passive Cards"
+          />
+        </Stack>
 
         <Stack direction={'row'} my={2} gap={1} flexWrap={'wrap'}>
           {preConfiguredStats.map((stat, index) => (
@@ -141,13 +162,12 @@ export default function CardSearch() {
               const cardsArr = localCardObject[cardSet];
               if (!cardsArr || cardsArr?.length === 0) return null;
               const isCardSets = cardSet === 'Card Sets';
-              console.log(cardsArr)
               return (
                 <React.Fragment key={cardSet + '' + cardSetIndex}>
                   {isCardSets ? <Typography my={1} variant={'h4'}>Card Sets</Typography> :
                     <img src={`${prefix}etc/${cardSet}_Card_Header.png`}
-                         style={{ margin: '20px 0 10px 0' }}
-                         alt=""
+                      style={{ margin: '20px 0 10px 0' }}
+                      alt=""
                     />}
                   <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: 600 }}>
                     {cardsArr.map((card, index) => {
@@ -160,15 +180,15 @@ export default function CardSearch() {
                       if (isCardSets) {
                         stars = Math.floor(cardsObject?.['Card Sets'][realIndex]?.totalStars / Math.max(cardsObject[name].length, 1)) - 1;
                         amount = cardsObject?.['Card Sets'][realIndex]?.totalStars;
-                        nextLevelReq = Math.floor(cardsObject[name].length) * (Math.min(5, Math.floor(cardsObject?.['Card Sets'][realIndex]?.totalStars / Math.max(cardsObject[name].length, 1))) + 1);
+                        nextLevelReq = Math.floor(cardsObject[name].length) * (Math.min(6, Math.floor(cardsObject?.['Card Sets'][realIndex]?.totalStars / Math.max(cardsObject[name].length, 1))) + 1);
                       }
                       return (
                         <div style={{ position: 'relative' }} key={displayName + '' + index}>
                           <CardAndBorder nextLevelReq={nextLevelReq} amount={amount}
-                                         variant={isCardSets ? 'cardSet' : ''} showInfo
-                                         {...{
-                                           ...card, stars
-                                         }}
+                            variant={isCardSets ? 'cardSet' : ''} showInfo
+                            {...{
+                              ...card, stars
+                            }}
                           />
                         </div>
                       );

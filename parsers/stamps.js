@@ -10,6 +10,9 @@ import { getAtomBonus } from '@parsers/atomCollider';
 import { getCompassBonus } from '@parsers/compass';
 import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getExoticMarketBonus } from '@parsers/world-6/farming';
+import { getPaletteBonus } from '@parsers/gaming';
 
 export const stampsMapping = { 0: 'combat', 1: 'skills', 2: 'misc' };
 export const altStampsMapping = { _: 'combat', a: 'skills', b: 'misc' };
@@ -24,9 +27,9 @@ export const parseStamps = (stampLevelsRaw, stampMaxLevelsRaw, account) => {
   const stampsObject = stampLevelsRaw?.reduce((result, item, index) => ({
     ...result,
     [stampsMapping?.[index]]: Object.keys(item).reduce((res, key, stampIndex) => (key !== 'length' ? [
-        ...res,
-        { level: parseFloat(item[key]), maxLevel: stampMaxLevelsRaw?.[index]?.[stampIndex] }
-      ]
+      ...res,
+      { level: parseFloat(item[key]), maxLevel: stampMaxLevelsRaw?.[index]?.[stampIndex] }
+    ]
       : res), [])
   }), {});
   return Object.entries(stampsObject)?.reduce((acc, [category, stampsLevels]) => {
@@ -229,9 +232,9 @@ const getMaterialCost = (level, stamp, account, reduction = 0, gildedStamp) => {
   const sigilReduction = (1 / (1 + sigilBonus / 100));
   const stampReducerVal = Math.max(0.1, 1 - reduction / 100);
   return Math.max(1, (stamp?.baseMatCost * (gildedStamp ? 0.05 : 1)
-      * stampReducerVal
-      * sigilReduction
-      * Math.pow(stamp?.powMatBase, Math.pow(Math.round(level / stamp?.reqItemMultiplicationLevel) - 1, 0.8)))
+    * stampReducerVal
+    * sigilReduction
+    * Math.pow(stamp?.powMatBase, Math.pow(Math.round(level / stamp?.reqItemMultiplicationLevel) - 1, 0.8)))
     * Math.max(0.1, 1 - (reductionVial / 100)));
 }
 
@@ -260,8 +263,13 @@ export const getStampBonus = (account, stampTree, stampName, character) => {
   const charmBonusExalted = getCharmBonus(account, 'Jellypick');
   const armorSetBonus = getArmorSetBonus(account, 'EMPEROR_SET');
   const eventBonus = getEventShopBonus(account, 18);
-  const exaltedBase = 100 + (atomBonus + (charmBonusExalted + getCompassBonus(account, 76) + armorSetBonus + 20 * eventBonus));
+  const exaltedFragmentFound = account?.spelunking?.exaltedFragmentFound;
+  const exoticBonus = getExoticMarketBonus(account, 49);
+  const legendBonus = getLegendTalentBonus(account, 36);
+  const paletteBonus = getPaletteBonus(account, 23);
+  const exaltedBase = 100 + (atomBonus + (charmBonusExalted + getCompassBonus(account, 76) + armorSetBonus + 20 * eventBonus + paletteBonus + exoticBonus + exaltedFragmentFound + legendBonus));
   const exaltedBonus = isStampExalted ? 1 + exaltedBase / 100 : 1;
+
 
   if (stamp?.skillIndex > 0 && !removeLevelReduction) {
     if (stamp?.reqItemMultiplicationLevel > 1) {

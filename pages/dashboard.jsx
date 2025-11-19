@@ -17,7 +17,7 @@ import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 26,
+  version: 27,
   account: {
     General: {
       tasks: {
@@ -351,7 +351,10 @@ const baseTrackers = {
       }
     },
     'World 7': {
-      // Placeholder for future World 7 systems
+      gallery: {
+        checked: true,
+        options: [{ name: 'trophiesMissing', checked: true }, { name: 'nametagsMissing', checked: true }]
+      }
     }
   },
   characters: {

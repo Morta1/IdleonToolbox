@@ -8,14 +8,14 @@ import InfoIcon from '@mui/icons-material/Info';
 
 
 const Talents = ({
-                   talents,
-                   starTalents,
-                   talentPreset,
-                   addedLevels,
-                   addedLevelsBreakdown,
-                   selectedTalentPreset,
-                   account
-                 }) => {
+  talents,
+  starTalents,
+  talentPreset,
+  addedLevels,
+  addedLevelsBreakdown,
+  selectedTalentPreset,
+  account
+}) => {
   const STAR_TAB_INDEX = Object.keys(talents || {}).length === 5 ? 5 : 4;
 
   // local toggle (0 = default, 1 = flipped)
@@ -30,7 +30,6 @@ const Talents = ({
     0
   );
 
-  // ✅ single boolean flag to decide which set to use
   const isUsingPreset =
     (selectedTalentPreset === 0 && preset !== 0) ||
     (selectedTalentPreset === 1 && preset === 0);
@@ -92,73 +91,75 @@ const Talents = ({
   return <StyledTalents active={activeTab}>
     <Tabs centered value={preset} onChange={(e, selected) => setSelectedPreset(selected)}>
       <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
-           aria-label={`star-sign-tab`}
-           label={<span style={{ textShadow: selectedTalentPreset === 0 ? 'cyan 1px 0 10px' : '' }}>Preset 1</span>}
-           value={0}
+        aria-label={`star-sign-tab`}
+        label={<span style={{ textShadow: selectedTalentPreset === 0 ? 'cyan 1px 0 10px' : '' }}>Preset 1</span>}
+        value={0}
       />
       <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
-           aria-label={`star-sign-tab`}
-           label={<span style={{ textShadow: selectedTalentPreset === 1 ? 'cyan 1px 0 10px' : '' }}>Preset 2</span>}
-           value={1}
+        aria-label={`star-sign-tab`}
+        label={<span style={{ textShadow: selectedTalentPreset === 1 ? 'cyan 1px 0 10px' : '' }}>Preset 2</span>}
+        value={1}
       />
     </Tabs>
     <Tabs centered
-          value={selectedTab} onChange={(e, selected) => setSelectedTab(selected)}>
+      value={selectedTab} onChange={(e, selected) => setSelectedTab(selected)}>
       {Object.keys(talents || {})?.map((tabIndex) => {
         const tabName = talents?.[tabIndex]?.name;
         return <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
-                    icon={<TabIcon src={`${prefix}data/ClassIcons${talents?.[tabIndex]?.id}.png`} alt={tabName}/>}
-                    aria-label={`${tabName}-tab`}
-                    onClick={() => setActiveTab(parseInt(tabIndex))}
-                    key={`${tabName}-${tabIndex}`}/>
+          icon={<TabIcon src={`${prefix}data/ClassIcons${talents?.[tabIndex]?.id}.png`} alt={tabName} />}
+          aria-label={`${tabName}-tab`}
+          onClick={() => setActiveTab(parseInt(tabIndex))}
+          key={`${tabName}-${tabIndex}`} />
       })}
       <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
-           onClick={() => setActiveTab(STAR_TAB_INDEX)}
-           aria-label={`star-sign-tab`}
-           icon={<TabIcon src={`${prefix}data/ClassIcons0.png`} alt=""/>}/>
+        onClick={() => setActiveTab(STAR_TAB_INDEX)}
+        aria-label={`star-sign-tab`}
+        icon={<TabIcon src={`${prefix}data/ClassIcons0.png`} alt="" />} />
     </Tabs>
     {activeTab === STAR_TAB_INDEX ? <Typography variant={'caption'} mt={2} style={{
-        opacity: activeTab === 4
-          ? 1
-          : 0
-      }}>Specials {specialsTab + 1}</Typography> :
+      opacity: activeTab === 4
+        ? 1
+        : 0
+    }}>Specials {specialsTab + 1}</Typography> :
       <Typography variant={'caption'} mt={2}>{cleanUnderscore(talents?.[activeTab]?.name)}</Typography>}
     <Typography component={'div'} variant={'caption'}>Total Points Spent: {spentTalentPoints}</Typography>
     <Stack gap={1} direction={'row'} justifyContent={'center'} alignItems={'center'}>
       <Typography component={'div'} variant={'caption'}>Added levels: {selectedAddedLevels}</Typography>
-      <Tooltip title={<Breakdown titleStyle={{ width: 150 }} breakdown={selectedAddedLevelsBreakdown}/>}>
-        <InfoIcon/>
+      <Tooltip title={<Breakdown titleStyle={{ width: 200 }} breakdown={selectedAddedLevelsBreakdown} />}>
+        <InfoIcon />
       </Tooltip>
     </Stack>
     <div className="talents-wrapper">
       {activeTalents?.orderedTalents?.map((talentDetails, index) => {
-        const { talentId, level, baseLevel, maxLevel, name } = talentDetails;
+        const { talentId, level, baseLevel, maxLevel, name, isSuperTalent } = talentDetails;
         if (index >= 15) return null;
+        const isActiveTalent = talentDetails.hasOwnProperty('manaCost') && talentDetails.hasOwnProperty('cooldown');
         const hardMaxed = activeTab === STAR_TAB_INDEX ? true : baseLevel < maxLevel;
         const levelText = getLevelAndMaxLevel(level, maxLevel);
 
         return (talentId === 'Blank' || talentId === '84' || talentId === 'arrow') ?
           <div key={talentId + '' + index} className={`blank ${(index === 10 || index === 14) && 'arrow'}`}>
-            {(index !== 10 && index !== 14) && <TalentIcon src={`${prefix}data/UISkillIconLocke.png`} alt=""/>}
+            {(index !== 10 && index !== 14) && <TalentIcon src={`${prefix}data/UISkillIconLocke.png`} alt="" />}
             {index === 10 && specialsTab > 0 ?
               <div>
                 <TalentIcon onClick={() => switchSpecials(specialsTab - 1)} className={'arrow'}
-                            src={`${prefix}data/UIAnvilArrowsG2.png`}
-                            arrow
-                            alt=""/>
+                  src={`${prefix}data/UIAnvilArrowsG2.png`}
+                  arrow
+                  alt="" />
               </div> : null}
             {(index === 14 || index === 26) && specialsTab < 4 ?
               <div>
                 <TalentIcon onClick={() => switchSpecials(specialsTab + 1)} className={'arrow'}
-                            src={`${prefix}data/UIAnvilArrowsG1.png`}
-                            arrow
-                            alt=""/>
+                  src={`${prefix}data/UIAnvilArrowsG1.png`}
+                  arrow
+                  alt="" />
               </div> : null}
           </div> :
-          <Tooltip key={talentId + '' + index} title={talentId >= 0 ? <TalentTooltip {...talentDetails}/> : ''}>
+          <Tooltip key={talentId + '' + index} title={talentId >= 0 ? <TalentTooltip {...talentDetails} /> : ''}>
             <div className={'talent-wrapper'}>
-              {!name ? <TalentIcon src={`${prefix}data/UISkillIconLocke.png`} alt=""/> : <TalentIcon
-                src={`${prefix}data/UISkillIcon${talentId}.png`} alt=""/>}
+              {isSuperTalent && <TalentIcon style={{ position: 'absolute' }} src={`${prefix}etc/Super_Talent_${isActiveTalent ? 'Active' : 'Passive'}_Border.png`} alt="" />}
+              {!name ? <TalentIcon src={`${prefix}data/UISkillIconLocke.png`} alt="" /> : <TalentIcon
+                src={`${prefix}data/UISkillIcon${talentId}.png`} alt="" />}
               <Typography fontSize={12} sx={{
                 ...(!hardMaxed ? {
                   fontWeight: 500,
@@ -177,7 +178,7 @@ const Talents = ({
 
 const TabIcon = ({ src }) => {
   return <Box sx={{ width: { xs: 30 }, '> img': { width: { xs: 30 } } }}>
-    <img src={src} alt=""/>
+    <img src={src} alt="" />
   </Box>
 }
 const TalentIcon = styled.img`

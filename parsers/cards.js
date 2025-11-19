@@ -7,38 +7,49 @@ export const getCards = (idleonData, account) => {
   return parseCards(cardsRaw, rawRift, account);
 }
 
-export const calculateStars = (tierReq, amountOfCards, cardName, rubyCards) => {
-  let stars = 0;
-  for (let i = 0; i < 4 + (+rubyCards); i++) {
+export const calculateStars = (tierReq, amountOfCards, cardName, maxStars, isInFiveStarList) => {
+  let cardLvCalco = 0;
+  for (let i = 0; i < maxStars; i++) {
     if (cardName === 'Boss3B') {
       if (amountOfCards > 1.5 * Math.pow(i + 1 + Math.floor(i / 3), 2)) {
-        stars = i + 2
+        cardLvCalco = i + 2;
       }
     } else {
-      if (amountOfCards > tierReq * Math.pow(i + 1 + (Math.floor(i / 3) + 16 * Math.floor(i / 4)), 2)) {
-        stars = i + 2
+      if (amountOfCards > tierReq * Math.pow(i + 1 + (Math.floor(i / 3) + (16 * Math.floor(i / 4) + 100 * Math.floor(i / 5))), 2)) {
+        cardLvCalco = i + 2;
       }
     }
   }
-  return stars > 0 ? stars - 1 : stars;
+  // If card is in five-star list and calculated stars < 6 (before subtracting 1), return 5 (6 stars in 0-indexed)
+  // Otherwise return calculated stars (subtract 1 to match original 0-indexed behavior)
+  if (isInFiveStarList && cardLvCalco < 6) {
+    return 5; // 6 stars in 0-indexed is 5
+  }
+  return cardLvCalco > 0 ? cardLvCalco - 1 : cardLvCalco;
 };
 
 export const calculateAmountToNextLevel = (perTier, stars, amountOfCards) => {
-  return stars >= 5 ? 0 : (perTier
+  return stars >= 6 ? 0 : Math.ceil(perTier
     * Math.pow((stars + 1)
       + (Math.floor((stars + 1) / 4)
-        + 16 * Math.floor((stars + 1) / 5)), 2) - amountOfCards) + 1;
+        + (16 * Math.floor((stars + 1) / 5)
+          + 100 * Math.floor((stars + 1) / 6))), 2) - amountOfCards) + 1;
 }
 
 const parseCards = (cardsRaw, rawRift, account) => {
   const [currentRift] = rawRift || [];
-  let rubyCards = currentRift >= 45;
+  const riftFiveStarCards = currentRift >= 45 ? 1 : 0;
+  const spelunkingSixStarCards = account?.spelunking?.loreBosses?.[2]?.defeated ? 1 : 0;
+  const totalFiveStarCards = riftFiveStarCards + spelunkingSixStarCards;
+  const maxStars = Math.round(4 + totalFiveStarCards);
+
   return Object.entries(cardsRaw).reduce(
     (res, [name, amount]) => {
       const cardDetails = cards?.[name];
-      const rawSixStarList = account?.accountOptions?.[155] || '';
-      const sixStarList = rawSixStarList?.toString()?.split(',') || [];
-      const stars = sixStarList?.includes(name) ? 5 : calculateStars(cardDetails?.perTier, amount, name, rubyCards);
+      const rawFiveStarList = account?.accountOptions?.[155] || '';
+      const fiveStarList = rawFiveStarList?.toString()?.split(',') || [];
+      const isInFiveStarList = fiveStarList?.includes(name);
+      const stars = calculateStars(cardDetails?.perTier, amount, name, maxStars, isInFiveStarList);
       if (!cardDetails) return res;
       return {
         ...res,
@@ -132,3 +143,4 @@ export const calcCardsLevels = (cards) => {
   if (!cards) return 0;
   return Object.values(cards)?.reduce((res, { stars, amount }) => res + (amount > 0 ? (stars + 1) : 0), 0);
 };
+

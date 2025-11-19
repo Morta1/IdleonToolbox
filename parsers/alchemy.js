@@ -3,7 +3,7 @@ import { cauldrons, p2w, sigils, vials } from '../data/website-data';
 import { isArtifactAcquired } from './sailing';
 import { getSaltLickBonus } from './saltLick';
 import { getMealsBonusByEffectOrStat } from './cooking';
-import { getJewelBonus, getLabBonus } from './lab';
+import { getJewelBonus, getLabBonus, isGodEnabledBySorcerer } from './lab';
 import { getEventShopBonus, isBundlePurchased, isCompanionBonusActive, isMasteryBonusUnlocked } from './misc';
 import { getStampsBonusByEffect } from './stamps';
 import { getArcadeBonus } from './arcade';
@@ -11,6 +11,10 @@ import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getPrismaMulti } from '@parsers/tesseract';
 import { CLASSES, getHighestTalentByClass } from '@parsers/talents';
+import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getZenithBonus } from '@parsers/statues';
+import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 
 export const MAX_VIAL_LEVEL = 13;
 export const cauldronColors = {
@@ -84,7 +88,7 @@ export const getLiquidCauldrons = (account) => {
     const [decantCapProgress, decantCapLevel] = liquidCauldrons[index * 4];
     const [decantRateProgress, decantRateLevel] = liquidCauldrons[(index * 4) + 1];
     const [decantCapReq, decantRateReq] = [getCauldronBrewReq(decantCapLevel + 1),
-      getCauldronBrewReq(decantRateLevel + 1)]
+    getCauldronBrewReq(decantRateLevel + 1)]
     const brewBonus = getCauldronBrewBonus(index + 4, decantCapLevel); // CauldStatDN1
     const bleachLiquidCauldron = account?.gemShopPurchases?.find((value, index) => index === 106) ?? 0;
     const saltLickBonus = getSaltLickBonus(account?.saltLick, 5);
@@ -206,6 +210,7 @@ const getPay2Win = (idleonData, alchemyActivity, serializedCharactersData) => {
     extraExp: getPlayerP2wUpgrades(player?.[1] || 0, 3, 1)
   };
   p2w.sigils = getSigils(idleonData, alchemyActivity, serializedCharactersData);
+  p2w.totalEtherealSigils = p2w?.sigils?.filter((sigil) => sigil?.unlocked === 3)?.length || 0;
   p2w.vialsAttempts = {
     current: remainingAttempts[0],
     max: Math.round(3 + vials?.[0])
@@ -431,7 +436,7 @@ export const updateVials = (accountData) => {
     vialMastery = 2 * maxedVials?.length;
     vialMastery = isNaN(vialMastery) ? 0 : vialMastery;
   }
-  const multi = myFirstChemistrySet * (1 + (vialMastery + upgradeVaultBonus) / 100);
+  const multi = myFirstChemistrySet * (1 + (vialMastery + upgradeVaultBonus) / 100) * (1 + getMeritocracyBonus(accountData, 20) / 100);
   updatedVials = applyVialsMulti(accountData.alchemy.vials, multi)
   return updatedVials;
 }
@@ -510,9 +515,9 @@ const parseSigils = (sigilsRaw, alchemyActivity, serializedCharactersData) => {
     const [progress, unlocked] = sigilsData.slice(i, i + 2);
     const sigilData = sigils?.[i / 2];
     const charactersInSigil = alchemyActivity.filter(({
-                                                        activity,
-                                                        index
-                                                      }) => activity >= 100 && Math.floor(activity - 100) === i / 2 && index < 11 && index < serializedCharactersData?.length);
+      activity,
+      index
+    }) => activity >= 100 && Math.floor(activity - 100) === i / 2 && index < 11 && index < serializedCharactersData?.length);
     if (sigilData) {
       sigilsList = [
         ...sigilsList,
@@ -520,7 +525,7 @@ const parseSigils = (sigilsRaw, alchemyActivity, serializedCharactersData) => {
           ...sigilData,
           unlocked,
           progress,
-          bonus: unlocked === 2 ? sigilData.jadeBonus : unlocked === 1 ? sigilData?.boostBonus : unlocked === 0
+          bonus: unlocked === 3 ? sigilData?.etherealBonus : unlocked === 2 ? sigilData.jadeBonus : unlocked === 1 ? sigilData?.boostBonus : unlocked === 0
             ? sigilData?.unlockBonus
             : 0,
           characters: charactersInSigil
@@ -568,9 +573,9 @@ export const calcSigilsLevels = (sigils) => {
 const getNblbBubbles = (acc, maxBubbleIndex, numberOfBubbles) => {
   const bubblesArrays = Object.values(acc?.alchemy?.bubbles || {})
     .map((array) => array.filter(({
-                                    level,
-                                    index
-                                  }) => level >= 5 && index < maxBubbleIndex).sort((a, b) => a.level - b.level).filter(({ level }) => level < 1e4));
+      level,
+      index
+    }) => level >= 5 && index < maxBubbleIndex).sort((a, b) => a.level - b.level).filter(({ level }) => level < 1e4));
   const bubblePerCauldron = Math.ceil(Math.min(10, numberOfBubbles) / 4);
   const lowestBubbles = [];
   for (let j = 0; j < bubblesArrays.length; j++) {
@@ -674,4 +679,44 @@ export const getUpgradeableBubbles = (acc, characters) => {
       { name: 'Jewel', value: jewel?.acquired ? 1 : 0 }
     ]
   };
+}
+
+export const getPossibleZenithMarketBubbles = (account, characters) => {
+  const allBubblesIndexes = ['_0', 'a0', 'b0', 'c0', 'c9', '_11', 'a11', 'a1'];
+  const zenithMarketBonus = getZenithBonus(account, 1);
+
+  // Always include the first 3 elements
+  const bubblesIndexes = allBubblesIndexes.slice(0, 3);
+
+  // Conditionally add elements starting from index 3 based on zenithMarketBonus
+  for (let i = 3; i < allBubblesIndexes.length; i++) {
+    const requiredBonus = i - 2; // Index 3 requires bonus >= 1, index 4 requires >= 2, etc.
+    if (zenithMarketBonus >= requiredBonus) {
+      bubblesIndexes.push(allBubblesIndexes[i]);
+    }
+  }
+
+  const krukLevelsDaily = getKrukBubblesDaily(account);
+  const hasKrukLinked = characters?.some((character) => character.linkedDeity === 8
+    || isGodEnabledBySorcerer(character, 8)
+    || character.secondLinkedDeityIndex === 8
+    || isCompanionBonusActive(account, 0));
+  if (!hasKrukLinked) return [];
+  return account?.alchemy?.bubblesFlat.filter((bubble) => bubblesIndexes.includes(bubble.bubbleIndex)).map((bubble) => ({ ...bubble, krukLevelsDaily }));
+}
+
+export const getKrukBubblesDaily = (account) => {
+  const stampBonus = getStampsBonusByEffect(account, 'daily_Kattlekruk_bubble_LVs');
+  const legendBonus = getLegendTalentBonus(account, 5);
+  const zenithBonus = getZenithBonus(account, 4);
+  const meritocracyBonus = getMeritocracyBonus(account, 3);
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Kruk_Bubble_LVs')?.bonus;
+  const bubbleBonus = getBubbleBonus(account, 'KATTLE_DA_GOAT', false);
+  const spelunkBonus = getSpelunkingBonus(account, 47);
+
+  return Math.floor(
+    (20 + stampBonus + legendBonus + zenithBonus)
+    * (1 + meritocracyBonus / 100)
+    * (1 + (bubbleBonus + arcadeBonus + spelunkBonus) / 100)
+  );
 }

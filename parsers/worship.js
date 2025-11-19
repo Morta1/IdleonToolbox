@@ -40,6 +40,7 @@ export const getTotems = (idleonData) => {
 export const getTotalizerBonuses = (account) => {
   const totalizerUnlocked = isSuperbitUnlocked(account, 'MSA_Totalizer');
   const totalWaves = Math.floor(account?.towers?.totalWaves / 10);
+
   return {
     damage: { name: 'DMG', value: (totalizerUnlocked && totalizerUnlocked?.bonus) || 0 },
     sailing: { name: 'SPD', value: (totalizerUnlocked && isSuperbitUnlocked(account, 'MSA_Sailing')?.bonus) || 0 },
@@ -67,6 +68,10 @@ export const getTotalizerBonuses = (account) => {
     essence: {
       name: 'Essence',
       value: (totalizerUnlocked && isJadeBonusUnlocked(account, 'MSA_Expander_III')) ? totalWaves : 0
+    },
+    spelunkingPow: {
+      name: 'Spelunking Pow',
+      value: (totalizerUnlocked && isSuperbitUnlocked(account, 'MSA_Spelunking')?.bonus) || 0
     }
   };
 }

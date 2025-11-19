@@ -117,6 +117,8 @@ import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getBribeBonus } from '@parsers/bribes';
 import { allProwess } from '@parsers/efficiency';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getExoticMarketBonus } from '@parsers/world-6/farming';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -361,7 +363,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
 
   character.skillsInfo = skillsInfoObject.reduce(
     (res, level, index) =>
-      index < 19 ? {
+      index < 20 ? {
         ...res,
         [skillIndexMap[index]?.name]: {
           level: level !== -1 ? level : 0,
@@ -478,7 +480,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
 
   while (iterations < maxIterations) {
     const tempCharacter = Object.assign({}, character);
-    tempCharacter.talents = applyTalentAddedLevels(talents, null, addedLevels?.value || 0);
+    tempCharacter.talents = applyTalentAddedLevels(talents, null, addedLevels?.value || 0, addedLevels?.superTalentsInfo);
     familyEffBonus = getUpdatedFamilyBonus(tempCharacter, charactersLevels);
     addedLevels = getTalentAddedLevels(talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
 
@@ -487,14 +489,14 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
 
   character.addedLevelsBreakdown = addedLevels?.breakdown;
   character.addedLevels = addedLevels?.value;
-  character.talents = applyTalentAddedLevels(talents, null, character.addedLevels);
-  character.flatTalents = applyTalentAddedLevels(talents, flatTalents, character.addedLevels);
+  character.talents = applyTalentAddedLevels(talents, null, character.addedLevels, addedLevels?.superTalentsInfo);
+  character.flatTalents = applyTalentAddedLevels(talents, flatTalents, character.addedLevels, addedLevels?.superTalentsInfo);
   if (talentPresetObject) {
-    const presetAddedLevels = getTalentAddedLevels(character?.talentPreset?.talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
+    const presetAddedLevels = getTalentAddedLevels(character?.talentPreset?.talents, true, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
     character.talentPreset = {
       ...character.talentPreset,
-      talents: applyTalentAddedLevels(character?.talentPreset?.talents, null, presetAddedLevels?.value),
-      flatTalents: applyTalentAddedLevels(character?.talentPreset?.talents, null, presetAddedLevels?.value),
+      talents: applyTalentAddedLevels(character?.talentPreset?.talents, null, presetAddedLevels?.value, presetAddedLevels?.superTalentsInfo, true),
+      flatTalents: applyTalentAddedLevels(character?.talentPreset?.talents, null, presetAddedLevels?.value, presetAddedLevels?.superTalentsInfo, true),
       addedLevels: presetAddedLevels?.value,
       addedLevelsBreakdown: presetAddedLevels?.breakdown
     }
@@ -1019,7 +1021,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const starSignBonus = getStarSignBonus(character, account, 'Lab_EXP_Gain');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Lab_EXP_gain')?.bonus
     const voteBonus = getVoteBonus(account, 31);
-    const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 2 });
+    const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 2, account });
     const vaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 55);
     const armorSetBonus = getArmorSetBonus(account, 'MAGMA_SET');
     const soupedPlayerBonus = account?.lab?.playersCords?.find(({ playerId }) => character?.playerId === playerId)?.soupedUp
@@ -1804,6 +1806,10 @@ export const getClassExpMulti = (character, account, characters) => {
   const voteBonus = getVoteBonus(account, 15) || 0;
   const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 6 });
   const armorSetBonus = getArmorSetBonus(account, 'IRON_SET');
+  const zenithBonus = getZenithBonus(account, 9);
+  const companionBonus2 = isCompanionBonusActive(account, 33) ? account?.companions?.list?.at(33)?.bonus : 0;
+  const companionBonus3 = isCompanionBonusActive(account, 37) ? account?.companions?.list?.at(37)?.bonus : 0;
+
 
   const value = siegeBreakerBonus
     * (1 + expBonus3 / 100)
@@ -2026,8 +2032,10 @@ export const getDropRate = (character, account, characters) => {
     t: 15
   });
   const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 6 });
-  const armorSetBonus = getArmorSetBonus(account, 'EFAUNT_SET');
   const emperorBonus = getEmperorBonus(account, 11);
+  const armorSetBonus = getArmorSetBonus(account, 'EFAUNT_SET');
+  const exoticMarketBonus = getExoticMarketBonus(account, 59);
+  const legendTalentBonus = getLegendTalentBonus(account, 1);
 
   const additive =
     robbingHoodTalentBonus +
@@ -2066,7 +2074,9 @@ export const getDropRate = (character, account, characters) => {
     secondSchematicBonus +
     monumentBonus +
     emperorBonus +
-    armorSetBonus;
+    armorSetBonus +
+    exoticMarketBonus +
+    legendTalentBonus;
 
   let dropRate = 1.4 * luckMulti + additive / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
@@ -2140,6 +2150,8 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Measurement', value: measurementBonus / 100 },
     { name: 'Emperor', value: emperorBonus / 100 },
     { name: 'Efaunt set', value: armorSetBonus / 100 },
+    { name: 'Exotic market', value: exoticMarketBonus / 100 },
+    { name: 'Legend talent', value: legendTalentBonus / 100 },
     { name: 'Gem Bundle2', value: hasAnotherDrBundle ? 2 : 0 },
     { name: 'Ninja Mastery', value: ninjaMasteryDropRate ? 0.3 : 0 },
 
@@ -2197,6 +2209,8 @@ export const getDropRate = (character, account, characters) => {
     + monumentBonus
     + emperorBonus
     + armorSetBonus
+    + exoticMarketBonus
+    + legendTalentBonus
   ) / 100 + 1;
 
 if (dropRate < 5 && chipBonus > 0) {

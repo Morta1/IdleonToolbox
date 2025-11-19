@@ -2,7 +2,6 @@ import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from '../../../../../utility/helpers';
 import styled from '@emotion/styled';
-import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '../../../../Tooltip';
 import { TitleAndValue } from '../../../../common/styles';
 import processString from 'react-process-string';
@@ -17,6 +16,7 @@ const Artifacts = ({ artifacts }) => {
                          ancientFormDescription,
                          eldritchFormDescription,
                          sovereignFormDescription,
+                         omnipotentFormDescription,
                          rawName,
                          acquired,
                          additionalData
@@ -24,12 +24,19 @@ const Artifacts = ({ artifacts }) => {
         let bonusDescription = '';
         if (acquired === 2) {
           bonusDescription = ancientFormDescription;
-        } else if (acquired === 3) {
+        }
+        else if (acquired === 3) {
           bonusDescription = eldritchFormDescription;
-        } else if (acquired === 4) {
+        }
+        else if (acquired === 4) {
           bonusDescription = sovereignFormDescription;
         }
-        const color = acquired === 4 ? '#67dada' : acquired === 3 ? '#ffa092' : acquired === 2 ? 'gold' : 'white';
+        else if (acquired === 5) {
+          bonusDescription = omnipotentFormDescription;
+        }
+        const color = acquired === 5 ? '#00ffde' : acquired === 4 ? '#67da80' : acquired === 3 ? '#ffa092' : acquired === 2
+          ? 'gold'
+          : 'white';
         return (
           (<Card key={name + index} variant={acquired ? 'elevation' : 'outlined'}
                  sx={{ opacity: acquired === 0 ? .5 : 1 }}>

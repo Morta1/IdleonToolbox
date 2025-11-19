@@ -5,6 +5,7 @@ import { getStatsFromGear } from '@parsers/items';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getOptimizedGenericUpgrades } from './genericUpgradeOptimizer';
+import { getMasterclassCostReduction } from './misc';
 
 export const boneNames = [
   'Femur',
@@ -46,21 +47,21 @@ export const GRIMOIRE_UPGRADE_CATEGORIES = {
   }
 };
 
-export const getGrimoire = (idleonData, charactersData, accountData) => {
+export const getGrimoire = (idleonData, charactersData, account) => {
   const grimoireRaw = tryToParse(idleonData?.Grimoire) || idleonData?.Grimoire;
   const ribbonRaw = tryToParse(idleonData?.Ribbon) || idleonData?.Ribbon;
-  return parseGrimoire(grimoireRaw, ribbonRaw, charactersData, accountData);
+  return parseGrimoire(grimoireRaw, ribbonRaw, charactersData, account);
 };
 
-const parseGrimoire = (grimoireRaw, ribbonRaw, charactersData, accountData) => {
+const parseGrimoire = (grimoireRaw, ribbonRaw, charactersData, account) => {
   const monsterList = randomList?.[104]?.split(' ');
-  const bones = accountData?.accountOptions?.slice(330, 334);
+  const bones = account?.accountOptions?.slice(330, 334);
   const totalUpgradeLevels = grimoireRaw?.reduce((sum, level) => sum + level, 0);
-  const totalBonesCollected = accountData?.accountOptions?.[329];
+  const totalBonesCollected = account?.accountOptions?.[329];
   let upgrades = grimoire.map((upgrade, index) => {
     const { x1, x2 } = upgrade;
     const level = grimoireRaw?.[index]
-    const cost = getUpgradeCost({ x1, x2, index, level })
+    const cost = getUpgradeCost({ x1, x2, index, level, account: account })
     return {
       ...upgrade,
       index,
@@ -75,7 +76,7 @@ const parseGrimoire = (grimoireRaw, ribbonRaw, charactersData, accountData) => {
       index,
       unlocked: upgrade?.unlockLevel <= totalUpgradeLevels,
       bonus,
-      monsterProgress: getMonsterProgress(monsterList, accountData, index),
+      monsterProgress: getMonsterProgress(monsterList, account, index),
       description: upgrade?.description.replace('{', commaNotation(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo'))
     }
   })
@@ -133,7 +134,7 @@ const getMonsterDrops = () => {
 
 }
 
-const getMonsterProgress = (monsterList, accountData, index) => {
+const getMonsterProgress = (monsterList, account, index) => {
   let selectedIndex;
   if (index === 13) {
     selectedIndex = 334;
@@ -142,7 +143,7 @@ const getMonsterProgress = (monsterList, accountData, index) => {
   } else if (index === 31) {
     selectedIndex = 336;
   }
-  return monsters?.[monsterList?.[accountData?.accountOptions?.[selectedIndex]]]?.Name;
+  return monsters?.[monsterList?.[account?.accountOptions?.[selectedIndex]]]?.Name;
 }
 
 export const getWraithStats = (character, account) => {
@@ -220,8 +221,8 @@ export const getWraithStats = (character, account) => {
   };
 }
 
-const getUpgradeCost = ({ index, level, x1, x2 }) => {
-  return 3 * Math.pow(1.05, index) * (level + (x1 + level) * Math.pow(x2 + 0.01, level));
+const getUpgradeCost = ({ index, level, x1, x2, account }) => {
+  return 3 * Math.pow(1.05, index) * getMasterclassCostReduction(account) * (level + (x1 + level) * Math.pow(x2 + 0.01, level));
 }
 
 const getExtraBonesBonus = (character, account) => {
@@ -269,7 +270,7 @@ export const getOptimizedGrimoireUpgrades = (character, account, category = 'dam
     getUpgrades: acc => acc?.grimoire?.upgrades || [],
     getResources: acc => acc?.grimoire?.bones || [],
     getCurrentStats: (upgrades, char, acc) => getWraithStats(char, { ...acc, grimoire: { ...acc.grimoire, upgrades } }),
-    getUpgradeCost: (upgrade, index) => getUpgradeCost({ ...upgrade, index, level: upgrade.level, x1: upgrade.x1, x2: upgrade.x2 }),
+    getUpgradeCost: (upgrade, index) => getUpgradeCost({ ...upgrade, index, level: upgrade.level, x1: upgrade.x1, x2: upgrade.x2, account }),
     applyUpgrade: (upgrade, upgradesArr) => upgradesArr.map(u => u.index === upgrade.index ? { ...u, level: u.level + 1 } : u),
     updateResourcesAfterUpgrade: (resources, upgrade, resourceNames, cost) => {
       const boneIdx = upgrade.boneType ?? upgrade.x3;

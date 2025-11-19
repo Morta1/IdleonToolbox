@@ -41,7 +41,8 @@ export const calculateItemTotalAmount = (array, itemName, exact, isRawName = fal
       if (itemName === (isRawName ? item?.rawName : item?.name)) {
         result += item?.amount;
       }
-    } else {
+    }
+    else {
       if ((isRawName ? item?.rawName?.includes(itemName) : item?.name?.includes(itemName))) {
         result += item?.amount;
       }
@@ -128,7 +129,8 @@ export const findItemInInventory = (arr, itemName) => {
     if (name === itemName) {
       if (res?.[owner]) {
         return { ...res, [owner]: { amount: res?.[owner]?.amount + 1 } };
-      } else {
+      }
+      else {
         return { ...res, [owner]: { amount } };
       }
     }
@@ -153,7 +155,8 @@ export const findItemByDescriptionInInventory = (arr, desc) => {
         res?.splice(itemExistsIndex, 1);
       }
       res = [...res, { ...item, owners: owners }]
-    } else {
+    }
+    else {
       res = [...res, { ...item, owners: [item?.owner] }]
     }
     return res;
@@ -174,7 +177,8 @@ export const flattenCraftObject = (craft) => {
       }
       if (uniques[nextCraft?.itemName]) {
         uniques[nextCraft?.itemName].itemQuantity += nextCraft?.itemQuantity;
-      } else {
+      }
+      else {
         uniques[nextCraft?.itemName] = nextCraft;
       }
       return result;
@@ -219,7 +223,8 @@ export const mergeItemsByOwner = (items) => {
     const key = item.owner + item.displayName;
     if (mergedItems[key]) {
       mergedItems[key].amount += item.amount;
-    } else {
+    }
+    else {
       mergedItems[key] = { ...item };
     }
   });
@@ -250,6 +255,12 @@ export const calcTrophiesFound = (looty) => {
 }
 export const calcObolsFound = (looty) => {
   return looty?.lootyRaw?.reduce((sum, itemName) => sum + ((itemName?.includes('Obol'))
+    ? 1
+    : 0), 0)
+}
+
+export const calcNametagsFound = (looty) => {
+  return looty?.lootyRaw?.reduce((sum, itemName) => sum + ((itemName?.includes('EquipmentNametag'))
     ? 1
     : 0), 0)
 }

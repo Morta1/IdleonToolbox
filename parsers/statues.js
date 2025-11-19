@@ -1,37 +1,87 @@
-import { tryToParse } from '../utility/helpers';
-import { statues } from '../data/website-data';
+import { tryToParse, commaNotation, notateNumber } from '../utility/helpers';
+import { statues as statuesList, zenithMarket } from '../data/website-data';
 import { CLASSES, getHighestTalentByClass, getTalentBonus } from './talents';
 import { isArtifactAcquired } from '@parsers/sailing';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getEventShopBonus } from '@parsers/misc';
+import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 
-export const getStatues = (idleonData, charactersData) => {
+export const getStatues = (idleonData, charactersData, accountData) => {
   const statuesRaw = tryToParse(idleonData?.StuG) || idleonData?.StatueG;
-  return parseStatues(statuesRaw, charactersData);
+  const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];
+  return parseStatues(statuesRaw, charactersData, rawSpelunking, accountData);
 };
 
-export const parseStatues = (statuesRaw, charactersData) => {
-  return statuesRaw
+export const parseStatues = (statuesRaw, charactersData, rawSpelunking = [], accountData = {}) => {
+  const statues = statuesRaw
     ?.reduce((res, statue, statueIndex) => {
-      const goldStatue = statue === 1;
-      const onyxStatue = statue === 2;
+      const goldStatue = statue >= 1;
+      const onyxStatue = statue >= 2;
+      const zenithStatue = statue >= 3;
       const highestStatues = getHighestLevelStatues(charactersData, statueIndex)?.StatueLevels
       const [level, progress] = highestStatues?.[statueIndex] || [];
       if (!highestStatues?.[statueIndex]) return res;
+      let rawName;
+      if (zenithStatue) {
+        rawName = `StatueZ${parseInt(statueIndex) + 1}`;
+      } else if (onyxStatue) {
+        rawName = `StatueO${parseInt(statueIndex) + 1}`;
+      } else if (goldStatue) {
+        rawName = `StatueG${parseInt(statueIndex) + 1}`;
+      } else {
+        rawName = `Statue${parseInt(statueIndex) + 1}`;
+      }
+
       return [
         ...res,
         {
-          ...(statues?.[statueIndex] || {}),
-          rawName: `Statue${onyxStatue ? 'O' : goldStatue ? 'G' : ''}${parseInt(statueIndex) + 1}`,
+          ...(statuesList?.[statueIndex] || {}),
+          rawName,
           level,
           progress,
           onyxStatue,
+          zenithStatue,
           statueIndex
         }
       ];
     }, [])
     .filter(({ name } = {}) => name);
+
+  const market = getZenithMarket(rawSpelunking);
+  const clusters = accountData?.accountOptions?.[486];
+
+  return {
+    statues,
+    zenith: {
+      market,
+      clusters
+    }
+  }
 };
+
+export const getZenithBonus = (account, bonusIndex) => {
+  return account?.zenith?.market?.[bonusIndex]?.bonus ?? 0
+}
+
+const getZenithMarket = (rawSpelunking) => {
+  return zenithMarket?.map((bonusObj, index) => {
+    const level = rawSpelunking?.[45]?.[index] || 0;
+    const bonus = Math.floor(bonusObj?.x4 * level);
+    const rawCost = level + (bonusObj?.x1 || 0) * Math.pow(bonusObj?.x2 || 1, level);
+    const cost = rawCost < 1e6 ? Math.floor(rawCost) : rawCost;
+    const description = bonusObj?.description
+      ?.replace(/\{/g, commaNotation(bonus))
+      ?.replace(/\}/g, notateNumber(1 + bonus / 100, 'MultiplierInfo'));
+
+    return {
+      ...bonusObj,
+      bonus,
+      cost,
+      level,
+      description
+    }
+  })
+}
 
 const getHighestLevelStatues = (characters, statueIndex) => {
   return characters.reduce((prev, current) => (prev?.StatueLevels?.[statueIndex]?.[0] > current?.StatueLevels?.[statueIndex]?.[0])
@@ -44,25 +94,30 @@ export const applyStatuesMulti = (account, characters) => {
   const talentMulti = 1 + voodoStatusification / 100;
   const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'The_Onyx_Lantern');
   const eventBonus = getEventShopBonus(account, 19) ?? 0;
+  const meritocracyMulti = 1 + getMeritocracyBonus(account, 26) / 100;
   const statues = account?.statues?.map((statue) => ({
     ...statue,
     bonus: statue?.bonus,
     talentMulti,
-    onyxMulti: artifact?.bonus ?? 0,
-    eventBonusMulti: 1 + 0.3 * eventBonus
+    onyxMulti: (1 + (100 + artifact?.bonus) / 100) ?? 0,
+    zenithMulti: 1 + (50 + getZenithBonus(account, 0)) / 100,
+    eventBonusMulti: 1 + 0.3 * eventBonus,
+    meritocracyMulti
   }));
-  const dragonStatueMulti = getStatueBonus({ statues }, 29);
+
+  const dragonStatueMulti = 1 + getStatueBonus({ statues }, 29) / 100;
   const upgradeVaultBonusIndexes = [0, 1, 2, 6];
 
   return statues?.map((statue) => {
     let upgradeVaultMulti = 1;
     if (upgradeVaultBonusIndexes.includes(statue.statueIndex)) {
-      upgradeVaultMulti = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 25)
+      upgradeVaultMulti = 1 + getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 25) / 100
     }
     return { ...statue, dragonMulti: dragonStatueMulti, upgradeVaultMulti };
   })
 }
 export const getStatueBonus = (account, statueIndex, talents) => {
+  // "StatueBonusGiven" == e
   const statue = account?.statues?.[statueIndex];
   if (!statue) return 0;
   let talentBonus = 1;
@@ -108,18 +163,21 @@ export const getStatueBonus = (account, statueIndex, talents) => {
       talentBonus = 1;
   }
 
-  const onyxMulti = statue?.onyxStatue ? 2 + statue?.onyxMulti / 100 : 1;
-  const dragonMulti = statue?.dragonMulti && statue?.name !== 'DRAGON' ? 1 + statue?.dragonMulti / 100 : 1;
-  const upgradeVaultMulti = statue?.upgradeVaultMulti > 1 ? 1 + statue?.upgradeVaultMulti / 100 : 1;
+  const onyxMulti = statue?.onyxStatue ? statue?.onyxMulti : 1;
+  const zenithMulti = statue?.zenithStatue ? statue?.zenithMulti : 1;
+  const dragonMulti = statue?.dragonMulti && statue?.name !== 'DRAGON' ? statue?.dragonMulti : 1;
+  const upgradeVaultMulti = statue?.upgradeVaultMulti ? statue?.upgradeVaultMulti : 1;
 
   return statue?.level
     * statue?.bonus
     * talentBonus
     * statue?.talentMulti
     * onyxMulti
+    * zenithMulti
     * dragonMulti
     * upgradeVaultMulti
-    * statue?.eventBonusMulti;
+    * statue?.eventBonusMulti
+    * statue?.meritocracyMulti;
 };
 
 export const calcStatueLevels = (allStatues) => {

@@ -120,42 +120,55 @@ const Quests = () => {
               </ToggleButton>
             </ToggleButtonGroup>
           </Stack>
-          <Stack direction={'row'} justifyContent={'center'} flexWrap={'wrap'} gap={4}>
+          <Stack mt={6} direction={'row'} justifyContent={'center'} flexWrap={'wrap'} gap={4}>
             <WorldQuest
               quests={worldQuests}
               totalCharacters={filteredCharacters?.length}
               characters={state?.characters}
               worldName={'Blunder_Hills'}
+              worldIndex={0}
             />
             <WorldQuest
               quests={worldQuests}
               totalCharacters={filteredCharacters?.length}
               characters={state?.characters}
-              worldName={'Yum-Yum_Desert'}
+              worldName={'Yum_Yum_Desert'}
+              worldIndex={1}
             />
             <WorldQuest
               quests={worldQuests}
               totalCharacters={filteredCharacters?.length}
               characters={state?.characters}
               worldName={'Frostbite_Tundra'}
+              worldIndex={2}
             />
             <WorldQuest
               quests={worldQuests}
               totalCharacters={filteredCharacters?.length}
               characters={state?.characters}
               worldName={'Hyperion_Nebula'}
+              worldIndex={3}
             />
             <WorldQuest
               quests={worldQuests}
               totalCharacters={filteredCharacters?.length}
               characters={state?.characters}
               worldName={'Smolderin\'_Plateau'}
+              worldIndex={4}
             />
             <WorldQuest
               quests={worldQuests}
               totalCharacters={filteredCharacters?.length}
               characters={state?.characters}
               worldName={'Spirited_Valley'}
+              worldIndex={5}
+            />
+            <WorldQuest
+              quests={worldQuests}
+              totalCharacters={filteredCharacters?.length}
+              characters={state?.characters}
+              worldName={'Shimmerfin_Deep'}
+              worldIndex={6}
             />
           </Stack>
         </>

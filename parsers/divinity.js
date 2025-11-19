@@ -2,6 +2,7 @@ import { isGodEnabledBySorcerer } from './lab';
 import { isCompanionBonusActive } from './misc';
 import { getActiveBubbleBonus } from './alchemy';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
+import { getCoralKidUpgBonus } from './world-7/coralReef';
 
 const { tryToParse } = require('../utility/helpers');
 const { gods } = require('../data/website-data');
@@ -157,5 +158,6 @@ export const getMinorDivinityBonus = (character, account, forcedDivinityIndex, c
   const linkedDeity = forcedDivinityIndex ?? account?.divinity?.linkedDeities?.[character.playerId];
   const godIndex = gods?.[linkedDeity]?.godIndex;
   const multiplier = gods?.[godIndex]?.minorBonusMultiplier;
-  return Math.max(1, bigPBubble) * (divinityLevel / (60 + divinityLevel)) * multiplier;
+  const coralKidUpgBonus = getCoralKidUpgBonus(account, 3);
+  return Math.max(1, bigPBubble) * (1 + coralKidUpgBonus / 100) * (divinityLevel / (60 + divinityLevel)) * multiplier;
 }

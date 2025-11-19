@@ -16,12 +16,16 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getArcadeBonus } from '@parsers/arcade';
+import { isEtherealBonusUnlocked } from '@parsers/world-7/spelunking';
+import { getPaletteBonus } from '@parsers/gaming';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 
 const Sigils = () => {
   const { state } = useContext(AppContext);
   const { alchemy, sailing } = state?.account || {};
   const chilledYarnArtifact = isArtifactAcquired(sailing?.artifacts, 'Chilled_Yarn');
   const hasJadeBonus = isJadeBonusUnlocked(state?.account, 'Ionized_Sigils');
+  const hasEtherealBonus = isEtherealBonusUnlocked(state?.account);
 
   const getSigilSpeed = () => {
     const achievement = getAchievementStatus(state?.account?.achievements, 112);
@@ -31,15 +35,19 @@ const Sigils = () => {
     const anotherVial = getVialsBonusByStat(alchemy?.vials, '6turtle');
     const stampBonus = getStampsBonusByEffect(state?.account, '+{%_Sigil_Charge_rate');
     const winnerBonus = getWinnerBonus(state?.account, '<x Sigil SPD');
-    const voteBonus = getVoteBonus(state?.account, 17);
     const arcadeBonus = getArcadeBonus(state?.account?.arcade?.shop, 'Sigil_Speed')?.bonus
+    const voteBonus = getVoteBonus(state?.account, 17);
+    const paletteBonus = getPaletteBonus(state?.account, 20);
+    const legendBonus = getLegendTalentBonus(state?.account, 31);
 
     return {
       value: (1 + ((achievement ? 20 : 0) + (sigilBonus + (20 * gemStore + (vial + stampBonus)))) / 100)
         * (1 + winnerBonus / 100)
         * (1 + arcadeBonus / 100)
         * (1 + anotherVial / 100)
-        * (1 + voteBonus / 100),
+        * (1 + voteBonus / 100)
+        * (1 + paletteBonus / 100)
+        * (1 + legendBonus / 100),
 
       breakdown: [
         { name: 'Achievement', value: (achievement ? 20 : 0) / 100 },
@@ -49,24 +57,32 @@ const Sigils = () => {
         { name: 'Stamps', value: stampBonus / 100 },
         { name: 'Vial', value: vial / 100 },
         { name: 'Turtle Vial', value: 1 + anotherVial / 100 },
-        { name: 'Summoning', value: winnerBonus },
-        { name: 'Vote', value: voteBonus }
+        { name: 'Summoning', value: winnerBonus / 100 },
+        { name: 'Vote', value: voteBonus / 100 },
+        { name: 'Palette', value: paletteBonus / 100 },
+        { name: 'Legend Talent', value: legendBonus / 100 }
       ]
     }
   }
 
   const sigilSpeed = useMemo(() => getSigilSpeed(), [state]);
-  const getSigilCost = ({ unlocked, boostCost, unlockCost, jadeCost }) => {
+  const getSigilCost = ({ unlocked, boostCost, unlockCost, jadeCost, etherealCost }) => {
     if (unlocked === 0) {
       return boostCost;
-    } else if (unlocked === 1) {
+    }
+    else if (unlocked === 1) {
       if (hasJadeBonus) {
         return jadeCost;
       }
-    } else if (unlocked === -1) {
-      return unlockCost
     }
+    else if (unlocked === 2) {
+      if (hasEtherealBonus) {
+        return etherealCost;
+      }
+    }
+    return unlockCost;
   }
+
   return (
     (<Stack>
       <NextSeo
@@ -83,6 +99,9 @@ const Sigils = () => {
             </Tooltip>
           </Stack>
         </CardTitleAndValue>
+        <CardTitleAndValue title={'Sigil Syrup'} value={state?.account?.accountOptions?.[409]}
+                           imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
+                           icon={'data/SigilSyrup.png'}/>
       </Stack>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
         {alchemy?.p2w?.sigils?.map((sigil, index) => {
@@ -96,6 +115,7 @@ const Sigils = () => {
             bonus,
             characters
           } = sigil;
+
           const cost = getSigilCost(sigil);
           const timeLeft = (cost - progress) / (characters?.length * sigilSpeed?.value) * 3600 * 1000;
           return (
@@ -144,7 +164,9 @@ const Sigils = () => {
 
 const SigilIcon = styled.img`
   object-fit: contain;
-  filter: hue-rotate(${({ unlocked }) => (unlocked === 2 ? '130deg' : unlocked === 1 ? '200deg' : '0deg')});
+  filter: hue-rotate(${({ unlocked }) => (unlocked === 3 ? '60deg' : unlocked === 2 ? '130deg' : unlocked === 1
+          ? '200deg'
+          : '0deg')});
 `;
 
 const BreakdownTooltip = ({ breakdown, titleWidth = 120, notate = '' }) => {

@@ -1,13 +1,16 @@
 import { commaNotation, getFilteredPortals, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
 import { mapEnemiesArray, mapPortals, monsterDrops, monsters, tesseract } from '../data/website-data';
-import { checkCharClass, CLASSES, getCharacterByHighestTalent, getTalentBonus } from '@parsers/talents';
+import { CLASSES, getCharacterByHighestTalent, getTalentBonus } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
-import { isBundlePurchased } from '@parsers/misc';
+import { hasItemDropped, isBundlePurchased, getMasterclassCostReduction } from '@parsers/misc';
 import { getOptimizedGenericUpgrades } from './genericUpgradeOptimizer';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getPaletteBonus } from '@parsers/gaming';
+import { getExoticMarketBonus } from '@parsers/world-6/farming';
 
 export const tachyonNames = {
   0: 'Purple',
@@ -259,7 +262,7 @@ const getMapMultiBonus = (mapBonuses, maxMapBonus) => {
 
 const getMapMulti = (index) => {
   return (2 * Math.max(0, lavaLog(index) - 3.5)
-      + Math.max(0, lavaLog2(index) - 12))
+    + Math.max(0, lavaLog2(index) - 12))
     * (lavaLog(index) / 2.5)
     + (Math.min(2, index / 1e3) + Math.max(5 * (lavaLog(index) - 5), 0));
 }
@@ -327,10 +330,10 @@ export const getExtraTachyon = (character, account) => {
   const bundleBonus = isBundlePurchased(account?.bundles, 'bun_x') ? 1.2 : 1;
 
   return (1 + (calcTesseractBonus(upgrades, 17, 0)
-      + (tesseract +
-        ((calcTesseractBonus(upgrades, 34, 0) * lavaLog(account?.accountOptions?.[390]))
-          + ((calcTesseractBonus(upgrades, 56, 0) * lavaLog(account?.accountOptions?.[393]))
-            + (equipBonus + (jewelBonus + arcadeBonus)))))) / 100)
+    + (tesseract +
+      ((calcTesseractBonus(upgrades, 34, 0) * lavaLog(account?.accountOptions?.[390]))
+        + ((calcTesseractBonus(upgrades, 56, 0) * lavaLog(account?.accountOptions?.[393]))
+          + (equipBonus + (jewelBonus + arcadeBonus)))))) / 100)
     * (1 + emperorBonus / 100)
     * (1 + charmBonus / 100)
     * Math.max(1, backupEnergy)
@@ -363,9 +366,9 @@ export const getArcanistStats = (upgrades, totalUpgradeLevels, character, accoun
   }
 
   const damage = (5 + (calcTesseractBonus(upgrades, 0, 0) + (calcTesseractBonus(upgrades, 6, 0)
-      + (calcTesseractBonus(upgrades, 15, 0) + (calcTesseractBonus(upgrades, 36, 0)
-        + calcTesseractBonus(upgrades, 50, 0)))))) * (1 + (ghastlyPowerX
-      * (totalUpgradeLevels / 100)) / 100)
+    + (calcTesseractBonus(upgrades, 15, 0) + (calcTesseractBonus(upgrades, 36, 0)
+      + calcTesseractBonus(upgrades, 50, 0)))))) * (1 + (ghastlyPowerX
+        * (totalUpgradeLevels / 100)) / 100)
     * Math.pow(1.04, Math.max(0, equipmentWeaponPower))
     * (1 + arcanistForm / 100)
     * (1 + (calcTesseractBonus(upgrades, 12, 0)
@@ -375,9 +378,9 @@ export const getArcanistStats = (upgrades, totalUpgradeLevels, character, accoun
           + (calcTesseractBonus(upgrades, 42, 0) + calcTesseractBonus(upgrades, 53, 0)))))) / 100)
     * (1 + equipBonus2 / 100);
   const defence = (calcTesseractBonus(upgrades, 2, 0)
-      + (calcTesseractBonus(upgrades, 11, 0)
-        + (calcTesseractBonus(upgrades, 29, 0)
-          + calcTesseractBonus(upgrades, 46, 0))))
+    + (calcTesseractBonus(upgrades, 11, 0)
+      + (calcTesseractBonus(upgrades, 29, 0)
+        + calcTesseractBonus(upgrades, 46, 0))))
     * (1 + (goulishPower *
       (totalUpgradeLevels / 100)) / 100)
     * (1 + (calcTesseractBonus(upgrades, 22, 0)
@@ -387,10 +390,10 @@ export const getArcanistStats = (upgrades, totalUpgradeLevels, character, accoun
       * lavaLog(account?.accountOptions?.[391])) / 100);
 
   const accuracy = (2 + (calcTesseractBonus(upgrades, 1, 0)
-      + (calcTesseractBonus(upgrades, 9, 0)
-        + (calcTesseractBonus(upgrades, 19, 0)
-          + (calcTesseractBonus(upgrades, 38, 0)
-            + calcTesseractBonus(upgrades, 52, 0))))))
+    + (calcTesseractBonus(upgrades, 9, 0)
+      + (calcTesseractBonus(upgrades, 19, 0)
+        + (calcTesseractBonus(upgrades, 38, 0)
+          + calcTesseractBonus(upgrades, 52, 0))))))
     * (1 + (goulishPower *
       (totalUpgradeLevels / 100)) / 100)
     * (1 + (calcTesseractBonus(upgrades, 22, 0)
@@ -454,14 +457,20 @@ export const getPrismaFragChance = (character, account, upgrades) => {
 
 export const getPrismaMulti = (account) => {
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Prisma_Bonuses')?.bonus;
-  const tesseractBonus = getTesseractBonus(account, 45)
-  return Math.min(3, 2 + (tesseractBonus + arcadeBonus) / 100);
+  const tesseractBonus = getTesseractBonus(account, 45);
+  const paletteBonus = getPaletteBonus(account, 28);
+  const exoticMarketBonus = getExoticMarketBonus(account, 48);
+  const legendBonus = getLegendTalentBonus(account, 36);
+  const trophyBonus = hasItemDropped(account, 'Trophy23') ? 10 : 0;
+  const totalEtherealSigils = account?.alchemy?.p2w?.totalEtherealSigils || 0;
+
+  return Math.min(3, 2 + (tesseractBonus + (arcadeBonus + (trophyBonus + (paletteBonus + (0.2 * totalEtherealSigils + exoticMarketBonus)))) + legendBonus) / 100)
 }
 
 const getUpgradeCost = ({ index, x1, x2, level, account, upgrades }) => {
   return (1 / (1 + (calcTesseractBonus(upgrades, 49, 0)
-      * lavaLog(account?.accountOptions?.[392])) / 100))
-    * 3 * Math.pow(1.04, index) * (level + (x1 + level) * Math.pow(x2 + 0.01, level))
+    * lavaLog(account?.accountOptions?.[392])) / 100))
+    * 3 * Math.pow(1.04, index) * getMasterclassCostReduction(account) * (level + (x1 + level) * Math.pow(x2 + 0.01, level))
 }
 
 const getTesseractBonusAtLevel = (upgrades, index, levelOverride) => {
@@ -475,11 +484,11 @@ const getTesseractBonusAtLevel = (upgrades, index, levelOverride) => {
 export const calcTesseractBonus = (upgrades, index, anotherIndex) => {
   const upgrade = upgrades?.[index];
   return 3 === index || 7 === index || 8 === index || 10 === index ||
-  13 === index || 16 === index || 20 === index ||
-  25 === index || 26 === index || 28 === index ||
-  33 === index || 35 === index || 39 === index ||
-  40 === index || 43 === index || 45 === index ||
-  48 === index || 57 === index || 58 === index
+    13 === index || 16 === index || 20 === index ||
+    25 === index || 26 === index || 28 === index ||
+    33 === index || 35 === index || 39 === index ||
+    40 === index || 43 === index || 45 === index ||
+    48 === index || 57 === index || 58 === index
     ? 999 === anotherIndex
       ? 0
       : upgrade?.level * upgrade?.x5

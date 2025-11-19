@@ -279,7 +279,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
     const holesObject = account?.hole?.holesObject;
     const monumentBonus = getMonumentBonus({ holesObject, t: 0, i: 2 });
     const schematicBonus = getSchematicBonus({ holesObject, t: 56, i: 0 });
-    const lampBonus = getLampBonus({ holesObject, t: 0, i: 0 });
+    const lampBonus = getLampBonus({ holesObject, t: 0, i: 0, account });
     const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 54);
 
     const mealSpeed = 10

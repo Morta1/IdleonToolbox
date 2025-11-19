@@ -35,7 +35,7 @@ const Skills = ({ skills, charName, account, characters, character, showSkillsRa
             maxWidth: 500,
             flexWrap: 'wrap'
           } : {}),
-          gridTemplateColumns: { xs: showSkillsRankOneOnly ? 'fit-content' : `repeat(5, minmax(45px, 100px))` },
+          gridTemplateColumns: { xs: showSkillsRankOneOnly ? 'fit-content' : `repeat(6, minmax(45px, 100px))` },
           gridTemplateRows: showSkillsRankOneOnly ? null : { xs: 'repeat(3, minmax(45px, 100px))' },
           justifyContent: 'center'
         }}>

@@ -2,6 +2,8 @@ import { tryToParse } from '../utility/helpers';
 import { cogKeyMap, flagsReqs, randomList, towers } from '../data/website-data';
 import { createCogstructionData } from './cogstrution';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
+import { getAtomBonus } from '@parsers/atomCollider';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 
 export const getConstruction = (idleonData, account) => {
   const cogMapRaw = idleonData?.CogMap || tryToParse(idleonData?.CogM);
@@ -372,24 +374,39 @@ export const applyMaxLevelToTowers = (accountData) => {
 
 const getConstructionMasteryBonus = (totalConstruct, index) => {
   // "ExtraMaxLvAtom"
-  if (index === 6) {
-    return totalConstruct >= constructionMasteryThresholds?.[6] ? 30 : 0
-  } else if (index === 4) {
-    return totalConstruct >= constructionMasteryThresholds?.[3] ? 100 : 0
-  } else if (index === 5) {
-    return totalConstruct >= constructionMasteryThresholds?.[5] ? 100 : 0
+  if (index === 0) {
+    return Math.max(0, Math.floor(totalConstruct / 10));
+  } else if (index === 1) {
+    return Math.max(0, 2 * Math.floor((totalConstruct - constructionMasteryThresholds?.[2]) / 10));
+  } else if (index === 2) {
+    return Math.max(0, 5 * Math.floor((totalConstruct - constructionMasteryThresholds?.[4]) / 10));
   } else if (index === 3) {
-    return totalConstruct >= constructionMasteryThresholds?.[1] ? 35 : 0
+    return totalConstruct >= constructionMasteryThresholds?.[1] ? 35 : 0;
+  } else if (index === 4) {
+    return totalConstruct >= constructionMasteryThresholds?.[3] ? 100 : 0;
+  } else if (index === 5) {
+    return totalConstruct >= constructionMasteryThresholds?.[5] ? 100 : 0;
+  } else if (index === 6) {
+    return totalConstruct >= constructionMasteryThresholds?.[6] ? 30 : 0;
   }
   return 0;
 }
 
-export const getExtraMaxLevels = (account, maxLevel, atomBonus) => {
+export const getExtraMaxLevels = (account, maxLevel, atomBonus, index) => {
   const totalConstruct = account?.towers?.totalLevels;
   return 50 === maxLevel ? Math.round(2 * atomBonus
-      + (getConstructionMasteryBonus(totalConstruct, 6, 0)
-        + 100 * getGambitBonus(account, 9)))
+    + (getConstructionMasteryBonus(totalConstruct, 6, 0)
+      + 100 * getGambitBonus(account, 9)))
     : 101 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 4, 0)
-      : 100 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 5, 0)
+      : 100 === maxLevel
+        ? (18 <= index && account?.coralReef?.unlockedCorals > index - 18
+          ? getConstructionMasteryBonus(totalConstruct, 5, 0) + 100
+          : getConstructionMasteryBonus(totalConstruct, 5, 0))
         : 15 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 3, 0) : 0;
+}
+
+export const getGildedBoostioBonus = (account) => {
+  const atomBonus = getAtomBonus(account, 'Nitrogen_-_Construction_Trimmer');
+  const legendTalentBonus = getLegendTalentBonus(account, 33);
+  return (3 + atomBonus / 100) * (1 + legendTalentBonus / 100);
 }

@@ -5,6 +5,27 @@ import React from 'react';
 export const patchNotes = [
   {
     'ver': '3.3.10',
+    'gameVer': '2.0.45',
+    'date': '18/11/2025',
+    'features': [
+      'Updated the website with version 2.0.45 data and assets',
+      'Updated bonuses across the website to include World 7 bonuses',
+      'Added Spelunking page under Account -> World 7 with Upgrades, Lore (Chapters and Bosses), and Elixirs tabs',
+      'Added Gallery page under Account -> World 7 with Trophies and Nametags tabs',
+      'Added Legend Talents page under Account -> World 7',
+      'Added Coral Reef page under Account -> World 7 with Reef Upgrades, Coral Kid Upgrades, and Dancing Coral tabs',
+      'Added Zenith Market page under Account -> World 7',
+      'Added Clam Work page under Account -> World 7 with Upgrades and Compensations tabs',
+      'Added World 7 dashboard alerts for missing Gallery trophies and nametags',
+      'Added Gaming palette to Gaming page',
+      'Added the abilit to filter our passive cards in card search page',
+      'Updated bubbles page with additional bubble levels (Kattlekruk)',
+      'Added the ability to filter by tradable companions in the companions page'
+    ],
+    'fixes': []
+  },
+  {
+    'ver': '3.3.10',
     'gameVer': '2.0.43',
     'date': '28/09/2025',
     'features': [

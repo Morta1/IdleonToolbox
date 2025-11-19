@@ -793,4 +793,4 @@ export function parseShorthandNumber(input) {
   return num * (multipliers[suffix] || 1);
 }
 
-export const worldColor = ['#64b564', '#f1ac45', '#00bcd4', '#864ede', '#de4e4e', '#5FF1B4FF'];
+export const worldColor = ['#64b564', '#f1ac45', '#00bcd4', '#864ede', '#de4e4e', '#5FF1B4FF', '#40e0d0'];

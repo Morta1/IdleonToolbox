@@ -102,7 +102,8 @@ export const skillIndexMap = {
   15: { name: 'gaming', icon: 'ClassIcons56' },
   16: { name: 'farming', icon: 'ClassIcons57' },
   17: { name: 'sneaking', icon: 'ClassIcons58' },
-  18: { name: 'summoning', icon: 'ClassIcons59' }
+  18: { name: 'summoning', icon: 'ClassIcons59' },
+  19: { name: 'spelunking', icon: 'ClassIcons60' }
 };
 
 export const keysMap = {

@@ -12,7 +12,7 @@ import { getStudyBonus } from '@parsers/world-5/hole';
 
 export const getJustice = (holesObject, accountData) => {
 
-  const rewardMulti = getMonumentMultiReward(holesObject, 1) || 0;
+  const rewardMulti = getMonumentMultiReward(holesObject, 1, accountData) || 0;
   const timeForNextFight = 72E3 * (1 - rewardMulti);
   const hours = holesObject?.braveryMonument?.[2] || 0;
   const hoursRewards = holesInfo?.[31]?.split(' ').slice(8, 16);

@@ -1,4 +1,4 @@
-import { Divider, Stack, TextField, Typography } from '@mui/material';
+import { Alert, Divider, Stack, TextField, Typography } from '@mui/material';
 import { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { getSteamParams } from '../../../logins/steam';
@@ -31,10 +31,11 @@ const SteamLogin = ({ setOpen }) => {
          alt={'steam-login'}/>
     <Divider sx={{ my: 2 }}/>
     <Typography variant={'body1'}>After signing in, you'll be redirected to a Legend of Idleon page. Do not take any
-      action on this page. Simply copy the URL from your browser’s address bar, return here, paste it into the box, and
+      action on this page. Simply copy the URL from your browser's address bar, return here, paste it into the box, and
       click 'Login'.</Typography>
-    <Typography sx={{ mt: 1 }} variant={'body2'}>* Do not click the big blue button before copying the
-      URL.</Typography>
+    <Alert severity="warning" sx={{ mt: 2 }} >
+      <strong>Important:</strong> Do not click the big blue button before copying the URL.
+    </Alert>
     <TextField sx={{ mt: 2 }} error={!!error} helperText={error} value={steamUrl} onChange={(e) => {
       setError('');
       setSteamUrl(e.target.value)

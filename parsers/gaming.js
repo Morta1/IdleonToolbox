@@ -1,12 +1,11 @@
-import { gamingImports, gamingUpgrades, randomList2, superbitsUpgrades } from '../data/website-data';
-import { notateNumber, number2letter } from '../utility/helpers';
+import { gamingImports, gamingPalette, gamingUpgrades, randomList2, superbitsUpgrades } from '../data/website-data';
+import { commaNotation, notateNumber, number2letter } from '../utility/helpers';
 import { getMinorDivinityBonus } from './divinity';
-import { getHighestCharacterSkill, isMasteryBonusUnlocked } from './misc';
+import { getHighestCharacterSkill, getHighestLevelCharacter, isMasteryBonusUnlocked } from './misc';
 import { getEquinoxBonus } from './equinox';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { isArtifactAcquired } from '@parsers/sailing';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
-import { getJewelBonus, getLabBonus } from '@parsers/lab';
 import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
 import { getBubbleBonus, getVialsBonusByStat } from '@parsers/alchemy';
 import { CLASSES, getHighestTalentByClass } from '@parsers/talents';
@@ -14,17 +13,25 @@ import { getAchievementStatus } from '@parsers/achievements';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
+import { getExoticMarketBonus } from '@parsers/world-6/farming';
+import { getJadeEmporiumBonus } from '@parsers/world-6/sneaking';
+import { getArcadeBonus } from '@parsers/arcade';
+import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 
 const { tryToParse } = require('../utility/helpers');
+
 
 export const getGaming = (idleonData, characters, account, serverVars) => {
   const gamingRaw = tryToParse(idleonData?.Gaming) || idleonData?.Gaming;
   const gamingSproutRaw = tryToParse(idleonData?.GamingSprout) || idleonData?.GamingSprout;
-  if (!gamingRaw || !gamingSproutRaw) return null;
-  return parseGaming(gamingRaw, gamingSproutRaw, characters, account, serverVars);
+  const spelunkRaw = tryToParse(idleonData?.Spelunk) || idleonData?.Spelunk;
+  if (!gamingRaw || !gamingSproutRaw || !spelunkRaw) return null;
+  return parseGaming(gamingRaw, gamingSproutRaw, spelunkRaw, characters, account, serverVars);
 }
 
-const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars) => {
+const parseGaming = (gamingRaw, gamingSproutRaw, spelunkRaw, characters, account, serverVars) => {
   const logBook = []
   const baseValue = 'hhhhhhhhh';
   for (let i = 0; i < 9; i++) {
@@ -51,7 +58,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
   const acorns = calcAcorns(lastAcornClicked, squirrelLevel);
   const nuggetsBreakpoints = calcResourcePerTime('nugget');
   const acornsBreakpoints = calcResourcePerTime('acorn', squirrelLevel);
-  const acornShop = calcAcornShop(gamingSproutRaw);
+  const acornShop = calcAcornShop(gamingSproutRaw, account);
   const gamingImportsStartIndex = 25;
   const gamingImportsValues = gamingSproutRaw?.slice(gamingImportsStartIndex, gamingImportsStartIndex + gamingImports?.length + 1);
   const goldenSprinkler = account?.gemShopPurchases?.find((value, index) => index === 131) ?? 0;
@@ -94,8 +101,10 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
   const superbitsUnlocks = gamingRaw?.[12] || [];
   const superbitsUpg = superbitsUpgrades?.map((upgrade, index) => ({
     ...upgrade,
+    originalIndex: index,
     unlocked: superbitsUnlocks?.indexOf(number2letter?.[index]) !== -1,
     cost: upgrade?.x1 * Math.pow(10, upgrade?.x2),
+    isDuper: index >= 24,
     ...calcSuperbitBonus(characters, account, index)
   }));
   const dna = gamingRaw?.[5];
@@ -109,7 +118,14 @@ const parseGaming = (gamingRaw, gamingSproutRaw, characters, account, serverVars
     value: bp,
     chance: getNewMutationChance(unlockedMutations, bp)
   }));
+
+  const { palette, paletteFinalBonus } = getPalette(account, spelunkRaw);
+  const paletteLuck = getPaletteLuck(paletteFinalBonus, account, characters);
+
   return {
+    palette,
+    paletteFinalBonus,
+    paletteLuck,
     bestNugget,
     bits,
     envelopes,
@@ -153,7 +169,7 @@ export const getBitsMulti = (account, characters) => {
   const bittyLittlyTalentBonus = getHighestTalentByClass(characters, CLASSES.Divine_Knight, 'BITTY_LITTY') ?? 0;
   const highestGaming = getHighestCharacterSkill(characters, 'gaming');
   const winBonus = getWinnerBonus(account, '<x Gaming Bits');
-  const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 1 });
+  const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 1, account });
   const emperorBonus = getEmperorBonus(account, 7);
   const skillMastery = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.gaming?.rank, 1) || 0;
   const bubbleBonus = getBubbleBonus(account, 'BIT_BY_BIT', false);
@@ -175,11 +191,14 @@ export const getBitsMulti = (account, characters) => {
     { name: 'Meal', value: mealBonus / 100 },
     { name: 'Vial', value: vialBonus / 100 },
     { name: 'Bitty Litty Talent', value: bittyLittlyTalentBonus * highestGaming / 100 },
-    { name: 'Achievements', value: (1 + (getAchievementStatus(account?.achievements, 296) + getAchievementStatus(account?.achievements, 307)) / 20) },
+    {
+      name: 'Achievements',
+      value: (1 + (getAchievementStatus(account?.achievements, 296) + getAchievementStatus(account?.achievements, 307)) / 20)
+    },
     { name: 'Poing', value: Math.max(1, Math.min(25, account?.gaming?.poingMulti)) },
     { name: 'Summoning', value: winBonus / 100 },
     { name: 'Lamp', value: lampBonus / 100 },
-    { name: 'Emperor', value: emperorBonus / 100 },
+    { name: 'Emperor', value: emperorBonus / 100 }
   ]
 
   return {
@@ -251,15 +270,49 @@ const calcSuperbitBonus = (characters, account, index) => {
   } else if (index === 7) {
     bonus = Math.floor(account?.towers?.totalWaves / 10);
     additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
-  } else if (index === 20) {
-    bonus = Math.floor(account?.towers?.totalWaves / 10) * 50;
-    additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
   } else if (index === 12) {
     // skill level doesn't update if the character is away for a long time
     const highestGaming = getHighestCharacterSkill(characters, 'gaming');
     totalBonus = Math.floor(highestGaming);
+  } else if (index === 20) {
+    bonus = Math.floor(account?.towers?.totalWaves / 10) * 50;
+    additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
+  } else if (index === 27) {
+    bonus = 2.5 * Math.max(0, Math.floor((account?.towers?.totalWaves - 300) / 10));
+    additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
+  } else if (index === 24) {
+    const discoveriesCount = account?.spelunking?.discoveriesCount ?? 0;
+    totalBonus = Math.pow(1.01, discoveriesCount);
+    additionalInfo = `${discoveriesCount} discoveries`
+  } else if (index === 26) {
+    const discoveriesCount = account?.spelunking?.discoveriesCount ?? 0;
+    totalBonus = Math.pow(1.02, discoveriesCount);
+    additionalInfo = `${discoveriesCount} discoveries`
+  } else if (index === 28) {
+    const snailLevel = account?.gaming?.snailLevel ?? 0;
+    totalBonus = Math.round(20 * Math.max(0, snailLevel - 25));
+    additionalInfo = `${snailLevel} snail level`
+  } else if (index === 32) {
+    const discoveriesCount = account?.spelunking?.discoveriesCount ?? 0;
+    totalBonus = Math.pow(1.05, discoveriesCount);
+    additionalInfo = `${discoveriesCount} discoveries`
+  } else if (index === 38) {
+    totalBonus = account?.gaming?.paletteFinalBonus;
+    additionalInfo = `Palette Lucky +${account?.gaming?.paletteFinalBonus?.toFixed(2)}%`
+  } else if (index === 42) {
+    const highestSneaking = getHighestCharacterSkill(characters, 'sneaking');
+    totalBonus = Math.round(highestSneaking);
+    additionalInfo = `${highestSneaking} sneaking level`
+  } else if (index === 45) {
+    const highestGaming = getHighestCharacterSkill(characters, 'gaming');
+    totalBonus = Math.round(Math.max(0, 3 * (highestGaming - 200)));
+    additionalInfo = `${highestGaming} gaming level`
+  } else if (index === 47) {
+    const highestLevel = getHighestLevelCharacter(characters);
+    totalBonus = Math.floor(Math.max(0, 0.01 * (highestLevel - 500)));
+    additionalInfo = `${highestLevel} level`
   }
-  return { bonus, totalBonus, additionalInfo }
+  return { bonus: isNaN(bonus) ? 0 : bonus, totalBonus: isNaN(totalBonus) ? 0 : totalBonus, additionalInfo }
 }
 
 const getDropsAmount = (baseValue, fertilizerUpgrades) => {
@@ -333,7 +386,8 @@ const calcFertilizerBonus = (index, gamingRaw, gamingSproutRaw, characters, acco
   if (index === 0) {
     const baseValue = gamingRaw?.[1];
     return notateNumber((1 + 4 * baseValue) * Math.pow(1.065, baseValue), 'bits');
-  } else if (index === 1) {
+  }
+  else if (index === 1) {
     const baseValue = gamingRaw?.[2];
     const purrmepPlayer = characters?.find(({ linkedDeity }) => linkedDeity === 6); // purrmep is limited to only 1 player linked.
     const godBonus = getMinorDivinityBonus(purrmepPlayer, account, 6, characters) ?? 0;
@@ -345,7 +399,8 @@ const calcFertilizerBonus = (index, gamingRaw, gamingSproutRaw, characters, acco
     const final = (growTime * growChance) / 60;
     const time = 100 * final / 100;
     return time > 60 ? `${100 * time / 60 / 100} Hr` : `${(Math.trunc(time * 1000) / 1000)} Min`;
-  } else if (index === 2) {
+  }
+  else if (index === 2) {
     const baseValue = gamingRaw?.[3];
     const maxSprouts = account?.gemShopPurchases?.find((value, index) => index === 133) ?? 0;
     return notateNumber(Math.round(Math.min(24, 3 + baseValue + (maxSprouts))));
@@ -380,11 +435,11 @@ const calcFertilizerCost = (index, gamingRaw, serverVars) => {
   }
 }
 
-const calcAcornShop = (gamingSproutRaw) => {
-  const bonusTexts = ['All plants give x{ bits', 'All plants grow {% faster']
+const calcAcornShop = (gamingSproutRaw, account) => {
+  const bonusTexts = ['All plants give x{ bits', 'All plants grow {% faster', 'Boosts Palette Lucky by +{%']
   const [, , firstValue, secondValue] = gamingSproutRaw?.[27];
-  return [firstValue, secondValue].map((value, index) => {
-    const bonus = index === 0 ? 1 + (8 * value) / (250 + (value)) : Math.pow(3 * (value), 0.8);
+  return [firstValue, secondValue, account?.accountOptions?.[415]].map((value, index) => {
+    const bonus = index === 0 ? 1 + (8 * value) / (250 + (value)) : index === 1 ? Math.pow(3 * (value), 0.8) : index === 2 ? Math.pow(value, 0.8) : 0;
     return {
       cost: 1 + value + 2 * Math.max(0, (value) - 5),
       description: bonusTexts?.[index].replace(/{/, `${bonus.toFixed(2)}`),
@@ -407,9 +462,79 @@ export const calculateSnailEncouragementForSuccessChance = (snailLevel, desiredS
 
     if (midValue < desiredSuccessChance) {
       low = mid + 1; // Increment low by 1 to ensure progress
-    } else {
+    }
+    else {
       high = mid;
     }
   }
   return low; // Return low as a whole number
+}
+
+const getPalette = (account, spelunkRaw) => {
+  const palette = [];
+  let sum = 0;
+
+  for (let i = 0; i < 37; i++) {
+    const spelunkValue = spelunkRaw?.[9]?.[i];
+    const paletteMultiplier = gamingPalette?.[i]?.x4;
+    const paletteType = gamingPalette?.[i]?.x5;
+    let bonus;
+    if (paletteType === 1) {
+      bonus = (spelunkValue / (spelunkValue + 25)) * paletteMultiplier;
+    }
+    else {
+      bonus = spelunkValue * paletteMultiplier;
+    }
+
+    let description = gamingPalette?.[i]?.description || '';
+    if (description) {
+      description = description.replace(/\{/g, commaNotation(bonus));
+      description = description.replace(/#/g, '' + (Math.floor(100 * bonus) / 100));
+      const multiplierFormatted = notateNumber(1 + bonus / 100, 'MultiplierInfo');
+      description = description.replace(/\}/g, multiplierFormatted);
+    }
+
+    palette.push({
+      ...gamingPalette?.[i],
+      level: spelunkValue,
+      bonus,
+      description
+    });
+    sum += spelunkValue;
+  }
+
+  const finalBonus = Math.round(sum * (1 + getLegendTalentBonus(account, 10) / 100));
+  palette.push(finalBonus);
+  return {
+    palette,
+    paletteFinalBonus: finalBonus
+  };
+}
+
+export const getPaletteBonus = (account, index) => {
+  return account?.gaming?.palette?.[index]?.bonus ?? 0;
+}
+
+export const getPaletteLuck = (paletteFinalBonus, account, characters) => {
+  const superbit42Unlocked = isSuperbitUnlocked(account, 'Colourful_Luck') ? 1 : 0;
+  const meritocracyBonus = getMeritocracyBonus(account, 8) ?? 0;
+  const paletteBonus3 = getPaletteBonus(account, 3) ?? 0;
+  const loreEpiBonus = getLoreBossBonus(account, 5) ?? 0;
+  const superbit38Unlocked = isSuperbitUnlocked(account, 'Bigger_Palette') ? 1 : 0;
+  const gamingLevel = getHighestCharacterSkill(characters, 'gaming') ?? 0;
+  const superbit45Unlocked = isSuperbitUnlocked(account, 'Gamer_Luck') ? 1 : 0;
+  const snailLevel = account?.gaming?.snailLevel ?? 0;
+  const superbit28Unlocked = isSuperbitUnlocked(account, 'Lucky_Snail') ? 1 : 0;
+  const acornShopBonus2 = account?.gaming?.imports?.[2]?.acornShop?.[2]?.bonus ?? 0;
+  const exoticBonus44 = getExoticMarketBonus(account, 44) ?? 0;
+  const jadeEmporiumBonus = getJadeEmporiumBonus(account, 'Palette_Slot') ?? 0;
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Palette_Luck')?.bonus ?? 0;
+
+  return (1 + superbit42Unlocked)
+    * (1 + meritocracyBonus / 100)
+    * (1 + (paletteBonus3 +
+      ((paletteFinalBonus + loreEpiBonus) * superbit38Unlocked +
+        (Math.max(0, 3 * (gamingLevel - 200) * superbit45Unlocked) +
+          (20 * Math.max(0, snailLevel - 25) * superbit28Unlocked
+            + (acornShopBonus2 + exoticBonus44 + (100 * jadeEmporiumBonus + arcadeBonus))))) / 100));
 }

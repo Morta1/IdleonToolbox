@@ -70,14 +70,14 @@ const getHarpNoteProduced = ({ index, holesObject, stringTypes, power, accountDa
       + (getHarpStringBonus(holesObject, 3)
         + getHarpStringBonus(holesObject, 5))) / 100)
     * (1 + getHarpStringBonus(holesObject, 1) / 100)
-    * (1 + getLampBonus({ holesObject, t: 99, i: 0 }) / 100)
+    * (1 + getLampBonus({ holesObject, t: 99, i: 0, account: accountData }) / 100)
     * (1 + getGambitBonus(accountData, 3) / 100)
     * (1 + getMonumentBonus({ holesObject, t: 1, i: 1 }) / 100)
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 3 }) / 100)
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 8 }) / 100)
     * (1 + getBellBonus({ holesObject, t: 2 }) / 100)
     * (1 + accountData?.gemShopPurchases?.[2] / 2)
-    * (1 + getJarBonus({ holesObject, i: 20 }) / 100)
+    * (1 + getJarBonus({ holesObject, i: 20, account: accountData }) / 100)
     * (1 + stampBonus / 100)) / Math.pow(4, index);
 }
 

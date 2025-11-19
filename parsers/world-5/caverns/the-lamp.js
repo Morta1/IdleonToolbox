@@ -3,6 +3,7 @@ import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/worl
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { notateNumber } from '@utility/helpers';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
+import { getZenithBonus } from '@parsers/statues';
 
 export const getLamp = (holesObject, accountData, unlockedCaverns) => {
   const wishPerDay = getWishPerDay(holesObject, accountData, unlockedCaverns);
@@ -14,12 +15,13 @@ export const getLamp = (holesObject, accountData, unlockedCaverns) => {
       desc = wish?.description.replace('{', getLampBonus({
         holesObject,
         t: Math.floor((index - 4 + Math.floor(index / 11)) / 2),
-        i: 0
+        i: 0,
+        account: accountData
       }))
-        .replace('}', getLampBonus({ holesObject, t: Math.floor((index - 4 + Math.floor(index / 11)) / 2), i: 1 }))
-        .replace('~', getLampBonus({ holesObject, t: Math.floor((index - 4 + Math.floor(index / 11)) / 2), i: 2 }))
+        .replace('}', getLampBonus({ holesObject, t: Math.floor((index - 4 + Math.floor(index / 11)) / 2), i: 1, account: accountData }))
+        .replace('~', getLampBonus({ holesObject, t: Math.floor((index - 4 + Math.floor(index / 11)) / 2), i: 2, account: accountData }))
     } else {
-      desc = wish?.description.replace('#', notateNumber(1 + getLampBonus({ holesObject, t: 99, i: 0 }) / 100))
+      desc = wish?.description.replace('#', notateNumber(1 + getLampBonus({ holesObject, t: 99, i: 0, account: accountData }) / 100))
     }
     return { ...wish, cost, futureCosts, description: desc };
   });
@@ -61,11 +63,11 @@ const getWishCost = (wishLevel, t) => {
 }
 
 // 'LampBonuses'
-export const getLampBonus = ({ holesObject, t, i }) => {
+export const getLampBonus = ({ holesObject, t, i, account }) => {
+  const zenithBonus = 1 + getZenithBonus(account, 2) / 100;
   const raw = '25,10,8;15,40,10;20,35,12;1,1,1;2,2,2';
   return 99 === t
-    ? 25 * holesObject?.wishesUsed?.[7]
+    ? 25 * holesObject?.wishesUsed?.[7] * zenithBonus
     : (raw.split(';')[t].split(',')[i]
-      * holesObject?.wishesUsed?.[Math.min(11, Math.round(4 + 2 * t))])
-
+      * holesObject?.wishesUsed?.[Math.min(11, Math.round(4 + 2 * t))]) * zenithBonus
 }

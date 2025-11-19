@@ -556,6 +556,29 @@ export const migrateToVersion26 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion27 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (!dashboardConfig?.account?.['World 7']?.gallery) {
+    if (!dashboardConfig?.account) {
+      dashboardConfig.account = {};
+    }
+    if (!dashboardConfig?.account?.['World 7']) {
+      dashboardConfig.account['World 7'] = {};
+    }
+    dashboardConfig.account['World 7'].gallery = {
+      checked: true,
+      options: [{ name: 'trophiesMissing', checked: true }, { name: 'nametagsMissing', checked: true }]
+    };
+  }
+
+  dashboardConfig.version = 27;
+  return dashboardConfig
+}
+
 
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
@@ -638,6 +661,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 25) {
       migratedConfig = migrateToVersion26(migratedConfig);
+    }
+    if (migratedConfig?.version === 26) {
+      migratedConfig = migrateToVersion27(migratedConfig);
     }
 
   }

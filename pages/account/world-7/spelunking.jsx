@@ -1,5 +1,89 @@
+import React, { useContext } from 'react';
+import { AppContext } from '@components/common/context/AppProvider';
+import { NextSeo } from 'next-seo';
+import { getTabs } from '@utility/helpers';
+import { PAGES } from '@components/constants';
+import { getAmberIndex, getAmberDenominator } from '@parsers/world-7/spelunking';
+import { CardTitleAndValue, Breakdown } from '@components/common/styles';
+import { Stack, Typography } from '@mui/material';
+import { commaNotation, notateNumber, prefix } from '@utility/helpers';
+import Tabber from '@components/common/Tabber';
+import Upgrades from '@components/account/Worlds/World7/spelunking/Upgrades';
+import Lore from '@components/account/Worlds/World7/spelunking/Lore';
+import Elixirs from '@components/account/Worlds/World7/spelunking/Elixirs';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
+import Tooltip from '@components/Tooltip';
+
 const Spelunking = () => {
-  return <div>Spelunking</div>
+  const { state } = useContext(AppContext);
+  const { upgrades,
+    chapters,
+    currentAmber,
+    bestCaveLevels,
+    amberGain,
+    maxDailyPageReads,
+    staminaRegenRate,
+    discoveriesCount,
+    maxDiscoveries,
+    loreBosses,
+    elixirs,
+    ownedElixirs,
+    ownedSlots,
+    maxElixirDuplicates,
+    power,
+    totalGrandDiscoveries
+  } = state?.account?.spelunking || {};
+  const denominator = getAmberDenominator(state?.account);
+  const amberFoundValue = currentAmber < 1e9 ? commaNotation(currentAmber / denominator) : notateNumber(currentAmber / denominator, "Big");
+
+  return <>
+    <NextSeo
+      title="Spelunking | Idleon Toolbox"
+      description="Keep track of your spelunking levels, upgrades and stats"
+    />
+
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <CardTitleAndValue title={'Power'} >
+        <Stack direction={'row'} alignItems={'center'} gap={1}>
+          <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg17.png`} alt="" />
+          <Typography>{notateNumber(power.value, "Big")}</Typography>
+          <Tooltip title={<Breakdown titleStyle={{ width: 170 }} breakdown={power.breakdown} />}>
+            <IconInfoCircleFilled size={18} />
+          </Tooltip>
+        </Stack>
+      </CardTitleAndValue>
+      <CardTitleAndValue title={'Amber Found'}
+        value={amberFoundValue} icon={`data/CaveAmber${getAmberIndex(state?.account)}.png`} />
+      <CardTitleAndValue title={'Amber Gain'}>
+        <Stack direction={'row'} alignItems={'center'} gap={1}>
+          <img src={`${prefix}data/CaveAmber${getAmberIndex(state?.account)}.png`} alt="" />
+          <Typography>{notateNumber(amberGain.value, "Big")}</Typography>
+          <Tooltip title={<Breakdown titleStyle={{ width: 170 }} breakdown={amberGain.breakdown} />}>
+            <IconInfoCircleFilled size={18} />
+          </Tooltip>
+        </Stack>
+      </CardTitleAndValue>
+      <CardTitleAndValue title={'Daily Page Reads'} value={`${state?.account?.accountOptions?.[410]} / ${maxDailyPageReads}`} />
+      <CardTitleAndValue title={'Stamina Regen Rate'} >
+        <Stack direction={'row'} alignItems={'center'} gap={1}>
+          <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg4.png`} alt="" />
+          <Typography>{notateNumber(staminaRegenRate.value, "Big")}</Typography>
+          <Tooltip title={<Breakdown titleStyle={{ width: 170 }} breakdown={staminaRegenRate.breakdown} />}>
+            <IconInfoCircleFilled size={18} />
+          </Tooltip>
+        </Stack>
+      </CardTitleAndValue>
+      <CardTitleAndValue title={'Discoveries'} value={`${discoveriesCount} / ${maxDiscoveries}`} />
+      <CardTitleAndValue title={'Grand Discoveries'} value={`${totalGrandDiscoveries}`} />
+
+    </Stack>
+
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'spelunking')}>
+      <Upgrades upgrades={upgrades} currentAmber={amberFoundValue} denominator={denominator} amberIndex={getAmberIndex(state?.account)} />
+      <Lore chapters={chapters} loreBosses={loreBosses} bestCaveLevels={bestCaveLevels} />
+      <Elixirs elixirs={elixirs} ownedElixirs={ownedElixirs} ownedSlots={ownedSlots} maxElixirDuplicates={maxElixirDuplicates} />
+    </Tabber>
+  </>
 }
 
 export default Spelunking;
