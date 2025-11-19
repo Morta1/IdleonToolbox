@@ -18,7 +18,7 @@ export const patchNotes = [
       'Added Clam Work page under Account -> World 7 with Upgrades and Compensations tabs',
       'Added World 7 dashboard alerts for missing Gallery trophies and nametags',
       'Added Gaming palette to Gaming page',
-      'Added the abilit to filter our passive cards in card search page',
+      'Added the ability to filter out passive cards in card search page',
       'Updated bubbles page with additional bubble levels (Kattlekruk)',
       'Added the ability to filter by tradable companions in the companions page'
     ],

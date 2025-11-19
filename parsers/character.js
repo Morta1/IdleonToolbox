@@ -119,6 +119,7 @@ import { allProwess } from '@parsers/efficiency';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
+import { getZenithBonus } from '@parsers/statues';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
