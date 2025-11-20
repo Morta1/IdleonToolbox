@@ -611,7 +611,7 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
   else if (acquired === 4 && (artifact?.sovereignFormDescription === 'The_artifact\'s_main_bonus_is_quadrupled!')) {
     bonus *= 4;
   }
-  else if (acquired === 5 && artifact?.omnipotentFormDescription === 'The_artifact\'s_main_bonus_is_quintupled') {
+  else if (acquired === 5 && artifact?.omnipotentFormDescription === 'The_artifact\'s_main_bonus_is_quintupled!') {
     bonus *= 5;
   }
 

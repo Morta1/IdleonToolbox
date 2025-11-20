@@ -13,6 +13,7 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getPaletteBonus } from '@parsers/gaming';
+import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 
 export const stampsMapping = { 0: 'combat', 1: 'skills', 2: 'misc' };
 export const altStampsMapping = { _: 'combat', a: 'skills', b: 'misc' };
@@ -112,7 +113,6 @@ export const updateStamps = (account, characters, gildedStamp = true, forcedStam
   const flatten = Object.values(account?.stamps || {}).flat().map(stamp =>
     evaluateStamp(stamp, account, characters, gildedStamp, forcedStampReducer, forceMaxCapacity)
   );
-
   return groupByKey(flatten, ({ category }) => category);
 }
 
@@ -229,9 +229,13 @@ const getMaterialCostToLevel = (level, maxLevel, stamp, account, reduction = 0, 
 const getMaterialCost = (level, stamp, account, reduction = 0, gildedStamp) => {
   const reductionVial = getVialsBonusByEffect(account?.alchemy?.vials, 'material_cost_for_stamps');
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'ENVELOPE_PILE') ?? 0;
+  console.log('sigilBonus', sigilBonus);
   const sigilReduction = (1 / (1 + sigilBonus / 100));
   const stampReducerVal = Math.max(0.1, 1 - reduction / 100);
+  const meritocracyBonus = 1 / (1 + getMeritocracyBonus(account, 14) / 100);
+
   return Math.max(1, (stamp?.baseMatCost * (gildedStamp ? 0.05 : 1)
+    * meritocracyBonus
     * stampReducerVal
     * sigilReduction
     * Math.pow(stamp?.powMatBase, Math.pow(Math.round(level / stamp?.reqItemMultiplicationLevel) - 1, 0.8)))
