@@ -5,6 +5,7 @@ import { lavaLog, lavaLog2, notateNumber } from '@utility/helpers';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getEventShopBonus } from '@parsers/misc';
 import { getTesseractBonus } from '@parsers/tesseract';
+import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 
 export const getGambit = (holesObject, accountData) => {
   const pointsMulti = getPointsMulti(holesObject, accountData);
@@ -19,7 +20,7 @@ export const getGambit = (holesObject, accountData) => {
       bonus,
       pointsReq,
       name: name.replace('{', Math.floor(bonus)).replace('}', bonus
-        ? notateNumber(1 + Math.floor(bonus) / 100, 'MultiplierInfo')
+        ? `${notateNumber(1 + Math.floor(bonus) / 100, 'MultiplierInfo')}x`
         : 0).replace(/[梦而]/g, '').replace('(TAP ME)', '')
     }
   })
@@ -55,6 +56,8 @@ const getPointsMulti = (holesObject, accountData) => {
     + getStudyBonus(holesObject, 13, 0)
     + getSchematicBonus({ holesObject: accountData?.hole?.holesObject, t: 78, i: 10 })
     + getMonumentBonus({ holesObject, t: 2, i: 7 })
+    + getJarBonus({ holesObject, i: 23, account: accountData })
+    + getJarBonus({ holesObject, i: 30, account: accountData })
     + getTesseractBonus(accountData, 47)
   ) / 100;
 }

@@ -120,6 +120,7 @@ import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getZenithBonus } from '@parsers/statues';
+import { getSuperTalentLeftToSpend } from '@parsers/world-7/legendTalents';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
 
@@ -379,6 +380,8 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
 
   const [, selectedTalentPreset, selectedCardPreset] = char?.PlayerStuff || [];
   character.selectedTalentPreset = selectedTalentPreset;
+  const superTalentLeftToSpend = getSuperTalentLeftToSpend(character.level, character.playerId, selectedTalentPreset, account);
+  character.superTalentLeftToSpend = superTalentLeftToSpend;
   const talentsObject = char?.[`SkillLevels`];
   const talentPresetObject = char?.[`SkillPreset`];
   const maxTalentsObject = char?.[`SkillLevelsMAX`];

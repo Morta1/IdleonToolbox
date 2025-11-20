@@ -480,6 +480,14 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                     key={`missing-nametag-${rawName}-${index}`}
                     title={`${cleanUnderscore(itemName)} is missing from gallery (${owner})`}
                     iconPath={`data/${rawName}`} />) : null}
+              {alerts?.['World 7']?.spelunking?.pageReads?.available > 0 ?
+                <Alert
+                  title={`You have ${alerts?.['World 7']?.spelunking?.pageReads?.available} page read${alerts?.['World 7']?.spelunking?.pageReads?.available === 1 ? '' : 's'} available (${alerts?.['World 7']?.spelunking?.pageReads?.current}/${alerts?.['World 7']?.spelunking?.pageReads?.max})`}
+                  iconPath={'data/Spelunking0'} /> : null}
+              {alerts?.['World 7']?.legendTalents?.legendPointsLeftToSpend > 0 ?
+                <Alert
+                  title={`You have ${alerts?.['World 7']?.legendTalents?.legendPointsLeftToSpend} unspent legend talent point${alerts?.['World 7']?.legendTalents?.legendPointsLeftToSpend === 1 ? '' : 's'}`}
+                  iconPath={'data/LegendTalentIcon0'} /> : null}
             </Stack>
           </Stack> : null}
         </Stack> : <Typography>There are no account alerts to display</Typography>}

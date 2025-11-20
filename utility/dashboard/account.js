@@ -1017,7 +1017,6 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       const missingNametags = ownedNametags?.filter(({ rawName, Type }) =>
         rawName && !nametagsUsedRawNames.has(rawName) && (Type !== "REPLICA_NAMETAG")
       );
-      console.log('missingNametags', missingNametags);
       if (missingNametags?.length > 0) {
         gallery.missingNametags = missingNametags.map(({ displayName, name, owner, rawName }) => ({
           itemName: displayName || name,
@@ -1029,6 +1028,36 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
   }
   if (Object.keys(gallery).length > 0) {
     alerts.gallery = gallery;
+  }
+  if (fields?.spelunking?.checked) {
+    const spelunking = {};
+    if (options?.spelunking?.pageReads?.checked) {
+      const currentPageReads = account?.accountOptions?.[410] ?? 0;
+      const maxDailyPageReads = account?.spelunking?.maxDailyPageReads ?? 0;
+      if (currentPageReads < maxDailyPageReads) {
+        const availablePageReads = maxDailyPageReads - currentPageReads;
+        spelunking.pageReads = {
+          current: currentPageReads,
+          max: maxDailyPageReads,
+          available: availablePageReads
+        };
+      }
+    }
+    if (Object.keys(spelunking).length > 0) {
+      alerts.spelunking = spelunking;
+    }
+  }
+  if (fields?.legendTalents?.checked) {
+    const legendTalents = {};
+    if (options?.legendTalents?.legendPointsLeftToSpend?.checked) {
+      const pointsLeftToSpend = account?.legendTalents?.pointsLeftToSpend ?? 0;
+      if (pointsLeftToSpend > 0) {
+        legendTalents.legendPointsLeftToSpend = pointsLeftToSpend;
+      }
+    }
+    if (Object.keys(legendTalents).length > 0) {
+      alerts.legendTalents = legendTalents;
+    }
   }
   return alerts;
 };

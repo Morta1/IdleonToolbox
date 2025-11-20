@@ -579,6 +579,45 @@ export const migrateToVersion27 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion28 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (!dashboardConfig?.account) {
+    dashboardConfig.account = {};
+  }
+  if (!dashboardConfig?.account?.['World 7']) {
+    dashboardConfig.account['World 7'] = {};
+  }
+
+  if (!dashboardConfig?.account?.['World 7']?.spelunking) {
+    dashboardConfig.account['World 7'].spelunking = {
+      checked: true,
+      options: [{ name: 'pageReads', checked: true }]
+    };
+  }
+
+  if (!dashboardConfig?.account?.['World 7']?.legendTalents) {
+    dashboardConfig.account['World 7'].legendTalents = {
+      checked: true,
+      options: [{ name: 'pointsLeftToSpend', checked: true }]
+    };
+  }
+
+  const superTalentOptionExists = dashboardConfig?.characters?.talents?.options?.find(({ name }) => name === 'superTalentLeftToSpend');
+  if (dashboardConfig?.characters?.talents && !superTalentOptionExists) {
+    dashboardConfig.characters.talents.options = [
+      ...(dashboardConfig.characters.talents.options || []),
+      { name: 'superTalentLeftToSpend', checked: true }
+    ];
+  }
+
+  dashboardConfig.version = 28;
+  return dashboardConfig
+}
+
 
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
@@ -664,6 +703,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 26) {
       migratedConfig = migrateToVersion27(migratedConfig);
+    }
+    if (migratedConfig?.version === 27) {
+      migratedConfig = migrateToVersion28(migratedConfig);
     }
 
   }

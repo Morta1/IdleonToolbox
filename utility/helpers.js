@@ -270,7 +270,7 @@ export const pascalCase = (str) => {
 
 export const getCoinsArray = (coins) => {
   if (!Number.isFinite(coins)) return [];
-  const highestCoinIndex = 21;
+  const highestCoinIndex = 20;
   let n = BigInt(Math.floor(coins)).toString();
 
   let ret = new Map();

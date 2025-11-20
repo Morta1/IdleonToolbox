@@ -147,7 +147,16 @@ export const toolsAlerts = (account, characters, character) => {
   return hasAvailableToolUpgrade(character, account)
 }
 export const talentsAlerts = (account, characters, character, lastUpdated, options) => {
-  return isTalentReady(character, options)
+  const alerts = {
+    talents: isTalentReady(character, options)
+  };
+  if (options?.talents?.superTalentLeftToSpend?.checked) {
+    const superTalentLeftToSpend = character?.superTalentLeftToSpend ?? 0;
+    if (superTalentLeftToSpend > 0) {
+      alerts.superTalentLeftToSpend = superTalentLeftToSpend;
+    }
+  }
+  return alerts;
 }
 export const isTalentReady = (character, options) => {
   const { talents } = options;

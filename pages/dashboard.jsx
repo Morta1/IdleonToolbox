@@ -17,7 +17,7 @@ import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 27,
+  version: 28,
   account: {
     General: {
       tasks: {
@@ -354,6 +354,14 @@ const baseTrackers = {
       gallery: {
         checked: true,
         options: [{ name: 'trophiesMissing', checked: true }, { name: 'nametagsMissing', checked: true }]
+      },
+      spelunking: {
+        checked: true,
+        options: [{ name: 'pageReads', checked: true }]
+      },
+      legendTalents: {
+        checked: true,
+        options: [{ name: 'pointsLeftToSpend', checked: true }]
       }
     }
   },
@@ -434,6 +442,9 @@ const baseTrackers = {
         category: 'Misc',
         name: 'alwaysShowTalents',
         checked: false
+      }, {
+        name: 'superTalentLeftToSpend',
+        checked: true
       }]
     },
     equipment: { checked: true, options: [{ name: 'availableUpgradesSlots', checked: true }] },

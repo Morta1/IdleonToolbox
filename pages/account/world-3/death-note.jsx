@@ -78,7 +78,7 @@ const LegendTooltip = () => {
   return <Stack gap={1}>
     <LegendItem number={25_000} points={1} icon={`data/StatusSkull${0}`}/>
     <LegendItem number={100_000} points={2} icon={`data/StatusSkull${1}`}/>
-    <LegendItem number={250_00} points={3} icon={`data/StatusSkull${2}`}/>
+    <LegendItem number={250_000} points={3} icon={`data/StatusSkull${2}`}/>
     <LegendItem number={500_000} points={4} icon={`data/StatusSkull${3}`}/>
     <LegendItem number={1e6} points={2} icon={`data/StatusSkull${4}`}/>
     <LegendItem number={5e6} points={7} icon={`data/StatusSkull${5}`}/>

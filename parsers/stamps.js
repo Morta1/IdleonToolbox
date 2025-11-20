@@ -247,6 +247,7 @@ export const getStampsBonusByEffect = (account, effectName, character) => {
 }
 
 export const getStampBonus = (account, stampTree, stampName, character) => {
+  // In-game display is missing: pristine charm bonus, upgrade vault bonus
   const stampIndex = account?.stamps?.[stampTree]?.findIndex(({ rawName }) => rawName === stampName);
   const stamp = account?.stamps?.[stampTree]?.[stampIndex];
   if (!stamp) return 0;

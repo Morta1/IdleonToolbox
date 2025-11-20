@@ -96,7 +96,7 @@ export const PAGES = {
         },
         { label: 'weeklyBosses', icon: 'etc/SWR_Containment' },
         { label: 'kangaroo', icon: 'data/RooA', tabs: ['Upgrades', 'Tar Upgrades', 'Bonuses'] },
-        { label: 'voteBallot', icon: 'etc/VoteBallot' }
+        { label: 'voteBallot', icon: 'etc/VoteBallot', tabs: ['Bonus', 'Meritocracy'] }
       ]
     },
     'world 3': {

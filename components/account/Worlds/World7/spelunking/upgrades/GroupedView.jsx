@@ -17,13 +17,6 @@ const columnNames = {
 };
 
 const GroupedView = ({ grouped, currentAmber, denominator, amberIndex, searchTerm = '' }) => {
-  const isMatching = (upgrade) => {
-    if (!searchTerm.trim()) return false;
-    const lowerSearch = searchTerm.toLowerCase();
-    return cleanUnderscore(upgrade.name).toLowerCase().includes(lowerSearch) ||
-           cleanUnderscore(upgrade.description).toLowerCase().includes(lowerSearch);
-  };
-
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
       {Object.entries(grouped).map(([groupKey, upgrades]) => (
@@ -33,21 +26,9 @@ const GroupedView = ({ grouped, currentAmber, denominator, amberIndex, searchTer
             <CardContent>
               {upgrades.map((u, idx) => {
                 const costValue = u.cost < 1e9 ? commaNotation(u.cost / denominator) : notateNumber(u.cost / denominator, "Big");
-                const matches = isMatching(u);
-
                 return (
                   <Fragment key={u.name}>
-                    <Box
-                      sx={{
-                        border: matches ? '2px solid' : 'none',
-                        borderColor: matches ? 'primary.main' : 'transparent',
-                        borderRadius: matches ? 1 : 0,
-                        bgcolor: matches ? 'primary.light' : 'transparent',
-                        p: matches ? 1 : 0,
-                        mb: matches ? 1 : 0,
-                        transition: 'all 0.2s'
-                      }}
-                    >
+                    <Box>
                       <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ opacity: u.level > 0 ? 1 : 0.5 }}>
                         <img src={`${prefix}data/CaveShopUpg${u.originalIndex}.png`} />
                         <Stack mb={1} >

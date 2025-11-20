@@ -205,7 +205,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
               {trackers?.starSigns && alerts?.starSigns?.missingStarSigns > 0 ?
                 <Alert title={`${name} is missing ${alerts?.starSigns?.missingStarSigns} star signs`}
                        iconPath={'data/SignStar1b'}/> : null}
-              {trackers?.talents && alerts?.talents?.length > 0 ? alerts?.talents?.map(({
+              {trackers?.talents && alerts?.talents?.talents?.length > 0 ? alerts?.talents?.talents?.map(({
                                                                                           name,
                                                                                           skillIndex,
                                                                                           cooldown
@@ -218,6 +218,10 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                          : `${cleanUnderscore(pascalCase(name))} is ready`}
                        iconPath={`data/UISkillIcon${skillIndex}`}/>
               )) : null}
+              {trackers?.talents && alerts?.talents?.superTalentLeftToSpend > 0 ?
+                <Alert
+                  title={`${name} has ${alerts?.talents?.superTalentLeftToSpend} unspent super talent point${alerts?.talents?.superTalentLeftToSpend === 1 ? '' : 's'}`}
+                  iconPath={'data/LegendTalentIcon0'} /> : null}
               {trackers?.tools?.checked && alerts?.tools?.length > 0 ? alerts?.tools?.map(({
                                                                                              rawName,
                                                                                              displayName

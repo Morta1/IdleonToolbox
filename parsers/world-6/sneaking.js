@@ -233,7 +233,7 @@ const parseNinjaItems = (array, doChunks, gemstones, account) => {
   if (doChunks) {
     return result?.toChunks(4)?.map(array => array.map(item => ({ ...item, value: getItemValue(item) })));
   }
-  console.log('result', result);
+
   return result?.map(item => {
     const legendTalentBonus = getLegendTalentBonus(account, 6);
     const symbolBonus = item?.symbolBonus || 0;
