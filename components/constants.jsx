@@ -212,6 +212,7 @@ export const PAGES = {
         { label: 'coralReef', icon: 'data/ReefA1', tabs: ['Reef Upgrades', 'Coral Kid Upgrades', 'Dancing Coral'] },
         { label: 'zenithMarket', icon: 'etc/Cluster', tabs: [] },
         { label: 'clamWork', icon: 'data/ClamPearl0', tabs: ['Upgrades', 'Compensations'] },
+        { label: 'adviceFish', icon: 'data/W7_fish', tabs: [] },
         { label: 'S2', icon: 'data/ClassIconsNA2', tabs: [] },
         { label: 'S3', icon: 'data/ClassIconsNA2', tabs: [] },
 

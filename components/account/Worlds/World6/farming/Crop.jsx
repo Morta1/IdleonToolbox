@@ -10,16 +10,17 @@ const Crop = ({ crop, maxTimes }) => {
   return <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
     {seedInfo.map(({ name, seedId, cropIdMin, cropIdMax }, index) => {
       const array = createRange(cropIdMin, cropIdMax)
+      const img = name === 'MEDAL' ? `data/FarmCrop230.png` : `etc/Seed_${seedId}.png`;
       return <Stack key={name}>
         <Stack mb={1} direction={'row'} gap={1} alignItems={'center'}>
-          <img width={20} height={20} src={`${prefix}etc/Seed_${seedId}.png`} alt={''}/>
+          <img width={20} height={20} src={`${prefix}${img}`} alt={''} />
           <Stack direction={'row'} gap={1} alignItems={'center'}>
             <Typography variant={'h5'}>{name.toLowerCase().capitalize()}</Typography>
             <Stack direction={'row'} gap={1} alignItems={'center'}>
               <Typography variant={'h6'}>{msToDate(maxTimes?.[index]?.value * 1000)}</Typography>
               <Tooltip title={<Breakdown titleStyle={{ width: 160 }} breakdown={maxTimes?.[index]?.breakdown}
-                                         notation={'MultiplierInfo'}/>}>
-                <IconInfoCircleFilled size={18}/>
+                notation={'MultiplierInfo'} />}>
+                <IconInfoCircleFilled size={18} />
               </Tooltip>
             </Stack>
           </Stack>
@@ -27,7 +28,7 @@ const Crop = ({ crop, maxTimes }) => {
         <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
           {array.map((cropId) => {
             return <Card key={'crop' + cropId} data-index={cropId}
-                         sx={{ width: 90, opacity: crop?.[cropId] >= 0 ? 1 : .5 }}>
+              sx={{ width: 90, opacity: crop?.[cropId] >= 0 ? 1 : .5 }}>
               <CardContent sx={{ '&:last-child': { p: 1 } }}>
                 <Tooltip title={crop?.[cropId] >= 0 ? numberWithCommas(crop?.[cropId]) : ''}>
                   <Stack direction={'row'} gap={1} justifyContent={'center'} alignItems={'center'}>

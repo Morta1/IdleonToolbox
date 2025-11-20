@@ -9,6 +9,7 @@ import {
 } from '../../data/website-data';
 import { getLabBonus } from "@parsers/lab";
 import { CLASSES, getHighestTalentByClass } from "@parsers/talents";
+import { getLegendTalentBonus } from "@parsers/world-7/legendTalents";
 
 export const getSneaking = (idleonData, serverVars, charactersData, account) => {
   const rawSneaking = tryToParse(idleonData?.Ninja);
@@ -21,7 +22,7 @@ const parseSneaking = (rawSneaking, serverVars, charactersData, account) => {
   const gemStonesUnlocked = rawSneaking?.[106]?.filter(name => name.includes('NjGem'));
 
   let gemStones = Object.entries(ninjaEquipment)
-    .reduce((result, [key, data]) => key.includes('NjGem') ? [...result, data] : [], [])
+    .reduce((result, [key, data]) => key.includes('NjGem') ? [...result, data] : result, [])
     .map((data, index) => {
       const unlocked = gemStonesUnlocked?.[index];
       const baseValue = account?.accountOptions?.[233 + index] ?? 0;
@@ -98,8 +99,8 @@ const parseSneaking = (rawSneaking, serverVars, charactersData, account) => {
   })).filter(({ name }) => name !== 'Name');
 
   const order = (ninjaExtraInfo[24]).split(" ");
-  const inventory = parseNinjaItems(rawSneaking?.slice(60, 99), false, gemStones);
-  const characterEquipments = parseNinjaItems(rawSneaking?.slice(12, 12 + (charactersData?.length * 4)), true, gemStones?.[3]?.bonus);
+  const inventory = parseNinjaItems(rawSneaking?.slice(60, 99), false, gemStones, account);
+  const characterEquipments = parseNinjaItems(rawSneaking?.slice(12, 12 + (charactersData?.length * 4)), true, gemStones?.[3]?.bonus, account);
 
   const players = charactersData.map((_, index) => ({
     equipment: characterEquipments?.[index]?.map(equip => ({
@@ -219,23 +220,41 @@ const getGemstoneBonus = (gemstone, index, fifthGemstoneBonus, characters) => {
     * Math.max(1, talentBonus);
 };
 
-const parseNinjaItems = (array, doChunks, gemstones) => {
+const parseNinjaItems = (array, doChunks, gemstones, account) => {
   const gemstoneBonus = gemstones?.[3]?.bonus || 0;
 
-  let result = array?.map(([itemName, level]) => ({
+  let result = array?.map(([itemName, level], index) => ({
     ...ninjaEquipment[itemName],
-    level
+    level,
+    symbolBonus: getSymbolBonus(account, itemIdToSymbolLevelId(60 + index)),
+    symbolLevel: account?.spelunking?.sneakingSlots?.[24 + index]
   }));
 
   if (doChunks) {
     return result?.toChunks(4)?.map(array => array.map(item => ({ ...item, value: getItemValue(item) })));
   }
+  console.log('result', result);
+  return result?.map(item => {
+    const legendTalentBonus = getLegendTalentBonus(account, 6);
+    const symbolBonus = item?.symbolBonus || 0;
 
-  return result?.map(item => ({
-    ...item,
-    value: getItemValue(item) * (item?.name?.startsWith('Gold_') ? 1 + gemstoneBonus / 100 : 1)
-  }));
+    return {
+      ...item,
+      value: getItemValue(item) * (item?.name?.startsWith('Gold_') ? 1 + gemstoneBonus / 100
+        * (1 + symbolBonus / 100) * (1 + legendTalentBonus / 100) : 1)
+    }
+  });
 };
+
+const getSymbolBonus = (account, index) => {
+  return 999 == index ?
+    50 * (account?.spelunking?.sneakingSlots?.[index] + 1)
+    : 50 * account?.spelunking?.sneakingSlots?.[index];
+}
+
+const itemIdToSymbolLevelId = (itemId) => {
+  return 60 > itemId ? Math.round(itemId - 14) - 2 * Math.floor((itemId - 14) / 4) : Math.round(itemId - 36);
+}
 
 const getItemValue = ({ type, subType, level, x3, x5 }) => {
   if (type === 1) {

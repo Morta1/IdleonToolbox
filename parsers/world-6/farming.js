@@ -268,7 +268,7 @@ export const updateFarming = (characters, account) => {
   const growthRate = Math.max(1, speedGMO)
     * (1 + (marketGrowthRate + vialBonus) / 100)
     * (1 + summoningBonus / 100);
-  const maxTimes = [0, 1, 2, 3, 4, 5].map((seedType) => {
+  const maxTimes = [0, 1, 2, 3, 4, 5, 6].map((seedType) => {
     const growthReq = 14400 * Math.pow(1.5, seedType);
     const value = growthReq / growthRate;
     const breakdown = [
@@ -317,16 +317,16 @@ export const updateFarming = (characters, account) => {
 }
 
 const getNextUpgradesReq = ({
-                              index,
-                              cropId,
-                              cropIdIncrement,
-                              level,
-                              maxLvl,
-                              cost,
-                              costExponent,
-                              isUnique = true,
-                              emperorCostCalc
-                            }) => {
+  index,
+  cropId,
+  cropIdIncrement,
+  level,
+  maxLvl,
+  cost,
+  costExponent,
+  isUnique = true,
+  emperorCostCalc
+}) => {
   const upgradeMap = new Map();
 
   let extraLv = 0;
@@ -358,7 +358,7 @@ const getNextUpgradesReq = ({
 
 const getCropType = ({ index, cropId, cropIdIncrement, level }) => {
   return index === 0 ? Math.floor(cropId + cropIdIncrement *
-      (level + (2 * Math.floor(level / 3) + Math.floor(level / 4))))
+    (level + (2 * Math.floor(level / 3) + Math.floor(level / 4))))
     : Math.floor(cropId + cropIdIncrement
       * level)
 }

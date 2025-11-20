@@ -407,9 +407,9 @@ const getMeasurementQuantity = ({ holesObject, accountData, t }) => {
   const mapping = {
     0: { label: 'Gloomie Kills', value: holesObject?.extraCalculations?.[28] },
     1: { label: 'Crops', value: accountData?.farming?.cropsFound },
-    2: { label: 'Account lv', value: accountData?.tome?.tome?.[5]?.quantity },
+    2: { label: 'Account lv', value: accountData?.tome?.tome?.[0]?.quantity },
     3: { label: 'Tome score', value: accountData?.tome?.totalPoints },
-    4: { label: 'All skill lv', value: accountData?.tome?.tome?.[13]?.quantity },
+    4: { label: 'All skill lv', value: accountData?.tome?.tome?.[1]?.quantity },
     5: { label: 'N/A', value: 0 },
     6: {
       label: 'Deathnote pts',
@@ -436,7 +436,7 @@ const getMeasurementQuantityFound = ({ holesObject, accountData, t, i }) => {
       break;
     case 2:
       // Case 2: Tome Quantity Check
-      const tomeQuantity = accountData?.tome?.tome?.[5]?.quantity;
+      const tomeQuantity = accountData?.tome?.tome?.[0]?.quantity;
       result = (i === 99) ? tomeQuantity / 500 : tomeQuantity;
       break;
     case 3:
@@ -444,7 +444,7 @@ const getMeasurementQuantityFound = ({ holesObject, accountData, t, i }) => {
       result = (i === 99) ? points / 2500 : points;
       break;
     case 4:
-      let tomeQuantityAdditional = accountData?.tome?.tome?.[13]?.quantity;
+      let tomeQuantityAdditional = accountData?.tome?.tome?.[1]?.quantity;
       result = (i === 99)
         ? tomeQuantityAdditional / 5e3 + Math.max(0, tomeQuantityAdditional - 18e3) / 1500
         : tomeQuantityAdditional;

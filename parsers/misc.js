@@ -13,7 +13,8 @@ import {
   ninjaExtraInfo,
   randomList,
   rawMapNames,
-  slab
+  slab,
+  generalSpelunky
 } from '../data/website-data';
 import { checkCharClass, CLASSES, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
 import { getMealsBonusByEffectOrStat } from './cooking';
@@ -39,6 +40,30 @@ import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 import { getObolsBonus } from '@parsers/obols';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getCardBonusByEffect } from '@parsers/cards';
+
+export const getAdviceFish = (idleonData) => {
+  const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];
+  const adviceUpgrades = generalSpelunky?.[18]?.split(' ') || [];
+  const upgrades = adviceUpgrades.map((upgrade, index) => {
+    const [name, description, x2, x3, filler] = upgrade.split(',');
+    const level = rawSpelunking?.[11]?.[index] ?? 0;
+    return {
+      level,
+      cost: Math.pow(1.15, level)
+        * Math.pow(10.01, x3),
+      bonus: level / (100 + level)
+        * parseFloat(x2),
+      name,
+      description,
+      x2: parseFloat(x2),
+      x3: parseFloat(x3),
+      filler
+    }
+  });
+  return {
+    upgrades
+  };
+}
 
 export const getGuaranteedCrystalMobs = (account) => {
   const meritocracyBonus = getMeritocracyBonus(account, 15);
@@ -934,7 +959,7 @@ export const getCompanions = (companionObject = {}) => {
     tradableCount: ownedCompanions?.[index]?.tradableCount ?? 0,
     nonTradableCount: ownedCompanions?.[index]?.nonTradableCount ?? 0,
   }))
-  
+
   return {
     totalBoxesOpened: companionObject?.x,
     currentCompanion: companion,

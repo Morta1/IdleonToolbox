@@ -226,7 +226,7 @@ const getCoralKidDescription = (baseDescription, level, index, bonus, account, c
   description = description.replace('}', multiplierNotation);
 
   if (index === 3) {
-    const highestDivinityLevel = getHighestCharacterSkill(charactersData, 'Divinity');
+    const highestDivinityLevel = getHighestCharacterSkill(charactersData, 'divinity'); // TODO: possibly add char select
     description = description.replace('$', '' + highestDivinityLevel);
   } else if (index === 2) {
     const bonus2 = getCoralKidUpgBonus(account, 2);
@@ -242,7 +242,7 @@ const getCoralKidDescription = (baseDescription, level, index, bonus, account, c
   }
 
   const bonus3 = getCoralKidUpgBonus(account, 3);
-  const highestDivinityLevel = getHighestCharacterSkill(charactersData, 'Divinity');
+  const highestDivinityLevel = getHighestCharacterSkill(charactersData, 'divinity'); // TODO: possibly add char select
   const divisor = 100;
   const hatValue = 1 + (1 + bonus3 / 100) * highestDivinityLevel / divisor;
   const hatNotation = notateNumber(hatValue, 'MultiplierInfo');

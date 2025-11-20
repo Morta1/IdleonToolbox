@@ -33,21 +33,21 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
               <Typography mb={.5}>{characters?.[playerIndex]?.name}</Typography>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
                 <Stack alignItems={'center'} gap={1}>
-                  <img width={24} src={`${prefix}data/ClassIcons58.png`} alt={''}/>
+                  <img width={24} src={`${prefix}data/ClassIcons58.png`} alt={''} />
                   <Typography>{characters?.[playerIndex]?.skillsInfo?.sneaking?.level}</Typography>
                 </Stack>
-                <Divider flexItem orientation={'vertical'}/>
+                <Divider flexItem orientation={'vertical'} />
                 <Stack gap={1}>
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
                     <Tooltip title={''}>
                       <img style={{ objectFit: 'contain' }} width={24} height={24}
-                           src={`${prefix}etc/${activityIcon}_Ninja.png`}
-                           alt={''}/>
+                        src={`${prefix}etc/${activityIcon}_Ninja.png`}
+                        alt={''} />
                     </Tooltip>
                     <Typography variant={'caption'}>Floor {floor + 1}</Typography>
                   </Stack>
                   {hasDoor ? <Stack direction={'row'} alignItems={'center'}>
-                    <img width={24} src={`${prefix}data/NjD${floor}.png`} alt={''}/>
+                    <img width={24} src={`${prefix}data/NjD${floor}.png`} alt={''} />
                     <Typography
                       sx={{ flexBasis: '100%' }}
                       variant={'caption'}>{notateNumber(doorHp, 'Big')} / {notateNumber(doorMaxHps?.[floor], 'Big')}</Typography>
@@ -59,7 +59,7 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
                   <Tooltip
                     title={cleanUnderscore(getDescription({ description, value, type, subType }))}
                     key={`droplist-${rawName}-${index}`}>
-                    <img width={24} src={`${prefix}data/${rawName}.png`} alt={''}/>
+                    <img width={24} src={`${prefix}data/${rawName}.png`} alt={''} />
                   </Tooltip> : null)}
               </Stack>
             </CardContent>
@@ -68,9 +68,9 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
             const { description, value, type, subType, name } = item;
             const updatedDescription = getDescription({ description, value, type, subType });
             return <Card key={itemIndex + name}
-                         sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 100 }}>
+              sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 100 }}>
               <CardContent>
-                <Item {...item} description={updatedDescription}/>
+                <Item {...item} description={updatedDescription} />
               </CardContent>
             </Card>
 
@@ -81,11 +81,12 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
     <h4>Inventory</h4>
     <Stack direction={'row'} flexWrap={'wrap'} gap={1} sx={{ maxWidth: (70 * 13) + (8 * 13) }}>
       {inventory?.map((item, index) => {
-        const { rawName, description, value, type, subType } = item;
+        const { rawName, description, value, type, subType, symbolLevel } = item;
         const updatedDescription = getDescription({ description, value, type, subType });
-        return <Card key={'inventory-' + rawName + index} sx={{ width: 70, height: 80 }}>
+        return <Card key={'inventory-' + rawName + index} sx={{ width: 70, height: 80, position: 'relative' }}>
           <CardContent>
-            <Item {...item} description={updatedDescription}/>
+            {symbolLevel > 0 ? <img style={{ position: 'absolute', zIndex: 1, top: 0, left: 0, width: 70, height: 80, }} src={`${prefix}data/NjBorderS${symbolLevel}.png`} alt={''} /> : null}
+            <Item {...item} description={updatedDescription} />
           </CardContent>
         </Card>
       })}
@@ -94,13 +95,13 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
 };
 
 const Item = ({ level, description, name, rawName }) => {
-  return <Stack alignItems={'center'}>
+  return <Stack alignItems={'center'} sx={{ position: 'relative' }}>
     {level
-      ? <Typography textAlign={'center'} sx={{ minWidth: 40 }}
-                    variant={'caption'}>{numberWithCommas(level)}</Typography>
+      ? <Typography textAlign={'center'} sx={{ minWidth: 40, zIndex: 2 }}
+        variant={'caption'}>{numberWithCommas(level)}</Typography>
       : null}
     <Tooltip title={description === '0' || name === 'Nothing' ? '' : cleanUnderscore(description)}>
-      <img width={32} src={`${prefix}data/${rawName}.png`} alt={''}/>
+      <img width={32} style={{ zIndex: 2 }} src={`${prefix}data/${rawName}.png`} alt={''} />
     </Tooltip>
   </Stack>
 }

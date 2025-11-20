@@ -12,7 +12,7 @@ import ItemDisplay from '@components/common/ItemDisplay';
 import { getGoldenFoodMulti } from '@parsers/misc';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
-const breakpoints = [10000, 100000];
+const breakpoints = [10000, 100000, 1e6];
 const Beanstalk = () => {
   const { state } = useContext(AppContext);
   const beanstalkData = state?.account?.sneaking?.beanstalkData;

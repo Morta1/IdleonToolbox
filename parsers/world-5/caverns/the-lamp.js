@@ -65,9 +65,9 @@ const getWishCost = (wishLevel, t) => {
 // 'LampBonuses'
 export const getLampBonus = ({ holesObject, t, i, account }) => {
   const zenithBonus = 1 + getZenithBonus(account, 2) / 100;
-  const raw = '25,10,8;15,40,10;20,35,12;1,1,1;2,2,2';
+  const raw = '25,10,8;15,40,10;20,35,12;5,1,1;2,2,2';
   return 99 === t
     ? 25 * holesObject?.wishesUsed?.[7] * zenithBonus
     : (raw.split(';')[t].split(',')[i]
-      * holesObject?.wishesUsed?.[Math.min(11, Math.round(4 + 2 * t))]) * zenithBonus
+      * holesObject?.wishesUsed?.[Math.min(11, Math.round(4 + 2 * t))]) * zenithBonus;
 }

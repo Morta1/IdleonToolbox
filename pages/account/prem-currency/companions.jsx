@@ -56,7 +56,8 @@ const Companions = () => {
 
   const allLegacy = state?.account?.companions?.list?.slice(0, 11) || [];
   const allFallenSpirits = state?.account?.companions?.list?.slice(12, 24) || [];
-  const allExclusive = [state?.account?.companions?.list[11], ...(state?.account?.companions?.list?.slice(24) || [])].filter(Boolean);
+  const allShallowWaters = state?.account?.companions?.list?.slice(37) || [];
+  const allExclusive = [state?.account?.companions?.list[11], ...(state?.account?.companions?.list?.slice(24, 37) || [])].filter(Boolean);
 
   const filterTradable = (companions) => {
     if (!showTradableOnly) return companions;
@@ -65,6 +66,7 @@ const Companions = () => {
 
   const legacy = filterTradable(allLegacy);
   const fallenSpirits = filterTradable(allFallenSpirits);
+  const shallowWaters = filterTradable(allShallowWaters);
   const exclusive = filterTradable(allExclusive);
 
   return <>
@@ -92,6 +94,7 @@ const Companions = () => {
     <Stack gap={4}>
       <CompanionList title="Legacy Companions" companions={legacy} />
       <CompanionList title="Fallen Spirits" companions={fallenSpirits} />
+      <CompanionList title="Shallow Waters" companions={shallowWaters} />
       <CompanionList title="Exclusive Companions" companions={exclusive} />
     </Stack>
   </>

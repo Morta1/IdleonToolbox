@@ -177,6 +177,7 @@ const parseSpelunking = (account, characters, rawSpelunking, rawTowerInfo) => {
   const talentSpelunkArrays = (rawSpelunking || [])?.slice(20, 41) || [];
 
   return {
+    sneakingSlots: rawSpelunking?.[14],
     totalGrandDiscoveries,
     grandDiscoveriesChance,
     exaltedFragmentFound,

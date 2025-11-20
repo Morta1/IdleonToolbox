@@ -77,6 +77,7 @@ import { getSpelunking } from '@parsers/world-7/spelunking';
 import { getGallery } from '@parsers/world-7/gallery';
 import { getCoralReef } from '@parsers/world-7/coralReef';
 import { getClamWork } from '@parsers/world-7/clamWork';
+import { getAdviceFish } from '@parsers/misc';
 
 export const parseData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime) => {
   try {
@@ -280,8 +281,9 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.emperor = getEmperor(idleonData, accountData);
   accountData.legendTalents = getLegendTalents(idleonData, accountData);
   accountData.gallery = getGallery(idleonData, accountData);
-  accountData.coralReef = getCoralReef(idleonData, accountData);
+  accountData.coralReef = getCoralReef(idleonData, accountData, charactersData);
   accountData.clamWork = getClamWork(idleonData, accountData);
+  accountData.adviceFish = getAdviceFish(idleonData);
 
   // Cleanup unnecessary data
   serializedCharactersData = null;

@@ -9,6 +9,7 @@ import { NextSeo } from 'next-seo';
 import { isCompanionBonusActive } from '../../../parsers/misc';
 import { getMinorDivinityBonus } from '../../../parsers/divinity';
 import CoinDisplay from '../../../components/common/CoinDisplay';
+import { getKrukBubblesDaily } from '@parsers/alchemy';
 
 const Divinity = () => {
   const { state } = useContext(AppContext);
@@ -67,7 +68,7 @@ const Divinity = () => {
                       <Cost title={'Cost To Max'} {...cost} cost={cost?.costToMax}/>
                     </> : null}
                     <Divider sx={{ my: 2 }}/>
-                    <Typography sx={{ minHeight: 100 }} variant={'body1'}>{cleanUnderscore(majorBonus)}</Typography>
+                    <Typography sx={{ minHeight: 100 }} variant={'body1'}>{cleanUnderscore(majorBonus).replace('$', getKrukBubblesDaily(state?.account))}</Typography>
                   </Stack>
                   {hasLinks ? <>
                     <Divider sx={{ my: 2 }}/>

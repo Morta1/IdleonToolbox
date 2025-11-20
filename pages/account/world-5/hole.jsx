@@ -27,7 +27,7 @@ const Hole = () => {
       <Engineer hole={state?.account?.hole}/>
       <Bonuses hole={state?.account?.hole}/>
       <Measure hole={state?.account?.hole}/>
-      <Study hole={state?.account?.hole}/>
+      <Study account={state?.account} />
     </Tabber>
   </>;
 };

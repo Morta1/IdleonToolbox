@@ -3,6 +3,7 @@ import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typograp
 import { CardTitleAndValue } from '@components/common/styles';
 import { cleanUnderscore, commaNotation, msToDate } from '@utility/helpers';
 import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
+import { isSuperbitUnlocked } from '@parsers/gaming';
 
 const colors = {
   0: '#c471d2',
@@ -10,9 +11,11 @@ const colors = {
   2: 'success.light'
 }
 
-const Study = ({ hole }) => {
+const Study = ({ account }) => {
+  const { hole } = account || {};
   const [, , , , study] = hole?.villagers || [];
   const [sortByTime, setSortByTime] = useState(false);
+  const peripheralVision = !!isSuperbitUnlocked(account, 'Peripheral_Vision');
 
   const sortedStudies = useMemo(() => {
     if (!hole?.studies?.studies) return [];
@@ -48,13 +51,17 @@ const Study = ({ hole }) => {
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       {sortedStudies.map(({ name, description, level, active, progress, req, listIndex }, index) => {
         const nextLv = (req - progress) / hole?.studies?.studyPerHour * 1000 * 3600;
+        const isActive = active || (peripheralVision && (
+          sortedStudies[index - 1]?.active || 
+          sortedStudies[index + 1]?.active
+        ));
         return <Card key={`bonus-${index}`}>
           <CardContent sx={{ width: 300, height: 250 }}>
             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
               <Typography color={colors?.[listIndex]} variant={'body1'}
                           sx={{ fontWeight: 'bold' }}>{cleanUnderscore(name)} (Lv. {level})</Typography>
-              {active ? <Typography color={'success.light'} variant={'caption'}>ACTIVE</Typography> : null}
             </Stack>
+              {isActive ? <Typography color={'success.light'} variant={'caption'}>ACTIVE{!active && peripheralVision ? ' (Peripheral Vision)' : ''}</Typography> : null}
             <Typography mt={2}>{cleanUnderscore(description)}</Typography>
             <Stack mt={2} gap={1}>
               <Typography variant={'body2'}>Progress: {commaNotation(progress)} / {commaNotation(req)}</Typography>

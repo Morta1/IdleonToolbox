@@ -9,6 +9,7 @@ import { getAchievementStatus } from '@parsers/achievements';
 import { isSuperbitUnlocked } from '@parsers/gaming';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
+import { getCompassBonus } from '@parsers/compass';
 
 
 export const getBravery = (holesObject, accountData) => {
@@ -80,7 +81,7 @@ export const getMonumentAfkBonus = (holesObject, accountData) => {
           / 1 + (getSchematicBonus({ holesObject, t: 81, i: 20 })
             + (getMeasurementBonus({ holesObject, accountData, t: 11 })
               + (arcadeBonus
-                + 10 * getAchievementStatus(accountData?.achievements, 311)))))));
+                + 10 * getAchievementStatus(accountData?.achievements, 311) + getCompassBonus(accountData, 55)))))));
 
   return {
     value: afkPercent,
@@ -98,7 +99,8 @@ export const getMonumentAfkBonus = (holesObject, accountData) => {
       {
         name: 'Achievement',
         value: 10 * getAchievementStatus(accountData?.achievements, 311)
-      }
+      },
+      { name: 'Compass', value: getCompassBonus(accountData, 55) },
     ],
     expression: `braveryAfkBonus
 + justiceAfkBonus

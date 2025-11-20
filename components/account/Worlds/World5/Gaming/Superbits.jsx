@@ -13,7 +13,7 @@ const Superbits = ({ superbits }) => {
         opacity: !unlocked ? 0.5 : 1
       }}>
         <CardContent>
-          <Typography>{cleanUnderscore(name.capitalize())}{originalIndex}</Typography>
+          <Typography>{cleanUnderscore(name.capitalize())}</Typography>
           <Typography
             sx={{ mt: 2 }}>{cleanUnderscore(description?.replace('}', bonus)?.replace('{', notateNumber(totalBonus, 'MultiplierInfo').replace('.00', '')))}</Typography>
           <Stack my={2} direction={'row'} alignItems={'center'} gap={1}>

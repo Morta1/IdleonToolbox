@@ -265,7 +265,7 @@ const calcSuperbitBonus = (characters, account, index) => {
     bonus = Math.floor(account?.towers?.totalWaves / 10);
     additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
   } else if (index === 13) {
-    bonus = Math.floor(account?.towers?.totalWaves / 10) * 10;
+    bonus = Math.floor(account?.towers?.totalWaves / 10) * 13;
     additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
   } else if (index === 7) {
     bonus = Math.floor(account?.towers?.totalWaves / 10);
