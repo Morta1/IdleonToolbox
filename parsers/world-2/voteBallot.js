@@ -38,9 +38,10 @@ const parseVoteBallot = (idleonData, accountData) => {
   // "MeritocBonusz" == e
   const companionBonus2 = isCompanionBonusActive(accountData, 39) ? accountData?.companions?.list?.at(39)?.bonus : 0;
   const arcadeBonus = getArcadeBonus(accountData?.arcade?.shop, 'Meritocracy_Bonus')?.bonus;
-  const meritocracyMult = 1 + (5 * getClamWorkBonus(accountData, 3)
-    + (companionBonus2 + (getLegendTalentBonus(accountData, 24)
-      + arcadeBonus))) / 100;
+  const legendTalentBonus = getLegendTalentBonus(accountData, 24) ?? 0;
+  const clamWorkBonus = getClamWorkBonus(accountData, 3) ?? 0;
+  const meritocracyMult = 1 + (5 * clamWorkBonus
+    + (companionBonus2 + (legendTalentBonus + arcadeBonus))) / 100;
 
   const parts = ninjaExtraInfo[41].split(" ");
   const upgrades = [];

@@ -149,16 +149,16 @@ export const getCookingEff = (character, characters, account, playerInfo) => {
   const allBaseSkillEff = getAllBaseSkillEff(character, account, characters, playerInfo);
 
   return allEfficiencies
-  * (1 + ((talentBonus * chows)
-    + (talentBonus2
-      + (equipBonus + obolsBonus))) / 100)
-  * (250 + (Math.pow(character?.stats?.strength, .6)
-    * (1 + talentBonus3 / 100)
-    + (stampBonus
-      + ((equipBonus2 + obolsBonus2)
-        + 10 * masteryBonus
-        + postOfficeBonus))
-    + allBaseSkillEff))
+    * (1 + ((talentBonus * chows)
+      + (talentBonus2
+        + (equipBonus + obolsBonus))) / 100)
+    * (250 + (Math.pow(character?.stats?.strength, .6)
+      * (1 + talentBonus3 / 100)
+      + (stampBonus
+        + ((equipBonus2 + obolsBonus2)
+          + 10 * masteryBonus
+          + postOfficeBonus))
+      + allBaseSkillEff))
 }
 
 export const getCookingProwess = (character, account) => {
@@ -167,8 +167,8 @@ export const getCookingProwess = (character, account) => {
 
 export const getSpiceUpgradeCost = (upgradeLevel) => {
   return (upgradeLevel
-      + 1 + Math.floor(Math.max(0, upgradeLevel - 10) / 2)
-      + Math.pow(Math.max(0, upgradeLevel - 30), 1.2))
+    + 1 + Math.floor(Math.max(0, upgradeLevel - 10) / 2)
+    + Math.pow(Math.max(0, upgradeLevel - 30), 1.2))
     * Math.pow(1.02, Math.max(0, upgradeLevel - 60))
 }
 
@@ -386,12 +386,12 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
 
     const fractalIsland = getIsland(account, 'Fractal');
     const reductionUnlocked = fractalIsland?.shop?.find(({
-                                                           effect,
-                                                           unlocked
-                                                         }) => effect.includes('Kitchen_Upgrade_Costs') && unlocked);
+      effect,
+      unlocked
+    }) => effect.includes('Kitchen_Upgrade_Costs') && unlocked);
 
     const baseMath = 1 / ((1 + (kitchenCostVials
-        + sigilBonus) / 100)
+      + sigilBonus) / 100)
       * (1 + (reductionUnlocked ? 30 : 0) / 100)
       * (1 + kitchenCostMeals / 100)
       * (1 + (isRichelin ? 40 : 0) / 100)
@@ -478,19 +478,29 @@ export const getMealMaxLevel = (account) => {
   const firstJadeUnlocked = isJadeBonusUnlocked(account, 'Papa_Blob\'s_Quality_Guarantee');
   const secondJadeUnlocked = isJadeBonusUnlocked(account, 'Chef_Geustloaf\'s_Cutting_Edge_Philosophy');
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 26);
+  const loreBoss = account?.spelunking?.loreBosses?.[6]?.defeated ? 1 : 0;
   return DEFAULT_MEAL_MAX_LEVEL
-    + grimoireBonus
+    + (Math.min(20, grimoireBonus))
     + (causticolumnArtifact?.bonus ?? 0)
     + (firstJadeUnlocked ? 10 : 0)
     + (secondJadeUnlocked ? 10 : 0)
+    + (30 * loreBoss)
 }
 export const getMealLevelCost = (level, achievements, account, localEquinoxUpgrades) => {
   const foodLustChallenge = account?.equinox?.challenges.find(challenge => challenge.current === -1
     && challenge.reward.includes('\'Food_Lust\'_Equinox_Upg_now_reduces_cost_by_-42%_per_stack')) ? 1 : 0;
-  return (1 / Math.min(5, Math.max(1, 1 + (10 * getAchievementStatus(achievements, 233)) / 100)))
-    * Math.max(0.001, Math.pow(Math.max(0.58, 0.8 - 0.22 * foodLustChallenge), getEquinoxBonus(localEquinoxUpgrades || account?.equinox?.upgrades, 'Food_Lust')))
-    * (10 + (level + Math.pow(level, 2)))
-    * Math.pow(1.2 + 0.05 * level, level)
+
+  return Math.pow(10, 22 * Math.floor((level + 1e3) / 1111))
+    * (1 / Math.min(5, Math.max(1, 1 + (10 * getAchievementStatus(achievements, 233)) / 100)))
+    * Math.max(0.001, Math.pow(Math.max(0.58, 0.8 - 0.22 * foodLustChallenge),
+      Math.min(account?.accountOptions?.[193],
+        getEquinoxBonus(localEquinoxUpgrades || account?.equinox?.upgrades, 'Food_Lust')))) *
+    (10 + (level
+      + Math.pow(level, 2)))
+    * Math.pow(1.2 + 0.05 * level,
+      level)
+    * Math.pow(1 + 0.4 * Math.floor((level + 1e3) / 1111),
+      level)
 }
 
 export const calcTimeToNextLevel = (amountNeeded, cookReq, totalMealSpeed) => {

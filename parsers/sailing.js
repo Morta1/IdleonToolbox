@@ -533,9 +533,12 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     const everyXMulti = artifact?.name === '10_AD_Tablet' || artifact?.name === 'Gummy_Orb' || artifact?.name === 'Jade_Rock';
     additionalData = `Looted items: ${lootedItems}`;
     const slabSovereignty = getLabBonus(account?.lab.labBonuses, 15); // gem multi
-    const legendTalentBonus = getLegendTalentBonus(account, 23);
+    const legendTalentBonus = getLegendTalentBonus(account, 28);
     const meritocracyBonus = getMeritocracyBonus(account, 23);
-    const math = artifact?.[multiplierType] * (1 + slabSovereignty / 100) * (1 + legendTalentBonus / 100) * (1 + meritocracyBonus / 100) * Math.floor(Math.max(0, lootedItems - 500) / 10);
+    const math = artifact?.[multiplierType] * (1 + slabSovereignty / 100)
+      * (1 + legendTalentBonus / 100)
+      * (1 + meritocracyBonus / 100)
+      * Math.floor(Math.max(0, lootedItems - 500) / 10);
     bonus = everyXMulti && multiplierType !== 'baseBonus' ? artifact?.baseBonus * math : math;
   }
   else if (artifact?.name === 'Fauxory_Tusk' || artifact?.name === 'Genie_Lamp') {
@@ -630,7 +633,7 @@ export const calcTotalBoatLevels = (boats) => {
   return boats?.reduce((res, { level }) => res + level, 0);
 }
 export const calcArtifactsAcquired = (boats) => {
-  return boats?.reduce((res, { acquired }) => res + acquired, 0);
+  return boats?.reduce((res, { acquired }) => res + (acquired ?? 0), 0);
 }
 
 export const getSlabBonus = (account, index) => {

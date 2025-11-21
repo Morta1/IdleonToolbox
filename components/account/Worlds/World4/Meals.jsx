@@ -25,7 +25,7 @@ import { checkCharClass, CLASSES } from '@parsers/talents';
 
 const maxTimeValue = 8.64e15;
 
-const breakpoints = [-1, 0, -2, -3, 11, 30, 40, 50, 60, 70, 80, 90, 100, 110];
+const breakpoints = [-1, 0, -2, -3, 11, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200];
 const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achievements, lab, equinoxUpgrades }) => {
   const [filters, setFilters] = useState(() => []);
   const [localMeals, setLocalMeals] = useState();
@@ -351,6 +351,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
           const ribbonBonus = getRibbonBonus(account, ribbonIndex);
           const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * ribbonBonus * level * baseStat;
           const effectNotation = realEffect < 1e7 ? commaNotation(realEffect) : notateNumber(realEffect, 'Big');
+
           return (
             <Card key={`${name}-${index}`} sx={{ width: 300, opacity: level === 0 ? 0.5 : 1 }}>
               <CardContent>

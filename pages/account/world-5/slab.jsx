@@ -6,7 +6,7 @@ import HtmlTooltip from '@components/Tooltip';
 import { NextSeo } from 'next-seo';
 import Image from 'next/image';
 import { CardTitleAndValue } from '@components/common/styles';
-
+import { getSlabBonus } from '@parsers/sailing';
 
 const Slab = () => {
   const { state } = useContext(AppContext);
@@ -27,8 +27,9 @@ const Slab = () => {
       { name: 'Sail Spd', icon: 'Arti10', value: state?.account?.sailing?.artifacts?.[10]?.bonus ?? 0 },
       { name: 'Divinity', icon: 'Arti18', value: state?.account?.sailing?.artifacts?.[18]?.bonus ?? 0 },
       { name: 'Bits', icon: 'Arti20', value: state?.account?.sailing?.artifacts?.[20]?.bonus ?? 0 },
-      { name: 'Jade', icon: 'Slab4', value: state?.account?.sneaking?.jadeEmporium?.[6]?.bonus ?? 0 },
-      { name: 'Essence', icon: 'Slab5', value: state?.account?.sneaking?.jadeEmporium?.[8]?.bonus ?? 0 }
+      { name: 'Jade', icon: 'Slab4', value: state?.account?.sneaking?.jadeEmporium?.[8]?.bonus ?? 0 },
+      { name: 'Essence', icon: 'Slab5', value: state?.account?.sneaking?.jadeEmporium?.[6]?.bonus ?? 0 },
+      { name: 'Pow', icon: 'CaveShopUpg17', value: getSlabBonus(state?.account, 6) ?? 0 }
     ];
   }, [state]);
 
@@ -45,7 +46,7 @@ const Slab = () => {
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
         {slabBonuses.map(({ name, value, icon }, index) => {
           return <CardTitleAndValue key={`bonus-${index}`} title={name} value={`${notateNumber(value)}%`}
-                                    icon={`data/${icon}.png`}>
+                                    icon={`data/${icon}.png`} imgStyle={{ width: 22, height: 22, objectFit: 'contain' }}>
           </CardTitleAndValue>
         })}
       </Stack>

@@ -93,13 +93,14 @@ export const applyStatuesMulti = (account, characters) => {
   const voodoStatusification = getHighestTalentByClass(characters, CLASSES.Voidwalker, 'VOODOO_STATUFICATION');
   const talentMulti = 1 + voodoStatusification / 100;
   const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'The_Onyx_Lantern');
+  console.log('artifact', artifact);
   const eventBonus = getEventShopBonus(account, 19) ?? 0;
   const meritocracyMulti = 1 + getMeritocracyBonus(account, 26) / 100;
   const statues = account?.statues?.map((statue) => ({
     ...statue,
     bonus: statue?.bonus,
     talentMulti,
-    onyxMulti: (1 + (100 + artifact?.bonus) / 100) ?? 0,
+    onyxMulti: Math.max(1 + (100 + (artifact?.bonus || 0)) / 100, 1),
     zenithMulti: 1 + (50 + getZenithBonus(account, 0)) / 100,
     eventBonusMulti: 1 + 0.3 * eventBonus,
     meritocracyMulti

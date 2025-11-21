@@ -229,7 +229,6 @@ const getMaterialCostToLevel = (level, maxLevel, stamp, account, reduction = 0, 
 const getMaterialCost = (level, stamp, account, reduction = 0, gildedStamp) => {
   const reductionVial = getVialsBonusByEffect(account?.alchemy?.vials, 'material_cost_for_stamps');
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'ENVELOPE_PILE') ?? 0;
-  console.log('sigilBonus', sigilBonus);
   const sigilReduction = (1 / (1 + sigilBonus / 100));
   const stampReducerVal = Math.max(0.1, 1 - reduction / 100);
   const meritocracyBonus = 1 / (1 + getMeritocracyBonus(account, 14) / 100);
