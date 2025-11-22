@@ -14,6 +14,7 @@ import { getStampsBonusByEffect } from '@parsers/stamps';
 import { getJadeEmporiumBonus } from '@parsers/world-6/sneaking';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
+import { getStatueBonus } from '@parsers/statues';
 // getDancingCoralBonus is implemented locally since it's not exported from spelunking.js
 
 export const getCoralReef = (idleonData, account, charactersData) => {
@@ -107,7 +108,6 @@ const parseCoralReef = (rawSpelunking, account, coralReefLevels, rawDancingCoral
       ...reefData,
       description,
       cost: getReefCost(account, index, level || 0),
-      dayGains: getReefDayGains(account, index),
       bonus: index === 0 ? grindTimeDaily : index === 4 ? 0 : 0
     };
   }) || [];
@@ -119,7 +119,8 @@ const parseCoralReef = (rawSpelunking, account, coralReefLevels, rawDancingCoral
     reefUpgrades,
     grindTimeDaily,
     unlockedCorals: rawSpelunking?.[4]?.[6],
-    reefDayGains: getReefDayGains(account, 0) // Default to first reef
+    ownedCorals: rawSpelunking?.[4]?.[5],
+    reefDayGains: getReefDayGains(account) // Default to first reef
   };
 }
 
@@ -181,10 +182,9 @@ export const getReefCost = (account, index, level) => {
 }
 
 // ReefDayGains from Thingies.js line 118-130
-export const getReefDayGains = (account, index) => {
+export const getReefDayGains = (account) => {
   const baseGain = 10;
-  const companion40 = account?.companions?.list?.[40];
-  const companionBonusValue = companion40?.acquired ? (companion40?.bonus || 0) : 0;
+  const companionBonusValue = isCompanionBonusActive(account, 40) ? account?.companions?.list?.at(40)?.bonus : 0;
   const eventShopBonus = getEventShopBonus(account, 25) || 0;
 
   const gemShopBonus = (account?.gemShopPurchases?.find((value, idx) => idx === 41) || 0);
@@ -197,11 +197,13 @@ export const getReefDayGains = (account, index) => {
   const legendTalentBonus = getLegendTalentBonus(account, 0) || 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Coral_Reef_Gains')?.bonus || 0;
   const emporiumBonus = getJadeEmporiumBonus(account, 'Coral_Reef_Bonus') || 0;
-  const cardBonus = 0;
+  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Coral_Reef_Gains_(Passive)') || 1;
+  const statueBonus = getStatueBonus(account, 31);
   const multiplier = (1 + companionBonusValue / 100)
     * (1 + 0.3 * eventShopBonus)
     * (1 + (20 * gemShopBonus) / 100)
-    * (1 + (coralKidBonus + dancingCoralBonus + clamWorkBonus + killroyBonus + stampBonus + vialBonus + legendTalentBonus + arcadeBonus + (20 * emporiumBonus) + Math.min(2 * cardBonus, 15)) / 100);
+    * (1 + (coralKidBonus + dancingCoralBonus + clamWorkBonus + killroyBonus + stampBonus + vialBonus + legendTalentBonus 
+    + arcadeBonus + (20 * emporiumBonus) + Math.min(2 * passiveCardBonus, 15) + statueBonus) / 100);
 
   return baseGain * multiplier;
 }

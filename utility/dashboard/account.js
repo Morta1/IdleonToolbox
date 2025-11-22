@@ -995,8 +995,14 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       const ownedTrophies = totalOwnedItems?.filter(({ rawName }) =>
         rawName?.includes('Trophy')
       );
+      const inventoryTrophies = account?.gallery?.inventoryTrophies || [];
+      const inventoryTrophiesRawNames = new Set(
+        inventoryTrophies
+          .filter(trophy => trophy?.rawName)
+          .map(trophy => trophy.rawName)
+      );
       const missingTrophies = ownedTrophies?.filter(({ rawName, Type }) =>
-        rawName && !trophiesUsedRawNames.has(rawName) && (Type !== "REPLICA_TROPHY")
+        rawName && !trophiesUsedRawNames.has(rawName) && !inventoryTrophiesRawNames.has(rawName) && (Type !== "REPLICA_TROPHY")
       );
       if (missingTrophies?.length > 0) {
         gallery.missingTrophies = missingTrophies.map(({ displayName, name, owner, rawName }) => ({

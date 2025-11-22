@@ -284,7 +284,6 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.coralReef = getCoralReef(idleonData, accountData, charactersData);
   accountData.clamWork = getClamWork(idleonData, accountData);
   accountData.adviceFish = getAdviceFish(idleonData);
-
   // Cleanup unnecessary data
   serializedCharactersData = null;
   charactersLevels = null;

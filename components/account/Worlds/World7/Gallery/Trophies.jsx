@@ -14,12 +14,72 @@ const podiumIconMap = {
   4: 'GalleryPod3.png'
 };
 
-const Trophies = ({ trophiesUsed, trophyBonuses, formattedTrophyBonuses }) => {
+const Trophies = ({ trophiesUsed, trophyBonuses, formattedTrophyBonuses, inventoryTrophies }) => {
   return (
     <>
+      {inventoryTrophies && inventoryTrophies.length > 0 && (
+        <Stack my={3}>
+          <Typography variant={'h5'} sx={{ mb: 2 }}>Inventory Trophies</Typography>
+          <Card>
+            <CardContent>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                  gap: 2
+                }}
+              >
+                {inventoryTrophies.map((trophy, index) => {
+                  const inventoryMultiplierInfo = trophy.inventoryMultiplier ? (
+                    <>
+                      <Divider sx={{ my: 1 }} />
+                      <TitleAndValue
+                        title={'Inventory Multiplier'}
+                        value={`${notateNumber(trophy.inventoryMultiplier, 'MultiplierInfo')}x`}
+                      />
+                    </>
+                  ) : null;
+
+                  const trophySlot = (
+                    <Stack
+                      alignItems={'center'}
+                      gap={0.5}
+                      sx={{
+                        p: 1,
+                        borderRadius: 1,
+                        '&:hover': { bgcolor: 'action.hover' }
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 48, height: 48 }}>
+                        <TrophyIcon
+                          src={`${prefix}data/${trophy.rawName}.png`}
+                          alt={trophy.displayName || trophy.rawName}
+                        />
+                      </Box>
+                      <Typography variant={'caption'} textAlign={'center'}>
+                        {(trophy.displayName || trophy.rawName)?.replace(/_/g, ' ')}
+                      </Typography>
+                    </Stack>
+                  );
+
+                  return (
+                    <Tooltip
+                      key={`inventory-trophy-${trophy.rawName}-${trophy.inventoryIndex}-${index}`}
+                      title={<ItemDisplay {...trophy} additionalInfo={inventoryMultiplierInfo} />}
+                    >
+                      {trophySlot}
+                    </Tooltip>
+                  );
+                })}
+              </Box>
+            </CardContent>
+          </Card>
+        </Stack>
+      )}
+
       {trophiesUsed && trophiesUsed.length > 0 && (
         <Stack my={3}>
-          <Typography variant={'h5'} sx={{ mb: 2 }}>Trophies</Typography>
+          <Typography variant={'h5'} sx={{ mb: 2 }}>Podium Trophies</Typography>
           <Card>
             <CardContent>
               <Box

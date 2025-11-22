@@ -21,7 +21,7 @@ export const getGallery = (idleonData, account) => {
 const parseGallery = (rawSpelunk, account) => {
   const bonusMulti = getGalleryBonusMulti(rawSpelunk, account);
   const podiumsOwned = getPodiumsOwned(rawSpelunk, account);
-  const { bonuses: trophyBonuses, items: trophiesUsed } = getTrophyBonuses(rawSpelunk, account);
+  const { bonuses: trophyBonuses, items: trophiesUsed, inventory: inventoryTrophies } = getTrophyBonuses(rawSpelunk, account);
   const { bonuses: nametagBonuses, items: nametagsUsed } = getNametagBonuses(rawSpelunk, account);
 
   // Calculate from highest to lowest, subtracting higher levels from lower ones
@@ -42,7 +42,8 @@ const parseGallery = (rawSpelunk, account) => {
     lv3PodiumsOwned,
     lv4PodiumsOwned,
     trophiesUsed,
-    nametagsUsed
+    nametagsUsed,
+    inventoryTrophies
   }
 }
 
@@ -83,12 +84,60 @@ export const getTrophyBonuses = (rawSpelunk, account) => {
   const trophyCount = rawTrophies?.length;
   const trophyBonusesObj = {};
   const trophiesUsedList = [];
+  const inventoryTrophiesList = [];
   const podiumsOwned = getPodiumsOwned(rawSpelunk, account);
   const maxTrophyIndex = Math.min(trophyCount, 48 + podiumsOwned);
+  
+  // Process inventory trophies (indices 0-47)
+  const maxInventoryIndex = Math.min(48, trophyCount);
+  for (let trophyIndex = 0; trophyIndex < maxInventoryIndex; trophyIndex++) {
+    if (rawTrophies[trophyIndex] >= 1) {
+      const trophy = items?.[`Trophy${rawTrophies[trophyIndex]}`];
+      if (trophy) {
+        // Inventory trophies use base multiplier (0.3) without podium bonuses
+        const bonusMulti = 0.3 * getGalleryBonusMulti(rawSpelunk, account);
+        
+        // Build modified item with bonus values
+        const modifiedItem = { ...trophy };
+        if (trophy.UQ1txt && trophy.UQ1txt != '0' && trophy.UQ1val && trophy.UQ1val != 0) {
+          modifiedItem.UQ1val = notateNumber(trophy.UQ1val * bonusMulti, 'MultiplierInfo');
+        }
+        if (trophy.UQ2txt && trophy.UQ2txt != '0' && trophy.UQ2val && trophy.UQ2val != 0) {
+          modifiedItem.UQ2val = notateNumber(trophy.UQ2val * bonusMulti, 'MultiplierInfo');
+        }
+        modifiedItem.inventoryIndex = trophyIndex;
+        modifiedItem.inventoryMultiplier = bonusMulti;
+        inventoryTrophiesList.push(modifiedItem);
+        
+        // Aggregate bonuses
+        for (let uqIndex = 0; uqIndex < 2; uqIndex++) {
+          const uqTextKey = 'UQ' + Math.round(uqIndex + 1) + 'txt';
+          const uqValueKey = 'UQ' + Math.round(uqIndex + 1) + 'val';
+          const uqText = trophy?.[uqTextKey];
+          const uqValue = trophy?.[uqValueKey];
 
+          if (uqText != '0') {
+            const bonusPropertyName = '' + uqText;
+            const bonusPropertyValue = uqValue * bonusMulti;
+            trophyBonusesObj[bonusPropertyName] = (trophyBonusesObj[bonusPropertyName] ?? 0) + bonusPropertyValue;
+          }
+        }
+
+        const statList = 'Weapon_Power,STR,AGI,WIS,LUK,Defence';
+        const stats = statList.split(',');
+        for (let statIndex = 0; statIndex < stats.length; statIndex++) {
+          const statName = stats[statIndex];
+          const statValue = trophy?.[statName];
+          const statBonusValue = statValue * bonusMulti;
+          trophyBonusesObj[statName] = (trophyBonusesObj[statName] ?? 0) + statBonusValue;
+        }
+      }
+    }
+  }
+  
+  // Process podium trophies (indices 48+)
   for (let trophyIndex = 48; trophyIndex < maxTrophyIndex; trophyIndex++) {
     const isTrophyFilled = (trophyIndex - 48) < podiumsOwned && rawTrophies[trophyIndex] >= 1;
-    
     if (isTrophyFilled) {
       const trophy = items?.[`Trophy${rawTrophies[trophyIndex]}`];
       if (trophy) {
@@ -142,7 +191,8 @@ export const getTrophyBonuses = (rawSpelunk, account) => {
 
   return {
     bonuses: Object.entries(trophyBonusesObj).map(([name, value]) => ({ name, value })),
-    items: trophiesUsedList
+    items: trophiesUsedList,
+    inventory: inventoryTrophiesList
   };
 }
 

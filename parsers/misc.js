@@ -71,12 +71,12 @@ export const getGuaranteedCrystalMobs = (account) => {
   const meritocracyBonus = getMeritocracyBonus(account, 15);
   const legendPTSBonus = getLegendTalentBonus(account, 37);
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'SHINY_BEACON');
-  const achievementBonus = getAchievementStatus(account?.achievements, 285) * 4;
+  const taskBonus = account?.tasks?.[2]?.[3]?.[0];
+  const achievementBonus = getAchievementStatus(account?.achievements, 285);
 
-  return Math.ceil((1 +
-    meritocracyBonus / 100)
-    * (1 + legendPTSBonus / 100)
-    * (sigilBonus + achievementBonus))
+  return Math.ceil((1 + meritocracyBonus / 100)
+    * (1 + legendPTSBonus / 100) * (sigilBonus
+      + (taskBonus + 4 * achievementBonus)))
 }
 
 export const getMasterclassCostReduction = (account) => {
