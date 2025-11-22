@@ -19,6 +19,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getBubbleBonus } from '@parsers/alchemy';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
 import { getZenithBonus } from '@parsers/statues';
+import { getAdviceFishBonus } from '@parsers/misc';
 
 export const getSpelunking = (idleonData, account, characters) => {
   const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];
@@ -31,6 +32,7 @@ const parseSpelunking = (account, characters, rawSpelunking, rawTowerInfo) => {
   const bestCaveLevels = rawSpelunking?.[1];
   const totalBestCaveLevels = bestCaveLevels?.reduce((res, level) => res + level, 0);
   const rawDiscoveries = rawSpelunking?.[6] ?? 0;
+  const rawCurrentStamina = rawSpelunking?.[3];
   const discoveriesCount = rawDiscoveries?.length ?? 0;
   const maxDiscoveries = spelunkingRocks?.flat().length ?? 0;
   const discoveries = spelunkingRocks?.map((rockArr, caveIndex) => {
@@ -50,7 +52,7 @@ const parseSpelunking = (account, characters, rawSpelunking, rawTowerInfo) => {
 
   const totalCharactersSpelunkingLevels = characters?.reduce((res, { skillsInfo }) => res + skillsInfo?.spelunking?.level ?? 0, 0) ?? 0;
   const highestSpelunkingLevelCharacter = characters?.reduce((res, { skillsInfo }) => Math.max(res, skillsInfo?.spelunking?.level ?? 0), 0) ?? 0;
-  const [currentAmber, overstimLevel, , exaltedFragmentFound, prismaFragmentFound] = rawSpelunking?.[4] || [];
+  const [currentAmber, overstimLevel, overstimCurrent, exaltedFragmentFound, prismaFragmentFound] = rawSpelunking?.[4] || [];
   const biggestHauls = rawSpelunking?.[2] ?? [];
   const biggestHaul = biggestHauls?.reduce((sum, value) => {
     return sum + Math.ceil(lavaLog(value));
@@ -175,7 +177,24 @@ const parseSpelunking = (account, characters, rawSpelunking, rawTowerInfo) => {
   });
 
   const talentSpelunkArrays = (rawSpelunking || [])?.slice(20, 41) || [];
-
+  const charactersStamina = getCharacterStamina(account, characters, upgrades, rawCurrentStamina, staminaRegenRate.value);
+  
+  // Calculate overstim fill rate (from chapter 2, index 2)
+  const overstimFillRate = getChapterBonus(account, 2, 2);
+  const shopUpg6 = getSpelunkingBonus(account, 6);
+  
+  // Calculate total overstim rate by summing contributions from characters at max stamina
+  // Each character at max stamina contributes their stamina regen rate to overstim
+  const charactersAtMaxStamina = charactersStamina.filter(({ characterStamina, currentStamina }) => 
+    currentStamina >= characterStamina
+  ).length;
+  
+  // Overstim rate = sum of contributions from all characters at max stamina
+  // Each contribution = staminaRegenRate * (1 + overstimFillRate / 100)
+  // Only if overstim meter is unlocked (shop upgrade 6 >= 1)
+  const overstimRate = (shopUpg6 >= 1 && charactersAtMaxStamina > 0)
+    ? charactersAtMaxStamina * staminaRegenRate.value * (1 + overstimFillRate / 100)
+    : 0;
   return {
     sneakingSlots: rawSpelunking?.[14],
     totalGrandDiscoveries,
@@ -202,7 +221,11 @@ const parseSpelunking = (account, characters, rawSpelunking, rawTowerInfo) => {
     elixirs,
     currentAmber,
     overstimLevel,
+    overstimCurrent: overstimCurrent ?? 0,
     overstimReq: 100 * Math.pow(1.3, overstimLevel),
+    overstimFillRate,
+    overstimRate,
+    charactersAtMaxStamina,
     loreBonuses,
     amberGain,
     maxDailyPageReads,
@@ -211,8 +234,47 @@ const parseSpelunking = (account, characters, rawSpelunking, rawTowerInfo) => {
     ownedSlots,
     ownedElixirs,
     maxElixirDuplicates,
-    talentSpelunkArrays
+    talentSpelunkArrays,
+    charactersStamina
   }
+}
+
+const getCharacterStamina = (account, characters, upgrades, rawCurrentStamina, staminaRegenRate) => {
+  const updatedAccount = { ...account, spelunking: { ...account?.spelunking, upgrades } };
+  return characters?.map(({ skillsInfo }, index) => {
+    const currentStamina = rawCurrentStamina?.[index] ?? 0;
+    const spelunkingLevel = Math.max(0, skillsInfo?.spelunking?.level ?? 0);
+    const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.spelunking?.rank, 3);
+
+    // Calculate character stamina
+    const shopUpg4 = getSpelunkingBonus(updatedAccount, 4);
+    const shopUpg5 = getSpelunkingBonus(updatedAccount, 5);
+    const chapterBonus2 = getChapterBonus(updatedAccount, 2, 0);
+    const chapterBonus3 = getChapterBonus(updatedAccount, 3, 0);
+    const riftSkillBonus = 15 * masteryBonus;
+    const bigFishBonus = getAdviceFishBonus(updatedAccount, 1);
+    
+    const characterStamina = Math.floor(
+      (14 + spelunkingLevel + (shopUpg4 * Math.floor(spelunkingLevel / 10)) + chapterBonus2 + riftSkillBonus + shopUpg5 + chapterBonus3)
+      * (1 + bigFishBonus / 100)
+    );
+
+    // Effective current stamina (capped at max for time calculations)
+    const effectiveCurrentStamina = currentStamina > characterStamina 
+      ? characterStamina // Already at max, time to full is 0
+      : currentStamina;
+    
+    const missingStamina = Math.max(0, characterStamina - effectiveCurrentStamina);
+    const timeToFull = staminaRegenRate > 0 
+      ? missingStamina / staminaRegenRate 
+      : 0;
+
+    return {
+      characterStamina,
+      currentStamina, // Show actual current stamina (may exceed max if overstim is active)
+      timeToFull
+    }
+  })
 }
 
 
@@ -349,7 +411,7 @@ export const getAmberGain = (account, loreBonuses) => {
 
   const riftBonus = (50 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.spelunking?.rank, 6));
   const shopUpg8 = getSpelunkingBonus(account, 8);
-  const loreBonus = getLoreBonus({ ...account, spelunking: { ...account?.spelunking, loreBonuses } }, 4); // TODO: need to calcualte this
+  const loreBonus = getLoreBonus({ ...account, spelunking: { ...account?.spelunking, loreBonuses } }, 4);
   const chapterBonus = getChapterBonus(account, 1, 3);
   const exoticBonus = getExoticMarketBonus(account, 43);
   const shopUpg9 = getSpelunkingBonus(account, 9);

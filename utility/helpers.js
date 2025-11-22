@@ -650,7 +650,7 @@ export const handleDownload = (jsonData, fileName) => {
 export const handleLoadJson = async (dispatch) => {
   try {
     const content = JSON.parse(await navigator.clipboard.readText());
-    const { data, charNames, companion, guildData, serverVars } = content;
+    let { data, charNames, companion, guildData, serverVars = {} } = content;
     const { parseData } = await import('@parsers/index');
     const parsedData = parseData(data, charNames, companion, guildData, serverVars);
     const lastUpdated = new Date().getTime();

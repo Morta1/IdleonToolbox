@@ -5,7 +5,9 @@ import {
   summoningBonuses,
   summoningEndless,
   summoningEnemies,
-  summoningUpgrades
+  summoningUpgrades,
+  mapEnemiesArray,
+  mapNames
 } from '../../data/website-data';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { isArtifactAcquired } from '@parsers/sailing';
@@ -140,6 +142,17 @@ const parseSummoning = (rawSummon, killRoyKills, account, serializedCharactersDa
   const armyHealth = getArmyHealth(upgrades, totalUpgradesLevels, account);
   const armyDamage = getArmyDamage(upgrades, totalUpgradesLevels, account);
   upgrades = groupByKey(upgrades, ({ colour }) => colour);
+
+  const stoneMapsIds = {
+    0: 256, // Bamboo Laboredge
+    1: 257, // Lightway Path
+    2: 262, // Yolkrock Basin
+    3: 120, // Equinox Valley
+    4: 157, // Jelly Cube Bridge
+    5: 212, // Crawly Catacombs
+    6: 264, // Emperor's Castle Doorstep
+  }
+
   const summoningStones = Object.entries(killRoyKills || {})
     .filter(([name]) => name.includes('SummzTrz'))
     .map(([name, kills]) => {
@@ -152,6 +165,8 @@ const parseSummoning = (rawSummon, killRoyKills, account, serializedCharactersDa
       const nextLevelHps = createRange(kills + 1, kills + 14).map((futureKills) => {
         return 2 * enemy?.hp * Math.pow(4000, futureKills)
       })
+
+      const mapMonsterName = monsters?.[mapEnemiesArray[stoneMapsIds[index]]]?.Name;
       return {
         name: enemy?.territoryName,
         monsterIcon: isBoss6 ? `data/${enemy?.enemyId}` : `afk_targets/${monsterName}`,
@@ -160,7 +175,10 @@ const parseSummoning = (rawSummon, killRoyKills, account, serializedCharactersDa
         index,
         bonus: `${summonEssenceColor[index]}_` + Math.max(2, 1 + kills) + 'x_higher_bonuses',
         bossHp,
-        nextLevelHps
+        nextLevelHps,
+        mapName: mapNames[stoneMapsIds[index]],
+        mapMonsterName: mapMonsterName,
+        mapMonsterIcon: mapMonsterName ? `afk_targets/${mapMonsterName}` : null
       }
     })
     .toSorted((a, b) => a.index - b.index);

@@ -31,7 +31,9 @@ const Spelunking = () => {
     ownedSlots,
     maxElixirDuplicates,
     power,
-    totalGrandDiscoveries
+    totalGrandDiscoveries,
+    overstimRate,
+    charactersAtMaxStamina
   } = state?.account?.spelunking || {};
   const denominator = getAmberDenominator(state?.account);
   const amberFoundValue = currentAmber < 1e9 ? commaNotation(currentAmber / denominator) : notateNumber(currentAmber / denominator, "Big");
@@ -73,6 +75,15 @@ const Spelunking = () => {
           </Tooltip>
         </Stack>
       </CardTitleAndValue>
+      <CardTitleAndValue title={'Overstim Rate'}>
+          <Stack direction={'row'} alignItems={'center'} gap={1}>
+            <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg6.png`} alt="" />
+            <Typography>{notateNumber(overstimRate, "Big")}</Typography>
+            <Tooltip title={`${charactersAtMaxStamina ?? 0} character${(charactersAtMaxStamina ?? 0) === 1 ? '' : 's'} at max stamina contributing to overstim rate`}>
+              <IconInfoCircleFilled size={18} />
+            </Tooltip>
+          </Stack>
+        </CardTitleAndValue>
       <CardTitleAndValue title={'Discoveries'} value={`${discoveriesCount} / ${maxDiscoveries}`} />
       <CardTitleAndValue title={'Grand Discoveries'} value={`${totalGrandDiscoveries}`} />
 

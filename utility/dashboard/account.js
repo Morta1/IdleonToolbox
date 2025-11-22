@@ -15,6 +15,8 @@ import { getLandRank, getProductDoubler, getRanksTotalBonus } from '@parsers/wor
 import { isPast } from 'date-fns';
 import { getIsland } from '@parsers/world-2/islands';
 import { addEquippedItems, mergeItemsByOwner } from '@parsers/items';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { isSuperbitUnlocked } from '@parsers/gaming';
 
 export const getOptions = (data) => {
   return Object.entries(data)?.reduce((res, [fieldName, fieldData]) => {
@@ -1043,6 +1045,29 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
         };
       }
     }
+    if (options?.spelunking?.fullStaminaCharacters?.checked) {
+      const threshold = options?.spelunking?.fullStaminaCharacters?.props?.value ?? 1;
+      const charactersStamina = account?.spelunking?.charactersStamina ?? [];
+      const fullStaminaCount = charactersStamina.filter(({ characterStamina, currentStamina }) => 
+        currentStamina >= characterStamina
+      ).length;
+      if (fullStaminaCount >= threshold) {
+        spelunking.fullStaminaCharacters = {
+          count: fullStaminaCount,
+          threshold
+        };
+      }
+    }
+    if (options?.spelunking?.overstimLevel?.checked) {
+      const threshold = options?.spelunking?.overstimLevel?.props?.value ?? 1;
+      const overstimLevel = account?.spelunking?.overstimLevel ?? 0;
+      if (overstimLevel >= threshold) {
+        spelunking.overstimLevel = {
+          current: overstimLevel,
+          threshold
+        };
+      }
+    }
     if (Object.keys(spelunking).length > 0) {
       alerts.spelunking = spelunking;
     }
@@ -1057,6 +1082,41 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
     }
     if (Object.keys(legendTalents).length > 0) {
       alerts.legendTalents = legendTalents;
+    }
+  }
+  if (fields?.zenithMarket?.checked) {
+    const zenithMarket = {};
+    if (options?.zenithMarket?.doubleCluster?.checked) {
+      const doubleClusterUpgrade = account?.zenith?.market?.find(upgrade => upgrade?.name === 'DOUBLE_CLUSTER');
+      const clusters = account?.zenith?.clusters ?? 0;
+      if (doubleClusterUpgrade && (!doubleClusterUpgrade?.x3 || (doubleClusterUpgrade?.level || 0) < doubleClusterUpgrade?.x3)) {
+        if (clusters >= doubleClusterUpgrade?.cost) {
+          zenithMarket.doubleCluster = true;
+        }
+      }
+    }
+    if (Object.keys(zenithMarket).length > 0) {
+      alerts.zenithMarket = zenithMarket;
+    }
+  }
+  if (fields?.construction?.checked) {
+    const construction = {};
+    const { jeweledCogs } = options?.construction || {};
+    if (jeweledCogs?.checked) {
+      const isUnlocked = isSuperbitUnlocked(account, 'Jewel_Cogs')
+      const currentPulls = account?.accountOptions?.[414] ?? 0;
+      const legendBonus = getLegendTalentBonus(account, 18) ?? 0;
+      const maxPulls = Math.round(1 + legendBonus);
+      if (currentPulls < maxPulls && isUnlocked) {
+        construction.jeweledCogs = {
+          current: currentPulls,
+          max: maxPulls,
+          available: maxPulls - currentPulls
+        };
+      }
+    }
+    if (Object.keys(construction).length > 0) {
+      alerts.construction = construction;
     }
   }
   return alerts;

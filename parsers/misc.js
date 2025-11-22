@@ -49,10 +49,8 @@ export const getAdviceFish = (idleonData) => {
     const level = rawSpelunking?.[11]?.[index] ?? 0;
     return {
       level,
-      cost: Math.pow(1.15, level)
-        * Math.pow(10.01, x3),
-      bonus: level / (100 + level)
-        * parseFloat(x2),
+      cost: Math.pow(1.15, level) * Math.pow(10.01, x3),
+      bonus: level / (100 + level) * parseFloat(x2),
       name,
       description,
       x2: parseFloat(x2),
@@ -63,6 +61,10 @@ export const getAdviceFish = (idleonData) => {
   return {
     upgrades
   };
+}
+
+export const getAdviceFishBonus = (account, upgradeIndex) => {
+  return account?.adviceFish?.upgrades?.[upgradeIndex]?.bonus ?? 0;
 }
 
 export const getGuaranteedCrystalMobs = (account) => {

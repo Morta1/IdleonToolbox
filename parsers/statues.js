@@ -73,12 +73,23 @@ const getZenithMarket = (rawSpelunking) => {
       ?.replace(/\{/g, commaNotation(bonus))
       ?.replace(/\}/g, notateNumber(1 + bonus / 100, 'MultiplierInfo'));
 
+    // Calculate cost to max
+    const maxLevel = bonusObj?.x3 || 0;
+    let costToMax = 0;
+    if (maxLevel > 0 && level < maxLevel) {
+      for (let i = level; i < maxLevel; i++) {
+        const levelCost = i + (bonusObj?.x1 || 0) * Math.pow(bonusObj?.x2 || 1, i);
+        costToMax += levelCost < 1e6 ? Math.floor(levelCost) : levelCost;
+      }
+    }
+
     return {
       ...bonusObj,
       bonus,
       cost,
       level,
-      description
+      description,
+      costToMax
     }
   })
 }
@@ -93,7 +104,6 @@ export const applyStatuesMulti = (account, characters) => {
   const voodoStatusification = getHighestTalentByClass(characters, CLASSES.Voidwalker, 'VOODOO_STATUFICATION');
   const talentMulti = 1 + voodoStatusification / 100;
   const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'The_Onyx_Lantern');
-  console.log('artifact', artifact);
   const eventBonus = getEventShopBonus(account, 19) ?? 0;
   const meritocracyMulti = 1 + getMeritocracyBonus(account, 26) / 100;
   const statues = account?.statues?.map((statue) => ({

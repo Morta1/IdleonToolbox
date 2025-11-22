@@ -226,7 +226,7 @@ export const getPodiumsOwned = (rawSpelunk, account) => {
   const emporiumBonus = getJadeEmporiumBonus(account, 'Another_Gallery_Podium') ?? 0;
   const gemShopBonus = account?.gemShopPurchases?.find((value, index) => index === 40) ?? 0;
   const loreBonus = getLoreBonus(account, 5) ? 1 : 0;
-  const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'Deathskull')?.acquired;
+  const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'Deathskull')?.bonus ?? 0;
   const eventShopBonus = getEventShopBonus(account, 26);
 
   return Math.min(19, 1 +

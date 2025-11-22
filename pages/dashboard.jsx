@@ -17,7 +17,7 @@ import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 28,
+  version: 29,
   account: {
     General: {
       tasks: {
@@ -357,11 +357,33 @@ const baseTrackers = {
       },
       spelunking: {
         checked: true,
-        options: [{ name: 'pageReads', checked: true }]
+        options: [
+          { name: 'pageReads', checked: true },
+          {
+            name: 'fullStaminaCharacters',
+            type: 'input',
+            props: { label: 'Characters threshold', value: 1, minValue: 1 },
+            checked: true
+          },
+          {
+            name: 'overstimLevel',
+            type: 'input',
+            props: { label: 'Overstim level threshold', value: 1, minValue: 1 },
+            checked: true
+          }
+        ]
       },
       legendTalents: {
         checked: true,
         options: [{ name: 'pointsLeftToSpend', checked: true }]
+      },
+      zenithMarket: {
+        checked: true,
+        options: [{ name: 'doubleCluster', checked: true }]
+      },
+      construction: {
+        checked: true,
+        options: [{ name: 'jeweledCogs', checked: true }]
       }
     }
   },
