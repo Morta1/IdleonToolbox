@@ -140,7 +140,7 @@ const parseSummoning = (rawSummon, killRoyKills, account, serializedCharactersDa
   const armyHealth = getArmyHealth(upgrades, totalUpgradesLevels, account);
   const armyDamage = getArmyDamage(upgrades, totalUpgradesLevels, account);
   upgrades = groupByKey(upgrades, ({ colour }) => colour);
-  const summoningStones = Object.entries(killRoyKills)
+  const summoningStones = Object.entries(killRoyKills || {})
     .filter(([name]) => name.includes('SummzTrz'))
     .map(([name, kills]) => {
       const index = parseInt(name.match(/\d+$/)[0], 10);
