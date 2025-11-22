@@ -94,14 +94,14 @@ const Sigils = () => {
           <Stack direction={'row'} gap={1} justifyContent={'space-between'}>
             {notateNumber(sigilSpeed?.value, 'MultiplierInfo')}
             <Tooltip title={sigilSpeed?.breakdown ? <BreakdownTooltip breakdown={sigilSpeed?.breakdown}
-                                                                      notate={'MultiplierInfo'}/> : ''}>
-              <InfoIcon/>
+              notate={'MultiplierInfo'} /> : ''}>
+              <InfoIcon />
             </Tooltip>
           </Stack>
         </CardTitleAndValue>
         <CardTitleAndValue title={'Sigil Syrup'} value={state?.account?.accountOptions?.[409]}
-                           imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
-                           icon={'data/SigilSyrup.png'}/>
+          imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
+          icon={'data/SigilSyrup.png'} />
       </Stack>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
         {alchemy?.p2w?.sigils?.map((sigil, index) => {
@@ -112,6 +112,7 @@ const Sigils = () => {
             effect,
             unlocked,
             jadeCost,
+            etherealCost,
             bonus,
             characters
           } = sigil;
@@ -130,10 +131,10 @@ const Sigils = () => {
               <CardContent>
                 <Stack gap={1} direction={'row'} alignItems={'center'}>
                   <SigilIcon unlocked={unlocked} className={'icon'} src={`${prefix}data/aSiga${index}.png`}
-                             alt=""/>
+                    alt="" />
                   <Stack>
                     <Typography>{cleanUnderscore(name)}</Typography>
-                    <PlayersList players={characters} characters={state?.characters}/>
+                    <PlayersList players={characters} characters={state?.characters} />
                   </Stack>
                 </Stack>
                 <Stack mt={2} gap={2}>
@@ -143,12 +144,12 @@ const Sigils = () => {
                         ? 'info.light'
                         : ''
                     }}>Effect: {cleanUnderscore(effect?.replace(/{/g, bonus))}</Typography>
-                  {progress < jadeCost && unlocked < 2 ? <>
+                  {(progress < jadeCost && unlocked < 2) || (progress < etherealCost && unlocked < 3) ? <>
                     <Typography>
                       Progress: {notateNumber(progress, 'Small')}/{notateNumber(cost, 'Small')}
                     </Typography>
                     {isFinite(timeLeft) ? <Timer type={'countdown'} date={new Date().getTime() + timeLeft}
-                                                 lastUpdated={state?.lastUpdated}/> : null}
+                      lastUpdated={state?.lastUpdated} /> : null}
                   </> : (
                     <Typography color={'success.main'}>Maxed</Typography>
                   )}
@@ -165,19 +166,19 @@ const Sigils = () => {
 const SigilIcon = styled.img`
   object-fit: contain;
   filter: hue-rotate(${({ unlocked }) => (unlocked === 3 ? '60deg' : unlocked === 2 ? '130deg' : unlocked === 1
-          ? '200deg'
-          : '0deg')});
+    ? '200deg'
+    : '0deg')});
 `;
 
 const BreakdownTooltip = ({ breakdown, titleWidth = 120, notate = '' }) => {
   if (!breakdown) return '';
   return <Stack>
     {breakdown?.map(({ name, value }, index) => <TitleAndValue key={`${name}-${index}`}
-                                                               titleStyle={{ width: titleWidth }}
-                                                               title={name}
-                                                               value={!isNaN(value)
-                                                                 ? notateNumber(value, notate)
-                                                                 : value}/>)}
+      titleStyle={{ width: titleWidth }}
+      title={name}
+      value={!isNaN(value)
+        ? notateNumber(value, notate)
+        : value} />)}
   </Stack>
 }
 

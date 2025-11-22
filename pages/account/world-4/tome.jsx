@@ -1,13 +1,13 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, getRealDateInMs, notateNumber } from '@utility/helpers';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
-import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import useCheckbox from '@components/common/useCheckbox';
+import Timer from '@components/common/Timer';
 
 const ranks = ['0.1%', '0.5%', '1%', '5%', '10%', '25%', '50%', '60%', '70%', '80%', '90%', '95%']
 const getFormattedQuantity = ({ x2, x4 }, quantity) => quantity > 1e9 && x2 === 1
@@ -19,6 +19,27 @@ const getFormattedQuantity = ({ x2, x4 }, quantity) => quantity > 1e9 && x2 === 
 const Tome = () => {
   const { state } = useContext(AppContext);
   const [CheckboxEl, showThresholds] = useCheckbox('Show quantity thresholds');
+
+  // Calculate countdown to next tome nametag reset and next 10 resets
+  const { nextResetTime, nextResetTimes } = useMemo(() => {
+    const PERIOD_SECONDS = 2628000; // ~30 days 10 hours
+    const currentUnixTime = Math.floor(Date.now() / 1000);
+    const currentPeriod = Math.floor(currentUnixTime / PERIOD_SECONDS);
+    const nextPeriod = currentPeriod + 1;
+    const nextResetUnixTime = nextPeriod * PERIOD_SECONDS;
+    // Convert to milliseconds for Date object
+    const firstReset = nextResetUnixTime * 1000;
+    
+    // Calculate next 10 resets
+    const resets = [];
+    for (let i = 0; i < 10; i++) {
+      const period = nextPeriod + i;
+      const resetUnixTime = period * PERIOD_SECONDS;
+      resets.push(resetUnixTime * 1000);
+    }
+    
+    return { nextResetTime: firstReset, nextResetTimes: resets };
+  }, []);
 
 return <>
     <NextSeo
@@ -37,8 +58,23 @@ return <>
           <Typography>{commaNotation(score)}</Typography>
         </Stack>)}
       </Stack>}>
-        <InfoIcon/>
+        <IconInfoCircleFilled size={18}/>
       </Tooltip>} icon={`data/TomeTop${state?.account?.tome?.top}.png`}/>
+      <CardTitleAndValue title={'Nametag Reward Reset'} value={
+        <Stack direction={'row'} alignItems={'center'} gap={1}>
+          <Timer type="countdown" date={nextResetTime} lastUpdated={state?.lastUpdated || Date.now()}/>
+          <Tooltip title={<Stack gap={1}>
+            <Typography variant='body1' color='text.secondary'>Next resets</Typography>
+            {nextResetTimes.map((resetTime, index) => (
+              <Typography variant='body2' key={`reset-${index}`}>
+               {getRealDateInMs(resetTime)}
+              </Typography>
+            ))}
+          </Stack>}>
+            <IconInfoCircleFilled size={18}/>
+          </Tooltip>
+        </Stack>
+      }/>
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
         {state?.account?.tome?.bonuses?.map(({ name, bonus }, index) => {
           const formatted = notateNumber(bonus, 'Big');

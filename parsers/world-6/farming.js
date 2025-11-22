@@ -265,11 +265,12 @@ export const updateFarming = (characters, account) => {
   const speedGMO = getMarketBonus(newMarket, "SPEED_GMO", 'value');
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6FarmSpd');
   const summoningBonus = getWinnerBonus(account, '<x Farming SPD');
+  const exoticBonus = getExoticMarketBonus(account, 30);
   const growthRate = Math.max(1, speedGMO)
-    * (1 + (marketGrowthRate + vialBonus) / 100)
+    * (1 + (marketGrowthRate + vialBonus + exoticBonus) / 100)
     * (1 + summoningBonus / 100);
-  const maxTimes = [0, 1, 2, 3, 4, 5, 6].map((seedType) => {
-    const growthReq = 14400 * Math.pow(1.5, seedType);
+  const maxTimes = [0, 1, 2, 3, 4, 5, 6].map((seedType, index) => {
+    const growthReq = index === 6 ? 25200 * growthRate : 14400 * Math.pow(1.5, seedType);
     const value = growthReq / growthRate;
     const breakdown = [
       { name: 'Base Growth Time', value: growthReq },
@@ -280,7 +281,8 @@ export const updateFarming = (characters, account) => {
     ];
     return { value, breakdown };
   });
-  const newPlot = account?.farming?.plot?.map((crop) => {
+
+  const newPlot = account?.farming?.plot?.map((crop, index) => {
     // OG Chance
     const marketOGChance = getMarketBonus(account?.farming?.market, "OG_FERTILIZER");
     const charmOGChange = getCharmBonus(account, 'Taffy_Disc');
@@ -295,8 +297,9 @@ export const updateFarming = (characters, account) => {
       * (1 + (15 * achievementBonus) / 100)
       * (1 + landRankBonus / 100);
 
-    const timeLeft = (crop?.growthReq - crop?.cropProgress) / growthRate;
-    const maxTimeLeft = crop?.growthReq / growthRate;
+    const growthReq = crop?.seedType === 6 ? 25200 * growthRate : 14400 * Math.pow(1.5, crop?.seedType);
+    const timeLeft = (growthReq - crop?.progress) / growthRate;
+    const maxTimeLeft = growthReq / growthRate;
     const ogMulti = Math.min(1e9, Math.max(1, Math.pow(2, crop?.currentOG)));
     return {
       ...crop,
@@ -304,7 +307,8 @@ export const updateFarming = (characters, account) => {
       growthRate,
       ogMulti,
       timeLeft,
-      maxTimeLeft
+      maxTimeLeft,
+      growthReq
     }
   });
   return {

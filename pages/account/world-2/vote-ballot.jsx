@@ -73,7 +73,7 @@ const VoteBallot = () => {
       title="Vote Ballot | Idleon Toolbox"
       description="Keep track of the vote bonuses"
     />
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 2'].categories, 'voteBallot')} disableQuery={true}>
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 2'].categories, 'voteBallot')}>
       {renderBonusTab()}
       {renderMeritocracyTab()}
     </Tabber>
