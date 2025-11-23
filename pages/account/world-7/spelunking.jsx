@@ -11,6 +11,7 @@ import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World7/spelunking/Upgrades';
 import Lore from '@components/account/Worlds/World7/spelunking/Lore';
 import Elixirs from '@components/account/Worlds/World7/spelunking/Elixirs';
+import PowerOptimizer from '@components/account/Worlds/World7/spelunking/PowerOptimizer';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 
@@ -93,6 +94,7 @@ const Spelunking = () => {
       <Upgrades upgrades={upgrades} currentAmber={amberFoundValue} denominator={denominator} amberIndex={getAmberIndex(state?.account)} />
       <Lore chapters={chapters} loreBosses={loreBosses} bestCaveLevels={bestCaveLevels} />
       <Elixirs elixirs={elixirs} ownedElixirs={ownedElixirs} ownedSlots={ownedSlots} maxElixirDuplicates={maxElixirDuplicates} />
+      <PowerOptimizer character={state?.characters?.[0]} account={state?.account} />
     </Tabber>
   </>
 }

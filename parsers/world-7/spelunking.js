@@ -827,3 +827,237 @@ const replacePlaceholders = (description, upgradeId, mockData = {}) => {
 export const isEtherealBonusUnlocked = (account) => {
   return account?.spelunking?.loreBosses?.[6]?.defeated;
 }
+
+// Power-affecting upgrade indices: 0 (basePower), 1, 2, 3, 14, 15, 16, 17 (powerMulti)
+const POWER_UPGRADE_INDICES = [0, 1, 2, 3, 14, 15, 16, 17];
+
+export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgrades = 100, options = {}) => {
+  const { onlyAffordable = false, characters = [] } = options;
+  
+  if (!account?.spelunking?.upgrades) {
+    return [];
+  }
+  
+  // Get amber denominator to normalize large costs
+  const amberDenominator = getAmberDenominator(account);
+  
+  // Get account stats needed for bonus calculation (these don't change during simulation)
+  const spelunkingData = account.spelunking;
+  const totalCharactersSpelunkingLevels = characters?.reduce((res, { skillsInfo }) => res + (skillsInfo?.spelunking?.level ?? 0), 0) ?? 0;
+  const totalBestCaveLevels = spelunkingData?.totalBestCaveLevels ?? 0;
+  const discoveriesCount = spelunkingData?.discoveriesCount ?? 0;
+  const biggestHaul = spelunkingData?.biggestHaul ?? 0;
+  const totalGrandDiscoveries = spelunkingData?.totalGrandDiscoveries ?? 0;
+  
+  // Deep clone upgrades to avoid mutating original data
+  let simulatedUpgrades = JSON.parse(JSON.stringify(account.spelunking.upgrades));
+  let simulatedAmber = account.spelunking.currentAmber || 0;
+  
+  // Ensure all upgrades have originalIndex set (use array index as fallback)
+  simulatedUpgrades = simulatedUpgrades.map((upgrade, index) => ({
+    ...upgrade,
+    originalIndex: upgrade.originalIndex !== undefined ? upgrade.originalIndex : index,
+    index: upgrade.index !== undefined ? upgrade.index : index
+  }));
+  
+  // Helper function to recalculate bonuses for upgrades after level changes
+  const recalculateBonuses = (upgrades) => {
+    // Recalculate baseBonuses based on current levels
+    const baseBonuses = upgrades.map(u => (u?.x4 ?? 0) * Math.max(0, u?.level ?? 0));
+    
+    // Recalculate bonuses for all upgrades
+    return upgrades.map((upgrade, index) => {
+      const baseBonus = baseBonuses[index] ?? 0;
+      const bonus = getSpelunkingUpgradeBonus(baseBonuses, upgrades, index, {
+        totalCharactersSpelunkingLevels,
+        totalBestCaveLevels,
+        discoveriesCount,
+        biggestHaul,
+        totalGrandDiscoveries
+      }, false);
+      return {
+        ...upgrade,
+        baseBonus,
+        bonus
+      };
+    });
+  };
+  
+  // Calculate current power with properly calculated bonuses
+  const getCurrentPower = (upgrades) => {
+    // Recalculate bonuses for the upgrades
+    const upgradesWithBonuses = recalculateBonuses(upgrades);
+    const tempAccount = {
+      ...account,
+      spelunking: {
+        ...account.spelunking,
+        upgrades: upgradesWithBonuses
+      }
+    };
+    return getPower(tempAccount).value;
+  };
+  
+  // Initialize bonuses for starting upgrades
+  simulatedUpgrades = recalculateBonuses(simulatedUpgrades);
+  let currentPower = getCurrentPower(simulatedUpgrades);
+  const results = [];
+  
+  for (let step = 0; step < maxUpgrades; step++) {
+    let bestUpgrade = null;
+    let bestEfficiency = -Infinity; // Start with -Infinity to handle log scale (negative values)
+    let bestPowerChange = 0;
+    let bestPercentChange = 0;
+    let bestCost = 0;
+    
+    // Find available power-affecting upgrades
+    const availableUpgrades = simulatedUpgrades.filter(upgrade => {
+      // Get the index - could be originalIndex or index, ensure it's a number
+      const upgradeIndex = Number(upgrade.originalIndex !== undefined ? upgrade.originalIndex : upgrade.index);
+      
+      // Must be a power-affecting upgrade
+      if (isNaN(upgradeIndex) || !POWER_UPGRADE_INDICES.includes(upgradeIndex)) {
+        return false;
+      }
+      
+      // Must not be maxed - check both x3 and x4 as max level
+      // Also check if level is -1 (not available)
+      if (upgrade.level === -1) {
+        return false;
+      }
+      
+      // Check max level - x3 is the max level for spelunking upgrades
+      const maxLevel = upgrade.x3;
+      if (maxLevel !== undefined && maxLevel !== null && upgrade.level >= maxLevel) {
+        return false;
+      }
+      
+      // If onlyAffordable, check if we can afford it
+      if (onlyAffordable) {
+        try {
+          const cost = getSpelunkingUpgradeCost(account, characters, upgrade);
+          if (isNaN(cost) || simulatedAmber < cost) {
+            return false;
+          }
+        } catch (e) {
+          console.warn('Error calculating cost for upgrade:', upgrade.name, e);
+          return false;
+        }
+      }
+      
+      // Check if upgrade has a valid cost (not undefined)
+      if (upgrade.cost === undefined || upgrade.cost === null) {
+        return false;
+      }
+      return true;
+    });
+    
+    if (availableUpgrades.length === 0) break;
+    
+    // Evaluate each available upgrade
+    for (const upgrade of availableUpgrades) {
+      // Deep clone upgrades for simulation
+      const tempUpgrades = JSON.parse(JSON.stringify(simulatedUpgrades));
+      const upgradeOriginalIndex = upgrade.originalIndex !== undefined ? upgrade.originalIndex : upgrade.index;
+      const upgradeIndex = tempUpgrades.findIndex(u => {
+        const uIndex = u.originalIndex !== undefined ? u.originalIndex : u.index;
+        return uIndex === upgradeOriginalIndex;
+      });
+      
+      if (upgradeIndex === -1) continue;
+      
+      // Apply upgrade
+      tempUpgrades[upgradeIndex] = {
+        ...tempUpgrades[upgradeIndex],
+        level: tempUpgrades[upgradeIndex].level + 1
+      };
+      
+      // Recalculate bonuses for temp upgrades before calculating power
+      const tempUpgradesWithBonuses = recalculateBonuses(tempUpgrades);
+      const tempAccount = {
+        ...account,
+        spelunking: {
+          ...account.spelunking,
+          upgrades: tempUpgradesWithBonuses
+        }
+      };
+      const newPower = getPower(tempAccount).value;
+      const powerChange = newPower - currentPower;
+      const percentChange = currentPower > 0 ? (powerChange / currentPower) * 100 : 0;
+      
+      // Calculate cost
+      const cost = getSpelunkingUpgradeCost(account, characters, upgrade);
+      
+      // Skip if cost is invalid or power doesn't increase
+      if (!cost || cost <= 0 || isNaN(cost) || !isFinite(cost) || percentChange <= 0) {
+        continue;
+      }
+      
+      // Normalize cost using amber denominator to handle large numbers
+      const normalizedCost = cost / amberDenominator;
+      
+      // Calculate efficiency (percent change per normalized cost)
+      // This makes comparison much more reasonable for large numbers
+      const efficiency = normalizedCost > 0 ? percentChange / normalizedCost : 0;
+      
+      // Ensure efficiency is a valid number
+      // For log scale, efficiency will be negative but that's fine for comparison
+      if (!isNaN(efficiency) && isFinite(efficiency)) {
+        // Initialize bestEfficiency on first valid upgrade, or compare if we have one
+        if (bestUpgrade === null || efficiency > bestEfficiency) {
+          bestUpgrade = upgrade;
+          bestEfficiency = efficiency;
+          bestPowerChange = powerChange;
+          bestPercentChange = percentChange;
+          bestCost = cost;
+        }
+      }
+    }
+    
+    // Check if we found a valid upgrade
+    // bestEfficiency should be > -Infinity if we found a valid upgrade
+    if (bestUpgrade && !isNaN(bestEfficiency) && isFinite(bestEfficiency) && bestEfficiency > -Infinity) {
+      // Apply the best upgrade
+      const bestUpgradeOriginalIndex = bestUpgrade.originalIndex !== undefined ? bestUpgrade.originalIndex : bestUpgrade.index;
+      const upgradeIndex = simulatedUpgrades.findIndex(u => {
+        const uIndex = u.originalIndex !== undefined ? u.originalIndex : u.index;
+        return uIndex === bestUpgradeOriginalIndex;
+      });
+      simulatedUpgrades[upgradeIndex] = {
+        ...simulatedUpgrades[upgradeIndex],
+        level: simulatedUpgrades[upgradeIndex].level + 1
+      };
+      
+      // Update amber
+      simulatedAmber -= bestCost;
+      
+      // Recalculate bonuses after the upgrade
+      simulatedUpgrades = recalculateBonuses(simulatedUpgrades);
+      
+      // Update current power
+      currentPower = getCurrentPower(simulatedUpgrades);
+      
+      // Recalculate costs for all upgrades after this purchase
+      simulatedUpgrades = simulatedUpgrades.map((upgrade) => {
+        const cost = getSpelunkingUpgradeCost(account, characters, upgrade);
+        return { ...upgrade, cost };
+      });
+      
+      // Add to results
+      const maxLevel = bestUpgrade.x3 !== undefined ? bestUpgrade.x3 : bestUpgrade.x4;
+      results.push({
+        ...bestUpgrade,
+        level: bestUpgrade.level + 1,
+        x3: maxLevel, // Ensure x3 is set for display
+        cost: bestCost,
+        powerChange: bestPowerChange,
+        percentChange: bestPercentChange,
+        efficiency: bestEfficiency
+      });
+    } else {
+      // No more efficient upgrades available
+      break;
+    }
+  }
+  
+  return results;
+}

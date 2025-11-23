@@ -201,12 +201,19 @@ export const PAGES = {
     'world 7': {
       icon: 'etc/Spelunking',
       categories: [
-        { label: 'spelunking', icon: 'etc/Spelunking', 
-          tabs: [{ tab: 'Upgrades', nestedTab: 'Upgrades' }, { tab: 'Lore', nestedTab: 'Lore' }, { tab: 'Elixirs', nestedTab: 'Elixirs' }], 
+        {
+          label: 'spelunking', icon: 'etc/Spelunking',
+          tabs: [
+            { tab: 'Upgrades' },
+            { tab: 'Lore' },
+            { tab: 'Elixirs' },
+            { tab: 'Power Optimizer' }
+          ],
           nestedTabs: [
             { tab: 'Lore', nestedTab: 'Chapters' },
             { tab: 'Lore', nestedTab: 'Bosses' }
-          ] },
+          ]
+        },
         { label: 'Gallery', icon: 'data/GalleryPodiumA3', tabs: ['Trophies', 'Nametags'] },
         { label: 'LegendTalents', icon: 'etc/Whallamus', tabs: [] },
         { label: 'coralReef', icon: 'data/ReefA1', tabs: ['Reef Upgrades', 'Coral Kid Upgrades', 'Dancing Coral'] },
