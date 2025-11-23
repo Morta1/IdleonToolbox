@@ -13,12 +13,13 @@ import { getLegendTalentBonus } from "@parsers/world-7/legendTalents";
 
 export const getSneaking = (idleonData, serverVars, charactersData, account) => {
   const rawSneaking = tryToParse(idleonData?.Ninja);
-  return parseSneaking(rawSneaking, serverVars, charactersData, account);
+  const rawSpelunking = tryToParse(idleonData?.Spelunk);
+  return parseSneaking(rawSneaking, rawSpelunking, serverVars, charactersData, account);
 };
 
 const doorMaxHps = (ninjaExtraInfo?.[3]).split(' ');
 
-const parseSneaking = (rawSneaking, serverVars, charactersData, account) => {
+const parseSneaking = (rawSneaking, rawSpelunking, serverVars, charactersData, account) => {
   const gemStonesUnlocked = rawSneaking?.[106]?.filter(name => name.includes('NjGem'));
 
   let gemStones = Object.entries(ninjaEquipment)
@@ -92,11 +93,40 @@ const parseSneaking = (rawSneaking, serverVars, charactersData, account) => {
       dropChance
     })));
 
-  const upgrades = ninjaUpgrades?.map((upgrade, index) => ({
-    ...upgrade,
-    level: ninjaUpgradeLevels?.[index + 1],
-    value: ninjaUpgradeLevels?.[index + 1] * (upgrade.modifier ?? 1)
-  })).filter(({ name }) => name !== 'Name');
+  const spelunkProgress = rawSpelunking?.[13]?.[3] ?? 0; // This tracks how many special upgrades are unlocked
+
+  const upgrades = ninjaUpgrades?.map((upgrade, index) => {
+    const level = ninjaUpgradeLevels?.[index];
+    const isSpecialUpgrade = index > 16;
+
+    let isUnlocked = false;
+
+    if (isSpecialUpgrade) {
+      // Special upgrades unlock sequentially
+      isUnlocked = spelunkProgress > (index - 17);
+    } else {
+      // All normal upgrades are unlocked once you have access to the ninja system
+      isUnlocked = true;
+    }
+
+    return {
+      ...upgrade,
+      level,
+      value: level * (upgrade.modifier ?? 1),
+      isUnlocked,
+      isSpecialUpgrade,
+      prerequisiteIndex: !isSpecialUpgrade ? upgrade.x9 : null,
+      unlockOrder: isSpecialUpgrade ? index - 17 + 1 : null,
+      position: {
+        locked: { x: upgrade.x0, y: upgrade.x1 },
+        unlocked: { x: upgrade.x10, y: upgrade.x11 }
+      },
+      size: {
+        width: upgrade.x2,
+        height: upgrade.x3
+      }
+    };
+  })
 
   const order = (ninjaExtraInfo[24]).split(" ");
   const inventory = parseNinjaItems(rawSneaking?.slice(60, 99), false, gemStones, account);

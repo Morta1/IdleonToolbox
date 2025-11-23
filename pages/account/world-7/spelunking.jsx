@@ -70,8 +70,8 @@ const Spelunking = () => {
       <CardTitleAndValue title={'Stamina Regen Rate'} >
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg4.png`} alt="" />
-          <Typography>{notateNumber(staminaRegenRate.value, "Big")}</Typography>
-          <Tooltip title={<Breakdown titleStyle={{ width: 170 }} breakdown={staminaRegenRate.breakdown} />}>
+          <Typography>{notateNumber(staminaRegenRate.value, "MultiplierInfo")}</Typography>
+          <Tooltip title={<Breakdown titleStyle={{ width: 170 }} breakdown={staminaRegenRate.breakdown} notation="MultiplierInfo" />}>
             <IconInfoCircleFilled size={18} />
           </Tooltip>
         </Stack>

@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 
 const chapterGroupNames = {
   0: 'The fear within',
@@ -54,7 +54,8 @@ const Chapters = ({ chapters }) => {
                           </Typography>
                         </Stack>
                       </Stack>
-                    
+                      <Typography variant="body2" color="text.secondary">Required pages: {commaNotation(chapter.requiredPages)}</Typography>
+
                       {chapterGroup.length - 1 !== index && <Divider sx={{ my: 2 }} />}
                     </Fragment>
                   );

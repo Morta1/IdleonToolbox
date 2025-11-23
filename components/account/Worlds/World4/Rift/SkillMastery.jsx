@@ -36,6 +36,18 @@ const specialBonuses = {
   summoning: '1.10X_ESSENCE_GAIN'
 }
 
+const extraSpecialBonuses = {
+  spelunking: {
+    0: '+25%_SPELUNKING_EXP',
+    1: '+30%_SPELUNKING_EFFICIENCY',
+    2: 'ALL_SPELUNKING_CARDS_ARE_NOW_PASSIVE',
+    3: '+15_MAX_STAMINA_FOR_EVERYONE',
+    4: '+3_DAILY_PAGE_READS',
+    5: '+10%_STAMINA_REGEN_RATE',
+    6: '1.50x_ALL_EMBER_GAIN'
+  },
+}
+
 const thresholds = [0, 0, 300, 400, 500, 750, 1000];
 const SkillMastery = ({ totalSkillsLevels, characters }) => {
   return <>
@@ -60,26 +72,46 @@ const SkillMastery = ({ totalSkillsLevels, characters }) => {
           <CardContent sx={{ width: 300 }}>
             <Stack direction={'row'} alignItems={'center'} gap={1}>
               <SkillIcon src={`${prefix}data/${icon}.png`}
-                         alt=""/>
+                alt="" />
               <Stack>
                 <Typography>{cleanUnderscore(skillName.capitalize())}</Typography>
                 <Typography variant={'caption'} component={'span'} sx={{ color, fontWeight: 'bold' }}>Total
                   Level {level}</Typography>
               </Stack>
-              <Tooltip  title={<SkillBreakdown characters={characters} skillName={skillName}/>}>
-                <IconInfoCircleFilled style={{ marginLeft: 'auto' }} size={18}/>
+              <Tooltip title={<SkillBreakdown characters={characters} skillName={skillName} />}>
+                <IconInfoCircleFilled style={{ marginLeft: 'auto' }} size={18} />
               </Tooltip>
             </Stack>
-            <Divider sx={{ my: 1 }}/>
+            <Divider sx={{ my: 1 }} />
             <Stack gap={1}>
-              {defaultBonuses?.map((bonus, bonusIndex) => <Typography
-                sx={{ opacity: bonusIndex < rank ? 1 : .6 }}
-                key={`${skillName}-bonus-${bonusIndex}`}>{cleanUnderscore(
-                (index < 12 ? bonusIndex === 2 : bonusIndex === 1) && specialBonuses?.[skillName] && index !== 11
-                  ? specialBonuses?.[skillName].toLowerCase().capitalizeAll()
-                  : index === 11 && bonusIndex === 1
-                    ? specialBonuses?.[skillName].toLowerCase().capitalizeAll()
-                    : bonus.replace('{', skillName).toLowerCase().capitalizeAll())}</Typography>)}
+              {defaultBonuses?.map((bonus, bonusIndex) => {
+                let displayText;
+
+                // Check for extraSpecialBonuses first when index >= 18
+                if (index >= 18 && extraSpecialBonuses?.[skillName]?.[bonusIndex]) {
+                  displayText = extraSpecialBonuses[skillName][bonusIndex].toLowerCase().capitalizeAll();
+                } else {
+                  // Check for specialBonuses
+                  const shouldUseSpecialBonus = specialBonuses?.[skillName] && (
+                    (index < 12 && bonusIndex === 2 && index !== 11) ||
+                    (index >= 12 && bonusIndex === 1 && index !== 11) ||
+                    (index === 11 && bonusIndex === 1)
+                  );
+
+                  displayText = shouldUseSpecialBonus
+                    ? specialBonuses[skillName].toLowerCase().capitalizeAll()
+                    : bonus.replace('{', skillName).toLowerCase().capitalizeAll();
+                }
+
+                return (
+                  <Typography
+                    sx={{ opacity: bonusIndex < rank ? 1 : .6 }}
+                    key={`${skillName}-bonus-${bonusIndex}`}
+                  >
+                    {cleanUnderscore(displayText)}
+                  </Typography>
+                );
+              })}
             </Stack>
           </CardContent>
         </Card>
@@ -95,7 +127,7 @@ const SkillBreakdown = ({ characters, skillName }) => {
   ]), [])
   return <Stack>
     {charactersSkills?.map(({ name, level }) => {
-      return <TitleAndValue key={name} title={name} value={`Lv. ${level}`}/>
+      return <TitleAndValue key={name} title={name} value={`Lv. ${level}`} />
     })}
   </Stack>
 }

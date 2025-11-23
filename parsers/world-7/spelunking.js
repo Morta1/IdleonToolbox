@@ -1,25 +1,22 @@
-import { growth, lavaLog, notateNumber, commaNotation, tryToParse } from '@utility/helpers';
-import { spelunkingUpgrades, spelunkingChapters, generalSpelunky, spelunkingRocks } from '../../data/website-data';
+import { commaNotation, growth, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
+import { generalSpelunky, spelunkingChapters, spelunkingRocks, spelunkingUpgrades } from '../../data/website-data';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
-import { isArtifactAcquired } from '@parsers/sailing';
+import { getSlabBonus, isArtifactAcquired } from '@parsers/sailing';
 import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
-import { getSlabBonus } from '@parsers/sailing';
 import { getPaletteBonus } from '@parsers/gaming';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getGrimoireBonus } from '@parsers/grimoire';
 import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
-import { isMasteryBonusUnlocked } from '@parsers/misc';
+import { getAdviceFishBonus, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getStampsBonusByEffect } from '@parsers/stamps';
-import { getVialsBonusByEffect } from '@parsers/alchemy';
+import { getBubbleBonus, getVialsBonusByEffect } from '@parsers/alchemy';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
-import { getBubbleBonus } from '@parsers/alchemy';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
 import { getZenithBonus } from '@parsers/statues';
-import { getAdviceFishBonus } from '@parsers/misc';
 
 export const getSpelunking = (idleonData, account, characters) => {
   const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];
@@ -75,12 +72,32 @@ const parseSpelunking = (account, characters, rawSpelunking, rawTowerInfo) => {
     }
   });
 
+
+  const chapters = spelunkingChapters?.map((chapterArr, chapterArrIndex) => {
+    return chapterArr.map((chapter, index) => {
+      // The game uses the formula: 4 * chapterArrIndex + index
+      // This means each chapter array is allocated 4 slots in the flat array
+      const flatIndex = 4 * chapterArrIndex + index;
+      const level = rawChapters?.[flatIndex] || 0;
+      const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Pointagon')?.bonus ?? 0;
+
+      // const baseMultiplier = chapter?.x4 ? 1 + artifactBonus / 100 : 1;
+      const baseMultiplier = chapter?.x4 === 1 ? 1 + account?.sailing?.artifacts?.[35]?.bonus / 100 : 1; // TODO: remove after this is fixed in-game
+      const bonus = baseMultiplier * growth(chapter?.func, level, chapter?.x1, chapter?.x2, false) || 0;
+      return {
+        ...chapter,
+        level,
+        bonus,
+        requiredPages: chapter?.x5
+      }
+    })
+  });
   const baseBonuses = upgrades.map(u => (u?.x4 ?? 0) * Math.max(0, u?.level ?? 0));
   const loreBonuses = getLoreBonuses(account);
   const amberGain = getAmberGain(account, loreBonuses);
   const power = getPower(account, upgrades);
   const maxDailyPageReads = 5 + 3 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.spelunking?.rank, 4);
-  const staminaRegenRate = getStaminaRegenRate(account);
+  const staminaRegenRate = getStaminaRegenRate({ ...account, spelunking: { ...account?.spelunking, chapters } });
   const taxRate = getSpelunkingBonus(account, 19);
   const prismaDropChance = getPrismaDropChance(account, rawSpelunking);
   const exaltedDropChance = getExaltedDropChance(account, rawSpelunking);
@@ -124,24 +141,6 @@ const parseSpelunking = (account, characters, rawSpelunking, rawTowerInfo) => {
       cost
     }
   });
-  const chapters = spelunkingChapters?.map((chapterArr, chapterArrIndex) => {
-    return chapterArr.map((chapter, index) => {
-      // The game uses the formula: 4 * chapterArrIndex + index
-      // This means each chapter array is allocated 4 slots in the flat array
-      const flatIndex = 4 * chapterArrIndex + index;
-      const level = rawChapters?.[flatIndex] || 0;
-      const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Pointagon')?.bonus ?? 0;
-
-      // const baseMultiplier = chapter?.x4 ? 1 + artifactBonus / 100 : 1;
-      const baseMultiplier = chapter?.x4 === 1 ? 1 + account?.sailing?.artifacts?.[35]?.bonus / 100 : 1; // TODO: remove after this is fixed in-game
-      const bonus = baseMultiplier * growth(chapter?.func, level, chapter?.x1, chapter?.x2, false) || 0;
-      return {
-        ...chapter,
-        level,
-        bonus
-      }
-    })
-  });
 
   const loreBosses = generalSpelunky[14]?.split(' ').map((description, index) => {
     const discoveriesData = discoveries?.[index]?.slice(0, -1);
@@ -156,7 +155,7 @@ const parseSpelunking = (account, characters, rawSpelunking, rawTowerInfo) => {
       defeated: index <= cavesUnlocked,
       biggestHaul: biggestHauls?.[index] ?? 0,
       bestCaveLevel: bestCaveLevels?.[index] ?? 0,
-      foundAt: generalSpelunky?.[7]?.split(' ')?.[index] ?? 0,
+      foundAt: generalSpelunky?.[7]?.split(' ')?.[index] ?? 0
     }
   }).filter((boss) => boss?.description && isNaN(Number(boss.description)));
 
@@ -178,17 +177,17 @@ const parseSpelunking = (account, characters, rawSpelunking, rawTowerInfo) => {
 
   const talentSpelunkArrays = (rawSpelunking || [])?.slice(20, 41) || [];
   const charactersStamina = getCharacterStamina(account, characters, upgrades, rawCurrentStamina, staminaRegenRate.value);
-  
+
   // Calculate overstim fill rate (from chapter 2, index 2)
   const overstimFillRate = getChapterBonus(account, 2, 2);
   const shopUpg6 = getSpelunkingBonus(account, 6);
-  
+
   // Calculate total overstim rate by summing contributions from characters at max stamina
   // Each character at max stamina contributes their stamina regen rate to overstim
-  const charactersAtMaxStamina = charactersStamina.filter(({ characterStamina, currentStamina }) => 
+  const charactersAtMaxStamina = charactersStamina.filter(({ characterStamina, currentStamina }) =>
     currentStamina >= characterStamina
   ).length;
-  
+
   // Overstim rate = sum of contributions from all characters at max stamina
   // Each contribution = staminaRegenRate * (1 + overstimFillRate / 100)
   // Only if overstim meter is unlocked (shop upgrade 6 >= 1)
@@ -253,20 +252,20 @@ const getCharacterStamina = (account, characters, upgrades, rawCurrentStamina, s
     const chapterBonus3 = getChapterBonus(updatedAccount, 3, 0);
     const riftSkillBonus = 15 * masteryBonus;
     const bigFishBonus = getAdviceFishBonus(updatedAccount, 1);
-    
+
     const characterStamina = Math.floor(
       (14 + spelunkingLevel + (shopUpg4 * Math.floor(spelunkingLevel / 10)) + chapterBonus2 + riftSkillBonus + shopUpg5 + chapterBonus3)
       * (1 + bigFishBonus / 100)
     );
 
     // Effective current stamina (capped at max for time calculations)
-    const effectiveCurrentStamina = currentStamina > characterStamina 
+    const effectiveCurrentStamina = currentStamina > characterStamina
       ? characterStamina // Already at max, time to full is 0
       : currentStamina;
-    
+
     const missingStamina = Math.max(0, characterStamina - effectiveCurrentStamina);
-    const timeToFull = staminaRegenRate > 0 
-      ? missingStamina / staminaRegenRate 
+    const timeToFull = staminaRegenRate > 0
+      ? missingStamina / staminaRegenRate
       : 0;
 
     return {
@@ -310,7 +309,8 @@ export const getDiscoveryPowerReq = (account, allRocks, discovery, currentDepth 
     const depthAboveRequirement = Math.max(0, currentDepth - levelRequirement);
     const scalingFactor = Math.pow(scalingExponent, Math.round(depthAboveRequirement));
     return 100 * basePowerMultiplier * rockPowerMultiplier * scalingFactor;
-  } else {
+  }
+  else {
     return 100 * basePowerMultiplier * rockPowerMultiplier;
   }
 }
@@ -319,11 +319,11 @@ export const formatDiscoveryPowerReq = (powerReq, isScalingRock = false) => {
   // Format: if > 9999999, use "Big" notation, otherwise use comma notation
   // If scaling rock, append "+"
   let formatted = powerReq > 9999999
-    ? notateNumber(powerReq, "Big")
+    ? notateNumber(powerReq, 'Big')
     : commaNotation(powerReq);
 
   if (isScalingRock) {
-    formatted += "+";
+    formatted += '+';
   }
 
   return formatted;
@@ -338,7 +338,8 @@ export const getDiscoveryHp = (discovery) => {
     const depthAboveRequirement = Math.max(0, 0 - levelReq);
     const hpIncrease = (scalingFactor - 1) * depthAboveRequirement;
     return Math.floor(baseHp + hpIncrease);
-  } else {
+  }
+  else {
     return Math.floor(baseHp);
   }
 }
@@ -360,7 +361,7 @@ export const getLoreBossBonus = (account, index) => {
 }
 
 export const getLoreBonuses = (account) => {
-  const loreRawStats = generalSpelunky[20]?.split(" ");
+  const loreRawStats = generalSpelunky[20]?.split(' ');
   const loreRawValues = generalSpelunky[21]?.split(' ');
   const threshold = account?.spelunking?.rawLoreThreshold;
 
@@ -457,9 +458,9 @@ export const getAmberGain = (account, loreBonuses) => {
       { name: 'Chapter', value: chapterBonus },
       { name: 'Exotic', value: exoticBonus / 100 },
       { name: 'Amber from the Depths', value: shopUpg9 / 100 },
-      { name: "Amber from 'Em All", value: shopUpg10 / 100 },
+      { name: 'Amber from \'Em All', value: shopUpg10 / 100 },
       { name: 'Rope Subsidy', value: shopUpg21 * (0 + 1) / 150 },
-      { name: 'Amber Mitosis', value: shopUpg35 * 0 / 100 },
+      { name: 'Amber Mitosis', value: shopUpg35 * 0 / 100 }
     ]
   };
 }
@@ -470,11 +471,14 @@ export const getAmberDenominator = (account) => {
   const upgrade20 = getSpelunkingBonus(account, 20);
   if (upgrade51 >= 1) {
     return 1e21;
-  } else if (upgrade41 >= 1) {
+  }
+  else if (upgrade41 >= 1) {
     return 1e9;
-  } else if (upgrade20 >= 1) {
+  }
+  else if (upgrade20 >= 1) {
     return 1e3;
-  } else {
+  }
+  else {
     return 1;
   }
 }
@@ -583,7 +587,13 @@ const getSpelunkingUpgradeBonus = (
   baseBonuses,
   upgrades = [],
   upgradeIndex,
-  { totalCharactersSpelunkingLevels = 0, totalBestCaveLevels = 0, discoveriesCount = 0, biggestHaul = 0, totalGrandDiscoveries = 0 } = {},
+  {
+    totalCharactersSpelunkingLevels = 0,
+    totalBestCaveLevels = 0,
+    discoveriesCount = 0,
+    biggestHaul = 0,
+    totalGrandDiscoveries = 0
+  } = {},
   directOnly = false
 ) => {
   if (directOnly) {
@@ -665,17 +675,18 @@ export const groupUpgradesByColumn = (upgrades) => {
 
 export const getStaminaRegenRate = (account) => {
   const baseRate = 5;
-  const meritoracyBonus = 1 + getMeritocracyBonus(account, 17) / 100;
-  const legendBonus = 1 + getLegendTalentBonus(account, 30) / 100;
+  const meritoracyBonus = getMeritocracyBonus(account, 17);
+  const legendBonus = getLegendTalentBonus(account, 30);
   const shopUpg5 = getSpelunkingBonus(account, 5);
   const bubbleBonus = getBubbleBonus(account, 'FASTER_NRG', false);
   const chapterBonus = getChapterBonus(account, 2, 1);
-  const riftBonus = 10 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.spelunking?.rank, 5);
   const cardBonus = getCardBonusByEffect(account?.cards, 'Stamina_Regen_(Passive)');
-  const regenBonus = 1 + (shopUpg5 + bubbleBonus + chapterBonus + riftBonus + cardBonus) / 100;
+  const riftBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.spelunking?.rank, 5);
 
   return {
-    value: baseRate * meritoracyBonus * legendBonus * regenBonus,
+    value: 5 * (1 + getMeritocracyBonus(account, 17) / 100)
+      * (1 + legendBonus / 100)
+      * (1 + (shopUpg5 + bubbleBonus + (chapterBonus + (10 * riftBonus + cardBonus))) / 100),
     breakdown: [
       { name: 'Base Rate', value: baseRate },
       { name: 'Meritoracy', value: meritoracyBonus },
@@ -684,7 +695,7 @@ export const getStaminaRegenRate = (account) => {
       { name: 'Bubble', value: bubbleBonus },
       { name: 'Chapter', value: chapterBonus },
       { name: 'Rift', value: riftBonus / 100 },
-      { name: 'Card', value: cardBonus / 100 },
+      { name: 'Card', value: cardBonus / 100 }
     ]
   }
 }
@@ -756,9 +767,11 @@ const replacePlaceholders = (description, upgradeId, mockData = {}) => {
       if (amberGain != null) {
         if (amberGain > 1e9) {
           text = text.replace(/\$/g, notateNumber(amberGain, 'Big'));
-        } else if (amberGain > 100) {
+        }
+        else if (amberGain > 100) {
           text = text.replace(/\$/g, commaNotation(amberGain));
-        } else {
+        }
+        else {
           text = text.replace(/\$/g, notateNumber(amberGain, 'MultiplierInfo').replace(/#/g, ''));
         }
       }
@@ -833,14 +846,14 @@ const POWER_UPGRADE_INDICES = [0, 1, 2, 3, 14, 15, 16, 17];
 
 export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgrades = 100, options = {}) => {
   const { onlyAffordable = false, characters = [] } = options;
-  
+
   if (!account?.spelunking?.upgrades) {
     return [];
   }
-  
+
   // Get amber denominator to normalize large costs
   const amberDenominator = getAmberDenominator(account);
-  
+
   // Get account stats needed for bonus calculation (these don't change during simulation)
   const spelunkingData = account.spelunking;
   const totalCharactersSpelunkingLevels = characters?.reduce((res, { skillsInfo }) => res + (skillsInfo?.spelunking?.level ?? 0), 0) ?? 0;
@@ -848,23 +861,23 @@ export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgra
   const discoveriesCount = spelunkingData?.discoveriesCount ?? 0;
   const biggestHaul = spelunkingData?.biggestHaul ?? 0;
   const totalGrandDiscoveries = spelunkingData?.totalGrandDiscoveries ?? 0;
-  
+
   // Deep clone upgrades to avoid mutating original data
   let simulatedUpgrades = JSON.parse(JSON.stringify(account.spelunking.upgrades));
   let simulatedAmber = account.spelunking.currentAmber || 0;
-  
+
   // Ensure all upgrades have originalIndex set (use array index as fallback)
   simulatedUpgrades = simulatedUpgrades.map((upgrade, index) => ({
     ...upgrade,
     originalIndex: upgrade.originalIndex !== undefined ? upgrade.originalIndex : index,
     index: upgrade.index !== undefined ? upgrade.index : index
   }));
-  
+
   // Helper function to recalculate bonuses for upgrades after level changes
   const recalculateBonuses = (upgrades) => {
     // Recalculate baseBonuses based on current levels
     const baseBonuses = upgrades.map(u => (u?.x4 ?? 0) * Math.max(0, u?.level ?? 0));
-    
+
     // Recalculate bonuses for all upgrades
     return upgrades.map((upgrade, index) => {
       const baseBonus = baseBonuses[index] ?? 0;
@@ -882,7 +895,7 @@ export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgra
       };
     });
   };
-  
+
   // Calculate current power with properly calculated bonuses
   const getCurrentPower = (upgrades) => {
     // Recalculate bonuses for the upgrades
@@ -896,41 +909,41 @@ export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgra
     };
     return getPower(tempAccount).value;
   };
-  
+
   // Initialize bonuses for starting upgrades
   simulatedUpgrades = recalculateBonuses(simulatedUpgrades);
   let currentPower = getCurrentPower(simulatedUpgrades);
   const results = [];
-  
+
   for (let step = 0; step < maxUpgrades; step++) {
     let bestUpgrade = null;
     let bestEfficiency = -Infinity; // Start with -Infinity to handle log scale (negative values)
     let bestPowerChange = 0;
     let bestPercentChange = 0;
     let bestCost = 0;
-    
+
     // Find available power-affecting upgrades
     const availableUpgrades = simulatedUpgrades.filter(upgrade => {
       // Get the index - could be originalIndex or index, ensure it's a number
       const upgradeIndex = Number(upgrade.originalIndex !== undefined ? upgrade.originalIndex : upgrade.index);
-      
+
       // Must be a power-affecting upgrade
       if (isNaN(upgradeIndex) || !POWER_UPGRADE_INDICES.includes(upgradeIndex)) {
         return false;
       }
-      
+
       // Must not be maxed - check both x3 and x4 as max level
       // Also check if level is -1 (not available)
       if (upgrade.level === -1) {
         return false;
       }
-      
+
       // Check max level - x3 is the max level for spelunking upgrades
       const maxLevel = upgrade.x3;
       if (maxLevel !== undefined && maxLevel !== null && upgrade.level >= maxLevel) {
         return false;
       }
-      
+
       // If onlyAffordable, check if we can afford it
       if (onlyAffordable) {
         try {
@@ -943,16 +956,16 @@ export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgra
           return false;
         }
       }
-      
+
       // Check if upgrade has a valid cost (not undefined)
       if (upgrade.cost === undefined || upgrade.cost === null) {
         return false;
       }
       return true;
     });
-    
+
     if (availableUpgrades.length === 0) break;
-    
+
     // Evaluate each available upgrade
     for (const upgrade of availableUpgrades) {
       // Deep clone upgrades for simulation
@@ -962,15 +975,15 @@ export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgra
         const uIndex = u.originalIndex !== undefined ? u.originalIndex : u.index;
         return uIndex === upgradeOriginalIndex;
       });
-      
+
       if (upgradeIndex === -1) continue;
-      
+
       // Apply upgrade
       tempUpgrades[upgradeIndex] = {
         ...tempUpgrades[upgradeIndex],
         level: tempUpgrades[upgradeIndex].level + 1
       };
-      
+
       // Recalculate bonuses for temp upgrades before calculating power
       const tempUpgradesWithBonuses = recalculateBonuses(tempUpgrades);
       const tempAccount = {
@@ -983,22 +996,22 @@ export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgra
       const newPower = getPower(tempAccount).value;
       const powerChange = newPower - currentPower;
       const percentChange = currentPower > 0 ? (powerChange / currentPower) * 100 : 0;
-      
+
       // Calculate cost
       const cost = getSpelunkingUpgradeCost(account, characters, upgrade);
-      
+
       // Skip if cost is invalid or power doesn't increase
       if (!cost || cost <= 0 || isNaN(cost) || !isFinite(cost) || percentChange <= 0) {
         continue;
       }
-      
+
       // Normalize cost using amber denominator to handle large numbers
       const normalizedCost = cost / amberDenominator;
-      
+
       // Calculate efficiency (percent change per normalized cost)
       // This makes comparison much more reasonable for large numbers
       const efficiency = normalizedCost > 0 ? percentChange / normalizedCost : 0;
-      
+
       // Ensure efficiency is a valid number
       // For log scale, efficiency will be negative but that's fine for comparison
       if (!isNaN(efficiency) && isFinite(efficiency)) {
@@ -1012,12 +1025,14 @@ export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgra
         }
       }
     }
-    
+
     // Check if we found a valid upgrade
     // bestEfficiency should be > -Infinity if we found a valid upgrade
     if (bestUpgrade && !isNaN(bestEfficiency) && isFinite(bestEfficiency) && bestEfficiency > -Infinity) {
       // Apply the best upgrade
-      const bestUpgradeOriginalIndex = bestUpgrade.originalIndex !== undefined ? bestUpgrade.originalIndex : bestUpgrade.index;
+      const bestUpgradeOriginalIndex = bestUpgrade.originalIndex !== undefined
+        ? bestUpgrade.originalIndex
+        : bestUpgrade.index;
       const upgradeIndex = simulatedUpgrades.findIndex(u => {
         const uIndex = u.originalIndex !== undefined ? u.originalIndex : u.index;
         return uIndex === bestUpgradeOriginalIndex;
@@ -1026,22 +1041,22 @@ export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgra
         ...simulatedUpgrades[upgradeIndex],
         level: simulatedUpgrades[upgradeIndex].level + 1
       };
-      
+
       // Update amber
       simulatedAmber -= bestCost;
-      
+
       // Recalculate bonuses after the upgrade
       simulatedUpgrades = recalculateBonuses(simulatedUpgrades);
-      
+
       // Update current power
       currentPower = getCurrentPower(simulatedUpgrades);
-      
+
       // Recalculate costs for all upgrades after this purchase
       simulatedUpgrades = simulatedUpgrades.map((upgrade) => {
         const cost = getSpelunkingUpgradeCost(account, characters, upgrade);
         return { ...upgrade, cost };
       });
-      
+
       // Add to results
       const maxLevel = bestUpgrade.x3 !== undefined ? bestUpgrade.x3 : bestUpgrade.x4;
       results.push({
@@ -1053,11 +1068,12 @@ export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgra
         percentChange: bestPercentChange,
         efficiency: bestEfficiency
       });
-    } else {
+    }
+    else {
       // No more efficient upgrades available
       break;
     }
   }
-  
+
   return results;
 }
