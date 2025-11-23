@@ -145,16 +145,17 @@ export const getSuperTalentLeftToSpend = (characterLevel, playerId, selectedTale
   let leftToSpend = getTotalSuperTalentPoints(characterLevel, accountData);
 
   // Get the super talent array for this character and preset
-  // Formula: Spelunk[20 + playerIndex + 12 * presetIndex]
+  // Original formula: Spelunk[20 + playerIndex + 12 * presetIndex]
+  // Since talentSpelunkArrays is Spelunk.slice(20, 41), we use: playerIndex + 12 * presetIndex
   const spelunkArrayIndex = Math.round(playerId + 12 * selectedTalentPreset);
   const superTalentArray = accountData?.spelunking?.talentSpelunkArrays?.[spelunkArrayIndex];
-
+  
   // Subtract 1 for each super talent that has been purchased (not -1)
+  // Original check: -1 != Spelunk[20 + playerIndex + 12 * presetIndex][i]
   if (Array.isArray(superTalentArray)) {
     for (let i = 0; i < 20; i++) {
-      const talentIndex = superTalentArray[i];
-      // If talentIndex is not -1 (or undefined/null), it means a super talent was purchased
-      if (talentIndex !== undefined && talentIndex !== null && talentIndex !== -1) {
+      // If talentIndex is not -1, it means a super talent was purchased
+      if (superTalentArray[i] !== -1) {
         leftToSpend = Math.round(leftToSpend - 1);
       }
     }

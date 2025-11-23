@@ -130,7 +130,10 @@ const parseSneaking = (rawSneaking, serverVars, charactersData, account) => {
 
   const jadeEmporium = orderedEmporium.map((upgrade, index) => {
     let bonus;
-    if (index === 8 || index === 6) {
+    if (index === 42) {
+      bonus = 1;
+    }
+    else if (index === 8 || index === 6) {
       const slabSovereignty = getLabBonus(account?.lab?.labBonuses, 15);
       const multi = Math.floor(Math.max(0, lootedItems - 1000) / 10);
       bonus = (index === 6 ? 3 : 5) * multi * (1 + slabSovereignty / 100);

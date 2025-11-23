@@ -622,7 +622,7 @@ const getUpgradeCost = (upgrades, index, serverVars, accountData) => {
   }
 
 // Final cost calculation
-  const dustCost = Math.max(serverVars?.DustCost, 1);
+  const dustCost = Math.max(serverVars?.DustCost, 6.2);
   const bonusReduction = 1 + (
     getLocalCompassBonus(upgrades, 36) +
     getLocalCompassBonus(upgrades, 77)
@@ -631,10 +631,9 @@ const getUpgradeCost = (upgrades, index, serverVars, accountData) => {
   const compassUpg = compass?.[index];
   const randoListIndex = Math.round(105 + compassUpg?.x10);
   const randoList = randomList[randoListIndex]?.split(' ');
-  const randoMultiplier = Math.max(1, Math.pow(3.2 - randoList.length / 60, randoList.indexOf('' + index)));
+  const randoMultiplier = Math.max(1, Math.pow(3.69 - randoList.length / 27, randoList.indexOf('' + index)));
 
-  const finalCost = (
-    getMasterclassCostReduction(accountData) *
+  const finalCost = getMasterclassCostReduction(accountData) * (
     surplusCost +
     dustCost * (1 / bonusReduction) *
     (1 / Math.max(1, redCost)) *

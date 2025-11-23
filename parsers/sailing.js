@@ -604,6 +604,23 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
       }
     });
   }
+  else if (artifact?.name === 'Deathskull') {
+    if (index === 33) {
+      const descriptions = [
+        'Gives_+1_Gallery_Slots_for_Trophies_in_World_7!',
+        'Gives_+1_Gallery_Slots_for_Trophies_in_World_7!',
+        'Gives_+2_Gallery_Slots_for_Trophies!',
+        'Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade!',
+        'Gives_+2_Gallery_Slots_and_makes_both_of_them_Featured_grade!',
+        'Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_1_of_them_Masterpiece!'
+      ];
+      const descriptionIndex = Math.round(acquired);
+      if (descriptionIndex >= 0 && descriptionIndex < descriptions.length) {
+        fixedDescription = fixedDescription.replace('$', descriptions[descriptionIndex]);
+      }
+      bonus = acquired;
+    }
+  }
 
   if (acquired === 2 && artifact?.ancientFormDescription === 'The_artifact\'s_main_bonus_is_doubled!') {
     bonus *= 2;

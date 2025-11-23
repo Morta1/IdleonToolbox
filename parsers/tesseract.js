@@ -468,9 +468,10 @@ export const getPrismaMulti = (account) => {
 }
 
 const getUpgradeCost = ({ index, x1, x2, level, account, upgrades }) => {
-  return (1 / (1 + (calcTesseractBonus(upgrades, 49, 0)
-    * lavaLog(account?.accountOptions?.[392])) / 100))
-    * 3 * Math.pow(1.04, index) * getMasterclassCostReduction(account) * (level + (x1 + level) * Math.pow(x2 + 0.01, level))
+  return 3 * getMasterclassCostReduction(account)
+    * (1 / (1 + (calcTesseractBonus(upgrades, 49, 0)
+      * lavaLog(account?.accountOptions?.[392])) / 100))
+    * Math.pow(1.04, index) * (level + (x1 + level) * Math.pow(x2 + 0.01, level))
 }
 
 const getTesseractBonusAtLevel = (upgrades, index, levelOverride) => {
