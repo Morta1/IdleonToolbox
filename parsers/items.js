@@ -249,18 +249,18 @@ export const getAllTools = () => {
 }
 
 export const calcTrophiesFound = (looty) => {
-  return looty?.lootyRaw?.reduce((sum, itemName) => sum + (((itemName || '')?.includes('Trophy'))
+  return looty?.lootyRaw?.reduce((sum, itemName) => sum + ((String(itemName || '')?.includes('Trophy'))
     ? 1
     : 0), 0)
 }
 export const calcObolsFound = (looty) => {
-  return looty?.lootyRaw?.reduce((sum, itemName) => sum + (((itemName || '')?.includes('Obol'))
+  return looty?.lootyRaw?.reduce((sum, itemName) => sum + ((String(itemName || '')?.includes('Obol'))
     ? 1
     : 0), 0)
 }
 
 export const calcNametagsFound = (looty) => {
-  return looty?.lootyRaw?.reduce((sum, itemName) => sum + (((itemName || '')?.includes('EquipmentNametag'))
+  return looty?.lootyRaw?.reduce((sum, itemName) => sum + ((String(itemName || '')?.includes('EquipmentNametag'))
     ? 1
     : 0), 0)
 }
