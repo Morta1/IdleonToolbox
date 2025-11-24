@@ -248,10 +248,10 @@ const UpgradeOptimizer = ({ character, account }) => {
     <Stack gap={3}>
       <Stack direction="row" gap={2} alignItems="center" flexWrap="wrap">
         <FormControl size="small" sx={{ width: 140 }}>
-          <InputLabel>Optimization Mode</InputLabel>
+          <InputLabel>Optimization Category</InputLabel>
           <Select
             value={optimizationCategory}
-            label="Optimization Mode"
+            label="Optimization Category"
             onChange={(e) => setOptimizationCategory(e.target.value)}
           >
             {optimizationCategorys.map(mode => (
