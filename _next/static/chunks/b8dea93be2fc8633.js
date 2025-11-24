@@ -11,10 +11,10 @@ __turbopack_load_page_chunks__("/account/world-7/spelunking", [
   "static/chunks/ad01d767f11a010d.js",
   "static/chunks/cbc67c9543d2016a.js",
   "static/chunks/6532a969801b0f6e.js",
-  "static/chunks/5ac18de657cdd184.js",
+  "static/chunks/4a7fbf1270a08c0d.js",
   "static/chunks/dc1efa255576d82e.js",
   "static/chunks/7a88b545e6c2aae9.js",
   "static/chunks/dfaee2cfee3b86be.js",
   "static/chunks/403c49ca47413a4e.js",
-  "static/chunks/turbopack-85755910895f7e7d.js"
+  "static/chunks/turbopack-4af3edee2862a497.js"
 ])
