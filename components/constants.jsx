@@ -207,7 +207,7 @@ export const PAGES = {
             { tab: 'Upgrades' },
             { tab: 'Lore' },
             { tab: 'Elixirs' },
-            { tab: 'Power Optimizer' }
+            { tab: 'Upgrade Optimizer' }
           ],
           nestedTabs: [
             { tab: 'Lore', nestedTab: 'Chapters' },

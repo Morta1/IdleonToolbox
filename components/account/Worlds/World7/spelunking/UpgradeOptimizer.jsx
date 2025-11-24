@@ -28,33 +28,38 @@ import { cleanUnderscore, notateNumber, prefix, commaNotation } from '@utility/h
 import { IconList, IconTable } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import { useLocalStorage } from '@mantine/hooks';
-import { getOptimizedSpelunkingPowerUpgrades, getAmberIndex, getAmberDenominator } from '@parsers/world-7/spelunking';
+import { getOptimizedSpelunkingPowerUpgrades, getOptimizedSpelunkingAmberGainUpgrades, getAmberIndex, getAmberDenominator } from '@parsers/world-7/spelunking';
 
 const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
 const groupModes = ['None', 'Upgrade', 'Summary'];
+const optimizationCategorys = ['Power', 'Amber Gain', 'All'];
 
-const PowerOptimizer = ({ character, account }) => {
+const UpgradeOptimizer = ({ character, account }) => {
   const { state } = useContext(AppContext);
   const [maxUpgrades, setMaxUpgrades] = useLocalStorage({
-    key: 'spelunkingPowerOptimizer:maxUpgrades',
+    key: 'spelunkingUpgradeOptimizer:maxUpgrades',
     defaultValue: 10
   });
   const [maxUpgradesMode, setMaxUpgradesMode] = useLocalStorage({
-    key: 'spelunkingPowerOptimizer:maxUpgradesMode',
+    key: 'spelunkingUpgradeOptimizer:maxUpgradesMode',
     defaultValue: 'preset'
   });
   const [customMaxUpgrades, setCustomMaxUpgrades] = useLocalStorage({
-    key: 'spelunkingPowerOptimizer:customMaxUpgrades',
+    key: 'spelunkingUpgradeOptimizer:customMaxUpgrades',
     defaultValue: 10
   });
   const [onlyAffordable, setOnlyAffordable] = useState(false);
   const [viewMode, setViewMode] = useLocalStorage({
-    key: 'spelunkingPowerOptimizer:viewMode',
+    key: 'spelunkingUpgradeOptimizer:viewMode',
     defaultValue: 'grid'
   });
   const [groupMode, setGroupMode] = useLocalStorage({
-    key: 'spelunkingPowerOptimizer:groupMode',
+    key: 'spelunkingUpgradeOptimizer:groupMode',
     defaultValue: 'None'
+  });
+  const [optimizationCategory, setOptimizationCategory] = useLocalStorage({
+    key: 'spelunkingUpgradeOptimizer:optimizationCategory',
+    defaultValue: 'Power'
   });
 
   const denominator = getAmberDenominator(account);
@@ -62,18 +67,33 @@ const PowerOptimizer = ({ character, account }) => {
 
   const optimizedUpgrades = useMemo(() => {
     if (!character || !account) return [];
+    
     const maxToUse = maxUpgradesMode === 'custom'
       ? Math.max(0, parseInt(customMaxUpgrades || 0, 10) || 0)
       : maxUpgrades;
     
-    // Get characters from state if available, otherwise use empty array
     const characters = state?.characters || [];
+    const options = { onlyAffordable, characters };
     
-    return getOptimizedSpelunkingPowerUpgrades(character, account, maxToUse, {
-      onlyAffordable,
-      characters
-    });
-  }, [character, account, maxUpgradesMode, customMaxUpgrades, maxUpgrades, onlyAffordable, state?.characters]);
+    // Helper function to get upgrades for a specific category
+    const getUpgradesForCategory = (category, limit) => {
+      const upgrades = category === 'Amber Gain'
+        ? getOptimizedSpelunkingAmberGainUpgrades(character, account, limit, options)
+        : getOptimizedSpelunkingPowerUpgrades(character, account, limit, options);
+      return upgrades.map(upgrade => ({ ...upgrade, category }));
+    };
+    
+    if (optimizationCategory === 'All') {
+      // Get upgrades from both categories, merge, sort by efficiency, and limit
+      const powerUpgrades = getUpgradesForCategory('Power', maxToUse * 2);
+      const amberGainUpgrades = getUpgradesForCategory('Amber Gain', maxToUse * 2);
+      return [...powerUpgrades, ...amberGainUpgrades]
+        .sort((a, b) => (b.efficiency || 0) - (a.efficiency || 0))
+        .slice(0, maxToUse);
+    }
+    
+    return getUpgradesForCategory(optimizationCategory, maxToUse);
+  }, [character, account, maxUpgradesMode, customMaxUpgrades, maxUpgrades, onlyAffordable, state?.characters, optimizationCategory]);
 
   const formatChange = (change) => {
     if (change >= 1000) {
@@ -89,6 +109,42 @@ const PowerOptimizer = ({ character, account }) => {
   const formatCost = (cost) => {
     const costValue = cost < 1e9 ? commaNotation(cost / denominator) : notateNumber(cost / denominator, "Big");
     return costValue;
+  };
+
+  // Helper function to get the change value and label based on upgrade category
+  const getChangeInfo = (upgrade, isCombined = false) => {
+    const category = upgrade.category || optimizationCategory;
+    if (category === 'All') {
+      // In "All" mode, prefer the category marked on the upgrade, otherwise detect from available data
+      const detectedCategory = upgrade.category || 
+        (upgrade.powerChange !== undefined || upgrade.combinedPowerChange !== undefined ? 'Power' : 'Amber Gain');
+      if (detectedCategory === 'Amber Gain') {
+        return {
+          label: 'Amber Gain',
+          value: isCombined ? upgrade.combinedAmberGainChange : upgrade.amberGainChange,
+          category: 'Amber Gain'
+        };
+      }
+      return {
+        label: 'Power',
+        value: isCombined ? upgrade.combinedPowerChange : upgrade.powerChange,
+        category: 'Power'
+      };
+    }
+    
+    if (category === 'Amber Gain') {
+      return {
+        label: 'Amber Gain',
+        value: isCombined ? upgrade.combinedAmberGainChange : upgrade.amberGainChange,
+        category: 'Amber Gain'
+      };
+    }
+    
+    return {
+      label: 'Power',
+      value: isCombined ? upgrade.combinedPowerChange : upgrade.powerChange,
+      category: 'Power'
+    };
   };
 
   // Group upgrades by name if consolidation is enabled
@@ -134,18 +190,21 @@ const PowerOptimizer = ({ character, account }) => {
         if (!upgrade.sequence || upgrade.sequence.length <= 1) {
           return upgrade;
         }
-        // Calculate total power changes
+        // Calculate total changes (power or amber gain)
         let totalPowerChange = 0;
+        let totalAmberGainChange = 0;
         let totalPercentChange = 0;
         let totalCost = 0;
         upgrade.sequence.forEach(seq => {
           totalCost += seq.cost;
           totalPowerChange += seq.powerChange || 0;
+          totalAmberGainChange += seq.amberGainChange || 0;
           totalPercentChange += seq.percentChange || 0;
         });
         return {
           ...upgrade,
           combinedPowerChange: totalPowerChange,
+          combinedAmberGainChange: totalAmberGainChange,
           combinedPercentChange: totalPercentChange,
           totalCost,
           startLevel: upgrade.startLevel,
@@ -166,6 +225,7 @@ const PowerOptimizer = ({ character, account }) => {
             sequence: [],
             totalCost: 0,
             combinedPowerChange: 0,
+            combinedAmberGainChange: 0,
             combinedPercentChange: 0
           };
         }
@@ -175,6 +235,7 @@ const PowerOptimizer = ({ character, account }) => {
         g.finalLevel = Math.max(g.finalLevel, upgrade.level);
         g.totalCost += upgrade.cost;
         g.combinedPowerChange += upgrade.powerChange || 0;
+        g.combinedAmberGainChange += upgrade.amberGainChange || 0;
         g.combinedPercentChange += upgrade.percentChange || 0;
       });
 
@@ -186,6 +247,18 @@ const PowerOptimizer = ({ character, account }) => {
   return (
     <Stack gap={3}>
       <Stack direction="row" gap={2} alignItems="center" flexWrap="wrap">
+        <FormControl size="small" sx={{ width: 140 }}>
+          <InputLabel>Optimization Mode</InputLabel>
+          <Select
+            value={optimizationCategory}
+            label="Optimization Mode"
+            onChange={(e) => setOptimizationCategory(e.target.value)}
+          >
+            {optimizationCategorys.map(mode => (
+              <MenuItem key={mode} value={mode}>{mode}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <FormControl size="small" sx={{ width: 160 }}>
           <InputLabel>Max Upgrades</InputLabel>
           <Select
@@ -262,7 +335,9 @@ const PowerOptimizer = ({ character, account }) => {
         </ToggleButtonGroup>
       </Stack>
 
-      <Typography variant="h6">Recommended Power Upgrade Sequence</Typography>
+      <Typography variant="h6">
+        Recommended {optimizationCategory === 'All' ? 'Upgrade' : optimizationCategory === 'Amber Gain' ? 'Amber Gain' : 'Power'} Upgrade Sequence
+      </Typography>
       {displayUpgrades.length > 0 ? (
         viewMode === 'grid' ? (
           <Stack direction="row" gap={2} flexWrap="wrap">
@@ -290,17 +365,23 @@ const PowerOptimizer = ({ character, account }) => {
                               ? ` to #${originalIndex + upgrade.sequence.length}`
                               : ''})`
                             : `Upgrade #${originalIndex + 1}`}
+                          {optimizationCategory === 'All' && upgrade.category && (
+                            <span> • {upgrade.category}</span>
+                          )}
                         </Typography>
                       </Box>
                     </Stack>
-                    {hasSequence && upgrade.combinedPowerChange !== undefined ? (
+                    {hasSequence && (upgrade.combinedPowerChange !== undefined || upgrade.combinedAmberGainChange !== undefined) ? (
                       <>
                         <Divider sx={{ my: 1 }} />
                         <Typography variant="subtitle2" gutterBottom>
                           Total Benefits (Levels {upgrade.startLevel} → {upgrade.finalLevel})
                         </Typography>
                         <Typography variant="body2">
-                          Power: {formatChange(upgrade.combinedPowerChange)} ({formatPercentChange(upgrade.combinedPercentChange)})
+                          {(() => {
+                            const changeInfo = getChangeInfo(upgrade, true);
+                            return `${changeInfo.label}: ${formatChange(changeInfo.value)} (${formatPercentChange(upgrade.combinedPercentChange)})`;
+                          })()}
                         </Typography>
                         <Divider sx={{ my: 1 }} />
                         <Stack direction="row" gap={1} alignItems="center">
@@ -315,7 +396,10 @@ const PowerOptimizer = ({ character, account }) => {
                     ) : (
                       <Stack sx={{ mt: 1 }} gap={1}>
                         <Typography variant="body2">
-                          Power: {formatChange(upgrade.powerChange)} ({formatPercentChange(upgrade.percentChange)})
+                          {(() => {
+                            const changeInfo = getChangeInfo(upgrade, false);
+                            return `${changeInfo.label}: ${formatChange(changeInfo.value)} (${formatPercentChange(upgrade.percentChange)})`;
+                          })()}
                         </Typography>
                         <Stack direction="row" gap={1} alignItems="center">
                           <img
@@ -342,8 +426,9 @@ const PowerOptimizer = ({ character, account }) => {
                   <TableCell>#</TableCell>
                   <TableCell>Icon</TableCell>
                   <TableCell>Name</TableCell>
+                  {optimizationCategory === 'All' && <TableCell>Category</TableCell>}
                   <TableCell>Level</TableCell>
-                  <TableCell>Power Change</TableCell>
+                  <TableCell>{optimizationCategory === 'All' ? 'Change' : optimizationCategory === 'Amber Gain' ? 'Amber Gain Change' : 'Power Change'}</TableCell>
                   <TableCell>Cost</TableCell>
                 </TableRow>
               </TableHead>
@@ -361,24 +446,33 @@ const PowerOptimizer = ({ character, account }) => {
                         />
                       </TableCell>
                       <TableCell>{cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))}</TableCell>
+                      {optimizationCategory === 'All' && (
+                        <TableCell>{upgrade.category || 'Unknown'}</TableCell>
+                      )}
                       <TableCell>
                         {hasSequence
                           ? `${upgrade.startLevel} → ${upgrade.finalLevel}`
                           : `${upgrade.level} / ${upgrade.x3}`}
                       </TableCell>
                       <TableCell>
-                        {hasSequence && upgrade.combinedPowerChange !== undefined
+                        {hasSequence && (upgrade.combinedPowerChange !== undefined || upgrade.combinedAmberGainChange !== undefined)
                           ? (
                             <>
                               <Typography variant="caption">Levels {upgrade.startLevel} → {upgrade.finalLevel}</Typography>
                               <div>
-                                {formatChange(upgrade.combinedPowerChange)} ({formatPercentChange(upgrade.combinedPercentChange)})
+                                {(() => {
+                                  const changeInfo = getChangeInfo(upgrade, true);
+                                  return `${changeInfo.label}: ${formatChange(changeInfo.value)} (${formatPercentChange(upgrade.combinedPercentChange)})`;
+                                })()}
                               </div>
                             </>
                           )
                           : (
                             <>
-                              {formatChange(upgrade.powerChange)} ({formatPercentChange(upgrade.percentChange)})
+                              {(() => {
+                                const changeInfo = getChangeInfo(upgrade, false);
+                                return `${changeInfo.label}: ${formatChange(changeInfo.value)} (${formatPercentChange(upgrade.percentChange)})`;
+                              })()}
                             </>
                           )}
                       </TableCell>
@@ -405,12 +499,12 @@ const PowerOptimizer = ({ character, account }) => {
         )
       ) : (
         <Typography variant="body1" color="text.secondary">
-          No viable power upgrades found with your current resources.
+          No viable {optimizationCategory === 'All' ? '' : optimizationCategory === 'Amber Gain' ? 'amber gain' : 'power'} upgrades found with your current resources.
         </Typography>
       )}
     </Stack>
   );
 };
 
-export default PowerOptimizer;
+export default UpgradeOptimizer;
 

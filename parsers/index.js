@@ -81,12 +81,25 @@ import { getAdviceFish } from '@parsers/misc';
 
 export const parseData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime) => {
   try {
-    let processedData = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime);
-    const {
-      accountData,
-      charactersData
-    } = serializeData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData);
-    processedData = null;
+    // TODO: FIX THIS UGLY ASS CODE!!!!
+    // Multiple passes are needed to resolve cross-dependencies between
+    // currencies, breeding, farming, and other account/character data
+    const REQUIRED_PASSES = 3;
+    let processedData = null;
+    
+    for (let pass = 0; pass < REQUIRED_PASSES; pass++) {
+      processedData = serializeData(
+        idleonData,
+        charNames,
+        companion,
+        guildData,
+        serverVars,
+        accountCreateTime,
+        processedData
+      );
+    }
+    
+    const { accountData, charactersData } = processedData;
     return { account: accountData, characters: charactersData };
   } catch (err) {
     console.error('Error while parsing data', err);
@@ -284,6 +297,7 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.coralReef = getCoralReef(idleonData, accountData, charactersData);
   accountData.clamWork = getClamWork(idleonData, accountData);
   accountData.adviceFish = getAdviceFish(idleonData);
+  
   // Cleanup unnecessary data
   serializedCharactersData = null;
   charactersLevels = null;

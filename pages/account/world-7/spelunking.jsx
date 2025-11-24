@@ -11,7 +11,7 @@ import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World7/spelunking/Upgrades';
 import Lore from '@components/account/Worlds/World7/spelunking/Lore';
 import Elixirs from '@components/account/Worlds/World7/spelunking/Elixirs';
-import PowerOptimizer from '@components/account/Worlds/World7/spelunking/PowerOptimizer';
+import UpgradeOptimizer from '@components/account/Worlds/World7/spelunking/UpgradeOptimizer';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 
@@ -38,7 +38,7 @@ const Spelunking = () => {
   } = state?.account?.spelunking || {};
   const denominator = getAmberDenominator(state?.account);
   const amberFoundValue = currentAmber < 1e9 ? commaNotation(currentAmber / denominator) : notateNumber(currentAmber / denominator, "Big");
-
+  
   return <>
     <NextSeo
       title="Spelunking | Idleon Toolbox"
@@ -50,7 +50,7 @@ const Spelunking = () => {
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg17.png`} alt="" />
           <Typography>{notateNumber(power.value, "Big")}</Typography>
-          <Tooltip title={<Breakdown titleStyle={{ width: 170 }} breakdown={power.breakdown} />}>
+          <Tooltip title={<Breakdown titleStyle={{ width: 170 }} breakdown={power.breakdown} notation="MultiplierInfo" />}>
             <IconInfoCircleFilled size={18} />
           </Tooltip>
         </Stack>
@@ -61,7 +61,7 @@ const Spelunking = () => {
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <img src={`${prefix}data/CaveAmber${getAmberIndex(state?.account)}.png`} alt="" />
           <Typography>{notateNumber(amberGain.value, "Big")}</Typography>
-          <Tooltip title={<Breakdown titleStyle={{ width: 170 }} breakdown={amberGain.breakdown} />}>
+          <Tooltip title={<Breakdown titleStyle={{ width: 170 }} breakdown={amberGain.breakdown} notation="MultiplierInfo" />}>
             <IconInfoCircleFilled size={18} />
           </Tooltip>
         </Stack>
@@ -94,7 +94,7 @@ const Spelunking = () => {
       <Upgrades upgrades={upgrades} currentAmber={amberFoundValue} denominator={denominator} amberIndex={getAmberIndex(state?.account)} />
       <Lore chapters={chapters} loreBosses={loreBosses} bestCaveLevels={bestCaveLevels} />
       <Elixirs elixirs={elixirs} ownedElixirs={ownedElixirs} ownedSlots={ownedSlots} maxElixirDuplicates={maxElixirDuplicates} />
-      <PowerOptimizer character={state?.characters?.[0]} account={state?.account} />
+      <UpgradeOptimizer character={state?.characters?.[0]} account={state?.account} />
     </Tabber>
   </>
 }

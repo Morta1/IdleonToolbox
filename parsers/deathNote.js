@@ -76,7 +76,7 @@ export const getEclipseSkullsBonus = (account) => {
 }
 
 export const calcTotalKillsDigits = (deathNote) => {
-  const deathNoteCopy = structuredClone((deathNote));
+  const deathNoteCopy = structuredClone(deathNote || {});
   return Object.values(deathNoteCopy).reduce((sum, { mobs }) => {
     const digits = mobs.reduce((sum, { kills }) => sum + Math.ceil(lavaLog(kills)), 0);
     return sum + digits;

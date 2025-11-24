@@ -92,12 +92,13 @@ const parseSpelunking = (account, characters, rawSpelunking, rawTowerInfo) => {
       }
     })
   });
+  const updatedAccount = { ...account, spelunking: { ...account?.spelunking, chapters } };
   const baseBonuses = upgrades.map(u => (u?.x4 ?? 0) * Math.max(0, u?.level ?? 0));
   const loreBonuses = getLoreBonuses(account);
-  const amberGain = getAmberGain(account, loreBonuses);
+  const amberGain = getAmberGain(updatedAccount, loreBonuses);
   const power = getPower(account, upgrades);
   const maxDailyPageReads = 5 + 3 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.spelunking?.rank, 4);
-  const staminaRegenRate = getStaminaRegenRate({ ...account, spelunking: { ...account?.spelunking, chapters } });
+  const staminaRegenRate = getStaminaRegenRate(updatedAccount);
   const taxRate = getSpelunkingBonus(account, 19);
   const prismaDropChance = getPrismaDropChance(account, rawSpelunking);
   const exaltedDropChance = getExaltedDropChance(account, rawSpelunking);
@@ -371,7 +372,6 @@ export const getLoreBonuses = (account) => {
       const loreData = loreRawValues?.[index]?.split('|');
       const baseValue = parseFloat(loreData[0]);
       const thresholdValue = parseFloat(loreData[1]);
-
       const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 17);
       const armorSetBonus = getArmorSetBonus(account, 'TROLL_SET');
       const bonusMultiplier = 1 + (grimoireBonus + armorSetBonus) / 100;
@@ -396,71 +396,81 @@ export const getLoreBonuses = (account) => {
 
 export const getAmberGain = (account, loreBonuses) => {
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Spelunking_Amber')?.bonus;
-  const farmingBonus = account?.farming?.cropDepot?.spelunky?.value ?? 0;
+  const cropBonus = account?.farming?.cropDepot?.spelunky?.value ?? 0;
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 3, i: 0, account });
-  const stampBonus = getStampsBonusByEffect(account, 'spelunkamb');
+  const stampBonus = getStampsBonusByEffect(account, 'Spelunking_Amber_gain');
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '7amber');
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'SplkAmb');
-
   const dancingCoralBonus = getDancingCoralBonus(account, 2, 0);
   const cardBonus = getCardBonusByEffect(account?.cards, 'Spelunk_Amber_(Passive)');
-  const summoningBonus = getWinnerBonus(account, '<x Amber Gain');
+  const winnerBonus = getWinnerBonus(account, '<x Amber Gain');
   const shopUpg7 = getSpelunkingBonus(account, 7, 1);
   const shopUpg20 = getSpelunkingBonus(account, 20);
+  const shopUpg41 = getSpelunkingBonus(account, 41);
+  const shopUpg51 = getSpelunkingBonus(account, 51);
   const shopUpg6 = getSpelunkingBonus(account, 6);
   const overstimBonus = getOverstimBonus(account);
-
-  const riftBonus = (50 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.spelunking?.rank, 6));
+  const riftBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.spelunking?.rank, 6);
+  const shopUpg44 = getSpelunkingBonus(account, 44);
   const shopUpg8 = getSpelunkingBonus(account, 8);
   const loreBonus = getLoreBonus({ ...account, spelunking: { ...account?.spelunking, loreBonuses } }, 4);
   const chapterBonus = getChapterBonus(account, 1, 3);
   const exoticBonus = getExoticMarketBonus(account, 43);
   const shopUpg9 = getSpelunkingBonus(account, 9);
   const shopUpg10 = getSpelunkingBonus(account, 10);
-
   const shopUpg21 = getSpelunkingBonus(account, 21);
-  const shopUpg35 = getSpelunkingBonus(account, 35);
+
+
+  const amberGain = (1 + arcadeBonus / 100)
+    * (1 + (cropBonus
+      + (lampBonus
+        + stampBonus
+        + vialBonus
+        + mealBonus)) / 100)
+    * (1 + dancingCoralBonus / 100)
+    * (1 + cardBonus / 100)
+    * (1 + winnerBonus / 100)
+    * (1 + (shopUpg7
+      + shopUpg20
+      + shopUpg41
+      + shopUpg51) / 100)
+    * (1 + shopUpg6 * overstimBonus / 100)
+    * (1 + 50 * riftBonus / 100)
+    * (1 + shopUpg44 / 100)
+    * (1 + shopUpg8 / 100)
+    * (1 + loreBonus / 100)
+    * Math.max(1, chapterBonus)
+    * (1 + exoticBonus / 100)
+    * (1 + shopUpg9 / 100)
+    * (1 + shopUpg10 / 100)
+    * (1 + shopUpg21 / 150);
 
   return {
-    value: (1 + arcadeBonus / 100)
-      * (1 + (farmingBonus + (lampBonus + stampBonus + vialBonus + mealBonus)) / 100)
-      * (1 + dancingCoralBonus / 100)
-      * (1 + cardBonus / 100)
-      * (1 + summoningBonus / 100)
-      * (1 + (shopUpg7 + shopUpg20) / 100)
-      * (1 + shopUpg6 * overstimBonus / 100)
-      * (1 + riftBonus / 100)
-      * (1 + shopUpg8 / 100)
-      * (1 + loreBonus / 100)
-      * Math.max(1, chapterBonus)
-      * (1 + exoticBonus / 100)
-      * (1 + shopUpg9 / 100)
-      * (1 + shopUpg10 / 100)
-      * (1 + shopUpg21 * (0 + 1) / 150)
-      * (1 + shopUpg35 * 0 / 100),
+    value: amberGain,
     breakdown: [
       { name: 'Arcade', value: arcadeBonus / 100 },
-      { name: 'Farming', value: farmingBonus / 100 },
+      { name: 'Crop Depot', value: cropBonus / 100 },
       { name: 'Lamp', value: lampBonus / 100 },
       { name: 'Stamp', value: stampBonus / 100 },
       { name: 'Vial', value: vialBonus / 100 },
       { name: 'Meal', value: mealBonus / 100 },
       { name: 'Dancing Coral', value: dancingCoralBonus / 100 },
       { name: 'Card', value: cardBonus / 100 },
-      { name: 'Winner', value: summoningBonus / 100 },
+      { name: 'Winner', value: winnerBonus / 100 },
       { name: 'Amber on the Rocks', value: shopUpg7 / 100 },
       { name: 'Deep Pockets', value: shopUpg20 / 100 },
+      { name: 'The Green Amber Clause of the Contract', value: shopUpg41 / 100 },
+      { name: 'The Red Amber Fine Print of the Contract', value: shopUpg51 / 100 },
       { name: 'Overstim Meter', value: shopUpg6 / 100 },
       { name: 'Overstim', value: overstimBonus / 100 },
-      { name: 'Rift Bonus', value: riftBonus / 100 },
+      { name: 'Rift Bonus', value: 50 * riftBonus / 100 },
       { name: 'Amber on the Brain', value: shopUpg8 },
       { name: 'Lore', value: loreBonus / 100 },
       { name: 'Chapter', value: chapterBonus },
       { name: 'Exotic', value: exoticBonus / 100 },
       { name: 'Amber from the Depths', value: shopUpg9 / 100 },
       { name: 'Amber from \'Em All', value: shopUpg10 / 100 },
-      { name: 'Rope Subsidy', value: shopUpg21 * (0 + 1) / 150 },
-      { name: 'Amber Mitosis', value: shopUpg35 * 0 / 100 }
+      { name: 'Deep Pockets', value: shopUpg21 / 150 },
     ]
   };
 }
@@ -503,14 +513,14 @@ const getChapterBonus = (account, chapterArrIndex, innerIndex) => {
 const getPower = (account) => {
   const basePower = 1 + getSpelunkingBonus(account, 0);
   // Power multiplier - combines many different bonuses
-  const summoningBonus = getWinnerBonus(account, '<x Spelunk POW');
+  const winnerBonus = getWinnerBonus(account, '<x Spelunk POW');
   const gemShopBonus = account?.gemShopPurchases?.find((value, index) => index === 43) ?? 0;
   const gemItemBonus = Math.max(1, Math.pow(2, gemShopBonus));
   const chapterBonus = Math.max(1, getChapterBonus(account, 1, 2));
   const shopUpg1 = getSpelunkingBonus(account, 1);
   const dancingCoralBonus = getDancingCoralBonus(account, 1, 0);
 
-  const farmingBonus = account?.farming?.cropDepot?.spelunky?.value ?? 0;
+  const cropDepot = account?.farming?.cropDepot?.spelunky?.value ?? 0;
   const sailingBonus = getSlabBonus(account, 6);
   const gamingBonus = account?.msaTotalizer?.spelunkingPow?.value ?? 0;
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'SplkPOW');
@@ -518,6 +528,7 @@ const getPower = (account) => {
   const shopUpg2 = getSpelunkingBonus(account, 2);
   const shopUpg3 = getSpelunkingBonus(account, 3);
   const paletteBonus = getPaletteBonus(account, 13);
+  const shopUpg46 = getSpelunkingBonus(account, 46);
 
   const exoticBonus = getExoticMarketBonus(account, 42);
   const cardBonus = getCardBonusByEffect(account?.cards, 'Spelunk_POW_(Passive)');
@@ -527,15 +538,16 @@ const getPower = (account) => {
   const toolUpg16 = getSpelunkingBonus(account, 16);
   const toolUpg17 = getSpelunkingBonus(account, 17);
 
-  const powerMulti = (1 + summoningBonus / 100)
+  const powerMulti = (1 + winnerBonus / 100)
     * gemItemBonus
     * chapterBonus
     * (1 + shopUpg1 / 100)
     * (1 + dancingCoralBonus / 100)
-    * (1 + (farmingBonus + sailingBonus + gamingBonus + mealBonus) / 100)
+    * (1 + (cropDepot + sailingBonus + gamingBonus + mealBonus) / 100)
     * (1 + shopUpg2 / 100)
     * (1 + shopUpg3 / 100)
     * (1 + paletteBonus / 100)
+    * (1 + shopUpg46 / 100)
     * (1 + (exoticBonus + cardBonus) / 100)
     * (1 + (toolUpg14 + toolUpg15 + toolUpg16 + toolUpg17) / 100);
 
@@ -543,18 +555,19 @@ const getPower = (account) => {
     value: basePower * powerMulti,
     breakdown: [
       { name: 'Learning the POW', value: basePower },
-      { name: 'Winner', value: summoningBonus },
+      { name: 'Winner', value: winnerBonus },
       { name: 'Gem Item', value: gemItemBonus },
       { name: 'Chapter', value: chapterBonus },
       { name: 'Discovering the POW', value: shopUpg1 },
       { name: 'Dancing Coral', value: dancingCoralBonus },
-      { name: 'Farming', value: farmingBonus },
+      { name: 'Crop Depot', value: cropDepot },
       { name: 'Sailing', value: sailingBonus },
       { name: 'Gaming', value: gamingBonus },
       { name: 'Meal', value: mealBonus },
       { name: 'Depthing the POW', value: shopUpg2 },
       { name: 'Hauling the POW', value: shopUpg3 },
       { name: 'Palette', value: paletteBonus },
+      { name: 'Grandiose_POW', value: shopUpg46 },
       { name: 'Exotic Market', value: exoticBonus },
       { name: 'Card', value: cardBonus },
       { name: 'The Reliable Mace', value: toolUpg14 },
@@ -843,8 +856,15 @@ export const isEtherealBonusUnlocked = (account) => {
 
 // Power-affecting upgrade indices: 0 (basePower), 1, 2, 3, 14, 15, 16, 17 (powerMulti)
 const POWER_UPGRADE_INDICES = [0, 1, 2, 3, 14, 15, 16, 17];
+// Amber gain-affecting upgrade indices: 6, 7, 8, 9, 10, 20, 21, 41, 44, 51
+const AMBER_GAIN_UPGRADE_INDICES = [6, 7, 8, 9, 10, 20, 21, 41, 44, 51];
 
-export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgrades = 100, options = {}) => {
+// Generic optimization function that works for both power and amber gain
+const getOptimizedSpelunkingUpgrades = (character, account, maxUpgrades, options, {
+  upgradeIndices,
+  getCurrentMetric,
+  metricFieldName
+}) => {
   const { onlyAffordable = false, characters = [] } = options;
 
   if (!account?.spelunking?.upgrades) {
@@ -896,39 +916,25 @@ export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgra
     });
   };
 
-  // Calculate current power with properly calculated bonuses
-  const getCurrentPower = (upgrades) => {
-    // Recalculate bonuses for the upgrades
-    const upgradesWithBonuses = recalculateBonuses(upgrades);
-    const tempAccount = {
-      ...account,
-      spelunking: {
-        ...account.spelunking,
-        upgrades: upgradesWithBonuses
-      }
-    };
-    return getPower(tempAccount).value;
-  };
-
   // Initialize bonuses for starting upgrades
   simulatedUpgrades = recalculateBonuses(simulatedUpgrades);
-  let currentPower = getCurrentPower(simulatedUpgrades);
+  let currentMetric = getCurrentMetric(simulatedUpgrades);
   const results = [];
 
   for (let step = 0; step < maxUpgrades; step++) {
     let bestUpgrade = null;
-    let bestEfficiency = -Infinity; // Start with -Infinity to handle log scale (negative values)
-    let bestPowerChange = 0;
+    let bestEfficiency = -Infinity;
+    let bestMetricChange = 0;
     let bestPercentChange = 0;
     let bestCost = 0;
 
-    // Find available power-affecting upgrades
+    // Find available upgrades for this metric
     const availableUpgrades = simulatedUpgrades.filter(upgrade => {
       // Get the index - could be originalIndex or index, ensure it's a number
       const upgradeIndex = Number(upgrade.originalIndex !== undefined ? upgrade.originalIndex : upgrade.index);
 
-      // Must be a power-affecting upgrade
-      if (isNaN(upgradeIndex) || !POWER_UPGRADE_INDICES.includes(upgradeIndex)) {
+      // Must be a metric-affecting upgrade
+      if (isNaN(upgradeIndex) || !upgradeIndices.includes(upgradeIndex)) {
         return false;
       }
 
@@ -984,23 +990,15 @@ export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgra
         level: tempUpgrades[upgradeIndex].level + 1
       };
 
-      // Recalculate bonuses for temp upgrades before calculating power
-      const tempUpgradesWithBonuses = recalculateBonuses(tempUpgrades);
-      const tempAccount = {
-        ...account,
-        spelunking: {
-          ...account.spelunking,
-          upgrades: tempUpgradesWithBonuses
-        }
-      };
-      const newPower = getPower(tempAccount).value;
-      const powerChange = newPower - currentPower;
-      const percentChange = currentPower > 0 ? (powerChange / currentPower) * 100 : 0;
+      // Calculate new metric value
+      const newMetric = getCurrentMetric(tempUpgrades);
+      const metricChange = newMetric - currentMetric;
+      const percentChange = currentMetric > 0 ? (metricChange / currentMetric) * 100 : 0;
 
       // Calculate cost
       const cost = getSpelunkingUpgradeCost(account, characters, upgrade);
 
-      // Skip if cost is invalid or power doesn't increase
+      // Skip if cost is invalid or metric doesn't increase
       if (!cost || cost <= 0 || isNaN(cost) || !isFinite(cost) || percentChange <= 0) {
         continue;
       }
@@ -1009,17 +1007,15 @@ export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgra
       const normalizedCost = cost / amberDenominator;
 
       // Calculate efficiency (percent change per normalized cost)
-      // This makes comparison much more reasonable for large numbers
       const efficiency = normalizedCost > 0 ? percentChange / normalizedCost : 0;
 
       // Ensure efficiency is a valid number
-      // For log scale, efficiency will be negative but that's fine for comparison
       if (!isNaN(efficiency) && isFinite(efficiency)) {
         // Initialize bestEfficiency on first valid upgrade, or compare if we have one
         if (bestUpgrade === null || efficiency > bestEfficiency) {
           bestUpgrade = upgrade;
           bestEfficiency = efficiency;
-          bestPowerChange = powerChange;
+          bestMetricChange = metricChange;
           bestPercentChange = percentChange;
           bestCost = cost;
         }
@@ -1027,7 +1023,6 @@ export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgra
     }
 
     // Check if we found a valid upgrade
-    // bestEfficiency should be > -Infinity if we found a valid upgrade
     if (bestUpgrade && !isNaN(bestEfficiency) && isFinite(bestEfficiency) && bestEfficiency > -Infinity) {
       // Apply the best upgrade
       const bestUpgradeOriginalIndex = bestUpgrade.originalIndex !== undefined
@@ -1048,8 +1043,8 @@ export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgra
       // Recalculate bonuses after the upgrade
       simulatedUpgrades = recalculateBonuses(simulatedUpgrades);
 
-      // Update current power
-      currentPower = getCurrentPower(simulatedUpgrades);
+      // Update current metric
+      currentMetric = getCurrentMetric(simulatedUpgrades);
 
       // Recalculate costs for all upgrades after this purchase
       simulatedUpgrades = simulatedUpgrades.map((upgrade) => {
@@ -1059,15 +1054,16 @@ export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgra
 
       // Add to results
       const maxLevel = bestUpgrade.x3 !== undefined ? bestUpgrade.x3 : bestUpgrade.x4;
-      results.push({
+      const result = {
         ...bestUpgrade,
         level: bestUpgrade.level + 1,
         x3: maxLevel, // Ensure x3 is set for display
         cost: bestCost,
-        powerChange: bestPowerChange,
         percentChange: bestPercentChange,
         efficiency: bestEfficiency
-      });
+      };
+      result[metricFieldName] = bestMetricChange;
+      results.push(result);
     }
     else {
       // No more efficient upgrades available
@@ -1076,4 +1072,104 @@ export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgra
   }
 
   return results;
+};
+
+export const getOptimizedSpelunkingPowerUpgrades = (character, account, maxUpgrades = 100, options = {}) => {
+  // Calculate current power with properly calculated bonuses
+  const getCurrentPower = (upgrades) => {
+    const baseBonuses = upgrades.map(u => (u?.x4 ?? 0) * Math.max(0, u?.level ?? 0));
+    const spelunkingData = account.spelunking;
+    const characters = options.characters || [];
+    const totalCharactersSpelunkingLevels = characters?.reduce((res, { skillsInfo }) => res + (skillsInfo?.spelunking?.level ?? 0), 0) ?? 0;
+    const totalBestCaveLevels = spelunkingData?.totalBestCaveLevels ?? 0;
+    const discoveriesCount = spelunkingData?.discoveriesCount ?? 0;
+    const biggestHaul = spelunkingData?.biggestHaul ?? 0;
+    const totalGrandDiscoveries = spelunkingData?.totalGrandDiscoveries ?? 0;
+
+    const upgradesWithBonuses = upgrades.map((upgrade, index) => {
+      const baseBonus = baseBonuses[index] ?? 0;
+      const bonus = getSpelunkingUpgradeBonus(baseBonuses, upgrades, index, {
+        totalCharactersSpelunkingLevels,
+        totalBestCaveLevels,
+        discoveriesCount,
+        biggestHaul,
+        totalGrandDiscoveries
+      }, false);
+      return {
+        ...upgrade,
+        baseBonus,
+        bonus
+      };
+    });
+
+    const tempAccount = {
+      ...account,
+      spelunking: {
+        ...account.spelunking,
+        upgrades: upgradesWithBonuses
+      }
+    };
+    return getPower(tempAccount).value;
+  };
+
+  return getOptimizedSpelunkingUpgrades(character, account, maxUpgrades, options, {
+    upgradeIndices: POWER_UPGRADE_INDICES,
+    getCurrentMetric: getCurrentPower,
+    metricFieldName: 'powerChange'
+  });
+}
+
+export const getOptimizedSpelunkingAmberGainUpgrades = (character, account, maxUpgrades = 100, options = {}) => {
+  // Helper to recalculate bonuses (needed for amber gain calculation)
+  const recalculateBonuses = (upgrades) => {
+    const baseBonuses = upgrades.map(u => (u?.x4 ?? 0) * Math.max(0, u?.level ?? 0));
+    const spelunkingData = account.spelunking;
+    const characters = options.characters || [];
+    const totalCharactersSpelunkingLevels = characters?.reduce((res, { skillsInfo }) => res + (skillsInfo?.spelunking?.level ?? 0), 0) ?? 0;
+    const totalBestCaveLevels = spelunkingData?.totalBestCaveLevels ?? 0;
+    const discoveriesCount = spelunkingData?.discoveriesCount ?? 0;
+    const biggestHaul = spelunkingData?.biggestHaul ?? 0;
+    const totalGrandDiscoveries = spelunkingData?.totalGrandDiscoveries ?? 0;
+
+    return upgrades.map((upgrade, index) => {
+      const baseBonus = baseBonuses[index] ?? 0;
+      const bonus = getSpelunkingUpgradeBonus(baseBonuses, upgrades, index, {
+        totalCharactersSpelunkingLevels,
+        totalBestCaveLevels,
+        discoveriesCount,
+        biggestHaul,
+        totalGrandDiscoveries
+      }, false);
+      return {
+        ...upgrade,
+        baseBonus,
+        bonus
+      };
+    });
+  };
+
+  // Helper to get updated account with proper upgrades (needed for amber gain calculation)
+  const getUpdatedAccount = (upgrades) => {
+    const upgradesWithBonuses = recalculateBonuses(upgrades);
+    return {
+      ...account,
+      spelunking: {
+        ...account.spelunking,
+        upgrades: upgradesWithBonuses
+      }
+    };
+  };
+
+  // Calculate current amber gain with properly calculated bonuses
+  const getCurrentAmberGain = (upgrades) => {
+    const updatedAccount = getUpdatedAccount(upgrades);
+    const loreBonuses = getLoreBonuses(updatedAccount);
+    return getAmberGain(updatedAccount, loreBonuses).value;
+  };
+
+  return getOptimizedSpelunkingUpgrades(character, account, maxUpgrades, options, {
+    upgradeIndices: AMBER_GAIN_UPGRADE_INDICES,
+    getCurrentMetric: getCurrentAmberGain,
+    metricFieldName: 'amberGainChange'
+  });
 }

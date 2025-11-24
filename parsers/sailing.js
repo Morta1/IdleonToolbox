@@ -279,10 +279,12 @@ const getBaseSpeed = (account, characters, artifactsList) => {
   const statueBonus = getStatueBonus(account, 24)
   const voteBonus = getVoteBonus(account, 24);
   const msaBonus = account?.msaTotalizer?.sailing?.value ?? 0;
+  const daveyJonesBonus = 1 + (50 * account?.gemShopPurchases?.[8] + getLegendTalentBonus(account, 11)) / 100;
 
   return (1 + (divinityMinorBonus
     + (cardBonus
       + bubbleBonus)) / 125)
+    * daveyJonesBonus
     * (1 + goharutGodBonus / 100)
     * (1 + purrmepGodBonus / 100)
     * (1 + voteBonus / 100)

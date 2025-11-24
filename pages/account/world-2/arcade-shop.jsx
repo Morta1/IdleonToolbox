@@ -1,7 +1,7 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { cleanUnderscore, kFormatter, notateNumber, prefix } from 'utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import { getStampBonus } from 'parsers/stamps';
 import { NextSeo } from 'next-seo';
@@ -13,19 +13,30 @@ const ArcadeShop = () => {
   const { state } = useContext(AppContext);
   const { balls, goldBalls, shop, royalBalls } = state?.account?.arcade || {};
 
-  const getCost = (level) => {
-    const multiplier = (state?.account?.lab?.labBonuses?.find((bonus) => bonus.name === 'Certified_Stamp_Book')?.active)
-      ? 2
-      : 1;
-    const arcadeStamp = getStampBonus(state?.account, 'misc', 'StampC5', 0, multiplier);
+  const getCost = (level, upgradeIndex) => {
+    if (level === 100) {
+      return 5;
+    }
+
+    const arcadeStamp = getStampBonus(state?.account, 'misc', 'StampC5', 0);
     const arcadeStampMath = Math.max(0.6, 1 - arcadeStamp / 100);
-    return Math.round(arcadeStampMath * (5 + (3 * level + Math.pow(level, 1.3))));
+
+    // Different cost formulas based on upgrade index
+    if (upgradeIndex === 39) {
+      return Math.round(arcadeStampMath * (5 + 3 * level));
+    } else if (upgradeIndex === 51 || upgradeIndex === 54 || upgradeIndex === 999) {
+      return Math.round(arcadeStampMath * (10 + (5 * level + Math.pow(level, 1.43))));
+    } else if (upgradeIndex >= 55 && upgradeIndex !== 60 && upgradeIndex !== 61) {
+      return Math.round(arcadeStampMath * (20 + (10 * level + Math.pow(level, 1.83))));
+    } else {
+      return Math.round(arcadeStampMath * (5 + (3 * level + Math.pow(level, 1.3))));
+    }
   }
 
-  const getCostToMax = (level) => {
+  const getCostToMax = (level, upgradeIndex) => {
     let total = 0;
     for (let i = level; i < MAX_LEVEL; i++) {
-      total += getCost(i);
+      total += getCost(i, upgradeIndex);
     }
     return total;
   }
@@ -35,9 +46,11 @@ const ArcadeShop = () => {
 
   const renderUpgradeCard = (upgrade, index) => {
     const { level, effect, iconName, bonus } = upgrade;
+    // Extract upgrade index from iconName (format: PachiShopICON{index})
+    const upgradeIndex = parseInt(iconName.replace('PachiShopICON', ''), 10);
     const eff = cleanUnderscore(effect.replace('{', notateNumber(bonus, 'MultiplierInfo').replace('.00', '')));
-    const cost = getCost(level);
-    const costToMax = getCostToMax(level);
+    const cost = getCost(level, upgradeIndex);
+    const costToMax = getCostToMax(level, upgradeIndex);
     const isMaxed = level === MAX_LEVEL;
     const isSuper = level > MAX_LEVEL;
     return (
@@ -60,8 +73,8 @@ const ArcadeShop = () => {
                 <Typography>Maxed</Typography>
               )}
               {costToMax > 0 ? <>
-                <Typography variant={'body2'}>Cost: {kFormatter(cost, 2)}</Typography>
-                <Typography variant={'body2'}>Cost To Max: {kFormatter(costToMax, 2)}</Typography>
+                <Typography variant={'body2'}>Cost: {commaNotation(cost, 2)}</Typography>
+                <Typography variant={'body2'}>Cost To Max: {commaNotation(costToMax, 2)}</Typography>
               </> : null}
             </Stack>
           </Stack>
