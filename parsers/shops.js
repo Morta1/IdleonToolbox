@@ -12,10 +12,10 @@ export const parseShops = (shopsRaw) => {
       const isIncluded = shopMapping?.[shopIndex]?.[itemIndex];
       const amount = parseInt(item) || 0;
       return amount > 0 && isIncluded ? [...res,
-        {
-          amount: item, ...shops[shopIndex]?.items?.[itemIndex],
-          shopName: shops[shopIndex]?.name
-        }] : res;
+      {
+        amount: item, ...shops[shopIndex]?.items?.[itemIndex],
+        shopName: shops[shopIndex]?.name
+      }] : res;
     }, [])
     return [...res, mapped]
   }, []);
@@ -37,7 +37,7 @@ export const shopMapping = {
   5: [2, 3, 4, 8, 9, 10, 11].toSimpleObject(), // 'Hyperion_Nebula'
   6: [0, 1, 2, 3, 4, 5].toSimpleObject(), // 'Smolderin\'_Plateau',
   7: [0, 1, 2, 3, 4, 5, 6, 7].toSimpleObject(), // 'Spirited_Valley',
-  8: [2,3,5,6,7].toSimpleObject() //'Shimmerfin_Deep'
+  8: [2, 3, 5, 6, 7].toSimpleObject() //'Shimmerfin_Deep'
 };
 
 export const shopNameMapping = {

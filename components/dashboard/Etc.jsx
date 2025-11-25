@@ -197,14 +197,14 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
               <IconImg src={`${prefix}etc/Owl_4.png`} />
               <Typography>A long time</Typography>
             </Stack> : nextFeatherRestart < maxTimeValue ? <TimerCard
-              page={'account/world-1/owl'}
+              page={'account/clickers/owl'}
               tooltipContent={'Next feather restart: ' + getRealDateInMs(nextFeatherRestart)}
               lastUpdated={lastUpdated}
               time={nextFeatherRestart}
               icon={'etc/Owl_4.png'}
               timerPlaceholder={'Restart available'}
             /> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
-              onClick={() => router.push({ pathname: 'account/world-1/owl' })}>
+              onClick={() => router.push({ pathname: 'account/clickers/owl' })}>
               <IconImg src={`${prefix}etc/Owl_4.png`} />
               <Typography>{notateNumber(getTimeAsDays(nextFeatherRestart))} days</Typography>
             </Stack>}
@@ -212,14 +212,14 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           {trackers?.['World 1']?.megaFeatherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
             {!isPast(nextMegaFeatherRestart) && mfLongDuration ? <Tooltip
               sx={{ cursor: 'pointer' }}
-              onClick={() => router.push({ pathname: 'account/world-1/owl' })}
+              onClick={() => router.push({ pathname: 'account/clickers/owl' })}
               title={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}>
               <Stack direction={'row'} gap={1} alignItems={'center'}>
                 <IconImg src={`${prefix}etc/Owl_8.png`} />
                 <Typography>A long time</Typography>
               </Stack>
             </Tooltip> : <TimerCard
-              page={'account/world-1/owl'}
+              page={'account/clickers/owl'}
               tooltipContent={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}
               lastUpdated={lastUpdated}
               time={nextMegaFeatherRestart}
@@ -230,7 +230,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         </Section>}
         {!emptyAlerts?.['World 2'] && account?.kangaroo?.fish > 0 ? <Section title={'World 2'}>
           {trackers?.['World 2']?.fisherooReset?.checked ? nextFisherooReset < maxTimeValue ? <TimerCard
-            page={'account/world-2/kangaroo'}
+            page={'account/clickers/kangaroo'}
             tooltipContent={'Next fisheroo reset: ' + getRealDateInMs(nextFisherooReset)}
             lastUpdated={lastUpdated}
             time={nextFisherooReset}
@@ -238,23 +238,23 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             timerPlaceholder={'Restart available'}
           /> : account?.kangaroo?.fishRate <= 0 ? <Stack direction={'row'} gap={1} alignItems={'center'}
             sx={{ cursor: 'pointer' }}
-            onClick={() => router.push({ pathname: 'account/world-2/kangaroo' })}>
+            onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
             <IconImg src={`${prefix}etc/KUpga_11.png`} />
             <Typography>A long time</Typography>
           </Stack> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
-            onClick={() => router.push({ pathname: 'account/world-2/kangaroo' })}>
+            onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
             <IconImg src={`${prefix}etc/KUpga_6.png`} />
             <Typography>{notateNumber(getTimeAsDays(nextFisherooReset))} days</Typography>
           </Stack> : null}
           {trackers?.['World 2']?.greatestCatch?.checked ? !isPast(nextGreatestCatch) && gcLongDuration ? <Tooltip
             title={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}>
             <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
-              onClick={() => router.push({ pathname: 'account/world-2/kangaroo' })}>
+              onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
               <IconImg src={`${prefix}etc/KUpga_11.png`} />
               <Typography>A long time</Typography>
             </Stack>
           </Tooltip> : <TimerCard
-            page={'account/world-2/kangaroo'}
+            page={'account/clickers/kangaroo'}
             tooltipContent={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}
             lastUpdated={lastUpdated}
             time={nextGreatestCatch}

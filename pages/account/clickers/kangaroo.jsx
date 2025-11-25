@@ -50,7 +50,7 @@ const Kangaroo = () => {
         })}
       </Stack>
     </Stack>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 2'].categories, 'kangaroo')}>
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['clickers'].categories, 'kangaroo')}>
       <Upgrades upgrades={kangaroo?.upgrades}/>
       <Upgrades upgrades={kangaroo?.tarUpgrades} isTar/>
       <Stack gap={5}>
@@ -118,3 +118,4 @@ const ResetCard = ({ level, desc, icon }) => {
 }
 
 export default Kangaroo;
+

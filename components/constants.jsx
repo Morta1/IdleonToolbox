@@ -70,14 +70,21 @@ export const PAGES = {
         { label: 'unlocks', icon: 'data/PetLockB0' }
       ]
     },
+    'clickers': {
+      icon: 'etc/Bubba_0',
+      categories: [
+        { label: 'owl', icon: 'etc/Owl' },
+        { label: 'kangaroo', icon: 'data/RooA', tabs: ['Upgrades', 'Tar Upgrades', 'Bonuses'] },
+        { label: 'bubba', icon: 'etc/Bubba', tabs: ['Upgrades', 'Bonuses'] }
+      ]
+    },
     'world 1': {
       icon: 'data/BadgeG2',
       categories: [
         { label: 'anvil', icon: 'data/ClassIcons43' },
         { label: 'forge', icon: 'data/ForgeD', tabs: ['Slots', 'Upgrades'] },
         { label: 'bribes', icon: 'data/BribeW' },
-        { label: 'stamps', icon: 'data/StampA34' },
-        { label: 'owl', icon: 'etc/Owl' }
+        { label: 'stamps', icon: 'data/StampA34' }
       ]
     },
     'world 2': {
@@ -95,7 +102,6 @@ export const PAGES = {
           tabs: ['Schedule', 'Upgrades', 'Permanent Upgrades', 'Monsters']
         },
         { label: 'weeklyBosses', icon: 'etc/SWR_Containment' },
-        { label: 'kangaroo', icon: 'data/RooA', tabs: ['Upgrades', 'Tar Upgrades', 'Bonuses'] },
         { label: 'voteBallot', icon: 'etc/VoteBallot', tabs: ['Bonus', 'Meritocracy'] }
       ]
     },

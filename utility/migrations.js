@@ -1,5 +1,6 @@
 import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
+import { getRawShopItems } from '@parsers/shops';
 
 export const migrateToVersion2 = (config = {}) => {
   let dashboardConfig = { ...config };
@@ -688,6 +689,28 @@ export const migrateToVersion29 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion30 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (dashboardConfig?.account?.General?.shops?.options) {
+    dashboardConfig.account.General.shops.options = dashboardConfig.account.General.shops.options.map((option) => {
+      if (option?.name === 'shops' && option?.type === 'array') {
+        return {
+          ...option,
+          props: { value: getRawShopItems(), type: 'img' }
+        };
+      }
+      return option;
+    });
+  }
+
+  dashboardConfig.version = 30;
+  return dashboardConfig
+}
+
 
 
 export const migrateConfig = (baseTrackers, userConfig) => {
@@ -780,6 +803,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 28) {
       migratedConfig = migrateToVersion29(migratedConfig);
+    }
+    if (migratedConfig?.version === 29) {
+      migratedConfig = migrateToVersion30(migratedConfig);
     }
 
   }

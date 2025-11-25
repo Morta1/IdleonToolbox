@@ -4,6 +4,17 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.15',
+    'gameVer': '2.0.45',
+    'date': '25/11/2025',
+    'features': [
+      'Added Bubba page under Account -> Clickers with upgrades, bonuses and meatslice rate',
+      'Moved Owl and Kangaroo pages to Account -> Clickers', 
+      'Updated the website with version 2.0.46 data and assets',
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.14',
     'gameVer': '2.0.45',
     'date': '22/11/2025',

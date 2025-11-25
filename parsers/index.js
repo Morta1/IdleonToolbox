@@ -78,6 +78,7 @@ import { getGallery } from '@parsers/world-7/gallery';
 import { getCoralReef } from '@parsers/world-7/coralReef';
 import { getClamWork } from '@parsers/world-7/clamWork';
 import { getAdviceFish } from '@parsers/misc';
+import { getBubba } from '@parsers/clickers/bubba';
 
 export const parseData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime) => {
   try {
@@ -297,6 +298,8 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.coralReef = getCoralReef(idleonData, accountData, charactersData);
   accountData.clamWork = getClamWork(idleonData, accountData);
   accountData.adviceFish = getAdviceFish(idleonData);
+  accountData.bubba = getBubba(idleonData, accountData);
+  console.log('accountData.bubba', accountData.bubba);
   
   // Cleanup unnecessary data
   serializedCharactersData = null;

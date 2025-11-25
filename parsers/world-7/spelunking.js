@@ -420,7 +420,6 @@ export const getAmberGain = (account, loreBonuses) => {
   const shopUpg10 = getSpelunkingBonus(account, 10);
   const shopUpg21 = getSpelunkingBonus(account, 21);
 
-
   const amberGain = (1 + arcadeBonus / 100)
     * (1 + (cropBonus
       + (lampBonus
@@ -461,6 +460,7 @@ export const getAmberGain = (account, loreBonuses) => {
       { name: 'Deep Pockets', value: shopUpg20 / 100 },
       { name: 'The Green Amber Clause of the Contract', value: shopUpg41 / 100 },
       { name: 'The Red Amber Fine Print of the Contract', value: shopUpg51 / 100 },
+      { name: 'Grandiose_Amber', value: shopUpg44 / 100 },
       { name: 'Overstim Meter', value: shopUpg6 / 100 },
       { name: 'Overstim', value: overstimBonus / 100 },
       { name: 'Rift Bonus', value: 50 * riftBonus / 100 },
