@@ -31,7 +31,8 @@ const Bubba = () => {
     />
 
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Meat Slices'} value={1} icon={'etc/Bubba_0.png'} />
+      <CardTitleAndValue title={'Meat Slices'} value={formatMeatsliceRate(bubba?.meatSlices || 0)} icon={'etc/Bubba_0.png'} />
+      <CardTitleAndValue title={'Progress'} value={`${formatMeatsliceRate(bubba?.progress)}/${formatMeatsliceRate(bubba?.progressReq)}`} icon={'etc/Bubba_0.png'} />
       <CardTitleAndValue title={'Meat Slices/sec'} value={formatMeatsliceRate(bubba?.meatsliceRate || 0)} icon={'etc/Bubba_0.png'} />
     </Stack>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>

@@ -34,6 +34,7 @@ const getTotalUpgTypesAvailable = (rawBubba) => {
 
 const parseBubba = (rawBubba, account) => {
   const totalUpgTypesAvailable = getTotalUpgTypesAvailable(rawBubba);
+  console.log('totalUpgTypesAvailable', totalUpgTypesAvailable);
   const upgrades = bubbaUpgrades.map((upgrade, index) => {
     return {
       ...upgrade,
@@ -48,9 +49,17 @@ const parseBubba = (rawBubba, account) => {
   });
   return {
     upgrades,
+    meatSlices: rawBubba?.[0]?.[0] || 0,
     meatsliceRate: 60 * getMeatsliceRate(rawBubba, account),
+    progress: rawBubba?.[0]?.[4] || 0,
+    progressReq: getProgressReq(totalUpgTypesAvailable),
     bonuses: getBubbaBonusesObject(rawBubba),
+    totalUpgTypesAvailable
   };
+}
+
+const getProgressReq = (totalUpgTypesAvailable) => {
+  return 50 * Math.pow(2.8 + totalUpgTypesAvailable / 3.55, totalUpgTypesAvailable - Math.min(1, Math.floor(totalUpgTypesAvailable / 4)));
 }
 
 const getBubbaBonusesObject = (rawBubba) => {
