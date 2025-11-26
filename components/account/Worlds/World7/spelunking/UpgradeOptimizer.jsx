@@ -73,10 +73,10 @@ const UpgradeOptimizer = ({ character, account }) => {
       : maxUpgrades;
     
     const characters = state?.characters || [];
-    const options = { onlyAffordable, characters };
     
     // Helper function to get upgrades for a specific category
-    const getUpgradesForCategory = (category, limit) => {
+    const getUpgradesForCategory = (category, limit, useOnlyAffordable) => {
+      const options = { onlyAffordable: useOnlyAffordable, characters };
       const upgrades = category === 'Amber Gain'
         ? getOptimizedSpelunkingAmberGainUpgrades(character, account, limit, options)
         : getOptimizedSpelunkingPowerUpgrades(character, account, limit, options);
@@ -84,15 +84,44 @@ const UpgradeOptimizer = ({ character, account }) => {
     };
     
     if (optimizationCategory === 'All') {
-      // Get upgrades from both categories, merge, sort by efficiency, and limit
-      const powerUpgrades = getUpgradesForCategory('Power', maxToUse * 2);
-      const amberGainUpgrades = getUpgradesForCategory('Amber Gain', maxToUse * 2);
-      return [...powerUpgrades, ...amberGainUpgrades]
-        .sort((a, b) => (b.efficiency || 0) - (a.efficiency || 0))
-        .slice(0, maxToUse);
+      if (onlyAffordable) {
+        // Get upgrades from both categories without affordability filter
+        // We'll apply cumulative affordability filtering after merging
+        const powerUpgrades = getUpgradesForCategory('Power', maxToUse * 2, false);
+        const amberGainUpgrades = getUpgradesForCategory('Amber Gain', maxToUse * 2, false);
+        
+        // Merge and sort by efficiency
+        const allUpgrades = [...powerUpgrades, ...amberGainUpgrades]
+          .sort((a, b) => (b.efficiency || 0) - (a.efficiency || 0));
+        
+        // Apply cumulative affordability filtering
+        const availableAmber = account?.spelunking?.currentAmber || 0;
+        let cumulativeCost = 0;
+        const affordableUpgrades = [];
+        
+        for (const upgrade of allUpgrades) {
+          const upgradeCost = upgrade.cost || 0;
+          if (cumulativeCost + upgradeCost <= availableAmber) {
+            cumulativeCost += upgradeCost;
+            affordableUpgrades.push(upgrade);
+            if (affordableUpgrades.length >= maxToUse) {
+              break;
+            }
+          }
+        }
+        
+        return affordableUpgrades;
+      } else {
+        // When onlyAffordable is false, use the original logic
+        const powerUpgrades = getUpgradesForCategory('Power', maxToUse * 2, false);
+        const amberGainUpgrades = getUpgradesForCategory('Amber Gain', maxToUse * 2, false);
+        return [...powerUpgrades, ...amberGainUpgrades]
+          .sort((a, b) => (b.efficiency || 0) - (a.efficiency || 0))
+          .slice(0, maxToUse);
+      }
     }
     
-    return getUpgradesForCategory(optimizationCategory, maxToUse);
+    return getUpgradesForCategory(optimizationCategory, maxToUse, onlyAffordable);
   }, [character, account, maxUpgradesMode, customMaxUpgrades, maxUpgrades, onlyAffordable, state?.characters, optimizationCategory]);
 
   const formatChange = (change) => {

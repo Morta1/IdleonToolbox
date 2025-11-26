@@ -17,7 +17,7 @@ import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 30,
+  version: 31,
   account: {
     General: {
       tasks: {
@@ -323,7 +323,8 @@ const baseTrackers = {
             type: 'input',
             props: { label: 'Bean trade value', value: 1, minValue: 1, helperText: '' },
             checked: false
-          }
+          },
+          { name: 'exoticPurchases', checked: true }
         ]
       },
       summoning: {
@@ -375,7 +376,7 @@ const baseTrackers = {
       },
       legendTalents: {
         checked: true,
-        options: [{ name: 'pointsLeftToSpend', checked: true }]
+        options: [{ name: 'pointsLeftToSpend', checked: true }, { name: 'cheaperMasterclassUpgrades', checked: true }]
       },
       zenithMarket: {
         checked: true,

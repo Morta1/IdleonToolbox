@@ -459,6 +459,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={`Your bean trade has reached ${numberWithCommas(Math.floor(alerts?.['World 6']?.farming?.beanTrade))}`}
                   iconPath={'data/Quest80_x1'} /> : null}
+              {alerts?.['World 6']?.farming?.exoticPurchases ?
+                <Alert
+                  title={`You have ${alerts?.['World 6']?.farming?.exoticPurchases.available} exotic purchase${alerts?.['World 6']?.farming?.exoticPurchases.available > 1 ? 's' : ''} available (${alerts?.['World 6']?.farming?.exoticPurchases.purchased}/${alerts?.['World 6']?.farming?.exoticPurchases.max})`}
+                  iconPath={'data/FarmStT3'} /> : null}
               {alerts?.['World 6']?.etc?.emperorAttempts > 0 ?
                 <Alert
                   title={`You have reached ${alerts?.['World 6']?.etc?.emperorAttempts} emperor attempts`}
@@ -496,6 +500,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={`You have ${alerts?.['World 7']?.legendTalents?.legendPointsLeftToSpend} unspent legend talent point${alerts?.['World 7']?.legendTalents?.legendPointsLeftToSpend === 1 ? '' : 's'}`}
                   iconPath={'data/LegendTalentIcon0'} /> : null}
+              {alerts?.['World 7']?.legendTalents?.cheaperMasterclassUpgrades ?
+                <Alert
+                  title={`You have ${alerts?.['World 7']?.legendTalents?.cheaperMasterclassUpgrades.available} cheaper masterclass upgrade${alerts?.['World 7']?.legendTalents?.cheaperMasterclassUpgrades.available === 1 ? '' : 's'} available (${alerts?.['World 7']?.legendTalents?.cheaperMasterclassUpgrades.used}/${alerts?.['World 7']?.legendTalents?.cheaperMasterclassUpgrades.max})`}
+                  iconPath={'data/LegendTalentIcon12'} /> : null}
               {alerts?.['World 7']?.zenithMarket?.doubleCluster ?
                 <Alert
                   title={'You can afford Double Clusters upgrade'}

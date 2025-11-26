@@ -34,7 +34,6 @@ const getTotalUpgTypesAvailable = (rawBubba) => {
 
 const parseBubba = (rawBubba, account) => {
   const totalUpgTypesAvailable = getTotalUpgTypesAvailable(rawBubba);
-  console.log('totalUpgTypesAvailable', totalUpgTypesAvailable);
   const upgrades = bubbaUpgrades.map((upgrade, index) => {
     return {
       ...upgrade,

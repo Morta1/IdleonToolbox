@@ -711,6 +711,30 @@ export const migrateToVersion30 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion31 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (dashboardConfig?.account?.['World 6']?.farming?.options?.length === 4) {
+    dashboardConfig.account['World 6'].farming.options = [
+      ...dashboardConfig.account['World 6'].farming.options,
+      { name: 'exoticPurchases', checked: true }
+    ];
+  }
+
+  if (dashboardConfig?.account?.['World 7']?.legendTalents?.options?.length === 1) {
+    dashboardConfig.account['World 7'].legendTalents.options = [
+      ...dashboardConfig.account['World 7'].legendTalents.options,
+      { name: 'cheaperMasterclassUpgrades', checked: true }
+    ];
+  }
+
+  dashboardConfig.version = 31;
+  return dashboardConfig
+}
+
 
 
 export const migrateConfig = (baseTrackers, userConfig) => {
@@ -806,6 +830,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 29) {
       migratedConfig = migrateToVersion30(migratedConfig);
+    }
+    if (migratedConfig?.version === 30) {
+      migratedConfig = migrateToVersion31(migratedConfig);
     }
 
   }

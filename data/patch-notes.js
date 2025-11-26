@@ -4,6 +4,22 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.16',
+    'gameVer': '2.0.45',
+    'date': '27/11/2025',
+    'features': [
+      'Added breakdown for Reef Day Gains in Coral Reef page',
+      'Monument timers are now shown as "current / max soft cap" in the dashboard (with a timer to soft cap on hover)',
+      'Added an alert for available cheaper masterclass upgrades (due to a legend talent)',
+      'Added an alert for available exotic market purchases',
+      
+    ],
+    'fixes': [
+      'Fixed a bug where the activity filter would not show when character is afk in divinity with goat god linked',
+      'Fixed a bug in spelunking upgrade optimizer'
+    ]
+  },
+  {
     'ver': '3.3.15',
     'gameVer': '2.0.45',
     'date': '25/11/2025',

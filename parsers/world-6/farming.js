@@ -178,7 +178,9 @@ const parseFarming = (rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFar
     totalPoints,
     usedPoints,
     hasLandRank,
-    totalRanks: farmingRanks?.reduce((sum, rank) => sum + rank, 0)
+    totalRanks: farmingRanks?.reduce((sum, rank) => sum + rank, 0),
+    exoticMarkeMaxPurchases: 4,
+    exoticMarketUpgradesPurchased: account?.accountOptions?.[416]
   };
 }
 

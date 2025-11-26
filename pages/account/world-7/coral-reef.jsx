@@ -3,13 +3,16 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Stack, Typography } from '@mui/material';
 import { CardTitleAndValue, MissingData } from '@components/common/styles';
-import { commaNotation } from '@utility/helpers';
+import { commaNotation, prefix } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
 import { getTabs } from '@utility/helpers';
 import { PAGES } from '@components/constants';
 import ReefUpgrades from '@components/account/Worlds/World7/CoralReef/ReefUpgrades';
 import CoralKidUpgrades from '@components/account/Worlds/World7/CoralReef/CoralKidUpgrades';
 import DancingCoral from '@components/account/Worlds/World7/CoralReef/DancingCoral';
+import Tooltip from '@components/Tooltip';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { Breakdown } from '@components/common/styles';
 
 const CoralReef = () => {
   const { state } = useContext(AppContext);
@@ -33,7 +36,15 @@ const CoralReef = () => {
 
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
       <CardTitleAndValue title={'Owned'} value={`${commaNotation(ownedCorals || 0)}`} icon={`data/Coral0.png`} imgStyle={{ width: 24, height: 24 }} />
-      <CardTitleAndValue title={'Reef Day Gains'} value={`${commaNotation(reefDayGains || 0)}`} icon={`data/Coral0.png`} imgStyle={{ width: 24, height: 24 }} />
+      <CardTitleAndValue title={'Reef Day Gains'} >
+        <Stack direction={'row'} alignItems={'center'} gap={1}>
+          <img style={{ width: 24, height: 24 }} src={`${prefix}data/Coral0.png`} alt="" />
+          <Typography>{commaNotation(reefDayGains?.value, "Big")}</Typography>
+          <Tooltip title={<Breakdown titleStyle={{ width: 170 }} breakdown={reefDayGains?.breakdown} notation="MultiplierInfo" />}>
+            <IconInfoCircleFilled size={18} />
+          </Tooltip>
+        </Stack>
+      </CardTitleAndValue>
     </Stack>
 
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'coralReef')}>

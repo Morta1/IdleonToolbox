@@ -17,6 +17,8 @@ import { useRouter } from 'next/router';
 import { calcCost, calcTimeToRankUp, getRefineryCycles } from '@parsers/refinery';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getMonumentMaxLinearTime } from '@parsers/world-5/caverns/bravery';
+import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 
 const maxTimeValue = 9.007199254740992e+15;
 const Etc = ({ characters, account, lastUpdated, trackers }) => {
@@ -105,6 +107,30 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
     bestChargeSyphon,
     timeToOverCharge
   } = useMemo(() => getChargeWithSyphon(characters), [characters]);
+
+  // Helper function to calculate max linear multiplier and time until max
+  const getMonumentMultiInfo = useMemo(() => {
+    if (!account?.hole?.holesObject) return null;
+    
+    const getMonument = (t) => {
+      const holesObject = account.hole.holesObject;
+      const maxLinearTime = getMonumentMaxLinearTime(holesObject, t, account);
+      const currentTime = holesObject?.extraCalculations?.[Math.round(11 + t)] || 0;
+      const maxLinearMulti = (maxLinearTime / 72e3) 
+        * (1 + getMeritocracyBonus(account, 7) / 100)
+        * (1 + getLegendTalentBonus(account, 27) / 100);
+      const timeUntilMax = Math.max(0, maxLinearTime - currentTime);
+      const timeUntilMaxDate = timeUntilMax > 0 ? new Date().getTime() + timeUntilMax * 1000 : null;
+      
+      return { maxLinearMulti, timeUntilMax, timeUntilMaxDate };
+    };
+    
+    return {
+      bravery: getMonument(0),
+      justice: getMonument(1),
+      wisdom: getMonument(2)
+    };
+  }, [account]);
 
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
@@ -297,40 +323,25 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
       </Section>}
       {!emptyAlerts?.['World 5'] && account?.finishedWorlds?.World4 && <Section title={'World 5'}>
         {trackers?.['World 5']?.monument?.checked && account?.finishedWorlds?.World4 ?
-          <TimerCard
+          <MonumentCard
             page={'account/world-5/hole'}
-            tooltipContent={`Next fight: ${account?.hole?.caverns?.bravery?.timeForNextFight < 0
-              ? 'now!'
-              : getRealDateInMs(Date.now() + account?.hole?.caverns?.bravery?.timeForNextFight * 1000)}`}
-            lastUpdated={lastUpdated}
-            time={new Date().getTime() + account?.hole?.caverns?.bravery?.timeForNextFight * 1000}
-            timerPlaceholder={account?.hole?.caverns?.bravery?.timeForNextFight < 0
-              ? `Fight! (${Math.round(100 * account?.hole?.caverns?.bravery?.rewardMulti) / 100}x)`
-              : ''}
+            currentMulti={account?.hole?.caverns?.bravery?.rewardMulti || 0}
+            maxMulti={getMonumentMultiInfo?.bravery?.maxLinearMulti || 0}
+            timeUntilMax={getMonumentMultiInfo?.bravery?.timeUntilMaxDate}
             icon={`etc/Bravery_Statue.png`} /> : null}
         {trackers?.['World 5']?.justice?.checked && account?.finishedWorlds?.World4 ?
-          <TimerCard
+          <MonumentCard
             page={'account/world-5/hole'}
-            tooltipContent={`Next fight: ${account?.hole?.caverns?.justice?.timeForNextFight < 0
-              ? 'now!'
-              : getRealDateInMs(Date.now() + account?.hole?.caverns?.justice?.timeForNextFight * 1000)}`}
-            lastUpdated={lastUpdated}
-            time={new Date().getTime() + account?.hole?.caverns?.justice?.timeForNextFight * 1000}
-            timerPlaceholder={account?.hole?.caverns?.justice?.timeForNextFight < 0
-              ? `Fight! (${Math.round(100 * account?.hole?.caverns?.justice?.rewardMulti) / 100}x)`
-              : ''}
+            currentMulti={account?.hole?.caverns?.justice?.rewardMulti || 0}
+            maxMulti={getMonumentMultiInfo?.justice?.maxLinearMulti || 0}
+            timeUntilMax={getMonumentMultiInfo?.justice?.timeUntilMaxDate}
             icon={`data/Justice_Monument_x1.png`} /> : null}
         {trackers?.['World 5']?.wisdom?.checked && account?.finishedWorlds?.World4 ?
-          <TimerCard
+          <MonumentCard
             page={'account/world-5/hole'}
-            tooltipContent={`Next fight: ${account?.hole?.caverns?.wisdom?.timeForNextFight < 0
-              ? 'now!'
-              : getRealDateInMs(Date.now() + account?.hole?.caverns?.wisdom?.timeForNextFight * 1000)}`}
-            lastUpdated={lastUpdated}
-            time={new Date().getTime() + account?.hole?.caverns?.wisdom?.timeForNextFight * 1000}
-            timerPlaceholder={account?.hole?.caverns?.wisdom?.timeForNextFight < 0
-              ? `Fight! (${Math.round(100 * account?.hole?.caverns?.wisdom?.rewardMulti) / 100}x)`
-              : ''}
+            currentMulti={account?.hole?.caverns?.wisdom?.rewardMulti || 0}
+            maxMulti={getMonumentMultiInfo?.wisdom?.maxLinearMulti || 0}
+            timeUntilMax={getMonumentMultiInfo?.wisdom?.timeUntilMaxDate}
             icon={`data/Wisdom_Monument_x1.png`} /> : null}
       </Section>}
 
@@ -412,6 +423,32 @@ const TimerCard = ({
         sx={{ color: showAsError ? '#f91d1d' : ' ' }}
         placeholder={timerPlaceholder}
         lastUpdated={lastUpdated} />}
+    </Stack>
+  </Tooltip>
+}
+
+const MonumentCard = ({
+  page,
+  currentMulti,
+  maxMulti,
+  timeUntilMax,
+  icon
+}) => {
+  const router = useRouter();
+  const currentMultiRounded = Math.round(100 * currentMulti) / 100;
+  const maxMultiRounded = Math.round(100 * maxMulti) / 100;
+  const isOverMax = currentMultiRounded > maxMultiRounded;
+  const tooltipContent = isOverMax
+    ? `${currentMultiRounded}x / ${maxMultiRounded}x`
+    : timeUntilMax 
+      ? `Max linear growth: ${getRealDateInMs(timeUntilMax)}`
+      : 'At max linear growth';
+
+  return <Tooltip title={tooltipContent}>
+    <Stack sx={{ cursor: page ? 'pointer' : 'auto' }} direction={'row'} gap={1} alignItems={'center'}
+      onClick={() => page && router.push({ pathname: page })}>
+      <IconImg src={`${prefix}${icon}`} />
+      <Typography color={isOverMax ? 'error.light' : 'inherit'}>{isOverMax ? 'Go fight!' : `${currentMultiRounded}x / ${maxMultiRounded}x`}</Typography>
     </Stack>
   </Tooltip>
 }

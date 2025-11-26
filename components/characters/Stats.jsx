@@ -69,7 +69,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
     <>
       <Stack gap={2} flexWrap={'wrap'}>
         {activityFilter ?
-          <Activity afkTarget={afkTarget} divStyle={character?.divStyle} playerId={playerId} account={account}/> : null}
+          <Activity afkTarget={afkTarget} divStyle={character?.divStyle} playerId={playerId} account={account} character={character} characters={characters} /> : null}
         {statsFilter ? <>
           <Stack sx={{ minWidth: 250 }} flexWrap={'wrap'} gap={1} divider={<Divider/>}>
             <Stat title={'Total Stats'} value={getTotalStats(character)}/>

@@ -682,7 +682,7 @@ export const getUpgradeableBubbles = (acc, characters) => {
 }
 
 export const getPossibleZenithMarketBubbles = (account, characters) => {
-  const allBubblesIndexes = ['_0', 'a0', 'b0', 'c0', 'c9', '_11', 'a11', 'a1'];
+  const allBubblesIndexes = ['_0', 'a0', 'b0', 'c0', 'c9', '_11', 'a11', 'a2'];
   const zenithMarketBonus = getZenithBonus(account, 1);
 
   // Always include the first 3 elements

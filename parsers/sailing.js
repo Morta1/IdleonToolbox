@@ -24,6 +24,8 @@ import { getJadeEmporiumBonus } from '@parsers/world-6/sneaking';
 import { isSuperbitUnlocked } from '@parsers/gaming';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getArcadeBonus } from './arcade';
+import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 
 export const getSailing = (idleonData, artifactsList, charactersData, account, serverVars, charactersLevels) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
@@ -83,13 +85,13 @@ const calculateMaxCapacityTime = (roundtripTimes, maxCapacity) => {
 const getFutureTrades = ({ boats } = {}, islands, lootPileList, artifactsList, account) => {
   const firstBoatLootValue = boats?.[0]?.loot?.value ?? 0;
   const emeraldRelic = isArtifactAcquired(artifactsList, 'Emerald_Relic');
-  const unlockedIslands = islands?.reduce((sum, island) => island === -1 ? sum + 1 : sum, 0);
+  const unlockedIslands = islands?.reduce((sum, island, index) => island === -1 && index < 15 ? sum + 1 : sum, 0);
   const seed = Math.floor(account?.timeAway?.GlobalTime / 21600);
   const trades = [];
   for (let i = 0; i < 40; i++) {
     const rng = new LavaRand(seed + i);
     const random = rng.rand();
-    const lootIndex = Math.min(30, Math.ceil(2 * random * unlockedIslands));
+    const lootIndex = Math.max(1, Math.min(30, Math.ceil(2 * random * unlockedIslands)));
     const lootItemCost = getLootItemCost(lootPileList?.[lootIndex], firstBoatLootValue);
     const closest = new Date(Math.floor((seed + i) * 21600 * 1000));
     if (!isPast(closest)) {
@@ -110,8 +112,8 @@ const getLootItemCost = (loot, firstBoatLootValue) => {
 const getMoneyValue = (lootItemCost, lootIndex, emeraldRelic) => {
   const multi = (emeraldRelic?.acquired) ?? 0;
   return lootItemCost * (1.5 * Math.pow(1.6, Math.floor(lootIndex / 2))
-    * (1 + (((lootIndex + 1) % 2) * 150 + (30 * Math.floor(multi / 2) + 30
-      * Math.floor(multi / 3))) / 100))
+    * (1 + (((lootIndex + 1) % 2) * 150 + (30 * Math.floor(multi / 2)
+      + 30 * Math.floor(multi / 3))) / 100))
 }
 
 export const getArtifacts = (idleonData, charactersData, account) => {
@@ -403,21 +405,31 @@ const getFinalBoatLoot = ({
   artifactBonus,
   firstCaptainBonus,
   secondCaptainBonus,
-  talentBonus
+  arcadeBonus,
+  talentBonus,
+  daveyJonesBonus,
+  lampBonus
 }) => {
-  return (5 + lootLevelMath * lootLevel) * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + artifactBonus)) / 100) * talentBonus;
+  return (5 + lootLevelMath * lootLevel)
+    * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + (artifactBonus + (arcadeBonus)))) / 100)
+    * (1 + talentBonus / 100)
+    * daveyJonesBonus
+    * (1 + lampBonus / 100);
 }
 const getBoatLootValue = (characters, account, artifactsList, boat, captain) => {
   const unendingLootSearch = getHighestTalentByClass(characters, CLASSES.Siege_Breaker, 'UNENDING_LOOT_SEARCH');
-  const talentBonus = 1 + unendingLootSearch / 100;
+  const talentBonus = unendingLootSearch;
   const nextBreakpoint = boat?.lootLevel + (8 - (boat?.lootLevel % 8));
   const nextLevelMath = 2 + Math.pow(Math.floor(((boat?.lootLevel) + 1) / 8), 2)
   const currentLevelMath = 2 + Math.pow(Math.floor((boat?.lootLevel) / 8), 2);
   const breakpointLevelMath = 2 + Math.pow(Math.floor((nextBreakpoint) / 8), 2);
-  const lootPileSigil = getSigilBonus(account?.alchemy?.p2w?.sigils, 'LOOT_PILE');
+  const lootPileSigil = getSigilBonus(account?.alchemy?.p2w?.sigils, 'LOOT_PILE') / 6;
   const firstCaptainBonus = getCaptainBonus(1, captain, captain?.firstBonusIndex);
   const secondCaptainBonus = getCaptainBonus(1, captain, captain?.secondBonusIndex);
-  const artifactBonus = isArtifactAcquired(artifactsList, 'Genie_Lamp')?.bonus ?? 0;
+  const artifactBonus = 0 // isArtifactAcquired(artifactsList, 'Genie_Lamp')?.bonus ?? 0;
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Sailing_Loot')?.bonus ?? 0;
+  const daveyJonesBonus = 1 + (50 * account?.gemShopPurchases?.[8] + getLegendTalentBonus(account, 11)) / 100;
+  const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 0, account }) ?? 0;
   const value = getFinalBoatLoot({
     lootLevelMath: currentLevelMath,
     lootLevel: boat?.lootLevel,
@@ -425,7 +437,10 @@ const getBoatLootValue = (characters, account, artifactsList, boat, captain) => 
     artifactBonus,
     firstCaptainBonus,
     secondCaptainBonus,
-    talentBonus
+    arcadeBonus,
+    talentBonus,
+    daveyJonesBonus,
+    lampBonus
   });
   const nextLevelValue = getFinalBoatLoot({
     lootLevelMath: nextLevelMath,
@@ -434,7 +449,10 @@ const getBoatLootValue = (characters, account, artifactsList, boat, captain) => 
     artifactBonus,
     firstCaptainBonus,
     secondCaptainBonus,
-    talentBonus
+    arcadeBonus,
+    talentBonus,
+    daveyJonesBonus,
+    lampBonus
   });
   let nextBreakpointValue;
   if (nextBreakpoint !== boat?.lootLevel + 1) {
@@ -445,7 +463,10 @@ const getBoatLootValue = (characters, account, artifactsList, boat, captain) => 
       artifactBonus,
       firstCaptainBonus,
       secondCaptainBonus,
-      talentBonus
+      arcadeBonus,
+      talentBonus,
+      daveyJonesBonus,
+      lampBonus
     });
   }
   return {

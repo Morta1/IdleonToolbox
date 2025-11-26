@@ -128,15 +128,19 @@ export const getMonumentAfkReq = (afkPercent, requiredHours, ownedAfkHours = 0) 
   });
 }
 
-export const getMonumentMultiReward = (holesObject, t, accountData) => {
+export const getMonumentMaxLinearTime = (holesObject, t, accountData) => {
   const legendTalentBonus = getLegendTalentBonus(accountData, 27);
   const superbitBonus = isSuperbitUnlocked(accountData, 'Monument_Infimulti') ? 1 : 0;
 
-
-  const maxLinearTime = 1 === t ? 86400 * (2 + (getSchematicBonus({ holesObject, t: 70, i: 2 }) + 10 * superbitBonus) +
+  return 1 === t ? 86400 * (2 + (getSchematicBonus({ holesObject, t: 70, i: 2 }) + 10 * superbitBonus) +
     (14 * getStudyBonus(holesObject, 9, 99) + legendTalentBonus / 24))
     : 86400 * (2 + (getSchematicBonus({ holesObject, t: 70, i: 2 }) +
       (10 * superbitBonus + legendTalentBonus / 24)));
+}
+
+export const getMonumentMultiReward = (holesObject, t, accountData) => {
+  const maxLinearTime = getMonumentMaxLinearTime(holesObject, t, accountData)
+  
   return (Math.min(holesObject?.extraCalculations?.[Math.round(11 + t)], maxLinearTime) / 72e3
     + (Math.pow(1 + Math.max(0, holesObject?.extraCalculations?.[Math.round(11 + t)] - maxLinearTime) / 72e3, 0.3) - 1))
     * (1 + getMeritocracyBonus(accountData, 7) / 100)

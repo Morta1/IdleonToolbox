@@ -87,7 +87,7 @@ export const parseData = (idleonData, charNames, companion, guildData, serverVar
     // currencies, breeding, farming, and other account/character data
     const REQUIRED_PASSES = 3;
     let processedData = null;
-    
+
     for (let pass = 0; pass < REQUIRED_PASSES; pass++) {
       processedData = serializeData(
         idleonData,
@@ -99,7 +99,7 @@ export const parseData = (idleonData, charNames, companion, guildData, serverVar
         processedData
       );
     }
-    
+
     const { accountData, charactersData } = processedData;
     return { account: accountData, characters: charactersData };
   } catch (err) {
@@ -299,8 +299,7 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.clamWork = getClamWork(idleonData, accountData);
   accountData.adviceFish = getAdviceFish(idleonData);
   accountData.bubba = getBubba(idleonData, accountData);
-  console.log('accountData.bubba', accountData.bubba);
-  
+
   // Cleanup unnecessary data
   serializedCharactersData = null;
   charactersLevels = null;

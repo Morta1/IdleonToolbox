@@ -49,8 +49,6 @@ const Bubba = () => {
       })}
     </Stack>
     <Upgrades upgrades={bubba?.upgrades} />
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['clickers'].categories, 'bubba')}>
-    </Tabber>
   </>
 };
 

@@ -131,6 +131,7 @@ export const getGodByIndex = (linkedDeities, characters, gIndex) => {
 }
 
 export const getDeityLinkedIndex = (account, characters, deityIndex) => {
+  const coralKidLinked = account?.accountOptions?.[425] > 0 && account?.accountOptions?.[425] === deityIndex;
   const pocketLinked = account?.hole?.godsLinks?.find(({ index }) => index === deityIndex);
   const normalLink = account?.divinity?.linkedDeities?.map((deity, index) => deityIndex === deity || (isCompanionBonusActive(account, 0) && account?.finishedWorlds?.World4)
     ? index
@@ -140,8 +141,8 @@ export const getDeityLinkedIndex = (account, characters, deityIndex) => {
     : -1);
   // Check if pocketLinked exists and add it to the result
   return normalLink?.map((charIndex, index) => {
-    // First check for pocket link
-    if (pocketLinked) {
+    // First check for pocket link or coral kid link
+    if (pocketLinked || coralKidLinked) {
       return index;
     }
     // Then check for normal and ES links as before

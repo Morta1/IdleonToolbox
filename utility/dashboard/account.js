@@ -907,7 +907,7 @@ export const getWorld6Alerts = (account, fields, options) => {
   }
   if (fields?.farming?.checked) {
     const farming = {};
-    const { plots, totalCrops, missingPlots, beanTrade } = options?.farming || {};
+    const { plots, totalCrops, missingPlots, beanTrade, exoticPurchases } = options?.farming || {};
     if (plots?.checked) {
       const availablePots = account?.farming?.plot?.filter(({ currentOG }) => plots?.props?.value > 0
         ? currentOG >= plots?.props?.value
@@ -943,6 +943,17 @@ export const getWorld6Alerts = (account, fields, options) => {
     if (beanTrade?.checked) {
       if (account?.farming?.beanTrade >= beanTrade?.props?.value) {
         farming.beanTrade = account?.farming?.beanTrade;
+      }
+    }
+    if (exoticPurchases?.checked) {
+      const exoticMarketUpgradesPurchased = account?.farming?.exoticMarketUpgradesPurchased ?? 0;
+      const exoticMarkeMaxPurchases = account?.farming?.exoticMarkeMaxPurchases ?? 4;
+      if (exoticMarketUpgradesPurchased < exoticMarkeMaxPurchases) {
+        farming.exoticPurchases = {
+          available: exoticMarkeMaxPurchases - exoticMarketUpgradesPurchased,
+          purchased: exoticMarketUpgradesPurchased,
+          max: exoticMarkeMaxPurchases
+        };
       }
     }
     if (Object.keys(farming).length > 0) {
@@ -1084,6 +1095,18 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       const pointsLeftToSpend = account?.legendTalents?.pointsLeftToSpend ?? 0;
       if (pointsLeftToSpend > 0) {
         legendTalents.legendPointsLeftToSpend = pointsLeftToSpend;
+      }
+    }
+    if (options?.legendTalents?.cheaperMasterclassUpgrades?.checked) {
+      const maxUpgrades = getLegendTalentBonus(account, 23) ?? 0;
+      const upgradesUsed = account?.accountOptions?.[480] ?? 0;
+      const availableUpgrades = maxUpgrades - upgradesUsed;
+      if (availableUpgrades > 0) {
+        legendTalents.cheaperMasterclassUpgrades = {
+          available: availableUpgrades,
+          used: upgradesUsed,
+          max: maxUpgrades
+        };
       }
     }
     if (Object.keys(legendTalents).length > 0) {

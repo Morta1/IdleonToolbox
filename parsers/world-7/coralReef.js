@@ -11,7 +11,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getVialsBonusByEffect } from '@parsers/alchemy';
 import { getStampsBonusByEffect } from '@parsers/stamps';
-import { getJadeEmporiumBonus } from '@parsers/world-6/sneaking';
+import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getStatueBonus } from '@parsers/statues';
@@ -183,29 +183,58 @@ export const getReefCost = (account, index, level) => {
 
 // ReefDayGains from Thingies.js line 118-130
 export const getReefDayGains = (account) => {
-  const baseGain = 10;
   const companionBonusValue = isCompanionBonusActive(account, 40) ? account?.companions?.list?.at(40)?.bonus : 0;
   const eventShopBonus = getEventShopBonus(account, 25) || 0;
 
   const gemShopBonus = (account?.gemShopPurchases?.find((value, idx) => idx === 41) || 0);
   const coralKidBonus = getCoralKidUpgBonus(account, 5);
   const dancingCoralBonus = getDancingCoralBonus(account, 0, 0);
-  const clamWorkBonus = 20 * getClamWorkBonus(account, 5);
+  const clamWorkBonus = getClamWorkBonus(account, 5);
   const killroyBonus = getKillRoyShopBonus(account, 6) || 0;
-  const stampBonus = getStampsBonusByEffect(account, 'corale') || 0;
+  const stampBonus = getStampsBonusByEffect(account, 'Daily_Coral_gain_for_the_Coral_Reef') || 0;
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '7corale') || 0;
   const legendTalentBonus = getLegendTalentBonus(account, 0) || 0;
-  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Coral_Reef_Gains')?.bonus || 0;
-  const emporiumBonus = getJadeEmporiumBonus(account, 'Coral_Reef_Bonus') || 0;
-  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Coral_Reef_Gains_(Passive)') || 1;
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Daily_Coral')?.bonus || 0;
+  const emporiumBonus = isJadeBonusUnlocked(account, 'Coral_Conservationism');
+  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Daily_Coral_(Passive)') || 1;
   const statueBonus = getStatueBonus(account, 31);
-  const multiplier = (1 + companionBonusValue / 100)
+
+  const value = 10 * (1 + companionBonusValue)
     * (1 + 0.3 * eventShopBonus)
     * (1 + (20 * gemShopBonus) / 100)
-    * (1 + (coralKidBonus + dancingCoralBonus + clamWorkBonus + killroyBonus + stampBonus + vialBonus + legendTalentBonus 
-    + arcadeBonus + (20 * emporiumBonus) + Math.min(2 * passiveCardBonus, 15) + statueBonus) / 100);
+    * (1 + (coralKidBonus
+      + (dancingCoralBonus
+        + (20 * clamWorkBonus
+          + (killroyBonus
+            + (stampBonus
+              + (vialBonus
+                + (legendTalentBonus
+                  + (arcadeBonus
+                    + (20 * emporiumBonus
+                      + (passiveCardBonus
+                        + statueBonus)))))))))) / 100);
 
-  return baseGain * multiplier;
+  const breakdown = [
+    { name: 'Base', value: 10 },
+    { title: 'Multiplicative' },
+    { name: 'Companion', value: companionBonusValue },
+    { name: 'Event Shop', value: .3 * eventShopBonus },
+    { name: 'Gem Shop', value: 20 *gemShopBonus },
+    { title: 'Additive' },
+    { name: 'Coral Kid Upgrade', value: coralKidBonus },
+    { name: 'Dancing Coral', value: dancingCoralBonus },
+    { name: 'Clam Work', value: 20 * clamWorkBonus },
+    { name: 'Killroy Shop', value: killroyBonus },
+    { name: 'Stamps', value: stampBonus },
+    { name: 'Vials', value: vialBonus },
+    { name: 'Legend Talent', value: legendTalentBonus },
+    { name: 'Arcade', value: arcadeBonus },
+    { name: 'Emporium', value: 20 * emporiumBonus },
+    { name: 'Passive Card', value: passiveCardBonus },
+    { name: 'Statue', value: statueBonus },
+  ]
+
+  return { value, breakdown }
 }
 
 // GrindTimeDaily from Thingies.js line 131-133

@@ -163,7 +163,6 @@ const Bubbles = () => {
     return false;
   }
 
-
   return (
     <>
       <NextSeo
@@ -608,7 +607,6 @@ const Dot = () => <Divider
     }
   }}
 />
-
 const UpgradeableBubblesList = ({ bubbles, accumulatedCost, account }) => {
   return <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
     {bubbles?.map(({ rawName, bubbleName, level, itemReq, index, cauldron, lithium, krukLevelsDaily }, tIndex) => {
