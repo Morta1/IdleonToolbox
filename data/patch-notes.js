@@ -16,7 +16,9 @@ export const patchNotes = [
     ],
     'fixes': [
       'Fixed a bug where the activity filter would not show when character is afk in divinity with goat god linked',
-      'Fixed a bug in spelunking upgrade optimizer'
+      'Fixed a bug in spelunking upgrade optimizer',
+      'Fixed a bug where kruk was displaying wrong bubble',
+      '*Hopefully* fixed future sailing trades display'
     ]
   },
   {
