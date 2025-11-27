@@ -8,6 +8,7 @@ import { getCosmoBonus } from '@parsers/world-5/hole';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getTesseractBonus } from '@parsers/tesseract';
+import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 
 export const getEquinox = (idleonData, account) => {
   const weeklyBoss = tryToParse(idleonData?.WeeklyBoss) || idleonData?.WeeklyBoss;
@@ -36,11 +37,12 @@ const parseEquinox = (weeklyBoss, dream, account) => {
   const eqBarVial = getVialsBonusByStat(account?.alchemy?.vials, 'EqBar');
   const voteBonus = getVoteBonus(account, 32);
   const eventShopBonus = getEventShopBonus(account, 3);
-  const companionBonus = isCompanionBonusActive(account, 15) ? 1 : 0;
+  const companionBonus = isCompanionBonusActive(account, 15) ? (account?.companions?.list?.at(15)?.bonus ?? 0) : 0;
   const cosmoBonus = getCosmoBonus({ majik: account?.hole?.holesObject?.idleonMajiks, t: 2, i: 5 }) || 0;
-  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Equinox_Fill_Rate')?.bonus
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Equinox_Fill_Rate')?.bonus || 0;
   const emperorBonus = getEmperorBonus(account, 5);
-  const tesseractBonus = getTesseractBonus(account, 37)
+  const tesseractBonus = getTesseractBonus(account, 37);
+  const loreEpiBonus = getLoreBossBonus(account, 8) ?? 0;
 
   const cloudsBonus = (
     (10 * (clouds[3] === -1)
@@ -52,11 +54,13 @@ const parseEquinox = (weeklyBoss, dream, account) => {
                 + 40 * (clouds[29] === -1))))))));
 
   const base = (1 + voteBonus / 100)
-    * (1 + companionBonus * 2.5)
-    * (1 + cosmoBonus / 100)
-    * (1 + .5 * eventShopBonus)
-    * (1 + (account?.accountOptions?.[320] ?? 0) / 10)
-    * (1 + (eqBarVial + cloudsBonus + arcadeBonus + emperorBonus + tesseractBonus) / 100);
+  * (1 + loreEpiBonus / 100)
+  * (1 + companionBonus)
+  * (1 + cosmoBonus / 100)
+  * (1 + 0.5 * eventShopBonus)
+  * (1 + account?.accountOptions?.[320] / 10)
+  * (1 + tesseractBonus / 100)
+  * (1 + (eqBarVial + cloudsBonus + arcadeBonus + emperorBonus) / 100)
 
   const breakdown = [
     { title: 'Multiplicative' },
@@ -64,6 +68,7 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     { name: 'Arcade', value: arcadeBonus / 100 },
     { name: 'Vote', value: voteBonus / 100 },
     { name: 'Cosmo', value: cosmoBonus / 100 },
+    { name: 'Lore', value: loreEpiBonus / 100 },
     { name: 'Companion', value: companionBonus * 2.5 },
     { name: 'Event shop', value: .5 * eventShopBonus },
     { name: 'Penguins', value: 1 + account?.accountOptions?.[320] / 10 },
