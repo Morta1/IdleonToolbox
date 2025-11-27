@@ -20,7 +20,7 @@ const ArmorSmithy = () => {
 
   return <>
     <Stack direction={'row'} gap={2} alignItems={'center'}>
-      <CardTitleAndValue title={'Completed sets'} value={`${unlockedSets.length} / 18`}/>
+      <CardTitleAndValue title={'Completed sets'} value={`${unlockedSets.length} / ${sets.length}`}/>
       {!isSmithyUnlocked ? <CardTitleAndValue title={'Unlock smithy in'} value={`${30 - days} days`}/> : null}
     </Stack>
     <BonusCheckboxEl/>

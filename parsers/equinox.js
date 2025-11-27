@@ -69,7 +69,7 @@ const parseEquinox = (weeklyBoss, dream, account) => {
     { name: 'Vote', value: voteBonus / 100 },
     { name: 'Cosmo', value: cosmoBonus / 100 },
     { name: 'Lore', value: loreEpiBonus / 100 },
-    { name: 'Companion', value: companionBonus * 2.5 },
+    { name: 'Companion', value: companionBonus },
     { name: 'Event shop', value: .5 * eventShopBonus },
     { name: 'Penguins', value: 1 + account?.accountOptions?.[320] / 10 },
     { name: 'Vial', value: eqBarVial / 100 },

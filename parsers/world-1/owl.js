@@ -1,6 +1,7 @@
 import { owlData } from '../../data/website-data';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 
 export const getOwl = (idleonData, accountData) => {
   return parseOwl(accountData);
@@ -94,35 +95,37 @@ const parseOwl = (account) => {
           + (100 * Math.min(1, getMegaFeather(account, 9))
             + 50 * Math.max(0, getMegaFeather(account, 9) - 1)))));
 
+  const legendTalentBonus = getLegendTalentBonus(account, 26) || 0;
+
   const bonuses = [
     { name: 'Feather/sec', bonus: featherRate },
     {
       name: 'Class XP',
-      bonus: 5 * (1 + totalFeatherBonus / 100) * Math.max(0, Math.ceil(account?.accountOptions?.[255] / 6)),
+      bonus: 5 * (1 + totalFeatherBonus / 100) * (1 + legendTalentBonus / 100) * Math.max(0, Math.ceil(account?.accountOptions?.[255] / 6)),
       percentage: true
     },
     {
       name: 'Base DMG',
-      bonus: 10 * (1 + totalFeatherBonus / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[255] - 1) / 6))
+      bonus: 10 * (1 + totalFeatherBonus / 100) * (1 + legendTalentBonus / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[255] - 1) / 6))
     },
     {
       name: 'Total DMG',
-      bonus: 2 * (1 + totalFeatherBonus / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[255] - 2) / 6)),
+      bonus: 2 * (1 + totalFeatherBonus / 100) * (1 + legendTalentBonus / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[255] - 2) / 6)),
       percentage: true
     },
     {
       name: 'Skill XP',
-      bonus: 4 * (1 + totalFeatherBonus / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[255] - 3) / 6)),
+      bonus: 4 * (1 + totalFeatherBonus / 100) * (1 + legendTalentBonus / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[255] - 3) / 6)),
       percentage: true
     },
     {
       name: 'Drop Rate',
-      bonus: (1 + totalFeatherBonus / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[255] - 4) / 6)),
+      bonus: (1 + totalFeatherBonus / 100) * (1 + legendTalentBonus / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[255] - 4) / 6)),
       percentage: true
     },
     {
       name: 'All Stats',
-      bonus: 2 * (1 + totalFeatherBonus / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[255] - 5) / 6))
+      bonus: 2 * (1 + totalFeatherBonus / 100) * (1 + legendTalentBonus / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[255] - 5) / 6))
     },
     {
       name: 'Shiny Feather',

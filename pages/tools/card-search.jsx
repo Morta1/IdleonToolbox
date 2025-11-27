@@ -23,7 +23,7 @@ const additionalEffects = {
   damage: [stats.WeaponPower, stats.CriticalChance, stats['Dmg,Drop,andEXP']],
   'drop rate': [stats['Dmg,Drop,andEXP']],
   'card drop': [stats.TotalDropRate],
-  'monster exp': [stats.EXPfrommonsters, stats['Dmg,Drop,andEXP']],
+  'monster exp': [stats.EXPfrommonsters, stats['Dmg,Drop,andEXP'], stats.ClassEXPMulti, stats['ClassExp(Multi)']],
   dungeon: [stats.BlockChance, stats.RNGitemrarity, stats['tostartwithRNGorb(Passive)']],
   worship: [stats.StartingPtsinWorship, stats.ChargeRate, stats.MaxCharge, stats.SkillEXP],
   money: [stats.FightingAFKgainrate, stats.TotalDropRate],
