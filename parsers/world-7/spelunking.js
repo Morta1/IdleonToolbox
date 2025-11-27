@@ -153,7 +153,7 @@ const parseSpelunking = (account, characters, rawSpelunking, rawTowerInfo) => {
       maxDiscoveries: discoveriesData?.length > 0 ? discoveriesData?.length : 0,
       discoveriesCount,
       discoveries: discoveriesData,
-      defeated: index <= cavesUnlocked,
+      defeated: index < cavesUnlocked,
       biggestHaul: biggestHauls?.[index] ?? 0,
       bestCaveLevel: bestCaveLevels?.[index] ?? 0,
       foundAt: generalSpelunky?.[7]?.split(' ')?.[index] ?? 0
