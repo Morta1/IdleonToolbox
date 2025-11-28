@@ -50,7 +50,6 @@ const Chapters = ({ chapters }) => {
                           </Typography>
                           <Typography variant="subtitle2">
                             Lv. {chapter.level}
-                            {chapter.x6 > 0 && ` / ${chapter.x6}`}
                           </Typography>
                         </Stack>
                       </Stack>

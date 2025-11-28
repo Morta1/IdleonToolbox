@@ -44,7 +44,7 @@ const extraSpecialBonuses = {
     3: '+15_MAX_STAMINA_FOR_EVERYONE',
     4: '+3_DAILY_PAGE_READS',
     5: '+10%_STAMINA_REGEN_RATE',
-    6: '1.50x_ALL_EMBER_GAIN'
+    6: '1.50x_ALL_AMBER_GAIN'
   },
 }
 

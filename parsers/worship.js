@@ -19,13 +19,14 @@ import { isSuperbitUnlocked } from '@parsers/gaming';
 export const getTotems = (idleonData) => {
   const totemInfoRaw = tryToParse(idleonData?.TotemInfo) || idleonData?.TotemInfo;
   const totemsNames = randomList?.[10]?.split(' ');
-  const totemMapIndexes = [26, 63, 30, 107, 155, 208, 259];
-  return totemsNames?.map((totemName, index) => {
+  const totemMapIndexes = [26, 63, 30, 107, 155, 208, 259, 308];
+  return totemMapIndexes?.map((mapIndex, index) => {
     const maxWave = totemInfoRaw?.[0]?.[index] ?? 0;
     const waveMulti = (0 === maxWave ? 0 : Math.pow((5 + maxWave) / 10, 2.6))
     const expReward = Math.floor(15 * Math.pow(index + 1, 2) * Math.pow(waveMulti, 0.9)) || 0;
-    const map = mapNames?.[totemMapIndexes?.[index]];
+    const map = mapNames?.[mapIndex];
     const totemInfo = totems?.[index];
+    const totemName = totemsNames?.[index];
     return {
       ...totemInfo,
       name: totemName,
