@@ -1,9 +1,11 @@
 import {
+  Alert,
   CircularProgress,
   Divider,
   IconButton,
   InputAdornment,
   Skeleton,
+  Snackbar,
   Stack,
   TextField,
   Typography,
@@ -28,12 +30,13 @@ const Leaderboards = () => {
   const loggedMainChar = state?.characters?.[0]?.name;
   const [leaderboards, setLeaderboards] = useState(null);
   const [error, setError] = React.useState('');
+  const [inputValue, setInputValue] = useState('');
   const [searchedChar, setSearchChar] = useState('');
   const router = useRouter();
   const { t } = router.query;
   const [selectedTab, setSelectedTab] = useState(t?.toLowerCase() || 'general');
   const [loadingSearchedChar, setLoadingSearchedChar] = useState(false);
-  const [helperText, setHelperText] = useState('');
+  const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
 
   useEffect(() => {
     const getLeaderboards = async () => {
@@ -58,6 +61,7 @@ const Leaderboards = () => {
     return true;
   }
   const searchUserAndAppend = (data, username, userStats) => {
+    const newData = {};
     for (const category in data) {
       const categoryData = data[category];
       const found = categoryData.some(item => item.mainChar === username);
@@ -65,34 +69,47 @@ const Leaderboards = () => {
       if (!found) {
         // Append the user's actual stats if they exist
         if (userStats[category] !== undefined) {
-          data[category].push({ mainChar: username, ...userStats[category] });
+          newData[category] = [...categoryData, { mainChar: username, ...userStats[category] }];
         }
         else {
-          data[category].push({ mainChar: username });
+          newData[category] = [...categoryData, { mainChar: username }];
         }
+      } else {
+        // Keep the existing array reference if user already exists
+        newData[category] = categoryData;
       }
     }
-    return data;
+    return newData;
   }
+
   const handleKeyDown = (event) => {
-    if (!searchedChar || loadingSearchedChar) return;
+    if (!inputValue || loadingSearchedChar) return;
     if (event.key === 'Enter') {
       handleUserSearch();
     }
   }
+
   const handleUserSearch = async () => {
-    if (!searchedChar) return;
-    const userFullyExistsLocally = isUserFullyExistLocally(leaderboards[selectedTab.toLowerCase()], searchedChar);
+    if (!inputValue) return;
+    const searchValue = inputValue.trim();
+    if (!searchValue) return;
+
+    setSearchChar(searchValue);
+    const userFullyExistsLocally = isUserFullyExistLocally(leaderboards[selectedTab.toLowerCase()], searchValue);
     if (!userFullyExistsLocally) {
       setLoadingSearchedChar(true);
-      const response = await fetchUserLeaderboards(selectedTab.toLowerCase(), searchedChar);
+      const response = await fetchUserLeaderboards(selectedTab.toLowerCase(), searchValue);
       if (!response || response?.error) {
         setLoadingSearchedChar(false);
-        return setHelperText(response?.error);
+        setToast({ open: true, message: response?.error || 'Error fetching user data', severity: 'error' });
+        return;
       }
-      const updateLeaderboards = searchUserAndAppend(leaderboards[selectedTab.toLowerCase()], searchedChar, response);
+      const updateLeaderboards = searchUserAndAppend(leaderboards[selectedTab.toLowerCase()], searchValue, response);
       setLeaderboards({ ...leaderboards, [selectedTab.toLowerCase()]: updateLeaderboards });
       setLoadingSearchedChar(false);
+      setToast({ open: true, message: 'User added to leaderboards', severity: 'success' });
+    } else {
+      setToast({ open: true, message: 'User already exists in leaderboards', severity: 'info' });
     }
   }
 
@@ -104,11 +121,10 @@ const Leaderboards = () => {
     <Box sx={{ maxWidth: '300px', margin: '16px auto 0 auto', border: 'none' }}>
       <TextField
         fullWidth
-        size={'small'} value={searchedChar || ''}
+        size={'small'} value={inputValue || ''}
         label={isSm ? 'Char name' : 'Character name'}
         onChange={(event) => {
-          setSearchChar(event.target.value);
-          setHelperText('');
+          setInputValue(event.target.value);
         }}
         onKeyDown={handleKeyDown}
         slotProps={{
@@ -116,25 +132,23 @@ const Leaderboards = () => {
             endAdornment: <InputAdornment position="end"><IconButton
               loading={loadingSearchedChar}
               disabled={!leaderboards?.totalUsers || loadingSearchedChar} onClick={handleUserSearch}>
-              <IconSearch/>
+              <IconSearch />
             </IconButton></InputAdornment>
           }
         }}
-        error={helperText !== ''}
-        helperText={helperText}
       />
-      {!helperText ? <Typography sx={{ ml: 1 }} variant={'caption'} color={'text.secondary'}>Press Enter to search
-        globally</Typography> : null}
+      <Typography sx={{ ml: 1 }} variant={'caption'} color={'text.secondary'}>Press Enter to search
+        globally</Typography>
     </Box>
     <Box sx={{ maxWidth: '300px', margin: '16px auto', textAlign: 'center' }}>
       {!leaderboards?.totalUsers || !leaderboards?.createdAt ? <Skeleton sx={{ width: 300, margin: '0 auto' }}
-                                                                         variant={'text'}/> : <Stack direction={'row'}
-                                                                                                     gap={1}
-                                                                                                     justifyContent={'center'}
-                                                                                                     divider={<Divider
-                                                                                                       flexItem
-                                                                                                       sx={{ bgcolor: '#a9b3a6' }}
-                                                                                                       orientation={'vertical'}/>}>
+        variant={'text'} /> : <Stack direction={'row'}
+          gap={1}
+          justifyContent={'center'}
+          divider={<Divider
+            flexItem
+            sx={{ bgcolor: '#a9b3a6' }}
+            orientation={'vertical'} />}>
         <Stack flexWrap={'wrap'} direction={'row'} gap={1} justifyContent={'center'} alignItems={'center'}>
           <Typography sx={{ fontSize: 14 }} component={'div'}>{numberWithCommas(leaderboards?.totalUsers)}</Typography>
 
@@ -149,27 +163,42 @@ const Leaderboards = () => {
     </Box>
     <Tabber
       tabs={tabs} onTabChange={(selected) => {
-      setSelectedTab(tabs?.[selected]);
-      setLeaderboards(null);
-      setError('');
-    }}>
+        setSelectedTab(tabs?.[selected]);
+        setLeaderboards(null);
+        setError('');
+        setSearchChar('');
+      }}>
       <LeaderboardSection leaderboards={leaderboards?.general} loggedMainChar={loggedMainChar}
-                          searchedChar={searchedChar}/>
+        searchedChar={searchedChar} />
       <LeaderboardSection leaderboards={leaderboards?.tasks} loggedMainChar={loggedMainChar}
-                          searchedChar={searchedChar}/>
+        searchedChar={searchedChar} />
       <LeaderboardSection leaderboards={leaderboards?.skills} loggedMainChar={loggedMainChar}
-                          searchedChar={searchedChar}/>
+        searchedChar={searchedChar} />
       <LeaderboardSection leaderboards={leaderboards?.character} loggedMainChar={loggedMainChar}
-                          searchedChar={searchedChar}/>
+        searchedChar={searchedChar} />
       <LeaderboardSection leaderboards={leaderboards?.misc} loggedMainChar={loggedMainChar}
-                          searchedChar={searchedChar}/>
+        searchedChar={searchedChar} />
       <LeaderboardSection leaderboards={leaderboards?.caverns} loggedMainChar={loggedMainChar}
-                          searchedChar={searchedChar}/>
+        searchedChar={searchedChar} />
     </Tabber>
     {!leaderboards && !error
-      ? <Stack alignItems={'center'} justifyContent={'center'} mt={3}><CircularProgress/></Stack>
+      ? <Stack alignItems={'center'} justifyContent={'center'} mt={3}><CircularProgress /></Stack>
       : error ?
         <Typography color={'error.light'} textAlign={'center'} variant={'h6'}>{error}</Typography> : null}
+    <Snackbar
+      open={toast.open}
+      autoHideDuration={6000}
+      onClose={() => setToast({ ...toast, open: false })}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+    >
+      <Alert
+        onClose={() => setToast({ ...toast, open: false })}
+        severity={toast.severity}
+        sx={{ width: '100%' }}
+      >
+        {toast.message}
+      </Alert>
+    </Snackbar>
   </>
 };
 

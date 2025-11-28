@@ -101,7 +101,7 @@ const subscribe = async (uid, accessToken, callback) => {
   const dbRef = ref(database);
   const charNames = await getSnapshot(dbRef, `_uid/${uid}`);
   if (!charNames) {
-    throw new Error('No characters found');
+    throw new Error('No characters found for this account');
   }
 
   let serverVars;

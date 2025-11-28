@@ -39,6 +39,7 @@ import { getArcadeBonus } from '@parsers/arcade';
 import { getTesseractBonus } from '@parsers/tesseract';
 import { IconChartCohort, IconChevronRight, IconInfoCircleFilled, IconList } from '@tabler/icons-react';
 import { getPossibleZenithMarketBubbles } from '@parsers/alchemy';
+import { getAchievementStatus } from '@parsers/achievements';
 
 const bargainOptions = [0, 25, 43.75, 57.81, 68.36, 76.27, 82.20, 86.65, 90];
 const Bubbles = () => {
@@ -71,9 +72,9 @@ const Bubbles = () => {
       return baseCost + Math.floor(bubbleLvl / 20);
     }
     else {
-      const first = bubbleIndex < 15 ?
-        baseCost * Math.pow(1.35 - (0.3 * bubbleLvl) / (50 + bubbleLvl), bubbleLvl) :
-        baseCost * Math.pow(1.37 - (0.28 * bubbleLvl) / (60 + bubbleLvl), bubbleLvl);
+      const first = bubbleIndex > 14 ?
+        baseCost * Math.pow(1.37 - (0.28 * bubbleLvl) / (60 + bubbleLvl), bubbleLvl) :
+        baseCost * Math.pow(1.35 - (0.3 * bubbleLvl) / (50 + bubbleLvl), bubbleLvl);
       const cauldronCostReduxBoost = Math.max(0.1, 1 - ((Math.round(10 * growth('decay', cauldronCostLvl, 90, 100, false)) / 10)) / 100);
       const barleyBrewVialBonus = getVialsBonusByStat(state?.account?.alchemy?.vials, 'AlchBubbleCost');
       const undevelopedBubbleBonus = getBubbleBonus(state?.account, 'UNDEVELOPED_COSTS', false);
@@ -100,7 +101,7 @@ const Bubbles = () => {
       ? (state?.account?.alchemy?.bubbles?.[cauldronName]?.[1]?.level || 0)
       : 0;
     const shopBargainBought = bargainTag || 0;
-    const smrtAchievement = state?.account?.achievements[108]?.completed;
+    const smrtAchievement = getAchievementStatus(state?.account?.achievements, 108);
     return calcBubbleMatCost(bubbleIndex, myFirstChemSet ? 2 : 1, bubbleLv, baseCost, isLiquid, cauldronCostLvl,
       undevelopedBubbleLv, barleyBrewLvl, lastBubbleLvl, classMultiplierLvl,
       shopBargainBought, smrtAchievement, multiBubble);
@@ -473,7 +474,7 @@ const AdditionalInfo = ({
             singleLevelCost,
             total
           } = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldron);
-          const x1Extension = ['sail', 'bits', 'w6item'];
+          const x1Extension = ['sail', 'bits', 'w6item', 'w7item'];
           const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str))
             ? `${rawName}_x1`
             : rawName;
@@ -500,6 +501,11 @@ const AdditionalInfo = ({
             else if (essences.hasOwnProperty(rawName)) {
               amount = account?.summoning?.essences?.[essences?.[rawName]];
             }
+          }
+          else if (rawName.includes('W7item')) {
+            const discoveryIndexes = { 'W7item0': 0, 'W7item1': 1, 'W7item2': 2, 'W7item3': 3 };
+            const flatDiscoveries = account?.spelunking?.discoveries?.flat() || [];
+            amount = flatDiscoveries?.[discoveryIndexes?.[rawName]]?.amount;
           }
           else {
             amount = account?.storage?.list?.find(({ rawName: storageRawName }) => (storageRawName === rawName))?.amount;
@@ -635,7 +641,7 @@ const UpgradeableBubblesList = ({ bubbles, accumulatedCost, account }) => {
               <Stack direction={'row'} justifyContent={'center'} gap={1}>
                 {itemReq?.map(({ rawName }, index) => {
                   if (rawName === 'Blank' || rawName === 'ERROR' || rawName.includes('Liquid')) return null;
-                  const x1Extension = ['sail', 'bits', 'w6item'];
+                  const x1Extension = ['sail', 'bits', 'w6item', 'w7item'];
                   const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str))
                     ? `${rawName}_x1`
                     : rawName;

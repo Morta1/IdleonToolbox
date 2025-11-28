@@ -317,8 +317,8 @@ const AppProvider = ({ children }) => {
         }
         setAuthCounter((counter) => counter + 1);
       } catch (error) {
-        console.error('Error: ', error?.stack)
-        dispatch({ type: 'loginError', data: error?.stack });
+        console.error('Error: ', error)
+        dispatch({ type: 'loginError', data: error?.message });
       }
     },
     waitingForAuth ? authCounter === 0 ? 1000 : 4000 : null

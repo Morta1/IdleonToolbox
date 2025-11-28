@@ -42,7 +42,8 @@ const parseSpelunking = (account, characters, rawSpelunking, rawTowerInfo) => {
         hp: getDiscoveryHp(rock),
         powerReq,
         powerReqFormatted: formatDiscoveryPowerReq(powerReq, isScalingRock),
-        acquired: !!(rawDiscoveries || [])?.find((discovery) => discovery === rock?.name)
+        acquired: !!(rawDiscoveries || [])?.find((discovery) => discovery === rock?.name),
+        amount: rawSpelunking?.[19]?.[index] ?? 0,
       }
     })
   });
@@ -855,7 +856,7 @@ export const isEtherealBonusUnlocked = (account) => {
 }
 
 // Power-affecting upgrade indices: 0 (basePower), 1, 2, 3, 14, 15, 16, 17 (powerMulti)
-const POWER_UPGRADE_INDICES = [0, 1, 2, 3, 14, 15, 16, 17];
+const POWER_UPGRADE_INDICES = [0, 1, 2, 3, 14, 15, 16, 17, 46];
 // Amber gain-affecting upgrade indices: 6, 7, 8, 9, 10, 20, 21, 41, 44, 51
 const AMBER_GAIN_UPGRADE_INDICES = [6, 7, 8, 9, 10, 20, 21, 41, 44, 51];
 
