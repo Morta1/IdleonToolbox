@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/account/world-3/traps", [
+  "static/chunks/8826e0d0b7e9d4f5.js",
+  "static/chunks/e0cdafc7a2ee6fe7.js",
+  "static/chunks/75e52f503ffb0e59.js",
+  "static/chunks/0ab8d45e25542a0f.js",
+  "static/chunks/09257f990d4d13a4.js",
+  "static/chunks/3c0e91deba76e4b1.js",
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/dc1efa255576d82e.js",
+  "static/chunks/cfb136a2c4705ea3.js",
+  "static/chunks/ad01d767f11a010d.js",
+  "static/chunks/cbc67c9543d2016a.js",
+  "static/chunks/403c49ca47413a4e.js",
+  "static/chunks/f0b03e6e334a00b1.js",
+  "static/chunks/a4df4b21675e4c4b.js",
+  "static/chunks/e7027f1bb07f867b.js",
+  "static/chunks/0caf206ab92738d6.js",
+  "static/chunks/turbopack-59fc37800741c7b4.js"
+])
