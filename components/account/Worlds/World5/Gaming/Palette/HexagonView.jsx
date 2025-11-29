@@ -3,10 +3,9 @@ import { cleanUnderscore, notateNumber, prefix, commaNotation } from '../../../.
 import React from 'react';
 
 const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemMatchesSearch, searchTerm, selectedSlots }) => {
-  const hexagonItems = palette?.slice(0, 37) || []; // Only first 37 items (exclude final bonus)
 
   // Find top 3 with highest chance values
-  const itemsWithIndex = hexagonItems
+  const itemsWithIndex = palette
     .map((item, index) => ({ item, index, chance: item?.chance || 0 }))
     .filter(({ chance }) => chance > 0 && chance < Infinity);
 
@@ -33,7 +32,7 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
           margin: 'auto'
         }}
       >
-        {hexagonItems.map((item, index) => {
+        {palette.map((item, index) => {
           if (typeof item !== 'object' || !item) return null;
 
           const { name, description, bonus, level, chance, x0, x1, x2, active } = item;

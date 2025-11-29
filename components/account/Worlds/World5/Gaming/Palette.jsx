@@ -133,7 +133,7 @@ const Palette = ({ account }) => {
       </Stack>
     </Stack>
     {viewMode === 'card' ? (
-      <CardView filteredPalette={filteredPalette} />
+      <CardView filteredPalette={filteredPalette} selectedSlots={selectedSlots} />
     ) : (
       <HexagonView
         palette={palette}

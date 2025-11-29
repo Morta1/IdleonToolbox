@@ -3,7 +3,14 @@ import { cleanUnderscore, notateNumber, commaNotation } from '../../../../../../
 import React from 'react';
 
 
-const CardView = ({ filteredPalette }) => {
+const CardView = ({ filteredPalette, selectedSlots }) => {  
+  const itemsWithIndex = filteredPalette
+    .map((item, index) => ({ item, index, chance: item?.chance || 0 }))
+    .filter(({ chance }) => chance > 0 && chance < Infinity);
+
+  const sortedByChance = [...itemsWithIndex].sort((a, b) => b.chance - a.chance);
+  const topIndices = new Set(sortedByChance.slice(0, selectedSlots ?? 3).map(({ index }) => index));
+
   return (
     <Stack gap={2} direction={'row'} flexWrap={'wrap'} sx={{ maxWidth: 300 * 7 }}>
       {filteredPalette?.map((item, index) => {
@@ -12,6 +19,7 @@ const CardView = ({ filteredPalette }) => {
 
         const { name, description, bonus, level, chance, active } = item;
         const hasBonus = bonus !== undefined && bonus !== null && bonus !== 0;
+        const isTop3 = topIndices.has(index);
         const chanceValue = 1 / chance;
         const formattedChance = chanceValue > 999999 ? notateNumber(chanceValue, 'Big') : commaNotation(chanceValue);
 
@@ -26,7 +34,7 @@ const CardView = ({ filteredPalette }) => {
             }}
           >
             <CardContent>
-              <Stack direction="row" alignItems="center" gap={1} mb={1}>
+              <Stack direction="row" alignItems="center" gap={1} mb={1} flexWrap="wrap">
                 <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>
                   {cleanUnderscore(name || `Palette ${index + 1}`)}
                 </Typography>
@@ -36,6 +44,18 @@ const CardView = ({ filteredPalette }) => {
                     color="primary"
                     size="small"
                     sx={{ fontSize: '0.75rem', fontWeight: 'bold' }}
+                  />
+                )}
+                {isTop3 && (
+                  <Chip
+                    label="FASTEST TO LEVEL"
+                    size="small"
+                    sx={{
+                      fontSize: '0.7rem',
+                      fontWeight: 'bold',
+                      backgroundColor: '#d18d28',
+                      color: '#000'
+                    }}
                   />
                 )}
               </Stack>
