@@ -176,6 +176,10 @@ const calcPointsPercent = (bonus, quantity) => {
       return Math.pow((1.2 * (6 * (bonus?.x1) - quantity)) / (7 * (bonus?.x1) - quantity), 5);
     }
   }
+  else if (4 === bonus?.x2) {
+    const minValue = Math.min(bonus?.x1, quantity);
+    return Math.pow((2 * minValue) / (minValue + bonus?.x1), 0.7);
+  }
   else {
     return 0;
   }

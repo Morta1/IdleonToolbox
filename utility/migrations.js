@@ -774,6 +774,24 @@ export const migrateToVersion32 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion33 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  // Add hatRack alert configuration to World 3
+  if (dashboardConfig?.account?.['World 3'] && !dashboardConfig.account['World 3'].hatRack) {
+    dashboardConfig.account['World 3'].hatRack = {
+      checked: true,
+      options: [{ name: 'hatsMissing', checked: true }]
+    };
+  }
+
+  dashboardConfig.version = 33;
+  return dashboardConfig;
+}
+
 
 
 export const migrateConfig = (baseTrackers, userConfig) => {
@@ -875,6 +893,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 31) {
       migratedConfig = migrateToVersion32(migratedConfig);
+    }
+    if (migratedConfig?.version === 32) {
+      migratedConfig = migrateToVersion33(migratedConfig);
     }
 
   }

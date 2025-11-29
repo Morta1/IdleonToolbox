@@ -274,6 +274,12 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 3']?.traps?.overdue > 0 ?
                 <Alert title={`${alerts?.['World 3']?.traps?.overdue} traps are overdue`}
                   iconPath={'data/TrapBoxSet1'} /> : null}
+              {alerts?.['World 3']?.hatRack?.missingHats?.length > 0 ?
+                alerts?.['World 3']?.hatRack?.missingHats?.map(({ itemName, owner, rawName }, index) =>
+                  <Alert
+                    key={`missing-hat-${rawName}-${index}`}
+                    title={`${cleanUnderscore(itemName)} is missing from hat rack (${owner})`}
+                    iconPath={`data/${rawName}`} />) : null}
             </Stack>
           </Stack> : null}
           {!emptyAlertRows?.['World 4'] ? <Stack direction={'row'} gap={4}>

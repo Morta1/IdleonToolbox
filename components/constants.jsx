@@ -119,7 +119,8 @@ export const PAGES = {
         { label: 'Traps', icon: 'data/TrapBoxSet1' },
         { label: 'saltLick', icon: 'data/ConTower3' },
         { label: 'construction', icon: 'data/ClassIcons49', tabs: ['Main', 'Cog stat calculator'] },
-        { label: 'armorSmithy', icon: 'etc/Armor_Set_Smithy' }
+        { label: 'armorSmithy', icon: 'etc/Armor_Set_Smithy' },
+        { label: 'hatRack', icon: 'data/HatHelpA' }
       ]
     },
     'world 4': {

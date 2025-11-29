@@ -4,6 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.18',
+    'gameVer': '2.0.45',
+    'date': '29/11/2025',
+    'features': [
+      'Updated the website with version 2.0.47 data and assets',
+      'Added hat rack page under Account -> World 3',
+      'Added hat rack alerts to the dashboard'
+    ],
+    'fixes': [
+    ]
+  },
+  {
     'ver': '3.3.17',
     'gameVer': '2.0.45',
     'date': '29/11/2025',
