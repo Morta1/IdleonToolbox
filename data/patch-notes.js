@@ -10,9 +10,10 @@ export const patchNotes = [
     'features': [
       'Updated the website with version 2.0.47 data and assets',
       'Added hat rack page under Account -> World 3',
-      'Added hat rack alerts to the dashboard'
+      'Added hat rack alerts to the dashboard (World 3)',
     ],
     'fixes': [
+      'Updated tome calculation for bubble levels'
     ]
   },
   {
