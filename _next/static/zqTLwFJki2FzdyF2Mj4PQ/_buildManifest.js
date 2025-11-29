@@ -174,7 +174,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0b9cb9e16b2e5e1d.js"
   ],
   "/account/world-5/gaming": [
-    "static/chunks/fabe8f1a321fede6.js"
+    "static/chunks/fddbff9405f00d33.js"
   ],
   "/account/world-5/hole": [
     "static/chunks/773eaa77dbefea70.js"

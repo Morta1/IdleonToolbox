@@ -11,10 +11,10 @@ __turbopack_load_page_chunks__("/account/world-5/gaming", [
   "static/chunks/dc1efa255576d82e.js",
   "static/chunks/a0f10a051705e44b.js",
   "static/chunks/403c49ca47413a4e.js",
-  "static/chunks/3bac167a4272dd51.js",
+  "static/chunks/9573872fd48ced11.js",
   "static/chunks/cbc67c9543d2016a.js",
   "static/chunks/7a88b545e6c2aae9.js",
   "static/chunks/f8d9ce8c1ac63fa8.js",
   "static/chunks/f6b808aaa891ec64.js",
-  "static/chunks/turbopack-d94dd1ecd52bba18.js"
+  "static/chunks/turbopack-07127655020acbe2.js"
 ])
