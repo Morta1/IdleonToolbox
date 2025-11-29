@@ -4,6 +4,24 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.17',
+    'gameVer': '2.0.45',
+    'date': '29/11/2025',
+    'features': [
+      'Added level up / unlock chance display in gaming palette page',
+      'Added "Fastest to level" indicator in gaming palette page',
+      'Added palette luck breakdown in gaming palette page',
+      'Added selected slots display in gaming palette page',
+      'Added daily charm roll count display in sneaking page',
+      'Added timers for villagers level up in the dashboard'
+    ],
+    'fixes': [
+      'Fixed a bug where starsign bonuses were not being calculated correctly',
+      'Fixed exotic market alert showing even if exotic market is not available',
+      'Fixed a bug where Palette luck was not being calculated correctly'
+    ]
+  },
+  {
     'ver': '3.3.16',
     'gameVer': '2.0.45',
     'date': '27/11/2025',
@@ -12,7 +30,6 @@ export const patchNotes = [
       'Monument timers are now shown as "current / max soft cap" in the dashboard (with a timer to soft cap on hover)',
       'Added an alert for available cheaper masterclass upgrades (due to a legend talent)',
       'Added an alert for available exotic market purchases',
-      
     ],
     'fixes': [
       'Fixed a bug where the activity filter would not show when character is afk in divinity with goat god linked',
@@ -28,7 +45,7 @@ export const patchNotes = [
     'features': [
       'Updated the website with version 2.0.46 data and assets',
       'Added Bubba page under Account -> Clickers with upgrades, bonuses and meatslice rate',
-      'Moved Owl and Kangaroo pages to Account -> Clickers', 
+      'Moved Owl and Kangaroo pages to Account -> Clickers',
     ],
     'fixes': []
   },

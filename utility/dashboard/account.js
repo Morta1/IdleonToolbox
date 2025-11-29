@@ -945,7 +945,7 @@ export const getWorld6Alerts = (account, fields, options) => {
         farming.beanTrade = account?.farming?.beanTrade;
       }
     }
-    if (exoticPurchases?.checked) {
+    if (exoticPurchases?.checked && account?.spelunking?.loreBosses?.[3]?.defeated) {
       const exoticMarketUpgradesPurchased = account?.farming?.exoticMarketUpgradesPurchased ?? 0;
       const exoticMarkeMaxPurchases = account?.farming?.exoticMarkeMaxPurchases ?? 4;
       if (exoticMarketUpgradesPurchased < exoticMarkeMaxPurchases) {

@@ -169,13 +169,15 @@ const Data = () => {
       <Stack direction={'column'} gap={1} flexWrap={'wrap'}>
         <Section title={'Data'} description={'This is idleon toolbox formatted data, use this when asking for support'}>
           <ButtonStyle component={'span'} variant={'outlined'} startIcon={<FileCopyIcon/>}
-                       onClick={handleCopyITRaw}>
-            Copy
+                       onClick={handleCopyITRaw} size={'large'}>
+            Copy Data for Support
           </ButtonStyle>
-          <ButtonStyle sx={{ ml: 'auto', minWidth: 32 }} component={'span'} variant={'outlined'} size={'small'}
-                       onClick={() => setOpen(true)}>
-            <VisibilityIcon fontSize={'small'}/>
-          </ButtonStyle>
+          <Tooltip title={'View raw JSON data'}>
+            <ButtonStyle sx={{ ml: 'auto', minWidth: 32, opacity: 0.6 }} component={'span'} variant={'text'} size={'small'}
+                         onClick={() => setOpen(true)}>
+              <VisibilityIcon fontSize={'small'}/>
+            </ButtonStyle>
+          </Tooltip>
           <Dialog open={open} onClose={() => setOpen(false)}>
             <DialogTitle>
               <Stack direction={'row'} justifyContent={'space-between'}>
@@ -188,7 +190,7 @@ const Data = () => {
             </DialogTitle>
             <DialogContent>
               <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>
-                {JSON.stringify(JSON.parse(localStorage.getItem('rawJson')), null, 2)}
+                {JSON.stringify(JSON.parse(localStorage.getItem('rawJson'))?.data, null, 2)}
               </div>
             </DialogContent>
           </Dialog>

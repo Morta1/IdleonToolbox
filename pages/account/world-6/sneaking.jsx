@@ -28,7 +28,8 @@ const Sneaking = () => {
     gemStones,
     ninjaMasteryBonuses,
     ninjaMastery,
-    itemsMaxLevel
+    itemsMaxLevel,
+    dailyCharmRollCount
   } = state?.account?.sneaking || {};
 
   return <>
@@ -38,6 +39,7 @@ const Sneaking = () => {
     />
     <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Jade coins'} value={notateNumber(jadeCoins)} icon={`etc/jade_coin.png`}/>
+      <CardTitleAndValue title={'Daily charm roll count'} value={dailyCharmRollCount || '0'} />
       <CardTitleAndValue title={'Items max level'} stackProps>
         <Stack>
           <Tooltip title={<Breakdown breakdown={itemsMaxLevel} skipNotation/>}>

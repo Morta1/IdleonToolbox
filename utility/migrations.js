@@ -735,6 +735,45 @@ export const migrateToVersion31 = (config) => {
   return dashboardConfig
 }
 
+export const migrateToVersion32 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  // Migrate individual villager timers to grouped "villagers" timer
+  if (dashboardConfig?.timers?.['World 5']) {
+    const world5Timers = dashboardConfig.timers['World 5'];
+    const villagerTimerNames = ['villagerExplore', 'villagerEngineer', 'villagerBonuses', 'villagerMeasure', 'villagerStudies'];
+    
+    // Check if any individual villager timers exist
+    const hasIndividualTimers = villagerTimerNames.some(name => world5Timers[name]);
+    
+    if (hasIndividualTimers) {
+      // Determine if any were checked (preserve user preference)
+      const anyChecked = villagerTimerNames.some(name => world5Timers[name]?.checked);
+      
+      // Remove individual villager timers
+      const { villagerExplore, villagerEngineer, villagerBonuses, villagerMeasure, villagerStudies, ...restTimers } = world5Timers;
+      
+      // Add grouped villagers timer
+      dashboardConfig.timers['World 5'] = {
+        ...restTimers,
+        villagers: { checked: anyChecked, options: [] }
+      };
+    } else if (!world5Timers?.villagers) {
+      // If no individual timers exist and villagers doesn't exist, add it with default checked
+      dashboardConfig.timers['World 5'] = {
+        ...world5Timers,
+        villagers: { checked: true, options: [] }
+      };
+    }
+  }
+
+  dashboardConfig.version = 32;
+  return dashboardConfig
+}
+
 
 
 export const migrateConfig = (baseTrackers, userConfig) => {
@@ -833,6 +872,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 30) {
       migratedConfig = migrateToVersion31(migratedConfig);
+    }
+    if (migratedConfig?.version === 31) {
+      migratedConfig = migrateToVersion32(migratedConfig);
     }
 
   }

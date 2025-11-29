@@ -1,15 +1,18 @@
-import { Card, CardContent, Stack, Typography, ToggleButtonGroup, ToggleButton, Box, Tooltip, TextField } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '../../../../../utility/helpers';
+import { Stack, ToggleButtonGroup, ToggleButton, TextField, Typography } from '@mui/material';
+import { cleanUnderscore, notateNumber } from '../../../../../utility/helpers';
 import { CardTitleAndValue } from '../../../../common/styles';
 import React, { useState, useMemo } from 'react';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import { IconLayoutDashboardFilled } from '@tabler/icons-react';
+import { IconLayoutDashboardFilled, IconInfoCircleFilled } from '@tabler/icons-react';
+import CardView from './Palette/CardView';
+import HexagonView from './Palette/HexagonView';
+import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
+import Tooltip from '@components/Tooltip';
 
 const Palette = ({ account }) => {
-  const { palette, paletteFinalBonus, paletteLuck } = account?.gaming || {};
+  const { palette, paletteFinalBonus, paletteLuck, selectedSlots } = account?.gaming || {};
   const [viewMode, setViewMode] = useState('card');
   const [searchTerm, setSearchTerm] = useState('');
-
   if (!palette) return null;
 
   // The palette array has 37 items plus a final bonus value at index 37
@@ -79,198 +82,6 @@ const Palette = ({ account }) => {
     };
   }, [searchTerm]);
 
-  const renderCardView = () => {
-    return (
-      <Stack gap={2} direction={'row'} flexWrap={'wrap'} sx={{ maxWidth: 300 * 7 }}>
-        {filteredPalette?.map((item, index) => {
-          // Skip if item is not an object (the final bonus is a number)
-          if (typeof item !== 'object' || !item) return null;
-
-          const { name, description, bonus, level } = item;
-          const hasBonus = bonus !== undefined && bonus !== null && bonus !== 0;
-
-          return (
-            <Card
-              key={`palette-${index}`}
-              sx={{
-                width: 300,
-                border: hasBonus ? '1px solid' : '',
-                borderColor: hasBonus ? 'success.main' : '',
-                opacity: !hasBonus ? 0.5 : 1
-              }}
-            >
-              <CardContent>
-                <Typography variant={'body1'} sx={{ fontWeight: 'bold', mb: 1 }}>
-                  {cleanUnderscore(name || `Palette ${index + 1}`)}
-                </Typography>
-                {level !== undefined && (
-                  <Typography variant={'body2'} sx={{ mb: 1, color: 'text.secondary' }}>
-                    Level: {notateNumber(level)}
-                  </Typography>
-                )}
-                {description && (
-                  <Typography variant={'body2'} sx={{ mb: 1 }}>
-                    {cleanUnderscore(description)}
-                  </Typography>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-      </Stack>
-    );
-  };
-
-  const renderHexagonView = () => {
-    const hexagonItems = palette?.slice(0, 37) || []; // Only first 37 items (exclude final bonus)
-
-    return (
-      <Box
-        sx={{
-          position: 'relative',
-          width: '100%',
-          minHeight: 600, // Minimum height to ensure enough space
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          overflow: 'auto'
-        }}
-      >
-        <Box
-          sx={{
-            position: 'relative',
-            width: gridBounds.width,
-            height: gridBounds.height,
-            margin: 'auto'
-          }}
-        >
-          {hexagonItems.map((item, index) => {
-            if (typeof item !== 'object' || !item) return null;
-
-            const { name, description, bonus, level, x0, x1, x2 } = item;
-            const position = hexagonPositions[index];
-            const hasLevel = level !== undefined && level > 0.5;
-            const hexImage = hasLevel ? null : 'GamingHexB.png';
-            const matchesSearch = itemMatchesSearch(item);
-
-            // RGB color values (x0, x1, x2 are R, G, B from the game's palette data)
-            const r = x0 !== undefined ? Math.round(Math.max(0, Math.min(255, x0))) : 255;
-            const g = x1 !== undefined ? Math.round(Math.max(0, Math.min(255, x1))) : 255;
-            const b = x2 !== undefined ? Math.round(Math.max(0, Math.min(255, x2))) : 255;
-
-            // Only apply color if level > 0.5 and color is not white
-            const shouldColorize = hasLevel && (r !== 255 || g !== 255 || b !== 255);
-            const colorValue = `rgb(${r}, ${g}, ${b})`;
-
-            return (
-              <Tooltip
-                key={`hexagon-${index}`}
-                title={
-                  <Stack>
-                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                      {cleanUnderscore(name || `Palette ${index + 1}`)}
-                    </Typography>
-                    {level !== undefined && (
-                      <Typography>Lv. {notateNumber(level)}</Typography>
-                    )}
-                    {description && (
-                      <Typography>{cleanUnderscore(description)}</Typography>
-                    )}
-                  </Stack>
-                }
-              >
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    left: position.x - gridBounds.offsetX,
-                    top: position.y - gridBounds.offsetY,
-                    width: hexagonSize,
-                    height: hexagonSize,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    opacity: searchTerm.trim() && !matchesSearch ? 0.3 : 1,
-                    filter: searchTerm.trim() && !matchesSearch ? 'grayscale(70%)' : 'none',
-                    ...(hasLevel ? {
-                      '&:hover': {
-                        transform: 'scale(1.02)',
-                        zIndex: 10
-                      }
-                    } : {})
-                  }}
-                >
-                  {hexImage ? (
-                    <Box
-                      sx={{
-                        position: 'relative',
-                        width: '100%',
-                        height: '100%'
-                      }}
-                    >
-                      <img
-                        src={`${prefix}data/${hexImage}`}
-                        alt={cleanUnderscore(name || `Palette ${index + 1}`)}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'contain'
-                        }}
-                      />
-                    </Box>
-                  ) : (
-                    <Box
-                      sx={{
-                        position: 'relative',
-                        width: '100%',
-                        height: '100%',
-                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                        border: `1px solid black`,
-                        backgroundColor: '#ffffff',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      {shouldColorize && (
-                        <Box
-                          sx={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            backgroundColor: colorValue,
-                            clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                            opacity: 0.7,
-                            pointerEvents: 'none'
-                          }}
-                        />
-                      )}
-                      {level !== undefined && level > 0 && (
-                        <Typography
-                          sx={{
-                            position: 'relative',
-                            fontSize: '0.875rem',
-                            fontWeight: 'bold',
-                            color: '#000000',
-                            textShadow: '1px 1px 2px rgba(255, 255, 255, 0.8)',
-                            pointerEvents: 'none',
-                            zIndex: 2
-                          }}
-                        >
-                          Lv. {level}
-                        </Typography>
-                      )}
-                    </Box>
-                  )}
-                </Box>
-              </Tooltip>
-            );
-          })}
-        </Box>
-      </Box>
-    );
-  };
-
   return <>
     <Stack direction="row" alignItems="center" mb={3} gap={2} flexWrap="wrap">
       {paletteFinalBonus !== undefined && (
@@ -280,11 +91,17 @@ const Palette = ({ account }) => {
         />
       )}
       {paletteLuck !== undefined && (
-        <CardTitleAndValue
+        <CardWithBreakdown
           title={'Palette Luck'}
-          value={`${notateNumber(paletteLuck, 'MultiplierInfo')}x`}
+          value={`${notateNumber(paletteLuck?.value, 'MultiplierInfo')}x`}
+          breakdown={paletteLuck?.breakdown}
+          notation={'MultiplierInfo'}
         />
       )}
+      <CardTitleAndValue
+        title={'Selected Slots'}
+        value={selectedSlots}
+      />
       <TextField
         label="Search by name or description"
         variant="outlined"
@@ -315,7 +132,19 @@ const Palette = ({ account }) => {
         </ToggleButtonGroup>
       </Stack>
     </Stack>
-    {viewMode === 'card' ? renderCardView() : renderHexagonView()}
+    {viewMode === 'card' ? (
+      <CardView filteredPalette={filteredPalette} />
+    ) : (
+      <HexagonView
+        palette={palette}
+        hexagonPositions={hexagonPositions}
+        gridBounds={gridBounds}
+        hexagonSize={hexagonSize}
+        itemMatchesSearch={itemMatchesSearch}
+        searchTerm={searchTerm}
+        selectedSlots={selectedSlots}
+      />
+    )}
   </>;
 };
 

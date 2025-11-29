@@ -766,7 +766,7 @@ export const getItemCapacity = (type = '', character, account, forceMaxCapacity)
   const matCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Material_Items', character);
   const allCarryStamps = getStampsBonusByEffect(account, 'Carry_Capacity_for_ALL_item_types!');
   const talentBonus = getTalentBonus(character?.flatTalents, 'EXTRA_BAGS', false, false, character?.addedLevels, true, forceMaxCapacity);
-  const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 17);
+  const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 11);
   const allCap = getAllCap(character, account, forceMaxCapacity);
   // return Math.floor((v._customBlock_MaxCapacity("AllCapBASE")
   //     + c.asNumber(a.engine.getGameAttribute("MaxCarryCap").h.bCraft))

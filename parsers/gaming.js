@@ -16,7 +16,7 @@ import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
-import { getJadeEmporiumBonus } from '@parsers/world-6/sneaking';
+import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 
@@ -119,8 +119,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, spelunkRaw, characters, account
     chance: getNewMutationChance(unlockedMutations, bp)
   }));
 
-  const { palette, paletteFinalBonus } = getPalette(account, spelunkRaw);
-  const paletteLuck = getPaletteLuck(paletteFinalBonus, account, characters);
+  const { palette, paletteFinalBonus, paletteLuck } = getPalette(account, spelunkRaw, characters);
 
   return {
     palette,
@@ -153,7 +152,8 @@ const parseGaming = (gamingRaw, gamingSproutRaw, spelunkRaw, characters, account
     logBook,
     poingHighscore,
     poingMulti,
-    totalPlantsPicked
+    totalPlantsPicked,
+    selectedSlots: spelunkRaw?.[10]?.reduce((res, value) => value !== -1 ? res + 1 : res, 0)
   };
 }
 
@@ -470,14 +470,21 @@ export const calculateSnailEncouragementForSuccessChance = (snailLevel, desiredS
   return low; // Return low as a whole number
 }
 
-const getPalette = (account, spelunkRaw) => {
+const getPalette = (account, spelunkRaw, characters) => {
   const palette = [];
   let sum = 0;
+  const selectedSlots = spelunkRaw?.[10];
+  // Calculate sum first (needed for paletteLuck)
+  for (let i = 0; i < 37; i++) {
+    sum += spelunkRaw?.[9]?.[i] ?? 0;
+  }
 
+  // Build palette items and calculate level up chance in the same loop
   for (let i = 0; i < 37; i++) {
     const spelunkValue = spelunkRaw?.[9]?.[i];
     const paletteMultiplier = gamingPalette?.[i]?.x4;
     const paletteType = gamingPalette?.[i]?.x5;
+    const active = selectedSlots?.includes(i) ?? false;
     let bonus;
     if (paletteType === 1) {
       bonus = (spelunkValue / (spelunkValue + 25)) * paletteMultiplier;
@@ -498,16 +505,38 @@ const getPalette = (account, spelunkRaw) => {
       ...gamingPalette?.[i],
       level: spelunkValue,
       bonus,
-      description
+      description,
+      active
     });
-    sum += spelunkValue;
   }
 
   const finalBonus = Math.round(sum * (1 + getLegendTalentBonus(account, 10) / 100));
+  const paletteLuck = getPaletteLuck(finalBonus, { ...account, gaming: { ...account?.gaming, palette } }, characters);
   palette.push(finalBonus);
+
+  for (let i = 0; i < 37; i++) {
+    const spelunkValue = spelunkRaw?.[9]?.[i];
+
+    // Calculate level up chance
+    const baseValue = gamingPalette?.[i]?.x6;
+    const multiplier = Math.max(1.2, (gamingPalette?.[i]?.x7 ?? 1.25) - 0.05);
+    let levelUpChance;
+    if (baseValue && spelunkValue >= 0) {
+      levelUpChance = paletteLuck?.value * (1 / (baseValue * Math.pow(multiplier, spelunkValue)));
+      levelUpChance = Math.min(1, levelUpChance);
+    }
+    if (spelunkValue >= 1) {
+      palette[i].chance = levelUpChance;
+    } else {
+      palette[i].chance = paletteLuck?.value
+        * (1 / gamingPalette?.[i]?.x8);
+    }
+  }
+
   return {
     palette,
-    paletteFinalBonus: finalBonus
+    paletteFinalBonus: finalBonus,
+    paletteLuck
   };
 }
 
@@ -527,14 +556,33 @@ export const getPaletteLuck = (paletteFinalBonus, account, characters) => {
   const superbit28Unlocked = isSuperbitUnlocked(account, 'Lucky_Snail') ? 1 : 0;
   const acornShopBonus2 = account?.gaming?.imports?.[2]?.acornShop?.[2]?.bonus ?? 0;
   const exoticBonus44 = getExoticMarketBonus(account, 44) ?? 0;
-  const jadeEmporiumBonus = getJadeEmporiumBonus(account, 'Palette_Slot') ?? 0;
+  const jadeEmporiumBonus = isJadeBonusUnlocked(account, 'Palette_Slot');
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Palette_Luck')?.bonus ?? 0;
 
-  return (1 + superbit42Unlocked)
+  const value = (1 + superbit42Unlocked)
     * (1 + meritocracyBonus / 100)
     * (1 + (paletteBonus3 +
       ((paletteFinalBonus + loreEpiBonus) * superbit38Unlocked +
         (Math.max(0, 3 * (gamingLevel - 200) * superbit45Unlocked) +
           (20 * Math.max(0, snailLevel - 25) * superbit28Unlocked
             + (acornShopBonus2 + exoticBonus44 + (100 * jadeEmporiumBonus + arcadeBonus))))) / 100));
+
+  return {
+    value,
+    breakdown: [
+      { name: 'Bigger Palette', value: superbit42Unlocked },
+      { name: 'Meritocracy', value: meritocracyBonus },
+      { name: 'Palette', value: paletteBonus3 },
+      { name: 'Lore', value: loreEpiBonus },
+      { name: 'Colourful Luck', value: superbit38Unlocked },
+      { name: 'Gaming Level', value: gamingLevel },
+      { name: 'Gamer Luck', value: superbit45Unlocked },
+      { name: 'Snail Level', value: snailLevel },
+      { name: 'Lucky Snail', value: superbit28Unlocked },
+      { name: 'Acorn Shop', value: acornShopBonus2 },
+      { name: 'Exotic shop', value: exoticBonus44 },
+      { name: 'Jade Emporium', value: jadeEmporiumBonus },
+      { name: 'Arcade', value: arcadeBonus }
+    ]
+  }
 }

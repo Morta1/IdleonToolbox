@@ -41,7 +41,7 @@ const GoogleLogin = () => {
       console.error(err);
     }
   }
-console.log(state?.loginError)
+
   return <Stack alignItems={'center'} gap={2} sx={{ px: 5 }}>
     <Typography textAlign={'center'}>To sign in with Google, go to the following url and enter the code below to verify
       it is

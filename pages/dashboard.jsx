@@ -17,7 +17,7 @@ import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 31,
+  version: 32,
   account: {
     General: {
       tasks: {
@@ -512,7 +512,8 @@ const baseTrackers = {
     'World 5': {
       monument: { checked: true, options: [] },
       justice: { checked: true, options: [] },
-      wisdom: { checked: true, options: [] }
+      wisdom: { checked: true, options: [] },
+      villagers: { checked: true, options: [] }
     }
   }
 }

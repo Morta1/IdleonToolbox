@@ -5,6 +5,7 @@ import { isRiftBonusUnlocked } from './world-4/rift';
 import { getShinyBonus } from './breeding';
 import { getPlayerLabChipBonus } from '@parsers/lab';
 import { getTesseractBonus } from '@parsers/tesseract';
+import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 
 export const getStarSigns = (idleonData) => {
   const starSignsRaw = tryToParse(idleonData?.StarSg) || idleonData?.StarSignsUnlocked;
@@ -93,12 +94,14 @@ export const getStarSignBonus = (character, account, effectName, forceNanoChip =
     }
 
     if (infiniteStars && !activeStar && starSign?.unlocked) {
+      const silkroadNanochip = getPlayerLabChipBonus(character, account, 15);
+      const chipMulti = silkroadNanochip || forceNanoChip ? 2 : 1;
       starSign = {
         ...starSign,
         bonuses: starSign?.bonuses?.map((bonus) => ({
           ...bonus,
           isInfiniteStar,
-          bonus: starSign?.starName === 'Gordonius_Major' && forceNanoChip ? bonus?.bonus * 2 : bonus?.bonus
+          bonus: bonus?.bonus > 0 ? bonus?.bonus * chipMulti : bonus?.bonus
         }))
       }
     }
@@ -119,9 +122,10 @@ export const getStarSignBonus = (character, account, effectName, forceNanoChip =
   }) => {
     if (effect.toLowerCase().includes(effectName.toLowerCase()) &&
       (active || isInfiniteStar || forcedByEffect)) {
-      const tesseractBonus = getTesseractBonus(account, 40)
+      const tesseractBonus = getTesseractBonus(account, 40);
+      const meritocracyBonus = getMeritocracyBonus(account, 22);
       const calculatedBonus = hasSeraphCosmos
-        ? bonus * Math.min(5, Math.pow(1.1 + Math.min(tesseractBonus, 10) / 100, Math.ceil((summoningLevel + 1) / 20)))
+        ? bonus * (1 + meritocracyBonus / 100) * Math.min(5, Math.pow(1.1 + Math.min(tesseractBonus, 10) / 100, Math.ceil((summoningLevel + 1) / 20)))
         : bonus;
 
       return sum + (isInfiniteStar && bonus < 0 ? 0 : calculatedBonus);

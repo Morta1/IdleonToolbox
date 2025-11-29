@@ -111,20 +111,20 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   // Helper function to calculate max linear multiplier and time until max
   const getMonumentMultiInfo = useMemo(() => {
     if (!account?.hole?.holesObject) return null;
-    
+
     const getMonument = (t) => {
       const holesObject = account.hole.holesObject;
       const maxLinearTime = getMonumentMaxLinearTime(holesObject, t, account);
       const currentTime = holesObject?.extraCalculations?.[Math.round(11 + t)] || 0;
-      const maxLinearMulti = (maxLinearTime / 72e3) 
+      const maxLinearMulti = (maxLinearTime / 72e3)
         * (1 + getMeritocracyBonus(account, 7) / 100)
         * (1 + getLegendTalentBonus(account, 27) / 100);
       const timeUntilMax = Math.max(0, maxLinearTime - currentTime);
       const timeUntilMaxDate = timeUntilMax > 0 ? new Date().getTime() + timeUntilMax * 1000 : null;
-      
+
       return { maxLinearMulti, timeUntilMax, timeUntilMaxDate };
     };
-    
+
     return {
       bravery: getMonument(0),
       justice: getMonument(1),
@@ -343,6 +343,21 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             maxMulti={getMonumentMultiInfo?.wisdom?.maxLinearMulti || 0}
             timeUntilMax={getMonumentMultiInfo?.wisdom?.timeUntilMaxDate}
             icon={`data/Wisdom_Monument_x1.png`} /> : null}
+        {trackers?.['World 5']?.villagers?.checked && account?.finishedWorlds?.World4 && account?.hole?.villagers?.length > 0 ?
+          account?.hole?.villagers?.map((villager, index) => {
+            if (!villager) return null;
+            return <TimerCard
+              key={`villager-timer-${index}`}
+              page={'account/world-5/hole'}
+              tooltipContent={`${villager?.name} level up: ` + (villager?.readyToLevel ? 'Ready!' : getRealDateInMs(new Date().getTime() + villager?.timeLeft))}
+              lastUpdated={lastUpdated}
+              time={villager?.readyToLevel ? new Date().getTime() : new Date().getTime() + villager?.timeLeft}
+              icon={`etc/Villager_${index}.png`}
+              timerPlaceholder={villager?.readyToLevel ? 'Ready to level!' : ''}
+              forcePlaceholder={villager?.readyToLevel}
+            />
+          })
+          : null}
       </Section>}
 
       {trackers?.Etc?.minibosses?.checked && <Section title={'Bosses'}>
@@ -440,7 +455,7 @@ const MonumentCard = ({
   const isOverMax = currentMultiRounded > maxMultiRounded;
   const tooltipContent = isOverMax
     ? `${currentMultiRounded}x / ${maxMultiRounded}x`
-    : timeUntilMax 
+    : timeUntilMax
       ? `Max linear growth: ${getRealDateInMs(timeUntilMax)}`
       : 'At max linear growth';
 

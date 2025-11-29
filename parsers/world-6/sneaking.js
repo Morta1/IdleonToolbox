@@ -210,7 +210,8 @@ const parseSneaking = (rawSneaking, rawSpelunking, serverVars, charactersData, a
     lastLooted,
     ninjaMasteryBonuses,
     ninjaMastery,
-    itemsMaxLevel
+    itemsMaxLevel,
+    dailyCharmRollCount: account?.accountOptions?.[402]
   };
 };
 
