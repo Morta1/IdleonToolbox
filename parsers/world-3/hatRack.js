@@ -1,5 +1,5 @@
 import { tryToParse, notateNumber } from '@utility/helpers';
-import { items } from '../../data/website-data';
+import { items, itemsArray } from '../../data/website-data';
 
 export const getHatRack = (idleonData, account) => {
   const rawSpelunk = tryToParse(idleonData?.Spelunk);
@@ -31,7 +31,7 @@ export const getHatBonuses = (rawSpelunk, account) => {
   const hatBonusesObj = {};
   const hatsUsedList = [];
   const bonusMulti = getHatRackBonusMulti(rawSpelunk);
-  
+
   for (let hatIndex = 0; hatIndex < hatCount; hatIndex++) {
     const hatName = rawHats[hatIndex];
     if (hatName) {
@@ -48,7 +48,7 @@ export const getHatBonuses = (rawSpelunk, account) => {
         modifiedItem.hatIndex = hatIndex;
         modifiedItem.hatMultiplier = bonusMulti;
         hatsUsedList.push(modifiedItem);
-        
+
         // Aggregate UQ bonuses
         for (let uqIndex = 0; uqIndex < 2; uqIndex++) {
           const uqTextKey = 'UQ' + Math.round(uqIndex + 1) + 'txt';
@@ -88,14 +88,14 @@ const getAllPremiumHelmets = (rawSpelunk) => {
   const rawHats = rawSpelunk?.[46] || [];
   const hatsUsedSet = new Set(rawHats);
   const bonusMulti = getHatRackBonusMulti(rawSpelunk);
-  
+
   // Get all premium helmets from items
-  const allPremiumHelmets = Object.entries(items)
-    .filter(([_, item]) => item?.Type === 'PREMIUM_HELMET')
-    .map(([rawName, item]) => {
-      const isAcquired = hatsUsedSet.has(rawName);
+  const allPremiumHelmets = itemsArray
+    .filter((item) => item?.Type === 'PREMIUM_HELMET')
+    .map((item) => {
+      const isAcquired = hatsUsedSet.has(item.rawName);
       const modifiedItem = { ...item };
-      
+
       if (isAcquired) {
         // Apply bonus multiplier for acquired hats
         if (item.UQ1txt && item.UQ1txt != '0' && item.UQ1val && item.UQ1val != 0) {
@@ -106,7 +106,7 @@ const getAllPremiumHelmets = (rawSpelunk) => {
         }
         modifiedItem.hatMultiplier = bonusMulti;
       }
-      
+
       return {
         ...modifiedItem,
         isAcquired
@@ -119,7 +119,7 @@ const getAllPremiumHelmets = (rawSpelunk) => {
       }
       return (a.ID || 0) - (b.ID || 0);
     });
-  
+
   return allPremiumHelmets;
 }
 
