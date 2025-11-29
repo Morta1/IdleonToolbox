@@ -1,0 +1,16 @@
+__turbopack_load_page_chunks__("/account/misc/event-shop", [
+  "static/chunks/5361dc1ac3a7105c.js",
+  "static/chunks/7a88b545e6c2aae9.js",
+  "static/chunks/75e52f503ffb0e59.js",
+  "static/chunks/cbc67c9543d2016a.js",
+  "static/chunks/1079be68ff366a94.js",
+  "static/chunks/cc01ccd93f32e7f5.js",
+  "static/chunks/e9d479a523b98b1d.js",
+  "static/chunks/3c3ec6b627d778c3.js",
+  "static/chunks/5cc599611d293c46.js",
+  "static/chunks/f8d9ce8c1ac63fa8.js",
+  "static/chunks/52283caabf8a3b59.js",
+  "static/chunks/dc1efa255576d82e.js",
+  "static/chunks/403c49ca47413a4e.js",
+  "static/chunks/turbopack-ac79eeb9495a4213.js"
+])
