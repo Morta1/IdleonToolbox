@@ -6,7 +6,7 @@ import Tooltip from '@components/Tooltip';
 import styled from '@emotion/styled';
 import ItemDisplay from '@components/common/ItemDisplay';
 
-const HatRack = ({ hatsUsed, hatBonuses, totalHats, bonusMulti }) => {
+const HatRack = ({ hatsUsed, hatBonuses, totalHats, bonusMulti, allPremiumHelmets }) => {
   const formattedHatBonuses = useMemo(() => {
     const leftColumn = [];
     const rightColumn = [];
@@ -38,9 +38,9 @@ const HatRack = ({ hatsUsed, hatBonuses, totalHats, bonusMulti }) => {
 
   return (
     <>
-      {hatsUsed && hatsUsed.length > 0 && (
+      {allPremiumHelmets && allPremiumHelmets.length > 0 && (
         <Stack my={3}>
-          <Typography variant={'h5'} sx={{ mb: 2 }}>Hat Rack Hats</Typography>
+          <Typography variant={'h5'} sx={{ mb: 2 }}>Premium Helmets</Typography>
           <Card>
             <CardContent>
               <Box
@@ -50,8 +50,8 @@ const HatRack = ({ hatsUsed, hatBonuses, totalHats, bonusMulti }) => {
                   gap: 2
                 }}
               >
-                {hatsUsed.map((hat, index) => {
-                  const hatMultiplierInfo = hat.hatMultiplier ? (
+                {allPremiumHelmets.map((hat, index) => {
+                  const hatMultiplierInfo = hat.isAcquired && hat.hatMultiplier ? (
                     <>
                       <Divider sx={{ my: 1 }} />
                       <TitleAndValue
@@ -61,13 +61,21 @@ const HatRack = ({ hatsUsed, hatBonuses, totalHats, bonusMulti }) => {
                     </>
                   ) : null;
 
+                  const handleClick = () => {
+                    const itemName = (hat.displayName || hat.rawName || '').replace(/ /g, '_');
+                    window.open(`https://idleon.wiki/wiki/${itemName}`, '_blank');
+                  };
+
                   const hatSlot = (
                     <Stack
                       alignItems={'center'}
                       gap={0.5}
+                      onClick={handleClick}
                       sx={{
                         p: 1,
                         borderRadius: 1,
+                        opacity: hat.isAcquired ? 1 : 0.3,
+                        cursor: 'pointer',
                         '&:hover': { bgcolor: 'action.hover' }
                       }}
                     >
@@ -80,12 +88,17 @@ const HatRack = ({ hatsUsed, hatBonuses, totalHats, bonusMulti }) => {
                       <Typography variant={'caption'} textAlign={'center'}>
                         {(hat.displayName || hat.rawName)?.replace(/_/g, ' ')}
                       </Typography>
+                      {!hat.isAcquired && (
+                        <Typography variant={'caption'} color={'text.disabled'} textAlign={'center'}>
+                          Not Acquired
+                        </Typography>
+                      )}
                     </Stack>
                   );
 
                   return (
                     <Tooltip
-                      key={`hat-${hat.rawName}-${hat.hatIndex}-${index}`}
+                      key={`hat-${hat.rawName}-${index}`}
                       title={<ItemDisplay {...hat} additionalInfo={hatMultiplierInfo} />}
                     >
                       {hatSlot}

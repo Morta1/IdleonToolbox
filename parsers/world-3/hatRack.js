@@ -9,11 +9,13 @@ export const getHatRack = (idleonData, account) => {
 const parseHatRack = (rawSpelunk, account) => {
   const bonusMulti = getHatRackBonusMulti(rawSpelunk);
   const { bonuses: hatBonuses, items: hatsUsed } = getHatBonuses(rawSpelunk, account);
+  const allPremiumHelmets = getAllPremiumHelmets(rawSpelunk);
 
   return {
     bonusMulti,
     hatBonuses,
     hatsUsed,
+    allPremiumHelmets,
     totalHats: rawSpelunk?.[46]?.length || 0
   }
 }
@@ -80,5 +82,44 @@ export const getHatBonuses = (rawSpelunk, account) => {
     bonuses: Object.entries(hatBonusesObj).map(([name, value]) => ({ name, value })),
     items: hatsUsedList
   };
+}
+
+const getAllPremiumHelmets = (rawSpelunk) => {
+  const rawHats = rawSpelunk?.[46] || [];
+  const hatsUsedSet = new Set(rawHats);
+  const bonusMulti = getHatRackBonusMulti(rawSpelunk);
+  
+  // Get all premium helmets from items
+  const allPremiumHelmets = Object.entries(items)
+    .filter(([_, item]) => item?.Type === 'PREMIUM_HELMET')
+    .map(([rawName, item]) => {
+      const isAcquired = hatsUsedSet.has(rawName);
+      const modifiedItem = { ...item };
+      
+      if (isAcquired) {
+        // Apply bonus multiplier for acquired hats
+        if (item.UQ1txt && item.UQ1txt != '0' && item.UQ1val && item.UQ1val != 0) {
+          modifiedItem.UQ1val = notateNumber(item.UQ1val * bonusMulti, 'MultiplierInfo');
+        }
+        if (item.UQ2txt && item.UQ2txt != '0' && item.UQ2val && item.UQ2val != 0) {
+          modifiedItem.UQ2val = notateNumber(item.UQ2val * bonusMulti, 'MultiplierInfo');
+        }
+        modifiedItem.hatMultiplier = bonusMulti;
+      }
+      
+      return {
+        ...modifiedItem,
+        isAcquired
+      };
+    })
+    .sort((a, b) => {
+      // Sort by acquired status first (acquired first), then by ID
+      if (a.isAcquired !== b.isAcquired) {
+        return b.isAcquired - a.isAcquired;
+      }
+      return (a.ID || 0) - (b.ID || 0);
+    });
+  
+  return allPremiumHelmets;
 }
 

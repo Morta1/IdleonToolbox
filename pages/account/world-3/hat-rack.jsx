@@ -12,7 +12,8 @@ const HatRackPage = () => {
     bonusMulti,
     hatBonuses,
     hatsUsed,
-    totalHats
+    totalHats,
+    allPremiumHelmets
   } = state?.account?.hatRack || {};
 
   if (!state?.account?.hatRack) return <MissingData name={'hatRack'} />;
@@ -34,6 +35,7 @@ const HatRackPage = () => {
         hatBonuses={hatBonuses}
         totalHats={totalHats}
         bonusMulti={bonusMulti}
+        allPremiumHelmets={allPremiumHelmets}
       />
     </>
   );
