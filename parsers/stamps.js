@@ -249,6 +249,35 @@ export const getStampsBonusByEffect = (account, effectName, character) => {
   }, 0);
 }
 
+export const getExaltedStampBonus = (account) => {
+  const atomBonus = getAtomBonus(account, 'Aluminium_-_Stamp_Supercharger') ?? 0;
+  const charmBonusExalted = getCharmBonus(account, 'Jellypick');
+  const compassBonus = getCompassBonus(account, 76);
+  const armorSetBonus = getArmorSetBonus(account, 'EMPEROR_SET');
+  const eventBonus = getEventShopBonus(account, 18);
+  const paletteBonus = getPaletteBonus(account, 23);
+  const exoticBonus = getExoticMarketBonus(account, 49);
+  const exaltedFragmentFound = account?.spelunking?.exaltedFragmentFound;
+  const legendBonus = getLegendTalentBonus(account, 36);
+
+  return {
+    value: 100 + (atomBonus + charmBonusExalted + compassBonus + armorSetBonus +
+      20 * eventBonus + paletteBonus + exoticBonus + exaltedFragmentFound + legendBonus),
+    breakdown: [
+      { name: 'Base', value: 100 },
+      { name: 'Atom', value: atomBonus },
+      { name: 'Charm', value: charmBonusExalted },
+      { name: 'Compass', value: compassBonus },
+      { name: 'Armor Set', value: armorSetBonus },
+      { name: 'Event', value: 20 * eventBonus },
+      { name: 'Palette', value: paletteBonus },
+      { name: 'Exotic', value: exoticBonus },
+      { name: 'Exalted Fragment', value: exaltedFragmentFound },
+      { name: 'Legend Talent', value: legendBonus },
+    ]
+  };
+}
+
 export const getStampBonus = (account, stampTree, stampName, character) => {
   // In-game display is missing: pristine charm bonus, upgrade vault bonus
   const stampIndex = account?.stamps?.[stampTree]?.findIndex(({ rawName }) => rawName === stampName);
@@ -263,16 +292,8 @@ export const getStampBonus = (account, stampTree, stampName, character) => {
   }
   const isStampExalted = account?.compass?.exaltedStamps?.[stampTree]?.[stampIndex]
   const removeLevelReduction = isJadeBonusUnlocked(account, 'Level_Exemption');
-  const atomBonus = getAtomBonus(account, 'Aluminium_-_Stamp_Supercharge') ?? 0;
-  const charmBonusExalted = getCharmBonus(account, 'Jellypick');
-  const armorSetBonus = getArmorSetBonus(account, 'EMPEROR_SET');
-  const eventBonus = getEventShopBonus(account, 18);
-  const exaltedFragmentFound = account?.spelunking?.exaltedFragmentFound;
-  const exoticBonus = getExoticMarketBonus(account, 49);
-  const legendBonus = getLegendTalentBonus(account, 36);
-  const paletteBonus = getPaletteBonus(account, 23);
-  const exaltedBase = 100 + (atomBonus + (charmBonusExalted + getCompassBonus(account, 76) + armorSetBonus + 20 * eventBonus + paletteBonus + exoticBonus + exaltedFragmentFound + legendBonus));
-  const exaltedBonus = isStampExalted ? 1 + exaltedBase / 100 : 1;
+  const exaltedBase = getExaltedStampBonus(account);
+  const exaltedBonus = isStampExalted ? 1 + exaltedBase.value / 100 : 1;
 
 
   if (stamp?.skillIndex > 0 && !removeLevelReduction) {
@@ -293,6 +314,7 @@ export const getStampBonus = (account, stampTree, stampName, character) => {
       }
     }
   }
+
   let upgradeVaultMulti = 0;
   if (stamp?.stat === 'BaseDmg' || stamp?.stat === 'BaseHp' || stamp?.stat === 'BaseAcc' || stamp?.stat === 'BaseDef') {
     upgradeVaultMulti = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 16);

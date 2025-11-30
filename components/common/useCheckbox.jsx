@@ -12,7 +12,7 @@ const useCheckbox = (label, initial = false) => {
 
   const Element = () => isLoading ? null : <FormControlLabel
     sx={{ width: 'fit-content' }}
-    control={<Checkbox checked={checked} onChange={() => setChecked(prev => !prev)}/>}
+    control={<Checkbox checked={checked} size="small" onChange={() => setChecked(prev => !prev)}/>}
     label={label}
   />;
 

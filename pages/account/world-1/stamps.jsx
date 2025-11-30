@@ -44,6 +44,7 @@ import { IconChevronRight, IconDeviceFloppy, IconInfoCircleFilled } from '@table
 import Button from '@mui/material/Button';
 import { format, isValid } from 'date-fns';
 import useCheckbox from '@components/common/useCheckbox';
+import { getExaltedStampBonus } from '@parsers/stamps';
 
 const Stamps = () => {
   const router = useRouter();
@@ -106,6 +107,7 @@ const Stamps = () => {
   const stampReducer = state?.account?.atoms?.stampReducer;
   const localStamps = useMemo(() => updateStamps(state?.account, state?.characters, forcedGildedStamp, forcedStampReducer, forceMaxCapacity), [forcedGildedStamp,
     forcedStampReducer, forceMaxCapacity, state]);
+  const exaltedMulti = getExaltedStampBonus(state?.account);
 
   const getStampTypeAndBorder = (stamp, mode) => {
     const { materials, level, hasMoney, hasMaterials, greenStackHasMaterials, enoughPlayerStorage } = stamp;
@@ -186,6 +188,15 @@ const Stamps = () => {
             <Typography>{stampsPerDay?.value}</Typography>
             <Tooltip
               title={<Breakdown breakdown={stampsPerDay?.breakdown} />}>
+              <IconInfoCircleFilled size={18}/>
+            </Tooltip>
+          </Stack>
+          <Divider sx={{ my: 1 }}/>
+          <Typography sx={{ fontSize: 14 }} color="text.secondary">Exalted Multi</Typography>
+          <Stack direction={'row'} alignItems={'center'} gap={1}>
+            <Typography>{notateNumber(1 + exaltedMulti?.value / 100, 'MultiplierInfo')}x</Typography>
+            <Tooltip
+              title={<Breakdown breakdown={exaltedMulti?.breakdown} />}>
               <IconInfoCircleFilled size={18}/>
             </Tooltip>
           </Stack>
