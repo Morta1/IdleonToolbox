@@ -73,10 +73,10 @@ export const getPowerCap = (rank) => {
 
 export const hasMissingMats = (saltIndex, rank, cost, account) => {
   return cost?.filter(({
-                         rawName,
-                         quantity,
-                         totalAmount
-                       }) => totalAmount < Math.floor(Math.pow(rank, (rawName?.includes('Refinery') &&
+    rawName,
+    quantity,
+    totalAmount
+  }) => totalAmount < Math.floor(Math.pow(rank, (rawName?.includes('Refinery') &&
     saltIndex <= account?.refinery?.refinerySaltTaskLevel) ? 1.3 : 1.5)) * quantity)
 }
 
@@ -157,7 +157,8 @@ export const getRefineryCycles = (account, characters, lastUpdated) => {
     ...bonusBreakdown,
     { title: 'Multiplicative' },
     { name: '' },
-    { name: 'Lab', value: labCycleBonus }
+    { name: 'Lab', value: labCycleBonus },
+    { name: 'Legend', value: legendBonus / 100 }
   ];
   const combustion = {
     name: 'Combustion',
@@ -179,16 +180,17 @@ export const getRefineryCycles = (account, characters, lastUpdated) => {
 
 export const calcTimeToRankUp = (account, characters, lastUpdated, refineryData, includeSquireCycles, rank, powerCap, refined, index) => {
   const { bonus } = getRefineryCycleBonuses(account, characters, lastUpdated);
+  const legendBonus = getLegendTalentBonus(account, 19);
   const labCycleBonus = account?.lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active
     ? 3
     : 1;
   const powerPerCycle = Math.floor(Math.pow(rank, 1.3));
   const cycleByType = index <= 2 ? 900 : 3600;
-  const combustionCyclesPerDay = (24 * 60 * 60 / (cycleByType / (1 + (bonus) / 100))) + (includeSquireCycles
+  const combustionCyclesPerDay = (24 * 60 * 60 / (cycleByType / ((1 + (bonus) / 100) * labCycleBonus * (1 + legendBonus / 100)))) + (includeSquireCycles
     ? (refineryData?.squiresCycles ?? 0)
     : 0);
-  const timeLeft = Math.floor((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24 / (labCycleBonus);
-  const totalTime = ((powerCap - 0) / powerPerCycle) / combustionCyclesPerDay * 24 / (labCycleBonus);
+  const timeLeft = Math.floor((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24;
+  const totalTime = ((powerCap - 0) / powerPerCycle) / combustionCyclesPerDay * 24;
   return {
     timeLeft: new Date().getTime() + (timeLeft * 3600 * 1000),
     totalTime: new Date().getTime() + (totalTime * 3600 * 1000)
