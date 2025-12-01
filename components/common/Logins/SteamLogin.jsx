@@ -34,13 +34,16 @@ const SteamLogin = ({ setOpen }) => {
       action on this page. Simply copy the URL from your browser's address bar, return here, paste it into the box, and
       click 'Login'.</Typography>
     <Alert severity="warning" sx={{ mt: 2 }} >
-      <strong>Important:</strong> Do not click the big blue button before copying the URL.
+      <strong>Important:</strong> On the redirected Idleon page, do not click the big blue button. Just copy the URL from the address bar and return here.
     </Alert>
     <TextField sx={{ mt: 2 }} error={!!error} helperText={error} value={steamUrl} onChange={(e) => {
       setError('');
       setSteamUrl(e.target.value)
     }} size={'small'} label={'Steam popup url'}/>
-    <LoadingButton sx={{ mt: 2 }} loading={waitingForAuth} variant="contained" onClick={async () => {
+    <LoadingButton sx={{ mt: 2 }} loading={waitingForAuth} variant="contained" color="success" onClick={async () => {
+      if (!steamUrl.startsWith('https://')) {
+        return setError('The url should start with "https://"');
+      }
       if (!steamUrl.startsWith('https://www.legendsofidleon.com/steamsso/')) {
         return setError('The url should start with "https://www.legendsofidleon.com/steamsso/"');
       }
