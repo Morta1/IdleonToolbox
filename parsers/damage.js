@@ -92,16 +92,42 @@ export const getMaxDamage = (character, characters, account) => {
 }
 
 export const notateDamage = (playerInfo) => {
-  const damageNotation = [];
-  9999999 > playerInfo.maxDamage ?
-    damageNotation.push(Math.ceil(playerInfo.minDamage)
-      + ('~' + Math.ceil(playerInfo.maxDamage)))
-    : 999999999 > playerInfo.maxDamage ?
-      damageNotation.push(Math.ceil(playerInfo.minDamage / 1e3) / 1e3 + '[~' +
-        Math.ceil(playerInfo.maxDamage / 1e3) / 1e3 + '[') : 9999999999999 > playerInfo.maxDamage ?
-        damageNotation.push(Math.ceil(playerInfo.minDamage / 1e5) / 10 + '[~' + Math.ceil(playerInfo.maxDamage / 1e5) / 10 + '[')
-        : damageNotation.push(Math.ceil(playerInfo.minDamage / 1e9) / 1e3 + '!~' + Math.ceil(playerInfo.maxDamage / 1e9) / 1e3 + '!');
-  return damageNotation;
+  const { minDamage, maxDamage } = playerInfo;
+  let notation;
+
+  if (maxDamage < 9999999) {
+    // Raw numbers: "1234~5678"
+    notation = `${Math.ceil(minDamage)}~${Math.ceil(maxDamage)}`;
+  } else if (maxDamage < 999999999) {
+    // Millions with [ suffix: "1.234[~5.678["
+    notation = `${Math.ceil(minDamage / 1e3) / 1e3}[~${Math.ceil(maxDamage / 1e3) / 1e3}[`;
+  } else if (maxDamage < 99999999999) {
+    // Tens of billions with [ suffix
+    notation = `${Math.ceil(minDamage / 1e5) / 10}[~${Math.ceil(maxDamage / 1e5) / 10}[`;
+  } else if (maxDamage < 9999999999999) {
+    // Trillions with [ suffix
+    notation = `${Math.ceil(minDamage / 1e6) / 1}[~${Math.ceil(maxDamage / 1e6) / 1}[`;
+  } else if (maxDamage < 999999999999999) {
+    // Hundreds of trillions with ! suffix
+    notation = `${Math.ceil(minDamage / 1e9) / 1e3}!~${Math.ceil(maxDamage / 1e9) / 1e3}!`;
+  } else if (maxDamage < 1e17) {
+    // Quadrillions with ! suffix
+    notation = `${Math.ceil(minDamage / 1e11) / 10}!~${Math.ceil(maxDamage / 1e11) / 10}!`;
+  } else if (maxDamage < 1e19) {
+    // Tens of quadrillions with ! suffix
+    notation = `${Math.ceil(minDamage / 1e12) / 1}!~${Math.ceil(maxDamage / 1e12) / 1}!`;
+  } else if (maxDamage < 1e21) {
+    // Quintillions with | prefix
+    notation = `|${Math.ceil(minDamage / 1e15) / 1e3}~${Math.ceil(maxDamage / 1e15) / 1e3}`;
+  } else if (maxDamage < 1e23) {
+    // Hundreds of quintillions with | prefix
+    notation = `|${Math.ceil(minDamage / 1e17) / 10}~${Math.ceil(maxDamage / 1e17) / 10}`;
+  } else {
+    // Sextillions+ with | prefix
+    notation = `|${Math.ceil(minDamage / 1e18) / 1}~${Math.ceil(maxDamage / 1e18) / 1}`;
+  }
+
+  return [notation];
 }
 
 const getMastery = (character, characters, account) => {

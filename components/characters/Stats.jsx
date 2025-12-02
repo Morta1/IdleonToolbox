@@ -183,12 +183,15 @@ const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', dam
         {!damage ? <Typography component={'span'} sx={breakdown
           ? { alignItems: 'center', borderBottom: '1px dotted', lineHeight: 1 }
           : {}}
-        >{value}</Typography> : <Typography color={'#fffcc9'}>
+        >{value}</Typography> : <Typography color={'#fffcc9'} sx={{ display: 'flex', alignItems: 'center', gap: .5 }}>
           {processString([{
-            regex: /[\[!]/g,
+            regex: /[\[!|]/g,
             fn: (key, match) => {
               const modifier = match.at(0);
-              return <DamageIcon key={key} src={`${prefix}etc/Damage_${modifier === '[' ? 'M' : 'T'}.png`} alt=""/>
+              let iconName = 'M';
+              if (modifier === '!') iconName = 'T';
+              else if (modifier === '|') iconName = 'D';
+              return <DamageIcon key={key} src={`${prefix}etc/Damage_${iconName}.png`} alt=""/>
             }
           }])(value)}
         </Typography>}
