@@ -932,8 +932,8 @@ export const getHealthFoodBonus = (character, account, bonusName) => {
   }) => res + (Trigger > 0 && Effect === bonusName ? Amount * foodBonus / Math.max(Cooldown, 1) * 3600 : 0), 0);
 }
 
-export const getMinigameScore = (account, name) => {
-  return account?.highscores?.minigameHighscores?.find(({ minigame }) => minigame === name)?.score || 0;
+export const getMinigameScore = (account, bonusName) => {
+  return account?.highscores?.minigameHighscores?.find(({ name }) => name === bonusName)?.score || 0;
 }
 
 export const getCompanions = (companionObject = {}) => {

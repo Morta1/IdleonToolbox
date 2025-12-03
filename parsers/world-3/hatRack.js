@@ -84,6 +84,10 @@ export const getHatBonuses = (rawSpelunk, account) => {
   };
 }
 
+export const getHatRackBonus = (account, bonusName) => {
+  return account?.hatRack?.hatBonuses?.find((bonus) => bonus.name === bonusName)?.value ?? 0;
+}
+
 const getAllPremiumHelmets = (rawSpelunk) => {
   const rawHats = rawSpelunk?.[46] || [];
   const hatsUsedSet = new Set(rawHats);

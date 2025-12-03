@@ -1,5 +1,6 @@
 import { bonuses, items, itemsArray } from '../data/website-data';
 import { cleanUnderscore } from '@utility/helpers';
+import { getGalleryBonus } from './world-7/gallery';
 
 export const addStoneDataToEquip = (baseItem, stoneData) => {
   if (!baseItem || !stoneData) return {};

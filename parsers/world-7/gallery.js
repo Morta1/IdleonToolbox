@@ -32,7 +32,7 @@ const parseGallery = (rawSpelunk, account) => {
   // A podium at level 3+ is not level 2, and a podium at level 4 is not level 3
   const lv3PodiumsOwned = lv3PlusPodiums - lv4PodiumsOwned;
   const lv2PodiumsOwned = lv2PlusPodiums - lv3PlusPodiums;
-
+  
   return {
     bonusMulti,
     trophyBonuses,
@@ -47,6 +47,17 @@ const parseGallery = (rawSpelunk, account) => {
   }
 }
 
+export const getNametagBonus = (account, bonusName) => {
+  return account?.gallery?.nametagBonuses?.find((bonus) => bonus.name === bonusName)?.value ?? 0;
+}
+
+export const getTrophyBonus = (account, bonusName) => {
+  return account?.gallery?.trophyBonuses?.find((bonus) => bonus.name === bonusName)?.value ?? 0;
+}
+
+export const getGalleryBonus = (account, bonusName) => {
+  return getNametagBonus(account, bonusName) + getTrophyBonus(account, bonusName);
+}
 
 const getPodiumLevel = (trophyIndex, account) => {
   if (trophyIndex < 48) return null;
