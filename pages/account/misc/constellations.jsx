@@ -37,7 +37,7 @@ const Constellations = () => {
       description="Constellation and star signs overview"
     />
     <Tabber tabs={getTabs(PAGES.ACCOUNT.misc.categories, 'constellations')} clearOnChange={['nt']}>
-      <ConstellationsComp constellations={state?.account?.constellations}/>
+      <ConstellationsComp constellations={state?.account?.constellations} characters={state?.characters}/>
       <StarSigns starSigns={stars} infiniteStars={infiniteStars}/>
     </Tabber>
   </div>

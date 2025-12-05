@@ -8,6 +8,7 @@ import {
   Checkbox,
   FormControlLabel,
   Stack,
+  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Typography
@@ -62,6 +63,7 @@ const GemShop = () => {
   const { state } = useContext(AppContext);
   const [showMissingOnly, setShowMissingOnly] = useState(false);
   const [selectedPriorities, setSelectedPriorities] = React.useState(['All']);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handlePriorities = (event, newSelectedPriorities) => {
     if (newSelectedPriorities?.length === 0) return;
@@ -76,12 +78,34 @@ const GemShop = () => {
     setSelectedPriorities(finalArray);
   };
 
+  const isItemVisible = (item, sectionName) => {
+    const { globalIndex, rawName, displayName, desc, maxPurchases } = item;
+    const purchased = state?.account?.gemShopPurchases?.[globalIndex] || 0;
+    const priority = priorities?.[globalIndex];
+    
+    if (rawName === 'Blank' || displayName === 'NAME_OF_ITEM') return false;
+    if (showMissingOnly && purchased >= maxPurchases) return false;
+    if (!selectedPriorities.includes('All') && !selectedPriorities?.includes(priority)) return false;
+    
+    if (searchQuery) {
+      const searchLower = searchQuery.toLowerCase();
+      const displayNameText = cleanUnderscore(displayName.toLowerCase().camelToTitleCase()).toLowerCase();
+      const descText = cleanUnderscore(desc).toLowerCase();
+      const sectionText = cleanUnderscore(sectionName.capitalize()).toLowerCase();
+      if (!displayNameText.includes(searchLower) && !descText.includes(searchLower) && !sectionText.includes(searchLower)) {
+        return false;
+      }
+    }
+    
+    return true;
+  };
+
   return <>
     <NextSeo
       title="Gem Shop | Idleon Toolbox"
       description="View all gem shop upgrades, bonuses and more"
     />
-    <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
+    <Stack direction={'row'} flexWrap={'wrap'} gap={3} mb={2}>
       <CardTitleAndValue title={'Gems'} value={numberWithCommas(state?.account?.currencies?.gems)} icon={'data/PremiumGem.png'}
         imgStyle={{ width: 24, height: 24 }} />
       <CardTitleAndValue title={'Control'} value={<FormControlLabel
@@ -100,18 +124,41 @@ const GemShop = () => {
         <ToggleButton value="B">B</ToggleButton>
         <ToggleButton value="C">C</ToggleButton>
       </ToggleButtonGroup>} />
+      <CardTitleAndValue title={'Search'} value={<TextField
+        label="Enter search term"
+        variant="outlined"
+        size="small"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        sx={{ minWidth: 200, mt:1 }}
+      />} />
+      
     </Stack>
     {gemShop?.map(({ name, sections }) => {
+      // Filter sections to only those with visible items
+      const visibleSections = Object.entries(sections).filter(([sectionName, sectionItems]) => {
+        const isAllBlanks = sectionItems?.every(({ rawName }) => rawName === 'Blank');
+        if (isAllBlanks) return false;
+        return sectionItems?.some(item => isItemVisible(item, sectionName));
+      });
+
+      // Only show category if it has visible sections
+      if (visibleSections.length === 0) return null;
+
       return <Stack key={name} gap={2}>
         <Typography sx={{ mt: 5 }} variant={'h4'}>{name.capitalize()}</Typography>
-        {Object.entries(sections).map(([sectionName, sectionItems]) => {
-          const isAllBlanks = sectionItems?.every(({ rawName }) => rawName === 'Blank');
-          if (isAllBlanks) return null;
+        {visibleSections.map(([sectionName, sectionItems]) => {
+          // Filter items to only visible ones
+          const visibleItems = sectionItems?.filter(item => isItemVisible(item, sectionName));
+          
+          // Only show section if it has visible items
+          if (!visibleItems || visibleItems.length === 0) return null;
+
           return <Card key={sectionName}>
             <CardContent>
               <Typography sx={{ mb: 1 }} variant={'h5'}>{cleanUnderscore(sectionName.capitalize())}</Typography>
               <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
-                {sectionItems?.map(({
+                {visibleItems.map(({
                   globalIndex,
                   rawName,
                   displayName,
@@ -122,8 +169,6 @@ const GemShop = () => {
                 }, index) => {
                   const purchased = state?.account?.gemShopPurchases?.[globalIndex];
                   const addedCost = purchased * costIncrement;
-                  const priority = priorities?.[globalIndex];
-                  if (rawName === 'Blank' || displayName === 'NAME_OF_ITEM' || (showMissingOnly && purchased >= maxPurchases) || (!selectedPriorities.includes('All') && !selectedPriorities?.includes(priority))) return null;
                   return <Badge badgeContent={priorities?.[globalIndex] || 0} color={'warning'} key={rawName + index}>
                     <Card variant={'outlined'}
                       sx={{

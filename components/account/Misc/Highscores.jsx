@@ -13,12 +13,12 @@ const Highscores = ({ title, highscore }) => {
   // minigameHighscores
   return (
     <Stack gap={1.5} justifyContent={'center'}>
-      <Tablee title={title} rows={highscore}/>
+      <LeaderboardTable title={title} rows={highscore} />
     </Stack>
   );
 };
 
-const Tablee = ({ title, rows }) => {
+const LeaderboardTable = ({ title, rows }) => {
   return <TableContainer>
     <Table aria-label="simple table">
       <TableHead>
@@ -30,7 +30,7 @@ const Tablee = ({ title, rows }) => {
       <TableBody>
         {rows?.sort((a, b) => b.score - a.score).map((row) => (
           <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-            <TableCell sx={{ p: 1 }} component="th" scope="row">{row.name}</TableCell>
+            <TableCell sx={{ p: 1 }} component="th" scope="row">{row.name.capitalize()}</TableCell>
             <TableCell sx={{ p: 1 }} component="th" scope="row">{numberWithCommas(parseInt(row.score))}</TableCell>
           </TableRow>
         ))}
