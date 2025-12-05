@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/account/world-1/stamps", [
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/faf03599252c1a70.js",
+  "static/chunks/903db88b26d48486.js",
+  "static/chunks/f0b03e6e334a00b1.js",
+  "static/chunks/dc1efa255576d82e.js",
+  "static/chunks/0ab8d45e25542a0f.js",
+  "static/chunks/3b716f55bd647a2d.js",
+  "static/chunks/299f3477e27156d5.js",
+  "static/chunks/2ee4ffac29e5bee5.js",
+  "static/chunks/4f7e283e36fc7e9b.js",
+  "static/chunks/2490b283243496b5.js",
+  "static/chunks/cbc67c9543d2016a.js",
+  "static/chunks/5d97c904d627eeba.js",
+  "static/chunks/403c49ca47413a4e.js",
+  "static/chunks/8f18030f303bef53.js",
+  "static/chunks/ef054655485a17fd.js",
+  "static/chunks/7a37e714d5ed137b.js",
+  "static/chunks/turbopack-824561e7ca7dadd5.js"
+])
