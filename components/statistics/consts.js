@@ -265,6 +265,9 @@ export const getVisualizationMap = (classes) => ({
       enableTotals: true,
       enableLabel: false,
       valueFormat: value => notateNumber(value, 'Big'),
+      scale: {
+        type: 'band'
+      },
       margin: {
         left: 130,
         right: 150
@@ -274,8 +277,9 @@ export const getVisualizationMap = (classes) => ({
         legend: ''
       },
       axisBottom: {
+        tickRotation: -35,
         legend: 'Kills',
-        format: (value) => notateNumber(value)
+        format: (value) => notateNumber(value, 'Big')
       },
       legends: [{
         data: worldColor.map((color, index) => ({ label: `World ${index + 1}`, color })),
@@ -287,7 +291,6 @@ export const getVisualizationMap = (classes) => ({
         itemsSpacing: 2,
         symbolSize: 20
       }]
-
     },
     getData: (raw) => raw.filter(({ enemy }) => enemy !== '_').map(({ enemy, kills }) => {
       const world = deathNote.find(({ name }) => name === enemy)?.world;

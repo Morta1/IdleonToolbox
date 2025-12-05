@@ -18,7 +18,8 @@ const BarVisualization = ({
                             enableTotals = true,
                             enableLabel = false,
                             legends,
-                            labelTextColor = '#ffffff'
+                            labelTextColor = '#ffffff',
+                            scale,
                           }) => {
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
 
@@ -35,6 +36,7 @@ const BarVisualization = ({
         layout={layout}
         enableTotals={isSm || enableTotals}
         enableLabel={isSm ? false : enableLabel}
+        valueScale={scale}
         axisBottom={{
           legend: 'Players',
           legendPosition: 'middle',
