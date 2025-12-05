@@ -85,6 +85,11 @@ export const getVisualizationMap = (classes) => ({
   },
   worldDistribution: {
     type: 'bar',
+    props: {
+      margin: {
+        right: 45
+      }
+    },
     getData: (raw) => raw.filter(({ _id }) => _id !== '0').toSorted((a, b) => a._id - b._id).map((item) => ({
       ...item,
       color: worldColor?.[item._id - 1]
