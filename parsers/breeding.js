@@ -145,6 +145,7 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
   });
 
   return {
+    rawFencePets,
     eggsPowerRange: getEggsPowerRange(processedData?.charactersData),
     passivesTotals,
     storedPets,
@@ -351,8 +352,9 @@ export const getFightPower = (teamMember) => {
 
 export const calcHighestPower = (breeding) => {
   const teams = breeding?.territories?.reduce((result, { team }) => ([...result, ...team]), []);
+  const fence = breeding?.rawFencePets?.map(([,,power]) => power);
   const mappedPets = [...(breeding?.storedPets || []), ...teams].map(({ power }) => power);
-  return Math.max(...mappedPets);
+  return Math.max(...mappedPets, ...fence);
 }
 
 export const calcBreedabilityMulti = (account, characters) => {
