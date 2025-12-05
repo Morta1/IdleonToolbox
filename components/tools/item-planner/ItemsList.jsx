@@ -4,7 +4,7 @@ import { findQuantityOwned, flattenCraftObject } from 'parsers/items';
 import styled from '@emotion/styled';
 import Tooltip from 'components/Tooltip';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { crafts } from '../../../data/website-data';
+import { crafts } from '@website-data';
 
 const ItemsList = ({
                      account,

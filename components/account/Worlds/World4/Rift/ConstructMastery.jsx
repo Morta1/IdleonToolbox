@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '../../../../../utility/helpers';
+import { cleanUnderscore, prefix } from '@utility/helpers';
 import { constructionMasteryThresholds } from '../../../../../parsers/construction';
 import { CardTitleAndValue } from '@components/common/styles';
 

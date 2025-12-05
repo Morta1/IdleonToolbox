@@ -1,5 +1,5 @@
-import { growth, tryToParse } from '../utility/helpers';
-import { guildBonuses, guildTasks } from '../data/website-data';
+import { growth, tryToParse } from '@utility/helpers';
+import { guildBonuses, guildTasks } from '@website-data';
 
 export const getGuild = (idleonData, guildData) => {
   if (!guildData) {

@@ -17,7 +17,7 @@ import {
   monsterDrops,
   monsters,
   randomList
-} from '../data/website-data';
+} from '@website-data';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { getTalentBonus } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';

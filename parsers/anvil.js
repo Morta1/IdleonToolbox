@@ -1,4 +1,4 @@
-import { anvilProducts, anvilUpgradeCost, items } from '../data/website-data';
+import { anvilProducts, anvilUpgradeCost, items } from '@website-data';
 import { getSpeedBonusFromAgility, isMasteryBonusUnlocked } from './misc';
 import { getActiveBubbleBonus, getBubbleBonus } from './alchemy';
 import { checkCharClass, CLASSES, getMaestroHand, getTalentBonus } from './talents';

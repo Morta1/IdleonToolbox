@@ -1,4 +1,4 @@
-import { lampWishes } from '../../../data/website-data';
+import { lampWishes } from '@website-data';
 import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { notateNumber } from '@utility/helpers';

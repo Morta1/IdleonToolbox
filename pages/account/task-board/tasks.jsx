@@ -3,7 +3,7 @@ import { AppContext } from '../../../components/common/context/AppProvider';
 import Tabber from '../../../components/common/Tabber';
 import { NextSeo } from 'next-seo';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix, worldsArray } from '../../../utility/helpers';
+import { cleanUnderscore, notateNumber, prefix, worldsArray } from '@utility/helpers';
 import ProgressBar from '../../../components/common/ProgressBar';
 
 const Tasks = () => {

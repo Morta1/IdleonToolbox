@@ -1,5 +1,5 @@
-import { tryToParse } from '../utility/helpers';
-import { bribes } from '../data/website-data';
+import { tryToParse } from '@utility/helpers';
+import { bribes } from '@website-data';
 
 export const getBribes = (idleonData) => {
   const bribesRaw = idleonData?.BribeStatus || tryToParse(idleonData?.BribeStatus);

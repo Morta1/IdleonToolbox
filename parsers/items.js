@@ -1,4 +1,4 @@
-import { bonuses, items, itemsArray } from '../data/website-data';
+import { bonuses, items, itemsArray } from '@website-data';
 import { cleanUnderscore } from '@utility/helpers';
 import { getGalleryBonus } from './world-7/gallery';
 

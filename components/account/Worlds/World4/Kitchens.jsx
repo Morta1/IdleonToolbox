@@ -1,5 +1,5 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, kFormatter, notateNumber, prefix } from '../../../../utility/helpers';
+import { cleanUnderscore, kFormatter, notateNumber, prefix } from '@utility/helpers';
 import Tooltip from 'components/Tooltip';
 import Timer from 'components/common/Timer';
 import React, { useMemo } from 'react';

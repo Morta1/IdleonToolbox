@@ -1,5 +1,5 @@
-import { tryToParse } from '../utility/helpers';
-import { constellations, mapNames, starSigns } from '../data/website-data';
+import { tryToParse } from '@utility/helpers';
+import { constellations, mapNames, starSigns } from '@website-data';
 import { starSignsIndicesMap } from './parseMaps';
 import { isRiftBonusUnlocked } from './world-4/rift';
 import { getShinyBonus } from './breeding';

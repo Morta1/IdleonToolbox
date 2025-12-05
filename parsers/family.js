@@ -1,6 +1,6 @@
-import { growth } from '../utility/helpers';
+import { growth } from '@utility/helpers';
 import { checkCharClass, CLASSES, getFamilyBonusValue, getTalentBonus } from '@parsers/talents';
-import { classFamilyBonuses } from '../data/website-data';
+import { classFamilyBonuses } from '@website-data';
 import { getHighestLevelOfClass } from '@parsers/misc';
 
 export const getFamilyBonusBonus = (bonuses, bonusName, level) => {

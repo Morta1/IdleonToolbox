@@ -18,6 +18,9 @@
       ],
       "@utility/*": [
         "utility/*"
+      ],
+      "@website-data": [
+        "data/website-data.json"
       ]
     },
     "lib": [

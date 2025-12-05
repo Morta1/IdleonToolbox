@@ -1,5 +1,5 @@
-import { createArrayOfArrays, growth, tryToParse } from '../utility/helpers';
-import { postOffice } from '../data/website-data';
+import { createArrayOfArrays, growth, tryToParse } from '@utility/helpers';
+import { postOffice } from '@website-data';
 
 export const getPlayerPostOffice = (playerPostOffice, account) => {
   let totalPointsSpent = 0;

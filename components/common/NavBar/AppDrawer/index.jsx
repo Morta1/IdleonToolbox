@@ -14,7 +14,7 @@ import { Divider, Stack, useMediaQuery } from '@mui/material';
 import AccountDrawer from './AccountDrawer';
 import CharactersDrawer from './CharactersDrawer';
 import ToolsDrawer from './ToolsDrawer';
-import { prefix, shouldDisplayDrawer } from '../../../../utility/helpers';
+import { prefix, shouldDisplayDrawer } from '@utility/helpers';
 import { AppContext } from '../../context/AppProvider';
 
 const AppDrawer = ({ permanent }) => {

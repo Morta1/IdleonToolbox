@@ -1,4 +1,4 @@
-import { cleanUnderscore, growth } from '../../../../utility/helpers';
+import { cleanUnderscore, growth } from '@utility/helpers';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import React from 'react';
 

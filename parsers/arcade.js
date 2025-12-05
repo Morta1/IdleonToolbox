@@ -1,5 +1,5 @@
-import { growth, tryToParse } from '../utility/helpers';
-import { arcadeShop } from '../data/website-data';
+import { growth, tryToParse } from '@utility/helpers';
+import { arcadeShop } from '@website-data';
 import { getMaxClaimTime, getSecPerBall } from './dungeons';
 import { isCompanionBonusActive } from '@parsers/misc';
 

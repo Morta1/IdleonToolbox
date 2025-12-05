@@ -4,7 +4,7 @@ import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
-import { items } from '../../../data/website-data';
+import { items } from '@website-data';
 import ItemDisplay from '@components/common/ItemDisplay';
 import { addEquippedItems, getAllItems, mergeItemsByOwner } from '@parsers/items';
 import useCheckbox from '@components/common/useCheckbox';

@@ -17,7 +17,7 @@ import {
   ninjaExtraInfo,
   randomList,
   starSignByIndexMap
-} from '../data/website-data';
+} from '@website-data';
 import {
   calculateAfkTime,
   getEventShopBonus,
@@ -84,7 +84,7 @@ import { getPlayerWorship } from './worship';
 import { getPlayerQuests } from './quests';
 import { getJewelBonus, getLabBonus, getLabEfficiency, getPlayerLabChipBonus, isGodEnabledBySorcerer } from './lab';
 import { getAchievementStatus } from './achievements';
-import { lavaLog, notateNumber } from '../utility/helpers';
+import { lavaLog, notateNumber } from '@utility/helpers';
 import { getArcadeBonus } from './arcade';
 import { isArtifactAcquired } from './sailing';
 import { getShinyBonus } from './breeding';
@@ -122,7 +122,7 @@ import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getZenithBonus } from '@parsers/statues';
 import { getSuperTalentLeftToSpend } from '@parsers/world-7/legendTalents';
 
-const { tryToParse, createIndexedArray, createArrayOfArrays } = require('../utility/helpers');
+const { tryToParse, createIndexedArray, createArrayOfArrays } = require('@utility/helpers');
 
 export const getCharacters = (idleonData, charsNames) => {
   const chars = charsNames ? charsNames : [0, 1, 2, 3, 4, 5, 6, 7, 8];

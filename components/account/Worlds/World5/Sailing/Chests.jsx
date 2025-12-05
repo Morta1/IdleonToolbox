@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '../../../../../utility/helpers';
+import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import Tooltip from '../../../../Tooltip';
 import { TitleAndValue } from '../../../../common/styles';
 

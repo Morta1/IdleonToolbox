@@ -1,4 +1,4 @@
-import { poppyBonuses, poppyTarBonuses } from '../../data/website-data';
+import { poppyBonuses, poppyTarBonuses } from '@website-data';
 import { commaNotation, notateNumber } from '@utility/helpers';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';

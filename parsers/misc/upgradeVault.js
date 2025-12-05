@@ -1,5 +1,5 @@
 import { commaNotation, notateNumber, tryToParse, lavaLog } from '@utility/helpers';
-import { upgradeVault, mapPortals } from '../../data/website-data';
+import { upgradeVault, mapPortals } from '@website-data';
 
 export const getUpgradeVault = (idleonData, accountData, charactersData) => {
   const upgradeVaultRaw = idleonData?.UpgVault || tryToParse(idleonData?.UpgVault);

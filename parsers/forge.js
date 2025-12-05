@@ -1,4 +1,4 @@
-import { items } from '../data/website-data';
+import { items } from '@website-data';
 
 export const getForge = (idleonData, account) => {
   const forgeOrderRaw = idleonData?.ForgeItemOrder;

@@ -5,7 +5,7 @@ import { AppContext } from '../../../components/common/context/AppProvider';
 import Tabber from '../../../components/common/Tabber';
 import GuildMembers from '../../../components/account/Guild/GuildMembers';
 import GuildBonuses from '../../../components/account/Guild/GuildBonuses';
-import { numberWithCommas, prefix, tryToParse } from '../../../utility/helpers';
+import { numberWithCommas, prefix, tryToParse } from '@utility/helpers';
 import ProgressBar from '../../../components/common/ProgressBar';
 import { format } from 'date-fns';
 import Box from '@mui/material/Box';

@@ -1,4 +1,4 @@
-import { holesInfo } from '../../../data/website-data';
+import { holesInfo } from '@website-data';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getMeasurementBonus } from '@parsers/world-5/hole';

@@ -1,5 +1,5 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '../../../../utility/helpers';
+import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
 import React from 'react';
 

@@ -1,5 +1,5 @@
-import { createArrayOfArrays, tryToParse } from '../utility/helpers';
-import { items, obols } from '../data/website-data';
+import { createArrayOfArrays, tryToParse } from '@utility/helpers';
+import { items, obols } from '@website-data';
 import { addStoneDataToEquip } from './items';
 
 const obolStats = ['STR', 'AGI', 'WIS', 'LUK', 'Weapon_Power', 'Defence', 'UQ1txt', 'UQ2txt'];

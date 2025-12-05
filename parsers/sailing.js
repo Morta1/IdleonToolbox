@@ -1,5 +1,5 @@
 import { kFormatter, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
-import { artifacts, captainsBonuses, classFamilyBonuses, islands } from '../data/website-data';
+import { artifacts, captainsBonuses, classFamilyBonuses, islands } from '@website-data';
 import {
   getHighestCharacterSkill,
   getHighestLevelCharacter,

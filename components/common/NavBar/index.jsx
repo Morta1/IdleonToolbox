@@ -8,7 +8,7 @@ import LoginButton from './LoginButton';
 import AppDrawer from './AppDrawer';
 import { drawerWidth, navBarHeight } from '../../constants';
 import { useRouter } from 'next/router';
-import { handleLoadJson, isProd, shouldDisplayDrawer } from '../../../utility/helpers';
+import { handleLoadJson, isProd, shouldDisplayDrawer } from '@utility/helpers';
 import { Adsense } from '@ctrl/react-adsense';
 import { Stack, Typography, useMediaQuery } from '@mui/material';
 import { AppContext } from '../context/AppProvider';

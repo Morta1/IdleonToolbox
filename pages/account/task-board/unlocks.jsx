@@ -3,7 +3,7 @@ import { AppContext } from '../../../components/common/context/AppProvider';
 import Tabber from '../../../components/common/Tabber';
 import { NextSeo } from 'next-seo';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, numberWithCommas, prefix } from '../../../utility/helpers';
+import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
 import ItemDisplay from '@components/common/ItemDisplay';
 import AutoGrid from '@components/common/AutoGrid';

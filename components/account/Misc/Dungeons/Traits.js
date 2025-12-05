@@ -1,5 +1,5 @@
 import { Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '../../../../utility/helpers';
+import { cleanUnderscore, prefix } from '@utility/helpers';
 import Tooltip from '../../../Tooltip';
 
 const Traits = ({ statBoosts }) => {

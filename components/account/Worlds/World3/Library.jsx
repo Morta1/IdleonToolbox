@@ -1,7 +1,7 @@
 import React from 'react';
 import Timer from '../../../common/Timer';
 import { Divider, Stack, Typography } from '@mui/material';
-import { getRealDateInMs, prefix } from '../../../../utility/helpers';
+import { getRealDateInMs, prefix } from '@utility/helpers';
 import Tooltip from '../../../Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import { Breakdown } from '../../../common/styles';

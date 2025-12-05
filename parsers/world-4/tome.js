@@ -1,4 +1,4 @@
-import { ninjaExtraInfo, tomeData } from '../../data/website-data';
+import { ninjaExtraInfo, tomeData } from '@website-data';
 import { calcStampLevels } from '@parsers/stamps';
 import { calcStatueLevels, calcTotalOnyx } from '@parsers/statues';
 import { calcCardsLevels } from '@parsers/cards';

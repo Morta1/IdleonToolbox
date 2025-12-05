@@ -1,5 +1,5 @@
 import { Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '../../utility/helpers';
+import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import { TitleAndValue } from '../common/styles';
 import Tooltip from '../Tooltip';
 import ItemDisplay from '@components/common/ItemDisplay';

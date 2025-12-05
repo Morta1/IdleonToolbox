@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Divider, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { notateNumber, prefix } from '../utility/helpers';
+import { notateNumber, prefix } from '@utility/helpers';
 import Box from '@mui/material/Box';
 import styled from '@emotion/styled'; // Grid version 2
 

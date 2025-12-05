@@ -14,7 +14,7 @@ import { getActiveBubbleBonus, getBubbleBonus, getSigilBonus, getVialsBonusBySta
 import { getStatsFromGear } from './items';
 import { getObolsBonus } from './obols';
 import { getFamilyBonusBonus } from './family';
-import { bonuses, classFamilyBonuses, generalSpelunky, mapDetails, monsters, randomList } from '../data/website-data';
+import { bonuses, classFamilyBonuses, generalSpelunky, mapDetails, monsters, randomList } from '@website-data';
 import {
   getFoodBonus,
   getGoldenFoodBonus,
@@ -30,7 +30,7 @@ import { getArcadeBonus } from './arcade';
 import { getAfkGain, getPlayerSpeedBonus, getRespawnRate } from './character';
 import { getStatueBonus } from './statues';
 import { calcStampCollected, getStampsBonusByEffect } from './stamps';
-import { lavaLog } from '../utility/helpers';
+import { lavaLog } from '@utility/helpers';
 import { getShrineBonus } from './shrines';
 import { getPrayerBonusAndCurse } from './prayers';
 import { getJewelBonus, getLabBonus, getPlayerLabChipBonus } from './lab';

@@ -1,7 +1,7 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
-import { ninjaExtraInfo } from '../../../../../data/website-data';
+import { ninjaExtraInfo } from '@website-data';
 
 const doorMaxHps = ninjaExtraInfo?.[3].split(' ');
 const getActivityIcon = (activityInfo, weaponType, hasDoor) => {

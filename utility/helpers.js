@@ -1,7 +1,7 @@
 import { format, getDaysInMonth, getDaysInYear, intervalToDuration, isValid } from 'date-fns';
 import { drawerPages } from '@components/constants';
 import merge from 'lodash.merge';
-import { mapEnemiesArray, mapNames, monsters } from '../data/website-data'
+import { mapEnemiesArray, mapNames, monsters } from '@website-data'
 
 export const getTabs = (array, label, tabName, nestedTabName) => {
   const navItem = array.find((item) => item.label === label);

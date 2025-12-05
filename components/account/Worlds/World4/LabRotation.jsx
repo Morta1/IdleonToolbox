@@ -14,7 +14,7 @@ import {
   useMediaQuery
 } from '@mui/material';
 import { format, isValid } from 'date-fns';
-import { cleanUnderscore, notateNumber, prefix } from '../../../../utility/helpers';
+import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from '../../../Tooltip';
 import MenuItem from '@mui/material/MenuItem';

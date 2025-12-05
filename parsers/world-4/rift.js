@@ -1,5 +1,5 @@
-import { tryToParse } from '../../utility/helpers';
-import { riftInfo } from '../../data/website-data';
+import { tryToParse } from '@utility/helpers';
+import { riftInfo } from '@website-data';
 import { constructionMasteryThresholds } from '../construction';
 
 export const getRift = (idleonData) => {

@@ -1,5 +1,5 @@
-import { growth, tryToParse } from '../utility/helpers';
-import { chips, classes, jewels, labBonuses, merits, randomList, talents } from '../data/website-data';
+import { growth, tryToParse } from '@utility/helpers';
+import { chips, classes, jewels, labBonuses, merits, randomList, talents } from '@website-data';
 import { getMealsBonusByEffectOrStat } from './cooking';
 import { getCardBonusByEffect } from './cards';
 import { isArenaBonusActive, isCompanionBonusActive, isMasteryBonusUnlocked } from './misc';

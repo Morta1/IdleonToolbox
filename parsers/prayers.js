@@ -1,6 +1,6 @@
-import { tryToParse } from '../utility/helpers';
+import { tryToParse } from '@utility/helpers';
 import { calculateItemTotalAmount } from './items';
-import { items, prayers } from '../data/website-data';
+import { items, prayers } from '@website-data';
 import { isSuperbitUnlocked } from './gaming';
 
 export const getPrayers = (idleonData, storage) => {

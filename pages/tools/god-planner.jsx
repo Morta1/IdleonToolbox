@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../components/common/context/AppProvider';
 import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix, tryToParse } from '../../utility/helpers';
+import { cleanUnderscore, prefix, tryToParse } from '@utility/helpers';
 import { getBubbleBonus } from '../../parsers/alchemy';
 import { NextSeo } from 'next-seo';
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import { MissingData } from '@components/common/styles';
 import Tooltip from '../../components/Tooltip';
-import { gods } from '../../data/website-data';
+import { gods } from '@website-data';
 
 const GodPlanner = () => {
   const { dispatch, state } = useContext(AppContext);

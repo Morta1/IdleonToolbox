@@ -8,7 +8,7 @@ import {
   summoningUpgrades,
   mapEnemiesArray,
   mapNames
-} from '../../data/website-data';
+} from '@website-data';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { isArtifactAcquired } from '@parsers/sailing';
 import { getAchievementStatus } from '@parsers/achievements';

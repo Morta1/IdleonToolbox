@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, msToDate, notateNumber, prefix } from '../../../utility/helpers';
+import { cleanUnderscore, commaNotation, msToDate, notateNumber, prefix } from '@utility/helpers';
 import processString from 'react-process-string';
 import { NextSeo } from 'next-seo';
 import { calcTotals } from '../../../parsers/printer';

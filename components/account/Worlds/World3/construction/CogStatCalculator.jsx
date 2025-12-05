@@ -3,7 +3,7 @@ import { useContext, useMemo, useState } from 'react';
 import { getCharacterByHighestSkillLevel } from '../../../../../parsers/misc';
 import { AppContext } from '../../../../common/context/AppProvider';
 import { CardTitleAndValue } from '../../../../common/styles';
-import { notateNumber } from '../../../../../utility/helpers';
+import { notateNumber } from '@utility/helpers';
 
 const CogStatCalculator = () => {
   const { state } = useContext(AppContext);

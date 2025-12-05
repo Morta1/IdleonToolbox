@@ -1,5 +1,5 @@
-import { equinoxChallenges, equinoxUpgrades } from '../data/website-data';
-import { tryToParse } from '../utility/helpers';
+import { equinoxChallenges, equinoxUpgrades } from '@website-data';
+import { tryToParse } from '@utility/helpers';
 import { getVialsBonusByStat } from 'parsers/alchemy';
 import { getEventShopBonus, isBundlePurchased, isCompanionBonusActive } from './misc';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';

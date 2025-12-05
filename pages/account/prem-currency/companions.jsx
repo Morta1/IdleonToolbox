@@ -2,7 +2,7 @@ import { NextSeo } from 'next-seo';
 import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
-import { cleanUnderscore, numberWithCommas, prefix } from '../../../utility/helpers';
+import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
 import Timer from '@components/common/Timer';
 import { CardTitleAndValue } from '../../../components/common/styles';
 

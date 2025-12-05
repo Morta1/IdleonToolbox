@@ -18,7 +18,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import Button from '@mui/material/Button';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import { CardTitleAndValue } from '../../../../common/styles';
-import { notateNumber } from '../../../../../utility/helpers';
+import { notateNumber } from '@utility/helpers';
 import SouthIcon from '@mui/icons-material/South';
 import MenuItem from '@mui/material/MenuItem';
 import ConstructionBoard from './ConstructionBoard';

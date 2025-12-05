@@ -1,5 +1,5 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, growth, notateNumber, prefix } from '../../../utility/helpers';
+import { cleanUnderscore, growth, notateNumber, prefix } from '@utility/helpers';
 
 const GuildBonuses = ({ bonuses }) => {
   const getCostToMax = ({ maxLevel, level, gpBaseCost, gpIncrease }) => {

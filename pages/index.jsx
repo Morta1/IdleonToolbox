@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Container, Dialog, DialogContent, DialogTitle, Stack, Typography, useMediaQuery } from '@mui/material';
 import Instructions from 'components/common/Instructions';
-import { getRandomNumbersArray, isProd, prefix } from '../utility/helpers'
+import { getRandomNumbersArray, isProd, prefix } from '@utility/helpers'
 import useInterval from '../components/hooks/useInterval';
 import { animate, AnimatePresence, motion, MotionConfig, useMotionValue } from 'framer-motion'
 import Button from '@mui/material/Button';

@@ -7,7 +7,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import Inventory from '@components/characters/Inventory';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
-import { items } from '../../../data/website-data';
+import { items } from '@website-data';
 
 const DropSection = ({ lastUpdated, resultsOnly }) => {
   const { state } = useContext(AppContext);

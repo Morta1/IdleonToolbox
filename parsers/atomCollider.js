@@ -1,5 +1,5 @@
-import { tryToParse } from '../utility/helpers';
-import { atomsInfo } from '../data/website-data';
+import { tryToParse } from '@utility/helpers';
+import { atomsInfo } from '@website-data';
 import { getBubbleBonus } from './alchemy';
 import { isSuperbitUnlocked } from './gaming';
 import { getStampsBonusByEffect } from '@parsers/stamps';

@@ -1,5 +1,5 @@
-import { arenaBonuses, monsters, petGenes, petStats, petUpgrades, randomList, territory } from '../data/website-data';
-import { createRange, tryToParse } from '../utility/helpers';
+import { arenaBonuses, monsters, petGenes, petStats, petUpgrades, randomList, territory } from '@website-data';
+import { createRange, tryToParse } from '@utility/helpers';
 import { getBubbleBonus, getVialsBonusByEffect } from './alchemy';
 import { getStampsBonusByEffect } from './stamps';
 import { getJewelBonus, getLabBonus } from './lab';

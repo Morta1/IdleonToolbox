@@ -1,5 +1,5 @@
-import { cleanUnderscore, tryToParse } from '../utility/helpers';
-import { invStorage, items } from '../data/website-data';
+import { cleanUnderscore, tryToParse } from '@utility/helpers';
+import { invStorage, items } from '@website-data';
 import { addStoneDataToEquip } from './items';
 import { getEventShopBonus, isBundlePurchased } from '@parsers/misc';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';

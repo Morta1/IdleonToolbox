@@ -6,7 +6,7 @@ import {
   getMonumentMultiReward
 } from '@parsers/world-5/caverns/bravery';
 import { lavaLog, notateNumber } from '@utility/helpers';
-import { holesInfo } from '../../../data/website-data';
+import { holesInfo } from '@website-data';
 import { getStudyBonus } from '@parsers/world-5/hole';
 
 export const getWisdom = (holesObject,  accountData) => {

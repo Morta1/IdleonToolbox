@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '../../../../../utility/helpers';
+import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { getShinyBonus } from '../../../../../parsers/breeding';
 import { MAX_VIAL_LEVEL } from '@parsers/alchemy';
 

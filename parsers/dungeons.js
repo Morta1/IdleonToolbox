@@ -1,4 +1,4 @@
-import { growth, tryToParse } from '../utility/helpers';
+import { growth, tryToParse } from '@utility/helpers';
 import {
   ballsBonuses,
   dungeonCreditShop,
@@ -6,7 +6,7 @@ import {
   dungeonStats,
   dungeonTraits,
   randomList
-} from '../data/website-data';
+} from '@website-data';
 import { getStampsBonusByEffect } from './stamps';
 import { getBribeBonus } from './bribes';
 import { getVialsBonusByStat } from './alchemy';

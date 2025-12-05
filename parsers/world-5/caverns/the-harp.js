@@ -1,6 +1,6 @@
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
-import { holesInfo } from '../../../data/website-data';
+import { holesInfo } from '@website-data';
 import { commaNotation, fillArrayToLength, notateNumber } from '@utility/helpers';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';

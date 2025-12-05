@@ -9,7 +9,7 @@ import {
   TableSortLabel,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, prefix } from '../../../utility/helpers';
+import { cleanUnderscore, prefix } from '@utility/helpers';
 import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import { format } from 'date-fns';

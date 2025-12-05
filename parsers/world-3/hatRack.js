@@ -1,5 +1,5 @@
 import { tryToParse, notateNumber } from '@utility/helpers';
-import { items, itemsArray } from '../../data/website-data';
+import { items, itemsArray } from '@website-data';
 
 export const getHatRack = (idleonData, account) => {
   const rawSpelunk = tryToParse(idleonData?.Spelunk);

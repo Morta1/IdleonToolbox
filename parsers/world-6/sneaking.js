@@ -6,7 +6,7 @@ import {
   ninjaUpgrades,
   pristineCharms as rawPristineCharms,
   randomList
-} from '../../data/website-data';
+} from '@website-data';
 import { getLabBonus } from "@parsers/lab";
 import { CLASSES, getHighestTalentByClass } from "@parsers/talents";
 import { getLegendTalentBonus } from "@parsers/world-7/legendTalents";

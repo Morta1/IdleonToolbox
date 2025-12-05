@@ -1,4 +1,4 @@
-import { lavaLog, notateNumber, tryToParse } from '../utility/helpers';
+import { lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { getDeityLinkedIndex } from './divinity';
 import { isArtifactAcquired } from './sailing';
 import { checkCharClass, CLASSES, getTalentBonus } from './talents';

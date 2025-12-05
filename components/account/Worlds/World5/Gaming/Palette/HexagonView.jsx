@@ -1,5 +1,5 @@
 import { Box, Tooltip, Typography, Stack, Chip } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix, commaNotation } from '../../../../../../utility/helpers';
+import { cleanUnderscore, notateNumber, prefix, commaNotation } from '@utility/helpers';
 import React from 'react';
 
 const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemMatchesSearch, searchTerm, selectedSlots }) => {

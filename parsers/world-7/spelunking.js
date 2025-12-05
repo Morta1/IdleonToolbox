@@ -1,5 +1,5 @@
 import { commaNotation, growth, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
-import { generalSpelunky, spelunkingChapters, spelunkingRocks, spelunkingUpgrades } from '../../data/website-data';
+import { generalSpelunky, spelunkingChapters, spelunkingRocks, spelunkingUpgrades } from '@website-data';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getSlabBonus, isArtifactAcquired } from '@parsers/sailing';
 import { getMealsBonusByEffectOrStat } from '@parsers/cooking';

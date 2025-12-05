@@ -7,7 +7,7 @@ import {
   notateNumber,
   numberWithCommas,
   prefix
-} from '../../../../../utility/helpers';
+} from '@utility/helpers';
 import React from 'react';
 import styled from '@emotion/styled';
 

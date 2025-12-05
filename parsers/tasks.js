@@ -1,5 +1,5 @@
-import { tryToParse } from '../utility/helpers';
-import { merits, tasks, taskUnlocks as taskUnlocksData } from '../data/website-data';
+import { tryToParse } from '@utility/helpers';
+import { merits, tasks, taskUnlocks as taskUnlocksData } from '@website-data';
 
 export const getTasks = (idleonData) => {
   const tasksRaw = idleonData?.Tasks || [

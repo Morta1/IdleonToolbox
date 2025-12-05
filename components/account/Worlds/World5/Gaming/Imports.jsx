@@ -1,6 +1,6 @@
 import { calculateSnailEncouragementForSuccessChance } from '../../../../../parsers/gaming';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getBitIndex, notateNumber, numberWithCommas, prefix } from '../../../../../utility/helpers';
+import { cleanUnderscore, getBitIndex, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import Timer from '../../../../common/Timer';
 import Tooltip from '../../../../Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';

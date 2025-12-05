@@ -1,4 +1,4 @@
-import { owlData } from '../../data/website-data';
+import { owlData } from '@website-data';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';

@@ -1,5 +1,5 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '../../../../utility/helpers';
+import { cleanUnderscore, prefix } from '@utility/helpers';
 import Tooltip from '../../../Tooltip';
 import Box from '@mui/material/Box';
 import React from 'react';

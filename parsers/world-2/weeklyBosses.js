@@ -1,4 +1,4 @@
-import { weeklyBosses, weeklyBossesActions, weeklyBossesShop, weeklyBossesTasks } from '../../data/website-data';
+import { weeklyBosses, weeklyBossesActions, weeklyBossesShop, weeklyBossesTasks } from '@website-data';
 import LavaRand from '../../utility/lavaRand';
 import { lavaLog } from '@utility/helpers';
 import { getMaxDamage } from '../damage';

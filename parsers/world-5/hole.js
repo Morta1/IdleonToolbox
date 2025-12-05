@@ -1,5 +1,5 @@
 import { commaNotation, lavaLog, notateNumber, numberWithCommas, tryToParse } from '@utility/helpers';
-import { cosmoUpgrades, gods, holesBuildings, holesInfo, lampWishes } from '../../data/website-data';
+import { cosmoUpgrades, gods, holesBuildings, holesInfo, lampWishes } from '@website-data';
 import { getSchematicBonus, getTheWell } from '@parsers/world-5/caverns/the-well';
 import { getMotherlode } from '@parsers/world-5/caverns/motherlode';
 import { getTheDen } from '@parsers/world-5/caverns/the-den';

@@ -1,5 +1,5 @@
 import { tryToParse, lavaLog, lavaLog2, commaNotation, notateNumber } from '@utility/helpers';
-import { generalSpelunky, bubbaUpgrades } from '../../data/website-data';
+import { generalSpelunky, bubbaUpgrades } from '@website-data';
 
 export const getBubba = (idleonData, account) => {
   const rawBubba = tryToParse(idleonData?.Bubba);

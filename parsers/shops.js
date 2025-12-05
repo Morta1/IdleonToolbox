@@ -1,5 +1,5 @@
-import { tryToParse } from '../utility/helpers';
-import { shops } from '../data/website-data';
+import { tryToParse } from '@utility/helpers';
+import { shops } from '@website-data';
 
 export const getShops = (idleonData) => {
   const shopsRaw = idleonData?.ShopStock || tryToParse(idleonData?.ShopStock);

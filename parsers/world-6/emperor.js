@@ -1,4 +1,4 @@
-import { emperorBonuses } from '../../data/website-data';
+import { emperorBonuses } from '@website-data';
 import { commaNotation, notateNumber } from '@utility/helpers';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getTesseractBonus } from '@parsers/tesseract';

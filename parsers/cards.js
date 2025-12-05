@@ -1,5 +1,5 @@
-import { bonuses, cards, cardSets } from '../data/website-data';
-import { tryToParse } from '../utility/helpers';
+import { bonuses, cards, cardSets } from '@website-data';
+import { tryToParse } from '@utility/helpers';
 
 export const getCards = (idleonData, account) => {
   const cardsRaw = idleonData?.Cards?.[0] || tryToParse(idleonData?.Cards0);

@@ -2,7 +2,7 @@ import { NextSeo } from 'next-seo';
 import React, { useEffect, useState } from 'react';
 import SimpleLoader from '../components/common/SimpleLoader';
 import { Grid, useMediaQuery } from '@mui/material';
-import { classes } from '../data/website-data';
+import { classes } from '@website-data';
 import { customColors, getVisualizationMap } from '@components/statistics/consts';
 import BarVisualization from '../components/statistics/BarVisualization';
 import PieVisualization from '../components/statistics/PieVisualization';

@@ -1,6 +1,6 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { createRange, msToDate, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
-import { seedInfo } from '../../../../../data/website-data';
+import { seedInfo } from '@website-data';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import React from 'react';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, CircularProgress, Typography, Stack } from '@mui/material';
-import { prefix } from '../../utility/helpers';
+import { prefix } from '@utility/helpers';
 
 /**
  * A simple centered loader with an optional message

@@ -1,5 +1,5 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getBitIndex, notateNumber, prefix } from '../../../../../utility/helpers';
+import { cleanUnderscore, getBitIndex, notateNumber, prefix } from '@utility/helpers';
 import { CardTitleAndValue, TitleAndValue } from '../../../../common/styles';
 import React from 'react';
 import InfoIcon from '@mui/icons-material/Info';

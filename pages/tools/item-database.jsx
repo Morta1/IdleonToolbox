@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Stack, TextField } from '@mui/material';
-import { itemsArray } from '../../data/website-data';
+import { itemsArray } from '@website-data';
 import Tooltip from '@components/Tooltip';
 import ItemDisplay from '@components/common/ItemDisplay';
 import { cleanUnderscore, prefix } from '@utility/helpers';

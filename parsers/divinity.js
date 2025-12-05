@@ -3,9 +3,8 @@ import { isCompanionBonusActive } from './misc';
 import { getActiveBubbleBonus } from './alchemy';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getCoralKidUpgBonus } from './world-7/coralReef';
-
-const { tryToParse } = require('../utility/helpers');
-const { gods } = require('../data/website-data');
+import { gods } from '@website-data';
+import { tryToParse } from '@utility/helpers';
 
 export const getDivinity = (idleonData, serializedCharactersData, accountData) => {
   const divinityRaw = tryToParse(idleonData?.Divinity) || idleonData?.Divinity;

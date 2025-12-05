@@ -1,5 +1,5 @@
 import { getEquinoxBonus } from '@parsers/equinox';
-import { ninjaExtraInfo } from '../../data/website-data';
+import { ninjaExtraInfo } from '@website-data';
 import { getCosmoBonus } from '@parsers/world-5/hole';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';

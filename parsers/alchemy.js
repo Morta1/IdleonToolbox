@@ -1,5 +1,5 @@
 import { createArrayOfArrays, growth, tryToParse } from '@utility/helpers';
-import { cauldrons, p2w, sigils, vials } from '../data/website-data';
+import { cauldrons, p2w, sigils, vials } from '@website-data';
 import { isArtifactAcquired } from './sailing';
 import { getSaltLickBonus } from './saltLick';
 import { getMealsBonusByEffectOrStat } from './cooking';

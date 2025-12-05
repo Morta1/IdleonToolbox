@@ -4,7 +4,7 @@ import { NextSeo } from 'next-seo';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import { items, ninjaExtraInfo } from '../../../data/website-data';
+import { items, ninjaExtraInfo } from '@website-data';
 import { addEquippedItems, findItemInInventory, getAllItems, mergeItemsByOwner } from '@parsers/items';
 import Tooltip from '@components/Tooltip';
 import { Breakdown } from '@components/common/styles';

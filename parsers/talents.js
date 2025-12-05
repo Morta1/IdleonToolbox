@@ -1,5 +1,5 @@
-import { growth } from '../utility/helpers';
-import { classes, classFamilyBonuses, talents } from '../data/website-data';
+import { growth } from '@utility/helpers';
+import { classes, classFamilyBonuses, talents } from '@website-data';
 import { getAchievementStatus } from './achievements';
 import { getHighestLevelOfClass, isCompanionBonusActive } from './misc';
 import { getMinorDivinityBonus } from './divinity';

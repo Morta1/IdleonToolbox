@@ -1,5 +1,5 @@
-import { tryToParse, commaNotation, notateNumber } from '../../utility/helpers';
-import { legendTalents, generalSpelunky } from '../../data/website-data';
+import { tryToParse, commaNotation, notateNumber } from '@utility/helpers';
+import { legendTalents, generalSpelunky } from '@website-data';
 import { getGildedBoostioBonus } from '@parsers/construction';
 import { getGuaranteedCrystalMobs } from '@parsers/misc';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';

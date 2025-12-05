@@ -1,4 +1,4 @@
-import { items, traps as trapsInfo } from '../data/website-data';
+import { items, traps as trapsInfo } from '@website-data';
 import { getVialsBonusByStat } from '@parsers/alchemy';
 import { checkCharClass, CLASSES, getCharacterByHighestTalent, getTalentBonus } from '@parsers/talents';
 import { getCompassBonus } from '@parsers/compass';

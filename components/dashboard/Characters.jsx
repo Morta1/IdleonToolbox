@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
-import { cleanUnderscore, kFormatter, notateNumber, pascalCase, prefix } from '../../utility/helpers';
+import { cleanUnderscore, kFormatter, notateNumber, pascalCase, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 import HtmlTooltip from '../Tooltip';
 import {

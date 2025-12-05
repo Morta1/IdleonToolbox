@@ -1,5 +1,5 @@
 import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
-import { grimoire, mapEnemiesArray, mapNames, monsterDrops, monsters, randomList } from '../data/website-data';
+import { grimoire, mapEnemiesArray, mapNames, monsterDrops, monsters, randomList } from '@website-data';
 import { CLASSES, getTalentBonus } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';

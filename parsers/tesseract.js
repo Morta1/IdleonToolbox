@@ -1,5 +1,5 @@
 import { commaNotation, getFilteredPortals, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
-import { mapEnemiesArray, mapPortals, monsterDrops, monsters, tesseract } from '../data/website-data';
+import { mapEnemiesArray, mapPortals, monsterDrops, monsters, tesseract } from '@website-data';
 import { CLASSES, getCharacterByHighestTalent, getTalentBonus } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getArcadeBonus } from '@parsers/arcade';

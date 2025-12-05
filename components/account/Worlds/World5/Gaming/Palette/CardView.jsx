@@ -1,5 +1,5 @@
 import { Card, CardContent, Stack, Typography, Chip } from '@mui/material';
-import { cleanUnderscore, notateNumber, commaNotation } from '../../../../../../utility/helpers';
+import { cleanUnderscore, notateNumber, commaNotation } from '@utility/helpers';
 import React from 'react';
 
 

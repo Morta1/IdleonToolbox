@@ -1,4 +1,4 @@
-import { createRange, lavaLog, number2letter, tryToParse } from '../utility/helpers';
+import { createRange, lavaLog, number2letter, tryToParse } from '@utility/helpers';
 import { filteredGemShopItems, filteredLootyItems, keysMap } from './parseMaps';
 import {
   bonuses,
@@ -15,7 +15,7 @@ import {
   rawMapNames,
   slab,
   generalSpelunky
-} from '../data/website-data';
+} from '@website-data';
 import { checkCharClass, CLASSES, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
 import { getMealsBonusByEffectOrStat } from './cooking';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './alchemy';

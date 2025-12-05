@@ -1,5 +1,5 @@
 import { tryToParse, notateNumber } from '@utility/helpers';
-import { items } from '../../data/website-data';
+import { items } from '@website-data';
 import { getJadeEmporiumBonus } from '@parsers/world-6/sneaking';
 import { getLoreBonus } from '@parsers/world-7/spelunking';
 import { isArtifactAcquired } from '@parsers/sailing';

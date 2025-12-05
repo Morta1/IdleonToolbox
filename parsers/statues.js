@@ -1,5 +1,5 @@
-import { tryToParse, commaNotation, notateNumber } from '../utility/helpers';
-import { statues as statuesList, zenithMarket } from '../data/website-data';
+import { tryToParse, commaNotation, notateNumber } from '@utility/helpers';
+import { statues as statuesList, zenithMarket } from '@website-data';
 import { CLASSES, getHighestTalentByClass, getTalentBonus } from './talents';
 import { isArtifactAcquired } from '@parsers/sailing';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';

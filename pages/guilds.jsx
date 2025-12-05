@@ -15,7 +15,7 @@ import {
   Typography
 } from '@mui/material';
 import { NextSeo } from 'next-seo';
-import { getDuration, numberWithCommas, prefix, tryToParse } from '../utility/helpers';
+import { getDuration, numberWithCommas, prefix, tryToParse } from '@utility/helpers';
 import IconButton from '@mui/material/IconButton';
 import ErrorIcon from '@mui/icons-material/Error';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';

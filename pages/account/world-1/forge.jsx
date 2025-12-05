@@ -1,7 +1,7 @@
 import { AppContext } from '../../../components/common/context/AppProvider';
 import React, { useContext } from 'react';
 import { Card, CardContent, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
-import { getCoinsArray, getTabs, prefix } from '../../../utility/helpers';
+import { getCoinsArray, getTabs, prefix } from '@utility/helpers';
 import CoinDisplay from '../../../components/common/CoinDisplay';
 import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';

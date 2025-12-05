@@ -2,7 +2,7 @@ import { Card, CardContent, Container, Stack, Typography, useMediaQuery } from '
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
-import { monsters } from '../../../../../data/website-data';
+import { monsters } from '@website-data';
 
 const AbilityTypes = {
   0: 'error.light',

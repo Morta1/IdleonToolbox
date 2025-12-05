@@ -1,5 +1,5 @@
 import { groupByKey, growth, tryToParse } from '@utility/helpers';
-import { crafts, items, stamps } from '../data/website-data';
+import { crafts, items, stamps } from '@website-data';
 import { getTalentBonus } from '@parsers/talents';
 import { calculateItemTotalAmount, flattenCraftObject } from '@parsers/items';
 import { getEventShopBonus, getHighestCapacityCharacter, isBundlePurchased } from '@parsers/misc';

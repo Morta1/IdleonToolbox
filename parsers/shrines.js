@@ -1,5 +1,5 @@
-import { tryToParse } from '../utility/helpers';
-import { shrines } from '../data/website-data';
+import { tryToParse } from '@utility/helpers';
+import { shrines } from '@website-data';
 import { calcCardBonus, getCardBonusByEffect } from './cards';
 import { isArtifactAcquired } from './sailing';
 import { isSuperbitUnlocked } from './gaming';

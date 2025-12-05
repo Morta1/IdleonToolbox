@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
-import { gemShop } from '../../../data/website-data';
+import { gemShop } from '@website-data';
 import {
   Badge,
   Card,
@@ -12,7 +12,7 @@ import {
   ToggleButtonGroup,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, numberWithCommas, prefix } from '../../../utility/helpers';
+import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
 import { CardTitleAndValue } from '@components/common/styles';
 import { IconInfoCircleFilled } from '@tabler/icons-react';

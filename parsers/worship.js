@@ -1,5 +1,5 @@
 import { getStampsBonusByEffect } from './stamps';
-import { round, tryToParse } from '../utility/helpers';
+import { round, tryToParse } from '@utility/helpers';
 import { getCardBonusByEffect } from './cards';
 import {
   CLASSES,
@@ -11,7 +11,7 @@ import {
 } from './talents';
 import { getPostOfficeBonus } from './postoffice';
 import { getActiveBubbleBonus, getBubbleBonus } from './alchemy';
-import { mapNames, randomList, totems } from '../data/website-data';
+import { mapNames, randomList, totems } from '@website-data';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { isSuperbitUnlocked } from '@parsers/gaming';
 

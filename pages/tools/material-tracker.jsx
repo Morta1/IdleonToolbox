@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import React, { useContext, useMemo, useState } from 'react';
 import { cleanUnderscore, handleDownload, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
-import { itemsArray } from '../../data/website-data';
+import { itemsArray } from '@website-data';
 import Button from '@mui/material/Button';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '../../components/Tooltip';

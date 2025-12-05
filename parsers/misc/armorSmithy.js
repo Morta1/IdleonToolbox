@@ -1,4 +1,4 @@
-import { equipmentSets } from '../../data/website-data';
+import { equipmentSets } from '@website-data';
 import { notateNumber } from '@utility/helpers';
 import { isBundlePurchased } from '@parsers/misc';
 

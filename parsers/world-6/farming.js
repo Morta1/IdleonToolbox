@@ -1,5 +1,5 @@
 import { tryToParse } from "@utility/helpers";
-import { exoticMarketInfo, marketInfo, ninjaExtraInfo, seedInfo } from '../../data/website-data';
+import { exoticMarketInfo, marketInfo, ninjaExtraInfo, seedInfo } from '@website-data';
 import { getCharmBonus, isJadeBonusUnlocked } from "@parsers/world-6/sneaking";
 import { getStarSignBonus } from "@parsers/starSigns";
 import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from "@parsers/alchemy";

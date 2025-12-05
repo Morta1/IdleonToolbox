@@ -1,4 +1,4 @@
-import { deathNote, mapEnemies, mapEnemiesArray, monsters, ninjaExtraInfo } from '../data/website-data';
+import { deathNote, mapEnemies, mapEnemiesArray, monsters, ninjaExtraInfo } from '@website-data';
 import { isRiftBonusUnlocked } from './world-4/rift';
 import { lavaLog, tryToParse } from '@utility/helpers';
 

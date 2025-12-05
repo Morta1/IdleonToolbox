@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, findNameCombination, prefix } from '../../../../../utility/helpers';
+import { cleanUnderscore, findNameCombination, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from '../../../../Tooltip';
 

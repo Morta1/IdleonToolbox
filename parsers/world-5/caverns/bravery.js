@@ -1,4 +1,4 @@
-import { holesInfo } from '../../../data/website-data';
+import { holesInfo } from '@website-data';
 import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { fillArrayToLength, notateNumber } from '@utility/helpers';

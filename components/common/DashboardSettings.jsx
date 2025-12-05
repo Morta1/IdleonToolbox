@@ -20,7 +20,7 @@ import React, { useState } from 'react';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import Box from '@mui/material/Box';
-import { handleDownload, prefix } from '../../utility/helpers';
+import { handleDownload, prefix } from '@utility/helpers';
 import Tabber from './Tabber';
 import Button from '@mui/material/Button';
 import FileUploadButton from '@components/common/DownloadButton';

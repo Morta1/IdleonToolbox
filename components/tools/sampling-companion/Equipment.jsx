@@ -5,7 +5,7 @@ import ItemDisplay from '../../common/ItemDisplay';
 import { prefix } from 'utility/helpers';
 import Tooltip from '../../Tooltip';
 import { CLASSES, talentPagesMap } from '@parsers/talents';
-import { items as itemsList } from '../../../data/website-data';
+import { items as itemsList } from '@website-data';
 
 const Equipment = ({ equipment, tools, food, account, character, weaponByClass, hideEmpty, allAccountItems }) => {
   return <Stack>

@@ -1,4 +1,4 @@
-import { atomsInfo, cookingMenu, monsters, randomList, bonuses } from '../data/website-data';
+import { atomsInfo, cookingMenu, monsters, randomList, bonuses } from '@website-data';
 import { getStampsBonusByEffect } from './stamps';
 import { getStatsFromGear } from './items';
 import { tryToParse } from '@utility/helpers';

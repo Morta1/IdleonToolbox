@@ -1,5 +1,5 @@
 import { growth, tryToParse } from '@utility/helpers';
-import { classFamilyBonuses, items, randomList, refinery } from '../data/website-data';
+import { classFamilyBonuses, items, randomList, refinery } from '@website-data';
 import { calculateItemTotalAmount } from './items';
 import { getPostOfficeBonus } from '@parsers/postoffice';
 import { getVialsBonusByEffect } from '@parsers/alchemy';

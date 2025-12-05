@@ -1,6 +1,6 @@
 import { Stack } from '@mui/material';
 import { format, isValid } from 'date-fns';
-import { notateNumber, prefix } from '../../../../../utility/helpers';
+import { notateNumber, prefix } from '@utility/helpers';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 
 const Trade = ({ rawName, date, lootItemCost, moneyValue }) => {

@@ -2,7 +2,7 @@ import { Stack, Typography } from '@mui/material';
 import React, { useContext } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import Timer from '../../../components/common/Timer';
-import { getTabs, notateNumber } from '../../../utility/helpers';
+import { getTabs, notateNumber } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
 import { Breakdown, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';

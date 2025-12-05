@@ -4,7 +4,7 @@ import { MAX_VIAL_LEVEL, vialCostsArray } from '@parsers/alchemy';
 import { getChipsAndJewels, maxNumberOfSpiceClicks } from '@parsers/cooking';
 import { cleanUnderscore, getDuration, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
-import { items, liquidsShop } from '../../data/website-data';
+import { items, liquidsShop } from '@website-data';
 import { hasMissingMats } from '@parsers/refinery';
 import { calcTotals } from '@parsers/printer';
 import { findItemInInventory, findQuantityOwned, getAllItems } from '@parsers/items';

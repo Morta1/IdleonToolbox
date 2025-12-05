@@ -19,8 +19,8 @@ import {
 } from 'firebase/firestore';
 import { getApp } from 'firebase/app';
 import app from './config';
-import { tryToParse } from '../utility/helpers';
-import { guildBonuses } from '../data/website-data';
+import { tryToParse } from '@utility/helpers';
+import { guildBonuses } from '@website-data';
 import { calculateGuildBonusCost } from '../parsers/guild';
 
 const signInWithToken = async (token, type) => {

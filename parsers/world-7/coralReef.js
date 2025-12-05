@@ -1,5 +1,5 @@
 import { tryToParse, notateNumber, commaNotation } from '@utility/helpers';
-import { generalSpelunky, coralReef } from '../../data/website-data';
+import { generalSpelunky, coralReef } from '@website-data';
 import {
   isCompanionBonusActive,
   getEventShopBonus,

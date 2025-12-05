@@ -1,5 +1,5 @@
 import { tryToParse, notateNumber, commaNotation } from '@utility/helpers';
-import { generalSpelunky } from '../../data/website-data';
+import { generalSpelunky } from '@website-data';
 
 export const getClamWork = (idleonData, account) => {
   const spelunkingRaw = tryToParse(idleonData?.Spelunk);

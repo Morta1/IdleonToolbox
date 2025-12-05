@@ -1,5 +1,5 @@
-import { gamingImports, gamingPalette, gamingUpgrades, randomList2, superbitsUpgrades } from '../data/website-data';
-import { commaNotation, notateNumber, number2letter } from '../utility/helpers';
+import { gamingImports, gamingPalette, gamingUpgrades, randomList2, superbitsUpgrades } from '@website-data';
+import { commaNotation, notateNumber, number2letter, tryToParse } from '@utility/helpers';
 import { getMinorDivinityBonus } from './divinity';
 import { getHighestCharacterSkill, getHighestLevelCharacter, isMasteryBonusUnlocked } from './misc';
 import { getEquinoxBonus } from './equinox';
@@ -19,8 +19,6 @@ import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
-
-const { tryToParse } = require('../utility/helpers');
 
 
 export const getGaming = (idleonData, characters, account, serverVars) => {

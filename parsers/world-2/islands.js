@@ -1,4 +1,4 @@
-import { notateNumber, number2letter } from '../../utility/helpers';
+import { notateNumber, number2letter } from '@utility/helpers';
 import { getBribeBonus } from '../bribes';
 import { isBundlePurchased } from '../misc';
 import { getStampBonus } from '@parsers/stamps';

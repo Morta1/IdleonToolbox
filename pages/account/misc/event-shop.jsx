@@ -3,7 +3,7 @@ import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { CardTitleAndValue } from '@components/common/styles';
-import { ninjaExtraInfo } from '../../../data/website-data';
+import { ninjaExtraInfo } from '@website-data';
 import { getEventShopBonus } from '@parsers/misc';
 
 const shopItems = ninjaExtraInfo?.[39]?.split(' ').toChunks(2).map(([text, price]) => ({ text, price }));

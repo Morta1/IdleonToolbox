@@ -7,7 +7,7 @@ import {
   getMonumentHourBonus,
   getMonumentMultiReward
 } from '@parsers/world-5/caverns/bravery';
-import { holesInfo } from '../../../data/website-data';
+import { holesInfo } from '@website-data';
 import { getStudyBonus } from '@parsers/world-5/hole';
 
 export const getJustice = (holesObject, accountData) => {

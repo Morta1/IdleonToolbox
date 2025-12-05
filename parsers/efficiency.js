@@ -19,7 +19,7 @@ import {
   isMasteryBonusUnlocked
 } from '@parsers/misc';
 import { getFamilyBonusBonus } from '@parsers/family';
-import { bonuses, classFamilyBonuses } from '../data/website-data';
+import { bonuses, classFamilyBonuses } from '@website-data';
 import { calculateItemTotalAmount, getStatsFromGear } from '@parsers/items';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
 import { getCardBonusByEffect, getEquippedCardBonus } from '@parsers/cards';

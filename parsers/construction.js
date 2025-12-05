@@ -1,5 +1,5 @@
-import { tryToParse } from '../utility/helpers';
-import { cogKeyMap, flagsReqs, randomList, towers } from '../data/website-data';
+import { tryToParse } from '@utility/helpers';
+import { cogKeyMap, flagsReqs, randomList, towers } from '@website-data';
 import { createCogstructionData } from './cogstrution';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getAtomBonus } from '@parsers/atomCollider';

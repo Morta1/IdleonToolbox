@@ -1,5 +1,5 @@
-import { quests } from '../data/website-data';
-import { cloneObject } from '../utility/helpers';
+import { quests } from '@website-data';
+import { cloneObject } from '@utility/helpers';
 
 
 export const isWorldFinished = (characters, accountData, worldIndex) => {
