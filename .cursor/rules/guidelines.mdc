@@ -23,7 +23,7 @@ alwaysApply: true
 - When being asked to reformat, validate or restructure an obuscated code, make sure to look at @IdleonToolbox/parsers for more context.
 - Always prefer using existing functions.
 - Always use readable and maintainable code.
-- For more context you can query the @IdleonToolbox/data/website-data.js file - which contains most of the data relevant to the project.
+- For more context you can query the @IdleonToolbox/data/website-data.json file - which contains most of the data relevant to the project.
 - Few examples of obfuscated function vs existing one:
   - `m._customBlock_Summoning("WinBonus", 27, 0)` -> `getWinnerBonus(account, '<x Amber Gain')`
   - `a.engine.getGameAttribute("OptionsListAccount")[478]` -> `account?.accountOptions?.[478]`
