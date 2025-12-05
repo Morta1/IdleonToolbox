@@ -1,4 +1,4 @@
-import { cards, cardSets, chips, items, prayers, starSignByIndexMap } from './website-data.js';
+import { cards, cardSets, chips, items, prayers, starSignByIndexMap } from '@website-data';
 
 const getPrayer = (prayerName) => {
   return prayers?.find(({ name }) => name === prayerName);
