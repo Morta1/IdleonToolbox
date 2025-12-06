@@ -1119,7 +1119,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
   }
   if (fields?.legendTalents?.checked) {
     const legendTalents = {};
-    if (options?.legendTalents?.legendPointsLeftToSpend?.checked) {
+    if (options?.legendTalents?.pointsLeftToSpend?.checked) {
       const pointsLeftToSpend = account?.legendTalents?.pointsLeftToSpend ?? 0;
       if (pointsLeftToSpend > 0) {
         legendTalents.legendPointsLeftToSpend = pointsLeftToSpend;

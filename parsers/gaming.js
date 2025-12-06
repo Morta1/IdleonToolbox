@@ -450,13 +450,27 @@ export const isSuperbitUnlocked = (account, superbitName) => {
   return account?.gaming?.superbitsUpgrades?.find(({ name, unlocked }) => name === superbitName && unlocked)
 }
 
-export const calculateSnailEncouragementForSuccessChance = (snailLevel, desiredSuccessChance) => {
+export const calculateSnailEncouragementForSuccessChance = (snailLevel, desiredSuccessChance, holeBonus = 0) => {
   const epsilon = 1; // Set epsilon to 1 to work with whole numbers
   let low = 0;
   let high = 1000; // Adjust the upper bound based on your specific scenario.
+  
+  // Calculate success chance based on level (matching the updated Snail component logic)
+  const calculateSuccessChance = (encouragement) => {
+    if (snailLevel > 24) {
+      return Math.min(1, (1 - 0.6 * Math.pow(snailLevel - 24, 0.16))
+        * (1 + holeBonus / 100)
+        * (1 + (50 * encouragement) / (3 + encouragement) / 100));
+    } else {
+      return Math.min(1, (1 - 0.1 * Math.pow(snailLevel, 0.71))
+        * (1 + holeBonus / 100)
+        * (1 + (110 * encouragement) / (25 + encouragement) / 100));
+    }
+  };
+  
   while (high - low > epsilon) {
     const mid = Math.floor((low + high) / 2); // Use Math.floor to ensure whole numbers
-    const midValue = (1 - 0.1 * Math.pow(snailLevel, 0.72)) * (1 + (100 * mid) / (25 + mid) / 100);
+    const midValue = calculateSuccessChance(mid);
 
     if (midValue < desiredSuccessChance) {
       low = mid + 1; // Increment low by 1 to ensure progress

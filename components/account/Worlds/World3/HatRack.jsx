@@ -62,7 +62,10 @@ const HatRack = ({ hatsUsed, hatBonuses, totalHats, bonusMulti, allPremiumHelmet
                   ) : null;
 
                   const handleClick = () => {
-                    const itemName = (hat.displayName || hat.rawName || '').replace(/ /g, '_');
+                    let itemName = (hat.displayName || hat.rawName || '').replace(/ /g, '_');
+                    if (itemName === 'Snowman' && hat.Type) {
+                      itemName += `_(${String(hat.Type).toLowerCase().capitalizeAll()})`;
+                    }
                     window.open(`https://idleon.wiki/wiki/${itemName}`, '_blank');
                   };
 
