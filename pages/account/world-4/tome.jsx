@@ -19,6 +19,7 @@ const getFormattedQuantity = ({ x2, x4 }, quantity) => quantity > 1e9 && x2 === 
 const Tome = () => {
   const { state } = useContext(AppContext);
   const [CheckboxEl, showThresholds] = useCheckbox('Show quantity thresholds');
+  const [CheckboxHideMaxedEl, hideMaxed] = useCheckbox('Hide maxed');
 
   // Calculate countdown to next tome nametag reset and next 10 resets
   const { nextResetTime, nextResetTimes } = useMemo(() => {
@@ -85,6 +86,7 @@ return <>
       </Stack>
     </Stack>
     <CheckboxEl/>
+    <CheckboxHideMaxedEl/>
 
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {state?.account?.tome?.tome?.map((bonus, rIndex) => {
@@ -98,6 +100,7 @@ return <>
           requiredQuantities
         } = bonus;
         const formattedQuantity = getFormattedQuantity(bonus, quantity);
+        if (hideMaxed && color === '#56ccff') return null;
         return <Card key={'tome-bonus' + index} sx={{ width: 300 }}>
           <CardContent sx={{
             display: 'flex',
