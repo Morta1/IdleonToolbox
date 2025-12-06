@@ -65,7 +65,7 @@ export const getMaxDamage = (character, characters, account) => {
   const strTalentBonus = getTalentBonus(character?.flatTalents, 'STRENGTH_IN_NUMBERS');
   const intTalentBonus = getTalentBonus(character?.flatTalents, 'KNOWLEDGE_IS_POWER');
   const lukTalentBonus = getTalentBonus(character?.flatTalents, 'LUCKY_HIT');
-  let statBubbleBonus;
+  let statBubbleBonus = 0;
   if (mainStat === 'strength') {
     statBubbleBonus = getBubbleBonus(account, 'FARQUAD_FORCE', false, mainStat === 'strength');
   } else if (mainStat === 'agility') {
