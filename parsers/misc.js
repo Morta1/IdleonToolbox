@@ -2,6 +2,7 @@ import { createRange, lavaLog, number2letter, tryToParse } from '@utility/helper
 import { filteredGemShopItems, filteredLootyItems, keysMap } from './parseMaps';
 import {
   bonuses,
+  bundles as bundlesData,
   classFamilyBonuses,
   companions,
   deathNote,
@@ -313,22 +314,23 @@ const getAmountPerDay = ({ name, dialogThreshold } = {}, characters) => {
 
 export const getBundles = (idleonData) => {
   const bundlesRaw = tryToParse(idleonData?.BundlesReceived) || idleonData?.BundlesReceived;
-  if (!bundlesRaw) return [];
-  return Object.entries(bundlesRaw)
-    ?.reduce(
-      (res, [bundleName, owned]) =>
-        owned
-          ? [
-            ...res,
-            {
-              name: bundleName,
-              owned: !!owned
-            }
-          ]
-          : res,
-      []
-    )
-    .sort((a, b) => a?.name?.match(/_[a-z]/i)?.[0].localeCompare(b?.name?.match(/_[a-z]/i)?.[0]));
+  const ownedBundles = bundlesRaw || {};
+  
+  if (!bundlesData) return [];
+  
+  // Get all bundles from website-data and check ownership status
+  return Object.keys(bundlesData)
+    .map((bundleName) => ({
+      name: bundleName,
+      owned: !!ownedBundles[bundleName]
+    }))
+    .sort((a, b) => {
+      // Sort by bundle type (bun_ vs bon_) then by letter
+      const aType = a.name.startsWith('bun_') ? 0 : a.name.startsWith('bon_') ? 1 : 2;
+      const bType = b.name.startsWith('bun_') ? 0 : b.name.startsWith('bon_') ? 1 : 2;
+      if (aType !== bType) return aType - bType;
+      return a.name.localeCompare(b.name);
+    });
 };
 
 export const isBundlePurchased = (bundles, name) => {

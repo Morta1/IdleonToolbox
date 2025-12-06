@@ -41,7 +41,8 @@ export const PAGES = {
       icon: 'data/PremiumGem',
       categories: [
         { label: 'gemShop', icon: 'data/PremiumGem' },
-        { label: 'companions', icon: 'data/PremiumGem', style: { filter: 'hue-rotate(280deg)' } }
+        { label: 'companions', icon: 'data/PremiumGem', style: { filter: 'hue-rotate(280deg)' } },
+        { label: 'bundles', icon: 'data/PremiumGem' }
       ]
     },
     'class-specific': {
