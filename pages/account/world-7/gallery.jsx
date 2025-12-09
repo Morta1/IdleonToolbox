@@ -22,7 +22,9 @@ const Gallery = () => {
     lv4PodiumsOwned,
     trophiesUsed,
     nametagsUsed,
-    inventoryTrophies
+    inventoryTrophies,
+    allTrophies,
+    allNametags
   } = state?.account?.gallery || {};
 
   if (!state?.account?.gallery) return <MissingData name={'gallery'} />;
@@ -80,11 +82,13 @@ const Gallery = () => {
         trophyBonuses={trophyBonuses}
         formattedTrophyBonuses={formattedTrophyBonuses}
         inventoryTrophies={inventoryTrophies}
+        allTrophies={allTrophies}
       />
       <Nametags 
         nametagsUsed={nametagsUsed}
         nametagBonuses={nametagBonuses}
         formattedNametagBonuses={formattedNametagBonuses}
+        allNametags={allNametags}
       />
     </Tabber>
   </>;

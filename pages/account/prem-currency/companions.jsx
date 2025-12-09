@@ -28,13 +28,16 @@ const CompanionList = ({ title, companions }) => {
                     <img width={42} height={42}
                       style={{ objectFit: 'contain' }}
                       src={`${prefix}afk_targets/${name}.png`} alt={''} />
-                    <Typography>{cleanUnderscore(effect?.replace('{', '+'))}</Typography>
+                    <Stack gap={1}>
+                      <Typography variant='body1'>{cleanUnderscore(name)}</Typography>
+                      <Typography variant='body2' color='text.secondary'>{cleanUnderscore(effect?.replace('{', '+'))}</Typography>
+                      {acquired && (
+                        <Typography variant="body2">
+                          Tradable: {numberWithCommas(tradableCount)}/{numberWithCommas(copies)}
+                        </Typography>
+                      )}
+                    </Stack>
                   </Stack>
-                  {acquired && (
-                    <Typography variant="body2">
-                      Tradable: {numberWithCommas(tradableCount)}/{numberWithCommas(copies)}
-                    </Typography>
-                  )}
                 </Stack>
               </CardContent>
             </Card>

@@ -278,7 +278,7 @@ const parseHole = (holeRaw, jarsRaw, accountData) => {
 export const getEngineerTotalBonus = (upgrade, holesObject, index, accountData) => {
   let formattedDescription = upgrade?.description;
   let value = 0;
-
+  
   switch (index) {
     case 14:
       value = getSchematicBonus({ holesObject, t: index, i: 0 });
@@ -318,9 +318,12 @@ export const getEngineerTotalBonus = (upgrade, holesObject, index, accountData) 
       break;
 
     case 53:
+      value = 1 + getSchematicBonus({ holesObject, t: index, i: 0 }) / 100;
+      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      break;
+
     case 54:
     case 56:
-    case 80:
       value = getSchematicBonus({ holesObject, t: index, i: 0 });
       formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
       break;
@@ -352,6 +355,11 @@ export const getEngineerTotalBonus = (upgrade, holesObject, index, accountData) 
 
     case 76:
       value = Math.pow(1.02, getNewCollectibleChance(holesObject, accountData));
+      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      break;
+
+    case 80:
+      value = Math.pow(1.1, Number(holesObject?.extraCalculations?.[5]));
       formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
       break;
 

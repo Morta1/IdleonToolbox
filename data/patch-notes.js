@@ -4,8 +4,27 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.19',
+    'gameVer': '2.0.48',
+    'date': '09/12/2025',
+    'features': [
+      'Updated the website with version 2.0.48 data and assets',
+      'Added Coral Reef bonus unlock to purple and green bonuses',
+      'Added Coral Reef bonuses to Tome page',
+      'Gallery now shows all trophies and nametags with acquisition state, wiki links, and multiplier details',
+      'Added Grind Time daily bubble levels to bubbles page',
+      'Event shop and premium currency pages add owned counts',
+      'Added bundles total USD value',
+      'Added names to the companions page'
+    ],
+    'fixes': [
+      'Applied the new event shop bonuses across the website',
+      'Capped anvil carry capacity to 2B',
+    ]
+  },
+  {
     'ver': '3.3.18',
-    'gameVer': '2.0.45',
+    'gameVer': '2.0.47',
     'date': '29/11/2025',
     'features': [
       'Updated the website with version 2.0.47 data and assets',

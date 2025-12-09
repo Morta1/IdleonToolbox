@@ -1,5 +1,5 @@
 import { tryToParse, notateNumber } from '@utility/helpers';
-import { items } from '@website-data';
+import { items, itemsArray } from '@website-data';
 import { getJadeEmporiumBonus } from '@parsers/world-6/sneaking';
 import { getLoreBonus } from '@parsers/world-7/spelunking';
 import { isArtifactAcquired } from '@parsers/sailing';
@@ -23,6 +23,8 @@ const parseGallery = (rawSpelunk, account) => {
   const podiumsOwned = getPodiumsOwned(rawSpelunk, account);
   const { bonuses: trophyBonuses, items: trophiesUsed, inventory: inventoryTrophies } = getTrophyBonuses(rawSpelunk, account);
   const { bonuses: nametagBonuses, items: nametagsUsed } = getNametagBonuses(rawSpelunk, account);
+  const allTrophies = getAllTrophies(rawSpelunk, account);
+  const allNametags = getAllNametags(rawSpelunk, account);
 
   // Calculate from highest to lowest, subtracting higher levels from lower ones
   const lv4PodiumsOwned = getLv4PodiumsOwned(account);
@@ -43,7 +45,9 @@ const parseGallery = (rawSpelunk, account) => {
     lv4PodiumsOwned,
     trophiesUsed,
     nametagsUsed,
-    inventoryTrophies
+    inventoryTrophies,
+    allTrophies,
+    allNametags
   }
 }
 
@@ -325,6 +329,150 @@ export const getLv3PodiumsOwned = (account) => {
 }
 
 export const getLv4PodiumsOwned = (account) => {
+  const eventShopBonus = getEventShopBonus(account, 29);
   const companionBonus = isCompanionBonusActive(account, 28) ? account?.companions?.list?.at(28)?.bonus : 0;
-  return Math.min(1, companionBonus);
+  return Math.min(1, companionBonus + eventShopBonus);
+}
+
+const getAllTrophies = (rawSpelunk, account) => {
+  const rawTrophies = rawSpelunk?.[16] || [];
+  const trophyCount = rawTrophies?.length || 0;
+  const podiumsOwned = getPodiumsOwned(rawSpelunk, account);
+  const maxTrophyIndex = Math.min(trophyCount, 48 + podiumsOwned);
+  const bonusMulti = getGalleryBonusMulti(rawSpelunk, account);
+  
+  // Create sets to track owned trophies
+  const ownedTrophyIds = new Set();
+  
+  // Track inventory trophies (indices 0-47)
+  const maxInventoryIndex = Math.min(48, trophyCount);
+  for (let trophyIndex = 0; trophyIndex < maxInventoryIndex; trophyIndex++) {
+    if (rawTrophies[trophyIndex] >= 1) {
+      ownedTrophyIds.add(rawTrophies[trophyIndex]);
+    }
+  }
+  
+  // Track podium trophies (indices 48+)
+  for (let trophyIndex = 48; trophyIndex < maxTrophyIndex; trophyIndex++) {
+    const isTrophyFilled = (trophyIndex - 48) < podiumsOwned && rawTrophies[trophyIndex] >= 1;
+    if (isTrophyFilled) {
+      ownedTrophyIds.add(rawTrophies[trophyIndex]);
+    }
+  }
+
+  // Get all trophies from items
+  const allTrophies = itemsArray
+    .filter((item) => item?.Type === 'TROPHY')
+    .map((item) => {
+      // Extract trophy ID from rawName (e.g., "Trophy1" -> 1)
+      const trophyIdMatch = item.rawName?.match(/^Trophy(\d+)$/);
+      const trophyId = trophyIdMatch ? parseInt(trophyIdMatch[1], 10) : null;
+      const isAcquired = trophyId !== null && ownedTrophyIds.has(trophyId);
+      
+      const modifiedItem = { ...item };
+      
+      if (isAcquired) {
+        // Determine if it's in inventory or on podium
+        let trophyMultiplier = 0.3 * bonusMulti; // Default inventory multiplier
+        let isOnPodium = false;
+        let podiumLevel = null;
+        
+        // Check if it's on a podium
+        for (let trophyIndex = 48; trophyIndex < maxTrophyIndex; trophyIndex++) {
+          const isTrophyFilled = (trophyIndex - 48) < podiumsOwned && rawTrophies[trophyIndex] === trophyId;
+          if (isTrophyFilled) {
+            trophyMultiplier = getTrophyMultiplier(trophyIndex, rawSpelunk, account);
+            podiumLevel = getPodiumLevel(trophyIndex, account);
+            isOnPodium = true;
+            break;
+          }
+        }
+        
+        // Apply bonus multiplier
+        if (item.UQ1txt && item.UQ1txt != '0' && item.UQ1val && item.UQ1val != 0) {
+          modifiedItem.UQ1val = notateNumber(item.UQ1val * trophyMultiplier, 'MultiplierInfo');
+        }
+        if (item.UQ2txt && item.UQ2txt != '0' && item.UQ2val && item.UQ2val != 0) {
+          modifiedItem.UQ2val = notateNumber(item.UQ2val * trophyMultiplier, 'MultiplierInfo');
+        }
+        
+        if (isOnPodium) {
+          modifiedItem.podiumLevel = podiumLevel;
+          modifiedItem.podiumMultiplier = trophyMultiplier;
+        } else {
+          modifiedItem.inventoryMultiplier = trophyMultiplier;
+        }
+      }
+
+      return {
+        ...modifiedItem,
+        isAcquired
+      };
+    })
+    .sort((a, b) => {
+      // Sort by acquired status first (acquired first), then by ID
+      if (a.isAcquired !== b.isAcquired) {
+        return b.isAcquired - a.isAcquired;
+      }
+      return (a.ID || 0) - (b.ID || 0);
+    });
+
+  return allTrophies;
+}
+
+const getAllNametags = (rawSpelunk, account) => {
+  const rawNametags = rawSpelunk?.[17] || [];
+  const nametagCount = rawNametags?.length || 0;
+  const bonusMulti = getGalleryBonusMulti(rawSpelunk, account);
+  
+  // Create a map to track owned nametags and their levels
+  const ownedNametagsMap = new Map();
+  
+  for (let nametagIndex = 0; nametagIndex < nametagCount; nametagIndex++) {
+    const nametagOwned = rawNametags[nametagIndex];
+    if (nametagOwned >= 1) {
+      const nametagItemName = nametagIndex == 6
+        ? 'EquipmentNametag6b'
+        : 'EquipmentNametag' + nametagIndex;
+      ownedNametagsMap.set(nametagItemName, nametagOwned);
+    }
+  }
+
+  // Get all nametags from items
+  const allNametags = itemsArray
+    .filter((item) => item?.Type === 'NAMETAG')
+    .map((item) => {
+      const isAcquired = ownedNametagsMap.has(item.rawName);
+      const nametagLevel = isAcquired ? ownedNametagsMap.get(item.rawName) : null;
+      
+      const modifiedItem = { ...item };
+      
+      if (isAcquired && nametagLevel) {
+        const bonusMultiplier = getNametagMultiplier(nametagLevel, rawSpelunk, account);
+        
+        // Apply bonus multiplier
+        if (item.UQ1txt && item.UQ1txt != '0' && item.UQ1val && item.UQ1val != 0) {
+          modifiedItem.UQ1val = notateNumber(item.UQ1val * bonusMultiplier, 'MultiplierInfo');
+        }
+        if (item.UQ2txt && item.UQ2txt != '0' && item.UQ2val && item.UQ2val != 0) {
+          modifiedItem.UQ2val = notateNumber(item.UQ2val * bonusMultiplier, 'MultiplierInfo');
+        }
+        modifiedItem.level = nametagLevel;
+        modifiedItem.nametagMultiplier = bonusMultiplier;
+      }
+
+      return {
+        ...modifiedItem,
+        isAcquired
+      };
+    })
+    .sort((a, b) => {
+      // Sort by acquired status first (acquired first), then by ID
+      if (a.isAcquired !== b.isAcquired) {
+        return b.isAcquired - a.isAcquired;
+      }
+      return (a.ID || 0) - (b.ID || 0);
+    });
+
+  return allNametags;
 }

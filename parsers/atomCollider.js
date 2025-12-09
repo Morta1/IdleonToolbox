@@ -5,6 +5,7 @@ import { isSuperbitUnlocked } from './gaming';
 import { getStampsBonusByEffect } from '@parsers/stamps';
 import { getGrimoireBonus } from '@parsers/grimoire';
 import { getCompassBonus } from '@parsers/compass';
+import { getEventShopBonus } from '@parsers/misc';
 
 export const getAtoms = (idleonData, account) => {
   const atomsRaw = tryToParse(idleonData?.Atoms) || idleonData?.Atoms
@@ -24,7 +25,8 @@ const parseAtoms = (divinityRaw, atomsRaw, account) => {
     const maxLevelSuperbit = isSuperbitUnlocked(account, 'Isotope_Discovery') ?? 0;
     const stampBonusReduction = getStampsBonusByEffect(account, 'Lower_Atom_Upgrade_Costs');
     const compassBonus = getCompassBonus(account, 53);
-    const maxLevel = Math.round(20 + (10 * (maxLevelSuperbit ? 1 : 0) + compassBonus));
+    const eventShopBonus = getEventShopBonus(account, 28);
+    const maxLevel = Math.round(20 + (10 * (maxLevelSuperbit ? 1 : 0) + compassBonus + eventShopBonus));
 
     const costObject = {
       account,

@@ -101,12 +101,23 @@ const parseCoralReef = (rawSpelunking, account, coralReefLevels, rawDancingCoral
     } else if (index === 4) {
       description = description.replace('}', Math.ceil(level / 4)).replace('{', Math.ceil(3 * level));
     }
+    let extraData;
+
+    if (index === 2) {
+      const loreBonuses = account?.spelunking?.loreBonuses;
+      extraData = loreBonuses?.map((bonus) => ({ ...bonus, unlocked: level >= bonus?.index }))?.filter((_, index) => index < reefData?.x1);
+    } 
+    else if (index === 3) {
+      const specialUpgrades = account?.sneaking?.upgrades?.filter((upgrade) => upgrade?.isSpecialUpgrade);
+      extraData = specialUpgrades?.map((upgrade) => ({ ...upgrade, unlocked: level >= upgrade?.unlockOrder }));
+    } 
 
     return {
       index,
       level: level || 0,
       ...reefData,
       description,
+      extraData,
       cost: getReefCost(account, index, level || 0),
       bonus: index === 0 ? grindTimeDaily : index === 4 ? 0 : 0
     };
@@ -219,7 +230,7 @@ export const getReefDayGains = (account) => {
     { title: 'Multiplicative' },
     { name: 'Companion', value: companionBonusValue },
     { name: 'Event Shop', value: .3 * eventShopBonus },
-    { name: 'Gem Shop', value: 20 *gemShopBonus },
+    { name: 'Gem Shop', value: 20 * gemShopBonus },
     { title: 'Additive' },
     { name: 'Coral Kid Upgrade', value: coralKidBonus },
     { name: 'Dancing Coral', value: dancingCoralBonus },

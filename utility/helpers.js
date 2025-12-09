@@ -730,6 +730,12 @@ export const getFilteredPortals = () => {
 
 // Parses shorthand notations like '12B', '2QQ', '3.2QQQ' into numbers
 // Also handles locale-specific thousands separators like '12.000.000' (German) or '12,000,000' (US)
+// Supports various international formats:
+// - US: '12,000.5' or '12,000'
+// - German/European: '12.000,5' or '12.000'
+// - French: '12 000,5' or '12 000'
+// - Decimal with comma: '12,5' (12.5)
+// - Decimal with period: '12.5' (12.5)
 export function parseShorthandNumber(input) {
   if (typeof input !== 'string') return NaN;
 
@@ -742,43 +748,92 @@ export function parseShorthandNumber(input) {
     q: 1e15,
   };
 
-  const cleaned = input
+  // Remove spaces and Unicode separators, but keep comma and period for analysis
+  let cleaned = input
     .trim()
     .replace(/\s+/g, '')          // remove all spaces
     .replace(/\p{Z}/gu, '')       // remove Unicode separators
-    .replace(/[,'`'´'' ]/g, '')   // remove common punctuation separators (keep decimal point)
+    .replace(/['`'´'' ]/g, '')    // remove other punctuation (keep comma and period)
     .replace(/\u00A0/g, '')       // remove non-breaking spaces
     .replace(/\u2009/g, '')       // remove thin spaces
     .replace(/\u202F/g, '')       // remove narrow no-break spaces
     .toLowerCase();
 
-  const match = cleaned.match(/^([0-9.]+)([kmbtq]*)$/);
-  if (!match) return NaN;
+  // Extract suffix (k, m, b, t, q, etc.)
+  const suffixMatch = cleaned.match(/([kmbtq]+)$/);
+  const suffix = suffixMatch ? suffixMatch[1] : '';
+  const numberPart = suffixMatch ? cleaned.slice(0, -suffix.length) : cleaned;
 
-  let numberPart = match[1];
-  let suffix = match[2];
+  // Validate that numberPart contains only digits, commas, and periods
+  if (!/^[\d.,]+$/.test(numberPart)) return NaN;
 
-  // Handle locale-specific thousands separators
-  // If there are multiple periods, treat all as thousands separators
+  // Count occurrences of comma and period
+  const commaCount = (numberPart.match(/,/g) || []).length;
   const periodCount = (numberPart.match(/\./g) || []).length;
-  if (periodCount > 1) {
-    // Multiple periods: treat all as thousands separators
-    numberPart = numberPart.replace(/\./g, '');
-  } else if (periodCount === 1) {
-    // Single period: check if it's likely a thousands separator or decimal point
-    const periodIndex = numberPart.indexOf('.');
-    const digitsAfterPeriod = numberPart.length - periodIndex - 1;
-    
-    // If there are 3 digits after the period, it's likely a thousands separator
-    // If there are more than 3 digits, it's likely a decimal point
-    if (digitsAfterPeriod === 3) {
-      // Treat as thousands separator
-      numberPart = numberPart.replace('.', '');
-    }
-    // Otherwise, treat as decimal point (no change needed)
-  }
+  const hasComma = commaCount > 0;
+  const hasPeriod = periodCount > 0;
 
-  const num = parseFloat(numberPart);
+  let normalizedNumber = numberPart;
+
+  // Strategy: Determine which character is the decimal separator
+  if (hasComma && hasPeriod) {
+    // Both present: the last one is typically the decimal separator
+    const lastCommaIndex = numberPart.lastIndexOf(',');
+    const lastPeriodIndex = numberPart.lastIndexOf('.');
+    
+    if (lastCommaIndex > lastPeriodIndex) {
+      // Comma is decimal separator (e.g., '12.000,5')
+      normalizedNumber = numberPart.replace(/\./g, '').replace(',', '.');
+    } else {
+      // Period is decimal separator (e.g., '12,000.5')
+      normalizedNumber = numberPart.replace(/,/g, '');
+    }
+  } else if (hasComma && !hasPeriod) {
+    // Only comma: determine if it's decimal or thousands separator
+    if (commaCount === 1) {
+      // Single comma: check context
+      const commaIndex = numberPart.indexOf(',');
+      const digitsAfterComma = numberPart.length - commaIndex - 1;
+      const digitsBeforeComma = commaIndex;
+      
+      // If exactly 3 digits after comma and more than 3 digits before, likely thousands separator
+      // Otherwise, likely decimal separator
+      if (digitsAfterComma === 3 && digitsBeforeComma > 3) {
+        // Thousands separator (e.g., '1234,567')
+        normalizedNumber = numberPart.replace(',', '');
+      } else {
+        // Decimal separator (e.g., '12,5' or '123,4567')
+        normalizedNumber = numberPart.replace(',', '.');
+      }
+    } else {
+      // Multiple commas: all are thousands separators (e.g., '1,234,567')
+      normalizedNumber = numberPart.replace(/,/g, '');
+    }
+  } else if (hasPeriod && !hasComma) {
+    // Only period: determine if it's decimal or thousands separator
+    if (periodCount === 1) {
+      // Single period: check context
+      const periodIndex = numberPart.indexOf('.');
+      const digitsAfterPeriod = numberPart.length - periodIndex - 1;
+      const digitsBeforePeriod = periodIndex;
+      
+      // If exactly 3 digits after period and more than 3 digits before, likely thousands separator
+      // Otherwise, likely decimal separator
+      if (digitsAfterPeriod === 3 && digitsBeforePeriod > 3) {
+        // Thousands separator (e.g., '1234.567')
+        normalizedNumber = numberPart.replace('.', '');
+      } else {
+        // Decimal separator (e.g., '12.5' or '123.4567')
+        normalizedNumber = numberPart; // Already correct
+      }
+    } else {
+      // Multiple periods: all are thousands separators (e.g., '1.234.567')
+      normalizedNumber = numberPart.replace(/\./g, '');
+    }
+  }
+  // else: no comma or period, numberPart is already normalized
+
+  const num = parseFloat(normalizedNumber);
   if (isNaN(num)) return NaN;
 
   // Handle repeated Qs (QQ = 1e18, etc.)

@@ -38,7 +38,7 @@ import { useLocalStorage } from '@mantine/hooks';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getTesseractBonus } from '@parsers/tesseract';
 import { IconChartCohort, IconChevronRight, IconInfoCircleFilled, IconList } from '@tabler/icons-react';
-import { getPossibleZenithMarketBubbles } from '@parsers/alchemy';
+import { getGrindTimeBubbleDaily, getPossibleZenithMarketBubbles } from '@parsers/alchemy';
 import { getAchievementStatus } from '@parsers/achievements';
 
 const bargainOptions = [0, 25, 43.75, 57.81, 68.36, 76.27, 82.20, 86.65, 90];
@@ -134,6 +134,7 @@ const Bubbles = () => {
     bargainTag, classDiscount]);
 
   const possibleZenithMarketBubbles = getPossibleZenithMarketBubbles(state?.account, state?.characters);
+  const grindTimeBubble = getGrindTimeBubbleDaily(state?.account);
   const upgradeableBubbles = useMemo(() => getUpgradeableBubbles(state?.account, state?.characters), [state?.account]);
 
   const getMaxBonus = (func, x1) => {
@@ -197,7 +198,7 @@ const Bubbles = () => {
                 </Stack>
               </CardContent>
             </Card>
-            <UpgradeableBubblesList bubbles={[...upgradeableBubbles?.normal, ...upgradeableBubbles?.atomBubbles, ...(possibleZenithMarketBubbles || [])]}
+            <UpgradeableBubblesList bubbles={[...upgradeableBubbles?.normal, ...upgradeableBubbles?.atomBubbles, ...(possibleZenithMarketBubbles || []), grindTimeBubble]}
               accumulatedCost={accumulatedCost}
               account={state?.account} />
           </CardContent>
@@ -615,13 +616,12 @@ const Dot = () => <Divider
 />
 const UpgradeableBubblesList = ({ bubbles, accumulatedCost, account }) => {
   return <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
-    {bubbles?.map(({ rawName, bubbleName, level, itemReq, index, cauldron, lithium, krukLevelsDaily }, tIndex) => {
+    {bubbles?.map(({ rawName, bubbleName, level, itemReq, index, cauldron, lithium, dailyLevels, isZenithMarket, isGrindTime }, tIndex) => {
       const {
         singleLevelCost,
         total
       } = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldron);
       const atomCost = singleLevelCost > 1e8 && !itemReq?.[0]?.name?.includes('Liquid') && !itemReq?.[0]?.name?.includes('Bits') && getBubbleAtomCost(index, singleLevelCost);
-      const isZenithMarket = krukLevelsDaily !== undefined;
       return <Card variant={'outlined'} key={`${rawName}-${tIndex}-nblb`}
         sx={{ overflow: 'visible', width: 75, height: 75, p: 0 }}>
         <CardContent sx={{ position: 'relative' }}>
@@ -631,9 +631,14 @@ const UpgradeableBubblesList = ({ bubbles, accumulatedCost, account }) => {
                 src={`${prefix}data/Atom2.png`} alt="" /></HtmlTooltip>
             : null}
           {isZenithMarket
-            ? <HtmlTooltip title={`Zenith Market Bubble - ${krukLevelsDaily} daily levels from Kattlekruk`}>
+            ? <HtmlTooltip title={`Zenith Market Bubble - ${dailyLevels} daily levels from Kattlekruk`}>
               <img style={{ position: 'absolute', top: -10, right: lithium ? -45 : -15, width: 30, height: 30 }}
                 src={`${prefix}data/DivGod8.png`} alt="" /></HtmlTooltip>
+            : null}
+          {isGrindTime
+            ? <HtmlTooltip title={`Grind Time Bubble - ${dailyLevels} daily levels from Coral Reef`}>
+              <img style={{ position: 'absolute', top: -10, right: lithium ? -45 : -15, width: 30, height: 30 }}
+                src={`${prefix}data/Reefz1.png`} alt="" /></HtmlTooltip>
             : null}
           <Stack alignItems={'center'}>
             <HtmlTooltip title={<>

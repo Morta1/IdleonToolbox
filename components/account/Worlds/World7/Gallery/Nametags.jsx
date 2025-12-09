@@ -6,12 +6,12 @@ import Tooltip from '@components/Tooltip';
 import styled from '@emotion/styled';
 import ItemDisplay from '@components/common/ItemDisplay';
 
-const Nametags = ({ nametagsUsed, nametagBonuses, formattedNametagBonuses }) => {
+const Nametags = ({ nametagsUsed, nametagBonuses, formattedNametagBonuses, allNametags }) => {
   return (
     <>
-      {nametagsUsed && nametagsUsed.length > 0 && (
+      {allNametags && allNametags.length > 0 && (
         <Stack my={3}>
-          <Typography variant={'h5'} sx={{ mb: 2 }}>Nametags</Typography>
+          <Typography variant={'h5'} sx={{ mb: 2 }}>All Nametags</Typography>
           <Card>
             <CardContent>
               <Box
@@ -21,8 +21,8 @@ const Nametags = ({ nametagsUsed, nametagBonuses, formattedNametagBonuses }) => 
                   gap: 2
                 }}
               >
-                {nametagsUsed.map((nametag, index) => {
-                  const nametagMultiplierInfo = nametag.nametagMultiplier ? (
+                {allNametags.map((nametag, index) => {
+                  const nametagMultiplierInfo = nametag.isAcquired && nametag.nametagMultiplier ? (
                     <>
                       <Divider sx={{ my: 1 }} />
                       <TitleAndValue
@@ -32,17 +32,25 @@ const Nametags = ({ nametagsUsed, nametagBonuses, formattedNametagBonuses }) => 
                     </>
                   ) : null;
 
+                  const handleClick = () => {
+                    let itemName = (nametag.displayName || nametag.rawName || '').replace(/ /g, '_');
+                    window.open(`https://idleon.wiki/wiki/${itemName}`, '_blank');
+                  };
+
                   return (
                     <Tooltip
-                      key={`nametag-${nametag.rawName}-${index}`}
+                      key={`all-nametag-${nametag.rawName}-${index}`}
                       title={<ItemDisplay {...nametag} additionalInfo={nametagMultiplierInfo} />}
                     >
                       <Stack
                         alignItems={'center'}
                         gap={1}
+                        onClick={handleClick}
                         sx={{
                           p: 1,
                           borderRadius: 1,
+                          opacity: nametag.isAcquired ? 1 : 0.3,
+                          cursor: 'pointer',
                           '&:hover': { bgcolor: 'action.hover' }
                         }}
                       >
@@ -52,7 +60,7 @@ const Nametags = ({ nametagsUsed, nametagBonuses, formattedNametagBonuses }) => 
                             alt={nametag.displayName || nametag.rawName}
                           />
                           {nametag.level && (
-                            <Typography >
+                            <Typography>
                               Lv. {nametag.level}
                             </Typography>
                           )}
@@ -60,6 +68,11 @@ const Nametags = ({ nametagsUsed, nametagBonuses, formattedNametagBonuses }) => 
                         <Typography variant={'caption'} textAlign={'center'}>
                           {(nametag.displayName || nametag.rawName)?.replace(/_/g, ' ')}
                         </Typography>
+                        {!nametag.isAcquired && (
+                          <Typography variant={'caption'} color={'text.disabled'} textAlign={'center'}>
+                            Not Acquired
+                          </Typography>
+                        )}
                       </Stack>
                     </Tooltip>
                   );

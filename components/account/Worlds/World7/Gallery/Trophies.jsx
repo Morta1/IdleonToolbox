@@ -14,7 +14,7 @@ const podiumIconMap = {
   4: 'GalleryPod3.png'
 };
 
-const Trophies = ({ trophiesUsed, trophyBonuses, formattedTrophyBonuses, inventoryTrophies }) => {
+const Trophies = ({ trophiesUsed, trophyBonuses, formattedTrophyBonuses, inventoryTrophies, allTrophies }) => {
   return (
     <>
       {inventoryTrophies && inventoryTrophies.length > 0 && (
@@ -157,6 +157,87 @@ const Trophies = ({ trophiesUsed, trophyBonuses, formattedTrophyBonuses, invento
           </Card>
         </Stack>
       )}
+
+{allTrophies && allTrophies.length > 0 && (
+        <Stack my={3}>
+          <Typography variant={'h5'} sx={{ mb: 2 }}>All Trophies</Typography>
+          <Card>
+            <CardContent>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                  gap: 2
+                }}
+              >
+                {allTrophies.map((trophy, index) => {
+                  const multiplierInfo = trophy.isAcquired ? (
+                    <>
+                      <Divider sx={{ my: 1 }} />
+                      {trophy.podiumMultiplier ? (
+                        <TitleAndValue
+                          title={'Podium Multiplier'}
+                          value={`${notateNumber(trophy.podiumMultiplier, 'MultiplierInfo')}x`}
+                        />
+                      ) : trophy.inventoryMultiplier ? (
+                        <TitleAndValue
+                          title={'Inventory Multiplier'}
+                          value={`${notateNumber(trophy.inventoryMultiplier, 'MultiplierInfo')}x`}
+                        />
+                      ) : null}
+                    </>
+                  ) : null;
+
+                  const handleClick = () => {
+                    let itemName = (trophy.displayName || trophy.rawName || '').replace(/ /g, '_');
+                    window.open(`https://idleon.wiki/wiki/${itemName}`, '_blank');
+                  };
+
+                  const trophySlot = (
+                    <Stack
+                      alignItems={'center'}
+                      gap={0.5}
+                      onClick={handleClick}
+                      sx={{
+                        p: 1,
+                        borderRadius: 1,
+                        opacity: trophy.isAcquired ? 1 : 0.3,
+                        cursor: 'pointer',
+                        '&:hover': { bgcolor: 'action.hover' }
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 48, height: 48 }}>
+                        <TrophyIcon
+                          src={`${prefix}data/${trophy.rawName}.png`}
+                          alt={trophy.displayName || trophy.rawName}
+                        />
+                      </Box>
+                      <Typography variant={'caption'} textAlign={'center'}>
+                        {(trophy.displayName || trophy.rawName)?.replace(/_/g, ' ')}
+                      </Typography>
+                      {!trophy.isAcquired && (
+                        <Typography variant={'caption'} color={'text.disabled'} textAlign={'center'}>
+                          Not Acquired
+                        </Typography>
+                      )}
+                    </Stack>
+                  );
+
+                  return (
+                    <Tooltip
+                      key={`all-trophy-${trophy.rawName}-${index}`}
+                      title={<ItemDisplay {...trophy} additionalInfo={multiplierInfo} />}
+                    >
+                      {trophySlot}
+                    </Tooltip>
+                  );
+                })}
+              </Box>
+            </CardContent>
+          </Card>
+        </Stack>
+      )}
+
 
       {trophyBonuses && trophyBonuses.length > 0 && (
         <Stack my={3}>

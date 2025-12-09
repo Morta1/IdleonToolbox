@@ -322,7 +322,8 @@ export const getBundles = (idleonData) => {
   return Object.keys(bundlesData)
     .map((bundleName) => ({
       name: bundleName,
-      owned: !!ownedBundles[bundleName]
+      owned: !!ownedBundles[bundleName],
+      price: bundlesData[bundleName].price
     }))
     .sort((a, b) => {
       // Sort by bundle type (bun_ vs bon_) then by letter

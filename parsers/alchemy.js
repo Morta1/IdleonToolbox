@@ -681,6 +681,17 @@ export const getUpgradeableBubbles = (acc, characters) => {
   };
 }
 
+export const getGrindTimeBubbleDaily = (account) => {
+  const grindTimeBubble = account?.coralReef?.grindTimeDaily;
+  const bubbles = account?.alchemy?.bubblesFlat;
+  const bubble = bubbles.find(({ bubbleName }) => bubbleName === 'GRIND_TIME');
+
+  return {
+    ...bubble,
+    isGrindTime: true,
+    dailyLevels: grindTimeBubble,
+  }
+}
 export const getPossibleZenithMarketBubbles = (account, characters) => {
   const allBubblesIndexes = ['_0', 'a0', 'b0', 'c0', 'c9', '_11', 'a11', 'a2'];
   const zenithMarketBonus = getZenithBonus(account, 1);
@@ -702,7 +713,7 @@ export const getPossibleZenithMarketBubbles = (account, characters) => {
     || character.secondLinkedDeityIndex === 8
     || isCompanionBonusActive(account, 0));
   if (!hasKrukLinked) return [];
-  return account?.alchemy?.bubblesFlat.filter((bubble) => bubblesIndexes.includes(bubble.bubbleIndex)).map((bubble) => ({ ...bubble, krukLevelsDaily }));
+  return account?.alchemy?.bubblesFlat.filter((bubble) => bubblesIndexes.includes(bubble.bubbleIndex)).map((bubble) => ({ ...bubble, isZenithMarket: true, dailyLevels: krukLevelsDaily }));
 }
 
 export const getKrukBubblesDaily = (account) => {
@@ -713,10 +724,11 @@ export const getKrukBubblesDaily = (account) => {
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Kruk_Bubble_LVs')?.bonus;
   const bubbleBonus = getBubbleBonus(account, 'KATTLE_DA_GOAT', false);
   const spelunkBonus = getSpelunkingBonus(account, 47);
+  const eventShopBonus = getEventShopBonus(account, 31);
 
-  return Math.floor(
-    (20 + stampBonus + legendBonus + zenithBonus)
+  return Math.floor((20 +
+    (stampBonus + (legendBonus + zenithBonus)))
     * (1 + meritocracyBonus / 100)
-    * (1 + (bubbleBonus + arcadeBonus + spelunkBonus) / 100)
-  );
+    * (1 + 0.5 * eventShopBonus)
+    * (1 + (bubbleBonus + (arcadeBonus + spelunkBonus)) / 100))
 }

@@ -10,13 +10,17 @@ const shopItems = ninjaExtraInfo?.[39]?.split(' ').toChunks(2).map(([text, price
 
 const EventShop = () => {
   const { state } = useContext(AppContext);
+  const ownedBonuses = shopItems.filter((_, index) => getEventShopBonus(state?.account, index));
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Stars'}
-                         icon={'etc/Event_Currency.png'}
-                         value={numberWithCommas(state?.account?.accountOptions?.[310])}/>
+        imgStyle={{ width: 24, height: 24 }}
+        icon={'etc/Event_Currency.png'}
+        value={numberWithCommas(state?.account?.accountOptions?.[310])} />
+      <CardTitleAndValue title={'Total bonuses'}
+        value={`${ownedBonuses.length} / ${shopItems.length}`} />
     </Stack>
-    <Divider sx={{ mb: 2 }}/>
+    <Divider sx={{ mb: 2 }} />
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       {shopItems?.map(({ text, price }, index) => {
         const [name, description] = text.split('@');
@@ -31,12 +35,12 @@ const EventShop = () => {
           }}>
             <Stack direction="row" alignItems={'center'} gap={2}>
               <img src={`${prefix}data/EventShopBuy${index}.png`}
-                   alt={'event-' + index}/>
+                alt={'event-' + index} />
               <Typography variant={'body1'}>{cleanUnderscore(name)}</Typography>
             </Stack>
-            <Divider sx={{ my: 1 }}/>
+            <Divider sx={{ my: 1 }} />
             <Typography variant={'body1'}>{cleanUnderscore(description)}</Typography>
-            <Divider sx={{ my: 1 }}/>
+            <Divider sx={{ my: 1 }} />
             <Typography variant={'body1'}>Price: {price}</Typography>
           </CardContent>
         </Card>

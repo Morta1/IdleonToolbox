@@ -1,5 +1,6 @@
 import { tryToParse, notateNumber } from '@utility/helpers';
 import { items, itemsArray } from '@website-data';
+import { getEventShopBonus } from '@parsers/misc';
 
 export const getHatRack = (idleonData, account) => {
   const rawSpelunk = tryToParse(idleonData?.Spelunk);
@@ -7,9 +8,9 @@ export const getHatRack = (idleonData, account) => {
 }
 
 const parseHatRack = (rawSpelunk, account) => {
-  const bonusMulti = getHatRackBonusMulti(rawSpelunk);
+  const bonusMulti = getHatRackBonusMulti(rawSpelunk, account);
   const { bonuses: hatBonuses, items: hatsUsed } = getHatBonuses(rawSpelunk, account);
-  const allPremiumHelmets = getAllPremiumHelmets(rawSpelunk);
+  const allPremiumHelmets = getAllPremiumHelmets(rawSpelunk, account);
 
   return {
     bonusMulti,
@@ -20,9 +21,10 @@ const parseHatRack = (rawSpelunk, account) => {
   }
 }
 
-export const getHatRackBonusMulti = (rawSpelunk) => {
+export const getHatRackBonusMulti = (rawSpelunk, account) => {
   const hatCount = rawSpelunk?.[46]?.length || 0;
-  return 1 + hatCount / 100;
+  const eventShopBonus = getEventShopBonus(account, 30);
+  return 1 + (hatCount + 10 * eventShopBonus  ) / 100
 }
 
 export const getHatBonuses = (rawSpelunk, account) => {
@@ -30,7 +32,7 @@ export const getHatBonuses = (rawSpelunk, account) => {
   const hatCount = rawHats?.length || 0;
   const hatBonusesObj = {};
   const hatsUsedList = [];
-  const bonusMulti = getHatRackBonusMulti(rawSpelunk);
+  const bonusMulti = getHatRackBonusMulti(rawSpelunk, account);
 
   for (let hatIndex = 0; hatIndex < hatCount; hatIndex++) {
     const hatName = rawHats[hatIndex];
@@ -88,10 +90,10 @@ export const getHatRackBonus = (account, bonusName) => {
   return account?.hatRack?.hatBonuses?.find((bonus) => bonus.name === bonusName)?.value ?? 0;
 }
 
-const getAllPremiumHelmets = (rawSpelunk) => {
+const getAllPremiumHelmets = (rawSpelunk, account) => {
   const rawHats = rawSpelunk?.[46] || [];
   const hatsUsedSet = new Set(rawHats);
-  const bonusMulti = getHatRackBonusMulti(rawSpelunk);
+  const bonusMulti = getHatRackBonusMulti(rawSpelunk, account);
 
   // Get all premium helmets from items
   const allPremiumHelmets = itemsArray

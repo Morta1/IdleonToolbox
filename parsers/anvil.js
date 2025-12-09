@@ -180,7 +180,7 @@ export const getPlayerAnvil = (character, characters, account) => {
   stats.anvilSpeed = 3600 * getAnvilSpeed(character?.stats?.agility, speedPoints, anvilZoomerBonus, blackSmithBoxBonus1, hammerHammerBonus, anvilStatueBonus, bobBuildGuyStarSign, talentTownSpeedBonus, upgradeVaultBonus);
 
   const charMaterialBag = character?.carryCapBags?.find(({ Class }) => Class === 'bCraft');
-  stats.anvilCapacity = Math.round(charMaterialBag?.capacityPerSlot * (2 + 0.1 * capPoints));
+  stats.anvilCapacity = Math.round(Math.min(2e9, charMaterialBag?.capacityPerSlot * (2 + 0.1 * capPoints)));
   const selectedProducts = anvilSelected
     .sort((a, b) => a - b)
     .map((item) => anvilProducts[item]);

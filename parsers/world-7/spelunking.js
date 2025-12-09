@@ -1,4 +1,4 @@
-import { commaNotation, growth, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, growth, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { generalSpelunky, spelunkingChapters, spelunkingRocks, spelunkingUpgrades } from '@website-data';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getSlabBonus, isArtifactAcquired } from '@parsers/sailing';
@@ -386,7 +386,8 @@ export const getLoreBonuses = (account) => {
     }
 
     return {
-      name,
+      name: cleanUnderscore(name.replace('|', '_').replace(/^[^a-zA-Z0-9]+(?:x)?[|_]/, "")),
+      description: name.replace('|', '_').replace('{', Math.floor(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo')),
       bonus,
       index: index
     }

@@ -5,7 +5,7 @@ import { getGuaranteedCrystalMobs } from '@parsers/misc';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { isArtifactAcquired } from '@parsers/sailing';
-import { getLoreBossBonus } from '@parsers/world-7/spelunking';
+import { getEventShopBonus } from '@parsers/misc';
 
 export const getLegendTalents = (idleonData, accountData = {}, charactersData = []) => {
   const spelunkingRaw = tryToParse(idleonData?.Spelunk);
@@ -124,6 +124,9 @@ export const getLegendPointsOwned = (accountData = {}, charactersData = []) => {
 
   const artifactBonus = isArtifactAcquired(accountData?.sailing?.artifacts, 'Obsidian')?.bonus ?? 0;
   totalOwned += Math.min(5, Math.round(artifactBonus));
+
+  const eventShopBonus = getEventShopBonus(accountData, 32);
+  totalOwned += 2 * eventShopBonus;
 
   return Math.round(totalOwned);
 };

@@ -26,6 +26,8 @@ const Bundles = () => {
 
   const ownedCount = bundles.filter(b => b.owned).length;
   const totalCount = bundles.length;
+  const ownedBundlesPrice = bundles.reduce((acc, bundle) => acc + (bundle.owned ? bundle.price : 0), 0);
+  const totalPrice = bundles.reduce((acc, bundle) => acc + bundle.price, 0);
 
   return <>
     <NextSeo
@@ -36,6 +38,10 @@ const Bundles = () => {
       <CardTitleAndValue
         title={'Owned Bundles'}
         value={`${ownedCount} / ${totalCount}`}
+      />
+      <CardTitleAndValue
+        title={'Total Price (USD)'}
+        value={`$${ownedBundlesPrice.toFixed(2)} / $${totalPrice.toFixed(2)}`}
       />
       <FormControlLabel
         control={
