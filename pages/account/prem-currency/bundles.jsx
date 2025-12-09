@@ -27,8 +27,8 @@ const Bundles = () => {
   const ownedCount = bundles.filter(b => b.owned).length;
   const totalCount = bundles.length;
   const ownedBundlesPrice = bundles.reduce((acc, bundle) => acc + (bundle.owned ? bundle.price : 0), 0);
-  const totalPrice = bundles.reduce((acc, bundle) => acc + bundle.price, 0);
-
+  const totalPrice = bundles.reduce((acc, bundle) => acc + (bundle.price ?? 0), 0);
+  
   return <>
     <NextSeo
       title="Bundles | Idleon Toolbox"
