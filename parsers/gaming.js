@@ -159,11 +159,14 @@ export const getBitsMulti = (account, characters) => {
   // 'SproutValueNonPlantMulti' == e
   const gummyOrbArtifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Gummy_Orb')?.bonus ?? 0;
   const weatherbookArtifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Weatherbook')?.bonus ?? 0;
-  const snailBonus = Math.pow(2, Math.max(0, Math.min(25, account?.gaming?.snailLevel)));
+  const accountOptionToggle = account?.accountOptions?.[411] ?? 0;
+  const snailBonus = Math.pow(2, Math.max(0, Math.min(25, account?.gaming?.snailLevel))) * Math.pow(1.5,
+    Math.max(0, Math.min(25, account?.gaming?.snailLevel - 25)));
   const acornBonus = 1 + (8 * account?.gaming?.squirrelMulti) / (250 + account?.gaming?.squirrelMulti);
   const elegantShellBonus = account?.gaming?.imports?.[3]?.bonus;
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'GamingBits');
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'GameBits');
+  const vialBonus2 = getVialsBonusByStat(account?.alchemy?.vials, '7bits');
   const bittyLittlyTalentBonus = getHighestTalentByClass(characters, CLASSES.Divine_Knight, 'BITTY_LITTY') ?? 0;
   const highestGaming = getHighestCharacterSkill(characters, 'gaming');
   const winBonus = getWinnerBonus(account, '<x Gaming Bits');
@@ -171,14 +174,19 @@ export const getBitsMulti = (account, characters) => {
   const emperorBonus = getEmperorBonus(account, 7);
   const skillMastery = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.gaming?.rank, 1) || 0;
   const bubbleBonus = getBubbleBonus(account, 'BIT_BY_BIT', false);
+  const paletteBonus7 = getPaletteBonus(account, 7) ?? 0;
+  const paletteBonus18 = getPaletteBonus(account, 18) ?? 0;
+  const meritocracyBonus = getMeritocracyBonus(account, 1) ?? 0;
   const ownedLogBooks = account?.gaming?.logBook?.reduce((sum, { unlocked }) => sum + (unlocked ? 1 : 0), 0);
   const logBookBitBonus = Math.max(1, Math.pow(1.08, ownedLogBooks) + (bubbleBonus * ownedLogBooks) / 100);
+  const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 4 });
 
   const breakdown = [
     { title: 'Multiplicative' },
+    { name: 'Bit Toggle', value: 99 * accountOptionToggle },
     { name: 'Gummy Orb Artifact', value: gummyOrbArtifactBonus / 100 },
     { name: 'Weatherbook Artifact', value: weatherbookArtifactBonus / 100 },
-    { name: 'Monument', value: getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 4 }) / 100 },
+    { name: 'Monument', value: monumentBonus / 100 },
     { name: 'Skill mastery', value: 15 * skillMastery / 100 },
     { name: 'MSA Bonus', value: account?.msaTotalizer?.bit?.value / 100 },
     { name: 'Snail', value: snailBonus },
@@ -187,8 +195,10 @@ export const getBitsMulti = (account, characters) => {
     { name: 'Elegant Shell', value: (account?.gaming?.elegantShellRank * elegantShellBonus) / 100 },
     { name: 'Logbook', value: logBookBitBonus },
     { name: 'Meal', value: mealBonus / 100 },
-    { name: 'Vial', value: vialBonus / 100 },
+    { name: 'Vial', value: vialBonus / 100 + vialBonus2 / 100 },
     { name: 'Bitty Litty Talent', value: bittyLittlyTalentBonus * highestGaming / 100 },
+    { name: 'Palette', value: paletteBonus7 / 100 + paletteBonus18 / 100 },
+    { name: 'Meritocracy', value: meritocracyBonus / 100 },
     {
       name: 'Achievements',
       value: (1 + (getAchievementStatus(account?.achievements, 296) + getAchievementStatus(account?.achievements, 307)) / 20)
@@ -200,9 +210,11 @@ export const getBitsMulti = (account, characters) => {
   ]
 
   return {
-    value: (1 + gummyOrbArtifactBonus / 100)
+    value: (1 + 99 * accountOptionToggle)
+      * (1 + gummyOrbArtifactBonus / 100)
+      * (1 + vialBonus2 / 100)
       * (1 + weatherbookArtifactBonus / 100)
-      * (1 + getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 4 }) / 100)
+      * (1 + monumentBonus / 100)
       * (1 + (15 * skillMastery) / 100)
       * (1 + account?.msaTotalizer?.bit?.value / 100)
       * Math.max(1, snailBonus)
@@ -214,11 +226,15 @@ export const getBitsMulti = (account, characters) => {
       * (1 + (bittyLittlyTalentBonus * highestGaming) / 100)
       * Math.max(1, Math.min(25, account?.gaming?.poingMulti))
       * (1 + (getAchievementStatus(account?.achievements, 296) + getAchievementStatus(account?.achievements, 307)) / 20)
-      * (1 + winBonus / 100) *
-      (1 + lampBonus / 100) *
-      (1 + emperorBonus / 100),
+      * (1 + winBonus / 100)
+      * (1 + lampBonus / 100)
+      * (1 + emperorBonus / 100)
+      * (1 + paletteBonus7 / 100)
+      * (1 + paletteBonus18 / 100)
+      * (1 + meritocracyBonus / 100),
     breakdown,
     expression: `(1 + gummyOrbArtifactBonus / 100)
+  * (1 + 99 * accountOptionToggle)
   * (1 + weatherbookArtifactBonus / 100)
   * (1 + monumentBonus / 100)
   * (1 + (15 * skillMastery) / 100)
@@ -230,6 +246,9 @@ export const getBitsMulti = (account, characters) => {
   * Math.max(1, logBookBitBonus)
   * (1 + (mealBonus + vialBonus) / 100)
   * (1 + (bittyLittlyTalentBonus * highestGaming) / 100)
+  * (1 + paletteBonus7 / 100)
+  * (1 + paletteBonus18 / 100)
+  * (1 + meritocracyBonus / 100)
   * Math.max(1, Math.min(25, account?.gaming?.poingMulti))
   * (1 + (achievement1 + achievement1) / 20)
   * (1 + winBonus / 100) *
@@ -454,7 +473,7 @@ export const calculateSnailEncouragementForSuccessChance = (snailLevel, desiredS
   const epsilon = 1; // Set epsilon to 1 to work with whole numbers
   let low = 0;
   let high = 1000; // Adjust the upper bound based on your specific scenario.
-  
+
   // Calculate success chance based on level (matching the updated Snail component logic)
   const calculateSuccessChance = (encouragement) => {
     if (snailLevel > 24) {
@@ -467,7 +486,7 @@ export const calculateSnailEncouragementForSuccessChance = (snailLevel, desiredS
         * (1 + (110 * encouragement) / (25 + encouragement) / 100));
     }
   };
-  
+
   while (high - low > epsilon) {
     const mid = Math.floor((low + high) / 2); // Use Math.floor to ensure whole numbers
     const midValue = calculateSuccessChance(mid);

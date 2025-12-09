@@ -42,6 +42,98 @@ import { getObolsBonus } from '@parsers/obols';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getCardBonusByEffect } from '@parsers/cards';
 
+export const getFriendBonusStats = (account = {}) => {
+  const FRIEND_BONUS_NAMES = [
+    '% Total Damage',
+    '% Class EXP gain',
+    '% Skill Efficiency',
+    '% Drop Rate',
+    '% Skill EXP gain',
+    '% more Coins'
+  ];
+  const companionList = account?.companions?.list;
+  const hasMrPig = isCompanionBonusActive(account, 30);
+  const hasSpearfish = isCompanionBonusActive(account, 44);
+
+  const slots = Math.round(
+    Math.min(
+      20,
+      2
+      + (hasSpearfish ? companionList?.[44]?.bonus ?? 0 : 0)
+      + 2 * (hasMrPig ? companionList?.[30]?.bonus ?? 0 : 0)
+      + (getEventShopBonus(account, 22) ? 1 : 0)
+    )
+  );
+
+  const extraMultiplier = 1 + (100 * (hasMrPig ? companionList?.[30]?.bonus ?? 0 : 0)) / 100;
+  const rawFriendBonuses = account?.accountOptions?.[476];
+  const bonuses = FRIEND_BONUS_NAMES.map((name, statIndex) => ({
+    statIndex,
+    name,
+    level: 0,
+    friendName: '',
+    value: 0
+  }));
+
+  if (rawFriendBonuses && `${rawFriendBonuses}` !== '0') {
+    const entries = `${rawFriendBonuses}`.split(';').filter(Boolean);
+    const entriesToRead = Math.min(slots, entries.length);
+
+    for (let i = 0; i < entriesToRead; i++) {
+      const [statIndexRaw, levelRaw, friendName] = `${entries[i]}`.split(',');
+      const statIndex = Number(statIndexRaw);
+      const level = Number(levelRaw);
+      const baseValue = Number.isFinite(statIndex) && statIndex < FRIEND_BONUS_NAMES.length
+        ? getFriendBonusQuantity(statIndex, level)
+        : 0;
+      const totalValue = baseValue * extraMultiplier;
+
+      if (Number.isFinite(statIndex) && statIndex < bonuses.length) {
+        bonuses[statIndex] = {
+          statIndex,
+          name: FRIEND_BONUS_NAMES[statIndex] || '',
+          level,
+          friendName,
+          value: totalValue
+        };
+      }
+    }
+  }
+
+  return {
+    slots,
+    multiplier: extraMultiplier,
+    bonuses
+  };
+}
+
+
+const getFriendBonusQuantity = (statIndex, level = 0) => {
+  const cappedLevel = Math.min(12000, Math.max(0, level));
+  const scaling = Math.min(1, 0.2 + cappedLevel / (cappedLevel + 3000));
+
+  switch (statIndex) {
+    case 0:
+      return 100 * scaling;
+    case 1:
+      return 30 * scaling;
+    case 2:
+      return 50 * scaling;
+    case 3:
+      return 25 * scaling;
+    case 4:
+      return 30 * scaling;
+    case 5:
+      return 40 * scaling;
+    default:
+      return 0;
+  }
+}
+
+export const getFriendBonus = (account, index) => {
+  return account?.friendBonusStats?.bonuses?.[index]?.value ?? 0;
+}
+
 export const getAdviceFish = (idleonData) => {
   const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];
   const adviceUpgrades = generalSpelunky?.[18]?.split(' ') || [];
@@ -315,9 +407,9 @@ const getAmountPerDay = ({ name, dialogThreshold } = {}, characters) => {
 export const getBundles = (idleonData) => {
   const bundlesRaw = tryToParse(idleonData?.BundlesReceived) || idleonData?.BundlesReceived;
   const ownedBundles = bundlesRaw || {};
-  
+
   if (!bundlesData) return [];
-  
+
   // Get all bundles from website-data and check ownership status
   return Object.keys(bundlesData)
     .map((bundleName) => ({

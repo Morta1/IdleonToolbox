@@ -388,6 +388,7 @@ export const getLoreBonuses = (account) => {
     return {
       name: cleanUnderscore(name.replace('|', '_').replace(/^[^a-zA-Z0-9]+(?:x)?[|_]/, "")),
       description: name.replace('|', '_').replace('{', Math.floor(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo')),
+      isMulti: name.includes('}'),
       bonus,
       index: index
     }

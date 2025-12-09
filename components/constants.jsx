@@ -20,6 +20,7 @@ export const PAGES = {
         { label: 'storage', icon: 'data/InvStorage42', tabs: ['Items', 'Slots'] },
         { label: 'quests', icon: 'data/Quest62' },
         { label: 'dungeons', icon: 'data/DungeonA7', tabs: ['Passives', 'Rng Items', 'Traits'] },
+        { label: 'friendsStats', icon: 'etc/Friends' },
         {
           label: 'constellations',
           icon: 'data/StarTitle1',

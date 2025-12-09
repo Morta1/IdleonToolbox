@@ -77,15 +77,15 @@ const Tome = () => {
         </Stack>
       } />
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-        {state?.account?.tome?.bonuses?.map(({ name, bonus }, index) => {
-          const formatted = notateNumber(bonus, 'Big');
-          return <CardTitleAndValue key={name} title={cleanUnderscore(name)} value={`${formatted}%`}
-            icon={`etc/Tome_${index}.png`}>
+        {state?.account?.tome?.bonuses?.map(({ name, bonus, isMulti, icon }, index) => {
+          const formatted = isMulti ? notateNumber(1 + bonus / 100, 'MultiplierInfo') : notateNumber(bonus, 'Big');
+          return <CardTitleAndValue key={name} title={cleanUnderscore(name)} value={`${formatted}${isMulti ? 'x' : '%'}`}
+            icon={icon || `etc/Tome_${index}.png`}>
           </CardTitleAndValue>
         })}
         {state?.account?.spelunking?.loreBonuses?.map((upgrade) => {
           if (upgrade?.name === 'filler') return null;
-          return <CardTitleAndValue key={upgrade?.name} title={upgrade?.name} value={`${notateNumber(upgrade?.bonus, 'MultiplierInfo')}%`}
+          return <CardTitleAndValue key={upgrade?.name} title={upgrade?.name} value={`${notateNumber(upgrade?.isMulti ? 1 + upgrade?.bonus / 100 : upgrade?.bonus, 'MultiplierInfo')}${upgrade?.isMulti ? 'x' : '%'}`}
             icon={`etc/Tome_${upgrade?.index + 6}.png`}>
           </CardTitleAndValue>
         })}

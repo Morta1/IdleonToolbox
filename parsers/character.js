@@ -121,6 +121,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getZenithBonus } from '@parsers/statues';
 import { getSuperTalentLeftToSpend } from '@parsers/world-7/legendTalents';
+import { getFriendBonus } from '@parsers/misc';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('@utility/helpers');
 
@@ -239,7 +240,7 @@ export const getCharacters = (idleonData, charsNames) => {
             updatedDetails = updatedDetails * 1e3;
             break;
           }
-          default : {
+          default: {
             updatedKey = key?.split('_')?.[0];
             break;
           }
@@ -318,7 +319,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   const equipmentMapping = { 0: 'armor', 1: 'tools', 2: 'food' };
   const equippableNames = char?.[
     `EquipmentOrder`
-    ]?.reduce(
+  ]?.reduce(
     (result, item, index) => ({
       ...result,
       [equipmentMapping?.[index]]: item
@@ -427,7 +428,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   // character.constructionExpPerHour = getPlayerConstructionExpPerHour(character, account);
   const kills = char?.[`KillsLeft2Advance`];
   character.kills = kills?.reduce((res, map, index) => [...res,
-    parseFloat(mapPortals?.[index]?.[0]) - parseFloat(map?.[0])], []);
+  parseFloat(mapPortals?.[index]?.[0]) - parseFloat(map?.[0])], []);
   const isMiningMap = skillsMaps.mining?.[currentMapIndex];
   const isFishingMap = skillsMaps.fishing?.[currentMapIndex];
   let current = 0, currentIcon;
@@ -635,10 +636,10 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const leftHandTalentBonus = getMaestroHand(character, 'smithing', characters, account, 'LEFT_HAND_OF_LEARNING');
 
     const value = Math.max(0.1, (1 +
-        (talentBonus
-          + (stampBonus
-            + (happyDudeTalentBonus
-              + 25 * skillMasteryBonus))) / 100)
+      (talentBonus
+        + (stampBonus
+          + (happyDudeTalentBonus
+            + 25 * skillMasteryBonus))) / 100)
       * (1 + cardBonus / 100) *
       (1 + postOfficeBonus / 100)
       + (allSkillExp?.value + leftHandTalentBonus) / 100);
@@ -835,16 +836,16 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Trapping_EXP')?.bonus;
 
     const value = Math.max(0.1, 1 + (talentBonus
-        + (stampBonus +
-          (talentBonus2 +
-            (cardBonus
-              + (happyDudeTalentBonus +
-                (postOfficeBonus
-                  + (trappingBonus +
-                    (trappingBonus2 +
-                      (arcadeBonus +
-                        (25 * masteryBonus
-                          + voteBonus)))))))))) / 100
+      + (stampBonus +
+        (talentBonus2 +
+          (cardBonus
+            + (happyDudeTalentBonus +
+              (postOfficeBonus
+                + (trappingBonus +
+                  (trappingBonus2 +
+                    (arcadeBonus +
+                      (25 * masteryBonus
+                        + voteBonus)))))))))) / 100
       + (allSkillExp?.value
         + leftHandTalentBonus) / 100);
 
@@ -893,12 +894,12 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const leftHandTalentBonus = getMaestroHand(character, 'worship', characters, account, 'LEFT_HAND_OF_LEARNING');
 
     const value = Math.max(0.1, 1 + (character?.skillsInfo?.worship?.level / 3
-        + (talentBonus
-          + (talentBonus2
-            + (happyDudeTalentBonus
-              + (starSignBonus +
-                (25 * masteryBonus +
-                  voteBonus)))))) / 100
+      + (talentBonus
+        + (talentBonus2
+          + (happyDudeTalentBonus
+            + (starSignBonus +
+              (25 * masteryBonus +
+                voteBonus)))))) / 100
       + (allSkillExp?.value +
         leftHandTalentBonus) / 100);
 
@@ -932,7 +933,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
 
     const value = Math.max(0.1, (1 + upgradeVaultBonus / 100)
       * (Math.min(Math.pow(cookingEff / (10 * cookingDef),
-          0.25 + getCookingProwess(character, account)), 1)
+        0.25 + getCookingProwess(character, account)), 1)
         + (allSkillExp?.value +
           (leftHandTalentBonus +
             (mealBonus +
@@ -1591,7 +1592,7 @@ export const getJadeRate = (character, account) => {
     * (1 + (ninjaUpgradeBonus * sneakingLevel) / 100) * (1 + ninjaEquip / 100) * (1 + ninjaEquip1 / 100)
     * (1 + charmBonus / 100) * (1 + ninjaEquip2 / 100) * (1 + (vialBonus
       + mealBonus + passiveCardBonus) / 100) * (1 + (ninjaEquip3 + (ninjaEquip4
-      + ninjaEquip5)) / 100) * (1 + (jadeEmporiumBonus + stampBonus) / 100) * (1 + farmingBonus / 100)
+        + ninjaEquip5)) / 100) * (1 + (jadeEmporiumBonus + stampBonus) / 100) * (1 + farmingBonus / 100)
     * (1 + summoningBonus / 100) *
     (1 + (msaBonus
       + sigilBonus) / 100)
@@ -2040,6 +2041,7 @@ export const getDropRate = (character, account, characters) => {
   const armorSetBonus = getArmorSetBonus(account, 'EFAUNT_SET');
   const exoticMarketBonus = getExoticMarketBonus(account, 59);
   const legendTalentBonus = getLegendTalentBonus(account, 1);
+  const friendBonus = getFriendBonus(account, 3);
 
   const additive =
     robbingHoodTalentBonus +
@@ -2080,6 +2082,7 @@ export const getDropRate = (character, account, characters) => {
     emperorBonus +
     armorSetBonus +
     exoticMarketBonus +
+    friendBonus +
     legendTalentBonus;
 
   let dropRate = 1.4 * luckMulti + additive / 100 + 1;
@@ -2494,7 +2497,7 @@ const getPrinterSampleRate = (character, account, charactersLevels) => {
     + (Math.min(5, 0.5 * meritBonus))
     + (Math.min(5, familyPrinterSample))
     + (arcadeSampleBonus + postofficeSampleBonus)) / 100
-  ;
+    ;
 
   return Math.floor(1e3 * printerSample) / 10;
 }
@@ -2521,12 +2524,12 @@ export const getBarbarianZowChow = (allKills, thresholds) => {
       done: thresholds?.map((threshold) => kills >= threshold)
     }
   }).filter(({
-               mapName,
-               afkType
-             }) => afkType === 'FIGHTING' && !excludedMaps[mapName] && !afkType.includes('Fish') && !afkType.includes('Bug') && !mapName.includes('Colosseum'));
+    mapName,
+    afkType
+  }) => afkType === 'FIGHTING' && !excludedMaps[mapName] && !afkType.includes('Fish') && !afkType.includes('Bug') && !mapName.includes('Colosseum'));
 
   const finished = list?.reduce((sum, { done }) => [done?.[0] ? sum?.[0] + 1 : sum?.[0],
-    done?.[1] ? sum?.[1] + 1 : sum?.[1]], [0, 0]);
+  done?.[1] ? sum?.[1] + 1 : sum?.[1]], [0, 0]);
   return {
     finished,
     list
@@ -3015,7 +3018,7 @@ export const getPlayerConstructionSpeed = (character, account) => {
   const talentBonus = getTalentBonus(character?.flatTalents, 'REDOX_RATES', false, true);
   const atomBonus = getAtomBonus(account, 'Helium_-_Talent_Power_Stacker');
   const redSaltAmount = calculateItemTotalAmount([...account?.storage?.list,
-    ...(account?.refinery?.refineryStorage || [])], 'Refinery1', true, true);
+  ...(account?.refinery?.refineryStorage || [])], 'Refinery1', true, true);
   return Math.floor(baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100));
 }
 export const getPlayerConstructionExpPerHour = (character, account) => {

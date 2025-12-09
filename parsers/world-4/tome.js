@@ -50,11 +50,12 @@ export const getTome = (idleonData, account, characters, serverVars) => {
     }
   });
 
-  const bonuses = bonusNames.map((name, index) => ({
-      name: name.replace('+{%', ''),
-      bonus: getTomeBonus(account, totalPoints, index)
-    }
-  ));
+  const bonuses = [...bonusNames, "DMG_Multi", "Drop_Multi"].map((name, index) => ({
+    name: name.replace('+{%', ''),
+    bonus: getTomeBonus(account, totalPoints, index),
+    isMulti: name === "Drop_Multi" || name === "DMG_Multi",
+    ...(name === "Drop_Multi" ? { icon: "etc/Tome_2.png" } : name === "DMG_Multi" ? { icon: "etc/Tome_0.png" } : {})
+  }));
 
   tome = tome.toSorted((a, b) => a.index - b.index);
   let tops = serverVars?.TomePct || []; // Use tops for consistency
@@ -156,17 +157,21 @@ const getTomeBonus = (account, totalPoints, index) => {
   const armorSetBonus = getArmorSetBonus(account, 'TROLL_SET');
   const extraBonus = 1 + (grimoireBonus + armorSetBonus) / 100;
   const bubbleMulti = (totalPoints - 5000) / 2000 * extraBonus;
+  const dmgMulti = getEventShopBonus(account, 0);
+  const dropMulti = getEventShopBonus(account, 27);
 
   return 0 === index ? 10 *
     Math.pow(Math.floor(totalPoints / 100), 0.7) * extraBonus
     : 1 === index ? (1 === account?.accountOptions?.[196] ?
-        4 * Math.pow(Math.floor(Math.max(0, totalPoints - 4e3) / 100), 0.7) * extraBonus : 0)
+      4 * Math.pow(Math.floor(Math.max(0, totalPoints - 4e3) / 100), 0.7) * extraBonus : 0)
       : 2 === index ? (1 === account?.accountOptions?.[197] ?
-          2 * Math.pow(Math.floor(Math.max(0, totalPoints - 8e3) / 100), 0.7) * extraBonus : 0)
+        2 * Math.pow(Math.floor(Math.max(0, totalPoints - 8e3) / 100), 0.7) * extraBonus : 0)
         : 3 === index ? strTomeBonus * bubbleMulti : 4 === index ? agiTomeBonus * bubbleMulti :
-          5 === index ? wisTomeBonus * bubbleMulti : 6 === index && 1 === getEventShopBonus(account, 0)
+          5 === index ? wisTomeBonus * bubbleMulti : 6 === index && dmgMulti
             ? 4 * Math.pow(Math.floor(totalPoints / 1e3), 0.4) * extraBonus
-            : 0
+            : 7 === index && dropMulti
+              ? 3 * Math.pow(Math.floor(totalPoints / 1e3), 0.3) * extraBonus
+              : 0
 }
 
 const calcPointsPercent = (bonus, quantity) => {
