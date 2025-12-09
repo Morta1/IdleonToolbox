@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/tools/card-search", [
+  "static/chunks/9d83ed3bccce72e2.js",
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/c80082f1fda594e4.js",
+  "static/chunks/6532a969801b0f6e.js",
+  "static/chunks/be20f34f5c84af2a.js",
+  "static/chunks/0ab8d45e25542a0f.js",
+  "static/chunks/ee3ffbdad88b6edb.js",
+  "static/chunks/1876abf18aa17df3.js",
+  "static/chunks/dc1efa255576d82e.js",
+  "static/chunks/ef054655485a17fd.js",
+  "static/chunks/d0ca254f9a70f56f.js",
+  "static/chunks/e469b8ed2a334813.js",
+  "static/chunks/65861a372e6fb9f2.js",
+  "static/chunks/cbc67c9543d2016a.js",
+  "static/chunks/08a27ecc575706d5.js",
+  "static/chunks/b42f7dd898828ada.js",
+  "static/chunks/403c49ca47413a4e.js",
+  "static/chunks/turbopack-9dbda19320a3a30b.js"
+])
