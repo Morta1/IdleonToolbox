@@ -122,6 +122,8 @@ import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getZenithBonus } from '@parsers/statues';
 import { getSuperTalentLeftToSpend } from '@parsers/world-7/legendTalents';
 import { getFriendBonus } from '@parsers/misc';
+import { getTesseractMapBonus } from '@parsers/tesseract';
+import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('@utility/helpers');
 
@@ -1994,11 +1996,11 @@ export const getDropRate = (character, account, characters) => {
   const lootyCurseTalentBonus = getTalentBonus(character?.flatTalents, 'CURSE_OF_MR_LOOTY_BOOTY');
   const bossBattleTalentBonus = getTalentBonus(character?.flatStarTalents, 'BOSS_BATTLE_SPILLOVER');
   const dropChanceEquip = getStatsFromGear(character, 2, account);
-  const equipmentDrMulti = getStatsFromGear(character, 91, account);
   const dropChanceTools = getStatsFromGear(character, 2, account, true);
   const dropChanceObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[2]);
   const bubbleBonus = getBubbleBonus(account, 'DROPPIN_LOADS', false);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Drop_Rate');
+  const cardMulti = getCardBonusByEffect(character?.cards?.equippedCards, 'Drop_Rate_Multi');
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 10);
   const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet26' || character?.cards?.cardSet?.rawName === 'CardSet25'
     ? character?.cards?.cardSet?.bonus
@@ -2023,6 +2025,7 @@ export const getDropRate = (character, account, characters) => {
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Cake', character, account, characters);
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Drop_Rate_(Passive)');
   const tomeBonus = account?.tome?.bonuses?.[2]?.bonus ?? 0;
+  const tomeMulti = account?.tome?.bonuses?.[7]?.bonus ?? 0;
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Drop Rate');
   const landRankBonus = getLandRank(account?.farming?.ranks, 9);
   const voteBonus = getVoteBonus(account, 27);
@@ -2042,6 +2045,7 @@ export const getDropRate = (character, account, characters) => {
   const exoticMarketBonus = getExoticMarketBonus(account, 59);
   const legendTalentBonus = getLegendTalentBonus(account, 1);
   const friendBonus = getFriendBonus(account, 3);
+  const spelunkingBonus = getSpelunkingBonus(account, 50);
 
   const additive =
     robbingHoodTalentBonus +
@@ -2083,7 +2087,8 @@ export const getDropRate = (character, account, characters) => {
     armorSetBonus +
     exoticMarketBonus +
     friendBonus +
-    legendTalentBonus;
+    legendTalentBonus +
+    spelunkingBonus;
 
   let dropRate = 1.4 * luckMulti + additive / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
@@ -2096,6 +2101,7 @@ export const getDropRate = (character, account, characters) => {
     final += 2;
   }
 
+  // "AdditionExtraEXPnDR"
   final *= extraDropRate;
 
   const ninjaMasteryDropRate = account?.accountOptions?.[232] >= 1;
@@ -2108,14 +2114,35 @@ export const getDropRate = (character, account, characters) => {
     final *= 1.2
   }
 
+  const tesseractMapBonus = getTesseractMapBonus(account, character, 0);
+  if (tesseractMapBonus) {
+    final *= 1 + tesseractMapBonus / 100;
+  }
+
+  if (cardMulti) {
+    final *= 1 + cardMulti / 100;
+  }
+
+  if (tomeMulti) {
+    final *= 1 + tomeMulti / 100;
+  }
+
+  const dropChanceEquip2 = getStatsFromGear(character, 99, account);
+  final *= 1 + dropChanceEquip2 / 100;
+
   const charmBonus = getCharmBonus(account, 'Cotton_Candy');
-  final *= (1 + charmBonus / 100);
-  final *= (1 + equipmentDrMulti / 100)
+  final *= 1 + charmBonus / 100;
+
+  const equipmentDrMulti = getStatsFromGear(character, 91, account);
+  final *= 1 + equipmentDrMulti / 100;
 
   const thirdCompanionDropRate = isCompanionBonusActive(account, 26) ? account?.companions?.list?.at(26)?.bonus : 0;
   if (thirdCompanionDropRate) {
     final *= Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate));
   }
+
+
+
 
   const breakdown = [
     // Additive section (affects dropRate directly before multipliers)

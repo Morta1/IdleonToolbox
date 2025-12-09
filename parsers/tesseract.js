@@ -183,6 +183,12 @@ export const getRingBaseStats = (itemQuality) => {
   ]
 }
 
+export const getTesseractMapBonus = (account, character, bonusIndex) => {
+  const tesseractMapBonuses = getMaps(account, character);
+  const charMap = tesseractMapBonuses?.find(({ mapIndex }) => parseFloat(mapIndex) === parseFloat(character?.mapIndex));
+  const bonus = charMap?.mapBonuses?.[bonusIndex]?.value;
+  return bonus > 0 ? bonus : 0;
+}
 export const getMaps = (account, character) => {
   const { unlockedPortals, upgrades, mapBonusRaw } = account?.tesseract;
   const overwhelmingEnergy = getTalentBonus(character?.flatTalents, 'OVERWHELMING_ENERGY');
