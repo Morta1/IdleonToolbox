@@ -1,5 +1,5 @@
 __turbopack_load_page_chunks__("/account/prem-currency/bundles", [
-  "static/chunks/6179e5a212be442a.js",
+  "static/chunks/d1d0063e31a904d0.js",
   "static/chunks/1079be68ff366a94.js",
   "static/chunks/4d9770a92ec413f3.js",
   "static/chunks/dc1efa255576d82e.js",
@@ -14,5 +14,5 @@ __turbopack_load_page_chunks__("/account/prem-currency/bundles", [
   "static/chunks/65861a372e6fb9f2.js",
   "static/chunks/63068fca34f587cf.js",
   "static/chunks/ee3ffbdad88b6edb.js",
-  "static/chunks/turbopack-5b61c3ee9627f0e9.js"
+  "static/chunks/turbopack-456951f4450482e7.js"
 ])

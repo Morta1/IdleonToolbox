@@ -57,7 +57,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/74a0deb0b168b9c2.js"
   ],
   "/account/prem-currency/bundles": [
-    "static/chunks/dd391fd7b3213108.js"
+    "static/chunks/62480d48d49a2cf5.js"
   ],
   "/account/prem-currency/companions": [
     "static/chunks/d562503756f987ec.js"
