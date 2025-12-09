@@ -11,6 +11,7 @@ export const patchNotes = [
       'Updated the website with version 2.0.48 data and assets',
       'Added Coral Reef bonus unlock to purple and green bonuses',
       'Added Coral Reef bonuses to Tome page',
+      'Added highscore tooltip to show its upgrades (darts and hoops)',
       'Gallery now shows all trophies and nametags with acquisition state, wiki links, and multiplier details',
       'Added Grind Time daily bubble levels to bubbles page',
       'Event shop and premium currency pages add owned counts',
