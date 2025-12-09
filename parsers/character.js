@@ -2142,8 +2142,6 @@ export const getDropRate = (character, account, characters) => {
   }
 
 
-
-
   const breakdown = [
     // Additive section (affects dropRate directly before multipliers)
     { title: 'Additive' },
