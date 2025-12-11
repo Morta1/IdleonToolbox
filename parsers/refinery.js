@@ -73,9 +73,7 @@ export const getPowerCap = (rank) => {
 }
 
 export const getPowerPerCycle = (rank, account = null) => {
-  const companionBonus = account && isCompanionBonusActive(account, 35) 
-    ? account?.companions?.list?.at(35)?.bonus / 100 
-    : 0;
+  const companionBonus = isCompanionBonusActive(account, 35) ? account?.companions?.list?.at(35)?.bonus : 0;
   return Math.floor(Math.min(25e4, Math.pow(rank, 1.3) * (1 + companionBonus)));
 }
 
@@ -111,6 +109,8 @@ export const getRefineryCycleBonuses = (account, characters) => {
   const familyRefinerySpeed = getFamilyBonusBonus(classFamilyBonuses, 'Refinery_Speed', highestLevelDivineKnight);
   const amplifiedFamilyBonus = (familyRefinerySpeed * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0)
   const voteBonus = getVoteBonus(account, 33);
+  const companionBonus = isCompanionBonusActive(account, 35);
+
 
   const bonusBreakdown = [
     { name: 'Vials', value: redMaltVial / 100 },
@@ -121,7 +121,8 @@ export const getRefineryCycleBonuses = (account, characters) => {
     { name: 'Shinies', value: shinyRefineryBonus / 100 },
     { name: 'Const mastery', value: constructionMastery / 100 },
     { name: 'Arcade', value: arcadeBonus / 100 },
-    { name: 'Vote', value: voteBonus / 100 }
+    { name: 'Vote', value: voteBonus / 100 },
+    { name: 'Companion', value: companionBonus ? 2 : 0 }
   ]
   return {
     bonusBreakdown,
