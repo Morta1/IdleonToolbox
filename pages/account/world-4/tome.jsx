@@ -112,47 +112,69 @@ const Tome = () => {
         const silverReq = requiredQuantities?.silver || null;
         const goldReq = requiredQuantities?.gold || null;
         const blueReq = requiredQuantities?.blue || null;
+        const isReversed = bonus?.x2 === 3; // Type 3: lower quantity = more points
 
-        const tiers = ['silver', 'gold', 'blue'];
-        let activeTier = 'silver';
-        let activeProgress = 0;
-
-        if (silverReq && quantity < silverReq) {
-          activeTier = 'silver';
-          activeProgress = Math.max(0, Math.min(1, quantity / silverReq));
-        } else if (goldReq && quantity < goldReq) {
-          activeTier = 'gold';
-          const start = silverReq || 0;
-          const span = goldReq - start || goldReq;
-          activeProgress = Math.max(0, Math.min(1, (quantity - start) / span));
-        } else if (blueReq) {
-          activeTier = 'blue';
-          if (quantity < blueReq && goldReq) {
-            const span = blueReq - goldReq || blueReq;
-            activeProgress = Math.max(0, Math.min(1, (quantity - goldReq) / span));
-          } else {
-            activeProgress = 1;
-          }
-        }
-
-        const fillColor = segmentColors[activeTier];
-        const segments = tiers.map((tier, idx) => {
-          const activeIdx = tiers.indexOf(activeTier);
-          const progress = idx < activeIdx
-            ? 1
-            : idx === activeIdx
-              ? activeProgress
-              : 0;
-          const requirement = requiredQuantities?.[tier] ?? null;
-          const cumulativePct = requirement ? Math.min(1, quantity / requirement) : 0;
-          return {
+        const tiers = ['bronze', 'silver', 'gold', 'blue'];
+        const segments = tiers.map((tier) => {
+          const segment = {
             tier,
-            progress,
-            fillColor,
-            requirement,
+            progress: 0,
+            fillColor: segmentColors[tier],
+            startPoint: 0,
+            endPoint: null,
             current: quantity,
-            cumulativePct
+            isReversed
           };
+        
+          // Define tier boundaries
+          const bounds = {
+            bronze: { start: 0, end: silverReq },
+            silver: { start: silverReq, end: goldReq || blueReq },
+            gold: { start: goldReq || silverReq, end: blueReq },
+            blue: { start: blueReq, end: null }
+          };
+        
+          const { start, end } = bounds[tier] || {};
+          segment.startPoint = start;
+          segment.endPoint = end;
+        
+          // Calculate progress based on direction
+          if (isReversed) {
+            // Lower quantity = better progress
+            if (tier === 'blue') {
+              segment.progress = quantity <= start ? 1 : 0;
+            } else if (end !== null) {
+              if (quantity >= start) {
+                segment.progress = 0; // Worse than this tier
+              } else if (quantity <= end) {
+                segment.progress = 1; // Better than this tier
+              } else {
+                // Within tier range
+                const span = start - end;
+                segment.progress = span > 0 ? (start - quantity) / span : 1;
+              }
+            }
+          } else {
+            // Higher quantity = better progress
+            if (tier === 'blue') {
+              segment.progress = quantity >= start ? 1 : 0;
+            } else if (end !== null) {
+              if (quantity < start) {
+                segment.progress = 0; // Not reached tier
+              } else if (quantity >= end) {
+                segment.progress = 1; // Completed tier
+              } else {
+                // Within tier range
+                const span = end - start;
+                segment.progress = span > 0 ? (quantity - start) / span : 1;
+              }
+            }
+          }
+        
+          // Clamp progress to [0, 1]
+          segment.progress = Math.max(0, Math.min(1, segment.progress));
+        
+          return segment;
         });
         const formattedQuantity = getFormattedQuantity(bonus, quantity);
         const pointsProgress = Math.min(1, maxPoints ? points / maxPoints : 0);
@@ -204,14 +226,41 @@ const TomeProgressBar = ({ segments, show }) => {
         <Typography variant="caption" color="text.secondary">Tier progress</Typography>
       </Stack>
       <Stack direction={'row'} gap={0.5}>
-      {segments.map(({ tier, progress, fillColor, requirement, current, cumulativePct }) => {
+      {segments.map(({ tier, progress, fillColor, startPoint, endPoint, current, isReversed }) => {
         const currentFormatted = getFormattedQuantity({ x2: 0 }, current);
-        const requirementFormatted = requirement ? getFormattedQuantity({ x2: 0 }, requirement) : 'N/A';
+        const startFormatted = startPoint !== null ? getFormattedQuantity({ x2: 0 }, startPoint) : '0';
+        const endFormatted = endPoint !== null ? getFormattedQuantity({ x2: 0 }, endPoint) : null;
+        
+        let rangeText = '';
+        if (isReversed) {
+          // For reversed: show range from lower to higher, but indicate lower is better
+          if (endFormatted) {
+            rangeText = `${endFormatted} - ${startFormatted}`;
+          } else {
+            rangeText = `${startFormatted}+`;
+          }
+        } else {
+          // Normal: show range from lower to higher
+          if (endFormatted) {
+            rangeText = `${startFormatted} - ${endFormatted}`;
+          } else {
+            rangeText = `${startFormatted}+`;
+          }
+        }
+        
         const tooltipContent = (
           <Stack gap={0.5}>
             <Typography variant="body1" color="text.secondary">{tier.capitalize()} tier</Typography>
-            {current < requirement ? <Typography variant="body2" color="text.secondary">{currentFormatted} / {requirementFormatted}</Typography> :
-              <Typography variant="body2" color="text.secondary">{requirementFormatted}</Typography>}
+            <Typography variant="body2" color="text.secondary">{rangeText}</Typography>
+            {isReversed ? (
+              endFormatted !== null && current > endFormatted && current <= startPoint && (
+                <Typography variant="body2" color="text.secondary">Current: {currentFormatted} (lower is better)</Typography>
+              )
+            ) : (
+              endPoint !== null && current < endPoint && (
+                <Typography variant="body2" color="text.secondary">Current: {currentFormatted}</Typography>
+              )
+            )}
           </Stack>
         );
         return (
@@ -220,7 +269,7 @@ const TomeProgressBar = ({ segments, show }) => {
               position: 'relative',
               flex: 1,
               height: 8,
-              borderRadius: tier === 'silver' ? '4px 0 0 4px' : tier === 'blue' ? '0 4px 4px 0' : 0,
+              borderRadius: tier === 'bronze' ? '4px 0 0 4px' : tier === 'blue' ? '0 4px 4px 0' : 0,
               overflow: 'hidden',
               bgcolor: (theme) => theme.palette.action.hover
             }}>
