@@ -5,7 +5,7 @@ import Tabber from '@components/common/Tabber';
 import Chapters from './Chapters';
 import LoreBosses from './LoreBosses';
 
-const Lore = ({ chapters, loreBosses, bestCaveLevels }) => {
+const Lore = ({ chapters, loreBosses, bestCaveLevels, account }) => {
   return (
     <>
       <Tabber
@@ -13,7 +13,7 @@ const Lore = ({ chapters, loreBosses, bestCaveLevels }) => {
         clearOnChange={['dnt']}
         tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'spelunking', 'Lore')}>
         <Chapters chapters={chapters} />
-        <LoreBosses loreBosses={loreBosses} bestCaveLevels={bestCaveLevels} />
+        <LoreBosses loreBosses={loreBosses} bestCaveLevels={bestCaveLevels} account={account} />
       </Tabber>
     </>
   );

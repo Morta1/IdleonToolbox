@@ -1,13 +1,17 @@
 import React from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { cleanUnderscore, notateNumber, number2letter, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber, number2letter, prefix } from '@utility/helpers';
+import { getAmberDenominator, getAmberIndex } from '@parsers/world-7/spelunking';
 import Tooltip from '@components/Tooltip';
 
-const LoreBosses = ({ loreBosses, bestCaveLevels }) => {
+const LoreBosses = ({ loreBosses, bestCaveLevels, account }) => {
   if (!loreBosses || !Array.isArray(loreBosses)) {
     return <div>No lore bosses available</div>;
   }
+
+  const amberDenominator = getAmberDenominator(account);
+  const amberIndex = getAmberIndex(account);
 
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
@@ -53,8 +57,18 @@ const LoreBosses = ({ loreBosses, bestCaveLevels }) => {
                       <Typography variant="body2" color="text.secondary">
                         Biggest Haul
                       </Typography>
-                      <Typography variant="body1">
-                        {notateNumber(boss.biggestHaul, "Big")}
+                      <Typography variant="body1" component="div">
+                        <Stack direction={'row'} alignItems={'center'} gap={1}>
+                          <img style={{ width: 20, height: 20, objectFit: 'contain' }} src={`${prefix}data/CaveAmber${amberIndex}.png`} alt="" />
+                          <span>
+                            {(() => {
+                              const adjustedHaul = (boss.biggestHaul ?? 0) / amberDenominator;
+                              return adjustedHaul > 1e14
+                                ? notateNumber(adjustedHaul, "Big")
+                                : commaNotation(adjustedHaul);
+                            })()}
+                          </span>
+                        </Stack>
                       </Typography>
                     </Stack>
                   </Grid>

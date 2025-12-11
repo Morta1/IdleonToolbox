@@ -92,7 +92,12 @@ const Spelunking = () => {
 
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'spelunking')}>
       <Upgrades upgrades={upgrades} currentAmber={amberFoundValue} denominator={denominator} amberIndex={getAmberIndex(state?.account)} />
-      <Lore chapters={chapters} loreBosses={loreBosses} bestCaveLevels={bestCaveLevels} />
+      <Lore
+        chapters={chapters}
+        loreBosses={loreBosses}
+        bestCaveLevels={bestCaveLevels}
+        account={state?.account}
+      />
       <Elixirs elixirs={elixirs} ownedElixirs={ownedElixirs} ownedSlots={ownedSlots} maxElixirDuplicates={maxElixirDuplicates} />
       <UpgradeOptimizer character={state?.characters?.[0]} account={state?.account} />
     </Tabber>
