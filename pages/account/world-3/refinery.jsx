@@ -19,7 +19,7 @@ import Tooltip from '../../../components/Tooltip';
 import { calcTotals } from '@parsers/printer';
 import Box from '@mui/material/Box';
 import { Breakdown, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
-import { calcCost, calcResourceToRankUp, calcTimeToRankUp, getRefineryCycles } from '@parsers/refinery';
+import { calcCost, calcResourceToRankUp, calcTimeToRankUp, getPowerPerCycle, getRefineryCycles } from '@parsers/refinery';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const saltsColors = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
@@ -127,7 +127,7 @@ const Refinery = () => {
                                                     quantity,
                                                     totalAmount
                                                   }) => totalAmount >= calcCost(state?.account?.refinery, rank, quantity, rawName, saltIndex));
-        const powerPerCycle = Math.floor(Math.pow(rank, 1.3));
+        const powerPerCycle = getPowerPerCycle(rank, state?.account);
         let fuelTime, combustionTime, saltPerHour, previousSaltPerHour, previousPowerPerCycle, gainValuePerHour,
           gainValuePerCycle;
         if (refineryCycles.length) {
@@ -137,7 +137,7 @@ const Refinery = () => {
           if (saltIndex !== 0) {
             const previousCombustionTime = refineryCycles[Math.floor((saltIndex - 1) / 3)]?.time;
             const previousRank = refinery?.salts?.[saltIndex - 1]?.rank;
-            previousPowerPerCycle = previousRank ? Math.floor(Math.pow(previousRank, 1.3)) : null;
+            previousPowerPerCycle = previousRank ? getPowerPerCycle(previousRank, state?.account) : null;
             previousSaltPerHour = previousPowerPerCycle ? previousPowerPerCycle * 3600 / previousCombustionTime : null;
           }
         }
