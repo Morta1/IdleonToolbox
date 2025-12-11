@@ -231,7 +231,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/1ee6632bb37f6154.js"
   ],
   "/account/world-7/spelunking": [
-    "static/chunks/beb600674f75fa0a.js"
+    "static/chunks/77cb6d0ddef1dcaa.js"
   ],
   "/account/world-7/zenith-market": [
     "static/chunks/9b23700f88aabca4.js"
