@@ -39,10 +39,6 @@ const Bundles = () => {
         title={'Owned Bundles'}
         value={`${ownedCount} / ${totalCount}`}
       />
-      <CardTitleAndValue
-        title={'Total Price (USD)'}
-        value={`$${ownedBundlesPrice.toFixed(2)} / $${totalPrice.toFixed(2)}`}
-      />
       <FormControlLabel
         control={
           <Checkbox
