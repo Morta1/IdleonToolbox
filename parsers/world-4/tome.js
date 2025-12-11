@@ -319,6 +319,8 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(account?.spelunking?.highestSpelunkingLevelCharacter); // 105
   quantities.push(account?.accountOptions?.[443]); // 106
   quantities.push(calcNametagsFound(account?.looty)); // 107
+  quantities.push(account?.bubba?.megafleshOwned); // 108
+  quantities.push(account?.hatRack?.totalHats); // 109
 
   return quantities;
 }

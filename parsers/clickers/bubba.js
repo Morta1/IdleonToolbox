@@ -34,6 +34,7 @@ const getTotalUpgTypesAvailable = (rawBubba) => {
 
 const parseBubba = (rawBubba, account) => {
   const totalUpgTypesAvailable = getTotalUpgTypesAvailable(rawBubba);
+  const megafleshOwned = rawBubba?.[1]?.[8];
   const upgrades = bubbaUpgrades.map((upgrade, index) => {
     return {
       ...upgrade,
@@ -53,7 +54,8 @@ const parseBubba = (rawBubba, account) => {
     progress: rawBubba?.[0]?.[4] || 0,
     progressReq: getProgressReq(totalUpgTypesAvailable),
     bonuses: getBubbaBonusesObject(rawBubba),
-    totalUpgTypesAvailable
+    totalUpgTypesAvailable,
+    megafleshOwned
   };
 }
 
