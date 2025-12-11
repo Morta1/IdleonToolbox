@@ -84,7 +84,7 @@ export default function CookiePolicyDialog({ open, onClose }) {
 
         <Typography mt={3}>
           For more details, please see our{' '}
-          <MuiLink href="https://idleontoolbox.com/privacy-policy" target="_blank" rel="noopener noreferrer">
+          <MuiLink href={`${process.env.NEXT_PUBLIC_IT_URL}/privacy-policy`} target="_blank" rel="noopener noreferrer">
             Privacy Policy
           </MuiLink>.
         </Typography>

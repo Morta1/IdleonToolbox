@@ -1,13 +1,14 @@
 import React, { useContext, useMemo } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, getRealDateInMs, notateNumber } from '@utility/helpers';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import useCheckbox from '@components/common/useCheckbox';
 import Timer from '@components/common/Timer';
+import { segmentColors } from '@parsers/world-4/tome';
 
 const ranks = ['0.1%', '0.5%', '1%', '5%', '10%', '25%', '50%', '60%', '70%', '80%', '90%', '95%']
 const getFormattedQuantity = ({ x2, x4 }, quantity) => quantity > 1e9 && x2 === 1
@@ -20,6 +21,7 @@ const Tome = () => {
   const { state } = useContext(AppContext);
   const [CheckboxEl, showThresholds] = useCheckbox('Show quantity thresholds');
   const [CheckboxHideMaxedEl, hideMaxed] = useCheckbox('Hide capped');
+  const [CheckboxProgressBarsEl, showProgressBars] = useCheckbox('Show progress bars');
 
   // Calculate countdown to next tome nametag reset and next 10 resets
   const { nextResetTime, nextResetTimes } = useMemo(() => {
@@ -93,6 +95,7 @@ const Tome = () => {
     </Stack>
     <CheckboxEl />
     <CheckboxHideMaxedEl />
+    <CheckboxProgressBarsEl />
 
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {state?.account?.tome?.tome?.map((bonus, rIndex) => {
@@ -105,8 +108,53 @@ const Tome = () => {
           points,
           requiredQuantities
         } = bonus;
+        const silverReq = requiredQuantities?.silver || null;
+        const goldReq = requiredQuantities?.gold || null;
+        const blueReq = requiredQuantities?.blue || null;
+
+        const tiers = ['silver', 'gold', 'blue'];
+        let activeTier = 'silver';
+        let activeProgress = 0;
+
+        if (silverReq && quantity < silverReq) {
+          activeTier = 'silver';
+          activeProgress = Math.max(0, Math.min(1, quantity / silverReq));
+        } else if (goldReq && quantity < goldReq) {
+          activeTier = 'gold';
+          const start = silverReq || 0;
+          const span = goldReq - start || goldReq;
+          activeProgress = Math.max(0, Math.min(1, (quantity - start) / span));
+        } else if (blueReq) {
+          activeTier = 'blue';
+          if (quantity < blueReq && goldReq) {
+            const span = blueReq - goldReq || blueReq;
+            activeProgress = Math.max(0, Math.min(1, (quantity - goldReq) / span));
+          } else {
+            activeProgress = 1;
+          }
+        }
+
+        const fillColor = segmentColors[activeTier];
+        const segments = tiers.map((tier, idx) => {
+          const activeIdx = tiers.indexOf(activeTier);
+          const progress = idx < activeIdx
+            ? 1
+            : idx === activeIdx
+              ? activeProgress
+              : 0;
+          const requirement = requiredQuantities?.[tier] ?? null;
+          const cumulativePct = requirement ? Math.min(1, quantity / requirement) : 0;
+          return {
+            tier,
+            progress,
+            fillColor,
+            requirement,
+            current: quantity,
+            cumulativePct
+          };
+        });
         const formattedQuantity = getFormattedQuantity(bonus, quantity);
-        if (hideMaxed && color === '#56ccff') return null;
+        if (hideMaxed && quantity >= requiredQuantities?.blue) return null;
         return <Card key={'tome-bonus' + index} sx={{ width: 300 }}>
           <CardContent sx={{
             display: 'flex',
@@ -121,7 +169,7 @@ const Tome = () => {
                   title={'Affected by your currently active character'}><IconInfoCircleFilled size={16} /></Tooltip>
                 : null}
             </Stack>
-            <Stack mt={'auto'} justifyContent="space-between" direction={'row'}>
+            <Stack mt={'auto'} mb={1} justifyContent="space-between" direction={'row'}>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
                 <Typography>{formattedQuantity}</Typography>
                 {showThresholds ? <Tooltip title={<Stack>
@@ -133,23 +181,52 @@ const Tome = () => {
                   <IconInfoCircleFilled size={16} />
                 </Tooltip> : null}
               </Stack>
-              {/*<Stack direction={'row'} alignItems={'center'} gap={1}>*/}
-              {/*  <Tooltip title={<Stack>*/}
-              {/*    {Object.entries(requiredQuantities).map(([key, value]) => (*/}
-              {/*      <TitleAndValue stackStyle={{ justifyContent: 'space-between' }} key={name + key}*/}
-              {/*                     title={key.capitalize()} value={getFormattedQuantity(bonus, value)}/>*/}
-              {/*    ))}*/}
-              {/*  </Stack>}>*/}
-              {/*    <IconInfoCircleFilled size={16}/>*/}
-              {/*  </Tooltip>*/}
               <Typography color={color}>{commaNotation(points)} PTS</Typography>
-              {/*</Stack>*/}
             </Stack>
+            <TomeProgressBar segments={segments} show={showProgressBars} />
           </CardContent>
         </Card>
       })}
     </Stack>
   </>
+};
+
+const TomeProgressBar = ({ segments, show }) => {
+  if (!show) return null;
+  return (
+    <Stack direction={'row'} gap={0.5} mb={1}>
+      {segments.map(({ tier, progress, fillColor, requirement, current, cumulativePct }) => {
+        const currentFormatted = getFormattedQuantity({ x2: 0 }, current);
+        const requirementFormatted = requirement ? getFormattedQuantity({ x2: 0 }, requirement) : 'N/A';
+        const tooltipContent = (
+          <Stack gap={0.5}>
+            <Typography variant="body1" color="text.secondary">{tier.capitalize()} tier</Typography>
+            {current < requirement ? <Typography variant="body2" color="text.secondary">{currentFormatted} / {requirementFormatted}</Typography> :
+              <Typography variant="body2" color="text.secondary">{requirementFormatted}</Typography>}
+          </Stack>
+        );
+        return (
+          <Tooltip key={tier} title={tooltipContent}>
+            <Box sx={{
+              position: 'relative',
+              flex: 1,
+              height: 8,
+              borderRadius: tier === 'silver' ? '4px 0 0 4px' : tier === 'blue' ? '0 4px 4px 0' : 0,
+              overflow: 'hidden',
+              bgcolor: (theme) => theme.palette.action.hover
+            }}>
+              <Box sx={{
+                position: 'absolute',
+                inset: 0,
+                width: `${progress * 100}%`,
+                bgcolor: fillColor
+              }} />
+            </Box>
+          </Tooltip>
+        );
+      })}
+    </Stack>
+  );
 };
 
 export default Tome;

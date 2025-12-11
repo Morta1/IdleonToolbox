@@ -99,7 +99,7 @@ const Data = () => {
   const handleCopyLink = async (e) => {
     try {
       setAnchorEl(e.currentTarget)
-      await navigator.clipboard.writeText(`https://idleontoolbox.com/?profile=${state?.characters?.[0]?.name}`);
+      await navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_IT_URL}?profile=${state?.characters?.[0]?.name}`);
     } catch (err) {
       console.error(err);
     }
@@ -252,7 +252,7 @@ const Data = () => {
                       overflow: 'hidden',
                       textOverflow: 'ellipsis'
                     }}
-                    href={`https://idleontoolbox.com/?profile=${state?.characters?.[0]?.name}`}>https://idleontoolbox.com/?profile={state?.characters?.[0]?.name}</Link>
+                    href={`${process.env.NEXT_PUBLIC_IT_URL}?profile=${state?.characters?.[0]?.name}`}>{process.env.NEXT_PUBLIC_IT_URL}?profile={state?.characters?.[0]?.name}</Link>
                 </Box>
                 <ButtonStyle component={'span'} variant={'outlined'} startIcon={<FileCopyIcon/>} sx={{ height: 40 }}
                              onClick={handleCopyLink}>

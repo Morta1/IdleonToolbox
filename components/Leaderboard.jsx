@@ -96,7 +96,7 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
                       </Typography>}
                     >
                       <ListItemButton component={Link} target={'_blank'}
-                                      href={`https://idleontoolbox.com?profile=${entry?.mainChar}`} disableGutters
+                                      href={`${process.env.NEXT_PUBLIC_IT_URL}?profile=${entry?.mainChar}`} disableGutters
                                       sx={{
                                         pl: 2, py: .5, borderRadius: 'inherit' // Inherits borderRadius from ListItem
                                       }}>
