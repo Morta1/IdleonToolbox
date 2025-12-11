@@ -748,21 +748,19 @@ export function parseShorthandNumber(input) {
     q: 1e15,
   };
 
-  // Remove spaces and Unicode separators, but keep comma and period for analysis
-  let cleaned = input
-    .trim()
-    .replace(/\s+/g, '')          // remove all spaces
-    .replace(/\p{Z}/gu, '')       // remove Unicode separators
-    .replace(/['`'´'' ]/g, '')    // remove other punctuation (keep comma and period)
-    .replace(/\u00A0/g, '')       // remove non-breaking spaces
-    .replace(/\u2009/g, '')       // remove thin spaces
-    .replace(/\u202F/g, '')       // remove narrow no-break spaces
-    .toLowerCase();
-
-  // Extract suffix (k, m, b, t, q, etc.)
-  const suffixMatch = cleaned.match(/([kmbtq]+)$/);
+  // First, extract any suffix and convert to lowercase
+  const lowerInput = input.trim().toLowerCase();
+  
+  // Extract suffix (k, m, b, t, q, etc.) before cleaning
+  const suffixMatch = lowerInput.match(/([kmbtq]+)$/);
   const suffix = suffixMatch ? suffixMatch[1] : '';
-  const numberPart = suffixMatch ? cleaned.slice(0, -suffix.length) : cleaned;
+  const withoutSuffix = suffixMatch ? lowerInput.slice(0, -suffix.length) : lowerInput;
+  
+  // Now remove everything except digits, commas, and periods
+  // This is more robust than trying to list all possible separator characters
+  const cleaned = withoutSuffix.replace(/[^\d.,]/g, '');
+
+  const numberPart = cleaned;
 
   // Validate that numberPart contains only digits, commas, and periods
   if (!/^[\d.,]+$/.test(numberPart)) return NaN;

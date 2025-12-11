@@ -157,7 +157,7 @@ const parseSpelunking = (account, characters, rawSpelunking, rawTowerInfo) => {
       defeated: index < cavesUnlocked,
       biggestHaul: biggestHauls?.[index] ?? 0,
       bestCaveLevel: bestCaveLevels?.[index] ?? 0,
-      foundAt: generalSpelunky?.[7]?.split(' ')?.[index] ?? 0
+      foundAt: (generalSpelunky?.[7]?.split(' ')?.[index] + 1) ?? 0
     }
   }).filter((boss) => boss?.description && isNaN(Number(boss.description)));
 

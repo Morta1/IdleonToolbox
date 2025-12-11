@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import debounce from 'lodash.debounce';
 import {
   Box,
   Button,
@@ -95,6 +96,7 @@ const GenericUpgradeOptimizer = ({
     key: `${resourceKey}:genericUpgradeOptimizer:optimizationMethod`,
     defaultValue: 'rph'
   });
+  const valueCommitDebouncersRef = useRef({});
 
   useEffect(() => {
     setResourcePerHourInput(
@@ -106,6 +108,10 @@ const GenericUpgradeOptimizer = ({
       )
     );
   }, [resourcePerHour]);
+
+  useEffect(() => () => {
+    Object.values(valueCommitDebouncersRef.current).forEach(fn => fn?.cancel?.());
+  }, []);
 
   const optimizedUpgrades = useMemo(() => {
     if (!character) return [];
@@ -312,19 +318,39 @@ const GenericUpgradeOptimizer = ({
     );
   };
 
-  // Add a function to sync all input values to resourcePerHour when closing the dialog
+  const formatNumberWithLocale = (num) => {
+    // Use the user's locale to format the number
+    return num.toLocaleString(navigator.language, {
+      maximumFractionDigits: 10, // Preserve decimals
+      useGrouping: true
+    });
+  };
+
+  // Single handler for both blur and close
+  const handleValueCommit = (key, rawValue) => {
+    if (!valueCommitDebouncersRef.current[key]) {
+      valueCommitDebouncersRef.current[key] = debounce((rawVal) => {
+        const raw = (rawVal || '').replace(/\s+/g, '');
+        const parsed = parseShorthandNumber(raw);
+        console.log(parsed);
+
+        if (raw === '' || isNaN(parsed)) {
+          setResourcePerHour(rph => ({ ...rph, [key]: '' }));
+          setResourcePerHourInput(input => ({ ...input, [key]: '' }));
+        }
+        else {
+          setResourcePerHour(rph => ({ ...rph, [key]: parsed }));
+          setResourcePerHourInput(input => ({ ...input, [key]: formatNumberWithLocale(parsed) }));
+        }
+      }, 150);
+    }
+
+    valueCommitDebouncersRef.current[key](rawValue);
+  };
+
   const handleRphDialogClose = () => {
     Object.entries(resourcePerHourInput).forEach(([key, rawValue]) => {
-      const raw = (rawValue || '').replace(/\s+/g, '');
-      const parsed = parseShorthandNumber(raw);
-      if (raw === '' || isNaN(parsed)) {
-        setResourcePerHour(rph => ({ ...rph, [key]: '' }));
-        setResourcePerHourInput(input => ({ ...input, [key]: '' }));
-      }
-      else {
-        setResourcePerHour(rph => ({ ...rph, [key]: parsed }));
-        setResourcePerHourInput(input => ({ ...input, [key]: String(parsed) }));
-      }
+      handleValueCommit(key, rawValue);
     });
     setRphDialogOpen(false);
   };
@@ -484,18 +510,7 @@ const GenericUpgradeOptimizer = ({
                       }
                     }}
                     onBlur={e => {
-                      const raw = e.target.value;
-
-                      const parsed = parseShorthandNumber(raw);
-
-                      if (raw === '' || isNaN(parsed)) {
-                        setResourcePerHour(rph => ({ ...rph, [key]: '' }));
-                        setResourcePerHourInput(input => ({ ...input, [key]: '' }));
-                      }
-                      else {
-                        setResourcePerHour(rph => ({ ...rph, [key]: parsed }));
-                        setResourcePerHourInput(input => ({ ...input, [key]: String(parsed) }));
-                      }
+                      handleValueCommit(key, e.target.value);
                     }}
                     inputProps={{ inputMode: 'text', pattern: /^[\d\p{P}\p{Z}kmbtqKMBTQ]*$/u }}
                   />
