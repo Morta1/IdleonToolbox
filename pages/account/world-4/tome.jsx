@@ -104,6 +104,7 @@ const Tome = () => {
           color,
           tomeLvReq,
           quantity,
+          maxPoints,
           index,
           points,
           requiredQuantities
@@ -154,7 +155,8 @@ const Tome = () => {
           };
         });
         const formattedQuantity = getFormattedQuantity(bonus, quantity);
-        if (hideMaxed && quantity >= requiredQuantities?.blue) return null;
+        const pointsProgress = Math.min(1, maxPoints ? points / maxPoints : 0);
+        if (hideMaxed && points >= maxPoints) return null;
         return <Card key={'tome-bonus' + index} sx={{ width: 300 }}>
           <CardContent sx={{
             display: 'flex',
@@ -184,6 +186,9 @@ const Tome = () => {
               <Typography color={color}>{commaNotation(points)} PTS</Typography>
             </Stack>
             <TomeProgressBar segments={segments} show={showProgressBars} />
+            {showProgressBars
+              ? <PointsProgressBar progress={pointsProgress} points={points} maxPoints={maxPoints} />
+              : null}
           </CardContent>
         </Card>
       })}
@@ -194,7 +199,11 @@ const Tome = () => {
 const TomeProgressBar = ({ segments, show }) => {
   if (!show) return null;
   return (
-    <Stack direction={'row'} gap={0.5} mb={1}>
+    <Stack gap={0.25} mb={1}>
+      <Stack direction="row" justifyContent="space-between">
+        <Typography variant="caption" color="text.secondary">Tier progress</Typography>
+      </Stack>
+      <Stack direction={'row'} gap={0.5}>
       {segments.map(({ tier, progress, fillColor, requirement, current, cumulativePct }) => {
         const currentFormatted = getFormattedQuantity({ x2: 0 }, current);
         const requirementFormatted = requirement ? getFormattedQuantity({ x2: 0 }, requirement) : 'N/A';
@@ -225,8 +234,37 @@ const TomeProgressBar = ({ segments, show }) => {
           </Tooltip>
         );
       })}
+      </Stack>
     </Stack>
   );
 };
+
+const PointsProgressBar = ({ progress, points, maxPoints }) => {
+  if (!maxPoints) return null;
+  const clamped = Math.max(0, Math.min(1, progress || 0));
+  return (
+    <Stack gap={0.25}>
+      <Stack direction="row" justifyContent="space-between">
+        <Typography variant="caption" color="text.secondary">PTS progress</Typography>
+        <Typography variant="caption" color="text.secondary">{commaNotation(points)} / {commaNotation(maxPoints)}</Typography>
+      </Stack>
+      <Box sx={{
+        position: 'relative',
+        width: '100%',
+        height: 6,
+        borderRadius: 3,
+        overflow: 'hidden',
+        bgcolor: (theme) => theme.palette.action.hover
+      }}>
+        <Box sx={{
+          position: 'absolute',
+          inset: 0,
+          width: `${clamped * 100}%`,
+          bgcolor: 'success.light'
+        }} />
+      </Box>
+    </Stack>
+  );
+}
 
 export default Tome;
