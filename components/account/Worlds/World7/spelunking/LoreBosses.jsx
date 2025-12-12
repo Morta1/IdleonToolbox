@@ -66,7 +66,7 @@ const LoreBosses = ({ loreBosses, bestCaveLevels, account }) => {
                               return adjustedHaul > 1e14
                                 ? notateNumber(adjustedHaul, "Big")
                                 : commaNotation(adjustedHaul);
-                            })()}
+                            })()} ({notateNumber(boss.biggestHaul, "Big")})
                           </span>
                         </Stack>
                       </Typography>

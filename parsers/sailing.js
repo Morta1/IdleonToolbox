@@ -88,13 +88,16 @@ const getFutureTrades = ({ boats } = {}, islands, lootPileList, artifactsList, a
   const unlockedIslands = islands?.reduce((sum, island, index) => island === -1 && index < 15 ? sum + 1 : sum, 0);
   const seed = Math.floor(account?.timeAway?.GlobalTime / 21600);
   const trades = [];
+  const now = Date.now();
   for (let i = 0; i < 40; i++) {
     const rng = new LavaRand(seed + i);
     const random = rng.rand();
     const lootIndex = Math.max(1, Math.min(30, Math.ceil(2 * random * unlockedIslands)));
     const lootItemCost = getLootItemCost(lootPileList?.[lootIndex], firstBoatLootValue);
-    const closest = new Date(Math.floor((seed + i) * 21600 * 1000));
-    if (!isPast(closest)) {
+    const periodEndTime = (seed + i + 1) * 21600 * 1000;
+    const closest = new Date((seed + i) * 21600 * 1000);
+    // Include if the period hasn't ended yet (compare end of period, not start)
+    if (periodEndTime > now) {
       trades.push({
         ...lootPileList?.[lootIndex],
         date: closest,
@@ -411,7 +414,7 @@ const getFinalBoatLoot = ({
   lampBonus
 }) => {
   return (5 + lootLevelMath * lootLevel)
-    * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + (artifactBonus + (arcadeBonus)))) / 100)
+    * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + (artifactBonus + (25 * Math.min(30, 0)) + (arcadeBonus)))) / 100)
     * (1 + talentBonus / 100)
     * daveyJonesBonus
     * (1 + lampBonus / 100);
@@ -423,13 +426,14 @@ const getBoatLootValue = (characters, account, artifactsList, boat, captain) => 
   const nextLevelMath = 2 + Math.pow(Math.floor(((boat?.lootLevel) + 1) / 8), 2)
   const currentLevelMath = 2 + Math.pow(Math.floor((boat?.lootLevel) / 8), 2);
   const breakpointLevelMath = 2 + Math.pow(Math.floor((nextBreakpoint) / 8), 2);
-  const lootPileSigil = getSigilBonus(account?.alchemy?.p2w?.sigils, 'LOOT_PILE') / 6;
+  const lootPileSigil = getSigilBonus(account?.alchemy?.p2w?.sigils, 'LOOT_PILE');
   const firstCaptainBonus = getCaptainBonus(1, captain, captain?.firstBonusIndex);
   const secondCaptainBonus = getCaptainBonus(1, captain, captain?.secondBonusIndex);
-  const artifactBonus = 0 // isArtifactAcquired(artifactsList, 'Genie_Lamp')?.bonus ?? 0;
+  const artifactBonus = isArtifactAcquired(artifactsList, 'Genie_Lamp')?.bonus ?? 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Sailing_Loot')?.bonus ?? 0;
   const daveyJonesBonus = 1 + (50 * account?.gemShopPurchases?.[8] + getLegendTalentBonus(account, 11)) / 100;
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 0, account }) ?? 0;
+
   const value = getFinalBoatLoot({
     lootLevelMath: currentLevelMath,
     lootLevel: boat?.lootLevel,
