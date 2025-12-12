@@ -13,6 +13,6 @@ __turbopack_load_page_chunks__("/account/world-4/tome", [
   "static/chunks/cbc67c9543d2016a.js",
   "static/chunks/65861a372e6fb9f2.js",
   "static/chunks/f168635ae1077fb5.js",
-  "static/chunks/78e520bd4a0a942f.js",
-  "static/chunks/turbopack-4eb8920f19acc7b1.js"
+  "static/chunks/95e89c8b4da3dc26.js",
+  "static/chunks/turbopack-8494781e86b3e59b.js"
 ])
