@@ -204,7 +204,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             {trackers?.General?.sailingTrades?.checked && account?.finishedWorlds?.World4 && account?.sailing?.trades.length > 0
               ? <Tooltip
                 title={<Trade {...account?.sailing?.trades?.[0]} />}>
-                <Stack sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: '/account/world-5/sailing' })}
+                <Stack sx={{ cursor: 'pointer' }} onClick={() => router.push({ pathname: '/account/world-5/sailing', query: { t: 'Trades' } })}
                   direction={'row'}
                   gap={1}>
                   <IconImg src={`${prefix}data/${account?.sailing?.trades?.[0]?.rawName}.png`} alt="" />
