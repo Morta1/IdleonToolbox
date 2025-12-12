@@ -22,6 +22,7 @@ const Tome = () => {
   const [CheckboxEl, showThresholds] = useCheckbox('Show quantity thresholds');
   const [CheckboxHideMaxedEl, hideMaxed] = useCheckbox('Hide capped');
   const [CheckboxProgressBarsEl, showProgressBars] = useCheckbox('Show progress bars');
+  const [CheckboxCalculatorEl, showCalculator] = useCheckbox('Show quantity calculator');
 
   // Calculate countdown to next tome nametag reset and next 10 resets
   const { nextResetTime, nextResetTimes } = useMemo(() => {
@@ -96,6 +97,7 @@ const Tome = () => {
     <CheckboxEl />
     <CheckboxHideMaxedEl />
     <CheckboxProgressBarsEl />
+    <CheckboxCalculatorEl />
 
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {state?.account?.tome?.tome?.map((bonus, rIndex) => {
@@ -243,6 +245,9 @@ const Tome = () => {
             <TomeProgressBar segments={segments} show={showProgressBars} />
             {showProgressBars
               ? <PointsProgressBar progress={pointsProgress} points={points} maxPoints={maxPoints} bonus={bonus} />
+              : null}
+            {showCalculator
+              ? <QuantityCalculator bonus={bonus} maxPoints={maxPoints} />
               : null}
           </CardContent>
         </Card>
@@ -471,5 +476,110 @@ const PointsProgressBar = ({ progress, points, maxPoints, bonus }) => {
     </Stack>
   );
 }
+
+const QuantityCalculator = ({ bonus, maxPoints }) => {
+  const [targetPoints, setTargetPoints] = React.useState('');
+
+  const calculateRequiredQuantity = (points) => {
+    const { x1, x2, x3 } = bonus || {};
+    if (!x1 || x2 === undefined || !x3 || !points || points <= 0) return null;
+
+    // Calculate target percent: points = ceil(targetPercent * x3)
+    const targetPercent = (points - 0.5) / x3;
+    
+    // Type 2: Linear
+    if (x2 === 2) {
+      return Math.ceil(targetPercent * x1);
+    }
+    
+    // Type 4: Diminishing returns
+    if (x2 === 4) {
+      const base = Math.pow(targetPercent, 1 / 0.7);
+      if (base >= 2) return Infinity;
+      return Math.ceil((base * x1) / (2 - base));
+    }
+    
+    // Type 3: Reversed
+    if (x2 === 3) {
+      const base = Math.pow(targetPercent, 1 / 5);
+      if (base >= 1.2) return 0;
+      const numerator = 1.2 * 6 * x1 - base * 7 * x1;
+      const denom = 1.2 - base;
+      return Math.ceil(Math.max(0, numerator / denom));
+    }
+    
+    // Type 0: Exponential
+    if (x2 === 0) {
+      const base = Math.pow(targetPercent, 1 / 0.7);
+      if (base >= 1.7) return Infinity;
+      return Math.ceil((base * x1) / (1.7 - base));
+    }
+    
+    // Type 1: Logarithmic
+    if (x2 === 1) {
+      const denom = 2 * targetPercent - 2.4;
+      if (denom === 0) return Infinity;
+      const logQ = -(targetPercent * x1) / denom;
+      if (logQ <= 0) return Infinity;
+      return Math.ceil(Math.pow(10, logQ));
+    }
+    
+    return null;
+  };
+
+  // Calculate result automatically as user types
+  const result = useMemo(() => {
+    if (!targetPoints || targetPoints.trim() === '') {
+      return null;
+    }
+
+    const points = parseFloat(targetPoints);
+    if (isNaN(points) || points <= 0) {
+      return 'Invalid input';
+    }
+    if (points > maxPoints) {
+      return `Max points is ${commaNotation(maxPoints)}`;
+    }
+    
+    const quantity = calculateRequiredQuantity(points);
+    if (quantity === null) {
+      return 'Unable to calculate';
+    } else if (quantity === Infinity) {
+      return 'Unreachable (asymptotic)';
+    } else {
+      const formatted = getFormattedQuantity(bonus, quantity);
+      return `Required: ${formatted}`;
+    }
+  }, [targetPoints, bonus, maxPoints]);
+
+  return (
+    <Stack gap={0.5} mt={2} p={1} sx={{ bgcolor: (theme) => theme.palette.action.hover, borderRadius: 1 }}>
+      <Typography variant="caption" color="text.secondary">Calculate required quantity</Typography>
+      <Stack direction="row" gap={1} alignItems="center">
+        <input
+          type="number"
+          placeholder="Target PTS"
+          value={targetPoints}
+          onChange={(e) => setTargetPoints(e.target.value)}
+          style={{
+            padding: '4px 8px',
+            borderRadius: '4px',
+            border: '1px solid #444',
+            background: '#1a1a1a',
+            color: '#fff',
+            width: '120px',
+            fontSize: '12px'
+          }}
+        />
+        
+      {result && (
+        <Typography variant="caption" color="primary.main">
+          {result}
+        </Typography>
+      )}
+      </Stack>
+    </Stack>
+  );
+};
 
 export default Tome;
