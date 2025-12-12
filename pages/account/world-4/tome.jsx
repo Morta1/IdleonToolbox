@@ -125,33 +125,66 @@ const Tome = () => {
             current: quantity,
             isReversed
           };
-        
+
           // Define tier boundaries
-          const bounds = {
-            bronze: { start: 0, end: silverReq },
-            silver: { start: silverReq, end: goldReq || blueReq },
-            gold: { start: goldReq || silverReq, end: blueReq },
-            blue: { start: blueReq, end: null }
-          };
-        
+          // For reversed items: blueReq < goldReq < silverReq (lower is better)
+          // For normal items: silverReq < goldReq < blueReq (higher is better)
+          let bounds;
+          if (isReversed) {
+            // Reversed: Lower quantity = better tier
+            // Bronze: above silverReq (worst)
+            // Silver: between goldReq and silverReq  
+            // Gold: between blueReq and goldReq
+            // Blue: at or below blueReq (best)
+            bounds = {
+              bronze: { start: silverReq, end: null },
+              silver: { start: goldReq, end: silverReq },
+              gold: { start: blueReq, end: goldReq },
+              blue: { start: 0, end: blueReq }
+            };
+          } else {
+            // Normal: Higher quantity = better tier
+            bounds = {
+              bronze: { start: 0, end: silverReq },
+              silver: { start: silverReq, end: goldReq || blueReq },
+              gold: { start: goldReq || silverReq, end: blueReq },
+              blue: { start: blueReq, end: null }
+            };
+          }
+
           const { start, end } = bounds[tier] || {};
           segment.startPoint = start;
           segment.endPoint = end;
-        
+
           // Calculate progress based on direction
           if (isReversed) {
             // Lower quantity = better progress
-            if (tier === 'blue') {
-              segment.progress = quantity <= start ? 1 : 0;
-            } else if (end !== null) {
-              if (quantity >= start) {
-                segment.progress = 0; // Worse than this tier
-              } else if (quantity <= end) {
-                segment.progress = 1; // Better than this tier
+            // Segments represent milestones: each fills as you progress through tiers
+            // For reversed: start is the better (lower) threshold, end is the worse (higher) threshold
+            if (tier === 'bronze') {
+              // Bronze segment: fills as you progress from infinity to silverReq
+              // If quantity <= silverReq (start), you've passed bronze tier (segment full)
+              segment.progress = start !== null && quantity <= start ? 1 : 0;
+            } else if (tier === 'blue') {
+              // Blue segment: not displayed in the 3-segment view
+              if (end !== null && quantity <= end) {
+                segment.progress = 1;
               } else {
-                // Within tier range
-                const span = start - end;
-                segment.progress = span > 0 ? (start - quantity) / span : 1;
+                segment.progress = 0;
+              }
+            } else if (end !== null && start !== null) {
+              // Silver/Gold segments: fill as you progress through each tier
+              // start = better threshold (lower value, e.g., goldReq=75)
+              // end = worse threshold (higher value, e.g., silverReq=100)
+              if (quantity > end) {
+                segment.progress = 0; // Above worse threshold, haven't reached this tier yet
+              } else if (quantity <= start) {
+                segment.progress = 1; // Below better threshold, passed this tier completely
+              } else {
+                // Within tier range (start < quantity <= end)
+                // Progress from end (high/worse) down to start (low/better)
+                const span = end - start;
+                segment.progress = span > 0 ? (end - quantity) / span : 1;
               }
             }
           } else {
@@ -170,10 +203,10 @@ const Tome = () => {
               }
             }
           }
-        
+
           // Clamp progress to [0, 1]
           segment.progress = Math.max(0, Math.min(1, segment.progress));
-        
+
           return segment;
         });
         const formattedQuantity = getFormattedQuantity(bonus, quantity);
@@ -209,7 +242,7 @@ const Tome = () => {
             </Stack>
             <TomeProgressBar segments={segments} show={showProgressBars} />
             {showProgressBars
-              ? <PointsProgressBar progress={pointsProgress} points={points} maxPoints={maxPoints} />
+              ? <PointsProgressBar progress={pointsProgress} points={points} maxPoints={maxPoints} bonus={bonus} />
               : null}
           </CardContent>
         </Card>
@@ -220,98 +253,221 @@ const Tome = () => {
 
 const TomeProgressBar = ({ segments, show }) => {
   if (!show) return null;
+
+  // Determine current tier and color for the whole bar
+  const bronzeSegment = segments.find(s => s.tier === 'bronze');
+  const silverSegment = segments.find(s => s.tier === 'silver');
+  const goldSegment = segments.find(s => s.tier === 'gold');
+  const blueSegment = segments.find(s => s.tier === 'blue');
+
+  const { current, isReversed } = bronzeSegment || {};
+  const currentFormatted = getFormattedQuantity({ x2: 0 }, current);
+
+  // Determine which tier we're in - this determines the color for ALL segments
+  let currentColor = segmentColors.bronze;
+  
+  if (isReversed) {
+    // For reversed items: lower is better
+    // Check from best (blue) to worst (bronze)
+    if (blueSegment && blueSegment.progress >= 1) {
+      currentColor = segmentColors.blue;
+    } else if (goldSegment && goldSegment.progress > 0) {
+      currentColor = segmentColors.gold;
+    } else if (silverSegment && silverSegment.progress > 0) {
+      currentColor = segmentColors.silver;
+    } else {
+      currentColor = segmentColors.bronze;
+    }
+  } else {
+    // For normal items: higher is better
+    if (blueSegment && blueSegment.progress >= 1) {
+      currentColor = segmentColors.blue;
+    } else if (goldSegment && goldSegment.progress > 0) {
+      currentColor = segmentColors.gold;
+    } else if (silverSegment && silverSegment.progress > 0) {
+      currentColor = segmentColors.silver;
+    } else {
+      currentColor = segmentColors.bronze;
+    }
+  }
+
+  // Filter to only show bronze, silver, gold segments (3 tiers)
+  const displaySegments = segments.filter(s => ['bronze', 'silver', 'gold'].includes(s.tier));
+
   return (
     <Stack gap={0.25} mb={1}>
       <Stack direction="row" justifyContent="space-between">
         <Typography variant="caption" color="text.secondary">Tier progress</Typography>
       </Stack>
       <Stack direction={'row'} gap={0.5}>
-      {segments.map(({ tier, progress, fillColor, startPoint, endPoint, current, isReversed }) => {
-        const currentFormatted = getFormattedQuantity({ x2: 0 }, current);
-        const startFormatted = startPoint !== null ? getFormattedQuantity({ x2: 0 }, startPoint) : '0';
-        const endFormatted = endPoint !== null ? getFormattedQuantity({ x2: 0 }, endPoint) : null;
-        
-        let rangeText = '';
-        if (isReversed) {
-          // For reversed: show range from lower to higher, but indicate lower is better
-          if (endFormatted) {
-            rangeText = `${endFormatted} - ${startFormatted}`;
+        {displaySegments.map(({ tier, progress, startPoint, endPoint, current, isReversed }) => {
+          const currentFormatted = getFormattedQuantity({ x2: 0 }, current);
+          const startFormatted = startPoint !== null ? getFormattedQuantity({ x2: 0 }, startPoint) : '0';
+          const endFormatted = endPoint !== null ? getFormattedQuantity({ x2: 0 }, endPoint) : null;
+
+          let rangeText = '';
+          if (isReversed) {
+            // For reversed: lower is better
+            // Bounds are structured as: start (higher value), end (lower value or null)
+            if (tier === 'bronze') {
+              // Bronze: above silverReq (worst)
+              rangeText = `≥ ${startFormatted}`;
+            } else if (tier === 'blue') {
+              // Blue: at or below blueReq (best)
+              rangeText = `≤ ${endFormatted}`;
+            } else if (endFormatted && startFormatted) {
+              // Silver/Gold: between two values
+              rangeText = `${endFormatted} - ${startFormatted}`;
+            }
           } else {
-            rangeText = `${startFormatted}+`;
+            // Normal: higher is better
+            if (tier === 'blue') {
+              rangeText = `≥ ${startFormatted}`;
+            } else if (endFormatted) {
+              rangeText = `${startFormatted} - ${endFormatted}`;
+            } else {
+              rangeText = `${startFormatted}+`;
+            }
           }
-        } else {
-          // Normal: show range from lower to higher
-          if (endFormatted) {
-            rangeText = `${startFormatted} - ${endFormatted}`;
-          } else {
-            rangeText = `${startFormatted}+`;
-          }
-        }
-        
-        const tooltipContent = (
-          <Stack gap={0.5}>
-            <Typography variant="body1" color="text.secondary">{tier.capitalize()} tier</Typography>
-            <Typography variant="body2" color="text.secondary">{rangeText}</Typography>
-            {isReversed ? (
-              endFormatted !== null && current > endFormatted && current <= startPoint && (
-                <Typography variant="body2" color="text.secondary">Current: {currentFormatted} (lower is better)</Typography>
-              )
-            ) : (
-              endPoint !== null && current < endPoint && (
-                <Typography variant="body2" color="text.secondary">Current: {currentFormatted}</Typography>
-              )
-            )}
-          </Stack>
-        );
-        return (
-          <Tooltip key={tier} title={tooltipContent}>
-            <Box sx={{
-              position: 'relative',
-              flex: 1,
-              height: 8,
-              borderRadius: tier === 'bronze' ? '4px 0 0 4px' : tier === 'blue' ? '0 4px 4px 0' : 0,
-              overflow: 'hidden',
-              bgcolor: (theme) => theme.palette.action.hover
-            }}>
+
+          const tooltipContent = (
+            <Stack gap={0.5}>
+              <Typography variant="body1" color="text.secondary">{tier.capitalize()} tier</Typography>
+              <Typography variant="body2" color="text.secondary">{rangeText}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Current: {currentFormatted}{isReversed ? ' (lower is better)' : ''}
+              </Typography>
+            </Stack>
+          );
+          return (
+            <Tooltip key={tier} title={tooltipContent}>
               <Box sx={{
-                position: 'absolute',
-                inset: 0,
-                width: `${progress * 100}%`,
-                bgcolor: fillColor
-              }} />
-            </Box>
-          </Tooltip>
-        );
-      })}
+                position: 'relative',
+                flex: 1,
+                height: 8,
+                borderRadius: tier === 'bronze' ? '4px 0 0 4px' : tier === 'gold' ? '0 4px 4px 0' : 0,
+                overflow: 'hidden',
+                bgcolor: (theme) => theme.palette.action.hover
+              }}>
+                <Box sx={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: `${progress * 100}%`,
+                  bgcolor: currentColor  // All segments use the same color based on current tier
+                }} />
+              </Box>
+            </Tooltip>
+          );
+        })}
       </Stack>
     </Stack>
   );
 };
 
-const PointsProgressBar = ({ progress, points, maxPoints }) => {
+const PointsProgressBar = ({ progress, points, maxPoints, bonus }) => {
   if (!maxPoints) return null;
   const clamped = Math.max(0, Math.min(1, progress || 0));
+  
+  // Calculate required quantity for max points based on curve type
+  const getRequiredForMaxPoints = () => {
+    const { x1, x2, x3 } = bonus || {};
+    if (x1 === undefined || x2 === undefined || x3 === undefined) return null;
+    
+    // Calculate the target percent needed to reach maxPoints
+    // maxPoints = ceil(targetPercent * x3), so targetPercent ≈ maxPoints / x3
+    const targetPercent = (maxPoints - 0.5) / x3; // Subtract 0.5 to account for ceiling
+    
+    // Type 2: Linear - quantity = targetPercent * x1
+    if (x2 === 2) {
+      return { quantity: targetPercent * x1 };
+    }
+    
+    // Type 4: Diminishing returns - solve (2*q / (q + x1))^0.7 = targetPercent
+    if (x2 === 4) {
+      const base = Math.pow(targetPercent, 1 / 0.7);
+      const quantity = (base * x1) / (2 - base);
+      return { quantity: Math.ceil(quantity) };
+    }
+    
+    // Type 3: Reversed - solve ((1.2 * (6*x1 - q)) / (7*x1 - q))^5 = targetPercent
+    if (x2 === 3) {
+      const base = Math.pow(targetPercent, 1 / 5);
+      const numerator = 1.2 * 6 * x1 - base * 7 * x1;
+      const denom = 1.2 - base;
+      const quantity = numerator / denom;
+      return { quantity: Math.ceil(Math.max(0, quantity)) };
+    }
+    
+    // Type 0: Exponential - solve (1.7*q / (q + x1))^0.7 = targetPercent
+    if (x2 === 0) {
+      const base = Math.pow(targetPercent, 1 / 0.7);
+      const quantity = (base * x1) / (1.7 - base);
+      if (quantity < 0 || !isFinite(quantity)) {
+        return { quantity: Infinity };
+      }
+      return { quantity: Math.ceil(quantity) };
+    }
+    
+    // Type 1: Logarithmic - solve 2.4*log(q) / (2*log(q) + x1) = targetPercent
+    if (x2 === 1) {
+      const logQ = -(targetPercent * x1) / (2 * targetPercent - 2.4);
+      if (logQ <= 0 || !isFinite(logQ)) {
+        return { quantity: Infinity };
+      }
+      const quantity = Math.pow(10, logQ);
+      return { quantity: Math.ceil(quantity) };
+    }
+    
+    return null;
+  };
+  
+  const maxInfo = getRequiredForMaxPoints();
+  let maxQuantityText = null;
+  
+  if (maxInfo) {
+    if (maxInfo.quantity === Infinity) {
+      maxQuantityText = 'Unreachable (asymptotic)';
+    } else {
+      const formatted = getFormattedQuantity(bonus, maxInfo.quantity);
+      maxQuantityText = formatted;
+    }
+  }
+  
+  const tooltipContent = maxQuantityText ? (
+    <Stack gap={0.5}>
+      <Typography variant="body1" color="text.secondary">Max Points</Typography>
+      <Typography variant="body2" color="text.secondary">
+        {maxInfo?.quantity === Infinity ? maxQuantityText : `Required: ${maxQuantityText}`}
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        {commaNotation(points)} / {commaNotation(maxPoints)} PTS
+      </Typography>
+    </Stack>
+  ) : null;
+  
   return (
     <Stack gap={0.25}>
       <Stack direction="row" justifyContent="space-between">
         <Typography variant="caption" color="text.secondary">PTS progress</Typography>
         <Typography variant="caption" color="text.secondary">{commaNotation(points)} / {commaNotation(maxPoints)}</Typography>
       </Stack>
-      <Box sx={{
-        position: 'relative',
-        width: '100%',
-        height: 6,
-        borderRadius: 3,
-        overflow: 'hidden',
-        bgcolor: (theme) => theme.palette.action.hover
-      }}>
+      <Tooltip title={tooltipContent || ''}>
         <Box sx={{
-          position: 'absolute',
-          inset: 0,
-          width: `${clamped * 100}%`,
-          bgcolor: 'success.light'
-        }} />
-      </Box>
+          position: 'relative',
+          width: '100%',
+          height: 6,
+          borderRadius: 3,
+          overflow: 'hidden',
+          bgcolor: (theme) => theme.palette.action.hover
+        }}>
+          <Box sx={{
+            position: 'absolute',
+            inset: 0,
+            width: `${clamped * 100}%`,
+            bgcolor: 'success.light'
+          }} />
+        </Box>
+      </Tooltip>
     </Stack>
   );
 }
