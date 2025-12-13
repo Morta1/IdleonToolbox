@@ -129,57 +129,73 @@ export const getWeaponBaseStats = (itemQuality) => {
   const pow15 = (v) => Math.pow(v, 15);
 
   // === Speed ===
-  const speedMax = Math.min(6, 2 + Math.floor(itemQuality / 300));
-  const speedAvgInt = (-2 + speedMax) / 2;
+  const speedIntMax = Math.min(6, 2 + Math.floor(itemQuality / 300));
+  const speedIntMin = -2;
   const speedFloatMin = Math.min(0.7, 0.4 + itemQuality / 6000);
-  const speedAvgFloat = (speedFloatMin + 1) / 2;
-  const Speed = Math.round(speedAvgInt * pow15(speedAvgFloat));
+  const speedFloatMax = 1;
+  const speedMin = Math.round(speedIntMin * pow15(speedFloatMin));
+  const speedMax = Math.round(speedIntMax * pow15(speedFloatMax));
 
   // === Weapon Power ===
-  const wepPowerAvgInt = (-5 + 15) / 2;
+  const wpIntMin = -5;
+  const wpIntMax = 15;
   const wpFloatMin = Math.min(0.92, 0.8 + itemQuality / 20000);
-  const wpAvgFloat = (wpFloatMin + 1) / 2;
-  const Weapon_Power = Math.round(wepPowerAvgInt * pow15(wpAvgFloat) + Math.floor(itemQuality / 25));
+  const wpFloatMax = 1;
+  const qualityBonus = Math.floor(itemQuality / 25);
+  const wpMin = Math.round(wpIntMin * pow15(wpFloatMin) + qualityBonus);
+  const wpMax = Math.round(wpIntMax * pow15(wpFloatMax) + qualityBonus);
 
-  // === UQ1val ===
-  const uq1AvgInt = (-10 + 50) / 2;
+  // === UQ1val (Arcanist DMG) ===
+  const uq1IntMin = -10;
+  const uq1IntMax = 50;
   const uq1FloatMin = Math.min(0.92, 0.8 + itemQuality / 20000);
-  const uq1AvgFloat = (uq1FloatMin + 1) / 2;
-  const UQ1val = Math.round(uq1AvgInt * pow15(uq1AvgFloat) + Math.floor(itemQuality / 20));
+  const uq1FloatMax = 1;
+  const uq1QualityBonus = Math.floor(itemQuality / 20);
+  const uq1Min = Math.round(uq1IntMin * pow15(uq1FloatMin) + uq1QualityBonus);
+  const uq1Max = Math.round(uq1IntMax * pow15(uq1FloatMax) + uq1QualityBonus);
 
-  // === UQ2val ===
-  const uq2AvgInt = (-1 + 30) / 2;
+  // === UQ2val (Extra Tachyons) ===
+  const uq2IntMin = -1;
+  const uq2IntMax = 30;
   const uq2FloatMin = Math.min(0.92, 0.8 + itemQuality / 20000);
-  const uq2AvgFloat = (uq2FloatMin + 1) / 2;
-  const UQ2val = Math.round(uq2AvgInt * pow15(uq2AvgFloat) + Math.floor(itemQuality / 15));
+  const uq2FloatMax = 1;
+  const uq2QualityBonus = Math.floor(itemQuality / 15);
+  const uq2Min = Math.round(uq2IntMin * pow15(uq2FloatMin) + uq2QualityBonus);
+  const uq2Max = Math.round(uq2IntMax * pow15(uq2FloatMax) + uq2QualityBonus);
 
   return [
     { title: 'Base stats' },
-    { name: 'Weapon Power', value: Weapon_Power },
-    { name: 'Arcanist DMG', value: UQ1val },
-    { name: 'Extra Tachyons', value: UQ2val }
+    { name: 'Weapon Power', min: wpMin, max: wpMax },
+    { name: 'Arcanist DMG', min: uq1Min, max: uq1Max },
+    { name: 'Extra Tachyons', min: uq2Min, max: uq2Max }
   ]
 }
 
 export const getRingBaseStats = (itemQuality) => {
   const pow15 = (v) => Math.pow(v, 15);
 
-  // === UQ1val ===
-  const uq1AvgInt = (-5 + 40) / 2; // 17.5
+  // === UQ1val (Arcanist ACC) ===
+  const uq1IntMin = -5;
+  const uq1IntMax = 40;
   const uq1FloatMin = Math.min(0.92, 0.8 + itemQuality / 20000);
-  const uq1AvgFloat = (uq1FloatMin + 1) / 2;
-  const UQ1val = Math.round(uq1AvgInt * pow15(uq1AvgFloat) + Math.floor(itemQuality / 15));
+  const uq1FloatMax = 1;
+  const uq1QualityBonus = Math.floor(itemQuality / 15);
+  const uq1Min = Math.round(uq1IntMin * pow15(uq1FloatMin) + uq1QualityBonus);
+  const uq1Max = Math.round(uq1IntMax * pow15(uq1FloatMax) + uq1QualityBonus);
 
-  // === UQ2val ===
-  const uq2AvgInt = (-1 + 30) / 2; // 14.5
+  // === UQ2val (Extra Tachyons) ===
+  const uq2IntMin = -1;
+  const uq2IntMax = 30;
   const uq2FloatMin = Math.min(0.92, 0.8 + itemQuality / 20000);
-  const uq2AvgFloat = (uq2FloatMin + 1) / 2;
-  const UQ2val = Math.round(uq2AvgInt * pow15(uq2AvgFloat) + Math.floor(itemQuality / 10));
+  const uq2FloatMax = 1;
+  const uq2QualityBonus = Math.floor(itemQuality / 10);
+  const uq2Min = Math.round(uq2IntMin * pow15(uq2FloatMin) + uq2QualityBonus);
+  const uq2Max = Math.round(uq2IntMax * pow15(uq2FloatMax) + uq2QualityBonus);
 
   return [
     { title: 'Base stats' },
-    { name: 'Arcanist ACC', value: UQ1val },
-    { name: 'Extra Tachyons', value: UQ2val }
+    { name: 'Arcanist ACC', min: uq1Min, max: uq1Max },
+    { name: 'Extra Tachyons', min: uq2Min, max: uq2Max }
   ]
 }
 
@@ -501,9 +517,7 @@ export const calcTesseractBonus = (upgrades, index, anotherIndex) => {
       : upgrade?.level * upgrade?.x5
     : 999 === anotherIndex
       ? 69.42
-      : upgrade?.level * upgrade?.x5 * (1 + calcTesseractBonus(upgrades, 39, 0) / 100)
-
-
+      : upgrade?.level * upgrade?.x5 * (1 + calcTesseractBonus(upgrades, 39, 0) / 100);
 }
 
 export const getOptimizedTesseractUpgrades = (character, account, category = 'damage', maxUpgrades = 100, options = {}) => {

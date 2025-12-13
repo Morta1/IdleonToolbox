@@ -88,7 +88,7 @@ const ItemBase = ({ title, icon, quality, stats }) => {
       <Typography>{quality}</Typography>
       <Tooltip
         title={<Stack>
-          {stats?.map(({ title, name, value }, index) => title ? <Stack
+          {stats?.map(({ title, name, min, max }, index) => title ? <Stack
             key={`${title}-${index}`}>
             {index > 0 ? <Divider sx={{ my: 1 }}/> : null}
             <Typography sx={{ fontWeight: 500 }}>{title}</Typography>
@@ -96,7 +96,7 @@ const ItemBase = ({ title, icon, quality, stats }) => {
           </Stack> : <TitleAndValue key={`${name}-${index}`}
                                     title={name}
                                     titleStyle={{ width: 150 }}
-                                    value={value.toFixed(2).replace('.00', '')}/>)}
+                                    value={`${min.toFixed(2).replace('.00', '')} - ${max.toFixed(2).replace('.00', '')}`}/>)}
         </Stack>}>
         <IconInfoCircleFilled size={18}/>
       </Tooltip>
