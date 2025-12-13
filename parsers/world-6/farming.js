@@ -374,9 +374,10 @@ const getCropDepotBonuses = (account) => {
   const labBonus = getLabBonus(account?.lab?.labBonuses, 17);
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const pureOpalRhombolJewel = getJewelBonus(account?.lab?.jewels, 20, spelunkerObolMulti);
-  const grimoireBonus = 1 + getGrimoireBonus(account?.grimoire?.upgrades, 22) / 100;
-  const exoticBonus = 1; // TODO: what is this
-  const extraBonus = (1 + (labBonus + pureOpalRhombolJewel) / 100) * grimoireBonus * exoticBonus;
+  const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 22);
+  const exoticBonus40 = getExoticMarketBonus(account, 40) ?? 0;
+  const extraBonus = (1 + (labBonus + pureOpalRhombolJewel) / 100) * (1 + (grimoireBonus + exoticBonus40) / 100);
+  console.log('extraBonus:', extraBonus);
 
   let bonuses = {
     damage: { name: 'DMG', value: 0 },

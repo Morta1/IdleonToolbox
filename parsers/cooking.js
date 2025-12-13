@@ -352,6 +352,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
     //   console.log('fireLv:', fireLv);
     //   console.log('luckLv:', luckLv);
     //   console.log('###################');
+    //   console.log('mealSpeed:', mealSpeed);
     // }
 
     // Fire Speed
