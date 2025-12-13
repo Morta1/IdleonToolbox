@@ -1,6 +1,6 @@
 self.__BUILD_MANIFEST = {
   "/": [
-    "static/chunks/dcefa773a22a3ff5.js"
+    "static/chunks/ed519496121e555c.js"
   ],
   "/404": [
     "static/chunks/c079ee0661407155.js"
@@ -252,7 +252,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/568c2479f1d519c9.js"
   ],
   "/patch-notes": [
-    "static/chunks/0c3c78c7fbb461bf.js"
+    "static/chunks/c52e998c8aced9b6.js"
   ],
   "/statistics": [
     "static/chunks/adc643831703fab9.js"
@@ -267,10 +267,10 @@ self.__BUILD_MANIFEST = {
     "static/chunks/3110afdaf2fa2dd8.js"
   ],
   "/tools/builds": [
-    "static/chunks/5802e45d73750da6.js"
+    "static/chunks/5b61967686d3067c.js"
   ],
   "/tools/card-search": [
-    "static/chunks/0d16d070d234eb57.js"
+    "static/chunks/a1510c64c588c1fd.js"
   ],
   "/tools/formulas": [
     "static/chunks/8e4fb220d0020fb7.js"
@@ -291,7 +291,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/2ef3b9e7854b6a11.js"
   ],
   "/tools/item-planner": [
-    "static/chunks/539f7c73471ac575.js"
+    "static/chunks/77e759d35e9d6fe3.js"
   ],
   "/tools/material-tracker": [
     "static/chunks/4774f491be380cad.js"
