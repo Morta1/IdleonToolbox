@@ -1218,24 +1218,56 @@ export const getKillRoy = (idleonData, charactersData, accountData, serverVars) 
       upgrade: 'Pearl Drops'
     }
   ];
+
+  // Mapping for permanent upgrade indices to account options (for levels)
+  // Shop items 10-19 correspond to indices 0-9 in the slice
+  const permanentUpgradeLevelMap = {
+    0: 227,  // Shop 10: Unlock 3rd Killroy fight
+    1: 228,  // Shop 11: Artifact Find Chance
+    2: null, // Shop 12: Gaming nugget (fixed reward, no level)
+    3: 229,  // Shop 13: Crop Evolution Chance
+    4: 230,  // Shop 14: Jade Gain
+    5: 467,  // Shop 15: Gallery Grade (requires 2+ levels for special effect)
+    6: 468,  // Shop 16: Masterclass drops
+    7: 469,  // Shop 17: World 7 skill EXP
+    8: 470,  // Shop 18: Daily coral gain
+    9: 471   // Shop 19: Mystery bonus
+  };
+
+  // Mapping for permanent upgrade indices to bonus calculation indices
+  // Only items that show a calculated bonus need a mapping
+  const permanentUpgradeBonusMap = {
+    1: 0,  // Shop 11: Artifact Find Chance
+    3: 1,  // Shop 13: Crop Evolution Chance
+    4: 2,  // Shop 14: Jade Gain
+    5: 3,  // Shop 15: Gallery multiplier
+    6: 4,  // Shop 16: Masterclass drops
+    7: 5,  // Shop 17: World 7 skill EXP
+    8: 6,  // Shop 18: Daily coral gain
+    9: 7   // Shop 19: Mystery bonus
+  };
+
   const permanentUpgrades = killRoySkullShop?.slice(10)?.map((upgrade, i) => {
-    const bonus = getKillRoyShopBonus(accountData, (i === 0 || i === 1)
-      ? 0
-      : (i === 2 || i === 3) ? 1 : (i === 4) ? 2 : 3);
+    const levelOption = permanentUpgradeLevelMap[i];
+    const bonusIndex = permanentUpgradeBonusMap[i];
+    
+    const level = levelOption !== null ? (accountData?.accountOptions?.[levelOption] ?? 0) : 0;
+    const bonus = bonusIndex !== undefined ? getKillRoyShopBonus(accountData, bonusIndex) : 1;
+    
+    // Special case: Shop 15 (Gallery) changes description when level >= 2
+    let description = upgrade?.description;
+    let replacementChar = '{';
+    
+    if (i === 5 && level >= 2) {
+      description = 'Permanently_boosts_your_Gallery_Multiplier_by_+}x';
+      replacementChar = '}';
+    }
+    
     return {
       ...upgrade,
-      level: i === 0 ? accountData?.accountOptions?.[227]
-        : (i === 1)
-          ? accountData?.accountOptions?.[228]
-          : (i === 2)
-            ? 0
-            : (i === 3)
-              ? accountData?.accountOptions?.[229]
-              : (i === 4)
-                ? accountData?.accountOptions?.[230]
-                : 1,
+      level,
       bonus,
-      description: upgrade?.description?.replace('{', Math.floor(bonus * 100) / 100)
+      description: description?.replace(replacementChar, Math.floor(bonus * 100) / 100)
     }
   });
   return {
