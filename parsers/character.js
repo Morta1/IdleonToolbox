@@ -410,10 +410,12 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
 
   const omegaNanochipBonus = account?.lab?.playersChips?.[char?.playerId]?.find((chip) => chip.index === 20);
   const omegaMotherboardChipBonus = account?.lab?.playersChips?.[char?.playerId]?.find((chip) => chip.index === 21);
+  const legendBonus = getLegendTalentBonus(account, 21);
   character.cards.equippedCards = character?.cards?.equippedCards?.map((card, index) => ((index === 0 && omegaNanochipBonus) || (index === 7 && omegaMotherboardChipBonus))
     ? ({
       ...card,
-      chipBoost: 2
+      chipBoost: 2,
+      legendBonus: 1 + legendBonus / 100
     })
     : card);
   const charObols = getObols(char, false);
@@ -2570,6 +2572,7 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
   const poopCardBonus = poopCard ? calcCardBonus(poopCard) : 0;
   const demonGenie = character?.cards?.equippedCards?.find(({ cardIndex }) => cardIndex === 'G4');
   const demonGenieBonus = demonGenie ? calcCardBonus(demonGenie) : 0;
+
   const crystals4DaysBonus = getTalentBonus(character?.flatStarTalents, 'CRYSTALS_4_DAYYS');
   const cmonOutCrystalsBonus = getTalentBonus(character?.flatTalents, 'CMON_OUT_CRYSTALS');
   const nonPredatoryBoxBonus = getPostOfficeBonus(character?.postOffice, 'Non_Predatory_Loot_Box', 2);
