@@ -15,6 +15,7 @@ import Tooltip from '../Tooltip';
 import Activity from './Activity';
 import { TitleAndValue } from '../common/styles';
 import { getAfkGain, getCashMulti, getClassExpMulti, getDropRate, getRespawnRate } from '../../parsers/character';
+import { getGoldenFoodMulti } from '../../parsers/misc';
 import React, { useMemo } from 'react';
 import { getMaxDamage, notateDamage } from '../../parsers/damage';
 import processString from 'react-process-string';
@@ -44,6 +45,10 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
     breakdown: classExpBreakdown
   } = useMemo(() => getClassExpMulti(character, account, characters), [character,
     account]);
+  const {
+    value: goldenFoodMulti,
+    breakdown: goldenFoodBreakdown
+  } = useMemo(() => getGoldenFoodMulti(character, account, characters), [character, account, characters]);
   const playerInfo = useMemo(() => getMaxDamage(character, characters, account), [character, account]);
 
 
@@ -88,6 +93,9 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             })}
             <Stat title={'Cash Multiplier'} useDoubleColumn value={`${cashFormatter(cashMulti, 2)}x`}
                   breakdown={breakdown} breakdownNotation={'Smaller'}/>
+            <Stat title={'Golden Food'} useDoubleColumn
+                  value={`${notateNumber(Math.max(0, 100 * (goldenFoodMulti - 1)), 'MultiplierInfo')}%`}
+                  breakdown={goldenFoodBreakdown} breakdownNotation={'Smaller'}/>
             <Stat title={'HP'} value={notateNumber(playerInfo?.maxHp)}/>
             <Stat title={'MP'} value={notateNumber(playerInfo?.maxMp)}/>
             <Stat title={'Kills Per Hour'}

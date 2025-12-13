@@ -699,6 +699,35 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const apocalypses = deathBringer?.wow?.finished?.at(0) || 0;
   const armorSetBonus = getArmorSetBonus(account, 'SECRET_SET');
 
+  const breakdown = [
+    { title: 'Multiplicative' },
+    { name: '' },
+    { name: 'Armor Set', value: armorSetBonus },
+    { name: '' },
+    { title: 'Additive' },
+    { name: '' },
+    { name: 'Family Bonus', value: isShaman ? amplifiedFamilyBonus : familyBonus },
+    { name: 'The Family Guy', value: theFamilyGuy },
+    { name: 'Equipment', value: equipmentGoldFoodBonus },
+    { name: 'Tools', value: toolGoldFoodBonus },
+    { name: 'Obols', value: obolsBonus },
+    { name: 'Talent', value: hungryForGoldTalentBonus },
+    { name: 'Stamp', value: goldenAppleStamp },
+    { name: 'Achievement', value: goldenFoodAchievement },
+    { name: 'Bubble', value: goldenFoodBubbleBonus },
+    { name: 'Sigil', value: goldenFoodSigilBonus },
+    { name: 'Meal', value: mealBonus },
+    { name: 'Star Sign', value: starSignBonus },
+    { name: 'Bribe', value: bribeBonus },
+    { name: 'Charm', value: charmBonus },
+    { name: 'Achievements', value: 2 * achievementBonus + 3 * secondAchievementBonus },
+    { name: 'Vote', value: voteBonus },
+    { name: 'Apocalypse Wow', value: apocalypseWow * apocalypses },
+    { name: 'Companion', value: companionBonus },
+    { name: 'Legend Talent', value: legendTalentBonus },
+    { name: 'Card', value: cardBonus }
+  ];
+
   return {
     value: (1 + armorSetBonus / 100)
       * (Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
@@ -709,6 +738,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
                 + (goldenFoodBubbleBonus
                   + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus
                 + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses + companionBonus + legendTalentBonus + cardBonus))))) / 100),
+    breakdown,
     expression: `(1 + armorSetBonus / 100)
 * (Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
 + (equipmentGoldFoodBonus
@@ -745,7 +775,6 @@ export const getGoldenFoodBonus = (foodName, character, account, characters) => 
   }
   return baseBonus;
 };
-
 
 export const getRandomEvents = (account) => {
   if (!account) return [];
