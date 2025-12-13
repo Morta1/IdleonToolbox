@@ -377,7 +377,6 @@ const getCropDepotBonuses = (account) => {
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 22);
   const exoticBonus40 = getExoticMarketBonus(account, 40) ?? 0;
   const extraBonus = (1 + (labBonus + pureOpalRhombolJewel) / 100) * (1 + (grimoireBonus + exoticBonus40) / 100);
-  console.log('extraBonus:', extraBonus);
 
   let bonuses = {
     damage: { name: 'DMG', value: 0 },
