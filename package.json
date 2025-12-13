@@ -41,7 +41,7 @@
     "husky": "^9.0.11",
     "lodash.debounce": "^4.0.8",
     "lodash.merge": "^4.6.2",
-    "next": "16.0.1",
+    "next": "16.0.10",
     "next-seo": "^5.15.0",
     "react": "19.2.0",
     "react-cookie-consent": "^9.0.0",
