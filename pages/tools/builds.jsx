@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Dialog, DialogActions, DialogContent, DialogTitle, Grid, Stack, Typography } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, Stack, Typography } from '@mui/material';
 import Tooltip from 'components/Tooltip';
 import allBuilds from 'data/builds.json';
 import { useRouter } from 'next/router';
@@ -10,6 +10,8 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import BuildTab from '@components/tools/builds/BuildTab';
 import ClassSelector from '@components/tools/builds/ClassSelector';
 import BuildSelector from '@components/tools/builds/BuildSelector';
+import AddIcon from '@mui/icons-material/Add';
+import ClearIcon from '@mui/icons-material/Clear';
 
 const allClasses = Object.keys(allBuilds);
 
@@ -118,6 +120,18 @@ const Builds = () => {
     <Stack direction={'row'} my={3} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <ClassSelector handleChange={handleClassChange} value={build?.className}/>
       <BuildSelector value={build} handleChange={handleBuildChange}/>
+      <FormControl>
+        <IconButton onClick={() => setCreateMode(true)}>
+          <AddIcon/>
+        </IconButton>
+      </FormControl>
+      {createMode ? <FormControl>
+        <Tooltip title={'Exit create mode'}>
+          <IconButton onClick={() => setOpenDialog(true)}>
+            <ClearIcon/>
+          </IconButton>
+        </Tooltip>
+      </FormControl> : null}
     </Stack>
     <Stack>
       {build?.list?.length > 0 ? <div>
