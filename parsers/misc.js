@@ -1,4 +1,4 @@
-import { createRange, lavaLog, number2letter, tryToParse } from '@utility/helpers';
+import { createRange, lavaLog, notateNumber, number2letter, tryToParse } from '@utility/helpers';
 import { filteredGemShopItems, filteredLootyItems, keysMap } from './parseMaps';
 import {
   bonuses,
@@ -1259,8 +1259,7 @@ export const getKillRoy = (idleonData, charactersData, accountData, serverVars) 
     let replacementChar = '{';
     
     if (i === 5 && level >= 2) {
-      description = 'Permanently_boosts_your_Gallery_Multiplier_by_+}x';
-      replacementChar = '}';
+      description = `Permanently_boosts_your_Gallery_Multiplier_by_+${(bonus / 100).toFixed(2)}x`;
     }
     
     return {

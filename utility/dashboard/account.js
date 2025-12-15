@@ -353,9 +353,9 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
       }
     }
     if (dailyShipments?.checked) {
-      const uncompletedDailyShipments = account?.postOfficeShipments?.filter(({ shields, completedAnOrder }, index) => {
+      const uncompletedDailyShipments = account?.postOfficeShipments?.filter(({ shield, completedAnOrder }, index) => {
         return (showAlertOnlyWhen0Shields?.checked
-          ? shields === 0
+          ? shield === 0
           : true) && dailyShipments?.props?.value?.[index + 1] && !completedAnOrder
       });
       if (uncompletedDailyShipments?.length > 0) {
