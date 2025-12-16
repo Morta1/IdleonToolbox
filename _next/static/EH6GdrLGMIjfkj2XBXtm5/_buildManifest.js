@@ -63,7 +63,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/dadb5d7c03cf2835.js"
   ],
   "/account/prem-currency/companions": [
-    "static/chunks/f79a08a2d3ef3c35.js"
+    "static/chunks/5ab0ed142c1d97d1.js"
   ],
   "/account/prem-currency/gem-shop": [
     "static/chunks/2b0216e9f918dbbe.js"
