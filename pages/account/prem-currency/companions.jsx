@@ -59,8 +59,8 @@ const Companions = () => {
 
   const allLegacy = state?.account?.companions?.list?.slice(0, 11) || [];
   const allFallenSpirits = state?.account?.companions?.list?.slice(12, 24) || [];
-  const allShallowWaters = state?.account?.companions?.list?.slice(37) || [];
-  const allExclusive = [state?.account?.companions?.list[11], ...(state?.account?.companions?.list?.slice(24, 37) || [])].filter(Boolean);
+  const allShallowWaters = state?.account?.companions?.list?.slice(37, 49) || [];
+  const allExclusive = [state?.account?.companions?.list[11], state?.account?.companions?.list[49], ...(state?.account?.companions?.list?.slice(24, 37) || []),].filter(Boolean);
 
   const filterTradable = (companions) => {
     if (!showTradableOnly) return companions;
