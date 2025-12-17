@@ -604,15 +604,15 @@ export const getPaletteLuck = (paletteFinalBonus, account, characters) => {
       { name: 'Bigger Palette', value: superbit42Unlocked },
       { name: 'Meritocracy', value: meritocracyBonus },
       { name: 'Palette', value: paletteBonus3 },
-      { name: 'Lore', value: loreEpiBonus },
-      { name: 'Colourful Luck', value: superbit38Unlocked },
+      { name: 'Tome', value: loreEpiBonus },
+      { name: 'Colourful Luck', value: (paletteFinalBonus + loreEpiBonus) * superbit38Unlocked },
       { name: 'Gaming Level', value: gamingLevel },
-      { name: 'Gamer Luck', value: superbit45Unlocked },
+      { name: 'Gamer Luck', value: 3 * (gamingLevel - 200) * superbit45Unlocked },
       { name: 'Snail Level', value: snailLevel },
-      { name: 'Lucky Snail', value: superbit28Unlocked },
+      { name: 'Lucky Snail', value: 20 * Math.max(0, snailLevel - 25) * superbit28Unlocked },
       { name: 'Acorn Shop', value: acornShopBonus2 },
       { name: 'Exotic shop', value: exoticBonus44 },
-      { name: 'Jade Emporium', value: jadeEmporiumBonus },
+      { name: 'Jade Emporium', value: 100 * jadeEmporiumBonus },
       { name: 'Arcade', value: arcadeBonus }
     ]
   }
