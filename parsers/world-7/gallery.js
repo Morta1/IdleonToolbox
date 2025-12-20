@@ -278,12 +278,14 @@ export const getNametagBonuses = (rawSpelunk, account) => {
 
 export const getGalleryBonusMulti = (rawSpelunk, account) => {
   const baseValue = rawSpelunk?.[13]?.[4];
+  const trophyChipBonus = account?.lab?.playersChips?.flat().concat(account?.lab?.chips || []).find(({ name }) => name === 'Silkrode_Motherboard') ? 10 : 0;
   const clamWorkBonus = 3 * getClamWorkBonus(account, 7);
   const killroyBonus = getKillRoyShopBonus(account, 3);
   const bubbleBonus = Math.min(20, getBubbleBonus(account, 'CODFREY_RULZ_OK', false));
-  const cardBonus = getCardBonusByEffect(account?.cards, 'Gallery_Bonus_(Passive)');
+  const cardBonus = Math.min(getCardBonusByEffect(account?.cards, 'Gallery_Bonus_(Passive)'), 10);
+  const companionBonus = isCompanionBonusActive(account, 49) ? account?.companions?.list?.at(49)?.bonus : 0;
 
-  return 1 + (3 * baseValue + clamWorkBonus + killroyBonus + bubbleBonus + cardBonus) / 100;
+  return 1 + (3 * baseValue + trophyChipBonus + clamWorkBonus + killroyBonus + bubbleBonus + cardBonus + companionBonus) / 100;
 }
 
 export const getPodiumsOwned = (rawSpelunk, account) => {
