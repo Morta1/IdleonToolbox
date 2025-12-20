@@ -590,13 +590,11 @@ export const getPaletteLuck = (paletteFinalBonus, account, characters) => {
   const jadeEmporiumBonus = isJadeBonusUnlocked(account, 'Palette_Slot');
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Palette_Luck')?.bonus ?? 0;
 
-  const value = (1 + superbit42Unlocked)
-    * (1 + meritocracyBonus / 100)
-    * (1 + (paletteBonus3 +
-      ((paletteFinalBonus + loreEpiBonus) * superbit38Unlocked +
-        (Math.max(0, 3 * (gamingLevel - 200) * superbit45Unlocked) +
-          (20 * Math.max(0, snailLevel - 25) * superbit28Unlocked
-            + (acornShopBonus2 + exoticBonus44 + (100 * jadeEmporiumBonus + arcadeBonus))))) / 100));
+  const value = (1 + superbit42Unlocked) * (1 + meritocracyBonus / 100) * (1 + (paletteBonus3
+    + ((paletteFinalBonus + loreEpiBonus) * superbit38Unlocked
+    + (Math.max(0, 3 * (gamingLevel - 200) * superbit45Unlocked)
+      + (20 * Math.max(0, snailLevel - 25) * superbit28Unlocked
+        + (acornShopBonus2 + exoticBonus44 + (100 * jadeEmporiumBonus + arcadeBonus)))))) / 100);
 
   return {
     value,
