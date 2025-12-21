@@ -162,7 +162,17 @@ const parseFarming = (rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFar
   const marketBonus = getMarketBonus(market, "MORE_BEENZ");
   const hasLandRank = getMarketBonus(market, "LAND_RANK");
   const achievementBonus = getAchievementStatus(account?.achievements, 363);
-  const beanTrade = Math.pow(cropsForBeans, 0.5) * (1 + marketBonus / 100) * (1 + (25 * jadeUpgrade + 5 * achievementBonus) / 100);
+  const exoticBonus16 = getExoticMarketBonus(account, 16) ?? 0;
+  const exoticBonus17 = getExoticMarketBonus(account, 17) ?? 0;
+  const exoticBonus18 = getExoticMarketBonus(account, 18) ?? 0;
+  const exoticBonus19 = getExoticMarketBonus(account, 19) ?? 0;
+  const exoticBonus20 = getExoticMarketBonus(account, 20) ?? 0;
+
+  const beanTrade = Math.pow(cropsForBeans, 0.5)
+    * (1 + marketBonus / 100)
+    * (1 + (25 * jadeUpgrade + (5 * achievementBonus + (exoticBonus16 + (exoticBonus17 + exoticBonus18)))) / 100)
+    * (1 + exoticBonus19 / 100)
+    * (1 + exoticBonus20 / 100);
 
   return {
     plot,

@@ -65,7 +65,7 @@ const EquipmentPage = ({ allAccountItems, items, character, account, hideEmpty, 
                 <Tooltip
                   title={
                     displayName && displayName !== 'ERROR'
-                      ? <ItemDisplay {...actualItem} character={character} account={account} owners={owners}/>
+                      ? <ItemDisplay {...(itemIndex === 1 && actualItem ? actualItem : item)} character={character} account={account} owners={owners}/>
                       : ''
                   }
                 >

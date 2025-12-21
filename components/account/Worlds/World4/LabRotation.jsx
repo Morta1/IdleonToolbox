@@ -56,15 +56,15 @@ const LabRotation = () => {
               />
               {option?.name?.replace(/_/g, ' ')}
             </Stack>
-          ) : <span style={{ height: 0 }} key={'empty' + option?.index}/>;
+          ) : <span style={{ height: 0 }} key={'empty' + option?.index} />;
         }}
-        renderInput={(params) => <TextField {...params} label="Filter by jewel or chip"/>}
+        renderInput={(params) => <TextField {...params} label="Filter by jewel or chip" />}
       />
       <Stack direction={'row'} gap={1}>
         <FormControl sx={{ mt: 2 }} size={'small'}>
           <InputLabel>Weeks</InputLabel>
           <Select label={'Weeks'} sx={{ width: { xs: 100 } }} value={weeks}
-                  onChange={(e) => setWeeks(e.target.value)}>
+            onChange={(e) => setWeeks(e.target.value)}>
             <MenuItem value={10}>10</MenuItem>
             <MenuItem value={20}>20</MenuItem>
             <MenuItem value={30}>30</MenuItem>
@@ -73,10 +73,10 @@ const LabRotation = () => {
           </Select>
         </FormControl>
         <TextField onChange={(e) => setChipThreshold(e.target.value)}
-                   size={'small'} sx={{ mt: 2, width: 200 }}
-                   type={'number'} label={'Chip count threshold'}
-                   helperText={<Typography sx={{ width: 200 }} variant={'caption'}>This will highlight the chip when
-                     your threshold is met</Typography>}/>
+          size={'small'} sx={{ mt: 2, width: 200 }}
+          type={'number'} label={'Chip count threshold'}
+          helperText={<Typography sx={{ width: 200 }} variant={'caption'}>This will highlight the chip when
+            your threshold is met</Typography>} />
       </Stack>
     </Stack>
     <Stack gap={1}>
@@ -92,33 +92,33 @@ const LabRotation = () => {
             <CardContent sx={{ '&:last-child': { p: 3 } }}>
               <Stack key={'rotation' + rotationIndex} gap={2} flexWrap={'wrap'}>
                 <Typography sx={{ textAlign: 'center' }} variant={'h6'}>{isValid(date)
-                  ? format(date, 'dd/MM/yyyy HH:mm:ss')
+                  ? `${format(date, 'dd/MM/yyyy HH:mm:ss')} (${format(date, 'MMM do, yyyy')})`
                   : null}</Typography>
                 <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
                   {items?.map(({
-                                 name,
-                                 requirements = [],
-                                 rawName,
-                                 index,
-                                 bonus,
-                                 effect,
-                                 baseVal,
-                                 acquired,
-                                 amount: chipCount
-                               }, itemsIndex) => {
+                    name,
+                    requirements = [],
+                    rawName,
+                    index,
+                    bonus,
+                    effect,
+                    baseVal,
+                    acquired,
+                    amount: chipCount
+                  }, itemsIndex) => {
                     const desc = rawName?.includes('Chip') ? bonus.replace(/{/g, baseVal) : effect.replace(/}/g, bonus);
                     const { currentRotation } = state?.account?.lab;
                     return <Card variant={'outlined'} key={'items' + itemsIndex}
-                                 sx={{
-                                   width: 250,
-                                   borderColor: acquired || chipCount > chipThreshold ? 'success.light' : ''
-                                 }}>
+                      sx={{
+                        width: 250,
+                        borderColor: acquired || chipCount > chipThreshold ? 'success.light' : ''
+                      }}>
                       <CardContent sx={{ '&:last-child': { p: 3 } }}>
                         <Stack alignItems={'center'} gap={2}>
                           <Stack>
                             <Tooltip title={cleanUnderscore(desc)}>
                               <Stack direction={'row'} alignItems={'center'} gap={1}>
-                                <Icon src={`${prefix}data/${rawName ? rawName : `ConsoleChip${index}`}.png`} alt=""/>
+                                <Icon src={`${prefix}data/${rawName ? rawName : `ConsoleChip${index}`}.png`} alt="" />
                                 <Typography>{cleanUnderscore(name)}</Typography>
                               </Stack>
                             </Tooltip>
@@ -130,7 +130,7 @@ const LabRotation = () => {
                               const totalAmount = getRequirementAmount(name, rawName, state?.account);
                               return <Stack alignItems={'center'} gap={1} key={`req-${rawName}-${reqIndex}`}>
                                 <Tooltip title={cleanUnderscore(name)}>
-                                  <Icon src={`${prefix}data/${rawName}.png`} alt=""/>
+                                  <Icon src={`${prefix}data/${rawName}.png`} alt="" />
                                 </Tooltip>
                                 <Tooltip title={`${notateNumber(amount)} / ${notateNumber(totalAmount)}`}>
                                   <Typography color={amount < totalAmount

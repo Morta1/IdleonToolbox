@@ -40,10 +40,14 @@ const parseLegendTalents = (spelunkingRaw, accountData = {}, charactersData = []
     .filter((legendTalent) => legendTalent.name !== 'filler')
     .toSorted((a, b) => a.index - b.index);
 
-  const pointsLeftToSpend = getUnspentLegendPoints(legendTalentsRaw, accountData, charactersData);
+  const pointsOwned = getLegendPointsOwned(accountData, charactersData);
+  const pointsSpent = getLegendPointsSpent(legendTalentsRaw);
+  const pointsLeftToSpend = getUnspentLegendPoints(pointsOwned.value, pointsSpent);
   return {
     talents,
-    pointsLeftToSpend
+    pointsLeftToSpend,
+    pointsOwned,
+    pointsSpent
   };
 }
 
@@ -102,11 +106,13 @@ export const getLegendPointsOwned = (accountData = {}, charactersData = []) => {
 
   // Calculate points from character levels
   // For each character: Math.max(0, Math.floor((level - 400) / 100))
+  let totalPointsFromLevels = 0;
   if (charactersData && Array.isArray(charactersData)) {
     charactersData.forEach((character) => {
       const level = character?.level || 0;
       const pointsFromLevel = Math.max(0, Math.floor((level - 400) / 100));
       totalOwned += pointsFromLevel;
+      totalPointsFromLevels += pointsFromLevel;
     });
   }
 
@@ -128,13 +134,21 @@ export const getLegendPointsOwned = (accountData = {}, charactersData = []) => {
   const eventShopBonus = getEventShopBonus(accountData, 32);
   totalOwned += 2 * eventShopBonus;
 
-  return Math.round(totalOwned);
+  return {
+    value: Math.round(totalOwned),
+    breakdown: [
+      { name: 'Points from levels', value: totalPointsFromLevels },
+      { name: 'Clam Work', value: clamWorkBonus1 + clamWorkBonus4 },
+      { name: 'Companion', value: 10 * companionBonus },
+      { name: 'Gem Item', value: gemItem42 },
+      { name: 'Artifact', value: Math.min(5, Math.round(artifactBonus)) },
+      { name: 'Event Shop', value: 2 * eventShopBonus },
+    ]
+  };
 };
 
-export const getUnspentLegendPoints = (legendTalentsRaw, accountData = {}, charactersData = []) => {
-  const owned = getLegendPointsOwned(accountData, charactersData);
-  const spent = getLegendPointsSpent(legendTalentsRaw);
-  return Math.round(owned - spent);
+export const getUnspentLegendPoints = (pointsOwned, pointsSpent) => {
+  return Math.round(pointsOwned - pointsSpent);
 };
 
 export const getTotalSuperTalentPoints = (characterLevel, accountData = {}) => {

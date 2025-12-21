@@ -9,6 +9,7 @@ import { getArcadeBonus } from '@parsers/arcade';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getTesseractBonus } from '@parsers/tesseract';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
+import { isSuperbitUnlocked } from './gaming';
 
 export const getEquinox = (idleonData, account) => {
   const weeklyBoss = tryToParse(idleonData?.WeeklyBoss) || idleonData?.WeeklyBoss;
@@ -122,10 +123,11 @@ const parseEquinoxUpgrades = (challenges, dream, account) => {
       10: 4 * getCloudBonus(challenges, 30),
       11: 15 * getCloudBonus(challenges, 35)
     };
+    const superbitBonus = isSuperbitUnlocked(account, 'Equinox_Unending') ? 10 : 0;
     const totalValue = index in cloudBonusMap
-      ? maxLevel + winBonus + Math.round(cloudBonusMap[index])
-      : index === 7 ? maxLevel + winBonus
-        : index === 3 ? maxLevel + 3 * getCloudBonus(challenges, 6) + 4 * getCloudBonus(challenges, 15)
+      ? maxLevel + winBonus + Math.round(cloudBonusMap[index]) + superbitBonus
+      : index === 7 ? maxLevel + winBonus + superbitBonus
+        : index === 3 ? maxLevel + 3 * getCloudBonus(challenges, 6) + 4 * getCloudBonus(challenges, 15) + superbitBonus
           : maxLevel;
 
     return {

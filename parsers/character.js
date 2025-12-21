@@ -124,6 +124,7 @@ import { getSuperTalentLeftToSpend } from '@parsers/world-7/legendTalents';
 import { getFriendBonus } from '@parsers/misc';
 import { getTesseractMapBonus } from '@parsers/tesseract';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
+import { getGalleryBonus } from '@parsers/world-7/gallery';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('@utility/helpers');
 
@@ -2000,6 +2001,7 @@ export const getDropRate = (character, account, characters) => {
   const dropChanceEquip = getStatsFromGear(character, 2, account);
   const dropChanceTools = getStatsFromGear(character, 2, account, true);
   const dropChanceObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[2]);
+  const galleryBonus = getGalleryBonus(account, bonuses?.etcBonuses?.[2], character);
   const bubbleBonus = getBubbleBonus(account, 'DROPPIN_LOADS', false);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Drop_Rate');
   const cardMulti = getCardBonusByEffect(character?.cards?.equippedCards, 'Drop_Rate_Multi');
@@ -2052,7 +2054,7 @@ export const getDropRate = (character, account, characters) => {
   const additive =
     robbingHoodTalentBonus +
     postOfficeBonus +
-    (dropChanceEquip + dropChanceObols + dropChanceTools) +
+    (dropChanceEquip + dropChanceObols + dropChanceTools + galleryBonus) +
     bubbleBonus +
     cardBonus +
     lootyCurseTalentBonus +
@@ -2136,7 +2138,8 @@ export const getDropRate = (character, account, characters) => {
   final *= 1 + charmBonus / 100;
 
   const equipmentDrMulti = getStatsFromGear(character, 91, account);
-  final *= 1 + equipmentDrMulti / 100;
+  const galleryBonusMulti = getGalleryBonus(account, bonuses?.etcBonuses?.[91], character);
+  final *= 1 + (equipmentDrMulti + galleryBonusMulti) / 100;
 
   const thirdCompanionDropRate = isCompanionBonusActive(account, 26) ? account?.companions?.list?.at(26)?.bonus : 0;
   if (thirdCompanionDropRate) {
@@ -2157,6 +2160,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Post Office', value: postOfficeBonus / 100 },
     { name: 'Equipment', value: (dropChanceEquip + dropChanceTools) / 100 },
     { name: 'Obols', value: dropChanceObols / 100 },
+    { name: 'Gallery', value: galleryBonus / 100 },
     { name: 'Bubble', value: bubbleBonus / 100 },
     { name: 'Cards', value: (cardBonus + cardSetBonus + passiveCardBonus) / 100 },
     { name: 'Shrine', value: shrineBonus / 100 },
@@ -2175,7 +2179,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Golden food', value: goldenFoodBonus / 100 },
     { name: 'Achievements', value: (6 * achievementBonus + 4 * secondAchievementBonus) / 100 },
     { name: 'Land rank', value: landRankBonus / 100 },
-    { name: 'Vote', value: voteBonus },
+    { name: 'Vote', value: voteBonus / 100 },
     { name: 'Schematics', value: (schematicBonus + secondSchematicBonus) / 100 },
     { name: 'Grimoire', value: grimoireBonus / 100 },
     { name: 'Upgrade vault', value: upgradeVaultBonus / 100 },
@@ -2185,7 +2189,10 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Emperor', value: emperorBonus / 100 },
     { name: 'Efaunt set', value: armorSetBonus / 100 },
     { name: 'Exotic market', value: exoticMarketBonus / 100 },
+    { name: 'Friend', value: friendBonus / 100 },
     { name: 'Legend talent', value: legendTalentBonus / 100 },
+    { name: 'Spelunking', value: spelunkingBonus / 100 },
+    { name: 'Chip (capped at 5)', value: (dropRate < 5 && chipBonus > 0) ? Math.min(5 - dropRate, chipBonus / 100) : 0 },
     { name: 'Gem Bundle2', value: hasAnotherDrBundle ? 2 : 0 },
     { name: 'Ninja Mastery', value: ninjaMasteryDropRate ? 0.3 : 0 },
 
@@ -2193,11 +2200,15 @@ export const getDropRate = (character, account, characters) => {
     { name: '' },
     { title: 'Multiplicative' },
     { name: '' },
-    { name: 'Equipment', value: equipmentDrMulti / 100 },
+    { name: 'Siege Breaker', value: extraDropRate },
+    { name: 'Gem Bundle', value: hasDrBundle ? 0.2 : 0 },
+    { name: 'Tesseract Map', value: tesseractMapBonus / 100 },
+    { name: 'Card Multi', value: cardMulti / 100 },
+    { name: 'Tome Multi', value: tomeMulti / 100 },
+    { name: 'Equipment (DR Multi)', value: dropChanceEquip2 / 100 },
+    { name: 'Gallery Multi', value: galleryBonusMulti / 100 },
     { name: 'Pristine Charm', value: charmBonus / 100 },
-    { name: 'Companion', value: thirdCompanionDropRate },
-    { name: 'Gem Bundle', value: hasDrBundle ? 1.2 : 0 },
-    { name: 'Siege Breaker*', value: extraDropRate }
+    { name: 'Companion', value: thirdCompanionDropRate ? Math.max(0, Math.min(0.3, thirdCompanionDropRate)) : 0 }
   ];
   return {
     dropRate: final,
@@ -2209,6 +2220,7 @@ export const getDropRate = (character, account, characters) => {
     + dropChanceEquip
     + dropChanceObols
     + dropChanceTools
+    + galleryBonus
     + bubbleBonus
     + cardBonus
     + lootyCurseTalentBonus
@@ -2244,7 +2256,9 @@ export const getDropRate = (character, account, characters) => {
     + emperorBonus
     + armorSetBonus
     + exoticMarketBonus
+    + friendBonus
     + legendTalentBonus
+    + spelunkingBonus
   ) / 100 + 1;
 
 if (dropRate < 5 && chipBonus > 0) {
@@ -2267,8 +2281,23 @@ if (hasDrBundle) {
   final *= 1.2;
 }
 
+if (tesseractMapBonus) {
+  final *= 1 + tesseractMapBonus / 100;
+}
+
+if (cardMulti) {
+  final *= 1 + cardMulti / 100;
+}
+
+if (tomeMulti) {
+  final *= 1 + tomeMulti / 100;
+}
+
+final *= 1 + dropChanceEquip2 / 100;
+
 final *= (1 + charmBonus / 100);
-final *= (1 + equipmentDrMulti / 100);
+
+final *= (1 + (equipmentDrMulti + galleryBonusMulti) / 100);
 
 if (thirdCompanionDropRate) {
   final *= Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate));

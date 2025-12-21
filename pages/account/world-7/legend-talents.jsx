@@ -3,12 +3,14 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { Stack, Card, CardContent, Typography, Box, TextField, Checkbox, FormControlLabel } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import { MissingData } from '@components/common/styles';
+import { MissingData, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { useLocalStorage } from '@mantine/hooks';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
+import Tooltip from '@components/Tooltip';
 
 const LegendTalents = () => {
   const { state } = useContext(AppContext);
-  const { talents } = state?.account?.legendTalents || {};
+  const { talents, pointsSpent, pointsOwned } = state?.account?.legendTalents || {};
   const [searchQuery, setSearchQuery] = useState('');
   const [hideMaxed, setHideMaxed] = useLocalStorage({
     key: `${prefix}:legendTalents:hideMaxed`,
@@ -32,7 +34,7 @@ const LegendTalents = () => {
 
   const filteredTalents = useMemo(() => {
     if (!talents) return [];
-    
+
     let filtered = talents;
 
     // Filter by search query
@@ -60,25 +62,50 @@ const LegendTalents = () => {
     />
 
     <Stack sx={{ mb: 3 }} direction="row" alignItems="center" gap={2}>
-      <TextField
-        sx={{ width: 250 }}
-        size="small"
-        placeholder="Search by name or description"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        variant="outlined"
-      />
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={hideMaxed}
-            onChange={(e) => setHideMaxed(e.target.checked)}
-            size="small"
-          />
-        }
-        label="Hide maxed"
-      />
+      <CardTitleAndValue title={'Legend Points'}>
+        <Stack direction="row" alignItems={'center'} gap={1}>
+          <Typography>
+            {pointsSpent || 0} / {pointsOwned?.value || 0}
+          </Typography>
+          {pointsOwned?.breakdown && pointsOwned.breakdown.length > 0 && (
+            <Tooltip title={<Stack>
+              {pointsOwned.breakdown.map(({ name, value }, index) => (
+                <TitleAndValue
+                  key={`${name}-${index}`}
+                  title={name}
+                  titleStyle={{ width: 150 }}
+                  value={value}
+                />
+              ))}
+            </Stack>}>
+              <IconInfoCircleFilled size={18} />
+            </Tooltip>
+          )}
+        </Stack>
+      </CardTitleAndValue>
+      <Stack direction="row" alignItems="center" gap={2}>
+        <TextField
+          sx={{ width: 250 }}
+          size="small"
+          placeholder="Search by name or description"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          variant="outlined"
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={hideMaxed}
+              onChange={(e) => setHideMaxed(e.target.checked)}
+              size="small"
+            />
+          }
+          label="Hide maxed"
+        />
+      </Stack>
     </Stack>
+
+
 
     {filteredTalents?.length === 0 ? (
       <Box sx={{ textAlign: 'center', py: 4 }}>
@@ -86,8 +113,8 @@ const LegendTalents = () => {
           {searchQuery.trim()
             ? `No legend talents found matching "${searchQuery}"${hideMaxed ? ' (all remaining talents are maxed)' : ''}`
             : hideMaxed
-            ? 'All legend talents are maxed'
-            : 'No legend talents available'}
+              ? 'All legend talents are maxed'
+              : 'No legend talents available'}
         </Typography>
       </Box>
     ) : (

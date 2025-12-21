@@ -20,6 +20,8 @@ const TheBell = ({ hole }) => {
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'New method chance'}
         value={`${notateNumber(hole?.caverns?.theBell?.newMethodChance * 100, 'MultiplierInfo')}%`} />
+      <CardTitleAndValue title={'Rings'}
+        value={`${notateNumber(hole?.caverns?.theBell?.rings, 'Big')}`} />
     </Stack>
     <Divider sx={{ my: 2 }} />
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>

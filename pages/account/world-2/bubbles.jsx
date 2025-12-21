@@ -616,7 +616,7 @@ const Dot = () => <Divider
 />
 const UpgradeableBubblesList = ({ bubbles, accumulatedCost, account }) => {
   return <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
-    {bubbles?.map(({ rawName, bubbleName, level, itemReq, index, cauldron, lithium, dailyLevels, isZenithMarket, isGrindTime }, tIndex) => {
+    {bubbles?.map(({ rawName, bubbleName, level, itemReq, index, cauldron, lithium, dailyLevels, dailyLevelsBreakdown, isZenithMarket, isGrindTime }, tIndex) => {
       const {
         singleLevelCost,
         total
@@ -631,7 +631,13 @@ const UpgradeableBubblesList = ({ bubbles, accumulatedCost, account }) => {
                 src={`${prefix}data/Atom2.png`} alt="" /></HtmlTooltip>
             : null}
           {isZenithMarket
-            ? <HtmlTooltip title={`Zenith Market Bubble - ${dailyLevels} daily levels from Kattlekruk`}>
+            ? <HtmlTooltip title={<>
+              <Typography>Zenith Market Bubble - {dailyLevels} daily levels from Kattlekruk</Typography>
+              {dailyLevelsBreakdown && <>
+                <Divider sx={{ my: 1 }} />
+                <Breakdown breakdown={dailyLevelsBreakdown} />
+              </>}
+            </>}>
               <img style={{ position: 'absolute', top: -10, right: lithium ? -45 : -15, width: 30, height: 30 }}
                 src={`${prefix}data/DivGod8.png`} alt="" /></HtmlTooltip>
             : null}

@@ -794,13 +794,25 @@ export function parseShorthandNumber(input) {
       const digitsAfterComma = numberPart.length - commaIndex - 1;
       const digitsBeforeComma = commaIndex;
       
-      // If exactly 3 digits after comma and more than 3 digits before, likely thousands separator
-      // Otherwise, likely decimal separator
-      if (digitsAfterComma === 3 && digitsBeforeComma > 3) {
-        // Thousands separator (e.g., '1234,567')
+      // Heuristic for determining separator type:
+      // 1. Exactly 3 digits after + 1-3 digits before = proper thousands separator
+      // 2. 1-2 digits after = decimal separator
+      // 3. 4+ digits after = likely misplaced thousands separator from editing (e.g., '131,3133' when typing '1313133')
+      //    Remove separator and treat as whole number
+      // 4. 3 digits after + 4+ digits before = decimal separator
+      
+      const isProperThousandsSeparator = digitsAfterComma === 3 && digitsBeforeComma >= 1 && digitsBeforeComma <= 3;
+      const isClearlyDecimal = digitsAfterComma >= 1 && digitsAfterComma <= 2;
+      const isMisplacedSeparator = digitsAfterComma >= 4;
+      
+      if (isProperThousandsSeparator) {
+        // Thousands separator (e.g., '1,234', '12,345', '123,456')
+        normalizedNumber = numberPart.replace(',', '');
+      } else if (isMisplacedSeparator) {
+        // Misplaced thousands separator from editing (e.g., '131,3133' → '1313133')
         normalizedNumber = numberPart.replace(',', '');
       } else {
-        // Decimal separator (e.g., '12,5' or '123,4567')
+        // Decimal separator (e.g., '12,5' or '123,45' or '1234,567')
         normalizedNumber = numberPart.replace(',', '.');
       }
     } else {
@@ -815,13 +827,19 @@ export function parseShorthandNumber(input) {
       const digitsAfterPeriod = numberPart.length - periodIndex - 1;
       const digitsBeforePeriod = periodIndex;
       
-      // If exactly 3 digits after period and more than 3 digits before, likely thousands separator
-      // Otherwise, likely decimal separator
-      if (digitsAfterPeriod === 3 && digitsBeforePeriod > 3) {
-        // Thousands separator (e.g., '1234.567')
+      // Same heuristic as comma
+      const isProperThousandsSeparator = digitsAfterPeriod === 3 && digitsBeforePeriod >= 1 && digitsBeforePeriod <= 3;
+      const isClearlyDecimal = digitsAfterPeriod >= 1 && digitsAfterPeriod <= 2;
+      const isMisplacedSeparator = digitsAfterPeriod >= 4;
+      
+      if (isProperThousandsSeparator) {
+        // Thousands separator (e.g., '1.234', '12.345', '123.456')
+        normalizedNumber = numberPart.replace('.', '');
+      } else if (isMisplacedSeparator) {
+        // Misplaced thousands separator from editing (e.g., '131.3133' → '1313133')
         normalizedNumber = numberPart.replace('.', '');
       } else {
-        // Decimal separator (e.g., '12.5' or '123.4567')
+        // Decimal separator (e.g., '12.5' or '123.45' or '1234.567')
         normalizedNumber = numberPart; // Already correct
       }
     } else {

@@ -4,6 +4,26 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.220',
+    'gameVer': '2.0.48',
+    'date': '21/12/2025',
+    'features': [
+      'Added prayers overview in Prayers page (similar to divinity page overview)',
+      'Added breakdown for legend points in Legend Talents page',
+      'Added kruk levels daily breakdown in bubbles page',
+      'Added total rings display in the Bell page',
+      'Added Remaining Crystal kills display to the character stats page under Crystal Chance breakdown'
+    ],
+    'fixes': [
+      'Fixed bean trade calculation in farming page',
+      'Fixed atom collider max level calculation',
+      'Fixed equinox max level calculation',
+      'Fixed sampling companion item display tooltip',
+      'Fixed a bug with parsing numbers in masterclass resource per hour input',
+      'Drop rate calculations are now more accurate (still not 100% accurate)',
+    ]
+  },
+  {
     'ver': '3.3.19',
     'gameVer': '2.0.48',
     'date': '09/12/2025',

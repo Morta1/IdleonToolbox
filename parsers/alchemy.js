@@ -713,7 +713,7 @@ export const getPossibleZenithMarketBubbles = (account, characters) => {
     || character.secondLinkedDeityIndex === 8
     || isCompanionBonusActive(account, 0));
   if (!hasKrukLinked) return [];
-  return account?.alchemy?.bubblesFlat.filter((bubble) => bubblesIndexes.includes(bubble.bubbleIndex)).map((bubble) => ({ ...bubble, isZenithMarket: true, dailyLevels: krukLevelsDaily }));
+  return account?.alchemy?.bubblesFlat.filter((bubble) => bubblesIndexes.includes(bubble.bubbleIndex)).map((bubble) => ({ ...bubble, isZenithMarket: true, dailyLevels: krukLevelsDaily.value, dailyLevelsBreakdown: krukLevelsDaily.breakdown }));
 }
 
 export const getKrukBubblesDaily = (account) => {
@@ -726,9 +726,27 @@ export const getKrukBubblesDaily = (account) => {
   const spelunkBonus = getSpelunkingBonus(account, 47);
   const eventShopBonus = getEventShopBonus(account, 31);
 
-  return Math.floor((20 +
-    (stampBonus + (legendBonus + zenithBonus)))
-    * (1 + meritocracyBonus / 100)
-    * (1 + 0.5 * eventShopBonus)
-    * (1 + (bubbleBonus + (arcadeBonus + spelunkBonus)) / 100))
+  const baseAmount = 20;
+  const additiveBonus = stampBonus + legendBonus + zenithBonus;
+  const meritocracyMulti = 1 + meritocracyBonus / 100;
+  const eventShopMulti = 1 + 0.5 * eventShopBonus;
+  const percentBonus = bubbleBonus + arcadeBonus + spelunkBonus;
+  const percentMulti = 1 + percentBonus / 100;
+
+  const total = Math.floor((baseAmount + additiveBonus) * meritocracyMulti * eventShopMulti * percentMulti);
+
+  return {
+    value: total,
+    breakdown: [
+      { name: 'Base', value: baseAmount },
+      { name: 'Stamp', value: stampBonus },
+      { name: 'Legend Talent', value: legendBonus },
+      { name: 'Zenith', value: zenithBonus },
+      { name: 'Meritocracy', value: meritocracyBonus, isMulti: true },
+      { name: 'Event Shop', value: eventShopBonus > 0 ? 50 * eventShopBonus : 0, isMulti: true },
+      { name: 'Bubble', value: bubbleBonus },
+      { name: 'Arcade', value: arcadeBonus },
+      { name: 'Spelunk', value: spelunkBonus }
+    ]
+  };
 }
