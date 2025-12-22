@@ -125,6 +125,7 @@ import { getFriendBonus } from '@parsers/misc';
 import { getTesseractMapBonus } from '@parsers/tesseract';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 import { getGalleryBonus } from '@parsers/world-7/gallery';
+import { getHatRackBonus } from '@parsers/world-3/hatRack';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('@utility/helpers');
 
@@ -2002,6 +2003,7 @@ export const getDropRate = (character, account, characters) => {
   const dropChanceTools = getStatsFromGear(character, 2, account, true);
   const dropChanceObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[2]);
   const galleryBonus = getGalleryBonus(account, bonuses?.etcBonuses?.[2], character);
+  const hatRackBonus = getHatRackBonus(account, bonuses?.etcBonuses?.[2]);
   const bubbleBonus = getBubbleBonus(account, 'DROPPIN_LOADS', false);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Drop_Rate');
   const cardMulti = getCardBonusByEffect(character?.cards?.equippedCards, 'Drop_Rate_Multi');
@@ -2054,7 +2056,7 @@ export const getDropRate = (character, account, characters) => {
   const additive =
     robbingHoodTalentBonus +
     postOfficeBonus +
-    (dropChanceEquip + dropChanceObols + dropChanceTools + galleryBonus) +
+    (dropChanceEquip + dropChanceObols + dropChanceTools + galleryBonus + hatRackBonus) +
     bubbleBonus +
     cardBonus +
     lootyCurseTalentBonus +
