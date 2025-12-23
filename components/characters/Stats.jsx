@@ -113,7 +113,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <Stat title={'Movement Speed'} value={notateNumber(playerInfo?.movementSpeed)} />
             <Stat title={'Mining Efficiency'} value={notateNumber(playerInfo?.miningEff)} />
             <Stat title={'Damage'} damage value={notateDamage(playerInfo)} />
-            <Stat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}
+            <Stat title={'Drop Rate'} value={`${dropRate.toFixed(3).replace('.000', '')}x`}
               breakdown={drBreakdown} breakdownNotation={'Smaller'} useDoubleColumn />
             <Stat title={'Respawn Time'}
               value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}
