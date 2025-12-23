@@ -43,11 +43,14 @@ const parseLegendTalents = (spelunkingRaw, accountData = {}, charactersData = []
   const pointsOwned = getLegendPointsOwned(accountData, charactersData);
   const pointsSpent = getLegendPointsSpent(legendTalentsRaw);
   const pointsLeftToSpend = getUnspentLegendPoints(pointsOwned.value, pointsSpent);
+  const maxSpendable = talents.reduce((acc, talent) => acc + talent.x1, 0);
+
   return {
     talents,
     pointsLeftToSpend,
     pointsOwned,
-    pointsSpent
+    pointsSpent,
+    maxSpendable
   };
 }
 

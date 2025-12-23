@@ -1121,7 +1121,10 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
     const legendTalents = {};
     if (options?.legendTalents?.pointsLeftToSpend?.checked) {
       const pointsLeftToSpend = account?.legendTalents?.pointsLeftToSpend ?? 0;
-      if (pointsLeftToSpend > 0) {
+      const maxSpendable = account?.legendTalents?.maxSpendable ?? 0;
+      const pointsSpent = account?.legendTalents?.pointsSpent ?? 0;
+      // Only alert if there are points to spend AND the player hasn't maxed out all talents
+      if (pointsLeftToSpend > 0 && pointsSpent < maxSpendable) {
         legendTalents.legendPointsLeftToSpend = pointsLeftToSpend;
       }
     }
