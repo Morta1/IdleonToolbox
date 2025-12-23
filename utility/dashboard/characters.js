@@ -92,7 +92,6 @@ export const trapsAlerts = (account, characters, character, lastUpdated, options
 }
 export const alchemyAlerts = (account, characters, character, lastUpdated, options) => {
   const alerts = {};
-  console.log(options?.alchemy);
   if (options?.alchemy?.missingBubbles?.checked) {
     const arenaWave = account?.accountOptions?.[89];
     const waveReqs = randomList?.[53];
