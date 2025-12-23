@@ -256,7 +256,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
         return acc;
       }, 0);
     }
-    const superbit = isSuperbitUnlocked(account, 'MSA_Mealing');
+    const superbit = isSuperbitUnlocked(account, 'MSA_Mealing');                      
     let superbitBonus = 0;
     if (superbit) {
       superbitBonus = superbit?.bonus;
@@ -320,35 +320,33 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
       { title: 'Multiplicative' },
       { name: '' },
       { name: 'Base', value: 10 },
-      { name: 'Blood Marrow (Talent)', value: voidWalkerBonusTalent },
+      { name: 'Blood Marrow (Talent)', value: 1 + voidWalkerBonusTalent / 100 },
       { name: 'Crop Depot', value: Math.max(1, account?.farming?.cropDepot?.cookingSpeed?.value) },
       { name: 'Enhancement Eclipse', value: Math.max(1, voidWalkerApocalypseBonus) },
-      { name: 'Richelin Kitchen', value: richelinBonus * 100 },
-      { name: 'Vote Bonus', value: voteBonus },
-      { name: 'Upgrade Vault', value: upgradeVaultBonus },
-      { name: 'Marshmallow (Meal)', value: marshmallowMultiplier },
+      { name: 'Richelin Kitchen', value: 1 + richelinBonus },
+      { name: 'Vote Bonus', value: 1 + voteBonus / 100 },
+      { name: 'Upgrade Vault', value: 1 + upgradeVaultBonus / 100 },
+      { name: 'Marshmallow (Meal)', value: 1 + marshmallowMultiplier / 100 },
       { name: 'Diamond Chef (Bubble)', value: Math.max(1, bubbleBonus) },
       { name: 'Void Plate Chef (Atom)', value: Math.max(1, voidPlateChefBonus) },
-      { name: 'Superbit', value: superbitBonus },
-      { name: 'Speed Level', value: speedLv * 10 },
-      { name: 'Triagulon (Artifact)', value: triagulonArtifactBonus },
-      { name: 'Arcade', value: arcadeBonus },
-      { name: 'Turtle Vial', value: turtleVial },
-      { name: 'Cooking Speed Vials', value: cookingSpeedVials },
-      { name: 'Stamps', value: cookingSpeedStamps },
-      { name: 'Jewel (Pyrite Rhinestone)', value: Math.max(0, cookingSpeedFromJewel) },
-      { name: 'Meals (Cooking Speed)', value: cookingSpeedMeals },
-      { name: 'Star Sign', value: starSignBonus },
-      { name: 'Winner Bonus', value: winnerBonus },
-      { name: 'Monument', value: monumentBonus },
+      { name: 'Superbit', value: 1 + superbitBonus / 100 },
+      { name: 'Speed Level', value: 1 + speedLv / 10 },
+      { name: 'Triagulon (Artifact)', value: 1 + triagulonArtifactBonus / 100 },
+      { name: 'Arcade', value: 1 + arcadeBonus / 100 },
+      { name: 'Turtle Vial', value: 1 + turtleVial / 100 },
+      { name: 'Cooking Speed Vials', value: 1 + cookingSpeedVials / 100 },
+      { name: 'Stamps + Jewel', value: 1 + (cookingSpeedStamps + Math.max(0, cookingSpeedFromJewel)) / 100 },
+      { name: 'Meals (Cooking Speed)', value: 1 + cookingSpeedMeals / 100 },
+      { name: 'Star Sign', value: 1 + starSignBonus / 100 },
+      { name: 'Winner Bonus', value: 1 + winnerBonus / 100 },
+      { name: 'Monument', value: 1 + monumentBonus / 100 },
       { name: 'Schematic', value: Math.max(1, schematicBonus) },
-      { name: 'Card (Cooking Multi)', value: cardCookingMulti },
-      { name: 'Lamp', value: lampBonus },
-      { name: 'Extra Vials', value: extraCookingSpeedVials },
+      { name: 'Card (Cooking Multi)', value: 1 + cardCookingMulti / 100 },
+      { name: 'Lamp', value: 1 + lampBonus / 100 },
+      { name: 'Extra Vials', value: 1 + extraCookingSpeedVials / 100 },
       { name: 'Amethyst Rhinestone', value: Math.max(1, amethystRhinestone) },
-      { name: 'Troll Card', value: 6 * trollBonus },
-      { name: 'Achievements', value: 20 * firstAchievement + 10 * secondAchievement },
-      { name: 'Kitchen Eff (Meal)', value: kitchenEffMultiplier }
+      { name: 'Troll Card + Achievements', value: 1 + achievementBonus / 100 },
+      { name: 'Kitchen Eff (Meal)', value: 1 + kitchenEffMultiplier / 100 }
     ];
     // if (characterIndex === 8 && kitchenIndex === 0){
     //   console.log('voidWalkerBonusTalent:', voidWalkerBonusTalent);
@@ -412,17 +410,17 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
       { title: 'Multiplicative' },
       { name: '' },
       { name: 'Base', value: 5 },
-      { name: 'Richelin Kitchen', value: (isRichelin ? 1 : 0) * 100 },
-      { name: 'Vote Bonus', value: voteBonus },
+      { name: 'Richelin Kitchen', value: 1 + (isRichelin ? 1 : 0) },
+      { name: 'Vote Bonus', value: 1 + voteBonus / 100 },
       { name: 'Diamond Chef (Bubble)', value: Math.max(1, bubbleBonus) },
       { name: 'Void Plate Chef (Atom)', value: Math.max(1, voidPlateChefBonus) },
-      { name: 'Superbit', value: superbitBonus },
-      { name: 'Fire Level', value: fireLv * 10 },
-      { name: 'Recipe Speed Vials', value: recipeSpeedVials },
-      { name: 'Recipe Speed Stamps', value: recipeSpeedStamps },
-      { name: 'Recipe Speed Meals', value: recipeSpeedMeals },
-      { name: 'Troll Card (capped at 50)', value: fireTrollBonus },
-      { name: 'Kitchen Eff (Meal)', value: kitchenEffMultiplier }
+      { name: 'Superbit', value: 1 + superbitBonus / 100 },
+      { name: 'Fire Level', value: 1 + fireLv / 10 },
+      { name: 'Recipe Speed Vials', value: 1 + recipeSpeedVials / 100 },
+      { name: 'Recipe Speed Stamps', value: 1 + recipeSpeedStamps / 100 },
+      { name: 'Recipe Speed Meals', value: 1 + recipeSpeedMeals / 100 },
+      { name: 'Troll Card (capped at 50)', value: 1 + fireTrollBonus / 100 },
+      { name: 'Kitchen Eff (Meal)', value: 1 + kitchenEffMultiplier / 100 }
     ];
 
     // New Recipe Luck

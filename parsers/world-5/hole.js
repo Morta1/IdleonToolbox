@@ -26,6 +26,8 @@ import { getCompassBonus } from '@parsers/compass';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { getTesseractBonus } from '@parsers/tesseract';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getLoreBossBonus } from '@parsers/world-7/spelunking';
+import { getExoticMarketBonus } from '@parsers/world-6/farming';
 
 const VILLAGERS = {
   EXPLORE: 0,
@@ -533,6 +535,9 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
   const compassBonus = getCompassBonus(accountData, 59);
   const charmBonus = getCharmBonus(accountData, 'Candy_Cache');
   const firstVillagerExp = t === 0 && unlockedCaverns < 13 ? Math.pow(1.5, accountData?.accountOptions?.[355]) : 1;
+  const tomeBonus = getLoreBossBonus(accountData, 1);
+  const exoticMarketBonus = getExoticMarketBonus(accountData, 51);
+
   const value = firstVillagerExp
     * (100 + getSchematicBonus({ holesObject, t: 0, i: 25 }))
     * Math.max(1, (1 + compassBonus / 100)
@@ -542,9 +547,11 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
       * (1 + statueBonus / 100)
       * (1 + jarBonuses / 100)
       * (1 + (25 * eventBonus) / 100)
+      * (1 + tomeBonus / 100)
       * (1 + (50 * hasBundle) / 100))
     * holesObject?.opalsInvested[t]
     * (1 + holesObject?.parallelVillagersGemShop[t] ?? 0)
+    * (1 + exoticMarketBonus / 100)
     * (1 + arcadeBonus / 100)
     * (1 + grimoireBonus / 100)
     * (1 + tesseractBonus / 100)
@@ -606,6 +613,8 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
     { name: 'Bell', value: getBellBonus({ holesObject, t: 1 }) },
     { name: 'Summoning', value: getWinnerBonus(accountData, '+{% Villager EXP') },
     { name: 'Legend Talent', value: getLegendTalentBonus(accountData, 12) },
+    { name: 'Tome', value: 1 + tomeBonus / 100 },
+    { name: 'Exotic Market', value: 1 + exoticMarketBonus / 100 },
   ];
 
   return {
