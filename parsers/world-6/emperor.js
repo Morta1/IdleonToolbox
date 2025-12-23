@@ -103,7 +103,7 @@ const getNextIndexes = (rawBonus, cycle) => {
 }
 
 const getBossHp = (highestEmperorShowdown) => {
-  return 135e13 * Math.pow(1.7, highestEmperorShowdown);
+  return 135e12 * Math.pow(1.54, highestEmperorShowdown);
 }
 
 export const getEmperorBonus = (account, index) => {
