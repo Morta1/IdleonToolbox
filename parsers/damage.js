@@ -929,7 +929,7 @@ const getPlayerDefence = (character, characters, account) => {
   const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Defence');
   const chipBonus = getPlayerLabChipBonus(character, account, 0);
   const hasDoot = isCompanionBonusActive(account, 0);
-  const coralKidLinked = account?.accountOptions?.[425] > 0 && account?.accountOptions?.[425] === 0;
+  const coralKidLinked = account?.accountOptions?.[425] === 0;
 
   // Missing bonuses from obfuscated code
   const vaultUpgBonus46 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 46) || 0;
