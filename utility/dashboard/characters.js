@@ -92,12 +92,16 @@ export const trapsAlerts = (account, characters, character, lastUpdated, options
 }
 export const alchemyAlerts = (account, characters, character, lastUpdated, options) => {
   const alerts = {};
-  if (options?.alchemy?.bubbles?.checked) {
+  console.log(options?.alchemy);
+  if (options?.alchemy?.missingBubbles?.checked) {
     const arenaWave = account?.accountOptions?.[89];
     const waveReqs = randomList?.[53];
     const arenaBonusUnlock = isArenaBonusActive(arenaWave, waveReqs, 11);
     const maxEquippedBubbles = arenaBonusUnlock ? 3 : 2;
-    alerts.missingBubbles = character?.equippedBubbles?.length < maxEquippedBubbles;
+    const sheepieCompanion = isCompanionBonusActive(account, 4);
+    if (!sheepieCompanion) {
+      alerts.missingBubbles = character?.equippedBubbles?.length < maxEquippedBubbles;
+    }
   }
   if (account?.alchemy?.activities?.[character?.playerId]?.activity === -1) {
     alerts.noActivity = true;
@@ -118,15 +122,16 @@ export const postOfficeAlerts = (account, characters, character, lastUpdated, op
   if (options?.postOffice?.unspentPoints?.checked) {
     const value = parseInt(options?.postOffice?.unspentPoints?.props?.value);
     alerts.unspentPoints = character?.postOffice?.unspentPoints > (value ?? 0) && character?.postOffice.boxes.some(({
-                                                                                                                      level,
-                                                                                                                      maxLevel
-                                                                                                                    }) => level < maxLevel);
+      level,
+      maxLevel
+    }) => level < maxLevel);
   }
   return alerts;
 }
 export const starSignsAlerts = (account, characters, character, lastUpdated, options) => {
   const alerts = {};
   if (options?.starSigns?.missingStarSigns?.checked) {
+    const allStarSignsInfinite = account?.starSigns?.filter(({ starName }) => !starName.includes('Filler') && !starName.includes('Unknown')).every(({ isInfiniteStar }) => isInfiniteStar);
     const maxStarSigns = account?.starSigns?.reduce((res, { starName, unlocked }) => {
       if (starName.includes('Chronus_Cosmos') && unlocked) {
         return res < 2 ? 2 : res;
@@ -136,7 +141,9 @@ export const starSignsAlerts = (account, characters, character, lastUpdated, opt
       }
       return res;
     }, 1);
-    alerts.missingStarSigns = maxStarSigns - character?.starSigns?.length;
+    if (!allStarSignsInfinite) {
+      alerts.missingStarSigns = maxStarSigns - character?.starSigns?.length;
+    }
   }
   return alerts;
 }
@@ -178,7 +185,7 @@ export const isTalentReady = (character, options) => {
     const cooldown = actualCd < 0 ? actualCd : new Date().getTime() + actualCd * 1000;
     if (!talents?.alwaysShowTalents?.checked && !isPast(cooldown)) return res;
     return [...res,
-      { name: talent?.name, skillIndex: talent?.skillIndex, cooldown }];
+    { name: talent?.name, skillIndex: talent?.skillIndex, cooldown }];
   }, []);
 }
 export const crystalCooldownSkillsReady = (character, options) => {
@@ -225,7 +232,7 @@ export const getDivinityAlert = (account, characters, character, lastUpdated, op
   if (!options.divinityStyle.checked) return null;
   const pocketLinked = account?.hole?.godsLinks?.find(({ index }) => index === 4);
   const isMeditating = character?.afkTarget === 'Divinity' || (character?.afkTarget === 'Laboratory' &&
-     (account?.divinity?.linkedDeities?.[character?.playerId] === 4 || character?.secondLinkedDeityIndex === 4 || pocketLinked || isCompanionBonusActive(account, 0)));
+    (account?.divinity?.linkedDeities?.[character?.playerId] === 4 || character?.secondLinkedDeityIndex === 4 || pocketLinked || isCompanionBonusActive(account, 0)));
   if (isMeditating && character?.skillsInfo?.divinity?.level >= 80 && character?.divStyle?.name !== 'Mindful') {
     return { text: 'doesn\'t have mindful style equipped', icon: 'Div_Style_7' };
   }
@@ -238,7 +245,7 @@ export const getEquipmentAlert = (account, characters, character, lastUpdated, o
   const alerts = {};
   if (options?.equipment?.availableUpgradesSlots?.checked) {
     alerts.availableUpgradesSlots = [...(character?.equipment || []),
-      ...(character?.tools || [])].reduce((result, item) => {
+    ...(character?.tools || [])].reduce((result, item) => {
       return item?.Upgrade_Slots_Left > 0 && item?.Type !== 'PREMIUM_HELMET' && item?.Type !== 'CHAT_RING' && !item?.Premiumified
         ? [...result, item]
         : result;

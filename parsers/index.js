@@ -190,7 +190,7 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
     const personalValuesMap = char?.[`PersonalValuesMap`];
     return { level: personalValuesMap?.StatList?.[4] ?? 0, class: classes?.[char?.[`CharacterClass`]] ?? '' };
   });
-  accountData.starSigns = getStarSigns(idleonData);
+  accountData.starSigns = getStarSigns(idleonData, accountData);
   const { constellations, rawConstellationsDone } = getConstellations(idleonData)
   accountData.constellations = constellations;
   accountData.rawConstellationsDone = rawConstellationsDone;

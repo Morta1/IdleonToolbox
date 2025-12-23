@@ -7,9 +7,9 @@ import { getPlayerLabChipBonus } from '@parsers/lab';
 import { getTesseractBonus } from '@parsers/tesseract';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 
-export const getStarSigns = (idleonData) => {
+export const getStarSigns = (idleonData, account) => {
   const starSignsRaw = tryToParse(idleonData?.StarSg) || idleonData?.StarSignsUnlocked;
-  return parseStarSigns(starSignsRaw);
+  return parseStarSigns(starSignsRaw, account);
 }
 
 export const getConstellations = (idleonData) => {
@@ -18,14 +18,18 @@ export const getConstellations = (idleonData) => {
   return { constellations, rawConstellationsDone: constellationsRaw?.reduce((sum, [, done]) => sum + done, 0) }
 }
 
-export const parseStarSigns = (starSignsRaw) => {
-  return starSigns?.map((starSign) => {
+export const parseStarSigns = (starSignsRaw, account) => {
+  const infiniteStarsUnlocked = isRiftBonusUnlocked(account?.rift, 'Infinite_Stars');
+  const infiniteStars = infiniteStarsUnlocked ? 5 + getShinyBonus(account?.breeding?.pets, 'Infinite_Star_Signs') : 0;
+  return starSigns?.map((starSign, index) => {
     const { starName } = starSign;
+    const isInfiniteStar = index < infiniteStars && !!starSignsRaw?.[starName];
     return {
       ...starSign,
       indexedStarName: `${starSignsIndicesMap?.[starName]} - ${starName}`,
       starName,
-      unlocked: !!starSignsRaw?.[starName]
+      unlocked: !!starSignsRaw?.[starName],
+      isInfiniteStar
     }
   }, []);
 }
