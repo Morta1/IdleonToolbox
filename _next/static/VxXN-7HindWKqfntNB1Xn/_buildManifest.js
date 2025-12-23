@@ -54,7 +54,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/2779a592d4fbd85d.js"
   ],
   "/account/misc/storage": [
-    "static/chunks/011b50dee325f727.js"
+    "static/chunks/8d17ff632972eb71.js"
   ],
   "/account/misc/upgrade-vault": [
     "static/chunks/2a538937a4d3ce0a.js"
@@ -183,10 +183,10 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0f2e1a75c6f260bb.js"
   ],
   "/account/world-5/gaming": [
-    "static/chunks/e97e014acf4e122a.js"
+    "static/chunks/1c11bd9c207cc903.js"
   ],
   "/account/world-5/hole": [
-    "static/chunks/6e6d1bd9a77fb8b4.js"
+    "static/chunks/5c96b024e8c4e192.js"
   ],
   "/account/world-5/sailing": [
     "static/chunks/5eb9f4415f19e345.js"

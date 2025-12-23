@@ -13,6 +13,6 @@ __turbopack_load_page_chunks__("/account/misc/storage", [
   "static/chunks/49d78ef4063457ff.js",
   "static/chunks/9e118b4d72a2d815.js",
   "static/chunks/ef054655485a17fd.js",
-  "static/chunks/2f7631a8ebaacac6.js",
-  "static/chunks/turbopack-cbf1f4eb009c9eaf.js"
+  "static/chunks/a5dc7d5c8dbc19d3.js",
+  "static/chunks/turbopack-4a1d53fb26b00af1.js"
 ])
