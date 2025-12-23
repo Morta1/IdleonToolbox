@@ -282,6 +282,10 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
     const lampBonus = getLampBonus({ holesObject, t: 0, i: 0, account });
     const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 54);
 
+    const kitchenEffMultiplier = kitchenEffMeals * Math.floor((speedLv + fireLv + luckLv) / 10);
+    const marshmallowMultiplier = marshmallowBonus * Math.ceil((highestFarming + 1) / 50);
+    const achievementBonus = Math.min(6 * trollBonus + (20 * firstAchievement + 10 * secondAchievement), 100);
+
     const mealSpeed = 10
       * (1 + voidWalkerBonusTalent / 100)
       * Math.max(1, account?.farming?.cropDepot?.cookingSpeed?.value)
@@ -289,8 +293,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
       * (1 + richelinBonus)
       * (1 + voteBonus / 100)
       * (1 + upgradeVaultBonus / 100)
-      * (1 + marshmallowBonus
-        * Math.ceil((highestFarming + 1) / 50) / 100)
+      * (1 + marshmallowMultiplier / 100)
       * Math.max(1, bubbleBonus)
       * Math.max(1, voidPlateChefBonus)
       * (1 + superbitBonus / 100)
@@ -310,12 +313,43 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
       * (1 + lampBonus / 100)
       * (1 + extraCookingSpeedVials / 100)
       * Math.max(1, amethystRhinestone)
-      * (1 + Math.min(6 * trollBonus
-        + (20 * firstAchievement + 10 * secondAchievement), 100) / 100)
-      * (1 + kitchenEffMeals
-        * Math.floor((speedLv
-          + (fireLv
-            + luckLv)) / 10) / 100);
+      * (1 + achievementBonus / 100)
+      * (1 + kitchenEffMultiplier / 100);
+
+    const mealSpeedBreakdown = [
+      { title: 'Multiplicative' },
+      { name: '' },
+      { name: 'Base', value: 10 },
+      { name: 'Blood Marrow (Talent)', value: voidWalkerBonusTalent },
+      { name: 'Crop Depot', value: Math.max(1, account?.farming?.cropDepot?.cookingSpeed?.value) },
+      { name: 'Enhancement Eclipse', value: Math.max(1, voidWalkerApocalypseBonus) },
+      { name: 'Richelin Kitchen', value: richelinBonus * 100 },
+      { name: 'Vote Bonus', value: voteBonus },
+      { name: 'Upgrade Vault', value: upgradeVaultBonus },
+      { name: 'Marshmallow (Meal)', value: marshmallowMultiplier },
+      { name: 'Diamond Chef (Bubble)', value: Math.max(1, bubbleBonus) },
+      { name: 'Void Plate Chef (Atom)', value: Math.max(1, voidPlateChefBonus) },
+      { name: 'Superbit', value: superbitBonus },
+      { name: 'Speed Level', value: speedLv * 10 },
+      { name: 'Triagulon (Artifact)', value: triagulonArtifactBonus },
+      { name: 'Arcade', value: arcadeBonus },
+      { name: 'Turtle Vial', value: turtleVial },
+      { name: 'Cooking Speed Vials', value: cookingSpeedVials },
+      { name: 'Stamps', value: cookingSpeedStamps },
+      { name: 'Jewel (Pyrite Rhinestone)', value: Math.max(0, cookingSpeedFromJewel) },
+      { name: 'Meals (Cooking Speed)', value: cookingSpeedMeals },
+      { name: 'Star Sign', value: starSignBonus },
+      { name: 'Winner Bonus', value: winnerBonus },
+      { name: 'Monument', value: monumentBonus },
+      { name: 'Schematic', value: Math.max(1, schematicBonus) },
+      { name: 'Card (Cooking Multi)', value: cardCookingMulti },
+      { name: 'Lamp', value: lampBonus },
+      { name: 'Extra Vials', value: extraCookingSpeedVials },
+      { name: 'Amethyst Rhinestone', value: Math.max(1, amethystRhinestone) },
+      { name: 'Troll Card', value: 6 * trollBonus },
+      { name: 'Achievements', value: 20 * firstAchievement + 10 * secondAchievement },
+      { name: 'Kitchen Eff (Meal)', value: kitchenEffMultiplier }
+    ];
     // if (characterIndex === 8 && kitchenIndex === 0){
     //   console.log('voidWalkerBonusTalent:', voidWalkerBonusTalent);
     //   console.log('account?.farming?.cropDepot?.cookingSpeed?.value:', account?.farming?.cropDepot?.cookingSpeed?.value);
@@ -359,6 +393,7 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');
     const recipeSpeedStamps = getStampsBonusByEffect(account, 'New_Recipe_Cooking_Speed');
     const recipeSpeedMeals = getMealsBonusByEffectOrStat(account, null, 'Rcook');
+    const fireTrollBonus = Math.min(6 * trollBonus, 50);
 
     const fireSpeed = 5
       * (1 + (isRichelin ? 1 : 0))
@@ -370,11 +405,25 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
       * (1 + recipeSpeedVials / 100)
       * (1 + recipeSpeedStamps / 100)
       * (1 + recipeSpeedMeals / 100)
-      * (1 + Math.min(6 * trollBonus, 50) / 100)
-      * (1 + kitchenEffMeals
-        * Math.floor((speedLv
-          + (fireLv
-            + luckLv)) / 10) / 100);
+      * (1 + fireTrollBonus / 100)
+      * (1 + kitchenEffMultiplier / 100);
+
+    const fireSpeedBreakdown = [
+      { title: 'Multiplicative' },
+      { name: '' },
+      { name: 'Base', value: 5 },
+      { name: 'Richelin Kitchen', value: (isRichelin ? 1 : 0) * 100 },
+      { name: 'Vote Bonus', value: voteBonus },
+      { name: 'Diamond Chef (Bubble)', value: Math.max(1, bubbleBonus) },
+      { name: 'Void Plate Chef (Atom)', value: Math.max(1, voidPlateChefBonus) },
+      { name: 'Superbit', value: superbitBonus },
+      { name: 'Fire Level', value: fireLv * 10 },
+      { name: 'Recipe Speed Vials', value: recipeSpeedVials },
+      { name: 'Recipe Speed Stamps', value: recipeSpeedStamps },
+      { name: 'Recipe Speed Meals', value: recipeSpeedMeals },
+      { name: 'Troll Card (capped at 50)', value: fireTrollBonus },
+      { name: 'Kitchen Eff (Meal)', value: kitchenEffMultiplier }
+    ];
 
     // New Recipe Luck
     const mealLuck = 1 + Math.pow(5 * luckLv, 0.85) / 100;
@@ -421,8 +470,10 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
       speedLv,
       currentProgress,
       mealSpeed,
+      mealSpeedBreakdown,
       mealLuck,
       fireSpeed,
+      fireSpeedBreakdown,
       speedCost,
       fireCost,
       luckCost,

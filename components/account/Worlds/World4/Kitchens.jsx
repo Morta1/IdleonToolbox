@@ -13,7 +13,7 @@ import {
 import styled from '@emotion/styled';
 import ProgressBar from 'components/common/ProgressBar';
 import { getJewelBonus, getLabBonus } from '../../../../parsers/lab';
-import { CardTitleAndValue } from '@components/common/styles';
+import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 
 const Kitchens = ({
                     spices,
@@ -111,7 +111,11 @@ const Kitchens = ({
               <Stack direction={'row'} justifyContent={'center'}>
                 <Stack>
                   <Typography sx={{ color: 'success.light' }}>Speed ({kitchen?.speedLv})</Typography>
-                  <Typography>{notateNumber(kitchen?.mealSpeed, 'Big') ?? 0}/hr</Typography>
+                  <Tooltip title={<BreakdownTooltip breakdown={kitchen?.mealSpeedBreakdown}/>}>
+                    <Typography sx={{ borderBottom: '1px dotted', cursor: 'help' }}>
+                      {notateNumber(kitchen?.mealSpeed, 'Big') ?? 0}/hr
+                    </Typography>
+                  </Tooltip>
                   <Stack mt={2} alignItems={'center'}>
                     <Tooltip title={spicesNames[firstSpiceIndex]}>
                       <SpiceIcon src={`${prefix}data/CookingSpice${firstSpiceIndex}.png`} alt={''}/>
@@ -122,7 +126,11 @@ const Kitchens = ({
                 <Divider sx={{ mx: 2, backgroundColor: 'white' }} orientation="vertical" flexItem/>
                 <Stack>
                   <Typography sx={{ color: 'error.light' }}>Fire ({kitchen?.fireLv})</Typography>
-                  <Typography>{notateNumber(kitchen?.fireSpeed, 'Big') ?? 0}/hr</Typography>
+                  <Tooltip title={<BreakdownTooltip breakdown={kitchen?.fireSpeedBreakdown}/>}>
+                    <Typography sx={{ borderBottom: '1px dotted', cursor: 'help' }}>
+                      {notateNumber(kitchen?.fireSpeed, 'Big') ?? 0}/hr
+                    </Typography>
+                  </Tooltip>
                   <Stack mt={2} alignItems={'center'}>
                     <Tooltip title={spicesNames[secondSpiceIndex]}>
                       <SpiceIcon src={`${prefix}data/CookingSpice${secondSpiceIndex}.png`} alt={''}/>
@@ -219,6 +227,28 @@ const MealTooltip = ({ meal, lab, totalMealSpeed, achievements, equinoxUpgrades,
       fontSize={15}
       fontWeight={'bold'}>{cleanUnderscore(meal?.effect?.replace('{', kFormatter(realEffect)))}</Typography>
   </>;
+}
+
+const BreakdownTooltip = ({ breakdown }) => {
+  if (!breakdown) return null;
+
+  return (
+    <Stack>
+      {breakdown.map(({ name, value, title }, index) => {
+        if (title) return <Typography sx={{ fontWeight: 500 }} key={`${title}-${index}`}>{title}</Typography>;
+        if (!name) return <Divider sx={{ my: 1 }} key={`divider-${index}`}/>;
+
+        return (
+          <TitleAndValue
+            key={`${name}-${index}`}
+            titleStyle={{ width: 200 }}
+            title={name}
+            value={!isNaN(value) ? notateNumber(value, 'Smaller')?.replace('.00', '') : value}
+          />
+        );
+      })}
+    </Stack>
+  );
 }
 
 const SpiceIcon = styled.img`
