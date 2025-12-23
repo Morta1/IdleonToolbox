@@ -332,7 +332,6 @@ const GenericUpgradeOptimizer = ({
       valueCommitDebouncersRef.current[key] = debounce((rawVal) => {
         const raw = (rawVal || '').replace(/\s+/g, '');
         const parsed = parseShorthandNumber(raw);
-        console.log(parsed);
 
         if (raw === '' || isNaN(parsed)) {
           setResourcePerHour(rph => ({ ...rph, [key]: '' }));
