@@ -24,6 +24,10 @@ export const getHighscores = (idleonData, account) => {
         name: 'darts',
         score: account?.accountOptions?.[442] || 0,
         ...getDartsData(account)
+      },
+      {
+        name: 'spiketrap',
+        score: account?.accountOptions?.[201] || 0,
       }
     ])
   }

@@ -588,6 +588,9 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
     { name: 'Gem shop', value: holesObject?.parallelVillagersGemShop[t] ? 2 : 0 },
     { name: 'Compass', value: 1 + compassBonus / 100 },
     { name: 'Charm', value: 1 + charmBonus / 100 },
+    { name: 'Legend Talent', value: getLegendTalentBonus(accountData, 12) },
+    { name: 'Tome', value: 1 + tomeBonus / 100 },
+    { name: 'Exotic Market', value: 1 + exoticMarketBonus / 100 },
     { title: 'Additive' },
     { name: 'Gloomie Opie', value: getSchematicBonus({ holesObject, t: 48, i: 0 }) },
     { name: 'Num. of Schematics', value: getCosSchematic(holesObject) },
@@ -611,10 +614,7 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
     },
     { name: 'Cards', value: cardBonus },
     { name: 'Bell', value: getBellBonus({ holesObject, t: 1 }) },
-    { name: 'Summoning', value: getWinnerBonus(accountData, '+{% Villager EXP') },
-    { name: 'Legend Talent', value: getLegendTalentBonus(accountData, 12) },
-    { name: 'Tome', value: 1 + tomeBonus / 100 },
-    { name: 'Exotic Market', value: 1 + exoticMarketBonus / 100 },
+    { name: 'Summoning', value: getWinnerBonus(accountData, '+{% Villager EXP') }
   ];
 
   return {

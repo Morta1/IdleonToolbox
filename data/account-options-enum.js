@@ -229,4 +229,5 @@ export const AccountOptions = {
 
   // Statues
   STATUES_CLUSTERS: 486,
+  SPIKE_MINIGAME_ROUNDS: 201,
 };
