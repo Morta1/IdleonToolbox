@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/account/world-5/hole", [
+  "static/chunks/14af71244d9d9664.js",
+  "static/chunks/f5dca83054e29a5a.js",
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/580691fa20d8323e.js",
+  "static/chunks/49d78ef4063457ff.js",
+  "static/chunks/0ab8d45e25542a0f.js",
+  "static/chunks/7d9164461211f6df.js",
+  "static/chunks/d06b620a65e348b5.js",
+  "static/chunks/4054dd592f66bdda.js",
+  "static/chunks/4ad15686a7179f04.js",
+  "static/chunks/b9898908ac97cd52.js",
+  "static/chunks/57b92c6829023df7.js",
+  "static/chunks/65861a372e6fb9f2.js",
+  "static/chunks/ef054655485a17fd.js",
+  "static/chunks/c170381bd0e7f43d.js",
+  "static/chunks/cbc67c9543d2016a.js",
+  "static/chunks/turbopack-b2141b95295e74c6.js"
+])
