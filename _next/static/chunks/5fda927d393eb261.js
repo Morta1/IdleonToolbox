@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/account/world-2/islands", [
+  "static/chunks/5e0a15d0d9624b5d.js",
+  "static/chunks/14af71244d9d9664.js",
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/1079be68ff366a94.js",
+  "static/chunks/65861a372e6fb9f2.js",
+  "static/chunks/68994b17aeab8e32.js",
+  "static/chunks/d768d9b5ab4af07c.js",
+  "static/chunks/25b9ba8bcbdc8e25.js",
+  "static/chunks/ef054655485a17fd.js",
+  "static/chunks/33f0d85e94ab36b2.js",
+  "static/chunks/cbc67c9543d2016a.js",
+  "static/chunks/b9898908ac97cd52.js",
+  "static/chunks/1436a49e3362eddc.js",
+  "static/chunks/4054dd592f66bdda.js",
+  "static/chunks/333c8d287c11e0d7.js",
+  "static/chunks/49d78ef4063457ff.js",
+  "static/chunks/turbopack-dedde014f2ec4c43.js"
+])
