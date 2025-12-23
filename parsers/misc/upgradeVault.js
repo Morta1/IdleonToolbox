@@ -20,8 +20,8 @@ export const parseUpgradeVault = (upgradeVaultRaw, accountData, charactersData) 
     const description = upgrade?.description?.replace('{', commaNotation(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo'));
     return {
       ...upgrade,
-      cost: getUpgradeCost(upgrades, index),
-      costToMax: getCostToMax(upgrades, index),
+      cost: getUpgradeCost(upgrades, index, accountData),
+      costToMax: getCostToMax(upgrades, index, accountData),
       bonus,
       description
     }
@@ -38,23 +38,25 @@ export const parseUpgradeVault = (upgradeVaultRaw, accountData, charactersData) 
 }
 
 
-const getCostToMax = (upgrades, index) => {
+const getCostToMax = (upgrades, index, accountData) => {
   const localUpgrades = structuredClone(upgrades);
   const { level, maxLevel } = localUpgrades?.[index];
   let costToMax = 0;
   for (let i = level; i < maxLevel; i++) {
     localUpgrades[index].level = i;
-    costToMax += getUpgradeCost(localUpgrades, index)
+    costToMax += getUpgradeCost(localUpgrades, index, accountData)
   }
   return costToMax ?? 0;
 }
 
-const getUpgradeCost = (upgrades, index) => {
+const getUpgradeCost = (upgrades, index, accountData) => {
   const { level, x1, x2 } = upgrades?.[index];
+  const baseCost = level + (x1 + level) * Math.pow(x2, level);
+  const dartsBonusReduction = 1 / (1 + (accountData?.accountOptions?.[437] || 0) / 100);
+  
   return 33 > index
-    ? Math.max(0.1, 1 - calcUpgradeVaultBonus(upgrades, 13) / 100)
-    * (level + (x1 + level) * Math.pow(x2, level))
-    : 1 * (level + (x1 + level) * Math.pow(x2, level))
+    ? Math.max(0.01, (1 - calcUpgradeVaultBonus(upgrades, 13) / 100) * dartsBonusReduction) * baseCost
+    : Math.max(0.01, dartsBonusReduction) * baseCost;
 }
 
 export const getUpgradeVaultBonus = (upgrades, index) => {
