@@ -1,0 +1,21 @@
+__turbopack_load_page_chunks__("/tools/sampling-companion", [
+  "static/chunks/678509701a8a9d06.js",
+  "static/chunks/14af71244d9d9664.js",
+  "static/chunks/98a6b5da1dcaaba1.js",
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/43e48109df63d9ff.js",
+  "static/chunks/3beb81824a4e00f9.js",
+  "static/chunks/ed8ed5d740d3a0ef.js",
+  "static/chunks/f0b03e6e334a00b1.js",
+  "static/chunks/4be8fa4a5d178e09.js",
+  "static/chunks/b9898908ac97cd52.js",
+  "static/chunks/b8e59debf1417271.js",
+  "static/chunks/cf7f50b8b860a2f5.js",
+  "static/chunks/c8ef3e85872e42e5.js",
+  "static/chunks/cbc67c9543d2016a.js",
+  "static/chunks/0ab8d45e25542a0f.js",
+  "static/chunks/54e50d7cbfd58814.js",
+  "static/chunks/49d78ef4063457ff.js",
+  "static/chunks/ef054655485a17fd.js",
+  "static/chunks/turbopack-9950e7d73a64e856.js"
+])
