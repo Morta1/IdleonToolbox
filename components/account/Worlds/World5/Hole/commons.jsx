@@ -49,7 +49,7 @@ export const ExpRateCard = ({ title, expRate, doubleColumnThreshold = 12 }) => {
     <CardTitleAndValue title={title}>
       <Stack direction="row" alignItems={'center'} gap={1}>
         <Typography>{commaNotation(expRate?.value)} / hr</Typography>
-        <Tooltip title={renderBreakdown()} maxWidth={470}>
+        <Tooltip title={renderBreakdown()} maxWidth={500}>
           <IconInfoCircleFilled size={18} />
         </Tooltip>
       </Stack>

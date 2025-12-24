@@ -280,7 +280,7 @@ const parseHole = (holeRaw, jarsRaw, accountData) => {
 export const getEngineerTotalBonus = (upgrade, holesObject, index, accountData) => {
   let formattedDescription = upgrade?.description;
   let value = 0;
-  
+
   switch (index) {
     case 14:
       value = getSchematicBonus({ holesObject, t: index, i: 0 });
@@ -596,7 +596,7 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
     { name: 'Num. of Schematics', value: getCosSchematic(holesObject) },
     {
       name: 'Village Majik', value: (
-          getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 5 }) * Math.floor(leastOpalInvestedVillager / 5)) +
+        getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 5 }) * Math.floor(leastOpalInvestedVillager / 5)) +
         (Math.floor(holesObject?.opalsInvested[t] / 10) * getCosmoBonus({
           majik: holesObject?.villageMajiks,
           t: 1,
@@ -631,12 +631,12 @@ const getVillagerExpReq = (level, index) => {
       * Math.max(0, level - 12))) :
     1 === index ? 30 * (10 + 6 * Math.pow(level, 1.8))
       * Math.pow(1.57, level) : 2 === index ? 50
-      * (10 + 5 * Math.pow(level, 1.7))
-      * Math.pow(1.4, level) : 3 === index ? 120
-      * (30 + 10 * Math.pow(level, 2))
-      * Math.pow(2, level) : 4 === index ? 500
-      * (10 + 5 * Math.pow(level, 1.3))
-      * Math.pow(1.13, level) : 10 * Math.pow(10, 20);
+        * (10 + 5 * Math.pow(level, 1.7))
+        * Math.pow(1.4, level) : 3 === index ? 120
+          * (30 + 10 * Math.pow(level, 2))
+          * Math.pow(2, level) : 4 === index ? 500
+            * (10 + 5 * Math.pow(level, 1.3))
+            * Math.pow(1.13, level) : 10 * Math.pow(10, 20);
 }
 const getStudyReq = (holesObject, t) => {
   return 4e3 *
@@ -650,8 +650,8 @@ export const getStudyBonus = (holesObject, t, i) => {
     : 9 === t
       ? (1 <= holesObject?.studyStuff?.[t] ? 50 + holesObject?.studyStuff?.[t] * Number(multiList[t]) : 0)
       : 3 === t ? (1 <= holesObject?.studyStuff?.[t]
-          ? Math.min(32, 12 + holesObject?.studyStuff?.[t] * Number(multiList[t]))
-          : 0)
+        ? Math.min(32, 12 + holesObject?.studyStuff?.[t] * Number(multiList[t]))
+        : 0)
         : holesObject?.studyStuff?.[t] * Number(multiList[t]);
 
 }
@@ -679,9 +679,9 @@ const getStudies = (holesObject, villagerLevel, account) => {
 
   const stampBonus = getStampsBonusByEffect(account, 'Study_rate_for_Bolaia');
   const studyPerHour = 100 * (1 + ((5 +
-      (getSchematicBonus({ holesObject, t: 85, i: 2 })
-        + (getSchematicBonus({ holesObject, t: 87, i: 3 })
-          + getSchematicBonus({ holesObject, t: 88, i: 5 })))) * villagerLevel) / 100)
+    (getSchematicBonus({ holesObject, t: 85, i: 2 })
+      + (getSchematicBonus({ holesObject, t: 87, i: 3 })
+        + getSchematicBonus({ holesObject, t: 88, i: 5 })))) * villagerLevel) / 100)
     * (1 + (getJarBonus({ holesObject, i: 16, account })
       + (stampBonus
         + getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 4 }))) / 100);

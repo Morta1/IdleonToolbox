@@ -286,7 +286,7 @@ const Bubbles = () => {
                 Fragments: {Math.floor(state?.account?.alchemy?.prismaFragments) || '0'}</Typography>
               <Stack direction={'row'} gap={1}>
                 <Typography variant={'caption'}>Prisma Multi: {notateNumber(prismaMulti?.value, 'MultiplierInfo')}x</Typography>
-                <HtmlTooltip title={<Breakdown breakdown={prismaMulti?.breakdown} />}><IconInfoCircleFilled size={16} /></HtmlTooltip>
+                <HtmlTooltip title={<Breakdown breakdown={prismaMulti?.breakdown} notation={'ThreeDecimals'} />}><IconInfoCircleFilled size={16} /></HtmlTooltip>
               </Stack>
               <Stack direction={'row'} gap={1}>
                 <Typography variant={'caption'}>Future Bubbles</Typography>
