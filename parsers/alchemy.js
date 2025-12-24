@@ -335,7 +335,7 @@ export const getBubbleBonus = (account, bubbleName, round, shouldMultiply) => {
 
   // Apply prisma multiplier to base bubble
   const basePrismaMultiplier = isPrismaBubble(account, targetBubble?.bubbleIndex)
-    ? getPrismaMulti(account)
+    ? getPrismaMulti(account)?.value
     : 1;
 
   // Calculate primary multiplier from bubble at index 1 (if shouldMultiply is true)
@@ -351,7 +351,7 @@ export const getBubbleBonus = (account, bubbleName, round, shouldMultiply) => {
         round
       );
       const primaryPrismaMultiplier = isPrismaBubble(account, primaryMultiBubble?.bubbleIndex)
-        ? getPrismaMulti(account)
+        ? getPrismaMulti(account)?.value
         : 1;
       primaryMultiplier = primaryBubbleValue * primaryPrismaMultiplier;
     }
@@ -378,7 +378,7 @@ export const getBubbleBonus = (account, bubbleName, round, shouldMultiply) => {
         round
       );
       const secondaryPrismaMultiplier = isPrismaBubble(account, secondaryBubble?.bubbleIndex)
-        ? getPrismaMulti(account)
+        ? getPrismaMulti(account)?.value
         : 1;
       secondaryMultiplier = secondaryBubbleValue * secondaryPrismaMultiplier;
     }

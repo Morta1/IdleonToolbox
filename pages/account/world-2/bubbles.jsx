@@ -35,8 +35,7 @@ import { Breakdown } from '@components/common/styles';
 import MenuItem from '@mui/material/MenuItem';
 import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
-import { getArcadeBonus } from '@parsers/arcade';
-import { getTesseractBonus } from '@parsers/tesseract';
+import { getPrismaMulti } from '@parsers/tesseract';
 import { IconChartCohort, IconChevronRight, IconInfoCircleFilled, IconList } from '@tabler/icons-react';
 import { getGrindTimeBubbleDaily, getPossibleZenithMarketBubbles } from '@parsers/alchemy';
 import { getAchievementStatus } from '@parsers/achievements';
@@ -136,6 +135,7 @@ const Bubbles = () => {
   const possibleZenithMarketBubbles = getPossibleZenithMarketBubbles(state?.account, state?.characters);
   const grindTimeBubble = getGrindTimeBubbleDaily(state?.account);
   const upgradeableBubbles = useMemo(() => getUpgradeableBubbles(state?.account, state?.characters), [state?.account]);
+  const prismaMulti = useMemo(() => getPrismaMulti(state?.account), [state?.account]);
 
   const getMaxBonus = (func, x1) => {
     if (!func?.includes('decay')) return null;
@@ -285,6 +285,10 @@ const Bubbles = () => {
               <Typography variant={'caption'}>Prisma
                 Fragments: {Math.floor(state?.account?.alchemy?.prismaFragments) || '0'}</Typography>
               <Stack direction={'row'} gap={1}>
+                <Typography variant={'caption'}>Prisma Multi: {notateNumber(prismaMulti?.value, 'MultiplierInfo')}x</Typography>
+                <HtmlTooltip title={<Breakdown breakdown={prismaMulti?.breakdown} />}><IconInfoCircleFilled size={16} /></HtmlTooltip>
+              </Stack>
+              <Stack direction={'row'} gap={1}>
                 <Typography variant={'caption'}>Future Bubbles</Typography>
                 <HtmlTooltip title={<FutureBubblesTooltip />}><IconInfoCircleFilled size={16} /></HtmlTooltip>
               </Stack>
@@ -339,10 +343,8 @@ const Bubbles = () => {
                 const goalLevel = bubblesGoals?.[cauldron]?.[index] ? bubblesGoals?.[cauldron]?.[index] < level
                   ? level
                   : bubblesGoals?.[cauldron]?.[index] : level;
-                const arcadeBonus = getArcadeBonus(state?.account?.arcade?.shop, 'Prisma_Bonuses')?.bonus;
-                const tesseractBonus = getTesseractBonus(state?.account, 45)
                 const prismaMulti = isPrisma
-                  ? Math.min(3, 2 + (tesseractBonus + arcadeBonus) / 100)
+                  ? getPrismaMulti(state?.account)?.value
                   : 1;
                 const goalBonus = growth(func, goalLevel, x1, x2, true) * (isPrisma ? prismaMulti : 1);
                 const bubbleMaxBonus = isPrisma ? getMaxBonus(func, x1) * prismaMulti : getMaxBonus(func, x1);

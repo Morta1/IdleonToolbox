@@ -113,8 +113,8 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <Stat title={'Movement Speed'} value={notateNumber(playerInfo?.movementSpeed)} />
             <Stat title={'Mining Efficiency'} value={notateNumber(playerInfo?.miningEff)} />
             <Stat title={'Damage'} damage value={notateDamage(playerInfo)} />
-            <Stat title={'Drop Rate'} value={`${dropRate.toFixed(3).replace('.000', '')}x`}
-              breakdown={drBreakdown} breakdownNotation={'Smaller'} useDoubleColumn />
+            <Stat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}
+              breakdown={drBreakdown} breakdownNotation={'ThreeDecimals'} useDoubleColumn />
             <Stat title={'Respawn Time'}
               value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}
               breakdown={rtBreakdown} breakdownNotation={'Smaller'} />
@@ -188,7 +188,7 @@ const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', dam
   return (
     (<Stack direction={'row'} justifyContent={'space-between'} alignItems={breakdown ? 'center' : 'flex-start'}>
       <Typography color={'info.light'}>{title}</Typography>
-      <Tooltip maxWidth={450} title={breakdown ? <BreakdownTooltip breakdown={breakdown}
+      <Tooltip maxWidth={480} title={breakdown ? <BreakdownTooltip breakdown={breakdown}
         useDoubleColumn={useDoubleColumn}
         notate={breakdownNotation} /> : ''}>
         {!damage ? <Typography component={'span'} sx={breakdown

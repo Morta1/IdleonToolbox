@@ -478,15 +478,29 @@ export const getPrismaFragChance = (character, account, upgrades) => {
 }
 
 export const getPrismaMulti = (account) => {
-  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Prisma_Bonuses')?.bonus;
-  const tesseractBonus = getTesseractBonus(account, 45);
-  const paletteBonus = getPaletteBonus(account, 28);
-  const exoticMarketBonus = getExoticMarketBonus(account, 48);
-  const legendBonus = getLegendTalentBonus(account, 36);
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Prisma_Bonuses')?.bonus ?? 0;
+  const tesseractBonus = getTesseractBonus(account, 45) ?? 0;
+  const paletteBonus = getPaletteBonus(account, 28) ?? 0;
+  const exoticMarketBonus = getExoticMarketBonus(account, 48) ?? 0;
+  const legendBonus = getLegendTalentBonus(account, 36) ?? 0;
   const trophyBonus = hasItemDropped(account, 'Trophy23') ? 10 : 0;
   const totalEtherealSigils = account?.alchemy?.p2w?.totalEtherealSigils || 0;
+  const sigilsBonus = 0.2 * totalEtherealSigils;
 
-  return Math.min(3, 2 + (tesseractBonus + (arcadeBonus + (trophyBonus + (paletteBonus + (0.2 * totalEtherealSigils + exoticMarketBonus)))) + legendBonus) / 100)
+  const value = Math.min(3, 2 + (tesseractBonus + (arcadeBonus + (trophyBonus + (paletteBonus + (sigilsBonus + exoticMarketBonus)))) + legendBonus) / 100);
+
+  return {
+    value,
+    breakdown: [
+      { name: 'Tesseract', value: tesseractBonus },
+      { name: 'Arcade', value: arcadeBonus },
+      { name: 'Trophy', value: trophyBonus },
+      { name: 'Palette', value: paletteBonus },
+      { name: 'Ethereal Sigils', value: sigilsBonus },
+      { name: 'Exotic Market', value: exoticMarketBonus },
+      { name: 'Legend Talent', value: legendBonus }
+    ]
+  };
 }
 
 const getUpgradeCost = ({ index, x1, x2, level, account, upgrades }) => {

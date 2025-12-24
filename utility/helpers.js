@@ -393,6 +393,7 @@ export const notateNumber = (e, s) => {
     : 'MultiplierInfo' === s ? (0 === (10 * e) % 10 ? Math.round(e) + '.00'
         : 0 === (100 * e) % 10 ? Math.round(10 * e) / 10 + '0'
           : Math.round(100 * e) / 100 + '')
+      : 'ThreeDecimals' === s ? '' + parseFloat((Math.round(1000 * e) / 1000).toFixed(3))
       : 'Micro' === s ? (10 < e ? '' + Math.round(e)
           : 0.1 < e ? '' + Math.round(10 * e) / 10
             : 0.01 < e ? '' + Math.round(100 * e) / 100
