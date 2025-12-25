@@ -23,6 +23,10 @@ import { getPrinterMulti } from '@parsers/printer';
 import { getBitsMulti } from '@parsers/gaming';
 import { getGoldenFoodMulti } from '@parsers/misc';
 import { NextSeo } from 'next-seo';
+import { getDoubleStatueDrop, getDoubleGoldenFoodDrop } from '@parsers/misc';
+import Tooltip from '@components/Tooltip';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { Breakdown } from '@components/common/styles';
 
 const Formulas = () => {
   const { state } = useContext(AppContext);
@@ -38,6 +42,8 @@ const Formulas = () => {
     const printerMulti = getPrinterMulti(state?.account, state?.characters);
     const bitMulti = getBitsMulti(state?.account, state?.characters);
     const goldenFoodMulti = getGoldenFoodMulti(selectedChar, state?.account, state?.characters);
+    const doubleStatueDropChance = getDoubleStatueDrop(state?.account, selectedChar, state?.characters);
+    const doubleGoldenFoodDropChance = getDoubleGoldenFoodDrop(state?.account, selectedChar, state?.characters);
     return [
       {
         id: 'crystalChance',
@@ -52,6 +58,7 @@ const Formulas = () => {
         name: 'Respawn Rate',
         formula: respawnRate?.expression,
         value: respawnRate?.respawnRate,
+        breakdown: respawnRate?.breakdown,
         renderValue: (value) => `${notateNumber(value, 'MultiplierInfo')}%`,
         description: 'How often a mob is spawned'
       },
@@ -60,6 +67,7 @@ const Formulas = () => {
         name: 'Cash Multiplier',
         formula: cashMulti?.expression,
         value: cashMulti?.cashMulti,
+        breakdown: cashMulti?.breakdown,
         renderValue: (value) => `${cashFormatter(value, 2)}x`,
         description: 'Coin bonuses from all sources'
       },
@@ -68,6 +76,7 @@ const Formulas = () => {
         name: 'Exp Multiplier',
         formula: expMulti?.expression,
         value: expMulti?.value,
+        breakdown: expMulti?.breakdown,
         renderValue: (value) => `${cashFormatter(value, 2)}x`,
         description: 'Exp bonuses from all sources'
       },
@@ -76,6 +85,7 @@ const Formulas = () => {
         name: 'Drop Rate',
         formula: dropRate?.expression,
         value: dropRate?.dropRate,
+        breakdown: dropRate?.breakdown,
         renderValue: (value) => `${notateNumber(value, 'MultiplierInfo')}x`,
         description: 'Drop rate bonuses from all sources'
       },
@@ -100,6 +110,7 @@ const Formulas = () => {
         name: 'Crop Evolution',
         formula: cropEvo?.expression,
         value: cropEvo?.value,
+        breakdown: cropEvo?.breakdown,
         renderValue: (value) => `${value}%`,
         description: 'Crop evolution chance'
       },
@@ -108,6 +119,7 @@ const Formulas = () => {
         name: 'Printer Multiplier',
         formula: printerMulti?.expression,
         value: printerMulti?.value,
+        breakdown: printerMulti?.breakdown,
         renderValue: (value) => `${value.toFixed(2)}%`,
         description: 'Printer multi bonuses from all sources'
       },
@@ -116,6 +128,7 @@ const Formulas = () => {
         name: 'Bit Multiplier',
         formula: bitMulti?.expression,
         value: bitMulti?.value,
+        breakdown: bitMulti?.breakdown,
         renderValue: (value) => `${notateNumber(value)}%`,
         description: 'Bit multi bonuses from all sources'
       },
@@ -124,8 +137,27 @@ const Formulas = () => {
         name: 'Golden Food Multiplier',
         formula: goldenFoodMulti?.expression,
         value: goldenFoodMulti?.value,
+        breakdown: goldenFoodMulti?.breakdown,
         renderValue: (value) => `${Math.floor(value * 100) / 100}x`,
         description: 'Golden Food multi bonuses from all sources'
+      },
+      {
+        id: 'doubleStatueDropChance',
+        name: 'Double Item Drop Chance',
+        formula: doubleStatueDropChance?.expression,
+        value: doubleStatueDropChance?.value,
+        breakdown: doubleStatueDropChance?.breakdown,
+        renderValue: (value) => `${Math.floor(value * 100) / 100}x`,
+        description: 'Double statue drop chance from all sources'
+      },
+      {
+        id: 'doubleGoldenFoodDropChance',
+        name: 'Double Golden Food Drop Chance',
+        formula: doubleGoldenFoodDropChance?.expression,
+        value: doubleGoldenFoodDropChance?.value,
+        breakdown: doubleGoldenFoodDropChance?.breakdown,
+        renderValue: (value) => `${Math.floor(value * 100) / 100}x`,
+        description: 'Double golden food drop chance from all sources'
       }
     ];
   }, [selectedChar]);
@@ -140,7 +172,7 @@ const Formulas = () => {
   };
 
   if (!state?.characters) {
-    return <DataLoadingWrapper/>
+    return <DataLoadingWrapper />
   }
 
   return <>
@@ -156,9 +188,9 @@ const Formulas = () => {
           getOptionLabel={(option) => cleanUnderscore(option.toLowerCase().capitalizeAll()) || ''}
           value={selectedFormula}
           onChange={(_, newValue) => setSelectedFormula(newValue)}
-          renderInput={(params) => <TextField {...params} label="Formulas" variant="outlined" fullWidth/>}
+          renderInput={(params) => <TextField {...params} label="Formulas" variant="outlined" fullWidth />}
         />
-        <Divider orientation={'vertical'} flexItem sx={{ mx: 2, display: { xs: 'none', sm: 'block' } }}/>
+        <Divider orientation={'vertical'} flexItem sx={{ mx: 2, display: { xs: 'none', sm: 'block' } }} />
         <Select
           size={'small'}
           sx={{ width: 230 }}
@@ -189,7 +221,7 @@ const Formulas = () => {
         {filteredFormulas.map((formula) => (
           <Accordion key={formula.id}>
             <AccordionSummary
-              expandIcon={<ExpandMoreIcon/>}
+              expandIcon={<ExpandMoreIcon />}
               aria-controls={`${formula.id}-content`}
               id={`${formula.id}-header`}
             >
@@ -227,9 +259,19 @@ const Formulas = () => {
                 <Typography variant="subtitle2" color="text.secondary" mt={1}>
                   Result
                 </Typography>
-                <Typography>
-                  {formula.renderValue ? formula.renderValue(formula.value) : formula.value}
-                </Typography>
+                <Stack direction="row" alignItems="center" gap={1}>
+                  <Typography>
+                    {formula.renderValue ? formula.renderValue(formula.value) : formula.value}
+                  </Typography>
+                  {formula.breakdown && formula.breakdown.length > 0 ? (
+                    <Tooltip
+                      title={<Breakdown breakdown={formula.breakdown} notation="Big" titleStyle={{ width: 180 }} />}
+                      maxWidth={500}
+                    >
+                      <IconInfoCircleFilled size={18} />
+                    </Tooltip>
+                  ) : null}
+                </Stack>
               </Stack>
             </AccordionDetails>
           </Accordion>

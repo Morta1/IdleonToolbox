@@ -41,6 +41,45 @@ import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 import { getObolsBonus } from '@parsers/obols';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getCardBonusByEffect } from '@parsers/cards';
+import { getTesseractBonus } from '@parsers/tesseract';
+import { getPaletteBonus } from '@parsers/gaming';
+import { getMinorDivinityBonus } from '@parsers/divinity';
+
+
+export const getDoubleStatueDrop = (account, character, characters) => {
+  const tesseractBonus = getTesseractBonus(account, 18);
+  const paletteBonus = getPaletteBonus(account, 19);
+  const kattelkrukPlayer = characters?.find(({ linkedDeity }) => linkedDeity === 8); // kattelkruk is limited to only 1 player linked.
+  const divinityMinorBonus = getMinorDivinityBonus(kattelkrukPlayer, account, 8, characters);
+  const talentBonus = getTalentBonus(character?.flatStarTalents, 'STATUE_METALLURGY');
+
+  return {
+    value: tesseractBonus + talentBonus + paletteBonus + Math.min(10, divinityMinorBonus),
+    breakdown: [
+      { name: 'Tesseract', value: tesseractBonus },
+      { name: 'Talent', value: talentBonus },
+      { name: 'Palette', value: paletteBonus },
+      { name: 'Divinity', value: Math.min(10, divinityMinorBonus) }
+    ],
+    expression: `tesseractBonus + talentBonus + paletteBonus + Math.min(10, divinityMinorBonus)`
+  };
+}
+
+export const getDoubleGoldenFoodDrop = (account, character, characters) => {
+  const tesseractBonus = getTesseractBonus(account, 30);
+  const paletteBonus = getPaletteBonus(account, 24);
+  const bigFishBonus = getAdviceFishBonus(account, 5);
+
+  return {
+    value: tesseractBonus + paletteBonus + bigFishBonus,
+    breakdown: [
+      { name: 'Tesseract', value: tesseractBonus },
+      { name: 'Palette', value: paletteBonus },
+      { name: 'Big Fish', value: bigFishBonus }
+    ],
+    expression: `tesseractBonus + paletteBonus + bigFishBonus`
+  };
+}
 
 export const getFriendBonusStats = (account = {}) => {
   const FRIEND_BONUS_NAMES = [
@@ -1250,18 +1289,18 @@ export const getKillRoy = (idleonData, charactersData, accountData, serverVars) 
   const permanentUpgrades = killRoySkullShop?.slice(10)?.map((upgrade, i) => {
     const levelOption = permanentUpgradeLevelMap[i];
     const bonusIndex = permanentUpgradeBonusMap[i];
-    
+
     const level = levelOption !== null ? (accountData?.accountOptions?.[levelOption] ?? 0) : 0;
     const bonus = bonusIndex !== undefined ? getKillRoyShopBonus(accountData, bonusIndex) : 1;
-    
+
     // Special case: Shop 15 (Gallery) changes description when level >= 2
     let description = upgrade?.description;
     let replacementChar = '{';
-    
+
     if (i === 5 && level >= 2) {
       description = `Permanently_boosts_your_Gallery_Multiplier_by_+${(bonus / 100).toFixed(2)}x`;
     }
-    
+
     return {
       ...upgrade,
       level,
