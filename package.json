@@ -22,6 +22,7 @@
     "@emotion/server": "^11.4.0",
     "@emotion/styled": "^11.8.1",
     "@mantine/hooks": "^7.17.0",
+    "@monaco-editor/react": "^4.7.0",
     "@mui/icons-material": "^6.4.1",
     "@mui/lab": "^6.0.0-beta.24",
     "@mui/material": "^6.4.1",
