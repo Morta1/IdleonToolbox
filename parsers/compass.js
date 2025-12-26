@@ -72,7 +72,7 @@ export const UPGRADE_CATEGORIES = {
   hp: {
     name: 'HP',
     stats: ['hp'],
-    upgradeIndices: [10, 28, 78, 84, 87, 92]
+    upgradeIndices: [28, 78, 84, 87, 92]
   }
 };
 
@@ -419,7 +419,7 @@ export const getCompassStats = (character, account) => {
       * lavaLog(account?.accountOptions?.[360])) / 100)
     * Math.pow(1 + getLocalCompassBonus(upgrades, 26) / 100, account?.accountOptions?.[232])
     * (1 + (getLocalCompassBonus(upgrades, 6) * account?.compass?.totalAcquiredMedallions) / 100)
-    * (1 + (getLocalCompassBonus(upgrades, 119) + (getLocalCompassBonus(upgrades, 121)
+    * (1 + (getLocalCompassBonus(upgrades, 119) + getLocalCompassBonus(upgrades, 10) + (getLocalCompassBonus(upgrades, 121)
       + (getLocalCompassBonus(upgrades, 122) + (getLocalCompassBonus(upgrades, 123)
         + (getLocalCompassBonus(upgrades, 126) + (getLocalCompassBonus(upgrades, 127)
           + (getLocalCompassBonus(upgrades, 129) + (getLocalCompassBonus(upgrades, 130)

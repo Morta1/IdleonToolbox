@@ -18,7 +18,7 @@ export const GRIMOIRE_UPGRADE_CATEGORIES = {
   damage: {
     name: 'Damage',
     stats: ['damage'],
-    upgradeIndices: [0, 6, 8, 16, 28, 33, 43, 46, 50]
+    upgradeIndices: [0, 6, 8, 13, 16, 18, 20, 21, 28, 31, 33, 35, 43, 46, 50]
   },
   accuracy: {
     name: 'Accuracy',
