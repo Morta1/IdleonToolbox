@@ -2022,6 +2022,7 @@ export const getDropRate = (character, account, characters) => {
   const extraDropRate = 1 + thirdTalentBonus * lavaLog(account?.accountOptions?.[139] ?? 0) / 100;
   const companionDropRate = isCompanionBonusActive(account, 3) ? account?.companions?.list?.at(3)?.bonus : 0;
   const secondCompanionDropRate = isCompanionBonusActive(account, 22) ? account?.companions?.list?.at(22)?.bonus : 0;
+  const fourthCompanionDropRate = isCompanionBonusActive(account, 50) ? account?.companions?.list?.at(50)?.bonus : 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Drop_Rate')?.bonus;
   const equinoxDropRateBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Faux_Jewels');
   const chipBonus = getPlayerLabChipBonus(character, account, 3);
@@ -2070,6 +2071,7 @@ export const getDropRate = (character, account, characters) => {
     shinyBonus +
     arcadeBonus +
     companionDropRate +
+    fourthCompanionDropRate +
     stampBonus +
     (bossBattleTalentBonus * (account?.accountOptions?.[189] ?? 0)) +
     equinoxDropRateBonus +
@@ -2148,6 +2150,10 @@ export const getDropRate = (character, account, characters) => {
     final *= Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate));
   }
 
+  if (fourthCompanionDropRate) {
+    final *= Math.max(1, Math.min(1.01, 1 + fourthCompanionDropRate / 2500));
+  }
+
 
   const breakdown = [
     // Additive section (affects dropRate directly before multipliers)
@@ -2172,7 +2178,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Arcade', value: arcadeBonus / 100 },
     { name: 'Starsign', value: (starSignBonus + starSignRarityBonus) / 100 },
     { name: 'Guild', value: guildBonus / 100 },
-    { name: 'Companion+', value: (companionDropRate + secondCompanionDropRate) / 100 },
+    { name: 'Companion+', value: (companionDropRate + secondCompanionDropRate + fourthCompanionDropRate) / 100 },
     { name: 'Equinox', value: equinoxDropRateBonus / 100 },
     { name: 'Stamps', value: stampBonus / 100 },
     { name: 'Tome', value: tomeBonus / 100 },

@@ -95,7 +95,7 @@ const MinibossLegendTooltip = () => {
     <LegendItem number={5000} points={4} icon={`data/StatusSkull${3}`}/>
     <LegendItem number={25000} points={5} icon={`data/StatusSkull${4}`}/>
     <LegendItem number={100000} points={7} icon={`data/StatusSkull${5}`}/>
-    <LegendItem number={1e7} points={10} icon={`data/StatusSkull${6}`}/>
+    <LegendItem number={1e6} points={10} icon={`data/StatusSkull${6}`}/>
   </Stack>
 }
 

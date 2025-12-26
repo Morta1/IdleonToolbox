@@ -4,7 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
-    'ver': '3.3.220',
+    'ver': '3.3.21',
+    'gameVer': '2.0.491',
+    'date': '26/12/2025',
+    'features': [
+      'Updated the website with version 2.0.49 data and assets',
+      'Updated drop rate calculations with the new companions',
+      'Added 2 new companions'
+    ],
+    'fixes': []
+  },
+  {
+    'ver': '3.3.20',
     'gameVer': '2.0.48',
     'date': '21/12/2025',
     'features': [

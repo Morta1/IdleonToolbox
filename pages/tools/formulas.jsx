@@ -143,7 +143,7 @@ const Formulas = () => {
       },
       {
         id: 'doubleStatueDropChance',
-        name: 'Double Item Drop Chance',
+        name: 'Double Statue Drop Chance',
         formula: doubleStatueDropChance?.expression,
         value: doubleStatueDropChance?.value,
         breakdown: doubleStatueDropChance?.breakdown,
