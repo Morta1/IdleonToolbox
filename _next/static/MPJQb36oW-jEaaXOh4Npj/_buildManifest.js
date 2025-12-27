@@ -174,7 +174,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/482159e8908b279a.js"
   ],
   "/account/world-4/rift": [
-    "static/chunks/1c7a6409c90d0abe.js"
+    "static/chunks/7ecadcc1c817f8cb.js"
   ],
   "/account/world-4/tome": [
     "static/chunks/652478a487cf718f.js"
