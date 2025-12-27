@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/account/prem-currency/gem-shop", [
+  "static/chunks/6b9e3a22f61f6e9f.js",
+  "static/chunks/aaaaffcfd4d83a23.js",
+  "static/chunks/ea35b9343adb56aa.js",
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/c8ef3e85872e42e5.js",
+  "static/chunks/d32b4e27b53f0a69.js",
+  "static/chunks/2c9e4a582a3b6d30.js",
+  "static/chunks/6532a969801b0f6e.js",
+  "static/chunks/44206aa42820f88c.js",
+  "static/chunks/ef054655485a17fd.js",
+  "static/chunks/b9898908ac97cd52.js",
+  "static/chunks/a0f10a051705e44b.js",
+  "static/chunks/49d78ef4063457ff.js",
+  "static/chunks/cbc67c9543d2016a.js",
+  "static/chunks/e1be481911ff5601.js",
+  "static/chunks/6cfbf70aa4704b47.js",
+  "static/chunks/e4ebf75f210be3b2.js",
+  "static/chunks/turbopack-76e41cbce73fe852.js"
+])
