@@ -7,7 +7,7 @@ import Tooltip from '../../../../Tooltip';
 const Tasks = ({ list, currentRift, currentProgress, characters, chars }) => {
   const finishedCharacters = findNameCombination(characters, chars);
   const [minimized, setMinimized] = useState(false);
-
+console.log('list', list);
   return <>
     <FormControlLabel
       control={<Checkbox name={'mini'} checked={minimized}
@@ -16,7 +16,7 @@ const Tasks = ({ list, currentRift, currentProgress, characters, chars }) => {
       label={'Show all tasks'}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       {list?.map(({ monsterName, task, icon, riftBonus, riftBonusIcon }, riftIndex) => {
-        if (riftIndex > 50 || (!minimized && riftIndex < currentRift)) return;
+        if ((!minimized && riftIndex < currentRift)) return;
         const isCurrent = currentRift === riftIndex;
         const realTask = isCurrent ? task?.replace('{', currentProgress) : task.split('.')?.[0];
         return <Card key={`${monsterName}-${riftIndex}`} sx={{
