@@ -89,6 +89,15 @@ export function getOptimizedGenericUpgrades({
         if (upgrade.level >= upgrade.x4) return false;
         if (!upgrade.unlocked) return false;
         if (onlyAffordable && !isUpgradeAffordable(upgrade, upgrade.cost, simulatedResources, resourceNames)) return false;
+        // If using RPH mode and this resource's RPH is 0, skip it
+        if (extraArgs.resourcePerHour) {
+          let resourceTypeKey = (extraArgs.getResourceType
+            ? extraArgs.getResourceType(upgrade)
+            : (upgrade.x3 !== undefined ? upgrade.x3 : (upgrade.name || 0)));
+          if (resourceTypeKey !== undefined && extraArgs.resourcePerHour[resourceTypeKey] === 0) {
+            return false;
+          }
+        }
         return true;
       });
       if (availableUpgrades.length === 0) break;
@@ -167,6 +176,15 @@ export function getOptimizedGenericUpgrades({
           resources: simulatedResources, ...extraArgs
         });
         if (!isUpgradeAffordable(upgrade, cost, simulatedResources, resourceNames)) return false;
+      }
+      // If using RPH mode and this resource's RPH is 0, skip it
+      if (extraArgs.resourcePerHour) {
+        let resourceTypeKey = (extraArgs.getResourceType
+          ? extraArgs.getResourceType(upgrade)
+          : (upgrade.x3 !== undefined ? upgrade.x3 : (upgrade.name || 0)));
+        if (resourceTypeKey !== undefined && extraArgs.resourcePerHour[resourceTypeKey] === 0) {
+          return false;
+        }
       }
       return true;
     });
