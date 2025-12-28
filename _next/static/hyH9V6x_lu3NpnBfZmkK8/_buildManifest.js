@@ -45,7 +45,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/8732e02255e63c6b.js"
   ],
   "/account/misc/guild": [
-    "static/chunks/0878cd3ff303e2cb.js"
+    "static/chunks/6a01615dd07414af.js"
   ],
   "/account/misc/quests": [
     "static/chunks/ef500c8c0e0413bc.js"

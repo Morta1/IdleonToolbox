@@ -13,6 +13,6 @@ __turbopack_load_page_chunks__("/account/misc/guild", [
   "static/chunks/b9898908ac97cd52.js",
   "static/chunks/af343f0968217854.js",
   "static/chunks/ef054655485a17fd.js",
-  "static/chunks/e689625140c6b4eb.js",
-  "static/chunks/turbopack-1fd62a2d9ebf08b9.js"
+  "static/chunks/19168ee1be144d68.js",
+  "static/chunks/turbopack-a1f36186b2d39d88.js"
 ])
