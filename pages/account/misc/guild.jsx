@@ -98,7 +98,7 @@ const Guild = () => {
         <CardTitleAndValue title={'Saves (up to 3)'}>
           <Stack gap={1}>
             <Box>
-              {dataTimestamp?.reverse()?.map(({ timestamp }, index) => {
+              {[...dataTimestamp].reverse()?.map(({ timestamp }, index) => {
                 return <Typography
                   key={timestamp + index}>#{index + 1} - {format(new Date(timestamp), 'dd/MM/yyyy HH:mm:ss')}</Typography>
               })}
