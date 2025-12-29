@@ -223,6 +223,61 @@ export const getExoticMarketRotation = (account) => {
   return selectedUpgrades;
 };
 
+export const getExoticMarketRotations = (account, weeks = 10) => {
+  if (!account?.timeAway?.GlobalTime) return [];
+
+  const currentWeek = Math.floor(account.timeAway.GlobalTime / 604_800); // 1 week in seconds
+  const rotations = [];
+  const processedExoticMarket = account?.farming?.exoticMarket || [];
+
+  for (let weekOffset = 0; weekOffset < weeks; weekOffset++) {
+    const seed = Math.round(100 * (currentWeek + weekOffset));
+    const selectedUpgrades = [];
+
+    for (let i = 0; i < 8; i++) {
+      let attempts = 0;
+      let upgradeIndex;
+
+      do {
+        const currentSeed = seed + i + attempts * 1000;
+        const rng = new LavaRand(currentSeed);
+        const random = rng.rand();
+
+        // Generate index 0–59
+        upgradeIndex = Math.floor(Math.max(0, Math.min(59, 60 * random)));
+
+        attempts++;
+      } while (selectedUpgrades.includes(upgradeIndex));
+
+      selectedUpgrades.push(upgradeIndex);
+    }
+
+    // Calculate the date for this rotation
+    const dateInMs = Math.floor((currentWeek + weekOffset) * 604_800 * 1000);
+
+    rotations.push({
+      weekOffset,
+      date: new Date(dateInMs),
+      upgradeIndices: selectedUpgrades,
+      upgrades: selectedUpgrades.map((index) => {
+        // Use processed data from account if available, otherwise fall back to raw data
+        const processedUpgrade = processedExoticMarket?.[index];
+        const rawUpgrade = exoticMarketInfo?.[index];
+        if (!rawUpgrade || rawUpgrade.name === 'NAME_MAGNI') return null;
+        return {
+          ...rawUpgrade,
+          ...processedUpgrade,
+          index,
+          // Use processed displayText if available, otherwise clean the raw bonus
+          displayText: processedUpgrade?.displayText || rawUpgrade.bonus.replace(/[{}$]/g, '')
+        };
+      }).filter(Boolean)
+    });
+  }
+
+  return rotations;
+};
+
 export const getRanksTotalBonus = (ranks, index) => {
   return 0 === index ? (1 + ranks?.[3]?.bonus / 100) * (1 + ranks?.[10]?.bonus / 100) * (1 + ranks?.[15]?.bonus / 100)
     : 1 === index ? ranks?.[8]?.bonus + ranks?.[17]?.bonus

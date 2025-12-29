@@ -196,7 +196,7 @@ export const PAGES = {
     'world 6': {
       icon: 'etc/sneaking-temp',
       categories: [
-        { label: 'farming', icon: 'data/ClassIcons57', tabs: ['Plot', 'Market', 'Exotic Market', 'Rank database', 'Crop'] },
+        { label: 'farming', icon: 'data/ClassIcons57', tabs: ['Plot', 'Market', 'Exotic Market', 'Exotic Rotation', 'Rank database', 'Crop'] },
         {
           label: 'sneaking',
           icon: 'data/ClassIcons58',

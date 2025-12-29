@@ -22,7 +22,7 @@ const Market = ({ market, crop }) => {
         <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Stack direction={'row'} gap={2} alignItems={'center'}>
             <Typography>{cleanUnderscore(name.toLowerCase().capitalizeAll())}</Typography>
-            <Typography variant="caption">{level} / {maxLvl}</Typography>
+            <Typography variant="caption">Lv. {level}</Typography>
           </Stack>
 
           <Typography mt={2}>
@@ -32,7 +32,7 @@ const Market = ({ market, crop }) => {
       </Card>
     ));
 
-  return (
+    return (
     <Stack gap={4}>
       {/* Current Rotation */}
       <Stack>
