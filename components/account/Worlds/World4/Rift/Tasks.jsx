@@ -7,7 +7,7 @@ import Tooltip from '../../../../Tooltip';
 const Tasks = ({ list, currentRift, currentProgress, characters, chars }) => {
   const finishedCharacters = findNameCombination(characters, chars);
   const [minimized, setMinimized] = useState(false);
-console.log('list', list);
+
   return <>
     <FormControlLabel
       control={<Checkbox name={'mini'} checked={minimized}
