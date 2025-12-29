@@ -1,0 +1,21 @@
+__turbopack_load_page_chunks__("/account/class-specific/tesseract", [
+  "static/chunks/db6bac0d9332c2c9.js",
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/b46708757d844e73.js",
+  "static/chunks/a555c592e82f2fd0.js",
+  "static/chunks/c8ef3e85872e42e5.js",
+  "static/chunks/bb99fbdd54b75397.js",
+  "static/chunks/faf03599252c1a70.js",
+  "static/chunks/f0b03e6e334a00b1.js",
+  "static/chunks/51bc21d02f74a5db.js",
+  "static/chunks/b9898908ac97cd52.js",
+  "static/chunks/cbc67c9543d2016a.js",
+  "static/chunks/39454473dcc3bf50.js",
+  "static/chunks/bad936d90a26c511.js",
+  "static/chunks/ef054655485a17fd.js",
+  "static/chunks/705a352017f2cdcc.js",
+  "static/chunks/ef04e198492afeef.js",
+  "static/chunks/49d78ef4063457ff.js",
+  "static/chunks/44206aa42820f88c.js",
+  "static/chunks/turbopack-427758033478b946.js"
+])
