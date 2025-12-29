@@ -212,7 +212,10 @@ export const getGuaranteedCrystalMobs = (account) => {
 }
 
 export const getMasterclassCostReduction = (account) => {
-  return account?.accountOptions?.[480] < getLegendTalentBonus(account, 23) ? .2 : 1;
+  const hasBonusBundle = isBundlePurchased(account?.bundles, 'bon_p');
+  return account?.accountOptions?.[480] < getLegendTalentBonus(account, 23) 
+    ? (hasBonusBundle ? 0.05 : 0.2) 
+    : (hasBonusBundle ? 0.25 : 1);
 }
 
 export const getLibraryBookTimes = (idleonData, characters, account) => {

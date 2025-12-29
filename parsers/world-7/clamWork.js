@@ -89,10 +89,10 @@ const getClamCost = (account, index, requiredPearls) => {
 }
 
 const getClamWorkLocalBonuses = (account, index) => {
+  // 3 is multi kill which is shit to calculate so we just return 1
   return 999 == index ? 1 : 3 == index
-    ? 1 *
-    generalSpelunky[28][index] * account?.accountOptions?.[Math.round(index + 455)]
-    : generalSpelunky[28][index] * account?.accountOptions?.[Math.round(index + 455)];
+    ? 1 * parseFloat(generalSpelunky[28]?.split(' ')?.[index] ?? 0) * account?.accountOptions?.[Math.round(index + 455)]
+    : parseFloat(generalSpelunky[28]?.split(' ')?.[index] ?? 0) * account?.accountOptions?.[Math.round(index + 455)];
 }
 
 const getBlackPearlValue = (account) => {
@@ -115,7 +115,7 @@ const formatClamWorkDescription = (description, index, { bonus, mobs, pearlValue
   }
 
   const multiplier = 1 + bonus / 100;
-  const multiplierFormatted = notateNumber(multiplier, 'MultiplierInfo')
+  const multiplierFormatted = notateNumber(multiplier, 'MultiplierInfo');
   text = text.replace(/\}/g, multiplierFormatted);
 
   // Replace $ with special values based on index
@@ -127,14 +127,13 @@ const formatClamWorkDescription = (description, index, { bonus, mobs, pearlValue
     } else if (index === 1) {
       dollarValue = '' + Math.floor(mobs);
     } else if (index === 2 || index === 4) {
-      const chance = Math.floor(1e4 * (1 - 1 / (1 + bonus / 100)) / 100);
+      const chance = Math.floor(1e4 * (1 - 1 / (1 + bonus / 100))) / 100;
       dollarValue = '' + chance;
     } else if (index === 5) {
       dollarValue = '' + Math.floor(blackPearlValue);
     } else {
       dollarValue = '' + Math.floor(bonus);
     }
-
     text = text.replace(/\$/g, dollarValue);
   }
 
