@@ -1999,9 +1999,8 @@ export const getDropRate = (character, account, characters) => {
   const robbingHoodTalentBonus = getTalentBonus(character?.flatTalents, 'ROBBINGHOOD');
   const lootyCurseTalentBonus = getTalentBonus(character?.flatTalents, 'CURSE_OF_MR_LOOTY_BOOTY');
   const bossBattleTalentBonus = getTalentBonus(character?.flatStarTalents, 'BOSS_BATTLE_SPILLOVER');
-  const dropChanceEquip = getStatsFromGear(character, 2, account);
   const dropChanceTools = getStatsFromGear(character, 2, account, true);
-  const dropChanceBonuses = getEquipmentBonuses(character, account, 2);
+  const { value: dropChanceBonuses, breakdown: dropChanceBonusesBreakdown } = getEquipmentBonuses(character, account, 2);
   const bubbleBonus = getBubbleBonus(account, 'DROPPIN_LOADS', false);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Drop_Rate');
   const cardMulti = getCardBonusByEffect(character?.cards?.equippedCards, 'Drop_Rate_Multi');
@@ -2055,7 +2054,7 @@ export const getDropRate = (character, account, characters) => {
   const additive =
     robbingHoodTalentBonus +
     postOfficeBonus +
-    (dropChanceEquip + dropChanceBonuses + dropChanceTools) +
+    (dropChanceBonuses + dropChanceTools) +
     bubbleBonus +
     cardBonus +
     lootyCurseTalentBonus +
@@ -2164,7 +2163,7 @@ export const getDropRate = (character, account, characters) => {
       value: (robbingHoodTalentBonus + lootyCurseTalentBonus + (bossBattleTalentBonus * account?.accountOptions?.[189])) / 100
     },
     { name: 'Post Office', value: postOfficeBonus / 100 },
-    { name: 'Equipment', value: (dropChanceEquip + dropChanceTools) / 100 },
+    ...dropChanceBonusesBreakdown,
     { name: 'Bubble', value: bubbleBonus / 100 },
     { name: 'Cards', value: (cardBonus + cardSetBonus + passiveCardBonus) / 100 },
     { name: 'Shrine', value: shrineBonus / 100 },
@@ -2212,7 +2211,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Equipment (DR Multi)', value: dropChanceEquip2 / 100 },
     { name: 'Gallery Multi', value: galleryBonusMulti / 100 },
     { name: 'Pristine Charm', value: charmBonus / 100 },
-    { name: 'Companion', value: thirdCompanionDropRate ? Math.max(0, Math.min(0.3, thirdCompanionDropRate)) : 0 }
+    { name: 'Companions', value: (thirdCompanionDropRate + fourthCompanionDropRate) / 100 },
   ];
   return {
     dropRate: final,
@@ -2222,7 +2221,6 @@ export const getDropRate = (character, account, characters) => {
     robbingHoodTalentBonus
     + postOfficeBonus
     + dropChanceEquip
-    + dropChanceObols
     + dropChanceTools
     + galleryBonus
     + bubbleBonus
@@ -2644,8 +2642,16 @@ export const getEquipmentBonuses = (character, account, bonusIndex) => {
   const obols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[bonusIndex]);
   const gallery = getGalleryBonus(account, bonuses?.etcBonuses?.[bonusIndex], character);
   const hatRack = getHatRackBonus(account, bonuses?.etcBonuses?.[bonusIndex]);
-  
-  return equipment + obols + gallery + hatRack;
+
+  return {
+    value: equipment + obols + gallery + hatRack,
+    breakdown: [
+      { name: 'Equipment', value: equipment },
+      { name: 'Obols', value: obols },
+      { name: 'Gallery', value: gallery },
+      { name: 'Hat Rack', value: hatRack }
+    ]
+  };
 };
 
 export const getPlayerFoodBonus = (character, account, isHealth) => {
@@ -2730,8 +2736,8 @@ export const getAfkGain = (character, characters, account) => {
   const sleepinOnTheJob = enhancementBonus ? getTalentBonus(character?.flatTalents, 'SLEEPIN\'_ON_THE_JOB') : 0;
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'DREAM_CATCHER');
   const chipBonus = getPlayerLabChipBonus(character, account, 8);
-  const afkBonuses = getEquipmentBonuses(character, account, 59);
-  const skillAfkBonuses = getEquipmentBonuses(character, account, 24);
+  const afkBonuses = getEquipmentBonuses(character, account, 59)?.value;
+  const skillAfkBonuses = getEquipmentBonuses(character, account, 24)?.value;
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.bonus;
   const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.curse;
   const eventBonus = getEventShopBonus(account, 5);
@@ -2845,7 +2851,7 @@ export const getAfkGain = (character, characters, account) => {
     const bribeBonus = bribes?.[3]?.done ? bribes?.[3]?.value : 0;
     const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet8' ? character?.cards?.cardSet?.bonus : 0;
     const equippedCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[43]);
-    const fightBonuses = getEquipmentBonuses(character, account, 20);
+    const fightBonuses = getEquipmentBonuses(character, account, 20)?.value;
     const starSignBonus = getStarSignBonus(character, account, 'Fight_AFK_Gain');
     let guildBonus = 0;
     if (guild?.guildBonuses?.length > 0) {

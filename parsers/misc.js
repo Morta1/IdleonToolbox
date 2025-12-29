@@ -44,7 +44,7 @@ import { getCardBonusByEffect } from '@parsers/cards';
 import { getTesseractBonus } from '@parsers/tesseract';
 import { getPaletteBonus } from '@parsers/gaming';
 import { getMinorDivinityBonus } from '@parsers/divinity';
-
+import { getEquipmentBonuses } from '@parsers/character';
 
 export const getDoubleStatueDrop = (account, character, characters) => {
   const tesseractBonus = getTesseractBonus(account, 18);
@@ -716,9 +716,9 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
   const isShaman = checkCharClass(character?.class, CLASSES.Shaman);
   const amplifiedFamilyBonus = familyBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0;
-  const equipmentGoldFoodBonus = getStatsFromGear(character, 8, account);
   const toolGoldFoodBonus = getStatsFromGear(character, 8, account, true);
-  const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[47]);
+  const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[8]);
+  const { value: equipmentGoldFoodBonus, breakdown: equipmentBonusBreakdown } = getEquipmentBonuses(character, account, 8);
   const hungryForGoldTalentBonus = getTalentBonus(character?.flatTalents, 'HAUNGRY_FOR_GOLD');
   const goldenAppleStamp = getStampsBonusByEffect(account, 'Effect_from_Golden_Food._Sparkle_sparkle!');
   const goldenFoodAchievement = getAchievementStatus(account?.achievements, 37);
@@ -733,7 +733,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const voteBonus = getVoteBonus(account, 26);
   const companionBonus = isCompanionBonusActive(account, 48) ? account?.companions?.list?.at(48)?.bonus : 0;
   const legendTalentBonus = getLegendTalentBonus(account, 25);
-  const cardBonus = getCardBonusByEffect(account?.cards, 'Gold_Food_Effect_(Passive)');
+  const cardBonus = Math.min(getCardBonusByEffect(account?.cards, 'Gold_Food_Effect_(Passive)'), 50);
 
   // select first death bringer
   const deathBringer = characters?.find((character) => checkCharClass(character?.class, CLASSES.Death_Bringer));
@@ -750,7 +750,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
     { name: '' },
     { name: 'Family Bonus', value: isShaman ? amplifiedFamilyBonus : familyBonus },
     { name: 'The Family Guy', value: theFamilyGuy },
-    { name: 'Equipment', value: equipmentGoldFoodBonus },
+    ...equipmentBonusBreakdown,
     { name: 'Tools', value: toolGoldFoodBonus },
     { name: 'Obols', value: obolsBonus },
     { name: 'Talent', value: hungryForGoldTalentBonus },
@@ -810,7 +810,7 @@ export const getGoldenFoodBonus = (foodName, character, account, characters) => 
     const beanstalkData = account?.sneaking?.beanstalkData;
     const beanstalkGoldenFoods = ninjaExtraInfo[29].split(' ').filter((str) => isNaN(str))
       .map((gFood, index) => ({ ...(items?.[gFood] || {}), active: beanstalkData?.[index] > 0, index }));
-    const beanstalkFood = beanstalkGoldenFoods?.find(({ displayName, active }) => displayName === foodName & active);
+    const beanstalkFood = beanstalkGoldenFoods?.find(({ displayName, active }) => displayName === foodName && active);
     if (!beanstalkFood) return baseBonus;
     return baseBonus + beanstalkFood?.Amount * goldenFoodMulti?.value * .05 * lavaLog(1 + 1e3 * Math.pow(10, beanstalkData?.[beanstalkFood?.index]))
       * (1 + lavaLog(1 + 1e3 * Math.pow(10, beanstalkData?.[beanstalkFood?.index])) / 2.14);

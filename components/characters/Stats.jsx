@@ -188,7 +188,7 @@ const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', dam
   return (
     (<Stack direction={'row'} justifyContent={'space-between'} alignItems={breakdown ? 'center' : 'flex-start'}>
       <Typography color={'info.light'}>{title}</Typography>
-      <Tooltip maxWidth={480} title={breakdown ? <BreakdownTooltip breakdown={breakdown}
+      <Tooltip maxWidth={500} title={breakdown ? <BreakdownTooltip breakdown={breakdown}
         useDoubleColumn={useDoubleColumn}
         notate={breakdownNotation} /> : ''}>
         {!damage ? <Typography component={'span'} sx={breakdown
