@@ -342,7 +342,7 @@ export const getTachyonType = (index) => {
 export const getExtraTachyon = (character, account) => {
   const upgrades = account?.tesseract?.upgrades;
   const tesseract = getTalentBonus(character?.flatTalents, 'TESSERACT');
-  const equipBonus = getStatsFromGear(character, 95, account);
+  const { value: equipBonus } = getStatsFromGear(character, 95, account);
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Arcane_Tachyons')?.bonus ?? 0;
   const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
   const jewelBonus = getJewelBonus(account?.lab.jewels, 23, spelunkerObolMulti);
@@ -378,8 +378,8 @@ export const getArcanistStats = (upgrades, totalUpgradeLevels, character, accoun
   const ghastlyPowerY = getTalentBonus(character?.flatTalents, 'GHASTLY_POWER', true);
   const goulishPower = getTalentBonus(character?.flatTalents, 'GHOULISH_POWER');
   const arcanistForm = getTalentBonus(character?.flatTalents, 'ARCANIST_FORM');
-  const equipBonus = getStatsFromGear(character, 94, account);
-  const equipBonus2 = getStatsFromGear(character, 93, account);
+  const { value: equipBonus } = getStatsFromGear(character, 94, account);
+  const { value: equipBonus2 } = getStatsFromGear(character, 93, account);
   let equipmentWeaponPower = 0;
   const bowWeaponPower = character?.equipment?.[1];
 

@@ -231,7 +231,7 @@ const getExtraBonesBonus = (character, account) => {
   const highestLevelDeathBringer = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer);
   const graveyardShift = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'GRAVEYARD_SHIFT');
 
-  const gearBonus = getStatsFromGear(highestLevelDeathBringer, 76, account);
+  const { value: gearBonus } = getStatsFromGear(highestLevelDeathBringer, 76, account);
   const emperorBonus = getEmperorBonus(account, 1);
 
   return (1 + grimoire / 100)

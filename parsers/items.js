@@ -1,6 +1,7 @@
 import { bonuses, items, itemsArray } from '@website-data';
 import { cleanUnderscore } from '@utility/helpers';
 import { getGalleryBonus } from './world-7/gallery';
+import { getHatRackBonus } from './world-3/hatRack';
 
 export const addStoneDataToEquip = (baseItem, stoneData) => {
   if (!baseItem || !stoneData) return {};
@@ -52,20 +53,62 @@ export const calculateItemTotalAmount = (array, itemName, exact, isRawName = fal
   }, 0);
 }
 
-export const getStatsFromGear = (character, bonusIndex, account, isTools = false) => {
-  if (!character) return 0;
+export const getStatsFromGear = (character, bonusIndex, account) => {
+  if (!character) return { value: 0, breakdown: [] };
   const { equipment, tools } = character || {};
+
+  // Chip bonuses for equipment slots
   const silkroadMotherboard = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 16) ?? 0;
   const silkroadSoftware = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 17) ?? 0;
   const silkroadProcessor = account?.lab?.playersChips?.[character?.playerId]?.find((chip) => chip.index === 18) ?? 0;
-  const array = isTools ? tools : equipment;
-  if (isNaN(bonusIndex)) {
-    return array?.reduce((res, item) => res + (getStatFromEquipment(item, bonusIndex)), 0);
-  }
-  return array?.reduce((res, item, index) => res + (getStatFromEquipment(item, bonuses?.etcBonuses?.[bonusIndex]) *
-    ((!isTools && ((index === 3 && silkroadProcessor) || (index === 10 && silkroadMotherboard) || (index === 9 && silkroadSoftware)))
-      ? 2
-      : 1)), 0)
+
+  // Resolve bonus name from index if needed
+  const bonusName = isNaN(bonusIndex) ? bonusIndex : bonuses?.etcBonuses?.[bonusIndex];
+
+  // Items tracked in gallery (TROPHY, NAMETAG) or hatRack (PREMIUM_HELMET) should be skipped
+  // Their bonuses come from getGalleryBonus/getHatRackBonus instead
+  const isGalleryOrHatRackItem = (item) => {
+    const type = item?.Type;
+    return type === 'TROPHY' || type === 'NAMETAG' || type === 'PREMIUM_HELMET';
+  };
+
+  // Calculate from equipment
+  const equipmentTotal = equipment?.reduce((total, item, index) => {
+    if (isGalleryOrHatRackItem(item)) {
+      return total; // Skip - bonus comes from gallery/hatRack
+    }
+    const statValue = getStatFromEquipment(item, bonusName);
+    const chipMultiplier = ((index === 3 && silkroadProcessor) || (index === 10 && silkroadMotherboard) || (index === 9 && silkroadSoftware)) ? 2 : 1;
+    return total + (statValue * chipMultiplier);
+  }, 0) || 0;
+
+  // Calculate from tools (no chip multipliers for tools)
+  const toolsTotal = tools?.reduce((total, item) => {
+    if (isGalleryOrHatRackItem(item)) {
+      return total; // Skip - bonus comes from gallery/hatRack
+    }
+    return total + getStatFromEquipment(item, bonusName);
+  }, 0) || 0;
+
+  // Get gallery and hatRack bonuses for tracked item types
+  const galleryBonus = getGalleryBonus(account, bonusName) || 0;
+  const hatRackBonus = getHatRackBonus(account, bonusName) || 0;
+
+  const gearTotal = equipmentTotal + toolsTotal;
+  const value = gearTotal + galleryBonus + hatRackBonus;
+
+  return {
+    value,
+    breakdown: [
+      { name: '' },
+      { title: bonusName },
+      { name: '' },
+      { name: 'Equipment', value: gearTotal },
+      { name: 'Gallery', value: galleryBonus },
+      { name: 'Hat Rack', value: hatRackBonus },
+      { name: '' }
+    ]
+  };
 }
 
 export const getStatFromEquipment = (item, statName) => {
@@ -142,16 +185,16 @@ export const findItemInInventory = (arr, itemName) => {
 export const findItemByDescriptionInInventory = (arr, desc) => {
   if (!desc) return {};
   const relevantItems = arr.filter(({
-                                      misc,
-                                      description
-                                    }) => cleanUnderscore(description)?.toLowerCase()?.includes(desc?.toLowerCase()) || cleanUnderscore(misc)?.toLowerCase()?.includes(desc?.toLowerCase()), []);
+    misc,
+    description
+  }) => cleanUnderscore(description)?.toLowerCase()?.includes(desc?.toLowerCase()) || cleanUnderscore(misc)?.toLowerCase()?.includes(desc?.toLowerCase()), []);
   return relevantItems?.reduce((res, item) => {
     const itemExistsIndex = res?.findIndex((i) => i?.rawName === item?.rawName);
     const itemExists = res?.[itemExistsIndex];
     if (itemExists) {
       const ownerExist = itemExists?.owners?.includes(item?.owner);
       const owners = ownerExist ? itemExists?.owners : [...itemExists?.owners,
-        item?.owner]
+      item?.owner]
       if (itemExists?.misc === item?.misc) {
         res?.splice(itemExistsIndex, 1);
       }

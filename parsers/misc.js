@@ -44,7 +44,6 @@ import { getCardBonusByEffect } from '@parsers/cards';
 import { getTesseractBonus } from '@parsers/tesseract';
 import { getPaletteBonus } from '@parsers/gaming';
 import { getMinorDivinityBonus } from '@parsers/divinity';
-import { getEquipmentBonuses } from '@parsers/character';
 
 export const getDoubleStatueDrop = (account, character, characters) => {
   const tesseractBonus = getTesseractBonus(account, 18);
@@ -716,9 +715,8 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
   const isShaman = checkCharClass(character?.class, CLASSES.Shaman);
   const amplifiedFamilyBonus = familyBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0;
-  const toolGoldFoodBonus = getStatsFromGear(character, 8, account, true);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[8]);
-  const { value: equipmentGoldFoodBonus, breakdown: equipmentBonusBreakdown } = getEquipmentBonuses(character, account, 8);
+  const { value: gearGoldFoodBonus, breakdown: equipmentBonusBreakdown } = getStatsFromGear(character, 8, account);
   const hungryForGoldTalentBonus = getTalentBonus(character?.flatTalents, 'HAUNGRY_FOR_GOLD');
   const goldenAppleStamp = getStampsBonusByEffect(account, 'Effect_from_Golden_Food._Sparkle_sparkle!');
   const goldenFoodAchievement = getAchievementStatus(account?.achievements, 37);
@@ -751,7 +749,6 @@ export const getGoldenFoodMulti = (character, account, characters) => {
     { name: 'Family Bonus', value: isShaman ? amplifiedFamilyBonus : familyBonus },
     { name: 'The Family Guy', value: theFamilyGuy },
     ...equipmentBonusBreakdown,
-    { name: 'Tools', value: toolGoldFoodBonus },
     { name: 'Obols', value: obolsBonus },
     { name: 'Talent', value: hungryForGoldTalentBonus },
     { name: 'Stamp', value: goldenAppleStamp },
@@ -773,7 +770,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   return {
     value: (1 + armorSetBonus / 100)
       * (Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
-        + ((equipmentGoldFoodBonus + toolGoldFoodBonus + obolsBonus)
+        + ((gearGoldFoodBonus + obolsBonus)
           + (hungryForGoldTalentBonus
             + (goldenAppleStamp
               + (goldenFoodAchievement
@@ -783,7 +780,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
     breakdown,
     expression: `(1 + armorSetBonus / 100)
 * (Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
-+ (equipmentGoldFoodBonus
++ (gearGoldFoodBonus
 + (hungryForGoldTalentBonus
 + (goldenAppleStamp
 + (goldenFoodAchievement

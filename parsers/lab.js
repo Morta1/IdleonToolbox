@@ -352,8 +352,8 @@ export const getLabEfficiency = (character, characters, account, playerInfo) => 
   const talentBonus = getTalentBonus(character?.flatTalents, 'SKILL_WIZ');
   const talentBonus2 = getTalentBonus(character?.flatTalents, 'UPLOAD_SQUARED');
   const talentBonus3 = getTalentBonus(character?.flatTalents, 'SMART_EFFICIENCY');
-  const equipBonus = getStatsFromGear(character, 63, account);
-  const equipBonus2 = getStatsFromGear(character, 66, account);
+  const { value: equipBonus } = getStatsFromGear(character, 63, account);
+  const { value: equipBonus2 } = getStatsFromGear(character, 66, account);
   const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.laboratory?.rank, 0);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Science_Spare_Parts', 0);
   const allBaseSkillEff = getAllBaseSkillEff(character, account, characters, playerInfo);

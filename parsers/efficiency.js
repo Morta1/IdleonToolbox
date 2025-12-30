@@ -89,7 +89,7 @@ export const getAllEff = (character, characters, account) => {
   const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'EFFICIENCY_FOR_ALL_SKILLS', highestLevelHunter);
   // const amplifiedFamilyBonus = familyEffBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1);
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6SkillEff');
-  const effFromEquipment = getStatsFromGear(character, 48, account);
+  const { value: effFromEquipment } = getStatsFromGear(character, 48, account);
   const effFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[48]);
   const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Frost_Relic')?.bonus ?? 0;
   const talentBonus = getTalentBonus(character?.flatStarTalents, 'STUDIOUS_QUESTER');
@@ -155,7 +155,7 @@ export const getMiningEff = (character, characters, account, playerInfo) => {
   const rightHandBonus = getMaestroHand(character, 'mining', characters, account, 'RIGHT_HAND_OF_ACTION');
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Peanut', character, account, characters) || 1;
   const thirdTalentBonus = getTalentBonus(character?.flatTalents, 'BRUTE_EFFICIENCY');
-  const etcFromTools = getStatsFromGear(character, 10, account, true);
+  const { value: etcFromGear } = getStatsFromGear(character, 10, account);
   const etcFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[10]);
   const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.mining?.rank, 1);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Mining_Efficiency');
@@ -179,7 +179,7 @@ export const getMiningEff = (character, characters, account, playerInfo) => {
       * (1 + secondTalentBonus / 100))
     * goldenFoodBonus
     * (1 + (thirdTalentBonus
-      + ((etcFromTools + etcFromObols)
+      + ((etcFromGear + etcFromObols)
         + 10 * masteryBonus)) / 100)
     * (1 + (cardBonus
       + (starSignBonus

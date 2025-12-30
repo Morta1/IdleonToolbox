@@ -138,11 +138,11 @@ export const getCookingEff = (character, characters, account, playerInfo) => {
   const talentBonus = getTalentBonus(character?.flatTalents, 'APOCALYPSE_CHOW');
   const chows = character?.chow?.finished?.[0] ?? 1;
   const talentBonus2 = getTalentBonus(character?.flatTalents, 'BRUTE_EFFICIENCY');
-  const equipBonus = getStatsFromGear(character, 67, account);
+  const { value: equipBonus } = getStatsFromGear(character, 67, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[67]);
   const talentBonus3 = getTalentBonus(character?.flatTalents, 'SKILL_STRENGTHEN');
   const stampBonus = getStampsBonusByEffect(account, 'Cooking_Efficiency', character);
-  const equipBonus2 = getStatsFromGear(character, 62, account);
+  const { value: equipBonus2 } = getStatsFromGear(character, 62, account);
   const obolsBonus2 = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[62]);
   const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.cooking?.rank, 0);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Chefs_Essentials', 0);

@@ -124,8 +124,6 @@ import { getSuperTalentLeftToSpend } from '@parsers/world-7/legendTalents';
 import { getFriendBonus } from '@parsers/misc';
 import { getTesseractMapBonus } from '@parsers/tesseract';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
-import { getGalleryBonus } from '@parsers/world-7/gallery';
-import { getHatRackBonus } from '@parsers/world-3/hatRack';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays } = require('@utility/helpers');
 
@@ -419,7 +417,10 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
       chipBoost: 2,
       legendBonus: 1 + legendBonus / 100
     })
-    : card);
+    : ({
+      ...card,
+      legendBonus: 1 + legendBonus / 100
+    }));
   const charObols = getObols(char, false);
   character.obols = {
     ...charObols,
@@ -554,7 +555,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
       : getCardBonusByEffect(character?.cards?.equippedCards, 'Mining_EXP')
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Mining_EXP_gain')?.bonus;
     const achievementBonus = getAchievementStatus(account?.achievements, 27);
-    const equipBonus = getStatsFromGear(character, 55, account);
+    const { value: equipBonus, breakdown: equipBonusBreakdown } = getStatsFromGear(character, 55, account);
     const voteBonus = getVoteBonus(account, 13);
     const leftHandTalentBonus = getMaestroHand(character, 'mining', characters, account, 'LEFT_HAND_OF_LEARNING');
     const value = Math.max(
@@ -589,7 +590,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
         { name: 'Bubble', value: base / 100 },
         { name: 'Arcade', value: arcadeBonus / 100 },
         { name: 'Achievement', value: achievementBonus / 100 },
-        { name: 'Equipment', value: equipBonus / 100 },
+        ...equipBonusBreakdown,
         { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
         { name: 'Vote', value: voteBonus / 100 },
         { name: 'Left Hand', value: leftHandTalentBonus / 100 }
@@ -678,7 +679,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const stampBonus = getStampsBonusByEffect(account, 'Fishing_Exp_Gain');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Fishing_EXP_gain')?.bonus;
     const achievementBonus = getAchievementStatus(account?.achievements, 117);
-    const equipBonus = getStatsFromGear(character, 49, account);
+    const { value: equipBonus, breakdown: equipBonusBreakdown } = getStatsFromGear(character, 49, account);
     const bribeBonus = getBribeBonus(account?.bribes, 'Fishermaster');
     const kangarooBonus = getKangarooBonus(account?.kangaroo?.bonuses, 'Fishing XP');
     const voteBonus = getVoteBonus(account, 8);
@@ -728,7 +729,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
         { name: 'Bubble', value: base / 100 },
         { name: 'Arcade', value: arcadeBonus / 100 },
         { name: 'Achievement', value: achievementBonus / 100 },
-        { name: 'Equipment', value: equipBonus / 100 },
+        ...equipBonusBreakdown,
         { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
         { name: 'Bribe', value: 25 * bribeBonus / 100 },
         { name: 'Kangaroo', value: kangarooBonus / 100 },
@@ -1026,7 +1027,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const stampBonus = getStampsBonusByEffect(account, 'Lab_Exp_Gain');
     const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'LabXP');
     const bubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'MATRIX_EVOLVED', account);
-    const equipBonus = getStatsFromGear(character, 65, account);
+    const { value: equipBonus, breakdown: equipBonusBreakdown } = getStatsFromGear(character, 65, account);
     const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'LAB_TESSTUBE');
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.laboratory?.rank, 0);
     const starSignBonus = getStarSignBonus(character, account, 'Lab_EXP_Gain');
@@ -1080,7 +1081,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
         { name: 'Vial', value: vialBonus / 100 },
         { name: 'Bubble', value: bubbleBonus / 100 },
         { name: 'Souped Player', value: Math.min(100, soupedPlayerBonus) / 100 },
-        { name: 'Equipment', value: equipBonus / 100 },
+        ...equipBonusBreakdown,
         { name: 'Sigil', value: sigilBonus / 100 },
         { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
         { name: 'Star Sign', value: starSignBonus / 100 },
@@ -1134,7 +1135,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.divinity?.rank, 0);
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Divinity_EXP')?.bonus;
-    const equipBonus = getStatsFromGear(character, 74, account);
+    const { value: equipBonus, breakdown: equipBonusBreakdown } = getStatsFromGear(character, 74, account);
     const voteBonus = getVoteBonus(account, 23);
     const armorSetBonus = getArmorSetBonus(account, 'MAGMA_SET');
 
@@ -1181,7 +1182,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
         { name: 'Starsign', value: starSignBonus / 100 },
         { name: 'Guild', value: guildBonus / 100 },
         { name: 'Arcade', value: arcadeBonus / 100 },
-        { name: 'Equip', value: equipBonus / 100 },
+        ...equipBonusBreakdown,
         { name: 'Vote', value: voteBonus / 100 },
         { name: 'Armor set', value: armorSetBonus / 100 }
 
@@ -1443,7 +1444,7 @@ export const getAllSkillsExp = (character, characters, account) => {
   const balanceOfEffBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Proficiency', account)?.bonus;
   const skilledDimwitCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Skilled_Dimwit', account)?.curse;
   const theRoyalSamplerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'The_Royal_Sampler', account)?.curse;
-  const equipmentBonus = getStatsFromGear(character, 27, account);
+  const { value: equipmentBonus, breakdown: equipmentBonusBreakdown } = getStatsFromGear(character, 27, account);
   const maestroTransfusionTalentBonus = getTalentBonusIfActive(character?.activeBuffs, 'MAESTRO_TRANSFUSION');
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 3);
   const dungeonSkillExpBonus = getDungeonStatBonus(account?.dungeons?.upgrades, 'Class_Exp');
@@ -1625,7 +1626,7 @@ export const getRespawnRate = (character, account) => {
   const { RespawnTime, worldIndex } = monster;
   const shrineBonus = getShrineBonus(account?.shrines, 7, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
   const chipBonus = getPlayerLabChipBonus(character, account, 10);
-  const equipmentBonus = getStatsFromGear(character, 47, account);
+  const { value: equipmentBonus, breakdown: equipmentBonusBreakdown } = getStatsFromGear(character, 47, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[47]);
   const starSignBonus = getStarSignBonus(character, account, 'Mob_Respawn_rate')
 
@@ -1677,7 +1678,7 @@ export const getRespawnRate = (character, account) => {
     { name: 'Base', value: monsterRespawnTime },
     { name: 'Achievement', value: achievementBonus / 100 },
     { name: 'Chip', value: chipBonus / 100 },
-    { name: 'Equipment', value: equipmentBonus / 100 },
+    ...equipmentBonusBreakdown,
     { name: 'Merit', value: meritBonus / 100 },
     { name: 'Shrine', value: shrineBonus / 100 },
     { name: 'Starsigns', value: starSignBonus / 100 }
@@ -1775,7 +1776,7 @@ export const getClassExpMulti = (character, account, characters) => {
   const hasMedallion = account?.compass?.medallions?.find(({ Name }) => Name === character?.afkTarget);
   const talentBonus1 = getHighestTalentByClass(characters, CLASSES.Wind_Walker, 'SHINY_MEDALLIONS');
   const talentBonus2 = getHighestTalentByClass(characters, CLASSES.Wind_Walker, 'SLAYER_ABOMINATOR');
-  const equipBonus = getStatsFromGear(character, 84, account);
+  const { value: equipBonus } = getStatsFromGear(character, 84, account);
   const windWalkerBonus = (hasMedallion?.acquired ? talentBonus1 : 1) * (1 + equipBonus / 100) *
     Math.pow(Math.max(1, talentBonus2), account?.compass?.totalKilledAbominations)
 
@@ -1783,8 +1784,8 @@ export const getClassExpMulti = (character, account, characters) => {
   const siegeBreakerBonus = 1 + talentBonus3 * lavaLog(account?.accountOptions?.[139] ?? 0) / 100;
 
   const forthTalentBonus = getTalentBonus(character?.flatTalents, 'LUCKY_CHARMS');
-  const equipBonus2 = getStatsFromGear(character, 78, account);
-  const equipBonus3 = getStatsFromGear(character, 4, account);
+  const { value: equipBonus2, breakdown: equipBonusBreakdown2 } = getStatsFromGear(character, 78, account);
+  const { value: equipBonus3, breakdown: equipBonusBreakdown3 } = getStatsFromGear(character, 4, account);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Box_of_Unwanted_Stats', 2);
   const foodBonus = getFoodBonus(character, account, 'ClassEXP', true)
   const starSignBonus = getStarSignBonus(character, account, 'Class_EXP_Gain');
@@ -1878,7 +1879,7 @@ export const getClassExpMulti = (character, account, characters) => {
       { name: 'Compass', value: compassBonus / 100 },
       { name: 'Companion', value: companionBonus / 100 },
       { name: 'Dungeon (Flurbo)', value: flurboBonus / 100 },
-      { name: 'Equipment', value: equipBonus3 / 100 },
+      ...equipBonusBreakdown3,
       { name: 'Food', value: foodBonus / 100 },
       { name: 'God', value: minorGodBonus / 100 },
       { name: 'Golden Food', value: goldenFoodBonus / 100 },
@@ -1920,7 +1921,7 @@ export const getClassExpMulti = (character, account, characters) => {
       { name: '' },
       { name: 'Wind Walker', value: windWalkerBonus },
       { name: 'Bundle', value: hasBundle ? expBonus3 / 100 : 0 },
-      { name: 'Equipment (Exp Multi)', value: equipBonus2 / 100 },
+      ...equipBonusBreakdown2,
       { name: 'Siege Breaker', value: siegeBreakerBonus }
     ],
     expression: `siegeBreakerBonus
@@ -2000,7 +2001,7 @@ export const getDropRate = (character, account, characters) => {
   const lootyCurseTalentBonus = getTalentBonus(character?.flatTalents, 'CURSE_OF_MR_LOOTY_BOOTY');
   const bossBattleTalentBonus = getTalentBonus(character?.flatStarTalents, 'BOSS_BATTLE_SPILLOVER');
   const obols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[2]);
-  const { value: dropChanceBonuses, breakdown: dropChanceBonusesBreakdown } = getEquipmentBonuses(character, account, 2);
+  const { value: dropChanceBonuses, breakdown: dropChanceBonusesBreakdown } = getStatsFromGear(character, 2, account);
   const bubbleBonus = getBubbleBonus(account, 'DROPPIN_LOADS', false);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Drop_Rate');
   const cardMulti = getCardBonusByEffect(character?.cards?.equippedCards, 'Drop_Rate_Multi');
@@ -2132,13 +2133,13 @@ export const getDropRate = (character, account, characters) => {
     final *= 1 + tomeMulti / 100;
   }
 
-  const { value: dropChanceEquip2, breakdown: dropChanceEquip2Breakdown } = getEquipmentBonuses(character, account, 99);
+  const { value: dropChanceEquip2, breakdown: dropChanceEquip2Breakdown } = getStatsFromGear(character, 99, account);
   final *= 1 + dropChanceEquip2 / 100;
 
   const charmBonus = getCharmBonus(account, 'Cotton_Candy');
   final *= 1 + charmBonus / 100;
 
-  const { value: equipmentDrMulti, breakdown: equipmentDrMultiBreakdown } = getEquipmentBonuses(character, account, 91);
+  const { value: equipmentDrMulti, breakdown: equipmentDrMultiBreakdown } = getStatsFromGear(character, 91, account);
   final *= 1 + equipmentDrMulti / 100;
 
   const thirdCompanionDropRate = isCompanionBonusActive(account, 26) ? account?.companions?.list?.at(26)?.bonus : 0;
@@ -2211,13 +2212,7 @@ export const getDropRate = (character, account, characters) => {
     { name: 'Pristine Charm', value: charmBonus / 100 },
     { name: 'Malley', value: Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate)) },
     { name: 'Santa Snake', value: Math.max(1, Math.min(1.01, 1 + fourthCompanionDropRate / 2500)) },
-    { name: '' },
-    { title: '%_DROP_RARITY' },
-    { name: '' },
     ...dropChanceEquip2Breakdown,
-    { name: '' },
-    { title: '%_DROP_RATE_MULTI' },
-    { name: '' },
     ...equipmentDrMultiBreakdown,
   ];
   return {
@@ -2343,8 +2338,7 @@ export const getCashMulti = (character, account, characters) => {
     return sum;
   }, 0);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'MonsterCash');
-  const cashFromEquipment = getStatsFromGear(character, 3, account);
-  const cashFromTools = getStatsFromGear(character, 3, account, true);
+  const { value: cashFromGear, breakdown: cashFromGearBreakdown } = getStatsFromGear(character, 3, account);
   const cashFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[3])
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Money_from_mobs_(Passive)');
   const equippedCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Money_from_Monsters');
@@ -2368,8 +2362,7 @@ export const getCashMulti = (character, account, characters) => {
   const kangarooBonus = getKangarooBonus(account?.kangaroo?.bonuses, 'Cash');
   const eventBonus = getEventShopBonus(account, 9);
   const eventBonus2 = getEventShopBonus(account, 20);
-  const equipmentBonusMoney = getStatsFromGear(character, 77, account);
-  const bonusMoneyTools = getStatsFromGear(character, 77, account, true);
+  const { value: gearBonusMoney, breakdown: gearBonusMoneyBreakdown } = getStatsFromGear(character, 77, account);
   const obolsBonusMoney = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[77]);
   const hasCashBundle = isBundlePurchased(account?.bundles, 'bun_y') ? 1 : 0;
   const firstVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 34);
@@ -2398,7 +2391,7 @@ export const getCashMulti = (character, account, characters) => {
     * (1 + Math.min(4, companionBonus))
     * (1 + 0.5 * eventBonus)
     * (1 + 0.6 * eventBonus2)
-    * (1 + (obolsBonusMoney + equipmentBonusMoney + bonusMoneyTools) / 100)
+    * (1 + (obolsBonusMoney + gearBonusMoney) / 100)
     * (1 + armorSetBonus / 100)
     * (1 + gambitBonus / 100)
     * (1 + (250 * hasCashBundle) / 100)
@@ -2412,7 +2405,7 @@ export const getCashMulti = (character, account, characters) => {
     * (1 + (divinityMinorBonus + account?.farming?.cropDepot?.cash?.value) / 100)
     * (1 + (starTalent
       + vialBonus
-      + ((cashFromEquipment + cashFromObols + cashFromTools)
+      + ((cashFromGear + cashFromObols)
         + (equippedCardBonus
           + passiveCardBonus
           + (talentBonus
@@ -2453,10 +2446,9 @@ export const getCashMulti = (character, account, characters) => {
     { name: 'Dungeons', value: flurboBonus },
     { name: 'Drop Rate', value: dropRateMulti },
     { name: 'Dust Walker', value: Math.max(1, dustWalker) * lavaLog(account?.accountOptions[362]) },
-    {
-      name: 'Equipment',
-      value: equipmentBonusMoney + obolsBonusMoney + cashFromEquipment + cashFromObols + cashFromTools + bonusMoneyTools
-    },
+    ...cashFromGearBreakdown,
+    ...gearBonusMoneyBreakdown,
+    { name: 'Obols', value: obolsBonusMoney },
     { name: 'Event shop', value: 0.5 * eventBonus },
     { name: 'Event shop2', value: 0.6 * eventBonus2 },
     { name: 'Food', value: goldFoodBonus }, // Assuming you meant to alphabetize under "Golden Food"
@@ -2517,7 +2509,7 @@ export const getCashMulti = (character, account, characters) => {
 * (1 + (
     starTalent +
     vialBonus +
-    cashFromEquipment +
+    cashFromGear +
     cashFromObols +
     equippedCardBonus +
     passiveCardBonus +
@@ -2543,7 +2535,7 @@ export const getCashMulti = (character, account, characters) => {
 const getPrinterSampleRate = (character, account, charactersLevels) => {
   const printerSamplingTalent = getTalentBonus(character?.flatStarTalents, 'PRINTER_SAMPLING');
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 0);
-  const equipSampling = getStatsFromGear(character, 60, account);
+  const { value: equipSampling } = getStatsFromGear(character, 60, account);
   const sampleItBubble = getBubbleBonus(account, 'SAMPLE_IT', false);
   const superSampleTalent = getTalentBonus(character?.flatStarTalents, 'SUPER_SAMPLES');
   const sampleAchievement = getAchievementStatus(account?.achievements, 158);
@@ -2640,33 +2632,12 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
   }
 }
 
-/**
- * Calculates the sum of all standard bonus sources for a given bonus index
- * @param {Object} character - The character object
- * @param {Object} account - The account object
- * @param {number} bonusIndex - The bonus index to look up in bonuses.etcBonuses
- * @returns {number} Sum of all bonus values (equipment + obols + gallery + hatRack)
- */
-export const getEquipmentBonuses = (character, account, bonusIndex, breakdownSuffix = '') => {
-  const equipment = getStatsFromGear(character, bonusIndex, account);
-  const tools = getStatsFromGear(character, bonusIndex, account, true);
-  const gallery = getGalleryBonus(account, bonuses?.etcBonuses?.[bonusIndex], character);
-  const hatRack = getHatRackBonus(account, bonuses?.etcBonuses?.[bonusIndex]);
 
-  return {
-    value: equipment + tools + gallery + hatRack,
-    breakdown: [
-      { name: `Equipment${breakdownSuffix}`, value: equipment + tools },
-      { name: `Gallery${breakdownSuffix}`, value: gallery },
-      { name: `Hat Rack${breakdownSuffix}`, value: hatRack }
-    ]
-  };
-};
 
 export const getPlayerFoodBonus = (character, account, isHealth) => {
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Carepack_From_Mum', 2)
   const statuePower = getStatueBonus(account, 3, character?.flatTalents);
-  const equipmentFoodEffectBonus = getStatsFromGear(character, 9, account);
+  const { value: equipmentFoodEffectBonus } = getStatsFromGear(character, 9, account);
   const stampBonus = getStampsBonusByEffect(account, 'Effect_from_Boost_Food', character)
   const starSignBonus = getStarSignBonus(character, account, 'All_Food_Effect');
   const cardBonus = getEquippedCardBonus(character?.cards, 'Y5');
@@ -2707,7 +2678,7 @@ export const getPlayerSpeedBonus = (character, characters, account) => {
   const statuePower = getStatueBonus(account, 1, character?.flatTalents);
   // const speedFromStatue = 1 + (speedBonusFromPotions + (statuePower) / 2.2);
   const speedStarSign = getStarSignBonus(character, account, 'Movement_Speed');
-  const equipmentSpeedEffectBonus = getStatsFromGear(character, 1, account);
+  const { value: equipmentSpeedEffectBonus } = getStatsFromGear(character, 1, account);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Move_Spd');
   finalSpeed = (baseMath + (statuePower + ((speedStarSign) + (equipmentSpeedEffectBonus + (cardBonus + featherFlight))))) / 100; // 1.708730398284699
   finalSpeed = 1 + (finalSpeed + (agiMulti) / 2.2); // 2.829035843985983
@@ -2746,8 +2717,8 @@ export const getAfkGain = (character, characters, account) => {
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'DREAM_CATCHER');
   const chipBonus = getPlayerLabChipBonus(character, account, 8);
   const obolsAfkBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[59]);
-  const afkBonuses = getEquipmentBonuses(character, account, 59)?.value;
-  const skillAfkBonuses = getEquipmentBonuses(character, account, 24)?.value;
+  const { value: afkBonuses, breakdown: afkBonusesBreakdown } = getStatsFromGear(character, 59);
+  const { value: skillAfkBonuses, breakdown: skillAfkBonusesBreakdown } = getStatsFromGear(character, 24);
   const skillAfkObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[24]);
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.bonus;
   const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.curse;
@@ -2818,7 +2789,8 @@ export const getAfkGain = (character, characters, account) => {
     { name: 'Sleepin On The Job (VW Eclipse)', value: sleepinOnTheJob },
     { name: 'Sigil', value: sigilBonus },
     { name: 'Chips', value: chipBonus },
-    { name: 'Equipment', value: afkBonuses + skillAfkBonuses },
+    ...afkBonusesBreakdown,
+    ...skillAfkBonusesBreakdown,
     { name: 'Prayers', value: prayerBonus - prayerCurse },
     { name: 'Arcade', value: arcadeBonus },
     { name: 'Compass', value: compassBonus },
@@ -2842,7 +2814,7 @@ export const getAfkGain = (character, characters, account) => {
   const tickTockTalentBonus = getTalentBonus(character?.flatStarTalents, 'TICK_TOCK');
   // AFKgainzzALLmulti - multiplier applied to all AFK types
   const tesseractMapBonus = getTesseractMapBonus(account, character, 2);
-  const equipmentAfkMulti = getStatsFromGear(character, 92, account);
+  const { value: equipmentAfkMulti, breakdown: equipmentAfkMultiBreakdown } = getStatsFromGear(character, 92, account);
   const afkMulti = (1 + tesseractMapBonus / 100) * (1 + equipmentAfkMulti / 100);
   const idleSkillingBonus = getTalentBonus(character?.flatTalents, 'IDLE_SKILLING');
   const activeAfkerBonus = getTalentBonus(character?.flatTalents, 'ACTIVE_AFK\'ER');
@@ -2862,7 +2834,7 @@ export const getAfkGain = (character, characters, account) => {
     const bribeBonus = bribes?.[3]?.done ? bribes?.[3]?.value : 0;
     const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet8' ? character?.cards?.cardSet?.bonus : 0;
     const equippedCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[43]);
-    const fightBonuses = getEquipmentBonuses(character, account, 20)?.value;
+    const { value: fightBonuses, breakdown: fightBonusesBreakdown } = getStatsFromGear(character, 20, account);
     const fightObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[20]);
     const starSignBonus = getStarSignBonus(character, account, 'Fight_AFK_Gain');
     let guildBonus = 0;
@@ -2887,7 +2859,9 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Bribe', value: bribeBonus },
       { name: 'Card Set', value: cardSetBonus },
       { name: 'Cards', value: equippedCardBonus + fightPassiveCardBonus },
-      { name: 'Equipment', value: fightBonuses + afkBonuses + fightObols },
+      ...fightBonusesBreakdown,
+      ...afkBonusesBreakdown,
+      { name: 'Obols', value: fightObols },
       { name: 'Prayers', value: prayerBonus - prayerCurse },
       { name: 'Chips', value: chipBonus },
       { name: 'Guild', value: guildBonus },
@@ -2986,8 +2960,7 @@ export const getAfkGain = (character, characters, account) => {
       : getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[39]);
     const mainStat = mainStatMap?.[character?.class];
     const bubbleBonus = getBubbleBonus(account, 'DREAM_OF_IRONFISH', false, mainStat === 'strength');
-    const equipmentBonus = getStatsFromGear(character, 64, account);
-    const toolsBonus = getStatsFromGear(character, 64, account, true);
+    const { value: gearBonus, breakdown: gearBonusBreakdown } = getStatsFromGear(character, 64, account);
     const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[64]);
 
     gains = ((0.5 +
@@ -3001,7 +2974,7 @@ export const getAfkGain = (character, characters, account) => {
                   + (starSignBonus
                     + (bribeAfkGains
                       + (bubbleBonus
-                        + (equipmentBonus + obolsBonus + toolsBonus))))))))))) / 100) * afkMulti;
+                        + (gearBonus + obolsBonus))))))))))) / 100) * afkMulti;
 
     breakdown = [
       ...breakdown,
@@ -3014,9 +2987,8 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Card', value: cardBonus },
       { name: 'Post Office', value: sealedFishheadsBonus },
       { name: 'Bubble', value: bubbleBonus },
-      { name: 'Equipment', value: equipmentBonus },
-      { name: 'Obols', value: obolsBonus },
-      { name: 'Tools', value: toolsBonus }
+      ...gearBonusBreakdown,
+      { name: 'Obols', value: obolsBonus }
     ]
   }
   else if (afkType === 'CATCHING') {
@@ -3028,7 +3000,7 @@ export const getAfkGain = (character, characters, account) => {
       : getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[41]);
     const mainStat = mainStatMap?.[character?.class];
     const bubbleBonus = getBubbleBonus(account, 'FLY_IN_MIND', false, mainStat === 'agility');
-    const catchingEquipmentBonus = getStatsFromGear(character, 97, account);
+    const { value: catchingEquipmentBonus, breakdown: catchingEquipmentBonusBreakdown } = getStatsFromGear(character, 97, account);
     gains = ((0.5
       + (sunsetOnTheHivesBonus
         + (trappingBonus
@@ -3050,7 +3022,8 @@ export const getAfkGain = (character, characters, account) => {
       { name: 'Bribe', value: bribeAfkGains },
       { name: 'Card', value: cardBonus },
       { name: 'Post Office', value: bugHuntingSuppliesBonus },
-      { name: 'Bubble', value: bubbleBonus }
+      { name: 'Bubble', value: bubbleBonus },
+      ...catchingEquipmentBonusBreakdown,
     ]
   }
   else if (afkType === 'LABORATORY') {
@@ -3173,7 +3146,7 @@ export const getPlayerConstructionSpeed = (character, account) => {
   const stampsBonus = getStampsBonusByEffect(account, 'Building_Speed', character);
   const postOffice = getPostOfficeBoxLevel(character?.postOffice, 'Construction_Container');
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 5);
-  const equipmentConstructionEffectBonus = getStatsFromGear(character, 30, account);
+  const { value: equipmentConstructionEffectBonus } = getStatsFromGear(character, 30, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[30]);
   const constructionAchievement = getAchievementStatus(account?.achievements, 153);
   const constructMastery = getConstructMastery(account?.towers?.totalLevels, 'Build Spd');

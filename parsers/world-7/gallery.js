@@ -334,7 +334,7 @@ export const getLv3PodiumsOwned = (account) => {
 export const getLv4PodiumsOwned = (account) => {
   const eventShopBonus = getEventShopBonus(account, 29);
   const companionBonus = isCompanionBonusActive(account, 28) ? account?.companions?.list?.at(28)?.bonus : 0;
-  return Math.min(1, companionBonus + eventShopBonus);
+  return Math.min(1, companionBonus) + eventShopBonus;
 }
 
 const getAllTrophies = (rawSpelunk, account) => {

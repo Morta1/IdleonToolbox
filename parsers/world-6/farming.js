@@ -108,14 +108,15 @@ const parseFarming = (rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFar
   const names = (ninjaExtraInfo?.[34])?.split(' ');
   const bases = (ninjaExtraInfo?.[36])?.split(' ')?.map((base) => parseFloat(base));
   const apocalypseWow = getHighestTalentByClass(charactersData, CLASSES.Death_Bringer, 'DANK_RANKS') ?? 0;
+  const exoticBonus14 = getExoticMarketBonus(account, 14) ?? 0;
   const ranks = (ninjaExtraInfo?.[35])?.split(' ')?.map((description, index) => {
     const name = names?.[index];
     const base = bases?.[index];
     const upgradeLevel = upgradesLevels?.[index];
     const unlockAt = unlocks?.[index];
     const bonus = 4 === index || 9 === index || 14 === index || 19 === index
-      ? Math.max(1, apocalypseWow) * base * upgradeLevel
-      : Math.max(1, apocalypseWow) * ((1.7 * base * upgradeLevel) / (upgradeLevel + 80))
+      ? Math.max(1, apocalypseWow) * (1 + exoticBonus14 / 100) * base * upgradeLevel
+      : Math.max(1, apocalypseWow) * (1 + exoticBonus14 / 100) * ((1.7 * base * upgradeLevel) / (upgradeLevel + 80))
 
     return {
       name,

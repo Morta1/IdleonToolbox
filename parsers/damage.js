@@ -55,8 +55,6 @@ import { getWinnerBonus } from './world-6/summoning';
 import { getSchematicBonus } from './world-5/caverns/the-well';
 import { calcTotalQuestCompleted } from './misc';
 import { getArmorSetBonus } from './misc/armorSmithy';
-import { getGalleryBonus } from './world-7/gallery';
-import { getHatRackBonus } from './world-3/hatRack';
 import { getCosmoBonus } from './world-5/hole';
 
 export const getMaxDamage = (character, characters, account) => {
@@ -160,7 +158,7 @@ const getMastery = (character, characters, account) => {
   const bubbleBonus = getBubbleBonus(account, 'LIL_BIG_DAMAGE', false, mainStat === 'agility');
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Minimum_Damage');
   const talentBonus = getTalentBonus(character?.flatTalents, 'MASTERY_UP');
-  const equipmentBonus = getStatsFromGear(character, 21, account);
+  const { value: equipmentBonus } = getStatsFromGear(character, 21, account);
 
   return Math.min(.8, .35 - talent113
     / 100 + (bubbleBonus
@@ -221,7 +219,7 @@ const getDamagePercent = (character, characters, account) => {
 
   const talentBonus = getTalentBonus(character?.flatTalents, 'GILDED_SWORD');
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 9);
-  const equipmentBonus = getStatsFromGear(character, 45, account);
+  const { value: equipmentBonus } = getStatsFromGear(character, 45, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[45]);
 
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Beefy_For_Real', account)?.bonus;
@@ -468,7 +466,7 @@ const getBaseDamage = (character, characters, account, playerInfo, damageFromSta
 
   const stampsBonus = getStampsBonusByEffect(account, 'Base_Damage')
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Civil_War_Memory_Box', 0);
-  const equipmentBonus = getStatsFromGear(character, 16, account);
+  const { value: equipmentBonus } = getStatsFromGear(character, 16, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[16]);
   const statueBonus = getStatueBonus(account, 0, character?.flatTalents);
   const hpBubbleBonus = getBubbleBonus(account, 'BIG_MEATY_CLAWS', false, mainStat === 'strength'); // above 250 HP
@@ -536,7 +534,7 @@ const getAccuracy = (character, characters, account, movementSpeed) => {
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'baseACC');
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Box_of_Unwanted_Stats', 0);
   const baseCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Base_accuracy');
-  const equipmentBonus = getStatsFromGear(character, 28, account);
+  const { value: equipmentBonus } = getStatsFromGear(character, 28, account);
   const goldenFoodBonus = getGoldenFoodBonus('Butter_Bar', character, account, characters) || 0;
   const stampBonus = getStampsBonusByEffect(account, 'Base_Accuracy');
 
@@ -639,7 +637,7 @@ const getMaxHp = (character, characters, account) => {
     ? (1 + theFamilyGuy / 100)
     : 1)
 
-  const equipmentBonus = getStatsFromGear(character, 15, account);
+  const { value: equipmentBonus } = getStatsFromGear(character, 15, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[15]);
   const shrineBonus = getShrineBonus(account?.shrines, 1, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Jam', character, account, characters) || 1;
@@ -673,7 +671,7 @@ const getWeaponPower = (character, characters, account) => {
   const cardPassiveBonus = getCardBonusByEffect(account?.cards, 'Weapon_Power_(Passive)')
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 3);
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'DUSTER_STUDS');
-  const equipmentBonus = getStatsFromGear(character, 'Weapon_Power', account);
+  const { value: equipmentBonus } = getStatsFromGear(character, 'Weapon_Power', account);
   const obols = getObolsBonus(character?.obols, 'Weapon_Power');
   const chipBonus = getPlayerLabChipBonus(character, account, 19);
   const strBubbleBonus = mainStat === 'strength'
@@ -728,7 +726,7 @@ const getCritDamage = (character, characters, account) => {
   const stampBonus = getStampsBonusByEffect(account, 'Critical_Damage');
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Critical_Damage');
   const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Circular_Criticals', account)?.curse;
-  const equipmentBonus = getStatsFromGear(character, 22, account);
+  const { value: equipmentBonus } = getStatsFromGear(character, 22, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[22]);
   const statueBonus = getStatueBonus(account, 5, character?.flatTalents);
   let critDamage;
@@ -754,7 +752,7 @@ const getCritChance = (character, characters, account, playerInfo) => {
   const starTalentBonus = getTalentBonus(character?.flatStarTalents, 'MEGA_CRIT');
   const secondStarTalentBonus = getTalentBonus(character?.flatStarTalents, 'OVERACCURATE_CRIT');
   const starSignBonus = getStarSignBonus(character, account, 'Crit_Chance');
-  const equipmentBonus = getStatsFromGear(character, 23, account);
+  const { value: equipmentBonus } = getStatsFromGear(character, 23, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[23]);
   const arcTalentBonus = getTalentBonus(character?.flatTalents, 'I_SEE_YOU');
   const wisTalentBonus = getTalentBonus(character?.flatTalents, 'FARSIGHT', true);
@@ -800,7 +798,7 @@ const getKillsPerHour = (character, characters, account, playerInfo) => {
   const kEffect = getTalentEffectOnKills(character, account, 'K');
   const mainStat = mainStatMap?.[character?.class];
   const charWeapon = character?.equipment?.[1]?.Speed || 0;
-  const equipmentBonus = getStatsFromGear(character, 56, account);
+  const { value: equipmentBonus } = getStatsFromGear(character, 56, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[56]);
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'AtkSpd');
   const chipBonus = getPlayerLabChipBonus(character, account, 4);
@@ -907,12 +905,11 @@ const getPlayerDefence = (character, characters, account) => {
   const secondCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Defence_from_Equipment');
   const bubbleBonus = getBubbleBonus(account, 'FMJ', false, mainStat === 'strength');
   const stampBonus = getStampsBonusByEffect(account, 'Base_Defence');
-  const toolBonus = getStatsFromGear(character, 'Defence', account, true);
-  const equipmentBonus = getStatsFromGear(character, 'Defence', account);
+  const { value: gearBonus } = getStatsFromGear(character, 'Defence', account);
   const obolsBonus = getObolsBonus(character?.obols, 'Defence');
-  const equipmentBonusEtc = getStatsFromGear(character, 50, account);
+  const { value: equipmentBonusEtc } = getStatsFromGear(character, 50, account);
   const obolsBonusEtc = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[50]);
-  const secondEquipmentBonusEtc = getStatsFromGear(character, 7, account);
+  const { value: secondEquipmentBonusEtc } = getStatsFromGear(character, 7, account);
   const secondObolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[7]);
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Base_Defence')?.bonus ?? 0;
   const statueBonus = getStatueBonus(account, 7, character?.flatTalents);
@@ -939,13 +936,12 @@ const getPlayerDefence = (character, characters, account) => {
   const rooBonus1 = getKangarooBonus(account?.kangaroo?.bonuses, 'Defence') || 0;
   const vaultUpgBonus5 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 5) || 0;
   const voteBonus3 = getVoteBonus(account, 3) || 0;
-  const galleryBonus = getGalleryBonus(account, 'Defence');
-  const hatRackBonus = getHatRackBonus(account, 'Defence');
 
   const minorBonus = hasDoot || coralKidLinked ? getMinorDivinityBonus(character, account, 0) : character?.linkedDeity === 0
     ? character?.deityMinorBonus
     : 0;
 
+  // gearBonus now includes gallery and hatRack bonuses
   const value = Math.floor((postOfficeBonus
     + cardBonus + Math.min(character?.level,
       bubbleBonus)
@@ -953,7 +949,7 @@ const getPlayerDefence = (character, characters, account) => {
       + (equipmentBonusEtc + obolsBonusEtc)
       + arcadeBonus
       + statueBonus)
-    + ((equipmentBonus + obolsBonus + toolBonus + galleryBonus + hatRackBonus)
+    + ((gearBonus + obolsBonus)
       * (1 + (bubbleBonus + vaultUpgBonus46 + secondCardBonus + companionBonus21 + passiveCardBonus) / 100)
       + (mealBonus + talentBonus)))
     * (1 + (shrineBonus + bribeBonus) / 100)
@@ -979,7 +975,7 @@ const getPlayerDefence = (character, characters, account) => {
     { name: 'Roo Bonus', value: rooBonus1 },
     { name: 'Stamp Bonus', value: stampBonus },
     { name: 'Equip Base Defence ', value: equipmentBonusEtc + obolsBonusEtc },
-    { name: 'Equip Defence', value: equipmentBonus + obolsBonus + toolBonus },
+    { name: 'Equip Defence', value: gearBonus + obolsBonus },
     { name: 'Equip % Defence', value: secondEquipmentBonusEtc + secondObolsBonus },
     { name: 'Arcade Bonus', value: arcadeBonus },
     { name: 'Statue Bonus', value: statueBonus },
@@ -999,9 +995,9 @@ const getPlayerDefence = (character, characters, account) => {
 }
 
 const getKillPerKill = (character, characters, account, playerInfo) => {
-  const equipmentBonus = getStatsFromGear(character, 68, account);
-  const secondEquipmentBonus = getStatsFromGear(character, 69, account);
-  const thirdEquipmentBonus = getStatsFromGear(character, 70, account);
+  const { value: equipmentBonus } = getStatsFromGear(character, 68, account);
+  const { value: secondEquipmentBonus } = getStatsFromGear(character, 69, account);
+  const { value: thirdEquipmentBonus } = getStatsFromGear(character, 70, account);
   const monster = monsters?.[character?.targetMonster];
   const monsterHp = getMonsterHpTotal(monster?.MonsterHPTotal, character, account);
   const overKill = playerInfo?.maxDamage >= 2 * monsterHp && 0.5 < account?.towers?.towersTwo
@@ -1060,7 +1056,7 @@ const getMultiKillTotal = (character, characters, account, playerInfo) => {
   const starSignBonus = getStarSignBonus(character, account, 'Total_Multikill');
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 8);
   const stampsBonus = getStampsBonusByEffect(account, 'Base_Overkill')
-  const equipmentBonus = getStatsFromGear(character, 29, account);
+  const { value: equipmentBonus } = getStatsFromGear(character, 29, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[29]);
   const monster = monsters?.[character?.targetMonster];
   const monsterHp = getMonsterHpTotal(monster?.MonsterHPTotal, character, account);
@@ -1078,7 +1074,7 @@ const getMultiKillTotal = (character, characters, account, playerInfo) => {
   const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Trilobite_Rock')?.bonus ?? 0;
   const secondActiveBuff = getTalentBonusIfActive(character?.activeBuffs, 'MANA_IS_LIFE', 'y');
   const chipBonus = getPlayerLabChipBonus(character, account, 14);
-  const secondEquipmentBonus = getStatsFromGear(character, 71, account);
+  const { value: secondEquipmentBonus } = getStatsFromGear(character, 71, account);
   const secondObolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[71]);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Multikill_per_tier');
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Pain', account)?.bonus;

@@ -386,10 +386,10 @@ export const getCompassStats = (character, account) => {
   const critTalent = getTalentBonus(character?.flatTalents, 'PUMPIN\'_POWER');
   const multiTalent = getTalentBonus(character?.flatTalents, 'ELEMENTAL_MAYHEM', true);
   const tempestTalent = getTalentBonus(character?.flatTalents, 'TEMPEST_FORM');
-  const equipBonus = getStatsFromGear(character, 87, account);
-  const equipBonus2 = getStatsFromGear(character, 88, account);
-  const equipBonus3 = getStatsFromGear(character, 89, account);
-  const equipBonus4 = getStatsFromGear(character, 86, account);
+  const { value: equipBonus } = getStatsFromGear(character, 87, account);
+  const { value: equipBonus2 } = getStatsFromGear(character, 88, account);
+  const { value: equipBonus3 } = getStatsFromGear(character, 89, account);
+  const { value: equipBonus4 } = getStatsFromGear(character, 86, account);
   const hp = (10 + (getLocalCompassBonus(upgrades, 28)
       + getLocalCompassBonus(upgrades, 87)))
     * (1 + (getLocalCompassBonus(upgrades, 140)
@@ -527,8 +527,8 @@ const getLocalCompassBonus = (upgrades, index) => {
 
 export const getExtraDust = (character, account) => {
   const upgrades = account?.compass?.upgrades;
-  const equipBonus = getStatsFromGear(character, 85, account) ?? 0;
-  const equipBonus1 = getStatsFromGear(character, 79, account) ?? 0;
+  const { value: equipBonus } = getStatsFromGear(character, 85, account);
+  const { value: equipBonus1 } = getStatsFromGear(character, 79, account);
   const dustTalent = getTalentBonus(character?.flatTalents, 'ETERNAL_HUNT');
   const compassTalent = getTalentBonus(character?.flatTalents, 'COMPASS');
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Windwalker_Dust')?.bonus;
