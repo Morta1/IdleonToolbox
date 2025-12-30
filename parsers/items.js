@@ -69,7 +69,7 @@ export const getStatsFromGear = (character, bonusIndex, account) => {
   // Their bonuses come from getGalleryBonus/getHatRackBonus instead
   const isGalleryOrHatRackItem = (item) => {
     const type = item?.Type;
-    return type === 'TROPHY' || type === 'NAMETAG' || type === 'PREMIUM_HELMET';
+    return type === 'TROPHY' || type === 'NAMETAG' || type === 'PREMIUM_HELMET' || type === 'REPLICA_TROPHY' || type === 'REPLICA_NAMETAG';
   };
 
   // Calculate from equipment
