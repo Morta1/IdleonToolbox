@@ -468,7 +468,7 @@ export const getBundles = (idleonData) => {
 };
 
 export const isBundlePurchased = (bundles, name) => {
-  return bundles?.find(({ name: n }) => n === name);
+  return bundles?.find(({ name: n, owned }) => n === name && owned);
 }
 
 export const isArenaBonusActive = (arenaWave, waveReq, bonusNumber) => {
