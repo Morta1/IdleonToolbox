@@ -26,7 +26,7 @@ const useBreakdown = ({ data, valueNotation = "MultiplierInfo", setFeedbackMessa
     if (!ctx) return;
 
     // Canvas dimensions - matching Material UI theme
-    const width = 800;
+    const width = 500;
     const padding = 40;
     const lineHeight = 24;
     const sectionSpacing = 16;
