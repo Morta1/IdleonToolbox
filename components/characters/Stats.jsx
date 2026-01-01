@@ -95,7 +95,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
                 </Stack>
               ) : null;
             })}
-            <Stat title={'Cash Multiplier'} useDoubleColumn value={`${cashFormatter(cashMulti, 2)}x`}
+            <NewStat title={'Cash Multiplier'} useDoubleColumn value={`${cashFormatter(cashMulti, 2)}x`}
               breakdown={breakdown} breakdownNotation={'Smaller'} />
             <Stat title={'Golden Food'} useDoubleColumn
               value={`${notateNumber(Math.max(0, 100 * (goldenFoodMulti - 1)), 'MultiplierInfo')}%`}
@@ -214,7 +214,7 @@ const NewStat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', 
   return (
     (<Stack direction={'row'} justifyContent={'space-between'} alignItems={breakdown ? 'center' : 'flex-start'}>
       <Typography color={'info.light'}>{title}</Typography>
-      <Breakdown data={breakdown} notate={breakdownNotation}>
+      <Breakdown data={breakdown} valueNotation={breakdownNotation}>
         {!damage ? <Typography component={'span'} sx={breakdown
           ? { alignItems: 'center', borderBottom: '1px dotted', lineHeight: 1 }
           : {}}

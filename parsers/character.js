@@ -2410,7 +2410,7 @@ export const getCashMulti = (character, account, characters) => {
     return sum;
   }, 0);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'MonsterCash');
-  const { value: cashFromGear, breakdown: cashFromGearBreakdown } = getStatsFromGear(character, 3, account);
+  const { value: cashFromGear, newBreakdown: cashFromGearBreakdown } = getStatsFromGear(character, 3, account);
   const cashFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[3])
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Money_from_mobs_(Passive)');
   const equippedCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Money_from_Monsters');
@@ -2434,7 +2434,7 @@ export const getCashMulti = (character, account, characters) => {
   const kangarooBonus = getKangarooBonus(account?.kangaroo?.bonuses, 'Cash');
   const eventBonus = getEventShopBonus(account, 9);
   const eventBonus2 = getEventShopBonus(account, 20);
-  const { value: gearBonusMoney, breakdown: gearBonusMoneyBreakdown } = getStatsFromGear(character, 77, account);
+  const { value: gearBonusMoney, newBreakdown: gearBonusMoneyBreakdown } = getStatsFromGear(character, 77, account);
   const obolsBonusMoney = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[77]);
   const hasCashBundle = isBundlePurchased(account?.bundles, 'bun_y') ? 1 : 0;
   const firstVaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 34);
@@ -2499,53 +2499,105 @@ export const getCashMulti = (character, account, characters) => {
                                   + sixthVaultUpgradeBonus
                                   * poopKills))))))))))))))) / 100);
 
-  const breakdown = [
-    { title: 'Multiplicative' },
-    { name: '' },
-    {
-      name: 'Achievements',
-      value: (5 * achievementBonus) + (10 * secondAchievementBonus) + (20 * thirdAchievementBonus)
-    },
-    { name: 'Arcade', value: arcadeBonus + secondArcadeBonus },
-    { name: 'Artifact', value: artifactBonus },
-    { name: 'Bubbles', value: bubbles },
-    { name: 'Bundle', value: 250 * hasCashBundle },
-    { name: 'Cards', value: equippedCardBonus + passiveCardBonus },
-    { name: 'Charm', value: charmBonus },
-    { name: 'Companion', value: companionBonus },
-    { name: 'Crop Depot', value: account?.farming?.cropDepot?.cash?.value },
-    { name: 'Divinity', value: divinityMinorBonus },
-    { name: 'Dungeons', value: flurboBonus },
-    { name: 'Drop Rate', value: dropRateMulti },
-    { name: 'Dust Walker', value: Math.max(1, dustWalker) * lavaLog(account?.accountOptions[362]) },
-    ...cashFromGearBreakdown,
-    ...gearBonusMoneyBreakdown,
-    { name: 'Obols', value: obolsBonusMoney },
-    { name: 'Event shop', value: 0.5 * eventBonus },
-    { name: 'Event shop2', value: 0.6 * eventBonus2 },
-    { name: 'Food', value: goldFoodBonus }, // Assuming you meant to alphabetize under "Golden Food"
-    { name: 'Golden Food', value: goldFoodBonus },
-    { name: 'Gold set', value: armorSetBonus },
-    { name: 'Guild', value: guildBonus * (1 + Math.floor(character?.mapIndex / 50)) },
-    { name: 'Kangaroo', value: kangarooBonus },
-    { name: 'Lab', value: labBonus },
-    { name: 'Meal', value: mealBonus },
-    { name: 'Obols', value: cashFromObols },
-    { name: 'Pet Arena', value: 100 * (.5 * arenaBonusUnlock + secondArenaBonusUnlock) },
-    { name: 'Post Office', value: postOfficeBonus },
-    { name: 'Prayers', value: prayerBonus },
-    { name: 'Star talent', value: starTalent + americanTipperBonus },
-    { name: 'Statues', value: statueBonus },
-    { name: 'Talents', value: coinsForCharonBonus + talentBonus },
-    { name: 'Vault Bored Beans', value: fifthVaultUpgradeBonus * boredBeansKills },
-    { name: 'Vault Bubble', value: secondVaultUpgradeBonus * account?.alchemy?.totalBubbleLevelsTill100 },
-    { name: 'Vault Ores', value: thirdVaultUpgradeBonus * lavaLog(account?.accountOptions?.[340]) },
-    { name: 'Vault Poop', value: sixthVaultUpgradeBonus * poopKills },
-    { name: 'Vault Recipe', value: firstVaultUpgradeBonus * account?.unlockedRecipes },
-    { name: 'Vault Tax', value: forthVaultUpgradeBonus },
-    { name: 'Vials', value: vialBonus },
-    { name: 'Vote', value: voteBonus }
-  ];
+  const breakdown = {
+    statName: 'Cash multi', // change if needed
+    totalValue: cashMulti, // whatever your final computed total is
+    totalValueNotation: 'MultiplierInfo',
+    categories: [
+      {
+        name: 'Multiplicative',
+        sources: [
+          {
+            name: 'Achievements',
+            value: (5 * achievementBonus) +
+                   (10 * secondAchievementBonus) +
+                   (20 * thirdAchievementBonus),
+          },
+          { name: 'Arcade', value: arcadeBonus + secondArcadeBonus },
+          { name: 'Artifact', value: artifactBonus },
+          { name: 'Bubbles', value: bubbles },
+          { name: 'Bundle', value: 250 * hasCashBundle },
+          { name: 'Cards', value: equippedCardBonus + passiveCardBonus },
+          { name: 'Charm', value: charmBonus },
+          { name: 'Companion', value: companionBonus },
+          {
+            name: 'Crop Depot',
+            value: account?.farming?.cropDepot?.cash?.value ?? 0,
+          },
+          { name: 'Divinity', value: divinityMinorBonus },
+          { name: 'Dungeons', value: flurboBonus },
+          { name: 'Drop Rate', value: dropRateMulti },
+          {
+            name: 'Dust Walker',
+            value:
+              Math.max(1, dustWalker) *
+              lavaLog(account?.accountOptions?.[362]),
+          },  
+          { name: 'Obols', value: obolsBonusMoney },
+          { name: 'Event shop', value: 0.5 * eventBonus },
+          { name: 'Event shop2', value: 0.6 * eventBonus2 },
+          { name: 'Food', value: goldFoodBonus },
+          { name: 'Golden Food', value: goldFoodBonus },
+          { name: 'Gold set', value: armorSetBonus },
+          {
+            name: 'Guild',
+            value: guildBonus * (1 + Math.floor(character?.mapIndex / 50)),
+          },
+          { name: 'Kangaroo', value: kangarooBonus },
+          { name: 'Lab', value: labBonus },
+          { name: 'Meal', value: mealBonus },
+          { name: 'Obols', value: cashFromObols },
+          {
+            name: 'Pet Arena',
+            value: 100 * (0.5 * arenaBonusUnlock + secondArenaBonusUnlock),
+          },
+          { name: 'Post Office', value: postOfficeBonus },
+          { name: 'Prayers', value: prayerBonus },
+          {
+            name: 'Star talent',
+            value: starTalent + americanTipperBonus,
+          },
+          { name: 'Statues', value: statueBonus },
+          {
+            name: 'Talents',
+            value: coinsForCharonBonus + talentBonus,
+          },
+          {
+            name: 'Vault Bored Beans',
+            value: fifthVaultUpgradeBonus * boredBeansKills,
+          },
+          {
+            name: 'Vault Bubble',
+            value:
+              secondVaultUpgradeBonus *
+              account?.alchemy?.totalBubbleLevelsTill100,
+          },
+          {
+            name: 'Vault Ores',
+            value:
+              thirdVaultUpgradeBonus *
+              lavaLog(account?.accountOptions?.[340]),
+          },
+          {
+            name: 'Vault Poop',
+            value: sixthVaultUpgradeBonus * poopKills,
+          },
+          {
+            name: 'Vault Recipe',
+            value:
+              firstVaultUpgradeBonus * account?.unlockedRecipes,
+          },
+          { name: 'Vault Tax', value: forthVaultUpgradeBonus },
+          { name: 'Vials', value: vialBonus },
+          { name: 'Vote', value: voteBonus },
+        ],
+        subSections: [
+          cashFromGearBreakdown,
+          gearBonusMoneyBreakdown,
+        ]
+      },
+    ],
+  };
 
   return {
     cashMulti,
