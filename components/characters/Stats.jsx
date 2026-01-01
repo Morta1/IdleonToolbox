@@ -24,6 +24,7 @@ import styled from '@emotion/styled';
 import CoinDisplay from '../common/CoinDisplay';
 import ProgressBar from '@components/common/ProgressBar';
 import { getGuaranteedCrystalMobs } from '@parsers/misc';
+import { Breakdown } from '@components/common/Breakdown';
 
 const colors = {
   strength: 'error.light',
@@ -113,7 +114,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <Stat title={'Movement Speed'} value={notateNumber(playerInfo?.movementSpeed)} />
             <Stat title={'Mining Efficiency'} value={notateNumber(playerInfo?.miningEff)} />
             <Stat title={'Damage'} damage value={notateDamage(playerInfo)} />
-            <Stat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}
+            <NewStat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}
               breakdown={drBreakdown} breakdownNotation={'ThreeDecimals'} useDoubleColumn />
             <Stat title={'Respawn Time'}
               value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}
@@ -188,9 +189,7 @@ const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', dam
   return (
     (<Stack direction={'row'} justifyContent={'space-between'} alignItems={breakdown ? 'center' : 'flex-start'}>
       <Typography color={'info.light'}>{title}</Typography>
-      <Tooltip maxWidth={500} title={breakdown ? <BreakdownTooltip breakdown={breakdown}
-        useDoubleColumn={useDoubleColumn}
-        notate={breakdownNotation} /> : ''}>
+      <Tooltip maxWidth={500} title={breakdown ? <BreakdownTooltip breakdown={breakdown} useDoubleColumn={useDoubleColumn} notate={breakdownNotation} /> : ''}>
         {!damage ? <Typography component={'span'} sx={breakdown
           ? { alignItems: 'center', borderBottom: '1px dotted', lineHeight: 1 }
           : {}}
@@ -207,6 +206,31 @@ const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', dam
           }])(value)}
         </Typography>}
       </Tooltip>
+    </Stack>)
+  );
+}
+
+const NewStat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', damage }) => {
+  return (
+    (<Stack direction={'row'} justifyContent={'space-between'} alignItems={breakdown ? 'center' : 'flex-start'}>
+      <Typography color={'info.light'}>{title}</Typography>
+      <Breakdown data={breakdown} notate={breakdownNotation}>
+        {!damage ? <Typography component={'span'} sx={breakdown
+          ? { alignItems: 'center', borderBottom: '1px dotted', lineHeight: 1 }
+          : {}}
+        >{value}</Typography> : <Typography color={'#fffcc9'} sx={{ display: 'flex', alignItems: 'center', gap: .5 }}>
+          {processString([{
+            regex: /[\[!|]/g,
+            fn: (key, match) => {
+              const modifier = match.at(0);
+              let iconName = 'M';
+              if (modifier === '!') iconName = 'T';
+              else if (modifier === '|') iconName = 'D';
+              return <DamageIcon key={key} src={`${prefix}etc/Damage_${iconName}.png`} alt="" />
+            }
+          }])(value)}
+        </Typography>}
+      </Breakdown>
     </Stack>)
   );
 }

@@ -2001,7 +2001,7 @@ export const getDropRate = (character, account, characters) => {
   const lootyCurseTalentBonus = getTalentBonus(character?.flatTalents, 'CURSE_OF_MR_LOOTY_BOOTY');
   const bossBattleTalentBonus = getTalentBonus(character?.flatStarTalents, 'BOSS_BATTLE_SPILLOVER');
   const obols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[2]);
-  const { value: dropChanceBonuses, breakdown: dropChanceBonusesBreakdown } = getStatsFromGear(character, 2, account);
+  const { value: dropChanceBonuses, breakdown: dropChanceBonusesBreakdown, newBreakdown: newDropChanceBonusesBreakdown } = getStatsFromGear(character, 2, account);
   const bubbleBonus = getBubbleBonus(account, 'DROPPIN_LOADS', false);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Drop_Rate');
   const cardMulti = getCardBonusByEffect(character?.cards?.equippedCards, 'Drop_Rate_Multi');
@@ -2133,13 +2133,13 @@ export const getDropRate = (character, account, characters) => {
     final *= 1 + tomeMulti / 100;
   }
 
-  const { value: dropChanceEquip2, breakdown: dropChanceEquip2Breakdown } = getStatsFromGear(character, 99, account);
+  const { value: dropChanceEquip2, breakdown: dropChanceEquip2Breakdown, newBreakdown: newDropChanceEquip2Breakdown } = getStatsFromGear(character, 99, account);
   final *= 1 + dropChanceEquip2 / 100;
 
   const charmBonus = getCharmBonus(account, 'Cotton_Candy');
   final *= 1 + charmBonus / 100;
 
-  const { value: equipmentDrMulti, breakdown: equipmentDrMultiBreakdown } = getStatsFromGear(character, 91, account);
+  const { value: equipmentDrMulti, breakdown: equipmentDrMultiBreakdown, newBreakdown: newEquipmentDrMultiBreakdown } = getStatsFromGear(character, 91, account);
   final *= 1 + equipmentDrMulti / 100;
 
   const thirdCompanionDropRate = isCompanionBonusActive(account, 26) ? account?.companions?.list?.at(26)?.bonus : 0;
@@ -2152,69 +2152,183 @@ export const getDropRate = (character, account, characters) => {
   }
 
 
-  const breakdown = [
-    // Additive section (affects dropRate directly before multipliers)
-    { title: 'Additive' },
-    { name: '' },
-    { name: 'Base', value: 1 },
-    { name: 'Luck', value: 1.4 * luckMulti },
-    {
-      name: 'Talents',
-      value: (robbingHoodTalentBonus + lootyCurseTalentBonus + (bossBattleTalentBonus * account?.accountOptions?.[189])) / 100
-    },
-    { name: 'Post Office', value: postOfficeBonus / 100 },
-    ...dropChanceBonusesBreakdown,
-    { name: 'Obols', value: obols / 100 },
-    { name: 'Bubble', value: bubbleBonus / 100 },
-    { name: 'Cards', value: (cardBonus + cardSetBonus + passiveCardBonus) / 100 },
-    { name: 'Shrine', value: shrineBonus / 100 },
-    { name: 'Prayers', value: prayerBonus / 100 },
-    { name: 'Sigil', value: sigilBonus / 100 },
-    { name: 'Shiny', value: shinyBonus / 100 },
-    { name: 'Arcade', value: arcadeBonus / 100 },
-    { name: 'Starsign', value: (starSignBonus + starSignRarityBonus) / 100 },
-    { name: 'Guild', value: guildBonus / 100 },
-    { name: 'Companion+', value: (companionDropRate + secondCompanionDropRate + fourthCompanionDropRate) / 100 },
-    { name: 'Equinox', value: equinoxDropRateBonus / 100 },
-    { name: 'Stamps', value: stampBonus / 100 },
-    { name: 'Tome', value: tomeBonus / 100 },
-    { name: 'Owl', value: owlBonus / 100 },
-    { name: 'Summoning', value: summoningBonus / 100 },
-    { name: 'Golden food', value: goldenFoodBonus / 100 },
-    { name: 'Achievements', value: (6 * achievementBonus + 4 * secondAchievementBonus) / 100 },
-    { name: 'Land rank', value: landRankBonus / 100 },
-    { name: 'Vote', value: voteBonus / 100 },
-    { name: 'Schematics', value: (schematicBonus + secondSchematicBonus) / 100 },
-    { name: 'Grimoire', value: grimoireBonus / 100 },
-    { name: 'Upgrade vault', value: upgradeVaultBonus / 100 },
-    { name: 'Crop Depot', value: cropDepotBonus / 100 },
-    { name: 'Monument', value: monumentBonus / 100 },
-    { name: 'Measurement', value: measurementBonus / 100 },
-    { name: 'Emperor', value: emperorBonus / 100 },
-    { name: 'Efaunt set', value: armorSetBonus / 100 },
-    { name: 'Exotic market', value: exoticMarketBonus / 100 },
-    { name: 'Friend', value: friendBonus / 100 },
-    { name: 'Legend talent', value: legendTalentBonus / 100 },
-    { name: 'Spelunking', value: spelunkingBonus / 100 },
-    { name: 'Chip (capped at 5)', value: (dropRate < 5 && chipBonus > 0) ? Math.min(5 - dropRate, chipBonus / 100) : 0 },
-    { name: 'Gem Bundle2', value: hasAnotherDrBundle ? 2 : 0 },
-    { name: 'Ninja Mastery', value: ninjaMasteryDropRate ? 0.3 : 0 },
+  // const breakdown = [
+  //   // Additive section (affects dropRate directly before multipliers)
+  //   { title: 'Additive' },
+  //   { name: '' },
+  //   { name: 'Base', value: 1 },
+  //   { name: 'Luck', value: 1.4 * luckMulti },
+  //   {
+  //     name: 'Talents',
+  //     value: (robbingHoodTalentBonus + lootyCurseTalentBonus + (bossBattleTalentBonus * account?.accountOptions?.[189])) / 100
+  //   },
+  //   { name: 'Post Office', value: postOfficeBonus / 100 },
+  //   ...dropChanceBonusesBreakdown,
+  //   { name: 'Obols', value: obols / 100 },
+  //   { name: 'Bubble', value: bubbleBonus / 100 },
+  //   { name: 'Cards', value: (cardBonus + cardSetBonus + passiveCardBonus) / 100 },
+  //   { name: 'Shrine', value: shrineBonus / 100 },
+  //   { name: 'Prayers', value: prayerBonus / 100 },
+  //   { name: 'Sigil', value: sigilBonus / 100 },
+  //   { name: 'Shiny', value: shinyBonus / 100 },
+  //   { name: 'Arcade', value: arcadeBonus / 100 },
+  //   { name: 'Starsign', value: (starSignBonus + starSignRarityBonus) / 100 },
+  //   { name: 'Guild', value: guildBonus / 100 },
+  //   { name: 'Companion+', value: (companionDropRate + secondCompanionDropRate + fourthCompanionDropRate) / 100 },
+  //   { name: 'Equinox', value: equinoxDropRateBonus / 100 },
+  //   { name: 'Stamps', value: stampBonus / 100 },
+  //   { name: 'Tome', value: tomeBonus / 100 },
+  //   { name: 'Owl', value: owlBonus / 100 },
+  //   { name: 'Summoning', value: summoningBonus / 100 },
+  //   { name: 'Golden food', value: goldenFoodBonus / 100 },
+  //   { name: 'Achievements', value: (6 * achievementBonus + 4 * secondAchievementBonus) / 100 },
+  //   { name: 'Land rank', value: landRankBonus / 100 },
+  //   { name: 'Vote', value: voteBonus / 100 },
+  //   { name: 'Schematics', value: (schematicBonus + secondSchematicBonus) / 100 },
+  //   { name: 'Grimoire', value: grimoireBonus / 100 },
+  //   { name: 'Upgrade vault', value: upgradeVaultBonus / 100 },
+  //   { name: 'Crop Depot', value: cropDepotBonus / 100 },
+  //   { name: 'Monument', value: monumentBonus / 100 },
+  //   { name: 'Measurement', value: measurementBonus / 100 },
+  //   { name: 'Emperor', value: emperorBonus / 100 },
+  //   { name: 'Efaunt set', value: armorSetBonus / 100 },
+  //   { name: 'Exotic market', value: exoticMarketBonus / 100 },
+  //   { name: 'Friend', value: friendBonus / 100 },
+  //   { name: 'Legend talent', value: legendTalentBonus / 100 },
+  //   { name: 'Spelunking', value: spelunkingBonus / 100 },
+  //   { name: 'Chip (capped at 5)', value: (dropRate < 5 && chipBonus > 0) ? Math.min(5 - dropRate, chipBonus / 100) : 0 },
+  //   { name: 'Gem Bundle2', value: hasAnotherDrBundle ? 2 : 0 },
+  //   { name: 'Ninja Mastery', value: ninjaMasteryDropRate ? 0.3 : 0 },
 
-    // Multiplicative section (applied to final)
-    { name: '' },
-    { title: 'Multiplicative' },
-    { name: '' },
-    { name: 'Siege Breaker', value: extraDropRate },
-    { name: 'Gem Bundle', value: hasDrBundle ? 0.2 : 0 },
-    { name: 'Tesseract Map', value: tesseractMapBonus / 100 },
-    { name: 'Card Multi', value: cardMulti / 100 },
-    { name: 'Tome Multi', value: tomeMulti / 100 },
-    { name: 'Pristine Charm', value: charmBonus / 100 },
-    { name: 'Malley', value: Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate)) },
-    { name: 'Santa Snake', value: Math.max(1, Math.min(1.01, 1 + fourthCompanionDropRate / 2500)) },
-    ...dropChanceEquip2Breakdown,
-    ...equipmentDrMultiBreakdown,
-  ];
+  //   // Multiplicative section (applied to final)
+  //   { name: '' },
+  //   { title: 'Multiplicative' },
+  //   { name: '' },
+  //   { name: 'Siege Breaker', value: extraDropRate },
+  //   { name: 'Gem Bundle', value: hasDrBundle ? 0.2 : 0 },
+  //   { name: 'Tesseract Map', value: tesseractMapBonus / 100 },
+  //   { name: 'Card Multi', value: cardMulti / 100 },
+  //   { name: 'Tome Multi', value: tomeMulti / 100 },
+  //   { name: 'Pristine Charm', value: charmBonus / 100 },
+  //   { name: 'Malley', value: Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate)) },
+  //   { name: 'Santa Snake', value: Math.max(1, Math.min(1.01, 1 + fourthCompanionDropRate / 2500)) },
+  //   ...dropChanceEquip2Breakdown,
+  //   ...equipmentDrMultiBreakdown,
+  // ];
+  
+  const breakdown = {
+    statName: 'Drop Rate',
+    totalValue: final,
+    totalValueNotation: 'MultiplierInfo',
+    categories: [
+      {
+        name: 'Additive',
+        sources: [
+          { name: 'Base', value: 1 },
+          { name: 'Luck', value: 1.4 * luckMulti },
+          {
+            name: 'Talents',
+            value:
+              (robbingHoodTalentBonus +
+                lootyCurseTalentBonus +
+                bossBattleTalentBonus * account?.accountOptions?.[189]) / 100
+          },
+          { name: 'Post Office', value: postOfficeBonus / 100 },
+          { name: 'Obols', value: obols / 100 },
+          { name: 'Bubble', value: bubbleBonus / 100 },
+          {
+            name: 'Cards',
+            value: (cardBonus + cardSetBonus + passiveCardBonus) / 100
+          },
+          { name: 'Shrine', value: shrineBonus / 100 },
+          { name: 'Prayers', value: prayerBonus / 100 },
+          { name: 'Sigil', value: sigilBonus / 100 },
+          { name: 'Shiny', value: shinyBonus / 100 },
+          { name: 'Arcade', value: arcadeBonus / 100 },
+          {
+            name: 'Starsign',
+            value: (starSignBonus + starSignRarityBonus) / 100
+          },
+          { name: 'Guild', value: guildBonus / 100 },
+          {
+            name: 'Companion+',
+            value:
+              (companionDropRate +
+                secondCompanionDropRate +
+                fourthCompanionDropRate) / 100
+          },
+          { name: 'Equinox', value: equinoxDropRateBonus / 100 },
+          { name: 'Stamps', value: stampBonus / 100 },
+          { name: 'Tome', value: tomeBonus / 100 },
+          { name: 'Owl', value: owlBonus / 100 },
+          { name: 'Summoning', value: summoningBonus / 100 },
+          { name: 'Golden food', value: goldenFoodBonus / 100 },
+          {
+            name: 'Achievements',
+            value: (6 * achievementBonus + 4 * secondAchievementBonus) / 100
+          },
+          { name: 'Land rank', value: landRankBonus / 100 },
+          { name: 'Vote', value: voteBonus / 100 },
+          {
+            name: 'Schematics',
+            value: (schematicBonus + secondSchematicBonus) / 100
+          },
+          { name: 'Grimoire', value: grimoireBonus / 100 },
+          { name: 'Upgrade vault', value: upgradeVaultBonus / 100 },
+          { name: 'Crop Depot', value: cropDepotBonus / 100 },
+          { name: 'Monument', value: monumentBonus / 100 },
+          { name: 'Measurement', value: measurementBonus / 100 },
+          { name: 'Emperor', value: emperorBonus / 100 },
+          { name: 'Efaunt set', value: armorSetBonus / 100 },
+          { name: 'Exotic market', value: exoticMarketBonus / 100 },
+          { name: 'Friend', value: friendBonus / 100 },
+          { name: 'Legend talent', value: legendTalentBonus / 100 },
+          { name: 'Spelunking', value: spelunkingBonus / 100 },
+          {
+            name: 'Chip (capped at 5)',
+            value:
+              dropRate < 5 && chipBonus > 0
+                ? Math.min(5 - dropRate, chipBonus / 100)
+                : 0
+          },
+          { name: 'Gem Bundle2', value: hasAnotherDrBundle ? 2 : 0 },
+          {
+            name: 'Ninja Mastery',
+            value: ninjaMasteryDropRate ? 0.3 : 0
+          }
+        ],
+        subSections: [
+          newDropChanceBonusesBreakdown
+        ]
+      },
+  
+      {
+        name: 'Multiplicative',
+        sources: [
+          { name: 'Siege Breaker', value: extraDropRate },
+          { name: 'Gem Bundle', value: hasDrBundle ? 0.2 : 0 },
+          { name: 'Tesseract Map', value: tesseractMapBonus / 100 },
+          { name: 'Card Multi', value: cardMulti / 100 },
+          { name: 'Tome Multi', value: tomeMulti / 100 },
+          { name: 'Pristine Charm', value: charmBonus / 100 },
+          {
+            name: 'Malley',
+            value: Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate))
+          },
+          {
+            name: 'Santa Snake',
+            value: Math.max(1, Math.min(1.01, 1 + fourthCompanionDropRate / 2500))
+          }
+        ],
+        subSections: [
+          newDropChanceEquip2Breakdown,
+          newEquipmentDrMultiBreakdown
+        ]
+      }
+    ]
+  }
+
+  
   return {
     dropRate: final,
     breakdown,

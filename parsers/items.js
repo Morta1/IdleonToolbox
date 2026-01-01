@@ -101,13 +101,21 @@ export const getStatsFromGear = (character, bonusIndex, account) => {
     value,
     breakdown: [
       { name: '' },
-      { title: bonusName },
+      { title: cleanUnderscore(bonusName)?.toLowerCase()?.capitalizeAllWords() },
       { name: '' },
       { name: 'Equipment', value: gearTotal },
       { name: 'Gallery', value: galleryBonus },
       { name: 'Hat Rack', value: hatRackBonus },
       { name: '' }
-    ]
+    ],
+    newBreakdown: {
+      name: cleanUnderscore(bonusName)?.toLowerCase()?.capitalizeAllWords(),
+      sources: [
+        { name: 'Equipment', value: gearTotal },
+        { name: 'Gallery', value: galleryBonus },
+        { name: 'Hat Rack', value: hatRackBonus },
+      ]
+    }
   };
 }
 
