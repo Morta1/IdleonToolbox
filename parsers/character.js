@@ -125,7 +125,7 @@ import { getFriendBonus } from '@parsers/misc';
 import { getTesseractMapBonus } from '@parsers/tesseract';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 
-const { tryToParse, createIndexedArray, createArrayOfArrays } = require('@utility/helpers');
+const { tryToParse, createIndexedArray, createArrayOfArrays, cashFormatter } = require('@utility/helpers');
 
 export const getCharacters = (idleonData, charsNames) => {
   const chars = charsNames ? charsNames : [0, 1, 2, 3, 4, 5, 6, 7, 8];
@@ -1629,7 +1629,7 @@ export const getRespawnRate = (character, account) => {
             { name: 'Not fighting', value: '' }
           ],
           subSections: [
-            
+
           ]
         }
       ]
@@ -1687,8 +1687,7 @@ export const getRespawnRate = (character, account) => {
 
   const breakdown = {
     statName: 'Respawn Rate',
-    totalValue: respawnRate,
-    totalValueNotation: 'Smaller',
+    totalValue: notateNumber(respawnRate, 'MultiplierInfo'),
     categories: [
       {
         name: 'Additive',
@@ -1807,8 +1806,8 @@ export const getClassExpMulti = (character, account, characters) => {
   const siegeBreakerBonus = 1 + talentBonus3 * lavaLog(account?.accountOptions?.[139] ?? 0) / 100;
 
   const forthTalentBonus = getTalentBonus(character?.flatTalents, 'LUCKY_CHARMS');
-  const { value: equipBonus2, breakdown: equipBonusBreakdown2 } = getStatsFromGear(character, 78, account);
-  const { value: equipBonus3, breakdown: equipBonusBreakdown3 } = getStatsFromGear(character, 4, account);
+  const { value: equipBonus2, newBreakdown: equipBonusBreakdown2 } = getStatsFromGear(character, 78, account);
+  const { value: equipBonus3, newBreakdown: equipBonusBreakdown3 } = getStatsFromGear(character, 4, account);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Box_of_Unwanted_Stats', 2);
   const foodBonus = getFoodBonus(character, account, 'ClassEXP', true)
   const starSignBonus = getStarSignBonus(character, account, 'Class_EXP_Gain');
@@ -1888,65 +1887,90 @@ export const getClassExpMulti = (character, account, characters) => {
 
   return {
     value,
-    breakdown: [
-      { title: 'Additive Bonuses' },
-      { name: '' },
-      {
-        name: 'Achievements',
-        value: (achievement1 + 20 * achievement2 + 3 * achievement3 + 2 * achievement4 + 5 * achievement5 + 25 * achievement6) / 100
-      },
-      { name: 'Arcade', value: arcadeBonus / 100 },
-      { name: 'Bubble', value: bubbleBonus / 100 },
-      { name: 'Card Set', value: cardSetBonus / 100 },
-      { name: 'Cards', value: cardBonus / 100 },
-      { name: 'Compass', value: compassBonus / 100 },
-      { name: 'Companion', value: companionBonus / 100 },
-      { name: 'Dungeon (Flurbo)', value: flurboBonus / 100 },
-      ...equipBonusBreakdown3,
-      { name: 'Food', value: foodBonus / 100 },
-      { name: 'God', value: minorGodBonus / 100 },
-      { name: 'Golden Food', value: goldenFoodBonus / 100 },
-      { name: 'Grimoire', value: grimoireBonus / 100 },
-      {
-        name: 'Island Bonus',
-        value: (account?.accountOptions?.[179] ?? 0) * (account?.islands?.allShimmerBonus ?? 0) / 100
-      },
-      { name: 'Luck', value: expBonus1 },
-      { name: 'Monument', value: monumentBonus / 100 },
-      { name: 'MSA', value: msaBonus / 100 },
-      { name: 'Owl', value: owlBonus / 100 },
-      { name: 'Passive Card Bonus', value: passiveCardBonus / 100 },
-      { name: 'Post Office', value: postOfficeBonus / 100 },
-      { name: 'Prayers', value: prayerBonus1 + prayerBonus2 - prayerBonus3 / 100 },
-      { name: 'Salt Lick', value: saltLickBonus / 100 },
-      { name: 'Schematic', value: (schematicBonus + schematicBonus2) / 100 },
-      { name: 'Shiny', value: shinyBonus / 100 },
-      { name: 'Sigil', value: sigilBonus / 100 },
-      { name: 'Star Sign', value: starSignBonus / 100 },
-      { name: 'Star Talent', value: starTalent / 100 },
-      { name: 'Statue', value: statueBonus / 100 },
-      { name: 'Talent', value: forthTalentBonus / 100 },
-      {
-        name: 'Upgrade Vault',
-        value: ((isLowestLevel
-          ? upgradeVaultBonus
-          : 0) + upgradeVaultBonus2 + upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345])) / 100
-      },
-      { name: 'Vote', value: voteBonus / 100 },
-      { name: 'Iron set', value: armorSetBonus / 100 },
-      { name: 'Weekly Boss', value: weeklyBossBonus },
-      { name: 'Summoning', value: winnerBonus / 100 },
-      { name: 'Vials', value: vialBonus / 100 },
-      { name: 'Superbit', value: (isLowestLevel ? superbitBonus : 0) / 100 },
-      { name: 'EXP Cultivation', value: talentBonus4 / 100 },
-      { name: '' },
-      { title: 'Multiplicative Bonuses' },
-      { name: '' },
-      { name: 'Wind Walker', value: windWalkerBonus },
-      { name: 'Bundle', value: hasBundle ? expBonus3 / 100 : 0 },
-      ...equipBonusBreakdown2,
-      { name: 'Siege Breaker', value: siegeBreakerBonus }
-    ],
+    breakdown: {
+      statName: "Class EXP multi",
+      totalValue: notateNumber(value, 'MultiplierInfo'), 
+      categories: [
+        {
+          name: "Additive",
+          sources: [
+            {
+              name: "Achievements",
+              value:
+                (achievement1 +
+                  20 * achievement2 +
+                  3 * achievement3 +
+                  2 * achievement4 +
+                  5 * achievement5 +
+                  25 * achievement6) /
+                100,
+            },
+            { name: "Arcade", value: arcadeBonus / 100 },
+            { name: "Bubble", value: bubbleBonus / 100 },
+            { name: "Card Set", value: cardSetBonus / 100 },
+            { name: "Cards", value: cardBonus / 100 },
+            { name: "Compass", value: compassBonus / 100 },
+            { name: "Companion", value: companionBonus / 100 },
+            { name: "Dungeon (Flurbo)", value: flurboBonus / 100 },
+            { name: "Food", value: foodBonus / 100 },
+            { name: "God", value: minorGodBonus / 100 },
+            { name: "Golden Food", value: goldenFoodBonus / 100 },
+            { name: "Grimoire", value: grimoireBonus / 100 },
+            {
+              name: "Island Bonus",
+              value:
+                ((account?.accountOptions?.[179] ?? 0) *
+                  (account?.islands?.allShimmerBonus ?? 0)) /
+                100,
+            },
+            { name: "Luck", value: expBonus1 },
+            { name: "Monument", value: monumentBonus / 100 },
+            { name: "MSA", value: msaBonus / 100 },
+            { name: "Owl", value: owlBonus / 100 },
+            { name: "Passive Card Bonus", value: passiveCardBonus / 100 },
+            { name: "Post Office", value: postOfficeBonus / 100 },
+            { name: "Prayers", value: (prayerBonus1 + prayerBonus2 - prayerBonus3) / 100 },
+            { name: "Salt Lick", value: saltLickBonus / 100 },
+            { name: "Schematic", value: (schematicBonus + schematicBonus2) / 100 },
+            { name: "Shiny", value: shinyBonus / 100 },
+            { name: "Sigil", value: sigilBonus / 100 },
+            { name: "Star Sign", value: starSignBonus / 100 },
+            { name: "Star Talent", value: starTalent / 100 },
+            { name: "Statue", value: statueBonus / 100 },
+            { name: "Talent", value: forthTalentBonus / 100 },
+            {
+              name: "Upgrade Vault",
+              value:
+                ((isLowestLevel ? upgradeVaultBonus : 0) +
+                  upgradeVaultBonus2 +
+                  upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345])) /
+                100,
+            },
+            { name: "Vote", value: voteBonus / 100 },
+            { name: "Iron set", value: armorSetBonus / 100 },
+            { name: "Weekly Boss", value: weeklyBossBonus },
+            { name: "Summoning", value: winnerBonus / 100 },
+            { name: "Vials", value: vialBonus / 100 },
+            { name: "Superbit", value: (isLowestLevel ? superbitBonus : 0) / 100 },
+            { name: "EXP Cultivation", value: talentBonus4 / 100 },
+          ],
+          subSections: [
+            equipBonusBreakdown3,
+          ]
+        },
+        {
+          name: "Multiplicative",
+          sources: [
+            { name: "Wind Walker", value: windWalkerBonus },
+            { name: "Bundle", value: hasBundle ? expBonus3 / 100 : 0 },
+            { name: "Siege Breaker", value: siegeBreakerBonus },
+          ],
+          subSections: [
+            equipBonusBreakdown2,
+          ]
+        },
+      ],
+    },
     expression: `siegeBreakerBonus
 * (1 + (
     ${superbitApplied ? 'superbit + ' : ''}${hasBundle ? 'bundleBonus' : ''}
@@ -2176,8 +2200,7 @@ export const getDropRate = (character, account, characters) => {
 
   const breakdown = {
     statName: 'Drop Rate',
-    totalValue: final,
-    totalValueNotation: 'MultiplierInfo',
+    totalValue: notateNumber(final, 'ThreeDecimals'),
     categories: [
       {
         name: 'Additive',
@@ -2501,7 +2524,7 @@ export const getCashMulti = (character, account, characters) => {
 
   const breakdown = {
     statName: 'Cash multi', // change if needed
-    totalValue: cashMulti, // whatever your final computed total is
+    totalValue: cashFormatter(cashMulti), // whatever your final computed total is
     totalValueNotation: 'MultiplierInfo',
     categories: [
       {
@@ -2510,8 +2533,8 @@ export const getCashMulti = (character, account, characters) => {
           {
             name: 'Achievements',
             value: (5 * achievementBonus) +
-                   (10 * secondAchievementBonus) +
-                   (20 * thirdAchievementBonus),
+              (10 * secondAchievementBonus) +
+              (20 * thirdAchievementBonus),
           },
           { name: 'Arcade', value: arcadeBonus + secondArcadeBonus },
           { name: 'Artifact', value: artifactBonus },
@@ -2532,7 +2555,7 @@ export const getCashMulti = (character, account, characters) => {
             value:
               Math.max(1, dustWalker) *
               lavaLog(account?.accountOptions?.[362]),
-          },  
+          },
           { name: 'Obols', value: obolsBonusMoney },
           { name: 'Event shop', value: 0.5 * eventBonus },
           { name: 'Event shop2', value: 0.6 * eventBonus2 },

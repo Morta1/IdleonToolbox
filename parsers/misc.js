@@ -212,8 +212,8 @@ export const getGuaranteedCrystalMobs = (account) => {
 
 export const getMasterclassCostReduction = (account) => {
   const hasBonusBundle = isBundlePurchased(account?.bundles, 'bon_p');
-  return account?.accountOptions?.[480] < getLegendTalentBonus(account, 23) 
-    ? (hasBonusBundle ? 0.05 : 0.2) 
+  return account?.accountOptions?.[480] < getLegendTalentBonus(account, 23)
+    ? (hasBonusBundle ? 0.05 : 0.2)
     : (hasBonusBundle ? 0.25 : 1);
 }
 
@@ -716,7 +716,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const isShaman = checkCharClass(character?.class, CLASSES.Shaman);
   const amplifiedFamilyBonus = familyBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0;
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[8]);
-  const { value: gearGoldFoodBonus, breakdown: equipmentBonusBreakdown } = getStatsFromGear(character, 8, account);
+  const { value: gearGoldFoodBonus, newBreakdown: equipmentBonusBreakdown } = getStatsFromGear(character, 8, account);
   const hungryForGoldTalentBonus = getTalentBonus(character?.flatTalents, 'HAUNGRY_FOR_GOLD');
   const goldenAppleStamp = getStampsBonusByEffect(account, 'Effect_from_Golden_Food._Sparkle_sparkle!');
   const goldenFoodAchievement = getAchievementStatus(account?.achievements, 37);
@@ -738,45 +738,70 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const apocalypseWow = getTalentBonus(deathBringer?.flatTalents, 'APOCALYPSE_WOW');
   const apocalypses = deathBringer?.wow?.finished?.at(0) || 0;
   const armorSetBonus = getArmorSetBonus(account, 'SECRET_SET');
+  const value = (1 + armorSetBonus / 100)
+    * (Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
+      + ((gearGoldFoodBonus + obolsBonus)
+        + (hungryForGoldTalentBonus
+          + (goldenAppleStamp
+            + (goldenFoodAchievement
+              + (goldenFoodBubbleBonus
+                + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus
+              + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses + companionBonus + legendTalentBonus + cardBonus))))) / 100);
 
-  const breakdown = [
-    { title: 'Multiplicative' },
-    { name: '' },
-    { name: 'Armor Set', value: armorSetBonus },
-    { name: '' },
-    { title: 'Additive' },
-    { name: '' },
-    { name: 'Family Bonus', value: isShaman ? amplifiedFamilyBonus : familyBonus },
-    { name: 'The Family Guy', value: theFamilyGuy },
-    ...equipmentBonusBreakdown,
-    { name: 'Obols', value: obolsBonus },
-    { name: 'Talent', value: hungryForGoldTalentBonus },
-    { name: 'Stamp', value: goldenAppleStamp },
-    { name: 'Achievement', value: goldenFoodAchievement },
-    { name: 'Bubble', value: goldenFoodBubbleBonus },
-    { name: 'Sigil', value: goldenFoodSigilBonus },
-    { name: 'Meal', value: mealBonus },
-    { name: 'Star Sign', value: starSignBonus },
-    { name: 'Bribe', value: bribeBonus },
-    { name: 'Charm', value: charmBonus },
-    { name: 'Achievements', value: 2 * achievementBonus + 3 * secondAchievementBonus },
-    { name: 'Vote', value: voteBonus },
-    { name: 'Apocalypse Wow', value: apocalypseWow * apocalypses },
-    { name: 'Companion', value: companionBonus },
-    { name: 'Legend Talent', value: legendTalentBonus },
-    { name: 'Card', value: cardBonus }
-  ];
+  const breakdown = {
+    statName: 'Golden food multi', // adjust if needed
+    totalValue: notateNumber(Math.max(0, 100 * (value - 1)), 'MultiplierInfo'), // your final computed value
+    categories: [
+      {
+        name: 'Multiplicative',
+        sources: [
+          {
+            name: 'Armor Set',
+            value: armorSetBonus,
+          },
+        ],
+      },
+      {
+        name: 'Additive',
+        sources: [
+          {
+            name: 'Family Bonus',
+            value: isShaman ? amplifiedFamilyBonus : familyBonus,
+          },
+          { name: 'The Family Guy', value: theFamilyGuy },
+
+          { name: 'Obols', value: obolsBonus },
+          { name: 'Talent', value: hungryForGoldTalentBonus },
+          { name: 'Stamp', value: goldenAppleStamp },
+          { name: 'Achievement', value: goldenFoodAchievement },
+          { name: 'Bubble', value: goldenFoodBubbleBonus },
+          { name: 'Sigil', value: goldenFoodSigilBonus },
+          { name: 'Meal', value: mealBonus },
+          { name: 'Star Sign', value: starSignBonus },
+          { name: 'Bribe', value: bribeBonus },
+          { name: 'Charm', value: charmBonus },
+          {
+            name: 'Achievements',
+            value: 2 * achievementBonus + 3 * secondAchievementBonus,
+          },
+          { name: 'Vote', value: voteBonus },
+          {
+            name: 'Apocalypse Wow',
+            value: apocalypseWow * apocalypses,
+          },
+          { name: 'Companion', value: companionBonus },
+          { name: 'Legend Talent', value: legendTalentBonus },
+          { name: 'Card', value: cardBonus },
+        ],
+        subSections: [
+          equipmentBonusBreakdown,
+        ]
+      },
+    ],
+  };
 
   return {
-    value: (1 + armorSetBonus / 100)
-      * (Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
-        + ((gearGoldFoodBonus + obolsBonus)
-          + (hungryForGoldTalentBonus
-            + (goldenAppleStamp
-              + (goldenFoodAchievement
-                + (goldenFoodBubbleBonus
-                  + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus
-                + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses + companionBonus + legendTalentBonus + cardBonus))))) / 100),
+    value,
     breakdown,
     expression: `(1 + armorSetBonus / 100)
 * (Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)

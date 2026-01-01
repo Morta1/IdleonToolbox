@@ -97,7 +97,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             })}
             <NewStat title={'Cash Multiplier'} useDoubleColumn value={`${cashFormatter(cashMulti, 2)}x`}
               breakdown={breakdown} breakdownNotation={'Smaller'} />
-            <Stat title={'Golden Food'} useDoubleColumn
+            <NewStat title={'Golden Food'} 
               value={`${notateNumber(Math.max(0, 100 * (goldenFoodMulti - 1)), 'MultiplierInfo')}%`}
               breakdown={goldenFoodBreakdown} breakdownNotation={'Smaller'} />
             <Stat title={'HP'} value={notateNumber(playerInfo?.maxHp)} />
@@ -106,7 +106,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
               value={playerInfo?.finalKillsPerHour > 1e6
                 ? notateNumber(playerInfo?.finalKillsPerHour)
                 : numberWithCommas(Math.floor(playerInfo?.finalKillsPerHour))} />
-            <Stat title={'Defence'} value={notateNumber(playerInfo?.defence?.value)}
+            <NewStat title={'Defence'} value={notateNumber(playerInfo?.defence?.value)}
               breakdown={playerInfo?.defence?.breakdown} />
             <Stat title={'Critical Chance'} value={`${notateNumber(playerInfo?.critChance)}%`} />
             <Stat title={'Critical Damage'} value={`${notateNumber(playerInfo?.critDamage, 'MultiplierInfo')}x`} />
@@ -133,7 +133,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
                 tooltipTitle={`${notateNumber(character?.skillsInfo?.character?.exp)} / ${notateNumber(character?.skillsInfo?.character?.expReq)}`}
                 percent={character?.skillsInfo?.character?.exp / character?.skillsInfo?.character?.expReq * 100} />
             </Stack>
-            <Stat title={'Exp multi'} value={`${notateNumber(classExp, 'MultiplierInfo')}x`}
+            <NewStat title={'Exp multi'} value={`${notateNumber(classExp, 'MultiplierInfo')}x`}
               breakdown={classExpBreakdown} breakdownNotation={'Smaller'} useDoubleColumn />
             <Stat title={'Money'}
               value={<CoinDisplay title={''}

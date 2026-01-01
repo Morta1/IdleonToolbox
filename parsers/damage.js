@@ -56,6 +56,7 @@ import { getSchematicBonus } from './world-5/caverns/the-well';
 import { calcTotalQuestCompleted } from './misc';
 import { getArmorSetBonus } from './misc/armorSmithy';
 import { getCosmoBonus } from './world-5/hole';
+import { notateNumber } from '@utility/helpers';
 
 export const getMaxDamage = (character, characters, account) => {
   const playerInfo = { survivabilityMath: 0 };
@@ -960,33 +961,42 @@ const getPlayerDefence = (character, characters, account) => {
           + chipBonus + amarokSetBonus)))))) / 100) * (1 + (minorBonus + voteBonus3) / 100)
     + rooBonus1 + vaultUpgBonus5);
 
-  const breakdown = [
-    { name: 'Post Office', value: postOfficeBonus },
-    { name: 'Card Bonus', value: cardBonus + secondCardBonus + passiveCardBonus },
-    { name: 'Cardset Bonus', value: cardSetBonus },
-    { name: 'Flurbo Bonus', value: flurboBonus },
-    { name: 'Minor Divinity Bonus', value: minorBonus },
-    { name: 'Vote Bonus', value: voteBonus3 },
-    { name: 'Chip Bonus', value: chipBonus },
-    { name: 'Bubble Bonus', value: bubbleBonus },
-    { name: 'Vault', value: vaultUpgBonus46 + vaultUpgBonus5 },
-    { name: 'Companion', value: companionBonus21 },
-    { name: 'Amarok Set Bonus', value: amarokSetBonus },
-    { name: 'Roo Bonus', value: rooBonus1 },
-    { name: 'Stamp Bonus', value: stampBonus },
-    { name: 'Equip Base Defence ', value: equipmentBonusEtc + obolsBonusEtc },
-    { name: 'Equip Defence', value: gearBonus + obolsBonus },
-    { name: 'Equip % Defence', value: secondEquipmentBonusEtc + secondObolsBonus },
-    { name: 'Arcade Bonus', value: arcadeBonus },
-    { name: 'Statue Bonus', value: statueBonus },
-    { name: 'Meal Bonus', value: mealBonus },
-    { name: 'Shrine Bonus', value: shrineBonus },
-    { name: 'Bribe Bonus', value: bribeBonus },
-    { name: 'Prayers', value: prayerCurse + secondPrayerCurse },
-    { name: 'Golden Food', value: goldenFoodBonus },
-    { name: 'Talents Bonus', value: talentBonus + secondTalentBonus },
-    { name: 'Active Talents Bonus', value: activeBuff }
-  ]
+  const breakdown = {
+    statName: "Defence",
+    totalValue: notateNumber(value),
+    categories: [
+      {
+        name: "Additive",
+        sources: [
+          { name: "Post Office", value: postOfficeBonus },
+          { name: "Card Bonus", value: cardBonus + secondCardBonus + passiveCardBonus },
+          { name: "Cardset Bonus", value: cardSetBonus },
+          { name: "Flurbo Bonus", value: flurboBonus },
+          { name: "Minor Divinity Bonus", value: minorBonus },
+          { name: "Vote Bonus", value: voteBonus3 },
+          { name: "Chip Bonus", value: chipBonus },
+          { name: "Bubble Bonus", value: bubbleBonus },
+          { name: "Vault", value: vaultUpgBonus46 + vaultUpgBonus5 },
+          { name: "Companion", value: companionBonus21 },
+          { name: "Amarok Set Bonus", value: amarokSetBonus },
+          { name: "Roo Bonus", value: rooBonus1 },
+          { name: "Stamp Bonus", value: stampBonus },
+          { name: "Equip Base Defence", value: equipmentBonusEtc + obolsBonusEtc },
+          { name: "Equip Defence", value: gearBonus + obolsBonus },
+          { name: "Equip % Defence", value: secondEquipmentBonusEtc + secondObolsBonus },
+          { name: "Arcade Bonus", value: arcadeBonus },
+          { name: "Statue Bonus", value: statueBonus },
+          { name: "Meal Bonus", value: mealBonus },
+          { name: "Shrine Bonus", value: shrineBonus },
+          { name: "Bribe Bonus", value: bribeBonus },
+          { name: "Prayers", value: prayerCurse + secondPrayerCurse },
+          { name: "Golden Food", value: goldenFoodBonus },
+          { name: "Talents Bonus", value: talentBonus + secondTalentBonus },
+          { name: "Active Talents Bonus", value: activeBuff },
+        ],
+      },
+    ]
+  };
 
   return {
     value,

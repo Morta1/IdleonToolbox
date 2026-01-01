@@ -45,7 +45,6 @@ interface StatCategory {
 interface StatBreakdownData {
   statName: string
   totalValue: number
-  totalValueNotation?: string
   categories: StatCategory[]
 }
 
@@ -219,7 +218,6 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo" }: 
       return 0
     })
   }
-  console.log(filteredData)
 
   const sortedData = {
     ...filteredData,
@@ -327,7 +325,7 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo" }: 
                 {data.statName}
               </Typography>
               <Typography variant="h5" fontWeight={700}>
-                {notateNumber(data.totalValue, valueNotation)}
+                {data.totalValue}
               </Typography>
             </Stack>
           </Stack>
