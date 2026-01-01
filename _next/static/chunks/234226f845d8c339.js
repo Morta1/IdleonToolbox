@@ -12,9 +12,9 @@ __turbopack_load_page_chunks__("/characters", [
   "static/chunks/ef054655485a17fd.js",
   "static/chunks/cbc67c9543d2016a.js",
   "static/chunks/e055f71cb137ba08.js",
-  "static/chunks/dd748a75c424c380.js",
+  "static/chunks/777cefa6da81cb03.js",
   "static/chunks/67bccd277213cc79.js",
   "static/chunks/44206aa42820f88c.js",
   "static/chunks/dc86b5479984625c.js",
-  "static/chunks/turbopack-81c045d023a1adae.js"
+  "static/chunks/turbopack-fe8605765d297786.js"
 ])
