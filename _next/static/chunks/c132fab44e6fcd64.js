@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/leaderboards", [
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/6532a969801b0f6e.js",
+  "static/chunks/d49f046c096bf42d.js",
+  "static/chunks/4aad805ffa50d85e.js",
+  "static/chunks/b3325ad044c8acd7.js",
+  "static/chunks/26676be6f4583376.js",
+  "static/chunks/d81407c266a3c569.js",
+  "static/chunks/cb6401649b9c59d6.js",
+  "static/chunks/ef054655485a17fd.js",
+  "static/chunks/44206aa42820f88c.js",
+  "static/chunks/ea372dab90b62c32.js",
+  "static/chunks/9ad9b7f46c7cbea4.js",
+  "static/chunks/49d78ef4063457ff.js",
+  "static/chunks/b9898908ac97cd52.js",
+  "static/chunks/3053fd6042d487a9.js",
+  "static/chunks/cbc67c9543d2016a.js",
+  "static/chunks/turbopack-d8f47443425e89e6.js"
+])
