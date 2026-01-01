@@ -24,7 +24,7 @@ import styled from '@emotion/styled';
 import CoinDisplay from '../common/CoinDisplay';
 import ProgressBar from '@components/common/ProgressBar';
 import { getGuaranteedCrystalMobs } from '@parsers/misc';
-import { Breakdown } from '@components/common/Breakdown';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
 const colors = {
   strength: 'error.light',

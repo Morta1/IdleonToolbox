@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useMemo, useEffect } from "react";
 import type * as React from "react";
 import {
@@ -14,6 +12,7 @@ import {
   useMediaQuery,
   useTheme,
   SwipeableDrawer,
+  Tooltip,
 } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SearchIcon from "@mui/icons-material/Search";
@@ -22,7 +21,9 @@ import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
+import ImageIcon from "@mui/icons-material/Image";
 import { notateNumber } from "@utility/helpers";
+import useBreakdown from "./Breakdown.hook";
 
 
 interface StatSource {
@@ -55,11 +56,13 @@ interface StatBreakdownTooltipProps {
 }
 
 export function Breakdown({ data, children, valueNotation = "MultiplierInfo" }: StatBreakdownTooltipProps) {
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const { copyImageToClipboard } = useBreakdown({ data, valueNotation, setFeedbackMessage, setShowFeedback })
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set([0]))
   const [expandedSubSections, setExpandedSubSections] = useState<Set<string>>(new Set())
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
-  const [showCopyFeedback, setShowCopyFeedback] = useState(false)
   const [pinnedSources, setPinnedSources] = useState<Set<string>>(() => {
     const stored = localStorage.getItem(`pinned-sources-${data.statName}`)
     if (stored) {
@@ -154,7 +157,8 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo" }: 
     })
 
     navigator.clipboard.writeText(text)
-    setShowCopyFeedback(true)
+    setShowFeedback(true)
+    setFeedbackMessage("Copied text to clipboard")
   }
 
   const filteredData = useMemo(() => {
@@ -330,6 +334,7 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo" }: 
 
           <Stack
             direction="row"
+            alignItems="center"
             spacing={1}
             sx={{
               px: isMobile ? 1.5 : 2,
@@ -373,51 +378,18 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo" }: 
                 ),
               }}
             />
-            <IconButton
-              size={isMobile ? "medium" : "small"}
-              onClick={handleExpandAll}
-              title="Expand All"
-              sx={{
-                color: "text.secondary",
-                minWidth: isMobile ? 44 : "auto",
-                minHeight: isMobile ? 44 : "auto",
-                "&:hover": {
-                  bgcolor: "rgba(255, 255, 255, 0.05)",
-                },
-              }}
-            >
+            <IconButtonWithTooltip tooltip="Expand All" onClick={handleExpandAll}>
               <UnfoldMoreIcon fontSize="small" />
-            </IconButton>
-            <IconButton
-              size={isMobile ? "medium" : "small"}
-              onClick={handleCollapseAll}
-              title="Collapse All"
-              sx={{
-                color: "text.secondary",
-                minWidth: isMobile ? 44 : "auto",
-                minHeight: isMobile ? 44 : "auto",
-                "&:hover": {
-                  bgcolor: "rgba(255, 255, 255, 0.05)",
-                },
-              }}
-            >
+            </IconButtonWithTooltip>
+            <IconButtonWithTooltip tooltip="Collapse All" onClick={handleCollapseAll}>
               <UnfoldLessIcon fontSize="small" />
-            </IconButton>
-            <IconButton
-              size={isMobile ? "medium" : "small"}
-              onClick={handleCopyBreakdown}
-              title="Copy as Text"
-              sx={{
-                color: "text.secondary",
-                minWidth: isMobile ? 44 : "auto",
-                minHeight: isMobile ? 44 : "auto",
-                "&:hover": {
-                  bgcolor: "rgba(255, 255, 255, 0.05)",
-                },
-              }}
-            >
+            </IconButtonWithTooltip>
+            <IconButtonWithTooltip tooltip="Copy as Text" onClick={handleCopyBreakdown}>
               <ContentCopyIcon fontSize="small" />
-            </IconButton>
+            </IconButtonWithTooltip>
+            <IconButtonWithTooltip tooltip="Copy as Image" onClick={copyImageToClipboard}>
+              <ImageIcon fontSize="small" />
+            </IconButtonWithTooltip>
           </Stack>
 
           <Box
@@ -658,14 +630,28 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo" }: 
       </SwipeableDrawer>
 
       <Snackbar
-        open={showCopyFeedback}
+        open={showFeedback}
         autoHideDuration={2000}
-        onClose={() => setShowCopyFeedback(false)}
-        message="Copied to clipboard"
+        onClose={() => setShowFeedback(false)}
+        message={feedbackMessage}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       />
     </>
   )
 }
 
-export { Breakdown as StatBreakdownTooltip }
+const IconButtonWithTooltip = ({ children, tooltip, onClick }: { children: React.ReactNode, tooltip: string, onClick: () => void }) => {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  return (
+    <Tooltip title={tooltip} >
+      <IconButton size={isMobile ? "medium" : "small"} onClick={onClick} sx={{
+        color: "text.secondary",
+        width: 32, 
+        height: 32
+      }}>
+        {children}
+      </IconButton>
+    </Tooltip>
+  )
+}
