@@ -659,7 +659,7 @@ export const getOptimizedUpgrades = (character, account, category = 'damage', ma
     getUpgrades: acc => (acc?.compass?.groupedUpgrades || {}).flatMap(({ list }) => list).toSorted((a, b) => a.index - b.index) || [],
     getResources: acc => acc?.compass?.dusts || [],
     getCurrentStats: (upgrades, char, acc) => getCompassStats(char, { ...acc, compass: { ...acc.compass, upgrades } }),
-    getUpgradeCost: (upgrade, index, { account, upgrades }) => getUpgradeCost(upgrades, index, account?.serverVars),
+    getUpgradeCost: (upgrade, index, { account, upgrades }) => getUpgradeCost(upgrades, index, account?.serverVars, account),
     applyUpgrade: (upgrade, upgradesArr) => upgradesArr.map(u => u.index === upgrade.index ? {
       ...u,
       level: u.level + 1
