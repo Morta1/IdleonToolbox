@@ -116,7 +116,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             <Stat title={'Damage'} damage value={notateDamage(playerInfo)} />
             <NewStat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}
               breakdown={drBreakdown} breakdownNotation={'ThreeDecimals'} useDoubleColumn />
-            <Stat title={'Respawn Time'}
+            <NewStat title={'Respawn Time'}
               value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}
               breakdown={rtBreakdown} breakdownNotation={'Smaller'} />
             <Stat title={'AFK Gains'}

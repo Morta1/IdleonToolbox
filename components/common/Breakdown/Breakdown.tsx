@@ -208,6 +208,7 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo" }: 
   }, [data, searchQuery])
 
   const sortSources = (sources: StatSource[], prefix: string) => {
+    if (!sources) return [];
     return [...sources].sort((a, b) => {
       const aKey = `${prefix}-${a.name}`
       const bKey = `${prefix}-${b.name}`
@@ -218,20 +219,19 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo" }: 
       return 0
     })
   }
+  console.log(filteredData)
 
-  const sortedData = useMemo(() => {
-    return {
-      ...filteredData,
-      categories: filteredData.categories.map((category, catIdx) => ({
-        ...category,
-        sources: category.sources ? sortSources(category.sources, `${catIdx}`) : undefined,
-        subSections: category.subSections?.map((subSection, subIdx) => ({
-          ...subSection,
-          sources: sortSources(subSection.sources, `${catIdx}-${subIdx}`),
-        })),
+  const sortedData = {
+    ...filteredData,
+    categories: filteredData.categories.map((category, catIdx) => ({
+      ...category,
+      sources: category.sources ? sortSources(category.sources, `${catIdx}`) : undefined,
+      subSections: category.subSections?.map((subSection, subIdx) => ({
+        ...subSection,
+        sources: sortSources(subSection.sources, `${catIdx}-${subIdx}`),
       })),
-    }
-  }, [filteredData, pinnedSources])
+    })),
+  }
 
   const togglePin = (sourceKey: string, event: React.MouseEvent) => {
     event.stopPropagation()
