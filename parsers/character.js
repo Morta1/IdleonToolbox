@@ -84,7 +84,7 @@ import { getPlayerWorship } from './worship';
 import { getPlayerQuests } from './quests';
 import { getJewelBonus, getLabBonus, getLabEfficiency, getPlayerLabChipBonus, isGodEnabledBySorcerer } from './lab';
 import { getAchievementStatus } from './achievements';
-import { lavaLog, notateNumber } from '@utility/helpers';
+import { lavaLog, notateNumber, commaNotation } from '@utility/helpers';
 import { getArcadeBonus } from './arcade';
 import { isArtifactAcquired } from './sailing';
 import { getShinyBonus } from './breeding';
@@ -124,6 +124,7 @@ import { getSuperTalentLeftToSpend } from '@parsers/world-7/legendTalents';
 import { getFriendBonus } from '@parsers/misc';
 import { getTesseractMapBonus } from '@parsers/tesseract';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
+import { getGuaranteedCrystalMobs } from '@parsers/misc';
 
 const { tryToParse, createIndexedArray, createArrayOfArrays, cashFormatter } = require('@utility/helpers');
 
@@ -1889,7 +1890,7 @@ export const getClassExpMulti = (character, account, characters) => {
     value,
     breakdown: {
       statName: "Class EXP multi",
-      totalValue: notateNumber(value, 'MultiplierInfo'), 
+      totalValue: notateNumber(value, 'MultiplierInfo'),
       categories: [
         {
           name: "Additive",
@@ -2756,20 +2757,42 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
   const crystals4DaysBonus = getTalentBonus(character?.flatStarTalents, 'CRYSTALS_4_DAYYS');
   const cmonOutCrystalsBonus = getTalentBonus(character?.flatTalents, 'CMON_OUT_CRYSTALS');
   const nonPredatoryBoxBonus = getPostOfficeBonus(character?.postOffice, 'Non_Predatory_Loot_Box', 2);
-  const breakdown = [
-    { name: 'Cmon Out Crystals', value: cmonOutCrystalsBonus },
-    { name: 'Crystal Shrine Crescent', value: crystalShrineBonus },
-    { name: 'Post Office', value: nonPredatoryBoxBonus },
-    { name: 'Crystals 4 Days', value: crystals4DaysBonus },
-    { name: 'Crystallin Stamp', value: crystallinStampBonus },
-    { name: 'Poop Card', value: poopCardBonus },
-    { name: 'Demon Genie Card', value: demonGenieBonus }
-  ]
-  breakdown.sort((a, b) => a?.name.localeCompare(b?.name, 'en'))
+
+  
+  const guaranteedCrystalMobs = getGuaranteedCrystalMobs(account);
+  const remainingCrystalKills = guaranteedCrystalMobs - account?.accountOptions?.[101];
+
+  const value = 0.0005 * (1 + cmonOutCrystalsBonus / 100) * (1 + (nonPredatoryBoxBonus + crystalShrineBonus) / 100) * (1 + crystals4DaysBonus / 100)
+    * (1 + crystallinStampBonus / 100) * (1 + (poopCardBonus + demonGenieBonus) / 100);
+
+  const breakdown = {
+    statName: "Crystal Chance",
+    totalValue: notateNumber(value * 100, 'MultiplierInfo'),
+    categories: [
+      {
+        name: "Crystal kills",
+        sources: [
+          { name: "Remaining Crystal kills", value: remainingCrystalKills },
+        ],
+      },
+      {
+        name: "Additive",
+        sources: [
+          { name: "Cmon Out Crystals", value: cmonOutCrystalsBonus },
+          { name: "Crystal Shrine Crescent", value: crystalShrineBonus },
+          { name: "Post Office", value: nonPredatoryBoxBonus },
+          { name: "Crystals 4 Days", value: crystals4DaysBonus },
+          { name: "Crystallin Stamp", value: crystallinStampBonus },
+          { name: "Poop Card", value: poopCardBonus },
+          { name: "Demon Genie Card", value: demonGenieBonus },
+        ],
+      },
+    ],
+  }
+
   return {
     breakdown,
-    value: 0.0005 * (1 + cmonOutCrystalsBonus / 100) * (1 + (nonPredatoryBoxBonus + crystalShrineBonus) / 100) * (1 + crystals4DaysBonus / 100)
-      * (1 + crystallinStampBonus / 100) * (1 + (poopCardBonus + demonGenieBonus) / 100),
+    value,
     expression: `0.0005
  * (1 + cmonOutCrystalsBonus / 100)
  * (1 + (nonPredatoryBoxBonus + crystalShrineBonus) / 100)

@@ -23,8 +23,8 @@ import processString from 'react-process-string';
 import styled from '@emotion/styled';
 import CoinDisplay from '../common/CoinDisplay';
 import ProgressBar from '@components/common/ProgressBar';
-import { getGuaranteedCrystalMobs } from '@parsers/misc';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { getPlayerCrystalChance } from '@parsers/character';
 
 const colors = {
   strength: 'error.light',
@@ -43,6 +43,8 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
     [character, account]);
   const { afkGains, breakdown: agBreakdown } = useMemo(() => getAfkGain(character, characters, account), [character,
     account]);
+  const { value: crystalChance, breakdown: crystalChanceBreakdown } = useMemo(() => getPlayerCrystalChance(character, characters, account), [character,
+    account]);
   const {
     value: classExp,
     breakdown: classExpBreakdown
@@ -53,8 +55,6 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
     breakdown: goldenFoodBreakdown
   } = useMemo(() => getGoldenFoodMulti(character, account, characters), [character, account, characters]);
   const playerInfo = useMemo(() => getMaxDamage(character, characters, account), [character, account]);
-  const guaranteedCrystalMobs = getGuaranteedCrystalMobs(account);
-  const remainingCrystalKills = useMemo(() => guaranteedCrystalMobs - account?.accountOptions?.[101], [guaranteedCrystalMobs, account]);
 
   const isOvertime = () => {
     const hasUnendingEnergy = character?.activePrayers?.find(({ name }) => name === 'Unending_Energy');
@@ -97,7 +97,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
             })}
             <NewStat title={'Cash Multiplier'} useDoubleColumn value={`${cashFormatter(cashMulti, 2)}x`}
               breakdown={breakdown} breakdownNotation={'Smaller'} />
-            <NewStat title={'Golden Food'} 
+            <NewStat title={'Golden Food'}
               value={`${notateNumber(Math.max(0, 100 * (goldenFoodMulti - 1)), 'MultiplierInfo')}%`}
               breakdown={goldenFoodBreakdown} breakdownNotation={'Smaller'} />
             <Stat title={'HP'} value={notateNumber(playerInfo?.maxHp)} />
@@ -157,10 +157,9 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
               <Typography color={'info.light'}>Crystal Chance</Typography>
               <Stack direction={'row'} gap={1}>
                 <Typography>{`1 in ${Math.floor(1 / crystalSpawnChance?.value)}`} ({notateNumber(crystalSpawnChance?.value * 100, 'MultiplierInfo')?.replace('.00', '')}%)</Typography>
-                <Tooltip title={<BreakdownTooltip titleWidth={180} breakdown={[{ name: 'Remaining Crystal kills', value: commaNotation(remainingCrystalKills) }, { name: '' }, ...crystalSpawnChance?.breakdown]}
-                  notate={'MultiplierInfo'} />}>
+                <Breakdown data={crystalSpawnChance?.breakdown}>
                   <InfoIcon />
-                </Tooltip>
+                </Breakdown>
               </Stack>
             </CardContent>
           </Card>
