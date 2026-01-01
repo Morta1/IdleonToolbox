@@ -1,0 +1,21 @@
+__turbopack_load_page_chunks__("/tools/formulas", [
+  "static/chunks/2e28fff96187921d.js",
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/5f792b4ad147b2b0.js",
+  "static/chunks/c25351f25e97fd93.js",
+  "static/chunks/94e48782efd409fd.js",
+  "static/chunks/f0b03e6e334a00b1.js",
+  "static/chunks/bb99fbdd54b75397.js",
+  "static/chunks/cf026bc248fcac7e.js",
+  "static/chunks/76178f8456be61b1.js",
+  "static/chunks/44206aa42820f88c.js",
+  "static/chunks/ef054655485a17fd.js",
+  "static/chunks/cbc67c9543d2016a.js",
+  "static/chunks/bad936d90a26c511.js",
+  "static/chunks/4fce3b01a6366ef5.js",
+  "static/chunks/4506f3ac7b15f579.js",
+  "static/chunks/3e009becbb40ab0b.js",
+  "static/chunks/49d78ef4063457ff.js",
+  "static/chunks/b9898908ac97cd52.js",
+  "static/chunks/turbopack-ec73ce39ffba578f.js"
+])

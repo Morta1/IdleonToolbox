@@ -1,0 +1,17 @@
+__turbopack_load_page_chunks__("/account/misc/friends-stats", [
+  "static/chunks/7954aac253107a61.js",
+  "static/chunks/d32b4e27b53f0a69.js",
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/b9898908ac97cd52.js",
+  "static/chunks/cf026bc248fcac7e.js",
+  "static/chunks/e1be481911ff5601.js",
+  "static/chunks/8ddd0c45055429f9.js",
+  "static/chunks/3e009becbb40ab0b.js",
+  "static/chunks/ef054655485a17fd.js",
+  "static/chunks/e9d479a523b98b1d.js",
+  "static/chunks/bad936d90a26c511.js",
+  "static/chunks/cbc67c9543d2016a.js",
+  "static/chunks/49d78ef4063457ff.js",
+  "static/chunks/44206aa42820f88c.js",
+  "static/chunks/turbopack-d2e4e700f19d7390.js"
+])
