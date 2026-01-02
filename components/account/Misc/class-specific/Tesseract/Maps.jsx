@@ -20,11 +20,11 @@ import {
 } from '@parsers/tesseract';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
-const Portals = ({ character, account }) => {
+const Portals = ({ character, account, characters }) => {
   const [CheckboxEl, hideUnlockedMaps] = useCheckbox('Hide unlocked maps');
   const [selectedTachyon, setSelectedTachyon] = useState('all');
 
-  const maps = useMemo(() => getMaps(account, character), [account, character]);
+  const maps = useMemo(() => getMaps(account, characters, character), [account, character]);
 
   const {
     weaponDropChance,

@@ -1,6 +1,6 @@
 import { commaNotation, getFilteredPortals, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
 import { mapEnemiesArray, mapPortals, monsterDrops, monsters, tesseract } from '@website-data';
-import { CLASSES, getCharacterByHighestTalent, getTalentBonus } from '@parsers/talents';
+import { CLASSES, getCharacterByHighestTalent, getTalentBonus, getHighestTalentByClass } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getJewelBonus, getLabBonus } from '@parsers/lab';
@@ -199,17 +199,17 @@ export const getRingBaseStats = (itemQuality) => {
   ]
 }
 
-export const getTesseractMapBonus = (account, character, bonusIndex) => {
-  const tesseractMapBonuses = getMaps(account, character);
+export const getTesseractMapBonus = (account, characters, character, bonusIndex) => {
+  const tesseractMapBonuses = getMaps(account, characters, character);
   const charMap = tesseractMapBonuses?.find(({ mapIndex }) => parseFloat(mapIndex) === parseFloat(character?.mapIndex));
   const bonus = charMap?.mapBonuses?.[bonusIndex]?.value;
   return bonus > 0 ? bonus : 0;
 }
-export const getMaps = (account, character) => {
+export const getMaps = (account, characters, character) => {
   const { unlockedPortals, upgrades, mapBonusRaw } = account?.tesseract;
-  const overwhelmingEnergy = getTalentBonus(character?.flatTalents, 'OVERWHELMING_ENERGY');
+  const highestOverwhelmingEnergy = getHighestTalentByClass(characters, CLASSES.Arcane_Cultist, 'OVERWHELMING_ENERGY');
 
-  const maxMapBonus = 100 * (overwhelmingEnergy - 1) + Math.min(10, calcTesseractBonus(upgrades, 58, 0))
+  const maxMapBonus = 100 * (highestOverwhelmingEnergy - 1) + Math.min(10, calcTesseractBonus(upgrades, 58, 0))
   return getFilteredPortals()?.map(({ mapIndex, mapName }) => {
     const availablePortals = mapPortals?.[mapIndex];
     const portals = availablePortals.map((_, portalIndex) => {

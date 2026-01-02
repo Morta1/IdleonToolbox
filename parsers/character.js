@@ -2168,7 +2168,7 @@ export const getDropRate = (character, account, characters) => {
     final *= 1.2
   }
 
-  const tesseractMapBonus = getTesseractMapBonus(account, character, 0);
+  const tesseractMapBonus = getTesseractMapBonus(account, characters, character, 0);
   if (tesseractMapBonus) {
     final *= 1 + tesseractMapBonus / 100;
   }
@@ -2983,7 +2983,7 @@ export const getAfkGain = (character, characters, account) => {
   const bribeAfkGains = bribes?.[24]?.done ? bribes?.[24]?.value : 0;
   const tickTockTalentBonus = getTalentBonus(character?.flatStarTalents, 'TICK_TOCK');
   // AFKgainzzALLmulti - multiplier applied to all AFK types
-  const tesseractMapBonus = getTesseractMapBonus(account, character, 2);
+  const tesseractMapBonus = getTesseractMapBonus(account, characters, character, 2);
   const { value: equipmentAfkMulti, breakdown: equipmentAfkMultiBreakdown } = getStatsFromGear(character, 92, account);
   const afkMulti = (1 + tesseractMapBonus / 100) * (1 + equipmentAfkMulti / 100);
   const idleSkillingBonus = getTalentBonus(character?.flatTalents, 'IDLE_SKILLING');
