@@ -14,6 +14,7 @@ import styled from '@emotion/styled';
 import ProgressBar from 'components/common/ProgressBar';
 import { getJewelBonus, getLabBonus } from '../../../../parsers/lab';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
 const Kitchens = ({
                     spices,
@@ -111,11 +112,11 @@ const Kitchens = ({
               <Stack direction={'row'} justifyContent={'center'}>
                 <Stack>
                   <Typography sx={{ color: 'success.light' }}>Speed ({kitchen?.speedLv})</Typography>
-                  <Tooltip title={<BreakdownTooltip breakdown={kitchen?.mealSpeedBreakdown}/>}>
+                  <Breakdown data={kitchen?.mealSpeedBreakdown}>
                     <Typography sx={{ borderBottom: '1px dotted', cursor: 'help' }}>
                       {notateNumber(kitchen?.mealSpeed, 'Big') ?? 0}/hr
                     </Typography>
-                  </Tooltip>
+                  </Breakdown>
                   <Stack mt={2} alignItems={'center'}>
                     <Tooltip title={spicesNames[firstSpiceIndex]}>
                       <SpiceIcon src={`${prefix}data/CookingSpice${firstSpiceIndex}.png`} alt={''}/>
@@ -126,11 +127,11 @@ const Kitchens = ({
                 <Divider sx={{ mx: 2, backgroundColor: 'white' }} orientation="vertical" flexItem/>
                 <Stack>
                   <Typography sx={{ color: 'error.light' }}>Fire ({kitchen?.fireLv})</Typography>
-                  <Tooltip title={<BreakdownTooltip breakdown={kitchen?.fireSpeedBreakdown}/>}>
+                  <Breakdown data={kitchen?.fireSpeedBreakdown}>
                     <Typography sx={{ borderBottom: '1px dotted', cursor: 'help' }}>
                       {notateNumber(kitchen?.fireSpeed, 'Big') ?? 0}/hr
                     </Typography>
-                  </Tooltip>
+                  </Breakdown>
                   <Stack mt={2} alignItems={'center'}>
                     <Tooltip title={spicesNames[secondSpiceIndex]}>
                       <SpiceIcon src={`${prefix}data/CookingSpice${secondSpiceIndex}.png`} alt={''}/>

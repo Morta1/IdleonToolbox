@@ -134,28 +134,40 @@ const getRupieValue = ({ holesObject, accountData }) => {
     * jarBonus4
     * stampBonusMultiplier;
 
-  const breakdown = [
-    { title: 'Base Value' },
-    { name: 'Schematic Bonuses', value: 1 + schematicBonus1 + schematicBonus2 + schematicBonus3 },
-    { title: 'Multiplicative' },
-    { name: 'Rupie Slug (Gem shop)', value: accountOptionBonus },
-    { name: 'Lamp', value: lampBonus },
-    { name: 'Monument', value: monumentBonus },
-    { name: 'Measurements', value: 1 + (measurementBonus1 + measurementBonus2) / 100 },
-    { name: 'Schematic', value: schematicBonus4 },
-    { name: 'Gilded Jars', value: extraCalcBonus },
-    { name: 'Collectibles', value: jarBonus1 * jarBonus2 * jarBonus3 * jarBonus4 },
-    { name: 'Stamps', value: stampBonusMultiplier }
-  ];
+  const breakdown = {
+    statName: "Rupie value",
+    totalValue: notateNumber(value, 'MultiplierInfo'),
+    categories: [
+      {
+        name: "Base Value",
+        sources: [
+          { name: "Schematic Bonuses", value: 1 + schematicBonus1 + schematicBonus2 + schematicBonus3 },
+        ],
+      },
+      {
+        name: "Multiplicative",
+        sources: [
+          { name: "Rupie Slug (Gem shop)", value: accountOptionBonus },
+          { name: "Lamp", value: lampBonus },
+          { name: "Monument", value: monumentBonus },
+          { name: "Measurements", value: 1 + (measurementBonus1 + measurementBonus2) / 100 },
+          { name: "Schematic", value: schematicBonus4 },
+          { name: "Gilded Jars", value: extraCalcBonus },
+          { name: "Collectibles", value: jarBonus1 * jarBonus2 * jarBonus3 * jarBonus4 },
+          { name: "Stamps", value: stampBonusMultiplier },
+        ],
+      },
+    ],
+  };
 
   return { value, breakdown };
 }
 
 const getProductionPerHour = ({ holesObject, accountData }) => {
   return 36e3 * (1 + (getJarBonus({ holesObject, i: 1, account: accountData })
-      + (getJarBonus({ holesObject, i: 15, account: accountData })
-        + (getJarBonus({ holesObject, i: 24, account: accountData })
-          + getMeasurementBonus({ holesObject, accountData, t: 12 })))) / 100)
+    + (getJarBonus({ holesObject, i: 15, account: accountData })
+      + (getJarBonus({ holesObject, i: 24, account: accountData })
+        + getMeasurementBonus({ holesObject, accountData, t: 12 })))) / 100)
     * (1 + (getSchematicBonus({ holesObject, t: 72, i: 10 })
       * lavaLog(holesObject?.extraCalculations?.[38])) / 100)
 }

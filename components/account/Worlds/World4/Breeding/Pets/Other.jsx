@@ -5,25 +5,26 @@ import InfoIcon from '@mui/icons-material/Info';
 import React, { useContext, useMemo } from 'react';
 import { MonsterIcon } from './styles';
 import AutoGrid from '@components/common/AutoGrid';
-import { Breakdown, CardTitleAndValue } from '@components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
 import useCheckbox from '@components/common/useCheckbox';
 import Timer from '@components/common/Timer';
 import { AppContext } from '@components/common/context/AppProvider';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { useLocalStorage } from '@mantine/hooks';
 import { getTimeToLevel } from '@parsers/breeding';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
 const PetCard = ({
-                   pet,
-                   isShiny,
-                   fencePets,
-                   multi,
-                   state,
-                   applyThreshold,
-                   showAllPets,
-                   shinyThreshold,
-                   breedabilityThreshold
-                 }) => {
+  pet,
+  isShiny,
+  fencePets,
+  multi,
+  state,
+  applyThreshold,
+  showAllPets,
+  shinyThreshold,
+  breedabilityThreshold
+}) => {
   const {
     monsterName,
     monsterRawName,
@@ -59,34 +60,34 @@ const PetCard = ({
 
 
   return <Card variant={'outlined'}
-               sx={{
-                 width: 300,
-                 opacity: unlocked && level > 0 ? 1 : .6,
-                 border: amount > 0 && (isShiny ? fencePet?.shiny > 0 : fencePet?.breedability > 0)
-                   ? '1px solid'
-                   : '',
-                 borderColor: isShiny && level >= 20
-                   ? 'error.light'
-                   : amount > 0 && (isShiny ? fencePet?.shiny > 0 : fencePet?.breedability > 0)
-                     ? 'success.main'
-                     : ''
-               }}>
+    sx={{
+      width: 300,
+      opacity: unlocked && level > 0 ? 1 : .6,
+      border: amount > 0 && (isShiny ? fencePet?.shiny > 0 : fencePet?.breedability > 0)
+        ? '1px solid'
+        : '',
+      borderColor: isShiny && level >= 20
+        ? 'error.light'
+        : amount > 0 && (isShiny ? fencePet?.shiny > 0 : fencePet?.breedability > 0)
+          ? 'success.main'
+          : ''
+    }}>
     <CardContent>
       <Stack direction={'row'} alignItems={'center'} gap={1} sx={{ width: '100%' }}>
         <Badge anchorOrigin={{ vertical: 'top', horizontal: 'left' }} color="primary"
-               badgeContent={isShiny && fencePet?.shiny > 0 || !isShiny && fencePet?.breedability > 0
-                 ? (isShiny ? fencePet?.shiny : fencePet?.breedability) : null}
-               sx={{ '& .MuiBadge-badge': { top: 10, left: 5 } }}>
+          badgeContent={isShiny && fencePet?.shiny > 0 || !isShiny && fencePet?.breedability > 0
+            ? (isShiny ? fencePet?.shiny : fencePet?.breedability) : null}
+          sx={{ '& .MuiBadge-badge': { top: 10, left: 5 } }}>
           <MonsterIcon
             src={missingIcon ? `${prefix}afk_targets/${monsterName}.png` : `${prefix}data/${icon}.png`}
             missingIcon={missingIcon}
-            alt=""/>
+            alt="" />
         </Badge>
         <Stack sx={{ width: '100%' }} gap={.5}>
           <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
             <Typography variant={'body1'}>{cleanUnderscore(monsterName)}</Typography>
           </Stack>
-          <Stack direction={'row'} divider={<Divider orientation={'vertical'} sx={{ mx: 1 }} flexItem/>}>
+          <Stack direction={'row'} divider={<Divider orientation={'vertical'} sx={{ mx: 1 }} flexItem />}>
             <Typography variant={'caption'}> Lv. {level}</Typography>
             <Typography variant={'caption'}>
               {notateNumber(progress)} / {numberWithCommas(goal.toFixed(2).replace('.00', ''))} Days
@@ -95,19 +96,19 @@ const PetCard = ({
           {(timeLeft && level < 20) || !isShiny ? <Stack direction="row" alignItems={'center'} gap={1}>
             <Typography variant={'body2'}>Next lv: </Typography>
             <Timer type={'countdown'} lastUpdated={state?.lastUpdated}
-                   staticTime
-                   variant={'body2'}
-                   date={new Date().getTime() + (timeLeft)}/>
+              staticTime
+              variant={'body2'}
+              date={new Date().getTime() + (timeLeft)} />
           </Stack> : <Typography variant={'body2'}>{level >= 20 ? 'Maxed!' : '\u00A0'}</Typography>}
           {timeToThreshold > 0 && timeLeft && timeToThreshold !== timeLeft ? <>
             <Stack flexWrap={'wrap'} direction={'row'}
-                   gap={1}>
+              gap={1}>
               <Typography component={'span'} variant={'body2'}>To {(isShiny
                 ? shinyThreshold
                 : breedabilityThreshold) ?? 5}:</Typography>
               <Timer variant={'caption'} type={'countdown'} lastUpdated={state?.lastUpdated}
-                     staticTime
-                     date={new Date().getTime() + (timeToThreshold)}/>
+                staticTime
+                date={new Date().getTime() + (timeToThreshold)} />
             </Stack>
           </> : null}
           {!isShiny ? <Stack direction={'row'} alignItems={'center'} gap={1}>
@@ -124,20 +125,20 @@ const PetCard = ({
               <Typography>Failure
                 Multi: {notateNumber(breedingMultipliers?.fifth, 'MultiplierInfo')}x</Typography>
             </>}>
-              <InfoIcon fontSize={'small'}/>
+              <InfoIcon fontSize={'small'} />
             </Tooltip>
           </Stack> : null}
         </Stack>
       </Stack>
       {isShiny ? <>
-        <Divider sx={{ my: 1 }}/>
+        <Divider sx={{ my: 1 }} />
         <Stack>
           <Typography variant={'body2'}>Shiny Passive:</Typography>
           <Stack direction={'row'} alignItems={'center'} gap={2}>
             <Typography variant={'body2'}>{cleanUnderscore(passive)}</Typography>
             <Tooltip
               title={`Total ${cleanUnderscore(rawPassive).replace(/[{}+]/g, '')}: ${state?.account?.breeding?.passivesTotals?.[rawPassive]}`}>
-              <IconInfoCircleFilled size={18}/>
+              <IconInfoCircleFilled size={18} />
             </Tooltip>
           </Stack>
         </Stack>
@@ -223,9 +224,11 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
           <Typography variant={'body1'}>
             Multi: {multi?.value?.toFixed(2).replace('.00', '')}x
           </Typography>
-          <Tooltip title={<Breakdown breakdown={multi?.breakdown} notation={'MultiplierInfo'}/>}>
-            <IconInfoCircleFilled size={18}/>
-          </Tooltip>
+          <Breakdown data={multi?.breakdown}>
+            <Stack alignContent={'center'}>
+              <IconInfoCircleFilled size={18} />
+            </Stack>
+          </Breakdown>
         </Stack>
         <Typography variant={'body1'}>
           Total levels: {totalLevels}
@@ -233,22 +236,22 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
       </Stack>}>
       </CardTitleAndValue>
       <CardTitleAndValue title={'Options'} value={<Stack>
-        <Element checked={showAllPets}/>
-        {isShiny && <GroupElement checked={groupByStat}/>}
-        <OrderElement checked={orderByTime}/>
-      </Stack>}/>
+        <Element checked={showAllPets} />
+        {isShiny && <GroupElement checked={groupByStat} />}
+        <OrderElement checked={orderByTime} />
+      </Stack>} />
       <CardTitleAndValue title={isShiny ? 'Shiny pet level threshold' : 'Breedability pet level threshold'}
-                         value={<Stack>
-                           <ThresholdElement checked={applyThreshold}/>
-                           <TextField size={'small'} sx={{ width: 'fit-content', mt: 1 }}
-                                      type={'number'} value={isShiny ? shinyThreshold : breedabilityThreshold}
-                                      onChange={(e) => isShiny
-                                        ? setShinyThreshold(e.target.value)
-                                        : setBreedabilityThreshold(e.target.value)}
-                                      helperText={isShiny
-                                        ? 'Show shiny pets under this level only'
-                                        : 'Show breedability pets under this level only'}/>
-                         </Stack>}/>
+        value={<Stack>
+          <ThresholdElement checked={applyThreshold} />
+          <TextField size={'small'} sx={{ width: 'fit-content', mt: 1 }}
+            type={'number'} value={isShiny ? shinyThreshold : breedabilityThreshold}
+            onChange={(e) => isShiny
+              ? setShinyThreshold(e.target.value)
+              : setBreedabilityThreshold(e.target.value)}
+            helperText={isShiny
+              ? 'Show shiny pets under this level only'
+              : 'Show breedability pets under this level only'} />
+        </Stack>} />
       {isShiny ? <CardTitleAndValue title={'Filter by stat'} value={
         <Autocomplete
           sx={{ mt: 2 }}
@@ -267,7 +270,7 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
             />
           )}
         />
-      }/> : null}
+      } /> : null}
     </Stack>
     {!hasPetsUnderThreshold ? <Typography variant={'h5'}>
       All pets are above the set threshold, increase the threshold to see more pets.

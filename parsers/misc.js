@@ -283,21 +283,28 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
           + superbitBonus))) / 100)))
     * (1 + 10 * Math.pow(bookCount, 1.4) / 100))
 
-  const breakdown = [
-    { title: 'Multiplicative' },
-    { name: '' },
-    { name: 'Meal Bonus', value: mealBonus },
-    { name: 'Atom Bonus', value: libraryBooker },
-    { name: 'Tower Bonus', value: 5 * libraryTowerLevel },
-    { name: 'Bubble Bonus', value: bubbleBonus },
-    { name: 'Vial Bonus', value: vialBonus },
-    { name: 'Stamp Bonus', value: stampBonus },
-    { name: 'Superbit Bonus', value: superbitBonus },
-    {
-      name: 'Achievement Bonus',
-      value: Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))
-    }
-  ]
+  const breakdown = {
+    statName: "Library Checkout Time",
+    totalValue: math,
+    categories: [
+      {
+        name: "Multiplicative",
+        sources: [
+          { name: "Meal Bonus", value: mealBonus },
+          { name: "Atom Bonus", value: libraryBooker },
+          { name: "Tower Bonus", value: 5 * libraryTowerLevel },
+          { name: "Bubble Bonus", value: bubbleBonus },
+          { name: "Vial Bonus", value: vialBonus },
+          { name: "Stamp Bonus", value: stampBonus },
+          { name: "Superbit Bonus", value: superbitBonus },
+          {
+            name: "Achievement Bonus",
+            value: Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145))),
+          },
+        ],
+      },
+    ],
+  }
   return {
     value: math,
     breakdown

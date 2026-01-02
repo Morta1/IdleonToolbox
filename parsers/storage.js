@@ -45,33 +45,85 @@ export const getStorageSlots = (storageChests, account) => {
     + 16 * getEventShopBonus(account, 11)
     + getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 33));
 
+  const value = baseStorageSlots
+    + towerStorageSlots
+    + chestsSlots
+    + bundleIBonus
+    + bundleCBonus
+    + bundleABonus
+    + moreSpaceSlots
+    + extraSlots;
+
   return {
-    value: baseStorageSlots
-      + towerStorageSlots
-      + chestsSlots
-      + bundleIBonus
-      + bundleCBonus
-      + bundleABonus
-      + moreSpaceSlots
-      + extraSlots,
-    breakdown: [
-      { name: 'Base', value: baseStorageSlots },
-      { title: 'Bundles' },
-      { name: 'AutoLoot', value: `${bundleIBonus} / 8` },
-      { name: 'Starter Pack', value: `${bundleCBonus} / 16` },
-      { name: 'Storage Ram', value: `${bundleABonus} / 20` },
-      { title: 'Event shop' },
-      { name: 'Storage Chest', value: `${12 * getEventShopBonus(account, 10)} / 12` },
-      { name: 'Storage Vault', value: `${16 * getEventShopBonus(account, 11)} / 16` },
-      { title: 'Gem shop' },
-      { name: 'More Storage Space', value: `${moreSpaceSlots} / 90` },
-      { title: 'Other' },
-      { name: 'Tower Storage', value: `${towerStorageSlots} / 50` },
-      { name: 'Chests', value: `${chestsSlots} / 336` },
-      { name: 'Upgrade Vault', value: `${getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 33)} / 24` }
-    ]
+    value,
+    breakdown: {
+      statName: "Storage Slots",
+      totalValue: value, // optional: sum all slots if needed
+      categories: [
+        {
+          name: "Base",
+          sources: [
+            { name: "Base", value: baseStorageSlots },
+          ],
+        },
+        {
+          name: "Bundles",
+          sources: [
+            { name: "AutoLoot", value: `${bundleIBonus} / 8` },
+            { name: "Starter Pack", value: `${bundleCBonus} / 16` },
+            { name: "Storage Ram", value: `${bundleABonus} / 20` },
+          ],
+        },
+        {
+          name: "Event shop",
+          sources: [
+            { name: "Storage Chest", value: `${12 * getEventShopBonus(account, 10)} / 12` },
+            { name: "Storage Vault", value: `${16 * getEventShopBonus(account, 11)} / 16` },
+          ],
+        },
+        {
+          name: "Gem shop",
+          sources: [
+            { name: "More Storage Space", value: `${moreSpaceSlots} / 90` },
+          ],
+        },
+        {
+          name: "Other",
+          sources: [
+            { name: "Tower Storage", value: `${towerStorageSlots} / 50` },
+            { name: "Chests", value: `${chestsSlots} / 336` },
+            { name: "Upgrade Vault", value: `${getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 33)} / 24` },
+          ],
+        },
+      ],
+    }
   };
 }
+// return {
+//   value: baseStorageSlots
+//     + towerStorageSlots
+//     + chestsSlots
+//     + bundleIBonus
+//     + bundleCBonus
+//     + bundleABonus
+//     + moreSpaceSlots
+//     + extraSlots,
+//   breakdown: [
+//     { name: 'Base', value: baseStorageSlots },
+//     { title: 'Bundles' },
+//     { name: 'AutoLoot', value: `${bundleIBonus} / 8` },
+//     { name: 'Starter Pack', value: `${bundleCBonus} / 16` },
+//     { name: 'Storage Ram', value: `${bundleABonus} / 20` },
+//     { title: 'Event shop' },
+//     { name: 'Storage Chest', value: `${12 * getEventShopBonus(account, 10)} / 12` },
+//     { name: 'Storage Vault', value: `${16 * getEventShopBonus(account, 11)} / 16` },
+//     { title: 'Gem shop' },
+//     { name: 'More Storage Space', value: `${moreSpaceSlots} / 90` },
+//     { title: 'Other' },
+//     { name: 'Tower Storage', value: `${towerStorageSlots} / 50` },
+//     { name: 'Chests', value: `${chestsSlots} / 336` },
+//     { name: 'Upgrade Vault', value: `${getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 33)} / 24` }
+//   ]
 
 
 export const getInventoryList = (chestOrderRaw, chestQuantityRaw, name, chestStoneData) => {
@@ -79,8 +131,8 @@ export const getInventoryList = (chestOrderRaw, chestQuantityRaw, name, chestSto
     const data = addStoneDataToEquip(items?.[itemName], chestStoneData?.[index]);
     const description = [1, 2, 3, 4, 5, 6, 7,
       8].reduce((res, num) => items?.[itemName]?.[`desc_line${num}`]
-      ? res + `${items?.[itemName]?.[`desc_line${num}`]} `
-      : res, '')
+        ? res + `${items?.[itemName]?.[`desc_line${num}`]} `
+        : res, '')
     const maxUpgradeSlots = Math.max(data?.Upgrade_Slots_Left, items?.[itemName]?.Upgrade_Slots_Left);
     const it = { ...items?.[itemName], ...data, maxUpgradeSlots };
     let misc = '';

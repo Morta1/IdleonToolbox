@@ -52,12 +52,13 @@ interface StatBreakdownTooltipProps {
   data: StatBreakdownData
   children: React.ReactNode
   valueNotation?: string
+  skipNotation?: boolean
 }
 
-export function Breakdown({ data, children, valueNotation = "MultiplierInfo" }: StatBreakdownTooltipProps) {
+export function Breakdown({ data, children, valueNotation = "MultiplierInfo", skipNotation }: StatBreakdownTooltipProps) {
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
-  const { copyImageToClipboard } = useBreakdown({ data, valueNotation, setFeedbackMessage, setShowFeedback })
+  const { copyImageToClipboard } = useBreakdown({ data, valueNotation, setFeedbackMessage, setShowFeedback, skipNotation })
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set([0]))
   const [expandedSubSections, setExpandedSubSections] = useState<Set<string>>(new Set())
   const [open, setOpen] = useState(false)
@@ -132,14 +133,14 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo" }: 
   }
 
   const handleCopyBreakdown = () => {
-    let text = `${data.statName}: ${notateNumber(data.totalValue, valueNotation)}\n\n`
+    let text = `${data.statName}: ${skipNotation ? data.totalValue : notateNumber(data.totalValue, valueNotation)}\n\n`
 
     data.categories.forEach((category) => {
       text += `${category.name}:\n`
 
       if (category.sources) {
         category.sources.forEach((source) => {
-          text += `  ${source.name}: ${notateNumber(source.value, valueNotation)}\n`
+          text += `  ${source.name}: ${skipNotation ? source.value : notateNumber(source.value, valueNotation)}\n`
         })
       }
 
@@ -147,14 +148,14 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo" }: 
         category.subSections.forEach((subSection) => {
           text += `  ${subSection.name}:\n`
           subSection.sources.forEach((source) => {
-            text += `    ${source.name}: ${notateNumber(source.value, valueNotation)}\n`
+            text += `    ${source.name}: ${skipNotation ? source.value : notateNumber(source.value, valueNotation)}\n`
           })
         })
       }
 
       text += "\n"
     })
-
+    
     navigator.clipboard.writeText(text)
     setShowFeedback(true)
     setFeedbackMessage("Copied text to clipboard")
@@ -325,7 +326,7 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo" }: 
                 {data.statName}
               </Typography>
               <Typography variant="h5" fontWeight={700}>
-                {data.totalValue}
+                {skipNotation ? data.totalValue : notateNumber(data.totalValue, valueNotation)}
               </Typography>
             </Stack>
           </Stack>
@@ -503,7 +504,7 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo" }: 
                                     {source.name}
                                   </Typography>
                                 </Box>
-                                <Typography variant="body2">{notateNumber(source.value, valueNotation)}</Typography>
+                                <Typography variant="body2">{skipNotation ? source.value : notateNumber(source.value, valueNotation)}</Typography>
                               </Box>
                             )
                           })}
@@ -609,7 +610,7 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo" }: 
                                           {source.name}
                                         </Typography>
                                       </Box>
-                                      <Typography variant="body2">{notateNumber(source.value, valueNotation)}</Typography>
+                                      <Typography variant="body2">{skipNotation ? source.value : notateNumber(source.value, valueNotation)}</Typography>
                                     </Box>
                                   )
                                 })}

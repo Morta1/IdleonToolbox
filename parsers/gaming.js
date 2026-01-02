@@ -181,57 +181,84 @@ export const getBitsMulti = (account, characters) => {
   const logBookBitBonus = Math.max(1, Math.pow(1.08, ownedLogBooks) + (bubbleBonus * ownedLogBooks) / 100);
   const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 4 });
 
-  const breakdown = [
-    { title: 'Multiplicative' },
-    { name: 'Bit Toggle', value: 99 * accountOptionToggle },
-    { name: 'Gummy Orb Artifact', value: gummyOrbArtifactBonus / 100 },
-    { name: 'Weatherbook Artifact', value: weatherbookArtifactBonus / 100 },
-    { name: 'Monument', value: monumentBonus / 100 },
-    { name: 'Skill mastery', value: 15 * skillMastery / 100 },
-    { name: 'MSA Bonus', value: account?.msaTotalizer?.bit?.value / 100 },
-    { name: 'Snail', value: snailBonus },
-    { name: 'Acorn', value: acornBonus },
-    { name: 'Nugget', value: account?.gaming?.bestNugget },
-    { name: 'Elegant Shell', value: (account?.gaming?.elegantShellRank * elegantShellBonus) / 100 },
-    { name: 'Logbook', value: logBookBitBonus },
-    { name: 'Meal', value: mealBonus / 100 },
-    { name: 'Vial', value: vialBonus / 100 + vialBonus2 / 100 },
-    { name: 'Bitty Litty Talent', value: bittyLittlyTalentBonus * highestGaming / 100 },
-    { name: 'Palette', value: paletteBonus7 / 100 + paletteBonus18 / 100 },
-    { name: 'Meritocracy', value: meritocracyBonus / 100 },
-    {
-      name: 'Achievements',
-      value: (1 + (getAchievementStatus(account?.achievements, 296) + getAchievementStatus(account?.achievements, 307)) / 20)
-    },
-    { name: 'Poing', value: Math.max(1, Math.min(25, account?.gaming?.poingMulti)) },
-    { name: 'Summoning', value: winBonus / 100 },
-    { name: 'Lamp', value: lampBonus / 100 },
-    { name: 'Emperor', value: emperorBonus / 100 }
-  ]
+  const value = (1 + 99 * accountOptionToggle)
+    * (1 + gummyOrbArtifactBonus / 100)
+    * (1 + vialBonus2 / 100)
+    * (1 + weatherbookArtifactBonus / 100)
+    * (1 + monumentBonus / 100)
+    * (1 + (15 * skillMastery) / 100)
+    * (1 + account?.msaTotalizer?.bit?.value / 100)
+    * Math.max(1, snailBonus)
+    * Math.max(1, acornBonus)
+    * Math.max(1, account?.gaming?.bestNugget)
+    * (1 + (account?.gaming?.elegantShellRank * elegantShellBonus) / 100)
+    * Math.max(1, logBookBitBonus)
+    * (1 + (mealBonus + vialBonus) / 100)
+    * (1 + (bittyLittlyTalentBonus * highestGaming) / 100)
+    * Math.max(1, Math.min(25, account?.gaming?.poingMulti))
+    * (1 + (getAchievementStatus(account?.achievements, 296) + getAchievementStatus(account?.achievements, 307)) / 20)
+    * (1 + winBonus / 100)
+    * (1 + lampBonus / 100)
+    * (1 + emperorBonus / 100)
+    * (1 + paletteBonus7 / 100)
+    * (1 + paletteBonus18 / 100)
+    * (1 + meritocracyBonus / 100);
+
+  const breakdown = {
+    statName: "Bit multi",
+    totalValue: notateNumber(value),
+    categories: [
+      {
+        name: "Multiplicative",
+        sources: [
+          { name: "Bit Toggle", value: 1 + 99 * accountOptionToggle },
+          { name: "Gummy Orb Artifact", value: 1 + gummyOrbArtifactBonus / 100 },
+          { name: "Weatherbook Artifact", value: 1 + weatherbookArtifactBonus / 100 },
+          { name: "Monument", value: 1 + monumentBonus / 100 },
+          { name: "Skill Mastery", value: 1 + (15 * skillMastery) / 100 },
+          { name: "MSA Totalizer", value: 1 + (account?.msaTotalizer?.bit?.value ?? 0) / 100 },
+          { name: "Snail", value: Math.max(1, snailBonus) },
+          { name: "Acorn", value: Math.max(1, acornBonus) },
+          { name: "Best Nugget", value: Math.max(1, account?.gaming?.bestNugget ?? 1) },
+          {
+            name: "Elegant Shell",
+            value: 1 + ((account?.gaming?.elegantShellRank ?? 0) * elegantShellBonus) / 100
+          },
+          { name: "Logbook Bit", value: Math.max(1, logBookBitBonus) },
+          { name: "Meals", value: mealBonus / 100 },
+          { name: "Ooz Ooblek (vial)", value: vialBonus / 100 },
+          { name: "Rocky Boba (vial)", value: 1 + vialBonus2 / 100 },
+
+          {
+            name: "Bitty Litty Talent",
+            value: 1 + (bittyLittlyTalentBonus * highestGaming) / 100
+          },
+          {
+            name: "Poing Multi",
+            value: Math.max(1, Math.min(25, account?.gaming?.poingMulti ?? 1))
+          },
+          {
+            name: "Achievements",
+            value:
+              1 +
+              (getAchievementStatus(account?.achievements, 296) +
+                getAchievementStatus(account?.achievements, 307)) /
+              20
+          },
+          { name: "Summoning", value: 1 + winBonus / 100 },
+          { name: "Lamp", value: 1 + lampBonus / 100 },
+          { name: "Emperor", value: 1 + emperorBonus / 100 },
+          { name: "Palette 7", value: 1 + paletteBonus7 / 100 },
+          { name: "Palette 18", value: 1 + paletteBonus18 / 100 },
+          { name: "Meritocracy", value: 1 + meritocracyBonus / 100 }
+        ]
+      }
+    ]
+  }
+
 
   return {
-    value: (1 + 99 * accountOptionToggle)
-      * (1 + gummyOrbArtifactBonus / 100)
-      * (1 + vialBonus2 / 100)
-      * (1 + weatherbookArtifactBonus / 100)
-      * (1 + monumentBonus / 100)
-      * (1 + (15 * skillMastery) / 100)
-      * (1 + account?.msaTotalizer?.bit?.value / 100)
-      * Math.max(1, snailBonus)
-      * Math.max(1, acornBonus)
-      * Math.max(1, account?.gaming?.bestNugget)
-      * (1 + (account?.gaming?.elegantShellRank * elegantShellBonus) / 100)
-      * Math.max(1, logBookBitBonus)
-      * (1 + (mealBonus + vialBonus) / 100)
-      * (1 + (bittyLittlyTalentBonus * highestGaming) / 100)
-      * Math.max(1, Math.min(25, account?.gaming?.poingMulti))
-      * (1 + (getAchievementStatus(account?.achievements, 296) + getAchievementStatus(account?.achievements, 307)) / 20)
-      * (1 + winBonus / 100)
-      * (1 + lampBonus / 100)
-      * (1 + emperorBonus / 100)
-      * (1 + paletteBonus7 / 100)
-      * (1 + paletteBonus18 / 100)
-      * (1 + meritocracyBonus / 100),
+    value,
     breakdown,
     expression: `(1 + gummyOrbArtifactBonus / 100)
   * (1 + 99 * accountOptionToggle)
@@ -592,26 +619,35 @@ export const getPaletteLuck = (paletteFinalBonus, account, characters) => {
 
   const value = (1 + superbit42Unlocked) * (1 + meritocracyBonus / 100) * (1 + (paletteBonus3
     + ((paletteFinalBonus + loreEpiBonus) * superbit38Unlocked
-    + (Math.max(0, 3 * (gamingLevel - 200) * superbit45Unlocked)
-      + (20 * Math.max(0, snailLevel - 25) * superbit28Unlocked
-        + (acornShopBonus2 + exoticBonus44 + (100 * jadeEmporiumBonus + arcadeBonus)))))) / 100);
+      + (Math.max(0, 3 * (gamingLevel - 200) * superbit45Unlocked)
+        + (20 * Math.max(0, snailLevel - 25) * superbit28Unlocked
+          + (acornShopBonus2 + exoticBonus44 + (100 * jadeEmporiumBonus + arcadeBonus)))))) / 100);
 
   return {
     value,
-    breakdown: [
-      { name: 'Bigger Palette', value: superbit42Unlocked },
-      { name: 'Meritocracy', value: meritocracyBonus },
-      { name: 'Palette', value: paletteBonus3 },
-      { name: 'Tome', value: loreEpiBonus },
-      { name: 'Colourful Luck', value: (paletteFinalBonus + loreEpiBonus) * superbit38Unlocked },
-      { name: 'Gaming Level', value: gamingLevel },
-      { name: 'Gamer Luck', value: 3 * (gamingLevel - 200) * superbit45Unlocked },
-      { name: 'Snail Level', value: snailLevel },
-      { name: 'Lucky Snail', value: 20 * Math.max(0, snailLevel - 25) * superbit28Unlocked },
-      { name: 'Acorn Shop', value: acornShopBonus2 },
-      { name: 'Exotic shop', value: exoticBonus44 },
-      { name: 'Jade Emporium', value: 100 * jadeEmporiumBonus },
-      { name: 'Arcade', value: arcadeBonus }
-    ]
+    breakdown: {
+      statName: "Palette Luck",
+      totalValue: notateNumber(value, 'MultiplierInfo'),
+      categories: [
+        {
+          name: "Multiplicative",
+          sources: [
+            { name: "Bigger Palette", value: superbit42Unlocked },
+            { name: "Meritocracy", value: meritocracyBonus },
+            { name: "Palette", value: paletteBonus3 },
+            { name: "Tome", value: loreEpiBonus },
+            { name: "Colourful Luck", value: (paletteFinalBonus + loreEpiBonus) * superbit38Unlocked },
+            { name: "Gaming Level", value: gamingLevel },
+            { name: "Gamer Luck", value: 3 * (gamingLevel - 200) * superbit45Unlocked },
+            { name: "Snail Level", value: snailLevel },
+            { name: "Lucky Snail", value: 20 * Math.max(0, snailLevel - 25) * superbit28Unlocked },
+            { name: "Acorn Shop", value: acornShopBonus2 },
+            { name: "Exotic shop", value: exoticBonus44 },
+            { name: "Jade Emporium", value: 100 * jadeEmporiumBonus },
+            { name: "Arcade", value: arcadeBonus },
+          ],
+        },
+      ],
+    }
   }
 }

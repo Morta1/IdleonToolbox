@@ -12,7 +12,7 @@ import CoralKidUpgrades from '@components/account/Worlds/World7/CoralReef/CoralK
 import DancingCoral from '@components/account/Worlds/World7/CoralReef/DancingCoral';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
-import { Breakdown } from '@components/common/styles';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
 const CoralReef = () => {
   const { state } = useContext(AppContext);
@@ -40,9 +40,11 @@ const CoralReef = () => {
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <img style={{ width: 24, height: 24 }} src={`${prefix}data/Coral0.png`} alt="" />
           <Typography>{commaNotation(reefDayGains?.value, "Big")}</Typography>
-          <Tooltip title={<Breakdown titleStyle={{ width: 170 }} breakdown={reefDayGains?.breakdown} notation="MultiplierInfo" />}>
-            <IconInfoCircleFilled size={18} />
-          </Tooltip>
+          <Breakdown data={reefDayGains?.breakdown} >
+            <Stack alignContent={'center'}>
+              <IconInfoCircleFilled size={18} />
+            </Stack>
+          </Breakdown>
         </Stack>
       </CardTitleAndValue>
     </Stack>

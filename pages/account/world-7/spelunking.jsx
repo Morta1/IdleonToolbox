@@ -4,7 +4,7 @@ import { NextSeo } from 'next-seo';
 import { getTabs } from '@utility/helpers';
 import { PAGES } from '@components/constants';
 import { getAmberIndex, getAmberDenominator } from '@parsers/world-7/spelunking';
-import { CardTitleAndValue, Breakdown } from '@components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
 import { Stack, Typography } from '@mui/material';
 import { commaNotation, notateNumber, prefix } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
@@ -14,6 +14,7 @@ import Elixirs from '@components/account/Worlds/World7/spelunking/Elixirs';
 import UpgradeOptimizer from '@components/account/Worlds/World7/spelunking/UpgradeOptimizer';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
 const Spelunking = () => {
   const { state } = useContext(AppContext);
@@ -38,7 +39,7 @@ const Spelunking = () => {
   } = state?.account?.spelunking || {};
   const denominator = getAmberDenominator(state?.account);
   const amberFoundValue = currentAmber < 1e9 ? commaNotation(currentAmber / denominator) : notateNumber(currentAmber / denominator, "Big");
-  
+
   return <>
     <NextSeo
       title="Spelunking | Idleon Toolbox"
@@ -50,9 +51,11 @@ const Spelunking = () => {
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg17.png`} alt="" />
           <Typography>{notateNumber(power.value, "Big")}</Typography>
-          <Tooltip title={<Breakdown titleStyle={{ width: 170 }} breakdown={power.breakdown} notation="MultiplierInfo" />}>
-            <IconInfoCircleFilled size={18} />
-          </Tooltip>
+          <Breakdown data={power.breakdown}>
+            <Stack alignContent={'center'}>
+              <IconInfoCircleFilled size={18} />
+            </Stack>
+          </Breakdown>
         </Stack>
       </CardTitleAndValue>
       <CardTitleAndValue title={'Amber Found'}
@@ -61,9 +64,11 @@ const Spelunking = () => {
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <img src={`${prefix}data/CaveAmber${getAmberIndex(state?.account)}.png`} alt="" />
           <Typography>{notateNumber(amberGain.value, "Big")}</Typography>
-          <Tooltip title={<Breakdown titleStyle={{ width: 170 }} breakdown={amberGain.breakdown} notation="MultiplierInfo" />}>
-            <IconInfoCircleFilled size={18} />
-          </Tooltip>
+          <Breakdown data={amberGain.breakdown}>
+            <Stack alignContent={'center'}>
+              <IconInfoCircleFilled size={18} />
+            </Stack>
+          </Breakdown>
         </Stack>
       </CardTitleAndValue>
       <CardTitleAndValue title={'Daily Page Reads'} value={`${state?.account?.accountOptions?.[410]} / ${maxDailyPageReads}`} />
@@ -71,20 +76,22 @@ const Spelunking = () => {
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg4.png`} alt="" />
           <Typography>{notateNumber(staminaRegenRate.value, "MultiplierInfo")}</Typography>
-          <Tooltip title={<Breakdown titleStyle={{ width: 170 }} breakdown={staminaRegenRate.breakdown} notation="MultiplierInfo" />}>
+          <Breakdown data={staminaRegenRate.breakdown}>
+            <Stack alignContent={'center'}>
+              <IconInfoCircleFilled size={18} />
+            </Stack>
+          </Breakdown>
+        </Stack>
+      </CardTitleAndValue>
+      <CardTitleAndValue title={'Overstim Rate'}>
+        <Stack direction={'row'} alignItems={'center'} gap={1}>
+          <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg6.png`} alt="" />
+          <Typography>{notateNumber(overstimRate, "Big")}</Typography>
+          <Tooltip title={`${charactersAtMaxStamina ?? 0} character${(charactersAtMaxStamina ?? 0) === 1 ? '' : 's'} at max stamina contributing to overstim rate`}>
             <IconInfoCircleFilled size={18} />
           </Tooltip>
         </Stack>
       </CardTitleAndValue>
-      <CardTitleAndValue title={'Overstim Rate'}>
-          <Stack direction={'row'} alignItems={'center'} gap={1}>
-            <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg6.png`} alt="" />
-            <Typography>{notateNumber(overstimRate, "Big")}</Typography>
-            <Tooltip title={`${charactersAtMaxStamina ?? 0} character${(charactersAtMaxStamina ?? 0) === 1 ? '' : 's'} at max stamina contributing to overstim rate`}>
-              <IconInfoCircleFilled size={18} />
-            </Tooltip>
-          </Stack>
-        </CardTitleAndValue>
       <CardTitleAndValue title={'Discoveries'} value={`${discoveriesCount} / ${maxDiscoveries}`} />
       <CardTitleAndValue title={'Grand Discoveries'} value={`${totalGrandDiscoveries}`} />
 

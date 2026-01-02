@@ -449,32 +449,41 @@ export const getAmberGain = (account, loreBonuses) => {
 
   return {
     value: amberGain,
-    breakdown: [
-      { name: 'Arcade', value: arcadeBonus / 100 },
-      { name: 'Crop Depot', value: cropBonus / 100 },
-      { name: 'Lamp', value: lampBonus / 100 },
-      { name: 'Stamp', value: stampBonus / 100 },
-      { name: 'Vial', value: vialBonus / 100 },
-      { name: 'Meal', value: mealBonus / 100 },
-      { name: 'Dancing Coral', value: dancingCoralBonus / 100 },
-      { name: 'Card', value: cardBonus / 100 },
-      { name: 'Winner', value: winnerBonus / 100 },
-      { name: 'Amber on the Rocks', value: shopUpg7 / 100 },
-      { name: 'Deep Pockets', value: shopUpg20 / 100 },
-      { name: 'The Green Amber Clause of the Contract', value: shopUpg41 / 100 },
-      { name: 'The Red Amber Fine Print of the Contract', value: shopUpg51 / 100 },
-      { name: 'Grandiose_Amber', value: shopUpg44 / 100 },
-      { name: 'Overstim Meter', value: shopUpg6 / 100 },
-      { name: 'Overstim', value: overstimBonus / 100 },
-      { name: 'Rift Bonus', value: 50 * riftBonus / 100 },
-      { name: 'Amber on the Brain', value: shopUpg8 },
-      { name: 'Lore', value: loreBonus / 100 },
-      { name: 'Chapter', value: chapterBonus },
-      { name: 'Exotic', value: exoticBonus / 100 },
-      { name: 'Amber from the Depths', value: shopUpg9 / 100 },
-      { name: 'Amber from \'Em All', value: shopUpg10 / 100 },
-      { name: 'Deep Pockets', value: shopUpg21 / 150 },
-    ]
+    breakdown: {
+      statName: "Amber gain",
+      totalValue: notateNumber(amberGain, "Big"),
+      categories: [
+        {
+          name: "Additive",
+          sources: [
+            { name: "Arcade", value: arcadeBonus / 100 },
+            { name: "Crop Depot", value: cropBonus / 100 },
+            { name: "Lamp", value: lampBonus / 100 },
+            { name: "Stamp", value: stampBonus / 100 },
+            { name: "Vial", value: vialBonus / 100 },
+            { name: "Meal", value: mealBonus / 100 },
+            { name: "Dancing Coral", value: dancingCoralBonus / 100 },
+            { name: "Card", value: cardBonus / 100 },
+            { name: "Winner", value: winnerBonus / 100 },
+            { name: "Amber on the Rocks", value: shopUpg7 / 100 },
+            { name: "Deep Pockets", value: shopUpg20 / 100 },
+            { name: "The Green Amber Clause of the Contract", value: shopUpg41 / 100 },
+            { name: "The Red Amber Fine Print of the Contract", value: shopUpg51 / 100 },
+            { name: "Grandiose_Amber", value: shopUpg44 / 100 },
+            { name: "Overstim Meter", value: shopUpg6 / 100 },
+            { name: "Overstim", value: overstimBonus / 100 },
+            { name: "Rift Bonus", value: 50 * riftBonus / 100 },
+            { name: "Amber on the Brain", value: shopUpg8 },
+            { name: "Lore", value: loreBonus / 100 },
+            { name: "Chapter", value: chapterBonus },
+            { name: "Exotic", value: exoticBonus / 100 },
+            { name: "Amber from the Depths", value: shopUpg9 / 100 },
+            { name: "Amber from 'Em All", value: shopUpg10 / 100 },
+            { name: "Deep Pockets", value: shopUpg21 / 150 },
+          ],
+        },
+      ],
+    }
   };
 }
 
@@ -556,28 +565,37 @@ const getPower = (account) => {
 
   return {
     value: basePower * powerMulti,
-    breakdown: [
-      { name: 'Learning the POW', value: basePower },
-      { name: 'Winner', value: winnerBonus },
-      { name: 'Gem Item', value: gemItemBonus },
-      { name: 'Chapter', value: chapterBonus },
-      { name: 'Discovering the POW', value: shopUpg1 },
-      { name: 'Dancing Coral', value: dancingCoralBonus },
-      { name: 'Crop Depot', value: cropDepot },
-      { name: 'Sailing', value: sailingBonus },
-      { name: 'Gaming', value: gamingBonus },
-      { name: 'Meal', value: mealBonus },
-      { name: 'Depthing the POW', value: shopUpg2 },
-      { name: 'Hauling the POW', value: shopUpg3 },
-      { name: 'Palette', value: paletteBonus },
-      { name: 'Grandiose_POW', value: shopUpg46 },
-      { name: 'Exotic Market', value: exoticBonus },
-      { name: 'Card', value: cardBonus },
-      { name: 'The Reliable Mace', value: toolUpg14 },
-      { name: 'The Sturdy Mallet', value: toolUpg15 },
-      { name: 'The Risque Flail', value: toolUpg16 },
-      { name: 'The Unaffiliated Warhammer', value: toolUpg17 }
-    ]
+    breakdown: {
+      statName: "Power",
+      totalValue: notateNumber(basePower * powerMulti, "Big"),
+      categories: [
+        {
+          name: "Additive",
+          sources: [
+            { name: "Learning the POW", value: basePower },
+            { name: "Winner", value: winnerBonus },
+            { name: "Gem Item", value: gemItemBonus },
+            { name: "Chapter", value: chapterBonus },
+            { name: "Discovering the POW", value: shopUpg1 },
+            { name: "Dancing Coral", value: dancingCoralBonus },
+            { name: "Crop Depot", value: cropDepot },
+            { name: "Sailing", value: sailingBonus },
+            { name: "Gaming", value: gamingBonus },
+            { name: "Meal", value: mealBonus },
+            { name: "Depthing the POW", value: shopUpg2 },
+            { name: "Hauling the POW", value: shopUpg3 },
+            { name: "Palette", value: paletteBonus },
+            { name: "Grandiose_POW", value: shopUpg46 },
+            { name: "Exotic Market", value: exoticBonus },
+            { name: "Card", value: cardBonus },
+            { name: "The Reliable Mace", value: toolUpg14 },
+            { name: "The Sturdy Mallet", value: toolUpg15 },
+            { name: "The Risque Flail", value: toolUpg16 },
+            { name: "The Unaffiliated Warhammer", value: toolUpg17 }
+          ],
+        },
+      ],
+    }
   }
 }
 
@@ -699,20 +717,31 @@ export const getStaminaRegenRate = (account) => {
   const cardBonus = getCardBonusByEffect(account?.cards, 'Stamina_Regen_(Passive)');
   const riftBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.spelunking?.rank, 5);
 
+  const value = 5 * (1 + getMeritocracyBonus(account, 17) / 100)
+    * (1 + legendBonus / 100)
+    * (1 + (shopUpg5 + bubbleBonus + (chapterBonus + (10 * riftBonus + cardBonus))) / 100);
+  
   return {
-    value: 5 * (1 + getMeritocracyBonus(account, 17) / 100)
-      * (1 + legendBonus / 100)
-      * (1 + (shopUpg5 + bubbleBonus + (chapterBonus + (10 * riftBonus + cardBonus))) / 100),
-    breakdown: [
-      { name: 'Base Rate', value: baseRate },
-      { name: 'Meritoracy', value: meritoracyBonus },
-      { name: 'Legend', value: legendBonus },
-      { name: 'Stamina Resurgence', value: shopUpg5 },
-      { name: 'Bubble', value: bubbleBonus },
-      { name: 'Chapter', value: chapterBonus },
-      { name: 'Rift', value: riftBonus / 100 },
-      { name: 'Card', value: cardBonus / 100 }
-    ]
+    value,
+    breakdown: {
+      statName: "Stamina Regen Rate",
+      totalValue: notateNumber(value, "MultiplierInfo"),
+      categories: [
+        {
+          name: "Additive",
+          sources: [
+            { name: "Base Rate", value: baseRate },
+            { name: "Meritoracy", value: meritoracyBonus },
+            { name: "Legend", value: legendBonus },
+            { name: "Stamina Resurgence", value: shopUpg5 },
+            { name: "Bubble", value: bubbleBonus },
+            { name: "Chapter", value: chapterBonus },
+            { name: "Rift", value: riftBonus / 100 },
+            { name: "Card", value: cardBonus / 100 }
+          ],
+        },
+      ],
+    }
   }
 }
 

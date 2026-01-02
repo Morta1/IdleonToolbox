@@ -491,15 +491,24 @@ export const getPrismaMulti = (account) => {
 
   return {
     value,
-    breakdown: [
-      { name: 'Tesseract', value: tesseractBonus },
-      { name: 'Arcade', value: arcadeBonus },
-      { name: 'Trophy', value: trophyBonus },
-      { name: 'Palette', value: paletteBonus },
-      { name: 'Ethereal Sigils', value: sigilsBonus },
-      { name: 'Exotic Market', value: exoticMarketBonus },
-      { name: 'Legend Talent', value: legendBonus }
-    ]
+    breakdown: {
+      statName: "Prisma multi",
+      totalValue: notateNumber(value, "MultiplierInfo"),
+      categories: [
+        {
+          name: "Additive",
+          sources: [
+            { name: "Tesseract", value: tesseractBonus },
+            { name: "Arcade", value: arcadeBonus },
+            { name: "Trophy", value: trophyBonus },
+            { name: "Palette", value: paletteBonus },
+            { name: "Ethereal Sigils", value: sigilsBonus },
+            { name: "Exotic Market", value: exoticMarketBonus },
+            { name: "Legend Talent", value: legendBonus },
+          ],
+        },
+      ],
+    }
   };
 }
 

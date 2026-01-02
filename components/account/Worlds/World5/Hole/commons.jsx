@@ -1,57 +1,19 @@
-import { Divider, Stack, Typography } from '@mui/material';
-import { commaNotation, notateNumber } from '@utility/helpers';
-import Tooltip from '@components/Tooltip';
-import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
+import { Stack, Typography } from '@mui/material';
+import { commaNotation } from '@utility/helpers';
+import { CardTitleAndValue } from '@components/common/styles';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
-import React from 'react';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
-export const ExpRateCard = ({ title, expRate, doubleColumnThreshold = 12 }) => {
-  const breakdown = expRate?.breakdown;
-  const useDoubleColumn = breakdown?.length > doubleColumnThreshold;
-
-  const renderItem = ({ title, name, value }, index, prefix = '') => {
-    if (title) {
-      return (
-        <Stack key={`${prefix}${title}-${index}`}>
-          {index > 0 ? <Divider sx={{ my: 1 }} /> : null}
-          <Typography sx={{ fontWeight: 500 }}>{title}</Typography>
-          <Divider sx={{ my: 1 }} />
-        </Stack>
-      );
-    }
-    return (
-      <TitleAndValue
-        key={`${prefix}${name}-${index}`}
-        title={name}
-        titleStyle={{ width: 170 }}
-        value={value.toFixed(2).replace('.00', '')}
-      />
-    );
-  };
-
-  const renderBreakdown = () => {
-    if (!breakdown) return null;
-
-    if (!useDoubleColumn) {
-      return <Stack>{breakdown.map((item, index) => renderItem(item, index))}</Stack>;
-    }
-
-    const midpoint = 22;
-    return (
-      <Stack direction="row" gap={2}>
-        <Stack>{breakdown.slice(0, midpoint).map((item, index) => renderItem(item, index, 'left-'))}</Stack>
-        <Stack>{breakdown.slice(midpoint).map((item, index) => renderItem(item, index, 'right-'))}</Stack>
-      </Stack>
-    );
-  };
-
+export const ExpRateCard = ({ title, expRate }) => {
   return (
     <CardTitleAndValue title={title}>
       <Stack direction="row" alignItems={'center'} gap={1}>
         <Typography>{commaNotation(expRate?.value)} / hr</Typography>
-        <Tooltip title={renderBreakdown()} maxWidth={500}>
-          <IconInfoCircleFilled size={18} />
-        </Tooltip>
+        <Breakdown data={expRate?.breakdown}>
+          <Stack alignContent={'center'}>
+            <IconInfoCircleFilled size={18} />
+          </Stack>
+        </Breakdown>
       </Stack>
     </CardTitleAndValue>
   );
@@ -61,25 +23,11 @@ export const CardWithBreakdown = ({ title, breakdown, value, notation, skipNotat
   return <CardTitleAndValue title={title}>
     <Stack direction="row" alignItems={'center'} gap={1}>
       {value ? <Typography>{value}</Typography> : null}
-      {breakdown ? <Tooltip
-        title={<Stack>
-          {breakdown?.map(({ title, name, value }, index) => title ? (
-            <Stack key={`${title}-${index}`}>
-              {index > 0 ? <Divider sx={{ my: 1 }} /> : null}
-              <Typography sx={{ fontWeight: 500 }}>{title}</Typography>
-              <Divider sx={{ my: 1 }} />
-            </Stack>
-          ) : (
-            <TitleAndValue
-              key={`${name}-${index}`}
-              title={name}
-              titleStyle={{ width: 180 }}
-              value={skipNotation ? value : notation === 'MultiplierInfo' ? notateNumber(value, notation).replace('.00', '') : notation ? notateNumber(value, notation) : value}
-            />
-          ))}
-        </Stack>}>
-        <IconInfoCircleFilled size={18} />
-      </Tooltip> : null}
+      {breakdown ? <Breakdown data={breakdown} skipNotation={skipNotation}>
+        <Stack alignContent={'center'}>
+          <IconInfoCircleFilled size={18} />
+        </Stack>
+      </Breakdown> : null}
     </Stack>
   </CardTitleAndValue>
 }

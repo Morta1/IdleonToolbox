@@ -106,11 +106,11 @@ const parseCoralReef = (rawSpelunking, account, coralReefLevels, rawDancingCoral
     if (index === 2) {
       const loreBonuses = account?.spelunking?.loreBonuses;
       extraData = loreBonuses?.map((bonus) => ({ ...bonus, unlocked: level >= bonus?.index }))?.filter((_, index) => index < reefData?.x1);
-    } 
+    }
     else if (index === 3) {
       const specialUpgrades = account?.sneaking?.upgrades?.filter((upgrade) => upgrade?.isSpecialUpgrade);
       extraData = specialUpgrades?.map((upgrade) => ({ ...upgrade, unlocked: level >= upgrade?.unlockOrder }));
-    } 
+    }
 
     return {
       index,
@@ -225,25 +225,42 @@ export const getReefDayGains = (account) => {
                       + (passiveCardBonus
                         + statueBonus)))))))))) / 100);
 
-  const breakdown = [
-    { name: 'Base', value: 10 },
-    { title: 'Multiplicative' },
-    { name: 'Companion', value: companionBonusValue },
-    { name: 'Event Shop', value: .3 * eventShopBonus },
-    { name: 'Gem Shop', value: 20 * gemShopBonus },
-    { title: 'Additive' },
-    { name: 'Coral Kid Upgrade', value: coralKidBonus },
-    { name: 'Dancing Coral', value: dancingCoralBonus },
-    { name: 'Clam Work', value: 20 * clamWorkBonus },
-    { name: 'Killroy Shop', value: killroyBonus },
-    { name: 'Stamps', value: stampBonus },
-    { name: 'Vials', value: vialBonus },
-    { name: 'Legend Talent', value: legendTalentBonus },
-    { name: 'Arcade', value: arcadeBonus },
-    { name: 'Emporium', value: 20 * emporiumBonus },
-    { name: 'Passive Card', value: passiveCardBonus },
-    { name: 'Statue', value: statueBonus },
-  ]
+  const breakdown = {
+    statName: "Reef day gains",
+    totalValue: notateNumber(value, "MultiplierInfo"),
+    categories: [
+      {
+        name: "Base",
+        sources: [
+          { name: "Base", value: 10 },
+        ],
+      },
+      {
+        name: "Additive",
+        sources: [
+          { name: "Coral Kid Upgrade", value: coralKidBonus },
+          { name: "Dancing Coral", value: dancingCoralBonus },
+          { name: "Clam Work", value: 20 * clamWorkBonus },
+          { name: "Killroy Shop", value: killroyBonus },
+          { name: "Stamps", value: stampBonus },
+          { name: "Vials", value: vialBonus },
+          { name: "Legend Talent", value: legendTalentBonus },
+          { name: "Arcade", value: arcadeBonus },
+          { name: "Emporium", value: 20 * emporiumBonus },
+          { name: "Passive Card", value: passiveCardBonus },
+          { name: "Statue", value: statueBonus },
+        ],
+      },
+      {
+        name: "Multiplicative",
+        sources: [
+          { name: "Companion", value: companionBonusValue },
+          { name: "Event Shop", value: 0.3 * eventShopBonus },
+          { name: "Gem Shop", value: 20 * gemShopBonus },
+        ],
+      },
+    ],
+  }
 
   return { value, breakdown }
 }

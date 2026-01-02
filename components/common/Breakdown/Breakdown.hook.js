@@ -1,7 +1,7 @@
 import { notateNumber } from "@utility/helpers";
 import { useState } from "react";
 
-const useBreakdown = ({ data, valueNotation = "MultiplierInfo", setFeedbackMessage, setShowFeedback }) => {
+const useBreakdown = ({ data, valueNotation = "MultiplierInfo", setFeedbackMessage, setShowFeedback, skipNotation }) => {
   const [isExporting, setIsExporting] = useState(false);
 
   const canvasToBlob = async (canvas, type = "image/png", quality) => {
@@ -78,7 +78,7 @@ const useBreakdown = ({ data, valueNotation = "MultiplierInfo", setFeedbackMessa
 
     // Total value - using MUI multi color (#2087e8)
     ctx.font = '700 42px system-ui, -apple-system, sans-serif';
-    const totalText = notateNumber(data.totalValue, data.totalValueNotation);
+    const totalText = skipNotation ? data.totalValue : notateNumber(data.totalValue, valueNotation);
     const totalWidth = ctx.measureText(totalText).width;
     ctx.fillStyle = '#2087e8';
     ctx.fillText(totalText, width - padding - totalWidth, yPos + 30);
@@ -126,7 +126,7 @@ const useBreakdown = ({ data, valueNotation = "MultiplierInfo", setFeedbackMessa
           ctx.fillText(`• ${source.name}`, padding + 16, yPos);
 
           // Source value
-          const valueText = notateNumber(source.value, valueNotation);
+          const valueText = skipNotation ? source.value : notateNumber(source.value, valueNotation);
           const valueWidth = ctx.measureText(valueText).width;
           ctx.fillStyle = '#ffffff';
           ctx.font = '500 15px system-ui, -apple-system, sans-serif';
@@ -164,7 +164,7 @@ const useBreakdown = ({ data, valueNotation = "MultiplierInfo", setFeedbackMessa
             ctx.fillText(`  • ${source.name}`, padding + 28, yPos);
 
             // Nested source value
-            const valueText = notateNumber(source.value, valueNotation);
+            const valueText = skipNotation ? source.value : notateNumber(source.value, valueNotation);
             const valueWidth = ctx.measureText(valueText).width;
             ctx.fillStyle = '#ffffff';
             ctx.font = '500 15px system-ui, -apple-system, sans-serif';

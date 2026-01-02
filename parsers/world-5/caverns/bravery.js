@@ -85,23 +85,52 @@ export const getMonumentAfkBonus = (holesObject, accountData) => {
 
   return {
     value: afkPercent,
-    breakdown: [
-      {
-        name: 'Monument', value: getMonumentBonus({ holesObject, t: 0, i: 8 })
-          + getMonumentBonus({ holesObject, t: 1, i: 8 })
-          + getMonumentBonus({ holesObject, t: 2, i: 8 })
-      },
-      { name: 'Summoning', value: winBonus },
-      { name: 'Jar', value: getJarBonus({ holesObject, i: 19, account: accountData }) },
-      { name: 'Schematic', value: getSchematicBonus({ holesObject, t: 81, i: 20 }) },
-      { name: 'Measurement', value: getMeasurementBonus({ holesObject, accountData, t: 11 }) },
-      { name: 'Arcade', value: arcadeBonus || 0 },
-      {
-        name: 'Achievement',
-        value: 10 * getAchievementStatus(accountData?.achievements, 311)
-      },
-      { name: 'Compass', value: getCompassBonus(accountData, 55) },
-    ],
+    breakdown: {
+      statName: "Monument Afk bonus",
+      totalValue: notateNumber(afkPercent, 'MultiplierInfo'),
+      categories: [
+        {
+          name: "Additive",
+          sources: [
+            {
+              name: "Monument",
+              value:
+                getMonumentBonus({ holesObject, t: 0, i: 8 }) +
+                getMonumentBonus({ holesObject, t: 1, i: 8 }) +
+                getMonumentBonus({ holesObject, t: 2, i: 8 })
+            },
+            {
+              name: "Summoning",
+              value: winBonus
+            },
+            {
+              name: "Jar",
+              value: getJarBonus({ holesObject, i: 19, account: accountData })
+            },
+            {
+              name: "Schematic",
+              value: getSchematicBonus({ holesObject, t: 81, i: 20 })
+            },
+            {
+              name: "Measurement",
+              value: getMeasurementBonus({ holesObject, accountData, t: 11 })
+            },
+            {
+              name: "Arcade",
+              value: arcadeBonus || 0
+            },
+            {
+              name: "Achievement",
+              value: 10 * getAchievementStatus(accountData?.achievements, 311)
+            },
+            {
+              name: "Compass",
+              value: getCompassBonus(accountData, 55)
+            }
+          ]
+        }
+      ]
+    },
     expression: `braveryAfkBonus
 + justiceAfkBonus
 + wisdomAfkBonus
@@ -140,7 +169,7 @@ export const getMonumentMaxLinearTime = (holesObject, t, accountData) => {
 
 export const getMonumentMultiReward = (holesObject, t, accountData) => {
   const maxLinearTime = getMonumentMaxLinearTime(holesObject, t, accountData)
-  
+
   return (Math.min(holesObject?.extraCalculations?.[Math.round(11 + t)], maxLinearTime) / 72e3
     + (Math.pow(1 + Math.max(0, holesObject?.extraCalculations?.[Math.round(11 + t)] - maxLinearTime) / 72e3, 0.3) - 1))
     * (1 + getMeritocracyBonus(accountData, 7) / 100)

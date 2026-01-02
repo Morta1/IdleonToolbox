@@ -629,12 +629,21 @@ export const getUpgradeableBubbles = (acc, characters) => {
     maxBubblesToUpgrade: 10,
     minLevel: 0,
     maxLevel: 0,
-    breakdown: [
-      { name: 'Base', value: 0 },
-      { name: 'Artifact', value: 0 },
-      { name: 'Merit', value: 0 },
-      { name: 'Jewel', value: 0 }
-    ]
+    breakdown: {
+      statName: "Upgradeable Bubbles",
+      totalValue: 0,
+      categories: [
+        {
+          name: "Additive",
+          sources: [
+            { name: "Base", value: 0 },
+            { name: "Artifact", value: 0 },
+            { name: "Merit", value: 0 },
+            { name: "Jewel", value: 0 },
+          ],
+        },
+      ],
+    }
   };
   const allBubbles = Object.values(acc?.alchemy?.bubbles).flatMap((bubbles, index) => {
     return bubbles.map((bubble, bubbleIndex) => {
@@ -672,12 +681,21 @@ export const getUpgradeableBubbles = (acc, characters) => {
     maxBubblesToUpgrade: 10,
     minLevel,
     maxLevel,
-    breakdown: [
-      { name: 'Base', value: 3 },
-      { name: 'Artifact', value: (amberiteArtifact?.baseBonus || 0) * multi },
-      { name: 'Merit', value: moreBubblesFromMerit },
-      { name: 'Jewel', value: jewel?.acquired ? 1 : 0 }
-    ]
+    breakdown: {
+      statName: "Upgradeable Bubbles",
+      totalValue: upgradeableBubblesAmount,
+      categories: [
+        {
+          name: "Additive",
+          sources: [
+            { name: "Base", value: 3 },
+            { name: "Artifact", value: (amberiteArtifact?.baseBonus || 0) * multi },
+            { name: "Merit", value: moreBubblesFromMerit },
+            { name: "Jewel", value: jewel?.acquired ? 1 : 0 },
+          ],
+        },
+      ],
+    }
   };
 }
 
@@ -737,16 +755,25 @@ export const getKrukBubblesDaily = (account) => {
 
   return {
     value: total,
-    breakdown: [
-      { name: 'Base', value: baseAmount },
-      { name: 'Stamp', value: stampBonus },
-      { name: 'Legend Talent', value: legendBonus },
-      { name: 'Zenith', value: zenithBonus },
-      { name: 'Meritocracy', value: meritocracyBonus, isMulti: true },
-      { name: 'Event Shop', value: eventShopBonus > 0 ? 50 * eventShopBonus : 0, isMulti: true },
-      { name: 'Bubble', value: bubbleBonus },
-      { name: 'Arcade', value: arcadeBonus },
-      { name: 'Spelunk', value: spelunkBonus }
-    ]
+    breakdown: {
+      statName: "Kruk Bubbles Daily",
+      totalValue: total,
+      categories: [
+        {
+          name: "Multiplicative",
+          sources: [
+            { name: "Base", value: baseAmount },
+            { name: "Stamp", value: stampBonus },
+            { name: "Legend Talent", value: legendBonus },
+            { name: "Zenith", value: zenithBonus },
+            { name: "Meritocracy", value: meritocracyBonus },
+            { name: "Event Shop", value: eventShopBonus > 0 ? 50 * eventShopBonus : 0 },
+            { name: "Bubble", value: bubbleBonus },
+            { name: "Arcade", value: arcadeBonus },
+            { name: "Spelunk", value: spelunkBonus },
+          ],
+        },
+      ],
+    }
   };
 }

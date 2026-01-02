@@ -1,5 +1,5 @@
 import { arenaBonuses, monsters, petGenes, petStats, petUpgrades, randomList, territory } from '@website-data';
-import { createRange, tryToParse } from '@utility/helpers';
+import { createRange, tryToParse, notateNumber } from '@utility/helpers';
 import { getBubbleBonus, getVialsBonusByEffect } from './alchemy';
 import { getStampsBonusByEffect } from './stamps';
 import { getJewelBonus, getLabBonus } from './lab';
@@ -352,7 +352,7 @@ export const getFightPower = (teamMember) => {
 
 export const calcHighestPower = (breeding) => {
   const teams = breeding?.territories?.reduce((result, { team }) => ([...result, ...team]), []);
-  const fence = breeding?.rawFencePets?.map(([,,power]) => power);
+  const fence = breeding?.rawFencePets?.map(([, , power]) => power);
   const mappedPets = [...(breeding?.storedPets || []), ...teams].map(({ power }) => power);
   return Math.max(...mappedPets, ...fence);
 }
@@ -370,23 +370,33 @@ export const calcBreedabilityMulti = (account, characters) => {
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 1, account });
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Breedability_Rate')?.bonus;
 
+  const value = (1 + (breedingBonus +
+    (mealBonus
+      + (20 * getAchievementStatus(account?.achievements, 218)
+        + starSignBonus))) / 100)
+    * (1 + account?.farming?.cropDepot?.shiny?.value / 100)
+    * (1 + lampBonus / 100)
+    * (1 + arcadeBonus / 100);
   return {
-    value: (1 + (breedingBonus +
-        (mealBonus
-          + (20 * getAchievementStatus(account?.achievements, 218)
-            + starSignBonus))) / 100)
-      * (1 + account?.farming?.cropDepot?.shiny?.value / 100)
-      * (1 + lampBonus / 100)
-      * (1 + arcadeBonus / 100),
-    breakdown: [
-      { name: 'Breeding bonus', value: breedingBonus / 100 },
-      { name: 'Meal bonus', value: mealBonus / 100 },
-      { name: 'Achievement bonus', value: 20 * getAchievementStatus(account?.achievements, 218) / 100 },
-      { name: 'Starsign bonus', value: starSignBonus / 100 },
-      { name: 'Crop bonus', value: account?.farming?.cropDepot?.shiny?.value / 100 },
-      { name: 'Lamp bonus', value: lampBonus / 100 },
-      { name: 'Arcade bonus', value: arcadeBonus / 100 }
-    ]
+    value,
+    breakdown: {
+      statName: "Breedability multi",
+      totalValue: notateNumber(value, 'MultiplierInfo'), // Optional: sum all sources if needed
+      categories: [
+        {
+          name: "Additive",
+          sources: [
+            { name: "Breeding bonus", value: breedingBonus / 100 },
+            { name: "Meal bonus", value: mealBonus / 100 },
+            { name: "Achievement bonus", value: (20 * getAchievementStatus(account?.achievements, 218)) / 100 },
+            { name: "Starsign bonus", value: starSignBonus / 100 },
+            { name: "Crop bonus", value: account?.farming?.cropDepot?.shiny?.value / 100 },
+            { name: "Lamp bonus", value: lampBonus / 100 },
+            { name: "Arcade bonus", value: arcadeBonus / 100 },
+          ],
+        },
+      ],
+    }
   }
 }
 export const calcShinyLvMulti = (account, characters) => {
@@ -404,22 +414,33 @@ export const calcShinyLvMulti = (account, characters) => {
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 1, account });
   const breedingBonus = calcUpgradeBonus(account?.breeding?.petUpgrades?.[12], 12, account);
 
+  const value = (1 + (emeraldUlthuriteBonus
+    + (fasterShinyLevelBonus
+      + (account?.farming?.cropDepot?.shiny?.value
+        + starSign + breedingBonus))) / 100)
+    * (1 + summoningBonus / 100)
+    * (1 + lampBonus / 100);
+
   return {
-    value: (1 + (emeraldUlthuriteBonus
-        + (fasterShinyLevelBonus
-          + (account?.farming?.cropDepot?.shiny?.value
-            + starSign + breedingBonus))) / 100)
-      * (1 + summoningBonus / 100)
-      * (1 + lampBonus / 100),
-    breakdown: [
-      { name: 'Jewel bonus', value: emeraldUlthuriteBonus / 100 },
-      { name: 'Shiny bonus', value: fasterShinyLevelBonus / 100 },
-      { name: 'Starsign bonus', value: starSign / 100 },
-      { name: 'Crop bonus', value: account?.farming?.cropDepot?.shiny?.value / 100 },
-      { name: 'Summoning bonus', value: summoningBonus / 100 },
-      { name: 'Breeding bonus', value: breedingBonus / 100 },
-      { name: 'Lamp bonus', value: lampBonus / 100 }
-    ]
+    value,
+    breakdown: {
+      statName: "Shiny level multiplier",
+      totalValue: notateNumber(value, 'MultiplierInfo'), // Optional: sum of all sources if needed
+      categories: [
+        {
+          name: "Additive",
+          sources: [
+            { name: "Jewel bonus", value: emeraldUlthuriteBonus / 100 },
+            { name: "Shiny bonus", value: fasterShinyLevelBonus / 100 },
+            { name: "Starsign bonus", value: starSign / 100 },
+            { name: "Crop bonus", value: account?.farming?.cropDepot?.shiny?.value / 100 },
+            { name: "Summoning bonus", value: summoningBonus / 100 },
+            { name: "Breeding bonus", value: breedingBonus / 100 },
+            { name: "Lamp bonus", value: lampBonus / 100 },
+          ],
+        },
+      ],
+    }
   };
 }
 
