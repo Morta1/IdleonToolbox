@@ -292,46 +292,53 @@ export const getTalentAddedLevels = (talents, presetIndex, linkedDeity, secondLi
   const superbitBonus = Math.max(0, Math.floor(((character?.level - 500) / 100) * superbit));
   addedLevels += superbitBonus;
 
-  breakdown = [
-    { title: 'Additive' },
-    { name: '' },
-    ...breakdown,
-    { name: 'Symbol of Beyond', value: symbolAddedLevel },
-    { name: 'Family', value: Math.floor(familyEffBonus) },
-    { name: 'Achievement', value: getAchievementStatus(account?.achievements, 291) ? 1 : 0 },
-    {
-      name: 'Companion',
-      value: isCompanionBonusActive(account, 1) ? account?.companions?.list?.at(1)?.bonus : 0
-    },
-    {
-      name: 'Equinox',
-      value: getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols')
-    },
-    {
-      name: 'Grimoire',
-      value: getGrimoireBonus(account?.grimoire?.upgrades, 39)
-    },
-    {
-      name: 'Kattlekruk set',
-      value: getArmorSetBonus(account, 'KATTLEKRUK_SET')
-    },
-    {
-      name: 'Tesseract',
-      value: Math.min(5, getTesseractBonus(account, 57))
-    },
-    {
-      name: 'Ninja mastery',
-      value: account.accountOptions?.[232] >= 3 ? 5 : 0
-    },
-    {
-      name: 'Superbit',
-      value: superbitBonus
-    },
-    {
-      name: 'Super talent (per talent)',
-      value: superTalentsInfo.bonus
-    }
-  ];
+  breakdown = {
+    statName: "Added levels",
+    totalValue: addedLevels,
+    categories: [
+      {
+        name: "Additive",
+        sources: [
+          ...breakdown,
+          { name: 'Symbol of Beyond', value: symbolAddedLevel },
+          { name: 'Family', value: Math.floor(familyEffBonus) },
+          { name: 'Achievement', value: getAchievementStatus(account?.achievements, 291) ? 1 : 0 },
+          {
+            name: 'Companion',
+            value: isCompanionBonusActive(account, 1) ? account?.companions?.list?.at(1)?.bonus : 0
+          },
+          {
+            name: 'Equinox',
+            value: getEquinoxBonus(account?.equinox?.upgrades, 'Equinox_Symbols')
+          },
+          {
+            name: 'Grimoire',
+            value: getGrimoireBonus(account?.grimoire?.upgrades, 39)
+          },
+          {
+            name: 'Kattlekruk set',
+            value: getArmorSetBonus(account, 'KATTLEKRUK_SET')
+          },
+          {
+            name: 'Tesseract',
+            value: Math.min(5, getTesseractBonus(account, 57))
+          },
+          {
+            name: 'Ninja mastery',
+            value: account.accountOptions?.[232] >= 3 ? 5 : 0
+          },
+          {
+            name: 'Superbit',
+            value: superbitBonus
+          },
+          {
+            name: 'Super talent (per talent)',
+            value: superTalentsInfo.bonus
+          }
+        ],
+      },
+    ],
+  }
   return {
     value: addedLevels,
     breakdown,

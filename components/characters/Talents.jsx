@@ -3,8 +3,10 @@ import { cleanUnderscore, fillMissingTalents, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from '../Tooltip';
 import { Box, Stack, Tab, Tabs, Typography } from '@mui/material';
-import { Breakdown, TalentTooltip } from '../common/styles';
+import { TalentTooltip } from '../common/styles';
 import InfoIcon from '@mui/icons-material/Info';
+import { Breakdown } from '../common/Breakdown/Breakdown';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 
 const Talents = ({
@@ -125,9 +127,11 @@ const Talents = ({
     <Typography component={'div'} variant={'caption'}>Total Points Spent: {spentTalentPoints}</Typography>
     <Stack gap={1} direction={'row'} justifyContent={'center'} alignItems={'center'}>
       <Typography component={'div'} variant={'caption'}>Added levels: {selectedAddedLevels}</Typography>
-      <Tooltip title={<Breakdown titleStyle={{ width: 200 }} breakdown={selectedAddedLevelsBreakdown} />}>
-        <InfoIcon />
-      </Tooltip>
+      <Breakdown data={selectedAddedLevelsBreakdown} valueNotation="Big" >
+        <Stack alignContent={'center'}>
+          <IconInfoCircleFilled size={18} />
+        </Stack>
+      </Breakdown>
     </Stack>
     <div className="talents-wrapper">
       {activeTalents?.orderedTalents?.map((talentDetails, index) => {
