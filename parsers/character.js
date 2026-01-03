@@ -486,30 +486,31 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
 
   // Initial calculation without added levels
   let familyEffBonus = getUpdatedFamilyBonus(character, charactersLevels);
-  let addedLevels = getTalentAddedLevels(talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
+  let addedLevels = getTalentAddedLevels(talents, selectedTalentPreset, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
 
   let iterations = 0;
   const maxIterations = 3;
 
   while (iterations < maxIterations) {
     const tempCharacter = Object.assign({}, character);
-    tempCharacter.talents = applyTalentAddedLevels(talents, null, addedLevels?.value || 0, addedLevels?.superTalentsInfo);
+    tempCharacter.talents = applyTalentAddedLevels(talents, null, addedLevels?.value || 0, addedLevels?.superTalentsInfo, selectedTalentPreset);
     familyEffBonus = getUpdatedFamilyBonus(tempCharacter, charactersLevels);
-    addedLevels = getTalentAddedLevels(talents, null, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
+    addedLevels = getTalentAddedLevels(talents, selectedTalentPreset, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
 
     iterations++;
   }
 
   character.addedLevelsBreakdown = addedLevels?.breakdown;
   character.addedLevels = addedLevels?.value;
-  character.talents = applyTalentAddedLevels(talents, null, character.addedLevels, addedLevels?.superTalentsInfo);
-  character.flatTalents = applyTalentAddedLevels(talents, flatTalents, character.addedLevels, addedLevels?.superTalentsInfo);
+  character.talents = applyTalentAddedLevels(talents, null, character.addedLevels, addedLevels?.superTalentsInfo, selectedTalentPreset);
+  character.flatTalents = applyTalentAddedLevels(talents, flatTalents, character.addedLevels, addedLevels?.superTalentsInfo, selectedTalentPreset);
   if (talentPresetObject) {
-    const presetAddedLevels = getTalentAddedLevels(character?.talentPreset?.talents, true, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
+    const otherPresetIndex = selectedTalentPreset === 0 ? 1 : 0;
+    const presetAddedLevels = getTalentAddedLevels(character?.talentPreset?.talents, otherPresetIndex, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
     character.talentPreset = {
       ...character.talentPreset,
-      talents: applyTalentAddedLevels(character?.talentPreset?.talents, null, presetAddedLevels?.value, presetAddedLevels?.superTalentsInfo, true),
-      flatTalents: applyTalentAddedLevels(character?.talentPreset?.talents, null, presetAddedLevels?.value, presetAddedLevels?.superTalentsInfo, true),
+      talents: applyTalentAddedLevels(character?.talentPreset?.talents, null, presetAddedLevels?.value, presetAddedLevels?.superTalentsInfo, otherPresetIndex),
+      flatTalents: applyTalentAddedLevels(character?.talentPreset?.talents, null, presetAddedLevels?.value, presetAddedLevels?.superTalentsInfo, otherPresetIndex),
       addedLevels: presetAddedLevels?.value,
       addedLevelsBreakdown: presetAddedLevels?.breakdown
     }

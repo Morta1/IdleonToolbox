@@ -224,7 +224,7 @@ export const getSuperTalentAddedLevels = (account, character) => {
   return Math.round(50 + getLegendTalentBonus(account, 7) + getZenithBonus(account, 5));
 }
 
-export const getTalentAddedLevels = (talents, isPreset, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, account, character) => {
+export const getTalentAddedLevels = (talents, presetIndex, linkedDeity, secondLinkedDeity, deityMinorBonus, secondDeityMinorBonus, familyEffBonus, account, character) => {
   // "AllTalentLV" == e
   let addedLevels = 0, breakdown;
   const superTalentBonus = getSuperTalentAddedLevels(account);
@@ -235,8 +235,7 @@ export const getTalentAddedLevels = (talents, isPreset, linkedDeity, secondLinke
   const talentSpelunkArrays = account?.spelunking?.talentSpelunkArrays;
   if (character?.playerId !== undefined && talentSpelunkArrays && Array.isArray(talentSpelunkArrays)) {
     const characterIndex = character.playerId;
-    const presetMultiplier = isPreset ? 1 : 0;
-    const spelunkArrayIndex = Math.round(characterIndex + 12 * presetMultiplier);
+    const spelunkArrayIndex = Math.round(characterIndex + 12 * presetIndex);
 
     const spelunkArray = talentSpelunkArrays[spelunkArrayIndex];
     if (Array.isArray(spelunkArray) && spelunkArray.length > 0) {
@@ -245,10 +244,9 @@ export const getTalentAddedLevels = (talents, isPreset, linkedDeity, secondLinke
         .map(talentIndex => {
           return {
             talentIndex,
-            isPreset: !!isPreset
+            presetIndex
           }
         });
-
       if (superTalentsInfo.talents.length > 0) {
         superTalentsInfo.bonus = superTalentBonus;
       }
@@ -341,11 +339,11 @@ export const getTalentAddedLevels = (talents, isPreset, linkedDeity, secondLinke
   };
 }
 
-export const applyTalentAddedLevels = (talents, flatTalents, addedLevels, superTalentsInfo, isPreset = false) => {
+export const applyTalentAddedLevels = (talents, flatTalents, addedLevels, superTalentsInfo, presetIndex = null) => {
   if (flatTalents) {
     return flatTalents.map((talent) => {
       const superTalent = superTalentsInfo.talents.find(({ talentIndex }) => talentIndex === talent?.skillIndex);
-      const superTalentBonus = superTalent?.isPreset === isPreset ? superTalentsInfo.bonus : 0;
+      const superTalentBonus = (superTalent && superTalent.presetIndex === presetIndex) ? superTalentsInfo.bonus : 0;
 
       return {
         ...talent,
@@ -361,7 +359,7 @@ export const applyTalentAddedLevels = (talents, flatTalents, addedLevels, superT
     const { orderedTalents } = data;
     const updatedTalents = orderedTalents?.map((talent) => {
       const superTalent = superTalentsInfo.talents.find(({ talentIndex }) => talentIndex === talent?.skillIndex);
-      const superTalentBonus = superTalent?.isPreset === isPreset ? superTalentsInfo.bonus : 0;
+      const superTalentBonus = (superTalent && superTalent.presetIndex === presetIndex) ? superTalentsInfo.bonus : 0;
 
       return {
         ...talent,
