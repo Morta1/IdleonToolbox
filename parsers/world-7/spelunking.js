@@ -533,7 +533,7 @@ const getPower = (account) => {
   const dancingCoralBonus = getDancingCoralBonus(account, 1, 0);
 
   const cropDepot = account?.farming?.cropDepot?.spelunky?.value ?? 0;
-  const sailingBonus = getSlabBonus(account, 6);
+  const slabBonus = getSlabBonus(account, 6);
   const gamingBonus = account?.msaTotalizer?.spelunkingPow?.value ?? 0;
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'SplkPOW');
 
@@ -555,7 +555,7 @@ const getPower = (account) => {
     * chapterBonus
     * (1 + shopUpg1 / 100)
     * (1 + dancingCoralBonus / 100)
-    * (1 + (cropDepot + sailingBonus + gamingBonus + mealBonus) / 100)
+    * (1 + (cropDepot + slabBonus + gamingBonus + mealBonus) / 100)
     * (1 + shopUpg2 / 100)
     * (1 + shopUpg3 / 100)
     * (1 + paletteBonus / 100)
@@ -579,7 +579,7 @@ const getPower = (account) => {
             { name: "Discovering the POW", value: shopUpg1 },
             { name: "Dancing Coral", value: dancingCoralBonus },
             { name: "Crop Depot", value: cropDepot },
-            { name: "Sailing", value: sailingBonus },
+            { name: "Slab", value: slabBonus },
             { name: "Gaming", value: gamingBonus },
             { name: "Meal", value: mealBonus },
             { name: "Depthing the POW", value: shopUpg2 },
