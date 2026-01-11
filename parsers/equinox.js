@@ -55,13 +55,13 @@ const parseEquinox = (weeklyBoss, dream, account) => {
                 + 40 * (clouds[29] === -1))))))));
 
   const base = (1 + voteBonus / 100)
-  * (1 + loreEpiBonus / 100)
-  * (1 + companionBonus)
-  * (1 + cosmoBonus / 100)
-  * (1 + 0.5 * eventShopBonus)
-  * (1 + account?.accountOptions?.[320] / 10)
-  * (1 + tesseractBonus / 100)
-  * (1 + (eqBarVial + cloudsBonus + arcadeBonus + emperorBonus) / 100)
+    * (1 + loreEpiBonus / 100)
+    * (1 + companionBonus)
+    * (1 + cosmoBonus / 100)
+    * (1 + 0.5 * eventShopBonus)
+    * (1 + account?.accountOptions?.[320] / 10)
+    * (1 + tesseractBonus / 100)
+    * (1 + (eqBarVial + cloudsBonus + arcadeBonus + emperorBonus) / 100)
 
   const breakdown = [
     { title: 'Multiplicative' },
@@ -124,11 +124,33 @@ const parseEquinoxUpgrades = (challenges, dream, account) => {
       11: 15 * getCloudBonus(challenges, 35)
     };
     const superbitBonus = isSuperbitUnlocked(account, 'Equinox_Unending') ? 10 : 0;
-    const totalValue = index in cloudBonusMap
-      ? maxLevel + winBonus + Math.round(cloudBonusMap[index]) + superbitBonus
-      : index === 7 ? maxLevel + winBonus + superbitBonus
-        : index === 3 ? maxLevel + 3 * getCloudBonus(challenges, 6) + 4 * getCloudBonus(challenges, 15) + superbitBonus
-          : maxLevel;
+    let totalValue;
+
+    if (index === 3) {
+      totalValue = Math.round(
+        maxLevel
+        + 3 * getCloudBonus(challenges, 6)
+        + 4 * getCloudBonus(challenges, 15)
+      );
+    }
+    else if (index === 7) {
+      totalValue = Math.round(
+        maxLevel
+        + winBonus
+        + superbitBonus
+      );
+    }
+    else if (index in cloudBonusMap) {
+      totalValue = Math.round(
+        maxLevel
+        + winBonus
+        + superbitBonus
+        + cloudBonusMap[index]
+      );
+    }
+    else {
+      totalValue = Math.round(maxLevel);
+    }
 
     return {
       name: name,
