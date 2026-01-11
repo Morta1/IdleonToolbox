@@ -2527,7 +2527,6 @@ export const getCashMulti = (character, account, characters) => {
   const breakdown = {
     statName: 'Cash multi', // change if needed
     totalValue: cashFormatter(cashMulti), // whatever your final computed total is
-    totalValueNotation: 'MultiplierInfo',
     categories: [
       {
         name: 'Multiplicative',
