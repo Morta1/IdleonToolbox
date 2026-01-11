@@ -49,19 +49,17 @@ const Study = ({ account }) => {
     </Stack>
     <Divider sx={{ mb: 3 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {sortedStudies.map(({ name, description, level, active, progress, req, listIndex }, index) => {
+      {sortedStudies.map(({ name, description, level, active, peripheralVisionActive, progress, req, listIndex }, index) => {
         const nextLv = (req - progress) / hole?.studies?.studyPerHour * 1000 * 3600;
-        const isActive = active || (peripheralVision && (
-          sortedStudies[index - 1]?.active || 
-          sortedStudies[index + 1]?.active
-        ));
+        const isActive = active || peripheralVisionActive;
+
         return <Card key={`bonus-${index}`}>
           <CardContent sx={{ width: 300, height: 250 }}>
             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
               <Typography color={colors?.[listIndex]} variant={'body1'}
                           sx={{ fontWeight: 'bold' }}>{cleanUnderscore(name)} (Lv. {level})</Typography>
             </Stack>
-              {isActive ? <Typography color={'success.light'} variant={'caption'}>ACTIVE{!active && peripheralVision ? ' (Peripheral Vision)' : ''}</Typography> : null}
+              {isActive ? <Typography color={'success.light'} variant={'caption'}>ACTIVE{peripheralVisionActive ? ' (Peripheral Vision)' : ''}</Typography> : null}
             <Typography mt={2}>{cleanUnderscore(description)}</Typography>
             <Stack mt={2} gap={1}>
               <Typography variant={'body2'}>Progress: {commaNotation(progress)} / {commaNotation(req)}</Typography>
