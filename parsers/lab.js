@@ -175,7 +175,7 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
       soupedUp: index < soupedUpSlots
     }
   })
-  console.log(connectedPlayers)
+
   return {
     playersCords,
     playersChips: playersChips ?? [],
