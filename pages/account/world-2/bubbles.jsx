@@ -61,6 +61,7 @@ const Bubbles = () => {
   const [showMissingLevels, setShowMissingLevels] = useState(true);
   const [hidePastThreshold, setHidePastThreshold] = useState(false);
   const [hidePastLevelThreshold, setHidePastLevelThreshold] = useState(false);
+  const [showUpgradeable, setShowUpgradeable] = useState(true);
   const [bubblesGoals, setBubblesGoals] = useState();
   const myFirstChemSet = state?.account?.lab?.labBonuses?.find(bonus => bonus.name === 'My_1st_Chemistry_Set')?.active;
 
@@ -280,6 +281,13 @@ const Bubbles = () => {
                   }}
                 />
               </Stack>
+              <FormControlLabel
+                  slotProps={{ typography: { variant: 'caption' } }}
+                  control={<Checkbox size={'small'} checked={showUpgradeable}
+                    onChange={() => setShowUpgradeable(!showUpgradeable)} />}
+                  name={'upgradeable'}
+                  label="Show Upgradeable" 
+              />
             </Section>
             <Section title={'Misc'}>
               <Typography variant={'caption'}>Particle
@@ -368,6 +376,12 @@ const Bubbles = () => {
                 const isBeyondLevelThreshold = levelThreshold && level > levelThreshold;
                 const matchSearch = searchText ? findBubble(bubble) : true;
                 const isHidden = hidePastThreshold && isBeyondEffThreshold || hidePastLevelThreshold && isBeyondLevelThreshold || !matchSearch;
+
+                const {
+                  total // = upgradeCost
+                } = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldron);
+                const isUpgradable = getOwnedAmount(state?.account, itemReq?.[0]?.rawName) > total;
+
                 return <Fragment key={rawName + '' + bubbleName + '' + index}>
                   <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'} gap={2}>
                     <Stack direction={isSm || batchLayout ? 'column' : 'row'}
@@ -375,10 +389,15 @@ const Bubbles = () => {
                       gap={batchLayout ? 0 : 1}
                       sx={{
                         opacity: isHidden ? .2 : 1,
-                        width: isSm ? 'inherit' : batchLayout ? 55 : showMissingLevels ? 150 : 100,
-                        height: showMissingLevels && batchLayout ? 110 : isSm || batchLayout ? showMissingLevels
+                        width: isSm ? 'inherit' : batchLayout ? 65 : showMissingLevels ? 150 : 110,
+                        height: showMissingLevels && batchLayout ? 120 : isSm || batchLayout ? showMissingLevels
                           ? 120
-                          : 100 : 'inherit'
+                          : 100 : 'inherit',
+                        borderRadius: '15px',
+                        outline: (isUpgradable && showUpgradeable) ? '2px solid' : 'none',
+                        outlineColor: (isUpgradable && showUpgradeable) ? 'success.main' : 'transparent',
+                        outlineOffset: -5,
+                        p: 0.5
                       }}
                     >
                       <HtmlTooltip
@@ -697,5 +716,47 @@ const UpgradeableBubblesList = ({ bubbles, accumulatedCost, account }) => {
     })}
   </Stack>
 }
+
+const getOwnedAmount = (account, rawName) => {
+  if (!account || !rawName) return 0;
+
+  if (rawName.includes('Liquid')) {
+    const liquids = { Liquid1: 0, Liquid2: 1, Liquid3: 2, Liquid4: 3 };
+    return account?.alchemy?.liquids?.[liquids[rawName]] ?? 0;
+  }
+
+  if (rawName.includes('Bits')) {
+    return account?.gaming?.bits ?? 0;
+  }
+
+  if (rawName.includes('Sail')) {
+    return (
+      account?.sailing?.lootPile?.find(
+        ({ rawName: lootPileName }) => lootPileName === rawName.replace('SailTr', 'SailT')
+      )?.amount ?? 0
+    );
+  }
+
+  if (rawName.includes('W6item')) {
+    const crops = { W6item1: 4, W6item2: 30, W6item3: 46, W6item4: 72, W6item5: 99 };
+    const essences = { W6item6: 0, W6item7: 1, W6item8: 2, W6item9: 3, W6item10: 4 };
+
+    if (Object.prototype.hasOwnProperty.call(crops, rawName)) {
+      return account?.farming?.crop?.[crops[rawName]] ?? 0;
+    }
+    if (Object.prototype.hasOwnProperty.call(essences, rawName)) {
+      return account?.summoning?.essences?.[essences[rawName]] ?? 0;
+    }
+    return 0;
+  }
+
+  if (rawName.includes('W7item')) {
+    const discoveryIndexes = { W7item0: 0, W7item1: 1, W7item2: 2, W7item3: 3 };
+    const flatDiscoveries = account?.spelunking?.discoveries?.flat() || [];
+    return flatDiscoveries?.[discoveryIndexes[rawName]]?.amount ?? 0;
+  }
+
+  return account?.storage?.list?.find(({ rawName: s }) => s === rawName)?.amount ?? 0;
+};
 
 export default Bubbles;
