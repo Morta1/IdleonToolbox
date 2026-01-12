@@ -1,15 +1,21 @@
-import { notateNumber } from "@utility/helpers";
-import { useState } from "react";
+import { notateNumber } from '@utility/helpers';
+import { useState } from 'react';
 
-const useBreakdown = ({ data, valueNotation = "MultiplierInfo", setFeedbackMessage, setShowFeedback, skipNotation }) => {
+const useBreakdown = ({
+                        data,
+                        valueNotation = 'MultiplierInfo',
+                        setFeedbackMessage,
+                        setShowFeedback,
+                        skipNotation
+                      }) => {
   const [isExporting, setIsExporting] = useState(false);
 
-  const canvasToBlob = async (canvas, type = "image/png", quality) => {
+  const canvasToBlob = async (canvas, type = 'image/png', quality) => {
     return new Promise((resolve, reject) => {
       canvas.toBlob(
         (blob) => {
           if (blob) resolve(blob)
-          else reject(new Error("Canvas toBlob failed"))
+          else reject(new Error('Canvas toBlob failed'))
         },
         type,
         quality
@@ -33,7 +39,7 @@ const useBreakdown = ({ data, valueNotation = "MultiplierInfo", setFeedbackMessa
     const categorySpacing = 32;
 
     // Calculate height needed
-    let estimatedHeight = 200; // Header + padding
+    let estimatedHeight = 280; // Header + padding
     data.categories.forEach(cat => {
       estimatedHeight += 40; // Category header
       if (cat.sources) estimatedHeight += cat.sources.length * lineHeight;
@@ -61,29 +67,28 @@ const useBreakdown = ({ data, valueNotation = "MultiplierInfo", setFeedbackMessa
 
     // Header section - matching MUI Card background (#1C252E)
     ctx.fillStyle = '#1C252E';
-    ctx.fillRect(0, 0, width, 100);
+    ctx.fillRect(0, 0, width, 140);
 
     // Header border bottom
     ctx.strokeStyle = '#2f3641';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(0, 100);
-    ctx.lineTo(width, 100);
+    ctx.moveTo(0, 140);
+    ctx.lineTo(width, 140);
     ctx.stroke();
 
     // Title - using default MUI text color
     ctx.fillStyle = '#ffffff';
     ctx.font = '600 28px system-ui, -apple-system, sans-serif';
-    ctx.fillText(data.statName, padding, yPos + 30);
+    ctx.fillText(data.statName, padding, yPos + 20);
 
-    // Total value - using MUI multi color (#2087e8)
-    ctx.font = '700 42px system-ui, -apple-system, sans-serif';
+    // Total value - using MUI multi color (#2087e8) - positioned below title
+    ctx.font = '700 38px system-ui, -apple-system, sans-serif';
     const totalText = skipNotation ? data.totalValue : notateNumber(data.totalValue, valueNotation);
-    const totalWidth = ctx.measureText(totalText).width;
     ctx.fillStyle = '#2087e8';
-    ctx.fillText(totalText, width - padding - totalWidth, yPos + 30);
+    ctx.fillText(totalText, padding, yPos + 70);
 
-    yPos += 100 + categorySpacing;
+    yPos += 120 + categorySpacing;
 
     // Categories
     data.categories.forEach((category, catIdx) => {
@@ -216,15 +221,15 @@ const useBreakdown = ({ data, valueNotation = "MultiplierInfo", setFeedbackMessa
   const copyImageToClipboard = async () => {
     const blob = await generateImage();
     if (!navigator.clipboard || !window.ClipboardItem) {
-      throw new Error("Clipboard image API not supported")
+      throw new Error('Clipboard image API not supported')
     }
 
     const item = new ClipboardItem({
-      [blob.type]: blob,
+      [blob.type]: blob
     })
 
     await navigator.clipboard.write([item])
-    setFeedbackMessage("Copied image to clipboard");
+    setFeedbackMessage('Copied image to clipboard');
     setShowFeedback(true);
   }
 
