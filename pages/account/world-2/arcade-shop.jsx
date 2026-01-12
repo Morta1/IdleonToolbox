@@ -44,6 +44,12 @@ const ArcadeShop = () => {
   const activeUpgrades = shop?.filter((u) => u.active)?.toSorted((a, b) => a?.rotationIndex - b?.rotationIndex) || [];
   const inactiveUpgrades = shop?.filter((u) => !u.active) || [];
 
+  // Calculate total cost to max for all upgrades
+  const totalCostToMax = shop?.reduce((total, upgrade) => {
+    const upgradeIndex = parseInt(upgrade.iconName.replace('PachiShopICON', ''), 10);
+    return total + getCostToMax(upgrade.level, upgradeIndex);
+  }, 0) || 0;
+
   const renderUpgradeCard = (upgrade, index) => {
     const { level, effect, iconName, bonus } = upgrade;
     // Extract upgrade index from iconName (format: PachiShopICON{index})
@@ -108,6 +114,11 @@ const ArcadeShop = () => {
             <Typography>{royalBalls}</Typography>
           </Stack>
         </CardTitleAndValue>
+        {totalCostToMax > 0 && (
+          <CardTitleAndValue title="Total Cost To Max All">
+            <Typography>{commaNotation(totalCostToMax, 2)}</Typography>
+          </CardTitleAndValue>
+        )}
       </Stack>
 
       <Stack mt={2} direction="row" flexWrap="wrap" gap={2}>
