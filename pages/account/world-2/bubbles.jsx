@@ -62,6 +62,7 @@ const Bubbles = () => {
   const [hidePastThreshold, setHidePastThreshold] = useState(false);
   const [hidePastLevelThreshold, setHidePastLevelThreshold] = useState(false);
   const [showUpgradeable, setShowUpgradeable] = useState(true);
+  const [showInAtomRange , setShowInAtomRange] = useState(true);
   const [bubblesGoals, setBubblesGoals] = useState();
   const myFirstChemSet = state?.account?.lab?.labBonuses?.find(bonus => bonus.name === 'My_1st_Chemistry_Set')?.active;
 
@@ -165,6 +166,49 @@ const Bubbles = () => {
 
     return false;
   }
+
+  const atomableTotal = 117;
+  // --- Use this to find the amount of atomable Bubbles if they get increased ---
+  //
+  // const atomableTotal = useMemo(() => {
+  //   if (!state?.account?.alchemy?.bubbles) return 0;
+
+  //   const allBubbles = Object.values(state.account.alchemy.bubbles).flat();
+
+  //   return allBubbles.reduce((count, bubble) => {
+  //     const isAtomable = resourceIsAtomable(bubble?.itemReq?.[0]?.rawName);
+
+  //     return isAtomable ? count : count - 1;
+  //   }, 140); //Total bubble amount (including FillerMaterial) Update when we get new bubbles
+  // }, [state?.account?.alchemy?.bubbles]);
+
+  // counts which resources are in atom range and atomable
+  const inAtomRangeCount = useMemo(() => {
+    const bubblesByCauldron = state?.account?.alchemy?.bubbles;
+    if (!bubblesByCauldron) return 0;
+
+    let count = 0;
+
+    Object.entries(bubblesByCauldron).forEach(([cauldronName, bubbles]) => {
+      bubbles?.forEach((bubble, index) => {
+        const level = bubble?.level ?? 0;
+        const req0 = bubble?.itemReq?.[0];
+        if (!req0) return;
+
+        const { total } = accumulatedCost(
+          index,
+          level,
+          req0.baseCost,
+          req0.name?.includes('Liquid'),
+          cauldronName
+        );
+
+        if (((total ?? 0) >= 1e8) && resourceIsAtomable(req0?.rawName)) count += 1;
+      });
+    });
+
+    return count;
+  }, [state?.account?.alchemy?.bubbles, accumulatedCost]);
 
   return (
     <>
@@ -288,6 +332,13 @@ const Bubbles = () => {
                   name={'upgradeable'}
                   label="Show Upgradeable" 
               />
+              <FormControlLabel
+                  slotProps={{ typography: { variant: 'caption' } }}
+                  control={<Checkbox size={'small'} checked={showInAtomRange}
+                    onChange={() => setShowInAtomRange(!showInAtomRange)} />}
+                  name={'isInAtomRange'}
+                  label={"Show Atom Range (" +  inAtomRangeCount + "/" + atomableTotal + ")"}
+              />
             </Section>
             <Section title={'Misc'}>
               <Typography variant={'caption'}>Particle
@@ -380,7 +431,7 @@ const Bubbles = () => {
                 const {
                   total // = upgradeCost
                 } = accumulatedCost(index, level, itemReq?.[0]?.baseCost, itemReq?.[0]?.name?.includes('Liquid'), cauldron);
-                const isUpgradable = getOwnedAmount(state?.account, itemReq?.[0]?.rawName) > total;
+                const isUpgradable = getOwnedAmount(state?.account, itemReq?.[0]?.rawName) >= total;
 
                 return <Fragment key={rawName + '' + bubbleName + '' + index}>
                   <Stack direction={'row'} alignItems={'center'} justifyContent={'space-around'} gap={2}>
@@ -422,6 +473,16 @@ const Bubbles = () => {
                             level={level}
                             src={`${prefix}data/${rawName}.png`}
                             alt="" />
+                          {showInAtomRange && resourceIsAtomable(itemReq?.[0]?.rawName) && total >= 1e8 &&
+                            (<img
+                              width={18}
+                              height={18}
+                              src={`${prefix}etc/Particle.png`}
+                              alt=""
+                              style={{
+                                position: 'absolute',
+                              }}/>
+                          )}
                         </Stack>
 
                       </HtmlTooltip>
@@ -758,5 +819,38 @@ const getOwnedAmount = (account, rawName) => {
 
   return account?.storage?.list?.find(({ rawName: s }) => s === rawName)?.amount ?? 0;
 };
+
+// returns true/false if bubble can be atomed depending on resource type
+// expend categories that cant be atomed on updates
+const resourceIsAtomable = (rawName) => {
+  if (!rawName) {
+    return false;
+  }
+
+  if (rawName.includes('Liquid')) {
+    return false;
+  }
+
+  if (rawName.includes('Bits')) {
+    return false;
+  }
+
+  if (rawName.includes('W6item')) {
+  const crops = { W6item1: 4, W6item2: 30, W6item3: 46, W6item4: 72, W6item5: 99 };
+  const essences = { W6item6: 0, W6item7: 1, W6item8: 2, W6item9: 3, W6item10: 4 };
+
+  if (Object.prototype.hasOwnProperty.call(crops, rawName)) {
+    return false;
+  }
+  if (Object.prototype.hasOwnProperty.call(essences, rawName)) {
+    return false;
+  }
+  }
+  
+  if (rawName.includes('FillerMaterial')) return false;
+
+  return true;
+
+}
 
 export default Bubbles;
