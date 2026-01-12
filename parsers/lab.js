@@ -58,7 +58,8 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
   let playersInTubes = [...charactersData].filter((character, index) => isCompanionBonusActive(account, 0) || holeMajikConnected || character?.AFKtarget === 'Laboratory' ||
     isLabEnabledBySorcererRaw(character, 1) || account?.divinity?.linkedDeities?.[index] === 1)
     .map((character) => ({
-      ...character,
+      playerId: character?.playerId,
+      name: character?.name,
       x: playersCords?.[character?.playerId]?.x,
       y: playersCords?.[character?.playerId]?.y
     }));
@@ -174,6 +175,7 @@ const parseLab = (labRaw, charactersData, account, updatedCharactersData) => {
       soupedUp: index < soupedUpSlots
     }
   })
+  console.log(connectedPlayers)
   return {
     playersCords,
     playersChips: playersChips ?? [],
