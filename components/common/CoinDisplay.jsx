@@ -15,7 +15,7 @@ const CoinDisplay = ({
     <Stack flexWrap={'wrap'} justifyContent={centered ? 'center' : 'flex-start'} direction={'row'}
            gap={variant === 'vertical' ? 2.3 : 1}>
       {money?.map(([coinIndex, coin], index) => {
-        if (coinIndex === 15 && coin > 10000) {
+        if (index === 0 && coin > 10000) {
           coin = notateNumber(coin)
         }
         return index < maxCoins ?
