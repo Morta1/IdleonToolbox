@@ -133,7 +133,7 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
   }
 
   const handleCopyBreakdown = () => {
-    let text = `${data.statName}: ${skipNotation ? data.totalValue : notateNumber(data.totalValue, valueNotation)}\n\n`
+    let text = `${data.statName}: ${data.totalValue}\n\n`
 
     data.categories.forEach((category) => {
       text += `${category.name}:\n`
@@ -326,7 +326,7 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
                 {data.statName}
               </Typography>
               <Typography variant="h5" fontWeight={700}>
-                {skipNotation ? data.totalValue : notateNumber(data.totalValue, valueNotation)}
+                {data.totalValue}
               </Typography>
             </Stack>
           </Stack>

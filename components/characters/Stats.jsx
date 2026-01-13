@@ -99,7 +99,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
               ) : null;
             })}
             <NewStat title={'Cash Multiplier'} useDoubleColumn value={`${cashFormatter(cashMulti, 2)}x`}
-                     breakdown={breakdown} breakdownNotation={'Smaller'} skipNotation/>
+                     breakdown={breakdown} breakdownNotation={'Smaller'} />
             <NewStat title={'Golden Food'}
                      value={`${notateNumber(Math.max(0, 100 * (goldenFoodMulti - 1)), 'MultiplierInfo')}%`}
                      breakdown={goldenFoodBreakdown} breakdownNotation={'Smaller'}/>
@@ -110,7 +110,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
                     ? notateNumber(playerInfo?.finalKillsPerHour)
                     : numberWithCommas(Math.floor(playerInfo?.finalKillsPerHour))}/>
             <NewStat title={'Defence'} value={notateNumber(playerInfo?.defence?.value)}
-                     breakdown={playerInfo?.defence?.breakdown} skipNotation/>
+                     breakdown={playerInfo?.defence?.breakdown}/>
             <Stat title={'Critical Chance'} value={`${notateNumber(playerInfo?.critChance)}%`}/>
             <Stat title={'Critical Damage'} value={`${notateNumber(playerInfo?.critDamage, 'MultiplierInfo')}x`}/>
             <Stat title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>

@@ -84,7 +84,7 @@ const useBreakdown = ({
 
     // Total value - using MUI multi color (#2087e8) - positioned below title
     ctx.font = '700 38px system-ui, -apple-system, sans-serif';
-    const totalText = skipNotation ? data.totalValue : notateNumber(data.totalValue, valueNotation);
+    const totalText = data.totalValue;
     ctx.fillStyle = '#2087e8';
     ctx.fillText(totalText, padding, yPos + 70);
 
