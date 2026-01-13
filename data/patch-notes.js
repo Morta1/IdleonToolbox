@@ -4,6 +4,23 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.22',
+    'gameVer': '2.0.491',
+    'date': '13/1/2026',
+    'features': [
+      'Added timers to vote ballot page',
+      'Added global total cost for all upgrades in the arcade shop'
+    ],
+    'fixes': [
+      'Fixed spelunking power breakdown (slab bonus was called "sailing bonus")',
+      'Fixed a display bug when sorting studies by time',
+      'Fixed a bug where equinox max level was not being calculated correctly',
+      'Fixed shiny  breedability breakdowns',
+      'Fixed coins display where the largest coin was displayed as a normal number instead of a notated number',
+      'Updated the layout of the image when copying breakdown as an image, so the number and the title doesn\'t overlap'
+    ]
+  },
+  {
     'ver': '3.3.21',
     'gameVer': '2.0.491',
     'date': '26/12/2025',
