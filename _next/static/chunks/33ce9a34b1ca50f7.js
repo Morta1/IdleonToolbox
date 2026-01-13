@@ -6,7 +6,7 @@ __turbopack_load_page_chunks__("/account/world-4/breeding", [
   "static/chunks/49d78ef4063457ff.js",
   "static/chunks/31bb57c0664c8b1c.js",
   "static/chunks/2cafe4eab518abb4.js",
-  "static/chunks/69a63b2d33cd27f4.js",
+  "static/chunks/1f6f630d63d15433.js",
   "static/chunks/93ed5fa30a119cb4.js",
   "static/chunks/c652536170c8f688.js",
   "static/chunks/44206aa42820f88c.js",
@@ -18,5 +18,5 @@ __turbopack_load_page_chunks__("/account/world-4/breeding", [
   "static/chunks/a0f10a051705e44b.js",
   "static/chunks/cbc67c9543d2016a.js",
   "static/chunks/87abeaefd60aae9d.js",
-  "static/chunks/turbopack-8d3276664341d3c8.js"
+  "static/chunks/turbopack-b1bb9fcf56b2c585.js"
 ])

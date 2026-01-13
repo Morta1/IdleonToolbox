@@ -15,7 +15,7 @@ __turbopack_load_page_chunks__("/account/world-7/spelunking", [
   "static/chunks/44206aa42820f88c.js",
   "static/chunks/aa64c19f518e4e57.js",
   "static/chunks/ef054655485a17fd.js",
-  "static/chunks/69a63b2d33cd27f4.js",
+  "static/chunks/1f6f630d63d15433.js",
   "static/chunks/c652536170c8f688.js",
-  "static/chunks/turbopack-0620aa6618c20d62.js"
+  "static/chunks/turbopack-70699a0c8005591b.js"
 ])

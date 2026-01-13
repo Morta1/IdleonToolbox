@@ -54,7 +54,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/86eb62ebe7fe836b.js"
   ],
   "/account/misc/storage": [
-    "static/chunks/72dcc1fbf1496059.js"
+    "static/chunks/1b9674126ca1a5da.js"
   ],
   "/account/misc/upgrade-vault": [
     "static/chunks/6807e62262ad016e.js"
@@ -99,7 +99,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/05f48304281e818a.js"
   ],
   "/account/world-2/bubbles": [
-    "static/chunks/91724c2b184f7137.js"
+    "static/chunks/e89bff3b77f68b03.js"
   ],
   "/account/world-2/cauldrons": [
     "static/chunks/686a3a78bd82fb27.js"
@@ -165,10 +165,10 @@ self.__BUILD_MANIFEST = {
     "static/chunks/335b0a2d9f1dfb89.js"
   ],
   "/account/world-4/breeding": [
-    "static/chunks/32e5057c6553d098.js"
+    "static/chunks/33ce9a34b1ca50f7.js"
   ],
   "/account/world-4/cooking": [
-    "static/chunks/6de1be9b51199dea.js"
+    "static/chunks/ae76340c6157d5cb.js"
   ],
   "/account/world-4/laboratory": [
     "static/chunks/de58274633cd4307.js"
@@ -183,10 +183,10 @@ self.__BUILD_MANIFEST = {
     "static/chunks/3322804c8c658b49.js"
   ],
   "/account/world-5/gaming": [
-    "static/chunks/8fd2306bc95a2b6f.js"
+    "static/chunks/8434d6bc195fe460.js"
   ],
   "/account/world-5/hole": [
-    "static/chunks/339841d69e014cc4.js"
+    "static/chunks/47f7f915d78c70a8.js"
   ],
   "/account/world-5/sailing": [
     "static/chunks/d8dc5c2be3839bbc.js"
@@ -216,7 +216,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/9806bad5d49d01da.js"
   ],
   "/account/world-7/coral-reef": [
-    "static/chunks/6de67e164edb1110.js"
+    "static/chunks/e5f99dff8195d0ab.js"
   ],
   "/account/world-7/gallery": [
     "static/chunks/4a45ab0f290fad7c.js"
@@ -231,16 +231,16 @@ self.__BUILD_MANIFEST = {
     "static/chunks/424d945794492428.js"
   ],
   "/account/world-7/spelunking": [
-    "static/chunks/7d44f5fa346e2276.js"
+    "static/chunks/b486b043806ffe67.js"
   ],
   "/account/world-7/zenith-market": [
     "static/chunks/bb67b2147014aee4.js"
   ],
   "/characters": [
-    "static/chunks/b19794c53e0824f9.js"
+    "static/chunks/0c2eb05cb56b9bcc.js"
   ],
   "/dashboard": [
-    "static/chunks/571158a6c62d4b13.js"
+    "static/chunks/9e37c9be735cda1d.js"
   ],
   "/data": [
     "static/chunks/a427469869a31811.js"
