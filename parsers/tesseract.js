@@ -1,5 +1,5 @@
 import { commaNotation, getFilteredPortals, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
-import { mapEnemiesArray, mapPortals, monsterDrops, monsters, tesseract } from '@website-data';
+import { mapEnemiesArray, mapPortals, monsterDrops, monsters, tesseract, items } from '@website-data';
 import { CLASSES, getCharacterByHighestTalent, getTalentBonus, getHighestTalentByClass } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getArcadeBonus } from '@parsers/arcade';
@@ -126,45 +126,57 @@ export const getTesseractBonus = (account, index) => {
 }
 
 export const getWeaponBaseStats = (itemQuality) => {
+  const item = items?.["EquipmentWandsArc0"];
+  const baseStats = {
+    speed: item?.Speed,
+    weaponPower: item?.Weapon_Power,
+    uq1: item?.UQ1val,
+    uq2: item?.UQ2val,
+  };
   const pow15 = (v) => Math.pow(v, 15);
 
   // === Speed ===
-  const speedIntMax = Math.min(6, 2 + Math.floor(itemQuality / 300));
+  // Original: randomInt(-2, min(6, 2 + floor(quality/300))) * pow(randomFloat(min(.7, .4 + quality/6000), 1), 15)
   const speedIntMin = -2;
+  const speedIntMax = Math.min(6, 2 + Math.floor(itemQuality / 300));
   const speedFloatMin = Math.min(0.7, 0.4 + itemQuality / 6000);
   const speedFloatMax = 1;
-  const speedMin = Math.round(speedIntMin * pow15(speedFloatMin));
-  const speedMax = Math.round(speedIntMax * pow15(speedFloatMax));
+  const speedMin = baseStats.speed + Math.round(speedIntMin * pow15(speedFloatMin));
+  const speedMax = baseStats.speed + Math.round(speedIntMax * pow15(speedFloatMax));
 
   // === Weapon Power ===
+  // Original: randomInt(-5, 15) * pow(randomFloat(min(.92, .8 + quality/20000), 1), 15) + floor(quality/25)
   const wpIntMin = -5;
   const wpIntMax = 15;
   const wpFloatMin = Math.min(0.92, 0.8 + itemQuality / 20000);
   const wpFloatMax = 1;
   const qualityBonus = Math.floor(itemQuality / 25);
-  const wpMin = Math.round(wpIntMin * pow15(wpFloatMin) + qualityBonus);
-  const wpMax = Math.round(wpIntMax * pow15(wpFloatMax) + qualityBonus);
+  const wpMin = baseStats.weaponPower + Math.round(wpIntMin * pow15(wpFloatMin) + qualityBonus);
+  const wpMax = baseStats.weaponPower + Math.round(wpIntMax * pow15(wpFloatMax) + qualityBonus);
 
   // === UQ1val (Arcanist DMG) ===
+  // Original: randomInt(-10, 50) * pow(randomFloat(min(.92, .8 + quality/20000), 1), 15) + floor(quality/20)
   const uq1IntMin = -10;
   const uq1IntMax = 50;
   const uq1FloatMin = Math.min(0.92, 0.8 + itemQuality / 20000);
   const uq1FloatMax = 1;
   const uq1QualityBonus = Math.floor(itemQuality / 20);
-  const uq1Min = Math.round(uq1IntMin * pow15(uq1FloatMin) + uq1QualityBonus);
-  const uq1Max = Math.round(uq1IntMax * pow15(uq1FloatMax) + uq1QualityBonus);
+  const uq1Min = baseStats.uq1 + Math.round(uq1IntMin * pow15(uq1FloatMin) + uq1QualityBonus);
+  const uq1Max = baseStats.uq1 + Math.round(uq1IntMax * pow15(uq1FloatMax) + uq1QualityBonus);
 
   // === UQ2val (Extra Tachyons) ===
+  // Original: randomInt(-1, 30) * pow(randomFloat(min(.92, .8 + quality/20000), 1), 15) + floor(quality/15)
   const uq2IntMin = -1;
   const uq2IntMax = 30;
   const uq2FloatMin = Math.min(0.92, 0.8 + itemQuality / 20000);
   const uq2FloatMax = 1;
   const uq2QualityBonus = Math.floor(itemQuality / 15);
-  const uq2Min = Math.round(uq2IntMin * pow15(uq2FloatMin) + uq2QualityBonus);
-  const uq2Max = Math.round(uq2IntMax * pow15(uq2FloatMax) + uq2QualityBonus);
+  const uq2Min = baseStats.uq2 + Math.round(uq2IntMin * pow15(uq2FloatMin) + uq2QualityBonus);
+  const uq2Max = baseStats.uq2 + Math.round(uq2IntMax * pow15(uq2FloatMax) + uq2QualityBonus);
 
   return [
     { title: 'Base stats' },
+    { name: 'Speed', min: speedMin, max: speedMax },
     { name: 'Weapon Power', min: wpMin, max: wpMax },
     { name: 'Arcanist DMG', min: uq1Min, max: uq1Max },
     { name: 'Extra Tachyons', min: uq2Min, max: uq2Max }
@@ -172,25 +184,32 @@ export const getWeaponBaseStats = (itemQuality) => {
 }
 
 export const getRingBaseStats = (itemQuality) => {
+  const item = items?.["EquipmentRingsArc0"];
+  const baseStats = {
+    uq1: item?.UQ1val,
+    uq2: item?.UQ2val,
+  };
   const pow15 = (v) => Math.pow(v, 15);
 
   // === UQ1val (Arcanist ACC) ===
+  // Original: randomInt(-5, 40) * pow(randomFloat(min(.92, .8 + quality/20000), 1), 15) + floor(quality/15)
   const uq1IntMin = -5;
   const uq1IntMax = 40;
   const uq1FloatMin = Math.min(0.92, 0.8 + itemQuality / 20000);
   const uq1FloatMax = 1;
   const uq1QualityBonus = Math.floor(itemQuality / 15);
-  const uq1Min = Math.round(uq1IntMin * pow15(uq1FloatMin) + uq1QualityBonus);
-  const uq1Max = Math.round(uq1IntMax * pow15(uq1FloatMax) + uq1QualityBonus);
+  const uq1Min = baseStats.uq1 + Math.round(uq1IntMin * pow15(uq1FloatMin) + uq1QualityBonus);
+  const uq1Max = baseStats.uq1 + Math.round(uq1IntMax * pow15(uq1FloatMax) + uq1QualityBonus);
 
   // === UQ2val (Extra Tachyons) ===
+  // Original: randomInt(-1, 30) * pow(randomFloat(min(.92, .8 + quality/20000), 1), 15) + floor(quality/10)
   const uq2IntMin = -1;
   const uq2IntMax = 30;
   const uq2FloatMin = Math.min(0.92, 0.8 + itemQuality / 20000);
   const uq2FloatMax = 1;
   const uq2QualityBonus = Math.floor(itemQuality / 10);
-  const uq2Min = Math.round(uq2IntMin * pow15(uq2FloatMin) + uq2QualityBonus);
-  const uq2Max = Math.round(uq2IntMax * pow15(uq2FloatMax) + uq2QualityBonus);
+  const uq2Min = baseStats.uq2 + Math.round(uq2IntMin * pow15(uq2FloatMin) + uq2QualityBonus);
+  const uq2Max = baseStats.uq2 + Math.round(uq2IntMax * pow15(uq2FloatMax) + uq2QualityBonus);
 
   return [
     { title: 'Base stats' },
