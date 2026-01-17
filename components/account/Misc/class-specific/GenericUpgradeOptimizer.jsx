@@ -21,6 +21,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TableSortLabel,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
@@ -31,23 +32,24 @@ import { IconInfoCircleFilled, IconList, IconTable } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import useCheckbox from '@components/common/useCheckbox';
 import { useLocalStorage } from '@mantine/hooks';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 
 const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
 const groupModes = ['None', 'Upgrade', 'Summary'];
 const GenericUpgradeOptimizer = ({
-  character,
-  account,
-  getOptimizedUpgradesFn,
-  upgradeCategories,
-  resourceNames,
-  resourceKey,
-  resourceImagePrefix,
-  upgradeImagePrefix,
-  getResourceType,
-  getUpgradeIconIndex,
-  getResourceAmount,
-  tooltipText
-}) => {
+                                   character,
+                                   account,
+                                   getOptimizedUpgradesFn,
+                                   upgradeCategories,
+                                   resourceNames,
+                                   resourceKey,
+                                   resourceImagePrefix,
+                                   upgradeImagePrefix,
+                                   getResourceType,
+                                   getUpgradeIconIndex,
+                                   getResourceAmount,
+                                   tooltipText
+                                 }) => {
   const [viewMode, setViewMode] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:viewMode`,
     defaultValue: 'grid'
@@ -68,11 +70,16 @@ const GenericUpgradeOptimizer = ({
     key: `${resourceKey}:genericUpgradeOptimizer:customMaxUpgrades`,
     defaultValue: 10
   });
+  const [costSortOrder, setCostSortOrder] = useLocalStorage({
+    key: `${resourceKey}:genericUpgradeOptimizer:costSortOrder`,
+    defaultValue: 'none'
+  });
   const [groupMode, setGroupMode] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:groupMode`,
     defaultValue: 'None'
   });
-  const [AffordableCheckboxEl, onlyAffordable] = useCheckbox('Only show affordable upgrades');
+  const [AffordableCheckboxEl, onlyAffordable] = useCheckbox('Only affordable');
+  const [MasterclassReductionCheckbox, masterClassReduction] = useCheckbox('Masterclass reduction');
   const [resourcePerHour, setResourcePerHour] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:resourcePerHour`,
     defaultValue: (() => {
@@ -81,6 +88,7 @@ const GenericUpgradeOptimizer = ({
       return obj;
     })()
   });
+  const remainingReductedUpgrades = Math.max(0, getLegendTalentBonus(account, 23) - account?.accountOptions?.[480]);
   // Add a separate state for the raw input string for each resource
   const [resourcePerHourInput, setResourcePerHourInput] = useState(() => {
     const obj = {};
@@ -120,15 +128,19 @@ const GenericUpgradeOptimizer = ({
       : maxUpgrades;
     return getOptimizedUpgradesFn(character, account, category, maxToUse, {
       onlyAffordable,
+      masterClassReduction,
       resourcePerHour: optimizationMethod === 'rph' ? resourcePerHour : undefined,
       getResourceType
     });
   }, [character, category, maxUpgradesMode, customMaxUpgrades, maxUpgrades, account, getOptimizedUpgradesFn,
     onlyAffordable, resourcePerHour,
+    masterClassReduction,
     optimizationMethod, getResourceType]);
 
   // Group upgrades by name if consolidation is enabled
+  // Group upgrades by name if consolidation is enabled
   const displayUpgrades = useMemo(() => {
+    let upgrades;
     if (groupMode === 'Upgrade') {
       // Group consecutive upgrades of the same type while preserving order
       const consolidatedUpgrades = [];
@@ -166,7 +178,7 @@ const GenericUpgradeOptimizer = ({
         consolidatedUpgrades.push(currentGroup);
       }
       // Calculate combined stats for each group
-      return consolidatedUpgrades.map(upgrade => {
+      upgrades = consolidatedUpgrades.map(upgrade => {
         if (!upgrade.sequence || upgrade.sequence.length <= 1) {
           return upgrade;
         }
@@ -236,15 +248,26 @@ const GenericUpgradeOptimizer = ({
         }
       });
 
-      const summary = Object.values(grouped).map(g => ({
+      upgrades = Object.values(grouped).map(g => ({
         ...g,
         combinedStatChanges: Object.values(g.combinedStatChanges)
       }));
-
-      return summary;
     }
-    return optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
-  }, [optimizedUpgrades, groupMode, getResourceType]);
+    else {
+      upgrades = optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
+    }
+
+    // Apply sorting if enabled
+    if (costSortOrder !== 'none') {
+      upgrades = [...upgrades].sort((a, b) => {
+        const costA = a.totalCost || a.cost;
+        const costB = b.totalCost || b.cost;
+        return costSortOrder === 'asc' ? costA - costB : costB - costA;
+      });
+    }
+
+    return upgrades;
+  }, [optimizedUpgrades, groupMode, getResourceType, costSortOrder, category]);
 
   // Calculate total resource costs by type
   const resourceUsage = useMemo(() => {
@@ -296,7 +319,7 @@ const GenericUpgradeOptimizer = ({
     const resourceTypeKey = getResourceType(upgrade);
     return (
       <>
-        <Divider sx={{ my: 1 }} />
+        <Divider sx={{ my: 1 }}/>
         <Typography variant="subtitle2" gutterBottom>
           Total Benefits (Levels {upgrade.startLevel} → {upgrade.finalLevel})
         </Typography>
@@ -305,7 +328,7 @@ const GenericUpgradeOptimizer = ({
             {statChange.stat.charAt(0).toUpperCase() + statChange.stat.slice(1)}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
           </Typography>
         ))}
-        <Divider sx={{ my: 1 }} />
+        <Divider sx={{ my: 1 }}/>
         <Stack direction="row" gap={1} alignItems="center">
           <img
             style={{ objectPosition: '0 -6px' }}
@@ -352,6 +375,18 @@ const GenericUpgradeOptimizer = ({
       handleValueCommit(key, rawValue);
     });
     setRphDialogOpen(false);
+  };
+
+  const handleCostSort = () => {
+    if (costSortOrder === 'none') {
+      setCostSortOrder('asc');
+    }
+    else if (costSortOrder === 'asc') {
+      setCostSortOrder('desc');
+    }
+    else {
+      setCostSortOrder('none');
+    }
   };
 
   return (
@@ -439,11 +474,15 @@ const GenericUpgradeOptimizer = ({
             ))}
           </Select>
         </FormControl>
-        <AffordableCheckboxEl />
-        <Tooltip title={tooltipText}>
-          <IconInfoCircleFilled />
-        </Tooltip>
-        <Divider sx={{ my: 1 }} flexItem orientation={'vertical'} />
+        <Tooltip title={tooltipText}> <IconInfoCircleFilled size={16}/> </Tooltip>
+        <Stack>
+          <AffordableCheckboxEl/>
+          <Stack direction={'row'} alignItems={'center'} >
+            <MasterclassReductionCheckbox/>
+            <Tooltip title={`${remainingReductedUpgrades} reduced-cost upgrades remaining (legend talent)`}><IconInfoCircleFilled size={16}/></Tooltip>
+          </Stack>
+        </Stack>
+        <Divider sx={{ my: 1 }} flexItem orientation={'vertical'}/>
         {resourceUsage.map((resource) => {
           const resourceTypeKey = Object.keys(resourceNames).find(key => resourceNames[key] === resource.name) || resource.name;
           const resourcePerHourValue = resourcePerHour[resourceTypeKey];
@@ -476,9 +515,9 @@ const GenericUpgradeOptimizer = ({
           onChange={(_, val) => val && setViewMode(val)}
         >
           <Tooltip title={'Grid view'}><ToggleButton sx={{ height: 40 }}
-            value="grid"><IconTable /></ToggleButton></Tooltip>
+                                                     value="grid"><IconTable/></ToggleButton></Tooltip>
           <Tooltip title={'List view'}><ToggleButton sx={{ height: 40 }}
-            value="list"><IconList /></ToggleButton></Tooltip>
+                                                     value="list"><IconList/></ToggleButton></Tooltip>
         </ToggleButtonGroup>
       </Stack>
 
@@ -565,10 +604,10 @@ const GenericUpgradeOptimizer = ({
                       ? renderCombinedStats(upgrade)
                       : (
                         <>
-                          <Divider sx={{ my: 1 }} />
+                          <Divider sx={{ my: 1 }}/>
                           {category === 'all' ? cleanUnderscore(upgrade.description
                           ) : renderStatChanges(upgrade.statChanges)}
-                          <Divider sx={{ my: 1 }} />
+                          <Divider sx={{ my: 1 }}/>
                           <Stack direction="row" gap={1} alignItems="center">
                             <img
                               style={{ objectPosition: '0 -6px' }}
@@ -597,7 +636,15 @@ const GenericUpgradeOptimizer = ({
                   <TableCell>Name</TableCell>
                   <TableCell>Level</TableCell>
                   <TableCell>Stat Changes</TableCell>
-                  <TableCell>Cost</TableCell>
+                  <TableCell>
+                    <TableSortLabel
+                      active={costSortOrder !== 'none'}
+                      direction={costSortOrder === 'none' ? 'asc' : costSortOrder}
+                      onClick={handleCostSort}
+                    >
+                      Cost
+                    </TableSortLabel>
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -671,4 +718,4 @@ const GenericUpgradeOptimizer = ({
   );
 };
 
-export default GenericUpgradeOptimizer; 
+export default GenericUpgradeOptimizer;
