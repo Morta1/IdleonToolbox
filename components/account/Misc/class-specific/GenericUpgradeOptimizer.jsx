@@ -128,7 +128,7 @@ const GenericUpgradeOptimizer = ({
       : maxUpgrades;
     return getOptimizedUpgradesFn(character, account, category, maxToUse, {
       onlyAffordable,
-      masterClassReduction,
+      forceLegendTalent: masterClassReduction,
       resourcePerHour: optimizationMethod === 'rph' ? resourcePerHour : undefined,
       getResourceType
     });

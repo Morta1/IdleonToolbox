@@ -221,8 +221,8 @@ export const getWraithStats = (character, account) => {
   };
 }
 
-const getUpgradeCost = ({ index, level, x1, x2, account }) => {
-  return 3 * Math.pow(1.05, index) * getMasterclassCostReduction(account) * (level + (x1 + level) * Math.pow(x2 + 0.01, level));
+const getUpgradeCost = ({ index, level, x1, x2, account, forceLegendTalent }) => {
+  return 3 * Math.pow(1.05, index) * getMasterclassCostReduction(account, forceLegendTalent) * (level + (x1 + level) * Math.pow(x2 + 0.01, level));
 }
 
 const getExtraBonesBonus = (character, account) => {
@@ -270,7 +270,7 @@ export const getOptimizedGrimoireUpgrades = (character, account, category = 'dam
     getUpgrades: acc => acc?.grimoire?.upgrades || [],
     getResources: acc => acc?.grimoire?.bones || [],
     getCurrentStats: (upgrades, char, acc) => getWraithStats(char, { ...acc, grimoire: { ...acc.grimoire, upgrades } }),
-    getUpgradeCost: (upgrade, index) => getUpgradeCost({ ...upgrade, index, level: upgrade.level, x1: upgrade.x1, x2: upgrade.x2, account }),
+    getUpgradeCost: (upgrade, index, {forceLegendTalent}) => getUpgradeCost({ ...upgrade, index, level: upgrade.level, x1: upgrade.x1, x2: upgrade.x2, account, forceLegendTalent }),
     applyUpgrade: (upgrade, upgradesArr) => upgradesArr.map(u => u.index === upgrade.index ? { ...u, level: u.level + 1 } : u),
     updateResourcesAfterUpgrade: (resources, upgrade, resourceNames, cost) => {
       const boneIdx = upgrade.boneType ?? upgrade.x3;

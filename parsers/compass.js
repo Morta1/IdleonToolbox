@@ -557,7 +557,7 @@ export const getExtraDust = (character, account) => {
                       + arcadeBonus))))))))) / 100);
 }
 
-const getUpgradeCost = (upgrades, index, serverVars, accountData) => {
+const getUpgradeCost = (upgrades, index, serverVars, accountData, forceLegendTalent) => {
   // Set base cost reduction and surplus
   let redCost = 1;
   let surplusCost = 0;
@@ -633,7 +633,7 @@ const getUpgradeCost = (upgrades, index, serverVars, accountData) => {
   const randoList = randomList[randoListIndex]?.split(' ');
   const randoMultiplier = Math.max(1, Math.pow(3.69 - randoList.length / 27, randoList.indexOf('' + index)));
 
-  const finalCost = getMasterclassCostReduction(accountData) * (
+  const finalCost = getMasterclassCostReduction(accountData, forceLegendTalent) * (
     surplusCost +
     dustCost * (1 / bonusReduction) *
     (1 / Math.max(1, redCost)) *
@@ -659,7 +659,11 @@ export const getOptimizedUpgrades = (character, account, category = 'damage', ma
     getUpgrades: acc => (acc?.compass?.groupedUpgrades || {}).flatMap(({ list }) => list).toSorted((a, b) => a.index - b.index) || [],
     getResources: acc => acc?.compass?.dusts || [],
     getCurrentStats: (upgrades, char, acc) => getCompassStats(char, { ...acc, compass: { ...acc.compass, upgrades } }),
-    getUpgradeCost: (upgrade, index, { account, upgrades }) => getUpgradeCost(upgrades, index, account?.serverVars, account),
+    getUpgradeCost: (upgrade, index, {
+      account,
+      upgrades,
+      forceLegendTalent
+    }) => getUpgradeCost(upgrades, index, account?.serverVars, account, forceLegendTalent),
     applyUpgrade: (upgrade, upgradesArr) => upgradesArr.map(u => u.index === upgrade.index ? {
       ...u,
       level: u.level + 1

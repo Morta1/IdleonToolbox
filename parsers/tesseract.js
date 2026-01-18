@@ -531,8 +531,8 @@ export const getPrismaMulti = (account) => {
   };
 }
 
-const getUpgradeCost = ({ index, x1, x2, level, account, upgrades }) => {
-  return 3 * getMasterclassCostReduction(account)
+const getUpgradeCost = ({ index, x1, x2, level, account, upgrades, forceLegendTalent }) => {
+  return 3 * getMasterclassCostReduction(account, forceLegendTalent)
     * (1 / (1 + (calcTesseractBonus(upgrades, 49, 0)
       * lavaLog(account?.accountOptions?.[392])) / 100))
     * Math.pow(1.04, index) * (level + (x1 + level) * Math.pow(x2 + 0.01, level))
@@ -573,7 +573,7 @@ export const getOptimizedTesseractUpgrades = (character, account, category = 'da
     getUpgrades: acc => acc?.tesseract?.upgrades || [],
     getResources: acc => acc?.tesseract?.tachyons || [],
     getCurrentStats: (upgrades, char, acc) => getArcanistStats(upgrades, acc?.tesseract?.totalUpgradeLevels, char, acc),
-    getUpgradeCost: (upgrade, index, { account, upgrades }) => getUpgradeCost({ ...upgrade, index, account, upgrades }),
+    getUpgradeCost: (upgrade, index, { account, upgrades, forceLegendTalent }) => getUpgradeCost({ ...upgrade, index, account, upgrades, forceLegendTalent }),
     applyUpgrade: (upgrade, upgradesArr) => upgradesArr.map(u => u.index === upgrade.index ? {
       ...u,
       level: u.level + 1
