@@ -51,9 +51,21 @@ function isUpgradeAffordable(upgrade, cost, simulatedResources, resourceNames) {
 
 // Helper function to apply master class cost reduction
 function applyMasterClassReduction(cost, upgrade, account, extraArgs) {
-  if (!extraArgs.masterClassReduction) return cost;
   const hasBonusBundle = isBundlePurchased(account?.bundles, 'bon_p');
-  return cost * (hasBonusBundle ? 0.05 : 0.2);
+
+  let multiplier = 1;
+
+  // Bundle always applies
+  if (hasBonusBundle) {
+    multiplier *= 0.25; // 75% reduction
+  }
+
+  // MasterClass toggle applies on top
+  if (extraArgs.masterClassReduction) {
+    multiplier *= 0.2; // 80% reduction
+  }
+
+  return cost * multiplier;
 }
 
 export function getOptimizedGenericUpgrades({
