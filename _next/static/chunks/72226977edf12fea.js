@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/account/world-7/legend-talents", [
+  "static/chunks/15233d685445edcb.js",
+  "static/chunks/6532a969801b0f6e.js",
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/16ea8ce815bf1619.js",
+  "static/chunks/49d78ef4063457ff.js",
+  "static/chunks/a029816bb73c2466.js",
+  "static/chunks/32fef4392fa34b20.js",
+  "static/chunks/cbc67c9543d2016a.js",
+  "static/chunks/44206aa42820f88c.js",
+  "static/chunks/0b04d532b1cff7b2.js",
+  "static/chunks/b9898908ac97cd52.js",
+  "static/chunks/dadc17446b449b02.js",
+  "static/chunks/cf026bc248fcac7e.js",
+  "static/chunks/a0f10a051705e44b.js",
+  "static/chunks/31bb57c0664c8b1c.js",
+  "static/chunks/ef054655485a17fd.js",
+  "static/chunks/turbopack-cd8c95d4d3672772.js"
+])
