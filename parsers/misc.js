@@ -1080,7 +1080,7 @@ export const getItemCapacity = (type = '', character, account, forceMaxCapacity)
     ]
   }
   else if ('dCurrency' === type || 'dQuest' === type || 'dStatueStone' === type) {
-    value = 999999;
+    value = 9999999;
   }
   else if ('bCraft' === type) {
     value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.bCraft)
@@ -1099,13 +1099,13 @@ export const getItemCapacity = (type = '', character, account, forceMaxCapacity)
     ]
   }
   else if ('dExpOrb' === type || 'dStone' === type || 'dFishToolkit' === type) {
-    value = 999999;
+    value = 9999999;
   }
   else if ('fillerz' === type) {
     value = character?.maxCarryCap?.fillerz;
   }
   else if ('d' === type.charAt(0)) {
-    value = 999999;
+    value = 9999999;
   }
   else {
     value = 2;
