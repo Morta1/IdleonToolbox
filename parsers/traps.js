@@ -3,6 +3,8 @@ import { getVialsBonusByStat } from '@parsers/alchemy';
 import { checkCharClass, CLASSES, getCharacterByHighestTalent, getTalentBonus } from '@parsers/talents';
 import { getCompassBonus } from '@parsers/compass';
 import { getAtomBonus } from '@parsers/atomCollider';
+import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
+import { getPaletteBonus } from '@parsers/gaming';
 
 export const getTraps = (rawCharactersData) => {
   return parseTraps(rawCharactersData);
@@ -74,9 +76,12 @@ export const getTrapsBonuses = (account, characters) => {
 export const calcCrittersBonus = ({ currentCharacterIndex, account, characters, isExp }) => {
   // CollectAllPCT
   const atomBonus = getAtomBonus(account, 'Magnesium_-_Trap_Compounder') * account?.accountOptions?.[363];
+  const dementiaSetBonus = getArmorSetBonus(account, 'DEMENTIA_SET');
+  const paletteBonus = getPaletteBonus(account, 12);
   let moreCritters = isExp
     ? 0
-    : getVialsBonusByStat(account?.alchemy?.vials, 'TrapOvision') + getCompassBonus(account, 42) + atomBonus;
+    : getVialsBonusByStat(account?.alchemy?.vials, 'TrapOvision') + getCompassBonus(account, 42)
+    + atomBonus + dementiaSetBonus + paletteBonus;
   if (checkCharClass(characters?.[currentCharacterIndex]?.class, CLASSES.Hunter)) {
     const bestHunter = getCharacterByHighestTalent(characters, CLASSES.Hunter, 'EAGLE_EYE', isExp);
     moreCritters += isExp
