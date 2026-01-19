@@ -212,7 +212,9 @@ export const getGuaranteedCrystalMobs = (account) => {
 
 export const getMasterclassCostReduction = (account, forceLegendTalent) => {
   const hasBonusBundle = isBundlePurchased(account?.bundles, 'bon_p');
-  const hasLegendTalent = forceLegendTalent || account?.accountOptions?.[480] < getLegendTalentBonus(account, 23);
+  const hasLegendTalent = forceLegendTalent === undefined
+    ? account?.accountOptions?.[480] < getLegendTalentBonus(account, 23)
+    : forceLegendTalent;
   return hasLegendTalent
     ? (hasBonusBundle ? 0.05 : 0.2)
     : (hasBonusBundle ? 0.25 : 1);

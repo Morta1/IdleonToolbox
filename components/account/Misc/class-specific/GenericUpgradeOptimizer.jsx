@@ -79,7 +79,11 @@ const GenericUpgradeOptimizer = ({
     defaultValue: 'None'
   });
   const [AffordableCheckboxEl, onlyAffordable] = useCheckbox('Only affordable');
-  const [MasterclassReductionCheckbox, masterClassReduction] = useCheckbox('Masterclass reduction');
+  // const [MasterclassReductionCheckbox, masterClassReduction] = useCheckbox('Masterclass reduction');
+  const [masterClassReduction, setMasterClassReduction] = useLocalStorage({
+    key: `${resourceKey}:genericUpgradeOptimizer:masterClassReduction`,
+    defaultValue: getLegendTalentBonus(account, 23)
+  });
   const [resourcePerHour, setResourcePerHour] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:resourcePerHour`,
     defaultValue: (() => {
@@ -128,7 +132,8 @@ const GenericUpgradeOptimizer = ({
       : maxUpgrades;
     return getOptimizedUpgradesFn(character, account, category, maxToUse, {
       onlyAffordable,
-      forceLegendTalent: masterClassReduction,
+      masterClassReduction: parseFloat(masterClassReduction),
+      forceLegendTalent: false,
       resourcePerHour: optimizationMethod === 'rph' ? resourcePerHour : undefined,
       getResourceType
     });
@@ -474,13 +479,32 @@ const GenericUpgradeOptimizer = ({
             ))}
           </Select>
         </FormControl>
+        <TextField
+          size="small"
+          type="number"
+          inputProps={{ min: 0 }}
+          sx={{ width: 160 }}
+          label="Masterclass reductions"
+          value={masterClassReduction}
+          onChange={(e) => {
+            const v = parseInt(e.target.value, 10);
+            if (isNaN(v)) {
+              setMasterClassReduction('');
+            }
+            else {
+              setMasterClassReduction(Math.max(0, v));
+            }
+          }}
+        />
         <Tooltip title={tooltipText}> <IconInfoCircleFilled size={16}/> </Tooltip>
         <Stack>
           <AffordableCheckboxEl/>
-          <Stack direction={'row'} alignItems={'center'} >
-            <MasterclassReductionCheckbox/>
-            <Tooltip title={`${remainingReductedUpgrades} reduced-cost upgrades remaining (legend talent)`}><IconInfoCircleFilled size={16}/></Tooltip>
-          </Stack>
+          {/*<Stack direction={'row'} alignItems={'center'}>*/}
+          {/*  /!*<MasterclassReductionCheckbox/>*!/*/}
+          {/*  <Tooltip*/}
+          {/*    title={`${remainingReductedUpgrades} reduced-cost upgrades remaining (legend talent)`}><IconInfoCircleFilled*/}
+          {/*    size={16}/></Tooltip>*/}
+          {/*</Stack>*/}
         </Stack>
         <Divider sx={{ my: 1 }} flexItem orientation={'vertical'}/>
         {resourceUsage.map((resource) => {
