@@ -34,7 +34,7 @@ const Islands = () => {
     />
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       <CardTitleAndValue title={'Bottles'} value={Math.round(islands?.bottles)}/>
-      <CardTitleAndValue title={'Bottles/day'} value={islands?.bottlesPerDay}/>
+      <CardTitleAndValue title={'Bottles/day'} value={islands?.bottlesPerDay || '0'}/>
       <CardTitleAndValue title={'Trash/day *'} value={islands?.trashPerDay}
                          tooltipTitle={trashDisclaimer}/>
       <CardTitleAndValue title={'Unclaimed days'} value={islands?.numberOfDaysAfk || '0'}/>

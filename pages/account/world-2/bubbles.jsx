@@ -19,7 +19,7 @@ import {
 import React, { Fragment, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import styled from '@emotion/styled';
-import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from 'utility/helpers';
+import { cleanUnderscore, commaNotation, growth, notateNumber, pascalCase, prefix } from 'utility/helpers';
 import HtmlTooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
 import {
@@ -410,7 +410,7 @@ const Bubbles = () => {
                         <Stack direction={batchLayout || isSm ? 'column' : 'row'} alignItems={'center'}>
                           <Typography color={thresholdObj?.thresholdMissingLevels > 0 ? 'error.light' : ''}
                             sx={{ mr: !batchLayout ? .5 : 0 }}
-                            variant={'caption'}>{level}</Typography>
+                            variant={'caption'}>{commaNotation(level)}</Typography>
                           {showMissingLevels && thresholdObj?.thresholdMissingLevels > 0 ? <>
                             {batchLayout
                               ? <Typography
