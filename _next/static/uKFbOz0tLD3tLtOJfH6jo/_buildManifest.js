@@ -12,13 +12,13 @@ self.__BUILD_MANIFEST = {
     "static/chunks/64a8001f6e1c52d9.js"
   ],
   "/account/class-specific/compass": [
-    "static/chunks/245499fa1329bd99.js"
+    "static/chunks/c28678e6ca8e6612.js"
   ],
   "/account/class-specific/grimoire": [
-    "static/chunks/4edec71fd7becf16.js"
+    "static/chunks/b69f6bb3f97462b5.js"
   ],
   "/account/class-specific/tesseract": [
-    "static/chunks/56048e1e5daba17b.js"
+    "static/chunks/2c7f78b4d1a4302f.js"
   ],
   "/account/clickers/bubba": [
     "static/chunks/362d71c326c61e8b.js"
