@@ -99,5 +99,5 @@ export const calcCrittersBonus = ({ currentCharacterIndex, account, characters, 
     }
     moreCritters += highestCritterBonus;
   }
-  return isNaN(moreCritters) ? 1 : moreCritters / 100;
+  return Math.floor(Math.min(2e9,isNaN(moreCritters) ? 1 : moreCritters / 100));
 }
