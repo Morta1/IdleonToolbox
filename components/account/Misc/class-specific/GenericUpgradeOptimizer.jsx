@@ -124,7 +124,7 @@ const GenericUpgradeOptimizer = ({
   useEffect(() => () => {
     Object.values(valueCommitDebouncersRef.current).forEach(fn => fn?.cancel?.());
   }, []);
-
+  console.log('masterClassReduction##', masterClassReduction)
   const optimizedUpgrades = useMemo(() => {
     if (!character) return [];
     const maxToUse = maxUpgradesMode === 'custom'
@@ -132,7 +132,7 @@ const GenericUpgradeOptimizer = ({
       : maxUpgrades;
     return getOptimizedUpgradesFn(character, account, category, maxToUse, {
       onlyAffordable,
-      masterClassReduction: parseFloat(masterClassReduction),
+      masterClassReduction: isNaN(masterClassReduction) ? 0 : masterClassReduction,
       forceLegendTalent: false,
       resourcePerHour: optimizationMethod === 'rph' ? resourcePerHour : undefined,
       getResourceType
