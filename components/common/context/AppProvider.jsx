@@ -7,7 +7,8 @@ import useInterval from '../../hooks/useInterval';
 import { getUserToken } from '../../../logins/google';
 import { offlineTools } from '../NavBar/AppDrawer/ToolsDrawer';
 import { geAppleStatus } from '../../../logins/apple';
-import { getProfile } from '../../../services/profiles';
+import { expandLeaderboardInfo, getProfile } from '../../../services/profiles';
+import { sendWebhook } from '../../../services/webhook';
 
 export const AppContext = createContext({});
 
@@ -388,6 +389,22 @@ const AppProvider = ({ children }) => {
         isLoading: false
       }
     });
+
+    try {
+      const autoSend = JSON.parse(localStorage.getItem('webhook:auto'));
+      const webhookUrl = JSON.parse(localStorage.getItem('webhook:url'));
+
+      if (autoSend && webhookUrl) {
+        const rawJson = JSON.parse(localStorage.getItem('rawJson'));
+        const { account, characters } = parsedData;
+        const calculated = expandLeaderboardInfo(account, characters);
+        sendWebhook(webhookUrl, { raw: rawJson, calculated, timestamp: Date.now() })
+          .catch(err => console.error('Auto-webhook failed', err));
+      }
+    } catch (err) {
+      console.error('Error processing webhook', err);
+    }
+
     parsedData = null;
   };
 

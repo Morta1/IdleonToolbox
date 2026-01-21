@@ -40,6 +40,8 @@ import Tooltip from '@components/Tooltip';
 import { TitleAndValue } from '@components/common/styles';
 import { useLocalStorage } from '@mantine/hooks';
 import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
+import { sendWebhook } from '../services/webhook';
+import { IconWebhook } from '@tabler/icons-react';
 
 const HOURS = 4;
 const WAIT_TIME = 1000 * 60 * 60 * HOURS;
@@ -58,6 +60,12 @@ const Data = () => {
     defaultValue: false
   });
   const [removeGemsInfo, setRemoveGemsInfo] = useLocalStorage({ key: 'data:removeGemsInfo', defaultValue: true });
+  const [webhookUrl, setWebhookUrl] = useLocalStorage({ key: 'webhook:url', defaultValue: '' });
+  const [autoSendWebhook, setAutoSendWebhook] = useLocalStorage({ key: 'webhook:auto', defaultValue: false });
+  const [webhookLoading, setWebhookLoading] = useState(false);
+  const [webhookError, setWebhookError] = useState('');
+  const [webhookSuccess, setWebhookSuccess] = useState(false);
+
   const [error, setError] = useState('');
   const showWideSideBanner = useMediaQuery('(min-width: 1200px)', { noSsr: true });
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
@@ -155,6 +163,22 @@ const Data = () => {
     }
   }
 
+  const handleTestWebhook = async () => {
+    setWebhookLoading(true);
+    setWebhookError('');
+    setWebhookSuccess(false);
+    try {
+      const rawJson = JSON.parse(localStorage.getItem('rawJson'));
+      const calculated = expandLeaderboardInfo(state?.account, state?.characters);
+      await sendWebhook(webhookUrl, { raw: rawJson, calculated, timestamp: Date.now() });
+      setWebhookSuccess(true);
+    } catch (err) {
+      setWebhookError(err.message || 'Failed to send webhook');
+    } finally {
+      setWebhookLoading(false);
+    }
+  };
+
   useTimeout(() => {
     setAnchorEl(null);
   }, anchorEl ? 1000 : null)
@@ -219,6 +243,45 @@ const Data = () => {
           <ButtonStyle variant={'outlined'} onClick={() => setOpenPolicy(true)}>Learn
             more</ButtonStyle>
           <CookiePolicyDialog open={openPolicy} onClose={() => setOpenPolicy(false)}/>
+        </Section>
+        <Section title={'Webhook Integration'} description={'Automatically send data to an external URL (e.g. n8n)'}>
+          <Stack gap={2} width={'100%'}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Webhook URL"
+              value={webhookUrl}
+              onChange={(e) => setWebhookUrl(e.target.value)}
+              placeholder="https://..."
+            />
+            <Stack direction="row" alignItems="center" gap={2}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={autoSendWebhook}
+                    onChange={(e) => setAutoSendWebhook(e.target.checked)}
+                  />
+                }
+                label="Automatically send on data update"
+              />
+              <ButtonStyle
+                variant="contained"
+                onClick={handleTestWebhook}
+                disabled={!webhookUrl || webhookLoading}
+                startIcon={<IconWebhook size={20} />}
+              >
+                Test Webhook
+              </ButtonStyle>
+              <Fade in={webhookSuccess}>
+                <CheckCircleIcon color="success" />
+              </Fade>
+            </Stack>
+            {webhookError && (
+              <Typography variant="body2" color="error">
+                {webhookError}
+              </Typography>
+            )}
+          </Stack>
         </Section>
       </Stack>
       <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)}/>
