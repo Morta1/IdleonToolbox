@@ -1,9 +1,11 @@
-import React, { useState, useMemo } from 'react';
-import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
+import React, { useMemo, useState } from 'react';
+import { Card, CardContent, Checkbox, Divider, FormControlLabel, IconButton, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import { cleanUnderscore, commaNotation, msToDate } from '@utility/helpers';
 import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
 import { isSuperbitUnlocked } from '@parsers/gaming';
+import { IconAlertTriangle } from '@tabler/icons-react';
+import Tooltip from '@components/Tooltip';
 
 const colors = {
   0: '#c471d2',
@@ -49,7 +51,16 @@ const Study = ({ account }) => {
     </Stack>
     <Divider sx={{ mb: 3 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {sortedStudies.map(({ name, description, level, active, peripheralVisionActive, progress, req, listIndex }, index) => {
+      {sortedStudies.map(({
+                            name,
+                            description,
+                            level,
+                            active,
+                            peripheralVisionActive,
+                            progress,
+                            req,
+                            listIndex
+                          }, index) => {
         const nextLv = (req - progress) / hole?.studies?.studyPerHour * 1000 * 3600;
         const isActive = active || peripheralVisionActive;
 
@@ -58,8 +69,15 @@ const Study = ({ account }) => {
             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
               <Typography color={colors?.[listIndex]} variant={'body1'}
                           sx={{ fontWeight: 'bold' }}>{cleanUnderscore(name)} (Lv. {level})</Typography>
+              {index === 4 ? <IconButton>
+                <Tooltip title={'Bonus triggers on level 19, 39, 59, 79 ...'}>
+                  <IconAlertTriangle color="#cc952e"/>
+                </Tooltip>
+              </IconButton> : null}
             </Stack>
-              {isActive ? <Typography color={'success.light'} variant={'caption'}>ACTIVE{peripheralVisionActive ? ' (Peripheral Vision)' : ''}</Typography> : null}
+            {isActive ? <Typography color={'success.light'} variant={'caption'}>ACTIVE{peripheralVisionActive
+              ? ' (Peripheral Vision)'
+              : ''}</Typography> : null}
             <Typography mt={2}>{cleanUnderscore(description)}</Typography>
             <Stack mt={2} gap={1}>
               <Typography variant={'body2'}>Progress: {commaNotation(progress)} / {commaNotation(req)}</Typography>
