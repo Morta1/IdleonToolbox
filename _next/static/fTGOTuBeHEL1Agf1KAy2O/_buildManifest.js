@@ -15,7 +15,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/c28678e6ca8e6612.js"
   ],
   "/account/class-specific/grimoire": [
-    "static/chunks/b69f6bb3f97462b5.js"
+    "static/chunks/618e171fb018a4bf.js"
   ],
   "/account/class-specific/tesseract": [
     "static/chunks/2c7f78b4d1a4302f.js"
@@ -186,7 +186,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/3f21a956bf32c084.js"
   ],
   "/account/world-5/hole": [
-    "static/chunks/063184b9651691db.js"
+    "static/chunks/736018c4f6335f1f.js"
   ],
   "/account/world-5/sailing": [
     "static/chunks/bb020f344fb2e4d1.js"
