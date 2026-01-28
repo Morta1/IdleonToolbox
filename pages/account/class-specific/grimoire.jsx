@@ -43,7 +43,7 @@ const Grimoire = () => {
           <InfoIcon/>
         </Stack>
       </Tooltip>}/> : null}
-      {bones?.map((amount, index) => <CardTitleAndValue key={index} value={commaNotation(amount || '0')}
+      {bones?.map((amount, index) => <CardTitleAndValue key={index} value={notateNumber(amount || '0')}
                                                         title={`${boneNames[index]}`}
                                                         icon={`data/Bone${index}_x1.png`}
                                                         imgStyle={{ objectPosition: '0 -6px' }}
