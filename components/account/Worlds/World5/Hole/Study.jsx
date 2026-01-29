@@ -70,7 +70,7 @@ const Study = ({ account }) => {
               <Typography color={colors?.[listIndex]} variant={'body1'}
                           sx={{ fontWeight: 'bold' }}>{cleanUnderscore(name)} (Lv. {level})</Typography>
               {index === 4 ? <IconButton>
-                <Tooltip title={'Bonus triggers on level 19, 39, 59, 79 ...'}>
+                <Tooltip title={'Bonus triggers on rings 19, 39, 59, 79 ...'}>
                   <IconAlertTriangle color="#cc952e"/>
                 </Tooltip>
               </IconButton> : null}

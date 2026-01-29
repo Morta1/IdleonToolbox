@@ -25,7 +25,7 @@ const TheBell = ({ hole }) => {
                          >
         <Stack direction={'row'} alignItems={'center'} gap={1} >
           <Typography>{notateNumber(hole?.caverns?.theBell?.rings, 'Big')}</Typography>
-          <Tooltip title={'20th ring bonus from study triggers on level 19, 39, 59, 79 ...'}>
+          <Tooltip title={'20th ring bonus from study triggers on rings 19, 39, 59, 79 ...'}>
             <IconAlertTriangle color="#cc952e" size={18}/>
           </Tooltip>
 
