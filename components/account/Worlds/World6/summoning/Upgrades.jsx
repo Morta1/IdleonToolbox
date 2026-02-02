@@ -23,7 +23,8 @@ const COLOR_MAP = {
   3: 'Blue',
   4: 'Purple',
   5: 'Red',
-  6: 'Cyan'
+  6: 'Cyan',
+  7: 'Teal'
 }
 const Upgrades = ({ upgrades, totalUpgradesLevels, resourceKey = prefix }) => {
   const [sortByCost, setSortByCost] = useLocalStorage({

@@ -701,11 +701,12 @@ export const getWorld4Alerts = (account, fields, options) => {
     }));
     const chips = labRotation.slice(0, 2);
     const jewels = labRotation.slice(2);
-    if (options?.laboratory?.chipsRotation?.checked && chips.some(({
-      claimed,
-      requirementsMet
-    }) => !claimed && requirementsMet)) {
-      laboratory.chipsRotation = chips;
+    const unclaimedChips = chips.filter(({
+                                         claimed,
+                                         requirementsMet
+                                       }) => !claimed && requirementsMet)
+    if (options?.laboratory?.chipsRotation?.checked && unclaimedChips) {
+      laboratory.chipsRotation = unclaimedChips;
     }
     if (options?.laboratory?.jewelsRotation?.checked && jewels.some(({
       claimed,
@@ -1093,7 +1094,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
     if (options?.spelunking?.fullStaminaCharacters?.checked) {
       const threshold = options?.spelunking?.fullStaminaCharacters?.props?.value ?? 1;
       const charactersStamina = account?.spelunking?.charactersStamina ?? [];
-      const fullStaminaCount = charactersStamina.filter(({ characterStamina, currentStamina }) => 
+      const fullStaminaCount = charactersStamina.filter(({ characterStamina, currentStamina }) =>
         currentStamina >= characterStamina
       ).length;
       if (fullStaminaCount >= threshold) {

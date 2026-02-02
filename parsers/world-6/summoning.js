@@ -16,14 +16,15 @@ import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getTesseractBonus } from '@parsers/tesseract';
 
-const summonEssenceColor = {
+export const summonEssenceColor = {
   0: 'white',
   1: 'green',
   2: 'yellow',
   3: 'blue',
   4: 'purple',
   5: 'red',
-  6: 'cyan'
+  6: 'cyan',
+  7: 'teal'
 }
 const stoneNames = {
   0: 'aether',

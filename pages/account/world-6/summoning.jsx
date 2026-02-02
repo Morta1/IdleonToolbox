@@ -10,6 +10,7 @@ import { Divider, Stack } from '@mui/material';
 import Battles from '@components/account/Worlds/World6/summoning/Battles';
 import { PAGES } from '@components/constants';
 import Stones from '@components/account/Worlds/World6/summoning/Stones';
+import { summonEssenceColor } from '@parsers/world-6/summoning';
 
 const Summoning = () => {
   const { state } = useContext(AppContext);
@@ -34,7 +35,7 @@ const Summoning = () => {
                          icon={'etc/Endless_Summoning.png'} imgStyle={{ width: 25 }} cardSx={{ my: 0, mb: 0 }}/>
       <Divider flexItem orientation={'vertical'}/>
       {essences?.map((value, index) => {
-        if (index > 6) return null;
+        if (index >= Object.keys(summonEssenceColor).length) return null;
         return <CardTitleAndValue key={index} value={notateNumber(value)} icon={`data/SummC${index + 1}.png`}
                                   cardSx={{ my: 0, mb: 0 }}/>
       })}
@@ -42,8 +43,9 @@ const Summoning = () => {
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'summoning')}>
       <Upgrades upgrades={upgrades} totalUpgradesLevels={numberWithCommas(totalUpgradesLevels)}/>
       <WinnerBonuses winnerBonuses={winnerBonuses}/>
-      <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage} highestEndlessLevel={highestEndlessLevel} winnerBonuses={winnerBonuses}/>
-      <Stones stones={summoningStones} />
+      <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage}
+               highestEndlessLevel={highestEndlessLevel} winnerBonuses={winnerBonuses}/>
+      <Stones stones={summoningStones}/>
     </Tabber>
   </>
 };
