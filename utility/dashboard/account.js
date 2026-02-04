@@ -5,16 +5,21 @@ import { getChipsAndJewels, maxNumberOfSpiceClicks } from '@parsers/cooking';
 import { cleanUnderscore, getDuration, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { items, liquidsShop } from '@website-data';
-import { hasMissingMats, getPowerPerCycle } from '@parsers/refinery';
+import { getPowerPerCycle, hasMissingMats } from '@parsers/refinery';
 import { calcTotals } from '@parsers/printer';
-import { findItemInInventory, findQuantityOwned, getAllItems } from '@parsers/items';
+import {
+  addEquippedItems,
+  findItemInInventory,
+  findQuantityOwned,
+  getAllItems,
+  mergeItemsByOwner
+} from '@parsers/items';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
-import { getMiniBossesData, getKillroySchedule } from '@parsers/misc';
+import { getKillroySchedule, getMiniBossesData } from '@parsers/misc';
 import { getRequirementAmount } from '@parsers/lab';
 import { getLandRank, getProductDoubler, getRanksTotalBonus } from '@parsers/world-6/farming';
 import { isPast } from 'date-fns';
 import { getIsland } from '@parsers/world-2/islands';
-import { addEquippedItems, mergeItemsByOwner } from '@parsers/items';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { isSuperbitUnlocked } from '@parsers/gaming';
 
@@ -40,7 +45,8 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
       const ninthTaskNotCompleted = ninthTask?.level === 0;
       if (ninthTaskNotCompleted && tasksOptions?.props?.value?.[worldIndex + 1]) {
         return [...acc, worldIndex];
-      } else {
+      }
+      else {
         return acc;
       }
     }, []);
@@ -76,18 +82,18 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
     const { daily, weekly } = options?.guild || {};
     if (daily?.checked) {
       const dailyTasks = account?.guild?.guildTasks?.daily?.filter(({
-        requirement,
-        progress
-      }) => progress < requirement)?.length;
+                                                                      requirement,
+                                                                      progress
+                                                                    }) => progress < requirement)?.length;
       if (dailyTasks) {
         alerts.guild = { daily: dailyTasks };
       }
     }
     if (weekly?.checked) {
       const weeklyTasks = account?.guild?.guildTasks?.weekly?.filter(({
-        requirement,
-        progress
-      }) => progress < requirement)?.length;
+                                                                        requirement,
+                                                                        progress
+                                                                      }) => progress < requirement)?.length;
       if (weeklyTasks) {
         alerts.guild = { ...(alerts.guild || {}), weekly: weeklyTasks }
       }
@@ -97,13 +103,17 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
     const allShops = account?.shopStock?.reduce((res, shop, index) => {
       if ((index === 2 || index === 3) && !account?.finishedWorlds?.World1) {
         return [...res, []];
-      } else if (index === 4 && !account?.finishedWorlds?.World2) {
+      }
+      else if (index === 4 && !account?.finishedWorlds?.World2) {
         return [...res, []];
-      } else if (index === 5 && !account?.finishedWorlds?.World3) {
+      }
+      else if (index === 5 && !account?.finishedWorlds?.World3) {
         return [...res, []];
-      } else if (index === 6 && !account?.finishedWorlds?.World4) {
+      }
+      else if (index === 6 && !account?.finishedWorlds?.World4) {
         return [...res, []];
-      } else if (index === 7 && !account?.finishedWorlds?.World5) {
+      }
+      else if (index === 7 && !account?.finishedWorlds?.World5) {
         return [...res, []];
       }
       const filtered = shop?.filter(({ rawName }) => options?.shops?.shops?.props?.value?.[rawName]);
@@ -178,9 +188,9 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
     }
     if (options?.etc?.familyObols?.checked) {
       const missingObols = account?.obols?.list?.filter(({
-        displayName,
-        levelReq
-      }) => !displayName && account?.accountLevel >= levelReq);
+                                                           displayName,
+                                                           levelReq
+                                                         }) => !displayName && account?.accountLevel >= levelReq);
       if (missingObols?.length > 0) {
         etc.familyObols = missingObols?.length;
       }
@@ -274,11 +284,11 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
     if (options?.alchemy?.sigils?.checked) {
       const hasJadeBonus = isJadeBonusUnlocked(account, 'Ionized_Sigils');
       const sigils = account?.alchemy?.p2w?.sigils?.filter(({
-        characters,
-        progress,
-        boostCost,
-        jadeCost
-      }) => characters.length > 0 && (hasJadeBonus
+                                                              characters,
+                                                              progress,
+                                                              boostCost,
+                                                              jadeCost
+                                                            }) => characters.length > 0 && (hasJadeBonus
         ? progress >= jadeCost
         : progress >= boostCost));
       if (sigils.length > 0) {
@@ -386,7 +396,9 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
   }
   if (fields?.killRoy?.checked) {
     const killroy = {};
-    if (options?.killRoy?.general?.checked && (account?.accountOptions?.[113] === 0 || (account?.accountOptions?.[113] < (account?.killroy?.rooms === 3 ? 321 : 21) && account?.finishedWorlds?.World3))) {
+    if (options?.killRoy?.general?.checked && (account?.accountOptions?.[113] === 0 || (account?.accountOptions?.[113] < (account?.killroy?.rooms === 3
+      ? 321
+      : 21) && account?.finishedWorlds?.World3))) {
       killroy.general = true;
     }
     if (options?.killRoy?.underHundredKills?.checked) {
@@ -412,16 +424,16 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
       kangaroo.shinyThreshold = options?.kangaroo?.shinyThreshold?.props?.value;
     }
     const fisherooReset = account?.kangaroo?.upgrades?.find(({
-      unlocked,
-      name
-    }) => name === 'Fisheroo_Reset' && unlocked);
+                                                               unlocked,
+                                                               name
+                                                             }) => name === 'Fisheroo_Reset' && unlocked);
     if (options?.kangaroo?.fisherooReset?.checked && fisherooReset && account?.kangaroo?.fish >= fisherooReset?.cost) {
       kangaroo.fisherooReset = true;
     }
     const greatestCatch = account?.kangaroo?.upgrades?.find(({
-      unlocked,
-      name
-    }) => name === 'Greatest_Catch' && unlocked);
+                                                               unlocked,
+                                                               name
+                                                             }) => name === 'Greatest_Catch' && unlocked);
     if (options?.kangaroo?.greatestCatch?.checked && greatestCatch && account?.kangaroo?.fish >= greatestCatch?.cost) {
       kangaroo.greatestCatch = true;
     }
@@ -462,10 +474,10 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
     const { materials, rankUp, flags, buildings } = options?.construction || {};
     if (flags?.checked) {
       const flags = account?.construction?.board?.filter(({
-        flagPlaced,
-        currentAmount,
-        requiredAmount
-      }) => flagPlaced && currentAmount === requiredAmount);
+                                                            flagPlaced,
+                                                            currentAmount,
+                                                            requiredAmount
+                                                          }) => flagPlaced && currentAmount === requiredAmount);
       if (flags.length > 0) {
         construction.flags = flags
       }
@@ -613,9 +625,9 @@ export const getWorld4Alerts = (account, fields, options) => {
     if (shinies?.checked) {
       const list = account?.breeding?.pets?.reduce((res, world) => {
         const pets = world?.filter(({
-          monsterRawName,
-          shinyLevel
-        }) => account?.breeding?.fencePetsObject?.[monsterRawName]?.shiny > 0 && shinyLevel >= shinies?.props?.value);
+                                      monsterRawName,
+                                      shinyLevel
+                                    }) => account?.breeding?.fencePetsObject?.[monsterRawName]?.shiny > 0 && shinyLevel >= shinies?.props?.value);
         return [...res, ...pets];
       }, [])
       const shiniesObj = { pets: list, threshold: shinies?.props?.value }
@@ -626,9 +638,9 @@ export const getWorld4Alerts = (account, fields, options) => {
     if (breedability?.checked) {
       const list = account?.breeding?.pets?.reduce((res, world) => {
         const pets = world?.filter(({
-          monsterRawName,
-          breedingLevel
-        }) => account?.breeding?.fencePetsObject?.[monsterRawName]?.breedability > 0 && breedingLevel >= breedability?.props?.value);
+                                      monsterRawName,
+                                      breedingLevel
+                                    }) => account?.breeding?.fencePetsObject?.[monsterRawName]?.breedability > 0 && breedingLevel >= breedability?.props?.value);
         return [...res, ...pets];
       }, [])
       const shiniesObj = { pets: list, threshold: breedability?.props?.value }
@@ -660,11 +672,11 @@ export const getWorld4Alerts = (account, fields, options) => {
         [meal.name]: true
       }), {});
       const readyMeals = account?.cooking?.meals?.filter(({
-        name,
-        levelCost,
-        amount,
-        level
-      }) => {
+                                                            name,
+                                                            levelCost,
+                                                            amount,
+                                                            level
+                                                          }) => {
         if (options?.cooking?.alertOnlyCookedMeal?.checked && !cookedMeals?.[name]) return false;
         return amount >= levelCost && level < account?.cooking?.mealMaxLevel;
       });
@@ -702,18 +714,19 @@ export const getWorld4Alerts = (account, fields, options) => {
     const chips = labRotation.slice(0, 2);
     const jewels = labRotation.slice(2);
     const unclaimedChips = chips.filter(({
-                                         claimed,
-                                         requirementsMet
-                                       }) => !claimed && requirementsMet?.length)
-    if (options?.laboratory?.chipsRotation?.checked && unclaimedChips) {
+                                           claimed,
+                                           requirementsMet
+                                         }) => !claimed && requirementsMet)
+    if (options?.laboratory?.chipsRotation?.checked && unclaimedChips?.length) {
       laboratory.chipsRotation = unclaimedChips;
     }
-    if (options?.laboratory?.jewelsRotation?.checked && jewels.some(({
-      claimed,
-      requirementsMet,
-      acquired
-    }) => !claimed && !acquired && requirementsMet?.length)) {
-      laboratory.jewelsRotation = jewels;
+    const unclaimedJewels = jewels.some(({
+                                           claimed,
+                                           requirementsMet,
+                                           acquired
+                                         }) => !claimed && !acquired && requirementsMet);
+    if (options?.laboratory?.jewelsRotation?.checked && unclaimedJewels?.length) {
+      laboratory.jewelsRotation = unclaimedJewels;
     }
     if (Object.keys(laboratory).length > 0) {
       alerts.laboratory = laboratory;
@@ -742,9 +755,9 @@ export const getWorld5Alerts = (account, fields, options) => {
       }
     }
     const squirrelUnlocked = account?.gaming?.imports?.find(({
-      name,
-      acquired
-    }) => name === 'Autumn_Squirrel' && acquired)
+                                                               name,
+                                                               acquired
+                                                             }) => name === 'Autumn_Squirrel' && acquired)
     if (squirrel?.checked && squirrelUnlocked && squirrel && account?.gaming?.lastAcornClicked >= 0) {
       const timePassed = new Date().getTime() - account?.gaming?.lastAcornClicked * 1000;
       const hours = totalHoursBetweenDates(new Date().getTime(), timePassed);
@@ -780,7 +793,8 @@ export const getWorld5Alerts = (account, fields, options) => {
           if (areBonusesEqual || areBonusesSwapped) {
             if (firstBonusIndex === secondBonusIndex) {
               return firstBonusValue + secondBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
-            } else {
+            }
+            else {
               const condition1 = firstBonusValue > rCaptain?.firstBonusValue && secondBonusValue > rCaptain?.secondBonusValue;
               const condition2 = firstBonusValue > rCaptain?.secondBonusValue && secondBonusValue > rCaptain?.firstBonusValue;
               return condition1 || condition2;
@@ -791,7 +805,8 @@ export const getWorld5Alerts = (account, fields, options) => {
             if (isSameValue) {
               if (firstBonusIndex === rCaptain?.firstBonusIndex) {
                 return firstBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
-              } else if (secondBonusIndex === rCaptain?.firstBonusIndex) {
+              }
+              else if (secondBonusIndex === rCaptain?.firstBonusIndex) {
                 return secondBonusValue > rCaptain?.firstBonusValue + rCaptain?.secondBonusValue;
               }
             }
@@ -805,24 +820,24 @@ export const getWorld5Alerts = (account, fields, options) => {
             isSameValue,
             enderCaptain: captainType === 6,
             badCaptains: matches.map(({
-              captainIndex,
-              firstBonusDescription: fbDesc,
-              secondBonusDescription: sbDesc,
-              firstBonusValue: fbValue,
-              secondBonusValue: sbValue
-            }) => ({
+                                        captainIndex,
+                                        firstBonusDescription: fbDesc,
+                                        secondBonusDescription: sbDesc,
+                                        firstBonusValue: fbValue,
+                                        secondBonusValue: sbValue
+                                      }) => ({
               captainIndex,
               firstBonusValue: fbValue,
               secondBonusValue: sbValue,
               bonus: isSameValue
                 ? fbDesc.substring(fbDesc.indexOf('%')).replace('%', (fbValue + sbValue) + '%')
                 : [fbDesc.substring(fbDesc.indexOf('%')).replace('%', (fbValue) + '%'),
-                sbDesc.substring(sbDesc.indexOf('%')).replace('%', (sbValue) + '%')]
+                  sbDesc.substring(sbDesc.indexOf('%')).replace('%', (sbValue) + '%')]
             }))?.sort((a, b) => (b?.firstBonusValue + b?.secondBonusValue) - (a?.firstBonusValue + a?.secondBonusValue)),
             bonus: isSameValue
               ? firstBonusDescription?.substring(firstBonusDescription?.indexOf('%')).replace('%', (firstBonusValue + secondBonusValue) + '%')
               : [firstBonusDescription?.substring(firstBonusDescription?.indexOf('%')).replace('%', (firstBonusValue) + '%'),
-              secondBonusDescription?.substring(secondBonusDescription?.indexOf('%')).replace('%', (secondBonusValue) + '%')]
+                secondBonusDescription?.substring(secondBonusDescription?.indexOf('%')).replace('%', (secondBonusValue) + '%')]
           }
           return [...res, temp];
         }
@@ -867,9 +882,9 @@ export const getWorld5Alerts = (account, fields, options) => {
     const expandWhenFull = account?.hole?.caverns?.theWell?.expandWhenFull;
     const [, ...restSediments] = account?.hole?.caverns?.theWell?.sediments;
     const anySedimentFull = restSediments?.filter(({
-      current,
-      max
-    }) => current >= 0 && current >= (buckets?.props?.value || max));
+                                                     current,
+                                                     max
+                                                   }) => current >= 0 && current >= (buckets?.props?.value || max));
     const brokenLayersToday = account?.accountOptions?.[318];
     if (buckets?.checked && !expandWhenFull && anySedimentFull.length > 0) {
       hole.buckets = true;
@@ -1042,7 +1057,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
           .map(trophy => trophy.rawName)
       );
       const missingTrophies = ownedTrophies?.filter(({ rawName, Type }) =>
-        rawName && !trophiesUsedRawNames.has(rawName) && !inventoryTrophiesRawNames.has(rawName) && (Type !== "REPLICA_TROPHY")
+        rawName && !trophiesUsedRawNames.has(rawName) && !inventoryTrophiesRawNames.has(rawName) && (Type !== 'REPLICA_TROPHY')
       );
       if (missingTrophies?.length > 0) {
         gallery.missingTrophies = missingTrophies.map(({ displayName, name, owner, rawName }) => ({
@@ -1063,7 +1078,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
         rawName?.includes('Nametag')
       );
       const missingNametags = ownedNametags?.filter(({ rawName, Type }) =>
-        rawName && !nametagsUsedRawNames.has(rawName) && (Type !== "REPLICA_NAMETAG")
+        rawName && !nametagsUsedRawNames.has(rawName) && (Type !== 'REPLICA_NAMETAG')
       );
       if (missingNametags?.length > 0) {
         gallery.missingNametags = missingNametags.map(({ displayName, name, owner, rawName }) => ({
@@ -1209,10 +1224,12 @@ function checkBound(item, amount, lowerBound, upperBound, includeNearly, percent
     ? Math.abs(amount - lowerBound) <= Math.abs(lowerPercent)
     : amount < lowerBound)) {
     return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}below the bound (${notateNumber(lowerBound)})`;
-  } else if (!lowerBound && upperBound && (includeNearly
+  }
+  else if (!lowerBound && upperBound && (includeNearly
     ? Math.abs(amount - upperBound) <= Math.abs(upperPercent) : amount > upperBound)) {
     return `Your amount of ${item} (${notateNumber(amount)}) is ${nearly}above the bound (${notateNumber(upperBound)})`;
-  } else if (lowerBound && upperBound && lowerBound < upperBound) {
+  }
+  else if (lowerBound && upperBound && lowerBound < upperBound) {
     if ((includeNearly
       ? isNearRange(amount, lowerBound, upperBound, percent)
       : (amount <= lowerBound || amount >= upperBound))) {
