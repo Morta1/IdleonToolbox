@@ -704,7 +704,7 @@ export const getWorld4Alerts = (account, fields, options) => {
     const unclaimedChips = chips.filter(({
                                          claimed,
                                          requirementsMet
-                                       }) => !claimed && requirementsMet)
+                                       }) => !claimed && requirementsMet?.length)
     if (options?.laboratory?.chipsRotation?.checked && unclaimedChips) {
       laboratory.chipsRotation = unclaimedChips;
     }
@@ -712,7 +712,7 @@ export const getWorld4Alerts = (account, fields, options) => {
       claimed,
       requirementsMet,
       acquired
-    }) => !claimed && !acquired && requirementsMet)) {
+    }) => !claimed && !acquired && requirementsMet?.length)) {
       laboratory.jewelsRotation = jewels;
     }
     if (Object.keys(laboratory).length > 0) {
