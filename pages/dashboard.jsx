@@ -7,6 +7,7 @@ import { isProd, tryToParse } from '@utility/helpers';
 import Etc from '../components/dashboard/Etc';
 import { NextSeo } from 'next-seo';
 import { getRawShopItems } from '@parsers/shops';
+import { getRawRefinerySalts } from '@parsers/misc';
 import { Adsense } from '@ctrl/react-adsense';
 import DashboardSettings from '../components/common/DashboardSettings';
 import { CONTENT_PERCENT_SIZE } from '@utility/consts';
@@ -158,8 +159,16 @@ const baseTrackers = {
         checked: true, options: [
           { name: 'flags', checked: true },
           { name: 'buildings', checked: true },
-          { name: 'materials', category: 'refinery', checked: true },
-          { name: 'rankUp', checked: true }
+          {
+            name: 'materials', type: 'array', props: { value: getRawRefinerySalts(), type: 'img' },
+            checked: true,
+            category: "Materials"
+          },
+          {
+            name: 'rankUp', type: 'array', props: { value: getRawRefinerySalts(), type: 'img' },
+            checked: true,
+            category: "Refinery Rank up"
+          },
         ]
       },
       hatRack: {

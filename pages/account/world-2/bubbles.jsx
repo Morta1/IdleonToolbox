@@ -19,7 +19,7 @@ import {
 import React, { Fragment, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import styled from '@emotion/styled';
-import { cleanUnderscore, commaNotation, growth, notateNumber, pascalCase, prefix } from 'utility/helpers';
+import { cleanUnderscore, commaNotation, growth, notateNumber, numberWithCommas, pascalCase, prefix } from 'utility/helpers';
 import HtmlTooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
 import {
@@ -354,7 +354,18 @@ const Bubbles = () => {
                   : 1;
                 const goalBonus = growth(func, goalLevel, x1, x2, true) * (isPrisma ? prismaMulti : 1);
                 const bubbleMaxBonus = isPrisma ? getMaxBonus(func, x1) * prismaMulti : getMaxBonus(func, x1);
-                const effectHardCapPercent = goalLevel / (goalLevel + x2) * 100;
+                const isAddDecay = func === 'addDECAY';
+                let effectHardCapPercent;
+                if (isAddDecay) {
+                  const n = goalLevel;
+                  const eff = n <= 50000
+                    ? n
+                    : 50000 + ((n - 50000) / ((n - 50000) + 150000)) * 50000;
+
+                  effectHardCapPercent = eff / n * 100;
+                } else if (bubbleMaxBonus) {
+                  effectHardCapPercent = goalLevel / (goalLevel + x2) * 100;
+                }
                 let thresholdObj;
                 if (bubbleMaxBonus) {
                   const thresholdLevelNeeded = effThreshold / (100 - effThreshold) * x2;
@@ -382,7 +393,7 @@ const Bubbles = () => {
                       }}
                     >
                       <HtmlTooltip
-                        title={<AdditionalInfo tooltip bubbleMaxBonus={bubbleMaxBonus}
+                        title={<AdditionalInfo tooltip bubbleMaxBonus={bubbleMaxBonus} isAddDecay={isAddDecay}
                           goalBonus={goalBonus}
                           cauldron={cauldron}
                           effectHardCapPercent={effectHardCapPercent}
@@ -424,7 +435,7 @@ const Bubbles = () => {
                                   variant={'caption'}> / {level + Math.ceil(thresholdObj?.thresholdMissingLevels)}</Typography>}
                           </> : null}
                         </Stack>
-                        {bubbleMaxBonus ? <Typography
+                        {(bubbleMaxBonus || isAddDecay) ? <Typography
                           fontSize={'0.70rem'}
                           variant={'caption'}>({effectHardCapPercent.toFixed(1).replace('.0', '')}%)</Typography> :
                           isSm ? <Typography>&nbsp;</Typography> : null}
@@ -450,6 +461,7 @@ const Bubbles = () => {
 const AdditionalInfo = ({
   tooltip,
   bubbleMaxBonus,
+  isAddDecay,
   goalBonus,
   effectHardCapPercent,
   itemReq,
@@ -469,9 +481,9 @@ const AdditionalInfo = ({
       <Stack gap={bubbleMaxBonus && thresholdObj?.thresholdMissingLevels > 0 ? 0 : 2} justifyContent={'center'}
         alignItems={'center'}>
         <BonusIcon src={`${prefix}data/SignStar1b.png`} alt="" />
-        <Typography variant={bubbleMaxBonus && thresholdObj?.thresholdMissingLevels > 0
+        <Typography variant={(bubbleMaxBonus || isAddDecay) && thresholdObj?.thresholdMissingLevels > 0
           ? 'caption'
-          : ''}>{goalBonus.toFixed(3).replace('.000', '')} {bubbleMaxBonus
+          : ''}>{numberWithCommas(goalBonus.toFixed(3).replace('.000', ''))} {(bubbleMaxBonus || isAddDecay)
             ? `(${notateNumber(effectHardCapPercent)}%)`
             : ''}</Typography>
       </Stack>
@@ -545,10 +557,17 @@ const AdditionalInfo = ({
         })
       }
     </Stack>
-    {bubbleMaxBonus ? <>
+    {bubbleMaxBonus && !isAddDecay ? <>
       <Divider sx={{ my: 1 }} />
-      <Typography
-        variant={'body2'}>{`${goalBonus.toFixed(3).replace('.000', '')} is ${notateNumber(effectHardCapPercent)}% of possible hard cap effect of ${bubbleMaxBonus.toFixed(2).replace('.00', '')}`}</Typography>
+      <Typography variant="body2">
+        {`${goalBonus.toFixed(3).replace('.000', '')} is ${notateNumber(effectHardCapPercent)}% of possible hard cap effect of ${bubbleMaxBonus.toFixed(2).replace('.00', '')}`}
+      </Typography>
+    </> : null}
+    {isAddDecay ? <>
+      <Divider sx={{ my: 1 }} />
+      <Typography variant="body2">
+        {`${goalBonus.toFixed(3).replace('.000', '')} is ${notateNumber(effectHardCapPercent)}% of its former linear effect`}
+      </Typography>
     </> : null}
   </Box>
 }

@@ -36,7 +36,8 @@ const Divinity = () => {
                        blessingBonus,
                        cost,
                        level,
-                       unlocked
+                       unlocked,
+                       maxLevel
                      }, godIndex) => {
         const hasLinks = state?.characters?.some((character, index) => isCompanionBonusActive(state?.account, 0) || linkedDeities?.[index] === godIndex || isGodEnabledBySorcerer(character, godIndex));
         const highestDivinityCharacter = state?.characters?.reduce((prev, curr) => {
@@ -52,7 +53,7 @@ const Divinity = () => {
                   <img style={{ width: 42 }} src={`${prefix}data/${rawName}.png`} alt="god-icon"/>
                   <Stack>
                     <Typography>{name}</Typography>
-                    <Typography variant={'body2'}>Lv. {level} / 100</Typography>
+                    <Typography variant={'body2'}>Lv. {level} / {maxLevel}</Typography>
                   </Stack>
                 </Stack>
                 <Stack gap={1} justifyContent={'space-between'} sx={{ minHeight: 250 }}>

@@ -1,6 +1,7 @@
 import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 import { getRawShopItems } from '@parsers/shops';
+import { getRawRefinerySalts } from '@parsers/misc';
 
 export const migrateToVersion2 = (config = {}) => {
   let dashboardConfig = { ...config };
@@ -745,17 +746,17 @@ export const migrateToVersion32 = (config) => {
   if (dashboardConfig?.timers?.['World 5']) {
     const world5Timers = dashboardConfig.timers['World 5'];
     const villagerTimerNames = ['villagerExplore', 'villagerEngineer', 'villagerBonuses', 'villagerMeasure', 'villagerStudies'];
-    
+
     // Check if any individual villager timers exist
     const hasIndividualTimers = villagerTimerNames.some(name => world5Timers[name]);
-    
+
     if (hasIndividualTimers) {
       // Determine if any were checked (preserve user preference)
       const anyChecked = villagerTimerNames.some(name => world5Timers[name]?.checked);
-      
+
       // Remove individual villager timers
       const { villagerExplore, villagerEngineer, villagerBonuses, villagerMeasure, villagerStudies, ...restTimers } = world5Timers;
-      
+
       // Add grouped villagers timer
       dashboardConfig.timers['World 5'] = {
         ...restTimers,
@@ -791,6 +792,49 @@ export const migrateToVersion33 = (config) => {
   dashboardConfig.version = 33;
   return dashboardConfig;
 }
+
+export const migrateToVersion34 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  // Migrate construction options in all worlds
+  Object.keys(dashboardConfig?.account || {}).forEach((worldKey) => {
+    const world = dashboardConfig.account[worldKey];
+
+    if (world?.construction?.options) {
+      const options = world.construction.options;
+
+      // Find and migrate 'materials' option
+      const materialsIndex = options.findIndex(opt => opt.name === 'materials');
+      if (materialsIndex !== -1 && options[materialsIndex].category === 'refinery') {
+        options[materialsIndex] = {
+          name: 'materials',
+          type: 'array',
+          props: { value: getRawRefinerySalts(), type: 'img' }, // Empty array as placeholder since we can't call getRawRefinerySalts() here
+          checked: options[materialsIndex].checked,
+          category: 'Materials'
+        };
+      }
+
+      // Find and migrate 'rankUp' option
+      const rankUpIndex = options.findIndex(opt => opt.name === 'rankUp');
+      if (rankUpIndex !== -1) {
+        options[rankUpIndex] = {
+          name: 'rankUp',
+          type: 'array',
+          props: { value: getRawRefinerySalts(), type: 'img' }, // Empty array as placeholder
+          checked: options[rankUpIndex].checked,
+          category: 'Refinery Rank up'
+        };
+      }
+    }
+  });
+
+  dashboardConfig.version = 34;
+  return dashboardConfig;
+};
 
 
 
@@ -896,6 +940,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 32) {
       migratedConfig = migrateToVersion33(migratedConfig);
+    }
+    if (migratedConfig?.version === 33) {
+      migratedConfig = migrateToVersion34(migratedConfig);
     }
 
   }

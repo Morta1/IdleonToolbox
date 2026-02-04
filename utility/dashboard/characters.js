@@ -191,7 +191,7 @@ export const crystalCooldownSkillsReady = (character, options) => {
   if (checkCharClass(character?.class, CLASSES.Maestro)) {
     return Object.entries(character?.skillsInfo || {})?.reduce((res, [name, data]) => {
       if (data?.index < 10 && name !== 'character' && options?.crystalCountdown?.skills?.props?.value?.[data?.icon]) {
-        const crystalCountdown = getTalentBonus(character?.flatTalents, 'CRYSTAL_COUNTDOWN', null, null, character.addedLevels, true);
+        const crystalCountdown = getTalentBonus(character?.flatTalents, 'CRYSTAL_COUNTDOWN');
         const expReq = getExpReq(data?.index, data?.level);
         const reduction = (1 - data?.expReq / expReq) * 100;
         const ready = reduction > 0;

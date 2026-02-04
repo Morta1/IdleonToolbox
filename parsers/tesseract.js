@@ -46,6 +46,11 @@ export const TESSERACT_UPGRADE_CATEGORIES = {
     name: 'Attack Speed',
     stats: ['attackSpeed'],
     upgradeIndices: [21, 39, 49, 54]
+  },
+  tachyons: {
+    name: 'Extra Tachyons',
+    stats: ['tachyons'],
+    upgradeIndices: [17, 34, 56]
   }
 };
 
@@ -564,6 +569,9 @@ export const calcTesseractBonus = (upgrades, index, anotherIndex) => {
 
 export const getOptimizedTesseractUpgrades = (character, account, category = 'damage', maxUpgrades = 100, options = {}) => {
   const categoryInfo = TESSERACT_UPGRADE_CATEGORIES[category];
+  if (category === 'tachyons') {
+    options.getExtraTachyon = getExtraTachyon;
+  }
   return getOptimizedGenericUpgrades({
     character,
     account,

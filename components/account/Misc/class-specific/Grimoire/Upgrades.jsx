@@ -32,7 +32,8 @@ const Upgrades = ({ upgrades, bones }) => {
     if (!searchText) return list;
     return list.filter(upgrade =>
       upgrade.description &&
-      upgrade.description.toLowerCase().includes(searchText.toLowerCase())
+      upgrade.description.toLowerCase().includes(searchText.toLowerCase().trim()) ||
+      upgrade.name.toLowerCase().includes(searchText.toLowerCase().trim())
     );
   };
 

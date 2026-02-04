@@ -21,6 +21,7 @@ const parseDivinity = (divinityRaw, serializedCharactersData, accountData) => {
   const linkedStyles = divinityRaw?.slice(0, serializedCharactersData?.length + 1);
   const unlockedDeities = divinityRaw?.[25];
   const godRank = unlockedDeities - 10;
+  const coralKidBonus = getCoralKidUpgBonus(accountData, 1);
   const deities = gods?.map((god, index) => {
       const level = blessingLevels?.[index];
       let emporiumBonus = 1;
@@ -36,7 +37,8 @@ const parseDivinity = (divinityRaw, serializedCharactersData, accountData) => {
         rawName: `DivGod${index}`,
         level,
         blessingBonus,
-        unlocked: index < unlockedDeities
+        unlocked: index < unlockedDeities,
+        maxLevel: 100 + coralKidBonus
       }
     }
   );

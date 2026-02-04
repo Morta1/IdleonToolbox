@@ -37,19 +37,19 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
 const groupModes = ['None', 'Upgrade', 'Summary'];
 const GenericUpgradeOptimizer = ({
-                                   character,
-                                   account,
-                                   getOptimizedUpgradesFn,
-                                   upgradeCategories,
-                                   resourceNames,
-                                   resourceKey,
-                                   resourceImagePrefix,
-                                   upgradeImagePrefix,
-                                   getResourceType,
-                                   getUpgradeIconIndex,
-                                   getResourceAmount,
-                                   tooltipText
-                                 }) => {
+  character,
+  account,
+  getOptimizedUpgradesFn,
+  upgradeCategories,
+  resourceNames,
+  resourceKey,
+  resourceImagePrefix,
+  upgradeImagePrefix,
+  getResourceType,
+  getUpgradeIconIndex,
+  getResourceAmount,
+  tooltipText
+}) => {
   const [viewMode, setViewMode] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:viewMode`,
     defaultValue: 'grid'
@@ -124,7 +124,6 @@ const GenericUpgradeOptimizer = ({
   useEffect(() => () => {
     Object.values(valueCommitDebouncersRef.current).forEach(fn => fn?.cancel?.());
   }, []);
-  console.log('masterClassReduction##', masterClassReduction)
   const optimizedUpgrades = useMemo(() => {
     if (!character) return [];
     const maxToUse = maxUpgradesMode === 'custom'
@@ -273,7 +272,6 @@ const GenericUpgradeOptimizer = ({
 
     return upgrades;
   }, [optimizedUpgrades, groupMode, getResourceType, costSortOrder, category]);
-
   // Calculate total resource costs by type
   const resourceUsage = useMemo(() => {
     const usage = {};
@@ -324,7 +322,7 @@ const GenericUpgradeOptimizer = ({
     const resourceTypeKey = getResourceType(upgrade);
     return (
       <>
-        <Divider sx={{ my: 1 }}/>
+        <Divider sx={{ my: 1 }} />
         <Typography variant="subtitle2" gutterBottom>
           Total Benefits (Levels {upgrade.startLevel} → {upgrade.finalLevel})
         </Typography>
@@ -333,7 +331,7 @@ const GenericUpgradeOptimizer = ({
             {statChange.stat.charAt(0).toUpperCase() + statChange.stat.slice(1)}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
           </Typography>
         ))}
-        <Divider sx={{ my: 1 }}/>
+        <Divider sx={{ my: 1 }} />
         <Stack direction="row" gap={1} alignItems="center">
           <img
             style={{ objectPosition: '0 -6px' }}
@@ -496,9 +494,9 @@ const GenericUpgradeOptimizer = ({
             }
           }}
         />
-        <Tooltip title={tooltipText}> <IconInfoCircleFilled size={16}/> </Tooltip>
+        <Tooltip title={tooltipText}> <IconInfoCircleFilled size={16} /> </Tooltip>
         <Stack>
-          <AffordableCheckboxEl/>
+          <AffordableCheckboxEl />
           {/*<Stack direction={'row'} alignItems={'center'}>*/}
           {/*  /!*<MasterclassReductionCheckbox/>*!/*/}
           {/*  <Tooltip*/}
@@ -506,7 +504,7 @@ const GenericUpgradeOptimizer = ({
           {/*    size={16}/></Tooltip>*/}
           {/*</Stack>*/}
         </Stack>
-        <Divider sx={{ my: 1 }} flexItem orientation={'vertical'}/>
+        <Divider sx={{ my: 1 }} flexItem orientation={'vertical'} />
         {resourceUsage.map((resource) => {
           const resourceTypeKey = Object.keys(resourceNames).find(key => resourceNames[key] === resource.name) || resource.name;
           const resourcePerHourValue = resourcePerHour[resourceTypeKey];
@@ -539,9 +537,9 @@ const GenericUpgradeOptimizer = ({
           onChange={(_, val) => val && setViewMode(val)}
         >
           <Tooltip title={'Grid view'}><ToggleButton sx={{ height: 40 }}
-                                                     value="grid"><IconTable/></ToggleButton></Tooltip>
+            value="grid"><IconTable /></ToggleButton></Tooltip>
           <Tooltip title={'List view'}><ToggleButton sx={{ height: 40 }}
-                                                     value="list"><IconList/></ToggleButton></Tooltip>
+            value="list"><IconList /></ToggleButton></Tooltip>
         </ToggleButtonGroup>
       </Stack>
 
@@ -628,10 +626,10 @@ const GenericUpgradeOptimizer = ({
                       ? renderCombinedStats(upgrade)
                       : (
                         <>
-                          <Divider sx={{ my: 1 }}/>
+                          <Divider sx={{ my: 1 }} />
                           {category === 'all' ? cleanUnderscore(upgrade.description
                           ) : renderStatChanges(upgrade.statChanges)}
-                          <Divider sx={{ my: 1 }}/>
+                          <Divider sx={{ my: 1 }} />
                           <Stack direction="row" gap={1} alignItems="center">
                             <img
                               style={{ objectPosition: '0 -6px' }}
@@ -696,7 +694,7 @@ const GenericUpgradeOptimizer = ({
                                 variant="caption">Levels {upgrade.startLevel} → {upgrade.finalLevel}</Typography>
                               {upgrade.combinedStatChanges.map((statChange, i) => (
                                 <div key={i}>
-                                  {statChange.stat.charAt(0).toUpperCase() + statChange.stat.slice(1)}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
+                                  {statChange.stat.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()).trim()}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
                                 </div>
                               ))}
                             </>
@@ -706,7 +704,7 @@ const GenericUpgradeOptimizer = ({
                               ? cleanUnderscore(upgrade.description)
                               : upgrade.statChanges.map((statChange, i) => (
                                 <div key={i}>
-                                  {statChange.stat.charAt(0).toUpperCase() + statChange.stat.slice(1)}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
+                                  {statChange.stat.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()).trim()}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
                                 </div>
                               ))
                           )

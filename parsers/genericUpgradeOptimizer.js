@@ -97,10 +97,17 @@ export function getOptimizedGenericUpgrades({
 
   // Special handling for dust category
   let getExtraDust = extraArgs.getExtraDust;
+  let getExtraTachyon = extraArgs.getExtraTachyon;
   let currentDustMultiplier = (category === 'dust' && typeof getExtraDust === 'function')
     ? getExtraDust(character, {
       ...account,
       compass: { ...account.compass, upgrades: simulatedUpgrades }
+    })
+    : 0;
+  let currentTachyonMultiplier = (category === 'tachyons' && typeof getExtraTachyon === 'function')
+    ? getExtraTachyon(character, {
+      ...account,
+      tesseract: { ...account.tesseract, upgrades: simulatedUpgrades }
     })
     : 0;
 
@@ -210,6 +217,7 @@ export function getOptimizedGenericUpgrades({
     let bestTotalChange = 0;
     let bestNewStats = null;
     let bestNewDustMultiplier = 0;
+    let bestNewTachyonMultiplier = 0;
     let bestTempUpgrades = null;
     let bestTempResources = null;
 
@@ -251,10 +259,17 @@ export function getOptimizedGenericUpgrades({
 
       // Special handling for dust
       let newDustMultiplier = currentDustMultiplier;
+      let newTachyonMultiplier = currentTachyonMultiplier;
       if (category === 'dust' && typeof getExtraDust === 'function') {
         newDustMultiplier = getExtraDust(character, {
           ...account,
           compass: { ...account.compass, upgrades: tempUpgrades }
+        });
+      }
+      if (category === 'tachyons' && typeof getExtraTachyon === 'function') {
+        newTachyonMultiplier = getExtraTachyon(character, {
+          ...account,
+          tesseract: { ...account.tesseract, upgrades: tempUpgrades }
         });
       }
 
@@ -267,6 +282,17 @@ export function getOptimizedGenericUpgrades({
             : 0;
           return {
             stat: 'extraDust',
+            change,
+            percentChange
+          };
+        }
+        if (category === 'tachyons' && stat === 'tachyons' && typeof getExtraTachyon === 'function') {
+          const change = newTachyonMultiplier - currentTachyonMultiplier;
+          const percentChange = currentTachyonMultiplier > 0
+            ? ((newTachyonMultiplier - currentTachyonMultiplier) / currentTachyonMultiplier) * 100
+            : 0;
+          return {
+            stat: 'extraTachyon',
             change,
             percentChange
           };
@@ -314,6 +340,7 @@ export function getOptimizedGenericUpgrades({
         bestTotalChange = totalStatChange;
         bestNewStats = newStats;
         bestNewDustMultiplier = newDustMultiplier;
+        bestNewTachyonMultiplier = newTachyonMultiplier;
         bestTempUpgrades = tempUpgrades;
       }
     }
@@ -349,6 +376,9 @@ export function getOptimizedGenericUpgrades({
       currentStats = bestNewStats;
       if (category === 'dust' && typeof getExtraDust === 'function') {
         currentDustMultiplier = bestNewDustMultiplier;
+      }
+      if (category === 'tachyons' && typeof getExtraTachyon === 'function') {
+        currentTachyonMultiplier = bestNewTachyonMultiplier;
       }
 
       // Recalculate all upgrade costs after this purchase (no mutation)

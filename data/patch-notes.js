@@ -4,6 +4,22 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.23',
+    'gameVer': '2.0.491',
+    'date': '05/0/2025',
+    'features': [
+      'Added extra tachyon as a category for tesseract upgrade optimizer',
+      'Added the option to filter the alert (W3 -> construction) of missing materials and rank up based on each salt'
+    ],
+    'fixes': [
+      'Class-specific upgrade search input now search both name and description',
+      'Alchemy bubbles with linearly scaling bonuses now display the % of their previous linear effect',
+      'Updated divinity max level bonus (from coral kid upgrade)',
+      'Added missing upgrade "Abomination Slayer XIX" from "Damage" category of compass upgrade optimizer',
+      'Fixed crystal countdown max % display'
+    ]
+  },
+  {
     'ver': '3.3.22',
     'gameVer': '2.0.491',
     'date': '13/1/2026',

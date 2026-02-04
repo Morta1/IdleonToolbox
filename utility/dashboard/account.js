@@ -82,18 +82,18 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
     const { daily, weekly } = options?.guild || {};
     if (daily?.checked) {
       const dailyTasks = account?.guild?.guildTasks?.daily?.filter(({
-                                                                      requirement,
-                                                                      progress
-                                                                    }) => progress < requirement)?.length;
+        requirement,
+        progress
+      }) => progress < requirement)?.length;
       if (dailyTasks) {
         alerts.guild = { daily: dailyTasks };
       }
     }
     if (weekly?.checked) {
       const weeklyTasks = account?.guild?.guildTasks?.weekly?.filter(({
-                                                                        requirement,
-                                                                        progress
-                                                                      }) => progress < requirement)?.length;
+        requirement,
+        progress
+      }) => progress < requirement)?.length;
       if (weeklyTasks) {
         alerts.guild = { ...(alerts.guild || {}), weekly: weeklyTasks }
       }
@@ -188,9 +188,9 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
     }
     if (options?.etc?.familyObols?.checked) {
       const missingObols = account?.obols?.list?.filter(({
-                                                           displayName,
-                                                           levelReq
-                                                         }) => !displayName && account?.accountLevel >= levelReq);
+        displayName,
+        levelReq
+      }) => !displayName && account?.accountLevel >= levelReq);
       if (missingObols?.length > 0) {
         etc.familyObols = missingObols?.length;
       }
@@ -284,11 +284,11 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
     if (options?.alchemy?.sigils?.checked) {
       const hasJadeBonus = isJadeBonusUnlocked(account, 'Ionized_Sigils');
       const sigils = account?.alchemy?.p2w?.sigils?.filter(({
-                                                              characters,
-                                                              progress,
-                                                              boostCost,
-                                                              jadeCost
-                                                            }) => characters.length > 0 && (hasJadeBonus
+        characters,
+        progress,
+        boostCost,
+        jadeCost
+      }) => characters.length > 0 && (hasJadeBonus
         ? progress >= jadeCost
         : progress >= boostCost));
       if (sigils.length > 0) {
@@ -424,16 +424,16 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
       kangaroo.shinyThreshold = options?.kangaroo?.shinyThreshold?.props?.value;
     }
     const fisherooReset = account?.kangaroo?.upgrades?.find(({
-                                                               unlocked,
-                                                               name
-                                                             }) => name === 'Fisheroo_Reset' && unlocked);
+      unlocked,
+      name
+    }) => name === 'Fisheroo_Reset' && unlocked);
     if (options?.kangaroo?.fisherooReset?.checked && fisherooReset && account?.kangaroo?.fish >= fisherooReset?.cost) {
       kangaroo.fisherooReset = true;
     }
     const greatestCatch = account?.kangaroo?.upgrades?.find(({
-                                                               unlocked,
-                                                               name
-                                                             }) => name === 'Greatest_Catch' && unlocked);
+      unlocked,
+      name
+    }) => name === 'Greatest_Catch' && unlocked);
     if (options?.kangaroo?.greatestCatch?.checked && greatestCatch && account?.kangaroo?.fish >= greatestCatch?.cost) {
       kangaroo.greatestCatch = true;
     }
@@ -474,10 +474,10 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
     const { materials, rankUp, flags, buildings } = options?.construction || {};
     if (flags?.checked) {
       const flags = account?.construction?.board?.filter(({
-                                                            flagPlaced,
-                                                            currentAmount,
-                                                            requiredAmount
-                                                          }) => flagPlaced && currentAmount === requiredAmount);
+        flagPlaced,
+        currentAmount,
+        requiredAmount
+      }) => flagPlaced && currentAmount === requiredAmount);
       if (flags.length > 0) {
         construction.flags = flags
       }
@@ -492,7 +492,9 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
       }
     }
     if (materials?.checked) {
-      const materials = account?.refinery?.salts?.reduce((res, { rank, cost, rawName }, saltIndex) => {
+      const enabled = materials?.props?.value || {};
+      const mats = account?.refinery?.salts?.reduce((res, { rank, cost, rawName }, saltIndex) => {
+        if (!enabled[rawName]) return res;
         const previousSaltIndex = saltIndex > 0 ? saltIndex - 1 : null;
         const previousSalt = account?.refinery?.salts?.[previousSaltIndex];
         const missingMats = hasMissingMats(saltIndex, rank, cost, account);
@@ -507,17 +509,19 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
         }
         return res;
       }, []);
-      if (materials.length > 0) {
-        construction.materials = materials
+      if (mats.length > 0) {
+        construction.materials = mats;
       }
     }
     if (rankUp?.checked) {
-      const rankUp = account?.refinery?.salts?.filter(({ refined, powerCap, rank }) => {
+      const enabled = rankUp?.props?.value || {};
+      const rUp = account?.refinery?.salts?.filter(({ refined, powerCap, rank, rawName }) => {
+        if (!enabled[rawName]) return false;
         const powerPerCycle = getPowerPerCycle(rank, account) - 1;
         return refined >= powerCap - powerPerCycle;
       });
-      if (rankUp.length > 0) {
-        construction.rankUp = rankUp
+      if (rUp.length > 0) {
+        construction.rankUp = rUp;
       }
     }
     if (Object.keys(construction).length > 0) {
@@ -625,9 +629,9 @@ export const getWorld4Alerts = (account, fields, options) => {
     if (shinies?.checked) {
       const list = account?.breeding?.pets?.reduce((res, world) => {
         const pets = world?.filter(({
-                                      monsterRawName,
-                                      shinyLevel
-                                    }) => account?.breeding?.fencePetsObject?.[monsterRawName]?.shiny > 0 && shinyLevel >= shinies?.props?.value);
+          monsterRawName,
+          shinyLevel
+        }) => account?.breeding?.fencePetsObject?.[monsterRawName]?.shiny > 0 && shinyLevel >= shinies?.props?.value);
         return [...res, ...pets];
       }, [])
       const shiniesObj = { pets: list, threshold: shinies?.props?.value }
@@ -638,9 +642,9 @@ export const getWorld4Alerts = (account, fields, options) => {
     if (breedability?.checked) {
       const list = account?.breeding?.pets?.reduce((res, world) => {
         const pets = world?.filter(({
-                                      monsterRawName,
-                                      breedingLevel
-                                    }) => account?.breeding?.fencePetsObject?.[monsterRawName]?.breedability > 0 && breedingLevel >= breedability?.props?.value);
+          monsterRawName,
+          breedingLevel
+        }) => account?.breeding?.fencePetsObject?.[monsterRawName]?.breedability > 0 && breedingLevel >= breedability?.props?.value);
         return [...res, ...pets];
       }, [])
       const shiniesObj = { pets: list, threshold: breedability?.props?.value }
@@ -672,11 +676,11 @@ export const getWorld4Alerts = (account, fields, options) => {
         [meal.name]: true
       }), {});
       const readyMeals = account?.cooking?.meals?.filter(({
-                                                            name,
-                                                            levelCost,
-                                                            amount,
-                                                            level
-                                                          }) => {
+        name,
+        levelCost,
+        amount,
+        level
+      }) => {
         if (options?.cooking?.alertOnlyCookedMeal?.checked && !cookedMeals?.[name]) return false;
         return amount >= levelCost && level < account?.cooking?.mealMaxLevel;
       });
@@ -714,17 +718,17 @@ export const getWorld4Alerts = (account, fields, options) => {
     const chips = labRotation.slice(0, 2);
     const jewels = labRotation.slice(2);
     const unclaimedChips = chips.filter(({
-                                           claimed,
-                                           requirementsMet
-                                         }) => !claimed && requirementsMet)
+      claimed,
+      requirementsMet
+    }) => !claimed && requirementsMet)
     if (options?.laboratory?.chipsRotation?.checked && unclaimedChips?.length) {
       laboratory.chipsRotation = unclaimedChips;
     }
     const unclaimedJewels = jewels.some(({
-                                           claimed,
-                                           requirementsMet,
-                                           acquired
-                                         }) => !claimed && !acquired && requirementsMet);
+      claimed,
+      requirementsMet,
+      acquired
+    }) => !claimed && !acquired && requirementsMet);
     if (options?.laboratory?.jewelsRotation?.checked && unclaimedJewels?.length) {
       laboratory.jewelsRotation = unclaimedJewels;
     }
@@ -755,9 +759,9 @@ export const getWorld5Alerts = (account, fields, options) => {
       }
     }
     const squirrelUnlocked = account?.gaming?.imports?.find(({
-                                                               name,
-                                                               acquired
-                                                             }) => name === 'Autumn_Squirrel' && acquired)
+      name,
+      acquired
+    }) => name === 'Autumn_Squirrel' && acquired)
     if (squirrel?.checked && squirrelUnlocked && squirrel && account?.gaming?.lastAcornClicked >= 0) {
       const timePassed = new Date().getTime() - account?.gaming?.lastAcornClicked * 1000;
       const hours = totalHoursBetweenDates(new Date().getTime(), timePassed);
@@ -820,24 +824,24 @@ export const getWorld5Alerts = (account, fields, options) => {
             isSameValue,
             enderCaptain: captainType === 6,
             badCaptains: matches.map(({
-                                        captainIndex,
-                                        firstBonusDescription: fbDesc,
-                                        secondBonusDescription: sbDesc,
-                                        firstBonusValue: fbValue,
-                                        secondBonusValue: sbValue
-                                      }) => ({
+              captainIndex,
+              firstBonusDescription: fbDesc,
+              secondBonusDescription: sbDesc,
+              firstBonusValue: fbValue,
+              secondBonusValue: sbValue
+            }) => ({
               captainIndex,
               firstBonusValue: fbValue,
               secondBonusValue: sbValue,
               bonus: isSameValue
                 ? fbDesc.substring(fbDesc.indexOf('%')).replace('%', (fbValue + sbValue) + '%')
                 : [fbDesc.substring(fbDesc.indexOf('%')).replace('%', (fbValue) + '%'),
-                  sbDesc.substring(sbDesc.indexOf('%')).replace('%', (sbValue) + '%')]
+                sbDesc.substring(sbDesc.indexOf('%')).replace('%', (sbValue) + '%')]
             }))?.sort((a, b) => (b?.firstBonusValue + b?.secondBonusValue) - (a?.firstBonusValue + a?.secondBonusValue)),
             bonus: isSameValue
               ? firstBonusDescription?.substring(firstBonusDescription?.indexOf('%')).replace('%', (firstBonusValue + secondBonusValue) + '%')
               : [firstBonusDescription?.substring(firstBonusDescription?.indexOf('%')).replace('%', (firstBonusValue) + '%'),
-                secondBonusDescription?.substring(secondBonusDescription?.indexOf('%')).replace('%', (secondBonusValue) + '%')]
+              secondBonusDescription?.substring(secondBonusDescription?.indexOf('%')).replace('%', (secondBonusValue) + '%')]
           }
           return [...res, temp];
         }
@@ -882,9 +886,9 @@ export const getWorld5Alerts = (account, fields, options) => {
     const expandWhenFull = account?.hole?.caverns?.theWell?.expandWhenFull;
     const [, ...restSediments] = account?.hole?.caverns?.theWell?.sediments;
     const anySedimentFull = restSediments?.filter(({
-                                                     current,
-                                                     max
-                                                   }) => current >= 0 && current >= (buckets?.props?.value || max));
+      current,
+      max
+    }) => current >= 0 && current >= (buckets?.props?.value || max));
     const brokenLayersToday = account?.accountOptions?.[318];
     if (buckets?.checked && !expandWhenFull && anySedimentFull.length > 0) {
       hole.buckets = true;

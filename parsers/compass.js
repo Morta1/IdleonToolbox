@@ -41,8 +41,7 @@ export const UPGRADE_CATEGORIES = {
     name: 'Damage',
     stats: ['damage'],
     upgradeIndices: [6, 8, 10, 23, 113, 112, 14, 119, 15, 122, 123, 121, 129, 130, 127, 24, 132, 135, 126, 48, 155, 157,
-      158,
-      60, 64, 74, 75, 81, 85, 94]
+      158, 60, 64, 74, 75, 81, 85, 94, 78]
   },
   dust: {
     name: 'Dust',
@@ -72,7 +71,7 @@ export const UPGRADE_CATEGORIES = {
   hp: {
     name: 'HP',
     stats: ['hp'],
-    upgradeIndices: [28, 78, 84, 87, 92]
+    upgradeIndices: [28, 84, 87, 92]
   }
 };
 
@@ -210,7 +209,7 @@ const getPortalCostQuantity = (mapIndex, portalIndex) => {
     + 5 * mapIndex
     + mapDetails?.[mapIndex]?.[0]?.[portalIndex ?? 0]
     * Math.pow(1.3, (mapIndex - 50 *
-        Math.floor(mapIndex / 50))
+      Math.floor(mapIndex / 50))
       * Math.min(1, Math.floor(mapIndex / 50) + 0.2))
     * Math.pow(4, Math.floor(mapIndex / 50))))
   return 1 === mapIndex ? 50 : 2e9 > baseCostQuantity ? Math.ceil(baseCostQuantity) : 2e9;
@@ -227,7 +226,7 @@ const getMedallions = (medallions, upgrades) => {
         const coinQuantity = monsterDrops?.[monsterRawName]?.find(({ rawName }) => rawName === 'COIN')?.quantity;
         const bowDrop = 5 > Math.floor(coinQuantity / 3) % 16 ? (1 <= getLocalCompassBonus(upgrades, 3)
           ? Math.floor(coinQuantity / 3) % 16 : -1) : 670 === coinQuantity
-        || 2500 === coinQuantity || 13e4 === coinQuantity
+            || 2500 === coinQuantity || 13e4 === coinQuantity
           ? 4 : 1850 === coinQuantity || 7e3 === coinQuantity || 19e3 === coinQuantity || 16e4 === coinQuantity
             ? 3
             : -1;
@@ -391,7 +390,7 @@ export const getCompassStats = (character, account) => {
   const { value: equipBonus3 } = getStatsFromGear(character, 89, account);
   const { value: equipBonus4 } = getStatsFromGear(character, 86, account);
   const hp = (10 + (getLocalCompassBonus(upgrades, 28)
-      + getLocalCompassBonus(upgrades, 87)))
+    + getLocalCompassBonus(upgrades, 87)))
     * (1 + (getLocalCompassBonus(upgrades, 140)
       + (getLocalCompassBonus(upgrades, 146)
         + getLocalCompassBonus(upgrades, 92))) / 100);
@@ -409,10 +408,10 @@ export const getCompassStats = (character, account) => {
     equipmentWeaponPower += ring2WeaponPower?.Weapon_Power;
   }
   const damage = 5 + (getLocalCompassBonus(upgrades, 14)
-      + (getLocalCompassBonus(upgrades, 15)
-        + (getLocalCompassBonus(upgrades, 24)
-          + (getLocalCompassBonus(upgrades, 60)
-            + getLocalCompassBonus(upgrades, 81)))))
+    + (getLocalCompassBonus(upgrades, 15)
+      + (getLocalCompassBonus(upgrades, 24)
+        + (getLocalCompassBonus(upgrades, 60)
+          + getLocalCompassBonus(upgrades, 81)))))
     * Math.pow(1.05, equipmentWeaponPower)
     * (1 + equipBonus4 / 100)
     * (1 + (getLocalCompassBonus(upgrades, 23)
@@ -429,9 +428,9 @@ export const getCompassStats = (character, account) => {
                 (getLocalCompassBonus(upgrades, 85) + (getLocalCompassBonus(upgrades, 94)
                   + tempestTalent))))))))))))) / 100);
   const accuracy = (3 + (getLocalCompassBonus(upgrades, 17)
-      + (getLocalCompassBonus(upgrades, 19)
-        + (getLocalCompassBonus(upgrades, 25)
-          + getLocalCompassBonus(upgrades, 61)))))
+    + (getLocalCompassBonus(upgrades, 19)
+      + (getLocalCompassBonus(upgrades, 25)
+        + getLocalCompassBonus(upgrades, 61)))))
     * (1 + (defenceAndAccTalent
       * (totalUpgradeLevels / 100)) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 22)
@@ -446,7 +445,7 @@ export const getCompassStats = (character, account) => {
               + (getLocalCompassBonus(upgrades, 79)
                 + getLocalCompassBonus(upgrades, 90)))))))))))) / 100);
   const defence = (1 + (getLocalCompassBonus(upgrades, 29)
-      + getLocalCompassBonus(upgrades, 63)))
+    + getLocalCompassBonus(upgrades, 63)))
     * (1 + (defenceAndAccTalent
       * (totalUpgradeLevels / 100)) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 30)
@@ -462,12 +461,12 @@ export const getCompassStats = (character, account) => {
                   + getLocalCompassBonus(upgrades, 91)))))))) / 100);
   const mastery = Math.min(0.7, 0.2 + getLocalCompassBonus(upgrades, 70) / 100);
   const critPct = 5 + (getLocalCompassBonus(upgrades, 16)
-      + critTalent
-      * Math.floor(account?.breeding?.totalBreedabilityLv / 25))
+    + critTalent
+    * Math.floor(account?.breeding?.totalBreedabilityLv / 25))
     + getLocalCompassBonus(upgrades, 66);
 
   const critDamage = 1 + (20 + (getLocalCompassBonus(upgrades, 20)
-      + getLocalCompassBonus(upgrades, 123))
+    + getLocalCompassBonus(upgrades, 123))
     + (getLocalCompassBonus(upgrades, 75)
       + equipBonus2)) / 100;
 
@@ -537,9 +536,9 @@ export const getExtraDust = (character, account) => {
   const emperorBonus = getEmperorBonus(account, 4);
 
   return (1 +
-      (getLocalCompassBonus(upgrades, 31)
-        + getLocalCompassBonus(upgrades, 34)
-        * lavaLog(account?.accountOptions?.[359])) / 100)
+    (getLocalCompassBonus(upgrades, 31)
+      + getLocalCompassBonus(upgrades, 34)
+      * lavaLog(account?.accountOptions?.[359])) / 100)
     * (1 + getLocalCompassBonus(upgrades, 38) / 100)
     * (1 + charmBonus / 100)
     * (1 + (equipBonus + equipBonus1) / 100)
@@ -562,7 +561,7 @@ const getUpgradeCost = (upgrades, index, serverVars, accountData, forceLegendTal
   let redCost = 1;
   let surplusCost = 0;
 
-// Adjust WWzCostRed based on the value of `t`
+  // Adjust WWzCostRed based on the value of `t`
   switch (index) {
     case 45:
       redCost = 1 + (
@@ -614,14 +613,14 @@ const getUpgradeCost = (upgrades, index, serverVars, accountData, forceLegendTal
       break;
   }
 
-// Check for "Path" bonus in CompassUpg
+  // Check for "Path" bonus in CompassUpg
   const compassUpgPath = compass?.[index]?.x10 + '';
   const upgrade = upgrades?.[index];
   if (compassUpgPath.includes('Path')) {
     surplusCost = (Math.pow(3 * upgrade?.level, 2) + 12 * upgrade?.level) * Math.pow(1.1, upgrade?.level);
   }
 
-// Final cost calculation
+  // Final cost calculation
   const dustCost = Math.max(serverVars?.DustCost, 6.2);
   const bonusReduction = 1 + (
     getLocalCompassBonus(upgrades, 36) +

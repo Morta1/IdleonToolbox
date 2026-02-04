@@ -45,6 +45,10 @@ import { getTesseractBonus } from '@parsers/tesseract';
 import { getPaletteBonus } from '@parsers/gaming';
 import { getMinorDivinityBonus } from '@parsers/divinity';
 
+export const getRawRefinerySalts = () => {
+  return new Array(6).fill(0).reduce((res, _, index) => ({ ...res, [`Refinery${index + 1}`]: true }), {})
+}
+
 export const getDoubleStatueDrop = (account, character, characters) => {
   const tesseractBonus = getTesseractBonus(account, 18);
   const paletteBonus = getPaletteBonus(account, 19);
@@ -230,7 +234,7 @@ export const getLibraryBookTimes = (idleonData, characters, account) => {
     }
   })
   breakpoints = [...breakpoints,
-    { breakpoint: 0, time: calcTimeToXBooks(0, 20, account, characters, idleonData) }]
+  { breakpoint: 0, time: calcTimeToXBooks(0, 20, account, characters, idleonData) }]
   return {
     bookCount,
     next: getTimeToNextBooks(bookCount, account, characters, idleonData)?.value - libTime,
@@ -277,13 +281,13 @@ export const getTimeToNextBooks = (bookCount, account, characters, idleonData) =
     superbitBonus = superbit?.totalBonus;
   }
   const math = Math.round(4 * (3600 / ((1 + mealBonus / 100)
-      * (1 + libraryBooker / 100) *
-      (1 + (5 * libraryTowerLevel
-        + bubbleBonus
-        + (vialBonus
-          + (stampBonus
-            + Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))
-            + superbitBonus))) / 100)))
+    * (1 + libraryBooker / 100) *
+    (1 + (5 * libraryTowerLevel
+      + bubbleBonus
+      + (vialBonus
+        + (stampBonus
+          + Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))
+          + superbitBonus))) / 100)))
     * (1 + 10 * Math.pow(bookCount, 1.4) / 100))
 
   const breakdown = {
@@ -373,7 +377,7 @@ export const getCurrencies = (account, idleonData, processedData) => {
     'Cosmic_Time_Candy': { min: 5, max: 500 }
   };
   const allItems = [...account?.storage?.list,
-    ...(processedData?.charactersData || [])?.map(({ inventory }) => inventory)?.flat()];
+  ...(processedData?.charactersData || [])?.map(({ inventory }) => inventory)?.flat()];
   const allCandies = allItems?.filter(({ Type } = {}) => Type === 'TIME_CANDY');
   const guaranteedCandies = allCandies?.reduce((sum, { displayName, amount }) => {
     if (specialCandy[displayName]) return sum;
@@ -415,13 +419,13 @@ export const enhanceColoTickets = (tickets, characters, account) => {
     // const amountPerDay = getAmountPerDay(npc, characters);
     const daysSincePickup = account?.accountOptions?.[npc?.daysSinceIndex];
     return [...res,
-      {
-        rawName: `TixEZ${index}`,
-        amountPerDay: 1,
-        daysSincePickup,
-        amount: tickets,
-        totalAmount: Math.min(daysSincePickup, 3)
-      }];
+    {
+      rawName: `TixEZ${index}`,
+      amountPerDay: 1,
+      daysSincePickup,
+      amount: tickets,
+      totalAmount: Math.min(daysSincePickup, 3)
+    }];
   }, [])
   return {
     allTickets,
@@ -431,7 +435,7 @@ export const enhanceColoTickets = (tickets, characters, account) => {
 
 const getKeysObject = (keys) => {
   return keys.reduce((res, keyAmount, index) => (index < 5 ? [...res,
-    { amount: keyAmount, ...keysMap[index] }] : res), []);
+  { amount: keyAmount, ...keysMap[index] }] : res), []);
 }
 
 export const enhanceKeysObject = (keysAll, characters, account) => {
@@ -694,9 +698,9 @@ export const getExpReq = (skillIndex, t) => {
       ? (15 + Math.pow(t, 2) + 13 * t) * Math.pow(1.225 - Math.min(0.114, (0.135 * t) / (t + 50)), t) - 26
       :
       8 === skillIndex ? (71 > t
-          ? ((10 + Math.pow(t, 2.81) + 4 * t) * Math.pow(1.117 - (0.135 * t) / (t + 5), t) - 6) * (1 + Math.pow(t, 1.72) / 300)
-          :
-          (((10 + Math.pow(t, 2.81) + 4 * t) * Math.pow(1.003, t) - 6) / 2.35) * (1 + Math.pow(t, 1.72) / 300)) :
+        ? ((10 + Math.pow(t, 2.81) + 4 * t) * Math.pow(1.117 - (0.135 * t) / (t + 5), t) - 6) * (1 + Math.pow(t, 1.72) / 300)
+        :
+        (((10 + Math.pow(t, 2.81) + 4 * t) * Math.pow(1.003, t) - 6) / 2.35) * (1 + Math.pow(t, 1.72) / 300)) :
         9 === skillIndex
           ? (15 + Math.pow(t, 1.3) + 6 * t) * Math.pow(1.17 - Math.min(0.07, (0.135 * t) / (t + 50)), t) - 26
           :
@@ -715,8 +719,8 @@ export const getGiantMobChance = (character, account) => {
   }
   else {
     chance = (1 / (2 * Math.pow(giantsAlreadySpawned + 1, 1.95)
-        * (1 + glitterbugPrayer / 100)
-        * Math.pow(giantsAlreadySpawned + 1, 1.5 + giantsAlreadySpawned / 15)))
+      * (1 + glitterbugPrayer / 100)
+      * Math.pow(giantsAlreadySpawned + 1, 1.5 + giantsAlreadySpawned / 15)))
       * (1 + (crescentShrineBonus + giantMobVial) / 100);
   }
   return {
