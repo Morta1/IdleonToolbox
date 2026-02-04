@@ -201,7 +201,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/868236d618f2e9b3.js"
   ],
   "/account/world-6/farming": [
-    "static/chunks/0a2ad412af9d4aac.js"
+    "static/chunks/e97e1ccdfaccd679.js"
   ],
   "/account/world-6/sneaking": [
     "static/chunks/1bb8f2d5c2d16a54.js"
