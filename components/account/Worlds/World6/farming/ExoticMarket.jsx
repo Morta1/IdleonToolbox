@@ -1,5 +1,6 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, prefix } from '@utility/helpers';
+import React from 'react';
 
 const Market = ({ market, crop }) => {
 
@@ -14,13 +15,15 @@ const Market = ({ market, crop }) => {
         maxLvl = 0,
         bonus,
         value,
-        displayText
+        displayText,
+        x2
       },
       marketIndex
     ) => (
       <Card sx={{ width: 250 }} key={'upgrade' + marketIndex}>
         <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Stack direction={'row'} gap={2} alignItems={'center'}>
+            <img src={`${prefix}data/FarmCrop${x2}.png`} alt="" width={24} height={24}/>
             <Typography>{cleanUnderscore(name.toLowerCase().capitalizeAll())}</Typography>
             <Typography variant="caption">Lv. {level}</Typography>
           </Stack>
@@ -32,7 +35,7 @@ const Market = ({ market, crop }) => {
       </Card>
     ));
 
-    return (
+  return (
     <Stack gap={4}>
       {/* Current Rotation */}
       <Stack>

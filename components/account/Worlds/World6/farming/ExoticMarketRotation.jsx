@@ -12,7 +12,7 @@ import {
   useMediaQuery
 } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, prefix } from '@utility/helpers';
 import { format, isValid } from 'date-fns';
 import React, { useContext, useMemo, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -72,13 +72,13 @@ const ExoticMarketRotation = () => {
               </Stack>
             </li>
           )}
-          renderInput={(params) => <TextField {...params} label="Filter by upgrade" />}
+          renderInput={(params) => <TextField {...params} label="Filter by upgrade"/>}
         />
         <FormControl size="small">
           <InputLabel>Weeks</InputLabel>
-          <Select 
-            label="Weeks" 
-            sx={{ width: 100 }} 
+          <Select
+            label="Weeks"
+            sx={{ width: 100 }}
             value={weeks}
             onChange={(e) => setWeeks(e.target.value)}
           >
@@ -97,14 +97,14 @@ const ExoticMarketRotation = () => {
           return (
             <Stack key={'rotation-' + rotationIndex}>
               <Stack direction="row" alignItems="baseline" gap={2} mb={2}>
-                <Typography 
-                  variant="h6" 
+                <Typography
+                  variant="h6"
                   color={isCurrentWeek ? 'success.light' : 'text.primary'}
                 >
                   {isCurrentWeek ? 'Current Rotation' : `Week ${rotation.weekOffset + 1}`}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {isValid(rotation.date) 
+                  {isValid(rotation.date)
                     ? `${format(rotation.date, 'dd/MM/yyyy HH:mm:ss')} (${format(rotation.date, 'MMM do, yyyy')})`
                     : null}
                 </Typography>
@@ -114,9 +114,9 @@ const ExoticMarketRotation = () => {
                 {rotation.upgrades.map((upgrade, upgradeIndex) => {
                   const isHighlighted = filter.length > 0 && filter.some(f => f.name === upgrade.name);
                   return (
-                    <Card 
-                      key={'upgrade-' + rotationIndex + '-' + upgradeIndex} 
-                      sx={{ 
+                    <Card
+                      key={'upgrade-' + rotationIndex + '-' + upgradeIndex}
+                      sx={{
                         width: 250,
                         borderColor: isHighlighted ? 'success.light' : undefined,
                         borderWidth: isHighlighted ? 2 : undefined,
@@ -125,6 +125,7 @@ const ExoticMarketRotation = () => {
                     >
                       <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                         <Stack direction="row" gap={2} alignItems="center">
+                          <img src={`${prefix}data/FarmCrop${upgrade.x2}.png`} alt="" width={24} height={24}/>
                           <Typography fontWeight="bold">
                             {cleanUnderscore(upgrade.name.toLowerCase().capitalizeAll())}
                           </Typography>
@@ -139,7 +140,7 @@ const ExoticMarketRotation = () => {
                 })}
               </Stack>
 
-              {rotationIndex < filteredRotations.length - 1 && <Divider sx={{ mt: 4 }} />}
+              {rotationIndex < filteredRotations.length - 1 && <Divider sx={{ mt: 4 }}/>}
             </Stack>
           );
         })}
