@@ -535,21 +535,21 @@ const Dashboard = () => {
   const { dispatch, state } = useContext(AppContext);
   const { characters, account, lastUpdated } = state;
   const [open, setOpen] = useState(false);
-  const [config, setConfig] = useState();
+  const [config, setConfig] = useState(() => {
+    const migratedConfig = migrateConfig(baseTrackers, state?.trackers);
+
+    return {
+      account: migratedConfig.account,
+      characters: migratedConfig.characters,
+      timers: migratedConfig.timers,
+      version: baseTrackers?.version
+    };
+  });
   const [filters, setFilters] = React.useState(tryToParse(localStorage.getItem('dashboard-filters')) || ['account',
     'characters', 'timers']);
   const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
 
-  useEffect(() => {
-    const migratedConfig = migrateConfig(baseTrackers, state?.trackers);
-    setConfig({
-      account: migratedConfig.account,
-      characters: migratedConfig.characters,
-      timers: migratedConfig.timers,
-      version: baseTrackers?.version
-    })
-  }, []);
 
   const handleConfigChange = (updatedConfig) => {
     setConfig(updatedConfig);
@@ -602,23 +602,6 @@ const Dashboard = () => {
       </Stack>
       <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open}
         onClose={() => setOpen(false)} config={config} />
-      {showWideSideBanner || showNarrowSideBanner ? <Box
-        sx={{
-          backgroundColor: isProd ? '' : '#d73333',
-          width: showWideSideBanner ? 300 : showNarrowSideBanner ? 160 : 0,
-          height: 600,
-          position: 'sticky',
-          top: 100
-        }}>
-        {isProd && showWideSideBanner ? <Adsense
-          client="ca-pub-1842647313167572"
-          slot="2700532291"
-        /> : null}
-        {isProd && showNarrowSideBanner && !showWideSideBanner ? <Adsense
-          client="ca-pub-1842647313167572"
-          slot="8040203474"
-        /> : null}
-      </Box> : null}
     </Stack>
   </>
 };
