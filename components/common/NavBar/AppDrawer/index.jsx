@@ -2,15 +2,17 @@ import Box from '@mui/material/Box';
 import React, { useContext, useEffect, useState } from 'react';
 import Drawer from '@mui/material/Drawer';
 import MenuIcon from '@mui/icons-material/Menu';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import IconButton from '@mui/material/IconButton';
 import styled from '@emotion/styled';
-import { drawerWidth, navBarHeight } from '../../../constants';
+import { drawerWidth, drawerWidthCollapsed, navBarHeight } from '../../../constants';
 import Toolbar from '@mui/material/Toolbar';
 import NavItemsList from '../NavItemsList';
 import { useRouter } from 'next/router';
 import { NextLinkComposed } from '../../NextLinkComposed';
 import Link from '@mui/material/Link';
-import { Divider, Stack, useMediaQuery } from '@mui/material';
+import { Divider, Stack, Tooltip, useMediaQuery } from '@mui/material';
 import AccountDrawer from './AccountDrawer';
 import CharactersDrawer from './CharactersDrawer';
 import ToolsDrawer from './ToolsDrawer';
@@ -18,10 +20,12 @@ import { prefix, shouldDisplayDrawer } from '@utility/helpers';
 import { AppContext } from '../../context/AppProvider';
 
 const AppDrawer = ({ permanent }) => {
-  const { state } = useContext(AppContext);
+  const { state, dispatch } = useContext(AppContext);
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
+  const isCollapsed = state?.drawerCollapsed ?? false;
+  const currentDrawerWidth = isCollapsed ? drawerWidthCollapsed : drawerWidth;
 
   useEffect(() => {
     setOpen(false);
@@ -31,16 +35,27 @@ const AppDrawer = ({ permanent }) => {
     setOpen(!open);
   };
 
+  const toggleCollapse = () => {
+    dispatch({ type: 'toggleDrawerCollapsed' });
+  };
+
   const getDrawer = () => {
     if (router.pathname.includes('/account')) {
-      return <AccountDrawer/>
+      return <AccountDrawer collapsed={isCollapsed} />
     } else if (router.pathname.includes('/characters')) {
-      return <CharactersDrawer/>
+      return <CharactersDrawer collapsed={isCollapsed} />
     } else if (router.pathname.includes('/tools')) {
-      return <ToolsDrawer/>
+      return <ToolsDrawer collapsed={isCollapsed} />
     }
     return null;
-  }
+  };
+
+  const getDrawerLabel = () => {
+    if (router.pathname.includes('/account')) return 'Account';
+    if (router.pathname.includes('/characters')) return 'Characters';
+    if (router.pathname.includes('/tools')) return 'Tools';
+    return '';
+  };
 
   return <Box component={'nav'} sx={{ display: 'flex', alignItems: 'center', height: navBarHeight }}>
     <IconButton onClick={(e) => toggleDrawer(e, open)}
@@ -58,15 +73,51 @@ const AppDrawer = ({ permanent }) => {
         <span>{isXs ? 'IT' : 'Idleon Toolbox'}</span>
       </Link>
     </Stack> : null}
-    {permanent ? <StyledDrawer variant={'permanent'} open sx={{ // desktop
-      display: shouldDisplayDrawer(router.pathname) ? {
-        xs: 'none',
-        lg: 'inherit'
-      } : 'none'
-    }}>
+    {permanent ? <StyledDrawer 
+      variant={'permanent'} 
+      open 
+      collapsed={isCollapsed}
+      sx={{
+        display: shouldDisplayDrawer(router.pathname) ? {
+          xs: 'none',
+          lg: 'inherit'
+        } : 'none',
+        '& .MuiDrawer-paper': { 
+          width: currentDrawerWidth,
+          transition: 'width 0.2s ease-in-out',
+          overflowX: 'hidden'
+        }
+      }}>
       <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}/>
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: isCollapsed ? 'center' : 'space-between',
+        px: isCollapsed ? 0 : 2,
+        py: 1,
+        minHeight: 48,
+        borderBottom: '1px solid rgba(255, 255, 255, 0.12)'
+      }}>
+        {!isCollapsed && (
+          <Box sx={{ fontSize: 14, fontWeight: 600, color: 'text.secondary' }}>
+            {getDrawerLabel()}
+          </Box>
+        )}
+        <Tooltip title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'} placement="right">
+          <IconButton 
+            onClick={toggleCollapse}
+            size="small"
+            sx={{ 
+              color: 'text.secondary',
+              '&:hover': { color: 'text.primary' }
+            }}
+          >
+            {isCollapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+          </IconButton>
+        </Tooltip>
+      </Box>
       {getDrawer()}
-    </StyledDrawer> : <StyledDrawer // mobile
+    </StyledDrawer> : <StyledDrawer
       sx={{ display: { xs: 'inherit', lg: 'none' } }}
       anchor={'left'}
       open={open}
@@ -83,9 +134,13 @@ const AppDrawer = ({ permanent }) => {
 };
 
 
-const StyledDrawer = styled(Drawer)(() => ({
+const StyledDrawer = styled(Drawer)(({ collapsed }) => ({
   display: { xs: 'block', sm: 'none' },
-  '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+  '& .MuiDrawer-paper': { 
+    boxSizing: 'border-box', 
+    width: collapsed ? drawerWidthCollapsed : drawerWidth,
+    transition: 'width 0.2s ease-in-out'
+  },
   '& .MuiPaper-root': { backgroundImage: 'none' }
 }))
 

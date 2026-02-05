@@ -69,11 +69,12 @@ const Home = () => {
       {showSideAds ? <>
         <div style={{
           height: 600,
-          backgroundColor: isProd ? '' : '#d73333',
+          backgroundColor: isProd ? '' : 'rgba(215, 51, 51, 0.3)',
           width: 160,
-          position: 'absolute',
-          top: 100,
-          left: 50
+          position: 'fixed',
+          top: 170,
+          left: 50,
+          zIndex: 1
         }}>
           {isProd && <Adsense
             client="ca-pub-1842647313167572"
@@ -82,11 +83,12 @@ const Home = () => {
         </div>
         <div style={{
           height: 600,
-          backgroundColor: isProd ? '' : '#d73333',
+          backgroundColor: isProd ? '' : 'rgba(215, 51, 51, 0.3)',
           width: 160,
-          position: 'absolute',
-          top: 100,
-          right: 50
+          position: 'fixed',
+          top: 170,
+          right: 50,
+          zIndex: 1
         }}>
           {isProd && <Adsense
             client="ca-pub-1842647313167572"

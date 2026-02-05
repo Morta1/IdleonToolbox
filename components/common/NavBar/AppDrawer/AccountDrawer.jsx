@@ -1,6 +1,6 @@
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { Collapse, Divider, List, ListItem, ListItemIcon, ListItemText, Stack } from '@mui/material';
+import { Collapse, Divider, List, ListItem, ListItemIcon, ListItemText, Stack, Tooltip } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { prefix } from '@utility/helpers';
 import { useRouter } from 'next/router';
@@ -13,7 +13,7 @@ import { PAGES } from '@components/constants';
 
 const nestedOptionPadding = 35;
 
-const AccountDrawer = ({ fromList }) => {
+const AccountDrawer = ({ fromList, collapsed = false }) => {
   const { state } = useContext(AppContext);
   const [accordions, setAccordions] = useState({});
   const router = useRouter();
@@ -53,17 +53,23 @@ const AccountDrawer = ({ fromList }) => {
           const selectedSection = isSelected(key?.split(' ')?.join('-'));
           return (
             (<React.Fragment key={key + ' ' + index}>
-              <ListItemButton
-                data-cy={key}
-                selected={selectedSection}
-                onClick={() => handleClick(key, categories)}>
-                <ListItemIcon sx={{ minWidth: 32 }}>
-                  <img width={32} height={32} style={{ objectFit: 'contain', ...style }}
-                       src={`${prefix}${icon}.png`} alt=""/>
-                </ListItemIcon>
-                <ListItemText style={{ marginLeft: 10 }} primary={key.split('-').join(' ').capitalizeAllWords()}/>
-                {categories ? accordions?.[key] ? <ExpandLess/> : <ExpandMore/> : null}
-              </ListItemButton>
+              <Tooltip title={collapsed ? key.split('-').join(' ').capitalizeAllWords() : ''} placement="right">
+                <ListItemButton
+                  data-cy={key}
+                  selected={selectedSection}
+                  onClick={() => handleClick(key, categories)}
+                  sx={{ 
+                    justifyContent: collapsed ? 'center' : 'flex-start',
+                    px: collapsed ? 1 : 2
+                  }}>
+                  <ListItemIcon sx={{ minWidth: collapsed ? 'auto' : 32, justifyContent: 'center' }}>
+                    <img width={32} height={32} style={{ objectFit: 'contain', ...style }}
+                         src={`${prefix}${icon}.png`} alt=""/>
+                  </ListItemIcon>
+                  {!collapsed && <ListItemText style={{ marginLeft: 10 }} primary={key.split('-').join(' ').capitalizeAllWords()}/>}
+                  {!collapsed && categories ? accordions?.[key] ? <ExpandLess/> : <ExpandMore/> : null}
+                </ListItemButton>
+              </Tooltip>
               {categories ? <Collapse in={accordions?.[key]} timeout="auto" unmountOnExit>
                 {categories?.map((category, categoryIndex) => {
                   const label = category?.label.split(/(?=[A-Z])/).map((str) => str.toLowerCase()).join('-');
@@ -99,6 +105,7 @@ const AccountDrawer = ({ fromList }) => {
                 })}
               </Collapse> : null}
             </React.Fragment>)
+          );
           );
         })}
       </List>

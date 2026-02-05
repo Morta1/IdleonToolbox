@@ -604,11 +604,13 @@ const Dashboard = () => {
         onClose={() => setOpen(false)} config={config} />
       {showWideSideBanner || showNarrowSideBanner ? <Box
         sx={{
-          backgroundColor: isProd ? '' : '#d73333',
+          backgroundColor: isProd ? '' : 'rgba(215, 51, 51, 0.3)',
           width: showWideSideBanner ? 300 : showNarrowSideBanner ? 160 : 0,
+          minWidth: showWideSideBanner ? 300 : showNarrowSideBanner ? 160 : 0,
           height: 600,
           position: 'sticky',
-          top: 100
+          top: 170,
+          flexShrink: 0
         }}>
         {isProd && showWideSideBanner ? <Adsense
           client="ca-pub-1842647313167572"

@@ -1,4 +1,4 @@
-import { Divider, List, ListItem, ListItemIcon, ListItemText, Stack } from '@mui/material';
+import { Divider, List, ListItem, ListItemIcon, ListItemText, Stack, Tooltip } from '@mui/material';
 import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
 import { AppContext } from '../../context/AppProvider';
@@ -10,7 +10,7 @@ import { prefix } from '@utility/helpers';
 
 export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true, itemPlanner: true };
 
-const ToolsDrawer = ({ fromList }) => {
+const ToolsDrawer = ({ fromList, collapsed = false }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
   const handleClick = (uri) => {
@@ -38,17 +38,26 @@ const ToolsDrawer = ({ fromList }) => {
         const keyUri = key.split(/(?=[A-Z])/).map((str) => str.toLowerCase()).join('-');
         const formattedKey = key.split(/(?=[A-Z])/).join(' ').capitalize();
         const selected = isSelected(keyUri);
-        return <ListItemButton key={key + ' ' + index} selected={selected}
-                               onClick={() => handleClick(keyUri)}>
-          <ListItemIcon sx={{ minWidth: 32 }}>
-            <img style={{ objectFit: 'contain' }} width={32} height={32} src={`${prefix}${icon}.png`} alt=""/>
-          </ListItemIcon>
-          <ListItemText slotProps={{
-            primary: {
-              color: selected ? '#99ccff' : 'inherit'
-            }
-          }} style={{ marginLeft: 10 }} primary={formattedKey}/>
-        </ListItemButton>;
+        return (
+          <Tooltip title={collapsed ? formattedKey : ''} placement="right" key={key + ' ' + index}>
+            <ListItemButton 
+              selected={selected}
+              onClick={() => handleClick(keyUri)}
+              sx={{ 
+                justifyContent: collapsed ? 'center' : 'flex-start',
+                px: collapsed ? 1 : 2
+              }}>
+              <ListItemIcon sx={{ minWidth: collapsed ? 'auto' : 32, justifyContent: 'center' }}>
+                <img style={{ objectFit: 'contain' }} width={32} height={32} src={`${prefix}${icon}.png`} alt=""/>
+              </ListItemIcon>
+              {!collapsed && <ListItemText slotProps={{
+                primary: {
+                  color: selected ? '#99ccff' : 'inherit'
+                }
+              }} style={{ marginLeft: 10 }} primary={formattedKey}/>}
+            </ListItemButton>
+          </Tooltip>
+        );
       })}
     </List>
     {!fromList ? <List style={{ marginTop: 'auto', paddingBottom: 0 }}>

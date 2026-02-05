@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import NavItemsList from './NavItemsList';
 import LoginButton from './LoginButton';
 import AppDrawer from './AppDrawer';
-import { drawerWidth, navBarHeight } from '../../constants';
+import { drawerWidth, drawerWidthCollapsed, navBarHeight, secondaryNavHeight } from '../../constants';
 import { useRouter } from 'next/router';
 import { handleLoadJson, isProd, shouldDisplayDrawer } from '@utility/helpers';
 import { Adsense } from '@ctrl/react-adsense';
@@ -19,14 +19,17 @@ import UserMenu from '@components/common/NavBar/UserMenu';
 import { format } from 'date-fns';
 import IconButton from '@mui/material/IconButton';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
-import { CONTENT_PERCENT_SIZE } from '@utility/consts';
+import { CONTENT_PERCENT_SIZE, SIDE_AD_WIDTH_WIDE, SIDE_AD_WIDTH_NARROW } from '@utility/consts';
 import AuthSkeleton from './AuthSkeleton';
+import SecondaryNav from './SecondaryNav';
 
 const NavBar = ({ children }) => {
   const { dispatch, state } = useContext(AppContext);
   const router = useRouter();
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const displayDrawer = shouldDisplayDrawer(router?.pathname);
+  const isCollapsed = state?.drawerCollapsed ?? false;
+  const currentDrawerWidth = isCollapsed ? drawerWidthCollapsed : drawerWidth;
 
   const handlePaste = async () => {
     await handleLoadJson(dispatch);
@@ -70,15 +73,20 @@ const NavBar = ({ children }) => {
       </AppBar>
     </Box>
     <AppDrawer permanent/>
+    <SecondaryNav />
     <AdBlockerPopup/>
     <Box component={'main'} sx={{
-      pt: 3,
+      pt: { xs: 3, sm: `${secondaryNavHeight + 24}px` },
       pr: 3,
-      pl: { xs: 3, lg: displayDrawer ? `${drawerWidth + 24}px` : 3 },
-      mb: isXs ? '75px' : '110px'
+      pl: { xs: 3, lg: displayDrawer ? `${currentDrawerWidth + 24}px` : 3 },
+      mb: isXs ? '75px' : '110px',
+      transition: 'padding-left 0.2s ease-in-out'
     }}>
       {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
-      <ContentWrapper isTools={router?.pathname?.includes('tools')} isLoading={state?.isLoading}>
+      <ContentWrapper 
+        showSideAd={displayDrawer} 
+        isLoading={state?.isLoading}
+      >
         {children}
       </ContentWrapper>
     </Box>
@@ -110,39 +118,63 @@ const NavBar = ({ children }) => {
   </>
 };
 
-const ContentWrapper = ({ isTools, isLoading, children }) => {
+const ContentWrapper = ({ showSideAd, isLoading, children }) => {
   const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
   const router = useRouter();
+  
+  const shouldShowSideAd = showSideAd && (showWideSideBanner || showNarrowSideBanner);
+  const sideAdWidth = showWideSideBanner ? SIDE_AD_WIDTH_WIDE : SIDE_AD_WIDTH_NARROW;
 
-  return !isTools ? children : <Stack direction={'row'} gap={2} justifyContent={'space-between'} sx={{ width: '100%' }}>
-    <Stack
-      sx={{
-        width: '100%',
-        maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : CONTENT_PERCENT_SIZE
-      }}>
-      {children}
+  return !shouldShowSideAd ? children : (
+    <Stack direction={'row'} gap={2} justifyContent={'space-between'} sx={{ width: '100%' }}>
+      <Stack
+        sx={{
+          width: '100%',
+          flex: 1,
+          minWidth: 0
+        }}>
+        {children}
+      </Stack>
+      <Box
+        key={router.asPath}
+        sx={{
+          backgroundColor: isProd ? 'transparent' : 'rgba(215, 51, 51, 0.3)',
+          width: sideAdWidth,
+          minWidth: sideAdWidth,
+          height: 600,
+          position: 'sticky',
+          top: { xs: '75px', sm: `${secondaryNavHeight + navBarHeight + 16}px` },
+          alignSelf: 'flex-start',
+          flexShrink: 0
+        }}>
+        {isProd && showWideSideBanner ? (
+          <Adsense
+            client="ca-pub-1842647313167572"
+            slot="7052896184"
+          />
+        ) : null}
+        {isProd && showNarrowSideBanner && !showWideSideBanner ? (
+          <Adsense
+            client="ca-pub-1842647313167572"
+            slot="5548242827"
+          />
+        ) : null}
+        {!isProd && (
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            height: '100%',
+            color: 'text.secondary',
+            fontSize: 12
+          }}>
+            Side Ad ({sideAdWidth}x600)
+          </Box>
+        )}
+      </Box>
     </Stack>
-    {showWideSideBanner || showNarrowSideBanner ? <Box
-      key={router.asPath}
-      sx={{
-        backgroundColor: isProd ? '' : '#d73333',
-        width: showWideSideBanner ? 300 : showNarrowSideBanner ? 160 : 0,
-        height: 600,
-        position: 'sticky',
-        top: { xs: '75px', sm: '110px' },
-        alignSelf: 'flex-start'
-      }}>
-      {isProd && showWideSideBanner ? <Adsense
-        client="ca-pub-1842647313167572"
-        slot="7052896184"
-      /> : null}
-      {isProd && showNarrowSideBanner && !showWideSideBanner ? <Adsense
-        client="ca-pub-1842647313167572"
-        slot="5548242827"
-      /> : null}
-    </Box> : null}
-  </Stack>
+  );
 }
 
 const AppBar = styled(MuiAppBar, {

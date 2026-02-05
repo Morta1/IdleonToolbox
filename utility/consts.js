@@ -1,4 +1,7 @@
-export const CONTENT_PERCENT_SIZE = '85%';
+export const CONTENT_PERCENT_SIZE = '100%';
+export const SIDE_AD_WIDTH_WIDE = 300;
+export const SIDE_AD_WIDTH_NARROW = 160;
+export const LEADERBOARD_AD_HEIGHT = 90;
 
 export const TOOLS = {
   PICKAXE: 0,

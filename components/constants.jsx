@@ -1,5 +1,7 @@
-export const drawerWidth = 240;
-export const navBarHeight = 70;
+export const drawerWidth = 220;
+export const drawerWidthCollapsed = 60;
+export const navBarHeight = 56;
+export const secondaryNavHeight = 90;
 export const navItems = ['dashboard', 'characters', 'account', 'tools', 'guilds', 'statistics', 'leaderboards', 'data'];
 export const drawerPages = ['characters', 'account', 'tools'];
 export const offlinePages = ['tools', 'data', 'statistics', 'leaderboards'];

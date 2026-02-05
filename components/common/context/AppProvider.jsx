@@ -20,7 +20,8 @@ function appReducer(state, action) {
       account: null,
       signedIn: false,
       emailPassword: null,
-      appleLogin: null
+      appleLogin: null,
+      drawerCollapsed: state.drawerCollapsed
     }),
     displayedCharacters: () => ({ ...state, displayedCharacters: action.data }),
     filters: () => ({ ...state, filters: action.data }),
@@ -31,7 +32,8 @@ function appReducer(state, action) {
     loginError: () => ({ ...state, loginError: action.data }),
     showRankOneOnly: () => ({ ...state, showRankOneOnly: action.data }),
     showUnmaxedBoxesOnly: () => ({ ...state, showUnmaxedBoxesOnly: action.data }),
-    setLoading: () => ({ ...state, isLoading: action.data })
+    setLoading: () => ({ ...state, isLoading: action.data }),
+    toggleDrawerCollapsed: () => ({ ...state, drawerCollapsed: !state.drawerCollapsed })
   };
 
   const handler = actionHandlers[action.type];
@@ -58,7 +60,8 @@ const AppProvider = ({ children }) => {
     const defaultState = {
       showRankOneOnly: false,
       showUnmaxedBoxesOnly: false,
-      isLoading: true
+      isLoading: true,
+      drawerCollapsed: false
     };
 
     // Define localStorage keys to load
@@ -70,7 +73,8 @@ const AppProvider = ({ children }) => {
       'godPlanner',
       'manualImport',
       'lastUpdated',
-      'planner'
+      'planner',
+      'drawerCollapsed'
     ];
 
     // Load and parse values from localStorage
@@ -245,6 +249,9 @@ const AppProvider = ({ children }) => {
     if (state?.godPlanner) {
       localStorage.setItem('godPlanner', JSON.stringify(state.godPlanner));
     }
+    if (typeof state?.drawerCollapsed === 'boolean') {
+      localStorage.setItem('drawerCollapsed', JSON.stringify(state.drawerCollapsed));
+    }
     if (state?.manualImport) {
       localStorage.setItem('manualImport', JSON.stringify(state.manualImport));
       const lastUpdated = JSON.parse(localStorage.getItem('lastUpdated'));
@@ -259,7 +266,8 @@ const AppProvider = ({ children }) => {
     state?.displayedCharacters,
     state?.planner,
     state?.manualImport,
-    state?.godPlanner
+    state?.godPlanner,
+    state?.drawerCollapsed
   ]);
 
   useEffect(() => {
