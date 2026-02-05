@@ -1,4 +1,4 @@
-import { createArrayOfArrays, growth, tryToParse } from '@utility/helpers';
+import { cleanUnderscore, createArrayOfArrays, growth, tryToParse } from '@utility/helpers';
 import { cauldrons, p2w, sigils, vials } from '@website-data';
 import { isArtifactAcquired } from './sailing';
 import { getSaltLickBonus } from './saltLick';
@@ -777,3 +777,33 @@ export const getKrukBubblesDaily = (account) => {
     }
   };
 }
+
+export const getMaxBonus = (func, x1) => {
+  if (!func) return null;
+  const f = func.toLowerCase();
+  if (f === 'decay') return x1;
+  if (f === 'decaymulti') return x1 + 1;
+  if (f === 'adddecay') {
+    return x1 * 100000; // asymptotic cap from the game formula
+  }
+
+  return null;
+};
+
+export const findAddDecayThresholdLevel = (func, x1, x2, prismaMulti, effThreshold, maxBonus) => {
+  const target = maxBonus * (effThreshold / 100);
+
+  let lo = 0;
+  let hi = 300000; // safe upper bound for addDECAY
+  let mid;
+
+  for (let i = 0; i < 40; i++) {
+    mid = (lo + hi) / 2;
+    const val = growth(func, mid, x1, x2, true) * prismaMulti;
+
+    if (val >= target) hi = mid;
+    else lo = mid;
+  }
+
+  return hi;
+};
