@@ -812,7 +812,7 @@ export const migrateToVersion34 = (config) => {
         options[materialsIndex] = {
           name: 'materials',
           type: 'array',
-          props: { value: getRawRefinerySalts(), type: 'img' }, // Empty array as placeholder since we can't call getRawRefinerySalts() here
+          props: { value: getRawRefinerySalts(), type: 'img' },
           checked: options[materialsIndex].checked,
           category: 'Materials'
         };
@@ -824,7 +824,7 @@ export const migrateToVersion34 = (config) => {
         options[rankUpIndex] = {
           name: 'rankUp',
           type: 'array',
-          props: { value: getRawRefinerySalts(), type: 'img' }, // Empty array as placeholder
+          props: { value: getRawRefinerySalts(), type: 'img' },
           checked: options[rankUpIndex].checked,
           category: 'Refinery Rank up'
         };
