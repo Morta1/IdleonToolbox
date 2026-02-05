@@ -2,7 +2,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { differenceInHours, differenceInMinutes } from 'date-fns';
 import {
-  cashFormatter,
+  cashFormatter, commaNotation,
   getCoinsArray,
   kFormatter,
   notateNumber,
@@ -84,7 +84,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
                     character={character} characters={characters}/> : null}
         {statsFilter ? <>
           <Stack sx={{ minWidth: 250 }} flexWrap={'wrap'} gap={1} divider={<Divider/>}>
-            <Stat title={'Total Stats'} value={getTotalStats(character)}/>
+            <Stat title={'Total Stats'} value={commaNotation(getTotalStats(character))}/>
             {Object.entries(stats || {})?.map(([statName, statValue], index) => {
               return statName !== 'level' ? (
                 <Stack key={`${name}-${statName}-${index}`} direction={'row'} justifyContent={'space-between'}>
@@ -94,7 +94,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
                     {pascalCase(statName)}
                   </Typography>
                   <Typography variant={'body1'}
-                              component={'span'}>{Math.floor(statValue)}</Typography>
+                              component={'span'}>{commaNotation(statValue)}</Typography>
                 </Stack>
               ) : null;
             })}
