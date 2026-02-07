@@ -6,7 +6,7 @@ import createEmotionCache from '../utility/createEmotionCache';
 import darkTheme from '../styles/theme/darkTheme';
 import '../styles/globals.css';
 import Head from 'next/head';
-import Script from 'next/script'
+import Script from 'next/script';
 import AppProvider from '../components/common/context/AppProvider';
 import WaitForRouter from '../components/common/WaitForRouter';
 import { DefaultSeo } from 'next-seo';
@@ -18,7 +18,7 @@ import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 import Button from '@mui/material/Button';
 
 const clientSideEmotionCache = createEmotionCache();
-// remove overlay of error in dev mode.
+
 const noOverlayWorkaroundScript = `
   window.addEventListener('error', event => {
     event.stopImmediatePropagation()
@@ -29,24 +29,30 @@ const noOverlayWorkaroundScript = `
   })
 `;
 
-const preConnections = ['https://firestore.googleapis.com', 'https://tpc.googlesyndication.com',
-  'https://partner.googleadservices.com', 'https://pagead2.googlesyndication.com',
-  'https://identitytoolkit.googleapis.com', 'https://googleads.g.doubleclick.net', 'https://www.google-analytics.com',
-  'https://adservice.google.co.il', 'https://www.googletagmanager.com', 'https://adservice.google.com']
+const preConnections = [
+  'https://firestore.googleapis.com',
+  'https://tpc.googlesyndication.com',
+  'https://partner.googleadservices.com',
+  'https://pagead2.googlesyndication.com',
+  'https://identitytoolkit.googleapis.com',
+  'https://googleads.g.doubleclick.net',
+  'https://www.google-analytics.com',
+  'https://adservice.google.co.il',
+  'https://www.googletagmanager.com',
+  'https://adservice.google.com'
+];
+
+const getConsentObject = (granted) => ({
+  ad_storage: granted ? 'granted' : 'denied',
+  analytics_storage: granted ? 'granted' : 'denied',
+  ad_user_data: granted ? 'granted' : 'denied',
+  ad_personalisation: granted ? 'granted' : 'denied'
+});
 
 const MyApp = (props) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
   const [openPolicy, setOpenPolicy] = useState(false);
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 600;
 
-  const getConsentObject = (granted) => {
-    return {
-      ad_storage: granted ? 'granted' : 'denied',
-      analytics_storage: granted ? 'granted' : 'denied',
-      ad_user_data: granted ? 'granted' : 'denied',
-      ad_personalisation: granted ? 'granted' : 'denied'
-    }
-  }
   return (
     <>
       <Head>
@@ -159,7 +165,7 @@ const MyApp = (props) => {
                         content: 'Idleon, Legends of Idleon, Idleon Toolbox, Idleon calculator, Idleon builds, Idleon guide, idle game tools'
                       },
                       {
-                        property: 'og:image', // Explicitly add og:image
+                        property: 'og:image',
                         content: 'https://idleontoolbox.com/data/Coins5.png'
                       }
                     ]}

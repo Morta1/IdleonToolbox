@@ -32,3 +32,7 @@ alwaysApply: true
 
 ## Testing
 When testing add "http://localhost:3001?demo=true" to be able to access all pages without login in 
+
+## General
+
+This project uses **React Compiler** (`reactCompiler: true` in `next.config.js`), so manual memoization with `useMemo` and `useCallback` is generally unnecessary. The compiler automatically optimizes component re-renders.

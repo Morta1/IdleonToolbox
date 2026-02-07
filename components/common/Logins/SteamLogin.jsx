@@ -1,9 +1,9 @@
 import { Alert, Divider, Stack, TextField, Typography } from '@mui/material';
+import Button from '@mui/material/Button';
 import { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { getSteamParams } from '../../../logins/steam';
 import { isValidUrl } from '@utility/helpers';
-import { LoadingButton } from '@mui/lab';
 
 const SteamLogin = ({ setOpen }) => {
   const { state, dispatch, waitingForAuth, setWaitingForAuth } = useContext(AppContext);
@@ -40,7 +40,7 @@ const SteamLogin = ({ setOpen }) => {
       setError('');
       setSteamUrl(e.target.value)
     }} size={'small'} label={'Steam popup url'}/>
-    <LoadingButton sx={{ mt: 2 }} loading={waitingForAuth} variant="contained" color="success" onClick={async () => {
+    <Button sx={{ mt: 2 }} loading={waitingForAuth} variant="contained" color="success" onClick={async () => {
       if (!steamUrl.startsWith('https://')) {
         return setError('The url should start with "https://"');
       }
@@ -60,7 +60,7 @@ const SteamLogin = ({ setOpen }) => {
       } else {
         setError(`An error occurred while trying to login ${`- ${token?.message}` || ''}`)
       }
-    }}>Login</LoadingButton>
+    }}>Login</Button>
   </Stack>;
 };
 

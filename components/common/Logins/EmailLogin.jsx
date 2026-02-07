@@ -1,8 +1,8 @@
 import { Card, CardContent, Stack, TextField, Typography } from '@mui/material';
+import Button from '@mui/material/Button';
 import React, { useContext, useState } from 'react';
 import { signInWithEmailPassword } from '../../../firebase';
 import { AppContext } from '../context/AppProvider';
-import Button from '@mui/material/Button';
 
 const EmailLogin = () => {
   const { state, dispatch, waitingForAuth, setWaitingForAuth } = useContext(AppContext);
@@ -24,22 +24,18 @@ const EmailLogin = () => {
     }
   }
 
-  const handleAuthenticating = () => {
-    setWaitingForAuth(true);
-  }
-
   const handleSubmit = async () => {
     setSubmitted(true);
     if (email && password) {
-      handleAuthenticating();
+      setWaitingForAuth(true);
       let data;
       try {
         data = await signInWithEmailPassword({ email, password });
+        dispatch({ type: 'login', data: { loginData: data, loginType: 'email' } })
       } catch (error) {
         setWaitingForAuth(false);
         dispatch({ type: 'loginError', data: error?.message })
       }
-      dispatch({ type: 'login', data: { loginData: data, loginType: 'email' } })
     } else {
       setError('Please enter valid email and password');
     }
@@ -56,7 +52,13 @@ const EmailLogin = () => {
                  onKeyDown={handleKeyDown}
                  label={'Password'}
                  inputProps={{ type: 'password', autoComplete: 'off' }}/>
-      <Button onClick={handleSubmit} loading={waitingForAuth} variant={'contained'}>Login</Button>
+      <Button 
+        onClick={handleSubmit} 
+        loading={waitingForAuth} 
+        variant={'contained'}
+      >
+        Login
+      </Button>
       {(state?.loginError || error) ? <Card raised sx={{bgcolor: '#c02222'}}>
         <CardContent >
           <Typography variant={'body1'}>{state?.loginError || error}</Typography>
