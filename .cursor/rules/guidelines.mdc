@@ -29,3 +29,6 @@ alwaysApply: true
   - `a.engine.getGameAttribute("OptionsListAccount")[478]` -> `account?.accountOptions?.[478]`
   - `m._customBlock_Summoning2("MeritocBonusz", 17, 0)` -> `getMeritocracyBonus(account, 17)`
   - `a.engine.getGameAttribute("DNSM").h.AlchBubbles.h.M11` -> `getBubbleBonus(account, 'DEEP_DEPTH', false)`
+
+## Testing
+When testing add "http://localhost:3001?demo=true" to be able to access all pages without login in 

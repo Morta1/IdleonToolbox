@@ -1,16 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Box, Stack, ToggleButton, ToggleButtonGroup, useMediaQuery } from '@mui/material';
+import { Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import Characters from '../components/dashboard/Characters';
 import Account from '../components/dashboard/Account';
-import { isProd, tryToParse } from '@utility/helpers';
+import { tryToParse } from '@utility/helpers';
 import Etc from '../components/dashboard/Etc';
 import { NextSeo } from 'next-seo';
 import { getRawShopItems } from '@parsers/shops';
 import { getRawRefinerySalts } from '@parsers/misc';
-import { Adsense } from '@ctrl/react-adsense';
 import DashboardSettings from '../components/common/DashboardSettings';
-import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 import Button from '@mui/material/Button';
 import { migrateConfig } from '@utility/migrations';
 import { IconSettingsFilled } from '@tabler/icons-react';
@@ -547,8 +545,6 @@ const Dashboard = () => {
   });
   const [filters, setFilters] = React.useState(tryToParse(localStorage.getItem('dashboard-filters')) || ['account',
     'characters', 'timers']);
-  const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
-  const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
 
 
   const handleConfigChange = (updatedConfig) => {
@@ -577,32 +573,30 @@ const Dashboard = () => {
       title="Dashboard | Idleon Toolbox"
       description="Provides key information about your account and alerts you when there are unfinished tasks"
     />
-    <Stack direction="row" gap={2} justifyContent={'space-between'}>
-      <Stack sx={{ maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : CONTENT_PERCENT_SIZE }}>
-        <Stack mb={2} direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'}>
-          <ToggleButtonGroup value={filters} onChange={handleFilters}>
-            <ToggleButton value="account">Account</ToggleButton>
-            <ToggleButton value="characters">Characters</ToggleButton>
-            <ToggleButton value="timers">Timers</ToggleButton>
-          </ToggleButtonGroup>
-          <Button variant={'outlined'} sx={{ textTransform: 'none', height: 32 }}
-            startIcon={<IconSettingsFilled size={20} />}
-            onClick={() => setOpen(true)}>
-            Configure alerts
-          </Button>
-        </Stack>
-        <Stack gap={2}>
-          {isDisplayed('account') ? <Account trackers={config?.account} characters={characters}
-            account={account} lastUpdated={lastUpdated} /> : null}
-          {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
-            account={account} lastUpdated={lastUpdated} /> : null}
-          {isDisplayed('timers') ? <Etc characters={characters} account={account} trackers={config?.timers}
-            lastUpdated={lastUpdated} /> : null}
-        </Stack>
+    <Stack>
+      <Stack mb={2} direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'}>
+        <ToggleButtonGroup value={filters} onChange={handleFilters}>
+          <ToggleButton value="account">Account</ToggleButton>
+          <ToggleButton value="characters">Characters</ToggleButton>
+          <ToggleButton value="timers">Timers</ToggleButton>
+        </ToggleButtonGroup>
+        <Button variant={'outlined'} sx={{ textTransform: 'none', height: 32 }}
+          startIcon={<IconSettingsFilled size={20} />}
+          onClick={() => setOpen(true)}>
+          Configure alerts
+        </Button>
       </Stack>
-      <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open}
-        onClose={() => setOpen(false)} config={config} />
+      <Stack gap={2}>
+        {isDisplayed('account') ? <Account trackers={config?.account} characters={characters}
+          account={account} lastUpdated={lastUpdated} /> : null}
+        {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
+          account={account} lastUpdated={lastUpdated} /> : null}
+        {isDisplayed('timers') ? <Etc characters={characters} account={account} trackers={config?.timers}
+          lastUpdated={lastUpdated} /> : null}
+      </Stack>
     </Stack>
+    <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open}
+      onClose={() => setOpen(false)} config={config} />
   </>
 };
 

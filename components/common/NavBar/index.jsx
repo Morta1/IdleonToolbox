@@ -9,7 +9,6 @@ import AppDrawer from './AppDrawer';
 import { drawerWidth, navBarHeight } from '../../constants';
 import { useRouter } from 'next/router';
 import { handleLoadJson, isProd, shouldDisplayDrawer } from '@utility/helpers';
-import { Adsense } from '@ctrl/react-adsense';
 import { Stack, Typography, useMediaQuery } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import AdBlockerPopup from '@components/common/AdBlockerPopup';
@@ -21,12 +20,16 @@ import IconButton from '@mui/material/IconButton';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 import AuthSkeleton from './AuthSkeleton';
+import { SidebarAd, BottomBannerAd } from '@components/common/AdUnit';
 
 const NavBar = ({ children }) => {
   const { dispatch, state } = useContext(AppContext);
   const router = useRouter();
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const displayDrawer = shouldDisplayDrawer(router?.pathname);
+  const pathname = router?.pathname || '';
+  const isHomePage = pathname === '/' || pathname === '';
+  const isInnerPage = !isHomePage && pathname !== '/patch-notes';
 
   const handlePaste = async () => {
     await handleLoadJson(dispatch);
@@ -78,71 +81,31 @@ const NavBar = ({ children }) => {
       mb: isXs ? '75px' : '110px'
     }}>
       {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
-      <ContentWrapper isTools={router?.pathname?.includes('tools')} isLoading={state?.isLoading}>
+      <ContentWrapper showSidebar={isInnerPage} isLoading={state?.isLoading}>
         {children}
       </ContentWrapper>
     </Box>
-    <Box
-      key={router?.asPath}
-      style={{
-        backgroundColor: isProd ? '' : '#d73333',
-        position: 'fixed',
-        bottom: 0,
-        left: { xs: 'inherit', lg: displayDrawer ? drawerWidth : 3 },
-        height: isXs ? 50 : 90,
-        maxHeight: isXs ? 50 : 90,
-        width: '100%'
-      }}>
-      <Adsense
-        style={{
-          display: 'block',
-          height: isXs ? 50 : 90,
-          maxHeight: isXs ? 50 : 90,
-          maxWidth: 1200,
-          margin: '0 auto'
-        }}
-        client="ca-pub-1842647313167572"
-        slot="1488341218"
-        format=""
-        responsive={isXs ? 'false': 'true'}
-      />
-    </Box>
+    <BottomBannerAd displayDrawer={displayDrawer} />
   </>
 };
 
-const ContentWrapper = ({ isTools, isLoading, children }) => {
-  const showWideSideBanner = useMediaQuery('(min-width: 1600px)', { noSsr: true });
+const ContentWrapper = ({ showSidebar, isLoading, children }) => {
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
-  const router = useRouter();
 
-  return !isTools ? children : <Stack direction={'row'} gap={2} justifyContent={'space-between'} sx={{ width: '100%' }}>
-    <Stack
-      sx={{
-        width: '100%',
-        maxWidth: !showNarrowSideBanner && !showWideSideBanner ? '100%' : CONTENT_PERCENT_SIZE
-      }}>
-      {children}
+  if (!showSidebar) return children;
+
+  return (
+    <Stack direction={'row'} gap={2} justifyContent={'space-between'} sx={{ width: '100%' }}>
+      <Stack
+        sx={{
+          width: '100%',
+          maxWidth: !showNarrowSideBanner ? '100%' : CONTENT_PERCENT_SIZE
+        }}>
+        {children}
+      </Stack>
+      <SidebarAd />
     </Stack>
-    {showWideSideBanner || showNarrowSideBanner ? <Box
-      key={router.asPath}
-      sx={{
-        backgroundColor: isProd ? '' : '#d73333',
-        width: showWideSideBanner ? 300 : showNarrowSideBanner ? 160 : 0,
-        height: 600,
-        position: 'sticky',
-        top: { xs: '75px', sm: '110px' },
-        alignSelf: 'flex-start'
-      }}>
-      {isProd && showWideSideBanner ? <Adsense
-        client="ca-pub-1842647313167572"
-        slot="7052896184"
-      /> : null}
-      {isProd && showNarrowSideBanner && !showWideSideBanner ? <Adsense
-        client="ca-pub-1842647313167572"
-        slot="5548242827"
-      /> : null}
-    </Box> : null}
-  </Stack>
+  );
 }
 
 const AppBar = styled(MuiAppBar, {
