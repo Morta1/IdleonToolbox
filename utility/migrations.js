@@ -836,7 +836,52 @@ export const migrateToVersion34 = (config) => {
   return dashboardConfig;
 };
 
+export const migrateToVersion35 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
 
+  const timers = dashboardConfig.timers || {};
+  const clickersDefaults = {
+    featherRestart: { checked: true, options: [], category: 'Orion' },
+    megaFeatherRestart: { checked: true, options: [] },
+    fisherooReset: { checked: true, options: [], category: 'Poppy' },
+    greatestCatch: { checked: true, options: [] },
+    megaFleshRestart: { checked: true, options: [], category: 'Bubba' }
+  };
+
+  const clickers = { ...(timers.Clickers || {}) };
+  if (timers['World 1']) {
+    if (timers['World 1'].featherRestart) {
+      clickers.featherRestart = { ...timers['World 1'].featherRestart, options: [], category: 'Orion' };
+    }
+    if (timers['World 1'].megaFeatherRestart) {
+      clickers.megaFeatherRestart = { ...timers['World 1'].megaFeatherRestart, options: [] };
+    }
+  }
+  if (timers['World 2']) {
+    if (timers['World 2'].fisherooReset) {
+      clickers.fisherooReset = { ...timers['World 2'].fisherooReset, options: [], category: 'Poppy' };
+    }
+    if (timers['World 2'].greatestCatch) {
+      clickers.greatestCatch = { ...timers['World 2'].greatestCatch, options: [] };
+    }
+  }
+  Object.keys(clickersDefaults).forEach((key) => {
+    if (!clickers[key]) clickers[key] = clickersDefaults[key];
+  });
+
+  const { 'World 1': _w1, 'World 2': _w2, ...restTimers } = timers;
+
+  dashboardConfig.timers = {
+    ...restTimers,
+    Clickers: clickers
+  };
+
+  dashboardConfig.version = 35;
+  return dashboardConfig;
+};
 
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
@@ -944,7 +989,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     if (migratedConfig?.version === 33) {
       migratedConfig = migrateToVersion34(migratedConfig);
     }
-
+    if (migratedConfig?.version === 34) {
+      migratedConfig = migrateToVersion35(migratedConfig);
+    }
   }
   return migratedConfig;
 }

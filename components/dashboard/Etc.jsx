@@ -33,12 +33,15 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - (account?.companions?.lastFreeClaim ?? 0)));
   const nextFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[4]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
   const nextMegaFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[8]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
+  const nextMegaFleshRestart = new Date().getTime() + (account?.bubba?.upgrades?.[8]?.cost - account?.bubba?.meatSlices) / account?.bubba?.meatsliceRate * 1000;
   const mfDuration = getDuration(new Date().getTime(), nextMegaFeatherRestart);
   const mfLongDuration = nextMegaFeatherRestart > maxTimeValue || mfDuration?.days > 365;
   const nextFisherooReset = new Date().getTime() + (account?.kangaroo?.upgrades?.[6]?.cost - account?.kangaroo?.fish) / account?.kangaroo?.fishRate * 60 * 1000;
   const nextGreatestCatch = new Date().getTime() + (account?.kangaroo?.upgrades?.[11]?.cost - account?.kangaroo?.fish) / account?.kangaroo?.fishRate * 60 * 1000;
   const gcDuration = getDuration(new Date().getTime(), nextGreatestCatch);
   const gcLongDuration = nextGreatestCatch > maxTimeValue || gcDuration?.days > 365;
+  const cfDuration = getDuration(new Date().getTime(), nextMegaFleshRestart);
+  const cfLongDuration = nextMegaFleshRestart > maxTimeValue || cfDuration?.days > 365; 
   const showEquinoxError = account?.equinox?.upgrades.filter(upgrade => upgrade.unlocked).some(upgrade => upgrade.lvl < upgrade.maxLvl);
   const allPetsAcquired = account?.companions?.list?.every(({ acquired }) => acquired);
   const atomBonus = getAtomBonus(account, 'Nitrogen_-_Construction_Trimmer');
@@ -216,79 +219,93 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           </Stack>
           : null}
       </Section>}
-      {(!emptyAlerts?.['World 1'] || !emptyAlerts?.['World 2']) && <Stack gap={1}>
-        {!emptyAlerts?.['World 1'] && <Section title={'World 1'}>
-          {trackers?.['World 1']?.featherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
-            {!isFinite(nextFeatherRestart) ? <Stack direction={'row'} gap={1} alignItems={'center'}>
-              <IconImg src={`${prefix}etc/Owl_4.png`} />
-              <Typography>A long time</Typography>
-            </Stack> : nextFeatherRestart < maxTimeValue ? <TimerCard
-              page={'account/clickers/owl'}
-              tooltipContent={'Next feather restart: ' + getRealDateInMs(nextFeatherRestart)}
-              lastUpdated={lastUpdated}
-              time={nextFeatherRestart}
-              icon={'etc/Owl_4.png'}
-              timerPlaceholder={'Restart available'}
-            /> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
-              onClick={() => router.push({ pathname: 'account/clickers/owl' })}>
-              <IconImg src={`${prefix}etc/Owl_4.png`} />
-              <Typography>{notateNumber(getTimeAsDays(nextFeatherRestart))} days</Typography>
-            </Stack>}
-          </> : null}
-          {trackers?.['World 1']?.megaFeatherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
-            {!isPast(nextMegaFeatherRestart) && mfLongDuration ? <Tooltip
-              sx={{ cursor: 'pointer' }}
-              onClick={() => router.push({ pathname: 'account/clickers/owl' })}
-              title={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}>
-              <Stack direction={'row'} gap={1} alignItems={'center'}>
-                <IconImg src={`${prefix}etc/Owl_8.png`} />
-                <Typography>A long time</Typography>
-              </Stack>
-            </Tooltip> : <TimerCard
-              page={'account/clickers/owl'}
-              tooltipContent={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}
-              lastUpdated={lastUpdated}
-              time={nextMegaFeatherRestart}
-              icon={'etc/Owl_8.png'}
-              timerPlaceholder={'Mega feather restart available'}
-            />}
-          </> : null}
-        </Section>}
-        {!emptyAlerts?.['World 2'] && account?.kangaroo?.fish > 0 ? <Section title={'World 2'}>
-          {trackers?.['World 2']?.fisherooReset?.checked ? nextFisherooReset < maxTimeValue ? <TimerCard
-            page={'account/clickers/kangaroo'}
-            tooltipContent={'Next fisheroo reset: ' + getRealDateInMs(nextFisherooReset)}
-            lastUpdated={lastUpdated}
-            time={nextFisherooReset}
-            icon={'etc/KUpga_6.png'}
-            timerPlaceholder={'Restart available'}
-          /> : account?.kangaroo?.fishRate <= 0 ? <Stack direction={'row'} gap={1} alignItems={'center'}
-            sx={{ cursor: 'pointer' }}
-            onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
-            <IconImg src={`${prefix}etc/KUpga_11.png`} />
+      {!emptyAlerts?.Clickers && <Section title={'Clickers'}>
+        {trackers?.Clickers?.featherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
+          {!isFinite(nextFeatherRestart) ? <Stack direction={'row'} gap={1} alignItems={'center'}>
+            <IconImg src={`${prefix}etc/Owl_4.png`} />
             <Typography>A long time</Typography>
-          </Stack> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
-            onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
-            <IconImg src={`${prefix}etc/KUpga_6.png`} />
-            <Typography>{notateNumber(getTimeAsDays(nextFisherooReset))} days</Typography>
-          </Stack> : null}
-          {trackers?.['World 2']?.greatestCatch?.checked ? !isPast(nextGreatestCatch) && gcLongDuration ? <Tooltip
-            title={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}>
-            <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
-              onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
-              <IconImg src={`${prefix}etc/KUpga_11.png`} />
+          </Stack> : nextFeatherRestart < maxTimeValue ? <TimerCard
+            page={'account/clickers/owl'}
+            tooltipContent={'Next feather restart: ' + getRealDateInMs(nextFeatherRestart)}
+            lastUpdated={lastUpdated}
+            time={nextFeatherRestart}
+            icon={'etc/Owl_4.png'}
+            timerPlaceholder={'Restart available'}
+          /> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
+            onClick={() => router.push({ pathname: 'account/clickers/owl' })}>
+            <IconImg src={`${prefix}etc/Owl_4.png`} />
+            <Typography>{notateNumber(getTimeAsDays(nextFeatherRestart))} days</Typography>
+          </Stack>}
+        </> : null}
+        {trackers?.Clickers?.megaFeatherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
+          {!isPast(nextMegaFeatherRestart) && mfLongDuration ? <Tooltip
+            sx={{ cursor: 'pointer' }}
+            onClick={() => router.push({ pathname: 'account/clickers/owl' })}
+            title={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}>
+            <Stack direction={'row'} gap={1} alignItems={'center'}>
+              <IconImg src={`${prefix}etc/Owl_8.png`} />
               <Typography>A long time</Typography>
             </Stack>
           </Tooltip> : <TimerCard
-            page={'account/clickers/kangaroo'}
-            tooltipContent={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}
+            page={'account/clickers/owl'}
+            tooltipContent={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}
             lastUpdated={lastUpdated}
-            time={nextGreatestCatch}
-            icon={'etc/KUpga_11.png'}
-            timerPlaceholder={'Restart available'}
-          /> : null}
-        </Section> : null}
-      </Stack>}
+            time={nextMegaFeatherRestart}
+            icon={'etc/Owl_8.png'}
+            timerPlaceholder={'Mega feather restart available'}
+          />}
+        </> : null}
+        {trackers?.Clickers?.fisherooReset?.checked && account?.kangaroo?.fish > 0 ? nextFisherooReset < maxTimeValue ? <TimerCard
+          page={'account/clickers/kangaroo'}
+          tooltipContent={'Next fisheroo reset: ' + getRealDateInMs(nextFisherooReset)}
+          lastUpdated={lastUpdated}
+          time={nextFisherooReset}
+          icon={'etc/KUpga_6.png'}
+          timerPlaceholder={'Restart available'}
+        /> : account?.kangaroo?.fishRate <= 0 ? <Stack direction={'row'} gap={1} alignItems={'center'}
+          sx={{ cursor: 'pointer' }}
+          onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
+          <IconImg src={`${prefix}etc/KUpga_11.png`} />
+          <Typography>A long time</Typography>
+        </Stack> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
+          onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
+          <IconImg src={`${prefix}etc/KUpga_6.png`} />
+          <Typography>{notateNumber(getTimeAsDays(nextFisherooReset))} days</Typography>
+        </Stack> : null}
+        {trackers?.Clickers?.greatestCatch?.checked && account?.kangaroo?.fish > 0 ? !isPast(nextGreatestCatch) && gcLongDuration ? <Tooltip
+          title={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}>
+          <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
+            onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
+            <IconImg src={`${prefix}etc/KUpga_11.png`} />
+            <Typography>A long time</Typography>
+          </Stack>
+        </Tooltip> : <TimerCard
+          page={'account/clickers/kangaroo'}
+          tooltipContent={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}
+          lastUpdated={lastUpdated}
+          time={nextGreatestCatch}
+          icon={'etc/KUpga_11.png'}
+          timerPlaceholder={'Restart available'}
+        /> : null}
+        {trackers?.Clickers?.megaFleshRestart?.checked && account?.bubba ? <>
+          {!isPast(nextMegaFleshRestart) && cfLongDuration ? <Tooltip
+            sx={{ cursor: 'pointer' }}
+            onClick={() => router.push({ pathname: 'account/clickers/bubba' })}
+            title={'Next mega flesh: ' + getRealDateInMs(nextMegaFleshRestart)}>
+            <Stack direction={'row'} gap={1} alignItems={'center'}>
+              <IconImg src={`${prefix}etc/Bubbo_Upgrade_8.png`} />
+              <Typography>A long time</Typography>
+            </Stack>
+          </Tooltip> : <TimerCard
+            page={'account/clickers/bubba'}
+            tooltipContent={'Next mega flesh: ' + getRealDateInMs(nextMegaFleshRestart)}
+            lastUpdated={lastUpdated}
+            time={nextMegaFleshRestart}
+            icon={'etc/Bubbo_Upgrade_8.png'}
+            timerPlaceholder={'Mega flesh restart available'}
+          />}
+        </> : null}
+      </Section>}
       {!emptyAlerts?.['World 3'] && account?.finishedWorlds?.World2 && <Section title={'World 3'}>
         {trackers?.['World 3']?.printer?.checked && account?.finishedWorlds?.World2 ? <TimerCard
           page={'account/world-3/printer'}

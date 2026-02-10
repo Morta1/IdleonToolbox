@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import Characters from '../components/dashboard/Characters';
@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 34,
+  version: 35,
   account: {
     General: {
       tasks: {
@@ -119,7 +119,11 @@ const baseTrackers = {
         checked: true,
         options: [
           { name: 'general', checked: true, helperText: 'Alert when Killroy is available' },
-          { name: 'underHundredKills', checked: true, helperText: 'Alert when current Killroy has monsters below 100 kills (for equinox)' }
+          {
+            name: 'underHundredKills',
+            checked: true,
+            helperText: 'Alert when current Killroy has monsters below 100 kills (for equinox)'
+          }
         ]
       },
       kangaroo: {
@@ -160,13 +164,13 @@ const baseTrackers = {
           {
             name: 'materials', type: 'array', props: { value: getRawRefinerySalts(), type: 'img' },
             checked: true,
-            category: "Materials"
+            category: 'Materials'
           },
           {
             name: 'rankUp', type: 'array', props: { value: getRawRefinerySalts(), type: 'img' },
             checked: true,
-            category: "Refinery Rank up"
-          },
+            category: 'Refinery Rank up'
+          }
         ]
       },
       hatRack: {
@@ -485,8 +489,16 @@ const baseTrackers = {
     classSpecific: {
       checked: true,
       options: [
-        { name: 'wrongItems', checked: true, helperText: 'Alert when using class-specific form items while outside form' },
-        { name: 'betterWeapon', checked: true, helperText: 'Alert when there\'s a better form class-specific weapon in your inventory' }
+        {
+          name: 'wrongItems',
+          checked: true,
+          helperText: 'Alert when using class-specific form items while outside form'
+        },
+        {
+          name: 'betterWeapon',
+          checked: true,
+          helperText: 'Alert when there\'s a better form class-specific weapon in your inventory'
+        }
       ]
     }
   },
@@ -505,13 +517,12 @@ const baseTrackers = {
       library: { checked: true, options: [] },
       minibosses: { checked: true, options: [] }
     },
-    'World 1': {
-      featherRestart: { checked: true, options: [] },
-      megaFeatherRestart: { checked: true, options: [] }
-    },
-    'World 2': {
-      fisherooReset: { checked: true, options: [] },
-      greatestCatch: { checked: true, options: [] }
+    Clickers: {
+      featherRestart: { checked: true, options: [], category: 'Orion' },
+      megaFeatherRestart: { checked: true, options: [] },
+      fisherooReset: { checked: true, options: [], category: 'Poppy' },
+      greatestCatch: { checked: true, options: [] },
+      megaFleshRestart: { checked: true, options: [], category: 'Bubba' },
     },
     'World 3': {
       printer: { checked: true, options: [] },
@@ -581,22 +592,22 @@ const Dashboard = () => {
           <ToggleButton value="timers">Timers</ToggleButton>
         </ToggleButtonGroup>
         <Button variant={'outlined'} sx={{ textTransform: 'none', height: 32 }}
-          startIcon={<IconSettingsFilled size={20} />}
-          onClick={() => setOpen(true)}>
+                startIcon={<IconSettingsFilled size={20}/>}
+                onClick={() => setOpen(true)}>
           Configure alerts
         </Button>
       </Stack>
       <Stack gap={2}>
         {isDisplayed('account') ? <Account trackers={config?.account} characters={characters}
-          account={account} lastUpdated={lastUpdated} /> : null}
+                                           account={account} lastUpdated={lastUpdated}/> : null}
         {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
-          account={account} lastUpdated={lastUpdated} /> : null}
+                                                 account={account} lastUpdated={lastUpdated}/> : null}
         {isDisplayed('timers') ? <Etc characters={characters} account={account} trackers={config?.timers}
-          lastUpdated={lastUpdated} /> : null}
+                                      lastUpdated={lastUpdated}/> : null}
       </Stack>
     </Stack>
     <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open}
-      onClose={() => setOpen(false)} config={config} />
+                       onClose={() => setOpen(false)} config={config}/>
   </>
 };
 
