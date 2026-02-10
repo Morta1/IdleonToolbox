@@ -889,15 +889,6 @@ export const migrateToVersion36 = (config) => {
     dashboardConfig = {};
   }
 
-  // Remove skulls from General.etc if it was added there (e.g. by an earlier 36 run)
-  const etcOptions = dashboardConfig?.account?.General?.etc?.options;
-  if (Array.isArray(etcOptions)) {
-    const hasSkulls = etcOptions.some((opt) => opt?.name === 'skulls');
-    if (hasSkulls) {
-      dashboardConfig.account.General.etc.options = etcOptions.filter((opt) => opt?.name !== 'skulls');
-    }
-  }
-
   // Add skulls to World 2 killRoy options
   const killRoyOptions = dashboardConfig?.account?.['World 2']?.killRoy?.options;
   if (Array.isArray(killRoyOptions) && !killRoyOptions.some((opt) => opt?.name === 'skulls')) {
