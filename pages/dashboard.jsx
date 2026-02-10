@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 35,
+  version: 36,
   account: {
     General: {
       tasks: {
@@ -123,7 +123,8 @@ const baseTrackers = {
             name: 'underHundredKills',
             checked: true,
             helperText: 'Alert when current Killroy has monsters below 100 kills (for equinox)'
-          }
+          },
+          { name: 'skulls', checked: true, helperText: 'Alert when you have unspent killroy skulls' }
         ]
       },
       kangaroo: {

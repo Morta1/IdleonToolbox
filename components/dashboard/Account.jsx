@@ -187,6 +187,11 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   title={`Killroy includes a monster with less than 100 kills (${alerts?.['World 2']?.killRoy?.underHundredKills?.map((m) => cleanUnderscore(m?.Name)).join(', ')})`}
                   iconPath={'etc/KillroyPrime'}
                 /> : null}
+              {alerts?.['World 2']?.killRoy?.skulls ?
+                <Alert
+                  title={`You have ${alerts?.['World 2']?.killRoy?.skulls} unspent killroy skull${alerts?.['World 2']?.killRoy?.skulls === 1 ? '' : 's'}`}
+                  iconPath={'etc/Killroy_Skull'}
+                /> : null}
               {alerts?.['World 2']?.arcade?.balls ?
                 <Alert title={'Max ball capacity has been reached'} iconPath={'data/PachiBall0'}/> : null}
               {alerts?.['World 2']?.alchemy?.sigils?.length > 0

@@ -883,6 +883,34 @@ export const migrateToVersion35 = (config) => {
   return dashboardConfig;
 };
 
+export const migrateToVersion36 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  // Remove skulls from General.etc if it was added there (e.g. by an earlier 36 run)
+  const etcOptions = dashboardConfig?.account?.General?.etc?.options;
+  if (Array.isArray(etcOptions)) {
+    const hasSkulls = etcOptions.some((opt) => opt?.name === 'skulls');
+    if (hasSkulls) {
+      dashboardConfig.account.General.etc.options = etcOptions.filter((opt) => opt?.name !== 'skulls');
+    }
+  }
+
+  // Add skulls to World 2 killRoy options
+  const killRoyOptions = dashboardConfig?.account?.['World 2']?.killRoy?.options;
+  if (Array.isArray(killRoyOptions) && !killRoyOptions.some((opt) => opt?.name === 'skulls')) {
+    dashboardConfig.account['World 2'].killRoy.options = [
+      ...killRoyOptions,
+      { name: 'skulls', checked: true, helperText: 'Alert when you have unspent killroy skulls' }
+    ];
+  }
+
+  dashboardConfig.version = 36;
+  return dashboardConfig;
+};
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -991,6 +1019,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 34) {
       migratedConfig = migrateToVersion35(migratedConfig);
+    }
+    if (migratedConfig?.version === 35) {
+      migratedConfig = migrateToVersion36(migratedConfig);
     }
   }
   return migratedConfig;

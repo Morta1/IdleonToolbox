@@ -412,6 +412,12 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
         killroy.underHundredKills = under100;
       }
     }
+    if (options?.killRoy?.skulls?.checked) {
+      const skulls = account?.accountOptions?.[105];
+      if (skulls > 0) {
+        killroy.skulls = skulls;
+      }
+    }
 
     if (Object.keys(killroy).length > 0) {
       alerts.killRoy = killroy;
