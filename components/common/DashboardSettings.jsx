@@ -140,6 +140,7 @@ const Fields = ({ config, onChange, configType, section }) => {
 
   return config && Object.entries(config)?.map(([trackerName, data], index) => {
     return <Box sx={{ ml: 1 }} key={`tracker-${trackerName}-${index}`}>
+      {data?.category ? <Typography variant="caption" color="text.secondary">{data.category?.camelToTitleCase()}</Typography> : null}
       <Stack direction={'row'} justifyContent={'space-between'}>
         <FormControlLabel
           sx={{ [`.${typographyClasses.root}`]: { fontSize: 14 } }}
