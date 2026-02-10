@@ -69,7 +69,7 @@ const Study = ({ account }) => {
             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
               <Typography color={colors?.[listIndex]} variant={'body1'}
                           sx={{ fontWeight: 'bold' }}>{cleanUnderscore(name)} (Lv. {level})</Typography>
-              {index === 4 ? <IconButton>
+              {name === "The_bell" ? <IconButton>
                 <Tooltip title={'Bonus triggers on rings 19, 39, 59, 79 ...'}>
                   <IconAlertTriangle color="#cc952e"/>
                 </Tooltip>
