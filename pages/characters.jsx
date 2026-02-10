@@ -1,6 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import { Checkbox, FormControlLabel, Grid, Stack, Typography } from '@mui/material';
-import Character from 'components/characters';
+import Character from '@components/characters/Character';
 import { AppContext } from 'components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 

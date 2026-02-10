@@ -54,13 +54,13 @@ const Character = ({
   } = character;
   const views = [
     {
-      component: <Stats activityFilter={filters?.['Activity']}
+      component: <Stats
         statsFilter={filters?.['Stats']}
         character={character}
         characters={characters}
         account={account}
         lastUpdated={lastUpdated} />,
-      filter: ['Stats', 'Activity']
+      filter: ['Stats']
     },
     { component: <ObolsView obols={obols} characters={characters} />, filter: 'Obols' },
     { component: <ObolsView obols={obols} obolStats characters={characters} />, filter: 'Obols Stats' },
