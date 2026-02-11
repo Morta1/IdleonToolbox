@@ -452,7 +452,7 @@ const TimerCard = ({
       <IconImg src={`${prefix}${icon}`} />
       {forcePlaceholder ? <Typography color={'error.light'}>{timerPlaceholder}</Typography> : <Timer
         type={'countdown'} date={time}
-        sx={{ color: showAsError ? '#f91d1d' : ' ' }}
+        sx={{ color: showAsError ? 'error.light' : ' ' }}
         placeholder={timerPlaceholder}
         lastUpdated={lastUpdated} />}
     </Stack>

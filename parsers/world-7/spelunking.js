@@ -196,7 +196,8 @@ const parseSpelunking = (account, characters, rawSpelunking, rawTowerInfo) => {
   const overstimRate = (shopUpg6 >= 1 && charactersAtMaxStamina > 0)
     ? charactersAtMaxStamina * staminaRegenRate.value * (1 + overstimFillRate / 100)
     : 0;
-  return {
+
+    return {
     sneakingSlots: rawSpelunking?.[14],
     totalGrandDiscoveries,
     grandDiscoveriesChance,
@@ -720,7 +721,7 @@ export const getStaminaRegenRate = (account) => {
   const value = 5 * (1 + getMeritocracyBonus(account, 17) / 100)
     * (1 + legendBonus / 100)
     * (1 + (shopUpg5 + bubbleBonus + (chapterBonus + (10 * riftBonus + cardBonus))) / 100);
-  
+
   return {
     value,
     breakdown: {

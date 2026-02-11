@@ -35,6 +35,8 @@ const Spelunking = () => {
     power,
     totalGrandDiscoveries,
     overstimRate,
+    overstimLevel,
+    overstimCurrent,
     charactersAtMaxStamina
   } = state?.account?.spelunking || {};
   const denominator = getAmberDenominator(state?.account);
@@ -81,6 +83,12 @@ const Spelunking = () => {
               <IconInfoCircleFilled size={18} />
             </Stack>
           </Breakdown>
+        </Stack>
+      </CardTitleAndValue>
+      <CardTitleAndValue title={'Overstim'}>
+        <Stack direction={'row'} alignItems={'center'} gap={1}>
+          <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg6.png`} alt="" />
+          <Typography>{notateNumber(overstimLevel, "Big")} + {notateNumber(overstimCurrent, "Big")}%</Typography>
         </Stack>
       </CardTitleAndValue>
       <CardTitleAndValue title={'Overstim Rate'}>

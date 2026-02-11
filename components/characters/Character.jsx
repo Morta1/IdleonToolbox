@@ -94,12 +94,7 @@ const Character = ({
       component: <Equipment {...{ charName: name, equipment, tools, food, character, account }} />,
       filter: 'Equipment'
     },
-    { component: <PlayerBubbles bubbles={equippedBubbles} />, filter: 'Equipped Bubbles' },
-    {
-      component: <ActiveSkillsCD postOffice={postOffice} cooldowns={cooldowns} lastUpdated={lastUpdated}
-        talents={[...(flatTalents || []), ...(flatStarTalents || [])]} afkTime={afkTime} />,
-      filter: 'Active Skills CD'
-    }
+    { component: <PlayerBubbles bubbles={equippedBubbles} />, filter: 'Equipped Bubbles' }
   ];
 
   const trophy = useMemo(() => equipment?.reduce((res, { rawName }) => (!res && rawName.includes('Trophy')

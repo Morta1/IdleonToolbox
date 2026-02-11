@@ -2,7 +2,8 @@ import InfoIcon from '@mui/icons-material/Info';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { differenceInHours, differenceInMinutes } from 'date-fns';
 import {
-  cashFormatter, commaNotation,
+  cashFormatter,
+  commaNotation,
   getCoinsArray,
   kFormatter,
   notateNumber,
@@ -12,7 +13,6 @@ import {
 } from 'utility/helpers';
 import Timer from '../common/Timer';
 import Tooltip from '../Tooltip';
-import Activity from './Activity';
 import { TitleAndValue } from '../common/styles';
 import { getAfkGain, getCashMulti, getClassExpMulti, getDropRate, getRespawnRate } from '../../parsers/character';
 import { getGoldenFoodMulti } from '../../parsers/misc';
@@ -32,8 +32,8 @@ const colors = {
   luck: 'warning.light'
 };
 
-const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, characters }) => {
-  const { name, playerId, stats, afkTime, crystalSpawnChance, nextPortal, afkTarget, nonConsumeChance } = character;
+const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => {
+  const { name, stats, afkTime, crystalSpawnChance, nextPortal, nonConsumeChance } = character;
   const { cashMulti, breakdown } = useMemo(() => getCashMulti(character, account, characters) || {},
     [character, account]);
   const { dropRate, breakdown: drBreakdown } = useMemo(() => getDropRate(character, account, characters) || {},
@@ -79,9 +79,6 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
   return (
     <>
       <Stack gap={2} flexWrap={'wrap'}>
-        {activityFilter ?
-          <Activity afkTarget={afkTarget} divStyle={character?.divStyle} playerId={playerId} account={account}
-                    character={character} characters={characters}/> : null}
         {statsFilter ? <>
           <Stack sx={{ minWidth: 250 }} flexWrap={'wrap'} gap={1} divider={<Divider/>}>
             <Stat title={'Total Stats'} value={commaNotation(getTotalStats(character))}/>
@@ -99,7 +96,7 @@ const Stats = ({ activityFilter, statsFilter, character, lastUpdated, account, c
               ) : null;
             })}
             <NewStat title={'Cash Multiplier'} useDoubleColumn value={`${cashFormatter(cashMulti, 2)}x`}
-                     breakdown={breakdown} breakdownNotation={'Smaller'} />
+                     breakdown={breakdown} breakdownNotation={'Smaller'}/>
             <NewStat title={'Golden Food'}
                      value={`${notateNumber(Math.max(0, 100 * (goldenFoodMulti - 1)), 'MultiplierInfo')}%`}
                      breakdown={goldenFoodBreakdown} breakdownNotation={'Smaller'}/>
