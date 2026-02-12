@@ -1,5 +1,6 @@
-import { tryToParse, lavaLog, lavaLog2, commaNotation, notateNumber } from '@utility/helpers';
-import { generalSpelunky, bubbaUpgrades } from '@website-data';
+import { commaNotation, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
+import { bubbaUpgrades, generalSpelunky } from '@website-data';
+import { isCompanionBonusActive } from '@parsers/misc';
 
 export const getBubba = (idleonData, account) => {
   const rawBubba = tryToParse(idleonData?.Bubba);
@@ -24,7 +25,8 @@ const getTotalUpgTypesAvailable = (rawBubba) => {
     const meatReq = getMeatProdREQ(i);
     if (meatProduced >= meatReq) {
       totalAvailable = i + 1;
-    } else {
+    }
+    else {
       break;
     }
   }
@@ -44,7 +46,7 @@ const parseBubba = (rawBubba, account) => {
       cost: getUpgradeCost(rawBubba, index),
       bonus: getTotUpgBonus(rawBubba, index),
       description: formatUpgradeDescription(rawBubba, index),
-      unlocked: index < totalUpgTypesAvailable,
+      unlocked: index < totalUpgTypesAvailable
     }
   });
   return {
@@ -53,7 +55,7 @@ const parseBubba = (rawBubba, account) => {
     meatsliceRate: 60 * getMeatsliceRate(rawBubba, account),
     progress: rawBubba?.[0]?.[4] || 0,
     progressReq: getProgressReq(totalUpgTypesAvailable),
-    bonuses: getBubbaBonusesObject(rawBubba),
+    bonuses: getBubbaBonusesObject(rawBubba, account),
     totalUpgTypesAvailable,
     megafleshOwned
   };
@@ -63,45 +65,30 @@ const getProgressReq = (totalUpgTypesAvailable) => {
   return 50 * Math.pow(2.8 + totalUpgTypesAvailable / 3.55, totalUpgTypesAvailable - Math.min(1, Math.floor(totalUpgTypesAvailable / 4)));
 }
 
-const getBubbaBonusesObject = (rawBubba) => {
-  
-  return {
-    buildRate: {
-      name: 'Build Rate',
-      bonus: getBubbaBonuses(rawBubba, 1),
-      isNegative: false,
-    },
-    critterGain: {
-      name: 'Critter Gain',
-      bonus: getBubbaBonuses(rawBubba, 2),
-      isNegative: false,
-    },
-    soulGain: {
-      name: 'Soul Gain',
-      bonus: getBubbaBonuses(rawBubba, 3),
-      isNegative: false,
-    },
-    totalDamage: {
-      name: 'Total Damage',
-      bonus: getBubbaBonuses(rawBubba, 4),
-      isNegative: false,
-    },
-    allKills: {
-      name: 'All Kills',
-      bonus: getBubbaBonuses(rawBubba, 5),
-      isNegative: false,
-    },
-    expMulti: {
-      name: 'EXP Multi',
-      bonus: getBubbaBonuses(rawBubba, 6),
-      isNegative: false,
-    },
-    atomCost: {
-      name: 'Atom Cost',
-      bonus: getBubbaBonuses(rawBubba, 7),
-      isNegative: true,
-    },
+const getBubbaBonusesObject = (rawBubba, account) => {
+  // Define the structure of the bonuses
+  const bonusMap = {
+    buildRate: { name: 'Build Rate', id: 1 },
+    critterGain: { name: 'Critter Gain', id: 2 },
+    soulGain: { name: 'Soul Gain', id: 3 },
+    totalDamage: { name: 'Total Damage', id: 4 },
+    allKills: { name: 'All Kills', id: 5 },
+    expMulti: { name: 'EXP Multi', id: 6 },
+    atomCost: { name: 'Atom Cost', id: 7, isNegative: true }
   };
+
+  // Use reduce to build the final object dynamically
+  return Object.keys(bonusMap).reduce((acc, key) => {
+    const { name, id, isNegative = false } = bonusMap[key];
+
+    acc[key] = {
+      name,
+      bonus: getBubbaBonuses(rawBubba, account, id),
+      isNegative
+    };
+
+    return acc;
+  }, {});
 };
 
 const getUpgradeCost = (rawBubba, upgradeIndex) => {
@@ -226,8 +213,9 @@ const getMegafleshOwned = (rawBubba, megafleshIndex) => {
 };
 
 // Helper function to get BubbaRoG_Bonuses (Ring of Greed bonuses)
-const getBubbaBonuses = (rawBubba, ringIndex) => {
-  const rogBonusesData = generalSpelunky?.[33]?.split(' ') || []; // Ring of Greed bonuses
+const getBubbaBonuses = (rawBubba, account, ringIndex) => {
+  const rogBonusesData = generalSpelunky?.[33]?.split(' ') || [];
+  const companionBonus = isCompanionBonusActive(account, 51) ? account?.companions?.list?.at(51)?.bonus : 0;
 
   // Calculate Bubba_RoG_all: 20 * sum of MegafleshOwned for indices 1, 3, 6, 9, 11
   const bubbaRoGAll = 20 * (
@@ -247,7 +235,8 @@ const getBubbaBonuses = (rawBubba, ringIndex) => {
   // Calculate the bonus: (1 + Bubba_RoG_all / 100) * Spelunky[33][ringIndex] * Math.ceil((Bubba[1][3] - (ringIndex - 1)) / 7)
   const bonus = (1 + bubbaRoGAll / 100)
     * rogBonusValue
-    * Math.ceil((upgrade3Level - (ringIndex - 1)) / 7);
+    * Math.ceil((upgrade3Level - (ringIndex - 1)) / 7)
+    * (1 + companionBonus);
 
   return Math.max(0, bonus);
 };
@@ -323,10 +312,12 @@ const formatUpgradeDescription = (rawBubba, upgradeIndex) => {
     if (upgradeIndex === 4 || upgradeIndex === 18 || upgradeIndex === 26) {
       // Cost reduction percentage
       dollarValue = Math.floor(1e4 * (1 - 1 / (1 + bonus / 100))) / 100;
-    } else if (upgradeIndex === 1) {
+    }
+    else if (upgradeIndex === 1) {
       // DailyPetting value
       dollarValue = getDailyPetting(rawBubba);
-    } else if (upgradeIndex === 5) {
+    }
+    else if (upgradeIndex === 5) {
       // DailyPet_HappinessFromUpg value
       dollarValue = Math.round(100 * getDailyPetHappinessFromUpg(rawBubba)) / 100;
     }
@@ -340,7 +331,8 @@ const formatUpgradeDescription = (rawBubba, upgradeIndex) => {
       // Timer for 3600 - Bubba[0][13]
       const timeRemaining = Math.max(0, 3600 - (rawBubba?.[0]?.[13] || 0));
       timerValue = formatTimerDisplay(timeRemaining);
-    } else if (upgradeIndex === 15) {
+    }
+    else if (upgradeIndex === 15) {
       // Timer for Bubba[0][14]
       const timeValue = rawBubba?.[0]?.[14] || 0;
       timerValue = formatTimerDisplay(timeValue);

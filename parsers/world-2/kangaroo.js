@@ -3,6 +3,7 @@ import { commaNotation, notateNumber } from '@utility/helpers';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { isCompanionBonusActive } from '@parsers/misc';
 
 export const getKangaroo = (idleonData, accountData) => {
   return parseKangaroo(accountData);
@@ -108,7 +109,7 @@ const parseKangaroo = (account) => {
     * Math.max(1, 1 + 0.5 * (account?.accountOptions?.[275] - 5) * getMegaFish(account, 5));
   const shinyRate = .05 * baseShinyRate * 1200;
   const shinyReq = 7200 / (1 + (4 * account?.accountOptions?.[276]) / 100);
-  const shinyRatePercent =  100 * Math.max(0, shinyRate / shinyReq)
+  const shinyRatePercent = 100 * Math.max(0, shinyRate / shinyReq)
   const shinyProgress = 100 * Math.max(0, account?.accountOptions?.[289] / shinyReq);
   const legendTalentBonus = getLegendTalentBonus(account, 26);
 
@@ -119,44 +120,33 @@ const parseKangaroo = (account) => {
           + (50 * Math.min(1, getMegaFish(account, 11))
             + 25 * Math.max(0, getMegaFish(account, 11) - 1)))));
 
-  const bonuses = [
-    { name: 'Fish/minute', bonus: fishRate },
-    {
-      name: 'Fishing Eff',
-      bonus: 3 * (1 + legendTalentBonus / 100) * (1 + totalFishRate / 100) * Math.max(0, Math.ceil(account?.accountOptions?.[271] / 7)),
-      percentage: true
-    },
-    {
-      name: 'Defence',
-      bonus: 3 * (1 + legendTalentBonus / 100) * (1 + totalFishRate / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[271] - 1) / 7)),
-      percentage: false
-    },
-    {
-      name: 'Fishing XP',
-      bonus: 5 * (1 + legendTalentBonus / 100) * (1 + totalFishRate / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[271] - 2) / 7)),
-      percentage: true
-    },
-    {
-      name: 'Accuracy',
-      bonus: 2 * (1 + legendTalentBonus / 100) * (1 + totalFishRate / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[271] - 3) / 7)),
-      percentage: true
-    },
-    {
-      name: 'Total DMG',
-      bonus: 2 * (1 + legendTalentBonus / 100) * (1 + totalFishRate / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[271] - 4) / 7)),
-      percentage: true
-    },
-    {
-      name: 'AFK Gains',
-      bonus: 0.5 * (1 + legendTalentBonus / 100) * (1 + totalFishRate / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[271] - 5) / 7)),
-      percentage: true
-    },
-    {
-      name: 'Cash',
-      bonus: 3 * (1 + legendTalentBonus / 100) * (1 + totalFishRate / 100) * Math.max(0, Math.ceil((account?.accountOptions?.[271] - 6) / 7)),
-      percentage: true
-    }
+  const companionBonus = isCompanionBonusActive(account, 51) ? account?.companions?.list?.at(51)?.bonus : 0;
+
+  // 1. Calculate the shared multiplier first
+  const baseMultiplier = (1 + legendTalentBonus / 100) * (1 + totalFishRate / 100) * (1 + companionBonus);
+  const upgradeLevel = account?.accountOptions?.[271] || 0;
+
+// 2. Define the unique data for each bonus
+  const bonusData = [
+    { name: 'Fishing Eff', base: 3, offset: 0, percentage: true },
+    { name: 'Defence', base: 3, offset: 1, percentage: false },
+    { name: 'Fishing XP', base: 5, offset: 2, percentage: true },
+    { name: 'Accuracy', base: 2, offset: 3, percentage: true },
+    { name: 'Total DMG', base: 2, offset: 4, percentage: true },
+    { name: 'AFK Gains', base: 0.5, offset: 5, percentage: true },
+    { name: 'Cash', base: 3, offset: 6, percentage: true }
   ];
+
+// 3. Construct the final array
+  const bonuses = [
+    { name: 'Fish/minute', bonus: fishRate }, // Keep the unique one at the top
+    ...bonusData.map(({ name, base, offset, percentage }) => ({
+      name,
+      bonus: base * baseMultiplier * Math.max(0, Math.ceil((upgradeLevel - offset) / 7)),
+      percentage
+    }))
+  ];
+
   const megaFish = megaFishDesc.map((description, index) => ({
     description,
     unlocked: index + 1 <= account?.accountOptions?.[279],
@@ -172,9 +162,11 @@ const parseKangaroo = (account) => {
   let totalMulti = getShinyMulti(account, -1);
   if (1E3 > getShinyMulti(account, -1)) {
     totalMulti = notateNumber(totalMulti, 'MultiplierInfo');
-  } else if (1E7 > getShinyMulti(account, -1)) {
+  }
+  else if (1E7 > getShinyMulti(account, -1)) {
     totalMulti = commaNotation(totalMulti);
-  } else {
+  }
+  else {
     totalMulti = notateNumber(totalMulti, 'MultiplierInfo');
   }
   const allMultipliers = [0, 1, 2, 3, 4, 5].map((index) => {
@@ -235,7 +227,8 @@ const getShinyMulti = (account, i) => {
     base *= getShinyMulti(account, 4);
     base *= getShinyMulti(account, 5);
     return base;
-  } else {
+  }
+  else {
     if (i === 0) base = 30;
     if (i === 1) base = 50;
     if (i === 2) base = 100;

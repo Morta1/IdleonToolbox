@@ -84,10 +84,10 @@ const parseOwl = (account) => {
     (1 + vaultUpgradeBonus / 100) *
     (1 + meritocracyBonus / 100) *
     (1 + getGambitBonus(account, 8) / 100) *
-    ((account?.accountOptions?.[254]) 
-    + (5 * (account?.accountOptions?.[259]) 
-    + (2 * getMegaFeather(account, 4) * (account?.accountOptions?.[257]) + 4 * getMegaFeather(account, 4) * (account?.accountOptions?.[261]))
-    )
+    ((account?.accountOptions?.[254])
+      + (5 * (account?.accountOptions?.[259])
+        + (2 * getMegaFeather(account, 4) * (account?.accountOptions?.[257]) + 4 * getMegaFeather(account, 4) * (account?.accountOptions?.[261]))
+      )
     ) * (1 + (5 * (account?.accountOptions?.[256])) / 100)
     * Math.pow(3 + 2 * getMegaFeather(account, 6), (account?.accountOptions?.[258])) * (1 + ((account?.accountOptions?.[264]) * (account?.accountOptions?.[260])) / 100)
   );
@@ -101,41 +101,33 @@ const parseOwl = (account) => {
   const legendTalentBonus = getLegendTalentBonus(account, 26) || 0;
   const companionBonus = isCompanionBonusActive(account, 51) ? account?.companions?.list?.at(51)?.bonus : 0;
 
+  // 1. Extract the shared logic into a single multiplier
+  const multiplier = (1 + totalFeatherBonus / 100) * (1 + legendTalentBonus / 100) * (1 + companionBonus);
+  const upgradeLevel = account?.accountOptions?.[255] || 0;
+
+// 2. Define the unique traits for the middle section
+  const owlStats = [
+    { name: 'Class XP', base: 5, offset: 0, percentage: true },
+    { name: 'Base DMG', base: 10, offset: 1, percentage: false },
+    { name: 'Total DMG', base: 2, offset: 2, percentage: true },
+    { name: 'Skill XP', base: 4, offset: 3, percentage: true },
+    { name: 'Drop Rate', base: 1, offset: 4, percentage: true },
+    { name: 'All Stats', base: 2, offset: 5, percentage: false }
+  ];
+
+// 3. Assemble the full bonuses array
   const bonuses = [
     { name: 'Feather/sec', bonus: featherRate },
-    {
-      name: 'Class XP',
-      bonus: 5 * (1 + totalFeatherBonus / 100) * (1 + legendTalentBonus / 100) * (1 + companionBonus) * Math.max(0, Math.ceil(account?.accountOptions?.[255] / 6)),
-      percentage: true
-    },
-    {
-      name: 'Base DMG',
-      bonus: 10 * (1 + totalFeatherBonus / 100) * (1 + legendTalentBonus / 100) * (1 + companionBonus) * Math.max(0, Math.ceil((account?.accountOptions?.[255] - 1) / 6))
-    },
-    {
-      name: 'Total DMG',
-      bonus: 2 * (1 + totalFeatherBonus / 100) * (1 + legendTalentBonus / 100) * (1 + companionBonus) * Math.max(0, Math.ceil((account?.accountOptions?.[255] - 2) / 6)),
-      percentage: true
-    },
-    {
-      name: 'Skill XP',
-      bonus: 4 * (1 + totalFeatherBonus / 100) * (1 + legendTalentBonus / 100) * (1 + companionBonus) * Math.max(0, Math.ceil((account?.accountOptions?.[255] - 3) / 6)),
-      percentage: true
-    },
-    {
-      name: 'Drop Rate',
-      bonus: (1 + totalFeatherBonus / 100) * (1 + legendTalentBonus / 100) * (1 + companionBonus) * Math.max(0, Math.ceil((account?.accountOptions?.[255] - 4) / 6)),
-      percentage: true
-    },
-    {
-      name: 'All Stats',
-      bonus: 2 * (1 + totalFeatherBonus / 100) * (1 + legendTalentBonus / 100) * (1 + companionBonus) * Math.max(0, Math.ceil((account?.accountOptions?.[255] - 5) / 6))
-    },
-    {
-      name: 'Shiny Feather',
-      bonus: account?.accountOptions?.[264]
-    }
+
+    ...owlStats.map(stat => ({
+      name: stat.name,
+      bonus: stat.base * multiplier * Math.max(0, Math.ceil((upgradeLevel - stat.offset) / 6)),
+      percentage: stat.percentage
+    })),
+
+    { name: 'Shiny Feather', bonus: account?.accountOptions?.[264] }
   ];
+
   const megaFeathers = megaFeathersDesc.map((description, index) => ({
     description,
     unlocked: index + 1 <= account?.accountOptions?.[262],
