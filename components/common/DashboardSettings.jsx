@@ -72,14 +72,39 @@ const DashboardSettings = ({ open, onClose, config, onChange, onFileUpload }) =>
           <FileUploadButton onFileUpload={(data) => {
             if (data?.account && data?.characters) {
               onFileUpload(data);
+              if (typeof window.gtag !== 'undefined') {
+                window.gtag('event', 'dashboard_config_imported', {
+                  event_category: 'engagement',
+                  event_label: 'dashboard',
+                  value: 1
+                });
+              }
             }
           }}>
             Import
           </FileUploadButton>
-          {isSm ? <IconButton onClick={() => handleDownload(config, 'it-dashboard-config')}
+          {isSm ? <IconButton onClick={() => {
+            if (typeof window.gtag !== 'undefined') {
+              window.gtag('event', 'dashboard_config_exported', {
+                event_category: 'engagement',
+                event_label: 'dashboard',
+                value: 1
+              });
+            }
+            handleDownload(config, 'it-dashboard-config');
+          }}
                               size="small">
             <IconFileExport size={18}/>
-          </IconButton> : <Button onClick={() => handleDownload(config, 'it-dashboard-config')} variant="outlined"
+          </IconButton> : <Button onClick={() => {
+            if (typeof window.gtag !== 'undefined') {
+              window.gtag('event', 'dashboard_config_exported', {
+                event_category: 'engagement',
+                event_label: 'dashboard',
+                value: 1
+              });
+            }
+            handleDownload(config, 'it-dashboard-config');
+          }} variant="outlined"
                                   startIcon={<IconFileExport size={18}/>}
                                   size="small">Export</Button>}
         </Box>

@@ -32,13 +32,29 @@ const usePin = () => {
     }
     localStorage.setItem('pinnedPages', JSON.stringify(updatePinnedPages));
     dispatch({ type: 'pinnedPages', data: updatePinnedPages });
+
+    if (typeof window.gtag !== 'undefined') {
+      window.gtag('event', exist ? 'page_unpinned' : 'page_pinned', {
+        event_category: 'engagement',
+        event_label: router.pathname,
+        value: 1
+      });
+    }
   }
 
   const removePin = (index) => {
     let updatePinnedPages = [...(state?.pinnedPages || [])];
+    const removed = updatePinnedPages[index];
     updatePinnedPages = updatePinnedPages.filter((_, ind) => ind !== index);
     localStorage.setItem('pinnedPages', JSON.stringify(updatePinnedPages));
     dispatch({ type: 'pinnedPages', data: updatePinnedPages });
+    if (removed && typeof window.gtag !== 'undefined') {
+      window.gtag('event', 'page_unpinned', {
+        event_category: 'engagement',
+        event_label: removed.url || removed.name,
+        value: 1
+      });
+    }
   }
 
   return { pinnedPages: state.pinnedPages, isPinned, togglePin, removePin };

@@ -85,11 +85,13 @@ const MyApp = (props) => {
         onAccept={() => {
           if (typeof window !== 'undefined' && window.gtag) {
             window.gtag('consent', 'update', getConsentObject(true));
+            window.gtag('event', 'consent_choice', { event_category: 'engagement', event_label: 'accept', value: 1 });
           }
         }}
         onDecline={() => {
           if (typeof window !== 'undefined' && window.gtag) {
             window.gtag('consent', 'update', getConsentObject(false));
+            window.gtag('event', 'consent_choice', { event_category: 'engagement', event_label: 'decline', value: 1 });
           }
         }}
       >

@@ -719,6 +719,14 @@ export const handleLoadJson = async (dispatch) => {
       lastUpdated
     }))
     dispatch({ type: 'data', data: { ...parsedData, lastUpdated, manualImport: true } });
+
+    if (typeof window.gtag !== 'undefined') {
+      window.gtag('event', 'save_imported', {
+        event_category: 'engagement',
+        event_label: 'manual',
+        value: parsedData?.characters?.length ?? 0
+      });
+    }
   } catch (e) {
     console.error('Error while trying to manual import', e);
   }
