@@ -84,22 +84,12 @@ import { getFriendBonusStats } from '@parsers/misc';
 
 export const parseData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime) => {
   try {
-    // TODO: FIX THIS UGLY ASS CODE!!!!
-    // Multiple passes are needed to resolve cross-dependencies between
-    // currencies, breeding, farming, and other account/character data
-    const REQUIRED_PASSES = 3;
-    let processedData = null;
+    const staticData = getStaticData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime);
 
-    for (let pass = 0; pass < REQUIRED_PASSES; pass++) {
-      processedData = serializeData(
-        idleonData,
-        charNames,
-        companion,
-        guildData,
-        serverVars,
-        accountCreateTime,
-        processedData
-      );
+    // Multiple passes needed to resolve cross-dependencies between parsers
+    let processedData = null;
+    for (let pass = 0; pass < 3; pass++) {
+      processedData = serializeData(idleonData, serverVars, staticData, processedData);
     }
 
     const { accountData, charactersData } = processedData;
@@ -116,85 +106,107 @@ export const parseData = (idleonData, charNames, companion, guildData, serverVar
   }
 };
 
-const serializeData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime, processedData) => {
-  const accountData = processedData?.accountData || {};
-  let charactersData = processedData?.charactersData || [];
-  let serializedCharactersData = getCharacters(idleonData, charNames); // aggregate _${playerId} properties
+/**
+ * Pure/static parsers — only depend on raw input data, never on accountData.
+ * Computed once and reused across all passes.
+ */
+const getStaticData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime) => {
+  const serializedCharactersData = getCharacters(idleonData, charNames);
+  const charactersLevels = serializedCharactersData?.map((char) => {
+    const personalValuesMap = char?.[`PersonalValuesMap`];
+    return { level: personalValuesMap?.StatList?.[4] ?? 0, class: classes?.[char?.[`CharacterClass`]] ?? '' };
+  });
+  const { tasks, tasksDescriptions, meritsDescriptions, unlockedRecipes, taskUnlocks } = getTasks(idleonData);
+  const { constellations, rawConstellationsDone } = getConstellations(idleonData);
 
-  accountData.accountCreateTime = accountCreateTime;
-  accountData.companions = getCompanions(companion);
-  accountData.bundles = getBundles(idleonData);
-  accountData.serverVars = serverVars;
-  accountData.accountOptions = tryToParse(idleonData?.OptLacc);
-  accountData.gemShopPurchases = getGemShop(idleonData);
-  accountData.bribes = getBribes(idleonData);
-  accountData.timeAway = tryToParse(idleonData?.TimeAway);
+  return {
+    serializedCharactersData,
+    charactersLevels,
+    accountCreateTime,
+    companions: getCompanions(companion),
+    bundles: getBundles(idleonData),
+    serverVars,
+    accountOptions: tryToParse(idleonData?.OptLacc),
+    gemShopPurchases: getGemShop(idleonData),
+    bribes: getBribes(idleonData),
+    timeAway: tryToParse(idleonData?.TimeAway),
+    obols: getObols(idleonData),
+    looty: getSlab(idleonData),
+    tasks,
+    tasksDescriptions,
+    meritsDescriptions,
+    unlockedRecipes,
+    taskUnlocks,
+    postOfficeShipments: getPostOfficeShipments(idleonData),
+    towers: getTowers(idleonData),
+    achievements: getAchievements(idleonData),
+    rift: getRift(idleonData),
+    weeklyBossesRaw: tryToParse(idleonData?.WeeklyBoss),
+    constellations,
+    rawConstellationsDone,
+    shopStock: getShops(idleonData),
+    traps: getTraps(serializedCharactersData),
+    totems: getTotems(idleonData),
+    adviceFish: getAdviceFish(idleonData),
+    guild: getGuild(idleonData, guildData),
+    talentPoints: idleonData?.CYTalentPoints,
+  };
+};
+
+const serializeData = (idleonData, serverVars, staticData, processedData) => {
+  const { serializedCharactersData, ...staticAccountFields } = staticData;
+  const charactersLevels = staticData.charactersLevels;
+
+  // --- Start from previous pass (or empty) and overlay static fields immutably ---
+  const accountData = {
+    ...(processedData?.accountData || {}),
+    ...staticAccountFields
+  };
+  let charactersData = processedData?.charactersData || [];
+
+  // --- Dynamic parsers (depend on accountData / processedData) ---
   accountData.alchemy = getAlchemy(idleonData, serializedCharactersData, accountData);
   accountData.armorSmithy = getArmorSmithy(idleonData, serverVars, accountData);
-  // Depends on alchemy.bubbles and number of characters
   accountData.equippedBubbles = getEquippedBubbles(idleonData, accountData.alchemy?.bubbles, serializedCharactersData);
   accountData.storage = getStorage(idleonData, 'storage', accountData);
   accountData.saltLick = getSaltLick(idleonData, accountData.storage?.list);
   accountData.dungeons = getDungeons(idleonData, accountData.accountOptions);
   accountData.prayers = getPrayers(idleonData, accountData.storage?.list);
   accountData.cards = getCards(idleonData, accountData);
-  accountData.guild = getGuild(idleonData, guildData);
   accountData.currencies = getCurrencies(accountData, idleonData, processedData);
   accountData.stamps = getStamps(idleonData, accountData);
-  accountData.obols = getObols(idleonData);
-  accountData.looty = getSlab(idleonData);
-  const { tasks, tasksDescriptions, meritsDescriptions, unlockedRecipes, taskUnlocks } = getTasks(idleonData)
-  accountData.tasks = tasks;
-  accountData.meritsDescriptions = meritsDescriptions;
-  accountData.tasksDescriptions = tasksDescriptions;
-  accountData.tasksDescriptions = tasksDescriptions;
-  accountData.unlockedRecipes = unlockedRecipes;
-  accountData.taskUnlocks = taskUnlocks;
   accountData.breeding = getBreeding(idleonData, accountData, processedData);
   accountData.cooking = getCooking(idleonData, accountData);
   accountData.divinity = getDivinity(idleonData, serializedCharactersData, accountData);
-  accountData.postOfficeShipments = getPostOfficeShipments(idleonData);
   accountData.sneaking = getSneaking(idleonData, serverVars, charactersData, accountData);
   accountData.farming = getFarming(idleonData, accountData, processedData?.charactersData);
   accountData.summoning = getSummoning(idleonData, accountData, serializedCharactersData);
   accountData.statues = applyStatuesMulti(accountData, charactersData);
   accountData.hole = getHole(idleonData, accountData);
   accountData.lab = getLab(idleonData, serializedCharactersData, accountData);
-  accountData.towers = getTowers(idleonData);
   accountData.shrines = getShrines(idleonData, accountData);
   const { statues, zenith } = getStatues(idleonData, serializedCharactersData, accountData);
   accountData.statues = statues;
   accountData.zenith = zenith;
-  accountData.achievements = getAchievements(idleonData);
 
   accountData.lab.connectedPlayers = accountData.lab.connectedPlayers?.map((char) => ({
     ...char,
     isDivinityConnected: accountData?.divinity?.linkedDeities?.[char?.playerId] === 4 || isLabEnabledBySorcererRaw(char, 4)
   }))
 
-  accountData.rift = getRift(idleonData);
   accountData.arcade = getArcade(idleonData, accountData, serverVars);
 
   // Update values for meals, stamps, vials
-  const certifiedStampBookMulti = getLabBonus(accountData.lab.labBonuses, 7); // stamp multi
+  const certifiedStampBookMulti = getLabBonus(accountData.lab.labBonuses, 7);
   accountData.stamps = applyStampsMulti(accountData.stamps, certifiedStampBookMulti);
   accountData.alchemy.vials = updateVials(accountData);
   accountData.equinox = getEquinox(idleonData, accountData);
-  accountData.weeklyBossesRaw = tryToParse(idleonData?.WeeklyBoss);
-  const spelunkerObolMulti = getLabBonus(accountData.lab.labBonuses, 8); // gem multi
+  const spelunkerObolMulti = getLabBonus(accountData.lab.labBonuses, 8);
   const blackDiamondRhinestone = getJewelBonus(accountData.lab.jewels, 16, spelunkerObolMulti);
 
   accountData.cooking.meals = applyMealsMulti(accountData.cooking.meals, blackDiamondRhinestone);
 
-  let charactersLevels = serializedCharactersData?.map((char) => {
-    const personalValuesMap = char?.[`PersonalValuesMap`];
-    return { level: personalValuesMap?.StatList?.[4] ?? 0, class: classes?.[char?.[`CharacterClass`]] ?? '' };
-  });
   accountData.starSigns = getStarSigns(idleonData, accountData);
-  const { constellations, rawConstellationsDone } = getConstellations(idleonData)
-  accountData.constellations = constellations;
-  accountData.rawConstellationsDone = rawConstellationsDone;
-  accountData.charactersLevels = charactersLevels;
 
   charactersData = serializedCharactersData.map((char) => {
     return initializeCharacter(char, charactersLevels, { ...accountData }, idleonData);
@@ -237,18 +249,15 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
 
   accountData.accountLevel = charactersData?.reduce((sum, { level }) => sum + level, 0);
   accountData.highscores = getHighscores(idleonData, accountData);
-  accountData.shopStock = getShops(idleonData);
 
   accountData.forge = getForge(idleonData, accountData);
   accountData.refinery = getRefinery(idleonData, accountData.storage?.list, accountData.tasks);
   accountData.printer = getPrinter(idleonData, charactersData, accountData);
-  accountData.traps = getTraps(serializedCharactersData);
   accountData.quests = getQuests(charactersData);
   accountData.islands = getIslands(accountData, charactersData);
   accountData.deathNote = getDeathNote(idleonData, charactersData, accountData);
   accountData.topKilledMonsters = getTopKilledMonsters(charactersData);
   accountData.killroy = getKillRoy(idleonData, charactersData, accountData, serverVars);
-  // reduce anvil
   accountData.anvil = charactersData.map(({ anvil }) => anvil);
 
   const bankMoney = parseFloat(idleonData?.MoneyBANK);
@@ -256,14 +265,12 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
     return res + parseFloat(char?.money ? char?.money : 0)
   }, 0);
   const money = bankMoney + playersMoney;
-  accountData.talentPoints = idleonData?.CYTalentPoints;
   accountData.currencies.rawMoney = money;
   accountData.currencies.money = getCoinsArray(money);
   accountData.currencies.gems = idleonData?.GemsOwned;
   accountData.currencies.KeysAll = enhanceKeysObject(accountData?.currencies?.KeysAll, charactersData, accountData);
   accountData.currencies.ColosseumTickets = enhanceColoTickets(accountData?.currencies?.ColosseumTickets, charactersData, accountData);
   accountData.currencies.penPals = accountData.accountOptions?.[99] ?? 0
-  // kitchens
   accountData.cooking.kitchens = getKitchens(idleonData, charactersData, accountData);
   accountData.libraryTimes = getLibraryBookTimes(idleonData, charactersData, accountData);
   accountData.breeding = addBreedingChance(idleonData, accountData);
@@ -289,7 +296,6 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.stamps = updateStamps(accountData, charactersData);
   accountData.shrinesExpBonus = getShrineExpBonus(charactersData, accountData);
   accountData.msaTotalizer = getTotalizerBonuses(accountData);
-  accountData.totems = getTotems(idleonData);
   accountData.tome = getTome(idleonData, accountData, charactersData, serverVars);
   accountData.owl = getOwl(idleonData, accountData);
   accountData.kangaroo = getKangaroo(idleonData, accountData);
@@ -300,12 +306,9 @@ const serializeData = (idleonData, charNames, companion, guildData, serverVars, 
   accountData.gallery = getGallery(idleonData, accountData);
   accountData.coralReef = getCoralReef(idleonData, accountData, charactersData);
   accountData.clamWork = getClamWork(idleonData, accountData);
-  accountData.adviceFish = getAdviceFish(idleonData);
   accountData.bubba = getBubba(idleonData, accountData);
   accountData.friendBonusStats = getFriendBonusStats(accountData);
 
-  // Cleanup unnecessary data
-  serializedCharactersData = null;
-  charactersLevels = null;
   return { accountData, charactersData };
 };
+
