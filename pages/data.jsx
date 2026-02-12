@@ -148,8 +148,23 @@ const Data = () => {
         const now = Date.now();
         localStorage.setItem(`${state?.uid}/lastUpload`, now);
         setLastUpload(now);
+
+        if (typeof window.gtag !== 'undefined') {
+          window.gtag('event', 'profile_uploaded', {
+            event_category: 'engagement',
+            event_label: 'success',
+            value: 1
+          });
+        }
       } catch (err) {
         setError(err);
+        if (typeof window.gtag !== 'undefined') {
+          window.gtag('event', 'profile_uploaded', {
+            event_category: 'engagement',
+            event_label: 'failure',
+            value: 1
+          });
+        }
       }
       setLoading(false)
     }
