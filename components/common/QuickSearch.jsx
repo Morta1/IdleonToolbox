@@ -175,6 +175,13 @@ const QuickSearch = () => {
 
   // Handle navigation
   const handleNavigate = (url, params) => {
+    if (typeof window.gtag !== 'undefined') {
+      window.gtag('event', 'search_result_clicked', {
+        event_category: 'engagement',
+        event_label: url,
+        value: 1
+      });
+    }
     router.push({ pathname: url, query: { ...updateQuery, ...params } });
     setSearchOpen(false);
     setSearchTerm('');
@@ -191,7 +198,7 @@ const QuickSearch = () => {
   useHotkeys([
     ['mod+K', () => {
       if (!searchOpen) {
-        setSearchOpen(true)
+        handleSearchOpen();
       } else {
         inputRef?.current?.focus?.();
       }
@@ -199,9 +206,20 @@ const QuickSearch = () => {
     ['esc', () => setSearchOpen(false)]
   ]);
 
+  const handleSearchOpen = () => {
+    setSearchOpen(true);
+    if (typeof window.gtag !== 'undefined') {
+      window.gtag('event', 'search_opened', {
+        event_category: 'engagement',
+        event_label: 'quick_search',
+        value: 1
+      });
+    }
+  };
+
   return <>
     <Stack
-      onClick={() => setSearchOpen(true)}
+      onClick={handleSearchOpen}
       sx={{
         flexShrink: 0,
         width: 'fit-content',

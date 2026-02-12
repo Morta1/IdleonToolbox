@@ -99,9 +99,9 @@ export const parseData = (idleonData, charNames, companion, guildData, serverVar
     if (typeof window.gtag !== 'undefined') {
       window.gtag('event', 'error', {
         event_category: 'error',
-        event_label: 'engagement',
-        value: JSON.stringify(err)
-      })
+        event_label: 'parse',
+        value: 1
+      });
     }
   }
 };

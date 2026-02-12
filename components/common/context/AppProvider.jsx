@@ -170,7 +170,15 @@ const AppProvider = ({ children }) => {
         isLoading: false
       }
     });
-    
+
+    if (typeof window?.gtag !== 'undefined') {
+      window.gtag('event', 'save_imported', {
+        event_category: 'engagement',
+        event_label: 'cloud',
+        value: parsedData?.characters?.length ?? 0
+      });
+    }
+
     parsedData = null;
   };
 
@@ -247,6 +255,14 @@ const AppProvider = ({ children }) => {
             isLoading: false
           }
         });
+
+        if (typeof window?.gtag !== 'undefined') {
+          window.gtag('event', 'save_imported', {
+            event_category: 'engagement',
+            event_label: 'profile',
+            value: parsedData?.characters?.length ?? 0
+          });
+        }
       } catch (err) {
         console.error('Failed to load data from profile api', err);
         router.push({ pathname: '/', query: router.query });
@@ -274,6 +290,14 @@ const AppProvider = ({ children }) => {
           isLoading: false
         }
       });
+
+      if (typeof window?.gtag !== 'undefined') {
+        window.gtag('event', 'save_imported', {
+          event_category: 'engagement',
+          event_label: 'demo',
+          value: parsedData?.characters?.length ?? 0
+        });
+      }
     };
 
     const handleUnauthenticatedUser = async () => {
