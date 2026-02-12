@@ -107,7 +107,7 @@ const getGodCost = ({ name, level, x4, x5 } = {}, index, account) => {
         currency: money
       }
     } else {
-      const particles = account?.atomCollider?.particles;
+      const particles = account?.atoms?.particles;
       return {
         type: 'particles',
         cost,
