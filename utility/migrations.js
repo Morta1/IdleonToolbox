@@ -902,6 +902,31 @@ export const migrateToVersion36 = (config) => {
   return dashboardConfig;
 };
 
+export const migrateToVersion37 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (dashboardConfig?.timers?.Etc) {
+    if (!dashboardConfig.timers.Etc.bonusTimeLeft) {
+      dashboardConfig.timers.Etc = {
+        ...dashboardConfig.timers.Etc,
+        bonusTimeLeft: { checked: true, options: [] }
+      };
+    }
+    if (!dashboardConfig.timers.Etc.meritocracyTimeLeft) {
+      dashboardConfig.timers.Etc = {
+        ...dashboardConfig.timers.Etc,
+        meritocracyTimeLeft: { checked: true, options: [] }
+      };
+    }
+  }
+
+  dashboardConfig.version = 37;
+  return dashboardConfig;
+};
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -1013,6 +1038,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 35) {
       migratedConfig = migrateToVersion36(migratedConfig);
+    }
+    if (migratedConfig?.version === 36) {
+      migratedConfig = migrateToVersion37(migratedConfig);
     }
   }
   return migratedConfig;

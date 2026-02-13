@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 36,
+  version: 37,
   account: {
     General: {
       tasks: {
@@ -516,7 +516,9 @@ const baseTrackers = {
     },
     Etc: {
       library: { checked: true, options: [] },
-      minibosses: { checked: true, options: [] }
+      minibosses: { checked: true, options: [] },
+      bonusTimeLeft: { checked: true, options: [] },
+      meritocracyTimeLeft: { checked: true, options: [] }
     },
     Clickers: {
       featherRestart: { checked: true, options: [], category: 'Orion' },

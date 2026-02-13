@@ -104,6 +104,11 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   }, 0);
 
   const closestWorshiper = getClosestWorshiper(characters);
+  const { timeAway, voteBallot } = account || {};
+  const bonusTimeLeft = timeAway ? (604800 - (timeAway?.GlobalTime + 197860 - 604800 * Math.floor((timeAway?.GlobalTime + 197860) / 604800))) * 1000 : 0;
+  const meritocracyTimeLeft = timeAway ? (604800 - (timeAway?.GlobalTime + 543460 - 604800 * Math.floor((timeAway?.GlobalTime + 543460) / 604800))) * 1000 : 0;
+  const nextVoteBonus = new Date().getTime() + bonusTimeLeft;
+  const nextMeritocracyVote = new Date().getTime() + meritocracyTimeLeft;
 
   const {
     bestWizard,
@@ -305,6 +310,30 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             timerPlaceholder={'Mega flesh restart available'}
           />}
         </> : null}
+      </Section>}
+      {(trackers?.Etc?.bonusTimeLeft?.checked || trackers?.Etc?.meritocracyTimeLeft?.checked) && timeAway && <Section title={'Vote'}>
+        {trackers?.Etc?.bonusTimeLeft?.checked && <TimerCard
+          page={'account/world-2/vote-ballot'}
+          tooltipContent={<Stack gap={0.5}>
+            {voteBallot?.selectedBonus?.[0] && <Typography variant="body2">{cleanUnderscore(voteBallot.selectedBonus[0].replace('{', voteBallot.selectedBonus?.bonus?.toFixed(3)).replace('}', (1 + voteBallot.selectedBonus?.bonus / 100).toFixed(3)))}</Typography>}
+            {voteBallot?.selectedBonus?.[0] && <Divider />}
+            <Typography variant="body2">Next vote bonus week: {getRealDateInMs(nextVoteBonus)}</Typography>
+          </Stack>}
+          lastUpdated={lastUpdated}
+          time={nextVoteBonus}
+          icon={voteBallot?.selectedBonus?.icon ? `data/${voteBallot.selectedBonus.icon}` : 'etc/Weekly.png'}
+        />}
+        {trackers?.Etc?.meritocracyTimeLeft?.checked && <TimerCard
+          page={'account/world-2/vote-ballot'}
+          tooltipContent={<Stack gap={0.5}>
+            {voteBallot?.selectedMeritocracyBonus?.description && <Typography variant="body2">{cleanUnderscore(voteBallot.selectedMeritocracyBonus.description.replace('{', voteBallot.selectedMeritocracyBonus?.bonus?.toFixed(3)).replace('}', (1 + voteBallot.selectedMeritocracyBonus?.bonus / 100).toFixed(3)))}</Typography>}
+            {voteBallot?.selectedMeritocracyBonus?.description && <Divider />}
+            <Typography variant="body2">Next meritocracy vote week: {getRealDateInMs(nextMeritocracyVote)}</Typography>
+          </Stack>}
+          lastUpdated={lastUpdated}
+          time={nextMeritocracyVote}
+          icon={voteBallot?.selectedMeritocracyBonus?.icon ? `data/${voteBallot.selectedMeritocracyBonus.icon}` : 'etc/Weekly.png'}
+        />}
       </Section>}
       {!emptyAlerts?.['World 3'] && account?.finishedWorlds?.World2 && <Section title={'World 3'}>
         {trackers?.['World 3']?.printer?.checked && account?.finishedWorlds?.World2 ? <TimerCard
