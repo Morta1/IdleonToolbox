@@ -33,7 +33,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - (account?.companions?.lastFreeClaim ?? 0)));
   const nextFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[4]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
   const nextMegaFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[8]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
-  const nextMegaFleshRestart = new Date().getTime() + (account?.bubba?.upgrades?.[8]?.cost - account?.bubba?.meatSlices) / account?.bubba?.meatsliceRate * 1000;
+  const nextMegaFleshRestart = new Date().getTime() + (account?.bubba?.upgrades?.[8]?.cost - account?.bubba?.meatSlices) / account?.bubba?.meatsliceRate * 60 * 1000;
   const mfDuration = getDuration(new Date().getTime(), nextMegaFeatherRestart);
   const mfLongDuration = nextMegaFeatherRestart > maxTimeValue || mfDuration?.days > 365;
   const nextFisherooReset = new Date().getTime() + (account?.kangaroo?.upgrades?.[6]?.cost - account?.kangaroo?.fish) / account?.kangaroo?.fishRate * 60 * 1000;
@@ -291,14 +291,14 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           {!isPast(nextMegaFleshRestart) && cfLongDuration ? <Tooltip
             sx={{ cursor: 'pointer' }}
             onClick={() => router.push({ pathname: 'account/clickers/bubba' })}
-            title={'Next mega flesh: ' + getRealDateInMs(nextMegaFleshRestart)}>
+            title={'Next megaflesh: ' + getRealDateInMs(nextMegaFleshRestart)}>
             <Stack direction={'row'} gap={1} alignItems={'center'}>
               <IconImg src={`${prefix}etc/Bubbo_Upgrade_8.png`} />
               <Typography>A long time</Typography>
             </Stack>
           </Tooltip> : <TimerCard
             page={'account/clickers/bubba'}
-            tooltipContent={'Next mega flesh: ' + getRealDateInMs(nextMegaFleshRestart)}
+            tooltipContent={'Next megaflesh: ' + getRealDateInMs(nextMegaFleshRestart)}
             lastUpdated={lastUpdated}
             time={nextMegaFleshRestart}
             icon={'etc/Bubbo_Upgrade_8.png'}
