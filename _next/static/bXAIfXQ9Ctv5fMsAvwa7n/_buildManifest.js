@@ -168,7 +168,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/d5e5e63fcda8f880.js"
   ],
   "/account/world-4/cooking": [
-    "static/chunks/266c20201f6e1911.js"
+    "static/chunks/df5f170d8984c9d1.js"
   ],
   "/account/world-4/laboratory": [
     "static/chunks/0589f1b58075ecb2.js"
