@@ -2050,7 +2050,7 @@ export const getDropRate = (character, account, characters) => {
   const lootyCurseTalentBonus = getTalentBonus(character?.flatTalents, 'CURSE_OF_MR_LOOTY_BOOTY');
   const bossBattleTalentBonus = getTalentBonus(character?.flatStarTalents, 'BOSS_BATTLE_SPILLOVER');
   const obols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[2]);
-  const { value: dropChanceBonuses, breakdown: dropChanceBonusesBreakdown, newBreakdown: newDropChanceBonusesBreakdown } = getStatsFromGear(character, 2, account);
+  const { value: dropChanceBonuses, newBreakdown: newDropChanceBonusesBreakdown } = getStatsFromGear(character, 2, account);
   const bubbleBonus = getBubbleBonus(account, 'DROPPIN_LOADS', false);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Drop_Rate');
   const cardMulti = getCardBonusByEffect(character?.cards?.equippedCards, 'Drop_Rate_Multi');
