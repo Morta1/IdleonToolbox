@@ -55,7 +55,7 @@ export const getDoubleStatueDrop = (account, character, characters) => {
   const kattelkrukPlayer = characters?.find(({ linkedDeity }) => linkedDeity === 8); // kattelkruk is limited to only 1 player linked.
   const divinityMinorBonus = getMinorDivinityBonus(kattelkrukPlayer, account, 8, characters);
   const talentBonus = getTalentBonus(character?.flatStarTalents, 'STATUE_METALLURGY');
-
+  
   return {
     value: tesseractBonus + talentBonus + paletteBonus + Math.min(10, divinityMinorBonus),
     breakdown: [

@@ -64,7 +64,7 @@ const QuickSearch = () => {
 
     // Process GENERAL pages
     Object.keys(PAGES.GENERAL).forEach(page => {
-      if (!state?.signedIn && !state?.profile && !offlinePages.includes(page)) return;
+      if (!state?.signedIn && !state?.profile && !offlinePages.includes(page) && !state?.manualImport) return;
       items.push({
         label: page.split(/(?=[A-Z])/).join(' ').capitalizeAllWords(),
         url: `/${toKebabCase(page)}`,
