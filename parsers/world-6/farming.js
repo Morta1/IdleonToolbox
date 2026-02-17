@@ -80,13 +80,24 @@ const parseFarming = (rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFar
         .replace('$', Math.ceil(calculatedBonus) + "");
     }
 
+    const isCapped = upgrade.type === 1;
+    // Level needed for 90% of cap: baseValue * 0.9 = baseValue * level / (1000 + level) => level = 9000
+    const EFF_THRESHOLD_PERCENT = 90;
+    const thresholdLevel = isCapped ? (1000 * EFF_THRESHOLD_PERCENT) / (100 - EFF_THRESHOLD_PERCENT) : null;
+    const thresholdMissingLevels = isCapped && thresholdLevel != null ? Math.max(0, Math.ceil(thresholdLevel) - level) : null;
+
     return {
       ...upgrade,
       level,
-      value: calculatedBonus, // Round for display,
+      value: calculatedBonus,
+      maxValue: isCapped ? upgrade.baseValue : null,
+      percentOfCap: isCapped ? (calculatedBonus / upgrade.baseValue) * 100 : null,
+      isCapped,
+      thresholdLevel: isCapped ? thresholdLevel : null,
+      thresholdMissingLevels,
       isAvailableThisWeek: availableExoticIndices.includes(index),
       displayText
-    }
+    };
   }).filter(({ name }) => name !== 'NAME_MAGNI');
 
   // Calculate total levels purchased (equivalent to ExoticFarmDN)
