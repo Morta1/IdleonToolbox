@@ -17,6 +17,12 @@ import { getStampsBonusByEffect } from "@parsers/stamps";
 import { getEmperorBonus } from "./emperor";
 import LavaRand from '../../utility/lavaRand';
 
+/** Level needed to reach the given percent of cap for exotic capped formula: value = baseValue * level / (1000 + level). */
+export const findExoticCappedThresholdLevel = (percent, baseValue) => {
+  if (percent <= 0 || percent >= 100) return null;
+  return (1000 * percent) / (100 - percent);
+};
+
 export const getFarming = (idleonData, accountData, charactersData) => {
   const rawFarmingUpgrades = tryToParse(idleonData?.FarmUpg);
   const rawFarmingPlot = tryToParse(idleonData?.FarmPlot);
@@ -81,9 +87,8 @@ const parseFarming = (rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFar
     }
 
     const isCapped = upgrade.type === 1;
-    // Level needed for 90% of cap: baseValue * 0.9 = baseValue * level / (1000 + level) => level = 9000
-    const EFF_THRESHOLD_PERCENT = 90;
-    const thresholdLevel = isCapped ? (1000 * EFF_THRESHOLD_PERCENT) / (100 - EFF_THRESHOLD_PERCENT) : null;
+    const EFF_THRESHOLD_PERCENT = 99;
+    const thresholdLevel = isCapped ? findExoticCappedThresholdLevel(EFF_THRESHOLD_PERCENT, upgrade.baseValue) : null;
     const thresholdMissingLevels = isCapped && thresholdLevel != null ? Math.max(0, Math.ceil(thresholdLevel) - level) : null;
 
     return {

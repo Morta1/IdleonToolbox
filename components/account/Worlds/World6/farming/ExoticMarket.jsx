@@ -50,8 +50,8 @@ const Market = ({ market, crop }) => {
               />
             </>
           ) : (
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 2 }}>
-              Effect: scales with level
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              Effect: {Math.round(value * 100) / 100} (no cap; scales with level)
             </Typography>
           )}
 
