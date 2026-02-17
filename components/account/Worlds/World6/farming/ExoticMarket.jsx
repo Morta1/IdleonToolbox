@@ -1,10 +1,46 @@
 import { Card, CardContent, LinearProgress, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';
-import React from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { AppContext } from '@components/common/context/AppProvider';
+import { getExoticMarketRotations } from '@parsers/world-6/farming';
+
+const formatCountdown = (ms) => {
+  if (ms <= 0) return null;
+  const totalSeconds = Math.floor(ms / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  const parts = [];
+  if (days > 0) parts.push(`${days}d`);
+  parts.push(`${hours}h`);
+  parts.push(`${minutes}m`);
+  parts.push(`${seconds}s`);
+  return parts.join(' ');
+};
 
 const Market = ({ market, crop }) => {
+  const { state } = useContext(AppContext);
+  const [now, setNow] = useState(() => new Date());
+
+  const rotations = useMemo(
+    () => getExoticMarketRotations(state?.account, 2),
+    [state?.account]
+  );
+  const nextRotationDate = rotations?.[1]?.date;
+
+  useEffect(() => {
+    if (!nextRotationDate) return;
+    const interval = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, [nextRotationDate]);
+
+  const countdown = useMemo(() => {
+    if (!nextRotationDate || !(nextRotationDate instanceof Date)) return null;
+    return formatCountdown(nextRotationDate.getTime() - now.getTime());
+  }, [nextRotationDate, now]);
 
   const currentRotation = market?.filter(u => u.isAvailableThisWeek);
   const offRotation = market?.filter(u => !u.isAvailableThisWeek);
@@ -66,7 +102,14 @@ const Market = ({ market, crop }) => {
     <Stack gap={4}>
       {/* Current Rotation */}
       <Stack>
-        <Typography sx={{ mb: 3 }} variant="h6">Current Rotation</Typography>
+        <Stack direction="row" alignItems="baseline" gap={2} sx={{ mb: 3 }} flexWrap="wrap">
+          <Typography variant="h6">Current Rotation</Typography>
+          {countdown != null && (
+            <Typography variant="caption" color="text.secondary">
+              Next in {countdown}
+            </Typography>
+          )}
+        </Stack>
         <Stack direction="row" flexWrap="wrap" gap={2}>
           {renderCards(currentRotation)}
         </Stack>

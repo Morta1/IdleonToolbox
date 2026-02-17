@@ -18,6 +18,18 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
+      - name: Restore Next.js Build Cache
+        uses: actions/cache@v4
+        with:
+          # Cache the .next/cache folder
+          path: |
+            .next/cache
+          # Generate a new cache whenever package-lock.json changes
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.[jt]s', '**/*.[jt]sx') }}
+          # If no exact match, try to restore the last available cache
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+
       - name: Build
         env:
           NODE_ENV: production
