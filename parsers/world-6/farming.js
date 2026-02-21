@@ -1,20 +1,20 @@
-import { tryToParse } from "@utility/helpers";
+import { tryToParse } from '@utility/helpers';
 import { exoticMarketInfo, marketInfo, ninjaExtraInfo, seedInfo } from '@website-data';
-import { getCharmBonus, isJadeBonusUnlocked } from "@parsers/world-6/sneaking";
-import { getStarSignBonus } from "@parsers/starSigns";
-import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from "@parsers/alchemy";
-import { getJewelBonus, getLabBonus } from "@parsers/lab";
-import { getWinnerBonus } from "@parsers/world-6/summoning";
-import { getAchievementStatus } from "@parsers/achievements";
-import { getVoteBonus } from "@parsers/world-2/voteBallot";
-import { getGrimoireBonus } from "@parsers/grimoire";
-import { CLASSES, getHighestTalentByClass, getTalentBonus } from "@parsers/talents";
-import { getKillroyBonus, isMasteryBonusUnlocked } from "@parsers/misc";
-import { getLampBonus } from "@parsers/world-5/caverns/the-lamp";
-import { getMealsBonusByEffectOrStat } from "@parsers/cooking";
-import { getMonumentBonus } from "@parsers/world-5/caverns/bravery";
-import { getStampsBonusByEffect } from "@parsers/stamps";
-import { getEmperorBonus } from "./emperor";
+import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
+import { getStarSignBonus } from '@parsers/starSigns';
+import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from '@parsers/alchemy';
+import { getJewelBonus, getLabBonus } from '@parsers/lab';
+import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { getAchievementStatus } from '@parsers/achievements';
+import { getVoteBonus } from '@parsers/world-2/voteBallot';
+import { getGrimoireBonus } from '@parsers/grimoire';
+import { CLASSES, getHighestTalentByClass, getTalentBonus } from '@parsers/talents';
+import { getKillroyBonus, isMasteryBonusUnlocked } from '@parsers/misc';
+import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
+import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
+import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
+import { getStampsBonusByEffect } from '@parsers/stamps';
+import { getEmperorBonus } from './emperor';
 import LavaRand from '../../utility/lavaRand';
 
 /** Level needed to reach the given percent of cap for exotic capped formula: value = baseValue * level / (1000 + level). */
@@ -71,25 +71,29 @@ const parseFarming = (rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFar
     if (upgrade.type === 1) {
       // Diminishing returns formula
       calculatedBonus = upgrade.baseValue * (level / (1000 + level));
-    } else {
+    }
+    else {
       // Linear formula (x4 === 0)
       calculatedBonus = upgrade.baseValue * level;
     }
 
     let displayText;
     if (level === 0) {
-      displayText = upgrade.bonus.replace(/[{}$]/g, "0");
-    } else {
+      displayText = upgrade.bonus.replace(/[{}$]/g, '0');
+    }
+    else {
       displayText = upgrade.bonus
-        .replace('{', Math.round(calculatedBonus * 100) / 100 + "")
-        .replace('}', Math.round((1 + calculatedBonus / 100) * 100) / 100 + "")
-        .replace('$', Math.ceil(calculatedBonus) + "");
+        .replace('{', Math.round(calculatedBonus * 100) / 100 + '')
+        .replace('}', Math.round((1 + calculatedBonus / 100) * 100) / 100 + '')
+        .replace('$', Math.ceil(calculatedBonus) + '');
     }
 
     const isCapped = upgrade.type === 1;
     const EFF_THRESHOLD_PERCENT = 99;
     const thresholdLevel = isCapped ? findExoticCappedThresholdLevel(EFF_THRESHOLD_PERCENT, upgrade.baseValue) : null;
-    const thresholdMissingLevels = isCapped && thresholdLevel != null ? Math.max(0, Math.ceil(thresholdLevel) - level) : null;
+    const thresholdMissingLevels = isCapped && thresholdLevel != null
+      ? Math.max(0, Math.ceil(thresholdLevel) - level)
+      : null;
 
     return {
       ...upgrade,
@@ -169,15 +173,15 @@ const parseFarming = (rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFar
       seedRawName: `Seed_${seedType}.png`
     }
   });
-  const marketExtraPlots = getMarketBonus(market, "LAND_PLOTS");
+  const marketExtraPlots = getMarketBonus(market, 'LAND_PLOTS');
   const cropsOnVine = Math.floor(1 + ((marketExtraPlots + 20 * gemVineBonus) / 100))
   const cropsForBeans = Object.entries(rawFarmingCrop || {}).reduce((sum, [type, amount]) => {
     const seed = seedInfo.find((seed) => parseFloat(type) >= seed.cropIdMin && parseFloat(type) <= seed.cropIdMax);
     return sum + (parseFloat(amount) * Math.pow(2.5, (seed?.seedId ?? 0)) * Math.pow(1.08, type - (seed?.cropIdMin ?? 0)));
   }, 0);
   const jadeUpgrade = isJadeBonusUnlocked(account, 'Deal_Sweetening') ?? 0;
-  const marketBonus = getMarketBonus(market, "MORE_BEENZ");
-  const hasLandRank = getMarketBonus(market, "LAND_RANK");
+  const marketBonus = getMarketBonus(market, 'MORE_BEENZ');
+  const hasLandRank = getMarketBonus(market, 'LAND_RANK');
   const achievementBonus = getAchievementStatus(account?.achievements, 363);
   const exoticBonus16 = getExoticMarketBonus(account, 16) ?? 0;
   const exoticBonus17 = getExoticMarketBonus(account, 17) ?? 0;
@@ -330,9 +334,12 @@ const getMarketUpgradeBonusValue = (marketUpgrades, cropDepot, upgradeId) => {
       case 15: //GMO
         return 1 + (upgrade.level * upgrade.bonusPerLvl * getCropsWithStockEqualOrGreaterThan(cropDepot, 100000)) / 100;
       default:
-        return upgrade.bonus.includes('}') ? (1 + (upgrade.level * upgrade.bonusPerLvl) / 100) : upgrade.level * upgrade.bonusPerLvl;
+        return upgrade.bonus.includes('}')
+          ? (1 + (upgrade.level * upgrade.bonusPerLvl) / 100)
+          : upgrade.level * upgrade.bonusPerLvl;
     }
-  } else {
+  }
+  else {
     return 0;
   }
 }
@@ -345,8 +352,8 @@ export const updateFarming = (characters, account) => {
     }
   });
   // Growth
-  const marketGrowthRate = getMarketBonus(newMarket, "NUTRITIOUS_SOIL");
-  const speedGMO = getMarketBonus(newMarket, "SPEED_GMO", 'value');
+  const marketGrowthRate = getMarketBonus(newMarket, 'NUTRITIOUS_SOIL');
+  const speedGMO = getMarketBonus(newMarket, 'SPEED_GMO', 'value');
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6FarmSpd');
   const summoningBonus = getWinnerBonus(account, '<x Farming SPD');
   const exoticBonus = getExoticMarketBonus(account, 30);
@@ -368,7 +375,7 @@ export const updateFarming = (characters, account) => {
 
   const newPlot = account?.farming?.plot?.map((crop, index) => {
     // OG Chance
-    const marketOGChance = getMarketBonus(account?.farming?.market, "OG_FERTILIZER");
+    const marketOGChance = getMarketBonus(account?.farming?.market, 'OG_FERTILIZER');
     const charmOGChange = getCharmBonus(account, 'Taffy_Disc');
     const starSignBonus = getStarSignBonus(characters?.[0], account, 'OG_Chance');
     const achievementBonus = getAchievementStatus(account?.achievements, 365)
@@ -405,16 +412,16 @@ export const updateFarming = (characters, account) => {
 }
 
 const getNextUpgradesReq = ({
-  index,
-  cropId,
-  cropIdIncrement,
-  level,
-  maxLvl,
-  cost,
-  costExponent,
-  isUnique = true,
-  emperorCostCalc
-}) => {
+                              index,
+                              cropId,
+                              cropIdIncrement,
+                              level,
+                              maxLvl,
+                              cost,
+                              costExponent,
+                              isUnique = true,
+                              emperorCostCalc
+                            }) => {
   const upgradeMap = new Map();
 
   let extraLv = 0;
@@ -432,7 +439,8 @@ const getNextUpgradesReq = ({
     if (upgradeMap.has(type) && isUnique) {
       // If the type exists, add the cost to the existing total
       upgradeMap.set(type, upgradeMap.get(type) + localCost);
-    } else {
+    }
+    else {
       // Otherwise, initialize a new entry in the map
       upgradeMap.set(type, localCost);
     }
@@ -446,7 +454,7 @@ const getNextUpgradesReq = ({
 
 const getCropType = ({ index, cropId, cropIdIncrement, level }) => {
   return index === 0 ? Math.floor(cropId + cropIdIncrement *
-    (level + (2 * Math.floor(level / 3) + Math.floor(level / 4))))
+      (level + (2 * Math.floor(level / 3) + Math.floor(level / 4))))
     : Math.floor(cropId + cropIdIncrement
       * level)
 }
@@ -469,7 +477,8 @@ const getCropDepotBonuses = (account) => {
     shiny: { name: 'Pet Rate', value: 0 },
     critters: { name: 'Critters', value: 0 },
     dropRate: { name: 'Drop Rate', value: 0 },
-    spelunky: { name: 'Spelunky', value: 0 }
+    spelunky: { name: 'Spelunky', value: 0 },
+    researchExp: { name: 'Research Exp', value: 0 }
   };
   if (isJadeBonusUnlocked(account, 'Reinforced_Science_Pencil')) {
     bonuses.damage.value = 20 * Math.round(account?.farming?.cropsFound) * extraBonus;
@@ -545,7 +554,7 @@ export const getTotalCrop = (plot, market, ranks, account) => {
     const { productDoubler } = getProductDoubler(market);
     const productionBoost = getLandRank(ranks, 1);
     const voteBonus = getVoteBonus(account, 29);
-    const speedGMO = getMarketBonus(account?.farming?.market, "VALUE_GMO", 'value');
+    const speedGMO = getMarketBonus(account?.farming?.market, 'VALUE_GMO', 'value');
     const finalMulti = Math.min(1e4, Math.round(Math.max(1, Math.floor(1 + (productDoubler / 100)))
       * (1 + getRanksTotalBonus(ranks, 1) / 100)
       * Math.max(1, speedGMO)
@@ -566,7 +575,7 @@ export const getProductDoubler = (market) => {
 }
 
 export const getCropEvolution = (account, character, crop, forceStarSign) => {
-  const marketBonus1 = getMarketBonus(account?.farming?.market, "BIOLOGY_BOOST");
+  const marketBonus1 = getMarketBonus(account?.farming?.market, 'BIOLOGY_BOOST');
   const winBonus = getWinnerBonus(account, '<x Crop EVO');
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 2, i: 0, account });
   const bubbleBonus1 = getBubbleBonus(account, 'W10AllCharz', false);
@@ -578,7 +587,7 @@ export const getCropEvolution = (account, character, crop, forceStarSign) => {
   const stampBonus = getStampsBonusByEffect(account, 'Crop_Evolution_Chance', character); // Stamp
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 14);
   const killroyBonus = getKillroyBonus(account, 3);
-  const marketBonus2 = getMarketBonus(account?.farming?.market, "EVOLUTION_GMO");
+  const marketBonus2 = getMarketBonus(account?.farming?.market, 'EVOLUTION_GMO');
   const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.farming?.rank, 1);
   const starSignBonus = getStarSignBonus(character, account, 'Crop_Evo', forceStarSign);
   const talentBonus = getTalentBonus(character?.flatTalents, 'MASS_IRRIGATION'); // Death Bringer
