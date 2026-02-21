@@ -73,6 +73,10 @@ export const getTotalizerBonuses = (account) => {
     spelunkingPow: {
       name: 'Spelunking Pow',
       value: (totalizerUnlocked && isSuperbitUnlocked(account, 'MSA_Spelunking')?.bonus) || 0
+    },
+    researchExp: {
+      name: 'Research Exp',
+      value: (totalizerUnlocked && isSuperbitUnlocked(account, 'MSA_Research')?.bonus) || 0
     }
   };
 }

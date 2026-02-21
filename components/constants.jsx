@@ -227,9 +227,9 @@ export const PAGES = {
         { label: 'LegendTalents', icon: 'etc/Whallamus', tabs: [] },
         { label: 'coralReef', icon: 'data/ReefA1', tabs: ['Reef Upgrades', 'Coral Kid Upgrades', 'Dancing Coral'] },
         { label: 'zenithMarket', icon: 'etc/Cluster', tabs: [] },
+        { label: 'research', icon: 'data/ClassIcons61', tabs: ['Grid', 'Observations'] },
         { label: 'clamWork', icon: 'data/ClamPearl0', tabs: ['Upgrades', 'Compensations'] },
         { label: 'adviceFish', icon: 'data/W7_fish', tabs: [] },
-        { label: 'S2', icon: 'data/ClassIconsNA2', tabs: [] },
         { label: 'S3', icon: 'data/ClassIconsNA2', tabs: [] },
 
       ]

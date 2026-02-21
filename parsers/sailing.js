@@ -538,9 +538,9 @@ const getLootPile = (lootPile) => {
 
 const getArtifact = (artifact, acquired, lootPile, index, charactersData, account) => {
   let additionalData, bonus = artifact?.baseBonus, baseBonus = artifact?.baseBonus,
-    upgradedForm = acquired === 2 || acquired === 3 || acquired === 4 || acquired === 5, formMultiplier = acquired,
+    upgradedForm = acquired === 2 || acquired === 3 || acquired === 4 || acquired === 5 || acquired === 6, formMultiplier = acquired,
     multiplierType = acquired === 2 ? 'ancientMultiplier' : acquired === 3 ? 'eldritchMultiplier' : acquired === 4
-      ? 'sovereignMultiplier' : acquired === 5 ? 'omnipotentMultiplier'
+      ? 'sovereignMultiplier' : acquired === 5 ? 'omnipotentMultiplier' : acquired === 6 ? 'transcendentMultiplier'
         : 'baseBonus';
 
   let fixedDescription = artifact?.description;
@@ -639,7 +639,8 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
         'Gives_+2_Gallery_Slots_for_Trophies!',
         'Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade!',
         'Gives_+2_Gallery_Slots_and_makes_both_of_them_Featured_grade!',
-        'Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_1_of_them_Masterpiece!'
+        'Gives_+2_Gallery_Slots_and_makes_1_of_them_Featured_grade_and_1_of_them_Masterpiece!',
+        'Gives_+2_Gallery_Slots_and_makes_both_Featured_grade_and_Masterpiece!'
       ];
       const descriptionIndex = Math.round(acquired);
       if (descriptionIndex >= 0 && descriptionIndex < descriptions.length) {
@@ -660,6 +661,9 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
   }
   else if (acquired === 5 && artifact?.omnipotentFormDescription === 'The_artifact\'s_main_bonus_is_quintupled!') {
     bonus *= 5;
+  }
+  else if (acquired === 6 && artifact?.transcendentFormDescription === 'The_artifact\'s_main_bonus_is_sextupled!') {
+    bonus *= 6;
   }
 
   fixedDescription = fixedDescription.replace(/{/, baseBonus).replace(/}/, kFormatter(bonus, 2)).replace(/@/, '');

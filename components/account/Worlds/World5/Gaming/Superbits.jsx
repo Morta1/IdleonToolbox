@@ -2,8 +2,9 @@ import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, getBitIndex, notateNumber, prefix } from '@utility/helpers';
 
 const Superbits = ({ superbits }) => {
-  const superBits = superbits?.filter(item => !item.isDuper) || [];
-  const duperBits = superbits?.filter(item => item.isDuper) || [];
+  const superBits = superbits?.filter(item => !item.isDuper && !item.isZuper) || [];
+  const duperBits = superbits?.filter(item => item.isDuper && !item.isZuper) || [];
+  const zuperBits = superbits?.filter(item => item.isZuper) || [];
 
   const renderBits = (bits) => {
     return bits.map(({ name, description, unlocked, bonus, totalBonus, additionalInfo, cost, originalIndex }, index) => {
@@ -36,10 +37,18 @@ const Superbits = ({ superbits }) => {
       </Stack>
     )}
     {duperBits.length > 0 && (
-      <Stack gap={2}>
+      <Stack gap={2} sx={{ mb: 4 }}>
         <Typography variant="h6">Duper Bits</Typography>
         <Stack gap={1} direction={'row'} flexWrap={'wrap'} sx={{ maxWidth: 300 * 7 }}>
           {renderBits(duperBits)}
+        </Stack>
+      </Stack>
+    )}
+    {zuperBits.length > 0 && (
+      <Stack gap={2}>
+        <Typography variant="h6">Zuper Bits</Typography>
+        <Stack gap={1} direction={'row'} flexWrap={'wrap'} sx={{ maxWidth: 300 * 7 }}>
+          {renderBits(zuperBits)}
         </Stack>
       </Stack>
     )}

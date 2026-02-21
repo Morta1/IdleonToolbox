@@ -26,6 +26,7 @@ const Sigils = () => {
   const chilledYarnArtifact = isArtifactAcquired(sailing?.artifacts, 'Chilled_Yarn');
   const hasJadeBonus = isJadeBonusUnlocked(state?.account, 'Ionized_Sigils');
   const hasEtherealBonus = isEtherealBonusUnlocked(state?.account);
+  const hasEclecticBonus = true; // TODO: wire to game unlock when available
 
   const getSigilSpeed = () => {
     const achievement = getAchievementStatus(state?.account?.achievements, 112);
@@ -66,7 +67,7 @@ const Sigils = () => {
   }
 
   const sigilSpeed = useMemo(() => getSigilSpeed(), [state]);
-  const getSigilCost = ({ unlocked, boostCost, unlockCost, jadeCost, etherealCost }) => {
+  const getSigilCost = ({ unlocked, boostCost, unlockCost, jadeCost, etherealCost, eclecticCost }) => {
     if (unlocked === 0) {
       return boostCost;
     }
@@ -78,6 +79,11 @@ const Sigils = () => {
     else if (unlocked === 2) {
       if (hasEtherealBonus) {
         return etherealCost;
+      }
+    }
+    else if (unlocked === 3) {
+      if (hasEclecticBonus && eclecticCost != null) {
+        return eclecticCost;
       }
     }
     return unlockCost;
@@ -113,6 +119,7 @@ const Sigils = () => {
             unlocked,
             jadeCost,
             etherealCost,
+            eclecticCost,
             bonus,
             characters
           } = sigil;
@@ -144,7 +151,7 @@ const Sigils = () => {
                         ? 'info.light'
                         : ''
                     }}>Effect: {cleanUnderscore(effect?.replace(/{/g, bonus))}</Typography>
-                  {(progress < jadeCost && unlocked < 2) || (progress < etherealCost && unlocked < 3) ? <>
+                  {(progress < jadeCost && unlocked < 2) || (progress < etherealCost && unlocked < 3) || (eclecticCost != null && progress < eclecticCost && unlocked < 4) ? <>
                     <Typography>
                       Progress: {notateNumber(progress, 'Small')}/{notateNumber(cost, 'Small')}
                     </Typography>
@@ -165,7 +172,7 @@ const Sigils = () => {
 
 const SigilIcon = styled.img`
   object-fit: contain;
-  filter: hue-rotate(${({ unlocked }) => (unlocked === 3 ? '60deg' : unlocked === 2 ? '130deg' : unlocked === 1
+  filter: hue-rotate(${({ unlocked }) => (unlocked === 4 ? '280deg' : unlocked === 3 ? '60deg' : unlocked === 2 ? '130deg' : unlocked === 1
     ? '200deg'
     : '0deg')});
 `;

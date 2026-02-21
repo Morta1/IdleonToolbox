@@ -498,6 +498,9 @@ const getCropDepotBonuses = (account) => {
   if (isJadeBonusUnlocked(account, 'Science_Fancy_Pen')) {
     bonuses.spelunky.value = 5 * Math.round(Math.max(0, account?.farming?.cropsFound - 200)) * extraBonus;
   }
+  if (isJadeBonusUnlocked(account, 'Science_Chalk')) {
+    bonuses.researchExp.value = Math.round(Math.max(0, Math.floor((account?.farming?.cropsFound - 200) / 10))) * extraBonus;
+  }
   return bonuses;
 }
 

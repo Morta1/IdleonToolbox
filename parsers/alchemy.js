@@ -211,6 +211,7 @@ const getPay2Win = (idleonData, alchemyActivity, serializedCharactersData) => {
   };
   p2w.sigils = getSigils(idleonData, alchemyActivity, serializedCharactersData);
   p2w.totalEtherealSigils = p2w?.sigils?.filter((sigil) => sigil?.unlocked === 3)?.length || 0;
+  p2w.totalEclecticSigils = p2w?.sigils?.filter((sigil) => sigil?.unlocked === 4)?.length || 0;
   p2w.vialsAttempts = {
     current: remainingAttempts[0],
     max: Math.round(3 + vials?.[0])
@@ -525,7 +526,7 @@ const parseSigils = (sigilsRaw, alchemyActivity, serializedCharactersData) => {
           ...sigilData,
           unlocked,
           progress,
-          bonus: unlocked === 3 ? sigilData?.etherealBonus : unlocked === 2 ? sigilData.jadeBonus : unlocked === 1 ? sigilData?.boostBonus : unlocked === 0
+          bonus: unlocked === 4 ? sigilData?.eclecticBonus : unlocked === 3 ? sigilData?.etherealBonus : unlocked === 2 ? sigilData.jadeBonus : unlocked === 1 ? sigilData?.boostBonus : unlocked === 0
             ? sigilData?.unlockBonus
             : 0,
           characters: charactersInSigil

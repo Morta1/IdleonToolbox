@@ -77,6 +77,7 @@ import { getSpelunking } from '@parsers/world-7/spelunking';
 import { getGallery } from '@parsers/world-7/gallery';
 import { getCoralReef } from '@parsers/world-7/coralReef';
 import { getClamWork } from '@parsers/world-7/clamWork';
+import { getResearch } from '@parsers/world-7/research';
 import { getAdviceFish } from '@parsers/misc';
 import { getBubba } from '@parsers/clickers/bubba';
 import { getHatRack } from '@parsers/world-3/hatRack';
@@ -306,6 +307,8 @@ const serializeData = (idleonData, serverVars, staticData, processedData) => {
   accountData.gallery = getGallery(idleonData, accountData);
   accountData.coralReef = getCoralReef(idleonData, accountData, charactersData);
   accountData.clamWork = getClamWork(idleonData, accountData);
+  accountData.research = getResearch(idleonData, accountData, charactersData);
+  console.log("accountData.research", accountData.research)
   accountData.bubba = getBubba(idleonData, accountData);
   accountData.friendBonusStats = getFriendBonusStats(accountData);
 

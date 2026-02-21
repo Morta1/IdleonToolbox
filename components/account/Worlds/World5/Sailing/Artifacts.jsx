@@ -17,6 +17,7 @@ const Artifacts = ({ artifacts }) => {
                          eldritchFormDescription,
                          sovereignFormDescription,
                          omnipotentFormDescription,
+                         transcendentFormDescription,
                          rawName,
                          acquired,
                          additionalData
@@ -34,7 +35,10 @@ const Artifacts = ({ artifacts }) => {
         else if (acquired === 5) {
           bonusDescription = omnipotentFormDescription;
         }
-        const color = acquired === 5 ? '#00ffde' : acquired === 4 ? '#67da80' : acquired === 3 ? '#ffa092' : acquired === 2
+        else if (acquired === 6) {
+          bonusDescription = transcendentFormDescription;
+        }
+        const color = acquired === 6 ? '#b388ff' : acquired === 5 ? '#00ffde' : acquired === 4 ? '#67da80' : acquired === 3 ? '#ffa092' : acquired === 2
           ? 'gold'
           : 'white';
         return (
@@ -60,7 +64,7 @@ const Artifacts = ({ artifacts }) => {
                   <Divider flexItem color={color} sx={{ my: 2 }}/>
                   <Typography
                     sx={{
-                      opacity: acquired === 2 || acquired === 3 || acquired === 4 ? 1 : .5,
+                      opacity: acquired === 2 || acquired === 3 || acquired === 4 || acquired === 5 || acquired === 6 ? 1 : .5,
                       color: color
                     }}>{cleanUnderscore(bonusDescription)}</Typography>
                 </Stack>

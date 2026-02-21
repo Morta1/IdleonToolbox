@@ -12,6 +12,7 @@ const COLOR_MAP = {
   4: 'Purple',
   5: 'Red',
   6: 'Cyan',
+  7: 'Teal',
   9: 'Endless'
 }
 

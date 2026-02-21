@@ -15,6 +15,7 @@ import ExoticMarketRotation from '@components/account/Worlds/World6/farming/Exot
 
 const Farming = () => {
   const { state } = useContext(AppContext);
+  const farming = state?.account?.farming || {};
   const {
     market,
     exoticMarket,
@@ -28,7 +29,7 @@ const Farming = () => {
     ranks,
     totalPoints,
     usedPoints
-  } = state?.account?.farming || {};
+  } = farming;
 
   return <>
     <NextSeo

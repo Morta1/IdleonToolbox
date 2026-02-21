@@ -4,9 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.24',
+    'gameVer': '2.0.492',
+    'date': '20/02/2026',
+    'features': [
+      'Updated the website with version 2.0.50 data and assets',
+      'Added Research page under Account -> World 7 with Observations and Grid'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.23',
     'gameVer': '2.0.491',
-    'date': '05/0/2025',
+    'date': '05/01/2026',
     'features': [
       'Added extra tachyon as a category for tesseract upgrade optimizer',
       'Added the option to filter the alert (W3 -> construction) of missing materials and rank up based on each salt'
@@ -22,7 +32,7 @@ export const patchNotes = [
   {
     'ver': '3.3.22',
     'gameVer': '2.0.491',
-    'date': '13/1/2026',
+    'date': '13/01/2026',
     'features': [
       'Added timers to vote ballot page',
       'Added global total cost for all upgrades in the arcade shop'

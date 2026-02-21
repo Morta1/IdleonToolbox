@@ -69,8 +69,8 @@ const parseCoralReef = (rawSpelunking, account, coralReefLevels, rawDancingCoral
     'Dropped_by_Shellslugs',
     'Dropped_by_Litterfish',
     'Dropped_by_Coralcave_Crab',
-    'Dropped_by_Pirate_Pou',
-    'Dropped_by_RIPtide',
+    'Dropped_by_Eggroll',
+    'Dropped_by_Glowfish',
     'Dropped_by_RIPtide',
     'Dropped_by_RIPtide',
     'Dropped_by_RIPtide'
