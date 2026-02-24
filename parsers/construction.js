@@ -1,4 +1,4 @@
-import { tryToParse } from '@utility/helpers';
+import { number2letter, tryToParse } from '@utility/helpers';
 import { cogKeyMap, flagsReqs, randomList, towers } from '@website-data';
 import { createCogstructionData } from './cogstrution';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
@@ -43,9 +43,14 @@ const createCogMap = (cogMap, length) => {
 
 export const BOARD_Y = 8;
 export const BOARD_X = 12;
+export const LEFT_COL_INDEX = 228;
+export const RIGHT_COL_INDEX = 240;
+export const EXTRA_COL_HEIGHT = 12;
+export const LEFT_FLAG_INDEX = 96;   // FlagUnlock/FlagsPlaced indices for left extra column
+export const RIGHT_FLAG_INDEX = 108; // FlagUnlock/FlagsPlaced indices for right extra column
 
 const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, account) => {
-  let board = flagsUnlockedRaw?.reduce((res, flagSlot, index) => {
+  let board = flagsUnlockedRaw?.slice(0, BOARD_X * BOARD_Y)?.reduce((res, flagSlot, index) => {
     const name = cogsOrder?.[index];
     const stats = cogsMap?.[index];
     return [...res, {
@@ -67,12 +72,61 @@ const parseFlags = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, accoun
   })).filter(({ name }) => name?.includes('Player_'))
     .reduce((sum, { a }) => sum + (a?.value || 0), 0);
   const firstBoard = evaluateBoard(board);
+  const leftColumn = buildExtraColumn(flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, LEFT_COL_INDEX, LEFT_FLAG_INDEX);
+  const rightColumn = buildExtraColumn(flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, RIGHT_COL_INDEX, RIGHT_FLAG_INDEX);
   return {
     ...firstBoard,
     baseBoard: board,
     totalFlaggyRate: firstBoard?.totalFlaggyRate * flaggyMulti,
-    playersBuildRate
+    playersBuildRate,
+    leftColumn,
+    rightColumn
   };
+}
+
+const getSmallCogStats = (cogName) => {
+  if (!cogName?.startsWith('CogSm')) return null;
+  const typeChar = cogName.charAt(5);
+  const level = parseInt(cogName.substring(6));
+  if (isNaN(level)) return null;
+  const typeIndex = number2letter.indexOf(typeChar);
+  const base = (25 + 25 * level * level) * (1 + level / 5);
+  let rawBonus;
+  if (typeIndex === 0) rawBonus = Math.round(2 * base);
+  else if (typeIndex === 1) rawBonus = Math.round(4 * base);
+  else rawBonus = Math.round(base);
+  // Display as multiplier matching game tooltip: 1 + rawBonus/100 (e.g. 240 → 3.40x)
+  const multiplier = parseFloat((1 + rawBonus / 100).toFixed(2));
+  // typeIndex 0 ('_') → Flaggy Rate, 1 ('a') → Build Rate, 2 ('b') → Construction XP
+  const statKeys = ['g', 'e', 'f'];
+  const statNames = ['x_Total_Flaggy_Rate', 'x_Total_Build_Rate', 'x_Total_Construction_XP'];
+  const statKey = statKeys[typeIndex] ?? 'e';
+  const statName = statNames[typeIndex] ?? 'x_Total_Build_Rate';
+  return { [statKey]: { name: statName, value: multiplier } };
+};
+
+const buildExtraColumn = (flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, cogStartIndex, flagStartIndex) => {
+  const column = [];
+  for (let i = 0; i < EXTRA_COL_HEIGHT; i++) {
+    const cogIdx = cogStartIndex + i;
+    const flagIdx = flagStartIndex + i;
+    const flagSlot = flagsUnlockedRaw?.[flagIdx];
+    const cogName = cogsOrder?.[cogIdx];
+    const stats = getSmallCogStats(cogName) ?? cogsMap?.[cogIdx] ?? {};
+    column.push({
+      currentAmount: flagSlot === -11 ? (flagsReqs?.[flagIdx] ?? 0) : parseFloat(flagSlot ?? 0),
+      requiredAmount: flagsReqs?.[flagIdx] ?? 0,
+      flagPlaced: flagsPlacedRaw?.includes(flagIdx),
+      cog: {
+        name: cogName,
+        stats,
+        originalIndex: cogIdx
+      },
+      affectedBy: [],
+      affects: []
+    });
+  }
+  return column;
 }
 
 const swapElements = (board, index1, index2) => {

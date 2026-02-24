@@ -1,20 +1,21 @@
-import { tryToParse, commaNotation, notateNumber } from '@utility/helpers';
+import { commaNotation, notateNumber, tryToParse } from '@utility/helpers';
 import {
-  researchGridSquares,
-  researchOccurrences,
-  mapNames,
   mapEnemiesArray,
+  mapNames,
   monsters,
-  research as researchData
+  research as researchData,
+  researchGridSquares,
+  researchOccurrences
 } from '@website-data';
 
 import { getZenithBonus } from '@parsers/statues';
 import { getSlabBonus } from '@parsers/sailing';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
 import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
-import { getArcadeBonus } from '@parsers/arcade';
-import { isCompanionBonusActive, getHighestCharacterSkill } from '@parsers/misc';
+import { getHighestCharacterSkill, isCompanionBonusActive } from '@parsers/misc';
 import { getCardBonusByEffect } from '@parsers/cards';
+import { getMineheadBonusQTY, getMineheadGlimboTotalTrades } from '@parsers/world-7/minehead';
+import { getStickerBonus } from '@parsers/world-6/farming';
 
 // Save key for Research: game may use idleonData.Research or similar
 const getRawResearch = (idleonData) => {
@@ -27,22 +28,10 @@ export const getResearch = (idleonData, account, characters) => {
   const researchLevel = getHighestCharacterSkill(characters, 'research');
 
   const gridLevels = raw[0] ?? [];
-  // raw[1] = grid index -> shape index (-1 = none, 0..N = which shape). Used for gridIndexToPlacementType.
-  // Observation per cell: when raw[1][i] >= 0, observation = raw[5][4*raw[1][i]+2]. We expose as gridObservationIndex.
-  const gridShapeIndex = raw[1] ?? []; // 240 entries: which shape index is on each cell
-  const gridObservationIndex = (() => {
-    const result = [];
-    const rawShapePlacements = raw[5] ?? [];
-    for (let gridCellIndex = 0; gridCellIndex < 240; gridCellIndex++) {
-      const shapeIndexOnCell = gridShapeIndex[gridCellIndex];
-      if (shapeIndexOnCell != null && Number(shapeIndexOnCell) >= 0) {
-        result[gridCellIndex] = Number(rawShapePlacements[4 * shapeIndexOnCell + 2]) ?? -1;
-      } else {
-        result[gridCellIndex] = -1;
-      }
-    }
-    return result;
-  })();
+  // raw[1] = grid index -> observation bonus category index (-1 = none, 0..9 = which category from researchData[5]).
+  // Game uses Research[1][t] directly as index into CustomLists.Research[5] for the observation bonus %.
+  const gridShapeIndex = raw[1] ?? []; // 240 entries: observation bonus category index per cell (-1 or 0..9)
+  const gridObservationIndex = gridShapeIndex; // raw[1] IS the observation index directly
   const occurrenceFoundState = raw[2] ?? [];
   const observationInsightExp = raw[3] ?? []; // current insight EXP per observation (progress to next level)
   const observationInsight = raw[4] ?? []; // insight level per observation
@@ -52,6 +41,8 @@ export const getResearch = (idleonData, account, characters) => {
   // raw[9] = sticker level per sticker type (farming: indices 0–4)
   const stickerLevels = (raw[9] ?? []).map((v) => Number(v) || 0);
   const totalStickers = stickerLevels.reduce((sum, v) => sum + v, 0);
+  // raw[11] = King Rat Crowns list (1 string entry per unique crown). Used for grid 67/68/107 mode-2 bonus.
+  const kingRatCrowns = raw[11] ?? [];
 
   const research = {
     gridLevels,
@@ -60,6 +51,7 @@ export const getResearch = (idleonData, account, characters) => {
     observationInsightExp,
     observationInsight,
     shapePlacements,
+    kingRatCrowns,
     researchLevel,
     optionsListAccount,
     researchKalMap: buildResearchKalMap(shapePlacements),
@@ -90,8 +82,13 @@ export const getResearch = (idleonData, account, characters) => {
 
   const gridSquares = (researchGridSquares || []).map((square, index) => {
     const level = Number(gridLevels[index]) || 0;
-    const maxLv = square?.maxLv != null ? Number(square.maxLv) : square?.col != null ? Number(square.col) : square?.x4 != null ? Number(square.x4) : 1;
+    const maxLv = square?.maxLv != null ? Number(square.maxLv) : square?.col != null
+      ? Number(square.col)
+      : square?.x4 != null ? Number(square.x4) : 1;
     const bonus = getResearchGridBonusInternal(account, research, index, 0);
+    const bonus1 = getResearchGridBonusInternal(account, research, index, 1);
+    const bonus2 = getResearchGridBonusInternal(account, research, index, 2);
+    const bonuses = [bonus, bonus1, bonus2];
     const canUpgrade = level < maxLv && gridPTSavailable > 0;
     const description = getResearchGridSquareDescription(account, research, index, square?.description ?? '');
     const canSelect = getResearchGridCanSelect(research, index);
@@ -103,7 +100,7 @@ export const getResearch = (idleonData, account, characters) => {
       shapeIndexOnCell != null && Number(shapeIndexOnCell) >= 0 ? Number(shapeIndexOnCell) : null;
 
     // CustomLists.Research[5] = shape bonus % per shape index (e.g. "25 15 50 ..." => first shape +25% = 1.25x, second +15% = 1.15x)
-    const shapeBonusPct = researchData[5].split(" ");
+    const shapeBonusPct = researchData[5].split(' ');
 
     // When cell is affected by a shape: multiplier from CustomLists.Research[5][shapeIndex] (bonus % per shape).
     let shapeAffectMultiplier = null;
@@ -117,6 +114,7 @@ export const getResearch = (idleonData, account, characters) => {
       level,
       maxLv,
       bonus,
+      bonuses,
       canUpgrade,
       canSelect,
       gridRow,
@@ -265,18 +263,14 @@ export const getResearch = (idleonData, account, characters) => {
     pointsGainAtNextLv,
     nextUnlockResearchLv,
     gridCanWeUseButton0,
-    gridCanWeUseButton1
+    gridCanWeUseButton1,
+    researchLevel
   };
 };
 
-// Minehead parser not yet implemented; stub with 0
-const getMineheadBonusQTY = (_account, _index) => 0;
-const getMineheadGlimboTotalTrades = (_account) => 0;
-
-// Sticker bonus for crops / CropSCbonus deferred; stub with 0
-const getStickerBonus = (_account, _index) => 0;
-
-// MSA (Minigame) bonus index 10 - stub; to be derived from gaming.js / superbits when available
+export const getResearchGridBonus = (account, gridIndex, mode) => {
+  return account?.research?.gridSquares?.[gridIndex]?.bonuses?.[mode] ?? 0;
+}
 
 function getResearchGridBonusInternal(account, research, gridIndex, mode) {
   const gridLevels = research?.gridLevels ?? [];
@@ -284,8 +278,12 @@ function getResearchGridBonusInternal(account, research, gridIndex, mode) {
   const squares = researchGridSquares || [];
   const square = squares[gridIndex];
   // Game ResGridSquares[t][1]=maxLv, [t][2]=baseBonus. Z-processing exports as maxLv/baseBonus (fallback to col/row, x4/x5 for older website-data).
-  const maxLv = square != null ? (square.maxLv != null ? Number(square.maxLv) : square.col != null ? Number(square.col) : square.x4 != null ? Number(square.x4) : 1) : 1;
-  const baseBonus = square != null ? (square.baseBonus != null ? Number(square.baseBonus) : square.row != null ? Number(square.row) : square.x5 != null ? Number(square.x5) : 0) : 0;
+  const maxLv = square != null ? (square.maxLv != null ? Number(square.maxLv) : square.col != null
+    ? Number(square.col)
+    : square.x4 != null ? Number(square.x4) : 1) : 1;
+  const baseBonus = square != null ? (square.baseBonus != null ? Number(square.baseBonus) : square.row != null
+    ? Number(square.row)
+    : square.x5 != null ? Number(square.x5) : 0) : 0;
   const level = Number(gridLevels[gridIndex]) || 0;
 
   if (mode === 1) {
@@ -293,7 +291,8 @@ function getResearchGridBonusInternal(account, research, gridIndex, mode) {
   }
   if (mode === 2) {
     if (gridIndex === 67 || gridIndex === 68 || gridIndex === 107) {
-      return (getResearchGridBonusInternal(account, research, gridIndex, 0) * (research?.shapePlacements?.length ?? 0));
+      // Game uses avar_Research[11].length (King Rat Crowns count), NOT shapePlacements.length
+      return (getResearchGridBonusInternal(account, research, gridIndex, 0) * (research?.kingRatCrowns?.length ?? 0));
     }
     if (gridIndex === 112) {
       return getResearchGridBonusInternal(account, research, gridIndex, 0) * (research?.totalOccurrencesFound ?? 0);
@@ -308,10 +307,12 @@ function getResearchGridBonusInternal(account, research, gridIndex, mode) {
   }
 
   const obsIndex = gridObservationIndex[gridIndex];
-  if (obsIndex === -1 || obsIndex === undefined) {
+  if (obsIndex == null || Number(obsIndex) < 0) {
     return baseBonus * level;
   }
-  const observationBonusPct = research?.observationBonusPct?.[obsIndex] ?? 0;
+  // Game: CustomLists.Research[5][Research[1][t]] / 100 — static observation bonus percentages
+  const observationBonuses = (researchData[5] ?? '').split(' ').map(Number);
+  const observationBonusPct = observationBonuses[Number(obsIndex)] ?? 0;
   return baseBonus * level * (1 + observationBonusPct / 100);
 }
 
@@ -526,20 +527,20 @@ function getResearchEXPmulti(account, research) {
           { name: 'Pts Every Ten', value: grid50 },
           { name: 'Observationalistic', value: grid90 },
           { name: 'All Night Studying', value: grid110 },
-          { name: "See 'Em All", value: grid112_2 },
+          { name: 'See \'Em All', value: grid112_2 },
           { name: 'Zenith', value: zenith },
           { name: 'MSA', value: msaBonus },
           { name: 'Slab', value: slab },
           { name: 'Tome', value: tomeLoreEpi },
           { name: 'Card', value: cardBonus },
-          { name: 'Arcade', value: arcade63 },
+          { name: 'Arcade', value: arcade63 }
         ]
       },
       {
         name: 'Multiplicative',
         sources: [
           { name: '(1 + total additive % / 100)', value: additiveFactor },
-          { name: "Takin' Notes", value: grid70Factor },
+          { name: 'Takin\' Notes', value: grid70Factor },
           { name: 'Companion', value: companion52Factor }
         ]
       }

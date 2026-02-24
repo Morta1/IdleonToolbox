@@ -34,7 +34,8 @@ export const PAGES = {
         { label: 'upgradeVault', icon: 'data/VaultBut' },
         { label: 'randomEvents', icon: 'etc/Mega_Grumblo' },
         { label: 'eventShop', icon: 'etc/Event_Currency' },
-        { label: 'guild', icon: 'etc/Guild' }
+        { label: 'guild', icon: 'etc/Guild' },
+        { label: 'tournament', icon: 'data/TournyRank2', tabs: ['Companions', 'Matches', 'Leaderboard'] }
       ]
     },
     'prem-currency': {
@@ -42,7 +43,7 @@ export const PAGES = {
       icon: 'data/PremiumGem',
       categories: [
         { label: 'gemShop', icon: 'data/PremiumGem' },
-        { label: 'companions', icon: 'data/PremiumGem', style: { filter: 'hue-rotate(280deg)' } },
+        { label: 'pets', icon: 'data/PremiumGem', style: { filter: 'hue-rotate(280deg)' } },
         { label: 'bundles', icon: 'data/PremiumGem' }
       ]
     },
@@ -131,11 +132,11 @@ export const PAGES = {
         { label: 'cooking', icon: 'data/ClassIcons51', tabs: ['Meals', 'Kitchens'] },
         {
           label: 'breeding', icon: 'data/ClassIcons52',
-          tabs: ['Pets', 'Territory', 'Upgrades', 'Arena'],
+          tabs: ['Mobs', 'Territory', 'Upgrades', 'Arena'],
           nestedTabs: [
-            { tab: 'Pets', nestedTab: 'Shinies' },
-            { tab: 'Pets', nestedTab: 'Breedability' },
-            { tab: 'Pets', nestedTab: 'All' }
+            { tab: 'Mobs', nestedTab: 'Shinies' },
+            { tab: 'Mobs', nestedTab: 'Breedability' },
+            { tab: 'Mobs', nestedTab: 'All' }
           ]
         },
         {
@@ -196,7 +197,7 @@ export const PAGES = {
     'world 6': {
       icon: 'etc/sneaking-temp',
       categories: [
-        { label: 'farming', icon: 'data/ClassIcons57', tabs: ['Plot', 'Market', 'Exotic Market', 'Exotic Rotation', 'Rank database', 'Crop'] },
+        { label: 'farming', icon: 'data/ClassIcons57', tabs: ['Plot', 'Market', 'Exotic Market', 'Exotic Rotation', 'Rank database', 'Crop', 'Stickers'] },
         {
           label: 'sneaking',
           icon: 'data/ClassIcons58',
@@ -223,13 +224,15 @@ export const PAGES = {
             { tab: 'Lore', nestedTab: 'Bosses' }
           ]
         },
+        { label: 'research', icon: 'data/ClassIcons61', tabs: ['Grid', 'Observations'] },
         { label: 'Gallery', icon: 'data/GalleryPodiumA3', tabs: ['Trophies', 'Nametags'] },
         { label: 'LegendTalents', icon: 'etc/Whallamus', tabs: [] },
         { label: 'coralReef', icon: 'data/ReefA1', tabs: ['Reef Upgrades', 'Coral Kid Upgrades', 'Dancing Coral'] },
         { label: 'zenithMarket', icon: 'etc/Cluster', tabs: [] },
-        { label: 'research', icon: 'data/ClassIcons61', tabs: ['Grid', 'Observations'] },
         { label: 'clamWork', icon: 'data/ClamPearl0', tabs: ['Upgrades', 'Compensations'] },
         { label: 'adviceFish', icon: 'data/W7_fish', tabs: [] },
+        { label: 'minehead', icon: 'data/MineHead0', tabs: ['Upgrades', 'Opponents'] },
+        { label: 'glimbo', icon: 'afk_targets/Glimbo', tabs: [] },
         { label: 'S3', icon: 'data/ClassIconsNA2', tabs: [] },
 
       ]

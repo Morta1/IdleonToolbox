@@ -10,6 +10,7 @@ import {
 } from '@utility/helpers';
 import React from 'react';
 import styled from '@emotion/styled';
+import { BOARD_X, BOARD_Y, EXTRA_COL_HEIGHT } from '../../../../../parsers/construction';
 
 const bonusTextSx = {
   fontSize: 12,
@@ -38,12 +39,12 @@ const CogTooltip = ({ character, index, currentAmount, requiredAmount, cog, affe
           {kFormatter(currentAmount, 2)} / {kFormatter(requiredAmount, 2)} ({kFormatter((currentAmount / requiredAmount) * 100, 2)}%)
         </Typography>
       ) : null}
-      {Object.values(cog?.stats)?.map(({ name, value }, index) =>
+      {Object.values(cog?.stats || {})?.map(({ name, value }, index) =>
         name ? (
           <>
             {index > 0 ? <Divider sx={{my:1}}/> : null}
             <Typography variant="body2" key={`${name}-${index}`}>
-              {roundedValues ? notateNumber(value, 'Big') : numberWithCommas(value.toFixed(2).replace('.00', ''))}
+              {roundedValues ? notateNumber(value, 'MultiplierInfo') : numberWithCommas(value.toFixed(2).replace('.00', ''))}
               {cleanUnderscore(name)}
             </Typography>
 
@@ -62,18 +63,42 @@ const CogTooltip = ({ character, index, currentAmount, requiredAmount, cog, affe
   );
 };
 
-const ConstructionBoard = ({ view, board, showTooltip, setOutsideHighlight, outsideHighlight, roundedValues }) => {
+const ConstructionBoard = ({ view, board, showTooltip, setOutsideHighlight, outsideHighlight, roundedValues, leftColumn, rightColumn }) => {
+  const totalCols = BOARD_X + (leftColumn ? 1 : 0) + (rightColumn ? 1 : 0);
+  const totalRows = (leftColumn || rightColumn) ? EXTRA_COL_HEIGHT : BOARD_Y;
+
+  const fullBoard = React.useMemo(() => {
+    if (!leftColumn && !rightColumn) {
+      return board?.map((slot, i) => ({ ...slot, boardPosition: i }));
+    }
+    const result = [];
+    for (let row = 0; row < EXTRA_COL_HEIGHT; row++) {
+      if (leftColumn) result.push({ ...leftColumn[row], boardPosition: -1 });
+      for (let col = 0; col < BOARD_X; col++) {
+        if (row < BOARD_Y) {
+          const boardIdx = row * BOARD_X + col;
+          result.push({ ...(board?.[boardIdx] || {}), boardPosition: boardIdx });
+        } else {
+          result.push(null);
+        }
+      }
+      if (rightColumn) result.push({ ...rightColumn[row], boardPosition: -1 });
+    }
+    return result;
+  }, [board, leftColumn, rightColumn]);
+
   return <Box
     mt={3}
     sx={{
       display: 'grid',
       gap: '8px',
-      gridTemplateColumns: { xs: 'repeat(8, minmax(45px, 1fr))', md: 'repeat(12, minmax(45px, 1fr))' },
-      gridTemplateRows: { xs: 'repeat(8, minmax(45px, 1fr))', md: 'repeat(8, minmax(45px, 1fr))' }
+      gridTemplateColumns: { xs: `repeat(${totalCols}, minmax(45px, 1fr))`, md: `repeat(${totalCols}, minmax(45px, 1fr))` },
+      gridTemplateRows: `repeat(${totalRows}, minmax(45px, 1fr))`
     }}
   >
-    {board?.map((slot, index) => {
-      const { currentAmount, requiredAmount, flagPlaced, cog, affectedBy, affects } = slot;
+    {fullBoard?.map((slot, index) => {
+      if (!slot) return <Box key={index} sx={{ width: 46, height: 46 }}/>;
+      const { currentAmount, requiredAmount, flagPlaced, cog, affectedBy, affects, boardPosition } = slot;
       const {
         a: buildRate,
         e: buildPercent,
@@ -82,7 +107,7 @@ const ConstructionBoard = ({ view, board, showTooltip, setOutsideHighlight, outs
         c: flaggyRate,
         j: classExp,
         f: playerExp
-      } = cog?.stats;
+      } = cog?.stats || {};
       const filled = (currentAmount / requiredAmount) * 100;
       const rest = 100 - filled;
       return (
@@ -91,12 +116,12 @@ const ConstructionBoard = ({ view, board, showTooltip, setOutsideHighlight, outs
                outline: cog?.originalIndex === outsideHighlight
                  ? '1px solid red'
                  : '',
-               opacity: !setOutsideHighlight && cog?.originalIndex === index ? .5 : 1
+               opacity: !setOutsideHighlight && boardPosition >= 0 && cog?.originalIndex === boardPosition ? .5 : 1
              }}
              onMouseEnter={() => typeof setOutsideHighlight === 'function' && setOutsideHighlight(cog?.originalIndex)}
              onMouseLeave={() => typeof setOutsideHighlight === 'function' && setOutsideHighlight(null)}
         >
-          <Tooltip title={showTooltip ? <CogTooltip {...slot} index={index}
+          <Tooltip title={showTooltip ? <CogTooltip {...slot} index={cog?.originalIndex}
                                                     roundedValues={roundedValues}
                                                     character={cog?.name?.includes('Player')
                                                       ? cog?.name?.split('Player_')[1]
@@ -106,7 +131,7 @@ const ConstructionBoard = ({ view, board, showTooltip, setOutsideHighlight, outs
               {cog?.name && !flagPlaced ?
                 <SlotIcon src={`${prefix}data/${cog?.name?.includes('Player') ? 'headBIG' : cog?.name}.png`}
                           alt=""/> : null}
-              {!isProd ? <Typography sx={indexSx}>{index}</Typography> : null}
+              {!isProd ? <Typography sx={indexSx}>{cog?.originalIndex}</Typography> : null}
               {view === 'build' && !flagPlaced && buildRate?.value
                 ?
                 <Typography sx={bonusTextSx}>{notateNumber(buildRate?.value, 'Big') || null}</Typography>

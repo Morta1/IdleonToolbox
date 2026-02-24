@@ -1,5 +1,5 @@
 import { tryToParse } from '@utility/helpers';
-import { exoticMarketInfo, marketInfo, ninjaExtraInfo, seedInfo } from '@website-data';
+import { exoticMarketInfo, marketInfo, ninjaExtraInfo, research as researchData, seedInfo } from '@website-data';
 import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getStarSignBonus } from '@parsers/starSigns';
 import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from '@parsers/alchemy';
@@ -9,12 +9,15 @@ import { getAchievementStatus } from '@parsers/achievements';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getGrimoireBonus } from '@parsers/grimoire';
 import { CLASSES, getHighestTalentByClass, getTalentBonus } from '@parsers/talents';
-import { getKillroyBonus, isMasteryBonusUnlocked } from '@parsers/misc';
+import { getHighestCharacterSkill, getKillroyBonus, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getStampsBonusByEffect } from '@parsers/stamps';
 import { getEmperorBonus } from './emperor';
+import { getResearchGridBonus } from '@parsers/world-7/research';
+import { isSuperbitUnlocked } from '@parsers/gaming';
+import { getArcadeBonus } from '@parsers/arcade';
 import LavaRand from '../../utility/lavaRand';
 
 /** Level needed to reach the given percent of cap for exotic capped formula: value = baseValue * level / (1000 + level). */
@@ -344,6 +347,42 @@ const getMarketUpgradeBonusValue = (marketUpgrades, cropDepot, upgradeId) => {
   }
 }
 
+export const getStickerBonus = (account, index) => {
+  const stickerLevels = account?.research?.stickerLevels ?? [];
+  const baseBonusValues = (researchData?.[25] ?? '').split(' ').map(Number);
+  const count = stickerLevels[index] ?? 0;
+  const grid68bonus = getResearchGridBonus(account, 68, 2);
+  const superBit62 = isSuperbitUnlocked(account, 'Bettah_Stickahs') ? 1 : 0;
+  return (1 + grid68bonus / 100) * (1 + (20 * superBit62) / 100) * count * (baseBonusValues[index] ?? 0);
+};
+
+const getStickerOddsMulti = (characters, account) => {
+  const grid67bonus = getResearchGridBonus(account, 67, 2);
+  const grid88bonus = getResearchGridBonus(account, 88, 0);
+  const sticker5bonus = getStickerBonus(account, 5);
+  const arcade64 = getArcadeBonus(account?.arcade?.shop, 'Megacrop_Chance')?.bonus ?? 0;
+  const superBit55 = isSuperbitUnlocked(account, 'Mo_Stickers_Mo_Bonusers') ? 1 : 0;
+  const farmingLevel = getHighestCharacterSkill(characters, 'farming') ?? 0;
+  return (1 + grid67bonus / 100)
+    * (1 + grid88bonus / 100)
+    * (1 + sticker5bonus / 100)
+    * (1 + arcade64 / 100)
+    * (1 + 0.02 * superBit55 * Math.max(0, farmingLevel - 300));
+};
+
+const getStickerOdds = (characters, account, index) => {
+  const count = (account?.research?.stickerLevels ?? [])[index] ?? 0;
+  const oddsMulti = getStickerOddsMulti(characters, account);
+  return oddsMulti / (5000 * Math.pow(7, index) * Math.pow(Math.max(10 - count, 5), count));
+};
+
+const getStickerDMGMulti = (account) => {
+  if (!account?.research?.farmingStickerDMG_unlocked) return 1;
+  const grid47bonus = account?.research?.gridSquares?.[47]?.bonuses?.[0] ?? 0;
+  const totalStickers = account?.research?.totalStickers ?? 0;
+  return 1 + (grid47bonus * totalStickers) / 100;
+};
+
 export const updateFarming = (characters, account) => {
   const newMarket = account?.farming?.market?.map((upgrade, index) => {
     return {
@@ -402,12 +441,29 @@ export const updateFarming = (characters, account) => {
       growthReq
     }
   });
+  const stickerNames = (researchData?.[23] ?? '').split(' ');
+  const stickerDescriptions = (researchData?.[24] ?? '').split(' ');
+  const stickerBaseBonus = (researchData?.[25] ?? '').split(' ').map(Number);
+  const stickers = stickerNames
+    .map((name, index) => {
+      if (name === 'Nonexistent_Sticker') return null;
+      const count = (account?.research?.stickerLevels ?? [])[index] ?? 0;
+      const bonus = getStickerBonus(account, index);
+      const odds = getStickerOdds(characters, account, index);
+      return { name, description: stickerDescriptions[index] ?? '', count, bonus, odds, baseBonus: stickerBaseBonus[index] ?? 0 };
+    })
+    .filter(Boolean);
+
   return {
     ...(account?.farming || {}),
     plot: newPlot,
     cropDepot: getCropDepotBonuses(account),
     market: newMarket,
-    maxTimes
+    maxTimes,
+    stickers,
+    totalStickers: account?.research?.totalStickers ?? 0,
+    dmgMulti: getStickerDMGMulti(account),
+    stickersUnlocked: account?.research?.farmingStickersUnlocked ?? 0
   }
 }
 

@@ -4,6 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.25',
+    'gameVer': '2.0.492',
+    'date': '24/02/2026',
+    'features': [
+      'Updated the website with version 2.0.50 data and assets',
+      'Added Tournament page under Account -> Misc with Companions, matches and leaderboards',
+      'Added Minehead page under Account -> World 7 with Opponents and Upgrades',
+      'Added Glimbo page under Account -> World 7 to track Glimbo trades and bonuses',
+      'Added missing tome bonuses to the tome page'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.24',
     'gameVer': '2.0.492',
     'date': '20/02/2026',

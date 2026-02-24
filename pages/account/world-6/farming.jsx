@@ -12,6 +12,7 @@ import RankDatabase from '@components/account/Worlds/World6/farming/RankDatabase
 import { PAGES } from '@components/constants';
 import ExoticMarket from '@components/account/Worlds/World6/farming/ExoticMarket';
 import ExoticMarketRotation from '@components/account/Worlds/World6/farming/ExoticMarketRotation';
+import Stickers from '@components/account/Worlds/World6/farming/Stickers';
 
 const Farming = () => {
   const { state } = useContext(AppContext);
@@ -60,6 +61,7 @@ const Farming = () => {
       <ExoticMarketRotation />
       <RankDatabase ranks={ranks} hasLandRank={hasLandRank}/>
       <Crop crop={crop} maxTimes={maxTimes}/>
+      <Stickers />
     </Tabber>
   </>
 };

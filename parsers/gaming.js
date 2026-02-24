@@ -24,11 +24,12 @@ export const getGaming = (idleonData, characters, account, serverVars) => {
   const gamingRaw = tryToParse(idleonData?.Gaming) || idleonData?.Gaming;
   const gamingSproutRaw = tryToParse(idleonData?.GamingSprout) || idleonData?.GamingSprout;
   const spelunkRaw = tryToParse(idleonData?.Spelunk) || idleonData?.Spelunk;
+  const researchRaw = tryToParse(idleonData?.Research) || idleonData?.Research;
   if (!gamingRaw || !gamingSproutRaw || !spelunkRaw) return null;
-  return parseGaming(gamingRaw, gamingSproutRaw, spelunkRaw, characters, account, serverVars);
+  return parseGaming(gamingRaw, gamingSproutRaw, spelunkRaw, researchRaw, characters, account, serverVars);
 }
 
-const parseGaming = (gamingRaw, gamingSproutRaw, spelunkRaw, characters, account, serverVars) => {
+const parseGaming = (gamingRaw, gamingSproutRaw, spelunkRaw, researchRaw, characters, account, serverVars) => {
   const logBook = []
   const baseValue = 'hhhhhhhhh';
   for (let i = 0; i < 9; i++) {
@@ -151,7 +152,8 @@ const parseGaming = (gamingRaw, gamingSproutRaw, spelunkRaw, characters, account
     poingHighscore,
     poingMulti,
     totalPlantsPicked,
-    selectedSlots: spelunkRaw?.[10]?.reduce((res, value) => value !== -1 ? res + 1 : res, 0)
+    selectedSlots: spelunkRaw?.[10]?.reduce((res, value) => value !== -1 ? res + 1 : res, 0),
+    ratKingCrownsClaimed: researchRaw?.[11]?.length || 0
   };
 }
 

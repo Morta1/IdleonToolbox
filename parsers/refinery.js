@@ -13,6 +13,8 @@ import { getFamilyBonusBonus } from '@parsers/family';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { isCompanionBonusActive } from '@parsers/misc';
+import { getResearchGridBonus } from '@parsers/world-7/research';
+import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
 
 export const getRefinery = (idleonData, storage, tasks) => {
   const refineryRaw = tryToParse(idleonData?.Refinery) || idleonData?.Refinery;
@@ -62,6 +64,7 @@ const parseRefinery = (refineryRaw, storage, tasks) => {
     refinerySaltTaskLevel,
     timePastCombustion: refineryRaw?.[0]?.[1],
     timePastSynthesis: refineryRaw?.[0]?.[2],
+    timePastPolymerize: refineryRaw?.[0]?.[3],
     totalLevels: saltsArray?.reduce((sum, { rank }) => sum + rank, 0),
     refineryStorage
   }
@@ -79,10 +82,10 @@ export const getPowerPerCycle = (rank, account = null) => {
 
 export const hasMissingMats = (saltIndex, rank, cost, account) => {
   return cost?.filter(({
-    rawName,
-    quantity,
-    totalAmount
-  }) => totalAmount < Math.floor(Math.pow(rank, (rawName?.includes('Refinery') &&
+                         rawName,
+                         quantity,
+                         totalAmount
+                       }) => totalAmount < Math.floor(Math.pow(rank, (rawName?.includes('Refinery') &&
     saltIndex <= account?.refinery?.refinerySaltTaskLevel) ? 1.3 : 1.5)) * quantity)
 }
 
@@ -110,7 +113,7 @@ export const getRefineryCycleBonuses = (account, characters) => {
   const amplifiedFamilyBonus = (familyRefinerySpeed * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0)
   const voteBonus = getVoteBonus(account, 33);
   const companionBonus = isCompanionBonusActive(account, 35);
-
+  const researchGridBonus1 = getResearchGridBonus(account, 49, 0);
 
   const bonusBreakdown = [
     { name: 'Vials', value: redMaltVial / 100 },
@@ -122,12 +125,14 @@ export const getRefineryCycleBonuses = (account, characters) => {
     { name: 'Const mastery', value: constructionMastery / 100 },
     { name: 'Arcade', value: arcadeBonus / 100 },
     { name: 'Vote', value: voteBonus / 100 },
-    { name: 'Companion', value: companionBonus ? 2 : 0 }
+    { name: 'Companion', value: companionBonus ? 2 : 0 },
+    { name: 'Polymer Refinery', value: researchGridBonus1 }
   ]
   return {
     bonusBreakdown,
     bonus: redMaltVial + saltLickUpgrade + amplifiedFamilyBonus
-      + sigilRefinerySpeed + stampRefinerySpeed + shinyRefineryBonus + constructionMastery + arcadeBonus + voteBonus
+      + sigilRefinerySpeed + stampRefinerySpeed + shinyRefineryBonus
+      + constructionMastery + arcadeBonus + voteBonus + researchGridBonus1
   }
 }
 export const getRefineryCycles = (account, characters, lastUpdated) => {
@@ -136,6 +141,8 @@ export const getRefineryCycles = (account, characters, lastUpdated) => {
     bonus
   } = getRefineryCycleBonuses(account, characters, lastUpdated);
   const legendBonus = getLegendTalentBonus(account, 19);
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'PolyRefSpd');
+  const researchGridBonus = getResearchGridBonus(account, 48, 0);
   const labCycleBonus = account?.lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active
     ? 3
     : 1;
@@ -171,19 +178,27 @@ export const getRefineryCycles = (account, characters, lastUpdated) => {
   ];
   const combustion = {
     name: 'Combustion',
-    time: Math.ceil(900 / ((1 + bonus / 100) * labCycleBonus * (1 + legendBonus / 100))),
+    time: Math.ceil(900 / ((1 + bonus / 100) * labCycleBonus * (1 + (legendBonus) / 100))),
     timePast: account?.refinery?.timePastCombustion + timePassed,
     breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 900 * Math.pow(4, 0) }, ...breakdown]
   };
   const synthesis = {
     name: 'Synthesis',
-    time: Math.ceil(3600 / ((1 + bonus / 100) * labCycleBonus * (1 + legendBonus / 100))),
+    time: Math.ceil(3600 / ((1 + bonus / 100) * labCycleBonus * (1 + (legendBonus) / 100))),
     timePast: account?.refinery?.timePastSynthesis + timePassed,
     breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 900 * Math.pow(4, 1) }, ...breakdown]
   }
+  const polymerize = {
+    name: 'Polymerize',
+    time: Math.ceil(14400 * Math.pow(25, 1) / ((1 + bonus / 100) * labCycleBonus * (1 + legendBonus / 100) * (1 + (researchGridBonus + mealBonus) / 100))),
+    timePast: account?.refinery?.timePastPolymerize + timePassed,
+    breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 900 * Math.pow(4, 2) }, ...breakdown,
+      { name: 'Materials Science', value: (researchGridBonus + mealBonus) / 100 }
+    ]
+  }
   return {
     ...squiresDataTemp,
-    cycles: [combustion, synthesis]
+    cycles: [combustion, synthesis, polymerize]
   };
 }
 

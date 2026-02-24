@@ -200,7 +200,9 @@ const ConstructionMain = () => {
                            roundedValues={roundedValues}
                            setOutsideHighlight={setOutsideHighlight}
                            move={moves.list[moves.current]}
-                           board={current?.board}/>
+                           board={current?.board}
+                           leftColumn={state?.account?.construction?.leftColumn}
+                           rightColumn={state?.account?.construction?.rightColumn}/>
         {/*{optimized ? <Stack direction={'row'} alignItems={'center'} justify-content={'space-between'}>*/}
         {/*  <IconButton onClick={handlePrevMove}>*/}
         {/*    <ReverseForwardIcon/>*/}
@@ -215,7 +217,9 @@ const ConstructionMain = () => {
         {optimized ? <ConstructionBoard view={view}
                                         outsideHighlight={outsideHighlight}
                                         showTooltip={showTooltip}
-                                        board={optimized?.board}/> : null}
+                                        board={optimized?.board}
+                                        leftColumn={state?.account?.construction?.leftColumn}
+                                        rightColumn={state?.account?.construction?.rightColumn}/> : null}
 
       </Stack>
     </>

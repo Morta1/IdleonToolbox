@@ -1,14 +1,13 @@
 import React from 'react';
 import Tooltip from '@components/Tooltip';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { IconSearch, IconEye, IconRainbow } from '@tabler/icons-react';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 
-// Game order: research[6] = ["Magnifying_Glass", "Optical_Monocle", "Kaleidoscope"]. Placeholder icons – replace with final assets when ready.
+// Game order: research[6] = ["Magnifying_Glass", "Optical_Monocle", "Kaleidoscope"]
 const LENS_ICONS = {
-  0: { Icon: IconSearch, title: 'Magnifying glass' },
-  1: { Icon: IconEye, title: 'Optical Monocle' },
-  2: { Icon: IconRainbow, title: 'Kaleidoscope' }
+  0: { src: 'data/ResMagni0', title: 'Magnifying Glass' },
+  1: { src: 'data/ResMagni1', title: 'Optical Monocle' },
+  2: { src: 'data/ResMagni2', title: 'Kaleidoscope' }
 };
 
 // Observation insight level colors from game (N.js Research UI: semicolon-separated RGB list indexed by level)
@@ -48,6 +47,12 @@ const Observations = ({ observations }) => {
           <CardContent>
             <Stack spacing={1.5}>
               <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
+                <img
+                  src={`${prefix}data/ResObj${obs.index}.png`}
+                  alt=""
+                  style={{ width: 36, height: 36, imageRendering: 'pixelated' }}
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
                 <Typography
                   variant="subtitle1"
                   fontWeight={500}
@@ -64,12 +69,14 @@ const Observations = ({ observations }) => {
                 {Array.isArray(obs.lensTypes) && obs.lensTypes.length > 0 && (
                   <Stack direction="row" alignItems="center" gap={0.5} sx={{ ml: 'auto' }}>
                     {obs.lensTypes.map((t) => {
-                      const { Icon, title } = LENS_ICONS[t] ?? { Icon: null, title: `Lens ${t}` };
-                      return Icon ? (
+                      const { src, title } = LENS_ICONS[t] ?? { src: null, title: `Lens ${t}` };
+                      return src ? (
                         <Tooltip key={t} title={title}>
-                          <Box component="span" sx={{ display: 'inline-flex', color: 'text.secondary' }}>
-                            <Icon size={20} />
-                          </Box>
+                          <img
+                            src={`${prefix}${src}.png`}
+                            alt={title}
+                            style={{ width: 20, height: 20, imageRendering: 'pixelated' }}
+                          />
                         </Tooltip>
                       ) : null;
                     })}

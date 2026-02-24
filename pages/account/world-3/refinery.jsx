@@ -19,10 +19,16 @@ import Tooltip from '../../../components/Tooltip';
 import { calcTotals } from '@parsers/printer';
 import Box from '@mui/material/Box';
 import { Breakdown, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
-import { calcCost, calcResourceToRankUp, calcTimeToRankUp, getPowerPerCycle, getRefineryCycles } from '@parsers/refinery';
+import {
+  calcCost,
+  calcResourceToRankUp,
+  calcTimeToRankUp,
+  getPowerPerCycle,
+  getRefineryCycles
+} from '@parsers/refinery';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
-const saltsColors = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4']
+const saltsColors = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4', 'yellow']
 const boldSx = { fontWeight: 'bold' };
 
 const Refinery = () => {
@@ -90,9 +96,11 @@ const Refinery = () => {
         return <Card key={`${name}-${index}`}>
           <CardContent>
             <Stack direction={'row'} gap={2} alignItems={'center'}>
-              <Typography sx={{ ...boldSx, color: index === 0 ? 'error.light' : 'success.light' }}
-                          variant={'body1'}>{name}</Typography>
-              <Tooltip title={<Breakdown breakdown={breakdown} notation={'MultiplierInfo'}/>}>
+              <Typography
+                sx={{ ...boldSx, color: index === 0 ? 'error.light' : index === 1 ? 'success.light' : 'warning.light' }}
+                variant={'body1'}>{name}</Typography>
+              <Tooltip title={<Breakdown breakdown={breakdown} notation={'MultiplierInfo'}/>}
+                       titleStyle={{ width: 170 }}>
                 <IconInfoCircleFilled size={18}/>
               </Tooltip>
             </Stack>

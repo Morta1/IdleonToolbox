@@ -78,14 +78,16 @@ import { getGallery } from '@parsers/world-7/gallery';
 import { getCoralReef } from '@parsers/world-7/coralReef';
 import { getClamWork } from '@parsers/world-7/clamWork';
 import { getResearch } from '@parsers/world-7/research';
+import { getMinehead } from '@parsers/world-7/minehead';
+import { getTournament } from '@parsers/world-7/tournament';
 import { getAdviceFish } from '@parsers/misc';
 import { getBubba } from '@parsers/clickers/bubba';
 import { getHatRack } from '@parsers/world-3/hatRack';
 import { getFriendBonusStats } from '@parsers/misc';
 
-export const parseData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime) => {
+export const parseData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime, tournament) => {
   try {
-    const staticData = getStaticData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime);
+    const staticData = getStaticData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, tournament);
 
     // Multiple passes needed to resolve cross-dependencies between parsers
     let processedData = null;
@@ -111,7 +113,7 @@ export const parseData = (idleonData, charNames, companion, guildData, serverVar
  * Pure/static parsers — only depend on raw input data, never on accountData.
  * Computed once and reused across all passes.
  */
-const getStaticData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime) => {
+const getStaticData = (idleonData, charNames, companion, guildData, serverVars, accountCreateTime, tournament) => {
   const serializedCharactersData = getCharacters(idleonData, charNames);
   const charactersLevels = serializedCharactersData?.map((char) => {
     const personalValuesMap = char?.[`PersonalValuesMap`];
@@ -151,6 +153,7 @@ const getStaticData = (idleonData, charNames, companion, guildData, serverVars, 
     adviceFish: getAdviceFish(idleonData),
     guild: getGuild(idleonData, guildData),
     talentPoints: idleonData?.CYTalentPoints,
+    tournamentServerData: tournament ?? null,
   };
 };
 
@@ -307,8 +310,9 @@ const serializeData = (idleonData, serverVars, staticData, processedData) => {
   accountData.gallery = getGallery(idleonData, accountData);
   accountData.coralReef = getCoralReef(idleonData, accountData, charactersData);
   accountData.clamWork = getClamWork(idleonData, accountData);
+  accountData.minehead = getMinehead(idleonData, accountData, serverVars);
+  accountData.tournament = getTournament(idleonData, accountData, staticData.tournamentServerData);
   accountData.research = getResearch(idleonData, accountData, charactersData);
-  console.log("accountData.research", accountData.research)
   accountData.bubba = getBubba(idleonData, accountData);
   accountData.friendBonusStats = getFriendBonusStats(accountData);
 

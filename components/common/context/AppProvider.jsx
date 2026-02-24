@@ -120,6 +120,7 @@ const AppProvider = ({ children }) => {
     charNames, 
     companion, 
     guildData, 
+    tournament,
     serverVars, 
     accountCreateTime, 
     uid, 
@@ -138,6 +139,7 @@ const AppProvider = ({ children }) => {
       charNames,
       companion,
       guildData,
+      tournament,
       serverVars,
       accountCreateTime: accountCreateTimeInSeconds * 1000,
       lastUpdated
@@ -145,12 +147,13 @@ const AppProvider = ({ children }) => {
 
     const { parseData } = await import('@parsers/index');
     let parsedData = parseData(
-      data, 
-      charNames, 
-      companion, 
-      guildData, 
-      serverVars, 
-      accountCreateTimeInSeconds * 1000
+      data,
+      charNames,
+      companion,
+      guildData,
+      serverVars,
+      accountCreateTimeInSeconds * 1000,
+      tournament
     );
     
     localStorage.setItem('manualImport', JSON.stringify(false));
@@ -163,6 +166,7 @@ const AppProvider = ({ children }) => {
         manualImport: false,
         profile: false,
         lastUpdated,
+        tournament,
         serverVars,
         uid,
         accessToken,

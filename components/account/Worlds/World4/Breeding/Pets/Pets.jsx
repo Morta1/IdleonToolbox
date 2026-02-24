@@ -17,7 +17,7 @@ const Pets = ({
   const breedingMulti = useMemo(() => calcBreedabilityMulti(account, characters), [pets]);
 
   return <>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'breeding', 'Pets')} queryKey={'nt'}>
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'breeding', 'Mobs')} queryKey={'nt'}>
       <Other fencePets={fencePetsObject} pets={pets.flat()} multi={shinyMulti} isShiny/>
       <Other fencePets={fencePetsObject} pets={pets.flat()} multi={breedingMulti}/>
       <All pets={pets} />

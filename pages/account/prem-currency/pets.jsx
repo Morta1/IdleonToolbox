@@ -52,15 +52,14 @@ const CompanionList = ({ title, companions }) => {
   );
 };
 
-const Companions = () => {
+const Pets = () => {
   const { state } = useContext(AppContext);
   const [showTradableOnly, setShowTradableOnly] = useState(false);
   const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * state?.account?.timeAway?.GlobalTime - (state?.account?.companions?.lastFreeClaim ?? 0)));
-
   const allLegacy = state?.account?.companions?.list?.slice(0, 11) || [];
   const allFallenSpirits = state?.account?.companions?.list?.slice(12, 24) || [];
   const allShallowWaters = state?.account?.companions?.list?.slice(37, 49) || [];
-  const exclusiveIndexes = [11, 49, 50, 51];
+  const exclusiveIndexes = [11, 49, 50, 51, 143, 154];
   const allExclusive = [
     ...exclusiveIndexes.map(idx => state?.account?.companions?.list?.[idx]),
     ...(state?.account?.companions?.list?.slice(24, 37) || [])
@@ -78,7 +77,7 @@ const Companions = () => {
 
   return <>
     <NextSeo
-      title="Companions | Idleon Toolbox"
+      title="Premium Pets | Idleon Toolbox"
       description="Detailed information about companions and their bonuses"
     />
     <Stack direction={'row'} gap={3} flexWrap={'wrap'} alignItems="center">
@@ -99,12 +98,12 @@ const Companions = () => {
       />
     </Stack>
     <Stack gap={4}>
-      <CompanionList title="Legacy Companions" companions={legacy} />
+      <CompanionList title="Legacy Pets" companions={legacy} />
       <CompanionList title="Fallen Spirits" companions={fallenSpirits} />
       <CompanionList title="Shallow Waters" companions={shallowWaters} />
-      <CompanionList title="Exclusive Companions" companions={exclusive} />
+      <CompanionList title="Exclusive Pets" companions={exclusive} />
     </Stack>
   </>
 };
 
-export default Companions;
+export default Pets;

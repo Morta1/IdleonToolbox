@@ -1164,7 +1164,7 @@ export const getMinigameScore = (account, bonusName) => {
 }
 
 export const getCompanions = (companionObject = {}) => {
-  const maxStorage = 40;
+  const maxStorage = companionObject?.p ?? 60;
   const [companionIndex] = companionObject?.e?.split(',') || [];
   const companion = companions?.[companionIndex];
   const ownedCompanions = companionObject?.l?.reduce((result, comp) => {
