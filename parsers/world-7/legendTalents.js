@@ -1,16 +1,32 @@
-import { tryToParse, commaNotation, notateNumber } from '@utility/helpers';
-import { legendTalents, generalSpelunky } from '@website-data';
+import { commaNotation, notateNumber, tryToParse } from '@utility/helpers';
+import { generalSpelunky, legendTalents } from '@website-data';
 import { getGildedBoostioBonus } from '@parsers/construction';
-import { getGuaranteedCrystalMobs } from '@parsers/misc';
+import { getEventShopBonus, getGuaranteedCrystalMobs, isCompanionBonusActive } from '@parsers/misc';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
-import { isCompanionBonusActive } from '@parsers/misc';
 import { isArtifactAcquired } from '@parsers/sailing';
-import { getEventShopBonus } from '@parsers/misc';
+import { getResearchGridBonus } from '@parsers/world-7/research';
 
 export const getLegendTalents = (idleonData, accountData = {}, charactersData = []) => {
   const spelunkingRaw = tryToParse(idleonData?.Spelunk);
   return parseLegendTalents(spelunkingRaw, accountData, charactersData);
 }
+
+const LEGEND_TALENT_MAX_LEVEL_GROUPS = [
+  { indices: new Set([2, 13, 3, 18, 5]), gridIndex: 130 },
+  { indices: new Set([9, 23, 33, 1, 16]), gridIndex: 131 },
+  { indices: new Set([20, 31, 19, 27, 8]), gridIndex: 132 },
+  { indices: new Set([34, 30, 29, 6, 26]), gridIndex: 152 }
+];
+
+const getLegendTalentMaxLevel = (talentIndex, baseMax, accountData) => {
+  for (const { indices, gridIndex } of LEGEND_TALENT_MAX_LEVEL_GROUPS) {
+    if (indices.has(talentIndex)) {
+      const gridBonus = getResearchGridBonus(accountData, gridIndex, 1);
+      return Math.floor(gridBonus + baseMax);
+    }
+  }
+  return baseMax;
+};
 
 const parseLegendTalents = (spelunkingRaw, accountData = {}, charactersData = []) => {
   const legendTalentsRaw = spelunkingRaw?.[18];
@@ -19,6 +35,7 @@ const parseLegendTalents = (spelunkingRaw, accountData = {}, charactersData = []
   const talents = legendTalents?.map((legendTalent, index) => {
     const level = legendTalentsRaw?.[index] || 0;
     const bonus = legendTalent.x2 * level;
+    const maxLevel = getLegendTalentMaxLevel(index, legendTalent.x1, accountData);
 
     // Process description with placeholders
     const processedDescription = processLegendTalentDescription(
@@ -34,6 +51,7 @@ const parseLegendTalents = (spelunkingRaw, accountData = {}, charactersData = []
       level: level,
       index: order?.indexOf(index + ''),
       bonus,
+      maxLevel,
       description: processedDescription || legendTalent.description
     }
   })
@@ -68,13 +86,17 @@ const processLegendTalentDescription = (description, index, bonus, accountData =
 
     if (index === 2) {
       dollarValue = (2 + bonus / 100);
-    } else if (index === 33) {
+    }
+    else if (index === 33) {
       dollarValue = notateNumber(getGildedBoostioBonus(accountData) || 0, 'MultiplierInfo');
-    } else if (index === 37) {
+    }
+    else if (index === 37) {
       dollarValue = Math.round(getGuaranteedCrystalMobs(accountData) || 0);
-    } else if (index === 39) {
+    }
+    else if (index === 39) {
       dollarValue = Math.round(50 + getLegendTalentBonus(accountData, 7));
-    } else {
+    }
+    else {
       dollarValue = notateNumber(bonus, 'MultiplierInfo');
     }
 
@@ -145,7 +167,7 @@ export const getLegendPointsOwned = (accountData = {}, charactersData = []) => {
       { name: 'Companion', value: 10 * companionBonus },
       { name: 'Gem Item', value: gemItem42 },
       { name: 'Artifact', value: Math.min(5, Math.round(artifactBonus)) },
-      { name: 'Event Shop', value: 2 * eventShopBonus },
+      { name: 'Event Shop', value: 2 * eventShopBonus }
     ]
   };
 };
@@ -169,7 +191,7 @@ export const getSuperTalentLeftToSpend = (characterLevel, playerId, selectedTale
   // Since talentSpelunkArrays is Spelunk.slice(20, 41), we use: playerIndex + 12 * presetIndex
   const spelunkArrayIndex = Math.round(playerId + 12 * selectedTalentPreset);
   const superTalentArray = accountData?.spelunking?.talentSpelunkArrays?.[spelunkArrayIndex];
-  
+
   // Subtract 1 for each super talent that has been purchased (not -1)
   // Original check: -1 != Spelunk[20 + playerIndex + 12 * presetIndex][i]
   if (Array.isArray(superTalentArray)) {

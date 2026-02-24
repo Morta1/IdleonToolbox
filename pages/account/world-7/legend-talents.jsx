@@ -11,7 +11,7 @@ import Tooltip from '@components/Tooltip';
 const LegendTalents = () => {
   const { state } = useContext(AppContext);
   const { talents, pointsSpent, pointsOwned } = state?.account?.legendTalents || {};
-  const [searchQuery, setSearchQuery] = useState('');
+const [searchQuery, setSearchQuery] = useState('');
   const [hideMaxed, setHideMaxed] = useLocalStorage({
     key: `${prefix}:legendTalents:hideMaxed`,
     defaultValue: false
@@ -19,18 +19,7 @@ const LegendTalents = () => {
 
   if (!state?.account?.legendTalents) return <MissingData name={'legendTalents'} />;
 
-  // Helper function to check if talent is completed
-  const isCompleted = (talent) => {
-    // Check if talent has max level property (x1 for upgrades, or maxLevel)
-    if (talent.x1 !== undefined) {
-      return talent.level >= talent.x1;
-    }
-    if (talent.maxLevel !== undefined) {
-      return talent.level >= talent.maxLevel;
-    }
-    // If no max level property, consider it incomplete if level is 0
-    return false;
-  };
+  const isCompleted = (talent) => talent.level >= talent.maxLevel;
 
   const filteredTalents = useMemo(() => {
     if (!talents) return [];
@@ -133,7 +122,7 @@ const LegendTalents = () => {
                     {cleanUnderscore(talent.name)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Level: {talent.level || 0}{talent.x1 !== undefined ? ` / ${talent.x1}` : talent.maxLevel !== undefined ? ` / ${talent.maxLevel}` : ''}
+                    Level: {talent.level || 0} / {talent.maxLevel}
                   </Typography>
                 </Stack>
               </Stack>

@@ -352,7 +352,7 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(account?.hatRack?.totalHats); // 109
   quantities.push(account?.minehead?.opponentsBeat); // 110
   quantities.push(account?.gaming?.ratKingCrownsClaimed); // 111 Rat king crowns claimed
-  quantities.push(0); // 112 stickers claimed TODO: calculate stickers
+  quantities.push(account?.farming?.totalStickers); // 112 stickers claimed
   quantities.push(account.accountOptions?.[498]); // 113 tournament registration
   quantities.push(account.research?.gridPTSpent); // 113 research grid upg
   quantities.push(account.minehead?.glimboTotalTrades); // 113 glimbo trades
