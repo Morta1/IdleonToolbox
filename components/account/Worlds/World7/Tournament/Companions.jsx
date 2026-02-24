@@ -19,7 +19,8 @@ const PetCard = ({ name, rawName, tourPower }) => (
         </Typography>
         {tourPower > 0 && (
           <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-            <img width={16} height={16} style={{ objectFit: 'contain' }} src={`${prefix}etc/Companion_Power.png`} alt={''} />
+            <img width={16} height={16} style={{ objectFit: 'contain' }} src={`${prefix}etc/Companion_Power.png`}
+                 alt={''}/>
             <Typography variant={'caption'} color={'text.secondary'}>{tourPower}</Typography>
           </Stack>
         )}
@@ -41,12 +42,12 @@ const PetSection = ({ title, pets }) => (
 
 const Companions = ({ companions }) => {
   const acquired = (companions ?? []).filter(c => c?.acquired).sort(byPowerDesc);
-  const notOwned = (companions ?? []).filter(c => !c?.acquired && c.name).sort(byPowerDesc);
+  const notOwned = (companions ?? []).filter(c => !c?.acquired && c.name && c?.effect !== 'Not_officially_in_the_game_and_may_never_be').sort(byPowerDesc);
 
   return (
     <Stack gap={3}>
-      <PetSection title={'Owned'} pets={acquired} />
-      <PetSection title={'Not yet owned'} pets={notOwned} />
+      <PetSection title={'Owned'} pets={acquired}/>
+      <PetSection title={'Not yet owned'} pets={notOwned}/>
     </Stack>
   );
 };
