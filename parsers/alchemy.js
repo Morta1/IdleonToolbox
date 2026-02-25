@@ -210,7 +210,7 @@ const getPay2Win = (idleonData, alchemyActivity, serializedCharactersData) => {
     extraExp: getPlayerP2wUpgrades(player?.[1] || 0, 3, 1)
   };
   p2w.sigils = getSigils(idleonData, alchemyActivity, serializedCharactersData);
-  p2w.totalEtherealSigils = p2w?.sigils?.filter((sigil) => sigil?.unlocked === 3)?.length || 0;
+  p2w.totalEtherealSigils = p2w?.sigils?.filter((sigil) => sigil?.unlocked === 3 || sigil?.unlocked === 4)?.length || 0;
   p2w.totalEclecticSigils = p2w?.sigils?.filter((sigil) => sigil?.unlocked === 4)?.length || 0;
   p2w.vialsAttempts = {
     current: remainingAttempts[0],

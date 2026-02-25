@@ -22,7 +22,8 @@ const General = ({ account, characters, lastUpdated }) => {
     envelopes,
     bestNugget,
     superbitsUpgrades,
-    logBook
+    logBook,
+    ratTokens
   } = account?.gaming;
   const ownedLogBooks = logBook?.reduce((sum, { unlocked }) => sum + (unlocked ? 1 : 0), 0);
   const bitMulti = getBitsMulti(account, characters);
@@ -37,6 +38,7 @@ const General = ({ account, characters, lastUpdated }) => {
                          value={numberWithCommas(parseFloat(bestNugget), false)}/>
       <CardTitleAndValue title={'Drops'} value={availableDrops} icon={`etc/GamingDrop.png`}/>
       <CardTitleAndValue title={'Envelopes'} value={notateNumber(envelopes)} icon={`etc/GamingEnvelope.png`}/>
+      <CardTitleAndValue title={'Rat Tokens'} value={notateNumber(ratTokens)} icon={`etc/GamingRatCrown.png`}/>
       <CardTitleAndValue title={'Log book'} value={`${ownedLogBooks} / 72`} icon={`data/GamingPlanth5.png`}
                          imgStyle={{ width: 24, height: 24 }}/>
     </Stack>

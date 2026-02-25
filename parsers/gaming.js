@@ -44,6 +44,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, spelunkRaw, researchRaw, charac
   }
   const [, snailLevel, snailEncouragement] = gamingSproutRaw?.[32];
   const envelopes = gamingRaw?.[13];
+  const ratTokens =  gamingRaw?.[14];
   const availableSprouts = gamingSproutRaw.slice(0, 25).reduce((res, sprout) => sprout?.[1] > 0 ? res + 1 : res, 0);
   const bits = gamingRaw?.[0];
   const poingHighscore = gamingRaw?.[10];
@@ -129,6 +130,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, spelunkRaw, researchRaw, charac
     bestNugget,
     bits,
     envelopes,
+    ratTokens,
     snailLevel, snailEncouragement,
     squirrelMulti,
     elegantShellRank,
