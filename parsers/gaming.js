@@ -18,6 +18,7 @@ import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
+import { getResearchGridBonus } from '@parsers/world-7/research';
 
 
 export const getGaming = (idleonData, characters, account, serverVars) => {
@@ -119,6 +120,7 @@ const parseGaming = (gamingRaw, gamingSproutRaw, spelunkRaw, researchRaw, charac
   }));
 
   const { palette, paletteFinalBonus, paletteLuck } = getPalette(account, spelunkRaw, characters);
+  const ratKing = calcRatKing(gamingSproutRaw, researchRaw, account, superbitsUpg);
 
   return {
     palette,
@@ -153,7 +155,8 @@ const parseGaming = (gamingRaw, gamingSproutRaw, spelunkRaw, researchRaw, charac
     poingMulti,
     totalPlantsPicked,
     selectedSlots: spelunkRaw?.[10]?.reduce((res, value) => value !== -1 ? res + 1 : res, 0),
-    ratKingCrownsClaimed: researchRaw?.[11]?.length || 0
+    ratKingCrownsClaimed: researchRaw?.[11]?.length || 0,
+    ratKing
   };
 }
 
@@ -181,9 +184,15 @@ export const getBitsMulti = (account, characters) => {
   const meritocracyBonus = getMeritocracyBonus(account, 1) ?? 0;
   const ownedLogBooks = account?.gaming?.logBook?.reduce((sum, { unlocked }) => sum + (unlocked ? 1 : 0), 0);
   const logBookBitBonus = Math.max(1, Math.pow(1.08, ownedLogBooks) + (bubbleBonus * ownedLogBooks) / 100);
+  const crownsCount = account?.gaming?.ratKing?.crownsCount ?? account?.gaming?.ratKingCrownsClaimed ?? 0;
+  const ratBitMulti = Math.max(1,
+    Math.pow(1.13, crownsCount) + (100 * Math.min(10, crownsCount) + 50 * Math.max(0, crownsCount - 10)) / 100
+  );
   const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 4 });
+  const gridBonus = getResearchGridBonus(account, 87, 0);
 
   const value = (1 + 99 * accountOptionToggle)
+    * (1 + gridBonus / 100)
     * (1 + gummyOrbArtifactBonus / 100)
     * (1 + vialBonus2 / 100)
     * (1 + weatherbookArtifactBonus / 100)
@@ -204,7 +213,8 @@ export const getBitsMulti = (account, characters) => {
     * (1 + emperorBonus / 100)
     * (1 + paletteBonus7 / 100)
     * (1 + paletteBonus18 / 100)
-    * (1 + meritocracyBonus / 100);
+    * (1 + meritocracyBonus / 100)
+    * Math.max(1, ratBitMulti);
 
   const breakdown = {
     statName: 'Bit multi',
@@ -214,6 +224,7 @@ export const getBitsMulti = (account, characters) => {
         name: 'Multiplicative',
         sources: [
           { name: 'Bit Toggle', value: 1 + 99 * accountOptionToggle },
+          { name: 'Research Grid', value: 1 + gridBonus },
           { name: 'Gummy Orb Artifact', value: 1 + gummyOrbArtifactBonus / 100 },
           { name: 'Weatherbook Artifact', value: 1 + weatherbookArtifactBonus / 100 },
           { name: 'Monument', value: 1 + monumentBonus / 100 },
@@ -252,7 +263,8 @@ export const getBitsMulti = (account, characters) => {
           { name: 'Emperor', value: 1 + emperorBonus / 100 },
           { name: 'Palette 7', value: 1 + paletteBonus7 / 100 },
           { name: 'Palette 18', value: 1 + paletteBonus18 / 100 },
-          { name: 'Meritocracy', value: 1 + meritocracyBonus / 100 }
+          { name: 'Meritocracy', value: 1 + meritocracyBonus / 100 },
+          { name: 'Rat King Crowns', value: Math.max(1, ratBitMulti) }
         ]
       }
     ]
@@ -522,6 +534,54 @@ export const isSuperbitUnlocked = (account, superbitName) => {
   return account?.gaming?.superbitsUpgrades?.find(({ name, unlocked }) => name === superbitName && unlocked)
 }
 
+const calcRatKing = (gamingSproutRaw, researchRaw, account, superbitsUpg) => {
+  const ratShopRaw = gamingSproutRaw?.[33] ?? [];
+  const [ratBaseBonus, currencyUpgLv, crownOddsUpgLv, bitMultiUpgLv] = ratShopRaw;
+  const crownsCount = researchRaw?.[11]?.length ?? 0;
+
+  const isUnlocked = (name) => superbitsUpg?.find(({ name: n, unlocked }) => n === name && unlocked);
+  const superbit50 = isUnlocked('A_Kings_Ransom') ? 1 : 0;
+  const superbit60 = isUnlocked('Royal_Flora') ? 1 : 0;
+
+  const ratShopBonus0 = 5 * (currencyUpgLv ?? 0);  // +% currency gain
+  const ratShopBonus1 = 3 * (crownOddsUpgLv ?? 0); // +% crown odds flat
+  const ratShopBonus2 = 2 * (bitMultiUpgLv ?? 0);  // +% to crown chance
+
+  const ratBitMulti = Math.max(1,
+    Math.pow(1.13, crownsCount) + (100 * Math.min(10, crownsCount) + 50 * Math.max(0, crownsCount - 10)) / 100
+  );
+
+  const arcadeBonusCrown = getArcadeBonus(account?.arcade?.shop, 'New_Crown_Chance')?.bonus ?? 0;
+  const ratCrownOdds = Math.min(1,
+    0.05
+    * (1 + 0.5 * superbit60)
+    * (1 + (ratShopBonus2 + (ratBaseBonus ?? 0) + arcadeBonusCrown) / 100)
+    * Math.pow(1.5, crownsCount)
+  );
+
+  const kingRatUnlocked = account?.research?.kingRatUnlocked ?? 0;
+  const paletteBonus34 = getPaletteBonus(account, 34) ?? 0;
+  const gridBonus108 = getResearchGridBonus(account, 108, 0);
+  const ratCurrencyGain = kingRatUnlocked === 0 ? 0
+    : (1 + 0.5 * superbit50)
+      * (1 + (paletteBonus34 + gridBonus108) / 100)
+      * (1 + crownsCount / 100)
+      * (1 + ratShopBonus0 / 100);
+
+  const shopUpgrades = [
+    { name: 'Extra tokens', level: currencyUpgLv ?? 0, bonus: ratShopBonus0, cost: calcRatShopCost(0, ratShopRaw) },
+    { name: 'Palette multi', level: crownOddsUpgLv ?? 0, bonus: ratShopBonus1, cost: calcRatShopCost(1, ratShopRaw) },
+    { name: 'Extra crowns', level: bitMultiUpgLv ?? 0, bonus: ratShopBonus2, cost: calcRatShopCost(2, ratShopRaw) },
+  ];
+
+  return { crownsCount, kingRatUnlocked: !!kingRatUnlocked, ratBitMulti, ratCurrencyGain, ratCrownOdds, shopUpgrades };
+};
+
+const calcRatShopCost = (t, ratShopRaw) => {
+  const level = ratShopRaw?.[t + 1] ?? 0;
+  return 2 * (Math.pow(1.15, level) + level);
+};
+
 export const calculateSnailEncouragementForSuccessChance = (snailLevel, desiredSuccessChance, holeBonus = 0) => {
   const epsilon = 1; // Set epsilon to 1 to work with whole numbers
   let low = 0;
@@ -644,12 +704,13 @@ export const getPaletteLuck = (paletteFinalBonus, account, characters) => {
   const exoticBonus44 = getExoticMarketBonus(account, 44) ?? 0;
   const jadeEmporiumBonus = isJadeBonusUnlocked(account, 'Palette_Slot');
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Palette_Luck')?.bonus ?? 0;
+  const gridBonus = getResearchGridBonus(account, 107, 2);
 
   const value = (1 + superbit42Unlocked) * (1 + meritocracyBonus / 100) * (1 + (paletteBonus3
     + ((paletteFinalBonus + loreEpiBonus) * superbit38Unlocked
       + (Math.max(0, 3 * (gamingLevel - 200) * superbit45Unlocked)
         + (20 * Math.max(0, snailLevel - 25) * superbit28Unlocked
-          + (acornShopBonus2 + exoticBonus44 + (100 * jadeEmporiumBonus + arcadeBonus)))))) / 100);
+          + (acornShopBonus2 + exoticBonus44 + (100 * jadeEmporiumBonus + arcadeBonus + gridBonus)))))) / 100);
 
   return {
     value,
@@ -672,7 +733,8 @@ export const getPaletteLuck = (paletteFinalBonus, account, characters) => {
             { name: 'Acorn Shop', value: acornShopBonus2 },
             { name: 'Exotic shop', value: exoticBonus44 },
             { name: 'Jade Emporium', value: 100 * jadeEmporiumBonus },
-            { name: 'Arcade', value: arcadeBonus }
+            { name: 'Arcade', value: arcadeBonus },
+            { name: 'Research grid', value: gridBonus }
           ]
         }
       ]

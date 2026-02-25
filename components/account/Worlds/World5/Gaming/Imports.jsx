@@ -9,6 +9,7 @@ import React from 'react';
 import useCheckbox from '@components/common/useCheckbox';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { isSuperbitUnlocked } from '@parsers/gaming';
+import RatKing from './RatKing';
 
 const Imports = ({ account, lastUpdated }) => {
   const [CheckboxEl, compactView] = useCheckbox('Compact view', true);
@@ -24,7 +25,8 @@ const Imports = ({ account, lastUpdated }) => {
     acornsBreakpoints,
     bestNugget,
     poingHighscore,
-    poingMulti
+    poingMulti,
+    ratKing
   } = account?.gaming || {};
   return (
     <>
@@ -78,6 +80,7 @@ const Imports = ({ account, lastUpdated }) => {
                   snailEncouragement={snailEncouragement} /> : null}
                 {saveSprinklerChance ? <Typography>Save sprinkler chance: {saveSprinklerChance}%</Typography> : null}
                 {acornShop ? <AcornShop acornShop={acornShop} /> : null}
+                {index === 8 && acquired ? <RatKing ratKing={ratKing} /> : null}
               </Stack>
               {compactView ? null : <Stack mt={'auto'}>
                 <Divider sx={{ my: 2 }} />
@@ -90,6 +93,7 @@ const Imports = ({ account, lastUpdated }) => {
             </CardContent>
           </Card>
         })}
+        
       </Stack>
     </>
   );
