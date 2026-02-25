@@ -26,12 +26,7 @@ const RatKing = ({ ratKing }) => {
             <Stack key={name}>
               <Typography variant={'body2'}>{cleanUnderscore(name)}</Typography>
               <Typography variant={'body2'}>Lv. {level} (+{bonus}%)</Typography>
-              <Stack direction={'row'} gap={0.5} alignItems={'center'}>
-                <img src={`${prefix}data/GamingRatToken.png`} alt=""
-                     style={{ width: 18, height: 18, objectFit: 'contain' }}
-                     onError={(e) => { e.target.style.display = 'none'; }}/>
-                <Typography variant={'body2'}>Cost: {notateNumber(cost, 'bits')}</Typography>
-              </Stack>
+              <Typography variant={'body2'}>Cost: {notateNumber(cost, 'bits')}</Typography>
             </Stack>
           ))}
         </Stack>
