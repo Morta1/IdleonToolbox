@@ -135,17 +135,39 @@ export const getRefineryCycleBonuses = (account, characters) => {
       + constructionMastery + arcadeBonus + voteBonus + researchGridBonus1
   }
 }
-export const getRefineryCycles = (account, characters, lastUpdated) => {
-  const {
-    bonusBreakdown,
-    bonus
-  } = getRefineryCycleBonuses(account, characters, lastUpdated);
+const computeRefineryCycleTimes = (account, characters) => {
+  const { bonus, bonusBreakdown } = getRefineryCycleBonuses(account, characters);
   const legendBonus = getLegendTalentBonus(account, 19);
-  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'PolyRefSpd');
-  const researchGridBonus = getResearchGridBonus(account, 48, 0);
   const labCycleBonus = account?.lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active
     ? 3
     : 1;
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'PolyRefSpd');
+  const researchGridBonus = getResearchGridBonus(account, 48, 0);
+  const baseSpeedFactor = (1 + bonus / 100) * labCycleBonus * (1 + legendBonus / 100);
+  return {
+    bonus,
+    bonusBreakdown,
+    legendBonus,
+    labCycleBonus,
+    mealBonus,
+    researchGridBonus,
+    combustionTime: 900 / baseSpeedFactor,
+    synthesisTime: 3600 / baseSpeedFactor,
+    polymerizeTime: (14400 * 25) / (baseSpeedFactor * (1 + (researchGridBonus + mealBonus) / 100))
+  };
+}
+
+export const getRefineryCycles = (account, characters, lastUpdated) => {
+  const {
+    bonusBreakdown,
+    legendBonus,
+    labCycleBonus,
+    mealBonus,
+    researchGridBonus,
+    combustionTime,
+    synthesisTime,
+    polymerizeTime
+  } = computeRefineryCycleTimes(account, characters);
   const squires = characters?.filter((character) => checkCharClass(character?.class, CLASSES.Squire) || checkCharClass(character?.class, CLASSES.Divine_Knight));
   const squiresDataTemp = squires.reduce((res, character) => {
     const { name, talents, cooldowns, postOffice, afkTime } = character;
@@ -178,21 +200,21 @@ export const getRefineryCycles = (account, characters, lastUpdated) => {
   ];
   const combustion = {
     name: 'Combustion',
-    time: Math.ceil(900 / ((1 + bonus / 100) * labCycleBonus * (1 + (legendBonus) / 100))),
+    time: Math.ceil(combustionTime),
     timePast: account?.refinery?.timePastCombustion + timePassed,
-    breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 900 * Math.pow(4, 0) }, ...breakdown]
+    breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 900 }, ...breakdown]
   };
   const synthesis = {
     name: 'Synthesis',
-    time: Math.ceil(3600 / ((1 + bonus / 100) * labCycleBonus * (1 + (legendBonus) / 100))),
+    time: Math.ceil(synthesisTime),
     timePast: account?.refinery?.timePastSynthesis + timePassed,
-    breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 900 * Math.pow(4, 1) }, ...breakdown]
+    breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 3600 }, ...breakdown]
   }
   const polymerize = {
     name: 'Polymerize',
-    time: Math.ceil(14400 * Math.pow(25, 1) / ((1 + bonus / 100) * labCycleBonus * (1 + legendBonus / 100) * (1 + (researchGridBonus + mealBonus) / 100))),
+    time: Math.ceil(polymerizeTime),
     timePast: account?.refinery?.timePastPolymerize + timePassed,
-    breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 900 * Math.pow(4, 2) }, ...breakdown,
+    breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 360000 }, ...breakdown,
       { name: 'Materials Science', value: (researchGridBonus + mealBonus) / 100 }
     ]
   }
@@ -202,19 +224,16 @@ export const getRefineryCycles = (account, characters, lastUpdated) => {
   };
 }
 
-export const calcTimeToRankUp = (account, characters, lastUpdated, refineryData, includeSquireCycles, rank, powerCap, refined, index) => {
-  const { bonus } = getRefineryCycleBonuses(account, characters, lastUpdated);
-  const legendBonus = getLegendTalentBonus(account, 19);
-  const labCycleBonus = account?.lab?.labBonuses?.find((bonus) => bonus.name === 'Gilded_Cyclical_Tubing')?.active
-    ? 3
-    : 1;
+export const calcTimeToRankUp = (account, characters, _lastUpdated, refineryData, includeSquireCycles, rank, powerCap, refined, index) => {
+  const { combustionTime, synthesisTime, polymerizeTime } = computeRefineryCycleTimes(account, characters);
   const powerPerCycle = getPowerPerCycle(rank, account);
-  const cycleByType = index <= 2 ? 900 : 3600;
-  const combustionCyclesPerDay = (24 * 60 * 60 / (cycleByType / ((1 + (bonus) / 100) * labCycleBonus * (1 + legendBonus / 100)))) + (includeSquireCycles
+  const cycleTime = index < 2 ? combustionTime : index < 4 ? synthesisTime : polymerizeTime;
+  const cyclesPerDay = (24 * 60 * 60 / cycleTime)
+    + (includeSquireCycles
     ? (refineryData?.squiresCycles ?? 0)
     : 0);
-  const timeLeft = Math.floor((powerCap - refined) / powerPerCycle) / combustionCyclesPerDay * 24;
-  const totalTime = ((powerCap - 0) / powerPerCycle) / combustionCyclesPerDay * 24;
+  const timeLeft = Math.floor((powerCap - refined) / powerPerCycle) / cyclesPerDay * 24;
+  const totalTime = ((powerCap - 0) / powerPerCycle) / cyclesPerDay * 24;
   return {
     timeLeft: new Date().getTime() + (timeLeft * 3600 * 1000),
     totalTime: new Date().getTime() + (totalTime * 3600 * 1000)
