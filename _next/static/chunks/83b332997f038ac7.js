@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/account/world-3/worship", [
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/6532a969801b0f6e.js",
+  "static/chunks/f263635e53a7e4f6.js",
+  "static/chunks/8301b2e038b07193.js",
+  "static/chunks/6056e4b647aed9c6.js",
+  "static/chunks/7010034fcbea6d9f.js",
+  "static/chunks/882d694df57b63e4.js",
+  "static/chunks/49d78ef4063457ff.js",
+  "static/chunks/bcc2056cbb1dca1f.js",
+  "static/chunks/b9898908ac97cd52.js",
+  "static/chunks/25df5c36a9aadcee.js",
+  "static/chunks/9a5b7c97044062ab.js",
+  "static/chunks/d6f60857580fa042.js",
+  "static/chunks/0b3e6744ef4aea57.js",
+  "static/chunks/be4da592e958341e.js",
+  "static/chunks/6a59ded399840b3a.js",
+  "static/chunks/turbopack-1101e3e34efdcb5f.js"
+])
