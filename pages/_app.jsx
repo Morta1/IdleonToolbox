@@ -16,6 +16,7 @@ import ConsentScripts from '@components/common/Etc/ContentScripts';
 import { CookieConsent } from 'react-cookie-consent';
 import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 import Button from '@mui/material/Button';
+import useGdprRegion, { getConsentObject } from '../hooks/useGdprRegion';
 
 const clientSideEmotionCache = createEmotionCache();
 
@@ -39,19 +40,14 @@ const preConnections = [
   'https://www.google-analytics.com',
   'https://adservice.google.co.il',
   'https://www.googletagmanager.com',
-  'https://adservice.google.com'
+  'https://adservice.google.com',
+  'https://s.nitropay.com'
 ];
-
-const getConsentObject = (granted) => ({
-  ad_storage: granted ? 'granted' : 'denied',
-  analytics_storage: granted ? 'granted' : 'denied',
-  ad_user_data: granted ? 'granted' : 'denied',
-  ad_personalisation: granted ? 'granted' : 'denied'
-});
 
 const MyApp = (props) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
   const [openPolicy, setOpenPolicy] = useState(false);
+  const isGdprRegion = useGdprRegion();
 
   return (
     <>
@@ -67,7 +63,8 @@ const MyApp = (props) => {
       </Head>
       {process.env.NODE_ENV !== 'production' &&
         <Script id={'remove-error-layout'} dangerouslySetInnerHTML={{ __html: noOverlayWorkaroundScript }}/>}
-      <CookieConsent
+      <div id="ncmp-consent-link"></div>
+      {isGdprRegion === false && <CookieConsent
         buttonText="Accept"
         declineButtonText="Decline"
         enableDeclineButton
@@ -100,7 +97,7 @@ const MyApp = (props) => {
         <Button variant={'contained'} sx={{ height: 24, px: 1, fontSize: 12, textTransform: 'none' }}
                 onClick={() => setOpenPolicy(true)}>Learn
           more</Button>
-      </CookieConsent>
+      </CookieConsent>}
       <ConsentScripts/>
       <Script
         id="schema-structured-data"

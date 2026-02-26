@@ -1,6 +1,8 @@
 import React from 'react';
 import Script from 'next/script';
 import { getCookieConsentValue } from 'react-cookie-consent';
+import { isProd } from '@utility/helpers';
+import { AD_PROVIDER, AD_PROVIDERS } from '@components/common/Ads/AdUnit';
 
 export default function ConsentScripts() {
   return (
@@ -37,14 +39,31 @@ export default function ConsentScripts() {
           gtag('config', 'G-YER8JY07QK');
         `}
       </Script>
-      {/* Google Ads */}
-      <Script
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1842647313167572"
-        id="ads-by-google"
-        strategy="afterInteractive"
-        crossOrigin="anonymous"
-      />
+      {/* Ad Scripts */}
+      {AD_PROVIDER === AD_PROVIDERS.NITRO ? (
+        <>
+          <Script id="nitro-init" data-cfasync="false">
+            {`window.nitroAds=window.nitroAds||{createAd:function(){return new Promise(e=>{window.nitroAds.queue.push(["createAd",arguments,e])})},addUserToken:function(){window.nitroAds.queue.push(["addUserToken",arguments])},queue:[]};`}
+          </Script>
+          <Script
+            id="nitro-ads-script"
+            strategy="afterInteractive"
+            data-cfasync="false"
+            data-spa="auto"
+            data-log-level={isProd ? 'silent' : 'debug'}
+            async
+            src="https://s.nitropay.com/ads-2330.js"
+          />
+        </>
+      ) : (
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1842647313167572"
+          id="ads-by-google"
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
+        />
+      )}
     </>
   );
 }

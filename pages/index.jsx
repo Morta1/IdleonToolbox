@@ -8,14 +8,14 @@ import Button from '@mui/material/Button';
 import styled from '@emotion/styled';
 import { patchNotes } from '../data/patch-notes';
 import PatchNotes from './patch-notes';
-import { NextLinkComposed } from '../components/common/NextLinkComposed';
+import { NextLinkComposed } from '@components/common/NextLinkComposed';
 import Link from '@mui/material/Link';
-import { useFlubber } from '../components/hooks/useFlubber';
+import { useFlubber } from '@components/hooks/useFlubber';
 import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
 import Kofi from '@components/common/Kofi';
 import StructuredData, { createFAQData } from '@components/common/StructuredData';
-import { HomeSideAds } from '@components/common/AdUnit';
+import { HomeSidebarAds } from '@components/common/Ads/AdUnit';
 
 const Home = () => {
   const indexes = useMemo(() => getRandomNumbersArray(6, 6), []);
@@ -32,16 +32,16 @@ const Home = () => {
   // FAQ data for structured data
   const faqData = createFAQData([
     {
-      question: "What is Idleon Toolbox?",
-      answer: "Idleon Toolbox is a comprehensive set of tools and resources designed to help Legends of Idleon players optimize their gameplay, character builds, crafting strategies, and more."
+      question: 'What is Idleon Toolbox?',
+      answer: 'Idleon Toolbox is a comprehensive set of tools and resources designed to help Legends of Idleon players optimize their gameplay, character builds, crafting strategies, and more.'
     },
     {
-      question: "Is Idleon Toolbox free to use?", 
-      answer: "Yes, Idleon Toolbox is completely free to use for all Legends of Idleon players."
+      question: 'Is Idleon Toolbox free to use?',
+      answer: 'Yes, Idleon Toolbox is completely free to use for all Legends of Idleon players.'
     },
     {
-      question: "How do I use idleon toolbox?",
-      answer: "You can find detailed instructions by clicking the 'Login' button, which will display information on how to login via varius methods."
+      question: 'How do I use idleon toolbox?',
+      answer: 'You can find detailed instructions by clicking the \'Login\' button, which will display information on how to login via varius methods.'
     }
   ]);
 
@@ -64,8 +64,8 @@ const Home = () => {
         title="Home | Idleon Toolbox"
         description="Power up your Legends of Idleon adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds, crafting, and more."
       />
-      <StructuredData data={faqData} />
-      <HomeSideAds />
+      <StructuredData data={faqData}/>
+      <HomeSidebarAds/>
 
       <Stack mt={breakpointLg ? 5 : breakpoint ? 1 : 1} direction={'row'} flexWrap={'wrap'}
              sx={{ textAlign: breakpoint ? 'center' : 'inherit' }}
@@ -76,14 +76,14 @@ const Home = () => {
           </Typography>
           <Typography mt={2} variant={'h6'} style={{ fontWeight: 400, color: '#e3e3e3' }}>Power up your Legends of
             Idleon
-            adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds,
+            adventure with Idleon Toolbox&#39;s essential tools and resources for optimizing gameplay, character builds,
             crafting, and more.</Typography>
           <Stack direction={'row'} mt={3} gap={3} flexWrap={'wrap'} justifyContent={breakpoint ? 'center' : 'inherit'}>
             <DiscordButton startIcon={<DiscordSvg/>} href={'https://discord.gg/8Devcj7FzV'} target={'_blank'}
                            variant={'contained'}>
               Join the discord
             </DiscordButton>
-            <Kofi />
+            <Kofi/>
           </Stack>
         </Stack>
         <Stack sx={{ width: breakpoint ? '100%' : 'inherit' }} justifyContent={breakpoint ? 'flex-start' : 'center'}>
@@ -114,7 +114,7 @@ const Home = () => {
           </Box>
         </Stack>
       </Stack>
-      <motion.div style={{ marginTop: breakpoint ? 0 : 80 }} transition={{ duration: .8 }}
+      <motion.div style={{ marginTop: breakpoint ? 0 : 80, marginBottom: 15 }} transition={{ duration: .8 }}
                   initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}>
         <Typography variant={'h4'} mt={2}>IT Patch Notes</Typography>
@@ -134,6 +134,7 @@ const Home = () => {
         </Link>
         <PatchNotes patchNotes={patchNotes.slice(0, 3)}/>
       </motion.div>
+      <span data-ccpa-link="1"></span>
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>Instructions</DialogTitle>
         <DialogContent>

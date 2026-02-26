@@ -20,7 +20,7 @@ import IconButton from '@mui/material/IconButton';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 import AuthSkeleton from './AuthSkeleton';
-import { SidebarAd, BottomBannerAd } from '@components/common/AdUnit';
+import { BottomBannerAd, SidebarAd } from '@components/common/Ads/AdUnit';
 
 const NavBar = ({ children }) => {
   const { dispatch, state } = useContext(AppContext);
@@ -81,7 +81,7 @@ const NavBar = ({ children }) => {
       mb: isXs ? '75px' : '110px'
     }}>
       {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
-      <ContentWrapper showSidebar={isInnerPage} isLoading={state?.isLoading}>
+      <ContentWrapper showSidebar={isInnerPage} isLoading={state?.isLoading} isHomePage={isHomePage}>
         {children}
       </ContentWrapper>
     </Box>
@@ -89,9 +89,8 @@ const NavBar = ({ children }) => {
   </>
 };
 
-const ContentWrapper = ({ showSidebar, isLoading, children }) => {
+const ContentWrapper = ({ showSidebar, children }) => {
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
-
   if (!showSidebar) return children;
 
   return (
