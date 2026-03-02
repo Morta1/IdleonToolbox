@@ -34,10 +34,12 @@ export const BottomBannerAd = () => {
 }
 
 export const HomeSidebarAds = () => {
+  const showSideAds = useMediaQuery('(min-width: 1650px)', { noSsr: true });
   if (AD_PROVIDER === AD_PROVIDERS.GOOGLE) {
     return <GoogleHomeSideAds/>
   }
   if (AD_PROVIDER === AD_PROVIDERS.NITRO) {
+    if (!showSideAds) return null;
     return <>
       <NitroRailAd id={'nitro-home-right-side-ad'} alignment={'right'} sizes={[['160', '600']]}
                    style={{ position: 'absolute' }}/>
