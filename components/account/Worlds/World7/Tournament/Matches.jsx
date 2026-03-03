@@ -52,18 +52,29 @@ const PetGrid = ({ label, pets, companions, totalPower }) => (
   </Stack>
 );
 
+const PET_OUTLINE = {
+  player: 'primary.main',
+  opponent: 'error.main',
+};
+
 const BattleStep = ({ step, companions }) => {
   const playerComp = companions?.[step.playerDbIdx];
   const opponentComp = companions?.[step.opponentDbIdx];
   if (!playerComp || !opponentComp) return null;
   return (
-    <Stack direction="row" alignItems="center" gap={0.5} sx={{ opacity: 1 }}>
-      <Box title={cleanUnderscore(playerComp.name)} sx={{ opacity: step.playerWins ? 1 : 0.25 }}>
+    <Stack direction="row" alignItems="center" gap={0.5}>
+      <Box title={cleanUnderscore(playerComp.name)} sx={{
+        opacity: step.playerWins ? 1 : 0.25,
+        borderBottom: '2px solid', borderColor: PET_OUTLINE.player,
+      }}>
         <img width={28} height={28} style={{ objectFit: 'contain', display: 'block' }}
           src={`${prefix}afk_targets/${playerComp.name}.png`} alt={playerComp.name} />
       </Box>
       <Typography variant="caption" color="text.disabled" sx={{ fontSize: 9 }}>vs</Typography>
-      <Box title={cleanUnderscore(opponentComp.name)} sx={{ opacity: step.playerWins ? 0.25 : 1 }}>
+      <Box title={cleanUnderscore(opponentComp.name)} sx={{
+        opacity: step.playerWins ? 0.25 : 1,
+        borderBottom: '2px solid', borderColor: PET_OUTLINE.opponent,
+      }}>
         <img width={28} height={28} style={{ objectFit: 'contain', display: 'block' }}
           src={`${prefix}afk_targets/${opponentComp.name}.png`} alt={opponentComp.name} />
       </Box>
@@ -71,8 +82,21 @@ const BattleStep = ({ step, companions }) => {
   );
 };
 
+const BattleLegend = () => (
+  <Stack direction="row" gap={2} alignItems="center" pb={0.5}>
+    {[['player', 'You'], ['opponent', 'Opponent']].map(([key, label]) => (
+      <Stack key={key} direction="row" alignItems="center" gap={0.5}>
+        <Box sx={{ width: 10, height: 3, bgcolor: PET_OUTLINE[key], flexShrink: 0 }} />
+        <Typography variant="caption" sx={{ fontSize: 10 }}>{label}</Typography>
+      </Stack>
+    ))}
+    <Typography variant="caption" color="text.secondary" sx={{ fontSize: 10 }}>Faded = dies</Typography>
+  </Stack>
+);
+
 const BattleRounds = ({ rounds, companions }) => (
   <Stack gap={1} pt={0.5}>
+    <BattleLegend />
     {rounds.map((round, ri) => (
       <Stack key={ri} gap={0.5}>
         <Typography variant="caption" color="text.secondary" sx={{ fontSize: 10 }}>
