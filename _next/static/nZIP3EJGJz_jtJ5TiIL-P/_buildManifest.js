@@ -57,7 +57,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/ca6c650e45cc699b.js"
   ],
   "/account/misc/tournament": [
-    "static/chunks/e268ee0c50df7c04.js"
+    "static/chunks/68c02c06657fe939.js"
   ],
   "/account/misc/upgrade-vault": [
     "static/chunks/fd85acbda2d506f1.js"
