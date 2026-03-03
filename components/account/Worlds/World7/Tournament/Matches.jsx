@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Button, Card, CardContent, Chip, Collapse, Divider, Stack, Typography } from '@mui/material';
+import Tooltip from '@components/Tooltip';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 
 const teamPower = (pets, companions) =>
@@ -61,23 +62,32 @@ const BattleStep = ({ step, companions }) => {
   const playerComp = companions?.[step.playerDbIdx];
   const opponentComp = companions?.[step.opponentDbIdx];
   if (!playerComp || !opponentComp) return null;
+  const totalPower = (playerComp.tourPower ?? 0) + (opponentComp.tourPower ?? 0);
+  const playerChance = totalPower > 0 ? Math.round((playerComp.tourPower ?? 0) / totalPower * 100) : 50;
+  const opponentChance = 100 - playerChance;
   return (
     <Stack direction="row" alignItems="center" gap={0.5}>
-      <Box title={cleanUnderscore(playerComp.name)} sx={{
-        opacity: step.playerWins ? 1 : 0.25,
-        borderBottom: '2px solid', borderColor: PET_OUTLINE.player,
-      }}>
-        <img width={28} height={28} style={{ objectFit: 'contain', display: 'block' }}
-          src={`${prefix}afk_targets/${playerComp.name}.png`} alt={playerComp.name} />
-      </Box>
+      <Tooltip title={`${cleanUnderscore(playerComp.name)} — ${playerChance}% to win`}>
+        <Box sx={{
+          opacity: step.playerWins ? 1 : 0.25,
+          borderBottom: '2px solid', borderColor: PET_OUTLINE.player,
+          cursor: 'default',
+        }}>
+          <img width={28} height={28} style={{ objectFit: 'contain', display: 'block' }}
+            src={`${prefix}afk_targets/${playerComp.name}.png`} alt={playerComp.name} />
+        </Box>
+      </Tooltip>
       <Typography variant="caption" color="text.disabled" sx={{ fontSize: 9 }}>vs</Typography>
-      <Box title={cleanUnderscore(opponentComp.name)} sx={{
-        opacity: step.playerWins ? 0.25 : 1,
-        borderBottom: '2px solid', borderColor: PET_OUTLINE.opponent,
-      }}>
-        <img width={28} height={28} style={{ objectFit: 'contain', display: 'block' }}
-          src={`${prefix}afk_targets/${opponentComp.name}.png`} alt={opponentComp.name} />
-      </Box>
+      <Tooltip title={`${cleanUnderscore(opponentComp.name)} — ${opponentChance}% to win`}>
+        <Box sx={{
+          opacity: step.playerWins ? 0.25 : 1,
+          borderBottom: '2px solid', borderColor: PET_OUTLINE.opponent,
+          cursor: 'default',
+        }}>
+          <img width={28} height={28} style={{ objectFit: 'contain', display: 'block' }}
+            src={`${prefix}afk_targets/${opponentComp.name}.png`} alt={opponentComp.name} />
+        </Box>
+      </Tooltip>
     </Stack>
   );
 };
