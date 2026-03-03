@@ -5,7 +5,7 @@ __turbopack_load_page_chunks__("/account/misc/tournament", [
   "static/chunks/a0f10a051705e44b.js",
   "static/chunks/d6f60857580fa042.js",
   "static/chunks/aa64c19f518e4e57.js",
-  "static/chunks/494d52c2e847d1d1.js",
+  "static/chunks/69afaf96d97a8fcd.js",
   "static/chunks/bcc2056cbb1dca1f.js",
   "static/chunks/6a59ded399840b3a.js",
   "static/chunks/b9898908ac97cd52.js",
@@ -13,5 +13,5 @@ __turbopack_load_page_chunks__("/account/misc/tournament", [
   "static/chunks/0b3e6744ef4aea57.js",
   "static/chunks/6056e4b647aed9c6.js",
   "static/chunks/1d284420bded0a56.js",
-  "static/chunks/turbopack-2e2d948e76c70260.js"
+  "static/chunks/turbopack-4de81270e808a790.js"
 ])
