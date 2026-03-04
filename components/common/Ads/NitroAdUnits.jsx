@@ -37,7 +37,7 @@ export const NitroRailAd = ({ id, alignment, sizes, mediaQuery = '(min-width: 85
   return (
     <div
       id={id}
-      style={{ minHeight: '600px', ...style }}
+      style={{ ...style }}
     />
   );
 };
@@ -50,7 +50,7 @@ export const NitroBottomBannerAd = () => {
         anchor: 'bottom',
         anchorClose: false,
         anchorBgColor: 'transparent',
-        sizes: [['728', '90'], ['320', '50'], ['320', '100'], ['970', '90']],
+        sizes: [['970', '90'], ['728', '90'], ['320', '100'], ['320', '50']],
         report: {
           enabled: true,
           icon: true,
