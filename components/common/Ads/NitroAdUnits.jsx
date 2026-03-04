@@ -1,14 +1,12 @@
 import { useEffect } from 'react';
-import { isProd } from '@utility/helpers';
 
 const NITRO_BASE_OPTIONS = {
   refreshLimit: 10,
   refreshTime: 30,
-  refreshVisibleOnly: true,
-  demo: !isProd
+  refreshVisibleOnly: true
 }
 
-export const NitroRailAd = ({ id, alignment, sizes, style }) => {
+export const NitroRailAd = ({ id, alignment, sizes, mediaQuery = '(min-width: 850px)', style }) => {
   useEffect(() => {
     if (window.nitroAds) {
       window.nitroAds.createAd(id, {
@@ -17,7 +15,7 @@ export const NitroRailAd = ({ id, alignment, sizes, style }) => {
         'rail': alignment,
         'anchorClose': 'false',
         'railCollisionWhitelist': ['*'],
-        'mediaQuery': '(min-width: 850px)',
+        'mediaQuery': mediaQuery,
         'sizes': sizes,
         report: {
           enabled: true,
