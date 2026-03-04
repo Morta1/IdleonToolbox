@@ -29,8 +29,15 @@ const useGdprRegion = () => {
     if (window.nitroAds?.loaded) {
       handleNitroLoaded();
     } else {
+      const handleBlocking = (e) => {
+        if (e.detail.blocking) setIsGdprRegion((prev) => prev ?? false);
+      };
+      document.addEventListener('np.blocking', handleBlocking);
       document.addEventListener('nitroAds.loaded', handleNitroLoaded);
-      return () => document.removeEventListener('nitroAds.loaded', handleNitroLoaded);
+      return () => {
+        document.removeEventListener('np.blocking', handleBlocking);
+        document.removeEventListener('nitroAds.loaded', handleNitroLoaded);
+      };
     }
   }, []);
 

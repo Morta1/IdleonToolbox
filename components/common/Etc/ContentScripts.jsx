@@ -45,12 +45,11 @@ export default function ConsentScripts() {
           <Script id="nitro-init" data-cfasync="false">
             {`window.nitroAds=window.nitroAds||{createAd:function(){return new Promise(e=>{window.nitroAds.queue.push(["createAd",arguments,e])})},addUserToken:function(){window.nitroAds.queue.push(["addUserToken",arguments])},queue:[]};`}
           </Script>
-          <Script
+<Script
             id="nitro-ads-script"
             strategy="afterInteractive"
             data-cfasync="false"
             data-spa="auto"
-            data-log-level={'debug'}
             async
             src="https://s.nitropay.com/ads-2330.js"
           />

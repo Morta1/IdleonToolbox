@@ -37,7 +37,7 @@ export const NitroRailAd = ({ id, alignment, sizes, mediaQuery = '(min-width: 85
   return (
     <div
       id={id}
-      style={{ minHeight: '600px', minWidth: 300, width: '100%', ...style }}
+      style={{ minHeight: '600px', ...style }}
     />
   );
 };
