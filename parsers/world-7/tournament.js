@@ -1,5 +1,31 @@
 import { tournyStuff, companions as companionsData } from '@website-data';
 
+// Each battle entry is "aXb+" (opponent dies) or "aXb-" (player dies)
+// a/b are position indices into the playerPets/opponentPets arrays
+const parseBattleRounds = (rawSeq, playerPets, opponentPets) => {
+  const rounds = [];
+  let current = [];
+  for (const entry of rawSeq) {
+    if (entry === '_') {
+      if (current.length) rounds.push(current);
+      current = [];
+      continue;
+    }
+    const playerWins = entry.endsWith('+');
+    const core = entry.slice(0, -1);
+    const xi = core.indexOf('x');
+    const pPos = parseInt(core.slice(0, xi), 10);
+    const oPos = parseInt(core.slice(xi + 1), 10);
+    current.push({
+      playerDbIdx: playerPets[pPos] ?? -1,
+      opponentDbIdx: opponentPets[oPos] ?? -1,
+      playerWins,
+    });
+  }
+  if (current.length) rounds.push(current);
+  return rounds;
+};
+
 export const getTournament = (idleonData, account, serverTournament) => {
   const accountOptions = account?.accountOptions;
 
@@ -27,18 +53,31 @@ export const getTournament = (idleonData, account, serverTournament) => {
       const opponentLives = Number(opponentTeam[2] ?? 0);
       const opponentPets = opponentTeam.slice(3).map(Number);
 
-      return { matchIdx, playerName, playerLives, playerPets, opponentName, opponentLives, opponentPets, battleSequence };
+      const battleRounds = parseBattleRounds(battleSequence, playerPets, opponentPets);
+      return { matchIdx, playerName, playerLives, playerPets, opponentName, opponentLives, opponentPets, battleRounds };
     } catch {
       return null;
     }
   }).filter(Boolean);
 
-  // Determine win/loss: if next match shows fewer player lives, the current match was a loss
+  // For the last match, infer result from total deaths (more deaths = loss)
+  const inferResultFromBattle = (battleRounds) => {
+    let playerDeaths = 0, opponentDeaths = 0;
+    for (const round of battleRounds) {
+      for (const step of round) {
+        step.playerWins ? opponentDeaths++ : playerDeaths++;
+      }
+    }
+    if (playerDeaths === 0 && opponentDeaths === 0) return 'unknown';
+    return playerDeaths > opponentDeaths ? 'loss' : 'win';
+  };
+
+  // Determine win/loss: compare lives against next match; use battle deaths for the last match
   const matchesWithResult = matches.map((match, idx) => {
     const next = matches[idx + 1];
     const result = next
       ? (next.playerLives < match.playerLives ? 'loss' : 'win')
-      : 'unknown';
+      : inferResultFromBattle(match.battleRounds);
     return { ...match, result };
   });
 
