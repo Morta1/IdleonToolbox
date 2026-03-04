@@ -1,6 +1,6 @@
 self.__BUILD_MANIFEST = {
   "/": [
-    "static/chunks/49bb5d2762295758.js"
+    "static/chunks/f4a91c4e1db41442.js"
   ],
   "/404": [
     "static/chunks/f190233c21357e50.js"
@@ -15,7 +15,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/2c053117446e5eb9.js"
   ],
   "/account/class-specific/grimoire": [
-    "static/chunks/620e1a880350765f.js"
+    "static/chunks/53d54f6b6d229b77.js"
   ],
   "/account/class-specific/tesseract": [
     "static/chunks/1fe696a6d3433c91.js"
@@ -240,7 +240,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/2aedddf77b5c6eb9.js"
   ],
   "/account/world-7/spelunking": [
-    "static/chunks/5a68912e78dfb75d.js"
+    "static/chunks/2844fd936dc65b26.js"
   ],
   "/account/world-7/zenith-market": [
     "static/chunks/02a517bf1a1bf3ec.js"
@@ -252,7 +252,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/20db36dd87cba780.js"
   ],
   "/data": [
-    "static/chunks/dfbaf42e1591d744.js"
+    "static/chunks/f1f2868683af2fcd.js"
   ],
   "/guilds": [
     "static/chunks/e0580291eb8fda5f.js"
@@ -273,7 +273,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/c1f2695427f13724.js"
   ],
   "/tools/active-stuff-calculator": [
-    "static/chunks/7aef54ae7d058924.js"
+    "static/chunks/7a22b3d5ddb84758.js"
   ],
   "/tools/builds": [
     "static/chunks/04976c4a7f32f501.js"
@@ -303,7 +303,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/1893082d13c0a9dc.js"
   ],
   "/tools/material-tracker": [
-    "static/chunks/1baec58e9f9a7301.js"
+    "static/chunks/a4fb02f8c20c2f5a.js"
   ],
   "/tools/sampling-companion": [
     "static/chunks/6c725492132dee9f.js"

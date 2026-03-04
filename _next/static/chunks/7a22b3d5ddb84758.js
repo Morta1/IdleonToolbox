@@ -6,7 +6,7 @@ __turbopack_load_page_chunks__("/tools/active-stuff-calculator", [
   "static/chunks/d6f60857580fa042.js",
   "static/chunks/f0b03e6e334a00b1.js",
   "static/chunks/f646cc10bd7a65c9.js",
-  "static/chunks/958604d9ad7221c1.js",
+  "static/chunks/4ac22499b938a63a.js",
   "static/chunks/bcc2056cbb1dca1f.js",
   "static/chunks/0b3e6744ef4aea57.js",
   "static/chunks/1d284420bded0a56.js",
@@ -16,5 +16,5 @@ __turbopack_load_page_chunks__("/tools/active-stuff-calculator", [
   "static/chunks/3f31e385943ba3ed.js",
   "static/chunks/6a59ded399840b3a.js",
   "static/chunks/914e606e50c52d54.js",
-  "static/chunks/turbopack-56738bf399e15e46.js"
+  "static/chunks/turbopack-4db5dd529eeaae0e.js"
 ])

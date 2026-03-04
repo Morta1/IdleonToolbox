@@ -1,6 +1,6 @@
 __turbopack_load_page_chunks__("/account/class-specific/grimoire", [
   "static/chunks/4d9770a92ec413f3.js",
-  "static/chunks/e69d0bac3191efe9.js",
+  "static/chunks/28f0c88545f7a58a.js",
   "static/chunks/32fef4392fa34b20.js",
   "static/chunks/f0b03e6e334a00b1.js",
   "static/chunks/d6f60857580fa042.js",
@@ -16,5 +16,5 @@ __turbopack_load_page_chunks__("/account/class-specific/grimoire", [
   "static/chunks/d603f11b586b9cd6.js",
   "static/chunks/bcc2056cbb1dca1f.js",
   "static/chunks/6fd7a4f3b95116aa.js",
-  "static/chunks/turbopack-d9bf50a36c8ec325.js"
+  "static/chunks/turbopack-230a9c4170312784.js"
 ])

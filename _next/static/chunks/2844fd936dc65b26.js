@@ -7,7 +7,7 @@ __turbopack_load_page_chunks__("/account/world-7/spelunking", [
   "static/chunks/6532a969801b0f6e.js",
   "static/chunks/14c1dbfa59234543.js",
   "static/chunks/d6f60857580fa042.js",
-  "static/chunks/00e1db7fc2ad4022.js",
+  "static/chunks/99b7ed37033cf911.js",
   "static/chunks/0b3e6744ef4aea57.js",
   "static/chunks/a0f10a051705e44b.js",
   "static/chunks/b9898908ac97cd52.js",
@@ -17,5 +17,5 @@ __turbopack_load_page_chunks__("/account/world-7/spelunking", [
   "static/chunks/1d284420bded0a56.js",
   "static/chunks/77f6099ef97646a1.js",
   "static/chunks/6a59ded399840b3a.js",
-  "static/chunks/turbopack-67599d8e53b72e83.js"
+  "static/chunks/turbopack-9db5c95f3c9a0524.js"
 ])
