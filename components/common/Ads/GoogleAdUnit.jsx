@@ -31,7 +31,7 @@ const PLACEMENTS = {
 /**
  * Sidebar ad unit - sticky on the right side of content.
  */
-export const SidebarAd = () => {
+export const GoogleSidebarAd = () => {
   const showWide = useMediaQuery('(min-width: 1600px)', { noSsr: true });
   const showNarrow = useMediaQuery('(min-width: 850px)', { noSsr: true });
   const router = useRouter();
@@ -64,7 +64,7 @@ export const SidebarAd = () => {
  * Mobile: 320x50 (Mobile Leaderboard)
  * Desktop: 728x90 (Leaderboard)
  */
-export const BottomBannerAd = ({ displayDrawer }) => {
+export const GoogleBottomBannerAd = ({ displayDrawer }) => {
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const router = useRouter();
 
@@ -104,7 +104,7 @@ export const BottomBannerAd = ({ displayDrawer }) => {
  * Only visible on screens >= 1650px.
  * Size: 160x600 (Wide Skyscraper).
  */
-export const HomeSideAds = () => {
+export const GoogleHomeSideAds = () => {
   const showSideAds = useMediaQuery('(min-width: 1650px)', { noSsr: true });
 
   if (!showSideAds) return null;
@@ -130,8 +130,3 @@ export const HomeSideAds = () => {
   );
 };
 
-export default {
-  SidebarAd,
-  BottomBannerAd,
-  HomeSideAds
-};

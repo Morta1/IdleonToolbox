@@ -14,8 +14,7 @@ import {
   Stack,
   Switch,
   TextField,
-  Typography,
-  useMediaQuery
+  Typography
 } from '@mui/material';
 import Button from '@mui/material/Button';
 import React, { useContext, useEffect, useState } from 'react';
@@ -32,8 +31,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { NextSeo } from 'next-seo';
 import Box from '@mui/material/Box';
 import Popper from '@components/common/Popper';
-import { isProd, notateNumber } from '@utility/helpers';
-import { Adsense } from '@ctrl/react-adsense';
+import { notateNumber } from '@utility/helpers';
+
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -59,8 +58,6 @@ const Data = () => {
   });
   const [removeGemsInfo, setRemoveGemsInfo] = useLocalStorage({ key: 'data:removeGemsInfo', defaultValue: true });
   const [error, setError] = useState('');
-  const showWideSideBanner = useMediaQuery('(min-width: 1200px)', { noSsr: true });
-  const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -303,7 +300,7 @@ To exclude your profile, simply uncheck the box and re-upload your profile.`}</F
                   {lastUpload ? <Typography variant={'body2'}>Time to next upload: </Typography> : null}
                   {lastUpload
                     ? <NormalTimer
-                      done={(WAIT_TIME - (Date.now() - lastUpload)) < 0}
+                      done={!isDisabled}
                       date={intervalToDuration({
                         start: new Date(parseInt(lastUpload)),
                         end: new Date().getTime() - WAIT_TIME
@@ -316,25 +313,6 @@ To exclude your profile, simply uncheck the box and re-upload your profile.`}</F
         </Stack>
       </>
     </> : null}
-
-    {showWideSideBanner || showNarrowSideBanner ? <Box
-      sx={{
-        backgroundColor: isProd ? '' : '#d73333',
-        width: showWideSideBanner ? 300 : showNarrowSideBanner ? 160 : 0,
-        height: 600,
-        position: 'absolute',
-        top: 150,
-        right: 100
-      }}>
-      {isProd && showWideSideBanner ? <Adsense
-        client="ca-pub-1842647313167572"
-        slot="9767369641"
-      /> : null}
-      {isProd && showNarrowSideBanner && !showWideSideBanner ? <Adsense
-        client="ca-pub-1842647313167572"
-        slot="7851151731"
-      /> : null}
-    </Box> : null}
   </Container>
 };
 

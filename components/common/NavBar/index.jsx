@@ -20,7 +20,8 @@ import IconButton from '@mui/material/IconButton';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 import AuthSkeleton from './AuthSkeleton';
-import { SidebarAd, BottomBannerAd } from '@components/common/AdUnit';
+import { BottomBannerAd, SidebarAd } from '@components/common/Ads/AdUnit';
+import useAdBlockDetection from '../../../hooks/useAdBlockDetection';
 
 const NavBar = ({ children }) => {
   const { dispatch, state } = useContext(AppContext);
@@ -81,7 +82,7 @@ const NavBar = ({ children }) => {
       mb: isXs ? '75px' : '110px'
     }}>
       {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
-      <ContentWrapper showSidebar={isInnerPage} isLoading={state?.isLoading}>
+      <ContentWrapper showSidebar={isInnerPage} isLoading={state?.isLoading} isHomePage={isHomePage}>
         {children}
       </ContentWrapper>
     </Box>
@@ -89,17 +90,20 @@ const NavBar = ({ children }) => {
   </>
 };
 
-const ContentWrapper = ({ showSidebar, isLoading, children }) => {
+const ContentWrapper = ({ showSidebar, children }) => {
   const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
+  const adBlocked = useAdBlockDetection();
 
   if (!showSidebar) return children;
+
+  const showSidebarAd = showNarrowSideBanner && !adBlocked;
 
   return (
     <Stack direction={'row'} gap={2} justifyContent={'space-between'} sx={{ width: '100%' }}>
       <Stack
         sx={{
           width: '100%',
-          maxWidth: !showNarrowSideBanner ? '100%' : CONTENT_PERCENT_SIZE
+          maxWidth: showSidebarAd ? CONTENT_PERCENT_SIZE : '100%'
         }}>
         {children}
       </Stack>
