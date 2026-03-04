@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 
 const NITRO_BASE_OPTIONS = {
-  refreshLimit: 10,
   refreshTime: 30,
   refreshVisibleOnly: true
 }
