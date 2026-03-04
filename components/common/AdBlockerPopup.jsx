@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import useAdBlockDetection from '../../hooks/useAdBlockDetection';
@@ -8,10 +8,14 @@ const SIX_HOURS = 6 * 60 * 60 * 1000;
 
 const AdBlockerPopup = () => {
   const adBlocked = useAdBlockDetection();
-  const [dismissed, setDismissed] = useState(() => {
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
     const closeTimestamp = localStorage.getItem(BLOCKER_CLOSE_KEY);
-    return !!closeTimestamp && Date.now() - Number(closeTimestamp) < SIX_HOURS;
-  });
+    if (closeTimestamp && Date.now() - Number(closeTimestamp) < SIX_HOURS) {
+      setDismissed(true);
+    }
+  }, []);
 
   const handleClose = (e, reason) => {
     if (reason === 'backdropClick') return;
