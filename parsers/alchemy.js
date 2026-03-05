@@ -85,8 +85,8 @@ export const getLiquidCauldrons = (account) => {
   const liquids = account?.alchemy?.liquids;
   const liquidCauldrons = account?.alchemy?.cauldronsInfo.slice(18);
   return liquids.map((liquidVal, index) => {
-    const [decantCapProgress, decantCapLevel] = liquidCauldrons[index * 4];
-    const [decantRateProgress, decantRateLevel] = liquidCauldrons[(index * 4) + 1];
+    const [decantCapProgress, decantCapLevel] = liquidCauldrons?.[index * 4] ?? [];
+    const [decantRateProgress, decantRateLevel] = liquidCauldrons?.[(index * 4) + 1] ?? [];
     const [decantCapReq, decantRateReq] = [getCauldronBrewReq(decantCapLevel + 1),
     getCauldronBrewReq(decantRateLevel + 1)]
     const brewBonus = getCauldronBrewBonus(index + 4, decantCapLevel); // CauldStatDN1

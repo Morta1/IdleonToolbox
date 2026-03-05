@@ -50,6 +50,7 @@ export default function ConsentScripts() {
             strategy="afterInteractive"
             data-cfasync="false"
             data-spa="auto"
+            data-log-level={isProd ? 'info': 'silent'}
             async
             src="https://s.nitropay.com/ads-2330.js"
           />
