@@ -229,8 +229,8 @@ const AppProvider = ({ children }) => {
         if (!Object.keys(content).includes('serverVars')) {
           parsedData = parseData(content);
         } else {
-          const { data, charNames, companion, guildData, serverVars, lastUpdated, accountCreateTime } = content;
-          parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTime);
+          const { data, charNames, companion, guildData, serverVars, lastUpdated, accountCreateTime, tournament } = content;
+          parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTime, tournament);
           const timestamp = lastUpdated || new Date().getTime();
 
           parsedData = { ...parsedData, lastUpdated: timestamp };
