@@ -61,17 +61,38 @@ const Bubbles = () => {
     defaultValue: 'list'
   });
   const batchLayout = viewMode === 'batch';
-  const [classDiscount, setClassDiscount] = useState(false);
-  const [searchText, setSearchText] = useState('');
-  const [bargainTag, setBargainTag] = useState('0');
+  const [classDiscount, setClassDiscount] = useLocalStorage({
+    key: 'bubbles:classDiscount',
+    defaultValue: false
+  });
+  const [searchText, setSearchText] = useLocalStorage({
+    key: 'bubbles:searchText',
+    defaultValue: ''
+  });
+  const [bargainTag, setBargainTag] = useLocalStorage({
+    key: 'bubbles:bargainTag',
+    defaultValue: '0'
+  });
   const [effThreshold, setEffThreshold] = useLocalStorage({
     key: `bubbles:effThreshold`,
     defaultValue: 75
   });
-  const [levelThreshold, setLevelThreshold] = useState(100);
-  const [showMissingLevels, setShowMissingLevels] = useState(true);
-  const [hidePastThreshold, setHidePastThreshold] = useState(false);
-  const [hidePastLevelThreshold, setHidePastLevelThreshold] = useState(false);
+  const [levelThreshold, setLevelThreshold] = useLocalStorage({
+    key: 'bubbles:levelThreshold',
+    defaultValue: 100
+  });
+  const [showMissingLevels, setShowMissingLevels] = useLocalStorage({
+    key: 'bubbles:showMissingLevels',
+    defaultValue: true
+  });
+  const [hidePastThreshold, setHidePastThreshold] = useLocalStorage({
+    key: 'bubbles:hidePastThreshold',
+    defaultValue: false
+  });
+  const [hidePastLevelThreshold, setHidePastLevelThreshold] = useLocalStorage({
+    key: 'bubbles:hidePastLevelThreshold',
+    defaultValue: false
+  });
   const [bubblesGoals, setBubblesGoals] = useState();
   const myFirstChemSet = state?.account?.lab?.labBonuses?.find(bonus => bonus.name === 'My_1st_Chemistry_Set')?.active;
 
@@ -258,10 +279,7 @@ const Bubbles = () => {
                   slotProps={{
                     htmlInput: { min: 0, max: 100, step: 0.01, style: { height: 10, fontSize: 14 } }
                   }}
-                  onChange={({ target }) => {
-                    localStorage.setItem('effThreshold', target.value);
-                    setEffThreshold(target.value)
-                  }}
+                  onChange={({ target }) => setEffThreshold(target.value)}
                 />
               </Stack>
             </Section>
@@ -280,10 +298,7 @@ const Bubbles = () => {
                   slotProps={{
                     htmlInput: { min: 0, style: { height: 10, fontSize: 14 } }
                   }}
-                  onChange={({ target }) => {
-                    localStorage.setItem('levelThreshold', target.value);
-                    setLevelThreshold(target.value);
-                  }}
+                  onChange={({ target }) => setLevelThreshold(target.value)}
                 />
               </Stack>
             </Section>
