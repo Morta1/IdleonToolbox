@@ -52,7 +52,10 @@ export const getTournament = (idleonData, account, serverTournament) => {
   const bracketStartSize = divisionRegistrations > 1 ? getBracketStartSize(divisionRegistrations) : 0;
 
   // Parse match history from _T_RES_UID data
+  // match.t = number of bracket matches at the end of the d array (rest are qualifying)
   const rawMatches = serverTournament?.match?.d ?? [];
+  const bracketMatchCount = serverTournament?.match?.t ?? 0;
+  const qualifyingCount = rawMatches.length - bracketMatchCount;
   const matches = rawMatches.map((matchStr, matchIdx) => {
     try {
       const parsed = JSON.parse(matchStr);
@@ -61,10 +64,9 @@ export const getTournament = (idleonData, account, serverTournament) => {
       const battleSequence = parsed[2] ?? [];
 
       const playerName = playerTeam[0] ?? '';
-      const livesRaw = String(playerTeam[2] ?? '0');
-      const isQualifying = !livesRaw.includes('_');
-      const roundIndex = isQualifying ? -1 : Number(livesRaw.split('_')[0]);
-      const playerLives = isQualifying ? Number(livesRaw) : Number(livesRaw.split('_')[1]);
+      const playerLives = Number(playerTeam[2] ?? 0);
+      const isQualifying = matchIdx < qualifyingCount;
+      const roundIndex = isQualifying ? -1 : matchIdx - qualifyingCount;
       const playerPets = playerTeam.slice(3).map(Number);
 
       const opponentName = opponentTeam[0] ?? 'Unknown';
