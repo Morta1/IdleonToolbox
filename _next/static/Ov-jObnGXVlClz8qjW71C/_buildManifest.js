@@ -69,7 +69,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/74c34f4fc238a682.js"
   ],
   "/account/prem-currency/pets": [
-    "static/chunks/65b2db6b7b4c75f0.js"
+    "static/chunks/1376c730ec7f93dc.js"
   ],
   "/account/task-board/achievements": [
     "static/chunks/c7d11ed0b5f108da.js"
