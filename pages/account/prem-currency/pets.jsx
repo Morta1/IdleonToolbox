@@ -20,7 +20,8 @@ const CompanionList = ({ title, companions }) => {
               sx={{
                 width: 300,
                 border: acquired ? '1px solid' : '',
-                borderColor: acquired ? 'success.dark' : ''
+                borderColor: acquired ? 'success.dark' : '',
+                opacity: acquired ? 1 : 0.4
               }}>
               <CardContent sx={{ '&:last-child': { padding: 1.5 }, height: '100%' }}>
                 <Stack gap={2}>
@@ -55,6 +56,7 @@ const CompanionList = ({ title, companions }) => {
 const Pets = () => {
   const { state } = useContext(AppContext);
   const [showTradableOnly, setShowTradableOnly] = useState(false);
+  const [showMissingOnly, setShowMissingOnly] = useState(false);
   const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * state?.account?.timeAway?.GlobalTime - (state?.account?.companions?.lastFreeClaim ?? 0)));
   const allLegacy = state?.account?.companions?.list?.slice(0, 11) || [];
   const allFallenSpirits = state?.account?.companions?.list?.slice(12, 24) || [];
@@ -65,15 +67,17 @@ const Pets = () => {
     ...(state?.account?.companions?.list?.slice(24, 37) || [])
   ].filter(Boolean);
 
-  const filterTradable = (companions) => {
-    if (!showTradableOnly) return companions;
-    return companions?.filter(comp => (comp?.tradableCount || 0) > 0) || [];
+  const filterCompanions = (companions) => {
+    let result = companions || [];
+    if (showTradableOnly) result = result.filter(comp => (comp?.tradableCount || 0) > 0);
+    if (showMissingOnly) result = result.filter(comp => !comp?.acquired);
+    return result;
   };
 
-  const legacy = filterTradable(allLegacy);
-  const fallenSpirits = filterTradable(allFallenSpirits);
-  const shallowWaters = filterTradable(allShallowWaters);
-  const exclusive = filterTradable(allExclusive);
+  const legacy = filterCompanions(allLegacy);
+  const fallenSpirits = filterCompanions(allFallenSpirits);
+  const shallowWaters = filterCompanions(allShallowWaters);
+  const exclusive = filterCompanions(allExclusive);
 
   return <>
     <NextSeo
@@ -95,6 +99,15 @@ const Pets = () => {
           />
         }
         label="Show tradable only"
+      />
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={showMissingOnly}
+            onChange={(e) => setShowMissingOnly(e.target.checked)}
+          />
+        }
+        label="Show missing only"
       />
     </Stack>
     <Stack gap={4}>
