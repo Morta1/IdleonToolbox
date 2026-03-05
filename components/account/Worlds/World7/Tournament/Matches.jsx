@@ -133,9 +133,14 @@ const MatchCard = ({ match, companionList }) => {
       <CardContent sx={{ '&:last-child': { pb: 1.5 } }}>
         <Stack gap={1.5}>
           <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-            <Typography variant="body1" fontWeight="bold">
-              vs {match.opponentName}
-            </Typography>
+            <Stack gap={0}>
+              <Typography variant="body1" fontWeight="bold">
+                vs {match.opponentName}
+              </Typography>
+              {match.roundName && (
+                <Typography variant="caption" color="text.secondary">{match.roundName}</Typography>
+              )}
+            </Stack>
             <Stack direction="row" gap={1} alignItems="center">
               <ResultChip result={match.result} />
               <Typography variant="caption" color="text.secondary">

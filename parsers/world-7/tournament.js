@@ -26,6 +26,17 @@ const parseBattleRounds = (rawSeq, playerPets, opponentPets) => {
   return rounds;
 };
 
+// Bracket start size: largest power of 2 ≤ registrationCount / 2
+// e.g. Bronze 3500 → 3500/2=1750 → 2^10=1024
+const getBracketStartSize = (registrationCount) =>
+  Math.pow(2, Math.floor(Math.log2(registrationCount / 2)));
+
+const getRoundName = (roundIndex, bracketStartSize) => {
+  if (roundIndex === -1) return 'Open Qual';
+  const size = Math.round(bracketStartSize / Math.pow(2, roundIndex));
+  return `Round of ${size}`;
+};
+
 export const getTournament = (idleonData, account, serverTournament) => {
   const accountOptions = account?.accountOptions;
 
@@ -35,6 +46,10 @@ export const getTournament = (idleonData, account, serverTournament) => {
   const matchDay = serverTournament?.user?.l ?? accountOptions?.[493] ?? 0;
   const tournamentDay = serverTournament?.global?.T ?? accountOptions?.[496] ?? 0;
   const registrationCount = accountOptions?.[498] ?? 0;
+
+  // Bracket start size derived from registration count per division (global.B)
+  const divisionRegistrations = serverTournament?.global?.B?.[divisionIndex] ?? 0;
+  const bracketStartSize = divisionRegistrations > 1 ? getBracketStartSize(divisionRegistrations) : 0;
 
   // Parse match history from _T_RES_UID data
   const rawMatches = serverTournament?.match?.d ?? [];
@@ -46,7 +61,10 @@ export const getTournament = (idleonData, account, serverTournament) => {
       const battleSequence = parsed[2] ?? [];
 
       const playerName = playerTeam[0] ?? '';
-      const playerLives = Number(playerTeam[2] ?? 0);
+      const livesRaw = String(playerTeam[2] ?? '0');
+      const isQualifying = !livesRaw.includes('_');
+      const roundIndex = isQualifying ? -1 : Number(livesRaw.split('_')[0]);
+      const playerLives = isQualifying ? Number(livesRaw) : Number(livesRaw.split('_')[1]);
       const playerPets = playerTeam.slice(3).map(Number);
 
       const opponentName = opponentTeam[0] ?? 'Unknown';
@@ -54,7 +72,8 @@ export const getTournament = (idleonData, account, serverTournament) => {
       const opponentPets = opponentTeam.slice(3).map(Number);
 
       const battleRounds = parseBattleRounds(battleSequence, playerPets, opponentPets);
-      return { matchIdx, playerName, playerLives, playerPets, opponentName, opponentLives, opponentPets, battleRounds };
+      const roundName = bracketStartSize > 0 ? getRoundName(roundIndex, bracketStartSize) : (roundIndex === -1 ? 'Open Qual' : null);
+      return { matchIdx, roundIndex, roundName, playerName, playerLives, playerPets, opponentName, opponentLives, opponentPets, battleRounds };
     } catch {
       return null;
     }
