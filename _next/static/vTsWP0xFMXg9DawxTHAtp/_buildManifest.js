@@ -102,7 +102,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/b4cba30b725859a4.js"
   ],
   "/account/world-2/bubbles": [
-    "static/chunks/83aa65dea592ddc3.js"
+    "static/chunks/ed85fd3b9f0e8d5b.js"
   ],
   "/account/world-2/cauldrons": [
     "static/chunks/5611cac2613d053f.js"
