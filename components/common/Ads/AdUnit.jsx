@@ -43,9 +43,9 @@ export const HomeSidebarAds = () => {
   if (AD_PROVIDER === AD_PROVIDERS.NITRO) {
     return <>
       <NitroRailAd id={'nitro-home-right-side-ad'} alignment={'right'} sizes={NITRO_HOME_AD_SIZES}
-                   mediaQuery={'(min-width: 1650px)'} style={{ position: 'absolute' }}/>
+                   mediaQuery={'(min-width: 1650px)'}/>
       <NitroRailAd id={'nitro-home-left-side-ad'} alignment={'left'} sizes={NITRO_HOME_AD_SIZES}
-                   mediaQuery={'(min-width: 1650px)'} style={{ position: 'absolute' }}/>
+                   mediaQuery={'(min-width: 1650px)'}/>
     </>;
   }
   return null;
