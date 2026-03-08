@@ -480,7 +480,7 @@ const calcFertilizerBonus = (index, gamingRaw, gamingSproutRaw, characters, acco
     const growChance = 1 / calcSproutGrowChance(gamingRaw);
     const final = (growTime * growChance) / 60;
     const time = 100 * final / 100;
-    return time > 60 ? `${100 * time / 60 / 100} Hr` : `${(Math.trunc(time * 1000) / 1000)} Min`;
+    return time > 60 ? `${100 * time / 60 / 100} Hr` : time < 1 ? `${Math.trunc(time * 60)} Sec` : `${(Math.trunc(time * 1000) / 1000)} Min`;
   }
   else if (index === 2) {
     const baseValue = gamingRaw?.[3];
