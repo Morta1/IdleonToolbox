@@ -121,7 +121,6 @@ const parseGaming = (gamingRaw, gamingSproutRaw, spelunkRaw, researchRaw, charac
   }));
 
   const ratKing = calcRatKing(gamingSproutRaw, researchRaw, account, superbitsUpg);
-  console.log('ratKing', ratKing); 
   const { palette, paletteFinalBonus, paletteLuck } = getPalette(account, ratKing, spelunkRaw, characters);
 
   return {
