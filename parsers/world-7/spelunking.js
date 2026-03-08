@@ -4,12 +4,12 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getSlabBonus, isArtifactAcquired } from '@parsers/sailing';
 import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
 import { getPaletteBonus } from '@parsers/gaming';
-import { getExoticMarketBonus } from '@parsers/world-6/farming';
+import { getExoticMarketBonus, getStickerBonus } from '@parsers/world-6/farming';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getGrimoireBonus } from '@parsers/grimoire';
 import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
-import { getAdviceFishBonus, isMasteryBonusUnlocked } from '@parsers/misc';
+import { getAdviceFishBonus, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getStampsBonusByEffect } from '@parsers/stamps';
 import { getBubbleBonus, getVialsBonusByEffect } from '@parsers/alchemy';
@@ -529,7 +529,10 @@ const getPower = (account) => {
   const winnerBonus = getWinnerBonus(account, '<x Spelunk POW');
   const gemShopBonus = account?.gemShopPurchases?.find((value, index) => index === 43) ?? 0;
   const gemItemBonus = Math.max(1, Math.pow(2, gemShopBonus));
-  const chapterBonus = Math.max(1, getChapterBonus(account, 1, 2));
+  const chapterBonus1_2 = Math.max(1, getChapterBonus(account, 1, 2));
+  const chapterBonus4_2 = Math.max(1, getChapterBonus(account, 4, 2));
+  const chapterBonus5_0 = Math.max(1, getChapterBonus(account, 5, 0));
+  const companion143 = isCompanionBonusActive(account, 143) ? (account?.companions?.list?.at(143)?.bonus ?? 0) : 0;
   const shopUpg1 = getSpelunkingBonus(account, 1);
   const dancingCoralBonus = getDancingCoralBonus(account, 1, 0);
 
@@ -539,12 +542,14 @@ const getPower = (account) => {
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'SplkPOW');
 
   const shopUpg2 = getSpelunkingBonus(account, 2);
+  const accountOption500 = account?.accountOptions?.[500] ?? 0;
   const shopUpg3 = getSpelunkingBonus(account, 3);
+  const stickerBonus6 = getStickerBonus(account, 6);
   const paletteBonus = getPaletteBonus(account, 13);
   const shopUpg46 = getSpelunkingBonus(account, 46);
 
   const exoticBonus = getExoticMarketBonus(account, 42);
-  const cardBonus = getCardBonusByEffect(account?.cards, 'Spelunk_POW_(Passive)');
+  const cardBonus = Math.min(getCardBonusByEffect(account?.cards, 'Spelunk_POW_(Passive)'), 30);
 
   const toolUpg14 = getSpelunkingBonus(account, 14);
   const toolUpg15 = getSpelunkingBonus(account, 15);
@@ -553,12 +558,14 @@ const getPower = (account) => {
 
   const powerMulti = (1 + winnerBonus / 100)
     * gemItemBonus
-    * chapterBonus
+    * chapterBonus1_2 * chapterBonus4_2 * chapterBonus5_0 * Math.max(1, companion143)
     * (1 + shopUpg1 / 100)
     * (1 + dancingCoralBonus / 100)
     * (1 + (cropDepot + slabBonus + gamingBonus + mealBonus) / 100)
     * (1 + shopUpg2 / 100)
+    * (1 + accountOption500 / 100)
     * (1 + shopUpg3 / 100)
+    * (1 + stickerBonus6 / 100)
     * (1 + paletteBonus / 100)
     * (1 + shopUpg46 / 100)
     * (1 + (exoticBonus + cardBonus) / 100)
@@ -576,7 +583,8 @@ const getPower = (account) => {
             { name: "Learning the POW", value: basePower },
             { name: "Winner", value: winnerBonus },
             { name: "Gem Item", value: gemItemBonus },
-            { name: "Chapter", value: chapterBonus },
+            { name: "Chapters", value: chapterBonus1_2 * chapterBonus4_2 * chapterBonus5_0 },
+            { name: "Boomy Mine", value: companion143 },
             { name: "Discovering the POW", value: shopUpg1 },
             { name: "Dancing Coral", value: dancingCoralBonus },
             { name: "Crop Depot", value: cropDepot },
@@ -584,7 +592,9 @@ const getPower = (account) => {
             { name: "Gaming", value: gamingBonus },
             { name: "Meal", value: mealBonus },
             { name: "Depthing the POW", value: shopUpg2 },
+            { name: "Account Option 500", value: accountOption500 },
             { name: "Hauling the POW", value: shopUpg3 },
+            { name: "Threepeat Champ Sticker", value: stickerBonus6 },
             { name: "Palette", value: paletteBonus },
             { name: "Grandiose_POW", value: shopUpg46 },
             { name: "Exotic Market", value: exoticBonus },

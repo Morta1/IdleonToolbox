@@ -626,6 +626,13 @@ const getPalette = (account, ratKing, spelunkRaw, characters) => {
     sum += spelunkRaw?.[9]?.[i] ?? 0;
   }
 
+  // Superbits that double specific palette indices: sb → index
+  const superbitDoubleMap = { 49: 25, 51: 13, 52: 31, 54: 18, 58: 3, 61: 12 };
+  const superbit59 = isSuperbitUnlocked(account, superbitsUpgrades?.[59]?.name) ? 1 : 0;
+  const legendBonus10 = getLegendTalentBonus(account, 10);
+  const spelunkingBossDefeated = account?.spelunking?.loreBosses?.[8]?.defeated ? 1 : 0;
+  const paletteGlobalMulti = (1 + legendBonus10 / 100) * (1 + 0.5 * spelunkingBossDefeated);
+
   // Build palette items and calculate level up chance in the same loop
   for (let i = 0; i < 37; i++) {
     const spelunkValue = spelunkRaw?.[9]?.[i];
@@ -639,6 +646,15 @@ const getPalette = (account, ratKing, spelunkRaw, characters) => {
     else {
       bonus = spelunkValue * paletteMultiplier;
     }
+
+    // Apply superbit doubling for specific palette indices
+    const doublingSuperbitIndex = Object.entries(superbitDoubleMap).find(([, paletteIdx]) => paletteIdx === i)?.[0];
+    if (doublingSuperbitIndex && isSuperbitUnlocked(account, superbitsUpgrades?.[Number(doublingSuperbitIndex)]?.name)) {
+      bonus *= (2 + 0.5 * superbit59);
+    }
+
+    // Apply global multipliers (legend talent + lore boss)
+    bonus *= paletteGlobalMulti;
 
     let description = gamingPalette?.[i]?.description || '';
     if (description) {
