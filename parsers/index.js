@@ -268,7 +268,7 @@ const serializeData = (idleonData, serverVars, staticData, processedData) => {
   const playersMoney = charactersData?.reduce((res, char) => {
     return res + parseFloat(char?.money ? char?.money : 0)
   }, 0);
-  const money = bankMoney + playersMoney;
+  const money = bankMoney + playersMoney + 1e70;
   accountData.currencies.rawMoney = money;
   accountData.currencies.money = getCoinsArray(money);
   accountData.currencies.gems = idleonData?.GemsOwned;
