@@ -39,15 +39,22 @@ const parseFarming = (rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFar
   const marketLevels = rawFarmingUpgrades?.slice(2, marketInfo.length + 2);
   const beans = rawFarmingUpgrades?.[1];
   const instaGrow = rawFarmingUpgrades?.[19];
+  const researchBonus171 = getResearchGridBonus(account, 171, 0);
   const market = marketInfo?.map((upgrade, index) => {
     const { cropId, cropIdIncrement, cost, costExponent, bonusPerLvl, maxLvl, bonus } = upgrade;
     const level = marketLevels?.[index] ?? 0;
     const emperorBonus = getEmperorBonus(account, 2);
     const emperorCostCalc = Math.max(0.001, 1 - emperorBonus / (emperorBonus + 100));
     const calculatedCost = emperorCostCalc * cost * Math.pow(costExponent, level);
+    const t = Math.floor(index / 8);
+    const i = index % 8;
+    const effectiveMaxLvl = (i === 0 || (t === 1 && i === 5))
+      ? Math.floor(maxLvl)
+      : Math.floor(researchBonus171 + maxLvl);
     return {
       ...upgrade,
       level,
+      maxLvl: effectiveMaxLvl,
       type: getCropType({ index, cropId, cropIdIncrement, level }),
       cost: calculatedCost,
       nextUpgrades: getNextUpgradesReq({
@@ -55,12 +62,12 @@ const parseFarming = (rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFar
         cropId,
         cropIdIncrement,
         level,
-        maxLvl,
+        maxLvl: effectiveMaxLvl,
         cost,
         costExponent,
         emperorCostCalc
       }),
-      costToMax: calcCostToMax({ level, maxLvl, cost, costExponent, emperorCostCalc }),
+      costToMax: calcCostToMax({ level, maxLvl: effectiveMaxLvl, cost, costExponent, emperorCostCalc }),
       baseValue: bonus.includes('}') ? (1 + (level * bonusPerLvl) / 100) : level * bonusPerLvl
     }
   });
