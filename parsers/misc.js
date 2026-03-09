@@ -219,9 +219,11 @@ export const getMasterclassCostReduction = (account, forceLegendTalent) => {
   const hasLegendTalent = forceLegendTalent === undefined
     ? account?.accountOptions?.[480] < getLegendTalentBonus(account, 23)
     : forceLegendTalent;
-  return hasLegendTalent
+  const allMasterclassCostRedux = hasLegendTalent
     ? (hasBonusBundle ? 0.05 : 0.2)
     : (hasBonusBundle ? 0.25 : 1);
+  const first3mcCostRedux = 1 / (1 + (account?.accountOptions?.[499] ?? 0) / 100);
+  return allMasterclassCostRedux * first3mcCostRedux;
 }
 
 export const getLibraryBookTimes = (idleonData, characters, account) => {
