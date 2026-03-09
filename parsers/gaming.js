@@ -31,14 +31,16 @@ export const getGaming = (idleonData, characters, account, serverVars) => {
 }
 
 const parseGaming = (gamingRaw, gamingSproutRaw, spelunkRaw, researchRaw, characters, account, serverVars) => {
-  const logBook = []
-  const baseValue = 'hhhhhhhhh';
-  for (let i = 0; i < 9; i++) {
-    let s = 0;
-    for (let r = number2letter.indexOf((baseValue)?.charAt(i)); s < r; s++) {
+  const logBook = [];
+  const maxPerRow = 'jjjjjjjjjj'; // 10 rows, max 10 plants each = 100 total
+  for (let i = 0; i < 10; i++) {
+    const maxInRow = number2letter.indexOf(maxPerRow.charAt(i));
+    for (let s = 0; s < maxInRow; s++) {
+      const crownKey = String(i) + number2letter[s];
       logBook.push({
-        rawName: ('GamingPlant' + (number2letter[i + 1]) + s + '.png'),
-        unlocked: gamingRaw?.[11] ? s < number2letter.indexOf((gamingRaw?.[11])?.charAt(i)) : false
+        rawName: 'GamingPlant' + number2letter[i + 1] + s + '.png',
+        unlocked: gamingRaw?.[11] ? s < number2letter.indexOf(gamingRaw?.[11]?.charAt(i)) : false,
+        crowned: researchRaw?.[11] ? researchRaw[11].includes(crownKey) : false
       });
     }
   }
