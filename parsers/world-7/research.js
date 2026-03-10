@@ -12,10 +12,11 @@ import { getZenithBonus } from '@parsers/statues';
 import { getSlabBonus } from '@parsers/sailing';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
 import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
-import { getHighestCharacterSkill, isCompanionBonusActive } from '@parsers/misc';
+import { getHighestCharacterSkill, isCompanionBonusActive, getEventShopBonus } from '@parsers/misc';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getMineheadBonusQTY, getMineheadGlimboTotalTrades } from '@parsers/world-7/minehead';
 import { getStickerBonus } from '@parsers/world-6/farming';
+import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
 
 // Save key for Research: game may use idleonData.Research or similar
 const getRawResearch = (idleonData) => {
@@ -62,6 +63,13 @@ export const getResearch = (idleonData, account, characters) => {
   const occurrencesToBeFound = getOccurrencesToBeFound(researchLevel, occurrenceFoundState);
   const totalOccurrencesFound = getTotalOccurrencesFound(research, occurrencesToBeFound);
   research.totalOccurrencesFound = totalOccurrencesFound;
+
+  // Sum of all observation insight levels (Research[4]) for observations >= 1
+  const totalObsLVs = (observationInsight).slice(0, occurrencesToBeFound).reduce((sum, v) => {
+    const n = Number(v) || 0;
+    return sum + (n >= 1 ? n : 0);
+  }, 0);
+  research.totalObsLVs = totalObsLVs;
 
   const gridPTSpent = gridLevels.reduce((sum, level) => sum + (Number(level) || 0), 0);
   const gridBonus50Lv = getResearchGridBonusInternal(account, research, 50, 1);
@@ -143,6 +151,7 @@ export const getResearch = (idleonData, account, characters) => {
   const shapesOwned = Math.min(
     10,
     Math.round(
+      (getEventShopBonus(account, 36) ? 1 : 0) +
       Math.min(1, Math.max(0, Math.floor(researchLevel / 20) * companion54)) +
       Math.min(1, Math.floor(researchLevel / 20) * (loreBoss7 ? 1 : 0)) +
       (Math.min(1, Math.floor(researchLevel / 20)) +
@@ -220,10 +229,10 @@ export const getResearch = (idleonData, account, characters) => {
     occurrencesToBeFound,
     totalOccurrencesFound,
     maxRoll: Math.floor(100 + gridBonus51Lv),
-    rollsPerDay: Math.round(3 + gridBonus90Lv),
+    rollsPerDay: Math.round(3 + gridBonus90Lv + 3 * (getEventShopBonus(account, 35) ? 1 : 0)),
     canLevelUpObservations: gridBonus91Lv >= 1 ? 1 : 0,
     opticalMonocleOwned: Math.round(gridBonus91Lv),
-    kaleidoscopeOwned: Math.round(getResearchGridBonusInternal(account, research, 72, 1)),
+    kaleidoscopeOwned: Math.round(getResearchGridBonusInternal(account, research, 72, 1) + (getEventShopBonus(account, 33) ? 1 : 0)),
     magnifiersOwned: getMagnifiersOwned(account, research, researchLevel, gridBonus91Lv),
     magnifiersPerSlot: Math.min(
       4,
@@ -272,6 +281,14 @@ export const getResearchGridBonus = (account, gridIndex, mode) => {
   return account?.research?.gridSquares?.[gridIndex]?.bonuses?.[mode] ?? 0;
 }
 
+// Game: Grid_Bonus_Allmulti = 1 + (Companions(55) + 5 * min(1, Research[0][173] * Companions(0))) / 100
+function getGridBonusAllmulti(account, research) {
+  const companion55 = isCompanionBonusActive(account, 55) ? (account?.companions?.list?.at(55)?.bonus ?? 0) : 0;
+  const companion0Active = isCompanionBonusActive(account, 0) ? 1 : 0;
+  const gridLevel173 = Number(research?.gridLevels?.[173]) || 0;
+  return 1 + (companion55 + 5 * Math.min(1, gridLevel173 * companion0Active)) / 100;
+}
+
 function getResearchGridBonusInternal(account, research, gridIndex, mode) {
   const gridLevels = research?.gridLevels ?? [];
   const gridObservationIndex = research?.gridObservationIndex ?? [];
@@ -290,9 +307,15 @@ function getResearchGridBonusInternal(account, research, gridIndex, mode) {
     return level;
   }
   if (mode === 2) {
+    if (gridIndex === 31) {
+      return 25 * getResearchGridBonusInternal(account, research, gridIndex, 0);
+    }
     if (gridIndex === 67 || gridIndex === 68 || gridIndex === 107) {
       // Game uses avar_Research[11].length (King Rat Crowns count), NOT shapePlacements.length
       return (getResearchGridBonusInternal(account, research, gridIndex, 0) * (research?.kingRatCrowns?.length ?? 0));
+    }
+    if (gridIndex === 94) {
+      return getResearchGridBonusInternal(account, research, gridIndex, 0) * (research?.totalObsLVs ?? 0);
     }
     if (gridIndex === 112) {
       return getResearchGridBonusInternal(account, research, gridIndex, 0) * (research?.totalOccurrencesFound ?? 0);
@@ -301,19 +324,20 @@ function getResearchGridBonusInternal(account, research, gridIndex, mode) {
       return research?.optionsListAccount?.[500] ?? 0;
     }
     if (gridIndex === 168) {
-      return getResearchGridBonusInternal(account, research, gridIndex, 0) * Math.floor(getMineheadGlimboTotalTrades(account) / 25);
+      return getResearchGridBonusInternal(account, research, gridIndex, 0) * Math.floor(getMineheadGlimboTotalTrades(account) / 100);
     }
     return getResearchGridBonusInternal(account, research, gridIndex, 0);
   }
 
   const obsIndex = gridObservationIndex[gridIndex];
+  const allMulti = getGridBonusAllmulti(account, research);
   if (obsIndex == null || Number(obsIndex) < 0) {
-    return baseBonus * level;
+    return baseBonus * level * Math.max(1, allMulti);
   }
   // Game: CustomLists.Research[5][Research[1][t]] / 100 — static observation bonus percentages
   const observationBonuses = (researchData[5] ?? '').split(' ').map(Number);
   const observationBonusPct = observationBonuses[Number(obsIndex)] ?? 0;
-  return baseBonus * level * (1 + observationBonusPct / 100);
+  return baseBonus * level * (1 + observationBonusPct / 100) * Math.max(1, allMulti);
 }
 
 /**
@@ -347,15 +371,17 @@ export function getResearchGridSquareDescription(account, research, gridIndex, t
 }
 
 function getMagnifiersOwned(account, research, researchLevel, gridBonus91Lv) {
-  const grid72Lv = Math.round(getResearchGridBonusInternal(account, research, 72, 1));
+  const kaleidoscopeOwned = Math.round(getResearchGridBonusInternal(account, research, 72, 1) + (getEventShopBonus(account, 33) ? 1 : 0));
+  const opticalMonocleOwned = Math.round(gridBonus91Lv);
   const mineheadBonus =
     getMineheadBonusQTY(account, 2) + getMineheadBonusQTY(account, 12) + getMineheadBonusQTY(account, 20);
+  const eventShopMagnifier = getEventShopBonus(account, 34) ? 1 : 0;
   const levelMilestones =
     Math.min(1, Math.floor(researchLevel / 10)) +
     Math.min(1, Math.floor(researchLevel / 100)) +
     Math.min(1, Math.floor(researchLevel / 130)) +
     Math.min(1, Math.floor(researchLevel / 140));
-  return Math.min(80, Math.round(1 + (grid72Lv + Math.round(gridBonus91Lv)) + mineheadBonus + levelMilestones));
+  return Math.min(80, Math.round(1 + (kaleidoscopeOwned + opticalMonocleOwned) + (mineheadBonus + eventShopMagnifier) + levelMilestones));
 }
 
 function getOccurrencesToBeFound(researchLevel, occurrenceFoundState) {
@@ -490,6 +516,9 @@ function getResearchEXPmulti(account, research) {
   const cardBonus = getCardBonusByEffect(account?.cards, 'Research_EXP_(Passive)');
   const arcade63 = account?.arcade?.shop?.[63]?.bonus ?? 0;
   const grid70 = getResearchGridBonusInternal(account, research, 70, 0);
+  const grid31 = getResearchGridBonusInternal(account, research, 31, 0);
+  const grid94_2 = getResearchGridBonusInternal(account, research, 94, 2);
+  const prehistoricSetBonus = Math.min(50, getArmorSetBonus(account, 'PREHISTORIC_SET'));
   const companion52 = isCompanionBonusActive(account, 52) ? (account?.companions?.list?.at(52)?.bonus ?? 0) : 0;
 
   const additive =
@@ -506,7 +535,10 @@ function getResearchEXPmulti(account, research) {
     slab +
     tomeLoreEpi +
     cardBonus +
-    arcade63;
+    arcade63 +
+    grid31 +
+    grid94_2 +
+    prehistoricSetBonus;
 
   const additiveFactor = 1 + additive / 100;
   const grid70Factor = 1 + grid70 / 100;
@@ -533,7 +565,10 @@ function getResearchEXPmulti(account, research) {
           { name: 'Slab', value: slab },
           { name: 'Tome', value: tomeLoreEpi },
           { name: 'Card', value: cardBonus },
-          { name: 'Arcade', value: arcade63 }
+          { name: 'Arcade', value: arcade63 },
+          { name: 'Grid 31', value: grid31 },
+          { name: 'Obs Levels (Grid 94)', value: grid94_2 },
+          { name: 'Prehistoric Set', value: prehistoricSetBonus }
         ]
       },
       {
