@@ -44,7 +44,7 @@ const parseSailing = (artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRa
   const maxChests = Math.min(Math.round(5 + chestsFromGems
     + (Math.min(4, dreamCatcherBonus)
       + (account?.tasks?.[2]?.[4]?.[2])
-      + (chestsFromAchievements))), 30);
+      + (chestsFromAchievements))), 34);
   const chests = getChests(chestsRaw, artifactsList, serverVars);
   const rareTreasureChance = getRareTreasureChance();
   const lootPileList = getLootPile(lootPile);
@@ -688,21 +688,19 @@ export const getSlabBonus = (account, index) => {
   const jadeEmporiumBonus = getJadeEmporiumBonus(account, 'Jade_Coin_Magnetism');
   const jadeEmporiumBonus2 = getJadeEmporiumBonus(account, 'Essence_Confetti');
   const superbitBonus = isSuperbitUnlocked(account, 'Slabby_Spelunking');
+  const superbitBonus2 = isSuperbitUnlocked(account, 'Slabby_Research');
   const slabSovereignty = getLabBonus(account?.lab?.labBonuses, 15); // gem multi
   const lootedItems = account?.looty?.rawLootedItems;
-  return 4 == index ? (1 == jadeEmporiumBonus ?
-    5 * (1 + slabSovereignty / 100)
+  const slabMultipliers = (1 + slabSovereignty / 100)
     * (1 + getMeritocracyBonus(account, 23) / 100)
-    * (1 + getLegendTalentBonus(account, 28) / 100)
-    * Math.floor(Math.max(0, lootedItems - 1e3) / 10) : 0)
+    * (1 + getLegendTalentBonus(account, 28) / 100);
+  return 4 == index ? (1 == jadeEmporiumBonus ?
+    5 * slabMultipliers * Math.floor(Math.max(0, lootedItems - 1e3) / 10) : 0)
     : 5 == index ? (1 == jadeEmporiumBonus2 ?
-      3 * (1 + slabSovereignty / 100)
-      * (1 + getMeritocracyBonus(account, 23) / 100)
-      * (1 + getLegendTalentBonus(account, 28) / 100)
-      * Math.floor(Math.max(0, lootedItems - 1e3) / 10) : 0)
+      3 * slabMultipliers * Math.floor(Math.max(0, lootedItems - 1e3) / 10) : 0)
       : 6 == index && superbitBonus
-        ? 3 * (1 + slabSovereignty / 100)
-        * (1 + getMeritocracyBonus(account, 23) / 100)
-        * (1 + getLegendTalentBonus(account, 28) / 100)
-        * Math.floor(Math.max(0, lootedItems - 1300) / 5) : 0;
+        ? 3 * slabMultipliers * Math.floor(Math.max(0, lootedItems - 1300) / 5)
+        : 7 == index && superbitBonus2
+          ? 0.1 * slabMultipliers * Math.floor(Math.max(0, lootedItems - 1300) / 5)
+          : 0;
 }

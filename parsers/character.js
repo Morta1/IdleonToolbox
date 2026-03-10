@@ -2772,7 +2772,7 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
       {
         name: "Crystal kills",
         sources: [
-          { name: "Remaining Crystal kills", value: remainingCrystalKills },
+          { name: "Remaining Crystal kills", value: Math.max(0, remainingCrystalKills) },
         ],
       },
       {
