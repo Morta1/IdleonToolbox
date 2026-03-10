@@ -89,9 +89,14 @@ const PetCard = ({
           </Stack>
           <Stack direction={'row'} divider={<Divider orientation={'vertical'} sx={{ mx: 1 }} flexItem />}>
             <Typography variant={'caption'}> Lv. {level}</Typography>
-            <Typography variant={'caption'}>
-              {notateNumber(progress)} / {numberWithCommas(goal.toFixed(2).replace('.00', ''))} Days
-            </Typography>
+            {progress < goal ? <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+              <Typography variant={'caption'}>
+                {notateNumber(goal - progress)} Days left
+              </Typography>
+              <Tooltip title={`${numberWithCommas(goal.toFixed(2).replace('.00', ''))} Days total`}>
+                <InfoIcon sx={{ fontSize: 14 }} />
+              </Tooltip>
+            </Stack> : null}
           </Stack>
           {(timeLeft && level < 20) || !isShiny ? <Stack direction="row" alignItems={'center'} gap={1}>
             <Typography variant={'body2'}>Next lv: </Typography>
