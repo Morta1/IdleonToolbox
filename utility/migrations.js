@@ -927,6 +927,42 @@ export const migrateToVersion37 = (config) => {
   return dashboardConfig;
 };
 
+export const migrateToVersion38 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  // Re-apply salt list to construction trackers now that we have 9 salts instead of 6
+  Object.keys(dashboardConfig?.account || {}).forEach((worldKey) => {
+    const world = dashboardConfig.account[worldKey];
+
+    if (world?.construction?.options) {
+      const options = world.construction.options;
+      const salts = getRawRefinerySalts();
+
+      const materialsIndex = options.findIndex(opt => opt.name === 'materials');
+      if (materialsIndex !== -1) {
+        options[materialsIndex] = {
+          ...options[materialsIndex],
+          props: { value: salts, type: 'img' }
+        };
+      }
+
+      const rankUpIndex = options.findIndex(opt => opt.name === 'rankUp');
+      if (rankUpIndex !== -1) {
+        options[rankUpIndex] = {
+          ...options[rankUpIndex],
+          props: { value: salts, type: 'img' }
+        };
+      }
+    }
+  });
+
+  dashboardConfig.version = 38;
+  return dashboardConfig;
+};
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -1041,6 +1077,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 36) {
       migratedConfig = migrateToVersion37(migratedConfig);
+    }
+    if (migratedConfig?.version === 37) {
+      migratedConfig = migrateToVersion38(migratedConfig);
     }
   }
   return migratedConfig;

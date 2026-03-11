@@ -46,7 +46,7 @@ import { getPaletteBonus } from '@parsers/gaming';
 import { getMinorDivinityBonus } from '@parsers/divinity';
 
 export const getRawRefinerySalts = () => {
-  return new Array(6).fill(0).reduce((res, _, index) => ({ ...res, [`Refinery${index + 1}`]: true }), {})
+  return Object.keys(items).filter(key => /^Refinery\d+$/.test(key)).reduce((res, key) => ({ ...res, [key]: true }), {});
 }
 
 export const getDoubleStatueDrop = (account, character, characters) => {

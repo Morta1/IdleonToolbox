@@ -11,7 +11,7 @@
     "build": "next build",
     "start": "npx serve@latest out",
     "postbuild": "node utility/generate-sitemap.mjs",
-    "test": "jest",
+    "test": "jest --runInBand",
     "lint": "next lint",
     "prepare": "husky || true"
   },

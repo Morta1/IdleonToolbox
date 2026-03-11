@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 37,
+  version: 38,
   account: {
     General: {
       tasks: {

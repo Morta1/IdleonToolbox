@@ -38,8 +38,11 @@ export const getMinehead = (idleonData, account, serverVars) => {
   // If splitting produces fewer than 32 tokens, the descriptions may use a different separator.
   const opponentBonusDescs = (researchData?.[19] ?? '').split(' ');
 
-  // researchData[11] = opponent names (space-separated, 32 entries)
-  const opponentNames = (researchData?.[11] ?? '').split(' ');
+  // researchData[11] = opponent names (space-separated, 32 entries) — NOT in opponent order
+  // researchData[10] = name index per opponent slot (space-separated, 32 entries)
+  const opponentNamePool = (researchData?.[11] ?? '').split(' ');
+  const opponentNameOrder = (researchData?.[10] ?? '').split(' ').map(Number);
+  const opponentNames = opponentNameOrder.map(i => opponentNamePool[i] ?? '');
 
   // researchData[15] = ordinal strings ("first second third ... permanent")
   const ordinals = (researchData?.[15] ?? '').split(' ');
