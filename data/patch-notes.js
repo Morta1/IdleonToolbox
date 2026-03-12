@@ -4,6 +4,31 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.28',
+    'gameVer': '2.0.493a',
+    'date': '12/03/2026',
+    'features': [
+      'Added artifact odds display with prisma support',
+      'Added monument rewards caps and scaling display',
+      'Added Rat King bonus calculation to gaming page',
+      'Added days left until shiny goal display on pet cards',
+      'Enhanced tournament battle view with player/opponent outlines, battle legend and win probability tooltips',
+      'Added missing companions filter option in companions page',
+      'Added total palette levels, research and spelunking leaderboards'
+    ],
+    'fixes': [
+      'Fixed spelunking power breakdown calculation',
+      'Fixed sailing calculations',
+      'Fixed missing logbooks',
+      'Fixed MC reduction calculation',
+      'Fixed palette bonus in atom cost calculation',
+      'Fixed money calculation accuracy',
+      'Fixed amber denominator in odds calculations',
+      'Fixed refinery rank up time display',
+      'Fixed refinery total time calculation',
+    ]
+  },
+  {
     'ver': '3.3.27',
     'gameVer': '2.0.493a',
     'date': '07/03/2026',
