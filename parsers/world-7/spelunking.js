@@ -508,7 +508,7 @@ export const getAmberDenominator = (account) => {
 
 export const getAmberIndex = (account) => {
   const denominator = getAmberDenominator(account);
-  return denominator === 1e21 ? 3 : denominator === 1e6 ? 2 : denominator === 1e3 ? 1 : 0;
+  return denominator === 1e21 ? 3 : denominator === 1e9 ? 2 : denominator === 1e3 ? 1 : 0;
 }
 
 export const getSpelunkingBonus = (account, index, isBaseBonus) => {
