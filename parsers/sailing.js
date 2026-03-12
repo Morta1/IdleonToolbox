@@ -29,7 +29,7 @@ import { getArcadeBonus } from './arcade';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
-import { getKillroyBonus } from './misc';
+import { getKillRoyShopBonus } from './misc';
 import { getBribeBonus } from '@parsers/bribes';
 import { getExoticMarketBonus, getStickerBonus } from '@parsers/world-6/farming';
 import { getPaletteBonus } from '@parsers/gaming';
@@ -510,8 +510,8 @@ const getBoatLootValue = (characters, account, artifactsList, boat, captain) => 
   const currentLevelMath = 2 + Math.pow(Math.floor((boat?.lootLevel) / 8), 2);
   const breakpointLevelMath = 2 + Math.pow(Math.floor((nextBreakpoint) / 8), 2);
   const lootPileSigil = getSigilBonus(account?.alchemy?.p2w?.sigils, 'LOOT_PILE');
-  const firstCaptainBonus = getCaptainBonus(1, captain, captain?.firstBonusIndex);
-  const secondCaptainBonus = getCaptainBonus(1, captain, captain?.secondBonusIndex);
+  const firstCaptainBonus = getCaptainBonus(1, captain, captain?.firstBonusIndex, captain?.firstBonusValue);
+  const secondCaptainBonus = getCaptainBonus(1, captain, captain?.secondBonusIndex, captain?.secondBonusValue);
   const artifactBonus = isArtifactAcquired(artifactsList, 'Genie_Lamp')?.bonus ?? 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Sailing_Loot')?.bonus ?? 0;
   const daveyJonesBonus = 1 + (50 * account?.gemShopPurchases?.[8] + getLegendTalentBonus(account, 11)) / 100;
@@ -578,8 +578,8 @@ const getBoatArtifactChance = (artifacts, captain, account, characters) => {
 
   // --- Additive group (÷ 100) ---
   const fauxoryTusk = isArtifactAcquired(artifacts, 'Fauxory_Tusk')?.bonus ?? 0;
-  const captainBonus = getCaptainBonus(3, captain, captain?.firstBonusIndex)
-    + getCaptainBonus(3, captain, captain?.secondBonusIndex);
+  const captainBonus = getCaptainBonus(3, captain, captain?.firstBonusIndex, captain?.firstBonusValue)
+    + getCaptainBonus(3, captain, captain?.secondBonusIndex, captain?.secondBonusValue);
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Higher_Artifact_Find_Chance');
   const fractalIsland = getIsland(account, 'Fractal');
   const fractalBonus = fractalIsland?.shop?.find(({ effect }) => effect === '1.20x_Chance_to_find_Sailing_Artifacts')?.unlocked ? 20 : 0;
@@ -598,7 +598,7 @@ const getBoatArtifactChance = (artifacts, captain, account, characters) => {
   const starSignBonus = getStarSignBonus(characters?.[0], account, 'Artifact_Find', false, true);
   const glimboCompanion = isCompanionBonusActive(account, 154)
     ? Math.max(1, Math.min(2, 1 + 2 * (account?.companions?.list?.at(154)?.bonus ?? 0))) : 1;
-  const killroyBonus = Math.max(1, getKillroyBonus(account, 0));
+  const killroyBonus = Math.max(1, getKillRoyShopBonus(account, 0));
   const turtleVial = getVialsBonusByStat(account?.alchemy?.vials, '6turtle');
   const winnerBonus = getWinnerBonus(account, '<x Artifact Find');
   const daveyJonesBonus = 1 + (50 * (account?.gemShopPurchases?.[8] ?? 0) + getLegendTalentBonus(account, 11)) / 100;
@@ -676,13 +676,9 @@ const getBoatArtifactChance = (artifacts, captain, account, characters) => {
   return { value: notateNumber(total, 'MultiplierInfo'), breakdown };
 }
 
-const getCaptainBonus = (bonusIndex, captain, captainBonusIndex) => {
-  if (captainBonusIndex > 0) return 0;
+const getCaptainBonus = (bonusIndex, captain, captainBonusIndex, bonusValue) => {
   if (captainBonusIndex === bonusIndex) {
-    return captain?.level * captain?.firstBonusValue;
-  }
-  else if (captainBonusIndex === bonusIndex) {
-    return captain?.level * captain?.secondBonusValue;
+    return captain?.level * bonusValue;
   }
   return 0;
 }
