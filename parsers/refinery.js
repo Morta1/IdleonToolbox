@@ -227,7 +227,7 @@ export const getRefineryCycles = (account, characters, lastUpdated) => {
 export const calcTimeToRankUp = (account, characters, _lastUpdated, refineryData, includeSquireCycles, rank, powerCap, refined, index) => {
   const { combustionTime, synthesisTime, polymerizeTime } = computeRefineryCycleTimes(account, characters);
   const powerPerCycle = getPowerPerCycle(rank, account);
-  const cycleTime = index <= 2 ? combustionTime : index <= 4 ? synthesisTime : polymerizeTime;
+  const cycleTime = index <= 2 ? combustionTime : index <= 5 ? synthesisTime : polymerizeTime;
   const cyclesPerDay = (24 * 60 * 60 / cycleTime)
     + (includeSquireCycles
     ? (refineryData?.squiresCycles ?? 0)
