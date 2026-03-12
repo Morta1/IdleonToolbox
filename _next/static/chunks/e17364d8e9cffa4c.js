@@ -1,0 +1,22 @@
+__turbopack_load_page_chunks__("/account/world-7/spelunking", [
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/32fef4392fa34b20.js",
+  "static/chunks/ffc533634cbe192b.js",
+  "static/chunks/67869c03a80f162b.js",
+  "static/chunks/49d78ef4063457ff.js",
+  "static/chunks/b9898908ac97cd52.js",
+  "static/chunks/14c1dbfa59234543.js",
+  "static/chunks/6532a969801b0f6e.js",
+  "static/chunks/969578bfc8bb0ccb.js",
+  "static/chunks/0b3e6744ef4aea57.js",
+  "static/chunks/a0f10a051705e44b.js",
+  "static/chunks/bef54f861694aa38.js",
+  "static/chunks/bcc2056cbb1dca1f.js",
+  "static/chunks/11dd29f02e66e3c2.js",
+  "static/chunks/aa64c19f518e4e57.js",
+  "static/chunks/3e19b5ff68115210.js",
+  "static/chunks/b40afad9653db752.js",
+  "static/chunks/22bd56094e01b68a.js",
+  "static/chunks/af800e19c9316692.js",
+  "static/chunks/turbopack-e4941722c864968f.js"
+])
