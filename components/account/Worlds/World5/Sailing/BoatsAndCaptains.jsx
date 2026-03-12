@@ -6,7 +6,7 @@ import Timer from '../../../../common/Timer';
 import Captain from './Captain';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
-import { Breakdown } from '@components/common/styles';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
 const BoatsAndCaptains = ({
                             boats,
@@ -117,7 +117,12 @@ const BoatsAndCaptains = ({
           </Stack>
           <Resources inline resources={resources}/>
           <Divider sx={{ my: 1 }}/>
-          <Typography>Artifact Odds: {artifactChance}x</Typography>
+          <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+            <Typography>Artifact Odds: {artifactChance?.value}x</Typography>
+            <Breakdown data={artifactChance?.breakdown}>
+              <InfoIcon sx={{ fontSize: 16, cursor: 'pointer', color: 'text.secondary' }}/>
+            </Breakdown>
+          </Stack>
         </CardContent>
       </Card>)}
     </Stack>

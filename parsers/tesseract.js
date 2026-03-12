@@ -11,6 +11,7 @@ import { getOptimizedGenericUpgrades } from './genericUpgradeOptimizer';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getPaletteBonus } from '@parsers/gaming';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
+import { isCompanionBonusActive } from '@parsers/misc';
 
 export const tachyonNames = {
   0: 'Purple',
@@ -510,8 +511,11 @@ export const getPrismaMulti = (account) => {
   const trophyBonus = hasItemDropped(account, 'Trophy23') ? 10 : 0;
   const totalEtherealSigils = account?.alchemy?.p2w?.totalEtherealSigils || 0;
   const sigilsBonus = 0.2 * totalEtherealSigils;
+  const companionBonus = isCompanionBonusActive(account, 88) ? 1 : 0;
 
-  const value = Math.min(3, 2 + (tesseractBonus + (arcadeBonus + (trophyBonus + (paletteBonus + (sigilsBonus + exoticMarketBonus)))) + legendBonus) / 100);
+  const value = Math.min(3, 2 + (tesseractBonus 
+    + (arcadeBonus + (trophyBonus + (paletteBonus
+       + (sigilsBonus + exoticMarketBonus)))) + legendBonus + 50 * companionBonus) / 100);
 
   return {
     value,
@@ -529,6 +533,7 @@ export const getPrismaMulti = (account) => {
             { name: "Ethereal Sigils", value: sigilsBonus },
             { name: "Exotic Market", value: exoticMarketBonus },
             { name: "Legend Talent", value: legendBonus },
+            { name: "Companion", value: companionBonus ? 50 : 0 },
           ],
         },
       ],

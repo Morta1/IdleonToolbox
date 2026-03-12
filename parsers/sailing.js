@@ -4,6 +4,7 @@ import {
   getHighestCharacterSkill,
   getHighestLevelCharacter,
   getHighestLevelOfClass,
+  isCompanionBonusActive,
   isMasteryBonusUnlocked
 } from './misc';
 import { CLASSES, getHighestTalentByClass, mainStatMap } from './talents';
@@ -20,12 +21,23 @@ import LavaRand from '../utility/lavaRand';
 import { getAchievementStatus } from './achievements';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { isPast } from 'date-fns';
-import { getJadeEmporiumBonus } from '@parsers/world-6/sneaking';
+import { getJadeEmporiumBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { isSuperbitUnlocked } from '@parsers/gaming';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getArcadeBonus } from './arcade';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
+import { getResearchGridBonus } from '@parsers/world-7/research';
+import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { getKillroyBonus } from './misc';
+import { getBribeBonus } from '@parsers/bribes';
+import { getExoticMarketBonus, getStickerBonus } from '@parsers/world-6/farming';
+import { getPaletteBonus } from '@parsers/gaming';
+import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
+import { getLoreBonus } from '@parsers/world-7/spelunking';
+import { getCharmBonus } from '@parsers/world-6/sneaking';
+import { getIsland } from '@parsers/world-2/islands';
+import { getStarSignBonus } from '@parsers/starSigns';
 
 export const getSailing = (idleonData, artifactsList, charactersData, account, serverVars, charactersLevels) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
@@ -45,7 +57,7 @@ const parseSailing = (artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRa
     + (Math.min(4, dreamCatcherBonus)
       + (account?.tasks?.[2]?.[4]?.[2])
       + (chestsFromAchievements))), 34);
-  const chests = getChests(chestsRaw, artifactsList, serverVars);
+  const chests = getChests(chestsRaw, artifactsList, serverVars, account);
   const rareTreasureChance = getRareTreasureChance();
   const lootPileList = getLootPile(lootPile);
   const captainsAndBoats = getCaptainsAndBoats(sailingRaw, captainsRaw, boatsRaw, account, charactersData, charactersLevels, artifactsList, lootPileList);
@@ -127,50 +139,105 @@ export const getArtifacts = (idleonData, charactersData, account) => {
     acquiredArtifacts?.[index], lootPile, index, charactersData, account));
 }
 
-const getChests = (chestsRaw, artifactsList, serverVars) => {
+const getChests = (chestsRaw, artifactsList, serverVars, account) => {
   return chestsRaw?.map((chest) => ({
-    ...getArtifactChance(chest, artifactsList, serverVars),
+    ...getArtifactChance(chest, artifactsList, serverVars, account),
     rawName: `SailChest${chest?.[3]}`
   }))
 }
 
-const getArtifactChance = (chest, artifactsList, serverVars) => {
+// Dynamic artifact count overrides: game sets IslandInfobox[island][2] at runtime when emporium items are bought.
+// Key: island name, value: { emporiumName, fullCount }
+const ISLAND_ARTIFACT_OVERRIDES = {
+  'The_Edge': { emporiumName: 'Brighter_Lighthouse_Bulb', fullCount: 4 }
+};
+
+// chance/threshold is a raw fraction (can exceed 1 = guaranteed).
+// Convert to a display percentage: min(100, fraction * 100).
+const toTierChance = (chance, threshold) =>
+  Math.min(100, (chance / threshold) * 100).toFixed(5);
+
+const getIslandArtifactCount = (island, account) => {
+  const override = island?.name ? ISLAND_ARTIFACT_OVERRIDES[island.name] : null;
+  if (override && isJadeBonusUnlocked(account, override.emporiumName)) return override.fullCount;
+  return island?.numberOfArtifacts ?? 0;
+}
+
+const getArtifactChance = (chest, artifactsList, serverVars, account) => {
   const [treasure, islandIndex, chance] = chest;
   const island = islands?.[islandIndex];
   let artifactsStartIndex = 0;
   for (let i = 0; i < islandIndex; i++) {
-    const island = islands?.[i];
-    artifactsStartIndex += island?.numberOfArtifacts;
+    artifactsStartIndex += getIslandArtifactCount(islands?.[i], account);
   }
-  let startingIndex = 1, baseMath = 0;
-  for (let i = 0; i < island?.numberOfArtifacts; i++) {
+
+  const riftLevel = account?.rift?.[0] ?? 0;
+  const sovereignUnlocked = isJadeBonusUnlocked(account, 'Sovereign_Artifacts');
+  const omnipotentUnlocked = (account?.spelunking?.cavesUnlocked ?? 0) >= 1;
+  const transcendentUnlocked = getResearchGridBonus(account, 109, 0) >= 1;
+
+  const islandArtifactCount = getIslandArtifactCount(island, account);
+
+  const tierThresholds = {
+    base: null, // per-artifact (varies)
+    ancient: getAncientChances(islandIndex, serverVars),
+    eldritch: getEldritchChances(islandIndex, serverVars),
+    sovereign: getSovereignChances(islandIndex, serverVars),
+    omnipotent: getOmnipotentChances(islandIndex, serverVars),
+    transcendent: getTranscendentChances(islandIndex, serverVars)
+  };
+  // Track active tiers
+  const activeTiers = { base: false, ancient: false, eldritch: false, sovereign: false, omnipotent: false, transcendent: false };
+
+  // Cumulatively multiply probability of NOT finding anything, matching the game's SailzDN2 logic
+  let prob = 1;
+  for (let i = 0; i < islandArtifactCount; i++) {
     const artifact = artifactsList[artifactsStartIndex + i];
-    if (!artifact) {
-      baseMath = startingIndex * (1 - chance / artifact?.baseFindChance);
-    }
-    else {
-      if (artifact?.acquired === 1) {
-        baseMath = startingIndex * (1 - chance / getAncientChances(islandIndex, serverVars));
-        startingIndex = baseMath;
-      }
-      if (artifact?.acquired === 2) {
-        baseMath = startingIndex * (1 - chance / getEldritchChances(islandIndex, serverVars));
-        startingIndex = baseMath;
-      }
+    const acquired = artifact?.acquired ?? 0;
+    if (acquired === 0) {
+      const threshold = artifact?.baseFindChance ?? 1;
+      prob *= (1 - chance / threshold);
+      activeTiers.base = true;
+    } else if (acquired === 1) {
+      prob *= (1 - chance / tierThresholds.ancient);
+      activeTiers.ancient = true;
+    } else if (acquired === 2 && riftLevel > 29) {
+      prob *= (1 - chance / tierThresholds.eldritch);
+      activeTiers.eldritch = true;
+    } else if (acquired === 3 && sovereignUnlocked) {
+      prob *= (1 - chance / tierThresholds.sovereign);
+      activeTiers.sovereign = true;
+    } else if (acquired === 4 && omnipotentUnlocked) {
+      prob *= (1 - chance / tierThresholds.omnipotent);
+      activeTiers.omnipotent = true;
+    } else if (acquired === 5 && transcendentUnlocked) {
+      prob *= (1 - chance / tierThresholds.transcendent);
+      activeTiers.transcendent = true;
     }
   }
-  if (baseMath === 0) {
+
+  if (prob === 1) {
     return { done: true, island, islandIndex, treasure };
   }
-  const artifactChance = 100 * Math.min(1, 1 - (baseMath));
-  const possibleArtifacts = artifactsList?.slice(artifactsStartIndex, artifactsStartIndex + island?.numberOfArtifacts)
-    .filter(({ acquired }) => acquired < 3);
+
+  const artifactChance = 100 * Math.min(1, 1 - prob);
+  const possibleArtifacts = artifactsList?.slice(artifactsStartIndex, artifactsStartIndex + islandArtifactCount)
+    .filter(({ acquired }) => {
+      if (acquired === 0 || acquired === 1) return true;
+      if (acquired === 2) return riftLevel > 29;
+      if (acquired === 3) return sovereignUnlocked;
+      if (acquired === 4) return omnipotentUnlocked;
+      if (acquired === 5) return transcendentUnlocked;
+      return false;
+    });
 
   return {
     artifactChance: artifactChance > 0.01 ? Math.round(100 * artifactChance) / 100 : 0.01,
-    ancientChance: (chance / getAncientChances(islandIndex, serverVars)).toFixed(5),
-    eldritchChance: (chance / getEldritchChances(islandIndex, serverVars)).toFixed(5),
-    sovereignChance: (chance / getSovereignChances(islandIndex, serverVars)).toFixed(5),
+    ...(activeTiers.ancient && { ancientChance: toTierChance(chance, tierThresholds.ancient) }),
+    ...(activeTiers.eldritch && { eldritchChance: toTierChance(chance, tierThresholds.eldritch) }),
+    ...(activeTiers.sovereign && { sovereignChance: toTierChance(chance, tierThresholds.sovereign) }),
+    ...(activeTiers.omnipotent && { omnipotentChance: toTierChance(chance, tierThresholds.omnipotent) }),
+    ...(activeTiers.transcendent && { transcendentChance: toTierChance(chance, tierThresholds.transcendent) }),
     island,
     islandIndex,
     treasure,
@@ -194,6 +261,22 @@ const getSovereignChances = (islandsUnlocked, serverVars) => {
   return 5 > islandsUnlocked
     ? 9e3 + 2e3 * islandsUnlocked
     : ((1e3 + 1.25 * (islandsUnlocked - 3) * serverVars?.AncientOddPerIsland) / (1 + serverVars?.AncientArtiPCT / 100)) * 180;
+}
+
+const getOmnipotentChances = (islandsUnlocked, serverVars) => {
+  return 6 > islandsUnlocked
+    ? 12e4 + 4e4 * islandsUnlocked
+    : 1e4 * (1 + (50 * (islandsUnlocked - 5)) / 100) * ((3e3 + 3 * (islandsUnlocked - 5) * serverVars?.AncientOddPerIsland) / (1 + serverVars?.AncientArtiPCT / 100));
+}
+
+const getTranscendentChances = (islandsUnlocked, serverVars) => {
+  return 6 > islandsUnlocked
+    ? 4e7 + 6e7 * islandsUnlocked
+    : 1e6
+      * (1 + (100 * (islandsUnlocked - 5)) / 100)
+      * Math.max(1, Math.pow(1.7, Math.max(0, islandsUnlocked - 7)))
+      * (1 + (50 * Math.max(0, islandsUnlocked - 9)) / 100)
+      * ((1e4 + 5e3 * (islandsUnlocked - 5) * (serverVars?.AncientOddPerIsland / 960)) / (1 + serverVars?.AncientArtiPCT / 100));
 }
 
 export const isArtifactAcquired = (artifacts = [], artifactName) => {
@@ -249,7 +332,7 @@ const getBoat = (boat, boatIndex, lootPile, captains, artifactsList, characters,
   const boatObj = {
     rawName: `Boat_Frame_${getBoatFrame(lootLevel + speedLevel)}`,
     level: lootLevel + speedLevel,
-    artifactChance: getBoatArtifactChance(artifactsList, captains[captainIndex], account),
+    artifactChance: getBoatArtifactChance(artifactsList, captains[captainIndex], account, characters),
     captainIndex,
     captainMappedIndex: captain?.captainIndex,
     lootLevel, speedLevel,
@@ -490,12 +573,107 @@ const getCaptainDisplayBonus = (captain, value) => {
   return Math.round(captain?.level * value * 10) / 10;
 }
 
-const getBoatArtifactChance = (artifacts, captain, account) => {
+const getBoatArtifactChance = (artifacts, captain, account, characters) => {
+  const holesObject = account?.hole?.holesObject;
+
+  // --- Additive group (÷ 100) ---
   const fauxoryTusk = isArtifactAcquired(artifacts, 'Fauxory_Tusk')?.bonus ?? 0;
+  const captainBonus = getCaptainBonus(3, captain, captain?.firstBonusIndex)
+    + getCaptainBonus(3, captain, captain?.secondBonusIndex);
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Higher_Artifact_Find_Chance');
-  const firstCaptainBonus = getCaptainBonus(3, captain, captain?.firstBonusIndex);
-  const secondCaptainBonus = getCaptainBonus(3, captain, captain?.secondBonusIndex);
-  return notateNumber(Math.max(1, 1 + (fauxoryTusk + (firstCaptainBonus + secondCaptainBonus) + shinyBonus) / 100), 'MultiplierInfo');
+  const fractalIsland = getIsland(account, 'Fractal');
+  const fractalBonus = fractalIsland?.shop?.find(({ effect }) => effect === '1.20x_Chance_to_find_Sailing_Artifacts')?.unlocked ? 20 : 0;
+  const bribeBonus = getBribeBonus(account?.bribes, 'Artifact_Pilfering');
+  const arcadeBonus = account?.arcade?.shop
+    ?.filter(({ effect }) => effect?.includes('+{% Artifact Find'))
+    ?.reduce((sum, { bonus }) => sum + (bonus ?? 0), 0) ?? 0;
+  const holeBuildingBonus = 10 * Math.floor(lavaLog(holesObject?.wellSediment?.[11] ?? 0));
+  const stickerBonus = getStickerBonus(account, 2);
+  const researchGridBonus = getResearchGridBonus(account, 109, 0);
+
+  const additive = fauxoryTusk + captainBonus + shinyBonus + fractalBonus
+    + bribeBonus + arcadeBonus + holeBuildingBonus + stickerBonus + researchGridBonus;
+
+  // --- Multiplicative factors ---
+  const starSignBonus = getStarSignBonus(characters?.[0], account, 'Artifact_Find', false, true);
+  const glimboCompanion = isCompanionBonusActive(account, 154)
+    ? Math.max(1, Math.min(2, 1 + 2 * (account?.companions?.list?.at(154)?.bonus ?? 0))) : 1;
+  const killroyBonus = Math.max(1, getKillroyBonus(account, 0));
+  const turtleVial = getVialsBonusByStat(account?.alchemy?.vials, '6turtle');
+  const winnerBonus = getWinnerBonus(account, '<x Artifact Find');
+  const daveyJonesBonus = 1 + (50 * (account?.gemShopPurchases?.[8] ?? 0) + getLegendTalentBonus(account, 11)) / 100;
+  const labBonus = getLabBonus(account?.lab?.labBonuses, 14);
+  const loreBonus = getLoreBonus(account, 3);
+  const pristineBonus = getCharmBonus(account, 'Glowing_Veil');
+  const voteBonus = getVoteBonus(account, 20);
+  const litterfishCompanion = isCompanionBonusActive(account, 43)
+    ? (account?.companions?.list?.at(43)?.bonus ?? 0) : 0;
+  const monumentBonus = getMonumentBonus({ holesObject, t: 1, i: 2 });
+  const exoticBonus = getExoticMarketBonus(account, 45);
+  const paletteBonus = getPaletteBonus(account, 5);
+  const discoveriesCount = account?.spelunking?.discoveriesCount ?? 0;
+  const spelunkSuperbit = isSuperbitUnlocked(account, 'Artifacto_Discoveries')
+    ? Math.pow(1.02, discoveriesCount) : 0;
+
+  const total = Math.max(1, (1 + additive / 100))
+    * (1 + starSignBonus / 100)
+    * glimboCompanion
+    * killroyBonus
+    * (1 + turtleVial / 100)
+    * (1 + winnerBonus / 100)
+    * daveyJonesBonus
+    * (1 + labBonus / 100)
+    * (1 + loreBonus / 100)
+    * (1 + pristineBonus / 100)
+    * (1 + voteBonus / 100)
+    * (1 + litterfishCompanion)
+    * (1 + monumentBonus / 100)
+    * (1 + exoticBonus / 100)
+    * (1 + paletteBonus / 100)
+    * Math.max(1, spelunkSuperbit);
+
+  const breakdown = {
+    statName: 'Artifact Find Chance',
+    totalValue: Math.round(total * 100) / 100,
+    categories: [
+      {
+        name: 'Additive',
+        sources: [
+          { name: 'Fauxory Tusk', value: fauxoryTusk },
+          { name: 'Captain', value: captainBonus },
+          { name: 'Shiny Pet', value: shinyBonus },
+          { name: 'Fractal Island', value: fractalBonus },
+          { name: 'Bribe - Artifact Pilfering', value: bribeBonus },
+          { name: 'Arcade', value: arcadeBonus },
+          { name: 'Hole - Tune of Artifaction', value: holeBuildingBonus },
+          { name: 'Sticker', value: stickerBonus },
+          { name: 'Research Grid', value: researchGridBonus },
+        ]
+      },
+      {
+        name: 'Multiplicative',
+        sources: [
+          { name: 'Star Sign - Artifosho', value: 1 + starSignBonus / 100 },
+          { name: 'Companion - Glimbo', value: glimboCompanion },
+          { name: 'Killroy Bonus', value: killroyBonus },
+          { name: 'Vial - Turtle Tisane', value: 1 + turtleVial / 100 },
+          { name: 'Summoning - Win Bonus', value: 1 + winnerBonus / 100 },
+          { name: 'Gem Shop (Davey Jones)', value: daveyJonesBonus },
+          { name: 'Lab - Artifact Attraction', value: 1 + labBonus / 100 },
+          { name: 'Lore Episode 3', value: 1 + loreBonus / 100 },
+          { name: 'Sneaking - Glowing Veil', value: 1 + pristineBonus / 100 },
+          { name: 'Summoning - Vote Bonus', value: 1 + voteBonus / 100 },
+          { name: 'Companion - Litterfish', value: 1 + litterfishCompanion },
+          { name: 'Monument', value: 1 + monumentBonus / 100 },
+          { name: 'Exotic Market', value: 1 + exoticBonus / 100 },
+          { name: 'Palette Bonus', value: 1 + paletteBonus / 100 },
+          { name: 'Spelunking Discoveries', value: Math.max(1, spelunkSuperbit) },
+        ]
+      }
+    ]
+  };
+
+  return { value: notateNumber(total, 'MultiplierInfo'), breakdown };
 }
 
 const getCaptainBonus = (bonusIndex, captain, captainBonusIndex) => {

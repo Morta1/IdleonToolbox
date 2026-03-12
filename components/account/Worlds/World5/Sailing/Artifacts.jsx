@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from '@utility/helpers';
+import { artifactTierColor } from './sailing.consts';
 import styled from '@emotion/styled';
 import Tooltip from '../../../../Tooltip';
 import { TitleAndValue } from '../../../../common/styles';
@@ -38,9 +39,7 @@ const Artifacts = ({ artifacts }) => {
         else if (acquired === 6) {
           bonusDescription = transcendentFormDescription;
         }
-        const color = acquired === 6 ? '#b388ff' : acquired === 5 ? '#00ffde' : acquired === 4 ? '#67da80' : acquired === 3 ? '#ffa092' : acquired === 2
-          ? 'gold'
-          : 'white';
+        const color = artifactTierColor(acquired);
         return (
           (<Card key={name + index} variant={acquired ? 'elevation' : 'outlined'}
                  sx={{ opacity: acquired === 0 ? .5 : 1 }}>

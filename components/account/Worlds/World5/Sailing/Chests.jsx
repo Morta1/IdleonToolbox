@@ -3,6 +3,7 @@ import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import Tooltip from '../../../../Tooltip';
 import { TitleAndValue } from '../../../../common/styles';
+import { artifactTierColor } from './sailing.consts';
 
 const Chests = ({ chests }) => {
   if (chests.length === 0) return <Stack justifyContent={'center'} direction={'row'}>
@@ -16,12 +17,14 @@ const Chests = ({ chests }) => {
                       ancientChance,
                       eldritchChance,
                       sovereignChance,
+                      omnipotentChance,
+                      transcendentChance,
                       rawName,
                       done,
-                      acquired,
                       possibleArtifacts,
                       islandIndex,
                       treasure
+
                     }, index) => {
         return <Card key={`${rawName}-${index}`} sx={{ width: 300 }}>
           <CardContent>
@@ -32,9 +35,11 @@ const Chests = ({ chests }) => {
                   {done ? <><Typography>No more artifacts!</Typography>
                     <Typography>&nbsp;</Typography></> : <>
                     <Typography>Artifact Chance {artifactChance}%</Typography>
-                    <Typography color={'warning.light'}>Ancient Chance {ancientChance}%</Typography>
-                    <Typography color={'error.light'}>Eldritch Chance {eldritchChance}%</Typography>
-                    <Typography color={'#67dada'}>Sovereign Chance {sovereignChance}%</Typography>
+                    {ancientChance && <Typography color={artifactTierColor(2)}>Ancient Chance {ancientChance}%</Typography>}
+                    {eldritchChance && <Typography color={artifactTierColor(3)}>Eldritch Chance {eldritchChance}%</Typography>}
+                    {sovereignChance && <Typography color={artifactTierColor(4)}>Sovereign Chance {sovereignChance}%</Typography>}
+                    {omnipotentChance && <Typography color={artifactTierColor(5)}>Omnipotent Chance {omnipotentChance}%</Typography>}
+                    {transcendentChance && <Typography color={artifactTierColor(6)}>Transcendent Chance {transcendentChance}%</Typography>}
                   </>}
                 </Stack>
               </Stack>
@@ -52,9 +57,7 @@ const Chests = ({ chests }) => {
                                                                  title={<ArtifactInfoTooltip {...artifact}/>}>
                     <Stack sx={{
                       border: '1px solid',
-                      borderColor: artifact?.acquired === 2 ? 'warning.light' : artifact?.acquired === 3
-                        ? 'error.light'
-                        : '',
+                      borderColor: artifact?.acquired >= 2 ? artifactTierColor(artifact.acquired) : '',
                       p: 1
                     }}
                            alignItems={'center'}>
