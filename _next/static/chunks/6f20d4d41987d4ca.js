@@ -1,0 +1,21 @@
+__turbopack_load_page_chunks__("/account/world-5/sailing", [
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/882d694df57b63e4.js",
+  "static/chunks/32fef4392fa34b20.js",
+  "static/chunks/969578bfc8bb0ccb.js",
+  "static/chunks/49d78ef4063457ff.js",
+  "static/chunks/14c1dbfa59234543.js",
+  "static/chunks/ffc533634cbe192b.js",
+  "static/chunks/6532a969801b0f6e.js",
+  "static/chunks/dd371104137b5352.js",
+  "static/chunks/bcc2056cbb1dca1f.js",
+  "static/chunks/a0f10a051705e44b.js",
+  "static/chunks/b9898908ac97cd52.js",
+  "static/chunks/22bd56094e01b68a.js",
+  "static/chunks/0b3e6744ef4aea57.js",
+  "static/chunks/7010034fcbea6d9f.js",
+  "static/chunks/f2b90d56eef52bb6.js",
+  "static/chunks/3e19b5ff68115210.js",
+  "static/chunks/bef54f861694aa38.js",
+  "static/chunks/turbopack-db556e7a42d7b8bc.js"
+])
