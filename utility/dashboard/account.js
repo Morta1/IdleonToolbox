@@ -1214,6 +1214,19 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       alerts.construction = construction;
     }
   }
+  if (fields?.minehead?.checked) {
+    const minehead = {};
+    if (options?.minehead?.dailyTries?.checked) {
+      const triesLeft = account?.minehead?.dailyTriesLeft ?? 0;
+      const triesMax = account?.minehead?.dailyTriesMax ?? 0;
+      if (triesLeft > 0 && triesMax > 0) {
+        minehead.dailyTries = { left: triesLeft, max: triesMax };
+      }
+    }
+    if (Object.keys(minehead).length > 0) {
+      alerts.minehead = minehead;
+    }
+  }
   return alerts;
 };
 export const areKeysOverdue = (account) => {

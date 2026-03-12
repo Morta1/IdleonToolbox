@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 38,
+  version: 39,
   account: {
     General: {
       tasks: {
@@ -401,6 +401,10 @@ const baseTrackers = {
       construction: {
         checked: true,
         options: [{ name: 'jeweledCogs', checked: true }]
+      },
+      minehead: {
+        checked: true,
+        options: [{ name: 'dailyTries', checked: true }]
       }
     }
   },

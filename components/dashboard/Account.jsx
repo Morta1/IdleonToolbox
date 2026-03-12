@@ -541,6 +541,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                     ? 's'
                     : ''} left (${alerts?.['World 7']?.construction?.jeweledCogs?.current}/${alerts?.['World 7']?.construction?.jeweledCogs?.max})`}
                   iconPath={'data/CogCry0'}/> : null}
+              {alerts?.['World 7']?.minehead?.dailyTries ?
+                <Alert
+                  title={`You have ${alerts?.['World 7']?.minehead?.dailyTries?.left} minehead attempt${alerts?.['World 7']?.minehead?.dailyTries?.left === 1 ? '' : 's'} left (${alerts?.['World 7']?.minehead?.dailyTries?.left}/${alerts?.['World 7']?.minehead?.dailyTries?.max})`}
+                  iconPath={'data/MineHead0'}/> : null}
             </Stack>
           </Stack> : null}
         </Stack> : <Typography>There are no account alerts to display</Typography>}

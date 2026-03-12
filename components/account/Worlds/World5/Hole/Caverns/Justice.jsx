@@ -3,6 +3,7 @@ import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, msToDate, notateNumber } from '@utility/helpers';
 import React from 'react';
 import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
+import ProgressBar from '@components/common/ProgressBar';
 
 const Justice = ({ hole }) => {
   return <>
@@ -33,11 +34,18 @@ const Justice = ({ hole }) => {
     </Stack>
     <Divider sx={{ my: 2 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {hole?.caverns?.justice?.bonuses.map(({ description, level }, index) => {
+      {hole?.caverns?.justice?.bonuses.map(({ description, level, bonus, cap, progression, scalingValue, levelToReachCap }, index) => {
         return <Card key={`bonus-${index}`}>
           <CardContent sx={{ width: 300, opacity: level === 0 ? .5 : 1 }}>
-            <Typography>Lv. {level}</Typography>
+            <Typography>Lv. {level}{levelToReachCap !== null ? ` / ${commaNotation(levelToReachCap)}` : ''}</Typography>
             <Typography>{cleanUnderscore(description)}</Typography>
+            <Typography variant={'body2'} sx={{ mt: 1 }}>+{scalingValue} per level</Typography>
+            {cap !== null && (
+              <ProgressBar
+                percent={progression}
+                tooltipTitle={`${notateNumber(bonus, 'MultiplierInfo')} / ${cap} cap`}
+              />
+            )}
           </CardContent>
         </Card>
       })}

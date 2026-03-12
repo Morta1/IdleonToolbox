@@ -26,14 +26,20 @@ export const getWisdom = (holesObject,  accountData) => {
     ?.filter((name) => !name.includes('Monument_'))
     .map((description, index) => {
       const level = holesObject?.braveryBonuses?.slice(20)?.[index];
-      const bonus = getMonumentBonus({ holesObject, t: 2, i: index })
+      const bonus = getMonumentBonus({ holesObject, t: 2, i: index });
+      const scalingValue = parseFloat(holesInfo?.[37]?.split(' ')?.[20 + index]);
+      const isSoftCap = scalingValue >= 30;
       return {
         description: description.replace(/_/g, ' ')
           .replace(/\|/g, ' ')
           .replace('{', Math.round(bonus))
           .replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo')),
         level,
-        bonus
+        bonus,
+        scalingValue,
+        cap: isSoftCap ? scalingValue : null,
+        progression: isSoftCap ? (bonus / scalingValue) * 100 : null,
+        levelToReachCap: isSoftCap ? Math.ceil(250 * (10 * scalingValue - 1)) : null
       }
     })
   const afkPercent = getMonumentAfkBonus(holesObject, accountData);

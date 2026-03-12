@@ -963,6 +963,25 @@ export const migrateToVersion38 = (config) => {
   return dashboardConfig;
 };
 
+export const migrateToVersion39 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (!dashboardConfig?.account?.['World 7']?.minehead) {
+    if (!dashboardConfig?.account) dashboardConfig.account = {};
+    if (!dashboardConfig?.account?.['World 7']) dashboardConfig.account['World 7'] = {};
+    dashboardConfig.account['World 7'].minehead = {
+      checked: true,
+      options: [{ name: 'dailyTries', checked: true }]
+    };
+  }
+
+  dashboardConfig.version = 39;
+  return dashboardConfig;
+};
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -1080,6 +1099,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 37) {
       migratedConfig = migrateToVersion38(migratedConfig);
+    }
+    if (migratedConfig?.version === 38) {
+      migratedConfig = migrateToVersion39(migratedConfig);
     }
   }
   return migratedConfig;
