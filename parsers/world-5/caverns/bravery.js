@@ -31,6 +31,7 @@ export const getBravery = (holesObject, accountData) => {
       value: (10 + 15 * index) * Math.pow(1.3, index)
     }
   }).filter((_, index) => (index + 1) % 5 === 0);
+  const multiplier = getMonumentMultiplier({ holesObject, t: 0 });
   const bonuses = holesInfo?.[32]?.split(' ')
     ?.slice(0, 10)
     ?.filter((name) => !name.includes('Monument_'))
@@ -39,14 +40,15 @@ export const getBravery = (holesObject, accountData) => {
       const bonus = getMonumentBonus({ holesObject, t: 0, i: index });
       const scalingValue = parseFloat(holesInfo?.[37]?.split(' ')?.[index]);
       const isSoftCap = scalingValue >= 30;
+      const effectiveCap = isSoftCap ? scalingValue * multiplier : null;
       return {
         description: description.replace(/_/g, ' ').replace(/\|/g, ' ').replace('{', Math.round(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo')),
         level,
         bonus,
         scalingValue,
-        cap: isSoftCap ? scalingValue : null,
-        progression: isSoftCap ? (bonus / scalingValue) * 100 : null,
-        levelToReachCap: isSoftCap ? Math.ceil(250 * (10 * scalingValue - 1)) : null
+        cap: effectiveCap,
+        progression: isSoftCap ? (bonus / effectiveCap) * 100 : null,
+        levelToReachCap: isSoftCap ? Math.ceil(250 * (10 * scalingValue * multiplier - 1)) : null
       }
     })
   const hours = holesObject?.braveryMonument?.[0] || 0;
@@ -238,4 +240,10 @@ export const getMonumentBonus = ({ holesObject, t, i }) => {
   } else {
     return 0.1 * Math.ceil((holesValue / (250 + holesValue)) * 10 * holesInfoValue * finalResult);
   }
+}
+
+export const getMonumentMultiplier = ({ holesObject, t }) => {
+  const result = 1 + getMonumentBonus({ holesObject, t, i: 9 }) / 100
+    + getCosmoBonus({ majik: holesObject?.holeMajiks, t: 0, i: 0 }) / 100;
+  return Math.max(1, result);
 }

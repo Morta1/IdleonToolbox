@@ -5,7 +5,8 @@ import {
   getMonumentAfkReq,
   getMonumentBonus,
   getMonumentHourBonus,
-  getMonumentMultiReward
+  getMonumentMultiReward,
+  getMonumentMultiplier
 } from '@parsers/world-5/caverns/bravery';
 import { holesInfo } from '@website-data';
 import { getStudyBonus } from '@parsers/world-5/hole';
@@ -21,6 +22,7 @@ export const getJustice = (holesObject, accountData) => {
     reward: hoursRewards?.[index]
   }));
   const nextHourBreakpoint = hoursBreakpoints.find(({ hours: reqHours }) => hours < reqHours);
+  const multiplier = getMonumentMultiplier({ holesObject, t: 1 });
   const bonuses = holesInfo?.[32]?.split(' ')
     ?.slice(10, 20)
     ?.filter((name) => !name.includes('Monument_'))
@@ -29,6 +31,7 @@ export const getJustice = (holesObject, accountData) => {
       const bonus = getMonumentBonus({ holesObject, t: 1, i: index });
       const scalingValue = parseFloat(holesInfo?.[37]?.split(' ')?.[10 + index]);
       const isSoftCap = scalingValue >= 30;
+      const effectiveCap = isSoftCap ? scalingValue * multiplier : null;
       return {
         description: description.replace(/_/g, ' ')
           .replace(/\|/g, ' ')
@@ -37,9 +40,9 @@ export const getJustice = (holesObject, accountData) => {
         level,
         bonus,
         scalingValue,
-        cap: isSoftCap ? scalingValue : null,
-        progression: isSoftCap ? (bonus / scalingValue) * 100 : null,
-        levelToReachCap: isSoftCap ? Math.ceil(250 * (10 * scalingValue - 1)) : null
+        cap: effectiveCap,
+        progression: isSoftCap ? (bonus / effectiveCap) * 100 : null,
+        levelToReachCap: isSoftCap ? Math.ceil(250 * (10 * scalingValue * multiplier - 1)) : null
       }
     })
   const afkPercent = getMonumentAfkBonus(holesObject, accountData);

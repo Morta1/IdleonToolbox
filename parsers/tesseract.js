@@ -513,7 +513,7 @@ export const getPrismaMulti = (account) => {
   const sigilsBonus = 0.2 * totalEtherealSigils;
   const companionBonus = isCompanionBonusActive(account, 88) ? 1 : 0;
 
-  const value = Math.min(3, 2 + (tesseractBonus 
+  const value = Math.min(4, 2 + (tesseractBonus 
     + (arcadeBonus + (trophyBonus + (paletteBonus
        + (sigilsBonus + exoticMarketBonus)))) + legendBonus + 50 * companionBonus) / 100);
 
