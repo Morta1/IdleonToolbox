@@ -1,0 +1,16 @@
+__turbopack_load_page_chunks__("/account/world-1/forge", [
+  "static/chunks/5b0b5334390f143f.js",
+  "static/chunks/14c1dbfa59234543.js",
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/49d78ef4063457ff.js",
+  "static/chunks/3e19b5ff68115210.js",
+  "static/chunks/25c91b919da9005f.js",
+  "static/chunks/b9898908ac97cd52.js",
+  "static/chunks/94ff524bbd02de92.js",
+  "static/chunks/bef54f861694aa38.js",
+  "static/chunks/0b3e6744ef4aea57.js",
+  "static/chunks/22bd56094e01b68a.js",
+  "static/chunks/bcc2056cbb1dca1f.js",
+  "static/chunks/a0f10a051705e44b.js",
+  "static/chunks/turbopack-980b49c378e22812.js"
+])
