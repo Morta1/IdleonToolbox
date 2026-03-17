@@ -202,8 +202,8 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
     }
     if (options?.etc?.petMartGems?.checked) {
       const lastClaimedShopDay = account?.accountOptions?.[516] ?? 0;
-      const currentShopDay = Math.floor((14400 + Date.now() / 1000) / 86400);
-      if (lastClaimedShopDay < currentShopDay) {
+      const currentShopDay = account?.tournament?.global?.S ?? 0;
+      if (currentShopDay >= 1 && lastClaimedShopDay < currentShopDay) {
         etc.petMartGems = true;
       }
     }
