@@ -1,6 +1,7 @@
 import { commaNotation, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
 import { bubbaUpgrades, generalSpelunky } from '@website-data';
 import { isCompanionBonusActive } from '@parsers/misc';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 export const getBubba = (idleonData, account) => {
   const rawBubba = tryToParse(idleonData?.Bubba);
@@ -358,6 +359,7 @@ const getMeatsliceRate = (rawBubba, account) => {
   const megafleshBonus = (getMegafleshOwned(rawBubba, 0) * getTotalQTYofLVs(rawBubba)) / 100;
   const giftPassiveBonus = getGiftPassiveBonus(rawBubba, 0, true) / 100;
   const spareCoinsMulti = getSpareCoinsMulti(rawBubba);
+  const vaultBonus65 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 65);
 
   return baseRate
     * (1 + percentageBonus)
@@ -367,5 +369,6 @@ const getMeatsliceRate = (rawBubba, account) => {
     * (1 + charismaBonus)
     * (1 + megafleshBonus)
     * (1 + giftPassiveBonus)
-    * spareCoinsMulti;
+    * spareCoinsMulti
+    * (1 + vaultBonus65 / 100);
 };

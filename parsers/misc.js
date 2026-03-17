@@ -68,7 +68,7 @@ export const getDoubleStatueDrop = (account, character, characters) => {
   };
 }
 
-export const getDoubleGoldenFoodDrop = (account, character, characters) => {
+export const getDoubleGoldenFoodDrop = (account) => {
   const tesseractBonus = getTesseractBonus(account, 30);
   const paletteBonus = getPaletteBonus(account, 24);
   const bigFishBonus = getAdviceFishBonus(account, 5);
@@ -756,6 +756,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
   const companionBonus = isCompanionBonusActive(account, 48) ? account?.companions?.list?.at(48)?.bonus : 0;
   const legendTalentBonus = getLegendTalentBonus(account, 25);
   const cardBonus = Math.min(getCardBonusByEffect(account?.cards, 'Gold_Food_Effect_(Passive)'), 50);
+  const vaultBonus86 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 86);
 
   // select first death bringer
   const deathBringer = characters?.find((character) => checkCharClass(character?.class, CLASSES.Death_Bringer));
@@ -770,7 +771,7 @@ export const getGoldenFoodMulti = (character, account, characters) => {
             + (goldenFoodAchievement
               + (goldenFoodBubbleBonus
                 + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus
-              + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses + companionBonus + legendTalentBonus + cardBonus))))) / 100);
+              + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses + companionBonus + legendTalentBonus + cardBonus + vaultBonus86))))) / 100);
 
   const breakdown = {
     statName: 'Golden food multi', // adjust if needed

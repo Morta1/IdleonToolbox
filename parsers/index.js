@@ -2,6 +2,7 @@ import {
   getCharacters,
   getPlayerConstructionExpPerHour,
   getPlayerConstructionSpeed,
+  getPlayerCrystalChance,
   initializeCharacter
 } from './character';
 import { getCards } from './cards';
@@ -293,6 +294,7 @@ const serializeData = (idleonData, serverVars, staticData, processedData) => {
         maxCapacity: capacity?.value * character?.inventorySlots
       }
     })
+    character.crystalSpawnChance = getPlayerCrystalChance(character, accountData, idleonData);
     character.constructionSpeed = getPlayerConstructionSpeed(character, accountData);
     character.constructionExpPerHour = getPlayerConstructionExpPerHour(character, accountData);
     return character;

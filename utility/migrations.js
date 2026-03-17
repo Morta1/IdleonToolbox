@@ -982,6 +982,21 @@ export const migrateToVersion39 = (config) => {
   return dashboardConfig;
 };
 
+export const migrateToVersion40 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  const etcOptions = dashboardConfig?.account?.General?.etc?.options;
+  if (etcOptions && !etcOptions.some(opt => opt.name === 'petMartGems')) {
+    etcOptions.push({ name: 'petMartGems', checked: true });
+  }
+
+  dashboardConfig.version = 40;
+  return dashboardConfig;
+};
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -1102,6 +1117,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 38) {
       migratedConfig = migrateToVersion39(migratedConfig);
+    }
+    if (migratedConfig?.version === 39) {
+      migratedConfig = migrateToVersion40(migratedConfig);
     }
   }
   return migratedConfig;

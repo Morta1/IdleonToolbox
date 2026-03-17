@@ -429,7 +429,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   };
   character.worship = getPlayerWorship(character, account, char?.PlayerStuff?.[0]);
   character.quests = getPlayerQuests(char?.QuestComplete);
-  character.crystalSpawnChance = getPlayerCrystalChance(character, account, idleonData);
+  // crystalSpawnChance is computed later in index.js (after applyArtifactBonusOnSigil)
   // starSigns, cards, postOffice, talents, bubbles, jewels, labBonuses
   character.nonConsumeChance = getNonConsumeChance(character, account);
   // character.constructionSpeed = getPlayerConstructionSpeed(character, account);
@@ -1140,6 +1140,7 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const { value: equipBonus, breakdown: equipBonusBreakdown } = getStatsFromGear(character, 74, account);
     const voteBonus = getVoteBonus(account, 23);
     const armorSetBonus = getArmorSetBonus(account, 'MAGMA_SET');
+    const vaultBonus72 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 72);
 
     const value = character?.divStyle?.divPerHour
       * (1 + gemShopBonus / 4)
@@ -1161,7 +1162,8 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
                                 + (guildBonus + (arcadeBonus
                                   + (equipBonus +
                                     (voteBonus +
-                                      armorSetBonus))))))))))))))))) / 100);
+                                      (armorSetBonus
+                                        + vaultBonus72)))))))))))))))))) / 100);
     return {
       value,
       breakdown: [
@@ -1243,12 +1245,13 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Farming_EXP_gain');
     const landRankBonus = getLandRankTotalBonus(account, 4);
     const talentBonus = getHighestTalentByClass(characters, CLASSES.Death_Bringer, 'AGRICULTURAL_\'PRECIATION');
+    const vaultBonus77 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 77);
 
     let value = Math.max(1, marketBonus)
       * (1 + (marketBonus2
         + (msaBonus + 25
           * skillMasteryBonus
-          + (mealBonus + arcadeBonus))) / 100)
+          + (mealBonus + arcadeBonus + vaultBonus77))) / 100)
       * (1 + winnerBonus / 100)
       * (1 + (vialBonus
         + (statueBonus +
@@ -1395,12 +1398,14 @@ export const getSkillExpMulti = (skillName, character, characters, account, play
     const starSignBonus = getStarSignBonus(character, account, 'Summoning_EXP');
     const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
     const voteBonus = getVoteBonus(account, 28)
+    const vaultBonus84 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 84);
 
     const value = Math.max(1, talentBonus)
       * (1 + (vialBonus
         + (cardBonus +
           (mealBonus
-            + labBonus))) / 100)
+            + (labBonus
+              + vaultBonus84)))) / 100)
       * (1 + arcadeBonus / 100) *
       (1 + (shinyBonus
         + 25 * skillMasteryBonus +
@@ -1596,6 +1601,7 @@ export const getJadeRate = (character, account) => {
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'COOL_COIN');
   const starSignBonus = getStarSignBonus(character, account, 'Jade_Gain')
   const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.sneaking?.rank, 1);
+  const vaultBonus81 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 81);
 
   return parseFloat(floorJadeModifier)
     * (1 + (ninjaUpgradeBonus * sneakingLevel) / 100) * (1 + ninjaEquip / 100) * (1 + ninjaEquip1 / 100)
@@ -1604,7 +1610,8 @@ export const getJadeRate = (character, account) => {
         + ninjaEquip5)) / 100) * (1 + (jadeEmporiumBonus + stampBonus) / 100) * (1 + farmingBonus / 100)
     * (1 + summoningBonus / 100) *
     (1 + (msaBonus
-      + sigilBonus) / 100)
+      + (sigilBonus
+        + vaultBonus81)) / 100)
     * (1 + starSignBonus / 100)
     * (1 + (10 * masteryBonus) / 100);
 }

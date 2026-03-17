@@ -448,7 +448,7 @@ function applyThousandSeparator(
 export const numberWithCommas = (numStr, isFloat = true) => {
   numStr = String(numStr);
   const hasDecimalSeparator = numStr.indexOf('.') !== -1;
-  let { beforeDecimal, afterDecimal, addNegation } = splitDecimal(numStr); // eslint-disable-line prefer-const
+  let { beforeDecimal, afterDecimal } = splitDecimal(numStr); // eslint-disable-line prefer-const
   beforeDecimal = applyThousandSeparator(beforeDecimal, ',');
   numStr = beforeDecimal + ((isFloat && hasDecimalSeparator && '.') || '') + (isFloat ? afterDecimal : '');
   return numStr;
@@ -494,7 +494,7 @@ export const getCoinsArray = (coins) => {
 
 export const getBitIndex = (e) => {
   let bits = e, num = 0;
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 5; i++) {
     if (bits > 1e18) {
       bits /= 1e18;
       num++;
@@ -859,9 +859,9 @@ export const handleDownload = (jsonData, fileName) => {
 export const handleLoadJson = async (dispatch) => {
   try {
     const content = JSON.parse(await navigator.clipboard.readText());
-    let { data = content, charNames, companion, guildData, serverVars = {} } = content;
+    let { data = content, charNames, companion, guildData, serverVars = {}, accountCreateTime, tournament } = content;
     const { parseData } = await import('@parsers/index');
-    const parsedData = parseData(data, charNames, companion, guildData, serverVars);
+    const parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTime, tournament);
     const lastUpdated = new Date().getTime();
     localStorage.setItem('lastUpdated', JSON.stringify(lastUpdated));
     // console.log('Manual Import', { ...parsedData, lastUpdated, manualImport: true });
@@ -871,6 +871,7 @@ export const handleLoadJson = async (dispatch) => {
       companion,
       guildData,
       serverVars,
+      tournament,
       lastUpdated
     }))
     dispatch({ type: 'data', data: { ...parsedData, lastUpdated, manualImport: true } });
@@ -1021,7 +1022,6 @@ export function parseShorthandNumber(input) {
       // 4. 3 digits after + 4+ digits before = decimal separator
 
       const isProperThousandsSeparator = digitsAfterComma === 3 && digitsBeforeComma >= 1 && digitsBeforeComma <= 3;
-      const isClearlyDecimal = digitsAfterComma >= 1 && digitsAfterComma <= 2;
       const isMisplacedSeparator = digitsAfterComma >= 4;
 
       if (isProperThousandsSeparator) {
@@ -1052,7 +1052,6 @@ export function parseShorthandNumber(input) {
 
       // Same heuristic as comma
       const isProperThousandsSeparator = digitsAfterPeriod === 3 && digitsBeforePeriod >= 1 && digitsBeforePeriod <= 3;
-      const isClearlyDecimal = digitsAfterPeriod >= 1 && digitsAfterPeriod <= 2;
       const isMisplacedSeparator = digitsAfterPeriod >= 4;
 
       if (isProperThousandsSeparator) {

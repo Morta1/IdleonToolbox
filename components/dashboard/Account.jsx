@@ -60,6 +60,9 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.General?.etc?.freeCompanion ?
                 <Alert title={`You can claim a free companion`}
                        iconPath={'afk_targets/Dog'}/> : null}
+              {alerts?.General?.etc?.petMartGems ?
+                <Alert title={'You have unclaimed free gems from the Pet Mart'}
+                       iconPath={'data/PremiumGem'}/> : null}
               {alerts?.General?.etc?.newCharacters ?
                 <Alert
                   title={`You can create ${alerts?.General?.etc?.newCharacters} new character${alerts?.General?.etc?.newCharacters > 1

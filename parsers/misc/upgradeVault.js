@@ -1,5 +1,5 @@
 import { commaNotation, notateNumber, tryToParse, lavaLog } from '@utility/helpers';
-import { upgradeVault, mapPortals } from '@website-data';
+import { upgradeVault } from '@website-data';
 
 export const getUpgradeVault = (idleonData, accountData, charactersData) => {
   const upgradeVaultRaw = idleonData?.UpgVault || tryToParse(idleonData?.UpgVault);
@@ -64,16 +64,21 @@ export const getUpgradeVaultBonus = (upgrades, index) => {
 }
 
 const calcUpgradeVaultBonus = (upgrades, index) => {
-  const { level, x5 } = upgrades?.[index];
+  const { level, x5 } = upgrades?.[index] ?? {};
   const higherBonuses = upgrades?.[60];
-  return 32 === index || 1 === index || 6 === index
+  const isSimple = 32 === index || 1 === index || 6 === index
     || 7 === index || 8 === index || 9 === index
     || 13 === index || 999 === index
     || 33 === index || 36 === index || 40 === index
     || 42 === index || 43 === index || 44 === index
     || 49 === index || 51 === index || 52 === index
     || 53 === index || 57 === index || 61 === index
-    || 999 === index
+    || 89 === index || 64 === index || 70 === index
+    || 73 === index || 74 === index || 76 === index
+    || 79 === index || 85 === index || 86 === index
+    || 88 === index;
+
+  return isSimple
     ? level * x5
     : 0 === index
       ? (level
@@ -95,14 +100,12 @@ const calcUpgradeVaultBonus = (upgrades, index) => {
         * (1 + Math.floor(higherBonuses?.level / 25) / 5)
         * (1 + calcUpgradeVaultBonus(upgrades, 61) / 100)
         : 32 > index
-          ? level
-          * x5
-          * (1 + calcUpgradeVaultBonus(upgrades, 32, 0) / 100)
+          ? level * x5 * (1 + calcUpgradeVaultBonus(upgrades, 32) / 100)
           : 61 > index
-            ? level
-            * x5
-            * (1 + calcUpgradeVaultBonus(upgrades, 61, 0) / 100)
-            : 0;
+            ? level * x5 * (1 + calcUpgradeVaultBonus(upgrades, 61) / 100)
+            : 89 > index
+              ? level * x5 * (1 + calcUpgradeVaultBonus(upgrades, 89) / 100)
+              : 0;
 }
 
 /**

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { cleanUnderscore, kFormatter, notateNumber, pascalCase, prefix } from '@utility/helpers';
@@ -97,6 +97,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
               <Stack direction={'row'} alignItems="center" gap={1} style={{ marginLeft: 'auto' }}>
                 <HtmlTooltip title={cleanUnderscore(activity)}>
                   <IconImg src={`${prefix}afk_targets/${activity}.png`} alt="activity icon"
+                           style={{ width: 42, height: 42 }}
                   />
                 </HtmlTooltip>
                 {charForm ? <HtmlTooltip title={`${formMap?.[charForm]}`}>
@@ -166,6 +167,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                        iconPath={`data/${alerts?.classSpecific?.betterWeapon?.rawName}`}
                        extra={<img
                          src={`${prefix}data/UpgArrowG.png`}
+                         alt={"up-arrow"}
                          style={{
                            position: 'absolute',
                            width: 12,
@@ -206,10 +208,10 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                 <Alert title={`${name} is missing ${alerts?.starSigns?.missingStarSigns} star signs`}
                        iconPath={'data/SignStar1b'}/> : null}
               {trackers?.talents && alerts?.talents?.talents?.length > 0 ? alerts?.talents?.talents?.map(({
-                                                                                          name,
-                                                                                          skillIndex,
-                                                                                          cooldown
-                                                                                        }, index) => (
+                                                                                                            name,
+                                                                                                            skillIndex,
+                                                                                                            cooldown
+                                                                                                          }, index) => (
                 <Alert key={skillIndex + '-' + index}
                        style={{ opacity: cooldown > 0 ? .5 : 1 }}
                        title={cooldown > 0
@@ -220,8 +222,10 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
               )) : null}
               {trackers?.talents && alerts?.talents?.superTalentLeftToSpend > 0 ?
                 <Alert
-                  title={`${name} has ${alerts?.talents?.superTalentLeftToSpend} unspent super talent point${alerts?.talents?.superTalentLeftToSpend === 1 ? '' : 's'}`}
-                  iconPath={'data/LegendTalentIcon0'} /> : null}
+                  title={`${name} has ${alerts?.talents?.superTalentLeftToSpend} unspent super talent point${alerts?.talents?.superTalentLeftToSpend === 1
+                    ? ''
+                    : 's'}`}
+                  iconPath={'data/LegendTalentIcon0'}/> : null}
               {trackers?.tools?.checked && alerts?.tools?.length > 0 ? alerts?.tools?.map(({
                                                                                              rawName,
                                                                                              displayName
@@ -281,15 +285,11 @@ const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
     crystalSpawnChance,
     nonConsumeChance
   } = character || {};
-  const { cashMulti } = useMemo(() => getCashMulti(character, account, characters) || {},
-    [character, account]);
-  const { dropRate } = useMemo(() => getDropRate(character, account, characters) || {},
-    [character, account]);
-  const { respawnRate } = useMemo(() => getRespawnRate(character, account) || {},
-    [character, account]);
-  const { afkGains } = useMemo(() => getAfkGain(character, characters, account), [character,
-    account]);
-  const playerInfo = useMemo(() => getMaxDamage(character, characters, account), [character, account]);
+  const { cashMulti } = getCashMulti(character, account, characters) || {};
+  const { dropRate } = getDropRate(character, account, characters) || {};
+  const { respawnRate } = getRespawnRate(character, account) || {};
+  const { afkGains } = getAfkGain(character, characters, account) || {};
+  const playerInfo = getMaxDamage(character, characters, account) || {};
   const isActive = () => {
     const timePassed = new Date().getTime() + (afkTime - lastUpdated);
     const minutes = differenceInMinutes(new Date(), new Date(timePassed));

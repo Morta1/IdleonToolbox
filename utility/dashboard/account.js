@@ -37,7 +37,7 @@ export const getOptions = (data) => {
   }, {});
 }
 
-export const getGeneralAlerts = (account, fields, options, characters, lastUpdated) => {
+export const getGeneralAlerts = (account, fields, options, characters) => {
   const alerts = {};
   if (fields?.tasks?.checked) {
     const { tasks: tasksOptions } = options?.tasks
@@ -198,6 +198,13 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
       const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - account?.companions?.lastFreeClaim));
       if (options?.etc?.freeCompanion?.checked && isPast(nextCompanionClaim)) {
         etc.freeCompanion = true;
+      }
+    }
+    if (options?.etc?.petMartGems?.checked) {
+      const lastClaimedShopDay = account?.accountOptions?.[516] ?? 0;
+      const currentShopDay = Math.floor((14400 + Date.now() / 1000) / 86400);
+      if (lastClaimedShopDay < currentShopDay) {
+        etc.petMartGems = true;
       }
     }
     if (Object.keys(etc).length > 0) {

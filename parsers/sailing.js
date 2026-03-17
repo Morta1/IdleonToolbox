@@ -36,6 +36,7 @@ import { getPaletteBonus } from '@parsers/gaming';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getLoreBonus } from '@parsers/world-7/spelunking';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getIsland } from '@parsers/world-2/islands';
 import { getStarSignBonus } from '@parsers/starSigns';
 
@@ -492,12 +493,13 @@ const getFinalBoatLoot = ({
   firstCaptainBonus,
   secondCaptainBonus,
   arcadeBonus,
+  vaultBonus67,
   talentBonus,
   daveyJonesBonus,
   lampBonus
 }) => {
   return (5 + lootLevelMath * lootLevel)
-    * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + (artifactBonus + (25 * Math.min(30, 0)) + (arcadeBonus)))) / 100)
+    * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + (artifactBonus + (25 * Math.min(30, 0)) + (arcadeBonus + vaultBonus67)))) / 100)
     * (1 + talentBonus / 100)
     * daveyJonesBonus
     * (1 + lampBonus / 100);
@@ -514,6 +516,7 @@ const getBoatLootValue = (characters, account, artifactsList, boat, captain) => 
   const secondCaptainBonus = getCaptainBonus(1, captain, captain?.secondBonusIndex, captain?.secondBonusValue);
   const artifactBonus = isArtifactAcquired(artifactsList, 'Genie_Lamp')?.bonus ?? 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Sailing_Loot')?.bonus ?? 0;
+  const vaultBonus67 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 67);
   const daveyJonesBonus = 1 + (50 * account?.gemShopPurchases?.[8] + getLegendTalentBonus(account, 11)) / 100;
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 0, account }) ?? 0;
 
@@ -525,6 +528,7 @@ const getBoatLootValue = (characters, account, artifactsList, boat, captain) => 
     firstCaptainBonus,
     secondCaptainBonus,
     arcadeBonus,
+    vaultBonus67,
     talentBonus,
     daveyJonesBonus,
     lampBonus
@@ -537,6 +541,7 @@ const getBoatLootValue = (characters, account, artifactsList, boat, captain) => 
     firstCaptainBonus,
     secondCaptainBonus,
     arcadeBonus,
+    vaultBonus67,
     talentBonus,
     daveyJonesBonus,
     lampBonus
@@ -551,6 +556,7 @@ const getBoatLootValue = (characters, account, artifactsList, boat, captain) => 
       firstCaptainBonus,
       secondCaptainBonus,
       arcadeBonus,
+      vaultBonus67,
       talentBonus,
       daveyJonesBonus,
       lampBonus
@@ -591,8 +597,10 @@ const getBoatArtifactChance = (artifacts, captain, account, characters) => {
   const stickerBonus = getStickerBonus(account, 2);
   const researchGridBonus = getResearchGridBonus(account, 109, 0);
 
+  const vaultBonus63 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 63);
+
   const additive = fauxoryTusk + captainBonus + shinyBonus + fractalBonus
-    + bribeBonus + arcadeBonus + holeBuildingBonus + stickerBonus + researchGridBonus;
+    + bribeBonus + arcadeBonus + holeBuildingBonus + stickerBonus + researchGridBonus + vaultBonus63;
 
   // --- Multiplicative factors ---
   const starSignBonus = getStarSignBonus(characters?.[0], account, 'Artifact_Find', false, true);
@@ -648,6 +656,7 @@ const getBoatArtifactChance = (artifacts, captain, account, characters) => {
           { name: 'Hole - Tune of Artifaction', value: holeBuildingBonus },
           { name: 'Sticker', value: stickerBonus },
           { name: 'Research Grid', value: researchGridBonus },
+          { name: 'Vault Upgrade', value: vaultBonus63 },
         ]
       },
       {
@@ -736,9 +745,11 @@ const getArtifact = (artifact, acquired, lootPile, index, charactersData, accoun
     const slabSovereignty = getLabBonus(account?.lab.labBonuses, 15); // gem multi
     const legendTalentBonus = getLegendTalentBonus(account, 28);
     const meritocracyBonus = getMeritocracyBonus(account, 23);
+    const vaultBonus74 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 74);
     const math = artifact?.[multiplierType] * (1 + slabSovereignty / 100)
       * (1 + legendTalentBonus / 100)
       * (1 + meritocracyBonus / 100)
+      * (1 + vaultBonus74 / 100)
       * Math.floor(Math.max(0, lootedItems - 500) / 10);
     bonus = everyXMulti && multiplierType !== 'baseBonus' ? artifact?.baseBonus * math : math;
   }
@@ -865,9 +876,11 @@ export const getSlabBonus = (account, index) => {
   const superbitBonus2 = isSuperbitUnlocked(account, 'Slabby_Research');
   const slabSovereignty = getLabBonus(account?.lab?.labBonuses, 15); // gem multi
   const lootedItems = account?.looty?.rawLootedItems;
+  const vaultBonus74 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 74);
   const slabMultipliers = (1 + slabSovereignty / 100)
     * (1 + getMeritocracyBonus(account, 23) / 100)
-    * (1 + getLegendTalentBonus(account, 28) / 100);
+    * (1 + getLegendTalentBonus(account, 28) / 100)
+    * (1 + vaultBonus74 / 100);
   return 4 == index ? (1 == jadeEmporiumBonus ?
     5 * slabMultipliers * Math.floor(Math.max(0, lootedItems - 1e3) / 10) : 0)
     : 5 == index ? (1 == jadeEmporiumBonus2 ?

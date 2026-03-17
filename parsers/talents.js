@@ -184,12 +184,18 @@ export const getActiveBuffs = (activeBuffs, talents) => {
   return activeBuffs?.map(([talentId]) => talents?.find(({ talentId: tId }) => talentId === tId))?.filter((talent) => talent);
 }
 
-export const getHighestTalentByClass = (characters, className, talentName, yBonus, useMaxLevel, reduceAddedLevels = false) => {
+export const getHighestTalentByClass = (characters, className, talentName, yBonus, useMaxLevel, reduceAddedLevels = false, excludeSuperTalent = false) => {
   const classes = characters?.filter((character) => checkCharClass(character?.class, className));
   return classes?.reduce((res, { flatTalents, addedLevels }) => {
-    const talent = getTalentBonus(flatTalents, talentName, yBonus, useMaxLevel, reduceAddedLevels
-      ? addedLevels + 1
-      : false);
+    let subtractLevels = false;
+    if (excludeSuperTalent) {
+      const talentObj = flatTalents?.find(({ name }) => name === talentName);
+      const superTalentAmount = talentObj?.isSuperTalent ? (talentObj.level - talentObj.baseLevel - addedLevels) : 0;
+      subtractLevels = superTalentAmount || false;
+    } else if (reduceAddedLevels) {
+      subtractLevels = addedLevels + 1;
+    }
+    const talent = getTalentBonus(flatTalents, talentName, yBonus, useMaxLevel, subtractLevels);
     if (talent > res) {
       return talent
     }
@@ -220,7 +226,7 @@ export const getHighestMaxLevelTalentByClass = (characters, className, talentNam
   }, { maxLevel: 0 });
 }
 
-export const getSuperTalentAddedLevels = (account, character) => {
+export const getSuperTalentAddedLevels = (account) => {
   return Math.round(50 + getLegendTalentBonus(account, 7) + getZenithBonus(account, 5));
 }
 

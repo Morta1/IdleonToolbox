@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 39,
+  version: 40,
   account: {
     General: {
       tasks: {
@@ -52,7 +52,8 @@ const baseTrackers = {
           { name: 'newCharacters', checked: true },
           { name: 'gemsFromBosses', checked: true },
           { name: 'familyObols', checked: true },
-          { name: 'freeCompanion', checked: true }
+          { name: 'freeCompanion', checked: true },
+          { name: 'petMartGems', checked: true }
         ]
       }
     },

@@ -9,7 +9,7 @@ import { getAchievementStatus } from '@parsers/achievements';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getGrimoireBonus } from '@parsers/grimoire';
 import { CLASSES, getHighestTalentByClass, getTalentBonus } from '@parsers/talents';
-import { getHighestCharacterSkill, getKillroyBonus, isMasteryBonusUnlocked } from '@parsers/misc';
+import { getEventShopBonus, getHighestCharacterSkill, getKillroyBonus, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
@@ -18,10 +18,11 @@ import { getEmperorBonus } from './emperor';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { isSuperbitUnlocked } from '@parsers/gaming';
 import { getArcadeBonus } from '@parsers/arcade';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import LavaRand from '../../utility/lavaRand';
 
 /** Level needed to reach the given percent of cap for exotic capped formula: value = baseValue * level / (1000 + level). */
-export const findExoticCappedThresholdLevel = (percent, baseValue) => {
+export const findExoticCappedThresholdLevel = (percent) => {
   if (percent <= 0 || percent >= 100) return null;
   return (1000 * percent) / (100 - percent);
 };
@@ -199,9 +200,10 @@ const parseFarming = (rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFar
   const exoticBonus19 = getExoticMarketBonus(account, 19) ?? 0;
   const exoticBonus20 = getExoticMarketBonus(account, 20) ?? 0;
 
+  const vaultBonus85 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 85);
   const beanTrade = Math.pow(cropsForBeans, 0.5)
     * (1 + marketBonus / 100)
-    * (1 + (25 * jadeUpgrade + (5 * achievementBonus + (exoticBonus16 + (exoticBonus17 + exoticBonus18)))) / 100)
+    * (1 + (25 * jadeUpgrade + (5 * achievementBonus + (exoticBonus16 + (exoticBonus17 + (exoticBonus18 + vaultBonus85))))) / 100)
     * (1 + exoticBonus19 / 100)
     * (1 + exoticBonus20 / 100);
 
@@ -359,8 +361,9 @@ export const getStickerBonus = (account, index) => {
   const baseBonusValues = (researchData?.[25] ?? '').split(' ').map(Number);
   const count = stickerLevels[index] ?? 0;
   const grid68bonus = getResearchGridBonus(account, 68, 2);
+  const eventShopBonus37 = getEventShopBonus(account, 37);
   const superBit62 = isSuperbitUnlocked(account, 'Bettah_Stickahs') ? 1 : 0;
-  return (1 + grid68bonus / 100) * (1 + (20 * superBit62) / 100) * count * (baseBonusValues[index] ?? 0);
+  return (1 + (grid68bonus + 30 * eventShopBonus37) / 100) * (1 + (20 * superBit62) / 100) * count * (baseBonusValues[index] ?? 0);
 };
 
 const getStickerOddsMulti = (characters, account) => {
@@ -419,7 +422,7 @@ export const updateFarming = (characters, account) => {
     return { value, breakdown };
   });
 
-  const newPlot = account?.farming?.plot?.map((crop, index) => {
+  const newPlot = account?.farming?.plot?.map((crop) => {
     // OG Chance
     const marketOGChance = getMarketBonus(account?.farming?.market, 'OG_FERTILIZER');
     const charmOGChange = getCharmBonus(account, 'Taffy_Disc');
@@ -529,7 +532,9 @@ const getCropDepotBonuses = (account) => {
   const pureOpalRhombolJewel = getJewelBonus(account?.lab?.jewels, 20, spelunkerObolMulti);
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 22);
   const exoticBonus40 = getExoticMarketBonus(account, 40) ?? 0;
-  const extraBonus = (1 + (labBonus + pureOpalRhombolJewel) / 100) * (1 + (grimoireBonus + exoticBonus40) / 100);
+  const vaultBonus79 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 79);
+  const extraBonus = (1 + (labBonus + pureOpalRhombolJewel) / 100)
+    * (1 + (grimoireBonus + exoticBonus40 + vaultBonus79) / 100);
 
   let bonuses = {
     damage: { name: 'DMG', value: 0 },
@@ -655,6 +660,7 @@ export const getCropEvolution = (account, character, crop, forceStarSign) => {
   const starSignBonus = getStarSignBonus(character, account, 'Crop_Evo', forceStarSign);
   const talentBonus = getTalentBonus(character?.flatTalents, 'MASS_IRRIGATION'); // Death Bringer
   const voteBonus = getVoteBonus(account, 29);
+  const vaultBonus78 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 78);
 
   let value = (1 + marketBonus1 / 100)
     * (1 + winBonus / 100)
@@ -675,6 +681,7 @@ export const getCropEvolution = (account, character, crop, forceStarSign) => {
     * (1 + (starSignBonus * character?.skillsInfo?.farming?.level) / 100)
     * Math.max(1, getLandRankTotalBonus(account, 0))
     * Math.max(1, talentBonus)
+    * (1 + vaultBonus78 / 100)
     * (1 + (getLandRank(account?.farming?.ranks, 0) * account?.farming?.plot?.[crop?.index]?.rank + voteBonus) / 100)
     * crop?.seed?.nextCropChance
     * Math.pow(crop?.seed?.nextCropDecay, crop?.baseCropType);
@@ -737,6 +744,7 @@ export const getCropEvolution = (account, character, crop, forceStarSign) => {
     * (1 + (starSignBonus * character?.skillsInfo?.farming?.level) / 100)
     * Math.max(1, getLandRankTotalBonus(account, 0))
     * Math.max(1, talentBonus)
+    * (1 + vaultBonus78 / 100)
     * (1 + (getLandRank(account?.farming?.ranks, 0) * account?.farming?.plot?.[crop?.index]?.rank + voteBonus) / 100)
     * crop?.seed?.nextCropChance
     * Math.pow(crop?.seed?.nextCropDecay, crop?.baseCropType);

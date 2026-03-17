@@ -3,6 +3,8 @@ import { isCompanionBonusActive } from './misc';
 import { getActiveBubbleBonus } from './alchemy';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getCoralKidUpgBonus } from './world-7/coralReef';
+import { getMineheadBonusQTY } from './world-7/minehead';
+import { getUpgradeVaultBonus } from './misc/upgradeVault';
 import { gods } from '@website-data';
 import { tryToParse } from '@utility/helpers';
 
@@ -38,7 +40,7 @@ const parseDivinity = (divinityRaw, serializedCharactersData, accountData) => {
         level,
         blessingBonus,
         unlocked: index < unlockedDeities,
-        maxLevel: 100 + coralKidBonus
+        maxLevel: Math.round(100 + (coralKidBonus + (getMineheadBonusQTY(accountData, 9) + getUpgradeVaultBonus(accountData?.upgradeVault?.upgrades, 76))))
       }
     }
   );

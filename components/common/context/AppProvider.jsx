@@ -238,8 +238,10 @@ const AppProvider = ({ children }) => {
           localStorage.setItem('rawJson', JSON.stringify({
             data,
             charNames,
+            companion,
             guildData,
             serverVars,
+            tournament,
             lastUpdated: timestamp
           }));
         }

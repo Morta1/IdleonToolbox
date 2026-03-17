@@ -9,6 +9,7 @@ import { CardAndBorder } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
 import { useLocalStorage } from '@mantine/hooks';
 import { isMasteryBonusUnlocked } from '@parsers/misc';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 const categoriesOrder = ['Card Sets', 'Blunder_Hills', 'Yum_Yum_Desert', 'Easy_Resources',
   'Medium_Resources', 'Frostbite_Tundra', 'Hard_Resources', 'Hyperion_Nebula', 'Smolderin\'_Plateau',
@@ -42,7 +43,9 @@ const isSkillMasteryPassiveCards = ({ effect, rawName, account }) => {
   const choppingCardsArePassives = rawName?.includes('Tree') && isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.chopping?.rank, 2);
   const trappingCardsArePassives = rawName?.includes('Critter') && isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.trapping?.rank, 2);
   const worshipCardsArePassives = rawName?.includes('Soul') && isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.worship?.rank, 2);
-  return miningCardsArePassives || fishingCardsArePassives || choppingCardsArePassives || trappingCardsArePassives || worshipCardsArePassives;
+  const spelunkingCardsArePassives = effect?.includes('Spelunking') && isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.spelunking?.rank, 2);
+  const dropRateCardsArePassives = effect?.includes('Drop') && getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 44);
+  return miningCardsArePassives || fishingCardsArePassives || choppingCardsArePassives || trappingCardsArePassives || worshipCardsArePassives || dropRateCardsArePassives || spelunkingCardsArePassives;
 }
 
 export default function CardSearch() {

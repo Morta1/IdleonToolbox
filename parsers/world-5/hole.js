@@ -29,6 +29,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { isSuperbitUnlocked } from '@parsers/gaming';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 const VILLAGERS = {
   EXPLORE: 0,
@@ -574,7 +575,8 @@ const getVillagerExpPerHour = (holesObject, accountData, t, leastOpalInvestedVil
                   + (cardBonus
                     + (getBellBonus({ holesObject, t: 1 })
                       + (getMeasurementBonus({ holesObject, accountData, t: 0 })
-                        + getWinnerBonus(accountData, '+{% Villager EXP'))))))))))) / 100);
+                        + getWinnerBonus(accountData, '+{% Villager EXP')
+                        + getUpgradeVaultBonus(accountData?.upgradeVault?.upgrades, 73)))))))))))  / 100);
 
   const breakdown = {
     statName: 'Villager EXP / hr',

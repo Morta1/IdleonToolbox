@@ -4,6 +4,27 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.29',
+    'gameVer': '2.0.494',
+    'date': '17/03/2026',
+    'features': [
+      'Added free Pet Mart gems dashboard alert',
+      'Added passive card filters for Spelunking and Drop Rate cards in card search',
+      'Applied new upgrade vault bonuses across the website',
+      'Improved tournament bracket detection and match display',
+      'Updated bits multi breakdown with companion, card, sticker and vault bonuses'
+    ],
+    'fixes': [
+      'Fixed Rat Token icon path on gaming page',
+      'Fixed crystal spawn chance calculation order',
+      'Fixed upgrade vault bonus calculation for new tiers',
+      'Fixed Bitty Litty talent calculation to exclude super talent levels',
+      'Fixed minehead research grid bonus calculations',
+      'Fixed sticker bonus calculation to include event shop bonus',
+      'Fixed JSON import to include companion and tournament data'
+    ]
+  },
+  {
     'ver': '3.3.28',
     'gameVer': '2.0.493a',
     'date': '12/03/2026',

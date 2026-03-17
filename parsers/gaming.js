@@ -1,7 +1,7 @@
 import { gamingImports, gamingPalette, gamingUpgrades, randomList2, superbitsUpgrades } from '@website-data';
 import { commaNotation, notateNumber, number2letter, tryToParse } from '@utility/helpers';
 import { getMinorDivinityBonus } from './divinity';
-import { getHighestCharacterSkill, getHighestLevelCharacter, isMasteryBonusUnlocked } from './misc';
+import { getHighestCharacterSkill, getHighestLevelCharacter, isCompanionBonusActive, isMasteryBonusUnlocked } from './misc';
 import { getEquinoxBonus } from './equinox';
 import { getMeritocracyBonus, getVoteBonus } from '@parsers/world-2/voteBallot';
 import { isArtifactAcquired } from '@parsers/sailing';
@@ -14,7 +14,9 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
-import { getExoticMarketBonus } from '@parsers/world-6/farming';
+import { getExoticMarketBonus, getStickerBonus } from '@parsers/world-6/farming';
+import { getCardBonusByEffect } from '@parsers/cards';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getArcadeBonus } from '@parsers/arcade';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
@@ -176,7 +178,7 @@ export const getBitsMulti = (account, characters) => {
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'GamingBits');
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'GameBits');
   const vialBonus2 = getVialsBonusByStat(account?.alchemy?.vials, '7bits');
-  const bittyLittlyTalentBonus = getHighestTalentByClass(characters, CLASSES.Divine_Knight, 'BITTY_LITTY') ?? 0;
+  const bittyLittlyTalentBonus = getHighestTalentByClass(characters, CLASSES.Divine_Knight, 'BITTY_LITTY', undefined, undefined, false, true) ?? 0;
   const highestGaming = getHighestCharacterSkill(characters, 'gaming');
   const winBonus = getWinnerBonus(account, '<x Gaming Bits');
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 1, account });
@@ -194,20 +196,26 @@ export const getBitsMulti = (account, characters) => {
   );
   const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 4 });
   const gridBonus = getResearchGridBonus(account, 87, 0);
-
+  const companionBonus = isCompanionBonusActive(account, 53) ? account?.companions?.list?.at(53)?.bonus : 0;
+  const cardBonus = getCardBonusByEffect(account?.cards, 'Gaming_Bit_Multi_(Passive)');
+  const stickerBonus = getStickerBonus(account, 3);
+  const vaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 68);
+  const logGameMulti = Math.max(1, Math.pow(1.2, (account?.accountOptions?.[497] ?? 1) - 1));
   const value = (1 + 99 * accountOptionToggle)
     * (1 + gridBonus / 100)
     * (1 + gummyOrbArtifactBonus / 100)
+    * Math.max(1, 1 + companionBonus)
     * (1 + vialBonus2 / 100)
     * (1 + weatherbookArtifactBonus / 100)
     * (1 + monumentBonus / 100)
     * (1 + (15 * skillMastery) / 100)
     * (1 + account?.msaTotalizer?.bit?.value / 100)
     * Math.max(1, snailBonus)
+    * (1 + cardBonus / 100)
     * Math.max(1, acornBonus)
     * Math.max(1, account?.gaming?.bestNugget)
     * (1 + (account?.gaming?.elegantShellRank * elegantShellBonus) / 100)
-    * Math.max(1, logBookBitBonus)
+    * Math.max(1, logBookBitBonus * logGameMulti * ratBitMulti)
     * (1 + (mealBonus + vialBonus) / 100)
     * (1 + (bittyLittlyTalentBonus * highestGaming) / 100)
     * Math.max(1, Math.min(25, account?.gaming?.poingMulti))
@@ -218,7 +226,8 @@ export const getBitsMulti = (account, characters) => {
     * (1 + paletteBonus7 / 100)
     * (1 + paletteBonus18 / 100)
     * (1 + meritocracyBonus / 100)
-    * Math.max(1, ratBitMulti);
+    * (1 + stickerBonus / 100)
+    * (1 + vaultBonus / 100);
 
   const breakdown = {
     statName: 'Bit multi',
@@ -230,22 +239,23 @@ export const getBitsMulti = (account, characters) => {
           { name: 'Bit Toggle', value: 1 + 99 * accountOptionToggle },
           { name: 'Research Grid', value: 1 + gridBonus },
           { name: 'Gummy Orb Artifact', value: 1 + gummyOrbArtifactBonus / 100 },
+          { name: 'Companion', value: Math.max(1, 1 + companionBonus) },
           { name: 'Weatherbook Artifact', value: 1 + weatherbookArtifactBonus / 100 },
           { name: 'Monument', value: 1 + monumentBonus / 100 },
           { name: 'Skill Mastery', value: 1 + (15 * skillMastery) / 100 },
           { name: 'MSA Totalizer', value: 1 + (account?.msaTotalizer?.bit?.value ?? 0) / 100 },
           { name: 'Snail', value: Math.max(1, snailBonus) },
+          { name: 'Card (Boomy Mine)', value: 1 + cardBonus / 100 },
           { name: 'Acorn', value: Math.max(1, acornBonus) },
           { name: 'Best Nugget', value: Math.max(1, account?.gaming?.bestNugget ?? 1) },
           {
             name: 'Elegant Shell',
             value: 1 + ((account?.gaming?.elegantShellRank ?? 0) * elegantShellBonus) / 100
           },
-          { name: 'Logbook Bit', value: Math.max(1, logBookBitBonus) },
+          { name: 'Logbook & Log Game & Rat King', value: Math.max(1, logBookBitBonus * logGameMulti * ratBitMulti) },
           { name: 'Meals', value: mealBonus / 100 },
           { name: 'Ooz Ooblek (vial)', value: vialBonus / 100 },
           { name: 'Rocky Boba (vial)', value: 1 + vialBonus2 / 100 },
-
           {
             name: 'Bitty Litty Talent',
             value: 1 + (bittyLittlyTalentBonus * highestGaming) / 100
@@ -268,7 +278,8 @@ export const getBitsMulti = (account, characters) => {
           { name: 'Palette 7', value: 1 + paletteBonus7 / 100 },
           { name: 'Palette 18', value: 1 + paletteBonus18 / 100 },
           { name: 'Meritocracy', value: 1 + meritocracyBonus / 100 },
-          { name: 'Rat King Crowns', value: Math.max(1, ratBitMulti) }
+          { name: 'Sticker', value: 1 + stickerBonus / 100 },
+          { name: 'Vault Upgrade', value: 1 + vaultBonus / 100 }
         ]
       }
     ]

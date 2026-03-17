@@ -3,6 +3,7 @@ import { mineheadUpgrades, upgradeVault, research as researchData, items } from 
 import { getAtomBonus } from '@parsers/atomCollider';
 import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
 import { isCompanionBonusActive } from '@parsers/misc';
+import { getResearchGridBonus } from '@parsers/world-7/research';
 
 const getRawMinehead = (idleonData) => {
   const raw = tryToParse(idleonData?.Research) || idleonData?.Research;
@@ -66,8 +67,8 @@ export const getMinehead = (idleonData, account, serverVars) => {
   const glimboFlags = researchData?.[29] ?? '';
 
   // Grid square 169 level — each level adds +1 to the per-trade multiplier for flagged glimbo trades
-  // Formula: extraLevels = (1 + level) * (trades + 1). Uses .level, NOT .bonus (bonus = level * baseBonus = level*10)
-  const grid169Level = account?.research?.gridSquares?.[169]?.level ?? 0;
+  // Formula: extraLevels = (1 + level) * (trades + 1). Uses mode 1 (level), NOT mode 0 (bonus)
+  const grid169Level = getResearchGridBonus(account, 169, 1);
 
   // --- Upgrade QTY helper ---
   // handleUpgradeQTY: MineheadUPG[idx].levelReq * Research[8][idx]
@@ -130,10 +131,9 @@ export const getMinehead = (idleonData, account, serverVars) => {
 
   // --- Computed stats ---
 
-  // Daily tries max: 3 + research grid bonus 147 level
-  // Grid bonus 147 is the "Daily Tries" grid square
-  const grid147Bonus = account?.research?.gridSquares?.[147]?.bonus ?? 0;
-  const dailyTriesMax = Math.round(3 + grid147Bonus);
+  // Daily tries max: 3 + Grid_Bonus(147, 1) — game uses mode 1 (level) here
+  const grid147Level = getResearchGridBonus(account, 147, 1);
+  const dailyTriesMax = Math.round(3 + grid147Level);
 
   // Max HP for player: 3 + upgradeQTY(6)
   const maxHP_You = Math.round(3 + getUpgradeQTY(6));
@@ -141,7 +141,7 @@ export const getMinehead = (idleonData, account, serverVars) => {
   // Base DMG:
   //   (1 + QTY(0) + QTY(7) + QTY(25)) * (1 + (QTY(4)+QTY(21)+QTY(27)) / 100)
   //   * (1 + grid167 / 100)
-  const grid167Bonus = account?.research?.gridSquares?.[167]?.bonus ?? 0;
+  const grid167Bonus = getResearchGridBonus(account, 167, 0);
   const baseDMG =
     (1 + getUpgradeQTY(0) + getUpgradeQTY(7) + getUpgradeQTY(25))
     * (1 + (getUpgradeQTY(4) + getUpgradeQTY(21) + getUpgradeQTY(27)) / 100)
@@ -152,8 +152,9 @@ export const getMinehead = (idleonData, account, serverVars) => {
   //   * (1 + (QTY(5)+QTY(22)+QTY(28)*log10(bestHit)+arcade62) / 100)
   //   * (1 + atom13 / 100)
   //   * (1 + (grid147 + mealMineCurr) / 100)
-  const grid129Bonus = account?.research?.gridSquares?.[129]?.bonus ?? 0;
-  const grid148Bonus = account?.research?.gridSquares?.[148]?.bonus ?? 0;
+  const grid129Bonus = getResearchGridBonus(account, 129, 0);
+  const grid148Bonus = getResearchGridBonus(account, 148, 0);
+  const grid147Bonus = getResearchGridBonus(account, 147, 0); // CurrencyGain uses mode 0
   const arcade62Bonus = account?.arcade?.shop?.[62]?.bonus ?? 0;
   const atom13Bonus = getAtomBonus(account, 'Silicon_-_Minehead_Money_Printer') ?? 0;
   const mealMineCurrBonus = getMealsBonusByEffectOrStat(account, null, 'MineCurr') ?? 0;

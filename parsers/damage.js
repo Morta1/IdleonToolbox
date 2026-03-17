@@ -436,6 +436,7 @@ const getDamageFromHpMp = (character, characters, account, playerInfo, damageFro
   const kangarooBonus = getKangarooBonus(account?.kangaroo?.bonuses, 'Accuracy') || 0; // 231 instead of 210
 
   const bubbaRoGBonus = account?.bubba?.bonuses?.totalDamage?.bonus || 0;
+  const vaultUpgBonus80 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 80) || 0;
 
   return 1 +
     (Math.pow(damageFromStat, .7)
@@ -451,7 +452,8 @@ const getDamageFromHpMp = (character, characters, account, playerInfo, damageFro
           + (lavaLog(playerInfo.maxMp) * mpTalentBonus
             + (owlBonus
               + (kangarooBonus
-                + bubbaRoGBonus)))))) / 100;
+                + (bubbaRoGBonus
+                  + vaultUpgBonus80))))))) / 100;
 }
 
 const getBaseDamage = (character, characters, account, playerInfo, damageFromStat) => {

@@ -9,7 +9,7 @@ const PetCard = ({ name, rawName, tourPower }) => (
     <CardContent sx={{ '&:last-child': { padding: 1 } }}>
       <Stack alignItems={'center'} gap={0.5}>
         <img
-          width={42} height={42}
+          width={50} height={50}
           style={{ objectFit: 'contain' }}
           src={`${prefix}afk_targets/${name}.png`}
           alt={''}

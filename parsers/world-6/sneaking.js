@@ -10,6 +10,8 @@ import {
 import { getLabBonus } from "@parsers/lab";
 import { CLASSES, getHighestTalentByClass } from "@parsers/talents";
 import { getLegendTalentBonus } from "@parsers/world-7/legendTalents";
+import { getUpgradeVaultBonus } from "@parsers/misc/upgradeVault";
+import { getPaletteBonus } from "@parsers/gaming";
 
 export const getSneaking = (idleonData, serverVars, charactersData, account) => {
   const rawSneaking = tryToParse(idleonData?.Ninja);
@@ -220,8 +222,11 @@ export const getLocalNinjaUpgradeBonus = (upgrades, index, gemstones, inventory,
   const goldEye = getInventoryNinjaItem({ sneaking: { inventory } }, 'Gold_Eye');
   const fireFrostBonus = gemstones?.[7]?.bonus;
 
+  const paletteBonus30 = getPaletteBonus(account, 30);
+  const vaultBonus88 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 88);
+
   return index === 11
-    ? level * modifier + (upgrades?.[3]?.level * account?.accountOptions?.[231] + (goldEye + Math.ceil(fireFrostBonus)))
+    ? level * modifier + (upgrades?.[3]?.level * account?.accountOptions?.[231] + (goldEye + (Math.ceil(fireFrostBonus) + Math.floor(paletteBonus30 + vaultBonus88))))
     : index === 6 || index === 7 || index === 10 || index === 12
       ? level * modifier + upgrades?.[3]?.level * account?.accountOptions?.[231]
       : level * modifier;

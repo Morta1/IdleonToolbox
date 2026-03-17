@@ -23,7 +23,7 @@ const PetGrid = ({ label, pets, companions, totalPower }) => (
         </Stack>
       )}
     </Stack>
-    <Stack direction="row" gap={0.75} flexWrap="wrap">
+    <Stack direction="row" gap={2} flexWrap="wrap">
       {pets.map((petIdx, i) => {
         const comp = companions?.[petIdx];
         if (!comp) return null;
@@ -31,17 +31,17 @@ const PetGrid = ({ label, pets, companions, totalPower }) => (
           <Stack key={i} alignItems="center" gap={0} sx={{ width: 36 }}>
             <Box title={cleanUnderscore(comp.name)}>
               <img
-                width={32}
-                height={32}
+                width={50}
+                height={50}
                 style={{ objectFit: 'contain' }}
                 src={`${prefix}afk_targets/${comp.name}.png`}
                 alt={comp.name}
               />
             </Box>
             {(comp.tourPower ?? 0) > 0 && (
-              <Stack direction="row" alignItems="center" gap={0.25}>
+              <Stack direction="row" alignItems="center" gap={1}>
                 <img width={10} height={10} style={{ objectFit: 'contain' }} src={`${prefix}etc/Companion_Power.png`} alt={''} />
-                <Typography variant="caption" sx={{ fontSize: 9, lineHeight: 1, color: 'text.secondary' }}>
+                <Typography variant="caption" sx={{ lineHeight: 1, color: 'text.secondary' }}>
                   {comp.tourPower}
                 </Typography>
               </Stack>
@@ -73,7 +73,7 @@ const BattleStep = ({ step, companions }) => {
           borderBottom: '2px solid', borderColor: PET_OUTLINE.player,
           cursor: 'default',
         }}>
-          <img width={28} height={28} style={{ objectFit: 'contain', display: 'block' }}
+          <img width={42} height={42} style={{ objectFit: 'contain', display: 'block' }}
             src={`${prefix}afk_targets/${playerComp.name}.png`} alt={playerComp.name} />
         </Box>
       </Tooltip>
@@ -84,7 +84,7 @@ const BattleStep = ({ step, companions }) => {
           borderBottom: '2px solid', borderColor: PET_OUTLINE.opponent,
           cursor: 'default',
         }}>
-          <img width={28} height={28} style={{ objectFit: 'contain', display: 'block' }}
+          <img width={42} height={42} style={{ objectFit: 'contain', display: 'block' }}
             src={`${prefix}afk_targets/${opponentComp.name}.png`} alt={opponentComp.name} />
         </Box>
       </Tooltip>
@@ -143,9 +143,11 @@ const MatchCard = ({ match, companionList }) => {
             </Stack>
             <Stack direction="row" gap={1} alignItems="center">
               <ResultChip result={match.result} />
-              <Typography variant="caption" color="text.secondary">
-                ❤ {match.playerLives}
-              </Typography>
+              {match.isQualifying && (
+                <Typography variant="caption" color="text.secondary">
+                  ❤ {match.playerLives}
+                </Typography>
+              )}
             </Stack>
           </Stack>
           <PetGrid label="Your team" pets={match.playerPets} companions={companionList} totalPower={myPower} />
