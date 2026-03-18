@@ -31,7 +31,8 @@ export const getJustice = (holesObject, accountData) => {
       const bonus = getMonumentBonus({ holesObject, t: 1, i: index });
       const scalingValue = parseFloat(holesInfo?.[37]?.split(' ')?.[10 + index]);
       const isSoftCap = scalingValue >= 30;
-      const effectiveCap = isSoftCap ? scalingValue * multiplier : null;
+      const capMultiplier = index === 9 ? 1 : multiplier;
+      const effectiveCap = isSoftCap ? scalingValue * capMultiplier : null;
       return {
         description: description.replace(/_/g, ' ')
           .replace(/\|/g, ' ')
@@ -42,7 +43,7 @@ export const getJustice = (holesObject, accountData) => {
         scalingValue,
         cap: effectiveCap,
         progression: isSoftCap ? (bonus / effectiveCap) * 100 : null,
-        levelToReachCap: isSoftCap ? Math.ceil(250 * (10 * scalingValue * multiplier - 1)) : null
+        levelToReachCap: isSoftCap ? Math.ceil(250 * (10 * scalingValue * capMultiplier - 1)) : null
       }
     })
   const afkPercent = getMonumentAfkBonus(holesObject, accountData);
