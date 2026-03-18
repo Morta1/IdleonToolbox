@@ -1234,6 +1234,22 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       alerts.minehead = minehead;
     }
   }
+  if (fields?.research?.checked) {
+    const research = {};
+    const { insightLevel } = options?.research || {};
+    if (insightLevel?.checked) {
+      const threshold = insightLevel?.props?.value ?? 3;
+      const list = account?.research?.observations?.filter(obs =>
+        obs?.found && obs?.insightLevel >= threshold
+      );
+      if (list?.length > 0) {
+        research.insightLevel = { observations: list, threshold };
+      }
+    }
+    if (Object.keys(research).length > 0) {
+      alerts.research = research;
+    }
+  }
   return alerts;
 };
 export const areKeysOverdue = (account) => {

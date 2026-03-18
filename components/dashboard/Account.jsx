@@ -548,6 +548,15 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={`You have ${alerts?.['World 7']?.minehead?.dailyTries?.left} minehead attempt${alerts?.['World 7']?.minehead?.dailyTries?.left === 1 ? '' : 's'} left (${alerts?.['World 7']?.minehead?.dailyTries?.left}/${alerts?.['World 7']?.minehead?.dailyTries?.max})`}
                   iconPath={'data/MineHead0'}/> : null}
+              {alerts?.['World 7']?.research?.insightLevel?.observations?.length > 0 ?
+                <Alert
+                  title={<Stack alignItems={'center'} gap={0.5}>
+                    <Typography variant={'subtitle2'}>{alerts?.['World 7']?.research?.insightLevel?.observations?.length} observation{alerts?.['World 7']?.research?.insightLevel?.observations?.length === 1 ? '' : 's'} at insight Lv. {alerts?.['World 7']?.research?.insightLevel?.threshold}+</Typography>
+                    {alerts?.['World 7']?.research?.insightLevel?.observations?.map((obs) =>
+                      <Typography key={obs.index} variant={'body2'}>{cleanUnderscore(obs.name)} - Lv. {obs.insightLevel}</Typography>
+                    )}
+                  </Stack>}
+                  iconPath={'data/ResMagni1'}/> : null}
             </Stack>
           </Stack> : null}
         </Stack> : <Typography>There are no account alerts to display</Typography>}

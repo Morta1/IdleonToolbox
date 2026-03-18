@@ -997,6 +997,39 @@ export const migrateToVersion40 = (config) => {
   return dashboardConfig;
 };
 
+export const migrateToVersion41 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (!dashboardConfig?.account?.['World 7']?.research) {
+    if (!dashboardConfig.account) dashboardConfig.account = {};
+    if (!dashboardConfig.account['World 7']) dashboardConfig.account['World 7'] = {};
+    dashboardConfig.account['World 7'].research = {
+      checked: true,
+      options: [
+        {
+          name: 'insightLevel',
+          type: 'input',
+          props: { label: 'Insight level threshold', value: 3, minValue: 1 },
+          checked: true
+        }
+      ]
+    };
+  }
+
+  if (!dashboardConfig?.timers?.['World 7']) {
+    if (!dashboardConfig.timers) dashboardConfig.timers = {};
+    dashboardConfig.timers['World 7'] = {
+      researchLevelUp: { checked: true, options: [] }
+    };
+  }
+
+  dashboardConfig.version = 41;
+  return dashboardConfig;
+};
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -1120,6 +1153,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 39) {
       migratedConfig = migrateToVersion40(migratedConfig);
+    }
+    if (migratedConfig?.version === 40) {
+      migratedConfig = migrateToVersion41(migratedConfig);
     }
   }
   return migratedConfig;

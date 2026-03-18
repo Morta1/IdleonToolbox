@@ -3,7 +3,7 @@ import Library from '../account/Worlds/World3/Library';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import { cleanUnderscore, getDuration, getRealDateInMs, getTimeAsDays, notateNumber, prefix } from '@utility/helpers';
-import { getEventShopBonus, getMiniBossesData, getRandomEvents } from '@parsers/misc';
+import { getCharacterByHighestSkillLevel, getEventShopBonus, getMiniBossesData, getRandomEvents } from '@parsers/misc';
 import Tooltip from '../Tooltip';
 import Timer from '../common/Timer';
 import { calcHappyHours } from '@parsers/dungeons';
@@ -139,6 +139,17 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
       wisdom: getMonument(2)
     };
   }, [account]);
+
+  const researchRate = account?.research?.researchEXPrateTOT ?? 0;
+  const bestResearchChar = researchRate > 0 ? getCharacterByHighestSkillLevel(characters, null, 'research') : null;
+  const researchExp = bestResearchChar?.skillsInfo?.research?.exp ?? 0;
+  const researchExpReq = bestResearchChar?.skillsInfo?.research?.expReq ?? 0;
+  const researchLevelUpTime = researchRate > 0 && researchExpReq > 0
+    ? {
+      time: new Date().getTime() + ((researchExpReq - researchExp) / researchRate) * 3600 * 1000,
+      currentLevel: bestResearchChar?.skillsInfo?.research?.level ?? 0
+    }
+    : null;
 
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
@@ -404,6 +415,17 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             />
           })
           : null}
+      </Section>}
+
+      {!emptyAlerts?.['World 7'] && account?.finishedWorlds?.World6 && <Section title={'World 7'}>
+        {trackers?.['World 7']?.researchLevelUp?.checked && researchLevelUpTime ?
+          <TimerCard
+            page={'account/world-7/research'}
+            tooltipContent={`Research Lv. ${researchLevelUpTime.currentLevel + 1}`}
+            lastUpdated={lastUpdated}
+            time={researchLevelUpTime.time}
+            icon={'data/ClassIcons61.png'}
+          /> : null}
       </Section>}
 
       {trackers?.Etc?.minibosses?.checked && <Section title={'Bosses'}>

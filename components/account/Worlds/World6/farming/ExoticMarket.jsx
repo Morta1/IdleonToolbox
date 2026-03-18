@@ -1,10 +1,10 @@
-import { Card, CardContent, LinearProgress, Stack, Typography } from '@mui/material';
+import { Card, CardContent, LinearProgress, Stack, Typography, Divider } from '@mui/material';
 import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { getExoticMarketRotations } from '@parsers/world-6/farming';
+import { findExoticCappedThresholdLevel, getExoticMarketRotations } from '@parsers/world-6/farming';
 
 const formatCountdown = (ms) => {
   if (ms <= 0) return null;
@@ -71,12 +71,30 @@ const Market = ({ market, crop }) => {
             <>
               <Stack direction="row" alignItems="center" gap={0.5} sx={{ mt: 1 }}>
                 <Typography variant="body2">
-                  Effect: {Math.round(value * 100) / 100} / {maxValue} ({percentOfCap != null ? Math.round(percentOfCap * 10) / 10 : 0}%)
+                  Effect: {Math.round(value * 100) / 100} / {maxValue} ({percentOfCap != null
+                  ? Math.round(percentOfCap * 10) / 10
+                  : 0}%)
                 </Typography>
                 <Tooltip
-                  title={`${Math.round(value * 100) / 100} is ${percentOfCap != null ? Math.round(percentOfCap * 10) / 10 : 0}% of possible hard cap effect of ${maxValue}`}
+                  title={<Stack gap={0.5}>
+                    <Typography variant="body2">
+                      {Math.round(value * 100) / 100} is {percentOfCap != null ? Math.round(percentOfCap * 10) / 10 : 0}%
+                      of hard cap ({maxValue})
+                    </Typography>
+                    <Divider sx={{ my: 1 }}></Divider>
+                    <Typography variant="body2" fontWeight="bold">Level for breakpoint:</Typography>
+                    {[50, 75, 90, 95, 99].map(pct => {
+                      const lvlNeeded = Math.ceil(findExoticCappedThresholdLevel(pct));
+                      const reached = level >= lvlNeeded;
+                      return <Typography key={pct} variant="body2" color={reached ? 'success.light' : 'text.secondary'}>
+                        {pct}%: Lv. {commaNotation(lvlNeeded)}{reached
+                        ? ' ✓'
+                        : ` (${commaNotation(lvlNeeded - level)} more)`}
+                      </Typography>;
+                    })}
+                  </Stack>}
                 >
-                  <IconInfoCircleFilled size={16} style={{ cursor: 'pointer', flexShrink: 0 }} />
+                  <IconInfoCircleFilled size={16} style={{ cursor: 'pointer', flexShrink: 0 }}/>
                 </Tooltip>
               </Stack>
               <LinearProgress

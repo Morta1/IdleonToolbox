@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 40,
+  version: 41,
   account: {
     General: {
       tasks: {
@@ -406,6 +406,17 @@ const baseTrackers = {
       minehead: {
         checked: true,
         options: [{ name: 'dailyTries', checked: true }]
+      },
+      research: {
+        checked: true,
+        options: [
+          {
+            name: 'insightLevel',
+            type: 'input',
+            props: { label: 'Insight level threshold', value: 3, minValue: 1 },
+            checked: true
+          }
+        ]
       }
     }
   },
@@ -544,6 +555,9 @@ const baseTrackers = {
       justice: { checked: true, options: [] },
       wisdom: { checked: true, options: [] },
       villagers: { checked: true, options: [] }
+    },
+    'World 7': {
+      researchLevelUp: { checked: true, options: [] }
     }
   }
 }
