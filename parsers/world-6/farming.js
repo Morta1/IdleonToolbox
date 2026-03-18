@@ -13,6 +13,7 @@ import { getEventShopBonus, getHighestCharacterSkill, getKillroyBonus, isMastery
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
+import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getStampsBonusByEffect } from '@parsers/stamps';
 import { getEmperorBonus } from './emperor';
 import { getResearchGridBonus } from '@parsers/world-7/research';
@@ -222,7 +223,8 @@ const parseFarming = (rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFar
     usedPoints,
     hasLandRank,
     totalRanks: farmingRanks?.reduce((sum, rank) => sum + rank, 0),
-    exoticMarkeMaxPurchases: 4,
+    exoticMarkeMaxPurchases: Math.round(4 + (getMineheadBonusQTY(account, 8) + 8 * getEventShopBonus(account, 43))),
+    pctExoticPurchasesFree: Math.min(80, 30 * getEventShopBonus(account, 43)) + Math.min(25, 25 * getMineheadBonusQTY(account, 8)),
     exoticMarketUpgradesPurchased: account?.accountOptions?.[416]
   };
 }

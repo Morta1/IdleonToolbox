@@ -13,6 +13,7 @@ import { getVialsBonusByEffect } from '@parsers/alchemy';
 import { getStampsBonusByEffect } from '@parsers/stamps';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getCardBonusByEffect } from '@parsers/cards';
+import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getStatueBonus } from '@parsers/statues';
 // getDancingCoralBonus is implemented locally since it's not exported from spelunking.js
@@ -268,7 +269,8 @@ export const getReefDayGains = (account) => {
 // GrindTimeDaily from Thingies.js line 131-133
 export const getGrindTimeDaily = (account, coralReefLevels) => {
   return Math.floor((10 * coralReefLevels?.[0]
-    + 15 * getClamWorkBonus(account, 6))
+    + 15 * getClamWorkBonus(account, 6)
+    + getMineheadBonusQTY(account, 13))
     * (1 + getMeritocracyBonus(account, 24) / 100));
 }
 

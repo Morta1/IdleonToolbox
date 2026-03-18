@@ -2766,11 +2766,14 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
   const nonPredatoryBoxBonus = getPostOfficeBonus(character?.postOffice, 'Non_Predatory_Loot_Box', 2);
 
   
+  const eventShop42 = getEventShopBonus(account, 42);
+
   const guaranteedCrystalMobs = getGuaranteedCrystalMobs(account);
   const remainingCrystalKills = guaranteedCrystalMobs - account?.accountOptions?.[101];
 
-  const value = 0.0005 * (1 + cmonOutCrystalsBonus / 100) * (1 + (nonPredatoryBoxBonus + crystalShrineBonus) / 100) * (1 + crystals4DaysBonus / 100)
+  const product = (1 + cmonOutCrystalsBonus / 100) * (1 + (nonPredatoryBoxBonus + crystalShrineBonus) / 100) * (1 + crystals4DaysBonus / 100)
     * (1 + crystallinStampBonus / 100) * (1 + (poopCardBonus + demonGenieBonus) / 100);
+  const value = (5 * eventShop42 + product) / 2000;
 
   const breakdown = {
     statName: "Crystal Chance",
@@ -2780,6 +2783,12 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
         name: "Crystal kills",
         sources: [
           { name: "Remaining Crystal kills", value: Math.max(0, remainingCrystalKills) },
+        ],
+      },
+      {
+        name: "Flat",
+        sources: [
+          { name: "Event Shop", value: 5 * eventShop42 },
         ],
       },
       {
@@ -2800,8 +2809,8 @@ export const getPlayerCrystalChance = (character, account, idleonData) => {
   return {
     breakdown,
     value,
-    expression: `0.0005
- * (1 + cmonOutCrystalsBonus / 100)
+    expression: `(5 * eventShop42 + product) / 2000
+ product = (1 + cmonOutCrystalsBonus / 100)
  * (1 + (nonPredatoryBoxBonus + crystalShrineBonus) / 100)
  * (1 + crystals4DaysBonus / 100)
  * (1 + crystallinStampBonus / 100)

@@ -155,6 +155,7 @@ export const getMinehead = (idleonData, account, serverVars) => {
   const grid129Bonus = getResearchGridBonus(account, 129, 0);
   const grid148Bonus = getResearchGridBonus(account, 148, 0);
   const grid147Bonus = getResearchGridBonus(account, 147, 0); // CurrencyGain uses mode 0
+  const grid166Bonus = getResearchGridBonus(account, 166, 0);
   const arcade62Bonus = account?.arcade?.shop?.[62]?.bonus ?? 0;
   const atom13Bonus = getAtomBonus(account, 'Silicon_-_Minehead_Money_Printer') ?? 0;
   const mealMineCurrBonus = getMealsBonusByEffectOrStat(account, null, 'MineCurr') ?? 0;
@@ -176,7 +177,7 @@ export const getMinehead = (idleonData, account, serverVars) => {
         + arcade62Bonus
       ) / 100)
     * (1 + atom13Bonus / 100)
-    * (1 + (grid147Bonus + mealMineCurrBonus) / 100);
+    * (1 + (grid147Bonus + grid166Bonus + mealMineCurrBonus) / 100);
 
   // Bluecrown multiplier — used in description for upgrade 14
   const getBluecrownMulti = () => 1.5 + getUpgradeQTY(14) / 100;

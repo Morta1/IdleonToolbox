@@ -15,6 +15,7 @@ import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getZenithBonus } from '@parsers/statues';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
+import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 
 export const MAX_VIAL_LEVEL = 13;
 export const cauldronColors = {
@@ -744,6 +745,7 @@ export const getKrukBubblesDaily = (account) => {
   const bubbleBonus = getBubbleBonus(account, 'KATTLE_DA_GOAT', false);
   const spelunkBonus = getSpelunkingBonus(account, 47);
   const eventShopBonus = getEventShopBonus(account, 31);
+  const mineheadBonus = getMineheadBonusQTY(account, 15);
 
   const baseAmount = 20;
   const additiveBonus = stampBonus + legendBonus + zenithBonus;
@@ -752,7 +754,7 @@ export const getKrukBubblesDaily = (account) => {
   const percentBonus = bubbleBonus + arcadeBonus + spelunkBonus;
   const percentMulti = 1 + percentBonus / 100;
 
-  const total = Math.floor((baseAmount + additiveBonus) * meritocracyMulti * eventShopMulti * percentMulti);
+  const total = Math.floor(mineheadBonus + (baseAmount + additiveBonus) * meritocracyMulti * eventShopMulti * percentMulti);
 
   return {
     value: total,
@@ -760,6 +762,12 @@ export const getKrukBubblesDaily = (account) => {
       statName: "Kruk Bubbles Daily",
       totalValue: total,
       categories: [
+        {
+          name: "Flat",
+          sources: [
+            { name: "Minehead", value: mineheadBonus },
+          ],
+        },
         {
           name: "Multiplicative",
           sources: [

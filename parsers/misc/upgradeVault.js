@@ -1,5 +1,7 @@
 import { commaNotation, notateNumber, tryToParse, lavaLog } from '@utility/helpers';
 import { upgradeVault } from '@website-data';
+import { isBundlePurchased, getEventShopBonus } from '@parsers/misc';
+import { getResearchGridBonus } from '@parsers/world-7/research';
 
 export const getUpgradeVault = (idleonData, accountData, charactersData) => {
   const upgradeVaultRaw = idleonData?.UpgVault || tryToParse(idleonData?.UpgVault);
@@ -12,6 +14,7 @@ export const parseUpgradeVault = (upgradeVaultRaw, accountData, charactersData) 
     return {
       ...upgrade,
       level: upgradeVaultRaw?.[index],
+      maxLevel: getVaultUpgMaxLevel(index, upgrade?.maxLevel, accountData),
       unlocked: totalUpgradeLevels >= upgrade?.unlockLevel
     }
   })
@@ -37,6 +40,28 @@ export const parseUpgradeVault = (upgradeVaultRaw, accountData, charactersData) 
   };
 }
 
+
+const getVaultUpgMaxLevel = (index, baseMaxLevel, accountData) => {
+  const base = Number(baseMaxLevel) || 0;
+  const bundlePurchased = isBundlePurchased(accountData?.bundles, 'bon_u') ? 1 : 0;
+  const bundleBonus = Math.max(0, Math.min(10, 10 * bundlePurchased));
+
+  const glimboEntry = accountData?.minehead?.glimbo?.find(g => g.vaultIdx === index);
+  if (glimboEntry) {
+    const trades = glimboEntry.trades;
+    if (glimboEntry.flag) {
+      const grid169Level = getResearchGridBonus(accountData, 169, 1);
+      const eventShop40 = getEventShopBonus(accountData, 40);
+      return base + bundleBonus + Math.round((1 + grid169Level + eventShop40) * trades);
+    }
+    return base + bundleBonus + trades;
+  }
+
+  if (base >= 2) {
+    return base + bundleBonus;
+  }
+  return base;
+}
 
 const getCostToMax = (upgrades, index, accountData) => {
   const localUpgrades = structuredClone(upgrades);
