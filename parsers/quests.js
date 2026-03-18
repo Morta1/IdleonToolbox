@@ -57,7 +57,9 @@ export const getQuests = (characters) => {
         {
           name: npcName,
           index: npcIndex,
-          npcQuests: Object.values(npcQuests)
+          npcQuests: Object.entries(npcQuests)
+            .filter(([key]) => !isNaN(key))
+            .map(([, value]) => value)
         }
       ]
     };
