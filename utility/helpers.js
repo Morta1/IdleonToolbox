@@ -505,7 +505,7 @@ export const getBitIndex = (e) => {
 export const notateNumber = (e, s) => {
   if (s === 'bits') {
     let bits = e, t = 0;
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 5; i++) {
       if (bits > 1e18) {
         bits /= 1e18;
         t++;
