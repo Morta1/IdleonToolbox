@@ -33,7 +33,6 @@ jobs:
       - name: Build
         env:
           NODE_ENV: production
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
         run: |
           npm install --legacy-peer-deps --include=dev
