@@ -12,11 +12,11 @@ __turbopack_load_page_chunks__("/account/world-5/hole", [
   "static/chunks/30583ecde1d24cb7.js",
   "static/chunks/03883705c128ff16.js",
   "static/chunks/49d78ef4063457ff.js",
-  "static/chunks/690f0172d7533b89.js",
+  "static/chunks/4feb07d9ba36b74c.js",
   "static/chunks/587786d1c6890965.js",
   "static/chunks/bcc2056cbb1dca1f.js",
   "static/chunks/337bd3d3738c3b07.js",
   "static/chunks/4ad15686a7179f04.js",
   "static/chunks/a39ace03c8702b52.js",
-  "static/chunks/turbopack-98bd8bb51d11823c.js"
+  "static/chunks/turbopack-a33b539137248f3d.js"
 ])
