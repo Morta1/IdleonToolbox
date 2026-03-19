@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/account/world-4/laboratory", [
+  "static/chunks/4d9770a92ec413f3.js",
+  "static/chunks/5811b677834fd94d.js",
+  "static/chunks/42d23b75474cf303.js",
+  "static/chunks/9fc7b18b3571f2af.js",
+  "static/chunks/efda9baf74d72663.js",
+  "static/chunks/587786d1c6890965.js",
+  "static/chunks/3bbb1977ee75a2e2.js",
+  "static/chunks/14ba8485ddd56c80.js",
+  "static/chunks/49d78ef4063457ff.js",
+  "static/chunks/0b3e6744ef4aea57.js",
+  "static/chunks/b9898908ac97cd52.js",
+  "static/chunks/03883705c128ff16.js",
+  "static/chunks/ec50568712d94eab.js",
+  "static/chunks/bcc2056cbb1dca1f.js",
+  "static/chunks/b5bc9cf5a8079f98.js",
+  "static/chunks/7520beae08a48cc4.js",
+  "static/chunks/337bd3d3738c3b07.js",
+  "static/chunks/turbopack-8d94aaac43a4f863.js"
+])
