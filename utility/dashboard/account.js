@@ -1240,7 +1240,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
     if (insightLevel?.checked) {
       const threshold = insightLevel?.props?.value ?? 3;
       const list = account?.research?.observations?.filter(obs =>
-        obs?.found && obs?.insightLevel >= threshold
+        obs?.found && obs?.lensTypes?.includes(1) && obs?.insightLevel >= threshold
       );
       if (list?.length > 0) {
         research.insightLevel = { observations: list, threshold };
