@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import Head from 'next/head';
 import { Container, Dialog, DialogContent, DialogTitle, Stack, Typography, useMediaQuery } from '@mui/material';
 import Instructions from 'components/common/Instructions';
 import { getRandomNumbersArray, prefix } from '@utility/helpers'
@@ -60,6 +61,11 @@ const Home = () => {
 
   return (
     <Container>
+      <Head>
+        {[0, 1, 2, 3, 4, 5].map(i => (
+          <link key={i} rel="preload" as="image" href={`${prefix}etc/bg_${i}.png`}/>
+        ))}
+      </Head>
       <NextSeo
         title="Home | Idleon Toolbox"
         description="Power up your Legends of Idleon adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds, crafting, and more."
@@ -105,6 +111,7 @@ const Home = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
+                    fetchPriority="high"
                     src={`${prefix}etc/bg_${indexes.at(bgIndex)}.png`}
                     alt={`Idleon Toolbox gameplay feature screenshot ${bgIndex + 1}`}
                   /> : null

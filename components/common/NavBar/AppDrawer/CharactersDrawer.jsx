@@ -11,7 +11,7 @@ import {
   Stack,
   Typography
 } from '@mui/material';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { startTransition, useContext, useMemo, useState } from 'react';
 import { AppContext } from '../../context/AppProvider';
 import { prefix, sections } from 'utility/helpers';
 import Tooltip from '../../../Tooltip';
@@ -61,7 +61,7 @@ const CharactersDrawer = () => {
       }
     }
     setChecked(newState);
-    dispatch({ type: 'displayedCharacters', data: newState })
+    dispatch({ type: 'displayedCharacters', data: newState });
   };
 
   const totalLevels = useMemo(() => state?.characters?.reduce((res, { level }) => res + (level || 0), 0), [state]);
@@ -71,15 +71,19 @@ const CharactersDrawer = () => {
       ...chips,
       [name]: !chips?.[name]
     };
-    if (typeof window.gtag !== 'undefined') {
-      window.gtag('event', 'filter_selection', {
-        event_category: name,
-        event_label: 'engagement',
-        value: !chips?.[name]
-      })
-    }
     setSelectedChips(newChipsState);
-    dispatch({ type: 'filters', data: newChipsState })
+    startTransition(() => {
+      dispatch({ type: 'filters', data: newChipsState });
+    });
+    if (typeof window.gtag !== 'undefined') {
+      setTimeout(() => {
+        window.gtag('event', 'filter_selection', {
+          event_category: name,
+          event_label: 'engagement',
+          value: !chips?.[name]
+        });
+      }, 0);
+    }
   }
 
   // Render character skeleton loaders while data is loading
