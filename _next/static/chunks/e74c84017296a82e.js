@@ -12,11 +12,11 @@ __turbopack_load_page_chunks__("/dashboard", [
   "static/chunks/03883705c128ff16.js",
   "static/chunks/b9898908ac97cd52.js",
   "static/chunks/49d78ef4063457ff.js",
-  "static/chunks/6b832dfbcd652087.js",
+  "static/chunks/59852aa2eddaf1f8.js",
   "static/chunks/7010034fcbea6d9f.js",
   "static/chunks/0b3e6744ef4aea57.js",
   "static/chunks/337bd3d3738c3b07.js",
   "static/chunks/78a6178be5391934.js",
   "static/chunks/826fee0f9ac5d43d.js",
-  "static/chunks/turbopack-7541da0ccdefb3c3.js"
+  "static/chunks/turbopack-e6a58b21fb77f237.js"
 ])
