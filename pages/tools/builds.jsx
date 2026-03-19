@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, Stack, Typography } from '@mui/material';
 import Tooltip from 'components/Tooltip';
-import allBuilds from 'data/builds.json';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import IconButton from '@mui/material/IconButton';
@@ -12,39 +11,48 @@ import ClassSelector from '@components/tools/builds/ClassSelector';
 import BuildSelector from '@components/tools/builds/BuildSelector';
 import AddIcon from '@mui/icons-material/Add';
 import ClearIcon from '@mui/icons-material/Clear';
-
-const allClasses = Object.keys(allBuilds);
+import CircularProgress from '@mui/material/CircularProgress';
 
 const Builds = () => {
   const router = useRouter();
-  const [build, setBuild] = useState({
-    index: 0,
-    className: allClasses[1],
-    list: allBuilds[allClasses[1]]
-  });
+  const [allBuilds, setAllBuilds] = useState(null);
+  const [build, setBuild] = useState(null);
   const [createMode, setCreateMode] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [customBuild, setCustomBuild] = useState();
 
   useEffect(() => {
-    if (router.query) {
-      let { c, b } = router.query || {};
-      c = c?.capitalizeAll();
-      if (allClasses.includes(c)) {
-        let ind;
-        if (!isNaN(b) || (Number(b) < allBuilds[c].length)) {
-          ind = b;
-        } else {
-          ind = 0;
-        }
-        setBuild({
-          index: parseInt(ind),
-          className: c,
-          list: allBuilds[c]
-        })
-      }
-    }
+    import('data/builds.json').then(m => {
+      const builds = m.default;
+      setAllBuilds(builds);
+      const allClasses = Object.keys(builds);
+      setBuild({
+        index: 0,
+        className: allClasses[1],
+        list: builds[allClasses[1]]
+      });
+    });
   }, []);
+
+  useEffect(() => {
+    if (!allBuilds || !router.query) return;
+    const allClasses = Object.keys(allBuilds);
+    let { c, b } = router.query || {};
+    c = c?.capitalizeAll();
+    if (allClasses.includes(c)) {
+      let ind;
+      if (!isNaN(b) || (Number(b) < allBuilds[c].length)) {
+        ind = b;
+      } else {
+        ind = 0;
+      }
+      setBuild({
+        index: parseInt(ind),
+        className: c,
+        list: allBuilds[c]
+      });
+    }
+  }, [allBuilds]);
 
 
   const handleClassChange = (event) => {
@@ -111,6 +119,8 @@ const Builds = () => {
     return build?.list?.find((_, ind) => ind === index);
   }
 
+  if (!allBuilds || !build) return <CircularProgress sx={{ m: 4 }} />;
+
   return <>
     <NextSeo
       title="Builds | Idleon Toolbox"
@@ -118,7 +128,7 @@ const Builds = () => {
     />
     <Typography mt={2} variant={'h2'}>Builds</Typography>
     <Stack direction={'row'} my={3} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <ClassSelector handleChange={handleClassChange} value={build?.className}/>
+      <ClassSelector handleChange={handleClassChange} value={build?.className} allBuilds={allBuilds}/>
       <BuildSelector value={build} handleChange={handleBuildChange}/>
       <FormControl>
         <IconButton onClick={() => setCreateMode(true)}>

@@ -1,7 +1,5 @@
 import { createContext, useEffect, useReducer, useRef, useState } from 'react';
 import { checkUserStatus, signInWithCustom, signInWithToken, subscribe, userSignOut } from '../../../firebase';
-import demoJson from '../../../data/raw.json';
-
 import { useRouter } from 'next/router';
 import useInterval from '../../hooks/useInterval';
 import { getUserToken } from '../../../logins/google';
@@ -282,6 +280,7 @@ const AppProvider = ({ children }) => {
     };
 
     const handleDemoData = async () => {
+      const demoJson = (await import('../../../data/raw.json')).default;
       const { data, charNames, companion, guildData, serverVars, lastUpdated } = demoJson;
       const { parseData } = await import('@parsers/index');
       const timestamp = lastUpdated || new Date().getTime();

@@ -4,8 +4,16 @@ import SimpleLoader from '../components/common/SimpleLoader';
 import { Grid, useMediaQuery } from '@mui/material';
 import { classes } from '@website-data';
 import { customColors, getVisualizationMap } from '@components/statistics/consts';
-import BarVisualization from '../components/statistics/BarVisualization';
-import PieVisualization from '../components/statistics/PieVisualization';
+import dynamic from 'next/dynamic';
+
+const BarVisualization = dynamic(
+  () => import('../components/statistics/BarVisualization'),
+  { ssr: false }
+);
+const PieVisualization = dynamic(
+  () => import('../components/statistics/PieVisualization'),
+  { ssr: false }
+);
 
 const API_URL = process.env.NEXT_PUBLIC_PROFILES_URL;
 

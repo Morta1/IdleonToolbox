@@ -1,12 +1,11 @@
 import { FormControl, InputLabel, Select, Stack, Typography } from '@mui/material';
-import allBuilds from '../../../data/builds.json';
 import MenuItem from '@mui/material/MenuItem';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import { classes } from '@website-data';
 import React from 'react';
 import styled from '@emotion/styled';
 
-const ClassSelector = ({ handleChange, value }) => {
+const ClassSelector = ({ handleChange, value, allBuilds }) => {
   return <FormControl sx={{ width: 270 }}>
     <InputLabel id="class-select-label">Class</InputLabel>
     <Select
