@@ -73,7 +73,7 @@ const Market = ({ market, crop }) => {
           </Stack>
 
           {isCapped ? (
-            <>z
+            <>
               <Stack direction="row" alignItems="center" gap={0.5} sx={{ mt: 1 }}>
                 <Typography variant="body2">
                   Effect: {Math.round(value * 100) / 100} / {maxValue} ({percentOfCap != null

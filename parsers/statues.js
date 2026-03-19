@@ -13,38 +13,35 @@ export const getStatues = (idleonData, charactersData, accountData) => {
 };
 
 export const parseStatues = (statuesRaw, charactersData, rawSpelunking = [], accountData = {}) => {
-  const statues = statuesRaw
-    ?.reduce((res, statue, statueIndex) => {
+  const statues = statuesList
+    ?.map((statueData, statueIndex) => {
+      const statue = statuesRaw?.[statueIndex] ?? 0;
       const goldStatue = statue >= 1;
       const onyxStatue = statue >= 2;
       const zenithStatue = statue >= 3;
-      const highestStatues = getHighestLevelStatues(charactersData, statueIndex)?.StatueLevels
-      const [level, progress] = highestStatues?.[statueIndex] || [];
-      if (!highestStatues?.[statueIndex]) return res;
+      const highestStatues = getHighestLevelStatues(charactersData, statueIndex)?.StatueLevels;
+      const [level, progress] = highestStatues?.[statueIndex] || [0, 0];
       let rawName;
       if (zenithStatue) {
-        rawName = `StatueZ${parseInt(statueIndex) + 1}`;
+        rawName = `StatueZ${statueIndex + 1}`;
       } else if (onyxStatue) {
-        rawName = `StatueO${parseInt(statueIndex) + 1}`;
+        rawName = `StatueO${statueIndex + 1}`;
       } else if (goldStatue) {
-        rawName = `StatueG${parseInt(statueIndex) + 1}`;
+        rawName = `StatueG${statueIndex + 1}`;
       } else {
-        rawName = `Statue${parseInt(statueIndex) + 1}`;
+        rawName = `Statue${statueIndex + 1}`;
       }
 
-      return [
-        ...res,
-        {
-          ...(statuesList?.[statueIndex] || {}),
-          rawName,
-          level,
-          progress,
-          onyxStatue,
-          zenithStatue,
-          statueIndex
-        }
-      ];
-    }, [])
+      return {
+        ...statueData,
+        rawName,
+        level,
+        progress,
+        onyxStatue,
+        zenithStatue,
+        statueIndex
+      };
+    })
     .filter(({ name } = {}) => name);
 
   const market = getZenithMarket(rawSpelunking);

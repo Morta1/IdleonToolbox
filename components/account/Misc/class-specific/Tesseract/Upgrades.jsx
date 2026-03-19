@@ -61,7 +61,6 @@ const Upgrades = ({ upgrades, tachyons }) => {
             opacity: unlocked ? 1 : 0.5
           }}
         >
-          {index}
           <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center" sx={{ position: 'relative' }}>
             <img style={{ width: 32, height: 32, zIndex: 1 }}
                  src={`${prefix}data/ArcaneUpg${index}.png`}/>
