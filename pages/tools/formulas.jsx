@@ -11,7 +11,7 @@ import {
   Typography
 } from '@mui/material';
 import { cashFormatter, cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import DataLoadingWrapper from '@components/common/DataLoadingWrapper';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -33,18 +33,17 @@ const Formulas = () => {
   const [selectedChar, setSelectedChar] = useState(state?.characters?.[0] || {});
   const [selectedFormula, setSelectedFormula] = useState(null);
 
-  const formulas = useMemo(() => {
-    const respawnRate = getRespawnRate(selectedChar, state?.account);
-    const cashMulti = getCashMulti(selectedChar, state?.account, state?.characters);
-    const expMulti = getClassExpMulti(selectedChar, state?.account, state?.characters);
-    const dropRate = getDropRate(selectedChar, state?.account, state?.characters);
-    const cropEvo = getCropEvolution(state?.account, selectedChar, state?.account?.farming?.plot?.[0])
-    const printerMulti = getPrinterMulti(state?.account, state?.characters);
-    const bitMulti = getBitsMulti(state?.account, state?.characters);
-    const goldenFoodMulti = getGoldenFoodMulti(selectedChar, state?.account, state?.characters);
-    const doubleStatueDropChance = getDoubleStatueDrop(state?.account, selectedChar, state?.characters);
-    const doubleGoldenFoodDropChance = getDoubleGoldenFoodDrop(state?.account, selectedChar, state?.characters);
-    return [
+  const respawnRate = getRespawnRate(selectedChar, state?.account);
+  const cashMulti = getCashMulti(selectedChar, state?.account, state?.characters);
+  const expMulti = getClassExpMulti(selectedChar, state?.account, state?.characters);
+  const dropRate = getDropRate(selectedChar, state?.account, state?.characters);
+  const cropEvo = getCropEvolution(state?.account, selectedChar, state?.account?.farming?.plot?.[0])
+  const printerMulti = getPrinterMulti(state?.account, state?.characters);
+  const bitMulti = getBitsMulti(state?.account, state?.characters);
+  const goldenFoodMulti = getGoldenFoodMulti(selectedChar, state?.account, state?.characters);
+  const doubleStatueDropChance = getDoubleStatueDrop(state?.account, selectedChar, state?.characters);
+  const doubleGoldenFoodDropChance = getDoubleGoldenFoodDrop(state?.account, selectedChar, state?.characters);
+  const formulas = [
       {
         id: 'crystalChance',
         name: 'Crystal Chance',
@@ -160,12 +159,10 @@ const Formulas = () => {
         description: 'Double golden food drop chance from all sources'
       }
     ];
-  }, [selectedChar]);
 
-  const filteredFormulas = useMemo(() => {
-    if (!selectedFormula) return formulas;
-    return formulas.filter(formula => formula.name === selectedFormula);
-  }, [formulas, selectedFormula]);
+  const filteredFormulas = selectedFormula
+    ? formulas.filter(formula => formula.name === selectedFormula)
+    : formulas;
 
   const handleCharChange = (e) => {
     setSelectedChar(state?.characters?.[e.target.value]);

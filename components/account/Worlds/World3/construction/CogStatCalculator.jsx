@@ -1,5 +1,5 @@
 import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack, Typography } from '@mui/material';
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useState } from 'react';
 import { getCharacterByHighestSkillLevel } from '../../../../../parsers/misc';
 import { AppContext } from '../../../../common/context/AppProvider';
 import { CardTitleAndValue } from '../../../../common/styles';
@@ -8,7 +8,7 @@ import { notateNumber } from '@utility/helpers';
 const CogStatCalculator = () => {
   const { state } = useContext(AppContext);
   const [cogType, setCogType] = useState(5);
-  const highestDK = useMemo(() => getCharacterByHighestSkillLevel(state?.characters, '', 'construction'), [state?.characters]);
+  const highestDK = getCharacterByHighestSkillLevel(state?.characters, '', 'construction');
   const highestConstruction = highestDK?.skillsInfo?.construction?.level;
   const mainConstructionValue = Math.pow((((highestConstruction) / 3) + 0.7), (1.3 + (0.05 * cogType))) / 4 + Math.pow(3, cogType - 2);
   const constructionMin = mainConstructionValue * .4;

@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { Accordion, AccordionDetails, AccordionSummary, Stack, Typography } from '@mui/material';
 import { getRealDateInMs, getTabs, prefix } from 'utility/helpers';
 import { AppContext } from 'components/common/context/AppProvider';
@@ -20,7 +20,7 @@ const Dungeons = () => {
   const { state } = useContext(AppContext);
   const { dungeons } = state?.account || {};
 
-  const nextHappyHours = useMemo(() => calcHappyHours(state?.serverVars?.HappyHours) || [], [state]);
+  const nextHappyHours = calcHappyHours(state?.serverVars?.HappyHours) || [];
 
   return (
     <>

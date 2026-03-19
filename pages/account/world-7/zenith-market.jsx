@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Stack, Card, CardContent, Typography, Divider, Box } from '@mui/material';
@@ -14,19 +14,17 @@ const ZenithMarket = () => {
   const { characters, account } = state || {};
 
   // Get clusters from character inventories
-  const clusterInventoryData = useMemo(() => {
-    if (!characters || !account) return [];
+  let clusterInventoryData = [];
+  if (characters && account) {
     const allItems = getAllItems(characters, account);
     const clusterItems = allItems.filter(item => item?.rawName === 'Quest110');
-    return clusterItems.map(item => ({
+    clusterInventoryData = clusterItems.map(item => ({
       owner: item?.owner,
       amount: item?.amount || 0
     })).filter(item => item.amount > 0);
-  }, [characters, account]);
+  }
 
-  const totalInventoryClusters = useMemo(() => {
-    return clusterInventoryData.reduce((sum, item) => sum + (item.amount || 0), 0);
-  }, [clusterInventoryData]);
+  const totalInventoryClusters = clusterInventoryData.reduce((sum, item) => sum + (item.amount || 0), 0);
 
   if (!state?.account?.zenith) return <MissingData name={'zenith'} />;
 

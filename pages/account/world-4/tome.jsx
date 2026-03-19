@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
@@ -24,26 +24,18 @@ const Tome = () => {
   const [CheckboxProgressBarsEl, showProgressBars] = useCheckbox('Show progress bars');
   const [CheckboxCalculatorEl, showCalculator] = useCheckbox('Show quantity calculator');
 
-  // Calculate countdown to next tome nametag reset and next 10 resets
-  const { nextResetTime, nextResetTimes } = useMemo(() => {
+  // Calculate countdown to next tome nametag reset and next 10 resets (stable across re-renders)
+  const [{ nextResetTime, nextResetTimes }] = useState(() => {
     const PERIOD_SECONDS = 2628000; // ~30 days 10 hours
     const currentUnixTime = Math.floor(Date.now() / 1000);
     const currentPeriod = Math.floor(currentUnixTime / PERIOD_SECONDS);
     const nextPeriod = currentPeriod + 1;
-    const nextResetUnixTime = nextPeriod * PERIOD_SECONDS;
-    // Convert to milliseconds for Date object
-    const firstReset = nextResetUnixTime * 1000;
-
-    // Calculate next 10 resets
     const resets = [];
     for (let i = 0; i < 10; i++) {
-      const period = nextPeriod + i;
-      const resetUnixTime = period * PERIOD_SECONDS;
-      resets.push(resetUnixTime * 1000);
+      resets.push((nextPeriod + i) * PERIOD_SECONDS * 1000);
     }
-
-    return { nextResetTime: firstReset, nextResetTimes: resets };
-  }, []);
+    return { nextResetTime: resets[0], nextResetTimes: resets };
+  });
 
   return <>
     <NextSeo
@@ -528,29 +520,25 @@ const QuantityCalculator = ({ bonus, maxPoints }) => {
   };
 
   // Calculate result automatically as user types
-  const result = useMemo(() => {
-    if (!targetPoints || targetPoints.trim() === '') {
-      return null;
-    }
-
+  let result = null;
+  if (targetPoints && targetPoints.trim() !== '') {
     const points = parseFloat(targetPoints);
     if (isNaN(points) || points <= 0) {
-      return 'Invalid input';
-    }
-    if (points > maxPoints) {
-      return `Max points is ${commaNotation(maxPoints)}`;
-    }
-    
-    const quantity = calculateRequiredQuantity(points);
-    if (quantity === null) {
-      return 'Unable to calculate';
-    } else if (quantity === Infinity) {
-      return 'Unreachable (asymptotic)';
+      result = 'Invalid input';
+    } else if (points > maxPoints) {
+      result = `Max points is ${commaNotation(maxPoints)}`;
     } else {
-      const formatted = getFormattedQuantity(bonus, quantity);
-      return `Required: ${formatted}`;
+      const quantity = calculateRequiredQuantity(points);
+      if (quantity === null) {
+        result = 'Unable to calculate';
+      } else if (quantity === Infinity) {
+        result = 'Unreachable (asymptotic)';
+      } else {
+        const formatted = getFormattedQuantity(bonus, quantity);
+        result = `Required: ${formatted}`;
+      }
     }
-  }, [targetPoints, bonus, maxPoints]);
+  }
 
   return (
     <Stack gap={0.5} mt={2} p={1} sx={{ bgcolor: (theme) => theme.palette.action.hover, borderRadius: 1 }}>

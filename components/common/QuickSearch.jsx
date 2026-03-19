@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { IconSearch } from '@tabler/icons-react';
 import { useHotkeys } from '@mantine/hooks';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { offlinePages, PAGES } from '@components/constants';
 import { prefix } from '@utility/helpers';
@@ -28,7 +28,6 @@ const QuickSearch = () => {
   const { state } = useContext(AppContext);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef(null);
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
@@ -59,91 +58,87 @@ const QuickSearch = () => {
   };
 
   // Generate all searchable items from PAGES object
-  const allSearchItems = useMemo(() => {
-    const items = [];
+  const allSearchItems = [];
 
-    // Process GENERAL pages
-    Object.keys(PAGES.GENERAL).forEach(page => {
-      if (!state?.signedIn && !state?.profile && !offlinePages.includes(page) && !state?.manualImport) return;
-      items.push({
-        label: page.split(/(?=[A-Z])/).join(' ').capitalizeAllWords(),
-        url: `/${toKebabCase(page)}`,
-        section: 'General',
-        icon: PAGES.GENERAL[page].icon || 'default-icon'
-      });
+  // Process GENERAL pages
+  Object.keys(PAGES.GENERAL).forEach(page => {
+    if (!state?.signedIn && !state?.profile && !offlinePages.includes(page) && !state?.manualImport) return;
+    allSearchItems.push({
+      label: page.split(/(?=[A-Z])/).join(' ').capitalizeAllWords(),
+      url: `/${toKebabCase(page)}`,
+      section: 'General',
+      icon: PAGES.GENERAL[page].icon || 'default-icon'
     });
+  });
 
-    if (state?.signedIn || state?.profile) {
-      Object.keys(PAGES.ACCOUNT).forEach(category => {
-        PAGES.ACCOUNT[category].categories.forEach(subCategory => {
-          // Base URL for the page
-          const baseUrl = `/account/${toKebabCase(category)}/${toKebabCase(subCategory.label)}`;
+  if (state?.signedIn || state?.profile) {
+    Object.keys(PAGES.ACCOUNT).forEach(category => {
+      PAGES.ACCOUNT[category].categories.forEach(subCategory => {
+        // Base URL for the page
+        const baseUrl = `/account/${toKebabCase(category)}/${toKebabCase(subCategory.label)}`;
 
-          // Add the main page
-          items.push({
-            label: formatLabel(subCategory.label),
-            url: baseUrl,
-            section: formatLabel(category),
-            icon: subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon'
-          });
-
-          // Add tabs if they exist
-          if (subCategory.tabs && subCategory.tabs.length > 0) {
-            subCategory.tabs.forEach(item => {
-              items.push({
-                label: `${formatLabel(subCategory.label)} - ${item?.tab || item}`,
-                url: baseUrl,
-                queryParams: { t: item?.tab || item },
-                section: `${formatLabel(category)} - Tabs`,
-                icon: item?.icon || subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
-                isTab: true
-              });
-            });
-          }
-
-          // Add nested tabs if they exist
-          if (subCategory.nestedTabs && subCategory.nestedTabs.length > 0) {
-            subCategory.nestedTabs.forEach(({ tab, nestedTab, nestedTabs, icon }) => {
-              items.push({
-                label: `${formatLabel(subCategory.label)} - ${tab} - ${nestedTab}`,
-                url: baseUrl,
-                queryParams: { t: tab, nt: nestedTab },
-                section: `${formatLabel(category)} - Nested Tabs`,
-                icon: icon || subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
-                isNestedTab: true
-              });
-
-              if (nestedTabs && nestedTabs.length > 0) {
-                nestedTabs.forEach(deepNestedTab => {
-                  items.push({
-                    label: `${formatLabel(subCategory.label)} - ${tab} - ${nestedTab} - ${deepNestedTab}`,
-                    url: baseUrl,
-                    queryParams: { t: tab, nt: nestedTab, dnt: deepNestedTab },
-                    section: `${formatLabel(category)} - Deep Nested Tabs`,
-                    icon: icon || subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
-                    isDeepNestedTab: true
-                  });
-                });
-              }
-            });
-          }
+        // Add the main page
+        allSearchItems.push({
+          label: formatLabel(subCategory.label),
+          url: baseUrl,
+          section: formatLabel(category),
+          icon: subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon'
         });
-      });
-    }
 
-    // Process TOOLS pages
-    Object.keys(PAGES.TOOLS).forEach(tool => {
-      if (!state?.signedIn && !state?.profile && !offlineTools[tool]) return;
-      items.push({
-        label: tool.split(/(?=[A-Z])/).join(' ').capitalizeAllWords(),
-        url: `/tools/${toKebabCase(tool)}`,
-        section: 'Tools',
-        icon: PAGES.TOOLS[tool].icon || 'default-icon'
+        // Add tabs if they exist
+        if (subCategory.tabs && subCategory.tabs.length > 0) {
+          subCategory.tabs.forEach(item => {
+            allSearchItems.push({
+              label: `${formatLabel(subCategory.label)} - ${item?.tab || item}`,
+              url: baseUrl,
+              queryParams: { t: item?.tab || item },
+              section: `${formatLabel(category)} - Tabs`,
+              icon: item?.icon || subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
+              isTab: true
+            });
+          });
+        }
+
+        // Add nested tabs if they exist
+        if (subCategory.nestedTabs && subCategory.nestedTabs.length > 0) {
+          subCategory.nestedTabs.forEach(({ tab, nestedTab, nestedTabs, icon }) => {
+            allSearchItems.push({
+              label: `${formatLabel(subCategory.label)} - ${tab} - ${nestedTab}`,
+              url: baseUrl,
+              queryParams: { t: tab, nt: nestedTab },
+              section: `${formatLabel(category)} - Nested Tabs`,
+              icon: icon || subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
+              isNestedTab: true
+            });
+
+            if (nestedTabs && nestedTabs.length > 0) {
+              nestedTabs.forEach(deepNestedTab => {
+                allSearchItems.push({
+                  label: `${formatLabel(subCategory.label)} - ${tab} - ${nestedTab} - ${deepNestedTab}`,
+                  url: baseUrl,
+                  queryParams: { t: tab, nt: nestedTab, dnt: deepNestedTab },
+                  section: `${formatLabel(category)} - Deep Nested Tabs`,
+                  icon: icon || subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon',
+                  isDeepNestedTab: true
+                });
+              });
+            }
+          });
+        }
       });
     });
+  }
 
-    return items;
-  }, [state?.signedIn]);
+  // Process TOOLS pages
+  Object.keys(PAGES.TOOLS).forEach(tool => {
+    if (!state?.signedIn && !state?.profile && !offlineTools[tool]) return;
+    allSearchItems.push({
+      label: tool.split(/(?=[A-Z])/).join(' ').capitalizeAllWords(),
+      url: `/tools/${toKebabCase(tool)}`,
+      section: 'Tools',
+      icon: PAGES.TOOLS[tool].icon || 'default-icon'
+    });
+  });
 
   const handleKeyDown = (e) => {
     if (searchResults.length === 0) return;
@@ -158,20 +153,12 @@ const QuickSearch = () => {
     }
   };
 
-  // Handle search term changes
-  useEffect(() => {
-    if (!searchTerm.trim()) {
-      setSearchResults([]);
-      return;
-    }
-
-    const results = allSearchItems.filter(item =>
+  const searchResults = searchTerm.trim()
+    ? allSearchItems.filter(item =>
       item.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.section.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    setSearchResults(results);
-  }, [searchTerm, allSearchItems]);
+    )
+    : [];
 
   // Handle navigation
   const handleNavigate = (url, params) => {

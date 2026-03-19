@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import Head from 'next/head';
 import { Container, Dialog, DialogContent, DialogTitle, Stack, Typography, useMediaQuery } from '@mui/material';
 import Instructions from 'components/common/Instructions';
@@ -19,7 +19,7 @@ import StructuredData, { createFAQData } from '@components/common/StructuredData
 import { HomeSidebarAds } from '@components/common/Ads/AdUnit';
 
 const Home = () => {
-  const indexes = useMemo(() => getRandomNumbersArray(6, 6), []);
+  const [indexes] = useState(() => getRandomNumbersArray(6, 6));
   const breakpoint = useMediaQuery('(max-width: 1245px)', { noSsr: true });
   const breakpointLg = useMediaQuery('(min-width: 1921px)', { noSsr: true });
   const [bgIndex, setBgIndex] = useState(0);

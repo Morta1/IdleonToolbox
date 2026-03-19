@@ -8,7 +8,7 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material';
-import React, { forwardRef, useContext, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, useContext, useEffect, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, kFormatter, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
@@ -40,7 +40,7 @@ const Refinery = () => {
   const [showNextLevelCost, setShowNextLevelCost] = useState(false);
   const [squiresCooldown, setSquiresCooldown] = useState([]);
   const [refineryCycles, setRefineryCycles] = useState([]);
-  const activePrints = useMemo(() => calcTotals(state?.account), [state?.account]);
+  const activePrints = calcTotals(state?.account);
 
   useEffect(() => {
     const {

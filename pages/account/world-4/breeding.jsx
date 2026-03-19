@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Stack, Typography } from '@mui/material';
 import BreedingUpgrades from '@components/account/Worlds/World4/Breeding/BreedingUpgrades';
@@ -38,7 +38,7 @@ const Breeding = () => {
             + (15 * skillMasteryBonus
               + voteBonus))))) / 100) * 1000;
   }
-  const timePerEgg = useMemo(() => calcTimePerEgg(), [state]);
+  const timePerEgg = calcTimePerEgg();
   const now = new Date().getTime();
   return (
     <>

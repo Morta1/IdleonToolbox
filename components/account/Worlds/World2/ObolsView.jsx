@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
@@ -34,7 +34,7 @@ const shadowColors = {
 }
 
 const ObolsView = ({ obols, type = 'character', obolStats, characters }) => {
-  const totalLevels = useMemo(() => characters?.reduce((res, { level }) => res + (level || 0), 0), [characters]);
+  const totalLevels = characters?.reduce((res, { level }) => res + (level || 0), 0);
   if (!obols) return;
   const noStats = Object.keys(obols?.stats).length === 0;
   return (

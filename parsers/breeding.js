@@ -89,9 +89,10 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
     const fleeters = team?.filter((teamMember) => teamMember?.gene?.name === 'Fleeter')?.length;
     const fasidiouses = team?.filter((teamMember) => teamMember?.gene?.name === 'Fasidious')?.length;
     let miasmas = team?.filter((teamMember) => teamMember?.gene?.name === 'Miasma');
-    if (miasmas.length) {
-      const duplicates = team?.map(({ gene }) => gene?.name)?.every((name, index, arr) => arr.indexOf(index) === name);
-      miasmas = !duplicates ? 4 : 1;
+    if (miasmas?.length) {
+      const geneNames = team?.map(({ gene }) => gene?.name);
+      const allUnique = new Set(geneNames).size === geneNames?.length;
+      miasmas = allUnique ? 4 : 1;
     }
     else {
       miasmas = 1;
@@ -102,7 +103,7 @@ const parseBreeding = (breedingRaw, territoryRaw, petsRaw, petsStoredRaw, cookin
     const math = forageSpeed * Math.pow(1.3, fleeters) * Math.pow(1.2, badumdums) * Math.pow(1.5, flashies) * Math.pow(1.5, fasidiouses) * miasmas;
     const teamFightPower = (teamPower + forageSpeed * index) * Math.pow(1.5, tsars);
     const totalForageSpeed = teamFightPower < territory.fightPower ? 0 : math;
-    const bonus = 1 + .02 / (team.filter((teamMember) => teamMember?.gene?.name === 'Monolithic').length / 5 + 1);
+    const bonus = 1 + .02 / (team?.filter((teamMember) => teamMember?.gene?.name === 'Monolithic')?.length / 5 + 1);
     const powerReq = index > 14 ? terri?.[index - 1]?.powerReq : territory?.powerReq;
     const reqProgress = (powerReq + foragingRounds?.[index]) * Math.pow(bonus, foragingRounds?.[index]);
     return { ...territory, team, forageSpeed: totalForageSpeed, reqProgress, currentProgress: currentProgress?.[index] }

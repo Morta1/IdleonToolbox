@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import Timer from 'components/common/Timer';
 import { growth, prefix } from 'utility/helpers';
 import Tooltip from '../Tooltip';
@@ -30,7 +30,7 @@ const ActiveSkillsCD = ({ postOffice, talents, cooldowns, afkTime, lastUpdated }
       ];
     }, []);
   };
-  const actualCooldowns = useMemo(() => getCooldowns(cooldowns), [cooldowns]);
+  const actualCooldowns = getCooldowns(cooldowns);
 
   return actualCooldowns?.length ? (
     <Stack direction="row" gap={2}>

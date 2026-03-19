@@ -1,6 +1,6 @@
 import { Divider, Stack, Typography } from '@mui/material';
 import { Section } from '@components/tools/active-calculator/common';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { compareInventories, consolidateItems } from '@parsers/misc/activeCalculator';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -12,8 +12,8 @@ import { items } from '@website-data';
 const DropSection = ({ lastUpdated, resultsOnly }) => {
   const { state } = useContext(AppContext);
   const [snapshottedAcc] = useLocalStorage({ key: 'activeDropAcc', defaultValue: null });
-  const flattenSnapshot = useMemo(() => snapshottedAcc?.obols?.inventory?.flat().filter((name) => name !== 'Blank' && name !== 'LockedInvSpace').map((name) => ({ ...items[name], rawName: name, amount: 1 })), [snapshottedAcc]);
-  const flattenCurrent = useMemo(() => state?.account?.obols?.inventory?.flat().filter((name) => name !== 'Blank' && name !== 'LockedInvSpace').map((name) => ({ ...items[name], rawName: name, amount: 1 })), [state?.account]);
+  const flattenSnapshot = snapshottedAcc?.obols?.inventory?.flat().filter((name) => name !== 'Blank' && name !== 'LockedInvSpace').map((name) => ({ ...items[name], rawName: name, amount: 1 }));
+  const flattenCurrent = state?.account?.obols?.inventory?.flat().filter((name) => name !== 'Blank' && name !== 'LockedInvSpace').map((name) => ({ ...items[name], rawName: name, amount: 1 }));
   const difference = compareInventories(flattenSnapshot, flattenCurrent, lastUpdated, snapshottedAcc?.snapshotTime);
 
   if (!snapshottedAcc?.obols?.inventory) {

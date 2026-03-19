@@ -1,5 +1,4 @@
 import {
-  Button,
   Checkbox,
   Collapse,
   Divider,
@@ -10,24 +9,22 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import CheckIcon from '@mui/icons-material/Check';
 import { mapEnemiesArray, monsters } from '@website-data';
+
+const CHAR_INDEX_MAP = Object.fromEntries('_abcdefghijklmnopqrstuvwxyz'.split('').map((c, i) => [c, i]));
 
 const ConstellationsComp = ({ constellations = [], characters = [] }) => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
   const [hideCompleted, setHideCompleted] = useState(false);
   const [expandedHints, setExpandedHints] = useState({});
 
-  const characterNames = useMemo(() => characters?.map(({ name }) => name) || [], [characters]);
-  const constellationList = useMemo(() => hideCompleted ? constellations?.filter(({ done }) => !done) : constellations,
-    [constellations, hideCompleted]);
+  const characterNames = characters?.map(({ name }) => name) || [];
+  const constellationList = hideCompleted ? constellations?.filter(({ done }) => !done) : constellations;
 
-  const charIndexMap = useMemo(() => {
-    const alphabet = '_abcdefghijklmnopqrstuvwxyz';
-    return alphabet.split('').reduce((acc, char, idx) => ({ ...acc, [char]: idx }), {});
-  }, []);
+  const charIndexMap = CHAR_INDEX_MAP;
 
   const getCompletedNames = (completedChars) => {
     const indices = completedChars
@@ -36,10 +33,6 @@ const ConstellationsComp = ({ constellations = [], characters = [] }) => {
       ?.filter((idx) => idx !== undefined);
     const uniqueSorted = [...new Set(indices)]?.sort((a, b) => a - b);
     return uniqueSorted?.map((idx) => characterNames?.[idx] || `Char ${idx + 1}`) || [];
-  };
-
-  const toggleHint = (name) => {
-    setExpandedHints((prev) => ({ ...prev, [name]: !prev?.[name] }));
   };
 
   const getTotalPoints = () => {

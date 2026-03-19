@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { calcMealTime, calcTimeToNextLevel, getMealLevelCost, getRibbonBonus } from 'parsers/cooking';
 import {
   cleanUnderscore,
@@ -56,7 +56,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
     }
     return baseMeals;
   }
-  const noMealLeftBehind = useMemo(() => getNoMealLeftBehind(meals, mealMaxLevel), [meals, mealMaxLevel]);
+  const noMealLeftBehind = getNoMealLeftBehind(meals, mealMaxLevel);
   const sortMealsBy = (meals, index, level = 0) => {
     if (index === 0) return defaultMeals;
     const mealsCopy = [...defaultMeals];
@@ -131,7 +131,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
       return res;
     }, { value: 0, character: '' });
   }
-  const overflowingLadleBonus = useMemo(() => getHighestOverflowingLadle(), [characters]);
+  const overflowingLadleBonus = getHighestOverflowingLadle();
   const calcMeals = (meals, overflow) => {
     if (!meals) return []
     return meals?.map((meal) => {
@@ -169,7 +169,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
       };
     });
   };
-  const defaultMeals = useMemo(() => calcMeals(meals), [meals, mealSpeed, localEquinoxUpgrades]);
+  const defaultMeals = calcMeals(meals);
 
   useEffect(() => {
     const tempFoodLust = equinoxUpgrades?.find(({ name }) => name === 'Food_Lust')?.bonus;

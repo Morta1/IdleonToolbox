@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import type * as React from "react";
 import {
   Box,
@@ -163,10 +163,8 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
     setFeedbackMessage("Copied text to clipboard")
   }
 
-  const filteredData = useMemo(() => {
-    if (!data) return data
-    if (!searchQuery.trim()) return data
-
+  let filteredData = data
+  if (data && searchQuery.trim()) {
     const query = searchQuery.toLowerCase()
     const filteredCategories = data.categories
       .map((category) => {
@@ -204,11 +202,11 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
       })
       .filter(Boolean) as StatCategory[]
 
-    return {
+    filteredData = {
       ...data,
       categories: filteredCategories,
     }
-  }, [data, searchQuery])
+  }
 
   const sortSources = (sources: StatSource[], prefix: string) => {
     if (!sources) return [];

@@ -2,7 +2,7 @@ import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, kFormatter, notateNumber, prefix } from '@utility/helpers';
 import Tooltip from 'components/Tooltip';
 import Timer from 'components/common/Timer';
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
   calcMealTime,
   calcTimeToNextLevel,
@@ -38,7 +38,7 @@ const Kitchens = ({
       }
     }, {})
   }
-  const totals = useMemo(() => calcTotals(kitchens), [kitchens]);
+  const totals = calcTotals(kitchens);
 
   const getRecipeTime = (possibleMeals) => {
     if (!possibleMeals) return 0;

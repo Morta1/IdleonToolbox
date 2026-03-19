@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import Library from '../account/Worlds/World3/Library';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
@@ -27,8 +27,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
     return { ...res, [alertName]: allEmpty };
   }, {});
   const router = useRouter();
-  const events = useMemo(() => getRandomEvents(account), [characters, account, lastUpdated]);
-  const nextHappyHours = useMemo(() => calcHappyHours(account?.serverVars?.HappyHours) || [], [account]);
+  const events = getRandomEvents(account);
+  const nextHappyHours = calcHappyHours(account?.serverVars?.HappyHours) || [];
   const nextPrinterCycle = new Date().getTime() + (3600 - (account?.timeAway?.GlobalTime - account?.timeAway?.Printer)) * 1000;
   const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - (account?.companions?.lastFreeClaim ?? 0)));
   const nextFeatherRestart = new Date().getTime() + (account?.owl?.upgrades?.[4]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
@@ -114,31 +114,27 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
     bestWizard,
     bestChargeSyphon,
     timeToOverCharge
-  } = useMemo(() => getChargeWithSyphon(characters), [characters]);
+  } = getChargeWithSyphon(characters);
 
   // Helper function to calculate max linear multiplier and time until max
-  const getMonumentMultiInfo = useMemo(() => {
-    if (!account?.hole?.holesObject) return null;
+  const calcMonumentInfo = (t) => {
+    const holesObject = account?.hole?.holesObject;
+    if (!holesObject) return null;
+    const maxLinearTime = getMonumentMaxLinearTime(holesObject, t, account);
+    const currentTime = holesObject?.extraCalculations?.[Math.round(11 + t)] || 0;
+    const maxLinearMulti = (maxLinearTime / 72e3)
+      * (1 + getMeritocracyBonus(account, 7) / 100)
+      * (1 + getLegendTalentBonus(account, 27) / 100);
+    const timeUntilMax = Math.max(0, maxLinearTime - currentTime);
+    const timeUntilMaxDate = timeUntilMax > 0 ? new Date().getTime() + timeUntilMax * 1000 : null;
 
-    const getMonument = (t) => {
-      const holesObject = account.hole.holesObject;
-      const maxLinearTime = getMonumentMaxLinearTime(holesObject, t, account);
-      const currentTime = holesObject?.extraCalculations?.[Math.round(11 + t)] || 0;
-      const maxLinearMulti = (maxLinearTime / 72e3)
-        * (1 + getMeritocracyBonus(account, 7) / 100)
-        * (1 + getLegendTalentBonus(account, 27) / 100);
-      const timeUntilMax = Math.max(0, maxLinearTime - currentTime);
-      const timeUntilMaxDate = timeUntilMax > 0 ? new Date().getTime() + timeUntilMax * 1000 : null;
-
-      return { maxLinearMulti, timeUntilMax, timeUntilMaxDate };
-    };
-
-    return {
-      bravery: getMonument(0),
-      justice: getMonument(1),
-      wisdom: getMonument(2)
-    };
-  }, [account]);
+    return { maxLinearMulti, timeUntilMax, timeUntilMaxDate };
+  };
+  const getMonumentMultiInfo = account?.hole?.holesObject ? {
+    bravery: calcMonumentInfo(0),
+    justice: calcMonumentInfo(1),
+    wisdom: calcMonumentInfo(2)
+  } : null;
 
   const researchRate = account?.research?.researchEXPrateTOT ?? 0;
   const bestResearchChar = researchRate > 0 ? getCharacterByHighestSkillLevel(characters, null, 'research') : null;

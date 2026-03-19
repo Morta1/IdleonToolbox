@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Box, Divider, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import { cleanUnderscore, getTabs, prefix } from 'utility/helpers';
@@ -8,9 +8,9 @@ import { PAGES } from '@components/constants';
 const StarSigns = ({ starSigns, infiniteStars }) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
-  const chronus = useMemo(() => starSigns.filter(({ tree }) => tree === 'chronus'), [starSigns, infiniteStars]);
-  const hydron = useMemo(() => starSigns.filter(({ tree }) => tree === 'hydron'), [starSigns, infiniteStars]);
-  const seraph = useMemo(() => starSigns.filter(({ tree }) => tree === 'seraph'), [starSigns, infiniteStars]);
+  const chronus = starSigns.filter(({ tree }) => tree === 'chronus');
+  const hydron = starSigns.filter(({ tree }) => tree === 'hydron');
+  const seraph = starSigns.filter(({ tree }) => tree === 'seraph');
   infiniteStars = selectedTab === 0 ? infiniteStars : selectedTab === 1 ? infiniteStars - 34 : infiniteStars - 63;
 
   return (

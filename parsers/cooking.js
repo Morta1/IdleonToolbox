@@ -354,45 +354,6 @@ export const parseKitchens = (cookingRaw, atomsRaw, characters, account, options
         },
       ],
     };
-    // if (characterIndex === 8 && kitchenIndex === 0){
-    //   console.log('voidWalkerBonusTalent:', voidWalkerBonusTalent);
-    //   console.log('account?.farming?.cropDepot?.cookingSpeed?.value:', account?.farming?.cropDepot?.cookingSpeed?.value);
-    //   console.log('voidWalkerApocalypseBonus:', voidWalkerApocalypseBonus);
-    //   console.log('richelinBonus:', richelinBonus);
-    //   console.log('voteBonus:', voteBonus);
-    //   console.log('upgradeVaultBonus:', upgradeVaultBonus);
-    //   console.log('marshmallowBonus:', marshmallowBonus);
-    //   console.log('highestFarming:', highestFarming);
-    //   console.log('bubbleBonus:', bubbleBonus);
-    //   console.log('voidPlateChefBonus:', voidPlateChefBonus);
-    //   console.log('superbitBonus:', superbitBonus);
-    //   console.log('speedLv:', speedLv);
-    //   console.log('triagulonArtifactBonus:', triagulonArtifactBonus);
-    //   console.log('arcadeBonus:', arcadeBonus);
-    //   console.log('turtleVial:', turtleVial);
-    //   console.log('cookingSpeedVials:', cookingSpeedVials);
-    //   console.log('cookingSpeedStamps:', cookingSpeedStamps);
-    //   console.log('cookingSpeedFromJewel:', cookingSpeedFromJewel);
-    //   console.log('cookingSpeedMeals:', cookingSpeedMeals);
-    //   console.log('starSignBonus:', starSignBonus);
-    //   console.log('winnerBonus:', winnerBonus);
-    //   console.log('monumentBonus:', monumentBonus);
-    //   console.log('schematicBonus:', schematicBonus);
-    //   console.log('cardCookingMulti:', cardCookingMulti);
-    //   console.log('lampBonus:', lampBonus);
-    //   console.log('extraCookingSpeedVials:', extraCookingSpeedVials);
-    //   console.log('amethystRhinestone:', amethystRhinestone);
-    //   console.log('trollBonus:', trollBonus);
-    //   console.log('firstAchievement:', firstAchievement);
-    //   console.log('secondAchievement:', secondAchievement);
-    //   console.log('kitchenEffMeals:', kitchenEffMeals);
-    //   console.log('speedLv:', speedLv);
-    //   console.log('fireLv:', fireLv);
-    //   console.log('luckLv:', luckLv);
-    //   console.log('###################');
-    //   console.log('mealSpeed:', mealSpeed);
-    // }
-
     // Fire Speed
     const recipeSpeedVials = getVialsBonusByEffect(account?.alchemy?.vials, 'Recipe_Cooking_Speed');
     const recipeSpeedStamps = getStampsBonusByEffect(account, 'New_Recipe_Cooking_Speed');

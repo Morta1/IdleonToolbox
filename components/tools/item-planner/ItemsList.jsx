@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { cleanUnderscore, notateNumber, numberWithCommas, pascalCase, prefix } from 'utility/helpers';
 import { findQuantityOwned, flattenCraftObject } from 'parsers/items';
 import styled from '@emotion/styled';
@@ -81,7 +81,7 @@ const ItemsList = ({
     }, {});
   };
 
-  const categorize = useMemo(() => mapItems(itemsList, itemDisplay), [itemsList, itemDisplay, inventoryItems, account]);
+  const categorize = mapItems(itemsList, itemDisplay);
 
   return (
     <Stack flexWrap={'wrap'} direction={'row'} gap={4}>

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { itemsArray } from 'data/website-data';
 import {
   addEquippedItems,
@@ -47,8 +47,8 @@ const ItemBrowser = ({}) => {
   const [result, setResult] = useState();
   const [searchBy, setSearchBy] = useState('name');
   const [includeEquippedItems, setIncludeEquippedItems] = useState(false);
-  const equippedItems = useMemo(() => addEquippedItems(state?.characters, includeEquippedItems), [includeEquippedItems]);
-  const totalItems = useMemo(() => getAllItems(state?.characters, state?.account), [state?.characters, state?.account])
+  const equippedItems = addEquippedItems(state?.characters, includeEquippedItems);
+  const totalItems = getAllItems(state?.characters, state?.account);
   const totalAmount = Object.values(result || {}).reduce((res, { amount }) => res + amount, 0);
 
   useEffect(() => {

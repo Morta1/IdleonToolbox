@@ -14,7 +14,7 @@ import {
 import MenuItem from '@mui/material/MenuItem';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import { format, isValid } from 'date-fns';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { getExoticMarketRotations } from '@parsers/world-6/farming';
 
@@ -25,22 +25,19 @@ const ExoticMarketRotation = () => {
   const [weeks, setWeeks] = useState(10);
 
   // Get all valid exotic market upgrades for the filter dropdown (use processed data for actual values)
-  const allUpgrades = useMemo(() => {
-    const processedMarket = state?.account?.farming?.exoticMarket || [];
-    return processedMarket
-      ?.map((upgrade, index) => ({ ...upgrade, index }))
-      ?.filter(({ name }) => name !== 'NAME_MAGNI') || [];
-  }, [state?.account?.farming?.exoticMarket]);
+  const processedMarket = state?.account?.farming?.exoticMarket || [];
+  const allUpgrades = processedMarket
+    ?.map((upgrade, index) => ({ ...upgrade, index }))
+    ?.filter(({ name }) => name !== 'NAME_MAGNI') || [];
 
-  const rotations = useMemo(() => getExoticMarketRotations(state?.account, weeks), [state?.account, weeks]);
+  const rotations = getExoticMarketRotations(state?.account, weeks);
 
   // Filter rotations based on selected upgrades
-  const filteredRotations = useMemo(() => {
-    if (filter.length === 0) return rotations;
-    return rotations?.filter((rotation) => {
-      return rotation.upgrades?.some(({ name }) => filter.map(f => f.name).includes(name));
-    });
-  }, [rotations, filter]);
+  const filteredRotations = filter.length === 0
+    ? rotations
+    : rotations?.filter((rotation) => {
+        return rotation.upgrades?.some(({ name }) => filter.map(f => f.name).includes(name));
+      });
 
   if (!rotations?.length) {
     return <Typography>No rotation data available</Typography>;

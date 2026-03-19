@@ -258,11 +258,13 @@ export const createArrayOfArrays = (array) => {
 };
 
 export const createIndexedArray = (object) => {
-  const highest = Math.max(...Object.keys(object));
+  const keys = Object.keys(object).map(Number).filter(k => !isNaN(k));
+  if (!keys.length) return Object.values(object);
+  const highest = Math.max(...keys);
   let result = [];
   for (let i = 0; i <= highest; i++) {
-    if (object?.[i]) {
-      result[i] = object?.[i];
+    if (i in object) {
+      result[i] = object[i];
     }
     else {
       result[i] = {};

@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { getWeeklyBoss } from '@parsers/world-2/weeklyBosses';
 import { Stack, Typography } from '@mui/material';
@@ -20,7 +20,7 @@ const WeeklyBosses = () => {
     }
   };
 
-  const weeklyBosses = useMemo(() => getWeeklyBoss(state?.account, weeks), [state?.account, weeks]);
+  const weeklyBosses = getWeeklyBoss(state?.account, weeks);
   return weeklyBosses?.length ? <>
     <Stack direction={'row'} gap={2} mb={3} alignItems={'center'}>
       <CardTitleAndValue title={'Trophies'}

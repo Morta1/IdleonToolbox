@@ -1,5 +1,5 @@
 import { crafts, itemsArray } from 'data/website-data';
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   Accordion,
   AccordionDetails,
@@ -58,8 +58,8 @@ const ItemPlanner = ({}) => {
   const [itemCount, setItemCount] = useState(1);
   const [buttons, setButtons] = useState({});
   const [sectionName, setSectionName] = useState();
-  const equippedItems = useMemo(() => addEquippedItems(state?.characters, includeEquippedItems), [includeEquippedItems]);
-  const totalItems = useMemo(() => getAllItems(state?.characters, state?.account), [state?.characters, state?.account]);
+  const equippedItems = addEquippedItems(state?.characters, includeEquippedItems);
+  const totalItems = getAllItems(state?.characters, state?.account);
   const inputRef = useRef();
   const [confirmationDialog, setConfirmationDialog] = useState({ open: false, type: '', data: null });
 

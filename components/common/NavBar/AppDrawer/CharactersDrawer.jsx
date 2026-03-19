@@ -11,7 +11,7 @@ import {
   Stack,
   Typography
 } from '@mui/material';
-import React, { startTransition, useContext, useMemo, useState } from 'react';
+import React, { startTransition, useContext, useState } from 'react';
 import { AppContext } from '../../context/AppProvider';
 import { prefix, sections } from 'utility/helpers';
 import Tooltip from '../../../Tooltip';
@@ -64,7 +64,7 @@ const CharactersDrawer = () => {
     dispatch({ type: 'displayedCharacters', data: newState });
   };
 
-  const totalLevels = useMemo(() => state?.characters?.reduce((res, { level }) => res + (level || 0), 0), [state]);
+  const totalLevels = state?.characters?.reduce((res, { level }) => res + (level || 0), 0);
 
   const handleChipClick = (name) => {
     const newChipsState = {

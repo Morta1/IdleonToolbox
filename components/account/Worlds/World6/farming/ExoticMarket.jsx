@@ -1,6 +1,6 @@
 import { Card, CardContent, LinearProgress, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -25,10 +25,7 @@ const Market = ({ market, crop }) => {
   const { state } = useContext(AppContext);
   const [now, setNow] = useState(() => new Date());
 
-  const rotations = useMemo(
-    () => getExoticMarketRotations(state?.account, 2),
-    [state?.account]
-  );
+  const rotations = getExoticMarketRotations(state?.account, 2);
   const nextRotationDate = rotations?.[1]?.date;
 
   useEffect(() => {
@@ -37,10 +34,9 @@ const Market = ({ market, crop }) => {
     return () => clearInterval(interval);
   }, [nextRotationDate]);
 
-  const countdown = useMemo(() => {
-    if (!nextRotationDate || !(nextRotationDate instanceof Date)) return null;
-    return formatCountdown(nextRotationDate.getTime() - now.getTime());
-  }, [nextRotationDate, now]);
+  const countdown = (!nextRotationDate || !(nextRotationDate instanceof Date))
+    ? null
+    : formatCountdown(nextRotationDate.getTime() - now.getTime());
 
   const currentRotation = market?.filter(u => u.isAvailableThisWeek);
   const offRotation = market?.filter(u => !u.isAvailableThisWeek);

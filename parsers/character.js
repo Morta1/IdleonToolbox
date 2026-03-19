@@ -294,7 +294,7 @@ export const initializeCharacter = (char, charactersLevels, account, idleonData)
   const rawInvBagsUsed = char?.[`InvBagsUsed`]
   const bags = Object.keys(rawInvBagsUsed);
   character.invBagsUsed = Object.entries(invBags).map(([bagName, details]) => {
-    let bagNumber = bagName.match(/[0-9]+/g)[0];
+    let bagNumber = bagName.match(/[0-9]+/g)?.[0];
     bagNumber = parseInt(bagNumber) < 100 ? bagNumber - 1 : bagNumber;
     if (bags.includes(String(bagNumber))) {
       return { ...details, rawName: bagName, acquired: true };

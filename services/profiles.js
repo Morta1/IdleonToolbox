@@ -43,7 +43,7 @@ export const getProfile = async ({ mainChar }) => {
     if (!response) return null
     return await response?.json();
   } catch (e) {
-    console.error(`${__filename} -> Error has occurred while getting profile for ${mainChar}`);
+    console.error(`profiles.js -> Error has occurred while getting profile for ${mainChar}`);
     throw e;
   }
 }
@@ -59,7 +59,7 @@ export const fetchLeaderboard = async (leaderboard) => {
     if (!response) return null
     return await response?.json();
   } catch (e) {
-    console.error(`${__filename} -> Error has occurred while getting leaderboards`);
+    console.error(`profiles.js -> Error has occurred while getting leaderboards`);
     throw e;
   }
 }
@@ -75,7 +75,7 @@ export const fetchUserLeaderboards = async (leaderboard, leaderboardUser) => {
     if (!response) return null
     return await response?.json();
   } catch (e) {
-    console.error(`${__filename} -> Error has occurred while getting leaderboards`);
+    console.error(`profiles.js -> Error has occurred while getting leaderboards`);
     throw e;
   }
 }

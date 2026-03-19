@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import {
   Box,
@@ -65,16 +65,14 @@ const UpgradeOptimizer = ({ character, account }) => {
   const denominator = getAmberDenominator(account);
   const amberIndex = getAmberIndex(account);
 
-  const optimizedUpgrades = useMemo(() => {
-    if (!character || !account) return [];
-    
+  let optimizedUpgrades = [];
+  if (character && account) {
     const maxToUse = maxUpgradesMode === 'custom'
       ? Math.max(0, parseInt(customMaxUpgrades || 0, 10) || 0)
       : maxUpgrades;
-    
+
     const characters = state?.characters || [];
-    
-    // Helper function to get upgrades for a specific category
+
     const getUpgradesForCategory = (category, limit, useOnlyAffordable) => {
       const options = { onlyAffordable: useOnlyAffordable, characters };
       const upgrades = category === 'Amber Gain'
@@ -82,23 +80,19 @@ const UpgradeOptimizer = ({ character, account }) => {
         : getOptimizedSpelunkingPowerUpgrades(character, account, limit, options);
       return upgrades.map(upgrade => ({ ...upgrade, category }));
     };
-    
+
     if (optimizationCategory === 'All') {
       if (onlyAffordable) {
-        // Get upgrades from both categories without affordability filter
-        // We'll apply cumulative affordability filtering after merging
         const powerUpgrades = getUpgradesForCategory('Power', maxToUse * 2, false);
         const amberGainUpgrades = getUpgradesForCategory('Amber Gain', maxToUse * 2, false);
-        
-        // Merge and sort by efficiency
+
         const allUpgrades = [...powerUpgrades, ...amberGainUpgrades]
           .sort((a, b) => (b.efficiency || 0) - (a.efficiency || 0));
-        
-        // Apply cumulative affordability filtering
+
         const availableAmber = account?.spelunking?.currentAmber || 0;
         let cumulativeCost = 0;
         const affordableUpgrades = [];
-        
+
         for (const upgrade of allUpgrades) {
           const upgradeCost = upgrade.cost || 0;
           if (cumulativeCost + upgradeCost <= availableAmber) {
@@ -109,20 +103,19 @@ const UpgradeOptimizer = ({ character, account }) => {
             }
           }
         }
-        
-        return affordableUpgrades;
+
+        optimizedUpgrades = affordableUpgrades;
       } else {
-        // When onlyAffordable is false, use the original logic
         const powerUpgrades = getUpgradesForCategory('Power', maxToUse * 2, false);
         const amberGainUpgrades = getUpgradesForCategory('Amber Gain', maxToUse * 2, false);
-        return [...powerUpgrades, ...amberGainUpgrades]
+        optimizedUpgrades = [...powerUpgrades, ...amberGainUpgrades]
           .sort((a, b) => (b.efficiency || 0) - (a.efficiency || 0))
           .slice(0, maxToUse);
       }
+    } else {
+      optimizedUpgrades = getUpgradesForCategory(optimizationCategory, maxToUse, onlyAffordable);
     }
-    
-    return getUpgradesForCategory(optimizationCategory, maxToUse, onlyAffordable);
-  }, [character, account, maxUpgradesMode, customMaxUpgrades, maxUpgrades, onlyAffordable, state?.characters, optimizationCategory]);
+  }
 
   const formatChange = (change) => {
     if (change >= 1000) {
@@ -177,96 +170,92 @@ const UpgradeOptimizer = ({ character, account }) => {
   };
 
   // Group upgrades by name if consolidation is enabled
-  const displayUpgrades = useMemo(() => {
-    if (groupMode === 'Upgrade') {
-      // Group consecutive upgrades of the same type while preserving order
-      const consolidatedUpgrades = [];
-      let currentGroup = null;
-      optimizedUpgrades.forEach((upgrade, index) => {
-        const upgradeName = upgrade.name;
-        const startLevel = currentGroup && currentGroup.name === upgradeName
-          ? currentGroup.startLevel
-          : upgrade.level;
-        if (!currentGroup || currentGroup.name !== upgradeName) {
-          if (currentGroup) {
-            currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
-            consolidatedUpgrades.push(currentGroup);
-          }
-          // Start new group
-          currentGroup = {
-            ...upgrade,
-            upgradeIndex: index,
-            sequence: [{ ...upgrade, originalIndex: index }],
-            startLevel
-          };
+  let displayUpgrades;
+  if (groupMode === 'Upgrade') {
+    const consolidatedUpgrades = [];
+    let currentGroup = null;
+    optimizedUpgrades.forEach((upgrade, index) => {
+      const upgradeName = upgrade.name;
+      const startLevel = currentGroup && currentGroup.name === upgradeName
+        ? currentGroup.startLevel
+        : upgrade.level;
+      if (!currentGroup || currentGroup.name !== upgradeName) {
+        if (currentGroup) {
+          currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
+          consolidatedUpgrades.push(currentGroup);
         }
-        else {
-          currentGroup.sequence.push({ ...upgrade, originalIndex: index });
-        }
-      });
-      // Push the last group
-      if (currentGroup) {
-        currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
-        consolidatedUpgrades.push(currentGroup);
-      }
-      // Calculate combined stats for each group
-      return consolidatedUpgrades.map(upgrade => {
-        if (!upgrade.sequence || upgrade.sequence.length <= 1) {
-          return upgrade;
-        }
-        // Calculate total changes (power or amber gain)
-        let totalPowerChange = 0;
-        let totalAmberGainChange = 0;
-        let totalPercentChange = 0;
-        let totalCost = 0;
-        upgrade.sequence.forEach(seq => {
-          totalCost += seq.cost;
-          totalPowerChange += seq.powerChange || 0;
-          totalAmberGainChange += seq.amberGainChange || 0;
-          totalPercentChange += seq.percentChange || 0;
-        });
-        return {
+        currentGroup = {
           ...upgrade,
-          combinedPowerChange: totalPowerChange,
-          combinedAmberGainChange: totalAmberGainChange,
-          combinedPercentChange: totalPercentChange,
-          totalCost,
-          startLevel: upgrade.startLevel,
-          finalLevel: upgrade.finalLevel,
-          numberOfUpgrades: upgrade.sequence.length
+          upgradeIndex: index,
+          sequence: [{ ...upgrade, originalIndex: index }],
+          startLevel
         };
-      });
+      }
+      else {
+        currentGroup.sequence.push({ ...upgrade, originalIndex: index });
+      }
+    });
+    if (currentGroup) {
+      currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
+      consolidatedUpgrades.push(currentGroup);
     }
-    else if (groupMode === 'Summary') {
-      const grouped = {};
-      optimizedUpgrades.forEach((upgrade, index) => {
-        if (!grouped[upgrade.name]) {
-          grouped[upgrade.name] = {
-            ...upgrade,
-            upgradeIndex: index,
-            startLevel: upgrade.level,
-            finalLevel: upgrade.level,
-            sequence: [],
-            totalCost: 0,
-            combinedPowerChange: 0,
-            combinedAmberGainChange: 0,
-            combinedPercentChange: 0
-          };
-        }
-
-        const g = grouped[upgrade.name];
-        g.sequence.push(upgrade);
-        g.finalLevel = Math.max(g.finalLevel, upgrade.level);
-        g.totalCost += upgrade.cost;
-        g.combinedPowerChange += upgrade.powerChange || 0;
-        g.combinedAmberGainChange += upgrade.amberGainChange || 0;
-        g.combinedPercentChange += upgrade.percentChange || 0;
+    displayUpgrades = consolidatedUpgrades.map(upgrade => {
+      if (!upgrade.sequence || upgrade.sequence.length <= 1) {
+        return upgrade;
+      }
+      let totalPowerChange = 0;
+      let totalAmberGainChange = 0;
+      let totalPercentChange = 0;
+      let totalCost = 0;
+      upgrade.sequence.forEach(seq => {
+        totalCost += seq.cost;
+        totalPowerChange += seq.powerChange || 0;
+        totalAmberGainChange += seq.amberGainChange || 0;
+        totalPercentChange += seq.percentChange || 0;
       });
+      return {
+        ...upgrade,
+        combinedPowerChange: totalPowerChange,
+        combinedAmberGainChange: totalAmberGainChange,
+        combinedPercentChange: totalPercentChange,
+        totalCost,
+        startLevel: upgrade.startLevel,
+        finalLevel: upgrade.finalLevel,
+        numberOfUpgrades: upgrade.sequence.length
+      };
+    });
+  }
+  else if (groupMode === 'Summary') {
+    const grouped = {};
+    optimizedUpgrades.forEach((upgrade, index) => {
+      if (!grouped[upgrade.name]) {
+        grouped[upgrade.name] = {
+          ...upgrade,
+          upgradeIndex: index,
+          startLevel: upgrade.level,
+          finalLevel: upgrade.level,
+          sequence: [],
+          totalCost: 0,
+          combinedPowerChange: 0,
+          combinedAmberGainChange: 0,
+          combinedPercentChange: 0
+        };
+      }
 
-      return Object.values(grouped);
-    }
-    return optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
-  }, [optimizedUpgrades, groupMode]);
+      const g = grouped[upgrade.name];
+      g.sequence.push(upgrade);
+      g.finalLevel = Math.max(g.finalLevel, upgrade.level);
+      g.totalCost += upgrade.cost;
+      g.combinedPowerChange += upgrade.powerChange || 0;
+      g.combinedAmberGainChange += upgrade.amberGainChange || 0;
+      g.combinedPercentChange += upgrade.percentChange || 0;
+    });
+
+    displayUpgrades = Object.values(grouped);
+  }
+  else {
+    displayUpgrades = optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
+  }
 
   return (
     <Stack gap={3}>

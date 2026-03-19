@@ -1,5 +1,5 @@
 import { groupUpgradesByColumn } from '@parsers/world-7/spelunking';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Checkbox,
   FormControlLabel,
@@ -29,81 +29,56 @@ const Upgrades = ({ upgrades, currentAmber, denominator, amberIndex }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const groupedUpgrades = groupUpgradesByColumn(upgrades);
-  const dependencyRoots = useMemo(() => buildDependencyTree(upgrades), [upgrades]);
+  const dependencyRoots = buildDependencyTree(upgrades);
 
   // Helper function to check if upgrade is completed
   const isCompleted = (upgrade) => upgrade.level >= upgrade.x3;
 
   // Filter upgrades based on search term and hide completed option
-  const filteredUpgrades = useMemo(() => {
-    let filtered = upgrades;
-    
-    // Filter by search term
+  let filteredUpgrades = upgrades;
+  if (searchTerm.trim()) {
+    const lowerSearch = searchTerm.toLowerCase();
+    filteredUpgrades = filteredUpgrades.filter(u =>
+      cleanUnderscore(u.name).toLowerCase().includes(lowerSearch) ||
+      cleanUnderscore(u.description).toLowerCase().includes(lowerSearch)
+    );
+  }
+  if (hideCompleted) {
+    filteredUpgrades = filteredUpgrades.filter(u => !isCompleted(u));
+  }
+
+  const filteredGroupedUpgrades = {};
+  Object.entries(groupedUpgrades).forEach(([key, groupUpgrades]) => {
+    let filteredGroup = groupUpgrades;
     if (searchTerm.trim()) {
-      const lowerSearch = searchTerm.toLowerCase();
-      filtered = filtered.filter(u => 
-        cleanUnderscore(u.name).toLowerCase().includes(lowerSearch) ||
-        cleanUnderscore(u.description).toLowerCase().includes(lowerSearch)
+      filteredGroup = filteredGroup.filter(u =>
+        cleanUnderscore(u.name).toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cleanUnderscore(u.description).toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    
-    // Filter out completed upgrades if option is enabled
     if (hideCompleted) {
-      filtered = filtered.filter(u => !isCompleted(u));
+      filteredGroup = filteredGroup.filter(u => !isCompleted(u));
     }
-    
-    return filtered;
-  }, [upgrades, searchTerm, hideCompleted]);
+    if (filteredGroup.length > 0) {
+      filteredGroupedUpgrades[key] = filteredGroup;
+    }
+  });
 
-  const filteredGroupedUpgrades = useMemo(() => {
-    const filtered = {};
-    Object.entries(groupedUpgrades).forEach(([key, groupUpgrades]) => {
-      let filteredGroup = groupUpgrades;
-      
-      // Filter by search term
-      if (searchTerm.trim()) {
-        filteredGroup = filteredGroup.filter(u => 
-          cleanUnderscore(u.name).toLowerCase().includes(searchTerm.toLowerCase()) ||
-          cleanUnderscore(u.description).toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      }
-      
-      // Filter out completed upgrades if option is enabled
-      if (hideCompleted) {
-        filteredGroup = filteredGroup.filter(u => !isCompleted(u));
-      }
-      
-      if (filteredGroup.length > 0) {
-        filtered[key] = filteredGroup;
-      }
-    });
-    return filtered;
-  }, [groupedUpgrades, searchTerm, hideCompleted]);
-
-  const filteredDependencyRoots = useMemo(() => {
-    const lowerSearch = searchTerm.trim().toLowerCase();
-    const hasSearchTerm = searchTerm.trim().length > 0;
-    
-    const filterTree = (node) => {
-      // Check if node matches search term
-      const matchesSearch = !hasSearchTerm || 
-        cleanUnderscore(node.name).toLowerCase().includes(lowerSearch) ||
-        cleanUnderscore(node.description).toLowerCase().includes(lowerSearch);
-      
-      // Filter children recursively
-      const filteredChildren = node.children
-        ? node.children.map(filterTree).filter(child => child !== null)
-        : [];
-      
-      // Keep node if it matches search OR has matching children
-      if (matchesSearch || filteredChildren.length > 0) {
-        return { ...node, children: filteredChildren };
-      }
-      return null;
-    };
-    
-    return dependencyRoots.map(filterTree).filter(root => root !== null);
-  }, [dependencyRoots, searchTerm]);
+  const depSearchLower = searchTerm.trim().toLowerCase();
+  const hasDepSearchTerm = searchTerm.trim().length > 0;
+  const filterTree = (node) => {
+    const matchesSearch = !hasDepSearchTerm ||
+      cleanUnderscore(node.name).toLowerCase().includes(depSearchLower) ||
+      cleanUnderscore(node.description).toLowerCase().includes(depSearchLower);
+    const filteredChildren = node.children
+      ? node.children.map(filterTree).filter(child => child !== null)
+      : [];
+    if (matchesSearch || filteredChildren.length > 0) {
+      return { ...node, children: filteredChildren };
+    }
+    return null;
+  };
+  const filteredDependencyRoots = dependencyRoots.map(filterTree).filter(root => root !== null);
 
   return <Stack>
     <Stack mb={3} direction={'row'} alignItems={'center'} gap={2}>

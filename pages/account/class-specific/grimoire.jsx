@@ -1,6 +1,6 @@
 import { Divider, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, commaNotation, getTabs, notateNumber } from '@utility/helpers';
 import InfoIcon from '@mui/icons-material/Info';
@@ -19,7 +19,7 @@ const Grimoire = () => {
   const { bones, upgrades, monsterDrops, totalUpgradeLevels, nextUnlock } = state?.account?.grimoire;
   const [selectedChar, setSelectedChar] = useState(0);
   const deathBringers = state?.characters?.filter((character) => checkCharClass(character?.class, CLASSES.Death_Bringer));
-  const wraithStats = useMemo(() => getWraithStats(state?.characters?.[selectedChar], state?.account), [selectedChar]);
+  const wraithStats = getWraithStats(state?.characters?.[selectedChar], state?.account);
 
   useEffect(() => {
     if (deathBringers.length === 1) {

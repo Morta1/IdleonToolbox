@@ -16,7 +16,7 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material';
-import React, { Fragment, useCallback, useContext, useMemo, useState } from 'react';
+import React, { Fragment, useContext, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import styled from '@emotion/styled';
 import {
@@ -161,13 +161,12 @@ const Bubbles = () => {
     return { total, singleLevelCost };
   }
 
-  const accumulatedCost = useCallback((index, level, baseCost, isLiquid, cauldronName) => getAccumulatedBubbleCost(index, level, baseCost, isLiquid, cauldronName), [bubblesGoals,
-    bargainTag, classDiscount]);
+  const accumulatedCost = (index, level, baseCost, isLiquid, cauldronName) => getAccumulatedBubbleCost(index, level, baseCost, isLiquid, cauldronName);
 
   const possibleZenithMarketBubbles = getPossibleZenithMarketBubbles(state?.account, state?.characters);
   const grindTimeBubble = getGrindTimeBubbleDaily(state?.account);
-  const upgradeableBubbles = useMemo(() => getUpgradeableBubbles(state?.account, state?.characters), [state?.account]);
-  const prismaMulti = useMemo(() => getPrismaMulti(state?.account), [state?.account]);
+  const upgradeableBubbles = getUpgradeableBubbles(state?.account, state?.characters);
+  const prismaMulti = getPrismaMulti(state?.account);
 
   const findBubble = (bubble) => {
     const lowerQuery = searchText.toLowerCase();

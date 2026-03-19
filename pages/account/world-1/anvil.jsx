@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Badge, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, fillArrayToLength, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
@@ -14,7 +14,7 @@ const Anvil = () => {
   const { state } = useContext(AppContext);
   const { anvil } = state?.account || {};
 
-  const totals = useMemo(() => calcTotals(state?.account, state?.characters), [state?.account, state?.characters]);
+  const totals = calcTotals(state?.account, state?.characters);
 
   return <>
     <NextSeo

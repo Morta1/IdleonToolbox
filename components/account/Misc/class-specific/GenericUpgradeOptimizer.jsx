@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import debounce from 'lodash.debounce';
 import {
   Box,
@@ -102,6 +102,15 @@ const GenericUpgradeOptimizer = ({
     });
     return obj;
   });
+  useEffect(() => {
+    const obj = {};
+    Object.keys(resourceNames).forEach(key => {
+      obj[key] = resourcePerHour[key] !== undefined && resourcePerHour[key] !== null && resourcePerHour[key] !== ''
+        ? resourcePerHour[key].toLocaleString()
+        : '';
+    });
+    setResourcePerHourInput(obj);
+  }, [resourcePerHour, resourceNames]);
   const [rphDialogOpen, setRphDialogOpen] = useState(false);
   const [optimizationMethod, setOptimizationMethod] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:optimizationMethod`,
@@ -112,175 +121,160 @@ const GenericUpgradeOptimizer = ({
   useEffect(() => () => {
     Object.values(valueCommitDebouncersRef.current).forEach(fn => fn?.cancel?.());
   }, []);
-  const optimizedUpgrades = useMemo(() => {
-    if (!character) return [];
+  let optimizedUpgrades = [];
+  if (character) {
     const maxToUse = maxUpgradesMode === 'custom'
       ? Math.max(0, parseInt(customMaxUpgrades || 0, 10) || 0)
       : maxUpgrades;
-    return getOptimizedUpgradesFn(character, account, category, maxToUse, {
+    optimizedUpgrades = getOptimizedUpgradesFn(character, account, category, maxToUse, {
       onlyAffordable,
       masterClassReduction: isNaN(masterClassReduction) ? 0 : masterClassReduction,
       resourcePerHour: optimizationMethod === 'rph' ? resourcePerHour : undefined,
       getResourceType
     });
-  }, [character, category, maxUpgradesMode, customMaxUpgrades, maxUpgrades, account, getOptimizedUpgradesFn,
-    onlyAffordable, resourcePerHour,
-    masterClassReduction,
-    optimizationMethod, getResourceType]);
+  }
 
   // Group upgrades by name if consolidation is enabled
-  // Group upgrades by name if consolidation is enabled
-  const displayUpgrades = useMemo(() => {
-    let upgrades;
-    if (groupMode === 'Upgrade') {
-      // Group consecutive upgrades of the same type while preserving order
-      const consolidatedUpgrades = [];
-      let currentGroup = null;
-      optimizedUpgrades.forEach((upgrade, index) => {
-        const upgradeName = upgrade.name;
-        const startLevel = currentGroup && currentGroup.name === upgradeName
-          ? currentGroup.startLevel
-          : upgrade.level;
-        if (!currentGroup || currentGroup.name !== upgradeName) {
-          if (currentGroup) {
-            currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
-            consolidatedUpgrades.push(currentGroup);
-          }
-          // Start new group
-          currentGroup = {
-            ...upgrade,
-            upgradeIndex: index,
-            sequence: [{ ...upgrade, originalIndex: index }],
-            startLevel
-          };
+  let displayUpgrades;
+  if (groupMode === 'Upgrade') {
+    // Group consecutive upgrades of the same type while preserving order
+    const consolidatedUpgrades = [];
+    let currentGroup = null;
+    optimizedUpgrades.forEach((upgrade, index) => {
+      const upgradeName = upgrade.name;
+      const startLevel = currentGroup && currentGroup.name === upgradeName
+        ? currentGroup.startLevel
+        : upgrade.level;
+      if (!currentGroup || currentGroup.name !== upgradeName) {
+        if (currentGroup) {
+          currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
+          consolidatedUpgrades.push(currentGroup);
         }
-        else {
-          currentGroup.sequence.push({ ...upgrade, originalIndex: index });
-        }
-      });
-      // Push the last group
-      if (currentGroup) {
-        currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
-        consolidatedUpgrades.push(currentGroup);
-      }
-      // Calculate combined stats for each group
-      upgrades = consolidatedUpgrades.map(upgrade => {
-        if (!upgrade.sequence || upgrade.sequence.length <= 1) {
-          return upgrade;
-        }
-        // Calculate total stats
-        const combinedStats = {};
-        let totalCost = 0;
-        const resourceType = getResourceType(upgrade);
-        upgrade.sequence.forEach(seq => {
-          totalCost += seq.cost;
-          if (category !== 'all') {
-            seq.statChanges.forEach(statChange => {
-              if (!combinedStats[statChange.stat]) {
-                combinedStats[statChange.stat] = {
-                  stat: statChange.stat,
-                  change: 0,
-                  percentChange: 0
-                };
-              }
-              combinedStats[statChange.stat].change += statChange.change;
-              combinedStats[statChange.stat].percentChange += statChange.percentChange;
-            });
-          }
-        });
-        return {
+        currentGroup = {
           ...upgrade,
-          combinedStatChanges: Object.values(combinedStats),
-          totalCost,
-          resourceType,
-          startLevel: upgrade.startLevel,
-          finalLevel: upgrade.finalLevel,
-          numberOfUpgrades: upgrade.sequence.length
+          upgradeIndex: index,
+          sequence: [{ ...upgrade, originalIndex: index }],
+          startLevel
         };
-      });
+      }
+      else {
+        currentGroup.sequence.push({ ...upgrade, originalIndex: index });
+      }
+    });
+    if (currentGroup) {
+      currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
+      consolidatedUpgrades.push(currentGroup);
     }
-    else if (groupMode === 'Summary') {
-      const grouped = {};
-      optimizedUpgrades.forEach((upgrade, index) => {
-        if (!grouped[upgrade.name]) {
-          grouped[upgrade.name] = {
-            ...upgrade,
-            upgradeIndex: index,
-            startLevel: upgrade.level,
-            finalLevel: upgrade.level,
-            sequence: [],
-            totalCost: 0,
-            combinedStatChanges: {} // temp object for merging
-          };
-        }
-
-        const g = grouped[upgrade.name];
-        g.sequence.push(upgrade);
-        g.finalLevel = Math.max(g.finalLevel, upgrade.level);
-        g.totalCost += upgrade.cost;
-
-        if (upgrade.statChanges) {
-          upgrade.statChanges.forEach(statChange => {
-            if (!g.combinedStatChanges[statChange.stat]) {
-              g.combinedStatChanges[statChange.stat] = {
+    displayUpgrades = consolidatedUpgrades.map(upgrade => {
+      if (!upgrade.sequence || upgrade.sequence.length <= 1) {
+        return upgrade;
+      }
+      const combinedStats = {};
+      let totalCost = 0;
+      const resourceType = getResourceType(upgrade);
+      upgrade.sequence.forEach(seq => {
+        totalCost += seq.cost;
+        if (category !== 'all') {
+          seq.statChanges.forEach(statChange => {
+            if (!combinedStats[statChange.stat]) {
+              combinedStats[statChange.stat] = {
                 stat: statChange.stat,
                 change: 0,
                 percentChange: 0
               };
             }
-            g.combinedStatChanges[statChange.stat].change += statChange.change;
-            g.combinedStatChanges[statChange.stat].percentChange += statChange.percentChange;
+            combinedStats[statChange.stat].change += statChange.change;
+            combinedStats[statChange.stat].percentChange += statChange.percentChange;
           });
         }
       });
-
-      upgrades = Object.values(grouped).map(g => ({
-        ...g,
-        combinedStatChanges: Object.values(g.combinedStatChanges)
-      }));
-    }
-    else {
-      upgrades = optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
-    }
-
-    // Apply sorting if enabled
-    if (costSortOrder !== 'none') {
-      upgrades = [...upgrades].sort((a, b) => {
-        const costA = a.totalCost || a.cost;
-        const costB = b.totalCost || b.cost;
-        return costSortOrder === 'asc' ? costA - costB : costB - costA;
-      });
-    }
-
-    return upgrades;
-  }, [optimizedUpgrades, groupMode, getResourceType, costSortOrder, category]);
-  // Calculate total resource costs by type
-  const resourceUsage = useMemo(() => {
-    const usage = {};
-    optimizedUpgrades.forEach(upgrade => {
-      const resourceType = getResourceType(upgrade);
-      const resourceName = resourceNames[resourceType] || resourceType;
-      if (!usage[resourceName]) {
-        usage[resourceName] = {
-          name: resourceName,
-          cost: 0,
-          currentAmount: 0
+      return {
+        ...upgrade,
+        combinedStatChanges: Object.values(combinedStats),
+        totalCost,
+        resourceType,
+        startLevel: upgrade.startLevel,
+        finalLevel: upgrade.finalLevel,
+        numberOfUpgrades: upgrade.sequence.length
+      };
+    });
+  }
+  else if (groupMode === 'Summary') {
+    const grouped = {};
+    optimizedUpgrades.forEach((upgrade, index) => {
+      if (!grouped[upgrade.name]) {
+        grouped[upgrade.name] = {
+          ...upgrade,
+          upgradeIndex: index,
+          startLevel: upgrade.level,
+          finalLevel: upgrade.level,
+          sequence: [],
+          totalCost: 0,
+          combinedStatChanges: {}
         };
       }
-      usage[resourceName].cost += upgrade.cost;
-    });
-    // Add current amounts
-    const resourceArr = resourceKey.split('.').reduce((obj, key) => obj?.[key], account) || [];
-    resourceArr.forEach((resource, idx) => {
-      const name = resourceNames[idx] || resource.name;
-      if (usage[name]) {
-        usage[name].currentAmount = getResourceAmount
-          ? getResourceAmount(resource, idx, resourceNames)
-          : resource.value ?? resource;
+
+      const g = grouped[upgrade.name];
+      g.sequence.push(upgrade);
+      g.finalLevel = Math.max(g.finalLevel, upgrade.level);
+      g.totalCost += upgrade.cost;
+
+      if (upgrade.statChanges) {
+        upgrade.statChanges.forEach(statChange => {
+          if (!g.combinedStatChanges[statChange.stat]) {
+            g.combinedStatChanges[statChange.stat] = {
+              stat: statChange.stat,
+              change: 0,
+              percentChange: 0
+            };
+          }
+          g.combinedStatChanges[statChange.stat].change += statChange.change;
+          g.combinedStatChanges[statChange.stat].percentChange += statChange.percentChange;
+        });
       }
     });
-    return Object.values(usage);
-  }, [optimizedUpgrades, account, resourceKey, resourceNames, getResourceAmount, getResourceType]);
+
+    displayUpgrades = Object.values(grouped).map(g => ({
+      ...g,
+      combinedStatChanges: Object.values(g.combinedStatChanges)
+    }));
+  }
+  else {
+    displayUpgrades = optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
+  }
+
+  // Apply sorting if enabled
+  if (costSortOrder !== 'none') {
+    displayUpgrades = [...displayUpgrades].sort((a, b) => {
+      const costA = a.totalCost || a.cost;
+      const costB = b.totalCost || b.cost;
+      return costSortOrder === 'asc' ? costA - costB : costB - costA;
+    });
+  }
+  // Calculate total resource costs by type
+  const resourceUsageMap = {};
+  optimizedUpgrades.forEach(upgrade => {
+    const resourceType = getResourceType(upgrade);
+    const resourceName = resourceNames[resourceType] || resourceType;
+    if (!resourceUsageMap[resourceName]) {
+      resourceUsageMap[resourceName] = {
+        name: resourceName,
+        cost: 0,
+        currentAmount: 0
+      };
+    }
+    resourceUsageMap[resourceName].cost += upgrade.cost;
+  });
+  const resourceArr = resourceKey.split('.').reduce((obj, key) => obj?.[key], account) || [];
+  resourceArr.forEach((resource, idx) => {
+    const name = resourceNames[idx] || resource.name;
+    if (resourceUsageMap[name]) {
+      resourceUsageMap[name].currentAmount = getResourceAmount
+        ? getResourceAmount(resource, idx, resourceNames)
+        : resource.value ?? resource;
+    }
+  });
+  const resourceUsage = Object.values(resourceUsageMap);
 
   // Format for display
   const formatChange = (change) => {

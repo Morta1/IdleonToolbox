@@ -1,11 +1,11 @@
 import { calcCardBonus, getCardSets } from '../../../parsers/cards';
 import { Grid, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { CardAndBorder } from '../../common/styles';
 
 const Cards = ({ cards, cardSet, account, character }) => {
-  const accountCardSets = useMemo(() => getCardSets(account), [account]);
+  const accountCardSets = getCardSets(account);
   const currentCardSet = accountCardSets[cardSet?.name];
 
   return <Stack>

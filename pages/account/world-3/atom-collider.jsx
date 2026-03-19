@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, msToDate, notateNumber, prefix } from '@utility/helpers';
@@ -11,7 +11,7 @@ import Timer from '@components/common/Timer';
 const AtomCollider = ({}) => {
   const { state } = useContext(AppContext);
   const { atoms, particles, stampReducer } = state?.account?.atoms || {};
-  const totals = useMemo(() => calcTotals(state?.account), [state?.account]);
+  const totals = calcTotals(state?.account);
   return <>
     <NextSeo
       title="Atom Collider | Idleon Toolbox"

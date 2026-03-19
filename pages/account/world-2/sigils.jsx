@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
@@ -66,7 +66,7 @@ const Sigils = () => {
     }
   }
 
-  const sigilSpeed = useMemo(() => getSigilSpeed(), [state]);
+  const sigilSpeed = getSigilSpeed();
   const getSigilCost = ({ unlocked, boostCost, unlockCost, jadeCost, etherealCost, eclecticCost }) => {
     if (unlocked === 0) {
       return boostCost;

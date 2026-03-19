@@ -1,5 +1,5 @@
 import { getChipsAndJewels } from '../../../../parsers/cooking';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '../../../common/context/AppProvider';
 import {
   Autocomplete,
@@ -26,8 +26,8 @@ const LabRotation = () => {
   const [value, setValue] = useState([]);
   const [weeks, setWeeks] = useState(10);
   const [chipThreshold, setChipThreshold] = useState(0);
-  const rotations = useMemo(() => getChipsAndJewels(state?.account, weeks), [state?.account, weeks]);
-  const names = useMemo(() => ([...state?.account?.lab?.chips, ...state?.account?.lab?.jewels]), [state?.account]);
+  const rotations = getChipsAndJewels(state?.account, weeks);
+  const names = [...state?.account?.lab?.chips, ...state?.account?.lab?.jewels];
 
   return <>
     <Stack sx={{ mb: 3 }}>

@@ -14,7 +14,7 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { cleanUnderscore, handleDownload, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import { itemsArray } from '@website-data';
 import Button from '@mui/material/Button';
@@ -44,15 +44,14 @@ const MaterialTracker = () => {
   const [note, setNote] = useState('');
   const [hoverIcons, setHoverIcons] = useState({});
   const [trackedItems, setTrackedItems] = useState(JSON.parse(localStorage.getItem('material-tracker')) || {});
-  const items = useMemo(() => itemsArray.filter(({
+  const items = itemsArray.filter(({
                                                    itemType,
                                                    typeGen,
                                                    displayName
                                                  }) => displayName !== 'ERROR' && displayName !== 'Blank' &&
     displayName !== 'Filler' && displayName !== 'DONTFILL' && displayName !== 'FILLER' && itemType !== 'Equip'
-  ), []);
-  const totalOwnedItems = useMemo(() => getAllItems(state?.characters, state?.account), [state?.characters,
-    state?.account]);
+  );
+  const totalOwnedItems = getAllItems(state?.characters, state?.account);
   const [errors, setErrors] = useState({ material: false, lowerBound: false, upperBound: false });
 
   const handleAddTracker = (allGreenStacks) => {

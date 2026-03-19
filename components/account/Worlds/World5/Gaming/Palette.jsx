@@ -1,7 +1,7 @@
 import { Stack, ToggleButtonGroup, ToggleButton, TextField, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber } from '@utility/helpers';
 import { CardTitleAndValue } from '../../../../common/styles';
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import { IconLayoutDashboardFilled, IconInfoCircleFilled } from '@tabler/icons-react';
 import CardView from './Palette/CardView';
@@ -9,78 +9,54 @@ import HexagonView from './Palette/HexagonView';
 import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
 import Tooltip from '@components/Tooltip';
 
+// Hexagon geometry is constant — computed once at module level
+const HEXAGON_SIZE = 96;
+const HEXAGON_POSITIONS = [];
+let _minX = Infinity, _maxX = -Infinity, _minY = Infinity, _maxY = -Infinity;
+const SCALE_FACTOR = HEXAGON_SIZE / 64;
+for (let s = 0; s < 37; s++) {
+  const baseX = 80 + Math.floor((s + 0.5) / 7.5) % 2 * -33 + 66 * Math.ceil(s - Math.floor(7.5 * Math.floor((s + 0.5) / 7.5)));
+  const baseY = 91 + 56 * Math.floor((s + 0.5) / 7.5);
+  const x = baseX * SCALE_FACTOR;
+  const y = baseY * SCALE_FACTOR;
+  HEXAGON_POSITIONS.push({ x, y });
+  _minX = Math.min(_minX, x);
+  _maxX = Math.max(_maxX, x + HEXAGON_SIZE);
+  _minY = Math.min(_minY, y);
+  _maxY = Math.max(_maxY, y + HEXAGON_SIZE);
+}
+const GRID_BOUNDS = { width: _maxX - _minX, height: _maxY - _minY, offsetX: _minX, offsetY: _minY };
+
 const Palette = ({ account }) => {
   const { palette, paletteFinalBonus, paletteLuck, selectedSlots } = account?.gaming || {};
   const [viewMode, setViewMode] = useState('card');
   const [searchTerm, setSearchTerm] = useState('');
   if (!palette) return null;
 
-  // The palette array has 37 items plus a final bonus value at index 37
-
-  // Hexagon size - can be adjusted to make hexagons bigger
-  const hexagonSize = 96; // Increased from 64px
-
-  // Calculate hexagon positions for indices 0-36 and grid bounds for centering
-  const { hexagonPositions, gridBounds } = useMemo(() => {
-    const positions = [];
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-
-    // Scale factor to adjust positions for larger hexagons
-    const scaleFactor = hexagonSize / 64;
-
-    for (let s = 0; s < 37; s++) {
-      const baseX = 80 + Math.floor((s + 0.5) / 7.5) % 2 * -33 + 66 * Math.ceil(s - Math.floor(7.5 * Math.floor((s + 0.5) / 7.5)));
-      const baseY = 91 + 56 * Math.floor((s + 0.5) / 7.5);
-      // Scale positions proportionally
-      const x = baseX * scaleFactor;
-      const y = baseY * scaleFactor;
-      positions.push({ x, y });
-
-      // Track bounds (including hexagon size)
-      minX = Math.min(minX, x);
-      maxX = Math.max(maxX, x + hexagonSize);
-      minY = Math.min(minY, y);
-      maxY = Math.max(maxY, y + hexagonSize);
-    }
-
-    return {
-      hexagonPositions: positions,
-      gridBounds: {
-        width: maxX - minX,
-        height: maxY - minY,
-        offsetX: minX,
-        offsetY: minY
-      }
-    };
-  }, [hexagonSize]);
+  const hexagonSize = HEXAGON_SIZE;
+  const hexagonPositions = HEXAGON_POSITIONS;
+  const gridBounds = GRID_BOUNDS;
 
   // Filter palette items based on search term (for card view)
-  const filteredPalette = useMemo(() => {
-    if (!searchTerm.trim()) return palette;
-
-    const searchLower = searchTerm.toLowerCase();
-    return palette?.filter((item) => {
-      if (typeof item !== 'object' || !item) return false;
-      const { name, description } = item;
-      const nameStr = cleanUnderscore(name || '').toLowerCase();
-      const descStr = cleanUnderscore(description || '').toLowerCase();
-      return nameStr.includes(searchLower) || descStr.includes(searchLower);
-    }) || [];
-  }, [palette, searchTerm]);
+  const paletteSearchLower = searchTerm.trim().toLowerCase();
+  const filteredPalette = !paletteSearchLower ? palette : palette?.filter((item) => {
+    if (typeof item !== 'object' || !item) return false;
+    const { name, description } = item;
+    const nameStr = cleanUnderscore(name || '').toLowerCase();
+    const descStr = cleanUnderscore(description || '').toLowerCase();
+    return nameStr.includes(paletteSearchLower) || descStr.includes(paletteSearchLower);
+  }) || [];
 
   // Check if an item matches the search (for hexagon view highlighting)
-  const itemMatchesSearch = useMemo(() => {
-    if (!searchTerm.trim()) return () => true;
-
-    const searchLower = searchTerm.toLowerCase();
-    return (item) => {
+  const itemMatchesSearch = !paletteSearchLower
+    ? () => true
+    : (item) => {
       if (typeof item !== 'object' || !item) return false;
       const { name, description } = item;
       const nameStr = cleanUnderscore(name || '').toLowerCase();
       const descStr = cleanUnderscore(description || '').toLowerCase();
-      return nameStr.includes(searchLower) || descStr.includes(searchLower);
+      return nameStr.includes(paletteSearchLower) || descStr.includes(paletteSearchLower);
     };
-  }, [searchTerm]);
 
   return <>
     <Stack direction="row" alignItems="center" mb={3} gap={2} flexWrap="wrap">

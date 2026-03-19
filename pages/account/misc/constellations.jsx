@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import ConstellationsComp from 'components/account/Misc/Constellations';
 import StarSigns from 'components/account/Misc/StarSigns';
@@ -26,10 +26,9 @@ const Constellations = () => {
     return sortedSigns;
   }
 
-  const infiniteStars = useMemo(() => getInfiniteStar(state?.account?.rift, state?.account?.breeding?.pets), [state?.account?.rift,
-    state?.account?.breeding?.pets])
+  const infiniteStars = getInfiniteStar(state?.account?.rift, state?.account?.breeding?.pets);
 
-  const stars = useMemo(() => sortStarSigns(state?.account?.starSigns), [state?.account?.starSigns])
+  const stars = sortStarSigns(state?.account?.starSigns);
 
   return <div>
     <NextSeo

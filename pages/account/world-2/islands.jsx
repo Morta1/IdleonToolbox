@@ -22,7 +22,6 @@ const Islands = () => {
   const { state } = useContext(AppContext);
   const { islands } = state?.account || {};
   const [dialog, setDialog] = useState({ open: false, data: null });
-  // const highestTotalStats = useMemo(() => getHighestCharacterByTotalStats(state?.characters), [state?.characters]);
   const handleLearnMoreClick = (island) => {
     setDialog({ data: island, open: true })
   }

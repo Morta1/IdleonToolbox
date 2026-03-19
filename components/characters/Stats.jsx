@@ -16,7 +16,7 @@ import Tooltip from '../Tooltip';
 import { TitleAndValue } from '../common/styles';
 import { getAfkGain, getCashMulti, getClassExpMulti, getDropRate, getRespawnRate } from '../../parsers/character';
 import { getGoldenFoodMulti } from '../../parsers/misc';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { getMaxDamage, notateDamage } from '../../parsers/damage';
 import processString from 'react-process-string';
 import styled from '@emotion/styled';
@@ -34,29 +34,23 @@ const colors = {
 
 const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => {
   const { name, stats, afkTime, crystalSpawnChance, nextPortal, nonConsumeChance } = character;
-  const { cashMulti, breakdown } = useMemo(() => getCashMulti(character, account, characters) || {},
-    [character, account]);
-  const { dropRate, breakdown: drBreakdown } = useMemo(() => getDropRate(character, account, characters) || {},
-    [character, account]);
-  const { respawnRate, breakdown: rtBreakdown } = useMemo(() => getRespawnRate(character, account) || {},
-    [character, account]);
-  const { afkGains, breakdown: agBreakdown } = useMemo(() => getAfkGain(character, characters, account), [character,
-    account]);
+  const { cashMulti, breakdown } = getCashMulti(character, account, characters) || {};
+  const { dropRate, breakdown: drBreakdown } = getDropRate(character, account, characters) || {};
+  const { respawnRate, breakdown: rtBreakdown } = getRespawnRate(character, account) || {};
+  const { afkGains, breakdown: agBreakdown } = getAfkGain(character, characters, account);
   const {
     value: crystalChance,
     breakdown: crystalChanceBreakdown
-  } = useMemo(() => getPlayerCrystalChance(character, characters, account), [character,
-    account]);
+  } = getPlayerCrystalChance(character, characters, account);
   const {
     value: classExp,
     breakdown: classExpBreakdown
-  } = useMemo(() => getClassExpMulti(character, account, characters), [character,
-    account]);
+  } = getClassExpMulti(character, account, characters);
   const {
     value: goldenFoodMulti,
     breakdown: goldenFoodBreakdown
-  } = useMemo(() => getGoldenFoodMulti(character, account, characters), [character, account, characters]);
-  const playerInfo = useMemo(() => getMaxDamage(character, characters, account), [character, account]);
+  } = getGoldenFoodMulti(character, account, characters);
+  const playerInfo = getMaxDamage(character, characters, account);
 
   const isOvertime = () => {
     const hasUnendingEnergy = character?.activePrayers?.find(({ name }) => name === 'Unending_Energy');
@@ -71,11 +65,11 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
     return minutes <= 5;
   };
 
-  const getTotalStats = useMemo(() => (character) => {
+  const getTotalStats = (character) => {
     return Object.entries(character?.stats || {})?.reduce((sum, [statName, statValue]) => sum + (statName !== 'level'
       ? statValue
       : 0), 0);
-  }, [character]);
+  };
   return (
     <>
       <Stack gap={2} flexWrap={'wrap'}>

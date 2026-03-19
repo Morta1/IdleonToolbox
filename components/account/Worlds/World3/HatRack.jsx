@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { notateNumber, prefix } from '@utility/helpers';
 import { TitleAndValue } from '@components/common/styles';
@@ -7,34 +7,32 @@ import styled from '@emotion/styled';
 import ItemDisplay from '@components/common/ItemDisplay';
 
 const HatRack = ({ hatsUsed, hatBonuses, totalHats, bonusMulti, allPremiumHelmets }) => {
-  const formattedHatBonuses = useMemo(() => {
-    const leftColumn = [];
-    const rightColumn = [];
+  const leftColumn = [];
+  const rightColumn = [];
 
-    (hatBonuses || []).forEach(({ name, value }, index) => {
-      const formattedValue = notateNumber(value, 'MultiplierInfo');
+  (hatBonuses || []).forEach(({ name, value }, index) => {
+    const formattedValue = notateNumber(value, 'MultiplierInfo');
 
-      const bonusName = name.replace(/_/g, ' ');
-      const isPercentage = bonusName && (
-        bonusName.toLowerCase().includes('multi') ||
-        bonusName.toLowerCase().includes('chance') ||
-        bonusName.toLowerCase().includes('gain') ||
-        bonusName.toLowerCase().includes('exp') ||
-        bonusName.toLowerCase().includes('money')
-      );
+    const bonusName = name.replace(/_/g, ' ');
+    const isPercentage = bonusName && (
+      bonusName.toLowerCase().includes('multi') ||
+      bonusName.toLowerCase().includes('chance') ||
+      bonusName.toLowerCase().includes('gain') ||
+      bonusName.toLowerCase().includes('exp') ||
+      bonusName.toLowerCase().includes('money')
+    );
 
-      const displayValue = isPercentage ? `${formattedValue}%` : formattedValue;
-      const bonusText = `+${displayValue} ${bonusName}`;
+    const displayValue = isPercentage ? `${formattedValue}%` : formattedValue;
+    const bonusText = `+${displayValue} ${bonusName}`;
 
-      if (index % 2 === 0) {
-        leftColumn.push({ bonusText, key: `bonus-${index}` });
-      } else {
-        rightColumn.push({ bonusText, key: `bonus-${index}` });
-      }
-    });
+    if (index % 2 === 0) {
+      leftColumn.push({ bonusText, key: `bonus-${index}` });
+    } else {
+      rightColumn.push({ bonusText, key: `bonus-${index}` });
+    }
+  });
 
-    return { leftColumn, rightColumn };
-  }, [hatBonuses]);
+  const formattedHatBonuses = { leftColumn, rightColumn };
 
   return (
     <>

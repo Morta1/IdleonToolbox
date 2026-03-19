@@ -11,7 +11,7 @@ import {
   Typography
 } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { IconChartCohort, IconTable } from '@tabler/icons-react';
 
@@ -35,7 +35,7 @@ const Upgrades = ({ upgrades, totalUpgradesLevels, resourceKey = prefix }) => {
     defaultValue: 'group'
   });
 
-  const listForm = useMemo(() => Object.values(upgrades).flat(), [upgrades]);
+  const listForm = Object.values(upgrades).flat();
   const getSortedList = (list) => {
     return list.filter(({
                           level,

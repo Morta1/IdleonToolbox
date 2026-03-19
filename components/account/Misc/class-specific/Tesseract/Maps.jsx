@@ -8,7 +8,7 @@ import {
   MenuItem
 } from '@mui/material';
 import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import useCheckbox from '@components/common/useCheckbox';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
@@ -24,7 +24,7 @@ const Portals = ({ character, account, characters }) => {
   const [CheckboxEl, hideUnlockedMaps] = useCheckbox('Hide unlocked maps');
   const [selectedTachyon, setSelectedTachyon] = useState('all');
 
-  const maps = useMemo(() => getMaps(account, characters, character), [account, character]);
+  const maps = getMaps(account, characters, character);
 
   const {
     weaponDropChance,

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Stack, Card, CardContent, Typography, Box, TextField, Checkbox, FormControlLabel } from '@mui/material';
 import { NextSeo } from 'next-seo';
@@ -21,28 +21,18 @@ const [searchQuery, setSearchQuery] = useState('');
 
   const isCompleted = (talent) => talent.level >= talent.maxLevel;
 
-  const filteredTalents = useMemo(() => {
-    if (!talents) return [];
-
-    let filtered = talents;
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((talent) => {
-        const name = cleanUnderscore(talent.name || '').toLowerCase();
-        const description = cleanUnderscore(talent.description || '').toLowerCase();
-        return name.includes(query) || description.includes(query);
-      });
-    }
-
-    // Filter out maxed talents if option is enabled
-    if (hideMaxed) {
-      filtered = filtered.filter((talent) => !isCompleted(talent));
-    }
-
-    return filtered;
-  }, [talents, searchQuery, hideMaxed]);
+  let filteredTalents = talents || [];
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase();
+    filteredTalents = filteredTalents.filter((talent) => {
+      const name = cleanUnderscore(talent.name || '').toLowerCase();
+      const description = cleanUnderscore(talent.description || '').toLowerCase();
+      return name.includes(query) || description.includes(query);
+    });
+  }
+  if (hideMaxed) {
+    filteredTalents = filteredTalents.filter((talent) => !isCompleted(talent));
+  }
 
   return <>
     <NextSeo

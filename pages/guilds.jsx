@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getGuilds } from '../firebase';
 import {
   CircularProgress,
@@ -33,24 +33,21 @@ const Guilds = () => {
   const snapshotDate = tryToParse(sessionStorage.getItem('snapshotDate'));
   const [error, setError] = useState('');
 
-  const parseGuildsData = useCallback(
-    (topGuilds) => {
-      return topGuilds?.slice(0, 100)?.map((guild) => {
-        const leader = guild?.members?.find(({ g }) => g === 0);
-        const topContributors = guild?.members?.sort((a, b) => b?.e - a?.e)
-          ?.slice(0, 5)?.map(({ a, e }) => ({ name: a, gpEarned: e }));
-        return {
-          guildIcon: guild?.guildIcon,
-          guildName: guild?.guildName,
-          totalGp: guild?.totalGp,
-          membersCount: guild?.members?.length,
-          leader,
-          topContributors
-        }
-      });
-    },
-    [],
-  );
+  const parseGuildsData = (topGuilds) => {
+    return topGuilds?.slice(0, 100)?.map((guild) => {
+      const leader = guild?.members?.find(({ g }) => g === 0);
+      const topContributors = guild?.members?.sort((a, b) => b?.e - a?.e)
+        ?.slice(0, 5)?.map(({ a, e }) => ({ name: a, gpEarned: e }));
+      return {
+        guildIcon: guild?.guildIcon,
+        guildName: guild?.guildName,
+        totalGp: guild?.totalGp,
+        membersCount: guild?.members?.length,
+        leader,
+        topContributors
+      }
+    });
+  };
 
 
   const handleGuildsUpdate = ({ guilds, error }) => {

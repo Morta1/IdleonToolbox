@@ -1,5 +1,5 @@
 import { Card, CardContent, FormControl, InputLabel, Select, Stack, Typography } from '@mui/material';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { fillArrayToLength, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
@@ -14,8 +14,8 @@ const Traps = () => {
   const { state } = useContext(AppContext);
   const { traps } = state?.account || {};
   const [bonus, setBonus] = useState('max');
-  const bonuses = useMemo(() => getTrapsBonuses(state?.account, state?.characters), [state]);
-  const totals = useMemo(() => calcTotalCritters(state?.account, bonuses?.[bonus]), [state, bonus]);
+  const bonuses = getTrapsBonuses(state?.account, state?.characters);
+  const totals = calcTotalCritters(state?.account, bonuses?.[bonus]);
 
   return <>
     <NextSeo

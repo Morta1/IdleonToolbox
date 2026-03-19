@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Box, Grid, Stack, Typography } from '@mui/material';
 import { prefix } from 'utility/helpers';
 import Bags from './Bags';
@@ -97,9 +97,9 @@ const Character = ({
     { component: <PlayerBubbles bubbles={equippedBubbles} />, filter: 'Equipped Bubbles' }
   ];
 
-  const trophy = useMemo(() => equipment?.reduce((res, { rawName }) => (!res && rawName.includes('Trophy')
+  const trophy = equipment?.reduce((res, { rawName }) => (!res && rawName.includes('Trophy')
     ? rawName
-    : res), ''), [character]);
+    : res), '');
 
   return (
     <>

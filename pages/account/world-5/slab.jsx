@@ -1,5 +1,5 @@
 import { AppContext } from '@components/common/context/AppProvider';
-import React, { forwardRef, useContext, useMemo, useState } from 'react';
+import React, { forwardRef, useContext, useState } from 'react';
 import { Box, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Stack } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import HtmlTooltip from '@components/Tooltip';
@@ -20,18 +20,16 @@ const Slab = () => {
     else if (itemDisplay === 'unobtainable' && item?.unobtainable) return true;
   }
 
-  const slabItems = useMemo(() => state?.account?.looty?.slabItems?.filter((item) => shouldDisplayItem(item, display)), [display]);
-  const slabBonuses = useMemo(() => {
-    return [
-      { name: 'Tot. Dmg', icon: 'Arti2', value: state?.account?.sailing?.artifacts?.[2]?.bonus ?? 0 },
-      { name: 'Sail Spd', icon: 'Arti10', value: state?.account?.sailing?.artifacts?.[10]?.bonus ?? 0 },
-      { name: 'Divinity', icon: 'Arti18', value: state?.account?.sailing?.artifacts?.[18]?.bonus ?? 0 },
-      { name: 'Bits', icon: 'Arti20', value: state?.account?.sailing?.artifacts?.[20]?.bonus ?? 0 },
-      { name: 'Jade', icon: 'Slab4', value: state?.account?.sneaking?.jadeEmporium?.[8]?.bonus ?? 0 },
-      { name: 'Essence', icon: 'Slab5', value: state?.account?.sneaking?.jadeEmporium?.[6]?.bonus ?? 0 },
-      { name: 'Pow', icon: 'CaveShopUpg17', value: getSlabBonus(state?.account, 6) ?? 0 }
-    ];
-  }, [state]);
+  const slabItems = state?.account?.looty?.slabItems?.filter((item) => shouldDisplayItem(item, display));
+  const slabBonuses = [
+    { name: 'Tot. Dmg', icon: 'Arti2', value: state?.account?.sailing?.artifacts?.[2]?.bonus ?? 0 },
+    { name: 'Sail Spd', icon: 'Arti10', value: state?.account?.sailing?.artifacts?.[10]?.bonus ?? 0 },
+    { name: 'Divinity', icon: 'Arti18', value: state?.account?.sailing?.artifacts?.[18]?.bonus ?? 0 },
+    { name: 'Bits', icon: 'Arti20', value: state?.account?.sailing?.artifacts?.[20]?.bonus ?? 0 },
+    { name: 'Jade', icon: 'Slab4', value: state?.account?.sneaking?.jadeEmporium?.[8]?.bonus ?? 0 },
+    { name: 'Essence', icon: 'Slab5', value: state?.account?.sneaking?.jadeEmporium?.[6]?.bonus ?? 0 },
+    { name: 'Pow', icon: 'CaveShopUpg17', value: getSlabBonus(state?.account, 6) ?? 0 }
+  ];
 
   return <Stack>
     <NextSeo

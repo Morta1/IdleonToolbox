@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, Checkbox, Divider, FormControlLabel, IconButton, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import { cleanUnderscore, commaNotation, msToDate } from '@utility/helpers';
@@ -19,15 +19,14 @@ const Study = ({ account }) => {
   const [sortByTime, setSortByTime] = useState(false);
   const peripheralVision = !!isSuperbitUnlocked(account, 'Peripheral_Vision');
 
-  const sortedStudies = useMemo(() => {
-    if (!hole?.studies?.studies) return [];
-    return [...hole.studies.studies].sort((a, b) => {
+  const sortedStudies = !hole?.studies?.studies
+    ? []
+    : [...hole.studies.studies].sort((a, b) => {
       if (!sortByTime) return 0;
       const aTime = (a.req - a.progress) / hole?.studies?.studyPerHour;
       const bTime = (b.req - b.progress) / hole?.studies?.studyPerHour;
       return aTime - bTime;
     });
-  }, [hole, sortByTime]);
 
   return <>
     <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>

@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Card, CardContent, Divider, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
@@ -21,7 +21,7 @@ const Buildings = () => {
   const [sortBy, setSortBy] = useState('order')
   const buildSpeed = state?.account?.construction?.totalBuildRate;
   const atomBonus = getAtomBonus(state?.account, 'Nitrogen_-_Construction_Trimmer');
-  const costCruncher = useMemo(() => state?.account?.towers?.data?.find((tower) => tower.index === 5), [state]);
+  const costCruncher = state?.account?.towers?.data?.find((tower) => tower.index === 5);
 
   const getMaterialCosts = (itemReq, level, maxLevel, bonusInc, costCruncher) => {
     return itemReq.map(({ rawName, name, amount }) => {
@@ -54,86 +54,72 @@ const Buildings = () => {
     return costs;
   }
 
-  const b = useMemo(() => {
-    return state?.account?.towers?.data?.map((tower) => {
-      let { progress, level, maxLevel, bonusInc, itemReq, slot } = tower;
-      const fakeMaxLevel = maxLevel;
-      const items = getMaterialCosts(itemReq, level, maxLevel, bonusInc, costCruncher);
-      const buildCost = getBuildCost(state?.account?.towers, level, bonusInc, tower?.index);
-      const atom = state?.account?.atoms?.atoms?.find(({ name }) => name === 'Carbon_-_Wizard_Maximizer');
-      let extraLevels = getExtraMaxLevels(state?.account, maxLevel, atom?.level, tower?.index);
-      maxLevel += extraLevels;
-      const allBlueActive = state?.account?.lab.jewels?.slice(3, 7)?.every(({ active }) => active) ? 1 : 0;
-      const jewelTrimmedSlot = state?.account?.lab.jewels?.[3]?.active ? 1 + allBlueActive : 0;
-      const eventBonus = getEventShopBonus(state?.account, 14);
-      const gambitSlot = getGambitBonus(state?.account, 9);
-      const legendSlot = getLegendTalentBonus(state?.account, 33);
-      const trimmedSlots = jewelTrimmedSlot + (atomBonus ? 1 : 0) + Math.min(1, legendSlot) + gambitSlot + eventBonus;
-      const isSlotTrimmed = slot !== -1 && slot < trimmedSlots;
-      const speedBoost = getGildedBoostioBonus(state?.account);
-      if (isSlotTrimmed) {
-        const timePassed = (new Date().getTime() - (state?.lastUpdated ?? 0)) / 1000;
-        progress += speedBoost * (timePassed / 3600) * buildSpeed;
-      }
-      const trimmedSlotSpeed = speedBoost * buildSpeed;
-      const trimmedTimeLeft = (buildCost - progress) / (trimmedSlotSpeed) * 1000 * 3600;
-      const timeLeft = (buildCost - progress) / buildSpeed * 1000 * 3600;
-      const iterations = maxLevel - level;
-      const itemsMax = getMaterialCostsToMax(itemReq, iterations, level, fakeMaxLevel, bonusInc, costCruncher);
-
-
-      return {
-        ...tower,
-        maxLevel,
-        isMaxed: level === maxLevel,
-        isSlotTrimmed,
-        timeLeft,
-        progress,
-        buildCost,
-        items,
-        itemsMax,
-        trimmedSlotSpeed,
-        trimmedTimeLeft
-      }
-    })
-  }, [state?.account]);
-
-  const sortedBuildings = useMemo(() => {
-    if (sortBy === 'order') return b;
-    else if (sortBy === 'time') {
-      const towers = structuredClone((b));
-      return towers?.sort((a, b) => {
-        const timeLeftA = a?.isSlotTrimmed ? a?.trimmedTimeLeft : a?.timeLeft;
-        const timeLeftB = b?.isSlotTrimmed ? b?.trimmedTimeLeft : b?.timeLeft;
-        if (a?.isMaxed) {
-          return 1;
-        } else if (b?.isMaxed) {
-          return -1;
-        }
-        return timeLeftA - timeLeftB;
-      })
-    } else if (sortBy === 'requirement') {
-      const towers = structuredClone((b));
-      return towers?.sort((a, b) => {
-        if (a?.isMaxed) {
-          return 1;
-        } else if (b?.isMaxed) {
-          return -1;
-        }
-        const buildCostComparison = a?.buildCost - b?.buildCost;
-
-        // If build cost is different, return the comparison result
-        if (buildCostComparison !== 0) {
-          return buildCostComparison;
-        } else {
-          // If build cost is the same, compare progress
-          const progressA = a?.buildCost - a?.progress;
-          const progressB = b?.buildCost - b?.progress;
-          return progressA - progressB;
-        }
-      })
+  const b = state?.account?.towers?.data?.map((tower) => {
+    let { progress, level, maxLevel, bonusInc, itemReq, slot } = tower;
+    const fakeMaxLevel = maxLevel;
+    const items = getMaterialCosts(itemReq, level, maxLevel, bonusInc, costCruncher);
+    const buildCost = getBuildCost(state?.account?.towers, level, bonusInc, tower?.index);
+    const atom = state?.account?.atoms?.atoms?.find(({ name }) => name === 'Carbon_-_Wizard_Maximizer');
+    let extraLevels = getExtraMaxLevels(state?.account, maxLevel, atom?.level, tower?.index);
+    maxLevel += extraLevels;
+    const allBlueActive = state?.account?.lab.jewels?.slice(3, 7)?.every(({ active }) => active) ? 1 : 0;
+    const jewelTrimmedSlot = state?.account?.lab.jewels?.[3]?.active ? 1 + allBlueActive : 0;
+    const eventBonus = getEventShopBonus(state?.account, 14);
+    const gambitSlot = getGambitBonus(state?.account, 9);
+    const legendSlot = getLegendTalentBonus(state?.account, 33);
+    const trimmedSlots = jewelTrimmedSlot + (atomBonus ? 1 : 0) + Math.min(1, legendSlot) + gambitSlot + eventBonus;
+    const isSlotTrimmed = slot !== -1 && slot < trimmedSlots;
+    const speedBoost = getGildedBoostioBonus(state?.account);
+    if (isSlotTrimmed) {
+      const timePassed = (new Date().getTime() - (state?.lastUpdated ?? 0)) / 1000;
+      progress += speedBoost * (timePassed / 3600) * buildSpeed;
     }
-  }, [sortBy, state]);
+    const trimmedSlotSpeed = speedBoost * buildSpeed;
+    const trimmedTimeLeft = (buildCost - progress) / (trimmedSlotSpeed) * 1000 * 3600;
+    const timeLeft = (buildCost - progress) / buildSpeed * 1000 * 3600;
+    const iterations = maxLevel - level;
+    const itemsMax = getMaterialCostsToMax(itemReq, iterations, level, fakeMaxLevel, bonusInc, costCruncher);
+
+    return {
+      ...tower,
+      maxLevel,
+      isMaxed: level === maxLevel,
+      isSlotTrimmed,
+      timeLeft,
+      progress,
+      buildCost,
+      items,
+      itemsMax,
+      trimmedSlotSpeed,
+      trimmedTimeLeft
+    }
+  });
+
+  let sortedBuildings = b;
+  if (sortBy === 'time') {
+    const towers = structuredClone(b);
+    sortedBuildings = towers?.sort((a, bb) => {
+      const timeLeftA = a?.isSlotTrimmed ? a?.trimmedTimeLeft : a?.timeLeft;
+      const timeLeftB = bb?.isSlotTrimmed ? bb?.trimmedTimeLeft : bb?.timeLeft;
+      if (a?.isMaxed) return 1;
+      else if (bb?.isMaxed) return -1;
+      return timeLeftA - timeLeftB;
+    });
+  } else if (sortBy === 'requirement') {
+    const towers = structuredClone(b);
+    sortedBuildings = towers?.sort((a, bb) => {
+      if (a?.isMaxed) return 1;
+      else if (bb?.isMaxed) return -1;
+      const buildCostComparison = a?.buildCost - bb?.buildCost;
+      if (buildCostComparison !== 0) {
+        return buildCostComparison;
+      } else {
+        const progressA = a?.buildCost - a?.progress;
+        const progressB = bb?.buildCost - bb?.progress;
+        return progressA - progressB;
+      }
+    });
+  }
 
   const getBorderColor = ({ isSlotTrimmed, inProgress }) => {
     if (isSlotTrimmed) {

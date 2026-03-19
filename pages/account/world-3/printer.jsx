@@ -1,5 +1,5 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { growth, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
@@ -18,7 +18,7 @@ const Printer = () => {
   const wiredInBonus = lab?.labBonuses?.find((bonus) => bonus.name === 'Wired_In')?.active;
   const atomThreshold = getAtomColliderThreshold(state?.account?.accountOptions?.[133]);
 
-  const totals = useMemo(() => calcTotals(state?.account), [state?.account]);
+  const totals = calcTotals(state?.account);
   const highestBrr = getCharacterByHighestTalent(state?.characters, CLASSES.Maestro, 'PRINTER_GO_BRRR');
   const highestMaxLevelBrr = getHighestMaxLevelTalentByClass(state?.characters, CLASSES.Maestro, 'PRINTER_GO_BRRR');
 

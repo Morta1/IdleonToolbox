@@ -17,7 +17,7 @@ import {
   Switch,
   Typography
 } from '@mui/material';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
@@ -105,8 +105,7 @@ const Stamps = () => {
   });
   const [SnapshotCheckboxEl, showSnapshotLevels] = useCheckbox('Show level-up indicator', true);
   const stampReducer = state?.account?.atoms?.stampReducer;
-  const localStamps = useMemo(() => updateStamps(state?.account, state?.characters, forcedGildedStamp, forcedStampReducer, forceMaxCapacity), [forcedGildedStamp,
-    forcedStampReducer, forceMaxCapacity, state]);
+  const localStamps = updateStamps(state?.account, state?.characters, forcedGildedStamp, forcedStampReducer, forceMaxCapacity);
   const exaltedMulti = getExaltedStampBonus(state?.account);
 
   const getStampTypeAndBorder = (stamp, mode) => {

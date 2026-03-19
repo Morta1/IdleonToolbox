@@ -1,5 +1,5 @@
 import { AppContext } from 'components/common/context/AppProvider';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, getTabs, groupByKey, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
@@ -17,7 +17,7 @@ const Looty = () => {
   const [sortByStackSize, setSortByStackSize] = useState(false);
   const [items, setItems] = useState();
   const [orderByGroup, setOrderByGroup] = useState(false);
-  const sortedItems = useMemo(() => [...state?.account?.storage?.list]?.sort((a, b) => b?.amount - a?.amount), [state]);
+  const sortedItems = [...state?.account?.storage?.list]?.sort((a, b) => b?.amount - a?.amount);
   useEffect(() => {
     let result
     if (orderByGroup) {

@@ -67,25 +67,24 @@ const ConstructionBoard = ({ view, board, showTooltip, setOutsideHighlight, outs
   const totalCols = BOARD_X + (leftColumn ? 1 : 0) + (rightColumn ? 1 : 0);
   const totalRows = (leftColumn || rightColumn) ? EXTRA_COL_HEIGHT : BOARD_Y;
 
-  const fullBoard = React.useMemo(() => {
-    if (!leftColumn && !rightColumn) {
-      return board?.map((slot, i) => ({ ...slot, boardPosition: i }));
-    }
-    const result = [];
+  let fullBoard;
+  if (!leftColumn && !rightColumn) {
+    fullBoard = board?.map((slot, i) => ({ ...slot, boardPosition: i }));
+  } else {
+    fullBoard = [];
     for (let row = 0; row < EXTRA_COL_HEIGHT; row++) {
-      if (leftColumn) result.push({ ...leftColumn[row], boardPosition: -1 });
+      if (leftColumn) fullBoard.push({ ...leftColumn[row], boardPosition: -1 });
       for (let col = 0; col < BOARD_X; col++) {
         if (row < BOARD_Y) {
           const boardIdx = row * BOARD_X + col;
-          result.push({ ...(board?.[boardIdx] || {}), boardPosition: boardIdx });
+          fullBoard.push({ ...(board?.[boardIdx] || {}), boardPosition: boardIdx });
         } else {
-          result.push(null);
+          fullBoard.push(null);
         }
       }
-      if (rightColumn) result.push({ ...rightColumn[row], boardPosition: -1 });
+      if (rightColumn) fullBoard.push({ ...rightColumn[row], boardPosition: -1 });
     }
-    return result;
-  }, [board, leftColumn, rightColumn]);
+  }
 
   return <Box
     mt={3}

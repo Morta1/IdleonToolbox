@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { NextSeo } from 'next-seo';
 import { Card, CardContent, Divider, MenuItem, Select, Stack, Typography } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -18,9 +18,9 @@ const SamplingCompanion = () => {
   const { state } = useContext(AppContext);
   const [selectedChar, setSelectedChar] = useState(state?.characters?.[0] || {});
   const [selectedSetup, setSelectedSetup] = useState('');
-  const equippedItems = useMemo(() => addEquippedItems(state?.characters, true), []);
-  const totalItems = useMemo(() => getAllItems(state?.characters, state?.account), [state?.characters, state?.account])
-  const items = useMemo(() => mergeItemsByOwner(equippedItems, totalItems), [equippedItems, totalItems]);
+  const equippedItems = addEquippedItems(state?.characters, true);
+  const totalItems = getAllItems(state?.characters, state?.account);
+  const items = mergeItemsByOwner(equippedItems, totalItems);
 
   const handleCharChange = (e) => {
     setSelectedChar(state?.characters?.[e.target.value]);

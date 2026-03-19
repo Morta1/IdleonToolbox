@@ -1,5 +1,5 @@
 import { NextSeo } from 'next-seo';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Divider, Select, Stack, Typography } from '@mui/material';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -23,11 +23,9 @@ const Tesseract = () => {
   } = state?.account?.tesseract || {};
   const [selectedChar, setSelectedChar] = useState(0);
   const arcanists = state?.characters?.filter((character) => checkCharClass(character?.class, CLASSES.Arcane_Cultist));
-  const arcanistStats = useMemo(() => getArcanistStats(upgrades, totalUpgradeLevels, state?.characters?.[selectedChar], state?.account), [selectedChar]);
-  const prismaFragmentChance = useMemo(() => {
-    const dropRate = getDropRate(state?.characters?.[selectedChar], state?.account, state?.characters);
-    return getPrismaFragChance(({ ...state?.characters?.[selectedChar], dropRate }), state?.account, upgrades)
-  }, [selectedChar]);
+  const arcanistStats = getArcanistStats(upgrades, totalUpgradeLevels, state?.characters?.[selectedChar], state?.account);
+  const _dropRate = getDropRate(state?.characters?.[selectedChar], state?.account, state?.characters);
+  const prismaFragmentChance = getPrismaFragChance(({ ...state?.characters?.[selectedChar], dropRate: _dropRate }), state?.account, upgrades);
 
   useEffect(() => {
     if (arcanists.length === 1) {

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
@@ -30,7 +30,7 @@ const BoatsAndCaptains = ({
       };
     }, {})
   };
-  const shipOverview = useMemo(() => getShipsOverview(), [boats]);
+  const shipOverview = getShipsOverview();
 
   return <>
     <Typography my={3} variant={'h3'}>Overview</Typography>

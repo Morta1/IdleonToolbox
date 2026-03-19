@@ -2,7 +2,7 @@ import { Autocomplete, Badge, Card, CardContent, Divider, Stack, TextField, Typo
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { MonsterIcon } from './styles';
 import AutoGrid from '@components/common/AutoGrid';
 import { CardTitleAndValue } from '@components/common/styles';
@@ -168,15 +168,12 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
     defaultValue: null
   });
 
-  const uniquePassives = useMemo(() => {
-    return [...new Set(pets.map(pet => cleanUnderscore(pet.rawPassive).replace(/[{}+]/g, '')))].sort();
-  }, [pets]);
+  const uniquePassives = [...new Set(pets.map(pet => cleanUnderscore(pet.rawPassive).replace(/[{}+]/g, '')))].sort();
 
-  const hasPetsUnderThreshold = useMemo(() => {
-    if (!applyThreshold) return true;
-
+  let hasPetsUnderThreshold = true;
+  if (applyThreshold) {
     if (!showAllPets) {
-      return pets.some(({ monsterRawName, shinyLevel, breedingLevel, rawPassive }) => {
+      hasPetsUnderThreshold = pets.some(({ monsterRawName, shinyLevel, breedingLevel, rawPassive }) => {
         if (isShiny && selectedPassive && cleanUnderscore(rawPassive).replace(/[{}+]/g, '') !== selectedPassive) return false;
         const fencePet = fencePets[monsterRawName];
         const amount = isShiny ? fencePet?.shiny : fencePet?.breedability;
@@ -185,32 +182,28 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
         if (!isShiny && !fencePet?.breedability > 0) return false;
         return isShiny ? shinyLevel < shinyThreshold : breedingLevel < breedabilityThreshold;
       });
+    } else {
+      hasPetsUnderThreshold = pets.some(({ shinyLevel, breedingLevel, rawPassive }) => {
+        if (isShiny && selectedPassive && cleanUnderscore(rawPassive).replace(/[{}+]/g, '') !== selectedPassive) return false;
+        return isShiny ? shinyLevel < shinyThreshold : breedingLevel < breedabilityThreshold;
+      });
     }
-    return pets.some(({ shinyLevel, breedingLevel, rawPassive }) => {
-      if (isShiny && selectedPassive && cleanUnderscore(rawPassive).replace(/[{}+]/g, '') !== selectedPassive) return false;
-      return isShiny ? shinyLevel < shinyThreshold : breedingLevel < breedabilityThreshold;
-    });
-  }, [pets, shinyThreshold, breedabilityThreshold, showAllPets, isShiny, fencePets, applyThreshold, selectedPassive]);
+  }
 
-  const reorderPets = useMemo(() => {
-    const mappedPets = pets?.map((pet) => ({
-      ...pet,
-      timeLeft: isShiny
-        ? ((pet?.shinyGoal - pet?.shinyProgress) / multi.value / (fencePets?.[pet?.monsterRawName]?.shiny || 1)) * 8.64e+7
-        : ((pet?.breedingGoal - pet?.breedingProgress) / multi.value / (fencePets?.[pet?.monsterRawName]?.breedability || 1)) * 8.64e+7
-    }));
+  const mappedPets = pets?.map((pet) => ({
+    ...pet,
+    timeLeft: isShiny
+      ? ((pet?.shinyGoal - pet?.shinyProgress) / multi.value / (fencePets?.[pet?.monsterRawName]?.shiny || 1)) * 8.64e+7
+      : ((pet?.breedingGoal - pet?.breedingProgress) / multi.value / (fencePets?.[pet?.monsterRawName]?.breedability || 1)) * 8.64e+7
+  }));
+  const filteredPets = isShiny && selectedPassive
+    ? mappedPets.filter(pet => cleanUnderscore(pet.rawPassive).replace(/[{}+]/g, '') === selectedPassive)
+    : mappedPets;
+  const reorderPets = orderByTime ? filteredPets?.toSorted((a, b) => a?.timeLeft - b?.timeLeft) : filteredPets;
 
-    const filteredPets = isShiny && selectedPassive
-      ? mappedPets.filter(pet => cleanUnderscore(pet.rawPassive).replace(/[{}+]/g, '') === selectedPassive)
-      : mappedPets;
-
-    return orderByTime ? filteredPets?.toSorted((a, b) => a?.timeLeft - b?.timeLeft) : filteredPets;
-  }, [pets, isShiny, multi.value, orderByTime, selectedPassive, fencePets]);
-
-  const groupedPets = useMemo(() => {
-    if (!isShiny || !groupByStat) return reorderPets;
-
-    return reorderPets.reduce((acc, pet) => {
+  const groupedPets = (!isShiny || !groupByStat)
+    ? reorderPets
+    : reorderPets.reduce((acc, pet) => {
       const passive = cleanUnderscore(pet.rawPassive).replace(/[{}+]/g, '');
       if (!acc[passive]) {
         acc[passive] = [];
@@ -218,7 +211,6 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
       acc[passive].push(pet);
       return acc;
     }, {});
-  }, [reorderPets, isShiny, groupByStat]);
 
   const totalLevels = pets.reduce((acc, pet) => (isShiny ? pet.shinyLevel : pet.breedingLevel) + acc, 0)
 

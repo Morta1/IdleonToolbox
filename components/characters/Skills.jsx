@@ -2,7 +2,7 @@ import { notateNumber, prefix } from '@utility/helpers';
 import Box from '@mui/material/Box';
 import { capitalize, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import Tooltip from '../Tooltip';
-import React, { useMemo } from 'react';
+import React from 'react';
 import ProgressBar from '../common/ProgressBar';
 import { getSkillExpMulti } from '@parsers/character';
 import { Breakdown } from '@components/common/styles';
@@ -20,7 +20,7 @@ const getRankColor = (rank) => {
 const globalSkills = ['gaming', 'sailing', 'breeding', 'farming', 'summoning'].toSimpleObject();
 const Skills = ({ skills, charName, account, characters, character, showSkillsRankOneOnly }) => {
   const hasRankOne = Object.keys(skills || {})?.filter((skillName) => skills[skillName]?.rank === 1)?.length > 0;
-  const playerInfo = useMemo(() => getMaxDamage(character, characters, account), [character, account]);
+  const playerInfo = getMaxDamage(character, characters, account);
   if (showSkillsRankOneOnly && !hasRankOne) return null;
 
   return <Stack>

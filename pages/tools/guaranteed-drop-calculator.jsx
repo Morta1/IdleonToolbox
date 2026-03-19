@@ -1,6 +1,6 @@
 import { Autocomplete, Button, Chip, createFilterOptions, Stack, TextField, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { monsterDrops } from '@website-data';
 
 const filterOptions = createFilterOptions({
@@ -9,24 +9,17 @@ const filterOptions = createFilterOptions({
 });
 const GuaranteedDropCalculator = () => {
   const [value, setValue] = useState(null);
-  const items = useMemo(() => Object.values(monsterDrops).flat().filter((monster) => monster?.rawName !== 'COIN' && !monster?.rawName?.includes('DungCredits') && monster?.chance > 0), []);
-  const groupedItems = useMemo(() => {
-    const items = Object.values(monsterDrops)
-      .flat()
-      .filter((monster) => monster?.rawName !== 'COIN' && !monster?.rawName?.includes('DungCredits') && monster?.chance > 0);
+  const items = Object.values(monsterDrops).flat().filter((monster) => monster?.rawName !== 'COIN' && !monster?.rawName?.includes('DungCredits') && monster?.chance > 0);
 
-    // Group by monster
-    const grouped = items.reduce((acc, item) => {
-      const monsterName = item.monsterDisplayName || item.monsterRawName;
-      if (!acc[monsterName]) {
-        acc[monsterName] = [];
-      }
-      acc[monsterName].push(item);
-      return acc;
-    }, {});
-
-    return grouped;
-  }, [monsterDrops]);
+  // Group by monster
+  const groupedItems = items.reduce((acc, item) => {
+    const monsterName = item.monsterDisplayName || item.monsterRawName;
+    if (!acc[monsterName]) {
+      acc[monsterName] = [];
+    }
+    acc[monsterName].push(item);
+    return acc;
+  }, {});
 
   const [values, setValues] = useState({
     dropRate: '',

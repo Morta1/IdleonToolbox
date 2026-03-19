@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Stack } from '@mui/material';
 import { notateNumber } from '@utility/helpers';
@@ -59,8 +59,8 @@ const Gallery = () => {
     return { leftColumn, rightColumn };
   };
 
-  const formattedTrophyBonuses = useMemo(() => formatBonuses(trophyBonuses || []), [trophyBonuses]);
-  const formattedNametagBonuses = useMemo(() => formatBonuses(nametagBonuses || []), [nametagBonuses]);
+  const formattedTrophyBonuses = formatBonuses(trophyBonuses || []);
+  const formattedNametagBonuses = formatBonuses(nametagBonuses || []);
 
   return <>
     <NextSeo

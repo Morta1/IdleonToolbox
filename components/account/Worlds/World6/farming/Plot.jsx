@@ -1,7 +1,7 @@
 import { Card, CardContent, FormControl, InputLabel, Select, Stack, Typography } from '@mui/material';
 import { commaNotation, msToDate, notateNumber, prefix } from '@utility/helpers';
 import Timer from '@components/common/Timer';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import LockIcon from '@mui/icons-material/Lock';
 import { getCropEvolution, getProductDoubler, getTotalCrop } from '@parsers/world-6/farming';
 import { Breakdown, CardTitleAndValue } from '@components/common/styles';
@@ -23,12 +23,11 @@ const Plot = ({ plot, market, ranks, lastUpdated, account, characters }) => {
     setSelectedCharacter(highestMassIrrigation);
   }, [characters]);
 
-  const hasNanoAndGordonius = useCallback(
-    () => {
-      const hasChip = getPlayerLabChipBonus(selectedCharacter, account, 15);
-      const hasGordonius = selectedCharacter?.starSigns?.find(({ starName }) => starName === 'Cropiovo_Minor');
-      return !!hasChip && !!hasGordonius;
-    }, [selectedCharacter]);
+  const hasNanoAndGordonius = () => {
+    const hasChip = getPlayerLabChipBonus(selectedCharacter, account, 15);
+    const hasGordonius = selectedCharacter?.starSigns?.find(({ starName }) => starName === 'Cropiovo_Minor');
+    return !!hasChip && !!hasGordonius;
+  };
 
   useEffect(() => {
     setEnableNano(hasNanoAndGordonius());

@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext } from 'react';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
 import ProgressBar from '@components/common/ProgressBar';
@@ -18,7 +18,7 @@ const Charge = () => {
     bestChargeSyphon,
     totalChargeRate,
     timeToOverCharge,
-  } = useMemo(() => getChargeWithSyphon(state?.characters), [state?.characters]);
+  } = getChargeWithSyphon(state?.characters);
 
   return (
     <>
