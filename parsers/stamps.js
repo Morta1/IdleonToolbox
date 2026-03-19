@@ -316,7 +316,7 @@ export const getStampBonus = (account, stampTree, stampName, character) => {
   }
 
   let upgradeVaultMulti = 0;
-  if (stamp?.stat === 'BaseDmg' || stamp?.stat === 'BaseHp' || stamp?.stat === 'BaseAcc' || stamp?.stat === 'BaseDef') {
+  if (stamp?.stat === 'BaseDmg' || stamp?.stat === 'BaseHP' || stamp?.stat === 'BaseAcc' || stamp?.stat === 'BaseDef') {
     upgradeVaultMulti = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 16);
   }
   return (growth(stamp?.func, stamp?.level, stamp?.x1, stamp?.x2, false) ?? 0)

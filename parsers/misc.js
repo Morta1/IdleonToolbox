@@ -999,7 +999,7 @@ export const getItemCapacity = (type = '', character, account, forceMaxCapacity)
     { name: '' }
   ];
   if ('bOre' === type || 'bBar' === type || 'cOil' === type) {
-    value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.Mining) * (1 + minCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Mining) * (1 + minCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
     breakdown = [
       ...breakdown,
       { title: 'Mining' },
@@ -1012,7 +1012,7 @@ export const getItemCapacity = (type = '', character, account, forceMaxCapacity)
     ]
   }
   else if ('dFish' === type) {
-    value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.Fishing) * (1 + (25 * gemshop) / 100) * (1 + fishCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Fishing) * (1 + (25 * gemshop) / 100) * (1 + fishCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
     breakdown = [
       ...breakdown,
       { title: 'Fishing' },
@@ -1025,7 +1025,7 @@ export const getItemCapacity = (type = '', character, account, forceMaxCapacity)
     ]
   }
   else if ('dBugs' === type) {
-    value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.Bugs) * (1 + (25 * gemshop) / 100) * (1 + catchCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Bugs) * (1 + (25 * gemshop) / 100) * (1 + catchCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
     breakdown = [
       ...breakdown,
       { title: 'Catching' },
@@ -1038,7 +1038,7 @@ export const getItemCapacity = (type = '', character, account, forceMaxCapacity)
     ]
   }
   else if ('bLog' === type || 'bLeaf' === type) {
-    value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.Chopping) * (1 + chopCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Chopping) * (1 + chopCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
     breakdown = [
       ...breakdown,
       { title: 'Chopping' },
@@ -1051,7 +1051,7 @@ export const getItemCapacity = (type = '', character, account, forceMaxCapacity)
     ]
   }
   else if ('cFood' === type) {
-    value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.Foods) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Foods) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
     breakdown = [
       ...breakdown,
       { title: 'Food' },
@@ -1063,7 +1063,7 @@ export const getItemCapacity = (type = '', character, account, forceMaxCapacity)
     ]
   }
   else if ('dCritters' === type) {
-    value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.Critters) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Critters) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
     breakdown = [
       ...breakdown,
       { title: 'Critters' },
@@ -1075,7 +1075,7 @@ export const getItemCapacity = (type = '', character, account, forceMaxCapacity)
     ]
   }
   else if ('dSouls' === type) {
-    value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.Souls) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value);
+    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Souls) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
     breakdown = [
       ...breakdown,
       { title: 'Souls' },
@@ -1086,13 +1086,16 @@ export const getItemCapacity = (type = '', character, account, forceMaxCapacity)
       { value: starSignBonus, name: 'Star Sign' }
     ]
   }
-  else if ('dCurrency' === type || 'dQuest' === type || 'dStatueStone' === type) {
+  else if ('dCurrency' === type || 'dQuest' === type) {
     value = 9999999;
   }
+  else if ('dStatueStone' === type) {
+    value = 999999999;
+  }
   else if ('bCraft' === type) {
-    value = Math.floor((upgradeVaultBonus + character?.maxCarryCap?.bCraft)
+    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.bCraft)
       * (1 + matCapStamps / 100) * (1 + (25 * gemshop) / 100)
-      * (1 + (allCarryStamps + starSignBonus) / 100) * (1 + talentBonus / 100) * allCap?.value);
+      * (1 + (allCarryStamps + starSignBonus) / 100) * (1 + talentBonus / 100) * allCap?.value));
     breakdown = [
       ...breakdown,
       { title: 'Materials' },
@@ -1116,10 +1119,6 @@ export const getItemCapacity = (type = '', character, account, forceMaxCapacity)
   }
   else {
     value = 2;
-  }
-
-  if (Number.isFinite(value)) {
-    value = Math.floor(Math.min(hardCap, value));
   }
 
   return {
