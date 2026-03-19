@@ -82,7 +82,7 @@ const GenericUpgradeOptimizer = ({
   // const [MasterclassReductionCheckbox, masterClassReduction] = useCheckbox('Masterclass reduction');
   const [masterClassReduction, setMasterClassReduction] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:masterClassReduction`,
-    defaultValue: getLegendTalentBonus(account, 23)
+    defaultValue: getLegendTalentBonus(account, 23) ?? 0
   });
   const [resourcePerHour, setResourcePerHour] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:resourcePerHour`,
@@ -92,7 +92,6 @@ const GenericUpgradeOptimizer = ({
       return obj;
     })()
   });
-  const remainingReductedUpgrades = Math.max(0, getLegendTalentBonus(account, 23) - account?.accountOptions?.[480]);
   // Add a separate state for the raw input string for each resource
   const [resourcePerHourInput, setResourcePerHourInput] = useState(() => {
     const obj = {};
@@ -110,17 +109,6 @@ const GenericUpgradeOptimizer = ({
   });
   const valueCommitDebouncersRef = useRef({});
 
-  useEffect(() => {
-    setResourcePerHourInput(
-      Object.fromEntries(
-        Object.entries(resourcePerHour).map(([key, value]) => [
-          key,
-          value !== undefined && value !== null && value !== '' ? Number(value).toLocaleString() : ''
-        ])
-      )
-    );
-  }, [resourcePerHour]);
-
   useEffect(() => () => {
     Object.values(valueCommitDebouncersRef.current).forEach(fn => fn?.cancel?.());
   }, []);
@@ -132,7 +120,6 @@ const GenericUpgradeOptimizer = ({
     return getOptimizedUpgradesFn(character, account, category, maxToUse, {
       onlyAffordable,
       masterClassReduction: isNaN(masterClassReduction) ? 0 : masterClassReduction,
-      forceLegendTalent: false,
       resourcePerHour: optimizationMethod === 'rph' ? resourcePerHour : undefined,
       getResourceType
     });
@@ -149,18 +136,14 @@ const GenericUpgradeOptimizer = ({
       // Group consecutive upgrades of the same type while preserving order
       const consolidatedUpgrades = [];
       let currentGroup = null;
-      const currentLevels = {};
       optimizedUpgrades.forEach((upgrade, index) => {
         const upgradeName = upgrade.name;
-        // Determine the start level for this group
         const startLevel = currentGroup && currentGroup.name === upgradeName
           ? currentGroup.startLevel
-          : (currentLevels[upgradeName] ?? upgrade.level);
+          : upgrade.level;
         if (!currentGroup || currentGroup.name !== upgradeName) {
           if (currentGroup) {
-            // After finishing a group, update the current level and push
             currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
-            currentLevels[currentGroup.name] = currentGroup.finalLevel;
             consolidatedUpgrades.push(currentGroup);
           }
           // Start new group
@@ -178,7 +161,6 @@ const GenericUpgradeOptimizer = ({
       // Push the last group
       if (currentGroup) {
         currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
-        currentLevels[currentGroup.name] = currentGroup.finalLevel;
         consolidatedUpgrades.push(currentGroup);
       }
       // Calculate combined stats for each group
@@ -497,12 +479,6 @@ const GenericUpgradeOptimizer = ({
         <Tooltip title={tooltipText}> <IconInfoCircleFilled size={16} /> </Tooltip>
         <Stack>
           <AffordableCheckboxEl />
-          {/*<Stack direction={'row'} alignItems={'center'}>*/}
-          {/*  /!*<MasterclassReductionCheckbox/>*!/*/}
-          {/*  <Tooltip*/}
-          {/*    title={`${remainingReductedUpgrades} reduced-cost upgrades remaining (legend talent)`}><IconInfoCircleFilled*/}
-          {/*    size={16}/></Tooltip>*/}
-          {/*</Stack>*/}
         </Stack>
         <Divider sx={{ my: 1 }} flexItem orientation={'vertical'} />
         {resourceUsage.map((resource) => {
@@ -589,7 +565,7 @@ const GenericUpgradeOptimizer = ({
         </Dialog>
       )}
 
-      <Typography variant="h6">Recommended Upgrade Sequence</Typography>
+      <Typography variant="h6" data-testid="optimizer-heading">Recommended Upgrade Sequence</Typography>
       {displayUpgrades.length > 0 ? (
         viewMode === 'grid' ? (
           <Stack direction="row" gap={2} flexWrap="wrap">

@@ -1,31 +1,6 @@
 // Generic Upgrade Optimizer
 // Consolidates the simulation logic for Compass, Grimoire, and Tesseract optimizers
 
-// Helper function to check if an upgrade is affordable
-
-import { getMasterclassCostReduction } from '@parsers/misc';
-
-const applyMasterClassReduction = ({ account, masterClassReduction, results }) => {
-  if (masterClassReduction <= 0) return results;
-
-  const normalMultiplier = getMasterclassCostReduction(account, false);
-  const reducedMultiplier = getMasterclassCostReduction(account, true);
-
-  return results.map((item, index) => {
-    if (index >= masterClassReduction) return item;
-
-    const baseCost = item.cost / normalMultiplier;
-    const reducedCost = baseCost * reducedMultiplier;
-
-    return {
-      ...item,
-      cost: reducedCost,
-      hadReduction: true
-    };
-  });
-};
-
-
 function isUpgradeAffordable(upgrade, cost, simulatedResources, resourceNames) {
   const resourceType = upgrade?.x3 || upgrade?.boneType;
   // Array of objects with value property
@@ -81,13 +56,13 @@ export function getOptimizedGenericUpgrades({
                                               getResources,
                                               getCurrentStats,
                                               getUpgradeCost,
-                                              applyUpgrade,
                                               updateResourcesAfterUpgrade,
                                               resourceNames,
                                               extraArgs = {}
                                             }) {
   // Extract onlyAffordable from extraArgs, defaulting to false
   const { onlyAffordable = false, masterClassReduction = 0 } = extraArgs;
+  let reductionsRemaining = masterClassReduction;
   // Deep clone upgrades and resources to avoid mutating input data
   let simulatedUpgrades = JSON.parse(JSON.stringify(getUpgrades(account)));
   let simulatedResources = JSON.parse(JSON.stringify(getResources(account)));
@@ -124,7 +99,8 @@ export function getOptimizedGenericUpgrades({
           const cost = getUpgradeCost(upgrade, upgrade.index, {
             account,
             upgrades: simulatedUpgrades,
-            ...extraArgs
+            ...extraArgs,
+            forceLegendTalent: reductionsRemaining > 0
           });
           if (!isUpgradeAffordable(upgrade, cost, simulatedResources, resourceNames)) return false;
         }
@@ -148,7 +124,8 @@ export function getOptimizedGenericUpgrades({
         let effectiveCost = getUpgradeCost(u, u.index, {
           account,
           upgrades: simulatedUpgrades,
-          ...extraArgs
+          ...extraArgs,
+          forceLegendTalent: reductionsRemaining > 0
         });
 
         if (extraArgs.resourcePerHour) {
@@ -170,17 +147,17 @@ export function getOptimizedGenericUpgrades({
         }
       }
 
-      // Apply the upgrade
-      const idx = simulatedUpgrades.findIndex(u => u.index === cheapestUpgrade.index);
-      simulatedUpgrades[idx] = { ...simulatedUpgrades[idx], level: simulatedUpgrades[idx].level + 1 };
-
-      // Get the actual cost (with master class reduction)
+      // Get the actual cost BEFORE level increment
       const actualCost = getUpgradeCost(cheapestUpgrade, cheapestUpgrade.index, {
         account,
         upgrades: simulatedUpgrades,
-
-        ...extraArgs
+        ...extraArgs,
+        forceLegendTalent: reductionsRemaining > 0
       });
+
+      // Apply the upgrade
+      const idx = simulatedUpgrades.findIndex(u => u.index === cheapestUpgrade.index);
+      simulatedUpgrades[idx] = { ...simulatedUpgrades[idx], level: simulatedUpgrades[idx].level + 1 };
 
       // Optionally update resources
       if (updateResourcesAfterUpgrade && resourceNames) {
@@ -190,8 +167,8 @@ export function getOptimizedGenericUpgrades({
       }
 
       // Recalculate cost for all upgrades after this purchase
-      simulatedUpgrades = simulatedUpgrades.map((upgrade, index) => {
-        const cost = getUpgradeCost(upgrade, index, {
+      simulatedUpgrades = simulatedUpgrades.map((upgrade) => {
+        const cost = getUpgradeCost(upgrade, upgrade.index, {
           account,
           upgrades: simulatedUpgrades,
           ...extraArgs
@@ -203,11 +180,13 @@ export function getOptimizedGenericUpgrades({
       results.push({
         ...cheapestUpgrade,
         level: cheapestUpgrade.level + 1,
-        cost: actualCost
+        cost: actualCost,
+        hadReduction: reductionsRemaining > 0
       });
+      reductionsRemaining = Math.max(0, reductionsRemaining - 1);
     }
 
-    return applyMasterClassReduction({ results, account, masterClassReduction });
+    return results;
   }
 
   for (let step = 0; step < maxUpgrades; step++) {
@@ -219,7 +198,6 @@ export function getOptimizedGenericUpgrades({
     let bestNewDustMultiplier = 0;
     let bestNewTachyonMultiplier = 0;
     let bestTempUpgrades = null;
-    let bestTempResources = null;
 
     // Find available upgrades for this category
     const availableUpgrades = simulatedUpgrades.filter(upgrade => {
@@ -231,9 +209,8 @@ export function getOptimizedGenericUpgrades({
         const cost = getUpgradeCost(upgrade, upgrade.index, {
           account,
           upgrades: simulatedUpgrades,
-          resources: simulatedResources,
-
-          ...extraArgs
+          ...extraArgs,
+          forceLegendTalent: reductionsRemaining > 0
         });
         if (!isUpgradeAffordable(upgrade, cost, simulatedResources, resourceNames)) return false;
       }
@@ -311,7 +288,8 @@ export function getOptimizedGenericUpgrades({
       const cost = getUpgradeCost(upgrade, upgrade.index, {
         account,
         upgrades: simulatedUpgrades,
-        ...extraArgs
+        ...extraArgs,
+        forceLegendTalent: reductionsRemaining > 0
       });
 
       let efficiency;
@@ -350,8 +328,9 @@ export function getOptimizedGenericUpgrades({
       const upgradeSnapshot = { ...bestUpgrade, level: bestUpgrade.level + 1 };
       const cost = getUpgradeCost(bestUpgrade, bestUpgrade.index, {
         account,
-
-        upgrades: simulatedUpgrades, ...extraArgs
+        upgrades: simulatedUpgrades,
+        ...extraArgs,
+        forceLegendTalent: reductionsRemaining > 0
       });
 
       results.push({
@@ -359,8 +338,10 @@ export function getOptimizedGenericUpgrades({
         efficiency: bestEfficiency,
         statChanges: bestStatChanges,
         totalStatChange: bestTotalChange,
-        cost
+        cost,
+        hadReduction: reductionsRemaining > 0
       });
+      reductionsRemaining = Math.max(0, reductionsRemaining - 1);
 
       // Use the bestTempUpgrades as the new simulatedUpgrades (no mutation)
       simulatedUpgrades = bestTempUpgrades;
@@ -382,8 +363,8 @@ export function getOptimizedGenericUpgrades({
       }
 
       // Recalculate all upgrade costs after this purchase (no mutation)
-      simulatedUpgrades = simulatedUpgrades.map((upgrade, index) => {
-        const cost = getUpgradeCost(upgrade, index, {
+      simulatedUpgrades = simulatedUpgrades.map((upgrade) => {
+        const cost = getUpgradeCost(upgrade, upgrade.index, {
           account,
           upgrades: simulatedUpgrades,
           ...extraArgs
@@ -397,5 +378,5 @@ export function getOptimizedGenericUpgrades({
     }
   }
 
-  return applyMasterClassReduction({ results, account, masterClassReduction });
+  return results;
 }

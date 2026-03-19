@@ -104,7 +104,7 @@ const parseCompass = (compassRaw, charactersData, accountData, serverVars) => {
     }
   }, {});
 
-  const maps = getFilteredPortals()?.map(({ mapIndex, mapName }, index) => {
+  const maps = getFilteredPortals()?.map(({ mapIndex, mapName }) => {
     const availablePortals = mapPortals?.[mapIndex];
     const portals = availablePortals.map((_, portalIndex) => {
       const costQuantity = getPortalCostQuantity(mapIndex, portalIndex);
@@ -663,10 +663,6 @@ export const getOptimizedUpgrades = (character, account, category = 'damage', ma
       upgrades,
       forceLegendTalent
     }) => getUpgradeCost(upgrades, index, account?.serverVars, account, forceLegendTalent),
-    applyUpgrade: (upgrade, upgradesArr) => upgradesArr.map(u => u.index === upgrade.index ? {
-      ...u,
-      level: u.level + 1
-    } : u),
     updateResourcesAfterUpgrade: (resources, upgrade, resourceNames, cost) => {
       const dustType = dustNames[upgrade.x3];
       const resource = resources.find(r => r.name === dustType);

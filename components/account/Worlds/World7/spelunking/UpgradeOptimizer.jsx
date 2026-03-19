@@ -182,18 +182,14 @@ const UpgradeOptimizer = ({ character, account }) => {
       // Group consecutive upgrades of the same type while preserving order
       const consolidatedUpgrades = [];
       let currentGroup = null;
-      const currentLevels = {};
       optimizedUpgrades.forEach((upgrade, index) => {
         const upgradeName = upgrade.name;
-        // Determine the start level for this group
         const startLevel = currentGroup && currentGroup.name === upgradeName
           ? currentGroup.startLevel
-          : (currentLevels[upgradeName] ?? upgrade.level);
+          : upgrade.level;
         if (!currentGroup || currentGroup.name !== upgradeName) {
           if (currentGroup) {
-            // After finishing a group, update the current level and push
             currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
-            currentLevels[currentGroup.name] = currentGroup.finalLevel;
             consolidatedUpgrades.push(currentGroup);
           }
           // Start new group
@@ -211,7 +207,6 @@ const UpgradeOptimizer = ({ character, account }) => {
       // Push the last group
       if (currentGroup) {
         currentGroup.finalLevel = currentGroup.startLevel + currentGroup.sequence.length - 1;
-        currentLevels[currentGroup.name] = currentGroup.finalLevel;
         consolidatedUpgrades.push(currentGroup);
       }
       // Calculate combined stats for each group

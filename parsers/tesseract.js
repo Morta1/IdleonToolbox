@@ -587,10 +587,6 @@ export const getOptimizedTesseractUpgrades = (character, account, category = 'da
     getResources: acc => acc?.tesseract?.tachyons || [],
     getCurrentStats: (upgrades, char, acc) => getArcanistStats(upgrades, acc?.tesseract?.totalUpgradeLevels, char, acc),
     getUpgradeCost: (upgrade, index, { account, upgrades, forceLegendTalent }) => getUpgradeCost({ ...upgrade, index, account, upgrades, forceLegendTalent }),
-    applyUpgrade: (upgrade, upgradesArr) => upgradesArr.map(u => u.index === upgrade.index ? {
-      ...u,
-      level: u.level + 1
-    } : u),
     updateResourcesAfterUpgrade: (resources, upgrade, resourceNames, cost) => {
       const tachyonType = tachyonNames[upgrade.x3];
       const resource = resources.find(r => r.name === tachyonType);

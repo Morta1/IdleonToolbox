@@ -271,7 +271,6 @@ export const getOptimizedGrimoireUpgrades = (character, account, category = 'dam
     getResources: acc => acc?.grimoire?.bones || [],
     getCurrentStats: (upgrades, char, acc) => getWraithStats(char, { ...acc, grimoire: { ...acc.grimoire, upgrades } }),
     getUpgradeCost: (upgrade, index, {forceLegendTalent}) => getUpgradeCost({ ...upgrade, index, level: upgrade.level, x1: upgrade.x1, x2: upgrade.x2, account, forceLegendTalent }),
-    applyUpgrade: (upgrade, upgradesArr) => upgradesArr.map(u => u.index === upgrade.index ? { ...u, level: u.level + 1 } : u),
     updateResourcesAfterUpgrade: (resources, upgrade, resourceNames, cost) => {
       const boneIdx = upgrade.boneType ?? upgrade.x3;
       if (resources[boneIdx] !== undefined) resources[boneIdx] -= cost;
