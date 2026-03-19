@@ -133,90 +133,6 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.idleontoolbox.com/account/clickers/bubba</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/clickers/kangaroo</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/clickers/owl</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/class-specific/apocalypses</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/class-specific/compass</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/class-specific/grimoire</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/class-specific/tesseract</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/task-board/achievements</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/task-board/merits</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/task-board/tasks</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/task-board/unlocks</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/prem-currency/bundles</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/prem-currency/gem-shop</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/prem-currency/pets</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://www.idleontoolbox.com/account/misc/constellations</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
@@ -283,91 +199,85 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.idleontoolbox.com/account/world-1/anvil</loc>
+    <loc>https://www.idleontoolbox.com/account/class-specific/apocalypses</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.idleontoolbox.com/account/world-1/bribes</loc>
+    <loc>https://www.idleontoolbox.com/account/class-specific/compass</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.idleontoolbox.com/account/world-1/forge</loc>
+    <loc>https://www.idleontoolbox.com/account/class-specific/grimoire</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.idleontoolbox.com/account/world-1/old-stamps</loc>
+    <loc>https://www.idleontoolbox.com/account/class-specific/tesseract</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.idleontoolbox.com/account/world-1/stamps</loc>
+    <loc>https://www.idleontoolbox.com/account/prem-currency/bundles</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.idleontoolbox.com/account/world-2/arcade-shop</loc>
+    <loc>https://www.idleontoolbox.com/account/prem-currency/gem-shop</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.idleontoolbox.com/account/world-2/bubbles</loc>
+    <loc>https://www.idleontoolbox.com/account/prem-currency/pets</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.idleontoolbox.com/account/world-2/cauldrons</loc>
+    <loc>https://www.idleontoolbox.com/account/task-board/achievements</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.idleontoolbox.com/account/world-2/islands</loc>
+    <loc>https://www.idleontoolbox.com/account/task-board/merits</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.idleontoolbox.com/account/world-2/killroy</loc>
+    <loc>https://www.idleontoolbox.com/account/task-board/tasks</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.idleontoolbox.com/account/world-2/old-bubbles</loc>
+    <loc>https://www.idleontoolbox.com/account/task-board/unlocks</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.idleontoolbox.com/account/world-2/sigils</loc>
+    <loc>https://www.idleontoolbox.com/account/clickers/bubba</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.idleontoolbox.com/account/world-2/vials</loc>
+    <loc>https://www.idleontoolbox.com/account/clickers/kangaroo</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.idleontoolbox.com/account/world-2/vote-ballot</loc>
-    <lastmod>2026-03-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.idleontoolbox.com/account/world-2/weekly-bosses</loc>
+    <loc>https://www.idleontoolbox.com/account/clickers/owl</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -451,6 +361,30 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.idleontoolbox.com/account/world-1/anvil</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-1/bribes</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-1/forge</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-1/stamps</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.idleontoolbox.com/account/world-4/breeding</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
@@ -506,6 +440,60 @@
   </url>
   <url>
     <loc>https://www.idleontoolbox.com/account/world-5/slab</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-2/arcade-shop</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-2/bubbles</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-2/cauldrons</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-2/islands</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-2/killroy</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-2/sigils</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-2/vials</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-2/vote-ballot</loc>
+    <lastmod>2026-03-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.idleontoolbox.com/account/world-2/weekly-bosses</loc>
     <lastmod>2026-03-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
