@@ -321,7 +321,7 @@ export const calcTomeQuantity = (account, characters) => {
   quantities.push(parseFloat(account.accountOptions?.[221])); // Largest Magic Bean Trade
   quantities.push(account.accountOptions?.[222]); // Most Balls earned from LBoFaF
   quantities.push(account.arcade?.totalUpgradeLevels);
-  quantities.push(Math.min(500, getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 57))); // [81]
+  quantities.push(Math.min(1500, getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 57))); // [81]
   quantities.push(account?.hole?.caverns?.gambit?.totalTime) // [82]
   quantities.push(account?.hole?.totalResources) // [83]
   quantities.push(account?.hole?.totalVillagersLevels) // [84]
