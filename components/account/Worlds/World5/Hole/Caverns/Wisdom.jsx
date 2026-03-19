@@ -39,7 +39,7 @@ const Wisdom = ({ hole }) => {
           <CardContent sx={{ width: 300, opacity: level === 0 ? .5 : 1 }}>
             <Typography>Lv. {level}{levelToReachCap !== null ? ` / ${commaNotation(levelToReachCap)}` : ''}</Typography>
             <Typography>{cleanUnderscore(description)}</Typography>
-            <Typography variant={'body2'} sx={{ mt: 1 }}>+{scalingValue} per level</Typography>
+            {cap === null && <Typography variant={'body2'} sx={{ mt: 1 }}>+{scalingValue} per level</Typography>}
             {cap !== null && (
               <ProgressBar
                 percent={progression}
