@@ -79,7 +79,7 @@ const NavBar = ({ children }) => {
       pt: 3,
       pr: 3,
       pl: { xs: 3, lg: displayDrawer ? `${drawerWidth + 24}px` : 3 },
-      mb: isXs ? '75px' : '110px'
+      mb: isXs ? '110px' : '110px'
     }}>
       {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
       <ContentWrapper showSidebar={isInnerPage} isLoading={state?.isLoading} isHomePage={isHomePage}>

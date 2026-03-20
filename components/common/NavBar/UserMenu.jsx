@@ -2,29 +2,31 @@ import { IconLogin2, IconLogout2, IconUserCircle } from '@tabler/icons-react';
 import IconButton from '@mui/material/IconButton';
 import {
   Box,
-  Divider,
   listClasses,
   ListItemIcon,
   ListItemText,
-  ListSubheader,
-  Menu,
-  Stack,
-  Typography
+  Menu
 } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { format } from 'date-fns';
 import LoginDialog from '@components/common/NavBar/LoginDialog';
 import { useRouter } from 'next/router';
 
 const UserMenu = () => {
-  const { state, logout, dispatch } = useContext(AppContext);
+  const { state, logout } = useContext(AppContext);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [prevSignedIn, setPrevSignedIn] = useState(state?.signedIn);
   const open = Boolean(anchorEl);
   const router = useRouter();
   const { profile, ...queryParams } = router.query;
+
+  if (state?.signedIn !== prevSignedIn) {
+    setPrevSignedIn(state?.signedIn);
+    setDialogOpen(false);
+    setAnchorEl(null);
+  }
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -32,11 +34,6 @@ const UserMenu = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-
-  useEffect(() => {
-    setDialogOpen(false);
-    handleClose()
-  }, [state?.signedIn]);
 
   const handleLogout = () => {
     logout();

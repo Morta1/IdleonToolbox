@@ -3,12 +3,16 @@ import { ResponsivePie } from '@nivo/pie';
 import { Typography } from '@mui/material';
 import { nivoTheme } from './consts';
 
-const PieVisualization = ({ data, label, colors, legends, isMd }) => (
+const PieVisualization = ({ data, label, colors, legends, isMd, isSm }) => (
   <>
     <Typography>{label}</Typography>
+    <div style={{ flex: 1, minHeight: 0 }}>
     <ResponsivePie
       data={data}
-      margin={{ top: 30, right: 30, bottom: 60, left: 30 }}
+      margin={isSm
+        ? { top: 20, right: 10, bottom: 30, left: 10 }
+        : { top: 30, right: 30, bottom: 60, left: 30 }
+      }
       innerRadius={0.5}
       padAngle={1.5}
       cornerRadius={4}
@@ -18,6 +22,7 @@ const PieVisualization = ({ data, label, colors, legends, isMd }) => (
       theme={nivoTheme}
       enableArcLabels={true}
       arcLabelsTextColor="#fff"
+      enableArcLinkLabels={!isSm}
       arcLinkLabelsTextColor="#fff"
       arcLinkLabelsThickness={2}
       arcLabelsSkipAngle={10}
@@ -38,6 +43,7 @@ const PieVisualization = ({ data, label, colors, legends, isMd }) => (
       )}
       legends={isMd ? [] : legends}
     />
+    </div>
   </>
 );
 
