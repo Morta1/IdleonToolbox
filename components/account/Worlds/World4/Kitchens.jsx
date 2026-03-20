@@ -9,10 +9,10 @@ import {
   getMealLevelCost,
   maxNumberOfSpiceClicks,
   spicesNames
-} from 'parsers/cooking';
+} from '@parsers/world-4/cooking';
 import styled from '@emotion/styled';
 import ProgressBar from 'components/common/ProgressBar';
-import { getJewelBonus, getLabBonus } from '../../../../parsers/lab';
+import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 

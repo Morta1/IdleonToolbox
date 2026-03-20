@@ -1,6 +1,6 @@
 import { tryToParse } from '@utility/helpers';
 import { riftInfo } from '@website-data';
-import { constructionMasteryThresholds } from '../construction';
+import { constructionMasteryThresholds } from '@parsers/world-3/construction';
 
 export const getRift = (idleonData) => {
   const rawRift = tryToParse(idleonData?.Rift) || idleonData?.Rift;

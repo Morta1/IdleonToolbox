@@ -1,8 +1,8 @@
 import { notateNumber, number2letter } from '@utility/helpers';
-import { getBribeBonus } from '../bribes';
+import { getBribeBonus } from '@parsers/world-1/bribes';
 import { isBundlePurchased } from '../misc';
-import { getStampBonus } from '@parsers/stamps';
-import { isArtifactAcquired } from '@parsers/sailing';
+import { getStampBonus } from '@parsers/world-1/stamps';
+import { isArtifactAcquired } from '@parsers/world-5/sailing';
 
 const shimmerIslandTrials = [
   'Get_as_much_total_stats_as_possible,_STR_AGI_WIS_and_LUK_combined.',

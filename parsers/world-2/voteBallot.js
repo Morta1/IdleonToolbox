@@ -1,12 +1,12 @@
-import { getEquinoxBonus } from '@parsers/equinox';
+import { getEquinoxBonus } from '@parsers/world-3/equinox';
 import { ninjaExtraInfo } from '@website-data';
 import { getCosmoBonus } from '@parsers/world-5/hole';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
-import { getArcadeBonus } from '@parsers/arcade';
+import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
-import { getPaletteBonus } from '@parsers/gaming';
+import { getPaletteBonus } from '@parsers/world-5/gaming';
 
 export const getVoteBallot = (idleonData, accountData) => {
   return parseVoteBallot(idleonData, accountData);

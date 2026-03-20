@@ -2,9 +2,9 @@ import { tryToParse } from '@utility/helpers';
 import { constellations, mapNames, starSigns } from '@website-data';
 import { starSignsIndicesMap } from './parseMaps';
 import { isRiftBonusUnlocked } from './world-4/rift';
-import { getShinyBonus } from './breeding';
-import { getPlayerLabChipBonus } from '@parsers/lab';
-import { getTesseractBonus } from '@parsers/tesseract';
+import { getShinyBonus } from './world-4/breeding';
+import { getPlayerLabChipBonus } from '@parsers/world-4/lab';
+import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 
 export const getStarSigns = (idleonData, account) => {

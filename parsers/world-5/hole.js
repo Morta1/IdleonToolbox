@@ -13,22 +13,22 @@ import { getEventShopBonus, isBundlePurchased, isCompanionBonusActive } from '@p
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getJustice } from '@parsers/world-5/caverns/justice';
-import { getGrimoireBonus } from '@parsers/grimoire';
-import { getArcadeBonus } from '@parsers/arcade';
+import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
+import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getJarBonus, getNewCollectibleChance, getTheJars } from '@parsers/world-5/caverns/the-jars';
 import { getEvertree } from '@parsers/world-5/caverns/evertree';
 import { getWisdom } from '@parsers/world-5/caverns/wisdom';
 import { getGambit } from '@parsers/world-5/caverns/gambit';
 import { getTheTemple } from '@parsers/world-5/caverns/the-temple';
-import { getStampsBonusByEffect } from '@parsers/stamps';
-import { getStatueBonus } from '@parsers/statues';
-import { getCompassBonus } from '@parsers/compass';
+import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
+import { getStatueBonus } from '@parsers/world-1/statues';
+import { getCompassBonus } from '@parsers/class-specific/compass';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
-import { getTesseractBonus } from '@parsers/tesseract';
+import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
-import { isSuperbitUnlocked } from '@parsers/gaming';
+import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
 const VILLAGERS = {

@@ -4,7 +4,7 @@ import { Badge, Card, CardContent, Divider, Stack, Typography } from '@mui/mater
 import { cleanUnderscore, fillArrayToLength, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import Timer from 'components/common/Timer';
 import styled from '@emotion/styled';
-import { calcTotals, getPlayerAnvil, getTimeTillCap } from '../../../parsers/anvil';
+import { calcTotals, getPlayerAnvil, getTimeTillCap } from '@parsers/world-1/anvil';
 import { NextSeo } from 'next-seo';
 import Tooltip from '../../../components/Tooltip';
 import ProgressBar from '../../../components/common/ProgressBar';

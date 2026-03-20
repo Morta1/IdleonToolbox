@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../components/common/context/AppProvider';
 import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix, tryToParse } from '@utility/helpers';
-import { getBubbleBonus } from '../../parsers/alchemy';
+import { getBubbleBonus } from '@parsers/world-2/alchemy';
 import { NextSeo } from 'next-seo';
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';

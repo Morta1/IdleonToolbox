@@ -7,7 +7,7 @@ import Timer from 'components/common/Timer';
 import Tooltip from '../../../components/Tooltip';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
-import { calcTotalCritters, getTrapsBonuses } from '../../../parsers/traps';
+import { calcTotalCritters, getTrapsBonuses } from '@parsers/world-3/traps';
 import MenuItem from '@mui/material/MenuItem';
 
 const Traps = () => {

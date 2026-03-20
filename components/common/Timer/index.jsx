@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useState } from 'react';
-import useInterval from 'components/hooks/useInterval';
+import useInterval from '@hooks/useInterval';
 import { isPast } from 'date-fns';
 import { getDuration } from 'utility/helpers';
 import { Typography } from '@mui/material';

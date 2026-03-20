@@ -1,12 +1,12 @@
 import { getMaxClaimTime, getSecPerBall } from '@parsers/dungeons';
-import { getBuildCost } from '@parsers/construction';
-import { MAX_VIAL_LEVEL, vialCostsArray } from '@parsers/alchemy';
-import { getChipsAndJewels, maxNumberOfSpiceClicks } from '@parsers/cooking';
+import { getBuildCost } from '@parsers/world-3/construction';
+import { MAX_VIAL_LEVEL, vialCostsArray } from '@parsers/world-2/alchemy';
+import { getChipsAndJewels, maxNumberOfSpiceClicks } from '@parsers/world-4/cooking';
 import { cleanUnderscore, getDuration, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { items, liquidsShop } from '@website-data';
-import { getPowerPerCycle, hasMissingMats } from '@parsers/refinery';
-import { calcTotals } from '@parsers/printer';
+import { getPowerPerCycle, hasMissingMats } from '@parsers/world-3/refinery';
+import { calcTotals } from '@parsers/world-3/printer';
 import {
   addEquippedItems,
   findItemInInventory,
@@ -16,12 +16,12 @@ import {
 } from '@parsers/items';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getKillroySchedule, getMiniBossesData } from '@parsers/misc';
-import { getRequirementAmount } from '@parsers/lab';
+import { getRequirementAmount } from '@parsers/world-4/lab';
 import { getLandRank, getProductDoubler, getRanksTotalBonus } from '@parsers/world-6/farming';
 import { isPast } from 'date-fns';
 import { getIsland } from '@parsers/world-2/islands';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
-import { isSuperbitUnlocked } from '@parsers/gaming';
+import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 
 export const getOptions = (data) => {

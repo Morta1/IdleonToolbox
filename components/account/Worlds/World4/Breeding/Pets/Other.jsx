@@ -11,7 +11,7 @@ import Timer from '@components/common/Timer';
 import { AppContext } from '@components/common/context/AppProvider';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { useLocalStorage } from '@mantine/hooks';
-import { getTimeToLevel } from '@parsers/breeding';
+import { getTimeToLevel } from '@parsers/world-4/breeding';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
 const PetCard = ({

@@ -4,13 +4,13 @@ import { Box, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from 'components/Tooltip';
-import { vialCostsArray } from '../../../parsers/alchemy';
+import { vialCostsArray } from '@parsers/world-2/alchemy';
 import { NextSeo } from 'next-seo';
 import { CardTitleAndValue } from '@components/common/styles';
 import { isRiftBonusUnlocked } from '../../../parsers/world-4/rift';
 import useCheckbox from '@components/common/useCheckbox';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
-import { getLabBonus } from '@parsers/lab';
+import { getLabBonus } from '@parsers/world-4/lab';
 
 const Vials = () => {
   const { state } = useContext(AppContext);

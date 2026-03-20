@@ -3,7 +3,7 @@ import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/worl
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { notateNumber } from '@utility/helpers';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
-import { getZenithBonus } from '@parsers/statues';
+import { getZenithBonus } from '@parsers/world-1/statues';
 
 export const getLamp = (holesObject, accountData, unlockedCaverns) => {
   const wishPerDay = getWishPerDay(holesObject, accountData, unlockedCaverns);

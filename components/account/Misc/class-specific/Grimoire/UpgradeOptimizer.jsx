@@ -1,6 +1,6 @@
 import React from 'react';
 import GenericUpgradeOptimizer from '../GenericUpgradeOptimizer';
-import { getOptimizedGrimoireUpgrades, GRIMOIRE_UPGRADE_CATEGORIES, boneNames } from '@parsers/grimoire';
+import { getOptimizedGrimoireUpgrades, GRIMOIRE_UPGRADE_CATEGORIES, boneNames } from '@parsers/class-specific/grimoire';
 
 const UpgradeOptimizer = ({ character, account }) => (
   <GenericUpgradeOptimizer

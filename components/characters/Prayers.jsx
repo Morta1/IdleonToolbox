@@ -1,7 +1,7 @@
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, kFormatter, prefix, round } from 'utility/helpers';
 import Tooltip from '../Tooltip';
-import { calcPrayerCost } from 'parsers/prayers';
+import { calcPrayerCost } from '@parsers/world-3/prayers';
 import styled from '@emotion/styled';
 import React from 'react';
 

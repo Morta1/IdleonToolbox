@@ -6,7 +6,7 @@ import { getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
-import { getStampsBonusByEffect } from '@parsers/stamps';
+import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 
 export const getTheWell = (holesObject, accountData) => {
   const { wellSediment, sedimentMulti, wellBuckets } = holesObject;

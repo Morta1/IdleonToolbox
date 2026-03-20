@@ -7,14 +7,14 @@ import { getCharacterByHighestSkillLevel, getEventShopBonus, getMiniBossesData, 
 import Tooltip from '../Tooltip';
 import Timer from '../common/Timer';
 import { calcHappyHours } from '@parsers/dungeons';
-import { getBuildCost, getGildedBoostioBonus } from '@parsers/construction';
-import { getChargeWithSyphon, getClosestWorshiper } from '@parsers/worship';
-import { getAtomBonus } from '@parsers/atomCollider';
+import { getBuildCost, getGildedBoostioBonus } from '@parsers/world-3/construction';
+import { getChargeWithSyphon, getClosestWorshiper } from '@parsers/world-3/worship';
+import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { isPast } from 'date-fns';
 import RandomEvent from '@components/account/Misc/RandomEvent';
 import Trade from '@components/account/Worlds/World5/Sailing/Trade';
 import { useRouter } from 'next/router';
-import { calcCost, calcTimeToRankUp, getRefineryCycles } from '@parsers/refinery';
+import { calcCost, calcTimeToRankUp, getRefineryCycles } from '@parsers/world-3/refinery';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getMonumentMaxLinearTime } from '@parsers/world-5/caverns/bravery';

@@ -16,7 +16,7 @@ import Timer from 'components/common/Timer';
 import ProgressBar from 'components/common/ProgressBar';
 import { NextSeo } from 'next-seo';
 import Tooltip from '../../../components/Tooltip';
-import { calcTotals } from '@parsers/printer';
+import { calcTotals } from '@parsers/world-3/printer';
 import Box from '@mui/material/Box';
 import { Breakdown, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import {
@@ -25,7 +25,7 @@ import {
   calcTimeToRankUp,
   getPowerPerCycle,
   getRefineryCycles
-} from '@parsers/refinery';
+} from '@parsers/world-3/refinery';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const saltsColors = ['#EF476F', '#ff8d00', '#00dcff', '#cdff68', '#d822cb', '#9a9ca4', 'yellow']

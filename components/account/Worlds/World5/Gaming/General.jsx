@@ -8,7 +8,7 @@ import Mutations from './Mutations';
 import LogBook from '@components/account/Worlds/World5/Gaming/LogBook';
 import Superbits from '@components/account/Worlds/World5/Gaming/Superbits';
 import { PAGES } from '@components/constants';
-import { getBitsMulti } from '@parsers/gaming';
+import { getBitsMulti } from '@parsers/world-5/gaming';
 import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
 import Palette from './Palette';
 

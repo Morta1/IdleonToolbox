@@ -6,7 +6,7 @@ import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
-import { getStampsBonusByEffect } from '@parsers/stamps';
+import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 
 export const getTheHarp = (holesObject, accountData) => {

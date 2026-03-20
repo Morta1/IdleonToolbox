@@ -1,9 +1,9 @@
 import { commaNotation, notateNumber, tryToParse } from '@utility/helpers';
 import { generalSpelunky, legendTalents } from '@website-data';
-import { getGildedBoostioBonus } from '@parsers/construction';
+import { getGildedBoostioBonus } from '@parsers/world-3/construction';
 import { getEventShopBonus, getGuaranteedCrystalMobs, isCompanionBonusActive } from '@parsers/misc';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
-import { isArtifactAcquired } from '@parsers/sailing';
+import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 
 export const getLegendTalents = (idleonData, accountData = {}, charactersData = []) => {

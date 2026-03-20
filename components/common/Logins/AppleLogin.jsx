@@ -1,7 +1,7 @@
 import { Stack, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import React, { useContext } from 'react';
-import { appleAuthorize, getAppleCode } from '../../../logins/apple';
+import { appleAuthorize, getAppleCode } from '../../../services/auth/apple';
 import { AppContext } from '../context/AppProvider';
 
 const AppleLogin = () => {

@@ -42,12 +42,12 @@ import {
   getVialsBonusByStat,
   isPrismaBubble,
   liquidsIndex
-} from '@parsers/alchemy';
+} from '@parsers/world-2/alchemy';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import MenuItem from '@mui/material/MenuItem';
 import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
-import { getPrismaMulti } from '@parsers/tesseract';
+import { getPrismaMulti } from '@parsers/class-specific/tesseract';
 import { IconChartCohort, IconChevronRight, IconInfoCircleFilled, IconList } from '@tabler/icons-react';
 import { getAchievementStatus } from '@parsers/achievements';
 

@@ -22,7 +22,7 @@ import {
   getWorld6Alerts,
   getWorld7Alerts
 } from '@utility/dashboard/account';
-import useAlerts from '../hooks/useAlerts';
+import useAlerts from '@hooks/useAlerts';
 
 const alertsMap = {
   General: getGeneralAlerts,

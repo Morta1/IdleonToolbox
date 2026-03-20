@@ -2,17 +2,17 @@ import { tryToParse, notateNumber } from '@utility/helpers';
 import { items, itemsArray } from '@website-data';
 import { getJadeEmporiumBonus } from '@parsers/world-6/sneaking';
 import { getLoreBonus } from '@parsers/world-7/spelunking';
-import { isArtifactAcquired } from '@parsers/sailing';
+import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import {
   getEventShopBonus,
   getKillRoyShopBonus,
   isCompanionBonusActive
 } from '@parsers/misc';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
-import { getBubbleBonus } from '@parsers/alchemy';
+import { getBubbleBonus } from '@parsers/world-2/alchemy';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
-import { getPlayerLabChipBonus } from '@parsers/lab';
+import { getPlayerLabChipBonus } from '@parsers/world-4/lab';
 
 export const getGallery = (idleonData, account) => {
   const rawSpelunk = tryToParse(idleonData?.Spelunk);

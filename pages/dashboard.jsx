@@ -12,7 +12,7 @@ import DashboardSettings from '../components/common/DashboardSettings';
 import Button from '@mui/material/Button';
 import { migrateConfig } from '@utility/migrations';
 import { IconSettingsFilled } from '@tabler/icons-react';
-import { getPrinterExclusions } from '@parsers/printer';
+import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {

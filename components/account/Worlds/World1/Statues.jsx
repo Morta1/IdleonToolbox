@@ -4,7 +4,7 @@ import HtmlTooltip from 'components/Tooltip';
 import { IconWithText, TitleAndValue } from '@components/common/styles';
 import ProgressBar from 'components/common/ProgressBar';
 import Box from '@mui/material/Box';
-import { getStatueBonus } from '../../../../parsers/statues';
+import { getStatueBonus } from '@parsers/world-1/statues';
 
 const Statues = ({ characters, account }) => {
   return (

@@ -3,7 +3,7 @@ import { Card, CardContent, Checkbox, Divider, FormControlLabel, IconButton, Sta
 import { CardTitleAndValue } from '@components/common/styles';
 import { cleanUnderscore, commaNotation, msToDate } from '@utility/helpers';
 import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
-import { isSuperbitUnlocked } from '@parsers/gaming';
+import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 

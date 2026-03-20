@@ -1,4 +1,4 @@
-import { getChipsAndJewels } from '../../../../parsers/cooking';
+import { getChipsAndJewels } from '@parsers/world-4/cooking';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../../../common/context/AppProvider';
 import {
@@ -18,7 +18,7 @@ import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from '../../../Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import { getRequirementAmount } from '@parsers/lab';
+import { getRequirementAmount } from '@parsers/world-4/lab';
 
 const LabRotation = () => {
   const { state } = useContext(AppContext);

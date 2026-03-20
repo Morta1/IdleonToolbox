@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from '@utility/helpers';
-import { constructionMasteryThresholds } from '../../../../../parsers/construction';
+import { constructionMasteryThresholds } from '@parsers/world-3/construction';
 import { CardTitleAndValue } from '@components/common/styles';
 
 const defaultBonuses = [

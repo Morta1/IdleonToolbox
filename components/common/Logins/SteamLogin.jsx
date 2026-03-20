@@ -2,7 +2,7 @@ import { Alert, Divider, Stack, TextField, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { getSteamParams } from '../../../logins/steam';
+import { getSteamParams } from '../../../services/auth/steam';
 import { isValidUrl } from '@utility/helpers';
 
 const SteamLogin = ({ setOpen }) => {

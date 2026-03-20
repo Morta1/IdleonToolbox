@@ -4,7 +4,7 @@ import { holesInfo } from '@website-data';
 import { lavaLog, lavaLog2, notateNumber } from '@utility/helpers';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getEventShopBonus } from '@parsers/misc';
-import { getTesseractBonus } from '@parsers/tesseract';
+import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 
 export const getGambit = (holesObject, accountData) => {

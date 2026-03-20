@@ -60,38 +60,38 @@ import {
   getEquippedCardsData,
   getPlayerCards
 } from './cards';
-import { getStampBonus, getStampsBonusByEffect } from './stamps';
-import { getPlayerPostOffice, getPostOfficeBonus, getPostOfficeBoxLevel } from './postoffice';
+import { getStampBonus, getStampsBonusByEffect } from './world-1/stamps';
+import { getPlayerPostOffice, getPostOfficeBonus, getPostOfficeBoxLevel } from './world-3/postoffice';
 import {
   getActiveBubbleBonus,
   getBubbleBonus,
   getSigilBonus,
   getVialsBonusByEffect,
   getVialsBonusByStat
-} from './alchemy';
-import { getStatueBonus } from './statues';
+} from './world-2/alchemy';
+import { getStatueBonus } from './world-1/statues';
 import { getStarSignBonus, getStarSignByEffect } from './starSigns';
-import { getAnvil } from './anvil';
-import { getPrayerBonusAndCurse } from './prayers';
+import { getAnvil } from './world-1/anvil';
+import { getPrayerBonusAndCurse } from './world-3/prayers';
 import { getGuildBonusBonus } from './guild';
-import { getShrineBonus } from './shrines';
+import { getShrineBonus } from './world-3/shrines';
 import { getFamilyBonusBonus, getUpdatedFamilyBonus } from './family';
-import { getSaltLickBonus } from './saltLick';
+import { getSaltLickBonus } from './world-3/saltLick';
 import { getDungeonFlurboStatBonus, getDungeonStatBonus } from './dungeons';
-import { getCookingEff, getCookingProwess, getMealsBonusByEffectOrStat } from './cooking';
+import { getCookingEff, getCookingProwess, getMealsBonusByEffectOrStat } from './world-4/cooking';
 import { getObols, getObolsBonus, mergeCharacterAndAccountObols } from './obols';
-import { getPlayerWorship } from './worship';
+import { getPlayerWorship } from './world-3/worship';
 import { getPlayerQuests } from './quests';
-import { getJewelBonus, getLabBonus, getLabEfficiency, getPlayerLabChipBonus, isGodEnabledBySorcerer } from './lab';
+import { getJewelBonus, getLabBonus, getLabEfficiency, getPlayerLabChipBonus, isGodEnabledBySorcerer } from './world-4/lab';
 import { getAchievementStatus } from './achievements';
 import { lavaLog, notateNumber, commaNotation } from '@utility/helpers';
-import { getArcadeBonus } from './arcade';
-import { isArtifactAcquired } from './sailing';
-import { getShinyBonus } from './breeding';
-import { getDeityLinkedIndex, getDivStylePerHour, getGodByIndex, getMinorDivinityBonus } from './divinity';
-import { getEquinoxBonus } from './equinox';
+import { getArcadeBonus } from './world-2/arcade';
+import { isArtifactAcquired } from './world-5/sailing';
+import { getShinyBonus } from './world-4/breeding';
+import { getDeityLinkedIndex, getDivStylePerHour, getGodByIndex, getMinorDivinityBonus } from './world-5/divinity';
+import { getEquinoxBonus } from './world-3/equinox';
 import { getConstructMastery } from './world-4/rift';
-import { getAtomBonus } from './atomCollider';
+import { getAtomBonus } from './world-3/atomCollider';
 import {
   getCharmBonus,
   getInventoryNinjaItem,
@@ -105,24 +105,24 @@ import { getLandRank, getLandRankTotalBonus, getMarketBonus } from '@parsers/wor
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getKangarooBonus } from '@parsers/world-2/kangaroo';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
-import { getGrimoireBonus } from '@parsers/grimoire';
+import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getMeasurementBonus } from '@parsers/world-5/hole';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
-import { isSuperbitUnlocked } from '@parsers/gaming';
-import { getCompassBonus } from '@parsers/compass';
-import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
+import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
+import { getCompassBonus } from '@parsers/class-specific/compass';
+import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
-import { getBribeBonus } from '@parsers/bribes';
+import { getBribeBonus } from '@parsers/world-1/bribes';
 import { allProwess } from '@parsers/efficiency';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
-import { getZenithBonus } from '@parsers/statues';
+import { getZenithBonus } from '@parsers/world-1/statues';
 import { getSuperTalentLeftToSpend } from '@parsers/world-7/legendTalents';
 import { getFriendBonus } from '@parsers/misc';
-import { getTesseractMapBonus } from '@parsers/tesseract';
+import { getTesseractMapBonus } from '@parsers/class-specific/tesseract';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 import { getGuaranteedCrystalMobs } from '@parsers/misc';
 

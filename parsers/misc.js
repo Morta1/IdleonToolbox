@@ -18,14 +18,14 @@ import {
   slab
 } from '@website-data';
 import { checkCharClass, CLASSES, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
-import { getMealsBonusByEffectOrStat } from './cooking';
-import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './alchemy';
-import { getStampsBonusByEffect } from './stamps';
+import { getMealsBonusByEffectOrStat } from './world-4/cooking';
+import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './world-2/alchemy';
+import { getStampsBonusByEffect } from './world-1/stamps';
 import { getAchievementStatus } from './achievements';
-import { getAtomBonus } from './atomCollider';
-import { getPrayerBonusAndCurse } from './prayers';
-import { getShrineBonus } from './shrines';
-import { isSuperbitUnlocked } from './gaming';
+import { getAtomBonus } from './world-3/atomCollider';
+import { getPrayerBonusAndCurse } from './world-3/prayers';
+import { getShrineBonus } from './world-3/shrines';
+import { isSuperbitUnlocked } from './world-5/gaming';
 import { getFamilyBonusBonus } from './family';
 import { getStatsFromGear } from './items';
 import LavaRand from '../utility/lavaRand';
@@ -34,16 +34,16 @@ import { getGuildBonusBonus } from './guild';
 import { getStarSignBonus } from './starSigns';
 import { getPlayerFoodBonus } from './character';
 import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
-import { getBribeBonus } from '@parsers/bribes';
+import { getBribeBonus } from '@parsers/world-1/bribes';
 import { getMeritocracyBonus, getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
-import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
+import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getObolsBonus } from '@parsers/obols';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getCardBonusByEffect } from '@parsers/cards';
-import { getTesseractBonus } from '@parsers/tesseract';
-import { getPaletteBonus } from '@parsers/gaming';
-import { getMinorDivinityBonus } from '@parsers/divinity';
+import { getTesseractBonus } from '@parsers/class-specific/tesseract';
+import { getPaletteBonus } from '@parsers/world-5/gaming';
+import { getMinorDivinityBonus } from '@parsers/world-5/divinity';
 
 export const getRawRefinerySalts = () => {
   return Object.keys(items).filter(key => /^Refinery\d+$/.test(key)).reduce((res, key) => ({ ...res, [key]: true }), {});

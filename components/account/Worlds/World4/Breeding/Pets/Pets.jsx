@@ -1,5 +1,5 @@
 import React from 'react';
-import { calcBreedabilityMulti, calcShinyLvMulti } from '@parsers/breeding';
+import { calcBreedabilityMulti, calcShinyLvMulti } from '@parsers/world-4/breeding';
 import Tabber from '../../../../../common/Tabber';
 import Other from '@components/account/Worlds/World4/Breeding/Pets/Other';
 import All from '@components/account/Worlds/World4/Breeding/Pets/All';

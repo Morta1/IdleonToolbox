@@ -4,12 +4,12 @@ import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { fillArrayToLength, notateNumber } from '@utility/helpers';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
-import { getArcadeBonus } from '@parsers/arcade';
+import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getAchievementStatus } from '@parsers/achievements';
-import { isSuperbitUnlocked } from '@parsers/gaming';
+import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
-import { getCompassBonus } from '@parsers/compass';
+import { getCompassBonus } from '@parsers/class-specific/compass';
 
 
 export const getBravery = (holesObject, accountData) => {

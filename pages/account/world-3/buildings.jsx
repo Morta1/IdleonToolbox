@@ -3,17 +3,17 @@ import { AppContext } from 'components/common/context/AppProvider';
 import { Card, CardContent, Divider, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
-import { getBuildCost, getExtraMaxLevels } from '../../../parsers/construction';
+import { getBuildCost, getExtraMaxLevels } from '@parsers/world-3/construction';
 import { NextSeo } from 'next-seo';
 import Timer from '../../../components/common/Timer';
-import { getAtomBonus } from '../../../parsers/atomCollider';
+import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import Tooltip from '../../../components/Tooltip';
 import Box from '@mui/material/Box';
 import { TitleAndValue } from '@components/common/styles';
 import InfoIcon from '@mui/icons-material/Info';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getEventShopBonus } from '@parsers/misc';
-import { getGildedBoostioBonus } from '@parsers/construction';
+import { getGildedBoostioBonus } from '@parsers/world-3/construction';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 
 const Buildings = () => {

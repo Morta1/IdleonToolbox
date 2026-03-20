@@ -6,11 +6,11 @@ import {
   getTalentBonusIfActive,
   mainStatMap
 } from './talents';
-import { getPostOfficeBonus } from './postoffice';
+import { getPostOfficeBonus } from './world-3/postoffice';
 import { getDungeonFlurboStatBonus } from './dungeons';
 import { getCardBonusByEffect } from './cards';
 import { getGuildBonusBonus } from './guild';
-import { getActiveBubbleBonus, getBubbleBonus, getSigilBonus, getVialsBonusByStat } from './alchemy';
+import { getActiveBubbleBonus, getBubbleBonus, getSigilBonus, getVialsBonusByStat } from './world-2/alchemy';
 import { getStatsFromGear } from './items';
 import { getObolsBonus } from './obols';
 import { getFamilyBonusBonus } from './family';
@@ -26,25 +26,25 @@ import {
   isCompanionBonusActive
 } from './misc';
 import { getStarSignBonus } from './starSigns';
-import { getArcadeBonus } from './arcade';
+import { getArcadeBonus } from './world-2/arcade';
 import { getAfkGain, getPlayerSpeedBonus, getRespawnRate } from './character';
-import { getStatueBonus } from './statues';
-import { calcStampCollected, getStampsBonusByEffect } from './stamps';
+import { getStatueBonus } from './world-1/statues';
+import { calcStampCollected, getStampsBonusByEffect } from './world-1/stamps';
 import { lavaLog } from '@utility/helpers';
-import { getShrineBonus } from './shrines';
-import { getPrayerBonusAndCurse } from './prayers';
-import { getJewelBonus, getLabBonus, getPlayerLabChipBonus } from './lab';
-import { getMealsBonusByEffectOrStat } from './cooking';
-import { getEclipseSkullsBonus } from './deathNote';
-import { isArtifactAcquired } from './sailing';
-import { getAtomBonus } from './atomCollider';
-import { getShinyBonus } from './breeding';
-import { isSuperbitUnlocked } from './gaming';
-import { constructionMasteryThresholds } from './construction';
-import { getSaltLickBonus } from './saltLick';
+import { getShrineBonus } from './world-3/shrines';
+import { getPrayerBonusAndCurse } from './world-3/prayers';
+import { getJewelBonus, getLabBonus, getPlayerLabChipBonus } from './world-4/lab';
+import { getMealsBonusByEffectOrStat } from './world-4/cooking';
+import { getEclipseSkullsBonus } from './world-3/deathNote';
+import { isArtifactAcquired } from './world-5/sailing';
+import { getAtomBonus } from './world-3/atomCollider';
+import { getShinyBonus } from './world-4/breeding';
+import { isSuperbitUnlocked } from './world-5/gaming';
+import { constructionMasteryThresholds } from './world-3/construction';
+import { getSaltLickBonus } from './world-3/saltLick';
 import { getAchievementStatus } from './achievements';
-import { getGodBlessingBonus, getMinorDivinityBonus } from './divinity';
-import { getEquinoxBonus } from './equinox';
+import { getGodBlessingBonus, getMinorDivinityBonus } from './world-5/divinity';
+import { getEquinoxBonus } from './world-3/equinox';
 import { getMiningEff } from '@parsers/efficiency';
 import { getUpgradeVaultBonus } from './misc/upgradeVault';
 import { getOwlBonus } from './world-1/owl';
@@ -54,7 +54,7 @@ import { getLandRank } from './world-6/farming';
 import { getWinnerBonus } from './world-6/summoning';
 import { getSchematicBonus } from './world-5/caverns/the-well';
 import { calcTotalQuestCompleted } from './misc';
-import { getArmorSetBonus } from './misc/armorSmithy';
+import { getArmorSetBonus } from './world-3/armorSmithy';
 import { getCosmoBonus } from './world-5/hole';
 import { notateNumber } from '@utility/helpers';
 

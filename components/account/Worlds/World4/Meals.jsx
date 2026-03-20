@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { calcMealTime, calcTimeToNextLevel, getMealLevelCost, getRibbonBonus } from 'parsers/cooking';
+import { calcMealTime, calcTimeToNextLevel, getMealLevelCost, getRibbonBonus } from '@parsers/world-4/cooking';
 import {
   cleanUnderscore,
   commaNotation,
@@ -18,7 +18,7 @@ import Timer from 'components/common/Timer';
 import InfoIcon from '@mui/icons-material/Info';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import MenuItem from '@mui/material/MenuItem';
-import { getJewelBonus, getLabBonus } from '@parsers/lab';
+import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { checkCharClass, CLASSES } from '@parsers/talents';

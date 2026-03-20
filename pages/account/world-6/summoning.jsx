@@ -1,15 +1,15 @@
 import { NextSeo } from 'next-seo';
 import React, { useContext } from 'react';
 import Tabber from '@components/common/Tabber';
-import WinnerBonuses from '@components/account/Worlds/World6/summoning/WinnerBonuses';
+import WinnerBonuses from '@components/account/Worlds/World6/Summoning/WinnerBonuses';
 import { AppContext } from '@components/common/context/AppProvider';
-import Upgrades from '@components/account/Worlds/World6/summoning/Upgrades';
+import Upgrades from '@components/account/Worlds/World6/Summoning/Upgrades';
 import { getTabs, notateNumber, numberWithCommas } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import { Divider, Stack } from '@mui/material';
-import Battles from '@components/account/Worlds/World6/summoning/Battles';
+import Battles from '@components/account/Worlds/World6/Summoning/Battles';
 import { PAGES } from '@components/constants';
-import Stones from '@components/account/Worlds/World6/summoning/Stones';
+import Stones from '@components/account/Worlds/World6/Summoning/Stones';
 import { summonEssenceColor } from '@parsers/world-6/summoning';
 
 const Summoning = () => {

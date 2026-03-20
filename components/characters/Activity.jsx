@@ -2,9 +2,9 @@ import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from '../Tooltip';
-import { isGodEnabledBySorcerer } from '@parsers/lab';
+import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
 import { isCompanionBonusActive } from '@parsers/misc';
-import { getDeityLinkedIndex } from '@parsers/divinity';
+import { getDeityLinkedIndex } from '@parsers/world-5/divinity';
 
 const Activity = ({ playerId, afkTarget, account, divStyle, characters }) => {
   const isLabConnectedByDivinity = () => {

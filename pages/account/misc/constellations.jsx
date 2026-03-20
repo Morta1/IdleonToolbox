@@ -3,7 +3,7 @@ import { AppContext } from 'components/common/context/AppProvider';
 import ConstellationsComp from 'components/account/Misc/Constellations';
 import StarSigns from 'components/account/Misc/StarSigns';
 import { NextSeo } from 'next-seo';
-import { getShinyBonus } from '../../../parsers/breeding';
+import { getShinyBonus } from '@parsers/world-4/breeding';
 import { isRiftBonusUnlocked } from '../../../parsers/world-4/rift';
 import Tabber from '../../../components/common/Tabber';
 import { getTabs } from '@utility/helpers';

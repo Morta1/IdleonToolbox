@@ -1,6 +1,6 @@
 import React from 'react';
 import GenericUpgradeOptimizer from '../GenericUpgradeOptimizer';
-import { dustNames, getOptimizedUpgrades, UPGRADE_CATEGORIES } from '@parsers/compass';
+import { dustNames, getOptimizedUpgrades, UPGRADE_CATEGORIES } from '@parsers/class-specific/compass';
 
 const UpgradeOptimizer = ({ character, account }) => (
   <GenericUpgradeOptimizer

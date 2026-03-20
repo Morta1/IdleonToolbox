@@ -1,6 +1,6 @@
 import React from 'react';
 import GenericUpgradeOptimizer from '../GenericUpgradeOptimizer';
-import { getOptimizedTesseractUpgrades, TESSERACT_UPGRADE_CATEGORIES, tachyonNames } from '@parsers/tesseract';
+import { getOptimizedTesseractUpgrades, TESSERACT_UPGRADE_CATEGORIES, tachyonNames } from '@parsers/class-specific/tesseract';
 
 const UpgradeOptimizer = ({ character, account }) => (
   <GenericUpgradeOptimizer

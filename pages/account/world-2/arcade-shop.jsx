@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
-import { getStampBonus } from 'parsers/stamps';
+import { getStampBonus } from '@parsers/world-1/stamps';
 import { NextSeo } from 'next-seo';
 import { CardTitleAndValue } from '@components/common/styles';
 

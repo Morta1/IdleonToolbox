@@ -4,7 +4,7 @@ import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, msToDate, notateNumber, prefix } from '@utility/helpers';
 import processString from 'react-process-string';
 import { NextSeo } from 'next-seo';
-import { calcTotals } from '../../../parsers/printer';
+import { calcTotals } from '@parsers/world-3/printer';
 import { CardTitleAndValue } from '@components/common/styles';
 import Timer from '@components/common/Timer';
 

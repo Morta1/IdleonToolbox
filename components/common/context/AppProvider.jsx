@@ -1,10 +1,10 @@
 import { createContext, useEffect, useReducer, useRef, useState } from 'react';
 import { checkUserStatus, signInWithCustom, signInWithToken, subscribe, userSignOut } from '../../../firebase';
 import { useRouter } from 'next/router';
-import useInterval from '../../hooks/useInterval';
-import { getUserToken } from '../../../logins/google';
+import useInterval from '@hooks/useInterval';
+import { getUserToken } from '../../../services/auth/google';
 import { offlineTools } from '../NavBar/AppDrawer/ToolsDrawer';
-import { geAppleStatus } from '../../../logins/apple';
+import { geAppleStatus } from '../../../services/auth/apple';
 import { getProfile } from '../../../services/profiles';
 
 export const AppContext = createContext({});

@@ -1,8 +1,8 @@
 import { differenceInHours, differenceInMinutes, isPast } from 'date-fns';
-import { getPostOfficeBonus } from '../../parsers/postoffice';
+import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { items, randomList } from '@website-data';
 import { getExpReq, isArenaBonusActive, isCompanionBonusActive } from '../../parsers/misc';
-import { getPlayerAnvil, getTimeTillCap } from '../../parsers/anvil';
+import { getPlayerAnvil, getTimeTillCap } from '@parsers/world-1/anvil';
 import {
   checkCharClass,
   CLASSES,

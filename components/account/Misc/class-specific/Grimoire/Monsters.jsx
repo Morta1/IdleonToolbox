@@ -2,7 +2,7 @@
 import { Card, CardContent, Divider, Stack, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
 import React, { useState } from 'react';
-import { boneNames } from '@parsers/grimoire';
+import { boneNames } from '@parsers/class-specific/grimoire';
 
 const Monsters = ({ monsters }) => {
   const [selectedBoneType, setSelectedBoneType] = useState('');

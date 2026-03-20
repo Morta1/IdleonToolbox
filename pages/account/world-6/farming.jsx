@@ -2,17 +2,17 @@ import { Stack } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import React, { useContext } from 'react';
 import Tabber from '@components/common/Tabber';
-import Market from '@components/account/Worlds/World6/farming/Market';
+import Market from '@components/account/Worlds/World6/Farming/Market';
 import { AppContext } from '@components/common/context/AppProvider';
-import Plot from '@components/account/Worlds/World6/farming/Plot';
-import Crop from '@components/account/Worlds/World6/farming/Crop';
+import Plot from '@components/account/Worlds/World6/Farming/Plot';
+import Crop from '@components/account/Worlds/World6/Farming/Crop';
 import { CardTitleAndValue } from '@components/common/styles';
 import { commaNotation, getTabs, notateNumber } from '@utility/helpers';
-import RankDatabase from '@components/account/Worlds/World6/farming/RankDatabase';
+import RankDatabase from '@components/account/Worlds/World6/Farming/RankDatabase';
 import { PAGES } from '@components/constants';
-import ExoticMarket from '@components/account/Worlds/World6/farming/ExoticMarket';
-import ExoticMarketRotation from '@components/account/Worlds/World6/farming/ExoticMarketRotation';
-import Stickers from '@components/account/Worlds/World6/farming/Stickers';
+import ExoticMarket from '@components/account/Worlds/World6/Farming/ExoticMarket';
+import ExoticMarketRotation from '@components/account/Worlds/World6/Farming/ExoticMarketRotation';
+import Stickers from '@components/account/Worlds/World6/Farming/Stickers';
 
 const Farming = () => {
   const { state } = useContext(AppContext);

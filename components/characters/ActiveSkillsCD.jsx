@@ -3,7 +3,7 @@ import Timer from 'components/common/Timer';
 import { growth, prefix } from 'utility/helpers';
 import Tooltip from '../Tooltip';
 import { TalentTooltip } from '../common/styles';
-import { getPostOfficeBonus } from 'parsers/postoffice';
+import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { Stack } from '@mui/material';
 import { relevantTalents } from '../../parsers/talents';
 

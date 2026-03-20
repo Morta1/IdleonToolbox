@@ -1,7 +1,7 @@
 import { tryToParse, commaNotation, notateNumber } from '@utility/helpers';
 import { mineheadUpgrades, upgradeVault, research as researchData, items } from '@website-data';
-import { getAtomBonus } from '@parsers/atomCollider';
-import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
+import { getAtomBonus } from '@parsers/world-3/atomCollider';
+import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 

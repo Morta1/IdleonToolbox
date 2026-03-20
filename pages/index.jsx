@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { Container, Dialog, DialogContent, DialogTitle, Stack, Typography, useMediaQuery } from '@mui/material';
 import Instructions from 'components/common/Instructions';
 import { getRandomNumbersArray, prefix } from '@utility/helpers'
-import useInterval from '../components/hooks/useInterval';
+import useInterval from '@hooks/useInterval';
 import { animate, AnimatePresence, motion, MotionConfig, useMotionValue } from 'framer-motion'
 import Button from '@mui/material/Button';
 import styled from '@emotion/styled';
@@ -11,7 +11,7 @@ import { patchNotes } from '../data/patch-notes';
 import PatchNotes from './patch-notes';
 import { NextLinkComposed } from '@components/common/NextLinkComposed';
 import Link from '@mui/material/Link';
-import { useFlubber } from '@components/hooks/useFlubber';
+import { useFlubber } from '@hooks/useFlubber';
 import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
 import Kofi from '@components/common/Kofi';

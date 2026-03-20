@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { getDeathNoteRank } from 'parsers/deathNote';
+import { getDeathNoteRank } from '@parsers/world-3/deathNote';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix, worldColor, worlds } from 'utility/helpers';
 import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';

@@ -6,7 +6,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { CardTitleAndValue } from '@components/common/styles';
 import MenuItem from '@mui/material/MenuItem';
 import { commaNotation, getTabs, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
-import { getArcanistStats, getExtraTachyon, getPrismaFragChance } from '@parsers/tesseract';
+import { getArcanistStats, getExtraTachyon, getPrismaFragChance } from '@parsers/class-specific/tesseract';
 import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Misc/class-specific/Tesseract/Upgrades';

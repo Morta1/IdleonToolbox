@@ -9,8 +9,8 @@ import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
-import Upgrades from '@components/account/Worlds/World3/equinox/Upgrades';
-import Challenges from '@components/account/Worlds/World3/equinox/Challenges';
+import Upgrades from '@components/account/Worlds/World3/Equinox/Upgrades';
+import Challenges from '@components/account/Worlds/World3/Equinox/Challenges';
 
 const Equinox = () => {
   const { state } = useContext(AppContext);

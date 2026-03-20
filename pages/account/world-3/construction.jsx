@@ -2,11 +2,11 @@ import React from 'react';
 import ForwardIcon from '@mui/icons-material/Forward';
 
 import styled from '@emotion/styled';
-import ConstructionMain from '../../../components/account/Worlds/World3/construction/ConstructionMain';
+import ConstructionMain from '../../../components/account/Worlds/World3/Construction/ConstructionMain';
 import Tabber from '../../../components/common/Tabber';
 import { NextSeo } from 'next-seo';
 import { Typography } from '@mui/material';
-import CogStatCalculator from '../../../components/account/Worlds/World3/construction/CogStatCalculator';
+import CogStatCalculator from '../../../components/account/Worlds/World3/Construction/CogStatCalculator';
 import { getTabs } from '@utility/helpers';
 import { PAGES } from '@components/constants';
 

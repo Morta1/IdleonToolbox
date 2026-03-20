@@ -1,22 +1,22 @@
 import { cleanUnderscore, commaNotation, growth, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { generalSpelunky, spelunkingChapters, spelunkingRocks, spelunkingUpgrades } from '@website-data';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
-import { getSlabBonus, isArtifactAcquired } from '@parsers/sailing';
-import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
-import { getPaletteBonus } from '@parsers/gaming';
+import { getSlabBonus, isArtifactAcquired } from '@parsers/world-5/sailing';
+import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
+import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getExoticMarketBonus, getStickerBonus } from '@parsers/world-6/farming';
 import { getCardBonusByEffect } from '@parsers/cards';
-import { getArcadeBonus } from '@parsers/arcade';
-import { getGrimoireBonus } from '@parsers/grimoire';
-import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
+import { getArcadeBonus } from '@parsers/world-2/arcade';
+import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
+import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getAdviceFishBonus, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
-import { getStampsBonusByEffect } from '@parsers/stamps';
-import { getBubbleBonus, getVialsBonusByEffect } from '@parsers/alchemy';
+import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
+import { getBubbleBonus, getVialsBonusByEffect } from '@parsers/world-2/alchemy';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
-import { getZenithBonus } from '@parsers/statues';
+import { getZenithBonus } from '@parsers/world-1/statues';
 
 export const getSpelunking = (idleonData, account, characters) => {
   const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];

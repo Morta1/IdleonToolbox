@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import useInterval from '../../hooks/useInterval';
+import useInterval from '@hooks/useInterval';
 import { Typography } from '@mui/material';
 
 const NormalTimer = ({ date, done }) => {

@@ -5,7 +5,7 @@ import { CardTitleAndValue } from '@components/common/styles';
 import useCheckbox from '@components/common/useCheckbox';
 import ItemDisplay from '@components/common/ItemDisplay';
 import Tooltip from '@components/Tooltip';
-import { dustNames } from '@parsers/compass';
+import { dustNames } from '@parsers/class-specific/compass';
 
 const Medallions = ({ medallions, totalAcquiredMedallions }) => {
   const [CheckboxEl, hideCoinedPortals] = useCheckbox('Hide coined monsters');

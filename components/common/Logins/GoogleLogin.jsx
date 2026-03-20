@@ -3,7 +3,7 @@ import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../context/AppProvider';
-import { getUserAndDeviceCode } from '../../../logins/google';
+import { getUserAndDeviceCode } from '../../../services/auth/google';
 
 const googleDeviceUrl = 'https://www.google.com/device';
 const GoogleLogin = () => {

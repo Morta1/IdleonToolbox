@@ -11,7 +11,7 @@ import Abominations from '@components/account/Misc/class-specific/Compass/Abomin
 import Medallions from '@components/account/Misc/class-specific/Compass/Medallions';
 import Portals from '@components/account/Misc/class-specific/Compass/Portals';
 import UpgradeOptimizer from '@components/account/Misc/class-specific/Compass/UpgradeOptimizer';
-import { getCompassStats, getExtraDust } from '@parsers/compass';
+import { getCompassStats, getExtraDust } from '@parsers/class-specific/compass';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import MenuItem from '@mui/material/MenuItem';
 

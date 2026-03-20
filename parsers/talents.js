@@ -2,25 +2,25 @@ import { growth } from '@utility/helpers';
 import { classes, classFamilyBonuses, talents } from '@website-data';
 import { getAchievementStatus } from './achievements';
 import { getHighestLevelOfClass, isCompanionBonusActive } from './misc';
-import { getMinorDivinityBonus } from './divinity';
-import { getEquinoxBonus } from './equinox';
+import { getMinorDivinityBonus } from './world-5/divinity';
+import { getEquinoxBonus } from './world-3/equinox';
 import { getFamilyBonus, getFamilyBonusBonus } from '@parsers/family';
-import { getStampsBonusByEffect } from '@parsers/stamps';
+import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getGuildBonusBonus } from '@parsers/guild';
 import { getDungeonFlurboStatBonus } from '@parsers/dungeons';
 import { getCardBonusByEffect } from '@parsers/cards';
-import { getSigilBonus } from '@parsers/alchemy';
-import { getShinyBonus } from '@parsers/breeding';
-import { getBribeBonus } from '@parsers/bribes';
+import { getSigilBonus } from '@parsers/world-2/alchemy';
+import { getShinyBonus } from '@parsers/world-4/breeding';
+import { getBribeBonus } from '@parsers/world-1/bribes';
 import { getIsland } from '@parsers/world-2/islands';
-import { getGrimoireBonus } from '@parsers/grimoire';
+import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { skillIndexMap } from '@parsers/parseMaps';
-import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
-import { getTesseractBonus } from '@parsers/tesseract';
-import { isSuperbitUnlocked } from '@parsers/gaming';
+import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
+import { getTesseractBonus } from '@parsers/class-specific/tesseract';
+import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getLegendTalentBonus } from './world-7/legendTalents';
-import { getZenithBonus } from './statues';
+import { getZenithBonus } from './world-1/statues';
 
 
 export const getTalentBonus = (talents = [], talentName, yBonus, useMaxLevel, addedLevels, useMaxAndAddedLevels, forceTalent = false) => {

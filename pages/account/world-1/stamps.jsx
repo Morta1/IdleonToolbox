@@ -33,7 +33,7 @@ import {
   getStampsPerDay,
   unobtainableStamps,
   updateStamps
-} from '@parsers/stamps';
+} from '@parsers/world-1/stamps';
 import Grid from '@mui/material/Grid2';
 import { grey } from '@mui/material/colors';
 import Link from '@mui/material/Link';
@@ -44,7 +44,7 @@ import { IconChevronRight, IconDeviceFloppy, IconInfoCircleFilled } from '@table
 import Button from '@mui/material/Button';
 import { format, isValid } from 'date-fns';
 import useCheckbox from '@components/common/useCheckbox';
-import { getExaltedStampBonus } from '@parsers/stamps';
+import { getExaltedStampBonus } from '@parsers/world-1/stamps';
 
 const Stamps = () => {
   const router = useRouter();

@@ -22,7 +22,7 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import styled from '@emotion/styled';
 import { useRouter } from 'next/router';
 import MenuItem from '@mui/material/MenuItem';
-import useTimeout from '../components/hooks/useTimeout';
+import useTimeout from '@hooks/useTimeout';
 import NormalTimer from '../components/common/Timer/Normal';
 import { format, intervalToDuration, isValid } from 'date-fns';
 import { expandLeaderboardInfo, uploadProfile } from '../services/profiles';

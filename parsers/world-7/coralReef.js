@@ -8,14 +8,14 @@ import {
 } from '@parsers/misc';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
-import { getArcadeBonus } from '@parsers/arcade';
-import { getVialsBonusByEffect } from '@parsers/alchemy';
-import { getStampsBonusByEffect } from '@parsers/stamps';
+import { getArcadeBonus } from '@parsers/world-2/arcade';
+import { getVialsBonusByEffect } from '@parsers/world-2/alchemy';
+import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
-import { getStatueBonus } from '@parsers/statues';
+import { getStatueBonus } from '@parsers/world-1/statues';
 // getDancingCoralBonus is implemented locally since it's not exported from spelunking.js
 
 export const getCoralReef = (idleonData, account, charactersData) => {

@@ -16,6 +16,9 @@
       "@parsers/*": [
         "parsers/*"
       ],
+      "@hooks/*": [
+        "hooks/*"
+      ],
       "@utility/*": [
         "utility/*"
       ],

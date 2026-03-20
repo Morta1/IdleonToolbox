@@ -10,11 +10,11 @@ import {
   mapNames
 } from '@website-data';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
-import { isArtifactAcquired } from '@parsers/sailing';
+import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getAchievementStatus } from '@parsers/achievements';
-import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
+import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
-import { getTesseractBonus } from '@parsers/tesseract';
+import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 
 export const summonEssenceColor = {
   0: 'white',

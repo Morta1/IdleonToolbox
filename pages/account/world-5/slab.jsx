@@ -6,7 +6,7 @@ import HtmlTooltip from '@components/Tooltip';
 import { NextSeo } from 'next-seo';
 import Image from 'next/image';
 import { CardTitleAndValue } from '@components/common/styles';
-import { getSlabBonus } from '@parsers/sailing';
+import { getSlabBonus } from '@parsers/world-5/sailing';
 
 const Slab = () => {
   const { state } = useContext(AppContext);

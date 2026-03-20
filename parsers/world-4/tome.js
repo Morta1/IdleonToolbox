@@ -1,26 +1,26 @@
 import { ninjaExtraInfo, tomeData } from '@website-data';
-import { calcStampLevels } from '@parsers/stamps';
-import { calcStatueLevels, calcTotalOnyx } from '@parsers/statues';
+import { calcStampLevels } from '@parsers/world-1/stamps';
+import { calcStatueLevels, calcTotalOnyx } from '@parsers/world-1/statues';
 import { calcCardsLevels } from '@parsers/cards';
 import { calcTalentMaxLevel, calcTotalStarTalent } from '@parsers/talents';
 import { calcTotalQuestCompleted, getEventShopBonus } from '@parsers/misc';
 import { calcTotalTasks } from '@parsers/tasks';
 import { calcTotalAchievements } from '@parsers/achievements';
 import { calcNametagsFound, calcObolsFound, calcTrophiesFound } from '@parsers/items';
-import { calcBubbleLevels, calcSigilsLevels, calcVialsLevels, getBubbleBonus } from '@parsers/alchemy';
-import { calcTotalKillsDigits } from '@parsers/deathNote';
-import { calcTotalAtomLevels } from '@parsers/atomCollider';
-import { calcTotalMeals, getTotalKitchenLevels } from '@parsers/cooking';
+import { calcBubbleLevels, calcSigilsLevels, calcVialsLevels, getBubbleBonus } from '@parsers/world-2/alchemy';
+import { calcTotalKillsDigits } from '@parsers/world-3/deathNote';
+import { calcTotalAtomLevels } from '@parsers/world-3/atomCollider';
+import { calcTotalMeals, getTotalKitchenLevels } from '@parsers/world-4/cooking';
 import { calcTotalItemInStorage } from '@parsers/storage';
-import { calcHighestPower } from '@parsers/breeding';
+import { calcHighestPower } from '@parsers/world-4/breeding';
 import { calcColoTotalScore, calcMinigameTotalScore } from '@parsers/highScores';
-import { calcArtifactsAcquired, calcTotalBoatLevels } from '@parsers/sailing';
+import { calcArtifactsAcquired, calcTotalBoatLevels } from '@parsers/world-5/sailing';
 import { calcTotalBeanstalkLevel } from '@parsers/world-6/sneaking';
-import { calcTotalPrayersLevel } from '@parsers/prayers';
+import { calcTotalPrayersLevel } from '@parsers/world-3/prayers';
 import { lavaLog } from '@utility/helpers';
-import { getGrimoireBonus } from '@parsers/grimoire';
+import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
-import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
+import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 
 export const segmentColors = {
   bronze: '#ffc277',

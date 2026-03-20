@@ -4,12 +4,12 @@ import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typograp
 import { cleanUnderscore, getBitIndex, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
 import Tooltip from 'components/Tooltip';
 import { CardTitleAndValue, MissingData } from '@components/common/styles';
-import { isGodEnabledBySorcerer } from '../../../parsers/lab';
+import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
 import { NextSeo } from 'next-seo';
 import { isCompanionBonusActive } from '../../../parsers/misc';
-import { getMinorDivinityBonus } from '../../../parsers/divinity';
+import { getMinorDivinityBonus } from '@parsers/world-5/divinity';
 import CoinDisplay from '../../../components/common/CoinDisplay';
-import { getKrukBubblesDaily } from '@parsers/alchemy';
+import { getKrukBubblesDaily } from '@parsers/world-2/alchemy';
 
 const Divinity = () => {
   const { state } = useContext(AppContext);

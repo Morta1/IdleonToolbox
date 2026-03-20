@@ -1,8 +1,8 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
-import { getTotalKitchenLevels } from '../../../../../parsers/cooking';
-import { calcUpgradeBonus } from '../../../../../parsers/breeding';
+import { getTotalKitchenLevels } from '@parsers/world-4/cooking';
+import { calcUpgradeBonus } from '@parsers/world-4/breeding';
 
 const BreedingUpgrades = ({ account, petUpgrades, meals }) => {
   const calcFoodCost = (upgrade) => {

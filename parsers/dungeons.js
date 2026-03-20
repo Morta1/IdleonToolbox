@@ -7,9 +7,9 @@ import {
   dungeonTraits,
   randomList
 } from '@website-data';
-import { getStampsBonusByEffect } from './stamps';
-import { getBribeBonus } from './bribes';
-import { getVialsBonusByStat } from './alchemy';
+import { getStampsBonusByEffect } from './world-1/stamps';
+import { getBribeBonus } from './world-1/bribes';
+import { getVialsBonusByStat } from './world-2/alchemy';
 import { getAchievementStatus } from './achievements';
 import { isPast, isThursday, nextThursday, previousThursday, startOfToday } from 'date-fns';
 

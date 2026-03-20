@@ -12,12 +12,12 @@ import React, { useState } from 'react';
 import useCheckbox from '@components/common/useCheckbox';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
-import { tachyonNames } from '@parsers/tesseract';
+import { tachyonNames } from '@parsers/class-specific/tesseract';
 import {
   getMaps,
   getRingBaseStats,
   getWeaponBaseStats
-} from '@parsers/tesseract';
+} from '@parsers/class-specific/tesseract';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const Portals = ({ character, account, characters }) => {

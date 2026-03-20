@@ -4,20 +4,20 @@ import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import { CardTitleAndValue, PlayersList, TitleAndValue } from '@components/common/styles';
-import { isArtifactAcquired } from '../../../parsers/sailing';
+import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { NextSeo } from 'next-seo';
 import { getAchievementStatus } from '../../../parsers/achievements';
-import { getSigilBonus, getVialsBonusByStat } from '../../../parsers/alchemy';
+import { getSigilBonus, getVialsBonusByStat } from '@parsers/world-2/alchemy';
 import Timer from '../../../components/common/Timer';
 import Tooltip from '../../../components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
-import { getStampsBonusByEffect } from '@parsers/stamps';
+import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
-import { getArcadeBonus } from '@parsers/arcade';
+import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { isEtherealBonusUnlocked } from '@parsers/world-7/spelunking';
-import { getPaletteBonus } from '@parsers/gaming';
+import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 
 const Sigils = () => {

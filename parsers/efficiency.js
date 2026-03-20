@@ -1,7 +1,7 @@
-import { getBubbleBonus, getVialsBonusByStat } from '@parsers/alchemy';
+import { getBubbleBonus, getVialsBonusByStat } from '@parsers/world-2/alchemy';
 import { getStarSignBonus } from '@parsers/starSigns';
-import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
-import { getPostOfficeBonus } from '@parsers/postoffice';
+import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
+import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import {
   checkCharClass,
   CLASSES,
@@ -21,17 +21,17 @@ import {
 import { getFamilyBonusBonus } from '@parsers/family';
 import { bonuses, classFamilyBonuses } from '@website-data';
 import { calculateItemTotalAmount, getStatsFromGear } from '@parsers/items';
-import { getJewelBonus, getLabBonus } from '@parsers/lab';
+import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
 import { getCardBonusByEffect, getEquippedCardBonus } from '@parsers/cards';
-import { getPrayerBonusAndCurse } from '@parsers/prayers';
+import { getPrayerBonusAndCurse } from '@parsers/world-3/prayers';
 import { getGuildBonusBonus } from '@parsers/guild';
 import { TOOLS } from '@utility/consts';
-import { getStatueBonus } from '@parsers/statues';
-import { getStampsBonusByEffect } from '@parsers/stamps';
-import { getShinyBonus } from '@parsers/breeding';
+import { getStatueBonus } from '@parsers/world-1/statues';
+import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
+import { getShinyBonus } from '@parsers/world-4/breeding';
 import { getObolsBonus } from '@parsers/obols';
-import { isArtifactAcquired } from '@parsers/sailing';
-import { getAtomBonus } from '@parsers/atomCollider';
+import { isArtifactAcquired } from '@parsers/world-5/sailing';
+import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { lavaLog } from '@utility/helpers';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getWinnerBonus } from '@parsers/world-6/summoning';

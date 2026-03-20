@@ -8,15 +8,15 @@ import {
   researchOccurrences
 } from '@website-data';
 
-import { getZenithBonus } from '@parsers/statues';
-import { getSlabBonus } from '@parsers/sailing';
+import { getZenithBonus } from '@parsers/world-1/statues';
+import { getSlabBonus } from '@parsers/world-5/sailing';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
-import { getMealsBonusByEffectOrStat } from '@parsers/cooking';
+import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { getHighestCharacterSkill, isCompanionBonusActive, getEventShopBonus } from '@parsers/misc';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getMineheadBonusQTY, getMineheadGlimboTotalTrades } from '@parsers/world-7/minehead';
 import { getStickerBonus } from '@parsers/world-6/farming';
-import { getArmorSetBonus } from '@parsers/misc/armorSmithy';
+import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 
 // Save key for Research: game may use idleonData.Research or similar
 const getRawResearch = (idleonData) => {

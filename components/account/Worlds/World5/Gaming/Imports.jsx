@@ -1,4 +1,4 @@
-import { calculateSnailEncouragementForSuccessChance } from '../../../../../parsers/gaming';
+import { calculateSnailEncouragementForSuccessChance } from '@parsers/world-5/gaming';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, getBitIndex, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import Timer from '../../../../common/Timer';
@@ -8,7 +8,7 @@ import styled from '@emotion/styled';
 import React from 'react';
 import useCheckbox from '@components/common/useCheckbox';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
-import { isSuperbitUnlocked } from '@parsers/gaming';
+import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import RatKing from './RatKing';
 
 const Imports = ({ account, lastUpdated }) => {

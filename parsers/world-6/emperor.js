@@ -1,8 +1,8 @@
 import { emperorBonuses } from '@website-data';
 import { commaNotation, notateNumber } from '@utility/helpers';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
-import { getTesseractBonus } from '@parsers/tesseract';
-import { getArcadeBonus } from '@parsers/arcade';
+import { getTesseractBonus } from '@parsers/class-specific/tesseract';
+import { getArcadeBonus } from '@parsers/world-2/arcade';
 
 
 const icons = {

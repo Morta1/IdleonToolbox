@@ -1,4 +1,4 @@
-import { getPrinterExclusions } from '@parsers/printer';
+import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 import { getRawShopItems } from '@parsers/shops';
 import { getRawRefinerySalts } from '@parsers/misc';

@@ -10,7 +10,7 @@ import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Misc/class-specific/Grimoire/Upgrades';
 import Monsters from '@components/account/Misc/class-specific/Grimoire/Monsters';
-import { boneNames, getWraithStats } from '@parsers/grimoire';
+import { boneNames, getWraithStats } from '@parsers/class-specific/grimoire';
 import UpgradeOptimizer from '@components/account/Misc/class-specific/Grimoire/UpgradeOptimizer';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 

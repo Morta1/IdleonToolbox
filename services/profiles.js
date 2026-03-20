@@ -1,7 +1,7 @@
 import { tryToParse } from '@utility/helpers';
 import { getCashMulti, getDropRate } from '@parsers/character';
 import { getMaxDamage } from '@parsers/damage';
-import { calcTotalBoatLevels } from '@parsers/sailing';
+import { calcTotalBoatLevels } from '@parsers/world-5/sailing';
 import { differenceInYears } from 'date-fns';
 
 const url = process.env.NEXT_PUBLIC_PROFILES_URL;

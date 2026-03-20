@@ -7,11 +7,11 @@ import {
   pristineCharms as rawPristineCharms,
   randomList
 } from '@website-data';
-import { getLabBonus } from "@parsers/lab";
+import { getLabBonus } from "@parsers/world-4/lab";
 import { CLASSES, getHighestTalentByClass } from "@parsers/talents";
 import { getLegendTalentBonus } from "@parsers/world-7/legendTalents";
 import { getUpgradeVaultBonus } from "@parsers/misc/upgradeVault";
-import { getPaletteBonus } from "@parsers/gaming";
+import { getPaletteBonus } from "@parsers/world-5/gaming";
 
 export const getSneaking = (idleonData, serverVars, charactersData, account) => {
   const rawSneaking = tryToParse(idleonData?.Ninja);

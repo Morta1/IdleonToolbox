@@ -3,7 +3,7 @@ import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from 'components/Tooltip';
-import { isGodEnabledBySorcerer } from '../../../../parsers/lab';
+import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
 import Box from '@mui/material/Box';
 
 const Mainframe = ({ characters, jewels, labBonuses, playersCords, divinity }) => {

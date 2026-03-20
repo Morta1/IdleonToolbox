@@ -8,7 +8,7 @@ import { Breakdown, PlayersList } from '@components/common/styles';
 import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
 import CoinDisplay from '@components/common/CoinDisplay';
-import { CAULDRONS_MAX_LEVELS } from '@parsers/alchemy';
+import { CAULDRONS_MAX_LEVELS } from '@parsers/world-2/alchemy';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
