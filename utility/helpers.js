@@ -218,6 +218,7 @@ export const
     "蔵"
 ];
 
+/** @returns {any} */
 export const tryToParse = (str) => {
   try {
     return JSON.parse(str);
@@ -274,7 +275,7 @@ export const createIndexedArray = (object) => {
 };
 
 // _customBlock_ArbitraryCode5Inputs
-export const growth = (func, level, x1, x2, shouldRound = true) => {
+export const growth = (func, level, x1, x2, shouldRound = true, _unused5) => {
   let result;
   switch (func) {
     case 'add':

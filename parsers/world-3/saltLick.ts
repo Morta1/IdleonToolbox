@@ -1,0 +1,24 @@
+import { calculateItemTotalAmount } from '@parsers/items';
+import { saltLicks } from '@website-data';
+import { round, tryToParse } from '@utility/helpers';
+
+export const getSaltLick = (idleonData: any, storage: any) => {
+  const saltLickRaw = tryToParse(idleonData?.SaltLick) || idleonData?.SaltLick;
+  return saltLicks?.map((bonus, index) => {
+    const level = saltLickRaw?.[index];
+    const totalAmount = calculateItemTotalAmount(storage, bonus?.name, true);
+    return {
+      ...bonus,
+      totalAmount,
+      level
+    }
+  })
+}
+
+export const getSaltLickBonus = (saltLicks: any, saltIndex: any, shouldRound = false) => {
+  const saltLick = saltLicks?.[saltIndex];
+  if (!saltLick || saltLick === 0) return 0;
+  const bonus = saltLick.baseBonus * (saltLick.level ?? 0);
+  if (shouldRound) return round(bonus) ?? 0;
+  return bonus;
+}

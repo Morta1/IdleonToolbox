@@ -1,0 +1,1518 @@
+import { createRange, lavaLog, notateNumber, number2letter, tryToParse } from '@utility/helpers';
+import { filteredGemShopItems, filteredLootyItems, keysMap } from './parseMaps';
+import {
+  bonuses,
+  bundles as bundlesData,
+  classFamilyBonuses,
+  companions,
+  deathNote,
+  generalSpelunky,
+  items,
+  killRoySkullShop,
+  mapEnemiesArray,
+  mapNames,
+  monsters,
+  ninjaExtraInfo,
+  randomList,
+  rawMapNames,
+  slab
+} from '@website-data';
+import { checkCharClass, CLASSES, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
+import { getMealsBonusByEffectOrStat } from './world-4/cooking';
+import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './world-2/alchemy';
+import { getStampsBonusByEffect } from './world-1/stamps';
+import { getAchievementStatus } from './achievements';
+import { getAtomBonus } from './world-3/atomCollider';
+import { getPrayerBonusAndCurse } from './world-3/prayers';
+import { getShrineBonus } from './world-3/shrines';
+import { isSuperbitUnlocked } from './world-5/gaming';
+import { getFamilyBonusBonus } from './family';
+import { getStatsFromGear } from './items';
+import LavaRand from '../utility/lavaRand';
+import { isPast } from 'date-fns';
+import { getGuildBonusBonus } from './guild';
+import { getStarSignBonus } from './starSigns';
+import { getPlayerFoodBonus } from './character';
+import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
+import { getBribeBonus } from '@parsers/world-1/bribes';
+import { getMeritocracyBonus, getVoteBonus } from '@parsers/world-2/voteBallot';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
+import { getObolsBonus } from '@parsers/obols';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getCardBonusByEffect } from '@parsers/cards';
+import { getTesseractBonus } from '@parsers/class-specific/tesseract';
+import { getPaletteBonus } from '@parsers/world-5/gaming';
+import { getMinorDivinityBonus } from '@parsers/world-5/divinity';
+
+export const getRawRefinerySalts = () => {
+  return Object.keys(items).filter(key => /^Refinery\d+$/.test(key)).reduce((res, key) => ({ ...res, [key]: true }), {});
+}
+
+export const getDoubleStatueDrop = (account: any, character: any, characters: any) => {
+  const tesseractBonus = getTesseractBonus(account, 18);
+  const paletteBonus = getPaletteBonus(account, 19);
+  const kattelkrukPlayer = characters?.find(({ linkedDeity }: any) => linkedDeity === 8); // kattelkruk is limited to only 1 player linked.
+  const divinityMinorBonus = getMinorDivinityBonus(kattelkrukPlayer, account, 8, characters);
+  const talentBonus = getTalentBonus(character?.flatStarTalents, 'STATUE_METALLURGY');
+  
+  return {
+    value: tesseractBonus + talentBonus + paletteBonus + Math.min(10, divinityMinorBonus),
+    breakdown: [
+      { name: 'Tesseract', value: tesseractBonus },
+      { name: 'Talent', value: talentBonus },
+      { name: 'Palette', value: paletteBonus },
+      { name: 'Divinity', value: Math.min(10, divinityMinorBonus) }
+    ],
+    expression: `tesseractBonus + talentBonus + paletteBonus + Math.min(10, divinityMinorBonus)`
+  };
+}
+
+export const getDoubleGoldenFoodDrop = (account: any) => {
+  const tesseractBonus = getTesseractBonus(account, 30);
+  const paletteBonus = getPaletteBonus(account, 24);
+  const bigFishBonus = getAdviceFishBonus(account, 5);
+
+  return {
+    value: tesseractBonus + paletteBonus + bigFishBonus,
+    breakdown: [
+      { name: 'Tesseract', value: tesseractBonus },
+      { name: 'Palette', value: paletteBonus },
+      { name: 'Big Fish', value: bigFishBonus }
+    ],
+    expression: `tesseractBonus + paletteBonus + bigFishBonus`
+  };
+}
+
+export const getFriendBonusStats = (account: any = {}) => {
+  const FRIEND_BONUS_NAMES = [
+    '% Total Damage',
+    '% Class EXP gain',
+    '% Skill Efficiency',
+    '% Drop Rate',
+    '% Skill EXP gain',
+    '% more Coins'
+  ];
+  const companionList = account?.companions?.list;
+  const hasMrPig = isCompanionBonusActive(account, 30);
+  const hasSpearfish = isCompanionBonusActive(account, 44);
+
+  const slots = Math.round(
+    Math.min(
+      20,
+      2
+      + (hasSpearfish ? companionList?.[44]?.bonus ?? 0 : 0)
+      + 2 * (hasMrPig ? companionList?.[30]?.bonus ?? 0 : 0)
+      + (getEventShopBonus(account, 22) ? 1 : 0)
+    )
+  );
+
+  const extraMultiplier = 1 + (100 * (hasMrPig ? companionList?.[30]?.bonus ?? 0 : 0)) / 100;
+  const rawFriendBonuses = account?.accountOptions?.[476];
+  const bonuses = FRIEND_BONUS_NAMES.map((name, statIndex) => ({
+    statIndex,
+    name,
+    level: 0,
+    friendName: '',
+    value: 0
+  }));
+
+  if (rawFriendBonuses && `${rawFriendBonuses}` !== '0') {
+    const entries = `${rawFriendBonuses}`.split(';').filter(Boolean);
+    const entriesToRead = Math.min(slots, entries.length);
+
+    for (let i = 0; i < entriesToRead; i++) {
+      const [statIndexRaw, levelRaw, friendName] = `${entries[i]}`.split(',');
+      const statIndex = Number(statIndexRaw);
+      const level = Number(levelRaw);
+      const baseValue = Number.isFinite(statIndex) && statIndex < FRIEND_BONUS_NAMES.length
+        ? getFriendBonusQuantity(statIndex, level)
+        : 0;
+      const totalValue = baseValue * extraMultiplier;
+
+      if (Number.isFinite(statIndex) && statIndex < bonuses.length) {
+        bonuses[statIndex] = {
+          statIndex,
+          name: FRIEND_BONUS_NAMES[statIndex] || '',
+          level,
+          friendName,
+          value: totalValue
+        };
+      }
+    }
+  }
+
+  return {
+    slots,
+    multiplier: extraMultiplier,
+    bonuses
+  };
+}
+
+
+const getFriendBonusQuantity = (statIndex: any, level = 0) => {
+  const cappedLevel = Math.min(12000, Math.max(0, level));
+  const scaling = Math.min(1, 0.2 + cappedLevel / (cappedLevel + 3000));
+
+  switch (statIndex) {
+    case 0:
+      return 100 * scaling;
+    case 1:
+      return 30 * scaling;
+    case 2:
+      return 50 * scaling;
+    case 3:
+      return 25 * scaling;
+    case 4:
+      return 30 * scaling;
+    case 5:
+      return 40 * scaling;
+    default:
+      return 0;
+  }
+}
+
+export const getFriendBonus = (account: any, index: any) => {
+  return account?.friendBonusStats?.bonuses?.[index]?.value ?? 0;
+}
+
+export const getAdviceFish = (idleonData: any) => {
+  const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];
+  const adviceUpgrades = generalSpelunky?.[18]?.split(' ') || [];
+  const upgrades = adviceUpgrades.map((upgrade: any, index: any) => {
+    const [name, description, x2, x3, filler] = upgrade.split(',');
+    const level = rawSpelunking?.[11]?.[index] ?? 0;
+    return {
+      level,
+      cost: Math.pow(1.15, level) * Math.pow(10.01, x3),
+      bonus: level / (100 + level) * parseFloat(x2),
+      name,
+      description,
+      x2: parseFloat(x2),
+      x3: parseFloat(x3),
+      filler
+    }
+  });
+  return {
+    upgrades
+  };
+}
+
+export const getAdviceFishBonus = (account: any, upgradeIndex: any) => {
+  return account?.adviceFish?.upgrades?.[upgradeIndex]?.bonus ?? 0;
+}
+
+export const getGuaranteedCrystalMobs = (account: any) => {
+  const meritocracyBonus = getMeritocracyBonus(account, 15);
+  const legendPTSBonus = getLegendTalentBonus(account, 37);
+  const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'SHINY_BEACON');
+  const taskBonus = account?.tasks?.[2]?.[3]?.[0];
+  const achievementBonus = getAchievementStatus(account?.achievements, 285);
+
+  return Math.ceil((1 + meritocracyBonus / 100)
+    * (1 + legendPTSBonus / 100) * (sigilBonus
+      + (taskBonus + 4 * achievementBonus)))
+}
+
+export const getMasterclassCostReduction = (account: any, forceLegendTalent: any) => {
+  const hasBonusBundle = isBundlePurchased(account?.bundles, 'bon_p');
+  const hasLegendTalent = forceLegendTalent === undefined
+    ? account?.accountOptions?.[480] < getLegendTalentBonus(account, 23)
+    : forceLegendTalent;
+  const allMasterclassCostRedux = hasLegendTalent
+    ? (hasBonusBundle ? 0.05 : 0.2)
+    : (hasBonusBundle ? 0.25 : 1);
+  const first3mcCostRedux = 1 / (1 + (account?.accountOptions?.[499] ?? 0) / 100);
+  return allMasterclassCostRedux * first3mcCostRedux;
+}
+
+export const getLibraryBookTimes = (idleonData: any, characters: any, account: any) => {
+  const { bookCount, libTime, breakdown } = calcBookCount(account, characters, idleonData);
+  const timeAway = account?.timeAway;
+  let breakpoints = [16, 18, 20].map((maxCount) => {
+    return {
+      breakpoint: maxCount,
+      time: calcTimeToXBooks(bookCount, maxCount, account, characters, idleonData) - timeAway?.BookLib
+    }
+  })
+  breakpoints = [...breakpoints,
+  { breakpoint: 0, time: calcTimeToXBooks(0, 20, account, characters, idleonData) }]
+  return {
+    bookCount,
+    next: getTimeToNextBooks(bookCount, account, characters, idleonData)?.value - libTime,
+    breakdown,
+    breakpoints
+  }
+}
+
+const calcBookCount = (account: any, characters: any, idleonData: any) => {
+  const baseBookCount = account?.accountOptions?.[55];
+  const timeAway = account?.timeAway;
+  let libTime = timeAway?.BookLib;
+  let afk = (new Date).getTime() / 1e3 - timeAway.GlobalTime;
+  let bookCount = baseBookCount;
+  if (afk > 300) libTime += afk;
+  const { breakdown } = getTimeToNextBooks(bookCount, account, characters, idleonData);
+  while (libTime > getTimeToNextBooks(bookCount, account, characters, idleonData)?.value) {
+    libTime -= getTimeToNextBooks(bookCount, account, characters, idleonData)?.value;
+    bookCount += 1;
+  }
+  return { bookCount, libTime, breakdown };
+}
+
+const calcTimeToXBooks = (bookCount: any, maxCount: any, account: any, characters: any, idleonData: any) => {
+  let time = 0;
+  for (let i = bookCount; i < maxCount; i++) {
+    time += getTimeToNextBooks(i, account, characters, idleonData)?.value;
+  }
+  return time;
+}
+
+//  "BookReqTime"
+export const getTimeToNextBooks = (bookCount: any, account: any, characters: any, idleonData: any) => {
+  const towersLevels = tryToParse(idleonData?.Tower) || idleonData?.Tower;
+  const mealBonus = getMealsBonusByEffectOrStat(account, 'Library_checkout_Speed', null);
+  const bubbleBonus = getBubbleBonus(account, 'IGNORE_OVERDUES', false);
+  const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Talent_Book_Library');
+  const stampBonus = getStampsBonusByEffect(account, 'Talent_Book_Library_Refresh_Speed')
+  const libraryTowerLevel = towersLevels?.[1];
+  const libraryBooker = getAtomBonus(account, 'Oxygen_-_Library_Booker');
+  const superbit = isSuperbitUnlocked(account, 'Library_Checkouts');
+  let superbitBonus = 0;
+  if (superbit) {
+    superbitBonus = superbit?.totalBonus;
+  }
+  const math = Math.round(4 * (3600 / ((1 + mealBonus / 100)
+    * (1 + libraryBooker / 100) *
+    (1 + (5 * libraryTowerLevel
+      + bubbleBonus
+      + (vialBonus
+        + (stampBonus
+          + Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))
+          + superbitBonus))) / 100)))
+    * (1 + 10 * Math.pow(bookCount, 1.4) / 100))
+
+  const breakdown = {
+    statName: 'Library Checkout Time',
+    totalValue: math,
+    categories: [
+      {
+        name: 'Multiplicative',
+        sources: [
+          { name: 'Meal Bonus', value: mealBonus },
+          { name: 'Atom Bonus', value: libraryBooker },
+          { name: 'Tower Bonus', value: 5 * libraryTowerLevel },
+          { name: 'Bubble Bonus', value: bubbleBonus },
+          { name: 'Vial Bonus', value: vialBonus },
+          { name: 'Stamp Bonus', value: stampBonus },
+          { name: 'Superbit Bonus', value: superbitBonus },
+          {
+            name: 'Achievement Bonus',
+            value: Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))
+          }
+        ]
+      }
+    ]
+  }
+  return {
+    value: math,
+    breakdown
+  };
+}
+
+export const hasItemDropped = (account: any, itemName: any) => {
+  return account?.looty?.lootyRaw?.includes(itemName);
+}
+
+export const getSlab = (idleonData: any) => {
+  const lootyRaw = idleonData?.Cards?.[1] || tryToParse(idleonData?.Cards1);
+  const allItems = structuredClone((items)); // Deep clone
+  const forcedNames = {
+    'Motherlode': 'Motherlode_x1',
+    'Island0': 'Island0_x1',
+    'Dust0': 'Dust0_x1',
+    'Dust1': 'Dust1_x1',
+    'Dust2': 'Dust2_x1',
+    'Dust3': 'Dust3_x1',
+    'Dust4': 'Dust4_x1',
+    'Dust5': 'Dust5_x1'
+  }
+  const slabItems = slab?.map((name) => ({
+    name: allItems?.[name]?.displayName,
+    rawName: (forcedNames as Record<string, any>)?.[name] || name,
+    obtained: lootyRaw?.includes(name),
+    onRotation: filteredGemShopItems?.[name],
+    unobtainable: filteredLootyItems?.[name]
+  }));
+  const missingItems = slabItems?.filter(({ obtained, unobtainable }) => !obtained && !unobtainable)?.length;
+
+  return {
+    slabItems,
+    lootyRaw,
+    lootedItems: lootyRaw?.length,
+    missingItems,
+    totalItems: slab?.length,
+    rawLootedItems: lootyRaw?.length
+  };
+};
+
+export const getCurrencies = (account: any, idleonData: any, processedData: any) => {
+  const keys = idleonData?.CurrenciesOwned?.['KeysAll'] || idleonData?.CYKeysAll;
+  if (idleonData?.CurrenciesOwned) {
+    return {
+      ...idleonData?.CurrenciesOwned,
+      KeysAll: getKeysObject(keys)
+    };
+  }
+  const normalCandyTimes = {
+    '1_HR_Time_Candy': 1,
+    '2_HR_Time_Candy': 2,
+    '4_HR_Time_Candy': 4,
+    '12_HR_Time_Candy': 12,
+    '24_HR_Time_Candy': 24,
+    '72_HR_Time_Candy': 72
+  };
+
+  const specialCandy = {
+    'Steamy_Time_Candy': { min: 1 / 6, max: 24 },
+    'Spooky_Time_Candy': { min: 1 / 3, max: 12 },
+    'Cosmic_Time_Candy': { min: 5, max: 500 }
+  };
+  const allItems = [...account?.storage?.list,
+  ...(processedData?.charactersData || [])?.map(({ inventory }: any) => inventory)?.flat()];
+  const allCandies = allItems?.filter(({ Type } = {}) => Type === 'TIME_CANDY');
+  const guaranteedCandies = allCandies?.reduce((sum: any, { displayName, amount }: any) => {
+    if ((specialCandy as Record<string, any>)[displayName]) return sum;
+    const hours = (normalCandyTimes as Record<string, any>)[displayName];
+    return sum + (hours * amount);
+  }, 0);
+  const specialCandies = allCandies?.reduce((sum: any, { displayName, amount }: any) => {
+    const hours = (specialCandy as Record<string, any>)[displayName];
+    if (!hours) return sum;
+
+    return {
+      min: sum?.min + (hours?.min * amount),
+      max: sum?.max + (hours?.max * amount)
+    }
+  }, { min: 0, max: 0 })
+
+  return {
+    candies: { guaranteed: guaranteedCandies, special: specialCandies },
+    WorldTeleports: idleonData?.CYWorldTeleports,
+    KeysAll: getKeysObject(keys),
+    ColosseumTickets: idleonData?.CYColosseumTickets,
+    ObolFragments: idleonData?.CYObolFragments,
+    SilverPens: idleonData?.CYSilverPens,
+    GoldPens: idleonData?.CYGoldPens,
+    DeliveryBoxComplete: idleonData?.CYDeliveryBoxComplete,
+    DeliveryBoxStreak: idleonData?.CYDeliveryBoxStreak,
+    DeliveryBoxMisc: idleonData?.CYDeliveryBoxMisc,
+    minigamePlays: account?.accountOptions?.[33] ?? 0
+  };
+};
+
+export const enhanceColoTickets = (tickets: any, characters: any, account: any) => {
+  const npcs = {
+    0: { name: 'Typhoon', dialogThreshold: 3, daysSinceIndex: 15 },
+    1: { name: 'Centurion', dialogThreshold: 4, daysSinceIndex: 35 },
+    2: { name: 'Lonely_Hunter', dialogThreshold: 6, daysSinceIndex: 56 }
+  }
+  const allTickets = Object.entries(npcs).reduce((res: any[], [, npc]: [string, any], index: any) => {
+    // const amountPerDay = getAmountPerDay(npc, characters);
+    const daysSincePickup = account?.accountOptions?.[npc?.daysSinceIndex];
+    return [...res,
+    {
+      rawName: `TixEZ${index}`,
+      amountPerDay: 1,
+      daysSincePickup,
+      amount: tickets,
+      totalAmount: Math.min(daysSincePickup, 3)
+    }];
+  }, [])
+  return {
+    allTickets,
+    totalAmount: tickets
+  }
+}
+
+const getKeysObject = (keys: any) => {
+  return keys.reduce((res: any, keyAmount: any, index: any) => (index < 5 ? [...res,
+  { amount: keyAmount, ...(keysMap as Record<string, any>)[index] }] : res), []);
+}
+
+export const enhanceKeysObject = (keysAll: any, characters: any, account: any) => {
+  const npcs = {
+    0: { name: 'Dog_Bone', dialogThreshold: 5, daysSinceIndex: 16 },
+    1: { name: 'Djonnut', dialogThreshold: 6, daysSinceIndex: 31 },
+    2: { name: 'Bellows', dialogThreshold: 8.5, daysSinceIndex: 80 },
+    3: {}
+  }
+  return keysAll.map((key: any, keyIndex: any) => {
+    const amountPerDay = getAmountPerDay((npcs as Record<string, any>)?.[keyIndex], characters);
+    const daysSincePickup = account?.accountOptions?.[(npcs as Record<string, any>)?.[keyIndex]?.daysSinceIndex];
+    return { ...key, amountPerDay, daysSincePickup, totalAmount: Math.min(daysSincePickup, 3) * amountPerDay };
+  });
+}
+
+const getAmountPerDay = ({ name, dialogThreshold }: any = {}, characters: any) => {
+  return characters.reduce((res: any, { npcDialog }: any) => {
+    if (dialogThreshold === undefined) return res;
+    return npcDialog?.[name] > dialogThreshold ? res + 1 : res;
+  }, 0);
+}
+
+export const getBundles = (idleonData: any) => {
+  const bundlesRaw = tryToParse(idleonData?.BundlesReceived) || idleonData?.BundlesReceived;
+  const ownedBundles = bundlesRaw || {};
+
+  if (!bundlesData) return [];
+
+  // Get all bundles from website-data and check ownership status
+  return Object.keys(bundlesData)
+    .map((bundleName) => ({
+      name: bundleName,
+      owned: !!ownedBundles[bundleName],
+      price: (bundlesData as Record<string, any>)[bundleName].price
+    }))
+    .sort((a, b) => {
+      // Sort by bundle type (bun_ vs bon_) then by letter
+      const aType = a.name.startsWith('bun_') ? 0 : a.name.startsWith('bon_') ? 1 : 2;
+      const bType = b.name.startsWith('bun_') ? 0 : b.name.startsWith('bon_') ? 1 : 2;
+      if (aType !== bType) return aType - bType;
+      return a.name.localeCompare(b.name);
+    });
+};
+
+export const isBundlePurchased = (bundles: any, name: any) => {
+  return bundles?.find(({ name: n, owned }: any) => n === name && owned);
+}
+
+export const isArenaBonusActive = (arenaWave: any, waveReq: any, bonusNumber: any) => {
+  const waveReqArray = waveReq.split(' ');
+  if (bonusNumber > waveReqArray.length) {
+    return false;
+  }
+  return arenaWave >= waveReqArray[bonusNumber];
+};
+
+export const calculateAfkTime = (playerTime: any, _unused1?: any) => {
+  return parseFloat(playerTime) * 1e3;
+};
+
+export const getAllCapsBonus = (guildBonus: any, telekineticStorageBonus: any, shrineBonus: any, zergPrayer: any, ruckSackPrayer: any, bribeCapBonus: any) => {
+  return (1 + (guildBonus + telekineticStorageBonus) / 100) * (1 + shrineBonus / 100) * (1 + bribeCapBonus / 100) * Math.max(1 - zergPrayer / 100, 0.4) * (1 + ruckSackPrayer / 100);
+};
+
+export const getMaterialCapacity = (bag: any, capacities: any) => {
+  const {
+    allCapacity,
+    mattyBagStampBonus,
+    gemShopCarryBonus,
+    masonJarStampBonus,
+    extraBagsTalentBonus,
+    starSignExtraCap
+  } = capacities;
+
+  const bCraftCap = bag?.capacity;
+
+  return Math.floor(bCraftCap
+    * (1 + mattyBagStampBonus / 100)
+    * (1 + (25 * gemShopCarryBonus) / 100)
+    * (1 + (masonJarStampBonus
+      + starSignExtraCap) / 100)
+    * (1 + extraBagsTalentBonus / 100) * allCapacity)
+};
+
+export const getSpeedBonusFromAgility = (agility = 0) => {
+  let base = (Math.pow(agility + 1, 0.37) - 1) / 40;
+  if (agility > 1000) {
+    base = ((agility - 1000) / (agility + 2500)) * 0.5 + 0.297;
+  }
+  return base * 2 + 1;
+};
+
+export const getHighestLevelOf = (characters: any, className: any) => {
+  const classes = characters?.filter((character: any) => checkCharClass(character?.class, className));
+  return classes?.reduce((res: any, { level }: any) => {
+    if (level > res) {
+      return level;
+    }
+    return res;
+  }, 0);
+}
+
+export const getHighestLevelOfClass = (characters: any, className: any, exactSearch?: any) => {
+  const highest = characters?.reduce((res: any, { level, class: cName }: any) => {
+    if (res?.[cName]) {
+      res[cName] = Math.max(res?.[cName], level);
+    }
+    else {
+      res[cName] = level;
+    }
+    return res;
+  }, {});
+  let allClasses = talentPagesMap?.[className];
+  if (exactSearch) {
+    allClasses = allClasses.filter((cName) => cName === className);
+  }
+  const classAlias = allClasses?.find((cName) => highest?.[cName]);
+  return highest?.[classAlias!] || 0;
+};
+
+export const getCharacterByHighestLevel = (characters: any, className: any) => {
+  let filteredObjects = characters.filter((obj: any) => obj.class === className);
+  return filteredObjects.reduce((maxObj: any, currentObj: any) => {
+    return currentObj.level > maxObj.level ? currentObj : maxObj;
+  }, filteredObjects[0]);
+};
+
+export const getCharacterByHighestSkillLevel = (characters: any, className: any, skillName: any) => {
+  if (!characters) return null;
+  let array;
+  if (className) {
+    const allClasses = talentPagesMap?.[className];
+    array = characters.filter((obj: any) => allClasses.includes(obj.class))
+  }
+  else {
+    array = characters;
+  }
+  return array.reduce((maxObj: any, currentObj: any) => {
+    return currentObj?.skillsInfo?.[skillName]?.level > maxObj?.skillsInfo?.[skillName]?.level ? currentObj : maxObj;
+  }, array[0]);
+};
+
+export const getHighestLevelCharacter = (characters: any) => {
+  const levels = characters?.map(({ level }: any) => level ?? 0);
+  return Math.max(...levels);
+};
+
+export const getHighestCharacterSkill = (characters: any = [], skillName: any) => {
+  const levels = characters?.map(({ skillsInfo }: any) => skillsInfo?.[skillName]?.level ?? 0);
+  return Math.max(...levels);
+};
+
+export const calculateLeaderboard = (characters: any) => {
+  const leaderboardObject = characters.reduce((res: any, { name, skillsInfo }: any) => {
+    if (!skillsInfo) return res;
+    for (const [skillName, skillLevel] of Object.entries(skillsInfo)) {
+      if (!res[skillName]) {
+        res[skillName] = { ...res[skillName], [name]: skillLevel };
+      }
+      else {
+        const joined = { ...res[skillName], [name]: skillLevel };
+        let lowestIndex = Object.keys(joined).length;
+        res[skillName] = Object.entries(joined)
+          .sort(
+            ([, a]: [string, any], [, b]: [string, any]) =>
+              b.level - a.level || b.exp - a.exp
+          )
+          .reduceRight((res: any, [charName, charSkillLevel]: [string, any]) => {
+            return { ...res, [charName]: { ...(charSkillLevel as any), rank: lowestIndex-- } };
+          }, {} as any);
+      }
+    }
+    return res;
+  }, {});
+  return Object.entries(leaderboardObject)?.reduce((res: any, [skillName, characters]: [string, any]) => {
+    const charsObjects = Object.entries(characters).reduce((response: any, [charName, charSkill]: [string, any]) => {
+      return { ...response, [charName]: { [skillName]: charSkill } };
+    }, {} as any);
+    return Object.entries(charsObjects).reduce((response: any, [charName, charSkill]: [string, any]) => {
+      return { ...response, [charName]: { ...(res[charName] || {}), ...(charSkill as any) } };
+    }, {} as any);
+  }, {} as any);
+};
+
+export const calculateTotalSkillsLevel = (characters: any) => {
+  const allSkills = characters?.reduce((res: any, { skillsInfo }: any) => {
+    if (!skillsInfo) return res;
+    for (const [skillName, skillData] of Object.entries(skillsInfo) as [string, any][]) {
+      if (res?.[skillName]) {
+        res[skillName] = { ...res[skillName], level: res[skillName].level + (skillData?.level ?? 0) }
+      }
+      else {
+        res[skillName] = { level: skillData?.level, index: skillData?.index - 1, icon: skillData?.icon };
+      }
+    }
+    return res;
+  }, {})
+  return Object.entries(allSkills)?.reduce((res: any, [skillName, skillVal]: [string, any]) => {
+    const { level } = skillVal;
+    const rank = getSkillRank(level);
+    return {
+      ...res, [skillName]: {
+        ...res?.[skillName],
+        rank,
+        color: getSkillRankColor(level)
+      }
+    };
+  }, allSkills);
+}
+
+export const getSkillRankColor = (level: any) => {
+  return level < 300 ? 'white' : level >= 300 && level < 400 ? '#ffc277' : level >= 400 && level < 600
+    ? '#cadadb'
+    : level >= 600 && level < 1000 ? 'gold' : '#56ccff'
+}
+
+const getSkillRank = (level: any) => {
+  return 150 > level ? 0 : 200 > level ? 1 : 300 > level ? 2 : 400 > level ? 3 : 500 > level ? 4 : 750 > level
+    ? 5
+    : 1e3 > level ? 6 : 7;
+}
+
+export const isMasteryBonusUnlocked = (rift: any, skillRank: any, bonusIndex: any) => {
+  return rift?.currentRift < 15 ? 0 : skillRank > bonusIndex ? 1 : 0;
+}
+
+const getSkillRankByIndex = (skills: any, index: any) => {
+  for (const [, skillData] of Object.entries(skills) as [string, any][]) {
+    if (skillData?.level > 0 && skillData?.index === index) {
+      return skillData?.rank;
+    }
+  }
+  return null;
+}
+
+export const getSkillMasteryBonusByIndex = (skills: any, rift: any, riftBonusIndex: any) => {
+  const array = new Array(18).fill(1);
+  return array.reduce((sum, skill, index) => {
+    const skillRank = getSkillRankByIndex(skills, index);
+    if (riftBonusIndex === 1) {
+      sum += 10 * isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex + 2));
+    }
+    else if (riftBonusIndex === 3) {
+      sum += isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex + 2));
+    }
+    else if (riftBonusIndex === 4) {
+      sum += 25 * isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex + 2));
+    }
+    else if (index !== 0 && index !== 2 && index !== 3 && index !== 5 && index !== 6 && index !== 8) {
+      sum += 5 * isMasteryBonusUnlocked(rift, skillRank, Math.round(riftBonusIndex + 2));
+    }
+    return sum;
+  }, 7);
+};
+
+export const getExpReq = (skillIndex: any, t: any) => {
+  return 0 === skillIndex ?
+    (15 + Math.pow(t, 1.9) + 11 * t) * Math.pow(1.208 - Math.min(0.164, (0.215 * t) / (t + 100)), t) - 15 :
+    2 === skillIndex
+      ? (15 + Math.pow(t, 2) + 13 * t) * Math.pow(1.225 - Math.min(0.114, (0.135 * t) / (t + 50)), t) - 26
+      :
+      8 === skillIndex ? (71 > t
+        ? ((10 + Math.pow(t, 2.81) + 4 * t) * Math.pow(1.117 - (0.135 * t) / (t + 5), t) - 6) * (1 + Math.pow(t, 1.72) / 300)
+        :
+        (((10 + Math.pow(t, 2.81) + 4 * t) * Math.pow(1.003, t) - 6) / 2.35) * (1 + Math.pow(t, 1.72) / 300)) :
+        9 === skillIndex
+          ? (15 + Math.pow(t, 1.3) + 6 * t) * Math.pow(1.17 - Math.min(0.07, (0.135 * t) / (t + 50)), t) - 26
+          :
+          (15 + Math.pow(t, 2) + 15 * t) * Math.pow(1.225 - Math.min(0.18, (0.135 * t) / (t + 50)), t) - 30;
+}
+
+export const getGiantMobChance = (character: any, account: any) => {
+  const giantsAlreadySpawned = account?.accountOptions?.[57];
+  // const tachionOfTitansPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'Tachion_of_the_Titans')?.bonus > 5;
+  const glitterbugPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'Glitterbug', account)?.curse;
+  const crescentShrineBonus = getShrineBonus(account?.shrines, 6, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
+  const giantMobVial = getVialsBonusByStat(account?.alchemy?.vials, 'GiantMob');
+  let chance;
+  if (giantsAlreadySpawned < 5) {
+    chance = (1 / ((100 + 50 * Math.pow(giantsAlreadySpawned + 1, 2)) * (1 + glitterbugPrayer / 100))) * (1 + (crescentShrineBonus + giantMobVial) / 100);
+  }
+  else {
+    chance = (1 / (2 * Math.pow(giantsAlreadySpawned + 1, 1.95)
+      * (1 + glitterbugPrayer / 100)
+      * Math.pow(giantsAlreadySpawned + 1, 1.5 + giantsAlreadySpawned / 15)))
+      * (1 + (crescentShrineBonus + giantMobVial) / 100);
+  }
+  return {
+    chance,
+    crescentShrineBonus,
+    giantMobVial,
+    glitterbugPrayer
+  }
+}
+
+export const getGoldenFoodMulti = (character: any, account: any, characters: any) => {
+  const highestLevelShaman = getHighestLevelOfClass(account?.charactersLevels, CLASSES.Bubonic_Conjuror) ?? getHighestLevelOfClass(account?.charactersLevels, CLASSES.Shaman) ?? 0;
+  const theFamilyGuy = getTalentBonus(character?.flatTalents, 'THE_FAMILY_GUY');
+  const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
+  const isShaman = checkCharClass(character?.class, CLASSES.Shaman);
+  const amplifiedFamilyBonus = familyBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0;
+  const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[8]);
+  const { value: gearGoldFoodBonus, newBreakdown: equipmentBonusBreakdown } = getStatsFromGear(character, 8, account);
+  const hungryForGoldTalentBonus = getTalentBonus(character?.flatTalents, 'HAUNGRY_FOR_GOLD');
+  const goldenAppleStamp = getStampsBonusByEffect(account, 'Effect_from_Golden_Food._Sparkle_sparkle!');
+  const goldenFoodAchievement = getAchievementStatus(account?.achievements, 37);
+  const goldenFoodBubbleBonus = getBubbleBonus(account, 'SHIMMERON', false, mainStatMap?.[character?.class] === 'strength');
+  const goldenFoodSigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'EMOJI_VEGGIE');
+  const charmBonus = getCharmBonus(account, 'Gumm_Stick');
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zGoldFood');
+  const starSignBonus = getStarSignBonus(character, account, 'Golden_Food');
+  const bribeBonus = getBribeBonus(account?.bribes, 'Gold_from_Lead');
+  const achievementBonus = getAchievementStatus(account?.achievements, 380);
+  const secondAchievementBonus = getAchievementStatus(account?.achievements, 383);
+  const voteBonus = getVoteBonus(account, 26);
+  const companionBonus = isCompanionBonusActive(account, 48) ? account?.companions?.list?.at(48)?.bonus : 0;
+  const legendTalentBonus = getLegendTalentBonus(account, 25);
+  const cardBonus = Math.min(getCardBonusByEffect(account?.cards, 'Gold_Food_Effect_(Passive)'), 50);
+  const vaultBonus86 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 86);
+
+  // select first death bringer
+  const deathBringer = characters?.find((character: any) => checkCharClass(character?.class, CLASSES.Death_Bringer));
+  const apocalypseWow = getTalentBonus(deathBringer?.flatTalents, 'APOCALYPSE_WOW');
+  const apocalypses = deathBringer?.wow?.finished?.at(0) || 0;
+  const armorSetBonus = getArmorSetBonus(account, 'SECRET_SET');
+  const value = (1 + armorSetBonus / 100)
+    * (Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
+      + ((gearGoldFoodBonus + obolsBonus)
+        + (hungryForGoldTalentBonus
+          + (goldenAppleStamp
+            + (goldenFoodAchievement
+              + (goldenFoodBubbleBonus
+                + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus
+              + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses + companionBonus + legendTalentBonus + cardBonus + vaultBonus86))))) / 100);
+
+  const breakdown = {
+    statName: 'Golden food multi', // adjust if needed
+    totalValue: notateNumber(Math.max(0, 100 * (value - 1)), 'MultiplierInfo'), // your final computed value
+    categories: [
+      {
+        name: 'Multiplicative',
+        sources: [
+          {
+            name: 'Armor Set',
+            value: armorSetBonus
+          }
+        ]
+      },
+      {
+        name: 'Additive',
+        sources: [
+          {
+            name: 'Family Bonus',
+            value: isShaman ? amplifiedFamilyBonus : familyBonus
+          },
+          { name: 'The Family Guy', value: theFamilyGuy },
+
+          { name: 'Obols', value: obolsBonus },
+          { name: 'Talent', value: hungryForGoldTalentBonus },
+          { name: 'Stamp', value: goldenAppleStamp },
+          { name: 'Achievement', value: goldenFoodAchievement },
+          { name: 'Bubble', value: goldenFoodBubbleBonus },
+          { name: 'Sigil', value: goldenFoodSigilBonus },
+          { name: 'Meal', value: mealBonus },
+          { name: 'Star Sign', value: starSignBonus },
+          { name: 'Bribe', value: bribeBonus },
+          { name: 'Charm', value: charmBonus },
+          {
+            name: 'Achievements',
+            value: 2 * achievementBonus + 3 * secondAchievementBonus
+          },
+          { name: 'Vote', value: voteBonus },
+          {
+            name: 'Apocalypse Wow',
+            value: apocalypseWow * apocalypses
+          },
+          { name: 'Companion', value: companionBonus },
+          { name: 'Legend Talent', value: legendTalentBonus },
+          { name: 'Card', value: cardBonus }
+        ],
+        subSections: [
+          equipmentBonusBreakdown
+        ]
+      }
+    ]
+  };
+
+  return {
+    value,
+    breakdown,
+    expression: `(1 + armorSetBonus / 100)
+* (Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
++ (gearGoldFoodBonus
++ (hungryForGoldTalentBonus
++ (goldenAppleStamp
++ (goldenFoodAchievement
++ (goldenFoodBubbleBonus
++ goldenFoodSigilBonus) 
++ mealBonus 
++ starSignBonus
++ bribeBonus 
++ charmBonus
++ (2 * achievementBonus + 3 * secondAchievementBonus
++ voteBonus
++ apocalypseWow * apocalypses))))) / 100)`
+  };
+}
+
+export const getGoldenFoodBonus = (foodName: any, character: any, account: any, characters: any) => {
+  if (!character) return 0;
+  const goldenFood = character?.food?.find(({ name }: any) => name === foodName);
+  const goldenFoodMulti = getGoldenFoodMulti(character, account, characters);
+  const baseBonus = !goldenFood?.Amount || !goldenFood?.amount
+    ? 0
+    : goldenFood?.Amount * goldenFoodMulti?.value * 0.05 * lavaLog(1 + goldenFood?.amount) * (1 + lavaLog(1 + goldenFood?.amount) / 2.14);
+  if (isJadeBonusUnlocked(account, 'Gold_Food_Beanstalk')) {
+    const beanstalkData = account?.sneaking?.beanstalkData;
+    const beanstalkGoldenFoods =( ninjaExtraInfo[29] as string).split(' ').filter((str: any) => isNaN(str))
+      .map((gFood: any, index: any) => ({ ...(items?.[gFood] || {}), active: beanstalkData?.[index] > 0, index }));
+    const beanstalkFood = beanstalkGoldenFoods?.find(({ displayName, active }: any) => displayName === foodName && active);
+    if (!beanstalkFood) return baseBonus;
+    return baseBonus + beanstalkFood?.Amount! * goldenFoodMulti?.value * .05 * lavaLog(1 + 1e3 * Math.pow(10, beanstalkData?.[beanstalkFood?.index]))
+      * (1 + lavaLog(1 + 1e3 * Math.pow(10, beanstalkData?.[beanstalkFood?.index])) / 2.14);
+  }
+  return baseBonus;
+};
+
+export const getRandomEvents = (account: any) => {
+  if (!account) return [];
+  const { serverVars, timeAway } = account || {};
+  const eventList = []
+  const seed = Math.round(Math.floor(timeAway?.GlobalTime / 3600));
+  for (let i = 0; i < 100; i++) {
+    const actualSeed = seed + i + serverVars?.RandEvntHr;
+    const eventRng = new LavaRand(actualSeed);
+    const eventRandom = eventRng.rand();
+    const eventType = getEventType(eventRandom);
+    const mapRng = new LavaRand(actualSeed + 1);
+    const mapRandom = mapRng.rand();
+    const eventMaps = getEventMaps(eventType);
+    if (eventMaps.length === 0) continue;
+    const mapIndex = Math.min(Math.floor(mapRandom * eventMaps.length), eventMaps.length - 1);
+    const realMapIndex = rawMapNames?.indexOf(eventMaps?.[mapIndex]);
+    if (realMapIndex === -1) continue;
+    const mapName = mapNames?.[realMapIndex];
+    const eventName = getEventName(eventType);
+    let dateInMs = (seed + i + 1) * 3600 * 1000;
+    if (isPast(dateInMs)) continue;
+    const date = new Date(dateInMs);
+    if ((date as any).isDstObserved()) {
+      dateInMs -= 3600 * 1000;
+    }
+    eventList.push({ mapName, eventName, date: dateInMs })
+  }
+  return eventList;
+}
+
+const getEventMaps = (eventType: any) => {
+  const [world1, world2, world3] = randomList.slice(68, 71)
+  let events: any[] = [];
+  if (0 === eventType || 1 === eventType || 3 === eventType || 4 === eventType) {
+    events = events.concat((world1 as string).split(' '))
+  }
+  if (0 === eventType || 1 === eventType || 3 === eventType) {
+    events = events.concat((world2 as string).split(' '))
+  }
+  if (0 === eventType || 2 === eventType) {
+    events = events.concat((world3 as string).split(' '))
+  }
+  return events;
+}
+
+const getEventName = (eventType: any) => {
+  const eventNames = {
+    0: 'Meteorite',
+    1: 'Mega_Grumblo',
+    2: 'Glacial_Guild',
+    3: 'Snake_Swarm',
+    4: 'Angry_Frogs'
+  }
+  return (eventNames as Record<string, any>)?.[eventType] ?? '';
+}
+
+const getEventType = (index: any) => {
+  return .045 > index ? 0 : .087 > index ? 1 : .129 > index ? 2 : .171 > index ? 3 : .213 > index ? 4 : -1
+}
+
+export const getHighestCapacityCharacter = (item: any, characters: any, account: any, forceMaxCapacity: any) => {
+  return characters?.reduce((res: any, character: any) => {
+    const itemCapacity = item?.itemType === 'Equip'
+      ? 1
+      : getItemCapacity(item?.typeGen, character, account, forceMaxCapacity)?.value;
+    const maxCapacity = character?.inventorySlots * itemCapacity;
+    if (maxCapacity > res?.maxCapacity) {
+      res = {
+        capacityPerSlot: itemCapacity,
+        maxCapacity,
+        character: character?.name,
+        skillsInfoArray: character?.skillsInfoArray
+      }
+    }
+    return res;
+  }, { capacityPerSlot: 0, maxCapacity: 0, character: '' })
+}
+export const getAllCap = (character: any, account: any, forceMaxCapacity: any) => {
+  const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 2);
+  const talentBonus = getTalentBonus(character?.flatStarTalents, 'TELEKINETIC_STORAGE');
+  const shrineBonus = getShrineBonus(account?.shrines, 3, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
+  const prayerCurse = forceMaxCapacity
+    ? 0
+    : getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.curse;
+  const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account, forceMaxCapacity)?.bonus;
+  const bribeBonus = account?.bribes?.[23]?.done ? account?.bribes?.[23]?.value : 0;
+  const companionBonus = isCompanionBonusActive(account, 18) ? account?.companions?.list?.at(18)?.bonus : 0;
+
+  return {
+    value: (1 + (guildBonus + talentBonus) / 100)
+      * (1 + companionBonus / 100)
+      * (1 + shrineBonus / 100) * Math.max(1 - prayerCurse / 100, 0.4)
+      * (1 + (prayerBonus + bribeBonus) / 100),
+    breakdown: [
+      { value: guildBonus, name: 'Guild' },
+      { value: talentBonus, name: 'Talent' },
+      { value: shrineBonus, name: 'Shrine' },
+      { value: prayerBonus + (-prayerCurse), name: 'Prayer' },
+      { value: bribeBonus, name: 'Bribe' },
+      { value: companionBonus, name: 'Companion' }
+    ]
+  }
+}
+export const getItemCapacity = (type = '', character: any, account?: any, forceMaxCapacity?: any) => {
+  const gemshop = account?.gemShopPurchases?.find((value: any, index: any) => index === 58);
+  const hasNanoChip = account?.lab?.playersChips.flat().concat(account?.lab?.chips).find(({ name }: any) => name === 'Silkrode_Nanochip');
+  const starSignBonus = getStarSignBonus(character, account, 'Carry_Cap', forceMaxCapacity && hasNanoChip, forceMaxCapacity);
+  const minCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Mining_Items', character);
+  const chopCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Choppin\'_Items', character);
+  const fishCapStamps = getStampsBonusByEffect(account, 'Carry_Capacity_for_Fishing_Items', character);
+  const catchCapStamps = getStampsBonusByEffect(account, 'Carry_Capacity_for_Catching_Items', character);
+  const matCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Material_Items', character);
+  const allCarryStamps = getStampsBonusByEffect(account, 'Carry_Capacity_for_ALL_item_types!');
+  const talentBonus = getTalentBonus(character?.flatTalents, 'EXTRA_BAGS', false, false, character?.addedLevels, true, forceMaxCapacity);
+  const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 11);
+  const allCap = getAllCap(character, account, forceMaxCapacity);
+  const hardCap = 205e7;
+  // return Math.floor((v._customBlock_MaxCapacity("AllCapBASE")
+  //     + c.asNumber(a.engine.getGameAttribute("MaxCarryCap").h.bCraft))
+  //   * (1 + k._customBlock_StampBonusOfTypeX("MatCap") / 100)
+  //   * (1 + 25 * c.asNumber(a.engine.getGameAttribute("GemItemsPurchased")[58]) / 100)
+  //   * (1 + (k._customBlock_StampBonusOfTypeX("AllCarryCap")
+  //     + c.asNumber(a.engine.getGameAttribute("DNSM").h.StarSigns.h.CarryCap)) / 100) *
+  //   (1 + k._customBlock_GetTalentNumber(1, 78) / 100
+  //   ) * v._customBlock_MaxCapacity("AllCapBonuses"));
+
+  let value, breakdown = [
+    { title: 'Base' },
+    { name: '' },
+    ...allCap?.breakdown,
+    { value: upgradeVaultBonus, name: 'Upgrade Vault' },
+    { name: '' }
+  ];
+  if ('bOre' === type || 'bBar' === type || 'cOil' === type) {
+    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Mining) * (1 + minCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
+    breakdown = [
+      ...breakdown,
+      { title: 'Mining' },
+      { name: '' },
+      { value: character?.maxCarryCap?.Mining, name: 'Base Bag' },
+      { value: minCapStamps, name: 'Stamps' },
+      { value: gemshop, name: 'Gemshop' },
+      { value: allCarryStamps, name: 'All Stamps' },
+      { value: starSignBonus, name: 'Star Sign' }
+    ]
+  }
+  else if ('dFish' === type) {
+    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Fishing) * (1 + (25 * gemshop) / 100) * (1 + fishCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
+    breakdown = [
+      ...breakdown,
+      { title: 'Fishing' },
+      { name: '' },
+      { value: character?.maxCarryCap?.Fishing, name: 'Base Bag' },
+      { value: fishCapStamps, name: 'Stamps' },
+      { value: gemshop, name: 'Gemshop' },
+      { value: allCarryStamps, name: 'All Stamps' },
+      { value: starSignBonus, name: 'Star Sign' }
+    ]
+  }
+  else if ('dBugs' === type) {
+    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Bugs) * (1 + (25 * gemshop) / 100) * (1 + catchCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
+    breakdown = [
+      ...breakdown,
+      { title: 'Catching' },
+      { name: '' },
+      { value: character?.maxCarryCap?.Bugs, name: 'Base Bag' },
+      { value: catchCapStamps, name: 'Stamps' },
+      { value: gemshop, name: 'Gemshop' },
+      { value: allCarryStamps, name: 'All Stamps' },
+      { value: starSignBonus, name: 'Star Sign' }
+    ]
+  }
+  else if ('bLog' === type || 'bLeaf' === type) {
+    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Chopping) * (1 + chopCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
+    breakdown = [
+      ...breakdown,
+      { title: 'Chopping' },
+      { name: '' },
+      { value: character?.maxCarryCap?.Chopping, name: 'Base Bag' },
+      { value: chopCapStamps, name: 'Stamps' },
+      { value: gemshop, name: 'Gemshop' },
+      { value: allCarryStamps, name: 'All Stamps' },
+      { value: starSignBonus, name: 'Star Sign' }
+    ]
+  }
+  else if ('cFood' === type) {
+    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Foods) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
+    breakdown = [
+      ...breakdown,
+      { title: 'Food' },
+      { name: '' },
+      { value: character?.maxCarryCap?.Foods, name: 'Base Bag' },
+      { value: gemshop, name: 'Gemshop' },
+      { value: allCarryStamps, name: 'All Stamps' },
+      { value: starSignBonus, name: 'Star Sign' }
+    ]
+  }
+  else if ('dCritters' === type) {
+    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Critters) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
+    breakdown = [
+      ...breakdown,
+      { title: 'Critters' },
+      { name: '' },
+      { value: character?.maxCarryCap?.Critters, name: 'Base Bag' },
+      { value: gemshop, name: 'Gemshop' },
+      { value: allCarryStamps, name: 'All Stamps' },
+      { value: starSignBonus, name: 'Star Sign' }
+    ]
+  }
+  else if ('dSouls' === type) {
+    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Souls) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
+    breakdown = [
+      ...breakdown,
+      { title: 'Souls' },
+      { name: '' },
+      { value: character?.maxCarryCap?.Souls, name: 'Base Bag' },
+      { value: gemshop, name: 'Gemshop' },
+      { value: allCarryStamps, name: 'All Stamps' },
+      { value: starSignBonus, name: 'Star Sign' }
+    ]
+  }
+  else if ('dCurrency' === type || 'dQuest' === type) {
+    value = 9999999;
+  }
+  else if ('dStatueStone' === type) {
+    value = 999999999;
+  }
+  else if ('bCraft' === type) {
+    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.bCraft)
+      * (1 + matCapStamps / 100) * (1 + (25 * gemshop) / 100)
+      * (1 + (allCarryStamps + starSignBonus) / 100) * (1 + talentBonus / 100) * allCap?.value));
+    breakdown = [
+      ...breakdown,
+      { title: 'Materials' },
+      { name: '' },
+      { value: character?.maxCarryCap?.bCraft, name: 'Base Bag' },
+      { value: matCapStamps, name: 'Stamps' },
+      { value: gemshop, name: 'Gemshop' },
+      { value: allCarryStamps, name: 'All Stamps' },
+      { value: talentBonus, name: 'Talent' },
+      { value: starSignBonus, name: 'Star Sign' }
+    ]
+  }
+  else if ('dExpOrb' === type || 'dStone' === type || 'dFishToolkit' === type) {
+    value = 9999999;
+  }
+  else if ('fillerz' === type) {
+    value = character?.maxCarryCap?.fillerz;
+  }
+  else if ('d' === type.charAt(0)) {
+    value = 9999999;
+  }
+  else {
+    value = 2;
+  }
+
+  return {
+    value,
+    breakdown
+  };
+}
+
+export const getTypeGen = (type: any) => {
+  const capacities = {
+    bCraft: 'bCraft',
+    Foods: 'cFood',
+    Mining: 'bOre',
+    Quests: 'dQuest',
+    Statues: 'dStatueStone',
+    Chopping: 'bLog',
+    Fishing: 'dFish',
+    Bugs: 'dBugs',
+    Critters: 'dCritters',
+    Souls: 'dSouls'
+  }
+  return (capacities as Record<string, any>)?.[type];
+}
+
+export const getFoodBonus = (character: any, account: any, bonusName: any, ignoreFoodBonus = false) => {
+  const foodBonus = getPlayerFoodBonus(character, account);
+  return character?.food?.reduce((res: any, {
+    Amount,
+    Effect
+  }: any) => res + (Effect === bonusName ? Amount * (ignoreFoodBonus ? 1 : foodBonus) : 0), 0);
+}
+
+export const getHealthFoodBonus = (character: any, account: any, bonusName: any) => {
+  const foodBonus = getPlayerFoodBonus(character, account, true);
+  return character?.food?.reduce((res: any, {
+    Trigger,
+    Amount,
+    Cooldown,
+    Effect
+  }: any) => res + (Trigger > 0 && Effect === bonusName ? Amount * foodBonus / Math.max(Cooldown, 1) * 3600 : 0), 0);
+}
+
+export const getMinigameScore = (account: any, bonusName: any) => {
+  return account?.highscores?.minigameHighscores?.find(({ name }: any) => name === bonusName)?.score || 0;
+}
+
+export const getCompanions = (companionObject: any = {}) => {
+  const maxStorage = companionObject?.p ?? 60;
+  const [companionIndex] = companionObject?.e?.split(',') || [];
+  const companion = companions?.[companionIndex];
+  const ownedCompanions = companionObject?.l?.reduce((result: any, comp: any) => {
+    const [companionIndex, isTradable] = comp?.split(',');
+    const current = result[companionIndex] || { count: 0, tradableCount: 0, nonTradableCount: 0 };
+    const tradable = isTradable === '1';
+    return {
+      ...result,
+      [companionIndex]: {
+        count: current.count + 1,
+        tradableCount: current.tradableCount + (tradable ? 1 : 0),
+        nonTradableCount: current.nonTradableCount + (tradable ? 0 : 1)
+      }
+    }
+  }, {});
+
+  const updatedCompanions = companions?.map((comp, index) => ({
+    ...comp,
+    acquired: (ownedCompanions?.[index]?.count || 0) > 0,
+    copies: ownedCompanions?.[index]?.count ?? 0,
+    tradableCount: ownedCompanions?.[index]?.tradableCount ?? 0,
+    nonTradableCount: ownedCompanions?.[index]?.nonTradableCount ?? 0
+  }))
+
+  return {
+    totalBoxesOpened: companionObject?.x,
+    currentCompanion: companion,
+    list: updatedCompanions,
+    lastFreeClaim: companionObject?.t,
+    petCrystals: companionObject?.s,
+    maxStorage
+  };
+}
+
+export const isCompanionBonusActive = (account: any, index: any) => {
+  return account?.companions?.list?.at(index)?.acquired;
+}
+
+export const getRandomEventItems = (account: any) => {
+  const list = randomList.slice(82, 87).flat();
+  const uniqueLooty = new Set(account?.looty?.lootyRaw);
+  return list.reduce((count, value) => {
+    return uniqueLooty.has(value) ? count + 1 : count;
+  }, 0);
+}
+const getDays = (name: any, daysSince: any) => {
+  const days = {
+    mini3b: Math.min(10, Math.floor(Math.pow((daysSince < 3 ? 3 : daysSince) - 3, .55))),
+    mini4b: Math.min(8, Math.floor(Math.pow((daysSince < 3 ? 3 : daysSince) - 3, .5))),
+    mini5a: Math.min(6, Math.floor(Math.pow((daysSince < 3 ? 3 : daysSince) - 3, .5))),
+    mini6a: Math.min(6, Math.floor(Math.pow((daysSince < 3 ? 3 : daysSince) - 3, .5)))
+  }
+  return (days as Record<string, any>)[name];
+}
+const getDaysTillNext = (name: any, daysSinceLastKill: any, currentCount: any) => {
+  return createRange(1, 100).find(value => {
+    const countOnDay = getDays(name, daysSinceLastKill + value);
+    if (countOnDay > currentCount) {
+      return value;
+    }
+  })
+}
+
+export const getMiniBossesData = (account: any) => {
+  const daysSinceSlush = account?.accountOptions?.[96] ?? 0;
+  const daysSinceMush = account?.accountOptions?.[98] ?? 0;
+  const daysSinceMagmus = account?.accountOptions?.[225] ?? 0;
+  const daysSinceSpiritlord = account?.accountOptions?.[226] ?? 0;
+
+  const max = [10, 8, 6, 6];
+  const quantity = [
+    getDays('mini3b', daysSinceSlush),
+    getDays('mini4b', daysSinceMush),
+    getDays('mini5a', daysSinceMagmus),
+    getDays('mini6a', daysSinceSpiritlord)
+  ]
+  return [
+    {
+      current: quantity[0],
+      maxed: quantity[0] >= max[0],
+      rawName: 'mini3b',
+      name: 'Dilapidated_Slush',
+      unlocked: account?.finishedWorlds?.World3,
+      daysTillNext: getDaysTillNext('mini3b', daysSinceSlush, quantity[0])
+    },
+    {
+      current: quantity[1],
+      maxed: quantity[1] >= max[1],
+      rawName: 'mini4b',
+      name: 'Mutated_Mush',
+      unlocked: account?.finishedWorlds?.World2,
+      daysTillNext: getDaysTillNext('mini4b', daysSinceMush, quantity[1])
+    },
+    {
+      current: quantity[2],
+      maxed: quantity[2] >= max[2],
+      rawName: 'mini5a',
+      name: 'Domeo_Magmus',
+      unlocked: account?.finishedWorlds?.World4,
+      daysTillNext: getDaysTillNext('mini5a', daysSinceMagmus, quantity[2])
+    },
+    {
+      current: quantity[3],
+      maxed: quantity[3] >= max[3],
+      rawName: 'mini6a',
+      name: 'Demented_Spiritlord',
+      unlocked: account?.finishedWorlds?.World5,
+      daysTillNext: getDaysTillNext('mini6a', daysSinceSpiritlord, quantity[3])
+    }
+  ].filter(({ unlocked }) => unlocked);
+}
+
+export const getKillRoy = (idleonData: any, charactersData: any, accountData: any, serverVars: any) => {
+  const skulls = accountData?.accountOptions?.[105];
+  const killRoyKills = tryToParse(idleonData?.KRbest);
+  const totalKills = Object.values(killRoyKills || {}).reduce((sum: any, num: any) => sum + num, 0);
+  const totalDamageMulti = 1 + Math.floor(Math.pow(totalKills as number, 0.4)) / 100;
+  const unlockedThirdKillRoy = accountData?.accountOptions?.[227] === 1;
+  const rooms = unlockedThirdKillRoy ? 3 : 2;
+  const killRoyClasses = getKillRoyClasses(rooms, accountData, serverVars);
+  const upgrades = [
+    {
+      level: accountData?.accountOptions?.[106],
+      description: 'Increases your maximum time in room. Base time is 100 seconds.',
+      upgrade: '+1 Second Timer'
+    },
+    {
+      level: accountData?.accountOptions?.[107],
+      description: 'Increases chance for Talent Point drop, depends on how many Talent Point drops already got',
+      upgrade: '+ Talent Drops'
+    },
+    {
+      level: accountData?.accountOptions?.[108],
+      description: 'Increases chance of dropping skulls by mobs',
+      upgrade: '+1% Bonus Skulls'
+    },
+    {
+      level: accountData?.accountOptions?.[109],
+      description: 'Faster Respawn'
+    },
+    {
+      level: accountData?.accountOptions?.[110],
+      description: 'Mobs can drop Dungeon Credits now',
+      upgrade: 'Dungeon Drops'
+    },
+    {
+      level: accountData?.accountOptions?.[111],
+      description: 'Mobs can drop Pearls now',
+      upgrade: 'Pearl Drops'
+    }
+  ];
+
+  // Mapping for permanent upgrade indices to account options (for levels)
+  // Shop items 10-19 correspond to indices 0-9 in the slice
+  const permanentUpgradeLevelMap: Record<number, number | null> = {
+    0: 227,  // Shop 10: Unlock 3rd Killroy fight
+    1: 228,  // Shop 11: Artifact Find Chance
+    2: null, // Shop 12: Gaming nugget (fixed reward, no level)
+    3: 229,  // Shop 13: Crop Evolution Chance
+    4: 230,  // Shop 14: Jade Gain
+    5: 467,  // Shop 15: Gallery Grade (requires 2+ levels for special effect)
+    6: 468,  // Shop 16: Masterclass drops
+    7: 469,  // Shop 17: World 7 skill EXP
+    8: 470,  // Shop 18: Daily coral gain
+    9: 471   // Shop 19: Mystery bonus
+  };
+
+  // Mapping for permanent upgrade indices to bonus calculation indices
+  // Only items that show a calculated bonus need a mapping
+  const permanentUpgradeBonusMap: Record<number, number> = {
+    1: 0,  // Shop 11: Artifact Find Chance
+    3: 1,  // Shop 13: Crop Evolution Chance
+    4: 2,  // Shop 14: Jade Gain
+    5: 3,  // Shop 15: Gallery multiplier
+    6: 4,  // Shop 16: Masterclass drops
+    7: 5,  // Shop 17: World 7 skill EXP
+    8: 6,  // Shop 18: Daily coral gain
+    9: 7   // Shop 19: Mystery bonus
+  };
+
+  const permanentUpgrades = killRoySkullShop?.slice(10)?.map((upgrade, i) => {
+    const levelOption = permanentUpgradeLevelMap[i];
+    const bonusIndex = permanentUpgradeBonusMap[i];
+
+    const level = levelOption !== null ? (accountData?.accountOptions?.[levelOption] ?? 0) : 0;
+    const bonus = bonusIndex !== undefined ? getKillRoyShopBonus(accountData, bonusIndex) : 1;
+
+    // Special case: Shop 15 (Gallery) changes description when level >= 2
+    let description = upgrade?.description;
+    let replacementChar = '{';
+
+    if (i === 5 && level >= 2) {
+      description = `Permanently_boosts_your_Gallery_Multiplier_by_+${(bonus / 100).toFixed(2)}x`;
+    }
+
+    return {
+      ...upgrade,
+      level,
+      bonus,
+      description: description?.replace(replacementChar, String(Math.floor(bonus * 100) / 100))
+    }
+  });
+  return {
+    list: deathNote.map((monster) => {
+      const monsterWithIcon = {
+        ...monster,
+        icon: `Mface${monsters?.[monster.rawName].MonsterFace}`,
+        name: monsters?.[monster.rawName]?.Name
+      };
+      return killRoyKills?.[monster.rawName] ? ({
+        ...monsterWithIcon,
+        killRoyKills: killRoyKills?.[monster.rawName] ?? 0
+      }) : monsterWithIcon
+    }),
+    permanentUpgrades,
+    totalKills,
+    totalDamageMulti,
+    rooms,
+    killRoyClasses,
+    upgrades,
+    skulls
+  };
+}
+
+export const getKillroyBonus = (account: any, index: any) => {
+  return account?.killroy?.permanentUpgrades?.[index]?.bonus;
+}
+
+export const getKillRoyShopBonus = (account: any, index: any) => {
+  return 0 === index
+    ? 1 + (account?.accountOptions?.[228]) / (300 + (account?.accountOptions?.[228]))
+    : 1 === index
+      ? 1 + ((account?.accountOptions?.[229]) / (300 + (account?.accountOptions?.[229]))) * 9
+      : 2 === index
+        ? 1 + ((account?.accountOptions?.[230]) / (300 + (account?.accountOptions?.[230]))) * 2
+        : 3 === index
+          ? ((account?.accountOptions?.[467]) / (200 + (account?.accountOptions?.[467]))) * 10
+          : 4 === index
+            ? 1 + ((account?.accountOptions?.[468]) / (200 + (account?.accountOptions?.[468]))) * 1.3
+            : 5 === index
+              ? 1 + ((account?.accountOptions?.[469]) / (150 + (account?.accountOptions?.[469]))) * 0.8
+              : 6 === index
+                ? ((account?.accountOptions?.[470]) / (250 + (account?.accountOptions?.[470]))) * 25
+                : 7 === index
+                  ? 1 + ((account?.accountOptions?.[471]) / (200 + (account?.accountOptions?.[471]))) * 2
+                  : 1
+}
+
+export const calcTotalQuestCompleted = (characters: any) => {
+  const mappedQuests = characters.reduce((result: any, { questComplete }: any) => {
+    Object.entries(questComplete || {})?.forEach(([key, value]) => {
+      if (!result[key] && value === 1) {
+        result[key] = 1;
+      }
+    }, 0)
+    return result;
+  }, {});
+  return Object.values(mappedQuests).reduce((sum: any, level: any) => sum + level, 0);
+}
+
+export const getKillroySchedule = (account: any, characters: any, serverVars: any) => {
+  const unlockedThirdKillRoy = account?.accountOptions?.[227] === 1;
+  const rooms = unlockedThirdKillRoy ? 3 : 2;
+  const schedule = [];
+  for (let i = 0; i < 20; i++) {
+    schedule.push(getKillRoyClasses(rooms, account, serverVars, true, i, characters));
+  }
+
+  return schedule;
+}
+
+export const getKillRoyClasses = (rooms: any, account: any, serverVars: any, ignoreSkipConditions = false, iteration = 0, characters?: any) => {
+  const classes = [];
+  const monstersList = [];
+  const done = account?.accountOptions?.[113];
+  const skipConditions = {
+    1: [0],
+    21: [0, 1],
+    321: [0, 1, 2]
+  };
+  const unlockedMap = characters?.some(({ kills }: any) => kills?.[200] >= 0);
+  const baseSeed = Math.floor((account?.timeAway?.GlobalTime + Math.round((account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]))) / 604800);
+  for (let i = 0; i < rooms; i++) {
+    if (!ignoreSkipConditions && (skipConditions as Record<string, any>)[done] && (skipConditions as Record<string, any>)[done].includes(i)) {
+      continue;
+    }
+    const seed = Math.round(baseSeed + iteration + (50 * i + serverVars.KillroySwap));
+    const rng = new LavaRand(seed);
+    const random = 3 * rng.rand();
+    const classIndex = Math.max(0, Math.min(3, Math.ceil(random - Math.floor(i / 2))));
+    classes.push(classIndex);
+  }
+  for (let i = 0; i < rooms; i++) {
+    const seed = Math.round(baseSeed + iteration + (50 * i + serverVars.KillroySwap));
+    const rng = new LavaRand(seed);
+    const random = Math.floor(1e3 * rng.rand());
+    if (random < 300 || i === 0) {
+      const monsterList =( randomList[Math.round(68 + i)] as string).split(' ');
+      const baseIndex = Math.floor(random / monsterList.length);
+      const monsterIndex = Math.round(random - baseIndex * monsterList.length);
+      monstersList.push(monsterList[monsterIndex]);
+    }
+    else {
+      if (random < 400 && unlockedMap) {
+        const monsterList =( randomList[72] as string).split(' ');
+        const baseIndex = Math.floor(random / monsterList.length);
+        const monsterIndex = Math.round(random - baseIndex * monsterList.length);
+        monstersList.push(monsterList[monsterIndex])
+      }
+      else if (random < 500 && account?.summoning?.summoningStuff?.[2] >= 4) {
+        const monsterList =( randomList[99] as string).split(' ');
+        const baseIndex = Math.floor(random / monsterList.length);
+        const monsterIndex = Math.round(random - baseIndex * monsterList.length);
+        monstersList.push(monsterList[monsterIndex]);
+      }
+      else {
+        const monsterList =( randomList[Math.round(69 + i)] as string).split(' ');
+        const baseIndex = Math.floor(random / monsterList.length);
+        const monsterIndex = Math.round(random - baseIndex * monsterList.length);
+        monstersList.push(monsterList[monsterIndex]);
+      }
+    }
+  }
+  if (ignoreSkipConditions) {
+    return {
+      monsters: monstersList.map((mapName) => monsters[mapEnemiesArray[rawMapNames.indexOf(mapName)]]),
+      classes: classes.map((classIndex) => ({
+        className: classIndex === 0 ? CLASSES.Beginner : classIndex === 1 ? CLASSES.Warrior : classIndex === 2
+          ? CLASSES.Archer
+          : CLASSES.Mage,
+        classIndex: classIndex === 0 ? 1 : classIndex === 1 ? 6 : classIndex === 2 ? 18 : 30
+      })),
+      date: Math.floor((baseSeed + iteration - 1) * 604800 * 1000)
+    };
+  }
+
+  return classes.map((classIndex) => {
+    return classIndex === 0 ? CLASSES.Beginner : classIndex === 1 ? CLASSES.Warrior : classIndex === 2
+      ? CLASSES.Archer
+      : CLASSES.Mage
+  });
+}
+
+// a.engine.getGameAttribute("OptionsListAccount")[310] - event currency
+export const getEventShopBonus = (account: any, bonusId: any): number => {
+  if (!account?.accountOptions?.[311]) return 0;
+  return -1 !== (account?.accountOptions?.[311]).indexOf(number2letter[bonusId]) ? 1 : 0;
+}

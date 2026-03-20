@@ -162,7 +162,11 @@ export const PAGES = {
             { tab: 'Chests', icon: 'data/SailChest5' }]
         },
         { label: 'divinity', icon: 'data/ClassIcons55' },
-        { label: 'gaming', icon: 'data/ClassIcons56', tabs: ['Imports', 'Superbits', 'Mutations', 'Log book', 'Palette'] },
+        {
+          label: 'gaming',
+          icon: 'data/ClassIcons56',
+          tabs: ['Imports', 'Superbits', 'Mutations', 'Log book', 'Palette']
+        },
         {
           label: 'hole',
           icon: 'data/Quest90',
@@ -197,7 +201,11 @@ export const PAGES = {
     'world 6': {
       icon: 'etc/sneaking-temp',
       categories: [
-        { label: 'farming', icon: 'data/ClassIcons57', tabs: ['Plot', 'Market', 'Exotic Market', 'Exotic Rotation', 'Rank database', 'Crop', 'Stickers'] },
+        {
+          label: 'farming',
+          icon: 'data/ClassIcons57',
+          tabs: ['Plot', 'Market', 'Exotic Market', 'Exotic Rotation', 'Rank database', 'Crop', 'Stickers']
+        },
         {
           label: 'sneaking',
           icon: 'data/ClassIcons58',
@@ -233,7 +241,7 @@ export const PAGES = {
         { label: 'adviceFish', icon: 'data/W7_fish', tabs: [] },
         { label: 'minehead', icon: 'data/MineHead0', tabs: ['Upgrades', 'Opponents'] },
         { label: 'glimbo', icon: 'afk_targets/Glimbo', tabs: [] },
-        { label: 'S3', icon: 'data/ClassIconsNA2', tabs: [] },
+        { label: 'S3', icon: 'data/ClassIconsNA2', tabs: [] }
 
       ]
     }

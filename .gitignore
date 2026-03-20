@@ -7,6 +7,8 @@
 
 # testing
 /coverage
+e2e/smoke-*.spec.js
+/test-results
 
 # next.js
 /.next/

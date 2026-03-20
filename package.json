@@ -12,6 +12,7 @@
     "start": "npx serve@latest out",
     "postbuild": "node utility/generate-sitemap.mjs",
     "test": "jest --runInBand",
+    "test:e2e": "node e2e/generate-specs.js && npx playwright test",
     "lint": "next lint",
     "prepare": "husky || true"
   },
@@ -52,6 +53,7 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
