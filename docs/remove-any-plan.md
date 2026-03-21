@@ -2,7 +2,19 @@
 
 ## Context
 
-All 93 parser files are TypeScript with `strict: true` and 0 errors. But they contain **~1,600 `any` annotations** from the JS-to-TS migration — parameter types, callback params, casts, builder objects. We now have auto-generated types with real field definitions (`Account` 95 fields, `Character` 65 fields, `IdleonData` 205 fields, `ServerVars` 71 fields, plus 137 typed `@website-data` exports). Both `Account` and `Character` have `[key: string]: any` index signatures, which means replacing `param: any` with `param: Account` is **mechanically safe** — it cannot introduce type errors.
+All 91 parser files (excluding `types.ts` and `generated-*.ts`) are TypeScript with `strict: true` and 0 errors. They contain **~1,847 `any` annotations** from the JS-to-TS migration — parameter types, callback params, casts, builder objects. We have auto-generated types with real field definitions (`Account` 95 fields, `Character` 65 fields, `IdleonData` 205 fields, `ServerVars` 71 fields, plus 137 typed `@website-data` exports). Both `Account` and `Character` have `[key: string]: any` index signatures, which means replacing `param: any` with `param: Account` is **mechanically safe** — it cannot introduce type errors.
+
+---
+
+## Wave 0: Fix Type Generator (DONE)
+
+Fixed `inferFirebaseType` in `z-processing/typeGenerator.js` to recurse into nested arrays instead of emitting `any[][]`. Regenerated `generated-firebase-types.ts`.
+
+### Results
+- `any` in `generated-firebase-types.ts`: **157 → 17** (140 eliminated)
+- Remaining 17: 5 `[key: string]: any` index signatures (intentional), 10 `BuffsActive_N` (empty arrays in fixture), 1 `SailChests` (empty), 1 `leaderboard` (empty)
+- Fields now correctly typed: `Cooking: number[][]`, `Breeding: number[][]`, `Pets: (number | string)[][]`, `CauldronBubbles: string[][]`, `Tess: string[][]`, etc.
+- `npx tsc --noEmit` → 0 errors
 
 ---
 
@@ -28,7 +40,7 @@ In these specific functions, `char`/`serializedCharactersData` is the **raw** Fi
 
 ### Per-file steps
 
-1. Add `import type { Account, Character, IdleonData, ServerVars } from './types'` (only needed types, correct relative path based on depth)
+1. Extend existing `import type { ... } from './types'` with needed types (or add it if missing — correct relative path based on depth: `./types`, `../types`, `../../types`)
 2. Replace parameter annotations per table above
 3. Remove redundant `(account as any)` casts where param is now typed
 
@@ -145,4 +157,4 @@ All 91 parser files (excluding `types.ts` and `generated-*.ts`). Plus:
 After each wave:
 1. `npx tsc --noEmit` → 0 errors
 2. After Wave 4: `npx next build` → verify build passes
-3. After all waves: `grep -r ": any\|as any" parsers/ --include="*.ts" -c | awk -F: '{sum+=$2} END {print sum}'` → target < 50 (down from 1,600+)
+3. After all waves: `grep -r ": any\|as any" parsers/ --include="*.ts" -c | awk -F: '{sum+=$2} END {print sum}'` → target < 50 (down from ~1,890)

@@ -20,6 +20,7 @@ e2e/smoke-*.spec.js
 # misc
 .DS_Store
 *.pem
+*.tsbuildinfo
 
 # debug
 npm-debug.log*
