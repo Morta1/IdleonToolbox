@@ -73,8 +73,9 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
 
   const gridPTSpent = gridLevels.reduce((sum: any, level: any) => sum + (Number(level) || 0), 0);
   const gridBonus50Lv = getResearchGridBonusInternal(account, research, 50, 1);
+  const companion153 = isCompanionBonusActive(account, 153) ? (account?.companions?.list?.at(153)?.bonus ?? 0) : 0;
   const gridPTSearned = Math.floor(
-    researchLevel + Math.floor(researchLevel / 10) * Math.round(1 + (Math.min(1, Math.floor(researchLevel / 60)) + gridBonus50Lv))
+    researchLevel + (10 * companion153 + Math.floor(researchLevel / 10) * Math.round(1 + (Math.min(1, Math.floor(researchLevel / 60)) + gridBonus50Lv)))
   );
   const gridPTSavailable = Math.round(gridPTSearned - gridPTSpent);
 
@@ -229,6 +230,7 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
     occurrencesToBeFound,
     totalOccurrencesFound,
     maxRoll: Math.floor(100 + gridBonus51Lv),
+    minRoll: Math.floor(1 + Math.min((optionsListAccount?.[514] ?? 0) * getResearchGridBonusInternal(account, research, 31, 1), getResearchGridBonusInternal(account, research, 31, 2))),
     rollsPerDay: Math.round(3 + gridBonus90Lv + 3 * (getEventShopBonus(account, 35) ? 1 : 0)),
     canLevelUpObservations: gridBonus91Lv >= 1 ? 1 : 0,
     opticalMonocleOwned: Math.round(gridBonus91Lv),
@@ -261,6 +263,7 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
     refineryTab3Unlocked: grid49 ? 1 : 0,
     refineryTabsOwned: Math.round(2 + (grid49 ? 1 : 0)),
     tinyCogsUnlocked: grid89 ? 1 : 0,
+    tinyCogsPerDay: Math.round((grid89 ? 1 : 0) * Math.max(1, 1 + (getEventShopBonus(account, 39) ? 1 : 0))),
     farmingStickersUnlocked: getResearchGridBonusInternal(account, research, 88, 0) >= 1 ? 1 : 0,
     farmingStickerDMG_unlocked: farmingStickerDMGUnlocked,
     totalStickers,
@@ -308,7 +311,7 @@ function getResearchGridBonusInternal(account: any, research: any, gridIndex: an
   }
   if (mode === 2) {
     if (gridIndex === 31) {
-      return 25 * getResearchGridBonusInternal(account, research, gridIndex, 0);
+      return 25 * level;
     }
     if (gridIndex === 67 || gridIndex === 68 || gridIndex === 107) {
       // Game uses avar_Research[11].length (King Rat Crowns count), NOT shapePlacements.length
@@ -376,12 +379,13 @@ function getMagnifiersOwned(account: any, research: any, researchLevel: any, gri
   const mineheadBonus =
     getMineheadBonusQTY(account, 2) + getMineheadBonusQTY(account, 12) + getMineheadBonusQTY(account, 20);
   const eventShopMagnifier = getEventShopBonus(account, 34) ? 1 : 0;
+  const companion153 = isCompanionBonusActive(account, 153) ? (account?.companions?.list?.at(153)?.bonus ?? 0) : 0;
   const levelMilestones =
     Math.min(1, Math.floor(researchLevel / 10)) +
     Math.min(1, Math.floor(researchLevel / 100)) +
     Math.min(1, Math.floor(researchLevel / 130)) +
     Math.min(1, Math.floor(researchLevel / 140));
-  return Math.min(80, Math.round(1 + (kaleidoscopeOwned + opticalMonocleOwned) + (mineheadBonus + eventShopMagnifier) + levelMilestones));
+  return Math.min(80, Math.round(1 + (kaleidoscopeOwned + opticalMonocleOwned) + (mineheadBonus + eventShopMagnifier + companion153) + levelMilestones));
 }
 
 function getOccurrencesToBeFound(researchLevel: any, occurrenceFoundState: any) {
@@ -542,8 +546,9 @@ function getResearchEXPmulti(account: any, research: any) {
 
   const additiveFactor = 1 + additive / 100;
   const grid70Factor = 1 + grid70 / 100;
-  const companion52Factor = Math.max(1, 1 + companion52);
-  const value = additiveFactor * grid70Factor * companion52Factor;
+  const companion153 = isCompanionBonusActive(account, 153) ? (account?.companions?.list?.at(153)?.bonus ?? 0) : 0;
+  const companionFactor = Math.max(1, (1 + companion52) * (1 + companion153));
+  const value = additiveFactor * grid70Factor * companionFactor;
 
   const breakdown = {
     statName: 'Research EXP Multi',
@@ -576,7 +581,7 @@ function getResearchEXPmulti(account: any, research: any) {
         sources: [
           { name: '(1 + total additive % / 100)', value: additiveFactor },
           { name: 'Takin\' Notes', value: grid70Factor },
-          { name: 'Companion', value: companion52Factor }
+          { name: 'Companions', value: companionFactor }
         ]
       }
     ]
