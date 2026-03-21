@@ -2,7 +2,7 @@ import { tryToParse, commaNotation, notateNumber } from '@utility/helpers';
 import { mineheadUpgrades, upgradeVault, research as researchData, items } from '@website-data';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
-import { isCompanionBonusActive } from '@parsers/misc';
+import { isCompanionBonusActive, getEventShopBonus } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 
 const getRawMinehead = (idleonData: any) => {
@@ -255,9 +255,10 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   const glimbo = glimboItemNames.map((itemName: any, idx: any) => {
     const trades = Number(glimboRaw[idx]) || 0;
     const costBase = Number(glimboCostBases[idx]) || 1;
-    // handleGlimbo_Cost: (1 + trades + 1.5*trades) * base^trades, floored if < 1e9
-    const rawCost = (1 + trades + 1.5 * trades) * Math.pow(costBase, trades);
-    const cost = rawCost < 1e9 ? Math.floor(rawCost) : rawCost;
+    // handleGlimbo_Cost: (1 + trades + 1.5*trades) * base^trades * eventDiscount, floored if < 1e9
+    const eventDiscount = Math.max(0.1, 1 - (25 * getEventShopBonus(account, 38)) / 100);
+    const rawCost = (1 + trades + 1.5 * trades) * Math.pow(costBase, trades) * eventDiscount;
+    const cost = rawCost < 1e9 ? Math.floor(Math.max(1, rawCost)) : rawCost;
 
     const vaultIdx = glimboVaultIndices[idx] ?? -1;
     const vaultEntry = upgradeVault?.[vaultIdx];
@@ -470,12 +471,15 @@ function getDollarValue(idx: any, getUpgradeQTY: any, getBluecrownMulti: any, ge
 // ---------------------------------------------------------------------------
 
 /**
- * Returns the total upgrade bonus quantity for a given minehead upgrade index.
- * Used by research.js for getMagnifiersOwned (upgrade indices 2, 12, 20)
- * and for the Glimbo DR multiplier (via getMineheadGlimboTotalTrades).
+ * Returns the opponent-defeat bonus for a given minehead index.
+ * Game logic: BonusQTY(t) = opponentsBeat > t ? researchData[20][t] : 0
+ * This is NOT the same as upgradeQTY (bonusPerLevel * level).
  */
-export const getMineheadBonusQTY = (account: any, upgradeIndex: any) =>
-  account?.minehead?.upgrades?.[upgradeIndex]?.upgradeQTY ?? 0;
+export const getMineheadBonusQTY = (account: any, upgradeIndex: any) => {
+  const opponentsBeat = account?.minehead?.opponentsBeat ?? 0;
+  if (opponentsBeat <= upgradeIndex) return 0;
+  return account?.minehead?.opponents?.[upgradeIndex]?.bonusValue ?? 0;
+};
 
 /**
  * Returns the total number of Glimbo trades made across all items.
