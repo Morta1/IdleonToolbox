@@ -38,8 +38,14 @@ export const NitroRailAd = ({ id, alignment, sizes, mediaQuery = '(min-width: 85
 
     return () => {
       styleEl?.remove();
-      const el = document.getElementById(id);
-      if (el) el.remove();
+      // Rail ads are wrapped in a body > div created by NitroAds — remove the wrapper to fully clean up
+      const wrapper = document.querySelector(`body > div:has(#${id})`);
+      if (wrapper) {
+        wrapper.remove();
+      } else {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+      }
     };
   }, [id, alignment, sizes, theme]);
 
