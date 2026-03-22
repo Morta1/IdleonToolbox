@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 41,
+  version: 42,
   account: {
     General: {
       tasks: {
@@ -157,7 +157,12 @@ const baseTrackers = {
       },
       library: {
         checked: true,
-        options: [{ name: 'books', checked: true }]
+        options: [{
+          name: 'books',
+          type: 'input',
+          props: { label: 'Book threshold', value: 20, minValue: 1 },
+          checked: true
+        }]
       },
       construction: {
         checked: true, options: [

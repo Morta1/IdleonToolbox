@@ -594,7 +594,7 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
   if (fields?.library?.checked) {
     const library = {};
     const { books } = options?.library || {};
-    if (books?.checked && account?.libraryTimes?.bookCount >= 20) {
+    if (books?.checked && account?.libraryTimes?.bookCount >= books?.props?.value) {
       library.books = account?.libraryTimes?.bookCount;
     }
     if (Object.keys(library).length > 0) {

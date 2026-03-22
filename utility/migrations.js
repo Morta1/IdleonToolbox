@@ -1030,6 +1030,30 @@ export const migrateToVersion41 = (config) => {
   return dashboardConfig;
 };
 
+export const migrateToVersion42 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  const libraryOptions = dashboardConfig?.account?.['World 3']?.library?.options;
+  if (libraryOptions) {
+    dashboardConfig.account['World 3'].library.options = libraryOptions.map((option) => {
+      if (option.name === 'books' && !option.type) {
+        return {
+          ...option,
+          type: 'input',
+          props: { label: 'Book threshold', value: 20, minValue: 1 }
+        };
+      }
+      return option;
+    });
+  }
+
+  dashboardConfig.version = 42;
+  return dashboardConfig;
+};
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -1156,6 +1180,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 40) {
       migratedConfig = migrateToVersion41(migratedConfig);
+    }
+    if (migratedConfig?.version === 41) {
+      migratedConfig = migrateToVersion42(migratedConfig);
     }
   }
   return migratedConfig;
