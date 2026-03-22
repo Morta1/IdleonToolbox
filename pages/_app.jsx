@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/router';
 import { CacheProvider, ThemeProvider as EmotionThemeProvider } from '@emotion/react';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import '../polyfills';
@@ -48,6 +49,8 @@ const preConnections = [
 const MyApp = (props) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
   const [openPolicy, setOpenPolicy] = useState(false);
+  const { asPath } = useRouter();
+  const canonicalUrl = `https://idleontoolbox.com${asPath.split('?')[0].split('#')[0]}`;
   const isGdprRegion = useGdprRegion();
 
   return (
@@ -121,6 +124,27 @@ const MyApp = (props) => {
           })
         }}
       />
+      <Script
+        id="schema-website"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            'name': 'Idleon Toolbox',
+            'url': 'https://idleontoolbox.com',
+            'potentialAction': {
+              '@type': 'SearchAction',
+              'target': {
+                '@type': 'EntryPoint',
+                'urlTemplate': 'https://idleontoolbox.com/tools/item-database?q={search_term_string}'
+              },
+              'query-input': 'required name=search_term_string'
+            }
+          })
+        }}
+      />
       <CacheProvider value={emotionCache}>
         <ThemeProvider theme={darkTheme}>
           <EmotionThemeProvider theme={darkTheme}>
@@ -132,10 +156,11 @@ const MyApp = (props) => {
                   <DefaultSeo
                     title="Idleon Toolbox - Essential Tools for Legends of Idleon"
                     description="Power up your Legends of Idleon adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds, crafting, and more."
+                    canonical={canonicalUrl}
                     openGraph={{
                       type: 'website',
                       locale: 'en_US',
-                      url: 'https://idleontoolbox.com/',
+                      url: canonicalUrl,
                       siteName: 'Idleon Toolbox',
                       title: 'Idleon Toolbox - Essential Tools for Legends of Idleon',
                       description: 'Power up your Legends of Idleon adventure with Idleon Toolbox\'s essential tools and resources for optimizing gameplay, character builds, crafting, and more.',

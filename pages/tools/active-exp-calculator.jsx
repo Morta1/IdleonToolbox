@@ -7,6 +7,7 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import IconButton from '@mui/material/IconButton';
 import { AppContext } from 'components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
+import StructuredData, { createHowToData } from '@components/common/StructuredData';
 import Box from '@mui/material/Box';
 import CircleTimer from '@components/common/CircleTimer';
 import { getExpToLevel } from '@parsers/misc/activeCalculator';
@@ -96,6 +97,16 @@ const ActiveXpCalculator = () => {
         title="Active Exp Calculator | Idleon Toolbox"
         description="Calculate how much experience you get when playing actively"
       />
+      <StructuredData data={createHowToData(
+        'How to calculate active EXP in Legends of Idleon',
+        'Use the Active Exp Calculator to measure your experience gain rate while playing actively.',
+        [
+          'Select your character from the dropdown list',
+          'Set your current experience percentage and goal level',
+          'Press the play button to start the 10-second measurement timer',
+          'View your calculated EXP per hour and estimated time to reach your goal level'
+        ]
+      )}/>
       {selectedChar ? <Stack gap={5} flexWrap={'wrap'} sx={{ flexDirection: { xs: 'column-reverse', sm: 'row' } }}>
         <div className={'character-wrapper'}>
           <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'}>

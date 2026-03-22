@@ -2,6 +2,7 @@ import { Autocomplete, Button, Chip, createFilterOptions, Stack, TextField, Typo
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import React, { useState } from 'react';
 import { NextSeo } from 'next-seo';
+import StructuredData, { createHowToData } from '@components/common/StructuredData';
 import { monsterDrops } from '@website-data';
 
 const filterOptions = createFilterOptions({
@@ -75,6 +76,16 @@ const GuaranteedDropCalculator = () => {
       title="Guaranteed Drop Calculator | Idleon Toolbox"
       description="Calculate guaranteed drop rates and required kills for any monster drop in Legends of Idleon with multikill bonuses"
     />
+    <StructuredData data={createHowToData(
+      'How to calculate guaranteed drops in Legends of Idleon',
+      'Use the Guaranteed Drop Calculator to find how many kills you need for a guaranteed item drop.',
+      [
+        'Search and select a monster from the dropdown to see its drop table',
+        'Enter your drop rate bonus percentage and multikill bonus',
+        'Click Calculate to see the number of kills required for each guaranteed drop',
+        'Review the results showing guaranteed drop thresholds for each item'
+      ]
+    )}/>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} alignItems={'center'}>
       <Autocomplete
         id="drop calc"

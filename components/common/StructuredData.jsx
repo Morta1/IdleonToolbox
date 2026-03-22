@@ -7,12 +7,13 @@ import React from 'react';
  * @param {Object} props.data - The JSON-LD data object
  * @returns {JSX.Element} - Script element with JSON-LD data
  */
-const StructuredData = ({ data }) => {
+const StructuredData = ({ data, id }) => {
   if (!data) return null;
-  
+  const scriptId = id || `structured-data-${data['@type']?.toLowerCase() || 'script'}`;
+
   return (
     <Script
-      id="structured-data-script"
+      id={scriptId}
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
       strategy="afterInteractive"
@@ -62,4 +63,25 @@ export const createFAQData = (questions) => {
   };
 };
 
-export default StructuredData; 
+/**
+ * Creates a HowTo structured data object
+ * @param {string} name - The name/title of the how-to
+ * @param {string} description - A description of the how-to
+ * @param {string[]} steps - Array of step text descriptions
+ * @returns {Object} - The structured data object
+ */
+export const createHowToData = (name, description, steps) => {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    'name': name,
+    'description': description,
+    'step': steps.map((text, index) => ({
+      '@type': 'HowToStep',
+      'position': index + 1,
+      'text': text
+    }))
+  };
+};
+
+export default StructuredData;

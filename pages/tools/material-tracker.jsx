@@ -23,6 +23,7 @@ import Tooltip from '../../components/Tooltip';
 import { findQuantityOwned, getAllItems } from '@parsers/items';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
+import StructuredData, { createHowToData } from '@components/common/StructuredData';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
@@ -120,6 +121,16 @@ const MaterialTracker = () => {
       title="Material Tracker | Idleon Toolbox"
       description="Add a material, set your own threshold and keep track of your inventory."
     />
+    <StructuredData data={createHowToData(
+      'How to track materials in Legends of Idleon',
+      'Use the Material Tracker to monitor your inventory and get alerts when materials reach your target.',
+      [
+        'Search and select materials you want to track from the item list',
+        'Set lower and upper bound thresholds for each material',
+        'View your current inventory counts updated from your account data',
+        'Export or import your tracking list to save your configuration'
+      ]
+    )}/>
     <CardTitleAndValue title={'Utility'}>
       <Stack sx={{ mt: 1 }} direction={'row'} alignItems={'center'} gap={2}>
         <FileUploadButton onFileUpload={(data) => {

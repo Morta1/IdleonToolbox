@@ -4,6 +4,7 @@ import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from
 import { cleanUnderscore, prefix, tryToParse } from '@utility/helpers';
 import { getBubbleBonus } from '@parsers/world-2/alchemy';
 import { NextSeo } from 'next-seo';
+import StructuredData, { createHowToData } from '@components/common/StructuredData';
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import { MissingData } from '@components/common/styles';
@@ -48,6 +49,16 @@ const GodPlanner = () => {
       title="God Planner | Idleon Toolbox"
       description="Plan and optimize your characters' divinity god links and minor bonuses in Legends of Idleon"
     />
+    <StructuredData data={createHowToData(
+      'How to plan god links in Legends of Idleon',
+      'Use the God Planner to optimize which gods each character is linked to for maximum bonuses.',
+      [
+        'View all available gods and their minor link bonuses',
+        'Click a god for each character to assign their divinity link',
+        'Review the combined minor bonuses across all your characters',
+        'Save your planned build for future reference'
+      ]
+    )}/>
     <Typography variant={'h2'} mb={3}>God Planner</Typography>
     <Typography variant={'caption'} component={'div'}>* Click on a god to add it to the build</Typography>
     <FormControlLabel
