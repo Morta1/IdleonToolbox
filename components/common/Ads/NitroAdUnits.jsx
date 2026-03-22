@@ -18,9 +18,8 @@ export const NitroRailAd = ({ id, alignment, sizes, mediaQuery = '(min-width: 85
       document.head.appendChild(styleEl);
     }
 
-    let adRef = null;
     if (window.nitroAds) {
-      const result = window.nitroAds.createAd(id, {
+      window.nitroAds.createAd(id, {
         ...NITRO_BASE_OPTIONS,
         'format': 'rail',
         'rail': alignment,
@@ -35,15 +34,10 @@ export const NitroRailAd = ({ id, alignment, sizes, mediaQuery = '(min-width: 85
           position: 'top-right'
         }
       });
-      Promise.resolve(result).then((ad) => {
-        adRef = ad;
-      });
     }
 
     return () => {
       styleEl?.remove();
-      // Clear NitroAds' internal state to stop the refresh timer
-      adRef?.onNavigate?.();
       // Rail ads are wrapped in a body > div created by NitroAds — remove the wrapper to fully clean up
       const wrapper = document.querySelector(`body > div:has(#${id})`);
       if (wrapper) {
