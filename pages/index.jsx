@@ -62,9 +62,7 @@ const Home = () => {
   return (
     <Container>
       <Head>
-        {[0, 1, 2, 3, 4, 5].map(i => (
-          <link key={i} rel="preload" as="image" href={`${prefix}etc/bg_${i}.png`}/>
-        ))}
+        <link rel="preload" as="image" href={`${prefix}etc/bg_${indexes[0]}.png`}/>
       </Head>
       <NextSeo
         title="Home | Idleon Toolbox"

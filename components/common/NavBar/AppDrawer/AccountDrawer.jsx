@@ -1,7 +1,7 @@
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { Collapse, Divider, List, ListItem, ListItemIcon, ListItemText, Stack } from '@mui/material';
-import React, { useContext, useState } from 'react';
+import React, { startTransition, useContext, useState } from 'react';
 import { prefix } from '@utility/helpers';
 import { useRouter } from 'next/router';
 import Kofi from '../../Kofi';
@@ -36,7 +36,9 @@ const AccountDrawer = ({ fromList }) => {
       })
     }
     const { t, nt, dnt, ...updatedQuery } = router.query;
-    router.push({ pathname: url, query: updatedQuery });
+    startTransition(() => {
+      router.push({ pathname: url, query: updatedQuery });
+    });
   }
 
   const isSelected = (label) => {

@@ -61,7 +61,9 @@ const CharactersDrawer = () => {
       }
     }
     setChecked(newState);
-    dispatch({ type: 'displayedCharacters', data: newState });
+    startTransition(() => {
+      dispatch({ type: 'displayedCharacters', data: newState });
+    });
   };
 
   const totalLevels = state?.characters?.reduce((res, { level }) => res + (level || 0), 0);

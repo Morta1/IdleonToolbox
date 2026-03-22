@@ -1,5 +1,5 @@
 import { Divider, List, ListItem, ListItemIcon, ListItemText, Stack } from '@mui/material';
-import React, { useContext } from 'react';
+import React, { startTransition, useContext } from 'react';
 import { useRouter } from 'next/router';
 import { AppContext } from '../../context/AppProvider';
 import Kofi from '../../Kofi';
@@ -23,7 +23,9 @@ const ToolsDrawer = ({ fromList }) => {
       })
     }
 
-    router.push({ pathname: url });
+    startTransition(() => {
+      router.push({ pathname: url });
+    });
   }
 
   const isSelected = (label) => {
