@@ -44,7 +44,7 @@ const isSkillMasteryPassiveCards = ({ effect, rawName, account }) => {
   const trappingCardsArePassives = rawName?.includes('Critter') && isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.trapping?.rank, 2);
   const worshipCardsArePassives = rawName?.includes('Soul') && isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.worship?.rank, 2);
   const spelunkingCardsArePassives = effect?.includes('Spelunking') && isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.spelunking?.rank, 2);
-  const dropRateCardsArePassives = effect?.includes('Drop') && getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 44);
+  const dropRateCardsArePassives = effect?.includes('Card_Drop_Chance') && getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 44);
   return miningCardsArePassives || fishingCardsArePassives || choppingCardsArePassives || trappingCardsArePassives || worshipCardsArePassives || dropRateCardsArePassives || spelunkingCardsArePassives;
 }
 

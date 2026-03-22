@@ -591,7 +591,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
   const fractalBonus = fractalIsland?.shop?.find(({ effect }: any) => effect === '1.20x_Chance_to_find_Sailing_Artifacts')?.unlocked ? 20 : 0;
   const bribeBonus = getBribeBonus(account?.bribes, 'Artifact_Pilfering');
   const arcadeBonus = account?.arcade?.shop
-    ?.filter(({ effect }: any) => effect?.includes('+{% Artifact Find'))
+    ?.filter(({ effect }: any) => effect?.includes('+{%_Artifact_Find'))
     ?.reduce((sum: any, { bonus }: any) => sum + (bonus ?? 0), 0) ?? 0;
   const holeBuildingBonus = 10 * Math.floor(lavaLog(holesObject?.wellSediment?.[11] ?? 0));
   const stickerBonus = getStickerBonus(account, 2);

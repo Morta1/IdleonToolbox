@@ -1,6 +1,6 @@
 import { commaNotation, notateNumber, tryToParse, lavaLog } from '@utility/helpers';
 import { upgradeVault } from '@website-data';
-import { isBundlePurchased, getEventShopBonus } from '@parsers/misc';
+import { isBundlePurchased, getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 
 export const getUpgradeVault = (idleonData: any, accountData: any, charactersData: any[]) => {
@@ -78,10 +78,12 @@ const getUpgradeCost = (upgrades: any, index: any, accountData: any) => {
   const { level, x1, x2 } = upgrades?.[index];
   const baseCost = level + (x1 + level) * Math.pow(x2, level);
   const dartsBonusReduction = 1 / (1 + (accountData?.accountOptions?.[437] || 0) / 100);
-  
+  const companionBonus99 = isCompanionBonusActive(accountData, 99) ? accountData?.companions?.list?.at(99)?.bonus : 0;
+  const companionMulti = Math.max(0.1, 1 - companionBonus99 / 100);
+
   return 33 > index
-    ? Math.max(0.01, (1 - calcUpgradeVaultBonus(upgrades, 13) / 100) * dartsBonusReduction) * baseCost
-    : Math.max(0.01, dartsBonusReduction) * baseCost;
+    ? Math.max(0.001, (1 / (1 + calcUpgradeVaultBonus(upgrades, 13) / 100)) * dartsBonusReduction) * companionMulti * baseCost
+    : Math.max(0.01, dartsBonusReduction) * companionMulti * Math.pow(1.1, Math.max(0, index - 61)) * baseCost;
 }
 
 export const getUpgradeVaultBonus = (upgrades: any, index: any) => {
