@@ -32,7 +32,7 @@ const Bundles = () => {
   return <>
     <NextSeo
       title="Bundles | Idleon Toolbox"
-      description="View all purchased bundles"
+      description="Track your purchased premium bundles and their bonuses in Legends of Idleon"
     />
     <Stack direction={'row'} flexWrap={'wrap'} gap={3} mb={4} alignItems="center">
       <CardTitleAndValue

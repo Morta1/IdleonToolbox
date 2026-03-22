@@ -15,7 +15,7 @@ const General = () => {
   return <Box sx={{ width: '100%' }}>
     <NextSeo
       title="General | Idleon Toolbox"
-      description="General account information"
+      description="View your Legends of Idleon account overview including level, gems, keys, and general progression stats"
     />
     <>
       <Stack sx={{ '& > div': { maxWidth: 300 } }} gap={4} justifyContent={'center'} direction={'row'} flexWrap={'wrap'}>

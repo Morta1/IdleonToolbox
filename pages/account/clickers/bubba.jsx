@@ -27,7 +27,7 @@ const Bubba = () => {
   return <>
     <NextSeo
       title="Bubba | Idleon Toolbox"
-      description="Keep track of your bubba upgrades and progress"
+      description="Track your Bubba minigame upgrades, candy progress, and bonus effects in Legends of Idleon"
     />
 
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>

@@ -17,6 +17,7 @@ import { CookieConsent } from 'react-cookie-consent';
 import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 import Button from '@mui/material/Button';
 import useGdprRegion, { getConsentObject } from '../hooks/useGdprRegion';
+import DynamicBreadcrumbs from '@components/common/DynamicBreadcrumbs';
 
 const clientSideEmotionCache = createEmotionCache();
 
@@ -52,11 +53,6 @@ const MyApp = (props) => {
   return (
     <>
       <Head>
-        <title>Idleon Toolbox</title>
-        <meta
-          name="description"
-          content="Power up your Legends of Idleon adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds, crafting, and more."
-        />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
         <meta name="googlebot" content="index,follow"/>
         {preConnections?.map((link) => <link key={link} rel="preconnect" href={link}/>)}
@@ -108,14 +104,14 @@ const MyApp = (props) => {
             '@context': 'https://schema.org',
             '@type': 'WebApplication',
             'name': 'Idleon Toolbox',
-            'url': 'https://www.idleontoolbox.com',
+            'url': 'https://idleontoolbox.com',
             'description': 'Power up your Legends of Idleon adventure with Idleon Toolbox\'s essential tools and resources for optimizing gameplay, character builds, crafting, and more.',
             'applicationCategory': 'GameUtility',
             'operatingSystem': 'All',
             'author': {
               '@type': 'Organization',
               'name': 'Idleon Toolbox',
-              'url': 'https://www.idleontoolbox.com'
+              'url': 'https://idleontoolbox.com'
             },
             'offers': {
               '@type': 'Offer',
@@ -136,19 +132,16 @@ const MyApp = (props) => {
                   <DefaultSeo
                     title="Idleon Toolbox - Essential Tools for Legends of Idleon"
                     description="Power up your Legends of Idleon adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds, crafting, and more."
-                    canonical="https://www.idleontoolbox.com/"
                     openGraph={{
                       type: 'website',
                       locale: 'en_US',
-                      url: 'https://www.idleontoolbox.com/',
+                      url: 'https://idleontoolbox.com/',
                       siteName: 'Idleon Toolbox',
                       title: 'Idleon Toolbox - Essential Tools for Legends of Idleon',
                       description: 'Power up your Legends of Idleon adventure with Idleon Toolbox\'s essential tools and resources for optimizing gameplay, character builds, crafting, and more.',
                       images: [
                         {
                           url: 'https://idleontoolbox.com/data/Coins5.png',
-                          width: 21,
-                          height: 21,
                           alt: 'Idleon Toolbox'
                         }
                       ]
@@ -156,19 +149,16 @@ const MyApp = (props) => {
                     twitter={{
                       handle: '@IdleonToolbox',
                       site: '@IdleonToolbox',
-                      cardType: 'summary_large_image'
+                      cardType: 'summary'
                     }}
                     additionalMetaTags={[
                       {
                         name: 'keywords',
                         content: 'Idleon, Legends of Idleon, Idleon Toolbox, Idleon calculator, Idleon builds, Idleon guide, idle game tools'
-                      },
-                      {
-                        property: 'og:image',
-                        content: 'https://idleontoolbox.com/data/Coins5.png'
                       }
                     ]}
                   />
+                  <DynamicBreadcrumbs/>
                   <DataLoadingWrapper>
                     <Component {...pageProps} />
                   </DataLoadingWrapper>

@@ -93,7 +93,7 @@ const Sigils = () => {
     (<Stack>
       <NextSeo
         title="Sigils | Idleon Toolbox"
-        description="Sigils information and progression"
+        description="View your sigil levels, unlock progress, and bonus effects for alchemy in Legends of Idleon"
       />
       <Stack direction={'row'} gap={3}>
         <CardTitleAndValue title={'Sigil Speed'}>

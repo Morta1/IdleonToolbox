@@ -19,7 +19,7 @@ const Anvil = () => {
   return <>
     <NextSeo
       title="Anvil | Idleon Toolbox"
-      description="Keep track of your characters anvil production"
+      description="Monitor your characters' anvil production rates, craft queues, and smithing progress in Legends of Idleon"
     />
     <Stack direction={'row'} alignItems={'baseline'} gap={1}>
       <Typography variant={'h4'}>Totals</Typography>

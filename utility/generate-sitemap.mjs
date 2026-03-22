@@ -20,7 +20,7 @@ function addPage(page) {
   const today = new Date().toISOString().split('T')[0]
   
   return `  <url>
-    <loc>${`https://www.idleontoolbox.com${route}`}</loc>
+    <loc>${`https://idleontoolbox.com${route}`}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>${priority}</priority>
@@ -33,6 +33,7 @@ async function generateSitemap() {
     'pages/**/*{.js,.jsx,.mdx}',
     '!pages/_*.js',
     '!pages/_*.jsx',
+    '!pages/404.jsx',
     '!pages/api',
   ])
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

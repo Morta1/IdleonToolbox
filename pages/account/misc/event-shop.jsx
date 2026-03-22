@@ -1,6 +1,7 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
 import React, { useContext } from 'react';
+import { NextSeo } from 'next-seo';
 import { AppContext } from '@components/common/context/AppProvider';
 import { CardTitleAndValue } from '@components/common/styles';
 import { ninjaExtraInfo } from '@website-data';
@@ -12,6 +13,10 @@ const EventShop = () => {
   const { state } = useContext(AppContext);
   const ownedBonuses = shopItems.filter((_, index) => getEventShopBonus(state?.account, index));
   return <>
+    <NextSeo
+      title="Event Shop | Idleon Toolbox"
+      description="Track your event shop purchases, star currency, and bonus progression in Legends of Idleon"
+    />
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Stars'}
         imgStyle={{ width: 24, height: 24 }}

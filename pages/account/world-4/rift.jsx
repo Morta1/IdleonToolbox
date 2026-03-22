@@ -19,7 +19,7 @@ const Rift = () => {
   return <>
     <NextSeo
       title="Rift | Idleon Toolbox"
-      description="Keep track of your rift bonuses, tasks and more"
+      description="Track your Rift bonuses, task completion, and skill upgrades in Legends of Idleon World 4"
     />
     <Tabber tabs={tabs}>
       <Tasks {...rift} characters={state?.characters}/>

@@ -20,7 +20,7 @@ const Tasks = () => {
   return (<>
     <NextSeo
       title="Tasks | Idleon Toolbox"
-      description="Keep track of your tasks unlocks progression"
+      description="Track your task board unlock progression, merit rewards, and task tier requirements in Legends of Idleon"
     />
     <Stack direction={'row'} alignItems={'center'} gap={2}>
       <CardTitleAndValue title={'Available unlocks'}

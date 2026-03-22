@@ -20,7 +20,7 @@ const Glimbo = () => {
   return <>
     <NextSeo
       title="Glimbo | Idleon Toolbox"
-      description="Track your Glimbo's Swap Meet trades and Max LV bonuses"
+      description="Track your Glimbo Swap Meet trades, max level bonuses, and currency costs in Legends of Idleon World 7"
     />
 
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>

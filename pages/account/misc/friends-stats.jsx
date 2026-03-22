@@ -13,7 +13,7 @@ const FriendsStats = () => {
     <>
       <NextSeo
         title="Friends Stats | Idleon Toolbox"
-        description="View all friend bonuses"
+        description="View all friendship bonuses and their effects on your Legends of Idleon account progression"
       />
       <Stack gap={2}>
         <Stack direction={'row'} flexWrap={'wrap'} gap={3} alignItems="center">

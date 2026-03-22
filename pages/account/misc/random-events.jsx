@@ -13,7 +13,7 @@ const RandomEvents = () => {
   return <>
     <NextSeo
       title="Random Events | Idleon Toolbox"
-      description="See upcoming random events"
+      description="Check upcoming random event schedules and rewards for Legends of Idleon"
     />
     {events?.length ? <>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>

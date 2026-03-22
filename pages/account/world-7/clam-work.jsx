@@ -32,7 +32,7 @@ const ClamWork = () => {
   return <>
     <NextSeo
       title="Clam Work | Idleon Toolbox"
-      description="Keep track of your clam work upgrades and bonuses"
+      description="Track your Clam Work upgrade levels, pearl bonuses, and progression in Legends of Idleon World 7"
     />
 
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>

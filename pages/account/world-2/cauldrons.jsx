@@ -34,7 +34,7 @@ const Cauldrons = () => {
     <>
       <NextSeo
         title="Cauldrons | Idleon Toolbox"
-        description="Cauldrons progression and stats"
+        description="Track your alchemy cauldron levels, brewing speed, and liquid capacity in Legends of Idleon"
       />
       <Typography variant={'h4'} mb={3}>Brewing</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>

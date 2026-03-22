@@ -93,7 +93,7 @@ const ArcadeShop = () => {
     <Stack>
       <NextSeo
         title="Arcade Shop | Idleon Toolbox"
-        description="Arcade shop upgrades, balls and golden balls"
+        description="Track your arcade shop upgrades, ball counts, golden balls, and bonus effects in Legends of Idleon"
       />
       <Stack direction="row" gap={2} flexWrap={'wrap'}>
         <CardTitleAndValue title="Balls">

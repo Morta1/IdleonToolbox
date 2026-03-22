@@ -17,7 +17,7 @@ const Merits = () => {
   return (<>
     <NextSeo
       title="Merits | Idleon Toolbox"
-      description="Keep track of your merit progression"
+      description="Track your merit shop purchases, point spending, and available upgrades in Legends of Idleon"
     />
     <Tabber tabs={worldsArray} onTabChange={handleWorldChange}>
       <Stack alignItems={'center'}>

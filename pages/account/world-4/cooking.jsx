@@ -50,7 +50,7 @@ const Cooking = () => {
     <>
       <NextSeo
         title="Cooking | Idleon Toolbox"
-        description="Keep track of your kitchens and meals progression"
+        description="Track your kitchen meal levels, cooking speed, and recipe bonuses for all meals in Legends of Idleon"
       />
       <Stack my={3} direction={'row'} gap={2} alignItems={'center'}>
         <FormControl sx={{ width: 170 }}>

@@ -22,7 +22,7 @@ const Equinox = () => {
     <>
       <NextSeo
         title="Equinox | Idleon Toolbox"
-        description="Equinox progression"
+        description="Track your Equinox upgrades, dream bonuses, and unlockable perks for all your Legends of Idleon characters"
       />
       <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Fill rate'}>

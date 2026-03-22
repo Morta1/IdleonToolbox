@@ -33,7 +33,7 @@ const Constellations = () => {
   return <div>
     <NextSeo
       title="Constellations | Idleon Toolbox"
-      description="Constellation and star signs overview"
+      description="Explore all constellation completions and star sign bonuses for your Legends of Idleon characters"
     />
     <Tabber tabs={getTabs(PAGES.ACCOUNT.misc.categories, 'constellations')} clearOnChange={['nt']}>
       <ConstellationsComp constellations={state?.account?.constellations} characters={state?.characters}/>

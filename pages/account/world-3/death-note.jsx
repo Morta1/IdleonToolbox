@@ -17,7 +17,7 @@ const DeathNote = () => {
     <>
       <NextSeo
         title="Death Note | Idleon Toolbox"
-        description="Keep track of death note progression"
+        description="Track your Death Note monster kill counts, multikill progress, and world completion in Legends of Idleon"
       />
       <Stack direction={'row'} alignItems={'center'} gap={2} mb={2}>
         <CardTitleAndValue title={'Normal Monsters'}>

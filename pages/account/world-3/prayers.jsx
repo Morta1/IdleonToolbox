@@ -24,7 +24,7 @@ const Prayers = () => {
     <div>
       <NextSeo
         title="Prayers | Idleon Toolbox"
-        description="Prayers information"
+        description="View your active prayers, curse penalties, and soul bonuses to optimize worship in Legends of Idleon"
       />
       <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
         {prayers?.map((prayer, index) => {

@@ -85,7 +85,7 @@ const VoteBallot = () => {
   return <>
     <NextSeo
       title="Vote Ballot | Idleon Toolbox"
-      description="Keep track of the vote bonuses"
+      description="Track your active vote ballot bonuses and their effects on gameplay in Legends of Idleon"
     />
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 2'].categories, 'voteBallot')}>
       {renderBonusTab()}

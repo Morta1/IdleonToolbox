@@ -175,7 +175,7 @@ const Formulas = () => {
   return <>
     <NextSeo
       title="Formulas | Idleon Toolbox"
-      description="A list of formulas of varius game mechanics"
+      description="Browse formulas and calculations for various Legends of Idleon game mechanics including damage, drop rates, and more"
     />
     <Stack gap={2} mt={2}>
       <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>

@@ -82,7 +82,7 @@ const Pets = () => {
   return <>
     <NextSeo
       title="Premium Pets | Idleon Toolbox"
-      description="Detailed information about companions and their bonuses"
+      description="View your companion collection, abilities, trade offers, and pet crystal upgrades in Legends of Idleon"
     />
     <Stack direction={'row'} gap={3} flexWrap={'wrap'} alignItems="center">
       <CardTitleAndValue title={'Pet Crystals'} value={numberWithCommas(state?.account?.companions?.petCrystals ?? 0)} icon='data/PremiumGem.png' imgStyle={{ filter: 'hue-rotate(280deg)', width: 24, height: 24 }} />

@@ -37,7 +37,7 @@ const [searchQuery, setSearchQuery] = useState('');
   return <>
     <NextSeo
       title="Legend Talents | Idleon Toolbox"
-      description="Keep track of your legend talents and their bonuses"
+      description="View your Legend talent levels, bonus effects, and upgrade costs in Legends of Idleon World 7"
     />
 
     <Stack sx={{ mb: 3 }} direction="row" alignItems="center" gap={2}>

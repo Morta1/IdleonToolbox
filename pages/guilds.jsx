@@ -87,7 +87,7 @@ const Guilds = () => {
   return <>
     <NextSeo
       title="Guilds | Idleon Toolbox"
-      description="Top guilds in idleon"
+      description="Browse the top Legends of Idleon guilds ranked by guild points, with member details, levels, and leadership info"
     />
     <Typography variant={'h2'}>Guilds Leaderboard</Typography>
     <Stack direction={'row'} alignItems={'center'} gap={1}>

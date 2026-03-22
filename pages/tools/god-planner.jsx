@@ -46,7 +46,7 @@ const GodPlanner = () => {
   return <>
     <NextSeo
       title="God Planner | Idleon Toolbox"
-      description="Watch all of your character's gods minor bonuses"
+      description="Plan and optimize your characters' divinity god links and minor bonuses in Legends of Idleon"
     />
     <Typography variant={'h2'} mb={3}>God Planner</Typography>
     <Typography variant={'caption'} component={'div'}>* Click on a god to add it to the build</Typography>

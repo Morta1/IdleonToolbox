@@ -1,6 +1,7 @@
 import { Autocomplete, Button, Chip, createFilterOptions, Stack, TextField, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import React, { useState } from 'react';
+import { NextSeo } from 'next-seo';
 import { monsterDrops } from '@website-data';
 
 const filterOptions = createFilterOptions({
@@ -70,6 +71,10 @@ const GuaranteedDropCalculator = () => {
   }
 
   return (<>
+    <NextSeo
+      title="Guaranteed Drop Calculator | Idleon Toolbox"
+      description="Calculate guaranteed drop rates and required kills for any monster drop in Legends of Idleon with multikill bonuses"
+    />
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} alignItems={'center'}>
       <Autocomplete
         id="drop calc"

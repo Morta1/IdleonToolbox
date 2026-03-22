@@ -86,7 +86,7 @@ const Quests = () => {
     <>
       <NextSeo
         title="Quests | Idleon Toolbox"
-        description="Keep track of your characters' quests progression"
+        description="Track quest completion progress across all NPCs and characters in Legends of Idleon"
       />
       {filteredCharacters ? (
         <>

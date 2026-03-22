@@ -68,7 +68,7 @@ const Looty = () => {
     <>
       <NextSeo
         title="Storage | Idleon Toolbox"
-        description="A list of your storage items"
+        description="Browse your full storage inventory with item counts, chest slots, and capacity in Legends of Idleon"
       />
       <Tabber tabs={getTabs(PAGES.ACCOUNT.misc.categories, 'storage')}>
         <Stack>

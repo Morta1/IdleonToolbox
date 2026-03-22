@@ -17,7 +17,7 @@ const Kangaroo = () => {
   return <>
     <NextSeo
       title="Poppy The Kangaroo | Idleon Toolbox"
-      description="Keep track of your kangaroo upgrades and progress"
+      description="Track your Kangaroo minigame upgrades, jump progress, and bonus rewards in Legends of Idleon"
     />
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}

@@ -29,7 +29,7 @@ const Islands = () => {
   return <>
     <NextSeo
       title="Islands | Idleon Toolbox"
-      description="Islands progressions and available upgrades"
+      description="Track your island exploration progress, available upgrades, and trash island bonuses in Legends of Idleon"
     />
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       <CardTitleAndValue title={'Bottles'} value={Math.round(islands?.bottles)}/>

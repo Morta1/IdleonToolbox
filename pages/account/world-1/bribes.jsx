@@ -13,7 +13,7 @@ const Bribes = () => {
     <>
       <NextSeo
         title="Bribes | Idleon Toolbox"
-        description="Keep track of your bribes status"
+        description="Track your bribe status, costs, and bonus effects across all Legends of Idleon worlds"
       />
       <AutoGrid>
         {state?.account?.bribes?.map((bribe, index) => {

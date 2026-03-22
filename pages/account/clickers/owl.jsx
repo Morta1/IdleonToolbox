@@ -12,7 +12,7 @@ const MyComponent = () => {
   return <>
     <NextSeo
       title="Owl | Idleon Toolbox"
-      description="Keep track of your owl upgrades and progress"
+      description="Track your Owl minigame upgrades, feather progress, and bonus multipliers in Legends of Idleon"
     />
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       <CardTitleAndValue cardSx={{my: 1}} title={'Feathers'} value={notation(owl?.feathers || 0)} icon={'etc/Owlb_0.png'}/>

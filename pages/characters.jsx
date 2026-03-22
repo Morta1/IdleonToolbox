@@ -16,7 +16,7 @@ const Characters = () => {
   return <>
     <NextSeo
       title="Characters | Idleon Toolbox"
-      description="Characters overview for a lot of the game aspects"
+      description="View detailed character stats, skills, equipment, talents, and progression for all your Legends of Idleon characters"
     />
     {numberOfCharacters > 0 ? (
       <>

@@ -22,7 +22,7 @@ const Tournament = () => {
   return <>
     <NextSeo
       title="Tournament | Idleon Toolbox"
-      description="Track your companion tournament division and team"
+      description="Track your companion tournament division, team lineup, match results, and rankings in Legends of Idleon"
     />
 
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>

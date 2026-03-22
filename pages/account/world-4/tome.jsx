@@ -40,7 +40,7 @@ const Tome = () => {
   return <>
     <NextSeo
       title="Tome | Idleon Toolbox"
-      description="Keep track of your tome bonuses and highscores"
+      description="Track your Tome upgrade bonuses, highscores, and progression rewards in Legends of Idleon World 4"
     />
     {/*<Typography variant={'caption'}>* Bubble bonus might be inaccurate because it is determined by your active*/}
     {/*  character.</Typography>*/}

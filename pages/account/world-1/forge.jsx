@@ -38,7 +38,7 @@ const Forge = () => {
   return <>
     <NextSeo
       title="Forge | Idleon Toolbox"
-      description="Keep track of your forge production"
+      description="Monitor your forge ore production, upgrade levels, and crafting progress in Legends of Idleon"
     />
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 1'].categories, 'forge')}>
       <Grid container gap={2}>

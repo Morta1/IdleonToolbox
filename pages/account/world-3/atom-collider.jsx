@@ -15,7 +15,7 @@ const AtomCollider = ({}) => {
   return <>
     <NextSeo
       title="Atom Collider | Idleon Toolbox"
-      description="Atom Collider bonuses and progression"
+      description="Track your Atom Collider upgrade levels, stamp bonuses, and particle costs in Legends of Idleon"
     />
     <Stack direction={'row'} gap={2}>
       <CardTitleAndValue title={'Particles'}>

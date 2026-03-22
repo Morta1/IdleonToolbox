@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { NextSeo } from 'next-seo';
 import { Stack, TextField } from '@mui/material';
 import { itemsArray } from '@website-data';
 import Tooltip from '@components/Tooltip';
@@ -31,6 +32,10 @@ const ItemDatabase = () => {
 
   return (
     <>
+      <NextSeo
+        title="Item Database | Idleon Toolbox"
+        description="Browse and search the complete Legends of Idleon item database with filters by type, stats, and crafting recipes"
+      />
       <Stack direction="row" spacing={2} mb={2}>
         <TextField
           label="Search"

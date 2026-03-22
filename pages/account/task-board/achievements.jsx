@@ -33,7 +33,7 @@ const Achievements = () => {
     <Box>
       <NextSeo
         title="Achievements | Idleon Toolbox"
-        description="Keep track of your achievements progression"
+        description="Track your achievement completion, reward tiers, and unlockable bonuses in Legends of Idleon"
       />
       <Tabber tabs={worldsArray} onTabChange={handleWorldChange}>
         <Box display={'flex'} justifyContent={'center'}>

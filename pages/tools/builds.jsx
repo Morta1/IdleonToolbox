@@ -124,7 +124,7 @@ const Builds = () => {
   return <>
     <NextSeo
       title="Builds | Idleon Toolbox"
-      description="Legends of Idleon builds for all classes"
+      description="Browse and share optimized talent builds for every class and subclass in Legends of Idleon"
     />
     <Typography mt={2} variant={'h2'}>Builds</Typography>
     <Stack direction={'row'} my={3} gap={2} flexWrap={'wrap'} alignItems={'center'}>

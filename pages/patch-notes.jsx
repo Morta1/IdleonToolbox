@@ -1,5 +1,6 @@
 import { Accordion, AccordionDetails, AccordionSummary, Divider, Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
+import { NextSeo } from 'next-seo';
 import Box from '@mui/material/Box';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import { useTheme } from '@emotion/react';
@@ -11,8 +12,12 @@ import { patchNotes } from '../data/patch-notes';
 const PatchNotes = ({ patchNotes: pNotes }) => {
   const [noteIndex, setNoteIndex] = useState(0);
   const theme = useTheme();
+  const seo = <NextSeo
+    title="Patch Notes | Idleon Toolbox"
+    description="View the latest Idleon Toolbox patch notes, new features, bug fixes, and changelog for every version"
+  />;
   if (!pNotes) {
-    return <Stack divider={<Divider/>} gap={3}>
+    return <>{seo}<Stack divider={<Divider/>} gap={3}>
       {patchNotes?.map((note, index) => {
         return <Stack gap={1} key={'note' + index}>
           <Typography variant={'h3'}>v{note?.ver}</Typography>
@@ -20,9 +25,9 @@ const PatchNotes = ({ patchNotes: pNotes }) => {
           <StyledSection icon={"fix"} topMargin={false} title={"Fixes"} list={note?.fixes}/>
         </Stack>
       })}
-    </Stack>
+    </Stack></>
   }
-  return (pNotes || patchNotes)?.map((note, index) => {
+  return <>{seo}{(pNotes || patchNotes)?.map((note, index) => {
     return <Accordion key={'note' + index} expanded={noteIndex === index}
                       disableGutters
                       sx={{
@@ -49,7 +54,7 @@ const PatchNotes = ({ patchNotes: pNotes }) => {
         </Stack>
       </AccordionDetails>
     </Accordion>
-  })
+  })}</>
 }
 
 const StyledSection = ({ title, list, icon, topMargin = true }) => {

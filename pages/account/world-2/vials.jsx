@@ -31,7 +31,7 @@ const Vials = () => {
   return <>
     <NextSeo
       title="Vials | Idleon Toolbox"
-      description="Vials progressions and upgrade requirements"
+      description="View your vial levels, upgrade costs, and bonus effects for alchemy progression in Legends of Idleon"
     />
     <Stack sx={{ flexDirection: 'row', gap: 2, mb:1 }}>
       <CardTitleAndValue title={'Vial bonus'}

@@ -28,7 +28,7 @@ const Summoning = () => {
   return <>
     <NextSeo
       title="Summoning | Idleon Toolbox"
-      description="Keep track of your summoning bonuses"
+      description="View your summoning upgrades, winner bonuses, and battle rewards in Legends of Idleon"
     />
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} my={3} alignItems={'center'}>
       <CardTitleAndValue value={highestEndlessLevel}

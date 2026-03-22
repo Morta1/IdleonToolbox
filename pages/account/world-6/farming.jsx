@@ -35,7 +35,7 @@ const Farming = () => {
   return <>
     <NextSeo
       title="Farming | Idleon Toolbox"
-      description="Keep track of your garden with all its bonuses"
+      description="Track your farming garden plots, crop progress, OG bonuses, and evolution upgrades in Legends of Idleon"
     />
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Bean Trade'} value={commaNotation(Math.round(beanTrade))} icon={'data/Quest80_x1.png'}

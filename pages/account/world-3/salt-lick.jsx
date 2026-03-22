@@ -28,7 +28,7 @@ const SaltLick = () => {
   return <>
     <NextSeo
       title="Salt Lick | Idleon Toolbox"
-      description="Keep track of your salt lick levels and upgrades"
+      description="Track your Salt Lick upgrade levels, bonus effects, and material costs in Legends of Idleon World 3"
     />
     <Container>
       <AutoGrid>

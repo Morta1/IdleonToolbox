@@ -151,7 +151,7 @@ const Stamps = () => {
     (<div>
       <NextSeo
         title="Stamps | Idleon Toolbox"
-        description="Keep track of your stamps levels and requirements"
+        description="Track your stamp levels, upgrade costs, and bonus effects across all stamp categories in Legends of Idleon"
       />
       <Stack mt={1} direction={'row'} gap={3} justifyContent={'center'} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Legend'} stackProps={{ gap: .7 }}>

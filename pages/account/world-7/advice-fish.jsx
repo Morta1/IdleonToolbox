@@ -14,7 +14,7 @@ const AdviceFish = () => {
   return <>
     <NextSeo
       title="Advice Fish | Idleon Toolbox"
-      description="Keep track of your advice fish upgrades"
+      description="Track your Advice Fish upgrade levels, bonuses, and unlock progression in Legends of Idleon World 7"
     />
 
     <Upgrades upgrades={upgrades} />

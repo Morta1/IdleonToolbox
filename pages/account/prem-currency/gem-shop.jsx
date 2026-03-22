@@ -103,7 +103,7 @@ const GemShop = () => {
   return <>
     <NextSeo
       title="Gem Shop | Idleon Toolbox"
-      description="View all gem shop upgrades, bonuses and more"
+      description="Browse all gem shop purchases, upgrade bonuses, and premium currency spending in Legends of Idleon"
     />
     <Stack direction={'row'} flexWrap={'wrap'} gap={3} mb={2}>
       <CardTitleAndValue title={'Gems'} value={numberWithCommas(state?.account?.currencies?.gems)} icon={'data/PremiumGem.png'}

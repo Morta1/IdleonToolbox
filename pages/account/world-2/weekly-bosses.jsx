@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { NextSeo } from 'next-seo';
 import { AppContext } from '@components/common/context/AppProvider';
 import { getWeeklyBoss } from '@parsers/world-2/weeklyBosses';
 import { Stack, Typography } from '@mui/material';
@@ -22,6 +23,10 @@ const WeeklyBosses = () => {
 
   const weeklyBosses = getWeeklyBoss(state?.account, weeks);
   return weeklyBosses?.length ? <>
+    <NextSeo
+      title="Weekly Bosses | Idleon Toolbox"
+      description="Track your weekly boss fights, trophies, and predicted boss schedules in Legends of Idleon"
+    />
     <Stack direction={'row'} gap={2} mb={3} alignItems={'center'}>
       <CardTitleAndValue title={'Trophies'}
                          icon={'data/Trophie.png'}

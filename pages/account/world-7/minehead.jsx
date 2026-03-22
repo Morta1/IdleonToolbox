@@ -32,7 +32,7 @@ const Minehead = () => {
   return <>
     <NextSeo
       title="Minehead | Idleon Toolbox"
-      description="Keep track of your minehead upgrades and opponents"
+      description="Track your Minehead upgrade levels, opponent stats, and bonus progression in Legends of Idleon World 7"
     />
 
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>

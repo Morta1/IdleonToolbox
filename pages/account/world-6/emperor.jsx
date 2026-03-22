@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import { NextSeo } from 'next-seo';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
@@ -19,6 +20,10 @@ const Emperor = () => {
   } = state?.account?.emperor || {};
 
   return <>
+    <NextSeo
+      title="Emperor | Idleon Toolbox"
+      description="Track your Emperor showdown progress, boss HP, attempt counts, and bonus rewards in Legends of Idleon"
+    />
     <Stack direction={'row'} gap={2} alignItems={'center'}>
       <CardTitleAndValue title={'Highest showdown'} value={highestEmperorShowdown || '0'}/>
       <CardTitleAndValue title={'Daily Attempts'} value={dailyAttempts} icon={'data/GemP45.png'}

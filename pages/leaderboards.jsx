@@ -116,7 +116,7 @@ const Leaderboards = () => {
   return <>
     <NextSeo
       title="Leaderboards | Idleon Toolbox"
-      description="Leaderboards for Legends Of Idleon MMO"
+      description="View Legends of Idleon leaderboards for skills, tasks, characters, caverns, and more with player rankings and stats"
     />
     <Box sx={{ maxWidth: '300px', margin: '16px auto 0 auto', border: 'none' }}>
       <TextField

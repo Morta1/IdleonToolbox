@@ -17,7 +17,7 @@ const Tasks = () => {
   return (<>
     <NextSeo
       title="Tasks | Idleon Toolbox"
-      description="Keep track of your tasks progression"
+      description="Track your task board completion, rewards, and progression across all task categories in Legends of Idleon"
     />
     <Tabber tabs={worldsArray} onTabChange={handleWorldChange}>
       <Stack index={world} direction={'row'} flexWrap={'wrap'} gap={3} justifyContent={'center'}>

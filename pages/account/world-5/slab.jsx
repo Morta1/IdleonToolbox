@@ -34,7 +34,7 @@ const Slab = () => {
   return <Stack>
     <NextSeo
       title="Slab | Idleon Toolbox"
-      description="The Slab consists of a list of items within the game"
+      description="Track your Slab item collection progress and discover missing items in Legends of Idleon World 5"
     />
     <Stack direction={'row'} gap={3} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Looted items'}

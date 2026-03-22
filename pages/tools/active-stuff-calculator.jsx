@@ -99,7 +99,7 @@ const ActiveStuffCalculator = () => {
   return <>
     <NextSeo
       title="Active Stuff Calculator | Idleon Toolbox"
-      description="Calculate how much items you get when playing actively"
+      description="Calculate active gameplay item drops, resource gains, and efficiency for your Legends of Idleon characters"
     />
     <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
       <Select

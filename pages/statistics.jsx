@@ -107,7 +107,7 @@ const Statistics = () => {
   return <>
     <NextSeo
       title="Statistics | Idleon Toolbox"
-      description="Statistics page for various aspects of the game"
+      description="Explore community statistics and visualizations for Legends of Idleon including class distribution, skill levels, and player progression data"
     />
     <div style={{ background: '#141A21', minHeight: '100vh', padding: isSm ? 8 : 20 }}>
       {error && <p style={{ color: '#F56565', textAlign: 'center', fontSize: 14 }}>Error: {error}</p>}

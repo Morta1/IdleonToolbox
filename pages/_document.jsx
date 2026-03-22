@@ -17,6 +17,7 @@ export default class MyDocument extends Document {
           
           <link rel="icon" type="image/png" sizes="32x32" href="/data/Coins5.png" />
           <link rel="icon" type="image/png" sizes="16x16" href="/data/Coins5.png" />
+          <link rel="apple-touch-icon" href="/data/Coins5.png" />
           <link rel="manifest" href="/site.webmanifest" />
           
           {/* Preconnect to important domains */}
