@@ -22,6 +22,7 @@ import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 import AuthSkeleton from './AuthSkeleton';
 import { BottomBannerAd, SidebarAd } from '@components/common/Ads/AdUnit';
 import useAdBlockDetection from '../../../hooks/useAdBlockDetection';
+import ProfileBanner from './ProfileBanner';
 
 const NavBar = ({ children }) => {
   const { dispatch, state } = useContext(AppContext);
@@ -75,6 +76,7 @@ const NavBar = ({ children }) => {
     </Box>
     <AppDrawer permanent/>
     <AdBlockerPopup/>
+    <ProfileBanner/>
     <Box component={'main'} sx={{
       pt: 3,
       pr: 3,

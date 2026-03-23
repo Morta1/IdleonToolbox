@@ -17,9 +17,12 @@ import ToolsDrawer from './ToolsDrawer';
 import { prefix, shouldDisplayDrawer } from '@utility/helpers';
 import { AppContext } from '../../context/AppProvider';
 
+const profileBannerHeight = 40;
+
 const AppDrawer = ({ permanent }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
+  const showProfileBanner = !!state?.profile && !!router?.query?.profile;
   const [open, setOpen] = useState(false);
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
 
@@ -65,6 +68,7 @@ const AppDrawer = ({ permanent }) => {
       } : 'none'
     }}>
       <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}/>
+      {showProfileBanner ? <Box sx={{ height: profileBannerHeight }}/> : null}
       {getDrawer()}
     </StyledDrawer> : <StyledDrawer // mobile
       sx={{ display: { xs: 'inherit', lg: 'none' } }}
@@ -73,6 +77,7 @@ const AppDrawer = ({ permanent }) => {
       onClose={() => setOpen(false)}
     >
       <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}/>
+      {showProfileBanner ? <Box sx={{ height: profileBannerHeight }}/> : null}
       <NavItemsList drawer/>
       {router.pathname.includes('/characters') ? <>
         <Divider/>

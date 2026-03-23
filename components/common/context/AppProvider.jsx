@@ -155,7 +155,7 @@ const AppProvider = ({ children }) => {
     );
     
     localStorage.setItem('manualImport', JSON.stringify(false));
-    
+
     dispatch({
       type: ACTION_TYPES.DATA,
       data: {
