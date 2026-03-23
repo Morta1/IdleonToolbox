@@ -12,10 +12,10 @@ import { patchNotes } from '../data/patch-notes';
 const PatchNotes = ({ patchNotes: pNotes }) => {
   const [noteIndex, setNoteIndex] = useState(0);
   const theme = useTheme();
-  const seo = <NextSeo
+  const seo = !pNotes ? <NextSeo
     title="Patch Notes | Idleon Toolbox"
     description="View the latest Idleon Toolbox patch notes, new features, bug fixes, and changelog for every version"
-  />;
+  /> : null;
   if (!pNotes) {
     return <>{seo}<Stack divider={<Divider/>} gap={3}>
       {patchNotes?.map((note, index) => {
