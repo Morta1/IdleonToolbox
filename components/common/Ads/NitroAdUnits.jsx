@@ -61,7 +61,7 @@ export const NitroBottomBannerAd = () => {
   useEffect(() => {
     const styleEl = OVERRIDE_NITRO_ZINDEX ? document.createElement('style') : null;
     if (styleEl) {
-      styleEl.textContent = `#nitro-bottom-banner-desktop, #nitro-bottom-banner-mobile { z-index: ${theme.zIndex.appBar - 1} !important; }`;
+      styleEl.textContent = `#nitro-bottom-banner-ad { z-index: ${theme.zIndex.appBar - 1} !important; }`;
       document.head.appendChild(styleEl);
     }
 
@@ -73,7 +73,7 @@ export const NitroBottomBannerAd = () => {
         anchorClose: false,
         anchorBgColor: 'transparent',
         mediaQuery: '(min-width: 729px)',
-        sizes: [['970', '90'], ['728', '90']],
+        sizes: [['970', '90'], ['728', '90'], ['320', '100'], ['320', '50']],
         report: {
           enabled: true,
           icon: true,
@@ -81,21 +81,36 @@ export const NitroBottomBannerAd = () => {
           position: 'top-right'
         }
       });
-      window.nitroAds.createAd('nitro-bottom-banner-mobile', {
-        ...NITRO_BASE_OPTIONS,
-        format: 'anchor-v2',
-        anchor: 'bottom',
-        anchorClose: false,
-        anchorBgColor: 'transparent',
-        mediaQuery: '(max-width: 728px)',
-        sizes: [['320', '100'], ['320', '50']],
-        report: {
-          enabled: true,
-          icon: true,
-          wording: 'Report Ad',
-          position: 'top-right'
-        }
-      });
+      // window.nitroAds.createAd('nitro-bottom-banner-desktop', {
+      //   ...NITRO_BASE_OPTIONS,
+      //   format: 'anchor-v2',
+      //   anchor: 'bottom',
+      //   anchorClose: false,
+      //   anchorBgColor: 'transparent',
+      //   mediaQuery: '(min-width: 729px)',
+      //   sizes: [['970', '90'], ['728', '90']],
+      //   report: {
+      //     enabled: true,
+      //     icon: true,
+      //     wording: 'Report Ad',
+      //     position: 'top-right'
+      //   }
+      // });
+      // window.nitroAds.createAd('nitro-bottom-banner-mobile', {
+      //   ...NITRO_BASE_OPTIONS,
+      //   format: 'anchor-v2',
+      //   anchor: 'bottom',
+      //   anchorClose: false,
+      //   anchorBgColor: 'transparent',
+      //   mediaQuery: '(max-width: 728px)',
+      //   sizes: [['320', '100'], ['320', '50']],
+      //   report: {
+      //     enabled: true,
+      //     icon: true,
+      //     wording: 'Report Ad',
+      //     position: 'top-right'
+      //   }
+      // });
     }
 
     return () => styleEl?.remove();
