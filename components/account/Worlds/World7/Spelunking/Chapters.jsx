@@ -1,12 +1,16 @@
 import React, { Fragment } from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import ProgressBar from '@components/common/ProgressBar';
 
 const chapterGroupNames = {
   0: 'The fear within',
   1: 'Decay Surrounds',
   2: 'This is gospel',
-  3: 'No escape'
+  3: 'No escape',
+  4: 'Sunken Plunder',
+  5: 'Kelp Primeval',
+  6: 'FILLER'
 };
 
 const Chapters = ({ chapters }) => {
@@ -41,20 +45,42 @@ const Chapters = ({ chapters }) => {
                   chapterName = chapterName.replace(/{/g, smallBonus);
                   chapterName = chapterName.replace(/}/g, multiplierBonus);
 
+                  const isDecay = chapter.maxBonus != null;
+
+                  // Format max bonus with same notation the name uses
+                  const hasMultiplierPlaceholder = chapter.name?.includes('}');
+                  const formattedBonus = hasMultiplierPlaceholder
+                    ? notateNumber(chapter.bonus, 'MultiplierInfo')
+                    : notateNumber(chapter.bonus, 'Small');
+                  const formattedMax = isDecay
+                    ? hasMultiplierPlaceholder
+                      ? notateNumber(chapter.maxBonus, 'MultiplierInfo')
+                      : notateNumber(chapter.maxBonus, 'Small')
+                    : null;
+
                   return (
                     <Fragment key={chapter.name || index}>
-                      <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ opacity: chapter.level === 0 ? 0.5 : 1 }}>
-                        <Stack direction={'row'} alignItems={'center'} gap={1} flex={1}>
-                          <Typography variant="subtitle1">
-                            {chapterName}
-                          </Typography>
-                          <Typography variant="subtitle2">
-                            Lv. {chapter.level}
-                          </Typography>
+                      <Stack sx={{ opacity: chapter.level === 0 ? 0.5 : 1 }}>
+                        <Stack direction={'row'} gap={1} alignItems={'center'}>
+                          <Stack direction={'row'} alignItems={'center'} gap={1} flex={1}>
+                            <Typography variant="subtitle1">
+                              {chapterName}
+                            </Typography>
+                            <Typography variant="subtitle2">
+                              Lv. {chapter.level}
+                            </Typography>
+                          </Stack>
                         </Stack>
+                        {isDecay ? (
+                          <ProgressBar
+                            percent={chapter.progression}
+                            tooltipTitle={`${formattedBonus} / ${formattedMax} cap`}
+                          />
+                        ) : (
+                          <Typography variant={'body2'} sx={{ mt: 0.5 }}>+{chapter.scalingValue} per level</Typography>
+                        )}
+                        <Typography variant="body2" color="text.secondary">Required pages: {commaNotation(chapter.requiredPages)}</Typography>
                       </Stack>
-                      <Typography variant="body2" color="text.secondary">Required pages: {commaNotation(chapter.requiredPages)}</Typography>
-
                       {chapterGroup.length - 1 !== index && <Divider sx={{ my: 2 }} />}
                     </Fragment>
                   );
@@ -69,4 +95,3 @@ const Chapters = ({ chapters }) => {
 };
 
 export default Chapters;
-

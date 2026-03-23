@@ -85,10 +85,22 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
       // const baseMultiplier = chapter?.x4 ? 1 + artifactBonus / 100 : 1;
       const baseMultiplier = chapter?.x4 === 1 ? 1 + account?.sailing?.artifacts?.[35]?.bonus / 100 : 1; // TODO: remove after this is fixed in-game
       const bonus = baseMultiplier * growth(chapter?.func, level, chapter?.x1, chapter?.x2, false) || 0;
+      const isDecay = chapter?.func === 'decay' || chapter?.func === 'decayMulti';
+      const maxBonus = chapter?.func === 'decay'
+        ? baseMultiplier * chapter?.x1
+        : chapter?.func === 'decayMulti'
+          ? baseMultiplier * (1 + chapter?.x1)
+          : null;
+      const progression = isDecay && maxBonus ? Math.min(100, (bonus / maxBonus) * 100) : null;
+      // For linear (add with x2=0), bonus per level = baseMultiplier * x1
+      const scalingValue = !isDecay ? baseMultiplier * chapter?.x1 : null;
       return {
         ...chapter,
         level,
         bonus,
+        maxBonus,
+        progression,
+        scalingValue,
         requiredPages: chapter?.x5
       }
     })
