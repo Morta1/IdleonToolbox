@@ -42,7 +42,8 @@ export const NitroRailAd = ({ id, alignment, sizes, mediaQuery = '(min-width: 85
       const wrapper = document.querySelector(`body > div:has(#${id})`);
       if (wrapper) {
         wrapper.remove();
-      } else {
+      }
+      else {
         const el = document.getElementById(id);
         if (el) el.remove();
       }
@@ -66,7 +67,7 @@ export const NitroBottomBannerAd = () => {
     }
 
     if (window.nitroAds) {
-      window.nitroAds.createAd('nitro-bottom-banner-desktop', {
+      window.nitroAds.createAd('nitro-bottom-banner-ad', {
         ...NITRO_BASE_OPTIONS,
         format: 'anchor-v2',
         anchor: 'bottom',
