@@ -10,7 +10,7 @@ export const AD_PROVIDERS = {
 }
 export const AD_PROVIDER = AD_PROVIDERS.NITRO;
 
-const NITRO_SIDE_AD_SIZES = [['300', '600'], ['160', '600']];
+const NITRO_SIDE_AD_SIZES = [['300', '600'], ['300', '250'], ['160', '600']];
 const NITRO_HOME_AD_SIZES = [['160', '600']];
 
 export const SidebarAd = () => {
