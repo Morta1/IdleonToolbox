@@ -24,6 +24,7 @@ import StarBorderIcon from "@mui/icons-material/StarBorder";
 import ImageIcon from "@mui/icons-material/Image";
 import { notateNumber } from "@utility/helpers";
 import useBreakdown from "./Breakdown.hook";
+import GameIconNotation from "@components/common/GameIconNotation";
 
 
 interface StatSource {
@@ -328,9 +329,12 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
               <Typography variant="body1" color="text.secondary" fontWeight={500}>
                 {data?.statName}
               </Typography>
-              <Typography variant="h5" fontWeight={700}>
-                {data.totalValue}
-              </Typography>
+              {typeof data.totalValue === 'string' && /[\[!|棘]/.test(data.totalValue)
+                ? <GameIconNotation value={data.totalValue} sx={{ fontSize: '1.5rem', fontWeight: 700 }}/>
+                : <Typography variant="h5" fontWeight={700}>
+                    {data.totalValue}
+                  </Typography>
+              }
             </Stack>
           </Stack>
 

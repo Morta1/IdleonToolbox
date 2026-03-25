@@ -402,20 +402,13 @@ export const kFormatter = (num, digits = 1) => {
 };
 
 export const cashFormatter = (value) => {
-  let result;
-  if (value > 1e16) {
-    result = (Math.floor(value / 1e14) / 10) + 'Q'
-  }
-  else if (value > 1e13) {
-    result = (Math.floor(value / 1e11) / 10) + 'T'
-  }
-  else if (value > 1e7) {
-    result = (Math.floor(value / 1e5) / 10) + 'M'
-  }
-  else {
-    result = notateNumber(value, 'MultiplierInfo')
-  }
-  return result;
+  if (value >= 1e22) return Math.ceil(value / 1e21) + 'QQQ';
+  if (value >= 1e19) return Math.ceil(value / 1e18) + 'QQ';
+  if (value >= 1e16) return Math.ceil(value / 1e15) + 'Q';
+  if (value >= 1e13) return Math.ceil(value / 1e12) + 'T';
+  if (value >= 1e10) return Math.ceil(value / 1e6) + 'M';
+  if (value >= 1e7) return (Math.floor(value / 1e5) / 10) + 'M';
+  return notateNumber(value, 'MultiplierInfo');
 }
 
 function splitDecimal(numStr, allowNegative = true) {

@@ -4,6 +4,22 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.30',
+    'gameVer': '2.0.495',
+    'date': '25/03/2026',
+    'features': [
+      'Added profile banner to navbar for profile-specific context',
+      'Updated damage, class exp multi, cash multi and respawn rate calculation including a detailed breakdown of all sources 🚀',
+      'Improved website loading speed and responsiveness',
+    ],
+    'fixes': [
+      'Fixed bits display and notation',
+      'Fixed monument cap multiplier logic',
+      'Fixed a bug where quests page was displaying empty quest steps',
+      'Many more small fixes and improvements to various calculations',
+    ]
+  },
+  {
     'ver': '3.3.29',
     'gameVer': '2.0.494',
     'date': '17/03/2026',
@@ -46,7 +62,7 @@ export const patchNotes = [
       'Fixed money calculation accuracy',
       'Fixed amber denominator in odds calculations',
       'Fixed refinery rank up time display',
-      'Fixed refinery total time calculation',
+      'Fixed refinery total time calculation'
     ]
   },
   {
@@ -54,7 +70,7 @@ export const patchNotes = [
     'gameVer': '2.0.493a',
     'date': '07/03/2026',
     'features': [
-      'Updated the website with version 2.0.493a data and assets',
+      'Updated the website with version 2.0.493a data and assets'
     ],
     'fixes': []
   },
@@ -63,7 +79,7 @@ export const patchNotes = [
     'gameVer': '2.0.493',
     'date': '02/03/2026',
     'features': [
-      'Updated the website with version 2.0.493 data and assets',
+      'Updated the website with version 2.0.493 data and assets'
     ],
     'fixes': []
   },
@@ -152,7 +168,7 @@ export const patchNotes = [
       'Fixed equinox max level calculation',
       'Fixed sampling companion item display tooltip',
       'Fixed a bug with parsing numbers in masterclass resource per hour input',
-      'Drop rate calculations are now more accurate (still not 100% accurate)',
+      'Drop rate calculations are now more accurate (still not 100% accurate)'
     ]
   },
   {
@@ -172,7 +188,7 @@ export const patchNotes = [
     ],
     'fixes': [
       'Applied the new event shop bonuses across the website',
-      'Capped anvil carry capacity to 2B',
+      'Capped anvil carry capacity to 2B'
     ]
   },
   {
@@ -182,7 +198,7 @@ export const patchNotes = [
     'features': [
       'Updated the website with version 2.0.47 data and assets',
       'Added hat rack page under Account -> World 3',
-      'Added hat rack alerts to the dashboard (World 3)',
+      'Added hat rack alerts to the dashboard (World 3)'
     ],
     'fixes': [
       'Updated tome calculation for bubble levels'
@@ -214,7 +230,7 @@ export const patchNotes = [
       'Added breakdown for Reef Day Gains in Coral Reef page',
       'Monument timers are now shown as "current / max soft cap" in the dashboard (with a timer to soft cap on hover)',
       'Added an alert for available cheaper masterclass upgrades (due to a legend talent)',
-      'Added an alert for available exotic market purchases',
+      'Added an alert for available exotic market purchases'
     ],
     'fixes': [
       'Fixed a bug where the activity filter would not show when character is afk in divinity with goat god linked',
@@ -230,7 +246,7 @@ export const patchNotes = [
     'features': [
       'Updated the website with version 2.0.46 data and assets',
       'Added Bubba page under Account -> Clickers with upgrades, bonuses and meatslice rate',
-      'Moved Owl and Kangaroo pages to Account -> Clickers',
+      'Moved Owl and Kangaroo pages to Account -> Clickers'
     ],
     'fixes': []
   },
@@ -280,7 +296,7 @@ export const patchNotes = [
     'gameVer': '2.0.43',
     'date': '28/09/2025',
     'features': [
-      'Updated the website with version 2.0.43 data and assets',
+      'Updated the website with version 2.0.43 data and assets'
     ],
     'fixes': []
   },
@@ -293,7 +309,7 @@ export const patchNotes = [
       'Added a class-specific "Better Weapon" alert to notify when a better form-specific weapon is available in the inventory.',
       'Added navigation links on chests in the storage page to open their corresponding wiki page.',
       'Added time estimation for resource costs in the upgrade optimizer pages, based on resources per hour.',
-      'Added an indicator on character cards in the dashboard to show whether they are currently in a form (Wraith, Tempest, or Arcanist).',
+      'Added an indicator on character cards in the dashboard to show whether they are currently in a form (Wraith, Tempest, or Arcanist).'
     ],
     'fixes': []
   },
@@ -302,7 +318,7 @@ export const patchNotes = [
     'gameVer': '2.0.41',
     'date': '19/08/2025',
     'features': [
-      'Bubbles page visual update',
+      'Bubbles page visual update'
     ],
     'fixes': []
   },
@@ -312,11 +328,11 @@ export const patchNotes = [
     'date': '11/07/2025',
     'features': [
       'Added summoning stones',
-      'Added missing classes for builds page',
+      'Added missing classes for builds page'
     ],
     'fixes': [
       'Fixed "only affordable skills" in optimizers page',
-      'Fixed bits breakdown with missing items',
+      'Fixed bits breakdown with missing items'
 
     ]
   },
@@ -1673,7 +1689,7 @@ export const patchNotes = [
     features: [
       <Typography>Added 2 guild related pages, <Link
         href={'https://idleontoolbox.com/account/guild'}>Guild</Link> page and <Link
-          href={'https://idleontoolbox.com/guilds'}>Guilds</Link> page</Typography>
+        href={'https://idleontoolbox.com/guilds'}>Guilds</Link> page</Typography>
     ],
     fixes: [
       'Fixed a bug with lab line width calculations',
@@ -1771,7 +1787,7 @@ export const patchNotes = [
     features: [
       'Updated the login flow of the website 🎉',
       <Typography component={'span'}><Typography component={'span'}
-        sx={{ fontWeight: 'bold' }}>Deprecated</Typography> the ability to
+                                                 sx={{ fontWeight: 'bold' }}>Deprecated</Typography> the ability to
         paste data into the website (steam data extractor is no longer supported, please use one of the other 3 login
         methods [Email, Google, Apple])</Typography>
 
@@ -2349,10 +2365,10 @@ export const patchNotes = [
     date: '21/03/2023',
     features: [<Typography><Link
       href={'https://idleontoolbox.com/dashboard'}>Dashboard</Link> page!</Typography>,
-    <Typography>Added a tooltip for boss keys + colo tickets on <Link
-      href={'https://idleontoolbox.com/account/general'}>General</Link> page</Typography>,
-    <Typography>Added Stamp Reducer indication on <Link
-      href={'https://idleontoolbox.com/account/world-3/atom-collider'}>Atom Collider</Link> page</Typography>,
+      <Typography>Added a tooltip for boss keys + colo tickets on <Link
+        href={'https://idleontoolbox.com/account/general'}>General</Link> page</Typography>,
+      <Typography>Added Stamp Reducer indication on <Link
+        href={'https://idleontoolbox.com/account/world-3/atom-collider'}>Atom Collider</Link> page</Typography>,
       'Added Subtract Green Stacks option for vials in dashboard (this will subtract 10M from your current amount to make sure you will still have green stack after upgrading)',
       'Added a tooltip for exact quantity for items in storage'],
     fixes: ['Fixed wizard towers max level (from atom collider)', 'Some bug fixes for low level accounts',

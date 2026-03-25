@@ -184,11 +184,16 @@ export const getActiveBuffs = (activeBuffs: any, talents: any) => {
   return activeBuffs?.map(([talentId]: any) => talents?.find(({ talentId: tId }: any) => talentId === tId))?.filter((talent: any) => talent);
 }
 
-export const getHighestTalentByClass = (characters: any, className: any, talentName?: any, yBonus?: any, useMaxLevel?: any, reduceAddedLevels = false, excludeSuperTalent = false) => {
+export const getHighestTalentByClass = (characters: any, className: any, talentName?: any, yBonus?: any, useMaxLevel?: any, reduceAddedLevels = false, excludeSuperTalent = false, activeCharacter?: any) => {
   const classes = characters?.filter((character: any) => checkCharClass(character?.class, className));
   return classes?.reduce((res: any, { flatTalents, addedLevels }: any) => {
     let subtractLevels: any = false;
-    if (excludeSuperTalent) {
+    if (activeCharacter) {
+      // Mimic game's getbonus2(1, id, -1): use active character's addedLevels
+      const talentObj = flatTalents?.find(({ name }: any) => name === talentName);
+      const superTalentAmount = talentObj?.isSuperTalent ? (talentObj.level - talentObj.baseLevel - addedLevels) : 0;
+      subtractLevels = addedLevels + superTalentAmount - activeCharacter.addedLevels;
+    } else if (excludeSuperTalent) {
       const talentObj = flatTalents?.find(({ name }: any) => name === talentName);
       const superTalentAmount = talentObj?.isSuperTalent ? (talentObj.level - talentObj.baseLevel - addedLevels) : 0;
       subtractLevels = superTalentAmount || false;

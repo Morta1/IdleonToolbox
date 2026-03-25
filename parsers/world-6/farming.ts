@@ -141,21 +141,22 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   const bases = (ninjaExtraInfo?.[36] as string)?.split(' ')?.map((base: any) => parseFloat(base));
   const apocalypseWow = getHighestTalentByClass(charactersData, CLASSES.Death_Bringer, 'DANK_RANKS') ?? 0;
   const exoticBonus14 = getExoticMarketBonus(account, 14) ?? 0;
+  const exoticMulti = 1 + exoticBonus14 / 100;
   const ranks = (ninjaExtraInfo?.[35] as string)?.split(' ')?.map((description: any, index: any) => {
     const name = names?.[index];
     const base = bases?.[index];
     const upgradeLevel = upgradesLevels?.[index];
     const unlockAt = unlocks?.[index];
-    const bonus = 4 === index || 9 === index || 14 === index || 19 === index
-      ? Math.max(1, apocalypseWow) * (1 + exoticBonus14 / 100) * base * upgradeLevel
-      : Math.max(1, apocalypseWow) * (1 + exoticBonus14 / 100) * ((1.7 * base * upgradeLevel) / (upgradeLevel + 80))
+    const bonus = calcRankBonus(index, apocalypseWow, exoticMulti, base, upgradeLevel);
 
     return {
       name,
       description,
       bonus,
+      base,
       upgradeLevel,
-      unlockAt
+      unlockAt,
+      exoticMulti
     }
   });
 
@@ -590,8 +591,19 @@ export const getExoticMarketBonus = (account: any, index: any) => {
   return (account?.farming?.exoticMarket?.[index])?.value ?? 0;
 }
 
-export const getLandRank = (ranks: any, index: any) => {
-  return ranks?.[index]?.bonus;
+const calcRankBonus = (index: any, apocalypseWow: any, exoticMulti: any, base: any, upgradeLevel: any) => {
+  return 4 === index || 9 === index || 14 === index || 19 === index
+    ? Math.max(1, apocalypseWow) * exoticMulti * base * upgradeLevel
+    : Math.max(1, apocalypseWow) * exoticMulti * ((1.7 * base * upgradeLevel) / (upgradeLevel + 80));
+}
+
+export const getLandRank = (ranks: any, index: any, characters?: any, activeCharacter?: any) => {
+  const rank = ranks?.[index];
+  if (!rank || !characters || !activeCharacter) return rank?.bonus;
+  const { base, upgradeLevel, exoticMulti } = rank;
+  const apocalypseWow = getHighestTalentByClass(characters, CLASSES.Death_Bringer, 'DANK_RANKS',
+    false, false, false, false, activeCharacter) ?? 0;
+  return calcRankBonus(index, apocalypseWow, exoticMulti, base, upgradeLevel);
 }
 
 export const getLandRankTotalBonus = (account: any, index: any) => {

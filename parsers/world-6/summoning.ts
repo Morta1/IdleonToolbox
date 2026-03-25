@@ -358,6 +358,16 @@ export const getWinnerBonus = (account: any, bonusName: any, _unused2?: any) => 
   return account?.summoning?.winnerBonuses?.find(({ bonus }: any) => bonus === bonusName)?.value ?? 0;
 }
 
+export const getSummoningUpgradeBonus = (account: any, upgradeIndex: number) => {
+  const grouped = account?.summoning?.upgrades;
+  if (!grouped) return 0;
+  for (const group of Object.values(grouped)) {
+    const found = (group as any[])?.find?.((u: any) => u?.originalIndex === upgradeIndex);
+    if (found) return found.value || 0;
+  }
+  return 0;
+}
+
 const updateTotalBonuses = (upgrades: any, careerWins: any, serializedCharactersData: any, highestEndlessLevel: any) => {
   const allWins: any = Object.values(careerWins).reduce((sum: any, wins: any) => sum + wins, 0);
   const totalUpgrades = upgrades.reduce((sum: any, { level }: any) => sum + level, 0);

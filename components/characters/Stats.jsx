@@ -14,16 +14,15 @@ import {
 import Timer from '../common/Timer';
 import Tooltip from '../Tooltip';
 import { TitleAndValue } from '../common/styles';
-import { getAfkGain, getCashMulti, getClassExpMulti, getDropRate, getRespawnRate } from '../../parsers/character';
+import { getAfkGain, getCashMulti, getClassExpMulti, getDropRate, getRespawnRate, notateExpMulti } from '../../parsers/character';
 import { getGoldenFoodMulti } from '../../parsers/misc';
 import React from 'react';
 import { getMaxDamage, notateDamage } from '../../parsers/damage';
-import processString from 'react-process-string';
-import styled from '@emotion/styled';
 import CoinDisplay from '../common/CoinDisplay';
 import ProgressBar from '@components/common/ProgressBar';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { getPlayerCrystalChance } from '@parsers/character';
+import GameIconNotation from '@components/common/GameIconNotation';
 
 const colors = {
   strength: 'error.light',
@@ -34,7 +33,6 @@ const colors = {
 
 const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => {
   const { name, stats, afkTime, crystalSpawnChance, nextPortal, nonConsumeChance } = character;
-  const { cashMulti, breakdown } = getCashMulti(character, account, characters) || {};
   const { dropRate, breakdown: drBreakdown } = getDropRate(character, account, characters) || {};
   const { respawnRate, breakdown: rtBreakdown } = getRespawnRate(character, account) || {};
   const { afkGains, breakdown: agBreakdown } = getAfkGain(character, characters, account);
@@ -51,6 +49,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
     breakdown: goldenFoodBreakdown
   } = getGoldenFoodMulti(character, account, characters);
   const playerInfo = getMaxDamage(character, characters, account);
+  const { cashMulti, breakdown } = getCashMulti(character, account, characters, playerInfo) || {};
 
   const isOvertime = () => {
     const hasUnendingEnergy = character?.activePrayers?.find(({ name }) => name === 'Unending_Energy');
@@ -100,15 +99,16 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
                   value={playerInfo?.finalKillsPerHour > 1e6
                     ? notateNumber(playerInfo?.finalKillsPerHour)
                     : numberWithCommas(Math.floor(playerInfo?.finalKillsPerHour))}/>
-            <NewStat title={'Defence'} value={notateNumber(playerInfo?.defence?.value)}
+            <NewStat title={'Defence'} value={commaNotation(playerInfo?.defence?.value)}
                      breakdown={playerInfo?.defence?.breakdown}/>
             <Stat title={'Critical Chance'} value={`${notateNumber(playerInfo?.critChance)}%`}/>
             <Stat title={'Critical Damage'} value={`${notateNumber(playerInfo?.critDamage, 'MultiplierInfo')}x`}/>
             <Stat title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>
             <Stat title={'Movement Speed'} value={notateNumber(playerInfo?.movementSpeed)}/>
             <Stat title={'Mining Efficiency'} value={notateNumber(playerInfo?.miningEff)}/>
-            <Stat title={'Damage'} damage value={notateDamage(playerInfo)}/>
-            <NewStat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}
+            <Stat title={'Damage'} damage value={notateDamage(playerInfo)}
+                  breakdownData={playerInfo?.damageBreakdown} breakdownNotation={'ThreeDecimals'}/>
+<NewStat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}
                      breakdown={drBreakdown} breakdownNotation={'ThreeDecimals'} useDoubleColumn/>
             <NewStat title={'Respawn Time'}
                      value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}
@@ -127,7 +127,9 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
                 tooltipTitle={`${notateNumber(character?.skillsInfo?.character?.exp)} / ${notateNumber(character?.skillsInfo?.character?.expReq)}`}
                 percent={character?.skillsInfo?.character?.exp / character?.skillsInfo?.character?.expReq * 100}/>
             </Stack>
-            <NewStat title={'Exp multi'} value={`${notateNumber(classExp, 'MultiplierInfo')}x`}
+            <NewStat title={'Exp multi'}
+                     value={<GameIconNotation value={notateExpMulti(classExp)}
+                                              sx={classExpBreakdown ? { borderBottom: '1px dotted', lineHeight: 1 } : {}}/>}
                      breakdown={classExpBreakdown} breakdownNotation={'Smaller'} useDoubleColumn/>
             <Stat title={'Money'}
                   value={<CoinDisplay title={''}
@@ -178,29 +180,31 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
   );
 };
 
-const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', damage, useDoubleColumn }) => {
+const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', damage, useDoubleColumn, breakdownData, skipNotation }) => {
+  const hasBreakdown = breakdown || breakdownData;
+  const content = !damage ? (
+    <Typography component={'span'} sx={hasBreakdown
+      ? { alignItems: 'center', borderBottom: '1px dotted', lineHeight: 1 }
+      : {}}
+    >{value}</Typography>
+  ) : (
+    <GameIconNotation value={value} sx={breakdownData ? { borderBottom: '1px dotted', lineHeight: 1 } : {}}/>
+  );
+
   return (
-    (<Stack direction={'row'} justifyContent={'space-between'} alignItems={breakdown ? 'center' : 'flex-start'}>
+    (<Stack direction={'row'} justifyContent={'space-between'} alignItems={hasBreakdown ? 'center' : 'flex-start'}>
       <Typography color={'info.light'}>{title}</Typography>
-      <Tooltip maxWidth={500}
-               title={breakdown ? <BreakdownTooltip breakdown={breakdown} useDoubleColumn={useDoubleColumn}
-                                                    notate={breakdownNotation}/> : ''}>
-        {!damage ? <Typography component={'span'} sx={breakdown
-          ? { alignItems: 'center', borderBottom: '1px dotted', lineHeight: 1 }
-          : {}}
-        >{value}</Typography> : <Typography color={'#fffcc9'} sx={{ display: 'flex', alignItems: 'center', gap: .5 }}>
-          {processString([{
-            regex: /[\[!|]/g,
-            fn: (key, match) => {
-              const modifier = match.at(0);
-              let iconName = 'M';
-              if (modifier === '!') iconName = 'T';
-              else if (modifier === '|') iconName = 'D';
-              return <DamageIcon key={key} src={`${prefix}etc/Damage_${iconName}.png`} alt=""/>
-            }
-          }])(value)}
-        </Typography>}
-      </Tooltip>
+      {breakdownData ? (
+        <Breakdown data={breakdownData} skipNotation={skipNotation}>
+          {content}
+        </Breakdown>
+      ) : (
+        <Tooltip maxWidth={500}
+                 title={breakdown ? <BreakdownTooltip breakdown={breakdown} useDoubleColumn={useDoubleColumn}
+                                                      notate={breakdownNotation}/> : ''}>
+          {content}
+        </Tooltip>
+      )}
     </Stack>)
   );
 }
@@ -248,11 +252,5 @@ const BreakdownTooltip = ({ breakdown, titleWidth = 170, notate = '', useDoubleC
     </Stack>
   );
 }
-
-const DamageIcon = styled.img`
-  width: 16px;
-  height: 16px;
-  object-fit: contain;
-`
 
 export default Stats;

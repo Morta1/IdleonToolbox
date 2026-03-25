@@ -94,6 +94,7 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
     challenges,
     upgrades,
     completedClouds,
+    rawDream: dream,
     breakdown,
     expression: `const base = (1 + voteBonus / 100)
     * (1 + companionBonus * 2.5)

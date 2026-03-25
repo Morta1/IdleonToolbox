@@ -53,7 +53,7 @@ export const calculateItemTotalAmount = (array: any[], itemName: string, exact: 
   }, 0);
 }
 
-export const getStatsFromGear = (character: any, bonusIndex: any, account?: any) => {
+export const getStatsFromGear = (character: any, bonusIndex: any, account?: any, excludeTools = false) => {
   if (!character) return { value: 0, breakdown: [] };
   const { equipment, tools } = character || {};
 
@@ -83,12 +83,13 @@ export const getStatsFromGear = (character: any, bonusIndex: any, account?: any)
   }, 0) || 0;
 
   // Calculate from tools (no chip multipliers for tools)
-  const toolsTotal = tools?.reduce((total: number, item: any) => {
+  // excludeTools: tool Weapon_Power is skill power (Choppin/Mining/etc.), not combat WP
+  const toolsTotal = excludeTools ? 0 : (tools?.reduce((total: number, item: any) => {
     if (isGalleryOrHatRackItem(item)) {
       return total; // Skip - bonus comes from gallery/hatRack
     }
     return total + getStatFromEquipment(item, bonusName);
-  }, 0) || 0;
+  }, 0) || 0);
 
   // Get gallery and hatRack bonuses for tracked item types
   const galleryBonus = getGalleryBonus(account, bonusName) || 0;

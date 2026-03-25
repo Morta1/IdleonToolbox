@@ -1,3 +1,4 @@
+import type { Account, Character } from './types';
 import {
   checkCharClass,
   CLASSES,
@@ -14,7 +15,7 @@ import { getActiveBubbleBonus, getBubbleBonus, getSigilBonus, getVialsBonusBySta
 import { getStatsFromGear } from './items';
 import { getObolsBonus } from './obols';
 import { getFamilyBonusBonus } from './family';
-import { bonuses, classFamilyBonuses, generalSpelunky, mapDetails, monsters, randomList } from '@website-data';
+import { bonuses, classFamilyBonuses, mapDetails, monsters, randomList } from '@website-data';
 import {
   getFoodBonus,
   getGoldenFoodBonus,
@@ -30,10 +31,10 @@ import { getArcadeBonus } from './world-2/arcade';
 import { getAfkGain, getPlayerSpeedBonus, getRespawnRate } from './character';
 import { getStatueBonus } from './world-1/statues';
 import { calcStampCollected, getStampsBonusByEffect } from './world-1/stamps';
-import { lavaLog } from '@utility/helpers';
+import { lavaLog, lavaLog2 } from '@utility/helpers';
 import { getShrineBonus } from './world-3/shrines';
 import { getPrayerBonusAndCurse } from './world-3/prayers';
-import { getJewelBonus, getLabBonus, getPlayerLabChipBonus } from './world-4/lab';
+import { getLabBonus, getPlayerLabChipBonus } from './world-4/lab';
 import { getMealsBonusByEffectOrStat } from './world-4/cooking';
 import { getEclipseSkullsBonus } from './world-3/deathNote';
 import { isArtifactAcquired } from './world-5/sailing';
@@ -44,21 +45,29 @@ import { constructionMasteryThresholds } from './world-3/construction';
 import { getSaltLickBonus } from './world-3/saltLick';
 import { getAchievementStatus } from './achievements';
 import { getGodBlessingBonus, getMinorDivinityBonus } from './world-5/divinity';
-import { getEquinoxBonus } from './world-3/equinox';
+// getEquinoxBonus not used — AdditionExtraDMG uses talent-based calculation
 import { getMiningEff } from '@parsers/efficiency';
 import { getUpgradeVaultBonus } from './misc/upgradeVault';
 import { getOwlBonus } from './world-1/owl';
 import { getKangarooBonus } from './world-2/kangaroo';
 import { getVoteBonus } from './world-2/voteBallot';
-import { getLandRank } from './world-6/farming';
-import { getWinnerBonus } from './world-6/summoning';
+import { getLandRank, getExoticMarketBonus } from './world-6/farming';
+import { getWinnerBonus, getSummoningUpgradeBonus } from './world-6/summoning';
 import { getSchematicBonus } from './world-5/caverns/the-well';
-import { calcTotalQuestCompleted } from './misc';
+import { calcTotalQuestCompleted, getFriendBonus } from './misc';
 import { getArmorSetBonus } from './world-3/armorSmithy';
 import { getCosmoBonus } from './world-5/hole';
+import { getPaletteBonus } from './world-5/gaming';
+import { getCharmBonus } from './world-6/sneaking';
+import { getGrimoireBonus } from './class-specific/grimoire';
+import { getMonumentBonus } from './world-5/caverns/bravery';
+import { getCompassBonus } from './class-specific/compass';
+import { getMeritocracyBonus } from './world-2/voteBallot';
+import { getMineheadBonusQTY } from './world-7/minehead';
+import { isBundlePurchased } from './misc';
 import { notateNumber } from '@utility/helpers';
 
-export const getMaxDamage = (character: any, characters: any, account: any) => {
+export const getMaxDamage = (character: Character, characters: Character[], account: Account) => {
   const playerInfo: any = { survivabilityMath: 0 };
   const mainStat = mainStatMap?.[character?.class];
   const strTalentBonus = getTalentBonus(character?.flatTalents, 'STRENGTH_IN_NUMBERS');
@@ -72,7 +81,7 @@ export const getMaxDamage = (character: any, characters: any, account: any) => {
   } else if (mainStat === 'wisdom') {
     statBubbleBonus = getBubbleBonus(account, 'SMARTER_SPELLS', false, mainStat === 'wisdom');
   }
-  const damageFromStat = (character?.stats?.[mainStat] || 0) * (1 + (strTalentBonus
+  const damageFromStat = ((character?.stats as any)?.[mainStat] || 0) * (1 + (strTalentBonus
     + (intTalentBonus
       + lukTalentBonus)
     + statBubbleBonus) / 100);
@@ -93,12 +102,22 @@ export const getMaxDamage = (character: any, characters: any, account: any) => {
   // efficiencies
   playerInfo.miningEff = getMiningEff(character, characters, account, playerInfo);
 
-  const { baseDamage } = getBaseDamage(character, characters, account, playerInfo, damageFromStat)
-  const hpMpDamage = getDamageFromHpMp(character, characters, account, playerInfo, damageFromStat);
-  const perDamage = getDamageFromPerX(character, characters, account, playerInfo, hpMpDamage);
-  const percentDamage = getDamagePercent(character, characters, account, playerInfo);
+  const { baseDamage, sources: baseDamageSources, subSections: baseSubSections } = getBaseDamage(character, characters, account, playerInfo, damageFromStat)
+  const { value: hpMpDamage, sources: hpMpSources, subSections: hpMpSubSections } = getDamageFromHpMp(character, characters, account, playerInfo, damageFromStat);
+  const { value: perDamage, sources: perXSources, subSections: perXSubSections } = getDamageFromPerX(character, characters, account, playerInfo, hpMpDamage);
+  const { value: percentDamage, sources: percentSources, subSections: percentSubSections } = getDamagePercent(character, characters, account, playerInfo);
   playerInfo.maxDamage = baseDamage * perDamage * percentDamage;
   playerInfo.minDamage = playerInfo.mastery * playerInfo.maxDamage;
+  playerInfo.damageBreakdown = {
+    statName: 'Damage',
+    totalValue: notateDamage(playerInfo)[0],
+    categories: [
+      { name: 'Base Damage', sources: baseDamageSources, subSections: baseSubSections },
+      { name: 'HP/MP Damage', sources: hpMpSources, subSections: hpMpSubSections },
+      { name: 'Per-X Bonuses', sources: perXSources, subSections: perXSubSections },
+      { name: 'Damage %', sources: percentSources, subSections: percentSubSections },
+    ]
+  };
   playerInfo.defence = getPlayerDefence(character, characters, account, playerInfo);
   playerInfo.survivability = getSurvivability(character, characters, account, playerInfo);
   playerInfo.killsPerHour = getKillsPerHour(character, characters, account, playerInfo);
@@ -144,16 +163,22 @@ export const notateDamage = (playerInfo: any) => {
   } else if (maxDamage < 1e23) {
     // Hundreds of quintillions with | prefix
     notation = `|${Math.ceil(minDamage / 1e17) / 10}~${Math.ceil(maxDamage / 1e17) / 10}`;
-  } else {
-    // Sextillions+ with | prefix
+  } else if (maxDamage < 1e25) {
+    // Sextillions with | prefix
     notation = `|${Math.ceil(minDamage / 1e18) / 1}~${Math.ceil(maxDamage / 1e18) / 1}`;
+  } else if (maxDamage < 1e27) {
+    notation = `|${Math.ceil(minDamage / 1e18 / 1e3) / 1e3}棘~${Math.ceil(maxDamage / 1e18 / 1e3) / 1e3}棘`;
+  } else if (maxDamage < 1e28) {
+    notation = `|${Math.ceil(minDamage / 1e18 / 1e5) / 10}棘~${Math.ceil(maxDamage / 1e18 / 1e5) / 10}棘`;
+  } else {
+    notation = `|${Math.ceil(minDamage / 1e18 / 1e6) / 1}棘~${Math.ceil(maxDamage / 1e18 / 1e6) / 1}棘`;
   }
 
   return [notation];
 }
 
 // "Mastery" == e
-const getMastery = (character: any, characters: any, account: any) => {
+const getMastery = (character: Character, characters: Character[], account: Account) => {
   const mainStat = mainStatMap?.[character?.class];
   const talent113 = 0;
   const bubbleBonus = getBubbleBonus(account, 'LIL_BIG_DAMAGE', false, mainStat === 'agility');
@@ -165,19 +190,38 @@ const getMastery = (character: any, characters: any, account: any) => {
     / 100 + (bubbleBonus
       + (cardBonus + (talentBonus + (equipmentBonus)))) / 100);
 }
-const getDamagePercent = (character: any, characters: any, account: any, _unused3?: any) => {
+
+const getDamagePercent = (character: Character, characters: Character[], account: Account, _unused3?: any) => {
   const mainStat = mainStatMap?.[character?.class];
   const { strength, agility, wisdom, luck } = character?.stats || {};
-  const wormHoleTalent = getTalentBonus(character?.flatTalents, 'WORMHOLE_EMPEROR');
-  const perWormholeKills = 1 + (wormHoleTalent * lavaLog(account?.accountOptions?.[152] ?? 0)) / 100;
-  const equinoxDamageBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Matching_Scims');
-  const eclipseSkulls = getEclipseSkullsBonus(account) * 5;
+
+  // === Pre-softcap bonuses (game DamageDealtLIST[2] initial push) ===
+  // Game: WorkbenchStuff('AdditionExtraDMG') uses highest talent across ALL characters
+  // (1 + talent508 * log(opt152) / 100) * (1 + talent208 * log(opt329) / 100)
+  const wormHoleTalent = getHighestTalentByClass(characters, CLASSES.Elemental_Sorcerer, 'WORMHOLE_EMPEROR', false, false, false, false, character);
+  const perWormholeKills = 1 + (wormHoleTalent * lavaLog(Number(account?.accountOptions?.[152]) || 0)) / 100;
+  // Talent 208 = WRAITH_OVERLORD — available on Death_Bringer (Warrior path)
+  const wraithOverlordTalent = getHighestTalentByClass(characters, CLASSES.Death_Bringer, 'WRAITH_OVERLORD', false, false, false, false, character);
+  const perEquinoxKills = 1 + (wraithOverlordTalent * lavaLog(Number(account?.accountOptions?.[329]) || 0)) / 100;
+  const vialDmgBonus = getVialsBonusByStat(account?.alchemy?.vials, '7dmg') || 0;
+  const eclipseSkulls = getEclipseSkullsBonus(account);
+  const paletteBonus = getPaletteBonus(account, 34);
+  const dreamBonus = (account as any)?.equinox?.rawDream?.[6] ?? 0; // Dream[6] - raw equinox data, TODO: expose on equinox parser
+  const pristineCharmBonus = getCharmBonus(account, 'Sparkle_Log');
+  const summUpg79 = getSummoningUpgradeBonus(account, 79);
+
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'NO_PAIN_NO_GAIN');
   const starSignBonus = getStarSignBonus(character, account, 'Total_Damage');
   const unlockedGods = account?.divinity?.unlockedDeities ?? 0;
-  const godTalent = getHighestTalentByClass(characters, CLASSES.Elemental_Sorcerer, 'GODS_CHOSEN_CHILDREN', false, true);
-  const orbTalent = getHighestTalentByClass(characters, CLASSES.Voidwalker, 'POWER_ORB');
+  // Game uses getbonus2(1, talentId, -1) = highest across ALL characters
+  const godTalent = getHighestTalentByClass(characters, CLASSES.Elemental_Sorcerer, 'GODS_CHOSEN_CHILDREN', false, true, false, false, character);
+  const orbTalent = getHighestTalentByClass(characters, CLASSES.Voidwalker, 'POWER_ORB', false, false, false, false, character);
+  const friendBonus = getFriendBonus(account, 0);
+
+  const grimoireUpg35 = getGrimoireBonus(account?.grimoire?.upgrades, 35);
+  const lustreSetBonus = getArmorSetBonus(account, 'LUSTRE_SET') || 0;
   const shrineBonus = getShrineBonus(account?.shrines, 0, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
+  const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 6 }) || 0;
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Deaths_Storage_Unit', 2);
   const secondPostOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Scurvy_C\'arr\'ate', 2);
   const thirdPostOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Gaming_Lootcrate', 2);
@@ -188,6 +232,7 @@ const getDamagePercent = (character: any, characters: any, account: any, _unused
   const amplifiedFamilyBonus = familyBonus * (checkCharClass(character?.class, CLASSES.Blood_Berserker) && theFamilyGuy > 0
     ? (1 + theFamilyGuy / 100)
     : 1)
+
   const firstArtifact = isArtifactAcquired(account?.sailing?.artifacts, 'Crystal_Steak');
   const artifactBonus = firstArtifact?.additionalData?.[character?.playerId]?.bonus ?? 0;
   const secondArtifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Ruble_Cuble')?.bonus ?? 0;
@@ -198,112 +243,292 @@ const getDamagePercent = (character: any, characters: any, account: any, _unused
   const atomBonus = getAtomBonus(account, 'Carbon_-_Wizard_Maximizer') ?? 0;
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Total_Damage');
   const superbitBonus = isSuperbitUnlocked(account, 'MSA_Skill_EXP')?.bonus ?? 0;
-  const skillMasteryBonus = getSkillMasteryBonusByIndex(account?.totalSkillsLevels, account?.rift, 0);
+  const shimmerBonus = Number(account?.accountOptions?.[178]) * (account?.islands?.allShimmerBonus || 0) || 0;
+  const cropScBonus = account?.farming?.cropDepot?.damage?.value || 0;
+  const vaultUpg41 = (getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 41) || 0) * lavaLog(Number(account?.accountOptions?.[346]) || 0);
 
+  const skillMasteryBonus = getSkillMasteryBonusByIndex(account?.totalSkillsLevels, account?.rift, 0);
   const strPercBubbleBonus = getBubbleBonus(account, 'BRITTLEY_SPEARS', false, mainStat === 'strength')
   const agiPercBubbleBonus = getBubbleBonus(account, 'BOW_JACK', false, mainStat === 'agility')
   const wisPercBubbleBonus = getBubbleBonus(account, 'MATTY_STAFFORD', false, mainStat === 'wisdom')
-
   const strBubbleBonus = mainStat === 'strength' || mainStat === 'luck'
-    ? getBubbleBonus(account, 'POWER_TRIONE', false, mainStat === 'strength')
-    : 0;
+    ? getBubbleBonus(account, 'POWER_TRIONE', false, mainStat === 'strength') : 0;
   const agiBubbleBonus = mainStat === 'agility'
-    ? getBubbleBonus(account, 'POWER_TRITWO', false, mainStat === 'agility')
-    : 0;
+    ? getBubbleBonus(account, 'POWER_TRITWO', false, mainStat === 'agility') : 0;
   const wisBubbleBonus = mainStat === 'wisdom'
-    ? getBubbleBonus(account, 'POWER_TRITHREE', false, mainStat === 'wisdom')
-    : 0;
-
+    ? getBubbleBonus(account, 'POWER_TRITHREE', false, mainStat === 'wisdom') : 0;
   const constructMastery = account?.towers?.totalLevels >= constructionMasteryThresholds?.[2]
-    ? 2 * Math.floor((account?.towers?.totalLevels - constructionMasteryThresholds?.[2]) / 10)
-    : 0;
+    ? 2 * Math.floor((account?.towers?.totalLevels - constructionMasteryThresholds?.[2]) / 10) : 0;
+  const tomeBonus0 = account?.tome?.bonuses?.[0]?.bonus || 0;
+  const compassBonus48 = getCompassBonus(account, 48);
+  const exoticBonus41 = getExoticMarketBonus(account, 41);
+  const accountOpt419 = Number(account?.accountOptions?.[419]) || 0;
 
   const talentBonus = getTalentBonus(character?.flatTalents, 'GILDED_SWORD');
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 9);
   const { value: equipmentBonus } = getStatsFromGear(character, 45, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[45]);
-
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Beefy_For_Real', account)?.bonus;
-  const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Precision', account)?.curse;
-  const secondPrayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Fibers_of_Absence', account)?.curse;
-
   const labBonus = getLabBonus(account?.lab?.labBonuses, 0);
   const secondLabBonus = getLabBonus(account?.lab?.labBonuses, 11);
-  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
-  const allOrangeActive = account?.lab.jewels?.slice(7, 10)?.every(({ active }: any) => active) ? 2 : 1;
-  const jewelBonus = getJewelBonus(account?.lab.jewels, 10, spelunkerObolMulti) * allOrangeActive;
+  const thirdLabBonus = getLabBonus(account?.lab?.labBonuses, 110);
+  const holeUpg84 = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 84, i: 100 }) || 0;
+  const arcadeBonus46 = getArcadeBonus(account?.arcade?.shop, 'Total_Damage')?.bonus ?? 0;
+  const accountOpt435 = Number(account?.accountOptions?.[435]) || 0;
 
-  const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet26' ? character?.cards?.cardSet?.bonus : 0;
+  const companion10 = isCompanionBonusActive(account, 10) ? account?.companions?.list?.at(10)?.bonus : 0;
+  const companion156 = isCompanionBonusActive(account, 156) ? account?.companions?.list?.at(156)?.bonus : 0;
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Damage');
+  const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet26' ? character?.cards?.cardSet?.bonus : 0;
 
   const arenaWave = account?.accountOptions?.[89];
   const waveReqs = randomList?.[53];
   const arenaBonusUnlock = +(isArenaBonusActive(arenaWave, waveReqs, 2));
   const secondArenaBonusUnlock = +(isArenaBonusActive(arenaWave, waveReqs, 15));
-
   const chipBonus = getPlayerLabChipBonus(character, account, 12);
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'TotDmg');
-  const curseTalent = getTalentBonus(character?.flatTalents, 'CURSE_OF_MR_LOOTY_BOOTY');
-  const activeDebuff = getTalentBonusIfActive(character?.activeBuffs, 'BALANCED_SPIRIT');
+  const achievementsBonus = 2 * getAchievementStatus(account?.achievements, 58)
+    + 3 * getAchievementStatus(account?.achievements, 59)
+    + 5 * getAchievementStatus(account?.achievements, 60)
+    + 5 * getAchievementStatus(account?.achievements, 62)
+    + 2 * getAchievementStatus(account?.achievements, 119)
+    + 3 * getAchievementStatus(account?.achievements, 120)
+    + 5 * getAchievementStatus(account?.achievements, 121)
+    + 4 * getAchievementStatus(account?.achievements, 189)
+    + 2 * getAchievementStatus(account?.achievements, 185)
+    + 3 * getAchievementStatus(account?.achievements, 186)
+    + 5 * getAchievementStatus(account?.achievements, 187)
+    + getAchievementStatus(account?.achievements, 240)
+    + getAchievementStatus(account?.achievements, 280)
+    + 3 * getAchievementStatus(account?.achievements, 297)
+    + 2 * getAchievementStatus(account?.achievements, 303)
+    + 2 * getAchievementStatus(account?.achievements, 364)
+    + 4 * getAchievementStatus(account?.achievements, 354)
+    + 3 * getAchievementStatus(account?.achievements, 375);
   const godBlessing = getGodBlessingBonus(account?.divinity?.deities, 'Flutterbis')
   const secondGodBlessing = getGodBlessingBonus(account?.divinity?.deities, 'Kattlecruk')
 
-  const damage = perWormholeKills
-    * (1 + equinoxDamageBonus / 100)
-    * (1 + eclipseSkulls / 100)
-    * (1 + (activeBuff
-      + (starSignBonus
-        + (Math.max(0, unlockedGods - 10)
-          * godTalent
-          + Math.floor(Math.max(0, character?.level - 200) / 50)
-          * orbTalent))) / 100) * (1 + (shrineBonus
-            + (postOfficeBonus
-              + (secondPostOfficeBonus
-                + thirdPostOfficeBonus)
-              + amplifiedFamilyBonus)
-            + (artifactBonus
-              + (atomBonus
-                + (shinyBonus
-                  + superbitBonus)))) / 100)
-    * (1 + (skillMasteryBonus
-      + strPercBubbleBonus
-      + (agiPercBubbleBonus
-        + (wisPercBubbleBonus
-          + (secondArtifactBonus
-            + (thirdArtifactBonus
-              + (strBubbleBonus
-                * Math.floor(Math.max(strength, luck) / 250)
-                + agiBubbleBonus
-                * Math.floor(agility / 250)
-                + (wisBubbleBonus
-                  * Math.floor(wisdom / 250)
-                  + constructMastery))))))) / 100)
-    * (1 + (talentBonus + (saltLickBonus
-      + (equipmentBonus + obolsBonus + prayerBonus))
-      + (labBonus + (secondLabBonus
-        + jewelBonus) + (fourthArtifactBonus
-          + fifthArtifactBonus))) / 100)
-    * (1 + (cardBonus + cardSetBonus) / 100)
-    * (1 + (20 * arenaBonusUnlock
-      + 40 * secondArenaBonusUnlock + (chipBonus
-        + mealBonus) + 2 * getAchievementStatus(account?.achievements, 58)
-      + 3 * getAchievementStatus(account?.achievements, 59) + (5 * getAchievementStatus(account?.achievements, 60)
-        + 5 * getAchievementStatus(account?.achievements, 62)) + 2 * getAchievementStatus(account?.achievements, 119)
-      + 3 * getAchievementStatus(account?.achievements, 120) + (5 * getAchievementStatus(account?.achievements, 121)
-        + 2 * getAchievementStatus(account?.achievements, 185) + 3 * getAchievementStatus(account?.achievements, 186)
-        + (5 * getAchievementStatus(account?.achievements, 187) + (getAchievementStatus(account?.achievements, 240)
-          + getAchievementStatus(account?.achievements, 280)) + 3 * getAchievementStatus(account?.achievements, 297)
-          + 2 * getAchievementStatus(account?.achievements, 303) + (2 * getAchievementStatus(account?.achievements, 364)
-            + (4 * getAchievementStatus(account?.achievements, 354) + 3 * getAchievementStatus(account?.achievements, 375))) + (godBlessing
-              + secondGodBlessing)))) / 100)
-    * Math.max((1 - curseTalent / 100)
-      * (1 - activeDebuff / 100)
-      * Math.max(.01, 1 - (prayerCurse + secondPrayerCurse) / 100), .05);
-  return 100 < damage ? 100 + Math.max(Math.pow(damage - 100, .86), 0) : damage;
+  const curseTalent = getTalentBonus(character?.flatTalents, 'CURSE_OF_MR_LOOTY_BOOTY');
+  const activeDebuff = getTalentBonusIfActive(character?.activeBuffs, 'BALANCED_SPIRIT');
+  const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Precision', account)?.curse;
+  const secondPrayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Fibers_of_Absence', account)?.curse;
+
+  // Pre-softcap damage calculation — each variable is a standalone multiplicative group
+  const talentMulti = perWormholeKills * perEquinoxKills;
+  const vialMulti = (1 + vialDmgBonus / 100);
+  const eclipseMulti = (1 + eclipseSkulls / 100);
+  const paletteMulti = (1 + paletteBonus / 100);
+  const dreamMulti = (1 + dreamBonus / 10);
+  const pristineMulti = (1 + pristineCharmBonus / 100);
+  const summoningMulti = (1 + summUpg79 / 100);
+  const starSignAndTalentMulti = (1 + (activeBuff + friendBonus
+    + (starSignBonus
+      + (Math.max(0, unlockedGods - 10) * godTalent
+        + Math.floor(Math.max(0, character?.level - 200) / 50) * orbTalent))) / 100);
+  const accountBonusMulti = (1 + (grimoireUpg35 + lustreSetBonus + shrineBonus + monumentBonus
+    + (postOfficeBonus + (secondPostOfficeBonus + thirdPostOfficeBonus) + amplifiedFamilyBonus)
+    + (artifactBonus + (atomBonus + (shinyBonus + (superbitBonus
+      + (shimmerBonus + (cropScBonus + vaultUpg41))))))) / 100);
+  const bubbleAndStatMulti = (1 + (skillMasteryBonus + strPercBubbleBonus
+    + (agiPercBubbleBonus + (wisPercBubbleBonus
+      + (secondArtifactBonus + (thirdArtifactBonus
+        + (strBubbleBonus * Math.floor(Math.max(strength, luck) / 250)
+          + agiBubbleBonus * Math.floor(agility / 250)
+          + (wisBubbleBonus * Math.floor(wisdom / 250)
+            + (constructMastery + (tomeBonus0 + (compassBonus48
+              + (exoticBonus41 + accountOpt419))))))))))) / 100);
+  const gearAndLabMulti = (1 + (talentBonus + (saltLickBonus + (equipmentBonus + obolsBonus + prayerBonus))
+    + (labBonus + (secondLabBonus + thirdLabBonus)
+      + (fourthArtifactBonus + (fifthArtifactBonus
+        + (holeUpg84 + (arcadeBonus46 + accountOpt435)))))) / 100);
+  const companionAndCardMulti = (1 + ((companion10 ?? 0) + (companion156 ?? 0) + (cardBonus + cardSetBonus)) / 100);
+  const arenaAndMiscMulti = (1 + (20 * arenaBonusUnlock + 40 * secondArenaBonusUnlock
+    + (chipBonus + mealBonus) + achievementsBonus
+    + (godBlessing + secondGodBlessing)) / 100);
+  const curseReduction = Math.max((1 - curseTalent / 100) * (1 - activeDebuff / 100)
+    * Math.max(.01, 1 - (prayerCurse + secondPrayerCurse) / 100), .05);
+  let damage = talentMulti * vialMulti * eclipseMulti * paletteMulti * dreamMulti
+    * pristineMulti * summoningMulti * starSignAndTalentMulti * accountBonusMulti
+    * bubbleAndStatMulti * gearAndLabMulti * companionAndCardMulti * arenaAndMiscMulti * curseReduction;
+
+  // Minehead multipliers
+  const mineheadBonus = getMineheadBonusQTY(account, 0) || 0;
+  // WepPowDmgPCT = BonusQTY(4) * weapon's Weapon_Power
+  const mineheadUpg4 = getMineheadBonusQTY(account, 4) || 0;
+  const weaponWP = (character?.equipment?.[1]?.Weapon_Power || 0);
+  const mineheadWepPow = mineheadUpg4 * weaponWP;
+  damage *= (1 + mineheadBonus / 100) * (1 + mineheadWepPow / 100);
+
+  // Weekly boss guild bonus
+  const weeklyBossBonus = account?.weeklyBossesRaw?.g ?? 0;
+  if (weeklyBossBonus > 0) {
+    damage *= (1 + Math.min(150, weeklyBossBonus) / 100);
+  }
+
+  // === 6-tier softcap chain ===
+  if (damage > 100) damage = 100 + Math.max(Math.pow(damage - 100, .86), 0);
+  if (damage > 2e7) damage = 2e7 * Math.pow(damage / 2e7, .8);
+  if (damage > 5e8) damage = 5e8 * Math.pow(damage / 5e8, .6);
+  if (damage > 2e9) damage = 2e9 * Math.pow(damage / 2e9, .45);
+  if (damage > 15e9) damage = 15e9 * Math.pow(damage / 15e9, .36);
+  if (damage > 6e10) damage = 6e10 * Math.pow(damage / 6e10, .28);
+
+  // === Post-softcap multipliers ===
+  const { value: postEquipBonus72 } = getStatsFromGear(character, 72, account);
+  const { value: postEquipBonus75 } = getStatsFromGear(character, 75, account);
+  const postVoteBonus = getVoteBonus(account, 1) || 0;
+  const postSuperbit64 = isSuperbitUnlocked(account, 'Destructive_Gamer') ? 1 : 0;
+  const accountOpt232 = 10 * Math.floor((96 + (Number(account?.accountOptions?.[232]) || 0)) / 100);
+  const postCardBonus96 = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Damage_(Passive)') || 0;
+  const stickerMulti = account?.farming?.dmgMulti ?? 1;
+  const tomeBonus6 = account?.tome?.bonuses?.[6]?.bonus || 0;
+  const achievePost = getAchievementStatus(account?.achievements, 371) + getAchievementStatus(account?.achievements, 384);
+  const killroyMulti = account?.killroy?.totalDamageMulti ?? 1;
+  const killroyBonus = Math.max(0, Math.min(2, killroyMulti - 1));
+
+  const postMulti1 = (1 + postEquipBonus72 / 100)
+    * (1 + postEquipBonus75 / 100)
+    * (1 + postVoteBonus / 100)
+    * (1 + 0.1 * postSuperbit64)
+    * (1 + accountOpt232 / 100)
+    * (1 + postCardBonus96 / 100)
+    * Math.max(1, stickerMulti)
+    * (1 + (tomeBonus6 + achievePost) / 100)
+    * (1 + killroyBonus);
+  damage *= postMulti1;
+
+  // Post-softcap companion multiplier
+  const companion12 = isCompanionBonusActive(account, 12) ? account?.companions?.list?.at(12)?.bonus ?? 0 : 0;
+  const companion33 = isCompanionBonusActive(account, 33) ? account?.companions?.list?.at(33)?.bonus ?? 0 : 0;
+  const companion160 = isCompanionBonusActive(account, 160) ? account?.companions?.list?.at(160)?.bonus ?? 0 : 0;
+  damage *= Math.max(1, (1 + companion12) * (1 + companion33) * (1 + 2 * companion160));
+
+  // Crystal card, meritocracy
+  const crystal6Card = (account?.cards as any)?.cardList?.find?.((c: any) => c?.rawName === 'Crystal6');
+  const crystalCardBonus = Math.min(1.5 * (crystal6Card?.stars || 0), 15);
+  const meritBonus5 = getMeritocracyBonus(account, 5);
+  damage *= (1 + crystalCardBonus / 100) * (1 + meritBonus5 / 100);
+
+  // Bundle bonus
+  const hasDmgBundle = isBundlePurchased(account?.bundles, 'bon_a');
+  if (hasDmgBundle) damage *= 1.5;
+
+  // Family bonus: TOTAL_DMG_MULTIPLIER (classFamilyBonuses index 40)
+  const famBonus80 = getFamilyBonusBonus(classFamilyBonuses, 'TOTAL_DMG_MULTIPLIER', getHighestLevelOf(characters, CLASSES.Elemental_Sorcerer));
+  damage *= (1 + famBonus80 / 100);
+
+  // Reliquarium penalty
+  const hasReliquarium = (account as any)?.hole?.reliquarium || false;
+  if (hasReliquarium) {
+    damage = Math.pow(damage, 4 / (5 + (Number(account?.accountOptions?.[473]) || 0)));
+  }
+
+  const sources: any[] = [];
+  const subSections = [
+    {
+      name: 'Multiplicative',
+      sources: [
+        { name: 'Wormhole Emperor', value: (perWormholeKills - 1) * 100 },
+        { name: 'Wraith Overlord', value: (perEquinoxKills - 1) * 100 },
+        { name: 'Vial (DMG)', value: vialDmgBonus },
+        { name: 'Eclipse Skulls', value: eclipseSkulls },
+        { name: 'Palette', value: paletteBonus },
+        { name: 'Dream', value: dreamBonus },
+        { name: 'Pristine Charm', value: pristineCharmBonus },
+        { name: 'Summoning Upgrade', value: summUpg79 },
+        { name: 'Curse Talent', value: -curseTalent },
+        { name: 'Balanced Spirit', value: -activeDebuff },
+        { name: 'Prayer Curse (Precision)', value: -prayerCurse },
+        { name: 'Prayer Curse (Fibers)', value: -secondPrayerCurse },
+        { name: 'Minehead', value: mineheadBonus },
+        { name: 'Minehead (WP DMG%)', value: mineheadWepPow },
+        { name: 'Weekly Boss', value: weeklyBossBonus },
+        { name: 'Equipment (Dmg Multi)', value: postEquipBonus72 },
+        { name: 'Equipment (Dmg Bonus)', value: postEquipBonus75 },
+        { name: 'Vote Bonus', value: postVoteBonus },
+        { name: 'Superbit (Destructive Gamer)', value: postSuperbit64 },
+        { name: 'Card (Passive)', value: postCardBonus96 },
+        { name: 'Sticker Multi', value: stickerMulti },
+        { name: 'Tome', value: tomeBonus6 },
+        { name: 'Achievements (Final)', value: achievePost },
+        { name: 'Killroy', value: killroyBonus * 100 },
+        { name: 'Companion (Ancient Golem)', value: companion12 },
+        { name: 'Companion (Chippy)', value: companion33 },
+        { name: 'Companion (Glunko)', value: companion160 },
+        { name: 'Crystal Card', value: crystalCardBonus },
+        { name: 'Meritocracy', value: meritBonus5 },
+        { name: 'Bundle', value: hasDmgBundle ? 50 : 0 },
+        { name: 'Family (DMG Multi)', value: famBonus80 },
+      ]
+    },
+    {
+      name: 'Additive',
+      sources: [
+        { name: 'No Pain No Gain', value: activeBuff },
+        { name: 'Friend Bonus', value: friendBonus },
+        { name: 'Star Sign', value: starSignBonus },
+        { name: 'Gods Chosen Children', value: Math.max(0, unlockedGods - 10) * godTalent },
+        { name: 'Power Orb', value: Math.floor(Math.max(0, character?.level - 200) / 50) * orbTalent },
+        { name: 'Grimoire Upgrade', value: grimoireUpg35 },
+        { name: 'Lustre Set', value: lustreSetBonus },
+        { name: 'Shrine', value: shrineBonus },
+        { name: 'Monument', value: monumentBonus },
+        { name: 'Post Office (Deaths)', value: postOfficeBonus },
+        { name: 'Post Office (Scurvy)', value: secondPostOfficeBonus },
+        { name: 'Post Office (Gaming)', value: thirdPostOfficeBonus },
+        { name: 'Family', value: amplifiedFamilyBonus },
+        { name: 'Crystal Steak', value: artifactBonus },
+        { name: 'Atom', value: atomBonus },
+        { name: 'Shiny', value: shinyBonus },
+        { name: 'Superbit', value: superbitBonus },
+        { name: 'Shimmer', value: shimmerBonus },
+        { name: 'Crop Depot', value: cropScBonus },
+        { name: 'Vault (Bug Power)', value: vaultUpg41 },
+        { name: 'Skill Mastery', value: skillMasteryBonus },
+        { name: 'Bubble (STR %)', value: strPercBubbleBonus },
+        { name: 'Bubble (AGI %)', value: agiPercBubbleBonus },
+        { name: 'Bubble (WIS %)', value: wisPercBubbleBonus },
+        { name: 'Ruble Cuble', value: secondArtifactBonus },
+        { name: 'Fun Hippoete', value: thirdArtifactBonus },
+        { name: 'Trione (STR)', value: strBubbleBonus * Math.floor(Math.max(strength, luck) / 250) },
+        { name: 'Trione (AGI)', value: agiBubbleBonus * Math.floor(agility / 250) },
+        { name: 'Trione (WIS)', value: wisBubbleBonus * Math.floor(wisdom / 250) },
+        { name: 'Construction Mastery', value: constructMastery },
+        { name: 'Tome', value: tomeBonus0 },
+        { name: 'Compass', value: compassBonus48 },
+        { name: 'Exotic Market', value: exoticBonus41 },
+        { name: 'Gilded Sword', value: talentBonus },
+        { name: 'Salt Lick', value: saltLickBonus },
+        { name: 'Equipment', value: equipmentBonus },
+        { name: 'Obols', value: obolsBonus },
+        { name: 'Prayer (Beefy For Real)', value: prayerBonus },
+        { name: 'Lab (Animal Farm)', value: labBonus },
+        { name: 'Lab (Banking Fury)', value: secondLabBonus },
+        { name: 'Lab (Bonus 110)', value: thirdLabBonus },
+        { name: 'Opera Mask', value: fourthArtifactBonus },
+        { name: 'True Lantern', value: fifthArtifactBonus },
+        { name: 'Schematic (Dmg%)', value: holeUpg84 },
+        { name: 'Arcade', value: arcadeBonus46 },
+        { name: 'Companion (Frog)', value: companion10 ?? 0 },
+        { name: 'Companion (Valenslime)', value: companion156 ?? 0 },
+        { name: 'Cards', value: cardBonus },
+        { name: 'Card Set', value: cardSetBonus },
+        { name: 'Arena (3rd Battle Slot)', value: 20 * arenaBonusUnlock },
+        { name: 'Arena (4th Battle Slot)', value: 40 * secondArenaBonusUnlock },
+        { name: 'Chip', value: chipBonus },
+        { name: 'Meal', value: mealBonus },
+        { name: 'Achievements', value: achievementsBonus },
+        { name: 'God Blessing (Flutterbis)', value: godBlessing },
+        { name: 'God Blessing (Kattlecruk)', value: secondGodBlessing },
+      ]
+    },
+  ];
+
+  return { value: damage, sources, subSections };
 }
 
 // DamageDealtLIST[1]
-const getDamageFromPerX = (character: any, characters: any, account: any, playerInfo: any, hpMpDamage: any) => {
+const getDamageFromPerX = (character: Character, characters: Character[], account: Account, playerInfo: any, hpMpDamage: number) => {
   // Talent 284 (VEINS_OF_THE_INFERNAL) - Separate multiplier based on smithing level
   const dmgPerSmithing = getTalentBonus(character?.flatTalents, 'VEINS_OF_THE_INFERNAL');
   const smithingLevel = character?.skillsInfo?.smithing?.level || 0;
@@ -382,7 +607,7 @@ const getDamageFromPerX = (character: any, characters: any, account: any, player
   const questBonus = Math.min(totalQuestsCompleted as number, questTalent);
 
   const hasDoot = isCompanionBonusActive(account, 0);
-  const coralKidLinked = account?.accountOptions?.[425] > 0 && account?.accountOptions?.[425] === 2;
+  const coralKidLinked = Number(account?.accountOptions?.[425]) > 0 && account?.accountOptions?.[425] === 2;
   const minorBonus = hasDoot || coralKidLinked ? getMinorDivinityBonus(character, account, 2) : character?.linkedDeity === 2
     ? character?.deityMinorBonus
     : character?.secondLinkedDeityIndex === 2
@@ -412,10 +637,52 @@ const getDamageFromPerX = (character: any, characters: any, account: any, player
         + minorBonus)) / 100)
     * (secondGoldenFoodBonus === 1 ? secondGoldenFoodBonus : 1 + secondGoldenFoodBonus / 100);
 
-  return 100 < damage ? 100 + Math.max(Math.pow(damage - 100, .86), 0) : damage;
+  const goldenKebabMulti = secondGoldenFoodBonus === 1 ? 1 : 1 + secondGoldenFoodBonus / 100;
+  const sources: any[] = [];
+  const subSections = [
+    {
+      name: 'Multiplicative',
+      sources: [
+        { name: 'Smithing Talent', value: (dmgPerSmithingMultiplier - 1) * 100 },
+        { name: 'Winner Bonus', value: winnerBonus },
+        { name: 'Golden Kebabs', value: secondGoldenFoodBonus === 1 ? 0 : secondGoldenFoodBonus },
+      ]
+    },
+    {
+      name: 'Additive',
+      sources: [
+        { name: 'Minigame (Choppin)', value: dmgPerMinigameBonus },
+        { name: 'Bubble (DMG of Sun)', value: bubbleW12 },
+        { name: 'Bubble (DMG of Moon)', value: bubbleA12 },
+        { name: 'Bubble (DMG of Soul)', value: bubbleM12 },
+        { name: 'Lowest Skill', value: lowestSkillBonus },
+        { name: 'Apocalypse Zow', value: dmgPerApocBonus },
+        { name: 'Refinery', value: dmgPerRefineryBonus },
+        { name: 'Vials', value: dmgPerVialBonus },
+        { name: 'Looty McShooty', value: dmgPerItemsBonus },
+        { name: 'Stamps', value: dmgPerStampsBonus },
+        { name: 'Schematic (Well Sediment)', value: holeUpgrade57Bonus },
+        { name: 'Speed', value: dmgPerSpeedBonus },
+        { name: 'Dreams', value: dmgPerDreamBonus },
+        { name: 'Garbage', value: dmgPerGarbageBonus },
+        { name: 'Dungeon Credits', value: dmgPerDungeonCreditsBonus },
+        { name: 'Quests', value: questBonus },
+        { name: 'Minor Divinity', value: minorBonus },
+      ]
+    },
+  ];
+
+  let value = 100 < damage ? 100 + Math.max(Math.pow(damage - 100, .86), 0) : damage;
+  if (value > 2e6) {
+    value = 2e6 * Math.pow(value / 2e6, .5);
+  }
+  if (value > 1e8) {
+    value = 1e8 * Math.pow(value / 1e8, .3);
+  }
+  return { value, sources, subSections };
 }
 
-const getDamageFromHpMp = (character: any, characters: any, account: any, playerInfo: any, damageFromStat: any) => {
+const getDamageFromHpMp = (character: Character, characters: Character[], account: Account, playerInfo: any, damageFromStat: number) => {
   const secondStatueBonus = getStatueBonus(account, 22, character?.flatTalents);
   const talent113 = 0;
   const hpTalentBonus = getTalentBonus(character?.flatTalents, 'MEAT_SHANK');
@@ -424,7 +691,7 @@ const getDamageFromHpMp = (character: any, characters: any, account: any, player
   const vaultUpgBonus27 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 27) || 0;
   const vaultKillzTotal6 = account?.upgradeVault?.vaultTotalKills?.[6] || 0;
   const vaultUpgBonus15 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 15) || 0;
-  const accountOption338 = account?.accountOptions?.[338] || 0;
+  const accountOption338 = Number(account?.accountOptions?.[338]) || 0;
   const vaultUpgBonus10 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 10) || 0;
 
   const bribeBonus30 = account?.bribes?.[30]?.done ? account?.bribes?.[30]?.value : 0;
@@ -433,12 +700,34 @@ const getDamageFromHpMp = (character: any, characters: any, account: any, player
   const stampBonus = getStampsBonusByEffect(account, 'Total_Damage', character);
   const landRankBonus = getLandRank(account?.farming?.ranks, 14) || 0;
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Total DMG') || 0; // 630 instead of 126
-  const kangarooBonus = getKangarooBonus(account?.kangaroo?.bonuses, 'Accuracy') || 0; // 231 instead of 210
+  const kangarooBonus = getKangarooBonus(account?.kangaroo?.bonuses, 'Total DMG') || 0;
 
   const bubbaRoGBonus = account?.bubba?.bonuses?.totalDamage?.bonus || 0;
   const vaultUpgBonus80 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 80) || 0;
 
-  return 1 +
+  const sources: any[] = [];
+  const subSections = [{
+    name: 'Additive',
+    sources: [
+      { name: 'Damage From Stat', value: Math.pow(damageFromStat, .7) },
+      { name: 'Vault (Stick Snapping)', value: vaultUpgBonus27 * vaultKillzTotal6 },
+      { name: 'Vault (Knockout!)', value: vaultUpgBonus15 * accountOption338 },
+      { name: 'Vault (Weapon Craft)', value: 0.4 * vaultUpgBonus10 },
+      { name: 'Bribe (Muscles on Muscles)', value: bribeBonus30 },
+      { name: 'Bribe (Photoshopped Dmg)', value: bribeBonus20 },
+      { name: 'Stamps', value: stampBonus },
+      { name: 'Land Rank', value: landRankBonus },
+      { name: 'Statue', value: secondStatueBonus },
+      { name: 'HP Talent (Meat Shank)', value: lavaLog(playerInfo.maxHp) * hpTalentBonus },
+      { name: 'MP Talent (Overclocked Energy)', value: lavaLog(playerInfo.maxMp) * mpTalentBonus },
+      { name: 'Owl', value: owlBonus },
+      { name: 'Kangaroo', value: kangarooBonus },
+      { name: 'Bubba', value: bubbaRoGBonus },
+      { name: 'Vault (Raw Damage)', value: vaultUpgBonus80 },
+    ]
+  }];
+
+  const value = 1 +
     (Math.pow(damageFromStat, .7)
       + (vaultUpgBonus27 * vaultKillzTotal6
         + vaultUpgBonus15 * accountOption338
@@ -454,9 +743,10 @@ const getDamageFromHpMp = (character: any, characters: any, account: any, player
               + (kangarooBonus
                 + (bubbaRoGBonus
                   + vaultUpgBonus80))))))) / 100;
+  return { value, sources, subSections };
 }
 
-const getBaseDamage = (character: any, characters: any, account: any, playerInfo: any, damageFromStat: any) => {
+const getBaseDamage = (character: Character, characters: Character[], account: Account, playerInfo: any, damageFromStat: number) => {
   const mainStat = mainStatMap?.[character?.class];
   const strWpTalent = getTalentBonus(character?.flatTalents, 'CARRY_A_BIG_STICK');
   const agiWpTalent = getTalentBonus(character?.flatTalents, 'HIGH_POLYMER_LIMBS');
@@ -488,7 +778,7 @@ const getBaseDamage = (character: any, characters: any, account: any, playerInfo
     * (1 + (strWpTalent
       + agiWpTalent
       + intWpTalent
-      + cosmoBonus)) / 100)
+      + cosmoBonus) / 100))
     + baseWp) / 3, 2)
     + (damageFromStat
       + goldenFoodBonus
@@ -507,7 +797,7 @@ const getBaseDamage = (character: any, characters: any, account: any, playerInfo
         + (hpBubbleBonus
           * lavaLog(Math.max(playerInfo.maxHp - 250, 1))
           + speedBubble
-          * (Math.max((playerInfo.movementSpeed / 100) - 1.1, 0) / .25)
+          * (lavaLog2(Math.max((playerInfo.movementSpeed / 100) - 0.1, 0)) / .25)
           + (mpBubble
             * lavaLog(Math.max(playerInfo.maxMp - 150, 1))
             + (cardBonus + sigilBonus)))));
@@ -520,10 +810,36 @@ const getBaseDamage = (character: any, characters: any, account: any, playerInfo
 
   const foodBonus = getFoodBonus(character, account, 'BaseDmgBoosts');
   damage += foodBonus;
-  return { baseDamage: damage };
+
+  const sources: any[] = [];
+  const subSections = [{
+    name: 'Additive',
+    sources: [
+      { name: 'Weapon Power Effect', value: weaponPowerEffect },
+      { name: 'Golden Food', value: goldenFoodBonus },
+      { name: 'Arcade', value: arcadeBonus },
+      { name: 'Owl', value: owlBonus },
+      { name: 'Vault (Bigger Damage)', value: vaultUpgBonus0 },
+      { name: 'Vault (Slice N Dice)', value: vaultUpgBonus20 * vaultKillzTotal5 },
+      { name: 'Stamps', value: stampsBonus },
+      { name: 'Equipment', value: equipmentBonus },
+      { name: 'Obols', value: obolsBonus },
+      { name: 'Statue', value: statueBonus },
+      { name: 'Post Office', value: postOfficeBonus },
+      { name: 'HP Bubble', value: hpBubbleBonus * lavaLog(Math.max(playerInfo.maxHp - 250, 1)) },
+      { name: 'Speed Bubble', value: speedBubble * (lavaLog2(Math.max((playerInfo.movementSpeed / 100) - 0.1, 0)) / .25) },
+      { name: 'MP Bubble', value: mpBubble * lavaLog(Math.max(playerInfo.maxMp - 150, 1)) },
+      { name: 'Cards', value: cardBonus },
+      { name: 'Sigil', value: sigilBonus },
+      { name: 'Cosmo', value: cosmoBonus },
+      { name: 'Food (post-softcap)', value: foodBonus },
+    ]
+  }];
+
+  return { baseDamage: damage, sources, subSections };
 }
 
-const getAccuracy = (character: any, characters: any, account: any, movementSpeed: any) => {
+const getAccuracy = (character: Character, characters: Character[], account: Account, movementSpeed: number) => {
   // _customBlock_PlayerAccTot = function
   const accuracyStats = {
     'strength': 'wisdom',
@@ -574,12 +890,12 @@ const getAccuracy = (character: any, characters: any, account: any, movementSpee
     ? character?.deityMinorBonus
     : 0;
 
-  let accuracy = character?.stats?.[accuracyStat]
+  let accuracy = (character?.stats as any)?.[accuracyStat]
     * (1 + bubbleBonus / 100) *
     (1 + (activeBuff + (cardBonus
       + (starSignBonus
         + (secondActiveBuff + (statueBonus
-          + (arcadeBonus + (flurboBonus + (bribeBonus + companionBonus23)))))))) / 100);
+          + (arcadeBonus + (flurboBonus + (bribeBonus + (companionBonus23 ?? 0))))))))) / 100);
   if ((movementSpeed / 100) > 1.99) {
     accuracy *= (1 + tipToeQuickness / 100);
   }
@@ -590,7 +906,7 @@ const getAccuracy = (character: any, characters: any, account: any, movementSpee
     * (1 + (chipBonus + mealBonus + kangarooBonus + voteBonus + amarokSetBonus) / 100) * (1 + minorBonus / 100)
   return accuracy;
 }
-const getMaxMp = (character: any, characters: any, account: any) => {
+const getMaxMp = (character: Character, characters: Character[], account: Account) => {
   // customBlock_PlayerMPmax
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Base_MP');
   const cardPercentBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_MP');
@@ -612,7 +928,7 @@ const getMaxMp = (character: any, characters: any, account: any) => {
 
   return baseMp * percentageMp;
 }
-const getMaxHp = (character: any, characters: any, account: any) => {
+const getMaxHp = (character: Character, characters: Character[], account: Account) => {
   // customBlock_PlayerHPmax
   const foodBonus = getFoodBonus(character, account, 'HpBaseBoosts');
   const statueBonus = getStatueBonus(account, 4, character?.flatTalents);
@@ -665,7 +981,7 @@ const getMaxHp = (character: any, characters: any, account: any) => {
 
   return flatHp * percentageHp;
 }
-const getWeaponPower = (character: any, characters: any, account: any) => {
+const getWeaponPower = (character: Character, characters: Character[], account: Account) => {
   // "Weapon_Power" ==
   const mainStat = mainStatMap?.[character?.class];
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Deaths_Storage_Unit', 0);
@@ -674,7 +990,8 @@ const getWeaponPower = (character: any, characters: any, account: any) => {
   const cardPassiveBonus = getCardBonusByEffect(account?.cards, 'Weapon_Power_(Passive)')
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 3);
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'DUSTER_STUDS');
-  const { value: equipmentBonus } = getStatsFromGear(character, 'Weapon_Power', account);
+  // Tool Weapon_Power is skill power (Choppin/Mining/etc.), not combat WP
+  const { value: equipmentBonus } = getStatsFromGear(character, 'Weapon_Power', account, true);
   const obols = getObolsBonus(character?.obols, 'Weapon_Power');
   const chipBonus = getPlayerLabChipBonus(character, account, 19);
   const strBubbleBonus = mainStat === 'strength'
@@ -718,10 +1035,10 @@ const getWeaponPower = (character: any, characters: any, account: any) => {
               * Math.floor(character?.skillsInfo?.divinity?.level / 10))) + (wpPerPetTalentBonus * lavaLog(firstStoredPet) +
                 wpPerLabTalentBonus * Math.floor(character?.skillsInfo?.laboratory?.level / 10))))))));
 }
-const getCritDamage = (character: any, characters: any, account: any) => {
+const getCritDamage = (character: Character, characters: Character[], account: Account) => {
   // customBlock_CritDamage
   const mainStat = mainStatMap?.[character?.class];
-  const wisTalentBonus = getTalentBonus(character?.flatTalents, 'FARSIGHT');
+  const wisTalentBonus = getTalentBonus(character?.flatTalents, 'FARSIGHT', true);
   const warTalentBonus = getTalentBonus(character?.flatTalents, 'CRITIKILL');
   const begTalentBonus = getTalentBonus(character?.flatTalents, 'KNUCKLEBUSTER');
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'DIVINE_INTERVENTION');
@@ -743,7 +1060,7 @@ const getCritDamage = (character: any, characters: any, account: any) => {
     + (stampBonus + ((100 * critDamage) / 1.8 + (bubbleBonus
       + (cardBonus - prayerCurse + (begTalentBonus + (equipmentBonus + obolsBonus + activeBuff)))))))) / 100;
 }
-const getCritChance = (character: any, characters: any, account: any, playerInfo: any) => {
+const getCritChance = (character: Character, characters: Character[], account: Account, playerInfo: any) => {
   // customBlock_CritChance
   const mainStat = mainStatMap?.[character?.class];
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Critical_Chance');
@@ -790,13 +1107,13 @@ const getCritChance = (character: any, characters: any, account: any, playerInfo
         + (postOfficeBonus
           + perAccuracyBonus) + (critChance / 2.3 * 100 + bubbleBonus)))
 }
-const getHitChance = (character: any, characters: any, account: any, playerInfo: any) => {
+const getHitChance = (character: Character, characters: Character[], account: Account, playerInfo: any) => {
   const monster = monsters?.[character?.targetMonster];
   const effectiveAccuracy = playerInfo?.accuracy / monster?.Defence;
   return .5 <= effectiveAccuracy ?
     Math.floor(Math.min(100 * (.95 * effectiveAccuracy - .425), 100)) : 0;
 }
-const getKillsPerHour = (character: any, characters: any, account: any, playerInfo: any) => {
+const getKillsPerHour = (character: Character, characters: Character[], account: Account, playerInfo: any) => {
   const dEffect = getTalentEffectOnKills(character, account, 'D');
   const kEffect = getTalentEffectOnKills(character, account, 'K');
   const mainStat = mainStatMap?.[character?.class];
@@ -826,7 +1143,7 @@ const getKillsPerHour = (character: any, characters: any, account: any, playerIn
           K / (anotherMapNumber / (130 * playerInfo?.movementSpeed) + actionWaitTime * Math.max(monsterHp / first + 0.52, 1)));
   return Math.floor(3600 * hourlyKills);
 }
-const getTalentEffectOnKills = (character: any, account: any, stat: any) => {
+const getTalentEffectOnKills = (character: Character, account: Account, stat: 'D' | 'K') => {
   // customBlock_afkAttackBonses
   const mainStat = mainStatMap?.[character?.class];
   const effect = character?.talentsLoadout?.reduce((sum: any, talent: any) => {
@@ -848,7 +1165,7 @@ const getTalentEffectOnKills = (character: any, account: any, stat: any) => {
       + (fourthTalentBonus + fifthTalentBonus)))) / 100) : effect;
 }
 
-const getMonsterHpTotal = (baseHp: any, character: any, account: any) => {
+const getMonsterHpTotal = (baseHp: number, character: Character, account: Account) => {
   // performETCaction: MonsterHPTotal
   const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Big_Brain_Time', account)?.curse;
   const secondPrayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Midas_Minded', account)?.curse;
@@ -857,7 +1174,7 @@ const getMonsterHpTotal = (baseHp: any, character: any, account: any) => {
   return baseHp * (1 + (prayerCurse + (secondPrayerCurse + thirdPrayerCurse)) / 100);
 }
 
-const getSurvivability = (character: any, characters: any, account: any, playerInfo: any) => {
+const getSurvivability = (character: Character, characters: Character[], account: Account, playerInfo: any) => {
   const monster = monsters?.[character?.targetMonster];
   let monsterDamage = getMonsterDamage(monster, character, account, playerInfo);
   const talentBonus = getTalentBonus(character?.flatTalents, 'MANA_IS_LIFE');
@@ -883,7 +1200,7 @@ const getSurvivability = (character: any, characters: any, account: any, playerI
   }
 }
 
-const getMonsterDamage = (monster: any, character: any, account: any, playerInfo: any) => {
+const getMonsterDamage = (monster: any, character: Character, account: Account, playerInfo: any) => {
   const { Damages } = monster || {};
   const base = Damages?.[0] - 2.5 * Math.pow(playerInfo?.defence?.value, 0.8);
   const baseDef = Math.pow(playerInfo?.defence?.value, 1.5) / 100;
@@ -899,7 +1216,7 @@ const getMonsterDamage = (monster: any, character: any, account: any, playerInfo
   return monsterDamage < .5 ? 0 : Math.max(Math.ceil(monsterDamage), 0)
 }
 
-const getPlayerDefence = (character: any, characters: any, account: any, _unused3?: any) => {
+const getPlayerDefence = (character: Character, characters: Character[], account: Account, _unused3?: any) => {
   // "Defence" == e
   const mainStat = mainStatMap?.[character?.class];
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Box_of_Unwanted_Stats', 1);
@@ -1006,7 +1323,7 @@ const getPlayerDefence = (character: any, characters: any, account: any, _unused
   }
 }
 
-const getKillPerKill = (character: any, characters: any, account: any, playerInfo: any) => {
+const getKillPerKill = (character: Character, characters: Character[], account: Account, playerInfo: any) => {
   const { value: equipmentBonus } = getStatsFromGear(character, 68, account);
   const { value: secondEquipmentBonus } = getStatsFromGear(character, 69, account);
   const { value: thirdEquipmentBonus } = getStatsFromGear(character, 70, account);
@@ -1064,7 +1381,7 @@ const getKillPerKill = (character: any, characters: any, account: any, playerInf
         + prayerBonus)) / 100)
 }
 
-const getMultiKillTotal = (character: any, characters: any, account: any, playerInfo: any) => {
+const getMultiKillTotal = (character: Character, characters: Character[], account: Account, playerInfo: any) => {
   const starSignBonus = getStarSignBonus(character, account, 'Total_Multikill');
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 8);
   const stampsBonus = getStampsBonusByEffect(account, 'Base_Overkill')
@@ -1078,10 +1395,11 @@ const getMultiKillTotal = (character: any, characters: any, account: any, player
       multiKills = i + 2;
     }
   }
+  if (playerInfo) playerInfo.multiKillTiers = multiKills;
   const deathNoteRank = account?.deathNote?.[Math.floor(character?.mapIndex / 50)]?.rank || 0;
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'Overkill');
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'VOID_RADIUS');
-  const voidTalentBonus = getHighestTalentByClass(characters, CLASSES.Voidwalker, 'MASTER_OF_THE_SYSTEM');
+  const voidTalentBonus = getHighestTalentByClass(characters, CLASSES.Voidwalker, 'MASTER_OF_THE_SYSTEM', false, false, false, false, character);
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Multikill_per_Tier')?.bonus ?? 0;
   const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Trilobite_Rock')?.bonus ?? 0;
   const secondActiveBuff = getTalentBonusIfActive(character?.activeBuffs, 'MANA_IS_LIFE', 'y');
@@ -1110,7 +1428,7 @@ const getMultiKillTotal = (character: any, characters: any, account: any, player
       + (vialBonus
         + (activeBuff
           + voidTalentBonus
-          * Math.floor(account?.accountOptions?.[158] / 5))
+          * Math.floor(Number(account?.accountOptions?.[158]) / 5))
         + (arcadeBonus
           + (artifactBonus
             + secondActiveBuff)

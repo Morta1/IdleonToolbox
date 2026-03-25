@@ -277,12 +277,15 @@ export const getNametagBonuses = (rawSpelunk: any, account: any) => {
   };
 }
 
-export const getGalleryBonusMulti = (rawSpelunk: any, account: any, character?: any) => {
+export const getGalleryBonusMulti = (rawSpelunk: any, account: any, character?: any, includeBubble = false) => {
   const baseValue = rawSpelunk?.[13]?.[4];
   const chipBonus = character ? getPlayerLabChipBonus(character, account, 16) ? 10 : 0 : 0;
   const clamWorkBonus = 3 * getClamWorkBonus(account, 7);
   const killroyBonus = getKillRoyShopBonus(account, 3);
-  const bubbleBonus = Math.min(20, getBubbleBonus(account, 'CODFREY_RULZ_OK', false));
+  // Game initializes gallery bonuses before CODFREY_RULZ_OK bubble is resolved,
+  // so the bubble contributes 0 during nametag/trophy bonus initialization.
+  // Only include it when explicitly requested (e.g., for display purposes).
+  const bubbleBonus = includeBubble ? Math.min(20, getBubbleBonus(account, 'CODFREY_RULZ_OK', false)) : 0;
   const cardBonus = Math.min(getCardBonusByEffect(account?.cards, 'Gallery_Bonus_(Passive)'), 10);
   const companionBonus = isCompanionBonusActive(account, 49) ? account?.companions?.list?.at(49)?.bonus : 0;
 

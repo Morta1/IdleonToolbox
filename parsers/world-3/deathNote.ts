@@ -69,11 +69,18 @@ export const getDeathNoteRank = (account: any, kills: any, isMiniBosses?: any) =
 export const getEclipseSkullsBonus = (account: any) => {
   const hasBonus = isRiftBonusUnlocked(account?.rift, 'Eclipse_Skulls');
   if (!hasBonus) return 0;
-  return Object.entries(account?.deathNote || {})?.reduce((sum: any, [_, value]) => {
+  // Game only counts worlds 0-5 (6 > e), excludes world 6+ and miniBosses
+  const validWorlds = ['0', '1', '2', '3', '4', '5'];
+  const count = Object.entries(account?.deathNote || {})?.reduce((sum: any, [key, value]) => {
+    if (!validWorlds.includes(key)) return sum;
     const { mobs } = value as any;
-    const eclipses = mobs?.reduce((res: any, { kills }: any) => res + (kills >= 1e9 ? 1 : 0), 0)
+    const eclipses = mobs?.reduce((res: any, { kills }: any) => {
+      const rank = getDeathNoteRank(account, kills);
+      return res + (rank >= 15 ? 1 : 0);
+    }, 0)
     return sum + eclipses;
   }, 0)
+  return 5 * count;
 }
 
 export const calcTotalKillsDigits = (deathNote: any) => {
