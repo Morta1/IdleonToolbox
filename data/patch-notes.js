@@ -8,7 +8,7 @@ export const patchNotes = [
     'gameVer': '2.0.495',
     'date': '25/03/2026',
     'features': [
-      'Added profile banner to navbar for profile-specific context',
+      'Implemented a navbar banner that appears when viewing another user’s profile',
       'Updated damage, class exp multi, cash multi and respawn rate calculation including a detailed breakdown of all sources 🚀',
       'Improved website loading speed and responsiveness',
     ],
