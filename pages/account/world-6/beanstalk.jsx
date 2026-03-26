@@ -16,7 +16,7 @@ const breakpoints = [10000, 100000, 1e6];
 const Beanstalk = () => {
   const { state } = useContext(AppContext);
   const beanstalkData = state?.account?.sneaking?.beanstalkData;
-  const beanstalkGoldenFoods = ninjaExtraInfo[29].split(' ').filter((str) => isNaN(str))
+  const beanstalkGoldenFoods = ninjaExtraInfo[29].filter((str) => isNaN(str))
     .map((gFood, index) => ({
       ...(items?.[gFood] || {}),
       rawName: gFood,

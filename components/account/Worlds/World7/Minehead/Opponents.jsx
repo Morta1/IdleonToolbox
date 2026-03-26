@@ -4,7 +4,7 @@ import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { research as researchData } from '@website-data';
 
 // researchData[10] = space-separated list of 32 MineheadIDs for opponent sprites
-const mineheadIDs = (researchData?.[10] ?? '').split(' ');
+const mineheadIDs = (researchData?.[10] ?? '');
 
 const Opponents = ({ opponents, opponentsBeat }) => {
   if (!opponents || opponents.length === 0) {

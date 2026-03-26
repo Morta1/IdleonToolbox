@@ -7,7 +7,7 @@ import { CardTitleAndValue } from '@components/common/styles';
 import { ninjaExtraInfo } from '@website-data';
 import { getEventShopBonus } from '@parsers/misc';
 
-const shopItems = ninjaExtraInfo?.[39]?.split(' ').toChunks(2).map(([text, price]) => ({ text, price }));
+const shopItems = ninjaExtraInfo?.[39].toChunks(2).map(([text, price]) => ({ text, price }));
 
 const EventShop = () => {
   const { state } = useContext(AppContext);

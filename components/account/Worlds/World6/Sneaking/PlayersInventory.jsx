@@ -3,7 +3,7 @@ import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utilit
 import Tooltip from '@components/Tooltip';
 import { ninjaExtraInfo } from '@website-data';
 
-const doorMaxHps = ninjaExtraInfo?.[3].split(' ');
+const doorMaxHps = ninjaExtraInfo?.[3];
 const getActivityIcon = (activityInfo, weaponType, hasDoor) => {
   if (activityInfo < 0) {
     return 'KO'
