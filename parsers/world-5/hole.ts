@@ -114,7 +114,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     }
   })
 
-  const engineerIndexes = holesInfo?.[40]?.split(' ');
+  const engineerIndexes = holesInfo?.[40];
   const engineerBonuses = engineerIndexes?.map((index: any, order: any) => {
     const upgrade = holesBuildings?.[index];
     const owned = wellSediment?.[upgrade?.x2];
@@ -204,8 +204,8 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
   const sediments = [0, 2, 5, 7, 9];
   const notes = [1, 3, 4, 6, 8];
   const rupies = [10, 11, 12, 13, 14, 15];
-  const measureIndexes = holesInfo[52]?.split(' ');
-  const measurements = holesInfo?.[54]?.split(' ').map((description: any, index: any) => {
+  const measureIndexes = holesInfo[52];
+  const measurements = holesInfo?.[54]?.map((description: any, index: any) => {
     const measureIndex = Number(measureIndexes[index]);
     const baseBonus = getMeasurementBaseBonus({ holesObject, t: index });
     const totalBonus = getMeasurementBonus({ holesObject, accountData, t: index });
@@ -213,7 +213,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     const cost = (250 + 50 * measurementBuffLevels[index]) * Math.pow(1.6, index - 6 * Math.floor(index / 10)) * Math.pow(1.1, measurementBuffLevels[index])
 
     const measuredBy = getMeasurementQuantity({ holesObject, accountData, t: measureIndex });
-    const itemReqIndex = holesInfo[50]?.split(' ')[index];
+    const itemReqIndex = holesInfo[50]?.[index];
     const owned = Math.max(0, wellSediment?.[itemReqIndex] ?? 0);
     let icon;
     if (sediments.includes(index)) {
@@ -404,7 +404,7 @@ export const getCosmoBonus = ({ majik, t, i }: any) => {
       * (majik?.[i]))
 }
 const getMeasurementBaseBonus = ({ holesObject, t }: any) => {
-  const info = holesInfo[55].split(' ');
+  const info = holesInfo[55];
   return -1 !== info[t].indexOf('TOT')
     ? (1 + getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 3 }) / 100)
     * (Number(info[t].replace('TOT', ''))
@@ -504,7 +504,7 @@ const getMeasurementQuantityFound = ({ holesObject, accountData, t, i }: any) =>
 // MeasurementBonusTOTAL
 export const getMeasurementBonus = ({ holesObject, accountData, t }: any) => {
   const base = getMeasurementBaseBonus({ holesObject, t });
-  const measureIndexes = holesInfo[52]?.split(' ');
+  const measureIndexes = holesInfo[52];
   const multi = getMeasurementMulti({ holesObject, accountData, t: Number(measureIndexes[t]) });
   return base * multi;
 }
@@ -703,7 +703,7 @@ const getStudyReq = (holesObject: any, t: any) => {
     * Math.pow(1.5, Math.floor(t / 5));
 }
 export const getStudyBonus = (holesObject: any, t: any, i: any) => {
-  const multiList = holesInfo[70]?.split(' ');
+  const multiList = holesInfo[70];
   return 99 === i
     ? (1 <= holesObject?.studyStuff?.[t] ? 1 : 0)
     : 9 === t
@@ -717,9 +717,9 @@ export const getStudyBonus = (holesObject: any, t: any, i: any) => {
 const getStudies = (holesObject: any, villagerLevel: any, account: any) => {
   const locations = ['Shallow Caverns', 'Glowshroom Tunnels', 'Underground Overgrowth']
   const peripheralVision = !!isSuperbitUnlocked(account, 'Peripheral_Vision');
-  const names = holesInfo?.[68]?.split(' ');
+  const names = holesInfo?.[68];
   const activeStudy = holesObject?.extraCalculations?.[61];
-  const studies = holesInfo?.[69]?.split(' ')?.map((description: any, index: any) => {
+  const studies = holesInfo?.[69]?.map((description: any, index: any) => {
     const listIndex = Math.floor(index / 5);
     const bonus = getStudyBonus(holesObject, index, 0);
     const progress = holesObject?.studyProgress?.[index];

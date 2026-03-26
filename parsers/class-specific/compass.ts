@@ -222,7 +222,7 @@ const getPortalCostType = (mapIndex: number) => {
 const getMedallions = (medallions: any, upgrades: any[]) => {
   return Array.from(
     new Map(
-      (randomList?.[112] as string)?.split(' ').map((monsterRawName: any) => {
+      randomList?.[112]?.map((monsterRawName: any) => {
         const coinQuantity = monsterDrops?.[monsterRawName]?.find(({ rawName }: any) => rawName === 'COIN')?.quantity;
         const bowDrop = 5 > Math.floor(coinQuantity / 3) % 16 ? (1 <= getLocalCompassBonus(upgrades, 3)
           ? Math.floor(coinQuantity / 3) % 16 : -1) : 670 === coinQuantity
@@ -320,7 +320,7 @@ const getGroupedUpgrades = (upgrades: any[], abominations: any[]) => {
   };
   const groupedUpgrades = Object.entries(keyMap).map(([key, path]) => {
     const raw = randomList[parseInt(key)];
-    let ordering = (raw as string).split(' ').map(Number).filter((v: any) => !isNaN(v));
+    let ordering = raw.map(Number).filter((v: any) => !isNaN(v));
     if (!ordering.length) return null;
 
     let list = ordering
@@ -629,7 +629,7 @@ const getUpgradeCost = (upgrades: any[], index: number, serverVars: any, account
 
   const compassUpg = compass?.[index];
   const randoListIndex = Math.round(105 + compassUpg?.x10);
-  const randoList = (randomList[randoListIndex] as string)?.split(' ');
+  const randoList = randomList[randoListIndex];
   const randoMultiplier = Math.max(1, Math.pow(3.69 - randoList.length / 27, randoList.indexOf('' + index)));
 
   const finalCost = getMasterclassCostReduction(accountData, forceLegendTalent) * (

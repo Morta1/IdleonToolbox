@@ -29,7 +29,7 @@ export const getCoralReef = (idleonData: any, account: any, charactersData: any)
 
 const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, rawDancingCoral: any, charactersData: any) => {
   // CoralKid upgrades - get descriptions from generalSpelunky[25]
-  const coralKidDescriptions = generalSpelunky?.[25]?.split(' ') || [];
+  const coralKidDescriptions = generalSpelunky?.[25] || [];
   const coralKidUpgrades = Array.from({ length: 6 }, (_, index) => {
     const level = account?.accountOptions?.[427 + index] || 0;
     const bonus = getCoralKidUpgBonus(account, index);
@@ -53,7 +53,7 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
   });
 
   // Dancing Coral - get descriptions from generalSpelunky[23]
-  const dancingCoralDescriptions = generalSpelunky?.[23]?.split(' ') || [];
+  const dancingCoralDescriptions = generalSpelunky?.[23] || [];
   const dancingCoralNames = [
     'Reef_Coral',
     'Vibrant_Coral',
@@ -166,7 +166,7 @@ export const getCoralKidUpgBonus = (account: any, index: any) => {
 }
 
 export const getDancingCoralCost = (rawSpelunking: any, index: any) => {
-  const baseCost = Number(generalSpelunky?.[22]?.split(' ')?.[index]) || 0;
+  const baseCost = Number(generalSpelunky?.[22]?.[index]) || 0;
   return baseCost / (1 + (10 * rawSpelunking?.[4]?.[7] + Math.pow(1.05, rawSpelunking?.[4]?.[7])) / 100);
 }
 

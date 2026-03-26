@@ -178,7 +178,7 @@ export const getFriendBonus = (account: any, index: any) => {
 
 export const getAdviceFish = (idleonData: any) => {
   const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];
-  const adviceUpgrades = generalSpelunky?.[18]?.split(' ') || [];
+  const adviceUpgrades = generalSpelunky?.[18] || [];
   const upgrades = adviceUpgrades.map((upgrade: any, index: any) => {
     const [name, description, x2, x3, filler] = upgrade.split(',');
     const level = rawSpelunking?.[11]?.[index] ?? 0;
@@ -488,11 +488,11 @@ export const isBundlePurchased = (bundles: any, name: any) => {
 }
 
 export const isArenaBonusActive = (arenaWave: any, waveReq: any, bonusNumber: any) => {
-  const waveReqArray = waveReq.split(' ');
-  if (bonusNumber > waveReqArray.length) {
+  const waveReqArray = Array.isArray(waveReq) ? waveReq : waveReq?.split(' ');
+  if (bonusNumber > waveReqArray?.length) {
     return false;
   }
-  return arenaWave >= waveReqArray[bonusNumber];
+  return arenaWave >= waveReqArray?.[bonusNumber];
 };
 
 export const calculateAfkTime = (playerTime: any, _unused1?: any) => {
@@ -856,7 +856,7 @@ export const getGoldenFoodBonus = (foodName: any, character: any, account: any, 
     : goldenFood?.Amount * goldenFoodMulti?.value * 0.05 * lavaLog(1 + goldenFood?.amount) * (1 + lavaLog(1 + goldenFood?.amount) / 2.14);
   if (isJadeBonusUnlocked(account, 'Gold_Food_Beanstalk')) {
     const beanstalkData = account?.sneaking?.beanstalkData;
-    const beanstalkGoldenFoods =( ninjaExtraInfo[29] as string).split(' ').filter((str: any) => isNaN(str))
+    const beanstalkGoldenFoods = ninjaExtraInfo[29]?.filter((str: any) => isNaN(str))
       .map((gFood: any, index: any) => ({ ...(items?.[gFood] || {}), active: beanstalkData?.[index] > 0, index }));
     const beanstalkFood = beanstalkGoldenFoods?.find(({ displayName, active }: any) => displayName === foodName && active);
     if (!beanstalkFood) return baseBonus;
@@ -900,13 +900,13 @@ const getEventMaps = (eventType: any) => {
   const [world1, world2, world3] = randomList.slice(68, 71)
   let events: any[] = [];
   if (0 === eventType || 1 === eventType || 3 === eventType || 4 === eventType) {
-    events = events.concat((world1 as string).split(' '))
+    events = events.concat(world1)
   }
   if (0 === eventType || 1 === eventType || 3 === eventType) {
-    events = events.concat((world2 as string).split(' '))
+    events = events.concat(world2)
   }
   if (0 === eventType || 2 === eventType) {
-    events = events.concat((world3 as string).split(' '))
+    events = events.concat(world3)
   }
   return events;
 }
@@ -1465,26 +1465,26 @@ export const getKillRoyClasses = (rooms: any, account: any, serverVars: any, ign
     const rng = new LavaRand(seed);
     const random = Math.floor(1e3 * rng.rand());
     if (random < 300 || i === 0) {
-      const monsterList =( randomList[Math.round(68 + i)] as string).split(' ');
+      const monsterList = randomList[Math.round(68 + i)];
       const baseIndex = Math.floor(random / monsterList.length);
       const monsterIndex = Math.round(random - baseIndex * monsterList.length);
       monstersList.push(monsterList[monsterIndex]);
     }
     else {
       if (random < 400 && unlockedMap) {
-        const monsterList =( randomList[72] as string).split(' ');
+        const monsterList = randomList[72];
         const baseIndex = Math.floor(random / monsterList.length);
         const monsterIndex = Math.round(random - baseIndex * monsterList.length);
         monstersList.push(monsterList[monsterIndex])
       }
       else if (random < 500 && account?.summoning?.summoningStuff?.[2] >= 4) {
-        const monsterList =( randomList[99] as string).split(' ');
+        const monsterList = randomList[99];
         const baseIndex = Math.floor(random / monsterList.length);
         const monsterIndex = Math.round(random - baseIndex * monsterList.length);
         monstersList.push(monsterList[monsterIndex]);
       }
       else {
-        const monsterList =( randomList[Math.round(69 + i)] as string).split(' ');
+        const monsterList = randomList[Math.round(69 + i)];
         const baseIndex = Math.floor(random / monsterList.length);
         const monsterIndex = Math.round(random - baseIndex * monsterList.length);
         monstersList.push(monsterList[monsterIndex]);

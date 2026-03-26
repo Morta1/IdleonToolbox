@@ -65,7 +65,7 @@ const getOwnedBuckets = (holesObject: any) => {
                   + getSchematicBonus({ holesObject, t: 11, i: 1 }))))))))));
 }
 const getSedimentMax = ({ sedimentMulti, index }: any) => {
-  const anotherSedimentMulti = holesInfo?.[21]?.split(' ');
+  const anotherSedimentMulti = holesInfo?.[21];
   return 100 * Math.pow(1.5, sedimentMulti?.[index]) * (1 + Number(anotherSedimentMulti?.[index]) / 100);
 }
 export const getSchematicBonus = ({ holesObject, t, i }: any): any => {

@@ -28,8 +28,8 @@ const parseClamWork = (account: Account, spelunkingRaw: any) => {
     "SHINIER_PEARLS",
     "ANTI_INFLATION"
   ];
-  const clamWorkDescriptions = generalSpelunky?.[27].split(' ');
-  const compensations = generalSpelunky?.[30].split(' ').map((comp: string, index: number) => {
+  const clamWorkDescriptions = generalSpelunky?.[27];
+  const compensations = generalSpelunky?.[30].map((comp: string, index: number) => {
     return {
       name: comp,
       unlocked: getClamWorkBonus(account, index),
@@ -72,7 +72,7 @@ export const getClamWorkBonus = (account: Account, index: number): number => {
 
 const getClamCost = (account: Account, index: number, requiredPearls?: number): number => {
   const workerClass = (account as any)?.accountOptions?.[464] ?? 0;
-  const multi = parseFloat(generalSpelunky[29]?.split(' ')?.[index] ?? 0);
+  const multi = parseFloat(generalSpelunky[29]?.[index] ?? 0);
 
   if (index === 9) {
     return 1e5 * Math.pow(10, workerClass);
@@ -92,8 +92,8 @@ const getClamCost = (account: Account, index: number, requiredPearls?: number): 
 const getClamWorkLocalBonuses = (account: Account, index: number): number => {
   // 3 is multi kill which is shit to calculate so we just return 1
   return 999 == index ? 1 : 3 == index
-    ? 1 * parseFloat(generalSpelunky[28]?.split(' ')?.[index] ?? 0) * (account as any)?.accountOptions?.[Math.round(index + 455)]
-    : parseFloat(generalSpelunky[28]?.split(' ')?.[index] ?? 0) * (account as any)?.accountOptions?.[Math.round(index + 455)];
+    ? 1 * parseFloat(generalSpelunky[28]?.[index] ?? 0) * (account as any)?.accountOptions?.[Math.round(index + 455)]
+    : parseFloat(generalSpelunky[28]?.[index] ?? 0) * (account as any)?.accountOptions?.[Math.round(index + 455)];
 }
 
 const getBlackPearlValue = (account: Account): number => {

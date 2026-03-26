@@ -18,7 +18,7 @@ import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 
 export const getTotems = (idleonData: any) => {
   const totemInfoRaw = tryToParse(idleonData?.TotemInfo) || idleonData?.TotemInfo;
-  const totemsNames = (randomList?.[10] as string)?.split(' ');
+  const totemsNames = randomList?.[10];
   const totemMapIndexes = [26, 63, 30, 107, 155, 208, 259, 308];
   return totemMapIndexes?.map((mapIndex, index) => {
     const maxWave = totemInfoRaw?.[0]?.[index] ?? 0;

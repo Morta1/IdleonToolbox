@@ -4,7 +4,7 @@ import { lavaLog, tryToParse } from '@utility/helpers';
 
 export const getDeathNote = (idleonData: any, charactersData: any, account: any) => {
   const rawSneaking = tryToParse(idleonData?.Ninja);
-  const bosses = (ninjaExtraInfo?.[30] as string)?.split(' ');
+  const bosses = ninjaExtraInfo?.[30];
   const miniBossesKills = rawSneaking?.[105];
   const allKills = getAllCharactersKills(charactersData);
   const miniBosses = bosses.map((rawName: any, index: any) => ({

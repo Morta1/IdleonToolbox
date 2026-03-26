@@ -20,7 +20,7 @@ export const getTheBell = (holesObject: any, accountData: any) => {
     const bonus = getBellBonus({ holesObject, t: index });
     return { name, expRate, description: bellsDescriptions?.[index], bonus, expReq, exp };
   })
-  const improvementMethods = holesInfo[60].split(' ').map((description: any, index: any) => {
+  const improvementMethods = holesInfo[60].map((description: any, index: any) => {
     const level = holesObject?.bellImprovementMethods?.[index];
     const bonus = getBellMethodQuantity(holesObject, index);
     const cost = getImprovementMethodCost(holesObject, index);
@@ -33,7 +33,7 @@ export const getTheBell = (holesObject: any, accountData: any) => {
       ...costType
     }
   });
-  const bellBonuses = (holesInfo[59].split(' ') as any).toChunks(2).map(([description, baseValue]: any, index: any) => {
+  const bellBonuses = (holesInfo[59] as any).toChunks(2).map(([description, baseValue]: any, index: any) => {
     const bonus = getBellBonus({ holesObject, t: index })
     return { description, baseValue: parseFloat(baseValue), bonus, level: holesObject?.bellRingLevels?.[index] };
   })
@@ -80,7 +80,7 @@ const getBellExpReq = (holesObject: any, t: any) => {
         : 25
 }
 const getImprovementMethodCost = (holesObject: any, t: any) => {
-  const info = holesInfo?.[42]?.split(' ');
+  const info = holesInfo?.[42];
   return 0 === t
     ? Number(info[t]) * Math.pow(1.25, (holesObject?.bellImprovementMethods?.[t]))
     : 2 === t
@@ -161,10 +161,10 @@ const getBellExpRate = (holesObject: any, accountData: any, t: any) => {
 }
 const getBellMethodQuantity = (holesObject: any, t: any, _unused2?: any) => {
   return 2 * holesObject?.bellImprovementMethods?.[t]
-    * Math.max(1, getSchematicBonus({ holesObject, t: 45, i: 0 }) * Number(holesInfo?.[61]?.split(' ')?.[t]));
+    * Math.max(1, getSchematicBonus({ holesObject, t: 45, i: 0 }) * Number(holesInfo?.[61]?.[t]));
 }
 export const getBellBonus = ({ holesObject, t }: any) => {
-  const info = holesInfo[59]?.split(' ')
+  const info = holesInfo[59]
   return holesObject?.bellRingLevels[t]
     * Number(info[Math.round(2 * t + 1)]);
 }

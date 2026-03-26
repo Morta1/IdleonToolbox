@@ -72,7 +72,7 @@ const parseRefinery = (refineryRaw: any[], storage: any[], tasks: any) => {
 }
 
 export const getPowerCap = (rank: number) => {
-  const powerCap = (randomList[18] as string)?.split(' ');
+  const powerCap = randomList[18];
   return parseFloat(String(Math.max(Number(powerCap?.[Math.min(rank, powerCap?.length - 2)]), 25)))
 }
 

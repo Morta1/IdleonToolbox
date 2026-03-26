@@ -5,7 +5,7 @@ import { holesInfo } from '@website-data';
 export const getTheDen = (holesObject: any) => {
   const bestScore = holesObject?.extraCalculations?.[8];
   const nextOpalAt = 12 * (150 + (30 + (holesObject?.opalsPerCavern[2])) * (holesObject?.opalsPerCavern[2])) * Math.pow(1.5, (holesObject?.opalsPerCavern[2]));
-  const amplifiers = (holesInfo?.[28]?.split(' ') as any).toChunks(2).map(([ampName, ampDescription]: any, index: any) => {
+  const amplifiers = (holesInfo?.[28] as any).toChunks(2).map(([ampName, ampDescription]: any, index: any) => {
     return {
       ampName,
       ampDescription,

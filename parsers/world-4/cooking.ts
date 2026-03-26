@@ -424,7 +424,7 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
     const luckCost = 1 + baseMath * getSpiceUpgradeCost(luckLv);
 
     const spices = [spice1, spice2, spice3, spice4].filter((spice) => spice !== -1);
-    const spicesValues = spices.map((spiceValue) => parseInt((randomList[49] as string)?.split(' ')[spiceValue]));
+    const spicesValues = spices.map((spiceValue) => parseInt(randomList[49]?.[spiceValue]));
     const possibleMeals = getMealsFromSpiceValues(randomList[49], spicesValues).filter((foodIndex) => foodIndex > 0).map((foodIndex) => ({
       index: foodIndex,
       rawName: cookingMenu?.[foodIndex]?.rawName,
@@ -464,7 +464,7 @@ export const getMealsFromSpiceValues = (spiceValues: any, valueOfSpices: any) =>
     }
   });
   // the sum of spice indexes is a possible meal.
-  const spiceValuesArr = spiceValues.split(' ').map((num: any) => parseFloat(num));
+  const spiceValuesArr = spiceValues.map((num: any) => parseFloat(num));
   const sum = valueOfSpices.reduce((sum: any, value: any) => sum + spiceValuesArr.indexOf(value), 0);
   if (!spiceValues.includes(sum)) {
     possibleMeals.push(sum);

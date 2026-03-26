@@ -31,7 +31,7 @@ const getLegendTalentMaxLevel = (talentIndex: number, baseMax: number, accountDa
 
 const parseLegendTalents = (spelunkingRaw: any, accountData: Account = {} as Account, charactersData: any[] = []) => {
   const legendTalentsRaw = spelunkingRaw?.[18];
-  const order = generalSpelunky[26]?.split(' ');
+  const order = generalSpelunky[26];
   const accountDataWithRaw = { ...accountData, _spelunkingRaw: spelunkingRaw };
   const talents = legendTalents?.map((legendTalent: any, index: number) => {
     const level = legendTalentsRaw?.[index] || 0;

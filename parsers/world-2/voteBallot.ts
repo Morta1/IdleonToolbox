@@ -29,7 +29,7 @@ const parseVoteBallot = (idleonData: IdleonData, accountData: Account) => {
         + (arcadeBonus
           + 20 * getEventShopBonus(accountData, 23))))) / 100;
 
-  const parts =( ninjaExtraInfo[41] as string).split(" ");
+  const parts = ninjaExtraInfo[41];
   const upgrades: { description: string; value: number; extra: number }[] = [];
   let meritocracyBonuses: any[];
 
@@ -77,7 +77,7 @@ const parseVoteBallot = (idleonData: IdleonData, accountData: Account) => {
     * (1 + (companionBonus3 + equinoxBonus + (cosmoBonus + (winnerBonus +
       (17 * eventShopBonus2 + 13 * eventShopBonus3 + (companionBonus2 + (paletteBonus + legendTalentBonus2)))))) / 100);
 
-  const bonuses = (( ninjaExtraInfo[38] as string).split(' ') as any).toChunks(3).map((bonus: any, index: number) => {
+  const bonuses = (ninjaExtraInfo[38] as any).toChunks(3).map((bonus: any, index: number) => {
     const bonusIndex = currentCategories.findIndex((ind: any) => ind === index);
     return {
       ...bonus,

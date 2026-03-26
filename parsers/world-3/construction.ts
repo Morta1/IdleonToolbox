@@ -395,7 +395,7 @@ const parseTowers = (towersRaw: any, totemInfo: any) => {
   });
   return {
     data: towersData,
-    buildMultiplier: (randomList?.[13] as string).split(' '),
+    buildMultiplier: randomList?.[13],
     wizardOverLevels,
     totalLevels,
     totalWaves,

@@ -1309,7 +1309,7 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
   }
   else if (skillName === 'sneaking') {
     const playerFloor = account?.sneaking?.players?.[character?.playerId]?.floor;
-    const baseExp = (ninjaExtraInfo[11] as string)?.split(' ')[playerFloor];
+    const baseExp = ninjaExtraInfo[11]?.[playerFloor];
     const ninjaUpgradeBonus = getNinjaUpgradeBonus(account, 'Respect_for_the_Art');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Sneaking_XP_multi')?.bonus;
     const ninjaEquip = getInventoryNinjaItem(account, 'Gold_Eye');
@@ -1574,13 +1574,13 @@ const getStealthRate = (character: any, account: any) => {
 }
 const getDetectionRate = (character: any, account: any) => {
   const floor = account?.sneaking?.players?.[character?.playerId]?.floor;
-  const floorDetectionModifier =( ninjaExtraInfo[9] as string).split(' ')[floor];
+  const floorDetectionModifier = ninjaExtraInfo[9]?.[floor];
   return Math.max(0, Math.min(1, 1 - 1.1 * getStealthRate(character, account)
     / (getStealthRate(character, account) + parseFloat(floorDetectionModifier))));
 }
 export const getJadeRate = (character: any, account: any) => {
   const floor = account?.sneaking?.players?.[character?.playerId]?.floor;
-  const floorJadeModifier =( ninjaExtraInfo[10] as string).split(' ')[floor];
+  const floorJadeModifier = ninjaExtraInfo[10]?.[floor];
   const charmBonus = getCharmBonus(account, 'Treat_Sack');
   const sneakingLevel = character?.skillsInfo?.sneaking?.level;
   const ninjaUpgradeBonus = getNinjaUpgradeBonus(account, 'Currency_Conduit');
@@ -3346,7 +3346,7 @@ const getTrappingStuff = (type: any, index: any, account: any) => {
   if (type === 'TrapMGbonus') {
     const value = account?.accountOptions?.[99];
     if (value >= 25 * (index + 1)) {
-      const parsed = (randomList?.[59] as string)?.split(' ')?.map((num: any) => parseFloat(num));
+      const parsed = randomList?.[59]?.map((num: any) => parseFloat(num));
       return parsed?.[index];
     }
     return 0;

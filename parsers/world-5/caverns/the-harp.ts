@@ -19,7 +19,7 @@ export const getTheHarp = (holesObject: any, accountData: any) => {
   const opalChance = getOpalChance(holesObject, stringTypes, power);
   const notes = holesObject?.wellSediment?.slice(10, 20);
   const chords = fillArrayToLength(6).map((_, index) => {
-    const description = holesInfo[45].split(' ')[index];
+    const description = holesInfo[45][index];
     const level = holesObject?.harpRelated?.[2 * index];
     const exp = holesObject?.harpRelated?.[2 * index + 1];
     const expReq = getStringExpReq(holesObject, index);
@@ -103,7 +103,7 @@ const getHarpExpGain = (holesObject: any, accountData: any, stringTypes: any, po
 }
 
 const getHarpStringBonus = (holesObject: any, t: any) => {
-  return Number(holesInfo[47].split(' ')[t]) * (holesObject?.harpRelated?.[Math.round(2 * t)]);
+  return Number(holesInfo[47][t]) * (holesObject?.harpRelated?.[Math.round(2 * t)]);
 }
 
 export const getStringSlots = (holesObject: any) => {

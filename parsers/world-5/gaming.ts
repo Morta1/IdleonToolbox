@@ -321,7 +321,7 @@ export const getNewMutationChance = (unlockedMutations: any, dna: any, voteBonus
 
 const getMutations = () => {
   const mutations = ['FunGi', 'Bonsai', 'Cactus', 'Blossom', 'Voraci', 'Berri Bush', 'EverGreen', 'Chemical']
-  const plantsBonuses = randomList2?.[0]?.split(' ');
+  const plantsBonuses = randomList2?.[0];
   return mutations.map((mutation, index) => ({
     name: mutation,
     index,

@@ -147,7 +147,7 @@ const getTotalQTYofLVs = (rawBubba: any) => {
 
 // Helper function to get CharismaBonus
 const getCharismaBonus = (rawBubba: any, traitIndex: any) => {
-  const charismaData = generalSpelunky?.[37]?.split(' ') || []; // Charisma bonus values
+  const charismaData = generalSpelunky?.[37] || []; // Charisma bonus values
   const selectedTrait = rawBubba?.[0]?.[15] || 0;
   const charismaLevel = rawBubba?.[3]?.[traitIndex] || 0;
   const charismaValue = parseFloat(charismaData?.[traitIndex] || '0');
@@ -162,7 +162,7 @@ const getCharismaBonus = (rawBubba: any, traitIndex: any) => {
 
 // Helper function to get GiftPassiveBonus
 const getGiftPassiveBonus = (rawBubba: any, giftIndex: any, checkAll = false) => {
-  const giftPassiveData = generalSpelunky?.[41]?.split(' ') || []; // Gift passive bonus values
+  const giftPassiveData = generalSpelunky?.[41] || []; // Gift passive bonus values
   const selectedGift1 = rawBubba?.[0]?.[2] || 0;
   const selectedGift2 = rawBubba?.[0]?.[3] || 0;
 
@@ -189,7 +189,7 @@ const getDiceMulti = (rawBubba: any) => {
 
 // Helper function to get SmokeMeat_Multi
 const getSmokeMeatMulti = (rawBubba: any) => {
-  const smokeMeatData = generalSpelunky?.[34]?.[0]?.split(' ') || []; // Smoke meat bonus values
+  const smokeMeatData = generalSpelunky?.[34]?.[0] || []; // Smoke meat bonus values
   let smokeMeatTotal = 1;
   for (let i = 0; i < 5; i++) {
     const smokeMeatValue = rawBubba?.[5]?.[i] || 0;
@@ -215,7 +215,7 @@ const getMegafleshOwned = (rawBubba: any, megafleshIndex: any) => {
 
 // Helper function to get BubbaRoG_Bonuses (Ring of Greed bonuses)
 const getBubbaBonuses = (rawBubba: any, account: any, ringIndex: any) => {
-  const rogBonusesData = generalSpelunky?.[33]?.split(' ') || [];
+  const rogBonusesData = generalSpelunky?.[33] || [];
   const companionBonus = isCompanionBonusActive(account, 51) ? account?.companions?.list?.at(51)?.bonus : 0;
 
   // Calculate Bubba_RoG_all: 20 * sum of MegafleshOwned for indices 1, 3, 6, 9, 11

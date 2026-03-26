@@ -32,8 +32,8 @@ export const segmentColors = {
 
 // _event_Tome2
 export const getTome = (idleonData: IdleonData, account: Account, characters: any[], serverVars: any) => {
-  const indexes =( ninjaExtraInfo[32] as string).split(' ');
-  const bonusNames =( ninjaExtraInfo[33] as string).split(' ');
+  const indexes = ninjaExtraInfo[32];
+  const bonusNames = ninjaExtraInfo[33];
   const tomeQuantities = calcTomeQuantity(account, characters, idleonData);
   let totalPoints = 0;
   let tome = tomeData.map((bonus: any, index: number) => {

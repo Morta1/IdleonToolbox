@@ -109,7 +109,7 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
       shapeIndexOnCell != null && Number(shapeIndexOnCell) >= 0 ? Number(shapeIndexOnCell) : null;
 
     // CustomLists.Research[5] = shape bonus % per shape index (e.g. "25 15 50 ..." => first shape +25% = 1.25x, second +15% = 1.15x)
-    const shapeBonusPct =( researchData[5] as string).split(' ');
+    const shapeBonusPct = researchData[5];
 
     // When cell is affected by a shape: multiplier from CustomLists.Research[5][shapeIndex] (bonus % per shape).
     let shapeAffectMultiplier = null;
@@ -338,7 +338,7 @@ function getResearchGridBonusInternal(account: any, research: any, gridIndex: an
     return baseBonus * level * Math.max(1, allMulti);
   }
   // Game: CustomLists.Research[5][Research[1][t]] / 100 — static observation bonus percentages
-  const observationBonuses = ((researchData[5] ?? '') as string).split(' ').map(Number);
+  const observationBonuses = (researchData[5] ?? []).map(Number);
   const observationBonusPct = observationBonuses[Number(obsIndex)] ?? 0;
   return baseBonus * level * (1 + observationBonusPct / 100) * Math.max(1, allMulti);
 }

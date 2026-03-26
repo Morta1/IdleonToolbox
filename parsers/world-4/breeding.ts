@@ -204,7 +204,7 @@ export const addBreedingChance = (idleonData: any, account: any) => {
 }
 
 const getBaseBreedChance = (breedingRaw: any, worldIndex: any, petIndex: any) => {
-  const baseChances =( randomList[54] as string).split(' ');
+  const baseChances = randomList[54];
   return petIndex + 2 > breedingRaw?.[1]?.[worldIndex]
     ? 1 / Math.max(1, Number(baseChances[petStats[worldIndex][petIndex].passiveIndex as unknown as number]))
     : 1

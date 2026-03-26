@@ -54,7 +54,7 @@ export const getGrimoire = (idleonData: any, charactersData: any, account: any) 
 };
 
 const parseGrimoire = (grimoireRaw: any, ribbonRaw: any, charactersData: any, account: any) => {
-  const monsterList = (randomList?.[104] as string)?.split(' ');
+  const monsterList = randomList?.[104];
   const bones = account?.accountOptions?.slice(330, 334);
   const totalUpgradeLevels = grimoireRaw?.reduce((sum: any, level: any) => sum + level, 0);
   const totalBonesCollected = account?.accountOptions?.[329];

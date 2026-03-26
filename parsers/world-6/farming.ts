@@ -136,13 +136,13 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   }
   const totalPoints = farmingRanks?.reduce((sum: any, level: any) => sum + level, 0)
   const usedPoints = upgradesLevels?.reduce((sum: any, level: any) => sum + level, 0);
-  const unlocks = (ninjaExtraInfo?.[37] as string)?.split(' ');
-  const names = (ninjaExtraInfo?.[34] as string)?.split(' ');
-  const bases = (ninjaExtraInfo?.[36] as string)?.split(' ')?.map((base: any) => parseFloat(base));
+  const unlocks = ninjaExtraInfo?.[37];
+  const names = ninjaExtraInfo?.[34];
+  const bases = ninjaExtraInfo?.[36]?.map((base: any) => parseFloat(base));
   const apocalypseWow = getHighestTalentByClass(charactersData, CLASSES.Death_Bringer, 'DANK_RANKS') ?? 0;
   const exoticBonus14 = getExoticMarketBonus(account, 14) ?? 0;
   const exoticMulti = 1 + exoticBonus14 / 100;
-  const ranks = (ninjaExtraInfo?.[35] as string)?.split(' ')?.map((description: any, index: any) => {
+  const ranks = ninjaExtraInfo?.[35]?.map((description: any, index: any) => {
     const name = names?.[index];
     const base = bases?.[index];
     const upgradeLevel = upgradesLevels?.[index];
@@ -361,7 +361,7 @@ const getMarketUpgradeBonusValue = (marketUpgrades: any, cropDepot: any, upgrade
 
 export const getStickerBonus = (account: any, index: any) => {
   const stickerLevels = account?.research?.stickerLevels ?? [];
-  const baseBonusValues = ((researchData?.[25] ?? '') as string).split(' ').map(Number);
+  const baseBonusValues = (researchData?.[25] ?? []).map(Number);
   const count = stickerLevels[index] ?? 0;
   const grid68bonus = getResearchGridBonus(account, 68, 2);
   const eventShopBonus37 = getEventShopBonus(account, 37);
@@ -454,9 +454,9 @@ export const updateFarming = (characters: any, account: any) => {
       growthReq
     }
   });
-  const stickerNames = ((researchData?.[23] ?? '') as string).split(' ');
-  const stickerDescriptions = ((researchData?.[24] ?? '') as string).split(' ');
-  const stickerBaseBonus = ((researchData?.[25] ?? '') as string).split(' ').map(Number);
+  const stickerNames = researchData?.[23] ?? [];
+  const stickerDescriptions = researchData?.[24] ?? [];
+  const stickerBaseBonus = (researchData?.[25] ?? []).map(Number);
   const stickers = stickerNames
     .map((name: any, index: any) => {
       if (name === 'Nonexistent_Sticker') return null;

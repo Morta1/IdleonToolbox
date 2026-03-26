@@ -38,7 +38,7 @@ const parseDungeons = (dungeonUpgrades: any, accountOptions: any[]): Record<stri
   const credits = accountOptions?.[72] || 0;
   const flurbos = accountOptions?.[73] || 0;
   const boostedRuns = accountOptions?.[76] || 0;
-  const dungeonLevels = (randomList?.[29] as string).split(' ');
+  const dungeonLevels = randomList?.[29];
   const progress = accountOptions[71];
   const rank =
     Number(

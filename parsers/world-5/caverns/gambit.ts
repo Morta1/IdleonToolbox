@@ -11,7 +11,7 @@ export const getGambit = (holesObject: any, accountData: any) => {
   const pointsMulti = getPointsMulti(holesObject, accountData);
   const basePoints = getPoints(holesObject, accountData, 99);
   const points = getPoints(holesObject, accountData, 777);
-  const bonuses = holesInfo?.[71]?.split(' ')?.map((bonusRaw: any, index: any) => {
+  const bonuses = holesInfo?.[71]?.map((bonusRaw: any, index: any) => {
     const [x0, x1, description, name] = bonusRaw?.split('|');
     const pointsReq = getPointReq(index);
     const bonus = getLocalGambitBonus({ index, x0: parseFloat(x0), x1: parseFloat(x1), points, pointsReq });

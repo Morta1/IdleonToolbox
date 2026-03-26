@@ -16,20 +16,20 @@ export const getWisdom = (holesObject: any,  accountData: any) => {
   const rewardMulti = getMonumentMultiReward(holesObject, 2, accountData) || 0;
   const timeForNextFight = 72E3 * (1 - rewardMulti);
   const hours = holesObject?.braveryMonument?.[4] || 0;
-  const hoursRewards = holesInfo?.[31]?.split(' ').slice(16);
-  const hoursBreakpoints = holesInfo?.[30]?.split(' ').map((hours: any, index: any) => ({
+  const hoursRewards = holesInfo?.[31]?.slice(16);
+  const hoursBreakpoints = holesInfo?.[30]?.map((hours: any, index: any) => ({
     hours,
     reward: hoursRewards?.[index]
   }));
   const nextHourBreakpoint = hoursBreakpoints.find(({ hours: reqHours }: any) => hours < reqHours);
   const multiplier = getMonumentMultiplier({ holesObject, t: 2 });
-  const bonuses = holesInfo?.[32]?.split(' ')
+  const bonuses = holesInfo?.[32]
     ?.slice(20)
     ?.filter((name: any) => !name.includes('Monument_'))
     .map((description: any, index: any) => {
       const level = holesObject?.braveryBonuses?.slice(20)?.[index];
       const bonus = getMonumentBonus({ holesObject, t: 2, i: index });
-      const scalingValue = parseFloat(holesInfo?.[37]?.split(' ')?.[20 + index]);
+      const scalingValue = parseFloat(holesInfo?.[37]?.[20 + index]);
       const isSoftCap = scalingValue >= 30;
       const capMultiplier = index === 9 ? 1 : multiplier;
       const effectiveCap = isSoftCap ? scalingValue * capMultiplier : null;

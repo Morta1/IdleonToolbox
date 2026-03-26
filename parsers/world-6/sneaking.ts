@@ -19,7 +19,7 @@ export const getSneaking = (idleonData: any, serverVars: any, charactersData: an
   return parseSneaking(rawSneaking, rawSpelunking, serverVars, charactersData, account);
 };
 
-const doorMaxHps = (ninjaExtraInfo?.[3] as string).split(' ');
+const doorMaxHps = ninjaExtraInfo?.[3];
 
 const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, charactersData: any, account: any) => {
   const gemStonesUnlocked = rawSneaking?.[106]?.filter((name: any) => name.includes('NjGem'));
@@ -30,7 +30,7 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
       const unlocked = gemStonesUnlocked?.[index];
       const baseValue = account?.accountOptions?.[233 + index] ?? 0;
       const bonus = baseValue < .5 ? 0 : getGemstoneBonus({ ...(data as any), baseValue }, index, 0, charactersData);
-      const description = typeof randomList?.[102] === 'string' ? randomList?.[102]?.split(' ')[index] : undefined;
+      const description = randomList?.[102]?.[index];
 
       return {
         ...data,
@@ -89,7 +89,7 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     activityInfo
   }));
 
-  const dropList = ninjaExtraInfo.slice(13, 23).map((string: any) => ((string as string).split(' ') as any).toChunks(2))
+  const dropList = ninjaExtraInfo.slice(13, 23).map((entry: any) => entry.toChunks(2))
     ?.map((array: any) => array?.map(([itemName, dropChance]: any) => ({
       ...(ninjaEquipment as Record<string, any>)[itemName],
       dropChance
@@ -130,7 +130,7 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     };
   })
 
-  const order = ((ninjaExtraInfo[24]) as string).split(" ");
+  const order = ninjaExtraInfo[24];
   const inventory = parseNinjaItems(rawSneaking?.slice(60, 99), false, gemStones, account);
   const characterEquipments = parseNinjaItems(rawSneaking?.slice(12, 12 + (charactersData?.length * 4)), true, gemStones?.[3]?.bonus, account);
 
@@ -186,7 +186,7 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     baseValue: charm?.x3
   }));
 
-  const ninjaMasteryBonuses = (randomList?.[101] as string).split(' ').map((mastery: any, index: any) => {
+  const ninjaMasteryBonuses = randomList?.[101]?.map((mastery: any, index: any) => {
     const [description, bonus] = mastery.split('{');
     return { index, description, bonus };
   });

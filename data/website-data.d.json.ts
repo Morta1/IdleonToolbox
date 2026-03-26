@@ -44,7 +44,7 @@ declare module '@website-data' {
       threshold: number;
       description: string;
     }[];
-  export const research: (string | string[])[];
+  export const research: (string[])[];
   export const researchShapes: {
       vertices: string;
       center: string;
@@ -117,7 +117,7 @@ declare module '@website-data' {
         x6: number;
         x7: number;
       }[])[];
-  export const generalSpelunky: string[];
+  export const generalSpelunky: (string[])[];
   export const bubbaUpgrades: {
       name: string;
       description: string;
@@ -170,7 +170,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -186,7 +185,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -197,7 +195,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -213,7 +210,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -224,7 +220,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -240,7 +235,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -251,7 +245,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -267,7 +260,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -278,7 +270,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -294,7 +285,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -305,7 +295,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -321,7 +310,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -332,7 +320,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -348,7 +335,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -359,7 +345,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -375,7 +360,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -386,7 +370,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -402,7 +385,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -413,7 +395,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -429,7 +410,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -440,7 +420,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -456,7 +435,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -467,7 +445,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -483,7 +460,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -494,7 +470,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -510,7 +485,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -521,7 +495,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -537,7 +510,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -548,7 +520,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -564,7 +535,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -575,7 +545,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -591,7 +560,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -602,7 +570,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -618,7 +585,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -629,7 +595,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -645,7 +610,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -656,7 +620,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -672,7 +635,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -683,7 +645,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -699,7 +660,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -710,7 +670,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -726,7 +685,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -737,7 +695,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -753,7 +710,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -764,7 +720,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -780,7 +735,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -791,7 +745,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -807,7 +760,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -818,7 +770,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -834,7 +785,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -845,7 +795,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -861,7 +810,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -872,7 +820,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -888,7 +835,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -899,7 +845,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -915,7 +860,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -926,7 +870,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -942,7 +885,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -953,7 +895,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -969,7 +910,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -980,7 +920,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -996,7 +935,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1007,7 +945,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1023,7 +960,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1034,7 +970,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1050,7 +985,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1061,7 +995,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1077,7 +1010,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1088,7 +1020,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1104,7 +1035,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1115,7 +1045,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1131,7 +1060,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1142,7 +1070,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1158,7 +1085,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1169,7 +1095,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1185,7 +1110,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1196,7 +1120,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1212,7 +1135,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1223,7 +1145,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1239,7 +1160,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1250,7 +1170,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1266,7 +1185,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1277,7 +1195,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1293,7 +1210,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1304,7 +1220,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1320,7 +1235,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1331,7 +1245,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1347,7 +1260,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1358,7 +1270,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1374,7 +1285,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1385,7 +1295,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1401,7 +1310,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1412,7 +1320,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1428,7 +1335,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1439,7 +1345,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1455,7 +1360,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1466,7 +1370,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1482,7 +1385,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1493,7 +1395,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -1509,7 +1410,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -1567,7 +1467,7 @@ declare module '@website-data' {
       x9: number;
       x10: number;
       description: string;
-      baseIconIndex: null | number;
+      baseIconIndex: number;
     }[];
   export const abominations: {
       name: string;
@@ -1584,7 +1484,7 @@ declare module '@website-data' {
       x11: number;
       x12: number;
     }[];
-  export const holesInfo: string[];
+  export const holesInfo: (string[])[];
   export const lampWishes: {
       name: string;
       x1: number;
@@ -1765,7 +1665,7 @@ declare module '@website-data' {
       x3?: number;
       x5?: number;
     }>;
-  export const ninjaExtraInfo: (string | string[])[];
+  export const ninjaExtraInfo: (string[])[];
   export const cardBonuses: Record<string, string>;
   export const territory: {
       territoryName: string;
@@ -1991,7 +1891,6 @@ declare module '@website-data' {
           ID: number;
           Type: string;
           lvReqToCraft: number;
-          common: string;
           lvReqToEquip: number;
           Class: string;
           Speed: number;
@@ -2007,7 +1906,6 @@ declare module '@website-data' {
           UQ2txt: number;
           UQ2val: number;
           Upgrade_Slots_Left: number;
-          equip: string;
           itemType: string;
           rawName: string;
           amount: string;
@@ -2165,7 +2063,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       desc_line1?: string;
       desc_line2?: string;
       desc_line3?: string;
@@ -2178,7 +2075,6 @@ declare module '@website-data' {
       Amount?: number;
       Trigger?: number;
       Cooldown?: number;
-      consumable?: string;
       rawName: string;
       itemType: string;
       lvReqToEquip?: number;
@@ -2196,7 +2092,6 @@ declare module '@website-data' {
       UQ2txt?: string | number;
       UQ2val?: number;
       Upgrade_Slots_Left?: number;
-      equip?: string;
     }[];
   export const cards: Record<string, {
       rawName: string;
@@ -2417,7 +2312,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       desc_line1?: string;
       desc_line2?: string;
       desc_line3?: string;
@@ -2430,7 +2324,6 @@ declare module '@website-data' {
       Amount?: number;
       Trigger?: number;
       Cooldown?: number;
-      consumable?: string;
       itemType: string;
       rawName: string;
       lvReqToEquip?: number;
@@ -2448,7 +2341,6 @@ declare module '@website-data' {
       UQ2txt?: string | number;
       UQ2val?: number;
       Upgrade_Slots_Left?: number;
-      equip?: string;
     }>;
   export const stamps: {
     combat: Record<string, {
@@ -2511,7 +2403,6 @@ declare module '@website-data' {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -2527,7 +2418,6 @@ declare module '@website-data' {
         UQ2txt: number;
         UQ2val: number;
         Upgrade_Slots_Left: number;
-        equip: string;
         itemType: string;
         capacity: number;
         rawName: string;
@@ -2539,7 +2429,6 @@ declare module '@website-data' {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -2555,7 +2444,6 @@ declare module '@website-data' {
         UQ2txt: number;
         UQ2val: number;
         Upgrade_Slots_Left: number;
-        equip: string;
         itemType: string;
         capacity: number;
         rawName: string;
@@ -2567,7 +2455,6 @@ declare module '@website-data' {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -2583,7 +2470,6 @@ declare module '@website-data' {
         UQ2txt: number;
         UQ2val: number;
         Upgrade_Slots_Left: number;
-        equip: string;
         itemType: string;
         capacity: number;
         rawName: string;
@@ -2595,7 +2481,6 @@ declare module '@website-data' {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -2611,7 +2496,6 @@ declare module '@website-data' {
         UQ2txt: number;
         UQ2val: number;
         Upgrade_Slots_Left: number;
-        equip: string;
         itemType: string;
         capacity: number;
         rawName: string;
@@ -2623,7 +2507,6 @@ declare module '@website-data' {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -2639,7 +2522,6 @@ declare module '@website-data' {
         UQ2txt: number;
         UQ2val: number;
         Upgrade_Slots_Left: number;
-        equip: string;
         itemType: string;
         capacity: number;
         rawName: string;
@@ -2651,7 +2533,6 @@ declare module '@website-data' {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -2667,7 +2548,6 @@ declare module '@website-data' {
         UQ2txt: number;
         UQ2val: number;
         Upgrade_Slots_Left: number;
-        equip: string;
         itemType: string;
         capacity: number;
         rawName: string;
@@ -2679,7 +2559,6 @@ declare module '@website-data' {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -2695,7 +2574,6 @@ declare module '@website-data' {
         UQ2txt: number;
         UQ2val: number;
         Upgrade_Slots_Left: number;
-        equip: string;
         itemType: string;
         capacity: number;
         rawName: string;
@@ -2707,7 +2585,6 @@ declare module '@website-data' {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -2723,7 +2600,6 @@ declare module '@website-data' {
         UQ2txt: number;
         UQ2val: number;
         Upgrade_Slots_Left: number;
-        equip: string;
         itemType: string;
         capacity: number;
         rawName: string;
@@ -2737,7 +2613,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -2753,7 +2628,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -2764,7 +2638,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -2780,7 +2653,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -2791,7 +2663,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -2807,7 +2678,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -2818,7 +2688,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -2834,7 +2703,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -2845,7 +2713,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -2861,7 +2728,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -2872,7 +2738,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -2888,7 +2753,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -2899,7 +2763,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -2915,7 +2778,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -2926,7 +2788,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -2942,7 +2803,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -2953,7 +2813,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -2969,7 +2828,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -2980,7 +2838,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -2996,7 +2853,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3007,7 +2863,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3023,7 +2878,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3034,7 +2888,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3050,7 +2903,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3061,7 +2913,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3077,7 +2928,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3088,7 +2938,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3104,7 +2953,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3115,7 +2963,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3131,7 +2978,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3142,7 +2988,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3158,7 +3003,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3169,7 +3013,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3185,7 +3028,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3196,7 +3038,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3212,7 +3053,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3223,7 +3063,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3239,7 +3078,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3250,7 +3088,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3266,7 +3103,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3277,7 +3113,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3293,7 +3128,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3304,7 +3138,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3320,7 +3153,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3331,7 +3163,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3347,7 +3178,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3358,7 +3188,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3374,7 +3203,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3385,7 +3213,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3401,7 +3228,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3412,7 +3238,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3428,7 +3253,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3439,7 +3263,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3455,7 +3278,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3466,7 +3288,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3482,7 +3303,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3493,7 +3313,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3509,7 +3328,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3520,7 +3338,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3536,7 +3353,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3547,7 +3363,6 @@ declare module '@website-data' {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3563,7 +3378,6 @@ declare module '@website-data' {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
     };
@@ -3946,7 +3760,7 @@ declare module '@website-data' {
         DialogueText: string;
         NextIndex: number;
         CustomType: string;
-        ConsumeItems: string;
+        ConsumeItems: boolean;
         InventorySpacesNeeded: number;
         NoSpaceIndex: number;
         QuestName: string;
@@ -3958,7 +3772,7 @@ declare module '@website-data' {
         Type: string;
         DialogueText: string;
         NextIndex: number;
-        ConsumeItems: string;
+        ConsumeItems: boolean;
         InventorySpacesNeeded: number;
         NoSpaceIndex: number;
         QuestName: string;
@@ -3971,7 +3785,7 @@ declare module '@website-data' {
         Type: string;
         DialogueText: string;
         NextIndex: number;
-        ConsumeItems: string;
+        ConsumeItems: boolean;
         InventorySpacesNeeded: number;
         NoSpaceIndex: number;
         QuestName: string;
@@ -3984,7 +3798,7 @@ declare module '@website-data' {
         DialogueText: string;
         NextIndex: number;
         CustomType: string;
-        ConsumeItems: string;
+        ConsumeItems: boolean;
         InventorySpacesNeeded: number;
         NoSpaceIndex: number;
         QuestName: string;
@@ -3997,7 +3811,7 @@ declare module '@website-data' {
         Type: string;
         DialogueText: string;
         NextIndex: number;
-        ConsumeItems: string;
+        ConsumeItems: boolean;
         InventorySpacesNeeded: number;
         NoSpaceIndex: number;
         QuestName: string;
@@ -4010,7 +3824,7 @@ declare module '@website-data' {
         DialogueText: string;
         NextIndex: number;
         CustomType: string;
-        ConsumeItems: string;
+        ConsumeItems: boolean;
         InventorySpacesNeeded: number;
         NoSpaceIndex: number;
         QuestName: string;
@@ -4023,7 +3837,7 @@ declare module '@website-data' {
         Type: string;
         DialogueText: string;
         NextIndex: number;
-        ConsumeItems: string;
+        ConsumeItems: boolean;
         InventorySpacesNeeded: number;
         NoSpaceIndex: number;
         QuestName: string;
@@ -4036,7 +3850,7 @@ declare module '@website-data' {
         DialogueText: string;
         NextIndex: number;
         CustomType: string;
-        ConsumeItems: string;
+        ConsumeItems: boolean;
         InventorySpacesNeeded: number;
         NoSpaceIndex: number;
         QuestName: string;
@@ -4049,7 +3863,7 @@ declare module '@website-data' {
         Type: string;
         DialogueText: string;
         NextIndex: number;
-        ConsumeItems: string;
+        ConsumeItems: boolean;
         InventorySpacesNeeded: number;
         NoSpaceIndex: number;
         QuestName: string;
@@ -4062,7 +3876,7 @@ declare module '@website-data' {
         Type: string;
         DialogueText: string;
         NextIndex: number;
-        ConsumeItems: string;
+        ConsumeItems: boolean;
         InventorySpacesNeeded: number;
         NoSpaceIndex: number;
         QuestName: string;
@@ -4076,7 +3890,7 @@ declare module '@website-data' {
         DialogueText: string;
         NextIndex: number;
         CustomType: string;
-        ConsumeItems: string;
+        ConsumeItems: boolean;
         InventorySpacesNeeded: number;
         NoSpaceIndex: number;
         QuestName: string;
@@ -4089,7 +3903,7 @@ declare module '@website-data' {
         Type: string;
         DialogueText: string;
         NextIndex: number;
-        ConsumeItems: string;
+        ConsumeItems: boolean;
         InventorySpacesNeeded: number;
         NoSpaceIndex: number;
         QuestName: string;
@@ -4102,7 +3916,7 @@ declare module '@website-data' {
         Type: string;
         DialogueText: string;
         NextIndex: number;
-        ConsumeItems: string;
+        ConsumeItems: boolean;
         InventorySpacesNeeded: number;
         NoSpaceIndex: number;
         QuestName: string;
@@ -4115,7 +3929,7 @@ declare module '@website-data' {
         Type: string;
         DialogueText: string;
         NextIndex: number;
-        ConsumeItems: string;
+        ConsumeItems: boolean;
         InventorySpacesNeeded: number;
         NoSpaceIndex: number;
         QuestName: string;
@@ -4128,7 +3942,7 @@ declare module '@website-data' {
         Type: string;
         DialogueText: string;
         NextIndex: number;
-        ConsumeItems: string;
+        ConsumeItems: boolean;
         InventorySpacesNeeded: number;
         NoSpaceIndex: number;
         QuestName: string;
@@ -4141,7 +3955,7 @@ declare module '@website-data' {
         Type: string;
         DialogueText: string;
         NextIndex: number;
-        ConsumeItems: string;
+        ConsumeItems: boolean;
         InventorySpacesNeeded: number;
         NoSpaceIndex: number;
         QuestName: string;
@@ -4496,7 +4310,7 @@ declare module '@website-data' {
       requiredPlayers: number;
       points: number;
       name: string;
-      requirement: string | null;
+      requirement: string;
     }[];
   export const starSigns: {
       starName: string;
@@ -10488,6 +10302,6 @@ declare module '@website-data' {
       costMulti: number;
       unlockWave: number;
     }[];
-  export const randomList: (string | string[])[];
-  export const randomList2: string[];
+  export const randomList: (string[])[];
+  export const randomList2: (string[])[];
 }

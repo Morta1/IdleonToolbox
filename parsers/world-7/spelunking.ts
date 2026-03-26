@@ -156,7 +156,7 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
     }
   });
 
-  const loreBosses = generalSpelunky[14]?.split(' ').map((description: any, index: any) => {
+  const loreBosses = generalSpelunky[14]?.map((description: any, index: any) => {
     const discoveriesData = discoveries?.[index]?.slice(0, -1);
     const discoveriesCount = discoveriesData?.reduce((res, discovery) => res + (discovery?.acquired ? 1 : 0), 0);
 
@@ -169,7 +169,7 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
       defeated: index < cavesUnlocked,
       biggestHaul: biggestHauls?.[index] ?? 0,
       bestCaveLevel: bestCaveLevels?.[index] ?? 0,
-      foundAt: (parseFloat(generalSpelunky?.[7]?.split(' ')?.[index]) + 1) || 0
+      foundAt: (parseFloat(generalSpelunky?.[7]?.[index]) + 1) || 0
     }
   }).filter((boss: any) => boss?.description && isNaN(Number(boss.description)));
 
@@ -177,12 +177,12 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   const ownedSlots = 1 + ((upgrades as any)?.[24]?.baseBonus ?? 0);
   const maxElixirDuplicates = (upgrades as any)?.[25]?.baseBonus;
   const equippedElixirs = rawSpelunking?.[7] || [];
-  const elixirs = generalSpelunky[16].split(' ').map((description: any, index: any) => {
+  const elixirs = generalSpelunky[16]?.map((description: any, index: any) => {
     const timesUsed = equippedElixirs.filter((elixirIndex: any) => elixirIndex === index).length;
     return {
       description,
       quantity: rawElixir?.[index] || 0,
-      bonus: generalSpelunky?.[17]?.split(' ')?.[index] || 0,
+      bonus: generalSpelunky?.[17]?.[index] || 0,
       acquired: index <= ownedElixirs,
       isInUse: timesUsed > 0,
       timesUsed
@@ -376,8 +376,8 @@ export const getLoreBossBonus = (account: any, index: any) => {
 }
 
 export const getLoreBonuses = (account: any) => {
-  const loreRawStats = generalSpelunky[20]?.split(' ');
-  const loreRawValues = generalSpelunky[21]?.split(' ');
+  const loreRawStats = generalSpelunky[20];
+  const loreRawValues = generalSpelunky[21];
   const threshold = account?.spelunking?.rawLoreThreshold;
 
   const loreValues = loreRawStats?.map((name: any, index: any) => {

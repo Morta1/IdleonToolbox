@@ -31,40 +31,39 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   const A_MineCost = Math.max(1, serverVars?.A_MineCost ?? 1);
   const A_MineHP = Math.max(1, serverVars?.A_MineHP ?? 1);
 
-  // researchData[20] = per-opponent bonus values (space-separated string, 32 entries)
-  const opponentBonusValues = ((researchData?.[20] ?? '') as string).split(' ');
+  // researchData[20] = per-opponent bonus values (array, 32 entries)
+  const opponentBonusValues = researchData?.[20] ?? [];
 
-  // researchData[19] = per-opponent bonus descriptions (space-separated, 32 entries)
+  // researchData[19] = per-opponent bonus descriptions (array, 32 entries)
   // NOTE: These use underscores instead of spaces inside each description.
-  // If splitting produces fewer than 32 tokens, the descriptions may use a different separator.
-  const opponentBonusDescs = ((researchData?.[19] ?? '') as string).split(' ');
+  const opponentBonusDescs = researchData?.[19] ?? [];
 
-  // researchData[11] = opponent names (space-separated, 32 entries) — NOT in opponent order
-  // researchData[10] = name index per opponent slot (space-separated, 32 entries)
-  const opponentNamePool = ((researchData?.[11] ?? '') as string).split(' ');
-  const opponentNameOrder = ((researchData?.[10] ?? '') as string).split(' ').map(Number);
+  // researchData[11] = opponent names (array, 32 entries) — NOT in opponent order
+  // researchData[10] = name index per opponent slot (array, 32 entries)
+  const opponentNamePool = researchData?.[11] ?? [];
+  const opponentNameOrder = (researchData?.[10] ?? []).map(Number);
   const opponentNames = opponentNameOrder.map((i: any) => opponentNamePool[i] ?? '');
 
   // researchData[15] = ordinal strings ("first second third ... permanent")
-  const ordinals = ((researchData?.[15] ?? '') as string).split(' ');
+  const ordinals = researchData?.[15] ?? [];
 
   // researchData[16] = title strings ("the_honorable ... the_never_ending")
-  const titles = ((researchData?.[16] ?? '') as string).split(' ');
+  const titles = researchData?.[16] ?? [];
 
-  // researchData[9] = grid expansion sizes "cols,rows" pairs (space-separated)
-  const gridSizes = ((researchData?.[9] ?? '') as string).split(' ');
+  // researchData[9] = grid expansion sizes "cols,rows" pairs (array)
+  const gridSizes = researchData?.[9] ?? [];
 
-  // researchData[27] = Glimbo item raw names (space-separated, 13 items)
-  const glimboItemNames = ((researchData?.[27] ?? '') as string).split(' ');
+  // researchData[27] = Glimbo item raw names (array, 13 items)
+  const glimboItemNames = researchData?.[27] ?? [];
 
-  // researchData[28] = Glimbo cost base values (space-separated, 13 items)
-  const glimboCostBases = ((researchData?.[28] ?? '') as string).split(' ');
+  // researchData[28] = Glimbo cost base values (array, 13 items)
+  const glimboCostBases = researchData?.[28] ?? [];
 
-  // researchData[26] = upgradeVault index per glimbo trade (space-separated, 13 items)
-  const glimboVaultIndices = ((researchData?.[26] ?? '') as string).split(' ').map(Number);
+  // researchData[26] = upgradeVault index per glimbo trade (array, 13 items)
+  const glimboVaultIndices = (researchData?.[26] ?? []).map(Number);
 
   // researchData[29] = flag per glimbo trade: '1' means Grid_Bonus[169] multiplies extra levels
-  const glimboFlags = researchData?.[29] ?? '';
+  const glimboFlags = researchData?.[29] ?? [];
 
   // Grid square 169 level — each level adds +1 to the per-trade multiplier for flagged glimbo trades
   // Formula: extraLevels = (1 + level) * (trades + 1). Uses mode 1 (level), NOT mode 0 (bonus)
@@ -268,7 +267,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
     // Extra max levels from trades:
     //   flag='1': (1 + grid169Bonus) * (trades + 1)
     //   flag='0': (trades + 1)
-    const flag =( glimboFlags as string).charAt(idx) === '1';
+    const flag = glimboFlags[idx] === '1';
     const multiplier = flag ? (1 + grid169Level) : 1;
     const extraLevels = Math.round(multiplier * (trades + 1));
     const currentMaxLevel = baseMaxLevel + extraLevels;

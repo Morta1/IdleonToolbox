@@ -32,13 +32,13 @@ export const getBravery = (holesObject: any, accountData: any) => {
     }
   }).filter((_, index) => (index + 1) % 5 === 0);
   const multiplier = getMonumentMultiplier({ holesObject, t: 0 });
-  const bonuses = holesInfo?.[32]?.split(' ')
+  const bonuses = holesInfo?.[32]
     ?.slice(0, 10)
     ?.filter((name: any) => !name.includes('Monument_'))
     .map((description: any, index: any) => {
       const level = holesObject?.braveryBonuses?.[index];
       const bonus = getMonumentBonus({ holesObject, t: 0, i: index });
-      const scalingValue = parseFloat(holesInfo?.[37]?.split(' ')?.[index]);
+      const scalingValue = parseFloat(holesInfo?.[37]?.[index]);
       const isSoftCap = scalingValue >= 30;
       const capMultiplier = index === 9 ? 1 : multiplier;
       const effectiveCap = isSoftCap ? scalingValue * capMultiplier : null;
@@ -53,8 +53,8 @@ export const getBravery = (holesObject: any, accountData: any) => {
       }
     })
   const hours = holesObject?.braveryMonument?.[0] || 0;
-  const hoursRewards = holesInfo?.[31]?.split(' ').slice(0, 8);
-  const hoursBreakpoints = holesInfo?.[30]?.split(' ').map((hours: any, index: any) => ({
+  const hoursRewards = holesInfo?.[31]?.slice(0, 8);
+  const hoursBreakpoints = holesInfo?.[30]?.map((hours: any, index: any) => ({
     hours,
     reward: hoursRewards?.[index]
   }));
@@ -232,7 +232,7 @@ export const getMonumentBonus = ({ holesObject, t, i }: any) => {
     result = 1 + getMonumentBonus({ holesObject, t, i: 9 }) / 100;
     result += getCosmoBonus({ majik: holesObject?.holeMajiks, t: 0, i: 0 }) / 100;
   }
-  let holesInfoValue = Number(holesInfo[37]?.split(' ')[Math.round(10 * t + i)]);
+  let holesInfoValue = Number(holesInfo[37]?.[Math.round(10 * t + i)]);
   let holesValue = (holesObject?.braveryBonuses?.[Math.round(10 * t + i)]);
   let finalResult = Math.max(1, result);
 

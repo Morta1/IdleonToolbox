@@ -22,7 +22,7 @@ const jarNames = [
 ]
 
 export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => {
-  const jarEffects = holesInfo?.[65]?.split(' ');
+  const jarEffects = holesInfo?.[65];
   const jarTypes = Math.round(holesObject?.extraCalculations?.[37]);
   const unlockedSlots = getJarSlots({ holesObject });
   const opalChance = getOpalChance({ holesObject, account: accountData });
@@ -60,7 +60,7 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
   rupies = [...rupies, ...whiteDarkRupies];
 
   const collectibles = holesObject?.jarStuff?.slice(0, 40).map((level: any, index: any) => {
-    const [name, bonusModifier, , description] = holesInfo?.[67]?.split(' ')?.[index]?.split('|') ?? [];
+    const [name, bonusModifier, , description] = holesInfo?.[67]?.[index]?.split('|') ?? [];
     const bonus = getJarBonus({ holesObject, i: index, account: accountData });
     return {
       level,
@@ -213,7 +213,7 @@ const getOpalChance = ({ holesObject, account }: any) => {
 }
 
 export const getJarBonus = ({ holesObject, i, account }: any) => {
-  const all = holesInfo?.[67].split(' ')?.[i];
+  const all = holesInfo?.[67]?.[i];
   const legendTalentBonus = getLegendTalentBonus(account, 29);
   return holesObject?.jarStuff?.[i] * parseFloat(all.split('|')[1]) * (1 + legendTalentBonus / 100);
 }
