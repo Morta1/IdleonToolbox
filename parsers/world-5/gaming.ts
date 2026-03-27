@@ -537,8 +537,11 @@ const calcAcornShop = (gamingSproutRaw: any, account: any) => {
     const bonus = index === 0 ? 1 + (8 * value) / (250 + (value)) : index === 1
       ? Math.pow(3 * (value), 0.8)
       : index === 2 ? Math.pow(value, 0.8) : 0;
+    const cost = index === 2
+      ? 4 + value + 3 * Math.max(0, value - 5)
+      : 1 + value + 2 * Math.max(0, value - 5);
     return {
-      cost: 1 + value + 2 * Math.max(0, (value) - 5),
+      cost,
       description: bonusTexts?.[index].replace(/{/, `${bonus.toFixed(2)}`),
       bonus
     }

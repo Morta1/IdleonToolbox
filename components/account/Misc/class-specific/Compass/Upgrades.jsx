@@ -51,7 +51,7 @@ const Upgrades = ({ upgrades, dusts }) => {
     if (description === 'Titan_doesnt_exist') return null;
 
     let iconIndex = index ?? i;
-    if (baseIconIndex >= 0) iconIndex = baseIconIndex + 106;
+    if (baseIconIndex != null && baseIconIndex >= 0) iconIndex = baseIconIndex + 106;
 
     return (
       <Card key={name + iconIndex}>
