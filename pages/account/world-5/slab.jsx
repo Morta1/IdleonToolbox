@@ -7,6 +7,7 @@ import { NextSeo } from 'next-seo';
 import Image from 'next/image';
 import { CardTitleAndValue } from '@components/common/styles';
 import { getSlabBonus } from '@parsers/world-5/sailing';
+import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 
 const Slab = () => {
   const { state } = useContext(AppContext);
@@ -28,7 +29,8 @@ const Slab = () => {
     { name: 'Bits', icon: 'Arti20', value: state?.account?.sailing?.artifacts?.[20]?.bonus ?? 0 },
     { name: 'Jade', icon: 'Slab4', value: state?.account?.sneaking?.jadeEmporium?.[8]?.bonus ?? 0 },
     { name: 'Essence', icon: 'Slab5', value: state?.account?.sneaking?.jadeEmporium?.[6]?.bonus ?? 0 },
-    { name: 'Pow', icon: 'CaveShopUpg17', value: getSlabBonus(state?.account, 6) ?? 0 }
+    { name: 'Pow', icon: 'CaveShopUpg17', value: getSlabBonus(state?.account, 6) ?? 0 },
+    { name: 'Research Exp', icon: 'ClassIcons61', value: getSlabBonus(state?.account, 7) ?? 0 },
   ];
 
   return <Stack>

@@ -4306,6 +4306,7 @@ declare module '@website-data' {
       bonusPerLevel: number;
     }>;
   export const constellations: {
+      rawIndex: number;
       mapIndex: number;
       requiredPlayers: number;
       points: number;

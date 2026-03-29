@@ -34,7 +34,7 @@ const Captain = ({
             src={`${prefix}etc/Captain_${captainType === -1 ? 0 : captainType}.png`} alt="" />
           {!shop ? <Stack>
             <Typography>{captainIndex}</Typography>
-            <Typography variant={'caption'}>{captainType === -1 ? 'None' : 'Boat ' + captainsOnBoats?.[captainIndex] + 1}</Typography>
+            <Typography variant={'caption'}>{captainType === -1 ? 'None' : 'Boat ' + (captainsOnBoats?.[captainIndex] + 1)}</Typography>
           </Stack> : null}
         </Stack>
         <Divider sx={{ my: 1 }} />

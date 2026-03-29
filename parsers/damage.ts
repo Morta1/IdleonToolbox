@@ -34,7 +34,7 @@ import { calcStampCollected, getStampsBonusByEffect } from './world-1/stamps';
 import { lavaLog, lavaLog2 } from '@utility/helpers';
 import { getShrineBonus } from './world-3/shrines';
 import { getPrayerBonusAndCurse } from './world-3/prayers';
-import { getLabBonus, getPlayerLabChipBonus } from './world-4/lab';
+import { getLabBonus, getJewelBonus, getPlayerLabChipBonus } from './world-4/lab';
 import { getMealsBonusByEffectOrStat } from './world-4/cooking';
 import { getEclipseSkullsBonus } from './world-3/deathNote';
 import { isArtifactAcquired } from './world-5/sailing';
@@ -240,7 +240,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const fourthArtifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Opera_Mask')?.bonus ?? 0;
   const fifthArtifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'The_True_Lantern')?.bonus ?? 0;
 
-  const atomBonus = getAtomBonus(account, 'Carbon_-_Wizard_Maximizer') ?? 0;
+  const atomBonus = getAtomBonus(account, 'Neon_-_Damage_N\'_Cheapener') ?? 0;
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Total_Damage');
   const superbitBonus = isSuperbitUnlocked(account, 'MSA_Skill_EXP')?.bonus ?? 0;
   const shimmerBonus = Number(account?.accountOptions?.[178]) * (account?.islands?.allShimmerBonus || 0) || 0;
@@ -271,7 +271,10 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Beefy_For_Real', account)?.bonus;
   const labBonus = getLabBonus(account?.lab?.labBonuses, 0);
   const secondLabBonus = getLabBonus(account?.lab?.labBonuses, 11);
-  const thirdLabBonus = getLabBonus(account?.lab?.labBonuses, 110);
+  // Lab 110 = jewel 10 bonus, doubled if adjacent jewels 7,8,9 are all active
+  const jewel10Base = getJewelBonus(account?.lab?.jewels, 10);
+  const jewel10Doubled = [7, 8, 9].every(i => getJewelBonus(account?.lab?.jewels, i) > 0) ? 2 : 1;
+  const thirdLabBonus = jewel10Base * jewel10Doubled;
   const holeUpg84 = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 84, i: 100 }) || 0;
   const arcadeBonus46 = getArcadeBonus(account?.arcade?.shop, 'Total_Damage')?.bonus ?? 0;
   const accountOpt435 = Number(account?.accountOptions?.[435]) || 0;
@@ -306,7 +309,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
     + 4 * getAchievementStatus(account?.achievements, 354)
     + 3 * getAchievementStatus(account?.achievements, 375);
   const godBlessing = getGodBlessingBonus(account?.divinity?.deities, 'Flutterbis')
-  const secondGodBlessing = getGodBlessingBonus(account?.divinity?.deities, 'Kattlecruk')
+  const secondGodBlessing = getGodBlessingBonus(account?.divinity?.deities, 'Kattlekruk')
 
   const curseTalent = getTalentBonus(character?.flatTalents, 'CURSE_OF_MR_LOOTY_BOOTY');
   const activeDebuff = getTalentBonusIfActive(character?.activeBuffs, 'BALANCED_SPIRIT');
@@ -374,8 +377,11 @@ const getDamagePercent = (character: Character, characters: Character[], account
   if (damage > 6e10) damage = 6e10 * Math.pow(damage / 6e10, .28);
 
   // === Post-softcap multipliers ===
-  const { value: postEquipBonus72 } = getStatsFromGear(character, 72, account);
-  const { value: postEquipBonus75 } = getStatsFromGear(character, 75, account);
+  // Game uses EtcBonuses("72") and EtcBonuses("75") — mapped via IDforETCbonus to
+  // %_DAMAGE_MULTI and %_DAMAGE_BONUS respectively. TotalStatsETCmap aggregates from
+  // equipment, gallery trophies, nametags, and premium hats (NOT obols).
+  const { value: postEtcBonus72 } = getStatsFromGear(character, 72, account);
+  const { value: postEtcBonus75 } = getStatsFromGear(character, 75, account);
   const postVoteBonus = getVoteBonus(account, 1) || 0;
   const postSuperbit64 = isSuperbitUnlocked(account, 'Destructive_Gamer') ? 1 : 0;
   const accountOpt232 = 10 * Math.floor((96 + (Number(account?.accountOptions?.[232]) || 0)) / 100);
@@ -386,8 +392,8 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const killroyMulti = account?.killroy?.totalDamageMulti ?? 1;
   const killroyBonus = Math.max(0, Math.min(2, killroyMulti - 1));
 
-  const postMulti1 = (1 + postEquipBonus72 / 100)
-    * (1 + postEquipBonus75 / 100)
+  const postMulti1 = (1 + postEtcBonus72 / 100)
+    * (1 + postEtcBonus75 / 100)
     * (1 + postVoteBonus / 100)
     * (1 + 0.1 * postSuperbit64)
     * (1 + accountOpt232 / 100)
@@ -404,8 +410,9 @@ const getDamagePercent = (character: Character, characters: Character[], account
   damage *= Math.max(1, (1 + companion12) * (1 + companion33) * (1 + 2 * companion160));
 
   // Crystal card, meritocracy
-  const crystal6Card = (account?.cards as any)?.cardList?.find?.((c: any) => c?.rawName === 'Crystal6');
-  const crystalCardBonus = Math.min(1.5 * (crystal6Card?.stars || 0), 15);
+  // Game: min(1.5 * CardLv("Crystal6"), 15) — CardLv is 1-based star level
+  const crystal6Card: any = Object.values(account?.cards ?? {}).find((c: any) => c?.rawName === 'Crystal6');
+  const crystalCardBonus = Math.min(1.5 * (crystal6Card?.amount > 0 ? (crystal6Card?.stars ?? 0) + 1 : 0), 15);
   const meritBonus5 = getMeritocracyBonus(account, 5);
   damage *= (1 + crystalCardBonus / 100) * (1 + meritBonus5 / 100);
 
@@ -413,7 +420,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const hasDmgBundle = isBundlePurchased(account?.bundles, 'bon_a');
   if (hasDmgBundle) damage *= 1.5;
 
-  // Family bonus: TOTAL_DMG_MULTIPLIER (classFamilyBonuses index 40)
+  // Family bonus: FamBonusQTYs[80]
   const famBonus80 = getFamilyBonusBonus(classFamilyBonuses, 'TOTAL_DMG_MULTIPLIER', getHighestLevelOf(characters, CLASSES.Elemental_Sorcerer));
   damage *= (1 + famBonus80 / 100);
 
@@ -443,8 +450,8 @@ const getDamagePercent = (character: Character, characters: Character[], account
         { name: 'Minehead', value: mineheadBonus },
         { name: 'Minehead (WP DMG%)', value: mineheadWepPow },
         { name: 'Weekly Boss', value: weeklyBossBonus },
-        { name: 'Equipment (Dmg Multi)', value: postEquipBonus72 },
-        { name: 'Equipment (Dmg Bonus)', value: postEquipBonus75 },
+        { name: 'Equipment (Dmg Multi)', value: postEtcBonus72 },
+        { name: 'Equipment (Dmg Bonus)', value: postEtcBonus75 },
         { name: 'Vote Bonus', value: postVoteBonus },
         { name: 'Superbit (Destructive Gamer)', value: postSuperbit64 },
         { name: 'Card (Passive)', value: postCardBonus96 },
@@ -588,13 +595,13 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
   const speedBonus = playerInfo.movementSpeed / 100 - 1;
   const dmgPerSpeedBonus = dmgPerSpeed * Math.floor(Math.min(speedBonus, 10) / .15);
 
-  // Talent 656 (DREAMER_DAMAGE)
-  const dmgPerDream = getTalentBonus(character?.flatTalents, 'DREAMER_DAMAGE');
+  // Talent 656 (DREAMER_DAMAGE) — star talent
+  const dmgPerDream = getTalentBonus(character?.flatStarTalents, 'DREAMER_DAMAGE');
   const completedDreams = account?.equinox?.completedClouds || 0;
   const dmgPerDreamBonus = dmgPerDream * completedDreams;
 
-  // Talent 649 (FILTHY_DAMAGE)
-  const dmgPerGarbage = getTalentBonus(character?.flatTalents, 'FILTHY_DAMAGE');
+  // Talent 649 (FILTHY_DAMAGE) — star talent
+  const dmgPerGarbage = getTalentBonus(character?.flatStarTalents, 'FILTHY_DAMAGE');
   const dmgPerGarbageBonus = dmgPerGarbage * lavaLog(account?.accountOptions?.[161] || 0);
 
   // Talent 638 (DUNGEONIC_DAMAGE)

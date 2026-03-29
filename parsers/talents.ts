@@ -189,10 +189,21 @@ export const getHighestTalentByClass = (characters: any, className: any, talentN
   return classes?.reduce((res: any, { flatTalents, addedLevels }: any) => {
     let subtractLevels: any = false;
     if (activeCharacter) {
-      // Mimic game's getbonus2(1, id, -1): use active character's addedLevels
+      // Mimic game's getbonus2(1, id, -1):
+      // - talentIndex >= 100: growth(baseLevel + activeChar.addedLevels)
+      // - talentIndex < 100: growth(baseLevel) — no addedLevels adjustment
       const talentObj = flatTalents?.find(({ name }: any) => name === talentName);
-      const superTalentAmount = talentObj?.isSuperTalent ? (talentObj.level - talentObj.baseLevel - addedLevels) : 0;
-      subtractLevels = addedLevels + superTalentAmount - activeCharacter.addedLevels;
+      if (talentObj) {
+        const level = talentObj.talentId >= 100
+          ? talentObj.baseLevel + activeCharacter.addedLevels
+          : talentObj.baseLevel;
+        const func = yBonus ? talentObj.funcY : talentObj.funcX;
+        const p1 = yBonus ? talentObj.y1 : talentObj.x1;
+        const p2 = yBonus ? talentObj.y2 : talentObj.x2;
+        const bonus = talentObj.baseLevel > 0 ? (growth(func, level, p1, p2, false) ?? 0) : 0;
+        return bonus > res ? bonus : res;
+      }
+      return res;
     } else if (excludeSuperTalent) {
       const talentObj = flatTalents?.find(({ name }: any) => name === talentName);
       const superTalentAmount = talentObj?.isSuperTalent ? (talentObj.level - talentObj.baseLevel - addedLevels) : 0;

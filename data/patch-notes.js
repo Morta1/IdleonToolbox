@@ -4,6 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.31',
+    'gameVer': '2.0.495',
+    'date': '29/03/2026',
+    'features': [],
+    'fixes': [
+      'Improved damage calculation accuracy with numerous formula fixes',
+      'Fixed lab bonus computation (jewel multiplier, spelunker obol, species count)',
+      'Fixed family bonus level offset calculation',
+      'Fixed refinery total levels counting too many salts',
+      'Fixed boat number display in sailing',
+    ]
+  },
+  {
     'ver': '3.3.30',
     'gameVer': '2.0.495',
     'date': '25/03/2026',

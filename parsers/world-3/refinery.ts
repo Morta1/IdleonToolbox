@@ -66,7 +66,7 @@ const parseRefinery = (refineryRaw: any[], storage: any[], tasks: any) => {
     timePastCombustion: refineryRaw?.[0]?.[1],
     timePastSynthesis: refineryRaw?.[0]?.[2],
     timePastPolymerize: refineryRaw?.[0]?.[3],
-    totalLevels: saltsArray?.reduce((sum: any, { rank }: any) => sum + rank, 0),
+    totalLevels: saltsArray?.slice(0, 6)?.reduce((sum: any, { rank }: any) => sum + rank, 0),
     refineryStorage
   }
 }

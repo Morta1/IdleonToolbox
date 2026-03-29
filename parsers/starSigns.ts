@@ -36,11 +36,17 @@ export const parseStarSigns = (starSignsRaw: any, account: Account): any[] | und
 }
 
 export const parseConstellations = (constellationsRaw: any[]): any[] => {
+  // Static constellations have rawIndex matching their position in the game's StarQuests array.
+  // Raw save data has one entry per StarQuest slot (including unused placeholders).
+  const constellationsByRawIndex = new Map(
+    constellations?.map((c: any) => [c.rawIndex ?? c.mapIndex, c])
+  );
   return constellationsRaw?.reduce((res: any[], constellation: any, index: number) => {
-    const constellationInfo = constellations[index];
+    const constellationInfo = constellationsByRawIndex.get(index);
+    if (!constellationInfo) return res;
     const [completedChars, done] = constellation;
     const mapIndex = constellationInfo?.mapIndex;
-    return mapIndex !== null ? [...res, {
+    return mapIndex != null ? [...res, {
       ...constellationInfo,
       location: mapNames[mapIndex],
       completedChars,

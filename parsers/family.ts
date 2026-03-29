@@ -5,8 +5,8 @@ import { getHighestLevelOfClass } from '@parsers/misc';
 
 export const getFamilyBonusBonus = (bonuses: any[], bonusName: string, level: number) => {
   const bonus = bonuses?.find(({ name }) => name?.includes(bonusName));
-  if (!bonus) return 0;
-  return growth(bonus?.func, Math.max(0, Math.round(level - bonus?.x3)), bonus?.x1, bonus?.x2, false);
+  if (!bonus || level < bonus?.x3) return 0;
+  return growth(bonus?.func, Math.max(0, level - 1), bonus?.x1, bonus?.x2, false);
 }
 
 export const getFamilyBonus = (bonuses: any[], bonusName: string) => {

@@ -138,11 +138,18 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
     }
   }
 
-  const higherEffects = getJewelBonus(jewelsList, 19);
-  const spelunkerObolMulti = getLabBonus(labBonusesList, 8); // gem multi
+  // Game: lab8 = LabMainBonus[8][5] + JewelDesc[19][12]/100
+  // Jewel 19 (Pure Opal Navette) adds its raw base bonus to spelunker obol
+  const jewel19RawBonus = jewelsList?.[19]?.active ? (jewelsList?.[19]?.bonus ?? 0) : 0;
+  labBonusesList = labBonusesList.map((bonus: any, index: any) => {
+    if (index !== 8) return bonus;
+    return { ...bonus, bonusOn: bonus?.bonusOn + jewel19RawBonus / 100 };
+  });
+  const spelunkerObolMulti = getLabBonus(labBonusesList, 8);
+  // Game: jewel bonus = JewelDesc[n][12] * MainframeBonus(8) — pure spelunker multiplier
   jewelsList = jewelsList.map((jewel: any, index: any) => ({
     ...jewel,
-    multiplier: index === 19 ? 1 : spelunkerObolMulti + (jewelsList?.[19]?.active ? higherEffects : 0) / 100
+    multiplier: index === 19 ? 1 : spelunkerObolMulti
   }));
 
   const slabHigherEffect = getJewelBonus(jewelsList, 18);
@@ -152,14 +159,13 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
     return { ...bonus, bonusOn: updatedBonus, description: bonus?.description?.replace('1.25', `1.${updatedBonus}`) }
   })
 
-  const totalSpeciesUnlocked = account?.breeding.speciesUnlocks.reduce((sum: any, world: any) => sum + world, 0);
-  const purpleNaveete = jewelsList?.[1]?.active;
-  labBonusesList = applyBonusDesc(labBonusesList, totalSpeciesUnlocked * (purpleNaveete ? 1.75 : 1), 0, purpleNaveete
-    ? 1.75
-    : 1);
+  const totalSpeciesUnlocked = account?.breeding?.pets?.flat()?.filter((pet: any) => pet?.unlocked)?.length ?? 0;
+  const purpleNaveeteBonus = getJewelBonus(jewelsList, 1);
+  const animalFarmMulti = 1 + purpleNaveeteBonus;
+  labBonusesList = applyBonusDesc(labBonusesList, totalSpeciesUnlocked * animalFarmMulti, 0, animalFarmMulti);
 
   const greenStacks = account?.storage?.list?.filter((item: any) => item.amount >= 1e7).length;
-  const bankerFuryBonusFromJewel = jewelsList?.[17]?.active ? 1.5 : 0;
+  const bankerFuryBonusFromJewel = getJewelBonus(jewelsList, 17);
   labBonusesList = applyBonusDesc(labBonusesList, greenStacks * (2 + bankerFuryBonusFromJewel), 11, 2 + bankerFuryBonusFromJewel)
 
   const greenMushroomKilled = Math.floor(account?.deathNote?.[0]?.mobs?.[0].kills / 1e6);
