@@ -3579,6 +3579,10 @@ declare module '@website-data' {
       message: string;
       price: null;
     };
+    bon_v: {
+      message: string;
+      price: null;
+    };
   };
   export const shops: Record<string, {
       name: string | null;

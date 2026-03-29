@@ -4,9 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.32',
+    'gameVer': '2.0.497',
+    'date': '29/03/2026',
+    'features': [],
+    'fixes': [
+      'Updated the website with version 2.0.497 data and assets'
+    ]
+  },
+  {
     'ver': '3.3.31',
     'gameVer': '2.0.495',
-    'date': '29/03/2026',
+    'date': '28/03/2026',
     'features': [],
     'fixes': [
       'Improved damage calculation accuracy with numerous formula fixes',
