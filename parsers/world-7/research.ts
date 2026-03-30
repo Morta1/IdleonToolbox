@@ -9,7 +9,7 @@ import {
 } from '@website-data';
 
 import { getZenithBonus } from '@parsers/world-1/statues';
-import { getSlabBonus } from '@parsers/world-5/sailing';
+import { getSlabBonus, isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { getHighestCharacterSkill, isCompanionBonusActive, getEventShopBonus } from '@parsers/misc';
@@ -17,6 +17,7 @@ import { getCardBonusByEffect } from '@parsers/cards';
 import { getMineheadBonusQTY, getMineheadGlimboTotalTrades } from '@parsers/world-7/minehead';
 import { getStickerBonus } from '@parsers/world-6/farming';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 // Save key for Research: game may use idleonData.Research or similar
 const getRawResearch = (idleonData: any) => {
@@ -74,8 +75,9 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
   const gridPTSpent = gridLevels.reduce((sum: any, level: any) => sum + (Number(level) || 0), 0);
   const gridBonus50Lv = getResearchGridBonusInternal(account, research, 50, 1);
   const companion153 = isCompanionBonusActive(account, 153) ? (account?.companions?.list?.at(153)?.bonus ?? 0) : 0;
+  const fangAcquired = isArtifactAcquired(account?.sailing?.artifacts, 'Fang_of_the_Gods')?.acquired ?? 0;
   const gridPTSearned = Math.floor(
-    researchLevel + (10 * companion153 + Math.floor(researchLevel / 10) * Math.round(1 + (Math.min(1, Math.floor(researchLevel / 60)) + gridBonus50Lv)))
+    researchLevel + (10 * companion153 + Math.floor(researchLevel / 10) * Math.round(1 + (Math.min(1, Math.floor(researchLevel / 60)) + gridBonus50Lv)) + getSushiBonus(account, 3) + getSushiBonus(account, 13) + Math.min(10, Math.round(fangAcquired)))
   );
   const gridPTSavailable = Math.round(gridPTSearned - gridPTSpent);
 
@@ -229,9 +231,9 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
     observations,
     occurrencesToBeFound,
     totalOccurrencesFound,
-    maxRoll: Math.floor(100 + gridBonus51Lv),
+    maxRoll: Math.floor(100 + gridBonus51Lv + getSushiBonus(account, 30)),
     minRoll: Math.floor(1 + Math.min((optionsListAccount?.[514] ?? 0) * getResearchGridBonusInternal(account, research, 31, 1), getResearchGridBonusInternal(account, research, 31, 2))),
-    rollsPerDay: Math.round(3 + gridBonus90Lv + 3 * (getEventShopBonus(account, 35) ? 1 : 0)),
+    rollsPerDay: Math.round(3 + gridBonus90Lv + 3 * (getEventShopBonus(account, 35) ? 1 : 0) + getSushiBonus(account, 2)),
     canLevelUpObservations: gridBonus91Lv >= 1 ? 1 : 0,
     opticalMonocleOwned: Math.round(gridBonus91Lv),
     kaleidoscopeOwned: Math.round(getResearchGridBonusInternal(account, research, 72, 1) + (getEventShopBonus(account, 33) ? 1 : 0)),
@@ -263,7 +265,7 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
     refineryTab3Unlocked: grid49 ? 1 : 0,
     refineryTabsOwned: Math.round(2 + (grid49 ? 1 : 0)),
     tinyCogsUnlocked: grid89 ? 1 : 0,
-    tinyCogsPerDay: Math.round((grid89 ? 1 : 0) * Math.max(1, 1 + (getEventShopBonus(account, 39) ? 1 : 0))),
+    tinyCogsPerDay: Math.round(((grid89 ? 1 : 0) + getSushiBonus(account, 40)) * Math.max(1, 1 + (getEventShopBonus(account, 39) ? 1 : 0))),
     farmingStickersUnlocked: getResearchGridBonusInternal(account, research, 88, 0) >= 1 ? 1 : 0,
     farmingStickerDMG_unlocked: farmingStickerDMGUnlocked,
     totalStickers,
@@ -385,7 +387,7 @@ function getMagnifiersOwned(account: any, research: any, researchLevel: any, gri
     Math.min(1, Math.floor(researchLevel / 100)) +
     Math.min(1, Math.floor(researchLevel / 130)) +
     Math.min(1, Math.floor(researchLevel / 140));
-  return Math.min(80, Math.round(1 + (kaleidoscopeOwned + opticalMonocleOwned) + (mineheadBonus + eventShopMagnifier + companion153) + levelMilestones));
+  return Math.min(80, Math.round(1 + (kaleidoscopeOwned + opticalMonocleOwned) + (mineheadBonus + eventShopMagnifier + companion153) + levelMilestones + getSushiBonus(account, 8)));
 }
 
 function getOccurrencesToBeFound(researchLevel: any, occurrenceFoundState: any) {
@@ -548,7 +550,7 @@ function getResearchEXPmulti(account: any, research: any) {
   const grid70Factor = 1 + grid70 / 100;
   const companion153 = isCompanionBonusActive(account, 153) ? (account?.companions?.list?.at(153)?.bonus ?? 0) : 0;
   const companionFactor = Math.max(1, (1 + companion52) * (1 + companion153));
-  const value = additiveFactor * grid70Factor * companionFactor;
+  const value = additiveFactor * grid70Factor * companionFactor * (1 + getSushiBonus(account, 0) / 100);
 
   const breakdown = {
     statName: 'Research EXP Multi',

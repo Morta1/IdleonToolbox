@@ -4,6 +4,24 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.33',
+    'gameVer': '2.0.497',
+    'date': '30/03/2026',
+    'features': [
+      'New Sushi Station page under World 7 — track your sushi collection, upgrades, and bonuses',
+      'View your 120-slot sushi grid with icons, special slot effects (Hot, Cold, Milktoast), and fireplaces',
+      'Browse all upgrades with icons, levels, costs, and descriptions',
+      'See all "Rest of Game" bonuses with knowledge progress and XP tracking per sushi type',
+      'Track your Bucks, Currency/hr, Fuel, and shaker uses (Salt, Pepper, Saffron) at a glance',
+      'Dashboard alerts: get notified when fuel is full, shakers are available, or knowledge is ready to level up',
+      'Sushi Station bonuses are now reflected across 15+ pages (damage, research, spelunking, farming, and more)',
+    ],
+    'fixes': [
+      'Improved accuracy for Minehead damage (new artifact bonus) and Research grid points',
+      'Added missing equipment bonus (EtcBonus 104) to damage calculations',
+    ]
+  },
+  {
     'ver': '3.3.32',
     'gameVer': '2.0.497',
     'date': '29/03/2026',

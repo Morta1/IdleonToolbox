@@ -20,6 +20,7 @@ import { getResearchGridBonus } from '@parsers/world-7/research';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import LavaRand from '../../utility/lavaRand';
 
 /** Level needed to reach the given percent of cap for exotic capped formula: value = baseValue * level / (1000 + level). */
@@ -224,7 +225,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     usedPoints,
     hasLandRank,
     totalRanks: farmingRanks?.reduce((sum: any, rank: any) => sum + rank, 0),
-    exoticMarkeMaxPurchases: Math.round(4 + (getMineheadBonusQTY(account, 8) + 8 * getEventShopBonus(account, 43))),
+    exoticMarkeMaxPurchases: Math.round(4 + (getMineheadBonusQTY(account, 8) + 8 * getEventShopBonus(account, 43)) + getSushiBonus(account, 33)),
     pctExoticPurchasesFree: Math.min(80, 30 * getEventShopBonus(account, 43)) + Math.min(25, 25 * getMineheadBonusQTY(account, 8)),
     exoticMarketUpgradesPurchased: account?.accountOptions?.[416]
   };
@@ -697,6 +698,7 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
     * Math.max(1, talentBonus)
     * (1 + vaultBonus78 / 100)
     * (1 + (getLandRank(account?.farming?.ranks, 0) * account?.farming?.plot?.[crop?.index]?.rank + voteBonus) / 100)
+    * (1 + getSushiBonus(account, 35) / 100)
     * crop?.seed?.nextCropChance
     * Math.pow(crop?.seed?.nextCropDecay, crop?.baseCropType);
 
@@ -760,6 +762,7 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
     * Math.max(1, talentBonus)
     * (1 + vaultBonus78 / 100)
     * (1 + (getLandRank(account?.farming?.ranks, 0) * account?.farming?.plot?.[crop?.index]?.rank + voteBonus) / 100)
+    * (1 + getSushiBonus(account, 35) / 100)
     * crop?.seed?.nextCropChance
     * Math.pow(crop?.seed?.nextCropDecay, crop?.baseCropType);
 

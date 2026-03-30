@@ -21,6 +21,7 @@ import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { getResearchGridBonus } from '@parsers/world-7/research';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 
 export const getGaming = (idleonData: any, characters: any, account: any, serverVars: any) => {
@@ -227,7 +228,8 @@ export const getBitsMulti = (account: any, characters: any) => {
     * (1 + paletteBonus18 / 100)
     * (1 + meritocracyBonus / 100)
     * (1 + stickerBonus / 100)
-    * (1 + vaultBonus / 100);
+    * (1 + vaultBonus / 100)
+    * (1 + getSushiBonus(account, 29) / 100);
 
   const breakdown = {
     statName: 'Bit multi',
@@ -279,7 +281,8 @@ export const getBitsMulti = (account: any, characters: any) => {
           { name: 'Palette 18', value: 1 + paletteBonus18 / 100 },
           { name: 'Meritocracy', value: 1 + meritocracyBonus / 100 },
           { name: 'Sticker', value: 1 + stickerBonus / 100 },
-          { name: 'Vault Upgrade', value: 1 + vaultBonus / 100 }
+          { name: 'Vault Upgrade', value: 1 + vaultBonus / 100 },
+          { name: 'Sushi Station', value: 1 + getSushiBonus(account, 29) / 100 }
         ]
       }
     ]
@@ -575,6 +578,7 @@ const calcRatKing = (gamingSproutRaw: any, researchRaw: any, account: any, super
     * (1 + 0.5 * superbit60)
     * (1 + (ratShopBonus2 + (ratBaseBonus ?? 0) + arcadeBonusCrown) / 100)
     * Math.pow(1.5, crownsCount)
+    * (1 + getSushiBonus(account, 31) / 100)
   );
 
   const kingRatUnlocked = account?.research?.kingRatUnlocked ?? 0;
@@ -754,7 +758,8 @@ export const getPaletteLuck = (paletteFinalBonus: any, ratKing: any, account: an
         + (Math.max(0, 3 * (gamingLevel - 200) * superbit45Unlocked)
           + (20 * Math.max(0, snailLevel - 25) * superbit28Unlocked
             + (acornShopBonus2 + exoticBonus44
-              + (100 * jadeEmporiumBonus + arcadeBonus + gridBonus)))))) / 100);
+              + (100 * jadeEmporiumBonus + arcadeBonus + gridBonus)))))) / 100)
+    * (1 + getSushiBonus(account, 42) / 100);
 
   return {
     value,

@@ -14,6 +14,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 export const stampsMapping = { 0: 'combat', 1: 'skills', 2: 'misc' };
 export const altStampsMapping = { _: 'combat', a: 'skills', b: 'misc' };
@@ -260,9 +261,11 @@ export const getExaltedStampBonus = (account: any) => {
   const exaltedFragmentFound = account?.spelunking?.exaltedFragmentFound;
   const legendBonus = getLegendTalentBonus(account, 36);
 
+  const sushiBonus = getSushiBonus(account, 17);
+
   return {
     value: 100 + (atomBonus + charmBonusExalted + compassBonus + armorSetBonus +
-      20 * eventBonus + paletteBonus + exoticBonus + exaltedFragmentFound + legendBonus),
+      20 * eventBonus + paletteBonus + exoticBonus + exaltedFragmentFound + legendBonus + sushiBonus),
     breakdown: [
       { name: 'Base', value: 100 },
       { name: 'Atom', value: atomBonus },
@@ -274,6 +277,7 @@ export const getExaltedStampBonus = (account: any) => {
       { name: 'Exotic', value: exoticBonus },
       { name: 'Exalted Fragment', value: exaltedFragmentFound },
       { name: 'Legend Talent', value: legendBonus },
+      { name: 'Sushi Station', value: sushiBonus },
     ]
   };
 }

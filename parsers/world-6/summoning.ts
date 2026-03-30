@@ -15,6 +15,7 @@ import { getAchievementStatus } from '@parsers/achievements';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 export const summonEssenceColor = {
   0: 'white',
@@ -136,7 +137,9 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
       * (1 / (1 + (costCrashing?.value ?? 0) / 100))
       * (1 / (1 + tesseractBonus / 100))
       * upgrade?.cost
-      * Math.pow(upgrade?.costExponent, upgradesLevels?.[index]);
+      * Math.pow(upgrade?.costExponent, upgradesLevels?.[index])
+      * Math.max(0.1, 1 - Math.max(getSushiBonus(account, 38), getSushiBonus(account, 47)) / 100)
+      * Math.max(0.1, 1 - Math.max(getSushiBonus(account, 9), getSushiBonus(account, 34)) / 100);
     return { ...upgrade, totalCost: cost }
   });
   upgrades = updateTotalBonuses(upgrades, careerWins, serializedCharactersData, highestEndlessLevel);

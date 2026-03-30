@@ -12,6 +12,7 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getCharacterByHighestSkillLevel } from '@parsers/misc';
 import { CLASSES, getTalentBonus } from '@parsers/talents';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 export const getBreeding = (idleonData: any, account: any, processedData: any) => {
   const breedingRaw = tryToParse(idleonData?.Breeding) || idleonData?.Breeding;
@@ -101,7 +102,7 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
     const badumdums = topAndBottomRows?.filter((teamMember) => teamMember?.gene?.name === 'Badumdum')?.length;
     const tsars = topAndBottomRows?.filter((teamMember) => teamMember?.gene?.name === 'Tsar')?.length;
     const math = forageSpeed * Math.pow(1.3, fleeters) * Math.pow(1.2, badumdums) * Math.pow(1.5, flashies) * Math.pow(1.5, fasidiouses) * miasmas;
-    const teamFightPower = (teamPower + forageSpeed * index) * Math.pow(1.5, tsars);
+    const teamFightPower = (teamPower + forageSpeed * index) * Math.pow(1.5, tsars) * (1 + getSushiBonus(account, 10) / 100);
     const totalForageSpeed = teamFightPower < territory.fightPower ? 0 : math;
     const bonus = 1 + .02 / (team?.filter((teamMember: any) => teamMember?.gene?.name === 'Monolithic')?.length / 5 + 1);
     const powerReq = index > 14 ? terri?.[index - 1]?.powerReq : territory?.powerReq;

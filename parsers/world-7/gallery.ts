@@ -13,6 +13,7 @@ import { getBubbleBonus } from '@parsers/world-2/alchemy';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getPlayerLabChipBonus } from '@parsers/world-4/lab';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 export const getGallery = (idleonData: any, account: any) => {
   const rawSpelunk = tryToParse(idleonData?.Spelunk);
@@ -289,7 +290,7 @@ export const getGalleryBonusMulti = (rawSpelunk: any, account: any, character?: 
   const cardBonus = Math.min(getCardBonusByEffect(account?.cards, 'Gallery_Bonus_(Passive)'), 10);
   const companionBonus = isCompanionBonusActive(account, 49) ? account?.companions?.list?.at(49)?.bonus : 0;
 
-  return 1 + (3 * baseValue + chipBonus + clamWorkBonus + killroyBonus + bubbleBonus + cardBonus + companionBonus) / 100;
+  return 1 + (3 * baseValue + chipBonus + clamWorkBonus + killroyBonus + bubbleBonus + cardBonus + companionBonus + getSushiBonus(account, 36)) / 100;
 }
 
 export const getPodiumsOwned = (rawSpelunk: any, account: any) => {

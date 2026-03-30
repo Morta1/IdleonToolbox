@@ -64,6 +64,7 @@ import { getMonumentBonus } from './world-5/caverns/bravery';
 import { getCompassBonus } from './class-specific/compass';
 import { getMeritocracyBonus } from './world-2/voteBallot';
 import { getMineheadBonusQTY } from './world-7/minehead';
+import { getSushiBonus } from './world-7/sushiStation';
 import { isBundlePurchased } from './misc';
 import { notateNumber } from '@utility/helpers';
 
@@ -382,6 +383,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   // equipment, gallery trophies, nametags, and premium hats (NOT obols).
   const { value: postEtcBonus72 } = getStatsFromGear(character, 72, account);
   const { value: postEtcBonus75 } = getStatsFromGear(character, 75, account);
+  const { value: postEtcBonus104 } = getStatsFromGear(character, 104, account);
   const postVoteBonus = getVoteBonus(account, 1) || 0;
   const postSuperbit64 = isSuperbitUnlocked(account, 'Destructive_Gamer') ? 1 : 0;
   const accountOpt232 = 10 * Math.floor((96 + (Number(account?.accountOptions?.[232]) || 0)) / 100);
@@ -394,13 +396,15 @@ const getDamagePercent = (character: Character, characters: Character[], account
 
   const postMulti1 = (1 + postEtcBonus72 / 100)
     * (1 + postEtcBonus75 / 100)
+    * (1 + postEtcBonus104 / 100)
     * (1 + postVoteBonus / 100)
     * (1 + 0.1 * postSuperbit64)
     * (1 + accountOpt232 / 100)
     * (1 + postCardBonus96 / 100)
     * Math.max(1, stickerMulti)
     * (1 + (tomeBonus6 + achievePost) / 100)
-    * (1 + killroyBonus);
+    * (1 + killroyBonus)
+    * (1 + getSushiBonus(account, 49) / 100);
   damage *= postMulti1;
 
   // Post-softcap companion multiplier
@@ -452,6 +456,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
         { name: 'Weekly Boss', value: weeklyBossBonus },
         { name: 'Equipment (Dmg Multi)', value: postEtcBonus72 },
         { name: 'Equipment (Dmg Bonus)', value: postEtcBonus75 },
+        { name: 'Equipment (EtcBonus 104)', value: postEtcBonus104 },
         { name: 'Vote Bonus', value: postVoteBonus },
         { name: 'Superbit (Destructive Gamer)', value: postSuperbit64 },
         { name: 'Card (Passive)', value: postCardBonus96 },

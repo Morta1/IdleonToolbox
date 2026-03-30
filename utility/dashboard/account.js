@@ -1250,6 +1250,41 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       alerts.research = research;
     }
   }
+  if (fields?.sushiStation?.checked) {
+    const sushiStation = {};
+    const sushi = account?.sushiStation;
+    if (sushi) {
+      if (options?.sushiStation?.fuelFull?.checked) {
+        const current = sushi?.fuel?.current ?? 0;
+        const cap = sushi?.fuel?.cap ?? 0;
+        if (cap > 0 && current >= cap) {
+          sushiStation.fuelFull = { current, cap };
+        }
+      }
+      if (options?.sushiStation?.shakerUses?.checked) {
+        const shakers = [
+          { name: 'Salt', uses: sushi?.shakerUses?.[0] ?? 0 },
+          { name: 'Pepper', uses: sushi?.shakerUses?.[1] ?? 0 },
+          { name: 'Saffron', uses: sushi?.shakerUses?.[2] ?? 0 }
+        ].filter(s => s.uses > 0);
+        if (shakers.length > 0) {
+          sushiStation.shakerUses = shakers;
+        }
+      }
+
+      if (options?.sushiStation?.knowledgeLevelUp?.checked) {
+        const ready = sushi?.knowledge
+          ?.map((k, i) => ({ ...k, index: i }))
+          ?.filter(k => k?.discovered && k?.xp >= k?.xpReq) ?? [];
+        if (ready.length > 0) {
+          sushiStation.knowledgeLevelUp = ready;
+        }
+      }
+    }
+    if (Object.keys(sushiStation).length > 0) {
+      alerts.sushiStation = sushiStation;
+    }
+  }
   return alerts;
 };
 export const areKeysOverdue = (account) => {

@@ -20,7 +20,6 @@ import { getFamilyBonusBonus } from '@parsers/family';
 import LavaRand from '@utility/lavaRand';
 import { getAchievementStatus } from '@parsers/achievements';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
-import { isPast } from 'date-fns';
 import { getJadeEmporiumBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
@@ -28,6 +27,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getResearchGridBonus } from '@parsers/world-7/research';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getKillRoyShopBonus } from '@parsers/misc';
 import { getBribeBonus } from '@parsers/world-1/bribes';
@@ -569,10 +569,14 @@ const getBoatLootValue = (characters: any, account: any, artifactsList: any, boa
   }
 }
 
-const getCaptainExpReq = (captain: any) => {
+const getCaptainExpReq = (captain: any, account?: any) => {
   const math = 9 + Math.pow(captain?.level, 3);
   const moreMath = Math.pow(1.5, captain?.level);
   return math * moreMath * Math.pow(1.5, Math.max(captain?.level - 10, 0));
+}
+
+export const getCaptainExpGain = (account: any) => {
+  return 1 * (1 + getSushiBonus(account, 45) / 100);
 }
 
 const getCaptainDisplayBonus = (captain: any, value: any) => {
@@ -638,7 +642,8 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
     * (1 + monumentBonus / 100)
     * (1 + exoticBonus / 100)
     * (1 + paletteBonus / 100)
-    * Math.max(1, spelunkSuperbit);
+    * Math.max(1, spelunkSuperbit)
+    * (1 + getSushiBonus(account, 7) / 100);
 
   const breakdown = {
     statName: 'Artifact Find Chance',

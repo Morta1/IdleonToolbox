@@ -6,6 +6,7 @@ import { getEventShopBonus, getGuaranteedCrystalMobs, isCompanionBonusActive } f
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getResearchGridBonus } from '@parsers/world-7/research';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 export const getLegendTalents = (idleonData: IdleonData, accountData: Account = {} as Account, charactersData: any[] = []) => {
   const spelunkingRaw = tryToParse((idleonData as any)?.Spelunk);
@@ -160,6 +161,9 @@ export const getLegendPointsOwned = (accountData: Account = {} as Account, chara
   const eventShopBonus = getEventShopBonus(accountData, 32);
   totalOwned += 2 * eventShopBonus;
 
+  const sushiBonus = getSushiBonus(accountData, 19);
+  totalOwned += sushiBonus;
+
   return {
     value: Math.round(totalOwned),
     breakdown: [
@@ -168,7 +172,8 @@ export const getLegendPointsOwned = (accountData: Account = {} as Account, chara
       { name: 'Companion', value: 10 * companionBonus },
       { name: 'Gem Item', value: gemItem42 },
       { name: 'Artifact', value: Math.min(5, Math.round(artifactBonus)) },
-      { name: 'Event Shop', value: 2 * eventShopBonus }
+      { name: 'Event Shop', value: 2 * eventShopBonus },
+      { name: 'Sushi Station', value: sushiBonus }
     ]
   };
 };

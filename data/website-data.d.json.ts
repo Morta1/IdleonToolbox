@@ -62,6 +62,7 @@ declare module '@website-data' {
     divisionScales: number[];
     divisionPointReqs: number[];
   };
+  export const sushiUpgrades: (string[])[];
   export const gamingPalette: {
       x0: number;
       x1: number;

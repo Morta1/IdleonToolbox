@@ -19,6 +19,7 @@ import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { isEtherealBonusUnlocked } from '@parsers/world-7/spelunking';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 const Sigils = () => {
   const { state } = useContext(AppContext);
@@ -41,6 +42,8 @@ const Sigils = () => {
     const paletteBonus = getPaletteBonus(state?.account, 20);
     const legendBonus = getLegendTalentBonus(state?.account, 31);
 
+    const sushiBonus = getSushiBonus(state?.account, 41);
+
     return {
       value: (1 + ((achievement ? 20 : 0) + (sigilBonus + (20 * gemStore + (vial + stampBonus)))) / 100)
         * (1 + winnerBonus / 100)
@@ -48,7 +51,8 @@ const Sigils = () => {
         * (1 + anotherVial / 100)
         * (1 + voteBonus / 100)
         * (1 + paletteBonus / 100)
-        * (1 + legendBonus / 100),
+        * (1 + legendBonus / 100)
+        * (1 + sushiBonus / 100),
 
       breakdown: [
         { name: 'Achievement', value: (achievement ? 20 : 0) / 100 },
@@ -61,7 +65,8 @@ const Sigils = () => {
         { name: 'Summoning', value: winnerBonus / 100 },
         { name: 'Vote', value: voteBonus / 100 },
         { name: 'Palette', value: paletteBonus / 100 },
-        { name: 'Legend Talent', value: legendBonus / 100 }
+        { name: 'Legend Talent', value: legendBonus / 100 },
+        { name: 'Sushi Station', value: sushiBonus / 100 }
       ]
     }
   }

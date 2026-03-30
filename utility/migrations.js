@@ -1054,6 +1054,29 @@ export const migrateToVersion42 = (config) => {
   return dashboardConfig;
 };
 
+export const migrateToVersion43 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (!dashboardConfig?.account?.['World 7']?.sushiStation) {
+    if (!dashboardConfig.account) dashboardConfig.account = {};
+    if (!dashboardConfig.account['World 7']) dashboardConfig.account['World 7'] = {};
+    dashboardConfig.account['World 7'].sushiStation = {
+      checked: true,
+      options: [
+        { name: 'fuelFull', checked: true },
+        { name: 'shakerUses', checked: true },
+        { name: 'knowledgeLevelUp', checked: true },
+      ]
+    };
+  }
+
+  dashboardConfig.version = 43;
+  return dashboardConfig;
+};
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -1183,6 +1206,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 41) {
       migratedConfig = migrateToVersion42(migratedConfig);
+    }
+    if (migratedConfig?.version === 42) {
+      migratedConfig = migrateToVersion43(migratedConfig);
     }
   }
   return migratedConfig;

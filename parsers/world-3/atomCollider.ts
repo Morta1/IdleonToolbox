@@ -6,6 +6,7 @@ import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getCompassBonus } from '@parsers/class-specific/compass';
 import { getEventShopBonus } from '@parsers/misc';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import type { IdleonData, Account } from '../types';
 
 export const getAtoms = (idleonData: IdleonData, account: Account) => {
@@ -59,9 +60,12 @@ const parseAtoms = (divinityRaw: any, atomsRaw: any, account: Account) => {
   const stampReducer = atoms?.find(({ name }) => name === 'Hydrogen_-_Stamp_Decreaser');
   const value = Math.min(90, (stampReducer?.level ?? 0) * Number(daysSinceUsed));
 
+  const totalAtomsAvailable = atoms?.length + Math.min(1, getSushiBonus(account, 22));
+
   return {
     particles,
     atoms,
+    totalAtomsAvailable,
     stampReducer: value
   }
 }

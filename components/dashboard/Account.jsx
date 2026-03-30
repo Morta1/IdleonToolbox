@@ -557,6 +557,25 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                     )}
                   </Stack>}
                   iconPath={'data/ResMagni1'}/> : null}
+              {alerts?.['World 7']?.sushiStation?.fuelFull ?
+                <Alert
+                  title={'Sushi Station fuel is full — cook some sushi!'}
+                  iconPath={'data/Sushi6'}/> : null}
+              {alerts?.['World 7']?.sushiStation?.shakerUses?.length > 0 ?
+                alerts?.['World 7']?.sushiStation?.shakerUses?.map((shaker) => {
+                  const iconMap = { Salt: 'SushiUpg17', Pepper: 'SushiUpg18', Saffron: 'SushiUpg19' };
+                  return <Alert
+                    key={`shaker-${shaker.name}`}
+                    title={`${shaker.name} Shaker: ${shaker.uses} use${shaker.uses === 1 ? '' : 's'} available`}
+                    iconPath={`data/${iconMap[shaker.name]}`}/>;
+                }) : null}
+
+              {alerts?.['World 7']?.sushiStation?.knowledgeLevelUp?.length > 0 ?
+                alerts?.['World 7']?.sushiStation?.knowledgeLevelUp?.map((sushi) =>
+                  <Alert
+                    key={`sushi-kn-${sushi.index}`}
+                    title={`${sushi.name} is ready for knowledge level-up (Lv.${sushi.level})`}
+                    iconPath={`data/Sushi${sushi.index}`}/>) : null}
             </Stack>
           </Stack> : null}
         </Stack> : <Typography>There are no account alerts to display</Typography>}

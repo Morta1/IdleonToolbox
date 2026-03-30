@@ -17,6 +17,7 @@ import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
 import { getZenithBonus } from '@parsers/world-1/statues';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 export const getSpelunking = (idleonData: any, account: any, characters: any) => {
   const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];
@@ -115,7 +116,7 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   const taxRate = getSpelunkingBonus(account, 19);
   const prismaDropChance = getPrismaDropChance(account, rawSpelunking);
   const exaltedDropChance = getExaltedDropChance(account, rawSpelunking);
-  const grandDiscoveriesChance = 4e-5 * (1 + getSpelunkingBonus(account, 43, 0) / 100)
+  const grandDiscoveriesChance = 4e-5 * (1 + (getSpelunkingBonus(account, 43, 0) + getSushiBonus(account, 21)) / 100)
     * (1 + getZenithBonus(account, 6, 0) / 100)
 
   upgrades = upgrades.map((upgrade, index) => {
@@ -458,7 +459,8 @@ export const getAmberGain = (account: any, loreBonuses: any) => {
     * (1 + exoticBonus / 100)
     * (1 + shopUpg9 / 100)
     * (1 + shopUpg10 / 100)
-    * (1 + shopUpg21 / 150);
+    * (1 + shopUpg21 / 150)
+    * (1 + getSushiBonus(account, 28) / 100);
 
   return {
     value: amberGain,
@@ -581,7 +583,8 @@ const getPower = (account: any, _unused1?: any) => {
     * (1 + paletteBonus / 100)
     * (1 + shopUpg46 / 100)
     * (1 + (exoticBonus + cardBonus) / 100)
-    * (1 + (toolUpg14 + toolUpg15 + toolUpg16 + toolUpg17) / 100);
+    * (1 + (toolUpg14 + toolUpg15 + toolUpg16 + toolUpg17) / 100)
+    * (1 + getSushiBonus(account, 20) / 100);
 
   return {
     value: basePower * powerMulti,
@@ -742,7 +745,8 @@ export const getStaminaRegenRate = (account: any) => {
 
   const value = 5 * (1 + getMeritocracyBonus(account, 17) / 100)
     * (1 + legendBonus / 100)
-    * (1 + (shopUpg5 + bubbleBonus + (chapterBonus + (10 * riftBonus + cardBonus))) / 100);
+    * (1 + (shopUpg5 + bubbleBonus + (chapterBonus + (10 * riftBonus + cardBonus))) / 100)
+    * (1 + getSushiBonus(account, 11) / 100);
 
   return {
     value,

@@ -4,6 +4,8 @@ import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { isCompanionBonusActive, getEventShopBonus } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { isArtifactAcquired } from '@parsers/world-5/sailing';
 
 const getRawMinehead = (idleonData: any) => {
   const raw = tryToParse(idleonData?.Research) || idleonData?.Research;
@@ -103,7 +105,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
       * Math.pow(2, Math.max(0, idx - 4))
       * Math.pow(A_MineCost, Math.max(0, idx - 9));
     const costReductionDiscount = 1 / (1 + getUpgradeQTY(26) / 100);
-    return base * costReductionDiscount * Math.pow(costExponent, level);
+    return base * costReductionDiscount * Math.pow(costExponent, level) * Math.max(0.1, 1 - Math.max(getSushiBonus(account, 1), getSushiBonus(account, 16)) / 100);
   };
 
   // --- Research level requirement per upgrade index ---
@@ -141,10 +143,12 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   //   (1 + QTY(0) + QTY(7) + QTY(25)) * (1 + (QTY(4)+QTY(21)+QTY(27)) / 100)
   //   * (1 + grid167 / 100)
   const grid167Bonus = getResearchGridBonus(account, 167, 0);
+  const nomenclatureAcquired = isArtifactAcquired(account?.sailing?.artifacts, 'Nomenclature')?.acquired ?? 0;
   const baseDMG =
     (1 + getUpgradeQTY(0) + getUpgradeQTY(7) + getUpgradeQTY(25))
     * (1 + (getUpgradeQTY(4) + getUpgradeQTY(21) + getUpgradeQTY(27)) / 100)
-    * (1 + grid167Bonus / 100);
+    * (1 + grid167Bonus / 100)
+    * (1 + (50 * nomenclatureAcquired) / 100);
 
   // Currency gain per hour:
   //   grid129 * (1+grid148/100) * companionMulti * min(3, 1+BonusQTY(6)/100)
@@ -176,7 +180,8 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
         + arcade62Bonus
       ) / 100)
     * (1 + atom13Bonus / 100)
-    * (1 + (grid147Bonus + grid166Bonus + mealMineCurrBonus) / 100);
+    * (1 + (grid147Bonus + grid166Bonus + mealMineCurrBonus) / 100)
+    * (1 + getSushiBonus(account, 12) / 100);
 
   // Bluecrown multiplier — used in description for upgrade 14
   const getBluecrownMulti = () => 1.5 + getUpgradeQTY(14) / 100;

@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 42,
+  version: 43,
   account: {
     General: {
       tasks: {
@@ -421,6 +421,14 @@ const baseTrackers = {
             props: { label: 'Insight level threshold', value: 3, minValue: 1 },
             checked: true
           }
+        ]
+      },
+      sushiStation: {
+        checked: true,
+        options: [
+          { name: 'fuelFull', checked: true },
+          { name: 'shakerUses', checked: true },
+          { name: 'knowledgeLevelUp', checked: true },
         ]
       }
     }
