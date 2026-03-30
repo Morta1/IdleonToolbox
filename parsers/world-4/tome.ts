@@ -335,8 +335,8 @@ export const calcTomeQuantity = (account: any, characters: any[], idleonData?: a
   quantities.push(account?.hole?.holesObject?.extraCalculations?.[8]);
   quantities.push(account?.hole?.totalLayerResources);
   quantities.push(account?.hole?.totalOpalsFound);
-  quantities.push(Math.round(account.accountOptions?.[353] + 1));
-  quantities.push(account?.accountOptions?.[369]); // 95
+  quantities.push(Math.round(Math.min(12, account.accountOptions?.[353]) + 1));
+  quantities.push(Math.round(account?.accountOptions?.[369])); // 95
   quantities.push(account?.summoning?.totalSummoningStonesKills); // 96
   quantities.push(account?.spelunking?.coralReefLevels?.reduce((sum: number, level: number) => sum + level, 0));
   quantities.push(Math.max(...(account?.spelunking?.bestCaveLevels || [0]))); // 98
@@ -356,7 +356,8 @@ export const calcTomeQuantity = (account: any, characters: any[], idleonData?: a
   quantities.push(account?.farming?.totalStickers); // 112 stickers claimed
   quantities.push(account.accountOptions?.[498]); // 113 tournament registration
   quantities.push(account.research?.gridPTSpent); // 113 research grid upg
-  quantities.push(account.minehead?.glimboTotalTrades); // 113 glimbo trades
+  quantities.push(account.minehead?.glimboTotalTrades); // 115 glimbo trades
+  quantities.push(account?.sushiStation?.uniqueSushi); // 116 unique sushi
 
   return quantities;
 }
