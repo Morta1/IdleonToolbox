@@ -168,7 +168,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/04px4m~9akw73.js"
   ],
   "/account/world-4/laboratory": [
-    "static/chunks/0.-4v6ma_700a.js"
+    "static/chunks/09epz.qz0cy.e.js"
   ],
   "/account/world-4/rift": [
     "static/chunks/01apj7imdrq9y.js"
