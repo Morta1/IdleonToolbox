@@ -2385,15 +2385,11 @@ export const getDropRate = (character: any, account: any, characters: any) => {
             value: (starSignBonus + starSignRarityBonus) / 100
           },
           { name: 'Guild', value: guildBonus / 100 },
-          {
-            name: 'Companion+',
-            value:
-              (companionDropRate +
-                secondCompanionDropRate +
-                fourthCompanionDropRate +
-                fifthCompanionDropRate +
-                sixthCompanionDropRate) / 100
-          },
+          { name: 'Crystal Custard', value: companionDropRate / 100 },
+          { name: 'Quenchie', value: secondCompanionDropRate / 100 },
+          { name: 'Santa Snake', value: fourthCompanionDropRate / 100 },
+          { name: 'Clammie', value: fifthCompanionDropRate / 100 },
+          { name: 'Lucky Slug', value: sixthCompanionDropRate / 100 },
           { name: 'Equinox', value: equinoxDropRateBonus / 100 },
           { name: 'Stamps', value: stampBonus / 100 },
           { name: 'Tome', value: tomeBonus / 100 },
