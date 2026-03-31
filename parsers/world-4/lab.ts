@@ -9,9 +9,8 @@ import { getEquinoxBonus } from '@parsers/world-3/equinox';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { calculateItemTotalAmount, getStatsFromGear } from '@parsers/items';
 import { getAllBaseSkillEff, getAllEff } from '@parsers/efficiency';
-import { getObolsBonus } from '@parsers/obols';
-import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
+import { getResearchGridBonus } from '@parsers/world-7/research';
 
 export const getLab = (idleonData: any, charactersData: any, account: any, updatedCharactersData?: any) => {
   const labRaw = tryToParse(idleonData?.Lab) || idleonData?.Lab;
@@ -55,8 +54,14 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
   });
   const soupedUpSlots = (account?.gemShopPurchases?.find((value: any, index: any) => index === 123) ?? 0) * 2;
   const holeMajikConnected = account?.hole?.godsLinks?.find(({ index }: any) => index === 1);
-  let playersInTubes = [...charactersData].filter((character, index) => isCompanionBonusActive(account, 0) || holeMajikConnected || character?.AFKtarget === 'Laboratory' ||
-    isLabEnabledBySorcererRaw(character, 1) || account?.divinity?.linkedDeities?.[index] === 1)
+  // Game: Divinity("Bonus_MAJOR", n, 2) — research grid 173 grants Arctis (lab god) bonus to ALL players
+  const hasArctisResearch = getResearchGridBonus(account, 173, 0) >= 1;
+  let playersInTubes = [...charactersData].filter((character, index) => isCompanionBonusActive(account, 0)
+    || holeMajikConnected
+    || hasArctisResearch
+    || character?.AFKtarget === 'Laboratory'
+    || isLabEnabledBySorcererRaw(character, 1)
+    || account?.divinity?.linkedDeities?.[index] === 1)
     .map((character) => ({
       playerId: character?.playerId,
       name: character?.name,
@@ -111,16 +116,15 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
           newPlayerConnection = true;
           connectedPlayers = [...connectedPlayers, newPlayer];
         }
-        if (i === 6) {
-
-        }
         const spelunkerObolMulti = getLabBonus(labBonusesList, 8); // gem multi
         const pyriteRhombolBonus = getJewelBonus(jewelsList, 9, spelunkerObolMulti); // range bonus
         const viralConnectionBonus = getLabBonus(labBonusesList, 13); // range bonus
         let labBonuses = checkConnection(labBonusesList, pyriteRhombolBonus, viralConnectionBonus, calculatedTaskConnectionRange, equinoxConnectionRangeBonus, winnerBonus, connectedPlayers?.[i], false);
         labBonusesList = labBonuses.resArr;
+        const firstLabNewConnection = labBonuses.newConnection;
         let jewels = checkConnection(jewelsList, pyriteRhombolBonus, viralConnectionBonus, calculatedTaskConnectionRange, equinoxConnectionRangeBonus, winnerBonus, connectedPlayers?.[i], true);
         jewelsList = jewels.resArr;
+        const firstJewelNewConnection = jewels.newConnection;
         if (jewelsList?.[16]?.acquired && !jewelsList?.[16]?.active) {
           jewelsList[16].active = true;
           playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList,
@@ -132,7 +136,7 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
         jewels = checkConnection(jewelsList, pyriteRhombolBonus, viralConnectionBonus, calculatedTaskConnectionRange, equinoxConnectionRangeBonus, winnerBonus, connectedPlayers?.[i], true);
         jewelsList = jewels.resArr;
         foundNewConnection = !foundNewConnection
-          ? newPlayerConnection || jewels?.newConnection || labBonuses?.newConnection
+          ? newPlayerConnection || firstLabNewConnection || firstJewelNewConnection || jewels?.newConnection || labBonuses?.newConnection
           : foundNewConnection;
       }
     }
@@ -238,17 +242,17 @@ const getRange = (connectionBonus: any, viralRangeBonus: any, taskConnectionRang
   if (isJewel && (index === 21 || index === 22 || index === 23)) {
     return 100;
   }
-  return (80 * (1 + (connectionBonus + viralRangeBonus) / 100)) + taskConnectionRange + equinoxConnectionRangeBonus + winnerBonus;
+  return Math.floor((80 * (1 + (connectionBonus + viralRangeBonus) / 100)) + taskConnectionRange + equinoxConnectionRangeBonus + winnerBonus);
 }
 
 export const calcPlayerLineWidth = (playersInTubes: any, labBonuses: any, jewels: any, chips: any, account: any, cards: any, gemShopPurchases: any, arenaWave: any, waveReqs: any, buboPlayer: any, charactersData: any, updatedCharactersData: any) => {
   return playersInTubes?.map((character: any) => {
     const soupedTubes = (gemShopPurchases?.find((value: any, index: any) => index === 123) ?? 0) * 2;
-    const petArenaBonus = isArenaBonusActive(arenaWave, waveReqs, 13) ? 20 : 0;
+    const petArenaBonus = isArenaBonusActive(arenaWave, waveReqs, 13) ? 1 : 0;
     const realIndex = charactersData?.find(({ name }: any) => name === character?.name)?.playerId;
     const lineWidth = getPlayerLineWidth(character,
       character?.Lv0?.[12], // lab skill
-      soupedTubes > 0 && (realIndex <= soupedTubes),
+      soupedTubes > 0 && (realIndex < soupedTubes),
       labBonuses,
       jewels,
       chips?.[character?.playerId],
@@ -287,8 +291,7 @@ export const getPlayerLineWidth = (playerCords: any, labLevel: any, soupedTube: 
     const purpleTubeData = (talents as Record<string, any>)?.[CLASSES.Bubonic_Conjuror]?.['PURPLE_TUBE'] || {};
     if (updatedCharactersData) {
       purpleTubeBonus = getHighestTalentByClass(updatedCharactersData, CLASSES.Bubonic_Conjuror, 'PURPLE_TUBE', false, true)
-    }
-    else {
+    } else {
       purpleTubeBonus = growth(purpleTubeData?.funcX, purpleTubeLevel, purpleTubeData?.x1, purpleTubeData?.x2, false) ?? 0;
     }
   }
@@ -344,12 +347,10 @@ export const getRequirementAmount = (name: any, rawName: any, account: any) => {
   if (rawName.includes('Spice')) {
     const spice = account?.cooking?.spices?.available?.find(({ rawName: sRawName }: any) => sRawName === rawName);
     totalAmount = spice?.amount || 0;
-  }
-  else if (rawName.includes('CookingM')) {
+  } else if (rawName.includes('CookingM')) {
     const meal = account?.cooking?.meals?.find(({ name: mName }: any) => mName === name)
     totalAmount = meal?.amount || 0;
-  }
-  else {
+  } else {
     totalAmount = calculateItemTotalAmount(account?.storage?.list, rawName, true, true);
   }
   return totalAmount;
@@ -367,14 +368,14 @@ export const getLabEfficiency = (character: any, characters: any, account: any, 
   const allBaseSkillEff = getAllBaseSkillEff(character, account, characters, playerInfo);
 
   return allEfficiencies
-  * (200 + (Math.pow(character?.stats?.wisdom, 0.6)
-    * (1 + talentBonus / 100)
-    + (equipBonus
-      + (allBaseSkillEff
-        + postOfficeBonus))))
-  * (1 + (talentBonus2
-    + (equipBonus2
-      + 10 * masteryBonus)) / 100)
-  * (1 + talentBonus3 / 100)
+    * (200 + (Math.pow(character?.stats?.wisdom, 0.6)
+      * (1 + talentBonus / 100)
+      + (equipBonus
+        + (allBaseSkillEff
+          + postOfficeBonus))))
+    * (1 + (talentBonus2
+      + (equipBonus2
+        + 10 * masteryBonus)) / 100)
+    * (1 + talentBonus3 / 100)
 
 }
