@@ -1,0 +1,14 @@
+__turbopack_load_page_chunks__("/account/misc/random-events", [
+  "static/chunks/10ajf9rutw~4~.js",
+  "static/chunks/052.o.9q9z6h4.js",
+  "static/chunks/0mpfqmmtjfj9u.js",
+  "static/chunks/0ml-r6_q-zu7..js",
+  "static/chunks/128s9dztpwqha.js",
+  "static/chunks/0~pb02w30r0h5.js",
+  "static/chunks/13z1bhslfki8l.js",
+  "static/chunks/0b7rnuxo0jn_w.js",
+  "static/chunks/0gdhjfdy-wuqx.js",
+  "static/chunks/0otdh-5fu63-z.js",
+  "static/chunks/0hha4~5yi~g34.js",
+  "static/chunks/turbopack-15y-2w0x-b0ih.js"
+])
