@@ -1,14 +1,11 @@
 import { tryToParse, commaNotation, notateNumber } from '@utility/helpers';
-import { research as researchData, superbitsUpgrades } from '@website-data';
+import { research as researchData, superbitsUpgrades, sushiUpgrades as sushiUpgradesData } from '@website-data';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
-
-// @ts-ignore - sushiUpgrades may not exist in website-data.json yet until extraction pipeline runs
-let sushiUpgradesData: any;
-try { sushiUpgradesData = require('@website-data').sushiUpgrades; } catch { sushiUpgradesData = null; }
+import { isBundlePurchased } from '@parsers/misc';
 
 const MAX_TIER = 53;
 
@@ -78,7 +75,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
   const rogValues: number[] = (researchData as any)?.[37] ?? [];
 
   // Bundle bonus
-  const bonVBundle = account?.bundles?.bon_v ? 1 : 0;
+  const bonVBundle = isBundlePurchased(account?.bundles, 'bon_v') ? 1 : 0;
 
   // --- Knowledge ---
   const getKnowledgeBonusSpecific = (sushiIdx: number) => {
@@ -195,7 +192,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
   const researchGrid189 = getResearchGridBonus(account, 189, 0) ?? 0;
   const mineheadBonus11 = getMineheadBonusQTY(account, 11) ?? 0;
   const atomBonus14 = getAtomBonus(account, 'Phosphorus_-_Sushi_Bucks_Generator') ?? 0;
-  const sailingArt39 = Number(account?.sailing?.lootPile?.[39]?.acquired) || 0;
+  const sailingArt39 = Number(account?.sailing?.artifacts?.[39]?.acquired) || 0;
 
   const currencyMulti = (1 + arcadeBonus67 / 100)
     * Math.pow(1.1, uniqueSushi)
