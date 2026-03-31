@@ -12,6 +12,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { isCompanionBonusActive } from '@parsers/misc';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 export const tachyonNames = {
   0: 'Purple',
@@ -512,9 +513,10 @@ export const getPrismaMulti = (account: any) => {
   const totalEtherealSigils = account?.alchemy?.p2w?.totalEtherealSigils || 0;
   const sigilsBonus = 0.2 * totalEtherealSigils;
   const companionBonus = isCompanionBonusActive(account, 88) ? 1 : 0;
+  const sushiBonus = getSushiBonus(account, 23);
 
-  const value = Math.min(4, 2 + (tesseractBonus 
-    + (arcadeBonus + (trophyBonus + (paletteBonus
+  const value = Math.min(4, 2 + (tesseractBonus
+    + (arcadeBonus + sushiBonus + (trophyBonus + (paletteBonus
        + (sigilsBonus + exoticMarketBonus)))) + legendBonus + 50 * companionBonus) / 100);
 
   return {
@@ -528,6 +530,7 @@ export const getPrismaMulti = (account: any) => {
           sources: [
             { name: "Tesseract", value: tesseractBonus },
             { name: "Arcade", value: arcadeBonus },
+            { name: "Sushi", value: sushiBonus },
             { name: "Trophy", value: trophyBonus },
             { name: "Palette", value: paletteBonus },
             { name: "Ethereal Sigils", value: sigilsBonus },
