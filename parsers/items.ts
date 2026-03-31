@@ -2,6 +2,7 @@ import { bonuses, items, itemsArray } from '@website-data';
 import { cleanUnderscore } from '@utility/helpers';
 import { getGalleryBonus } from './world-7/gallery';
 import { getHatRackBonus } from './world-3/hatRack';
+import { getResearchGridBonus } from './world-7/research';
 
 export const addStoneDataToEquip = (baseItem: any, stoneData: any) => {
   if (!baseItem || !stoneData) return {};
@@ -72,6 +73,10 @@ export const getStatsFromGear = (character: any, bonusIndex: any, account?: any,
     return type === 'TROPHY' || type === 'NAMETAG' || type === 'PREMIUM_HELMET' || type === 'REPLICA_TROPHY' || type === 'REPLICA_NAMETAG';
   };
 
+  // Well_Dressed research (grid 172): first MISC bonus on attire/clothing (slot 15) gives }x more bonus
+  const wellDressedBonus = getResearchGridBonus(account, 172, 0);
+  const wellDressedMulti = wellDressedBonus >= 1 ? (1 + wellDressedBonus / 100) : 1;
+
   // Calculate from equipment
   const equipmentTotal = equipment?.reduce((total: number, item: any, index: number) => {
     if (isGalleryOrHatRackItem(item)) {
@@ -79,7 +84,8 @@ export const getStatsFromGear = (character: any, bonusIndex: any, account?: any,
     }
     const statValue = getStatFromEquipment(item, bonusName);
     const chipMultiplier = ((index === 3 && silkroadProcessor) || (index === 10 && silkroadMotherboard) || (index === 9 && silkroadSoftware)) ? 2 : 1;
-    return total + (statValue * chipMultiplier);
+    const researchMultiplier = index === 15 ? wellDressedMulti : 1;
+    return total + (statValue * chipMultiplier * researchMultiplier);
   }, 0) || 0;
 
   // Calculate from tools (no chip multipliers for tools)

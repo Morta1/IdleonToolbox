@@ -17,7 +17,7 @@ import {
   rawMapNames,
   slab
 } from '@website-data';
-import { checkCharClass, CLASSES, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
+import { checkCharClass, CLASSES, getHighestTalentByClass, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
 import { getMealsBonusByEffectOrStat } from './world-4/cooking';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './world-2/alchemy';
 import { getStampsBonusByEffect } from './world-1/stamps';
@@ -735,7 +735,9 @@ export const getGiantMobChance = (character: any, account: any) => {
 }
 
 export const getGoldenFoodMulti = (character: any, account: any, characters: any) => {
-  const highestLevelShaman = getHighestLevelOfClass(account?.charactersLevels, CLASSES.Bubonic_Conjuror) ?? getHighestLevelOfClass(account?.charactersLevels, CLASSES.Shaman) ?? 0;
+  const highestLevelShaman = account?.charactersLevels?.reduce((max: number, { level, class: cName }: any) => {
+    return checkCharClass(cName, CLASSES.Shaman) ? Math.max(max, level) : max;
+  }, 0) ?? 0;
   const theFamilyGuy = getTalentBonus(character?.flatTalents, 'THE_FAMILY_GUY');
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
   const isShaman = checkCharClass(character?.class, CLASSES.Shaman);
@@ -755,13 +757,13 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
   const secondAchievementBonus = getAchievementStatus(account?.achievements, 383);
   const voteBonus = getVoteBonus(account, 26);
   const companionBonus = isCompanionBonusActive(account, 48) ? account?.companions?.list?.at(48)?.bonus : 0;
+  const companionBonus155 = isCompanionBonusActive(account, 155) ? account?.companions?.list?.at(155)?.bonus : 0;
   const legendTalentBonus = getLegendTalentBonus(account, 25);
   const cardBonus = Math.min(getCardBonusByEffect(account?.cards, 'Gold_Food_Effect_(Passive)'), 50);
   const vaultBonus86 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 86);
 
-  // select first death bringer
-  const deathBringer = characters?.find((character: any) => checkCharClass(character?.class, CLASSES.Death_Bringer));
-  const apocalypseWow = getTalentBonus(deathBringer?.flatTalents, 'APOCALYPSE_WOW');
+  const deathBringer = characters?.find((char: any) => checkCharClass(char?.class, CLASSES.Death_Bringer));
+  const apocalypseWow = getHighestTalentByClass(characters, CLASSES.Death_Bringer, 'APOCALYPSE_WOW', false, false, false, false, character);
   const apocalypses = deathBringer?.wow?.finished?.at(0) || 0;
   const armorSetBonus = getArmorSetBonus(account, 'SECRET_SET');
   const value = (1 + armorSetBonus / 100)
@@ -772,7 +774,7 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
             + (goldenFoodAchievement
               + (goldenFoodBubbleBonus
                 + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus
-              + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses + companionBonus + legendTalentBonus + cardBonus + vaultBonus86))))) / 100);
+              + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses + companionBonus + legendTalentBonus + cardBonus + companionBonus155 + vaultBonus86))))) / 100);
 
   const breakdown = {
     statName: 'Golden food multi', // adjust if needed
@@ -815,9 +817,11 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
             name: 'Apocalypse Wow',
             value: apocalypseWow * apocalypses
           },
-          { name: 'Companion', value: companionBonus },
+          { name: 'Purp Mushroom Companion', value: companionBonus },
           { name: 'Legend Talent', value: legendTalentBonus },
-          { name: 'Card', value: cardBonus }
+          { name: 'Card', value: cardBonus },
+          { name: 'Potluck Companion', value: companionBonus155 },
+          { name: 'Vault Upgrade', value: vaultBonus86 }
         ],
         subSections: [
           equipmentBonusBreakdown
@@ -843,7 +847,8 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
 + charmBonus
 + (2 * achievementBonus + 3 * secondAchievementBonus
 + voteBonus
-+ apocalypseWow * apocalypses))))) / 100)`
++ apocalypseWow * apocalypses
++ companionBonus155))))) / 100)`
   };
 }
 
