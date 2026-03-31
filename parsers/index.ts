@@ -75,7 +75,7 @@ import { getEmperor } from '@parsers/world-6/emperor';
 import { getArmorSmithy } from '@parsers/world-3/armorSmithy';
 import { getTesseract } from '@parsers/class-specific/tesseract';
 import { getSpelunking } from '@parsers/world-7/spelunking';
-import { getGallery } from '@parsers/world-7/gallery';
+import { getGallery, getCharacterGalleryBonuses } from '@parsers/world-7/gallery';
 import { getCoralReef } from '@parsers/world-7/coralReef';
 import { getClamWork } from '@parsers/world-7/clamWork';
 import { getResearch } from '@parsers/world-7/research';
@@ -312,6 +312,9 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.emperor = getEmperor(idleonData, accountData);
   accountData.legendTalents = getLegendTalents(idleonData, accountData, charactersData);
   accountData.gallery = getGallery(idleonData, accountData);
+  charactersData?.forEach((character: any) => {
+    character.gallery = getCharacterGalleryBonuses(idleonData, accountData, character);
+  });
   accountData.coralReef = getCoralReef(idleonData, accountData, charactersData);
   accountData.clamWork = getClamWork(idleonData, accountData);
   accountData.minehead = getMinehead(idleonData, accountData, serverVars);

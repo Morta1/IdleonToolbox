@@ -1,6 +1,8 @@
 import { tryToParse, notateNumber } from '@utility/helpers';
 import { items, itemsArray } from '@website-data';
 import { getEventShopBonus } from '@parsers/misc';
+import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 export const getHatRack = (idleonData: any, account: any) => {
   const rawSpelunk = tryToParse(idleonData?.Spelunk);
@@ -24,7 +26,9 @@ const parseHatRack = (rawSpelunk: any, account: any) => {
 export const getHatRackBonusMulti = (rawSpelunk: any, account: any) => {
   const hatCount = rawSpelunk?.[46]?.length || 0;
   const eventShopBonus = getEventShopBonus(account, 30);
-  return 1 + (hatCount + 10 * eventShopBonus  ) / 100
+  const mineheadBonus = getMineheadBonusQTY(account, 21);
+  const sushiBonus = getSushiBonus(account, 36);
+  return 1 + (hatCount + 10 * eventShopBonus + mineheadBonus + sushiBonus) / 100;
 }
 
 export const getHatBonuses = (rawSpelunk: any, account: any) => {

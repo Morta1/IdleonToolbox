@@ -13,20 +13,28 @@ import { getBubbleBonus } from '@parsers/world-2/alchemy';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getPlayerLabChipBonus } from '@parsers/world-4/lab';
-import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 export const getGallery = (idleonData: any, account: any) => {
   const rawSpelunk = tryToParse(idleonData?.Spelunk);
   return parseGallery(rawSpelunk, account);
 }
 
-const parseGallery = (rawSpelunk: any, account: any) => {
-  const bonusMulti = getGalleryBonusMulti(rawSpelunk, account);
+export const getCharacterGalleryBonuses = (idleonData: any, account: any, character: any) => {
+  const rawSpelunk = tryToParse(idleonData?.Spelunk);
+  if (!rawSpelunk) return null;
+  const bonusMulti = getGalleryBonusMulti(rawSpelunk, account, character);
+  const { bonuses: trophyBonuses } = getTrophyBonuses(rawSpelunk, account, character);
+  const { bonuses: nametagBonuses } = getNametagBonuses(rawSpelunk, account, character);
+  return { bonusMulti, trophyBonuses, nametagBonuses };
+}
+
+const parseGallery = (rawSpelunk: any, account: any, character?: any) => {
+  const bonusMulti = getGalleryBonusMulti(rawSpelunk, account, character);
   const podiumsOwned = getPodiumsOwned(rawSpelunk, account);
-  const { bonuses: trophyBonuses, items: trophiesUsed, inventory: inventoryTrophies } = getTrophyBonuses(rawSpelunk, account);
-  const { bonuses: nametagBonuses, items: nametagsUsed } = getNametagBonuses(rawSpelunk, account);
-  const allTrophies = getAllTrophies(rawSpelunk, account);
-  const allNametags = getAllNametags(rawSpelunk, account);
+  const { bonuses: trophyBonuses, items: trophiesUsed, inventory: inventoryTrophies } = getTrophyBonuses(rawSpelunk, account, character);
+  const { bonuses: nametagBonuses, items: nametagsUsed } = getNametagBonuses(rawSpelunk, account, character);
+  const allTrophies = getAllTrophies(rawSpelunk, account, character);
+  const allNametags = getAllNametags(rawSpelunk, account, character);
 
   // Calculate from highest to lowest, subtracting higher levels from lower ones
   const lv4PodiumsOwned = getLv4PodiumsOwned(account);
@@ -36,8 +44,9 @@ const parseGallery = (rawSpelunk: any, account: any) => {
   // A podium at level 3+ is not level 2, and a podium at level 4 is not level 3
   const lv3PodiumsOwned = lv3PlusPodiums - lv4PodiumsOwned;
   const lv2PodiumsOwned = lv2PlusPodiums - lv3PlusPodiums;
-  
+
   return {
+    rawSpelunk,
     bonusMulti,
     trophyBonuses,
     nametagBonuses,
@@ -61,7 +70,16 @@ export const getTrophyBonus = (account: any, bonusName: any) => {
   return account?.gallery?.trophyBonuses?.find((bonus: any) => bonus.name === bonusName)?.value ?? 0;
 }
 
-export const getGalleryBonus = (account: any, bonusName: any) => {
+export const getGalleryBonus = (account: any, bonusName: any, character?: any) => {
+  if (character?.gallery) {
+    const trophyBonus = character.gallery.trophyBonuses?.find(
+      (bonus: any) => bonus.name === bonusName
+    )?.value ?? 0;
+    const nametagBonus = character.gallery.nametagBonuses?.find(
+      (bonus: any) => bonus.name === bonusName
+    )?.value ?? 0;
+    return trophyBonus + nametagBonus;
+  }
   return getNametagBonus(account, bonusName) + getTrophyBonus(account, bonusName);
 }
 
@@ -79,7 +97,7 @@ const getPodiumLevel = (trophyIndex: any, account: any) => {
   }
 }
 
-const getTrophyMultiplier = (trophyIndex: any, rawSpelunk: any, account: any) => {
+const getTrophyMultiplier = (trophyIndex: any, rawSpelunk: any, account: any, character?: any) => {
   let baseMulti = 0.3;
   if (trophyIndex >= 48) {
     const podiumOffset = trophyIndex - 48;
@@ -93,10 +111,10 @@ const getTrophyMultiplier = (trophyIndex: any, rawSpelunk: any, account: any) =>
       baseMulti = 1;
     }
   }
-  return baseMulti * getGalleryBonusMulti(rawSpelunk, account);
+  return baseMulti * getGalleryBonusMulti(rawSpelunk, account, character);
 }
 
-export const getTrophyBonuses = (rawSpelunk: any, account: any) => {
+export const getTrophyBonuses = (rawSpelunk: any, account: any, character?: any) => {
   const rawTrophies = rawSpelunk?.[16];
   const trophyCount = rawTrophies?.length;
   const trophyBonusesObj: Record<string, any> = {};
@@ -104,7 +122,7 @@ export const getTrophyBonuses = (rawSpelunk: any, account: any) => {
   const inventoryTrophiesList: any[] = [];
   const podiumsOwned = getPodiumsOwned(rawSpelunk, account);
   const maxTrophyIndex = Math.min(trophyCount, 48 + podiumsOwned);
-  
+
   // Process inventory trophies (indices 0-47)
   const maxInventoryIndex = Math.min(48, trophyCount);
   for (let trophyIndex = 0; trophyIndex < maxInventoryIndex; trophyIndex++) {
@@ -112,8 +130,8 @@ export const getTrophyBonuses = (rawSpelunk: any, account: any) => {
       const trophy = items?.[`Trophy${rawTrophies[trophyIndex]}`];
       if (trophy) {
         // Inventory trophies use base multiplier (0.3) without podium bonuses
-        const bonusMulti = 0.3 * getGalleryBonusMulti(rawSpelunk, account);
-        
+        const bonusMulti = 0.3 * getGalleryBonusMulti(rawSpelunk, account, character);
+
         // Build modified item with bonus values
         const modifiedItem: any = { ...trophy };
         if (trophy.UQ1txt && trophy.UQ1txt != '0' && trophy.UQ1val && trophy.UQ1val != 0) {
@@ -158,7 +176,7 @@ export const getTrophyBonuses = (rawSpelunk: any, account: any) => {
     if (isTrophyFilled) {
       const trophy = items?.[`Trophy${rawTrophies[trophyIndex]}`];
       if (trophy) {
-        const bonusMulti = getTrophyMultiplier(trophyIndex, rawSpelunk, account);
+        const bonusMulti = getTrophyMultiplier(trophyIndex, rawSpelunk, account, character);
         const podiumLevel = getPodiumLevel(trophyIndex, account);
 
         // Build modified item with bonus values
@@ -213,19 +231,19 @@ export const getTrophyBonuses = (rawSpelunk: any, account: any) => {
   };
 }
 
-const getNametagMultiplier = (nametagOwned: any, rawSpelunk: any, account: any) => {
+const getNametagMultiplier = (nametagOwned: any, rawSpelunk: any, account: any, character?: any) => {
   const multiplierLevels = '1,1.6,2,2.3,2.5';
   const levelIndex = Math.min(4, Math.round(nametagOwned - 1));
   const baseMultiplier = parseFloat(multiplierLevels.split(',')[levelIndex]);
-  return baseMultiplier * getGalleryBonusMulti(rawSpelunk, account);
+  return baseMultiplier * getGalleryBonusMulti(rawSpelunk, account, character);
 }
 
-export const getNametagBonuses = (rawSpelunk: any, account: any) => {
+export const getNametagBonuses = (rawSpelunk: any, account: any, character?: any) => {
   const rawNametags = rawSpelunk?.[17];
   const nametagCount = rawNametags?.length;
   const nametagBonusesObj: Record<string, any> = {};
   const nametagsUsedList: any[] = [];
-  
+
   for (let nametagIndex = 0; nametagIndex < nametagCount; nametagIndex++) {
     const nametagOwned = rawNametags[nametagIndex];
     if (nametagOwned >= 1) {
@@ -233,10 +251,10 @@ export const getNametagBonuses = (rawSpelunk: any, account: any) => {
         ? 'EquipmentNametag6b'
         : 'EquipmentNametag' + nametagIndex;
       const nametagItem = items?.[nametagItemName];
-      
+
       if (nametagItem) {
-        const bonusMultiplier = getNametagMultiplier(nametagOwned, rawSpelunk, account);
-        
+        const bonusMultiplier = getNametagMultiplier(nametagOwned, rawSpelunk, account, character);
+
         // Build modified item with bonus values
         const modifiedItem: any = { ...nametagItem };
         if (nametagItem.UQ1txt && nametagItem.UQ1txt != '0' && nametagItem.UQ1val && nametagItem.UQ1val != 0) {
@@ -248,7 +266,7 @@ export const getNametagBonuses = (rawSpelunk: any, account: any) => {
         modifiedItem.level = nametagOwned;
         modifiedItem.nametagMultiplier = bonusMultiplier;
         nametagsUsedList.push(modifiedItem);
-        
+
         // Aggregate bonuses
         for (let uqIndex = 0; uqIndex < 2; uqIndex++) {
           const uqTextKey = 'UQ' + Math.round(uqIndex + 1) + 'txt';
@@ -271,7 +289,7 @@ export const getNametagBonuses = (rawSpelunk: any, account: any) => {
       }
     }
   }
-  
+
   return {
     bonuses: Object.entries(nametagBonusesObj).map(([name, value]) => ({ name, value })),
     items: nametagsUsedList
@@ -283,14 +301,15 @@ export const getGalleryBonusMulti = (rawSpelunk: any, account: any, character?: 
   const chipBonus = character ? getPlayerLabChipBonus(character, account, 16) ? 10 : 0 : 0;
   const clamWorkBonus = 3 * getClamWorkBonus(account, 7);
   const killroyBonus = getKillRoyShopBonus(account, 3);
-  // Game initializes gallery bonuses before CODFREY_RULZ_OK bubble is resolved,
-  // so the bubble contributes 0 during nametag/trophy bonus initialization.
-  // Only include it when explicitly requested (e.g., for display purposes).
-  const bubbleBonus = includeBubble ? Math.min(20, getBubbleBonus(account, 'CODFREY_RULZ_OK', false)) : 0;
+  // Include bubble when a character is provided (per-character path runs after alchemy is resolved)
+  // or when explicitly requested via includeBubble.
+  // Account-level (no character) defaults to excluding bubble to avoid stale data in early serialization passes.
+  const shouldIncludeBubble = includeBubble || !!character;
+  const bubbleBonus = shouldIncludeBubble ? Math.min(20, getBubbleBonus(account, 'CODFREY_RULZ_OK', false)) : 0;
   const cardBonus = Math.min(getCardBonusByEffect(account?.cards, 'Gallery_Bonus_(Passive)'), 10);
   const companionBonus = isCompanionBonusActive(account, 49) ? account?.companions?.list?.at(49)?.bonus : 0;
 
-  return 1 + (3 * baseValue + chipBonus + clamWorkBonus + killroyBonus + bubbleBonus + cardBonus + companionBonus + getSushiBonus(account, 36)) / 100;
+  return 1 + (3 * baseValue + chipBonus + clamWorkBonus + killroyBonus + bubbleBonus + cardBonus + companionBonus) / 100;
 }
 
 export const getPodiumsOwned = (rawSpelunk: any, account: any) => {
@@ -338,19 +357,21 @@ export const getLv3PodiumsOwned = (account: any) => {
 export const getLv4PodiumsOwned = (account: any) => {
   const eventShopBonus = getEventShopBonus(account, 29);
   const companionBonus = isCompanionBonusActive(account, 28) ? account?.companions?.list?.at(28)?.bonus : 0;
-  return Math.min(1, companionBonus) + eventShopBonus;
+  const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'Deathskull')?.acquired;
+  const sailingBonus = Math.min(1, Math.floor(artifact / 6));
+  return Math.min(1, companionBonus) + eventShopBonus + sailingBonus;
 }
 
-const getAllTrophies = (rawSpelunk: any, account: any) => {
+export const getAllTrophies = (rawSpelunk: any, account: any, character?: any) => {
   const rawTrophies = rawSpelunk?.[16] || [];
   const trophyCount = rawTrophies?.length || 0;
   const podiumsOwned = getPodiumsOwned(rawSpelunk, account);
   const maxTrophyIndex = Math.min(trophyCount, 48 + podiumsOwned);
-  const bonusMulti = getGalleryBonusMulti(rawSpelunk, account);
-  
+  const bonusMulti = getGalleryBonusMulti(rawSpelunk, account, character);
+
   // Create sets to track owned trophies
   const ownedTrophyIds = new Set();
-  
+
   // Track inventory trophies (indices 0-47)
   const maxInventoryIndex = Math.min(48, trophyCount);
   for (let trophyIndex = 0; trophyIndex < maxInventoryIndex; trophyIndex++) {
@@ -358,7 +379,7 @@ const getAllTrophies = (rawSpelunk: any, account: any) => {
       ownedTrophyIds.add(rawTrophies[trophyIndex]);
     }
   }
-  
+
   // Track podium trophies (indices 48+)
   for (let trophyIndex = 48; trophyIndex < maxTrophyIndex; trophyIndex++) {
     const isTrophyFilled = (trophyIndex - 48) < podiumsOwned && rawTrophies[trophyIndex] >= 1;
@@ -375,7 +396,7 @@ const getAllTrophies = (rawSpelunk: any, account: any) => {
       const trophyIdMatch = item.rawName?.match(/^Trophy(\d+)$/);
       const trophyId = trophyIdMatch ? parseInt(trophyIdMatch[1], 10) : null;
       const isAcquired = trophyId !== null && ownedTrophyIds.has(trophyId);
-      
+
       const modifiedItem: any = { ...item };
 
       if (isAcquired) {
@@ -388,7 +409,7 @@ const getAllTrophies = (rawSpelunk: any, account: any) => {
         for (let trophyIndex = 48; trophyIndex < maxTrophyIndex; trophyIndex++) {
           const isTrophyFilled = (trophyIndex - 48) < podiumsOwned && rawTrophies[trophyIndex] === trophyId;
           if (isTrophyFilled) {
-            trophyMultiplier = getTrophyMultiplier(trophyIndex, rawSpelunk, account);
+            trophyMultiplier = getTrophyMultiplier(trophyIndex, rawSpelunk, account, character);
             podiumLevel = getPodiumLevel(trophyIndex, account);
             isOnPodium = true;
             break;
@@ -427,14 +448,14 @@ const getAllTrophies = (rawSpelunk: any, account: any) => {
   return allTrophies;
 }
 
-const getAllNametags = (rawSpelunk: any, account: any) => {
+export const getAllNametags = (rawSpelunk: any, account: any, character?: any) => {
   const rawNametags = rawSpelunk?.[17] || [];
   const nametagCount = rawNametags?.length || 0;
-  const bonusMulti = getGalleryBonusMulti(rawSpelunk, account);
-  
+  const bonusMulti = getGalleryBonusMulti(rawSpelunk, account, character);
+
   // Create a map to track owned nametags and their levels
   const ownedNametagsMap = new Map();
-  
+
   for (let nametagIndex = 0; nametagIndex < nametagCount; nametagIndex++) {
     const nametagOwned = rawNametags[nametagIndex];
     if (nametagOwned >= 1) {
@@ -451,11 +472,11 @@ const getAllNametags = (rawSpelunk: any, account: any) => {
     .map((item) => {
       const isAcquired = ownedNametagsMap.has(item.rawName);
       const nametagLevel = isAcquired ? ownedNametagsMap.get(item.rawName) : null;
-      
+
       const modifiedItem: any = { ...item };
 
       if (isAcquired && nametagLevel) {
-        const bonusMultiplier = getNametagMultiplier(nametagLevel, rawSpelunk, account);
+        const bonusMultiplier = getNametagMultiplier(nametagLevel, rawSpelunk, account, character);
 
         // Apply bonus multiplier
         if (item.UQ1txt && item.UQ1txt != '0' && item.UQ1val && item.UQ1val != 0) {

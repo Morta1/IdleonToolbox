@@ -92,7 +92,7 @@ export const getStatsFromGear = (character: any, bonusIndex: any, account?: any,
   }, 0) || 0);
 
   // Get gallery and hatRack bonuses for tracked item types
-  const galleryBonus = getGalleryBonus(account, bonusName) || 0;
+  const galleryBonus = getGalleryBonus(account, bonusName, character) || 0;
   const hatRackBonus = getHatRackBonus(account, bonusName) || 0;
 
   const gearTotal = equipmentTotal + toolsTotal;
