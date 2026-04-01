@@ -2200,8 +2200,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   const lootyCurseTalentBonus = getTalentBonus(character?.flatTalents, 'CURSE_OF_MR_LOOTY_BOOTY');
   const bossBattleTalentBonus = getTalentBonus(character?.flatStarTalents, 'BOSS_BATTLE_SPILLOVER');
   const obols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[2]);
-  const { value: dropChanceBonuses, newBreakdown: newDropChanceBonusesBreakdown } = getStatsFromGear(character, 2, account);
-  const { value: dropChanceBonuses102, newBreakdown: newDropChanceBonuses102Breakdown } = getStatsFromGear(character, 102, account);
+  const { value: dropRateBonuses, newBreakdown: newDropRateBonusesBreakdown } = getStatsFromGear(character, 2, account);
   const bubbleBonus = getBubbleBonus(account, 'DROPPIN_LOADS', false);
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Drop_Rate');
   const cardMulti = getCardBonusByEffect(character?.cards?.equippedCards, 'Drop_Rate_Multi');
@@ -2258,7 +2257,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   const additive =
     robbingHoodTalentBonus +
     postOfficeBonus +
-    (dropChanceBonuses + dropChanceBonuses102 + obols) +
+    (dropRateBonuses + obols) +
     bubbleBonus +
     cardBonus +
     lootyCurseTalentBonus +
@@ -2417,7 +2416,6 @@ export const getDropRate = (character: any, account: any, characters: any) => {
           { name: 'Friend', value: friendBonus / 100 },
           { name: 'Legend talent', value: legendTalentBonus / 100 },
           { name: 'Spelunking', value: spelunkingBonus / 100 },
-          { name: 'Drop Rate Equip (102)', value: dropChanceBonuses102 / 100 },
           { name: 'Research', value: researchGridBonus / 100 },
           {
             name: 'Chip (capped at 5)',
@@ -2433,8 +2431,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
           }
         ],
         subSections: [
-          newDropChanceBonusesBreakdown,
-          newDropChanceBonuses102Breakdown
+          newDropRateBonusesBreakdown
         ]
       },
 
@@ -2478,7 +2475,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   + (
     robbingHoodTalentBonus
     + postOfficeBonus
-    + (dropChanceBonuses + dropChanceBonuses102 + obols)
+    + (dropRateBonuses + obols)
     + bubbleBonus
     + cardBonus
     + lootyCurseTalentBonus

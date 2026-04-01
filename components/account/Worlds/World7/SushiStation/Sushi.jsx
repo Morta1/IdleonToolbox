@@ -55,7 +55,7 @@ const Sushi = ({ slots, knowledge, fireplaces }) => {
             const tooltipContent = isEmpty
               ? `Slot ${i + 1}: Empty`
               : <Stack>
-                <Typography variant="body2" fontWeight={600}>{sushiName} (Tier {slot.tier})</Typography>
+                <Typography variant="body2" fontWeight={600}>{sushiName} (Tier {slot.tier + 1})</Typography>
                 <Typography variant="body2">Bucks/hr: {commaNotation(Math.floor(slot.currencyPerSlot))}</Typography>
                 {slot.fireplaceType === 0 &&
                   <Typography variant="body2">Fuel gen: +{slot.tier + 1}% (Charcoal)</Typography>}
