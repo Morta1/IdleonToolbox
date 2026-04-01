@@ -21,6 +21,9 @@ const Kangaroo = () => {
     />
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}
+                         title={'Avg. Points/Reset'}
+                         value={notation(kangaroo?.avgResetPoints)}/>
+      <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}
                          stackProps={{ flexDirection: 'row', gap: '16px', flexWrap: 'wrap' }}>
         <Section title={'Fish'} value={notation(kangaroo?.fish)} icon={'etc/KFish.png'}/>
         <Section title={'Fish/m'} value={notation(kangaroo?.bonuses?.[0]?.bonus)} icon={'etc/KFish.png'}/>

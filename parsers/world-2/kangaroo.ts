@@ -159,6 +159,9 @@ const parseKangaroo = (account: any) => {
     desc: desc.replace('{', '' + Math.round(100 * getResetBonuses(account, i)) / 100),
     level: account?.accountOptions?.[291 + i]
   }));
+  const totalResetPoints = resetBonuses.reduce((sum, { level }) => sum + level, 0);
+  const totalResets = (account?.accountOptions?.[274] ?? 0) + (account?.accountOptions?.[279] ?? 0);
+  const avgResetPoints = totalResets > 0 ? totalResetPoints / totalResets : 0;
   let totalMulti: any = getShinyMulti(account, -1);
   if (1E3 > getShinyMulti(account, -1)) {
     totalMulti = notateNumber(totalMulti, 'MultiplierInfo');
@@ -197,7 +200,8 @@ const parseKangaroo = (account: any) => {
     tarUpgrades,
     shinyProgress,
     shinyRate,
-    shinyRatePercent
+    shinyRatePercent,
+    avgResetPoints
   }
 }
 

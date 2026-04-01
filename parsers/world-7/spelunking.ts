@@ -119,7 +119,7 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   const exaltedDropChance = getExaltedDropChance(account, rawSpelunking);
   const sharedGrandDiscoveryFactors = (1 + getZenithBonus(account, 6, 0) / 100)
     * (1 + getChapterBonus(updatedAccount, 4, 0) / 100)
-    * (1 + (totalCharactersSpelunkingLevels * (getMineheadBonusQTY(account, 14) + getSushiBonus(account, 21))) / 100);
+    * (1 + (highestSpelunkingLevelCharacter * (getMineheadBonusQTY(account, 14) + getSushiBonus(account, 21))) / 100);
   // Shop tooltip chance (upgrade 43)
   const grandDiscoveriesChance = 4e-5 * (1 + getSpelunkingBonus(account, 43, 0) / 100) * sharedGrandDiscoveryFactors;
   // Actual base chance when destroying a rock (upgrade 32, before per-cave diminishing)
