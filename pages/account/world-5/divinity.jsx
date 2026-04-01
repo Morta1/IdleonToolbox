@@ -10,10 +10,15 @@ import { isCompanionBonusActive } from '../../../parsers/misc';
 import { getMinorDivinityBonus } from '@parsers/world-5/divinity';
 import CoinDisplay from '../../../components/common/CoinDisplay';
 import { getKrukBubblesDaily } from '@parsers/world-2/alchemy';
+import Tabber from '@components/common/Tabber';
+import { getTabs } from '@utility/helpers';
+import { PAGES } from '@components/constants';
+import CoralKidUpgrades from '@components/account/Worlds/World7/CoralReef/CoralKidUpgrades';
 
 const Divinity = () => {
   const { state } = useContext(AppContext);
   const { deities, linkedDeities, godRank } = state?.account?.divinity || {};
+  const { coralKidUpgrades } = state?.account?.coralReef || {};
   const [showCost, setShowCost] = useState(false);
   if (!state?.account?.divinity) return <MissingData name={'divinity'}/>;
   return <>
@@ -21,6 +26,8 @@ const Divinity = () => {
       title="Divinity | Idleon Toolbox"
       description="Keep track of your characters' gods connections and upgrades"
     />
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'divinity')}>
+    <div>
     <CardTitleAndValue title={'God Rank'} value={godRank || 1}/>
     <FormControlLabel
       control={<Checkbox name={'mini'} checked={showCost} size={'small'} onChange={() => setShowCost(!showCost)}/>}
@@ -104,6 +111,9 @@ const Divinity = () => {
         );
       })}
     </Stack>
+    </div>
+    <CoralKidUpgrades coralKidUpgrades={coralKidUpgrades} />
+    </Tabber>
   </>;
 };
 

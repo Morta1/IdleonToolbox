@@ -8,7 +8,7 @@ import Tabber from '@components/common/Tabber';
 import { getTabs } from '@utility/helpers';
 import { PAGES } from '@components/constants';
 import ReefUpgrades from '@components/account/Worlds/World7/CoralReef/ReefUpgrades';
-import CoralKidUpgrades from '@components/account/Worlds/World7/CoralReef/CoralKidUpgrades';
+
 import DancingCoral from '@components/account/Worlds/World7/CoralReef/DancingCoral';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
@@ -51,7 +51,6 @@ const CoralReef = () => {
 
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'coralReef')}>
       <ReefUpgrades reefUpgrades={reefUpgrades} />
-      <CoralKidUpgrades coralKidUpgrades={coralKidUpgrades} />
       <DancingCoral dancingCoral={dancingCoral} />
     </Tabber>
   </>;

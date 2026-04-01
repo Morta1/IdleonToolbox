@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 43,
+  version: 44,
   account: {
     General: {
       tasks: {
@@ -427,7 +427,12 @@ const baseTrackers = {
         checked: true,
         options: [
           { name: 'fuelFull', checked: true },
-          { name: 'shakerUses', checked: true },
+          {
+            name: 'shakerUses',
+            type: 'array',
+            props: { value: { SushiUpg17: true, SushiUpg18: true, SushiUpg19: true }, type: 'img' },
+            checked: true
+          },
           { name: 'knowledgeLevelUp', checked: true },
         ]
       }

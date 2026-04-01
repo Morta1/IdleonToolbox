@@ -1262,11 +1262,12 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
         }
       }
       if (options?.sushiStation?.shakerUses?.checked) {
+        const shakerValues = options?.sushiStation?.shakerUses?.props?.value;
         const shakers = [
-          { name: 'Salt', uses: sushi?.shakerUses?.[0] ?? 0 },
-          { name: 'Pepper', uses: sushi?.shakerUses?.[1] ?? 0 },
-          { name: 'Saffron', uses: sushi?.shakerUses?.[2] ?? 0 }
-        ].filter(s => s.uses > 0);
+          { key: 'SushiUpg17', name: 'Salt', uses: sushi?.shakerUses?.[0] ?? 0 },
+          { key: 'SushiUpg18', name: 'Pepper', uses: sushi?.shakerUses?.[1] ?? 0 },
+          { key: 'SushiUpg19', name: 'Saffron', uses: sushi?.shakerUses?.[2] ?? 0 }
+        ].filter(s => s.uses > 0 && shakerValues?.[s.key]);
         if (shakers.length > 0) {
           sushiStation.shakerUses = shakers;
         }

@@ -18,6 +18,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
 import { getZenithBonus } from '@parsers/world-1/statues';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 
 export const getSpelunking = (idleonData: any, account: any, characters: any) => {
   const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];
@@ -116,8 +117,13 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   const taxRate = getSpelunkingBonus(account, 19);
   const prismaDropChance = getPrismaDropChance(account, rawSpelunking);
   const exaltedDropChance = getExaltedDropChance(account, rawSpelunking);
-  const grandDiscoveriesChance = 4e-5 * (1 + (getSpelunkingBonus(account, 43, 0) + getSushiBonus(account, 21)) / 100)
-    * (1 + getZenithBonus(account, 6, 0) / 100)
+  const sharedGrandDiscoveryFactors = (1 + getZenithBonus(account, 6, 0) / 100)
+    * (1 + getChapterBonus(updatedAccount, 4, 0) / 100)
+    * (1 + (totalCharactersSpelunkingLevels * (getMineheadBonusQTY(account, 14) + getSushiBonus(account, 21))) / 100);
+  // Shop tooltip chance (upgrade 43)
+  const grandDiscoveriesChance = 4e-5 * (1 + getSpelunkingBonus(account, 43, 0) / 100) * sharedGrandDiscoveryFactors;
+  // Actual base chance when destroying a rock (upgrade 32, before per-cave diminishing)
+  const grandDiscoveryActualBase = 4e-5 * (1 + getSpelunkingBonus(account, 32, 0) / 100) * sharedGrandDiscoveryFactors;
 
   upgrades = upgrades.map((upgrade, index) => {
     const baseBonus = baseBonuses?.[index] ?? 0;
@@ -161,6 +167,10 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
     const discoveriesData = discoveries?.[index]?.slice(0, -1);
     const discoveriesCount = discoveriesData?.reduce((res, discovery) => res + (discovery?.acquired ? 1 : 0), 0);
 
+    const grandDiscoveriesFound = rawSpelunking?.[44]?.[index] ?? 0;
+    const grandDiscoveryChance = grandDiscoveriesFound >= 10
+      ? 0
+      : grandDiscoveryActualBase / Math.pow(2, grandDiscoveriesFound);
     return {
       description,
       index: index,
@@ -170,7 +180,9 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
       defeated: index < cavesUnlocked,
       biggestHaul: biggestHauls?.[index] ?? 0,
       bestCaveLevel: bestCaveLevels?.[index] ?? 0,
-      foundAt: (parseFloat(generalSpelunky?.[7]?.[index]) + 1) || 0
+      foundAt: (parseFloat(generalSpelunky?.[7]?.[index]) + 1) || 0,
+      grandDiscoveriesFound,
+      grandDiscoveryChance
     }
   }).filter((boss: any) => boss?.description && isNaN(Number(boss.description)));
 

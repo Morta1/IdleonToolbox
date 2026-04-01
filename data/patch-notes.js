@@ -4,6 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.34',
+    'gameVer': '2.0.497',
+    'date': '01/04/2026',
+    'features': [
+      'Split sushi shaker dashboard alerts into individual toggles (Salt, Pepper, Saffron) so you can enable/disable each one',
+      'Added Grand Discovery chance to the Spelunking boss page — shows the per-cave actual chance with diminishing returns',
+      'Fixed Grand Discovery chance formula (was missing Chapter Bonus and Minehead/Sushi multipliers)',
+      'Moved Coral Kid Upgrades from Coral Reef (W7) to Divinity (W5) for easier navigation',
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.33',
     'gameVer': '2.0.497',
     'date': '30/03/2026',

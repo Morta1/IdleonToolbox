@@ -1077,6 +1077,25 @@ export const migrateToVersion43 = (config) => {
   return dashboardConfig;
 };
 
+const migration44 = (dashboardConfig) => {
+  const sushi = dashboardConfig?.account?.['World 7']?.sushiStation;
+  if (sushi) {
+    const oldOpts = sushi.options ?? [];
+    const shakerIdx = oldOpts.findIndex(o => o.name === 'shakerUses');
+    if (shakerIdx !== -1 && oldOpts[shakerIdx].type !== 'array') {
+      const wasChecked = oldOpts[shakerIdx].checked;
+      oldOpts[shakerIdx] = {
+        name: 'shakerUses',
+        type: 'array',
+        props: { value: { SushiUpg17: wasChecked, SushiUpg18: wasChecked, SushiUpg19: wasChecked }, type: 'img' },
+        checked: wasChecked
+      };
+    }
+  }
+  dashboardConfig.version = 44;
+  return dashboardConfig;
+};
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
   let migratedConfig = userConfig;
@@ -1209,6 +1228,9 @@ export const migrateConfig = (baseTrackers, userConfig) => {
     }
     if (migratedConfig?.version === 42) {
       migratedConfig = migrateToVersion43(migratedConfig);
+    }
+    if (migratedConfig?.version === 43) {
+      migratedConfig = migration44(migratedConfig);
     }
   }
   return migratedConfig;

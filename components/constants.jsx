@@ -161,7 +161,7 @@ export const PAGES = {
             { tab: 'Loot Pile', icon: 'data/SailT0' },
             { tab: 'Chests', icon: 'data/SailChest5' }]
         },
-        { label: 'divinity', icon: 'data/ClassIcons55' },
+        { label: 'divinity', icon: 'data/ClassIcons55', tabs: ['Gods', 'Coral Kid Upgrades'] },
         {
           label: 'gaming',
           icon: 'data/ClassIcons56',
@@ -235,7 +235,7 @@ export const PAGES = {
         { label: 'research', icon: 'data/ClassIcons61', tabs: ['Grid', 'Observations'] },
         { label: 'Gallery', icon: 'data/GalleryPodiumA3', tabs: ['Trophies', 'Nametags'] },
         { label: 'LegendTalents', icon: 'etc/Whallamus', tabs: [] },
-        { label: 'coralReef', icon: 'data/ReefA1', tabs: ['Reef Upgrades', 'Coral Kid Upgrades', 'Dancing Coral'] },
+        { label: 'coralReef', icon: 'data/ReefA1', tabs: ['Reef Upgrades', 'Dancing Coral'] },
         { label: 'zenithMarket', icon: 'etc/Cluster', tabs: [] },
         { label: 'clamWork', icon: 'data/ClamPearl0', tabs: ['Upgrades', 'Compensations'] },
         { label: 'adviceFish', icon: 'data/W7_fish', tabs: [] },
