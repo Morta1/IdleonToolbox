@@ -642,8 +642,10 @@ const getSpelunkingUpgradeCost = (account: any, characters: any, upgrade: any) =
   const firstPlayerSpelunkingLevel = characters?.[0]?.skillsInfo?.spelunking?.level ?? 0;
   const levelMultiplier = Math.max(1, Math.min(2, 1 + Math.floor(firstPlayerSpelunkingLevel / 50)));
   var costReduction = 1 / (1 + (mealBonus * levelMultiplier) / 100);
+  const sushiDiscount = Math.max(getSushiBonus(account, 6), getSushiBonus(account, 27));
   var baseCost = costReduction
     * (10 + (upgrade?.level ?? 0))
+    * Math.max(0.1, 1 - sushiDiscount / 100)
     * upgrade?.x1
     * Math.pow(9.5, upgrade?.x7)
     * Math.pow(6.3, upgrade?.x8);

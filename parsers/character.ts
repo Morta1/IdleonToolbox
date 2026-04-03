@@ -128,6 +128,7 @@ import { getTesseractMapBonus } from '@parsers/class-specific/tesseract';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getGuaranteedCrystalMobs } from '@parsers/misc';
 import { tryToParse, createIndexedArray, createArrayOfArrays, cashFormatter } from '@utility/helpers';
 import type { IdleonData, Account } from './types';
@@ -1152,9 +1153,11 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const voteBonus = getVoteBonus(account, 23);
     const armorSetBonus = getArmorSetBonus(account, 'MAGMA_SET');
     const vaultBonus72 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 72);
+    const sushiBonus46 = getSushiBonus(account, 46);
 
     const value = character?.divStyle?.divPerHour
       * (1 + gemShopBonus / 4)
+      * (1 + sushiBonus46 / 100)
       * Math.max(1, 1 + (purrmepPlayer ? 1 : 0)) *
       (1 + talentBonus / 100) * (1 + companionBonus)
       * (1 + (10 * Math.max(0, unlockedGods - 10)
@@ -1180,6 +1183,7 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
       breakdown: [
         { name: 'Div style', value: character?.divStyle?.divPerHour / 100 },
         { name: 'Gem shop', value: gemShopBonus / 100 },
+        { name: 'Sushi Station', value: sushiBonus46 / 100 },
         { name: 'Major', value: (purrmepPlayer ? 1 : 0) / 100 },
         { name: 'Talent', value: (talentBonus + talentBonus2) / 100 },
         { name: 'Companion', value: companionBonus / 100 },
@@ -1615,6 +1619,7 @@ export const getJadeRate = (character: any, account: any) => {
   const starSignBonus = getStarSignBonus(character, account, 'Jade_Gain')
   const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.sneaking?.rank, 1);
   const vaultBonus81 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 81);
+  const sushiBonus32 = getSushiBonus(account, 32);
 
   return parseFloat(floorJadeModifier)
     * (1 + (ninjaUpgradeBonus * sneakingLevel) / 100) * (1 + ninjaEquip / 100) * (1 + ninjaEquip1 / 100)
@@ -1626,7 +1631,8 @@ export const getJadeRate = (character: any, account: any) => {
       + (sigilBonus
         + vaultBonus81)) / 100)
     * (1 + starSignBonus / 100)
-    * (1 + (10 * masteryBonus) / 100);
+    * (1 + (10 * masteryBonus) / 100)
+    * (1 + sushiBonus32 / 100);
 }
 export const getRespawnRate = (character: any, account: any) => {
   const { targetMonster } = character;
