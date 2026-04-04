@@ -127,6 +127,7 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
                         </ListItemIcon>
                         <ListItemText
                           primary={entry?.mainChar}
+                          sx={{ mr: 8 }}
                           slotProps={{ primary: { variant: 'body1' } }}/>
                       </ListItemButton>
                     </ListItem>
