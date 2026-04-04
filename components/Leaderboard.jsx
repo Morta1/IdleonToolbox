@@ -1,16 +1,20 @@
 import React, { Fragment } from 'react';
-import { Divider, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import { Divider, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { notateNumber, prefix } from '@utility/helpers';
+import { notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import Box from '@mui/material/Box';
 import styled from '@emotion/styled'; // Grid version 2
+import HtmlTooltip from './Tooltip';
+import { IconInfoCircle } from '@tabler/icons-react';
 
 const HIGHLIGHTED_OUTLINED_COLOR = '#007E85';
 const SECONDARY_HIGHLIGHTED_OUTLINED_COLOR = '#cd861b';
 const HIGHLIGHTED_BG_COLOR = '#12141c'
 
 const specialNotation = (sectionName, value) => {
-  if (sectionName === 'bits') {
+  if (sectionName === 'globalRanking') {
+    return numberWithCommas(Math.round(value)) + ' pts';
+  } else if (sectionName === 'bits') {
     return notateNumber(value, 'bits');
   } else if (sectionName === 'dropRate') {
     return notateNumber(value, 'MultiplierInfo');
@@ -65,8 +69,15 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
               gap: '1rem'
             }}
           >
-            <Typography textAlign={'center'} variant={'h5'} mt={{ xs: 3, lg: 0 }}
-                        mb={{ xs: 3, lg: 1 }}>{sectionName.camelToTitleCase()}</Typography>
+            {sectionName === 'globalRanking' ? <Stack direction={'row'} justifyContent={'center'} alignItems={'center'} gap={1}
+                        mt={{ xs: 3, lg: 0 }} mb={{ xs: 3, lg: 1 }}>
+              <Typography textAlign={'center'} variant={'h5'}>{sectionName.camelToTitleCase()}</Typography>
+              <HtmlTooltip followCursor={false} title="Score is calculated by summing each player's percentile rank across all leaderboard metrics. Higher placement in more categories means a higher score."
+                       arrow placement="top">
+                <IconInfoCircle size={20} />
+              </HtmlTooltip>
+            </Stack> : <Typography textAlign={'center'} variant={'h5'} mt={{ xs: 3, lg: 0 }}
+                        mb={{ xs: 3, lg: 1 }}>{sectionName.camelToTitleCase()}</Typography>}
             {!isEmpty ? <>
               <List dense disablePadding>
                 {rest.map((entry, index) => {

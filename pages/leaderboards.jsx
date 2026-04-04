@@ -23,7 +23,7 @@ import { useRouter } from 'next/router';
 import { format } from 'date-fns';
 import { numberWithCommas } from '@utility/helpers';
 
-const tabs = ['General', 'Tasks', 'Skills', 'Character', 'Misc', 'Caverns'];
+const tabs = ['Global', 'General', 'Tasks', 'Skills', 'Character', 'Misc', 'Caverns'];
 const Leaderboards = () => {
   const { state } = useContext(AppContext);
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
@@ -34,7 +34,7 @@ const Leaderboards = () => {
   const [searchedChar, setSearchChar] = useState('');
   const router = useRouter();
   const { t } = router.query;
-  const [selectedTab, setSelectedTab] = useState(t?.toLowerCase() || 'general');
+  const [selectedTab, setSelectedTab] = useState(t?.toLowerCase() || 'global');
   const [loadingSearchedChar, setLoadingSearchedChar] = useState(false);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
 
@@ -95,6 +95,7 @@ const Leaderboards = () => {
     if (!searchValue) return;
 
     setSearchChar(searchValue);
+
     const userFullyExistsLocally = isUserFullyExistLocally(leaderboards[selectedTab.toLowerCase()], searchValue);
     if (!userFullyExistsLocally) {
       setLoadingSearchedChar(true);
@@ -141,7 +142,7 @@ const Leaderboards = () => {
         globally</Typography>
     </Box>
     <Box sx={{ maxWidth: '300px', margin: '16px auto', textAlign: 'center' }}>
-      {!leaderboards?.totalUsers || !leaderboards?.createdAt ? <Skeleton sx={{ width: 300, margin: '0 auto' }}
+      {!leaderboards?.totalUsers ? <Skeleton sx={{ width: 300, margin: '0 auto' }}
         variant={'text'} /> : <Stack direction={'row'}
           gap={1}
           justifyContent={'center'}
@@ -151,15 +152,13 @@ const Leaderboards = () => {
             orientation={'vertical'} />}>
         <Stack flexWrap={'wrap'} direction={'row'} gap={1} justifyContent={'center'} alignItems={'center'}>
           <Typography sx={{ fontSize: 14 }} component={'div'}>{numberWithCommas(leaderboards?.totalUsers)}</Typography>
-
           <Typography sx={{ fontSize: 14 }}>Accounts</Typography>
         </Stack>
-        <Stack flexWrap={'wrap'} direction={'row'} gap={1} justifyContent={'center'} alignItems={'center'}>
+        {leaderboards?.createdAt ? <Stack flexWrap={'wrap'} direction={'row'} gap={1} justifyContent={'center'} alignItems={'center'}>
           <Typography sx={{ fontSize: 14 }}>Updated at</Typography>
           <Typography sx={{ fontSize: 14 }} component={'div'}>{format(leaderboards?.createdAt, 'HH:mm:ss')}</Typography>
-        </Stack>
+        </Stack> : null}
       </Stack>}
-
     </Box>
     <Tabber
       tabs={tabs} onTabChange={(selected) => {
@@ -168,6 +167,8 @@ const Leaderboards = () => {
         setError('');
         setSearchChar('');
       }}>
+      <LeaderboardSection leaderboards={leaderboards?.global} loggedMainChar={loggedMainChar}
+        searchedChar={searchedChar} />
       <LeaderboardSection leaderboards={leaderboards?.general} loggedMainChar={loggedMainChar}
         searchedChar={searchedChar} />
       <LeaderboardSection leaderboards={leaderboards?.tasks} loggedMainChar={loggedMainChar}
