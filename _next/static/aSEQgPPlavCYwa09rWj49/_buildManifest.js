@@ -255,7 +255,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0z88vtt4mukq1.js"
   ],
   "/leaderboards": [
-    "static/chunks/0.j9de1bg9t6c.js"
+    "static/chunks/05l7dy~0pxxb5.js"
   ],
   "/patch-notes": [
     "static/chunks/12ht7c7akhgxf.js"
