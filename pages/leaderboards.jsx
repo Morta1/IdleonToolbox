@@ -75,13 +75,14 @@ const Leaderboards = () => {
     const getLeaderboards = async () => {
       try {
         const tempLeaderboards = await fetchLeaderboard(selectedTab.toLowerCase());
-        if (loggedMainChar) {
-          const tab = selectedTab.toLowerCase();
+        const tab = selectedTab.toLowerCase();
+        const usersToFetch = [loggedMainChar, searchedChar].filter(Boolean);
+        for (const user of usersToFetch) {
           const data = tempLeaderboards[tab];
-          if (data && !isUserFullyExistLocally(data, loggedMainChar)) {
-            const userStats = await fetchUserLeaderboards(tab, loggedMainChar);
+          if (data && !isUserFullyExistLocally(data, user)) {
+            const userStats = await fetchUserLeaderboards(tab, user);
             if (userStats && !userStats.error) {
-              tempLeaderboards[tab] = searchUserAndAppend(data, loggedMainChar, userStats);
+              tempLeaderboards[tab] = searchUserAndAppend(data, user, userStats);
             }
           }
         }
@@ -109,19 +110,19 @@ const Leaderboards = () => {
 
     setSearchChar(searchValue);
 
-    const userFullyExistsLocally = isUserFullyExistLocally(leaderboards[selectedTab.toLowerCase()], searchValue);
-    if (!userFullyExistsLocally) {
-      setLoadingSearchedChar(true);
-      const response = await fetchUserLeaderboards(selectedTab.toLowerCase(), searchValue);
-      if (!response || response?.error) {
-        setLoadingSearchedChar(false);
-        setToast({ open: true, message: response?.error || 'Error fetching user data', severity: 'error' });
-        return;
-      }
-      const updateLeaderboards = searchUserAndAppend(leaderboards[selectedTab.toLowerCase()], searchValue, response);
-      setLeaderboards({ ...leaderboards, [selectedTab.toLowerCase()]: updateLeaderboards });
+    const isInTopN = isUserFullyExistLocally(leaderboards[selectedTab.toLowerCase()], searchValue);
+    if (isInTopN && selectedTab.toLowerCase() !== 'global') return;
+
+    setLoadingSearchedChar(true);
+    const response = await fetchUserLeaderboards(selectedTab.toLowerCase(), searchValue);
+    if (!response || response?.error) {
       setLoadingSearchedChar(false);
+      setToast({ open: true, message: response?.error || 'Error fetching user data', severity: 'error' });
+      return;
     }
+    const updateLeaderboards = searchUserAndAppend(leaderboards[selectedTab.toLowerCase()], searchValue, response);
+    setLeaderboards({ ...leaderboards, [selectedTab.toLowerCase()]: updateLeaderboards });
+    setLoadingSearchedChar(false);
   }
 
   return <>
@@ -175,7 +176,6 @@ const Leaderboards = () => {
         setSelectedTab(tabs?.[selected]);
         setLeaderboards(null);
         setError('');
-        setSearchChar('');
       }}>
       <LeaderboardSection leaderboards={leaderboards?.global} loggedMainChar={loggedMainChar}
         searchedChar={searchedChar} />
