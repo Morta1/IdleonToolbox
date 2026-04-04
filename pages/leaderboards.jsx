@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import Tabber from '../components/common/Tabber';
 import LeaderboardSection from '../components/Leaderboard';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { fetchLeaderboard, fetchUserLeaderboards } from '../services/profiles';
@@ -22,14 +22,13 @@ import { IconSearch } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import { format } from 'date-fns';
 import { numberWithCommas } from '@utility/helpers';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const tabs = ['Global', 'General', 'Tasks', 'Skills', 'Character', 'Misc', 'Caverns'];
 const Leaderboards = () => {
   const { state } = useContext(AppContext);
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const loggedMainChar = state?.characters?.[0]?.name;
-  const [leaderboards, setLeaderboards] = useState(null);
-  const [error, setError] = React.useState('');
   const [inputValue, setInputValue] = useState('');
   const [searchedChar, setSearchChar] = useState('');
   const router = useRouter();
@@ -37,15 +36,8 @@ const Leaderboards = () => {
   const [selectedTab, setSelectedTab] = useState(t?.toLowerCase() || 'global');
   const [loadingSearchedChar, setLoadingSearchedChar] = useState(false);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
+  const queryClient = useQueryClient();
 
-  const isUserFullyExistLocally = (data, username) => {
-    for (const category in data) {
-      if (!data[category].some(item => item.mainChar === username)) {
-        return false;
-      }
-    }
-    return true;
-  }
   const searchUserAndAppend = (data, username, userStats) => {
     const newData = {};
     for (const category in data) {
@@ -71,30 +63,38 @@ const Leaderboards = () => {
     return newData;
   }
 
-  useEffect(() => {
-    const getLeaderboards = async () => {
-      try {
-        const tempLeaderboards = await fetchLeaderboard(selectedTab.toLowerCase());
-        const tab = selectedTab.toLowerCase();
-        const usersToFetch = [loggedMainChar, searchedChar].filter(Boolean);
-        for (const user of usersToFetch) {
-          const data = tempLeaderboards[tab];
-          if (data && !isUserFullyExistLocally(data, user)) {
-            const userStats = await fetchUserLeaderboards(tab, user);
-            if (userStats && !userStats.error) {
-              tempLeaderboards[tab] = searchUserAndAppend(data, user, userStats);
-            }
+  const fetchLeaderboardWithUsers = async (tab) => {
+    const leaderboardData = await fetchLeaderboard(tab);
+    const usersToFetch = [loggedMainChar, searchedChar].filter(Boolean);
+    for (const user of usersToFetch) {
+      const data = leaderboardData[tab];
+      if (data) {
+        const userExists = Object.values(data).every(list =>
+          Array.isArray(list) && list.some(item => item.mainChar === user)
+        );
+        if (!userExists) {
+          const userStats = await fetchUserLeaderboards(tab, user);
+          if (userStats && !userStats.error) {
+            leaderboardData[tab] = searchUserAndAppend(data, user, userStats);
           }
         }
-        setLeaderboards(tempLeaderboards);
-        setError('');
-      } catch (e) {
-        setError('Error has occurred while getting leaderboards');
       }
-    };
+    }
+    return leaderboardData;
+  };
 
-    getLeaderboards();
-  }, [selectedTab]);
+  const AGGREGATION_INTERVAL = 1000 * 60 * 30; // 30 minutes
+
+  const { data: leaderboards, isLoading, error } = useQuery({
+    queryKey: ['leaderboard', selectedTab.toLowerCase(), loggedMainChar],
+    queryFn: () => fetchLeaderboardWithUsers(selectedTab.toLowerCase()),
+    staleTime: (query) => {
+      const createdAt = query.state.data?.createdAt;
+      if (!createdAt) return AGGREGATION_INTERVAL;
+      const nextRefresh = createdAt + AGGREGATION_INTERVAL;
+      return Math.max(nextRefresh - Date.now(), 0);
+    }
+  });
 
   const handleKeyDown = (event) => {
     if (!inputValue || loadingSearchedChar) return;
@@ -110,18 +110,25 @@ const Leaderboards = () => {
 
     setSearchChar(searchValue);
 
-    const isInTopN = isUserFullyExistLocally(leaderboards[selectedTab.toLowerCase()], searchValue);
-    if (isInTopN && selectedTab.toLowerCase() !== 'global') return;
+    const tab = selectedTab.toLowerCase();
+    const data = leaderboards?.[tab];
+    const isInTopN = data && Object.values(data).every(list =>
+      Array.isArray(list) && list.some(item => item.mainChar === searchValue)
+    );
+    if (isInTopN && tab !== 'global') return;
 
     setLoadingSearchedChar(true);
-    const response = await fetchUserLeaderboards(selectedTab.toLowerCase(), searchValue);
+    const response = await fetchUserLeaderboards(tab, searchValue);
     if (!response || response?.error) {
       setLoadingSearchedChar(false);
       setToast({ open: true, message: response?.error || 'Error fetching user data', severity: 'error' });
       return;
     }
-    const updateLeaderboards = searchUserAndAppend(leaderboards[selectedTab.toLowerCase()], searchValue, response);
-    setLeaderboards({ ...leaderboards, [selectedTab.toLowerCase()]: updateLeaderboards });
+    // Update the cached query data
+    queryClient.setQueryData(['leaderboard', tab, loggedMainChar], (old) => {
+      if (!old?.[tab]) return old;
+      return { ...old, [tab]: searchUserAndAppend(old[tab], searchValue, response) };
+    });
     setLoadingSearchedChar(false);
   }
 
@@ -174,8 +181,6 @@ const Leaderboards = () => {
     <Tabber
       tabs={tabs} onTabChange={(selected) => {
         setSelectedTab(tabs?.[selected]);
-        setLeaderboards(null);
-        setError('');
       }}>
       <LeaderboardSection leaderboards={leaderboards?.global} loggedMainChar={loggedMainChar}
         searchedChar={searchedChar} />
@@ -192,10 +197,10 @@ const Leaderboards = () => {
       <LeaderboardSection leaderboards={leaderboards?.caverns} loggedMainChar={loggedMainChar}
         searchedChar={searchedChar} />
     </Tabber>
-    {!leaderboards && !error
+    {isLoading && !error
       ? <Stack alignItems={'center'} justifyContent={'center'} mt={3}><CircularProgress /></Stack>
       : error ?
-        <Typography color={'error.light'} textAlign={'center'} variant={'h6'}>{error}</Typography> : null}
+        <Typography color={'error.light'} textAlign={'center'} variant={'h6'}>Error has occurred while getting leaderboards</Typography> : null}
     <Snackbar
       open={toast.open}
       autoHideDuration={6000}

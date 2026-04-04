@@ -19,8 +19,16 @@ import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 import Button from '@mui/material/Button';
 import useGdprRegion, { getConsentObject } from '../hooks/useGdprRegion';
 import DynamicBreadcrumbs from '@components/common/DynamicBreadcrumbs';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const clientSideEmotionCache = createEmotionCache();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false
+    }
+  }
+});
 
 const noOverlayWorkaroundScript = `
   window.addEventListener('error', event => {
@@ -145,6 +153,7 @@ const MyApp = (props) => {
           })
         }}
       />
+      <QueryClientProvider client={queryClient}>
       <CacheProvider value={emotionCache}>
         <ThemeProvider theme={darkTheme}>
           <EmotionThemeProvider theme={darkTheme}>
@@ -193,6 +202,7 @@ const MyApp = (props) => {
           </EmotionThemeProvider>
         </ThemeProvider>
       </CacheProvider>
+      </QueryClientProvider>
     </>
   );
 };
