@@ -31,12 +31,13 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
     >
       {Object.entries(leaderboards || {}).map(([sectionName, list], sectionIndex) => {
         const positions = {}
+        const displayCount = sectionName === 'globalRanking' ? 25 : 10;
         const players = list.map((entry, index) => {
           const char = entry.mainChar;
           const isLoggedMainChar = char === loggedMainChar;
           const isSearchedChar = char === searchedChar;
 
-          if ((isSearchedChar) && index >= 10) {
+          if (index >= displayCount) {
             positions[char] = entry?.rank;
           }
 
@@ -49,14 +50,17 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
         });
         const additional = Object.entries(positions)?.map(([name, position]) => {
           const entry = list?.find((entry) => entry?.mainChar === name);
-          const key = entry.mainChar === loggedMainChar ? 'loggedMainChar' : 'searchedChar';
+          const isSearched = entry.mainChar === searchedChar;
+          const isLogged = entry.mainChar === loggedMainChar;
           return {
             ...entry,
-            [key]: true,
+            ...(isSearched && { searchedChar: true }),
+            ...(isLogged && { loggedMainChar: true }),
+            ...(!isSearched && !isLogged && { neighbor: true }),
             index: position
           };
         }, []);
-        const rest = players?.slice(0, 10).concat(additional);
+        const rest = players?.slice(0, displayCount).concat(additional);
         const isEmpty = list?.length === 0;
         return (
           <Box
@@ -88,12 +92,14 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
 
                   return <Fragment key={`${sectionName}-${index}`}>
                     <ListItem
+                      ref={entry?.searchedChar && sectionName === 'globalRanking' ? (el) => el?.scrollIntoView({ behavior: 'smooth', block: 'center' }) : undefined}
                       disablePadding
                       sx={{
                         borderRadius: index === 0 ? '8px 8px 0 0' : index === rest.length - 1 ? '0 0 8px 8px' : '',
                         '&:hover': {
                           borderRadius: index === 0 ? '8px 8px 0 0' : index === rest.length - 1 ? '0 0 8px 8px' : ''
                         },
+                        marginTop: sectionName === 'globalRanking' && index === displayCount && additional.length > 0 ? 2 : 0,
                         backgroundColor: entry?.loggedMainChar || entry?.searchedChar
                           ? HIGHLIGHTED_BG_COLOR
                           : '#1e262e',

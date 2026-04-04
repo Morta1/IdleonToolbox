@@ -38,20 +38,6 @@ const Leaderboards = () => {
   const [loadingSearchedChar, setLoadingSearchedChar] = useState(false);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
 
-  useEffect(() => {
-    const getLeaderboards = async () => {
-      try {
-        const tempLeaderboards = await fetchLeaderboard(selectedTab.toLowerCase());
-        setLeaderboards(tempLeaderboards);
-        setError('');
-      } catch (e) {
-        setError('Error has occurred while getting leaderboards');
-      }
-    };
-
-    getLeaderboards();
-  }, [selectedTab]);
-
   const isUserFullyExistLocally = (data, username) => {
     for (const category in data) {
       if (!data[category].some(item => item.mainChar === username)) {
@@ -64,23 +50,50 @@ const Leaderboards = () => {
     const newData = {};
     for (const category in data) {
       const categoryData = data[category];
-      const found = categoryData.some(item => item.mainChar === username);
+      const stats = userStats[category];
 
-      if (!found) {
-        // Append the user's actual stats if they exist
-        if (userStats[category] !== undefined) {
-          newData[category] = [...categoryData, { mainChar: username, ...userStats[category] }];
-        }
-        else {
-          newData[category] = [...categoryData, { mainChar: username }];
-        }
+      if (Array.isArray(stats)) {
+        const newEntries = stats.filter(e => !categoryData.some(item => item.mainChar === e.mainChar));
+        newData[category] = [...categoryData, ...newEntries];
       } else {
-        // Keep the existing array reference if user already exists
-        newData[category] = categoryData;
+        const found = categoryData.some(item => item.mainChar === username);
+        if (!found) {
+          if (stats !== undefined) {
+            newData[category] = [...categoryData, { mainChar: username, ...stats }];
+          } else {
+            newData[category] = [...categoryData, { mainChar: username }];
+          }
+        } else {
+          newData[category] = categoryData;
+        }
       }
     }
     return newData;
   }
+
+  useEffect(() => {
+    const getLeaderboards = async () => {
+      try {
+        const tempLeaderboards = await fetchLeaderboard(selectedTab.toLowerCase());
+        if (loggedMainChar) {
+          const tab = selectedTab.toLowerCase();
+          const data = tempLeaderboards[tab];
+          if (data && !isUserFullyExistLocally(data, loggedMainChar)) {
+            const userStats = await fetchUserLeaderboards(tab, loggedMainChar);
+            if (userStats && !userStats.error) {
+              tempLeaderboards[tab] = searchUserAndAppend(data, loggedMainChar, userStats);
+            }
+          }
+        }
+        setLeaderboards(tempLeaderboards);
+        setError('');
+      } catch (e) {
+        setError('Error has occurred while getting leaderboards');
+      }
+    };
+
+    getLeaderboards();
+  }, [selectedTab]);
 
   const handleKeyDown = (event) => {
     if (!inputValue || loadingSearchedChar) return;
@@ -108,9 +121,6 @@ const Leaderboards = () => {
       const updateLeaderboards = searchUserAndAppend(leaderboards[selectedTab.toLowerCase()], searchValue, response);
       setLeaderboards({ ...leaderboards, [selectedTab.toLowerCase()]: updateLeaderboards });
       setLoadingSearchedChar(false);
-      setToast({ open: true, message: 'User added to leaderboards', severity: 'success' });
-    } else {
-      setToast({ open: true, message: 'User already exists in leaderboards', severity: 'info' });
     }
   }
 
