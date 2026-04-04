@@ -60,7 +60,7 @@ const Opponents = ({ opponents, opponentsBeat }) => {
                   </Stack>
                 </Stack>
 
-                {beaten && bonusDescription && (
+                {bonusDescription && (
                   <Stack>
                     <Typography variant="caption" color="text.secondary">Reward</Typography>
                     <Typography variant="body2">{bonusDescription}</Typography>
