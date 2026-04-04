@@ -47,6 +47,14 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
     'Silver': getDiff(392),
     'Gold': getDiff(393)
   }
+  const getArcaneKills = (source, bonusIndex) => {
+    return parseInt(source?.tesseract?.mapBonusRaw?.[snapshottedChar?.mapIndex]?.[bonusIndex], 10) || 0;
+  };
+  const acArcaneKillsDiff = {
+    'DR': getArcaneKills(state?.account, 0) - getArcaneKills(snapshottedAcc, 0),
+    'EXP': getArcaneKills(state?.account, 1) - getArcaneKills(snapshottedAcc, 1),
+    'AFK': getArcaneKills(state?.account, 2) - getArcaneKills(snapshottedAcc, 2)
+  };
   const wwDustDiff = {
     'Stardust': getDiff(357),
     'Moondust': getDiff(358),
@@ -84,6 +92,11 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
             <Typography variant="body2">Red: {numberWithCommas(Math.floor(getSnapshotOption(391)))}</Typography>
             <Typography variant="body2">Silver: {numberWithCommas(Math.floor(getSnapshotOption(392)))}</Typography>
             <Typography variant="body2">Gold: {numberWithCommas(Math.floor(getSnapshotOption(393)))}</Typography>
+            <Divider sx={{ my: 1 }}/>
+            <Typography variant="body1">AC Arcane Kills</Typography>
+            <Typography variant="body2">DR: {numberWithCommas(getArcaneKills(snapshottedAcc, 0))}</Typography>
+            <Typography variant="body2">EXP: {numberWithCommas(getArcaneKills(snapshottedAcc, 1))}</Typography>
+            <Typography variant="body2">AFK: {numberWithCommas(getArcaneKills(snapshottedAcc, 2))}</Typography>
           </> : null}
           {isWindWalker ? <>
             <Typography variant="body1">WW Dust</Typography>
@@ -122,6 +135,11 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
             <Typography variant="body2">Red: {numberWithCommas(Math.floor(getAccountOption(391)))}</Typography>
             <Typography variant="body2">Silver: {numberWithCommas(Math.floor(getAccountOption(392)))}</Typography>
             <Typography variant="body2">Gold: {numberWithCommas(Math.floor(getAccountOption(393)))}</Typography>
+            <Divider sx={{ my: 1 }}/>
+            <Typography variant="body1">AC Arcane Kills</Typography>
+            <Typography variant="body2">DR: {numberWithCommas(getArcaneKills(state?.account, 0))}</Typography>
+            <Typography variant="body2">EXP: {numberWithCommas(getArcaneKills(state?.account, 1))}</Typography>
+            <Typography variant="body2">AFK: {numberWithCommas(getArcaneKills(state?.account, 2))}</Typography>
           </> : null}
           {isWindWalker ? <>
             <Typography variant="body1">WW Dust</Typography>
@@ -173,6 +191,9 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
         {isArcaneCultist ? <>
           <AdvancedSection title="AC Tachyons"
                            items={Object.entries(acTachyonDiff).map(([key, value]) => ({ label: key, value }))}
+                           getPerHour={getPerHour}/>
+          <AdvancedSection title="AC Arcane Kills"
+                           items={Object.entries(acArcaneKillsDiff).map(([key, value]) => ({ label: key, value }))}
                            getPerHour={getPerHour}/>
         </> : null}
         {isWindWalker ? <>
