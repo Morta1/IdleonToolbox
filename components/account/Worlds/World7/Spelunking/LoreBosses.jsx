@@ -98,7 +98,7 @@ const LoreBosses = ({ loreBosses, bestCaveLevels, account }) => {
                       Next: {notateNumber(boss.grandDiscoveryChance * 100, 'Small')}% (1
                       in {commaNotation(Math.round(1 / boss.grandDiscoveryChance))})
                     </Typography>
-                    <Tooltip title={'Elixir bonuses are not included in this calculation'}>
+                    <Tooltip title={'This calculation uses your highest Spelunking character and excludes all elixir bonuses'}>
                       <InfoIcon sx={{ fontSize: 14 }}/>
                     </Tooltip>
                   </Stack> : boss.grandDiscoveriesFound >= 10 ? <Typography variant="body2" color="text.secondary">
