@@ -225,7 +225,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0q~ib0_~atm7u.js"
   ],
   "/account/world-7/minehead": [
-    "static/chunks/17-4f0on5i7hr.js"
+    "static/chunks/0no1brmr-_lr2.js"
   ],
   "/account/world-7/research": [
     "static/chunks/0o9xao_aortvm.js"
@@ -234,7 +234,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0utrtwpyvotai.js"
   ],
   "/account/world-7/spelunking": [
-    "static/chunks/07627q4mycob~.js"
+    "static/chunks/17xsdin6jpz69.js"
   ],
   "/account/world-7/sushi-station": [
     "static/chunks/187ff04dx9hsd.js"
@@ -270,7 +270,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/12-vwdyoamh52.js"
   ],
   "/tools/active-stuff-calculator": [
-    "static/chunks/0eay1h.fq~_41.js"
+    "static/chunks/01j6theugkskr.js"
   ],
   "/tools/builds": [
     "static/chunks/0ic4k003ebwuw.js"

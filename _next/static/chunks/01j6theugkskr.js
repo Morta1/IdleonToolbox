@@ -11,9 +11,9 @@ __turbopack_load_page_chunks__("/tools/active-stuff-calculator", [
   "static/chunks/0r08vt2ud~jw7.js",
   "static/chunks/0gdhjfdy-wuqx.js",
   "static/chunks/0otdh-5fu63-z.js",
-  "static/chunks/0x-g7zhy.kz15.js",
+  "static/chunks/142_j1zv-m.ws.js",
   "static/chunks/0ml-r6_q-zu7..js",
   "static/chunks/05edv_vjsqzrr.js",
   "static/chunks/0lqnx-1.a_1yv.js",
-  "static/chunks/turbopack-14amwe4du930f.js"
+  "static/chunks/turbopack-0n0tdbk7ux4fg.js"
 ])
