@@ -13,6 +13,6 @@ __turbopack_load_page_chunks__("/leaderboards", [
   "static/chunks/0b7rnuxo0jn_w.js",
   "static/chunks/0otdh-5fu63-z.js",
   "static/chunks/0lqnx-1.a_1yv.js",
-  "static/chunks/0f6n-vuc6c167.js",
-  "static/chunks/turbopack-0ke9j8u28q~rg.js"
+  "static/chunks/12r0itx~5hwkm.js",
+  "static/chunks/turbopack-0v68_03_tb4ny.js"
 ])
