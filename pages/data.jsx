@@ -53,7 +53,10 @@ const Data = () => {
   const [lastUpload, setLastUpload] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [uploaded, setUploaded] = useState(false);
-  const [anonId, setAnonId] = useLocalStorage({ key: 'data:anonId', defaultValue: null });
+  const [anonId, setAnonId] = useState(() => {
+    if (typeof window === 'undefined' || !state?.uid) return null;
+    return localStorage.getItem(`${state.uid}/anonId`);
+  });
   const [openPolicy, setOpenPolicy] = useState(false);
   const [leaderboardConsent, setLeaderboardConsent] = useLocalStorage({
     key: 'data:leaderboardConsent',
@@ -145,7 +148,13 @@ const Data = () => {
           profile: { ...userData, parsedData },
           leaderboardConsent: normalizedConsent
         }, state?.accessToken);
-        setAnonId(result?.anonId || null);
+        const newAnonId = result?.anonId || null;
+        setAnonId(newAnonId);
+        if (newAnonId) {
+          localStorage.setItem(`${state.uid}/anonId`, newAnonId);
+        } else {
+          localStorage.removeItem(`${state.uid}/anonId`);
+        }
         setUploaded(true);
         const now = Date.now();
         localStorage.setItem(`${state?.uid}/lastUpload`, now);
