@@ -53,10 +53,7 @@ const Data = () => {
   const [lastUpload, setLastUpload] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [uploaded, setUploaded] = useState(false);
-  const [anonId, setAnonId] = useState(() => {
-    if (typeof window === 'undefined' || !state?.uid) return null;
-    return localStorage.getItem(`${state.uid}/anonId`);
-  });
+  const [anonId, setAnonId] = useState(null);
   const [openPolicy, setOpenPolicy] = useState(false);
   const [leaderboardConsent, setLeaderboardConsent] = useLocalStorage({
     key: 'data:leaderboardConsent',
@@ -69,6 +66,7 @@ const Data = () => {
   useEffect(() => {
     if (state?.uid) {
       setLastUpload(localStorage.getItem(`${state?.uid}/lastUpload`));
+      setAnonId(localStorage.getItem(`${state.uid}/anonId`));
     }
   }, [state?.uid]);
 
