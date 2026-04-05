@@ -14,6 +14,8 @@ import {
   Stack,
   Switch,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography
 } from '@mui/material';
 import Button from '@mui/material/Button';
@@ -54,7 +56,7 @@ const Data = () => {
   const [openPolicy, setOpenPolicy] = useState(false);
   const [leaderboardConsent, setLeaderboardConsent] = useLocalStorage({
     key: 'data:leaderboardConsent',
-    defaultValue: false
+    defaultValue: 'off'
   });
   const [removeGemsInfo, setRemoveGemsInfo] = useLocalStorage({ key: 'data:removeGemsInfo', defaultValue: true });
   const [error, setError] = useState('');
@@ -137,9 +139,10 @@ const Data = () => {
       setLoading(true);
       setError('');
       try {
+        const normalizedConsent = leaderboardConsent === true ? 'public' : leaderboardConsent === false ? 'off' : leaderboardConsent;
         await uploadProfile({
           profile: { ...userData, parsedData },
-          leaderboardConsent
+          leaderboardConsent: normalizedConsent
         }, state?.accessToken);
         setUploaded(true);
         const now = Date.now();
@@ -287,12 +290,20 @@ const Data = () => {
                   <FormControlLabel
                     control={<Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)}/>}
                     label="Remove current/total gems and bundle info."/>
-                  <FormControlLabel control={<Switch checked={leaderboardConsent}
-                                                     onChange={() => setLeaderboardConsent(!leaderboardConsent)}/>}
-                                    label="Participate in idleontoolbox leaderboard ranking"/>
                 </FormGroup>
-                <FormHelperText sx={{ whiteSpace: 'pre-wrap' }}>{`Turn this off if you prefer not to participate in the leaderboard.
-To exclude your profile, simply uncheck the box and re-upload your profile.`}</FormHelperText>
+                <Typography sx={{ mt: 2 }} variant={'body2'}>Leaderboard participation</Typography>
+                <ToggleButtonGroup
+                  value={leaderboardConsent === true ? 'public' : leaderboardConsent === false ? 'off' : leaderboardConsent}
+                  exclusive
+                  onChange={(_, val) => { if (val) setLeaderboardConsent(val); }}
+                  size="small"
+                  sx={{ mt: 1 }}
+                >
+                  <ToggleButton value="off">Off</ToggleButton>
+                  <ToggleButton value="public">Public</ToggleButton>
+                  <ToggleButton value="anonymous">Anonymous</ToggleButton>
+                </ToggleButtonGroup>
+                <FormHelperText sx={{ whiteSpace: 'pre-wrap' }}>{`Off: Not participating in leaderboards.\nPublic: Your name and profile are visible.\nAnonymous: Your data is ranked but your identity is hidden.`}</FormHelperText>
                 <Typography sx={{ mt: 1 }} color={'error'} variant={'body2'}>{error}</Typography>
                 {isValid(parseInt(lastUpload)) ? <Typography sx={{ mt: 3 }} variant={'body2'}>Last
                   update: {format(parseInt(lastUpload), 'dd/MM/yyyy HH:mm:ss')}</Typography> : null}

@@ -2,18 +2,20 @@ import {
   Alert,
   CircularProgress,
   Divider,
+  FormControlLabel,
   IconButton,
   InputAdornment,
   Skeleton,
   Snackbar,
   Stack,
+  Switch,
   TextField,
   Typography,
   useMediaQuery
 } from '@mui/material';
 import Tabber from '../components/common/Tabber';
 import LeaderboardSection from '../components/Leaderboard';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { fetchLeaderboard, fetchUserLeaderboards } from '../services/profiles';
@@ -36,6 +38,10 @@ const Leaderboards = () => {
   const [selectedTab, setSelectedTab] = useState(t?.toLowerCase() || 'global');
   const [loadingSearchedChar, setLoadingSearchedChar] = useState(false);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
+  const [showAnonymous, setShowAnonymous] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return localStorage.getItem('leaderboard:showAnonymous') !== 'false';
+  });
   const queryClient = useQueryClient();
 
   const searchUserAndAppend = (data, username, userStats) => {
@@ -63,31 +69,11 @@ const Leaderboards = () => {
     return newData;
   }
 
-  const fetchLeaderboardWithUsers = async (tab) => {
-    const leaderboardData = await fetchLeaderboard(tab);
-    const usersToFetch = [loggedMainChar, searchedChar].filter(Boolean);
-    for (const user of usersToFetch) {
-      const data = leaderboardData[tab];
-      if (data) {
-        const userExists = Object.values(data).every(list =>
-          Array.isArray(list) && list.some(item => item.mainChar === user)
-        );
-        if (!userExists) {
-          const userStats = await fetchUserLeaderboards(tab, user);
-          if (userStats && !userStats.error) {
-            leaderboardData[tab] = searchUserAndAppend(data, user, userStats);
-          }
-        }
-      }
-    }
-    return leaderboardData;
-  };
-
   const AGGREGATION_INTERVAL = 1000 * 60 * 30; // 30 minutes
 
   const { data: leaderboards, isLoading, error } = useQuery({
-    queryKey: ['leaderboard', selectedTab.toLowerCase(), loggedMainChar],
-    queryFn: () => fetchLeaderboardWithUsers(selectedTab.toLowerCase()),
+    queryKey: ['leaderboard', selectedTab.toLowerCase()],
+    queryFn: () => fetchLeaderboard(selectedTab.toLowerCase()),
     staleTime: (query) => {
       const createdAt = query.state.data?.createdAt;
       if (!createdAt) return AGGREGATION_INTERVAL;
@@ -95,6 +81,39 @@ const Leaderboards = () => {
       return Math.max(nextRefresh - Date.now(), 0);
     }
   });
+
+  // Auto-fetch logged user and searched user after leaderboard data loads
+  useEffect(() => {
+    if (!leaderboards) return;
+    const tab = selectedTab.toLowerCase();
+    const data = leaderboards[tab];
+    if (!data) return;
+
+    const usersToFetch = [loggedMainChar, searchedChar].filter(Boolean);
+    const fetchUsers = async () => {
+      let updated = false;
+      let updatedData = data;
+      for (const user of usersToFetch) {
+        const userExists = Object.values(updatedData).every(list =>
+          Array.isArray(list) && list.some(item => item.mainChar === user)
+        );
+        if (!userExists) {
+          const userStats = await fetchUserLeaderboards(tab, user);
+          if (userStats && !userStats.error) {
+            updatedData = searchUserAndAppend(updatedData, user, userStats);
+            updated = true;
+          }
+        }
+      }
+      if (updated) {
+        queryClient.setQueryData(['leaderboard', tab], (old) => {
+          if (!old) return old;
+          return { ...old, [tab]: updatedData };
+        });
+      }
+    };
+    fetchUsers();
+  }, [leaderboards, loggedMainChar, searchedChar]);
 
   const handleKeyDown = (event) => {
     if (!inputValue || loadingSearchedChar) return;
@@ -125,7 +144,7 @@ const Leaderboards = () => {
       return;
     }
     // Update the cached query data
-    queryClient.setQueryData(['leaderboard', tab, loggedMainChar], (old) => {
+    queryClient.setQueryData(['leaderboard', tab], (old) => {
       if (!old?.[tab]) return old;
       return { ...old, [tab]: searchUserAndAppend(old[tab], searchValue, response) };
     });
@@ -178,24 +197,34 @@ const Leaderboards = () => {
         </Stack> : null}
       </Stack>}
     </Box>
+    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+      <FormControlLabel
+        control={<Switch checked={showAnonymous} onChange={() => {
+          const next = !showAnonymous;
+          setShowAnonymous(next);
+          localStorage.setItem('leaderboard:showAnonymous', String(next));
+        }} />}
+        label="Show anonymous players"
+      />
+    </Box>
     <Tabber
       tabs={tabs} onTabChange={(selected) => {
         setSelectedTab(tabs?.[selected]);
       }}>
-      <LeaderboardSection leaderboards={leaderboards?.global} loggedMainChar={loggedMainChar}
-        searchedChar={searchedChar} />
-      <LeaderboardSection leaderboards={leaderboards?.general} loggedMainChar={loggedMainChar}
-        searchedChar={searchedChar} />
-      <LeaderboardSection leaderboards={leaderboards?.tasks} loggedMainChar={loggedMainChar}
-        searchedChar={searchedChar} />
-      <LeaderboardSection leaderboards={leaderboards?.skills} loggedMainChar={loggedMainChar}
-        searchedChar={searchedChar} />
-      <LeaderboardSection leaderboards={leaderboards?.character} loggedMainChar={loggedMainChar}
-        searchedChar={searchedChar} />
-      <LeaderboardSection leaderboards={leaderboards?.misc} loggedMainChar={loggedMainChar}
-        searchedChar={searchedChar} />
-      <LeaderboardSection leaderboards={leaderboards?.caverns} loggedMainChar={loggedMainChar}
-        searchedChar={searchedChar} />
+      <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.global?.anonymous : leaderboards?.global?.public}
+        loggedMainChar={loggedMainChar} searchedChar={searchedChar} />
+      <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.general?.anonymous : leaderboards?.general?.public}
+        loggedMainChar={loggedMainChar} searchedChar={searchedChar} />
+      <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.tasks?.anonymous : leaderboards?.tasks?.public}
+        loggedMainChar={loggedMainChar} searchedChar={searchedChar} />
+      <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.skills?.anonymous : leaderboards?.skills?.public}
+        loggedMainChar={loggedMainChar} searchedChar={searchedChar} />
+      <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.character?.anonymous : leaderboards?.character?.public}
+        loggedMainChar={loggedMainChar} searchedChar={searchedChar} />
+      <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.misc?.anonymous : leaderboards?.misc?.public}
+        loggedMainChar={loggedMainChar} searchedChar={searchedChar} />
+      <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.caverns?.anonymous : leaderboards?.caverns?.public}
+        loggedMainChar={loggedMainChar} searchedChar={searchedChar} />
     </Tabber>
     {isLoading && !error
       ? <Stack alignItems={'center'} justifyContent={'center'} mt={3}><CircularProgress /></Stack>
