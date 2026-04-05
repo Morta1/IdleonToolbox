@@ -31,6 +31,15 @@ const Leaderboards = () => {
   const { state } = useContext(AppContext);
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const loggedMainChar = state?.characters?.[0]?.name;
+  const [loggedLeaderboardName, setLoggedLeaderboardName] = useState(loggedMainChar);
+  useEffect(() => {
+    if (state?.uid) {
+      const anonId = localStorage.getItem(`${state.uid}/anonId`);
+      setLoggedLeaderboardName(anonId || loggedMainChar);
+    } else {
+      setLoggedLeaderboardName(loggedMainChar);
+    }
+  }, [state?.uid, loggedMainChar]);
   const [inputValue, setInputValue] = useState('');
   const [searchedChar, setSearchChar] = useState('');
   const router = useRouter();
@@ -44,19 +53,22 @@ const Leaderboards = () => {
   });
   const queryClient = useQueryClient();
 
-  const searchUserAndAppend = (data, username, userStats) => {
+  const searchUserAndAppend = (data, username, userStats, { isLoggedUser } = {}) => {
     const appendToList = (list, stat) => {
       if (!Array.isArray(list)) return list;
+      const tag = isLoggedUser ? { _loggedUser: true } : { _searched: true };
       if (Array.isArray(stat)) {
-        const newEntries = stat.filter(e => !list.some(item => item.mainChar === e.mainChar));
+        const newEntries = stat
+          .filter(e => !list.some(item => item.mainChar === e.mainChar))
+          .map(e => ({ ...e, ...tag }));
         return [...list, ...newEntries].sort((a, b) => (a.rank ?? Infinity) - (b.rank ?? Infinity));
       }
       const found = list.some(item => item.mainChar === username);
       if (found) return list;
       if (stat !== undefined && stat !== null) {
-        return [...list, { mainChar: username, ...stat }];
+        return [...list, { mainChar: username, ...stat, ...tag }];
       }
-      return [...list, { mainChar: username }];
+      return [...list, { mainChar: username, ...tag }];
     };
 
     const newData = {};
@@ -97,18 +109,19 @@ const Leaderboards = () => {
     const data = leaderboards[tab];
     if (!data) return;
 
-    const usersToFetch = [loggedMainChar, searchedChar].filter(Boolean);
+    const usersToFetch = [loggedLeaderboardName].filter(Boolean);
     const fetchUsers = async () => {
       let updated = false;
       let updatedData = data;
       for (const user of usersToFetch) {
-        const userExists = Object.values(updatedData).every(list =>
-          Array.isArray(list) && list.some(item => item.mainChar === user)
-        );
+        const userExists = Object.values(updatedData).some(value => {
+          const lists = typeof value === 'object' && !Array.isArray(value) ? Object.values(value) : [value];
+          return lists.every(list => Array.isArray(list) && list.some(item => item.mainChar === user));
+        });
         if (!userExists) {
           const userStats = await fetchUserLeaderboards(tab, user);
           if (userStats && !userStats.error) {
-            updatedData = searchUserAndAppend(updatedData, user, userStats);
+            updatedData = searchUserAndAppend(updatedData, user, userStats, { isLoggedUser: true });
             updated = true;
           }
         }
@@ -121,7 +134,7 @@ const Leaderboards = () => {
       }
     };
     fetchUsers();
-  }, [leaderboards, loggedMainChar, searchedChar]);
+  }, [leaderboards, loggedLeaderboardName]);
 
   const handleKeyDown = (event) => {
     if (!inputValue || loadingSearchedChar) return;
@@ -130,21 +143,21 @@ const Leaderboards = () => {
     }
   }
 
-  const removeUserFromData = (data, username) => {
-    if (!username || !data) return data;
+  const removeSearchedEntries = (data) => {
+    if (!data) return data;
     const newData = {};
     for (const key in data) {
       const value = data[key];
-      if (Array.isArray(value)) {
-        newData[key] = value.filter(item => item.mainChar !== username);
-      } else if (value && typeof value === 'object') {
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
         const nested = {};
         for (const stat in value) {
           nested[stat] = Array.isArray(value[stat])
-            ? value[stat].filter(item => item.mainChar !== username)
+            ? value[stat].filter(item => !item._searched)
             : value[stat];
         }
         newData[key] = nested;
+      } else if (Array.isArray(value)) {
+        newData[key] = value.filter(item => !item._searched);
       } else {
         newData[key] = value;
       }
@@ -162,19 +175,24 @@ const Leaderboards = () => {
 
     const tab = selectedTab.toLowerCase();
 
-    // Remove previous searched user from cache
-    if (prevSearched && prevSearched !== searchValue && prevSearched !== loggedMainChar) {
+    // Remove all previously searched entries (only those added by search, not original top 10)
+    if (prevSearched && prevSearched !== searchValue) {
       queryClient.setQueryData(['leaderboard', tab], (old) => {
         if (!old?.[tab]) return old;
-        return { ...old, [tab]: removeUserFromData(old[tab], prevSearched) };
+        return { ...old, [tab]: removeSearchedEntries(old[tab]) };
       });
     }
 
     const data = leaderboards?.[tab];
-    const isInTopN = data && Object.values(data).every(list =>
-      Array.isArray(list) && list.some(item => item.mainChar === searchValue)
-    );
-    if (isInTopN && tab !== 'global') return;
+
+    // Skip fetch if user is already in all visible lists
+    if (data && tab !== 'global') {
+      const isInTopN = Object.values(data).some(value => {
+        const lists = typeof value === 'object' && !Array.isArray(value) ? Object.values(value) : [value];
+        return lists.every(list => Array.isArray(list) && list.some(item => item.mainChar === searchValue));
+      });
+      if (isInTopN) return;
+    }
 
     setLoadingSearchedChar(true);
     const response = await fetchUserLeaderboards(tab, searchValue);
@@ -252,19 +270,19 @@ const Leaderboards = () => {
         setSelectedTab(tabs?.[selected]);
       }}>
       <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.global?.anonymous : leaderboards?.global?.public}
-        loggedMainChar={loggedMainChar} searchedChar={searchedChar} />
+        loggedMainChar={loggedLeaderboardName} searchedChar={searchedChar} />
       <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.general?.anonymous : leaderboards?.general?.public}
-        loggedMainChar={loggedMainChar} searchedChar={searchedChar} />
+        loggedMainChar={loggedLeaderboardName} searchedChar={searchedChar} />
       <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.tasks?.anonymous : leaderboards?.tasks?.public}
-        loggedMainChar={loggedMainChar} searchedChar={searchedChar} />
+        loggedMainChar={loggedLeaderboardName} searchedChar={searchedChar} />
       <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.skills?.anonymous : leaderboards?.skills?.public}
-        loggedMainChar={loggedMainChar} searchedChar={searchedChar} />
+        loggedMainChar={loggedLeaderboardName} searchedChar={searchedChar} />
       <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.character?.anonymous : leaderboards?.character?.public}
-        loggedMainChar={loggedMainChar} searchedChar={searchedChar} />
+        loggedMainChar={loggedLeaderboardName} searchedChar={searchedChar} />
       <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.misc?.anonymous : leaderboards?.misc?.public}
-        loggedMainChar={loggedMainChar} searchedChar={searchedChar} />
+        loggedMainChar={loggedLeaderboardName} searchedChar={searchedChar} />
       <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.caverns?.anonymous : leaderboards?.caverns?.public}
-        loggedMainChar={loggedMainChar} searchedChar={searchedChar} />
+        loggedMainChar={loggedLeaderboardName} searchedChar={searchedChar} />
     </Tabber>
     {isLoading && !error
       ? <Stack alignItems={'center'} justifyContent={'center'} mt={3}><CircularProgress /></Stack>
