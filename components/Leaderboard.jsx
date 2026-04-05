@@ -32,6 +32,7 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
       {Object.entries(leaderboards || {}).map(([sectionName, list], sectionIndex) => {
         const positions = {}
         const displayCount = sectionName === 'globalRanking' ? 25 : 10;
+        if (!Array.isArray(list)) return null;
         const players = list.map((entry, index) => {
           const char = entry.mainChar;
           const isLoggedMainChar = char === loggedMainChar;
@@ -112,24 +113,40 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
                         {specialNotation(sectionName, value)}
                       </Typography>}
                     >
-                      <ListItemButton component={Link} target={'_blank'}
-                                      href={`${process.env.NEXT_PUBLIC_IT_URL}/account/misc/general?profile=${entry?.mainChar}`} disableGutters
-                                      sx={{
-                                        pl: 2, py: .5, borderRadius: 'inherit' // Inherits borderRadius from ListItem
-                                      }}>
-                        <ListItemIcon>
-                          {img ? <img width={24} height={24} style={{ objectFit: 'contain' }}
-                                      src={`${prefix}${img}`} alt={''}/> : <PositionCircle inline>
-                            <Typography variant={'body2'}>
-                              {entry?.index ? entry?.index : index + 4}
-                            </Typography>
-                          </PositionCircle>}
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={entry?.mainChar}
-                          sx={{ mr: 8 }}
-                          slotProps={{ primary: { variant: 'body1' } }}/>
-                      </ListItemButton>
+                      {entry?.mainChar?.startsWith('Anon#') ? (
+                        <Box sx={{ pl: 2, pr: 10, py: .5, display: 'flex', alignItems: 'center', opacity: 0.7 }}>
+                          <ListItemIcon>
+                            {img ? <img width={24} height={24} style={{ objectFit: 'contain' }}
+                                        src={`${prefix}${img}`} alt={''}/> : <PositionCircle inline>
+                              <Typography variant={'body2'}>
+                                {entry?.index ? entry?.index : index + 4}
+                              </Typography>
+                            </PositionCircle>}
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={entry?.mainChar}
+                            slotProps={{ primary: { variant: 'body1', noWrap: true } }}/>
+                        </Box>
+                      ) : (
+                        <ListItemButton component={Link} target={'_blank'}
+                                        href={`${process.env.NEXT_PUBLIC_IT_URL}/account/misc/general?profile=${entry?.mainChar}`} disableGutters
+                                        sx={{
+                                          pl: 2, pr: 10, py: .5, borderRadius: 'inherit'
+                                        }}>
+                          <ListItemIcon>
+                            {img ? <img width={24} height={24} style={{ objectFit: 'contain' }}
+                                        src={`${prefix}${img}`} alt={''}/> : <PositionCircle inline>
+                              <Typography variant={'body2'}>
+                                {entry?.index ? entry?.index : index + 4}
+                              </Typography>
+                            </PositionCircle>}
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={entry?.mainChar}
+                            sx={{ mr: 8 }}
+                            slotProps={{ primary: { variant: 'body1' } }}/>
+                        </ListItemButton>
+                      )}
                     </ListItem>
                     {index < rest.length - 1 ? <Divider component="li"/> : null}
                   </Fragment>
