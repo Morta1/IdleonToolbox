@@ -130,17 +130,46 @@ const Leaderboards = () => {
     }
   }
 
+  const removeUserFromData = (data, username) => {
+    if (!username || !data) return data;
+    const newData = {};
+    for (const key in data) {
+      const value = data[key];
+      if (Array.isArray(value)) {
+        newData[key] = value.filter(item => item.mainChar !== username);
+      } else if (value && typeof value === 'object') {
+        const nested = {};
+        for (const stat in value) {
+          nested[stat] = Array.isArray(value[stat])
+            ? value[stat].filter(item => item.mainChar !== username)
+            : value[stat];
+        }
+        newData[key] = nested;
+      } else {
+        newData[key] = value;
+      }
+    }
+    return newData;
+  };
+
   const handleUserSearch = async () => {
     if (!inputValue) return;
     const searchValue = inputValue.trim();
     if (!searchValue) return;
 
+    const prevSearched = searchedChar;
     setSearchChar(searchValue);
 
-    // Anonymous users can't be looked up — just highlight what's visible
-    if (searchValue.startsWith('Anon#')) return;
-
     const tab = selectedTab.toLowerCase();
+
+    // Remove previous searched user from cache
+    if (prevSearched && prevSearched !== searchValue && prevSearched !== loggedMainChar) {
+      queryClient.setQueryData(['leaderboard', tab], (old) => {
+        if (!old?.[tab]) return old;
+        return { ...old, [tab]: removeUserFromData(old[tab], prevSearched) };
+      });
+    }
+
     const data = leaderboards?.[tab];
     const isInTopN = data && Object.values(data).every(list =>
       Array.isArray(list) && list.some(item => item.mainChar === searchValue)

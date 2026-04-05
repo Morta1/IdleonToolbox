@@ -65,7 +65,7 @@ export const fetchLeaderboard = async (leaderboard) => {
 
 export const fetchUserLeaderboards = async (leaderboard, leaderboardUser) => {
   try {
-    const response = await fetch(`${url}/leaderboards?leaderboard=${leaderboard}&leaderboardUser=${leaderboardUser}`, {
+    const response = await fetch(`${url}/leaderboards?leaderboard=${encodeURIComponent(leaderboard)}&leaderboardUser=${encodeURIComponent(leaderboardUser)}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
