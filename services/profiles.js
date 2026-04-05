@@ -110,7 +110,8 @@ export const expandLeaderboardInfo = (account, characters) => {
     topKilledMonsters: account?.topKilledMonsters,
     accountAge: differenceInYears(new Date(), new Date(account?.accountCreateTime)),
     currentWorld: account?.currentWorld,
-    cashMulti: withDefault(cashMulti)
+    cashMulti: withDefault(cashMulti),
+    highestSpelunkingPower: withDefault(account?.spelunking?.power?.value)
   }
 }
 const withDefault = (value, defaultValue = 0) => {
