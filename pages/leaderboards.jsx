@@ -129,6 +129,9 @@ const Leaderboards = () => {
 
     setSearchChar(searchValue);
 
+    // Anonymous users can't be looked up — just highlight what's visible
+    if (searchValue.startsWith('Anon#')) return;
+
     const tab = selectedTab.toLowerCase();
     const data = leaderboards?.[tab];
     const isInTopN = data && Object.values(data).every(list =>

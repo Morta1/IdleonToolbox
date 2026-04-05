@@ -19,7 +19,7 @@ export const uploadProfile = async ({ profile, leaderboardConsent }, token) => {
     if (response?.status !== 200) {
       throw response;
     }
-    return response;
+    return await response?.json();
   } catch (err) {
     console.error('Error has occurred: ', err);
     if (err?.status === 429) {

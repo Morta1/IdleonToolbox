@@ -53,6 +53,7 @@ const Data = () => {
   const [lastUpload, setLastUpload] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [uploaded, setUploaded] = useState(false);
+  const [anonId, setAnonId] = useLocalStorage({ key: 'data:anonId', defaultValue: null });
   const [openPolicy, setOpenPolicy] = useState(false);
   const [leaderboardConsent, setLeaderboardConsent] = useLocalStorage({
     key: 'data:leaderboardConsent',
@@ -140,10 +141,11 @@ const Data = () => {
       setError('');
       try {
         const normalizedConsent = leaderboardConsent === true ? 'public' : leaderboardConsent === false ? 'off' : leaderboardConsent;
-        await uploadProfile({
+        const result = await uploadProfile({
           profile: { ...userData, parsedData },
           leaderboardConsent: normalizedConsent
         }, state?.accessToken);
+        setAnonId(result?.anonId || null);
         setUploaded(true);
         const now = Date.now();
         localStorage.setItem(`${state?.uid}/lastUpload`, now);
@@ -286,6 +288,9 @@ const Data = () => {
                     <CheckCircleIcon color={'success'}/>
                   </Fade>
                 </Stack>
+                {anonId && <Typography sx={{ mt: 1 }} variant={'body2'} color={'text.secondary'}>
+                  Your anonymous ID: <strong>{anonId}</strong>
+                </Typography>}
                 <FormGroup sx={{ mt: 2 }}>
                   <FormControlLabel
                     control={<Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)}/>}
