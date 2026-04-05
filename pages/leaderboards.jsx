@@ -49,7 +49,7 @@ const Leaderboards = () => {
       if (!Array.isArray(list)) return list;
       if (Array.isArray(stat)) {
         const newEntries = stat.filter(e => !list.some(item => item.mainChar === e.mainChar));
-        return [...list, ...newEntries];
+        return [...list, ...newEntries].sort((a, b) => (a.rank ?? Infinity) - (b.rank ?? Infinity));
       }
       const found = list.some(item => item.mainChar === username);
       if (found) return list;
