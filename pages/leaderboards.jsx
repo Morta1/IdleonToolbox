@@ -45,25 +45,29 @@ const Leaderboards = () => {
   const queryClient = useQueryClient();
 
   const searchUserAndAppend = (data, username, userStats) => {
-    const newData = {};
-    for (const category in data) {
-      const categoryData = data[category];
-      const stats = userStats[category];
+    const appendToList = (list, stat) => {
+      if (!Array.isArray(list)) return list;
+      const found = list.some(item => item.mainChar === username);
+      if (found) return list;
+      if (stat !== undefined && stat !== null) {
+        return [...list, { mainChar: username, ...stat }];
+      }
+      return [...list, { mainChar: username }];
+    };
 
-      if (Array.isArray(stats)) {
-        const newEntries = stats.filter(e => !categoryData.some(item => item.mainChar === e.mainChar));
-        newData[category] = [...categoryData, ...newEntries];
-      } else {
-        const found = categoryData.some(item => item.mainChar === username);
-        if (!found) {
-          if (stats !== undefined) {
-            newData[category] = [...categoryData, { mainChar: username, ...stats }];
-          } else {
-            newData[category] = [...categoryData, { mainChar: username }];
-          }
-        } else {
-          newData[category] = categoryData;
+    const newData = {};
+    for (const key in data) {
+      const value = data[key];
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        const nested = {};
+        for (const stat in value) {
+          nested[stat] = appendToList(value[stat], userStats[stat]);
         }
+        newData[key] = nested;
+      } else if (Array.isArray(value)) {
+        newData[key] = appendToList(value, userStats[key]);
+      } else {
+        newData[key] = value;
       }
     }
     return newData;
