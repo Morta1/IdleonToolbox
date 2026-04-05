@@ -47,6 +47,10 @@ const Leaderboards = () => {
   const searchUserAndAppend = (data, username, userStats) => {
     const appendToList = (list, stat) => {
       if (!Array.isArray(list)) return list;
+      if (Array.isArray(stat)) {
+        const newEntries = stat.filter(e => !list.some(item => item.mainChar === e.mainChar));
+        return [...list, ...newEntries];
+      }
       const found = list.some(item => item.mainChar === username);
       if (found) return list;
       if (stat !== undefined && stat !== null) {
