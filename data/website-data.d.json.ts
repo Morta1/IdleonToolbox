@@ -66,7 +66,6 @@ declare module '@website-data' {
   export const ButtonTasks: (string[])[];
   export const ButtonBonusPerPress: number[];
   export const ButtonBonusNames: string[];
-  export const companionGroups: { name: string; indices: number[] }[];
   export const gamingPalette: {
       x0: number;
       x1: number;
@@ -1754,6 +1753,10 @@ declare module '@website-data' {
       z: string;
       filler: string;
       tourPower: number;
+    }[];
+  export const companionGroups: {
+      name: string;
+      indices: number[];
     }[];
   export const superbitsUpgrades: {
       description: string;
