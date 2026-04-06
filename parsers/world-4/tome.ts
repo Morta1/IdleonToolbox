@@ -358,6 +358,7 @@ export const calcTomeQuantity = (account: any, characters: any[], idleonData?: a
   quantities.push(account.research?.gridPTSpent); // 113 research grid upg
   quantities.push(account.minehead?.glimboTotalTrades); // 115 glimbo trades
   quantities.push(account?.sushiStation?.uniqueSushi); // 116 unique sushi
+  quantities.push(account?.accountOptions?.[594]); // 116 unique sushi
 
   return quantities;
 }
