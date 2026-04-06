@@ -23,7 +23,8 @@ const TheButton = () => {
 
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
       <CardTitleAndValue title={'Total Presses'} value={totalPresses || '0'} />
-      <CardTitleAndValue title={'Insta Skips'} value={`${instaSkipsLeft || 0} / ${instaSkipsPerWeek || 0}`} />
+      <CardTitleAndValue title={'Insta Skips Left'} value={instaSkipsLeft || '0'} />
+      <CardTitleAndValue title={'Insta Skips/Week'} value={instaSkipsPerWeek || '0'} />
       <CardTitleAndValue title={'Bonus Multiplier'} value={`${notateNumber(bonusMulti, 'MultiplierInfo')}x`} />
       <CardTitleAndValue title={'Cycle'} value={Math.floor(totalPresses / 45) + 1} />
       <CardTitleAndValue title={'Next Boost'} value={`${bonuses?.[activeBonusIndex]?.name} (${pressesIntoCurrentBonus}/5)`} />
