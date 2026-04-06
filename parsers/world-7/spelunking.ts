@@ -18,6 +18,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
 import { getZenithBonus } from '@parsers/world-1/statues';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getButtonBonus } from '@parsers/world-7/button';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 
 export const getSpelunking = (idleonData: any, account: any, characters: any) => {
@@ -596,7 +597,8 @@ const getPower = (account: any, _unused1?: any) => {
     * (1 + shopUpg46 / 100)
     * (1 + (exoticBonus + cardBonus) / 100)
     * (1 + (toolUpg14 + toolUpg15 + toolUpg16 + toolUpg17) / 100)
-    * (1 + getSushiBonus(account, 20) / 100);
+    * (1 + getSushiBonus(account, 20) / 100)
+    * (1 + getButtonBonus(account, 6) / 100);
 
   return {
     value: basePower * powerMulti,

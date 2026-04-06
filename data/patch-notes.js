@@ -4,6 +4,22 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.35',
+    'gameVer': '2.3.501',
+    'date': '06/04/2026',
+    'features': [
+      'New "The Button" page under World 7 - track your button presses, task progress, and bonus multipliers',
+      'View all 9 bonus categories with current values, per-press rates, and rotation indicator',
+      'Browse upcoming tasks with auto-detected best character, pagination by cycle, and future requirement tooltips',
+      'Button bonuses are now reflected across 9 parsers (research, minehead, sushi, sailing, summoning, farming, spelunking, cooking, class EXP)',
+      'Companions page now shows all existing companions grouped by category (Legacy, Fallen Spirits, Shallow Waters, Exclusive, Special)',
+    ],
+    'fixes': [
+      'Fixed Sushi Station UpgLvREQ formula (upgrade level requirements were too high)',
+      'Added KillroyBonuses(5) and w7a11 card bonus to Research EXP multiplier',
+    ]
+  },
+  {
     'ver': '3.3.34',
     'gameVer': '2.0.497',
     'date': '01/04/2026',

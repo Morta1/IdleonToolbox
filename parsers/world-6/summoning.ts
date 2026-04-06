@@ -16,6 +16,7 @@ import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getButtonBonus } from '@parsers/world-7/button';
 
 export const summonEssenceColor = {
   0: 'white',
@@ -261,7 +262,8 @@ const getLocalWinnerBonus = (rawWinnerBonuses: any, account: any, index: any): a
         Math.min(10, level * bonusPerLevel) +
         firstAchievement +
         secondAchievement +
-        armorSetBonus) / 100);
+        armorSetBonus) / 100)
+      * (1 + getButtonBonus(account, 4) / 100);
   }
   else if (index >= 20 && index <= 33) {
     const multiCalc: any = getLocalWinnerBonus(rawWinnerBonuses, account, 31);
@@ -275,7 +277,8 @@ const getLocalWinnerBonus = (rawWinnerBonuses: any, account: any, index: any): a
         secondAchievement +
         armorSetBonus +
         emperorBonus +
-        multi) / 100);
+        multi) / 100)
+      * (1 + getButtonBonus(account, 4) / 100);
   }
   else {
     const multiCalc: any = getLocalWinnerBonus(rawWinnerBonuses, account, 31);
@@ -289,7 +292,8 @@ const getLocalWinnerBonus = (rawWinnerBonuses: any, account: any, index: any): a
         secondAchievement +
         armorSetBonus +
         emperorBonus +
-        multi) / 100);
+        multi) / 100)
+      * (1 + getButtonBonus(account, 4) / 100);
   }
   return val;
 }

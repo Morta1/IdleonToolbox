@@ -18,6 +18,8 @@ import { getMineheadBonusQTY, getMineheadGlimboTotalTrades } from '@parsers/worl
 import { getStickerBonus } from '@parsers/world-6/farming';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getButtonBonus } from '@parsers/world-7/button';
+import { getKillRoyShopBonus } from '@parsers/misc';
 
 // Save key for Research: game may use idleonData.Research or similar
 const getRawResearch = (idleonData: any) => {
@@ -525,6 +527,7 @@ function getResearchEXPmulti(account: any, research: any) {
   const grid31 = getResearchGridBonusInternal(account, research, 31, 0);
   const grid94_2 = getResearchGridBonusInternal(account, research, 94, 2);
   const prehistoricSetBonus = Math.min(50, getArmorSetBonus(account, 'PREHISTORIC_SET'));
+  const killroyResearchBonus = getKillRoyShopBonus(account, 5);
   const companion52 = isCompanionBonusActive(account, 52) ? (account?.companions?.list?.at(52)?.bonus ?? 0) : 0;
 
   const additive =
@@ -550,7 +553,7 @@ function getResearchEXPmulti(account: any, research: any) {
   const grid70Factor = 1 + grid70 / 100;
   const companion153 = isCompanionBonusActive(account, 153) ? (account?.companions?.list?.at(153)?.bonus ?? 0) : 0;
   const companionFactor = Math.max(1, (1 + companion52) * (1 + companion153));
-  const value = additiveFactor * grid70Factor * companionFactor * (1 + getSushiBonus(account, 0) / 100);
+  const value = additiveFactor * grid70Factor * companionFactor * (1 + getSushiBonus(account, 0) / 100) * (1 + getButtonBonus(account, 0) / 100) * killroyResearchBonus;
 
   const breakdown = {
     statName: 'Research EXP Multi',
@@ -583,7 +586,9 @@ function getResearchEXPmulti(account: any, research: any) {
         sources: [
           { name: '(1 + total additive % / 100)', value: additiveFactor },
           { name: 'Takin\' Notes', value: grid70Factor },
-          { name: 'Companions', value: companionFactor }
+          { name: 'Companions', value: companionFactor },
+          { name: 'Button Bonus', value: 1 + getButtonBonus(account, 0) / 100 },
+          { name: 'Killroy Research', value: killroyResearchBonus }
         ]
       }
     ]

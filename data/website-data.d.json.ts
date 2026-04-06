@@ -63,6 +63,10 @@ declare module '@website-data' {
     divisionPointReqs: number[];
   };
   export const sushiUpgrades: (string[])[];
+  export const ButtonTasks: (string[])[];
+  export const ButtonBonusPerPress: number[];
+  export const ButtonBonusNames: string[];
+  export const companionGroups: { name: string; indices: number[] }[];
   export const gamingPalette: {
       x0: number;
       x1: number;

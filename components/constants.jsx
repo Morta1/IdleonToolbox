@@ -241,8 +241,8 @@ export const PAGES = {
         { label: 'adviceFish', icon: 'data/W7_fish', tabs: [] },
         { label: 'minehead', icon: 'data/MineHead0', tabs: ['Upgrades', 'Opponents'] },
         { label: 'glimbo', icon: 'afk_targets/Glimbo', tabs: [] },
-        { label: 'S3', icon: 'data/ClassIconsNA2', tabs: [] },
-        { label: 'sushiStation', icon: 'data/Sushi6', tabs: ['Sushi', 'Upgrades', 'Bonuses'] }
+        { label: 'sushiStation', icon: 'data/Sushi6', tabs: ['Sushi', 'Upgrades', 'Bonuses'] },
+        { label: 'theButton', icon: 'etc/ButtonG', tabs: [] }
 
       ]
     }

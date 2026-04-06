@@ -30,6 +30,7 @@ import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getKillRoyShopBonus } from '@parsers/misc';
+import { getButtonBonus } from '@parsers/world-7/button';
 import { getBribeBonus } from '@parsers/world-1/bribes';
 import { getExoticMarketBonus, getStickerBonus } from '@parsers/world-6/farming';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
@@ -643,7 +644,8 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
     * (1 + exoticBonus / 100)
     * (1 + paletteBonus / 100)
     * Math.max(1, spelunkSuperbit)
-    * (1 + getSushiBonus(account, 7) / 100);
+    * (1 + getSushiBonus(account, 7) / 100)
+    * (1 + getButtonBonus(account, 3) / 100);
 
   const breakdown = {
     statName: 'Artifact Find Chance',
@@ -682,6 +684,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
           { name: 'Exotic Market', value: 1 + exoticBonus / 100 },
           { name: 'Palette Bonus', value: 1 + paletteBonus / 100 },
           { name: 'Spelunking Discoveries', value: Math.max(1, spelunkSuperbit) },
+          { name: 'Button Bonus', value: 1 + getButtonBonus(account, 3) / 100 },
         ]
       }
     ]

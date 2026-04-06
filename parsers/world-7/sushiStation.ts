@@ -6,6 +6,7 @@ import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { isBundlePurchased } from '@parsers/misc';
+import { getButtonBonus } from '@parsers/world-7/button';
 
 const MAX_TIER = 53;
 
@@ -26,7 +27,7 @@ const getUpgradeQTY = (upgradeLevels: number[], idx: number) => {
 };
 
 const getUpgLvREQ = (t: number) => {
-  return Math.floor(1 + (Math.min(3, t) + Math.min(6, t) + (3 * t
+  return Math.floor(1 + (Math.min(2, t) + Math.min(4, t) + (3 * t
     - Math.max(0, t - 4) - Math.max(0, t - 8)
     + (Math.floor(t / 6) + Math.floor(t / 17)))));
 };
@@ -207,6 +208,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
     * (1 + (getUpgradeQTY(upgradeLevels, 41) + getUpgradeQTY(upgradeLevels, 43)) / 100)
     * (1 + overtunedMulti / 100)
     * (1 + atomBonus14 / 100)
+    * (1 + getButtonBonus(account, 2) / 100)
     * (1 + (100 * sailingArt39) / 100);
 
   // Currency per tier

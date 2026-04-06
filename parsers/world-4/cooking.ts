@@ -29,6 +29,7 @@ import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getObolsBonus } from '@parsers/obols';
 import { notateNumber } from '@utility/helpers';
+import { getButtonBonus } from '@parsers/world-7/button';
 
 export const spicesNames = [
   'Grasslands',
@@ -313,7 +314,8 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
       * (1 + extraCookingSpeedVials / 100)
       * Math.max(1, amethystRhinestone)
       * (1 + achievementBonus / 100)
-      * (1 + kitchenEffMultiplier / 100);
+      * (1 + kitchenEffMultiplier / 100)
+      * (1 + getButtonBonus(account, 7) / 100);
 
     const mealSpeedBreakdown = {
       statName: "Meal speed",

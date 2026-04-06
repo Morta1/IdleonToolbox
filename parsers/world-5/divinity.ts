@@ -51,7 +51,8 @@ const parseDivinity = (divinityRaw: any, serializedCharactersData: any, accountD
     deities,
     blessingLevels,
     unlockedDeities,
-    godRank: godRank < 0 ? 0 : godRank
+    godRank: godRank < 0 ? 0 : godRank,
+    divinityPoints: Number(divinityRaw?.[24]) || 0
   }
 }
 

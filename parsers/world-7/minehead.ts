@@ -5,6 +5,7 @@ import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { isCompanionBonusActive, getEventShopBonus } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getButtonBonus } from '@parsers/world-7/button';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 
 const getRawMinehead = (idleonData: any) => {
@@ -181,7 +182,8 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
       ) / 100)
     * (1 + atom13Bonus / 100)
     * (1 + (grid147Bonus + grid166Bonus + mealMineCurrBonus) / 100)
-    * (1 + getSushiBonus(account, 12) / 100);
+    * (1 + getSushiBonus(account, 12) / 100)
+    * (1 + getButtonBonus(account, 1) / 100);
 
   // Bluecrown multiplier — used in description for upgrade 14
   const getBluecrownMulti = () => 1.5 + getUpgradeQTY(14) / 100;

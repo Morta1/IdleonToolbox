@@ -129,6 +129,7 @@ import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getButtonBonus } from '@parsers/world-7/button';
 import { getGuaranteedCrystalMobs } from '@parsers/misc';
 import { tryToParse, createIndexedArray, createArrayOfArrays, cashFormatter } from '@utility/helpers';
 import type { IdleonData, Account } from './types';
@@ -1947,7 +1948,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
                       + (opt421
                         + (stampClassXP
                           + (friendBonus1
-                            + (comp47 + comp111)))))))))))));
+                            + (comp47 + comp111 + getButtonBonus(account, 8))))))))))))));
 
   // Additive bonuses in the main chain (EtcBonuses('4') + ...)
   const forthTalentBonus = getTalentBonus(character?.flatTalents, 'LUCKY_CHARMS');

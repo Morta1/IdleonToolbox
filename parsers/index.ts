@@ -80,6 +80,7 @@ import { getCoralReef } from '@parsers/world-7/coralReef';
 import { getClamWork } from '@parsers/world-7/clamWork';
 import { getResearch } from '@parsers/world-7/research';
 import { getMinehead } from '@parsers/world-7/minehead';
+import { getButton } from '@parsers/world-7/button';
 import { getTournament } from '@parsers/world-7/tournament';
 import { getSushiStation } from '@parsers/world-7/sushiStation';
 import { getAdviceFish } from '@parsers/misc';
@@ -320,6 +321,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.minehead = getMinehead(idleonData, accountData, serverVars);
   accountData.tournament = getTournament(idleonData, accountData, staticData.tournamentServerData);
   accountData.research = getResearch(idleonData, accountData, charactersData);
+  accountData.button = getButton(accountData);
   accountData.sushiStation = getSushiStation(idleonData, accountData);
   accountData.bubba = getBubba(idleonData, accountData);
   accountData.friendBonusStats = getFriendBonusStats(accountData);

@@ -21,6 +21,7 @@ import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getButtonBonus } from '@parsers/world-7/button';
 import LavaRand from '../../utility/lavaRand';
 
 /** Level needed to reach the given percent of cap for exotic capped formula: value = baseValue * level / (1000 + level). */
@@ -699,6 +700,7 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
     * (1 + vaultBonus78 / 100)
     * (1 + (getLandRank(account?.farming?.ranks, 0) * account?.farming?.plot?.[crop?.index]?.rank + voteBonus) / 100)
     * (1 + getSushiBonus(account, 35) / 100)
+    * (1 + getButtonBonus(account, 5) / 100)
     * crop?.seed?.nextCropChance
     * Math.pow(crop?.seed?.nextCropDecay, crop?.baseCropType);
 
