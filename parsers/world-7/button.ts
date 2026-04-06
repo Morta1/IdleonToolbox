@@ -33,7 +33,8 @@ export const getButton = (account: any) => {
 
   const totalPresses = Number(accountOptions?.[594]) || 0;
   const instaSkipsLeft = Number(accountOptions?.[595]) || 0;
-  const instaSkipsPerWeek = getResearchGridBonus(account, 126, 0);
+  // Grid 126 mode 1 = level (integer insta skip count per week)
+  const instaSkipsPerWeek = getResearchGridBonus(account, 126, 1);
 
   // Task order lookup: researchData[39] is a 100-element permutation table
   const permutationTable = researchData?.[39] ?? [];
@@ -211,8 +212,8 @@ function getTaskProgress(taskIndex: number, account: any): number {
     // 26: Foraging Speed (Desert Oasis)
     case 26: return account?.breeding?.territories?.[5]?.forageSpeed ?? 0;
 
-    // 27: Ribbon tier on Yumi Peachring
-    case 27: return Number(opts?.[92]) || 0;
+    // 27: Ribbon tier on Yumi Peachring — stored in grimoire (Ribbon array)
+    case 27: return Number(account?.grimoire?.ribbons?.[92]) || 0;
 
     // 28: Sausy Sausage meal level
     case 28: return account?.cooking?.meals?.[56]?.level ?? 0;
@@ -225,7 +226,7 @@ function getTaskProgress(taskIndex: number, account: any): number {
     case 31: return account?.totalSkillsLevels?.sneaking?.level ?? 0;
     case 32: return account?.totalSkillsLevels?.spelunking?.level ?? 0;
     case 33: return account?.totalSkillsLevels?.mining?.level ?? 0;
-    case 34: return account?.totalSkillsLevels?.choppin?.level ?? 0;
+    case 34: return account?.totalSkillsLevels?.chopping?.level ?? 0;
     case 35: return account?.totalSkillsLevels?.divinity?.level ?? 0;
 
     // 36: Divinity PTS
@@ -234,14 +235,14 @@ function getTaskProgress(taskIndex: number, account: any): number {
     // 37: Gold bars in Sailing
     case 37: return account?.sailing?.lootPile?.[0]?.amount ?? 0;
 
-    // 38: Artifact Find Chance multi
-    case 38: return account?.sailing?.artifactChance?.value ?? 0;
+    // 38: Artifact Find Chance multi — use the first boat's computed chance
+    case 38: return parseFloat(account?.sailing?.boats?.[0]?.artifactChance?.value) || 0;
 
     // 39: Gaming Bits
     case 39: return account?.gaming?.bits ?? 0;
 
-    // 40: Plant evolutions in Gaming
-    case 40: return account?.gaming?.evolutionLevel ?? 0;
+    // 40: Total plants picked in Gaming (Elegant Seashell)
+    case 40: return account?.gaming?.totalPlantsPicked ?? 0;
 
     // 41: Palette Multi
     case 41: return account?.gaming?.paletteFinalBonus ?? 0;
