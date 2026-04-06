@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
-import { cleanUnderscore, kFormatter, notateNumber, pascalCase, prefix } from '@utility/helpers';
+import { cleanUnderscore, getActivityIcon, kFormatter, notateNumber, pascalCase, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 import HtmlTooltip from '../Tooltip';
 import {
@@ -58,7 +58,9 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
           classIndex,
           afkTarget,
           afkTime,
-          postOffice
+          postOffice,
+          targetMonster,
+          monsterFace
         } = character;
         const options = Object.entries(trackers || {})?.reduce((result, [trackerName, data]) => {
           const { options, ...rest } = data;
@@ -96,8 +98,8 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
               </Stack>
               <Stack direction={'row'} alignItems="center" gap={1} style={{ marginLeft: 'auto' }}>
                 <HtmlTooltip title={cleanUnderscore(activity)}>
-                  <IconImg src={`${prefix}afk_targets/${activity}.png`} alt="activity icon"
-                           style={{ width: 42, height: 42 }}
+                  <IconImg src={`${prefix}${getActivityIcon(character)}.png`} alt="activity icon"
+                           style={{ width: 32, height: 32 }}
                   />
                 </HtmlTooltip>
                 {charForm ? <HtmlTooltip title={`${formMap?.[charForm]}`}>

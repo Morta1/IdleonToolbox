@@ -1,12 +1,12 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from 'utility/helpers';
+import { cleanUnderscore, getActivityIcon, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from '../Tooltip';
 import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { getDeityLinkedIndex } from '@parsers/world-5/divinity';
 
-const Activity = ({ playerId, afkTarget, account, divStyle, characters }) => {
+const Activity = ({ playerId, afkTarget, targetMonster, monsterFace, account, divStyle, characters }) => {
   const isLabConnectedByDivinity = () => {
     return account?.lab?.connectedPlayers?.find((char) => char?.playerId === playerId)?.isDivinityConnected;
   }
@@ -27,7 +27,7 @@ const Activity = ({ playerId, afkTarget, account, divStyle, characters }) => {
               </Tooltip> : null}
             <Stack>
               <Stack direction={'row'} alignItems="center" gap={1}>
-                <ActivityImg src={`${prefix}afk_targets/${afkTarget}.png`} alt="" />
+                <ActivityImg src={`${prefix}${getActivityIcon({ afkTarget, targetMonster, monsterFace })}.png`} alt="" />
                 <Typography>{cleanUnderscore(afkTarget)}</Typography>
               </Stack>
               {isLabConnectedByDivinity() ? <Stack direction={'row'} alignItems="center" gap={1}>
@@ -48,8 +48,8 @@ const Activity = ({ playerId, afkTarget, account, divStyle, characters }) => {
 };
 
 const ActivityImg = styled.img`
-  width: 35px;
-  height: 35px;
+  width: 32px;
+  height: 32px;
   object-fit: contain;
 `;
 

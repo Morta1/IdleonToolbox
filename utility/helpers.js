@@ -375,6 +375,14 @@ export const cleanUnderscore = (str) => {
   }
 };
 
+export const getActivityIcon = (character) => {
+  const { afkTarget, targetMonster, monsterFace } = character || {};
+  if (!afkTarget || afkTarget === '_' || afkTarget === 'Nothing') return 'data/Afkz5';
+  if (monsterFace != null && monsterFace !== 0) return `data/Mface${monsterFace}`;
+  if (targetMonster) return `data/${targetMonster}_x1`;
+  return `afk_targets/${afkTarget}`;
+};
+
 export const getNumberWithOrdinal = (n) => {
   const s = ['th', 'st', 'nd', 'rd'], v = n % 100;
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
