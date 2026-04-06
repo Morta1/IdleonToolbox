@@ -178,7 +178,7 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
       maxDiscoveries: discoveriesData?.length > 0 ? discoveriesData?.length : 0,
       discoveriesCount,
       discoveries: discoveriesData,
-      defeated: index < cavesUnlocked,
+      defeated: (rawSpelunking?.[0]?.[index] ?? 0) > 0,
       biggestHaul: biggestHauls?.[index] ?? 0,
       bestCaveLevel: bestCaveLevels?.[index] ?? 0,
       foundAt: (parseFloat(generalSpelunky?.[7]?.[index]) + 1) || 0,
@@ -203,7 +203,7 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
     }
   });
 
-  const talentSpelunkArrays = (rawSpelunking || [])?.slice(20, 41) || [];
+  const talentSpelunkArrays = (rawSpelunking || [])?.slice(20, 44) || [];
   const charactersStamina = getCharacterStamina(account, characters, upgrades, rawCurrentStamina, staminaRegenRate.value);
 
   // Calculate overstim fill rate (from chapter 2, index 2)
