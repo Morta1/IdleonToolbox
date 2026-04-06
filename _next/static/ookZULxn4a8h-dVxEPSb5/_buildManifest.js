@@ -240,7 +240,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/01oil8p80ojbt.js"
   ],
   "/account/world-7/the-button": [
-    "static/chunks/0r9fsh.2umh44.js"
+    "static/chunks/15_9srdwt7t0n.js"
   ],
   "/account/world-7/zenith-market": [
     "static/chunks/0cwrjqo2oceah.js"
