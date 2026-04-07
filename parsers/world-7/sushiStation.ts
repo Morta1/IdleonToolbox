@@ -154,7 +154,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
 
   // Fireplace spark multi
   const fireplaceSparkMulti = sparks > 0
-    ? 0.2 * log2(sparks / 1e6) + getLOG(sparks / 1e6)
+    ? 0.2 * log2(sparks) + getLOG(sparks)
     : 0;
 
   // Orange fire sum (for fuel gen)
@@ -325,7 +325,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
     fireplaces,
     cooking: { maxCookTier, bonusCookTierPCT, perfectOdds: perfectOdds(0) },
     shakerUses,
-    slotsOwned: Math.min(120, 10 + getUpgradeQTY(upgradeLevels, 0)),
+    slotsOwned: 10,
   };
 };
 

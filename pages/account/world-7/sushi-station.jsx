@@ -90,7 +90,7 @@ const SushiStation = () => {
     </Stack>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'sushiStation')}>
       <Sushi slots={slots} knowledge={knowledge} fireplaces={fireplaces}/>
-      <Upgrades upgrades={upgrades}/>
+      <Upgrades upgrades={upgrades} characters={state?.characters}/>
       <Bonuses rogBonuses={rogBonuses} uniqueSushi={uniqueSushi} knowledge={knowledge}/>
     </Tabber>
   </>;
