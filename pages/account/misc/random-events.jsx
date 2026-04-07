@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import { getRandomEvents } from '../../../parsers/misc';
-import { Card, CardContent, Stack } from '@mui/material';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
 import RandomEvent from '../../../components/account/Misc/RandomEvent';
 import { NextSeo } from 'next-seo';
 
@@ -16,6 +16,9 @@ const RandomEvents = () => {
       description="Check upcoming random event schedules and rewards for Legends of Idleon"
     />
     {events?.length ? <>
+      <Typography variant={'caption'} color={'text.secondary'} sx={{ mb: 1, display: 'block' }}>
+        Times shown are when events spawn, displayed in your local timezone.
+      </Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
         {events?.map((event, index) => {
           return <Card key={'events' + index} sx={{ width: 250 }}>

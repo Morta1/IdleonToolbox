@@ -890,12 +890,8 @@ export const getRandomEvents = (account: any) => {
     if (realMapIndex === -1) continue;
     const mapName = mapNames?.[realMapIndex];
     const eventName = getEventName(eventType);
-    let dateInMs = (seed + i + 1) * 3600 * 1000;
-    if (isPast(dateInMs)) continue;
-    const date = new Date(dateInMs);
-    if ((date as any).isDstObserved()) {
-      dateInMs -= 3600 * 1000;
-    }
+    const dateInMs = (seed + i) * 3600 * 1000;
+    if (isPast(dateInMs + 3600 * 1000)) continue;
     eventList.push({ mapName, eventName, date: dateInMs })
   }
   return eventList;

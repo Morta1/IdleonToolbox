@@ -211,7 +211,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
                   onClick={() => router.push({ pathname: '/account/misc/random-events' })}
                   direction={'row'} gap={1}>
                   <IconImg src={`${prefix}etc/${events?.[0]?.eventName}.png`} alt="" />
-                  <Timer type={'countdown'} date={events?.[0]?.date} lastUpdated={lastUpdated} />
+                  <Timer type={'countdown'} date={events?.[1]?.date ?? events?.[0]?.date + 3600 * 1000} lastUpdated={lastUpdated} />
                 </Stack>
                 <Divider sx={{ mt: 1 }} />
               </div>
