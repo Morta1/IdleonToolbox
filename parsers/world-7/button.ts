@@ -195,7 +195,6 @@ function getTaskProgress(taskIndex: number, account: any): number {
       const printerData = account?.printer ?? [];
       for (const charPrinter of printerData) {
         const copper = charPrinter?.find?.((s: any) => s?.item === 'Copper');
-        console.log('copper', copper);
         if (copper?.value) return copper?.value;
       }
       return 0;
