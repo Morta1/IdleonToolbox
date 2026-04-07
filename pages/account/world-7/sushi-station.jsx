@@ -9,6 +9,7 @@ import { PAGES } from '@components/constants';
 import Sushi from '@components/account/Worlds/World7/SushiStation/Sushi';
 import Upgrades from '@components/account/Worlds/World7/SushiStation/Upgrades';
 import Bonuses from '@components/account/Worlds/World7/SushiStation/Bonuses';
+import SushiBonuses from '@components/account/Worlds/World7/SushiStation/SushiBonuses';
 
 const SushiStation = () => {
   const { state } = useContext(AppContext);
@@ -25,7 +26,9 @@ const SushiStation = () => {
     rogBonuses,
     slots,
     fireplaces,
-    shakerUses
+    shakerUses,
+    knowledgeSummary,
+    sushiCooking
   } = sushiStation;
 
   return <>
@@ -73,6 +76,11 @@ const SushiStation = () => {
         />;
       })()}
       <CardTitleAndValue
+        title={'Perfecto Chance'}
+        value={`${parseFloat((sushiCooking?.perfectOdds * 100)?.toFixed(2))}%`}
+        tooltipTitle={'Base chance to Perfecto the next undiscovered sushi'}
+      />
+      <CardTitleAndValue
         title={'Salt Shaker'}
         value={shakerUses?.[0] || '0'}
         tooltipTitle={'Chance to tier-up all sushi'}
@@ -92,6 +100,7 @@ const SushiStation = () => {
       <Sushi slots={slots} knowledge={knowledge} fireplaces={fireplaces}/>
       <Upgrades upgrades={upgrades} characters={state?.characters}/>
       <Bonuses rogBonuses={rogBonuses} uniqueSushi={uniqueSushi} knowledge={knowledge}/>
+      <SushiBonuses knowledgeSummary={knowledgeSummary}/>
     </Tabber>
   </>;
 };

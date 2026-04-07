@@ -287,7 +287,30 @@ export const getSushiStation = (idleonData: any, account: any) => {
     };
   });
 
-  // --- Ring of Gains bonuses ---
+  // --- Knowledge summary (aggregate bonuses per category) ---
+  const knowledgeSummary = knowledgeCategoryDescriptions.map((desc: string, i: number) => {
+    const total = knowledgeTotals[i] ?? 0;
+    const label = String(desc ?? '')
+      .replace(/_/g, ' ')
+      .replace(/\{/g, '' + commaNotation(total))
+      .replace(/\}/g, '' + notateNumber(1 + total / 100, 'MultiplierInfo'))
+      .replace(/\^/g, '' + commaNotation(total));
+    const sources: { index: number; name: string; bonus: number; level: number; perfecto: boolean }[] = [];
+    for (let s = 0; s <= MAX_TIER; s++) {
+      if ((Number(knowledgeCategories?.[s]) || 0) === i && (uniqueSushiTracking[s] ?? -1) >= 0) {
+        sources.push({
+          index: s,
+          name: String(sushiNames[s] ?? '').replace(/_/g, ' '),
+          bonus: getKnowledgeBonusSpecific(s),
+          level: Number(knowledgeLevels?.[s]) || 0,
+          perfecto: (uniqueSushiTracking[s] ?? 0) >= 1
+        });
+      }
+    }
+    return { label, value: total, category: i, sources };
+  });
+
+  // --- Rest of game bonuses ---
   const rogBonuses = rogDescriptions?.map((desc: string, i: number) => {
     const rawVal = Number(rogValues?.[i]) || 0;
     const bonusDesc = String(desc ?? '')
@@ -323,14 +346,15 @@ export const getSushiStation = (idleonData: any, account: any) => {
     knowledgeTotals,
     rogBonuses,
     fireplaces,
-    cooking: { maxCookTier, bonusCookTierPCT, perfectOdds: perfectOdds(0) },
+    sushiCooking: { maxCookTier, bonusCookTierPCT, perfectOdds: perfectOdds(0) },
+    knowledgeSummary,
     shakerUses,
     slotsOwned: 10,
   };
 };
 
 /**
- * Returns the Ring of Gains (sushi) bonus value for a given index.
+ * Returns the Rest of game (sushi) bonus value for a given index.
  * Game: customBlock_SushiStuff("RoG_BonusQTY", index, 0)
  * If uniqueSushi > index, returns research[37][index]; else 0.
  */

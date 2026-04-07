@@ -1,5 +1,5 @@
 import { NextSeo } from 'next-seo';
-import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Divider, FormControlLabel, Radio, RadioGroup, Stack, Typography } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
@@ -50,16 +50,15 @@ const CompanionList = ({ title, companions }) => {
 
 const Pets = () => {
   const { state } = useContext(AppContext);
-  const [showTradableOnly, setShowTradableOnly] = useState(false);
-  const [showMissingOnly, setShowMissingOnly] = useState(false);
+  const [filter, setFilter] = useState('all');
   const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * state?.account?.timeAway?.GlobalTime - (state?.account?.companions?.lastFreeClaim ?? 0)));
 
   const allCompanions = state?.account?.companions?.list || [];
 
   const filterCompanions = (indices) => {
     let result = indices.map(i => allCompanions[i]).filter(Boolean);
-    if (showTradableOnly) result = result.filter(comp => (comp?.tradableCount || 0) > 0);
-    if (showMissingOnly) result = result.filter(comp => !comp?.acquired);
+    if (filter === 'tradable') result = result.filter(comp => (comp?.tradableCount || 0) > 0);
+    if (filter === 'missing') result = result.filter(comp => !comp?.acquired);
     return result;
   };
 
@@ -75,14 +74,11 @@ const Pets = () => {
         type={'countdown'} date={nextCompanionClaim}
         placeholder={'Go claim!'}
         lastUpdated={state?.lastUpdated} />} />
-      <FormControlLabel
-        control={<Checkbox checked={showTradableOnly} onChange={(e) => setShowTradableOnly(e.target.checked)} />}
-        label="Show tradable only"
-      />
-      <FormControlLabel
-        control={<Checkbox checked={showMissingOnly} onChange={(e) => setShowMissingOnly(e.target.checked)} />}
-        label="Show missing only"
-      />
+      <RadioGroup row value={filter} onChange={(e) => setFilter(e.target.value)}>
+        <FormControlLabel value="all" control={<Radio size="small"/>} label="All"/>
+        <FormControlLabel value="tradable" control={<Radio size="small"/>} label="Tradable"/>
+        <FormControlLabel value="missing" control={<Radio size="small"/>} label="Missing"/>
+      </RadioGroup>
     </Stack>
     <Stack gap={4}>
       {(companionGroups || []).map((group) => (
@@ -92,6 +88,9 @@ const Pets = () => {
           companions={filterCompanions(group.indices)}
         />
       ))}
+      {(companionGroups || []).every((group) => filterCompanions(group.indices).length === 0) && (
+        <Typography variant="body2" color="text.secondary">No pets match the selected filter</Typography>
+      )}
     </Stack>
   </>
 };
