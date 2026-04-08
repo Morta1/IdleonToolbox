@@ -135,7 +135,7 @@ const AppProvider = ({ children }) => {
     const accountCreateTimeInSeconds = accountCreateTime?.seconds;
     const lastUpdated = new Date().getTime();
     
-    localStorage.setItem('rawJson', JSON.stringify({
+    sessionStorage.setItem('rawJson', JSON.stringify({
       data,
       charNames,
       companion,
@@ -203,7 +203,7 @@ const AppProvider = ({ children }) => {
     }
     
     localStorage.removeItem('charactersData');
-    localStorage.removeItem('rawJson');
+    sessionStorage.removeItem('rawJson');
     dispatch({ type: ACTION_TYPES.LOGOUT });
     setWaitingForAuth(false);
     
@@ -236,7 +236,7 @@ const AppProvider = ({ children }) => {
 
           parsedData = { ...parsedData, lastUpdated: timestamp };
 
-          localStorage.setItem('rawJson', JSON.stringify({
+          sessionStorage.setItem('rawJson', JSON.stringify({
             data,
             charNames,
             companion,

@@ -151,7 +151,7 @@ const Settings = () => {
   const handleCopyITRaw = async (e) => {
     try {
       setAnchorEl(e.currentTarget);
-      const data = JSON.parse(localStorage.getItem('rawJson'));
+      const data = JSON.parse(sessionStorage.getItem('rawJson'));
       const extraData = expandLeaderboardInfo(state?.account, state?.characters);
       await navigator.clipboard.writeText(JSON.stringify(sortKeys({ ...data, extraData }), null, 2));
     } catch (err) {
@@ -162,7 +162,7 @@ const Settings = () => {
   const handleCopyRaw = async (e) => {
     try {
       setAnchorEl(e.currentTarget);
-      const data = JSON.parse(localStorage.getItem('rawJson'));
+      const data = JSON.parse(sessionStorage.getItem('rawJson'));
       await navigator.clipboard.writeText(JSON.stringify(sortKeys(data?.data), null, 2));
     } catch (err) {
       console.error(err);
@@ -197,7 +197,7 @@ const Settings = () => {
   };
 
   const handleUpdate = async () => {
-    const userData = JSON.parse(localStorage.getItem('rawJson'));
+    const userData = JSON.parse(sessionStorage.getItem('rawJson'));
     if (removeGemsInfo) {
       delete userData.data.GemsOwned;
       delete userData.data.ServerGems;
@@ -358,7 +358,7 @@ const Settings = () => {
             </DialogTitle>
             <DialogContent>
               <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>
-                {open ? JSON.stringify(sortKeys(JSON.parse(localStorage.getItem('rawJson'))?.data), null, 2) : null}
+                {open ? JSON.stringify(sortKeys(JSON.parse(sessionStorage.getItem('rawJson'))?.data), null, 2) : null}
               </div>
             </DialogContent>
           </Dialog>

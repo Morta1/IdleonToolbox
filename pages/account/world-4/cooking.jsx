@@ -29,7 +29,7 @@ const Cooking = () => {
     setEnableNanoChip(hasNanoAndGordonius);
   }, [hasNanoAndGordonius]);
 
-  const idleonData = tryToParse(localStorage.getItem('rawJson'));
+  const idleonData = tryToParse(sessionStorage.getItem('rawJson'));
   let kitchens;
   if (idleonData) {
     const cookingRaw = tryToParse(idleonData?.data?.Cooking)

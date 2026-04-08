@@ -869,7 +869,7 @@ export const handleLoadJson = async (dispatch) => {
     const lastUpdated = new Date().getTime();
     localStorage.setItem('lastUpdated', JSON.stringify(lastUpdated));
     // console.log('Manual Import', { ...parsedData, lastUpdated, manualImport: true });
-    localStorage.setItem('rawJson', JSON.stringify({
+    sessionStorage.setItem('rawJson', JSON.stringify({
       data,
       charNames,
       companion,
