@@ -3,8 +3,9 @@ import { Divider, Stack, Typography } from '@mui/material';
 import React from 'react';
 import styled from '@emotion/styled';
 import processString from 'react-process-string';
-import { format, isValid } from 'date-fns';
+import { isValid } from 'date-fns';
 import { getTaskQuantity } from '@parsers/world-2/weeklyBosses';
+import useFormatDate from '@hooks/useFormatDate';
 
 const COLORS = {
   '(ATTACK)': 'error.light',
@@ -12,12 +13,13 @@ const COLORS = {
   '(MISC)': 'warning.light',
 }
 const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, characters }) => {
+  const formatDate = useFormatDate();
   return (<>
     <Stack sx={{ width: '100%' }} direction={'row'} alignItems={'center'} gap={2}>
       <img style={{ width: 50, height: 50 }} src={`${prefix}etc/${bossName}.png`} alt=""/>
       <Stack>
         <Typography variant={'h4'}>{cleanUnderscore(bossName)}</Typography>
-        <Typography variant={'caption'}>{isValid(date) ? format(date, 'dd/MM/yyyy HH:mm:ss') : null}</Typography>
+        <Typography variant={'caption'}>{isValid(date) ? formatDate(date) : null}</Typography>
       </Stack>
     </Stack>
     <Divider sx={{ my: 2 }}/>

@@ -2,7 +2,8 @@ import React from 'react';
 import Library from '../account/Worlds/World3/Library';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
-import { cleanUnderscore, getDuration, getRealDateInMs, getTimeAsDays, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, getDuration, getTimeAsDays, notateNumber, prefix } from '@utility/helpers';
+import useRealDate from '@hooks/useRealDate';
 import { getCharacterByHighestSkillLevel, getEventShopBonus, getMiniBossesData, getRandomEvents } from '@parsers/misc';
 import Tooltip from '../Tooltip';
 import Timer from '../common/Timer';
@@ -22,6 +23,7 @@ import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 
 const maxTimeValue = 9.007199254740992e+15;
 const Etc = ({ characters, account, lastUpdated, trackers }) => {
+  const getRealDateInMs = useRealDate();
   const emptyAlerts = Object.entries(trackers || {}).reduce((res, [alertName, data]) => {
     const allEmpty = Object.values(data || {}).every(({ checked }) => !checked);
     return { ...res, [alertName]: allEmpty };
@@ -211,7 +213,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
                   onClick={() => router.push({ pathname: '/account/misc/random-events' })}
                   direction={'row'} gap={1}>
                   <IconImg src={`${prefix}etc/${events?.[0]?.eventName}.png`} alt="" />
-                  <Timer type={'countdown'} date={events?.[1]?.date ?? events?.[0]?.date + 3600 * 1000} lastUpdated={lastUpdated} />
+                  <Timer type={'countdown'} date={events?.[0]?.date < Date.now() ? (events?.[1]?.date ?? events?.[0]?.date + 3600 * 1000) : events?.[0]?.date} lastUpdated={lastUpdated} />
                 </Stack>
                 <Divider sx={{ mt: 1 }} />
               </div>

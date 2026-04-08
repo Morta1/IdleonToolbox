@@ -22,13 +22,14 @@ import { fetchLeaderboard, fetchUserLeaderboards } from '../services/profiles';
 import Box from '@mui/material/Box';
 import { IconSearch } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
-import { format } from 'date-fns';
+import useFormatDate from '@hooks/useFormatDate';
 import { numberWithCommas } from '@utility/helpers';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const tabs = ['Global', 'General', 'Tasks', 'Skills', 'Character', 'Misc', 'Caverns'];
 const Leaderboards = () => {
   const { state } = useContext(AppContext);
+  const formatDate = useFormatDate();
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const loggedMainChar = state?.characters?.[0]?.name;
   const [loggedLeaderboardName, setLoggedLeaderboardName] = useState(loggedMainChar);
@@ -251,7 +252,7 @@ const Leaderboards = () => {
         </Stack>
         {leaderboards?.createdAt ? <Stack flexWrap={'wrap'} direction={'row'} gap={1} justifyContent={'center'} alignItems={'center'}>
           <Typography sx={{ fontSize: 14 }}>Updated at</Typography>
-          <Typography sx={{ fontSize: 14 }} component={'div'}>{format(leaderboards?.createdAt, 'HH:mm:ss')}</Typography>
+          <Typography sx={{ fontSize: 14 }} component={'div'}>{formatDate(leaderboards?.createdAt, { timeOnly: true })}</Typography>
         </Stack> : null}
       </Stack>}
     </Box>

@@ -1,16 +1,18 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { format, isValid } from 'date-fns';
+import { isValid } from 'date-fns';
 import React from 'react';
 import { notateNumber, prefix } from '@utility/helpers';
+import useFormatDate from '@hooks/useFormatDate';
 
 const Schedule = ({ killroy, schedule }) => {
+  const formatDate = useFormatDate();
   return (
     <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
       {schedule?.map(({ classes, date, monsters }, classesIndex) => {
         return <Card key={`schedule-${classesIndex}`} sx={{ width: 450 }}>
           <CardContent>
             <Typography sx={{ ml: 1, mb: 2 }}>{isValid(date)
-              ? format(date, 'dd/MM/yyyy HH:mm:ss')
+              ? formatDate(date)
               : null}</Typography>
             <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
               {classes.map(({ className, classIndex }, classIdIndex) => {

@@ -36,6 +36,10 @@ const DataLoadingWrapper = ({ children }) => {
     if (state.isLoading || !isDataLoaded) {
       return <SimpleLoader message="Loading dashboard data..."/>;
     }
+  } else if (router.pathname === '/settings') {
+    if (state.isLoading) {
+      return <SimpleLoader message="Loading settings..."/>;
+    }
   }
 
   // For all other cases, render children normally

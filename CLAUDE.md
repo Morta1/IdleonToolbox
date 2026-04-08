@@ -62,6 +62,24 @@ Configured in both `tsconfig.json` and `next.config.js`:
 - `@utility/*` → `utility/*`
 - `@website-data` → `data/website-data.json`
 
+## Date & Time Formatting
+
+All user-facing dates and times must respect user preferences (DD/MM vs MM/DD, 24h vs 12h). Preferences are stored in localStorage (`pref-dateFormat`, `pref-timeFormat`) and exposed via `PreferencesContext`.
+
+**In React components**, use one of these hooks — never hardcode format strings like `'dd/MM/yyyy HH:mm:ss'`:
+
+- **`useFormatDate`** (`@hooks/useFormatDate`) — returns `formatDate(dateMs, options?)`. Use for direct date formatting.
+  - Options: `{ showSeconds, shortYear, timeOnly }` (all default `false` except `showSeconds` which defaults `true`)
+  - Example: `formatDate(timestamp)`, `formatDate(date, { timeOnly: true })`, `formatDate(date, { shortYear: true, showSeconds: false })`
+- **`useRealDate`** (`@hooks/useRealDate`) — returns `(ms, shouldFormat?) => string`. Drop-in replacement for `getRealDateInMs`. Handles the "X days" fallback for non-date values.
+  - Example: `const getRealDateInMs = useRealDate();` then use like before.
+
+**Outside React** (parsers, utilities): `getRealDateInMs` in `utility/helpers.js` accepts an optional `formatString` parameter. No React components should import this directly — use the hooks instead.
+
+**Formats that are intentionally unambiguous** (e.g., `'MMM do, yyyy'` showing month names) do not need migration.
+
+**Data export formats** (e.g., clipboard export, image footers in `Breakdown.hook.js`) may use the preference system too, so the exported data matches what the user sees on screen.
+
 ## General
 
 This project uses **React Compiler** (`reactCompiler: true` in `next.config.js`), so manual memoization with `useMemo` and `useCallback` is generally unnecessary. The compiler automatically optimizes component re-renders.

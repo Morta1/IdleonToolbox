@@ -1,13 +1,15 @@
 import React from 'react';
 import Timer from '../../../common/Timer';
 import { Divider, Stack, Typography } from '@mui/material';
-import { getRealDateInMs, prefix } from '@utility/helpers';
+import { prefix } from '@utility/helpers';
+import useRealDate from '@hooks/useRealDate';
 import Tooltip from '../../../Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
 
 const Library = ({ libraryTimes, lastUpdated }) => {
+  const getRealDateInMs = useRealDate();
   let { bookCount, next, breakpoints, breakdown } = libraryTimes || {};
   const nextDate = new Date().getTime() + next * 1000;
   const nextEndDate = getRealDateInMs(nextDate);

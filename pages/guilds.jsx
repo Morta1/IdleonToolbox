@@ -21,12 +21,14 @@ import ErrorIcon from '@mui/icons-material/Error';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Box from '@mui/material/Box';
-import { format, isValid } from 'date-fns';
+import { isValid } from 'date-fns';
+import useFormatDate from '@hooks/useFormatDate';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import Tooltip from '../components/Tooltip';
 import { getGuildLevel } from '../parsers/guild';
 
 const Guilds = () => {
+  const formatDate = useFormatDate();
   const [listener, setListener] = useState({ func: null });
   const [guilds, setGuilds] = useState(null);
   const [openIndex, setOpenIndex] = useState(null);
@@ -93,7 +95,7 @@ const Guilds = () => {
     <Stack direction={'row'} alignItems={'center'} gap={1}>
       <Stack gap={2} direction="row">Last Updated: {!guilds ?
         <CircularProgress size={'22px'} disableShrink/> : isValid(snapshotDate)
-          ? format(snapshotDate, 'dd/MM/yyyy HH:mm:ss')
+          ? formatDate(snapshotDate)
           : null}</Stack>
       <Tooltip title={'Reload guild data'}>
         <span><IconButton disabled={!guilds} onClick={handleRefresh}><RefreshIcon/></IconButton></span>

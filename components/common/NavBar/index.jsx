@@ -1,7 +1,7 @@
 import { styled } from '@mui/material/styles';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import Box from '@mui/material/Box';
 import NavItemsList from './NavItemsList';
 import LoginButton from './LoginButton';
@@ -9,20 +9,21 @@ import AppDrawer from './AppDrawer';
 import { drawerWidth, navBarHeight } from '../../constants';
 import { useRouter } from 'next/router';
 import { handleLoadJson, isProd, shouldDisplayDrawer } from '@utility/helpers';
-import { Stack, Typography, useMediaQuery } from '@mui/material';
+import { Link, Stack, Typography, useMediaQuery } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import AdBlockerPopup from '@components/common/AdBlockerPopup';
 import Pin from '@components/common/favorites/Pin';
 import QuickSearch from '@components/common/QuickSearch';
 import UserMenu from '@components/common/NavBar/UserMenu';
-import { format } from 'date-fns';
 import IconButton from '@mui/material/IconButton';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
+import useFormatDate from '@hooks/useFormatDate';
 import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 import AuthSkeleton from './AuthSkeleton';
 import { BottomBannerAd, SidebarAd } from '@components/common/Ads/AdUnit';
 import useAdBlockDetection from '../../../hooks/useAdBlockDetection';
 import ProfileBanner from './ProfileBanner';
+import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 
 const NavBar = ({ children }) => {
   const { dispatch, state } = useContext(AppContext);
@@ -32,6 +33,8 @@ const NavBar = ({ children }) => {
   const pathname = router?.pathname || '';
   const isHomePage = pathname === '/' || pathname === '';
   const isInnerPage = !isHomePage && pathname !== '/patch-notes';
+  const [openPolicy, setOpenPolicy] = useState(false);
+  const formatDate = useFormatDate();
 
   const handlePaste = async () => {
     await handleLoadJson(dispatch);
@@ -47,11 +50,11 @@ const NavBar = ({ children }) => {
       <>
         {state?.signedIn || state?.profile ? <UserMenu/> : <LoginButton/>}
         {state?.signedIn ? (
-          <Stack sx={{ p: 1, width: 120, flexShrink: 0 }}>
+          <Stack sx={{ p: 1, flexShrink: 0, whiteSpace: 'nowrap' }}>
             <Typography sx={{ fontWeight: 'bold', fontSize: 14 }}>{state?.characters?.[0]?.name}</Typography>
             {state?.lastUpdated ? (
               <Typography variant={'caption'}>
-                {state?.lastUpdated ? format(state?.lastUpdated, 'dd/MM/yy HH:mm') : 'xx/xx/xx xx:xx'}
+                {state?.lastUpdated ? formatDate(state?.lastUpdated, { showSeconds: false, shortYear: true }) : 'xx/xx/xx xx:xx'}
               </Typography>
             ) : null}
           </Stack>
@@ -70,7 +73,7 @@ const NavBar = ({ children }) => {
           {!isProd ? <IconButton data-cy={'paste-data'} color="inherit" onClick={handlePaste}>
             <FileCopyIcon/>
           </IconButton> : null}
-          {renderAuthSection()}
+{renderAuthSection()}
         </Toolbar>
       </AppBar>
     </Box>
@@ -78,15 +81,44 @@ const NavBar = ({ children }) => {
     <AdBlockerPopup/>
     <ProfileBanner/>
     <Box component={'main'} sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: `calc(100vh - ${navBarHeight}px)`,
       pt: 3,
       pr: 3,
       pl: { xs: 3, lg: displayDrawer ? `${drawerWidth + 24}px` : 3 },
-      mb: isXs ? '110px' : '110px'
+      pb: 'var(--nitro-ad-height, 0px)'
     }}>
-      {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
-      <ContentWrapper showSidebar={isInnerPage} isLoading={state?.isLoading} isHomePage={isHomePage}>
-        {children}
-      </ContentWrapper>
+      <Box sx={{ flex: 1 }}>
+        {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
+        <ContentWrapper showSidebar={isInnerPage} isLoading={state?.isLoading} isHomePage={isHomePage}>
+          {children}
+        </ContentWrapper>
+      </Box>
+      <Stack direction="row" justifyContent="center" alignItems="center" gap={1}
+             divider={<Typography color="text.secondary" variant="caption">&middot;</Typography>}
+             sx={{
+               mt: 4,
+               py: 1.5,
+               borderTop: '1px solid',
+               borderColor: 'divider',
+               backgroundColor: 'background.paper'
+             }}>
+        <Link href="https://discord.gg/8Devcj7FzV" target="_blank" rel="noopener"
+              variant="caption" color="text.secondary">
+          Discord
+        </Link>
+        <Link href="https://ko-fi.com/S6S7BHLQ4" target="_blank" rel="noopener"
+              variant="caption" color="text.secondary">
+          Buy me a coffee
+        </Link>
+        <Link component="button" variant="caption" color="text.secondary"
+              sx={{ cursor: 'pointer' }}
+              onClick={() => setOpenPolicy(true)}>
+          Cookie Policy
+        </Link>
+      </Stack>
+      <CookiePolicyDialog open={openPolicy} onClose={() => setOpenPolicy(false)}/>
     </Box>
     <BottomBannerAd displayDrawer={displayDrawer} />
   </>

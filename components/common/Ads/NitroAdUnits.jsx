@@ -83,7 +83,29 @@ export const NitroBottomBannerAd = () => {
       });
     }
 
-    return () => styleEl?.remove();
+    const handleAnchorVisibility = (event) => {
+      const { id, location } = event.detail;
+      if (location !== 'bottom') return;
+
+      // Event fires slightly before the element is visible/hidden, wait for correct height
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        const rect = el?.getBoundingClientRect();
+        if (rect) {
+          document.documentElement.style.setProperty('--nitro-ad-height', `${rect.height}px`);
+        } else {
+          document.documentElement.style.setProperty('--nitro-ad-height', '0px');
+        }
+      }, 100);
+    };
+
+    document.addEventListener('nitroAds.anchorVisibility', handleAnchorVisibility);
+
+    return () => {
+      styleEl?.remove();
+      document.removeEventListener('nitroAds.anchorVisibility', handleAnchorVisibility);
+      document.documentElement.style.setProperty('--nitro-ad-height', '0px');
+    };
   }, [theme]);
 
   return null;

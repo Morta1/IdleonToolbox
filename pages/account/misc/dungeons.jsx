@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Accordion, AccordionDetails, AccordionSummary, Stack, Typography } from '@mui/material';
-import { getRealDateInMs, getTabs, prefix } from 'utility/helpers';
+import { getTabs, prefix } from 'utility/helpers';
+import useRealDate from '@hooks/useRealDate';
 import { AppContext } from 'components/common/context/AppProvider';
 import styled from '@emotion/styled';
 import Timer from 'components/common/Timer';
@@ -18,6 +19,7 @@ import { PAGES } from '@components/constants';
 
 const Dungeons = () => {
   const { state } = useContext(AppContext);
+  const getRealDateInMs = useRealDate();
   const { dungeons } = state?.account || {};
 
   const nextHappyHours = calcHappyHours(state?.serverVars?.HappyHours) || [];

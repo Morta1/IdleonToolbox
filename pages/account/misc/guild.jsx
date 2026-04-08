@@ -7,12 +7,13 @@ import GuildMembers from '../../../components/account/Guild/GuildMembers';
 import GuildBonuses from '../../../components/account/Guild/GuildBonuses';
 import { numberWithCommas, prefix, tryToParse } from '@utility/helpers';
 import ProgressBar from '../../../components/common/ProgressBar';
-import { format } from 'date-fns';
+import useFormatDate from '@hooks/useFormatDate';
 import Box from '@mui/material/Box';
 import Popper from '@components/common/Popper';
 
 const Guild = () => {
   const { state } = useContext(AppContext);
+  const formatDate = useFormatDate();
   const { guild } = state?.account || {};
   const [dataTimestamp, setDataTimestamp] = useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -57,7 +58,7 @@ const Guild = () => {
     setAnchorEl(e.currentTarget)
     try {
       const exportedData = {
-        date: format(new Date(), 'dd/MM/yyyy HH:mm:ss'),
+        date: formatDate(new Date()),
         members: guild?.members?.map(({ name, gpEarned }) => ({ name, gpEarned }))
       }
       await navigator.clipboard.writeText(JSON.stringify(exportedData, null, 2));
@@ -100,7 +101,7 @@ const Guild = () => {
             <Box>
               {[...dataTimestamp].reverse()?.map(({ timestamp }, index) => {
                 return <Typography
-                  key={timestamp + index}>#{index + 1} - {format(new Date(timestamp), 'dd/MM/yyyy HH:mm:ss')}</Typography>
+                  key={timestamp + index}>#{index + 1} - {formatDate(new Date(timestamp))}</Typography>
               })}
             </Box>
             <Stack direction={'row'} alignItems={'center'} gap={2}>
