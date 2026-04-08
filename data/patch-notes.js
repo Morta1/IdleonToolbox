@@ -4,6 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.36',
+    'gameVer': '2.3.501',
+    'date': '08/04/2026',
+    'features': [
+      'New date & time preferences in Settings — choose DD/MM or MM/DD date format and 24-hour or 12-hour clock',
+      'Preferences are saved automatically and apply across the entire site',
+      'Consolidated the old Data page into Settings — profile management, support data, and local storage options are now all in one place',
+    ],
+    'fixes': [
+      'Removed the standalone Data page (all functionality moved to Settings)',
+    ]
+  },
+  {
     'ver': '3.3.35',
     'gameVer': '2.3.501',
     'date': '06/04/2026',
