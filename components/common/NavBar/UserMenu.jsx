@@ -78,7 +78,7 @@ const UserMenu = () => {
       anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
     >
       <Box sx={{ mb: 1 }}/>
-      <MenuItem onClick={() => { router.push('/settings'); handleClose(); }}>
+      <MenuItem onClick={() => { router.push({ pathname: '/settings', query: router.query }); handleClose(); }}>
         <ListItemIcon><IconSettings/></ListItemIcon>
         <ListItemText>Settings</ListItemText>
       </MenuItem>

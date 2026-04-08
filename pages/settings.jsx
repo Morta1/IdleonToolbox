@@ -139,12 +139,21 @@ const Settings = () => {
     setAnchorEl(null);
   }, anchorEl ? 1000 : null);
 
+  const sortKeys = (obj) => {
+    if (obj === null || typeof obj !== 'object') return obj;
+    if (Array.isArray(obj)) return obj.map(sortKeys);
+    return Object.keys(obj).sort().reduce((sorted, key) => {
+      sorted[key] = sortKeys(obj[key]);
+      return sorted;
+    }, {});
+  };
+
   const handleCopyITRaw = async (e) => {
     try {
       setAnchorEl(e.currentTarget);
       const data = JSON.parse(localStorage.getItem('rawJson'));
       const extraData = expandLeaderboardInfo(state?.account, state?.characters);
-      await navigator.clipboard.writeText(JSON.stringify({ ...data, extraData }, null, 2));
+      await navigator.clipboard.writeText(JSON.stringify(sortKeys({ ...data, extraData }), null, 2));
     } catch (err) {
       console.error(err);
     }
@@ -154,7 +163,7 @@ const Settings = () => {
     try {
       setAnchorEl(e.currentTarget);
       const data = JSON.parse(localStorage.getItem('rawJson'));
-      await navigator.clipboard.writeText(JSON.stringify(data?.data, null, 2));
+      await navigator.clipboard.writeText(JSON.stringify(sortKeys(data?.data), null, 2));
     } catch (err) {
       console.error(err);
     }
@@ -250,8 +259,8 @@ const Settings = () => {
     <Container maxWidth="md" sx={{ my: 3 }}>
       <Typography variant="h4" sx={{ mb: 3 }}>Settings</Typography>
       <Stack divider={<Divider/>} spacing={3}>
-        {/* Profile */}
-        {state?.characters ? <Stack spacing={1.5}>
+        {/* Profile — only show for account owner, not public profiles */}
+        {state?.characters && !router.query.profile ? <Stack spacing={1.5}>
           <SectionHeader icon={IconUserCircle} title="Profile" description="Manage your public profile and leaderboard participation"/>
 
           <SettingRow label="Profile link" description="Share this link so others can view your profile">
@@ -349,7 +358,7 @@ const Settings = () => {
             </DialogTitle>
             <DialogContent>
               <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>
-                {open ? JSON.stringify(JSON.parse(localStorage.getItem('rawJson'))?.data, null, 2) : null}
+                {open ? JSON.stringify(sortKeys(JSON.parse(localStorage.getItem('rawJson'))?.data), null, 2) : null}
               </div>
             </DialogContent>
           </Dialog>
