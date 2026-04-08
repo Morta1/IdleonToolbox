@@ -29,40 +29,45 @@ import { IconFileExport } from '@tabler/icons-react';
 const DashboardSettings = ({ open, onClose, config, onChange, onFileUpload }) => {
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
 
-  const handleSettingChange = (e, configType, option, trackerName, section, category) => {
-    const tempConfig = structuredClone((config));
+  const handleSettingChange = (e, configType, option, trackerName, section) => {
+    const tempConfig = structuredClone(config);
     const nameClicked = e?.target?.name;
     const sectionRef = section ? tempConfig[configType][section] : tempConfig[configType];
+
     if (option?.type === 'array') {
-      const value = sectionRef[trackerName || option?.name].options[option?.optionIndex].props.value[nameClicked];
-      sectionRef[trackerName || option?.name].options[option?.optionIndex].props.value[nameClicked] = !value;
-    } else if (option?.type === 'input') {
-      if (option?.inputVal) {
-        sectionRef[trackerName].options[option?.optionIndex].props.value = e?.target?.value;
-      } else {
-        const value = sectionRef[trackerName].options[option?.optionIndex]?.checked;
-        sectionRef[trackerName].options[option?.optionIndex].checked = !value;
-      }
+      const optionRef = sectionRef[trackerName || option?.name].options[option?.optionIndex];
+      optionRef.props.value[nameClicked] = !optionRef.props.value[nameClicked];
+    } else if (option?.type === 'input' && option?.inputVal) {
+      sectionRef[trackerName].options[option?.optionIndex].props.value = e?.target?.value;
+    } else if (option) {
+      const optionRef = sectionRef[trackerName].options[option?.optionIndex];
+      optionRef.checked = !optionRef.checked;
     } else {
-      if (option) {
-        const value = sectionRef[trackerName].options[option?.optionIndex]?.checked;
-        sectionRef[trackerName].options[option?.optionIndex].checked = !value
-      } else {
-        const value = sectionRef[nameClicked]?.checked;
-        sectionRef[nameClicked].checked = !value;
-        sectionRef[nameClicked].options = sectionRef[nameClicked].options.map((option) => {
-          if (option?.type === 'array') {
-            const updatedValue = Object.entries(option.props.value)?.reduce((result, [key]) => {
-              return { ...result, [key]: !value }
-            }, {})
-            return { ...option, checked: !value, props: { ...(option?.props || {}), value: updatedValue } }
-          }
-          return { ...option, checked: !value }
-        })
-      }
+      const tracker = sectionRef[nameClicked];
+      tracker.checked = !tracker.checked;
+      tracker.options = tracker.options.map((opt) => {
+        if (opt?.type === 'array') {
+          const updatedValue = Object.keys(opt.props.value).reduce((result, key) => {
+            return { ...result, [key]: tracker.checked }
+          }, {});
+          return { ...opt, checked: tracker.checked, props: { ...(opt?.props || {}), value: updatedValue } }
+        }
+        return { ...opt, checked: tracker.checked }
+      });
     }
     onChange(tempConfig);
   }
+
+  const handleExport = () => {
+    if (typeof window.gtag !== 'undefined') {
+      window.gtag('event', 'dashboard_config_exported', {
+        event_category: 'engagement',
+        event_label: 'dashboard',
+        value: 1
+      });
+    }
+    handleDownload(config, 'it-dashboard-config');
+  };
 
   return <Dialog open={open} onClose={onClose} fullWidth>
     <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -83,28 +88,9 @@ const DashboardSettings = ({ open, onClose, config, onChange, onFileUpload }) =>
           }}>
             Import
           </FileUploadButton>
-          {isSm ? <IconButton onClick={() => {
-            if (typeof window.gtag !== 'undefined') {
-              window.gtag('event', 'dashboard_config_exported', {
-                event_category: 'engagement',
-                event_label: 'dashboard',
-                value: 1
-              });
-            }
-            handleDownload(config, 'it-dashboard-config');
-          }}
-                              size="small">
+          {isSm ? <IconButton onClick={handleExport} size="small">
             <IconFileExport size={18}/>
-          </IconButton> : <Button onClick={() => {
-            if (typeof window.gtag !== 'undefined') {
-              window.gtag('event', 'dashboard_config_exported', {
-                event_category: 'engagement',
-                event_label: 'dashboard',
-                value: 1
-              });
-            }
-            handleDownload(config, 'it-dashboard-config');
-          }} variant="outlined"
+          </IconButton> : <Button onClick={handleExport} variant="outlined"
                                   startIcon={<IconFileExport size={18}/>}
                                   size="small">Export</Button>}
         </Box>
@@ -122,9 +108,13 @@ const DashboardSettings = ({ open, onClose, config, onChange, onFileUpload }) =>
 };
 
 const FieldsByType = ({ config, onChange, configType }) => {
+  const firstValue = config ? Object.values(config)?.[0] : null;
+  const hasSections = firstValue && typeof firstValue === 'object' && !('checked' in firstValue);
+  const sections = hasSections ? config : { _flat: config };
+
   const [collapsedSections, setCollapsedSections] = useState(() => {
-    if (!config) return {};
-    return Object.keys(config).reduce((acc, section) => {
+    if (!sections) return {};
+    return Object.keys(sections).reduce((acc, section) => {
       acc[section] = true;
       return acc;
     }, {});
@@ -137,10 +127,10 @@ const FieldsByType = ({ config, onChange, configType }) => {
     }));
   };
 
-  if (configType === 'characters') {
-    return <Fields config={config} onChange={onChange} configType={configType}/>
-  }
-  return config && Object.entries(config)?.map(([section, fields], index) => {
+  return sections && Object.entries(sections)?.map(([section, fields], index) => {
+    if (section === '_flat') {
+      return <Fields key="flat" config={fields} onChange={onChange} configType={configType}/>;
+    }
     return <React.Fragment key={`tracker-${index}`}>
       <Stack sx={{ cursor: 'pointer' }} direction="row" alignItems="center" justifyContent="space-between"
              onClick={() => handleSectionCollapse(section)}>
@@ -252,9 +242,11 @@ const InputField = ({ option, onChange, configType, name, trackerName, section }
     sx={{ mt: 1, width: 150, [`.${formHelperTextClasses.root}`]: { m: 0 } }}
     name={name}
     value={value}
-    InputProps={{
-      endAdornment: endAdornment ? <InputAdornment position="end">{endAdornment}</InputAdornment> : null,
-      inputProps: {
+    slotProps={{
+      input: {
+        endAdornment: endAdornment ? <InputAdornment position="end">{endAdornment}</InputAdornment> : null,
+      },
+      htmlInput: {
         max: maxValue, min: minValue, autoComplete: 'off'
       }
     }}
