@@ -178,7 +178,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                            right: -2
                          }}/>}
                 /> : null}
-              {trackers?.anvil && alerts?.equipment?.availableUpgradesSlots?.length > 0 ?
+              {trackers?.equipment && alerts?.equipment?.availableUpgradesSlots?.length > 0 ?
                 alerts?.equipment?.availableUpgradesSlots?.map(({
                                                                   displayName,
                                                                   rawName,

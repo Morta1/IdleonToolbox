@@ -195,8 +195,10 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
       if (missingObols?.length > 0) {
         etc.familyObols = missingObols?.length;
       }
+    }
+    if (options?.etc?.freeCompanion?.checked) {
       const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - account?.companions?.lastFreeClaim));
-      if (options?.etc?.freeCompanion?.checked && isPast(nextCompanionClaim)) {
+      if (isPast(nextCompanionClaim)) {
         etc.freeCompanion = true;
       }
     }
@@ -746,7 +748,7 @@ export const getWorld4Alerts = (account, fields, options) => {
     if (options?.laboratory?.chipsRotation?.checked && unclaimedChips?.length) {
       laboratory.chipsRotation = unclaimedChips;
     }
-    const unclaimedJewels = jewels.some(({
+    const unclaimedJewels = jewels.filter(({
       claimed,
       requirementsMet,
       acquired
@@ -934,7 +936,7 @@ export const getWorld5Alerts = (account, fields, options) => {
     }
     const readyBells = account?.hole?.caverns?.theBell?.bells?.filter(({ exp, expReq }) => exp >= expReq);
     if (theBell?.checked && readyBells?.length > 0) {
-      hole.theWell = true;
+      hole.theBell = true;
     }
     const powerThresholdReached = account?.hole?.caverns?.theHarp?.power >= theHarp?.props?.value;
     if (theHarp?.checked && powerThresholdReached) {

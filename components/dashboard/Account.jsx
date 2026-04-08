@@ -83,7 +83,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.General?.etc?.keys?.length > 0
                 ?
                 alerts?.General?.etc?.keys?.map(({ rawName, totalAmount }, index) => <Alert key={rawName + '' + index}
-                                                                                            title={`${totalAmount} of ${cleanUnderscore(pascalCase(name))} ${rawName.includes('Tix')
+                                                                                            title={`${totalAmount} of ${cleanUnderscore(pascalCase(rawName))} ${rawName.includes('Tix')
                                                                                               ? 'tickets'
                                                                                               : 'keys'} are ready`}
                                                                                             iconPath={`data/${rawName}`}/>)

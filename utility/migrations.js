@@ -1096,141 +1096,64 @@ const migration44 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+// Registry of migration functions indexed by target version.
+// Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
+const migrations = {
+  2: migrateToVersion2,
+  3: migrateToVersion3,
+  4: migrateToVersion4,
+  5: migrateToVersion5,
+  6: migrateToVersion6,
+  7: migrateToVersion7,
+  8: migrateToVersion8,
+  9: migrateToVersion9,
+  10: migrateToVersion10,
+  11: migrateToVersion11,
+  12: migrateToVersion12,
+  13: migrateToVersion13,
+  14: migrateToVersion14,
+  15: migrateToVersion15,
+  16: migrateToVersion16,
+  17: migrateToVersion17,
+  18: migrateToVersion18,
+  19: migrateToVersion19,
+  20: migrateToVersion20,
+  21: migrateToVersion21,
+  22: migrateToVersion22,
+  23: migrateToVersion23,
+  24: migrateToVersion24,
+  25: migrateToVersion25,
+  26: migrateToVersion26,
+  27: migrateToVersion27,
+  28: migrateToVersion28,
+  29: migrateToVersion29,
+  30: migrateToVersion30,
+  31: migrateToVersion31,
+  32: migrateToVersion32,
+  33: migrateToVersion33,
+  34: migrateToVersion34,
+  35: migrateToVersion35,
+  36: migrateToVersion36,
+  37: migrateToVersion37,
+  38: migrateToVersion38,
+  39: migrateToVersion39,
+  40: migrateToVersion40,
+  41: migrateToVersion41,
+  42: migrateToVersion42,
+  43: migrateToVersion43,
+  44: migration44,
+};
+
 export const migrateConfig = (baseTrackers, userConfig) => {
   if (baseTrackers?.version === userConfig?.version) return userConfig;
+  if (!Object.keys(userConfig || {}).length) return baseTrackers;
+
   let migratedConfig = userConfig;
-  if (!Object.keys(userConfig || {}).length) {
-    migratedConfig = baseTrackers;
-  }
-  else {
-    if ((!userConfig?.version || userConfig?.version === 1)) {
-      migratedConfig = migrateToVersion2(userConfig);
-    }
-    if (migratedConfig?.version === 2) {
-      migratedConfig = migrateToVersion3(migratedConfig);
-    }
-    if (migratedConfig?.version === 3) {
-      migratedConfig = migrateToVersion4(migratedConfig);
-    }
-    if (migratedConfig?.version === 4) {
-      migratedConfig = migrateToVersion5(migratedConfig);
-    }
-    if (migratedConfig?.version === 5) {
-      migratedConfig = migrateToVersion6(migratedConfig);
-    }
-    if (migratedConfig?.version === 6) {
-      migratedConfig = migrateToVersion7(migratedConfig);
-    }
-    if (migratedConfig?.version === 7) {
-      migratedConfig = migrateToVersion8(migratedConfig);
-    }
-    if (migratedConfig?.version === 8) {
-      migratedConfig = migrateToVersion9(migratedConfig);
-    }
-    if (migratedConfig?.version === 9) {
-      migratedConfig = migrateToVersion10(migratedConfig);
-    }
-    if (migratedConfig?.version === 10) {
-      migratedConfig = migrateToVersion11(migratedConfig, baseTrackers);
-    }
-    if (migratedConfig?.version === 11) {
-      migratedConfig = migrateToVersion12(migratedConfig);
-    }
-    if (migratedConfig?.version === 12) {
-      migratedConfig = migrateToVersion13(migratedConfig);
-    }
-    if (migratedConfig?.version === 13) {
-      migratedConfig = migrateToVersion14(migratedConfig, baseTrackers);
-    }
-    if (migratedConfig?.version === 14) {
-      migratedConfig = migrateToVersion15(migratedConfig, baseTrackers);
-    }
-    if (migratedConfig?.version === 15) {
-      migratedConfig = migrateToVersion16(migratedConfig, baseTrackers);
-    }
-    if (migratedConfig?.version === 16) {
-      migratedConfig = migrateToVersion17(migratedConfig);
-    }
-    if (migratedConfig?.version === 17) {
-      migratedConfig = migrateToVersion18(migratedConfig);
-    }
-    if (migratedConfig?.version === 18) {
-      migratedConfig = migrateToVersion19(migratedConfig);
-    }
-    if (migratedConfig?.version === 19) {
-      migratedConfig = migrateToVersion20(migratedConfig);
-    }
-    if (migratedConfig?.version === 20) {
-      migratedConfig = migrateToVersion21(migratedConfig);
-    }
-    if (migratedConfig?.version === 21) {
-      migratedConfig = migrateToVersion22(migratedConfig);
-    }
-    if (migratedConfig?.version === 22) {
-      migratedConfig = migrateToVersion23(migratedConfig);
-    }
-    if (migratedConfig?.version === 23) {
-      migratedConfig = migrateToVersion24(migratedConfig);
-    }
-    if (migratedConfig?.version === 24) {
-      migratedConfig = migrateToVersion25(migratedConfig);
-    }
-    if (migratedConfig?.version === 25) {
-      migratedConfig = migrateToVersion26(migratedConfig);
-    }
-    if (migratedConfig?.version === 26) {
-      migratedConfig = migrateToVersion27(migratedConfig);
-    }
-    if (migratedConfig?.version === 27) {
-      migratedConfig = migrateToVersion28(migratedConfig);
-    }
-    if (migratedConfig?.version === 28) {
-      migratedConfig = migrateToVersion29(migratedConfig);
-    }
-    if (migratedConfig?.version === 29) {
-      migratedConfig = migrateToVersion30(migratedConfig);
-    }
-    if (migratedConfig?.version === 30) {
-      migratedConfig = migrateToVersion31(migratedConfig);
-    }
-    if (migratedConfig?.version === 31) {
-      migratedConfig = migrateToVersion32(migratedConfig);
-    }
-    if (migratedConfig?.version === 32) {
-      migratedConfig = migrateToVersion33(migratedConfig);
-    }
-    if (migratedConfig?.version === 33) {
-      migratedConfig = migrateToVersion34(migratedConfig);
-    }
-    if (migratedConfig?.version === 34) {
-      migratedConfig = migrateToVersion35(migratedConfig);
-    }
-    if (migratedConfig?.version === 35) {
-      migratedConfig = migrateToVersion36(migratedConfig);
-    }
-    if (migratedConfig?.version === 36) {
-      migratedConfig = migrateToVersion37(migratedConfig);
-    }
-    if (migratedConfig?.version === 37) {
-      migratedConfig = migrateToVersion38(migratedConfig);
-    }
-    if (migratedConfig?.version === 38) {
-      migratedConfig = migrateToVersion39(migratedConfig);
-    }
-    if (migratedConfig?.version === 39) {
-      migratedConfig = migrateToVersion40(migratedConfig);
-    }
-    if (migratedConfig?.version === 40) {
-      migratedConfig = migrateToVersion41(migratedConfig);
-    }
-    if (migratedConfig?.version === 41) {
-      migratedConfig = migrateToVersion42(migratedConfig);
-    }
-    if (migratedConfig?.version === 42) {
-      migratedConfig = migrateToVersion43(migratedConfig);
-    }
-    if (migratedConfig?.version === 43) {
-      migratedConfig = migration44(migratedConfig);
+  const startVersion = migratedConfig?.version || 1;
+  for (let v = startVersion + 1; v <= baseTrackers.version; v++) {
+    const migrate = migrations[v];
+    if (migrate) {
+      migratedConfig = migrate(migratedConfig, baseTrackers);
     }
   }
   return migratedConfig;

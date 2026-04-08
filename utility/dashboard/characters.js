@@ -23,7 +23,7 @@ export const anvilAlerts = (account, characters, character, lastUpdated, options
     } = getPlayerAnvil(characters?.[character?.playerId], characters, account);
     const production = prod?.filter(({ hammers }) => hammers > 0);
     const numOfHammers = production?.reduce((res, { hammers }) => res + hammers, 0);
-    alerts.missingHamemrs = maxProducts - numOfHammers;
+    alerts.missingHammers = maxProducts - numOfHammers;
   }
 
   if (options?.anvil?.unspentPoints?.checked && character?.anvil?.anvilStats?.availablePoints >= options?.anvil?.unspentPoints?.props?.value) {
