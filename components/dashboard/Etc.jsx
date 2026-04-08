@@ -516,6 +516,7 @@ const MonumentCard = ({
   icon
 }) => {
   const router = useRouter();
+  const getRealDateInMs = useRealDate();
   const currentMultiRounded = Math.round(100 * currentMulti) / 100;
   const maxMultiRounded = Math.round(100 * maxMulti) / 100;
   const isOverMax = currentMultiRounded > maxMultiRounded;
