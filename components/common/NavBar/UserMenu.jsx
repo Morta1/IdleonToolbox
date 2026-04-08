@@ -1,7 +1,8 @@
-import { IconLogin2, IconLogout2, IconUserCircle } from '@tabler/icons-react';
+import { IconLogin2, IconLogout2, IconSettings, IconUserCircle } from '@tabler/icons-react';
 import IconButton from '@mui/material/IconButton';
 import {
   Box,
+  Divider,
   listClasses,
   ListItemIcon,
   ListItemText,
@@ -77,6 +78,11 @@ const UserMenu = () => {
       anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
     >
       <Box sx={{ mb: 1 }}/>
+      <MenuItem onClick={() => { router.push('/settings'); handleClose(); }}>
+        <ListItemIcon><IconSettings/></ListItemIcon>
+        <ListItemText>Settings</ListItemText>
+      </MenuItem>
+      <Divider/>
       {state?.profile && !state.signedIn ? <MenuItem onClick={() => setDialogOpen(true)}>
         <ListItemIcon><IconLogin2/></ListItemIcon>
         <ListItemText>Login</ListItemText>

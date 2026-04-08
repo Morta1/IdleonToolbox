@@ -2,7 +2,8 @@ import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, getRealDateInMs, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber } from '@utility/helpers';
+import useRealDate from '@hooks/useRealDate';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
@@ -19,6 +20,7 @@ const getFormattedQuantity = ({ x2, x4 }, quantity) => quantity > 1e9 && x2 === 
 
 const Tome = () => {
   const { state } = useContext(AppContext);
+  const getRealDateInMs = useRealDate();
   const [CheckboxEl, showThresholds] = useCheckbox('Show quantity thresholds');
   const [CheckboxHideMaxedEl, hideMaxed] = useCheckbox('Hide capped');
   const [CheckboxProgressBarsEl, showProgressBars] = useCheckbox('Show progress bars');

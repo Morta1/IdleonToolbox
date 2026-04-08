@@ -6,7 +6,7 @@ import { prefix } from '@utility/helpers';
 import { useRouter } from 'next/router';
 import Kofi from '../../Kofi';
 import { AppContext } from '@components/common/context/AppProvider';
-import { format } from 'date-fns';
+import useFormatDate from '@hooks/useFormatDate';
 
 import ListItemButton from '@mui/material/ListItemButton';
 import { PAGES } from '@components/constants';
@@ -15,6 +15,7 @@ const nestedOptionPadding = 35;
 
 const AccountDrawer = ({ fromList }) => {
   const { state } = useContext(AppContext);
+  const formatDate = useFormatDate();
   const [accordions, setAccordions] = useState({});
   const router = useRouter();
 
@@ -49,7 +50,7 @@ const AccountDrawer = ({ fromList }) => {
     (<Stack sx={{ height: '100%', overflowY: 'auto' }}>
       <List sx={{ ...(fromList ? { padding: 0 } : {}) }}>
         {!fromList && state?.account?.accountCreateTime ? <ListItem>Account created
-          at: {format(state?.account?.accountCreateTime, 'dd/MM/yyyy HH:mm:ss')}</ListItem> : null}
+          at: {formatDate(state?.account?.accountCreateTime)}</ListItem> : null}
         {Object.entries(PAGES.ACCOUNT).map(([key, value], index) => {
           const { icon, categories, style } = value;
           const selectedSection = isSelected(key?.split(' ')?.join('-'));

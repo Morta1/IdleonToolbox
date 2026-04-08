@@ -1,3 +1,7 @@
+:root {
+  --nitro-ad-height: 0px;
+}
+
 html,
 body {
   padding: 0;
@@ -13,4 +17,13 @@ a {
 
 * {
   box-sizing: border-box;
+}
+
+#nitro-bottom-banner-ad {
+  pointer-events: none !important;
+}
+
+#nitro-bottom-banner-ad iframe,
+#nitro-bottom-banner-ad [data-report] {
+  pointer-events: auto !important;
 }

@@ -17,7 +17,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { IconDeviceFloppy, IconInfoCircleFilled, IconCopy } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import Button from '@mui/material/Button';
-import { format } from 'date-fns';
+import useFormatDate from '@hooks/useFormatDate';
 import { useLocalStorage } from '@mantine/hooks';
 import ExpSection from '@components/tools/active-calculator/ExpSection';
 import DropSection from '@components/tools/active-calculator/DropSection';
@@ -34,6 +34,7 @@ const sections = ['coins', 'pets', 'kills', 'exp', 'cards', 'drops', 'cauldrons'
 
 const ActiveStuffCalculator = () => {
   const { state } = useContext(AppContext);
+  const formatDate = useFormatDate();
   const [snapshottedAcc, setSnapshottedAcc] = useLocalStorage({ key: 'activeDropAcc', defaultValue: null });
   const [snapshottedChar, setSnapshottedChar] = useLocalStorage({ key: 'activeDropPlayer', defaultValue: null });
   const [resultsOnly, setResultsOnly] = useLocalStorage({ key: 'activeDropResultsOnly', defaultValue: false });
@@ -156,10 +157,10 @@ const ActiveStuffCalculator = () => {
       <Stack>
         {state?.account?.timeAway?.Player ? <Typography component={'span'}
                      variant={'body2'}>Last
-          update - {format(state?.account?.timeAway?.Player * 1000, 'dd/MM/yyyy HH:mm:ss')}</Typography> : null}
+          update - {formatDate(state?.account?.timeAway?.Player * 1000)}</Typography> : null}
         {snapshottedChar?.snapshotTime
           ? <Typography
-            variant={'body2'}>{snapshottedChar?.name} - {format(snapshottedChar?.snapshotTime, 'dd/MM/yyyy HH:mm:ss')}</Typography>
+            variant={'body2'}>{snapshottedChar?.name} - {formatDate(snapshottedChar?.snapshotTime)}</Typography>
           : null}
       </Stack>
     </Stack>

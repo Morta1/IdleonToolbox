@@ -12,9 +12,10 @@ import {
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
-import { format } from 'date-fns';
+import useFormatDate from '@hooks/useFormatDate';
 
 const GuildMembers = ({ members, saves }) => {
+  const formatDate = useFormatDate();
   const [localMembers, setLocalMembers] = useState();
   const [order, setOrder] = useState('desc');
   const [orderBy, setOrderBy] = useState('gpEarned')
@@ -63,7 +64,7 @@ const GuildMembers = ({ members, saves }) => {
           {sortedSaves?.map((save, index) => {
             if (save) {
               return <TableCell key={'save' + index}>
-                {format(save?.timestamp, 'dd/MM/yyyy HH:mm:ss')}
+                {formatDate(save?.timestamp)}
               </TableCell>
             }
           })}

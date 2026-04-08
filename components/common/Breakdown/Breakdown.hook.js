@@ -1,5 +1,6 @@
 import { notateNumber } from '@utility/helpers';
 import { useState } from 'react';
+import useFormatDate from '@hooks/useFormatDate';
 
 const useBreakdown = ({
                         data,
@@ -8,6 +9,7 @@ const useBreakdown = ({
                         setShowFeedback,
                         skipNotation
                       }) => {
+  const formatDate = useFormatDate();
   const [isExporting, setIsExporting] = useState(false);
 
   const canvasToBlob = async (canvas, type = 'image/png', quality) => {
@@ -201,11 +203,7 @@ const useBreakdown = ({
     // Footer text
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
     ctx.font = '400 12px system-ui, -apple-system, sans-serif';
-    const footerText = new Date().toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    const footerText = formatDate(new Date(), { showSeconds: false });
     const footerWidth = ctx.measureText(footerText).width;
     ctx.fillText(footerText, (width - footerWidth) / 2, canvas.height - footerHeight / 2 + 4);
 

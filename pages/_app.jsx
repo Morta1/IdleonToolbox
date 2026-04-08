@@ -9,6 +9,7 @@ import '../styles/globals.css';
 import Head from 'next/head';
 import Script from 'next/script';
 import AppProvider from '../components/common/context/AppProvider';
+import PreferencesProvider from '../components/common/context/PreferencesProvider';
 import WaitForRouter from '../components/common/WaitForRouter';
 import { DefaultSeo } from 'next-seo';
 import NavBar from '../components/common/NavBar';
@@ -160,6 +161,7 @@ const MyApp = (props) => {
             <CookiePolicyDialog open={openPolicy} onClose={() => setOpenPolicy(false)}/>
             <CssBaseline/>
             <WaitForRouter>
+              <PreferencesProvider>
               <AppProvider>
                 <NavBar>
                   <DefaultSeo
@@ -198,6 +200,7 @@ const MyApp = (props) => {
                   </DataLoadingWrapper>
                 </NavBar>
               </AppProvider>
+              </PreferencesProvider>
             </WaitForRouter>
           </EmotionThemeProvider>
         </ThemeProvider>

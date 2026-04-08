@@ -17,9 +17,11 @@ import { format, isValid } from 'date-fns';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { getExoticMarketRotations } from '@parsers/world-6/farming';
+import useFormatDate from '@hooks/useFormatDate';
 
 const ExoticMarketRotation = () => {
   const { state } = useContext(AppContext);
+  const formatDate = useFormatDate();
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const [filter, setFilter] = useState([]);
   const [weeks, setWeeks] = useState(10);
@@ -102,7 +104,7 @@ const ExoticMarketRotation = () => {
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
                   {isValid(rotation.date)
-                    ? `${format(rotation.date, 'dd/MM/yyyy HH:mm:ss')} (${format(rotation.date, 'MMM do, yyyy')})`
+                    ? `${formatDate(rotation.date)} (${format(rotation.date, 'MMM do, yyyy')})`
                     : null}
                 </Typography>
               </Stack>

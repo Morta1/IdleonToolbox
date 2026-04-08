@@ -743,11 +743,11 @@ export const shouldDisplayDrawer = (pathname = '') => {
   return drawerPages.includes(pathname?.split('/').at(1))
 }
 
-export const getRealDateInMs = (ms, shouldFormat = true) => {
+export const getRealDateInMs = (ms, shouldFormat = true, formatString = 'dd/MM/yyyy HH:mm:ss') => {
   const dateInMs = ms;
   if (shouldFormat) {
     return isValid(new Date(dateInMs))
-      ? format(dateInMs, 'dd/MM/yyyy HH:mm:ss')
+      ? format(dateInMs, formatString)
       : `${notateNumber(getTimeAsDays(dateInMs))} days`;
   }
   return dateInMs;

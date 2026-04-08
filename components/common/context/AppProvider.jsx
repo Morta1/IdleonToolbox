@@ -22,7 +22,8 @@ const ACTION_TYPES = {
   LOGIN_ERROR: 'loginError',
   SHOW_RANK_ONE_ONLY: 'showRankOneOnly',
   SHOW_UNMAXED_BOXES_ONLY: 'showUnmaxedBoxesOnly',
-  SET_LOADING: 'setLoading'
+  SET_LOADING: 'setLoading',
+  SETTINGS: 'settings'
 };
 
 function appReducer(state, action) {
@@ -45,7 +46,8 @@ function appReducer(state, action) {
     [ACTION_TYPES.LOGIN_ERROR]: () => ({ ...state, loginError: action.data }),
     [ACTION_TYPES.SHOW_RANK_ONE_ONLY]: () => ({ ...state, showRankOneOnly: action.data }),
     [ACTION_TYPES.SHOW_UNMAXED_BOXES_ONLY]: () => ({ ...state, showUnmaxedBoxesOnly: action.data }),
-    [ACTION_TYPES.SET_LOADING]: () => ({ ...state, isLoading: action.data })
+    [ACTION_TYPES.SET_LOADING]: () => ({ ...state, isLoading: action.data }),
+    [ACTION_TYPES.SETTINGS]: () => ({ ...state, settings: action.data })
   };
 
   const handler = actionHandlers[action.type];
@@ -64,7 +66,8 @@ const STORAGE_KEYS = [
   'godPlanner',
   'manualImport',
   'lastUpdated',
-  'planner'
+  'planner',
+  'settings'
 ];
 
 function init() {
@@ -269,7 +272,7 @@ const AppProvider = ({ children }) => {
         }
       } catch (err) {
         console.error('Failed to load data from profile api', err);
-        router.push({ pathname: '/', query: router.query });
+        router.push({ pathname: '/404', query: { reason: 'profile', name: router?.query?.profile } });
         dispatch({
           type: ACTION_TYPES.DATA,
           data: {
@@ -314,7 +317,6 @@ const AppProvider = ({ children }) => {
         } else {
           const isAllowedPath = router.pathname === '/' ||
             checkOfflineTool() ||
-            router.pathname === '/data' ||
             router.pathname === '/statistics' ||
             router.pathname === '/leaderboards';
 

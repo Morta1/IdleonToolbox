@@ -42,13 +42,15 @@ import MenuItem from '@mui/material/MenuItem';
 import { useLocalStorage } from '@mantine/hooks';
 import { IconChevronRight, IconDeviceFloppy, IconInfoCircleFilled } from '@tabler/icons-react';
 import Button from '@mui/material/Button';
-import { format, isValid } from 'date-fns';
+import { isValid } from 'date-fns';
+import useFormatDate from '@hooks/useFormatDate';
 import useCheckbox from '@components/common/useCheckbox';
 import { getExaltedStampBonus } from '@parsers/world-1/stamps';
 
 const Stamps = () => {
   const router = useRouter();
   const { state } = useContext(AppContext);
+  const formatDate = useFormatDate();
   const [levelsSnapshot, setLevelsSnapshot] = useLocalStorage({
     key: 'stamps:levels',
     defaultValue: { snapshotTime: null, levels: {} }
@@ -265,7 +267,7 @@ const Stamps = () => {
               Save levels snapshot
             </Button>
             {isValid(levelsSnapshot?.snapshotTime) ? <Typography variant={'caption'}>Snapshotted
-              at: {format(levelsSnapshot?.snapshotTime, 'dd/MM/yyyy HH:MM')}</Typography> : null}
+              at: {formatDate(levelsSnapshot?.snapshotTime)}</Typography> : null}
           </Stack>
         </CardTitleAndValue>
       </Stack>
