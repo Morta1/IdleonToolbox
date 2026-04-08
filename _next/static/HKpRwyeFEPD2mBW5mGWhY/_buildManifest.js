@@ -261,7 +261,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0ufgp7gaivmdq.js"
   ],
   "/settings": [
-    "static/chunks/0-o5u5rh-tk92.js"
+    "static/chunks/16leop~2i~8v1.js"
   ],
   "/statistics": [
     "static/chunks/0gb7b860~83rg.js"
