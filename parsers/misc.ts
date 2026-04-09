@@ -236,7 +236,11 @@ export const getLibraryBookTimes = (idleonData: any, characters: any, account: a
     }
   })
   breakpoints = [...breakpoints,
-  { breakpoint: 0, time: calcTimeToXBooks(0, 20, account, characters, idleonData) }]
+  ...[20, 40, 60, 80, 100].map((maxCount) => ({
+    breakpoint: 0,
+    label: `0 to ${maxCount}`,
+    time: calcTimeToXBooks(0, maxCount, account, characters, idleonData)
+  }))]
   return {
     bookCount,
     next: getTimeToNextBooks(bookCount, account, characters, idleonData)?.value - libTime,
@@ -282,15 +286,16 @@ export const getTimeToNextBooks = (bookCount: any, account: any, characters: any
   if (superbit) {
     superbitBonus = superbit?.totalBonus;
   }
-  const math = Math.round(4 * (3600 / ((1 + mealBonus / 100)
-    * (1 + libraryBooker / 100) *
-    (1 + (5 * libraryTowerLevel
+  const bonusMultiplier = (1 + mealBonus / 100)
+    * (1 + libraryBooker / 100)
+    * (1 + (5 * libraryTowerLevel
       + bubbleBonus
       + (vialBonus
         + (stampBonus
           + Math.min(30, Math.max(0, 30 * getAchievementStatus(account?.achievements, 145)))
-          + superbitBonus))) / 100)))
-    * (1 + 10 * Math.pow(bookCount, 1.4) / 100))
+          + superbitBonus))) / 100);
+  const baseFactor = 4 * (3600 / bonusMultiplier);
+  const math = Math.round(baseFactor * (1 + 10 * Math.pow(bookCount, 1.4) / 100))
 
   const breakdown = {
     statName: 'Library Checkout Time',
@@ -316,7 +321,8 @@ export const getTimeToNextBooks = (bookCount: any, account: any, characters: any
   }
   return {
     value: math,
-    breakdown
+    breakdown,
+    baseFactor
   };
 }
 
