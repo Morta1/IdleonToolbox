@@ -22,9 +22,11 @@ import { NextSeo } from 'next-seo';
 import {
   IconCalendarTime,
   IconDatabase,
+  IconInfoCircle,
   IconUserCircle
 } from '@tabler/icons-react';
 import styled from '@emotion/styled';
+import HtmlTooltip from '@components/Tooltip';
 import { useRouter } from 'next/router';
 import { intervalToDuration, isValid } from 'date-fns';
 import { expandLeaderboardInfo, uploadProfile } from '../services/profiles';
@@ -303,7 +305,16 @@ const Settings = () => {
                 <Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)}/>
               </SettingRow>
 
-              <SettingRow label="Public visibility" description="Off: profile hidden, not on leaderboards. Public: profile visible, ranked by name. Anonymous: profile hidden, ranked anonymously.">
+              <SettingRow label={<Stack direction="row" alignItems="center" gap={0.5}>
+                Public visibility
+                <HtmlTooltip title={<Stack spacing={0.5}>
+                  <Typography variant="body2"><strong>Off</strong> - Profile hidden, not on leaderboards</Typography>
+                  <Typography variant="body2"><strong>Public</strong> - Profile visible, ranked by name</Typography>
+                  <Typography variant="body2"><strong>Anonymous</strong> - Profile hidden, ranked anonymously</Typography>
+                </Stack>}>
+                  <IconInfoCircle size={16} style={{ cursor: 'pointer' }}/>
+                </HtmlTooltip>
+              </Stack>} description="Controls both your public profile and leaderboard listing">
                 <ToggleButtonGroup
                   value={leaderboardConsent === true ? 'public' : leaderboardConsent === false ? 'off' : leaderboardConsent}
                   exclusive
