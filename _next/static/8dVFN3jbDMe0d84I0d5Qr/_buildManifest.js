@@ -255,13 +255,13 @@ self.__BUILD_MANIFEST = {
     "static/chunks/14bk3o8jgscj3.js"
   ],
   "/leaderboards": [
-    "static/chunks/0dj~i2k3okof1.js"
+    "static/chunks/1684hzw0sc0gs.js"
   ],
   "/patch-notes": [
     "static/chunks/130u8wa8lbumz.js"
   ],
   "/settings": [
-    "static/chunks/0jonlxvcsi4x6.js"
+    "static/chunks/0cc3gb8awq0jx.js"
   ],
   "/statistics": [
     "static/chunks/0zpl7apbummbe.js"

@@ -4,13 +4,13 @@ __turbopack_load_page_chunks__("/settings", [
   "static/chunks/0n_xo8lgqau93.js",
   "static/chunks/07nle~o5.6.63.js",
   "static/chunks/0hha4~5yi~g34.js",
-  "static/chunks/0ct0c32z2zl8r.js",
-  "static/chunks/054vm7azh5mb~.js",
+  "static/chunks/11x2dg6ow~987.js",
   "static/chunks/0otdh-5fu63-z.js",
-  "static/chunks/0mpfqmmtjfj9u.js",
   "static/chunks/0dthotl3o5tnt.js",
-  "static/chunks/15k4ur4g76vrc.js",
+  "static/chunks/0mpfqmmtjfj9u.js",
+  "static/chunks/054vm7azh5mb~.js",
+  "static/chunks/00d-e2rerwuo5.js",
   "static/chunks/0b7rnuxo0jn_w.js",
   "static/chunks/0gdhjfdy-wuqx.js",
-  "static/chunks/turbopack-0.z.6faej.i84.js"
+  "static/chunks/turbopack-0dcln_w855ix..js"
 ])
