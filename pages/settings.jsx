@@ -303,7 +303,7 @@ const Settings = () => {
                 <Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)}/>
               </SettingRow>
 
-              <SettingRow label="Leaderboard participation" description="Off: not listed. Public: name visible. Anonymous: ranked but hidden.">
+              <SettingRow label="Public visibility" description="Off: profile hidden, not on leaderboards. Public: profile visible, ranked by name. Anonymous: profile hidden, ranked anonymously.">
                 <ToggleButtonGroup
                   value={leaderboardConsent === true ? 'public' : leaderboardConsent === false ? 'off' : leaderboardConsent}
                   exclusive
