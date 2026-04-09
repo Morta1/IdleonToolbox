@@ -131,13 +131,13 @@ const UserMenu = () => {
           <ListItemText>Copy raw data</ListItemText>
         </MenuItem>
       ] : null}
-      {!isProd ? <>
-        <Divider/>
-        <MenuItem onClick={async () => { await handleLoadJson(dispatch); handleClose(); }}>
+      {!isProd ? [
+        <Divider key="paste-divider"/>,
+        <MenuItem key="paste-data" onClick={async () => { await handleLoadJson(dispatch); handleClose(); }}>
           <ListItemIcon><IconClipboard/></ListItemIcon>
           <ListItemText>Paste data</ListItemText>
         </MenuItem>
-      </> : null}
+      ] : null}
       <Divider sx={{ my: 1 }}/>
       {state?.profile && !state.signedIn ? <MenuItem onClick={() => setDialogOpen(true)}>
         <ListItemIcon><IconLogin2/></ListItemIcon>

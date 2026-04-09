@@ -56,7 +56,7 @@ const SettingRow = ({ label, description, children }) => (
   <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'flex-start', sm: 'center' }}
          justifyContent="space-between" gap={1} sx={{ py: 0.5 }}>
     <Stack sx={{ minWidth: 0 }}>
-      <Typography variant="body1">{label}</Typography>
+      <Typography variant="body1" component="div">{label}</Typography>
       {description && <Typography variant="body2" color="text.secondary" component="div">{description}</Typography>}
     </Stack>
     {children}
