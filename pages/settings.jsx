@@ -28,7 +28,7 @@ import styled from '@emotion/styled';
 import { useRouter } from 'next/router';
 import { intervalToDuration, isValid } from 'date-fns';
 import { expandLeaderboardInfo, uploadProfile } from '../services/profiles';
-import { notateNumber } from '@utility/helpers';
+import { notateNumber, sortKeys } from '@utility/helpers';
 import useTimeout from '@hooks/useTimeout';
 import NormalTimer from '../components/common/Timer/Normal';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
@@ -138,15 +138,6 @@ const Settings = () => {
   useTimeout(() => {
     setAnchorEl(null);
   }, anchorEl ? 1000 : null);
-
-  const sortKeys = (obj) => {
-    if (obj === null || typeof obj !== 'object') return obj;
-    if (Array.isArray(obj)) return obj.map(sortKeys);
-    return Object.keys(obj).sort().reduce((sorted, key) => {
-      sorted[key] = sortKeys(obj[key]);
-      return sorted;
-    }, {});
-  };
 
   const handleCopyITRaw = async (e) => {
     try {

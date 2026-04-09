@@ -44,6 +44,15 @@ export const downloadFile = (data, filename) => {
   link.remove()
 }
 
+export const sortKeys = (obj) => {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(sortKeys);
+  return Object.keys(obj).sort().reduce((sorted, key) => {
+    sorted[key] = sortKeys(obj[key]);
+    return sorted;
+  }, {});
+};
+
 // Calculating days manually because of JS limitation for dates https://262.ecma-international.org/5.1/#sec-15.9.1.1
 const msPerDay = 8.64e+7;
 export const getTimeAsDays = (time) => {

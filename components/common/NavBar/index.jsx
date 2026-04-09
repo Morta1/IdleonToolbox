@@ -8,15 +8,14 @@ import LoginButton from './LoginButton';
 import AppDrawer from './AppDrawer';
 import { drawerWidth, navBarHeight } from '../../constants';
 import { useRouter } from 'next/router';
-import { handleLoadJson, isProd, shouldDisplayDrawer } from '@utility/helpers';
+import { shouldDisplayDrawer } from '@utility/helpers';
 import { Link, Stack, Typography, useMediaQuery } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import AdBlockerPopup from '@components/common/AdBlockerPopup';
 import Pin from '@components/common/favorites/Pin';
 import QuickSearch from '@components/common/QuickSearch';
 import UserMenu from '@components/common/NavBar/UserMenu';
-import IconButton from '@mui/material/IconButton';
-import FileCopyIcon from '@mui/icons-material/FileCopy';
+
 import useFormatDate from '@hooks/useFormatDate';
 import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 import AuthSkeleton from './AuthSkeleton';
@@ -26,7 +25,7 @@ import ProfileBanner from './ProfileBanner';
 import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 
 const NavBar = ({ children }) => {
-  const { dispatch, state } = useContext(AppContext);
+  const { state } = useContext(AppContext);
   const router = useRouter();
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const displayDrawer = shouldDisplayDrawer(router?.pathname);
@@ -35,10 +34,6 @@ const NavBar = ({ children }) => {
   const isInnerPage = !isHomePage && pathname !== '/patch-notes';
   const [openPolicy, setOpenPolicy] = useState(false);
   const formatDate = useFormatDate();
-
-  const handlePaste = async () => {
-    await handleLoadJson(dispatch);
-  }
 
   // Render the authentication section based on loading state
   const renderAuthSection = () => {
@@ -54,7 +49,7 @@ const NavBar = ({ children }) => {
             <Typography sx={{ fontWeight: 'bold', fontSize: 14 }}>{state?.characters?.[0]?.name}</Typography>
             {state?.lastUpdated ? (
               <Typography variant={'caption'}>
-                {state?.lastUpdated ? formatDate(state?.lastUpdated, { showSeconds: false, shortYear: true }) : 'xx/xx/xx xx:xx'}
+                {formatDate(state?.lastUpdated, { showSeconds: false, shortYear: true })}
               </Typography>
             ) : null}
           </Stack>
@@ -70,9 +65,6 @@ const NavBar = ({ children }) => {
           <AppDrawer/>
           <NavItemsList/>
           <QuickSearch/>
-          {!isProd ? <IconButton data-cy={'paste-data'} color="inherit" onClick={handlePaste}>
-            <FileCopyIcon/>
-          </IconButton> : null}
 {renderAuthSection()}
         </Toolbar>
       </AppBar>
@@ -120,7 +112,7 @@ const NavBar = ({ children }) => {
       </Stack>
       <CookiePolicyDialog open={openPolicy} onClose={() => setOpenPolicy(false)}/>
     </Box>
-    <BottomBannerAd displayDrawer={displayDrawer} />
+    <BottomBannerAd displayDrawer={displayDrawer}/>
   </>
 };
 
@@ -141,7 +133,7 @@ const ContentWrapper = ({ showSidebar, children }) => {
         }}>
         {children}
       </Stack>
-      <SidebarAd />
+      <SidebarAd/>
     </Stack>
   );
 }
