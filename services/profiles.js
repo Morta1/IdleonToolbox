@@ -5,12 +5,12 @@ import { calcTotalBoatLevels } from '@parsers/world-5/sailing';
 import { differenceInYears } from 'date-fns';
 
 const url = process.env.NEXT_PUBLIC_PROFILES_URL;
-export const uploadProfile = async ({ profile, leaderboardConsent }, token) => {
+export const uploadProfile = async ({ profile, profileVisibility, leaderboardConsent }, token) => {
   try {
     const parsedProfile = parseProfile(profile);
     const response = await fetch(`${url}/profiles`, {
       method: 'POST',
-      body: JSON.stringify({ profile: parsedProfile, leaderboardConsent }),
+      body: JSON.stringify({ profile: parsedProfile, profileVisibility, leaderboardConsent }),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': token

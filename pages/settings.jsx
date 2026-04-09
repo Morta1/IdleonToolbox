@@ -119,6 +119,10 @@ const Settings = () => {
     key: 'data:leaderboardConsent',
     defaultValue: 'off'
   });
+  const [profileVisibility, setProfileVisibility] = useLocalStorage({
+    key: 'data:profileVisibility',
+    defaultValue: 'off'
+  });
   const [removeGemsInfo, setRemoveGemsInfo] = useLocalStorage({ key: 'data:removeGemsInfo', defaultValue: true });
   const [error, setError] = useState('');
   const [open, setOpen] = useState(false);
@@ -136,6 +140,17 @@ const Settings = () => {
       setIsDisabled((WAIT_TIME - (Date.now() - lastUpload)) > 0);
     }
   }, [lastUpload]);
+
+  // One-time migration: derive profileVisibility from existing leaderboardConsent
+  useEffect(() => {
+    const migrated = localStorage.getItem('profileVisibility:migrated');
+    if (migrated) return;
+    localStorage.setItem('profileVisibility:migrated', '1');
+    const normalized = leaderboardConsent === true ? 'public' : leaderboardConsent === false ? 'off' : leaderboardConsent;
+    if (normalized === 'public') {
+      setProfileVisibility('on');
+    }
+  }, []);
 
   useTimeout(() => {
     setAnchorEl(null);
@@ -208,6 +223,7 @@ const Settings = () => {
         const normalizedConsent = leaderboardConsent === true ? 'public' : leaderboardConsent === false ? 'off' : leaderboardConsent;
         const result = await uploadProfile({
           profile: { ...userData, parsedData },
+          profileVisibility,
           leaderboardConsent: normalizedConsent
         }, state?.accessToken);
         const newAnonId = result?.anonId || null;
@@ -305,16 +321,30 @@ const Settings = () => {
                 <Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)}/>
               </SettingRow>
 
+              <SettingRow label="Profile visibility"
+                          description="Allow others to view your profile via direct link">
+                <Switch checked={profileVisibility === 'on'} onChange={() => {
+                  const newValue = profileVisibility === 'on' ? 'off' : 'on';
+                  setProfileVisibility(newValue);
+                  if (newValue === 'off') {
+                    const normalized = leaderboardConsent === true ? 'public' : leaderboardConsent === false ? 'off' : leaderboardConsent;
+                    if (normalized === 'public') {
+                      setLeaderboardConsent('off');
+                    }
+                  }
+                }}/>
+              </SettingRow>
+
               <SettingRow label={<Stack direction="row" alignItems="center" gap={0.5}>
-                Public visibility
+                Leaderboard
                 <HtmlTooltip title={<Stack spacing={0.5}>
-                  <Typography variant="body2"><strong>Off</strong> - Profile hidden, not on leaderboards</Typography>
-                  <Typography variant="body2"><strong>Public</strong> - Profile visible, ranked by name</Typography>
-                  <Typography variant="body2"><strong>Anonymous</strong> - Profile hidden, ranked anonymously</Typography>
+                  <Typography variant="body2"><strong>Off</strong> - Not listed on leaderboards</Typography>
+                  <Typography variant="body2"><strong>Public</strong> - Ranked by character name</Typography>
+                  <Typography variant="body2"><strong>Anonymous</strong> - Ranked under an anonymous ID</Typography>
                 </Stack>}>
                   <IconInfoCircle size={16} style={{ cursor: 'pointer' }}/>
                 </HtmlTooltip>
-              </Stack>} description="Controls both your public profile and leaderboard listing">
+              </Stack>} description="Control how you appear in public rankings">
                 <ToggleButtonGroup
                   value={leaderboardConsent === true ? 'public' : leaderboardConsent === false ? 'off' : leaderboardConsent}
                   exclusive
@@ -322,7 +352,7 @@ const Settings = () => {
                   size="small"
                 >
                   <ToggleButton value="off">Off</ToggleButton>
-                  <ToggleButton value="public">Public</ToggleButton>
+                  <ToggleButton value="public" disabled={profileVisibility !== 'on'}>Public</ToggleButton>
                   <ToggleButton value="anonymous">Anonymous</ToggleButton>
                 </ToggleButtonGroup>
               </SettingRow>
