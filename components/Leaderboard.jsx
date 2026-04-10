@@ -114,7 +114,11 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
                       </Typography>}
                     >
                       {entry?.mainChar?.startsWith('Anon#') ? (
-                        <Box sx={{ pl: 2, pr: 10, py: .5, display: 'flex', alignItems: 'center', opacity: 0.7 }}>
+                        <ListItemButton component={Link} target={'_blank'}
+                                        href={`${process.env.NEXT_PUBLIC_IT_URL}/account/misc/general?profile=${encodeURIComponent(entry?.mainChar)}`} disableGutters
+                                        sx={{
+                                          pl: 2, pr: 10, py: .5, borderRadius: 'inherit', opacity: 0.85
+                                        }}>
                           <ListItemIcon>
                             {img ? <img width={24} height={24} style={{ objectFit: 'contain' }}
                                         src={`${prefix}${img}`} alt={''}/> : <PositionCircle inline>
@@ -125,8 +129,9 @@ const LeaderboardSection = ({ leaderboards, loggedMainChar, searchedChar }) => {
                           </ListItemIcon>
                           <ListItemText
                             primary={entry?.mainChar}
-                            slotProps={{ primary: { variant: 'body1', noWrap: true } }}/>
-                        </Box>
+                            sx={{ mr: 8 }}
+                            slotProps={{ primary: { variant: 'body1' } }}/>
+                        </ListItemButton>
                       ) : (
                         <ListItemButton component={Link} target={'_blank'}
                                         href={`${process.env.NEXT_PUBLIC_IT_URL}/account/misc/general?profile=${entry?.mainChar}`} disableGutters

@@ -33,7 +33,7 @@ export const uploadProfile = async ({ profile, profileVisibility, leaderboardCon
 
 export const getProfile = async ({ mainChar }) => {
   try {
-    const response = await fetch(`${url}/profiles/?profile=${mainChar}`, {
+    const response = await fetch(`${url}/profiles/?profile=${encodeURIComponent(mainChar)}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
