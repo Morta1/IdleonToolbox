@@ -548,6 +548,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={`You have ${alerts?.['World 7']?.minehead?.dailyTries?.left} minehead attempt${alerts?.['World 7']?.minehead?.dailyTries?.left === 1 ? '' : 's'} left (${alerts?.['World 7']?.minehead?.dailyTries?.left}/${alerts?.['World 7']?.minehead?.dailyTries?.max})`}
                   iconPath={'data/MineHead0'}/> : null}
+              {alerts?.['World 7']?.research?.observationRollsLeft ?
+                <Alert
+                  title={`You have ${alerts?.['World 7']?.research?.observationRollsLeft?.left} observation roll${alerts?.['World 7']?.research?.observationRollsLeft?.left === 1 ? '' : 's'} left (${alerts?.['World 7']?.research?.observationRollsLeft?.left}/${alerts?.['World 7']?.research?.observationRollsLeft?.max})`}
+                  iconPath={'data/ResObsClip'}/> : null}
               {alerts?.['World 7']?.research?.insightLevel?.observations?.length > 0 ?
                 <Alert
                   title={<Stack alignItems={'center'} gap={0.5}>

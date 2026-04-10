@@ -1238,7 +1238,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
   }
   if (fields?.research?.checked) {
     const research = {};
-    const { insightLevel } = options?.research || {};
+    const { insightLevel, observationRollsLeft } = options?.research || {};
     if (insightLevel?.checked) {
       const threshold = insightLevel?.props?.value ?? 3;
       const list = account?.research?.observations?.filter(obs =>
@@ -1246,6 +1246,13 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       );
       if (list?.length > 0) {
         research.insightLevel = { observations: list, threshold };
+      }
+    }
+    if (observationRollsLeft?.checked) {
+      const rollsLeft = account?.research?.dailyRollsLeft ?? 0;
+      const rollsPerDay = account?.research?.rollsPerDay ?? 0;
+      if (rollsLeft > 0) {
+        research.observationRollsLeft = { left: rollsLeft, max: rollsPerDay };
       }
     }
     if (Object.keys(research).length > 0) {

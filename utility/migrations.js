@@ -1096,6 +1096,18 @@ const migration44 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration45 = (dashboardConfig) => {
+  const research = dashboardConfig?.account?.['World 7']?.research;
+  if (research) {
+    const opts = research.options ?? [];
+    if (!opts.find(o => o.name === 'observationRollsLeft')) {
+      opts.push({ name: 'observationRollsLeft', checked: true });
+    }
+  }
+  dashboardConfig.version = 45;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1142,6 +1154,7 @@ const migrations = {
   42: migrateToVersion42,
   43: migrateToVersion43,
   44: migration44,
+  45: migration45,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

@@ -538,11 +538,14 @@ const parseSigils = (sigilsRaw: any, alchemyActivity: any, serializedCharactersD
   return sigilsList.map((sigil, index) => ({ ...sigil, index }));
 };
 
-export const getSigilBonus = (sigils: any, name: any) => {
+export const getSigilBonus = (sigils: any, name: any, excludeEclectic?: boolean) => {
   if (!sigils) return 0;
   return sigils?.reduce((res: any, sigil: any) => {
     if (sigil?.name !== name) return res;
-    return res + (sigil?.bonus);
+    const bonus = excludeEclectic && sigil?.unlocked === 4
+      ? sigil?.etherealBonus
+      : sigil?.bonus;
+    return res + bonus;
   }, 0);
 };
 
@@ -550,7 +553,15 @@ export const applyArtifactBonusOnSigil = (sigils: any, artifacts: any) => {
   const chilledYarnArtifact = isArtifactAcquired(artifacts, 'Chilled_Yarn');
   if (!chilledYarnArtifact) return sigils;
   const chilledYarnArtifactBonus = 1 + chilledYarnArtifact?.bonus;
-  return sigils?.map((sigil: any) => ({ ...sigil, bonus: sigil.bonus * chilledYarnArtifactBonus }))
+  return sigils?.map((sigil: any) => ({
+    ...sigil,
+    bonus: sigil.bonus * chilledYarnArtifactBonus,
+    unlockBonus: sigil.unlockBonus * chilledYarnArtifactBonus,
+    boostBonus: sigil.boostBonus * chilledYarnArtifactBonus,
+    jadeBonus: sigil.jadeBonus * chilledYarnArtifactBonus,
+    etherealBonus: sigil.etherealBonus * chilledYarnArtifactBonus,
+    eclecticBonus: sigil.eclecticBonus * chilledYarnArtifactBonus
+  }))
 }
 
 export const vialCostsArray = [0, 100, 1E3, 2500, 1E4, 5E4, 1E5, 5E5, 1000001, 5E6, 25E6, 1E8, 1E9, 5E10]
@@ -766,15 +777,15 @@ export const getKrukBubblesDaily = (account: any) => {
           name: "Flat",
           sources: [
             { name: "Minehead", value: mineheadBonus },
+            { name: "Base", value: baseAmount },
+            { name: "Stamp", value: stampBonus },
+            { name: "Legend Talent", value: legendBonus },
+            { name: "Zenith", value: zenithBonus },
           ],
         },
         {
           name: "Multiplicative",
           sources: [
-            { name: "Base", value: baseAmount },
-            { name: "Stamp", value: stampBonus },
-            { name: "Legend Talent", value: legendBonus },
-            { name: "Zenith", value: zenithBonus },
             { name: "Meritocracy", value: meritocracyBonus },
             { name: "Event Shop", value: eventShopBonus > 0 ? 50 * eventShopBonus : 0 },
             { name: "Bubble", value: bubbleBonus },

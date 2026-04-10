@@ -13,6 +13,7 @@ import { getCharacterByHighestSkillLevel } from '@parsers/misc';
 import { CLASSES, getTalentBonus } from '@parsers/talents';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 
 export const getBreeding = (idleonData: any, account: any, processedData: any) => {
   const breedingRaw = tryToParse(idleonData?.Breeding) || idleonData?.Breeding;
@@ -29,9 +30,14 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
   const deadCells = breedingRaw?.[3]?.[8];
   const speciesUnlocks = breedingRaw?.[1];
   const petUpgradesList = breedingRaw?.[2]?.map((upgradeLevel: any, index: any) => {
+    const upgrade = petUpgrades[index] || {};
+    const maxLevel = index === 6
+      ? (upgrade.maxLevel ?? 0) + getMineheadBonusQTY(account, 3)
+      : upgrade.maxLevel;
     return {
-      ...(petUpgrades[index] || []),
-      level: upgradeLevel
+      ...upgrade,
+      level: upgradeLevel,
+      maxLevel
     }
   })
   const unlockedBreedingMulti = {

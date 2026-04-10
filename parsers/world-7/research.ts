@@ -43,6 +43,7 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
   const shapePlacements = raw[5] ?? [];
   const optionsListAccount = account?.accountOptions ?? [];
   // raw[9] = sticker level per sticker type (farming: indices 0–4)
+  const dailyRollsLeft = Number(raw[7]?.[2]) || 0;
   const stickerLevels = (raw[9] ?? []).map((v: any) => Number(v) || 0);
   const totalStickers = stickerLevels.reduce((sum: any, v: any) => sum + v, 0);
   // raw[11] = King Rat Crowns list (1 string entry per unique crown). Used for grid 67/68/107 mode-2 bonus.
@@ -236,6 +237,7 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
     maxRoll: Math.floor(100 + gridBonus51Lv + getSushiBonus(account, 30)),
     minRoll: Math.floor(1 + Math.min((optionsListAccount?.[514] ?? 0) * getResearchGridBonusInternal(account, research, 31, 1), getResearchGridBonusInternal(account, research, 31, 2))),
     rollsPerDay: Math.round(3 + gridBonus90Lv + 3 * (getEventShopBonus(account, 35) ? 1 : 0) + getSushiBonus(account, 2)),
+    dailyRollsLeft,
     canLevelUpObservations: gridBonus91Lv >= 1 ? 1 : 0,
     opticalMonocleOwned: Math.round(gridBonus91Lv),
     kaleidoscopeOwned: Math.round(getResearchGridBonusInternal(account, research, 72, 1) + (getEventShopBonus(account, 33) ? 1 : 0)),
