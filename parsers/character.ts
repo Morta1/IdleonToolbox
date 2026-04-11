@@ -2621,6 +2621,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
   const starTalent = getTalentBonus(character?.flatStarTalents, 'CASH_MONEY');
   const armorSetBonus = getArmorSetBonus(account, 'GOLD_SET');
   const companionBonus = isCompanionBonusActive(account, 24) ? account?.companions?.list?.at(24)?.bonus : 0;
+  const companionBonus38 = isCompanionBonusActive(account, 38) ? (account?.companions?.list?.at(38)?.bonus ?? 0) : 0;
   const companionBonus45 = isCompanionBonusActive(account, 45) ? account?.companions?.list?.at(45)?.bonus : 0;
   const companionBonus159 = isCompanionBonusActive(account, 159) ? account?.companions?.list?.at(159)?.bonus : 0;
   const gambitBonus = getGambitBonus(account, 7);
@@ -2646,6 +2647,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
 
   const cashMulti = (1 + bubbles / 100)
     * (1 + Math.min(4, companionBonus))
+    * (1 + companionBonus38)
     * (1 + Math.min(4, companionBonus45))
     * (1 + Math.min(4, companionBonus159))
     * (1 + 0.5 * eventBonus)
@@ -2694,6 +2696,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
         sources: [
           { name: 'Bubbles', value: bubbles },
           { name: 'Companion (24)', value: companionBonus },
+          { name: 'Coin Drop Multi (38)', value: companionBonus38 },
           { name: 'Equinox Broadbass', value: companionBonus45 },
           { name: 'Potluck', value: companionBonus159 },
           { name: 'Event shop', value: 0.5 * eventBonus },

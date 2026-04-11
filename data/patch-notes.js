@@ -4,6 +4,24 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.37',
+    'gameVer': '2.3.502',
+    'date': '11/04/2026',
+    'features': [
+      'Updated the website with version 2.0.502 data and assets',
+      'Equinox: 41 new dream challenges with Research G8 gating, new Nonstop Studies upgrade, updated fill rate with new cloud bonuses',
+      'Sailing: boat frame 6 (Undead Battalion), per-boat DaveyJones bonus with Research F7',
+      'Research: Nonstop Studies and Optimal Optometry bonuses added to EXP multi, kaleidoscope, and insight rates',
+      'Added new cloud bonuses to ribbon bonus, exotic market, and research grid all-multi'
+    ],
+    'fixes': [
+      'Fixed Minehead depth charges missing superbit, cloud, and jade reductions',
+      'Fixed cash multi missing companion 38 coin drop multiplier',
+      'Fixed capacity missing bundle bonuses',
+      'Observation rolls alert now hides when all available observations are already found',
+    ]
+  },
+  {
     'ver': '3.3.36',
     'gameVer': '2.3.501',
     'date': '08/04/2026',

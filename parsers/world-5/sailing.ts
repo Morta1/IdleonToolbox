@@ -26,6 +26,7 @@ import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
@@ -327,14 +328,21 @@ const getCaptainsAndBoats = (sailingRaw: any, captainsRaw: any, boatsRaw: any, a
   }
 }
 
+const getDaveyJonesBonus = (account: any, lootLevel = 0, speedLevel = 0) => {
+  const baseDJ = 1 + (50 * (account?.gemShopPurchases?.[8] ?? 0) + getLegendTalentBonus(account, 11)) / 100;
+  const researchF7 = getResearchGridBonus(account, 105, 1);
+  const undeadMulti = 1 + 2 * Math.max(0, Math.min(1, Math.floor((lootLevel + speedLevel + 99600) / 1e5) * researchF7));
+  return baseDJ * undeadMulti;
+}
+
 const getBoat = (boat: any, boatIndex: any, lootPile: any, captains: any, artifactsList: any, characters: any, account: any, baseSpeed: any, minimumTravelTime = 120) => {
   const [captainIndex, islandIndex, , lootLevel, distanceTraveled, speedLevel] = boat;
   const captain = captains?.[captainIndex];
   const island = islands?.[islandIndex];
   const boatObj: any = {
-    rawName: `Boat_Frame_${getBoatFrame(lootLevel + speedLevel)}`,
+    rawName: `Boat_Frame_${getBoatFrame(lootLevel + speedLevel, account)}`,
     level: lootLevel + speedLevel,
-    artifactChance: getBoatArtifactChance(artifactsList, captains[captainIndex], account, characters),
+    artifactChance: getBoatArtifactChance(artifactsList, captains[captainIndex], account, characters, lootLevel, speedLevel),
     captainIndex,
     captainMappedIndex: captain?.captainIndex,
     lootLevel, speedLevel,
@@ -344,10 +352,12 @@ const getBoat = (boat: any, boatIndex: any, lootPile: any, captains: any, artifa
     distanceTraveled
   }
 
+  const daveyJones = getDaveyJonesBonus(account, lootLevel, speedLevel);
   boatObj.resources = getBoatResources(boatObj, lootPile);
   boatObj.breakpointResources = getBoatBreakdownResources(boatObj, lootPile);
-  boatObj.loot = getBoatLootValue(characters, account, artifactsList, boatObj, captain);
-  boatObj.speed = getBoatSpeedValue(captain, island, speedLevel, baseSpeed, minimumTravelTime)
+  boatObj.loot = getBoatLootValue(characters, account, artifactsList, boatObj, captain, daveyJones);
+  const frame = getBoatFrame(lootLevel + speedLevel, account);
+  boatObj.speed = getBoatSpeedValue(captain, island, speedLevel, baseSpeed * daveyJones, minimumTravelTime, frame)
   boatObj.maxTime = ((island?.distance) / boatObj.speed?.value) * 3600 * 1000;
   boatObj.timeLeft = ((island?.distance - distanceTraveled) / boatObj.speed?.value) * 3600 * 1000;
   return boatObj
@@ -369,12 +379,10 @@ const getBaseSpeed = (account: any, characters: any, artifactsList: any) => {
   const statueBonus = getStatueBonus(account, 24)
   const voteBonus = getVoteBonus(account, 24);
   const msaBonus = account?.msaTotalizer?.sailing?.value ?? 0;
-  const daveyJonesBonus = 1 + (50 * account?.gemShopPurchases?.[8] + getLegendTalentBonus(account, 11)) / 100;
-
+  // DaveyJones is now per-boat — applied separately in getBoat
   return (1 + (divinityMinorBonus
     + (cardBonus
       + bubbleBonus)) / 125)
-    * daveyJonesBonus
     * (1 + goharutGodBonus / 100)
     * (1 + purrmepGodBonus / 100)
     * (1 + voteBonus / 100)
@@ -464,7 +472,7 @@ const getFinalBoatSpeed = ({ speedLevel, captainSpeedBonus, baseSpeed }: any) =>
   return (10 + (5 + Math.pow(Math.floor(speedLevel / 7), 2)) * speedLevel) * (1 + captainSpeedBonus / 100) * baseSpeed;
 }
 
-const getBoatSpeedValue = (captain: any, island: any, speedLevel: any, baseSpeed: any, minimumTravelTime: any) => {
+const getBoatSpeedValue = (captain: any, island: any, speedLevel: any, baseSpeed: any, minimumTravelTime: any, frame = 0) => {
   let captainSpeedBonus = 0;
   if (captain?.firstBonusDescription?.includes('Boat_Speed')) {
     captainSpeedBonus += captain?.firstBonus;
@@ -472,9 +480,10 @@ const getBoatSpeedValue = (captain: any, island: any, speedLevel: any, baseSpeed
   if (captain?.secondBonusDescription?.includes('Boat_Speed')) {
     captainSpeedBonus += captain?.secondBonus;
   }
+  const effectiveSpeedLevel = frame === 6 ? speedLevel + 1 : speedLevel;
   const nextBreakpoint = speedLevel + (7 - (speedLevel % 7));
-  const boatSpeed = getFinalBoatSpeed({ speedLevel, captainSpeedBonus, baseSpeed });
-  const nextLevelBoatSpeed = getFinalBoatSpeed({ speedLevel: speedLevel + 1, captainSpeedBonus, baseSpeed });
+  const boatSpeed = getFinalBoatSpeed({ speedLevel: effectiveSpeedLevel, captainSpeedBonus, baseSpeed });
+  const nextLevelBoatSpeed = getFinalBoatSpeed({ speedLevel: effectiveSpeedLevel + 1, captainSpeedBonus, baseSpeed });
   let nextBreakpointValue;
   if (nextBreakpoint !== speedLevel + 1) {
     nextBreakpointValue = getFinalBoatSpeed({ speedLevel: nextBreakpoint, captainSpeedBonus, baseSpeed });
@@ -505,25 +514,27 @@ const getFinalBoatLoot = ({
     * daveyJonesBonus
     * (1 + lampBonus / 100);
 }
-const getBoatLootValue = (characters: any, account: any, artifactsList: any, boat: any, captain: any) => {
+const getBoatLootValue = (characters: any, account: any, artifactsList: any, boat: any, captain: any, daveyJonesBonus?: any) => {
   const unendingLootSearch = getHighestTalentByClass(characters, CLASSES.Siege_Breaker, 'UNENDING_LOOT_SEARCH');
   const talentBonus = unendingLootSearch;
   const nextBreakpoint = boat?.lootLevel + (8 - (boat?.lootLevel % 8));
-  const nextLevelMath = 2 + Math.pow(Math.floor(((boat?.lootLevel) + 1) / 8), 2)
-  const currentLevelMath = 2 + Math.pow(Math.floor((boat?.lootLevel) / 8), 2);
-  const breakpointLevelMath = 2 + Math.pow(Math.floor((nextBreakpoint) / 8), 2);
+  const frame = getBoatFrame(boat?.lootLevel + boat?.speedLevel, account);
+  const effectiveLootLevel = frame === 6 ? boat?.lootLevel + 1 : boat?.lootLevel;
+  const nextLevelMath = 2 + Math.pow(Math.floor(((effectiveLootLevel) + 1) / 8), 2)
+  const currentLevelMath = 2 + Math.pow(Math.floor((effectiveLootLevel) / 8), 2);
+  const breakpointLevelMath = 2 + Math.pow(Math.floor((nextBreakpoint + (frame === 6 ? 1 : 0)) / 8), 2);
   const lootPileSigil = getSigilBonus(account?.alchemy?.p2w?.sigils, 'LOOT_PILE');
   const firstCaptainBonus = getCaptainBonus(1, captain, captain?.firstBonusIndex, captain?.firstBonusValue);
   const secondCaptainBonus = getCaptainBonus(1, captain, captain?.secondBonusIndex, captain?.secondBonusValue);
   const artifactBonus = isArtifactAcquired(artifactsList, 'Genie_Lamp')?.bonus ?? 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Sailing_Loot')?.bonus ?? 0;
   const vaultBonus67 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 67);
-  const daveyJonesBonus = 1 + (50 * account?.gemShopPurchases?.[8] + getLegendTalentBonus(account, 11)) / 100;
+  daveyJonesBonus = daveyJonesBonus ?? getDaveyJonesBonus(account, boat?.lootLevel, boat?.speedLevel);
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 0, account }) ?? 0;
 
   const value = getFinalBoatLoot({
     lootLevelMath: currentLevelMath,
-    lootLevel: boat?.lootLevel,
+    lootLevel: effectiveLootLevel,
     lootPileSigil,
     artifactBonus,
     firstCaptainBonus,
@@ -536,7 +547,7 @@ const getBoatLootValue = (characters: any, account: any, artifactsList: any, boa
   });
   const nextLevelValue = getFinalBoatLoot({
     lootLevelMath: nextLevelMath,
-    lootLevel: boat?.lootLevel + 1,
+    lootLevel: effectiveLootLevel + 1,
     lootPileSigil,
     artifactBonus,
     firstCaptainBonus,
@@ -584,7 +595,7 @@ const getCaptainDisplayBonus = (captain: any, value: any) => {
   return Math.round(captain?.level * value * 10) / 10;
 }
 
-const getBoatArtifactChance = (artifacts: any, captain: any, account: any, characters: any) => {
+const getBoatArtifactChance = (artifacts: any, captain: any, account: any, characters: any, lootLevel = 0, speedLevel = 0) => {
   const holesObject = account?.hole?.holesObject;
 
   // --- Additive group (÷ 100) ---
@@ -598,7 +609,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
   const arcadeBonus = account?.arcade?.shop
     ?.filter(({ effect }: any) => effect?.includes('+{%_Artifact_Find'))
     ?.reduce((sum: any, { bonus }: any) => sum + (bonus ?? 0), 0) ?? 0;
-  const holeBuildingBonus = 10 * Math.floor(lavaLog(holesObject?.wellSediment?.[11] ?? 0));
+  const holeBuildingBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 55, i: 0 });
   const stickerBonus = getStickerBonus(account, 2);
   const researchGridBonus = getResearchGridBonus(account, 109, 0);
 
@@ -612,9 +623,10 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
   const glimboCompanion = isCompanionBonusActive(account, 154)
     ? Math.max(1, Math.min(2, 1 + 2 * (account?.companions?.list?.at(154)?.bonus ?? 0))) : 1;
   const killroyBonus = Math.max(1, getKillRoyShopBonus(account, 0));
+  const researchGrid106 = getResearchGridBonus(account, 106, 0);
   const turtleVial = getVialsBonusByStat(account?.alchemy?.vials, '6turtle');
   const winnerBonus = getWinnerBonus(account, '<x Artifact Find');
-  const daveyJonesBonus = 1 + (50 * (account?.gemShopPurchases?.[8] ?? 0) + getLegendTalentBonus(account, 11)) / 100;
+  const daveyJonesBonus = getDaveyJonesBonus(account, lootLevel, speedLevel);
   const labBonus = getLabBonus(account?.lab?.labBonuses, 14);
   const loreBonus = getLoreBonus(account, 3);
   const pristineBonus = getCharmBonus(account, 'Glowing_Veil');
@@ -632,6 +644,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
     * (1 + starSignBonus / 100)
     * glimboCompanion
     * killroyBonus
+    * (1 + researchGrid106 / 100)
     * (1 + turtleVial / 100)
     * (1 + winnerBonus / 100)
     * daveyJonesBonus
@@ -672,6 +685,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
           { name: 'Star Sign - Artifosho', value: 1 + starSignBonus / 100 },
           { name: 'Companion - Glimbo', value: glimboCompanion },
           { name: 'Killroy Bonus', value: killroyBonus },
+          { name: 'The Maw (Grid 106)', value: 1 + researchGrid106 / 100 },
           { name: 'Vial - Turtle Tisane', value: 1 + turtleVial / 100 },
           { name: 'Summoning - Win Bonus', value: 1 + winnerBonus / 100 },
           { name: 'Gem Shop (Davey Jones)', value: daveyJonesBonus },
@@ -690,7 +704,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
     ]
   };
 
-  return { value: notateNumber(total, 'MultiplierInfo'), breakdown };
+  return { value: total > 1e4 ? notateNumber(total, 'Big') : notateNumber(total, 'MultiplierInfo'), breakdown };
 }
 
 const getCaptainBonus = (bonusIndex: any, captain: any, captainBonusIndex: any, bonusValue: any) => {
@@ -701,22 +715,14 @@ const getCaptainBonus = (bonusIndex: any, captain: any, captainBonusIndex: any, 
 }
 
 
-const getBoatFrame = (totalLevels: any) => {
-  if (totalLevels < 25) {
-    return 0;
-  }
-  else if (totalLevels < 50) {
-    return 1;
-  }
-  else if (totalLevels < 100) {
-    return 2;
-  }
-  else if (totalLevels < 200) {
-    return 3;
-  }
-  else {
-    return totalLevels < 300 ? 4 : 5
-  }
+const getBoatFrame = (totalLevels: any, account?: any) => {
+  if (totalLevels < 25) return 0;
+  if (totalLevels < 50) return 1;
+  if (totalLevels < 100) return 2;
+  if (totalLevels < 200) return 3;
+  if (totalLevels < 300) return 4;
+  if (totalLevels < 400 || getResearchGridBonus(account, 105, 1) < 1) return 5;
+  return 6;
 }
 
 

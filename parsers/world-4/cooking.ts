@@ -194,8 +194,10 @@ export const getMealsBonusByEffectOrStat = (account: any, effectName: any, statN
 
 export const getRibbonBonus = (account: any, t: any) => {
   const armorSetBonus = getArmorSetBonus(account, 'EMPEROR_SET');
+  const cloudBonus73 = account?.equinox?.challenges?.[73]?.current === -1 ? 1 : 0;
   return 1 + (Math.floor(5 * t + Math.floor(t / 2) *
-    (4 + 6.5 * Math.floor(t / 5))) + Math.floor(t / 4) * (armorSetBonus / 4)) / 100;
+    (4 + 6.5 * Math.floor(t / 5))) + Math.floor(t / 4) * (armorSetBonus / 4)
+    + Math.floor(t / 10) * cloudBonus73) / 100;
 }
 
 export const getKitchens = (idleonData: any, characters: any, account: any) => {

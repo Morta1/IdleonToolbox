@@ -20,6 +20,8 @@ import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getKillRoyShopBonus } from '@parsers/misc';
+import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
+import { getEquinoxBonus } from '@parsers/world-3/equinox';
 
 // Save key for Research: game may use idleonData.Research or similar
 const getRawResearch = (idleonData: any) => {
@@ -290,12 +292,16 @@ export const getResearchGridBonus = (account: any, gridIndex: any, mode: any) =>
   return account?.research?.gridSquares?.[gridIndex]?.bonuses?.[mode] ?? 0;
 }
 
-// Game: Grid_Bonus_Allmulti = 1 + (Companions(55) + 5 * min(1, Research[0][173] * Companions(0))) / 100
+// Game: Grid_Bonus_Allmulti = 1 + (Companions(55) + 5 * min(1, Research[0][173] * Companions(0)) + CloudBonus(71) + CloudBonus(72) + CloudBonus(76)) / 100
 function getGridBonusAllmulti(account: any, research: any) {
   const companion55 = isCompanionBonusActive(account, 55) ? (account?.companions?.list?.at(55)?.bonus ?? 0) : 0;
   const companion0Active = isCompanionBonusActive(account, 0) ? 1 : 0;
   const gridLevel173 = Number(research?.gridLevels?.[173]) || 0;
-  return 1 + (companion55 + 5 * Math.min(1, gridLevel173 * companion0Active)) / 100;
+  const challenges = account?.equinox?.challenges;
+  const cloud71 = challenges?.[71]?.current === -1 ? 1 : 0;
+  const cloud72 = challenges?.[72]?.current === -1 ? 1 : 0;
+  const cloud76 = challenges?.[76]?.current === -1 ? 1 : 0;
+  return 1 + (companion55 + 5 * Math.min(1, gridLevel173 * companion0Active) + cloud71 + cloud72 + cloud76) / 100;
 }
 
 function getResearchGridBonusInternal(account: any, research: any, gridIndex: any, mode: any): any {
@@ -418,7 +424,8 @@ function getTotalOccurrencesFound(research: any, maxOccurrences: any) {
 function getKaleiMultiBase(account: any, research: any) {
   const gridBonus52 = getResearchGridBonusInternal(account, research, 52, 0);
   const gridBonus72 = getResearchGridBonusInternal(account, research, 72, 0);
-  return (30 + gridBonus52 + gridBonus72) / 100;
+  const opticalMonocle = Number(isJadeBonusUnlocked(account, 'Optimal_Optometry'));
+  return (30 + gridBonus52 + gridBonus72 + 6 * opticalMonocle) / 100;
 }
 
 function buildResearchKalMap(shapePlacements: any) {
@@ -483,8 +490,9 @@ function getObservationInsightExpRate(account: any, research: any, observationIn
   }
   const grid92Bonus = getResearchGridBonusInternal(account, research, 92, 0);
   const grid91Bonus = getResearchGridBonusInternal(account, research, 91, 0);
+  const opticalMonocle = Number(isJadeBonusUnlocked(account, 'Optimal_Optometry'));
   const kaleidoscopeMultiplier = getKaleiMultiTot(account, research, observationIndex);
-  return 3 * kaleidoscopeCountOnObservation * (1 + (grid92Bonus + grid91Bonus) / 100) * kaleidoscopeMultiplier;
+  return 3 * kaleidoscopeCountOnObservation * (1 + (grid92Bonus + grid91Bonus) / 100) * (1 + 35 * opticalMonocle / 100) * kaleidoscopeMultiplier;
 }
 
 /** Grid_CanWeSelect: whether this grid square can be selected in the UI. */
@@ -555,7 +563,9 @@ function getResearchEXPmulti(account: any, research: any) {
   const grid70Factor = 1 + grid70 / 100;
   const companion153 = isCompanionBonusActive(account, 153) ? (account?.companions?.list?.at(153)?.bonus ?? 0) : 0;
   const companionFactor = Math.max(1, (1 + companion52) * (1 + companion153));
-  const value = additiveFactor * grid70Factor * companionFactor * (1 + getSushiBonus(account, 0) / 100) * (1 + getButtonBonus(account, 0) / 100) * killroyResearchBonus;
+  const nonstopStudies = getEquinoxBonus(account?.equinox?.upgrades, 'Nonstop_Studies');
+  const nonstopFactor = 1 + nonstopStudies / 100;
+  const value = additiveFactor * grid70Factor * nonstopFactor * companionFactor * (1 + getSushiBonus(account, 0) / 100) * (1 + getButtonBonus(account, 0) / 100) * killroyResearchBonus;
 
   const breakdown = {
     statName: 'Research EXP Multi',
@@ -588,6 +598,7 @@ function getResearchEXPmulti(account: any, research: any) {
         sources: [
           { name: '(1 + total additive % / 100)', value: additiveFactor },
           { name: 'Takin\' Notes', value: grid70Factor },
+          { name: 'Nonstop Studies', value: nonstopFactor },
           { name: 'Companions', value: companionFactor },
           { name: 'Button Bonus', value: 1 + getButtonBonus(account, 0) / 100 },
           { name: 'Killroy Research', value: killroyResearchBonus }

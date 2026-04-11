@@ -774,7 +774,7 @@ export const getKrukBubblesDaily = (account: any) => {
       totalValue: total,
       categories: [
         {
-          name: "Flat",
+          name: "Additive",
           sources: [
             { name: "Minehead", value: mineheadBonus },
             { name: "Base", value: baseAmount },

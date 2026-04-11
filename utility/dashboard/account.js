@@ -1251,7 +1251,8 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
     if (observationRollsLeft?.checked) {
       const rollsLeft = account?.research?.dailyRollsLeft ?? 0;
       const rollsPerDay = account?.research?.rollsPerDay ?? 0;
-      if (rollsLeft > 0) {
+      const allFound = account?.research?.totalOccurrencesFound >= account?.research?.occurrencesToBeFound;
+      if (rollsLeft > 0 && !allFound) {
         research.observationRollsLeft = { left: rollsLeft, max: rollsPerDay };
       }
     }

@@ -65,6 +65,13 @@ export const getStarSignBonus = (character: Character, account: Account, effectN
   const infiniteStarsUnlocked = isRiftBonusUnlocked((account as any)?.rift, 'Infinite_Stars');
   const infiniteStars = infiniteStarsUnlocked ? 5 + getShinyBonus((account as any)?.breeding?.pets, 'Infinite_Star_Signs') : 0;
 
+  // When forceAllWithEffect, use global chip status (any character with Silkroad Nanochip via lab)
+  // and the Rift bonus, matching the game's global DNSM computation
+  const globalChipActive = forceAllWithEffect
+    ? (account as any)?.lab?.playersChips?.flat()?.concat((account as any)?.lab?.chips)
+      ?.some(({ name }: any) => name === 'Silkrode_Nanochip')
+    : false;
+
   const starSignsList = (account as any)?.starSigns?.map((starSign: any, index: number) => {
     let activeStar = (character as any)?.starSigns?.find(({ starName: sName }: any) => sName === starSign?.starName);
     const isInfiniteStar = index < infiniteStars;
@@ -76,7 +83,7 @@ export const getStarSignBonus = (character: Character, account: Account, effectN
       );
 
     if (activeStar) {
-      const silkroadNanochip = getPlayerLabChipBonus(character, account, 15);
+      const silkroadNanochip = globalChipActive || getPlayerLabChipBonus(character, account, 15);
       const chipMulti = silkroadNanochip || forceNanoChip ? 2 : 1;
       activeStar = {
         ...activeStar,
@@ -89,7 +96,7 @@ export const getStarSignBonus = (character: Character, account: Account, effectN
       }
     } else if (hasRequestedEffect && starSign?.unlocked) {
       // This star sign has the requested effect but isn't equipped - force it as active
-      const silkroadNanochip = getPlayerLabChipBonus(character, account, 15);
+      const silkroadNanochip = globalChipActive || getPlayerLabChipBonus(character, account, 15);
       const chipMulti = silkroadNanochip || forceNanoChip ? 2 : 1;
 
       // Create a version of this star sign as if it was equipped
@@ -105,7 +112,7 @@ export const getStarSignBonus = (character: Character, account: Account, effectN
     }
 
     if (infiniteStars && !activeStar && starSign?.unlocked) {
-      const silkroadNanochip = getPlayerLabChipBonus(character, account, 15);
+      const silkroadNanochip = globalChipActive || getPlayerLabChipBonus(character, account, 15);
       const chipMulti = silkroadNanochip || forceNanoChip ? 2 : 1;
       starSign = {
         ...starSign,
@@ -120,7 +127,10 @@ export const getStarSignBonus = (character: Character, account: Account, effectN
     return activeStar ? activeStar : starSign;
   });
 
-  const summoningLevel = (character as any)?.skillsInfo?.summoning?.level;
+  // When forceAllWithEffect (account-wide mode), use highest summoning level like the game does (Lv0[18])
+  const summoningLevel = forceAllWithEffect
+    ? (account as any)?.highestSummoningLevel ?? (character as any)?.skillsInfo?.summoning?.level
+    : (character as any)?.skillsInfo?.summoning?.level;
   const hasSeraphCosmos = starSignsList.find(({ starName, unlocked }: any) => starName === 'Seraph_Cosmos' && unlocked);
   const starSignsBonuses = getStarSignsBonuses(starSignsList);
 

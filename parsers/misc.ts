@@ -988,6 +988,10 @@ export const getItemCapacity = (type = '', character: any, account?: any, forceM
   const allCarryStamps = getStampsBonusByEffect(account, 'Carry_Capacity_for_ALL_item_types!');
   const talentBonus = getTalentBonus(character?.flatTalents, 'EXTRA_BAGS', false, false, character?.addedLevels, true, forceMaxCapacity);
   const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 11);
+  const bundleCapW = isBundlePurchased(account?.bundles, 'bon_w') ? 1 : 0;
+  const bundleCapX = isBundlePurchased(account?.bundles, 'bon_x') ? 1 : 0;
+  const bundleCapY = isBundlePurchased(account?.bundles, 'bon_y') ? 1 : 0;
+  const bundleCapacity = 1000 * (bundleCapW + bundleCapX + bundleCapY);
   const allCap = getAllCap(character, account, forceMaxCapacity);
   const hardCap = 205e7;
   // return Math.floor((v._customBlock_MaxCapacity("AllCapBASE")
@@ -999,15 +1003,17 @@ export const getItemCapacity = (type = '', character: any, account?: any, forceM
   //   (1 + k._customBlock_GetTalentNumber(1, 78) / 100
   //   ) * v._customBlock_MaxCapacity("AllCapBonuses"));
 
+  const allCapBase = upgradeVaultBonus + bundleCapacity;
   let value, breakdown = [
     { title: 'Base' },
     { name: '' },
     ...allCap?.breakdown,
     { value: upgradeVaultBonus, name: 'Upgrade Vault' },
+    { value: bundleCapacity, name: 'Bundle Capacity' },
     { name: '' }
   ];
   if ('bOre' === type || 'bBar' === type || 'cOil' === type) {
-    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Mining) * (1 + minCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
+    value = Math.floor(Math.min(hardCap, (allCapBase + character?.maxCarryCap?.Mining) * (1 + minCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
     breakdown = [
       ...breakdown,
       { title: 'Mining' },
@@ -1020,7 +1026,7 @@ export const getItemCapacity = (type = '', character: any, account?: any, forceM
     ]
   }
   else if ('dFish' === type) {
-    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Fishing) * (1 + (25 * gemshop) / 100) * (1 + fishCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
+    value = Math.floor(Math.min(hardCap, (allCapBase + character?.maxCarryCap?.Fishing) * (1 + (25 * gemshop) / 100) * (1 + fishCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
     breakdown = [
       ...breakdown,
       { title: 'Fishing' },
@@ -1033,7 +1039,7 @@ export const getItemCapacity = (type = '', character: any, account?: any, forceM
     ]
   }
   else if ('dBugs' === type) {
-    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Bugs) * (1 + (25 * gemshop) / 100) * (1 + catchCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
+    value = Math.floor(Math.min(hardCap, (allCapBase + character?.maxCarryCap?.Bugs) * (1 + (25 * gemshop) / 100) * (1 + catchCapStamps / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
     breakdown = [
       ...breakdown,
       { title: 'Catching' },
@@ -1046,7 +1052,7 @@ export const getItemCapacity = (type = '', character: any, account?: any, forceM
     ]
   }
   else if ('bLog' === type || 'bLeaf' === type) {
-    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Chopping) * (1 + chopCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
+    value = Math.floor(Math.min(hardCap, (allCapBase + character?.maxCarryCap?.Chopping) * (1 + chopCapStamps / 100) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
     breakdown = [
       ...breakdown,
       { title: 'Chopping' },
@@ -1059,7 +1065,7 @@ export const getItemCapacity = (type = '', character: any, account?: any, forceM
     ]
   }
   else if ('cFood' === type) {
-    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Foods) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
+    value = Math.floor(Math.min(hardCap, (allCapBase + character?.maxCarryCap?.Foods) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
     breakdown = [
       ...breakdown,
       { title: 'Food' },
@@ -1071,7 +1077,7 @@ export const getItemCapacity = (type = '', character: any, account?: any, forceM
     ]
   }
   else if ('dCritters' === type) {
-    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Critters) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
+    value = Math.floor(Math.min(hardCap, (allCapBase + character?.maxCarryCap?.Critters) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
     breakdown = [
       ...breakdown,
       { title: 'Critters' },
@@ -1083,7 +1089,7 @@ export const getItemCapacity = (type = '', character: any, account?: any, forceM
     ]
   }
   else if ('dSouls' === type) {
-    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.Souls) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
+    value = Math.floor(Math.min(hardCap, (allCapBase + character?.maxCarryCap?.Souls) * (1 + (25 * gemshop) / 100) * (1 + (allCarryStamps + starSignBonus) / 100) * allCap?.value));
     breakdown = [
       ...breakdown,
       { title: 'Souls' },
@@ -1101,7 +1107,7 @@ export const getItemCapacity = (type = '', character: any, account?: any, forceM
     value = 999999999;
   }
   else if ('bCraft' === type) {
-    value = Math.floor(Math.min(hardCap, (upgradeVaultBonus + character?.maxCarryCap?.bCraft)
+    value = Math.floor(Math.min(hardCap, (allCapBase + character?.maxCarryCap?.bCraft)
       * (1 + matCapStamps / 100) * (1 + (25 * gemshop) / 100)
       * (1 + (allCarryStamps + starSignBonus) / 100) * (1 + talentBonus / 100) * allCap?.value));
     breakdown = [

@@ -7,6 +7,8 @@ import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
+import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
+import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 
 const getRawMinehead = (idleonData: any) => {
   const raw = tryToParse(idleonData?.Research) || idleonData?.Research;
@@ -125,10 +127,14 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
 
   // --- Opponent mine count (depth charges) ---
   // handleMines_Opp
+  const superbitReduction = Math.min(1, isSuperbitUnlocked(account, 'Less_Charge') ? 1 : 0);
+  const cloud41Reduction = Math.min(1, account?.equinox?.challenges?.[41]?.current === -1 ? 1 : 0);
+  const jadeReduction = Number(isJadeBonusUnlocked(account, 'Depth_Charge_Disposal'));
   const getMinesOpp = (t: any) =>
-    Math.round(Math.min(40, 1 + (
-      Math.floor(t / 3) + Math.floor(t / 7) + Math.floor(t / 13)
-      + Math.min(1, Math.floor(t / 15)) + Math.floor(t / 17)
+    Math.round(Math.min(40, Math.max(1,
+      1 - (superbitReduction + cloud41Reduction + jadeReduction)
+      + (Math.floor(t / 3) + Math.floor(t / 7) + Math.floor(t / 13)
+        + Math.min(1, Math.floor(t / 15)) + Math.floor(t / 17))
     )));
 
   // --- Computed stats ---

@@ -339,14 +339,6 @@ const Bubbles = () => {
                   <Tooltip title={'List view'}><ToggleButton sx={{ height: 35 }}
                                                              value="list"><IconList/></ToggleButton></Tooltip>
                 </ToggleButtonGroup>
-                <Link underline={'hover'}
-                      sx={{ cursor: 'pointer' }}
-                      onClick={() => router.push({ pathname: 'old-bubbles' })}>
-                  <Stack direction={'row'} alignItems={'center'}>
-                    <IconChevronRight size={16}/>
-                    <Typography>Old Page</Typography>
-                  </Stack>
-                </Link>
               </Stack>
             </Stack>
           </CardContent>

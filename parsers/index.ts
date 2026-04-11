@@ -37,6 +37,7 @@ import {
   getKillRoy,
   getLibraryBookTimes,
   getSlab,
+  getHighestCharacterSkill,
   getTypeGen
 } from './misc';
 import { getLegendTalents } from './world-7/legendTalents';
@@ -240,6 +241,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.statues = applyStatuesMulti(accountData, charactersData);
   const skills = charactersData?.map(({ name, skillsInfo }: any) => ({ name, skillsInfo }));
   accountData.totalSkillsLevels = calculateTotalSkillsLevel(skills);
+  accountData.highestSummoningLevel = getHighestCharacterSkill(charactersData, 'summoning');
   accountData.construction = getConstruction(idleonData, accountData);
   accountData.atoms = getAtoms(idleonData, accountData);
   const artifacts = getArtifacts(idleonData, charactersData, accountData)

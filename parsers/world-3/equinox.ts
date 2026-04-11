@@ -10,6 +10,7 @@ import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
+import { getResearchGridBonus } from '@parsers/world-7/research';
 
 export const getEquinox = (idleonData: any, account: any) => {
   const weeklyBoss = tryToParse(idleonData?.WeeklyBoss) || idleonData?.WeeklyBoss;
@@ -26,14 +27,16 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
   }, {});
   const completedClouds = Object.values(clouds).reduce((sum: any, key) => sum + (key === -1 ? 1 : 0), 0)
   let nbChallengeActive = dream[2];
+  const researchG8Level = getResearchGridBonus(account, 86, 1);
   const challenges = equinoxChallenges.map(({ label, goal, reward }, index) => ({
     label,
     goal,
     reward,
     current: clouds[index] || 0,
-    active: clouds[index] !== -1 && 0 < nbChallengeActive--
+    active: clouds[index] !== -1 && 0 < nbChallengeActive--,
+    locked: index >= 36 && researchG8Level < 1
   }));
-  const upgrades = parseEquinoxUpgrades(challenges, dream.slice(2, 14), account);
+  const upgrades = parseEquinoxUpgrades(challenges, dream.slice(2, 16), account);
   const bundleBonus = isBundlePurchased(account?.bundles, 'bun_q');
   const eqBarVial = getVialsBonusByStat(account?.alchemy?.vials, 'EqBar');
   const voteBonus = getVoteBonus(account, 32);
@@ -45,22 +48,36 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
   const tesseractBonus = getTesseractBonus(account, 37);
   const loreEpiBonus = getLoreBossBonus(account, 8) ?? 0;
 
-  const cloudsBonus = (
-    (10 * Number(clouds[3] === -1)
-      + (15 * Number(clouds[9] === -1)
-        + (20 * Number(clouds[14] === -1)
-          + (25 * Number(clouds[19] === -1)
-            + (30 * Number(clouds[22] === -1)
-              + (35 * Number(clouds[24] === -1)
-                + 40 * Number(clouds[29] === -1))))))));
+  const cb = (i: number) => Number(clouds[i] === -1);
+  const cloudsBonus =
+    10 * cb(3) + 15 * cb(9) + 20 * cb(14) + 25 * cb(19)
+    + 30 * cb(22) + 35 * cb(24) + 40 * cb(29)
+    + 60 * cb(38) + 65 * cb(40) + 75 * cb(44)
+    + 90 * cb(46) + 100 * cb(48) + 120 * cb(51)
+    + 150 * cb(54) + 160 * cb(56) + 170 * cb(57)
+    + 185 * cb(60) + 190 * cb(62) + 195 * cb(63)
+    + 200 * cb(65) + 220 * cb(68) + 250 * cb(74);
+
+  const researchG8Bonus = getResearchGridBonus(account, 86, 0);
+  const cloudMulti45 = 3 * cb(45);
+  const cloudMulti49 = 5 * cb(49);
+  const cloudMulti52 = 6 * cb(52);
+  const cloudMulti59 = 7 * cb(59);
+  const cloudMulti67 = 7 * cb(67);
 
   const base = (1 + voteBonus / 100)
+    * (1 + researchG8Bonus / 100)
     * (1 + loreEpiBonus / 100)
     * (1 + companionBonus)
     * (1 + cosmoBonus / 100)
     * (1 + 0.5 * eventShopBonus)
     * (1 + account?.accountOptions?.[320] / 10)
     * (1 + tesseractBonus / 100)
+    * (1 + cloudMulti45 / 100)
+    * (1 + cloudMulti49 / 100)
+    * (1 + cloudMulti52 / 100)
+    * (1 + cloudMulti59 / 100)
+    * (1 + cloudMulti67 / 100)
     * (1 + (eqBarVial + cloudsBonus + arcadeBonus + emperorBonus) / 100)
 
   const breakdown = [
@@ -68,13 +85,19 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
     { name: '' },
     { name: 'Arcade', value: arcadeBonus / 100 },
     { name: 'Vote', value: voteBonus / 100 },
+    { name: 'Research G8', value: researchG8Bonus / 100 },
     { name: 'Cosmo', value: cosmoBonus / 100 },
     { name: 'Tome', value: loreEpiBonus / 100 },
     { name: 'Companion', value: companionBonus },
     { name: 'Event shop', value: .5 * eventShopBonus },
     { name: 'Penguins', value: 1 + account?.accountOptions?.[320] / 10 },
     { name: 'Vial', value: eqBarVial / 100 },
-    { name: 'Clouds', value: cloudsBonus / 100 },
+    { name: 'Clouds (additive)', value: cloudsBonus / 100 },
+    { name: 'Cloud Multi 45', value: cloudMulti45 / 100 },
+    { name: 'Cloud Multi 49', value: cloudMulti49 / 100 },
+    { name: 'Cloud Multi 52', value: cloudMulti52 / 100 },
+    { name: 'Cloud Multi 59', value: cloudMulti59 / 100 },
+    { name: 'Cloud Multi 67', value: cloudMulti67 / 100 },
     { name: 'Emperor', value: emperorBonus / 100 },
     { name: 'Tesseract', value: tesseractBonus / 100 },
     { name: 'Bundle*', value: bundleBonus ? 90 : 60 }
@@ -117,7 +140,8 @@ const parseEquinoxUpgrades = (challenges: any, dream: any, account: any) => {
     const cloudBonusMap = {
       4: 5 * getCloudBonus(challenges, 12) +
         10 * getCloudBonus(challenges, 18) +
-        10 * getCloudBonus(challenges, 34),
+        10 * getCloudBonus(challenges, 34) +
+        10 * getCloudBonus(challenges, 39),
       5: 6 * getCloudBonus(challenges, 32),
       8: 5 * getCloudBonus(challenges, 21) + 10 * getCloudBonus(challenges, 26),
       9: 4 * getCloudBonus(challenges, 25),
@@ -139,6 +163,22 @@ const parseEquinoxUpgrades = (challenges: any, dream: any, account: any) => {
         maxLevel
         + winBonus
         + superbitBonus
+      );
+    }
+    else if (index === 12) {
+      totalValue = Math.round(
+        maxLevel
+        + winBonus
+        + 5 * getCloudBonus(challenges, 37)
+        + 5 * getCloudBonus(challenges, 42)
+        + 5 * getCloudBonus(challenges, 43)
+        + 5 * getCloudBonus(challenges, 47)
+        + 5 * getCloudBonus(challenges, 50)
+        + 5 * getCloudBonus(challenges, 55)
+        + 6 * getCloudBonus(challenges, 58)
+        + 6 * getCloudBonus(challenges, 61)
+        + 7 * getCloudBonus(challenges, 64)
+        + 8 * getCloudBonus(challenges, 75)
       );
     }
     else if (index in cloudBonusMap) {

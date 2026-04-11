@@ -13,16 +13,17 @@ const Challenges = ({ challenges, completedClouds }) => {
     <Stack mb={1} gap={3} direction={'row'} flexWrap={'wrap'}>
       {completedClouds >= challenges?.length && hideCompleted
         ? <Typography variant={'h4'}>No more challenges!</Typography>
-        : challenges?.map(({ label, reward, current, active }, index) => {
+        : challenges?.map(({ label, reward, current, active, locked }, index) => {
           if (current === -1 && hideCompleted) return null;
           return <Card key={label + `${index}`} sx={{
             width: 350,
             border: active ? '1px solid' : '',
             borderColor: active ? 'success.light' : '',
-            opacity: current === -1 || active ? 1 : .5
+            opacity: locked ? .3 : current === -1 || active ? 1 : .5
           }}>
             <CardContent>
               <Stack>
+                {locked ? <Typography color="warning.main" sx={{ mb: 1 }}>Requires Research G8</Typography> : null}
                 <Typography>Challenge: </Typography>
                 <Typography>{cleanUnderscore(label.capitalize())}</Typography>
                 <Typography sx={{ mt: 3 }}>Reward: </Typography>
