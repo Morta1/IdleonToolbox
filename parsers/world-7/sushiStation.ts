@@ -283,6 +283,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
       category: cat,
       discovered: (uniqueSushiTracking[i] ?? -1) >= 0,
       perfecto: (uniqueSushiTracking[i] ?? 0) >= 1,
+      perfectOdds: (uniqueSushiTracking[i] ?? 0) >= 1 ? undefined : perfectOdds(i),
       highestTier: uniqueSushiTracking[i] ?? -1
     };
   });
@@ -328,6 +329,8 @@ export const getSushiStation = (idleonData: any, account: any) => {
     };
   }) ?? [];
 
+  const nextUnperfectedIdx = knowledge.findIndex(k => k.discovered && !k.perfecto);
+
   // --- Fireplaces ---
   const fireplaces = fireplaceTypes.map((type: number, i: number) => ({
     index: i,
@@ -346,7 +349,12 @@ export const getSushiStation = (idleonData: any, account: any) => {
     knowledgeTotals,
     rogBonuses,
     fireplaces,
-    sushiCooking: { maxCookTier, bonusCookTierPCT, perfectOdds: perfectOdds(0) },
+    sushiCooking: {
+      maxCookTier,
+      bonusCookTierPCT,
+      perfectOdds: nextUnperfectedIdx >= 0 ? perfectOdds(nextUnperfectedIdx) : 0,
+      nextUnperfectedIdx
+    },
     knowledgeSummary,
     shakerUses,
     slotsOwned: 10,

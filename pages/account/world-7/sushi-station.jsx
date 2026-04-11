@@ -2,6 +2,8 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Stack } from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
+import HtmlTooltip from '@components/Tooltip';
 import { CardTitleAndValue, MissingData } from '@components/common/styles';
 import { commaNotation, getTabs, notateNumber } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
@@ -75,11 +77,15 @@ const SushiStation = () => {
           tooltipTitle={`Cook a Tier ${tier} sushi to discover ${knowledge[uniqueSushi].name}`}
         />;
       })()}
-      <CardTitleAndValue
+      {sushiCooking?.nextUnperfectedIdx >= 0 && <CardTitleAndValue
         title={'Perfecto Chance'}
-        value={`${parseFloat((sushiCooking?.perfectOdds * 100)?.toFixed(2))}%`}
-        tooltipTitle={'Base chance to Perfecto the next undiscovered sushi'}
-      />
+        value={<Stack direction="row" gap={0.5} alignItems="center">
+          {`${parseFloat((sushiCooking?.perfectOdds * 100)?.toFixed(2))}%`}
+          <HtmlTooltip title={`Base chance to Perfecto ${knowledge?.[sushiCooking.nextUnperfectedIdx]?.name || 'next sushi'}`}>
+            <InfoIcon sx={{ fontSize: 16, color: 'text.secondary' }}/>
+          </HtmlTooltip>
+        </Stack>}
+      />}
       <CardTitleAndValue
         title={'Salt Shaker'}
         value={shakerUses?.[0] || '0'}

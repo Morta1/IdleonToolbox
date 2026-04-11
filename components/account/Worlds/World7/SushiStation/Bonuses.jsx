@@ -79,6 +79,11 @@ const Bonuses = ({ rogBonuses, uniqueSushi, knowledge }) => {
                           {kn.bonusDescription}
                         </Typography>
                       )}
+                      {!kn.perfecto && kn.perfectOdds != null && (
+                        <Typography variant="caption">
+                          Perfecto chance: {parseFloat((kn.perfectOdds * 100).toFixed(2))}%
+                        </Typography>
+                      )}
                     </Stack>
                   )}
                 </Stack>
