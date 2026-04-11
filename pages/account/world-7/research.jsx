@@ -9,6 +9,7 @@ import { PAGES } from '@components/constants';
 import { getTabs } from '@utility/helpers';
 import Grid from '@components/account/Worlds/World7/Research/Grid';
 import Observations from '@components/account/Worlds/World7/Research/Observations';
+import PostyNotes from '@components/account/Worlds/World7/Research/PostyNotes';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
@@ -32,7 +33,8 @@ const Research = () => {
     magnifiersOwned,
     kaleidoscopeOwned,
     gridSquares,
-    observations
+    observations,
+    postyNotes
   } = research;
 
   const overview = (
@@ -83,6 +85,7 @@ const Research = () => {
       <Stack alignItems="stretch">
         <Observations observations={observations} />
       </Stack>
+      <PostyNotes postyNotes={postyNotes} />
     </Tabber>
   </>
 };

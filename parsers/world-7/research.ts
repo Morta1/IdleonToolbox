@@ -262,6 +262,12 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
     shapesOwned,
     canRotateShapes: researchLevel >= 90 ? 1 : 0,
     postyNotesOwned: Math.min(14, Math.floor(researchLevel / 10)),
+    postyNotes: (researchData?.[6] ?? []).map((desc: string, index: number) => ({
+      index,
+      description: desc,
+      unlockLevel: (index + 1) * 10,
+      unlocked: researchLevel >= (index + 1) * 10
+    })),
     transcendentArtifactsUnlocked: grid109 >= 1 ? 1 : 0,
     greenSigilsUnlocked: grid128 >= 1 && loreBoss6 ? 1 : 0,
     greenSigilTrueDMG:
