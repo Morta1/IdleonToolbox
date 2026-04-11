@@ -2,6 +2,7 @@ import { commaNotation, notateNumber, tryToParse, lavaLog } from '@utility/helpe
 import { upgradeVault } from '@website-data';
 import { isBundlePurchased, getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 export const getUpgradeVault = (idleonData: any, accountData: any, charactersData: any[]) => {
   const upgradeVaultRaw = idleonData?.UpgVault || tryToParse(idleonData?.UpgVault);
@@ -80,10 +81,11 @@ const getUpgradeCost = (upgrades: any, index: any, accountData: any) => {
   const dartsBonusReduction = 1 / (1 + (accountData?.accountOptions?.[437] || 0) / 100);
   const companionBonus99 = isCompanionBonusActive(accountData, 99) ? accountData?.companions?.list?.at(99)?.bonus : 0;
   const companionMulti = Math.max(0.1, 1 - companionBonus99 / 100);
+  const sushiDiscount = Math.max(0.1, 1 - Math.max(getSushiBonus(accountData, 38), getSushiBonus(accountData, 47)) / 100);
 
   return 33 > index
-    ? Math.max(0.001, (1 / (1 + calcUpgradeVaultBonus(upgrades, 13) / 100)) * dartsBonusReduction) * companionMulti * baseCost
-    : Math.max(0.01, dartsBonusReduction) * companionMulti * Math.pow(1.1, Math.max(0, index - 61)) * baseCost;
+    ? Math.max(0.001, (1 / (1 + calcUpgradeVaultBonus(upgrades, 13) / 100)) * dartsBonusReduction) * companionMulti * sushiDiscount * baseCost
+    : Math.max(0.01, dartsBonusReduction) * companionMulti * sushiDiscount * Math.pow(1.1, Math.max(0, index - 61)) * baseCost;
 }
 
 export const getUpgradeVaultBonus = (upgrades: any, index: any) => {
