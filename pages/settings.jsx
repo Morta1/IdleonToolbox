@@ -115,12 +115,12 @@ const Settings = () => {
   const [isDisabled, setIsDisabled] = useState(false);
   const [uploaded, setUploaded] = useState(false);
   const [anonId, setAnonId] = useState(null);
-  const [leaderboardConsent, setLeaderboardConsent] = useLocalStorage({
-    key: 'data:leaderboardConsent',
+  const [profileAccess, setProfileAccess] = useLocalStorage({
+    key: 'data:profileAccess',
     defaultValue: 'off'
   });
-  const [profileVisibility, setProfileVisibility] = useLocalStorage({
-    key: 'data:profileVisibility',
+  const [leaderboardParticipation, setLeaderboardParticipation] = useLocalStorage({
+    key: 'data:leaderboardParticipation',
     defaultValue: 'off'
   });
   const [removeGemsInfo, setRemoveGemsInfo] = useLocalStorage({ key: 'data:removeGemsInfo', defaultValue: true });
@@ -141,15 +141,47 @@ const Settings = () => {
     }
   }, [lastUpload]);
 
-  // One-time migration: derive profileVisibility from existing leaderboardConsent
+  // One-time migration: derive new profileAccess + leaderboardParticipation
+  // from the old profileVisibility + leaderboardConsent localStorage keys.
   useEffect(() => {
-    const migrated = localStorage.getItem('profileVisibility:migrated');
+    const migrated = localStorage.getItem('profileAccess:migrated');
     if (migrated) return;
-    localStorage.setItem('profileVisibility:migrated', '1');
-    const normalized = leaderboardConsent === true ? 'public' : leaderboardConsent === false ? 'off' : leaderboardConsent;
-    if (normalized === 'public') {
-      setProfileVisibility('on');
+    localStorage.setItem('profileAccess:migrated', '1');
+
+    const oldVisibility = localStorage.getItem('data:profileVisibility');
+    const oldConsentRaw = localStorage.getItem('data:leaderboardConsent');
+    // Mantine useLocalStorage stores values JSON-encoded, so parse if possible
+    let oldConsent = oldConsentRaw;
+    try { oldConsent = JSON.parse(oldConsentRaw); } catch { /* keep raw */ }
+    let oldVis = oldVisibility;
+    try { oldVis = JSON.parse(oldVisibility); } catch { /* keep raw */ }
+
+    // Normalize legacy boolean consent
+    if (oldConsent === true) oldConsent = 'public';
+    if (oldConsent === false) oldConsent = 'off';
+    if (oldConsent == null) oldConsent = 'off';
+
+    let newAccess;
+    let newParticipation;
+    if (oldConsent === 'anonymous') {
+      newAccess = 'anonymous';
+      newParticipation = 'on';
+    } else if (oldVis === 'off') {
+      newAccess = 'off';
+      newParticipation = 'off';
+    } else if (oldConsent === 'public') {
+      newAccess = 'public';
+      newParticipation = 'on';
+    } else if (oldVis === 'on') {
+      newAccess = 'public';
+      newParticipation = 'off';
+    } else {
+      newAccess = 'off';
+      newParticipation = 'off';
     }
+
+    setProfileAccess(newAccess);
+    setLeaderboardParticipation(newParticipation);
   }, []);
 
   useTimeout(() => {
@@ -220,11 +252,12 @@ const Settings = () => {
       setLoading(true);
       setError('');
       try {
-        const normalizedConsent = leaderboardConsent === true ? 'public' : leaderboardConsent === false ? 'off' : leaderboardConsent;
+        // Safety: no leaderboard without a profile
+        const safeParticipation = profileAccess === 'off' ? 'off' : leaderboardParticipation;
         const result = await uploadProfile({
           profile: { ...userData, parsedData },
-          profileVisibility,
-          leaderboardConsent: normalizedConsent
+          profileAccess,
+          leaderboardParticipation: safeParticipation
         }, state?.accessToken);
         const newAnonId = result?.anonId || null;
         setAnonId(newAnonId);
@@ -321,40 +354,43 @@ const Settings = () => {
                 <Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)}/>
               </SettingRow>
 
-              <SettingRow label="Profile visibility"
-                          description="Allow others to view your profile via direct link">
-                <Switch checked={profileVisibility === 'on'} onChange={() => {
-                  const newValue = profileVisibility === 'on' ? 'off' : 'on';
-                  setProfileVisibility(newValue);
-                  if (newValue === 'off') {
-                    const normalized = leaderboardConsent === true ? 'public' : leaderboardConsent === false ? 'off' : leaderboardConsent;
-                    if (normalized === 'public') {
-                      setLeaderboardConsent('off');
-                    }
-                  }
-                }}/>
-              </SettingRow>
-
               <SettingRow label={<Stack direction="row" alignItems="center" gap={0.5}>
-                Leaderboard
+                Profile access
                 <HtmlTooltip title={<Stack spacing={0.5}>
-                  <Typography variant="body2"><strong>Off</strong> - Not listed on leaderboards</Typography>
-                  <Typography variant="body2"><strong>Public</strong> - Ranked by character name</Typography>
-                  <Typography variant="body2"><strong>Anonymous</strong> - Ranked under an anonymous ID</Typography>
+                  <Typography variant="body2"><strong>Off</strong> - Profile not visible anywhere</Typography>
+                  <Typography variant="body2"><strong>Public</strong> - Profile viewable by character name</Typography>
+                  <Typography variant="body2"><strong>Anonymous</strong> - Profile viewable only via anonymous ID</Typography>
                 </Stack>}>
                   <IconInfoCircle size={16} style={{ cursor: 'pointer' }}/>
                 </HtmlTooltip>
-              </Stack>} description="Control how you appear in public rankings">
+              </Stack>} description="Control how your profile can be accessed">
                 <ToggleButtonGroup
-                  value={leaderboardConsent === true ? 'public' : leaderboardConsent === false ? 'off' : leaderboardConsent}
+                  value={profileAccess}
                   exclusive
-                  onChange={(_, val) => { if (val) setLeaderboardConsent(val); }}
+                  onChange={(_, val) => {
+                    if (!val) return;
+                    setProfileAccess(val);
+                    if (val === 'off') {
+                      setLeaderboardParticipation('off');
+                    }
+                  }}
                   size="small"
                 >
                   <ToggleButton value="off">Off</ToggleButton>
-                  <ToggleButton value="public" disabled={profileVisibility !== 'on'}>Public</ToggleButton>
+                  <ToggleButton value="public">Public</ToggleButton>
                   <ToggleButton value="anonymous">Anonymous</ToggleButton>
                 </ToggleButtonGroup>
+              </SettingRow>
+
+              <SettingRow label="Leaderboard participation"
+                          description="Appear in public rankings (requires profile access to be enabled)">
+                <Switch
+                  checked={leaderboardParticipation === 'on'}
+                  disabled={profileAccess === 'off'}
+                  onChange={() => {
+                    setLeaderboardParticipation(leaderboardParticipation === 'on' ? 'off' : 'on');
+                  }}
+                />
               </SettingRow>
             </Stack>
           </Stack>
