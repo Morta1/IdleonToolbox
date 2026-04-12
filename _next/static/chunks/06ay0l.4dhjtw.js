@@ -1,0 +1,15 @@
+__turbopack_load_page_chunks__("/account/task-board/tasks", [
+  "static/chunks/0g0ell3av_pwq.js",
+  "static/chunks/0_be.zdej7zfo.js",
+  "static/chunks/052.o.9q9z6h4.js",
+  "static/chunks/0o~0-o0g2~fr9.js",
+  "static/chunks/0hha4~5yi~g34.js",
+  "static/chunks/0gdhjfdy-wuqx.js",
+  "static/chunks/0mpfqmmtjfj9u.js",
+  "static/chunks/0b7rnuxo0jn_w.js",
+  "static/chunks/062589ab_opb1.js",
+  "static/chunks/0i274vfzms9_y.js",
+  "static/chunks/070n7trb-tg7c.js",
+  "static/chunks/0otdh-5fu63-z.js",
+  "static/chunks/turbopack-0e2p0pudc75w9.js"
+])
