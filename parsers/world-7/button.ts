@@ -5,7 +5,7 @@ import {
   ButtonBonusNames as bonusNamesData
 } from '@website-data';
 import { getResearchGridBonus } from '@parsers/world-7/research';
-import { isCompanionBonusActive, getGoldenFoodMulti } from '@parsers/misc';
+import { isCompanionBonusActive, getGoldenFoodMulti, getHighestCharacterSkill } from '@parsers/misc';
 import { getClassExpMulti, getDropRate, getPlayerConstructionSpeed } from '@parsers/character';
 import { getMaxDamage } from '@parsers/damage';
 
@@ -24,7 +24,7 @@ function parseBonusName(raw: string): { name: string; displayFormat: 'multi' | '
   return { name: cleaned, displayFormat: isAdditive ? 'additive' : 'multi' };
 }
 
-export const getButton = (account: any) => {
+export const getButton = (account: any, characters: any = []) => {
   const accountOptions = account?.accountOptions ?? [];
   const tasks: any[] = buttonTasksData ?? [];
   const bonusPerPress: number[] = (bonusPerPressData as any) ?? [];
@@ -91,7 +91,7 @@ export const getButton = (account: any) => {
     const task = tasks[entry.taskIdx];
     if (!task) return null;
     const req = getTaskRequirement(task, entry.pressAtOffset);
-    const progress = getTaskProgress(entry.taskIdx, account);
+    const progress = getTaskProgress(entry.taskIdx, account, characters);
     const futureRequirements: number[] = [];
     for (let j = i + 1; j < rawSequence.length && futureRequirements.length < 5; j++) {
       if (rawSequence[j].taskIdx === entry.taskIdx) {
@@ -153,7 +153,7 @@ function getTaskRequirement(task: any, totalPresses: number): number {
  * Uses parsed account data where available, raw idleonData only when necessary.
  * Indices that require complex live calculations return 0.
  */
-function getTaskProgress(taskIndex: number, account: any): number {
+function getTaskProgress(taskIndex: number, account: any, characters: any = []): number {
   const opts = account?.accountOptions ?? [];
 
   switch (taskIndex) {
@@ -221,13 +221,13 @@ function getTaskProgress(taskIndex: number, account: any): number {
     // 29: Tome score
     case 29: return account?.tome?.totalPoints ?? 0;
 
-    // 30-35: Skill levels (highest across characters)
-    case 30: return account?.totalSkillsLevels?.laboratory?.level ?? 0;
-    case 31: return account?.totalSkillsLevels?.sneaking?.level ?? 0;
-    case 32: return account?.totalSkillsLevels?.spelunking?.level ?? 0;
-    case 33: return account?.totalSkillsLevels?.mining?.level ?? 0;
-    case 34: return account?.totalSkillsLevels?.chopping?.level ?? 0;
-    case 35: return account?.totalSkillsLevels?.divinity?.level ?? 0;
+    // 30-35: Skill levels (highest single character, not the account sum)
+    case 30: return getHighestCharacterSkill(characters, 'laboratory');
+    case 31: return getHighestCharacterSkill(characters, 'sneaking');
+    case 32: return getHighestCharacterSkill(characters, 'spelunking');
+    case 33: return getHighestCharacterSkill(characters, 'mining');
+    case 34: return getHighestCharacterSkill(characters, 'chopping');
+    case 35: return getHighestCharacterSkill(characters, 'divinity');
 
     // 36: Divinity PTS
     case 36: return account?.divinity?.divinityPoints ?? 0;
