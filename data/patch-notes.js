@@ -4,6 +4,21 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.38',
+    'gameVer': '2.3.502',
+    'date': '14/04/2026',
+    'features': [
+      'Gem Shop: new "Past limited specials" section listing items that used to exist in the shop (Equinox Penguins, Rupie Slug, etc.) — extracted from historical game versions',
+      'Equinox: challenges now show a "Requirements met" highlight on cards that are not in your active 5 but whose goal is already fulfilled',
+      'The Harp (Hole cavern): new Strings row showing which in-game note each harp string slot is tuned to',
+      'The Button: new dashboard alerts for insta-skip availability and task-ready states',
+    ],
+    'fixes': [
+      'Equinox: active challenge count is now capped at 5 to match the game (previously could visually mark more than 5 as active if the "Clouds Owned" upgrade exceeded 5)',
+      'The Button: skill task requirements now use the highest single-character skill level instead of the account-wide total',
+    ]
+  },
+  {
     'ver': '3.3.37',
     'gameVer': '2.3.502',
     'date': '11/04/2026',
