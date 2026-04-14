@@ -1108,6 +1108,29 @@ const migration45 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration46 = (dashboardConfig) => {
+  if (!dashboardConfig.account) dashboardConfig.account = {};
+  if (!dashboardConfig.account['World 7']) dashboardConfig.account['World 7'] = {};
+  const existing = dashboardConfig.account['World 7'].theButton;
+  if (!existing) {
+    dashboardConfig.account['World 7'].theButton = {
+      checked: true,
+      options: [
+        { name: 'instaSkipAvailable', checked: true },
+        { name: 'taskReady', checked: true }
+      ]
+    };
+  } else {
+    const opts = existing.options ?? [];
+    if (!opts.find(o => o.name === 'taskReady')) {
+      opts.push({ name: 'taskReady', checked: true });
+    }
+    existing.options = opts;
+  }
+  dashboardConfig.version = 46;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1155,6 +1178,7 @@ const migrations = {
   43: migrateToVersion43,
   44: migration44,
   45: migration45,
+  46: migration46,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

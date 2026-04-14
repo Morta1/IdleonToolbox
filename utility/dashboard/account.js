@@ -1296,6 +1296,23 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       alerts.sushiStation = sushiStation;
     }
   }
+  if (fields?.theButton?.checked) {
+    const theButton = {};
+    const { instaSkipAvailable, taskReady } = options?.theButton || {};
+    const currentTask = account?.button?.currentTask;
+    if (instaSkipAvailable?.checked) {
+      const skipsLeft = account?.button?.instaSkipsLeft ?? 0;
+      if (skipsLeft > 0 && currentTask && !currentTask.isReady) {
+        theButton.instaSkipAvailable = { skipsLeft };
+      }
+    }
+    if (taskReady?.checked && currentTask?.isReady) {
+      theButton.taskReady = true;
+    }
+    if (Object.keys(theButton).length > 0) {
+      alerts.theButton = theButton;
+    }
+  }
   return alerts;
 };
 export const areKeysOverdue = (account) => {

@@ -580,6 +580,15 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                     key={`sushi-kn-${sushi.index}`}
                     title={`${sushi.name} is ready for knowledge level-up (Lv.${sushi.level})`}
                     iconPath={`data/Sushi${sushi.index}`}/>) : null}
+              {alerts?.['World 7']?.theButton?.instaSkipAvailable ?
+                <Alert
+                  title={`${alerts?.['World 7']?.theButton?.instaSkipAvailable?.skipsLeft} insta-skip${alerts?.['World 7']?.theButton?.instaSkipAvailable?.skipsLeft === 1 ? '' : 's'} available - current task can be skipped`}
+                  iconPath={'etc/ButtonG'}
+                  imgStyle={{ filter: 'hue-rotate(180deg) saturate(1.5)' }}/> : null}
+              {alerts?.['World 7']?.theButton?.taskReady ?
+                <Alert
+                  title={'Button task ready - no insta-skip needed'}
+                  iconPath={'etc/ButtonG'}/> : null}
             </Stack>
           </Stack> : null}
         </Stack> : <Typography>There are no account alerts to display</Typography>}

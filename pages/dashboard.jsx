@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 45,
+  version: 46,
   account: {
     General: {
       tasks: {
@@ -435,6 +435,13 @@ const baseTrackers = {
             checked: true
           },
           { name: 'knowledgeLevelUp', checked: true },
+        ]
+      },
+      theButton: {
+        checked: true,
+        options: [
+          { name: 'instaSkipAvailable', checked: true },
+          { name: 'taskReady', checked: true }
         ]
       }
     }
