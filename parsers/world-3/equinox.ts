@@ -26,7 +26,7 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
     return obj;
   }, {});
   const completedClouds = Object.values(clouds).reduce((sum: any, key) => sum + (key === -1 ? 1 : 0), 0)
-  let nbChallengeActive = dream[2];
+  let nbChallengeActive = Math.min(5, dream[2]);
   const researchG8Level = getResearchGridBonus(account, 86, 1);
   const challenges = equinoxChallenges.map(({ label, goal, reward }, index) => ({
     label,
