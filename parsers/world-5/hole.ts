@@ -67,7 +67,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     bellRingLevels = [], // 17
     bellRelated = [],  // 18
     harpRelated = [], // 19
-    ,// 20
+    harpStringNotes = [], // 20
     wishesUsed = [], // 21
     measurementBuffLevels = [], // 22
     parallelVillagersGemShop = [], // 23
@@ -98,6 +98,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     bellRingLevels,
     bellRelated,
     harpRelated,
+    harpStringNotes,
     wishesUsed,
     measurementBuffLevels,
     parallelVillagersGemShop,
