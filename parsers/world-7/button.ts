@@ -244,8 +244,8 @@ function getTaskProgress(taskIndex: number, account: any, characters: any = []):
     // 40: Total plants picked in Gaming (Elegant Seashell)
     case 40: return account?.gaming?.totalPlantsPicked ?? 0;
 
-    // 41: Palette Multi
-    case 41: return account?.gaming?.paletteFinalBonus ?? 0;
+    // 41: Palette Multi (in-game "Palette Multi" = Palette Luck multiplier, shown as "x")
+    case 41: return account?.gaming?.paletteLuck?.value ?? 0;
 
     // 42: Items found (Slab)
     case 42: return account?.looty?.lootedItems ?? 0;
