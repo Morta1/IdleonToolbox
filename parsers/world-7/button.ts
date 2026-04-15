@@ -180,7 +180,7 @@ function getTaskProgress(taskIndex: number, account: any, characters: any = []):
     case 15: case 16: return 0;
 
     // 17: Crystallin Stamp level
-    case 17: return account?.stamps?.skills?.[2]?.level ?? 0;
+    case 17: return account?.stamps?.misc?.[2]?.level ?? 0;
 
     // 18-20: Alchemy bubble levels
     case 18: return account?.alchemy?.bubbles?.power?.[0]?.level ?? 0;     // Roid Ragin
@@ -236,7 +236,7 @@ function getTaskProgress(taskIndex: number, account: any, characters: any = []):
     case 37: return account?.sailing?.lootPile?.[0]?.amount ?? 0;
 
     // 38: Artifact Find Chance multi — use the first boat's computed chance
-    case 38: return parseFloat(account?.sailing?.boats?.[0]?.artifactChance?.value) || 0;
+    case 38: return parseFloat(account?.sailing?.boats?.[0]?.artifactChance?.breakdown?.totalValue) || 0;
 
     // 39: Gaming Bits
     case 39: return account?.gaming?.bits ?? 0;
