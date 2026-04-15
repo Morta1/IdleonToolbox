@@ -46,9 +46,18 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
     }
   }).filter(({ name }: any) => name);
 
+  // W7 swaps the bonus text on some chips (e.g. Silkrode Nanochip/Motherboard).
+  // finishedWorlds.World6 is populated on later serializeData passes.
+  const isWorld7Unlocked = !!(account as any)?.finishedWorlds?.World6;
+  const chipsData: any[] = isWorld7Unlocked
+    ? (chips as any[]).map((chip: any) => (chip?.extraDescription
+      ? { ...chip, bonus: chip.extraDescription }
+      : chip))
+    : (chips as any[]);
+
   const playersChips = playerChipsRaw?.map((pChips: any) => {
     return pChips.map((chip: any) => {
-      if (chips?.[chip]) return { ...chips?.[chip], chipIndex: chip }
+      if (chipsData?.[chip]) return { ...chipsData?.[chip], chipIndex: chip }
       return chip;
     });
   });
@@ -69,9 +78,9 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
       y: playersCords?.[character?.playerId]?.y
     }));
 
-  const chipList: any[] = structuredClone(chips);
+  const chipList: any[] = structuredClone(chipsData);
   chipRepo?.map((chipCount: any, chipIndex: any) => {
-    if (chipIndex < chips.length) {
+    if (chipIndex < chipsData.length) {
       const playerUsedCount = playersChips.flatMap((chips: any) => chips).reduce((sum: any, chip: any) => sum + (chip.index === chipList[chipIndex].index
         ? 1
         : 0), 0);
