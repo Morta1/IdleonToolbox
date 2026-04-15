@@ -34,7 +34,7 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   const rawDiscoveries = rawSpelunking?.[6] ?? 0;
   const rawCurrentStamina = rawSpelunking?.[3];
   const discoveriesCount = rawDiscoveries?.length ?? 0;
-  const maxDiscoveries = spelunkingRocks?.flat().length ?? 0;
+  const maxDiscoveries = spelunkingRocks?.reduce((sum: number, chapter: any[]) => sum + Math.max(0, (chapter?.length ?? 0) - 1), 0) ?? 0;
   const discoveries = spelunkingRocks?.map((rockArr, caveIndex) => {
     return rockArr.map((rock, index) => {
       const powerReq = getDiscoveryPowerReq(account, rockArr, rock);
