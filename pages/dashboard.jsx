@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 46,
+  version: 47,
   account: {
     General: {
       tasks: {
@@ -321,7 +321,8 @@ const baseTrackers = {
             type: 'input',
             props: { label: 'Last looted', value: 120, minValue: 0, helperText: 'in minutes' },
             checked: true
-          }
+          },
+          { name: 'remainingCharmRolls', checked: true }
         ]
       },
       farming: {

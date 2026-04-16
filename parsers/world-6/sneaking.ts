@@ -12,6 +12,7 @@ import { CLASSES, getHighestTalentByClass } from "@parsers/talents";
 import { getLegendTalentBonus } from "@parsers/world-7/legendTalents";
 import { getUpgradeVaultBonus } from "@parsers/misc/upgradeVault";
 import { getPaletteBonus } from "@parsers/world-5/gaming";
+import { getCompassBonus } from "@parsers/class-specific/compass";
 
 export const getSneaking = (idleonData: any, serverVars: any, charactersData: any, account: any) => {
   const rawSneaking = tryToParse(idleonData?.Ninja);
@@ -193,6 +194,12 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
 
   const itemsMaxLevel = getItemsMaxLevel(selectedNinjaMastery, ninjaMastery, upgrades, gemStones, inventory);
 
+  const charmRollCounter = account?.accountOptions?.[402] || 0;
+  const remainingPristineRolls = Math.max(0, 120 - charmRollCounter);
+  const remainingSymbolRolls = Math.max(0, 75 - charmRollCounter);
+  const pristineCharmChance = 0.001 * Math.max(0, 1.5 - charmRollCounter / 80)
+    * (1 + getCompassBonus(account, 54) / 100);
+
   return {
     totalNinjaUpgradeLevels,
     sneakingExpThing,
@@ -213,7 +220,10 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     ninjaMasteryBonuses,
     ninjaMastery,
     itemsMaxLevel,
-    dailyCharmRollCount: account?.accountOptions?.[402]
+    dailyCharmRollCount: charmRollCounter,
+    remainingPristineRolls,
+    remainingSymbolRolls,
+    pristineCharmChance
   };
 };
 

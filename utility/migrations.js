@@ -1131,6 +1131,19 @@ const migration46 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration47 = (dashboardConfig) => {
+  const sneaking = dashboardConfig?.account?.['World 6']?.sneaking;
+  if (sneaking) {
+    const opts = sneaking.options ?? [];
+    if (!opts.find(o => o.name === 'remainingCharmRolls')) {
+      opts.push({ name: 'remainingCharmRolls', checked: true });
+    }
+    sneaking.options = opts;
+  }
+  dashboardConfig.version = 47;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1179,6 +1192,7 @@ const migrations = {
   44: migration44,
   45: migration45,
   46: migration46,
+  47: migration47,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

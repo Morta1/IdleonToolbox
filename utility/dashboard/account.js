@@ -968,10 +968,20 @@ export const getWorld6Alerts = (account, fields, options) => {
   if (!account?.finishedWorlds?.World5) return alerts;
   if (fields?.sneaking?.checked) {
     const sneaking = {};
-    const { lastLooted } = options?.sneaking || {};
+    const { lastLooted, remainingCharmRolls } = options?.sneaking || {};
     const minutesSinceLooted = account?.sneaking?.lastLooted / 60;
     if (minutesSinceLooted >= lastLooted?.props?.value) {
       sneaking.lastLooted = true;
+    }
+    if (remainingCharmRolls?.checked) {
+      const remainingPristine = account?.sneaking?.remainingPristineRolls;
+      if (remainingPristine > 0) {
+        sneaking.remainingCharmRolls = {
+          remainingPristine,
+          remainingSymbol: account?.sneaking?.remainingSymbolRolls,
+          used: account?.sneaking?.dailyCharmRollCount || 0
+        };
+      }
     }
     if (Object.keys(sneaking).length > 0) {
       alerts.sneaking = sneaking;

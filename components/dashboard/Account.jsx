@@ -449,6 +449,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={`You haven't looted rewards from sneaking for ${Math.floor(account?.sneaking?.lastLooted / 60)} minutes`}
                   iconPath={'data/NjUpgI14'}/> : null}
+              {alerts?.['World 6']?.sneaking?.remainingCharmRolls ?
+                <Alert
+                  title={`${alerts?.['World 6']?.sneaking?.remainingCharmRolls.remainingPristine} pristine and ${alerts?.['World 6']?.sneaking?.remainingCharmRolls.remainingSymbol} symbol rolls remaining (${alerts?.['World 6']?.sneaking?.remainingCharmRolls.used}/120 used)`}
+                  iconPath={'data/NjTrP0'}/> : null}
               {alerts?.['World 6']?.summoning?.familiar ?
                 <Alert
                   title={`Summoning familiar bonus isn't maxed (${alerts?.['World 6']?.summoning?.familiar.level}/${alerts?.['World 6']?.summoning?.familiar.maxLvl})`}
