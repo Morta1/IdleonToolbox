@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/account/world-2/bubbles", [
+  "static/chunks/0molxdaerl-ac.js",
+  "static/chunks/0_vo370x8f6b4.js",
+  "static/chunks/00ezxvqt1-35q.js",
+  "static/chunks/0wz2up5.dtinn.js",
+  "static/chunks/0hha4~5yi~g34.js",
+  "static/chunks/0g6x1m3opujgo.js",
+  "static/chunks/0qty.q7srqtp..js",
+  "static/chunks/0gdhjfdy-wuqx.js",
+  "static/chunks/0lp~gvw.zw0b..js",
+  "static/chunks/11oafcbl__3vg.js",
+  "static/chunks/0ylh5sb.d~m05.js",
+  "static/chunks/0b7rnuxo0jn_w.js",
+  "static/chunks/0ira0vyoyaj8q.js",
+  "static/chunks/0otdh-5fu63-z.js",
+  "static/chunks/10k8wuxcvd271.js",
+  "static/chunks/16e5bk16n5iv7.js",
+  "static/chunks/turbopack-0h86s~nl9kl_4.js"
+])
