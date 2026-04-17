@@ -1,64 +1,19 @@
-import { Card, CardContent, FormControl, InputLabel, Select, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { commaNotation, msToDate, notateNumber, prefix } from '@utility/helpers';
 import Timer from '@components/common/Timer';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import LockIcon from '@mui/icons-material/Lock';
 import { getCropEvolution, getProductDoubler, getTotalCrop } from '@parsers/world-6/farming';
 import { Breakdown, CardTitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
-import MenuItem from '@mui/material/MenuItem';
-import { CLASSES, getCharacterByHighestTalent } from '@parsers/talents';
-import { getPlayerLabChipBonus } from '@parsers/world-4/lab';
-import useCheckbox from '@components/common/useCheckbox';
 
-const Plot = ({ plot, market, ranks, lastUpdated, account, characters }) => {
+const Plot = ({ plot, market, ranks, lastUpdated, account, characters, selectedCharacter, enableNano }) => {
   const { productDoubler, percent, multi } = getProductDoubler(market) || {};
   const totals = getTotalCrop(plot, market, ranks, account);
-  const [selectedCharacter, setSelectedCharacter] = useState(characters?.[0]);
-  const [NanoCheckboxEl, enableNano, setEnableNano] = useCheckbox('Force nano chip');
-
-  useEffect(() => {
-    const highestMassIrrigation = getCharacterByHighestTalent(characters, CLASSES.Death_Bringer, 'MASS_IRRIGATION');
-    setSelectedCharacter(highestMassIrrigation);
-  }, [characters]);
-
-  const hasNanoAndGordonius = () => {
-    const hasChip = getPlayerLabChipBonus(selectedCharacter, account, 15);
-    const hasGordonius = selectedCharacter?.starSigns?.find(({ starName }) => starName === 'Cropiovo_Minor');
-    return !!hasChip && !!hasGordonius;
-  };
-
-  useEffect(() => {
-    setEnableNano(hasNanoAndGordonius());
-  }, [selectedCharacter]);
 
   return <>
     <Stack direction={'row'} gap={2}>
-      <CardTitleAndValue title={'Crop Evo'} stackProps>
-        <FormControl sx={{ width: 170, mt: 1 }}>
-          <InputLabel id="selected-character">Character</InputLabel>
-          <Select
-            size={'small'}
-            labelId="selected-character"
-            id="selected-character"
-            value={selectedCharacter?.playerId}
-            label="Character"
-            onChange={(e) => {
-              setSelectedCharacter(characters?.[e.target.value])
-            }}
-          >
-            {characters?.map((character) => <MenuItem key={'option' + character.name}
-                                                      value={character?.playerId}>{character.name}</MenuItem>)}
-          </Select>
-        </FormControl>
-        <Stack direction={'row'} alignItems={'center'}>
-          <NanoCheckboxEl disabled={hasNanoAndGordonius()}/>
-          <Tooltip title={'Enabling nano chip assumes you have Cropiovo minor star sign *active*'}>
-            <IconInfoCircleFilled size={18}></IconInfoCircleFilled>
-          </Tooltip>
-        </Stack>
-      </CardTitleAndValue>
       <CardTitleAndValue title={<Stack sx={{ mb: 1 }} direction={'row'} alignItems={'center'}>
         <Typography variant={'body1'}>Totals{productDoubler > 100 && multi >= 2 ? ` (x${multi})` : ''}</Typography>
         <Tooltip title={productDoubler < 100 ? <Typography variant={'caption'}
