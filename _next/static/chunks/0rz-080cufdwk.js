@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/account/world-7/research", [
+  "static/chunks/052.o.9q9z6h4.js",
+  "static/chunks/0_vo370x8f6b4.js",
+  "static/chunks/17.crat8pul0a.js",
+  "static/chunks/0blgt86iauoef.js",
+  "static/chunks/0hha4~5yi~g34.js",
+  "static/chunks/15-nfnh1.q2rh.js",
+  "static/chunks/04ku3jqpwi7j9.js",
+  "static/chunks/04ppx98it4x95.js",
+  "static/chunks/0gdhjfdy-wuqx.js",
+  "static/chunks/0otdh-5fu63-z.js",
+  "static/chunks/0o~0-o0g2~fr9.js",
+  "static/chunks/11oafcbl__3vg.js",
+  "static/chunks/0ptxqbq~l58~_.js",
+  "static/chunks/0b7rnuxo0jn_w.js",
+  "static/chunks/0226pu2zn-o_z.js",
+  "static/chunks/0mpfqmmtjfj9u.js",
+  "static/chunks/turbopack-0l9pln2.4mlo6.js"
+])
