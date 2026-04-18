@@ -4,7 +4,8 @@ import {
   getMonumentBonus,
   getMonumentHourBonus,
   getMonumentMultiReward,
-  getMonumentMultiplier
+  getMonumentMultiplier,
+  getAllMonumentsBonusLvs
 } from '@parsers/world-5/caverns/bravery';
 import { lavaLog, notateNumber } from '@utility/helpers';
 import { holesInfo } from '@website-data';
@@ -47,6 +48,7 @@ export const getWisdom = (holesObject: any,  accountData: any) => {
       }
     })
   const afkPercent = getMonumentAfkBonus(holesObject, accountData);
+  const bonusLvsMultiplier = getAllMonumentsBonusLvs(accountData);
   return {
     rewardMulti,
     hours,
@@ -54,6 +56,7 @@ export const getWisdom = (holesObject: any,  accountData: any) => {
     hoursBreakpoints,
     nextHourBreakpoint,
     bonuses,
+    bonusLvsMultiplier,
     timeForNextFight,
     opalChance,
     afkPercent,

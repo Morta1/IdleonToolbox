@@ -1359,6 +1359,7 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const achievementBonus = getAchievementStatus(account?.achievements, 370);
     const voteBonus = getVoteBonus(account, 25);
     const winBonus = getWinnerBonus(account, '<x Sneak EXP');
+    const companion163 = isCompanionBonusActive(account, 163) ? (account?.companions?.list?.at(163)?.bonus ?? 0) : 0;
 
     let value = Number(baseExp) *
       (1 + ninjaUpgradeBonus / 100) *
@@ -1394,6 +1395,7 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
       ) *
       Math.max(0, 1 - 100 * 0 * //n._customBlock_Ninja('NinjaBonus', t, 5)) *
         (1 + winBonus / 100) *
+        (1 + 1.5 * companion163) *
         Math.max(1, talentBonus));
 
     return {
@@ -1594,6 +1596,7 @@ const getStealthRate = (character: any, account: any) => {
   const ninjaEquip = getNinjaEquipmentBonus(account, character.playerId, 'Scroll_of_Power');
   const anotherNinjaEquip = getNinjaEquipmentBonus(account, character.playerId, 'Silk_Veil');
   const yetAnotherNinjaEquip = getNinjaEquipmentBonus(account, character.playerId, 'Rosaries');
+  const companion163 = isCompanionBonusActive(account, 163) ? (account?.companions?.list?.at(163)?.bonus ?? 0) : 0;
   const math = stealthMulti
     * (1 + ninjaEquip / 100)
     * (1 + anotherNinjaEquip / 100)
@@ -1602,6 +1605,7 @@ const getStealthRate = (character: any, account: any) => {
       + starSignBonus) / 100)
     * (1 + statueBonus / 100)
     * (1 + passiveCardBonus / 100)
+    * (1 + 39 * companion163)
 
   return (10 + ninjaUpgradeBonus * sneakingLevel) * math;
 }
@@ -1640,6 +1644,7 @@ export const getJadeRate = (character: any, account: any) => {
   const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.sneaking?.rank, 1);
   const vaultBonus81 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 81);
   const sushiBonus32 = getSushiBonus(account, 32);
+  const companion163Jade = isCompanionBonusActive(account, 163) ? (account?.companions?.list?.at(163)?.bonus ?? 0) : 0;
 
   return parseFloat(floorJadeModifier)
     * (1 + (ninjaUpgradeBonus * sneakingLevel) / 100) * (1 + ninjaEquip / 100) * (1 + ninjaEquip1 / 100)
@@ -1652,7 +1657,8 @@ export const getJadeRate = (character: any, account: any) => {
         + vaultBonus81)) / 100)
     * (1 + starSignBonus / 100)
     * (1 + (10 * masteryBonus) / 100)
-    * (1 + sushiBonus32 / 100);
+    * (1 + sushiBonus32 / 100)
+    * (1 + 99 * companion163Jade);
 }
 export const getRespawnRate = (character: any, account: any) => {
   const { targetMonster } = character;

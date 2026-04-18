@@ -506,13 +506,15 @@ const getFinalBoatLoot = ({
   vaultBonus67,
   talentBonus,
   daveyJonesBonus,
-  lampBonus
+  lampBonus,
+  sushiBonus57
 }: any) => {
   return (5 + lootLevelMath * lootLevel)
     * (1 + (lootPileSigil + ((firstCaptainBonus + secondCaptainBonus) + (artifactBonus + (25 * Math.min(30, 0)) + (arcadeBonus + vaultBonus67)))) / 100)
     * (1 + talentBonus / 100)
     * daveyJonesBonus
-    * (1 + lampBonus / 100);
+    * (1 + lampBonus / 100)
+    * (1 + sushiBonus57 / 100);
 }
 const getBoatLootValue = (characters: any, account: any, artifactsList: any, boat: any, captain: any, daveyJonesBonus?: any) => {
   const unendingLootSearch = getHighestTalentByClass(characters, CLASSES.Siege_Breaker, 'UNENDING_LOOT_SEARCH');
@@ -531,6 +533,7 @@ const getBoatLootValue = (characters: any, account: any, artifactsList: any, boa
   const vaultBonus67 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 67);
   daveyJonesBonus = daveyJonesBonus ?? getDaveyJonesBonus(account, boat?.lootLevel, boat?.speedLevel);
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 0, account }) ?? 0;
+  const sushiBonus57 = getSushiBonus(account, 57);
 
   const value = getFinalBoatLoot({
     lootLevelMath: currentLevelMath,
@@ -543,7 +546,8 @@ const getBoatLootValue = (characters: any, account: any, artifactsList: any, boa
     vaultBonus67,
     talentBonus,
     daveyJonesBonus,
-    lampBonus
+    lampBonus,
+    sushiBonus57
   });
   const nextLevelValue = getFinalBoatLoot({
     lootLevelMath: nextLevelMath,
@@ -556,7 +560,8 @@ const getBoatLootValue = (characters: any, account: any, artifactsList: any, boa
     vaultBonus67,
     talentBonus,
     daveyJonesBonus,
-    lampBonus
+    lampBonus,
+    sushiBonus57
   });
   let nextBreakpointValue;
   if (nextBreakpoint !== boat?.lootLevel + 1) {
@@ -571,7 +576,8 @@ const getBoatLootValue = (characters: any, account: any, artifactsList: any, boa
       vaultBonus67,
       talentBonus,
       daveyJonesBonus,
-      lampBonus
+      lampBonus,
+      sushiBonus57
     });
   }
   return {

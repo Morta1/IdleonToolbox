@@ -4,6 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.39',
+    'gameVer': '2.3.503',
+    'date': '18/04/2026',
+    'features': [
+      'Updated the website with version 2.3.503 data and assets',
+      'Sushi Station: 5 new sushi tiers (54-58), added event shop bonus to currency multiplier',
+      'New sushi bonuses applied to gallery bonus multi, research grid all-multi, sailing boat loot, and farming sticker odds',
+      '3 new companions (Poppy, Wickerlight Spirit, Smoke Devil) with bonuses applied: meal multi, jade/stealth/sneaking XP, monument bonus levels. Mama Troll companion is now active',
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.38',
     'gameVer': '2.3.502',
     'date': '14/04/2026',

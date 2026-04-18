@@ -10,6 +10,7 @@ import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getCompassBonus } from '@parsers/class-specific/compass';
+import { isCompanionBonusActive } from '@parsers/misc';
 
 
 export const getBravery = (holesObject: any, accountData: any) => {
@@ -61,6 +62,7 @@ export const getBravery = (holesObject: any, accountData: any) => {
   const nextHourBreakpoint = hoursBreakpoints.find(({ hours: reqHours }: any) => hours < reqHours);
 
   const afkPercent = getMonumentAfkBonus(holesObject, accountData);
+  const bonusLvsMultiplier = getAllMonumentsBonusLvs(accountData);
   return {
     damage: { min, max },
     ownedSwords,
@@ -69,6 +71,7 @@ export const getBravery = (holesObject: any, accountData: any) => {
     opalChance,
     hps,
     bonuses,
+    bonusLvsMultiplier,
     hours,
     nextHourBreakpoint,
     timeForNextFight,
@@ -248,3 +251,8 @@ export const getMonumentMultiplier = ({ holesObject, t }: any) => {
     + getCosmoBonus({ majik: holesObject?.holeMajiks, t: 0, i: 0 }) / 100;
   return Math.max(1, result);
 }
+
+export const getAllMonumentsBonusLvs = (account: any): number => {
+  const bonus = isCompanionBonusActive(account, 135) ? (account?.companions?.list?.at(135)?.bonus ?? 0) : 0;
+  return Math.max(1, 1 + bonus / 100);
+};

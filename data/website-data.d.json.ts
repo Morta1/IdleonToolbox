@@ -2312,6 +2312,7 @@ declare module '@website-data' {
       spriteDown?: number;
       spriteNumFrames?: number;
       worldIndex?: number;
+      spriteFrame?: number;
     }>;
   export const items: Record<string, {
       displayName: string;
@@ -3588,6 +3589,18 @@ declare module '@website-data' {
       price: null;
     };
     bon_v: {
+      message: string;
+      price: null;
+    };
+    ban_a: {
+      message: string;
+      price: null;
+    };
+    ban_b: {
+      message: string;
+      price: null;
+    };
+    ban_c: {
       message: string;
       price: null;
     };

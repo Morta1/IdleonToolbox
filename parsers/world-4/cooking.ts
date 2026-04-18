@@ -5,7 +5,7 @@ import { tryToParse } from '@utility/helpers';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from '@parsers/world-2/alchemy';
-import { getHighestCharacterSkill, isArenaBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
+import { getHighestCharacterSkill, isArenaBonusActive, isMasteryBonusUnlocked, isCompanionBonusActive } from '@parsers/misc';
 import { getAchievementStatus } from '@parsers/achievements';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getShinyBonus } from '@parsers/world-4/breeding';
@@ -177,6 +177,7 @@ export const getMealsBonusByEffectOrStat = (account: any, effectName: any, statN
   const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16) ?? 0;
   const shinyMealBonus = getShinyBonus(account?.breeding?.pets, 'Bonuses_from_All_Meals');
   const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
+  const companion162 = isCompanionBonusActive(account, 162) ? (account?.companions?.list?.at(162)?.bonus ?? 0) : 0;
   return account?.cooking?.meals?.reduce((sum: any, meal: any, index: any) => {
     const { level, baseStat, effect, stat } = meal;
     if (effectName) {
@@ -188,7 +189,7 @@ export const getMealsBonusByEffectOrStat = (account: any, effectName: any, statN
       return sum + (level * baseStat || 0);
     }
     const ribbonBonus = getRibbonBonus(account, account?.grimoire?.ribbons?.[28 + index]);
-    return sum + ((1 + (blackDiamondRhinestone + shinyMealBonus) / 100) * (1 + winBonus / 100) * ribbonBonus * level * baseStat || 0);
+    return sum + ((1 + (blackDiamondRhinestone + shinyMealBonus) / 100) * (1 + winBonus / 100) * (1 + (25 * companion162) / 100) * ribbonBonus * level * baseStat || 0);
   }, 0) ?? 0;
 }
 

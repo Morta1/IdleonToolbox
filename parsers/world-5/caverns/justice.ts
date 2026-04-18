@@ -6,7 +6,8 @@ import {
   getMonumentBonus,
   getMonumentHourBonus,
   getMonumentMultiReward,
-  getMonumentMultiplier
+  getMonumentMultiplier,
+  getAllMonumentsBonusLvs
 } from '@parsers/world-5/caverns/bravery';
 import { holesInfo } from '@website-data';
 import { getStudyBonus } from '@parsers/world-5/hole';
@@ -47,6 +48,7 @@ export const getJustice = (holesObject: any, accountData: any) => {
       }
     })
   const afkPercent = getMonumentAfkBonus(holesObject, accountData);
+  const bonusLvsMultiplier = getAllMonumentsBonusLvs(accountData);
   return {
     rewardMulti,
     hours,
@@ -54,6 +56,7 @@ export const getJustice = (holesObject: any, accountData: any) => {
     hoursBreakpoints,
     nextHourBreakpoint,
     bonuses,
+    bonusLvsMultiplier,
     timeForNextFight,
     coins: getStartCoins(holesObject),
     health: getStartHealth(holesObject),

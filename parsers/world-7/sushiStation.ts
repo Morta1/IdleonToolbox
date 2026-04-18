@@ -5,10 +5,10 @@ import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
-import { isBundlePurchased } from '@parsers/misc';
+import { isBundlePurchased, getEventShopBonus } from '@parsers/misc';
 import { getButtonBonus } from '@parsers/world-7/button';
 
-const MAX_TIER = 53;
+const MAX_TIER = 58;
 
 const getRawSushi = (idleonData: any) => {
   const raw = tryToParse(idleonData?.Sushi) || idleonData?.Sushi;
@@ -195,7 +195,9 @@ export const getSushiStation = (idleonData: any, account: any) => {
   const atomBonus14 = getAtomBonus(account, 'Phosphorus_-_Sushi_Bucks_Generator') ?? 0;
   const sailingArt39 = Number(account?.sailing?.artifacts?.[39]?.acquired) || 0;
 
+  const eventShopBonus45 = getEventShopBonus(account, 45);
   const currencyMulti = (1 + arcadeBonus67 / 100)
+    * (1 + (100 * eventShopBonus45) / 100)
     * Math.pow(1.1, uniqueSushi)
     * (1 + Math.min(1, bonVBundle))
     * (1 + (getUpgradeQTY(upgradeLevels, 30) + getUpgradeQTY(upgradeLevels, 31)

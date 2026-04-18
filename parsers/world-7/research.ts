@@ -307,7 +307,8 @@ function getGridBonusAllmulti(account: any, research: any) {
   const cloud71 = challenges?.[71]?.current === -1 ? 1 : 0;
   const cloud72 = challenges?.[72]?.current === -1 ? 1 : 0;
   const cloud76 = challenges?.[76]?.current === -1 ? 1 : 0;
-  return 1 + (companion55 + 5 * Math.min(1, gridLevel173 * companion0Active) + cloud71 + cloud72 + cloud76) / 100;
+  const sushiBonus53 = getSushiBonus(account, 53);
+  return 1 + (companion55 + 5 * Math.min(1, gridLevel173 * companion0Active) + cloud71 + cloud72 + cloud76 + sushiBonus53) / 100;
 }
 
 function getResearchGridBonusInternal(account: any, research: any, gridIndex: any, mode: any): any {

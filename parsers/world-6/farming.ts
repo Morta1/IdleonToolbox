@@ -380,11 +380,13 @@ const getStickerOddsMulti = (characters: any, account: any) => {
   const arcade64 = getArcadeBonus(account?.arcade?.shop, 'Megacrop_Chance')?.bonus ?? 0;
   const superBit55 = isSuperbitUnlocked(account, 'Mo_Stickers_Mo_Bonusers') ? 1 : 0;
   const farmingLevel = getHighestCharacterSkill(characters, 'farming') ?? 0;
+  const sushiBonus55 = getSushiBonus(account, 55);
   return (1 + grid67bonus / 100)
     * (1 + grid88bonus / 100)
     * (1 + sticker5bonus / 100)
     * (1 + arcade64 / 100)
-    * (1 + 0.02 * superBit55 * Math.max(0, farmingLevel - 300));
+    * (1 + 0.02 * superBit55 * Math.max(0, farmingLevel - 300))
+    * (1 + sushiBonus55 / 100);
 };
 
 const getStickerOdds = (characters: any, account: any, index: any) => {
