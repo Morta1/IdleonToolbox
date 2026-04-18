@@ -449,9 +449,13 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={`You haven't looted rewards from sneaking for ${Math.floor(account?.sneaking?.lastLooted / 60)} minutes`}
                   iconPath={'data/NjUpgI14'}/> : null}
-              {alerts?.['World 6']?.sneaking?.remainingCharmRolls ?
+              {alerts?.['World 6']?.sneaking?.remainingPristineRolls ?
                 <Alert
-                  title={`${alerts?.['World 6']?.sneaking?.remainingCharmRolls.remainingPristine} pristine and ${alerts?.['World 6']?.sneaking?.remainingCharmRolls.remainingSymbol} symbol rolls remaining (${alerts?.['World 6']?.sneaking?.remainingCharmRolls.used}/120 used)`}
+                  title={`${alerts?.['World 6']?.sneaking?.remainingPristineRolls.remaining} pristine charm rolls remaining (${alerts?.['World 6']?.sneaking?.remainingPristineRolls.used}/120 used)`}
+                  iconPath={'data/NjTrP0'}/> : null}
+              {alerts?.['World 6']?.sneaking?.remainingSymbolRolls ?
+                <Alert
+                  title={`${alerts?.['World 6']?.sneaking?.remainingSymbolRolls.remaining} symbol rolls remaining (${alerts?.['World 6']?.sneaking?.remainingSymbolRolls.used}/75 used)`}
                   iconPath={'data/NjTrP0'}/> : null}
               {alerts?.['World 6']?.summoning?.familiar ?
                 <Alert

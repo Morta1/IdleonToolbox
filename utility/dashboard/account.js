@@ -968,20 +968,17 @@ export const getWorld6Alerts = (account, fields, options) => {
   if (!account?.finishedWorlds?.World5) return alerts;
   if (fields?.sneaking?.checked) {
     const sneaking = {};
-    const { lastLooted, remainingCharmRolls } = options?.sneaking || {};
+    const { lastLooted, remainingPristineRolls, remainingSymbolRolls } = options?.sneaking || {};
     const minutesSinceLooted = account?.sneaking?.lastLooted / 60;
     if (minutesSinceLooted >= lastLooted?.props?.value) {
       sneaking.lastLooted = true;
     }
-    if (remainingCharmRolls?.checked) {
-      const remainingPristine = account?.sneaking?.remainingPristineRolls;
-      if (remainingPristine > 0) {
-        sneaking.remainingCharmRolls = {
-          remainingPristine,
-          remainingSymbol: account?.sneaking?.remainingSymbolRolls,
-          used: account?.sneaking?.dailyCharmRollCount || 0
-        };
-      }
+    const used = account?.sneaking?.dailyCharmRollCount || 0;
+    if (remainingPristineRolls?.checked && account?.sneaking?.remainingPristineRolls > 0) {
+      sneaking.remainingPristineRolls = { remaining: account?.sneaking?.remainingPristineRolls, used };
+    }
+    if (remainingSymbolRolls?.checked && account?.sneaking?.remainingSymbolRolls > 0) {
+      sneaking.remainingSymbolRolls = { remaining: account?.sneaking?.remainingSymbolRolls, used };
     }
     if (Object.keys(sneaking).length > 0) {
       alerts.sneaking = sneaking;
