@@ -1,0 +1,21 @@
+__turbopack_load_page_chunks__("/account/world-6/farming", [
+  "static/chunks/0-ispmt17fm9s.js",
+  "static/chunks/0_vo370x8f6b4.js",
+  "static/chunks/17.crat8pul0a.js",
+  "static/chunks/16r-28bm.7zj6.js",
+  "static/chunks/0~dnxdkvipc-2.js",
+  "static/chunks/0ira0vyoyaj8q.js",
+  "static/chunks/0owfpx5.qaunl.js",
+  "static/chunks/0226pu2zn-o_z.js",
+  "static/chunks/16endh79-gp3m.js",
+  "static/chunks/0b7rnuxo0jn_w.js",
+  "static/chunks/0hha4~5yi~g34.js",
+  "static/chunks/0.f0r4zk945v..js",
+  "static/chunks/0yrawc_tcgj-~.js",
+  "static/chunks/0gdhjfdy-wuqx.js",
+  "static/chunks/0e37~8ym-1c7z.js",
+  "static/chunks/0r~gi8p5icwug.js",
+  "static/chunks/0q23vthyd-b.4.js",
+  "static/chunks/0otdh-5fu63-z.js",
+  "static/chunks/turbopack-15~ehq03u7l_a.js"
+])
