@@ -43,6 +43,7 @@ const NavBar = ({ children }) => {
 
     return (
       <>
+        {!state?.signedIn && !state?.profile && process.env.NODE_ENV !== 'production' && <UserMenu/>}
         {state?.signedIn || state?.profile ? <UserMenu/> : <LoginButton/>}
         {state?.signedIn ? (
           <Stack sx={{ p: 1, flexShrink: 0, whiteSpace: 'nowrap' }}>
