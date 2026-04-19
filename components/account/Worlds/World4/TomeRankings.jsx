@@ -62,6 +62,17 @@ function getPercentileColor(p) {
   return '#3fb950';
 }
 
+function ordinal(n) {
+  const r = n % 100;
+  if (r > 10 && r < 14) return `${n}th`;
+  switch (n % 10) {
+    case 1: return `${n}st`;
+    case 2: return `${n}nd`;
+    case 3: return `${n}rd`;
+    default: return `${n}th`;
+  }
+}
+
 const TomeRankings = () => {
   const { state } = useContext(AppContext);
   const [percentileData, setPercentileData] = useState(null);
@@ -69,6 +80,7 @@ const TomeRankings = () => {
   const [selectedRank, setSelectedRank] = useState('all');
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [CheckboxGroupEl, groupByTier] = useCheckbox('Group by tier');
+  const [CheckboxSortEl, sortByWeakest] = useCheckbox('Sort by weakest', true);
   const [search, setSearch] = useState('');
   const formatDate = useFormatDate();
 
@@ -111,7 +123,9 @@ const TomeRankings = () => {
     };
   });
 
-  const sorted = [...rows].sort((a, b) => (a.percentile ?? 101) - (b.percentile ?? 101));
+  const sorted = sortByWeakest
+    ? [...rows].sort((a, b) => (a.percentile ?? 101) - (b.percentile ?? 101))
+    : rows;
   const searchLower = search.toLowerCase();
   const filtered = searchLower ? sorted.filter(r => r.name.toLowerCase().includes(searchLower)) : sorted;
 
@@ -124,7 +138,7 @@ const TomeRankings = () => {
     : playersByRank?.[selectedRank] || 0;
 
   return (
-    <Stack gap={2} sx={{ maxWidth: 800 }}>
+    <Stack gap={2} sx={{ maxWidth: 1000 }}>
       <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2}>
         <Stack direction="row" alignItems="center" gap={2} flexWrap="wrap">
           <FormControl size="small" sx={{ minWidth: 180 }}>
@@ -146,6 +160,7 @@ const TomeRankings = () => {
             onChange={(e) => setSearch(e.target.value)}
             sx={{ width: 180 }}
           />
+          <CheckboxSortEl />
           <CheckboxGroupEl />
         </Stack>
         <Stack alignItems="flex-end">
@@ -287,7 +302,7 @@ const MetricRow = ({ row, hasUserData, expanded, onToggle, percentilePoints }) =
           </Typography>
           <Stack direction="row" gap={1} alignItems="center" flexShrink={0}>
             <Typography sx={{ fontSize: { xs: 12, sm: 13 }, fontWeight: 600, color }}>
-              {percentile != null ? `${Math.round(percentile)}th` : '-'}
+              {percentile != null ? ordinal(Math.round(percentile)) : '-'}
             </Typography>
             <Typography sx={{ fontSize: { xs: 12, sm: 13 }, color: 'text.secondary', minWidth: 55, textAlign: 'right' }}>
               {hasUserData ? `${commaNotation(userPoints)} PTS` : '-'}
