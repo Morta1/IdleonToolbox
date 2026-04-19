@@ -10,8 +10,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import LoginDialog from '@components/common/NavBar/LoginDialog';
 import { useRouter } from 'next/router';
 import { IconClipboard } from '@tabler/icons-react';
-import { handleLoadJson, isProd, sortKeys } from '@utility/helpers';
-import { expandLeaderboardInfo } from '../../../services/profiles';
+import { copyForSupport, copyRawData, handleLoadJson, isProd } from '@utility/helpers';
 
 const UserMenu = () => {
   const { dispatch, state, logout } = useContext(AppContext);
@@ -38,9 +37,7 @@ const UserMenu = () => {
 
   const handleCopyForSupport = async () => {
     try {
-      const data = JSON.parse(sessionStorage.getItem('rawJson'));
-      const extraData = expandLeaderboardInfo(state?.account, state?.characters);
-      await navigator.clipboard.writeText(JSON.stringify(sortKeys({ ...data, extraData }), null, 2));
+      await copyForSupport(state?.account, state?.characters);
     } catch (err) {
       console.error(err);
     }
@@ -49,8 +46,7 @@ const UserMenu = () => {
 
   const handleCopyRawData = async () => {
     try {
-      const data = JSON.parse(sessionStorage.getItem('rawJson'));
-      await navigator.clipboard.writeText(JSON.stringify(sortKeys(data?.data), null, 2));
+      await copyRawData();
     } catch (err) {
       console.error(err);
     }

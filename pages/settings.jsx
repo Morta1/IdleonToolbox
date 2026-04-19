@@ -30,7 +30,7 @@ import HtmlTooltip from '@components/Tooltip';
 import { useRouter } from 'next/router';
 import { intervalToDuration, isValid } from 'date-fns';
 import { expandLeaderboardInfo, uploadProfile } from '../services/profiles';
-import { notateNumber, sortKeys } from '@utility/helpers';
+import { copyForSupport, copyRawData, notateNumber, sortKeys } from '@utility/helpers';
 import useTimeout from '@hooks/useTimeout';
 import NormalTimer from '../components/common/Timer/Normal';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
@@ -191,9 +191,7 @@ const Settings = () => {
   const handleCopyITRaw = async (e) => {
     try {
       setAnchorEl(e.currentTarget);
-      const data = JSON.parse(sessionStorage.getItem('rawJson'));
-      const extraData = expandLeaderboardInfo(state?.account, state?.characters);
-      await navigator.clipboard.writeText(JSON.stringify(sortKeys({ ...data, extraData }), null, 2));
+      await copyForSupport(state?.account, state?.characters);
     } catch (err) {
       console.error(err);
     }
@@ -202,8 +200,7 @@ const Settings = () => {
   const handleCopyRaw = async (e) => {
     try {
       setAnchorEl(e.currentTarget);
-      const data = JSON.parse(sessionStorage.getItem('rawJson'));
-      await navigator.clipboard.writeText(JSON.stringify(sortKeys(data?.data), null, 2));
+      await copyRawData();
     } catch (err) {
       console.error(err);
     }

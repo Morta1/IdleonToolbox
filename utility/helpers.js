@@ -869,6 +869,27 @@ export const handleDownload = (jsonData, fileName) => {
   URL.revokeObjectURL(url);
 };
 
+const sanitizeRawData = (data) => {
+  if (!data?.MapBon) return data;
+  return {
+    ...data,
+    MapBon: data.MapBon.map((entry) => Array.isArray(entry) ? entry.slice(0, 3) : entry)
+  };
+};
+
+export const copyForSupport = async (account, characters) => {
+  const { expandLeaderboardInfo } = await import('../services/profiles');
+  const data = JSON.parse(sessionStorage.getItem('rawJson'));
+  const extraData = expandLeaderboardInfo(account, characters);
+  const sanitized = { ...data, data: sanitizeRawData(data?.data) };
+  await navigator.clipboard.writeText(JSON.stringify(sortKeys({ ...sanitized, extraData }), null, 2));
+};
+
+export const copyRawData = async () => {
+  const data = JSON.parse(sessionStorage.getItem('rawJson'));
+  await navigator.clipboard.writeText(JSON.stringify(sortKeys(sanitizeRawData(data?.data)), null, 2));
+};
+
 export const handleLoadJson = async (dispatch) => {
   try {
     const content = JSON.parse(await navigator.clipboard.readText());
