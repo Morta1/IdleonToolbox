@@ -5,6 +5,7 @@ import { fetchTomePercentiles } from '../../../../services/profiles';
 import { cleanUnderscore, commaNotation } from '@utility/helpers';
 import SimpleLoader from '@components/common/SimpleLoader';
 import useCheckbox from '@components/common/useCheckbox';
+import useFormatDate from '@hooks/useFormatDate';
 
 const RANK_OPTIONS = [
   { label: 'All Players', value: 'all' },
@@ -69,6 +70,7 @@ const TomeRankings = () => {
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [CheckboxGroupEl, groupByTier] = useCheckbox('Group by tier');
   const [search, setSearch] = useState('');
+  const formatDate = useFormatDate();
 
   useEffect(() => {
     fetchTomePercentiles()
@@ -146,11 +148,18 @@ const TomeRankings = () => {
           />
           <CheckboxGroupEl />
         </Stack>
-        <Typography variant="caption" color="text.secondary">
-          {commaNotation(displayPlayers)} players
-          {selectedRank !== 'all' && rankThresholds?.[selectedRank] != null
-            && ` (${'\u2265'}${commaNotation(rankThresholds[selectedRank])} total PTS)`}
-        </Typography>
+        <Stack alignItems="flex-end">
+          <Typography variant="caption" color="text.secondary">
+            {commaNotation(displayPlayers)} players
+            {selectedRank !== 'all' && rankThresholds?.[selectedRank] != null
+              && ` (${'\u2265'}${commaNotation(rankThresholds[selectedRank])} total PTS)`}
+          </Typography>
+          {percentileData.createdAt && (
+            <Typography variant="caption" color="text.secondary">
+              Updated: {formatDate(percentileData.createdAt, { showSeconds: false })}
+            </Typography>
+          )}
+        </Stack>
       </Stack>
 
       {hasUserData && !groupByTier && (
