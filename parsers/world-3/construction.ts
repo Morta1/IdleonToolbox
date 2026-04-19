@@ -76,36 +76,64 @@ const parseFlags = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any
   const firstBoard = evaluateBoard(board);
   const leftColumn = buildExtraColumn(flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, LEFT_COL_INDEX, LEFT_FLAG_INDEX);
   const rightColumn = buildExtraColumn(flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, RIGHT_COL_INDEX, RIGHT_FLAG_INDEX);
+  const smallCogExpMulti = 1 + getSmallCogBonusTotal(cogsOrder, 2) / 100;
+  const finalFlaggyRate = firstBoard?.totalFlaggyRate * flaggyMulti;
   return {
     ...firstBoard,
     baseBoard: board,
-    totalFlaggyRate: firstBoard?.totalFlaggyRate * flaggyMulti,
+    totalFlaggyRate: finalFlaggyRate,
+    totalExpRate: firstBoard?.totalExpRate * smallCogExpMulti,
     playersBuildRate,
     leftColumn,
-    rightColumn
+    rightColumn,
+    board: firstBoard?.board?.map((slot: any) => ({
+      ...slot,
+      flagSpeed: slot.flagSpeedBoost * finalFlaggyRate
+    }))
   };
 }
 
-const getSmallCogStats = (cogName: string) => {
+const getSmallCogRawBonus = (cogName: string): { typeIndex: number; bonus: number } | null => {
   if (!cogName?.startsWith('CogSm')) return null;
   const typeChar = cogName.charAt(5);
   const level = parseInt(cogName.substring(6));
   if (isNaN(level)) return null;
   const typeIndex = number2letter.indexOf(typeChar);
   const base = (25 + 25 * level * level) * (1 + level / 5);
-  let rawBonus;
-  if (typeIndex === 0) rawBonus = Math.round(2 * base);
-  else if (typeIndex === 1) rawBonus = Math.round(4 * base);
-  else rawBonus = Math.round(base);
-  // Display as multiplier matching game tooltip: 1 + rawBonus/100 (e.g. 240 → 3.40x)
-  const multiplier = parseFloat((1 + rawBonus / 100).toFixed(2));
-  // typeIndex 0 ('_') → Flaggy Rate, 1 ('a') → Build Rate, 2 ('b') → Construction XP
+  let bonus;
+  if (typeIndex === 0) bonus = Math.round(2 * base);
+  else if (typeIndex === 1) bonus = Math.round(4 * base);
+  else bonus = Math.round(base);
+  return { typeIndex, bonus };
+};
+
+const getSmallCogStats = (cogName: string) => {
+  const result = getSmallCogRawBonus(cogName);
+  if (!result) return null;
+  const { typeIndex, bonus } = result;
+  const multiplier = parseFloat((1 + bonus / 100).toFixed(2));
   const statKeys = ['g', 'e', 'f'];
   const statNames = ['x_Total_Flaggy_Rate', 'x_Total_Build_Rate', 'x_Total_Construction_XP'];
   const statKey = statKeys[typeIndex] ?? 'e';
   const statName = statNames[typeIndex] ?? 'x_Total_Build_Rate';
   return { [statKey]: { name: statName, value: multiplier } };
 };
+
+const getSmallCogBonusTotal = (cogsOrder: any[], typeIndex: number) => {
+  let total = 0;
+  for (let i = 0; i < 2 * EXTRA_COL_HEIGHT; i++) {
+    const result = getSmallCogRawBonus(cogsOrder?.[LEFT_COL_INDEX + i]);
+    if (result && result.typeIndex === typeIndex) {
+      total += result.bonus;
+    }
+  }
+  return total;
+};
+
+const getExtraColumnFlagReq = (flagIdx: number) => {
+  if (flagIdx < 96) return flagsReqs?.[flagIdx] ?? 0;
+  return 5e6 * (1 + Math.min(9, 9 * Math.round(flagIdx - 96)) + Math.max(0, 10 * Math.round(flagIdx - 97))) * Math.pow(4, Math.round(flagIdx - 96));
+}
 
 const buildExtraColumn = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any[], cogsOrder: any[], cogStartIndex: number, flagStartIndex: number) => {
   const column = [];
@@ -115,9 +143,10 @@ const buildExtraColumn = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMa
     const flagSlot = flagsUnlockedRaw?.[flagIdx];
     const cogName = cogsOrder?.[cogIdx];
     const stats = getSmallCogStats(cogName) ?? cogsMap?.[cogIdx] ?? {};
+    const flagReq = getExtraColumnFlagReq(flagIdx);
     column.push({
-      currentAmount: flagSlot === -11 ? (flagsReqs?.[flagIdx] ?? 0) : parseFloat(flagSlot ?? 0),
-      requiredAmount: flagsReqs?.[flagIdx] ?? 0,
+      currentAmount: flagSlot === -11 ? flagReq : parseFloat(flagSlot ?? 0),
+      requiredAmount: flagReq,
       flagPlaced: flagsPlacedRaw?.includes(flagIdx),
       cog: {
         name: cogName,
@@ -195,8 +224,7 @@ const evaluateBoard = (currentBoard: any[], characters?: any[]) => {
   let totalBuildRate = 0, totalExpRate = 0, totalFlaggyRate = 0, totalPlayerExpRate = 0;
   let updatedBoard = currentBoard?.map((slot, index) => {
     const { cog } = slot || {};
-    // f: boostedPlayerXp
-    const { e: boostedBuildRate, g: boostedFlaggyRate, f: characterExpPerHour } = boosted?.[index] || {};
+    const { e: boostedBuildRate, g: boostedFlaggyRate, f: characterExpPerHour, j: boostedFlagSpeed } = boosted?.[index] || {};
     const cogBaseBuildRate = cog?.stats?.a?.value || 0;
     const cogBaseFlaggyRate = cog?.stats?.c?.value || 0;
     const cogBasePlayerCharacterExp = cog?.stats?.b?.value || 0;
@@ -219,6 +247,8 @@ const evaluateBoard = (currentBoard: any[], characters?: any[]) => {
     const flaggyRate = cogBaseFlaggyRate + (cogBaseFlaggyRate * (boostedFlaggyRate?.value || 0) / 100);
     totalFlaggyRate += Math.max(flaggyRate, 0);
 
+    const flagSpeedBoost = slot?.flagPlaced ? 1 + (boostedFlagSpeed?.value || 0) / 100 : 0;
+
     return {
       ...slot,
       cog: {
@@ -230,6 +260,7 @@ const evaluateBoard = (currentBoard: any[], characters?: any[]) => {
           ...(characters ? { b: { ...cog?.stats?.b, value: playerExp } } : {})
         }
       },
+      flagSpeedBoost,
       affectedBy: relations?.[index] || [],
       affects: Object.entries(relations)
         .filter(([_, affectingIndices]) => (affectingIndices as any[]).includes(index))
@@ -275,25 +306,25 @@ export const getAllBoostedCogs = (board: any[]) => {
         affected = (affected as any[])?.map(([x, y]: any) => (x < 0 || y < 0 || x >= BOARD_X || y >= BOARD_Y)
           ? null
           : (7 - y) * 12 + x)?.filter((num: any) => num !== null) as number[];
-        const { e, f, g } = currentCogStats || {};
-        if (e || f || g) {
+        const { e, f, g, j } = currentCogStats || {};
+        if (e || f || g || j) {
           for (let i = 0; i < affected.length; i++) {
             const affectedIndex = affected[i] as number;
-            const { e, f, g } = currentCogStats;
+            const { e, f, g, j } = currentCogStats;
             if (boosted?.[affectedIndex] === 0) {
               boosted[affectedIndex] = {
-                e: { ...e, value: Math.ceil(e?.value) },
-                f: { ...f, value: Math.ceil(f?.value) },
-                g: { ...g, value: Math.ceil(g?.value) }
+                e: { value: e?.value || 0 },
+                f: { value: f?.value || 0 },
+                g: { value: g?.value || 0 },
+                j: { value: j?.value || 0 }
               }
             } else {
-              const { e: curE, f: curF, g: curG } = boosted[affectedIndex] || {};
+              const { e: curE, f: curF, g: curG, j: curJ } = boosted[affectedIndex] || {};
               boosted[affectedIndex] = {
-                // build rate
-                e: { ...curE, value: Math.ceil((curE?.value || 0) + (e?.value || 0)) },
-                f: { ...curF, value: Math.ceil((curF?.value || 0) + (f?.value || 0)) },
-                // flaggy rate
-                g: { ...curG, value: Math.ceil((curG?.value || 0) + (g?.value || 0)) }
+                e: { ...curE, value: (curE?.value || 0) + (e?.value || 0) },
+                f: { ...curF, value: (curF?.value || 0) + (f?.value || 0) },
+                g: { ...curG, value: (curG?.value || 0) + (g?.value || 0) },
+                j: { ...curJ, value: (curJ?.value || 0) + (j?.value || 0) }
               }
             }
             relations[affectedIndex] = [...(relations[affectedIndex] || []), index];
@@ -407,7 +438,7 @@ const parseTowers = (towersRaw: any, totemInfo: any) => {
 export const getBuildCost = (towers: any, level: number, bonusInc: number, index: number) => {
   if (index === 0) {
     const math1 = Math.pow(level + 1, 2);
-    return 20 * math1 * Math.pow(1.6, level + 1);
+    return 2 * math1 * Math.pow(1.3, level + 1);
   } else {
     const multiplier = Number(towers?.buildMultiplier?.[index]);
     return multiplier * Math.pow(bonusInc, level);
@@ -420,7 +451,7 @@ export const constructionMasteryThresholds = [250, 500, 750, 1000, 1250, 1500, 2
 export const applyMaxLevelToTowers = (accountData: any) => {
   const atom = accountData?.atoms?.atoms?.find(({ name }: any) => name === 'Carbon_-_Wizard_Maximizer');
   return accountData?.towers?.data?.map((tower: any) => {
-    const extraLevels = getExtraMaxLevels(accountData, tower?.maxLevel, atom?.level);
+    const extraLevels = getExtraMaxLevels(accountData, tower?.maxLevel, atom?.level, tower?.index);
     return {
       ...tower,
       maxLevel: tower?.maxLevel + extraLevels
@@ -428,8 +459,8 @@ export const applyMaxLevelToTowers = (accountData: any) => {
   });
 }
 
-const getConstructionMasteryBonus = (totalConstruct: any, index: any, _unused2?: any) => {
-  // "ExtraMaxLvAtom"
+const getConstructionMasteryBonus = (account: any, totalConstruct: any, index: any) => {
+  if ((account?.rift?.currentRift ?? 0) < 40) return 0;
   if (index === 0) {
     return Math.max(0, Math.floor(totalConstruct / 10));
   } else if (index === 1) {
@@ -451,14 +482,14 @@ const getConstructionMasteryBonus = (totalConstruct: any, index: any, _unused2?:
 export const getExtraMaxLevels = (account: any, maxLevel: any, atomBonus: any, index?: any) => {
   const totalConstruct = account?.towers?.totalLevels;
   return 50 === maxLevel ? Math.round(2 * atomBonus
-    + (getConstructionMasteryBonus(totalConstruct, 6, 0)
+    + (getConstructionMasteryBonus(account, totalConstruct, 6)
       + 100 * getGambitBonus(account, 9)))
-    : 101 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 4, 0)
+    : 101 === maxLevel ? getConstructionMasteryBonus(account, totalConstruct, 4)
       : 100 === maxLevel
         ? (18 <= index && account?.coralReef?.unlockedCorals > index - 18
-          ? Math.round(getConstructionMasteryBonus(totalConstruct, 5, 0) + 100 + getSushiBonus(account, 58))
-          : Math.round(getConstructionMasteryBonus(totalConstruct, 5, 0) + getSushiBonus(account, 58)))
-        : 15 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 3, 0) : 0;
+          ? Math.round(getConstructionMasteryBonus(account, totalConstruct, 5) + 100 + getSushiBonus(account, 58))
+          : Math.round(getConstructionMasteryBonus(account, totalConstruct, 5) + getSushiBonus(account, 58)))
+        : 15 === maxLevel ? getConstructionMasteryBonus(account, totalConstruct, 3) : 0;
 }
 
 export const getGildedBoostioBonus = (account: any) => {

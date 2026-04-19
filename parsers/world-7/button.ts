@@ -6,7 +6,7 @@ import {
 } from '@website-data';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { isCompanionBonusActive, getGoldenFoodMulti, getHighestCharacterSkill } from '@parsers/misc';
-import { getClassExpMulti, getDropRate, getPlayerConstructionSpeed } from '@parsers/character';
+import { getClassExpMulti, getDropRate } from '@parsers/character';
 import { getMaxDamage } from '@parsers/damage';
 
 /**
@@ -187,8 +187,7 @@ function getTaskProgress(taskIndex: number, account: any, characters: any = []):
     case 19: return account?.alchemy?.bubbles?.quicc?.[0]?.level ?? 0;     // Swift Steppin
     case 20: return account?.alchemy?.bubbles?.['high-iq']?.[0]?.level ?? 0; // Stable Jenius
 
-    // 21: Construction Build Rate — computed by getPlayerConstructionSpeed(), not stored
-    case 21: return 0;
+    case 21: return account?.construction?.totalBuildRate ?? 0;
 
     // 22: 3D Printer Copper sample
     case 22: {
@@ -345,7 +344,6 @@ export const getCharacterTaskProgress = (taskIndex: number, character: any, acco
       const result = getDropRate(character, account, characters);
       return result?.dropRate ?? 0;
     }
-    case 21: return getPlayerConstructionSpeed(character, account) ?? 0;
     case 47: {
       const multi = getGoldenFoodMulti(character, account, characters);
       return Math.max(0, 100 * ((multi?.value ?? 1) - 1));
