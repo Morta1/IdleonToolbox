@@ -518,8 +518,10 @@ export const getMealMaxLevel = (account: any) => {
 export const getMealLevelCost = (level: any, achievements: any, account?: any, localEquinoxUpgrades?: any) => {
   const foodLustChallenge = account?.equinox?.challenges.find((challenge: any) => challenge.current === -1
     && challenge.reward.includes('\'Food_Lust\'_Equinox_Upg_now_reduces_cost_by_-42%_per_stack')) ? 1 : 0;
+  const companion162 = isCompanionBonusActive(account, 162) ? (account?.companions?.list?.at(162)?.bonus ?? 0) : 0;
 
-  return Math.pow(10, 22 * Math.floor((level + 1e3) / 1111))
+  return Math.max(0.001, 1 / Math.max(1, 5 * companion162))
+    * Math.pow(10, 22 * Math.floor((level + 1e3) / 1111))
     * (1 / Math.min(5, Math.max(1, 1 + (10 * getAchievementStatus(achievements, 233)) / 100)))
     * Math.max(0.001, Math.pow(Math.max(0.58, 0.8 - 0.22 * foodLustChallenge),
       Math.min(account?.accountOptions?.[193],

@@ -537,14 +537,14 @@ function getResearchEXPmulti(account: any, research: any) {
   const zenith = getZenithBonus(account, 8) ?? 0;
   const msaBonus = account?.msaTotalizer?.researchExp?.value ?? 0;
   const slab = getSlabBonus(account, 7) ?? 0;
-  const tomeLoreEpi = account?.tome?.bonuses?.[7]?.bonus ?? 0;
+  const tomeLoreEpi = account?.spelunking?.loreBonuses?.[7]?.bonus ?? 0;
   const cardBonus = getCardBonusByEffect(account?.cards, 'Research_EXP_(Passive)');
   const arcade63 = account?.arcade?.shop?.[63]?.bonus ?? 0;
   const grid70 = getResearchGridBonusInternal(account, research, 70, 0);
   const grid31 = getResearchGridBonusInternal(account, research, 31, 0);
   const grid94_2 = getResearchGridBonusInternal(account, research, 94, 2);
   const prehistoricSetBonus = Math.min(50, getArmorSetBonus(account, 'PREHISTORIC_SET'));
-  const killroyResearchBonus = getKillRoyShopBonus(account, 5);
+  const killroyResearchBonus = 1 + getKillRoyShopBonus(account, 5) / 100;
   const companion52 = isCompanionBonusActive(account, 52) ? (account?.companions?.list?.at(52)?.bonus ?? 0) : 0;
 
   const additive =

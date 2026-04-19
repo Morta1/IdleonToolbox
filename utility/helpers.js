@@ -871,9 +871,11 @@ export const handleDownload = (jsonData, fileName) => {
 
 const sanitizeRawData = (data) => {
   if (!data?.MapBon) return data;
+  const mapBon = typeof data.MapBon === 'string' ? tryToParse(data.MapBon) : data.MapBon;
+  if (!Array.isArray(mapBon)) return data;
   return {
     ...data,
-    MapBon: data.MapBon.map((entry) => Array.isArray(entry) ? entry.slice(0, 3) : entry)
+    MapBon: mapBon.map((entry) => Array.isArray(entry) ? entry.slice(0, 3) : entry)
   };
 };
 

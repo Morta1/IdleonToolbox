@@ -188,6 +188,7 @@ export const isTalentReady = (character, options) => {
   }, []);
 }
 export const crystalCooldownSkillsReady = (character, options) => {
+  // -1 != e.indexOf("Crystal")
   if (checkCharClass(character?.class, CLASSES.Maestro)) {
     return Object.entries(character?.skillsInfo || {})?.reduce((res, [name, data]) => {
       if (data?.index < 10 && name !== 'character' && options?.crystalCountdown?.skills?.props?.value?.[data?.icon]) {

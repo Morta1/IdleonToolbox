@@ -4,6 +4,7 @@ import { createCogstructionData } from '@parsers/world-3/cogstrution';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import type { IdleonData, Account } from '../types';
 
 export const getConstruction = (idleonData: IdleonData, account: Account) => {
@@ -455,8 +456,8 @@ export const getExtraMaxLevels = (account: any, maxLevel: any, atomBonus: any, i
     : 101 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 4, 0)
       : 100 === maxLevel
         ? (18 <= index && account?.coralReef?.unlockedCorals > index - 18
-          ? getConstructionMasteryBonus(totalConstruct, 5, 0) + 100
-          : getConstructionMasteryBonus(totalConstruct, 5, 0))
+          ? Math.round(getConstructionMasteryBonus(totalConstruct, 5, 0) + 100 + getSushiBonus(account, 58))
+          : Math.round(getConstructionMasteryBonus(totalConstruct, 5, 0) + getSushiBonus(account, 58)))
         : 15 === maxLevel ? getConstructionMasteryBonus(totalConstruct, 3, 0) : 0;
 }
 
