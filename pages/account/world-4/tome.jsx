@@ -2,7 +2,10 @@ import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, getTabs, notateNumber } from '@utility/helpers';
+import Tabber from '../../../components/common/Tabber';
+import { PAGES } from '@components/constants';
+import TomeRankings from '@components/account/Worlds/World4/TomeRankings';
 import useRealDate from '@hooks/useRealDate';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
@@ -44,57 +47,59 @@ const Tome = () => {
       title="Tome | Idleon Toolbox"
       description="Track your Tome upgrade bonuses, highscores, and progression rewards in Legends of Idleon World 4"
     />
-    {/*<Typography variant={'caption'}>* Bubble bonus might be inaccurate because it is determined by your active*/}
-    {/*  character.</Typography>*/}
-    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Total Points'} value={commaNotation(state?.account?.tome?.totalPoints)} />
-      <CardTitleAndValue title={'Rank'} value={!state?.account?.tome?.tops ? '' : <Tooltip title={<Stack gap={1}>
-        {state?.account?.tome?.tops?.map((score, index) => <Stack direction={'row'} gap={1}
-          key={'rank' + ranks?.[index]}
-          divider={<>-</>}>
-          <Typography sx={{ width: 40 }}>{ranks?.[index]}</Typography>
-          <Typography>{commaNotation(score)}</Typography>
-        </Stack>)}
-      </Stack>}>
-        <IconInfoCircleFilled size={18} />
-      </Tooltip>} icon={`data/TomeTop${state?.account?.tome?.top}.png`} />
-      <CardTitleAndValue title={'Nametag Reward Reset'} value={
-        <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <Timer type="countdown" date={nextResetTime} lastUpdated={state?.lastUpdated || Date.now()} />
-          <Tooltip title={<Stack gap={1}>
-            <Typography variant='body1' color='text.secondary'>Next resets</Typography>
-            {nextResetTimes.map((resetTime, index) => (
-              <Typography variant='body2' key={`reset-${index}`}>
-                {getRealDateInMs(resetTime)}
-              </Typography>
-            ))}
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'tome')}>
+      <>
+        {/*<Typography variant={'caption'}>* Bubble bonus might be inaccurate because it is determined by your active*/}
+        {/*  character.</Typography>*/}
+        <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+          <CardTitleAndValue title={'Total Points'} value={commaNotation(state?.account?.tome?.totalPoints)} />
+          <CardTitleAndValue title={'Rank'} value={!state?.account?.tome?.tops ? '' : <Tooltip title={<Stack gap={1}>
+            {state?.account?.tome?.tops?.map((score, index) => <Stack direction={'row'} gap={1}
+              key={'rank' + ranks?.[index]}
+              divider={<>-</>}>
+              <Typography sx={{ width: 40 }}>{ranks?.[index]}</Typography>
+              <Typography>{commaNotation(score)}</Typography>
+            </Stack>)}
           </Stack>}>
             <IconInfoCircleFilled size={18} />
-          </Tooltip>
+          </Tooltip>} icon={`data/TomeTop${state?.account?.tome?.top}.png`} />
+          <CardTitleAndValue title={'Nametag Reward Reset'} value={
+            <Stack direction={'row'} alignItems={'center'} gap={1}>
+              <Timer type="countdown" date={nextResetTime} lastUpdated={state?.lastUpdated || Date.now()} />
+              <Tooltip title={<Stack gap={1}>
+                <Typography variant='body1' color='text.secondary'>Next resets</Typography>
+                {nextResetTimes.map((resetTime, index) => (
+                  <Typography variant='body2' key={`reset-${index}`}>
+                    {getRealDateInMs(resetTime)}
+                  </Typography>
+                ))}
+              </Stack>}>
+                <IconInfoCircleFilled size={18} />
+              </Tooltip>
+            </Stack>
+          } />
+          <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+            {state?.account?.tome?.bonuses?.map(({ name, bonus, isMulti, icon }, index) => {
+              const formatted = isMulti ? notateNumber(1 + bonus / 100, 'MultiplierInfo') : notateNumber(bonus, 'Big');
+              return <CardTitleAndValue key={name} title={cleanUnderscore(name)} value={`${formatted}${isMulti ? 'x' : '%'}`}
+                icon={icon || `etc/Tome_${index}.png`}>
+              </CardTitleAndValue>
+            })}
+            {state?.account?.spelunking?.loreBonuses?.map((upgrade) => {
+              if (upgrade?.name === 'filler') return null;
+              return <CardTitleAndValue key={upgrade?.name} title={upgrade?.name} value={`${notateNumber(upgrade?.isMulti ? 1 + upgrade?.bonus / 100 : upgrade?.bonus, 'MultiplierInfo')}${upgrade?.isMulti ? 'x' : '%'}`}
+                icon={`etc/Tome_${upgrade?.index + 6}.png`}>
+              </CardTitleAndValue>
+            })}
+          </Stack>
         </Stack>
-      } />
-      <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-        {state?.account?.tome?.bonuses?.map(({ name, bonus, isMulti, icon }, index) => {
-          const formatted = isMulti ? notateNumber(1 + bonus / 100, 'MultiplierInfo') : notateNumber(bonus, 'Big');
-          return <CardTitleAndValue key={name} title={cleanUnderscore(name)} value={`${formatted}${isMulti ? 'x' : '%'}`}
-            icon={icon || `etc/Tome_${index}.png`}>
-          </CardTitleAndValue>
-        })}
-        {state?.account?.spelunking?.loreBonuses?.map((upgrade) => {
-          if (upgrade?.name === 'filler') return null;
-          return <CardTitleAndValue key={upgrade?.name} title={upgrade?.name} value={`${notateNumber(upgrade?.isMulti ? 1 + upgrade?.bonus / 100 : upgrade?.bonus, 'MultiplierInfo')}${upgrade?.isMulti ? 'x' : '%'}`}
-            icon={`etc/Tome_${upgrade?.index + 6}.png`}>
-          </CardTitleAndValue>
-        })}
-      </Stack>
-    </Stack>
-    <CheckboxEl />
-    <CheckboxHideMaxedEl />
-    <CheckboxProgressBarsEl />
-    <CheckboxCalculatorEl />
+        <CheckboxEl />
+        <CheckboxHideMaxedEl />
+        <CheckboxProgressBarsEl />
+        <CheckboxCalculatorEl />
 
-    <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-      {state?.account?.tome?.tome?.map((bonus, rIndex) => {
+        <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
+          {state?.account?.tome?.tome?.map((bonus, rIndex) => {
         const {
           name,
           color,
@@ -245,8 +250,11 @@ const Tome = () => {
               : null}
           </CardContent>
         </Card>
-      })}
-    </Stack>
+          })}
+        </Stack>
+      </>
+      <TomeRankings />
+    </Tabber>
   </>
 };
 

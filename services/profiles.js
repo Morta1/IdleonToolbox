@@ -79,6 +79,20 @@ export const fetchUserLeaderboards = async (leaderboard, leaderboardUser) => {
   }
 }
 
+export const fetchTomePercentiles = async () => {
+  try {
+    const response = await fetch(`${url}/tome-percentiles`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (e) {
+    console.error('profiles.js -> Error fetching tome percentiles');
+    return null;
+  }
+}
+
 export const expandLeaderboardInfo = (account, characters) => {
   const dropRate = Math.max(...characters.map(character => getDropRate(character, account, characters)?.dropRate || 0));
   const cashMulti = Math.max(...characters.map(character => getCashMulti(character, account, characters)?.cashMulti || 0));
@@ -90,6 +104,7 @@ export const expandLeaderboardInfo = (account, characters) => {
   const greenMushroomKills = account?.deathNote?.[0]?.mobs?.[0]?.kills || 0;
   const totalBoats = calcTotalBoatLevels(account?.sailing?.boats);
   const totalTomePoints = account?.tome?.totalPoints;
+  const tomePoints = (account?.tome?.tome || []).map(t => t?.points ?? 0);
   const logbooks = account?.gaming?.logBook?.reduce((sum, { unlocked }) => sum + unlocked, 0);
   const villagers = account?.hole?.villagers?.map(({ expRate }) => expRate.value)?.filter(val => val > 0);
   const highestVillagerExpPerHour = villagers?.length > 0 ? Math.max(...villagers) : 0;
@@ -106,6 +121,7 @@ export const expandLeaderboardInfo = (account, characters) => {
     greenMushroomKills,
     totalBoats,
     totalTomePoints: withDefault(totalTomePoints, 0),
+    tomePoints,
     highestVillagerExpPerHour,
     topKilledMonsters: account?.topKilledMonsters,
     accountAge: differenceInYears(new Date(), new Date(account?.accountCreateTime)),
