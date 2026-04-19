@@ -80,7 +80,7 @@ const TomeRankings = () => {
   const [selectedRank, setSelectedRank] = useState('all');
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [CheckboxGroupEl, groupByTier] = useCheckbox('Group by tier');
-  const [CheckboxSortEl, sortByWeakest] = useCheckbox('Sort by weakest', true);
+  const [CheckboxSortEl, sortByLowest] = useCheckbox('Sort by lowest', true);
   const [search, setSearch] = useState('');
   const formatDate = useFormatDate();
 
@@ -123,7 +123,7 @@ const TomeRankings = () => {
     };
   });
 
-  const sorted = sortByWeakest
+  const sorted = sortByLowest
     ? [...rows].sort((a, b) => (a.percentile ?? 101) - (b.percentile ?? 101))
     : rows;
   const searchLower = search.toLowerCase();
