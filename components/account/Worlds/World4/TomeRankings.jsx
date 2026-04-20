@@ -338,7 +338,7 @@ const ExpandedCalculator = ({ userPoints, bounds, percentilePoints, hasUserData 
   let gap = null;
   if (targetPercentile !== '') {
     const p = parseFloat(targetPercentile);
-    if (!isNaN(p) && p >= 1 && p <= 99.99) {
+    if (!isNaN(p) && p >= 1 && p <= 100) {
       const value = interpolateValue(p, bounds, percentilePoints);
       if (value != null) {
         requiredPts = Math.round(value);
@@ -353,14 +353,14 @@ const ExpandedCalculator = ({ userPoints, bounds, percentilePoints, hasUserData 
       <input
         type="number"
         min="1"
-        max="99.99"
+        max="100"
         step="0.01"
         value={targetPercentile}
         onChange={(e) => {
           const val = e.target.value;
           if (val === '') return setTargetPercentile('');
           const num = parseFloat(val);
-          if (!isNaN(num) && num >= 0 && num <= 99.99) setTargetPercentile(val);
+          if (!isNaN(num) && num >= 0 && num <= 100) setTargetPercentile(val);
         }}
         placeholder="e.g. 50"
         style={{
