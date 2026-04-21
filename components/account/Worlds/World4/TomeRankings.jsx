@@ -129,9 +129,11 @@ const TomeRankings = () => {
   const searchLower = search.toLowerCase();
   const filtered = searchLower ? sorted.filter(r => r.name.toLowerCase().includes(searchLower)) : sorted;
 
+  const maxPercentile = percentilePoints[percentilePoints.length - 1];
   const below25 = filtered.filter(r => r.percentile != null && r.percentile < 25).length;
   const between = filtered.filter(r => r.percentile != null && r.percentile >= 25 && r.percentile < 75).length;
-  const above75 = filtered.filter(r => r.percentile != null && r.percentile >= 75).length;
+  const above75 = filtered.filter(r => r.percentile != null && r.percentile >= 75 && r.percentile < maxPercentile).length;
+  const maxed = filtered.filter(r => r.percentile != null && r.percentile >= maxPercentile).length;
 
   const displayPlayers = selectedRank === 'all'
     ? totalPlayers
@@ -182,6 +184,7 @@ const TomeRankings = () => {
           <SummaryTile count={below25} label="Below 25th" color="#f85149" />
           <SummaryTile count={between} label="25th - 75th" color="#d29922" />
           <SummaryTile count={above75} label="Above 75th" color="#3fb950" />
+          <SummaryTile count={maxed} label="Maxed" color="#58a6ff" />
         </Stack>
       )}
 
@@ -192,7 +195,9 @@ const TomeRankings = () => {
               hasUserData={hasUserData} expandedIndex={expandedIndex} setExpandedIndex={setExpandedIndex} percentilePoints={percentilePoints} />
             <TierGroup label="25th - 75th" color="#d29922" rows={filtered.filter(r => r.percentile != null && r.percentile >= 25 && r.percentile < 75)}
               hasUserData={hasUserData} expandedIndex={expandedIndex} setExpandedIndex={setExpandedIndex} percentilePoints={percentilePoints} />
-            <TierGroup label="Above 75th" color="#3fb950" rows={filtered.filter(r => r.percentile != null && r.percentile >= 75)}
+            <TierGroup label="Above 75th" color="#3fb950" rows={filtered.filter(r => r.percentile != null && r.percentile >= 75 && r.percentile < maxPercentile)}
+              hasUserData={hasUserData} expandedIndex={expandedIndex} setExpandedIndex={setExpandedIndex} percentilePoints={percentilePoints} />
+            <TierGroup label="Maxed" color="#58a6ff" rows={filtered.filter(r => r.percentile != null && r.percentile >= maxPercentile)}
               hasUserData={hasUserData} expandedIndex={expandedIndex} setExpandedIndex={setExpandedIndex} percentilePoints={percentilePoints} />
             {filtered.some(r => r.percentile == null) && (
               <TierGroup label="No data" color="#8b949e" rows={filtered.filter(r => r.percentile == null)}
