@@ -4,6 +4,21 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.41',
+    'gameVer': '2.3.503',
+    'date': '22/04/2026',
+    'features': [
+      'Builds: new community-driven Builds page replaces the old hand-curated catalogue — anyone signed in can now publish, like, and share talent builds',
+      'Builds: browse with class and tag filters (AND match), full-text search across titles and descriptions, sort by New or Top',
+      'Build editor: class picker, per-tab talent grid, description, tags, anonymous-publish toggle, and local draft auto-save',
+      'Build editor: "Use as template" on any build starts a new one pre-filled with that layout',
+      'My builds: new tab groups the builds you\'ve published and the ones you\'ve liked; edit or delete your own at any time',
+      'Builds: author name on published builds uses your in-game main character (or "Anonymous" if you toggle it)',
+      'Builds: up to 5 new builds per day and 5 tags per build',
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.40',
     'gameVer': '2.3.503',
     'date': '21/04/2026',
