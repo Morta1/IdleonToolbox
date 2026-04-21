@@ -25,8 +25,8 @@ const RANK_OPTIONS = [
 
 function interpolatePercentile(value, boundaries, percentilePoints) {
   if (!boundaries?.length) return null;
-  if (value <= boundaries[0]) return percentilePoints[0];
   if (value >= boundaries[boundaries.length - 1]) return percentilePoints[percentilePoints.length - 1];
+  if (value <= boundaries[0]) return percentilePoints[0];
   for (let i = 0; i < boundaries.length - 1; i++) {
     if (value >= boundaries[i] && value < boundaries[i + 1]) {
       const span = boundaries[i + 1] - boundaries[i];
