@@ -1164,6 +1164,16 @@ const migration48 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration49 = (dashboardConfig) => {
+  if (!dashboardConfig.timers) dashboardConfig.timers = {};
+  if (!dashboardConfig.timers['World 7']) dashboardConfig.timers['World 7'] = {};
+  if (!dashboardConfig.timers['World 7'].sushiFuelFull) {
+    dashboardConfig.timers['World 7'].sushiFuelFull = { checked: true, options: [] };
+  }
+  dashboardConfig.version = 49;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1214,6 +1224,7 @@ const migrations = {
   46: migration46,
   47: migration47,
   48: migration48,
+  49: migration49,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

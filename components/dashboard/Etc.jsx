@@ -149,6 +149,12 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
     }
     : null;
 
+  const sushiFuel = account?.sushiStation?.fuel;
+  const sushiFuelIsFull = sushiFuel && sushiFuel.cap > 0 && sushiFuel.current >= sushiFuel.cap;
+  const sushiFuelFullTime = sushiFuel && sushiFuel.generation > 0 && !sushiFuelIsFull
+    ? new Date().getTime() + ((sushiFuel.cap - sushiFuel.current) / sushiFuel.generation) * 3600 * 1000
+    : null;
+
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {!emptyAlerts?.General && <Section title={'General'}>
@@ -423,6 +429,16 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             lastUpdated={lastUpdated}
             time={researchLevelUpTime.time}
             icon={'data/ClassIcons61.png'}
+          /> : null}
+        {trackers?.['World 7']?.sushiFuelFull?.checked && (sushiFuelFullTime || sushiFuelIsFull) ?
+          <TimerCard
+            page={'account/world-7/sushi-station'}
+            tooltipContent={sushiFuelIsFull ? 'Sushi fuel is full!' : 'Sushi fuel full: ' + getRealDateInMs(sushiFuelFullTime)}
+            lastUpdated={lastUpdated}
+            time={sushiFuelFullTime ?? new Date().getTime()}
+            icon={'etc/Fuel.png'}
+            timerPlaceholder={'Full!'}
+            forcePlaceholder={sushiFuelIsFull}
           /> : null}
       </Section>}
 

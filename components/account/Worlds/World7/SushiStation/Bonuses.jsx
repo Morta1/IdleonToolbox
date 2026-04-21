@@ -49,7 +49,7 @@ const Bonuses = ({ rogBonuses, uniqueSushi, knowledge }) => {
                       </Typography>
                     </Stack>
                   </Stack>
-                  {kn?.discovered && (
+                  {kn && (
                     <Stack gap={0.25} mt={'auto'} pt={0.75}>
                       <Divider sx={{ my: 1 }}/>
                       <Stack direction="row" justifyContent="space-between" alignItems="center">

@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 48,
+  version: 49,
   account: {
     General: {
       tasks: {
@@ -585,7 +585,8 @@ const baseTrackers = {
       villagers: { checked: true, options: [] }
     },
     'World 7': {
-      researchLevelUp: { checked: true, options: [] }
+      researchLevelUp: { checked: true, options: [] },
+      sushiFuelFull: { checked: true, options: [] }
     }
   }
 }

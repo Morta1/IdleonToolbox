@@ -42,7 +42,7 @@ const Observations = ({ observations }) => {
         <Card
           key={obs.index}
           variant="outlined"
-          sx={{ opacity: obs.found ? 1 : 0.7, height: '100%' }}
+          sx={{ opacity: obs.unlocked ? (obs.found ? 1 : 0.7) : 0.45, height: '100%' }}
         >
           <CardContent>
             <Stack spacing={1.5}>

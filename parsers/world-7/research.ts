@@ -182,7 +182,7 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
   const shapePlacementsList = shapePlacements ?? [];
   const numShapeSlots = Math.round(shapePlacementsList.length / 4);
   const observations = [];
-  for (let observationIndex = 0; observationIndex < occurrencesToBeFound; observationIndex++) {
+  for (let observationIndex = 0; observationIndex < occurrencesList.length; observationIndex++) {
     const found = (Number(research?.occurrenceFoundState?.[observationIndex]) || 0) >= 1;
     const insightLevel = Number(research?.observationInsight?.[observationIndex]) || 0;
     const insightExp = Number(research?.observationInsightExp?.[observationIndex]) || 0;
@@ -207,6 +207,7 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
     observations.push({
       index: observationIndex,
       found,
+      unlocked: observationIndex < occurrencesToBeFound,
       name: occurrenceData?.name,
       researchLvReq: occurrenceData?.researchLvReq ?? 0,
       description: occurrenceData?.description,

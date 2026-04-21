@@ -4,6 +4,24 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.40',
+    'gameVer': '2.3.503',
+    'date': '21/04/2026',
+    'features': [
+      'Tome: new Rankings tab — compare your tome metrics against all Idleon Toolbox players with percentile-based rankings',
+      'Tome Rankings: "Compare within" dropdown to filter by game rank brackets (TOP 0.1% through TOP 95%)',
+      'Tome Rankings: sorted percentile bars with color-coded tiers, click any metric to expand calculator showing quantity, points, and what you need for the next point',
+      'Tome Rankings: global "Target %" input shows the PTS gap for every metric at once',
+      'Tome Rankings: "Group by" selector — group metrics by percentile tier or by customizable classification type (High Priority, Achievable, Time Gated, Luck Gated, Event Gated), saved locally',
+      'Tome Rankings: search filter, "Sort by lowest" toggle, and "Hide maxed" option',
+      'Dashboard: new sushi fuel timer showing countdown until fuel reaches max cap',
+    ],
+    'fixes': [
+      'Research: observations list now includes all entries instead of stopping at the found count, locked observations shown with reduced opacity',
+      'Sushi Station: knowledge section on bonuses tab now shows for undiscovered sushi too',
+    ]
+  },
+  {
     'ver': '3.3.39',
     'gameVer': '2.3.503',
     'date': '18/04/2026',
