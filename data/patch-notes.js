@@ -14,7 +14,7 @@ export const patchNotes = [
       'Build editor: "Use as template" on any build starts a new one pre-filled with that layout',
       'My builds: new tab groups the builds you\'ve published and the ones you\'ve liked; edit or delete your own at any time',
       'Builds: author name on published builds uses your in-game main character (or "Anonymous" if you toggle it)',
-      'Builds: up to 5 new builds per day and 5 tags per build',
+      'Builds: up to 5 tags per build',
     ],
     'fixes': []
   },
