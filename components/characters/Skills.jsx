@@ -18,6 +18,14 @@ const getRankColor = (rank) => {
 }
 
 const globalSkills = ['gaming', 'sailing', 'breeding', 'farming', 'summoning'].toSimpleObject();
+
+const normalizeBreakdown = (breakdown) => {
+  if (!breakdown || Array.isArray(breakdown)) return breakdown;
+  return breakdown?.categories?.flatMap((category) => [
+    ...(category?.sources ?? []),
+    ...(category?.subSections?.flatMap((sub) => sub?.sources ?? []) ?? [])
+  ]) ?? [];
+};
 const Skills = ({ skills, charName, account, characters, character, showSkillsRankOneOnly }) => {
   const hasRankOne = Object.keys(skills || {})?.filter((skillName) => skills[skillName]?.rank === 1)?.length > 0;
   const playerInfo = getMaxDamage(character, characters, account);
@@ -85,7 +93,8 @@ const SkillTooltip = ({ exp, expReq, expMulti, charName, skillName, level }) => 
         <Typography variant={'caption'}>* inaccurate</Typography>
       </> : null}
       <Divider sx={{ my: 1 }}/>
-      <Breakdown breakdown={expMulti?.breakdown} title={'Exp multi breakdown'} notation={'MultiplierInfo'}/>
+      <Breakdown breakdown={normalizeBreakdown(expMulti?.breakdown)} title={'Exp multi breakdown'}
+                 notation={'MultiplierInfo'}/>
     </>}
 
   </Stack>

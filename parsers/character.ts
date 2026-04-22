@@ -1303,32 +1303,39 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     return {
       value,
       formattedValue,
-      breakdown: [
-        { name: 'All skill exp', value: allSkillExp?.value / 100 },
-        { name: 'EXP GMO (Market)', value: Math.max(1, marketBonus) },
-        { name: 'Smarter Seeds (Market)', value: marketBonus2 / 100 },
-        { name: 'MSA', value: msaBonus / 100 },
-        { name: 'Skill Mastery', value: 25 * skillMasteryBonus / 100 },
-        { name: 'Meal', value: mealBonus / 100 },
-        { name: 'Arcade', value: arcadeBonus / 100 },
-        { name: 'Vault', value: vaultBonus77 / 100 },
-        { name: 'Farmer Brain (Exotic)', value: exotic21 / 100 },
-        { name: 'Farmer Knowhow (Exotic)', value: exotic22 / 100 },
-        { name: 'Summoning', value: winnerBonus / 100 },
-        { name: 'Vial', value: vialBonus / 100 },
-        { name: 'Statue', value: statueBonus / 100 },
-        { name: 'Card', value: cardBonus / 100 },
-        { name: 'Charm', value: charmBonus / 100 },
-        { name: 'Lab', value: labBonus / 100 },
-        { name: 'Star Sign', value: starSignBonus / 100 },
-        { name: 'Guild', value: guildBonus / 100 },
-        { name: 'Achievement', value: (10 * achievementBonus + 15 * achievementBonus2) / 100 },
-        { name: 'Vote', value: voteBonus / 100 },
-        { name: 'Shiny', value: shinyBonus / 100 },
-        { name: 'Task', value: taskBonus / 100 },
-        { name: 'Land Rank', value: landRankBonus / 100 },
-        { name: 'Talent', value: talentBonus / 100 }
-      ]
+      breakdown: {
+        statName: 'Farming EXP',
+        totalValue: value,
+        categories: [{
+          name: 'Multiplicative',
+          sources: [
+            { name: 'EXP GMO (Market)', value: Math.max(1, marketBonus) },
+            { name: 'All Skill EXP', value: allSkillExp?.value },
+            { name: 'Smarter Seeds (Market)', value: 1 + marketBonus2 / 100 },
+            { name: 'MSA', value: 1 + msaBonus / 100 },
+            { name: 'Skill Mastery', value: 1 + (25 * skillMasteryBonus) / 100 },
+            { name: 'Meal', value: 1 + mealBonus / 100 },
+            { name: 'Arcade', value: 1 + arcadeBonus / 100 },
+            { name: 'Vault', value: 1 + vaultBonus77 / 100 },
+            { name: 'Farmer Brain (Exotic)', value: 1 + exotic21 / 100 },
+            { name: 'Farmer Knowhow (Exotic)', value: 1 + exotic22 / 100 },
+            { name: 'Summoning', value: 1 + winnerBonus / 100 },
+            { name: 'Vial', value: 1 + vialBonus / 100 },
+            { name: 'Statue', value: 1 + statueBonus / 100 },
+            { name: 'Card', value: 1 + cardBonus / 100 },
+            { name: 'Charm', value: 1 + charmBonus / 100 },
+            { name: 'Lab', value: 1 + labBonus / 100 },
+            { name: 'Star Sign', value: 1 + starSignBonus / 100 },
+            { name: 'Guild', value: 1 + guildBonus / 100 },
+            { name: 'Achievement', value: 1 + (10 * achievementBonus + 15 * achievementBonus2) / 100 },
+            { name: 'Vote', value: 1 + voteBonus / 100 },
+            { name: 'Shiny', value: 1 + shinyBonus / 100 },
+            { name: 'Task', value: 1 + taskBonus / 100 },
+            { name: 'Land Rank', value: 1 + landRankBonus / 100 },
+            { name: 'Talent', value: 1 + talentBonus / 100 }
+          ]
+        }]
+      }
     }
   }
   else if (skillName === 'sneaking') {
