@@ -9,7 +9,6 @@ import {
   DialogContentText,
   DialogTitle,
   FormControlLabel,
-  Grid,
   IconButton,
   Snackbar,
   Stack,
@@ -26,6 +25,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import BuildTab from './BuildTab';
 import BuildDetail from './BuildDetail';
 import ClassPicker from './ClassPicker';
+import RichTextEditor from './RichTextEditor';
 import { hydrate, hydrateEmpty } from '@utility/builds/hydrate';
 import { toStorageBuild } from '@utility/builds/compact';
 import { clearDraft, loadDraft, makeDebouncedSaver } from '@utility/builds/draft';
@@ -186,6 +186,9 @@ const BuildForm = ({
     if (tabTalents) {
       setTabs((prev) => applyTalentChange(prev, tabIndex, tabTalents));
     }
+    // tabNote is only emitted by the "Remove" button on legacy notes — edit
+    // mode doesn't render a note editor. An empty string clears the note so
+    // compactPayload drops it from storage on the next save.
     if (tabNote != null) {
       setTabs((prev) => applyNoteChange(prev, tabIndex, tabNote));
     }
@@ -261,8 +264,11 @@ const BuildForm = ({
   //   2. Main content: tabs (editable) on the left, metadata sidebar on the right
   const hierarchy = resolveHierarchy(classKey);
 
+  // Only compute the preview hydration when preview mode is actually on —
+  // `toStorageBuild` walks every tab/talent and reallocates arrays, so doing
+  // it on every keystroke while the editor is active was wasted work.
   const hydratedForPreview =
-    classKey && hierarchy
+    previewOn && classKey && hierarchy
       ? {
           class: hierarchy.class,
           subclass: hierarchy.subclass,
@@ -347,105 +353,120 @@ const BuildForm = ({
       )}
 
       {classKey && !previewOn && (
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={8}>
-            <Stack gap={2}>
-              {tabs.map((tab, index) => {
-                const tabTheme = familyTheme(tab.name);
-                return (
-                  <SurfaceCard
-                    key={`${classKey}-${tab.name}-${index}`}
-                    sx={{
-                      position: 'relative',
-                      overflow: 'hidden',
-                      ...familyAccentBar(tabTheme.primary)
-                    }}
-                  >
-                    <Box sx={{ p: 2, pl: 2.5 }}>
-                      <Stack
-                        direction="row"
-                        alignItems="baseline"
-                        gap={1}
-                        sx={{ mb: 1.5 }}
-                      >
-                        <Typography
-                          variant="overline"
-                          sx={{
-                            fontWeight: 700,
-                            letterSpacing: 0.6,
-                            color: tabTheme.primary,
-                            lineHeight: 1
-                          }}
-                        >
-                          Tab {index + 1}
-                        </Typography>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                          {cleanUnderscore(tab.name)}
-                        </Typography>
-                      </Stack>
-                      <BuildTab
-                        {...tab}
-                        createMode
-                        layout="row"
-                        onCustomBuildChange={handleCustomBuildChange}
-                        tabIndex={index}
-                      />
-                    </Box>
-                  </SurfaceCard>
-                );
-              })}
-            </Stack>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Stack
-              gap={2}
-              sx={{
-                position: { md: 'sticky' },
-                top: { md: 16 }
-              }}
-            >
-              <TextField
-                label="Description"
-                multiline
-                minRows={4}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                inputProps={{ maxLength: 2000 }}
-                placeholder="Explain the strategy, gearing, etc."
-              />
-              <Stack gap={0.5}>
-                <Typography variant="subtitle2">Tags (max 5)</Typography>
-                <Stack direction="row" gap={0.5} flexWrap="wrap">
-                  {TAG_OPTIONS.map((tag) => {
-                    const selected = tags.includes(tag);
-                    return (
-                      <TagChip
-                        key={tag}
-                        label={tag}
-                        size="small"
-                        onClick={() => toggleTag(tag)}
-                        sx={selected ? {
-                          bgcolor: ACCENT.primarySoft,
-                          color: ACCENT.primary,
-                          borderColor: ACCENT.primaryBorder
-                        } : undefined}
-                      />
-                    );
-                  })}
-                </Stack>
+        // Flex row + flex-wrap instead of MUI Grid so the split engages only
+        // when the container actually has room for both halves. MUI Grid's
+        // percentage-based columns (xl=8/4) produced a ~348px right column at
+        // 1536px viewport, but the tab card needs ~358px — the overflow
+        // collided with the editor. With basis-based flex the right column
+        // stays a fixed 360px and the left grows up to a cap; when the
+        // container can't fit both (left's min-basis + right + gap), right
+        // wraps below. The editor's max-width + `justifyContent: space-between`
+        // turns extra room in wide viewports into visible gap between the two.
+        <Stack
+          direction="row"
+          gap={2}
+          flexWrap="wrap"
+          alignItems="flex-start"
+          justifyContent="space-between"
+        >
+          {/* Left column: the rich-text guide + build-level metadata
+              (tags, anonymous toggle). flex-basis 600 so right wraps when
+              there's no room; max-width 1000 so on wide viewports the
+              editor doesn't stretch into uncomfortably-long line lengths
+              and the surplus room materializes as gap to the right. */}
+          <Stack gap={2} sx={{ flex: '1 1 600px', maxWidth: 1000, minWidth: 0 }}>
+            <RichTextEditor
+              ariaLabel="Description"
+              minRows={15}
+              maxLength={2000}
+              value={description}
+              onChange={setDescription}
+              placeholder="Explain the strategy, gearing, etc. Type @ to reference gear inline."
+            />
+            <Stack gap={0.5}>
+              <Typography variant="subtitle2">Tags (max 5)</Typography>
+              <Stack direction="row" gap={0.5} flexWrap="wrap">
+                {TAG_OPTIONS.map((tag) => {
+                  const selected = tags.includes(tag);
+                  return (
+                    <TagChip
+                      key={tag}
+                      label={tag}
+                      size="small"
+                      onClick={() => toggleTag(tag)}
+                      sx={selected ? {
+                        bgcolor: ACCENT.primarySoft,
+                        color: ACCENT.primary,
+                        borderColor: ACCENT.primaryBorder
+                      } : undefined}
+                    />
+                  );
+                })}
               </Stack>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={isAnonymous}
-                    onChange={(e) => setIsAnonymous(e.target.checked)}
-                  />
-                }
-                label="Publish as Anonymous"
-              />
             </Stack>
-          </Grid>
-        </Grid>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={isAnonymous}
+                  onChange={(e) => setIsAnonymous(e.target.checked)}
+                />
+              }
+              label="Publish as Anonymous"
+            />
+          </Stack>
+          {/* Right column: talent tab cards stacked vertically at a fixed
+              360px (320 grid + 40 card padding). Doesn't shrink — when the
+              container can't accommodate left's 600px basis + 360 + 16 gap,
+              the flex-wrap drops this column to the row below, where it
+              left-aligns naturally. Authors write tab-level prose in the
+              main description via @-mentions rather than a per-tab note. */}
+          <Stack direction="column" gap={2} sx={{ flex: '0 0 360px', width: 360 }}>
+            {tabs.map((tab, index) => {
+              const tabTheme = familyTheme(tab.name);
+              return (
+                <SurfaceCard
+                  key={`${classKey}-${tab.name}-${index}`}
+                  sx={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                    ...familyAccentBar(tabTheme.primary)
+                  }}
+                >
+                  <Box sx={{ p: 2, pl: 2.5 }}>
+                    <Stack
+                      direction="row"
+                      alignItems="baseline"
+                      gap={1}
+                      sx={{ mb: 1.5 }}
+                    >
+                      <Typography
+                        variant="overline"
+                        sx={{
+                          fontWeight: 700,
+                          letterSpacing: 0.6,
+                          color: tabTheme.primary,
+                          lineHeight: 1
+                        }}
+                      >
+                        Tab {index + 1}
+                      </Typography>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                        {cleanUnderscore(tab.name)}
+                      </Typography>
+                    </Stack>
+                    <BuildTab
+                      {...tab}
+                      createMode
+                      layout="row"
+                      onCustomBuildChange={handleCustomBuildChange}
+                      tabIndex={index}
+                    />
+                  </Box>
+                </SurfaceCard>
+              );
+            })}
+          </Stack>
+        </Stack>
       )}
 
       <Snackbar

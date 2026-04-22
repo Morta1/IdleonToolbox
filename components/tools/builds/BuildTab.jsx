@@ -1,18 +1,25 @@
 import React from 'react';
-import { Box, Card, CardContent, InputBase, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Card, CardContent, InputBase, Stack, Typography } from '@mui/material';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import Tooltip from '@components/Tooltip';
+import ItemRefRenderer from './ItemRefRenderer';
 import { cleanUnderscore, growth, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 
-// Fully controlled: talent values and the note come straight from the parent
+// Fully controlled: talent values come straight from the parent
 // (BuildForm or BuildDetail). No local mirrors, no useEffect resync needed.
 //
-// `layout` controls how the grid and the tab-note are arranged:
+// `layout` controls how the grid and the (view-only) tab-note are arranged:
 //   'stack'  (default) — grid on top, note card below (view / detail pages)
-//   'row'              — grid left, note fills right (create / edit form)
+//   'row'              — grid left, note card fills right (edit form)
+//
+// Create/edit mode no longer offers a note INPUT — authors describe tab
+// strategy inline in the main rich-text description via @-mentions and
+// headings. Pre-existing builds that still carry a `note` render it read-only
+// in edit mode with a Remove button (so authors aren't stuck with frozen
+// legacy data), and render it normally in view mode.
 const BuildTab = ({ note, talents: talentList = [], createMode, onCustomBuildChange, tabIndex, layout = 'stack' }) => {
   const talents = talentList || [];
-  const noteValue = note || '';
 
   const handleLevelChange = (e, index) => {
     const val = e.target.value;
@@ -22,8 +29,8 @@ const BuildTab = ({ note, talents: talentList = [], createMode, onCustomBuildCha
     onCustomBuildChange?.({ tabIndex, tabTalents: nextTalents });
   };
 
-  const handleNoteChange = (e) => {
-    onCustomBuildChange?.({ tabIndex, tabNote: e.target.value });
+  const handleRemoveLegacyNote = () => {
+    onCustomBuildChange?.({ tabIndex, tabNote: '' });
   };
 
   const grid = (
@@ -59,34 +66,58 @@ const BuildTab = ({ note, talents: talentList = [], createMode, onCustomBuildCha
     </Stack>
   );
 
-  const noteBlock = createMode ? (
-    <CustomMultiline
-      name="note"
-      minRows={layout === 'row' ? 9 : 2}
-      multiline
-      placeholder={`Strategy notes for this tab…`}
-      value={noteValue}
-      onChange={handleNoteChange}
-    />
-  ) : note ? (
+  // Note card. In view mode, renders normally. In create/edit mode with a
+  // legacy note, renders read-only with a Remove button so the author can
+  // delete it and migrate the content into the main description manually.
+  const noteBlock = note ? (
     <Card variant="outlined" sx={{ bgcolor: 'rgba(255,255,255,0.02)', width: '100%' }}>
       <CardContent>
-        <Typography sx={{ whiteSpace: 'pre-wrap' }}>{note}</Typography>
+        {createMode && (
+          <Stack direction="row" alignItems="center" gap={1} sx={{ mb: 1 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ flexGrow: 1 }}>
+              Legacy tab note (read-only). Move this content into the main description.
+            </Typography>
+            <Button
+              size="small"
+              color="inherit"
+              startIcon={<DeleteOutlineIcon fontSize="small"/>}
+              onClick={handleRemoveLegacyNote}
+            >
+              Remove
+            </Button>
+          </Stack>
+        )}
+        <ItemRefRenderer text={note}/>
       </CardContent>
     </Card>
   ) : null;
 
   if (layout === 'row') {
+    // Create mode has no noteBlock — just the grid. The enclosing tab card
+    // shrinks to fit the 320px grid so several tabs can sit side-by-side
+    // instead of each stretching full-width with a big empty region.
+    if (!noteBlock) return grid;
+    // View/edit with a legacy note: CSS container query switches between
+    // column (narrow card) and row (wide card) based on the card's own
+    // width, not the viewport.
+    // Threshold 600px = 320 (grid) + 16 (gap) + 264 (min useful note width).
     return (
-      <Stack
-        direction={{ xs: 'column', md: 'row' }}
-        gap={2}
-        alignItems="flex-start"
-        sx={{ width: '100%' }}
-      >
-        {grid}
-        <Box sx={{ flexGrow: 1, width: '100%', minWidth: 0 }}>{noteBlock}</Box>
-      </Stack>
+      <Box sx={{ containerType: 'inline-size', width: '100%' }}>
+        <Stack
+          direction="column"
+          gap={2}
+          alignItems="flex-start"
+          sx={{
+            width: '100%',
+            '@container (min-width: 600px)': {
+              flexDirection: 'row'
+            }
+          }}
+        >
+          {grid}
+          <Box sx={{ flexGrow: 1, width: '100%', minWidth: 0 }}>{noteBlock}</Box>
+        </Stack>
+      </Box>
     );
   }
 
@@ -129,12 +160,6 @@ const CustomInput = styled(InputBase)`
     &[type=number] {
       -moz-appearance: textfield;
     }
-  }
-`;
-
-const CustomMultiline = styled(TextField)`
-  & {
-    width: 100%;
   }
 `;
 

@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.42',
+    'gameVer': '2.3.503',
+    'date': '22/04/2026',
+    'features': [
+      'Build editor: the description is now rich-text editors — items render as real inline chips while you type',
+      'Build editor: type "@" to open an inline item and talent search — keep typing to filter, ↑/↓ to navigate, Enter to insert, Esc to cancel. Backspace on a chip removes it atomically',
+      'Build editor: "Insert item" button still there if you prefer picking from a dialog',
+      'Build editor: supports bold (Ctrl+B or **text**), italic (Ctrl+I or *text*), bullet lists (- ), numbered lists (1. ), H3/H4 headings (### , #### ), and links',
+      'Build editor: live character counter below each field, placeholder text, auto-link on paste',
+      'Builds: embedded items render with icon + name chips in the published build, with full hover stats (same tooltip as the item database)',
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.41',
     'gameVer': '2.3.503',
     'date': '22/04/2026',

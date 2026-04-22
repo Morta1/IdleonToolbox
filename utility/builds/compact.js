@@ -59,6 +59,13 @@ export const compactPayload = (fullBuild) => {
   return { v: 1, tabs };
 };
 
+// Hard caps mirror the editor-level constraints. The editor enforces them via
+// `CharacterCount.configure({ limit })`, but that's a DOM-layer guard only —
+// direct API POSTs or edits of legacy content can exceed the cap. Re-slicing
+// here guarantees the stored document respects the limit regardless of path.
+const MAX_TITLE = 120;
+const MAX_DESCRIPTION = 2000;
+
 // Take an incoming edit/create form object and produce the full document shape
 // the Worker expects on POST / PUT.
 export const toStorageBuild = ({
@@ -72,8 +79,8 @@ export const toStorageBuild = ({
 }) => ({
   class: className,
   subclass: subclass || null,
-  title: (title || '').trim(),
-  description: (description || '').trim(),
+  title: (title || '').trim().slice(0, MAX_TITLE),
+  description: (description || '').trim().slice(0, MAX_DESCRIPTION),
   tags: Array.isArray(tags) ? tags.slice(0, 5) : [],
   isAnonymous: !!isAnonymous,
   payload: compactPayload({ tabs })
