@@ -22,6 +22,7 @@ import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { checkCharClass, CLASSES } from '@parsers/talents';
+import { isCompanionBonusActive } from '@parsers/misc';
 
 const maxTimeValue = 8.64e15;
 
@@ -349,7 +350,8 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
           const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
           const ribbonIndex = account?.grimoire?.ribbons?.[28 + mealIndex];
           const ribbonBonus = getRibbonBonus(account, ribbonIndex);
-          const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * ribbonBonus * level * baseStat;
+          const companion162 = isCompanionBonusActive(account, 162) ? (account?.companions?.list?.at(162)?.bonus ?? 0) : 0;
+          const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * (1 + (25 * companion162) / 100) * ribbonBonus * level * baseStat;
           const effectNotation = realEffect < 1e7 ? commaNotation(realEffect) : notateNumber(realEffect, 'Big');
 
           return (
@@ -430,7 +432,8 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
 const MealTooltip = ({ account, level, baseStat, effect, blackDiamondRhinestone, shinyMulti, index }) => {
   const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
   const ribbonBonus = getRibbonBonus(account, account?.grimoire?.ribbons?.[28 + index]);
-  const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * (level + 1) * ribbonBonus * baseStat;
+  const companion162 = isCompanionBonusActive(account, 162) ? (account?.companions?.list?.at(162)?.bonus ?? 0) : 0;
+  const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * (1 + (25 * companion162) / 100) * (level + 1) * ribbonBonus * baseStat;
   const effectNotation = realEffect < 1e7 ? commaNotation(realEffect) : notateNumber(realEffect, 'Big')
   return (
     <>

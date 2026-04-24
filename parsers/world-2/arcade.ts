@@ -13,7 +13,7 @@ const parseArcade = (arcadeRaw: any, account: Account, serverVars: ServerVars) =
   const balls = (account as any)?.accountOptions?.[74];
   const goldBalls = (account as any)?.accountOptions?.[75];
   const royalBalls = (account as any)?.accountOptions?.[324];
-  const maxBalls = Math.round(getMaxClaimTime(account) / Math.max(1800, getSecPerBall(account)));
+  const maxBalls = Math.floor(getMaxClaimTime(account) / Math.max(1800, getSecPerBall(account)));
 
   const arcadeShopList = arcadeShop?.map((upgrade: any, index: number) => {
     const { x1, x2, func } = upgrade;
