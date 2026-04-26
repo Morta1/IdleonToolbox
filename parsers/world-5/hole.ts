@@ -221,7 +221,9 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
   const sediments = [0, 2, 5, 7, 9];
   const notes = [1, 3, 4, 6, 8];
   const rupies = [10, 11, 12, 13, 14, 15];
+  const fountains = [16];
   const measureIndexes = holesInfo[52];
+  // measurement icons - font-324
   const measurements = holesInfo?.[54]?.map((description: any, index: any) => {
     const measureIndex = Number(measureIndexes[index]);
     const baseBonus = getMeasurementBaseBonus({ holesObject, t: index });
@@ -241,6 +243,9 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     }
     else if (rupies.includes(index)) {
       icon = 'HoleJarR' + (Number(itemReqIndex) - 20);
+    }
+    else if (fountains.includes(index)) {
+      icon = 'HoleFountainCoin' + (Number(itemReqIndex) - 30);
     }
     return {
       description,
