@@ -99,9 +99,16 @@ const getAllPremiumHelmets = (rawSpelunk: any, account: any) => {
   const hatsUsedSet = new Set(rawHats);
   const bonusMulti = getHatRackBonusMulti(rawSpelunk, account);
 
-  // Get all premium helmets from items
+  // Get all premium helmets from items.
+  // Mirrors the game's deposit-eligibility filter at N.js:118436 — cosmetic-only hats
+  // (e.g. tournament rewards EquipmentHats136-138) carry lvReqToCraft = 69420 as a sentinel
+  // and are not counted toward the rack.
   const allPremiumHelmets = itemsArray
-    .filter((item) => item?.Type === 'PREMIUM_HELMET')
+    .filter((item) =>
+      item?.Type === 'PREMIUM_HELMET'
+      && (item as any)?.typeGen === 'aHelmetMTX'
+      && Number((item as any)?.lvReqToCraft) !== 69420
+    )
     .map((item) => {
       const isAcquired = hatsUsedSet.has(item.rawName);
       const modifiedItem: any = { ...item };
