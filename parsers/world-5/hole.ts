@@ -20,6 +20,8 @@ import { getEvertree } from '@parsers/world-5/caverns/evertree';
 import { getWisdom } from '@parsers/world-5/caverns/wisdom';
 import { getGambit } from '@parsers/world-5/caverns/gambit';
 import { getTheTemple } from '@parsers/world-5/caverns/the-temple';
+import { getFountainBonusTotal, getTheFountain } from '@parsers/world-5/caverns/the-fountain';
+import { getBottomlessTrench } from '@parsers/world-5/caverns/the-bottomless-trench';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getStatueBonus } from '@parsers/world-1/statues';
 import { getCompassBonus } from '@parsers/class-specific/compass';
@@ -75,7 +77,13 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     jarProgress, // 25
     studyStuff, // 26
     studyProgress, // 27
-    gambitStuff // 28
+    gambitStuff, // 28
+    fountainCoinSpaces, // 29 — array of coin arrays per fountain space
+    fountainSpaceFilled, // 30 — per-space filled flags / counts
+    fountainUpgradeLevels, // 31 — 3D: [waterType 0..2][upgradeIndex 0..19] level (cap 10)
+    fountainMarbleizeLevels, // 32 — 3D: [waterType][upgradeIndex] marbleize tier
+    fountainBarProgress, // 33 — array(3): bar fill per water type
+    fountainCoinFlags // 34 — per-space ready flag (used by Fount_GenerateCoin)
   ] = holeRaw || [];
   const holesObject = {
     charactersCavernLocation,
@@ -106,7 +114,13 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     jarProgress,
     studyStuff,
     studyProgress,
-    gambitStuff
+    gambitStuff,
+    fountainCoinSpaces,
+    fountainSpaceFilled,
+    fountainUpgradeLevels,
+    fountainMarbleizeLevels,
+    fountainBarProgress,
+    fountainCoinFlags
   }
   const lampWishesList = lampWishes.map((wish, index) => {
     return {
@@ -132,7 +146,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     }
   });
 
-  const unlockedCaverns = Math.min(15, villagersLevels?.[0]);
+  const unlockedCaverns = Math.min(17, villagersLevels?.[0]);
   const unlockedVillagers = villagersLevels?.slice(0, 5)?.filter((level: any) => level >= 1)?.length;
   const leastOpalInvestedVillager = Math.min(...opalsInvested?.slice(0, unlockedVillagers));
   const villagers = villagersExp?.slice(0, 5).map((exp: any, index: any) => {
@@ -171,6 +185,8 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
   const wisdom = getWisdom(holesObject, accountData);
   const gambit = getGambit(holesObject, accountData);
   const theTemple = getTheTemple(holesObject);
+  const theFountain = getTheFountain(holesObject, accountData);
+  const theBottomlessTrench = getBottomlessTrench(holesObject, accountData);
 
   const majiksRaw = [holeMajiks, villageMajiks, idleonMajiks];
   let godsLinks: any[] = [];
@@ -250,7 +266,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     unlockedCaverns,
     charactersCavernLocation,
     engineerBonuses,
-    unlockedSchematics: Math.min(Math.min(93,
+    unlockedSchematics: Math.min(Math.min(98,
       Math.round(1 + 3 * villagers?.[1]?.level + Math.floor(villagers?.[1]?.level / 5))), holesBuildings?.length),
     caverns: {
       theWell,
@@ -267,7 +283,9 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
       evertree,
       wisdom,
       gambit,
-      theTemple
+      theTemple,
+      theFountain,
+      theBottomlessTrench
     },
     totalResources,
     totalLayerResources,
@@ -540,7 +558,11 @@ const getVillagerExpPerHour = (holesObject: any, accountData: any, t: any, least
             + getJarBonus({ holesObject, i: 35, account: accountData })))));
   const compassBonus = getCompassBonus(accountData, 59);
   const charmBonus = getCharmBonus(accountData, 'Candy_Cache');
-  const firstVillagerExp = t === 0 && unlockedCaverns < 13 ? Math.pow(1.5, accountData?.accountOptions?.[355]) : 1;
+  const firstVillagerExp = t === 0 && unlockedCaverns < 13
+    ? Math.pow(1.5, accountData?.accountOptions?.[355])
+    : t === 2
+      ? 1 + getFountainBonusTotal(holesObject, 0, 14) / 100
+      : 1;
   const tomeBonus = getLoreBossBonus(accountData, 1);
   const exoticMarketBonus = getExoticMarketBonus(accountData, 51);
 
@@ -716,7 +738,7 @@ export const getStudyBonus = (holesObject: any, t: any, i: any) => {
 
 }
 const getStudies = (holesObject: any, villagerLevel: any, account: any) => {
-  const locations = ['Shallow Caverns', 'Glowshroom Tunnels', 'Underground Overgrowth']
+  const locations = ['Shallow Caverns', 'Glowshroom Tunnels', 'Underground Overgrowth', 'Sentinel Caverns']
   const peripheralVision = !!isSuperbitUnlocked(account, 'Peripheral_Vision');
   const names = holesInfo?.[68];
   const activeStudy = holesObject?.extraCalculations?.[61];
@@ -741,7 +763,9 @@ const getStudies = (holesObject: any, villagerLevel: any, account: any) => {
   });
 
   const stampBonus = getStampsBonusByEffect(account, 'Study_rate_for_Bolaia');
-  const studyPerHour = 100 * (1 + ((5 +
+  const studyPerHour = 100
+    * (1 + getFountainBonusTotal(holesObject, 1, 14) / 100)
+    * (1 + ((5 +
       (getSchematicBonus({ holesObject, t: 85, i: 2 })
         + (getSchematicBonus({ holesObject, t: 87, i: 3 })
           + getSchematicBonus({ holesObject, t: 88, i: 5 })))) * villagerLevel) / 100)

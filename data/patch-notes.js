@@ -4,6 +4,29 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.43',
+    'gameVer': '2.3.505',
+    'date': '25/04/2026',
+    'features': [
+      'Updated the website with version 2.3.505 data and assets',
+      'The Hole: 2 new Sentinel Caverns — The Fountain (cavern 16) and The Bottomless Trench (cavern 17).',
+      'The Fountain: full upgrade tree for Blue/Yellow and Green water tiers with graph and list view toggle, marbleization tiers, per-currency wallet cards, and active fountain bar timers (time to full + full cycle)',
+      'The Bottomless Trench: fishing efficiency requirement, depth, and fish caught/required cards',
+      'The Well: per-bucket fill rate display with golden bucket highlight when the Yellow Water "Golden Bucket Boost" upgrade is owned',
+      'Engineer: schematic cap raised from 94 to 99 (5 new schematics 94–98)',
+      'Bolaia studies: new "Sentinel Caverns" group covering studies for the new caverns',
+      'New Bell bonus: "Coins from Fountain" surfaces automatically once cavern 16 is unlocked',
+      'Tournament: new T2a/T2b/T2c companions (Bronze/Silver/Gold Champion Troll) and hats',
+      'Cascading Fountain bonuses applied to: Bravery/Justice/Wisdom monument bonuses, Monument max linear time (Mogmaxing), Harp note EXP (Fine Tuning), Bolaia study rate (Skim Reading), Cosmo villager EXP (Cosmological Boost), class EXP, total damage (Swingy Surge), Orion feather rate, Poppy fish rate, Sailing treasure boost, Motherlode ore requirement, and Well bucket schematic chain',
+      'Tome Rankings: new "Sort" dropdown (Default / Lowest percentile / Smallest gap to target — last option enabled when Target % is set)',
+      'Tome Rankings: expanded calculator now shows the max qty needed to fully max a metric, plus the qty required to reach the global target percentile',
+    ],
+    'fixes': [
+      'Family bonuses: growth formula now uses the level above the unlock threshold (level − x3) instead of level − 1, fixing inflated bonuses for entries that unlock past level 1',
+      'Lab line width: now reads each character\'s own lab skill level instead of the lab tube character data, fixing cases where line width was computed from the wrong character',
+    ]
+  },
+  {
     'ver': '3.3.42',
     'gameVer': '2.3.503',
     'date': '22/04/2026',

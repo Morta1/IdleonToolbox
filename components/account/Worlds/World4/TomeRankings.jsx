@@ -68,9 +68,9 @@ function formatQty(x2, quantity) {
   return commaNotation(quantity);
 }
 
-function calcQuantityForNextPoint({ x1, x2, x3, points }) {
-  if (!x1 || x2 === undefined || !x3) return null;
-  const targetPercent = (points + 0.5) / x3;
+function calcQuantityForPoints({ x1, x2, x3, points }) {
+  if (!x1 || x2 === undefined || !x3 || points <= 0) return null;
+  const targetPercent = (points - 0.5) / x3;
 
   if (x2 === 2) return Math.ceil(targetPercent * x1);
   if (x2 === 4) {
@@ -117,7 +117,7 @@ const TomeRankings = () => {
   const [selectedRank, setSelectedRank] = useState('all');
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [groupMode, setGroupMode] = useState('none');
-  const [CheckboxSortEl, sortByLowest] = useCheckbox('Sort by lowest', true);
+  const [sortMode, setSortMode] = useState('lowest');
   const [CheckboxHideMaxedEl, hideMaxed] = useCheckbox('Hide maxed');
   const [classifications, setClassifications] = useState(() => getClassifications());
   const [search, setSearch] = useState('');
@@ -177,9 +177,22 @@ const TomeRankings = () => {
     };
   });
 
-  const sorted = sortByLowest
-    ? [...rows].sort((a, b) => (a.percentile ?? 101) - (b.percentile ?? 101))
-    : rows;
+  const targetSet = !isNaN(parseFloat(globalTarget));
+  const effectiveSortMode = sortMode === 'gap' && !targetSet ? 'default' : sortMode;
+  let sorted;
+  if (effectiveSortMode === 'lowest') {
+    sorted = [...rows].sort((a, b) => (a.percentile ?? 101) - (b.percentile ?? 101));
+  } else if (effectiveSortMode === 'gap') {
+    sorted = [...rows].sort((a, b) => {
+      const aBucket = a.gap == null ? 2 : a.gap <= 0 ? 1 : 0;
+      const bBucket = b.gap == null ? 2 : b.gap <= 0 ? 1 : 0;
+      if (aBucket !== bBucket) return aBucket - bBucket;
+      if (aBucket === 0) return a.gap - b.gap;
+      return 0;
+    });
+  } else {
+    sorted = rows;
+  }
   const maxPercentile = percentilePoints[percentilePoints.length - 1];
   const searchLower = search.toLowerCase();
   let filtered = searchLower ? sorted.filter(r => r.name.toLowerCase().includes(searchLower)) : sorted;
@@ -260,7 +273,16 @@ const TomeRankings = () => {
       </Stack>
 
       <Stack direction="row" gap={1.5} flexWrap="wrap" alignItems="center">
-        <CheckboxSortEl />
+        <FormControl size="small" sx={{ minWidth: 180 }}>
+          <InputLabel>Sort</InputLabel>
+          <Select value={sortMode} label="Sort" onChange={(e) => setSortMode(e.target.value)}>
+            <MenuItem value="default">Default</MenuItem>
+            <MenuItem value="lowest">Lowest percentile</MenuItem>
+            <MenuItem value="gap" disabled={!targetSet}>
+              Smallest gap to target{!targetSet && ' (set Target %)'}
+            </MenuItem>
+          </Select>
+        </FormControl>
         <CheckboxHideMaxedEl />
       </Stack>
 
@@ -456,9 +478,15 @@ const ExpandedCalculator = ({ row, bounds, percentilePoints, hasUserData, onClas
   }
 
   const nextPointQty = hasUserData && userPoints < maxPoints
-    ? calcQuantityForNextPoint({ x1, x2, x3, points: userPoints })
+    ? calcQuantityForPoints({ x1, x2, x3, points: userPoints + 1 })
     : null;
   const qtyGap = nextPointQty != null ? nextPointQty - quantity : null;
+  const maxQty = maxPoints
+    ? calcQuantityForPoints({ x1, x2, x3, points: maxPoints })
+    : null;
+  const requiredQty = requiredPts != null
+    ? calcQuantityForPoints({ x1, x2, x3, points: requiredPts })
+    : null;
 
   return (
     <Stack gap={0.75} px={1} pb={1} pt={0.25}>
@@ -471,6 +499,11 @@ const ExpandedCalculator = ({ row, bounds, percentilePoints, hasUserData, onClas
             <Typography variant="caption" color="text.secondary">
               Points: <Typography component="span" variant="caption" color="text.primary" fontWeight={600}>{commaNotation(userPoints)} / {commaNotation(maxPoints)}</Typography>
             </Typography>
+          {maxQty != null && (
+            <Typography variant="caption" color="text.secondary">
+              Max qty: <Typography component="span" variant="caption" color="text.primary" fontWeight={600}>{formatQty(x2, maxQty)}</Typography>
+            </Typography>
+          )}
           {qtyGap != null && qtyGap > 0 && (
             <Typography variant="caption" color="text.secondary">
               Next point: <Typography component="span" variant="caption" color="primary.main" fontWeight={600}>+{formatQty(x2, qtyGap)} qty</Typography>
@@ -527,7 +560,9 @@ const ExpandedCalculator = ({ row, bounds, percentilePoints, hasUserData, onClas
             </Typography>
             {hasUserData && gap != null && (
               <Typography variant="caption" sx={{ color: gap > 0 ? 'text.secondary' : 'success.main' }}>
-                {gap > 0 ? `(+${commaNotation(gap)} to go)` : '(Already there!)'}
+                {gap > 0
+                  ? `(+${commaNotation(gap)} to go${requiredQty != null ? `, need ${formatQty(x2, requiredQty)} qty` : ''})`
+                  : '(Already there!)'}
               </Typography>
             )}
           </>

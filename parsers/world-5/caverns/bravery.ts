@@ -11,6 +11,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getCompassBonus } from '@parsers/class-specific/compass';
 import { isCompanionBonusActive } from '@parsers/misc';
+import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 
 
 export const getBravery = (holesObject: any, accountData: any) => {
@@ -186,9 +187,12 @@ export const getMonumentMaxLinearTime = (holesObject: any, t: any, accountData: 
   const legendTalentBonus = getLegendTalentBonus(accountData, 27);
   const superbitBonus = isSuperbitUnlocked(accountData, 'Monument_Infimulti') ? 1 : 0;
 
-  return 1 === t ? 86400 * (2 + (getSchematicBonus({ holesObject, t: 70, i: 2 }) + 10 * superbitBonus) +
+  return 1 === t ? 86400 * (2 + (getSchematicBonus({ holesObject, t: 70, i: 2 })
+      + getSchematicBonus({ holesObject, t: 96, i: 2 })
+      + 10 * superbitBonus) +
     (14 * getStudyBonus(holesObject, 9, 99) + legendTalentBonus / 24))
-    : 86400 * (2 + (getSchematicBonus({ holesObject, t: 70, i: 2 }) +
+    : 86400 * (2 + (getSchematicBonus({ holesObject, t: 70, i: 2 })
+      + getSchematicBonus({ holesObject, t: 96, i: 2 }) +
       (10 * superbitBonus + legendTalentBonus / 24)));
 }
 
@@ -234,6 +238,9 @@ export const getMonumentBonus = ({ holesObject, t, i }: any) => {
   if (i !== 9) {
     result = 1 + getMonumentBonus({ holesObject, t, i: 9 }) / 100;
     result += getCosmoBonus({ majik: holesObject?.holeMajiks, t: 0, i: 0 }) / 100;
+  }
+  if (t === 0 || t === 1 || t === 2) {
+    result *= 1 + getFountainBonusTotal(holesObject, t, 13) / 100;
   }
   let holesInfoValue = Number(holesInfo[37]?.[Math.round(10 * t + i)]);
   let holesValue = (holesObject?.braveryBonuses?.[Math.round(10 * t + i)]);

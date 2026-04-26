@@ -258,9 +258,10 @@ export const calcPlayerLineWidth = (playersInTubes: any, labBonuses: any, jewels
   return playersInTubes?.map((character: any) => {
     const soupedTubes = (gemShopPurchases?.find((value: any, index: any) => index === 123) ?? 0) * 2;
     const petArenaBonus = isArenaBonusActive(arenaWave, waveReqs, 13) ? 1 : 0;
-    const realIndex = charactersData?.find(({ name }: any) => name === character?.name)?.playerId;
+    const realCharacter = charactersData?.find(({ name }: any) => name === character?.name);
+    const realIndex = realCharacter?.playerId;
     const lineWidth = getPlayerLineWidth(character,
-      character?.Lv0?.[12], // lab skill
+      realCharacter?.Lv0?.[12], // lab skill
       soupedTubes > 0 && (realIndex < soupedTubes),
       labBonuses,
       jewels,

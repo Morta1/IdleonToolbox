@@ -4,6 +4,7 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
+import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 
 export const getOwl = (idleonData: any, accountData: any) => {
   return parseOwl(accountData);
@@ -79,8 +80,10 @@ const parseOwl = (account: any) => {
   const vaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 21);
   const meritocracyBonus = getMeritocracyBonus(account, 12);
 
+  const fountainOrionBonus = getFountainBonusTotal(account?.hole?.holesObject, 0, 18);
   const featherRate = (
     (1 + 9 * getMegaFeather(account, 0)) *
+    (1 + fountainOrionBonus / 100) *
     (1 + vaultUpgradeBonus / 100) *
     (1 + meritocracyBonus / 100) *
     (1 + getGambitBonus(account, 8) / 100) *

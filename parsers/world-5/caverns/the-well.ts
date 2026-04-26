@@ -7,6 +7,7 @@ import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
+import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 
 export const getTheWell = (holesObject: any, accountData: any) => {
   const { wellSediment, sedimentMulti, wellBuckets } = holesObject;
@@ -27,7 +28,17 @@ export const getTheWell = (holesObject: any, accountData: any) => {
 
   const numberOfBuckets = getOwnedBuckets(holesObject);
   const buckets = fillArrayToLength(numberOfBuckets, wellBuckets);
-  const fillRate = getBucketFillRate(holesObject, accountData);
+  // Fountain Yellow Water idx 15 ("Golden_Bucket_Boost") makes the first bucket golden, with a faster fill rate.
+  // HolezBucketGoldOwned = round(min(1, Fountain_BonTOT(0,15)))  ⇒ 0 or 1 golden buckets.
+  // HolezBucketGoldMult  = 1 + Fountain_BonTOT(0,15) / 100        ⇒ rate multiplier on the golden bucket.
+  const goldenBonus = getFountainBonusTotal(holesObject, 0, 15);
+  const goldenBucketsOwned = Math.round(Math.max(0, Math.min(1, goldenBonus)));
+  const goldenBucketMulti = goldenBucketsOwned > 0 ? Math.max(1, 1 + goldenBonus / 100) : 1;
+  const baseFillRate = getBucketFillRate(holesObject, accountData);
+  const bucketRates = Array.from({ length: numberOfBuckets }, (_, i) =>
+    (i < goldenBucketsOwned ? goldenBucketMulti : 1) * baseFillRate
+  );
+  const totalFillRate = bucketRates.reduce((sum, r) => sum + r, 0);
   const opalCost = getOpalCost(holesObject)
   const expandWhenFull = holesObject?.extraCalculations?.[10];
 
@@ -35,7 +46,13 @@ export const getTheWell = (holesObject: any, accountData: any) => {
     rockLayerIndex,
     sediments,
     buckets,
-    fillRate,
+    // Backwards-compat: fillRate stays the AVG per-bucket rate so existing math (rate * count) still
+    // approximates correctly. New consumers should prefer bucketRates / totalFillRate.
+    fillRate: numberOfBuckets > 0 ? totalFillRate / numberOfBuckets : baseFillRate,
+    bucketRates,
+    totalFillRate,
+    goldenBucketsOwned,
+    goldenBucketMulti,
     opalCost: notateNumber(opalCost, 'TinyE'),
     expandWhenFull
   }
@@ -106,8 +123,10 @@ export const getSchematicBonus = ({ holesObject, t, i }: any): any => {
       ? i * (extraCalculations[1]
       + (extraCalculations[3]
         * getSchematicBonus({ holesObject, t: 50, i: 1 })
-        + extraCalculations[5]
-        * getSchematicBonus({ holesObject, t: 79, i: 1 })))
+        + (extraCalculations[5]
+          * getSchematicBonus({ holesObject, t: 79, i: 1 })
+          + extraCalculations[7]
+          * getSchematicBonus({ holesObject, t: 98, i: 1 }))))
       : 52 === t
         ? 60 * Math.floor(lavaLog((wellSediment[0])))
         : 53 === t

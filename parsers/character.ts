@@ -131,6 +131,7 @@ import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getGuaranteedCrystalMobs } from '@parsers/misc';
+import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { tryToParse, createIndexedArray, createArrayOfArrays, cashFormatter } from '@utility/helpers';
 import type { IdleonData, Account } from './types';
 
@@ -1924,12 +1925,14 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const cardSet12Bonus = account?.cards?.cardSets?.['CardSet12']?.bonus ?? 0;
   const bubbaRoGBonus = account?.bubba?.bonuses?.expMulti?.bonus ?? 0;
 
+  const fountainClassExpBonus = getFountainBonusTotal(account?.hole?.holesObject, 0, 16);
   expGainLUK5 *= (1 + arcaneMapMulti / 100)
     * (1 + spelunkBigFish / 100)
     * (1 + dancingCoralBonus / 100)
     * Math.pow(1 + coralKidUpgBonus / 100, coralKidUpgPow)
     * (1 + cardSet12Bonus / 100)
-    * (1 + bubbaRoGBonus / 100);
+    * (1 + bubbaRoGBonus / 100)
+    * (1 + fountainClassExpBonus / 100);
 
   // SuperBitType(24) * pow(1.03, spelunk[6].length), Meritocracy(27), accountOptions[464]
   const superbit24 = isSuperbitUnlocked(account, 'Classy_Discoveries')?.unlocked ? 1 : 0;

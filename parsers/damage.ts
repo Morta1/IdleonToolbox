@@ -66,6 +66,7 @@ import { getMeritocracyBonus } from './world-2/voteBallot';
 import { getMineheadBonusQTY } from './world-7/minehead';
 import { getSushiBonus } from './world-7/sushiStation';
 import { isBundlePurchased } from './misc';
+import { getFountainBonusTotal } from './world-5/caverns/the-fountain';
 import { notateNumber } from '@utility/helpers';
 
 export const getMaxDamage = (character: Character, characters: Character[], account: Account) => {
@@ -394,10 +395,12 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const killroyMulti = account?.killroy?.totalDamageMulti ?? 1;
   const killroyBonus = Math.max(0, Math.min(2, killroyMulti - 1));
 
+  const fountainSwingyBonus = getFountainBonusTotal(account?.hole?.holesObject, 1, 16);
   const postMulti1 = (1 + postEtcBonus72 / 100)
     * (1 + postEtcBonus75 / 100)
     * (1 + postEtcBonus104 / 100)
     * (1 + postVoteBonus / 100)
+    * (1 + fountainSwingyBonus / 100)
     * (1 + 0.1 * postSuperbit64)
     * (1 + accountOpt232 / 100)
     * (1 + postCardBonus96 / 100)

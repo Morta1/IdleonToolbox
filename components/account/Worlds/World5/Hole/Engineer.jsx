@@ -44,7 +44,7 @@ const Engineer = ({ hole }) => {
                          value={engineer?.timeLeft >= 0 && engineer?.expRate?.value > 0
                            ? msToDate(engineer?.timeLeft)
                            : '0'}/>
-      <CardTitleAndValue title={'Unlocked schematics'} value={`${hole?.unlockedSchematics} / 94`}/>
+      <CardTitleAndValue title={'Unlocked schematics'} value={`${hole?.unlockedSchematics} / 99`}/>
       <CardTitleAndValue title={'Opals invested'} value={engineer?.opalInvested || '0'} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
     </Stack>

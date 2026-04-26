@@ -19,12 +19,14 @@ import Evertree from '@components/account/Worlds/World5/Hole/Caverns/Evertree';
 import Wisdom from '@components/account/Worlds/World5/Hole/Caverns/Wisdom';
 import Gambit from '@components/account/Worlds/World5/Hole/Caverns/Gambit';
 import TheTemple from '@components/account/Worlds/World5/Hole/Caverns/TheTemple';
+import TheFountain from '@components/account/Worlds/World5/Hole/Caverns/TheFountain';
+import TheBottomlessTrench from '@components/account/Worlds/World5/Hole/Caverns/TheBottomlessTrench';
 import { CardWithBreakdown, ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
 
 const Explore = ({ hole }) => {
   const breakpoint = useMediaQuery('(max-width: 1600px)', { noSsr: true });
   const [explore] = hole?.villagers || [];
-  const caverns = fillArrayToLength(15);
+  const caverns = fillArrayToLength(17);
   return <>
     <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Level'} value={explore?.level}/>
@@ -63,6 +65,8 @@ const Explore = ({ hole }) => {
       <Wisdom hole={hole}/>
       <Gambit hole={hole}/>
       <TheTemple hole={hole}/>
+      <TheFountain hole={hole}/>
+      <TheBottomlessTrench hole={hole}/>
     </Tabber>
   </>
 };

@@ -12,7 +12,9 @@ export const getMotherlode = (holesObject: any, accountData: any) => {
     + getStudyBonus(holesObject, 7, 0)
     * holesObject?.extraCalculations?.[3]
     + getStudyBonus(holesObject, 11, 0)
-    * holesObject?.extraCalculations?.[5]) / 100);
+    * holesObject?.extraCalculations?.[5]
+    + getStudyBonus(holesObject, 16, 0)
+    * holesObject?.extraCalculations?.[7]) / 100);
   return {
     miningEff,
     layer: layer + 1,

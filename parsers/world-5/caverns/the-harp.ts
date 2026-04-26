@@ -8,6 +8,7 @@ import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
+import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 
 export const getTheHarp = (holesObject: any, accountData: any) => {
   const stringSlots = getStringSlots(holesObject);
@@ -88,6 +89,7 @@ const getHarpPowerPerHour = (holesObject: any) => {
 }
 
 const getHarpExpGain = (holesObject: any, accountData: any, stringTypes: any, power: any) => {
+  const fountainNoteBonus = 1 + getFountainBonusTotal(holesObject, 1, 15) / 100;
   return 1 === getStudyBonus(holesObject, 5, 99)
     ? (1 + getStudyBonus(holesObject, 5, 0))
     * (1 + getStudyBonus(holesObject, 5, 99))
@@ -96,12 +98,14 @@ const getHarpExpGain = (holesObject: any, accountData: any, stringTypes: any, po
     * (1 + getHarpStringBonus(holesObject, 4) / 100)
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 6 }) / 100)
     * (1 + accountData?.gemShopPurchases?.[2] / 2)
+    * fountainNoteBonus
     : (1 + getStudyBonus(holesObject, 5, 99))
     * (power / 100)
     * getHarpStringAllBonus(holesObject, stringTypes, power)
     * (1 + getHarpStringBonus(holesObject, 4) / 100)
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 6 }) / 100)
-    * (1 + accountData?.gemShopPurchases?.[2] / 2);
+    * (1 + accountData?.gemShopPurchases?.[2] / 2)
+    * fountainNoteBonus;
 }
 
 const getHarpStringBonus = (holesObject: any, t: any) => {
