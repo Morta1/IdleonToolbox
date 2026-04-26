@@ -2,14 +2,17 @@ import { holeFountUpg } from '@website-data';
 import { commaNotation, lavaLog, notateNumber } from '@utility/helpers';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 
-// Tier 0's upgrades are accessible while using Blue water (the default after unlocking the cavern).
-// Leveling tier 0 idx 0 ("Yellow_Water") swaps the visual to Yellow water — same upgrade tree.
-// Tier 1 idx 0 unlocks Green water, tier 2 idx 0 unlocks Black water.
+// Each tier represents a water color. The first upgrade in each tier ("X_Water") is the gate
+// that unlocks the NEXT color: tier 0/0 ("Yellow_Water") unlocks Yellow, tier 1/0 ("Green_Water")
+// would unlock Green ("well, it will in the Future" per its in-game text), tier 2/0 would unlock
+// Black. Tier 2's entries are all placeholders in 2.3.504 (full set of "Name" entries) so Green
+// is effectively unimplemented and hidden via the `implemented` flag below.
+// Mapping: tier 0 = Blue, tier 1 = Yellow, tier 2 = Green.
 
 // Currency names mapped to the 0..8 currencyType offset (Holes[9][30..38]).
 // website-data has no dedicated list; these names come from the Penny_Lane / Nickel_and_Diming /
 // Dubloon_Desires / Dolla_Dolla_Bills / Credit_Swisse / In_Gov_We_Trust upgrade descriptions.
-// Black tier names (Moolah/Shilling/Greane) are from the placeholder Black-water upgrade descriptions.
+// Tier 2 currency names (Moolah/Shilling/Greane) come from the placeholder Green-water upgrades.
 export const CURRENCY_NAMES = [
   'Bronze', 'Silver', 'Gold',
   'Dollar', 'Credit', 'Treasury',
@@ -192,7 +195,7 @@ const formatFountainDescription = (
     }
   }
 
-  // Black Water tier-specific substitutions
+  // Green Water tier-specific substitutions (tier 2 — placeholder content in 2.3.504)
   if (t === 2) {
     if (i === 2 || i === 3 || i === 4) {
       const value = getFountCurrencyBaseValue(holesObject, i + 4);
@@ -264,12 +267,9 @@ export const getTheFountain = (holesObject: any, accountData: any) => {
         unlocks
       };
     });
-    // Tier 0: covers both Blue (default) and Yellow (after idx 0 Yellow_Water reaches Lv 1+) — same upgrade tree.
-    const dynamicName = t === 0
-      ? 'Blue / Yellow'
-      : t === 1 ? 'Green' : 'Black';
+    const dynamicName = t === 0 ? 'Blue' : t === 1 ? 'Yellow' : 'Green';
     // A tier is "implemented" only when its upgrades have real positions and named entries.
-    // Future-content tiers (e.g. Black water at v2.3.504) ship placeholders like name="Name" and position="X".
+    // Future-content tiers (e.g. Green water at v2.3.504) ship placeholders like name="Name" and position="X".
     const placeholderCount = tierUpgrades.filter((u) =>
       u.name === 'Name' || !u.position?.includes(',')
     ).length;
@@ -318,7 +318,7 @@ export const getTheFountain = (holesObject: any, accountData: any) => {
     buildBar(1, 'Marble Fill',
       'When full, produces marble currency for Marbleization upgrades.',
       getFountainBonusTotal(holesObject, 1, 10) >= 1), // Marble_Filling Lv 1+
-    buildBar(2, 'Black Water Bar',
+    buildBar(2, 'Green Water Bar',
       'Future fountain bar.',
       getFountainBonusTotal(holesObject, 2, 10) >= 1)
   ].filter((b) => b.unlocked);

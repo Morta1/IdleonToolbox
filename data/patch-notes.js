@@ -10,7 +10,7 @@ export const patchNotes = [
     'features': [
       'Updated the website with version 2.3.505 data and assets',
       'The Hole: 2 new Sentinel Caverns — The Fountain (cavern 16) and The Bottomless Trench (cavern 17).',
-      'The Fountain: full upgrade tree for Blue/Yellow and Green water tiers with graph and list view toggle, marbleization tiers, per-currency wallet cards, and active fountain bar timers (time to full + full cycle)',
+      'The Fountain: full upgrade tree for Blue and Yellow water tiers with graph and list view toggle, marbleization tiers, per-currency wallet cards, and active fountain bar timers (time to full + full cycle)',
       'The Bottomless Trench: fishing efficiency requirement, depth, and fish caught/required cards',
       'The Well: per-bucket fill rate display with golden bucket highlight when the Yellow Water "Golden Bucket Boost" upgrade is owned',
       'Engineer: schematic cap raised from 94 to 99 (5 new schematics 94–98)',
