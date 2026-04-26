@@ -1,5 +1,6 @@
 import { notateNumber, prefix } from '@utility/helpers';
 import Box from '@mui/material/Box';
+import Badge from '@mui/material/Badge';
 import { capitalize, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import Tooltip from '../Tooltip';
 import React from 'react';
@@ -17,7 +18,43 @@ const getRankColor = (rank) => {
   return colorMap[rank];
 }
 
+const isTopRank = (rank) => rank === 1 || rank === 2 || rank === 3;
+
 const globalSkills = ['gaming', 'sailing', 'breeding', 'farming', 'summoning'].toSimpleObject();
+
+const levelBadgeSx = {
+  '& .MuiBadge-badge': {
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    color: 'common.white',
+    fontSize: 10,
+    fontWeight: 700,
+    minWidth: 14,
+    height: 14,
+    padding: '0 4px',
+    borderRadius: '4px'
+  }
+};
+
+const rankBadgeSx = (rank) => ({
+  '& .MuiBadge-badge': {
+    backgroundColor: getRankColor(rank),
+    color: 'common.black',
+    fontSize: 10,
+    fontWeight: 700,
+    minWidth: 16,
+    width: 16,
+    height: 16,
+    padding: 0,
+    borderRadius: '50%'
+  }
+});
+
+const skillIconStyle = {
+  width: 38,
+  height: 36,
+  display: 'block',
+  imageRendering: 'pixelated'
+};
 
 const normalizeBreakdown = (breakdown) => {
   if (!breakdown || Array.isArray(breakdown)) return breakdown;
@@ -37,14 +74,13 @@ const Skills = ({ skills, charName, account, characters, character, showSkillsRa
       <CardContent>
         <Box sx={{
           display: showSkillsRankOneOnly ? 'flex' : 'grid',
-          gridAutoFlow: 'column',
-          gap: showSkillsRankOneOnly ? '24px' : 'none',
+          gridAutoFlow: 'row',
+          gap: showSkillsRankOneOnly ? '24px' : '8px',
           ...(showSkillsRankOneOnly ? {
             maxWidth: 500,
             flexWrap: 'wrap'
           } : {}),
-          gridTemplateColumns: { xs: showSkillsRankOneOnly ? 'fit-content' : `repeat(6, minmax(45px, 100px))` },
-          gridTemplateRows: showSkillsRankOneOnly ? null : { xs: 'repeat(3, minmax(45px, 100px))' },
+          gridTemplateColumns: { xs: showSkillsRankOneOnly ? 'fit-content' : `repeat(3, minmax(45px, 60px))` },
           justifyContent: 'center'
         }}>
 
@@ -52,20 +88,28 @@ const Skills = ({ skills, charName, account, characters, character, showSkillsRa
             const { level, rank, icon } = skills[skillName];
             if (skillName === 'character' || (showSkillsRankOneOnly && rank !== 1)) return null;
             const expMulti = getSkillExpMulti(skillName, character, characters, account, playerInfo);
-            return <Box key={index}>
+            const showRankBadge = !globalSkills[skillName] && isTopRank(rank);
+            return <Box key={index} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: '4px' }}>
               <Tooltip title={<SkillTooltip {...skills?.[skillName]} skillName={skillName} charName={charName}
                                             expMulti={expMulti}/>}>
-                <img src={`${prefix}data/${icon}.png`} style={{ width: 38, height: 36 }} alt=""/>
+                <Badge
+                  badgeContent={level}
+                  max={999999}
+                  overlap="rectangular"
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  sx={levelBadgeSx}
+                >
+                  <Badge
+                    badgeContent={rank}
+                    invisible={!showRankBadge}
+                    overlap="rectangular"
+                    anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                    sx={rankBadgeSx(rank)}
+                  >
+                    <img src={`${prefix}data/${icon}.png`} style={skillIconStyle} alt=""/>
+                  </Badge>
+                </Badge>
               </Tooltip>
-              <Typography>Lv {level}</Typography>
-              {globalSkills[skillName] ? null : <Tooltip title={'Rank across the account'}>
-                <Typography
-                  sx={{
-                    width: 'fit-content',
-                    color: getRankColor(rank),
-                    fontWeight: (rank === 1 || rank === 2 || rank === 3) ? 'bold' : '400'
-                  }}>R: {rank}</Typography>
-              </Tooltip>}
             </Box>;
           })}
         </Box>
@@ -74,13 +118,17 @@ const Skills = ({ skills, charName, account, characters, character, showSkillsRa
   </Stack>
 };
 
-const SkillTooltip = ({ exp, expReq, expMulti, charName, skillName, level }) => {
+const SkillTooltip = ({ exp, expReq, expMulti, charName, skillName, level, rank }) => {
   const percent = exp / expReq * 100;
   return <Stack gap={.5}>
     <Typography variant={'h5'} fontWeight={'bold'}>{charName}</Typography>
     <Typography variant={'body1'}>{capitalize(skillName)} <Typography
       variant={'body1'}
       component={'span'}>(Lv. {level})</Typography></Typography>
+    {!globalSkills[skillName] && rank != null && <Typography variant={'body2'}
+      sx={{ color: getRankColor(rank), fontWeight: isTopRank(rank) ? 'bold' : 400 }}>
+      Account rank: {rank}
+    </Typography>}
     <ProgressBar percent={percent} bgColor={'#f3dd4c'}/>
     <Typography variant={'body1'}>{notateNumber(exp, 'Big')} / {notateNumber(expReq, 'Big')}</Typography>
 
