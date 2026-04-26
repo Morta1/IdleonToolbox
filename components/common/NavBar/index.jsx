@@ -126,10 +126,11 @@ const ContentWrapper = ({ showSidebar, children }) => {
   const showSidebarAd = showNarrowSideBanner && !adBlocked;
 
   return (
-    <Stack direction={'row'} gap={2} justifyContent={'space-between'} sx={{ width: '100%' }}>
+    <Stack direction={'row'} gap={2} justifyContent={'space-between'} sx={{ width: '100%', minWidth: 0 }}>
       <Stack
         sx={{
           width: '100%',
+          minWidth: 0,
           maxWidth: showSidebarAd ? CONTENT_PERCENT_SIZE : '100%'
         }}>
         {children}

@@ -57,13 +57,14 @@ const Tabber = ({
   };
 
   const array = Array.isArray(children) ? children : [children];
+  const useScrollable = forceScroll || (isMd && tabs.length >= 4) || tabs.length >= 8;
   return <Box sx={orientation === 'vertical' ? { flexGrow: 1, display: 'flex' } : {}}>
     <Tabs
-      centered={!forceScroll && (!isMd || (isMd && tabs.length < 4))}
+      centered={!useScrollable}
       scrollButtons
       allowScrollButtonsMobile
       sx={{ marginBottom: 3 }}
-      variant={(isMd && tabs.length >= 4) || forceScroll ? 'scrollable' : 'standard'}
+      variant={useScrollable ? 'scrollable' : 'standard'}
       value={selectedTab} onChange={handleOnClick}>
       {(components ?? tabs)?.map((tab, index) => {
         return <Tab

@@ -58,7 +58,7 @@ const getFountainBarReq = (t: number) => (t === 0 ? 7200 : t === 1 ? 36000 : 864
 
 const getFountainBarSpeed = (holesObject: any, accountData: any, t: number) => {
   if (t !== 0) return 1;
-  const arcade = getArcadeBonus(accountData?.arcade?.shop, '+{% Fountain Speed')?.bonus ?? 0;
+  const arcade = getArcadeBonus(accountData?.arcade?.shop, 'Fountain_Speed')?.bonus ?? 0;
   return (1 + getFountainBonusTotal(holesObject, 0, 9) / 100) * (1 + arcade / 100);
 };
 
@@ -285,7 +285,7 @@ export const getTheFountain = (holesObject: any, accountData: any) => {
     };
   });
 
-  const fountainSpeedBonus = getArcadeBonus(accountData?.arcade?.shop, '+{% Fountain Speed')?.bonus ?? 0;
+  const fountainSpeedBonus = getArcadeBonus(accountData?.arcade?.shop, 'Fountain_Speed')?.bonus ?? 0;
   const spacesOwned = getSpacesOwned(holesObject);
   const maxStackSize = getMaxStackSize(holesObject);
   // Per Cost_FountainUPG, fountain currencies live at Holes[9][30..38] (= wellSediment[30..38]).
