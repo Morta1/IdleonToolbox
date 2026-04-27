@@ -231,32 +231,35 @@ const getMaxRerolls = (holesObject: any) => {
   }));
 }
 
-// 'MonumentROGbonuses' == e
-export const getMonumentBonus = ({ holesObject, t, i }: any) => {
-  let result = 1;
+// Apply the per-monument fountain factor (only for t = 0/1/2) and clamp to >= 1.
+const applyMonumentFountain = (base: number, holesObject: any, t: any) => {
+  const withFountain = (t === 0 || t === 1 || t === 2)
+    ? base * (1 + getFountainBonusTotal(holesObject, t, 13) / 100)
+    : base;
+  return Math.max(1, withFountain);
+}
 
-  if (i !== 9) {
-    result = 1 + getMonumentBonus({ holesObject, t, i: 9 }) / 100;
-    result += getCosmoBonus({ majik: holesObject?.holeMajiks, t: 0, i: 0 }) / 100;
-  }
-  if (t === 0 || t === 1 || t === 2) {
-    result *= 1 + getFountainBonusTotal(holesObject, t, 13) / 100;
-  }
-  let holesInfoValue = Number(holesInfo[37]?.[Math.round(10 * t + i)]);
-  let holesValue = (holesObject?.braveryBonuses?.[Math.round(10 * t + i)]);
-  let finalResult = Math.max(1, result);
+// 'MonumentROGbonuses' == e
+export const getMonumentBonus = ({ holesObject, t, i }: any): number => {
+  // Monument-multi upgrade itself (i = 9) only gets the fountain factor — adding
+  // cosmo or its own i=9 contribution would be self-referential.
+  const finalResult = i === 9
+    ? applyMonumentFountain(1, holesObject, t)
+    : getMonumentMultiplier({ holesObject, t });
+
+  const holesInfoValue = Number(holesInfo[37]?.[Math.round(10 * t + i)]);
+  const holesValue = holesObject?.braveryBonuses?.[Math.round(10 * t + i)];
 
   if (holesInfoValue < 30) {
     return holesValue * holesInfoValue * finalResult;
-  } else {
-    return 0.1 * Math.ceil((holesValue / (250 + holesValue)) * 10 * Number(holesInfoValue) * finalResult);
   }
+  return 0.1 * Math.ceil((holesValue / (250 + holesValue)) * 10 * holesInfoValue * finalResult);
 }
 
-export const getMonumentMultiplier = ({ holesObject, t }: any) => {
-  const result = 1 + getMonumentBonus({ holesObject, t, i: 9 }) / 100
+export const getMonumentMultiplier = ({ holesObject, t }: any): number => {
+  const base = 1 + getMonumentBonus({ holesObject, t, i: 9 }) / 100
     + getCosmoBonus({ majik: holesObject?.holeMajiks, t: 0, i: 0 }) / 100;
-  return Math.max(1, result);
+  return applyMonumentFountain(base, holesObject, t);
 }
 
 export const getAllMonumentsBonusLvs = (account: any): number => {
