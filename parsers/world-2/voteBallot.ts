@@ -8,6 +8,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 export const getVoteBallot = (idleonData: IdleonData, accountData: Account) => {
   return parseVoteBallot(idleonData, accountData);
@@ -20,14 +21,16 @@ const parseVoteBallot = (idleonData: IdleonData, accountData: Account) => {
 
   // "MeritocBonusz" == e
   const companionBonus = isCompanionBonusActive(accountData, 39) ? (accountData as any)?.companions?.list?.at(39)?.bonus : 0;
+  const poppyBonus = isCompanionBonusActive(accountData, 161) ? (accountData as any)?.companions?.list?.at(161)?.bonus ?? 0 : 0;
   const arcadeBonus = getArcadeBonus((accountData as any)?.arcade?.shop, 'Meritocracy_Bonus')?.bonus;
   const legendTalentBonus = getLegendTalentBonus(accountData, 24) ?? 0;
   const clamWorkBonus = getClamWorkBonus(accountData, 3) ?? 0;
-  const meritocracyMult = 1 + (5 * clamWorkBonus
+  const meritocracySushiBonus = getSushiBonus(accountData, 51) ?? 0;
+  const meritocracyMult = (1 + poppyBonus / 100) * (1 + (5 * clamWorkBonus
     + (companionBonus
       + (legendTalentBonus
         + (arcadeBonus
-          + 20 * getEventShopBonus(accountData, 23))))) / 100;
+          + (20 * getEventShopBonus(accountData, 23) + meritocracySushiBonus))))) / 100);
 
   const parts = ninjaExtraInfo[41];
   const upgrades: { description: string; value: number; extra: number }[] = [];
@@ -71,11 +74,13 @@ const parseVoteBallot = (idleonData: IdleonData, accountData: Account) => {
   const winnerBonus = getWinnerBonus(accountData, '+{% Ballot Bonus');
   const equinoxBonus = getEquinoxBonus((accountData as any)?.equinox?.upgrades, 'Voter_Rights');
   const meritocracyBonus = getMeritocracyBonus(accountData, 9);
+  const ballotSushiBonus = getSushiBonus(accountData, 50) ?? 0;
 
   // VotingBonusz == e
-  const voteMulti = (1 + meritocracyBonus / 100)
+  const voteMulti = (1 + poppyBonus / 100)
+    * (1 + meritocracyBonus / 100)
     * (1 + (companionBonus3 + equinoxBonus + (cosmoBonus + (winnerBonus +
-      (17 * eventShopBonus2 + 13 * eventShopBonus3 + (companionBonus2 + (paletteBonus + legendTalentBonus2)))))) / 100);
+      (17 * eventShopBonus2 + 13 * eventShopBonus3 + (companionBonus2 + (paletteBonus + (legendTalentBonus2 + ballotSushiBonus))))))) / 100);
 
   const bonuses = (ninjaExtraInfo[38] as any).toChunks(3).map((bonus: any, index: number) => {
     const bonusIndex = currentCategories.findIndex((ind: any) => ind === index);
