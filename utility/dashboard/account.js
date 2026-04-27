@@ -23,6 +23,7 @@ import { getIsland } from '@parsers/world-2/islands';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getResearchGridBonus } from '@parsers/world-7/research';
+import { isHatRackEligible } from '@parsers/world-3/hatRack';
 
 export const getOptions = (data) => {
   return Object.entries(data)?.reduce((res, [fieldName, fieldData]) => {
@@ -626,7 +627,7 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
           .filter(hat => hat?.rawName)
           .map(hat => hat.rawName)
       );
-      const ownedHats = totalOwnedItems?.filter(({ Type }) => Type === 'PREMIUM_HELMET');
+      const ownedHats = totalOwnedItems?.filter(isHatRackEligible);
       const missingHats = ownedHats?.filter(({ rawName }) =>
         rawName && !hatsUsedRawNames.has(rawName)
       );
