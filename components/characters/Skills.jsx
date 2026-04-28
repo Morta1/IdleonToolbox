@@ -15,7 +15,7 @@ const getRankColor = (rank) => {
     2: 'warning.light',
     3: 'secondary.main'
   }
-  return colorMap[rank];
+  return colorMap[rank] || 'white';
 }
 
 const isTopRank = (rank) => rank === 1 || rank === 2 || rank === 3;
@@ -23,10 +23,10 @@ const isTopRank = (rank) => rank === 1 || rank === 2 || rank === 3;
 const globalSkills = ['gaming', 'sailing', 'breeding', 'farming', 'summoning'].toSimpleObject();
 
 const levelBadgeSx = {
-  '& .MuiBadge-badge': {
+  '& > .MuiBadge-badge': {
     backgroundColor: 'rgba(0, 0, 0, 0.85)',
     color: 'common.white',
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 700,
     minWidth: 14,
     height: 14,
@@ -36,7 +36,7 @@ const levelBadgeSx = {
 };
 
 const rankBadgeSx = (rank) => ({
-  '& .MuiBadge-badge': {
+  '& > .MuiBadge-badge': {
     backgroundColor: getRankColor(rank),
     color: 'common.black',
     fontSize: 10,
@@ -88,7 +88,7 @@ const Skills = ({ skills, charName, account, characters, character, showSkillsRa
             const { level, rank, icon } = skills[skillName];
             if (skillName === 'character' || (showSkillsRankOneOnly && rank !== 1)) return null;
             const expMulti = getSkillExpMulti(skillName, character, characters, account, playerInfo);
-            const showRankBadge = !globalSkills[skillName] && isTopRank(rank);
+            // const showRankBadge = !globalSkills[skillName] && isTopRank(rank);
             return <Box key={index} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: '4px' }}>
               <Tooltip title={<SkillTooltip {...skills?.[skillName]} skillName={skillName} charName={charName}
                                             expMulti={expMulti}/>}>
@@ -101,7 +101,7 @@ const Skills = ({ skills, charName, account, characters, character, showSkillsRa
                 >
                   <Badge
                     badgeContent={rank}
-                    invisible={!showRankBadge}
+                    // invisible={!showRankBadge}
                     overlap="rectangular"
                     anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
                     sx={rankBadgeSx(rank)}
