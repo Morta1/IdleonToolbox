@@ -39,6 +39,8 @@ const General = ({ account, characters, lastUpdated }) => {
       <CardTitleAndValue title={'Drops'} value={availableDrops} icon={`etc/GamingDrop.png`}/>
       <CardTitleAndValue title={'Envelopes'} value={notateNumber(envelopes)} icon={`etc/GamingEnvelope.png`}/>
       <CardTitleAndValue title={'Rat Tokens'} value={notateNumber(ratTokens)} icon={`data/GamingRatCrown.png`}/>
+      <CardTitleAndValue title={'Crowns'} value={`${account?.gaming?.ratKing?.crownsCount ?? 0} / ${account?.gaming?.logBook?.length ?? 0}`} icon={`data/GamingRatCrown.png`}
+                         imgStyle={{ width: 24, height: 24 }}/>
       <CardTitleAndValue title={'Log book'} value={`${ownedLogBooks} / ${account?.gaming?.logBook?.length ?? 0}`} icon={`data/GamingPlanth5.png`}
                          imgStyle={{ width: 24, height: 24 }}/>
     </Stack>
