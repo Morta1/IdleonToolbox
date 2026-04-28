@@ -1,4 +1,5 @@
 import {
+  applyMonumentFountain,
   getMonumentAfkBonus,
   getMonumentAfkReq,
   getMonumentBonus,
@@ -24,6 +25,7 @@ export const getWisdom = (holesObject: any,  accountData: any) => {
   }));
   const nextHourBreakpoint = hoursBreakpoints.find(({ hours: reqHours }: any) => hours < reqHours);
   const multiplier = getMonumentMultiplier({ holesObject, t: 2 });
+  const selfMultiplier = applyMonumentFountain(1, holesObject, 2);
   const bonuses = holesInfo?.[32]
     ?.slice(20)
     ?.filter((name: any) => !name.includes('Monument_'))
@@ -32,7 +34,7 @@ export const getWisdom = (holesObject: any,  accountData: any) => {
       const bonus = getMonumentBonus({ holesObject, t: 2, i: index });
       const scalingValue = parseFloat(holesInfo?.[37]?.[20 + index]);
       const isSoftCap = scalingValue >= 30;
-      const capMultiplier = index === 9 ? 1 : multiplier;
+      const capMultiplier = index === 9 ? selfMultiplier : multiplier;
       const effectiveCap = isSoftCap ? scalingValue * capMultiplier : null;
       return {
         description: description.replace(/_/g, ' ')

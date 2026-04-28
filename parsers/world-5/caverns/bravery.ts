@@ -34,6 +34,7 @@ export const getBravery = (holesObject: any, accountData: any) => {
     }
   }).filter((_, index) => (index + 1) % 5 === 0);
   const multiplier = getMonumentMultiplier({ holesObject, t: 0 });
+  const selfMultiplier = applyMonumentFountain(1, holesObject, 0);
   const bonuses = holesInfo?.[32]
     ?.slice(0, 10)
     ?.filter((name: any) => !name.includes('Monument_'))
@@ -42,7 +43,7 @@ export const getBravery = (holesObject: any, accountData: any) => {
       const bonus = getMonumentBonus({ holesObject, t: 0, i: index });
       const scalingValue = parseFloat(holesInfo?.[37]?.[index]);
       const isSoftCap = scalingValue >= 30;
-      const capMultiplier = index === 9 ? 1 : multiplier;
+      const capMultiplier = index === 9 ? selfMultiplier : multiplier;
       const effectiveCap = isSoftCap ? scalingValue * capMultiplier : null;
       return {
         description: description.replace(/_/g, ' ').replace(/\|/g, ' ').replace('{', Math.round(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo')),
@@ -232,7 +233,7 @@ const getMaxRerolls = (holesObject: any) => {
 }
 
 // Apply the per-monument fountain factor (only for t = 0/1/2) and clamp to >= 1.
-const applyMonumentFountain = (base: number, holesObject: any, t: any) => {
+export const applyMonumentFountain = (base: number, holesObject: any, t: any) => {
   const withFountain = (t === 0 || t === 1 || t === 2)
     ? base * (1 + getFountainBonusTotal(holesObject, t, 13) / 100)
     : base;

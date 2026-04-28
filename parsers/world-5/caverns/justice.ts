@@ -1,6 +1,7 @@
 import { lavaLog2, notateNumber } from '@utility/helpers';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import {
+  applyMonumentFountain,
   getMonumentAfkBonus,
   getMonumentAfkReq,
   getMonumentBonus,
@@ -24,6 +25,7 @@ export const getJustice = (holesObject: any, accountData: any) => {
   }));
   const nextHourBreakpoint = hoursBreakpoints.find(({ hours: reqHours }: any) => hours < reqHours);
   const multiplier = getMonumentMultiplier({ holesObject, t: 1 });
+  const selfMultiplier = applyMonumentFountain(1, holesObject, 1);
   const bonuses = holesInfo?.[32]
     ?.slice(10, 20)
     ?.filter((name: any) => !name.includes('Monument_'))
@@ -32,7 +34,7 @@ export const getJustice = (holesObject: any, accountData: any) => {
       const bonus = getMonumentBonus({ holesObject, t: 1, i: index });
       const scalingValue = parseFloat(holesInfo?.[37]?.[10 + index]);
       const isSoftCap = scalingValue >= 30;
-      const capMultiplier = index === 9 ? 1 : multiplier;
+      const capMultiplier = index === 9 ? selfMultiplier : multiplier;
       const effectiveCap = isSoftCap ? scalingValue * capMultiplier : null;
       return {
         description: description.replace(/_/g, ' ')
