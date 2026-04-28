@@ -7,6 +7,7 @@ import { PAGES } from '@components/constants';
 import { cleanUnderscore, getTabs, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import Timer from '@components/common/Timer';
+import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
 
 const VoteBallot = () => {
   const { state } = useContext(AppContext);
@@ -17,7 +18,8 @@ const VoteBallot = () => {
   const renderBonusTab = () => (
     <>
       <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-        <CardTitleAndValue title={'Bonus multi'} value={`${voteBallot?.voteMulti?.toFixed(3)}x`}/>
+        <CardWithBreakdown title={'Bonus multi'} value={`${voteBallot?.voteMulti?.toFixed(3)}x`}
+                           breakdown={voteBallot?.voteMultiBreakdown}/>
         <CardTitleAndValue title={'Selected bonus'} value={' '} icon={`data/${voteBallot?.selectedBonus?.icon}`}/>
         <CardTitleAndValue title={'Next week starts in'}
                            value={<Timer type={'countdown'} lastUpdated={state?.lastUpdated}
@@ -50,7 +52,8 @@ const VoteBallot = () => {
   const renderMeritocracyTab = () => (
     <>
       <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-        <CardTitleAndValue title={'Meritocracy multi'} value={`${voteBallot?.meritocracyMult?.toFixed(3)}x`}/>
+        <CardWithBreakdown title={'Meritocracy multi'} value={`${voteBallot?.meritocracyMult?.toFixed(3)}x`}
+                           breakdown={voteBallot?.meritocracyMultBreakdown}/>
         <CardTitleAndValue title={'Selected meritocracy bonus'} value={' '}
                            icon={`data/${voteBallot?.selectedMeritocracyBonus?.icon}`}/>
         <CardTitleAndValue title={'Next week starts in'}
