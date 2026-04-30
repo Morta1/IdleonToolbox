@@ -15,7 +15,7 @@ __turbopack_load_page_chunks__("/characters", [
   "static/chunks/0b7rnuxo0jn_w.js",
   "static/chunks/159_y1or_4fi..js",
   "static/chunks/0gdhjfdy-wuqx.js",
-  "static/chunks/11hsg2hyyz1nd.js",
+  "static/chunks/0~1521so2c1id.js",
   "static/chunks/0otdh-5fu63-z.js",
-  "static/chunks/turbopack-166sa0~husmng.js"
+  "static/chunks/turbopack-0vb.b69~.3jgy.js"
 ])
