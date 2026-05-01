@@ -43,25 +43,45 @@ export const getEmperor = (idleonData: any, account: any) => {
       return result;
     }
   }, {} as Record<string, any>);
+  const tesseractBonus = getTesseractBonus(account, 48) ?? 0;
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Emperor_Bonuses')?.bonus ?? 0;
+  const multiTotal = 1 + (tesseractBonus + arcadeBonus) / 100;
+  const formatBonusName = (name: string, total: number) => name
+    .replace('{', '' + commaNotation(total))
+    .replace('}', '' + notateNumber(1 + total / 100, 'MultiplierInfo'))
+    .replace('$', '' + Math.floor((total + 4) / (total + 100) * 1000) / 10);
   bonuses = bonuses.map((rawBonus) => {
-    const tesseractBonus = getTesseractBonus(account, 48)
-    const totalBonus = totalBonuses[rawBonus.name] ?? 0;
-    const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Emperor_Bonuses')?.bonus;
-    const bonus = rawBonus.name.replace('{', '' + commaNotation(totalBonus))
-      .replace('}', '' + notateNumber(1 + totalBonus / 100, 'MultiplierInfo'))
-      .replace('$', '' + Math.floor((totalBonus + 4) / (totalBonus + 100) * 1000) / 10);
+    const baseTotal = totalBonuses[rawBonus.name] ?? 0;
+    const realTotal = Math.floor(baseTotal * multiTotal);
+    const bonus = formatBonusName(rawBonus.name, realTotal);
+    const baseBonus = formatBonusName(rawBonus.name, baseTotal);
     const value = `${rawBonus.name.substring(0, 3)}`.replace('{', '' + commaNotation(rawBonus.value))
       .replace('}', '' + rawBonus.value / 100)
       .replace('$', '' + Math.floor((rawBonus.value + 4) / (rawBonus.value + 100) * 1000) / 10)
     return {
       bonus,
-      totalBonus: Math.floor(totalBonus * (1 + (tesseractBonus + arcadeBonus) / 100)),
+      baseBonus,
+      totalBonus: realTotal,
       rawIndex: rawBonus.index,
       icon: (icons as Record<number, string>)[rawBonus.index],
       value,
       indexes: getNextIndexes(rawBonus, cycle)
     }
   });
+  const bonusMulti = {
+    statName: 'Bonus Multi',
+    totalValue: multiTotal,
+    categories: [
+      {
+        name: 'Additive',
+        sources: [
+          { name: 'Base', value: 1 },
+          { name: 'Arcade Shop', value: arcadeBonus },
+          { name: 'Tesseract (Vicar of the Emperor)', value: tesseractBonus }
+        ]
+      }
+    ]
+  };
   const nextLevelBonus = emperorBonuses.find((val, index) => index === highestEmperorShowdown + 1);
   const jadeEmporiumBonus = isJadeBonusUnlocked(account, 'Emperor_Season_Pass') ? 1 : 0;
   const maxAttempts = Math.round(5 * jadeEmporiumBonus + 6 * account?.accountOptions?.[382] + 5) + 1
@@ -69,6 +89,7 @@ export const getEmperor = (idleonData: any, account: any) => {
     highestEmperorShowdown,
     bossHp: Array.from({ length: 6 }, (_, index) => getBossHp(highestEmperorShowdown + index)),
     bonuses,
+    bonusMulti,
     nextLevelBonus,
     dailyAttempts: Math.round(1 + account?.accountOptions?.[382]),
     attempts: Math.round(-1 * (account?.accountOptions?.[370] - 1)),

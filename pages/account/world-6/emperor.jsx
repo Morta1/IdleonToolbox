@@ -3,6 +3,7 @@ import { NextSeo } from 'next-seo';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -13,6 +14,7 @@ const Emperor = () => {
     bossHp,
     highestEmperorShowdown,
     bonuses,
+    bonusMulti,
     nextLevelBonus,
     attempts,
     maxAttempts,
@@ -44,6 +46,16 @@ const Emperor = () => {
           </Tooltip>
         </Stack>
       </CardTitleAndValue>
+      {bonusMulti ? <CardTitleAndValue title={'Bonus Multi'}>
+        <Stack direction="row" gap={1} alignItems={'center'}>
+          <Typography>{notateNumber(bonusMulti.totalValue, 'MultiplierInfo')}x</Typography>
+          <Breakdown data={bonusMulti} valueNotation="MultiplierInfo">
+            <Stack alignContent="center" sx={{ cursor: 'pointer' }}>
+              <IconInfoCircleFilled size={18}/>
+            </Stack>
+          </Breakdown>
+        </Stack>
+      </CardTitleAndValue> : null}
       {nextLevelBonus
         ? <CardTitleAndValue title={'Next level bonus'}
                              value={cleanUnderscore(nextLevelBonus.name.replace('{', commaNotation(nextLevelBonus?.value))
@@ -52,13 +64,16 @@ const Emperor = () => {
         : null}
     </Stack>
     <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
-      {bonuses?.map(({ bonus, indexes, value, icon }, index) => {
+      {bonuses?.map(({ bonus, baseBonus, indexes, value, icon }, index) => {
+        const [realValue, ...nameParts] = cleanUnderscore(bonus).split(' ');
+        const [baseValue] = cleanUnderscore(baseBonus || bonus).split(' ');
+        const bonusName = nameParts.join(' ');
         return <Card key={'upgrade-' + index} sx={{ width: 350 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={1}>
               {icon ? <img src={`${prefix}${icon}.png`} style={{ width: 32, height: 32 }}/> : <Box
                 sx={{ width: 32, height: 32, border: '1px solid grey' }}/>}
-              <Typography>{cleanUnderscore(bonus)}</Typography>
+              <Typography>{realValue} ({baseValue} base) {bonusName}</Typography>
             </Stack>
             <Divider sx={{ my: 1 }}/>
             <Typography variant={'body2'}>Per level: {cleanUnderscore(value)}</Typography>
