@@ -28,15 +28,16 @@ export const getEmperor = (idleonData: any, account: any) => {
       self.findIndex(t => t.name === val.name && t.index === val.index) === idx
   );
   const totalBonuses: Record<string, any> = emperorBonuses.reduce((result: Record<string, any>, bonus, index) => {
-    if (!result[bonus.name]) {
-      result[bonus.name] = 0;
+    const key = `${bonus.name}|${bonus.index}`;
+    if (!result[key]) {
+      result[key] = 0;
     }
     if (index < highestEmperorShowdown) {
       const cycles = Math.floor(highestEmperorShowdown / 48);
       const effectiveIndex = highestEmperorShowdown % 48;
-      result[bonus.name] += (bonus?.value ?? 0) * cycles;
+      result[key] += (bonus?.value ?? 0) * cycles;
       if (index < effectiveIndex) {
-        result[bonus.name] += bonus?.value ?? 0;
+        result[key] += bonus?.value ?? 0;
       }
       return result;
     } else {
@@ -51,7 +52,7 @@ export const getEmperor = (idleonData: any, account: any) => {
     .replace('}', '' + notateNumber(1 + total / 100, 'MultiplierInfo'))
     .replace('$', '' + Math.floor((total + 4) / (total + 100) * 1000) / 10);
   bonuses = bonuses.map((rawBonus) => {
-    const baseTotal = totalBonuses[rawBonus.name] ?? 0;
+    const baseTotal = totalBonuses[`${rawBonus.name}|${rawBonus.index}`] ?? 0;
     const realTotal = Math.floor(baseTotal * multiTotal);
     const bonus = formatBonusName(rawBonus.name, realTotal);
     const baseBonus = formatBonusName(rawBonus.name, baseTotal);
