@@ -4,7 +4,7 @@ import { seedInfo } from '@website-data';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import React from 'react';
-import { Breakdown } from '@components/common/styles';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
 const Crop = ({ crop, maxTimes }) => {
   return <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
@@ -18,10 +18,9 @@ const Crop = ({ crop, maxTimes }) => {
             <Typography variant={'h5'}>{name.toLowerCase().capitalize()}</Typography>
             <Stack direction={'row'} gap={1} alignItems={'center'}>
               <Typography variant={'h6'}>{msToDate(maxTimes?.[index]?.value * 1000)}</Typography>
-              <Tooltip title={<Breakdown titleStyle={{ width: 160 }} breakdown={maxTimes?.[index]?.breakdown}
-                notation={'MultiplierInfo'} />}>
+              <Breakdown data={maxTimes?.[index]?.breakdown}>
                 <IconInfoCircleFilled size={18} />
-              </Tooltip>
+              </Breakdown>
             </Stack>
           </Stack>
         </Stack>
