@@ -88,7 +88,7 @@ const Skills = ({ skills, charName, account, characters, character, showSkillsRa
             const { level, rank, icon } = skills[skillName];
             if (skillName === 'character' || (showSkillsRankOneOnly && rank !== 1)) return null;
             const expMulti = getSkillExpMulti(skillName, character, characters, account, playerInfo);
-            const showRankBadge = !globalSkills[skillName] && isTopRank(rank);
+            const showRankBadge = !globalSkills[skillName];
             return <Box key={index} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: '4px' }}>
               <Tooltip title={<SkillTooltip {...skills?.[skillName]} skillName={skillName} charName={charName}
                                             expMulti={expMulti}/>}>
