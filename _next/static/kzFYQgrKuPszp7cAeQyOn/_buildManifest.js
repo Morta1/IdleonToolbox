@@ -198,7 +198,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0e1v.vrz3q3~j.js"
   ],
   "/account/world-6/farming": [
-    "static/chunks/0vbcgwmy6_8l_.js"
+    "static/chunks/047o.-ysw7szk.js"
   ],
   "/account/world-6/sneaking": [
     "static/chunks/06ab8oau1o-l0.js"
@@ -246,7 +246,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0gvo.uc~zux5m.js"
   ],
   "/characters": [
-    "static/chunks/0-b-5-2_9jutm.js"
+    "static/chunks/0-2qee1ictkec.js"
   ],
   "/dashboard": [
     "static/chunks/0_q~xho~1pf5h.js"
