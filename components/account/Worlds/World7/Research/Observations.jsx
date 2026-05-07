@@ -110,8 +110,20 @@ const Observations = ({ observations }) => {
                       </Typography>
                     </Stack>
                     <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-                      <Typography variant="body2" color="text.secondary">Insight / hr:</Typography>
+                      <Tooltip title="Insight EXP/hr as shown in-game (Insight rate * Research EXP Multi). This is what Idleon displays, but does NOT match how fast Insight actually levels up.">
+                        <Typography variant="body2" color="text.secondary" sx={{ textDecoration: 'underline dotted', cursor: 'help' }}>
+                          Displayed Insight / hr:
+                        </Typography>
+                      </Tooltip>
                       <Typography variant="body2">{notateNumber(obs.insightExpRate ?? 0, 'Small')}</Typography>
+                    </Stack>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
+                      <Tooltip title="Actual Insight EXP/hr you gain (Displayed / Research EXP Multi). This matches how fast Insight levels up in practice.">
+                        <Typography variant="body2" color="text.secondary" sx={{ textDecoration: 'underline dotted', cursor: 'help' }}>
+                          Real Insight / hr:
+                        </Typography>
+                      </Tooltip>
+                      <Typography variant="body2">{notateNumber(obs.realInsightExpRate ?? 0, 'Small')}</Typography>
                     </Stack>
                     <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
                       <Typography variant="body2" color="text.secondary">Research EXP rate:</Typography>

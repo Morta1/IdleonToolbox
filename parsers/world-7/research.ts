@@ -187,7 +187,8 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
     const insightLevel = Number(research?.observationInsight?.[observationIndex]) || 0;
     const insightExp = Number(research?.observationInsightExp?.[observationIndex]) || 0;
     const insightExpREQ = getObservationInsightExpREQ(observationIndex, insightLevel);
-    const insightExpRate = getObservationInsightExpRate(account, research, observationIndex) * researchEXPmulti;
+    const realInsightExpRate = getObservationInsightExpRate(account, research, observationIndex);
+    const insightExpRate = realInsightExpRate * researchEXPmulti;
     const researchEXPrate = getResearchEXPrateObj(account, research, observationIndex) * researchEXPmulti;
     const occurrenceData = occurrencesList[observationIndex];
     // Lenses on this observation: type 0 = Magnifying glass, 1 = Kaleidoscope, 2 = Optical Monocle
@@ -218,6 +219,7 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
       insightExp,
       insightExpREQ,
       insightExpRate,
+      realInsightExpRate,
       researchEXPrate,
       lensTypes, // 0 = Magnifying glass, 1 = Kaleidoscope, 2 = Optical Monocle
       canLevelUp: found && researchLevel >= (occurrenceData?.researchLvReq ?? 0) && gridBonus91Lv >= 1
