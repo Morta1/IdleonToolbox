@@ -1361,12 +1361,37 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
     9: 7   // Shop 19: Mystery bonus
   };
 
+  // Decay-based asymptotic cap info (bonus = base + scale * L/(decay+L)).
+  // 3rd fight (i=0) and nugget (i=2) are flat unlocks with no cap.
+  // format: 'mult' = "Xx" multiplier, 'addMult' = "+0.XXx" additive multiplier (Gallery),
+  //         'pct' = "+X%" additive percent (Coral).
+  const permanentUpgradeCapMap: Record<number, { decay: number; cap: number; format: 'mult' | 'addMult' | 'pct' }> = {
+    1: { decay: 300, cap: 2, format: 'mult' },
+    3: { decay: 300, cap: 10, format: 'mult' },
+    4: { decay: 300, cap: 3, format: 'mult' },
+    5: { decay: 200, cap: 10, format: 'addMult' },
+    6: { decay: 200, cap: 2.3, format: 'mult' },
+    7: { decay: 150, cap: 1.8, format: 'mult' },
+    8: { decay: 250, cap: 25, format: 'pct' },
+    9: { decay: 200, cap: 3, format: 'mult' }
+  };
+
+  const formatBonus = (value: number, format: 'mult' | 'addMult' | 'pct') => {
+    if (format === 'mult') return `${Math.floor(value * 100) / 100}x`;
+    if (format === 'addMult') return `+${(value / 100).toFixed(2)}x`;
+    return `+${Math.floor(value * 100) / 100}%`;
+  };
+
   const permanentUpgrades = killRoySkullShop?.slice(10)?.map((upgrade, i) => {
     const levelOption = permanentUpgradeLevelMap[i];
     const bonusIndex = permanentUpgradeBonusMap[i];
+    const capInfo = permanentUpgradeCapMap[i];
 
     const level = levelOption !== null ? (accountData?.accountOptions?.[levelOption] ?? 0) : 0;
     const bonus = bonusIndex !== undefined ? getKillRoyShopBonus(accountData, bonusIndex) : 1;
+    const progress = capInfo ? (level / (level + capInfo.decay)) * 100 : null;
+    const bonusDisplay = capInfo ? formatBonus(bonus, capInfo.format) : null;
+    const capDisplay = capInfo ? formatBonus(capInfo.cap, capInfo.format) : null;
 
     // Special case: Shop 15 (Gallery) changes description when level >= 2
     let description = upgrade?.description;
@@ -1380,6 +1405,9 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
       ...upgrade,
       level,
       bonus,
+      progress,
+      bonusDisplay,
+      capDisplay,
       description: description?.replace(replacementChar, String(Math.floor(bonus * 100) / 100))
     }
   });
