@@ -184,10 +184,10 @@ const TomeRankings = () => {
     sorted = [...rows].sort((a, b) => (a.percentile ?? 101) - (b.percentile ?? 101));
   } else if (effectiveSortMode === 'gap') {
     sorted = [...rows].sort((a, b) => {
-      const aBucket = a.gap == null ? 2 : a.gap <= 0 ? 1 : 0;
-      const bBucket = b.gap == null ? 2 : b.gap <= 0 ? 1 : 0;
+      const aBucket = a.gap == null ? 2 : a.gap <= 0 ? 0 : 1;
+      const bBucket = b.gap == null ? 2 : b.gap <= 0 ? 0 : 1;
       if (aBucket !== bBucket) return aBucket - bBucket;
-      if (aBucket === 0) return a.gap - b.gap;
+      if (aBucket === 1) return a.gap - b.gap;
       return 0;
     });
   } else {
