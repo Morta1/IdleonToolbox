@@ -566,7 +566,7 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
       }
     }
     if (challenges?.checked) {
-      const hasChallenges = equinox?.challenges.filter(challenge => challenge.active && challenge.current >= challenge.goal)?.length;
+      const hasChallenges = equinox?.challenges.filter(challenge => challenge.active && !challenge.locked && challenge.current >= challenge.goal)?.length;
       if (hasChallenges > 0) {
         equinoxAlerts.challenges = hasChallenges;
       }
