@@ -234,7 +234,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0utrtwpyvotai.js"
   ],
   "/account/world-7/spelunking": [
-    "static/chunks/0umdgh~ir1e1t.js"
+    "static/chunks/0j-l8o20gcv2r.js"
   ],
   "/account/world-7/sushi-station": [
     "static/chunks/03~crjhizd7x0.js"
@@ -249,7 +249,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0dxop_jv5~ldd.js"
   ],
   "/dashboard": [
-    "static/chunks/0ksz~poj~ry1v.js"
+    "static/chunks/0iick5eofx-18.js"
   ],
   "/guilds": [
     "static/chunks/0t8eg.p~tzbgv.js"

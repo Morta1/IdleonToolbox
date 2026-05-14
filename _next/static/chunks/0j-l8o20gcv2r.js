@@ -12,9 +12,9 @@ __turbopack_load_page_chunks__("/account/world-7/spelunking", [
   "static/chunks/0gdhjfdy-wuqx.js",
   "static/chunks/0mpfqmmtjfj9u.js",
   "static/chunks/0z.952h03pqfm.js",
-  "static/chunks/16l.vkrto6g7d.js",
+  "static/chunks/0~umjfh1tgte..js",
   "static/chunks/15-nfnh1.q2rh.js",
   "static/chunks/0se18crl4oic7.js",
   "static/chunks/0otdh-5fu63-z.js",
-  "static/chunks/turbopack-0id19wua2z4ay.js"
+  "static/chunks/turbopack-013t6fumqmtrp.js"
 ])
