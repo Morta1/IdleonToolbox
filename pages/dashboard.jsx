@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 49,
+  version: 51,
   account: {
     General: {
       tasks: {
@@ -53,7 +53,12 @@ const baseTrackers = {
           { name: 'gemsFromBosses', checked: true },
           { name: 'familyObols', checked: true },
           { name: 'freeCompanion', checked: true },
-          { name: 'petMartGems', checked: true }
+          { name: 'petMartGems', checked: true },
+          {
+            name: 'dailyCrystals',
+            checked: true,
+            helperText: 'Alert when daily guaranteed crystal kills remain'
+          }
         ]
       }
     },
@@ -582,7 +587,9 @@ const baseTrackers = {
       monument: { checked: true, options: [] },
       justice: { checked: true, options: [] },
       wisdom: { checked: true, options: [] },
-      villagers: { checked: true, options: [] }
+      villagers: { checked: true, options: [] },
+      coinFill: { checked: true, options: [] },
+      marbleFill: { checked: true, options: [] }
     },
     'World 7': {
       researchLevelUp: { checked: true, options: [] },

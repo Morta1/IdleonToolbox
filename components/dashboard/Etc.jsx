@@ -22,6 +22,7 @@ import { getMonumentMaxLinearTime } from '@parsers/world-5/caverns/bravery';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 
 const maxTimeValue = 9.007199254740992e+15;
+const VILLAGER_TABS = ['Explore', 'Engineer', 'Bonuses', 'Measure', 'Study'];
 const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const getRealDateInMs = useRealDate();
   // Anchor timer math to `lastUpdated` (the data-fetch timestamp) rather than `new Date().getTime()`.
@@ -153,6 +154,14 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
       currentLevel: bestResearchChar?.skillsInfo?.research?.level ?? 0
     }
     : null;
+
+  const fountainBars = account?.hole?.caverns?.theFountain?.fountainBars ?? [];
+  const coinFillBar = fountainBars.find((b) => b.tier === 0);
+  const marbleFillBar = fountainBars.find((b) => b.tier === 1);
+  const coinFillIsFull = !!coinFillBar && coinFillBar.progress >= coinFillBar.req;
+  const coinFillTime = coinFillBar ? (coinFillIsFull ? now : now + coinFillBar.timeToFullMs) : null;
+  const marbleFillIsFull = !!marbleFillBar && marbleFillBar.progress >= marbleFillBar.req;
+  const marbleFillTime = marbleFillBar ? (marbleFillIsFull ? now : now + marbleFillBar.timeToFullMs) : null;
 
   const sushiFuel = account?.sushiStation?.fuel;
   const sushiFuelIsFull = sushiFuel && sushiFuel.cap > 0 && sushiFuel.current >= sushiFuel.cap;
@@ -391,6 +400,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {trackers?.['World 5']?.monument?.checked && account?.finishedWorlds?.World4 ?
           <MonumentCard
             page={'account/world-5/hole'}
+            query={{ t: 'Explore', nt: 'Bravery' }}
             currentMulti={account?.hole?.caverns?.bravery?.rewardMulti || 0}
             maxMulti={getMonumentMultiInfo?.bravery?.maxLinearMulti || 0}
             timeUntilMax={getMonumentMultiInfo?.bravery?.timeUntilMaxDate}
@@ -398,6 +408,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {trackers?.['World 5']?.justice?.checked && account?.finishedWorlds?.World4 ?
           <MonumentCard
             page={'account/world-5/hole'}
+            query={{ t: 'Explore', nt: 'Justice' }}
             currentMulti={account?.hole?.caverns?.justice?.rewardMulti || 0}
             maxMulti={getMonumentMultiInfo?.justice?.maxLinearMulti || 0}
             timeUntilMax={getMonumentMultiInfo?.justice?.timeUntilMaxDate}
@@ -405,6 +416,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {trackers?.['World 5']?.wisdom?.checked && account?.finishedWorlds?.World4 ?
           <MonumentCard
             page={'account/world-5/hole'}
+            query={{ t: 'Explore', nt: 'Wisdom' }}
             currentMulti={account?.hole?.caverns?.wisdom?.rewardMulti || 0}
             maxMulti={getMonumentMultiInfo?.wisdom?.maxLinearMulti || 0}
             timeUntilMax={getMonumentMultiInfo?.wisdom?.timeUntilMaxDate}
@@ -412,9 +424,11 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {trackers?.['World 5']?.villagers?.checked && account?.finishedWorlds?.World4 && account?.hole?.villagers?.length > 0 ?
           account?.hole?.villagers?.map((villager, index) => {
             if (!villager) return null;
+            const villagerTab = VILLAGER_TABS[index] ?? 'Explore';
             return <TimerCard
               key={`villager-timer-${index}`}
               page={'account/world-5/hole'}
+              query={{ t: villagerTab }}
               tooltipContent={`${villager?.name} level up: ` + (villager?.readyToLevel ? 'Ready!' : getRealDateInMs(now + villager?.timeLeft))}
               lastUpdated={lastUpdated}
               time={villager?.readyToLevel ? now : now + villager?.timeLeft}
@@ -424,6 +438,26 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             />
           })
           : null}
+        {trackers?.['World 5']?.coinFill?.checked && coinFillBar ? <TimerCard
+          page={'account/world-5/hole'}
+          query={{ t: 'Explore', nt: 'The Fountain' }}
+          tooltipContent={`${cleanUnderscore(coinFillBar.name)}: ` + (coinFillIsFull ? 'Full!' : getRealDateInMs(coinFillTime))}
+          lastUpdated={lastUpdated}
+          time={coinFillTime}
+          icon={'data/HoleFountainBar0.png'}
+          timerPlaceholder={'Full!'}
+          forcePlaceholder={coinFillIsFull}
+        /> : null}
+        {trackers?.['World 5']?.marbleFill?.checked && marbleFillBar ? <TimerCard
+          page={'account/world-5/hole'}
+          query={{ t: 'Explore', nt: 'The Fountain' }}
+          tooltipContent={`${cleanUnderscore(marbleFillBar.name)}: ` + (marbleFillIsFull ? 'Full!' : getRealDateInMs(marbleFillTime))}
+          lastUpdated={lastUpdated}
+          time={marbleFillTime}
+          icon={'data/HoleFountainBar1.png'}
+          timerPlaceholder={'Full!'}
+          forcePlaceholder={marbleFillIsFull}
+        /> : null}
       </Section>}
 
       {!emptyAlerts?.['World 7'] && account?.finishedWorlds?.World6 && <Section title={'World 7'}>
@@ -512,13 +546,14 @@ const TimerCard = ({
   timerPlaceholder = '',
   forcePlaceholder,
   showAsError,
-  page
+  page,
+  query
 }) => {
   const router = useRouter();
 
   return <Tooltip title={tooltipContent}>
     <Stack sx={{ cursor: page ? 'pointer' : 'auto' }} direction={'row'} gap={1} alignItems={'center'}
-      onClick={() => page && router.push({ pathname: page })}>
+      onClick={() => page && router.push({ pathname: page, query })}>
       <IconImg src={`${prefix}${icon}`} />
       {forcePlaceholder ? <Typography color={'error.light'}>{timerPlaceholder}</Typography> : <Timer
         type={'countdown'} date={time}
@@ -531,6 +566,7 @@ const TimerCard = ({
 
 const MonumentCard = ({
   page,
+  query,
   currentMulti,
   maxMulti,
   timeUntilMax,
@@ -549,7 +585,7 @@ const MonumentCard = ({
 
   return <Tooltip title={tooltipContent}>
     <Stack sx={{ cursor: page ? 'pointer' : 'auto' }} direction={'row'} gap={1} alignItems={'center'}
-      onClick={() => page && router.push({ pathname: page })}>
+      onClick={() => page && router.push({ pathname: page, query })}>
       <IconImg src={`${prefix}${icon}`} />
       <Typography color={isOverMax ? 'error.light' : 'inherit'}>{isOverMax ? 'Go fight!' : `${currentMultiRounded}x / ${maxMultiRounded}x`}</Typography>
     </Stack>

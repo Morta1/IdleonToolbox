@@ -63,6 +63,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.General?.etc?.petMartGems ?
                 <Alert title={'You have unclaimed free gems from the Pet Mart'}
                        iconPath={'data/PremiumGem'}/> : null}
+              {alerts?.General?.etc?.dailyCrystals ?
+                <Alert
+                  title={`You have ${alerts?.General?.etc?.dailyCrystals} daily guaranteed crystal kill${alerts?.General?.etc?.dailyCrystals > 1 ? 's' : ''} remaining`}
+                  iconPath={'afk_targets/Crystal_Carrot'}/> : null}
               {alerts?.General?.etc?.newCharacters ?
                 <Alert
                   title={`You can create ${alerts?.General?.etc?.newCharacters} new character${alerts?.General?.etc?.newCharacters > 1

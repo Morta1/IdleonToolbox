@@ -15,7 +15,7 @@ import {
   mergeItemsByOwner
 } from '@parsers/items';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
-import { getKillroySchedule, getMiniBossesData } from '@parsers/misc';
+import { getGuaranteedCrystalMobs, getKillroySchedule, getMiniBossesData } from '@parsers/misc';
 import { getRequirementAmount } from '@parsers/world-4/lab';
 import { getLandRank, getProductDoubler, getRanksTotalBonus } from '@parsers/world-6/farming';
 import { isPast } from 'date-fns';
@@ -208,6 +208,13 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
       const currentShopDay = account?.tournament?.global?.S ?? 0;
       if (currentShopDay >= 1 && lastClaimedShopDay < currentShopDay) {
         etc.petMartGems = true;
+      }
+    }
+    if (options?.etc?.dailyCrystals?.checked) {
+      const guaranteedCrystalMobs = getGuaranteedCrystalMobs(account);
+      const remainingDailyCrystals = Math.max(0, guaranteedCrystalMobs - (account?.accountOptions?.[101] ?? 0));
+      if (remainingDailyCrystals > 0) {
+        etc.dailyCrystals = remainingDailyCrystals;
       }
     }
     if (Object.keys(etc).length > 0) {

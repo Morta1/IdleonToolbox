@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import {
   Box,
@@ -48,7 +48,10 @@ const UpgradeOptimizer = ({ character, account }) => {
     key: 'spelunkingUpgradeOptimizer:customMaxUpgrades',
     defaultValue: 10
   });
-  const [onlyAffordable, setOnlyAffordable] = useState(false);
+  const [onlyAffordable, setOnlyAffordable] = useLocalStorage({
+    key: 'spelunkingUpgradeOptimizer:onlyAffordable',
+    defaultValue: false
+  });
   const [viewMode, setViewMode] = useLocalStorage({
     key: 'spelunkingUpgradeOptimizer:viewMode',
     defaultValue: 'grid'

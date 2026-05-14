@@ -1174,6 +1174,32 @@ const migration49 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration50 = (dashboardConfig) => {
+  const etcOptions = dashboardConfig?.account?.General?.etc?.options;
+  if (etcOptions && !etcOptions.some((opt) => opt.name === 'dailyCrystals')) {
+    etcOptions.push({
+      name: 'dailyCrystals',
+      checked: true,
+      helperText: 'Alert when daily guaranteed crystal kills remain'
+    });
+  }
+  dashboardConfig.version = 50;
+  return dashboardConfig;
+};
+
+const migration51 = (dashboardConfig) => {
+  if (!dashboardConfig.timers) dashboardConfig.timers = {};
+  if (!dashboardConfig.timers['World 5']) dashboardConfig.timers['World 5'] = {};
+  if (!dashboardConfig.timers['World 5'].coinFill) {
+    dashboardConfig.timers['World 5'].coinFill = { checked: true, options: [] };
+  }
+  if (!dashboardConfig.timers['World 5'].marbleFill) {
+    dashboardConfig.timers['World 5'].marbleFill = { checked: true, options: [] };
+  }
+  dashboardConfig.version = 51;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1225,6 +1251,8 @@ const migrations = {
   47: migration47,
   48: migration48,
   49: migration49,
+  50: migration50,
+  51: migration51,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {
