@@ -77,11 +77,11 @@ const getCostToMax = (level: any, x4: any, x5: any, maxLevel = 100) => {
   return total;
 }
 
-const getGodCost = ({ name, level, x4, x5 }: any = {}, index: any, account: any) => {
-  if (level < 100) {
+const getGodCost = ({ name, level, x4, x5, maxLevel = 100 }: any = {}, index: any, account: any) => {
+  if (level < maxLevel) {
     const cost = x4 * Math.pow(x5, level);
     const nextLevelCost = x4 * Math.pow(x5, level + 1);
-    const costToMax = getCostToMax(level, x4, x5);
+    const costToMax = getCostToMax(level, x4, x5, maxLevel);
     if (0 === index || 8 === index || 4 === index || 2 === index) {
       const atoms = account?.gaming?.bits;
       return {
