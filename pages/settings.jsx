@@ -207,9 +207,12 @@ const Settings = () => {
   };
 
   const handleCopyLink = async (e) => {
+    const target = e.currentTarget;
+    const charName = state?.characters?.[0]?.name;
+    if (!charName) return;
     try {
-      setAnchorEl(e.currentTarget);
-      await navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_IT_URL}?profile=${state?.characters?.[0]?.name}`);
+      await navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_IT_URL}/account/misc/general?profile=${encodeURIComponent(charName)}`);
+      setAnchorEl(target);
     } catch (err) {
       console.error(err);
     }
