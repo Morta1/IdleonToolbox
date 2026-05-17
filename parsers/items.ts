@@ -12,7 +12,11 @@ export const addStoneDataToEquip = (baseItem: any, stoneData: any) => {
 
   const result = Object.keys(stoneData)?.reduce((res, statName) => {
     if (statName === 'UQ1txt' || statName === 'UQ2txt') {
-      return { ...res, [statName]: baseItem?.[statName] || stoneData?.[statName] };
+      const preferStoneTxt = baseItem?.Type === 'KEYCHAIN' && stoneData?.[statName];
+      return {
+        ...res,
+        [statName]: preferStoneTxt ? stoneData[statName] : (baseItem?.[statName] || stoneData?.[statName])
+      };
     }
 
     const baseItemStat = baseItem?.Type === 'KEYCHAIN' ? 0 : baseItem?.[statName];
