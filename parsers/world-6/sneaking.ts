@@ -192,7 +192,7 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     return { index, description, bonus };
   });
 
-  const itemsMaxLevel = getItemsMaxLevel(selectedNinjaMastery, ninjaMastery, upgrades, gemStones, inventory);
+  const itemsMaxLevel = getItemsMaxLevel(upgrades, gemStones, inventory, account);
 
   const charmRollCounter = account?.accountOptions?.[402] || 0;
   const remainingPristineRolls = Math.max(0, 120 - charmRollCounter);
@@ -228,35 +228,36 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
 };
 
 export const getLocalNinjaUpgradeBonus = (upgrades: any, index: any, gemstones: any, inventory: any, account: any) => {
-  const { level, modifier } = upgrades?.[index];
-  const goldEye = getInventoryNinjaItem({ sneaking: { inventory } }, 'Gold_Eye');
-  const fireFrostBonus = gemstones?.[7]?.bonus;
+  const { level, modifier } = upgrades?.[index] ?? {};
+  const masteryLootLevel = upgrades?.[3]?.level || 0;
+  const selectedMasteryLevel = account?.accountOptions?.[231] || 0;
 
-  const paletteBonus30 = getPaletteBonus(account, 30);
-  const vaultBonus88 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 88);
-
-  return index === 11
-    ? level * modifier + (upgrades?.[3]?.level * account?.accountOptions?.[231] + (goldEye + (Math.ceil(fireFrostBonus) + Math.floor(paletteBonus30 + vaultBonus88))))
-    : index === 6 || index === 7 || index === 10 || index === 12
-      ? level * modifier + upgrades?.[3]?.level * account?.accountOptions?.[231]
-      : level * modifier;
+  if (index === 11) {
+    const goldStar = getInventoryNinjaItem({ sneaking: { inventory } }, 'Gold_Star') || 0;
+    const fireFrostBonus = gemstones?.[7]?.bonus || 0;
+    const paletteBonus30 = getPaletteBonus(account, 30) || 0;
+    const vaultBonus88 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 88) || 0;
+    return Math.round(
+      level * modifier
+      + masteryLootLevel * selectedMasteryLevel
+      + goldStar
+      + Math.ceil(fireFrostBonus)
+      + Math.floor(paletteBonus30 + vaultBonus88)
+    );
+  }
+  if (index === 6 || index === 7 || index === 10 || index === 12) {
+    return level * modifier + masteryLootLevel * selectedMasteryLevel;
+  }
+  return level * modifier;
 };
 
-const getItemsMaxLevel = (selectedMasteryLevel: any, masteryLevel: any, upgrades: any, gemstones: any, inventory: any) => {
-  const goldStarBonus = getInventoryNinjaItem({ sneaking: { inventory } }, 'Gold_Star') || 0;
-
-  const masteryBonus = (upgrades?.[2]?.value || 0) * selectedMasteryLevel;
-  const baseLevel = masteryBonus;
-  const fireFrostBonus = gemstones?.[7]?.bonus;
-
-  const getUpgradeValue = (index: any) => upgrades?.[index]?.value || 0;
-
+const getItemsMaxLevel = (upgrades: any, gemstones: any, inventory: any, account: any) => {
   return [
-    { name: 'Gemstone', value: Math.floor(baseLevel + getUpgradeValue(5)) },
-    { name: 'Kunai', value: Math.floor(baseLevel + getUpgradeValue(6)) },
-    { name: 'Gloves', value: Math.floor(baseLevel + getUpgradeValue(9)) },
-    { name: 'Charm', value: Math.floor(baseLevel + getUpgradeValue(10) + goldStarBonus + fireFrostBonus) },
-    { name: 'Nunchaku', value: Math.floor(baseLevel + getUpgradeValue(11)) }
+    { name: 'Gemstone', value: Math.floor(getLocalNinjaUpgradeBonus(upgrades, 6, gemstones, inventory, account)) },
+    { name: 'Kunai', value: Math.floor(getLocalNinjaUpgradeBonus(upgrades, 7, gemstones, inventory, account)) },
+    { name: 'Gloves', value: Math.floor(getLocalNinjaUpgradeBonus(upgrades, 10, gemstones, inventory, account)) },
+    { name: 'Charm', value: Math.floor(getLocalNinjaUpgradeBonus(upgrades, 11, gemstones, inventory, account)) },
+    { name: 'Nunchaku', value: Math.floor(getLocalNinjaUpgradeBonus(upgrades, 12, gemstones, inventory, account)) }
   ];
 };
 
