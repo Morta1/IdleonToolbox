@@ -69,20 +69,16 @@ export default function ContributorLeaderboard({ members }) {
                 </TableCell>
                 <TableCell sx={{ fontWeight: 600 }} align="right">
                   <HeaderWithHint
-                    label="WoW"
+                    label="Lifetime"
                     align="right"
-                    hint="Week-over-week change in weekly GP - this week vs last week."
+                    hint="Total GP this member has contributed since they joined the guild (in-game lifetime, not just since tracking started)."
                   />
                 </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {visible.map((m) => {
-                const history = m.weekly_history || [m.gp_earned];
                 const joinedWeeksAgo = m.joined_weeks_ago ?? null;
-                const prev = history.length >= 2 ? history[history.length - 2] : 0;
-                const curr = history[history.length - 1];
-                const wow = prev > 0 ? ((curr - prev) / prev) * 100 : null;
                 const pctOfGuild = totalGuildGp > 0 ? (m.gp_earned / totalGuildGp) * 100 : 0;
                 return (
                   <TableRow
@@ -110,24 +106,16 @@ export default function ContributorLeaderboard({ members }) {
                         )}
                       </Stack>
                     </TableCell>
-                    <TableCell align="right">{numberWithCommas(m.gp_earned)}</TableCell>
-                    <TableCell align="right">
+                    <TableCell align="right" sx={{ fontVariantNumeric: 'tabular-nums' }}>{numberWithCommas(m.gp_earned)}</TableCell>
+                    <TableCell align="right" sx={{ fontVariantNumeric: 'tabular-nums' }}>
                       <Typography variant="body2" color="text.secondary" component="span">
                         {pctOfGuild.toFixed(1)}%
                       </Typography>
                     </TableCell>
-                    <TableCell align="right">
-                      {wow == null ? (
-                        <Typography variant="body2" color="text.secondary" component="span">—</Typography>
-                      ) : (
-                        <Typography
-                          variant="body2"
-                          component="span"
-                          sx={{ color: wow >= 0 ? '#81c784' : '#cf6679' }}
-                        >
-                          {wow >= 0 ? '+' : '-'}{Math.abs(wow).toFixed(1)}%
-                        </Typography>
-                      )}
+                    <TableCell align="right" sx={{ fontVariantNumeric: 'tabular-nums' }}>
+                      <Typography variant="body2" color="text.secondary" component="span">
+                        {m.gp_lifetime != null ? numberWithCommas(m.gp_lifetime) : '—'}
+                      </Typography>
                     </TableCell>
                   </TableRow>
                 );
