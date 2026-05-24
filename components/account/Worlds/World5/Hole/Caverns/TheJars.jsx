@@ -17,14 +17,19 @@ const TheJars = ({ hole }) => {
     </Stack>
     <Divider sx={{ mt: 1 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <CardTitleAndValue title={'Progress per hour'}
-                         value={notateNumber(hole?.caverns?.theJars?.perHour, 'Big')}/>
+      <CardWithBreakdown title={'Progress per hour'}
+                         value={notateNumber(hole?.caverns?.theJars?.perHour?.value, 'Big')}
+                         breakdown={hole?.caverns?.theJars?.perHour?.breakdown}/>
       <CardTitleAndValue title={'Progress per minute'}
-                         value={notateNumber(hole?.caverns?.theJars?.perHour / 60, 'Big')}/>
+                         value={notateNumber(hole?.caverns?.theJars?.perHour?.value / 60, 'Big')}/>
       <CardWithBreakdown title={'Rupie value'}
                          value={notateNumber(hole?.caverns?.theJars?.rupieValue.value, 'Big')} breakdown={hole?.caverns?.theJars?.rupieValue.breakdown} notation={'MultiplierInfo'}/>
       <CardTitleAndValue title={'Total jars'}
                          value={`${hole?.caverns?.theJars?.totalJars} / 120`}/>
+      <CardTitleAndValue title={'Total enhancing levels'}
+                         value={numberWithCommas(hole?.caverns?.theJars?.totalEnhancingLevels ?? 0)}/>
+      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
+                         value={hole?.holesObject?.opalsPerCavern?.[10] || 0}/>
       <Divider orientation={'vertical'} sx={{ my: 2 }} flexItem/>
       {hole?.caverns?.theJars?.activeSlots?.map(({ progress, req, jarType }, index) => <CardTitleAndValue
         title={'Rupie value'} key={`slots-${index}`}
@@ -52,12 +57,12 @@ const TheJars = ({ hole }) => {
               <Divider sx={{ mt: .5, mb: 1 }}/>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
                 <Typography variant={'body1'}>Jars per
-                  hour: {Math.floor(hole?.caverns?.theJars?.perHour / req)}</Typography>
+                  hour: {Math.floor(hole?.caverns?.theJars?.perHour?.value / req)}</Typography>
                 <Tooltip title={<Stack>
                   <Typography variant={'body2'}>2
-                    slots: {Math.floor((hole?.caverns?.theJars?.perHour * 2) / req)} / hr</Typography>
+                    slots: {Math.floor((hole?.caverns?.theJars?.perHour?.value * 2) / req)} / hr</Typography>
                   <Typography variant={'body2'}>3
-                    slots: {Math.floor((hole?.caverns?.theJars?.perHour * 3) / req)} / hr</Typography>
+                    slots: {Math.floor((hole?.caverns?.theJars?.perHour?.value * 3) / req)} / hr</Typography>
                 </Stack>}>
                   <IconInfoCircleFilled size={18}/>
                 </Tooltip>
@@ -65,7 +70,7 @@ const TheJars = ({ hole }) => {
               <Typography variant={'body1'}>Jars destroyed: {numberWithCommas(destroyed)}</Typography>
               <Divider sx={{ my: 1 }}/>
               <Typography variant={'body1'}>Time to
-                full: {msToDate(req / hole?.caverns?.theJars?.perHour * 1000 * 3600)}</Typography>
+                full: {msToDate(req / hole?.caverns?.theJars?.perHour?.value * 1000 * 3600)}</Typography>
               <Typography variant={'body1'}>Req: {numberWithCommas(Math.floor(req))}</Typography>
             </CardContent>
           </Card>

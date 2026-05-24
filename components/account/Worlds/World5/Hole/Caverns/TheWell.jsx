@@ -27,6 +27,9 @@ const TheWell = ({ hole }) => {
       <CardTitleAndValue title={'Opal cost'} icon={'data/HoleWellFill1.png'}
                          imgStyle={{ width: 24, height: 24, objectFit: 'none' }}
                          value={hole?.caverns?.theWell?.opalCost}/>
+      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'}
+                         imgStyle={{ width: 24, height: 24 }}
+                         value={hole?.holesObject?.opalsPerCavern?.[0] || 0}/>
       {hole?.caverns?.theWell?.buckets?.map((sediment, index) => {
         const isGolden = index < goldenBucketsOwned;
         return <Card key={`bucket-${index}`}

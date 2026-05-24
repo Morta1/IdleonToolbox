@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import { artifactTierColor } from './sailing.consts';
 import styled from '@emotion/styled';
@@ -8,43 +8,40 @@ import { TitleAndValue } from '../../../../common/styles';
 import processString from 'react-process-string';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
+const TIERS = [
+  { level: 1, short: 'Base', full: 'Base' },
+  { level: 2, short: 'Anc', full: 'Ancient' },
+  { level: 3, short: 'Eld', full: 'Eldritch' },
+  { level: 4, short: 'Sov', full: 'Sovereign' },
+  { level: 5, short: 'Omn', full: 'Omnipotent' },
+  { level: 6, short: 'Tra', full: 'Transcendent' }
+];
+
+const getTierDescription = (artifact, tier) => {
+  switch (tier) {
+    case 1: return artifact.description;
+    case 2: return artifact.ancientFormDescription;
+    case 3: return artifact.eldritchFormDescription;
+    case 4: return artifact.sovereignFormDescription;
+    case 5: return artifact.omnipotentFormDescription;
+    case 6: return artifact.transcendentFormDescription;
+    default: return '';
+  }
+};
+
 const Artifacts = ({ artifacts }) => {
   return (
-    (<Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {artifacts?.map(({
-                         name,
-                         description,
-                         ancientFormDescription,
-                         eldritchFormDescription,
-                         sovereignFormDescription,
-                         omnipotentFormDescription,
-                         transcendentFormDescription,
-                         rawName,
-                         acquired,
-                         additionalData
-                       }, index) => {
-        let bonusDescription = '';
-        if (acquired === 2) {
-          bonusDescription = ancientFormDescription;
-        }
-        else if (acquired === 3) {
-          bonusDescription = eldritchFormDescription;
-        }
-        else if (acquired === 4) {
-          bonusDescription = sovereignFormDescription;
-        }
-        else if (acquired === 5) {
-          bonusDescription = omnipotentFormDescription;
-        }
-        else if (acquired === 6) {
-          bonusDescription = transcendentFormDescription;
-        }
-        const color = artifactTierColor(acquired);
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      {artifacts?.map((artifact, index) => {
+        const { name, description, rawName, acquired, additionalData } = artifact;
+        const currentTier = acquired ?? 0;
+        const bonusDescription = currentTier >= 2 ? getTierDescription(artifact, currentTier) : '';
+        const color = artifactTierColor(currentTier);
         return (
-          (<Card key={name + index} variant={acquired ? 'elevation' : 'outlined'}
-                 sx={{ opacity: acquired === 0 ? .5 : 1 }}>
+          <Card key={name + index} variant={acquired ? 'elevation' : 'outlined'}
+                sx={{ opacity: currentTier === 0 ? .5 : 1 }}>
             <CardContent>
-              <Stack sx={{ width: 200 }}>
+              <Stack sx={{ width: 220 }}>
                 <Stack direction={'row'} gap={1} alignItems={'center'}>
                   <ArtifactImg src={`${prefix}data/${rawName}.png`} alt=""/>
                   <Typography>{cleanUnderscore(name)}</Typography>
@@ -52,6 +49,12 @@ const Artifacts = ({ artifacts }) => {
                     <IconInfoCircleFilled style={{ marginLeft: 'auto' }} size={18}/>
                   </Tooltip> : null}
                 </Stack>
+                <TierTrack currentTier={currentTier} artifact={artifact}/>
+                <Typography sx={{ fontSize: 11, mt: 0.75, textAlign: 'center', opacity: 0.7 }}>
+                  {currentTier === 0
+                    ? 'Not Acquired'
+                    : `Tier ${currentTier}/6 · ${TIERS[currentTier - 1].full}`}
+                </Typography>
                 <Divider sx={{ my: 2 }}/>
                 <Stack flexWrap={'wrap'}>
                   <Typography sx={{ minHeight: 150 }} component={'div'}>{processString([{
@@ -63,16 +66,51 @@ const Artifacts = ({ artifacts }) => {
                   <Divider flexItem color={color} sx={{ my: 2 }}/>
                   <Typography
                     sx={{
-                      opacity: acquired === 2 || acquired === 3 || acquired === 4 || acquired === 5 || acquired === 6 ? 1 : .5,
+                      opacity: currentTier >= 2 ? 1 : .5,
                       color: color
                     }}>{cleanUnderscore(bonusDescription)}</Typography>
                 </Stack>
               </Stack>
             </CardContent>
-          </Card>)
+          </Card>
         );
       })}
-    </Stack>)
+    </Stack>
+  );
+};
+
+const TierTrack = ({ currentTier, artifact }) => {
+  return (
+    <Stack direction={'row'} gap={0.5} sx={{ mt: 1.5 }}>
+      {TIERS.map(({ level, full }) => {
+        const color = artifactTierColor(level);
+        const reached = currentTier >= level;
+        const isCurrent = currentTier === level;
+        const tierDescription = getTierDescription(artifact, level);
+        return (
+          <Tooltip key={level} title={
+            <>
+              <Typography sx={{ color, fontWeight: 'bold' }}>Tier {level}: {full}</Typography>
+              {tierDescription ? (
+                <Typography sx={{ mt: 0.5 }}>{cleanUnderscore(tierDescription)}</Typography>
+              ) : null}
+            </>
+          }>
+            <Box
+              sx={{
+                flex: 1,
+                height: 6,
+                borderRadius: 0.5,
+                backgroundColor: reached ? color : 'rgba(255,255,255,0.08)',
+                opacity: reached ? (isCurrent ? 1 : 0.55) : 1,
+                cursor: 'help',
+                transition: 'opacity 0.15s'
+              }}
+            />
+          </Tooltip>
+        );
+      })}
+    </Stack>
   );
 };
 

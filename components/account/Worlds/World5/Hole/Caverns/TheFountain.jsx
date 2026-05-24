@@ -297,7 +297,8 @@ const TheFountain = ({ hole }) => {
           imgStyle={{ width: 28, height: 28, marginTop: -10 }}
           value={notateNumber(c.amount, 'Big')}/>
       ))}
-
+      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
+                         value={hole?.holesObject?.opalsPerCavern?.[15] || 0}/>
     </Stack>
     {fountain.fountainBars.length > 0 ? (
       <CardTitleAndValue title={'Active fountain bars'} cardSx={{ mt: 2 }}>

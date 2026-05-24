@@ -1200,6 +1200,26 @@ const migration51 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration52 = (dashboardConfig) => {
+  const holeOptions = dashboardConfig?.account?.['World 5']?.hole?.options;
+  if (Array.isArray(holeOptions)) {
+    const motherlodeIndex = holeOptions.findIndex(o => o?.name === 'motherlode');
+    const insertAt = motherlodeIndex !== -1 ? motherlodeIndex + 1 : holeOptions.length;
+    const toInsert = [];
+    if (!holeOptions.some(o => o?.name === 'evertree')) {
+      toInsert.push({ name: 'evertree', checked: true });
+    }
+    if (!holeOptions.some(o => o?.name === 'bottomlessTrench')) {
+      toInsert.push({ name: 'bottomlessTrench', checked: true });
+    }
+    if (toInsert.length) {
+      holeOptions.splice(insertAt, 0, ...toInsert);
+    }
+  }
+  dashboardConfig.version = 52;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1253,6 +1273,7 @@ const migrations = {
   49: migration49,
   50: migration50,
   51: migration51,
+  52: migration52,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

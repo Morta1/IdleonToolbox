@@ -9,6 +9,9 @@ const Motherlode = ({ hole }) => {
       <CardTitleAndValue title={'Ores'} icon={'data/Motherlode_x1.png'}
                          imgStyle={{ width: 24, height: 24, objectFit: 'none' }}
                          value={`${hole?.caverns?.motherlode?.ores?.mined} / ${hole?.caverns?.motherlode?.ores?.required}`}/>
+      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'}
+                         imgStyle={{ width: 24, height: 24 }}
+                         value={hole?.holesObject?.opalsPerCavern?.[1] || 0}/>
     </Stack>
   </>
 };

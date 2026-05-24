@@ -19,6 +19,8 @@ const TheHarp = ({ hole }) => {
       <CardTitleAndValue title={'Strings'} value={theHarp?.stringSlots}/>
       <CardTitleAndValue title={'New note cost'} value={`${notateNumber(theHarp?.newNoteCost)}`}/>
       <CardTitleAndValue title={'Opal chance'} value={`${notateNumber(theHarp?.opalChance * 100, 'MultiplierInfo')}%`}/>
+      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
+                         value={hole?.holesObject?.opalsPerCavern?.[5] || 0}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>

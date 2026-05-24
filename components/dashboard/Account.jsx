@@ -426,6 +426,14 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 5']?.hole?.hiveMaxed ?
                 <Alert title={`You can break a layer in the hive cavern`}
                        iconPath={'etc/TheHive'}/> : null}
+              {alerts?.['World 5']?.hole?.evertreeMaxed ?
+                <Alert title={`You can break a layer in the evertree cavern`}
+                       imgStyle={{ objectFit: 'none' }}
+                       iconPath={'data/MotherlodeTREE_x1'}/> : null}
+              {alerts?.['World 5']?.hole?.bottomlessTrenchMaxed ?
+                <Alert title={`You can break a layer in the bottomless trench cavern`}
+                       imgStyle={{ objectFit: 'none' }}
+                       iconPath={'data/MotherlodeFISH_x1'}/> : null}
               {alerts?.['World 5']?.hole?.grotto ?
                 <Alert title={`You can kill the monarch`}
                        iconPath={'etc/Grotto'}/> : null}
