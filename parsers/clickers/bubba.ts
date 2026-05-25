@@ -60,7 +60,7 @@ const parseBubba = (rawBubba: any, account: any) => {
     if (index === 0) {
       const value = 1 + (getMegafleshOwned(rawBubba, 0) * getTotalQTYofLVs(rawBubba)) / 100;
       const formatted = value < 100
-        ? notateNumber(value, 'MultiplierInfo').replace('#', '')
+        ? String(notateNumber(value, 'MultiplierInfo')).replace('#', '')
         : commaNotation(value);
       return { ...base, totalBonus: formatted };
     }
@@ -70,7 +70,7 @@ const parseBubba = (rawBubba: any, account: any) => {
       return {
         ...base,
         amount,
-        totalBonus: notateNumber(value, 'MultiplierInfo').replace('#', '')
+        totalBonus: String(notateNumber(value, 'MultiplierInfo')).replace('#', '')
       };
     }
     return base;
