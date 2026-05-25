@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.45',
+    'gameVer': '2.3.505',
+    'date': '25/05/2026',
+    'features': [
+      'Sneaking: symbol upgrade border now shows on character equipment slots',
+      'Sneaking: redesigned per-character info card for a cleaner layout',
+      'Bubba: new Mega Flesh row showing all bonuses with unlocked status and totals',
+      'Kangaroo: Mega Fish moved up',
+    ],
+    'fixes': [
+      'The Jars: "Progress per hour" schematic multiplier now correctly labeled as White Rupies (was misnamed Jars Destroyed)',
+    ]
+  },
+  {
     'ver': '3.3.44',
     'gameVer': '2.3.505',
     'date': '24/05/2026',

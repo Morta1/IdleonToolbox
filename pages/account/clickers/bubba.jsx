@@ -48,6 +48,17 @@ const Bubba = () => {
         />
       })}
     </Stack>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      {bubba?.megaFlesh?.map(({ description, unlocked, amount, totalBonus }, index) => {
+        const formattedDesc = totalBonus !== undefined
+          ? description.replace('$', totalBonus)
+          : description;
+        return <CardTitleAndValue cardSx={{ my: 1 }} value={amount > 0 ? amount : ''}
+                                  tooltipTitle={cleanUnderscore(formattedDesc)}
+                                  key={'megaflesh' + index} icon={`data/BubbaMF${index}.png`}
+                                  imgStyle={{ width: 32, opacity: unlocked ? 1 : .5 }} imgOnly/>
+      })}
+    </Stack>
     <Upgrades upgrades={bubba?.upgrades} />
   </>
 };

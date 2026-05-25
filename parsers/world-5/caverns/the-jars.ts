@@ -177,10 +177,10 @@ const getProductionPerHour = ({ holesObject, accountData, collectibles }: any) =
   const collectibleMultiplier = 1 + (jarBonus1 + jarBonus15 + jarBonus24 + measurementBonus) / 100;
 
   const schematicBonus = getSchematicBonus({ holesObject, t: 72, i: 10 });
-  const totalJarsDestroyed = holesObject?.extraCalculations?.[38];
-  const jarsDestroyedMultiplier = 1 + (schematicBonus * lavaLog(totalJarsDestroyed)) / 100;
+  const whiteRupies = holesObject?.extraCalculations?.[38];
+  const whiteRupiesMultiplier = 1 + (schematicBonus * lavaLog(whiteRupies)) / 100;
 
-  const value = base * collectibleMultiplier * jarsDestroyedMultiplier;
+  const value = base * collectibleMultiplier * whiteRupiesMultiplier;
 
   const breakdown = {
     statName: "Progress per hour",
@@ -196,7 +196,7 @@ const getProductionPerHour = ({ holesObject, accountData, collectibles }: any) =
         name: "Multiplicative",
         sources: [
           { name: "Collectibles + Measurements", value: collectibleMultiplier },
-          { name: "Jars destroyed (Schematic)", value: jarsDestroyedMultiplier }
+          { name: "White Rupies (Schematic)", value: whiteRupiesMultiplier }
         ]
       },
       {

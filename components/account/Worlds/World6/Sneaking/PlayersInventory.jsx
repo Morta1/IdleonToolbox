@@ -1,4 +1,4 @@
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
 import { ninjaExtraInfo } from '@website-data';
@@ -28,48 +28,54 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
         const hasDoor = doorHp > 0;
         const activityIcon = getActivityIcon(activityInfo, weaponType, hasDoor);
         return <Stack direction={'row'} key={'player-' + playerIndex} gap={1} flexWrap={'wrap'}>
-          <Card sx={{ display: 'flex', alignItems: 'center', width: 200 }}>
-            <CardContent>
-              <Typography mb={.5}>{characters?.[playerIndex]?.name}</Typography>
-              <Stack direction={'row'} alignItems={'center'} gap={1}>
-                <Stack alignItems={'center'} gap={1}>
-                  <img width={24} src={`${prefix}data/ClassIcons58.png`} alt={''} />
-                  <Typography>{characters?.[playerIndex]?.skillsInfo?.sneaking?.level}</Typography>
-                </Stack>
-                <Divider flexItem orientation={'vertical'} />
-                <Stack gap={1}>
-                  <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <Tooltip title={''}>
-                      <img style={{ objectFit: 'contain' }} width={24} height={24}
-                        src={`${prefix}etc/${activityIcon}_Ninja.png`}
-                        alt={''} />
-                    </Tooltip>
-                    <Typography variant={'caption'}>Floor {floor + 1}</Typography>
+          <Card sx={{ width: 200 }}>
+            <CardContent sx={{ '&:last-child': { pb: 2 } }}>
+              <Stack gap={1}>
+                <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1}>
+                  <Typography variant={'body2'} fontWeight={600} noWrap>
+                    {characters?.[playerIndex]?.name}
+                  </Typography>
+                  <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+                    <img width={20} src={`${prefix}data/ClassIcons58.png`} alt={''} />
+                    <Typography variant={'body2'}>{characters?.[playerIndex]?.skillsInfo?.sneaking?.level}</Typography>
                   </Stack>
-                  {hasDoor ? <Stack direction={'row'} alignItems={'center'}>
-                    <img width={24} src={`${prefix}data/NjD${floor}.png`} alt={''} />
-                    <Typography
-                      sx={{ flexBasis: '100%' }}
-                      variant={'caption'}>{notateNumber(doorHp, 'Big')} / {notateNumber(doorMaxHps?.[floor], 'Big')}</Typography>
-                  </Stack> : null}
                 </Stack>
-              </Stack>
-              <Stack mt={1} gap={1} direction={'row'}>
-                {dropList?.[floor - 1]?.map(({ rawName, description, value, type, subType }, index) => type !== 0 ?
-                  <Tooltip
-                    title={cleanUnderscore(getDescription({ description, value, type, subType }))}
-                    key={`droplist-${rawName}-${index}`}>
-                    <img width={24} src={`${prefix}data/${rawName}.png`} alt={''} />
-                  </Tooltip> : null)}
+                <Stack direction={'row'} alignItems={'center'} gap={1}>
+                  <Tooltip title={activityIcon}>
+                    <img style={{ objectFit: 'contain' }} width={28} height={28}
+                      src={`${prefix}etc/${activityIcon}_Ninja.png`} alt={''} />
+                  </Tooltip>
+                  <Stack>
+                    <Typography variant={'caption'} sx={{ lineHeight: 1.1 }}>Floor {floor + 1}</Typography>
+                    <Typography variant={'caption'} color={'text.secondary'} sx={{ lineHeight: 1.1 }}>
+                      {activityIcon}
+                    </Typography>
+                  </Stack>
+                </Stack>
+                {hasDoor ? <Stack direction={'row'} alignItems={'center'} gap={1}>
+                  <img width={20} src={`${prefix}data/NjD${floor}.png`} alt={''} />
+                  <Typography variant={'caption'}>
+                    {notateNumber(doorHp, 'Big')} / {notateNumber(doorMaxHps?.[floor], 'Big')}
+                  </Typography>
+                </Stack> : null}
+                <Stack direction={'row'} gap={0.5} flexWrap={'wrap'}>
+                  {dropList?.[floor - 1]?.map(({ rawName, description, value, type, subType }, index) => type !== 0 ?
+                    <Tooltip
+                      title={cleanUnderscore(getDescription({ description, value, type, subType }))}
+                      key={`droplist-${rawName}-${index}`}>
+                      <img width={22} src={`${prefix}data/${rawName}.png`} alt={''} />
+                    </Tooltip> : null)}
+                </Stack>
               </Stack>
             </CardContent>
           </Card>
           {equipment?.map((item, itemIndex) => {
-            const { description, value, type, subType, name } = item;
+            const { description, value, type, subType, name, symbolLevel } = item;
             const updatedDescription = getDescription({ description, value, type, subType });
             return <Card key={itemIndex + name}
-              sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 100 }}>
+              sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 100, position: 'relative' }}>
               <CardContent>
+                {symbolLevel > 0 ? <img style={{ position: 'absolute', zIndex: 1, top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 70, height: 80 }} src={`${prefix}data/NjBorderS${symbolLevel}.png`} alt={''} /> : null}
                 <Item {...item} description={updatedDescription} />
               </CardContent>
             </Card>
