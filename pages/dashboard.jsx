@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 51,
+  version: 52,
   account: {
     General: {
       tasks: {
@@ -279,6 +279,8 @@ const baseTrackers = {
             checked: true
           },
           { name: 'motherlode', checked: true },
+          { name: 'evertree', checked: true },
+          { name: 'bottomlessTrench', checked: true },
           {
             name: 'bravery',
             checked: true,

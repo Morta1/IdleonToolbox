@@ -1,17 +1,25 @@
-import { Divider, Stack, Typography } from '@mui/material';
+import { Divider, Stack, TextField, Typography } from '@mui/material';
 import { notateNumber } from '@utility/helpers';
 import { Section } from '@components/tools/active-calculator/common';
 import React, { useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
-import { getExpDiff } from '@parsers/misc/activeCalculator';
+import { formatMinutesToTime, getExpDiff, getExpToLevel } from '@parsers/misc/activeCalculator';
 import { AppContext } from '@components/common/context/AppProvider';
 
 const ExpSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
   const { state } = useContext(AppContext);
   const [snapshottedChar] = useLocalStorage({ key: 'activeDropPlayer', defaultValue: null });
+  const [targetLevel, setTargetLevel] = useLocalStorage({ key: 'activeExpTargetLevel', defaultValue: '' });
   const snapshotChar = snapshottedChar?.skillsInfo?.character;
   const currentChar = state?.characters?.[selectedChar]?.skillsInfo?.character;
   const expDiff = getExpDiff(snapshottedChar, state?.characters?.[selectedChar], lastUpdated);
+
+  const parsedTarget = parseInt(targetLevel, 10);
+  const hasValidTarget = currentChar && Number.isFinite(parsedTarget) && parsedTarget > currentChar.level;
+  const expToTarget = hasValidTarget ? getExpToLevel(currentChar, parsedTarget) : 0;
+  const timeToTarget = hasValidTarget && expDiff?.expPerMinute > 0
+    ? formatMinutesToTime(expToTarget / expDiff.expPerMinute)
+    : 'N/A';
 
   return <Section title={'Exp'}>
     {!resultsOnly ? <>
@@ -42,6 +50,21 @@ const ExpSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
       <Typography variant="body2">Exp to next level: {notateNumber(expDiff?.expToLevel)}</Typography>
       <Divider sx={{ my: .5 }}/>
       <Typography variant="body2">Time to next level: {expDiff?.timeToLevel}</Typography>
+      <Divider sx={{ my: .5 }}/>
+      <TextField
+        size="small"
+        type="number"
+        label="Target level"
+        value={targetLevel}
+        onChange={(e) => setTargetLevel(e.target.value)}
+        slotProps={{ htmlInput: { min: (currentChar?.level ?? 0) + 1 } }}
+        sx={{ mt: .5, width: 140 }}
+      />
+      {hasValidTarget ? <>
+        <Typography variant="body2" sx={{ mt: .5 }}>Exp to lv. {parsedTarget}: {notateNumber(expToTarget)}</Typography>
+        <Divider sx={{ my: .5 }}/>
+        <Typography variant="body2">Time to lv. {parsedTarget}: {timeToTarget}</Typography>
+      </> : null}
     </Stack>
   </Section>
 };

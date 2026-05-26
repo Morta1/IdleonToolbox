@@ -9,6 +9,8 @@ const Evertree = ({ hole }) => {
       <CardTitleAndValue title={'Logs'} icon={'data/MotherlodeTREE_x1.png'}
                          imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
                          value={`${hole?.caverns?.evertree?.logs?.chopped} / ${hole?.caverns?.evertree?.logs?.required}`}/>
+      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
+                         value={hole?.holesObject?.opalsPerCavern?.[11] || 0}/>
     </Stack>
   </>
 };

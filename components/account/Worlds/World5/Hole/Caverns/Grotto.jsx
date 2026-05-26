@@ -15,6 +15,8 @@ const Grotto = ({ hole }) => {
       <CardTitleAndValue title={'Monarch HP'} value={notateNumber(grotto?.monarchHp, 'Big')}/>
       <CardTitleAndValue title={'Mushroom kills progress'} value={`${mushKills} / ${mushKillsReq}`}/>
       <CardTitleAndValue title={'Mushroom kills left'} value={mushroomKillsLeftNotation}/>
+      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
+                         value={hole?.holesObject?.opalsPerCavern?.[8] || 0}/>
     </Stack>
     <Divider />
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>

@@ -38,7 +38,7 @@ const getTotalUpgTypesAvailable = (rawBubba: any) => {
 
 const parseBubba = (rawBubba: any, account: any) => {
   const totalUpgTypesAvailable = getTotalUpgTypesAvailable(rawBubba);
-  const megafleshOwned = rawBubba?.[1]?.[8];
+  const megafleshOwned = rawBubba?.[1]?.[8] || 0;
   const upgrades = bubbaUpgrades.map((upgrade, index) => {
     return {
       ...upgrade,
@@ -51,6 +51,30 @@ const parseBubba = (rawBubba: any, account: any) => {
       unlocked: index < totalUpgTypesAvailable
     }
   });
+  const megafleshDesc = generalSpelunky?.[38] || [];
+  const megaFlesh = megafleshDesc.map((description: any, index: any) => {
+    const base = {
+      description,
+      unlocked: index + 1 <= megafleshOwned
+    };
+    if (index === 0) {
+      const value = 1 + (getMegafleshOwned(rawBubba, 0) * getTotalQTYofLVs(rawBubba)) / 100;
+      const formatted = value < 100
+        ? String(notateNumber(value, 'MultiplierInfo')).replace('#', '')
+        : commaNotation(value);
+      return { ...base, totalBonus: formatted };
+    }
+    if (index === 11) {
+      const amount = Math.max(0, megafleshOwned - 12);
+      const value = 2 + amount / 5;
+      return {
+        ...base,
+        amount,
+        totalBonus: String(notateNumber(value, 'MultiplierInfo')).replace('#', '')
+      };
+    }
+    return base;
+  });
   return {
     upgrades,
     meatSlices: rawBubba?.[0]?.[0] || 0,
@@ -59,7 +83,8 @@ const parseBubba = (rawBubba: any, account: any) => {
     progressReq: getProgressReq(totalUpgTypesAvailable),
     bonuses: getBubbaBonusesObject(rawBubba, account),
     totalUpgTypesAvailable,
-    megafleshOwned
+    megafleshOwned,
+    megaFlesh
   };
 }
 

@@ -904,6 +904,8 @@ export const getWorld5Alerts = (account, fields, options) => {
     const {
       buckets,
       motherlode,
+      evertree,
+      bottomlessTrench,
       bravery,
       justice,
       wisdom,
@@ -932,6 +934,14 @@ export const getWorld5Alerts = (account, fields, options) => {
     const isMaxedBugs = account?.hole?.caverns?.theHive?.bugs?.maxed;
     if (theHive?.checked && brokenLayersToday < 5 && isMaxedBugs) {
       hole.hiveMaxed = isMaxedBugs;
+    }
+    const isMaxedLogs = account?.hole?.caverns?.evertree?.logs?.maxed;
+    if (evertree?.checked && brokenLayersToday < 5 && isMaxedLogs) {
+      hole.evertreeMaxed = isMaxedLogs;
+    }
+    const isMaxedFish = account?.hole?.caverns?.theBottomlessTrench?.fish?.maxed;
+    if (bottomlessTrench?.checked && brokenLayersToday < 5 && isMaxedFish) {
+      hole.bottomlessTrenchMaxed = isMaxedFish;
     }
     if (bravery?.checked && account?.hole?.caverns?.bravery?.rewardMulti >= bravery?.props?.value) {
       hole.bravery = true;

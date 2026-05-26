@@ -13,6 +13,9 @@ const TheDen = ({ hole }) => {
                          value={commaNotation(hole?.caverns?.theDen?.nextOpalAt)}/>
       <CardTitleAndValue title={'Multi'}
                          value={`${notateNumber(hole?.caverns?.theDen?.ampMulti, 'MultiplierInfo')}x`}/>
+      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'}
+                         imgStyle={{ width: 24, height: 24 }}
+                         value={hole?.holesObject?.opalsPerCavern?.[2] || 0}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>
 

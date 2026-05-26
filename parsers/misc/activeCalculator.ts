@@ -28,8 +28,17 @@ export const getExpDiff = (snapshot: any, current: any, lastUpdated: any) => {
 
   const timeDiffMinutes = (lastUpdated - snapshot.snapshotTime) / 1000 / 60;
 
-  // Safety check for time difference
-  if (timeDiffMinutes <= 0) return null;
+  // Fresh snapshot — no elapsed time yet, return zeroed result so UI shows 0s instead of NaN
+  if (timeDiffMinutes <= 0) {
+    return {
+      expEarned: 0,
+      expReq: currentChar.expReq,
+      expPerMinute: 0,
+      expPerHour: 0,
+      expToLevel: getExpToLevel(currentChar, currentChar.level + 1),
+      timeToLevel: 'N/A'
+    };
+  }
 
   let expEarned;
 
@@ -67,17 +76,6 @@ export const getExpDiff = (snapshot: any, current: any, lastUpdated: any) => {
   }
 
   const expToLevel = getExpToLevel(currentChar, currentChar.level + 1);
-  const totalMinutes = Math.ceil(expToLevel / expPerMinute);
-
-  // Cap at a reasonable maximum (e.g., 1 year)
-  const cappedMinutes = Math.min(totalMinutes, 525600); // 365 days
-
-  const days = Math.floor(cappedMinutes / (60 * 24));
-  const hours = Math.floor((cappedMinutes % (60 * 24)) / 60);
-  const minutes = cappedMinutes % 60;
-
-  // Format with padding for single digits
-  const formattedTime = `${days}d:${hours.toString().padStart(2, '0')}h:${minutes.toString().padStart(2, '0')}m`;
 
   return {
     expEarned,
@@ -85,8 +83,19 @@ export const getExpDiff = (snapshot: any, current: any, lastUpdated: any) => {
     expPerMinute,
     expPerHour: expPerMinute * 60,
     expToLevel,
-    timeToLevel: formattedTime
+    timeToLevel: formatMinutesToTime(expToLevel / expPerMinute)
   };
+};
+
+// Format a duration in minutes as "0d:00h:00m", capped at 365 days
+export const formatMinutesToTime = (minutesValue: number) => {
+  if (!isFinite(minutesValue) || minutesValue <= 0) return 'N/A';
+  const totalMinutes = Math.ceil(minutesValue);
+  const cappedMinutes = Math.min(totalMinutes, 525600);
+  const days = Math.floor(cappedMinutes / (60 * 24));
+  const hours = Math.floor((cappedMinutes % (60 * 24)) / 60);
+  const minutes = cappedMinutes % 60;
+  return `${days}d:${hours.toString().padStart(2, '0')}h:${minutes.toString().padStart(2, '0')}m`;
 };
 
 export const consolidateItems = (items: any) => {

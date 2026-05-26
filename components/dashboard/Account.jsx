@@ -53,7 +53,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
             <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
               {alerts?.General?.etc?.familyObols ?
                 <Alert title={`You have ${alerts?.General?.etc?.familyObols} empty family obol slots`}
-                       iconPath={'data/ObolEmpty1'}/> : null}
+                       iconPath={'etc/ObolEmpty1'}/> : null}
               {alerts?.General?.gemsFromBosses ?
                 <Alert title={`You can kill ${alerts?.General?.gemsFromBosses} more bosses for gems`}
                        iconPath={'data/PremiumGem'}/> : null}
@@ -426,6 +426,14 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 5']?.hole?.hiveMaxed ?
                 <Alert title={`You can break a layer in the hive cavern`}
                        iconPath={'etc/TheHive'}/> : null}
+              {alerts?.['World 5']?.hole?.evertreeMaxed ?
+                <Alert title={`You can break a layer in the evertree cavern`}
+                       imgStyle={{ objectFit: 'none' }}
+                       iconPath={'data/MotherlodeTREE_x1'}/> : null}
+              {alerts?.['World 5']?.hole?.bottomlessTrenchMaxed ?
+                <Alert title={`You can break a layer in the bottomless trench cavern`}
+                       imgStyle={{ objectFit: 'none' }}
+                       iconPath={'data/MotherlodeFISH_x1'}/> : null}
               {alerts?.['World 5']?.hole?.grotto ?
                 <Alert title={`You can kill the monarch`}
                        iconPath={'etc/Grotto'}/> : null}

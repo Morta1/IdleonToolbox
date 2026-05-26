@@ -132,8 +132,8 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
   })
 
   const order = ninjaExtraInfo[24];
-  const inventory = parseNinjaItems(rawSneaking?.slice(60, 99), false, gemStones, account);
-  const characterEquipments = parseNinjaItems(rawSneaking?.slice(12, 12 + (charactersData?.length * 4)), true, gemStones?.[3]?.bonus, account);
+  const inventory = parseNinjaItems(rawSneaking?.slice(60, 99), false, gemStones, account, 60);
+  const characterEquipments = parseNinjaItems(rawSneaking?.slice(12, 12 + (charactersData?.length * 4)), true, gemStones?.[3]?.bonus, account, 12);
 
   const players = charactersData.map((_: any, index: any) => ({
     equipment: characterEquipments?.[index]?.map((equip: any) => ({
@@ -271,15 +271,24 @@ const getGemstoneBonus = (gemstone: any, index: any, fifthGemstoneBonus: any, ch
     * Math.max(1, talentBonus);
 };
 
-const parseNinjaItems = (array: any, doChunks: any, gemstones: any, account: any) => {
+const parseNinjaItems = (array: any, doChunks: any, gemstones: any, account: any, baseItemId: number) => {
   const gemstoneBonus = gemstones?.[3]?.bonus || 0;
 
-  let result = array?.map(([itemName, level]: any, index: any) => ({
-    ...ninjaEquipment[itemName],
-    level,
-    symbolBonus: getSymbolBonus(account, itemIdToSymbolLevelId(60 + index)),
-    symbolLevel: account?.spelunking?.sneakingSlots?.[24 + index]
-  }));
+  let result = array?.map(([itemName, level]: any, index: any) => {
+    const itemId = baseItemId + index;
+    // Symbol upgrades apply to inventory items (raw 60+) and to character equipment item slots
+    // (raw 14+4t and 15+4t — i.e. the last two of each 4-slot character chunk; hat and weapon don't have symbols).
+    const isInventoryItem = itemId >= 60;
+    const isCharSymbolSlot = !isInventoryItem && itemId >= 14 && (itemId - 14) % 4 < 2;
+    const hasSymbol = isInventoryItem || isCharSymbolSlot;
+    const symbolLVID = hasSymbol ? itemIdToSymbolLevelId(itemId) : -1;
+    return {
+      ...ninjaEquipment[itemName],
+      level,
+      symbolBonus: hasSymbol ? getSymbolBonus(account, symbolLVID) : 0,
+      symbolLevel: hasSymbol ? (account?.spelunking?.sneakingSlots?.[symbolLVID] ?? 0) : 0
+    };
+  });
 
   if (doChunks) {
     return result?.toChunks(4)?.map((array: any) => array.map((item: any) => ({ ...item, value: getItemValue(item) })));

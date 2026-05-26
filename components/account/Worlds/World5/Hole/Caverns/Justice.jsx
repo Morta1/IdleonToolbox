@@ -31,6 +31,8 @@ const Justice = ({ hole }) => {
       {hole?.caverns?.justice?.monumentAfkReq ? <CardWithBreakdown title={'Afk hours req'} breakdown={hole?.caverns?.justice?.monumentAfkReq}/> : null}
       {hole?.caverns?.justice?.nextHourBreakpoint ? <CardTitleAndValue title={'Next hour reward'}
                           value={`${commaNotation(hole?.caverns?.justice?.nextHourBreakpoint?.hours)}hrs: ${cleanUnderscore(hole?.caverns?.justice?.nextHourBreakpoint?.reward)}`}/> : null}
+      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
+                         value={hole?.holesObject?.opalsPerCavern?.[9] || 0}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>

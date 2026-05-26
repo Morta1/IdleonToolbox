@@ -9,6 +9,8 @@ const TheTemple = ({ hole }) => {
       <CardTitleAndValue title={'Torches'} value={Math.floor(hole?.caverns?.theTemple?.torches)}
                          imgStyle={{ width: 32, height: 32, marginBottom: -10, marginRight: -10 }} icon={'data/HoleUIbuildUpg77.png'}/>
       <CardTitleAndValue title={'Layer'} value={hole?.caverns?.theTemple?.layer}/>
+      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
+                         value={hole?.holesObject?.opalsPerCavern?.[14] || 0}/>
     </Stack>
     <Divider sx={{ my: 2 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>

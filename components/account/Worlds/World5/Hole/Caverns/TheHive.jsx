@@ -9,6 +9,8 @@ const TheHive = ({ hole }) => {
       <CardTitleAndValue title={'Bugs'} icon={'data/Bug14_x1.png'}
                          imgStyle={{ width: 24, height: 24 }}
                          value={`${hole?.caverns?.theHive?.bugs?.mined} / ${hole?.caverns?.theHive?.bugs?.required}`}/>
+      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
+                         value={hole?.holesObject?.opalsPerCavern?.[7] || 0}/>
     </Stack>
   </>
 };

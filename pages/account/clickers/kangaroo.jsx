@@ -52,6 +52,14 @@ const Kangaroo = () => {
                                     icon={`etc/Kangaroob_${index}.png`}/>
         })}
       </Stack>
+      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+        {kangaroo?.megaFish?.map(({ description, unlocked, amount, totalBonus }, index) => {
+          return <CardTitleAndValue cardSx={{ my: 1 }} value={amount > 0 ? amount : ''}
+                                    tooltipTitle={cleanUnderscore(description.replace('{', totalBonus))}
+                                    key={'mega' + index} icon={`data/RooMG${index}.png`}
+                                    imgStyle={{ width: 32, opacity: unlocked ? 1 : .5 }} imgOnly/>
+        })}
+      </Stack>
     </Stack>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['clickers'].categories, 'kangaroo')}>
       <Upgrades upgrades={kangaroo?.upgrades}/>
@@ -78,17 +86,6 @@ const Kangaroo = () => {
                                 level={level}
                                 desc={cleanUnderscore(desc)}
                                 icon={`data/RooReset${index}.png`}/>
-            })}
-          </Stack>
-        </Stack>
-        <Stack>
-          <Typography variant={'h5'} mb={1}>Mega fish</Typography>
-          <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-            {kangaroo?.megaFish?.map(({ description, unlocked, amount, totalBonus }, index) => {
-              return <CardTitleAndValue cardSx={{ my: 1 }} value={amount > 0 ? amount : ''}
-                                        tooltipTitle={cleanUnderscore(description.replace('{', totalBonus))}
-                                        key={'mega' + index} icon={`data/RooMG${index}.png`}
-                                        imgStyle={{ width: 32, opacity: unlocked ? 1 : .5 }} imgOnly/>
             })}
           </Stack>
         </Stack>

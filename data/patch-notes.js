@@ -4,6 +4,35 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.45',
+    'gameVer': '2.3.505',
+    'date': '25/05/2026',
+    'features': [
+      'Sneaking: symbol upgrade border now shows on character equipment slots',
+      'Sneaking: redesigned per-character info card for a cleaner layout',
+      'Bubba: new Mega Flesh row showing all bonuses with unlocked status and totals',
+      'Kangaroo: Mega Fish moved up',
+    ],
+    'fixes': [
+      'The Jars: "Progress per hour" schematic multiplier now correctly labeled as White Rupies (was misnamed Jars Destroyed)',
+    ]
+  },
+  {
+    'ver': '3.3.44',
+    'gameVer': '2.3.505',
+    'date': '24/05/2026',
+    'features': [
+      'The Hole: every cavern card now shows an "Opals found" counter sourced from the per-cavern opal totals',
+      'The Jars: new "Total enhancing levels" card, plus a full breakdown on "Progress per hour" showing the base rate, collectible/measurement multiplier (with each contributing jar listed by name), and the jars-destroyed schematic multiplier',
+      'Dashboard: new alerts for breakable layers in the Evertree and Bottomless Trench caverns (with toggle entries added via migration 52)',
+      'Sailing Artifacts: new tier track on each artifact card showing all 6 tiers (Base → Transcendent) as colored bars, with the current tier label and hover tooltips describing each tier\'s bonus',
+      'Active Calculator: new "Target level" input under the Exp section — shows exp required and ETA to reach any custom level, persisted to localStorage',
+    ],
+    'fixes': [
+      'Sailing: added missing island (The Maw)'
+    ]
+  },
+  {
     'ver': '3.3.43',
     'gameVer': '2.3.505',
     'date': '25/04/2026',

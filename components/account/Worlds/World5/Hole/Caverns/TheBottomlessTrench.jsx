@@ -9,6 +9,8 @@ const TheBottomlessTrench = ({ hole }) => {
       <CardTitleAndValue title={'Fish'} icon={'data/MotherlodeFISH_x1.png'}
                          imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
                          value={`${hole?.caverns?.theBottomlessTrench?.fish?.caught} / ${hole?.caverns?.theBottomlessTrench?.fish?.required}`}/>
+      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
+                         value={hole?.holesObject?.opalsPerCavern?.[16] || 0}/>
     </Stack>
   </>
 };

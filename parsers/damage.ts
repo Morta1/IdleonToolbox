@@ -129,7 +129,7 @@ export const getMaxDamage = (character: Character, characters: Character[], acco
 
   playerInfo.killPerkill = getKillPerKill(character, characters, account, playerInfo);
 
-  playerInfo.finalKillsPerHour = Math.floor(playerInfo.killsPerHour * playerInfo.afkGains * (playerInfo.survivability / 100) * playerInfo.killPerkill);
+  playerInfo.finalKillsPerHour = Math.floor(playerInfo.killsPerHour * playerInfo.afkGains * (playerInfo.survivability / 100) * playerInfo.killPerkill.value);
 
   return playerInfo;
 }
@@ -1369,31 +1369,48 @@ const getKillPerKill = (character: Character, characters: Character[], account: 
   const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'KILL_PER_KILL', account);
 
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Fibers_of_Absence', account)?.bonus;
-  return overKill ?
-    Math.max(1, labBonus)
-    * (1 + worldBonus / 100)
-    * Math.max(1, 1 + majorBonus)
-    * (1 + (strTalentBonus
-      * (character?.stats?.strength / 1e3)
-      + (agiTalentBonus
-        * (character?.stats?.agility / 1e3)
-        + (wisTalentBonus
-          * (character?.stats?.wisdom / 1e3)
-          + warTalentBonus))
-      + (multiKillTotal
-        + (activeBubbleBonus
-          + prayerBonus))) / 100) :
-    Math.max(1, labBonus)
-    * (1 + worldBonus / 100)
-    * Math.max(1, 1 + majorBonus)
-    * (1 + (strTalentBonus * (character?.stats?.strength / 1e3)
-      + (agiTalentBonus
-        * (character?.stats?.agility / 1e3)
-        + (wisTalentBonus
-          * (character?.stats?.wisdom / 1e3)
-          + warTalentBonus))
-      + (activeBubbleBonus
-        + prayerBonus)) / 100)
+
+  const strContribution = strTalentBonus * (character?.stats?.strength / 1e3);
+  const agiContribution = agiTalentBonus * (character?.stats?.agility / 1e3);
+  const wisContribution = wisTalentBonus * (character?.stats?.wisdom / 1e3);
+  const multiKillContribution = overKill ? multiKillTotal : 0;
+  const additiveTotal = strContribution + agiContribution + wisContribution + warTalentBonus
+    + multiKillContribution + activeBubbleBonus + prayerBonus;
+
+  const labMulti = Math.max(1, labBonus);
+  const worldMulti = 1 + worldBonus / 100;
+  const majorMulti = Math.max(1, 1 + majorBonus);
+
+  const value = labMulti * worldMulti * majorMulti * (1 + additiveTotal / 100);
+
+  const breakdown = {
+    statName: 'Kill per Kill',
+    totalValue: notateNumber(value, 'ThreeDecimals'),
+    categories: [
+      {
+        name: 'Multiplicative',
+        sources: [
+          { name: 'Lab', value: labMulti },
+          { name: 'World Bonus', value: worldMulti },
+          { name: 'Major Divinity (Nobisect)', value: majorMulti }
+        ]
+      },
+      {
+        name: 'Additive',
+        sources: [
+          { name: 'Strength Talent (Charred Skulls)', value: strContribution / 100 },
+          { name: 'Agility Talent (Stacked Skulls)', value: agiContribution / 100 },
+          { name: 'Wisdom Talent (Memorial Skulls)', value: wisContribution / 100 },
+          { name: 'Warrior Talent (Monster Decimator)', value: warTalentBonus / 100 },
+          { name: 'Multi-kill (Overkill only)', value: multiKillContribution / 100 },
+          { name: 'Bubble', value: activeBubbleBonus / 100 },
+          { name: 'Prayer (Fibers of Absence)', value: prayerBonus / 100 }
+        ]
+      }
+    ]
+  };
+
+  return { value, breakdown };
 }
 
 const getMultiKillTotal = (character: Character, characters: Character[], account: Account, playerInfo: any) => {

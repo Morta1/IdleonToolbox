@@ -43,7 +43,8 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
       destroyed: holesObject?.extraCalculations?.slice(40, 50)?.[index] || 0
     }
   });
-  const perHour = getProductionPerHour({ holesObject, accountData });
+  const totalEnhancingLevels = (holesObject?.jarStuff?.slice(0, 40) ?? [])
+    .reduce((sum: number, level: any) => sum + (level >= 2 ? level - 1 : 0), 0);
   const activeSlots = createRange(0, unlockedSlots - 1).map((_, index) => {
     return {
       progress: holesObject?.jarProgress?.[index + 3],
@@ -72,6 +73,8 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
     }
   });
 
+  const perHour = getProductionPerHour({ holesObject, accountData, collectibles });
+
   return {
     unlockedSlots,
     opalChance,
@@ -83,6 +86,7 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
     perHour,
     jars,
     totalJars: jarsRaw?.length,
+    totalEnhancingLevels,
     collectibles
   }
 }
@@ -164,13 +168,50 @@ const getRupieValue = ({ holesObject, accountData }: any) => {
   return { value, breakdown };
 }
 
-const getProductionPerHour = ({ holesObject, accountData }: any) => {
-  return 36e3 * (1 + (getJarBonus({ holesObject, i: 1, account: accountData })
-    + (getJarBonus({ holesObject, i: 15, account: accountData })
-      + (getJarBonus({ holesObject, i: 24, account: accountData })
-        + getMeasurementBonus({ holesObject, accountData, t: 12 })))) / 100)
-    * (1 + (getSchematicBonus({ holesObject, t: 72, i: 10 })
-      * lavaLog(holesObject?.extraCalculations?.[38])) / 100)
+const getProductionPerHour = ({ holesObject, accountData, collectibles }: any) => {
+  const base = 36e3;
+  const jarBonus1 = getJarBonus({ holesObject, i: 1, account: accountData });
+  const jarBonus15 = getJarBonus({ holesObject, i: 15, account: accountData });
+  const jarBonus24 = getJarBonus({ holesObject, i: 24, account: accountData });
+  const measurementBonus = getMeasurementBonus({ holesObject, accountData, t: 12 });
+  const collectibleMultiplier = 1 + (jarBonus1 + jarBonus15 + jarBonus24 + measurementBonus) / 100;
+
+  const schematicBonus = getSchematicBonus({ holesObject, t: 72, i: 10 });
+  const whiteRupies = holesObject?.extraCalculations?.[38];
+  const whiteRupiesMultiplier = 1 + (schematicBonus * lavaLog(whiteRupies)) / 100;
+
+  const value = base * collectibleMultiplier * whiteRupiesMultiplier;
+
+  const breakdown = {
+    statName: "Progress per hour",
+    totalValue: notateNumber(value, 'Big'),
+    categories: [
+      {
+        name: "Base",
+        sources: [
+          { name: "Base rate", value: base }
+        ]
+      },
+      {
+        name: "Multiplicative",
+        sources: [
+          { name: "Collectibles + Measurements", value: collectibleMultiplier },
+          { name: "White Rupies (Schematic)", value: whiteRupiesMultiplier }
+        ]
+      },
+      {
+        name: "Additive (in Collectibles + Measurements)",
+        sources: [
+          { name: collectibles?.[1]?.name, value: jarBonus1 },
+          { name: collectibles?.[15]?.name, value: jarBonus15 },
+          { name: collectibles?.[24]?.name, value: jarBonus24 },
+          { name: "Measurement", value: measurementBonus }
+        ]
+      }
+    ]
+  };
+
+  return { value, breakdown };
 }
 
 const getJarAesthetic = ({ holesObject }: any) => {

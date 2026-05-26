@@ -32,6 +32,8 @@ const Gambit = ({ hole }) => {
       </Tooltip>} /> : null}
       <CardTitleAndValue title={'Summoning Doublers'}
         value={`${hole?.caverns?.gambit?.summoningDoublers?.appointed}/${hole?.caverns?.gambit?.summoningDoublers?.total}`} />
+      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
+                         value={hole?.holesObject?.opalsPerCavern?.[13] || 0}/>
     </Stack>
     <Divider sx={{ mb: 2 }} />
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
