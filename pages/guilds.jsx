@@ -175,7 +175,7 @@ const Guilds = () => {
                 <TableCell>
                   <HeaderWithHint
                     label="Trend"
-                    hint="GP gained per day over the last 30 days. Spikes mark active days; flat stretches mark quiet ones. The dot marks the most recent complete day — today is excluded so a partial day doesn't always look like a dip."
+                    hint="Daily GP gains over the last 30 days. The dot marks the most recent complete day (today is excluded to avoid a partial-day dip)."
                   />
                 </TableCell>
                 <TableCell align="right">Members</TableCell>
