@@ -16,13 +16,13 @@ const shapes = {
 const getImgName = (name, rawName, shape) => {
   switch (true) {
     case rawName.includes('Locked'): {
-      return `ObolLocked${shapes[shape]}`;
+      return `data/ObolLocked${shapes[shape]}`;
     }
     case rawName.includes('Blank'): {
-      return `ObolEmpty${shapes[shape]}`;
+      return `etc/ObolEmpty${shapes[shape]}`;
     }
     default: {
-      return rawName;
+      return `data/${rawName}`;
     }
   }
 };
@@ -59,7 +59,7 @@ const ObolsView = ({ obols, type = 'character', obolStats, characters }) => {
                       <span>
                         {levelReq && rawName.includes('Locked') ?
                           <Typography variant={'caption'} className={'lv-req'}>{levelReq}</Typography> : null}
-                        <img key={displayName + '' + index} src={`${prefix}data/${imgName}.png`}
+                        <img key={displayName + '' + index} src={`${prefix}${imgName}.png`}
                              style={style}
                              alt=""/>
                       </span>

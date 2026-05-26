@@ -53,7 +53,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
             <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
               {alerts?.General?.etc?.familyObols ?
                 <Alert title={`You have ${alerts?.General?.etc?.familyObols} empty family obol slots`}
-                       iconPath={'data/ObolEmpty1'}/> : null}
+                       iconPath={'etc/ObolEmpty1'}/> : null}
               {alerts?.General?.gemsFromBosses ?
                 <Alert title={`You can kill ${alerts?.General?.gemsFromBosses} more bosses for gems`}
                        iconPath={'data/PremiumGem'}/> : null}
