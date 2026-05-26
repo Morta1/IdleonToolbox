@@ -95,7 +95,7 @@ export default function GuildDetail() {
     gpThisWeek
   );
 
-  return <>
+  return <Box sx={{ maxWidth: 980 }}>
     <NextSeo
       title={`${guild_name} | Guild History | Idleon Toolbox`}
       description={`Weekly GP progress and contributors for guild ${guild_name}`}
@@ -172,5 +172,5 @@ export default function GuildDetail() {
       <Typography variant="h6" sx={{ mb: 2 }}>Roster changes this week</Typography>
       <RosterDiff joined={roster_diff?.joined} left={roster_diff?.left} />
     </Paper>
-  </>;
+  </Box>;
 }

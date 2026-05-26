@@ -1,5 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { biggestClimber, closestGap } from '../../../components/guilds/CurationStrip';
+import {
+  biggestClimber,
+  closestGap,
+  formatCountdown,
+  msUntilWeeklyReset
+} from '../../../components/guilds/CurationStrip';
+
+const HOUR_MS = 3600 * 1000;
+const WEEK_MS = 7 * 24 * HOUR_MS;
+// Saturday 1970-01-03 21:00 UTC — the canonical week-anchor moment.
+const WEEK_ANCHOR_MS = (2 * 24 + 21) * HOUR_MS;
 
 // ─── biggestClimber ───────────────────────────────────────────────────────────
 
@@ -149,5 +159,44 @@ describe('closestGap', () => {
     expect(result.gap).toBe(10_000);
     expect(result.leader.rank).toBeLessThanOrEqual(25);
     expect(result.challenger.rank).toBeLessThanOrEqual(25);
+  });
+});
+
+// ─── msUntilWeeklyReset ──────────────────────────────────────────────────────
+
+describe('msUntilWeeklyReset', () => {
+  it('returns a full week at the exact reset instant — rolls over, never zero', () => {
+    expect(msUntilWeeklyReset(WEEK_ANCHOR_MS)).toBe(WEEK_MS);
+    // And the same N weeks later (proves periodicity).
+    expect(msUntilWeeklyReset(WEEK_ANCHOR_MS + 100 * WEEK_MS)).toBe(WEEK_MS);
+  });
+
+  it('returns the remaining time mid-week', () => {
+    expect(msUntilWeeklyReset(WEEK_ANCHOR_MS - 60_000)).toBe(60_000);
+    expect(msUntilWeeklyReset(WEEK_ANCHOR_MS + 1000)).toBe(WEEK_MS - 1000);
+  });
+});
+
+// ─── formatCountdown ─────────────────────────────────────────────────────────
+
+describe('formatCountdown', () => {
+  it('returns "now" for zero or negative durations', () => {
+    expect(formatCountdown(0)).toBe('now');
+    expect(formatCountdown(-1000)).toBe('now');
+  });
+
+  it('leading unit is unpadded; every smaller unit is zero-padded to 2 digits', () => {
+    expect(formatCountdown(45_000)).toBe('45s');
+    expect(formatCountdown(5 * 60_000 + 9_000)).toBe('5m 09s');
+    expect(formatCountdown(2 * HOUR_MS + 15 * 60_000 + 7_000)).toBe('2h 15m 07s');
+    expect(formatCountdown(6 * 24 * HOUR_MS + 5 * HOUR_MS + 3 * 60_000 + 4_000))
+      .toBe('6d 05h 03m 04s');
+  });
+
+  it('drops zeroed leading units but keeps every unit smaller than the leading one', () => {
+    // 5m 30s → no leading "0d 0h"; 1d 4h 37m 12s → full chain kept.
+    expect(formatCountdown(5 * 60_000 + 30_000)).toBe('5m 30s');
+    expect(formatCountdown(24 * HOUR_MS + 4 * HOUR_MS + 37 * 60_000 + 12_000))
+      .toBe('1d 04h 37m 12s');
   });
 });

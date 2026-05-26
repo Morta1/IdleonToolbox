@@ -9,6 +9,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TableSortLabel,
   TextField,
   Tooltip,
   Typography
@@ -26,15 +27,32 @@ export function sortedMembers(members) {
 export default function ContributorLeaderboard({ members }) {
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
+  const [sortBy, setSortBy] = useState('gp_earned');
+  const [sortDir, setSortDir] = useState('desc');
+
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortDir('desc');
+    }
+  };
 
   const sorted = sortedMembers(members);
   const ranked = sorted.map((m, i) => ({ ...m, rank: i + 1 }));
   const totalGuildGp = sorted.reduce((sum, m) => sum + (m.gp_earned || 0), 0);
 
+  const resorted = [...ranked].sort((a, b) => {
+    const av = a[sortBy] ?? 0;
+    const bv = b[sortBy] ?? 0;
+    return sortDir === 'asc' ? av - bv : bv - av;
+  });
+
   const normalizedQuery = query.trim().toLowerCase();
   const filtered = normalizedQuery
-    ? ranked.filter((m) => m.member_name?.toLowerCase().includes(normalizedQuery))
-    : ranked;
+    ? resorted.filter((m) => m.member_name?.toLowerCase().includes(normalizedQuery))
+    : resorted;
   const visible = (normalizedQuery || showAll) ? filtered : filtered.slice(0, DEFAULT_LIMIT);
   const showToggle = !normalizedQuery && sorted.length > DEFAULT_LIMIT;
 
@@ -59,7 +77,19 @@ export default function ContributorLeaderboard({ members }) {
               <TableRow>
                 <TableCell sx={{ width: 40, fontWeight: 600 }}>#</TableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Member</TableCell>
-                <TableCell sx={{ fontWeight: 600 }} align="right">GP</TableCell>
+                <TableCell
+                  sx={{ fontWeight: 600 }}
+                  align="right"
+                  sortDirection={sortBy === 'gp_earned' ? sortDir : false}
+                >
+                  <TableSortLabel
+                    active={sortBy === 'gp_earned'}
+                    direction={sortBy === 'gp_earned' ? sortDir : 'desc'}
+                    onClick={() => handleSort('gp_earned')}
+                  >
+                    GP
+                  </TableSortLabel>
+                </TableCell>
                 <TableCell sx={{ fontWeight: 600 }} align="right">
                   <HeaderWithHint
                     label="% Guild"
@@ -67,12 +97,22 @@ export default function ContributorLeaderboard({ members }) {
                     hint="Share of the guild's total weekly GP contributed by this member."
                   />
                 </TableCell>
-                <TableCell sx={{ fontWeight: 600 }} align="right">
-                  <HeaderWithHint
-                    label="Lifetime"
-                    align="right"
-                    hint="Total GP this member has contributed since they joined the guild (in-game lifetime, not just since tracking started)."
-                  />
+                <TableCell
+                  sx={{ fontWeight: 600 }}
+                  align="right"
+                  sortDirection={sortBy === 'gp_lifetime' ? sortDir : false}
+                >
+                  <TableSortLabel
+                    active={sortBy === 'gp_lifetime'}
+                    direction={sortBy === 'gp_lifetime' ? sortDir : 'desc'}
+                    onClick={() => handleSort('gp_lifetime')}
+                  >
+                    <HeaderWithHint
+                      label="Lifetime"
+                      align="right"
+                      hint="Total GP this member has contributed since they joined the guild (in-game lifetime, not just since tracking started)."
+                    />
+                  </TableSortLabel>
                 </TableCell>
               </TableRow>
             </TableHead>

@@ -98,7 +98,7 @@ export default function GuildUniverse() {
   const activeMembers = field('active_members');
   const abandonedMembers = field('abandoned_members');
 
-  return <>
+  return <Box sx={{ maxWidth: 980 }}>
     <NextSeo
       title="Guild Universe | Idleon Toolbox"
       description="Universe-wide guild ecosystem statistics: total guilds, active guilds, member health, and guild point output across all of Legends of Idleon."
@@ -180,5 +180,5 @@ export default function GuildUniverse() {
         hint="Members in abandoned guilds — guilds with no GP change for several weeks."
       />
     </UniverseSection>
-  </>;
+  </Box>;
 }
