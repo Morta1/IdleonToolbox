@@ -506,6 +506,7 @@ const AdditionalInfo = ({
                           goalLevel,
                           isPrisma
                         }) => {
+  console.log(itemReq)
   return <Box>
     {tooltip ? <BubbleTooltip {...{ ...bubble, goalBonus, isPrisma }} /> : null}
     <Stack gap={2} direction={'row'}>
@@ -526,7 +527,7 @@ const AdditionalInfo = ({
             singleLevelCost,
             total
           } = accumulatedCost(index, level, baseCost, name?.includes('Liquid'), cauldron);
-          const x1Extension = ['sail', 'bits', 'w6item', 'w7item'];
+          const x1Extension = ['sail', 'bits', 'w6item', 'w7item', 'liquid'];
           const itemName = x1Extension.find((str) => rawName.toLowerCase().includes(str))
             ? `${rawName}_x1`
             : rawName;
