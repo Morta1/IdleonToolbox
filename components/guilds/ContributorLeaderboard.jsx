@@ -16,8 +16,38 @@ import {
 } from '@mui/material';
 import HeaderWithHint from './HeaderWithHint';
 import { numberWithCommas } from '@utility/helpers';
+import useFormatDate from '@hooks/useFormatDate';
 
 const DEFAULT_LIMIT = 25;
+
+// Idleon's reporting week starts Saturday 21:00 UTC — same anchor used in
+// WeeklyProgressChart and CurationStrip.
+const HOUR_MS = 3600 * 1000;
+const WEEK_MS = 7 * 24 * HOUR_MS;
+const WEEK_ANCHOR_MS = (2 * 24 + 21) * HOUR_MS;
+
+function currentWeekStartMs(now = Date.now()) {
+  return now - ((now - WEEK_ANCHOR_MS) % WEEK_MS);
+}
+
+// weekly_history is oldest→newest; null = not in guild that week, 0 = present
+// but didn't contribute. Returns weeks-ago of the latest non-zero week, or
+// null if none of the visible weeks have a contribution.
+function weeksSinceContribution(weeklyHistory) {
+  if (!weeklyHistory?.length) return null;
+  for (let i = weeklyHistory.length - 1; i >= 0; i--) {
+    const v = weeklyHistory[i];
+    if (v != null && v > 0) return weeklyHistory.length - 1 - i;
+  }
+  return null;
+}
+
+function lastContributedLabel(weeksAgo) {
+  if (weeksAgo == null) return '—';
+  if (weeksAgo === 0) return 'This week';
+  if (weeksAgo === 1) return 'Last week';
+  return `${weeksAgo}w ago`;
+}
 
 export function sortedMembers(members) {
   if (!members) return [];
@@ -25,6 +55,7 @@ export function sortedMembers(members) {
 }
 
 export default function ContributorLeaderboard({ members }) {
+  const formatDate = useFormatDate();
   const [query, setQuery] = useState('');
   const [showAll, setShowAll] = useState(false);
   const [sortBy, setSortBy] = useState('gp_earned');
@@ -40,12 +71,25 @@ export default function ContributorLeaderboard({ members }) {
   };
 
   const sorted = sortedMembers(members);
-  const ranked = sorted.map((m, i) => ({ ...m, rank: i + 1 }));
+  const ranked = sorted.map((m, i) => ({
+    ...m,
+    rank: i + 1,
+    weeks_since_contribution: weeksSinceContribution(m.weekly_history)
+  }));
   const totalGuildGp = sorted.reduce((sum, m) => sum + (m.gp_earned || 0), 0);
 
+  // Null weeks_since_contribution means "no contributions in the visible
+  // history window" — should sort as the most-stale value, not as 0.
+  const sortValue = (m, field) => {
+    if (field === 'weeks_since_contribution') {
+      return m[field] ?? Number.MAX_SAFE_INTEGER;
+    }
+    return m[field] ?? 0;
+  };
+
   const resorted = [...ranked].sort((a, b) => {
-    const av = a[sortBy] ?? 0;
-    const bv = b[sortBy] ?? 0;
+    const av = sortValue(a, sortBy);
+    const bv = sortValue(b, sortBy);
     return sortDir === 'asc' ? av - bv : bv - av;
   });
 
@@ -114,12 +158,36 @@ export default function ContributorLeaderboard({ members }) {
                     />
                   </TableSortLabel>
                 </TableCell>
+                <TableCell
+                  sx={{ fontWeight: 600 }}
+                  align="right"
+                  sortDirection={sortBy === 'weeks_since_contribution' ? sortDir : false}
+                >
+                  <TableSortLabel
+                    active={sortBy === 'weeks_since_contribution'}
+                    direction={sortBy === 'weeks_since_contribution' ? sortDir : 'desc'}
+                    onClick={() => handleSort('weeks_since_contribution')}
+                  >
+                    <HeaderWithHint
+                      label="Last contributed"
+                      align="right"
+                      hint="Most recent week this member earned any GP. Based on the last 6 weeks of tracked history."
+                    />
+                  </TableSortLabel>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {visible.map((m) => {
                 const joinedWeeksAgo = m.joined_weeks_ago ?? null;
                 const pctOfGuild = totalGuildGp > 0 ? (m.gp_earned / totalGuildGp) * 100 : 0;
+                const weeksAgo = m.weeks_since_contribution;
+                const lastWeekStartMs = weeksAgo != null
+                  ? currentWeekStartMs() - weeksAgo * WEEK_MS
+                  : null;
+                const lastContribTooltip = lastWeekStartMs != null
+                  ? `Week of ${formatDate(lastWeekStartMs, { dateOnly: true })}`
+                  : 'No contributions in the last 6 weeks';
                 return (
                   <TableRow
                     key={m.member_name}
@@ -156,6 +224,13 @@ export default function ContributorLeaderboard({ members }) {
                       <Typography variant="body2" color="text.secondary" component="span">
                         {m.gp_lifetime != null ? numberWithCommas(m.gp_lifetime) : '—'}
                       </Typography>
+                    </TableCell>
+                    <TableCell align="right" sx={{ fontVariantNumeric: 'tabular-nums' }}>
+                      <Tooltip title={lastContribTooltip}>
+                        <Typography variant="body2" color="text.secondary" component="span">
+                          {lastContributedLabel(weeksAgo)}
+                        </Typography>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 );
