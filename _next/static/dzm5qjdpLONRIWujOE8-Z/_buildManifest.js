@@ -42,7 +42,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0i-w1f80iqcdd.js"
   ],
   "/account/misc/general": [
-    "static/chunks/0q-154if6rh7y.js"
+    "static/chunks/0hpd51cz9eg4l.js"
   ],
   "/account/misc/guild": [
     "static/chunks/13vbfuuckso7n.js"
@@ -99,7 +99,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0z1r82vlgjq~i.js"
   ],
   "/account/world-2/bubbles": [
-    "static/chunks/0kgzy5-937q5n.js"
+    "static/chunks/0~ewnzceqw.j4.js"
   ],
   "/account/world-2/cauldrons": [
     "static/chunks/01~.3cd4bmt0a.js"
@@ -174,7 +174,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/074agacy~hig0.js"
   ],
   "/account/world-4/tome": [
-    "static/chunks/0v8l4z7npu9zp.js"
+    "static/chunks/0uke3vpfw5250.js"
   ],
   "/account/world-5/divinity": [
     "static/chunks/0kaqxsyr6~8pk.js"
@@ -246,10 +246,10 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0sd6li8cj-dbs.js"
   ],
   "/characters": [
-    "static/chunks/02v3li4dbhbt_.js"
+    "static/chunks/0znhw44vwdxmp.js"
   ],
   "/dashboard": [
-    "static/chunks/080.9o0cadd5z.js"
+    "static/chunks/0j_tz6i6s8amc.js"
   ],
   "/guilds": [
     "static/chunks/02kf~1zn3j5~t.js"
