@@ -177,8 +177,10 @@ const TomeRankings = () => {
     };
   });
 
-  const targetSet = !isNaN(parseFloat(globalTarget));
-  const effectiveSortMode = sortMode === 'gap' && !targetSet ? 'default' : sortMode;
+  const gpNum = parseFloat(globalTarget);
+  const targetSet = !isNaN(gpNum);
+  const needsTarget = sortMode === 'gap' || sortMode === 'highest_gap' || sortMode === 'efficiency';
+  const effectiveSortMode = needsTarget && !targetSet ? 'default' : sortMode;
   let sorted;
   if (effectiveSortMode === 'lowest') {
     sorted = [...rows].sort((a, b) => (a.percentile ?? 101) - (b.percentile ?? 101));
@@ -189,6 +191,24 @@ const TomeRankings = () => {
       if (aBucket !== bBucket) return aBucket - bBucket;
       if (aBucket === 1) return a.gap - b.gap;
       return 0;
+    });
+  } else if (effectiveSortMode === 'highest_gap') {
+    sorted = [...rows].sort((a, b) => {
+      const aBucket = a.gap == null ? 2 : a.gap <= 0 ? 1 : 0;
+      const bBucket = b.gap == null ? 2 : b.gap <= 0 ? 1 : 0;
+      if (aBucket !== bBucket) return aBucket - bBucket;
+      if (aBucket === 0) return b.gap - a.gap;
+      return 0;
+    });
+  } else if (effectiveSortMode === 'efficiency') {
+    sorted = [...rows].sort((a, b) => {
+      const aValid = a.gap != null && a.gap > 0 && a.percentile != null && gpNum > a.percentile;
+      const bValid = b.gap != null && b.gap > 0 && b.percentile != null && gpNum > b.percentile;
+      if (aValid !== bValid) return aValid ? -1 : 1;
+      if (!aValid) return 0;
+      const aEff = a.gap / (gpNum - a.percentile);
+      const bEff = b.gap / (gpNum - b.percentile);
+      return aEff - bEff;
     });
   } else {
     sorted = rows;
@@ -280,6 +300,12 @@ const TomeRankings = () => {
             <MenuItem value="lowest">Lowest percentile</MenuItem>
             <MenuItem value="gap" disabled={!targetSet}>
               Smallest gap to target{!targetSet && ' (set Target %)'}
+            </MenuItem>
+            <MenuItem value="highest_gap" disabled={!targetSet}>
+              Largest gap to target{!targetSet && ' (set Target %)'}
+            </MenuItem>
+            <MenuItem value="efficiency" disabled={!targetSet}>
+              Best pts / percentile{!targetSet && ' (set Target %)'}
             </MenuItem>
           </Select>
         </FormControl>
