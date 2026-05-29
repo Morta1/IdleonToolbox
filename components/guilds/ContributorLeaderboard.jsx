@@ -11,12 +11,12 @@ import {
   TableRow,
   TableSortLabel,
   TextField,
-  Tooltip,
   Typography
 } from '@mui/material';
 import HeaderWithHint from './HeaderWithHint';
 import { numberWithCommas } from '@utility/helpers';
 import useFormatDate from '@hooks/useFormatDate';
+import Tooltip from '../Tooltip';
 
 const DEFAULT_LIMIT = 25;
 

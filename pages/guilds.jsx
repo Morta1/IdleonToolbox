@@ -50,36 +50,6 @@ const Guilds = () => {
       title="Guilds | Idleon Toolbox"
       description="Browse the top Legends of Idleon guilds ranked by guild points, with member details, levels, and leadership info"
     />
-    <Stack direction="row" alignItems="center" gap={2} sx={{ mb: 2, flexWrap: 'wrap' }}>
-      <TextField
-        size="small"
-        placeholder="Search guild by name"
-        value={query}
-        onChange={onQueryChange}
-        sx={{ width: 280 }}
-      />
-      <Stack direction="row" alignItems="center" gap={1} sx={{ flexWrap: 'wrap' }}>
-        <Typography variant="caption" color="text.secondary">
-          {trackedCount != null && totalGuilds != null
-            ? `Top ${trackedCount.toLocaleString()} of ~${totalGuilds.toLocaleString()} · `
-            : ''}
-          {guilds && isValid(snapshotDate)
-            ? `Updated ${formatDate(snapshotDate, { showSeconds: false })} · hourly`
-            : 'Updated hourly'}
-        </Typography>
-        {trackedCount != null && totalGuilds != null && (
-          <Link
-            component="button"
-            variant="caption"
-            onClick={() => router.push('/guilds/universe')}
-            sx={{ verticalAlign: 'baseline', cursor: 'pointer' }}
-          >
-            Universe stats →
-          </Link>
-        )}
-      </Stack>
-    </Stack>
-    <CurationStrip guilds={guilds} router={router}/>
     {!guilds && !error ? (
       <SimpleLoader message="Gathering guild info..."/>
     ) : error ? (
@@ -88,21 +58,53 @@ const Guilds = () => {
         <Typography variant={'h6'}>{error}</Typography>
       </Stack>
     ) : (
-      <GuildTable
-        pagedGuilds={pagedGuilds}
-        hoistedRows={hoistedRows}
-        showHoistedSection={showHoistedSection}
-        sortBy={sortBy}
-        sortDir={sortDir}
-        onSort={onSort}
-        isPinned={isPinned}
-        onTogglePin={togglePin}
-        filteredCount={filteredGuilds?.length ?? 0}
-        page={page}
-        onPageChange={onPageChange}
-        rowsPerPage={ROWS_PER_PAGE}
-        router={router}
-      />
+      <>
+        <Stack direction="row" alignItems="center" gap={2} sx={{ mb: 2, flexWrap: 'wrap' }}>
+          <TextField
+            size="small"
+            placeholder="Search guild by name"
+            value={query}
+            onChange={onQueryChange}
+            sx={{ width: 280 }}
+          />
+          <Stack direction="row" alignItems="center" gap={1} sx={{ flexWrap: 'wrap' }}>
+            <Typography variant="caption" color="text.secondary">
+              {trackedCount != null && totalGuilds != null
+                ? `Top ${trackedCount.toLocaleString()} of ~${totalGuilds.toLocaleString()} · `
+                : ''}
+              {guilds && isValid(snapshotDate)
+                ? `Updated ${formatDate(snapshotDate, { showSeconds: false })} · hourly`
+                : 'Updated hourly'}
+            </Typography>
+            {trackedCount != null && totalGuilds != null && (
+              <Link
+                component="button"
+                variant="caption"
+                onClick={() => router.push('/guilds/universe')}
+                sx={{ verticalAlign: 'baseline', cursor: 'pointer' }}
+              >
+                Universe stats →
+              </Link>
+            )}
+          </Stack>
+        </Stack>
+        <CurationStrip guilds={guilds} router={router}/>
+        <GuildTable
+          pagedGuilds={pagedGuilds}
+          hoistedRows={hoistedRows}
+          showHoistedSection={showHoistedSection}
+          sortBy={sortBy}
+          sortDir={sortDir}
+          onSort={onSort}
+          isPinned={isPinned}
+          onTogglePin={togglePin}
+          filteredCount={filteredGuilds?.length ?? 0}
+          page={page}
+          onPageChange={onPageChange}
+          rowsPerPage={ROWS_PER_PAGE}
+          router={router}
+        />
+      </>
     )}
   </Box>
 };
