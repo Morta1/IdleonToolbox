@@ -7,7 +7,7 @@ import { numberWithCommas } from '@utility/helpers';
 import Sparkline from './Sparkline';
 
 /**
- * StatCard — a universe-level metric: value, optional delta, and a sparkline.
+ * StatCard — an ecosystem-level metric: value, optional delta, and a sparkline.
  * Text and sparkline sit side by side on a wide card; the sparkline wraps
  * below the text when the card is too narrow for both.
  *

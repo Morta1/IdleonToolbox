@@ -1,4 +1,4 @@
-// pages/guilds/universe.jsx — universe-wide guild-ecosystem statistics.
+// pages/guilds/ecosystem.jsx — ecosystem-wide guild statistics.
 // Static sub-page (no query param); not registered in constants.jsx.
 import { useRouter } from 'next/router';
 import { useGlobalSnapshots } from '@hooks/useGuildHistory';
@@ -8,12 +8,11 @@ import { NextSeo } from 'next-seo';
 import { isValid } from 'date-fns';
 import useFormatDate from '@hooks/useFormatDate';
 import StatCard from '@components/guilds/StatCard';
-import { MOCK_UNIVERSE_RESPONSE } from '@components/guilds/universeMockData';
 import SimpleLoader from '@components/common/SimpleLoader';
 import { numberWithCommas } from '@utility/helpers';
 
 // A titled section with a responsive 2-up grid of StatCards.
-function UniverseSection({ title, columns, children }) {
+function EcosystemSection({ title, columns, children }) {
   return (
     <Box sx={{ mb: 4 }}>
       <Typography
@@ -44,22 +43,19 @@ function UniverseSection({ title, columns, children }) {
   );
 }
 
-export default function GuildUniverse() {
+export default function GuildEcosystem() {
   const router = useRouter();
   const formatDate = useFormatDate();
-  // ?mock=true renders the page from fixed sample data — no live API needed.
-  const isMock = router.query.mock != null;
   // ~6 months of weekly snapshots (newest-first from API)
-  const { data: liveData, isLoading, error } = useGlobalSnapshots(26);
-  const data = isMock ? MOCK_UNIVERSE_RESPONSE : liveData;
+  const { data, isLoading, error } = useGlobalSnapshots(26);
 
-  if (!isMock && isLoading) return <SimpleLoader message="Loading universe data..." />;
-  if (!isMock && error) return <Typography color="error">Failed to load universe data</Typography>;
+  if (isLoading) return <SimpleLoader message="Loading ecosystem data..." />;
+  if (error) return <Typography color="error">Failed to load ecosystem data</Typography>;
   if (!data) return null;
 
   const snapshots = data.snapshots ?? [];
   if (snapshots.length === 0) {
-    return <Typography color="text.secondary">No universe data available yet.</Typography>;
+    return <Typography color="text.secondary">No ecosystem data available yet.</Typography>;
   }
 
   const latest = snapshots[0];
@@ -82,7 +78,7 @@ export default function GuildUniverse() {
       : null;
 
   const totalGuilds = field('total_guilds');
-  // Universe-wide total GP is only accurate for the tracked top 1000, so the
+  // Ecosystem-wide total GP is only accurate for the tracked top 1000, so the
   // absolute sum is misleading — show the weekly change, and how it compares
   // to the previous week's change.
   const thisWeekGp = latestDelta.total_points ?? null;
@@ -100,8 +96,8 @@ export default function GuildUniverse() {
 
   return <Box sx={{ maxWidth: 980 }}>
     <NextSeo
-      title="Guild Universe | Idleon Toolbox"
-      description="Universe-wide guild ecosystem statistics: total guilds, active guilds, member health, and guild point output across all of Legends of Idleon."
+      title="Guild Ecosystem | Idleon Toolbox"
+      description="Ecosystem-wide guild statistics: total guilds, active guilds, member health, and guild point output across all of Legends of Idleon."
     />
 
     <Button
@@ -113,7 +109,7 @@ export default function GuildUniverse() {
       Back to guilds
     </Button>
 
-    <Typography variant="h4">Guild Universe</Typography>
+    <Typography variant="h4">Guild Ecosystem</Typography>
     <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
       Week-over-week health of the IdleOn guild ecosystem.
       {latest.taken_at && isValid(new Date(latest.taken_at)) && (
@@ -121,7 +117,7 @@ export default function GuildUniverse() {
       )}
     </Typography>
 
-    <UniverseSection title="Scale & Output" columns={2}>
+    <EcosystemSection title="Scale & Output" columns={2}>
       <StatCard
         label="Total Guilds"
         value={totalGuilds.value}
@@ -137,9 +133,9 @@ export default function GuildUniverse() {
         deltaLabel="vs last week"
         history={gpChange.history}
       />
-    </UniverseSection>
+    </EcosystemSection>
 
-    <UniverseSection title="Guild Health" columns={2}>
+    <EcosystemSection title="Guild Health" columns={2}>
       <StatCard
         label="Active Guilds"
         value={activeGuilds.value}
@@ -155,9 +151,9 @@ export default function GuildUniverse() {
         goodDirection="down"
         hint="Guilds with no GP change for several weeks — likely inactive or empty."
       />
-    </UniverseSection>
+    </EcosystemSection>
 
-    <UniverseSection title="Member Health" columns={3}>
+    <EcosystemSection title="Member Health" columns={3}>
       <StatCard
         label="Total Members"
         value={totalMembers.value}
@@ -179,6 +175,6 @@ export default function GuildUniverse() {
         goodDirection="down"
         hint="Members in abandoned guilds — guilds with no GP change for several weeks."
       />
-    </UniverseSection>
+    </EcosystemSection>
   </Box>;
 }

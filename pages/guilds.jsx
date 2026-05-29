@@ -12,7 +12,7 @@ import SimpleLoader from '@components/common/SimpleLoader';
 import { usePinnedGuilds } from '@hooks/usePinnedGuilds';
 import { useGuildListView } from '@hooks/useGuildListView';
 import { useHoistedGuilds } from '@hooks/useHoistedGuilds';
-import { AppContext } from '../components/common/context/AppProvider';
+import { AppContext } from '@components/common/context/AppProvider';
 
 const ROWS_PER_PAGE = 25;
 
@@ -50,7 +50,7 @@ const Guilds = () => {
       title="Guilds | Idleon Toolbox"
       description="Browse the top Legends of Idleon guilds ranked by guild points, with member details, levels, and leadership info"
     />
-    {!guilds && !error ? (
+    {isLoading ? (
       <SimpleLoader message="Gathering guild info..."/>
     ) : error ? (
       <Stack sx={{ my: 3 }} direction={'row'} alignItems={'center'} justifyContent={'center'} gap={2}>
@@ -80,10 +80,10 @@ const Guilds = () => {
               <Link
                 component="button"
                 variant="caption"
-                onClick={() => router.push('/guilds/universe')}
+                onClick={() => router.push('/guilds/ecosystem')}
                 sx={{ verticalAlign: 'baseline', cursor: 'pointer' }}
               >
-                Universe stats →
+                Ecosystem stats →
               </Link>
             )}
           </Stack>
