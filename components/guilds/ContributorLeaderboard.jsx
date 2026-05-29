@@ -14,11 +14,20 @@ import {
   Typography
 } from '@mui/material';
 import HeaderWithHint from './HeaderWithHint';
-import { numberWithCommas } from '@utility/helpers';
+import { numberWithCommas, prefix } from '@utility/helpers';
 import useFormatDate from '@hooks/useFormatDate';
 import Tooltip from '../Tooltip';
 
 const DEFAULT_LIMIT = 25;
+
+// Guild role from the member's rank field (g): 0 = King (guild leader), 1 = Leader
+// (co-leader), 2-5 = Member. Returns null when rank wasn't captured so no badge shows.
+function guildRole(rank) {
+  if (rank == null) return null;
+  if (rank === 0) return { label: 'King', icon: 'etc/GuildRank0.png' };
+  if (rank === 1) return { label: 'Leader', icon: 'etc/GuildRank1.png' };
+  return { label: 'Member', icon: 'etc/GuildRank2.png' };
+}
 
 // Idleon's reporting week starts Saturday 21:00 UTC — same anchor used in
 // WeeklyProgressChart and CurationStrip.
@@ -183,6 +192,7 @@ export default function ContributorLeaderboard({ members }) {
                 const lastContribTooltip = m.last_contributed_at != null
                   ? formatDate(m.last_contributed_at, { showSeconds: false })
                   : 'No contributions in the last 6 weeks';
+                const role = guildRole(m.member_rank);
                 return (
                   <TableRow
                     key={m.member_name}
@@ -191,6 +201,15 @@ export default function ContributorLeaderboard({ members }) {
                     <TableCell>{m.rank}</TableCell>
                     <TableCell>
                       <Stack direction="row" alignItems="center" gap={0.75}>
+                        {role && (
+                          <Tooltip title={role.label}>
+                            <img
+                              src={`${prefix}${role.icon}`}
+                              alt={role.label}
+                              style={{ width: 18, height: 18, objectFit: 'contain' }}
+                            />
+                          </Tooltip>
+                        )}
                         <Typography variant="body2" component="span">{m.member_name}</Typography>
                         {joinedWeeksAgo != null && (
                           <Tooltip
