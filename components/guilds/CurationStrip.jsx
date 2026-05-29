@@ -282,6 +282,9 @@ export default function CurationStrip({ guilds, router }) {
               sx={{ maxWidth: '45%', textAlign: 'left' }}
             >
               {closest.leader.guild_name}
+              <Box component="span" sx={{ color: 'text.secondary', fontWeight: 400, ml: 0.5 }}>
+                #{closest.leader.rank}
+              </Box>
             </Link>
             <Typography variant="caption" color="text.secondary">vs</Typography>
             <Link
@@ -296,6 +299,9 @@ export default function CurationStrip({ guilds, router }) {
               sx={{ maxWidth: '45%', textAlign: 'left' }}
             >
               {closest.challenger.guild_name}
+              <Box component="span" sx={{ color: 'text.secondary', fontWeight: 400, ml: 0.5 }}>
+                #{closest.challenger.rank}
+              </Box>
             </Link>
           </Stack>
           <Chip
