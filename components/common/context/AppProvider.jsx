@@ -317,6 +317,7 @@ const AppProvider = ({ children }) => {
         } else {
           const isAllowedPath = router.pathname === '/' ||
             checkOfflineTool() ||
+            router.pathname === '/guilds' ||
             router.pathname === '/statistics' ||
             router.pathname === '/leaderboards';
 

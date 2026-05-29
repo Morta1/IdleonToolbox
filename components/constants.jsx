@@ -2,7 +2,7 @@ export const drawerWidth = 240;
 export const navBarHeight = 70;
 export const navItems = ['dashboard', 'characters', 'account', 'tools', 'guilds', 'statistics', 'leaderboards'];
 export const drawerPages = ['characters', 'account', 'tools'];
-export const offlinePages = ['tools', 'statistics', 'leaderboards'];
+export const offlinePages = ['tools', 'guilds', 'statistics', 'leaderboards'];
 
 export const PAGES = {
   GENERAL: {
