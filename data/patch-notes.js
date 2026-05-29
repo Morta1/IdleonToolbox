@@ -4,6 +4,25 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.46',
+    'gameVer': '2.3.505',
+    'date': '29/05/2026',
+    'features': [
+      <Typography>Guild Tracking is now live — I started tracking the top Legends of Idleon guilds, with snapshots taken every hour. Check it out under <Link
+        href={'https://idleontoolbox.com/guilds'}>Guilds</Link></Typography>,
+      'Browse guilds: search and sort the top guilds by rank, GP, level, or member count; pin your favorites (and your own guild) to keep them at the top',
+      'Guild detail pages: this week\'s GP progress charted, with a comparison to the same point last week',
+      'Guild detail pages: 30-day guild rank history',
+      'Guild detail pages: a contributor leaderboard showing weekly GP, share of guild total, and lifetime GP',
+      'Guild detail pages: a "Last contributed" column so guild leaders can spot inactive members at a glance',
+      'Guild detail pages: roster changes — who joined and who left this week',
+      'Guild Ecosystem: a zoomed-out view of the whole ecosystem — total and active guilds, weekly GP output, and member health across all of Idleon, tracked week over week',
+      'Weekly GP resets every Saturday at 21:00 UTC — the guilds page shows a live countdown to the next reset, and "this week" everywhere lines up with that boundary',
+      'Heads-up: data collection only started midway through last week, so "vs last week" comparisons may look inflated for now — they\'ll settle down once there\'s a full week of history to compare against',
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.45',
     'gameVer': '2.3.505',
     'date': '25/05/2026',
