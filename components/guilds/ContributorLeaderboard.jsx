@@ -30,16 +30,14 @@ function currentWeekStartMs(now = Date.now()) {
   return now - ((now - WEEK_ANCHOR_MS) % WEEK_MS);
 }
 
-// weekly_history is oldest→newest; null = not in guild that week, 0 = present
-// but didn't contribute. Returns weeks-ago of the latest non-zero week, or
-// null if none of the visible weeks have a contribution.
-function weeksSinceContribution(weeklyHistory) {
-  if (!weeklyHistory?.length) return null;
-  for (let i = weeklyHistory.length - 1; i >= 0; i--) {
-    const v = weeklyHistory[i];
-    if (v != null && v > 0) return weeklyHistory.length - 1 - i;
-  }
-  return null;
+// How many week boundaries separate `lastContributedAt` from now.
+// 0 = contributed during the current week, 1 = last week, etc.
+// Returns null when there's no recorded contribution.
+function weeksAgoFromTimestamp(lastContributedAt, now = Date.now()) {
+  if (lastContributedAt == null) return null;
+  const currentStart = currentWeekStartMs(now);
+  const contribStart = currentWeekStartMs(lastContributedAt);
+  return Math.max(0, Math.round((currentStart - contribStart) / WEEK_MS));
 }
 
 function lastContributedLabel(weeksAgo) {
@@ -74,7 +72,7 @@ export default function ContributorLeaderboard({ members }) {
   const ranked = sorted.map((m, i) => ({
     ...m,
     rank: i + 1,
-    weeks_since_contribution: weeksSinceContribution(m.weekly_history)
+    weeks_since_contribution: weeksAgoFromTimestamp(m.last_contributed_at)
   }));
   const totalGuildGp = sorted.reduce((sum, m) => sum + (m.gp_earned || 0), 0);
 
@@ -182,11 +180,8 @@ export default function ContributorLeaderboard({ members }) {
                 const joinedWeeksAgo = m.joined_weeks_ago ?? null;
                 const pctOfGuild = totalGuildGp > 0 ? (m.gp_earned / totalGuildGp) * 100 : 0;
                 const weeksAgo = m.weeks_since_contribution;
-                const lastWeekStartMs = weeksAgo != null
-                  ? currentWeekStartMs() - weeksAgo * WEEK_MS
-                  : null;
-                const lastContribTooltip = lastWeekStartMs != null
-                  ? `Week of ${formatDate(lastWeekStartMs, { dateOnly: true })}`
+                const lastContribTooltip = m.last_contributed_at != null
+                  ? formatDate(m.last_contributed_at, { showSeconds: false })
                   : 'No contributions in the last 6 weeks';
                 return (
                   <TableRow
