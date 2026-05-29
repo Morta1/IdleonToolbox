@@ -20,13 +20,14 @@ import Tooltip from '../Tooltip';
 
 const DEFAULT_LIMIT = 25;
 
-// Guild role from the member's rank field (g): 0 = King (guild leader), 1 = Leader
-// (co-leader), 2-5 = Member. Returns null when rank wasn't captured so no badge shows.
+// Guild role from the member's rank field (g). Mirrors the in-game guild member
+// list (GuildMembers.jsx / N.js): ranks 0-4 each get their own GuildRank{g} icon,
+// rank 5 (regular member) gets no icon. 0 = King, 1 = Leader; 2-4 are unlabeled
+// officer tiers. Returns null when rank is missing or 5+ so no badge shows.
 function guildRole(rank) {
-  if (rank == null) return null;
-  if (rank === 0) return { label: 'King', icon: 'etc/GuildRank0.png' };
-  if (rank === 1) return { label: 'Leader', icon: 'etc/GuildRank1.png' };
-  return { label: 'Member', icon: 'etc/GuildRank2.png' };
+  if (rank == null || rank >= 5) return null;
+  const label = rank === 0 ? 'King' : rank === 1 ? 'Leader' : `Rank ${rank}`;
+  return { label, icon: `etc/GuildRank${rank}.png` };
 }
 
 // Idleon's reporting week starts Saturday 21:00 UTC — same anchor used in
