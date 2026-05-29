@@ -44,15 +44,13 @@ const Guilds = () => {
     pinnedGuilds,
     myGuildId: state?.account?.guild?.id || null
   });
-
+  if (isLoading) return <SimpleLoader message="Loading guilds..."/>;
   return <Box sx={{ maxWidth: 980 }}>
     <NextSeo
       title="Guilds | Idleon Toolbox"
       description="Browse the top Legends of Idleon guilds ranked by guild points, with member details, levels, and leadership info"
     />
-    {isLoading ? (
-      <SimpleLoader message="Gathering guild info..."/>
-    ) : error ? (
+    {error ? (
       <Stack sx={{ my: 3 }} direction={'row'} alignItems={'center'} justifyContent={'center'} gap={2}>
         <ErrorIcon/>
         <Typography variant={'h6'}>{error}</Typography>
