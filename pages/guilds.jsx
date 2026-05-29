@@ -1,199 +1,112 @@
-import React, { useEffect, useState } from 'react';
-import { getGuilds } from '../firebase';
-import {
-  CircularProgress,
-  Collapse,
-  LinearProgress,
-  Paper,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography
-} from '@mui/material';
+import React, { useContext } from 'react';
+import { Box, Link, Stack, TextField, Typography } from '@mui/material';
 import { NextSeo } from 'next-seo';
-import { getDuration, numberWithCommas, prefix, tryToParse } from '@utility/helpers';
-import IconButton from '@mui/material/IconButton';
 import ErrorIcon from '@mui/icons-material/Error';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import Box from '@mui/material/Box';
 import { isValid } from 'date-fns';
 import useFormatDate from '@hooks/useFormatDate';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import Tooltip from '../components/Tooltip';
-import { getGuildLevel } from '../parsers/guild';
+import { useGlobalSnapshots, useGuildIndex } from '@hooks/useGuildHistory';
+import { useRouter } from 'next/router';
+import CurationStrip from '@components/guilds/CurationStrip';
+import GuildTable from '@components/guilds/GuildTable';
+import SimpleLoader from '@components/common/SimpleLoader';
+import { usePinnedGuilds } from '@hooks/usePinnedGuilds';
+import { useGuildListView } from '@hooks/useGuildListView';
+import { useHoistedGuilds } from '@hooks/useHoistedGuilds';
+import { AppContext } from '@components/common/context/AppProvider';
+
+const ROWS_PER_PAGE = 25;
 
 const Guilds = () => {
   const formatDate = useFormatDate();
-  const [listener, setListener] = useState({ func: null });
-  const [guilds, setGuilds] = useState(null);
-  const [openIndex, setOpenIndex] = useState(null);
-  const snapshotDate = tryToParse(sessionStorage.getItem('snapshotDate'));
-  const [error, setError] = useState('');
+  const router = useRouter();
+  const { state } = useContext(AppContext);
+  const { data, isLoading, error: queryError } = useGuildIndex();
+  const { data: globalSnapshotData } = useGlobalSnapshots();
+  const guilds = data?.guilds || null;
+  const snapshotDate = data?.captured_at ?? null;
+  const error = queryError ? 'An unexpected error has occurred' : '';
 
-  const parseGuildsData = (topGuilds) => {
-    return topGuilds?.slice(0, 100)?.map((guild) => {
-      const leader = guild?.members?.find(({ g }) => g === 0);
-      const topContributors = guild?.members?.sort((a, b) => b?.e - a?.e)
-        ?.slice(0, 5)?.map(({ a, e }) => ({ name: a, gpEarned: e }));
-      return {
-        guildIcon: guild?.guildIcon,
-        guildName: guild?.guildName,
-        totalGp: guild?.totalGp,
-        membersCount: guild?.members?.length,
-        leader,
-        topContributors
-      }
-    });
-  };
+  const { pinnedGuilds, isPinned, togglePin } = usePinnedGuilds();
 
+  const {
+    query, onQueryChange,
+    sortBy, sortDir, onSort,
+    page, onPageChange,
+    filteredGuilds, pagedGuilds
+  } = useGuildListView(guilds, ROWS_PER_PAGE);
 
-  const handleGuildsUpdate = ({ guilds, error }) => {
-    if (error) {
-      return setError('An unexpected error has occurred');
-    }
-    const parsedGuilds = parseGuildsData(guilds);
-    sessionStorage.setItem('guildsLeaderboard', JSON.stringify(parsedGuilds));
-    sessionStorage.setItem('snapshotDate', new Date().getTime());
-    setGuilds(parsedGuilds)
-  }
+  // Scale banner: prefer actual tracked guild count; fall back to global snapshot total_guilds.
+  const trackedCount = guilds?.length ?? null;
+  const totalGuilds = globalSnapshotData?.snapshots?.[0]?.total_guilds ?? null;
 
-  const handleRefresh = () => {
-    if (!guilds) return null;
-    setGuilds(null);
-    sessionStorage.removeItem('guildsLeaderboard');
-    sessionStorage.removeItem('snapshotDate');
-    subscribe();
-  }
-  const subscribe = async () => {
-    const unsubscribe = getGuilds(handleGuildsUpdate);
-    setListener({ func: unsubscribe });
-  }
+  const { hoistedRows, showHoistedSection } = useHoistedGuilds({
+    guilds,
+    pinnedGuilds,
+    myGuildId: state?.account?.guild?.id || null
+  });
 
-  useEffect(() => {
-    const timePassed = getDuration(new Date(), snapshotDate);
-    if (timePassed?.days > 0 || timePassed?.hours > 0 || timePassed?.minutes >= 15 || !snapshotDate) {
-      setTimeout(() => subscribe(), 3000);
-    } else {
-      setGuilds(tryToParse(sessionStorage.getItem('guildsLeaderboard')));
-    }
-    return () => {
-      listener && typeof listener?.func === 'function' && listener?.func();
-    }
-  }, [])
-
-  return <>
+  return <Box sx={{ maxWidth: 980 }}>
     <NextSeo
       title="Guilds | Idleon Toolbox"
       description="Browse the top Legends of Idleon guilds ranked by guild points, with member details, levels, and leadership info"
     />
-    <Typography variant={'h2'}>Guilds Leaderboard</Typography>
-    <Stack direction={'row'} alignItems={'center'} gap={1}>
-      <Stack gap={2} direction="row">Last Updated: {!guilds ?
-        <CircularProgress size={'22px'} disableShrink/> : isValid(snapshotDate)
-          ? formatDate(snapshotDate)
-          : null}</Stack>
-      <Tooltip title={'Reload guild data'}>
-        <span><IconButton disabled={!guilds} onClick={handleRefresh}><RefreshIcon/></IconButton></span>
-      </Tooltip>
-    </Stack>
-    <Typography variant={'caption'} component={'div'} sx={{ mb: 2 }}>* Updates every 15 minutes</Typography>
-    <TableContainer component={Paper}>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell sx={{ width: '1px' }}></TableCell>
-            <TableCell sx={{ width: 30 }}></TableCell>
-            <TableCell>Guild Name</TableCell>
-            <TableCell>Guild Points</TableCell>
-            <TableCell>Guild Leader</TableCell>
-            <TableCell>Guild Level</TableCell>
-            <TableCell>Members Count</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {!guilds && !error ? <TableRow>
-            <TableCell colSpan={7} align={'center'}>
-              <Stack alignItems={'center'} gap={2}>
-                <Typography>Gathering guild info</Typography>
-                <LinearProgress sx={{ width: 300 }}/>
-              </Stack>
-            </TableCell>
-          </TableRow> : null}
-          {error ? <TableRow>
-            <TableCell colSpan={7} align={'center'}>
-              <Stack sx={{ my: 3 }} direction={'row'} alignItems={'center'} justifyContent={'center'} gap={2}>
-                <ErrorIcon/>
-                <Typography variant={'h6'}>{error}</Typography>
-              </Stack>
-            </TableCell>
-          </TableRow> : null}
-          {guilds?.map(({ totalGp, leader, membersCount, guildIcon, guildName, topContributors }, index) => {
-            const guildLevel = getGuildLevel(totalGp);
-            const maxMembers = 30 + 4 * guildLevel;
-            return <React.Fragment key={'row' + index}>
-              <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-                <TableCell sx={{ p: '4px' }}>
-                  <IconButton
-                    aria-label="expand row"
-                    size="small"
-                    onClick={() => setOpenIndex(openIndex === index ? null : index)}>
-                    {openIndex === index ? <KeyboardArrowUpIcon/> : <KeyboardArrowDownIcon/>}
-                  </IconButton>
-                </TableCell>
-                <TableCell sx={{ p: 1, textAlign: 'center' }}>
-                  {index + 1}
-                </TableCell>
-
-
-                <TableCell>
-                  <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <img src={`${prefix}data/G2icon${guildIcon}.png`}
-                         style={{ width: 24 }}
-                         alt={'guild-icon'}/>
-                    <Typography>{guildName}</Typography>
-                  </Stack>
-                </TableCell>
-                <TableCell>{numberWithCommas(totalGp)}</TableCell>
-                <TableCell>{leader?.a}</TableCell>
-                <TableCell>{guildLevel}</TableCell>
-                <TableCell>{membersCount} / {maxMembers}</TableCell>
-              </TableRow>
-              <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
-                  <Collapse in={openIndex === index} timeout="auto" unmountOnExit>
-                    <Box sx={{ p: 1 }}>
-                      <Typography variant={'h6'} sx={{ mb: 1 }}>Top Contributors</Typography>
-                      <Table size="small" sx={{ width: 300 }}>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Gp</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {topContributors?.map(({ name, gpEarned }) => {
-                            return <TableRow key={`top-3-${name}`}>
-                              <TableCell>{name}</TableCell>
-                              <TableCell>{numberWithCommas(gpEarned)}</TableCell>
-                            </TableRow>
-                          })}
-                        </TableBody>
-                      </Table>
-                    </Box>
-                  </Collapse>
-                </TableCell>
-              </TableRow>
-            </React.Fragment>
-          })}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  </>
+    {isLoading ? (
+      <SimpleLoader message="Gathering guild info..."/>
+    ) : error ? (
+      <Stack sx={{ my: 3 }} direction={'row'} alignItems={'center'} justifyContent={'center'} gap={2}>
+        <ErrorIcon/>
+        <Typography variant={'h6'}>{error}</Typography>
+      </Stack>
+    ) : (
+      <>
+        <Stack direction="row" alignItems="center" gap={2} sx={{ mb: 2, flexWrap: 'wrap' }}>
+          <TextField
+            size="small"
+            placeholder="Search guild by name"
+            value={query}
+            onChange={onQueryChange}
+            sx={{ width: 280 }}
+          />
+          <Stack direction="row" alignItems="center" gap={1} sx={{ flexWrap: 'wrap' }}>
+            <Typography variant="caption" color="text.secondary">
+              {trackedCount != null && totalGuilds != null
+                ? `Top ${trackedCount.toLocaleString()} of ~${totalGuilds.toLocaleString()} · `
+                : ''}
+              {guilds && isValid(snapshotDate)
+                ? `Updated ${formatDate(snapshotDate, { showSeconds: false })} · hourly`
+                : 'Updated hourly'}
+            </Typography>
+            {trackedCount != null && totalGuilds != null && (
+              <Link
+                component="button"
+                variant="caption"
+                onClick={() => router.push('/guilds/ecosystem')}
+                sx={{ verticalAlign: 'baseline', cursor: 'pointer' }}
+              >
+                Ecosystem stats →
+              </Link>
+            )}
+          </Stack>
+        </Stack>
+        <CurationStrip guilds={guilds} router={router}/>
+        <GuildTable
+          pagedGuilds={pagedGuilds}
+          hoistedRows={hoistedRows}
+          showHoistedSection={showHoistedSection}
+          sortBy={sortBy}
+          sortDir={sortDir}
+          onSort={onSort}
+          isPinned={isPinned}
+          onTogglePin={togglePin}
+          filteredCount={filteredGuilds?.length ?? 0}
+          page={page}
+          onPageChange={onPageChange}
+          rowsPerPage={ROWS_PER_PAGE}
+          router={router}
+        />
+      </>
+    )}
+  </Box>
 };
 
 export default Guilds;

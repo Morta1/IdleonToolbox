@@ -26,6 +26,7 @@ export interface GuildTaskEntry {
 }
 
 export interface GuildResult {
+  id?: string;
   guildBonuses: GuildBonusEntry[];
   guildTasks: { daily: GuildTaskEntry[] | undefined; weekly: GuildTaskEntry[] | undefined };
   members: GuildMemberParsed[] | undefined;
@@ -55,6 +56,7 @@ export const getGuild = (idleonData: IdleonData, guildData: GuildData | null): G
       guildBonuses?.[index]?.gpBaseCost, guildBonuses?.[index]?.gpIncrease), 0);
     const totalGp = (guildData?.points ?? 0) + totalStatCost;
     return {
+      id: guildData.id ?? undefined,
       guildBonuses: updatedGuildBonuses,
       guildTasks: parsedGuildTasks,
       members,

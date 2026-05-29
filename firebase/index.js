@@ -147,6 +147,7 @@ const subscribe = async (uid, accessToken, callback) => {
       const guild = guildId ? await getSnapshot(dbRef, `_guild/${guildId}`) : null;
 
       const guildData = {
+        id: guildId,
         stats: tryToParse(cloudsave?.Guild),
         members: Object.values(guild?.m || {}),
         points: guild?.p
