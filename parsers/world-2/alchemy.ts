@@ -519,7 +519,7 @@ const parseSigils = (sigilsRaw: any, alchemyActivity: any, serializedCharactersD
     const charactersInSigil = alchemyActivity.filter(({
       activity,
       index
-    }: any) => activity >= 100 && Math.floor(activity - 100) === i / 2 && index < 11 && index < serializedCharactersData?.length);
+    }: any) => activity >= 100 && Math.floor(activity - 100) === i / 2 && index < serializedCharactersData?.length);
     if (sigilData) {
       sigilsList = [
         ...sigilsList,

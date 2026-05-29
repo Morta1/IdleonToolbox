@@ -178,6 +178,9 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
       if (numOfCharacters === 9 && totalLevels >= 1500) {
         newCharactersCounter++;
       }
+      if (numOfCharacters === 10 && totalLevels >= 5000) {
+        newCharactersCounter++;
+      }
       if (newCharactersCounter > 0) {
         etc.newCharacters = newCharactersCounter;
       }

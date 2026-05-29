@@ -4,12 +4,26 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.47',
+    'gameVer': '2.3.507',
+    'date': '29/05/2026',
+    'features': [
+      'Updated the website with version 2.3.507 data and assets',
+      '11th character: the new character slot (unlocks at 5000 total levels) now appears in the "new character available" dashboard alert',
+      'World 6 Dreadnaught Chamber: new map with the Dreadnaught Captain boss and the Abacus Frog, now tracked in the Death Note and Grimoire',
+      'Alchemy: new Ship in a Bottle vial',
+      'Tournament: new Nametag Replicas'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.46',
     'gameVer': '2.3.505',
     'date': '29/05/2026',
     'features': [
-      <Typography>Guild Tracking is now live — I started tracking the top Legends of Idleon guilds, with snapshots taken every hour. Check it out under <Link
-        href={'https://idleontoolbox.com/guilds'}>Guilds</Link></Typography>,
+      <Typography>Guild Tracking is now live — I started tracking the top Legends of Idleon guilds, with snapshots taken
+        every hour. Check it out under <Link
+          href={'https://idleontoolbox.com/guilds'}>Guilds</Link></Typography>,
       'Browse guilds: search and sort the top guilds by rank, GP, level, or member count; pin your favorites (and your own guild) to keep them at the top',
       'Guild detail pages: this week\'s GP progress charted, with a comparison to the same point last week',
       'Guild detail pages: 30-day guild rank history',
@@ -18,7 +32,7 @@ export const patchNotes = [
       'Guild detail pages: roster changes — who joined and who left this week',
       'Guild Ecosystem: a zoomed-out view of the whole ecosystem — total and active guilds, weekly GP output, and member health across all of Idleon, tracked week over week',
       'Weekly GP resets every Saturday at 21:00 UTC — the guilds page shows a live countdown to the next reset, and "this week" everywhere lines up with that boundary',
-      'Heads-up: data collection only started midway through last week, so "vs last week" comparisons may look inflated for now — they\'ll settle down once there\'s a full week of history to compare against',
+      'Heads-up: data collection only started midway through last week, so "vs last week" comparisons may look inflated for now — they\'ll settle down once there\'s a full week of history to compare against'
     ],
     'fixes': []
   },
@@ -30,10 +44,10 @@ export const patchNotes = [
       'Sneaking: symbol upgrade border now shows on character equipment slots',
       'Sneaking: redesigned per-character info card for a cleaner layout',
       'Bubba: new Mega Flesh row showing all bonuses with unlocked status and totals',
-      'Kangaroo: Mega Fish moved up',
+      'Kangaroo: Mega Fish moved up'
     ],
     'fixes': [
-      'The Jars: "Progress per hour" schematic multiplier now correctly labeled as White Rupies (was misnamed Jars Destroyed)',
+      'The Jars: "Progress per hour" schematic multiplier now correctly labeled as White Rupies (was misnamed Jars Destroyed)'
     ]
   },
   {
@@ -45,7 +59,7 @@ export const patchNotes = [
       'The Jars: new "Total enhancing levels" card, plus a full breakdown on "Progress per hour" showing the base rate, collectible/measurement multiplier (with each contributing jar listed by name), and the jars-destroyed schematic multiplier',
       'Dashboard: new alerts for breakable layers in the Evertree and Bottomless Trench caverns (with toggle entries added via migration 52)',
       'Sailing Artifacts: new tier track on each artifact card showing all 6 tiers (Base → Transcendent) as colored bars, with the current tier label and hover tooltips describing each tier\'s bonus',
-      'Active Calculator: new "Target level" input under the Exp section — shows exp required and ETA to reach any custom level, persisted to localStorage',
+      'Active Calculator: new "Target level" input under the Exp section — shows exp required and ETA to reach any custom level, persisted to localStorage'
     ],
     'fixes': [
       'Sailing: added missing island (The Maw)'
@@ -67,11 +81,11 @@ export const patchNotes = [
       'Tournament: new T2a/T2b/T2c companions (Bronze/Silver/Gold Champion Troll) and hats',
       'Cascading Fountain bonuses applied to: Bravery/Justice/Wisdom monument bonuses, Monument max linear time (Mogmaxing), Harp note EXP (Fine Tuning), Bolaia study rate (Skim Reading), Cosmo villager EXP (Cosmological Boost), class EXP, total damage (Swingy Surge), Orion feather rate, Poppy fish rate, Sailing treasure boost, Motherlode ore requirement, and Well bucket schematic chain',
       'Tome Rankings: new "Sort" dropdown (Default / Lowest percentile / Smallest gap to target — last option enabled when Target % is set)',
-      'Tome Rankings: expanded calculator now shows the max qty needed to fully max a metric, plus the qty required to reach the global target percentile',
+      'Tome Rankings: expanded calculator now shows the max qty needed to fully max a metric, plus the qty required to reach the global target percentile'
     ],
     'fixes': [
       'Family bonuses: growth formula now uses the level above the unlock threshold (level − x3) instead of level − 1, fixing inflated bonuses for entries that unlock past level 1',
-      'Lab line width: now reads each character\'s own lab skill level instead of the lab tube character data, fixing cases where line width was computed from the wrong character',
+      'Lab line width: now reads each character\'s own lab skill level instead of the lab tube character data, fixing cases where line width was computed from the wrong character'
     ]
   },
   {
@@ -84,7 +98,7 @@ export const patchNotes = [
       'Build editor: "Insert item" button still there if you prefer picking from a dialog',
       'Build editor: supports bold (Ctrl+B or **text**), italic (Ctrl+I or *text*), bullet lists (- ), numbered lists (1. ), H3/H4 headings (### , #### ), and links',
       'Build editor: live character counter below each field, placeholder text, auto-link on paste',
-      'Builds: embedded items render with icon + name chips in the published build, with full hover stats (same tooltip as the item database)',
+      'Builds: embedded items render with icon + name chips in the published build, with full hover stats (same tooltip as the item database)'
     ],
     'fixes': []
   },
@@ -99,7 +113,7 @@ export const patchNotes = [
       'Build editor: "Use as template" on any build starts a new one pre-filled with that layout',
       'My builds: new tab groups the builds you\'ve published and the ones you\'ve liked; edit or delete your own at any time',
       'Builds: author name on published builds uses your in-game main character (or "Anonymous" if you toggle it)',
-      'Builds: up to 5 tags per build',
+      'Builds: up to 5 tags per build'
     ],
     'fixes': []
   },
@@ -114,11 +128,11 @@ export const patchNotes = [
       'Tome Rankings: global "Target %" input shows the PTS gap for every metric at once',
       'Tome Rankings: "Group by" selector — group metrics by percentile tier or by customizable classification type (High Priority, Achievable, Time Gated, Luck Gated, Event Gated), saved locally',
       'Tome Rankings: search filter, "Sort by lowest" toggle, and "Hide maxed" option',
-      'Dashboard: new sushi fuel timer showing countdown until fuel reaches max cap',
+      'Dashboard: new sushi fuel timer showing countdown until fuel reaches max cap'
     ],
     'fixes': [
       'Research: observations list now includes all entries instead of stopping at the found count, locked observations shown with reduced opacity',
-      'Sushi Station: knowledge section on bonuses tab now shows for undiscovered sushi too',
+      'Sushi Station: knowledge section on bonuses tab now shows for undiscovered sushi too'
     ]
   },
   {
@@ -129,7 +143,7 @@ export const patchNotes = [
       'Updated the website with version 2.3.503 data and assets',
       'Sushi Station: 5 new sushi tiers (54-58), added event shop bonus to currency multiplier',
       'New sushi bonuses applied to gallery bonus multi, research grid all-multi, sailing boat loot, and farming sticker odds',
-      '3 new companions (Poppy, Wickerlight Spirit, Smoke Devil) with bonuses applied: meal multi, jade/stealth/sneaking XP, monument bonus levels. Mama Troll companion is now active',
+      '3 new companions (Poppy, Wickerlight Spirit, Smoke Devil) with bonuses applied: meal multi, jade/stealth/sneaking XP, monument bonus levels. Mama Troll companion is now active'
     ],
     'fixes': []
   },
@@ -141,11 +155,11 @@ export const patchNotes = [
       'Gem Shop: new "Past limited specials" section listing items that used to exist in the shop (Equinox Penguins, Rupie Slug, etc.) — extracted from historical game versions',
       'Equinox: challenges now show a "Requirements met" highlight on cards that are not in your active 5 but whose goal is already fulfilled',
       'The Harp (Hole cavern): new Strings row showing which in-game note each harp string slot is tuned to',
-      'The Button: new dashboard alerts for insta-skip availability and task-ready states',
+      'The Button: new dashboard alerts for insta-skip availability and task-ready states'
     ],
     'fixes': [
       'Equinox: active challenge count is now capped at 5 to match the game (previously could visually mark more than 5 as active if the "Clouds Owned" upgrade exceeded 5)',
-      'The Button: skill task requirements now use the highest single-character skill level instead of the account-wide total',
+      'The Button: skill task requirements now use the highest single-character skill level instead of the account-wide total'
     ]
   },
   {
@@ -163,7 +177,7 @@ export const patchNotes = [
       'Fixed Minehead depth charges missing superbit, cloud, and jade reductions',
       'Fixed cash multi missing companion 38 coin drop multiplier',
       'Fixed capacity missing bundle bonuses',
-      'Observation rolls alert now hides when all available observations are already found',
+      'Observation rolls alert now hides when all available observations are already found'
     ]
   },
   {
@@ -173,10 +187,10 @@ export const patchNotes = [
     'features': [
       'New date & time preferences in Settings — choose DD/MM or MM/DD date format and 24-hour or 12-hour clock',
       'Preferences are saved automatically and apply across the entire site',
-      'Consolidated the old Data page into Settings — profile management, support data, and local storage options are now all in one place',
+      'Consolidated the old Data page into Settings — profile management, support data, and local storage options are now all in one place'
     ],
     'fixes': [
-      'Removed the standalone Data page (all functionality moved to Settings)',
+      'Removed the standalone Data page (all functionality moved to Settings)'
     ]
   },
   {
@@ -188,11 +202,11 @@ export const patchNotes = [
       'View all 9 bonus categories with current values, per-press rates, and rotation indicator',
       'Browse upcoming tasks with auto-detected best character, pagination by cycle, and future requirement tooltips',
       'Button bonuses are now reflected across 9 parsers (research, minehead, sushi, sailing, summoning, farming, spelunking, cooking, class EXP)',
-      'Companions page now shows all existing companions grouped by category (Legacy, Fallen Spirits, Shallow Waters, Exclusive, Special)',
+      'Companions page now shows all existing companions grouped by category (Legacy, Fallen Spirits, Shallow Waters, Exclusive, Special)'
     ],
     'fixes': [
       'Fixed Sushi Station UpgLvREQ formula (upgrade level requirements were too high)',
-      'Added KillroyBonuses(5) and w7a11 card bonus to Research EXP multiplier',
+      'Added KillroyBonuses(5) and w7a11 card bonus to Research EXP multiplier'
     ]
   },
   {
@@ -203,7 +217,7 @@ export const patchNotes = [
       'Split sushi shaker dashboard alerts into individual toggles (Salt, Pepper, Saffron) so you can enable/disable each one',
       'Added Grand Discovery chance to the Spelunking boss page — shows the per-cave actual chance with diminishing returns',
       'Fixed Grand Discovery chance formula (was missing Chapter Bonus and Minehead/Sushi multipliers)',
-      'Moved Coral Kid Upgrades from Coral Reef (W7) to Divinity (W5) for easier navigation',
+      'Moved Coral Kid Upgrades from Coral Reef (W7) to Divinity (W5) for easier navigation'
     ],
     'fixes': []
   },
@@ -218,11 +232,11 @@ export const patchNotes = [
       'See all "Rest of Game" bonuses with knowledge progress and XP tracking per sushi type',
       'Track your Bucks, Currency/hr, Fuel, and shaker uses (Salt, Pepper, Saffron) at a glance',
       'Dashboard alerts: get notified when fuel is full, shakers are available, or knowledge is ready to level up',
-      'Sushi Station bonuses are now reflected across 15+ pages (damage, research, spelunking, farming, and more)',
+      'Sushi Station bonuses are now reflected across 15+ pages (damage, research, spelunking, farming, and more)'
     ],
     'fixes': [
       'Improved accuracy for Minehead damage (new artifact bonus) and Research grid points',
-      'Added missing equipment bonus (EtcBonus 104) to damage calculations',
+      'Added missing equipment bonus (EtcBonus 104) to damage calculations'
     ]
   },
   {
@@ -244,7 +258,7 @@ export const patchNotes = [
       'Fixed lab bonus computation (jewel multiplier, spelunker obol, species count)',
       'Fixed family bonus level offset calculation',
       'Fixed refinery total levels counting too many salts',
-      'Fixed boat number display in sailing',
+      'Fixed boat number display in sailing'
     ]
   },
   {
@@ -254,13 +268,13 @@ export const patchNotes = [
     'features': [
       'Implemented a navbar banner that appears when viewing another user’s profile',
       'Updated damage, class exp multi, cash multi and respawn rate calculation including a detailed breakdown of all sources 🚀',
-      'Improved website loading speed and responsiveness',
+      'Improved website loading speed and responsiveness'
     ],
     'fixes': [
       'Fixed bits display and notation',
       'Fixed monument cap multiplier logic',
       'Fixed a bug where quests page was displaying empty quest steps',
-      'Many more small fixes and improvements to various calculations',
+      'Many more small fixes and improvements to various calculations'
     ]
   },
   {

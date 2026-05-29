@@ -432,7 +432,9 @@ export const getAmberGain = (account: any, loreBonuses: any) => {
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '7amber');
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'SplkAmb');
   const dancingCoralBonus = getDancingCoralBonus(account, 2, 0);
-  const cardBonus = getCardBonusByEffect(account?.cards, 'Spelunk_Amber_(Passive)');
+  const litterfishCard = Object.values(account?.cards ?? {}).find((c: any) => c?.rawName === 'w7a7');
+  const litterfishLevel = litterfishCard?.amount > 0 ? (litterfishCard?.stars ?? 0) + 1 : 0;
+  const cardBonus = Math.min(5 * litterfishLevel, 40) + Math.min(10 * litterfishLevel, 100);
   const winnerBonus = getWinnerBonus(account, '<x Amber Gain');
   const shopUpg7 = getSpelunkingBonus(account, 7, 1);
   const shopUpg20 = getSpelunkingBonus(account, 20);
