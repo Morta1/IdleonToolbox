@@ -11,26 +11,59 @@ import {
   Stack,
   Typography
 } from '@mui/material';
-import React, { startTransition, useContext, useState } from 'react';
+import React, { startTransition, useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../context/AppProvider';
 import { prefix, sections } from 'utility/helpers';
 import Tooltip from '../../../Tooltip';
 import Kofi from '../../Kofi';
 
+// Ensure the saved selection has an entry for every current character. Characters created after
+// the selection was last saved (e.g. the 11th slot) are missing from the persisted object, which
+// would hide them and break "All". Missing characters inherit the current "all" state.
+const reconcileDisplayedCharacters = (stored, length) => {
+  const reconciled = { all: false, ...stored };
+  const fallback = stored?.all ?? false;
+  for (let index = 0; index < (length || 0); index++) {
+    if (reconciled[index] === undefined) {
+      reconciled[index] = fallback;
+    }
+  }
+  return reconciled;
+};
+
 const CharactersDrawer = () => {
   const { state, dispatch } = useContext(AppContext);
   const [hoverIndex, setHoverIndex] = useState(null);
-  const [checked, setChecked] = React.useState(state?.displayedCharacters ? state?.displayedCharacters : {
-    all: false,
-    ...Array(state?.characters?.length).fill(false).reduce((res, _, index) => ({
-      ...res,
-      [index]: false
-    }), {})
-  });
+  const [checked, setChecked] = useState(() =>
+    reconcileDisplayedCharacters(state?.displayedCharacters, state?.characters?.length));
   const [chips, setSelectedChips] = useState(state.filters ? state.filters : sections.reduce((res, { name }) => ({
     ...res,
     [name]: false
   }), {}));
+
+  // Re-sync the local checkbox state whenever the saved selection or the character roster changes
+  // (e.g. a newly created 11th character) — React's recommended "adjust state during render" pattern.
+  const [syncSource, setSyncSource] = useState({
+    displayed: state?.displayedCharacters,
+    length: state?.characters?.length
+  });
+  if (syncSource.displayed !== state?.displayedCharacters || syncSource.length !== state?.characters?.length) {
+    setSyncSource({ displayed: state?.displayedCharacters, length: state?.characters?.length });
+    setChecked(reconcileDisplayedCharacters(state?.displayedCharacters, state?.characters?.length));
+  }
+
+  // Persist the backfilled selection to global state so the characters page also includes new
+  // characters instead of silently dropping the missing indices.
+  useEffect(() => {
+    const length = state?.characters?.length;
+    if (!length || !state?.displayedCharacters) return;
+    const reconciled = reconcileDisplayedCharacters(state.displayedCharacters, length);
+    if (Object.keys(reconciled).length !== Object.keys(state.displayedCharacters).length) {
+      startTransition(() => {
+        dispatch({ type: 'displayedCharacters', data: reconciled });
+      });
+    }
+  }, [state?.characters?.length, state?.displayedCharacters, dispatch]);
 
   const handleCharacterChange = (event, _, charIndex) => {
     let newState;
