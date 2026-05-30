@@ -139,7 +139,7 @@ export const getCharacters = (idleonData: IdleonData, charsNames?: any) => {
   const chars = charsNames ? charsNames : [0, 1, 2, 3, 4, 5, 6, 7, 8];
   return chars?.map((charName: any, playerId: any) => {
     const characterDetails = Object.entries(idleonData)?.reduce((res: any, [key, details]: [string, any]) => {
-      const reg = new RegExp(`_${playerId}`, 'g');
+      const reg = new RegExp(`_${playerId}$`);
       if (reg.test(key)) {
         let updatedDetails = tryToParse(details);
         let updatedKey = key;
