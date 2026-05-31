@@ -7,11 +7,11 @@ __turbopack_load_page_chunks__("/guilds/detail", [
   "static/chunks/0onqkhlco9_zm.js",
   "static/chunks/07.az9bisnm8h.js",
   "static/chunks/074dm0ks-ith6.js",
-  "static/chunks/17zdia8o.vi~5.js",
+  "static/chunks/16._2e.4g5hai.js",
   "static/chunks/16-keyvv.rc_2.js",
   "static/chunks/12dgb4tawlxj3.js",
   "static/chunks/16h8kt6-jpqce.js",
   "static/chunks/01b4t03ltbn7y.js",
   "static/chunks/0otdh-5fu63-z.js",
-  "static/chunks/turbopack-0ahg7ogly.muh.js"
+  "static/chunks/turbopack-068zdymg.e9-9.js"
 ])
