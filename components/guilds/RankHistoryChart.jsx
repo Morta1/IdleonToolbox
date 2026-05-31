@@ -1,5 +1,6 @@
 import { ResponsiveLine } from '@nivo/line';
 import { Box, Typography, useTheme } from '@mui/material';
+import { niceStep } from './WeeklyProgressChart';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -45,8 +46,13 @@ export default function RankHistoryChart({ rankHistory }) {
   const yMax = Math.max(maxRank + 1, yMin + 4);
 
   // Explicit integer tick values — ranks are whole numbers, so let Nivo know.
+  // Use a "nice" integer step targeting ~6 ticks so a guild that moved hundreds
+  // of ranks doesn't stack hundreds of "#nnn" labels into an unreadable band.
+  // Small spans round to step 1, preserving the every-rank flat-line behaviour.
+  const step = Math.max(1, Math.round(niceStep((yMax - yMin) / 6)));
   const yTicks = [];
-  for (let v = yMin; v <= yMax; v++) yTicks.push(v);
+  for (let v = Math.ceil(yMin / step) * step; v <= yMax; v += step) yTicks.push(v);
+  if (yTicks.length === 0) yTicks.push(yMin);
 
   const nivoTheme = {
     text: { fill: muiTheme.palette.text.primary },

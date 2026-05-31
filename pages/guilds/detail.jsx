@@ -16,6 +16,7 @@ import useFormatDate from '@hooks/useFormatDate';
 import { numberWithCommas } from '@utility/helpers';
 import { getGuildLevel } from '../../parsers/guild';
 import WeeklyProgressChart from '@components/guilds/WeeklyProgressChart';
+import TrendChart from '@components/guilds/TrendChart';
 import RankHistoryChart from '@components/guilds/RankHistoryChart';
 import ContributorLeaderboard from '@components/guilds/ContributorLeaderboard';
 import RosterDiff from '@components/guilds/RosterDiff';
@@ -81,7 +82,7 @@ export default function GuildDetail() {
   if (error) return <Typography color="error">Failed to load guild history</Typography>;
   if (!data) return null;
 
-  const { guild_name, rank, total_gp, members_count, current_week, last_week, roster_diff } = data;
+  const { guild_name, rank, total_gp, members_count, total_gp_history, current_week, last_week, roster_diff } = data;
   const guildLevel = getGuildLevel(total_gp);
   const maxMembers = 30 + 4 * guildLevel;
   const gpThisWeek = current_week?.gp_this_week ?? 0;
@@ -157,6 +158,13 @@ export default function GuildDetail() {
       </Stack>
       <WeeklyProgressChart detail={data} />
     </Paper>
+
+    {total_gp_history?.length >= 2 && (
+      <Paper sx={{ p: 2, mb: 3 }}>
+        <Typography variant="h6" sx={{ mb: 1 }}>GP gained per day (last 30 days)</Typography>
+        <TrendChart values={total_gp_history} lastUpdatedMs={lastUpdatedMs} />
+      </Paper>
+    )}
 
     <Paper sx={{ p: 2, mb: 3 }}>
       <Typography variant="h6" sx={{ mb: 1 }}>Rank history (last 30 days)</Typography>

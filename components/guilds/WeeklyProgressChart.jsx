@@ -51,7 +51,7 @@ function formatGp(v) {
 }
 
 // d3-style "nice" step: rounds a rough step to the nearest 1, 2, or 5 × 10^N.
-function niceStep(roughStep) {
+export function niceStep(roughStep) {
   if (roughStep <= 0) return 1;
   const exp = Math.floor(Math.log10(roughStep));
   const base = Math.pow(10, exp);
@@ -67,7 +67,7 @@ function niceStep(roughStep) {
 // Mirrors d3's nice() + ticks(): finds a clean step, floors min and ceils max
 // to multiples of step, and enumerates the resulting tick values. Gives a
 // tight zoom on the data (no forced 0-anchor) like poe.ninja's chart.
-function computeNiceAxis(dataMin, dataMax, tickCount = 5) {
+export function computeNiceAxis(dataMin, dataMax, tickCount = 5) {
   if (dataMin === dataMax) {
     const pad = Math.max(1, Math.abs(dataMax) * 0.05);
     return { yMin: dataMin - pad, yMax: dataMax + pad, ticks: [dataMin - pad, dataMin, dataMin + pad] };
@@ -80,7 +80,7 @@ function computeNiceAxis(dataMin, dataMax, tickCount = 5) {
   return { yMin, yMax, ticks, step };
 }
 
-function makeGpFormatter(step, magnitude) {
+export function makeGpFormatter(step, magnitude) {
   // Pick unit by magnitude, but downgrade if the step would force too many decimals.
   let divisor, suffix;
   if (magnitude >= 1_000_000 && step >= 10_000) { divisor = 1_000_000; suffix = 'M'; }
@@ -95,6 +95,29 @@ function makeGpFormatter(step, magnitude) {
   return (v) => {
     if (v === 0) return '0';
     return `${(v / divisor).toFixed(decimals)}${suffix}`;
+  };
+}
+
+// Shared nivo theme so sibling charts (e.g. TrendChart) render identically.
+export function buildNivoTheme(muiTheme) {
+  return {
+    text: { fill: muiTheme.palette.text.primary },
+    axis: {
+      ticks: {
+        text: { fill: muiTheme.palette.text.secondary, fontSize: 11 },
+        line: { stroke: muiTheme.palette.divider }
+      },
+      domain: { line: { stroke: muiTheme.palette.divider } }
+    },
+    grid: { line: { stroke: muiTheme.palette.divider, strokeOpacity: 0.5 } },
+    legends: { text: { fill: muiTheme.palette.text.primary, fontSize: 12 } },
+    crosshair: { line: { stroke: muiTheme.palette.text.secondary } },
+    tooltip: {
+      container: {
+        background: muiTheme.palette.background.paper,
+        color: muiTheme.palette.text.primary
+      }
+    }
   };
 }
 
@@ -118,25 +141,7 @@ export default function WeeklyProgressChart({ detail }) {
   const { yMin, yMax, ticks: yTicks, step: yStep } = computeNiceAxis(Math.min(...allY), Math.max(...allY));
   const formatYAxis = makeGpFormatter(yStep, dataMagnitude);
 
-  const nivoTheme = {
-    text: { fill: muiTheme.palette.text.primary },
-    axis: {
-      ticks: {
-        text: { fill: muiTheme.palette.text.secondary, fontSize: 11 },
-        line: { stroke: muiTheme.palette.divider }
-      },
-      domain: { line: { stroke: muiTheme.palette.divider } }
-    },
-    grid: { line: { stroke: muiTheme.palette.divider, strokeOpacity: 0.5 } },
-    legends: { text: { fill: muiTheme.palette.text.primary, fontSize: 12 } },
-    crosshair: { line: { stroke: muiTheme.palette.text.secondary } },
-    tooltip: {
-      container: {
-        background: muiTheme.palette.background.paper,
-        color: muiTheme.palette.text.primary
-      }
-    }
-  };
+  const nivoTheme = buildNivoTheme(muiTheme);
 
   // "Last week" is ghosted (de-emphasised) so "this week" reads as the primary curve.
   const seriesColor = (s) => s.id === 'This week'
@@ -145,7 +150,7 @@ export default function WeeklyProgressChart({ detail }) {
   const seriesLineWidth = (s) => s.id === 'This week' ? 2.5 : 1.5;
 
   return (
-    <Box sx={{ height: 320 }}>
+    <Box sx={{ height: 200 }}>
       <ResponsiveLine
         data={series}
         theme={nivoTheme}
