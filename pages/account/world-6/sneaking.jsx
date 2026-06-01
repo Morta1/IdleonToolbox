@@ -59,18 +59,33 @@ const Sneaking = () => {
           </Tooltip>
         </Stack>
       </CardTitleAndValue>
-      {gemStones?.map(({ notatedBonus, rawName, name, description }, index) => <CardTitleAndValue key={'gemstone-' + index}
-                                                                                     title={name}
-                                                                                     stackProps>
+    </Stack>
+    <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
+      {gemStones?.map(({ notatedBonus, rawName, name, description, baseValue, saturationPct }, index) => <CardTitleAndValue
+        key={'gemstone-' + index}
+        title={name}
+        stackProps>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <img style={{ objectFit: 'contain', width: 19, height: 19 }} src={`${prefix}data/${rawName}.png`} alt=""/>
-          <Typography component={'div'}>{`${index === 7 ? '+' : ''}${notatedBonus}${index !== 7 ? '%' : ''}`}</Typography>
+          <Stack>
+            <Typography component={'div'}>{`${index === 7 ? '+' : ''}${notatedBonus}${index !== 7
+              ? '%'
+              : ''}`}</Typography>
+            <Typography component={'div'} variant={'caption'} color={'text.secondary'}>
+              {notateNumber(baseValue, 'Big')} gems
+            </Typography>
+            <Typography component={'div'} variant={'caption'} color={'text.secondary'}>
+              {(saturationPct || 0).toFixed(1)}% of max
+            </Typography>
+          </Stack>
           <Tooltip title={cleanUnderscore(description)}>
             <IconInfoCircleFilled size={18}/>
           </Tooltip>
         </Stack>
       </CardTitleAndValue>)}
+
     </Stack>
+
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'sneaking')}>
       <PlayersInventory players={players}
                         dropList={dropList}

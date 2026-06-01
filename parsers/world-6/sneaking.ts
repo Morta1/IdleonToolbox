@@ -56,10 +56,15 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
       description = description.replace('$', notatedBonus);
     }
 
+    // The bonus formula is x3 + x5 * (baseValue / (1000 + baseValue)).
+    // The saturating term is how close this gemstone is to its max possible bonus (x5 is the asymptotic cap).
+    const saturationPct = data.baseValue / (1e3 + data.baseValue) * 100;
+
     return {
       ...data,
       bonus,
       notatedBonus,
+      saturationPct,
       description: description.replace('{', '+').replace(/@/g, '')
     };
   });
