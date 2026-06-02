@@ -16,26 +16,45 @@ const Anvil = () => {
 
   const totals = calcTotals(state?.account, state?.characters);
 
+  // Per-item per-character contributions for the Totals tooltips.
+  const contributions = {};
+  (anvil || []).forEach((_, index) => {
+    const character = state?.characters?.[index];
+    const { stats, production } = getPlayerAnvil(character, state?.characters, state?.account);
+    production?.filter(({ hammers }) => hammers > 0)?.forEach(({ rawName, hammers, requiredAmount }) => {
+      const perHour = Math.min(stats?.anvilSpeed * hammers / requiredAmount, stats?.anvilCapacity);
+      (contributions[rawName] = contributions[rawName] || []).push({ name: character?.name, perHour });
+    });
+  });
+  Object.values(contributions).forEach((arr) => arr.sort((a, b) => b.perHour - a.perHour));
+
   return <>
     <NextSeo
       title="Anvil | Idleon Toolbox"
       description="Monitor your characters' anvil production rates, craft queues, and smithing progress in Legends of Idleon"
     />
-    <Stack direction={'row'} alignItems={'baseline'} gap={1}>
-      <Typography variant={'h4'}>Totals</Typography>
-      <Typography variant={'caption'}>per hour</Typography>
-    </Stack>
-    <Stack direction={'row'} gap={2} sx={{ mt: 2, mb: 3 }} flexWrap={'wrap'}>
+    <Stack direction={'row'} gap={2} sx={{ mb: 3 }} flexWrap={'wrap'}>
       {Object.entries(totals || {}).map(([rawName, value], index) => {
+        const breakdown = contributions[rawName] || [];
         return <Card key={'total' + rawName + index}>
           <Tooltip title={<>
-            <Typography>{notateNumber(value * 24, 'Big')} / day</Typography>
-            <Typography variant={'caption'}>In case you're claiming before full</Typography>
+            <Typography variant={'body2'}>{notateNumber(value * 24, 'Big')} / day</Typography>
+            <Divider sx={{ my: 1 }}/>
+            <Typography variant={'caption'}>Produced by:</Typography>
+            {breakdown.map(({ name, perHour }) => (
+              <Stack key={name} direction={'row'} justifyContent={'space-between'} gap={2}>
+                <Typography variant={'body2'}>{name}</Typography>
+                <Typography variant={'body2'}>{notateNumber(perHour, 'Big')}/hr</Typography>
+              </Stack>
+            ))}
           </>}>
             <CardContent>
               <Stack alignItems={'center'} gap={1} direction={'row'}>
                 <img width={25} height={25} src={`${prefix}data/${rawName}.png`} alt={''}/>
-                <Typography>{notateNumber(value, 'Big')}</Typography>
+                <Stack>
+                  <Typography>{notateNumber(value, 'Big')}<Typography component={'span'} variant={'caption'} color={'text.secondary'}> /hr</Typography></Typography>
+                  <Typography variant={'caption'} color={'text.secondary'}>{notateNumber(value * 24, 'Big')} /day</Typography>
+                </Stack>
               </Stack>
             </CardContent>
           </Tooltip>
@@ -63,20 +82,24 @@ const Anvil = () => {
         const production = prod?.filter(({ hammers }) => hammers > 0);
         const numOfHammers = production?.reduce((res, { hammers }) => res + hammers, 0);
         const realProduction = numOfHammers >= maxProducts ? production : fillArrayToLength(numOfHammers, production);
-        return <Card key={`printer-row-${index}`} sx={{ width: { xs: '100%', lg: 900 } }}>
+        return <Card key={`printer-row-${index}`}
+                     sx={{
+                       width: { xs: '100%', lg: 900 },
+                       transition: 'box-shadow .15s ease, transform .15s ease',
+                       '&:hover': { boxShadow: 6 }
+                     }}>
           <CardContent>
-            <Stack sx={{ flexDirection: { xs: 'column', md: 'row' } }} alignItems={'center'} gap={2}>
+            <Stack sx={{ flexDirection: { xs: 'column', md: 'row' } }} alignItems={'center'} gap={2}
+                   divider={<Divider orientation={'vertical'} flexItem sx={{ display: { xs: 'none', md: 'block' } }}/>}>
               <Stack sx={{ width: 175, flexDirection: { xs: 'column', md: 'row' } }}
                      alignItems={'center'} gap={2}>
-                <Stack alignItems={'center'} justifyContent={'center'}>
-                  <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
-                </Stack>
-                <Stack>
+                <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
+                <Stack gap={.25}>
                   <Typography data-cy={`player-name-${playerName}`}
                               className={'character-name'}>{playerName}</Typography>
-                  <Typography variant={'caption'}>Smithing lv. {smithingLevel}</Typography>
+                  <Typography variant={'caption'} color={'text.secondary'}>Smithing lv. {smithingLevel}</Typography>
                   <Typography variant={'caption'}
-                              color={color}>Points {pointsFromCoins + pointsFromMats - availablePoints + smithingLevel} / {pointsFromCoins + pointsFromMats + smithingLevel}</Typography>
+                              color={color || 'text.secondary'}>Points {pointsFromCoins + pointsFromMats - availablePoints + smithingLevel} / {pointsFromCoins + pointsFromMats + smithingLevel}</Typography>
                 </Stack>
               </Stack>
               <Stack sx={{ justifyContent: { xs: 'center', md: 'flex-start' } }} direction={'row'} alignItems={'center'}
@@ -105,24 +128,25 @@ const Anvil = () => {
                     currentProgress: 0,
                     fromZero: true
                   });
-                  return <Card elevation={5}
-                               sx={{ boxShadow: hammers > 0 ? 'inherit' : '0px 0px 5px #ff0707' }}
+                  const isFull = percentOfCap >= 100;
+                  return <Card elevation={3}
+                               sx={{
+                                 borderRadius: 2,
+                                 boxShadow: hammers > 0 ? 'inherit' : '0px 0px 5px #ff0707',
+                                 transition: 'transform .15s ease',
+                               }}
                                key={`${rawName}-${slotIndex}`}>
-                    <CardContent>
-                      {hammers > 0 ? <Stack direction={'row'} gap={1}>
+                    <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+                      {hammers > 0 ? <Stack direction={'row'} gap={1.5} alignItems={'center'}>
                         <Badge anchorOrigin={{
                           vertical: 'top',
                           horizontal: 'left'
                         }} color="secondary" variant={'standard'} badgeContent={hammers > 1 ? hammers : 0}>
                           <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
                         </Badge>
-                        <Stack justifyContent={'flex-start'}>
-                          <Stack direction={'row'} alignItems={'center'} gap={2}>
-                            <Timer date={new Date().getTime() + (timeTillCap * 1000)}
-                                   type={'countdown'}
-                                   placeholder={<Typography component={'span'}
-                                                            color={'error.light'}>Full</Typography>}
-                                   lastUpdated={state?.lastUpdated}/>
+                        <Stack gap={.4} sx={{ minWidth: 165 }}>
+                          <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1}>
+                            <Typography variant={'subtitle2'} noWrap>{cleanUnderscore(displayName)}</Typography>
                             <Tooltip title={<>
                               <Typography variant={'body1'}>{cleanUnderscore(displayName)}</Typography>
                               <Divider sx={{ my: 1 }}/>
@@ -138,13 +162,31 @@ const Anvil = () => {
                               <Divider sx={{ my: 1 }}/>
                               <Typography variant={'body2'}>Exp per craft: {numberWithCommas(exp)}</Typography>
                             </>}>
-                              <IconInfoCircleFilled size={16}/>
+                              <IconInfoCircleFilled size={16} style={{ flexShrink: 0, opacity: .6 }}/>
                             </Tooltip>
                           </Stack>
-                          <Typography variant={'body2'}>Exp: {notateNumber(currentXP, 'Big')}</Typography>
-                          <Typography mb={.5}
-                                      variant={'body2'}>Cap: {notateNumber(futureProduction)} / {notateNumber(stats?.anvilCapacity)}</Typography>
-                          <ProgressBar percent={percentOfCap} label={false}/>
+                          <Stack direction={'row'} alignItems={'center'} gap={.75}>
+                            <Typography variant={'caption'} color={'text.secondary'}>Done in</Typography>
+                            <Timer date={new Date().getTime() + (timeTillCap * 1000)}
+                                   type={'countdown'}
+                                   placeholder={<Typography component={'span'}
+                                                            color={'error.light'}>Full</Typography>}
+                                   lastUpdated={state?.lastUpdated}/>
+                          </Stack>
+                          <ProgressBar percent={percentOfCap}
+                                       bgColor={isFull ? '#ef5350' : undefined}
+                                       label={false}
+                                       sx={{ height: 8 }}/>
+                          <Stack direction={'row'} justifyContent={'space-between'} gap={1}>
+                            <Typography variant={'caption'} color={'text.secondary'}>Cap</Typography>
+                            <Typography variant={'caption'} color={isFull ? 'error.light' : 'inherit'}>
+                              {notateNumber(futureProduction)} / {notateNumber(stats?.anvilCapacity)}
+                            </Typography>
+                          </Stack>
+                          <Stack direction={'row'} justifyContent={'space-between'} gap={1}>
+                            <Typography variant={'caption'} color={'text.secondary'}>Exp</Typography>
+                            <Typography variant={'caption'}>{notateNumber(currentXP, 'Big')}</Typography>
+                          </Stack>
                         </Stack>
                       </Stack> : <Stack sx={{ width: 90, height: 65 }} alignItems={'center'}
                                         justifyContent={'center'}>
