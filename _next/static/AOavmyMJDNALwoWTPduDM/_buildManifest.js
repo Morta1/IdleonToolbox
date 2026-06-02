@@ -84,7 +84,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/02z~2ccyr9-rl.js"
   ],
   "/account/world-1/anvil": [
-    "static/chunks/14~nd5wlrvckk.js"
+    "static/chunks/0~0l.ryany1ey.js"
   ],
   "/account/world-1/bribes": [
     "static/chunks/0gb_adhee01i-.js"

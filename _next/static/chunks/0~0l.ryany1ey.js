@@ -4,11 +4,11 @@ __turbopack_load_page_chunks__("/account/world-1/anvil", [
   "static/chunks/0gdhjfdy-wuqx.js",
   "static/chunks/0hha4~5yi~g34.js",
   "static/chunks/15-nfnh1.q2rh.js",
+  "static/chunks/058wt6i3o49g7.js",
   "static/chunks/0yrk17-694t_1.js",
-  "static/chunks/0otdh-5fu63-z.js",
   "static/chunks/0ankwt3doph5s.js",
   "static/chunks/0mpfqmmtjfj9u.js",
-  "static/chunks/058wt6i3o49g7.js",
-  "static/chunks/0e3kgrbo7kbiy.js",
-  "static/chunks/turbopack-083y9bfxvv09..js"
+  "static/chunks/0otdh-5fu63-z.js",
+  "static/chunks/0~k2e15q04y.6.js",
+  "static/chunks/turbopack-0i7z0vaffjjmc.js"
 ])
