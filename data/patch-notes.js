@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.48',
+    'gameVer': '2.3.508',
+    'date': '03/06/2026',
+    'features': [
+      'Updated the website with version 2.3.508 data and assets',
+      'Greenstacks are now permanent: the Slab and Storage pages mark greenstacked items with an indicator, and the Slab adds a "Greenstacked" count and display filter'
+    ],
+    'fixes': [
+      'Lab "Banker Fury" bonus now counts the permanent greenstack registry instead of the live 10M+ storage count',
+      'Research EXP multiplier now includes the Sharp Eye research grid bonus',
+      'Stamps: "subtract green stacks" now checks affordability against materials left after the 10M reserve, not just having over 10M'
+    ]
+  },
+  {
     'ver': '3.3.47',
     'gameVer': '2.3.507',
     'date': '29/05/2026',

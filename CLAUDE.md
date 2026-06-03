@@ -84,6 +84,9 @@ All user-facing dates and times must respect user preferences (DD/MM vs MM/DD, 2
 
 This project uses **React Compiler** (`reactCompiler: true` in `next.config.js`), so manual memoization with `useMemo` and `useCallback` is generally unnecessary. The compiler automatically optimizes component re-renders.
 
+### Patch notes
+Make sure the patch notes are concise and easy to understand, don't add too much information.
+
 ### Multi-pass serialization rule
 
 Some fields produced by `serializeData` depend on values that are computed during the same

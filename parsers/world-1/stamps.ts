@@ -121,7 +121,9 @@ const checkHasMaterials = (materials: any, materialCost: any, account: any, subt
   return materials?.every(({ itemName, type, itemQuantity }: any) => {
     if (type === 'Equip') return true;
     let ownedMats = calculateItemTotalAmount(account?.storage?.list, itemName, true);
-    return subtractGreenStacks ? Math.max(0, ownedMats - 1e7) : ownedMats >= itemQuantity * materialCost;
+    return subtractGreenStacks
+      ? Math.max(0, ownedMats - 1e7) >= itemQuantity * materialCost
+      : ownedMats >= itemQuantity * materialCost;
   })
 }
 

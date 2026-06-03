@@ -7,7 +7,6 @@ import { NextSeo } from 'next-seo';
 import Image from 'next/image';
 import { CardTitleAndValue } from '@components/common/styles';
 import { getSlabBonus } from '@parsers/world-5/sailing';
-import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 
 const Slab = () => {
   const { state } = useContext(AppContext);
@@ -19,6 +18,7 @@ const Slab = () => {
     else if (itemDisplay === 'missing' && !item?.obtained && !item?.unobtainable) return true;
     else if (itemDisplay === 'rotation' && item?.onRotation) return true;
     else if (itemDisplay === 'unobtainable' && item?.unobtainable) return true;
+    else if (itemDisplay === 'greenstacked' && item?.greenStacked) return true;
   }
 
   const slabItems = state?.account?.looty?.slabItems?.filter((item) => shouldDisplayItem(item, display));
@@ -30,7 +30,7 @@ const Slab = () => {
     { name: 'Jade', icon: 'Slab4', value: state?.account?.sneaking?.jadeEmporium?.[8]?.bonus ?? 0 },
     { name: 'Essence', icon: 'Slab5', value: state?.account?.sneaking?.jadeEmporium?.[6]?.bonus ?? 0 },
     { name: 'Pow', icon: 'CaveShopUpg17', value: getSlabBonus(state?.account, 6) ?? 0 },
-    { name: 'Research Exp', icon: 'ClassIcons61', value: getSlabBonus(state?.account, 7) ?? 0 },
+    { name: 'Research Exp', icon: 'ClassIcons61', value: getSlabBonus(state?.account, 7) ?? 0 }
   ];
 
   return <Stack>
@@ -43,10 +43,13 @@ const Slab = () => {
                          value={`${state?.account?.looty?.lootedItems} / ${state?.account?.looty?.totalItems}`}/>
       <CardTitleAndValue title={'Missing items'}
                          value={state?.account?.looty?.missingItems}/>
+      <CardTitleAndValue title={'Greenstacked'}
+                         value={state?.account?.looty?.greenStackedCount}/>
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
         {slabBonuses.map(({ name, value, icon }, index) => {
           return <CardTitleAndValue key={`bonus-${index}`} title={name} value={`${notateNumber(value)}%`}
-                                    icon={`data/${icon}.png`} imgStyle={{ width: 22, height: 22, objectFit: 'contain' }}>
+                                    icon={`data/${icon}.png`}
+                                    imgStyle={{ width: 22, height: 22, objectFit: 'contain' }}>
           </CardTitleAndValue>
         })}
       </Stack>
@@ -66,17 +69,26 @@ const Slab = () => {
           <FormControlLabel value="all" control={<Radio/>} label="All items"/>
           <FormControlLabel value="rotation" control={<Radio/>} label="GemShop rotation"/>
           <FormControlLabel value="unobtainable" control={<Radio/>} label="Unobtainable"/>
+          <FormControlLabel value="greenstacked" control={<Radio/>} label="Greenstacked"/>
         </RadioGroup>
       </FormControl>
     </Box>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       {slabItems?.map((item, index) => {
-        const { name, rawName } = item;
-        return <HtmlTooltip key={`${rawName}-${index}`} title={cleanUnderscore(name)}>
-          <Icon src={`${prefix}data/${rawName}.png`}
-                fallback={`${prefix}data/${rawName}_x1.png`}
-                size={50}
-                alt={rawName}/>
+        const { name, rawName, greenStacked } = item;
+        return <HtmlTooltip key={`${rawName}-${index}`}
+                            title={`${cleanUnderscore(name)}${greenStacked ? ' (Greenstacked)' : ''}`}>
+          <Box sx={{ display: 'inline-flex', position: 'relative' }}>
+            <Icon src={`${prefix}data/${rawName}.png`}
+                  fallback={`${prefix}data/${rawName}_x1.png`}
+                  size={50}
+                  alt={rawName}/>
+            {greenStacked ? <img src={`${prefix}data/GreenSymbol.png`}
+                                 alt={'greenstacked'}
+                                 style={{ position: 'absolute', top: -5, right: -5 }}
+                                 width={50}
+                                 height={50}/> : null}
+          </Box>
         </HtmlTooltip>
       })}
     </Stack>

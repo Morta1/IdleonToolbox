@@ -1,6 +1,6 @@
 import { AppContext } from 'components/common/context/AppProvider';
 import React, { useContext, useEffect, useState } from 'react';
-import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, getTabs, groupByKey, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import HtmlTooltip from 'components/Tooltip';
@@ -42,17 +42,27 @@ const Looty = () => {
     setSortByStackSize(event.target.checked);
   };
 
+  const greenStacksSet = new Set(state?.account?.storage?.greenStacks);
+
   const renderItems = (items) => {
     if (!items || !Array.isArray(items)) return null;
     return items?.map((item, index) => {
       const { name, rawName, amount } = item;
+      const greenStacked = greenStacksSet.has(rawName);
       return (
         <Card variant={'outlined'} sx={{ width: 75 }} key={`${name}-${index}`}>
-          <CardContent>
+          <CardContent sx={{ position: 'relative' }}>
+            {greenStacked ? <img src={`${prefix}data/GreenSymbol.png`}
+                                 alt={'greenstacked'}
+                                 style={{ position: 'absolute', top: 0, right: 0 }}
+                                 width={50}
+                                 height={50}/> : null}
             <HtmlTooltip title={<ItemDisplay {...item} showAmount/>}>
               <Stack alignItems="center" key={`${rawName}-${index}`} data-index={index}>
-                <Image loading="lazy" data-index={index} width={30} height={30} style={{ objectFit: 'contain' }}
-                       src={`${prefix}data/${rawName}.png`} alt={rawName}/>
+                <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+                  <Image loading="lazy" data-index={index} width={30} height={30} style={{ objectFit: 'contain' }}
+                         src={`${prefix}data/${rawName}.png`} alt={rawName}/>
+                </Box>
                 <Typography
                   color={amount >= 1e7
                     ? 'success.light'

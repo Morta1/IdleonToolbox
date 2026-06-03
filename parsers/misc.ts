@@ -332,6 +332,8 @@ export const hasItemDropped = (account: any, itemName: any) => {
 
 export const getSlab = (idleonData: any) => {
   const lootyRaw = idleonData?.Cards?.[1] || tryToParse(idleonData?.Cards1);
+  const greenStacks = tryToParse(idleonData?.GreenStacks) || idleonData?.GreenStacks || [];
+  const greenStacksSet = new Set(greenStacks);
   const allItems = structuredClone((items)); // Deep clone
   const forcedNames = {
     'Motherlode': 'Motherlode_x1',
@@ -347,6 +349,7 @@ export const getSlab = (idleonData: any) => {
     name: allItems?.[name]?.displayName,
     rawName: (forcedNames as Record<string, any>)?.[name] || name,
     obtained: lootyRaw?.includes(name),
+    greenStacked: greenStacksSet.has(name),
     onRotation: filteredGemShopItems?.[name],
     unobtainable: filteredLootyItems?.[name]
   }));
@@ -357,6 +360,8 @@ export const getSlab = (idleonData: any) => {
     lootyRaw,
     lootedItems: lootyRaw?.length,
     missingItems,
+    greenStacks,
+    greenStackedCount: greenStacks?.length ?? 0,
     totalItems: slab?.length,
     rawLootedItems: lootyRaw?.length
   };

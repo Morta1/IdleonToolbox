@@ -177,7 +177,11 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
   const animalFarmMulti = 1 + purpleNaveeteBonus;
   labBonusesList = applyBonusDesc(labBonusesList, totalSpeciesUnlocked * animalFarmMulti, 0, animalFarmMulti);
 
-  const greenStacks = account?.storage?.list?.filter((item: any) => item.amount >= 1e7).length;
+  // Game uses the persistent GreenStacks registry length (permanent since 2.3.508), not the live storage count.
+  // Fall back to the live count for older saves that don't have the registry.
+  const greenStacks = account?.storage?.greenStacks?.length
+    ?? account?.storage?.list?.filter((item: any) => item.amount >= 1e7).length
+    ?? 0;
   const bankerFuryBonusFromJewel = getJewelBonus(jewelsList, 17);
   labBonusesList = applyBonusDesc(labBonusesList, greenStacks * (2 + bankerFuryBonusFromJewel), 11, 2 + bankerFuryBonusFromJewel)
 

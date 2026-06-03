@@ -41,6 +41,9 @@ export interface StorageData {
   list: StorageItem[];
   slots: StorageSlots;
   storageChests: StorageChest[];
+  // Persistent greenstack registry (rawNames). Greenstacks became permanent in 2.3.508:
+  // once an item hits 10M+ in the Storage Chest it stays registered even if the count later drops.
+  greenStacks: string[];
 }
 
 export const getStorage = (idleonData: IdleonData, name = 'storage', account: Account): StorageData => {
@@ -48,7 +51,8 @@ export const getStorage = (idleonData: IdleonData, name = 'storage', account: Ac
   const chestQuantityRaw = tryToParse(idleonData?.ChestQuantity);
   const chestStoneData = tryToParse(idleonData?.CMm);
   const storageChests = tryToParse((idleonData as any).InvStorageUsed);
-  return parseStorage(chestOrderRaw, chestQuantityRaw, name, chestStoneData, storageChests, account);
+  const greenStacks = tryToParse((idleonData as any).GreenStacks) || (idleonData as any).GreenStacks || [];
+  return { ...parseStorage(chestOrderRaw, chestQuantityRaw, name, chestStoneData, storageChests, account), greenStacks };
 }
 
 export const parseStorage = (chestOrderRaw: any, chestQuantityRaw: any, name: string, chestStoneData: any, rawStorageChests: any, account: Account): StorageData => {
@@ -65,7 +69,8 @@ export const parseStorage = (chestOrderRaw: any, chestQuantityRaw: any, name: st
   return {
     list,
     slots,
-    storageChests
+    storageChests,
+    greenStacks: []
   }
 }
 

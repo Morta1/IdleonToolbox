@@ -550,6 +550,7 @@ function getResearchEXPmulti(account: any, research: any) {
   const arcade63 = account?.arcade?.shop?.[63]?.bonus ?? 0;
   const grid70 = getResearchGridBonusInternal(account, research, 70, 0);
   const grid31 = getResearchGridBonusInternal(account, research, 31, 0);
+  const grid51 = getResearchGridBonusInternal(account, research, 51, 0);
   const grid94_2 = getResearchGridBonusInternal(account, research, 94, 2);
   const prehistoricSetBonus = Math.min(50, getArmorSetBonus(account, 'PREHISTORIC_SET'));
   const killroyResearchBonus = 1 + getKillRoyShopBonus(account, 5) / 100;
@@ -571,6 +572,7 @@ function getResearchEXPmulti(account: any, research: any) {
     cardBonus +
     arcade63 +
     grid31 +
+    grid51 +
     grid94_2 +
     prehistoricSetBonus;
 
@@ -604,6 +606,7 @@ function getResearchEXPmulti(account: any, research: any) {
           { name: 'Card', value: cardBonus },
           { name: 'Arcade', value: arcade63 },
           { name: 'Grid 31', value: grid31 },
+          { name: 'Sharp Eye', value: grid51 },
           { name: 'Obs Levels (Grid 94)', value: grid94_2 },
           { name: 'Prehistoric Set', value: prehistoricSetBonus }
         ]
