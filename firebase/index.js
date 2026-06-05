@@ -137,11 +137,16 @@ const subscribe = async (uid, accessToken, callback) => {
 
       const cloudsave = docSnapshot.data();
 
-      const [companion, guildId, tournamentUser, tournamentMatchData] = await Promise.all([
+      const [companion, guildId, tournamentUser, tournamentMatchData, tournamentGlobal] = await Promise.all([
         getSnapshot(dbRef, `_comp/${uid}`),
         getSnapshot(dbRef, `_usgu/${uid}/g`),
         getSnapshot(dbRef, `_tournament/${uid}`),
         getDoc(doc(firestore, '_T_RES_UID', uid)).then((d) => (d?.exists() ? d.data() : null)),
+        // Re-fetch the global tournament doc on every snapshot. It holds the server's
+        // shop-day (S) counter, which advances daily. Reusing the value cached at subscribe
+        // time made the shop-day go stale across a daily reset, so the Pet Mart gems alert
+        // silently stopped triggering even when gems were claimable.
+        getDoc(doc(firestore, '_TOURNAMENT', '_TOURNAMENT')).then((d) => (d?.exists() ? d.data() : null)),
       ]);
 
       const guild = guildId ? await getSnapshot(dbRef, `_guild/${guildId}`) : null;
@@ -156,7 +161,7 @@ const subscribe = async (uid, accessToken, callback) => {
       const tournament = {
         user: tournamentUser,
         match: tournamentMatchData,
-        global: tournamentData,
+        global: tournamentGlobal ?? tournamentData,
         leaderboard: []
       }
 
