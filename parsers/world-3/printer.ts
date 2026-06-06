@@ -7,6 +7,7 @@ import { getAtomColliderThreshold } from '@parsers/world-3/atomCollider';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getCompassBonus } from '@parsers/class-specific/compass';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import type { IdleonData, Account } from '../types';
 
 export const getPrinter = (idleonData: IdleonData, charactersData: any[], accountData: Account) => {
@@ -79,6 +80,10 @@ const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData:
             {
               name: 'Winter event',
               value: 1 + (2 * Number(accountData?.accountOptions?.[323]) * getEventShopBonus(accountData, 4)) / 100
+            },
+            {
+              name: 'Legend Talent',
+              value: 1 + (params.legendTalentDays * params.legendTalentBonus) / 100
             }
           ];
 
@@ -98,11 +103,15 @@ const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData:
 
 export const getPrinterMulti = (accountData: Account, charactersData: any[]) => {
   const goldRelic = isArtifactAcquired(accountData?.sailing?.artifacts, 'Gold_Relic');
-  const goldRelicBonus = goldRelic?.acquired === 4 ? goldRelic?.sovereignMultiplier : goldRelic?.acquired === 3
-    ? goldRelic?.eldritchMultiplier
-    : goldRelic?.acquired === 2
-      ? goldRelic?.ancientMultiplier
-      : 0;
+  const goldRelicBonus = goldRelic?.acquired === 6 ? goldRelic?.transcendentMultiplier : goldRelic?.acquired === 5
+    ? goldRelic?.omnipotentMultiplier
+    : goldRelic?.acquired === 4
+      ? goldRelic?.sovereignMultiplier
+      : goldRelic?.acquired === 3
+        ? goldRelic?.eldritchMultiplier
+        : goldRelic?.acquired === 2
+          ? goldRelic?.ancientMultiplier
+          : 0;
   const daysSinceLastSample = accountData?.accountOptions?.[125];
   const orbOfRemembranceKills = accountData?.accountOptions?.[138];
   const divineKnights = charactersData?.filter((character) => checkCharClass(character?.class, CLASSES.Divine_Knight));
@@ -124,6 +133,10 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
   const voteBonus = (1 + getVoteBonus(accountData, 11) / 100);
   const companionBonus = 1 + Number(accountData?.accountOptions?.[354]) * isCompanionBonusActive(accountData, 17) / 100;
   const compassBonus = 1 + (Number(accountData?.accountOptions?.[364]) * getCompassBonus(accountData, 43)) / 100;
+  // Legend talent "Yet Another Printer Multi" (index 17): +x% printer output per day for 20 days, resets on sample
+  const legendTalentDays = Number(accountData?.accountOptions?.[479]) || 0;
+  const legendTalentBonus = getLegendTalentBonus(accountData, 17) ?? 0;
+  const yetAnotherPrinterMulti = 1 + (legendTalentDays * legendTalentBonus) / 100;
   const extraPrinting = (1 + (Number(daysSinceLastSample) * (2 + goldRelicBonus)) / 100)
     * (1 + (highestKingOfRemembrance * lavaLog(orbOfRemembranceKills)) / 100)
     * (1 + skillMasteryBonus / 100
@@ -131,7 +144,8 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
     * voteBonus
     * (1 + (2 * Number(accountData?.accountOptions?.[323]) * getEventShopBonus(accountData, 4)) / 100)
     * companionBonus
-    * compassBonus;
+    * compassBonus
+    * yetAnotherPrinterMulti;
 
   return {
     params: {
@@ -144,6 +158,8 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
       goldRelicBonus,
       companionBonus,
       compassBonus,
+      legendTalentDays,
+      legendTalentBonus,
     },
     value: extraPrinting,
     expression: `(1 + (daysSinceLastSample * (2 + goldRelicBonus)) / 100)
@@ -152,7 +168,8 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
 * voteBonus
 * (1 + (2 * accountData?.accountOptions?.[323] * getEventShopBonus(accountData, 4)) / 100)
 * companionBonus
-* compassBonus`
+* compassBonus
+* (1 + (legendTalentDays * legendTalentBonus) / 100)`
   }
 }
 export const calcTotals = (account: Account, showAlertWhenFull: any) => {
