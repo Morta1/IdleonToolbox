@@ -12,7 +12,9 @@ export const patchNotes = [
       'Cooking: new Mastery tab showing your mastery level, EXP rate (with a full breakdown), rank, purple/yellow points, and the 6 category bonuses',
       'Cooking: meals now show their Cooking Mastery node level and how much it boosts the meal\'s bonus'
     ],
-    'fixes': []
+    'fixes': [
+      'Library: Fortune Cookie meal bonus now applies again to checkout speed/time (the meal\'s effect text changed in 2.3.509, which made the bonus read as 0)'
+    ]
   },
   {
     'ver': '3.3.48',

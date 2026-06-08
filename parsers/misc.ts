@@ -275,7 +275,7 @@ const calcTimeToXBooks = (bookCount: any, maxCount: any, account: any, character
 //  "BookReqTime"
 export const getTimeToNextBooks = (bookCount: any, account: any, characters: any, idleonData: any) => {
   const towersLevels = tryToParse(idleonData?.Tower) || idleonData?.Tower;
-  const mealBonus = getMealsBonusByEffectOrStat(account, 'Library_checkout_Speed', null);
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Lib');
   const bubbleBonus = getBubbleBonus(account, 'IGNORE_OVERDUES', false);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Talent_Book_Library');
   const stampBonus = getStampsBonusByEffect(account, 'Talent_Book_Library_Refresh_Speed')
