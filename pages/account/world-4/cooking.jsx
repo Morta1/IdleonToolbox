@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import Kitchens from 'components/account/Worlds/World4/Kitchens';
 import Meals from '@components/account/Worlds/World4/Meals';
+import CookingMastery from '@components/account/Worlds/World4/CookingMastery';
 import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';
 import { getTabs, tryToParse } from '@utility/helpers';
@@ -105,6 +106,7 @@ const Cooking = () => {
           equinoxUpgrades={state?.account?.equinox?.upgrades}
           account={state?.account}
         />
+        <CookingMastery cookingMastery={cooking?.cookingMastery} />
       </Tabber>
     </>
   );

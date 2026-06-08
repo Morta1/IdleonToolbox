@@ -185,7 +185,9 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.currencies = getCurrencies(accountData, idleonData, processedData);
   accountData.stamps = getStamps(idleonData, accountData);
   accountData.breeding = getBreeding(idleonData, accountData, processedData);
-  accountData.cooking = getCooking(idleonData, accountData);
+  // charactersData is the previous pass's enriched characters (with skillsInfo); empty on pass 1.
+  // Cooking Mastery's cross-character cooking-level sum resolves via the multi-pass serialization.
+  accountData.cooking = getCooking(idleonData, accountData, charactersData);
   accountData.divinity = getDivinity(idleonData, serializedCharactersData, accountData);
   accountData.sneaking = getSneaking(idleonData, serverVars, charactersData, accountData);
   accountData.farming = getFarming(idleonData, accountData, processedData?.charactersData);

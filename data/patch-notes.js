@@ -4,6 +4,17 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.49',
+    'gameVer': '2.3.509',
+    'date': '08/06/2026',
+    'features': [
+      'Updated the website with version 2.3.509 data and assets',
+      'Cooking: new Mastery tab showing your mastery level, EXP rate (with a full breakdown), rank, purple/yellow points, and the 6 category bonuses',
+      'Cooking: meals now show their Cooking Mastery node level and how much it boosts the meal\'s bonus'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.48',
     'gameVer': '2.3.508',
     'date': '03/06/2026',

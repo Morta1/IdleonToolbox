@@ -1,10 +1,10 @@
 let Bf = {}
 Bf._mul = Math.imul;
-const z = {}
+const A = {}
 var dc = function(e) {
   this.init(e);
 };
-((z.Rand = dc),
+((A.Rand = dc),
   (dc.__name__ = "Rand"),
   (dc.hash = function(e, t) {
     return (null == t && (t = 5381), (e = Bf._mul(e, -862048943)), (t ^= e = Bf._mul((e << 15) | (e >>> 17), 461845907)), (t = (Bf._mul((t << 13) | (t >>> 19), 5) + -430675100) | 0), (t = Bf._mul(t ^ (t >> 16), -2048144789)), (t = Bf._mul(t ^ (t >> 13), -1028477387)) ^ (t >> 16));

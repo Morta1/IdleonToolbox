@@ -26,7 +26,8 @@ import { isCompanionBonusActive } from '@parsers/misc';
 
 const maxTimeValue = 8.64e15;
 
-const breakpoints = [-1, 0, -2, -3, 11, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200];
+const breakpoints = [-1, 0, -2, -3, 11, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190,
+  200];
 const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achievements, lab, equinoxUpgrades }) => {
   const [filters, setFilters] = useState(() => []);
   const [localMeals, setLocalMeals] = useState();
@@ -99,10 +100,11 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
   const getBestMealsSpeedContribute = (meals) => {
     let speedMeals = meals.filter((meal) => (meal?.stat === 'Mcook' || meal?.stat === 'KitchenEff' || meal?.stat === 'zMealFarm') && meal?.level < mealMaxLevel);
     speedMeals = speedMeals.map((meal) => {
-      const { level, baseStat, shinyMulti, timeTillNextLevel, index } = meal;
+      const { level, baseStat, shinyMulti, timeTillNextLevel, index, cookingMasteryNode } = meal;
       const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
       const ribbonBonus = getRibbonBonus(account, account?.grimoire?.ribbons?.[28 + index]);
-      const base = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * ribbonBonus * baseStat;
+      const nodeMulti = cookingMasteryNode?.multi ?? 1;
+      const base = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * ribbonBonus * nodeMulti * baseStat;
       const currentBonus = base * level;
       const nextLevelBonus = base * (level + 1);
       return {
@@ -345,13 +347,17 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
             multiplier,
             shinyMulti,
             breakpointTimes,
+            cookingMasteryNode,
             index: mealIndex
           } = meal;
           const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
           const ribbonIndex = account?.grimoire?.ribbons?.[28 + mealIndex];
           const ribbonBonus = getRibbonBonus(account, ribbonIndex);
-          const companion162 = isCompanionBonusActive(account, 162) ? (account?.companions?.list?.at(162)?.bonus ?? 0) : 0;
-          const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * (1 + (25 * companion162) / 100) * ribbonBonus * level * baseStat;
+          const companion162 = isCompanionBonusActive(account, 162)
+            ? (account?.companions?.list?.at(162)?.bonus ?? 0)
+            : 0;
+          const nodeMulti = cookingMasteryNode?.multi ?? 1;
+          const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * (1 + (25 * companion162) / 100) * ribbonBonus * nodeMulti * level * baseStat;
           const effectNotation = realEffect < 1e7 ? commaNotation(realEffect) : notateNumber(realEffect, 'Big');
 
           return (
@@ -370,10 +376,19 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
                   </Tooltip>
                   <Stack>
                     <Typography>{cleanUnderscore(name)} (Lv. {level})</Typography>
-                    {(ribbonIndex - 1) > 0 ? <Tooltip title={`${ribbonBonus}x (Rank ${ribbonIndex})`}>
-                      <img style={{ width: 24 }} src={`${prefix}data/Ribbon${Math.max(0, ribbonIndex - 1)}.png`}
-                           alt={`ribbon-${ribbonIndex}`}/>
-                    </Tooltip> : null}
+                    <Stack direction={'row'} alignItems={'center'} gap={1}>
+                      {(ribbonIndex - 1) > 0 ? <Tooltip title={`${ribbonBonus}x (Rank ${ribbonIndex})`}>
+                        <img style={{ width: 24 }} src={`${prefix}data/Ribbon${Math.max(0, ribbonIndex - 1)}.png`}
+                             alt={`ribbon-${ribbonIndex}`}/>
+                      </Tooltip> : null}
+                      {cookingMasteryNode?.level > 0 ?
+                        <Tooltip
+                          title={`Cooking Mastery node: Lv. ${cookingMasteryNode.level} (${notateNumber(cookingMasteryNode.multi, 'MultiplierInfo')}x meal bonus)`}>
+                          <img style={{ width: 24, height: 24, objectFit: 'fill' }}
+                               src={`${prefix}etc/CookingMastery.png`}
+                               alt={'cooking-mastery-node'}/>
+                        </Tooltip> : null}
+                    </Stack>
                   </Stack>
                 </Stack>
                 <Stack mt={2} gap={1}>
@@ -429,11 +444,21 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
 };
 
 
-const MealTooltip = ({ account, level, baseStat, effect, blackDiamondRhinestone, shinyMulti, index }) => {
+const MealTooltip = ({
+                       account,
+                       level,
+                       baseStat,
+                       effect,
+                       blackDiamondRhinestone,
+                       shinyMulti,
+                       index,
+                       cookingMasteryNode
+                     }) => {
   const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
   const ribbonBonus = getRibbonBonus(account, account?.grimoire?.ribbons?.[28 + index]);
   const companion162 = isCompanionBonusActive(account, 162) ? (account?.companions?.list?.at(162)?.bonus ?? 0) : 0;
-  const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * (1 + (25 * companion162) / 100) * (level + 1) * ribbonBonus * baseStat;
+  const nodeMulti = cookingMasteryNode?.multi ?? 1;
+  const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * (1 + (25 * companion162) / 100) * (level + 1) * ribbonBonus * nodeMulti * baseStat;
   const effectNotation = realEffect < 1e7 ? commaNotation(realEffect) : notateNumber(realEffect, 'Big')
   return (
     <>

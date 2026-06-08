@@ -1,8 +1,9 @@
-import { atomsInfo, cookingMenu, monsters, randomList, bonuses } from '@website-data';
+import { atomsInfo, cookingMenu, monsters, randomList, randomList2, bonuses } from '@website-data';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getStatsFromGear } from '@parsers/items';
-import { tryToParse } from '@utility/helpers';
+import { lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
+import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from '@parsers/world-2/alchemy';
 import { getHighestCharacterSkill, isArenaBonusActive, isMasteryBonusUnlocked, isCompanionBonusActive } from '@parsers/misc';
@@ -28,7 +29,6 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getObolsBonus } from '@parsers/obols';
-import { notateNumber } from '@utility/helpers';
 import { getButtonBonus } from '@parsers/world-7/button';
 
 export const spicesNames = [
@@ -58,24 +58,32 @@ export const spicesNames = [
   'Dharma Mesa'
 ]
 
-export const getCooking = (idleonData: any, account: any) => {
+export const getCooking = (idleonData: any, account: any, characters?: any) => {
   const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;
   const mealsRaw = tryToParse(idleonData?.Meals) || idleonData?.Meals;
   const territoryRaw = tryToParse(idleonData?.Territory) || idleonData?.Territory;
-  return parseCooking(mealsRaw, territoryRaw, cookingRaw, account);
+  const cookMasterRaw = tryToParse(idleonData?.CookMaster) || idleonData?.CookMaster;
+  return parseCooking(mealsRaw, territoryRaw, cookingRaw, account, cookMasterRaw, characters);
 }
 
-const parseCooking = (mealsRaw: any, territoryRaw: any, cookingRaw: any, account: any) => {
-  const meals = getMeals(mealsRaw, account);
+const parseCooking = (mealsRaw: any, territoryRaw: any, cookingRaw: any, account: any, cookMasterRaw?: any, characters?: any) => {
+  const meals = getMeals(mealsRaw, account, cookMasterRaw);
   const spices = getSpices(mealsRaw, territoryRaw, account);
   const mealMaxLevel = getMealMaxLevel(account);
+  // Depends on account.research / gaming / saltLick / arcade / alchemy / grimoire / companions,
+  // which are produced later in the same serialization step; the 3-pass serializeData resolves it.
+  const cookingMastery = getCookingMastery(cookMasterRaw, mealsRaw, account, characters);
 
   return {
     meals,
     spices,
-    mealMaxLevel
+    mealMaxLevel,
+    cookingMastery
   }
 }
+
+// Cooking Mastery "yellow" node multiplier for a single meal: BonusMultiCook(mealIndex).
+export const getMealNodeMulti = (nodeLevel: number) => 1 + nodeLevel / (nodeLevel + 5);
 
 const getSpices = (mealsRaw: any, territoryRaw: any, account: any) => {
   const toClaim = territoryRaw?.reduce((res: any, territory: any, index: any) => {
@@ -106,19 +114,24 @@ const getSpices = (mealsRaw: any, territoryRaw: any, account: any) => {
   }
 }
 
-const getMeals = (mealsRaw: any, account: any) => {
+const getMeals = (mealsRaw: any, account: any, cookMasterRaw?: any) => {
   const mealsLevelsListRaw = mealsRaw?.[0];
   const mealsQuantityListRaw = mealsRaw?.[2];
   const shinyMealBonus = getShinyBonus(account?.breeding?.pets, 'Bonuses_from_All_Meals');
   return mealsLevelsListRaw?.map((mealLevel: any, index: any) => {
     if (!cookingMenu?.[index]) return null;
     const levelCost = getMealLevelCost(mealLevel, account?.achievements, account);
+    const cookingMasteryNodeLevel = cookMasterRaw?.[0]?.[index] ?? 0;
     return {
       index,
       level: mealLevel,
       amount: parseFloat(mealsQuantityListRaw?.[index]),
       shinyMulti: shinyMealBonus,
       levelCost,
+      cookingMasteryNode: {
+        level: cookingMasteryNodeLevel,
+        multi: getMealNodeMulti(cookingMasteryNodeLevel)
+      },
       ...(cookingMenu?.[index] || {})
     }
   }).filter((meal: any) => meal);
@@ -189,7 +202,14 @@ export const getMealsBonusByEffectOrStat = (account: any, effectName: any, statN
       return sum + (level * baseStat || 0);
     }
     const ribbonBonus = getRibbonBonus(account, account?.grimoire?.ribbons?.[28 + index]);
-    return sum + ((1 + (blackDiamondRhinestone + shinyMealBonus) / 100) * (1 + winBonus / 100) * (1 + (25 * companion162) / 100) * ribbonBonus * level * baseStat || 0);
+    const nodeMulti = meal?.cookingMasteryNode?.multi ?? 1; // BonusMultiCook(meal)
+    return sum + ((1 + (blackDiamondRhinestone + shinyMealBonus) / 100)
+      * (1 + winBonus / 100)
+      * (1 + (25 * companion162) / 100)
+      * ribbonBonus
+      * nodeMulti
+      * level
+      * baseStat || 0);
   }, 0) ?? 0;
 }
 
@@ -200,6 +220,213 @@ export const getRibbonBonus = (account: any, t: any) => {
     (4 + 6.5 * Math.floor(t / 5))) + Math.floor(t / 4) * (armorSetBonus / 4)
     + Math.floor(t / 10) * cloudBonus73) / 100;
 }
+
+export const COOKING_MASTERY_RANK_THRESHOLDS = [0, 1, 5, 10, 25, 100, 150, 250, 500];
+
+export interface CookingMasteryCategory {
+  index: number;
+  name: string;
+  points: number;
+  baseMulti: number;
+  mult: number;
+  bonusAmount: number;
+  sourceValue: number | null;
+  isExpBoost: boolean;
+  unlockLevel: number;
+  unlocked: boolean;
+  label: string;
+  description: string;
+}
+
+// Category labels + description templates. These are inline UI strings from the game's render
+// loop (N.js ~line 98188 / 98201) — they are NOT part of any data-returning function, so the
+// z-processing section/VM extractor cannot pull them (it only evaluates data functions, not
+// draw-loop literals). They are therefore maintained here by hand, indexed in category order:
+// SALTY, SPICY, SWEET, SMOKY, SOUR, SAVORY.
+// The per-unit % ({) is Math.round(mult) and each source ($) uses the same notation the game does
+// (see N.js:98201): NotateNumber 'Big' for ladles/ribbons/rank, plain rounding for Cooking LV /
+// Divorce Cake level, and NotateNumber 'Small' for the Smoky ribbon-rank chance.
+const COOKING_MASTERY_CATEGORY_INFO: { label: string; desc: (category: CookingMasteryCategory) => string }[] = [
+  {
+    label: 'EXP boost via Ladle',
+    desc: (c) => `+${Math.round(c.mult)}% Cooking Mastery EXP per POW 10 Ladles you've ever used, currently ${notateNumber(c.sourceValue, 'Big')} ladles used.`
+  },
+  {
+    label: 'EXP boost via account Cooking LV',
+    desc: (c) => `+${Math.round(c.mult)}% Cooking Mastery EXP per Cooking LV of your entire account above 1000, currently LV ${Math.round(c.sourceValue ?? 0)}. Multiplicative with the other categories.`
+  },
+  {
+    label: 'EXP boost via Divorce Cake Level',
+    desc: (c) => `+${Math.round(c.mult)}% Cooking Mastery EXP per level of your Divorce Cake meal above Lv.75, yours is Lv ${Math.round(c.sourceValue ?? 0)}.`
+  },
+  {
+    label: 'Boosts daily Ribbon gains',
+    desc: (c) => `+${notateNumber(c.bonusAmount, 'Small')}% chance daily ribbons are +1 rank higher than they otherwise would've been.`
+  },
+  {
+    label: 'EXP boost via total Ribbon Ranks',
+    desc: (c) => `+${Math.round(c.mult)}% Cooking Mastery EXP per total Rank of all your Ribbons across all meals, currently ${notateNumber(c.sourceValue, 'Big')}.`
+  },
+  {
+    label: 'EXP boost via Mastery Rank',
+    desc: (c) => `+${Math.round(c.mult)}% Cooking Mastery EXP per Cooking Mastery Rank you are, currently Rank ${notateNumber(c.sourceValue, 'Big')}.`
+  }
+];
+
+export interface CookingMastery {
+  level: number;
+  exp: number;
+  expReq: number;
+  expRate: number;
+  rank: number;
+  rankThresholds: number[];
+  nextRankLevel: number | null;
+  points: {
+    base: number;
+    gridBonus: number;
+    categorySpent: number;
+    categoryLeft: number;
+    nodeSpent: number;
+    nodeLeft: number;
+  };
+  categories: CookingMasteryCategory[];
+  expRateBreakdown: any;
+}
+
+export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: any, characters?: any): CookingMastery | null => {
+  const cookMaster = cookMasterRaw;
+  // Cooking Mastery is unlocked via Rift 61; bail out for accounts that don't have it yet.
+  if (!cookMaster || !cookMaster?.[1]) return null;
+
+  const level = cookMaster?.[1]?.[0] ?? 0;
+  const exp = cookMaster?.[1]?.[1] ?? 0;
+  const expReq = 100 * Math.pow(2.5, level) * Math.pow(5, Math.max(0, level - 40));
+
+  const categoryNames = randomList2?.[9] ?? [];
+  const categoryMultipliers = randomList2?.[8] ?? [];
+
+  // Shared bonus inputs (all reused from existing parsers).
+  const companion87 = isCompanionBonusActive(account, 87) ? 1 : 0; // Rift Spooker companion
+  const gridBonusExp = account?.research?.gridSquares?.[190]?.bonuses?.[0] ?? 0; // Masterius Cookerius (EXP)
+  const gridBonusPts = account?.research?.gridSquares?.[190]?.bonuses?.[1] ?? 0; // Masterius Cookerius (extra points)
+  const superbit68 = isSuperbitUnlocked(account, 'Cooking_Master') ? 1 : 0;
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cook_Mastery_EXP')?.bonus ?? 0;
+  const saltLickBonus = getSaltLickBonus(account?.saltLick, 10);
+  const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '7cookmastery');
+
+  // mult(t) === BonusAmountcook(t, 0) === RandoListo2[8][t] * CookMaster[2][t]
+  const categoryMult = (t: number) => (Number(categoryMultipliers?.[t]) || 0) * (cookMaster?.[2]?.[t] ?? 0);
+
+  const meal73Level = mealsRaw?.[0]?.[73] ?? 0;
+  const ladlesUsed = cookMaster?.[1]?.[3] ?? 0;
+  const sumCookingLevels = characters?.reduce((sum: number, char: any) =>
+    sum + (char?.skillsInfo?.cooking?.level || 0), 0) ?? 0;
+  const ribbonSum = (account?.grimoire?.ribbons ?? [])
+    .slice(28)
+    .reduce((sum: number, rank: any) => sum + (Number(rank) || 0), 0);
+
+  // The live source amount each category scales with (null = no player-facing source, e.g. SMOKY).
+  const categorySource = (t: number): number | null => {
+    if (t === 0) return ladlesUsed;          // Ladles ever used
+    if (t === 1) return sumCookingLevels;    // account Cooking LV
+    if (t === 2) return meal73Level;         // Divorce Cake meal level
+    if (t === 4) return ribbonSum;           // total Ribbon Ranks
+    if (t === 5) return level + 1;           // Cooking Mastery Rank (game shows level + 1)
+    return null;                             // SMOKY (t=3): a ribbon-rank chance, no scaling source
+  };
+
+  // BonusAmountcook(t, 99) — the actual % each category contributes to the EXP rate.
+  const bonusAmount = (t: number) => {
+    const m = categoryMult(t);
+    if (t === 0) return lavaLog(cookMaster?.[1]?.[3] ?? 0) * m;
+    if (t === 1) return Math.max(0, sumCookingLevels - 1000) * m;
+    if (t === 2) return Math.max(0, meal73Level - 75) * m;
+    if (t === 3) return (m / (25 + m)) * 250;
+    if (t === 4) return ribbonSum * m;
+    return (level + 1) * m;
+  };
+
+  const categories: CookingMasteryCategory[] = (categoryNames as any[]).map((name: string, index: number) => {
+    const unlockLevel = COOKING_MASTERY_RANK_THRESHOLDS[index] ?? 0; // RankREQcook(index)
+    const info = COOKING_MASTERY_CATEGORY_INFO[index];
+    const category: CookingMasteryCategory = {
+      index,
+      name,
+      points: cookMaster?.[2]?.[index] ?? 0,
+      baseMulti: Number(categoryMultipliers?.[index]) || 0,
+      mult: categoryMult(index),
+      bonusAmount: bonusAmount(index),
+      sourceValue: categorySource(index),
+      isExpBoost: index !== 3, // SMOKY boosts daily ribbon rank chance, not EXP
+      unlockLevel,
+      unlocked: level >= unlockLevel,
+      label: info?.label ?? '',
+      description: ''
+    };
+    category.description = info?.desc?.(category) ?? '';
+    return category;
+  });
+
+  // EXP rate excludes category index 3 from the multiplicative product (matches the game).
+  const expRateCategoryKeys = [0, 1, 2, 4, 5];
+  const expRateCategoryProduct = expRateCategoryKeys.reduce((prod, k) => prod * (1 + bonusAmount(k) / 100), 1);
+  const expRate = 2
+    * expRateCategoryProduct
+    * (1 + gridBonusExp / 100)
+    * (1 + (40 * superbit68) / 100)
+    * (1 + 2 * companion87)
+    * (1 + (vialBonus + arcadeBonus + saltLickBonus) / 100);
+
+  const categorySpent = (cookMaster?.[2] ?? []).reduce((sum: number, v: any) => sum + (Number(v) || 0), 0);
+  const nodeSpent = (cookMaster?.[0] ?? []).reduce((sum: number, v: any) => sum + (Number(v) || 0), 0);
+  const basePoints = level + (1 + 5 * companion87);
+
+  // Only the first 6 thresholds are used by the game (one per flavor category); 150/250/500 are unused.
+  const categoryUnlockLevels = COOKING_MASTERY_RANK_THRESHOLDS.slice(0, 6);
+  const rank = categoryUnlockLevels.filter((threshold) => threshold <= level).length - 1;
+  const nextRankLevel = categoryUnlockLevels.find((threshold) => threshold > level) ?? null;
+
+  const expRateBreakdown = {
+    statName: 'Cooking Mastery EXP rate',
+    totalValue: notateNumber(expRate, 'Big'),
+    categories: [
+      {
+        name: 'Multiplicative',
+        sources: [
+          { name: 'Base', value: 2 },
+          ...expRateCategoryKeys.map((k) => ({
+            name: `${categoryNames?.[k] ?? `Category ${k}`} bonus`,
+            value: 1 + bonusAmount(k) / 100
+          })),
+          { name: 'Research Grid (Masterius Cookerius)', value: 1 + gridBonusExp / 100 },
+          { name: 'Superbit (Cooking Master)', value: 1 + (40 * superbit68) / 100 },
+          { name: 'Rift Spooker (Companion)', value: 1 + 2 * companion87 },
+          { name: 'Vial + Arcade + Salt Lick', value: 1 + (vialBonus + arcadeBonus + saltLickBonus) / 100 }
+        ]
+      }
+    ]
+  };
+
+  return {
+    level,
+    exp,
+    expReq,
+    expRate,
+    rank,
+    rankThresholds: categoryUnlockLevels,
+    nextRankLevel,
+    points: {
+      base: basePoints,
+      gridBonus: gridBonusPts,
+      categorySpent,
+      categoryLeft: Math.max(0, basePoints - categorySpent),
+      nodeSpent,
+      nodeLeft: Math.max(0, basePoints + gridBonusPts - nodeSpent)
+    },
+    categories,
+    expRateBreakdown
+  };
+};
 
 export const getKitchens = (idleonData: any, characters: any, account: any) => {
   const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;
