@@ -13,7 +13,7 @@ export const patchNotes = [
       'Cooking: meals now show their Cooking Mastery node level and how much it boosts the meal\'s bonus'
     ],
     'fixes': [
-      'Library: Fortune Cookie meal bonus now applies again to checkout speed/time (the meal\'s effect text changed in 2.3.509, which made the bonus read as 0)'
+      'Library: meal bonus now applies again to checkout speed/time (the meal\'s effect text changed in 2.3.509, which made the bonus read as 0)'
     ]
   },
   {
