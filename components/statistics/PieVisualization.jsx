@@ -3,10 +3,42 @@ import { ResponsivePie } from '@nivo/pie';
 import { Typography } from '@mui/material';
 import { nivoTheme } from './consts';
 
-const PieVisualization = ({ data, label, colors, legends, isMd, isSm }) => (
+const PieVisualization = ({ data, label, colors, isMd, isSm }) => (
   <>
     <Typography>{label}</Typography>
-    <div style={{ flex: 1, minHeight: 0 }}>
+    <div style={{ flex: 1, minHeight: 0, display: 'flex', gap: 12 }}>
+      {!isMd && (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            flexWrap: 'wrap',
+            alignContent: 'flex-start',
+            maxHeight: '100%',
+            columnGap: 16,
+            overflow: 'hidden'
+          }}
+        >
+          {data.map((datum, index) => (
+            <div
+              key={datum.id}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, height: 18 }}
+            >
+              <span
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: '50%',
+                  background: colors[index % colors.length],
+                  flexShrink: 0
+                }}
+              />
+              <span style={{ color: '#fff', fontSize: 12, whiteSpace: 'nowrap' }}>{datum.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      <div style={{ flex: 1, minHeight: 0 }}>
     <ResponsivePie
       data={data}
       margin={isSm
@@ -22,7 +54,7 @@ const PieVisualization = ({ data, label, colors, legends, isMd, isSm }) => (
       theme={nivoTheme}
       enableArcLabels={true}
       arcLabelsTextColor="#fff"
-      enableArcLinkLabels={!isSm}
+      enableArcLinkLabels={isMd && !isSm}
       arcLinkLabelsTextColor="#fff"
       arcLinkLabelsThickness={2}
       arcLabelsSkipAngle={10}
@@ -41,8 +73,9 @@ const PieVisualization = ({ data, label, colors, legends, isMd, isSm }) => (
           <strong>{datum.label}</strong>: {datum.value}
         </div>
       )}
-      legends={isMd ? [] : legends}
+      legends={[]}
     />
+      </div>
     </div>
   </>
 );

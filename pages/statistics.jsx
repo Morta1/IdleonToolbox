@@ -84,14 +84,6 @@ const Statistics = () => {
               data={pieData}
               label={key.camelToTitleCase()}
               colors={customColors}
-              legends={[
-                {
-                  anchor: 'top-left',
-                  direction: 'column',
-                  itemHeight: 18,
-                  symbolShape: 'circle'
-                }
-              ]}
               isMd={isMd}
               isSm={isSm}
               {...vizConfig?.props}
