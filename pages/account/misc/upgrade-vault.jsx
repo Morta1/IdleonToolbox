@@ -88,7 +88,7 @@ const UpgradeVault = () => {
                   : `${level} / ${maxLevel}`})</Typography>
               </Stack>
               <Divider sx={{ my: 1 }}/>
-              <Typography>{cleanUnderscore(description?.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}</Typography>
+              <Typography sx={{ whiteSpace: 'pre-line' }}>{cleanUnderscore(description?.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}</Typography>
               {maxed ? null : <>
                 <Divider sx={{ my: 1 }}/>
                 <Typography variant={'caption'}>Cost</Typography>

@@ -11,6 +11,15 @@ export const getUpgradeVault = (idleonData: any, accountData: any, charactersDat
 
 export const parseUpgradeVault = (upgradeVaultRaw: any, accountData: any, charactersData: any) => {
   const totalUpgradeLevels = upgradeVaultRaw?.reduce((sum: any, level: any) => sum + level, 0);
+  const vaultTotalKills = getVaultTotalKills({ characters: charactersData, account: accountData });
+  const descriptionContext = {
+    vaultKills: vaultTotalKills,
+    cardsCollected: Object.values(accountData?.cards || {}).filter((card: any) => card?.amount > 0).length,
+    oresMined: accountData?.accountOptions?.[340] ?? 0,
+    fishCaught: accountData?.accountOptions?.[345] ?? 0,
+    bugsCaught: accountData?.accountOptions?.[346] ?? 0,
+    knockoutProgress: accountData?.accountOptions?.[338] ?? 0
+  };
   let upgrades = upgradeVault.map((upgrade, index) => {
     return {
       ...upgrade,
@@ -21,7 +30,7 @@ export const parseUpgradeVault = (upgradeVaultRaw: any, accountData: any, charac
   })
   upgrades = upgrades.map((upgrade, index) => {
     const bonus = calcUpgradeVaultBonus(upgrades, index);
-    const description = (upgrade?.description as string)?.replace('{', '' + commaNotation(bonus)).replace('}', '' + notateNumber(1 + bonus / 100, 'MultiplierInfo'));
+    const description = resolveVaultDescription(upgrade?.description, index, bonus, descriptionContext);
     return {
       ...upgrade,
       cost: getUpgradeCost(upgrades, index, accountData),
@@ -30,8 +39,12 @@ export const parseUpgradeVault = (upgradeVaultRaw: any, accountData: any, charac
       description
     }
   })
-  const nextUnlock = upgrades?.find(({ unlocked }) => !unlocked);
-  const vaultTotalKills = getVaultTotalKills({ characters: charactersData, account: accountData });
+  // The "Next upgrade" tooltip always previews a level-0 (unpurchased) upgrade, so every
+  // computed value would be 0. Strip the placeholders instead to show a bare "+%" teaser.
+  const nextUnlockIndex = upgrades?.findIndex(({ unlocked }: any) => !unlocked) ?? -1;
+  const nextUnlock = nextUnlockIndex >= 0
+    ? { ...upgrades[nextUnlockIndex], description: (upgradeVault[nextUnlockIndex]?.description as string)?.replace(/[{}$^~&]/g, '') }
+    : undefined;
 
   return {
     upgrades,
@@ -39,6 +52,71 @@ export const parseUpgradeVault = (upgradeVaultRaw: any, accountData: any, charac
     nextUnlock,
     vaultTotalKills
   };
+}
+
+/**
+ * Resolves the placeholders in an upgrade vault description, mirroring the game's
+ * display logic (N.js): `{`/`}` are the upgrade's own bonus, `^` and `$` are the
+ * "Total Bonus" values that depend on per-upgrade game stats (kills, ores, cards, ...).
+ */
+const resolveVaultDescription = (description: any, index: number, bonus: number, ctx: any): any => {
+  if (!description) return description;
+  let resolved = (description as string)
+    .replace('{', '' + commaNotation(bonus))
+    .replace('}', '' + notateNumber(1 + bonus / 100, 'MultiplierInfo'))
+    .replace('^', '' + commaNotation(bonus * lavaLog(ctx.oresMined)));
+  const dollar = getVaultDollarValue(index, bonus, ctx);
+  if (dollar != null) {
+    resolved = resolved.replace('$', dollar);
+  }
+  // Monster Tax (2) ends with a "Total Coin Bonus from@all@sources;~x" clause whose `~`
+  // (MonsterCash total) we don't compute — drop the dangling clause rather than show it raw.
+  if (index === 2) {
+    resolved = resolved.split('_Total_Coin_Bonus')[0];
+  }
+  return resolved.replace('.00', '');
+}
+
+/**
+ * The `$` "Total Bonus" value for upgrades that have one. Index-specific, matching N.js.
+ * Returns null for upgrades without a `$` placeholder (or whose `$` formula isn't replicated).
+ */
+const getVaultDollarValue = (index: number, bonus: number, ctx: any): string | null => {
+  const { vaultKills, cardsCollected, fishCaught, bugsCaught, knockoutProgress } = ctx;
+  // Indices whose `$` shows "Current Kills + Total Bonus", keyed to their VaultKillzTOT slots.
+  const killsByIndex: Record<number, number> = { 14: 0, 20: 1, 27: 2, 31: 3 };
+
+  const formatKills = (rawKills: number, logBonusSlot: number, totalLabel = '\nTotal_Bonus:+') => {
+    const totalBonus = Math.round(bonus * (vaultKills?.[logBonusSlot] ?? 0));
+    return rawKills < 1e8
+      ? `Current_Kills:${commaNotation(rawKills)}\nTotal_Bonus:+${totalBonus}`
+      : `Current_Kills:${commaNotation(rawKills / 1e6)}million${totalLabel}${totalBonus}`;
+  };
+
+  if (index in killsByIndex) {
+    const slot = killsByIndex[index];
+    return formatKills(vaultKills?.[slot] ?? 0, 4 + slot);
+  }
+  switch (index) {
+    case 13:
+      return '' + Math.round(1e4 * (1 - 1 / (1 + bonus / 100))) / 100;
+    case 15:
+      return '' + Math.round(knockoutProgress * bonus);
+    case 34:
+      return '' + Math.round((vaultKills?.[8] ?? 0) * bonus);
+    case 35:
+      return '' + commaNotation(bonus * lavaLog(fishCaught));
+    case 37:
+      return '' + commaNotation((vaultKills?.[9] ?? 0) * bonus);
+    case 41:
+      return '' + commaNotation(bonus * lavaLog(bugsCaught));
+    case 48:
+      return formatKills(vaultKills?.[10] ?? 0, 11, '\nTotal:+');
+    case 70:
+      return '' + commaNotation(bonus * cardsCollected);
+    default:
+      return null;
+  }
 }
 
 
