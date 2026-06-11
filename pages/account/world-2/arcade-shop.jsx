@@ -1,5 +1,5 @@
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import React, { useContext } from 'react';
+import { Card, CardContent, Checkbox, Divider, FormControlLabel, FormGroup, Stack, Typography } from '@mui/material';
+import React, { useContext, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
@@ -12,6 +12,16 @@ const MAX_LEVEL = 100;
 const ArcadeShop = () => {
   const { state } = useContext(AppContext);
   const { balls, goldBalls, shop, royalBalls } = state?.account?.arcade || {};
+  const [hideMaxed, setHideMaxed] = useState(false);
+  const [hideSuper, setHideSuper] = useState(false);
+
+  const passesFilter = (upgrade) => {
+    const isMaxed = upgrade.level === MAX_LEVEL;
+    const isSuper = upgrade.level > MAX_LEVEL;
+    if (hideMaxed && isMaxed) return false;
+    if (hideSuper && isSuper) return false;
+    return true;
+  };
 
   const getCost = (level, upgradeIndex) => {
     if (level === 100) {
@@ -41,8 +51,8 @@ const ArcadeShop = () => {
     return total;
   }
 
-  const activeUpgrades = shop?.filter((u) => u.active)?.toSorted((a, b) => a?.rotationIndex - b?.rotationIndex) || [];
-  const inactiveUpgrades = shop?.filter((u) => !u.active) || [];
+  const activeUpgrades = shop?.filter((u) => u.active && passesFilter(u))?.toSorted((a, b) => a?.rotationIndex - b?.rotationIndex) || [];
+  const inactiveUpgrades = shop?.filter((u) => !u.active && passesFilter(u)) || [];
 
   // Calculate total cost to max for all upgrades
   const totalCostToMax = shop?.reduce((total, upgrade) => {
@@ -119,6 +129,18 @@ const ArcadeShop = () => {
             <Typography>{commaNotation(totalCostToMax, 2)}</Typography>
           </CardTitleAndValue>
         )}
+        <CardTitleAndValue title="Filters">
+          <FormGroup row>
+            <FormControlLabel
+              control={<Checkbox size="small" checked={hideMaxed} onChange={(e) => setHideMaxed(e.target.checked)}/>}
+              label="Hide Maxed"
+            />
+            <FormControlLabel
+              control={<Checkbox size="small" checked={hideSuper} onChange={(e) => setHideSuper(e.target.checked)}/>}
+              label="Hide Super!"
+            />
+          </FormGroup>
+        </CardTitleAndValue>
       </Stack>
 
       <Stack mt={2} direction="row" flexWrap="wrap" gap={2}>
