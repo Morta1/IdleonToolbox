@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.50',
+    'gameVer': '2.3.509',
+    'date': '11/06/2026',
+    'features': [
+      'Slab: new "Greenstackable" filter showing every item that can be greenstacked, plus a "Greenstacks" card tracking stacked vs greenstackable (e.g. 189 / 769)',
+      'Dashboard: the Villagers timer now lets you pick which villagers\' level-up timers to show',
+      'Arcade Shop: new filters to hide maxed and super upgrades',
+      'Islands: the Rando shop\'s star book now shows Acquired / Not acquired, like the Trash shop'
+    ],
+    'fixes': [
+      'Dashboard: the World 5 statue level-up timer now shows the correct "Bravery" name'
+    ]
+  },
+  {
     'ver': '3.3.49',
     'gameVer': '2.3.509',
     'date': '08/06/2026',
