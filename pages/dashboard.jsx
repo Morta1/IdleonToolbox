@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 52,
+  version: 53,
   account: {
     General: {
       tasks: {
@@ -586,10 +586,18 @@ const baseTrackers = {
       equinox: { checked: true, options: [] }
     },
     'World 5': {
-      monument: { checked: true, options: [] },
+      bravery: { checked: true, options: [] },
       justice: { checked: true, options: [] },
       wisdom: { checked: true, options: [] },
-      villagers: { checked: true, options: [] },
+      villagers: {
+        checked: true,
+        options: [{
+          name: 'villagers',
+          type: 'array',
+          props: { value: { explore: true, engineer: true, bonuses: true, measure: true, studies: true } },
+          checked: true
+        }]
+      },
       coinFill: { checked: true, options: [] },
       marbleFill: { checked: true, options: [] }
     },

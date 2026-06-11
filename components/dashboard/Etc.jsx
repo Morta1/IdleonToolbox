@@ -23,6 +23,8 @@ import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 
 const maxTimeValue = 9.007199254740992e+15;
 const VILLAGER_TABS = ['Explore', 'Engineer', 'Bonuses', 'Measure', 'Study'];
+// Keys align with villager index (0-4) and match the `villagers` timer array option in baseTrackers.
+const VILLAGER_KEYS = ['explore', 'engineer', 'bonuses', 'measure', 'studies'];
 const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const getRealDateInMs = useRealDate();
   // Anchor timer math to `lastUpdated` (the data-fetch timestamp) rather than `new Date().getTime()`.
@@ -397,7 +399,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           lastUpdated={lastUpdated} time={account?.equinox?.timeToFull} icon={'data/Quest78.png'} /> : null}
       </Section>}
       {!emptyAlerts?.['World 5'] && account?.finishedWorlds?.World4 && <Section title={'World 5'}>
-        {trackers?.['World 5']?.monument?.checked && account?.finishedWorlds?.World4 ?
+        {trackers?.['World 5']?.bravery?.checked && account?.finishedWorlds?.World4 ?
           <MonumentCard
             page={'account/world-5/hole'}
             query={{ t: 'Explore', nt: 'Bravery' }}
@@ -424,6 +426,9 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {trackers?.['World 5']?.villagers?.checked && account?.finishedWorlds?.World4 && account?.hole?.villagers?.length > 0 ?
           account?.hole?.villagers?.map((villager, index) => {
             if (!villager) return null;
+            // Skip villagers the user has unchecked in the timer's selection (absent option = show all).
+            const villagerSelection = trackers?.['World 5']?.villagers?.options?.find((opt) => opt?.name === 'villagers')?.props?.value;
+            if (villagerSelection && !villagerSelection[VILLAGER_KEYS[index]]) return null;
             const villagerTab = VILLAGER_TABS[index] ?? 'Explore';
             return <TimerCard
               key={`villager-timer-${index}`}
