@@ -201,7 +201,13 @@ const extraIslandDetails = (account: Account, characters: any[], index: number):
           cost: Math.round(6 * Math.pow(1.4, (account as any)?.accountOptions?.[167]))
         },
         {
-          effect: `Star book`,
+          effect: 'data/TalentBook1',
+          name: 'Rando Event Looty Special Talent Book',
+          acquired: characters?.some((char: any) =>
+            char?.starTalents?.orderedTalents?.some(
+              ({ maxLevel, name }: { maxLevel: number; name: string }) => name === 'RANDO_EVENT_LOOTY' && maxLevel > 0
+            )
+          ),
           cost: 200
         }
       ]
