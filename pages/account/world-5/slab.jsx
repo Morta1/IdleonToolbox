@@ -19,6 +19,7 @@ const Slab = () => {
     else if (itemDisplay === 'rotation' && item?.onRotation) return true;
     else if (itemDisplay === 'unobtainable' && item?.unobtainable) return true;
     else if (itemDisplay === 'greenstacked' && item?.greenStacked) return true;
+    else if (itemDisplay === 'greenstackable' && item?.greenstackable) return true;
   }
 
   const slabItems = state?.account?.looty?.slabItems?.filter((item) => shouldDisplayItem(item, display));
@@ -43,8 +44,8 @@ const Slab = () => {
                          value={`${state?.account?.looty?.lootedItems} / ${state?.account?.looty?.totalItems}`}/>
       <CardTitleAndValue title={'Missing items'}
                          value={state?.account?.looty?.missingItems}/>
-      <CardTitleAndValue title={'Greenstacked'}
-                         value={state?.account?.looty?.greenStackedCount}/>
+      <CardTitleAndValue title={'Greenstacks'}
+                         value={`${state?.account?.looty?.greenstackableStackedCount} / ${state?.account?.looty?.greenstackableCount}`}/>
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
         {slabBonuses.map(({ name, value, icon }, index) => {
           return <CardTitleAndValue key={`bonus-${index}`} title={name} value={`${notateNumber(value)}%`}
@@ -69,7 +70,8 @@ const Slab = () => {
           <FormControlLabel value="all" control={<Radio/>} label="All items"/>
           <FormControlLabel value="rotation" control={<Radio/>} label="GemShop rotation"/>
           <FormControlLabel value="unobtainable" control={<Radio/>} label="Unobtainable"/>
-          <FormControlLabel value="greenstacked" control={<Radio/>} label="Greenstacked"/>
+          <FormControlLabel value="greenstacked" control={<Radio/>} label="Greenstacks"/>
+          <FormControlLabel value="greenstackable" control={<Radio/>} label="Greenstackable"/>
         </RadioGroup>
       </FormControl>
     </Box>

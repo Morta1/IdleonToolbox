@@ -330,6 +330,12 @@ export const hasItemDropped = (account: any, itemName: any) => {
   return account?.looty?.lootyRaw?.includes(itemName);
 }
 
+// Greenstack = 10,000,000+ of a single item in the Storage Chest (game registers it with no item-type
+// check). The Storage Chest is NOT carry-capped, so any item that stacks there can reach the threshold.
+// Only equipment (typeGen starting with 'a') can't stack — each piece is its own qty-1 slot. So an item
+// is greenstackable iff it stacks, i.e. its typeGen does not start with 'a'.
+const isGreenstackable = (typeGen: any): boolean => typeof typeGen === 'string' && typeGen.charAt(0) !== 'a';
+
 export const getSlab = (idleonData: any) => {
   const lootyRaw = idleonData?.Cards?.[1] || tryToParse(idleonData?.Cards1);
   const greenStacks = tryToParse(idleonData?.GreenStacks) || idleonData?.GreenStacks || [];
@@ -350,10 +356,14 @@ export const getSlab = (idleonData: any) => {
     rawName: (forcedNames as Record<string, any>)?.[name] || name,
     obtained: lootyRaw?.includes(name),
     greenStacked: greenStacksSet.has(name),
+    greenstackable: isGreenstackable((allItems?.[name] as any)?.typeGen),
     onRotation: filteredGemShopItems?.[name],
     unobtainable: filteredLootyItems?.[name]
   }));
   const missingItems = slabItems?.filter(({ obtained, unobtainable }) => !obtained && !unobtainable)?.length;
+  const greenstackableItems = slabItems?.filter(({ greenstackable }) => greenstackable);
+  const greenstackableCount = greenstackableItems?.length ?? 0;
+  const greenstackableStackedCount = greenstackableItems?.filter(({ greenStacked }) => greenStacked)?.length ?? 0;
 
   return {
     slabItems,
@@ -362,6 +372,8 @@ export const getSlab = (idleonData: any) => {
     missingItems,
     greenStacks,
     greenStackedCount: greenStacks?.length ?? 0,
+    greenstackableCount,
+    greenstackableStackedCount,
     totalItems: slab?.length,
     rawLootedItems: lootyRaw?.length
   };
