@@ -36,6 +36,8 @@ const ArcadeShop = () => {
       return Math.round(arcadeStampMath * (5 + 3 * level));
     } else if (upgradeIndex === 51 || upgradeIndex === 54 || upgradeIndex === 999) {
       return Math.round(arcadeStampMath * (10 + (5 * level + Math.pow(level, 1.43))));
+    } else if (upgradeIndex >= 62) {
+      return Math.round(arcadeStampMath * (20 + (10 * level + Math.pow(level, 1.69))));
     } else if (upgradeIndex >= 55 && upgradeIndex !== 60 && upgradeIndex !== 61) {
       return Math.round(arcadeStampMath * (20 + (10 * level + Math.pow(level, 1.83))));
     } else {
