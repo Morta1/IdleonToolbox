@@ -332,9 +332,13 @@ export const hasItemDropped = (account: any, itemName: any) => {
 
 // Greenstack = 10,000,000+ of a single item in the Storage Chest (game registers it with no item-type
 // check). The Storage Chest is NOT carry-capped, so any item that stacks there can reach the threshold.
-// Only equipment (typeGen starting with 'a') can't stack — each piece is its own qty-1 slot. So an item
-// is greenstackable iff it stacks, i.e. its typeGen does not start with 'a'.
-const isGreenstackable = (typeGen: any): boolean => typeof typeGen === 'string' && typeGen.charAt(0) !== 'a';
+// An item is greenstackable iff it can sit in the Storage Chest as a stack:
+//   1. not equipment — typeGen starting with 'a' is its own qty-1 slot, never stacks;
+//   2. actually depositable — hole/cavern resources (Type CURRENCY) and dungeon-only drops (DUNGEON_*)
+//      route to their own banks / evaporate on map exit, so they never get a chest slot.
+const NON_STORABLE_TYPES = new Set(['CURRENCY', 'DUNGEON_EVAPORATE', 'DUNGEON_FOOD', 'DUNGEON_ITEM', 'DUNGEON_KEY']);
+const isGreenstackable = (item: any): boolean =>
+  typeof item?.typeGen === 'string' && item.typeGen.charAt(0) !== 'a' && !NON_STORABLE_TYPES.has(item?.Type);
 
 export const getSlab = (idleonData: any) => {
   const lootyRaw = idleonData?.Cards?.[1] || tryToParse(idleonData?.Cards1);
@@ -356,7 +360,7 @@ export const getSlab = (idleonData: any) => {
     rawName: (forcedNames as Record<string, any>)?.[name] || name,
     obtained: lootyRaw?.includes(name),
     greenStacked: greenStacksSet.has(name),
-    greenstackable: isGreenstackable((allItems?.[name] as any)?.typeGen),
+    greenstackable: isGreenstackable(allItems?.[name]),
     onRotation: filteredGemShopItems?.[name],
     unobtainable: filteredLootyItems?.[name]
   }));
