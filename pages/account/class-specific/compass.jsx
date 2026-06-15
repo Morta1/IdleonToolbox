@@ -14,6 +14,8 @@ import UpgradeOptimizer from '@components/account/Misc/class-specific/Compass/Up
 import { getCompassStats, getExtraDust } from '@parsers/class-specific/compass';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import MenuItem from '@mui/material/MenuItem';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const Compass = () => {
   const { state } = useContext(AppContext);
@@ -33,6 +35,7 @@ const Compass = () => {
   const [selectedChar, setSelectedChar] = useState(0);
   const windWalkers = state?.characters?.filter((character) => checkCharClass(character?.class, CLASSES.Wind_Walker));
   const tempestStats = getCompassStats(state?.characters?.[selectedChar], state?.account);
+  const extraDust = getExtraDust(state?.characters?.[selectedChar], state?.account);
 
   useEffect(() => {
     if (windWalkers.length === 1) {
@@ -64,7 +67,14 @@ const Compass = () => {
                                                    </Select>}/> : null}
       <CardTitleAndValue title={'Total levels'} value={totalUpgradeLevels}/>
       <CardTitleAndValue title={'Extra Dust'}
-                         value={`${getExtraDust(state?.characters?.[selectedChar], state?.account).toFixed(2)}%`}
+                         value={<Stack direction={'row'} alignItems={'center'} gap={1}>
+                           <Typography>{`${extraDust.value.toFixed(2)}%`}</Typography>
+                           <Breakdown data={extraDust.breakdown}>
+                             <Stack justifyContent={'center'}>
+                               <IconInfoCircleFilled size={18}/>
+                             </Stack>
+                           </Breakdown>
+                         </Stack>}
                          tooltipTitle={'Not including Spirit Reindeer kills'}/>
       <CardTitleAndValue title={'Total dust collected'} value={totalDustsCollected < 1e8
         ? numberWithCommas(totalDustsCollected || '0')

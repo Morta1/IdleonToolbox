@@ -13,6 +13,8 @@ import Monsters from '@components/account/Misc/class-specific/Grimoire/Monsters'
 import { boneNames, getWraithStats } from '@parsers/class-specific/grimoire';
 import UpgradeOptimizer from '@components/account/Misc/class-specific/Grimoire/UpgradeOptimizer';
 import { checkCharClass, CLASSES } from '@parsers/talents';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const Grimoire = () => {
   const { state } = useContext(AppContext);
@@ -59,7 +61,14 @@ const Grimoire = () => {
       <CardTitleAndValue title={'Wraith Crit Damage *'}
                          value={`${notateNumber(wraithStats?.critDamage, 'MultiplierInfo')}x`}/>
       <CardTitleAndValue title={'Wraith Base Extra Bones'}
-                         value={`${notateNumber(wraithStats?.extraBones, 'MultiplierInfo')}x`}/>
+                         value={<Stack direction={'row'} alignItems={'center'} gap={1}>
+                           <Typography>{`${notateNumber(wraithStats?.extraBones, 'MultiplierInfo')}x`}</Typography>
+                           <Breakdown data={wraithStats?.extraBonesBreakdown}>
+                             <Stack justifyContent={'center'}>
+                               <IconInfoCircleFilled size={18}/>
+                             </Stack>
+                           </Breakdown>
+                         </Stack>}/>
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'grimoire')}>

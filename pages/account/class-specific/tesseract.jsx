@@ -13,6 +13,8 @@ import Upgrades from '@components/account/Misc/class-specific/Tesseract/Upgrades
 import Maps from '@components/account/Misc/class-specific/Tesseract/Maps';
 import { getDropRate } from '@parsers/character';
 import UpgradeOptimizer from '@components/account/Misc/class-specific/Tesseract/UpgradeOptimizer';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const Tesseract = () => {
   const { state } = useContext(AppContext);
@@ -26,6 +28,7 @@ const Tesseract = () => {
   const arcanistStats = getArcanistStats(upgrades, totalUpgradeLevels, state?.characters?.[selectedChar], state?.account);
   const _dropRate = getDropRate(state?.characters?.[selectedChar], state?.account, state?.characters);
   const prismaFragmentChance = getPrismaFragChance(({ ...state?.characters?.[selectedChar], dropRate: _dropRate }), state?.account, upgrades);
+  const extraTachyon = getExtraTachyon(state?.characters?.[selectedChar], state?.account);
 
   useEffect(() => {
     if (arcanists.length === 1) {
@@ -58,7 +61,14 @@ const Tesseract = () => {
       <CardTitleAndValue title={'Total levels'} value={totalUpgradeLevels}/>
       <CardTitleAndValue title={'Prisma Chance'} value={`1 in ${Math.floor(1 / prismaFragmentChance)}`}/>
       <CardTitleAndValue title={'Extra tachyon'}
-                         value={`${getExtraTachyon(state?.characters?.[selectedChar], state?.account).toFixed(2)}x`}
+                         value={<Stack direction={'row'} alignItems={'center'} gap={1}>
+                           <Typography>{`${extraTachyon.value.toFixed(2)}x`}</Typography>
+                           <Breakdown data={extraTachyon.breakdown}>
+                             <Stack justifyContent={'center'}>
+                               <IconInfoCircleFilled size={18}/>
+                             </Stack>
+                           </Breakdown>
+                         </Stack>}
       />
       {tachyons?.map(({ value, name }, index) => <CardTitleAndValue key={index} value={value < 1e8
         ? commaNotation(value || '0') : notateNumber(value || 0)} title={name}

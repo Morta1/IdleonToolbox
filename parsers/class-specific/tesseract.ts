@@ -377,15 +377,50 @@ export const getExtraTachyon = (character: any, account: any) => {
   const backupEnergy = getTalentBonus(character?.flatTalents, 'BACKUP_ENERGY');
   const bundleBonus = isBundlePurchased(account?.bundles, 'bun_x') ? 1.2 : 1;
 
-  return (1 + (calcTesseractBonus(upgrades, 17, 0)
+  const upgrade17 = calcTesseractBonus(upgrades, 17, 0);
+  const upgrade34 = calcTesseractBonus(upgrades, 34, 0) * lavaLog(account?.accountOptions?.[390]);
+  const upgrade56 = calcTesseractBonus(upgrades, 56, 0) * lavaLog(account?.accountOptions?.[393]);
+
+  const value = (1 + (upgrade17
     + (tesseract +
-      ((calcTesseractBonus(upgrades, 34, 0) * lavaLog(account?.accountOptions?.[390]))
-        + ((calcTesseractBonus(upgrades, 56, 0) * lavaLog(account?.accountOptions?.[393]))
+      (upgrade34
+        + (upgrade56
           + (equipBonus + (jewelBonus + arcadeBonus)))))) / 100)
     * (1 + emperorBonus / 100)
     * (1 + charmBonus / 100)
     * Math.max(1, backupEnergy)
-    * bundleBonus
+    * bundleBonus;
+
+  return {
+    value,
+    breakdown: {
+      statName: "Extra Tachyon",
+      totalValue: notateNumber(value, "MultiplierInfo") + 'x',
+      categories: [
+        {
+          name: "Additive",
+          sources: [
+            { name: "Upgrade (Ripple in Spacetime)", value: upgrade17 },
+            { name: "Talent (Tesseract)", value: tesseract },
+            { name: "Upgrade (Verdon Hoarding)", value: upgrade34 },
+            { name: "Upgrade (Aurion Hoarding)", value: upgrade56 },
+            { name: "Gear", value: equipBonus },
+            { name: "Jewel", value: jewelBonus },
+            { name: "Arcade", value: arcadeBonus },
+          ],
+        },
+        {
+          name: "Multipliers",
+          sources: [
+            { name: "Emperor", value: emperorBonus },
+            { name: "Charm (Mystery Fizz)", value: charmBonus },
+            { name: "Backup Energy (mult)", value: Math.max(1, backupEnergy) },
+            { name: "Bundle (mult)", value: bundleBonus },
+          ],
+        },
+      ],
+    }
+  };
 }
 
 export const getMapKillsReq = (mapId: any) => {

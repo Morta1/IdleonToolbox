@@ -535,25 +535,49 @@ export const getExtraDust = (character: any, account: any) => {
   const charmBonus = getCharmBonus(account, 'Twinkle_Taffy');
   const emperorBonus = getEmperorBonus(account, 4);
 
-  return (1 +
-    (getLocalCompassBonus(upgrades, 31)
-      + getLocalCompassBonus(upgrades, 34)
-      * lavaLog(account?.accountOptions?.[359])) / 100)
-    * (1 + getLocalCompassBonus(upgrades, 38) / 100)
+  const baseUpgrades = getLocalCompassBonus(upgrades, 31)
+    + getLocalCompassBonus(upgrades, 34) * lavaLog(account?.accountOptions?.[359]);
+  const upgrade38 = getLocalCompassBonus(upgrades, 38);
+  const gearBonus = equipBonus + equipBonus1;
+  const pathBonuses = getLocalCompassBonus(upgrades, 139)
+    + (getLocalCompassBonus(upgrades, 142)
+      + (getLocalCompassBonus(upgrades, 145)
+        + (getLocalCompassBonus(upgrades, 148)
+          + (getLocalCompassBonus(upgrades, 150)
+            + (getLocalCompassBonus(upgrades, 68)
+              + (getLocalCompassBonus(upgrades, 93)
+                + (getLocalCompassBonus(upgrades, 89)
+                  + (compassTalent
+                    + arcadeBonus))))))));
+
+  const value = (1 + baseUpgrades / 100)
+    * (1 + upgrade38 / 100)
     * (1 + charmBonus / 100)
-    * (1 + (equipBonus + equipBonus1) / 100)
+    * (1 + gearBonus / 100)
     * (1 + emperorBonus / 100)
     * (1 + (0 * dustTalent) / 100)
-    * (1 + (getLocalCompassBonus(upgrades, 139)
-      + (getLocalCompassBonus(upgrades, 142)
-        + (getLocalCompassBonus(upgrades, 145)
-          + (getLocalCompassBonus(upgrades, 148)
-            + (getLocalCompassBonus(upgrades, 150)
-              + (getLocalCompassBonus(upgrades, 68)
-                + (getLocalCompassBonus(upgrades, 93)
-                  + (getLocalCompassBonus(upgrades, 89)
-                    + (compassTalent
-                      + arcadeBonus))))))))) / 100);
+    * (1 + pathBonuses / 100);
+
+  return {
+    value,
+    breakdown: {
+      statName: "Extra Dust",
+      totalValue: notateNumber(value, "MultiplierInfo") + 'x',
+      categories: [
+        {
+          name: "Multiplicative Factors (%)",
+          sources: [
+            { name: "Compass Upgrades", value: baseUpgrades },
+            { name: "Per solardust", value: upgrade38 },
+            { name: "Charm (Twinkle Taffy)", value: charmBonus },
+            { name: "Gear", value: gearBonus },
+            { name: "Emperor", value: emperorBonus },
+            { name: "Path Bonuses", value: pathBonuses },
+          ],
+        },
+      ],
+    }
+  };
 }
 
 const getUpgradeCost = (upgrades: any[], index: number, serverVars: any, accountData: any, forceLegendTalent?: any) => {

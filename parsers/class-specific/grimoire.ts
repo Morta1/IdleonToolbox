@@ -217,7 +217,8 @@ export const getWraithStats = (character: any, account: any) => {
     defence,
     critChance,
     critDamage,
-    extraBones: baseExtraBones
+    extraBones: baseExtraBones.value,
+    extraBonesBreakdown: baseExtraBones.breakdown
   };
 }
 
@@ -225,7 +226,7 @@ const getUpgradeCost = ({ index, level, x1, x2, account, forceLegendTalent }: an
   return 3 * Math.pow(1.05, index) * getMasterclassCostReduction(account, forceLegendTalent) * (level + (x1 + level) * Math.pow(x2 + 0.01, level));
 }
 
-const getExtraBonesBonus = (character: any, account: any) => {
+export const getExtraBonesBonus = (character: any, account: any) => {
   const { upgrades } = account?.grimoire || {};
   const grimoire = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'GRIMOIRE');
   const highestLevelDeathBringer = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer);
@@ -234,14 +235,38 @@ const getExtraBonesBonus = (character: any, account: any) => {
   const { value: gearBonus } = getStatsFromGear(highestLevelDeathBringer, 76, account);
   const emperorBonus = getEmperorBonus(account, 1);
 
-  return (1 + grimoire / 100)
-    * Math.min(2, 1 + getGambitBonus(account, 12))
-    * Math.min(1.5, 1 + gearBonus / 100)
+  const gambitMulti = Math.min(2, 1 + getGambitBonus(account, 12));
+  const gearMulti = Math.min(1.5, 1 + gearBonus / 100);
+  const upgradeBonus = calcGrimoireBonus(upgrades, 23)
+    + calcGrimoireBonus(upgrades, 48) * lavaLog(account?.accountOptions?.[333]);
+
+  const value = (1 + grimoire / 100)
+    * gambitMulti
+    * gearMulti
     * (1 + emperorBonus / 100)
-    * (1 + (calcGrimoireBonus(upgrades, 23) +
-      calcGrimoireBonus(upgrades, 48)
-      * lavaLog(account?.accountOptions?.[333])) / 100)
+    * (1 + upgradeBonus / 100)
     * (1 + (1 * graveyardShift) / 100);
+
+  return {
+    value,
+    breakdown: {
+      statName: "Extra Bones",
+      totalValue: notateNumber(value, "MultiplierInfo") + 'x',
+      categories: [
+        {
+          name: "Multiplicative Factors",
+          sources: [
+            { name: "Talent (Grimoire)", value: grimoire },
+            { name: "Talent (Graveyard Shift)", value: graveyardShift },
+            { name: "Gambit", value: gambitMulti },
+            { name: "Gear", value: gearMulti },
+            { name: "Emperor %", value: emperorBonus },
+            { name: "Grimoire Upgrades", value: upgradeBonus },
+          ],
+        },
+      ],
+    }
+  };
 }
 
 export const getGrimoireBonus = (upgrades: any, index: any) => {

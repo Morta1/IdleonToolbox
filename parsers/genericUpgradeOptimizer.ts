@@ -77,13 +77,13 @@ export function getOptimizedGenericUpgrades({
     ? getExtraDust(character, {
       ...account,
       compass: { ...account.compass, upgrades: simulatedUpgrades }
-    })
+    }).value
     : 0;
   let currentTachyonMultiplier = (category === 'tachyons' && typeof getExtraTachyon === 'function')
     ? getExtraTachyon(character, {
       ...account,
       tesseract: { ...account.tesseract, upgrades: simulatedUpgrades }
-    })
+    }).value
     : 0;
 
   const results = [];
@@ -241,13 +241,13 @@ export function getOptimizedGenericUpgrades({
         newDustMultiplier = getExtraDust(character, {
           ...account,
           compass: { ...account.compass, upgrades: tempUpgrades }
-        });
+        }).value;
       }
       if (category === 'tachyons' && typeof getExtraTachyon === 'function') {
         newTachyonMultiplier = getExtraTachyon(character, {
           ...account,
           tesseract: { ...account.tesseract, upgrades: tempUpgrades }
-        });
+        }).value;
       }
 
       // Calculate stat changes
