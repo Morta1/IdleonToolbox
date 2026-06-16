@@ -27,6 +27,13 @@ import { getEventShopBonus } from '@parsers/misc';
 import { altStampsMapping } from '@parsers/world-1/stamps';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
 import { getMasterclassCostReduction } from '@parsers/misc';
+import { getLabBonus } from '@parsers/world-4/lab';
+import { getPaletteBonus } from '@parsers/world-5/gaming';
+import { getExoticMarketBonus } from '@parsers/world-6/farming';
+import { getBubbleBonus } from '@parsers/world-2/alchemy';
+import { getLoreBossBonus } from '@parsers/world-7/spelunking';
+import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
+import { getAllMasterclassDropz } from '@parsers/misc';
 
 export const dustNames = {
   0: 'Stardust',
@@ -532,11 +539,19 @@ export const getExtraDust = (character: any, account: any) => {
   const compassTalent = getTalentBonus(character?.flatTalents, 'COMPASS');
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Windwalker_Dust')?.bonus;
 
-  const charmBonus = getCharmBonus(account, 'Twinkle_Taffy');
+  const charmBonus = getCharmBonus(account, 'Twinkle_Taffy'); // Pristine charm 19
   const emperorBonus = getEmperorBonus(account, 4);
+  const exoticBonus = getExoticMarketBonus(account, 54) ?? 0;
+  const mainframeBonus = getLabBonus(account?.lab?.labBonuses, 122); // game MainframeBonus(122)
+  const paletteBonus = getPaletteBonus(account, 4) ?? 0;
+  const bubbleBonus = getBubbleBonus(account, account?.alchemy?.bubbles?.quicc?.[13]?.bubbleName) ?? 0; // AlchBubbles.A13
+  const loreBonus = getLoreBossBonus(account, 2) ?? 0; // Tome epilogue (LoreEpiBon 2)
+  const meritocracyBonus = getMeritocracyBonus(account, 25) ?? 0;
+  const { value: allMasterclassDropz, sources: amdSources } = getAllMasterclassDropz(character, account);
 
   const baseUpgrades = getLocalCompassBonus(upgrades, 31)
-    + getLocalCompassBonus(upgrades, 34) * lavaLog(account?.accountOptions?.[359]);
+    + getLocalCompassBonus(upgrades, 34) * lavaLog(account?.accountOptions?.[359])
+    + exoticBonus;
   const upgrade38 = getLocalCompassBonus(upgrades, 38);
   const gearBonus = equipBonus + equipBonus1;
   const pathBonuses = getLocalCompassBonus(upgrades, 139)
@@ -548,14 +563,17 @@ export const getExtraDust = (character: any, account: any) => {
               + (getLocalCompassBonus(upgrades, 93)
                 + (getLocalCompassBonus(upgrades, 89)
                   + (compassTalent
-                    + arcadeBonus))))))));
+                    + arcadeBonus + mainframeBonus + paletteBonus))))))));
 
   const value = (1 + baseUpgrades / 100)
     * (1 + upgrade38 / 100)
+    * allMasterclassDropz
+    * (1 + meritocracyBonus / 100)
     * (1 + charmBonus / 100)
+    * (1 + loreBonus / 100)
     * (1 + gearBonus / 100)
-    * (1 + emperorBonus / 100)
-    * (1 + (0 * dustTalent) / 100)
+    * (1 + (emperorBonus + bubbleBonus) / 100)
+    * (1 + (0 * dustTalent) / 100) // Spirit Reindeer kills not tracked in save
     * (1 + pathBonuses / 100);
 
   return {
@@ -565,15 +583,27 @@ export const getExtraDust = (character: any, account: any) => {
       totalValue: notateNumber(value, "MultiplierInfo") + 'x',
       categories: [
         {
-          name: "Multiplicative Factors (%)",
+          name: "Additive / Path",
           sources: [
             { name: "Compass Upgrades", value: baseUpgrades },
             { name: "Per solardust", value: upgrade38 },
-            { name: "Charm (Twinkle Taffy)", value: charmBonus },
             { name: "Gear", value: gearBonus },
-            { name: "Emperor", value: emperorBonus },
             { name: "Path Bonuses", value: pathBonuses },
           ],
+        },
+        {
+          name: "Multipliers",
+          sources: [
+            { name: "Emperor", value: emperorBonus },
+            { name: "Bubble", value: bubbleBonus },
+            { name: "Meritocracy", value: meritocracyBonus },
+            { name: "Tome Epilogue", value: loreBonus },
+            { name: "Charm (Twinkle Taffy)", value: charmBonus },
+          ],
+        },
+        {
+          name: "All Masterclass Drops (mult)",
+          sources: amdSources,
         },
       ],
     }

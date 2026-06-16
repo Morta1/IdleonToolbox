@@ -3,10 +3,13 @@ import { mapEnemiesArray, mapPortals, monsterDrops, monsters, tesseract, items }
 import { CLASSES, getCharacterByHighestTalent, getTalentBonus, getHighestTalentByClass } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
-import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
+import { getLabBonus } from '@parsers/world-4/lab';
+import { getBubbleBonus } from '@parsers/world-2/alchemy';
+import { getLoreBossBonus } from '@parsers/world-7/spelunking';
+import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
-import { hasItemDropped, isBundlePurchased, getMasterclassCostReduction } from '@parsers/misc';
+import { hasItemDropped, isBundlePurchased, getMasterclassCostReduction, getAllMasterclassDropz } from '@parsers/misc';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
@@ -370,23 +373,30 @@ export const getExtraTachyon = (character: any, account: any) => {
   const tesseract = getTalentBonus(character?.flatTalents, 'TESSERACT');
   const { value: equipBonus } = getStatsFromGear(character, 95, account);
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Arcane_Tachyons')?.bonus ?? 0;
-  const spelunkerObolMulti = getLabBonus(account?.lab.labBonuses, 8); // gem multi
-  const jewelBonus = getJewelBonus(account?.lab.jewels, 23, spelunkerObolMulti);
+  const mainframeBonus = getLabBonus(account?.lab?.labBonuses, 123); // game MainframeBonus(123)
+  const paletteBonus = getPaletteBonus(account, 29) ?? 0;
+  const exoticBonus = getExoticMarketBonus(account, 55) ?? 0;
   const emperorBonus = getEmperorBonus(account, 6);
-  const charmBonus = getCharmBonus(account, 'Mystery_Fizz');
+  const bubbleBonus = getBubbleBonus(account, account?.alchemy?.bubbles?.['high-iq']?.[13]?.bubbleName) ?? 0; // AlchBubbles.M13 (WIS cauldron)
+  const charmBonus = getCharmBonus(account, 'Mystery_Fizz'); // Pristine charm 22
+  const loreBonus = getLoreBossBonus(account, 6) ?? 0; // Tome epilogue (LoreEpiBon 6)
+  const meritocracyBonus = getMeritocracyBonus(account, 25) ?? 0;
+  const { value: allMasterclassDropz, sources: amdSources } = getAllMasterclassDropz(character, account);
   const backupEnergy = getTalentBonus(character?.flatTalents, 'BACKUP_ENERGY');
-  const bundleBonus = isBundlePurchased(account?.bundles, 'bun_x') ? 1.2 : 1;
+  const bundleBonus = isBundlePurchased(account?.bundles, 'bun_x') ? 1.2 : 1; // ExtraTachyonMulti
 
   const upgrade17 = calcTesseractBonus(upgrades, 17, 0);
   const upgrade34 = calcTesseractBonus(upgrades, 34, 0) * lavaLog(account?.accountOptions?.[390]);
   const upgrade56 = calcTesseractBonus(upgrades, 56, 0) * lavaLog(account?.accountOptions?.[393]);
 
-  const value = (1 + (upgrade17
-    + (tesseract +
-      (upgrade34
-        + (upgrade56
-          + (equipBonus + (jewelBonus + arcadeBonus)))))) / 100)
-    * (1 + emperorBonus / 100)
+  const additive = upgrade17 + tesseract + upgrade34 + upgrade56
+    + equipBonus + mainframeBonus + arcadeBonus + paletteBonus + exoticBonus;
+
+  const value = (1 + additive / 100)
+    * (1 + (emperorBonus + bubbleBonus) / 100)
+    * allMasterclassDropz
+    * (1 + meritocracyBonus / 100)
+    * (1 + loreBonus / 100)
     * (1 + charmBonus / 100)
     * Math.max(1, backupEnergy)
     * bundleBonus;
@@ -405,18 +415,27 @@ export const getExtraTachyon = (character: any, account: any) => {
             { name: "Upgrade (Verdon Hoarding)", value: upgrade34 },
             { name: "Upgrade (Aurion Hoarding)", value: upgrade56 },
             { name: "Gear", value: equipBonus },
-            { name: "Jewel", value: jewelBonus },
+            { name: "Lab", value: mainframeBonus },
             { name: "Arcade", value: arcadeBonus },
+            { name: "Palette", value: paletteBonus },
+            { name: "Exotic Market", value: exoticBonus },
           ],
         },
         {
           name: "Multipliers",
           sources: [
             { name: "Emperor", value: emperorBonus },
+            { name: "Bubble", value: bubbleBonus },
+            { name: "Meritocracy", value: meritocracyBonus },
+            { name: "Tome Epilogue", value: loreBonus },
             { name: "Charm (Mystery Fizz)", value: charmBonus },
-            { name: "Backup Energy (mult)", value: Math.max(1, backupEnergy) },
-            { name: "Bundle (mult)", value: bundleBonus },
+            { name: "Backup Energy", value: Math.max(1, backupEnergy) },
+            { name: "Bundle", value: bundleBonus },
           ],
+        },
+        {
+          name: "All Masterclass Drops (mult)",
+          sources: amdSources,
         },
       ],
     }

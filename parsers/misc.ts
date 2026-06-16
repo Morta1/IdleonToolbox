@@ -44,6 +44,8 @@ import { getCardBonusByEffect } from '@parsers/cards';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getMinorDivinityBonus } from '@parsers/world-5/divinity';
+import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
+import { getButtonBonus } from '@parsers/world-7/button';
 
 export const getRawRefinerySalts = () => {
   return Object.keys(items).filter(key => /^Refinery\d+$/.test(key)).reduce((res, key) => ({ ...res, [key]: true }), {});
@@ -1456,6 +1458,38 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
 
 export const getKillroyBonus = (account: any, index: any) => {
   return account?.killroy?.permanentUpgrades?.[index]?.bonus;
+}
+
+// Game: Summoning("AllMasterclassDropz", 0, 0)
+// Shared multiplier applied to AC Tachyons, WW Dust and DB Bones.
+export const getAllMasterclassDropz = (character: any, account: any) => {
+  const killroy = getKillroyBonus(account, 4) ?? 0;
+  const spelunkShop = getSpelunkingBonus(account, 49) ?? 0; // Turquoise Hardhat
+  const vial = getVialsBonusByStat(account?.alchemy?.vials, '7masta') ?? 0;
+  const button = getButtonBonus(account, 4) ?? 0;
+  const companion = isCompanionBonusActive(account, 38) ? (account?.companions?.list?.at(38)?.bonus ?? 0) : 0;
+  const { value: gear101 } = getStatsFromGear(character, 101, account);
+  const { value: gear106 } = getStatsFromGear(character, 106, account);
+
+  const value = (1 + killroy / 100)
+    * (1 + spelunkShop / 100)
+    * (1 + vial / 100)
+    * (1 + button / 100)
+    * (1 + companion)
+    * (1 + gear101 / 100)
+    * (1 + gear106 / 100);
+
+  const sources = [
+    { name: 'Killroy', value: killroy },
+    { name: 'Spelunking Shop (Turquoise Hardhat)', value: spelunkShop },
+    { name: 'Vial', value: vial },
+    { name: 'Button', value: button },
+    { name: 'Companion', value: companion },
+    { name: 'Gear (Masterclass drops)', value: gear101 },
+    { name: 'Gear (Bonus MC drops)', value: gear106 },
+  ];
+
+  return { value, sources };
 }
 
 export const getKillRoyShopBonus = (account: any, index: any) => {

@@ -5,7 +5,15 @@ import { getStatsFromGear } from '@parsers/items';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
-import { getMasterclassCostReduction } from '@parsers/misc';
+import { getMasterclassCostReduction, getAllMasterclassDropz } from '@parsers/misc';
+import { getArcadeBonus } from '@parsers/world-2/arcade';
+import { getLabBonus } from '@parsers/world-4/lab';
+import { getPaletteBonus } from '@parsers/world-5/gaming';
+import { getExoticMarketBonus } from '@parsers/world-6/farming';
+import { getCharmBonus } from '@parsers/world-6/sneaking';
+import { getBubbleBonus } from '@parsers/world-2/alchemy';
+import { getLoreBossBonus } from '@parsers/world-7/spelunking';
+import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 
 export const boneNames = [
   'Femur',
@@ -234,18 +242,32 @@ export const getExtraBonesBonus = (character: any, account: any) => {
 
   const { value: gearBonus } = getStatsFromGear(highestLevelDeathBringer, 76, account);
   const emperorBonus = getEmperorBonus(account, 1);
+  const charmBonus = getCharmBonus(account, 'Glimmerchain'); // Pristine charm 18
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Deathbringer_Bones')?.bonus ?? 0;
+  const mainframeBonus = getLabBonus(account?.lab?.labBonuses, 121); // game MainframeBonus(121)
+  const paletteBonus = getPaletteBonus(account, 22) ?? 0;
+  const exoticBonus = getExoticMarketBonus(account, 53) ?? 0;
+  const bubbleBonus = getBubbleBonus(account, account?.alchemy?.bubbles?.power?.[13]?.bubbleName) ?? 0; // AlchBubbles.W13
+  const loreBonus = getLoreBossBonus(account, 0) ?? 0; // Tome epilogue (LoreEpiBon 0)
+  const meritocracyBonus = getMeritocracyBonus(account, 25) ?? 0;
+  const { value: allMasterclassDropz, sources: amdSources } = getAllMasterclassDropz(character, account);
 
   const gambitMulti = Math.min(2, 1 + getGambitBonus(account, 12));
   const gearMulti = Math.min(1.5, 1 + gearBonus / 100);
   const upgradeBonus = calcGrimoireBonus(upgrades, 23)
-    + calcGrimoireBonus(upgrades, 48) * lavaLog(account?.accountOptions?.[333]);
+    + calcGrimoireBonus(upgrades, 48) * lavaLog(account?.accountOptions?.[333])
+    + arcadeBonus + mainframeBonus + paletteBonus + exoticBonus;
 
-  const value = (1 + grimoire / 100)
+  const value = (1 + charmBonus / 100)
+    * (1 + loreBonus / 100)
+    * allMasterclassDropz
+    * (1 + grimoire / 100)
+    * (1 + meritocracyBonus / 100)
     * gambitMulti
     * gearMulti
-    * (1 + emperorBonus / 100)
+    * (1 + (emperorBonus + bubbleBonus) / 100)
     * (1 + upgradeBonus / 100)
-    * (1 + (1 * graveyardShift) / 100);
+    * (1 + (1 * graveyardShift) / 100); // GenInfo kill-count not tracked in save
 
   return {
     value,
@@ -258,11 +280,19 @@ export const getExtraBonesBonus = (character: any, account: any) => {
           sources: [
             { name: "Talent (Grimoire)", value: grimoire },
             { name: "Talent (Graveyard Shift)", value: graveyardShift },
+            { name: "Charm (Glimmerchain)", value: charmBonus },
+            { name: "Tome Epilogue", value: loreBonus },
+            { name: "Meritocracy", value: meritocracyBonus },
             { name: "Gambit", value: gambitMulti },
             { name: "Gear", value: gearMulti },
-            { name: "Emperor %", value: emperorBonus },
+            { name: "Emperor", value: emperorBonus },
+            { name: "Bubble", value: bubbleBonus },
             { name: "Grimoire Upgrades", value: upgradeBonus },
           ],
+        },
+        {
+          name: "All Masterclass Drops (mult)",
+          sources: amdSources,
         },
       ],
     }
