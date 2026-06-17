@@ -11,6 +11,7 @@ import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getAdviceFishBonus, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
+import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getBubbleBonus, getVialsBonusByEffect } from '@parsers/world-2/alchemy';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
@@ -120,7 +121,8 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   const exaltedDropChance = getExaltedDropChance(account, rawSpelunking);
   const sharedGrandDiscoveryFactors = (1 + getZenithBonus(account, 6, 0) / 100)
     * (1 + getChapterBonus(updatedAccount, 4, 0) / 100)
-    * (1 + (highestSpelunkingLevelCharacter * (getMineheadBonusQTY(account, 14) + getSushiBonus(account, 21))) / 100);
+    * (1 + (highestSpelunkingLevelCharacter * (getMineheadBonusQTY(account, 14) + getSushiBonus(account, 21))) / 100)
+    * (1 + getCglunkoBonus(account, 20) / 100); // Grandioso (Crystal Glunko Cove)
   // Shop tooltip chance (upgrade 43)
   const grandDiscoveriesChance = 4e-5 * (1 + getSpelunkingBonus(account, 43, 0) / 100) * sharedGrandDiscoveryFactors;
   // Actual base chance when destroying a rock (upgrade 32, before per-cave diminishing)

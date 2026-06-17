@@ -59,7 +59,7 @@ const CardTooltip = ({ displayName, effect, bonus, stars, showInfo, nextLevelReq
     <Typography fontWeight={'bold'} variant={'h6'}>{cleanUnderscore(displayName)}</Typography>
     <Typography>{cleanUnderscore(effect.replace('{', realBonus))}</Typography>
     {showInfo ? <Stack mt={1} direction={'row'} gap={1} flexWrap={'wrap'}>
-      {[1, 2, 3, 4, 5, 6].map((_, index) => {
+      {[1, 2, 3, 4, 5, 6, 7].map((_, index) => {
         return <Stack key={`${displayName}-${index}`} alignItems={'center'} justifyContent={'space-between'}>
           {index === 0 ? <Typography>Base</Typography> : <StarIcon src={`${prefix}etc/Star${index}.png`} alt=""/>}
           <Typography>{bonus * (index + 1)}</Typography>

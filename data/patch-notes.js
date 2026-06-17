@@ -4,6 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.51',
+    'gameVer': '2.3.522',
+    'date': '17/06/2026',
+    'features': [
+      'Updated the website with version 2.3.522 data and assets',
+      'Caverns: new Cavern 18 "Crystal Glunko Cove" — gooey shapes, the Crystal & Jeweled upgrade tabs (with per-upgrade unlock requirements), and the Cove\'s Drop Rate / AFK Gains / Multikill stats'
+    ],
+    'fixes': [
+      'Damage now includes the Crystal Glunko Cove damage upgrade',
+      'Cooking Mastery EXP rate now includes the Green Water bonus'
+    ]
+  },
+  {
     'ver': '3.3.50',
     'gameVer': '2.3.509',
     'date': '11/06/2026',

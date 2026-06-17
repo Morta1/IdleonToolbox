@@ -22,6 +22,7 @@ import { getGambit } from '@parsers/world-5/caverns/gambit';
 import { getTheTemple } from '@parsers/world-5/caverns/the-temple';
 import { getFountainBonusTotal, getTheFountain } from '@parsers/world-5/caverns/the-fountain';
 import { getBottomlessTrench } from '@parsers/world-5/caverns/the-bottomless-trench';
+import { getCrystalGlunkoCove } from '@parsers/world-5/caverns/crystal-glunko-cove';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getStatueBonus } from '@parsers/world-1/statues';
 import { getCompassBonus } from '@parsers/class-specific/compass';
@@ -146,7 +147,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     }
   });
 
-  const unlockedCaverns = Math.min(17, villagersLevels?.[0]);
+  const unlockedCaverns = Math.min(18, villagersLevels?.[0]);
   const unlockedVillagers = villagersLevels?.slice(0, 5)?.filter((level: any) => level >= 1)?.length;
   const leastOpalInvestedVillager = Math.min(...opalsInvested?.slice(0, unlockedVillagers));
   const villagers = villagersExp?.slice(0, 5).map((exp: any, index: any) => {
@@ -187,6 +188,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
   const theTemple = getTheTemple(holesObject);
   const theFountain = getTheFountain(holesObject, accountData);
   const theBottomlessTrench = getBottomlessTrench(holesObject, accountData);
+  const crystalGlunkoCove = getCrystalGlunkoCove(holesObject, accountData);
 
   const majiksRaw = [holeMajiks, villageMajiks, idleonMajiks];
   let godsLinks: any[] = [];
@@ -229,7 +231,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     const baseBonus = getMeasurementBaseBonus({ holesObject, t: index });
     const totalBonus = getMeasurementBonus({ holesObject, accountData, t: index });
     const multi = getMeasurementMulti({ holesObject, accountData, t: measureIndex })
-    const cost = (250 + 50 * measurementBuffLevels[index]) * Math.pow(1.6, index - 6 * Math.floor(index / 10)) * Math.pow(1.1, measurementBuffLevels[index])
+    const cost = (1 / (1 + getFountainBonusTotal(holesObject, 2, 14) / 100)) * (250 + 50 * measurementBuffLevels[index]) * Math.pow(1.6, index - 6 * Math.floor(index / 10)) * Math.pow(1.1, measurementBuffLevels[index])
 
     const measuredBy = getMeasurementQuantity({ holesObject, accountData, t: measureIndex });
     const itemReqIndex = holesInfo[50]?.[index];
@@ -271,7 +273,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     unlockedCaverns,
     charactersCavernLocation,
     engineerBonuses,
-    unlockedSchematics: Math.min(Math.min(98,
+    unlockedSchematics: Math.min(Math.min(105,
       Math.round(1 + 3 * villagers?.[1]?.level + Math.floor(villagers?.[1]?.level / 5))), holesBuildings?.length),
     caverns: {
       theWell,
@@ -290,7 +292,8 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
       gambit,
       theTemple,
       theFountain,
-      theBottomlessTrench
+      theBottomlessTrench,
+      crystalGlunkoCove
     },
     totalResources,
     totalLayerResources,
@@ -773,7 +776,8 @@ const getStudies = (holesObject: any, villagerLevel: any, account: any) => {
     * (1 + ((5 +
       (getSchematicBonus({ holesObject, t: 85, i: 2 })
         + (getSchematicBonus({ holesObject, t: 87, i: 3 })
-          + getSchematicBonus({ holesObject, t: 88, i: 5 })))) * villagerLevel) / 100)
+          + (getSchematicBonus({ holesObject, t: 88, i: 5 })
+            + getSchematicBonus({ holesObject, t: 99, i: 5 }))))) * villagerLevel) / 100)
     * (1 + (getJarBonus({ holesObject, i: 16, account })
       + (stampBonus
         + getCosmoBonus({ majik: holesObject?.villageMajiks, t: 1, i: 4 }))) / 100);

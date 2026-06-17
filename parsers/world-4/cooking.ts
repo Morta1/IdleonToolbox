@@ -24,6 +24,7 @@ import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
+import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
@@ -313,6 +314,7 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cook_Mastery_EXP')?.bonus ?? 0;
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 10);
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '7cookmastery');
+  const greenWaterCookMastery = getFountainBonusTotal(account?.hole?.holesObject, 2, 17); // Cooky (Green Water)
 
   // mult(t) === BonusAmountcook(t, 0) === RandoListo2[8][t] * CookMaster[2][t]
   const categoryMult = (t: number) => (Number(categoryMultipliers?.[t]) || 0) * (cookMaster?.[2]?.[t] ?? 0);
@@ -375,6 +377,7 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
     * (1 + gridBonusExp / 100)
     * (1 + (40 * superbit68) / 100)
     * (1 + 2 * companion87)
+    * (1 + greenWaterCookMastery / 100)
     * (1 + (vialBonus + arcadeBonus + saltLickBonus) / 100);
 
   const categorySpent = (cookMaster?.[2] ?? []).reduce((sum: number, v: any) => sum + (Number(v) || 0), 0);
@@ -401,6 +404,7 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
           { name: 'Research Grid (Masterius Cookerius)', value: 1 + gridBonusExp / 100 },
           { name: 'Superbit (Cooking Master)', value: 1 + (40 * superbit68) / 100 },
           { name: 'Rift Spooker (Companion)', value: 1 + 2 * companion87 },
+          { name: 'Green Water (Fountain)', value: 1 + greenWaterCookMastery / 100 },
           { name: 'Vial + Arcade + Salt Lick', value: 1 + (vialBonus + arcadeBonus + saltLickBonus) / 100 }
         ]
       }

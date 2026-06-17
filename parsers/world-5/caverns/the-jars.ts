@@ -1,5 +1,6 @@
 import { holesInfo } from '@website-data';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
+import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { cleanUnderscore, createRange, lavaLog, notateNumber } from '@utility/helpers';
 import { getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
@@ -311,7 +312,8 @@ const getEnchantChance = ({ holesObject, account }: any) => {
     (1 + jarBonus2 / 100) *
     (1 + studyBonus / 100) *
     (1 + jarBonus3 / 100) *
-    (1 + jarBonus4 / 100);
+    (1 + jarBonus4 / 100) *
+    (1 + getFountainBonusTotal(holesObject, 2, 15) / 100);
 }
 
 // TODO: TBD

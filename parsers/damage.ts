@@ -67,6 +67,7 @@ import { getMineheadBonusQTY } from './world-7/minehead';
 import { getSushiBonus } from './world-7/sushiStation';
 import { isBundlePurchased } from './misc';
 import { getFountainBonusTotal } from './world-5/caverns/the-fountain';
+import { getCglunkoBonus } from './world-5/caverns/crystal-glunko-cove';
 import { notateNumber } from '@utility/helpers';
 
 export const getMaxDamage = (character: Character, characters: Character[], account: Account) => {
@@ -326,6 +327,9 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const dreamMulti = (1 + dreamBonus / 10);
   const pristineMulti = (1 + pristineCharmBonus / 100);
   const summoningMulti = (1 + summUpg79 / 100);
+  // Game DamageDealed/Max: * (1 + Holes2("Cglunko_upgBon", 19) / 100) — Crystal Glunko Cove damage upgrade
+  const glunkoDmgBonus = getCglunkoBonus(account, 19);
+  const glunkoDmgMulti = (1 + glunkoDmgBonus / 100);
   const starSignAndTalentMulti = (1 + (activeBuff + friendBonus
     + (starSignBonus
       + (Math.max(0, unlockedGods - 10) * godTalent
@@ -353,7 +357,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const curseReduction = Math.max((1 - curseTalent / 100) * (1 - activeDebuff / 100)
     * Math.max(.01, 1 - (prayerCurse + secondPrayerCurse) / 100), .05);
   let damage = talentMulti * vialMulti * eclipseMulti * paletteMulti * dreamMulti
-    * pristineMulti * summoningMulti * starSignAndTalentMulti * accountBonusMulti
+    * pristineMulti * summoningMulti * glunkoDmgMulti * starSignAndTalentMulti * accountBonusMulti
     * bubbleAndStatMulti * gearAndLabMulti * companionAndCardMulti * arenaAndMiscMulti * curseReduction;
 
   // Minehead multipliers
@@ -414,7 +418,8 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const companion12 = isCompanionBonusActive(account, 12) ? account?.companions?.list?.at(12)?.bonus ?? 0 : 0;
   const companion33 = isCompanionBonusActive(account, 33) ? account?.companions?.list?.at(33)?.bonus ?? 0 : 0;
   const companion160 = isCompanionBonusActive(account, 160) ? account?.companions?.list?.at(160)?.bonus ?? 0 : 0;
-  damage *= Math.max(1, (1 + companion12) * (1 + companion33) * (1 + 2 * companion160));
+  const companion168 = isCompanionBonusActive(account, 168) ? account?.companions?.list?.at(168)?.bonus ?? 0 : 0;
+  damage *= Math.max(1, (1 + companion12) * (1 + companion33) * (1 + 2 * companion160) * (1 + 0.5 * companion168));
 
   // Crystal card, meritocracy
   // Game: min(1.5 * CardLv("Crystal6"), 15) — CardLv is 1-based star level
@@ -450,6 +455,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
         { name: 'Dream', value: dreamBonus },
         { name: 'Pristine Charm', value: pristineCharmBonus },
         { name: 'Summoning Upgrade', value: summUpg79 },
+        { name: 'Crystal Glunko Cove', value: glunkoDmgBonus },
         { name: 'Curse Talent', value: -curseTalent },
         { name: 'Balanced Spirit', value: -activeDebuff },
         { name: 'Prayer Curse (Precision)', value: -prayerCurse },

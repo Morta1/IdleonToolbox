@@ -8,7 +8,7 @@ export const getCards = (idleonData: IdleonData, account: Account): Record<strin
   return parseCards(cardsRaw, rawRift, account);
 }
 
-export const calculateStars = (tierReq: number, amountOfCards: number, cardName: string, maxStars: number, isInFiveStarList: boolean): number => {
+export const calculateStars = (tierReq: number, amountOfCards: number, cardName: string, maxStars: number, isInFiveStarList: boolean, isInSixStarList: boolean): number => {
   let cardLvCalco = 0;
   for (let i = 0; i < maxStars; i++) {
     if (cardName === 'Boss3B') {
@@ -21,8 +21,11 @@ export const calculateStars = (tierReq: number, amountOfCards: number, cardName:
       }
     }
   }
-  // If card is in five-star list and calculated stars < 6 (before subtracting 1), return 5 (6 stars in 0-indexed)
-  // Otherwise return calculated stars (subtract 1 to match original 0-indexed behavior)
+  // Cardifier (6★) list floors calco to 7; rift/spelunking (5★) list floors to 6. Floors mirror N.js CardLv
+  // (OptionsListAccount[603] then [155]). Parser keeps 0-indexed stars, so calco 7→6 and calco 6→5.
+  if (isInSixStarList && cardLvCalco < 7) {
+    return 6; // 7 stars in 0-indexed is 6
+  }
   if (isInFiveStarList && cardLvCalco < 6) {
     return 5; // 6 stars in 0-indexed is 5
   }
@@ -30,7 +33,7 @@ export const calculateStars = (tierReq: number, amountOfCards: number, cardName:
 };
 
 export const calculateAmountToNextLevel = (perTier: number, stars: number, amountOfCards: number): number => {
-  return stars >= 6 ? 0 : Math.ceil(perTier
+  return stars >= 7 ? 0 : Math.ceil(perTier
     * Math.pow((stars + 1)
       + (Math.floor((stars + 1) / 4)
         + (16 * Math.floor((stars + 1) / 5)
@@ -50,7 +53,10 @@ const parseCards = (cardsRaw: any, rawRift: any, account: Account): Record<strin
       const rawFiveStarList = (account as any)?.accountOptions?.[155] || '';
       const fiveStarList = rawFiveStarList?.toString()?.split(',') || [];
       const isInFiveStarList = fiveStarList?.includes(name);
-      const stars = calculateStars(cardDetails?.perTier, amount, name, maxStars, isInFiveStarList);
+      const rawSixStarList = (account as any)?.accountOptions?.[603] || '';
+      const sixStarList = rawSixStarList?.toString()?.split(',') || [];
+      const isInSixStarList = sixStarList?.includes(name);
+      const stars = calculateStars(cardDetails?.perTier, amount, name, maxStars, isInFiveStarList, isInSixStarList);
       if (!cardDetails) return res;
       return {
         ...res,

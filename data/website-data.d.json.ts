@@ -2105,9 +2105,9 @@ declare module '@website-data' {
       WIS?: number;
       LUK?: number;
       Defence?: number;
-      UQ1txt?: string | number;
+      UQ1txt?: number;
       UQ1val?: number;
-      UQ2txt?: string | number;
+      UQ2txt?: number;
       UQ2val?: number;
       Upgrade_Slots_Left?: number;
     }[];
@@ -2354,9 +2354,9 @@ declare module '@website-data' {
       WIS?: number;
       LUK?: number;
       Defence?: number;
-      UQ1txt?: string | number;
+      UQ1txt?: number;
       UQ1val?: number;
-      UQ2txt?: string | number;
+      UQ2txt?: number;
       UQ2val?: number;
       Upgrade_Slots_Left?: number;
     }>;

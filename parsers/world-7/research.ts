@@ -22,6 +22,8 @@ import { getButtonBonus } from '@parsers/world-7/button';
 import { getKillRoyShopBonus } from '@parsers/misc';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
+import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
+import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 
 // Save key for Research: game may use idleonData.Research or similar
 const getRawResearch = (idleonData: any) => {
@@ -582,7 +584,10 @@ function getResearchEXPmulti(account: any, research: any) {
   const companionFactor = Math.max(1, (1 + companion52) * (1 + companion153));
   const nonstopStudies = getEquinoxBonus(account?.equinox?.upgrades, 'Nonstop_Studies');
   const nonstopFactor = 1 + nonstopStudies / 100;
-  const value = additiveFactor * grid70Factor * nonstopFactor * companionFactor * (1 + getSushiBonus(account, 0) / 100) * (1 + getButtonBonus(account, 0) / 100) * killroyResearchBonus;
+  const holesObject = account?.hole?.holesObject;
+  const greenWaterFactor = 1 + getFountainBonusTotal(holesObject, 2, 16) / 100; // Pen N Paper (Green Water)
+  const cglunkoFactor = 1 + getCglunkoBonus(account, 11) / 100; // Researchy (Crystal Glunko Cove)
+  const value = additiveFactor * grid70Factor * nonstopFactor * companionFactor * (1 + getSushiBonus(account, 0) / 100) * (1 + getButtonBonus(account, 0) / 100) * killroyResearchBonus * greenWaterFactor * cglunkoFactor;
 
   const breakdown = {
     statName: 'Research EXP Multi',

@@ -1,6 +1,7 @@
 import { holeFountUpg } from '@website-data';
 import { commaNotation, lavaLog, notateNumber } from '@utility/helpers';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
+import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 
 // Each tier represents a water color. The first upgrade in each tier ("X_Water") is the gate
 // that unlocks the NEXT color: tier 0/0 ("Yellow_Water") unlocks Yellow, tier 1/0 ("Green_Water")
@@ -54,7 +55,7 @@ const timerDisplay = (totalSeconds: number) => {
 const moneyFmt = (v: number): string => (v < 1e6 ? String(commaNotation(Math.round(v))) : String(notateNumber(v, 'Big')));
 
 // Fountain helper formulas (mirror N.js customBlock_Holes2 handlers)
-const getFountainBarReq = (t: number) => (t === 0 ? 7200 : t === 1 ? 36000 : 86400);
+const getFountainBarReq = (t: number) => (t === 0 ? 7200 : t === 1 ? 36000 : 90000);
 
 const getFountainBarSpeed = (holesObject: any, accountData: any, t: number) => {
   if (t !== 0) return 1;
@@ -105,11 +106,12 @@ const getFountCurrencyBaseValue = (holesObject: any, currencyType: number) => {
   }
 };
 
-const getFountCurrencyAllMulti = (holesObject: any) => {
+const getFountCurrencyAllMulti = (holesObject: any, accountData: any) => {
   // Approximate: only count the Fountain_BonTOT contributions (skip lamp/measurement/bell to avoid circular deps)
   const f = (t: number, i: number) => getFountainBonusTotal(holesObject, t, i);
   const trenchSchematicMulti = Math.max(1, Math.pow(1.1, holesObject?.extraCalculations?.[7] ?? 0));
   return (1 + f(0, 0) / 100)
+    * (1 + getCglunkoBonus(accountData, 14) / 100)
     * (1 + (f(0, 1) + f(1, 1) + f(2, 1) + f(1, 12)) / 100)
     * trenchSchematicMulti
     * (1 + f(1, 0) / 100)
@@ -140,7 +142,7 @@ const formatFountainDescription = (
       desc = desc.replaceAll('$', moneyFmt(value));
     }
     if (i === 2) {
-      desc = desc.replaceAll('^', `${Math.round(100 * getFountCurrencyAllMulti(holesObject)) / 100}x`);
+      desc = desc.replaceAll('^', `${Math.round(100 * getFountCurrencyAllMulti(holesObject, accountData)) / 100}x`);
     }
     if (i === 8) {
       desc = desc.replaceAll('$', String(Math.round(10000 * getFountCurrencyKeep(holesObject)) / 100));
@@ -195,21 +197,25 @@ const formatFountainDescription = (
     }
   }
 
-  // Green Water tier-specific substitutions (tier 2 — placeholder content in 2.3.504)
+  // Green Water tier-specific substitutions (tier 2 — real content as of 2.3.511)
   if (t === 2) {
     if (i === 2 || i === 3 || i === 4) {
       const value = getFountCurrencyBaseValue(holesObject, i + 4);
       desc = desc.replaceAll('$', moneyFmt(value));
+      desc = desc.replaceAll('^', `${Math.round(100 * getFountCurrencyAllMulti(holesObject, accountData)) / 100}x`);
     }
   }
+
+  // Green-tier glyph cleanup: 鉢 is the "Total Currency Multi" label glyph, @ is an in-game line break.
+  desc = desc.replaceAll('鉢', '').replaceAll('@', ' ');
 
   return desc;
 };
 
 export const getTheFountain = (holesObject: any, accountData: any) => {
-  const watersOwned = Math.min(1, holesObject?.fountainUpgradeLevels?.[0]?.[0] ?? 0)
+  const watersOwned = Math.min(2, Math.min(1, holesObject?.fountainUpgradeLevels?.[0]?.[0] ?? 0)
     + Math.min(1, holesObject?.fountainUpgradeLevels?.[1]?.[0] ?? 0)
-    + Math.min(1, holesObject?.fountainUpgradeLevels?.[2]?.[0] ?? 0);
+    + Math.min(1, holesObject?.fountainUpgradeLevels?.[2]?.[0] ?? 0));
 
   const currentWaterType = holesObject?.extraCalculations?.[80] ?? 0;
   const marbleCurrency = holesObject?.extraCalculations?.[81] ?? 0;
@@ -318,9 +324,9 @@ export const getTheFountain = (holesObject: any, accountData: any) => {
     buildBar(1, 'Marble Fill',
       'When full, produces marble currency for Marbleization upgrades.',
       getFountainBonusTotal(holesObject, 1, 10) >= 1), // Marble_Filling Lv 1+
-    buildBar(2, 'Green Water Bar',
-      'Future fountain bar.',
-      getFountainBonusTotal(holesObject, 2, 10) >= 1)
+    buildBar(2, 'Rubber Ducky Bar',
+      'When full, has a chance to give +1 Rubber Ducky stack.',
+      getFountainBonusTotal(holesObject, 2, 12) >= 1) // Rubber_Ducky (tier 2 idx 12) adds this bar
   ].filter((b) => b.unlocked);
 
   return {

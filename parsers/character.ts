@@ -1870,6 +1870,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const comp160 = isCompanionBonusActive(account, 160) ? account?.companions?.list?.at(160)?.bonus : 0;
   const comp32 = isCompanionBonusActive(account, 32) ? account?.companions?.list?.at(32)?.bonus : 0;
   const comp34 = isCompanionBonusActive(account, 34) ? account?.companions?.list?.at(34)?.bonus : 0;
+  const comp168 = isCompanionBonusActive(account, 168) ? account?.companions?.list?.at(168)?.bonus : 0;
 
   // Research grid 130, 131, 132, 152
   const researchGrid130 = getResearchGridBonus(account, 130, 0);
@@ -1890,6 +1891,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
     * (1 + comp33)
     * (1 + 4 * comp160)
     * (1 + comp32)
+    * (1 + 0.4 * comp168)
     * (1 + comp34)
     * (1 + researchGridTotal / 100)
     * (1 + stickerBonus / 100)

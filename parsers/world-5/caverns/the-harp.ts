@@ -9,6 +9,7 @@ import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
+import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 
 export const getTheHarp = (holesObject: any, accountData: any) => {
   const stringSlots = getStringSlots(holesObject);
@@ -81,7 +82,8 @@ const getHarpNoteProduced = ({ index, holesObject, stringTypes, power, accountDa
     * (1 + getBellBonus({ holesObject, t: 2 }) / 100)
     * (1 + accountData?.gemShopPurchases?.[2] / 2)
     * (1 + getJarBonus({ holesObject, i: 20, account: accountData }) / 100)
-    * (1 + stampBonus / 100)) / Math.pow(4, index);
+    * (1 + stampBonus / 100)
+    * (1 + getCglunkoBonus(accountData, 14) / 100)) / Math.pow(4, index);
 }
 
 const getHarpPowerPerHour = (holesObject: any) => {

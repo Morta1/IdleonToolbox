@@ -193,7 +193,8 @@ export const PAGES = {
             { tab: 'Explore', icon: 'etc/Cavern_13', nestedTab: 'Gambit' },
             { tab: 'Explore', icon: 'etc/Cavern_14', nestedTab: 'The Temple' },
             { tab: 'Explore', icon: 'etc/Cavern_15', nestedTab: 'The Fountain' },
-            { tab: 'Explore', icon: 'etc/Cavern_16', nestedTab: 'The Bottomless Trench' }
+            { tab: 'Explore', icon: 'etc/Cavern_16', nestedTab: 'The Bottomless Trench' },
+            { tab: 'Explore', icon: 'etc/Cavern_17', nestedTab: 'Crystal Glunko Cove' }
           ]
         },
         { label: 'slab', icon: 'etc/Slab' }

@@ -8,6 +8,7 @@ import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
+import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 
 export const getTheWell = (holesObject: any, accountData: any) => {
   const { wellSediment, sedimentMulti, wellBuckets } = holesObject;
@@ -29,10 +30,12 @@ export const getTheWell = (holesObject: any, accountData: any) => {
   const numberOfBuckets = getOwnedBuckets(holesObject);
   const buckets = fillArrayToLength(numberOfBuckets, wellBuckets);
   // Fountain Yellow Water idx 15 ("Golden_Bucket_Boost") makes the first bucket golden, with a faster fill rate.
-  // HolezBucketGoldOwned = round(min(1, Fountain_BonTOT(0,15)))  ⇒ 0 or 1 golden buckets.
-  // HolezBucketGoldMult  = 1 + Fountain_BonTOT(0,15) / 100        ⇒ rate multiplier on the golden bucket.
+  // HolezBucketGoldOwned = round(min(1, Fountain_BonTOT(0,15)) + min(B_UPG(104,1), 1))  ⇒ 0..2 golden buckets.
+  // The 2nd golden bucket ("Anotha_One" schematic, idx 104) was added in 2.3.511.
+  // HolezBucketGoldMult  = 1 + Fountain_BonTOT(0,15) / 100        ⇒ rate multiplier on golden buckets.
   const goldenBonus = getFountainBonusTotal(holesObject, 0, 15);
-  const goldenBucketsOwned = Math.round(Math.max(0, Math.min(1, goldenBonus)));
+  const goldenBucketsOwned = Math.round(Math.max(0, Math.min(1, goldenBonus))
+    + Math.min(getSchematicBonus({ holesObject, t: 104, i: 1 }), 1));
   const goldenBucketMulti = goldenBucketsOwned > 0 ? Math.max(1, 1 + goldenBonus / 100) : 1;
   const baseFillRate = getBucketFillRate(holesObject, accountData);
   const bucketRates = Array.from({ length: numberOfBuckets }, (_, i) =>
@@ -166,5 +169,6 @@ const getBucketFillRate = (holesObject: any, accountData: any) => {
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 5 }) / 100)
     * (1 + getBellBonus({ holesObject, t: 0 }) / 100)
     * (1 + getJarBonus({ holesObject, i: 8, account: accountData }) / 100)
-    * (1 + stampBonus / 100);
+    * (1 + stampBonus / 100)
+    * (1 + getCglunkoBonus(accountData, 14) / 100);
 }
