@@ -135,10 +135,10 @@ export const getTrophyBonuses = (rawSpelunk: any, account: any, character?: any)
 
         // Build modified item with bonus values
         const modifiedItem: any = { ...trophy };
-        if (trophy.UQ1txt && trophy.UQ1txt != '0' && trophy.UQ1val && trophy.UQ1val != 0) {
+        if (trophy.UQ1txt && trophy.UQ1txt as any != '0' && trophy.UQ1val && trophy.UQ1val != 0) {
           modifiedItem.UQ1val = notateNumber(trophy.UQ1val * bonusMulti, 'MultiplierInfo');
         }
-        if (trophy.UQ2txt && trophy.UQ2txt != '0' && trophy.UQ2val && trophy.UQ2val != 0) {
+        if (trophy.UQ2txt && trophy.UQ2txt as any != '0' && trophy.UQ2val && trophy.UQ2val != 0) {
           modifiedItem.UQ2val = notateNumber(trophy.UQ2val * bonusMulti, 'MultiplierInfo');
         }
         modifiedItem.inventoryIndex = trophyIndex;
@@ -182,10 +182,10 @@ export const getTrophyBonuses = (rawSpelunk: any, account: any, character?: any)
 
         // Build modified item with bonus values
         const modifiedItem: any = { ...trophy };
-        if (trophy.UQ1txt && trophy.UQ1txt != '0' && trophy.UQ1val && trophy.UQ1val != 0) {
+        if (trophy.UQ1txt && trophy.UQ1txt as any != '0' && trophy.UQ1val && trophy.UQ1val != 0) {
           modifiedItem.UQ1val = notateNumber(trophy.UQ1val * bonusMulti, 'MultiplierInfo');
         }
-        if (trophy.UQ2txt && trophy.UQ2txt != '0' && trophy.UQ2val && trophy.UQ2val != 0) {
+        if (trophy.UQ2txt && trophy.UQ2txt as any != '0' && trophy.UQ2val && trophy.UQ2val != 0) {
           modifiedItem.UQ2val = notateNumber(trophy.UQ2val * bonusMulti, 'MultiplierInfo');
         }
         modifiedItem.podiumLevel = podiumLevel;
@@ -258,10 +258,10 @@ export const getNametagBonuses = (rawSpelunk: any, account: any, character?: any
 
         // Build modified item with bonus values
         const modifiedItem: any = { ...nametagItem };
-        if (nametagItem.UQ1txt && nametagItem.UQ1txt != '0' && nametagItem.UQ1val && nametagItem.UQ1val != 0) {
+        if (nametagItem.UQ1txt && nametagItem.UQ1txt as any != '0' && nametagItem.UQ1val && nametagItem.UQ1val != 0) {
           modifiedItem.UQ1val = notateNumber(nametagItem.UQ1val * bonusMultiplier, 'MultiplierInfo');
         }
-        if (nametagItem.UQ2txt && nametagItem.UQ2txt != '0' && nametagItem.UQ2val && nametagItem.UQ2val != 0) {
+        if (nametagItem.UQ2txt && nametagItem.UQ2txt as any != '0' && nametagItem.UQ2val && nametagItem.UQ2val != 0) {
           modifiedItem.UQ2val = notateNumber(nametagItem.UQ2val * bonusMultiplier, 'MultiplierInfo');
         }
         modifiedItem.level = nametagOwned;
@@ -419,10 +419,10 @@ export const getAllTrophies = (rawSpelunk: any, account: any, character?: any) =
         }
 
         // Apply bonus multiplier
-        if (item.UQ1txt && item.UQ1txt != '0' && item.UQ1val && item.UQ1val != 0) {
+        if (item.UQ1txt && item.UQ1txt as any != '0' && item.UQ1val && item.UQ1val != 0) {
           modifiedItem.UQ1val = notateNumber(item.UQ1val * trophyMultiplier, 'MultiplierInfo');
         }
-        if (item.UQ2txt && item.UQ2txt != '0' && item.UQ2val && item.UQ2val != 0) {
+        if (item.UQ2txt && item.UQ2txt as any != '0' && item.UQ2val && item.UQ2val != 0) {
           modifiedItem.UQ2val = notateNumber(item.UQ2val * trophyMultiplier, 'MultiplierInfo');
         }
 
@@ -481,10 +481,10 @@ export const getAllNametags = (rawSpelunk: any, account: any, character?: any) =
         const bonusMultiplier = getNametagMultiplier(nametagLevel, rawSpelunk, account, character);
 
         // Apply bonus multiplier
-        if (item.UQ1txt && item.UQ1txt != '0' && item.UQ1val && item.UQ1val != 0) {
+        if (item.UQ1txt && item.UQ1txt as any != '0' && item.UQ1val && item.UQ1val != 0) {
           modifiedItem.UQ1val = notateNumber(item.UQ1val * bonusMultiplier, 'MultiplierInfo');
         }
-        if (item.UQ2txt && item.UQ2txt != '0' && item.UQ2val && item.UQ2val != 0) {
+        if (item.UQ2txt && item.UQ2txt as any != '0' && item.UQ2val && item.UQ2val != 0) {
           modifiedItem.UQ2val = notateNumber(item.UQ2val * bonusMultiplier, 'MultiplierInfo');
         }
         modifiedItem.level = nametagLevel;
