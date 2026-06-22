@@ -189,7 +189,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0lwsw7u9kqqu1.js"
   ],
   "/account/world-5/slab": [
-    "static/chunks/0b90hy7rl8jjw.js"
+    "static/chunks/18c-rvjvil55t.js"
   ],
   "/account/world-6/beanstalk": [
     "static/chunks/0av8buqaqgzlq.js"
