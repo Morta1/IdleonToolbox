@@ -387,7 +387,11 @@ const getStickerOddsMulti = (characters: any, account: any) => {
   const superBit55 = isSuperbitUnlocked(account, 'Mo_Stickers_Mo_Bonusers') ? 1 : 0;
   const farmingLevel = getHighestCharacterSkill(characters, 'farming') ?? 0;
   const sushiBonus55 = getSushiBonus(account, 55);
-  return (1 + grid67bonus / 100)
+  // W4 Golden Tome (opt[607]) multiplies sticker odds: 2^min(12,lvl) then +1500 per level past 11
+  const goldenTome = Number(account?.accountOptions?.[607]) || 0;
+  const goldenTomeMulti = Math.max(1, Math.pow(2, Math.min(12, goldenTome)) + 1500 * Math.max(0, goldenTome - 11));
+  return goldenTomeMulti
+    * (1 + grid67bonus / 100)
     * (1 + grid88bonus / 100)
     * (1 + sticker5bonus / 100)
     * (1 + arcade64 / 100)

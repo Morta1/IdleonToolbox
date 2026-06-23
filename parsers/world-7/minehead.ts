@@ -267,9 +267,12 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   const glimbo = glimboItemNames.map((itemName: any, idx: any) => {
     const trades = Number(glimboRaw[idx]) || 0;
     const costBase = Number(glimboCostBases[idx]) || 1;
-    // handleGlimbo_Cost: (1 + trades + 1.5*trades) * base^trades * eventDiscount, floored if < 1e9
+    // handleGlimbo_Cost: (1 + trades + 1.5*trades) * base^trades * eventDiscount * companionDiscount, floored if < 1e9
     const eventDiscount = Math.max(0.1, 1 - (25 * getEventShopBonus(account, 38)) / 100);
-    const rawCost = (1 + trades + 1.5 * trades) * Math.pow(costBase, trades) * eventDiscount;
+    // Companion 57 (w7b12 "Swap Meet 5x cheaper") reduces cost
+    const companion57 = isCompanionBonusActive(account, 57) ? (account?.companions?.list?.at(57)?.bonus ?? 0) : 0;
+    const companionDiscount = Math.max(0.2, 1 - companion57 / 100);
+    const rawCost = (1 + trades + 1.5 * trades) * Math.pow(costBase, trades) * eventDiscount * companionDiscount;
     const cost = rawCost < 1e9 ? Math.floor(Math.max(1, rawCost)) : rawCost;
 
     const vaultIdx = glimboVaultIndices[idx] ?? -1;

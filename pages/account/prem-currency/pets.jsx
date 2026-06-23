@@ -1,5 +1,5 @@
 import { NextSeo } from 'next-seo';
-import { Card, CardContent, Divider, FormControlLabel, Radio, RadioGroup, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Chip, Divider, FormControlLabel, Radio, RadioGroup, Stack, Typography } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
@@ -15,7 +15,7 @@ const CompanionList = ({ title, companions }) => {
       <Typography variant="h5">{title}</Typography>
       <Divider />
       <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-        {companions.map(({ name, effect, acquired = '', copies = 0, tradableCount = 0 }) => {
+        {companions.map(({ name, effect, acquired = '', copies = 0, tradableCount = 0, viaToken = false }) => {
           return <Card key={name}
             sx={{
               width: 300,
@@ -30,11 +30,19 @@ const CompanionList = ({ title, companions }) => {
                     style={{ objectFit: 'contain' }}
                     src={`${prefix}afk_targets/${name}.png`} alt={''} />
                   <Stack gap={1}>
-                    <Typography variant='body1'>{cleanUnderscore(name)}</Typography>
+                    <Stack direction='row' gap={1} alignItems='center'>
+                      <Typography variant='body1'>{cleanUnderscore(name)}</Typography>
+                      {viaToken && <Chip label={'Token'} size={'small'} color={'primary'} sx={{ height: 18, fontSize: 10 }} />}
+                    </Stack>
                     <Typography variant='body2' color='text.secondary'>{cleanUnderscore(effect?.replace('{', '+'))}</Typography>
-                    {acquired && (
+                    {acquired && !viaToken && (
                       <Typography variant="body2">
                         Tradable: {numberWithCommas(tradableCount)}/{numberWithCommas(copies)}
+                      </Typography>
+                    )}
+                    {viaToken && (
+                      <Typography variant="body2" color='text.secondary'>
+                        Bonus active via Pet Bonus Token
                       </Typography>
                     )}
                   </Stack>
@@ -54,6 +62,7 @@ const Pets = () => {
   const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * state?.account?.timeAway?.GlobalTime - (state?.account?.companions?.lastFreeClaim ?? 0)));
 
   const allCompanions = state?.account?.companions?.list || [];
+  const tokens = state?.account?.companions?.tokens;
 
   const filterCompanions = (indices) => {
     let result = indices.map(i => allCompanions[i]).filter(Boolean);
@@ -70,6 +79,8 @@ const Pets = () => {
     <Stack direction={'row'} gap={3} flexWrap={'wrap'} alignItems="center">
       <CardTitleAndValue title={'Pet Crystals'} value={numberWithCommas(state?.account?.companions?.petCrystals ?? 0)} icon='data/PremiumGem.png' imgStyle={{ filter: 'hue-rotate(280deg)', width: 24, height: 24 }} />
       <CardTitleAndValue title={'Total Box Opened'} value={numberWithCommas(state?.account?.companions?.totalBoxesOpened ?? 0)} />
+      <CardTitleAndValue title={'Tokens Available'} value={numberWithCommas(tokens?.remaining ?? 0)} icon='data/Quest119.png' imgStyle={{ width: 24, height: 24 }} />
+      <CardTitleAndValue title={'Token Bonuses Active'} value={numberWithCommas(tokens?.used ?? 0)} icon='data/Quest119.png' imgStyle={{ width: 24, height: 24 }} />
       <CardTitleAndValue title={'Next free companion'} value={<Timer
         type={'countdown'} date={nextCompanionClaim}
         placeholder={'Go claim!'}

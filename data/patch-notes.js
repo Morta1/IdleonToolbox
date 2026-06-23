@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.52',
+    'gameVer': '2.3.523',
+    'date': '23/06/2026',
+    'features': [
+      'Updated the website with version 2.3.523 (Summer Event) data and assets',
+      'Pets: Pet Bonus Token support — token-applied pets give their bonus everywhere, even without owning the pet',
+      'New Glowfish card and the Glowing Underbelly map'
+    ],
+    'fixes': [
+      'Friend Bonus rescaled to the new cap, plus the new "Extra Kills" bonus type',
+      'Updated Research EXP, Hat Rack, Artifact Find, Sticker odds, and Glimbo costs with the new bonuses'
+    ]
+  },
+  {
     'ver': '3.3.51',
     'gameVer': '2.3.522',
     'date': '17/06/2026',

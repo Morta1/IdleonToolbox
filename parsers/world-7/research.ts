@@ -543,12 +543,13 @@ function getResearchEXPmulti(account: any, research: any) {
   const msaBonus = account?.msaTotalizer?.researchExp?.value ?? 0;
   const slab = getSlabBonus(account, 7) ?? 0;
   const tomeLoreEpi = account?.spelunking?.loreBonuses?.[7]?.bonus ?? 0;
-  // Research EXP passive cards (w7b1, w7b4), plus w7a11 (Gallery_Bonus passive) which the game also adds here
+  // Research EXP passive cards (w7b1, w7b4, w7b8 Glowfish), plus w7a11 (Gallery_Bonus passive) which the game also adds here
   const cardResearchBonus = getCardBonusByEffect(account?.cards, 'Research_EXP_(Passive)');
   const cardGalleryBonus = getCardBonusByEffect(account?.cards, 'Gallery_Bonus_(Passive)');
-  // Game caps each card at 10; only Eggroll (w7b4, bonus=2) can exceed this
-  const eggrollOverflow = Math.max(0, calcCardBonus(account?.cards?.Eggroll) - 10);
-  const cardBonus = cardResearchBonus + cardGalleryBonus - eggrollOverflow;
+  // Game caps each card individually: w7b1/w7a11 at 10, Eggroll (w7b4) at 15, Glowfish (w7b8) at 20
+  const eggrollOverflow = Math.max(0, calcCardBonus(account?.cards?.Eggroll) - 15);
+  const glowfishOverflow = Math.max(0, calcCardBonus(account?.cards?.Glowfish) - 20);
+  const cardBonus = cardResearchBonus + cardGalleryBonus - eggrollOverflow - glowfishOverflow;
   const arcade63 = account?.arcade?.shop?.[63]?.bonus ?? 0;
   const grid70 = getResearchGridBonusInternal(account, research, 70, 0);
   const grid31 = getResearchGridBonusInternal(account, research, 31, 0);

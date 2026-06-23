@@ -126,15 +126,16 @@ const getStaticData = (idleonData: IdleonData, charNames: string[], companion: C
   });
   const { tasks, tasksDescriptions, meritsDescriptions, unlockedRecipes, taskUnlocks } = getTasks(idleonData);
   const { constellations, rawConstellationsDone } = getConstellations(idleonData);
+  const accountOptions = tryToParse(idleonData?.OptLacc);
 
   return {
     serializedCharactersData,
     charactersLevels,
     accountCreateTime,
-    companions: getCompanions(companion),
+    companions: getCompanions(companion, accountOptions),
     bundles: getBundles(idleonData),
     serverVars,
-    accountOptions: tryToParse(idleonData?.OptLacc),
+    accountOptions,
     gemShopPurchases: getGemShop(idleonData),
     bribes: getBribes(idleonData),
     timeAway: tryToParse(idleonData?.TimeAway),

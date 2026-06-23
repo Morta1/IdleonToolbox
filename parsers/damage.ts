@@ -1375,13 +1375,14 @@ const getKillPerKill = (character: Character, characters: Character[], account: 
   const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'KILL_PER_KILL', account);
 
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Fibers_of_Absence', account)?.bonus;
+  const friendBonusExtraKills = getFriendBonus(account, 6); // Friend Bonus type 6 (+% Extra Kills)
 
   const strContribution = strTalentBonus * (character?.stats?.strength / 1e3);
   const agiContribution = agiTalentBonus * (character?.stats?.agility / 1e3);
   const wisContribution = wisTalentBonus * (character?.stats?.wisdom / 1e3);
   const multiKillContribution = overKill ? multiKillTotal : 0;
   const additiveTotal = strContribution + agiContribution + wisContribution + warTalentBonus
-    + multiKillContribution + activeBubbleBonus + prayerBonus;
+    + multiKillContribution + activeBubbleBonus + prayerBonus + friendBonusExtraKills;
 
   const labMulti = Math.max(1, labBonus);
   const worldMulti = 1 + worldBonus / 100;
@@ -1410,7 +1411,8 @@ const getKillPerKill = (character: Character, characters: Character[], account: 
           { name: 'Warrior Talent (Monster Decimator)', value: warTalentBonus / 100 },
           { name: 'Multi-kill (Overkill only)', value: multiKillContribution / 100 },
           { name: 'Bubble', value: activeBubbleBonus / 100 },
-          { name: 'Prayer (Fibers of Absence)', value: prayerBonus / 100 }
+          { name: 'Prayer (Fibers of Absence)', value: prayerBonus / 100 },
+          { name: 'Friend Bonus (Extra Kills)', value: friendBonusExtraKills / 100 }
         ]
       }
     ]

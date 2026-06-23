@@ -93,7 +93,8 @@ export const getFriendBonusStats = (account: any = {}) => {
     '% Skill Efficiency',
     '% Drop Rate',
     '% Skill EXP gain',
-    '% more Coins'
+    '% more Coins',
+    '% Extra Kills'
   ];
   const companionList = account?.companions?.list;
   const hasMrPig = isCompanionBonusActive(account, 30);
@@ -153,8 +154,8 @@ export const getFriendBonusStats = (account: any = {}) => {
 
 
 const getFriendBonusQuantity = (statIndex: any, level = 0) => {
-  const cappedLevel = Math.min(12000, Math.max(0, level));
-  const scaling = Math.min(1, 0.2 + cappedLevel / (cappedLevel + 3000));
+  const cappedLevel = Math.min(30000, Math.max(0, level));
+  const scaling = Math.min(1.5, 0.25 + (cappedLevel / (cappedLevel + 12000)) * 1.5);
 
   switch (statIndex) {
     case 0:
@@ -169,6 +170,8 @@ const getFriendBonusQuantity = (statIndex: any, level = 0) => {
       return 30 * scaling;
     case 5:
       return 40 * scaling;
+    case 6:
+      return 10 * scaling;
     default:
       return 0;
   }
@@ -1202,7 +1205,7 @@ export const getMinigameScore = (account: any, bonusName: any) => {
   return account?.highscores?.minigameHighscores?.find(({ name }: any) => name === bonusName)?.score || 0;
 }
 
-export const getCompanions = (companionObject: any = {}) => {
+export const getCompanions = (companionObject: any = {}, accountOptions: any = []) => {
   const maxStorage = companionObject?.p ?? 60;
   const [companionIndex] = companionObject?.e?.split(',') || [];
   const companion = companions?.[companionIndex];
@@ -1220,13 +1223,30 @@ export const getCompanions = (companionObject: any = {}) => {
     }
   }, {});
 
-  const updatedCompanions = companions?.map((comp, index) => ({
-    ...comp,
-    acquired: (ownedCompanions?.[index]?.count || 0) > 0,
-    copies: ownedCompanions?.[index]?.count ?? 0,
-    tradableCount: ownedCompanions?.[index]?.tradableCount ?? 0,
-    nonTradableCount: ownedCompanions?.[index]?.nonTradableCount ?? 0
-  }))
+  // Pet Bonus Token: opt[606] is a comma-list of companion indices the player spent a token on.
+  // The game grants each such companion's full bonus (CompanionDB[i][2]) as if owned, even
+  // without owning the pet. opt[605] tracks tokens owned (capped at 1 usage).
+  const rawTokens = `${accountOptions?.[606] ?? ''}`;
+  const tokenIndices = rawTokens === '' || rawTokens === '0'
+    ? []
+    : rawTokens.split(',').map((value: any) => Number(value)).filter((value: any) => Number.isFinite(value));
+  const tokenIndexSet = new Set(tokenIndices);
+
+  const updatedCompanions = companions?.map((comp, index) => {
+    const owned = (ownedCompanions?.[index]?.count || 0) > 0;
+    const viaToken = !owned && tokenIndexSet.has(index);
+    return {
+      ...comp,
+      acquired: owned || viaToken,
+      viaToken,
+      copies: ownedCompanions?.[index]?.count ?? 0,
+      tradableCount: ownedCompanions?.[index]?.tradableCount ?? 0,
+      nonTradableCount: ownedCompanions?.[index]?.nonTradableCount ?? 0
+    }
+  })
+
+  const tokensOwned = Math.min(1, Number(accountOptions?.[605]) || 0);
+  const tokensUsed = tokenIndices.length;
 
   return {
     totalBoxesOpened: companionObject?.x,
@@ -1234,7 +1254,13 @@ export const getCompanions = (companionObject: any = {}) => {
     list: updatedCompanions,
     lastFreeClaim: companionObject?.t,
     petCrystals: companionObject?.s,
-    maxStorage
+    maxStorage,
+    tokens: {
+      owned: tokensOwned,
+      used: tokensUsed,
+      remaining: Math.max(0, tokensOwned - tokensUsed),
+      usedIndices: tokenIndices
+    }
   };
 }
 

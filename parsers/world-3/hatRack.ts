@@ -1,6 +1,6 @@
 import { tryToParse, notateNumber } from '@utility/helpers';
 import { items, itemsArray } from '@website-data';
-import { getEventShopBonus } from '@parsers/misc';
+import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
@@ -28,7 +28,8 @@ export const getHatRackBonusMulti = (rawSpelunk: any, account: any) => {
   const eventShopBonus = getEventShopBonus(account, 30);
   const mineheadBonus = getMineheadBonusQTY(account, 21);
   const sushiBonus = getSushiBonus(account, 36);
-  return 1 + (hatCount + 10 * eventShopBonus + mineheadBonus + sushiBonus) / 100;
+  const companion31 = isCompanionBonusActive(account, 31) ? (account?.companions?.list?.at(31)?.bonus ?? 0) : 0;
+  return 1 + (hatCount + companion31 + 10 * eventShopBonus + mineheadBonus + sushiBonus) / 100;
 }
 
 export const getHatBonuses = (rawSpelunk: any, account: any) => {

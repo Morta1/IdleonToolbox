@@ -1,6 +1,7 @@
 import { kFormatter, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { artifacts, captainsBonuses, classFamilyBonuses, islands } from '@website-data';
 import {
+  getEventShopBonus,
   getHighestCharacterSkill,
   getHighestLevelCharacter,
   getHighestLevelOfClass,
@@ -638,6 +639,8 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
   const killroyBonus = Math.max(1, getKillRoyShopBonus(account, 0));
   const researchGrid106 = getResearchGridBonus(account, 106, 0);
   const turtleVial = getVialsBonusByStat(account?.alchemy?.vials, '6turtle');
+  // Summer event shop: Purple Chest Slugs (EventShopOwned 48) — multiplies artifact find by 1.5^owned
+  const purpleChestSlugs = Math.max(1, Math.pow(1.5, getEventShopBonus(account, 48)));
   const winnerBonus = getWinnerBonus(account, '<x Artifact Find');
   const daveyJonesBonus = getDaveyJonesBonus(account, lootLevel, speedLevel);
   const labBonus = getLabBonus(account?.lab?.labBonuses, 14);
@@ -659,6 +662,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
     * killroyBonus
     * (1 + researchGrid106 / 100)
     * (1 + turtleVial / 100)
+    * purpleChestSlugs
     * (1 + winnerBonus / 100)
     * daveyJonesBonus
     * (1 + labBonus / 100)
@@ -700,6 +704,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
           { name: 'Killroy Bonus', value: killroyBonus },
           { name: 'The Maw (Grid 106)', value: 1 + researchGrid106 / 100 },
           { name: 'Vial - Turtle Tisane', value: 1 + turtleVial / 100 },
+          { name: 'Purple Chest Slugs', value: purpleChestSlugs },
           { name: 'Summoning - Win Bonus', value: 1 + winnerBonus / 100 },
           { name: 'Gem Shop (Davey Jones)', value: daveyJonesBonus },
           { name: 'Lab - Artifact Attraction', value: 1 + labBonus / 100 },
