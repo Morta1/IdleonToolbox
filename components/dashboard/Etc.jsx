@@ -532,16 +532,21 @@ const IconImg = styled.img`
 
 const SectionTitle = ({ title }) => <Typography textAlign={'center'}>{title}</Typography>;
 
-const Section = ({ title, children }) => <Card sx={{ height: 'fit-content' }}>
-  <CardContent>
-    <Stack flexWrap={'wrap'} gap={1} divider={<Divider flexItem />}>
-      <SectionTitle title={title} />
-      <Stack gap={1} divider={<Divider />}>
-        {children}
+const Section = ({ title, children }) => {
+  // Self-hide when no timer renders. toArray strips null/false/true, so all-suppressed timers => [].
+  // Prevents a section showing as a bare title (e.g. checked alerts whose data/conditions yield nothing).
+  if (!React.Children.toArray(children).some(Boolean)) return null;
+  return <Card sx={{ height: 'fit-content' }}>
+    <CardContent>
+      <Stack flexWrap={'wrap'} gap={1} divider={<Divider flexItem />}>
+        <SectionTitle title={title} />
+        <Stack gap={1} divider={<Divider />}>
+          {children}
+        </Stack>
       </Stack>
-    </Stack>
-  </CardContent>
-</Card>;
+    </CardContent>
+  </Card>;
+};
 
 const TimerCard = ({
   tooltipContent,
