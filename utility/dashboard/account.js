@@ -918,6 +918,7 @@ export const getWorld5Alerts = (account, fields, options) => {
       grotto,
       villagersLevelUp,
       jars,
+      jarsFull,
       studyLevelUp
     } = options?.hole || {};
     const expandWhenFull = account?.hole?.caverns?.theWell?.expandWhenFull;
@@ -972,6 +973,10 @@ export const getWorld5Alerts = (account, fields, options) => {
     }
     if (jars?.checked && account?.hole?.caverns?.theJars?.totalJars >= jars?.props?.value) {
       hole.jars = account?.hole?.caverns?.theJars?.totalJars;
+    }
+    const fullJarSlots = account?.hole?.caverns?.theJars?.activeSlots?.filter(({ progress, req }) => req > 0 && progress >= req);
+    if (jarsFull?.checked && fullJarSlots?.length > 0) {
+      hole.jarsFull = fullJarSlots.length;
     }
 
     const readyToLevelStudy = account?.hole?.studies?.studies?.filter(({ readyToLevel }) => readyToLevel);

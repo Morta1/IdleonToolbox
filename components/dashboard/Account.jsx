@@ -440,6 +440,9 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 5']?.hole?.jars >= 0 ?
                 <Alert title={`You can break ${alerts?.['World 5']?.hole?.jars} jars in the jars cavern`}
                        iconPath={'etc/Jar_0'}/> : null}
+              {alerts?.['World 5']?.hole?.jarsFull > 0 ?
+                <Alert title={`${alerts?.['World 5']?.hole?.jarsFull} jar slot${alerts?.['World 5']?.hole?.jarsFull > 1 ? 's are' : ' is'} full and ready to open`}
+                       iconPath={'etc/Jar_4'}/> : null}
               {alerts?.['World 5']?.hole?.villagersLevelUp?.length > 0
                 ? alerts?.['World 5']?.hole?.villagersLevelUp?.map(({ name, index }) => <Alert
                   key={name}

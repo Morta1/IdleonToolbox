@@ -40,7 +40,7 @@ const TheJars = ({ hole }) => {
     <Divider sx={{ mb: 2 }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole', 'Explore', 'The Jars')} queryKey={'dnt'}>
       <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-        {hole?.caverns?.theJars?.jars?.map(({ name, unlocked, req, effect, destroyed }, index) => {
+        {hole?.caverns?.theJars?.jars?.map(({ name, unlocked, req, effect, destroyed, enchant }, index) => {
           return <Card key={`jar-${index}`}>
             <CardContent sx={{
               width: 350,
@@ -52,8 +52,22 @@ const TheJars = ({ hole }) => {
                      alt={`jar-${index}`}/>
                 <Typography variant={'body1'}>{cleanUnderscore(name)}</Typography>
               </Stack>
-              <Typography sx={{ height: 41, display: 'flex', alignItems: 'center' }}
-                          variant={'body1'}>{effect}</Typography>
+              <Stack direction={'row'} alignItems={'center'} gap={1} sx={{ height: 41 }}>
+                <Typography variant={'body1'}>{effect}</Typography>
+                {enchant ? <Tooltip title={<Stack gap={.5}>
+                  <Typography variant={'body2'}>Actual chance: {enchant.label}%</Typography>
+                  <Divider/>
+                  <Typography variant={'body2'} sx={{ fontWeight: 'bold' }}>Effective per jar tier (10x/tier)</Typography>
+                  {enchant.tiers?.map(({ tier, label }) => <Typography key={`tier-${tier}`}
+                    variant={'body2'}>T{tier}: {label}%</Typography>)}
+                  <Divider/>
+                  <Typography variant={'body2'} sx={{ fontWeight: 'bold' }}>Sources</Typography>
+                  {enchant.breakdown?.categories?.flatMap((cat) => cat.sources)?.map((src, i) =>
+                    <Typography key={`src-${i}`} variant={'body2'}>{src.name}: {notateNumber(src.value, 'MultiplierInfo')}</Typography>)}
+                </Stack>}>
+                  <IconInfoCircleFilled size={18}/>
+                </Tooltip> : null}
+              </Stack>
               <Divider sx={{ mt: .5, mb: 1 }}/>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
                 <Typography variant={'body1'}>Jars per

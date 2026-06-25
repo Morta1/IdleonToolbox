@@ -1248,6 +1248,15 @@ const migration53 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration54 = (dashboardConfig) => {
+  const holeOptions = dashboardConfig?.account?.['World 5']?.hole?.options;
+  if (Array.isArray(holeOptions) && !holeOptions.some(o => o?.name === 'jarsFull')) {
+    holeOptions.push({ name: 'jarsFull', checked: true });
+  }
+  dashboardConfig.version = 54;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1303,6 +1312,7 @@ const migrations = {
   51: migration51,
   52: migration52,
   53: migration53,
+  54: migration54,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

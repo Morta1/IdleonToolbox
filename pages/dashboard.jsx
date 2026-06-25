@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 53,
+  version: 54,
   account: {
     General: {
       tasks: {
@@ -315,7 +315,8 @@ const baseTrackers = {
             type: 'input',
             props: { label: 'Jars threshold', value: 120, minValue: 1, maxValue: 120, helperText: 'Max of 120 jars' }
           },
-          { name: 'studyLevelUp', checked: true }
+          { name: 'studyLevelUp', checked: true },
+          { name: 'jarsFull', checked: true }
         ]
       }
     },

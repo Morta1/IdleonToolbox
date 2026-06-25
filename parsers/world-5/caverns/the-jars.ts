@@ -29,19 +29,21 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
   const opalChance = getOpalChance({ holesObject, account: accountData });
   const newCollectibleChance = getNewCollectibleChance(holesObject, accountData);
   const newJarCost = getNewJarCost({ holesObject });
-  const enchantChance = getEnchantChance({ holesObject, account: accountData });
+  const enchant = getEnchantChance({ holesObject, account: accountData });
   const rupieValue = getRupieValue({ holesObject, accountData });
   const jarAesthetic = getJarAesthetic({ holesObject });
   const jars = jarNames.map((name, index) => {
     const bonus = index === 1 ? notateNumber(100 * opalChance, 'Small') : index === 2
       ? notateNumber(100 * newCollectibleChance, 'Small')
-      : index === 1 ? enchantChance : ''
+      : index === 4 ? enchant.label : ''
     return {
       name,
       effect: cleanUnderscore(jarEffects?.[index])!.replace('{', String(bonus)),
       unlocked: index <= jarTypes,
       req: getProductionReq({ holesObject, i: index }),
-      destroyed: holesObject?.extraCalculations?.slice(40, 50)?.[index] || 0
+      destroyed: holesObject?.extraCalculations?.slice(40, 50)?.[index] || 0,
+      // Enchanted Jar (index 4): expose precise odds, per-tier scaling and source breakdown
+      enchant: index === 4 ? enchant : undefined
     }
   });
   const totalEnhancingLevels = (holesObject?.jarStuff?.slice(0, 40) ?? [])
@@ -288,32 +290,73 @@ export const getNewCollectibleChance = (holesObject: any, account: any) => {
   return (base / denomination) / penalty;
 }
 
+// Format a probability (0-1) as a percentage string that stays useful even for
+// tiny values. The game floors anything under 0.01% to "0%"; we keep precision.
+const formatEnchantPercent = (chance: number) => {
+  const percent = 100 * chance;
+  if (percent === 0) return '0';
+  if (percent >= 0.01) return notateNumber(percent, 'Small');
+  // Below 0.01%: show meaningful precision via scientific notation.
+  return percent.toExponential(4);
+}
+
 const getEnchantChance = ({ holesObject, account }: any) => {
-  let value = 0;
+  let enhancingLevels = 0;
 
   for (let i = 0; i < 40; i++) {
     const holeValue = holesObject?.jarStuff?.[i];
     if (holeValue >= 2) {
-      value += (holeValue - 1);
+      enhancingLevels += (holeValue - 1);
     }
   }
 
-  // Calculate final return value
-  const jarBonus1 = getJarBonus({ holesObject, i: 9, account });
-  const jarBonus2 = getJarBonus({ holesObject, i: 18, account });
-  const jarBonus3 = getJarBonus({ holesObject, i: 26, account });
-  const jarBonus4 = getJarBonus({ holesObject, i: 34, account });
-  const studyBonus = 1 + getStudyBonus(holesObject, 10, 0) / 100;
+  // Each source below mirrors a multiplicative term in the game formula.
+  const base = 0.35 / (1 + (Math.pow(enhancingLevels, 1.23) + Math.pow(1.1, enhancingLevels)));
+  const jarBonus9 = getJarBonus({ holesObject, i: 9, account });
+  const jarBonus18 = getJarBonus({ holesObject, i: 18, account });
+  const jarBonus26 = getJarBonus({ holesObject, i: 26, account });
+  const jarBonus34 = getJarBonus({ holesObject, i: 34, account });
+  const collectiblesMulti = (1 + jarBonus9 / 100) * (1 + jarBonus18 / 100)
+    * (1 + jarBonus26 / 100) * (1 + jarBonus34 / 100);
+  const engineerMulti = Math.max(1, getSchematicBonus({ holesObject, t: 73, i: 1 }) *
+    Math.pow(1.1, lavaLog(holesObject?.extraCalculations?.[39])));
+  // Game: (1 + StudyBolaiaBonuses(10,0)/100). Older code double-wrapped this.
+  const studyMulti = 1 + getStudyBonus(holesObject, 10, 0) / 100;
+  const fountainMulti = 1 + getFountainBonusTotal(holesObject, 2, 15) / 100;
 
-  return (0.35 / (1 + (Math.pow(value, 1.23) + Math.pow(1.1, value)))) *
-    (1 + jarBonus1 / 100) *
-    Math.max(1, getSchematicBonus({ holesObject, t: 73, i: 1 }) *
-      Math.pow(1.1, lavaLog(holesObject?.extraCalculations?.[39]))) *
-    (1 + jarBonus2 / 100) *
-    (1 + studyBonus / 100) *
-    (1 + jarBonus3 / 100) *
-    (1 + jarBonus4 / 100) *
-    (1 + getFountainBonusTotal(holesObject, 2, 15) / 100);
+  const value = base * collectiblesMulti * engineerMulti * studyMulti * fountainMulti;
+
+  // Higher tier jars roll the enchant 10x more often per tier, so effective odds
+  // scale by 10^(tier-1) (capped at 100%). Lets players target a tier.
+  const tiers = createRange(1, 10).map((tier) => ({
+    tier,
+    chance: Math.min(1, value * Math.pow(10, tier - 1)),
+    label: formatEnchantPercent(Math.min(1, value * Math.pow(10, tier - 1)))
+  }));
+
+  const breakdown = {
+    statName: "Enchant chance",
+    totalValue: `${formatEnchantPercent(value)}%`,
+    categories: [
+      {
+        name: "Base",
+        sources: [
+          { name: `Base (after ${enhancingLevels} enhancing levels)`, value: base }
+        ]
+      },
+      {
+        name: "Multiplicative",
+        sources: [
+          { name: "Collectibles", value: collectiblesMulti },
+          { name: "Engineer (Schematic)", value: engineerMulti },
+          { name: "Study", value: studyMulti },
+          { name: "Fountain", value: fountainMulti }
+        ]
+      }
+    ]
+  };
+
+  return { value, label: formatEnchantPercent(value), tiers, breakdown };
 }
 
 // TODO: TBD

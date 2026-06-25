@@ -47,6 +47,7 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
     <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
       {medallions?.map(({
                           Name,
+                          imageName,
                           rawName,
                           acquired,
                           description = '',
@@ -71,7 +72,7 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
               <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center"
                      sx={{ position: 'relative' }}>
                 <img style={{ width: 41, height: 41, objectFit: 'contain' }}
-                     src={`${prefix}afk_targets/${Name}.png`}/>
+                     src={`${prefix}afk_targets/${imageName || Name}.png`}/>
                 <Stack>
                   <Typography>{cleanUnderscore(Name)}</Typography>
                   <Typography variant={'caption'}>{description ? `(${description})` : ''}</Typography>

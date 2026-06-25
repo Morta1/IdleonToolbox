@@ -286,11 +286,18 @@ const getMedallions = (medallions: any, upgrades: any[]) => {
                 : 'Golden_Chest';
         }
 
+        // Some monsters share a Name with a different mob, so afk_targets/<Name>.png
+        // resolves to the wrong sprite (last writer wins at extraction). For those,
+        // z-processing also emits a unique afk_targets/<Name>_<rawName>.png; target it.
+        // 'ghost' (event mob) collides with 'pghost' (poison minion); both Name "Ghost".
+        const imageNameByRaw: Record<string, string> = { ghost: 'Ghost_ghost' };
+
         return [
           monsterRawName,
           {
             ...monsters[monsterRawName],
             ...(customName ? { Name: customName } : {}),
+            imageName: imageNameByRaw[monsterRawName],
             acquired: medallions?.[monsterRawName],
             weakness,
             drops: [
