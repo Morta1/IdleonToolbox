@@ -1,0 +1,21 @@
+__turbopack_load_page_chunks__("/account/world-4/breeding", [
+  "static/chunks/052.o.9q9z6h4.js",
+  "static/chunks/0akjyvuovsld~.js",
+  "static/chunks/170e--~pjg259.js",
+  "static/chunks/0tfbz01zikord.js",
+  "static/chunks/0hha4~5yi~g34.js",
+  "static/chunks/028ukiqn4dh4a.js",
+  "static/chunks/13b8p6x3nxpq-.js",
+  "static/chunks/16r-28bm.7zj6.js",
+  "static/chunks/0-5zq2vb9cfj2.js",
+  "static/chunks/0gdhjfdy-wuqx.js",
+  "static/chunks/0~-_9e~-60tl9.js",
+  "static/chunks/0mpfqmmtjfj9u.js",
+  "static/chunks/15-nfnh1.q2rh.js",
+  "static/chunks/0i~v0wue7ulmp.js",
+  "static/chunks/0_5l4j395-tx3.js",
+  "static/chunks/0gat8ymo9do48.js",
+  "static/chunks/0otdh-5fu63-z.js",
+  "static/chunks/16971xfpu~hvb.js",
+  "static/chunks/turbopack-0-ct331if~3a_.js"
+])
