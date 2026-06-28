@@ -352,6 +352,10 @@ const getEnchantChance = ({ holesObject, account }: any) => {
           { name: "Study", value: studyMulti },
           { name: "Fountain", value: fountainMulti }
         ]
+      },
+      {
+        name: "Effective per jar tier (10x/tier)",
+        sources: tiers.map(({ tier, chance, label }) => ({ name: `T${tier}`, value: chance, formatted: `${label}%` }))
       }
     ]
   };

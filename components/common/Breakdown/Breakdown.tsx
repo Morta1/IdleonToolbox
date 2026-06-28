@@ -30,6 +30,8 @@ import GameIconNotation from "@components/common/GameIconNotation";
 interface StatSource {
   name: string
   value: number
+  // Pre-rendered display string, used verbatim instead of notation (e.g. percent values)
+  formatted?: string
 }
 
 interface SubSection {
@@ -143,7 +145,7 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
 
       if (category.sources) {
         category.sources.forEach((source) => {
-          text += `  ${source.name}: ${skipNotation ? source.value : notateNumber(source.value, valueNotation)}\n`
+          text += `  ${source.name}: ${source.formatted ?? (skipNotation ? source.value : notateNumber(source.value, valueNotation))}\n`
         })
       }
 
@@ -151,7 +153,7 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
         category.subSections.forEach((subSection) => {
           text += `  ${subSection.name}:\n`
           subSection.sources.forEach((source) => {
-            text += `    ${source.name}: ${skipNotation ? source.value : notateNumber(source.value, valueNotation)}\n`
+            text += `    ${source.name}: ${source.formatted ?? (skipNotation ? source.value : notateNumber(source.value, valueNotation))}\n`
           })
         })
       }
@@ -511,7 +513,7 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
                                     {source.name}
                                   </Typography>
                                 </Box>
-                                <Typography variant="body2">{skipNotation ? source.value : notateNumber(source.value, valueNotation)}</Typography>
+                                <Typography variant="body2">{source.formatted ?? (skipNotation ? source.value : notateNumber(source.value, valueNotation))}</Typography>
                               </Box>
                             )
                           })}
@@ -617,7 +619,7 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
                                           {source.name}
                                         </Typography>
                                       </Box>
-                                      <Typography variant="body2">{skipNotation ? source.value : notateNumber(source.value, valueNotation)}</Typography>
+                                      <Typography variant="body2">{source.formatted ?? (skipNotation ? source.value : notateNumber(source.value, valueNotation))}</Typography>
                                     </Box>
                                   )
                                 })}

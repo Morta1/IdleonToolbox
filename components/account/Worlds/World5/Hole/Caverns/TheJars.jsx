@@ -6,6 +6,7 @@ import Tooltip from '@components/Tooltip';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
 import { CardWithBreakdown } from '../commons';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
 const TheJars = ({ hole }) => {
   return <>
@@ -54,19 +55,11 @@ const TheJars = ({ hole }) => {
               </Stack>
               <Stack direction={'row'} alignItems={'center'} gap={1} sx={{ height: 41 }}>
                 <Typography variant={'body1'}>{effect}</Typography>
-                {enchant ? <Tooltip title={<Stack gap={.5}>
-                  <Typography variant={'body2'}>Actual chance: {enchant.label}%</Typography>
-                  <Divider/>
-                  <Typography variant={'body2'} sx={{ fontWeight: 'bold' }}>Effective per jar tier (10x/tier)</Typography>
-                  {enchant.tiers?.map(({ tier, label }) => <Typography key={`tier-${tier}`}
-                    variant={'body2'}>T{tier}: {label}%</Typography>)}
-                  <Divider/>
-                  <Typography variant={'body2'} sx={{ fontWeight: 'bold' }}>Sources</Typography>
-                  {enchant.breakdown?.categories?.flatMap((cat) => cat.sources)?.map((src, i) =>
-                    <Typography key={`src-${i}`} variant={'body2'}>{src.name}: {notateNumber(src.value, 'MultiplierInfo')}</Typography>)}
-                </Stack>}>
-                  <IconInfoCircleFilled size={18}/>
-                </Tooltip> : null}
+                {enchant ? <Breakdown data={enchant.breakdown}>
+                  <Stack alignContent={'center'}>
+                    <IconInfoCircleFilled size={18} style={{ flexShrink: 0 }}/>
+                  </Stack>
+                </Breakdown> : null}
               </Stack>
               <Divider sx={{ mt: .5, mb: 1 }}/>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
