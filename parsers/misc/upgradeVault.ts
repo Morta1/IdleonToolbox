@@ -50,7 +50,37 @@ export const parseUpgradeVault = (upgradeVaultRaw: any, accountData: any, charac
     upgrades,
     totalUpgradeLevels,
     nextUnlock,
-    vaultTotalKills
+    vaultTotalKills,
+    costReduction: getVaultCostReduction(accountData)
+  };
+}
+
+// The "All Vault upgrades are N.NNx Cheaper!" headline factor. Mirrors the common
+// multiplier applied to every upgrade in getUpgradeCost (darts x companion99 x sushi).
+// The idx<33-only vault-13 factor is deliberately excluded so this matches the game text.
+export const getVaultCostReduction = (accountData: any) => {
+  const dartsBonusReduction = 1 / (1 + (accountData?.accountOptions?.[437] || 0) / 100);
+  const companionBonus99 = isCompanionBonusActive(accountData, 99) ? accountData?.companions?.list?.at(99)?.bonus : 0;
+  const companionMulti = Math.max(0.1, 1 - companionBonus99 / 100);
+  const sushiDiscount = Math.max(0.1, 1 - Math.max(getSushiBonus(accountData, 38), getSushiBonus(accountData, 47)) / 100);
+  const totalMulti = dartsBonusReduction * companionMulti * sushiDiscount; // < 1 means cheaper
+  const cheaperFactor = totalMulti > 0 ? 1 / totalMulti : 1; // the "N.NNx" number shown in-game
+
+  // Per-source "cheaper" contribution = reciprocal of that source's cost multiplier.
+  const sources = [
+    { name: 'Darts', value: 1 / dartsBonusReduction },
+    { name: 'Companion (Sushi Roll)', value: companionMulti > 0 ? 1 / companionMulti : 1 },
+    { name: 'Sushi Station', value: sushiDiscount > 0 ? 1 / sushiDiscount : 1 }
+  ];
+
+  return {
+    totalMulti,
+    cheaperFactor,
+    breakdown: {
+      statName: 'Vault cost reduction',
+      totalValue: notateNumber(cheaperFactor, 'MultiplierInfo'),
+      categories: [{ name: 'Multiplicative', sources }]
+    }
   };
 }
 

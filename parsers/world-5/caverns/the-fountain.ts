@@ -77,6 +77,15 @@ const getFountRoyalChance = (holesObject: any) => {
   return (1 / 300) * (1 + getFountainBonusTotal(holesObject, 1, 8) / 100);
 };
 
+// Fount_DuckChance: per-fill chance the Rubber Ducky bar grants +1 duck stack.
+// accountOptions[601] = current duck stack count; each stack makes the next 5x rarer (0.2^n).
+const getFountDuckChance = (holesObject: any, accountData: any) => {
+  const stacks = accountData?.accountOptions?.[601] ?? 0;
+  return (1 / 3)
+    * (1 + (getFountainBonusTotal(holesObject, 2, 12) + getFountainBonusTotal(holesObject, 2, 10)) / 100)
+    * Math.pow(0.2, stacks);
+};
+
 const getFountRoyalMulti = (holesObject: any) => {
   return 5 + getFountainBonusTotal(holesObject, 1, 9) / 100;
 };
@@ -313,6 +322,7 @@ export const getTheFountain = (holesObject: any, accountData: any) => {
       tier, name, description, progress, req, unlocked,
       speedPerSecond: speed,
       activeMulti: tier === 0 ? activeMulti : 1,
+      duckChance: tier === 2 ? getFountDuckChance(holesObject, accountData) : undefined,
       timeToFullMs: (remaining / speed) * 1000,
       timeFullCycleMs: (req / speed) * 1000
     };

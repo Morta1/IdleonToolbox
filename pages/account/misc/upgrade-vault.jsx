@@ -7,12 +7,13 @@ import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import CoinDisplay from '@components/common/CoinDisplay';
 import useCheckbox from '@components/common/useCheckbox';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { NextSeo } from 'next-seo';
 
 const UpgradeVault = () => {
   const { state } = useContext(AppContext);
   const [CheckboxEl, hideMaxed] = useCheckbox('Hide maxed upgrades');
-  const { upgrades, totalUpgradeLevels, nextUnlock } = state?.account?.upgradeVault;
+  const { upgrades, totalUpgradeLevels, nextUnlock, costReduction } = state?.account?.upgradeVault;
   const [searchText, setSearchText] = useState('');
 
   const isUpgradeVisible = (upgrade) => {
@@ -29,6 +30,14 @@ const UpgradeVault = () => {
     />
     <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Total Levels'} value={totalUpgradeLevels}/>
+      {costReduction?.cheaperFactor > 1 ? <CardTitleAndValue title={'Vault cost reduction'} value={
+        <Stack direction={'row'} gap={1} alignItems={'center'}>
+          {`${costReduction.cheaperFactor.toFixed(2)}x`}
+          <Breakdown data={costReduction.breakdown}>
+            <InfoIcon fontSize={'small'}/>
+          </Breakdown>
+        </Stack>
+      }/> : null}
       {nextUnlock?.unlockLevel ? <CardTitleAndValue title={'Next upgrade'} value={<Tooltip title={<Stack gap={1}>
         <Typography sx={{ fontWeight: 'bold' }}>{cleanUnderscore(nextUnlock?.name)}</Typography>
         <Typography>{cleanUnderscore(nextUnlock?.description)}</Typography>

@@ -15,12 +15,13 @@ import {
   useMediaQuery
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
-import { IconX } from '@tabler/icons-react';
+import { IconGripVertical, IconX } from '@tabler/icons-react';
+import { Reorder } from 'framer-motion';
 
 const PinnedPages = ({}) => {
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('lg'), { noSsr: true });
   const [isOpen, setIsOpen] = useState(false);
-  const { pinnedPages, removePin } = usePin();
+  const { pinnedPages, removePin, reorderPins } = usePin();
   const router = useRouter();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -94,24 +95,28 @@ const PinnedPages = ({}) => {
         }}/>
       </ListItemButton>
       {isXs ? <Collapse in={isOpen} timeout="auto" unmountOnExit>
-        <List>
-          {pinnedPages?.map(({ name, url, tab, nestedTab, deeplyNestedTab }, index) => {
-            return <ListItem key={`${name}-${index}`}
-                             secondaryAction={<IconButton size="small" onClick={(e) => {
-                               e.stopPropagation();
-                               removePin(index)
-                             }}>
-                               <IconX size={20}/>
-                             </IconButton>}>
-              <ListItemButton sx={{ [`&.${listItemButtonClasses.root}`]: { px: 0, pl: 2 } }}
-                              onClick={() => handleNavigation(url, tab, nestedTab, deeplyNestedTab)}>{name.replace('-', ' ').capitalizeAllWords()}{tab
-                ? ` - ${tab}`
-                : ''}{nestedTab ? ` - ${nestedTab}` : ''}{deeplyNestedTab ? ` - ${deeplyNestedTab}` : ''}
-              </ListItemButton>
-            </ListItem>
+        <Reorder.Group axis="y" values={pinnedPages || []} onReorder={reorderPins}
+                       style={{ listStyle: 'none', margin: 0, padding: '8px 0' }}>
+          {pinnedPages?.map((page, index) => {
+            const { name, url, tab, nestedTab, deeplyNestedTab } = page;
+            return <Reorder.Item key={`${name}-${tab || ''}-${nestedTab || ''}-${deeplyNestedTab || ''}`} value={page}>
+              <ListItem secondaryAction={<IconButton size="small" onClick={(e) => {
+                e.stopPropagation();
+                removePin(index)
+              }}>
+                <IconX size={20}/>
+              </IconButton>}>
+                <IconGripVertical size={16} style={{ cursor: 'grab', opacity: 0.5, marginRight: 4, flexShrink: 0 }}/>
+                <ListItemButton sx={{ [`&.${listItemButtonClasses.root}`]: { px: 0, pl: 1 } }}
+                                onClick={() => handleNavigation(url, tab, nestedTab, deeplyNestedTab)}>{name.replace('-', ' ').capitalizeAllWords()}{tab
+                  ? ` - ${tab}`
+                  : ''}{nestedTab ? ` - ${nestedTab}` : ''}{deeplyNestedTab ? ` - ${deeplyNestedTab}` : ''}
+                </ListItemButton>
+              </ListItem>
+            </Reorder.Item>
           })}
-          {!pinnedPages?.length && <ListItemButton dense disabled>You don't have any pinned pages</ListItemButton>}
-        </List>
+          {!pinnedPages?.length && <ListItemButton dense disabled>You don&apos;t have any pinned pages</ListItemButton>}
+        </Reorder.Group>
       </Collapse> : <Popover
         anchorEl={anchorEl}
         open={open}
@@ -126,39 +131,45 @@ const PinnedPages = ({}) => {
           horizontal: 'left'
         }}
       >
-        <List sx={{ minWidth: 300 }}>
-          {pinnedPages?.length > 0 ? (
-            pinnedPages.map(({ name, url, tab, nestedTab, deeplyNestedTab }, index) => {
+        {pinnedPages?.length > 0 ? (
+          <Reorder.Group axis="y" values={pinnedPages} onReorder={reorderPins}
+                         style={{ listStyle: 'none', margin: 0, padding: '8px 0', minWidth: 300 }}>
+            {pinnedPages.map((page, index) => {
+              const { name, url, tab, nestedTab, deeplyNestedTab } = page;
               const text = name.replace('-', ' ').capitalizeAllWords() + (tab ? ` - ${tab}` : '') + (nestedTab
                 ? ` - ${nestedTab}`
                 : '') + (deeplyNestedTab ? ` - ${deeplyNestedTab}` : '');
               return (
-                <ListItem
-                  sx={{ px: 1 }}
-                  key={`${name}-${index}`}
-                  dense
-                  secondaryAction={<IconButton size="small" onClick={(e) => {
-                    e.stopPropagation();
-                    removePin(index)
-                  }}>
-                    <IconX size={20}/>
-                  </IconButton>}
-                  onClick={() => handleNavigation(url, tab, nestedTab, deeplyNestedTab)}
-                >
-                  <ListItemButton sx={{ [`&.${listItemButtonClasses.root}`]: { px: 0, pl: 2 } }}>
-                    {truncateMiddle(text, 30)}
-                  </ListItemButton>
-                </ListItem>
+                <Reorder.Item key={`${name}-${tab || ''}-${nestedTab || ''}-${deeplyNestedTab || ''}`} value={page}>
+                  <ListItem
+                    sx={{ px: 1 }}
+                    dense
+                    secondaryAction={<IconButton size="small" onClick={(e) => {
+                      e.stopPropagation();
+                      removePin(index)
+                    }}>
+                      <IconX size={20}/>
+                    </IconButton>}
+                  >
+                    <IconGripVertical size={16} style={{ cursor: 'grab', opacity: 0.5, marginRight: 4, flexShrink: 0 }}/>
+                    <ListItemButton sx={{ [`&.${listItemButtonClasses.root}`]: { px: 0, pl: 1 } }}
+                                    onClick={() => handleNavigation(url, tab, nestedTab, deeplyNestedTab)}>
+                      {truncateMiddle(text, 30)}
+                    </ListItemButton>
+                  </ListItem>
+                </Reorder.Item>
               )
-            })
-          ) : (
+            })}
+          </Reorder.Group>
+        ) : (
+          <List sx={{ minWidth: 300 }}>
             <ListItem dense disabled>
               <ListItemText>
-                <Typography variant="body2">You don't have any pinned pages</Typography>
+                <Typography variant="body2">You don&apos;t have any pinned pages</Typography>
               </ListItemText>
             </ListItem>
-          )}
-        </List>
+          </List>
+        )}
       </Popover>}
     </div>
   );

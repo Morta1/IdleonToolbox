@@ -329,6 +329,21 @@ const TheFountain = ({ hole }) => {
                 <Typography variant={'caption'} color={'text.secondary'} sx={{ cursor: 'help' }}>
                   Full cycle:&nbsp;{msToDate(bar.timeFullCycleMs)}
                 </Typography>
+                {bar.tier === 0 && bar.activeMulti > 1 ? (
+                  <Tooltip title={'Fill speed multiplier while a character is actively standing in the fountain cavern'}>
+                    <Typography variant={'caption'} color={'text.secondary'} sx={{ cursor: 'help' }}>
+                      Active fill:&nbsp;x{bar.activeMulti.toFixed(2)}
+                    </Typography>
+                  </Tooltip>
+                ) : null}
+                {bar.tier === 2 && bar.duckChance != null ? (
+                  <Tooltip
+                    title={`1 in ${commaNotation(Math.round(1 / bar.duckChance))} chance per full bar to gain +1 Rubber Ducky stack`}>
+                    <Typography variant={'caption'} color={'text.secondary'} sx={{ cursor: 'help' }}>
+                      Duck chance:&nbsp;{(bar.duckChance * 100).toPrecision(3)}%
+                    </Typography>
+                  </Tooltip>
+                ) : null}
               </Stack>
             </Stack>
           ))}

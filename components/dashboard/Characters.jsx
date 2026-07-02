@@ -165,7 +165,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                        iconPath={`data/${alerts?.classSpecific?.wrongItems?.wwRings}`}
                 /> : null}
               {trackers?.classSpecific && alerts?.classSpecific?.betterWeapon ?
-                <Alert title={`${name} has a better class-specific weapon in their inventory`}
+                <Alert title={`${name} has a better class-specific weapon in their inventory: ${cleanUnderscore(alerts?.classSpecific?.betterWeapon?.displayName || alerts?.classSpecific?.betterWeapon?.rawName)}${alerts?.classSpecific?.betterWeapon?.Weapon_Power ? ` (WP ${alerts?.classSpecific?.betterWeapon?.Weapon_Power}${alerts?.classSpecific?.betterWeapon?.UQ1txt ? `, +${alerts?.classSpecific?.betterWeapon?.UQ1val}% ${cleanUnderscore(alerts?.classSpecific?.betterWeapon?.UQ1txt)}` : ''})` : ''}`}
                        iconPath={`data/${alerts?.classSpecific?.betterWeapon?.rawName}`}
                        extra={<img
                          src={`${prefix}data/UpgArrowG.png`}
