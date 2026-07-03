@@ -333,6 +333,23 @@ export const classSpecificAlerts = (account, characters, character, lastUpdated,
       });
     }
   }
+  if (options?.classSpecific?.betterRing?.checked) {
+    // A ring's worth is its combined unique stat values (UQ1val + UQ2val). "Better" means a ring
+    // of the same type (rawName) with a higher combined value than the one equipped.
+    const ringScore = (ring) => (ring?.UQ1val ?? 0) + (ring?.UQ2val ?? 0);
+    const equippedRings = [character?.equipment?.[5], character?.equipment?.[7]].filter(Boolean);
+    const findBetterRing = (family) => {
+      const invRings = character.inventory.filter(({ rawName }) => rawName?.includes(family));
+      return invRings.find((invRing) => equippedRings.some((equipped) =>
+        equipped?.rawName === invRing?.rawName && ringScore(invRing) > ringScore(equipped)));
+    };
+    if (isArcaneCultist && acFormActive) {
+      alerts.betterRing = findBetterRing('EquipmentRingsArc');
+    }
+    if (isWindWalker && wwFormActive) {
+      alerts.betterRing = findBetterRing('EquipmentRingsTempest');
+    }
+  }
   if (Object.keys(wrongItems).length) {
     alerts.wrongItems = wrongItems;
   }

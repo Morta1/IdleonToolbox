@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 54,
+  version: 59,
   account: {
     General: {
       tasks: {
@@ -54,6 +54,11 @@ const baseTrackers = {
           { name: 'familyObols', checked: true },
           { name: 'freeCompanion', checked: true },
           { name: 'petMartGems', checked: true },
+          {
+            name: 'tournamentRegister',
+            checked: true,
+            helperText: 'Alert when you have not registered for the current Pet Tournament'
+          },
           {
             name: 'dailyCrystals',
             checked: true,
@@ -119,7 +124,21 @@ const baseTrackers = {
           { name: 'showAlertOnlyWhen0Shields', checked: false, helperText: 'Daily shipments alert' }
         ]
       },
-      arcade: { checked: true, options: [{ name: 'balls', checked: true }] },
+      arcade: {
+        checked: true, options: [
+          { name: 'balls', checked: true },
+          {
+            name: 'unmaxedRotation',
+            checked: true,
+            helperText: 'Alert when the current arcade shop rotation has upgrades below max level'
+          },
+          {
+            name: 'includeSuper',
+            checked: false,
+            helperText: 'Also alert when a rotation upgrade is maxed but not Super-upgraded (Lv 101)'
+          }
+        ]
+      },
       weeklyBosses: { checked: true, options: [] },
       killRoy: {
         checked: true,
@@ -551,6 +570,11 @@ const baseTrackers = {
           name: 'betterWeapon',
           checked: true,
           helperText: 'Alert when there\'s a better form class-specific weapon in your inventory'
+        },
+        {
+          name: 'betterRing',
+          checked: true,
+          helperText: 'Alert when there\'s a better form class-specific ring (higher stats, same type) in your inventory'
         }
       ]
     }

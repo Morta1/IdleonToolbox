@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.53',
+    'gameVer': '2.3.523',
+    'date': '03/07/2026',
+    'features': [
+      'Upgrade Vault: new "Vault cost reduction" card showing the total cheaper multiplier, with a source breakdown',
+      'Hole Fountain: the fountain bars now show the Rubber Ducky chance and the active coin-fill multiplier',
+      'Dashboard: the better class-specific weapon alert now names the exact item and its stats',
+      'Dashboard: new alert for a better class-specific ring in your inventory',
+      'Dashboard: new Arcade alert for unmaxed upgrades in the current shop rotation, with an optional Super (Lv 101) check',
+      'Dashboard: new Pet Tournament registration reminder',
+      'Pinned pages: drag to reorder them'
+    ]
+  },
+  {
     'ver': '3.3.52',
     'gameVer': '2.3.523',
     'date': '23/06/2026',

@@ -63,6 +63,9 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.General?.etc?.petMartGems ?
                 <Alert title={'You have unclaimed free gems from the Pet Mart'}
                        iconPath={'data/PremiumGem'}/> : null}
+              {alerts?.General?.etc?.tournamentRegister ?
+                <Alert title={'You have not registered for the current Pet Tournament'}
+                       iconPath={'data/TournyRank0'}/> : null}
               {alerts?.General?.etc?.dailyCrystals ?
                 <Alert
                   title={`You have ${alerts?.General?.etc?.dailyCrystals} daily guaranteed crystal kill${alerts?.General?.etc?.dailyCrystals > 1 ? 's' : ''} remaining`}
@@ -201,6 +204,11 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 /> : null}
               {alerts?.['World 2']?.arcade?.balls ?
                 <Alert title={'Max ball capacity has been reached'} iconPath={'data/PachiBall0'}/> : null}
+              {alerts?.['World 2']?.arcade?.unmaxedRotation?.length > 0 ?
+                alerts?.['World 2']?.arcade?.unmaxedRotation?.map((upgrade) => <Alert
+                  key={`arcade-${upgrade?.rotationIndex}`}
+                  title={`Arcade rotation upgrade "${cleanUnderscore(upgrade?.effect?.replace(/[{}]/g, ''))}" is not maxed (Lv ${upgrade?.level})`}
+                  iconPath={`data/${upgrade?.iconName}`}/>) : null}
               {alerts?.['World 2']?.alchemy?.sigils?.length > 0
                 ?
                 alerts?.['World 2']?.alchemy?.sigils?.map(({ name, index }) => <Alert key={name}

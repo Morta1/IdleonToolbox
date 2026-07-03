@@ -178,6 +178,20 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                            right: -2
                          }}/>}
                 /> : null}
+              {trackers?.classSpecific && alerts?.classSpecific?.betterRing ?
+                <Alert title={`${name} has a better class-specific ring in their inventory: ${cleanUnderscore(alerts?.classSpecific?.betterRing?.displayName || alerts?.classSpecific?.betterRing?.rawName)}${alerts?.classSpecific?.betterRing?.UQ1txt ? ` (+${alerts?.classSpecific?.betterRing?.UQ1val}${cleanUnderscore(alerts?.classSpecific?.betterRing?.UQ1txt)}${alerts?.classSpecific?.betterRing?.UQ2txt ? `, +${alerts?.classSpecific?.betterRing?.UQ2val}${cleanUnderscore(alerts?.classSpecific?.betterRing?.UQ2txt)}` : ''})` : ''}`}
+                       iconPath={`data/${alerts?.classSpecific?.betterRing?.rawName}`}
+                       extra={<img
+                         src={`${prefix}data/UpgArrowG.png`}
+                         alt={"up-arrow"}
+                         style={{
+                           position: 'absolute',
+                           width: 12,
+                           height: 12,
+                           top: -2,
+                           right: -2
+                         }}/>}
+                /> : null}
               {trackers?.equipment && alerts?.equipment?.availableUpgradesSlots?.length > 0 ?
                 alerts?.equipment?.availableUpgradesSlots?.map(({
                                                                   displayName,

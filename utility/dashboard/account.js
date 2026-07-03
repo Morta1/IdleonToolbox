@@ -213,6 +213,17 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
         etc.petMartGems = true;
       }
     }
+    if (options?.etc?.tournamentRegister?.checked && account?.companions?.list?.some((companion) => companion?.acquired)) {
+      // accountOptions[496] mirrors the current tournament day in the save (matches the game's
+      // getTournamentDay), so prefer it over tournament.global.T which can be stale.
+      // accountOptions[511] = tournament-day registered-through (registering sets it to day + 1);
+      // registered for the current tournament ⟺ 511 > day.
+      const currentTournamentDay = account?.accountOptions?.[496] ?? account?.tournament?.global?.T ?? 0;
+      const registeredThrough = account?.accountOptions?.[511] ?? 0;
+      if (currentTournamentDay >= 1 && registeredThrough <= currentTournamentDay) {
+        etc.tournamentRegister = true;
+      }
+    }
     if (options?.etc?.dailyCrystals?.checked) {
       const guaranteedCrystalMobs = getGuaranteedCrystalMobs(account);
       const remainingDailyCrystals = Math.max(0, guaranteedCrystalMobs - (account?.accountOptions?.[101] ?? 0));
@@ -414,6 +425,14 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
       const balls = ballsToClaim >= account?.arcade?.maxBalls - percent;
       if (balls) {
         arcade.balls = balls;
+      }
+    }
+    if (options?.arcade?.unmaxedRotation?.checked) {
+      // Arcade upgrades cap at level 100 (silver); 101 = Super (gold-ball upgrade).
+      const cap = options?.arcade?.includeSuper?.checked ? 101 : 100;
+      const unmaxed = account?.arcade?.shop?.filter((upgrade) => upgrade?.active && (upgrade?.level ?? 0) < cap);
+      if (unmaxed?.length > 0) {
+        arcade.unmaxedRotation = unmaxed;
       }
     }
     if (Object.keys(arcade).length > 0) {
