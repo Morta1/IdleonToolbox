@@ -120,7 +120,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0tb7sp3zf40l6.js"
   ],
   "/account/world-2/weekly-bosses": [
-    "static/chunks/0g220oup65g_f.js"
+    "static/chunks/15ht--uc9iuic.js"
   ],
   "/account/world-3/armor-smithy": [
     "static/chunks/0x_c1f46~f1w-.js"
