@@ -48,7 +48,7 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
           turn: {account?.accountOptions?.[185] + 1}</Typography> : null}
       </Stack>
       <Stack flexWrap={'wrap'} direction={'row'}>
-        {triplets?.map(({ task }, index) => index <= 9 ? <IconImg key={'all-moves' + index}
+        {triplets?.map(({ task }, index) => index < (characters?.length ?? 10) ? <IconImg key={'all-moves' + index}
                                                                   style={{
                                                                     border: bossIndex === 0 && account?.accountOptions?.[185] === index
                                                                       ? '1px solid #81c784'
@@ -60,7 +60,7 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
     </Stack>
     <Stack>
       {triplets?.map(({ actions, task }, index) => {
-        if (index > 9) return null;
+        if (index >= (characters?.length ?? 10)) return null;
         const quantity = getTaskQuantity(index, task?.taskIndex, account, characters);
         return (
           (<React.Fragment key={'triplets' + index}>
