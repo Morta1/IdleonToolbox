@@ -235,7 +235,10 @@ export const getMasterclassCostReduction = (account: any, forceLegendTalent: any
 }
 
 // "minBookLv" / "maxBookLv" — the SkillLevelsMAX range the passive Library can raise a talent into.
-// Only talents with skillIndex < 615 (main class talents, not star talents) are eligible.
+// Only talents with skillIndex < 615 (main class talents, not star talents) are eligible, EXCEPT
+// skillIndex [10, 11, 12, 23, 75, 79, 86, 87, 266, 267, 446, 447] (STR/AGI/WIS/LUK and their paired
+// Basics-tab talents), which the game explicitly excludes via CustomLists.RANDOlist[16] — see
+// BOOK_INELIGIBLE_INDICES in components/characters/Talents.jsx.
 // TASK_SHOP_BOOK_LV_PER_MERIT is CustomLists.TaskShopDesc[2][2][11], a static game constant
 // (verified live: "+{ Max possible Lv of Talent books from the Talent Book Library", BonusPerLv = 2).
 const TASK_SHOP_BOOK_LV_PER_MERIT = 2;
