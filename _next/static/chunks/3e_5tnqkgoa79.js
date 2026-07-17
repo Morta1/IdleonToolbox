@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/account/world-7/coral-reef", [
+  "static/chunks/0gjfwxzsk9dwd.js",
+  "static/chunks/0y7qnp_wnucwl.js",
+  "static/chunks/1ywessrnvqzsa.js",
+  "static/chunks/418uiybh3pk_x.js",
+  "static/chunks/1ir4i_xr1vm25.js",
+  "static/chunks/4414mfob4zn2d.js",
+  "static/chunks/3nv19stuj1qdu.js",
+  "static/chunks/4008casf0z20p.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/1zoh00wy0nquc.js",
+  "static/chunks/3zhrz32-kr9jf.js",
+  "static/chunks/2_ywtw6qeqnq1.js",
+  "static/chunks/27474ct4wljjx.js",
+  "static/chunks/3_fle0_4w-b71.js",
+  "static/chunks/1warahin2jg9m.js",
+  "static/chunks/0cngzmx7orwck.js",
+  "static/chunks/turbopack-1m7fn8hkfo5ng.js"
+])
