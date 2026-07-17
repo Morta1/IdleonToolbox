@@ -43,7 +43,7 @@
     "@types/react": "^19.2.2",
     "core-js": "^3.39.0",
     "date-fns": "^2.28.0",
-    "firebase": "^9.22.0",
+    "firebase": "^12.16.0",
     "flubber": "^0.4.2",
     "framer-motion": "^12.23.24",
     "globby": "^14.0.0",
@@ -52,16 +52,19 @@
     "lodash.debounce": "^4.0.8",
     "lodash.merge": "^4.6.2",
     "marked": "^18.0.2",
-    "next": "16.2",
+    "next": "^16.2.10",
     "next-seo": "^5.15.0",
     "react": "^19.2.4",
-    "react-cookie-consent": "^9.0.0",
+    "react-cookie-consent": "^10.0.1",
     "react-countdown-circle-timer": "^3.0.9",
     "react-dom": "^19.2.4",
     "react-process-string": "^1.2.0",
-    "react-syntax-highlighter": "^15.6.1",
+    "react-syntax-highlighter": "^16.1.1",
     "react-transition-group": "^4.4.5",
     "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "postcss": "^8.5.10"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
