@@ -119,6 +119,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const meritocracyTimeLeft = timeAway ? (604800 - (timeAway?.GlobalTime + 543460 - 604800 * Math.floor((timeAway?.GlobalTime + 543460) / 604800))) * 1000 : 0;
   const nextVoteBonus = now + bonusTimeLeft;
   const nextMeritocracyVote = now + meritocracyTimeLeft;
+  const hasVotedBonus = !!voteBallot?.selectedBonus?.[0];
+  const hasVotedMeritocracy = !!voteBallot?.selectedMeritocracyBonus?.description;
 
   const {
     bestWizard,
@@ -353,6 +355,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           lastUpdated={lastUpdated}
           time={nextVoteBonus}
           icon={voteBallot?.selectedBonus?.icon ? `data/${voteBallot.selectedBonus.icon}` : 'etc/Weekly.png'}
+          showAsError={!hasVotedBonus}
         />}
         {trackers?.Etc?.meritocracyTimeLeft?.checked && <TimerCard
           page={'account/world-2/vote-ballot'}
@@ -364,6 +367,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           lastUpdated={lastUpdated}
           time={nextMeritocracyVote}
           icon={voteBallot?.selectedMeritocracyBonus?.icon ? `data/${voteBallot.selectedMeritocracyBonus.icon}` : 'etc/Weekly.png'}
+          showAsError={!hasVotedMeritocracy}
         />}
       </Section>}
       {!emptyAlerts?.['World 3'] && account?.finishedWorlds?.World2 && <Section title={'World 3'}>

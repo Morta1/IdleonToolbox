@@ -1,5 +1,5 @@
 import { tryToParse, commaNotation, notateNumber } from '@utility/helpers';
-import { mineheadUpgrades, upgradeVault, research as researchData, items } from '@website-data';
+import { mineheadUpgrades, upgradeVault, research as researchData, researchGridSquares, items } from '@website-data';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { isCompanionBonusActive, getEventShopBonus } from '@parsers/misc';
@@ -191,6 +191,45 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
     * (1 + getSushiBonus(account, 12) / 100)
     * (1 + getButtonBonus(account, 1) / 100);
 
+  // Currency/hr breakdown — each source shown as the multiplier it contributes;
+  // product of all sources reproduces currencyGain above.
+  const getGridName = (idx: number) => (researchGridSquares?.[idx]?.name ?? `Grid ${idx}`).replace(/_/g, ' ');
+  const currencyGainBreakdown = {
+    statName: 'Currency / hr',
+    totalValue: currencyGain,
+    categories: [{
+      name: 'Multiplicative',
+      sources: [
+        { name: 'Companion Bonus', value: companionMulti },
+        { name: 'Opponent Bonus (capped 3x)', value: Math.min(3, 1 + getBonusQTY(6) / 100) },
+        { name: 'Arcade Shop', value: 1 + arcade62Bonus / 100 },
+        { name: 'Atom Collider (Silicon)', value: 1 + atom13Bonus / 100 },
+        { name: 'Cooking Meal', value: 1 + mealMineCurrBonus / 100 },
+        { name: 'Sushi Station', value: 1 + getSushiBonus(account, 12) / 100 },
+        { name: 'Button Upgrade', value: 1 + getButtonBonus(account, 1) / 100 },
+      ],
+      subSections: [
+        {
+          name: 'Research Grid',
+          sources: [
+            { name: `${getGridName(129)} (Base)`, value: grid129Bonus },
+            { name: getGridName(148), value: 1 + grid148Bonus / 100 },
+            { name: getGridName(147), value: 1 + grid147Bonus / 100 },
+            { name: getGridName(166), value: 1 + grid166Bonus / 100 },
+          ]
+        },
+        {
+          name: 'Minehead Upgrades',
+          sources: [
+            { name: 'Miney Farmey I', value: 1 + getUpgradeQTY(5) / 100 },
+            { name: 'Miney Farmey II', value: 1 + getUpgradeQTY(22) / 100 },
+            { name: 'Miney Damagey Synergy', value: 1 + (getUpgradeQTY(28) * Math.log10(Math.max(1, bestHit))) / 100 },
+          ]
+        }
+      ]
+    }]
+  };
+
   // Bluecrown multiplier — used in description for upgrade 14
   const getBluecrownMulti = () => 1.5 + getUpgradeQTY(14) / 100;
 
@@ -325,6 +364,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
     maxHP_You,
     baseDMG,
     currencyGain,
+    currencyGainBreakdown,
     upgrades,
     opponents,
     glimbo,

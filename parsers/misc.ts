@@ -46,6 +46,9 @@ import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getMinorDivinityBonus } from '@parsers/world-5/divinity';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 import { getButtonBonus } from '@parsers/world-7/button';
+import { getWinnerBonus } from '@parsers/world-6/summoning';
+import { isArtifactAcquired } from '@parsers/world-5/sailing';
+import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 
 export const getRawRefinerySalts = () => {
   return Object.keys(items).filter(key => /^Refinery\d+$/.test(key)).reduce((res, key) => ({ ...res, [key]: true }), {});
@@ -229,6 +232,27 @@ export const getMasterclassCostReduction = (account: any, forceLegendTalent: any
     : (hasBonusBundle ? 0.25 : 1);
   const first3mcCostRedux = 1 / (1 + (account?.accountOptions?.[499] ?? 0) / 100);
   return allMasterclassCostRedux * first3mcCostRedux;
+}
+
+// "minBookLv" / "maxBookLv" — the SkillLevelsMAX range the passive Library can raise a talent into.
+// Only talents with skillIndex < 615 (main class talents, not star talents) are eligible.
+// TASK_SHOP_BOOK_LV_PER_MERIT is CustomLists.TaskShopDesc[2][2][11], a static game constant
+// (verified live: "+{ Max possible Lv of Talent books from the Talent Book Library", BonusPerLv = 2).
+const TASK_SHOP_BOOK_LV_PER_MERIT = 2;
+export const getBookLvRange = (account: any) => {
+  const atomLevel = account?.atoms?.atoms?.[7]?.level ?? 0;
+  const minBookLv = Math.round(101
+    + 5 * (account?.gemShopPurchases?.[113] ?? 0)
+    + getBribeBonus(account?.bribes, 'Library_Double_Agent')
+    + atomLevel);
+  const maxBookLv = Math.round(125
+    + (isArtifactAcquired(account?.sailing?.artifacts, 'Fury_Relic')?.bonus ?? 0)
+    + getWinnerBonus(account, '+{ Library Max')
+    + 10 * Math.min(atomLevel, 1)
+    + Math.min(5, Math.max(0, 5 * getAchievementStatus(account?.achievements, 145)))
+    + getSaltLickBonus(account?.saltLick, 4)
+    + TASK_SHOP_BOOK_LV_PER_MERIT * (account?.tasks?.[2]?.[2]?.[2] ?? 0));
+  return { minBookLv, maxBookLv };
 }
 
 export const getLibraryBookTimes = (idleonData: any, characters: any, account: any) => {

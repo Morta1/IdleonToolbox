@@ -58,7 +58,8 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     const i = index % 8;
     const marketCostReduction = t === 1 ? cheaperNightMarket : cheaperDayMarket;
     const calculatedCost = emperorCostCalc * cost * Math.pow(costExponent, level) * marketCostReduction;
-    const effectiveMaxLvl = (i === 0 || (t === 1 && i === 5))
+    const isHardCapped = i === 0 || (t === 1 && i === 5);
+    const effectiveMaxLvl = isHardCapped
       ? Math.floor(maxLvl)
       : Math.floor(researchBonus171 + maxLvl);
     return {
@@ -72,7 +73,9 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
         cropId,
         cropIdIncrement,
         level,
-        maxLvl: effectiveMaxLvl,
+        // hard-capped upgrades (eg Land Plots) can't go past effectiveMaxLvl even with more research,
+        // so only extend the preview past the cap for research-extendable upgrades
+        maxLvl: isHardCapped ? effectiveMaxLvl : Infinity,
         cost,
         costExponent,
         emperorCostCalc,

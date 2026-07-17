@@ -51,6 +51,15 @@ const Market = ({ market, crop }) => {
                   })}
                 </Stack>
               </> : <Typography color={'success.light'}>Maxed out</Typography>}
+              {level >= maxLvl && nextUpgrades?.length > 0 ? <Stack mt={2}>
+                <Typography variant={'caption'}>Future requirements (needs more research)</Typography>
+                {nextUpgrades.map(({ type: nextType, cost: nextCost }, index) => {
+                  if (marketIndex > 8 && index > 0) return null;
+                  nextType = marketIndex < 8 ? nextType : 'beans';
+                  const icon = marketIndex < 8 ? `FarmCrop${nextType}` : 'FarmCropBean';
+                  return <UpgradeReq key={'future' + index} icon={icon} owned={crop[nextType]} cost={nextCost}/>
+                })}
+              </Stack> : null}
               {costToMax > 0
                 ? <Typography sx={{ mt: 'auto' }} variant={'caption'}>Cost to
                   max: {notateNumber(costToMax, 'Big')}</Typography>

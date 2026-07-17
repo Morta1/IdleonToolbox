@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.54',
+    'gameVer': '2.3.523',
+    'date': '17/07/2026',
+    'features': [
+      'Talents: level numbers now show 3 states — orange for points still available, default once fully maxed, and a new blue when maxed but the passive Library will still raise the cap further',
+      'Minehead: Currency/hr now has a full breakdown tooltip',
+      'Dashboard: the Weekly Vote and Meritocracy Vote timers now show as an error when you haven\'t voted yet',
+      'Farming Market: maxed markets that can still grow via research now show a preview of their next upgrade requirements'
+    ],
+    'fixes': [
+      'Farming Market: fixed the max level for hard-capped upgrades (Land Plots, Night Market slot 5) being extended by research bonuses they don\'t actually benefit from'
+    ]
+  },
+  {
     'ver': '3.3.53',
     'gameVer': '2.3.523',
     'date': '03/07/2026',

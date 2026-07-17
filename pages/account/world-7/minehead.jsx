@@ -9,6 +9,8 @@ import { PAGES } from '@components/constants';
 import { getTabs } from '@utility/helpers';
 import Upgrades from '@components/account/Worlds/World7/Minehead/Upgrades';
 import Opponents from '@components/account/Worlds/World7/Minehead/Opponents';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const Minehead = () => {
   const { state } = useContext(AppContext);
@@ -25,6 +27,7 @@ const Minehead = () => {
     maxHP_You,
     baseDMG,
     currencyGain,
+    currencyGainBreakdown,
     upgrades,
     opponents
   } = minehead;
@@ -59,8 +62,15 @@ const Minehead = () => {
         value={notateNumber(baseDMG ?? 1, 'Big')}
       />
       <CardTitleAndValue
-        title={'Currency/hr'}
-        value={notateNumber(currencyGain ?? 0, 'Big')}
+        title={'Currency / hr'}
+        value={
+          <Stack direction={'row'} gap={.5} alignItems={'center'}>
+            {notateNumber(currencyGain ?? 0, 'Big')}
+            <Breakdown data={currencyGainBreakdown}>
+              <IconInfoCircleFilled size={16} style={{ display: 'block' }} />
+            </Breakdown>
+          </Stack>
+        }
       />
     </Stack>
 

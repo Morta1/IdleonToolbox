@@ -20,6 +20,7 @@ import {
 } from '@website-data';
 import {
   calculateAfkTime,
+  getBookLvRange,
   getEventShopBonus,
   getFoodBonus,
   getGoldenFoodBonus,
@@ -403,6 +404,8 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
   if (talentPresetObject) {
     character.talentPreset = createTalentPreset(character?.class, talentPresetObject, maxTalentsObject);
   }
+  const { maxBookLv } = getBookLvRange(account);
+  character.maxBookLv = maxBookLv;
   character.talents = talents;
   character.flatTalents = flatTalents;
   character.starTalents = starTalents;
