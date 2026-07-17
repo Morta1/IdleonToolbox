@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/account/class-specific/compass", [
+  "static/chunks/0-ispmt17fm9s.js",
+  "static/chunks/0wt8s9~5t_d8..js",
+  "static/chunks/06ql.fov8w5l..js",
+  "static/chunks/12uakf3tdrpm4.js",
+  "static/chunks/0akjyvuovsld~.js",
+  "static/chunks/0e37~8ym-1c7z.js",
+  "static/chunks/0_5l4j395-tx3.js",
+  "static/chunks/0gdhjfdy-wuqx.js",
+  "static/chunks/0gat8ymo9do48.js",
+  "static/chunks/0otdh-5fu63-z.js",
+  "static/chunks/0hha4~5yi~g34.js",
+  "static/chunks/17c.pryjm~59l.js",
+  "static/chunks/03.b6kgtpkyo-.js",
+  "static/chunks/1081ap_4lx6fc.js",
+  "static/chunks/0mxsidftsfhp6.js",
+  "static/chunks/16971xfpu~hvb.js",
+  "static/chunks/0rbjcvk.l9up8.js",
+  "static/chunks/turbopack-0yom1s5h-vyuu.js"
+])
