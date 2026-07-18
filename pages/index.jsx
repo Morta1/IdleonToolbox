@@ -1,7 +1,19 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { IconLayoutDashboard, IconLogin2 } from '@tabler/icons-react';
+import { AppContext } from '@components/common/context/AppProvider';
 import Head from 'next/head';
-import { Container, Dialog, DialogContent, DialogTitle, Stack, Typography, useMediaQuery } from '@mui/material';
-import Instructions from 'components/common/Instructions';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Container,
+  Stack,
+  Typography,
+  useMediaQuery
+} from '@mui/material';
+import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
+import { useTheme } from '@emotion/react';
+import LoginDialog from '@components/common/NavBar/LoginDialog';
 import { getRandomNumbersArray, prefix } from '@utility/helpers'
 import useInterval from '@hooks/useInterval';
 import { animate, AnimatePresence, motion, MotionConfig, useMotionValue } from 'framer-motion'
@@ -18,33 +30,45 @@ import Kofi from '@components/common/Kofi';
 import StructuredData, { createFAQData } from '@components/common/StructuredData';
 import { HomeSidebarAds } from '@components/common/Ads/AdUnit';
 
+// Rendered both as visible page content and as FAQPage structured data, so the two can't drift apart.
+const faqs = [
+  {
+    question: 'What is Idleon Toolbox?',
+    answer: 'Idleon Toolbox is a comprehensive set of tools and resources designed to help Legends of Idleon players optimize their gameplay, character builds, crafting strategies, and more.'
+  },
+  {
+    question: 'Is Idleon Toolbox free to use?',
+    answer: 'Yes, Idleon Toolbox is completely free to use for all Legends of Idleon players.'
+  },
+  {
+    question: 'How do I use idleon toolbox?',
+    answer: 'Click Login and sign in with the same credentials as your Idleon account - email, Google, Apple, or Steam. Your save data is parsed automatically so every tool shows your own information.'
+  },
+  {
+    question: 'Is it safe to log in to Idleon Toolbox?',
+    answer: 'Yes. Login uses Firebase Authentication directly from your browser to Google, the same auth Legends of Idleon itself uses. Your password is never sent to or stored by Idleon Toolbox. The site is open source so you can verify this yourself. Sharing a public profile or appearing on leaderboards is opt-in from the Settings page.'
+  },
+  {
+    question: 'Do I need to log in to use Idleon Toolbox?',
+    answer: 'No. Card Search, Builds, Item Browser and Item Planner work without logging in, along with the Guilds, Statistics and Leaderboards pages. Logging in adds your dashboard, character pages and the tools that need your save data.'
+  }
+];
+
 const Home = () => {
+  const { state } = useContext(AppContext);
+  const theme = useTheme();
   const [indexes] = useState(() => getRandomNumbersArray(6, 6));
   const breakpoint = useMediaQuery('(max-width: 1245px)', { noSsr: true });
   const breakpointLg = useMediaQuery('(min-width: 1921px)', { noSsr: true });
   const [bgIndex, setBgIndex] = useState(0);
-  const [open, setOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
   const [pathIndex, setPathIndex] = useState(0);
   const progress = useMotionValue(pathIndex);
   const path = useFlubber(progress, [
     'M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z',
     'm15 5-1.41 1.41L18.17 11H2v2h16.17l-4.59 4.59L15 19l7-7-7-7z']);
 
-  // FAQ data for structured data
-  const faqData = createFAQData([
-    {
-      question: 'What is Idleon Toolbox?',
-      answer: 'Idleon Toolbox is a comprehensive set of tools and resources designed to help Legends of Idleon players optimize their gameplay, character builds, crafting strategies, and more.'
-    },
-    {
-      question: 'Is Idleon Toolbox free to use?',
-      answer: 'Yes, Idleon Toolbox is completely free to use for all Legends of Idleon players.'
-    },
-    {
-      question: 'How do I use idleon toolbox?',
-      answer: 'You can find detailed instructions by clicking the \'Login\' button, which will display information on how to login via varius methods.'
-    }
-  ]);
+  const faqData = createFAQData(faqs);
 
   const handleAnimation = (enter) => {
     setPathIndex(enter ? 0 : 1)
@@ -83,6 +107,15 @@ const Home = () => {
             adventure with Idleon Toolbox&#39;s essential tools and resources for optimizing gameplay, character builds,
             crafting, and more.</Typography>
           <Stack direction={'row'} mt={3} gap={3} flexWrap={'wrap'} justifyContent={breakpoint ? 'center' : 'inherit'}>
+            {(state?.signedIn || state?.profile || state?.demo || state?.manualImport)
+              ? <Button variant={'contained'} size={'medium'} startIcon={<IconLayoutDashboard/>}
+                        component={NextLinkComposed} to={{ pathname: '/dashboard' }}>
+                Open your dashboard
+              </Button>
+              : <Button variant={'contained'} size={'medium'} startIcon={<IconLogin2/>}
+                        onClick={() => setLoginOpen(true)}>
+                Login to get started
+              </Button>}
             <DiscordButton startIcon={<DiscordSvg/>} href={'https://discord.gg/8Devcj7FzV'} target={'_blank'}
                            variant={'contained'}>
               Join the discord
@@ -139,13 +172,33 @@ const Home = () => {
         </Link>
         <PatchNotes patchNotes={patchNotes.slice(0, 3)}/>
       </motion.div>
+      <Box sx={{ mt: 6, mb: 2 }} component={'section'}>
+        <Typography variant={'h4'} mb={2}>Frequently Asked Questions</Typography>
+        {faqs.map(({ question, answer }, index) => {
+          return <Accordion key={'faq' + index}
+                            disableGutters
+                            sx={{
+                              '&:before': { display: 'none' },
+                              border: `1px solid ${theme.palette.divider}`,
+                              '&:not(:last-child)': { borderBottom: 0 }
+                            }}>
+            <AccordionSummary
+              sx={{
+                flexDirection: 'row-reverse', gap: 2, fontWeight: 500,
+                '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': { transform: 'rotate(90deg)' }
+              }}
+              expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem' }}/>}
+            >
+              {question}
+            </AccordionSummary>
+            <AccordionDetails sx={{ backgroundColor: 'rgb(22, 22, 22)', p: 3 }}>
+              <Typography variant={'body1'}>{answer}</Typography>
+            </AccordionDetails>
+          </Accordion>
+        })}
+      </Box>
       <span data-ccpa-link="1"></span>
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogTitle>Instructions</DialogTitle>
-        <DialogContent>
-          <Instructions/>
-        </DialogContent>
-      </Dialog>
+      <LoginDialog open={loginOpen} setOpen={setLoginOpen} onClose={() => setLoginOpen(false)}/>
     </Container>
   );
 };
