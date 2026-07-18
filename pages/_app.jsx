@@ -107,10 +107,11 @@ const MyApp = (props) => {
           more</Button>
       </CookieConsent>}
       <ConsentScripts/>
-      <Script
+      {/* Plain script rather than next/script: afterInteractive injects post-hydration,
+          which keeps structured data out of the static export entirely. */}
+      <script
         id="schema-structured-data"
         type="application/ld+json"
-        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             '@context': 'https://schema.org',
@@ -133,10 +134,9 @@ const MyApp = (props) => {
           })
         }}
       />
-      <Script
+      <script
         id="schema-website"
         type="application/ld+json"
-        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             '@context': 'https://schema.org',
