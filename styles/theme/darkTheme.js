@@ -72,6 +72,15 @@ let darkTheme = createTheme({
         }
       }
     },
+    MuiAccordionSummary: {
+      styleOverrides: {
+        // AccordionSummary renders a ButtonBase, which neither MUI nor CssBaseline resets,
+        // so the browser's default button font (13.3333px Arial) leaks through instead of the theme's.
+        root: {
+          font: 'inherit'
+        }
+      }
+    },
     MuiPopover: {
       styleOverrides: {
         paper: {
