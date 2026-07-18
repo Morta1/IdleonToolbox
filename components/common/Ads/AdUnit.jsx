@@ -1,8 +1,6 @@
 import { GoogleBottomBannerAd, GoogleHomeSideAds, GoogleSidebarAd } from '@components/common/Ads/GoogleAdUnit';
-import Box from '@mui/material/Box';
 import { NitroBottomBannerAd, NitroRailAd } from '@components/common/Ads/NitroAdUnits';
-import { useMediaQuery } from '@mui/material';
-import useAdBlockDetection from '../../../hooks/useAdBlockDetection';
+import useSidebarAd from '@hooks/useSidebarAd';
 
 export const AD_PROVIDERS = {
   GOOGLE: 'GOOGLE',
@@ -13,16 +11,21 @@ export const AD_PROVIDER = AD_PROVIDERS.NITRO;
 const NITRO_SIDE_AD_SIZES = [['300', '600'], ['300', '250'], ['160', '600']];
 const NITRO_HOME_AD_SIZES = [['160', '600']];
 
+// The 300px gutter this sits in is owned by ContentWrapper, not by this component. That gutter
+// collapses while a page is loading, and unmounting SidebarAd to collapse it would run
+// NitroRailAd's cleanup and destroy the ad on every page load.
 export const SidebarAd = () => {
-  const showAd = useMediaQuery('(min-width: 850px)', { noSsr: true });
-  const adBlocked = useAdBlockDetection();
+  const showAd = useSidebarAd();
 
-  if (!showAd || adBlocked) return null;
+  if (!showAd) return null;
 
-  return <Box sx={{ width: 300, flexShrink: 0 }}>
+  // NitroAds relocates #nitro-side-ad into a body > div, so React must never be the one to remove
+  // it - that throws NotFoundError and takes down the tree. This wrapper stays put and is what
+  // React removes when the ad is hidden.
+  return <div>
     {AD_PROVIDER === AD_PROVIDERS.GOOGLE ? <GoogleSidebarAd/> : null}
     {AD_PROVIDER === AD_PROVIDERS.NITRO ? <NitroRailAd id={'nitro-side-ad'} alignment={'right'} sizes={NITRO_SIDE_AD_SIZES}/> : null}
-  </Box>;
+  </div>;
 }
 
 export const BottomBannerAd = ({ displayDrawer }) => {

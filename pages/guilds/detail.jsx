@@ -21,6 +21,7 @@ import RankHistoryChart from '@components/guilds/RankHistoryChart';
 import ContributorLeaderboard from '@components/guilds/ContributorLeaderboard';
 import RosterDiff from '@components/guilds/RosterDiff';
 import SimpleLoader from '@components/common/SimpleLoader';
+import { useReportPageLoading } from '@components/common/context/PageLoadingProvider';
 
 const DAY_MS = 24 * 3600 * 1000;
 const WEEK_MS = 7 * DAY_MS;
@@ -77,6 +78,7 @@ export default function GuildDetail() {
   const formatDate = useFormatDate();
   const { id } = router.query;
   const { data, isLoading, error } = useGuildDetail(id);
+  useReportPageLoading(isLoading || !id);
 
   if (isLoading || !id) return <SimpleLoader message="Loading guild history..."/>;
   if (error) return <Typography color="error">Failed to load guild history</Typography>;

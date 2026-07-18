@@ -1,6 +1,7 @@
 import { NextSeo } from 'next-seo';
 import React, { useEffect, useState } from 'react';
 import SimpleLoader from '../components/common/SimpleLoader';
+import { useReportPageLoading } from '@components/common/context/PageLoadingProvider';
 import { Grid, useMediaQuery } from '@mui/material';
 import { classes } from '@website-data';
 import { customColors, getVisualizationMap } from '@components/statistics/consts';
@@ -24,6 +25,9 @@ const Statistics = () => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('lg'), { noSsr: true });
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const visualizationMap = getVisualizationMap(classes);
+
+  // Whole page is a loader below - let the layout collapse the ad gutter so it centres
+  useReportPageLoading(loading);
 
   useEffect(() => {
     fetch(`${API_URL}/visualizations`)

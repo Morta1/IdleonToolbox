@@ -20,7 +20,9 @@ import useFormatDate from '@hooks/useFormatDate';
 import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 import AuthSkeleton from './AuthSkeleton';
 import { BottomBannerAd, SidebarAd } from '@components/common/Ads/AdUnit';
-import useAdBlockDetection from '../../../hooks/useAdBlockDetection';
+import useSidebarAd from '@hooks/useSidebarAd';
+import usePageDataLoading from '@hooks/usePageDataLoading';
+import PageLoadingProvider, { usePageLoadingState } from '@components/common/context/PageLoadingProvider';
 import ProfileBanner from './ProfileBanner';
 import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 
@@ -59,7 +61,7 @@ const NavBar = ({ children }) => {
     );
   };
 
-  return <>
+  return <PageLoadingProvider>
     <Box sx={{ display: 'flex' }}>
       <AppBar compopnent={'nav'}>
         <Toolbar sx={{ height: navBarHeight, minHeight: navBarHeight }}>
@@ -84,7 +86,7 @@ const NavBar = ({ children }) => {
     }}>
       <Box sx={{ flex: 1 }}>
         {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
-        <ContentWrapper showSidebar={isInnerPage} isLoading={state?.isLoading} isHomePage={isHomePage}>
+        <ContentWrapper showSidebar={isInnerPage}>
           {children}
         </ContentWrapper>
       </Box>
@@ -114,28 +116,35 @@ const NavBar = ({ children }) => {
       <CookiePolicyDialog open={openPolicy} onClose={() => setOpenPolicy(false)}/>
     </Box>
     <BottomBannerAd displayDrawer={displayDrawer}/>
-  </>
+  </PageLoadingProvider>
 };
 
 const ContentWrapper = ({ showSidebar, children }) => {
-  const showNarrowSideBanner = useMediaQuery('(min-width: 850px)', { noSsr: true });
-  const adBlocked = useAdBlockDetection();
+  const showSidebarAd = useSidebarAd();
+  const { loading } = usePageDataLoading();
+  const pageReportedLoading = usePageLoadingState();
 
   if (!showSidebar) return children;
 
-  const showSidebarAd = showNarrowSideBanner && !adBlocked;
+  // While the page is waiting for data there is nothing to keep clear of the fixed rail ad, and a
+  // reserved gutter would push the loader ~165px left of the viewport centre with an empty 300px
+  // void beside it. SidebarAd stays mounted through the collapse so the ad is never recreated.
+  const reserveGutter = showSidebarAd && !loading && !pageReportedLoading;
 
   return (
-    <Stack direction={'row'} gap={2} justifyContent={'space-between'} sx={{ width: '100%', minWidth: 0 }}>
+    <Stack direction={'row'} gap={reserveGutter ? 2 : 0} justifyContent={'space-between'}
+           sx={{ width: '100%', minWidth: 0 }}>
       <Stack
         sx={{
           width: '100%',
           minWidth: 0,
-          maxWidth: showSidebarAd ? CONTENT_PERCENT_SIZE : '100%'
+          maxWidth: reserveGutter ? CONTENT_PERCENT_SIZE : '100%'
         }}>
         {children}
       </Stack>
-      <SidebarAd/>
+      <Box sx={{ width: reserveGutter ? 300 : 0, flexShrink: 0, overflow: 'hidden' }}>
+        <SidebarAd/>
+      </Box>
     </Stack>
   );
 }
