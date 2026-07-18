@@ -20,8 +20,6 @@ import {
 import { getApp } from 'firebase/app';
 import app from './config';
 import { tryToParse } from '@utility/helpers';
-import { guildBonuses } from '@website-data';
-import { calculateGuildBonusCost } from '../parsers/guild';
 
 const auth = getAuth(app);
 const database = getDatabase(app);
@@ -195,6 +193,12 @@ export const getLeaderboard = async (divisionIndex) => {
 
 export const getGuilds = async (callback) => {
   try {
+    // Loaded lazily so website-data (9.8MB JSON) and the parsers graph stay out of
+    // the shared every-page chunk (firebase/index.js is imported eagerly by AppProvider).
+    const [{ guildBonuses }, { calculateGuildBonusCost }] = await Promise.all([
+      import('@website-data'),
+      import('../parsers/guild')
+    ]);
     const startTime = Date.now();
 
     const snap = collection(firestore, '_guildStat');

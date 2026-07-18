@@ -1,11 +1,11 @@
 import {
   commaNotation,
   excludedPortals,
-  getFilteredPortals,
   lavaLog,
   notateNumber,
   tryToParse
 } from '@utility/helpers';
+import { getFilteredPortals } from '@parsers/portals';
 import {
   abominations,
   compass,

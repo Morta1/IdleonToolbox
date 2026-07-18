@@ -1,4 +1,5 @@
-import { commaNotation, getFilteredPortals, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
+import { commaNotation, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
+import { getFilteredPortals } from '@parsers/portals';
 import { mapEnemiesArray, mapPortals, monsterDrops, monsters, tesseract, items } from '@website-data';
 import { CLASSES, getCharacterByHighestTalent, getTalentBonus, getHighestTalentByClass } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
