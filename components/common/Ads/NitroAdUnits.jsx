@@ -83,28 +83,53 @@ export const NitroBottomBannerAd = () => {
       });
     }
 
+    const setHeight = (height) => {
+      document.documentElement.style.setProperty('--nitro-ad-height', `${height}px`);
+    };
+
     const handleAnchorVisibility = (event) => {
       const { id, location } = event.detail;
       if (location !== 'bottom') return;
 
       // Event fires slightly before the element is visible/hidden, wait for correct height
       setTimeout(() => {
-        const el = document.getElementById(id);
-        const rect = el?.getBoundingClientRect();
-        if (rect) {
-          document.documentElement.style.setProperty('--nitro-ad-height', `${rect.height}px`);
-        } else {
-          document.documentElement.style.setProperty('--nitro-ad-height', '0px');
-        }
+        const rect = document.getElementById(id)?.getBoundingClientRect();
+        setHeight(rect ? rect.height : 0);
       }, 100);
     };
 
     document.addEventListener('nitroAds.anchorVisibility', handleAnchorVisibility);
 
+    // The ads script loads afterInteractive, so anchorVisibility can fire before the listener above
+    // is attached - and it never fires again, leaving --nitro-ad-height stuck at 0px and the banner
+    // overlapping the footer. Measure the element directly as well, once it appears.
+    let resizeObserver;
+    const observeBanner = () => {
+      const el = document.getElementById('nitro-bottom-banner-ad');
+      if (!el) return false;
+
+      resizeObserver = new ResizeObserver(([entry]) => setHeight(entry.target.getBoundingClientRect().height));
+      resizeObserver.observe(el);
+      return true;
+    };
+
+    let mutationObserver;
+    if (!observeBanner()) {
+      mutationObserver = new MutationObserver(() => {
+        if (observeBanner()) {
+          mutationObserver.disconnect();
+          mutationObserver = null;
+        }
+      });
+      mutationObserver.observe(document.body, { childList: true });
+    }
+
     return () => {
       styleEl?.remove();
       document.removeEventListener('nitroAds.anchorVisibility', handleAnchorVisibility);
-      document.documentElement.style.setProperty('--nitro-ad-height', '0px');
+      resizeObserver?.disconnect();
+      mutationObserver?.disconnect();
+      setHeight(0);
     };
   }, [theme]);
 
