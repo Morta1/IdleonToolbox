@@ -315,9 +315,13 @@ const AppProvider = ({ children }) => {
           const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
           unsubscribeRef.current = unsub;
         } else {
+          // /guilds is public and links to both of these, so logged-out visitors clicking
+          // through were silently bounced home. Neither page reads any account state.
           const isAllowedPath = router.pathname === '/' ||
             checkOfflineTool() ||
             router.pathname === '/guilds' ||
+            router.pathname === '/guilds/detail' ||
+            router.pathname === '/guilds/ecosystem' ||
             router.pathname === '/statistics' ||
             router.pathname === '/leaderboards';
 
