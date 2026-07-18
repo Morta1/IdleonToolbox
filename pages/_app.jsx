@@ -164,9 +164,11 @@ const MyApp = (props) => {
               <PreferencesProvider>
               <AppProvider>
                 <NavBar>
+                  {/* No title/description here on purpose. next-seo re-emits DefaultSeo's head
+                      after the page's NextSeo on every client route change, so any title or
+                      description set here overwrites the page's own. 105 of 108 pages define
+                      their own NextSeo; the rest set one locally. */}
                   <DefaultSeo
-                    title="Idleon Toolbox - Essential Tools for Legends of Idleon"
-                    description="Power up your Legends of Idleon adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds, crafting, and more."
                     canonical={canonicalUrl}
                     openGraph={{
                       type: 'website',

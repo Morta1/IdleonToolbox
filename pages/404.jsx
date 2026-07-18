@@ -3,6 +3,7 @@ import Button from '@mui/material/Button';
 import { NextLinkComposed } from '@components/common/NextLinkComposed';
 import HomeIcon from '@mui/icons-material/Home';
 import { useRouter } from 'next/router';
+import { NextSeo } from 'next-seo';
 
 export default function Custom404() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function Custom404() {
 
   return (
     <Stack alignItems="center" justifyContent="center" gap={2} sx={{ mt: 10 }}>
+      <NextSeo title="Page Not Found | Idleon Toolbox" noindex={true}/>
       <Typography variant="h2" component="h1">404</Typography>
       <Typography variant="h5" color="text.secondary">
         {isProfileNotFound ? 'Profile Not Found' : 'Page Not Found'}

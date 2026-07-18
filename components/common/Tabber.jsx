@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Tab, Tabs, useMediaQuery } from '@mui/material';
 import { prefix } from '@utility/helpers';
 import Box from '@mui/material/Box';
@@ -27,21 +27,10 @@ const Tabber = ({
   const activeTabIndex = tabs.findIndex((tab) => tab === queryValue);
   const selectedTab = disableQuery ? activeTab : (activeTabIndex >= 0 ? activeTabIndex : 0);
 
-  useEffect(() => {
-    if (!disableQuery) {
-      // Set the default query parameter if missing
-      if (!queryValue) {
-        router.replace(
-          {
-            pathname: router.pathname,
-            query: { ...router.query, [queryKey]: tabs[selectedTab] }
-          },
-          undefined,
-          { shallow: true }
-        );
-      }
-    }
-  }, [queryValue, queryKey, tabs, selectedTab, router, disableQuery]);
+  // No default query is stamped on mount. A shallow router.replace here re-rendered the
+  // app shell mid-hydration, which let DefaultSeo re-emit its head after the page's NextSeo
+  // and overwrite the page title and description. selectedTab already falls back to 0 when
+  // the query is absent, so the URL only gains ?t= once a tab is actually clicked.
 
   const handleOnClick = (e, selected) => {
     if (disableQuery) {
