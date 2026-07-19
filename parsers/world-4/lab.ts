@@ -86,6 +86,7 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
         : 0), 0);
       chipList[chipIndex].repoAmount = chipCount - playerUsedCount;
       chipList[chipIndex].amount = playerUsedCount;
+      chipList[chipIndex].totalAmount = chipCount;
     }
   });
   const calculatedTaskConnectionRange = (account?.tasks?.[2]?.[3]?.[4] ?? 0) * merits?.[3]?.[4]?.bonusPerLevel;

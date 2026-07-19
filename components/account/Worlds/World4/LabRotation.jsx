@@ -106,7 +106,7 @@ const LabRotation = () => {
                     effect,
                     baseVal,
                     acquired,
-                    amount: chipCount
+                    totalAmount: chipCount
                   }, itemsIndex) => {
                     const desc = rawName?.includes('Chip') ? bonus.replace(/{/g, baseVal) : effect.replace(/}/g, bonus);
                     const { currentRotation } = state?.account?.lab;
