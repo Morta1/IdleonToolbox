@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/account/world-5/gaming", [
+  "static/chunks/0gjfwxzsk9dwd.js",
+  "static/chunks/3nv19stuj1qdu.js",
+  "static/chunks/37pywk6aulu79.js",
+  "static/chunks/1ir4i_xr1vm25.js",
+  "static/chunks/34xzrfaqodo35.js",
+  "static/chunks/0r28klnec03dk.js",
+  "static/chunks/0y7qnp_wnucwl.js",
+  "static/chunks/1a3i44rs-93oc.js",
+  "static/chunks/2ead-lh7j5rab.js",
+  "static/chunks/0-5raqfwjdvno.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/4008casf0z20p.js",
+  "static/chunks/1yvv9abmoth-e.js",
+  "static/chunks/1zoh00wy0nquc.js",
+  "static/chunks/1c82_sd9mupul.js",
+  "static/chunks/3urc37fr5d-y-.js",
+  "static/chunks/27474ct4wljjx.js",
+  "static/chunks/turbopack-22qzma39me8m_.js"
+])
