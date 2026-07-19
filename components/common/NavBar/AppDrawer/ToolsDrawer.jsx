@@ -1,6 +1,7 @@
 import { Divider, List, ListItem, ListItemIcon, ListItemText, Stack } from '@mui/material';
-import React, { startTransition, useContext } from 'react';
+import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
+import NextLink from 'next/link';
 import { AppContext } from '../../context/AppProvider';
 import Kofi from '../../Kofi';
 
@@ -13,7 +14,14 @@ export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true,
 const ToolsDrawer = ({ fromList }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
-  const handleClick = (uri) => {
+
+  // Tab params belong to the page being left, not the one being opened. Everything else (demo,
+  // profile, ...) has to survive the hop or the target page loses the session it was viewing.
+  const { t, nt, dnt, ...updatedQuery } = router.query;
+
+  // Navigation itself is handled by next/link so the target page's chunk gets prefetched while
+  // the item is on screen — clicking then costs ~100ms instead of a multi-second chunk download.
+  const trackNav = (uri) => {
     const url = `/tools/${uri}`;
     if (typeof window.gtag !== 'undefined') {
       window.gtag('event', 'handle_nav', {
@@ -22,10 +30,6 @@ const ToolsDrawer = ({ fromList }) => {
         value: 1
       })
     }
-
-    startTransition(() => {
-      router.push({ pathname: url });
-    });
   }
 
   const isSelected = (label) => {
@@ -41,7 +45,9 @@ const ToolsDrawer = ({ fromList }) => {
         const formattedKey = key.split(/(?=[A-Z])/).join(' ').capitalize();
         const selected = isSelected(keyUri);
         return <ListItemButton key={key + ' ' + index} selected={selected}
-                               onClick={() => handleClick(keyUri)}>
+                               component={NextLink}
+                               href={{ pathname: `/tools/${keyUri}`, query: updatedQuery }}
+                               onClick={() => trackNav(keyUri)}>
           <ListItemIcon sx={{ minWidth: 32 }}>
             <img style={{ objectFit: 'contain' }} width={32} height={32} src={`${prefix}${icon}.png`} alt=""/>
           </ListItemIcon>

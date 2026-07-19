@@ -20,6 +20,7 @@ import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 import Button from '@mui/material/Button';
 import useGdprRegion, { getConsentObject } from '../hooks/useGdprRegion';
 import DynamicBreadcrumbs from '@components/common/DynamicBreadcrumbs';
+import RouteProgress from '@components/common/RouteProgress';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const clientSideEmotionCache = createEmotionCache();
@@ -160,6 +161,7 @@ const MyApp = (props) => {
           <EmotionThemeProvider theme={darkTheme}>
             <CookiePolicyDialog open={openPolicy} onClose={() => setOpenPolicy(false)}/>
             <CssBaseline/>
+            <RouteProgress/>
             <WaitForRouter>
               <PreferencesProvider>
               <AppProvider>

@@ -1,9 +1,10 @@
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { Collapse, Divider, List, ListItem, ListItemIcon, ListItemText, Stack } from '@mui/material';
-import React, { startTransition, useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { prefix } from '@utility/helpers';
 import { useRouter } from 'next/router';
+import NextLink from 'next/link';
 import Kofi from '../../Kofi';
 import { AppContext } from '@components/common/context/AppProvider';
 import useFormatDate from '@hooks/useFormatDate';
@@ -19,16 +20,24 @@ const AccountDrawer = ({ fromList }) => {
   const [accordions, setAccordions] = useState({});
   const router = useRouter();
 
+  // Tab params belong to the page being left, not the one being opened.
+  const { t, nt, dnt, ...updatedQuery } = router.query;
+
+  const buildUrl = (section, label) => section
+    ? `/account/${section.split(' ').join('-')}/${label}`
+    : `/account/${label}`;
+
   const handleClick = (label, categories) => {
     if (categories) {
       return setAccordions({ ...accordions, [label]: !accordions?.[label] });
     } else {
-      handleLabelClick('', label);
+      trackNav(buildUrl('', label));
     }
   }
 
-  const handleLabelClick = (section, label) => {
-    const url = section ? `/account/${section.split(' ').join('-')}/${label}` : `/account/${label}`;
+  // Navigation itself is handled by next/link so the target page's chunk gets prefetched while
+  // the item is on screen — clicking then costs ~100ms instead of a multi-second chunk download.
+  const trackNav = (url) => {
     if (typeof window.gtag !== 'undefined') {
       window.gtag('event', 'handle_nav', {
         event_category: url,
@@ -36,10 +45,6 @@ const AccountDrawer = ({ fromList }) => {
         value: 1
       })
     }
-    const { t, nt, dnt, ...updatedQuery } = router.query;
-    startTransition(() => {
-      router.push({ pathname: url, query: updatedQuery });
-    });
   }
 
   const isSelected = (label) => {
@@ -59,6 +64,10 @@ const AccountDrawer = ({ fromList }) => {
               <ListItemButton
                 data-cy={key}
                 selected={selectedSection}
+                {...(categories ? {} : {
+                  component: NextLink,
+                  href: { pathname: buildUrl('', key), query: updatedQuery }
+                })}
                 onClick={() => handleClick(key, categories)}>
                 <ListItemIcon sx={{ minWidth: 32 }}>
                   <img width={32} height={32} style={{ objectFit: 'contain', ...style }}
@@ -73,11 +82,13 @@ const AccountDrawer = ({ fromList }) => {
                   const selectedSubSection = isSelected(label);
                   return (
                     (<ListItemButton
+                      component={NextLink}
+                      href={{ pathname: buildUrl(key, label), query: updatedQuery }}
                       selected={selectedSubSection}
                       data-cy={label}
                       key={category + ' ' + categoryIndex}
                       style={{ paddingLeft: nestedOptionPadding }}
-                      onClick={() => handleLabelClick(key, label)}>
+                      onClick={() => trackNav(buildUrl(key, label))}>
                       <ListItemIcon sx={{ minWidth: 32 }}>
                         <img width={32} height={32}
                              style={{ objectFit: 'contain', ...category?.style }}
