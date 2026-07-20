@@ -20,7 +20,7 @@ const methods = [
   { name: 'steam', icon: <img width={24} height={24} src={`${prefix}etc/steam-icon.png`} alt={'steam-icon'}/> }
 ]
 const LoginDialog = ({ open, setOpen, onClose }) => {
-  const { dispatch, setWaitingForAuth, waitingForAuth } = useContext(AppContext);
+  const { dispatch, setWaitingForAuth } = useContext(AppContext);
   const [selectedTab, setSelectedTab] = useState(0);
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
 
@@ -55,7 +55,7 @@ const LoginDialog = ({ open, setOpen, onClose }) => {
             variant={'fullWidth'}
             value={selectedTab} onChange={handleTabChange}>
         {methods.map(({ name, icon }, index) => {
-          return <Tab disabled={waitingForAuth} iconPosition={isSm ? 'top' : 'start'} label={name.capitalize()} icon={icon}
+          return <Tab iconPosition={isSm ? 'top' : 'start'} label={name.capitalize()} icon={icon}
                       key={`${name}-${index}`}/>;
         })}
       </Tabs>

@@ -22,6 +22,7 @@ const getUserToken = async (deviceCode) => {
     return await res.json();
   } catch (err) {
     console.error('Error has occurred while trying to authenticate:', err);
+    return { error: 'network' };
   }
 }
 

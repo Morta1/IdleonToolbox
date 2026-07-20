@@ -878,6 +878,23 @@ const sanitizeRawData = (data) => {
   };
 };
 
+export const setRawJson = (payload) => {
+  const serialized = JSON.stringify(payload);
+  try {
+    sessionStorage.setItem('rawJson', serialized);
+    return true;
+  } catch (error) {
+    try {
+      sessionStorage.removeItem('rawJson');
+      sessionStorage.setItem('rawJson', serialized);
+      return true;
+    } catch (retryError) {
+      console.error('Could not cache raw save data in sessionStorage:', retryError);
+      return false;
+    }
+  }
+};
+
 export const copyForSupport = async (account, characters) => {
   const { expandLeaderboardInfo } = await import('../services/leaderboardInfo');
   const data = JSON.parse(sessionStorage.getItem('rawJson'));
@@ -900,7 +917,7 @@ export const handleLoadJson = async (dispatch) => {
     const lastUpdated = new Date().getTime();
     localStorage.setItem('lastUpdated', JSON.stringify(lastUpdated));
     // console.log('Manual Import', { ...parsedData, lastUpdated, manualImport: true });
-    sessionStorage.setItem('rawJson', JSON.stringify({
+    setRawJson({
       data,
       charNames,
       companion,
@@ -908,7 +925,7 @@ export const handleLoadJson = async (dispatch) => {
       serverVars,
       tournament,
       lastUpdated
-    }))
+    });
     dispatch({ type: 'data', data: { ...parsedData, lastUpdated, manualImport: true } });
 
     if (typeof window.gtag !== 'undefined') {

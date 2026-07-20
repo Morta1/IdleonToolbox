@@ -6,6 +6,7 @@ import { getUserToken } from '../../../services/auth/google';
 import { offlineTools } from '../NavBar/AppDrawer/ToolsDrawer';
 import { geAppleStatus } from '../../../services/auth/apple';
 import { getProfile } from '../../../services/profiles';
+import { setRawJson } from '@utility/helpers';
 
 export const AppContext = createContext({});
 
@@ -135,7 +136,7 @@ const AppProvider = ({ children }) => {
     const accountCreateTimeInSeconds = accountCreateTime?.seconds;
     const lastUpdated = new Date().getTime();
     
-    sessionStorage.setItem('rawJson', JSON.stringify({
+    setRawJson({
       data,
       charNames,
       companion,
@@ -144,7 +145,7 @@ const AppProvider = ({ children }) => {
       serverVars,
       accountCreateTime: accountCreateTimeInSeconds * 1000,
       lastUpdated
-    }));
+    });
 
     const { parseData } = await import('@parsers/index');
     let parsedData = parseData(
@@ -236,7 +237,7 @@ const AppProvider = ({ children }) => {
 
           parsedData = { ...parsedData, lastUpdated: timestamp };
 
-          sessionStorage.setItem('rawJson', JSON.stringify({
+          setRawJson({
             data,
             charNames,
             companion,
@@ -244,7 +245,7 @@ const AppProvider = ({ children }) => {
             serverVars,
             tournament,
             lastUpdated: timestamp
-          }));
+          });
         }
 
         localStorage.setItem('manualImport', 'false');
@@ -429,8 +430,17 @@ const AppProvider = ({ children }) => {
             }
           } else {
             const user = (await getUserToken(state?.loginData?.deviceCode)) || {};
-            if (user) {
-              id_token = user?.id_token;
+            id_token = user?.id_token;
+
+            if (!id_token && user?.error && user.error !== 'authorization_pending' && user.error !== 'slow_down') {
+              const message = user.error === 'access_denied'
+                ? 'Google sign-in was cancelled.'
+                : user.error === 'expired_token'
+                  ? 'The login code expired, please re-open this dialog.'
+                  : 'Could not reach Google, please check your connection and try again.';
+              setWaitingForAuth(false);
+              dispatch({ type: ACTION_TYPES.LOGIN_ERROR, data: message });
+              return;
             }
           }
           if (id_token) {
@@ -453,11 +463,14 @@ const AppProvider = ({ children }) => {
           
           setWaitingForAuth(false);
           setAuthCounter(0);
-        } else if (authCounter > 12) {
+        } else if (state?.loginData?.expiresAt && Date.now() > state.loginData.expiresAt) {
+          setWaitingForAuth(false);
+          dispatch({ type: ACTION_TYPES.LOGIN_ERROR, data: 'The login code expired, please re-open this dialog' });
+        } else if (!state?.loginData?.expiresAt && authCounter > 12) {
           setWaitingForAuth(false);
           dispatch({ type: ACTION_TYPES.LOGIN_ERROR, data: 'Reached maximum retry limit, please re-open this dialog' });
         }
-        
+
         setAuthCounter((counter) => counter + 1);
       } catch (error) {
         console.error('Error during authentication:', error);
@@ -466,7 +479,7 @@ const AppProvider = ({ children }) => {
         dispatch({ type: ACTION_TYPES.LOGIN_ERROR, data: error?.message });
       }
     },
-    waitingForAuth ? (authCounter === 0 ? 1000 : 4000) : null
+    waitingForAuth ? (authCounter === 0 ? 1000 : 5000) : null
   );
 
   const providerValue = {
