@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/account/world-4/cooking", [
+  "static/chunks/1d4er7q42-rmo.js",
+  "static/chunks/0yq1q60r-245_.js",
+  "static/chunks/0n4w0kms2qc1i.js",
+  "static/chunks/0tbdzb55en7bz.js",
+  "static/chunks/1ir4i_xr1vm25.js",
+  "static/chunks/0r28klnec03dk.js",
+  "static/chunks/0y7qnp_wnucwl.js",
+  "static/chunks/2brqyozt2l6me.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/04i6h0a7dco_z.js",
+  "static/chunks/27474ct4wljjx.js",
+  "static/chunks/0-5raqfwjdvno.js",
+  "static/chunks/24ds_daruglel.js",
+  "static/chunks/10imqfnsa5_fn.js",
+  "static/chunks/09by45ar1hgcd.js",
+  "static/chunks/2bwv446l_6y4l.js",
+  "static/chunks/18d9x6m_clhus.js",
+  "static/chunks/turbopack-1puqnh68wyxb4.js"
+])

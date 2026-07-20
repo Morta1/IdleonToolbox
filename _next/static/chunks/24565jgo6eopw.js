@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/account/misc/upgrade-vault", [
+  "static/chunks/44j7x6l1_m-2c.js",
+  "static/chunks/0d01pvns4g34s.js",
+  "static/chunks/3w_ipgqnc0pxu.js",
+  "static/chunks/0y7qnp_wnucwl.js",
+  "static/chunks/0r28klnec03dk.js",
+  "static/chunks/44to2_cb0mt4o.js",
+  "static/chunks/3nv19stuj1qdu.js",
+  "static/chunks/4008casf0z20p.js",
+  "static/chunks/10imqfnsa5_fn.js",
+  "static/chunks/2brqyozt2l6me.js",
+  "static/chunks/1ir4i_xr1vm25.js",
+  "static/chunks/2ijv7hxyx7bun.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/27474ct4wljjx.js",
+  "static/chunks/09k1jh4a4l6hs.js",
+  "static/chunks/0-5raqfwjdvno.js",
+  "static/chunks/turbopack-0p8_7_2hnllvx.js"
+])
