@@ -4,6 +4,14 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.55',
+    'gameVer': '2.3.523',
+    'date': '02/08/2026',
+    'features': [
+      'Dashboard: new alert for unspent yellow and/or purple Cooking Mastery points'
+    ]
+  },
+  {
     'ver': '3.3.54',
     'gameVer': '2.3.523',
     'date': '17/07/2026',

@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 59,
+  version: 60,
   account: {
     General: {
       tasks: {
@@ -265,7 +265,8 @@ const baseTrackers = {
             checked: true
           },
           { name: 'meals', checked: true, category: 'meals' },
-          { name: 'alertOnlyCookedMeal', checked: false }
+          { name: 'alertOnlyCookedMeal', checked: false },
+          { name: 'cookingMastery', checked: true }
         ]
       },
       laboratory: {

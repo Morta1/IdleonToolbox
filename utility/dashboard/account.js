@@ -755,6 +755,14 @@ export const getWorld4Alerts = (account, fields, options) => {
         cooking.ribbons = emptySlots?.length;
       }
     }
+    if (options?.cooking?.cookingMastery?.checked) {
+      const points = account?.cooking?.cookingMastery?.points;
+      const yellow = points?.nodeLeft ?? 0;
+      const purple = points?.categoryLeft ?? 0;
+      if (yellow > 0 || purple > 0) {
+        cooking.cookingMastery = { yellow, purple };
+      }
+    }
     if (Object.keys(cooking).length > 0) {
       alerts.cooking = cooking;
     }

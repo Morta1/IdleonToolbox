@@ -332,6 +332,15 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={`You have reached your threshold of ${alerts?.['World 4']?.cooking?.ribbons} empty ribbon slots`}
                   iconPath={'data/Ribbon0'}/> : null}
+              {alerts?.['World 4']?.cooking?.cookingMastery?.purple > 0 ?
+                <Alert
+                  title={`You have ${alerts?.['World 4']?.cooking?.cookingMastery?.purple} unspent purple Cooking Mastery point${alerts?.['World 4']?.cooking?.cookingMastery?.purple > 1 ? 's' : ''}`}
+                  iconPath={'etc/CookingMastery'}/> : null}
+              {alerts?.['World 4']?.cooking?.cookingMastery?.yellow > 0 ?
+                <Alert
+                  title={`You have ${alerts?.['World 4']?.cooking?.cookingMastery?.yellow} unspent yellow Cooking Mastery point${alerts?.['World 4']?.cooking?.cookingMastery?.yellow > 1 ? 's' : ''}`}
+                  iconPath={'etc/CookingMastery'}
+                  imgStyle={{ filter: 'sepia(1) saturate(4) hue-rotate(5deg) brightness(1.1)' }}/> : null}
               {alerts?.['World 4']?.breeding?.eggs ? <Alert key={'breeding-eggs'}
                                                             title={`Eggs are at full capacity`}
                                                             iconPath={`data/PetEgg1`}/> : null}

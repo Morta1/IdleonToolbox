@@ -1301,6 +1301,7 @@ const ensureDashboardOptions = (dashboardConfig) => {
   ensure(dashboardConfig?.account?.['World 2']?.arcade?.options, 'unmaxedRotation');
   ensure(dashboardConfig?.account?.['World 2']?.arcade?.options, 'includeSuper', { checked: false });
   ensure(dashboardConfig?.characters?.classSpecific?.options, 'betterRing');
+  ensure(dashboardConfig?.account?.['World 4']?.cooking?.options, 'cookingMastery');
 };
 
 const migration58 = (dashboardConfig) => {
@@ -1312,6 +1313,12 @@ const migration58 = (dashboardConfig) => {
 const migration59 = (dashboardConfig) => {
   ensureDashboardOptions(dashboardConfig);
   dashboardConfig.version = 59;
+  return dashboardConfig;
+};
+
+const migration60 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
+  dashboardConfig.version = 60;
   return dashboardConfig;
 };
 
@@ -1376,6 +1383,7 @@ const migrations = {
   57: migration57,
   58: migration58,
   59: migration59,
+  60: migration60,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {
