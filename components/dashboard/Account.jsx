@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import Link from 'next/link';
 import styled from '@emotion/styled';
 import {
   cleanUnderscore,
@@ -98,13 +99,19 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.General?.materialTracker?.length > 0
                 ?
                 alerts?.General?.materialTracker?.map(({ item, quantityOwned, text, note }, index) =>
-                  <Alert
+                  <Link
                     key={item?.rawName + '' + index}
-                    title={<>
-                      <Typography variant={'subtitle2'}>{text}</Typography>
-                      {note ? <Typography fontWeight={500} variant={'caption'}>Note: {note}</Typography> : null}
-                    </>}
-                    iconPath={`data/${item?.rawName}`}/>)
+                    href={'/tools/material-tracker'}
+                    style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }}>
+                    <Alert
+                      title={<>
+                        <Typography variant={'subtitle2'}>{text}</Typography>
+                        {note ? <Typography fontWeight={500} variant={'caption'}>Note: {note}</Typography> : null}
+                        <Typography variant={'caption'} sx={{ display: 'block', mt: 0.5, opacity: 0.7 }}>Click to open
+                          Material Tracker</Typography>
+                      </>}
+                      iconPath={`data/${item?.rawName}`}/>
+                  </Link>)
                 : null}
               {alerts?.General?.etc?.dungeonTraits?.length > 0
                 ?

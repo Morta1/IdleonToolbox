@@ -25,6 +25,17 @@ import Tabber from './Tabber';
 import Button from '@mui/material/Button';
 import FileUploadButton from '@components/common/DownloadButton';
 import { IconFileExport } from '@tabler/icons-react';
+import Link from 'next/link';
+
+// Static hints that point a tracker's config toggle at the page where its values are set.
+// Kept out of the saved config so it renders for every user regardless of their stored config version.
+const trackerDescriptions = {
+  materialTracker: {
+    text: 'Set item thresholds in',
+    linkText: 'Tools → Material Tracker',
+    href: '/tools/material-tracker'
+  }
+};
 
 const DashboardSettings = ({ open, onClose, config, onChange, onFileUpload }) => {
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
@@ -167,6 +178,12 @@ const Fields = ({ config, onChange, configType, section }) => {
           {showId === trackerName ? <ArrowDropUpIcon/> : <ArrowDropDownIcon/>}
         </IconButton> : null}
       </Stack>
+      {trackerDescriptions[trackerName] ? <FormHelperText sx={{ ml: 4, mt: -0.5, mb: 0.5 }}>
+        {trackerDescriptions[trackerName].text}{' '}
+        <Link href={trackerDescriptions[trackerName].href} style={{ textDecoration: 'underline', color: 'inherit' }}>
+          {trackerDescriptions[trackerName].linkText}
+        </Link>
+      </FormHelperText> : null}
       <Collapse in={showId === trackerName} unmountOnExit>
         <Stack sx={{ ml: 3, mr: 3 }}>
           {data?.options?.map((option, optionIndex) => {

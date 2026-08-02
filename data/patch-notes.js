@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.523',
     'date': '02/08/2026',
     'features': [
-      'Dashboard: new alert for unspent yellow and/or purple Cooking Mastery points'
+      'Dashboard: new alert for unspent yellow and/or purple Cooking Mastery points',
+      'Dashboard: Material Tracker alerts now link to the Material Tracker page, and its config toggle points you there to set thresholds'
     ]
   },
   {
