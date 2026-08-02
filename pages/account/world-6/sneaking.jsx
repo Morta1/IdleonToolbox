@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import Tabber from '@components/common/Tabber';
 import JadeEmporium from '@components/account/Worlds/World6/Sneaking/JadeEmporium';
-import { cleanUnderscore, getTabs, notateNumber, prefix } from '@utility/helpers';
+import { getTabs, notateNumber } from '@utility/helpers';
 import { Breakdown, CardTitleAndValue } from '@components/common/styles';
 import Charms from '@components/account/Worlds/World6/Sneaking/Charms';
 import PlayersInventory from '@components/account/Worlds/World6/Sneaking/PlayersInventory';
@@ -10,6 +10,7 @@ import Upgrades from '@components/account/Worlds/World6/Sneaking/Upgrades';
 import { NextSeo } from 'next-seo';
 import { Stack, Typography } from '@mui/material';
 import Mastery from '@components/account/Worlds/World6/Sneaking/Mastery';
+import Gemstones from '@components/account/Worlds/World6/Sneaking/Gemstones';
 import { PAGES } from '@components/constants';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -60,32 +61,6 @@ const Sneaking = () => {
         </Stack>
       </CardTitleAndValue>
     </Stack>
-    <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-      {gemStones?.map(({ notatedBonus, rawName, name, description, baseValue, saturationPct }, index) => <CardTitleAndValue
-        key={'gemstone-' + index}
-        title={name}
-        stackProps>
-        <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <img style={{ objectFit: 'contain', width: 19, height: 19 }} src={`${prefix}data/${rawName}.png`} alt=""/>
-          <Stack>
-            <Typography component={'div'}>{`${index === 7 ? '+' : ''}${notatedBonus}${index !== 7
-              ? '%'
-              : ''}`}</Typography>
-            <Typography component={'div'} variant={'caption'} color={'text.secondary'}>
-              {notateNumber(baseValue, 'Big')} gems
-            </Typography>
-            <Typography component={'div'} variant={'caption'} color={'text.secondary'}>
-              {(saturationPct || 0).toFixed(1)}% of max
-            </Typography>
-          </Stack>
-          <Tooltip title={cleanUnderscore(description)}>
-            <IconInfoCircleFilled size={18}/>
-          </Tooltip>
-        </Stack>
-      </CardTitleAndValue>)}
-
-    </Stack>
-
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'sneaking')}>
       <PlayersInventory players={players}
                         dropList={dropList}
@@ -98,6 +73,7 @@ const Sneaking = () => {
       <Upgrades upgrades={upgrades}/>
       <Charms charms={pristineCharms}/>
       <Mastery masteryBonuses={ninjaMasteryBonuses} masteryLevel={ninjaMastery}/>
+      <Gemstones gemStones={gemStones}/>
     </Tabber>
   </>
 };

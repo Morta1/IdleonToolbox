@@ -21,6 +21,8 @@ export const getSneaking = (idleonData: any, serverVars: any, charactersData: an
 };
 
 const doorMaxHps = ninjaExtraInfo?.[3];
+// Gemstone counters are capped at 10M gems.
+const GEMSTONE_MAX_VALUE = 1e7;
 
 const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, charactersData: any, account: any) => {
   const gemStonesUnlocked = rawSneaking?.[106]?.filter((name: any) => name.includes('NjGem'));
@@ -44,25 +46,35 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
 
   gemStones = gemStones.map((data, index) => {
     const bonus = data?.baseValue < .5 ? 0 : getGemstoneBonus(data, index, gemStones?.[5]?.bonus, charactersData);
+    // Gem counters cap at 10M, so the highest reachable bonus is the one you'd get at a full counter.
+    const maxBonus = getGemstoneBonus({ ...data, baseValue: GEMSTONE_MAX_VALUE }, index, gemStones?.[5]?.bonus, charactersData);
     let notatedBonus, description = data.description ?? '';
+    // Descriptions using '$' display a diminishing-returns value instead of the raw bonus.
+    const isDiminishing = data.description.includes('$');
+    const displayBonus = isDiminishing ? 100 * (1 - 1 / (1 + bonus / 100)) : bonus;
+    const displayMaxBonus = isDiminishing ? 100 * (1 - 1 / (1 + maxBonus / 100)) : maxBonus;
 
     if (data.description.includes('}')) {
       notatedBonus = notateNumber(bonus, 'Big');
       description = description.replace('}', notatedBonus);
     }
 
-    if (data.description.includes('$')) {
-      notatedBonus = notateNumber(100 * (1 - 1 / (1 + bonus / 100)), 'Big');
+    if (isDiminishing) {
+      notatedBonus = notateNumber(displayBonus, 'Big');
       description = description.replace('$', notatedBonus);
     }
 
     // The bonus formula is x3 + x5 * (baseValue / (1000 + baseValue)).
-    // The saturating term is how close this gemstone is to its max possible bonus (x5 is the asymptotic cap).
-    const saturationPct = data.baseValue / (1e3 + data.baseValue) * 100;
+    // The saturating term is how close this gemstone is to its max possible bonus, normalized to the 10M counter cap.
+    const maxSaturation = GEMSTONE_MAX_VALUE / (1e3 + GEMSTONE_MAX_VALUE);
+    const saturationPct = Math.min(100, data.baseValue / (1e3 + data.baseValue) / maxSaturation * 100);
 
     return {
       ...data,
       bonus,
+      maxBonus,
+      displayBonus,
+      displayMaxBonus,
       notatedBonus,
       saturationPct,
       description: description.replace('{', '+').replace(/@/g, '')

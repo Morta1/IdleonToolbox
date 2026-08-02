@@ -11,7 +11,8 @@ export const patchNotes = [
       'Dashboard: new alert for unspent yellow and/or purple Cooking Mastery points',
       'Dashboard: new alert for unclaimed Tome ranking nametags, which reset monthly',
       'Dashboard: World 7 timers now show an insight level-up countdown per observation',
-      'Dashboard: Material Tracker alerts now link to the Material Tracker page, and its config toggle points you there to set thresholds'
+      'Dashboard: Material Tracker alerts now link to the Material Tracker page, and its config toggle points you there to set thresholds',
+      'Sneaking: gemstones moved to their own tab, with a progress bar showing how close each gem is to its 10M gem cap and a tooltip with the exact current and capped bonus'
     ],
     'fixes': [
       'Material Tracker: items split across multiple stacks in the same storage or inventory now count every stack instead of only the first',
