@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 60,
+  version: 61,
   account: {
     General: {
       tasks: {
@@ -273,6 +273,16 @@ const baseTrackers = {
         checked: true, options: [
           { name: 'chipsRotation', checked: true },
           { name: 'jewelsRotation', checked: true }
+        ]
+      },
+      tome: {
+        checked: true,
+        options: [
+          {
+            name: 'nametagClaim',
+            checked: true,
+            helperText: 'Alert when Tome ranking nametags are available to claim'
+          }
         ]
       }
     },

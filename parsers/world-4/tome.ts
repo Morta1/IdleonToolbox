@@ -88,13 +88,32 @@ export const getTome = (idleonData: IdleonData, account: Account, characters: an
     }
   }
   tops = tops.toSorted((a: number, b: number) => b - a)
+
+  // Tome nametag rewards: reaching rank tiers 0-6 (Top 50% down to Top 0.1%) each grant one
+  // claimable nametag (EquipmentNametag22..28). accountOptions[447] = nametags claimed this period,
+  // accountOptions[448] = month stamp of last reset. The tome (and claim count) reset ~monthly, so
+  // if the stored month stamp no longer matches the current month the claimed count is treated as 0.
+  const nametagClaim = getNametagClaim(account, top, serverVars);
+
   return {
     tome,
     bonuses,
     totalPoints,
     tops,
-    top
+    top,
+    nametagClaim
   };
+}
+
+const getNametagClaim = (account: any, top: number, serverVars: any) => {
+  const tomeUnlocked = serverVars?.TomeOn === 1;
+  const claimed = account?.accountOptions?.[447] ?? 0;
+  const monthStamp = account?.accountOptions?.[448] ?? 0;
+  const currentMonth = Math.floor((account?.timeAway?.GlobalTime ?? 0) / 2628e3);
+  const effectiveClaimed = currentMonth !== monthStamp ? 0 : claimed;
+  const rewardTier = top >= 0 && top <= 6 ? Math.min(top, 6) : -1;
+  const available = rewardTier >= 0 ? Math.max(0, rewardTier + 1 - effectiveClaimed) : 0;
+  return { tomeUnlocked, available, claimed: effectiveClaimed, rewardTier };
 }
 
 const getRequiredQuantitiesEfficient = (bonus: any) => {

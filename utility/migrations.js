@@ -1322,6 +1322,26 @@ const migration60 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration61 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
+  if (!dashboardConfig.account) dashboardConfig.account = {};
+  if (!dashboardConfig.account['World 4']) dashboardConfig.account['World 4'] = {};
+  if (!dashboardConfig.account['World 4'].tome) {
+    dashboardConfig.account['World 4'].tome = {
+      checked: true,
+      options: [
+        {
+          name: 'nametagClaim',
+          checked: true,
+          helperText: 'Alert when Tome ranking nametags are available to claim'
+        }
+      ]
+    };
+  }
+  dashboardConfig.version = 61;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1384,6 +1404,7 @@ const migrations = {
   58: migration58,
   59: migration59,
   60: migration60,
+  61: migration61,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

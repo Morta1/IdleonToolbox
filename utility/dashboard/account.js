@@ -767,6 +767,18 @@ export const getWorld4Alerts = (account, fields, options) => {
       alerts.cooking = cooking;
     }
   }
+  if (fields?.tome?.checked) {
+    const tome = {};
+    if (options?.tome?.nametagClaim?.checked) {
+      const { tomeUnlocked, available } = account?.tome?.nametagClaim || {};
+      if (tomeUnlocked && available > 0) {
+        tome.nametagClaim = available;
+      }
+    }
+    if (Object.keys(tome).length > 0) {
+      alerts.tome = tome;
+    }
+  }
   if (fields?.laboratory?.checked) {
     const laboratory = {};
     let labRotation = getChipsAndJewels(account, 1)?.at(0)?.items || [];

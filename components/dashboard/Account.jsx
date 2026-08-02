@@ -325,6 +325,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   title={`You can claim ${cleanUnderscore(name)} in jewel repository`}
                   iconPath={`data/${rawName}`}/>)
                 : null}
+              {alerts?.['World 4']?.tome?.nametagClaim > 0 ?
+                <Alert key={'tome-nametag-claim'}
+                       title={`You have ${alerts?.['World 4']?.tome?.nametagClaim} Tome ranking nametag${alerts?.['World 4']?.tome?.nametagClaim > 1 ? 's' : ''} available to claim`}
+                       iconPath={'data/EquipmentNametag22'}/> : null}
               {alerts?.['World 4']?.cooking?.spices > 0 ?
                 <Alert title={`You have ${alerts?.['World 4']?.cooking?.spices} spice clicks left`}
                        iconPath={'data/CookingSpice0'}/> : null}
