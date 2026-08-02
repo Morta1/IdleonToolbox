@@ -85,7 +85,13 @@ All user-facing dates and times must respect user preferences (DD/MM vs MM/DD, 2
 This project uses **React Compiler** (`reactCompiler: true` in `next.config.js`), so manual memoization with `useMemo` and `useCallback` is generally unnecessary. The compiler automatically optimizes component re-renders.
 
 ### Patch notes
-Make sure the patch notes are concise and easy to understand, don't add too much information.
+Every user-facing change (feature or fix) gets a patch note entry in `@IdleonToolbox/data/patch-notes.js`.
+
+- Add it as part of the change itself, in the same commit — don't leave it for later.
+- Append to the top (newest) entry's `features` or `fixes` array if that version hasn't shipped yet; only add a new version entry when the top one is already released.
+- Make sure the patch notes are concise and easy to understand, don't add too much information.
+- Describe the user-visible effect, not the implementation.
+- Skip only for changes users can't see: refactors, tests, tooling, docs, type-only changes.
 
 ### Multi-pass serialization rule
 
