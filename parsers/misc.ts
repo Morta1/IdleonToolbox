@@ -879,7 +879,7 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
           { name: 'Purp Mushroom Companion', value: companionBonus },
           { name: 'Legend Talent', value: legendTalentBonus },
           { name: 'Card', value: cardBonus },
-          { name: 'Potluck Companion', value: companionBonus155 },
+          { name: 'Vanillie Companion', value: companionBonus155 },
           { name: 'Vault Upgrade', value: vaultBonus86 }
         ],
         subSections: [

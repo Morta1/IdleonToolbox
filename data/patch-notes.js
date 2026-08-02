@@ -14,7 +14,8 @@ export const patchNotes = [
       'Dashboard: Material Tracker alerts now link to the Material Tracker page, and its config toggle points you there to set thresholds'
     ],
     'fixes': [
-      'Material Tracker: items split across multiple stacks in the same storage or inventory now count every stack instead of only the first'
+      'Material Tracker: items split across multiple stacks in the same storage or inventory now count every stack instead of only the first',
+      'Golden Food: the companion source in the breakdown is now correctly named Vanillie instead of Potluck'
     ]
   },
   {
