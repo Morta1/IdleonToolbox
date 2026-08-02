@@ -43,7 +43,7 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
   const occurrenceFoundState = raw[2] ?? [];
   const observationInsightExp = raw[3] ?? []; // current insight EXP per observation (progress to next level)
   const observationInsight = raw[4] ?? []; // insight level per observation
-  // raw[5] = 80 shapes × 4: [pixelX, pixelY, observationIndex, type] per shape. Type: 0=EXP, 1=Kaleidoscope, 2=Magnifier.
+  // raw[5] = 80 shapes × 4: [pixelX, pixelY, observationIndex, type] per shape. Type: 0=Magnifying Glass (Research EXP), 1=Optical Monocle (Insight), 2=Kaleidoscope.
   const shapePlacements = raw[5] ?? [];
   const optionsListAccount = account?.accountOptions ?? [];
   // raw[9] = sticker level per sticker type (farming: indices 0–4)
@@ -88,7 +88,7 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
   );
   const gridPTSavailable = Math.round(gridPTSearned - gridPTSpent);
 
-  // Map grid index -> shape type (0=EXP, 1=Kaleidoscope, 2=Magnifier). Game stores cell->shape in raw[1], type in raw[5][4*shapeIndex+3].
+  // Map grid index -> shape type (0=Magnifying Glass (Research EXP), 1=Optical Monocle (Insight), 2=Kaleidoscope). Game stores cell->shape in raw[1], type in raw[5][4*shapeIndex+3].
   const gridIndexToPlacementType: Record<number, any> = {};
   for (let gridCellIndex = 0; gridCellIndex < 240; gridCellIndex++) {
     const shapeIndexOnCell = gridShapeIndex[gridCellIndex];
@@ -112,7 +112,7 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
     const canSelect = getResearchGridCanSelect(research, index);
     const gridRow = Math.floor(index / 20);
     const gridCol = index % 20;
-    const placementType = gridIndexToPlacementType[index] ?? null; // 0=EXP, 1=Kaleidoscope, 2=Magnifier
+    const placementType = gridIndexToPlacementType[index] ?? null; // 0=Magnifying Glass (Research EXP), 1=Optical Monocle (Insight), 2=Kaleidoscope
     const shapeIndexOnCell = gridShapeIndex[index];
     const placementShapeIndex =
       shapeIndexOnCell != null && Number(shapeIndexOnCell) >= 0 ? Number(shapeIndexOnCell) : null;
@@ -193,7 +193,7 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
     const insightExpRate = realInsightExpRate * researchEXPmulti;
     const researchEXPrate = getResearchEXPrateObj(account, research, observationIndex) * researchEXPmulti;
     const occurrenceData = occurrencesList[observationIndex];
-    // Lenses on this observation: type 0 = Magnifying glass, 1 = Kaleidoscope, 2 = Optical Monocle
+    // Lenses on this observation: type 0 = Magnifying Glass (Research EXP), 1 = Optical Monocle (Insight), 2 = Kaleidoscope
     const lensTypes: any[] = [];
     for (let shapeSlotIndex = 0; shapeSlotIndex < numShapeSlots; shapeSlotIndex++) {
       if (Number(shapePlacementsList[4 * shapeSlotIndex + 2]) === observationIndex) {
@@ -223,7 +223,7 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
       insightExpRate,
       realInsightExpRate,
       researchEXPrate,
-      lensTypes, // 0 = Magnifying glass, 1 = Kaleidoscope, 2 = Optical Monocle
+      lensTypes, // 0 = Magnifying Glass (Research EXP), 1 = Optical Monocle (Insight), 2 = Kaleidoscope
       canLevelUp: found && researchLevel >= (occurrenceData?.researchLvReq ?? 0) && gridBonus91Lv >= 1
     });
   }
@@ -494,17 +494,17 @@ function getObservationInsightExpREQ(observationIndex: any, insightLevel: any) {
 function getObservationInsightExpRate(account: any, research: any, observationIndex: any) {
   const shapePlacements = research?.shapePlacements ?? [];
   const numShapeSlots = Math.round((shapePlacements?.length ?? 0) / 4);
-  let kaleidoscopeCountOnObservation = 0;
+  let opticalMonocleCountOnObservation = 0;
   for (let shapeSlotIndex = 0; shapeSlotIndex < numShapeSlots; shapeSlotIndex++) {
     const slotType = Number(shapePlacements?.[4 * shapeSlotIndex + 3]);
     const slotObsIndex = Number(shapePlacements?.[4 * shapeSlotIndex + 2]);
-    if (slotType === 1 && slotObsIndex === observationIndex) kaleidoscopeCountOnObservation++;
+    if (slotType === 1 && slotObsIndex === observationIndex) opticalMonocleCountOnObservation++;
   }
   const grid92Bonus = getResearchGridBonusInternal(account, research, 92, 0);
   const grid91Bonus = getResearchGridBonusInternal(account, research, 91, 0);
   const opticalMonocle = Number(isJadeBonusUnlocked(account, 'Optimal_Optometry'));
   const kaleidoscopeMultiplier = getKaleiMultiTot(account, research, observationIndex);
-  return 3 * kaleidoscopeCountOnObservation * (1 + (grid92Bonus + grid91Bonus) / 100) * (1 + 35 * opticalMonocle / 100) * kaleidoscopeMultiplier;
+  return 3 * opticalMonocleCountOnObservation * (1 + (grid92Bonus + grid91Bonus) / 100) * (1 + 35 * opticalMonocle / 100) * kaleidoscopeMultiplier;
 }
 
 /** Grid_CanWeSelect: whether this grid square can be selected in the UI. */

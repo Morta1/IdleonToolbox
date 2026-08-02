@@ -159,6 +159,17 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
     }
     : null;
 
+  // Per-observation insight level-up timers: found + kaleidoscope lens (type 1) + actively gaining insight XP.
+  // Use realInsightExpRate (actual level-up speed), NOT insightExpRate (in-game displayed rate — does not match).
+  const observationInsightTimes = (account?.research?.observations ?? [])
+    .filter((obs) => obs?.found && obs?.lensTypes?.includes(1) && obs?.realInsightExpRate > 0)
+    .map((obs) => ({
+      index: obs.index,
+      name: obs.name,
+      insightLevel: obs.insightLevel,
+      time: now + ((obs.insightExpREQ - obs.insightExp) / obs.realInsightExpRate) * 3600 * 1000
+    }));
+
   const fountainBars = account?.hole?.caverns?.theFountain?.fountainBars ?? [];
   const coinFillBar = fountainBars.find((b) => b.tier === 0);
   const marbleFillBar = fountainBars.find((b) => b.tier === 1);
@@ -488,6 +499,17 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             timerPlaceholder={'Full!'}
             forcePlaceholder={sushiFuelIsFull}
           /> : null}
+        {trackers?.['World 7']?.observationInsight?.checked
+          ? observationInsightTimes.map((obs) =>
+            <TimerCard
+              key={`observation-insight-${obs.index}`}
+              page={'account/world-7/research'}
+              tooltipContent={`${cleanUnderscore(obs.name)} → insight Lv. ${obs.insightLevel + 1}`}
+              lastUpdated={lastUpdated}
+              time={obs.time}
+              icon={'data/ResMagni1.png'}
+            />)
+          : null}
       </Section>}
 
       {trackers?.Etc?.minibosses?.checked && <Section title={'Bosses'}>

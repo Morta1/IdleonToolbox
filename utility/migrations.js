@@ -1342,6 +1342,15 @@ const migration61 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration62 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
+  if (dashboardConfig?.timers?.['World 7'] && !dashboardConfig?.timers?.['World 7']?.observationInsight) {
+    dashboardConfig.timers['World 7'].observationInsight = { checked: true, options: [] };
+  }
+  dashboardConfig.version = 62;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1405,6 +1414,7 @@ const migrations = {
   59: migration59,
   60: migration60,
   61: migration61,
+  62: migration62,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {
