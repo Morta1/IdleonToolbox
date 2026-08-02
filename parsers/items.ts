@@ -185,11 +185,13 @@ export const findItemInInventory = (arr: any, itemName: any) => {
   return arr.reduce((res: any, item: any) => {
     const { name, owner, amount } = item;
     if (name === itemName) {
+      // an owner can hold the same item in multiple stacks, sum them all
+      const stackAmount = amount ?? 1;
       if (res?.[owner]) {
-        return { ...res, [owner]: { amount: res?.[owner]?.amount + 1 } };
+        return { ...res, [owner]: { amount: res?.[owner]?.amount + stackAmount } };
       }
       else {
-        return { ...res, [owner]: { amount } };
+        return { ...res, [owner]: { amount: stackAmount } };
       }
     }
     return res;
