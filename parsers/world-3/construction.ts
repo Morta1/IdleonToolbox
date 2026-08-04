@@ -5,14 +5,39 @@ import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import {
+  BOARD_SIZE,
+  BOARD_X,
+  BOARD_Y,
+  evaluateBoard,
+  excogiaPieceIndex,
+  getAssembledExcogiaSlots,
+  stripExcogiaBoost
+} from '@parsers/world-3/constructionOptimizer';
 import type { IdleonData, Account } from '../types';
 
-export const getConstruction = (idleonData: IdleonData, account: Account) => {
+// The board maths lives in its own module so the optimizer can run in a Web Worker without pulling
+// website-data in. Re-exported here because everything already imports it from this file.
+export {
+  BOARD_SIZE,
+  BOARD_X,
+  BOARD_Y,
+  evaluateBoard,
+  getAffectedIndexes,
+  getAllBoostedCogs,
+  getBoardAtStep,
+  optimizeArrayWithSwaps,
+  WEIGHTED_STAT,
+  WEIGHTED_STAT_KEYS
+} from '@parsers/world-3/constructionOptimizer';
+export type { OptimizeMove, OptimizeOptions, StatWeights, WeightedStatKey } from '@parsers/world-3/constructionOptimizer';
+
+export const getConstruction = (idleonData: IdleonData, account: Account, characters?: any[]) => {
   const cogMapRaw = idleonData?.CogMap || tryToParse(idleonData?.CogM);
   const cogOrderRaw = idleonData?.CogOrder || tryToParse(idleonData?.CogO);
   const cogMap = createCogMap(cogMapRaw, cogOrderRaw?.length);
   const cogsMap = parseConstruction(cogMap);
-  const board = getFlags(idleonData, cogsMap, cogOrderRaw, account);
+  const board = getFlags(idleonData, cogsMap, cogOrderRaw, account, characters);
   const cogstruction = createCogstructionData(cogsMap, cogOrderRaw);
   return {
     ...board,
@@ -20,10 +45,10 @@ export const getConstruction = (idleonData: IdleonData, account: Account) => {
   };
 }
 
-export const getFlags = (idleonData: IdleonData, cogsMap: any[], cogOrderRaw: any[], account: Account) => {
+export const getFlags = (idleonData: IdleonData, cogsMap: any[], cogOrderRaw: any[], account: Account, characters?: any[]) => {
   const flagsUnlockedRaw = idleonData?.FlagUnlock || tryToParse(idleonData?.FlagU);
   const flagsPlacedRaw = idleonData?.FlagsPlaced || tryToParse(idleonData?.FlagP);
-  return parseFlags(flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogOrderRaw, account);
+  return parseFlags(flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogOrderRaw, account, characters);
 }
 
 const parseConstruction = (cogMap: any[]) => {
@@ -43,16 +68,15 @@ const createCogMap = (cogMap: any, length: number) => {
   return array;
 }
 
-export const BOARD_Y = 8;
-export const BOARD_X = 12;
+export const SPARE_START_INDEX = 96;  // CogOrder 96-107 are character slots, 108-227 the cog inventory
 export const LEFT_COL_INDEX = 228;
 export const RIGHT_COL_INDEX = 240;
 export const EXTRA_COL_HEIGHT = 12;
 export const LEFT_FLAG_INDEX = 96;   // FlagUnlock/FlagsPlaced indices for left extra column
 export const RIGHT_FLAG_INDEX = 108; // FlagUnlock/FlagsPlaced indices for right extra column
 
-const parseFlags = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any[], cogsOrder: any[], account: Account) => {
-  let board = flagsUnlockedRaw?.slice(0, BOARD_X * BOARD_Y)?.reduce((res, flagSlot, index) => {
+const parseFlags = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any[], cogsOrder: any[], account: Account, characters?: any[]) => {
+  let board = flagsUnlockedRaw?.slice(0, BOARD_SIZE)?.reduce((res, flagSlot, index) => {
     const name = cogsOrder?.[index];
     const stats = cogsMap?.[index];
     return [...res, {
@@ -66,6 +90,11 @@ const parseFlags = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any
       }
     }];
   }, []);
+  // An Excogia piece outside an assembled square carries no boost, whatever the save still says.
+  const assembledSlots = getAssembledExcogiaSlots(board);
+  board = board.map((slot: any, index: number) => (excogiaPieceIndex(slot?.cog?.name) >= 0 && !assembledSlots.has(index)
+    ? { ...slot, cog: stripExcogiaBoost(slot.cog) }
+    : slot));
   const gemShop = (account?.gemShopPurchases as any[])?.find((value: any, index: any) => index === 118) ?? 0;
   const flaggyMulti = (1 + 50 * gemShop / 100)
   const playersBuildRate = cogsMap?.map((cog, index) => ({
@@ -73,24 +102,45 @@ const parseFlags = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any
     name: cogsOrder?.[index]
   })).filter(({ name }) => name?.includes('Player_'))
     .reduce((sum, { a }) => sum + (a?.value || 0), 0);
-  const firstBoard = evaluateBoard(board);
+  const firstBoard = evaluateBoard(board, characters);
   const leftColumn = buildExtraColumn(flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, LEFT_COL_INDEX, LEFT_FLAG_INDEX);
   const rightColumn = buildExtraColumn(flagsUnlockedRaw, flagsPlacedRaw, cogsMap, cogsOrder, RIGHT_COL_INDEX, RIGHT_FLAG_INDEX);
-  const smallCogExpMulti = 1 + getSmallCogBonusTotal(cogsOrder, 2) / 100;
+  const expRateMulti = 1 + getSmallCogBonusTotal(cogsOrder, 2) / 100;
   const finalFlaggyRate = firstBoard?.totalFlaggyRate * flaggyMulti;
+  // ExtraBuildSPDmulti and ExtraFlaggyRatemulti are deliberately not applied to these totals. The
+  // game bakes them into the character cogs' own stats before the board is summed (N.js:93466), so
+  // they are already inside the numbers below - multiplying again counts them twice, and would also
+  // apply them to plain cogs that never get them. Only the gem flaggy and small cog exp multipliers
+  // act on the total (N.js:93493 and :93495), which is what the two above are.
   return {
     ...firstBoard,
     baseBoard: board,
+    spareCogs: buildSpareCogs(cogsMap, cogsOrder),
+    // Passed straight back into optimizeArrayWithSwaps so an optimized board reports on the same basis.
+    boardMultipliers: { flaggy: flaggyMulti, exp: expRateMulti },
     totalFlaggyRate: finalFlaggyRate,
-    totalExpRate: firstBoard?.totalExpRate * smallCogExpMulti,
+    totalExpRate: firstBoard?.totalExpRate * expRateMulti,
     playersBuildRate,
     leftColumn,
     rightColumn,
+    smallCogs: getSmallCogUpgrades(cogsOrder, [...leftColumn, ...rightColumn]),
     board: firstBoard?.board?.map((slot: any) => ({
       ...slot,
       flagSpeed: slot.flagSpeedBoost * finalFlaggyRate
     }))
   };
+}
+
+// Cogs sitting in the character slots / cog inventory. The optimizer may pull these onto the board.
+const buildSpareCogs = (cogsMap: any[], cogsOrder: any[]) => {
+  const spares = [];
+  for (let index = SPARE_START_INDEX; index < LEFT_COL_INDEX; index++) {
+    const name = cogsOrder?.[index];
+    if (!name || name === 'Blank') continue;
+    if (name.startsWith('CogSm')) continue; // small cogs only fit the side columns
+    spares.push({ name, stats: cogsMap?.[index] ?? {}, originalIndex: index });
+  }
+  return spares;
 }
 
 const getSmallCogRawBonus = (cogName: string): { typeIndex: number; bonus: number } | null => {
@@ -118,6 +168,146 @@ const getSmallCogStats = (cogName: string) => {
   const statName = statNames[typeIndex] ?? 'x_Total_Build_Rate';
   return { [statKey]: { name: statName, value: multiplier } };
 };
+
+// The game builds a cog's name from its raw id rather than storing one (N.js:67410). Same tables
+// here so the UI can call a cog what the game calls it instead of showing "Cog3B0".
+const COG_TIERS: Record<string, string> = { '0': 'Nooby', '1': 'Decent', '2': 'Superb', '3': 'Ulti', Z: 'Yin', S: 'Tiny' };
+const CRYSTAL_COGS = ['Topaz', 'Ruby', 'Amethyst', 'Garnet', 'Emerald', 'Bluegem'];
+// Keyed on characters 5-6 of the id, for cogs whose boost has a shape.
+const COG_SHAPES: Record<string, string> = {
+  ad: 'Adjay', di: 'Diggle', le: 'Leff', ri: 'Rite', up: 'Uppy',
+  do: 'Downer', cn: 'Sniper', co: 'Collumm', ro: 'Rowow'
+};
+// Same two characters, for the plain cogs. A0 is the bare tier name with no grade word.
+const COG_GRADES: Record<string, string> = {
+  A0: '', A1: 'Average', A2: 'Spur', A3: 'Stacked', A4: 'Deckered',
+  B0: 'Double', B1: 'Trips', B2: 'Trabble', B3: 'Quad', B4: 'Penta'
+};
+const SMALL_COG_STATS = ['Flaggy', 'Build', 'XP'];
+
+/** What the game calls a cog, e.g. Cog3B0 -> "Ulti Double Cog". */
+export const getCogDisplayName = (rawName?: string): string => {
+  if (!rawName || rawName === 'Blank') return rawName ?? '';
+  if (rawName.startsWith('Player_')) return rawName.slice(7);
+  if (!rawName.startsWith('Cog')) return rawName;
+
+  const tierChar = rawName.charAt(3);
+  const pair = rawName.substring(4, 6);
+  if (tierChar === 'C') return `${CRYSTAL_COGS[Number(rawName.replace('CogCry', ''))] ?? 'Glitched'} Cog`;
+  if (tierChar === 'Y') return 'Yang Cog';
+  if (tierChar === 'S') {
+    const stat = SMALL_COG_STATS[number2letter.indexOf(rawName.charAt(5))];
+    return `Tiny T${Number(rawName.substring(6)) + 1}${stat ? ` ${stat}` : ''} Cog`;
+  }
+  // The four gem shop pieces are all "Yin Cog" to the game, which is useless in a list of steps.
+  const excogiaPiece = excogiaPieceIndex(rawName);
+  if (excogiaPiece >= 0) return `Excogia piece ${excogiaPiece + 1}`;
+
+  const tier = COG_TIERS[tierChar] ?? 'Glitched';
+  if (number2letter.includes(rawName.charAt(5))) return `${tier} ${COG_SHAPES[pair] ?? 'Omni'} Cog`;
+  const grade = COG_GRADES[pair] ?? 'Mongo';
+  return `${tier}${grade ? ` ${grade}` : ''} Cog`;
+}
+
+// number2letter[0] is '_', so the letter after "CogSm" maps to 0 flaggy, 1 build, 2 construction XP.
+const SMALL_COG_TYPES = [
+  { key: 'flaggy', label: 'Flaggy rate' },
+  { key: 'build', label: 'Build rate' },
+  { key: 'constructionXp', label: 'Construction XP' }
+] as const;
+
+export interface SmallCog {
+  name: string;
+  /** CogOrder index, so a side slot and an inventory cog can be told apart. */
+  originalIndex: number;
+  typeIndex: number;
+  type: string;
+  typeLabel: string;
+  bonus: number;
+}
+
+export interface SmallCogUpgrade extends SmallCog {
+  /** The cog currently in the slot, or null when the slot is simply empty. */
+  replaces: SmallCog | null;
+  slotIndex: number;
+  slotLabel: string;
+  /** How much the type's total goes up, as a percentage of the rate it multiplies. */
+  gainPercent: number;
+}
+
+const describeSmallCog = (name: string, originalIndex: number): SmallCog | null => {
+  const raw = getSmallCogRawBonus(name);
+  const type = SMALL_COG_TYPES[raw?.typeIndex ?? -1];
+  if (!raw || !type) return null;
+  return { name, originalIndex, typeIndex: raw.typeIndex, type: type.key, typeLabel: type.label, bonus: raw.bonus };
+};
+
+const sideSlotLabel = (slotIndex: number) => (slotIndex < RIGHT_COL_INDEX
+  ? `Left #${slotIndex - LEFT_COL_INDEX + 1}`
+  : `Right #${slotIndex - RIGHT_COL_INDEX + 1}`);
+
+/**
+ * Small cogs only fit the side columns and their bonuses are a flat sum, so where they sit makes no
+ * difference - the only thing worth reporting is a stronger one going unused in the inventory.
+ * Same-type swaps only: trading a flaggy cog for a build one is a judgement call, not an upgrade.
+ */
+export const getSmallCogUpgrades = (cogsOrder: any[], sideSlots: any[]): { upgrades: SmallCogUpgrade[]; spares: SmallCog[]; freeSlots: number } => {
+  const spares: SmallCog[] = [];
+  for (let index = SPARE_START_INDEX; index < LEFT_COL_INDEX; index++) {
+    const cog = describeSmallCog(cogsOrder?.[index], index);
+    if (cog) spares.push(cog);
+  }
+
+  // A slot you cannot put a cog in today is not an opportunity.
+  const usable = sideSlots.filter((slot: any) => !slot?.flagPlaced
+    && (slot?.currentAmount ?? 0) >= (slot?.requiredAmount ?? 0));
+  const placed = usable
+    .map((slot: any) => ({ slotIndex: slot?.cog?.originalIndex, cog: describeSmallCog(slot?.cog?.name, slot?.cog?.originalIndex) }))
+    .filter(({ cog }) => cog);
+  const freeSlots = usable.length - placed.length;
+
+  const totals = SMALL_COG_TYPES.map((_, typeIndex) => getSmallCogBonusTotal(cogsOrder, typeIndex));
+  const upgrades: SmallCogUpgrade[] = [];
+  const taken = new Set<number>();
+
+  // Empty slots first - anything that lands there is a pure gain, so it should not lose a strong
+  // spare to a swap that only nets the difference.
+  const byBonus = [...spares].sort((a, b) => b.bonus - a.bonus);
+  for (let index = 0; index < Math.min(freeSlots, byBonus.length); index++) {
+    const cog = byBonus[index];
+    const slot = usable.find((s: any) => !describeSmallCog(s?.cog?.name, 0) && !taken.has(s?.cog?.originalIndex));
+    taken.add(cog.originalIndex);
+    if (slot) taken.add(slot.cog.originalIndex);
+    upgrades.push({
+      ...cog,
+      replaces: null,
+      slotIndex: slot?.cog?.originalIndex ?? -1,
+      slotLabel: slot ? sideSlotLabel(slot.cog.originalIndex) : 'Empty slot',
+      gainPercent: (cog.bonus / (100 + totals[cog.typeIndex])) * 100
+    });
+  }
+
+  SMALL_COG_TYPES.forEach((_, typeIndex) => {
+    const weakestFirst = placed.filter(({ cog }) => cog!.typeIndex === typeIndex)
+      .sort((a, b) => a.cog!.bonus - b.cog!.bonus);
+    const strongestFirst = spares.filter((cog) => cog.typeIndex === typeIndex && !taken.has(cog.originalIndex))
+      .sort((a, b) => b.bonus - a.bonus);
+    for (let index = 0; index < Math.min(weakestFirst.length, strongestFirst.length); index++) {
+      const current = weakestFirst[index].cog!;
+      const candidate = strongestFirst[index];
+      if (candidate.bonus <= current.bonus) break;
+      upgrades.push({
+        ...candidate,
+        replaces: current,
+        slotIndex: weakestFirst[index].slotIndex,
+        slotLabel: sideSlotLabel(weakestFirst[index].slotIndex),
+        gainPercent: ((candidate.bonus - current.bonus) / (100 + totals[typeIndex])) * 100
+      });
+    }
+  });
+
+  return { upgrades: upgrades.sort((a, b) => b.gainPercent - a.gainPercent), spares, freeSlots };
+}
 
 const getSmallCogBonusTotal = (cogsOrder: any[], typeIndex: number) => {
   let total = 0;
@@ -160,239 +350,6 @@ const buildExtraColumn = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMa
   return column;
 }
 
-const swapElements = (board: any[], index1: number, index2: number) => {
-  // Create a new array with the same objects as the original board
-  const newBoard = [...board];
-
-  // Swap the inner properties (cog objects) at the specified indices
-  const tempCog = { ...newBoard[index1]?.cog };
-  newBoard[index1] = {
-    ...newBoard[index1],
-    cog: { ...newBoard[index2]?.cog }
-  };
-  newBoard[index2] = {
-    ...newBoard[index2],
-    cog: tempCog
-  };
-
-  return newBoard;
-}
-
-export const optimizeArrayWithSwaps = (arr: any[], stat: string, time: number = 2500, characters?: any[]) => {
-  let currentSolution = [...arr];
-  let best = evaluateBoard(currentSolution, characters)
-  let currentScore = (best as any)?.[stat];
-  let moves: any[] = [];
-  const startTime = Date.now();
-
-  while (Date.now() - startTime < time) {
-    const randomIndex1 = Math.floor(Math.random() * currentSolution.length);
-    const randomIndex2 = Math.floor(Math.random() * currentSolution.length);
-
-    if (randomIndex1 === randomIndex2) {
-      continue; // Skip the swap if the same index is selected
-    }
-
-    // Additional conditions to skip the swap
-    if (
-      currentSolution?.[randomIndex1]?.currentAmount < currentSolution?.[randomIndex1]?.requiredAmount ||
-      currentSolution?.[randomIndex2]?.currentAmount < currentSolution?.[randomIndex2]?.requiredAmount ||
-      currentSolution?.[randomIndex1]?.flagPlaced ||
-      currentSolution?.[randomIndex1]?.cog?.stats?.h === 'everything' ||
-      currentSolution?.[randomIndex2]?.flagPlaced ||
-      currentSolution?.[randomIndex2]?.cog?.stats?.h === 'everything'
-    ) {
-      continue; // Skip the swap if any of the conditions are met
-    }
-
-    const newSolution = swapElements(currentSolution, randomIndex1, randomIndex2);
-    const newBoard = evaluateBoard(newSolution, characters);
-    if ((newBoard as any)?.[stat] > currentScore) {
-      // If a lower score is better, use "<". If higher is better, use ">".
-      best = newBoard;
-      currentSolution = newSolution;
-      currentScore = (newBoard as any)?.[stat];
-      moves = [...moves, { from: randomIndex1, to: randomIndex2 }];
-    }
-  }
-
-  return { ...best, moves };
-}
-
-const evaluateBoard = (currentBoard: any[], characters?: any[]) => {
-  const { boosted, relations } = getAllBoostedCogs(currentBoard);
-  let totalBuildRate = 0, totalExpRate = 0, totalFlaggyRate = 0, totalPlayerExpRate = 0;
-  let updatedBoard = currentBoard?.map((slot, index) => {
-    const { cog } = slot || {};
-    const { e: boostedBuildRate, g: boostedFlaggyRate, f: characterExpPerHour, j: boostedFlagSpeed } = boosted?.[index] || {};
-    const cogBaseBuildRate = cog?.stats?.a?.value || 0;
-    const cogBaseFlaggyRate = cog?.stats?.c?.value || 0;
-    const cogBasePlayerCharacterExp = cog?.stats?.b?.value || 0;
-    let playerExp = 0;
-    if (cog?.name?.includes('Player_')) {
-      const character = characters?.find(({ name }) => name === cog?.name.replace('Player_', ''));
-      if (!character) {
-        totalPlayerExpRate += cogBasePlayerCharacterExp
-      } else {
-        playerExp = character?.constructionExpPerHour * (1 + (characterExpPerHour?.value || 0) / 100);
-        totalPlayerExpRate += playerExp;
-      }
-    }
-
-    const buildRate = cogBaseBuildRate * (1 + (boostedBuildRate?.value || 0) / 100);
-    totalBuildRate += Math.max(buildRate, 0);
-
-    totalExpRate += cog?.stats?.d?.value || 0;
-
-    const flaggyRate = cogBaseFlaggyRate + (cogBaseFlaggyRate * (boostedFlaggyRate?.value || 0) / 100);
-    totalFlaggyRate += Math.max(flaggyRate, 0);
-
-    const flagSpeedBoost = slot?.flagPlaced ? 1 + (boostedFlagSpeed?.value || 0) / 100 : 0;
-
-    return {
-      ...slot,
-      cog: {
-        ...cog,
-        stats: {
-          ...cog?.stats,
-          a: { ...cog?.stats?.a, value: buildRate },
-          c: { ...cog?.stats?.c, value: flaggyRate },
-          ...(characters ? { b: { ...cog?.stats?.b, value: playerExp } } : {})
-        }
-      },
-      flagSpeedBoost,
-      affectedBy: relations?.[index] || [],
-      affects: Object.entries(relations)
-        .filter(([_, affectingIndices]) => (affectingIndices as any[]).includes(index))
-        .map(([affectedIndex]) => parseInt(affectedIndex))
-    };
-  });
-  if (characters) {
-    updatedBoard = updatedBoard?.map((slot) => {
-      if (slot?.cog?.name?.includes('Player_')) {
-        return {
-          ...slot,
-          cog: {
-            ...slot?.cog,
-            stats: {
-              ...slot?.cog?.stats,
-              b: { ...slot?.cog?.stats?.b, value: slot?.cog?.stats?.b?.value * (1 + totalExpRate / 100) }
-            }
-          }
-        }
-      }
-      return slot;
-    })
-  }
-  return {
-    totalBuildRate,
-    totalExpRate,
-    totalFlaggyRate,
-    totalPlayerExpRate: totalPlayerExpRate * (characters ? (1 + totalExpRate / 100) : 1),
-    board: updatedBoard
-  };
-}
-
-export const getAllBoostedCogs = (board: any[]) => {
-  const relations: Record<number, any[]> = {};
-  let boosted = new Array(BOARD_X * BOARD_Y).fill(0);
-  for (let y = 0; y < BOARD_Y; y++) {
-    for (let x = 0; x < BOARD_X; x++) {
-      const index = (7 - y) * 12 + x;
-      const currentCog = board?.[index]?.cog;
-      const currentCogStats = board?.[index]?.cog?.stats || {};
-      let affected: any = getAffectedIndexes(currentCog, x, y);
-      if (affected?.length > 0) {
-        affected = (affected as any[])?.map(([x, y]: any) => (x < 0 || y < 0 || x >= BOARD_X || y >= BOARD_Y)
-          ? null
-          : (7 - y) * 12 + x)?.filter((num: any) => num !== null) as number[];
-        const { e, f, g, j } = currentCogStats || {};
-        if (e || f || g || j) {
-          for (let i = 0; i < affected.length; i++) {
-            const affectedIndex = affected[i] as number;
-            const { e, f, g, j } = currentCogStats;
-            if (boosted?.[affectedIndex] === 0) {
-              boosted[affectedIndex] = {
-                e: { value: e?.value || 0 },
-                f: { value: f?.value || 0 },
-                g: { value: g?.value || 0 },
-                j: { value: j?.value || 0 }
-              }
-            } else {
-              const { e: curE, f: curF, g: curG, j: curJ } = boosted[affectedIndex] || {};
-              boosted[affectedIndex] = {
-                e: { ...curE, value: (curE?.value || 0) + (e?.value || 0) },
-                f: { ...curF, value: (curF?.value || 0) + (f?.value || 0) },
-                g: { ...curG, value: (curG?.value || 0) + (g?.value || 0) },
-                j: { ...curJ, value: (curJ?.value || 0) + (j?.value || 0) }
-              }
-            }
-            relations[affectedIndex] = [...(relations[affectedIndex] || []), index];
-          }
-        }
-      }
-    }
-  }
-
-  return {
-    boosted,
-    relations
-  }
-}
-
-export const getAffectedIndexes = (currentCog: any, x: number, y: number) => {
-  const affected = [];
-  switch (currentCog?.stats?.h) {
-    case 'diagonal':
-      affected.push([x - 1, y - 1], [x + 1, y - 1], [x - 1, y + 1], [x + 1, y + 1]);
-      break;
-    case 'adjacent':
-      affected.push([x - 1, y], [x, y + 1], [x + 1, y], [x, y - 1]);
-      break;
-    case 'up':
-      affected.push([x - 1, y + 2], [x, y + 2], [x + 1, y + 2], [x - 1, y + 1], [x, y + 1], [x + 1, y + 1]);
-      break;
-    case 'right':
-      affected.push([x + 2, y - 1], [x + 2, y], [x + 2, y + 1], [x + 1, y - 1], [x + 1, y], [x + 1, y + 1]);
-      break;
-    case 'down':
-      affected.push([x - 1, y - 2], [x, y - 2], [x + 1, y - 2], [x - 1, y - 1], [x, y - 1], [x + 1, y - 1]);
-      break;
-    case 'left':
-      affected.push([x - 2, y - 1], [x - 2, y], [x - 2, y + 1], [x - 1, y - 1], [x - 1, y], [x - 1, y + 1]);
-      break;
-    case 'row':
-      for (let k = 0; k < BOARD_X; k++) {
-        if (x === k) continue;
-        affected.push([k, y]);
-      }
-      break;
-    case 'column':
-      for (let k = 0; k < BOARD_Y; k++) {
-        if (y === k) continue;
-        affected.push([x, k]);
-      }
-      break;
-    case 'corners':
-      affected.push([x - 2, y - 2], [x + 2, y - 2], [x - 2, y + 2], [x + 2, y + 2]);
-      break;
-    case 'around':
-      affected.push([x, y - 2], [x - 1, y - 1], [x, y - 1], [x + 1, y - 1], [x - 2, y], [x - 1, y], [x + 1, y],
-        [x + 2, y], [x - 1, y + 1], [x, y + 1], [x + 1, y + 1], [x, y + 2]);
-      break;
-    case 'everything':
-      for (let l = 0; l < BOARD_Y; l++) {
-        for (let k = 0; k < BOARD_X; k++) {
-          if (y === l && x === k) continue;
-          affected.push([k, l]);
-        }
-      }
-      break;
-    default:
-      break;
-  }
-  return affected;
-}
 
 export const getTowers = (idleonData: IdleonData) => {
   const towersRaw = idleonData?.TowerInfo || tryToParse(idleonData?.Tower);

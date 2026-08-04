@@ -514,6 +514,10 @@ export const getBitIndex = (e) => {
   }
   return num;
 }
+// Straight port of _customBlock_NotateNumber (N.js:68616). Every branch is a chain of `limit > e`
+// tests that assumes a positive number - the game only ever notates magnitudes, so a negative falls
+// through to `Math.floor(e)` and prints raw digits. Callers that can produce a signed value must
+// notate `Math.abs()` and render the sign themselves.
 export const notateNumber = (e, s) => {
   if (s === 'bits') {
     let bits = e, t = 0;
@@ -563,9 +567,13 @@ export const notateNumber = (e, s) => {
         : 1e9 > e ? Math.floor(e / 1e6) + 'M'
           : 1e10 > e ? Math.floor(e / 1e8) / 10 + 'B'
             : Math.floor(e / 1e9) + 'B')
-    : 'MultiplierInfo' === s ? (0 === (10 * e) % 10 ? Math.round(e) + '.00'
-      : 0 === (100 * e) % 10 ? Math.round(10 * e) / 10 + '0'
-        : Math.round(100 * e) / 100 + '')
+    : 'MultiplierInfo' === s ? (1e6 < e
+      ? (0 === Math.round((e / 1e6) * 100) % 100 ? Math.round(e / 1e6) + '.00M'
+        : 0 === Math.round((e / 1e6) * 100) % 10 ? Math.round((e / 1e6) * 10) / 10 + '0M'
+          : Math.round((e / 1e6) * 100) / 100 + 'M')
+      : 0 === (10 * e) % 10 ? Math.round(e) + '.00'
+        : 0 === (100 * e) % 10 ? Math.round(10 * e) / 10 + '0'
+          : Math.round(100 * e) / 100 + '')
       : 'ThreeDecimals' === s ? '' + parseFloat((Math.round(1000 * e) / 1000).toFixed(3))
         : 'Micro' === s ? (10 < e ? '' + Math.round(e)
           : 0.1 < e ? '' + Math.round(10 * e) / 10
@@ -585,13 +593,20 @@ export const notateNumber = (e, s) => {
                   : 1e6 > e ? Math.ceil(e / 1e3) + 'K'
                     : 1e7 > e ? Math.ceil(e / 1e4) / 100 + 'M'
                       : 1e8 > e ? Math.ceil(e / 1e5) / 10 + 'M'
-                        : 1e10 > e ? Math.ceil(e / 1e6) + 'M'
-                          : 1e13 > e ? Math.ceil(e / 1e9) + 'B'
-                            : 1e16 > e ? Math.ceil(e / 1e12) + 'T'
-                              : 1e19 > e ? Math.ceil(e / 1e15) + 'Q'
-                                : 1e22 > e ? Math.ceil(e / 1e18) + 'QQ'
-                                  : 1e24 > e ? Math.ceil(e / 1e21) + 'QQQ'
-                                    : 'TinyE' === s
+                        : 1e9 > e ? Math.ceil(e / 1e6) + 'M'
+                          : 1e10 > e ? Math.ceil(e / 1e7) / 100 + 'B'
+                            : 1e11 > e ? Math.ceil(e / 1e8) / 10 + 'B'
+                              : 1e12 > e ? Math.ceil(e / 1e9) + 'B'
+                                : 1e13 > e ? Math.ceil(e / 1e10) / 100 + 'T'
+                                  : 1e14 > e ? Math.ceil(e / 1e11) / 10 + 'T'
+                                    : 1e15 > e ? Math.ceil(e / 1e12) + 'T'
+                                      : 1e16 > e ? Math.ceil(e / 1e13) / 100 + 'Q'
+                                        : 1e17 > e ? Math.ceil(e / 1e14) / 10 + 'Q'
+                                          : 1e18 > e ? Math.ceil(e / 1e15) + 'Q'
+                                            : 1e19 > e ? Math.ceil(e / 1e16) / 100 + 'QQ'
+                                              : 1e20 > e ? Math.ceil(e / 1e17) / 10 + 'QQ'
+                                                : 1e21 > e ? Math.ceil(e / 1e18) + 'QQ'
+                                                  : 'TinyE' === s
                                       ? '' + Math.floor(e / Math.pow(10, Math.floor(lavaLog(e))) * 10) / 10 + ('e' + Math.floor(lavaLog(e)))
                                       : '' + Math.floor(e / Math.pow(10, Math.floor(lavaLog(e))) * 100) / 100 + ('E' + Math.floor(lavaLog(e)))
 }

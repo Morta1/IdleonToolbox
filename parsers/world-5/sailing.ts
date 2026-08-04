@@ -805,7 +805,8 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
     bonus = (artifact?.baseBonus * lavaLog(sailingGold));
   }
   else if (artifact?.name === 'Fun_Hippoete') {
-    bonus = artifact?.baseBonus * lavaLog(account?.construction?.playersBuildRate)
+    // Construction is parsed after sailing, so this resolves on the second serialization pass.
+    bonus = artifact?.baseBonus * lavaLog(account?.construction?.playersBuildRate ?? 0)
   }
   else if (artifact?.name === 'The_True_Lantern') {
     bonus = artifact?.baseBonus * (lavaLog(account?.atoms?.particles) ?? 0);

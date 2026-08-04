@@ -245,7 +245,6 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   const skills = charactersData?.map(({ name, skillsInfo }: any) => ({ name, skillsInfo }));
   accountData.totalSkillsLevels = calculateTotalSkillsLevel(skills);
   accountData.highestSummoningLevel = getHighestCharacterSkill(charactersData, 'summoning');
-  accountData.construction = getConstruction(idleonData, accountData);
   accountData.atoms = getAtoms(idleonData, accountData);
   const artifacts = getArtifacts(idleonData, charactersData, accountData)
   accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, artifacts);
@@ -307,6 +306,9 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
     character.constructionExpPerHour = getPlayerConstructionExpPerHour(character, accountData);
     return character;
   })
+  // Must run after constructionExpPerHour: the board's player XP totals are built from it, and the
+  // optimizer on the construction page re-scores the same board with the very same characters.
+  accountData.construction = getConstruction(idleonData, accountData, charactersData);
   accountData.stamps = updateStamps(accountData, charactersData);
   accountData.shrinesExpBonus = getShrineExpBonus(charactersData, accountData);
   accountData.msaTotalizer = getTotalizerBonuses(accountData);

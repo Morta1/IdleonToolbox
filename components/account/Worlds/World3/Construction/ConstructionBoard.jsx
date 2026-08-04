@@ -10,7 +10,7 @@ import {
 } from '@utility/helpers';
 import React from 'react';
 import styled from '@emotion/styled';
-import { BOARD_X, BOARD_Y, EXTRA_COL_HEIGHT } from '@parsers/world-3/construction';
+import { BOARD_SIZE, BOARD_X, getCogDisplayName } from '@parsers/world-3/construction';
 
 const bonusTextSx = {
   fontSize: 12,
@@ -33,22 +33,21 @@ const indexSx = {
 const CogTooltip = ({ character, index, currentAmount, requiredAmount, cog, affectedBy, affects, roundedValues }) => {
   return (
     <>
-      {character ? <Typography sx={{ fontWeight: 'bold' }}>{character}</Typography> : null}
+      <Typography sx={{ fontWeight: 'bold' }}>{character || getCogDisplayName(cog?.name)}</Typography>
       {currentAmount < requiredAmount ? (
         <Typography>
           {kFormatter(currentAmount, 2)} / {kFormatter(requiredAmount, 2)} ({kFormatter((currentAmount / requiredAmount) * 100, 2)}%)
         </Typography>
       ) : null}
-      {Object.values(cog?.stats || {})?.map(({ name, value }, index) =>
+      {Object.values(cog?.stats || {})?.map(({ name, value }, statIndex) =>
         name ? (
-          <>
-            {index > 0 ? <Divider sx={{my:1}}/> : null}
-            <Typography variant="body2" key={`${name}-${index}`}>
+          <React.Fragment key={`${name}-${statIndex}`}>
+            {statIndex > 0 ? <Divider sx={{ my: 1 }}/> : null}
+            <Typography variant="body2">
               {roundedValues ? notateNumber(value, 'MultiplierInfo') : numberWithCommas(value.toFixed(2).replace('.00', ''))}
               {cleanUnderscore(name)}
             </Typography>
-
-          </>
+          </React.Fragment>
         ) : null
       )}
       <Divider sx={{ my: 1 }}/>
@@ -63,40 +62,56 @@ const CogTooltip = ({ character, index, currentAmount, requiredAmount, cog, affe
   );
 };
 
-const ConstructionBoard = ({ view, board, showTooltip, setOutsideHighlight, outsideHighlight, roundedValues, leftColumn, rightColumn }) => {
-  const totalCols = BOARD_X + (leftColumn ? 1 : 0) + (rightColumn ? 1 : 0);
-  const totalRows = (leftColumn || rightColumn) ? EXTRA_COL_HEIGHT : BOARD_Y;
+const SLOT_GAP = 8;
+// Below this the numbers printed on the slots stop being readable, so the board scrolls sideways
+// instead of shrinking further. Above it there is nothing to gain from bigger slots.
+const SLOT_MIN = 30;
+const SLOT_MAX = 52;
 
-  let fullBoard;
-  if (!leftColumn && !rightColumn) {
-    fullBoard = board?.map((slot, i) => ({ ...slot, boardPosition: i }));
-  } else {
-    fullBoard = [];
-    for (let row = 0; row < EXTRA_COL_HEIGHT; row++) {
-      if (leftColumn) fullBoard.push({ ...leftColumn[row], boardPosition: -1 });
-      for (let col = 0; col < BOARD_X; col++) {
-        if (row < BOARD_Y) {
-          const boardIdx = row * BOARD_X + col;
-          fullBoard.push({ ...(board?.[boardIdx] || {}), boardPosition: boardIdx });
-        } else {
-          fullBoard.push(null);
-        }
-      }
-      if (rightColumn) fullBoard.push({ ...rightColumn[row], boardPosition: -1 });
-    }
-  }
+/**
+ * Narrowest the board can be drawn whole - the 12 board columns plus a small cog strip either side.
+ * The column holding it must not shrink past this or the board starts scrolling sideways.
+ */
+export const BOARD_MIN_WIDTH = (BOARD_X + 2) * SLOT_MIN + (BOARD_X + 1) * SLOT_GAP;
 
-  return <Box
-    mt={3}
+const ConstructionBoard = ({ view, board, showTooltip, roundedValues, leftColumn, rightColumn, markSpares, dimUnchanged, highlightSlots }) => {
+  // The side strips hold 12 small cogs against the board's 8 rows. Laying all three out in one grid
+  // left 48 blank cells in the middle, so each is its own grid and they simply sit side by side.
+  const columns = [
+    leftColumn ? { key: 'left', slots: leftColumn.map((slot) => ({ ...slot, boardPosition: -1 })) } : null,
+    { key: 'board', cols: BOARD_X, slots: board?.map((slot, index) => ({ ...slot, boardPosition: index })) ?? [] },
+    rightColumn ? { key: 'right', slots: rightColumn.map((slot) => ({ ...slot, boardPosition: -1 })) } : null
+  ].filter(Boolean);
+
+  // Every gap between adjacent slots is the same, board or side strip, so the whole thing is just
+  // one row of slots with one gap between each.
+  const totalColumns = columns.reduce((sum, { cols = 1 }) => sum + cols, 0);
+  const gapTotal = (totalColumns - 1) * SLOT_GAP;
+
+  // The slot size follows the width this column was given rather than fixed breakpoints - the width
+  // left over depends on the ad gutter and the steps panel, not on the viewport. Below the minimum
+  // it stops shrinking and scrolls sideways instead, which is what phones get.
+  // px:1 leaves room for the 1px the fill overlay bleeds past the last slot, which otherwise puts a
+  // scrollbar under a board that fits perfectly.
+  return <Box sx={{ maxWidth: '100%', overflowX: 'auto', containerType: 'inline-size', pb: 1, px: '1px' }}><Box
     sx={{
-      display: 'grid',
-      gap: '8px',
-      gridTemplateColumns: { xs: `repeat(${totalCols}, minmax(45px, 1fr))`, md: `repeat(${totalCols}, minmax(45px, 1fr))` },
-      gridTemplateRows: `repeat(${totalRows}, minmax(45px, 1fr))`
+      '--cog-slot': `clamp(${SLOT_MIN}px, calc((100cqw - ${gapTotal}px) / ${totalColumns}), ${SLOT_MAX}px)`,
+      display: 'flex',
+      gap: `${SLOT_GAP}px`,
+      width: 'fit-content'
     }}
   >
-    {fullBoard?.map((slot, index) => {
-      if (!slot) return <Box key={index} sx={{ width: 46, height: 46 }}/>;
+    {columns.map(({ key, cols = 1, slots }) => <Box
+      key={key}
+      sx={{
+        display: 'grid',
+        gap: `${SLOT_GAP}px`,
+        gridTemplateColumns: `repeat(${cols}, var(--cog-slot))`,
+        gridAutoRows: 'var(--cog-slot)'
+      }}
+    >
+    {slots?.map((slot, index) => {
+      if (!slot) return <Box key={index} sx={{ width: 'var(--cog-slot)', height: 'var(--cog-slot)' }}/>;
       const { currentAmount, requiredAmount, flagPlaced, cog, affectedBy, affects, boardPosition } = slot;
       const {
         a: buildRate,
@@ -109,16 +124,24 @@ const ConstructionBoard = ({ view, board, showTooltip, setOutsideHighlight, outs
       } = cog?.stats || {};
       const filled = (currentAmount / requiredAmount) * 100;
       const rest = 100 - filled;
+      // On an optimized board a cog whose original index sits past the board came out of the inventory.
+      const fromSpares = markSpares && boardPosition >= 0 && cog?.originalIndex >= BOARD_SIZE;
+      const stepHighlight = boardPosition >= 0 && highlightSlots?.includes(boardPosition);
+      // A cog still sitting where it started did not move, so it fades out and the ones that did move
+      // stand out against it.
+      const unchanged = dimUnchanged && boardPosition >= 0 && cog?.originalIndex === boardPosition;
       return (
         <Box key={index}
              sx={{
-               outline: cog?.originalIndex === outsideHighlight
-                 ? '1px solid red'
-                 : '',
-               opacity: !setOutsideHighlight && boardPosition >= 0 && cog?.originalIndex === boardPosition ? .5 : 1
+               outline: stepHighlight
+                 ? '2px solid #ffb300'
+                 : fromSpares
+                   ? '1px solid #66bb6a'
+                   : '',
+               // Inside the box, so the scroll container never shaves an edge off.
+               outlineOffset: '-1px',
+               opacity: unchanged && !stepHighlight ? .5 : 1
              }}
-             onMouseEnter={() => typeof setOutsideHighlight === 'function' && setOutsideHighlight(cog?.originalIndex)}
-             onMouseLeave={() => typeof setOutsideHighlight === 'function' && setOutsideHighlight(null)}
         >
           <Tooltip title={showTooltip ? <CogTooltip {...slot} index={cog?.originalIndex}
                                                     roundedValues={roundedValues}
@@ -160,7 +183,8 @@ const ConstructionBoard = ({ view, board, showTooltip, setOutsideHighlight, outs
         </Box>
       );
     })}
-  </Box>
+    </Box>)}
+  </Box></Box>
 };
 
 const SlotBackground = styled(Stack)`
@@ -169,8 +193,10 @@ const SlotBackground = styled(Stack)`
   background-repeat: no-repeat;
   background-position: center;
 
-  width: 46px;
-  height: 46px;
+  background-size: contain;
+
+  width: var(--cog-slot);
+  height: var(--cog-slot);
 
   &:before {
     content: "";
@@ -181,21 +207,21 @@ const SlotBackground = styled(Stack)`
             ? ''
             : `background: linear-gradient(to top, #9de060 ${filled}%, transparent 0%);`)}
 
-    width: 48px;
-    height: 47px;
+    width: calc(var(--cog-slot) + 2px);
+    height: calc(var(--cog-slot) + 1px);
     top: 1px;
     left: -1px;
   }
 `;
 
 const FlagIcon = styled.img`
-  width: 47px;
-  height: 47px;
+  width: var(--cog-slot);
+  height: var(--cog-slot);
 `;
 
 const SlotIcon = styled.img`
-  width: 47px;
-  height: 47px;
+  width: var(--cog-slot);
+  height: var(--cog-slot);
 `;
 
 export default ConstructionBoard;

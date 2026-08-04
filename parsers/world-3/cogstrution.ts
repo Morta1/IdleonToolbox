@@ -5,8 +5,9 @@ export const createCogstructionData = (cogMap: any[], cogsOrder: any[]) => {
   const cogData = board?.reduce((res, cog, index) => {
     const cogType = getCogstructionCogType(cogs[index]);
     if (!cogType) return res;
-    const { a = '', c = '', d = '', b = '', e = '', g = '', k = '', f = '' } = cog || {};
-    const cogsValues = [a, c, d, b, e, g, k, f].map((cog, index) => index < 7
+    // j is "%_Speed_to_Flags"; k is the game's unused "%_Nothing_sowwy" slot.
+    const { a = '', c = '', d = '', b = '', e = '', g = '', j = '', f = '' } = cog || {};
+    const cogsValues = [a, c, d, b, e, g, j, f].map((cog, index) => index < 7
       ? `${getCogstructionValue(cog) || ''},`
       : getCogstructionValue(cog));
     const characterName = cogs[index].includes('Player_') ? cogs[index].split('Player_')[1] : '';
