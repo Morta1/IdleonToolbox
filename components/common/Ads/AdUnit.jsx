@@ -44,12 +44,15 @@ export const HomeSidebarAds = () => {
     return <GoogleHomeSideAds/>
   }
   if (AD_PROVIDER === AD_PROVIDERS.NITRO) {
-    return <>
+    // Same reason as SidebarAd above: NitroAds relocates both rails into a body > div, so they must
+    // sit behind a React-owned wrapper. A bare fragment leaves the relocated divs as the nodes React
+    // itself removes on unmount, which throws NotFoundError and takes the whole tree down.
+    return <div>
       <NitroRailAd id={'nitro-home-right-side-ad'} alignment={'right'} sizes={NITRO_HOME_AD_SIZES}
                    mediaQuery={'(min-width: 1650px)'}/>
       <NitroRailAd id={'nitro-home-left-side-ad'} alignment={'left'} sizes={NITRO_HOME_AD_SIZES}
                    mediaQuery={'(min-width: 1650px)'}/>
-    </>;
+    </div>;
   }
   return null;
 }

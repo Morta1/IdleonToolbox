@@ -7,7 +7,6 @@ import createEmotionCache from '../utility/createEmotionCache';
 import darkTheme from '../styles/theme/darkTheme';
 import '../styles/globals.css';
 import Head from 'next/head';
-import Script from 'next/script';
 import AppProvider from '../components/common/context/AppProvider';
 import PreferencesProvider from '../components/common/context/PreferencesProvider';
 import WaitForRouter from '../components/common/WaitForRouter';
@@ -21,6 +20,7 @@ import Button from '@mui/material/Button';
 import useGdprRegion, { getConsentObject } from '../hooks/useGdprRegion';
 import DynamicBreadcrumbs from '@components/common/DynamicBreadcrumbs';
 import RouteProgress from '@components/common/RouteProgress';
+import ErrorBoundary from '@components/common/ErrorBoundary';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const clientSideEmotionCache = createEmotionCache();
@@ -31,16 +31,6 @@ const queryClient = new QueryClient({
     }
   }
 });
-
-const noOverlayWorkaroundScript = `
-  window.addEventListener('error', event => {
-    event.stopImmediatePropagation()
-  })
-
-  window.addEventListener('unhandledrejection', event => {
-    event.stopImmediatePropagation()
-  })
-`;
 
 const preConnections = [
   'https://firestore.googleapis.com',
@@ -70,8 +60,6 @@ const MyApp = (props) => {
         <meta name="googlebot" content="index,follow"/>
         {preConnections?.map((link) => <link key={link} rel="preconnect" href={link}/>)}
       </Head>
-      {process.env.NODE_ENV !== 'production' &&
-        <Script id={'remove-error-layout'} dangerouslySetInnerHTML={{ __html: noOverlayWorkaroundScript }}/>}
       <div id="ncmp-consent-link"></div>
       {isGdprRegion === false && <CookieConsent
         buttonText="Accept"
@@ -162,6 +150,8 @@ const MyApp = (props) => {
             <CookiePolicyDialog open={openPolicy} onClose={() => setOpenPolicy(false)}/>
             <CssBaseline/>
             <RouteProgress/>
+            {/* Outer net for the shell itself (providers, NavBar). Still beats a blank root. */}
+            <ErrorBoundary resetKey={asPath} title={'The app failed to load'}>
             <WaitForRouter>
               <PreferencesProvider>
               <AppProvider>
@@ -199,13 +189,18 @@ const MyApp = (props) => {
                     ]}
                   />
                   <DynamicBreadcrumbs/>
-                  <DataLoadingWrapper>
-                    <Component {...pageProps} />
-                  </DataLoadingWrapper>
+                  {/* Contains a page-level crash to this slot. Without it React unmounts the whole
+                      root and the app goes blank until a manual refresh. */}
+                  <ErrorBoundary resetKey={asPath} title={'This page failed to render'}>
+                    <DataLoadingWrapper>
+                      <Component {...pageProps} />
+                    </DataLoadingWrapper>
+                  </ErrorBoundary>
                 </NavBar>
               </AppProvider>
               </PreferencesProvider>
             </WaitForRouter>
+            </ErrorBoundary>
           </EmotionThemeProvider>
         </ThemeProvider>
       </CacheProvider>
