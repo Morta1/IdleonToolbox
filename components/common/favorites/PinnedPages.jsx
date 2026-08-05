@@ -4,6 +4,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useRouter } from 'next/router';
 import usePin from '@components/common/favorites/usePin';
 import {
+  Box,
   Collapse,
   List,
   ListItem,
@@ -17,6 +18,8 @@ import {
 import IconButton from '@mui/material/IconButton';
 import { IconGripVertical, IconX } from '@tabler/icons-react';
 import { Reorder } from 'framer-motion';
+import { getPageIcon } from '@utility/pageIcons';
+import { prefix } from '@utility/helpers';
 
 const PinnedPages = ({}) => {
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('lg'), { noSsr: true });
@@ -40,8 +43,7 @@ const PinnedPages = ({}) => {
     }
   };
 
-  const handleNavigation = (url, tab, nestedTab, deeplyNestedTab) => {
-    setAnchorEl(null);
+  const getQuery = ({ tab, nestedTab, deeplyNestedTab }) => {
     let query = {}
     if (router.query.profile) {
       query.profile = router.query.profile;
@@ -55,13 +57,75 @@ const PinnedPages = ({}) => {
         query.dnt = deeplyNestedTab;
       }
     }
-    router.push({ pathname: url, query });
+    return query;
+  }
+
+  const handleNavigation = (page) => {
+    setAnchorEl(null);
+    router.push({ pathname: page.url, query: getQuery(page) });
+  }
+
+  // Real href so the browser can offer "open in new tab/window" via middle click and the context menu.
+  const getHref = (page) => {
+    const query = new URLSearchParams(getQuery(page)).toString();
+    return query ? `${page.url}?${query}` : page.url;
+  }
+
+  const handleLinkClick = (event, page) => {
+    // Let the browser handle modified clicks (ctrl/cmd/shift/middle) so they open a new tab or window.
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+    event.preventDefault();
+    handleNavigation(page);
   }
 
   const truncateMiddle = (text, maxLength) => {
     if (text.length <= maxLength) return text;
     const half = Math.floor(maxLength / 2);
     return text.slice(0, half) + '...' + text.slice(-half);
+  }
+
+  const getLabel = ({ name, tab, nestedTab, deeplyNestedTab }) => name.replace('-', ' ').capitalizeAllWords()
+    + (tab ? ` - ${tab}` : '')
+    + (nestedTab ? ` - ${nestedTab}` : '')
+    + (deeplyNestedTab ? ` - ${deeplyNestedTab}` : '');
+
+  const renderItem = (page, index, { dense, maxLabelLength }) => {
+    const icon = getPageIcon(page);
+    const label = getLabel(page);
+    return (
+      <Reorder.Item key={`${page.name}-${page.tab || ''}-${page.nestedTab || ''}-${page.deeplyNestedTab || ''}`}
+                    value={page}>
+        <ListItem
+          component={'div'}
+          sx={dense ? { pl: 1, pr: 7 } : { pr: 7 }}
+          dense={dense}
+          secondaryAction={<IconButton size="small" onClick={(e) => {
+            e.stopPropagation();
+            removePin(index)
+          }}>
+            <IconX size={20}/>
+          </IconButton>}
+        >
+          <IconGripVertical size={16} style={{ cursor: 'grab', opacity: 0.5, marginRight: 4, flexShrink: 0 }}/>
+          <ListItemButton
+            component={'a'}
+            href={getHref(page)}
+            draggable={false}
+            sx={{ [`&.${listItemButtonClasses.root}`]: { px: 0, pl: 1, gap: 1, minWidth: 0 } }}
+            onClick={(e) => handleLinkClick(e, page)}>
+            {icon ? <Box component={'img'}
+                         src={`${prefix}${icon}.png`}
+                         alt={''}
+                         draggable={false}
+                         sx={{ width: 28, height: 28, objectFit: 'scale-down', flexShrink: 0 }}/>
+              : <Box sx={{ width: 28, height: 28, flexShrink: 0 }}/>}
+            <Box sx={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {maxLabelLength ? truncateMiddle(label, maxLabelLength) : label}
+            </Box>
+          </ListItemButton>
+        </ListItem>
+      </Reorder.Item>
+    )
   }
 
   return (
@@ -97,24 +161,7 @@ const PinnedPages = ({}) => {
       {isXs ? <Collapse in={isOpen} timeout="auto" unmountOnExit>
         <Reorder.Group axis="y" values={pinnedPages || []} onReorder={reorderPins}
                        style={{ listStyle: 'none', margin: 0, padding: '8px 0' }}>
-          {pinnedPages?.map((page, index) => {
-            const { name, url, tab, nestedTab, deeplyNestedTab } = page;
-            return <Reorder.Item key={`${name}-${tab || ''}-${nestedTab || ''}-${deeplyNestedTab || ''}`} value={page}>
-              <ListItem secondaryAction={<IconButton size="small" onClick={(e) => {
-                e.stopPropagation();
-                removePin(index)
-              }}>
-                <IconX size={20}/>
-              </IconButton>}>
-                <IconGripVertical size={16} style={{ cursor: 'grab', opacity: 0.5, marginRight: 4, flexShrink: 0 }}/>
-                <ListItemButton sx={{ [`&.${listItemButtonClasses.root}`]: { px: 0, pl: 1 } }}
-                                onClick={() => handleNavigation(url, tab, nestedTab, deeplyNestedTab)}>{name.replace('-', ' ').capitalizeAllWords()}{tab
-                  ? ` - ${tab}`
-                  : ''}{nestedTab ? ` - ${nestedTab}` : ''}{deeplyNestedTab ? ` - ${deeplyNestedTab}` : ''}
-                </ListItemButton>
-              </ListItem>
-            </Reorder.Item>
-          })}
+          {pinnedPages?.map((page, index) => renderItem(page, index, { dense: false }))}
           {!pinnedPages?.length && <ListItemButton dense disabled>You don&apos;t have any pinned pages</ListItemButton>}
         </Reorder.Group>
       </Collapse> : <Popover
@@ -134,32 +181,7 @@ const PinnedPages = ({}) => {
         {pinnedPages?.length > 0 ? (
           <Reorder.Group axis="y" values={pinnedPages} onReorder={reorderPins}
                          style={{ listStyle: 'none', margin: 0, padding: '8px 0', minWidth: 300 }}>
-            {pinnedPages.map((page, index) => {
-              const { name, url, tab, nestedTab, deeplyNestedTab } = page;
-              const text = name.replace('-', ' ').capitalizeAllWords() + (tab ? ` - ${tab}` : '') + (nestedTab
-                ? ` - ${nestedTab}`
-                : '') + (deeplyNestedTab ? ` - ${deeplyNestedTab}` : '');
-              return (
-                <Reorder.Item key={`${name}-${tab || ''}-${nestedTab || ''}-${deeplyNestedTab || ''}`} value={page}>
-                  <ListItem
-                    sx={{ px: 1 }}
-                    dense
-                    secondaryAction={<IconButton size="small" onClick={(e) => {
-                      e.stopPropagation();
-                      removePin(index)
-                    }}>
-                      <IconX size={20}/>
-                    </IconButton>}
-                  >
-                    <IconGripVertical size={16} style={{ cursor: 'grab', opacity: 0.5, marginRight: 4, flexShrink: 0 }}/>
-                    <ListItemButton sx={{ [`&.${listItemButtonClasses.root}`]: { px: 0, pl: 1 } }}
-                                    onClick={() => handleNavigation(url, tab, nestedTab, deeplyNestedTab)}>
-                      {truncateMiddle(text, 30)}
-                    </ListItemButton>
-                  </ListItem>
-                </Reorder.Item>
-              )
-            })}
+            {pinnedPages.map((page, index) => renderItem(page, index, { dense: true, maxLabelLength: 30 }))}
           </Reorder.Group>
         ) : (
           <List sx={{ minWidth: 300 }}>

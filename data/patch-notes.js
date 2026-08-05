@@ -4,6 +4,16 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.57',
+    'gameVer': '2.3.523',
+    'date': '05/08/2026',
+    'features': [
+      'Pinned Pages: each entry now shows the icon of the page it links to',
+      'Pinned Pages: entries are real links, so middle click or right click opens them in a new tab or window'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.56',
     'gameVer': '2.3.523',
     'date': '04/08/2026',

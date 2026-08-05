@@ -6,10 +6,10 @@ export const offlinePages = ['tools', 'guilds', 'statistics', 'leaderboards'];
 
 export const PAGES = {
   GENERAL: {
-    dashboard: {},
-    characters: {},
-    guilds: {},
-    leaderboards: {}
+    dashboard: { icon: 'data/GalleryBell' },
+    characters: { icon: 'etc/Character' },
+    guilds: { icon: 'etc/Guild' },
+    leaderboards: { icon: 'etc/Crown' }
   },
   ACCOUNT: {
     'misc': {
