@@ -4,6 +4,7 @@ import {
   BOARD_SIZE,
   BOARD_X,
   BOARD_Y,
+  countBoardCharacters,
   getAffectedIndexes,
   getBoardAtStep,
   optimizeArrayWithSwaps,
@@ -473,5 +474,127 @@ describe('excogia squares', () => {
     if (slot) expect(slot.cog.stats.h).toBeUndefined();
     // Whatever it does with the piece, no square can form from one piece.
     expect(excogiaAnchors(optimized.board).filter((anchor) => isAssembled(optimized.board, anchor))).toHaveLength(0);
+  });
+});
+
+// Spare characters sitting in the rack, each better at construction XP than anyone already placed,
+// so a run optimizing for player XP has every reason to bring them all out.
+const spareCharacters = (count) => Array.from({ length: count }, (_, i) => ({
+  name: `Player_Spare${i}`,
+  stats: {
+    b: { name: '_Construct_Exp/HR', value: 50000 + i * 1000 },
+    a: { name: '_Build_Rate/HR', value: 200 }
+  },
+  originalIndex: 200 + i
+}));
+
+// Plain cogs in the inventory. A character can only leave the board by swapping with something, so
+// without these there is nothing to put in the slot it vacates.
+const spareCogs = (count) => Array.from({ length: count }, (_, i) => ({
+  name: `CogSpare${i}`,
+  stats: { a: { name: '_Build_Rate/HR', value: 20 + i } },
+  originalIndex: 300 + i
+}));
+
+describe('character cap', () => {
+  const mixedSpares = () => [...spareCharacters(8), ...spareCogs(12)];
+
+  const runWithCap = (maxCharacters, spares = mixedSpares()) => optimizeArrayWithSwaps(makeBoard(), {
+    stat: 'totalPlayerExpRate',
+    time: 750,
+    characters,
+    spareCogs: spares,
+    ...(maxCharacters === undefined ? {} : { maxCharacters })
+  });
+
+  // The behaviour users hit: left alone the search staffs the board with everybody it can find.
+  it('sends every spare character out when uncapped', () => {
+    const uncapped = runWithCap(undefined);
+    expect(countBoardCharacters(uncapped.board)).toBeGreaterThan(countBoardCharacters(makeBoard()));
+  });
+
+  it.each([0, 1, 3])('never exceeds a cap of %i', (cap) => {
+    expect(countBoardCharacters(runWithCap(cap).board)).toBeLessThanOrEqual(cap);
+  });
+
+  // The case this missed at first: a player whose inventory is empty apart from their characters.
+  // A cog can only come off the board by trading places with something, so without the empty slots
+  // in the pool there was nothing to trade with and the surplus characters stayed put.
+  it('empties slots to enforce the cap when the inventory holds no spare cogs', () => {
+    const blanks = Array.from({ length: 20 }, (_, i) => ({
+      name: 'Blank',
+      stats: {},
+      originalIndex: 108 + i
+    }));
+    const optimized = runWithCap(1, [...spareCharacters(4), ...blanks]);
+    expect(countBoardCharacters(optimized.board)).toBeLessThanOrEqual(1);
+  });
+
+  // Empty slots all score the same, so the annealer used to accept swapping one for another and the
+  // plan ended with a run of steps that shuffled blanks around without changing the board.
+  it('never asks you to move one empty slot into another', () => {
+    const blanks = Array.from({ length: 40 }, (_, i) => ({
+      name: 'Blank',
+      stats: {},
+      originalIndex: 108 + i
+    }));
+    // Some board slots start empty, which is where the pointless shuffling used to show up.
+    const board = makeBoard();
+    [5, 17, 40].forEach((index) => {
+      board[index] = { ...board[index], cog: { name: 'Blank', stats: {}, originalIndex: index } };
+    });
+    const optimized = optimizeArrayWithSwaps(board, {
+      stat: 'totalPlayerExpRate',
+      time: 750,
+      characters,
+      spareCogs: [...spareCharacters(4), ...blanks],
+      maxCharacters: 2
+    });
+
+    const noOps = optimized.moves.filter(({ name, displacedName }) => name === 'Blank' && displacedName === 'Blank');
+    expect(noOps).toHaveLength(0);
+    // A slot that started empty and is still empty keeps its own blank rather than being handed one
+    // from the inventory. Slots emptied by the cap legitimately take an inventory blank instead.
+    [5, 17, 40].forEach((index) => {
+      const { cog } = optimized.board[index];
+      if (cog?.name === 'Blank') expect(cog.originalIndex).toBe(index);
+    });
+  });
+
+  it('leaves nobody on the board at a cap of zero', () => {
+    const optimized = runWithCap(0);
+    expect(countBoardCharacters(optimized.board)).toBe(0);
+    expect(optimized.board.some(({ cog }) => cog?.name?.includes('Player_'))).toBe(false);
+  });
+
+  it('still improves the stat while capped', () => {
+    const baseline = optimizeArrayWithSwaps(makeBoard(), { stat: 'totalPlayerExpRate', time: 0, characters });
+    const capped = runWithCap(3);
+    expect(capped.totalPlayerExpRate).toBeGreaterThan(baseline.totalPlayerExpRate);
+  });
+
+  // The starting board is already over these caps, and optimizing for player XP gives the search
+  // every reason to keep the characters where they are - so the surplus has to be evicted up front
+  // rather than left for the search to discover.
+  it('brings an over-staffed starting board down to the cap', () => {
+    const plainSpares = [{
+      name: 'CogSpare',
+      stats: { a: { name: '_Build_Rate/HR', value: 10 } },
+      originalIndex: 300
+    }];
+    const starting = countBoardCharacters(makeBoard());
+    expect(starting).toBeGreaterThan(1);
+    // One spare to swap into, so exactly one character can come off.
+    expect(countBoardCharacters(runWithCap(1, plainSpares).board)).toBe(starting - 1);
+  });
+
+  // Two runs of a randomised search will not agree cog for cog, so this only asserts the cap has
+  // stopped constraining: the board is free to go past where it started.
+  it('lets the board grow past its starting headcount when the cap allows', () => {
+    const spares = mixedSpares();
+    const total = countBoardCharacters(makeBoard()) + spares.filter(({ name }) => name.includes('Player_')).length;
+    const capped = countBoardCharacters(runWithCap(total, spares).board);
+    expect(capped).toBeGreaterThan(countBoardCharacters(makeBoard()));
+    expect(capped).toBeLessThanOrEqual(total);
   });
 });

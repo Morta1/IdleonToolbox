@@ -113,7 +113,8 @@ describe('cog display names', () => {
     ['CogZA00', 'Excogia piece 1'],
     ['CogZA03', 'Excogia piece 4'],
     ['Player_Morojoze', 'Morojoze'],
-    ['Blank', 'Blank']
+    // Blank is an empty slot in the cog order, and now shows up in step lists as a swap target.
+    ['Blank', 'Empty slot']
   ])('names %s as %s', (raw, expected) => {
     expect(getCogDisplayName(raw)).toBe(expected);
   });

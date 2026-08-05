@@ -29,6 +29,14 @@ export const cogSlotLabel = (index: number | null | undefined) => {
 // Excogia is a gem shop cog that arrives as four pieces and only pays out while they sit in a 2x2
 // square: CogZA00 top left, CogZA01 to its right, CogZA02 directly below it, CogZA03 below CogZA01.
 // The game strips h/e/f off every loose piece, then hands them back to the four pieces of a square.
+/** Character cogs are named after the character standing in the slot: Player_<name>. */
+export const isCharacterCog = (cog: any) => typeof cog?.name === 'string' && cog.name.includes('Player_');
+
+/** How many characters are currently out on the board rather than back home making cogs. */
+export const countBoardCharacters = (board: any[]) => (board || [])
+  .slice(0, BOARD_SIZE)
+  .reduce((total: number, slot: any) => total + (isCharacterCog(slot?.cog) ? 1 : 0), 0);
+
 const EXCOGIA_PREFIX = 'CogZA0';
 const EXCOGIA_OFFSETS = [0, 1, BOARD_X, BOARD_X + 1];
 
@@ -101,7 +109,7 @@ const compileCog = (cog: any, characters?: any[]): CompiledCog => {
   const flaggyBoost = stats?.g?.value || 0;
   const shape = typeof stats?.h === 'string' ? stats.h : null;
   let playerBase = 0;
-  if (cog?.name?.includes('Player_')) {
+  if (isCharacterCog(cog)) {
     const character = characters?.find(({ name }: any) => name === cog?.name?.replace('Player_', ''));
     // Fall back to the value stored in the save when the character can't be matched.
     playerBase = character?.constructionExpPerHour ?? stats?.b?.value ?? 0;
@@ -208,6 +216,11 @@ export interface OptimizeOptions {
   characters?: any[];
   spareCogs?: any[];
   multipliers?: { flaggy?: number; exp?: number };
+  /**
+   * Most characters allowed on the board at once. Characters score well, so left alone the search
+   * puts every one of them out there and leaves nobody making cogs. Omit for no limit.
+   */
+  maxCharacters?: number;
   onProgress?: (progress: OptimizeProgress) => void;
 }
 
@@ -301,6 +314,7 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
     characters,
     spareCogs,
     multipliers,
+    maxCharacters,
     onProgress
   } = options;
   const baseBoard = arr || [];
@@ -308,6 +322,12 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
   const assembled = findExcogiaBlocks(baseBoard);
   const cogs = normalizeCogs(baseBoard, spares);
   const pool = cogs.map((cog: any) => compileCog(cog, characters));
+
+  // Cap on how many characters may stand on the board at once. Anything below zero, or not a number
+  // at all, means no cap - which is how every caller behaved before the option existed.
+  const characterCap = Number.isFinite(maxCharacters as number) && (maxCharacters as number) >= 0
+    ? Math.trunc(maxCharacters as number)
+    : Infinity;
 
   // Slots that may give up their cog: unlocked, and not currently building a flag.
   const boardSlots: number[] = [];
@@ -325,6 +345,17 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
 
   const placement = new Int32Array(pool.length);
   for (let index = 0; index < placement.length; index++) placement[index] = index;
+
+  const isCharacter = new Uint8Array(pool.length);
+  if (characterCap !== Infinity) {
+    for (let index = 0; index < cogs.length; index++) isCharacter[index] = isCharacterCog(cogs[index]) ? 1 : 0;
+  }
+  // Empty slots are all alike, so trading one for another scores the same and the annealer takes it.
+  // Harmless to the board, but it fills the plan with steps that move nothing.
+  const isBlank = new Uint8Array(pool.length);
+  for (let index = 0; index < cogs.length; index++) isBlank[index] = cogs[index]?.name === 'Blank' ? 1 : 0;
+  let charactersOnBoard = 0;
+  for (let index = 0; index < BOARD_SIZE; index++) charactersOnBoard += isCharacter[placement[index]];
 
   const budget = Math.max(0, Number(time) || 0);
   const normalizedBoard = baseBoard.map((slot: any, index: number) => ({ ...slot, cog: cogs[index] }));
@@ -427,6 +458,27 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
     for (let i = 0; i < 4; i++) positions[i] = undoPrevious[i];
   }
 
+  // A board that already breaks the cap has to be brought into line before the search starts. The
+  // search itself will not do it: characters are worth points, so dropping one always looks like a
+  // loss and never gets accepted. Evict the surplus first, then the loop only has to stop the count
+  // climbing back up. Characters on locked or flag-building slots cannot be moved, so a board can
+  // still come out over the cap - the guard below is written to cope with that rather than deadlock.
+  if (charactersOnBoard > characterCap) {
+    const benched: number[] = [];
+    for (let position = BOARD_SIZE; position < placement.length; position++) {
+      if (!isCharacter[placement[position]]) benched.push(position);
+    }
+    for (const position of boardSlots) {
+      if (charactersOnBoard <= characterCap || benched.length === 0) break;
+      if (!isCharacter[placement[position]] || blockOwner[position] !== -1) continue;
+      const spare = benched.pop() as number;
+      const evicted = placement[position];
+      placement[position] = placement[spare];
+      placement[spare] = evicted;
+      charactersOnBoard--;
+    }
+  }
+
   const baseline = scorePlacement(placement, pool);
   const objective = makeObjective(stat, weights, baseline);
   let currentScore = objective(baseline);
@@ -462,7 +514,10 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
     let to = -1;
     let fromCog = 0;
     let toCog = 0;
+    let characterDelta = 0;
 
+    // Excogia squares never hold a character and only ever shuffle cogs between board slots, so a
+    // block move cannot change the headcount and needs no check.
     if (canMoveBlocks && Math.random() < BLOCK_MOVE_CHANCE) {
       const id = movableBlocks[(Math.random() * movableBlocks.length) | 0];
       const anchor = blockAnchors[(Math.random() * blockAnchors.length) | 0];
@@ -475,8 +530,23 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
 
       fromCog = placement[from];
       toCog = placement[to];
+      // Never bring an empty slot in from off the board. Emptying a board slot is pure loss, and a
+      // cog worth a few thousand is nothing beside a board measured in quadrillions, so the annealer
+      // happily accepts it over and over and hands back a plan that strips the board for no gain.
+      // The cap's eviction pass is what empties slots, once, up front. Moving a blank that is
+      // already on the board is still allowed - that is just relocating a cog into the gap.
+      if (to >= BOARD_SIZE && isBlank[toCog]) continue;
+      // `from` is always a board slot, so the headcount only moves when the other side is a spare:
+      // board-to-board just rearranges whoever is already out there.
+      if (characterCap !== Infinity && to >= BOARD_SIZE) {
+        characterDelta = isCharacter[toCog] - isCharacter[fromCog];
+        // Only refuse moves that add a character past the cap. Swaps that keep the count level or
+        // bring it down stay legal even on a board held over the cap by pinned slots.
+        if (characterDelta > 0 && charactersOnBoard + characterDelta > characterCap) continue;
+      }
       placement[from] = toCog;
       placement[to] = fromCog;
+      charactersOnBoard += characterDelta;
     }
 
     const score = objective(scorePlacement(placement, pool));
@@ -498,7 +568,28 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
     } else {
       placement[from] = fromCog;
       placement[to] = toCog;
+      charactersOnBoard -= characterDelta;
     }
+  }
+
+  // One empty slot is worth exactly as much as another, so a slot that ends up empty should keep the
+  // empty it already had rather than being handed one from somewhere else. Without this the plan ends
+  // with a run of steps that drag blanks around the board to no effect. Scores are untouched: only
+  // blanks move, and only ever onto positions already holding a blank.
+  const blankHolder = new Int32Array(bestPlacement.length).fill(-1);
+  for (let position = 0; position < bestPlacement.length; position++) {
+    if (isBlank[bestPlacement[position]]) blankHolder[bestPlacement[position]] = position;
+  }
+  for (let position = 0; position < bestPlacement.length; position++) {
+    if (!isBlank[position] || !isBlank[bestPlacement[position]]) continue;
+    const displaced = bestPlacement[position];
+    if (displaced === position) continue;
+    const home = blankHolder[position];
+    if (home < 0) continue;
+    bestPlacement[position] = position;
+    bestPlacement[home] = displaced;
+    blankHolder[position] = position;
+    blankHolder[displaced] = home;
   }
 
   const optimizedBoard = normalizedBoard.map((slot: any, index: number) => ({

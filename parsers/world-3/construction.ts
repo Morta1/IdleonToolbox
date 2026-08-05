@@ -22,10 +22,12 @@ export {
   BOARD_SIZE,
   BOARD_X,
   BOARD_Y,
+  countBoardCharacters,
   evaluateBoard,
   getAffectedIndexes,
   getAllBoostedCogs,
   getBoardAtStep,
+  isCharacterCog,
   optimizeArrayWithSwaps,
   WEIGHTED_STAT,
   WEIGHTED_STAT_KEYS
@@ -132,11 +134,14 @@ const parseFlags = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any
 }
 
 // Cogs sitting in the character slots / cog inventory. The optimizer may pull these onto the board.
+// Empty slots are kept rather than skipped: taking a cog off the board means moving it into one, so
+// without them a board with a full inventory could never have anything removed from it. The
+// optimizer ignores them unless it has a reason to empty a slot.
 const buildSpareCogs = (cogsMap: any[], cogsOrder: any[]) => {
   const spares = [];
   for (let index = SPARE_START_INDEX; index < LEFT_COL_INDEX; index++) {
     const name = cogsOrder?.[index];
-    if (!name || name === 'Blank') continue;
+    if (!name) continue;
     if (name.startsWith('CogSm')) continue; // small cogs only fit the side columns
     spares.push({ name, stats: cogsMap?.[index] ?? {}, originalIndex: index });
   }
@@ -187,7 +192,10 @@ const SMALL_COG_STATS = ['Flaggy', 'Build', 'XP'];
 
 /** What the game calls a cog, e.g. Cog3B0 -> "Ulti Double Cog". */
 export const getCogDisplayName = (rawName?: string): string => {
-  if (!rawName || rawName === 'Blank') return rawName ?? '';
+  if (!rawName) return '';
+  // Blank is a real entry in the cog order - an empty slot. In a list of steps "swaps with Blank"
+  // reads like a cog you cannot find, so name it for what it is.
+  if (rawName === 'Blank') return 'Empty slot';
   if (rawName.startsWith('Player_')) return rawName.slice(7);
   if (!rawName.startsWith('Cog')) return rawName;
 

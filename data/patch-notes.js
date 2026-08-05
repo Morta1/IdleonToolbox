@@ -8,7 +8,7 @@ export const patchNotes = [
     'gameVer': '2.3.523',
     'date': '04/08/2026',
     'features': [
-      'Construction: the page has been rebuilt around the optimizer. It is faster, finds better boards, can pull cogs and characters in from your inventory, and has a new Balanced mode that weighs build rate, player XP and flaggy rate together. Results come back as a numbered list of swaps you can step through one at a time with the board following along, cogs are named the way the game names them, off-board steps say exactly which inventory or character slot to look in, and a new Small cogs panel points out stronger small cogs sitting unused'
+      'Construction: the page has been rebuilt around the optimizer. It is faster, finds better boards, can pull cogs and characters in from your inventory, and has a new Balanced mode that weighs build rate, player XP and flaggy rate together. Results come back as a numbered list of swaps you can step through one at a time with the board following along, cogs are named the way the game names them, off-board steps say exactly which inventory or character slot to look in, a Max chars setting caps how many characters the optimizer is allowed to put on the board, defaulting to 2 so it no longer sends your whole roster out and leaves nobody making cogs, and a new Small cogs panel points out stronger small cogs sitting unused'
     ],
     'fixes': []
   },

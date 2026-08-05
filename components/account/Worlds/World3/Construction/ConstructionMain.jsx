@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AppContext } from '../../../../common/context/AppProvider';
-import { getBoardAtStep, WEIGHTED_STAT } from '@parsers/world-3/construction';
+import { countBoardCharacters, getBoardAtStep, isCharacterCog, WEIGHTED_STAT } from '@parsers/world-3/construction';
 import {
   Box,
   Checkbox,
@@ -72,6 +72,11 @@ const ConstructionMain = () => {
   const [stat, setStat] = useState('totalBuildRate');
   const [weights, setWeights] = useState({ totalBuildRate: 1, totalPlayerExpRate: 1, totalFlaggyRate: 1 });
   const [computeSeconds, setComputeSeconds] = useState(3);
+  // Two by default. Characters on the board stop making cogs, and left to itself the optimizer sends
+  // every one of them out, so the starting point is a couple rather than the whole roster. Clamped
+  // for anyone who has fewer than that to begin with.
+  const [maxCharacters, setMaxCharacters] = useState(() => Math.min(2, countBoardCharacters(state?.account?.construction?.baseBoard)
+    + (state?.account?.construction?.spareCogs ?? []).filter(isCharacterCog).length));
   const [current, setCurrent] = useState(state?.account?.construction);
   const [cursor, setCursor] = useState(0);
   const [hoverHighlight, setHoverHighlight] = useState(null);
@@ -89,6 +94,9 @@ const ConstructionMain = () => {
     ? getBoardAtStep(current?.baseBoard, current?.spareCogs ?? [], moves, cursor, state?.characters)
     : null;
   const shownBoard = stepped?.board ?? current?.board;
+  // Everyone who could stand on the board: those already on it, plus the rack the spares come from.
+  const totalCharacters = countBoardCharacters(state?.account?.construction?.baseBoard)
+    + (state?.account?.construction?.spareCogs ?? []).filter(isCharacterCog).length;
   const nextMove = moves?.[cursor];
   // Hovering a row previews that swap; otherwise the board points at the one you are up to.
   const highlightSlots = hoverHighlight ?? (nextMove ? [nextMove.fromSlot, nextMove.to] : null);
@@ -144,7 +152,8 @@ const ConstructionMain = () => {
       // Only the two fields compileCog reads - the full character objects are megabytes to clone.
       characters: state?.characters?.map(({ name, constructionExpPerHour }) => ({ name, constructionExpPerHour })),
       spareCogs: structuredClone(construction?.spareCogs ?? []),
-      multipliers: construction?.boardMultipliers
+      multipliers: construction?.boardMultipliers,
+      maxCharacters: Math.max(0, Math.min(totalCharacters, Math.trunc(Number(maxCharacters) || 0)))
     });
   }
 
@@ -243,6 +252,20 @@ const ConstructionMain = () => {
                                                    sx={{ width: 76 }}
                                                    label={label}
                                                    value={weights[key]}/>) : null}
+                {totalCharacters > 0 ? <Tooltip followCursor={false}
+                                                title={'Characters on the board stop making cogs, so the optimizer only uses this many.'}>
+                  {/* No helperText - it adds a line under the input, which drops this field out of
+                      line with everything else on the flex-end row. */}
+                  <TextField onChange={({ target }) => setMaxCharacters(target.value)}
+                             type={'number'}
+                             disabled={running}
+                             inputProps={{ min: 0, max: totalCharacters, step: 1 }}
+                             variant={'standard'}
+                             size={'small'}
+                             sx={{ width: 90 }}
+                             label={`Max chars (${totalCharacters})`}
+                             value={maxCharacters}/>
+                </Tooltip> : null}
                 <Stack gap={0.5}>
                   <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>Effort</Typography>
                   <ToggleButtonGroup size={'small'} exclusive value={computeSeconds} disabled={running}
@@ -275,7 +298,10 @@ const ConstructionMain = () => {
               {error ? <Typography variant={'caption'} sx={{ color: 'error.main' }}>{error}</Typography> : null}
             </Stack>
           </Paper>
-          <Paper variant={'outlined'} sx={{ p: 2, flex: '1 1 0', minWidth: 0 }}>
+          {/* Basis, not zero: the stats have to keep at least two columns, or the grid drops to one,
+              the card grows four rows tall and the controls beside it stretch to match. The controls
+              wrap instead - they are a row of small fields and lose nothing by it. */}
+          <Paper variant={'outlined'} sx={{ p: 2, flex: '1 1 340px', minWidth: { xs: 0, md: 340 } }}>
             <ConstructionStats construction={state?.account?.construction} optimized={optimized}/>
           </Paper>
         </Stack>
