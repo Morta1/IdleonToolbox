@@ -15,10 +15,12 @@ import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getEventShopBonus } from '@parsers/misc';
 import { getGildedBoostioBonus } from '@parsers/world-3/construction';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import useCheckbox from '@components/common/useCheckbox';
 
 const Buildings = () => {
   const { state } = useContext(AppContext);
   const [sortBy, setSortBy] = useState('order')
+  const [CheckboxEl, hideMaxed] = useCheckbox('Hide maxed buildings');
   const buildSpeed = state?.account?.construction?.totalBuildRate;
   const atomBonus = getAtomBonus(state?.account, 'Nitrogen_-_Construction_Trimmer');
   const costCruncher = state?.account?.towers?.data?.find((tower) => tower.index === 5);
@@ -121,6 +123,10 @@ const Buildings = () => {
     });
   }
 
+  if (hideMaxed) {
+    sortedBuildings = sortedBuildings?.filter(({ isMaxed }) => !isMaxed);
+  }
+
   const getBorderColor = ({ isSlotTrimmed, inProgress }) => {
     if (isSlotTrimmed) {
       return 'warning.light';
@@ -155,6 +161,9 @@ const Buildings = () => {
                              : 3
                          }, { name: 'Atom', value: atomBonus / 100 }]}
       />
+      <CardTitleAndValue>
+        <CheckboxEl/>
+      </CardTitleAndValue>
     </Stack>
     <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
       {sortedBuildings?.map((tower, index) => {

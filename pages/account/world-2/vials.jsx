@@ -4,29 +4,17 @@ import { Box, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, growth, notateNumber, pascalCase, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from 'components/Tooltip';
-import { vialCostsArray } from '@parsers/world-2/alchemy';
+import { getVialMultiplier, vialCostsArray } from '@parsers/world-2/alchemy';
 import { NextSeo } from 'next-seo';
 import { CardTitleAndValue } from '@components/common/styles';
-import { isRiftBonusUnlocked } from '../../../parsers/world-4/rift';
 import useCheckbox from '@components/common/useCheckbox';
-import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
-import { getLabBonus } from '@parsers/world-4/lab';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const Vials = () => {
   const { state } = useContext(AppContext);
   const [CheckboxEl, hideMaxed] = useCheckbox('Hide maxed vials');
-
-  const getVialBonus = () => {
-    let vialMastery = 0;
-    const upgradeVaultBonus = getUpgradeVaultBonus(state?.account?.upgradeVault?.upgrades, 42);
-    if (isRiftBonusUnlocked(state?.account?.rift, 'Vial_Mastery')) {
-      const maxedVials = state?.account?.alchemy?.vials?.filter(({ level }) => level >= 13);
-      vialMastery = 2 * maxedVials?.length;
-      vialMastery = isNaN(vialMastery) ? 0 : vialMastery;
-    }
-    const myFirstChemistrySet = getLabBonus(state?.account.lab.labBonuses, 10); // vial multi
-    return myFirstChemistrySet * (1 + (vialMastery + upgradeVaultBonus) / 100);
-  }
+  const { value: vialBonus, breakdown } = getVialMultiplier(state?.account);
 
   return <>
     <NextSeo
@@ -34,8 +22,16 @@ const Vials = () => {
       description="View your vial levels, upgrade costs, and bonus effects for alchemy progression in Legends of Idleon"
     />
     <Stack sx={{ flexDirection: 'row', gap: 2, mb:1 }}>
-      <CardTitleAndValue title={'Vial bonus'}
-                         value={`${(getVialBonus() || 1).toFixed(3)}x`}/>
+      <CardTitleAndValue title={'Vial bonus'}>
+        <Stack direction={'row'} alignItems={'center'} gap={1}>
+          <Typography>{`${(vialBonus || 1).toFixed(3)}x`}</Typography>
+          <Breakdown data={breakdown}>
+            <Stack alignContent={'center'}>
+              <IconInfoCircleFilled size={18}/>
+            </Stack>
+          </Breakdown>
+        </Stack>
+      </CardTitleAndValue>
       <CardTitleAndValue>
         <CheckboxEl/>
       </CardTitleAndValue>

@@ -9,9 +9,13 @@ export const patchNotes = [
     'date': '05/08/2026',
     'features': [
       'Pinned Pages: each entry now shows the icon of the page it links to',
-      'Pinned Pages: entries are real links, so middle click or right click opens them in a new tab or window'
+      'Pinned Pages: entries are real links, so middle click or right click opens them in a new tab or window',
+      'Buildings: new "Hide maxed buildings" toggle',
+      'Vials: the vial bonus now has a breakdown showing every source that feeds into it'
     ],
-    'fixes': []
+    'fixes': [
+      'Vials: the vial bonus shown on the page was missing the Meritocracy vote bonus'
+    ]
   },
   {
     'ver': '3.3.56',

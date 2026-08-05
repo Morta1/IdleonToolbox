@@ -428,19 +428,51 @@ export const applyVialsMulti = (vials: any, multiplier: any) => {
   return vials?.map((vial: any) => ({ ...vial, multiplier }));
 };
 
-export const updateVials = (accountData: any) => {
-  const myFirstChemistrySet = getLabBonus(accountData.lab.labBonuses, 10); // vial multi
-  let updatedVials;
+export const getVialMultiplier = (account: any) => {
+  const myFirstChemistrySet = getLabBonus(account?.lab?.labBonuses, 10); // vial multi
+  const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 42);
+  const meritocracyBonus = getMeritocracyBonus(account, 20) ?? 0;
   let vialMastery = 0;
-  const upgradeVaultBonus = getUpgradeVaultBonus(accountData?.upgradeVault?.upgrades, 42);
-  if (isRiftBonusUnlocked(accountData?.rift, 'Vial_Mastery')) {
-    const maxedVials = accountData?.alchemy?.vials?.filter(({ level }: any) => level >= 13);
+  if (isRiftBonusUnlocked(account?.rift, 'Vial_Mastery')) {
+    const maxedVials = account?.alchemy?.vials?.filter(({ level }: any) => level >= MAX_VIAL_LEVEL);
     vialMastery = 2 * maxedVials?.length;
     vialMastery = isNaN(vialMastery) ? 0 : vialMastery;
   }
-  const multi = myFirstChemistrySet * (1 + (vialMastery + upgradeVaultBonus) / 100) * (1 + getMeritocracyBonus(accountData, 20) / 100);
-  updatedVials = applyVialsMulti(accountData.alchemy.vials, multi)
-  return updatedVials;
+  const value = myFirstChemistrySet * (1 + (vialMastery + upgradeVaultBonus) / 100) * (1 + meritocracyBonus / 100);
+
+  return {
+    value,
+    breakdown: {
+      statName: 'Vial bonus',
+      totalValue: `${(value || 1).toFixed(3)}x`,
+      categories: [
+        {
+          name: 'Base multi',
+          sources: [
+            { name: 'My First Chemistry Set (Lab)', value: myFirstChemistrySet }
+          ]
+        },
+        {
+          name: 'Additive %',
+          sources: [
+            { name: 'Vial Mastery (Rift)', value: vialMastery, formatted: `${vialMastery}%` },
+            { name: 'Upgrade Vault', value: upgradeVaultBonus, formatted: `${upgradeVaultBonus}%` }
+          ]
+        },
+        {
+          name: 'Multiplicative',
+          sources: [
+            { name: 'Meritocracy (Vote Ballot)', value: meritocracyBonus, formatted: `${meritocracyBonus}%` }
+          ]
+        }
+      ]
+    }
+  };
+}
+
+export const updateVials = (accountData: any) => {
+  const { value } = getVialMultiplier(accountData);
+  return applyVialsMulti(accountData.alchemy.vials, value);
 }
 
 const getCauldrons = (cauldronsProgress: any, cauldronsRaw: any, p2w: any, bubbles: any, alchemyActivity: any) => {
