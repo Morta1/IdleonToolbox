@@ -1,6 +1,6 @@
 self.__BUILD_MANIFEST = {
   "/": [
-    "static/chunks/2cyalihe1pd8a.js"
+    "static/chunks/3ivmf3z2eyu_z.js"
   ],
   "/404": [
     "static/chunks/0lqpl8aacxc8j.js"
@@ -249,7 +249,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/048tee97un1vd.js"
   ],
   "/dashboard": [
-    "static/chunks/02fip9bqla5w7.js"
+    "static/chunks/2kybby7zt4lmq.js"
   ],
   "/guilds": [
     "static/chunks/3s2qyuaebyv3p.js"
@@ -264,7 +264,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0q9tw3w87t7yo.js"
   ],
   "/patch-notes": [
-    "static/chunks/3h_cipd1yudlk.js"
+    "static/chunks/2xpmizr1hmjfq.js"
   ],
   "/settings": [
     "static/chunks/03or-r0q9f02w.js"
