@@ -11,7 +11,8 @@ export const patchNotes = [
       'Pinned Pages: each entry now shows the icon of the page it links to',
       'Pinned Pages: entries are real links, so middle click or right click opens them in a new tab or window',
       'Buildings: new "Hide maxed buildings" toggle',
-      'Vials: the vial bonus now has a breakdown showing every source that feeds into it'
+      'Vials: the vial bonus now has a breakdown showing every source that feeds into it',
+      'Dashboard: the shimmer trial alert now shows this week\'s challenge in its tooltip'
     ],
     'fixes': [
       'Vials: the vial bonus shown on the page was missing the Meritocracy vote bonus'

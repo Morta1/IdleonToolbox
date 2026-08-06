@@ -170,7 +170,12 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/Island1'}/> : null}
               {alerts?.['World 2']?.islands?.shimmerIsland ?
                 <Alert
-                  title={'You haven\'t claimed your shimmer\'s trial reward this week'}
+                  title={<>
+                    <div>You haven&apos;t claimed your shimmer&apos;s trial reward this week</div>
+                    {typeof alerts?.['World 2']?.islands?.shimmerIsland === 'string' ? <div>
+                      Challenge: {cleanUnderscore(alerts?.['World 2']?.islands?.shimmerIsland)}
+                    </div> : null}
+                  </>}
                   iconPath={'etc/Shimmer_Currency'}/> : null}
               {alerts?.['World 2']?.islands?.garbageUpgrade ?
                 <Alert

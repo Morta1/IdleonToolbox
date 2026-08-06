@@ -381,7 +381,7 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
       islands.unclaimedDays = account?.islands?.numberOfDaysAfk;
     }
     if (options?.islands?.shimmerIsland?.checked && account?.accountOptions?.[182] === 0) {
-      islands.shimmerIsland = account?.accountOptions?.[182] === 0;
+      islands.shimmerIsland = getIsland(account, 'Shimmer')?.currentTrial ?? true;
     }
     const trashIsland = getIsland(account, 'Trash');
     if (options?.islands?.garbageUpgrade?.checked && trashIsland?.trash >= trashIsland?.shop?.[4]?.cost) {
