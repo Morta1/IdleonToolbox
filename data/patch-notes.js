@@ -15,7 +15,8 @@ export const patchNotes = [
       'Dashboard: the shimmer trial alert now shows this week\'s challenge in its tooltip'
     ],
     'fixes': [
-      'Vials: the vial bonus shown on the page was missing the Meritocracy vote bonus'
+      'Vials: the vial bonus shown on the page was missing the Meritocracy vote bonus',
+      'Research: placeholder observations that show up as "Name" / "desc" are no longer listed'
     ]
   },
   {

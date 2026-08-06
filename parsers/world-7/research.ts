@@ -185,6 +185,9 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
   const numShapeSlots = Math.round(shapePlacementsList.length / 4);
   const observations = [];
   for (let observationIndex = 0; observationIndex < occurrencesList.length; observationIndex++) {
+    const occurrenceData = occurrencesList[observationIndex];
+    // Placeholder entries in the game data ("Name" / "desc") aren't real observations yet, skip them
+    if (occurrenceData?.name === 'Name') continue;
     const found = (Number(research?.occurrenceFoundState?.[observationIndex]) || 0) >= 1;
     const insightLevel = Number(research?.observationInsight?.[observationIndex]) || 0;
     const insightExp = Number(research?.observationInsightExp?.[observationIndex]) || 0;
@@ -192,7 +195,6 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
     const realInsightExpRate = getObservationInsightExpRate(account, research, observationIndex);
     const insightExpRate = realInsightExpRate * researchEXPmulti;
     const researchEXPrate = getResearchEXPrateObj(account, research, observationIndex) * researchEXPmulti;
-    const occurrenceData = occurrencesList[observationIndex];
     // Lenses on this observation: type 0 = Magnifying Glass (Research EXP), 1 = Optical Monocle (Insight), 2 = Kaleidoscope
     const lensTypes: any[] = [];
     for (let shapeSlotIndex = 0; shapeSlotIndex < numShapeSlots; shapeSlotIndex++) {
