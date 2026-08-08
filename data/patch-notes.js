@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.59',
+    'gameVer': '2.3.523',
+    'date': '12/08/2026',
+    'features': [
+      'Builds: browsable pages for every class and subclass, e.g. /tools/builds/barbarian'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.58',
     'gameVer': '2.3.523',
     'date': '12/08/2026',
