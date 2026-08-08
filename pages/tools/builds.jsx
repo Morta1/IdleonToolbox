@@ -30,6 +30,7 @@ import { ACCENT } from '@utility/builds/classes';
 import { TAG_OPTIONS } from '@utility/builds/tags';
 import Tooltip from 'components/Tooltip';
 import { fetchAllBuildsAtBuildTime } from '@utility/builds/static-fetch.mjs';
+import { getBuildClassSlugs, slugToDisplayName } from '@utility/builds/class-paths.mjs';
 
 const INITIAL_FILTERS = {
   class: null,
@@ -151,12 +152,12 @@ const FilterPill = ({ label, value, count, onClick, active }) => (
   </Button>
 );
 
-// Matches INITIAL_FILTERS.sort === 'new' and the runtime `limit: 24` in the
-// mount fetch below. The build-time fetch pulls every build with no sort
-// applied (Worker default is hotScore desc), so this re-sorts by createdAt
-// desc and caps it at 24 — the exact slice the first runtime fetch will
-// return. Without this, the seeded render would visibly reorder and shrink
-// the instant the mount fetch lands. If either value changes, update both.
+// Matches INITIAL_FILTERS.sort === 'new' and the runtime fetch's `limit` below.
+// The build-time fetch pulls every build with no sort applied (Worker default
+// is hotScore desc), so this re-sorts by createdAt desc and caps it at 24 —
+// the exact slice the first runtime fetch will return. Without this, the
+// seeded render would visibly reorder and shrink the instant the mount fetch
+// lands.
 const LANDING_SEED_LIMIT = 24;
 
 // Exported for tests: separates the data shape from Next's build pipeline.
@@ -164,7 +165,7 @@ export function getBuildsLandingStaticProps(builds) {
   const seeded = [...(builds || [])]
     .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
     .slice(0, LANDING_SEED_LIMIT);
-  return { props: { initialBuilds: seeded } };
+  return { props: { initialBuilds: seeded, classSlugs: getBuildClassSlugs(builds) } };
 }
 
 export async function getStaticProps() {
@@ -174,7 +175,7 @@ export async function getStaticProps() {
 
 // -- Page --------------------------------------------------------------------
 
-const Builds = ({ initialBuilds }) => {
+const Builds = ({ initialBuilds, classSlugs }) => {
   const router = useRouter();
   const { state } = useContext(AppContext);
   const signedIn = !!state?.signedIn;
@@ -240,7 +241,7 @@ const Builds = ({ initialBuilds }) => {
         q: nextFilters.q || undefined,
         tag: nextFilters.tags?.length ? nextFilters.tags : undefined,
         cursor: cursor || undefined,
-        limit: 24
+        limit: LANDING_SEED_LIMIT
       });
       if (id !== fetchIdRef.current) return;
       if (cursor) setItems((prev) => [...prev, ...(res?.items || [])]);
@@ -248,9 +249,22 @@ const Builds = ({ initialBuilds }) => {
       setNextCursor(res?.nextCursor || null);
     } catch (err) {
       if (id !== fetchIdRef.current) return;
-      if (!cursor) setItems([]);
-      setNextCursor(null);
-      setError('Unable to load builds right now. Please try again.');
+      // The very first fetch (id === 1, fired ~250ms after mount) is the one
+      // that races the seeded static props against the Worker. The seed
+      // exists precisely because the Worker may be unreachable — that's the
+      // whole premise of this branch — so if it fails and we already have
+      // seeded builds on screen, keep showing them instead of wiping a
+      // working page down to an error banner. Any later fetch (filter
+      // change, pagination) is a real user-triggered request with no seed
+      // to fall back on, so it keeps the original clear-and-report behaviour.
+      const isFirstFetch = id === 1;
+      if (isFirstFetch && initialBuilds?.length) {
+        setNextCursor(null);
+      } else {
+        if (!cursor) setItems([]);
+        setNextCursor(null);
+        setError('Unable to load builds right now. Please try again.');
+      }
     } finally {
       if (id === fetchIdRef.current) setLoading(false);
     }
@@ -367,6 +381,20 @@ const Builds = ({ initialBuilds }) => {
           </Stack>
         </Stack>
       </Box>
+
+      {/* Static links to every class page, rendered from build-time props so
+          they're present regardless of runtime fetch outcome — crawlers
+          reach every /tools/builds/[class] page from here even if the
+          Worker request below fails or hasn't resolved yet. */}
+      {classSlugs?.length > 0 && (
+        <Stack direction="row" gap={1} flexWrap="wrap" sx={{ mb: 2 }}>
+          {classSlugs.map((slug) => (
+            <Link key={slug} href={`/tools/builds/${slug}`}>
+              {slugToDisplayName(slug)} builds
+            </Link>
+          ))}
+        </Stack>
+      )}
 
       {/* Search row — distinct rounded pill */}
       <PillTextField

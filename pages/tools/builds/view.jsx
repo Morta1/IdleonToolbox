@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import Tooltip from '@components/Tooltip';
 import SimpleLoader from '@components/common/SimpleLoader';
+import { TagChip } from '@components/tools/builds/styled';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { NextSeo } from 'next-seo';
@@ -151,7 +152,36 @@ const ViewBuild = ({ manifest }) => {
       />
       <Stack mt={2} gap={2}>
         {loading ? (
-          <SimpleLoader message="Loading build…"/>
+          // The manifest resolves synchronously, so a crawler (and a human on a
+          // slow connection) sees the real build title/author/tags immediately
+          // instead of a bare spinner that contradicts the <title> NextSeo already
+          // set above. The full talent payload still only arrives from the
+          // runtime getBuild fetch, so the loader stays visible beneath it.
+          summary ? (
+            <Stack gap={2}>
+              <Box>
+                <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
+                  {summary.title}
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  {classLabel(summary)}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  by {summary.ownerName}
+                </Typography>
+                {summary.tags?.length > 0 && (
+                  <Stack direction="row" gap={1} flexWrap="wrap" sx={{ mt: 1 }}>
+                    {summary.tags.map((tag) => (
+                      <TagChip key={tag} label={tag} size="small"/>
+                    ))}
+                  </Stack>
+                )}
+              </Box>
+              <SimpleLoader message="Loading build…"/>
+            </Stack>
+          ) : (
+            <SimpleLoader message="Loading build…"/>
+          )
         ) : error ? (
           <Alert severity="error">{error}</Alert>
         ) : build ? (

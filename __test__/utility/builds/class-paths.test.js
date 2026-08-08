@@ -85,6 +85,27 @@ describe('getBuildClassSlugs', () => {
     const slugs = getBuildClassSlugs(FIXTURE);
     expect(new Set(slugs).size).toBe(slugs.length);
   });
+
+  it('rejects a subclass containing a slash', () => {
+    const slugs = getBuildClassSlugs([b('7', 'Warrior', 'foo/bar')]);
+    expect(slugs).not.toContain('foo/bar');
+    expect(slugs.some((s) => s.includes('/'))).toBe(false);
+  });
+
+  it('rejects a subclass containing an ampersand', () => {
+    const slugs = getBuildClassSlugs([b('8', 'Warrior', 'foo&bar')]);
+    expect(slugs).not.toContain('foo&bar');
+    expect(slugs.some((s) => s.includes('&'))).toBe(false);
+  });
+
+  it('still accepts normal and hyphenated subclasses', () => {
+    const slugs = getBuildClassSlugs([
+      b('9', 'Warrior', 'Barbarian'),
+      b('10', 'Warrior', 'Blood_Berserker')
+    ]);
+    expect(slugs).toContain('barbarian');
+    expect(slugs).toContain('blood-berserker');
+  });
 });
 
 describe('buildsForSlug', () => {

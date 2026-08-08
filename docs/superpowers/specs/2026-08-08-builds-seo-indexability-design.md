@@ -123,7 +123,7 @@ Pagination: `listBuilds` returns `{ items, nextCursor }`. Follow `nextCursor` wi
 
 Add `getStaticProps` to `pages/tools/builds.jsx`. It calls the helper and passes the build list as props, so the first render has real content with no network round-trip.
 
-The page already sets `NextSeo` at line 283 with a correct title and description — that stays. What changes is that build cards render server-side into the static HTML, giving Google real content and internal links to the class pages.
+The page already sets `NextSeo` at line 283 with a correct title and description — that stays. What changes is that the build data ships inside `__NEXT_DATA__` in the static HTML instead of requiring a cross-origin fetch. `components/common/WaitForRouter.jsx` gates all rendering behind a `useEffect`, so the exported HTML itself still has no `<title>` and no visible body text — that is a sitewide condition, unrelated to this fix (see "Out of scope" below). What changes is what happens next: when Googlebot executes the page's JavaScript, the build list is already present in `__NEXT_DATA__`, so first render has real content with no cross-origin round-trip that Googlebot might not wait for. That is the actual mechanism restoring indexability, and it matches how this site has ranked with client-rendered content before.
 
 Existing client-side behaviour is unchanged. The props supply only the *initial* render; search, tag filtering, sorting, and pagination continue to call the Worker at runtime exactly as they do today. The static content is what a crawler sees on first paint, not a replacement for the interactive list.
 
@@ -290,7 +290,7 @@ The tradeoff is that an unrelated bugfix cannot ship during a Worker outage. Tha
 
 - **Helper:** unit tests for cursor pagination, UA header presence, and that a failed fetch throws rather than returning a partial list.
 - **Path generation:** given a fixture build set, `getStaticPaths` returns the 4 families plus exactly the subclasses with ≥1 build, and omits zero-build subclasses (Siege Breaker, Arcane Cultist).
-- **Static output:** after `npm run build`, assert `out/tools/builds/warrior.html` and `out/tools/builds/barbarian.html` exist and contain `<title>Idleon Warrior Builds` / `<title>Idleon Barbarian Builds`, and that `out/tools/builds.html` contains build titles as text. This directly regression-tests the empty-HTML failure that caused this incident.
+- **Static output:** after `npm run build`, assert `out/tools/builds/warrior.html` and `out/tools/builds/barbarian.html` exist and their embedded `__NEXT_DATA__` JSON contains the expected build/props data (family-filtered builds, correct `displayName`, etc.), and that `out/tools/builds.html`'s `__NEXT_DATA__` contains the seeded build titles. The exported HTML has no server-rendered `<title>` or body text on any page of this site — that is the sitewide `WaitForRouter` gate, not something this spec changes — so the assertion is on the data Googlebot's JS execution renders from, not on literal markup.
 - **View page:** manifest lookup renders metadata without a network call; unknown id still falls back to fetch.
 - **Manual:** verify a shared `view?id=` link still resolves.
 

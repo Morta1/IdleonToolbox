@@ -5,9 +5,7 @@ import Link from 'next/link';
 import BuildCard from '@components/tools/builds/BuildCard';
 import { fetchAllBuildsAtBuildTime } from '@utility/builds/static-fetch.mjs';
 import {
-  BUILD_FAMILIES,
   buildsForSlug,
-  classToSlug,
   getBuildClassSlugs,
   slugToDisplayName
 } from '@utility/builds/class-paths.mjs';
@@ -26,7 +24,8 @@ export function getBuildClassStaticProps(builds, slug) {
     props: {
       slug,
       displayName: slugToDisplayName(slug),
-      builds: buildsForSlug(builds, slug)
+      builds: buildsForSlug(builds, slug),
+      allSlugs: getBuildClassSlugs(builds)
     }
   };
 }
@@ -41,7 +40,7 @@ export async function getStaticProps({ params }) {
   return getBuildClassStaticProps(builds, params.class);
 }
 
-const BuildClassPage = ({ slug, displayName, builds }) => {
+const BuildClassPage = ({ slug, displayName, builds, allSlugs }) => {
   const title = `Idleon ${displayName} Builds | Idleon Toolbox`;
   const description = builds.length
     ? `Browse ${builds.length} community ${displayName} builds for Legends of Idleon — talent trees, gear and progression.`
@@ -68,11 +67,13 @@ const BuildClassPage = ({ slug, displayName, builds }) => {
 
         {/* Internal links so crawlers reach every class page from any other. */}
         <Stack direction="row" gap={1} flexWrap="wrap">
-          {BUILD_FAMILIES.map((family) => (
-            <Link key={family} href={`/tools/builds/${classToSlug(family)}`}>
-              {family} builds
-            </Link>
-          ))}
+          {allSlugs
+            .filter((s) => s !== slug)
+            .map((s) => (
+              <Link key={s} href={`/tools/builds/${s}`}>
+                {slugToDisplayName(s)} builds
+              </Link>
+            ))}
           <Link href="/tools/builds">All builds</Link>
         </Stack>
 
