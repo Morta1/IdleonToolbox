@@ -29,6 +29,7 @@ import { listBuilds } from 'services/builds';
 import { ACCENT } from '@utility/builds/classes';
 import { TAG_OPTIONS } from '@utility/builds/tags';
 import Tooltip from 'components/Tooltip';
+import { fetchAllBuildsAtBuildTime } from '@utility/builds/static-fetch.mjs';
 
 const INITIAL_FILTERS = {
   class: null,
@@ -150,17 +151,28 @@ const FilterPill = ({ label, value, count, onClick, active }) => (
   </Button>
 );
 
+// Exported for tests: separates the data shape from Next's build pipeline.
+export function getBuildsLandingStaticProps(builds) {
+  return { props: { initialBuilds: builds || [] } };
+}
+
+export async function getStaticProps() {
+  const builds = await fetchAllBuildsAtBuildTime();
+  return getBuildsLandingStaticProps(builds);
+}
+
 // -- Page --------------------------------------------------------------------
 
-const Builds = () => {
+const Builds = ({ initialBuilds }) => {
   const router = useRouter();
   const { state } = useContext(AppContext);
   const signedIn = !!state?.signedIn;
 
   const [filters, setFilters] = useState(INITIAL_FILTERS);
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState(initialBuilds || []);
   const [nextCursor, setNextCursor] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Already have server-rendered builds — don't show a skeleton over real content.
+  const [loading, setLoading] = useState(!initialBuilds?.length);
   const [error, setError] = useState('');
   const fetchIdRef = useRef(0);
   // Hydration is tracked via React state (not a ref) so the mirror-to-URL
