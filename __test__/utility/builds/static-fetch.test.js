@@ -92,4 +92,9 @@ describe('fetchAllBuildsAtBuildTime', () => {
     const result = await fetchAllBuildsAtBuildTime();
     expect(result.map((b) => b.shortId)).toEqual(['a']);
   });
+
+  it('throws instead of returning a truncated list when the page cap is hit', async () => {
+    global.fetch = vi.fn(async () => okResponse({ items: [build('a')], nextCursor: 'more' }));
+    await expect(fetchAllBuildsAtBuildTime()).rejects.toThrow(/exceeded|truncated/i);
+  });
 });

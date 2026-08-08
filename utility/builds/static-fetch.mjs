@@ -72,6 +72,10 @@ async function doFetchAllBuilds() {
     if (!cursor) break;
   }
 
+  if (cursor) {
+    throw new Error(`Builds API pagination exceeded ${MAX_PAGES} pages — refusing to return a truncated build list`);
+  }
+
   if (all.length === 0) {
     throw new Error('Builds API returned no builds — refusing to build a site without build pages');
   }
