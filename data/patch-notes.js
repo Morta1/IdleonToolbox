@@ -16,7 +16,8 @@ export const patchNotes = [
     ],
     'fixes': [
       'Vials: the vial bonus shown on the page was missing the Meritocracy vote bonus',
-      'Research: placeholder observations that show up as "Name" / "desc" are no longer listed'
+      'Research: placeholder observations that show up as "Name" / "desc" are no longer listed',
+      'Statistics: the 11th character is now counted in the leaderboards and shown in the class distribution chart, and the total levels chart goes up to 18k'
     ]
   },
   {
