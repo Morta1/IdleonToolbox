@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
+import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import { Divider, Stack, Typography } from '@mui/material';
 import { TitleAndValue } from './styles';
 import { getGoldenFoodBonus } from '../../parsers/misc';

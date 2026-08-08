@@ -25,12 +25,56 @@ import BuildDetail from '@components/tools/builds/BuildDetail';
 import LikeButton from '@components/tools/builds/LikeButton';
 import UseAsTemplateButton from '@components/tools/builds/UseAsTemplateButton';
 import { getBuild, deleteBuild, getBuildState } from 'services/builds';
+import { fetchAllBuildsAtBuildTime } from '@utility/builds/static-fetch.mjs';
 
-const ViewBuild = () => {
+// Only the fields metadata needs. The full talent payload still comes from the
+// Worker at runtime — this manifest exists so <title> resolves on first render
+// instead of waiting on a cross-origin fetch Googlebot may never complete.
+export function toBuildSummary(build) {
+  return {
+    shortId: build.shortId,
+    title: build.title,
+    class: build.class,
+    subclass: build.subclass,
+    ownerName: build.ownerName,
+    tags: build.tags,
+    likeCount: build.likeCount
+  };
+}
+
+export function findInManifest(manifest, shortId) {
+  if (!shortId) return null;
+  return (manifest || []).find((entry) => entry.shortId === shortId) || null;
+}
+
+const classLabel = (summary) =>
+  [summary.subclass?.replace(/_/g, ' '), summary.class].filter(Boolean).join(' ');
+
+export function buildSeoTitle(summary) {
+  if (!summary) return 'Build | Idleon Toolbox';
+  return `${summary.title} — ${classLabel(summary)} Build | Idleon Toolbox`;
+}
+
+export function buildSeoDescription(summary) {
+  if (!summary) return 'Community build for Legends of Idleon';
+  const tags = (summary.tags || []).join(', ');
+  const tagPart = tags ? ` — ${tags}.` : '.';
+  return `${summary.title} by ${summary.ownerName}. ${classLabel(summary)} build for Legends of Idleon${tagPart} ${summary.likeCount || 0} likes.`;
+}
+
+export async function getStaticProps() {
+  const builds = await fetchAllBuildsAtBuildTime();
+  return { props: { manifest: builds.map(toBuildSummary) } };
+}
+
+const ViewBuild = ({ manifest }) => {
   const router = useRouter();
   const { state } = useContext(AppContext);
   const signedIn = !!state?.signedIn;
   const shortId = router.query?.id;
+
+  // Resolves synchronously on first render for any build present at build time.
+  const summary = findInManifest(manifest, shortId);
 
   const [build, setBuild] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -102,8 +146,8 @@ const ViewBuild = () => {
   return (
     <>
       <NextSeo
-        title={`${build?.title || 'Build'} | Idleon Toolbox`}
-        description={build?.description || 'Community build for Legends of Idleon'}
+        title={buildSeoTitle(summary)}
+        description={buildSeoDescription(summary)}
       />
       <Stack mt={2} gap={2}>
         {loading ? (
