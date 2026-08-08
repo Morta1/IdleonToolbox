@@ -151,9 +151,20 @@ const FilterPill = ({ label, value, count, onClick, active }) => (
   </Button>
 );
 
+// Matches INITIAL_FILTERS.sort === 'new' and the runtime `limit: 24` in the
+// mount fetch below. The build-time fetch pulls every build with no sort
+// applied (Worker default is hotScore desc), so this re-sorts by createdAt
+// desc and caps it at 24 — the exact slice the first runtime fetch will
+// return. Without this, the seeded render would visibly reorder and shrink
+// the instant the mount fetch lands. If either value changes, update both.
+const LANDING_SEED_LIMIT = 24;
+
 // Exported for tests: separates the data shape from Next's build pipeline.
 export function getBuildsLandingStaticProps(builds) {
-  return { props: { initialBuilds: builds || [] } };
+  const seeded = [...(builds || [])]
+    .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
+    .slice(0, LANDING_SEED_LIMIT);
+  return { props: { initialBuilds: seeded } };
 }
 
 export async function getStaticProps() {
