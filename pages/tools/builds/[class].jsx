@@ -67,7 +67,7 @@ const BuildClassPage = ({ slug, displayName, builds, allSlugs }) => {
 
         {/* Internal links so crawlers reach every class page from any other. */}
         <Stack direction="row" gap={1} flexWrap="wrap">
-          {allSlugs
+          {(allSlugs || [])
             .filter((s) => s !== slug)
             .map((s) => (
               <Link key={s} href={`/tools/builds/${s}`}>

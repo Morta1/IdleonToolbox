@@ -1,6 +1,6 @@
 import '../../polyfills';
 import { describe, it, expect } from 'vitest';
-import { getBuildsLandingStaticProps } from '../../pages/tools/builds.jsx';
+import { getBuildsLandingStaticProps, matchesSeedSlice } from '../../pages/tools/builds.jsx';
 
 const b = (shortId, createdAt) => ({
   shortId, title: shortId, class: 'Warrior', subclass: 'Barbarian',
@@ -38,5 +38,32 @@ describe('getBuildsLandingStaticProps', () => {
   it('returns an empty array rather than undefined when given none', () => {
     const { props } = getBuildsLandingStaticProps([]);
     expect(props.initialBuilds).toEqual([]);
+  });
+});
+
+describe('matchesSeedSlice', () => {
+  it('matches the default unfiltered, sort "new" filters', () => {
+    expect(matchesSeedSlice({ class: null, sort: 'new', q: '', tags: [] })).toBe(true);
+  });
+
+  it('does not match when a class filter is set', () => {
+    expect(matchesSeedSlice({ class: 'Mage', sort: 'new', q: '', tags: [] })).toBe(false);
+  });
+
+  it('does not match when q is non-empty', () => {
+    expect(matchesSeedSlice({ class: null, sort: 'new', q: 'crystal', tags: [] })).toBe(false);
+  });
+
+  it('does not match when tags are non-empty', () => {
+    expect(matchesSeedSlice({ class: null, sort: 'new', q: '', tags: ['pushing'] })).toBe(false);
+  });
+
+  it('does not match when sort is "top"', () => {
+    expect(matchesSeedSlice({ class: null, sort: 'top', q: '', tags: [] })).toBe(false);
+  });
+
+  it('does not throw and does not match on undefined or null input', () => {
+    expect(matchesSeedSlice(undefined)).toBe(false);
+    expect(matchesSeedSlice(null)).toBe(false);
   });
 });

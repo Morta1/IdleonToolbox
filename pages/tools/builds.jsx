@@ -75,6 +75,13 @@ const queriesEqual = (a, b) => {
   return aKeys.every((k) => a[k] === b[k]);
 };
 
+// The static seed is exactly one slice: unfiltered, sort 'new', first
+// LANDING_SEED_LIMIT by createdAt desc. It may only be used as a fallback for a
+// request asking for that same slice — otherwise we would present unfiltered
+// builds as though they satisfied the user's filters.
+export const matchesSeedSlice = (f) =>
+  !f?.class && !f?.q && !f?.tags?.length && f?.sort === INITIAL_FILTERS.sort;
+
 const SORTS = [
   // Temporarily disabled — see VALID_SORTS comment above.
   // { value: 'hot', label: 'Hot', icon: <LocalFireDepartmentIcon sx={{ fontSize: 16 }}/> },
@@ -249,16 +256,20 @@ const Builds = ({ initialBuilds, classSlugs }) => {
       setNextCursor(res?.nextCursor || null);
     } catch (err) {
       if (id !== fetchIdRef.current) return;
-      // The very first fetch (id === 1, fired ~250ms after mount) is the one
-      // that races the seeded static props against the Worker. The seed
-      // exists precisely because the Worker may be unreachable — that's the
-      // whole premise of this branch — so if it fails and we already have
-      // seeded builds on screen, keep showing them instead of wiping a
-      // working page down to an error banner. Any later fetch (filter
-      // change, pagination) is a real user-triggered request with no seed
-      // to fall back on, so it keeps the original clear-and-report behaviour.
-      const isFirstFetch = id === 1;
-      if (isFirstFetch && initialBuilds?.length) {
+      // The very first fetch (id === 1, fired ~250ms after mount) races the
+      // seeded static props against the Worker. The seed exists precisely
+      // because the Worker may be unreachable — that's the whole premise of
+      // this branch — so if it fails, we already have seeded builds on
+      // screen, and this request is asking for the exact slice the seed
+      // represents (unfiltered, sort 'new', no cursor), keep showing the
+      // seed instead of wiping a working page down to an error banner. Any
+      // other failure (a filtered first fetch hydrated from the URL, a
+      // filter change, pagination) is a real user-triggered request with no
+      // matching seed to fall back on, so it keeps the original
+      // clear-and-report behaviour.
+      const canFallBackToSeed =
+        id === 1 && !cursor && matchesSeedSlice(nextFilters) && initialBuilds?.length;
+      if (canFallBackToSeed) {
         setNextCursor(null);
       } else {
         if (!cursor) setItems([]);

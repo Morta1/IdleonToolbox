@@ -10,7 +10,9 @@ export const patchNotes = [
     'features': [
       'Builds: browsable pages for every class and subclass, e.g. /tools/builds/barbarian'
     ],
-    'fixes': []
+    'fixes': [
+      'Builds: filtering by class, search, tags, or sort no longer keeps showing the wrong builds without an error if the request fails'
+    ]
   },
   {
     'ver': '3.3.58',
