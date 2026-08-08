@@ -205,7 +205,7 @@ const BaseField = ({ option, trackerName, onChange, configType, section }) => {
   const { type, props } = option || {};
   return <>
     {option?.category ? <Typography variant={'caption'}>{option?.category?.camelToTitleCase()}</Typography> : null}
-    <Stack direction={'row'}>
+    <Stack direction={'row'} gap={2}>
       {type !== 'array' ? <Stack>
         <FormControlLabel
           sx={{ minWidth: props?.type === 'img' ? 'inherit' : 100, [`.${typographyClasses.root}`]: { fontSize: 14 } }}

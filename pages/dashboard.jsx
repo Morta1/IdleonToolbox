@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 62,
+  version: 63,
   account: {
     General: {
       tasks: {
@@ -70,7 +70,24 @@ const baseTrackers = {
     'World 1': {
       stamps: {
         checked: true,
-        options: [{ name: 'gildedStamps', checked: true }, { name: 'showGildedWhenNoAtomDiscount', checked: false }]
+        options: [
+          { name: 'gildedStamps', checked: true },
+          { name: 'showGildedWhenNoAtomDiscount', checked: false },
+          {
+            name: 'affordableStampLevels',
+            type: 'input',
+            checked: true,
+            helperText: 'Stamps you can level with your account coins',
+            props: {
+              label: 'Max coin spend',
+              value: 25,
+              minValue: 1,
+              maxValue: 100,
+              endAdornment: '%',
+              helperText: ''
+            }
+          }
+        ]
       },
       owl: {
         checked: true,

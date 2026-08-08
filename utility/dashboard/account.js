@@ -24,6 +24,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { isHatRackEligible } from '@parsers/world-3/hatRack';
+import { getGoldCostToMaxLevel, getStampsPerDay } from '@parsers/world-1/stamps';
 
 export const getOptions = (data) => {
   return Object.entries(data)?.reduce((res, [fieldName, fieldData]) => {
@@ -238,15 +239,55 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
   return alerts;
 };
 
+// Stamps whose remaining levels can be bought with coins right now, without spending
+// more than `threshold` percent of the account's total coins. Cheapest first, so the
+// returned set is one you can actually buy in a single sitting.
+const getAffordableStampLevels = (account, threshold) => {
+  const totalMoney = account?.currencies?.rawMoney ?? 0;
+  // The config stores the raw input value, so it can arrive as a string, empty or out of range.
+  const percent = Math.min(100, Math.max(1, Number(threshold) || 25));
+  const budget = totalMoney * (percent / 100);
+  if (budget <= 0) return null;
+
+  const candidates = Object.values(account?.stamps || {})
+    .flat()
+    .filter(({ level, maxLevel }) => level > 0 && level < maxLevel)
+    .map((stamp) => ({ ...stamp, goldCostToMax: getGoldCostToMaxLevel(stamp, account) }))
+    .filter(({ goldCostToMax }) => goldCostToMax > 0 && goldCostToMax <= budget)
+    .sort((a, b) => a.goldCostToMax - b.goldCostToMax);
+
+  let totalCost = 0;
+  const affordable = [];
+  for (const stamp of candidates) {
+    if (totalCost + stamp.goldCostToMax > budget) break;
+    totalCost += stamp.goldCostToMax;
+    affordable.push(stamp);
+  }
+  if (affordable.length === 0) return null;
+
+  return {
+    count: affordable.length,
+    totalCost,
+    percentOfMoney: Math.ceil((totalCost / totalMoney) * 100),
+    stampsPerDay: getStampsPerDay(account)?.value ?? 0
+  };
+}
+
 export const getWorld1Alerts = (account, fields, options) => {
   const alerts = {};
-  if (fields?.stamps?.checked && isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) {
+  if (fields?.stamps?.checked) {
     const stamps = {};
-    if (options?.stamps?.gildedStamps?.checked) {
+    if (options?.stamps?.gildedStamps?.checked && isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) {
       if (account?.accountOptions?.[154] > 0 && (options?.stamps?.showGildedWhenNoAtomDiscount?.checked
         ? account?.atoms?.stampReducer <= 0
         : true)) {
         stamps.gildedStamps = account?.accountOptions?.[154];
+      }
+    }
+    if (options?.stamps?.affordableStampLevels?.checked) {
+      const affordable = getAffordableStampLevels(account, options?.stamps?.affordableStampLevels?.props?.value);
+      if (affordable) {
+        stamps.affordableStampLevels = affordable;
       }
     }
     if (Object.keys(stamps).length > 0) {

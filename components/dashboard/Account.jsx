@@ -138,6 +138,9 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 1']?.stamps?.gildedStamps > 0 ?
                 <Alert title={`You have ${alerts?.['World 1']?.stamps?.gildedStamps} available gilded stamps`}
                        iconPath={'data/GildedStamp'}/> : null}
+              {alerts?.['World 1']?.stamps?.affordableStampLevels ?
+                <Alert title={<AffordableStampLevels {...alerts?.['World 1']?.stamps?.affordableStampLevels}/>}
+                       iconPath={'data/StampA34'}/> : null}
               {alerts?.['World 1']?.owl?.featherRestart ?
                 <Alert title={`Feather restart can be upgraded`}
                        iconPath={'etc/Owl_4'}/> : null}
@@ -652,6 +655,18 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
     </Card>
   </>
 };
+
+const AffordableStampLevels = ({ count, totalCost, percentOfMoney, stampsPerDay }) => {
+  return <>
+    <Typography>
+      You can afford to level {count} stamp{count > 1 ? 's' : ''} for {notateNumber(totalCost)} coins
+      total ({percentOfMoney}% of your account coins)
+    </Typography>
+    {stampsPerDay > 0 ? <Typography>
+      Level them before your +{stampsPerDay} free stamp LVs roll today
+    </Typography> : null}
+  </>
+}
 
 const Alert = ({
                  title,

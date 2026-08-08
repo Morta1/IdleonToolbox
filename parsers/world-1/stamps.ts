@@ -221,6 +221,17 @@ const getGoldCost = (level: any, stamp: any, account: any) => {
   return Math.floor(finalCost);
 }
 
+// Total coins needed to take a stamp from its current level up to its already unlocked max level.
+export const getGoldCostToMaxLevel = (stamp: any, account: any) => {
+  const { level, maxLevel } = stamp || {};
+  if (typeof level !== 'number' || typeof maxLevel !== 'number') return 0;
+  let total = 0;
+  for (let i = level; i < maxLevel; i++) {
+    total += getGoldCost(i, stamp, account);
+  }
+  return total;
+}
+
 const getMaterialCostToLevel = (level: any, maxLevel: any, stamp: any, account: any, reduction = 0, gildedStamp: any) => {
   let total = 0;
   for (let i = level; i < maxLevel; i += stamp?.reqItemMultiplicationLevel) {

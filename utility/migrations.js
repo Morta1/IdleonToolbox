@@ -1351,6 +1351,38 @@ const migration62 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration63 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
+  const world1 = dashboardConfig?.account?.['World 1'];
+  if (world1) {
+    if (!world1.stamps) {
+      world1.stamps = { checked: true, options: [] };
+    }
+    if (!Array.isArray(world1.stamps.options)) {
+      world1.stamps.options = [];
+    }
+  }
+  const stampsOptions = world1?.stamps?.options;
+  if (Array.isArray(stampsOptions) && !stampsOptions.some((option) => option?.name === 'affordableStampLevels')) {
+    stampsOptions.push({
+      name: 'affordableStampLevels',
+      type: 'input',
+      checked: true,
+      helperText: 'Stamps you can level with your account coins',
+      props: {
+        label: 'Max coin spend',
+        value: 25,
+        minValue: 1,
+        maxValue: 100,
+        endAdornment: '%',
+        helperText: ''
+      }
+    });
+  }
+  dashboardConfig.version = 63;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1415,6 +1447,7 @@ const migrations = {
   60: migration60,
   61: migration61,
   62: migration62,
+  63: migration63,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {
