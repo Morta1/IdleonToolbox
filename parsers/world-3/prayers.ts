@@ -2,6 +2,7 @@ import { tryToParse } from '@utility/helpers';
 import { calculateItemTotalAmount } from '@parsers/items';
 import { items, prayers } from '@website-data';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
+import { liveEntries } from '@parsers/catalog';
 import type { IdleonData, Account } from '../types';
 
 export const getPrayers = (idleonData: IdleonData, storage: any[]) => {
@@ -9,17 +10,20 @@ export const getPrayers = (idleonData: IdleonData, storage: any[]) => {
   return parsePrayers(prayersRaw, storage);
 }
 
-const parsePrayers = (prayersRaw: any[], storage: any[]) => {
-  return prayersRaw?.reduce((res, prayerLevel, prayerIndex) => {
-    const reqItem = prayers?.[prayerIndex]?.soul;
+const parsePrayers = (prayersRaw: any[] | undefined, storage: any[]) => {
+  // Catalog-driven: the list of prayers that exist is a property of the game, not of the save.
+  // The save only supplies each prayer's level, and a short save means unlocked-yet levels of 0 —
+  // not a truncated list.
+  return liveEntries<any>(prayers).map(({ entry, index }) => {
+    const reqItem = entry?.soul;
     const totalAmount = calculateItemTotalAmount(storage, items?.[reqItem]?.displayName, true);
-    return prayerIndex < 19 ? [...res, {
-      ...prayers?.[prayerIndex],
-      prayerIndex,
+    return {
+      ...entry,
+      prayerIndex: index,
       totalAmount,
-      level: prayerLevel
-    }] : res
-  }, []);
+      level: prayersRaw?.[index] ?? 0
+    };
+  });
 }
 
 export const getPrayerBonusAndCurse = (prayers: any[], prayerName: string, account?: Account, forcePrayer: boolean = false) => {
