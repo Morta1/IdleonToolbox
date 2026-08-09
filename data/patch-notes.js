@@ -20,7 +20,10 @@ export const patchNotes = [
     'fixes': [
       'Vials: the vial bonus shown on the page was missing the Meritocracy vote bonus',
       'Research: placeholder observations that show up as "Name" / "desc" are no longer listed',
-      'Statistics: the 11th character is now counted in the leaderboards and shown in the class distribution chart, and the total levels chart goes up to 18k'
+      'Statistics: the 11th character is now counted in the leaderboards and shown in the class distribution chart, and the total levels chart goes up to 18k',
+      'Refinery: salts you have not unlocked yet no longer show a fake rank or trigger a missing-materials alert',
+      'Alchemy: a cauldron\'s next-bubble requirement no longer inflates before you have unlocked every bubble in it',
+      'The "you\'re not signed in" banner no longer lingers on screen after manually importing a save file'
     ]
   },
   {

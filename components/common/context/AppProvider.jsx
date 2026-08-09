@@ -252,6 +252,7 @@ const AppProvider = ({ children }) => {
             profile: true,
             manualImport: false,
             signedIn: !!user,
+            emptyAccount: false,
             lastUpdated,
             isLoading: false
           }
@@ -289,6 +290,7 @@ const AppProvider = ({ children }) => {
           ...parsedData,
           lastUpdated: timestamp,
           demo: true,
+          emptyAccount: false,
           isLoading: false
         }
       });

@@ -17,7 +17,19 @@ export const getStarSigns = (idleonData: IdleonData, account: Account): any[] | 
 export const getConstellations = (idleonData: IdleonData): { constellations: any[]; rawConstellationsDone: number } => {
   const constellationsRaw = tryToParse(idleonData?.SSprog) || idleonData?.StarSignProg;
   const constellationsParsed = parseConstellations(constellationsRaw);
-  return { constellations: constellationsParsed, rawConstellationsDone: constellationsRaw?.reduce((sum: number, [, done]: [any, number]) => sum + done, 0) }
+  // parseConstellations/the reduce below both short-circuit to undefined (not their `[]`/0 fallback)
+  // when constellationsRaw is missing, because optional chaining skips the whole call rather than
+  // running it with an empty input. safeSection can't catch that: it only replaces the section when
+  // the WHOLE return value is null/undefined, not per-field, so these leaked through as literally
+  // `undefined` on account.constellations/account.rawConstellationsDone for an empty parse.
+  // (`constellations` was on the plan's conversion list to become catalog-driven like starSigns,
+  // but wasn't converted here - parseConstellations's rawIndex/mapIndex lookup and null-mapIndex
+  // skip logic would need to be re-derived from the catalog side to do that safely, and this fix
+  // wave is scoped to restoring the neutral-default contract, not a further conversion.)
+  return {
+    constellations: constellationsParsed ?? [],
+    rawConstellationsDone: constellationsRaw?.reduce((sum: number, [, done]: [any, number]) => sum + done, 0) ?? 0
+  }
 }
 
 export const parseStarSigns = (starSignsRaw: any, account: Account): any[] | undefined => {

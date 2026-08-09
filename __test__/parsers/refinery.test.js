@@ -32,21 +32,54 @@ describe('getRefinery', () => {
 const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
 
 describe('getRefinery fixture regression', () => {
-  it.each(FIXTURES)('%s: salt progress the save covers is unchanged at the same index', (_name, fixture) => {
+  it.each(FIXTURES)('%s: salt progress below the unlocked count is unchanged at the same index', (_name, fixture) => {
     const data = fixture.data ?? fixture;
     const refineryRaw = tryToParse(data?.Refinery) || data?.Refinery;
+    const unlockedSaltCount = refineryRaw?.[0]?.[0] ?? 0;
     const result = getRefinery(data, [], {});
     const names = Object.keys(refinery);
 
     names.forEach((_name2, index) => {
+      if (index >= unlockedSaltCount || index >= result.salts.length) return;
       const salt = refineryRaw?.[3 + index];
-      if (!salt || index >= result.salts.length) return;
+      if (!salt) return;
       const [refined = 0, rank = 0, , active = 0, autoRefinePercentage = 0] = salt;
       expect(result.salts[index].refined).toBe(refined);
       expect(result.salts[index].rank).toBe(rank);
       expect(result.salts[index].active).toBe(active);
       expect(result.salts[index].autoRefinePercentage).toBe(autoRefinePercentage);
+      expect(result.salts[index].unlocked).toBe(true);
     });
+  });
+
+  /**
+   * Regression for the CRITICAL finding: the game seeds every salt slot - unlocked or not - with
+   * [0,1,0,0,0], so a locked salt's raw rank reads as 1. The catalog-driven rewrite first read
+   * every slot unconditionally and emitted locked salts at rank 1, inflating totalLevels (13 -> 16
+   * on `first`) and tripping utility/dashboard/account.js's missing-materials alert for salts the
+   * player hasn't unlocked yet. A locked salt must come out neutral (rank 0) and flagged unlocked:
+   * false, regardless of what the save's seeded slot contains.
+   */
+  it.each(FIXTURES)('%s: salts at or beyond the unlocked count are neutral, not the seeded rank-1 slot', (_name, fixture) => {
+    const data = fixture.data ?? fixture;
+    const refineryRaw = tryToParse(data?.Refinery) || data?.Refinery;
+    const unlockedSaltCount = refineryRaw?.[0]?.[0] ?? 0;
+    const result = getRefinery(data, [], {});
+
+    result.salts.forEach((salt, index) => {
+      if (index < unlockedSaltCount) return;
+      expect(salt.unlocked).toBe(false);
+      expect(salt.rank).toBe(0);
+      expect(salt.refined).toBe(0);
+      expect(salt.active).toBe(0);
+      expect(salt.autoRefinePercentage).toBe(0);
+    });
+  });
+
+  it('first: totalLevels only counts the 3 unlocked salts (7 + 4 + 2 = 13), not the 6 seeded rank-1 locked ones', () => {
+    const data = first.data ?? first;
+    const result = getRefinery(data, [], {});
+    expect(result.totalLevels).toBe(13);
   });
 
   it.each(FIXTURES)('%s: returns the full catalog length regardless of save length', (_name, fixture) => {

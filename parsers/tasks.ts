@@ -54,7 +54,10 @@ export const getTasks = (idleonData: IdleonData): {
       }
     })
   });
-  const unlockedRecipes = tasksRaw?.[3]?.flat()?.reduce((sum: number, unlock: number) => sum + unlock, 0);
+  // Optional chaining short-circuits to undefined (not the reduce's 0 seed) when tasksRaw is
+  // missing, and safeSection's top-level null/undefined check can't catch a leaked undefined
+  // nested inside an otherwise-defined object - same defect class as getConstellations.
+  const unlockedRecipes = tasksRaw?.[3]?.flat()?.reduce((sum: number, unlock: number) => sum + unlock, 0) ?? 0;
   const unlockPointsOwned = getUnlockPointsOwned(unlockPointsFormula, tasksRaw?.[4]?.[0]) ?? 0;
   const pointsReq = getPointsReq(unlockPointsFormula, unlockPointsOwned, 0) ?? 0;
   const taskUnlocks = {

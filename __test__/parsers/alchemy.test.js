@@ -1,6 +1,6 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
-import { getAlchemy, isNamedVial } from '@parsers/world-2/alchemy';
+import { getAlchemy, getMaxCauldron, isNamedVial } from '@parsers/world-2/alchemy';
 import { liveCount } from '@parsers/catalog';
 import { cauldrons, vials } from '@website-data';
 import { createArrayOfArrays } from '@utility/helpers';
@@ -97,5 +97,40 @@ describe('getAlchemy fixture regression', () => {
       expect(result.bubbles[category]).toHaveLength(liveCount(cauldrons[category]));
     }
     expect(result.vials).toHaveLength(liveCount(Object.values(vials)));
+  });
+
+  /**
+   * Regression for the CRITICAL finding: cauldrons[category].req (the requirement for the NEXT
+   * bubble) is getMaxCauldron(n) where n must be the player's unlocked bubble count from the SAVE.
+   * bubbles[category] is catalog-driven (Task 5) so its .length is always the full 35-bubble
+   * catalog size - using it here inflated the requirement ~5x for any account that hasn't unlocked
+   * every bubble in a cauldron. Values pinned against the real per-fixture unlocked counts
+   * (CauldronInfo[cauldronIndex].length after createArrayOfArrays strips the save's stray `length`
+   * key): first 30/30/30/30, second 32/33/32/32 (quicc has 33), third 31/30/30/30, fourth
+   * 30/30/30/30, latest 35/35/35/35 (fully unlocked, so unchanged from the catalog-size bug there).
+   */
+  it.each([
+    ['first', first, { power: 52195626.52137258, quicc: 52195626.52137258, 'high-iq': 52195626.52137258, kazam: 52195626.52137258 }],
+    ['second', second, { power: 101667934.23354474, quicc: 141425610.9208851, 'high-iq': 101667934.23354474, kazam: 101667934.23354474 }],
+    ['third', third, { power: 72930035.70684944, quicc: 52195626.52137258, 'high-iq': 52195626.52137258, kazam: 52195626.52137258 }],
+    ['fourth', fourth, { power: 52195626.52137258, quicc: 52195626.52137258, 'high-iq': 52195626.52137258, kazam: 52195626.52137258 }],
+    ['latest', latest, { power: 272040643.50180316, quicc: 272040643.50180316, 'high-iq': 272040643.50180316, kazam: 272040643.50180316 }]
+  ])('%s: cauldron req is derived from the save\'s unlocked bubble count, not the catalog length', (_name, fixture, expected) => {
+    const data = fixture.data ?? fixture;
+    const result = getAlchemy(data, [], {});
+    for (const category of CAULDRON_CATEGORIES) {
+      expect(result.cauldrons[category].req).toBeCloseTo(expected[category], 3);
+    }
+  });
+
+  /**
+   * Not a CATALOG_BACKED row: `cauldrons` is keyed off `cauldronsInfo` (CauldUpgLVs/CauldUpgXPs),
+   * which is unrelated to Task 5's catalog-driven bubbles/vials conversion and stays empty ({}, no
+   * category keys at all) on a totally empty account - out of scope for this fix. This only pins
+   * that getMaxCauldron is never called with the catalog's full length when the save DOES have
+   * cauldron entries but hasn't unlocked every bubble - see the fixture-pinned test above.
+   */
+  it('getMaxCauldron(0) is neutral, matching an account with no unlocked bubbles in a cauldron', () => {
+    expect(getMaxCauldron(0)).toBe(3);
   });
 });

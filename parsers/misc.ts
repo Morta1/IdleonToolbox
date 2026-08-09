@@ -647,7 +647,11 @@ export const getHighestLevelCharacter = (characters: any) => {
 
 export const getHighestCharacterSkill = (characters: any = [], skillName: any) => {
   const levels = characters?.map(({ skillsInfo }: any) => skillsInfo?.[skillName]?.level ?? 0);
-  return Math.max(...levels);
+  // Math.max(...[]) on an empty character list is -Infinity, which safeSection's null/undefined
+  // check can't catch. Skill levels are never negative, so a 0 floor can't change a real save's
+  // value - same fix already applied for this defect class in tome.ts:337/346/351, talents.ts:571,
+  // and breeding.ts:237.
+  return Math.max(0, ...levels);
 };
 
 export const calculateLeaderboard = (characters: any) => {

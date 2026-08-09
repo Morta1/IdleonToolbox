@@ -25,6 +25,31 @@ describe('parseData with no save', () => {
     const realKeys = Object.keys(parseReal().account).sort();
     expect(emptyKeys).toEqual(realKeys);
   });
+
+  /**
+   * `Object.keys` only proves a key exists, not that it holds a usable value - a destructured
+   * section that returns `{ foo: undefined }` (e.g. getConstellations/getTasks used to, before this
+   * fix) has its key present but literally `undefined`, which the keys-only check above cannot see.
+   *
+   * `null` is allowed: guild/divinity/equinox/gaming/sailing/sushiStation are deliberately null on
+   * an empty/locked account and their pages gate on `if (!account.X) return <MissingData/>`.
+   *
+   * These six are also allowed: unlike every other key here, they are raw pass-throughs of
+   * idleonData/parseData's own parameters (`accountCreateTime`, `serverVars`, `talentPoints:
+   * idleonData?.CYTalentPoints`, ...) rather than the output of a safeSection-wrapped parser. They
+   * were never part of the empty-account catalog contract - there is no catalog to backfill a
+   * save-creation timestamp or server-side flags from - so leaving them `undefined` when there is no
+   * save is correct, not a leak.
+   */
+  const RAW_PASSTHROUGH_KEYS = ['accountCreateTime', 'serverVars', 'accountOptions', 'timeAway', 'weeklyBossesRaw', 'talentPoints'];
+
+  it('never leaves a top-level account value literally undefined', () => {
+    const account = parseEmpty().account;
+    const undefinedKeys = Object.keys(account)
+      .filter((key) => account[key] === undefined)
+      .filter((key) => !RAW_PASSTHROUGH_KEYS.includes(key));
+    expect(undefinedKeys).toEqual([]);
+  });
 });
 
 /**

@@ -47,7 +47,7 @@ const parseDungeons = (dungeonUpgrades: any, accountOptions: any[] | undefined):
   const flurbos = opts?.[73] || 0;
   const boostedRuns = opts?.[76] || 0;
   const dungeonLevels = randomList?.[29] ?? [];
-  const progress = opts[71];
+  const progress = opts[71] || 0;
   const rank =
     Number(
       dungeonLevels.reduce((rank: string, req: string, index: number, _: any) => {

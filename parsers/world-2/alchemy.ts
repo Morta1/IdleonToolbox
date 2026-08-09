@@ -57,7 +57,7 @@ export const parseAlchemy = (idleonData: any, alchemyRaw: any, cauldronJobs1Raw:
   })) ?? [];
   const p2w = getPay2Win(idleonData, alchemyActivity, serializedCharactersData);
   const bubbles = getBubbles(alchemyRaw);
-  const cauldrons = getCauldrons(alchemyRaw?.[5], cauldronsInfo?.slice(0, 16) ?? [], p2w, bubbles, alchemyActivity);
+  const cauldrons = getCauldrons(alchemyRaw?.[5], cauldronsInfo?.slice(0, 16) ?? [], p2w, alchemyRaw, alchemyActivity);
   const vials = getVials(alchemyRaw?.[4]);
 
   const totalBubbleLevelsTill100 = alchemyRaw?.slice(0, 4)?.flat()?.reduce((sum: any, level: any) => sum + Math.min(100, level), 0);
@@ -472,7 +472,7 @@ export const updateVials = (accountData: any) => {
   return applyVialsMulti(accountData.alchemy.vials, value);
 }
 
-const getCauldrons = (cauldronsProgress: any, cauldronsRaw: any, p2w: any, bubbles: any, alchemyActivity: any) => {
+const getCauldrons = (cauldronsProgress: any, cauldronsRaw: any, p2w: any, alchemyRaw: any, alchemyActivity: any) => {
   const playersInCauldrons = alchemyActivity.filter(({ activity }: any) => activity < 100 && activity !== -1);
   const cauldronsLevelsMapping: Record<number, string> = { 0: 'power', 4: 'quicc', 8: 'high-iq', 12: 'kazam' };
   let cauldronsObject: any = {};
@@ -481,9 +481,15 @@ const getCauldrons = (cauldronsProgress: any, cauldronsRaw: any, p2w: any, bubbl
     const [speed, luck, cost, extra] = cauldronsRaw.slice(i, i + chunk);
     const cauldronsAsObject = { speed, luck, cost, extra };
     const players = playersInCauldrons.filter(({ activity }: any) => activity === i / 4);
+    // getMaxCauldron(n) is the requirement for the NEXT bubble given the player has n. `n` must be
+    // the player's unlocked bubble count from the SAVE (alchemyRaw[i/4].length), not the catalog's
+    // fixed 35-bubble length - bubbles[category] is catalog-driven now (Task 5) so its .length is
+    // always the full catalog size regardless of what the account has actually unlocked. Using the
+    // catalog length here inflated every partially-unlocked account's requirement ~5x.
+    const unlockedBubbleCount = alchemyRaw?.[i / 4]?.length ?? 0;
     cauldronsObject[cauldronsLevelsMapping[i]] = {
       progress: cauldronsProgress?.[i / 4],
-      req: getMaxCauldron(bubbles?.[cauldronsLevelsMapping[i]]?.length),
+      req: getMaxCauldron(unlockedBubbleCount),
       players
     };
     Object.entries(cauldronsAsObject).forEach(([name, stats]: any) => {

@@ -128,7 +128,21 @@ const Refinery = () => {
     </Stack>
     <Stack gap={3} direction={'row'} flexWrap={'wrap'}>
       {refinery?.salts?.map((salt, saltIndex) => {
-        const { saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage } = salt;
+        const { saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage, unlocked } = salt;
+        if (unlocked === false) {
+          // Catalog-driven: every salt slot (unlocked or not) is now in the list, so a locked salt
+          // gets its own minimal card instead of running the rank-up/timer math below, which
+          // assumes an active salt (rank 0 there means "unlocked but unrefined", not "locked").
+          return <Card key={`${saltName}-${saltIndex}`} sx={{ width: 'fit-content', opacity: 0.5 }}>
+            <CardContent>
+              <Stack alignItems={'center'} gap={1}>
+                <img src={`${prefix}data/${rawName}.png`} alt="salt-icon" style={{ filter: 'grayscale(1)' }}/>
+                <Typography variant={'h6'}>{cleanUnderscore(saltName)}</Typography>
+                <Typography color={'text.secondary'}>Locked</Typography>
+              </Stack>
+            </CardContent>
+          </Card>;
+        }
         const progressPercentage = refined / powerCap * 100;
         const hasMaterialsForCycle = cost?.every(({
                                                     rawName,

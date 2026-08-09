@@ -38,9 +38,18 @@ const parseRefinery = (refineryRaw: any[], storage: any[], tasks: any) => {
   // save only supplies each salt's refined/rank/active progress, and a missing/short save means
   // an unrefined (rank 0) salt - not a truncated list.
   const refineryCatalog = Object.entries(refinery).map(([name, value]: [string, any]) => ({ rawName: name, ...value }));
+  // The game seeds every salt slot - unlocked or not - with [0,1,0,0,0], so a locked salt's rank
+  // reads as 1, not 0. Reading unconditionally (as the catalog-driven rewrite first did) would have
+  // rendered every locked salt at rank 1 and fed that rank into utility/dashboard/account.js's
+  // missing-materials alert, which false-positives real accounts. Same hazard as the shops/
+  // shopStock decision earlier on this branch: populating a catalog with zero-value rows for
+  // something the account hasn't unlocked yet can permanently trip a dashboard alert. Only read
+  // the save below the player's unlocked count; index >= unlocked stays neutral (rank 0).
+  const unlockedSaltCount = refineryRaw?.[0]?.[0] ?? 0;
   const saltsArray = liveEntries<any>(refineryCatalog).map(({ entry, index }) => {
     const { rawName: name, saltName, cost } = entry;
-    const salt = refineryRaw?.[3 + index];
+    const unlocked = index < unlockedSaltCount;
+    const salt = unlocked ? refineryRaw?.[3 + index] : undefined;
     const [refined = 0, rank = 0, , active = 0, autoRefinePercentage = 0] = salt ?? [];
     const componentsWithTotalAmount = cost?.map((item: any) => {
       let amount = calculateItemTotalAmount(combinedStorage, item?.name, true);
@@ -57,7 +66,8 @@ const parseRefinery = (refineryRaw: any[], storage: any[], tasks: any) => {
       refined,
       rank,
       active,
-      autoRefinePercentage
+      autoRefinePercentage,
+      unlocked
     };
   });
 
