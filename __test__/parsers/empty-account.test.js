@@ -36,9 +36,11 @@ describe('parseData with no save', () => {
  * the to-do list; a row that is present and passing is done.
  */
 const CATALOG_BACKED = [
-  ['prayers', () => liveCount(websiteData.prayers)]
-  // Tasks 5-7 append: cards, stamps, vials, bubbles, constellations, merits, achievements,
-  // refinery, sailing, breeding, cooking, lab, shrines, starSigns, upgradeVault, minehead, ...
+  ['prayers', () => liveCount(websiteData.prayers)],
+  ['shrines', () => liveCount(Object.values(websiteData.shrines))],
+  ['starSigns', () => liveCount(websiteData.starSigns)]
+  // Tasks 6-7 append: cards, constellations, merits, achievements,
+  // sailing, breeding, cooking, lab, upgradeVault, minehead, ...
 ];
 
 describe.each(CATALOG_BACKED)('catalog-backed section: %s', (key, expectedCount) => {
@@ -50,7 +52,38 @@ describe.each(CATALOG_BACKED)('catalog-backed section: %s', (key, expectedCount)
 
   it('carries catalog fields, not just empty rows', () => {
     const section = parseEmpty().account[key];
-    expect(section[0].name ?? section[0].displayName ?? section[0].rawName).toBeTruthy();
+    expect(section[0].name ?? section[0].displayName ?? section[0].rawName ?? section[0].shrineName ?? section[0].starName).toBeTruthy();
+  });
+});
+
+/**
+ * `stamps`, `alchemy`, and `refinery` are objects rather than flat arrays (`stamps` is
+ * `{ combat, skills, misc }`), so they get their own assertions rather than a CATALOG_BACKED row.
+ *
+ * Verified against the real data/website-data.json (2026-08-09) — the plan's assumed shapes were
+ * wrong in two ways: `stamps[category]` and `vials` are keyed objects (Record<string, entry>), not
+ * arrays, so liveCount() needs Object.values() first; and `refinery` is keyed by salt name
+ * (Refinery1..Refinery9), not `{ salts: [...] }` — the parser's `.salts` list is derived from it.
+ */
+describe('nested catalog-backed sections', () => {
+  it('stamps has every category populated', () => {
+    const { stamps } = parseEmpty().account;
+    expect(Object.keys(stamps).sort()).toEqual(['combat', 'misc', 'skills']);
+    for (const category of Object.keys(stamps)) {
+      expect(stamps[category].length).toBe(liveCount(Object.values(websiteData.stamps[category])));
+      expect(stamps[category].every((s) => s.level === 0)).toBe(true);
+    }
+  });
+
+  it('alchemy has bubbles and vials populated', () => {
+    const { alchemy } = parseEmpty().account;
+    expect(alchemy.vials.length).toBe(liveCount(Object.values(websiteData.vials)));
+    expect(Object.keys(alchemy.bubbles).length).toBeGreaterThan(0);
+  });
+
+  it('refinery has its salt list populated', () => {
+    const { refinery } = parseEmpty().account;
+    expect(refinery.salts.length).toBe(liveCount(Object.values(websiteData.refinery)));
   });
 });
 

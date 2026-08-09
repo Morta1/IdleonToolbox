@@ -1,5 +1,6 @@
 import { tryToParse } from '@utility/helpers';
 import { shrines } from '@website-data';
+import { liveEntries } from '@parsers/catalog';
 import { calcCardBonus, getCardBonusByEffect } from '@parsers/cards';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
@@ -20,20 +21,27 @@ export const getShrines = (idleonData: any, account: any) => {
 
 export const parseShrines = (shrinesRaw: any, towersRaw: any, account: any) => {
   const worldTour = account?.lab?.labBonuses?.find((bonus: any) => bonus.name === 'Shrine_World_Tour')?.active;
-  const shrineStuff = shrinesRaw?.map((item: any, localIndex: any) => {
-    const index = startingIndex + localIndex;
-    const [, , , shrineLevel] = item;
-    const { baseBonus, bonusPerLevel } = shrines[index];
-    const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Shrine_Effects_(Passive)');
+  // Catalog-driven: the list of shrines that exist is a property of the game, not of the save. The
+  // save only supplies each shrine's level/progress, and a missing save means an unlevelled (0)
+  // shrine - not a truncated list. Catalog keys are contiguous startingIndex..startingIndex+n-1, so
+  // the liveEntries position (localIndex) lines up with the raw save array's position.
+  const shrineCatalog = Object.entries(shrines)
+    .map(([key, value]: [string, any]) => ({ globalIndex: Number(key), ...value }))
+    .sort((a, b) => a.globalIndex - b.globalIndex);
+  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Shrine_Effects_(Passive)');
+  const shrineStuff = liveEntries<any>(shrineCatalog).map(({ entry, index: localIndex }) => {
+    const item = shrinesRaw?.[localIndex];
+    const [, , , shrineLevel = 0] = item ?? [];
+    const { baseBonus, bonusPerLevel } = entry;
     return (1 + (passiveCardBonus) / 100) * ((shrineLevel - 1) * bonusPerLevel + baseBonus)
   })
-  return shrinesRaw?.reduce((res: any, item: any, localIndex: any) => {
+  return liveEntries<any>(shrineCatalog).map(({ entry, index: localIndex }) => {
     const index = startingIndex + localIndex;
-    const [mapId, , , shrineLevel, progress] = item;
-    const { shrineName, desc, baseBonus, bonusPerLevel } = shrines[index];
-    const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Shrine_Effects_(Passive)');
+    const item = shrinesRaw?.[localIndex];
+    const [mapId = 0, , , shrineLevel = 0, progress = 0] = item ?? [];
+    const { shrineName, desc, baseBonus, bonusPerLevel } = entry;
     const crystalShrineBonus = shrinesRaw?.[2]?.[0] === mapId ? shrineStuff?.[2] : 0;
-    return shrineName !== 'Unknown' ? [...res, {
+    return {
       mapId,
       shrineLevel,
       name: shrineName,
@@ -43,9 +51,9 @@ export const parseShrines = (shrinesRaw: any, towersRaw: any, account: any) => {
       desc,
       worldTour,
       crystalShrineBonus,
-      shrineTowerValue: towersRaw?.[startingIndex + localIndex]
-    }] : res;
-  }, []);
+      shrineTowerValue: towersRaw?.[index]
+    };
+  });
 }
 
 export const getShrineExpBonus = (characters: any, account: any) => {

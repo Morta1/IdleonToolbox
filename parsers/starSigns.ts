@@ -1,5 +1,6 @@
 import { tryToParse } from '@utility/helpers';
 import { constellations, mapNames, starSigns } from '@website-data';
+import { liveEntries } from '@parsers/catalog';
 import { starSignsIndicesMap } from './parseMaps';
 import { isRiftBonusUnlocked } from './world-4/rift';
 import { getShinyBonus } from './world-4/breeding';
@@ -22,7 +23,13 @@ export const getConstellations = (idleonData: IdleonData): { constellations: any
 export const parseStarSigns = (starSignsRaw: any, account: Account): any[] | undefined => {
   const infiniteStarsUnlocked = isRiftBonusUnlocked((account as any)?.rift, 'Infinite_Stars');
   const infiniteStars = infiniteStarsUnlocked ? 5 + getShinyBonus((account as any)?.breeding?.pets, 'Infinite_Star_Signs') : 0;
-  return starSigns?.map((starSign: any, index: number) => {
+  // Catalog-driven: the list of star signs that exist is a property of the game, not of the save.
+  // The save only supplies which ones are unlocked (keyed by starName, not position), and a
+  // missing save means every star sign is locked - not a truncated list. `index` is preserved from
+  // the ORIGINAL catalog array (liveEntries filters placeholder "Fillerz.." rows without
+  // reindexing), matching the meaning of `index < infiniteStars` below, which counts position
+  // among the game's real star sign ordering.
+  return liveEntries<any>(starSigns).map(({ entry: starSign, index }) => {
     const { starName } = starSign;
     const isInfiniteStar = index < infiniteStars && !!starSignsRaw?.[starName];
     return {
@@ -32,7 +39,7 @@ export const parseStarSigns = (starSignsRaw: any, account: Account): any[] | und
       unlocked: !!starSignsRaw?.[starName],
       isInfiniteStar
     }
-  }, []);
+  });
 }
 
 export const parseConstellations = (constellationsRaw: any[]): any[] => {

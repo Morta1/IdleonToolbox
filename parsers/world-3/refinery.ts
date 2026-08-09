@@ -1,5 +1,6 @@
 import { growth, tryToParse } from '@utility/helpers';
 import { classFamilyBonuses, items, randomList, refinery } from '@website-data';
+import { liveEntries } from '@parsers/catalog';
 import { calculateItemTotalAmount } from '@parsers/items';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { getVialsBonusByEffect } from '@parsers/world-2/alchemy';
@@ -31,13 +32,16 @@ const parseRefinery = (refineryRaw: any[], storage: any[], tasks: any) => {
     amount: refineryStorageQuantityRaw?.[index],
     owner: 'refinery'
   }] : res, []);
-  const combinedStorage = [...storage, ...(refineryStorage || [])];
+  const combinedStorage = [...(storage || []), ...(refineryStorage || [])];
   const refinerySaltTaskLevel = tasks?.[2]?.[2]?.[6];
-  const salts = refineryRaw?.slice(3, 3 + refineryRaw?.[0]?.[0]);
-  const saltsArray = salts?.reduce((res, salt, index) => {
-    const name = `Refinery${index + 1}`
-    const [refined, rank, , active, autoRefinePercentage] = salt;
-    const { saltName, cost } = (refinery as Record<string, any>)?.[name] || {};
+  // Catalog-driven: the list of salts that exist is a property of the game, not of the save. The
+  // save only supplies each salt's refined/rank/active progress, and a missing/short save means
+  // an unrefined (rank 0) salt - not a truncated list.
+  const refineryCatalog = Object.entries(refinery).map(([name, value]: [string, any]) => ({ rawName: name, ...value }));
+  const saltsArray = liveEntries<any>(refineryCatalog).map(({ entry, index }) => {
+    const { rawName: name, saltName, cost } = entry;
+    const salt = refineryRaw?.[3 + index];
+    const [refined = 0, rank = 0, , active = 0, autoRefinePercentage = 0] = salt ?? [];
     const componentsWithTotalAmount = cost?.map((item: any) => {
       let amount = calculateItemTotalAmount(combinedStorage, item?.name, true);
       return {
@@ -45,20 +49,17 @@ const parseRefinery = (refineryRaw: any[], storage: any[], tasks: any) => {
         totalAmount: amount
       }
     })
-    return [
-      ...res,
-      {
-        saltName,
-        cost: componentsWithTotalAmount,
-        rawName: name,
-        powerCap: getPowerCap(rank),
-        refined,
-        rank,
-        active,
-        autoRefinePercentage
-      }
-    ];
-  }, []);
+    return {
+      saltName,
+      cost: componentsWithTotalAmount,
+      rawName: name,
+      powerCap: getPowerCap(rank),
+      refined,
+      rank,
+      active,
+      autoRefinePercentage
+    };
+  });
 
   return {
     salts: saltsArray,

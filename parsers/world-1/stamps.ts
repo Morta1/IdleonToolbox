@@ -1,5 +1,6 @@
 import { groupByKey, growth, tryToParse } from '@utility/helpers';
 import { crafts, items, stamps } from '@website-data';
+import { liveEntries } from '@parsers/catalog';
 import { getTalentBonus } from '@parsers/talents';
 import { calculateItemTotalAmount, flattenCraftObject } from '@parsers/items';
 import { getEventShopBonus, getHighestCapacityCharacter, isBundlePurchased } from '@parsers/misc';
@@ -26,17 +27,17 @@ export const getStamps = (idleonData: any, account: any) => {
 }
 
 export const parseStamps = (stampLevelsRaw: any, stampMaxLevelsRaw: any, account: any) => {
-  const stampsObject = stampLevelsRaw?.reduce((result: any, item: any, index: any) => ({
-    ...result,
-    [(stampsMapping as Record<string, any>)?.[index]]: Object.keys(item).reduce((res: any[], key, stampIndex) => (key !== 'length' ? [
-      ...res,
-      { level: parseFloat(item[key]), maxLevel: stampMaxLevelsRaw?.[index]?.[stampIndex] }
-    ]
-      : res), [])
-  }), {});
-  return Object.entries(stampsObject)?.reduce((acc, [category, stampsLevels]: any) => {
-    const stampList = stampsLevels?.map((stamp: any, index: any) => {
-      const stampDetails = (stamps as Record<string, any>)[category][index];
+  // Catalog-driven: the list of stamps that exist is a property of the game, not of the save.
+  // The save only supplies each stamp's level/maxLevel, and a missing/short save means unlevelled
+  // (0) stamps - not a truncated category.
+  return Object.entries(stampsMapping).reduce((acc: any, [categoryIndexStr, category]) => {
+    const categoryIndex = Number(categoryIndexStr);
+    const categoryCatalog = Object.values((stamps as Record<string, any>)[category as string]);
+    const stampList = liveEntries<any>(categoryCatalog).map(({ entry: stampDetails, index }) => {
+      const rawLevel = stampLevelsRaw?.[categoryIndex]?.[index];
+      const level = rawLevel != null ? parseFloat(rawLevel) : 0;
+      const rawMaxLevel = stampMaxLevelsRaw?.[categoryIndex]?.[index];
+      const maxLevel = rawMaxLevel != null ? parseFloat(rawMaxLevel) : 0;
       const requiredItem = stampDetails?.itemReq?.[0];
       const materials = flattenCraftObject(crafts[requiredItem?.name]);
       const ownedMats = account?.storage?.list?.reduce((sum: any, { rawName: storageRawName, amount }: any) => {
@@ -44,9 +45,9 @@ export const parseStamps = (stampLevelsRaw: any, stampMaxLevelsRaw: any, account
         return sum + (amount || 0);
       }, 0);
       const greenStackOwnedMats = Math.max(0, ownedMats - 1e7);
-      return { ...stampDetails, ...stamp, materials, ownedMats, greenStackOwnedMats, itemReq: requiredItem, category }
-    })
-    return { ...acc, [category]: stampList };
+      return { ...stampDetails, level, maxLevel, materials, ownedMats, greenStackOwnedMats, itemReq: requiredItem, category };
+    });
+    return { ...acc, [category as string]: stampList };
   }, {});
 }
 

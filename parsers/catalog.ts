@@ -12,7 +12,9 @@ const PLACEHOLDER = /^(filler|some[_ ])/i;
 const nameOf = (entry: any): string | undefined => {
   if (typeof entry === 'string') return entry;
   if (!entry || typeof entry !== 'object') return undefined;
-  return entry.name ?? entry.displayName ?? entry.rawName;
+  // `starName` covers the starSigns catalog, whose entries have no name/displayName/rawName field
+  // of their own (e.g. website-data.json's "Fillerz48"/"Fillerz59" placeholder star signs).
+  return entry.name ?? entry.displayName ?? entry.rawName ?? entry.starName;
 };
 
 export const isPlaceholder = (entry: any): boolean => {

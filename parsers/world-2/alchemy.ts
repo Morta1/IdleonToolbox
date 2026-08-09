@@ -1,5 +1,6 @@
 import { cleanUnderscore, createArrayOfArrays, growth, tryToParse } from '@utility/helpers';
 import { cauldrons, p2w, sigils, vials } from '@website-data';
+import { liveEntries } from '@parsers/catalog';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
@@ -53,10 +54,10 @@ export const parseAlchemy = (idleonData: any, alchemyRaw: any, cauldronJobs1Raw:
   const alchemyActivity = cauldronJobs1Raw?.map((playerAlchActivity: any, index: any) => ({
     activity: playerAlchActivity,
     index
-  }));
+  })) ?? [];
   const p2w = getPay2Win(idleonData, alchemyActivity, serializedCharactersData);
   const bubbles = getBubbles(alchemyRaw);
-  const cauldrons = getCauldrons(alchemyRaw?.[5], cauldronsInfo.slice(0, 16), p2w, bubbles, alchemyActivity);
+  const cauldrons = getCauldrons(alchemyRaw?.[5], cauldronsInfo?.slice(0, 16) ?? [], p2w, bubbles, alchemyActivity);
   const vials = getVials(alchemyRaw?.[4]);
 
   const totalBubbleLevelsTill100 = alchemyRaw?.slice(0, 4)?.flat()?.reduce((sum: any, level: any) => sum + Math.min(100, level), 0);
@@ -169,7 +170,7 @@ const getPay2Win = (idleonData: any, alchemyActivity: any, serializedCharactersD
   const liquidMapping = { 0: 4, 1: 5, 2: 6 };
   const playersInLiquids = alchemyActivity.filter(({ activity }: any, index: any) => activity < 100 && activity >= 4 && activity !== -1 && index < serializedCharactersData?.length);
   const p2w: any = {};
-  const [cauldrons, liquids, vials, player, , remainingAttempts] = tryToParse(idleonData?.CauldronP2W) || idleonData?.CauldronP2W;
+  const [cauldrons = [], liquids = [], vials, player, , remainingAttempts = []] = tryToParse(idleonData?.CauldronP2W) || idleonData?.CauldronP2W || [];
   p2w.cauldrons = cauldrons.toChunks(3).map(([speed, newBubble, boostReq]: any, index: any) => ({
     name: (cauldronsIndexMapping as Record<string, any>)[index],
     speed: {
@@ -250,7 +251,7 @@ const getP2wCauldronCost = (type: any, index: any, level: any) => {
   return 0;
 }
 
-const getBubbles = (bubbles: any) => {
+const getBubbles = (bubblesRaw: any) => {
   const etc = {
     0: {
       5: '', // max hp
@@ -269,31 +270,25 @@ const getBubbles = (bubbles: any) => {
       25: '' // CORPIUS_MAPPER
     }
   };
-  return bubbles?.reduce(
-    (res: any, array: any, cauldronIndex: any) =>
-      cauldronIndex <= 3
-        ? {
-          ...res,
-          [(cauldronsIndexMapping as Record<string, any>)?.[cauldronIndex]]: Object.keys(array)?.reduce(
-            (res: any[], key, bubbleIndex) => key !== 'length'
-              ? [
-                ...res,
-                {
-                  level: parseInt(array?.[key]) || 0,
-                  index: bubbleIndex,
-                  rawName: `aUpgrades${(cauldronsTextMapping as Record<string, any>)[cauldronIndex]}${bubbleIndex}`,
-                  ...(cauldrons as Record<string, any>)[(cauldronsIndexMapping as Record<string, any>)?.[cauldronIndex]][key],
-                  desc: (cauldrons as Record<string, any>)[(cauldronsIndexMapping as Record<string, any>)?.[cauldronIndex]][key]?.desc.replace('$', (etc as Record<string, any>)?.[cauldronIndex]?.[bubbleIndex])
-                }
-              ]
-              : res
-            ,
-            []
-          )
-        }
-        : res,
-    {}
-  );
+  // Catalog-driven: the 4 cauldrons are a fixed structural count (cauldronsIndexMapping), but how
+  // many bubbles each holds is a property of the game (cauldrons catalog), not of the save. A
+  // missing/short save means unlevelled (0) bubbles - not a truncated cauldron.
+  return Object.entries(cauldronsIndexMapping).reduce((res: any, [cauldronIndexStr, category]) => {
+    const cauldronIndex = Number(cauldronIndexStr);
+    const catalogEntries = (cauldrons as Record<string, any>)[category as string];
+    const bubbleList = liveEntries<any>(catalogEntries).map(({ entry: bubbleDetails, index: bubbleIndex }) => {
+      const rawLevel = bubblesRaw?.[cauldronIndex]?.[bubbleIndex];
+      const level = rawLevel != null ? parseInt(rawLevel) || 0 : 0;
+      return {
+        level,
+        index: bubbleIndex,
+        rawName: `aUpgrades${(cauldronsTextMapping as Record<string, any>)[cauldronIndex]}${bubbleIndex}`,
+        ...bubbleDetails,
+        desc: bubbleDetails?.desc?.replace('$', (etc as Record<string, any>)?.[cauldronIndex]?.[bubbleIndex])
+      };
+    });
+    return { ...res, [category as string]: bubbleList };
+  }, {});
 };
 
 export const getEquippedBubbles = (idleonData: any, bubbles: any, serializedCharactersData: any) => {
@@ -391,20 +386,13 @@ export const getBubbleBonus = (account: any, bubbleName: any, round?: any, shoul
 };
 
 const getVials = (vialsRaw: any) => {
-  return Object.keys(vialsRaw)
-    .reduce((res: any[], key, index) => {
-      const vial = vials?.[index];
-      return key !== 'length'
-        ? [
-          ...res,
-          {
-            ...vial,
-            level: parseInt(vialsRaw?.[key]) || 0
-          }
-        ]
-        : res;
-    }, [])
-    .filter(({ name }: any) => name);
+  // Catalog-driven: the list of vials that exist is a property of the game, not of the save. The
+  // save only supplies each vial's level, and a missing/short save means unlevelled (0) vials -
+  // not a truncated list.
+  return liveEntries<any>(Object.values(vials)).map(({ entry, index }) => ({
+    ...entry,
+    level: parseInt(vialsRaw?.[index]) || 0
+  }));
 };
 
 export const getVialsBonusByEffect = (vials: any, effectName: any, statName?: any) => {
@@ -543,7 +531,7 @@ export const getSigils = (idleonData: any, alchemyActivity: any, serializedChara
 };
 
 const parseSigils = (sigilsRaw: any, alchemyActivity: any, serializedCharactersData: any) => {
-  const sigilsData = sigilsRaw?.[4];
+  const sigilsData = sigilsRaw?.[4] ?? [];
   let sigilsList: any[] = [];
   for (let i = 0, j = sigilsData.length; i < j; i += 2) {
     const [progress, unlocked] = sigilsData.slice(i, i + 2);
