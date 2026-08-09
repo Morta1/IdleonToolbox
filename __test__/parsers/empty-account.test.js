@@ -43,7 +43,8 @@ const CATALOG_BACKED = [
   // sailing, breeding, cooking, lab, upgradeVault, minehead, ...
   // Task 7's catalog-backed sections (compass/grimoire/tesseract/upgradeVault/dungeons/storage) are
   // objects with a nested `.upgrades`/`.storageChests` array rather than a flat top-level array, so
-  // they're covered by the "Task 7 catalog-backed sections" describe block below instead of here.
+  // they're covered by the "Task 7 sections (catalog-backed and user-state)" describe block below
+  // instead of here.
 ];
 
 describe.each(CATALOG_BACKED)('catalog-backed section: %s', (key, expectedCount) => {
@@ -91,10 +92,14 @@ describe('nested catalog-backed sections', () => {
 });
 
 /**
- * Task 7's catalog-backed sections. Each is an object with a nested upgrade-list field rather than
- * a flat top-level array, so they get their own assertions rather than a CATALOG_BACKED row.
+ * Task 7's converted sections. Most are catalog-backed (compass/grimoire/tesseract/upgradeVault/
+ * dungeons/storage.storageChests) and are objects with a nested upgrade-list field rather than a
+ * flat top-level array, so they get their own assertions rather than a CATALOG_BACKED row. `obols`
+ * and `shopStock` are included here too even though they are explicitly NOT catalog-backed (pure
+ * user state / live server state, respectively) - each `it()` name says so; only group them under
+ * "Task 7 sections" rather than misdescribing all of them as catalog-backed.
  */
-describe('Task 7 catalog-backed sections', () => {
+describe('Task 7 sections (catalog-backed and user-state)', () => {
   it('compass has every upgrade and abomination populated', () => {
     const { compass } = parseEmpty().account;
     expect(compass.upgrades.length).toBe(liveCount(websiteData.compass));

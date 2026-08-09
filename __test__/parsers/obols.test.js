@@ -13,10 +13,13 @@ describe('getObols', () => {
     expect(result).toEqual({ inventory: [], list: [], stats: expect.anything() });
   });
 
-  it('never crashes when charItems is undefined (createObolsWithUpgrades)', () => {
+  it('never crashes when charItems is undefined on the character (non-account) path', () => {
     // Regression: obolsMapping derives from `obolsRaw?.map(...)`, which is undefined when there is
     // no save at all, so createObolsWithUpgrades used to call `.reduce` on `undefined` and crash.
-    const result = getObols(undefined, true);
+    // `account = false` exercises the character-level branch (different raw-key reads and the
+    // `calculateWeirdObolIndex` remapping) rather than repeating the default `account = true` path
+    // the previous test already covers.
+    const result = getObols(undefined, false);
     expect(result.list).toEqual([]);
   });
 });

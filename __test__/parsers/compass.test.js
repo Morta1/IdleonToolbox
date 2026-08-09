@@ -52,14 +52,23 @@ describe('getCompass', () => {
 
 const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
 
+// Only fixtures that actually carry a `Compass` field can prove index alignment against real save
+// data - `first`-`fourth` are real pre-Compass saves and have no such field at all. Narrowed to
+// avoid a vacuous `it.each` row that silently ran zero assertions for 4 of 5 fixtures while still
+// reporting green; `latest` is the only one that currently qualifies. The unconditional, hand-built
+// synthetic case above ('applies save levels at the right indexes') is what proves index alignment
+// regardless of fixture content - this row is purely a real-data regression check.
+const FIXTURES_WITH_COMPASS = FIXTURES.filter(([, fixture]) => (fixture.data ?? fixture)?.Compass != null);
+
 describe('getCompass fixture regression', () => {
-  it.each(FIXTURES)('%s: levels the save covers are unchanged at the same index', (_name, fixture) => {
+  it.each(FIXTURES_WITH_COMPASS)('%s: levels the save covers are unchanged at the same index', (_name, fixture) => {
     const data = fixture.data ?? fixture;
     const compassRaw = tryToParse(data?.Compass);
     const [upgradesLevels] = compassRaw || [];
     const result = getCompass(data, [], {}, {});
 
-    upgradesLevels?.forEach((level, index) => {
+    expect(upgradesLevels?.length).toBeGreaterThan(0);
+    upgradesLevels.forEach((level, index) => {
       if (index >= result.upgrades.length) return;
       expect(result.upgrades[index].level).toBe(level);
     });
