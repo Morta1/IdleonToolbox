@@ -50,12 +50,17 @@ export const getStorage = (idleonData: IdleonData, name = 'storage', account: Ac
   const chestOrderRaw = tryToParse(idleonData?.ChestOrder);
   const chestQuantityRaw = tryToParse(idleonData?.ChestQuantity);
   const chestStoneData = tryToParse(idleonData?.CMm);
-  const storageChests = tryToParse((idleonData as any).InvStorageUsed);
-  const greenStacks = tryToParse((idleonData as any).GreenStacks) || (idleonData as any).GreenStacks || [];
+  const storageChests = tryToParse((idleonData as any)?.InvStorageUsed);
+  const greenStacks = tryToParse((idleonData as any)?.GreenStacks) || (idleonData as any)?.GreenStacks || [];
   return { ...parseStorage(chestOrderRaw, chestQuantityRaw, name, chestStoneData, storageChests, account), greenStacks };
 }
 
 export const parseStorage = (chestOrderRaw: any, chestQuantityRaw: any, name: string, chestStoneData: any, rawStorageChests: any, account: Account): StorageData => {
+  // Classification: `list` (the inventory itself) is PURE USER STATE - there is no catalog of
+  // "every item a player could have in storage"; an account with no save genuinely has an empty
+  // storage list, not a truncated one. `storageChests` below is CATALOG-BACKED (`invStorage`) and
+  // was already unconditionally mapped over the full catalog before this task - it only needed the
+  // `list` crash guarded, not a shape change.
   const list = getInventoryList(chestOrderRaw, chestQuantityRaw, name, chestStoneData);
   const storageChests = Object.entries(invStorage as Record<string, any>).map(([rawName, data]) => {
     return {
@@ -76,7 +81,7 @@ export const parseStorage = (chestOrderRaw: any, chestQuantityRaw: any, name: st
 
 export const getStorageSlots = (storageChests: any[], account: Account): StorageSlots => {
   const baseStorageSlots = 54;
-  const towerStorageSlots = 2 * (account as any)?.towers?.data?.[4]?.level;
+  const towerStorageSlots = 2 * ((account as any)?.towers?.data?.[4]?.level ?? 0);
   const bundleIBonus = isBundlePurchased(account?.bundles, 'bun_i') ? 8 : 0;
   const bundleCBonus = isBundlePurchased(account?.bundles, 'bun_c') ? 16 : 0;
   const bundleABonus = isBundlePurchased(account?.bundles, 'bon_a') ? 20 : 0;
@@ -144,8 +149,8 @@ export const getStorageSlots = (storageChests: any[], account: Account): Storage
   };
 }
 
-export const getInventoryList = (chestOrderRaw: any[], chestQuantityRaw: any[], name: string, chestStoneData: any): StorageItem[] => {
-  return chestOrderRaw.reduce((res: StorageItem[], itemName: string, index: number) => {
+export const getInventoryList = (chestOrderRaw: any[] | undefined, chestQuantityRaw: any[], name: string, chestStoneData: any): StorageItem[] => {
+  return (chestOrderRaw ?? []).reduce((res: StorageItem[], itemName: string, index: number) => {
     const data: any = addStoneDataToEquip(items?.[itemName], chestStoneData?.[index]);
     const description = [1, 2, 3, 4, 5, 6, 7,
       8].reduce((res: string, num: number) => (items?.[itemName] as Record<string, any>)?.[`desc_line${num}`]

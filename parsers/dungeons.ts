@@ -7,6 +7,7 @@ import {
   dungeonTraits,
   randomList
 } from '@website-data';
+import { liveEntries } from '@parsers/catalog';
 import { getStampsBonusByEffect } from './world-1/stamps';
 import { getBribeBonus } from './world-1/bribes';
 import { getVialsBonusByStat } from './world-2/alchemy';
@@ -19,10 +20,18 @@ export const getDungeons = (idleonData: IdleonData, accountOptions: any[]): Reco
   return parseDungeons(dungeonUpgradesRaw, accountOptions);
 };
 
-const parseDungeons = (dungeonUpgrades: any, accountOptions: any[]): Record<string, any> => {
-  const rngItems = dungeonCreditShop?.map((item: any, index: number) => ({ ...item, level: dungeonUpgrades?.[0]?.[index] }));
-  const dungeonUpgradesRaw = dungeonUpgrades?.[1];
+// Classification: CATALOG-BACKED. `dungeonCreditShop` (the RNG credit shop), `dungeonStats` (the
+// "inside" trait upgrades) and `dungeonFlurboStats` (the flurbo shop) are website-data catalogs
+// defining every upgrade/item that exists; the save only supplies each one's level via a handful of
+// positional arrays inside `DungUpg`. A missing save means every level is 0, not a shorter list.
+const parseDungeons = (dungeonUpgrades: any, accountOptions: any[] | undefined): Record<string, any> => {
+  const opts = accountOptions ?? [];
+  const rngItemsRaw = dungeonUpgrades?.[0];
+  const insideUpgradesRaw = dungeonUpgrades?.[1];
   const statBoostsRaw = dungeonUpgrades?.[2];
+  const flurbosUpgradesRaw = dungeonUpgrades?.[5];
+
+  const rngItems = liveEntries<any>(dungeonCreditShop).map(({ entry, index }) => ({ ...entry, level: rngItemsRaw?.[index] ?? 0 }));
   let counter = 0;
   const statBoosts = dungeonTraits?.map((trait: any) => ({
     ...trait, bonuses: trait?.bonuses?.map((bonus: any) => {
@@ -32,18 +41,17 @@ const parseDungeons = (dungeonUpgrades: any, accountOptions: any[]): Record<stri
       return { bonus, isActive, bonusIndex }
     })
   }));
-  const flurbosUpgradesRaw = dungeonUpgrades?.[5];
-  const insideUpgrades = dungeonUpgradesRaw?.map((level: any, index: number) => ({ ...dungeonStats[index], level }));
-  const upgrades = flurbosUpgradesRaw?.map((level: any, index: number) => ({ ...dungeonFlurboStats[index], level }));
-  const credits = accountOptions?.[72] || 0;
-  const flurbos = accountOptions?.[73] || 0;
-  const boostedRuns = accountOptions?.[76] || 0;
-  const dungeonLevels = randomList?.[29];
-  const progress = accountOptions[71];
+  const insideUpgrades = liveEntries<any>(dungeonStats).map(({ entry, index }) => ({ ...entry, level: insideUpgradesRaw?.[index] ?? 0 }));
+  const upgrades = liveEntries<any>(dungeonFlurboStats).map(({ entry, index }) => ({ ...entry, level: flurbosUpgradesRaw?.[index] ?? 0 }));
+  const credits = opts?.[72] || 0;
+  const flurbos = opts?.[73] || 0;
+  const boostedRuns = opts?.[76] || 0;
+  const dungeonLevels = randomList?.[29] ?? [];
+  const progress = opts[71];
   const rank =
     Number(
       dungeonLevels.reduce((rank: string, req: string, index: number, _: any) => {
-        if (accountOptions[71] > Number(req)) {
+        if (opts[71] > Number(req)) {
           rank = index.toString();
         }
         return rank;

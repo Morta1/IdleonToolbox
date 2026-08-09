@@ -362,10 +362,13 @@ export const getFightPower = (teamMember: any) => {
 }
 
 export const calcHighestPower = (breeding: any) => {
-  const teams = breeding?.territories?.reduce((result: any, { team }: any) => ([...result, ...team]), []);
-  const fence = breeding?.rawFencePets?.map(([, , power]: any) => power);
+  // rawFencePets is undefined with no save (breeding never ran), which used to make `fence`
+  // undefined too and crash the spread below (`...undefined` is not iterable). Default both arrays
+  // to [] and give Math.max a 0 floor so an account with no pets reports 0, not -Infinity.
+  const teams = breeding?.territories?.reduce((result: any, { team }: any) => ([...result, ...team]), []) ?? [];
+  const fence = breeding?.rawFencePets?.map(([, , power]: any) => power) ?? [];
   const mappedPets = [...(breeding?.storedPets || []), ...teams].map(({ power }: any) => power);
-  return Math.max(...mappedPets, ...fence);
+  return Math.max(0, ...mappedPets, ...fence);
 }
 
 export const calcBreedabilityMulti = (account: any, characters: any) => {

@@ -1,5 +1,3 @@
-import websiteData from '@website-data';
-
 /**
  * The game ships unused slots inside its data arrays — `Some_Prayer_Name0` with maxLevel 999,
  * `FILLERZZZ_ACH`, `Filler_bc_I_messed_up`. They are not content and must never render.
@@ -41,7 +39,3 @@ export const liveEntries = <T>(catalog: T[] | undefined | null): CatalogEntry<T>
 
 export const liveCount = (catalog: unknown[] | undefined | null): number =>
   liveEntries(catalog as any[]).length;
-
-/** Convenience for parsers that only need the catalog by its website-data key. */
-export const liveCatalog = <T = any>(key: keyof typeof websiteData): CatalogEntry<T>[] =>
-  liveEntries((websiteData as any)[key]);

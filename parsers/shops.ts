@@ -7,9 +7,21 @@ export const getShops = (idleonData: IdleonData): any[][] => {
   return parseShops(shopsRaw);
 }
 
-export const parseShops = (shopsRaw: any[]): any[][] => {
-  return shopsRaw.reduce((res: any[][], shopObject: any, shopIndex: number) => {
-    const mapped = Object.values(shopObject)?.reduce((res: any[], item: any, itemIndex: number) => {
+// Classification: MIXED, treated as user/server state here. `shops[i].items` is a catalog (which
+// items a shop CAN carry), but the array this parser actually returns is "items currently in stock"
+// - `amount` is live/server-rotated stock, not something a catalog can supply, and every entry here
+// only exists because the raw save reported a nonzero amount for it. Populating the full catalog
+// with a fabricated `amount: 0` would misrepresent "in stock now" (a real feature -
+// utility/dashboard/account.js's shop alert treats presence in this array as "in stock", not the
+// `amount` field), so unlike prayers/shrines/compass this one stays driven by the raw data. The
+// only fix needed is shape-safety: with no save, return one empty array per catalog shop (never a
+// single collapsed `[]`) instead of crashing.
+export const parseShops = (shopsRaw: any[] | undefined): any[][] => {
+  const shopIndexes = Object.keys(shops).map(Number).sort((a, b) => a - b);
+  return shopIndexes.map((shopIndex) => {
+    const shopObject = shopsRaw?.[shopIndex];
+    if (!shopObject) return [];
+    return Object.values(shopObject).reduce((res: any[], item: any, itemIndex: number) => {
       const isIncluded = (shopMapping as any)?.[shopIndex]?.[itemIndex];
       const amount = parseInt(item) || 0;
       return amount > 0 && isIncluded ? [...res,
@@ -17,9 +29,8 @@ export const parseShops = (shopsRaw: any[]): any[][] => {
         amount: item, ...shops[shopIndex]?.items?.[itemIndex],
         shopName: shops[shopIndex]?.name
       }] : res;
-    }, [])
-    return [...res, mapped]
-  }, []);
+    }, []);
+  });
 }
 
 export const getRawShopItems = (): Record<string, boolean> => {

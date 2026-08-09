@@ -5,6 +5,12 @@ import type { IdleonData } from './types';
 
 const obolStats: string[] = ['STR', 'AGI', 'WIS', 'LUK', 'Weapon_Power', 'Defence', 'UQ1txt', 'UQ2txt'];
 
+// Classification: PURE USER STATE. Obols are equipment slots the player has physically socketed -
+// there is no website-data catalog defining "every obol slot that exists"; the save data itself IS
+// the full extent of what there is. An account with no save genuinely has no obols equipped, so an
+// empty `{ inventory: [], list: [], stats: {} }` is the correct (not a truncated) answer - unlike
+// prayers/shrines/etc, there is nothing to populate from a catalog here.
+
 export const getObols = (idleonData: IdleonData, account: boolean = true): Record<string, any> => {
   const obolsOrderRaw = tryToParse(idleonData?.ObolEqO1) || (account
     ? (idleonData as any)?.ObolEquippedOrder?.[1]
@@ -34,8 +40,8 @@ export const parseObols = (obolsRaw: any, obolsEquippedRaw: any, obolsInvRaw: an
   };
 }
 
-export const createObolsWithUpgrades = (charItems: any[], stoneData: any): any[] => {
-  return charItems.reduce((res: any[], item: any, itemIndex: number) => {
+export const createObolsWithUpgrades = (charItems: any[] | undefined, stoneData: any): any[] => {
+  return (charItems ?? []).reduce((res: any[], item: any, itemIndex: number) => {
     const { rawName } = item;
     if (rawName === 'Blank') return [...res, item];
     const stoneResult = addStoneDataToEquip(items?.[rawName], stoneData?.[itemIndex]);

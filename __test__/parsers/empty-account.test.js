@@ -41,6 +41,9 @@ const CATALOG_BACKED = [
   ['starSigns', () => liveCount(websiteData.starSigns)]
   // Tasks 6-7 append: cards, constellations, merits, achievements,
   // sailing, breeding, cooking, lab, upgradeVault, minehead, ...
+  // Task 7's catalog-backed sections (compass/grimoire/tesseract/upgradeVault/dungeons/storage) are
+  // objects with a nested `.upgrades`/`.storageChests` array rather than a flat top-level array, so
+  // they're covered by the "Task 7 catalog-backed sections" describe block below instead of here.
 ];
 
 describe.each(CATALOG_BACKED)('catalog-backed section: %s', (key, expectedCount) => {
@@ -87,6 +90,61 @@ describe('nested catalog-backed sections', () => {
   });
 });
 
+/**
+ * Task 7's catalog-backed sections. Each is an object with a nested upgrade-list field rather than
+ * a flat top-level array, so they get their own assertions rather than a CATALOG_BACKED row.
+ */
+describe('Task 7 catalog-backed sections', () => {
+  it('compass has every upgrade and abomination populated', () => {
+    const { compass } = parseEmpty().account;
+    expect(compass.upgrades.length).toBe(liveCount(websiteData.compass));
+    expect(compass.upgrades.every((u) => u.level === 0)).toBe(true);
+    expect(compass.abominations.length).toBe(websiteData.abominations.length);
+  });
+
+  it('grimoire has every upgrade populated', () => {
+    const { grimoire } = parseEmpty().account;
+    expect(grimoire.upgrades.length).toBe(liveCount(websiteData.grimoire));
+    expect(grimoire.upgrades.every((u) => u.level === 0)).toBe(true);
+  });
+
+  it('tesseract has every upgrade populated', () => {
+    const { tesseract } = parseEmpty().account;
+    expect(tesseract.upgrades.length).toBe(liveCount(websiteData.tesseract));
+    expect(tesseract.upgrades.every((u) => u.level === 0)).toBe(true);
+  });
+
+  it('upgradeVault has every upgrade populated', () => {
+    const { upgradeVault } = parseEmpty().account;
+    expect(upgradeVault.upgrades.length).toBe(liveCount(websiteData.upgradeVault));
+    expect(upgradeVault.upgrades.every((u) => u.level === 0)).toBe(true);
+  });
+
+  it('dungeons has its rng shop, inside upgrades and flurbo shop populated', () => {
+    const { dungeons } = parseEmpty().account;
+    expect(dungeons.rngItems.length).toBe(liveCount(websiteData.dungeonCreditShop));
+    expect(dungeons.insideUpgrades.length).toBe(liveCount(websiteData.dungeonStats));
+    expect(dungeons.upgrades.length).toBe(liveCount(websiteData.dungeonFlurboStats));
+  });
+
+  it('storage has every storage chest populated but an empty inventory (pure user state)', () => {
+    const { storage } = parseEmpty().account;
+    expect(storage.storageChests.length).toBe(liveCount(Object.values(websiteData.invStorage)));
+    expect(storage.list).toEqual([]);
+  });
+
+  it('obols stays empty (pure user state, not catalog-backed)', () => {
+    const { obols } = parseEmpty().account;
+    expect(obols).toEqual({ inventory: [], list: [], stats: {} });
+  });
+
+  it('shopStock returns one empty array per catalog shop (mixed: item catalog + live stock state)', () => {
+    const { shopStock } = parseEmpty().account;
+    expect(shopStock.length).toBe(Object.keys(websiteData.shops).length);
+    expect(shopStock.every((shop) => Array.isArray(shop) && shop.length === 0)).toBe(true);
+  });
+});
+
 describe('world 4-7 sections', () => {
   it('breeding has its pet list populated', () => {
     const { breeding } = parseEmpty().account;
@@ -120,13 +178,22 @@ describe('world 4-7 sections', () => {
 });
 
 describe('no fabricated values', () => {
-  // Inverted deliberately: measured 2026-08-09, an empty parse currently emits 3241 NaN / 62
-  // Infinity versus 62 NaN / 35 Infinity for a real parse — about 52x over the ceiling this
-  // assertion enforces. It cannot go green until most parsers are converted (Tasks 5-7); the
-  // prayers conversion alone does not move it meaningfully. `it.fails` keeps the assertion live
-  // and self-enforcing: once conversions push the empty-parse numbers under the real-parse
-  // baseline, this row starts failing (because it is expected to fail) and forces Task 7 to flip
-  // it back to a plain `it(...)`.
+  // Inverted deliberately. Measured 2026-08-09 at the start of Task 7: an empty parse emitted 3624
+  // NaN / 62 Infinity versus 62 NaN / 35 Infinity for a real parse. Task 7 converted
+  // compass/grimoire/tesseract/upgradeVault/dungeons/storage (all previously either crashing to a
+  // bare `{}`/`[]` fallback or, once unlocked, feeding `undefined` levels into arithmetic) and
+  // fixed the calcHighestPower/spelunking/sailing-captains -Infinity spreads it exposed along the
+  // way. That brought the empty parse down to 1564 NaN / 62 Infinity - compass/grimoire/tesseract/
+  // upgradeVault/dungeons/storage/shops/obols/items now contribute exactly 0 NaN and 0 Infinity.
+  // It STILL cannot go green: the remaining ~1564 NaN and 62 Infinity live entirely outside Task 7's
+  // file list, concentrated in `hole` (525 NaN, 1 Inf), `stamps` (256), `summoning` (215),
+  // `breeding` (187, unrelated to the calcHighestPower fix), `research` (94 NaN, 5 Inf), `button`
+  // (9 NaN, 55 Inf), `tasksDescriptions` (54), `voteBallot`, `sneaking`, `farming`, `spelunking`,
+  // `kangaroo`, `clamWork`, `islands`, `gallery`, `currencies`, `emperor`, `towers`, `rift`,
+  // `alchemy`, `arcade`, `coralReef` — none of those parsers were in scope for this task. `it.fails`
+  // keeps the assertion live and self-enforcing: once a future task converts those sections too and
+  // pushes the empty-parse numbers under the real-parse baseline, this row starts failing (because
+  // it is expected to fail) and forces that task to flip it back to a plain `it(...)`.
   it.fails('emits no NaN or Infinity that a real parse does not already have', () => {
     const count = (root) => {
       let nan = 0;

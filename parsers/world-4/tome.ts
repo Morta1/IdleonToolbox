@@ -322,7 +322,7 @@ export const calcTomeQuantity = (account: any, characters: any[], idleonData?: a
   quantities.push(account?.gaming?.totalPlantsPicked);
   quantities.push(calcArtifactsAcquired(account?.sailing?.artifacts));
   quantities.push(account?.sailing?.lootPile?.[0]?.amount);
-  quantities.push(Math.max(...(account?.sailing?.captains?.map(({ level }: any) => level) || [])));
+  quantities.push(Math.max(0, ...(account?.sailing?.captains?.map(({ level }: any) => level) || [])));
   quantities.push(Math.max(account?.gaming?.snailLevel, account.accountOptions?.[210]));
   quantities.push(account?.gaming?.bestNugget);
   quantities.push(account?.looty?.lootyRaw?.length);
@@ -358,11 +358,11 @@ export const calcTomeQuantity = (account: any, characters: any[], idleonData?: a
   quantities.push(Math.round(account?.accountOptions?.[369])); // 95
   quantities.push(account?.summoning?.totalSummoningStonesKills); // 96
   quantities.push(account?.spelunking?.coralReefLevels?.reduce((sum: number, level: number) => sum + level, 0));
-  quantities.push(Math.max(...(account?.spelunking?.bestCaveLevels || [0]))); // 98
+  quantities.push(Math.max(0, ...(account?.spelunking?.bestCaveLevels || []))); // 98
   quantities.push(account?.sneaking?.totalNinjaUpgradeLevels);
   quantities.push(account?.accountOptions?.[445]); // 100
   quantities.push(account?.accountOptions?.[446]);
-  quantities.push(Math.max(...(account?.spelunking?.biggestHauls || [0]))); // 102
+  quantities.push(Math.max(0, ...(account?.spelunking?.biggestHauls || []))); // 102
   quantities.push(account?.spelunking?.totalUpgradeLevels); // 103
   quantities.push(account?.spelunking?.discoveriesCount); // 104
   quantities.push(account?.spelunking?.highestSpelunkingLevelCharacter); // 105

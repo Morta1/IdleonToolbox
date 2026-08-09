@@ -1,6 +1,6 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
-import { getBreeding } from '@parsers/world-4/breeding';
+import { getBreeding, calcHighestPower } from '@parsers/world-4/breeding';
 import { petStats } from '@website-data';
 import { tryToParse } from '@utility/helpers';
 import first from '../fixtures/first.json';
@@ -24,6 +24,31 @@ describe('getBreeding', () => {
   it('carries catalog fields through', () => {
     const { pets } = getBreeding(undefined, {}, {});
     expect(pets[0][0].monsterName).toBe('Green_Mushroom');
+  });
+});
+
+describe('calcHighestPower', () => {
+  // Regression: `rawFencePets` is undefined when breeding never ran (no save), which used to make
+  // `fence` undefined too and crash `Math.max(...mappedPets, ...fence)` - spreading `undefined` is
+  // not iterable. Pre-existing bug, reproduces identically before and after Task 6; fixed here as a
+  // folded-in Task 7 item since it's exactly the class of crash this plan removes.
+  it('does not throw and returns 0 when breeding is undefined', () => {
+    expect(() => calcHighestPower(undefined)).not.toThrow();
+    expect(calcHighestPower(undefined)).toBe(0);
+  });
+
+  it('does not throw when rawFencePets/territories/storedPets are all missing', () => {
+    expect(() => calcHighestPower({})).not.toThrow();
+    expect(calcHighestPower({})).toBe(0);
+  });
+
+  it('still returns the real highest power across teams/storage/fence', () => {
+    const breeding = {
+      territories: [{ team: [{ power: 5 }, { power: 12 }] }],
+      storedPets: [{ power: 20 }],
+      rawFencePets: [['a', 0, 7], ['b', 0, 30]]
+    };
+    expect(calcHighestPower(breeding)).toBe(30);
   });
 });
 

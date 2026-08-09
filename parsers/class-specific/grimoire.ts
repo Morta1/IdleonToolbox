@@ -1,5 +1,6 @@
 import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { grimoire, mapEnemiesArray, mapNames, monsterDrops, monsters, randomList } from '@website-data';
+import { liveEntries } from '@parsers/catalog';
 import { CLASSES, getTalentBonus } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
@@ -61,14 +62,16 @@ export const getGrimoire = (idleonData: any, charactersData: any, account: any) 
   return parseGrimoire(grimoireRaw, ribbonRaw, charactersData, account);
 };
 
+// Classification: CATALOG-BACKED (`grimoire`). The save only supplies each upgrade's level; a
+// missing save means every upgrade sits at level 0, not a shorter list.
 const parseGrimoire = (grimoireRaw: any, ribbonRaw: any, charactersData: any, account: any) => {
   const monsterList = randomList?.[104];
-  const bones = account?.accountOptions?.slice(330, 334);
-  const totalUpgradeLevels = grimoireRaw?.reduce((sum: any, level: any) => sum + level, 0);
-  const totalBonesCollected = account?.accountOptions?.[329];
-  let upgrades = grimoire.map((upgrade, index) => {
+  const bones = boneNames.map((_, index) => account?.accountOptions?.[330 + index] ?? 0);
+  const totalUpgradeLevels = grimoireRaw?.reduce((sum: any, level: any) => sum + level, 0) ?? 0;
+  const totalBonesCollected = account?.accountOptions?.[329] ?? 0;
+  let upgrades = liveEntries<any>(grimoire).map(({ entry: upgrade, index }) => {
     const { x1, x2 } = upgrade;
-    const level = grimoireRaw?.[index]
+    const level = grimoireRaw?.[index] ?? 0;
     const cost = getUpgradeCost({ x1, x2, index, level, account: account })
     return {
       ...upgrade,

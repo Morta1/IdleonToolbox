@@ -46,27 +46,27 @@ export const getGuild = (idleonData: IdleonData, guildData: GuildData | null): G
     ...guildBonus,
     level: guildData?.stats?.[0]?.[index] ?? 0
   }))
-  if (guildData) {
-    const totalPoints = getGuildTotalPoints(guildRaw, updatedGuildBonuses, guildData?.points ?? 0)
-    const level = getGuildLevel(totalPoints);
-    const maxMembers = 30 + 4 * level;
-    const levelReq = getGuildLevelReq(guildRaw, totalPoints)
-    const members = parseGuildMembers(guildData, updatedGuildBonuses);
-    const totalStatCost = updatedGuildBonuses?.reduce((sum: number, { level }: any, index: number) => sum + calculateGuildBonusCost(level,
-      guildBonuses?.[index]?.gpBaseCost, guildBonuses?.[index]?.gpIncrease), 0);
-    const totalGp = (guildData?.points ?? 0) + totalStatCost;
-    return {
-      id: guildData.id ?? undefined,
-      guildBonuses: updatedGuildBonuses,
-      guildTasks: parsedGuildTasks,
-      members,
-      maxMembers,
-      level,
-      levelReq,
-      totalGp
-    }
+  // `guildData` is already guaranteed non-null here by the early return above - the old `if
+  // (guildData) { ... } return null;` wrapper around this block was dead code (guildData can't
+  // become falsy again), so it's removed rather than left with an unreachable trailing `return null`.
+  const totalPoints = getGuildTotalPoints(guildRaw, updatedGuildBonuses, guildData?.points ?? 0)
+  const level = getGuildLevel(totalPoints);
+  const maxMembers = 30 + 4 * level;
+  const levelReq = getGuildLevelReq(guildRaw, totalPoints)
+  const members = parseGuildMembers(guildData, updatedGuildBonuses);
+  const totalStatCost = updatedGuildBonuses?.reduce((sum: number, { level }: any, index: number) => sum + calculateGuildBonusCost(level,
+    guildBonuses?.[index]?.gpBaseCost, guildBonuses?.[index]?.gpIncrease), 0);
+  const totalGp = (guildData?.points ?? 0) + totalStatCost;
+  return {
+    id: guildData.id ?? undefined,
+    guildBonuses: updatedGuildBonuses,
+    guildTasks: parsedGuildTasks,
+    members,
+    maxMembers,
+    level,
+    levelReq,
+    totalGp
   }
-  return null;
 }
 
 const getGuildTotalPoints = (guildRaw: any, guildBonuses: any[], points: number): number => {

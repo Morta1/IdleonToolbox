@@ -1,5 +1,6 @@
 import { commaNotation, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
 import { getFilteredPortals } from '@parsers/portals';
+import { liveEntries } from '@parsers/catalog';
 import { mapEnemiesArray, mapPortals, monsterDrops, monsters, tesseract, items } from '@website-data';
 import { CLASSES, getCharacterByHighestTalent, getTalentBonus, getHighestTalentByClass } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
@@ -66,18 +67,20 @@ export const mapBonusNames = {
   2: 'AFK'
 }
 
+// Classification: CATALOG-BACKED (`tesseract`). The save only supplies each upgrade's level; a
+// missing save means every upgrade sits at level 0, not a shorter list.
 export const getTesseract = (idleonData: any, characters: any[], account: any, _unused3?: any) => {
-  const tachyons = account?.accountOptions?.slice(388, 394).map((value: any, index: any) => ({
-    value,
-    name: (tachyonNames as Record<string, any>)?.[index]
+  const tachyons = Object.entries(tachyonNames).map(([index, name]) => ({
+    value: account?.accountOptions?.[388 + Number(index)] ?? 0,
+    name
   }));
-  const totalTachyons = tachyons?.reduce((sum: any, { value }: any) => sum + value, 0);
+  const totalTachyons = tachyons?.reduce((sum: any, { value }: any) => sum + value, 0) ?? 0;
   const tesseractRaw = tryToParse(idleonData?.Arcane) || [];
   const [portalsRaw] = tryToParse(idleonData?.Tess) || [];
   const mapBonusRaw = tryToParse(idleonData?.MapBon) || [];
-  const totalUpgradeLevels = tesseractRaw?.reduce((sum: any, level: any) => sum + level, 0);
-  let upgrades = tesseract?.map((upgrade, index) => {
-    const level = tesseractRaw?.[index]
+  const totalUpgradeLevels = tesseractRaw?.reduce((sum: any, level: any) => sum + level, 0) ?? 0;
+  let upgrades = liveEntries<any>(tesseract).map(({ entry: upgrade, index }) => {
+    const level = tesseractRaw?.[index] ?? 0;
     return {
       ...upgrade,
       level,
@@ -105,9 +108,9 @@ export const getTesseract = (idleonData: any, characters: any[], account: any, _
   })
 
   const crystalChargeReq = getCrystalChargeReq(characters, upgrades)
-  const weaponDropChance = 1 / (300 * Math.pow(1.2, account?.accountOptions?.[396]));
+  const weaponDropChance = 1 / (300 * Math.pow(1.2, account?.accountOptions?.[396] ?? 0));
   const weaponQuality = calcTesseractBonus(upgrades, 5, 0);
-  const ringDropChance = 1 / (500 * Math.pow(1.2, account?.accountOptions?.[397]));
+  const ringDropChance = 1 / (500 * Math.pow(1.2, account?.accountOptions?.[397] ?? 0));
   const ringQuality = calcTesseractBonus(upgrades, 23, 0);
 
   const unlockedPortals = (portalsRaw || []).reduce((result: any, mapRaw: any) => {
@@ -602,7 +605,7 @@ export const getPrismaMulti = (account: any) => {
 const getUpgradeCost = ({ index, x1, x2, level, account, upgrades, forceLegendTalent }: any) => {
   return 3 * getMasterclassCostReduction(account, forceLegendTalent)
     * (1 / (1 + (calcTesseractBonus(upgrades, 49, 0)
-      * lavaLog(account?.accountOptions?.[392])) / 100))
+      * lavaLog(account?.accountOptions?.[392] ?? 0)) / 100))
     * Math.pow(1.04, index) * (level + (x1 + level) * Math.pow(x2 + 0.01, level))
 }
 
