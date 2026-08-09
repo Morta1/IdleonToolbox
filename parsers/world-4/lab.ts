@@ -33,7 +33,7 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
       chips: liveEntries<any>(chips as any[]).map(({ entry }) => ({ ...entry, repoAmount: 0, amount: 0, totalAmount: 0 })),
       labBonuses: liveEntries<any>(labBonuses as any[]).map(({ entry }) => ({ ...entry, active: false })),
       totalRawChips: 0,
-      currentRotation: undefined
+      currentRotation: []
     };
   }
   const arenaWave = account?.accountOptions?.[89];
