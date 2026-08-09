@@ -13,7 +13,8 @@ export const patchNotes = [
       'Buildings: new "Hide maxed buildings" toggle',
       'Vials: the vial bonus now has a breakdown showing every source that feeds into it',
       'Dashboard: the shimmer trial alert now shows this week\'s challenge in its tooltip',
-      'Dashboard: new alert for stamps you can level with the coins you already have, with a setting for how much of your coins you are willing to spend'
+      'Dashboard: new alert for stamps you can level with the coins you already have, with a setting for how much of your coins you are willing to spend',
+      'Every page now has a proper browser tab title and description straight away, instead of only after the page finishes loading'
     ],
     'fixes': [
       'Vials: the vial bonus shown on the page was missing the Meritocracy vote bonus',

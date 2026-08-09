@@ -46,12 +46,16 @@ const Guilds = () => {
     pinnedGuilds,
     myGuildId: state?.account?.guild?.id || null
   });
-  if (isLoading) return <SimpleLoader message="Loading guilds..."/>;
+  // Rendered in both branches - when it sat below the early return the page had no title at all
+  // while the guild list was still loading.
+  const seo = <NextSeo
+    title="Guilds | Idleon Toolbox"
+    description="Browse the top Legends of Idleon guilds ranked by guild points, with member details, levels, and leadership info"
+  />;
+
+  if (isLoading) return <>{seo}<SimpleLoader message="Loading guilds..."/></>;
   return <Box sx={{ maxWidth: 980 }}>
-    <NextSeo
-      title="Guilds | Idleon Toolbox"
-      description="Browse the top Legends of Idleon guilds ranked by guild points, with member details, levels, and leadership info"
-    />
+    {seo}
     {error ? (
       <Stack sx={{ my: 3 }} direction={'row'} alignItems={'center'} justifyContent={'center'} gap={2}>
         <ErrorIcon/>

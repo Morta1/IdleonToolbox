@@ -22,6 +22,7 @@ import DynamicBreadcrumbs from '@components/common/DynamicBreadcrumbs';
 import RouteProgress from '@components/common/RouteProgress';
 import ErrorBoundary from '@components/common/ErrorBoundary';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { PAGE_SEO } from '../data/page-seo';
 
 const clientSideEmotionCache = createEmotionCache();
 const queryClient = new QueryClient({
@@ -49,7 +50,8 @@ const preConnections = [
 const MyApp = (props) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
   const [openPolicy, setOpenPolicy] = useState(false);
-  const { asPath } = useRouter();
+  const { asPath, pathname } = useRouter();
+  const pageSeo = PAGE_SEO[pathname];
   const canonicalUrl = `https://idleontoolbox.com${asPath.split('?')[0].split('#')[0]}`;
   const isGdprRegion = useGdprRegion();
 
@@ -57,7 +59,15 @@ const MyApp = (props) => {
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
-        <meta name="googlebot" content="index,follow"/>
+        {/* Nothing below <WaitForRouter> renders during the static export, so a page's own
+            <NextSeo> never runs at build time. PAGE_SEO is generated from those same NextSeo
+            props and emitted here, above the gate, so the exported HTML ships a real title and
+            description. After hydration the page's NextSeo takes over with identical copy -
+            verified across client-side route changes, including unmapped routes. */}
+        <meta name="googlebot" content={pageSeo?.noindex ? 'noindex,follow' : 'index,follow'}/>
+        {pageSeo?.noindex ? <meta name="robots" content="noindex,follow"/> : null}
+        {pageSeo?.title ? <title>{pageSeo.title}</title> : null}
+        {pageSeo?.description ? <meta name="description" content={pageSeo.description}/> : null}
         {preConnections?.map((link) => <link key={link} rel="preconnect" href={link}/>)}
       </Head>
       <div id="ncmp-consent-link"></div>

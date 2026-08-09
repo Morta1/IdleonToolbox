@@ -98,13 +98,17 @@ const Statistics = () => {
       });
   };
 
-  if (loading) return <SimpleLoader message="Loading visualizations..."/>;
+  // Rendered in both branches - when it sat below the early return the page had no title at all
+  // while the visualizations were still loading.
+  const seo = <NextSeo
+    title="Statistics | Idleon Toolbox"
+    description="Explore community statistics and visualizations for Legends of Idleon including class distribution, skill levels, and player progression data"
+  />;
+
+  if (loading) return <>{seo}<SimpleLoader message="Loading visualizations..."/></>;
 
   return <>
-    <NextSeo
-      title="Statistics | Idleon Toolbox"
-      description="Explore community statistics and visualizations for Legends of Idleon including class distribution, skill levels, and player progression data"
-    />
+    {seo}
     <div style={{ background: '#141A21', minHeight: '100vh', padding: isSm ? 8 : 20 }}>
       {error && <p style={{ color: '#F56565', textAlign: 'center', fontSize: 14 }}>Error: {error}</p>}
       {!loading && !error && data && (

@@ -84,6 +84,18 @@ All user-facing dates and times must respect user preferences (DD/MM vs MM/DD, 2
 
 This project uses **React Compiler** (`reactCompiler: true` in `next.config.js`), so manual memoization with `useMemo` and `useCallback` is generally unnecessary. The compiler automatically optimizes component re-renders.
 
+### Page titles and descriptions
+
+`data/page-seo.js` is **generated — do not edit by hand**. It mirrors every page's own
+`<NextSeo>` and is rendered in `_app.jsx` above `<WaitForRouter>`, which is the only reason the
+static export ships titles at all (nothing below the gate renders at build time).
+
+After changing a page's `<NextSeo>` title or description, re-run `node utility/generate-page-seo.mjs`.
+`__test__/page-seo.test.js` fails if the map drifts from the pages.
+
+Keep `<NextSeo>` above any early-return loader in a page, or the page loses its title while
+loading.
+
 ### Patch notes
 Every user-facing change (feature or fix) gets a patch note entry in `@IdleonToolbox/data/patch-notes.js`.
 
