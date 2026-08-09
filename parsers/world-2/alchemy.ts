@@ -45,7 +45,7 @@ export const getAlchemy = (idleonData: any, serializedCharactersData: any, accou
   const cauldronJobs1Raw = tryToParse(idleonData?.CauldronJobs1);
   const cauldronsInfo = getCauldronStats(idleonData);
   if (alchemyRaw?.[8] && alchemyRaw?.[8]?.length === 0) {
-    alchemyRaw[8] = cauldronsInfo.slice(0, 16);
+    alchemyRaw[8] = cauldronsInfo?.slice(0, 16) ?? [];
   }
   return parseAlchemy(idleonData, alchemyRaw, cauldronJobs1Raw, cauldronsInfo, serializedCharactersData, account);
 };
@@ -385,14 +385,23 @@ export const getBubbleBonus = (account: any, bubbleName: any, round?: any, shoul
   return baseBubbleValue * basePrismaMultiplier * primaryMultiplier * secondaryMultiplier;
 };
 
+/**
+ * Restores the original save-driven parser's `.filter(({ name }) => name)` guard, which
+ * isPlaceholder does not cover (nameless is not the same predicate as filler-prefixed). No vial in
+ * the current catalog is nameless, but a future data regen could ship one before it has a name.
+ */
+export const isNamedVial = (entry: any): boolean => !!entry?.name;
+
 const getVials = (vialsRaw: any) => {
   // Catalog-driven: the list of vials that exist is a property of the game, not of the save. The
   // save only supplies each vial's level, and a missing/short save means unlevelled (0) vials -
   // not a truncated list.
-  return liveEntries<any>(Object.values(vials)).map(({ entry, index }) => ({
-    ...entry,
-    level: parseInt(vialsRaw?.[index]) || 0
-  }));
+  return liveEntries<any>(Object.values(vials))
+    .filter(({ entry }) => isNamedVial(entry))
+    .map(({ entry, index }) => ({
+      ...entry,
+      level: parseInt(vialsRaw?.[index]) || 0
+    }));
 };
 
 export const getVialsBonusByEffect = (vials: any, effectName: any, statName?: any) => {

@@ -1,6 +1,6 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
-import { getShrines } from '@parsers/world-3/shrines';
+import { getShrines, isLiveShrineEntry } from '@parsers/world-3/shrines';
 import { liveCount } from '@parsers/catalog';
 import { shrines } from '@website-data';
 import { tryToParse } from '@utility/helpers';
@@ -21,6 +21,30 @@ describe('getShrines', () => {
     const [firstShrine] = getShrines(undefined, {});
     expect(firstShrine.name).toBe('Woodular_Shrine');
     expect(firstShrine.rawName).toBe('ConTowerB18');
+  });
+});
+
+/**
+ * The original save-driven parser filtered `shrineName !== 'Unknown'` before emitting a row.
+ * isPlaceholder's regex only matches filler/some_-prefixed names, not the literal 'Unknown', so
+ * parseShrines restores the guard itself via isLiveShrineEntry. No shrine in the current catalog
+ * has this name (dormant against real data), and `shrines` is a module-level import rather than a
+ * parameter of getShrines/parseShrines, so there is no way to inject a synthetic 'Unknown' catalog
+ * entry through the public functions without changing their signature. Testing the extracted
+ * predicate directly is the smallest piece that proves the filter exists and behaves correctly.
+ */
+describe('isLiveShrineEntry', () => {
+  it('excludes an Unknown-named shrine entry', () => {
+    expect(isLiveShrineEntry({ shrineName: 'Unknown' })).toBe(false);
+  });
+
+  it('keeps a normally-named shrine entry', () => {
+    expect(isLiveShrineEntry({ shrineName: 'Woodular_Shrine' })).toBe(true);
+  });
+
+  it('treats a missing shrineName as real so nothing is silently dropped', () => {
+    expect(isLiveShrineEntry({})).toBe(true);
+    expect(isLiveShrineEntry(undefined)).toBe(true);
   });
 });
 

@@ -13,6 +13,15 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 
 const startingIndex = 18;
 
+/**
+ * `website-data.json` can ship a shrine slot with `shrineName: 'Unknown'` - a raw-index placeholder
+ * that predates the shared `isPlaceholder`/`liveEntries` machinery (its regex only matches
+ * `filler`/`some_` prefixes, not the literal string `'Unknown'`). No live shrine currently has this
+ * name, but the original save-driven parser filtered it out, so the catalog-driven version must
+ * too, or a future data regen that reintroduces one would leak it straight into the UI.
+ */
+export const isLiveShrineEntry = (entry: any): boolean => entry?.shrineName !== 'Unknown';
+
 export const getShrines = (idleonData: any, account: any) => {
   const shrinesRaw = idleonData?.ShrineInfo || tryToParse(idleonData?.Shrine);
   const towersRaw = idleonData?.TowerInfo || tryToParse(idleonData?.Tower);
@@ -25,17 +34,23 @@ export const parseShrines = (shrinesRaw: any, towersRaw: any, account: any) => {
   // save only supplies each shrine's level/progress, and a missing save means an unlevelled (0)
   // shrine - not a truncated list. Catalog keys are contiguous startingIndex..startingIndex+n-1, so
   // the liveEntries position (localIndex) lines up with the raw save array's position.
+  //
+  // No .sort() here: Object.entries on an object keyed by canonical numeric strings ('18'..'26')
+  // is guaranteed by the ECMAScript spec to enumerate in ascending numeric order, so the catalog is
+  // already ordered correctly.
   const shrineCatalog = Object.entries(shrines)
-    .map(([key, value]: [string, any]) => ({ globalIndex: Number(key), ...value }))
-    .sort((a, b) => a.globalIndex - b.globalIndex);
+    .map(([key, value]: [string, any]) => ({ globalIndex: Number(key), ...value }));
   const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Shrine_Effects_(Passive)');
-  const shrineStuff = liveEntries<any>(shrineCatalog).map(({ entry, index: localIndex }) => {
+  // isLiveShrineEntry restores the original save-driven parser's `shrineName !== 'Unknown'` guard,
+  // which isPlaceholder does not cover (see comment above).
+  const liveShrines = liveEntries<any>(shrineCatalog).filter(({ entry }) => isLiveShrineEntry(entry));
+  const shrineStuff = liveShrines.map(({ entry, index: localIndex }) => {
     const item = shrinesRaw?.[localIndex];
     const [, , , shrineLevel = 0] = item ?? [];
     const { baseBonus, bonusPerLevel } = entry;
     return (1 + (passiveCardBonus) / 100) * ((shrineLevel - 1) * bonusPerLevel + baseBonus)
   })
-  return liveEntries<any>(shrineCatalog).map(({ entry, index: localIndex }) => {
+  return liveShrines.map(({ entry, index: localIndex }) => {
     const index = startingIndex + localIndex;
     const item = shrinesRaw?.[localIndex];
     const [mapId = 0, , , shrineLevel = 0, progress = 0] = item ?? [];

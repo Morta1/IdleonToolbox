@@ -1,6 +1,6 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
-import { getAlchemy } from '@parsers/world-2/alchemy';
+import { getAlchemy, isNamedVial } from '@parsers/world-2/alchemy';
 import { liveCount } from '@parsers/catalog';
 import { cauldrons, vials } from '@website-data';
 import { createArrayOfArrays } from '@utility/helpers';
@@ -35,6 +35,27 @@ describe('getAlchemy', () => {
     const result = getAlchemy(undefined, [], {});
     expect(result.bubbles.power[0].bubbleName).toBe('ROID_RAGIN');
     expect(result.vials[0].name).toBe('COPPER_CORONA');
+  });
+});
+
+/**
+ * The original save-driven parser filtered `.filter(({ name }) => name)` before emitting a vial
+ * row. isPlaceholder only matches filler/some_-prefixed names, not namelessness, so getVials
+ * restores the guard itself via isNamedVial. No vial in the current catalog is nameless (dormant
+ * against real data), and `vials` is a module-level import rather than a parameter of
+ * getAlchemy/getVials, so there is no way to inject a synthetic nameless catalog entry through the
+ * public getAlchemy function without changing its signature. Testing the extracted predicate
+ * directly is the smallest piece that proves the filter exists and behaves correctly.
+ */
+describe('isNamedVial', () => {
+  it('excludes a nameless vial entry', () => {
+    expect(isNamedVial({})).toBe(false);
+    expect(isNamedVial({ name: '' })).toBe(false);
+    expect(isNamedVial({ name: undefined })).toBe(false);
+  });
+
+  it('keeps a normally-named vial entry', () => {
+    expect(isNamedVial({ name: 'COPPER_CORONA' })).toBe(true);
   });
 });
 
