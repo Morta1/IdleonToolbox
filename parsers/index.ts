@@ -163,7 +163,7 @@ const getStaticData = (idleonData: IdleonData, charNames: string[], companion: C
     traps: safeSection<any>('traps', [], () => getTraps(serializedCharactersData)),
     totems: safeSection<any>('totems', [], () => getTotems(idleonData)),
     adviceFish: safeSection<any>('adviceFish', {}, () => getAdviceFish(idleonData)),
-    guild: safeSection<any>('guild', {}, () => getGuild(idleonData, guildData)),
+    guild: safeSection<any>('guild', null, () => getGuild(idleonData, guildData)),
     talentPoints: idleonData?.CYTalentPoints,
     tournamentServerData: tournament ?? null,
   };
@@ -195,7 +195,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   // charactersData is the previous pass's enriched characters (with skillsInfo); empty on pass 1.
   // Cooking Mastery's cross-character cooking-level sum resolves via the multi-pass serialization.
   accountData.cooking = safeSection<any>('cooking', {}, () => getCooking(idleonData, accountData, charactersData));
-  accountData.divinity = safeSection<any>('divinity', {}, () => getDivinity(idleonData, serializedCharactersData, accountData));
+  accountData.divinity = safeSection<any>('divinity', null, () => getDivinity(idleonData, serializedCharactersData, accountData));
   accountData.sneaking = safeSection<any>('sneaking', {}, () => getSneaking(idleonData, serverVars, charactersData, accountData));
   accountData.farming = safeSection<any>('farming', {}, () => getFarming(idleonData, accountData, processedData?.charactersData));
   accountData.summoning = safeSection<any>('summoning', {}, () => getSummoning(idleonData, accountData, serializedCharactersData));
@@ -222,7 +222,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   if (accountData.alchemy) {
     accountData.alchemy.vials = updateVials(accountData);
   }
-  accountData.equinox = safeSection<any>('equinox', {}, () => getEquinox(idleonData, accountData));
+  accountData.equinox = safeSection<any>('equinox', null, () => getEquinox(idleonData, accountData));
   const spelunkerObolMulti = getLabBonus(accountData.lab?.labBonuses, 8);
   const blackDiamondRhinestone = getJewelBonus(accountData.lab?.jewels, 16, spelunkerObolMulti);
 
@@ -269,10 +269,10 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   }
   accountData.spelunking = safeSection<any>('spelunking', {}, () => getSpelunking(idleonData, accountData, charactersData));
   accountData.hatRack = safeSection<any>('hatRack', {}, () => getHatRack(idleonData, accountData));
-  accountData.gaming = safeSection<any>('gaming', {}, () => getGaming(idleonData, charactersData, accountData, serverVars));
+  accountData.gaming = safeSection<any>('gaming', null, () => getGaming(idleonData, charactersData, accountData, serverVars));
   // reapply atoms
   accountData.atoms = safeSection<any>('atoms', {}, () => getAtoms(idleonData, accountData));
-  accountData.sailing = safeSection<any>('sailing', {}, () => getSailing(idleonData, artifacts, charactersData, accountData, serverVars, charactersLevels));
+  accountData.sailing = safeSection<any>('sailing', null, () => getSailing(idleonData, artifacts, charactersData, accountData, serverVars, charactersLevels));
 
   const leaderboard = calculateLeaderboard(skills);
   charactersData = charactersData.map((character: any) => ({ ...character, skillsInfo: (leaderboard as Record<string, any>)[character?.name] }));
@@ -349,7 +349,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.tournament = safeSection<any>('tournament', {}, () => getTournament(idleonData, accountData, staticData.tournamentServerData));
   accountData.research = safeSection<any>('research', {}, () => getResearch(idleonData, accountData, charactersData));
   accountData.button = safeSection<any>('button', {}, () => getButton(accountData, charactersData));
-  accountData.sushiStation = safeSection<any>('sushiStation', {}, () => getSushiStation(idleonData, accountData));
+  accountData.sushiStation = safeSection<any>('sushiStation', null, () => getSushiStation(idleonData, accountData));
   accountData.bubba = safeSection<any>('bubba', {}, () => getBubba(idleonData, accountData));
   accountData.friendBonusStats = safeSection<any>('friendBonusStats', {}, () => getFriendBonusStats(accountData));
 
