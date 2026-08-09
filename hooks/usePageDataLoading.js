@@ -21,30 +21,35 @@ const usePageDataLoading = () => {
   const formattedEndPoint = endPoint?.replace('-', ' ')?.toCamelCase();
   const isCharactersPage = router.pathname === '/characters';
   const isDashboardPage = router.pathname === '/dashboard';
+  // Pages that read account/character state - the set an empty-account banner is relevant on.
+  const isDataPage = isAccountPage || (isToolPage && !offlineTools[formattedEndPoint]) || isCharactersPage || isDashboardPage;
 
   // Check data based on page type
   if (isAccountPage || (isToolPage && !offlineTools[formattedEndPoint])) {
     const isDataLoaded = !!state?.account;
     if (state.isLoading || !isDataLoaded) {
-      return { loading: true, message: 'Loading account data...' };
+      return { loading: true, message: 'Loading account data...', isDataPage };
     }
   } else if (isCharactersPage) {
-    const isDataLoaded = !!state?.characters?.length;
+    // emptyAccount visitors have no characters at all (there's nothing to parse a catalog from),
+    // so `characters.length` never becomes truthy - fall back to the empty-account flag itself so
+    // the page reaches its own "no characters" empty state instead of spinning forever.
+    const isDataLoaded = !!state?.characters?.length || state?.emptyAccount;
     if (state.isLoading || !isDataLoaded) {
-      return { loading: true, message: 'Loading character data...' };
+      return { loading: true, message: 'Loading character data...', isDataPage };
     }
   } else if (isDashboardPage) {
-    const isDataLoaded = !!state?.account && !!state?.characters?.length;
+    const isDataLoaded = (!!state?.account && !!state?.characters?.length) || state?.emptyAccount;
     if (state.isLoading || !isDataLoaded) {
-      return { loading: true, message: 'Loading dashboard data...' };
+      return { loading: true, message: 'Loading dashboard data...', isDataPage };
     }
   } else if (router.pathname === '/settings') {
     if (state.isLoading) {
-      return { loading: true, message: 'Loading settings...' };
+      return { loading: true, message: 'Loading settings...', isDataPage };
     }
   }
 
-  return { loading: false, message: null };
+  return { loading: false, message: null, isDataPage };
 };
 
 export default usePageDataLoading;

@@ -54,8 +54,8 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
   const breedingPetsLevels = breedingRaw?.slice(13, 17);
   const baseFenceSlots = breedingRaw?.[2]?.[4];
   const fenceSlots = Math.round(5 + baseFenceSlots + 2 * (account?.gemShopPurchases?.find((value: any, index: any) => index === 125) ?? 0));
-  const rawFencePets = petsRaw?.slice(0, fenceSlots);
-  const fencePetsObject = rawFencePets?.reduce((res: any, [petName, type]: any) => {
+  const rawFencePets = petsRaw?.slice(0, fenceSlots) ?? [];
+  const fencePetsObject = rawFencePets.reduce((res: any, [petName, type]: any) => {
     if (!res[petName]) {
       res[petName] = {
         amount: 0,

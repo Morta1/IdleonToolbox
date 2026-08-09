@@ -3,7 +3,6 @@ import { checkUserStatus, signInWithCustom, signInWithToken, subscribe, userSign
 import { useRouter } from 'next/router';
 import useInterval from '@hooks/useInterval';
 import { getUserToken } from '../../../services/auth/google';
-import { offlineTools } from '../NavBar/AppDrawer/ToolsDrawer';
 import { geAppleStatus } from '../../../services/auth/apple';
 import { getProfile } from '../../../services/profiles';
 import { setRawJson } from '@utility/helpers';
@@ -110,13 +109,6 @@ const AppProvider = ({ children }) => {
   const unsubscribeRef = useRef(null);
   const isInitializedRef = useRef(false);
 
-  const checkOfflineTool = () => {
-    if (!router.pathname.includes('tools')) return false;
-    const endPoint = router.pathname.split('/')?.[2] || '';
-    const formattedEndPoint = endPoint?.replace('-', ' ')?.toCamelCase();
-    return !state?.signedIn && router.pathname.includes('tools') && offlineTools[formattedEndPoint];
-  };
-
   const handleCloudUpdate = async (
     data, 
     charNames, 
@@ -165,6 +157,7 @@ const AppProvider = ({ children }) => {
       data: {
         ...parsedData,
         signedIn: true,
+        emptyAccount: false,
         manualImport: false,
         profile: false,
         lastUpdated,
@@ -316,20 +309,15 @@ const AppProvider = ({ children }) => {
           const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
           unsubscribeRef.current = unsub;
         } else {
-          // /guilds is public and links to both of these, so logged-out visitors clicking
-          // through were silently bounced home. Neither page reads any account state.
-          const isAllowedPath = router.pathname === '/' ||
-            checkOfflineTool() ||
-            router.pathname === '/guilds' ||
-            router.pathname === '/guilds/detail' ||
-            router.pathname === '/guilds/ecosystem' ||
-            router.pathname === '/statistics' ||
-            router.pathname === '/leaderboards';
-
-          if (!isAllowedPath) {
-            router.push({ pathname: '/', query: router?.query });
-          }
-          dispatch({ type: ACTION_TYPES.SET_LOADING, data: false });
+          // Logged-out visitors used to be bounced to '/' unless they were on a small
+          // whitelist of pages that don't read account state. Instead, parse an empty
+          // account so every page renders the full game catalog with values at zero.
+          const { parseData } = await import('@parsers/index');
+          const parsedData = parseData(undefined, [], null, null, undefined, undefined, null);
+          dispatch({
+            type: ACTION_TYPES.DATA,
+            data: { ...parsedData, signedIn: false, emptyAccount: true, isLoading: false }
+          });
         }
       } catch (error) {
         console.error(error);
