@@ -3,7 +3,7 @@ __turbopack_load_page_chunks__("/guilds", [
   "static/chunks/0r28klnec03dk.js",
   "static/chunks/3w_ipgqnc0pxu.js",
   "static/chunks/3q_w1-krks62h.js",
-  "static/chunks/3l1_1ixjv3ynm.js",
+  "static/chunks/433n2y029xziy.js",
   "static/chunks/3oupmgjuui4d_.js",
   "static/chunks/2vfnndu_slyq0.js",
   "static/chunks/0-5raqfwjdvno.js",
@@ -13,5 +13,5 @@ __turbopack_load_page_chunks__("/guilds", [
   "static/chunks/27474ct4wljjx.js",
   "static/chunks/4008casf0z20p.js",
   "static/chunks/29gi5byy5-pj4.js",
-  "static/chunks/turbopack-0u34dz42ha6ru.js"
+  "static/chunks/turbopack-2nclsnz_lrbkv.js"
 ])

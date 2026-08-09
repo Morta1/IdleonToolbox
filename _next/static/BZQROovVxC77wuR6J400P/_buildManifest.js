@@ -1,6 +1,6 @@
 self.__BUILD_MANIFEST = {
   "/": [
-    "static/chunks/0upbu4jg8cjf3.js"
+    "static/chunks/2dc6t4qqviux_.js"
   ],
   "/404": [
     "static/chunks/0lqpl8aacxc8j.js"
@@ -252,7 +252,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0wwkabsp0wazq.js"
   ],
   "/guilds": [
-    "static/chunks/1bug79g9zg8dl.js"
+    "static/chunks/1ve8lqn81189a.js"
   ],
   "/guilds/detail": [
     "static/chunks/1u0ovl8862mmi.js"
@@ -264,13 +264,13 @@ self.__BUILD_MANIFEST = {
     "static/chunks/0_zg4qx27rzrc.js"
   ],
   "/patch-notes": [
-    "static/chunks/0n8qz37rkych9.js"
+    "static/chunks/13udo60d7e21x.js"
   ],
   "/settings": [
     "static/chunks/1dni0ladgafhb.js"
   ],
   "/statistics": [
-    "static/chunks/2g2b7xmd2gjdu.js"
+    "static/chunks/0zg0i8364qb74.js"
   ],
   "/tools": [
     "static/chunks/27_glvyiyqexy.js"
