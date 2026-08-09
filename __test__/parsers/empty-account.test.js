@@ -87,6 +87,38 @@ describe('nested catalog-backed sections', () => {
   });
 });
 
+describe('world 4-7 sections', () => {
+  it('breeding has its pet list populated', () => {
+    const { breeding } = parseEmpty().account;
+    expect(breeding.pets.length).toBeGreaterThan(0);
+  });
+
+  it('cooking has meals populated', () => {
+    const { cooking } = parseEmpty().account;
+    expect(cooking.meals.length).toBe(liveCount(websiteData.cookingMenu));
+    expect(cooking.meals.every((m) => m.level === 0)).toBe(true);
+  });
+
+  it('lab has chips and jewels populated', () => {
+    const { lab } = parseEmpty().account;
+    expect(lab.chips.length).toBe(liveCount(websiteData.chips));
+    expect(lab.jewels.length).toBe(liveCount(websiteData.jewels));
+  });
+
+  it('minehead has upgrades populated', () => {
+    const { minehead } = parseEmpty().account;
+    expect(minehead.upgrades.length).toBe(liveCount(websiteData.mineheadUpgrades));
+  });
+
+  it('sailing stays null on an empty parse (locked feature, not catalog-backed)', () => {
+    // Corrected per task-6 brief override: getSailing returns null by design when the feature is
+    // not unlocked, and pages/account/world-5/sailing.jsx gates rendering on that null. Converting
+    // it to a populated object would make the gate fail open (NaN render for real users).
+    const { sailing } = parseEmpty().account;
+    expect(sailing).toBeNull();
+  });
+});
+
 describe('no fabricated values', () => {
   // Inverted deliberately: measured 2026-08-09, an empty parse currently emits 3241 NaN / 62
   // Infinity versus 62 NaN / 35 Infinity for a real parse — about 52x over the ceiling this

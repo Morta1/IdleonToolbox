@@ -130,10 +130,10 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
       const petInfo = {
         ...pet,
         world: 'World' + (worldIndex + 1),
-        level: petsLevels?.[worldIndex]?.[petIndex],
+        level: petsLevels?.[worldIndex]?.[petIndex] ?? 0,
         shinyLevel,
-        shinyProgress: shinyPetsLevels?.[worldIndex]?.[petIndex],
-        breedingProgress: breedingPetsLevels?.[worldIndex]?.[petIndex],
+        shinyProgress: shinyPetsLevels?.[worldIndex]?.[petIndex] ?? 0,
+        breedingProgress: breedingPetsLevels?.[worldIndex]?.[petIndex] ?? 0,
         shinyGoal,
         rawPassive: pet?.passive,
         passive: pet?.passive?.replace('{', String(passiveValue)),
