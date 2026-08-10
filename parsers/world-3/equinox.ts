@@ -71,7 +71,7 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
     * (1 + companionBonus)
     * (1 + cosmoBonus / 100)
     * (1 + 0.5 * eventShopBonus)
-    * (1 + account?.accountOptions?.[320] / 10)
+    * (1 + (account?.accountOptions?.[320] ?? 0) / 10)
     * (1 + tesseractBonus / 100)
     * (1 + cloudMulti45 / 100)
     * (1 + cloudMulti49 / 100)
@@ -90,7 +90,7 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
     { name: 'Tome', value: loreEpiBonus / 100 },
     { name: 'Companion', value: companionBonus },
     { name: 'Event shop', value: .5 * eventShopBonus },
-    { name: 'Penguins', value: 1 + account?.accountOptions?.[320] / 10 },
+    { name: 'Penguins', value: 1 + (account?.accountOptions?.[320] ?? 0) / 10 },
     { name: 'Vial', value: eqBarVial / 100 },
     { name: 'Clouds (additive)', value: cloudsBonus / 100 },
     { name: 'Cloud Multi 45', value: cloudMulti45 / 100 },

@@ -277,7 +277,10 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   const leaderboard = calculateLeaderboard(skills);
   charactersData = charactersData.map((character: any) => ({ ...character, skillsInfo: (leaderboard as Record<string, any>)[character?.name] }));
 
-  accountData.accountLevel = charactersData?.reduce((sum: number, { level }: any) => sum + level, 0);
+  // A character slot with no parsed level (e.g. an empty companion slot with no class/stats data,
+  // see the same gap in sailing.ts's Crystal_Steak fix) contributes 0 levels rather than poisoning
+  // the whole sum to NaN via `sum + undefined`.
+  accountData.accountLevel = charactersData?.reduce((sum: number, { level }: any) => sum + (level ?? 0), 0);
   accountData.highscores = safeSection<any>('highscores', { coloHighscores: [], minigameHighscores: [] }, () => getHighscores(idleonData, accountData));
 
   accountData.forge = safeSection<any>('forge', {}, () => getForge(idleonData, accountData));

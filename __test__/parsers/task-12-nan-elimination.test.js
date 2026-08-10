@@ -65,14 +65,20 @@ const parseRaw = () => {
 // farming, alchemy, clamWork, owl, libraryTimes, killroy, gallery, emperor, tasksDescriptions,
 // towers, rift, arcade, atoms, coralReef.
 //
-// This is NOT every account key - dozens of other sections (achievements, printer, guild, sailing,
-// character-level formulas, ...) were never in either batch's scope and are known to carry their own
-// pre-existing NaN on real (non-empty) fixtures, unrelated to the empty-account contract this branch
-// is building. Asserting zero NaN against those here would either force fixing far outside this task's
-// brief or force adding a wall of unjustified exceptions - neither is what "empty the allowlist" asked
-// for. The empty-parse assertion below has no such problem (verified separately, with no curated list:
-// a full, un-scoped walk of `parseEmpty().account` is exactly 0 NaN) - only the real-fixture assertion
-// needs to stay scoped to what these two tasks actually own.
+// This was NOT every account key when written - dozens of other sections (achievements, printer,
+// guild, sailing, character-level formulas, ...) were never in either batch's scope and carried their
+// own pre-existing NaN on real (non-empty) fixtures, unrelated to the empty-account contract this
+// branch was building at the time. Asserting zero NaN against those here would either have forced
+// fixing far outside this task's brief or forced adding a wall of unjustified exceptions.
+//
+// Task 14 closed that exact hole: printer/highscores/equinox/sailing/accountLevel were the last
+// sections carrying real NaN (350/491/491/217 across the four non-latest fixtures) and this curated,
+// batch-A/B-only gate is why they went unnoticed while this file stayed green. See
+// task-14-nan-elimination.test.js for the fix and, more importantly, the gate that superseded this
+// one: a fully UNSCOPED walk (every account key, not a curated list) across all seven available saves
+// (empty parse, data/raw.json, and every fixture file, discovered dynamically so new fixtures are
+// covered automatically). This SECTIONS_TO_CHECK list and its two gates below are kept only for their
+// per-section historical documentation value and remain green as a subset of that stronger gate.
 export const SECTIONS_TO_CHECK = [
   // Batch A (Task 12)
   'stamps', 'islands', 'currencies', 'breeding', 'summoning',

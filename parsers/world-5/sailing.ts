@@ -66,7 +66,9 @@ const parseSailing = (artifactsList: any, sailingRaw: any, captainsRaw: any, boa
   const rareTreasureChance = getRareTreasureChance();
   const lootPileList = getLootPile(lootPile);
   const captainsAndBoats = getCaptainsAndBoats(sailingRaw, captainsRaw, boatsRaw, account, charactersData, charactersLevels, artifactsList, lootPileList);
-  const boatsRoundtrips = captainsAndBoats?.boats?.map(({ maxTime }: any) => maxTime);
+  // Undeployed boats (see getBoat) contribute `undefined` here - they aren't making trips, so they
+  // can't fill chests and are excluded from the fleet's fastest-roundtrip estimate below.
+  const boatsRoundtrips = captainsAndBoats?.boats?.map(({ maxTime }: any) => maxTime).filter((time: any) => Number.isFinite(time));
   const timeToFullChests = calculateMaxCapacityTime(boatsRoundtrips, maxChests - (chests?.length || 0));
   const trades = getFutureTrades(captainsAndBoats, sailingRaw?.[0], lootPileList, artifactsList, account);
 
@@ -83,6 +85,10 @@ const parseSailing = (artifactsList: any, sailingRaw: any, captainsRaw: any, boa
 }
 
 const calculateMaxCapacityTime = (roundtripTimes: any, maxCapacity: any) => {
+  // No deployed boats at all (empty after the finite-value filter upstream) means there is no fleet
+  // roundtrip to estimate from - `Math.min()` with no arguments is Infinity, which would silently
+  // become a fabricated 0 through the division below. Report "not applicable" instead.
+  if (!roundtripTimes?.length) return undefined;
   const minTime = Math.min(...roundtripTimes);
   const acquisitionRate = maxCapacity / minTime;
   let accumulatedTime = 0;
@@ -360,8 +366,12 @@ const getBoat = (boat: any, boatIndex: any, lootPile: any, captains: any, artifa
   boatObj.loot = getBoatLootValue(characters, account, artifactsList, boatObj, captain, daveyJones);
   const frame = getBoatFrame(lootLevel + speedLevel, account);
   boatObj.speed = getBoatSpeedValue(captain, island, speedLevel, baseSpeed * daveyJones, minimumTravelTime, frame)
-  boatObj.maxTime = ((island?.distance) / boatObj.speed?.value) * 3600 * 1000;
-  boatObj.timeLeft = ((island?.distance - distanceTraveled) / boatObj.speed?.value) * 3600 * 1000;
+  // islandIndex -1 means the boat has never been sent out (no island assigned yet, e.g. a freshly
+  // bought boat) - `island` is genuinely undefined here, not a missing-data gap, so there is no
+  // roundtrip time to report. Leave undefined ("not applicable") rather than let `island?.distance`
+  // (undefined) poison the division into NaN.
+  boatObj.maxTime = island ? (island.distance / boatObj.speed?.value) * 3600 * 1000 : undefined;
+  boatObj.timeLeft = island ? ((island.distance - distanceTraveled) / boatObj.speed?.value) * 3600 * 1000 : undefined;
   return boatObj
 }
 
@@ -820,7 +830,10 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
   else if (artifact?.name === 'Crystal_Steak') {
     const mainStats = charactersData?.map(({ name, class: className, stats }: any) => {
       const mainStat = mainStatMap?.[className];
-      return { name, stat: stats?.[mainStat] };
+      // A character slot with no class/stats (e.g. an empty companion slot) has no main stat to
+      // scale from - 0 is the honest value, matching the `?? 0` guards on every stat in the
+      // Socrates branch just below, which reads from the same charactersData shape.
+      return { name, stat: stats?.[mainStat] ?? 0 };
     })
     fixedDescription = fixedDescription.replace('_Total_Bonus:_+}%_dmg', '')
     additionalData = mainStats.map(({ name, stat }: any) => ({

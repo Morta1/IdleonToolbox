@@ -81,7 +81,11 @@ export const calcMinigameTotalScore = (colo: HighscoreEntry[] | undefined): numb
 export const getDartsData = (account: Account): { totalPoints: number; upgrades: MinigameUpgrade[] } => {
   const upgradeTexts = ["+{%_Extra_Damage_against_Monsters!", "+{_Talent_PTS_for_the_first_page!", "All_Vault_upgrades_are_}x_Cheaper!", "+{%_Movement_Speed,_so_you_can_run_faster!"];
   const upgradeReqs = [0, 40, 150, 250];
-  const points = (account?.accountOptions as any)?.slice(435, 439) ?? [0, 0, 0, 0];
+  // `.slice(435, 439)` on a real `accountOptions` array shorter than index 439 (this minigame's
+  // upgrades never touched) returns `[]`, not an array of zeros - the `?? [0,0,0,0]` fallback only
+  // catches a fully-missing accountOptions, not a short one. Reading each index individually with its
+  // own `?? 0` guards the actual gap.
+  const points = [435, 436, 437, 438].map((index) => (account?.accountOptions as any)?.[index] ?? 0);
   const totalPoints = points.reduce((res: number, point: number) => res + point, 0);
   const upgrades = upgradeTexts.map((text, index) => ({
     description: text.replace('{', points[index]),
@@ -100,7 +104,8 @@ export const getDartsData = (account: Account): { totalPoints: number; upgrades:
 export const getHoopsData = (account: Account): { totalPoints: number; upgrades: MinigameUpgrade[] } => {
   const upgradeTexts = ["+{%_Damage_to_Monsters", "+{%_Coins_dropped_by_monsters", "+{%_Class_EXP_when_killing_monsters", "+{%_Efficiency_for_all_Skills,_like_Mining_and_Choppin!"];
   const upgradeReqs = [0, 12, 80, 200];
-  const points = (account?.accountOptions as any)?.slice(419, 423) ?? [0, 0, 0, 0];
+  // Same short-array gap as getDartsData - see comment there.
+  const points = [419, 420, 421, 422].map((index) => (account?.accountOptions as any)?.[index] ?? 0);
   const totalPoints = points.reduce((res: number, point: number) => res + point, 0);
   const upgrades = upgradeTexts.map((text, index) => ({
     description: text.replace('{', points[index]),
