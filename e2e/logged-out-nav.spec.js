@@ -168,6 +168,9 @@ test.describe('Logged-out visitors reach gated pages by clicking, not just by UR
     expect(new URL(page.url()).pathname).toBe('/tools/material-tracker');
 
     const bodyText = await page.locator('body').innerText();
+    // Proves QuickSearch both found AND opened the page - landing on the URL alone doesn't rule
+    // out an empty shell. Same string test 3 already verified is unique to this page.
+    expect(bodyText).toContain('Add tracker for all greenstacks');
     assertNoErrorBoundary(bodyText);
     expect(errors).toEqual([]);
 
