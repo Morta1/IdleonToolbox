@@ -1,18 +1,19 @@
 import { Divider, List, ListItem, ListItemIcon, ListItemText, Stack } from '@mui/material';
-import React, { useContext } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
-import { AppContext } from '../../context/AppProvider';
 import Kofi from '../../Kofi';
 
 import ListItemButton from '@mui/material/ListItemButton';
 import { PAGES } from '@components/constants';
 import { prefix } from '@utility/helpers';
 
+// Still consumed by hooks/usePageDataLoading.js for an unrelated purpose (deciding whether a
+// tool page needs account data before it can render) — keep the export even though this file no
+// longer gates on it.
 export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true, itemPlanner: true };
 
 const ToolsDrawer = ({ fromList }) => {
-  const { state } = useContext(AppContext);
   const router = useRouter();
 
   // Tab params belong to the page being left, not the one being opened. Everything else (demo,
@@ -39,7 +40,6 @@ const ToolsDrawer = ({ fromList }) => {
   return <Stack sx={{ height: '100%' }}>
     <List sx={{ ...(fromList ? { padding: 0 } : {}) }}>
       {Object.entries(PAGES.TOOLS).map(([key, value], index) => {
-        if (!state?.signedIn && !offlineTools[key] && !state?.manualImport) return null;
         const { icon } = value;
         const keyUri = key.split(/(?=[A-Z])/).map((str) => str.toLowerCase()).join('-');
         const formattedKey = key.split(/(?=[A-Z])/).join(' ').capitalize();
