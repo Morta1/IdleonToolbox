@@ -1,5 +1,9 @@
 export const drawerWidth = 240;
 export const navBarHeight = 70;
+// Fixed height of the sticky ProfileBanner notice (profile view / empty-account state).
+// ProfileBanner pins itself to this height and AppDrawer reserves the same amount of
+// space so the two can never disagree - see hooks/useProfileBannerState.js.
+export const profileBannerHeight = 40;
 export const navItems = ['dashboard', 'characters', 'account', 'tools', 'guilds', 'statistics', 'leaderboards'];
 export const drawerPages = ['characters', 'account', 'tools'];
 

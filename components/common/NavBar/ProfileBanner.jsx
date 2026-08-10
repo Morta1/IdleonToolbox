@@ -3,7 +3,8 @@ import { Button, Stack, Typography } from '@mui/material';
 import { IconEye, IconInfoCircle } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
 import { AppContext } from '../context/AppProvider';
-import { navBarHeight } from '../../constants';
+import { navBarHeight, profileBannerHeight } from '../../constants';
+import useProfileBannerState from '@hooks/useProfileBannerState';
 import LoginDialog from './LoginDialog';
 
 const bannerButtonSx = {
@@ -26,6 +27,10 @@ const bannerButtonSx = {
  * never sets `profile`. If both were ever true at once, the profile view wins below - it means
  * real data for a specific player is on screen, which is a more useful thing to tell the visitor
  * than the generic "you're not signed in" fallback.
+ *
+ * Pinned to a fixed `profileBannerHeight` (from `components/constants.jsx`) rather than sizing
+ * itself from padding/content, so AppDrawer can reserve exactly that much space for it and the
+ * two can never disagree - see hooks/useProfileBannerState.js.
  */
 const ProfileBanner = () => {
   const { state } = useContext(AppContext);
@@ -33,24 +38,22 @@ const ProfileBanner = () => {
   const profileName = router?.query?.profile;
   const { profile: _profile, ...queryParams } = router.query;
   const [loginOpen, setLoginOpen] = useState(false);
+  const { isProfileView, isVisible } = useProfileBannerState();
 
   const handleBackToAccount = () => {
     router.push({ url: router.pathname, query: queryParams });
     setTimeout(() => router.reload());
   };
 
-  const isProfileView = !!(state?.profile && profileName);
-  const isEmptyAccount = !isProfileView && !!state?.emptyAccount;
-
-  if (!isProfileView && !isEmptyAccount) return null;
+  if (!isVisible) return null;
 
   return (
     <Stack direction="row" alignItems="center" justifyContent="center" spacing={2} sx={{
       position: 'sticky',
       top: navBarHeight,
       zIndex: (theme) => theme.zIndex.drawer + 1,
+      height: profileBannerHeight,
       px: 2,
-      py: 0.75,
       bgcolor: '#1C252E',
       borderBottom: '1px solid #2f3641'
     }}>
