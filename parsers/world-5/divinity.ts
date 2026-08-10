@@ -10,8 +10,11 @@ import { tryToParse } from '@utility/helpers';
 
 export const getDivinity = (idleonData: any, serializedCharactersData: any, accountData: any) => {
   const divinityRaw = tryToParse(idleonData?.Divinity) || idleonData?.Divinity;
-  if (!divinityRaw) return null;
-  return parseDivinity(divinityRaw, serializedCharactersData, accountData);
+  // This used to `return null` when the save had no Divinity data, leaving the page with nothing but
+  // a "missing data" notice. `deities` is built from the gods catalog rather than from the save, so
+  // running the parse anyway yields all 10 gods and their blessings at level 0 - what a locked
+  // account should see. `unlocked` is the flag consumers branch on, never the section's truthiness.
+  return { ...parseDivinity(divinityRaw || [], serializedCharactersData, accountData), unlocked: !!divinityRaw };
 }
 
 const parseDivinity = (divinityRaw: any, serializedCharactersData: any, accountData: any) => {
@@ -21,11 +24,13 @@ const parseDivinity = (divinityRaw: any, serializedCharactersData: any, accountD
   const blessingLevelsStartIndex = 28;
   const blessingLevels = divinityRaw?.slice(blessingLevelsStartIndex, blessingLevelsStartIndex + gods?.length + 1);
   const linkedStyles = divinityRaw?.slice(0, serializedCharactersData?.length + 1);
-  const unlockedDeities = divinityRaw?.[25];
+  // Both default to 0 for a save that has never touched divinity: `undefined - 10` is NaN, and it
+  // propagates into every god's blessing bonus and maxLevel below.
+  const unlockedDeities = divinityRaw?.[25] ?? 0;
   const godRank = unlockedDeities - 10;
   const coralKidBonus = getCoralKidUpgBonus(accountData, 1);
   const deities = gods?.map((god, index) => {
-      const level = blessingLevels?.[index];
+      const level = blessingLevels?.[index] ?? 0;
       let emporiumBonus = 1;
       if (isJadeBonusUnlocked(accountData, 'True_Godly_Blessings')) {
         emporiumBonus = (1 + 0.05 * Math.max(0, godRank));

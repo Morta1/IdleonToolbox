@@ -96,6 +96,32 @@ describe('sushiStation locked shape', () => {
   });
 });
 
+describe('divinity locked shape', () => {
+  it('is an object reporting unlocked: false, carrying every god', () => {
+    const { divinity } = parseEmpty().account;
+    expect(divinity).toBeTypeOf('object');
+    expect(divinity).not.toBeNull();
+    expect(divinity.unlocked).toBe(false);
+    // `deities` is built from the gods catalog, not from the save.
+    expect(divinity.deities.length).toBeGreaterThan(0);
+    expect(divinity.deities.every(({ level }) => level === 0)).toBe(true);
+    // Every god still carries its catalog copy so the page can describe what divinity gives.
+    expect(divinity.deities.every(({ name, blessing }) => !!name && !!blessing)).toBe(true);
+  });
+
+  it('keeps godRank and divinityPoints finite rather than NaN', () => {
+    const { divinity } = parseEmpty().account;
+    // `divinityRaw?.[25] - 10` was NaN before, and it propagated into every god's blessing bonus.
+    expect(Number.isFinite(divinity.godRank)).toBe(true);
+    expect(Number.isFinite(divinity.divinityPoints)).toBe(true);
+    expect(divinity.deities.every(({ blessingBonus }) => Number.isFinite(blessingBonus))).toBe(true);
+  });
+
+  it('reports unlocked: true for a real save that has it', () => {
+    expect(parseReal().account.divinity.unlocked).toBe(true);
+  });
+});
+
 describe('no consumer truthiness-gates account.sailing', () => {
   const roots = ['components', 'pages', 'utility', 'hooks'];
   const files = [];
