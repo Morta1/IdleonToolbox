@@ -112,7 +112,14 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
     const totalForageSpeed = teamFightPower < territory.fightPower ? 0 : math;
     const bonus = 1 + .02 / (team?.filter((teamMember: any) => teamMember?.gene?.name === 'Monolithic')?.length / 5 + 1);
     const powerReq = index > 14 ? terri?.[index - 1]?.powerReq : territory?.powerReq;
-    const reqProgress = (powerReq + foragingRounds?.[index]) * Math.pow(bonus, foragingRounds?.[index]);
+    // `foragingRounds` comes from the save's own Territory array, which - like every other
+    // save-derived list in this catalog-driven parse - can be shorter than the territory catalog: a
+    // territory the account hasn't reached yet just isn't in it. Missing means 0 foraging rounds
+    // logged there, not an unknown value; `undefined` fed straight into `+`/`Math.pow` used to turn
+    // every territory past the save's own length into NaN (locked territories on a real save, or
+    // every territory at all on an empty one).
+    const roundsForTerritory = foragingRounds?.[index] ?? 0;
+    const reqProgress = (powerReq + roundsForTerritory) * Math.pow(bonus, roundsForTerritory);
     return { ...territory, team, forageSpeed: totalForageSpeed, reqProgress, currentProgress: currentProgress?.[index] }
   });
 
@@ -166,7 +173,9 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
     fencePets,
     fencePetsObject,
     maxArenaLevel: account?.accountOptions?.[89],
-    timeToNextEgg: account?.accountOptions?.[87] * 1000,
+    // No save means no arena timer has ever been started - 0 elapsed, not an unknown multiplied by
+    // 1000 (which is what `undefined * 1000` (NaN) used to render as).
+    timeToNextEgg: (account?.accountOptions?.[87] ?? 0) * 1000,
     petUpgrades: petUpgradesList,
     arenaBonuses,
     unlockedBreedingMulti,
@@ -218,7 +227,14 @@ const getBaseBreedChance = (breedingRaw: any, worldIndex: any, petIndex: any) =>
 }
 
 const getBreedingMulti = (account: any, breedingRaw: any, worldIndex: any, petIndex: any, unlockedBreedingMulti: any, totalKitchenLevels: any) => {
-  const first = 1 + Math.ceil(100 * Math.pow(breedingRaw?.[(4 + worldIndex) | 0][petIndex] / 10, 1.9)) / 100;
+  // Unlike `second`/`third`/`fourth`/`fifth` below, `first` isn't gated behind an
+  // `unlockedBreedingMulti` flag - it's read unconditionally, so a missing/empty `breedingRaw` (no
+  // save) has no unlock check to hide behind. A pet the save has never logged breeding fodder for
+  // has fed 0 of it, same "missing means 0" contract the rest of this catalog-driven parser uses.
+  // Also adds the `?.` this chain was missing before `[petIndex]` - `breedingRaw?.[x]` on a defined
+  // but short `breedingRaw` returns undefined, and indexing straight into that threw instead of
+  // short-circuiting.
+  const first = 1 + Math.ceil(100 * Math.pow((breedingRaw?.[(4 + worldIndex) | 0]?.[petIndex] ?? 0) / 10, 1.9)) / 100;
   const second = (unlockedBreedingMulti?.second
     ? 1 + Math.log(Math.max(1, Math.pow(breedingRaw?.[(worldIndex + 13) | 0][petIndex] + 1, 0.725)))
     : 1)
@@ -245,10 +261,16 @@ const getBreedingMulti = (account: any, breedingRaw: any, worldIndex: any, petIn
   const stampBonus = getStampsBonusByEffect(account, 'New_Pet_Chance');
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Npet');
   const breedingBonus = calcUpgradeBonus(account?.breeding?.petUpgrades?.[9], 9, account);
+  // account.rift.currentRift is `parseInt(undefined)` (NaN) rather than 0 on an empty account (rift
+  // parser is out of this section's scope, so guard the read here instead). `?? 0` alone doesn't
+  // catch this - nullish coalescing only fires on null/undefined, not NaN - and `0 * NaN` is still
+  // NaN, so an unbought bubble (bubbleBonus 0) didn't save this from going NaN either.
+  const rawCurrentRift = account?.rift?.currentRift;
+  const currentRift = Number.isFinite(rawCurrentRift) ? rawCurrentRift : 0;
   const totalChance = (1 + (10 * gemShopBonus) / 100)
     * (1 + (vialBonus
       + bubbleBonus
-      * account?.rift?.currentRift) / 100)
+      * currentRift) / 100)
     * (1 + stampBonus / 100)
     * (1 + mealBonus / 100) * Math.pow(Math.max(1, breedingBonus),
       totalKitchenLevels / 100)
@@ -468,7 +490,9 @@ export const calcShinyLvMulti = (account: any, characters: any) => {
 
 export const getEggsPowerRange = (characters: any) => {
   const highestBreedingBM = getCharacterByHighestSkillLevel(characters, CLASSES.Wind_Walker, 'breeding');
-  const breedingLevel = highestBreedingBM?.skillsInfo?.breeding?.level;
+  // No characters (empty account) means no one has any breeding skill level - 0, not unknown; feeding
+  // `undefined` into the `Math.pow` base below turned every egg tier's min/maxPower into NaN.
+  const breedingLevel = highestBreedingBM?.skillsInfo?.breeding?.level ?? 0;
   const baseTalentBonus = getTalentBonus(highestBreedingBM?.flatTalents, 'CURVITURE_OF_THE_PAW');
   const base = Math.pow(4 * breedingLevel + Math.pow(breedingLevel / 2, 3), 0.85);
   const talentBonus = Math.min(2.1, Math.max(1, 1 + baseTalentBonus));

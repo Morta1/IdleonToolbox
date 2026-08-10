@@ -482,13 +482,16 @@ export const enhanceColoTickets = (tickets: any, characters: any, account: any) 
   const allTickets = Object.entries(npcs).reduce((res: any[], [, npc]: [string, any], index: any) => {
     // const amountPerDay = getAmountPerDay(npc, characters);
     const daysSincePickup = account?.accountOptions?.[npc?.daysSinceIndex];
+    // No save (or a save that has never opened this NPC's dialog) means 0 days elapsed, not an
+    // unknown day count - `Math.min(undefined, 3)` is NaN regardless of the other operand, which is
+    // what previously leaked NaN into every ticket's totalAmount on an empty account.
     return [...res,
     {
       rawName: `TixEZ${index}`,
       amountPerDay: 1,
       daysSincePickup,
       amount: tickets,
-      totalAmount: Math.min(daysSincePickup, 3)
+      totalAmount: Math.min(daysSincePickup ?? 0, 3)
     }];
   }, [])
   return {
@@ -516,7 +519,15 @@ export const enhanceKeysObject = (keysAll: any, characters: any, account: any) =
   return keysAll.map((key: any, keyIndex: any) => {
     const amountPerDay = getAmountPerDay((npcs as Record<string, any>)?.[keyIndex], characters);
     const daysSincePickup = account?.accountOptions?.[(npcs as Record<string, any>)?.[keyIndex]?.daysSinceIndex];
-    return { ...key, amountPerDay, daysSincePickup, totalAmount: Math.min(daysSincePickup, 3) * amountPerDay };
+    // World 4/5 keys (index 3-4) have no NPC dialog bonus - `npcs` has no entry for them, so
+    // `daysSinceIndex` and therefore `daysSincePickup` are undefined by design (there's nothing to
+    // read; `amountPerDay` is already correctly 0 for these via getAmountPerDay's own guard). But
+    // `Math.min(undefined, 3)` is NaN regardless of the other operand, so `NaN * 0` stayed NaN instead
+    // of the 0 total the missing mechanic actually implies. Default only the totalAmount math, not
+    // the `daysSincePickup` field itself (still undefined below - there's genuinely no such day count
+    // for these two keys, which is why Currencies.jsx already treats it as "isNaN -> show 0").
+    const totalAmount = Math.min(daysSincePickup ?? 0, 3) * amountPerDay;
+    return { ...key, amountPerDay, daysSincePickup, totalAmount };
   });
 }
 

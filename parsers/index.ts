@@ -290,7 +290,9 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.killroy = safeSection<any>('killroy', {}, () => getKillRoy(idleonData, charactersData, accountData, serverVars));
   accountData.anvil = charactersData.map(({ anvil }: any) => anvil);
 
-  const bankMoney = parseFloat(idleonData?.MoneyBANK as any);
+  // No save means no bank field at all - `parseFloat(undefined)` is NaN, not 0, so this needs the
+  // same `? value : 0` guard `playersMoney` below already uses for a missing character's money.
+  const bankMoney = parseFloat((idleonData?.MoneyBANK ? idleonData?.MoneyBANK : 0) as any);
   const playersMoney = charactersData?.reduce((res: number, char: any) => {
     return res + parseFloat(char?.money ? char?.money : 0)
   }, 0);

@@ -46,7 +46,11 @@ export const getSummoning = (idleonData: any, accountData: any, serializedCharac
 const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, serializedCharactersData: any) => {
   const highestEndlessLevel = account?.accountOptions?.[319] ?? 0;
   const upgradesLevels = rawSummon?.[0];
-  const totalUpgradesLevels = upgradesLevels?.reduce((sum: any, level: any) => sum + level, 0);
+  // Optional chaining short-circuits the whole `?.reduce(...)` to undefined (not the reduce's own 0
+  // seed) when there's no save, not just an empty accumulator - same defect class documented in
+  // tasks.ts's `unlockedRecipes`. That undefined then divided into `Math.floor(.../100)` in
+  // getArmyHealth/getArmyDamage below, producing NaN regardless of every other (already-0) term.
+  const totalUpgradesLevels = upgradesLevels?.reduce((sum: any, level: any) => sum + level, 0) ?? 0;
   const summoningStuff = rawSummon?.[3];
   const wonBattles = rawSummon?.[1];
   const essences = rawSummon?.[2];
@@ -59,7 +63,12 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
     acc.multiplier *= index + 3;
     return acc;
   }, { familiarsOwned: 0, multiplier: 1 });
-  const careerWins: Record<number, number> = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+  // Index 0 counts white-battle wins; indices 1-7 count deathNote wins keyed by `world + 1`, and the
+  // deathNote catalog goes up to world 6 (-> index 7). This object used to stop at key 6, so
+  // `careerWins[7] += 1` silently started from `undefined`, and `undefined + 1` is NaN - which then
+  // poisoned `allWins` (a straight sum over every key here) and, with it, every upgrade whose total
+  // bonus scales off total wins (originalIndex 0).
+  const careerWins: Record<number, number> = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
   whiteBattleOrder.forEach((enemyId, index) => {
     const monsterData = summoningEnemies.find((enemy) => enemy.enemyId === enemyId);
     if (monsterData) {
@@ -121,23 +130,29 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
   const gambitStuff = account?.hole?.holesObject?.gambitStuff;
   let upgrades = summoningUpgrades.map((upgrade, index) => {
     const doubled = gambitStuff && gambitStuff?.includes(index);
+    // No save (or an upgrade the save array doesn't reach) means the upgrade has never been bought -
+    // level 0, same "missing means unlevelled" contract every other catalog-driven list here uses.
+    const level = upgradesLevels?.[index] ?? 0;
     return {
       ...upgrade,
       originalIndex: index,
-      level: upgradesLevels?.[index],
-      value: upgradesLevels?.[index] * upgrade.bonusQty * (doubled ? 2 : 1),
+      level,
+      value: level * upgrade.bonusQty * (doubled ? 2 : 1),
       doubled
     }
   });
   upgrades = upgrades.map((upgrade, index) => {
     const costDeflation = upgrades.find(({ originalIndex }) => originalIndex === 49);
     const costCrashing = upgrades.find(({ originalIndex }) => originalIndex === 57);
-    const tesseractBonus = getTesseractBonus(account, 54) * account?.accountOptions?.[319];
+    // Reuse `highestEndlessLevel` (already `?? 0`-defaulted above) instead of re-reading
+    // `accountOptions[319]` raw here - the un-defaulted re-read is what turned every upgrade's
+    // totalCost into NaN on an empty account (`getTesseractBonus(...) * undefined`).
+    const tesseractBonus = getTesseractBonus(account, 54) * highestEndlessLevel;
     const cost = (1 / (1 + (costDeflation?.value ?? 0) / 100))
       * (1 / (1 + (costCrashing?.value ?? 0) / 100))
       * (1 / (1 + tesseractBonus / 100))
       * upgrade?.cost
-      * Math.pow(upgrade?.costExponent, upgradesLevels?.[index])
+      * Math.pow(upgrade?.costExponent, upgrade?.level)
       * Math.max(0.1, 1 - Math.max(getSushiBonus(account, 38), getSushiBonus(account, 47)) / 100)
       * Math.max(0.1, 1 - Math.max(getSushiBonus(account, 9), getSushiBonus(account, 34)) / 100);
     return { ...upgrade, totalCost: cost }
@@ -247,7 +262,13 @@ const getLocalWinnerBonus = (rawWinnerBonuses: any, account: any, index: any): a
   const secondAchievement = getAchievementStatus(account?.achievements, 379);
   const emperorBonus = getEmperorBonus(account, 8);
   const armorSetBonus = getArmorSetBonus(account, 'GODSHARD_SET')
-  const { bonusPerLevel, level } = account?.meritsDescriptions[5][4];
+  // `meritsDescriptions` (built in tasks.ts, a section outside summoning's scope) leaves `level`
+  // undefined for every merit on an empty/short save - it reads straight from the save's own task
+  // array with no catalog backfill. An unbought merit contributes 0 levels, not an unknown amount;
+  // `undefined * bonusPerLevel` used to turn every non-{20,22,24,31,19} winner bonus into NaN. Also
+  // adds the `?.` this chain was missing before `[5][4]`.
+  const { bonusPerLevel, level } = account?.meritsDescriptions?.[5]?.[4] ?? {};
+  const meritLevel = level ?? 0;
   let val;
 
   if (index === 20 || index === 22 || index === 24 || index === 31) {
@@ -258,7 +279,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses: any, account: any, index: any): a
       (1 + charmBonus / 100) *
       (1 + (10 * gemShopBonus) / 100) *
       (1 + (artifactBonus +
-        Math.min(10, level * bonusPerLevel) +
+        Math.min(10, meritLevel * bonusPerLevel) +
         firstAchievement +
         secondAchievement +
         armorSetBonus) / 100);
@@ -270,7 +291,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses: any, account: any, index: any): a
       (1 + charmBonus / 100) *
       (1 + (10 * gemShopBonus) / 100) *
       (1 + (artifactBonus +
-        Math.min(10, level * bonusPerLevel) +
+        Math.min(10, meritLevel * bonusPerLevel) +
         firstAchievement +
         secondAchievement +
         armorSetBonus +
@@ -284,7 +305,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses: any, account: any, index: any): a
       (1 + charmBonus / 100) *
       (1 + (10 * gemShopBonus) / 100) *
       (1 + (artifactBonus +
-        Math.min(10, level * bonusPerLevel) +
+        Math.min(10, meritLevel * bonusPerLevel) +
         firstAchievement +
         secondAchievement +
         armorSetBonus +
@@ -311,12 +332,15 @@ const getArmyHealth = (upgrades: any, totalUpgradesLevels: any, account: any) =>
   const thirdMulti = upgrades.find(({ originalIndex }: any) => originalIndex === 61)?.value || 0;
   const endlessMulti = upgrades.find(({ originalIndex }: any) => originalIndex === 63)?.value || 0;
 
+  // Same raw accountOptions[319] read as `highestEndlessLevel` above, but without its `?? 0` -
+  // undefined on an empty account made this NaN regardless of endlessMulti.
+  const highestEndlessLevel = account?.accountOptions?.[319] ?? 0;
   return 1 * (1 + additiveArmyHealth)
     * (1 + firstMulti / 100)
     * (1 + (secondMulti
       + (moreAdditive
         + endlessMulti
-        * account?.accountOptions?.[319])) / 100)
+        * highestEndlessLevel)) / 100)
     * (1 + (thirdMulti
       * Math.max(0, Math.floor(totalUpgradesLevels / 100))) / 100);
 
@@ -333,12 +357,14 @@ const getArmyDamage = (upgrades: any, totalUpgradesLevels: any, account: any) =>
   const fourthMulti = upgrades.find(({ originalIndex }: any) => originalIndex === 60)?.value || 0;
   const endlessMulti = upgrades.find(({ originalIndex }: any) => originalIndex === 64)?.value || 0;
 
+  // Same raw accountOptions[319] read as `highestEndlessLevel` above, but without its `?? 0`.
+  const highestEndlessLevel = account?.accountOptions?.[319] ?? 0;
   return 1 * (1 + (additiveArmyDamage))
     * (1 + firstMulti / 100)
     * (1 + (secondMulti
       + (moreAdditive
         + endlessMulti
-        * account?.accountOptions?.[319])) / 100)
+        * highestEndlessLevel)) / 100)
     * (1 + (thirdMulti * 0) / 100)
     * (1 + (fourthMulti
       * Math.max(0, Math.floor(totalUpgradesLevels / 100))) / 100);

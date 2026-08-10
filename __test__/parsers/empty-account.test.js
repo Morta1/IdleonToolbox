@@ -263,6 +263,17 @@ describe('no fabricated values', () => {
   // keeps the assertion live and self-enforcing: once a future task converts those sections too and
   // pushes the empty-parse numbers under the real-parse baseline, this row starts failing (because
   // it is expected to fail) and forces that task to flip it back to a plain `it(...)`.
+  //
+  // Task 12 (batch A of two) re-measured 2026-08-10: real (raw.json) NaN was 62, entirely inside
+  // stamps/islands/currencies/breeding/summoning (root causes documented in each parser file: a
+  // negative-base Math.pow in stamps' material-cost tier exponent, a missing multiplier-table entry
+  // in islands, two untracked key types in currencies, out-of-save-range territories in breeding, and
+  // a careerWins object one key short of deathNote's world range in summoning - none were `?? 0`
+  // papering). Fixing those five sections at the root brought real NaN to 0 and empty-parse NaN from
+  // 1746 to 908 (all remaining NaN is in the sections Task 12 explicitly left for batch B). See
+  // __test__/parsers/task-12-nan-elimination.test.js for the permanent per-section NaN gate and the
+  // before/after formula-replica proofs. `SECTIONS_TO_CHECK` there is meant to grow as batch B
+  // converts the rest; it does not yet make this row pass because it only covers 5 of ~20 sections.
   it.fails('emits no NaN or Infinity that a real parse does not already have', () => {
     const count = (root) => {
       let nan = 0;
