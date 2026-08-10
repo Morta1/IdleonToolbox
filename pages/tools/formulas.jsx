@@ -108,7 +108,10 @@ const Formulas = () => {
         name: 'Equinox',
         formula: state?.account?.equinox?.expression,
         value: state?.account?.equinox?.chargeRate,
-        renderValue: (value) => `${value}/hr`,
+        // account.equinox is null while the feature is locked (e.g. a logged-out visitor) - same
+        // shape as the bitMulti guard above, chargeRate is undefined rather than a real number, and
+        // `${undefined}/hr` rendered the literal word "undefined" (task-18).
+        renderValue: (value) => Number.isFinite(value) ? `${value}/hr` : '—',
         description: 'Equinox Bonuses from all sources'
       },
       {

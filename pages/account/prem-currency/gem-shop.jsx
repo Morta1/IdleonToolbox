@@ -168,7 +168,7 @@ const GemShop = () => {
                   maxPurchases,
                   costIncrement
                 }, index) => {
-                  const purchased = state?.account?.gemShopPurchases?.[globalIndex];
+                  const purchased = state?.account?.gemShopPurchases?.[globalIndex] ?? 0;
                   const addedCost = purchased * costIncrement;
                   return <Badge badgeContent={priorities?.[globalIndex] || 0} color={'warning'} key={rawName + index}>
                     <Card variant={'outlined'}

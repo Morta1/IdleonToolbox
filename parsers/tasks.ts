@@ -20,17 +20,23 @@ export const getTasks = (idleonData: IdleonData): {
   ];
   const tasksDescriptions = tasks?.map((worldTasks: any[], worldIndex: number) => {
     return worldTasks?.map((task: any, taskIndex: number) => {
-      const stat = tasksRaw?.[0]?.[worldIndex]?.[taskIndex];
       // tasksRaw defaults to a 7-element array of `undefined` sub-arrays with no save (each
       // tryToParse(idleonData?.TaskZZn) on undefined idleonData), so the nested chain optional-chains
       // straight through to undefined - `Math.floor(undefined / 5)` is NaN, poisoning every one of
       // the 54 tasksDescriptions cells. No save means 0 progress on every task, same as everywhere
       // else in this codebase.
+      const stat = tasksRaw?.[0]?.[worldIndex]?.[taskIndex] ?? 0;
       const level = tasksRaw?.[1]?.[worldIndex]?.[taskIndex] ?? 0;
       const meritReward = Math.round(1 + Math.floor(level / 5));
       let realTask = task;
       if (taskIndex === 8) {
-        const randomTaskIndex = tasksRaw?.[5]?.[worldIndex];
+        // No save means tasksRaw?.[5]?.[worldIndex] ("which random task is active") is undefined,
+        // so `8 + undefined` is NaN and `tasks?.[worldIndex]?.[NaN]` resolves to undefined - realTask
+        // (and every field spread from it below: name/description/filler1/filler2/breakpoints) stays
+        // undefined, which is what crashed tasks.jsx's `description.replace(...)` for a logged-out
+        // visitor (task-18). Default to the catalog's first random-task variant (index 0), same as
+        // the real game's own "no random task rolled yet" state.
+        const randomTaskIndex = tasksRaw?.[5]?.[worldIndex] ?? 0;
         realTask = tasks?.[worldIndex]?.[8 + randomTaskIndex];
       }
       return {

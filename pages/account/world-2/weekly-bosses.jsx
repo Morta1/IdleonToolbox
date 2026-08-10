@@ -33,7 +33,7 @@ const WeeklyBosses = () => {
       <CardTitleAndValue title={'Trophies'}
                          icon={'data/Trophie.png'}
                          imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
-                         value={numberWithCommas(state?.account?.accountOptions?.[188])}/>
+                         value={numberWithCommas(state?.account?.accountOptions?.[188] ?? 0)}/>
       <CardTitleAndValue title={'Options'}
                          value={<Button onClick={() => setWeeks((tempWeeks) => tempWeeks + 10)}>+ Add more
                            bosses</Button>}/>

@@ -23,7 +23,7 @@ const EventShop = () => {
       <CardTitleAndValue title={'Stars'}
         imgStyle={{ width: 24, height: 24 }}
         icon={'etc/Event_Currency.png'}
-        value={numberWithCommas(state?.account?.accountOptions?.[310])} />
+        value={numberWithCommas(state?.account?.accountOptions?.[310] ?? 0)} />
       <CardTitleAndValue title={'Total bonuses'}
         value={`${ownedBonuses.length} / ${shopItems.length}`} />
       <CardTitleAndValue>

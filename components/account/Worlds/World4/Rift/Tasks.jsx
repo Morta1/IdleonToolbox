@@ -18,7 +18,10 @@ const Tasks = ({ list, currentRift, currentProgress, characters, chars }) => {
       {list?.map(({ monsterName, task, icon, riftBonus, riftBonusIcon }, riftIndex) => {
         if ((!minimized && riftIndex < currentRift)) return;
         const isCurrent = currentRift === riftIndex;
-        const realTask = isCurrent ? task?.replace('{', currentProgress) : task.split('.')?.[0];
+        // The raw task text uses '@' as a sentence-join marker in some entries (e.g.
+        // "...5_MIN._@_YOU'VE_DEFEATED_{_SO_FAR...") - Bonuses.jsx already strips it the same way
+        // for riftDescription; Tasks.jsx never did, so it rendered as a literal "@" (task-18).
+        const realTask = isCurrent ? task?.replace('@', '').replace('{', currentProgress) : task.split('.')?.[0];
         return <Card key={`${monsterName}-${riftIndex}`} sx={{
           width: 250,
           minHeight: 200,

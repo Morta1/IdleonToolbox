@@ -73,7 +73,7 @@ const Spelunking = () => {
           </Breakdown>
         </Stack>
       </CardTitleAndValue>
-      <CardTitleAndValue title={'Daily Page Reads'} value={`${state?.account?.accountOptions?.[410]} / ${maxDailyPageReads}`} />
+      <CardTitleAndValue title={'Daily Page Reads'} value={`${state?.account?.accountOptions?.[410] ?? 0} / ${maxDailyPageReads}`} />
       <CardTitleAndValue title={'Stamina Regen Rate'} >
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg4.png`} alt="" />
