@@ -35,7 +35,7 @@ const lockedConditions = (data, guildData) => ({
 });
 
 // Sections whose parser now returns a populated shape with `unlocked: false` instead of null.
-const CONVERTED = ['sailing', 'sushiStation', 'divinity', 'guild'];
+const CONVERTED = ['sailing', 'sushiStation', 'divinity', 'guild', 'equinox'];
 
 const fixtures = { first, second, third, fourth, latest };
 

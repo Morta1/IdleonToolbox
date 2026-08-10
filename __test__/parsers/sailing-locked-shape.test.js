@@ -3,8 +3,9 @@ import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseData } from '@parsers/index';
-import { artifacts, guildBonuses } from '@website-data';
+import { artifacts, equinoxChallenges, equinoxUpgrades, guildBonuses } from '@website-data';
 import { getGuildBonusBonus, getGuildLevel } from '@parsers/guild';
+import { getEquinoxBonus, getLockedEquinox } from '@parsers/world-3/equinox';
 import demoJson from '../../data/raw.json';
 
 /**
@@ -120,6 +121,77 @@ describe('divinity locked shape', () => {
 
   it('reports unlocked: true for a real save that has it', () => {
     expect(parseReal().account.divinity.unlocked).toBe(true);
+  });
+});
+
+describe('equinox locked shape', () => {
+  it('is an object reporting unlocked: false, carrying every challenge and upgrade', () => {
+    const { equinox } = parseEmpty().account;
+    expect(equinox).toBeTypeOf('object');
+    expect(equinox).not.toBeNull();
+    expect(equinox.unlocked).toBe(false);
+    expect(equinox.challenges).toHaveLength(equinoxChallenges.length);
+    expect(equinox.upgrades).toHaveLength(equinoxUpgrades.length);
+    expect(equinox.upgrades.every(({ lvl }) => lvl === 0)).toBe(true);
+    // Challenges.jsx calls label.capitalize() and cleanUnderscore(reward) with no guard.
+    expect(equinox.challenges.every(({ label, reward }) => !!label && !!reward)).toBe(true);
+    // Upgrades.jsx calls name.capitalize() and desc.map() with no guard.
+    expect(equinox.upgrades.every(({ name, desc }) => !!name && Array.isArray(desc))).toBe(true);
+  });
+
+  it('has no NaN anywhere in the locked shape', () => {
+    const { equinox } = parseEmpty().account;
+    // `Math.min(parseInt(dream[9]), accountOptions[193])` was NaN without a save, and the Food_Lust
+    // card renders it as "Bosses killed: NaN".
+    const nan = [];
+    const walk = (node, path) => {
+      if (typeof node === 'number') { if (Number.isNaN(node)) nan.push(path); return; }
+      if (Array.isArray(node)) return node.forEach((v, i) => walk(v, `${path}[${i}]`));
+      if (node && typeof node === 'object') return Object.entries(node).forEach(([k, v]) => walk(v, `${path}.${k}`));
+    };
+    walk(equinox, 'equinox');
+    expect(nan).toEqual([]);
+  });
+
+  it('does not fire any of the three dashboard equinox alerts', () => {
+    const { equinox } = parseEmpty().account;
+    // utility/dashboard/account.js:632-650, replicated. A populated-but-locked equinox must not
+    // read as "bar full", "challenges ready to validate", or "food lust ready".
+    expect(equinox.currentCharge >= equinox.chargeRequired
+      && equinox.upgrades.filter((u) => u.unlocked).some((u) => u.lvl < u.maxLvl)).toBe(false);
+    expect(equinox.challenges.filter((c) => c.active && !c.locked && c.current >= c.goal)).toHaveLength(0);
+    const foodLust = equinox.upgrades[9];
+    expect(foodLust?.lvl > 0 && foodLust?.bonus >= foodLust?.lvl).toBe(false);
+  });
+
+  it('keeps every cross-section equinox bonus at 0, exactly as the null contract did', () => {
+    // 8 parsers read getEquinoxBonus(account?.equinox?.upgrades, name). While equinox was null they
+    // all got 0 via the `|| 0` tail; the populated catalog at level 0 must produce the same 0.
+    const { equinox } = parseEmpty().account;
+    const names = equinox.upgrades.map(({ name }) => name);
+    expect(names.length).toBeGreaterThan(0);
+    expect(names.every((name) => getEquinoxBonus(equinox.upgrades, name) === 0)).toBe(true);
+    // Challenge reads are all `challenges?.[N]?.current === -1 ? 1 : 0` - none may be complete.
+    expect(equinox.challenges.some(({ current }) => current === -1)).toBe(false);
+  });
+
+  it('sizes the dream slice from the upgrade catalog, not a hardcoded 16', () => {
+    const { equinox } = parseEmpty().account;
+    // rawDream is dream[0..1] (charge/meta) plus one slot per upgrade.
+    expect(equinox.rawDream).toHaveLength(2 + equinoxUpgrades.length);
+  });
+
+  it('the safeSection fallback shape matches the keys the parsed shape exposes', () => {
+    // safeSection swaps in getLockedEquinox() when getEquinox throws, so a consumer that reads a
+    // key present on one but not the other would crash only on the error path.
+    const parsed = parseEmpty().account.equinox;
+    expect(Object.keys(getLockedEquinox()).sort()).toEqual(Object.keys(parsed).sort());
+  });
+
+  it('reports unlocked: true for a real save that has it', () => {
+    const { equinox } = parseReal().account;
+    expect(equinox.unlocked).toBe(true);
+    expect(equinox.chargeRate).toBeGreaterThan(0);
   });
 });
 

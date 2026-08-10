@@ -12,15 +12,56 @@ import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 
+// `dream[0]` is the current charge and `dream[2..]` maps one-to-one onto equinoxUpgrades, so the
+// neutral save is that many zeros. Derived from the catalog rather than hardcoded, so it stays
+// correct when the game adds an upgrade.
+const DREAM_UPGRADES_OFFSET = 2;
+const dreamUpgradesEnd = () => DREAM_UPGRADES_OFFSET + equinoxUpgrades.length;
+const emptyDream = () => new Array(dreamUpgradesEnd()).fill(0);
+
+/**
+ * The shape safeSection falls back to when getEquinox throws. It is built from the catalogs alone -
+ * no account lookups - so it is cheap to construct eagerly and cannot itself throw. Every key the
+ * unlocked shape exposes is present, because consumers stop optional-chaining partway through
+ * (`account?.equinox?.upgrades[9]`, `account?.equinox?.challenges.find(...)`).
+ */
+export const getLockedEquinox = () => ({
+  unlocked: false,
+  currentCharge: 0,
+  chargeRequired: 0,
+  chargeRate: 0,
+  timeToFull: undefined,
+  challenges: equinoxChallenges.map(({ label, goal, reward }) => ({
+    label, goal, reward, current: 0, active: false, locked: false
+  })),
+  upgrades: equinoxUpgrades.map(({ name, description, maxLevel }, index) => ({
+    name,
+    bonus: 0,
+    desc: description?.replace('{}', '0').replace('{', '').replace('}', '0').split('_@_'),
+    lvl: 0,
+    maxLvl: maxLevel,
+    unlocked: index === 0
+  })),
+  completedClouds: 0,
+  rawDream: emptyDream(),
+  breakdown: [],
+  expression: ''
+});
+
 export const getEquinox = (idleonData: any, account: any) => {
   const weeklyBoss = tryToParse(idleonData?.WeeklyBoss) || idleonData?.WeeklyBoss;
   const dream = tryToParse(idleonData?.Dream) || idleonData?.Dream;
-  if (!weeklyBoss || !dream) return null;
-  return parseEquinox(weeklyBoss, dream, account);
+  // The parse runs either way: challenges and upgrades are built from their catalogs, so an
+  // account that hasn't unlocked equinox still gets every challenge and upgrade at zero instead of
+  // a bare "Unlock Equinox first" line. `unlocked` is what consumers branch on.
+  return {
+    ...parseEquinox(weeklyBoss || {}, dream || emptyDream(), account),
+    unlocked: !!weeklyBoss && !!dream
+  };
 }
 
 const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
-  const totalUpgrade = dream.slice(2, 16).reduce((accumulator: any, currentValue: any) => accumulator + currentValue, 0);
+  const totalUpgrade = dream.slice(DREAM_UPGRADES_OFFSET, dreamUpgradesEnd()).reduce((accumulator: any, currentValue: any) => accumulator + currentValue, 0);
   const clouds: Record<string, any> = Object.keys(weeklyBoss).filter(key => key.startsWith('d_')).reduce((obj: Record<string, any>, key) => {
     obj[key.substring(2)] = weeklyBoss[key];
     return obj;
@@ -36,7 +77,7 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
     active: clouds[index] !== -1 && 0 < nbChallengeActive--,
     locked: index >= 36 && researchG8Level < 1
   }));
-  const upgrades = parseEquinoxUpgrades(challenges, dream.slice(2, 16), account);
+  const upgrades = parseEquinoxUpgrades(challenges, dream.slice(DREAM_UPGRADES_OFFSET, dreamUpgradesEnd()), account);
   const bundleBonus = isBundlePurchased(account?.bundles, 'bun_q');
   const eqBarVial = getVialsBonusByStat(account?.alchemy?.vials, 'EqBar');
   const voteBonus = getVoteBonus(account, 32);
@@ -134,7 +175,9 @@ const parseEquinoxUpgrades = (challenges: any, dream: any, account: any) => {
   const nbChallengeUnlocked = challenges.filter((challenge: any) => challenge.current === -1 && challenge.reward === 'Unlock_next_Equinox_upgrade').length;
   return equinoxUpgrades.map(({ name, description, maxLevel, bonus }, index) => {
     const realBonus = name === 'Hmm...' ? 0 : name === 'Food_Lust'
-      ? Math.min(parseInt(dream[index]), account?.accountOptions?.[193])
+      // accountOptions[193] is the boss kill count. Without a save it is undefined, and
+      // `Math.min(0, undefined)` is NaN, which the Upgrades card renders as "Bosses killed: NaN".
+      ? Math.min(parseInt(dream[index]), account?.accountOptions?.[193] ?? 0)
       : bonus * dream[index] || 0;
     const winBonus = getWinnerBonus(account, '+{ Equinox Max LV');
     const cloudBonusMap = {

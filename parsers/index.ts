@@ -59,7 +59,7 @@ import { getAtoms } from './world-3/atomCollider';
 import { getRift } from './world-4/rift';
 import { getPostOfficeShipments } from './world-3/postoffice';
 import { getIslands } from './world-2/islands';
-import { getEquinox } from './world-3/equinox';
+import { getEquinox, getLockedEquinox } from './world-3/equinox';
 import { getTotalizerBonuses, getTotems } from './world-3/worship';
 import { getSneaking } from '@parsers/world-6/sneaking';
 import { getFarming, updateFarming } from '@parsers/world-6/farming';
@@ -222,7 +222,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   if (accountData.alchemy) {
     accountData.alchemy.vials = updateVials(accountData);
   }
-  accountData.equinox = safeSection<any>('equinox', null, () => getEquinox(idleonData, accountData));
+  accountData.equinox = safeSection<any>('equinox', getLockedEquinox(), () => getEquinox(idleonData, accountData));
   const spelunkerObolMulti = getLabBonus(accountData.lab?.labBonuses, 8);
   const blackDiamondRhinestone = getJewelBonus(accountData.lab?.jewels, 16, spelunkerObolMulti);
 

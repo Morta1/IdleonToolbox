@@ -15,16 +15,16 @@ import Challenges from '@components/account/Worlds/World3/Equinox/Challenges';
 const Equinox = () => {
   const { state } = useContext(AppContext);
   const equinox = state?.account?.equinox;
-  if (!equinox) {
-    return <Typography variant={'h2'} textAlign={'center'} mt={3}>Unlock Equinox first</Typography>;
-  }
   return (
     <>
       <NextSeo
         title="Equinox | Idleon Toolbox"
         description="Track your Equinox upgrades, dream bonuses, and unlockable perks for all your Legends of Idleon characters"
       />
-      <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+      {/* Challenges and upgrades come from their catalogs, so they are worth showing either way.
+          The charge cards are pure save state - a fill rate and countdown for an account that has
+          no dream would be fiction, so they are replaced by the notice. */}
+      {equinox?.unlocked ? <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Fill rate'}>
           <Stack direction="row" alignItems={'center'} gap={1}>
             <Typography>{Math.round(equinox.chargeRate)} / hr</Typography>
@@ -39,7 +39,8 @@ const Equinox = () => {
                                                                 placeholder={'Upgrade is ready'}
                                                                 date={equinox.timeToFull}
                                                                 lastUpdated={state?.lastUpdated}/>}/>
-      </Stack>
+      </Stack> : <Typography variant={'h5'} mb={2}>Unlock Equinox first - every challenge and upgrade is listed
+        below</Typography>}
       <Tabber tabs={getTabs(PAGES.ACCOUNT['world 3'].categories, 'Equinox')}>
         <Upgrades upgrades={equinox?.upgrades}/>
         <Challenges challenges={equinox?.challenges} completedClouds={equinox?.completedClouds}/>
