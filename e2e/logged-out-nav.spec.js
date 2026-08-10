@@ -2,6 +2,18 @@
 // nav, the tools drawer, and QuickSearch - not just by pasting a URL. logged-out.spec.js (Task 8)
 // proved pages render on a direct goto(); it never proved a real visitor could click their way
 // there, which is exactly the gap this task closes.
+//
+// KNOWN LIMITATION: every navigational click below uses `dispatchEvent('click')` (see the `click`
+// helper) instead of Playwright's `locator.click()`, to route around a dev-only overlay - see the
+// comment on that helper for why. This forfeits Playwright's actionability hit-test, i.e. these
+// tests do NOT verify the target element is visible, unobscured, and actually receives pointer
+// events in the way a real mouse click would. They also only ever run against `next dev` (see
+// `playwright.config.js`'s `webServer.command`), never against a production `npm run build` +
+// `npm start` server. A genuine production-only obstruction - a real overlay left over a link, a
+// `pointer-events: none` bug, anything that would make a real user's click miss the target - is
+// not something this suite would catch. It proves the click handlers and routing are wired up
+// correctly once an event reaches the element; it does not prove the element is clickable by a
+// real cursor in production.
 import { test, expect } from '@playwright/test';
 
 const DESKTOP_VIEWPORT = { width: 1440, height: 900 };
@@ -64,7 +76,10 @@ test.describe('Logged-out visitors reach gated pages by clicking, not just by UR
     expect(new URL(page.url()).pathname).toBe('/account/world-3/prayers');
 
     const bodyText = await page.locator('body').innerText();
-    expect(bodyText.trim().length).toBeGreaterThan(0);
+    // A real prayer name from the catalog (stored as "Big_Brain_Time", rendered with spaces) - not
+    // just non-empty text, which the nav chrome alone would already satisfy. This is the actual
+    // catalog content the empty-account contract is supposed to produce.
+    expect(bodyText).toContain('Big Brain Time');
     assertNoErrorBoundary(bodyText);
     expect(errors).toEqual([]);
 
@@ -119,6 +134,9 @@ test.describe('Logged-out visitors reach gated pages by clicking, not just by UR
     expect(new URL(page.url()).pathname).toBe('/tools/material-tracker');
 
     const bodyText = await page.locator('body').innerText();
+    // Page-specific text unique to Material Tracker's own UI (its "add every greenstack at once"
+    // shortcut) - not just non-empty text, which the nav chrome alone would already satisfy.
+    expect(bodyText).toContain('Add tracker for all greenstacks');
     assertNoErrorBoundary(bodyText);
     expect(errors).toEqual([]);
 
@@ -128,6 +146,7 @@ test.describe('Logged-out visitors reach gated pages by clicking, not just by UR
   test('QuickSearch returns and opens a previously-hidden page for a logged-out visitor', async ({ browser }) => {
     const context = await browser.newContext({ viewport: DESKTOP_VIEWPORT });
     const page = await context.newPage();
+    const errors = collectErrors(page);
 
     await gotoHomeAndWait(page);
 
@@ -147,6 +166,10 @@ test.describe('Logged-out visitors reach gated pages by clicking, not just by UR
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(500);
     expect(new URL(page.url()).pathname).toBe('/tools/material-tracker');
+
+    const bodyText = await page.locator('body').innerText();
+    assertNoErrorBoundary(bodyText);
+    expect(errors).toEqual([]);
 
     await context.close();
   });
