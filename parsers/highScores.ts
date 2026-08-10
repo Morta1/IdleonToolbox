@@ -35,7 +35,9 @@ export const getHighscores = (idleonData: IdleonData, account: Account): Highsco
         score: (account?.accountOptions as any)?.[99] || 0
       }, {
         name: 'poing',
-        score: (account?.gaming as any)?.poingHighscore
+        // Default to 0: no save (or gaming still locked) means no highscore recorded, not an
+        // unknown value - matches the sibling entries' `|| 0` pattern above/below.
+        score: (account?.gaming as any)?.poingHighscore || 0
       },
       {
         name: 'hoops',

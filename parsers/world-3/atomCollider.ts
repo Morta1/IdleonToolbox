@@ -17,7 +17,9 @@ export const getAtoms = (idleonData: IdleonData, account: Account) => {
 
 const parseAtoms = (divinityRaw: any, atomsRaw: any, account: Account) => {
   const localAtoms = atomsRaw ?? [];
-  const particles = divinityRaw?.[39];
+  // Default to 0: no save means no particles collected, not an unknown value -
+  // commaNotation(Math.floor(undefined)) renders the literal string "NaN".
+  const particles = divinityRaw?.[39] ?? 0;
   const atoms = atomsInfo?.map((atomInfo, index) => {
     const level = localAtoms?.[index] ?? 0;
     const atomColliderLevel = account?.towers?.data?.[8]?.level ?? 0;

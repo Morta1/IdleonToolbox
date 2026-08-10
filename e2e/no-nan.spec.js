@@ -11,11 +11,12 @@
  * Routes are discovered from pages/ rather than hardcoded, so a new page is covered automatically.
  *
  * A scan across all 106 routes (see nan-scan-results.json referenced in the task-16 report) found
- * 22 dirty routes / 369 offending text nodes. Batch 1 (this task) fixed the four highest-count
- * routes - death-note, cooking, spelunking, buildings (290 of the 369 nodes). The remaining routes
- * are listed in EXPECTED_DIRTY_ROUTES below for batch 2 to pick up.
+ * 22 dirty routes / 369 offending text nodes. Batch 1 fixed the four highest-count routes -
+ * death-note, cooking, spelunking, buildings (290 of the 369 nodes). Batch 2 (task 17) fixed the
+ * remaining 17 routes, emptying EXPECTED_DIRTY_ROUTES below - every route in pages/ now renders
+ * clean for a logged-out visitor.
  *
- * Each route in EXPECTED_DIRTY_ROUTES is run through test.fail(): Playwright inverts the pass/fail
+ * Any route added here in the future is run through test.fail(): Playwright inverts the pass/fail
  * result for a test wrapped this way, so the test SUITE goes green while a route is still dirty,
  * and turns red the moment that route becomes unexpectedly clean - which is the signal to delete it
  * from the list. Do not add a newly-broken route to this list to silence a failure; that defeats
@@ -64,33 +65,15 @@ const ALLOWED_NAN_TEXT = new Set([
   'The Hole, Research, Vote Ballot, Sneaking, Spelunking, Kangaroo, Farming, Alchemy, Clam Work, Owl, Library, Killroy, Gallery, Emperor, Task Board, Towers, Rift, Arcade, Atom Collider, and Coral Reef pages no longer show "NaN" for costs, bonuses, and rates - both signed out and while signed in',
   'Printer, Highscores, Equinox, and Sailing pages no longer show "NaN" for boosted print values, minigame upgrade costs, charge rate, and boat travel times, and your total account level no longer breaks if one of your character slots has no data',
   'Death Note, Cooking, Spelunking, and Buildings pages no longer show "NaN" for kill counts, meal breakpoints, amber totals, and build progress when signed out',
+  'Formulas, General, Kangaroo, Refinery, Grimoire, Tesseract, Merits, Compass, Breeding, Owl, Killroy, Sigils, Weekly Bosses, Armor Smithy, Atom Collider, Worship, and Sneaking pages no longer show "NaN" for formula results, currencies, upgrade costs, and stats when signed out',
 ]);
 
-// Routes batch 1 (this task) did NOT fix, highest offending-node-count first (see the task-16
-// report for the full per-route breakdown). Batch 2's job is to empty this list.
-// Note: '/account/world-1/stamps' was in the original 22-route scan (its Exalted Stamp multiplier
-// read account.spelunking.exaltedFragmentFound, undefined before this task's spelunking.ts fix) but
-// came out clean as a side effect of that fix, confirmed by re-running this route repeatedly - it
-// is deliberately not listed here.
-const EXPECTED_DIRTY_ROUTES = [
-  '/account/misc/general',
-  '/account/clickers/kangaroo',
-  '/account/world-3/refinery',
-  '/account/class-specific/grimoire',
-  '/account/class-specific/tesseract',
-  '/account/task-board/merits',
-  '/account/class-specific/compass',
-  '/account/world-4/breeding',
-  '/account/clickers/owl',
-  '/account/world-2/killroy',
-  '/account/world-2/sigils',
-  '/account/world-2/weekly-bosses',
-  '/account/world-3/armor-smithy',
-  '/account/world-3/atom-collider',
-  '/account/world-3/worship',
-  '/account/world-6/sneaking',
-  '/tools/formulas',
-];
+// Batch 2 (task 17) fixed the last 17 dirty routes batch 1 left open - see the task-17 report for
+// the full per-route root-cause table. This list is intentionally empty: every route discovered
+// from pages/ must render with zero "NaN" text nodes for a logged-out visitor. If a route becomes
+// dirty in the future, add it here ONLY after a human has confirmed it is a pre-existing/known
+// issue, not to silence a newly-introduced regression.
+const EXPECTED_DIRTY_ROUTES = [];
 
 // Full, untruncated text is what gets compared against ALLOWED_NAN_TEXT (an exact-match allowlist);
 // only the reported failure message truncates for readability.

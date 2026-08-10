@@ -83,7 +83,9 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
 
   const sneakingExpThing = rawSneaking?.[102]?.[0];
   const jadeEmporiumUnlocks = rawSneaking?.[102]?.[9];
-  const jadeCoins = rawSneaking?.[102]?.[1];
+  // Default to 0: no save means no jade coins collected, not an unknown value -
+  // notateNumber(undefined) renders the literal string "NaNENaN".
+  const jadeCoins = rawSneaking?.[102]?.[1] ?? 0;
   const lastLooted = rawSneaking?.[102]?.[2];
   const ninjaUpgradeLevels = rawSneaking?.[103];
   const totalNinjaUpgradeLevels = ninjaUpgradeLevels?.reduce((sum: any, level: any) => sum + level, 0);

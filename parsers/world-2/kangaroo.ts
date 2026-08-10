@@ -34,7 +34,9 @@ const resetBonusesDesc = [
 ];
 
 const parseKangaroo = (account: any) => {
-  const fish = account?.accountOptions?.[267];
+  // Default to 0: no save means no fish caught, not an unknown value - notateNumber(undefined)
+  // renders the literal string "NaNENaN".
+  const fish = account?.accountOptions?.[267] ?? 0;
   const progress = account?.accountOptions?.[280];
   const upgrades = poppyBonuses.map((upgrade, i) => {
     // accountOptions[268/272/300/304] feed straight into arithmetic below; undefined (never touched,
@@ -88,7 +90,8 @@ const parseKangaroo = (account: any) => {
   // TAR
   const tarFishUnlocked = Math.min(8, Math.round(3 * getMegaFish(account, 0)
     + (3 * getMegaFish(account, 4) + 2 * getMegaFish(account, 7))));
-  const tarFishOwned = account?.accountOptions?.[296];
+  // Default to 0: no save means no tar fish owned, not an unknown value.
+  const tarFishOwned = account?.accountOptions?.[296] ?? 0;
   const tarFishRate = (1 / (1 + 0.05 *
       (account?.accountOptions?.[301] ?? 0)))
     * 1800 * (1 / Math.max(1, getResetBonuses(account, 4)))
@@ -216,11 +219,17 @@ const parseKangaroo = (account: any) => {
 
 const formatDescription = (account: any, level: any, desc: any, upgradesIndex: any, i: any, data: any) => {
   const index = Math.round(268 + 29 * upgradesIndex + i);
+  // Default both the raw accountOptions read and the level argument to 0 for this function's own
+  // arithmetic only (the `level` field returned on the upgrade object itself stays undefined per
+  // the convention noted above parseKangaroo - this is purely about the description text, which
+  // should read "0" for an unowned upgrade rather than leak NaN).
+  const optionValue = account?.accountOptions?.[index] ?? 0;
+  const lvl = level ?? 0;
   let newDesc = desc;
-  newDesc = newDesc.replace('{', '' + commaNotation(((account?.accountOptions?.[index]) * (data[i]?.x6))));
-  newDesc = newDesc.replace(']', '' + Math.round(100 + (level * (data[i]?.x6))) / 100);
-  newDesc = newDesc.replace('~', '' + notateNumber(100 * (1 - 1 / (1 + level * (data[i]?.x6) / 100)), 'Small'));
-  newDesc = newDesc.replace('?', '' + notateNumber((data[i]?.x6) * (level / (40 + level)), 'Small'));
+  newDesc = newDesc.replace('{', '' + commaNotation(optionValue * (data[i]?.x6)));
+  newDesc = newDesc.replace(']', '' + Math.round(100 + (lvl * (data[i]?.x6))) / 100);
+  newDesc = newDesc.replace('~', '' + notateNumber(100 * (1 - 1 / (1 + lvl * (data[i]?.x6) / 100)), 'Small'));
+  newDesc = newDesc.replace('?', '' + notateNumber((data[i]?.x6) * (lvl / (40 + lvl)), 'Small'));
   return newDesc;
 }
 

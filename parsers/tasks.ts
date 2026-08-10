@@ -44,7 +44,10 @@ export const getTasks = (idleonData: IdleonData): {
 
   const meritsDescriptions = merits?.map((world: any[], worldIndex: number) => {
     return world?.map((merit: any, meritIndex: number) => {
-      const level = tasksRaw?.[2]?.[worldIndex]?.[meritIndex];
+      // Default to 0: no save means this merit hasn't been purchased, not an unknown level -
+      // the merits.jsx page multiplies this straight into its description text
+      // (`bonusPerLevel * level`), so undefined leaked as the literal string "NaN".
+      const level = tasksRaw?.[2]?.[worldIndex]?.[meritIndex] ?? 0;
       return {
         ...merit,
         level

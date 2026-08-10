@@ -13,6 +13,7 @@ import { checkCharClass, CLASSES, getHighestTalentByClass } from '@parsers/talen
 import { getFamilyBonusBonus } from '@parsers/family';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
@@ -105,7 +106,11 @@ export const getRefineryCycleBonuses = (account: Account, characters: any[]) => 
   const { alchemy, saltLick, charactersLevels, breeding, rift, towers } = account;
   const vials = alchemy?.vials;
   const redMaltVial = getVialsBonusByEffect(vials, 'Refinery_Cycle_Speed');
-  const saltLickUpgrade = saltLick?.[2] ? (saltLick?.[2]?.baseBonus * saltLick?.[2]?.level) : 0;
+  // Reuse the shared helper instead of reading .baseBonus * .level directly - an unowned salt
+  // lick has `level: undefined`, and getSaltLickBonus already guards that with `?? 0` while this
+  // call site didn't, poisoning the whole cycle-speed chain (and therefore every cycle time) with
+  // NaN.
+  const saltLickUpgrade = getSaltLickBonus(saltLick, 2);
   const sigilRefinerySpeed = alchemy?.p2w?.sigils?.find((sigil: any) => sigil?.name === 'PIPE_GAUGE')?.bonus || 0;
   const stampRefinerySpeed = getStampsBonusByEffect(account, 'Faster_refinery_cycles');
   const shinyRefineryBonus = getShinyBonus(breeding?.pets, 'Faster_Refinery_Speed');
@@ -213,19 +218,20 @@ export const getRefineryCycles = (account: Account, characters: any[], lastUpdat
   const combustion = {
     name: 'Combustion',
     time: Math.ceil(combustionTime),
-    timePast: account?.refinery?.timePastCombustion + timePassed,
+    // Default to 0: no save means no time has passed on this cycle yet, not an unknown value.
+    timePast: (account?.refinery?.timePastCombustion ?? 0) + timePassed,
     breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 900 }, ...breakdown]
   };
   const synthesis = {
     name: 'Synthesis',
     time: Math.ceil(synthesisTime),
-    timePast: account?.refinery?.timePastSynthesis + timePassed,
+    timePast: (account?.refinery?.timePastSynthesis ?? 0) + timePassed,
     breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 3600 }, ...breakdown]
   }
   const polymerize = {
     name: 'Polymerize',
     time: Math.ceil(polymerizeTime),
-    timePast: account?.refinery?.timePastPolymerize + timePassed,
+    timePast: (account?.refinery?.timePastPolymerize ?? 0) + timePassed,
     breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 360000 }, ...breakdown,
       { name: 'Materials Science', value: (researchGridBonus + mealBonus) / 100 }
     ]

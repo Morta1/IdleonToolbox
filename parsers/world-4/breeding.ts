@@ -318,38 +318,42 @@ export const getTimeToLevel = (pet: any, multi: any, copies: any, targetLevel: a
 }
 
 export const calcUpgradeBonus = (upgrade: any, upgradeIndex: any, account: any) => {
+  // Default to 0: an unowned/unindexed upgrade (no save, or a petUpgrades array shorter than
+  // this index) has no levels, not an unknown amount - every branch below multiplies this value,
+  // and undefined poisons the result to NaN even for a 0-cost multiplier.
+  const level = upgrade?.level ?? 0;
   if (0 === upgradeIndex || 2 === upgradeIndex || 4 === upgradeIndex) {
-    return upgrade?.level;
+    return level;
   }
   if (1 === upgradeIndex) {
-    return 4 * upgrade?.level;
+    return 4 * level;
   }
   if (3 === upgradeIndex) {
-    return 25 * upgrade?.level;
+    return 25 * level;
   }
   if (5 === upgradeIndex) {
-    return (1 + 0.25 * upgrade?.level) * Math.min(2, Math.max(1, 1 + 0.1 * getAchievementStatus(account?.achievements, 221)));
+    return (1 + 0.25 * level) * Math.min(2, Math.max(1, 1 + 0.1 * getAchievementStatus(account?.achievements, 221)));
   }
   if (6 === upgradeIndex) {
-    return 6 * upgrade?.level;
+    return 6 * level;
   }
   if (7 === upgradeIndex) {
-    return 1 + 0.15 * upgrade?.level;
+    return 1 + 0.15 * level;
   }
   if (8 === upgradeIndex) {
-    return 1 + 2 * upgrade?.level;
+    return 1 + 2 * level;
   }
   if (9 === upgradeIndex) {
-    return 1 + 0.02 * upgrade?.level;
+    return 1 + 0.02 * level;
   }
   if (10 === upgradeIndex) {
-    return 10 * upgrade?.level;
+    return 10 * level;
   }
   if (11 === upgradeIndex) {
-    return Math.ceil(12 * Math.pow(upgrade?.level, 0.698));
+    return Math.ceil(12 * Math.pow(level, 0.698));
   }
   if (12 === upgradeIndex) {
-    return 5 * upgrade?.level;
+    return 5 * level;
   }
   return 0;
 }
@@ -404,11 +408,13 @@ export const calcBreedabilityMulti = (account: any, characters: any) => {
   }, 0);
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Breed')
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 1, account });
-  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Breedability_Rate')?.bonus;
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Breedability_Rate')?.bonus ?? 0;
+  // Default to 0: no save means no crop depot bonus, not an unknown value.
+  const cropDepotShinyBonus = account?.farming?.cropDepot?.shiny?.value ?? 0;
 
   const value = (1 + (breedingBonus + (mealBonus
       + (20 * getAchievementStatus(account?.achievements, 218) + starSignBonus))) / 100)
-    * (1 + account?.farming?.cropDepot?.shiny?.value / 100)
+    * (1 + cropDepotShinyBonus / 100)
     * (1 + lampBonus / 100)
     * (1 + arcadeBonus / 100);
   return {
@@ -429,7 +435,7 @@ export const calcBreedabilityMulti = (account: any, characters: any) => {
         {
           name: 'Multiplicative',
           sources: [
-            { name: 'Crop bonus', value: account?.farming?.cropDepot?.shiny?.value / 100 },
+            { name: 'Crop bonus', value: cropDepotShinyBonus / 100 },
             { name: 'Lamp bonus', value: lampBonus / 100 },
             { name: 'Arcade bonus', value: arcadeBonus / 100 }
           ]
@@ -452,10 +458,12 @@ export const calcShinyLvMulti = (account: any, characters: any) => {
   const summoningBonus = getWinnerBonus(account, '<x Shiny EXP', false);
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 1, account });
   const breedingBonus = calcUpgradeBonus(account?.breeding?.petUpgrades?.[12], 12, account);
+  // Default to 0: no save means no crop depot bonus, not an unknown value.
+  const cropDepotShinyBonus = account?.farming?.cropDepot?.shiny?.value ?? 0;
 
   const value = (1 + (emeraldUlthuriteBonus
       + (fasterShinyLevelBonus
-        + (account?.farming?.cropDepot?.shiny?.value
+        + (cropDepotShinyBonus
           + starSign + breedingBonus))) / 100)
     * (1 + summoningBonus / 100)
     * (1 + lampBonus / 100);
@@ -472,7 +480,7 @@ export const calcShinyLvMulti = (account: any, characters: any) => {
             { name: 'Jewel bonus', value: emeraldUlthuriteBonus / 100 },
             { name: 'Shiny bonus', value: fasterShinyLevelBonus / 100 },
             { name: 'Starsign bonus', value: starSign / 100 },
-            { name: 'Crop bonus', value: account?.farming?.cropDepot?.shiny?.value / 100 },
+            { name: 'Crop bonus', value: cropDepotShinyBonus / 100 },
             { name: 'Breeding bonus', value: breedingBonus / 100 }
           ]
         },

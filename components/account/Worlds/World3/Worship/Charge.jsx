@@ -19,6 +19,10 @@ const Charge = () => {
     totalChargeRate,
     timeToOverCharge,
   } = getChargeWithSyphon(state?.characters);
+  // No wizard (no save) means both totalCharge and max+syphon are 0 - a 0/0 ratio.
+  // Number.isFinite guards that division-by-zero NaN, rendering an honest 0% instead.
+  const maxChargeWithSyphon = (bestWizard?.worship?.maxCharge || 0) + bestChargeSyphon;
+  const chargePercent = (totalCharge / maxChargeWithSyphon) * 100;
 
   return (
     <>
@@ -35,9 +39,9 @@ const Charge = () => {
                                                       lastUpdated={state?.lastUpdated}/> :
             <Typography>Everyone</Typography>}
         </CardTitleAndValue>
-        <CardTitleAndValue title={`Best Wizard -${bestWizard?.name}`}>
-          <Typography>Charge with syphon ({((bestWizard?.worship?.maxCharge || 0) + bestChargeSyphon)})</Typography>
-          <ProgressBar percent={(totalCharge / ((bestWizard?.worship?.maxCharge || 0) + bestChargeSyphon)) * 100}
+        <CardTitleAndValue title={`Best Wizard -${bestWizard?.name ?? '—'}`}>
+          <Typography>Charge with syphon ({maxChargeWithSyphon})</Typography>
+          <ProgressBar percent={Number.isFinite(chargePercent) ? chargePercent : 0}
                        bgColor={'secondary.dark'}/>
           <Timer type={'countdown'}
                  placeholder={'You have overflowing charge'}

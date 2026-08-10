@@ -253,7 +253,11 @@ describe('armorSmithy (idleonData?.ServerGemsReceived guard)', () => {
     const data = fixture.data ?? fixture;
     const { account } = parseFixture(fixture);
     const accountOptions = tryToParse(data?.OptLacc);
-    const days = accountOptions?.[381];
+    // task-17: days now defaults to 0 (not undefined) when the save has never touched this
+    // accountOptions index - a real save with no elapsed days is 0 days in, not an unknown value.
+    // `30 - undefined` used to render "NaN days" on the page for these same fixtures; `isSmithyUnlocked`
+    // itself is unaffected (Math.round(30 - 0) = 30, still > 1 either way).
+    const days = accountOptions?.[381] ?? 0;
     const hasBundle = isBundlePurchased(account.bundles, 'bun_i')?.owned ? 1 : 0;
     const expected = 2e3 <= (data?.ServerGemsReceived ?? 0) + 1500 * hasBundle || 1 > Math.round(30 - Number(days));
     expect(account.armorSmithy.sets).toHaveLength(equipmentSets.length);

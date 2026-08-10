@@ -112,8 +112,10 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
         : goldRelic?.acquired === 2
           ? goldRelic?.ancientMultiplier
           : 0;
-  const daysSinceLastSample = accountData?.accountOptions?.[125];
-  const orbOfRemembranceKills = accountData?.accountOptions?.[138];
+  // Default to 0: no save means no last-sample day count and no kills, not an unknown value -
+  // Number(undefined) is NaN, and lavaLog(undefined) is also NaN (Math.max(undefined, 1) is NaN).
+  const daysSinceLastSample = accountData?.accountOptions?.[125] ?? 0;
+  const orbOfRemembranceKills = accountData?.accountOptions?.[138] ?? 0;
   const divineKnights = charactersData?.filter((character) => checkCharClass(character?.class, CLASSES.Divine_Knight));
   const highestKingOfRemembrance = divineKnights?.reduce((res, { flatTalents, addedLevels }) => {
     const kingOfRemembrance = getTalentBonus(flatTalents, 'KING_OF_THE_REMEMBERED', false, false, addedLevels, false);

@@ -432,9 +432,11 @@ export const getCompassStats = (character: any, account: any) => {
           + getLocalCompassBonus(upgrades, 81)))))
     * Math.pow(1.05, equipmentWeaponPower)
     * (1 + equipBonus4 / 100)
+    // accountOptions[360]/[232] default to 0: no save means these are unset, not unknown -
+    // lavaLog(undefined) and Math.pow(x, undefined) are both NaN regardless of the paired bonus.
     * (1 + (getLocalCompassBonus(upgrades, 23)
-      * lavaLog(account?.accountOptions?.[360])) / 100)
-    * Math.pow(1 + getLocalCompassBonus(upgrades, 26) / 100, account?.accountOptions?.[232])
+      * lavaLog(account?.accountOptions?.[360] ?? 0)) / 100)
+    * Math.pow(1 + getLocalCompassBonus(upgrades, 26) / 100, account?.accountOptions?.[232] ?? 0)
     * (1 + (getLocalCompassBonus(upgrades, 6) * account?.compass?.totalAcquiredMedallions) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 119) + getLocalCompassBonus(upgrades, 10) + (getLocalCompassBonus(upgrades, 121)
       + (getLocalCompassBonus(upgrades, 122) + (getLocalCompassBonus(upgrades, 123)
@@ -452,7 +454,7 @@ export const getCompassStats = (character: any, account: any) => {
     * (1 + (defenceAndAccTalent
       * (totalUpgradeLevels / 100)) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 22)
-      * lavaLog(account?.accountOptions?.[357])) / 100)
+      * lavaLog(account?.accountOptions?.[357] ?? 0)) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 6) * account?.compass?.totalAcquiredMedallions) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 120) + (getLocalCompassBonus(upgrades, 124)
       + (getLocalCompassBonus(upgrades, 125) + (getLocalCompassBonus(upgrades, 128)
@@ -467,7 +469,7 @@ export const getCompassStats = (character: any, account: any) => {
     * (1 + (defenceAndAccTalent
       * (totalUpgradeLevels / 100)) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 30)
-      * lavaLog(account?.accountOptions?.[358])) / 100)
+      * lavaLog(account?.accountOptions?.[358] ?? 0)) / 100)
     * (1 + equipBonus / 100)
     * (1 + (getLocalCompassBonus(upgrades, 137)
       + (getLocalCompassBonus(upgrades, 138)
@@ -548,7 +550,7 @@ export const getExtraDust = (character: any, account: any) => {
   const { value: equipBonus1 } = getStatsFromGear(character, 79, account);
   const dustTalent = getTalentBonus(character?.flatTalents, 'ETERNAL_HUNT');
   const compassTalent = getTalentBonus(character?.flatTalents, 'COMPASS');
-  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Windwalker_Dust')?.bonus;
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Windwalker_Dust')?.bonus ?? 0;
 
   const charmBonus = getCharmBonus(account, 'Twinkle_Taffy'); // Pristine charm 19
   const emperorBonus = getEmperorBonus(account, 4);
@@ -560,8 +562,10 @@ export const getExtraDust = (character: any, account: any) => {
   const meritocracyBonus = getMeritocracyBonus(account, 25) ?? 0;
   const { value: allMasterclassDropz, sources: amdSources } = getAllMasterclassDropz(character, account);
 
+  // Default to 0: no save means this multiplier is unset - lavaLog(undefined) is NaN, which
+  // poisons baseUpgrades even when getLocalCompassBonus(upgrades, 34) is itself 0.
   const baseUpgrades = getLocalCompassBonus(upgrades, 31)
-    + getLocalCompassBonus(upgrades, 34) * lavaLog(account?.accountOptions?.[359])
+    + getLocalCompassBonus(upgrades, 34) * lavaLog(account?.accountOptions?.[359] ?? 0)
     + exoticBonus;
   const upgrade38 = getLocalCompassBonus(upgrades, 38);
   const gearBonus = equipBonus + equipBonus1;

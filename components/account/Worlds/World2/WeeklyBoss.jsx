@@ -45,7 +45,7 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
       <Stack>
         <Typography variant={'h5'}>Actions</Typography>
         {bossIndex === 0 ? <Typography variant={'caption'}>Current
-          turn: {account?.accountOptions?.[185] + 1}</Typography> : null}
+          turn: {(account?.accountOptions?.[185] ?? 0) + 1}</Typography> : null}
       </Stack>
       <Stack flexWrap={'wrap'} direction={'row'}>
         {triplets?.map(({ task }, index) => index < (characters?.length ?? 10) ? <IconImg key={'all-moves' + index}

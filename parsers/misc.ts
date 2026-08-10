@@ -58,7 +58,10 @@ export const getDoubleStatueDrop = (account: any, character: any, characters: an
   const tesseractBonus = getTesseractBonus(account, 18);
   const paletteBonus = getPaletteBonus(account, 19);
   const kattelkrukPlayer = characters?.find(({ linkedDeity }: any) => linkedDeity === 8); // kattelkruk is limited to only 1 player linked.
-  const divinityMinorBonus = getMinorDivinityBonus(kattelkrukPlayer, account, 8, characters);
+  // Only compute the minor bonus when a character is actually linked to Kattelkruk - without a
+  // linked player (nobody has unlocked/linked this god), getMinorDivinityBonus divides an
+  // undefined divinity level by itself and returns NaN instead of "no bonus".
+  const divinityMinorBonus = kattelkrukPlayer ? getMinorDivinityBonus(kattelkrukPlayer, account, 8, characters) : 0;
   const talentBonus = getTalentBonus(character?.flatStarTalents, 'STATUE_METALLURGY');
   
   return {
@@ -462,15 +465,17 @@ export const getCurrencies = (account: any, idleonData: any, processedData: any)
 
   return {
     candies: { guaranteed: guaranteedCandies, special: specialCandies },
-    WorldTeleports: idleonData?.CYWorldTeleports,
+    // Default the raw currency counters to 0: no save means the player owns none of these, not
+    // an unknown amount - commaNotation(undefined) renders the literal string "NaN".
+    WorldTeleports: idleonData?.CYWorldTeleports ?? 0,
     KeysAll: getKeysObject(keys),
-    ColosseumTickets: idleonData?.CYColosseumTickets,
-    ObolFragments: idleonData?.CYObolFragments,
-    SilverPens: idleonData?.CYSilverPens,
-    GoldPens: idleonData?.CYGoldPens,
-    DeliveryBoxComplete: idleonData?.CYDeliveryBoxComplete,
-    DeliveryBoxStreak: idleonData?.CYDeliveryBoxStreak,
-    DeliveryBoxMisc: idleonData?.CYDeliveryBoxMisc,
+    ColosseumTickets: idleonData?.CYColosseumTickets ?? 0,
+    ObolFragments: idleonData?.CYObolFragments ?? 0,
+    SilverPens: idleonData?.CYSilverPens ?? 0,
+    GoldPens: idleonData?.CYGoldPens ?? 0,
+    DeliveryBoxComplete: idleonData?.CYDeliveryBoxComplete ?? 0,
+    DeliveryBoxStreak: idleonData?.CYDeliveryBoxStreak ?? 0,
+    DeliveryBoxMisc: idleonData?.CYDeliveryBoxMisc ?? 0,
     minigamePlays: account?.accountOptions?.[33] ?? 0
   };
 };
@@ -1236,20 +1241,23 @@ export const getTypeGen = (type: any) => {
 
 export const getFoodBonus = (character: any, account: any, bonusName: any, ignoreFoodBonus = false) => {
   const foodBonus = getPlayerFoodBonus(character, account);
+  // `?? 0`: when character.food is missing (no save), the optional chain short-circuits the
+  // whole expression to undefined, bypassing reduce's own initial-value default entirely.
   return character?.food?.reduce((res: any, {
     Amount,
     Effect
-  }: any) => res + (Effect === bonusName ? Amount * (ignoreFoodBonus ? 1 : foodBonus) : 0), 0);
+  }: any) => res + (Effect === bonusName ? Amount * (ignoreFoodBonus ? 1 : foodBonus) : 0), 0) ?? 0;
 }
 
 export const getHealthFoodBonus = (character: any, account: any, bonusName: any) => {
   const foodBonus = getPlayerFoodBonus(character, account, true);
+  // `?? 0`: same optional-chaining short-circuit issue as getFoodBonus above.
   return character?.food?.reduce((res: any, {
     Trigger,
     Amount,
     Cooldown,
     Effect
-  }: any) => res + (Trigger > 0 && Effect === bonusName ? Amount * foodBonus / Math.max(Cooldown, 1) * 3600 : 0), 0);
+  }: any) => res + (Trigger > 0 && Effect === bonusName ? Amount * foodBonus / Math.max(Cooldown, 1) * 3600 : 0), 0) ?? 0;
 }
 
 export const getMinigameScore = (account: any, bonusName: any) => {
@@ -1394,7 +1402,9 @@ export const getMiniBossesData = (account: any) => {
 }
 
 export const getKillRoy = (idleonData: any, charactersData: any, accountData: any, serverVars: any) => {
-  const skulls = accountData?.accountOptions?.[105];
+  // Default to 0: no save means no skulls collected, not an unknown value -
+  // notateNumber(undefined) renders the literal string "NaNENaN".
+  const skulls = accountData?.accountOptions?.[105] ?? 0;
   const killRoyKills = tryToParse(idleonData?.KRbest);
   const totalKills = Object.values(killRoyKills || {}).reduce((sum: any, num: any) => sum + num, 0);
   const totalDamageMulti = 1 + Math.floor(Math.pow(totalKills as number, 0.4)) / 100;

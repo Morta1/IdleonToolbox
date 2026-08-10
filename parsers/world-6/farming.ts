@@ -921,8 +921,20 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
     + Math.max(0, farmingLevel - 250) * exotic8;
 
   const achievementBonus = getAchievementStatus(account?.achievements, 355);
-  const summoningMealBonus = mealBonus2 * Math.ceil((character?.skillsInfo?.summoning?.level + 1) / 50);
+  // Default to 0: no summoning level data means level 0, not an unknown value - undefined here
+  // makes Math.ceil((undefined + 1) / 50) NaN, which poisons summoningMealBonus even when
+  // mealBonus2 is 0.
+  const summoningLevel = character?.skillsInfo?.summoning?.level ?? 0;
+  const summoningMealBonus = mealBonus2 * Math.ceil((summoningLevel + 1) / 50);
   const landRankPerPlot = getLandRank(account?.farming?.ranks, 0) * (account?.farming?.plot?.[crop?.index]?.rank ?? 0) + voteBonus;
+
+  // Default to 0: no plot/crop selected (no save) means no seed planted, not an unknown value -
+  // undefined here poisons the multiplicative chain and the breakdown's .toExponential() calls
+  // via optional-chaining short-circuit. Math.pow(0, 0) is 1 per spec, so decay rate lands at a
+  // neutral 1x rather than 0.
+  const nextCropChance = crop?.seed?.nextCropChance ?? 0;
+  const nextCropDecay = crop?.seed?.nextCropDecay ?? 0;
+  const baseCropType = crop?.baseCropType ?? 0;
 
   let value = (1 + marketBonus1 / 100)
     * (1 + winBonus / 100)
@@ -953,8 +965,8 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
     * (1 + exotic3 / 100)
     * (1 + scalingExotics / 100)
     * (1 + sushiBonus / 100)
-    * crop?.seed?.nextCropChance
-    * Math.pow(crop?.seed?.nextCropDecay, crop?.baseCropType);
+    * nextCropChance
+    * Math.pow(nextCropDecay, baseCropType);
 
   value = Math.min(100, 100 * value);
   value = Math.round(10 * value) / 10;
@@ -963,8 +975,8 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
     value,
     breakdown: [
       { title: 'Additive' },
-      { name: 'Base Chance', value: crop?.seed?.nextCropChance.toExponential(3) },
-      { name: 'Decay Rate', value: Math.pow(crop?.seed?.nextCropDecay, crop?.baseCropType).toExponential(3) },
+      { name: 'Base Chance', value: nextCropChance.toExponential(3) },
+      { name: 'Decay Rate', value: Math.pow(nextCropDecay, baseCropType).toExponential(3) },
       { name: 'Market', value: Number(((1 + marketBonus1 / 100) * Math.max(1, marketBonus2)).toFixed(3)) },
       { name: 'Summoning', value: Number((1 + winBonus / 100).toFixed(3)) },
       { name: 'Lamp', value: Number((1 + lampBonus / 100).toFixed(3)) },

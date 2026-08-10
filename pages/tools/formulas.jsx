@@ -39,7 +39,10 @@ const Formulas = () => {
   const dropRate = getDropRate(selectedChar, state?.account, state?.characters);
   const cropEvo = getCropEvolution(state?.account, selectedChar, state?.account?.farming?.plot?.[0])
   const printerMulti = getPrinterMulti(state?.account, state?.characters);
-  const bitMulti = getBitsMulti(state?.account, state?.characters);
+  // Guarded the same way the Gaming page itself gates General.jsx: account.gaming is null while
+  // the feature is locked (e.g. a logged-out visitor), and getBitsMulti's arithmetic assumes a
+  // real gaming object, so calling it against null produces NaN rather than a meaningful value.
+  const bitMulti = state?.account?.gaming ? getBitsMulti(state?.account, state?.characters) : null;
   const goldenFoodMulti = getGoldenFoodMulti(selectedChar, state?.account, state?.characters);
   const doubleStatueDropChance = getDoubleStatueDrop(state?.account, selectedChar, state?.characters);
   const doubleGoldenFoodDropChance = getDoubleGoldenFoodDrop(state?.account, selectedChar, state?.characters);
@@ -49,7 +52,11 @@ const Formulas = () => {
         name: 'Crystal Chance',
         formula: selectedChar?.crystalSpawnChance?.expression,
         value: selectedChar?.crystalSpawnChance?.value,
-        renderValue: (value) => `1 in ${Math.floor(1 / value)} (${notateNumber(value * 100, 'MultiplierInfo')?.replace('.00', '')}%)`,
+        // No selected character (e.g. a logged-out visitor has zero characters) means this was
+        // never computed - render a placeholder instead of the NaN that `1 / undefined` produces.
+        renderValue: (value) => Number.isFinite(value)
+          ? `1 in ${Math.floor(1 / value)} (${notateNumber(value * 100, 'MultiplierInfo')?.replace('.00', '')}%)`
+          : '—',
         description: 'How often a crystal mob is spawned'
       },
       {
@@ -128,7 +135,7 @@ const Formulas = () => {
         formula: bitMulti?.expression,
         value: bitMulti?.value,
         breakdown: bitMulti?.breakdown,
-        renderValue: (value) => `${notateNumber(value)}%`,
+        renderValue: (value) => Number.isFinite(value) ? `${notateNumber(value)}%` : '—',
         description: 'Bit multi bonuses from all sources'
       },
       {

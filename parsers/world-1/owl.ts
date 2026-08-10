@@ -134,7 +134,9 @@ const parseOwl = (account: any) => {
       percentage: stat.percentage
     })),
 
-    { name: 'Shiny Feather', bonus: account?.accountOptions?.[264] }
+    // Default to 0: no save means no shiny feather bonus, not an unknown value -
+    // commaNotation(undefined) renders the literal string "NaN".
+    { name: 'Shiny Feather', bonus: account?.accountOptions?.[264] ?? 0 }
   ];
 
   const megaFeathers = megaFeathersDesc.map((description, index) => ({

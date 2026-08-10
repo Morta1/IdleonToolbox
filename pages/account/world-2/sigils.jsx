@@ -31,13 +31,14 @@ const Sigils = () => {
 
   const getSigilSpeed = () => {
     const achievement = getAchievementStatus(state?.account?.achievements, 112);
-    const gemStore = state?.account?.gemShopPurchases?.find((value, index) => index === 110);
+    // Default to 0: no save means this gem shop purchase was never made, not an unknown value.
+    const gemStore = state?.account?.gemShopPurchases?.find((value, index) => index === 110) ?? 0;
     const sigilBonus = getSigilBonus(alchemy?.p2w?.sigils, 'PEA_POD');
     const vial = getVialsBonusByStat(alchemy?.vials, 'SigSpd');
     const anotherVial = getVialsBonusByStat(alchemy?.vials, '6turtle');
     const stampBonus = getStampsBonusByEffect(state?.account, '+{%_Sigil_Charge_rate');
     const winnerBonus = getWinnerBonus(state?.account, '<x Sigil SPD');
-    const arcadeBonus = getArcadeBonus(state?.account?.arcade?.shop, 'Sigil_Speed')?.bonus
+    const arcadeBonus = getArcadeBonus(state?.account?.arcade?.shop, 'Sigil_Speed')?.bonus ?? 0
     const voteBonus = getVoteBonus(state?.account, 17);
     const paletteBonus = getPaletteBonus(state?.account, 20);
     const legendBonus = getLegendTalentBonus(state?.account, 31);
