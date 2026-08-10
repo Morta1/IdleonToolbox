@@ -395,7 +395,10 @@ const parseTowers = (towersRaw: any, totemInfo: any) => {
       name: towerName,
       level,
       nextLevel: (level + 1) === towersRaw?.[towerData.index + towersLength],
-      progress: towersRaw?.[towerData?.index + 12 + towersLength * 2],
+      // towersRaw is undefined with no save; a bare `undefined` progress makes the rendered
+      // "progress / buildCost" fraction NaN (see the `level` default above for the same reason).
+      // 0 is the correct "never built" default here too.
+      progress: towersRaw?.[towerData?.index + 12 + towersLength * 2] ?? 0,
       inProgress: inProgress?.includes(towerData?.index),
       slot: inProgress?.findIndex((ind: any) => ind === towerData?.index)
     }

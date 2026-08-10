@@ -221,9 +221,13 @@ export const getMealsBonusByEffectOrStat = (account: any, effectName: any, statN
 export const getRibbonBonus = (account: any, t: any) => {
   const armorSetBonus = getArmorSetBonus(account, 'EMPEROR_SET');
   const cloudBonus73 = account?.equinox?.challenges?.[73]?.current === -1 ? 1 : 0;
-  return 1 + (Math.floor(5 * t + Math.floor(t / 2) *
-    (4 + 6.5 * Math.floor(t / 5))) + Math.floor(t / 4) * (armorSetBonus / 4)
-    + Math.floor(t / 10) * cloudBonus73) / 100;
+  // account.grimoire.ribbons is undefined with no save, so every caller's `ribbons?.[28 + index]`
+  // lookup passes `t` in as undefined here. Arithmetic on undefined is NaN forever after - rank 0
+  // (no ribbon rank recorded) is the correct default, same as every other un-touched-feature default.
+  const rank = t ?? 0;
+  return 1 + (Math.floor(5 * rank + Math.floor(rank / 2) *
+    (4 + 6.5 * Math.floor(rank / 5))) + Math.floor(rank / 4) * (armorSetBonus / 4)
+    + Math.floor(rank / 10) * cloudBonus73) / 100;
 }
 
 export const COOKING_MASTERY_RANK_THRESHOLDS = [0, 1, 5, 10, 25, 100, 150, 250, 500];

@@ -316,15 +316,16 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
                       ({notateNumber(bonusDiff, 'MultiplierInfo')})
                     </CenteredTypography>
                     <Typography component={'span'}>
-                      Next Level: {new Date().getTime() + timeTillNextLevel * 3600 * 1000 < maxTimeValue ?
+                      Next Level: {!Number.isFinite(timeTillNextLevel) ? 'Never' :
+                      new Date().getTime() + timeTillNextLevel * 3600 * 1000 < maxTimeValue ?
                       <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
                              staticTime={true}/> : `${getTimeAsDays(timeTillNextLevel)} days`}
                     </Typography>
                     <Stack direction={'row'} alignItems={'center'} gap={1}>
                       <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
-                      <HtmlTooltip title={numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}>
+                      {Number.isFinite(timeTillNextLevel) ? <HtmlTooltip title={numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}>
                         <span>{notateNumber(Math.ceil(timeTillNextLevel), 'Big')}</span>
-                      </HtmlTooltip>
+                      </HtmlTooltip> : <span>—</span>}
                     </Stack>
                   </Stack>
                 </Stack>
@@ -418,7 +419,8 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
                         }
                         {level < mealMaxLevel ? <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
                           <Typography>Next Milestone: </Typography>
-                          {new Date().getTime() + timeInMs < maxTimeValue
+                          {!Number.isFinite(timeToBp) ? 'Never' :
+                          new Date().getTime() + timeInMs < maxTimeValue
                             ? <Timer
                               date={new Date().getTime() + timeToBp * 3600 * 1000}
                               staticTime={true}/>
@@ -427,9 +429,9 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
                         </Stack> : null}
                         <Stack direction={'row'} alignItems={'center'} gap={1}>
                           <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
-                          <HtmlTooltip title={numberWithCommas(parseFloat(timeToBp).toFixed(2))}>
+                          {Number.isFinite(timeToBp) ? <HtmlTooltip title={numberWithCommas(parseFloat(timeToBp).toFixed(2))}>
                             <span>{notateNumber(Math.ceil(timeToBp), 'Big')}</span>
-                          </HtmlTooltip>
+                          </HtmlTooltip> : <span>—</span>}
                         </Stack>
                       </Stack> : null
                     }) : null}
