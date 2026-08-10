@@ -24,10 +24,20 @@ export const calculateStars = (tierReq: number, amountOfCards: number, cardName:
   }
   // Cardifier (6★) list floors calco to 7; rift/spelunking (5★) list floors to 6. Floors mirror N.js CardLv
   // (OptionsListAccount[603] then [155]). Parser keeps 0-indexed stars, so calco 7→6 and calco 6→5.
-  if (isInSixStarList && cardLvCalco < 7) {
+  //
+  // `owned` guards both special cases. Before Task 10's catalog conversion, this function only ever
+  // ran for cards present in the save's Cards0 (i.e. always owned) - a card the account has never
+  // picked up simply wasn't in `account.cards` and never reached here. Now every catalog card runs
+  // through this function, including amount-0 ones, so a card whose name happens to sit in either
+  // list (accountOptions[155]/[603]) would otherwise come back with a nonzero star count at
+  // amount: 0, and components/common/styles.jsx renders a star-tier border off `stars > 0` alone,
+  // not ownership. Gating on ownership closes that path without changing anything for an owned card
+  // (amountOfCards > 0 was already implied for every card this function used to see).
+  const owned = amountOfCards > 0;
+  if (owned && isInSixStarList && cardLvCalco < 7) {
     return 6; // 7 stars in 0-indexed is 6
   }
-  if (isInFiveStarList && cardLvCalco < 6) {
+  if (owned && isInFiveStarList && cardLvCalco < 6) {
     return 5; // 6 stars in 0-indexed is 5
   }
   return cardLvCalco > 0 ? cardLvCalco - 1 : cardLvCalco;

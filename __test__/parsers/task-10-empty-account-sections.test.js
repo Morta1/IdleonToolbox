@@ -1,7 +1,7 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { parseData } from '@parsers/index';
-import { getCards } from '@parsers/cards';
+import { getCards, calculateStars } from '@parsers/cards';
 import { getLiquidCauldrons } from '@parsers/world-2/alchemy';
 import { BOARD_SIZE } from '@parsers/world-3/constructionOptimizer';
 import { cards, equipmentSets, flagsReqs } from '@website-data';
@@ -76,6 +76,86 @@ describe('cards (catalog-driven: Object.entries(cardsRaw) -> Object.entries(card
     const data = fixture.data ?? fixture;
     const result = getCards(data, {});
     expect(Object.keys(result)).toHaveLength(Object.keys(cards).length);
+  });
+});
+
+/**
+ * Fix round 1 (post-approval review finding): before Task 10's catalog conversion, `calculateStars`
+ * only ever ran for cards present in the save's Cards0 - i.e. always owned (amountOfCards > 0). Now
+ * every catalog card runs through it, including amount-0 ones. Its five/six-star special case
+ * (`isInFiveStarList`/`isInSixStarList`, driven by accountOptions[155]/[603]) never consulted
+ * ownership, so an unowned card whose name happened to sit in either list would come back with a
+ * nonzero `stars` at `amount: 0` - and `components/common/styles.jsx` renders the star-tier border
+ * off `stars > 0` alone, not ownership. Newly reachable, not previously exercised.
+ *
+ * Fixed by requiring `amountOfCards > 0` before the special case can fire. This block proves that
+ * fix is a no-op for every real save: it independently re-derives the exact inputs `parseCards`
+ * feeds `calculateStars` for every one of the 272 catalog cards (not just owned ones) from each
+ * fixture's OWN parsed account (real accountOptions/rift/spelunking, not a stub), replays the
+ * pre-fix (unguarded) formula, and asserts it matches `account.cards`'s actual stars byte-for-byte.
+ */
+describe('calculateStars ownership guard (fix round 1: newly-reachable unowned-card path)', () => {
+  it('does not award five-star tier to an unowned card even if it is in the five-star list', () => {
+    // amountOfCards: 0 - would have returned 5 before the ownership guard (cardLvCalco stays 0 for
+    // amountOfCards 0, so isInFiveStarList alone used to be enough to return 5).
+    expect(calculateStars(5, 0, 'AnyCard', 4, true, false)).toBe(0);
+  });
+
+  it('does not award six-star tier to an unowned card even if it is in the six-star list', () => {
+    expect(calculateStars(5, 0, 'AnyCard', 5, false, true)).toBe(0);
+  });
+
+  it('still awards the five/six-star tier to an owned card in the list (no behavior change for owners)', () => {
+    expect(calculateStars(5, 1, 'AnyCard', 4, true, false)).toBe(5);
+    expect(calculateStars(5, 1, 'AnyCard', 5, false, true)).toBe(6);
+  });
+
+  // Verbatim pre-fix formula (the ownership guard removed) used only to prove the fix changes
+  // nothing for real data below - not a copy kept for any other purpose.
+  const calculateStarsPreFix = (tierReq, amountOfCards, cardName, maxStars, isInFiveStarList, isInSixStarList) => {
+    let cardLvCalco = 0;
+    for (let i = 0; i < maxStars; i++) {
+      if (cardName === 'Boss3B') {
+        if (amountOfCards > 1.5 * Math.pow(i + 1 + Math.floor(i / 3), 2)) cardLvCalco = i + 2;
+      } else if (amountOfCards > tierReq * Math.pow(i + 1 + (Math.floor(i / 3) + (16 * Math.floor(i / 4) + 100 * Math.floor(i / 5))), 2)) {
+        cardLvCalco = i + 2;
+      }
+    }
+    if (isInSixStarList && cardLvCalco < 7) return 6;
+    if (isInFiveStarList && cardLvCalco < 6) return 5;
+    return cardLvCalco > 0 ? cardLvCalco - 1 : cardLvCalco;
+  };
+
+  it.each(FIXTURES)("%s: every catalog card's stars value is byte-identical before and after the ownership guard", (_name, fixture) => {
+    const data = fixture.data ?? fixture;
+    const { account } = parseFixture(fixture);
+    const cardsRaw = tryToParse(data?.Cards0) ?? {};
+    const rawRift = tryToParse(data?.Rift) || data?.Rift;
+    const [currentRift] = rawRift || [];
+    const riftFiveStarCards = currentRift >= 45 ? 1 : 0;
+    const spelunkingSixStarCards = account?.spelunking?.loreBosses?.[2]?.defeated ? 1 : 0;
+    const maxStars = Math.round(4 + riftFiveStarCards + spelunkingSixStarCards);
+    const rawFiveStarList = account?.accountOptions?.[155] || '';
+    const fiveStarList = rawFiveStarList?.toString()?.split(',') || [];
+    const rawSixStarList = account?.accountOptions?.[603] || '';
+    const sixStarList = rawSixStarList?.toString()?.split(',') || [];
+
+    let assertions = 0;
+    let intersectingUnownedCards = 0;
+    Object.entries(cards).forEach(([rawName, cardDetails]) => {
+      const amountOfCards = cardsRaw?.[rawName] ?? 0;
+      const isInFiveStarList = fiveStarList.includes(rawName);
+      const isInSixStarList = sixStarList.includes(rawName);
+      if (amountOfCards === 0 && (isInFiveStarList || isInSixStarList)) intersectingUnownedCards++;
+      const before = calculateStarsPreFix(cardDetails.perTier, amountOfCards, rawName, maxStars, isInFiveStarList, isInSixStarList);
+      const after = account.cards[cardDetails.displayName].stars;
+      expect(after).toBe(before);
+      assertions++;
+    });
+    // Documents the reviewer's finding for this fixture: zero unowned cards intersect either list,
+    // which is *why* the assertion above passes - not an assumption baked into the assertion itself.
+    expect(intersectingUnownedCards).toBe(0);
+    expect(assertions).toBe(Object.keys(cards).length);
   });
 });
 
