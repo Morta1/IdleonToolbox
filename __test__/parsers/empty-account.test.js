@@ -1,5 +1,5 @@
 import '../../polyfills';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { parseData } from '@parsers/index';
 import { liveCount } from '@parsers/catalog';
 import demoJson from '../../data/raw.json';
@@ -49,6 +49,41 @@ describe('parseData with no save', () => {
       .filter((key) => account[key] === undefined)
       .filter((key) => !RAW_PASSTHROUGH_KEYS.includes(key));
     expect(undefinedKeys).toEqual([]);
+  });
+});
+
+/**
+ * `Object.keys()`/`undefined`-checks above cannot tell a section that legitimately has no data from
+ * one whose parser THREW and got safeSection's fallback - both look identical to those assertions.
+ * That gap is exactly how 13 sections shipped throwing on an empty account while
+ * `__test__/parsers/empty-account.test.js` stayed green (Task 10).
+ *
+ * This spies on console.error and matches safeSection's own log line
+ * (`[parsers] section "X" failed, using fallback:`) during a full empty parse, so any section that
+ * silently falls back is caught here directly, independent of what its fallback value happens to
+ * look like.
+ *
+ * Sections that are still genuinely too entangled to convert go in ALLOWLISTED_FAILURES with a
+ * comment explaining why - never delete a failure here to make the test pass.
+ */
+const ALLOWLISTED_FAILURES = [];
+
+describe('no section silently falls back on an empty parse', () => {
+  it('logs zero "section ... failed" messages during parseEmpty()', () => {
+    const failures = new Set();
+    const spy = vi.spyOn(console, 'error').mockImplementation((message) => {
+      const match = typeof message === 'string' && message.match(/section "([^"]+)" failed/);
+      if (match) failures.add(match[1]);
+    });
+
+    try {
+      parseEmpty();
+    } finally {
+      spy.mockRestore();
+    }
+
+    const unexpected = [...failures].filter((name) => !ALLOWLISTED_FAILURES.includes(name)).sort();
+    expect(unexpected).toEqual([]);
   });
 });
 
@@ -209,18 +244,22 @@ describe('world 4-7 sections', () => {
 
 describe('no fabricated values', () => {
   // Inverted deliberately. Measured 2026-08-09 at the start of Task 7: an empty parse emitted 3624
-  // NaN / 62 Infinity versus 62 NaN / 35 Infinity for a real parse. Task 7 converted
-  // compass/grimoire/tesseract/upgradeVault/dungeons/storage (all previously either crashing to a
-  // bare `{}`/`[]` fallback or, once unlocked, feeding `undefined` levels into arithmetic) and
-  // fixed the calcHighestPower/spelunking/sailing-captains -Infinity spreads it exposed along the
-  // way. That brought the empty parse down to 1564 NaN / 62 Infinity - compass/grimoire/tesseract/
-  // upgradeVault/dungeons/storage/shops/obols/items now contribute exactly 0 NaN and 0 Infinity.
-  // It STILL cannot go green: the remaining ~1564 NaN and 62 Infinity live entirely outside Task 7's
-  // file list, concentrated in `hole` (525 NaN, 1 Inf), `stamps` (256), `summoning` (215),
-  // `breeding` (187, unrelated to the calcHighestPower fix), `research` (94 NaN, 5 Inf), `button`
-  // (9 NaN, 55 Inf), `tasksDescriptions` (54), `voteBallot`, `sneaking`, `farming`, `spelunking`,
-  // `kangaroo`, `clamWork`, `islands`, `gallery`, `currencies`, `emperor`, `towers`, `rift`,
-  // `alchemy`, `arcade`, `coralReef` — none of those parsers were in scope for this task. `it.fails`
+  // NaN / 62 Infinity versus 62 NaN / 35 Infinity for a real parse. Task 7 brought that down to 1564
+  // NaN / 62 Infinity. Task 8/9 (nav ungate) didn't touch parsers. Task 10 fixed the 13 sections that
+  // were throwing on an empty account and falling back to `safeSection`'s `{}`/`[]` (see the gate
+  // test above) - re-measured 2026-08-10 at 1746 NaN / 1 Infinity. The Infinity count dropped sharply
+  // (owl/killroy/libraryTimes/atoms no longer divide-by-undefined into ±Infinity once their guards
+  // are in place), but the NaN count went UP: cards (272 catalog entries) and the construction board
+  // (96 slots) now actually populate instead of silently falling back to `{}`, and some of their
+  // formulas still divide by other still-unconverted sections' undefined values. None of Task 10's
+  // 13 sections contribute NaN/Infinity increases by themselves - the increase comes from downstream
+  // formulas (in still-unconverted sections) that read Task 10's newly-real data and combine it with
+  // still-undefined data from sections outside this task's scope. Per-key NaN counts as of Task 10:
+  // `hole` (525, 1 Inf), `stamps` (384), `summoning` (215), `breeding` (187), `research` (90),
+  // `tasksDescriptions` (54), `voteBallot` (38), `sneaking` (36), `farming` (35), `spelunking` (30),
+  // `kangaroo` (27), `alchemy` (21), `clamWork` (21), `islands` (20), `owl` (13), `libraryTimes` (11),
+  // `currencies` (9), `button` (9), `killroy` (8), `gallery` (5), `emperor` (3), `towers`/`rift`/
+  // `arcade`/`atoms`/`coralReef` (1 each) — none of those parsers were in scope for Task 10. `it.fails`
   // keeps the assertion live and self-enforcing: once a future task converts those sections too and
   // pushes the empty-parse numbers under the real-parse baseline, this row starts failing (because
   // it is expected to fail) and forces that task to flip it back to a plain `it(...)`.

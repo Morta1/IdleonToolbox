@@ -84,9 +84,12 @@ export const isPrismaBubble = (account: any, bubbleIndex: any) => {
 }
 
 export const getLiquidCauldrons = (account: any) => {
-  const liquids = account?.alchemy?.liquids;
-  const liquidCauldrons = account?.alchemy?.cauldronsInfo.slice(18);
-  return liquids.map((liquidVal: any, index: any) => {
+  const liquidCauldrons = account?.alchemy?.cauldronsInfo?.slice(18) ?? [];
+  // The 4 liquid types (liquidsIndex) are a fixed structural count baked into the game, not
+  // save-driven - `liquidVal` (the save's own liquids array) is unused below, so iterating a fixed
+  // 4-length list instead of `account?.alchemy?.liquids` renders the same 4 slots with a missing
+  // save (which has no liquids array at all) instead of throwing.
+  return Object.keys(liquidsIndex).map((_, index: any) => {
     const [decantCapProgress, decantCapLevel] = liquidCauldrons?.[index * 4] ?? [];
     const [decantRateProgress, decantRateLevel] = liquidCauldrons?.[(index * 4) + 1] ?? [];
     const [decantCapReq, decantRateReq] = [getCauldronBrewReq(decantCapLevel + 1),

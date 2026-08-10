@@ -1,5 +1,6 @@
 import { bonuses, cards, cardSets } from '@website-data';
 import { tryToParse } from '@utility/helpers';
+import { isPlaceholder } from '@parsers/catalog';
 import type { IdleonData, Account } from './types';
 
 export const getCards = (idleonData: IdleonData, account: Account): Record<string, any> => {
@@ -46,18 +47,23 @@ const parseCards = (cardsRaw: any, rawRift: any, account: Account): Record<strin
   const spelunkingSixStarCards = (account as any)?.spelunking?.loreBosses?.[2]?.defeated ? 1 : 0;
   const totalFiveStarCards = riftFiveStarCards + spelunkingSixStarCards;
   const maxStars = Math.round(4 + totalFiveStarCards);
+  const rawFiveStarList = (account as any)?.accountOptions?.[155] || '';
+  const fiveStarList = rawFiveStarList?.toString()?.split(',') || [];
+  const rawSixStarList = (account as any)?.accountOptions?.[603] || '';
+  const sixStarList = rawSixStarList?.toString()?.split(',') || [];
 
-  return Object.entries(cardsRaw).reduce(
-    (res: Record<string, any>, [name, amount]: [string, any]) => {
-      const cardDetails = cards?.[name];
-      const rawFiveStarList = (account as any)?.accountOptions?.[155] || '';
-      const fiveStarList = rawFiveStarList?.toString()?.split(',') || [];
+  // Catalog-driven: the set of cards that exist is a property of the game (the `cards` catalog is
+  // keyed by rawName, not a positional index, so no liveEntries/index bookkeeping is needed here -
+  // just drop placeholder entries and look each one's amount up in the save by its own key).
+  // The save only supplies each card's amount, and a missing save means an unowned (0) card - not a
+  // truncated card list.
+  return Object.entries(cards).reduce(
+    (res: Record<string, any>, [name, cardDetails]: [string, any]) => {
+      if (isPlaceholder(cardDetails)) return res;
+      const amount = cardsRaw?.[name] ?? 0;
       const isInFiveStarList = fiveStarList?.includes(name);
-      const rawSixStarList = (account as any)?.accountOptions?.[603] || '';
-      const sixStarList = rawSixStarList?.toString()?.split(',') || [];
       const isInSixStarList = sixStarList?.includes(name);
       const stars = calculateStars(cardDetails?.perTier, amount, name, maxStars, isInFiveStarList, isInSixStarList);
-      if (!cardDetails) return res;
       return {
         ...res,
         [cardDetails?.displayName]: {

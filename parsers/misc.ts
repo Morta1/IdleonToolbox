@@ -264,7 +264,7 @@ export const getLibraryBookTimes = (idleonData: any, characters: any, account: a
   let breakpoints = [16, 18, 20].map((maxCount) => {
     return {
       breakpoint: maxCount,
-      time: calcTimeToXBooks(bookCount, maxCount, account, characters, idleonData) - timeAway?.BookLib
+      time: calcTimeToXBooks(bookCount, maxCount, account, characters, idleonData) - (timeAway?.BookLib ?? 0)
     }
   })
   breakpoints = [...breakpoints,
@@ -282,10 +282,13 @@ export const getLibraryBookTimes = (idleonData: any, characters: any, account: a
 }
 
 const calcBookCount = (account: any, characters: any, idleonData: any) => {
-  const baseBookCount = account?.accountOptions?.[55];
+  const baseBookCount = account?.accountOptions?.[55] ?? 0;
   const timeAway = account?.timeAway;
-  let libTime = timeAway?.BookLib;
-  let afk = (new Date).getTime() / 1e3 - timeAway.GlobalTime;
+  let libTime = timeAway?.BookLib ?? 0;
+  // No `timeAway` at all (empty account) means no elapsed-time-since-last-save to speak of - unlike
+  // a real save missing just one field, defaulting GlobalTime to 0 here would read as "1970", turn
+  // `afk` into ~1.7 billion seconds, and spin the while-loop below millions of times.
+  let afk = timeAway ? (new Date).getTime() / 1e3 - timeAway.GlobalTime : 0;
   let bookCount = baseBookCount;
   if (afk > 300) libTime += afk;
   const { breakdown } = getTimeToNextBooks(bookCount, account, characters, idleonData);
@@ -494,9 +497,13 @@ export const enhanceColoTickets = (tickets: any, characters: any, account: any) 
   }
 }
 
+// Catalog-driven: the 5 key types are a fixed structural list (keysMap), not a property of the
+// save. A missing/short save means unowned (0) keys - not a truncated list of key types.
 const getKeysObject = (keys: any) => {
-  return keys.reduce((res: any, keyAmount: any, index: any) => (index < 5 ? [...res,
-  { amount: keyAmount, ...(keysMap as Record<string, any>)[index] }] : res), []);
+  return Object.entries(keysMap).map(([indexStr, info]) => ({
+    amount: keys?.[Number(indexStr)] ?? 0,
+    ...(info as Record<string, any>)
+  }));
 }
 
 export const enhanceKeysObject = (keysAll: any, characters: any, account: any) => {
@@ -1607,14 +1614,14 @@ export const getKillRoyClasses = (rooms: any, account: any, serverVars: any, ign
     if (!ignoreSkipConditions && (skipConditions as Record<string, any>)[done] && (skipConditions as Record<string, any>)[done].includes(i)) {
       continue;
     }
-    const seed = Math.round(baseSeed + iteration + (50 * i + serverVars.KillroySwap));
+    const seed = Math.round(baseSeed + iteration + (50 * i + (serverVars?.KillroySwap ?? 0)));
     const rng = new LavaRand(seed);
     const random = 3 * rng.rand();
     const classIndex = Math.max(0, Math.min(3, Math.ceil(random - Math.floor(i / 2))));
     classes.push(classIndex);
   }
   for (let i = 0; i < rooms; i++) {
-    const seed = Math.round(baseSeed + iteration + (50 * i + serverVars.KillroySwap));
+    const seed = Math.round(baseSeed + iteration + (50 * i + (serverVars?.KillroySwap ?? 0)));
     const rng = new LavaRand(seed);
     const random = Math.floor(1e3 * rng.rand());
     if (random < 300 || i === 0) {

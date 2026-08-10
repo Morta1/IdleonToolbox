@@ -59,7 +59,8 @@ const upgradesData: ForgeUpgradeData[] = [
 ];
 
 const parseForge = (forgeOrderRaw: any, forgeQuantityRaw: any, forgeLevels: any, account: Account) => {
-  const upgrades: ForgeUpgrade[] = upgradesData?.map((upgrade, index) => ({ ...upgrade, level: forgeLevels[index] }));
+  // upgradesData is a fixed local list (not save-driven) - always render all 6, level 0 with no save.
+  const upgrades: ForgeUpgrade[] = upgradesData?.map((upgrade, index) => ({ ...upgrade, level: forgeLevels?.[index] ?? 0 }));
   const brimestoneSlots = (account?.gemShopPurchases as any)?.find((value: any, index: number) => index === 104) ?? 0;
   const forgeRowItems = 3;
   let forge: any[] = [];
@@ -69,10 +70,10 @@ const parseForge = (forgeOrderRaw: any, forgeQuantityRaw: any, forgeLevels: any,
       row,
       row + forgeRowItems
     );
-    const [oreQuantity, barrelQuantity, barQuantity] = forgeQuantityRaw.slice(
+    const [oreQuantity, barrelQuantity, barQuantity] = forgeQuantityRaw?.slice(
       row,
       row + forgeRowItems
-    );
+    ) ?? [];
     const barrelItem = items?.[barrel];
     const oreItem = items?.[ore];
     const isBrimestone = index < brimestoneSlots;

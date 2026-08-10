@@ -78,11 +78,18 @@ export const LEFT_FLAG_INDEX = 96;   // FlagUnlock/FlagsPlaced indices for left 
 export const RIGHT_FLAG_INDEX = 108; // FlagUnlock/FlagsPlaced indices for right extra column
 
 const parseFlags = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any[], cogsOrder: any[], account: Account, characters?: any[]) => {
-  let board = flagsUnlockedRaw?.slice(0, BOARD_SIZE)?.reduce((res, flagSlot, index) => {
+  // Catalog-driven: BOARD_SIZE is the game's fixed board grid, and flagsReqs (website-data) gives
+  // every slot's requirement regardless of the save. Always building the full BOARD_SIZE array
+  // (rather than one only as long as flagsUnlockedRaw) means a missing/short save renders an empty
+  // board instead of throwing on `board.map` a few lines down. Every observed real save's
+  // FlagUnlock is at least BOARD_SIZE long, so this reads the identical BOARD_SIZE values for a real
+  // account that the old `.slice(0, BOARD_SIZE)` did.
+  let board: any[] = Array.from({ length: BOARD_SIZE }, (_, index) => {
+    const flagSlot = flagsUnlockedRaw?.[index];
     const name = cogsOrder?.[index];
     const stats = cogsMap?.[index];
-    return [...res, {
-      currentAmount: flagSlot === -11 ? flagsReqs?.[index] : parseFloat(flagSlot),
+    return {
+      currentAmount: flagSlot === -11 ? flagsReqs?.[index] : parseFloat(flagSlot ?? 0),
       requiredAmount: flagsReqs?.[index],
       flagPlaced: flagsPlacedRaw?.includes(index),
       cog: {
@@ -90,8 +97,8 @@ const parseFlags = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any
         stats,
         originalIndex: index
       }
-    }];
-  }, []);
+    };
+  });
   // An Excogia piece outside an assembled square carries no boost, whatever the save still says.
   const assembledSlots = getAssembledExcogiaSlots(board);
   board = board.map((slot: any, index: number) => (excogiaPieceIndex(slot?.cog?.name) >= 0 && !assembledSlots.has(index)

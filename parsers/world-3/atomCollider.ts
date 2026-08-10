@@ -86,7 +86,7 @@ const getCost = ({
   const paletteBonus = getPaletteBonus(account, 35);
   const bubbaAtomCostBonus = account?.bubba?.bonuses?.atomCost?.bonus ?? 0;
   const baseCost = (1 / (1 + (paletteBonus + stampBonusReduction + atomReductionFromAtom + 10 * (reduxSuperbit ? 1 : 0)
-    + (grimoireBonus + compassBonus) + bubbleBonus + atomColliderLevel / 10 + 7 * account?.tasks?.[2][4][6] + bubbaAtomCostBonus) / 100));
+    + (grimoireBonus + compassBonus) + bubbleBonus + atomColliderLevel / 10 + 7 * (account?.tasks?.[2]?.[4]?.[6] ?? 0) + bubbaAtomCostBonus) / 100));
   return baseCost * (atomInfo?.x3 + atomInfo?.x1 * level) * Math.pow(atomInfo?.x2, level);
 }
 const getCostToMax = (costObject: any) => {
