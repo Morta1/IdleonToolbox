@@ -121,9 +121,23 @@ const CharactersDrawer = () => {
     }
   }
 
-  // Render character skeleton loaders while data is loading
+  // Characters are pure user state - there is no catalog to fall back on - so an account with no
+  // save has none, permanently. Skeletons are for the genuinely-loading case only; treating an
+  // empty roster as "still loading" left logged-out visitors staring at placeholders forever.
+  const hasCharacters = !!state?.characters?.length;
+
   const renderCharactersList = () => {
-    if (state.isLoading || !state?.characters?.length) {
+    if (!state.isLoading && !hasCharacters) {
+      return (
+        <ListItem>
+          <ListItemText
+            primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+            primary={state?.emptyAccount ? 'Sign in to see your characters' : 'No characters found'}/>
+        </ListItem>
+      );
+    }
+
+    if (state.isLoading || !hasCharacters) {
       return (
         <>
           {[1, 2, 3, 4, 5].map((key) => (
@@ -174,9 +188,12 @@ const CharactersDrawer = () => {
     });
   };
 
-  // Render "All" item with skeleton when loading
+  // Render "All" item with skeleton when loading. With no characters there is nothing to select,
+  // so the row is omitted entirely rather than left as a permanent skeleton.
   const renderAllItem = () => {
-    if (state.isLoading || !state?.characters?.length) {
+    if (!state.isLoading && !hasCharacters) return null;
+
+    if (state.isLoading || !hasCharacters) {
       return (
         <ListItem>
           <ListItemText>

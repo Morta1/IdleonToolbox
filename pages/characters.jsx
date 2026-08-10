@@ -11,6 +11,7 @@ const Characters = () => {
   const numberOfCharacters = Object.values(state?.displayedCharacters || [])?.filter((val) => val).length;
   const deferredCount = Object.values(deferredDisplayed || [])?.filter((val) => val).length;
   const characterCols = Math.max(3, 12 / deferredCount);
+  const hasCharacters = !!state?.characters?.length;
   const hasSkillsFilter = state?.filters?.Skills;
   const hasPostOfficeFilter = state?.filters?.['Post Office'];
   return <>
@@ -50,8 +51,20 @@ const Characters = () => {
         </Grid>
       </>
     ) : (
-      <Stack alignItems={'center'} justifyContent={'center'}>
-        <Typography variant={'h4'}>Please select a character</Typography>
+      <Stack alignItems={'center'} justifyContent={'center'} gap={1}>
+        {/* "Select a character" only makes sense when there are characters to select. An account
+            with no save has none at all - characters are pure user state, with no catalog behind
+            them - so it gets an empty state and a way out instead. */}
+        <Typography variant={'h4'}>
+          {hasCharacters ? 'Please select a character' : 'No characters to show'}
+        </Typography>
+        {!hasCharacters ? (
+          <Typography variant={'body1'} color={'text.secondary'}>
+            {state?.emptyAccount
+              ? 'Sign in to see your own Legends of Idleon characters here.'
+              : 'This account has no characters yet.'}
+          </Typography>
+        ) : null}
       </Stack>
     )}
   </>;
