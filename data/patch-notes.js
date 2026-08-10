@@ -25,6 +25,7 @@ export const patchNotes = [
       'Refinery: salts you have not unlocked yet no longer show a fake rank or trigger a missing-materials alert',
       'Alchemy: a cauldron\'s next-bubble requirement no longer inflates before you have unlocked every bubble in it',
       'The "you\'re not signed in" banner no longer lingers on screen after manually importing a save file',
+      'The "not signed in" notice is now a single sticky bar under the navigation instead of repeating at the top of every page',
       'Cards, Buildings, Forge, Armor Smithy, Atom Collider, Library, Owl, Statues, Colosseum, and Killroy pages now show the full game data instead of appearing empty when signed out'
     ]
   },

@@ -50,7 +50,8 @@ test.describe('Logged-out visitors reach account pages', () => {
       expect(bodyText).not.toContain('The app failed to load');
 
       // The empty-account banner itself must be present - this is the "why are these zero" cue.
-      expect(bodyText).toContain('not signed in');
+      expect(bodyText).toContain('Not signed in');
+      expect(bodyText).toContain('everything below is shown at zero');
 
       expect(errors).toEqual([]);
 

@@ -942,7 +942,7 @@ export const handleLoadJson = async (dispatch) => {
       lastUpdated
     });
     // Clear the logged-out empty-account banner: a manual import brings real parsed data, so the
-    // "you're not signed in, everything below is zero" message must not keep sitting above it.
+    // "not signed in, everything below is zero" sticky notice must not keep sitting above it.
     dispatch({ type: 'data', data: { ...parsedData, lastUpdated, manualImport: true, emptyAccount: false } });
 
     if (typeof window.gtag !== 'undefined') {
