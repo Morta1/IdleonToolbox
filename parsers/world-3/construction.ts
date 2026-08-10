@@ -380,7 +380,10 @@ const parseTowers = (towersRaw: any, totemInfo: any) => {
   let wizardOverLevels = 0;
   let totalLevels = 0;
   const towersData = Object.entries(towers)?.map(([towerName, towerData]) => {
-    const level = towersRaw?.[towerData?.index];
+    // towersRaw is undefined with no save; totalLevels accumulates every tower's level below, and
+    // `undefined + anything` is NaN forever after (the accumulator never recovers) - 0 is the correct
+    // "never built" default, same as every other un-touched-feature default in this codebase.
+    const level = towersRaw?.[towerData?.index] ?? 0;
     if (towerData?.index >= 9 && towerData?.index <= 17) {
       if (level > 50) {
         wizardOverLevels += level - 50;

@@ -30,7 +30,11 @@ export const getJustice = (holesObject: any, accountData: any) => {
     ?.slice(10, 20)
     ?.filter((name: any) => !name.includes('Monument_'))
     .map((description: any, index: any) => {
-      const level = holesObject?.braveryBonuses?.slice(10)?.[index];
+      // Equivalent to braveryBonuses?.slice(10)?.[index], rewritten as a direct offset index read so
+      // the empty-account zero-default proxy on holesObject.braveryBonuses actually applies - a
+      // Proxy get-trap can't extend an array's .length, so .slice() on a real-empty save array still
+      // returns [] regardless of the proxy, leaving this NaN with no save.
+      const level = holesObject?.braveryBonuses?.[10 + index];
       const bonus = getMonumentBonus({ holesObject, t: 1, i: index });
       const scalingValue = parseFloat(holesInfo?.[37]?.[10 + index]);
       const isSoftCap = scalingValue >= 30;

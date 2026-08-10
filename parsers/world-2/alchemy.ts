@@ -92,9 +92,14 @@ export const getLiquidCauldrons = (account: any) => {
   return Object.keys(liquidsIndex).map((_, index: any) => {
     const [decantCapProgress, decantCapLevel] = liquidCauldrons?.[index * 4] ?? [];
     const [decantRateProgress, decantRateLevel] = liquidCauldrons?.[(index * 4) + 1] ?? [];
-    const [decantCapReq, decantRateReq] = [getCauldronBrewReq(decantCapLevel + 1),
-    getCauldronBrewReq(decantRateLevel + 1)]
-    const brewBonus = getCauldronBrewBonus(index + 4, decantCapLevel); // CauldStatDN1
+    // decantCapLevel/decantRateLevel are undefined with no save (the destructure above defaults the
+    // whole pair to `[]`, not zero-filled entries); `?? 0` guards only the math below - the raw
+    // `level` fields returned further down stay untouched, matching owl.ts/kangaroo.ts's precedent.
+    const decantCapLevelValue = decantCapLevel ?? 0;
+    const decantRateLevelValue = decantRateLevel ?? 0;
+    const [decantCapReq, decantRateReq] = [getCauldronBrewReq(decantCapLevelValue + 1),
+    getCauldronBrewReq(decantRateLevelValue + 1)]
+    const brewBonus = getCauldronBrewBonus(index + 4, decantCapLevelValue); // CauldStatDN1
     const bleachLiquidCauldron = account?.gemShopPurchases?.find((value: any, index: any) => index === 106) ?? 0;
     const saltLickBonus = getSaltLickBonus(account?.saltLick, 5);
     let bleachLiquidBonus = 0;
@@ -118,11 +123,13 @@ export const getLiquidCauldrons = (account: any) => {
       : '34'}`, blackDiamondRhinestone);
     const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.alchemy?.rank, 4);
     const viaductOfGods = getLabBonus(account?.lab.labBonuses, 6);
-    const p2wBonus = account?.alchemy?.p2w?.liquids?.[index]?.capacity?.level;
+    const p2wBonus = account?.alchemy?.p2w?.liquids?.[index]?.capacity?.level ?? 0;
     const stampBonus = getStampsBonusByEffect(account, 'Cap_for_all_Liquids_in_Alchemy');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cap_for_all_Liquids')?.bonus
 
-    const firstMath = bubbleBonus * Math.max(Math.pow(account?.totalSkillsLevels?.alchemy?.level / 25, 0.3), 0);
+    // Math.max poisons to NaN on a NaN argument (unlike a plain comparison); no characters means no
+    // alchemy skill level at all with no save, not an unknown - 0 is the correct neutral default.
+    const firstMath = bubbleBonus * Math.max(Math.pow((account?.totalSkillsLevels?.alchemy?.level ?? 0) / 25, 0.3), 0);
     const secondMath = bleachLiquidBonus + (mealBonus + 5 * skillMasteryBonus) / 100;
     const thirdMath = viaductOfGods * (10 + (brewBonus + (vialBonus + (p2wBonus + (firstMath + (stampBonus + Math.ceil(arcadeBonus)))))))
 
@@ -219,7 +226,9 @@ const getPay2Win = (idleonData: any, alchemyActivity: any, serializedCharactersD
   p2w.totalEclecticSigils = p2w?.sigils?.filter((sigil: any) => sigil?.unlocked === 4)?.length || 0;
   p2w.vialsAttempts = {
     current: remainingAttempts[0],
-    max: Math.round(3 + vials?.[0])
+    // `vials` (unlike cauldrons/liquids/remainingAttempts a few lines up) has no `= []` destructure
+    // default, so it's `undefined` with no save; `?? 0` guards this specific math read.
+    max: Math.round(3 + (vials?.[0] ?? 0))
   };
   return p2w;
 }

@@ -314,7 +314,9 @@ export const getTimeToNextBooks = (bookCount: any, account: any, characters: any
   const bubbleBonus = getBubbleBonus(account, 'IGNORE_OVERDUES', false);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Talent_Book_Library');
   const stampBonus = getStampsBonusByEffect(account, 'Talent_Book_Library_Refresh_Speed')
-  const libraryTowerLevel = towersLevels?.[1];
+  // towersLevels is a raw pass-through of idleonData?.Tower (out of this section's scope), undefined
+  // with no save. No save means the Library tower has never been built.
+  const libraryTowerLevel = towersLevels?.[1] ?? 0;
   const libraryBooker = getAtomBonus(account, 'Oxygen_-_Library_Booker');
   const superbit = isSuperbitUnlocked(account, 'Library_Checkouts');
   let superbitBonus = 0;
@@ -407,14 +409,14 @@ export const getSlab = (idleonData: any) => {
   return {
     slabItems,
     lootyRaw,
-    lootedItems: lootyRaw?.length,
+    lootedItems: lootyRaw?.length ?? 0,
     missingItems,
     greenStacks,
     greenStackedCount: greenStacks?.length ?? 0,
     greenstackableCount,
     greenstackableStackedCount,
     totalItems: slab?.length,
-    rawLootedItems: lootyRaw?.length
+    rawLootedItems: lootyRaw?.length ?? 0
   };
 };
 
@@ -1568,22 +1570,32 @@ export const getAllMasterclassDropz = (character: any, account: any) => {
 }
 
 export const getKillRoyShopBonus = (account: any, index: any) => {
+  // Every accountOptions read below is both the numerator and part of the denominator; undefined
+  // (never bought, real or empty) is NaN/0 = NaN, not the "no bonus yet" 0 the shop otherwise shows.
+  const opt228 = account?.accountOptions?.[228] ?? 0;
+  const opt229 = account?.accountOptions?.[229] ?? 0;
+  const opt230 = account?.accountOptions?.[230] ?? 0;
+  const opt467 = account?.accountOptions?.[467] ?? 0;
+  const opt468 = account?.accountOptions?.[468] ?? 0;
+  const opt469 = account?.accountOptions?.[469] ?? 0;
+  const opt470 = account?.accountOptions?.[470] ?? 0;
+  const opt471 = account?.accountOptions?.[471] ?? 0;
   return 0 === index
-    ? 1 + (account?.accountOptions?.[228]) / (300 + (account?.accountOptions?.[228]))
+    ? 1 + opt228 / (300 + opt228)
     : 1 === index
-      ? 1 + ((account?.accountOptions?.[229]) / (300 + (account?.accountOptions?.[229]))) * 9
+      ? 1 + (opt229 / (300 + opt229)) * 9
       : 2 === index
-        ? 1 + ((account?.accountOptions?.[230]) / (300 + (account?.accountOptions?.[230]))) * 2
+        ? 1 + (opt230 / (300 + opt230)) * 2
         : 3 === index
-          ? ((account?.accountOptions?.[467]) / (200 + (account?.accountOptions?.[467]))) * 10
+          ? (opt467 / (200 + opt467)) * 10
           : 4 === index
-            ? 1 + ((account?.accountOptions?.[468]) / (200 + (account?.accountOptions?.[468]))) * 1.3
+            ? 1 + (opt468 / (200 + opt468)) * 1.3
             : 5 === index
-              ? 1 + ((account?.accountOptions?.[469]) / (150 + (account?.accountOptions?.[469]))) * 0.8
+              ? 1 + (opt469 / (150 + opt469)) * 0.8
               : 6 === index
-                ? ((account?.accountOptions?.[470]) / (250 + (account?.accountOptions?.[470]))) * 25
+                ? (opt470 / (250 + opt470)) * 25
                 : 7 === index
-                  ? 1 + ((account?.accountOptions?.[471]) / (200 + (account?.accountOptions?.[471]))) * 2
+                  ? 1 + (opt471 / (200 + opt471)) * 2
                   : 1
 }
 

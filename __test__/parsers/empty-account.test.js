@@ -243,38 +243,27 @@ describe('world 4-7 sections', () => {
 });
 
 describe('no fabricated values', () => {
-  // Inverted deliberately. Measured 2026-08-09 at the start of Task 7: an empty parse emitted 3624
-  // NaN / 62 Infinity versus 62 NaN / 35 Infinity for a real parse. Task 7 brought that down to 1564
-  // NaN / 62 Infinity. Task 8/9 (nav ungate) didn't touch parsers. Task 10 fixed the 13 sections that
-  // were throwing on an empty account and falling back to `safeSection`'s `{}`/`[]` (see the gate
-  // test above) - re-measured 2026-08-10 at 1746 NaN / 1 Infinity. The Infinity count dropped sharply
-  // (owl/killroy/libraryTimes/atoms no longer divide-by-undefined into ±Infinity once their guards
-  // are in place), but the NaN count went UP: cards (272 catalog entries) and the construction board
-  // (96 slots) now actually populate instead of silently falling back to `{}`, and some of their
-  // formulas still divide by other still-unconverted sections' undefined values. None of Task 10's
-  // 13 sections contribute NaN/Infinity increases by themselves - the increase comes from downstream
-  // formulas (in still-unconverted sections) that read Task 10's newly-real data and combine it with
-  // still-undefined data from sections outside this task's scope. Per-key NaN counts as of Task 10:
-  // `hole` (525, 1 Inf), `stamps` (384), `summoning` (215), `breeding` (187), `research` (90),
-  // `tasksDescriptions` (54), `voteBallot` (38), `sneaking` (36), `farming` (35), `spelunking` (30),
-  // `kangaroo` (27), `alchemy` (21), `clamWork` (21), `islands` (20), `owl` (13), `libraryTimes` (11),
-  // `currencies` (9), `button` (9), `killroy` (8), `gallery` (5), `emperor` (3), `towers`/`rift`/
-  // `arcade`/`atoms`/`coralReef` (1 each) — none of those parsers were in scope for Task 10. `it.fails`
-  // keeps the assertion live and self-enforcing: once a future task converts those sections too and
-  // pushes the empty-parse numbers under the real-parse baseline, this row starts failing (because
-  // it is expected to fail) and forces that task to flip it back to a plain `it(...)`.
+  // History: measured 2026-08-09 at the start of Task 7, an empty parse emitted 3624 NaN / 62
+  // Infinity versus 62 NaN / 35 Infinity for a real parse - hence this row started as `it.fails`.
+  // Task 7 -> 1564/62. Task 10 (13 crashing sections fixed) -> 1746/1 (NaN rose as newly-populated
+  // cards/construction data flowed into other still-unconverted sections' formulas). Task 12 (batch A)
+  // rooted out every real-parse NaN (62 -> 0, entirely inside stamps/islands/currencies/breeding/
+  // summoning) and brought empty-parse NaN to 908, all of it in the ~20 sections named in Task 13's
+  // brief (hole 523, research 90, voteBallot 38, sneaking 36, spelunking 27, kangaroo 27, farming 26,
+  // alchemy 21, clamWork 21, owl 13, libraryTimes 11, killroy 8, gallery 5, emperor 3,
+  // tasksDescriptions 54, towers/rift/arcade/atoms/coralReef 1 each).
   //
-  // Task 12 (batch A of two) re-measured 2026-08-10: real (raw.json) NaN was 62, entirely inside
-  // stamps/islands/currencies/breeding/summoning (root causes documented in each parser file: a
-  // negative-base Math.pow in stamps' material-cost tier exponent, a missing multiplier-table entry
-  // in islands, two untracked key types in currencies, out-of-save-range territories in breeding, and
-  // a careerWins object one key short of deathNote's world range in summoning - none were `?? 0`
-  // papering). Fixing those five sections at the root brought real NaN to 0 and empty-parse NaN from
-  // 1746 to 908 (all remaining NaN is in the sections Task 12 explicitly left for batch B). See
-  // __test__/parsers/task-12-nan-elimination.test.js for the permanent per-section NaN gate and the
-  // before/after formula-replica proofs. `SECTIONS_TO_CHECK` there is meant to grow as batch B
-  // converts the rest; it does not yet make this row pass because it only covers 5 of ~20 sections.
-  it.fails('emits no NaN or Infinity that a real parse does not already have', () => {
+  // Task 13 (batch B) converted the rest at the root - see each parser file's inline comments for the
+  // specific cause per path (mostly `accountOptions`/raw-array reads landing in Math.pow/Math.max/
+  // division without a `?? 0` guard, one Proxy-based fix for `hole`'s ~30 raw arrays, and a few
+  // catalog-vs-save-length mismatches like the villager roster and jars collectibles). Re-measured
+  // 2026-08-10: empty parse is 0 NaN / 5 Infinity (the 5 are `hole.villagers[].timeLeft`, a genuine
+  // "infinite time at a 0 exp rate" value that every consuming component already gates on
+  // `expRate.value > 0` before rendering - see components/account/Worlds/World5/Hole/*.jsx). Real
+  // parse is unchanged at 0 NaN / 35 Infinity. `empty.nan <= real.nan` and `empty.inf <= real.inf` are
+  // both true for the first time - this row is flipped from `it.fails` to a plain `it(...)`, per the
+  // brief: "the milestone this whole effort has been driving at."
+  it('emits no NaN or Infinity that a real parse does not already have', () => {
     const count = (root) => {
       let nan = 0;
       let inf = 0;

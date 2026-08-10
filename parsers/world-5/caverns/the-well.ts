@@ -160,7 +160,7 @@ const getBucketFillRate = (holesObject: any, accountData: any) => {
     + (10 + (getSchematicBonus({ holesObject, t: 1, i: 5 })
       + getSchematicBonus({ holesObject, t: 26, i: 5 })))
     * (1 + getSchematicBonus({ holesObject, t: 14, i: 0 }) / 100)
-    * (1 + accountData.gemShopPurchases[2] / 2)
+    * (1 + (accountData?.gemShopPurchases?.[2] ?? 0) / 2)
     * (1 + getMonumentBonus({ holesObject, t: 0, i: 1 }) / 100)
     * (1 + getLampBonus({ holesObject, t: 99, i: 0, account: accountData }) / 100)
     * (1 + getGambitBonus(accountData, 3) / 100)

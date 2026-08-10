@@ -40,7 +40,7 @@ export const getFarming = (idleonData: any, accountData: any, charactersData: an
 }
 
 const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCrop: any, rawFarmingRanks: any, account: any, charactersData: any) => {
-  const gemVineBonus = account?.gemShopPurchases?.find((value: any, index: any) => index === 139);
+  const gemVineBonus = account?.gemShopPurchases?.find((value: any, index: any) => index === 139) ?? 0;
   const marketLevels = rawFarmingUpgrades?.slice(2, marketInfo.length + 2);
   const beans = rawFarmingUpgrades?.[1];
   const instaGrow = rawFarmingUpgrades?.[19];
@@ -174,11 +174,18 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
 
   const plot = rawFarmingPlot?.map(([seedType, progress, cropType, isLocked, cropQuantity, currentOG, cropProgress]: any, cropIndex: any) => {
     const seed = seedInfo?.[seedType];
-    const type = Math.round(seed?.cropIdMin + cropType);
+    // seedType can point past the seedInfo catalog on a real save's plot slot; 0 is the neutral
+    // "no crop id offset" default, not an unknown.
+    const type = Math.round((seed?.cropIdMin ?? 0) + cropType);
     const growthReq = 14400 * Math.pow(1.5, seedType);
     const rank = farmingRanks?.[cropIndex];
     const rankProgress = ranksProgress?.[cropIndex];
-    const rankRequirement = (7 * rank + 25 * Math.floor(rank / 5) + 10) * Math.pow(1.11, rank);
+    // farmingRanks can be shorter than the plot array (a plot slot with no rank recorded yet, same
+    // "missing array entry" shape as breeding.territories' reqProgress fix in Task 12) - the raw
+    // `rank` field above stays untouched (matches owl.ts/kangaroo.ts `level` precedent), only this
+    // math gets the `?? 0` guard.
+    const rankForMath = rank ?? 0;
+    const rankRequirement = (7 * rankForMath + 25 * Math.floor(rankForMath / 5) + 10) * Math.pow(1.11, rankForMath);
     return {
       seed,
       index: cropIndex,
@@ -603,7 +610,10 @@ const getCropValueBreakdown = (account: any, market: any) => {
   const exotic24 = getExoticMarketBonus(account, 24);
   const exotic25 = getExoticMarketBonus(account, 25);
   const voteBonus = getVoteBonus(account, 29);
-  const avgRank = account?.farming?.plot?.reduce((sum: any, p: any) => sum + (p?.rank ?? 0), 0)
+  // account.farming.plot is undefined with no save (rawFarmingPlot?.map(...) short-circuits the
+  // whole map, not just its elements) - optional chaining on the reduce call itself short-circuits to
+  // undefined too (not the reduce's own 0 seed), so this needs its own `?? 0`.
+  const avgRank = (account?.farming?.plot?.reduce((sum: any, p: any) => sum + (p?.rank ?? 0), 0) ?? 0)
     / (account?.farming?.plot?.length || 1);
 
   const cap = 10000 * (1 + (exotic23 + exotic24 + exotic25) / 100);
@@ -803,9 +813,12 @@ export const getExoticMarketBonus = (account: any, index: any) => {
 }
 
 const calcRankBonus = (index: any, apocalypseWow: any, exoticMulti: any, base: any, upgradeLevel: any) => {
+  // upgradeLevel (ranks[].upgradeLevel) is a raw, possibly-undefined pass-through with no save -
+  // guarded here only; the raw field itself stays untouched (matches owl.ts/kangaroo.ts precedent).
+  const level = upgradeLevel ?? 0;
   return 4 === index || 9 === index || 14 === index || 19 === index
-    ? Math.max(1, apocalypseWow) * exoticMulti * base * upgradeLevel
-    : Math.max(1, apocalypseWow) * exoticMulti * ((1.7 * base * upgradeLevel) / (upgradeLevel + 80));
+    ? Math.max(1, apocalypseWow) * exoticMulti * base * level
+    : Math.max(1, apocalypseWow) * exoticMulti * ((1.7 * base * level) / (level + 80));
 }
 
 export const getLandRank = (ranks: any, index: any, characters?: any, activeCharacter?: any) => {

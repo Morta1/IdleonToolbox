@@ -101,7 +101,10 @@ export const getBallBonus = (account: Account): number => {
     }
   }
   const vialArcadeBonus = getVialsBonusByStat((account as any)?.alchemy?.vials, 'arcadeBALLZ');
-  const taskArcadeBonus = (account as any)?.tasks?.[2]?.[1]?.[7];
+  // account.tasks is a raw pass-through of the save's own Tasks array (out of this section's scope):
+  // a 7-element array of `undefined` entries with no save, so this chain optional-chains straight
+  // through to undefined. No save means 0 progress on this task.
+  const taskArcadeBonus = (account as any)?.tasks?.[2]?.[1]?.[7] ?? 0;
   const stampArcadeBonus = Math.min(50, getStampsBonusByEffect(account, 'Arcade_Ball_recharge_rate'));
   return ballBonus + vialArcadeBonus + (5 * taskArcadeBonus) + stampArcadeBonus;
 }

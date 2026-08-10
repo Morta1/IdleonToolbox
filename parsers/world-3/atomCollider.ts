@@ -56,7 +56,10 @@ const parseAtoms = (divinityRaw: any, atomsRaw: any, account: Account) => {
       bonus
     }
   });
-  const daysSinceUsed = account?.accountOptions?.[134];
+  // accountOptions[134] is undefined with no save; Number(undefined) is NaN (not 0), which used to
+  // poison this even though stamps.ts already guards its own read of the result (Task 12's
+  // Number.isFinite fallback there only protected stamps' formula, not this field itself).
+  const daysSinceUsed = account?.accountOptions?.[134] ?? 0;
   const stampReducer = atoms?.find(({ name }) => name === 'Hydrogen_-_Stamp_Decreaser');
   const value = Math.min(90, (stampReducer?.level ?? 0) * Number(daysSinceUsed));
 

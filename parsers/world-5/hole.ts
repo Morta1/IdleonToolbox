@@ -42,6 +42,39 @@ const VILLAGERS = {
   STUDIES: 4
 }
 
+/**
+ * The `Holes` save array is a flat list of sub-arrays (villager levels, engineer schematics, well
+ * sediment, extraCalculations, ...); with no save at all, every one of those sub-arrays defaults to
+ * a real, empty `[]` (see the destructure below), not to an array padded with zeros. Real saves
+ * always carry a defined number at every index every cavern formula below reads - verified: a real
+ * signed-in parse carries 0 NaN in this entire section - so a direct `arr[i]` read is never
+ * `undefined` there. On an empty account, though, every one of those direct index reads IS
+ * `undefined`, and `undefined` propagates through the dozens of Math.pow/multiplication chains in
+ * this file and its `caverns/*` siblings as NaN.
+ *
+ * Wrapping each raw numeric array in this proxy defaults any *missing* index to 0 - the same
+ * "never touched this feature" neutral value used everywhere else in this codebase - while leaving
+ * already-present values, `.length`, and array methods (`.slice`/`.map`/`.reduce`/spread) completely
+ * untouched. It is a no-op whenever the underlying index is already defined, which is always true
+ * for real save data - proven per-section in task-13-hole.test.js.
+ *
+ * Note this only guards *direct* index reads (`arr[5]`). A few call sites build a fixed-size sub-list
+ * via `arr.slice(a, b)` and then map/reduce over it; since the proxy doesn't extend `.length`, those
+ * still see a 0-length source when there's no save and are fixed individually at their call sites
+ * (villagers roster, bravery/justice/wisdom monument bonuses, jars collectibles).
+ */
+const zeroIndexProxy = (arr: any): any => {
+  const target = Array.isArray(arr) ? arr : [];
+  return new Proxy(target, {
+    get(t, prop, receiver) {
+      if (typeof prop === 'string' && /^\d+$/.test(prop) && !(prop in t)) {
+        return 0;
+      }
+      return Reflect.get(t, prop, receiver);
+    }
+  });
+};
+
 export const getHole = (idleonData: any, accountData: any) => {
   const holeRaw = tryToParse(idleonData?.Holes) || idleonData?.Holes;
   const jarsRaw = tryToParse(idleonData?.Jars) || idleonData?.Jars;
@@ -88,45 +121,50 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
   ] = holeRaw || [];
   const holesObject = {
     charactersCavernLocation,
-    villagersLevels,
-    villagersExp,
-    opalsInvested,
-    holeMajiks,
-    villageMajiks,
-    idleonMajiks,
-    opalsPerCavern,
-    sedimentMulti,
-    wellSediment,
-    wellBuckets,
-    extraCalculations,
-    dawgDenAmplifierLevels,
-    engineerSchematics,
-    braveryMonument,
-    braveryBonuses,
-    bellImprovementMethods,
-    bellRingLevels,
-    bellRelated,
-    harpRelated,
-    harpStringNotes,
-    wishesUsed,
-    measurementBuffLevels,
-    parallelVillagersGemShop,
-    jarStuff,
-    jarProgress,
-    studyStuff,
-    studyProgress,
-    gambitStuff,
+    villagersLevels: zeroIndexProxy(villagersLevels),
+    villagersExp: zeroIndexProxy(villagersExp),
+    opalsInvested: zeroIndexProxy(opalsInvested),
+    holeMajiks: zeroIndexProxy(holeMajiks),
+    villageMajiks: zeroIndexProxy(villageMajiks),
+    idleonMajiks: zeroIndexProxy(idleonMajiks),
+    opalsPerCavern: zeroIndexProxy(opalsPerCavern),
+    sedimentMulti: zeroIndexProxy(sedimentMulti),
+    wellSediment: zeroIndexProxy(wellSediment),
+    wellBuckets: zeroIndexProxy(wellBuckets),
+    extraCalculations: zeroIndexProxy(extraCalculations),
+    dawgDenAmplifierLevels: zeroIndexProxy(dawgDenAmplifierLevels),
+    engineerSchematics: zeroIndexProxy(engineerSchematics),
+    braveryMonument: zeroIndexProxy(braveryMonument),
+    braveryBonuses: zeroIndexProxy(braveryBonuses),
+    bellImprovementMethods: zeroIndexProxy(bellImprovementMethods),
+    bellRingLevels: zeroIndexProxy(bellRingLevels),
+    bellRelated: zeroIndexProxy(bellRelated),
+    harpRelated: zeroIndexProxy(harpRelated),
+    harpStringNotes: zeroIndexProxy(harpStringNotes),
+    wishesUsed: zeroIndexProxy(wishesUsed),
+    measurementBuffLevels: zeroIndexProxy(measurementBuffLevels),
+    parallelVillagersGemShop: zeroIndexProxy(parallelVillagersGemShop),
+    jarStuff: zeroIndexProxy(jarStuff),
+    jarProgress: zeroIndexProxy(jarProgress),
+    studyStuff: zeroIndexProxy(studyStuff),
+    studyProgress: zeroIndexProxy(studyProgress),
+    gambitStuff: zeroIndexProxy(gambitStuff),
     fountainCoinSpaces,
     fountainSpaceFilled,
     fountainUpgradeLevels,
     fountainMarbleizeLevels,
-    fountainBarProgress,
+    fountainBarProgress: zeroIndexProxy(fountainBarProgress),
     fountainCoinFlags
   }
+  // wishesUsed?.[index] is undefined for every wish with no save (the raw local array here is the
+  // real, un-proxied `[]`, not holesObject.wishesUsed) - this single value (index 5's `level`) feeds
+  // `discountWish` in getEngineerUpgradeCost below, and Math.pow(0.85, undefined) is NaN, which used
+  // to poison every one of the 106 engineerBonuses[].cost entries. `?? 0` makes "no wishes spent yet"
+  // the neutral default, matching every other un-touched-feature default in this file.
   const lampWishesList = lampWishes.map((wish, index) => {
     return {
       ...wish,
-      level: wishesUsed?.[index]
+      level: wishesUsed?.[index] ?? 0
     }
   })
 
@@ -147,13 +185,31 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     }
   });
 
-  const unlockedCaverns = Math.min(18, villagersLevels?.[0]);
-  const unlockedVillagers = villagersLevels?.slice(0, 5)?.filter((level: any) => level >= 1)?.length;
-  const leastOpalInvestedVillager = Math.min(...opalsInvested?.slice(0, unlockedVillagers));
-  const villagers = villagersExp?.slice(0, 5).map((exp: any, index: any) => {
-    const level = villagersLevels?.[index];
+  // VILLAGERS has a fixed 5-entry roster (Explore/Engineer/Bonuses/Measure/Studies). The old code
+  // built this roster off `villagersExp?.slice(0, 5)` - with no save, the raw array is a real,
+  // 0-length `[]` (not padded), so `.slice(0, 5)` returns `[]` too (a Proxy get-trap can't extend
+  // `.length`), leaving the roster empty and every downstream read (unlockedSchematics, engineer
+  // bonuses that depend on villager level) NaN. Iterating the fixed count directly and reading
+  // through the proxied holesObject fields (which default a missing index to 0) always produces a
+  // real save's identical 5 values (every real save writes at least 5 entries here - the original
+  // `.slice(0, 5)` already assumed as much) and a full 5-row, all-zero roster with no save.
+  const villagerCount = Object.keys(VILLAGERS).length;
+  const unlockedCaverns = Math.min(18, holesObject.villagersLevels[0]);
+  const unlockedVillagers = Array.from({ length: villagerCount }, (_, index) => holesObject.villagersLevels[index])
+    .filter((level: any) => level >= 1).length;
+  // Math.min(...[]) is Infinity when nobody is unlocked yet. Every real save has at least the
+  // Explorer villager unlocked (unlockedVillagers > 0, verified against every fixture + raw.json -
+  // real parse carries 0 Infinity here), so this ternary is a no-op there; it only changes the
+  // genuinely-unknown "no villager unlocked" empty-account case to the same neutral 0 default used
+  // everywhere else in this file.
+  const leastOpalInvestedVillager = unlockedVillagers === 0
+    ? 0
+    : Math.min(...Array.from({ length: unlockedVillagers }, (_, index) => holesObject.opalsInvested[index]));
+  const villagers = Array.from({ length: villagerCount }, (_, index) => {
+    const exp = holesObject.villagersExp[index];
+    const level = holesObject.villagersLevels[index];
     const expReq = getVillagerExpReq(level, index);
-    const opalInvested = opalsInvested?.[index];
+    const opalInvested = holesObject.opalsInvested[index];
     const expRate = getVillagerExpPerHour(holesObject, accountData, index, leastOpalInvestedVillager, unlockedCaverns)
     const timeLeft = (expReq - exp) / expRate?.value * 1000 * 3600;
     return {
@@ -190,7 +246,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
   const theBottomlessTrench = getBottomlessTrench(holesObject, accountData);
   const crystalGlunkoCove = getCrystalGlunkoCove(holesObject, accountData);
 
-  const majiksRaw = [holeMajiks, villageMajiks, idleonMajiks];
+  const majiksRaw = [holesObject.holeMajiks, holesObject.villageMajiks, holesObject.idleonMajiks];
   let godsLinks: any[] = [];
   const majiks = cosmoUpgrades.map((majik, majikIndex) => {
     return majik.map((bonusRaw, bonusIndex) => {
@@ -231,7 +287,9 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     const baseBonus = getMeasurementBaseBonus({ holesObject, t: index });
     const totalBonus = getMeasurementBonus({ holesObject, accountData, t: index });
     const multi = getMeasurementMulti({ holesObject, accountData, t: measureIndex })
-    const cost = (1 / (1 + getFountainBonusTotal(holesObject, 2, 14) / 100)) * (250 + 50 * measurementBuffLevels[index]) * Math.pow(1.6, index - 6 * Math.floor(index / 10)) * Math.pow(1.1, measurementBuffLevels[index])
+    // Reads through holesObject.measurementBuffLevels (proxied, defaults a missing index to 0), not
+    // the raw local `measurementBuffLevels` (real-empty with no save) - see zeroIndexProxy's comment.
+    const cost = (1 / (1 + getFountainBonusTotal(holesObject, 2, 14) / 100)) * (250 + 50 * holesObject.measurementBuffLevels[index]) * Math.pow(1.6, index - 6 * Math.floor(index / 10)) * Math.pow(1.1, holesObject.measurementBuffLevels[index])
 
     const measuredBy = getMeasurementQuantity({ holesObject, accountData, t: measureIndex });
     const itemReqIndex = holesInfo[50]?.[index];
@@ -457,8 +515,8 @@ const getMeasurementQuantity = ({ holesObject, accountData, t }: any) => {
       label: 'Deathnote pts',
       value: Object.values(accountData?.deathNote || {}).reduce((sum: any, val: any) => sum + (val?.rank ?? 0), 0)
     },
-    7: { label: 'Highest DMG', value: accountData?.tasks?.[0]?.[1]?.[0] },
-    8: { label: 'Slab Items', value: accountData?.looty?.lootedItems },
+    7: { label: 'Highest DMG', value: accountData?.tasks?.[0]?.[1]?.[0] ?? 0 },
+    8: { label: 'Slab Items', value: accountData?.looty?.lootedItems ?? 0 },
     9: { label: 'Studies done', value: holesObject?.studyStuff?.reduce((sum: any, level: any) => sum + level, 0) },
     10: { label: 'Golem kills', value: Math.floor(holesObject?.extraCalculations?.[63]) }
   };
@@ -502,14 +560,16 @@ const getMeasurementQuantityFound = ({ holesObject, accountData, t, i }: any) =>
       break;
 
     case 7:
-      // Case 7: Tasks Calculation
-      let tasksValue = accountData?.tasks?.[0]?.[1]?.[0]
+      // Case 7: Tasks Calculation. `tasks` is a raw pass-through of the save's own Tasks array (out
+      // of this section's scope), which is a 7-element array of `undefined` entries with no save -
+      // lavaLog(undefined) is NaN (Math.max(undefined, 1) is NaN, not 1). No save means 0 progress.
+      let tasksValue = accountData?.tasks?.[0]?.[1]?.[0] ?? 0;
       result = (i === 99) ? lavaLog(tasksValue) / 2 : tasksValue;
       break;
 
     case 8:
-      // Case 8: Cards Length
-      let cardsLength = accountData?.looty?.lootedItems;
+      // Case 8: Cards Length. lootedItems defaults to 0 with no save (see misc.ts's getLooty fix).
+      let cardsLength = accountData?.looty?.lootedItems ?? 0;
       result = (i === 99) ? cardsLength / 150 : cardsLength;
       break;
     case 9:
@@ -567,7 +627,7 @@ const getVillagerExpPerHour = (holesObject: any, accountData: any, t: any, least
   const compassBonus = getCompassBonus(accountData, 59);
   const charmBonus = getCharmBonus(accountData, 'Candy_Cache');
   const firstVillagerExp = t === 0 && unlockedCaverns < 13
-    ? Math.pow(1.5, accountData?.accountOptions?.[355])
+    ? Math.pow(1.5, accountData?.accountOptions?.[355] ?? 0)
     : t === 2
       ? 1 + getFountainBonusTotal(holesObject, 0, 14) / 100
       : 1;

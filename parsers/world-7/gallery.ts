@@ -298,7 +298,9 @@ export const getNametagBonuses = (rawSpelunk: any, account: any, character?: any
 }
 
 export const getGalleryBonusMulti = (rawSpelunk: any, account: any, character?: any, includeBubble = false) => {
-  const baseValue = rawSpelunk?.[13]?.[4];
+  // rawSpelunk is undefined with no save (idleonData?.Spelunk never parsed); 0 spelunk progress is
+  // the correct neutral default, not an unknown.
+  const baseValue = rawSpelunk?.[13]?.[4] ?? 0;
   const chipBonus = character ? getPlayerLabChipBonus(character, account, 16) ? 10 : 0 : 0;
   const clamWorkBonus = 3 * getClamWorkBonus(account, 7);
   const killroyBonus = getKillRoyShopBonus(account, 3);
@@ -315,7 +317,7 @@ export const getGalleryBonusMulti = (rawSpelunk: any, account: any, character?: 
 }
 
 export const getPodiumsOwned = (rawSpelunk: any, account: any) => {
-  const baseValue = rawSpelunk?.[13]?.[4];
+  const baseValue = rawSpelunk?.[13]?.[4] ?? 0;
   const emporiumBonus = getJadeEmporiumBonus(account, 'Another_Gallery_Podium') ?? 0;
   const gemShopBonus = account?.gemShopPurchases?.find((value: any, index: any) => index === 40) ?? 0;
   const loreBonus = getLoreBonus(account, 5) ? 1 : 0;
@@ -337,7 +339,11 @@ export const getLv2PodiumsOwned = (account: any) => {
   const gemShopBonus = Math.floor((account?.gemShopPurchases?.find((value: any, index: any) => index === 40) ?? 0) / 2);
   const lv3Podiums = getLv3PodiumsOwned(account);
   const legendBonus = getLegendTalentBonus(account, 9);
-  const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'Deathskull')?.acquired;
+  // account.sailing is deliberately null when the feature is locked (real accounts too, not just
+  // empty ones) - isArtifactAcquired's own [] default then returns undefined. 0 acquired is the
+  // correct neutral default, the same fallback breeding.ts/stamps.ts use for other out-of-scope,
+  // possibly-null cross-section reads.
+  const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'Deathskull')?.acquired ?? 0;
   const artifactBonus = Math.max(0,
     Math.min(2, Math.round(artifact) - 2) -
     Math.min(1, Math.floor(artifact / 5)));
@@ -350,7 +356,7 @@ export const getLv2PodiumsOwned = (account: any) => {
 
 export const getLv3PodiumsOwned = (account: any) => {
   const gemShopBonus = Math.floor((account?.gemShopPurchases?.find((value: any, index: any) => index === 40) ?? 0) / 3);
-  const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'Deathskull')?.acquired;
+  const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'Deathskull')?.acquired ?? 0;
   const sailingBonus = Math.min(1, Math.floor(artifact / 5));
   const artifactBonus = getLv4PodiumsOwned(account);
   return Math.round(gemShopBonus + sailingBonus + artifactBonus);
@@ -359,7 +365,7 @@ export const getLv3PodiumsOwned = (account: any) => {
 export const getLv4PodiumsOwned = (account: any) => {
   const eventShopBonus = getEventShopBonus(account, 29);
   const companionBonus = isCompanionBonusActive(account, 28) ? account?.companions?.list?.at(28)?.bonus : 0;
-  const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'Deathskull')?.acquired;
+  const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'Deathskull')?.acquired ?? 0;
   const sailingBonus = Math.min(1, Math.floor(artifact / 6));
   return Math.min(1, companionBonus) + eventShopBonus + sailingBonus;
 }

@@ -167,7 +167,10 @@ export const getCoralKidUpgBonus = (account: any, index: any) => {
 
 export const getDancingCoralCost = (rawSpelunking: any, index: any) => {
   const baseCost = Number(generalSpelunky?.[22]?.[index]) || 0;
-  return baseCost / (1 + (10 * rawSpelunking?.[4]?.[7] + Math.pow(1.05, rawSpelunking?.[4]?.[7])) / 100);
+  // rawSpelunking[4][7] (overstim level) can be a shorter save array than expected - 0 is the
+  // correct "no overstim discount yet" default, matching this file's `?? 0`/`|| 0` convention.
+  const overstimLevel = rawSpelunking?.[4]?.[7] ?? 0;
+  return baseCost / (1 + (10 * overstimLevel + Math.pow(1.05, overstimLevel)) / 100);
 }
 
 // DancingCoralBonus from Thingies.js line 68-71
@@ -268,7 +271,7 @@ export const getReefDayGains = (account: any) => {
 
 // GrindTimeDaily from Thingies.js line 131-133
 export const getGrindTimeDaily = (account: any, coralReefLevels: any) => {
-  return Math.floor((10 * coralReefLevels?.[0]
+  return Math.floor((10 * (coralReefLevels?.[0] ?? 0)
     + 15 * getClamWorkBonus(account, 6)
     + getMineheadBonusQTY(account, 13))
     * (1 + getMeritocracyBonus(account, 24) / 100));

@@ -63,7 +63,10 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
   })
   rupies = [...rupies, ...whiteDarkRupies];
 
-  const collectibles = holesObject?.jarStuff?.slice(0, 40).map((level: any, index: any) => {
+  // Rewritten from `jarStuff?.slice(0, 40).map(...)`: a Proxy get-trap can't extend an array's
+  // .length, so slicing a real-empty (no-save) jarStuff still returns [], leaving the 40-collectible
+  // list empty instead of 40 zero-level rows. 40 is the fixed collectible count (holesInfo[67]).
+  const collectibles = Array.from({ length: 40 }, (_, index) => holesObject?.jarStuff?.[index]).map((level: any, index: any) => {
     const [name, bonusModifier, , description] = holesInfo?.[67]?.[index]?.split('|') ?? [];
     const bonus = getJarBonus({ holesObject, i: index, account: accountData });
     return {
@@ -111,7 +114,7 @@ const getRupieValue = ({ holesObject, accountData }: any) => {
   const schematicBonus1 = getSchematicBonus({ holesObject, t: 62, i: 1 });
   const schematicBonus2 = getSchematicBonus({ holesObject, t: 65, i: 2 });
   const schematicBonus3 = getSchematicBonus({ holesObject, t: 68, i: 4 });
-  const accountOptionBonus = Math.max(1, Math.pow(1.5, accountData?.accountOptions?.[355]));
+  const accountOptionBonus = Math.max(1, Math.pow(1.5, accountData?.accountOptions?.[355] ?? 0));
   const lampBonus = 1 + getLampBonus({ holesObject, t: 99, i: 0, account: accountData }) / 400;
   const monumentBonus = 1 + getMonumentBonus({ holesObject, t: 2, i: 1 }) / 100;
   const measurementBonus1 = getMeasurementBonus({ holesObject, accountData, t: 10 });

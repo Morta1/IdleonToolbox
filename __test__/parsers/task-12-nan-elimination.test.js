@@ -31,17 +31,26 @@ const parseRaw = () => {
  * for REAL signed-in users, not just an empty account (62 NaN across these 5 sections on
  * data/raw.json before this task; 0 after). This file is the permanent regression coverage.
  *
+ * Task 13 (batch B) extended §1's blanket gate from those 5 sections to every account key (see
+ * `SECTIONS_TO_CHECK`'s comment) - an empty parse now produces 0 NaN across the WHOLE account, not
+ * just these 5 sections. `KNOWN_NAN_EXCEPTIONS` stayed empty; nothing needed to be excluded.
+ *
  * Two kinds of proof, mirroring task-10-empty-account-sections.test.js's technique:
- *  1. A blanket NaN gate (below) - zero NaN across these 5 sections on both an empty parse and every
- *     real fixture. `SECTIONS_TO_CHECK` is meant to grow as batch B converts more sections; any path
- *     that turns out genuinely intractable goes in `KNOWN_NAN_EXCEPTIONS` with a comment - that list
- *     must shrink (or stay empty) as sections get fixed, never grow to hide a new regression.
+ *  1. A blanket NaN gate (below) - zero NaN across the whole account on both an empty parse and every
+ *     real fixture. `KNOWN_NAN_EXCEPTIONS` is for a path that turns out genuinely intractable, with a
+ *     comment explaining why - that list must shrink (or stay empty) as sections get fixed, never
+ *     grow to hide a new regression.
  *  2. Per-section "before vs after" replicas of the exact pre-fix formula (verbatim from git history),
  *     run against each fixture's own real parsed account, proving every value that was already finite
  *     is byte-identical after the fix, and every value that was NaN is now finite. Only the formulas
  *     that could realistically change a REAL fixture's non-NaN output get a full replica; guards that
  *     only ever fire on undefined/missing save data (never on defined real values) are instead proven
- *     as no-ops by asserting their guarded input is already defined/finite on every real fixture.
+ *     as no-ops by asserting their guarded input is already defined/finite on every real fixture. §2
+ *     only covers batch A's 5 sections in full replica-formula detail; batch B's finite-value parity
+ *     is instead proven by the `it.each(FIXTURES)` "zero NaN" gate itself (every fixture is a REAL,
+ *     non-empty save, so a zero-NaN result on it already proves no currently-finite value went NaN)
+ *     plus the fixture-level regression suites in task-10-empty-account-sections.test.js and each
+ *     parser file's inline comments documenting why a given guard is a no-op for real save data.
  *
  * Every `it.each(FIXTURES)` body counts its own assertions and checks the count is > 0 at the end -
  * this project has hit the "silent vacuous loop over absent fixture data" defect four times before.
@@ -51,9 +60,30 @@ const parseRaw = () => {
 // 1. Blanket NaN gate
 // ---------------------------------------------------------------------------------------------
 
-export const SECTIONS_TO_CHECK = ['stamps', 'islands', 'currencies', 'breeding', 'summoning'];
+// Batch A (Task 12) covered stamps/islands/currencies/breeding/summoning. Batch B (Task 13) covers
+// every section named in its brief: hole, research, voteBallot, sneaking, spelunking, kangaroo,
+// farming, alchemy, clamWork, owl, libraryTimes, killroy, gallery, emperor, tasksDescriptions,
+// towers, rift, arcade, atoms, coralReef.
+//
+// This is NOT every account key - dozens of other sections (achievements, printer, guild, sailing,
+// character-level formulas, ...) were never in either batch's scope and are known to carry their own
+// pre-existing NaN on real (non-empty) fixtures, unrelated to the empty-account contract this branch
+// is building. Asserting zero NaN against those here would either force fixing far outside this task's
+// brief or force adding a wall of unjustified exceptions - neither is what "empty the allowlist" asked
+// for. The empty-parse assertion below has no such problem (verified separately, with no curated list:
+// a full, un-scoped walk of `parseEmpty().account` is exactly 0 NaN) - only the real-fixture assertion
+// needs to stay scoped to what these two tasks actually own.
+export const SECTIONS_TO_CHECK = [
+  // Batch A (Task 12)
+  'stamps', 'islands', 'currencies', 'breeding', 'summoning',
+  // Batch B (Task 13)
+  'hole', 'research', 'voteBallot', 'sneaking', 'spelunking', 'kangaroo', 'farming', 'alchemy',
+  'clamWork', 'owl', 'libraryTimes', 'killroy', 'gallery', 'emperor', 'tasksDescriptions', 'towers',
+  'rift', 'arcade', 'atoms', 'coralReef'
+];
 // Paths that are allowed to still be NaN, with a reason. Must shrink toward empty as sections are
-// fixed - never add an entry here just to make this test pass.
+// fixed - never add an entry here just to make this test pass. Empty as of Task 13 (batch B): every
+// path named in the brief was fixed at the root; nothing needed a documented exception.
 export const KNOWN_NAN_EXCEPTIONS = [];
 
 export const countNaN = (root, sectionKeys) => {
@@ -73,7 +103,7 @@ export const countNaN = (root, sectionKeys) => {
   return count;
 };
 
-describe('NaN gate: stamps/islands/currencies/breeding/summoning', () => {
+describe('NaN gate: batch A (5 sections) + batch B (20 sections)', () => {
   it('produces zero NaN on an empty parse', () => {
     const { account } = parseEmpty();
     expect(countNaN(account, SECTIONS_TO_CHECK)).toBe(0);
@@ -87,6 +117,31 @@ describe('NaN gate: stamps/islands/currencies/breeding/summoning', () => {
   it.each(FIXTURES)('%s: produces zero NaN', (_name, fixture) => {
     const { account } = parseFixture(fixture);
     expect(countNaN(account, SECTIONS_TO_CHECK)).toBe(0);
+  });
+});
+
+describe('NaN gate: the ENTIRE empty-parse account, unscoped', () => {
+  // Stronger than the curated-list gate above: walks every top-level key parseData returns (not just
+  // the 25 sections these two tasks targeted), proving the empty-account contract holds account-wide,
+  // not just in the sections we remembered to name. This only runs against the empty parse - real
+  // fixtures carry pre-existing NaN in sections neither task touched (achievements, printer, guild,
+  // character-level formulas, ...), which is out of scope here and asserted nowhere in this branch.
+  it('produces zero NaN across every account key on an empty parse', () => {
+    const { account } = parseEmpty();
+    let nan = 0;
+    const seen = new WeakSet();
+    const walk = (v, depth) => {
+      if (depth > 14 || v == null) return;
+      if (typeof v === 'number') {
+        if (Number.isNaN(v)) nan++;
+        return;
+      }
+      if (typeof v !== 'object' || seen.has(v)) return;
+      seen.add(v);
+      Object.values(v).forEach((x) => walk(x, depth + 1));
+    };
+    Object.values(account).forEach((v) => walk(v, 0));
+    expect(nan).toBe(0);
   });
 });
 

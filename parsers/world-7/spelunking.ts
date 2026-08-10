@@ -87,7 +87,9 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
       const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Pointagon')?.bonus ?? 0;
 
       // const baseMultiplier = chapter?.x4 ? 1 + artifactBonus / 100 : 1;
-      const baseMultiplier = chapter?.x4 === 1 ? 1 + account?.sailing?.artifacts?.[35]?.bonus / 100 : 1; // TODO: remove after this is fixed in-game
+      // account.sailing is deliberately null when the feature is locked (real accounts too, not just
+      // empty ones) - guard to 0, matching the artifactBonus fallback two lines up.
+      const baseMultiplier = chapter?.x4 === 1 ? 1 + (account?.sailing?.artifacts?.[35]?.bonus ?? 0) / 100 : 1; // TODO: remove after this is fixed in-game
       const bonus = baseMultiplier * growth(chapter?.func, level, chapter?.x1, chapter?.x2, false) || 0;
       const isDecay = chapter?.func === 'decay' || chapter?.func === 'decayMulti';
       const maxBonus = chapter?.func === 'decay'
@@ -252,7 +254,9 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
     currentAmber,
     overstimLevel,
     overstimCurrent: overstimCurrent ?? 0,
-    overstimReq: 100 * Math.pow(1.3, overstimLevel),
+    // overstimLevel stays a raw, possibly-undefined pass-through above (matches owl.ts/kangaroo.ts's
+    // `level` field precedent); this Math.pow needs a guard since undefined^exponent is NaN.
+    overstimReq: 100 * Math.pow(1.3, overstimLevel ?? 0),
     overstimFillRate,
     overstimRate,
     charactersAtMaxStamina,
@@ -378,7 +382,9 @@ export const getDiscoveryHp = (discovery: any) => {
 export const getOverstimBonus = (account: any) => {
   const shopUpg6 = getSpelunkingBonus(account, 6);
   const overstimPerLevel = 30 + shopUpg6;
-  return overstimPerLevel * account?.spelunking?.overstimLevel;
+  // overstimLevel stays a raw, possibly-undefined pass-through in the section's own return value
+  // (matches owl.ts/kangaroo.ts's `level` field precedent); this multiplication needs its own guard.
+  return overstimPerLevel * (account?.spelunking?.overstimLevel ?? 0);
 }
 
 export const getLoreBonus = (account: any, index: any) => {

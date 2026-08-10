@@ -12,7 +12,9 @@ const parseRift = (rawRift: any) => {
   const [currentRift, currentProgress, chars] = rawRift || [];
   return {
     list: riftInfo,
-    currentRift: parseInt(currentRift),
+    // parseInt(undefined) is NaN with no save; 0 rifts entered is the correct neutral default (the
+    // breeding.ts cross-section guard already assumed this exact fallback for the same field).
+    currentRift: parseInt(currentRift) || 0,
     currentProgress,
     chars
   }

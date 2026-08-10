@@ -131,8 +131,10 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
 
     return {
       ...upgrade,
+      // `level` stays a raw, possibly-undefined pass-through (matches owl.ts/kangaroo.ts's `level`
+      // field precedent); this multiplication needs its own `?? 0` guard - never leveled means 0.
       level,
-      value: level * (upgrade.modifier ?? 1),
+      value: (level ?? 0) * (upgrade.modifier ?? 1),
       isUnlocked,
       isSpecialUpgrade,
       prerequisiteIndex: !isSpecialUpgrade ? upgrade.x9 : null,
@@ -245,7 +247,10 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
 };
 
 export const getLocalNinjaUpgradeBonus = (upgrades: any, index: any, gemstones: any, inventory: any, account: any) => {
-  const { level, modifier } = upgrades?.[index] ?? {};
+  // upgrades[N].level is a raw, possibly-undefined pass-through (ninjaUpgradeLevels?.[N] with no
+  // save - see the `value` field's own comment where it's built) - `?? 0` here guards this math only.
+  const { level: rawLevel, modifier } = upgrades?.[index] ?? {};
+  const level = rawLevel ?? 0;
   const masteryLootLevel = upgrades?.[3]?.level || 0;
   const selectedMasteryLevel = account?.accountOptions?.[231] || 0;
 
@@ -324,9 +329,13 @@ const parseNinjaItems = (array: any, doChunks: any, gemstones: any, account: any
 };
 
 const getSymbolBonus = (account: any, index: any) => {
+  // sneakingSlots can be shorter than the highest symbolLVID a real save's equipment/inventory items
+  // compute (an index past the array's current length, same "missing array entry" shape as
+  // breeding.territories' reqProgress fix in Task 12) - 0 is the correct "no symbol slot here yet".
+  const slotLevel = account?.spelunking?.sneakingSlots?.[index] ?? 0;
   return 999 == index ?
-    50 * (account?.spelunking?.sneakingSlots?.[index] + 1)
-    : 50 * account?.spelunking?.sneakingSlots?.[index];
+    50 * (slotLevel + 1)
+    : 50 * slotLevel;
 }
 
 const itemIdToSymbolLevelId = (itemId: any) => {

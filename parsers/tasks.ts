@@ -21,7 +21,12 @@ export const getTasks = (idleonData: IdleonData): {
   const tasksDescriptions = tasks?.map((worldTasks: any[], worldIndex: number) => {
     return worldTasks?.map((task: any, taskIndex: number) => {
       const stat = tasksRaw?.[0]?.[worldIndex]?.[taskIndex];
-      const level = tasksRaw?.[1]?.[worldIndex]?.[taskIndex];
+      // tasksRaw defaults to a 7-element array of `undefined` sub-arrays with no save (each
+      // tryToParse(idleonData?.TaskZZn) on undefined idleonData), so the nested chain optional-chains
+      // straight through to undefined - `Math.floor(undefined / 5)` is NaN, poisoning every one of
+      // the 54 tasksDescriptions cells. No save means 0 progress on every task, same as everywhere
+      // else in this codebase.
+      const level = tasksRaw?.[1]?.[worldIndex]?.[taskIndex] ?? 0;
       const meritReward = Math.round(1 + Math.floor(level / 5));
       let realTask = task;
       if (taskIndex === 8) {
