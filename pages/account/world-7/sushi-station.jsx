@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { Stack } from '@mui/material';
+import { Alert, Stack } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import HtmlTooltip from '@components/Tooltip';
-import { CardTitleAndValue, MissingData } from '@components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
 import { commaNotation, getTabs, notateNumber } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
@@ -17,9 +17,11 @@ const SushiStation = () => {
   const { state } = useContext(AppContext);
   const sushiStation = state?.account?.sushiStation;
 
-  if (!sushiStation) return <MissingData name={'sushi station'}/>;
-
+  // The parser now computes the full 45-upgrade catalog at level 0 rather than returning null when
+  // the station isn't unlocked, so the page shows what sushi station contains instead of a dead-end
+  // notice. Branch on `unlocked`, never on the section's truthiness.
   const {
+    unlocked,
     uniqueSushi,
     fuel,
     currency,
@@ -31,13 +33,18 @@ const SushiStation = () => {
     shakerUses,
     knowledgeSummary,
     sushiCooking
-  } = sushiStation;
+  } = sushiStation || {};
+  const isLocked = unlocked === false;
 
   return <>
     <NextSeo
       title="Sushi Station | Idleon Toolbox"
       description="Track your Sushi Station upgrades, sushi collection, fuel, and Ring of Gains bonuses in Legends of Idleon World 7"
     />
+    {isLocked ? <Alert severity={'info'} sx={{ mb: 2 }}>
+      Sushi Station isn&apos;t unlocked on this account yet. The upgrades below are the full list and
+      what each one does — your own levels will fill in once you&apos;ve unlocked it.
+    </Alert> : null}
 
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
       <CardTitleAndValue

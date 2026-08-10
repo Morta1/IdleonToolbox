@@ -45,14 +45,14 @@ describe('feature-locked sections stay null, never {}', () => {
 
       for (const key of Object.keys(locked)) {
         if (locked[key]) {
-          // sailing has moved off the null contract: its parser now returns a populated shape with
-          // an explicit `unlocked: false` flag so a locked account can still see the artifact
-          // catalog. The other five still signal "locked" by being null - converting them without
-          // auditing their consumers is what broke guild once already. See
-          // __test__/parsers/sailing-locked-shape.test.js for the invariant that replaces this one.
-          if (key === 'sailing') {
-            expect(account.sailing, `${fixtureName}.account.sailing should be an object`).not.toBeNull();
-            expect(account.sailing.unlocked, `${fixtureName}.account.sailing should report locked`).toBe(false);
+          // sailing and sushiStation have moved off the null contract: their parsers now return a
+          // populated shape with an explicit `unlocked: false` flag, so a locked account can still
+          // see the artifact / upgrade catalog. The remaining four still signal "locked" by being
+          // null - converting one without auditing its consumers is what broke guild once already.
+          // See __test__/parsers/sailing-locked-shape.test.js for the invariant that replaces this.
+          if (key === 'sailing' || key === 'sushiStation') {
+            expect(account[key], `${fixtureName}.account.${key} should be an object`).not.toBeNull();
+            expect(account[key].unlocked, `${fixtureName}.account.${key} should report locked`).toBe(false);
             continue;
           }
           expect(account[key], `${fixtureName}.account.${key} should be null (feature not unlocked)`).toBeNull();

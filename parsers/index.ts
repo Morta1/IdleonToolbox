@@ -357,7 +357,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.tournament = safeSection<any>('tournament', {}, () => getTournament(idleonData, accountData, staticData.tournamentServerData));
   accountData.research = safeSection<any>('research', {}, () => getResearch(idleonData, accountData, charactersData));
   accountData.button = safeSection<any>('button', {}, () => getButton(accountData, charactersData));
-  accountData.sushiStation = safeSection<any>('sushiStation', null, () => getSushiStation(idleonData, accountData));
+  accountData.sushiStation = safeSection<any>('sushiStation', {}, () => getSushiStation(idleonData, accountData));
   accountData.bubba = safeSection<any>('bubba', {}, () => getBubba(idleonData, accountData));
   accountData.friendBonusStats = safeSection<any>('friendBonusStats', {}, () => getFriendBonusStats(accountData));
 

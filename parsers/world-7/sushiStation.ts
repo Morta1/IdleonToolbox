@@ -34,7 +34,12 @@ const getUpgLvREQ = (t: number) => {
 
 export const getSushiStation = (idleonData: any, account: any) => {
   const raw = getRawSushi(idleonData);
-  if (!raw.length) return null;
+  // This used to `return null` when the save had no Sushi data, which left the page with nothing to
+  // render but a "missing data" notice. Every sub-array below already defaults to [], and the
+  // upgrade list is built from the sushiUpgrades catalog rather than from the save - so letting the
+  // function run produces the full 45-upgrade catalog at level 0, which is exactly what a locked
+  // account should see. `unlocked` is the flag consumers branch on; never the section's truthiness.
+  const unlocked = raw.length > 0;
 
   const slotTiers: number[] = raw[0] ?? [];
   const slotEffects: number[] = raw[1] ?? [];
@@ -341,6 +346,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
   }));
 
   return {
+    unlocked,
     uniqueSushi,
     fuel: { current: fuel, cap: fuelCap, generation: fuelGen },
     currency: { bucks, currencyMulti, currencyPerHR, overtunedMulti },

@@ -69,6 +69,33 @@ describe('sailing locked shape', () => {
   });
 });
 
+describe('sushiStation locked shape', () => {
+  it('is an object reporting unlocked: false, carrying the upgrade catalog', () => {
+    const { sushiStation } = parseEmpty().account;
+    expect(sushiStation).toBeTypeOf('object');
+    expect(sushiStation).not.toBeNull();
+    expect(sushiStation.unlocked).toBe(false);
+    // The parser builds `upgrades` from the sushiUpgrades catalog rather than from the save, so a
+    // locked account still gets the full list at level 0.
+    expect(sushiStation.upgrades.length).toBeGreaterThan(0);
+    expect(sushiStation.upgrades.every(({ level }) => level === 0)).toBe(true);
+  });
+
+  it('exposes the collections its consumers index into', () => {
+    const { sushiStation } = parseEmpty().account;
+    for (const key of ['upgrades', 'knowledge', 'slots', 'fireplaces', 'shakerUses', 'rogBonuses']) {
+      expect(Array.isArray(sushiStation[key]), `${key} must be an array`).toBe(true);
+    }
+    // components/dashboard/Etc.jsx reads account?.sushiStation?.fuel directly.
+    expect(sushiStation.fuel).toBeTypeOf('object');
+  });
+
+  it('reports unlocked: true for a real save that has it', () => {
+    const { sushiStation } = parseReal().account;
+    expect(sushiStation.unlocked).toBe(true);
+  });
+});
+
 describe('no consumer truthiness-gates account.sailing', () => {
   const roots = ['components', 'pages', 'utility', 'hooks'];
   const files = [];
