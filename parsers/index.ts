@@ -53,7 +53,7 @@ import { getQuests, isWorldFinished } from './quests';
 import { getDeathNote, getTopKilledMonsters } from './world-3/deathNote';
 import { addBreedingChance, getBreeding } from './world-4/breeding';
 import { applyGodCost, getDivinity } from './world-5/divinity';
-import { getArtifacts, getSailing } from './world-5/sailing';
+import { getArtifacts, getLockedSailing, getSailing } from './world-5/sailing';
 import { getGaming } from './world-5/gaming';
 import { getAtoms } from './world-3/atomCollider';
 import { getRift } from './world-4/rift';
@@ -272,7 +272,10 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.gaming = safeSection<any>('gaming', null, () => getGaming(idleonData, charactersData, accountData, serverVars));
   // reapply atoms
   accountData.atoms = safeSection<any>('atoms', {}, () => getAtoms(idleonData, accountData));
-  accountData.sailing = safeSection<any>('sailing', null, () => getSailing(idleonData, artifacts, charactersData, accountData, serverVars, charactersLevels));
+  // Fallback is the locked shape rather than null so `account.sailing` is always an object with an
+  // `unlocked` flag and empty collections - consumers branch on the flag, and some of them index
+  // into these keys without optional-chaining every hop.
+  accountData.sailing = safeSection<any>('sailing', getLockedSailing(artifacts), () => getSailing(idleonData, artifacts, charactersData, accountData, serverVars, charactersLevels));
 
   const leaderboard = calculateLeaderboard(skills);
   charactersData = charactersData.map((character: any) => ({ ...character, skillsInfo: (leaderboard as Record<string, any>)[character?.name] }));

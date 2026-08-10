@@ -49,9 +49,42 @@ export const getSailing = (idleonData: any, artifactsList: any, charactersData: 
   const captainsRaw = tryToParse(idleonData?.Captains) || idleonData?.Captains;
   const boatsRaw = tryToParse(idleonData?.Boats) || idleonData?.Boats;
   const chestsRaw = tryToParse(idleonData?.SailChests) || idleonData?.SailChests;
-  if (!sailingRaw || !captainsRaw || !boatsRaw || !chestsRaw) return null;
+  if (!sailingRaw || !captainsRaw || !boatsRaw || !chestsRaw) return getLockedSailing(artifactsList);
   return parseSailing(artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRaw, charactersData, account, serverVars, charactersLevels);
 }
+
+/**
+ * Sailing before the player has unlocked it.
+ *
+ * This used to be `null`, which forced the page into a bare "missing data" notice. But the artifact
+ * catalog does not depend on the save at all - `getArtifacts` maps all 41 entries whether or not any
+ * are acquired, and is computed separately and handed in - so a locked account can still show what
+ * sailing actually contains.
+ *
+ * `unlocked` is the flag consumers should branch on. Everything the player would own is an EMPTY
+ * collection rather than absent, deliberately: several consumers stop optional-chaining partway
+ * through (`components/dashboard/Etc.jsx` reads `account?.sailing?.trades.length`, with no `?.`
+ * after `trades`), so a missing key here throws where a `null` section used to short-circuit
+ * harmlessly. Empty collections also keep the dashboard's captain/chest alerts silent, which is the
+ * correct behaviour for a feature that is not unlocked.
+ */
+export const getLockedSailing = (artifactsList: any) => ({
+  unlocked: false,
+  artifacts: artifactsList ?? [],
+  lootPile: [],
+  chests: [],
+  maxChests: 0,
+  captains: [],
+  boats: [],
+  shopCaptains: [],
+  captainsOnBoats: {},
+  trades: [],
+  rareTreasureChance: 0,
+  // No fleet means there is no roundtrip to estimate from - "not applicable", not a fabricated 0.
+  timeToFullChests: undefined,
+  minimumTravelTime: 0,
+  minimumTravelTimeBreakdown: []
+});
 
 const parseSailing = (artifactsList: any, sailingRaw: any, captainsRaw: any, boatsRaw: any, chestsRaw: any, charactersData: any, account: any, serverVars: any, charactersLevels: any) => {
   const lootPile = sailingRaw?.[1];
@@ -73,6 +106,7 @@ const parseSailing = (artifactsList: any, sailingRaw: any, captainsRaw: any, boa
   const trades = getFutureTrades(captainsAndBoats, sailingRaw?.[0], lootPileList, artifactsList, account);
 
   return {
+    unlocked: true,
     maxChests,
     artifacts: artifactsList,
     lootPile: lootPileList,
@@ -808,10 +842,13 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
   }
   else if (artifact?.name === 'Triagulon') {
     const ownedTurkey = account?.cooking?.meals?.[0]?.amount;
-    bonus = (artifact?.baseBonus * lavaLog(ownedTurkey));
+    bonus = (artifact?.baseBonus * lavaLog(ownedTurkey ?? 0));
   }
   else if (artifact?.name === 'Opera_Mask') {
-    const sailingGold = lootPile?.[0];
+    // lootPile comes from the save and is absent entirely while sailing is locked. lavaLog does
+    // Math.log(Math.max(num, 1)), and Math.max(undefined, 1) is NaN - so the input has to be
+    // guarded, not the result. lavaLog(0) is 0, so this is a no-op for any real save.
+    const sailingGold = lootPile?.[0] ?? 0;
     bonus = (artifact?.baseBonus * lavaLog(sailingGold));
   }
   else if (artifact?.name === 'Fun_Hippoete') {
@@ -819,7 +856,9 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
     bonus = artifact?.baseBonus * lavaLog(account?.construction?.playersBuildRate ?? 0)
   }
   else if (artifact?.name === 'The_True_Lantern') {
-    bonus = artifact?.baseBonus * (lavaLog(account?.atoms?.particles) ?? 0);
+    // The `?? 0` used to sit outside lavaLog, where it could never fire: lavaLog(undefined) returns
+    // NaN, and `NaN ?? 0` is NaN. Guard the input instead.
+    bonus = artifact?.baseBonus * lavaLog(account?.atoms?.particles ?? 0);
   }
   else if (artifact?.name === 'Gold_Relic') {
     const daysSinceLastSample = account?.accountOptions?.[125];

@@ -233,12 +233,20 @@ describe('world 4-7 sections', () => {
     expect(minehead.upgrades.length).toBe(liveCount(websiteData.mineheadUpgrades));
   });
 
-  it('sailing stays null on an empty parse (locked feature, not catalog-backed)', () => {
-    // Corrected per task-6 brief override: getSailing returns null by design when the feature is
-    // not unlocked, and pages/account/world-5/sailing.jsx gates rendering on that null. Converting
-    // it to a populated object would make the gate fail open (NaN render for real users).
+  it('sailing reports unlocked: false and still carries the artifact catalog', () => {
+    // This used to assert `sailing === null`. That was right while the page gated on truthiness -
+    // an earlier task had to revert exactly that change after `{}` made the gate fail open and
+    // rendered NaN for real users.
+    //
+    // The contract has since changed deliberately: the parser now decides what the page gets, and
+    // says "locked" with an explicit `unlocked: false` flag instead of by being absent. That lets a
+    // locked account still show the full artifact catalog, which needs no save data at all. The
+    // gate-fail-open hazard is covered by __test__/parsers/sailing-locked-shape.test.js, which
+    // asserts the shape is complete AND that no consumer truthiness-gates the section any more.
     const { sailing } = parseEmpty().account;
-    expect(sailing).toBeNull();
+    expect(sailing).not.toBeNull();
+    expect(sailing.unlocked).toBe(false);
+    expect(sailing.artifacts.length).toBeGreaterThan(0);
   });
 });
 
