@@ -16,7 +16,8 @@ export const patchNotes = [
       'Dashboard: new alert for stamps you can level with the coins you already have, with a setting for how much of your coins you are willing to spend',
       'Every page now has a proper browser tab title and description straight away, instead of only after the page finishes loading',
       'All pages are now viewable without signing in, showing the full game data with your progress at zero',
-      'Signed-out visitors can now find every page from the navigation bar, tools menu, and search - previously most were hidden until you signed in, even though the pages themselves already worked'
+      'Signed-out visitors can now find every page from the navigation bar, tools menu, and search - previously most were hidden until you signed in, even though the pages themselves already worked',
+      'Sailing, Sushi Station, Divinity, and Guild pages now show the full artifact, upgrade, god, and bonus lists instead of a "missing data" notice when you have not unlocked the feature'
     ],
     'fixes': [
       'Vials: the vial bonus shown on the page was missing the Meritocracy vote bonus',

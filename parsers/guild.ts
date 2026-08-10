@@ -26,6 +26,7 @@ export interface GuildTaskEntry {
 }
 
 export interface GuildResult {
+  unlocked: boolean;
   id?: string;
   guildBonuses: GuildBonusEntry[];
   guildTasks: { daily: GuildTaskEntry[] | undefined; weekly: GuildTaskEntry[] | undefined };
@@ -36,9 +37,41 @@ export interface GuildResult {
   totalGp: number;
 }
 
+/**
+ * The shape returned when the visitor isn't in a guild (or isn't signed in at all). It used to be
+ * `null`, which forced the page into a bare "you have to be in a guild" line - now the guild bonus
+ * catalog comes back at level 0 so the page has something to show and describe.
+ *
+ * What is NOT filled in, deliberately:
+ *  - `members` stays empty. Membership is pure user state; there is no catalog to fall back on.
+ *  - `guildTasks` stays empty. The save maps rotating task slots onto the catalog by index
+ *    (see parseGuildTasks), so there is no "the" daily/weekly set to show without one. Filling it
+ *    from the catalog would also make utility/dashboard/account.js count every task as
+ *    uncompleted for anyone whose guild data failed to load.
+ *
+ * `level`, `maxMembers` and `levelReq` are derived through the same functions the unlocked path
+ * uses, rather than hardcoded, so they stay correct if the game's curve changes.
+ */
+export const getLockedGuild = (): GuildResult => {
+  const level = getGuildLevel(0);
+  return {
+    unlocked: false,
+    id: undefined,
+    guildBonuses: guildBonuses?.map((guildBonus: any) => ({ ...guildBonus, level: 0 })) ?? [],
+    guildTasks: { daily: [], weekly: [] },
+    members: [],
+    maxMembers: getMaxMembers(level),
+    level,
+    levelReq: getGuildLevelReq(null, 0),
+    totalGp: 0
+  };
+}
+
+const getMaxMembers = (level: number): number => 30 + 4 * level;
+
 export const getGuild = (idleonData: IdleonData, guildData: GuildData | null): GuildResult | null => {
   if (!guildData) {
-    return null;
+    return getLockedGuild();
   }
   const guildRaw = tryToParse(idleonData?.Guild) || (idleonData as any)?.GuildTasks;
   const parsedGuildTasks = parseGuildTasks(guildRaw);
@@ -51,13 +84,14 @@ export const getGuild = (idleonData: IdleonData, guildData: GuildData | null): G
   // become falsy again), so it's removed rather than left with an unreachable trailing `return null`.
   const totalPoints = getGuildTotalPoints(guildRaw, updatedGuildBonuses, guildData?.points ?? 0)
   const level = getGuildLevel(totalPoints);
-  const maxMembers = 30 + 4 * level;
+  const maxMembers = getMaxMembers(level);
   const levelReq = getGuildLevelReq(guildRaw, totalPoints)
   const members = parseGuildMembers(guildData, updatedGuildBonuses);
   const totalStatCost = updatedGuildBonuses?.reduce((sum: number, { level }: any, index: number) => sum + calculateGuildBonusCost(level,
     guildBonuses?.[index]?.gpBaseCost, guildBonuses?.[index]?.gpIncrease), 0);
   const totalGp = (guildData?.points ?? 0) + totalStatCost;
   return {
+    unlocked: true,
     id: guildData.id ?? undefined,
     guildBonuses: updatedGuildBonuses,
     guildTasks: parsedGuildTasks,

@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseData } from '@parsers/index';
-import { artifacts } from '@website-data';
+import { artifacts, guildBonuses } from '@website-data';
+import { getGuildBonusBonus, getGuildLevel } from '@parsers/guild';
 import demoJson from '../../data/raw.json';
 
 /**
@@ -122,6 +123,65 @@ describe('divinity locked shape', () => {
   });
 });
 
+describe('guild locked shape', () => {
+  it('is an object reporting unlocked: false, carrying every guild bonus', () => {
+    const { guild } = parseEmpty().account;
+    expect(guild).toBeTypeOf('object');
+    expect(guild).not.toBeNull();
+    expect(guild.unlocked).toBe(false);
+    expect(guild.guildBonuses).toHaveLength(guildBonuses.length);
+    expect(guild.guildBonuses.every(({ level }) => level === 0)).toBe(true);
+    // GuildBonuses.jsx reads each of these directly; a missing one renders NaN or crashes.
+    expect(guild.guildBonuses.every(({ name, bonus, maxLevel, gpBaseCost, gpIncrease }) =>
+      !!name && !!bonus && Number.isFinite(maxLevel) && Number.isFinite(gpBaseCost) && Number.isFinite(gpIncrease))).toBe(true);
+  });
+
+  it('leaves members and tasks empty rather than inventing them', () => {
+    const { guild } = parseEmpty().account;
+    // Membership is pure user state, and the save maps rotating task slots onto the catalog by
+    // index - neither can be reconstructed without a save.
+    expect(guild.members).toEqual([]);
+    expect(guild.guildTasks.daily).toEqual([]);
+    expect(guild.guildTasks.weekly).toEqual([]);
+  });
+
+  it('does not fire the dashboard uncompleted-task alerts for a guild-less account', () => {
+    const { guild } = parseEmpty().account;
+    // utility/dashboard/account.js:87,96 - filling guildTasks from the catalog would count every
+    // task as uncompleted, the same false-alert shape the refinery locked-salts bug had.
+    const uncompleted = (tasks) => tasks?.filter(({ requirement, progress }) => progress < requirement)?.length;
+    expect(uncompleted(guild.guildTasks.daily)).toBe(0);
+    expect(uncompleted(guild.guildTasks.weekly)).toBe(0);
+  });
+
+  it('keeps every cross-section guild bonus at 0, exactly as the null contract did', () => {
+    // 11 parsers call getGuildBonusBonus(account?.guild?.guildBonuses, N). While guild was null
+    // they all got 0. A populated catalog at level 0 must produce the same 0, or this change
+    // silently alters real accounts that simply aren't in a guild.
+    const { guild } = parseEmpty().account;
+    const indexes = guild.guildBonuses.map((_, i) => i);
+    const bonuses = indexes.map((i) => getGuildBonusBonus(guild.guildBonuses, i));
+    expect(bonuses.every((b) => b === 0), `expected all zero, got ${bonuses}`).toBe(true);
+    // And the same call against the old `null` shape, for the direct comparison.
+    expect(indexes.every((i) => getGuildBonusBonus(undefined, i) === 0)).toBe(true);
+  });
+
+  it('derives level, maxMembers and levelReq instead of hardcoding them', () => {
+    const { guild } = parseEmpty().account;
+    expect(guild.level).toBe(getGuildLevel(0));
+    expect(guild.maxMembers).toBe(30 + 4 * guild.level);
+    expect(Number.isFinite(guild.levelReq)).toBe(true);
+    expect(guild.levelReq).toBeGreaterThan(0);
+    expect(guild.totalGp).toBe(0);
+  });
+
+  it('reports unlocked: true for a real save that has guild data', () => {
+    const { guild } = parseReal().account;
+    expect(guild.unlocked).toBe(true);
+    expect(guild.members.length).toBeGreaterThan(0);
+  });
+});
+
 describe('no consumer truthiness-gates account.sailing', () => {
   const roots = ['components', 'pages', 'utility', 'hooks'];
   const files = [];
@@ -134,10 +194,13 @@ describe('no consumer truthiness-gates account.sailing', () => {
   };
   for (const r of roots) walk(path.resolve(__dirname, '../..', r));
 
-  it('has no `if (!...account?.sailing)` style gate left', () => {
-    // Matches `!account.sailing`, `!state?.account?.sailing`, `!sailing` used as a bare guard -
-    // anything that treats the section itself as a boolean rather than reading `.unlocked`.
-    const gate = /!\s*(state\s*\??\.\s*)?account\s*\??\.\s*sailing\b(?!\s*\??\.)/;
+  // Every section that has moved off the null contract needs the same guarantee: no consumer may
+  // read the section itself as a boolean, because a locked account now gets a truthy object.
+  it.each(['sailing', 'guild'])('has no `if (!...account?.%s)` style gate left', (section) => {
+    // Matches `!account.sailing`, `!state?.account?.sailing` - anything that treats the section
+    // itself as a boolean rather than reading `.unlocked`. The trailing lookahead lets
+    // `!account?.guild?.something` through, since that reads a field, not the section.
+    const gate = new RegExp(`!\\s*(state\\s*\\??\\.\\s*)?account\\s*\\??\\.\\s*${section}\\b(?!\\s*\\??\\.)`);
     const offenders = files
       .map((f) => ({ f, lines: fs.readFileSync(f, 'utf8').split(/\r?\n/) }))
       .flatMap(({ f, lines }) => lines
@@ -145,5 +208,13 @@ describe('no consumer truthiness-gates account.sailing', () => {
         .filter(({ line }) => gate.test(line)));
 
     expect(offenders.map(({ f, n, line }) => `${path.relative(process.cwd(), f)}:${n}  ${line}`)).toEqual([]);
+  });
+
+  it('the gate regex actually matches the pattern it is meant to catch', () => {
+    // Without this, a typo in the RegExp above would make every section pass vacuously.
+    const gate = new RegExp(`!\\s*(state\\s*\\??\\.\\s*)?account\\s*\\??\\.\\s*guild\\b(?!\\s*\\??\\.)`);
+    expect(gate.test('if (!state?.account?.guild) return <MissingData/>;')).toBe(true);
+    expect(gate.test('if (!account.guild) return null;')).toBe(true);
+    expect(gate.test('myGuildId: state?.account?.guild?.id || null')).toBe(false);
   });
 });

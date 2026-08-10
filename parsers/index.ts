@@ -46,7 +46,7 @@ import { getDungeons } from './dungeons';
 import { applyMealsMulti, getCooking, getKitchens } from './world-4/cooking';
 import { getJewelBonus, getLab, getLabBonus, isLabEnabledBySorcererRaw } from './world-4/lab';
 import { classes } from '@website-data';
-import { getGuild } from './guild';
+import { getGuild, getLockedGuild } from './guild';
 import { getPrinter } from './world-3/printer';
 import { getTraps } from './world-3/traps';
 import { getQuests, isWorldFinished } from './quests';
@@ -163,7 +163,7 @@ const getStaticData = (idleonData: IdleonData, charNames: string[], companion: C
     traps: safeSection<any>('traps', [], () => getTraps(serializedCharactersData)),
     totems: safeSection<any>('totems', [], () => getTotems(idleonData)),
     adviceFish: safeSection<any>('adviceFish', {}, () => getAdviceFish(idleonData)),
-    guild: safeSection<any>('guild', null, () => getGuild(idleonData, guildData)),
+    guild: safeSection<any>('guild', getLockedGuild(), () => getGuild(idleonData, guildData)),
     talentPoints: idleonData?.CYTalentPoints,
     tournamentServerData: tournament ?? null,
   };

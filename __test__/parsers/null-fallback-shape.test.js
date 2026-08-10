@@ -16,7 +16,7 @@ import latest from '../fixtures/latest.json';
 //
 // Each "locked" condition below is copied verbatim from the corresponding parser's own top-level
 // guard, so the expectation is derived from the fixture's raw save data, not hardcoded per fixture:
-//   guild:        parsers/guild.ts            — `if (!guildData) return null;`
+//   guild:        parsers/guild.ts            — `if (!guildData) return getLockedGuild();`
 //   divinity:     parsers/world-5/divinity.ts  — `if (!divinityRaw) return null;`
 //   equinox:      parsers/world-3/equinox.ts   — `if (!weeklyBoss || !dream) return null;`
 //   gaming:       parsers/world-5/gaming.ts    — `if (!gamingRaw || !gamingSproutRaw || !spelunkRaw) return null;`
@@ -34,6 +34,9 @@ const lockedConditions = (data, guildData) => ({
   sushiStation: !Array.isArray(raw(data, 'Sushi')) || raw(data, 'Sushi').length === 0
 });
 
+// Sections whose parser now returns a populated shape with `unlocked: false` instead of null.
+const CONVERTED = ['sailing', 'sushiStation', 'divinity', 'guild'];
+
 const fixtures = { first, second, third, fourth, latest };
 
 describe('feature-locked sections stay null, never {}', () => {
@@ -45,12 +48,12 @@ describe('feature-locked sections stay null, never {}', () => {
 
       for (const key of Object.keys(locked)) {
         if (locked[key]) {
-          // sailing and sushiStation have moved off the null contract: their parsers now return a
-          // populated shape with an explicit `unlocked: false` flag, so a locked account can still
-          // see the artifact / upgrade catalog. The remaining four still signal "locked" by being
-          // null - converting one without auditing its consumers is what broke guild once already.
+          // These sections have moved off the null contract: their parsers now return a populated
+          // shape with an explicit `unlocked: false` flag, so a locked account can still see the
+          // artifact / upgrade / god / bonus catalog. The rest still signal "locked" by being null
+          // - converting one without auditing its consumers is what broke guild once already.
           // See __test__/parsers/sailing-locked-shape.test.js for the invariant that replaces this.
-          if (key === 'sailing' || key === 'sushiStation') {
+          if (CONVERTED.includes(key)) {
             expect(account[key], `${fixtureName}.account.${key} should be an object`).not.toBeNull();
             expect(account[key].unlocked, `${fixtureName}.account.${key} should report locked`).toBe(false);
             continue;

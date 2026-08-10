@@ -186,7 +186,9 @@ export const getPlayerAnvil = (character: any, characters: any, account: any) =>
     .map((item: any) => anvilProducts[item]);
 
   return {
-    guild: account?.guild?.guildBonuses?.length > 0,
+    // `guildBonuses` is now populated from the catalog even for a guild-less account, so length is
+    // no longer a proxy for "is in a guild" - read the flag the parser sets instead.
+    guild: account?.guild?.unlocked === true,
     stats,
     production,
     selected: selectedProducts
