@@ -58,10 +58,12 @@ export const getDoubleStatueDrop = (account: any, character: any, characters: an
   const tesseractBonus = getTesseractBonus(account, 18);
   const paletteBonus = getPaletteBonus(account, 19);
   const kattelkrukPlayer = characters?.find(({ linkedDeity }: any) => linkedDeity === 8); // kattelkruk is limited to only 1 player linked.
-  // Only compute the minor bonus when a character is actually linked to Kattelkruk - without a
-  // linked player (nobody has unlocked/linked this god), getMinorDivinityBonus divides an
-  // undefined divinity level by itself and returns NaN instead of "no bonus".
-  const divinityMinorBonus = kattelkrukPlayer ? getMinorDivinityBonus(kattelkrukPlayer, account, 8, characters) : 0;
+  // Passing an undefined player is deliberate: getMinorDivinityBonus falls through to the first
+  // character for the divinity level, which is what a minor bonus reads. The minor bonus is gated
+  // on owning the god, not on someone being linked to it - see the getMinorDivinityBonus calls in
+  // damage.ts, which gate on `hasDoot` rather than on a link. Guarding this on `kattelkrukPlayer`
+  // zeroed the bonus on every save with no Kattelkruk link.
+  const divinityMinorBonus = getMinorDivinityBonus(kattelkrukPlayer, account, 8, characters);
   const talentBonus = getTalentBonus(character?.flatStarTalents, 'STATUE_METALLURGY');
   
   return {

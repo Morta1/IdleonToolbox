@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { getPrinterMulti } from '@parsers/world-3/printer';
 import { getHoopsData, getDartsData } from '@parsers/highScores';
-import { isCompanionBonusActive, getEventShopBonus } from '@parsers/misc';
+import { isCompanionBonusActive, getEventShopBonus, getDoubleStatueDrop } from '@parsers/misc';
 import { getCompassBonus } from '@parsers/class-specific/compass';
 import { mainStatMap } from '@parsers/talents';
 import raw from '../../data/raw.json';
@@ -402,5 +402,58 @@ describe('accountLevel (empty character-slot level guard)', () => {
     const fourthFixture = FIXTURES.find(([name]) => name === 'fourth');
     const { characters } = parseFixture(fourthFixture[1]);
     expect(Number.isNaN(getAccountLevelPreFix(characters))).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// 3. Empty-account guards must not zero a real save.
+//
+// This is a defect class the NaN gate above is blind to by construction: a guard added to stop a
+// signed-out NaN can replace a real save's bonus with 0, and 0 is a finite, well-formed number that
+// every gate on this branch happily accepts.
+//
+// It happened. getDoubleStatueDrop gated its Kattelkruk minor bonus on `kattelkrukPlayer ? ... : 0`.
+// The minor bonus is gated on owning the god, not on someone being linked to it - see the
+// getMinorDivinityBonus calls in damage.ts, which gate on `hasDoot`. Three of the five fixtures have
+// no Kattelkruk link, and all three silently lost the bonus (8.44 / 9.70 / 5.71 -> 0) for the whole
+// life of the branch with the suite green.
+//
+// The guard was also unnecessary: the NaN it was written to stop is fixed at the root in
+// getMinorDivinityBonus, whose `?? 0` on the divinity level makes an empty account return 0 anyway.
+// ---------------------------------------------------------------------------------------------
+
+describe('getDoubleStatueDrop keeps the Kattelkruk minor bonus without a linked player', () => {
+  const UNLINKED = ['second', 'third', 'fourth'];
+
+  it.each(UNLINKED)('%s: has no Kattelkruk link, and still gets a non-zero divinity bonus', (name) => {
+    const fixture = FIXTURES.find(([fixtureName]) => fixtureName === name);
+    // If a fixture is renamed the .find returns undefined and this test would throw rather than
+    // pass vacuously, but assert the premise anyway so the failure names the real cause.
+    expect(fixture).toBeDefined();
+    const { account, characters } = parseFixture(fixture[1]);
+
+    expect(characters.some(({ linkedDeity }) => linkedDeity === 8)).toBe(false);
+
+    const { breakdown } = getDoubleStatueDrop(account, characters?.[0], characters);
+    const divinity = breakdown.find(({ name: label }) => label === 'Divinity').value;
+    expect(divinity).toBeGreaterThan(0);
+  });
+
+  it('an empty account still gets 0, not NaN, with no guard in getDoubleStatueDrop', () => {
+    // The load-bearing half: without this, deleting the guard could reintroduce the NaN it was
+    // added for. The root fix lives in getMinorDivinityBonus, not here.
+    const { account, characters } = parseEmpty();
+    const { value, breakdown } = getDoubleStatueDrop(account, characters?.[0], characters);
+    const divinity = breakdown.find(({ name: label }) => label === 'Divinity').value;
+    expect(Number.isNaN(divinity)).toBe(false);
+    expect(divinity).toBe(0);
+    expect(Number.isFinite(value)).toBe(true);
+  });
+
+  it('a save WITH a linked player is unaffected', () => {
+    const { account, characters } = parseRaw();
+    expect(characters.some(({ linkedDeity }) => linkedDeity === 8)).toBe(true);
+    const { breakdown } = getDoubleStatueDrop(account, characters?.[0], characters);
+    expect(breakdown.find(({ name: label }) => label === 'Divinity').value).toBeGreaterThan(0);
   });
 });
