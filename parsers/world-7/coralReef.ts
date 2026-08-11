@@ -77,12 +77,17 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
     'Dropped_by_RIPtide'
   ];
 
-  // generalSpelunky[22]/[23] carry 9 entries, but the last four are unshipped "who_knows"
-  // placeholders - the game only has 6 dancing corals, which is what the old `.filter(index < 6)`
-  // below encoded. Naming it here and sizing the roster off it (instead of off the save's own tower
-  // array, which is empty without a save) is what makes all 6 render for a signed-out visitor.
-  const DANCING_CORAL_COUNT = 6;
-  const dancingCoral = Array.from({ length: DANCING_CORAL_COUNT }, (_, index) => {
+  // Sized off the catalog, not a literal. The previous `6` was wrong in both directions: it was a
+  // magic number, and it under-counted.
+  //
+  // The reasoning behind it was that generalSpelunky[22]/[23] carry 9 entries of which the last four
+  // have "who_knows" descriptions, so those must be unshipped. Checked against the running game,
+  // they are not: DancingCoralCOST returns a real cost for every one of the 9 (index 5 -> 9900.99,
+  // index 8 -> 495049.5, matching generalSpelunky[22] 10000 and 500000 reduced by the same 1.01),
+  // and the game's own coral UI loops `9 > t`. Only the BONUS descriptions are unwritten; the corals
+  // are purchasable, and the game displays them with the placeholder text exactly as this now does.
+  const dancingCoralCount = dancingCoralDescriptions.length;
+  const dancingCoral = Array.from({ length: dancingCoralCount }, (_, index) => {
     const level = rawDancingCoral?.[index] || 0;
     const baseDescription = dancingCoralDescriptions[index] || '';
     const description = getDancingCoralDescription(baseDescription, account, index);

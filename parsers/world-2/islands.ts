@@ -65,6 +65,14 @@ export const getIslands = (account: Account, characters: any[]) => {
   // DN3 was last 5 - i.e. it freezes at 500. `6: 500` reproduces that freeze instead of leaving the
   // lookup miss undefined (which turned every unlocked island's `cost` into NaN once a player unlocks
   // all six - see reference ternary preserved above).
+  //
+  // Partly confirmed against the running game. Its PRE-unlock chain is visible in full and ends at 5
+  // with no sixth branch, and its values are exactly OLD_PRE_UNLOCK_MULTIPLIERS below - so the shape
+  // this reasoning depends on is real. The post-unlock chain is written the same way but sits in a
+  // single minified line too long to read whole, and the account available for checking has 5 of the
+  // 6 islands, so DN3 === 6 could not be exercised without editing a save. The `500` is therefore
+  // inferred from a verified pattern, not observed. What IS certain is that leaving index 6 out
+  // produces NaN, which is strictly worse than a wrong-but-finite multiplier.
   const multipliers: Record<number, number> = { 0: 0, 1: 15, 2: 45, 3: 100, 4: 200, 5: 500, 6: 500 };
   const islands = [
     { name: 'Trash', description: 'Trade_garbage_that_washs_up_each_day_for_items', preUnlockCost: 4, baseCost: 10 },

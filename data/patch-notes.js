@@ -38,7 +38,7 @@ export const patchNotes = [
       'Dashboard: the companion claim and megaflesh timers no longer show "NaNENaN days" in their tooltips',
       'Cauldrons: the page showed only its headings when signed out - it now lists all four brewing cauldrons with their boosts, and every Pay 2 Win liquid and cauldron upgrade, at zero',
       'Sigils: the page showed only its two header cards when signed out - it now lists all 24 sigils with their effects and unlock costs',
-      'Coral Reef: reef upgrades and dancing corals were listed as unavailable when signed out, and for accounts from before the feature existed - all six of each now show with their bonuses and costs',
+      'Coral Reef: reef upgrades and dancing corals were listed as unavailable when signed out, and for accounts from before the feature existed - they now all show with their bonuses and costs',
       'Stat cards sitting at zero showed an empty box instead of "0" - this affected every stat card across the site, most visibly on The Hole',
       'Constellations: the page showed only its column headers when signed out - it now lists all 49 constellations with their locations, requirements, and points',
       'Construction optimizer: the plan could include steps that move an empty slot into another empty slot, which do nothing, and its progress bar could tick past 100%',
@@ -56,7 +56,9 @@ export const patchNotes = [
       'Removed the extra empty space above the first row of cards on a page',
       'Farming: the Insta Grow card was blank instead of showing 0, and the bean market\'s "next requirement" did not show how many beans you own, when signed out',
       'Statues: the double statue drop chance lost its Divinity portion unless one of your characters was linked to Kattelkruk - the minor bonus applies once you own the god',
-      'Kangaroo, Slab, and Tome: the second row of stat cards sat further from the first than the other rows did'
+      'Kangaroo, Slab, and Tome: the second row of stat cards sat further from the first than the other rows did',
+      'Gaming: the Rat King shop showed a cost of "Infinity" before you unlock the King Rat - it now shows the real starting cost',
+      'Coral Reef: only 6 of the 9 dancing corals were listed'
     ]
   },
   {

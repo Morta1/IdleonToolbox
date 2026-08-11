@@ -62,7 +62,8 @@ export const KNOWN_NAN_EXCEPTIONS = [];
 
 // Infinity is the other half of "bad arithmetic", and until now nothing checked a real save for it.
 // The e2e gate matches the rendered word "Infinity", but it only ever loads a page signed out, so no
-// page built from a save was checked by anything - which is how the ratKing entry below survived.
+// page built from a save was checked by anything - which is how gaming's ratKing shop costs sat at
+// Infinity on two fixtures until this gate was added. That one is fixed at the root now.
 //
 // Each entry needs a reason. An entry here is a claim that the value is CORRECT, or a recorded bug.
 export const KNOWN_NON_FINITE_EXCEPTIONS = {
@@ -85,13 +86,6 @@ export const KNOWN_NON_FINITE_EXCEPTIONS = {
   // unreachable requirement should read as is a product call, not a parser fix.
   'button.taskSequence.[].requirement': 'BUG (pre-existing): renders as the word "Infinity" on a large account',
   'button.taskSequence.[].futureRequirements.[]': 'BUG (pre-existing): renders as the word "Infinity" on a large account',
-  // KNOWN BUG, not a correct value. gaming.ts reads gamingSproutRaw[33] as
-  // [ratBaseBonus, currencyUpgLv, crownOddsUpgLv, bitMultiUpgLv], but slot [1] holds ~11.2e6 in
-  // second/fourth, which is a currency total rather than a level - so calcRatShopCost computes
-  // 1.15 ** 11185751. Before this branch getGaming returned null whenever Spelunk was absent (true
-  // for every fixture), so the section never rendered and the misread never showed. Fixing it needs
-  // the real slot mapping verified game-side; until then it is recorded here rather than hidden.
-  'gaming.ratKing.shopUpgrades.[].cost': 'BUG: slot 33 index mapping misreads a currency as a level'
 };
 
 const countNonFinite = (root, { includeNaN }) => {
@@ -1130,3 +1124,55 @@ describe('getSlab lootedItems/rawLootedItems (lootyRaw?.length guard)', () => {
 // that the guards were no-ops rather than gating that they stay correct. The few parser OUTPUTS it
 // did touch were isFinite checks, which the unscoped NaN gate above already makes across every
 // account key on all seven saves.
+
+// ---------------------------------------------------------------------------------------------
+// gaming ratKing shop - GamingSprout[33] only holds the rat shop once the king rat is unlocked.
+//
+// Verified against the running game: on an unlocked account GamingSprout[33] is
+// [704, 67, 57, 75, 204, 383] - a base bonus then the three upgrade levels - which matches both
+// data/raw.json and the parser's destructure, and the game's own RatShopCost reads [33][t+1] exactly
+// as calcRatShopCost does. The index mapping was never wrong.
+//
+// While LOCKED the slot still carries whatever it held when that index was an ordinary sprout row,
+// and a sprout's [1] is an accumulated float - 11185751 on second, 11633189 on fourth - which read as
+// a level made the cost 1.15 ** 11185751, i.e. Infinity, rendered as the word.
+// ---------------------------------------------------------------------------------------------
+
+describe('gaming ratKing shop costs', () => {
+  const ratCosts = (account) => account?.gaming?.ratKing?.shopUpgrades?.map(({ cost }) => cost) ?? [];
+
+  it.each([...FIXTURES, ['raw', raw]])('%s: every shop cost is finite', (name, fixture) => {
+    const { account } = name === 'raw' ? parseRaw() : parseFixture(fixture);
+    const costs = ratCosts(account);
+    expect(costs).toHaveLength(3);
+    costs.forEach((cost) => expect(Number.isFinite(cost)).toBe(true));
+  });
+
+  it('second and fourth really did produce Infinity before the unlock gate', () => {
+    // Without this the gate above could be passing because the input changed rather than because the
+    // fix works. Reads the raw slot the way the parser used to, unconditionally.
+    const affected = ['second', 'fourth'].map((name) => {
+      const fixture = FIXTURES.find(([fixtureName]) => fixtureName === name);
+      expect(fixture).toBeDefined();
+      const data = fixture[1].data ?? fixture[1];
+      const slot = tryToParse(data?.GamingSprout)?.[33] ?? [];
+      return 2 * (Math.pow(1.15, slot?.[1] ?? 0) + (slot?.[1] ?? 0));
+    });
+    affected.forEach((cost) => expect(cost).toBe(Infinity));
+  });
+
+  it('an unlocked account still reads its real upgrade levels', () => {
+    // The other half: the gate must not zero a shop that genuinely exists. raw.json's slot 33 is the
+    // same shape the live game reports.
+    const { account } = parseRaw();
+    expect(account.gaming.ratKing.kingRatUnlocked).toBe(true);
+    expect(account.gaming.ratKing.shopUpgrades.map(({ level }) => level)).toEqual([67, 57, 75]);
+    ratCosts(account).forEach((cost) => expect(cost).toBeGreaterThan(2));
+  });
+
+  it('a locked account reads a fresh shop, not the stale slot', () => {
+    const { account } = parseEmpty();
+    expect(account.gaming.ratKing.kingRatUnlocked).toBe(false);
+    expect(account.gaming.ratKing.shopUpgrades.map(({ level }) => level)).toEqual([0, 0, 0]);
+  });
+});

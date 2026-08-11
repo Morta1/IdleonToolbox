@@ -5,7 +5,7 @@ import { getCards, calculateStars } from '@parsers/cards';
 import { cauldronsIndexMapping, getLiquidCauldrons, liquidsIndex } from '@parsers/world-2/alchemy';
 import { BOARD_SIZE } from '@parsers/world-3/constructionOptimizer';
 import { getAnvilProductCatalog } from '@parsers/world-1/anvil';
-import { anvilProducts, cards, constellations as constellationsCatalog, coralReef, equipmentSets, flagsReqs, invStorage, sigils } from '@website-data';
+import { anvilProducts, cards, constellations as constellationsCatalog, coralReef, equipmentSets, flagsReqs, generalSpelunky, invStorage, sigils } from '@website-data';
 import { tryToParse } from '@utility/helpers';
 import { isBundlePurchased } from '@parsers/misc';
 import first from '../fixtures/first.json';
@@ -566,9 +566,13 @@ describe('alchemy sigils (catalog-driven: sigilsData.length loop -> sigils catal
  * fixed rosters.
  */
 describe('coral reef (catalog-driven: save-length loops -> coralReef catalog / fixed coral roster)', () => {
-  // generalSpelunky[22]/[23] list 9, but the last entries are unshipped "who_knows" placeholders -
-  // the parser ships 6, which is what the page has always displayed.
-  const DANCING_CORAL_COUNT = 6;
+  // Derived from the catalog, not pinned. The parser used to hardcode 6 on the theory that the last
+  // four of generalSpelunky[22]/[23]'s 9 entries were unshipped because their descriptions read
+  // "who_knows". Checked against the running game, they are shipped: DancingCoralCOST returns a real
+  // cost for all 9 (index 5 -> 9900.99, index 8 -> 495049.5, matching generalSpelunky[22]'s 10000 and
+  // 500000 under the same reduction), and the game's own coral UI loops `9 > t`. Only the bonus TEXT
+  // is unwritten.
+  const DANCING_CORAL_COUNT = generalSpelunky[22].length;
 
   it('renders every catalog reef upgrade at level 0 with no save', () => {
     const { account } = parseEmpty();
@@ -580,6 +584,14 @@ describe('coral reef (catalog-driven: save-length loops -> coralReef catalog / f
       expect(reef.description).toBeTruthy();
       expect(Number.isFinite(reef.cost)).toBe(true);
     });
+  });
+
+  it('the coral catalog is the 9 the game ships, so the roster length is not pinned to a literal', () => {
+    // Guards the derivation: if generalSpelunky ever loses its shape, DANCING_CORAL_COUNT would go to
+    // 0 or undefined and every length assertion below would pass vacuously.
+    expect(generalSpelunky[22]).toHaveLength(9);
+    expect(generalSpelunky[23]).toHaveLength(9);
+    expect(DANCING_CORAL_COUNT).toBe(9);
   });
 
   it('renders the full dancing coral roster at level 0 with no save', () => {

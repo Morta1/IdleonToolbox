@@ -602,7 +602,19 @@ export const isSuperbitUnlocked = (account: any, superbitName: any) => {
 }
 
 const calcRatKing = (gamingSproutRaw: any, researchRaw: any, account: any, superbitsUpg: any) => {
-  const ratShopRaw = gamingSproutRaw?.[33] ?? [];
+  // GamingSprout[33] only holds the rat shop once the king rat is unlocked. Before that the slot
+  // still carries whatever it was when that index was an ordinary sprout row, and a sprout's [1] is
+  // an accumulated float - 11185751 on two of the fixtures - which read as an upgrade LEVEL made
+  // calcRatShopCost evaluate 1.15 ** 11185751, i.e. Infinity, rendered as the word.
+  //
+  // Verified against the running game: on an unlocked account GamingSprout[33] is
+  // [704, 67, 57, 75, 204, 383] - a base bonus then the three upgrade levels - which is exactly this
+  // destructure, and `RatShopCost` in the game reads [33][t+1] just as calcRatShopCost does. The
+  // index mapping was never wrong; reading the slot at all while locked is.
+  //
+  // The game gates on the same flag: its RatCurrencyGain returns 0 when KingRatUnlocked is 0.
+  const kingRatUnlocked = account?.research?.kingRatUnlocked ?? 0;
+  const ratShopRaw = kingRatUnlocked ? (gamingSproutRaw?.[33] ?? []) : [];
   const [ratBaseBonus, currencyUpgLv, crownOddsUpgLv, bitMultiUpgLv] = ratShopRaw;
   const crownsCount = researchRaw?.[11]?.length ?? 0;
 
@@ -627,7 +639,6 @@ const calcRatKing = (gamingSproutRaw: any, researchRaw: any, account: any, super
     * (1 + getSushiBonus(account, 31) / 100)
   );
 
-  const kingRatUnlocked = account?.research?.kingRatUnlocked ?? 0;
   const paletteBonus34 = getPaletteBonus(account, 34) ?? 0;
   const gridBonus108 = getResearchGridBonus(account, 108, 0);
   const ratCurrencyGain = kingRatUnlocked === 0 ? 0
