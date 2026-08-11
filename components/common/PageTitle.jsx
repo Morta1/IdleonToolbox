@@ -37,12 +37,18 @@ const PageTitle = () => {
   const title = seo.title?.replace(/\s*\|.*$/, '')?.trim();
   if (!title) return null;
 
-  // 18px rather than body size: at 16px this read as SMALLER than the section headings beneath it,
-  // so the page looked hierarchically upside down even though its outline was correct. 18px still
-  // fits inside the row the Pin button already sets the height of, so it stays free.
+  // 20px, which is what a section heading (h6) measures - at body size, and then at 18px, this read
+  // as SMALLER than the headings beneath it, so the page looked hierarchically upside down even
+  // though its outline was correct. 20px still fits inside the row the Pin button already sets the
+  // height of, so it stays free.
+  //
+  // It is deliberately not sized to beat the LARGEST section heading. Those range from 20px to 32px
+  // for the same structural role depending on the page, so matching the biggest would mean a ~34px
+  // heading that breaks the zero-extra-height property this whole approach exists for. The real
+  // inconsistency is in the section headings, and it predates this.
   return <Typography
     component={'h1'}
-    sx={{ fontSize: 18, fontWeight: 600, m: 0, whiteSpace: 'nowrap' }}>
+    sx={{ fontSize: 20, fontWeight: 600, m: 0, whiteSpace: 'nowrap' }}>
     {title}
   </Typography>;
 };
