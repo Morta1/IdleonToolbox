@@ -43,7 +43,10 @@ export const patchNotes = [
       'Constellations: the page showed only its column headers when signed out - it now lists all 49 constellations with their locations, requirements, and points',
       'Construction optimizer: the plan could include steps that move an empty slot into another empty slot, which do nothing, and its progress bar could tick past 100%',
       'Active Stuff Calculator: every number showed as "NaN" if you had taken a snapshot before and then opened the page without being signed in - it now asks you to sign in instead',
-      'Active Stuff Calculator: the Pets section was offered on every class instead of only Beast Master and Wind Walker'
+      'Active Stuff Calculator: the Pets section was offered on every class instead of only Beast Master and Wind Walker',
+      'Dashboard, Companions, and Breeding: countdown timers counted from 1970 when signed out, showing "20660d" instead of the real time remaining',
+      'Traps: collect rates showed "-Infinity%" when signed out',
+      'Sailing: the Maneki Kat and Ashen Urn artifacts showed "-Infinity" for their total bonus when signed out'
     ]
   },
   {

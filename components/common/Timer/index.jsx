@@ -27,7 +27,11 @@ const Timer = forwardRef(({
         return setTime({ ...duration });
       }
       const tempTime = new Date();
-      const timePassed = (tempTime.getTime() - (lastUpdated ?? 0));
+      // `lastUpdated` is when the save was taken, and this measures how much real time has passed
+      // since. With no save there is no such moment, and the old `?? 0` measured from the epoch
+      // instead - about 56.6 years, which every timer on the page then rendered as "20660d:12h:51m".
+      // No save means no time has passed, not that all of it has.
+      const timePassed = lastUpdated ? tempTime.getTime() - lastUpdated : 0;
       const dateIsInPast = isPast(date)
       let duration = getDuration(tempTime?.getTime(), date + (timePassed * (type === 'countdown' ? -1 : 1)));
       setTime({ ...duration, overtime: type === 'countdown' ? dateIsInPast : false });

@@ -61,14 +61,22 @@ export const getTrapsBonuses = (account: any, characters: any) => {
     characters,
     isExp: true
   }))
+  // `characters?.map(...)` on an empty character list returns [], which is truthy - so the `|| [1]`
+  // fallback these four lines used to rely on could only ever fire when `characters` was undefined,
+  // never when it was empty. Math.max() of nothing is -Infinity and Math.min() of nothing is
+  // Infinity, which the page renders as "Collect Rates: -Infinity% and -Infinity% EXP". Falling back
+  // on length keeps the 1 (i.e. 100%) the original fallback intended.
+  const withFallback = (bonuses: any[] | undefined, pick: (...values: number[]) => number) =>
+    bonuses?.length ? pick(...bonuses) : 1;
+
   return {
     max: {
-      critter: Math.max(...(critterBonuses || [1])),
-      exp: Math.max(...(expBonuses || [1]))
+      critter: withFallback(critterBonuses, Math.max),
+      exp: withFallback(expBonuses, Math.max)
     },
     min: {
-      critter: Math.min(...(critterBonuses || [1])),
-      exp: Math.min(...(expBonuses || [1]))
+      critter: withFallback(critterBonuses, Math.min),
+      exp: withFallback(expBonuses, Math.min)
     }
   }
 }

@@ -666,8 +666,12 @@ export const getCharacterByHighestSkillLevel = (characters: any, className: any,
 };
 
 export const getHighestLevelCharacter = (characters: any) => {
-  const levels = characters?.map(({ level }: any) => level ?? 0);
-  return Math.max(...levels);
+  const levels = characters?.map(({ level }: any) => level ?? 0) ?? [];
+  // Same defect as getHighestCharacterSkill directly below, which was fixed while this sibling was
+  // missed: Math.max() of nothing is -Infinity, and with no characters this fed the Maneki Kat and
+  // Ashen Urn sailing artifacts, which render it as "+-Infinity% coins". Levels are never negative,
+  // so the 0 floor cannot change a real save's value.
+  return Math.max(0, ...levels);
 };
 
 export const getHighestCharacterSkill = (characters: any = [], skillName: any) => {

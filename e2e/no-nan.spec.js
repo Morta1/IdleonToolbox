@@ -27,6 +27,13 @@
  * into the error boundary previously passed this gate trivially, because a caught crash renders
  * neither "NaN" nor prior fixture text, which is exactly how the tasks.jsx crash went unnoticed.
  *
+ * Widened again after a logged-out sweep found six routes rendering broken numbers through a green
+ * gate. "NaN" is only one of the shapes bad arithmetic takes, and the other shapes are all
+ * well-formed finite strings this gate had no reason to look at: "-Infinity%" (traps, sailing - a
+ * zero denominator rather than an absent one) and "20660d:12h:51m" (dashboard, pets, breeding - a
+ * duration measured from the epoch instead of from a real timestamp). Both are as wrong on screen as
+ * "NaN" is, and neither contains it. See OFFENDING_TEXT_PATTERN for what the gate now matches.
+ *
  * Any route added here in the future is run through test.fail(): Playwright inverts the pass/fail
  * result for a test wrapped this way, so the test SUITE goes green while a route is still dirty,
  * and turns red the moment that route becomes unexpectedly clean - which is the signal to delete it
@@ -90,6 +97,17 @@ const ALLOWED_UNDEFINED_TEXT = new Set([
   'Task Board no longer fails to load when signed out, and Event Shop, Gem Shop, Weekly Bosses, Rift, Spelunking, and Formulas pages no longer show the word "undefined" for currencies, purchases, task progress, and rates when signed out',
 ]);
 
+// The only page text that legitimately contains the word "Infinity": the gem shop item whose
+// displayName in website-data.json is INFINITY_HAMMER, rendered through camelToTitleCase. Same
+// pattern as the two allowlists above - an exact-text entry, not a route skip, so a real Infinity
+// elsewhere on the gem shop page still fails.
+const ALLOWED_INFINITY_TEXT = new Set([
+  'Infinity hammer',
+  // Patch notes describing this very fix, which have to quote the broken value to be understood.
+  'Traps: collect rates showed "-Infinity%" when signed out',
+  'Sailing: the Maneki Kat and Ashen Urn artifacts showed "-Infinity" for their total bonus when signed out',
+]);
+
 // The exact fallback titles pages/_app.jsx passes to ErrorBoundary. A caught render crash shows one
 // of these instead of the page's real content - it renders neither "NaN" nor "undefined", so
 // without this explicit check a crashed page passes the rest of this gate trivially (this is how
@@ -105,23 +123,53 @@ const ERROR_BOUNDARY_TEXT = ['This page failed to render', 'The app failed to lo
 // newly-introduced regression.
 const EXPECTED_DIRTY_ROUTES = [];
 
+/**
+ * The single definition of "a number went wrong on screen", shared by the route walk and the tooltip
+ * hover below. It lived in two places before and they drifted: the tooltip scan checked Infinity,
+ * the route walk did not, and six routes rendered "-Infinity%" and epoch-derived timers through a
+ * fully green gate for exactly that reason.
+ *
+ * Serialized as a string because it has to be injected into page.evaluate, where a closure over a
+ * Node-side function is not available.
+ */
+const OFFENDING_TEXT_PATTERN = new RegExp([
+  // Arithmetic on undefined. "NaNENaN" (notateNumber of a NaN) and "NaNx" are substrings of this.
+  'NaN',
+  // String interpolation of an undefined value, rather than arithmetic on one. Word-boundary
+  // matched, so it catches "X / undefined" mid-sentence but not a longer identifier.
+  '\\bundefined\\b',
+  // Division by a zero denominator instead of an absent one. Covers "-Infinity" too: the "-" is a
+  // non-word character, so the leading \b still holds.
+  '\\bInfinity\\b',
+  // `new Date(NaN)` reaching toLocaleString / date-fns.
+  'Invalid Date',
+  // A duration rendered as "20660d:12h:51m" - about 56.6 years, which is today minus the epoch. A
+  // duration measured from 0 instead of from a real timestamp is always this shape. The threshold
+  // is 4+ digits (1000 days, ~2.7 years); a sweep of all 106 routes matched only the three genuinely
+  // broken timers at that threshold, no legitimate long countdown.
+  '\\b\\d{4,}d:'
+].join('|'));
+
 // Full, untruncated text is what gets compared against the allowlists above; only the reported
 // failure message truncates for readability.
 const findOffendingTextNodes = async (page) => {
-  return page.evaluate(() => {
+  return page.evaluate((pattern) => {
+    const offending = new RegExp(pattern);
     const found = [];
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     let node;
     while ((node = walker.nextNode())) {
       const text = node.textContent?.trim();
       if (!text) continue;
-      // Word-boundary match: catches "undefined" as its own word (including mid-sentence, e.g. "X
-      // / undefined" or "defeated undefined so far"), but not as part of a longer identifier/word.
-      if (/NaN/.test(text) || /\bundefined\b/.test(text)) found.push(text);
+      if (offending.test(text)) found.push(text);
     }
     return found;
-  });
+  }, OFFENDING_TEXT_PATTERN.source);
 };
+
+const isAllowed = (text) => ALLOWED_NAN_TEXT.has(text)
+  || ALLOWED_UNDEFINED_TEXT.has(text)
+  || ALLOWED_INFINITY_TEXT.has(text);
 
 /**
  * Every test here used to sleep a flat 3.5s to let the client-side empty-account parse land - 105
@@ -133,11 +181,15 @@ const findOffendingTextNodes = async (page) => {
  *   2. The rendered text has stopped changing, sampled twice 200ms apart. React renders in more
  *      than one pass on most of these pages, so "loader gone" alone is too early.
  *
- * The old 3.5s remains the cap, so a page slower than before still gets exactly what it got before,
- * and this can only make the gate wait longer than it needs - never read the DOM sooner than the
- * page has settled.
+ * Running out of time is a failure, not a result. This used to return quietly when its cap expired,
+ * which meant a page too slow to finish rendering got scanned half-built and passed the gate on the
+ * strength of content that was not there yet. That is not hypothetical: /dashboard and
+ * /account/world-4/breeding both render a broken "20660d:" timer, both fail this gate when run
+ * alone, and both PASSED in the same full-suite run - four workers against one `next dev` made them
+ * slow enough to be read early. A timeout now throws, so the gate can only be green about a page it
+ * actually finished looking at.
  */
-const waitForRender = async (page, maxMs = 3500) => {
+const waitForRender = async (page, maxMs = 15_000) => {
   const deadline = Date.now() + maxMs;
   await page
     .waitForFunction(() => !document.querySelector('[data-testid="page-loader"]'), null, { timeout: maxMs })
@@ -150,6 +202,7 @@ const waitForRender = async (page, maxMs = 3500) => {
     previous = length;
     await page.waitForTimeout(200);
   }
+  throw new Error(`page never stopped rendering within ${maxMs}ms - the scan below would have read a half-built DOM`);
 };
 
 const routes = discoverRoutes();
@@ -170,7 +223,7 @@ test.describe('No "NaN"/"undefined"/crash fallback reaches the rendered page for
 
       const hits = await findOffendingTextNodes(page);
       const offending = hits
-        .filter((text) => !ALLOWED_NAN_TEXT.has(text) && !ALLOWED_UNDEFINED_TEXT.has(text))
+        .filter((text) => !isAllowed(text))
         .map((text) => text.slice(0, 200));
 
       for (const errorText of ERROR_BOUNDARY_TEXT) {
@@ -215,7 +268,7 @@ test('active stuff calculator renders no NaN with a leftover snapshot and no sav
   await page.goto('/tools/active-stuff-calculator', { waitUntil: 'domcontentloaded' });
   await waitForRender(page);
 
-  const hits = await findOffendingTextNodes(page);
+  const hits = (await findOffendingTextNodes(page)).filter((text) => !isAllowed(text));
   expect(hits, `Bad text found:\n${hits.join('\n')}`).toEqual([]);
 });
 
@@ -234,7 +287,7 @@ test('dashboard timer tooltips render no NaN/Infinity/undefined for a logged-out
       const tips = await page.$$eval('[role="tooltip"]', (els) => els.map((el) => el.innerText));
       for (const text of tips) {
         seen.add(text);
-        if (/\bNaN|\bInfinity\b|\bundefined\b/.test(text)) offending.add(text.slice(0, 200));
+        if (OFFENDING_TEXT_PATTERN.test(text) && !isAllowed(text)) offending.add(text.slice(0, 200));
       }
     } catch {
       // Not hoverable (offscreen, detached, covered) - skip it.
