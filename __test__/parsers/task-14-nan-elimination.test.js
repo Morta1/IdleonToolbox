@@ -43,16 +43,54 @@ const FIXTURES = fs.readdirSync(FIXTURES_DIR)
 // unscoped walk found nothing else left anywhere in any of the seven saves.
 export const KNOWN_NAN_EXCEPTIONS = [];
 
-const countNaN = (root) => {
+// Infinity is the other half of "bad arithmetic", and until now nothing checked a real save for it.
+// The e2e gate matches the rendered word "Infinity", but it only ever loads a page signed out, so no
+// page built from a save was checked by anything - which is how the ratKing entry below survived.
+//
+// Each entry needs a reason. An entry here is a claim that the value is CORRECT, or a recorded bug.
+export const KNOWN_NON_FINITE_EXCEPTIONS = {
+  // Deliberate sentinel: `maxLevel > 998 ? Infinity : maxLevel` in sushiStation.ts marks an uncapped
+  // upgrade. Upgrades.jsx renders it as the infinity glyph, never as the word.
+  'sushiStation.upgrades.[].maxLevel': 'intentional uncapped-upgrade sentinel',
+  // 0 opals invested means a 0 exp rate, and time-to-next-level divides by it. Consumed only through
+  // getRealDateInMs, which has its own non-finite branch.
+  'hole.villagers.[].timeLeft': 'no exp rate without opals invested; rendered via getRealDateInMs',
+  // Genuine float overflow, not a parsing mistake: the cost is baseCost * powBase ** (level * 10 /
+  // reqItemMultiplicationLevel), and a high enough stamp level exceeds Number.MAX_VALUE. Pre-existing
+  // (present at this branch's merge base) and out of its scope.
+  'stamps.misc.[].goldCost': 'float overflow on a genuinely astronomical cost - pre-existing',
+  'stamps.misc.[].futureCosts.[].goldCost': 'float overflow on a genuinely astronomical cost - pre-existing',
+  // Same overflow shape, but this one is USER-VISIBLE and pre-existing: getTaskRequirement's
+  // `base * factor ** totalPresses` exceeds Number.MAX_VALUE on a large account, and
+  // formatLargeNumber sends anything >= 1e15 through toExponential, which renders Infinity as the
+  // literal string "Infinity" inside the task description. The e2e gate does match that word, but it
+  // only ever loads a page signed out, so nobody saw it. Left as found - deciding what an
+  // unreachable requirement should read as is a product call, not a parser fix.
+  'button.taskSequence.[].requirement': 'BUG (pre-existing): renders as the word "Infinity" on a large account',
+  'button.taskSequence.[].futureRequirements.[]': 'BUG (pre-existing): renders as the word "Infinity" on a large account',
+  // KNOWN BUG, not a correct value. gaming.ts reads gamingSproutRaw[33] as
+  // [ratBaseBonus, currencyUpgLv, crownOddsUpgLv, bitMultiUpgLv], but slot [1] holds ~11.2e6 in
+  // second/fourth, which is a currency total rather than a level - so calcRatShopCost computes
+  // 1.15 ** 11185751. Before this branch getGaming returned null whenever Spelunk was absent (true
+  // for every fixture), so the section never rendered and the misread never showed. Fixing it needs
+  // the real slot mapping verified game-side; until then it is recorded here rather than hidden.
+  'gaming.ratKing.shopUpgrades.[].cost': 'BUG: slot 33 index mapping misreads a currency as a level'
+};
+
+const countNonFinite = (root, { includeNaN }) => {
   let count = 0;
   const paths = [];
   const seen = new WeakSet();
   const walk = (v, path_, depth) => {
     if (depth > 16 || v == null) return;
     if (typeof v === 'number') {
-      if (Number.isNaN(v)) {
+      const isBad = includeNaN ? Number.isNaN(v) : (v === Infinity || v === -Infinity);
+      if (isBad) {
         const collapsed = path_.replace(/\.\d+(\.|$)/g, '.[]$1');
-        if (!KNOWN_NAN_EXCEPTIONS.includes(collapsed)) {
+        const allowed = includeNaN
+          ? KNOWN_NAN_EXCEPTIONS.includes(collapsed)
+          : collapsed in KNOWN_NON_FINITE_EXCEPTIONS;
+        if (!allowed) {
           count++;
           paths.push(collapsed);
         }
@@ -66,6 +104,9 @@ const countNaN = (root) => {
   Object.entries(root ?? {}).forEach(([k, v]) => walk(v, k, 0));
   return { count, paths };
 };
+
+const countNaN = (root) => countNonFinite(root, { includeNaN: true });
+const countInfinity = (root) => countNonFinite(root, { includeNaN: false });
 
 describe('NaN gate: every account key, on every save available', () => {
   it('produces zero NaN on an empty parse', () => {
@@ -93,6 +134,58 @@ describe('NaN gate: every account key, on every save available', () => {
     const { count, paths } = countNaN(account);
     expect(paths).toEqual([]);
     expect(count).toBe(0);
+  });
+});
+
+describe('Infinity gate: every account key, on every save available', () => {
+  it('produces zero unexplained Infinity on an empty parse', () => {
+    const { account } = parseEmpty();
+    const { paths } = countInfinity(account);
+    expect(paths).toEqual([]);
+  });
+
+  it('produces zero unexplained Infinity on data/raw.json', () => {
+    const { account } = parseRaw();
+    const { paths } = countInfinity(account);
+    expect(paths).toEqual([]);
+  });
+
+  it.each(FIXTURES)('%s: produces zero unexplained Infinity, unscoped', (_name, fixture) => {
+    const { account } = parseFixture(fixture);
+    const { paths } = countInfinity(account);
+    expect(paths).toEqual([]);
+  });
+
+  it('the walk really does see Infinity - every allowlisted path is still reachable', () => {
+    // Without this the allowlist could quietly cover paths that no longer exist, and the gate above
+    // would pass by finding nothing at all rather than by finding only explained values.
+    const everyPath = new Set();
+    [parseEmpty(), parseRaw(), ...FIXTURES.map(([, fixture]) => parseFixture(fixture))]
+      .forEach(({ account }) => countNonFinite(account, { includeNaN: false, }).paths.forEach((p) => everyPath.add(p)));
+
+    // With the allowlist bypassed, the same walk must surface each entry - otherwise it is dead.
+    const withoutAllowlist = new Set();
+    const collect = (root) => {
+      const seen = new WeakSet();
+      const walk = (v, path_, depth) => {
+        if (depth > 16 || v == null) return;
+        if (typeof v === 'number') {
+          if (v === Infinity || v === -Infinity) withoutAllowlist.add(path_.replace(/\.\d+(\.|$)/g, '.[]$1'));
+          return;
+        }
+        if (typeof v !== 'object' || seen.has(v)) return;
+        seen.add(v);
+        Object.entries(v).forEach(([k, x]) => walk(x, `${path_}.${k}`, depth + 1));
+      };
+      Object.entries(root ?? {}).forEach(([k, v]) => walk(v, k, 0));
+    };
+    [parseEmpty(), parseRaw(), ...FIXTURES.map(([, fixture]) => parseFixture(fixture))]
+      .forEach(({ account }) => collect(account));
+
+    expect(withoutAllowlist.size).toBeGreaterThan(0);
+    Object.keys(KNOWN_NON_FINITE_EXCEPTIONS).forEach((allowed) => {
+      expect(withoutAllowlist.has(allowed)).toBe(true);
+    });
   });
 });
 
