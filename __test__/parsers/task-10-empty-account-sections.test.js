@@ -2,9 +2,9 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { getCards, calculateStars } from '@parsers/cards';
-import { getLiquidCauldrons } from '@parsers/world-2/alchemy';
+import { cauldronsIndexMapping, getLiquidCauldrons, liquidsIndex } from '@parsers/world-2/alchemy';
 import { BOARD_SIZE } from '@parsers/world-3/constructionOptimizer';
-import { cards, equipmentSets, flagsReqs } from '@website-data';
+import { cards, coralReef, equipmentSets, flagsReqs, sigils } from '@website-data';
 import { tryToParse } from '@utility/helpers';
 import { isBundlePurchased } from '@parsers/misc';
 import first from '../fixtures/first.json';
@@ -380,5 +380,249 @@ describe('statues (getHighestLevelStatues empty-characters guard)', () => {
     const { account } = parseFixture(fixture);
     expect(account.statues.length).toBeGreaterThan(0);
     expect(account.statues.every((s) => Number.isFinite(s.level))).toBe(true);
+  });
+});
+
+/**
+ * The cauldrons page rendered nothing but its four headings for a logged-out visitor: `getCauldrons`
+ * looped `cauldronsRaw.length` and `getPay2Win` chunked the save's own arrays, so with no save every
+ * one of them produced zero entries. All three are fixed structural counts baked into the game.
+ *
+ * Counts below are read from the catalogs (cauldronsIndexMapping / liquidsIndex), never hardcoded,
+ * so adding a fifth cauldron to the game updates the expectation instead of breaking the test.
+ */
+describe('alchemy cauldrons (catalog-driven: save-length loops -> cauldronsIndexMapping/liquidsIndex)', () => {
+  const CAULDRON_NAMES = Object.values(cauldronsIndexMapping);
+  const LIQUID_NAMES = Object.values(liquidsIndex);
+  const BOOSTS = ['speed', 'luck', 'cost', 'extra'];
+
+  it('renders every brewing cauldron and its boosts at zero with no save', () => {
+    const { account } = parseEmpty();
+    expect(Object.keys(account.alchemy.cauldrons)).toEqual(CAULDRON_NAMES);
+
+    let assertions = 0;
+    Object.values(account.alchemy.cauldrons).forEach((cauldron) => {
+      expect(cauldron.progress).toBe(0);
+      expect(cauldron.req).toBeGreaterThan(0);
+      expect(Object.keys(cauldron.boosts)).toEqual(BOOSTS);
+      Object.values(cauldron.boosts).forEach((boost) => {
+        // parseInt(undefined) is NaN, which is what reached the page before the zero-fill.
+        expect(boost.level).toBe(0);
+        expect(boost.progress).toBe(0);
+        expect(Number.isFinite(boost.req)).toBe(true);
+        assertions++;
+      });
+    });
+    expect(assertions).toBe(CAULDRON_NAMES.length * BOOSTS.length);
+  });
+
+  it('renders every pay-2-win cauldron and liquid upgrade at level 0 with no save', () => {
+    const { account } = parseEmpty();
+    expect(account.alchemy.p2w.cauldrons.map(({ name }) => name)).toEqual(CAULDRON_NAMES);
+    expect(account.alchemy.p2w.liquids.map(({ name }) => name)).toEqual(LIQUID_NAMES);
+
+    account.alchemy.p2w.cauldrons.forEach(({ speed, newBubble, boostReq }) => {
+      [speed, newBubble, boostReq].forEach(({ level, cost, costToMax }) => {
+        expect(level).toBe(0);
+        expect(Number.isFinite(cost)).toBe(true);
+        expect(Number.isFinite(costToMax)).toBe(true);
+      });
+    });
+    account.alchemy.p2w.liquids.forEach(({ regen, capacity }) => {
+      [regen, capacity].forEach(({ level, cost, costToMax }) => {
+        expect(level).toBe(0);
+        expect(Number.isFinite(cost)).toBe(true);
+        expect(Number.isFinite(costToMax)).toBe(true);
+      });
+    });
+  });
+
+  it('renders the decant levels the liquid cards read as 0, not undefined, with no save', () => {
+    const { account } = parseEmpty();
+    expect(account.alchemy.liquidCauldrons).toHaveLength(LIQUID_NAMES.length);
+    account.alchemy.liquidCauldrons.forEach(({ decantCap, decantRate }) => {
+      [decantCap, decantRate].forEach(({ level, progress, req }) => {
+        expect(level).toBe(0);
+        expect(progress).toBe(0);
+        expect(Number.isFinite(req)).toBe(true);
+      });
+    });
+  });
+
+  it.each(FIXTURES)('%s: every cauldron level still comes from the save at the same offset', (_name, fixture) => {
+    const data = fixture.data ?? fixture;
+    const { account } = parseFixture(fixture);
+    const p2wRaw = tryToParse(data?.CauldronP2W) || data?.CauldronP2W || [];
+    const [cauldronsRaw = [], liquidsRaw = []] = p2wRaw;
+
+    // Driving the loops off the catalog must not shift which save index each upgrade reads.
+    let assertions = 0;
+    account.alchemy.p2w.cauldrons.forEach(({ speed, newBubble, boostReq }, index) => {
+      expect(speed.level).toBe(cauldronsRaw[index * 3] ?? 0);
+      expect(newBubble.level).toBe(cauldronsRaw[index * 3 + 1] ?? 0);
+      expect(boostReq.level).toBe(cauldronsRaw[index * 3 + 2] ?? 0);
+      assertions += 3;
+    });
+    account.alchemy.p2w.liquids.forEach(({ regen, capacity }, index) => {
+      expect(regen.level).toBe(liquidsRaw[index * 2] ?? 0);
+      expect(capacity.level).toBe(liquidsRaw[index * 2 + 1] ?? 0);
+      assertions += 2;
+    });
+    expect(assertions).toBe(CAULDRON_NAMES.length * 3 + LIQUID_NAMES.length * 2);
+  });
+
+  it.each(FIXTURES)('%s: brewing boost levels still match the save, and nothing is NaN', (_name, fixture) => {
+    const { account } = parseFixture(fixture);
+    const cauldronsInfo = account.alchemy.cauldronsInfo ?? [];
+
+    let assertions = 0;
+    Object.values(account.alchemy.cauldrons).forEach((cauldron, cauldronIndex) => {
+      Object.values(cauldron.boosts).forEach((boost, boostIndex) => {
+        const [progress, level] = cauldronsInfo[cauldronIndex * 4 + boostIndex] ?? [];
+        expect(boost.progress).toBe(progress ?? 0);
+        expect(boost.level).toBe(parseInt(level ?? 0));
+        expect(Number.isFinite(boost.req)).toBe(true);
+        assertions++;
+      });
+    });
+    expect(assertions).toBe(CAULDRON_NAMES.length * BOOSTS.length);
+  });
+});
+
+/**
+ * Same defect, same page family: `parseSigils` looped the save's own [progress, unlocked] pairs, so
+ * the sigils page rendered its two header cards and no sigils at all when signed out. The 24 sigils
+ * are a catalog.
+ */
+describe('alchemy sigils (catalog-driven: sigilsData.length loop -> sigils catalog)', () => {
+  // The save stores -1 for a sigil the player has not discovered; that is what an account with no
+  // save at all is in, so it is what the parser must report.
+  const UNDISCOVERED = -1;
+
+  it('renders every catalog sigil as undiscovered with no save', () => {
+    const { account } = parseEmpty();
+    expect(account.alchemy.p2w.sigils).toHaveLength(sigils.length);
+    expect(account.alchemy.p2w.sigils.map(({ name }) => name)).toEqual(sigils.map(({ name }) => name));
+
+    account.alchemy.p2w.sigils.forEach((sigil, index) => {
+      expect(sigil.unlocked).toBe(UNDISCOVERED);
+      expect(sigil.progress).toBe(0);
+      expect(sigil.bonus).toBe(0);
+      expect(sigil.characters).toEqual([]);
+      expect(sigil.index).toBe(index);
+    });
+  });
+
+  it('counts no ethereal or eclectic sigils with no save', () => {
+    const { account } = parseEmpty();
+    expect(account.alchemy.p2w.totalEtherealSigils).toBe(0);
+    expect(account.alchemy.p2w.totalEclecticSigils).toBe(0);
+  });
+
+  it.each(FIXTURES)('%s: every sigil still reads its own pair from the save at the same offset', (_name, fixture) => {
+    const data = fixture.data ?? fixture;
+    const { account } = parseFixture(fixture);
+    const p2wRaw = tryToParse(data?.CauldronP2W) || data?.CauldronP2W || [];
+    const sigilsRaw = p2wRaw?.[4] ?? [];
+
+    let assertions = 0;
+    account.alchemy.p2w.sigils.forEach((sigil, index) => {
+      expect(sigil.progress).toBe(sigilsRaw[index * 2] ?? 0);
+      expect(sigil.unlocked).toBe(sigilsRaw[index * 2 + 1] ?? UNDISCOVERED);
+      expect(sigil.index).toBe(index);
+      assertions++;
+    });
+    expect(assertions).toBe(sigils.length);
+  });
+
+  it.each(FIXTURES)('%s: the bonus each sigil reports still matches its unlock tier', (_name, fixture) => {
+    const { account } = parseFixture(fixture);
+    const tierBonus = { 0: 'unlockBonus', 1: 'boostBonus', 2: 'jadeBonus', 3: 'etherealBonus', 4: 'eclecticBonus' };
+
+    let assertions = 0;
+    let unlockedSigils = 0;
+    account.alchemy.p2w.sigils.forEach((sigil) => {
+      // Against the sigil's OWN tier fields, not the catalog's: applyArtifactBonusOnSigil scales
+      // `bonus` and every tier field by the Chilled Yarn artifact after parsing, so a catalog
+      // comparison would be testing that artifact rather than the tier mapping.
+      const expected = tierBonus[sigil.unlocked] ? sigil[tierBonus[sigil.unlocked]] : 0;
+      expect(sigil.bonus).toBe(expected);
+      if (sigil.unlocked > UNDISCOVERED) unlockedSigils++;
+      assertions++;
+    });
+    expect(assertions).toBe(sigils.length);
+    // Guards against a fixture whose sigils are all undiscovered making the tier mapping vacuous.
+    expect(unlockedSigils).toBeGreaterThan(0);
+  });
+});
+
+/**
+ * The coral reef page rendered "No reef upgrades available" when signed out: `reefUpgrades` mapped
+ * the save's own level array, and `dancingCoral` sized itself off the save's tower array. Both are
+ * fixed rosters.
+ */
+describe('coral reef (catalog-driven: save-length loops -> coralReef catalog / fixed coral roster)', () => {
+  // generalSpelunky[22]/[23] list 9, but the last entries are unshipped "who_knows" placeholders -
+  // the parser ships 6, which is what the page has always displayed.
+  const DANCING_CORAL_COUNT = 6;
+
+  it('renders every catalog reef upgrade at level 0 with no save', () => {
+    const { account } = parseEmpty();
+    expect(account.coralReef.reefUpgrades).toHaveLength(coralReef.length);
+    account.coralReef.reefUpgrades.forEach((reef, index) => {
+      expect(reef.index).toBe(index);
+      expect(reef.level).toBe(0);
+      expect(reef.x1).toBe(coralReef[index].x1);
+      expect(reef.description).toBeTruthy();
+      expect(Number.isFinite(reef.cost)).toBe(true);
+    });
+  });
+
+  it('renders the full dancing coral roster at level 0 with no save', () => {
+    const { account } = parseEmpty();
+    expect(account.coralReef.dancingCoral).toHaveLength(DANCING_CORAL_COUNT);
+    account.coralReef.dancingCoral.forEach((coral, index) => {
+      expect(coral.index).toBe(index);
+      expect(coral.level).toBe(0);
+      expect(coral.coralName).toBeTruthy();
+      expect(Number.isFinite(coral.cost)).toBe(true);
+    });
+  });
+
+  it('reports zero owned and unlocked corals with no save, not undefined', () => {
+    const { account } = parseEmpty();
+    expect(account.coralReef.ownedCorals).toBe(0);
+    expect(account.coralReef.unlockedCorals).toBe(0);
+  });
+
+  it.each(FIXTURES)('%s: reef upgrade levels still come from the save at the same index', (_name, fixture) => {
+    const data = fixture.data ?? fixture;
+    const { account } = parseFixture(fixture);
+    const rawSpelunking = tryToParse(data?.Spelunk) || {};
+    const coralReefLevels = rawSpelunking?.[13] || [];
+
+    let assertions = 0;
+    account.coralReef.reefUpgrades.forEach((reef, index) => {
+      expect(reef.level).toBe(coralReefLevels[index] ?? 0);
+      expect(reef.name).toBe(coralReef[index].name);
+      assertions++;
+    });
+    // Catalog-length, not save-length: fixtures predating the feature have no levels at all and
+    // must still render the full catalog at zero.
+    expect(assertions).toBe(coralReef.length);
+  });
+
+  it.each(FIXTURES)('%s: dancing coral levels still come from the tower save at the same offset', (_name, fixture) => {
+    const data = fixture.data ?? fixture;
+    const { account } = parseFixture(fixture);
+    const rawTowerInfo = data?.TowerInfo || tryToParse(data?.Tower);
+    const rawDancingCoral = rawTowerInfo?.slice(18) || [];
+
+    let assertions = 0;
+    account.coralReef.dancingCoral.forEach((coral, index) => {
+      expect(coral.level).toBe(rawDancingCoral[index] || 0);
+      assertions++;
+    });
+    expect(assertions).toBe(DANCING_CORAL_COUNT);
   });
 });

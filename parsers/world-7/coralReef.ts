@@ -77,7 +77,12 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
     'Dropped_by_RIPtide'
   ];
 
-  const dancingCoral = Array.from({ length: rawDancingCoral?.length || 0 }, (_, index) => {
+  // generalSpelunky[22]/[23] carry 9 entries, but the last four are unshipped "who_knows"
+  // placeholders - the game only has 6 dancing corals, which is what the old `.filter(index < 6)`
+  // below encoded. Naming it here and sizing the roster off it (instead of off the save's own tower
+  // array, which is empty without a save) is what makes all 6 render for a signed-out visitor.
+  const DANCING_CORAL_COUNT = 6;
+  const dancingCoral = Array.from({ length: DANCING_CORAL_COUNT }, (_, index) => {
     const level = rawDancingCoral?.[index] || 0;
     const baseDescription = dancingCoralDescriptions[index] || '';
     const description = getDancingCoralDescription(baseDescription, account, index);
@@ -91,11 +96,13 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
       bonus: getDancingCoralBonus(account, index, 0),
       tower: account?.towers?.data?.slice(18)?.[index] || ''
     };
-  }).filter((coral, index) => index < 6);
+  });
 
   const grindTimeDaily = getGrindTimeDaily(account, coralReefLevels);
-  const reefUpgrades = coralReefLevels?.map((level: any, index: any) => {
-    const reefData = coralReef?.[index];
+  // Driven by the coralReef catalog, not by coralReefLevels (the save's own array, which is empty
+  // without a save - that is why the page showed "No reef upgrades available" when signed out).
+  const reefUpgrades = coralReef.map((reefData: any, index: any) => {
+    const level = coralReefLevels?.[index] ?? 0;
     let description = reefData?.name || '';
     if (index === 0) {
       description = description.replace('{', '' + Math.round(grindTimeDaily));
@@ -122,7 +129,7 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
       cost: getReefCost(account, index, level || 0),
       bonus: index === 0 ? grindTimeDaily : index === 4 ? 0 : 0
     };
-  }) || [];
+  });
 
 
   return {
@@ -130,8 +137,8 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
     dancingCoral,
     reefUpgrades,
     grindTimeDaily,
-    unlockedCorals: rawSpelunking?.[4]?.[6],
-    ownedCorals: rawSpelunking?.[4]?.[5],
+    unlockedCorals: rawSpelunking?.[4]?.[6] ?? 0,
+    ownedCorals: rawSpelunking?.[4]?.[5] ?? 0,
     reefDayGains: getReefDayGains(account) // Default to first reef
   };
 }

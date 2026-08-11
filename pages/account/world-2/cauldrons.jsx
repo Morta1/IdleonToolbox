@@ -79,7 +79,7 @@ const Cauldrons = () => {
 
       <Typography my={3} variant={'h5'} mb={3}>Liquids</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-        {alchemy?.p2w.liquids?.map((cauldron, index) => {
+        {alchemy?.p2w?.liquids?.map((cauldron, index) => {
           const { name, regen, capacity, players } = cauldron;
           const {
             maxLiquid,
@@ -87,8 +87,10 @@ const Cauldrons = () => {
             decantRate,
             isDragonic,
             maxLiquidBreakdown
-          } = alchemy?.liquidCauldrons?.[index];
-          const currentLiquid = alchemy?.liquids?.[index];
+          } = alchemy?.liquidCauldrons?.[index] ?? {};
+          // `liquids` is the save's own array and is absent entirely without one - Math.round and
+          // the progress bar below would both render NaN.
+          const currentLiquid = alchemy?.liquids?.[index] ?? 0;
           return <Card key={`${name}-${index}`}>
             <CardContent>
               <Stack mb={1} direction={'row'} alignItems={'center'} gap={2}>
@@ -166,7 +168,7 @@ const Cauldrons = () => {
 
       <Typography my={3} variant={'h5'} mb={3}>Cauldrons</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-        {alchemy?.p2w.cauldrons?.map((cauldron, index) => {
+        {alchemy?.p2w?.cauldrons?.map((cauldron, index) => {
           const { name, speed, newBubble, boostReq } = cauldron;
           return <Card sx={{ width: { md: 485 } }} key={`${name}-${index}`}>
             <CardContent>

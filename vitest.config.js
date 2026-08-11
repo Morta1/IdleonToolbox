@@ -3,14 +3,24 @@ import path from 'path';
 
 export default defineConfig({
   resolve: {
-    alias: {
-      '@components': path.resolve(__dirname, 'components'),
-      '@parsers': path.resolve(__dirname, 'parsers'),
-      '@utility': path.resolve(__dirname, 'utility'),
-      '@hooks': path.resolve(__dirname, 'hooks'),
-      '@website-data': path.resolve(__dirname, 'data/website-data.json'),
-    },
+    alias: [
+      { find: '@components', replacement: path.resolve(__dirname, 'components') },
+      { find: '@parsers', replacement: path.resolve(__dirname, 'parsers') },
+      { find: '@utility', replacement: path.resolve(__dirname, 'utility') },
+      { find: '@hooks', replacement: path.resolve(__dirname, 'hooks') },
+      { find: '@website-data', replacement: path.resolve(__dirname, 'data/website-data.json') },
+      // Some components import root-relative ('utility/helpers'), which Next resolves via its own
+      // module directories. Vite has no equivalent, so mirror the same roots here or those files
+      // cannot be imported by a test at all.
+      { find: /^components\//, replacement: `${path.resolve(__dirname, 'components')}/` },
+      { find: /^parsers\//, replacement: `${path.resolve(__dirname, 'parsers')}/` },
+      { find: /^utility\//, replacement: `${path.resolve(__dirname, 'utility')}/` },
+      { find: /^hooks\//, replacement: `${path.resolve(__dirname, 'hooks')}/` },
+    ],
   },
+  // Components rely on the automatic JSX runtime (Next's default) - most do not import React at
+  // all, so without this any test that renders one fails with "React is not defined".
+  esbuild: { jsx: 'automatic' },
   test: {
     globals: true,
     // Parser/utility tests are pure - none of them touch document/window. jsdom was being stood up

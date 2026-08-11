@@ -137,6 +137,11 @@ export const CardTitleAndValue = ({
                                     stackProps,
                                     contentPadding
                                   }) => {
+  // A numeric 0 is a value, not an absent one. Gating on truthiness rendered a bare title with an
+  // empty card body for every stat sitting at zero - which is every stat on every page for a
+  // signed-out visitor. Only undefined/null/'' fall through to `children`, which is what the call
+  // sites that pass children actually mean by "no value".
+  const hasValue = value !== undefined && value !== null && value !== '';
   return <Tooltip title={tooltipTitle || ''}>
     <Card variant={variant} raised={raised}
           sx={{ my: { xs: 0, md: 3 }, mb: { xs: 2 }, width: 'fit-content', ...cardSx }}>
@@ -144,9 +149,9 @@ export const CardTitleAndValue = ({
         <Stack sx={{ display: stackProps ? 'flex' : 'block', ...(stackProps || {}) }}>
           {title ? <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom
                                component={'span'}>{title}</Typography> : null}
-          {(value || imgOnly) ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
+          {(hasValue || imgOnly) ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
             <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`} alt=""/>
-            {value ? <Typography component={'div'}>{value}</Typography> : null}
+            {hasValue ? <Typography component={'div'}>{value}</Typography> : null}
           </Stack> : <Typography component={'div'}>{value}</Typography> : children}
         </Stack>
       </CardContent>

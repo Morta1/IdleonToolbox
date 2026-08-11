@@ -95,7 +95,9 @@ export const getIslands = (account: Account, characters: any[]) => {
       ...extraIslandDetails(account, characters, index)
     };
   })
-  const bottles = (account as any)?.accountOptions?.[162];
+  // No save means no bottles collected, not an unknown count - and the page runs this through
+  // Math.round, which turns undefined into NaN.
+  const bottles = (account as any)?.accountOptions?.[162] ?? 0;
   const bribeBonus = getBribeBonus((account as any)?.bribes, 'Bottle_Service');
   const bundleBonus = isBundlePurchased((account as any)?.bundles, 'bun_p') ? 30 : 0;
   // On an empty/no-save account `quests` is `{}` and every optional-chain link below resolves to

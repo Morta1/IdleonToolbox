@@ -111,7 +111,8 @@ const Sigils = () => {
             </Tooltip>
           </Stack>
         </CardTitleAndValue>
-        <CardTitleAndValue title={'Sigil Syrup'} value={state?.account?.accountOptions?.[409]}
+        {/* Blank rather than 0 without a save - accountOptions doesn't exist at all then. */}
+        <CardTitleAndValue title={'Sigil Syrup'} value={state?.account?.accountOptions?.[409] ?? 0}
           imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
           icon={'data/SigilSyrup.png'} />
       </Stack>
