@@ -50,7 +50,9 @@ const Slab = () => {
                          value={state?.account?.looty?.missingItems}/>
       <CardTitleAndValue title={'Greenstacks'}
                          value={`${state?.account?.looty?.greenstackableStackedCount} / ${state?.account?.looty?.greenstackableCount}`}/>
-      <Stack mb={3} direction={'row'} gap={1} flexWrap={'wrap'}>
+      {/* No bottom margin: this row is a flex child of the wrapped row above, whose gap already
+          separates it. A margin here would add to that gap instead of replacing it. */}
+      <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
         {slabBonuses.map(({ name, value, icon }, index) => {
           return <CardTitleAndValue key={`bonus-${index}`} title={name} value={`${notateNumber(value)}%`}
                                     icon={`data/${icon}.png`}

@@ -89,7 +89,7 @@ export const PAGE_SEO = {
   "/": { title: "Home | Idleon Toolbox", description: "Power up your Legends of Idleon adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds, crafting, and more." },
   "/leaderboards": { title: "Leaderboards | Idleon Toolbox", description: "View Legends of Idleon leaderboards for skills, tasks, characters, caverns, and more with player rankings and stats" },
   "/patch-notes": { title: "Patch Notes | Idleon Toolbox", description: "View the latest Idleon Toolbox patch notes, new features, bug fixes, and changelog for every version" },
-  "/settings": { title: "Settings - Idleon Toolbox", description: "Configure your Idleon Toolbox preferences and manage your profile" },
+  "/settings": { title: "Settings | Idleon Toolbox", description: "Configure your Idleon Toolbox preferences and manage your profile" },
   "/statistics": { title: "Statistics | Idleon Toolbox", description: "Explore community statistics and visualizations for Legends of Idleon including class distribution, skill levels, and player progression data" },
   "/tools/active-exp-calculator": { title: "Active Exp Calculator | Idleon Toolbox", description: "Calculate how much experience you get when playing actively" },
   "/tools/active-stuff-calculator": { title: "Active Stuff Calculator | Idleon Toolbox", description: "Calculate active gameplay item drops, resource gains, and efficiency for your Legends of Idleon characters" },

@@ -36,6 +36,27 @@ describe('PageTitle', () => {
     expect(heading.textContent).not.toContain('Idleon Toolbox');
   });
 
+  it('renders nothing on /settings, which draws its own title', () => {
+    // The page already shows a visible "Settings" heading, so PageTitle would put the same word on
+    // screen twice.
+    pathname = '/settings';
+    const { container } = render(<PageTitle/>);
+    expect(container.querySelector('h1')).toBeNull();
+  });
+
+  it('strips the site suffix whatever separator a title uses', () => {
+    // /settings was written "Settings - Idleon Toolbox" while the other 106 routes use "|", and a
+    // pipe-only strip left the suffix in the visible heading. The rule is anchored on the site name
+    // now, so a title with an incidental dash in it keeps the dash.
+    const everyTitle = Object.values(PAGE_SEO).map(({ title }) => title);
+    expect(everyTitle.some((title) => /\|\s*Idleon Toolbox\s*$/.test(title))).toBe(true);
+
+    const strip = (title) => title.replace(/\s*[|\-–—]\s*Idleon Toolbox\s*$/i, '').trim();
+    expect(strip('Settings - Idleon Toolbox')).toBe('Settings');
+    expect(strip('Settings | Idleon Toolbox')).toBe('Settings');
+    expect(strip('Co-op Guide | Idleon Toolbox')).toBe('Co-op Guide');
+  });
+
   it('renders nothing for a route with no SEO entry', () => {
     pathname = '/not/a/real/route';
     const { container } = render(<PageTitle/>);

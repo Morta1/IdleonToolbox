@@ -78,7 +78,9 @@ const Tome = () => {
               </Tooltip>
             </Stack>
           } />
-          <Stack mb={3} direction={'row'} gap={1} flexWrap={'wrap'}>
+          {/* No bottom margin: this row is a flex child of the wrapped row above, whose gap already
+              separates it. A margin here would add to that gap instead of replacing it. */}
+          <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
             {state?.account?.tome?.bonuses?.map(({ name, bonus, isMulti, icon }, index) => {
               const formatted = isMulti ? notateNumber(1 + bonus / 100, 'MultiplierInfo') : notateNumber(bonus, 'Big');
               return <CardTitleAndValue key={name} title={cleanUnderscore(name)} value={`${formatted}${isMulti ? 'x' : '%'}`}

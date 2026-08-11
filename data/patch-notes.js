@@ -55,7 +55,8 @@ export const patchNotes = [
       'Every page now shows its name as a heading, next to the pin button where there is one',
       'Removed the extra empty space above the first row of cards on a page',
       'Farming: the Insta Grow card was blank instead of showing 0, and the bean market\'s "next requirement" did not show how many beans you own, when signed out',
-      'Statues: the double statue drop chance lost its Divinity portion unless one of your characters was linked to Kattelkruk - the minor bonus applies once you own the god'
+      'Statues: the double statue drop chance lost its Divinity portion unless one of your characters was linked to Kattelkruk - the minor bonus applies once you own the god',
+      'Kangaroo, Slab, and Tome: the second row of stat cards sat further from the first than the other rows did'
     ]
   },
   {

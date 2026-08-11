@@ -43,7 +43,9 @@ const Kangaroo = () => {
         <Section title={'Progress'} value={`${notation(kangaroo?.shinyProgress)}%`} icon={'etc/KShiny.png'}/>
         <Section title={'Shiny/m'} value={`${notation(kangaroo?.shinyRatePercent)}%`} icon={'etc/KShiny.png'}/>
       </CardTitleAndValue>
-      <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
+      {/* No bottom margin: this row is a flex child of the wrapped row above, whose gap already
+          separates it. A margin here would add to that gap instead of replacing it. */}
+      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
         {kangaroo?.bonuses.map(({ name, bonus, percentage }, index) => {
           if (index === 0) return;
           bonus = Math.round(10 * bonus) / 10;
@@ -52,7 +54,7 @@ const Kangaroo = () => {
                                     icon={`etc/Kangaroob_${index}.png`}/>
         })}
       </Stack>
-      <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
         {kangaroo?.megaFish?.map(({ description, unlocked, amount, totalBonus }, index) => {
           return <CardTitleAndValue cardSx={{ my: 1 }} value={amount > 0 ? amount : ''}
                                     tooltipTitle={cleanUnderscore(description.replace('{', totalBonus))}

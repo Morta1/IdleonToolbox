@@ -23,7 +23,7 @@ import { PAGE_SEO } from '../../data/page-seo';
 
 // Routes that already render their own h1. A second one on the same page is worse than none - it
 // splits the signal instead of strengthening it.
-const ALREADY_HAS_H1 = new Set(['/']);
+const ALREADY_HAS_H1 = new Set(['/', '/settings']);
 
 const PageTitle = () => {
   const router = useRouter();
@@ -34,7 +34,11 @@ const PageTitle = () => {
   // A page Google is told not to index has nothing to gain from a heading it did not ask for.
   if (!seo || seo.noindex) return null;
 
-  const title = seo.title?.replace(/\s*\|.*$/, '')?.trim();
+  // Anchored on the site name rather than on a separator. Matching a bare "|" was enough until
+  // /settings turned out to be written "Settings - Idleon Toolbox", which rendered the suffix as
+  // part of the visible heading. Anchoring here means a title containing an incidental dash keeps
+  // it, and a page that picks yet another separator still gets a clean heading.
+  const title = seo.title?.replace(/\s*[|\-–—]\s*Idleon Toolbox\s*$/i, '')?.trim();
   if (!title) return null;
 
   // 20px, which is what a section heading (h6) measures - at body size, and then at 18px, this read

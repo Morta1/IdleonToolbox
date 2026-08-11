@@ -298,9 +298,11 @@ const Settings = () => {
   }
 
   return <>
-    <NextSeo title="Settings - Idleon Toolbox" description="Configure your Idleon Toolbox preferences and manage your profile"/>
+    <NextSeo title="Settings | Idleon Toolbox" description="Configure your Idleon Toolbox preferences and manage your profile"/>
     <Container maxWidth="md" sx={{ my: 3 }}>
-      <Typography variant="h4" sx={{ mb: 3 }}>Settings</Typography>
+      {/* This page draws its own title, so it is the h1 and PageTitle skips the route - see
+          ALREADY_HAS_H1. Two headings reading "Settings" split the signal rather than strengthen it. */}
+      <Typography variant="h4" component="h1" sx={{ mb: 3 }}>Settings</Typography>
       <Stack divider={<Divider/>} spacing={3}>
         {/* Profile — only show for account owner, not public profiles */}
         {state?.characters && !router.query.profile ? <Stack spacing={1.5}>
