@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Alert, Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, getBitIndex, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
 import Tooltip from 'components/Tooltip';
 import { CardTitleAndValue } from '@components/common/styles';
@@ -17,21 +17,16 @@ import CoralKidUpgrades from '@components/account/Worlds/World7/CoralReef/CoralK
 
 const Divinity = () => {
   const { state } = useContext(AppContext);
-  const { deities, linkedDeities, godRank, unlocked } = state?.account?.divinity || {};
+  const { deities, linkedDeities, godRank } = state?.account?.divinity || {};
   const { coralKidUpgrades } = state?.account?.coralReef || {};
   const [showCost, setShowCost] = useState(false);
-  // The parser now returns all 10 gods at level 0 when divinity isn't unlocked, so the page shows
-  // what divinity contains instead of a dead-end notice. Branch on the flag, not on truthiness.
-  const isLocked = unlocked === false;
+  // The parser returns all 10 gods at level 0 when divinity isn't unlocked, so the page shows what
+  // divinity contains instead of a dead-end notice.
   return <>
     <NextSeo
       title="Divinity | Idleon Toolbox"
       description="Keep track of your characters' gods connections and upgrades"
     />
-    {isLocked ? <Alert severity={'info'} sx={{ mb: 2 }}>
-      Divinity isn&apos;t unlocked on this account yet. The gods below are the full list and what each
-      one gives — your own blessings and links will fill in once you&apos;ve unlocked it.
-    </Alert> : null}
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'divinity')}>
     <div>
     <CardTitleAndValue title={'God Rank'} value={godRank || 1}/>

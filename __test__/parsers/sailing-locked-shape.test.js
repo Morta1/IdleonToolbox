@@ -3,9 +3,16 @@ import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseData } from '@parsers/index';
-import { artifacts, equinoxChallenges, equinoxUpgrades, guildBonuses } from '@website-data';
+import {
+  artifacts, equinoxChallenges, equinoxUpgrades, gamingPalette, gamingUpgrades, guildBonuses, superbitsUpgrades
+} from '@website-data';
 import { getGuildBonusBonus, getGuildLevel } from '@parsers/guild';
 import { getEquinoxBonus, getLockedEquinox } from '@parsers/world-3/equinox';
+import { getBitsMulti, getPaletteBonus, isSuperbitUnlocked } from '@parsers/world-5/gaming';
+import first from '../fixtures/first.json';
+import second from '../fixtures/second.json';
+import third from '../fixtures/third.json';
+import fourth from '../fixtures/fourth.json';
 import demoJson from '../../data/raw.json';
 
 /**
@@ -28,6 +35,30 @@ const parseEmpty = () => parseData(undefined, [], null, null, undefined, undefin
 const parseReal = () => {
   const { data, charNames, companion, guildData, serverVars } = demoJson;
   return parseData(data, charNames, companion, guildData, serverVars);
+};
+const parseFixture = ({ data, charNames, companion, guildData, serverVars }) =>
+  parseData(data, charNames, companion, guildData, serverVars);
+
+// Every path holding a NaN, so a failure names the field instead of just saying "some number".
+//
+// Strings are checked too, not just numbers. Several parsers format a number into a display string
+// before returning it - gaming's fertilizer bonus is `${Math.trunc(time * 1000) / 1000} Min` - so a
+// NaN can leave the parser as the literal text "NaN Min" and reach the page while a numbers-only
+// walk reports the section clean. That is exactly how "Sprouts grow back every NaN Min" survived
+// the first pass of this check.
+const findNaN = (root) => {
+  const nan = [];
+  const seen = new WeakSet();
+  const walk = (node, path) => {
+    if (typeof node === 'number') { if (Number.isNaN(node)) nan.push(path); return; }
+    if (typeof node === 'string') { if (/\bNaN\b/.test(node)) nan.push(`${path} (string: "${node}")`); return; }
+    if (!node || typeof node !== 'object' || seen.has(node)) return;
+    seen.add(node);
+    if (Array.isArray(node)) return node.forEach((v, i) => walk(v, `${path}[${i}]`));
+    Object.entries(node).forEach(([k, v]) => walk(v, `${path}.${k}`));
+  };
+  walk(root, '');
+  return nan;
 };
 
 // Keys the locked shape must carry, with the collection type consumers index into.
@@ -124,6 +155,80 @@ describe('divinity locked shape', () => {
   });
 });
 
+describe('gaming locked shape', () => {
+  // Unlike the others, four of the five fixtures have gaming locked, so the locked path here is
+  // exercised against real saves and not only against the empty parse.
+  const lockedFixtures = Object.entries({ first, second, third, fourth })
+    .map(([name, fixture]) => [name, parseFixture(fixture).account]);
+
+  it('is an object reporting unlocked: false, carrying every catalog', () => {
+    const { gaming } = parseEmpty().account;
+    expect(gaming).toBeTypeOf('object');
+    expect(gaming).not.toBeNull();
+    expect(gaming.unlocked).toBe(false);
+    expect(gaming.superbitsUpgrades).toHaveLength(superbitsUpgrades.length);
+    expect(gaming.palette).toHaveLength(gamingPalette.length + 1); // +1 for the final bonus entry
+    expect(gaming.imports.length).toBeGreaterThan(0);
+    expect(gaming.fertilizerUpgrades).toHaveLength(gamingUpgrades.length);
+    expect(gaming.superbitsUpgrades.every(({ unlocked }) => !unlocked)).toBe(true);
+  });
+
+  it('does not throw on the array destructures that used to crash', () => {
+    // getGaming destructures gamingSproutRaw[32], [27] and [33] and slices [0..25]; passing
+    // undefined threw "undefined is not iterable" before the neutral stand-in raws were added.
+    expect(() => parseEmpty()).not.toThrow();
+  });
+
+  it.each([['empty'], ['first'], ['second'], ['third'], ['fourth']])(
+    'has no NaN anywhere in the account for %s, whose gaming is locked', (name) => {
+      const account = name === 'empty' ? parseEmpty().account : lockedFixtures.find(([n]) => n === name)[1];
+      expect(account.gaming.unlocked, `${name} should have gaming locked for this test to mean anything`).toBe(false);
+      // Whole-account, not just gaming: a populated gaming feeds getPaletteBonus, isSuperbitUnlocked
+      // and getBitsMulti, which other parsers read. The first attempt at this change left NaN in
+      // button, voteBallot, atoms, spelunking and sailing for exactly that reason.
+      expect(findNaN(account)).toEqual([]);
+    });
+
+  it('keeps palette luck finite - the single root that poisoned 37 chances plus button', () => {
+    for (const [name, account] of lockedFixtures) {
+      expect(Number.isFinite(account.gaming.paletteLuck.value), `${name} paletteLuck`).toBe(true);
+      expect(account.gaming.palette.every(({ chance }) => chance === undefined || Number.isFinite(chance))).toBe(true);
+      // parsers/world-7/button.ts:247 reads `paletteLuck?.value ?? 0`, and `NaN ?? 0` is NaN.
+      expect(account.button.taskSequence.every(({ progress }) => progress === undefined || Number.isFinite(progress))).toBe(true);
+    }
+  });
+
+  it('needs the dashboard unlocked gate - the sprout comparison really does trip when locked', () => {
+    // utility/dashboard/account.js:859 gates the whole gaming block on `unlocked`. This is not
+    // belt-and-braces: while gaming was null, `undefined >= undefined` was false and no alert could
+    // fire. Populated at zero, an account whose GamingSprout save exists but whose Gaming save does
+    // not gets a real `availableSprouts` against the base capacity of 3 - and at least one real
+    // fixture clears it, which would be a false "sprouts at max capacity" alert without the gate.
+    const wouldTrip = lockedFixtures.filter(([, account]) =>
+      account.gaming.availableSprouts >= account.gaming.sproutsCapacity);
+    expect(wouldTrip.length, 'expected at least one locked fixture to trip the raw comparison')
+      .toBeGreaterThan(0);
+    for (const [name, account] of wouldTrip) {
+      expect(account.gaming.unlocked, `${name} must report locked so the dashboard gate suppresses it`).toBe(false);
+    }
+  });
+
+  it('keeps every cross-section gaming lookup neutral', () => {
+    const account = parseEmpty().account;
+    // getPaletteBonus is read by getBitsMulti and by equinox; isSuperbitUnlocked by equinox,
+    // the dashboard and gaming itself.
+    expect(account.gaming.palette.every((_, i) => getPaletteBonus(account, i) === 0)).toBe(true);
+    expect(isSuperbitUnlocked(account, 'Bigger_Palette')).toBeFalsy();
+    expect(Number.isFinite(getBitsMulti(account, []).value)).toBe(true);
+  });
+
+  it('reports unlocked: true for a real save that has it', () => {
+    const { gaming } = parseReal().account;
+    expect(gaming.unlocked).toBe(true);
+    expect(findNaN(gaming)).toEqual([]);
+  });
+});
+
 describe('equinox locked shape', () => {
   it('is an object reporting unlocked: false, carrying every challenge and upgrade', () => {
     const { equinox } = parseEmpty().account;
@@ -143,14 +248,7 @@ describe('equinox locked shape', () => {
     const { equinox } = parseEmpty().account;
     // `Math.min(parseInt(dream[9]), accountOptions[193])` was NaN without a save, and the Food_Lust
     // card renders it as "Bosses killed: NaN".
-    const nan = [];
-    const walk = (node, path) => {
-      if (typeof node === 'number') { if (Number.isNaN(node)) nan.push(path); return; }
-      if (Array.isArray(node)) return node.forEach((v, i) => walk(v, `${path}[${i}]`));
-      if (node && typeof node === 'object') return Object.entries(node).forEach(([k, v]) => walk(v, `${path}.${k}`));
-    };
-    walk(equinox, 'equinox');
-    expect(nan).toEqual([]);
+    expect(findNaN(equinox)).toEqual([]);
   });
 
   it('does not fire any of the three dashboard equinox alerts', () => {

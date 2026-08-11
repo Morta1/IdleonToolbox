@@ -856,7 +856,12 @@ export const getWorld4Alerts = (account, fields, options) => {
 export const getWorld5Alerts = (account, fields, options) => {
   const alerts = {};
   if (!account?.finishedWorlds?.World4) return alerts;
-  if (fields?.gaming?.checked) {
+  // gaming now returns a populated shape rather than null when the feature is locked, so the
+  // comparisons below read real numbers instead of `undefined >= undefined`. An account whose
+  // GamingSprout save exists but whose Gaming save does not gets a genuine availableSprouts count
+  // against the base capacity of 3, which fires a false "sprouts at max capacity" alert - one of
+  // the test fixtures does exactly that. Gate the whole block on unlocked.
+  if (fields?.gaming?.checked && account?.gaming?.unlocked) {
     const gaming = {};
     const { shovel, sprouts, squirrel } = options?.gaming || {};
     if (sprouts?.checked && account?.gaming?.availableSprouts >= account?.gaming?.sproutsCapacity) {

@@ -78,8 +78,8 @@ const Guild = () => {
   if (!guild?.unlocked || guild?.members?.length === 0) {
     return <>
       <GuildSeo/>
-      <Typography variant={'h3'} mb={3}>You have to be in a guild to view this page's content</Typography>
-      <Typography variant={'h5'} mb={2}>Guild bonuses you can unlock</Typography>
+
+      <Typography variant={'h5'} mb={2}>Guild bonuses</Typography>
       <GuildBonuses bonuses={guild?.guildBonuses}/>
     </>
   }

@@ -24,13 +24,49 @@ import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 
+// Neutral stand-ins for the three saves gaming reads. parseGaming destructures fixed slots out of
+// them (`const [, snailLevel] = gamingSproutRaw[32]`, `gamingSproutRaw.slice(0, 25)`), so passing
+// `undefined` throws "undefined is not iterable" rather than yielding zeros. Sizes come from the
+// catalogs the slots feed, not from hardcoded lengths.
+const GAMING_SPROUT_IMPORTS_START = 25;
+const GAMING_SPROUT_RAT_SHOP = 33;
+const emptyGamingRaw = () => {
+  // [0..14] are scalar slots; [1..gamingUpgrades.length] are the fertilizer levels.
+  const raw: any[] = new Array(Math.max(15, gamingUpgrades.length + 1)).fill(0);
+  raw[11] = ''; // logbook unlock string
+  raw[12] = ''; // superbit unlock string
+  return raw;
+};
+const emptyGamingSproutRaw = () => {
+  const length = Math.max(GAMING_SPROUT_RAT_SHOP + 1, GAMING_SPROUT_IMPORTS_START + gamingImports.length + 1);
+  // Every slot is read as an array (`[1]`, `[2]`, or destructured), so each one has to be one.
+  return Array.from({ length }, () => [0, 0, 0, 0]);
+};
+const emptySpelunkRaw = () => {
+  const raw: any[] = new Array(11).fill(0);
+  raw[9] = new Array(gamingPalette.length).fill(0); // palette levels
+  raw[10] = [];                                     // selected palette slots
+  return raw;
+};
+
 export const getGaming = (idleonData: any, characters: any, account: any, serverVars: any) => {
   const gamingRaw = tryToParse(idleonData?.Gaming) || idleonData?.Gaming;
   const gamingSproutRaw = tryToParse(idleonData?.GamingSprout) || idleonData?.GamingSprout;
   const spelunkRaw = tryToParse(idleonData?.Spelunk) || idleonData?.Spelunk;
   const researchRaw = tryToParse(idleonData?.Research) || idleonData?.Research;
-  if (!gamingRaw || !gamingSproutRaw || !spelunkRaw) return null;
-  return parseGaming(gamingRaw, gamingSproutRaw, spelunkRaw, researchRaw, characters, account, serverVars);
+  // The parse runs either way: imports, fertilizer upgrades, superbits, mutations and the palette
+  // are all built from their catalogs, so a locked account still sees what gaming contains.
+  // `unlocked` is what consumers branch on.
+  return {
+    ...parseGaming(
+      gamingRaw || emptyGamingRaw(),
+      gamingSproutRaw || emptyGamingSproutRaw(),
+      spelunkRaw || emptySpelunkRaw(),
+      researchRaw,
+      characters, account, serverVars
+    ),
+    unlocked: !!gamingRaw && !!gamingSproutRaw && !!spelunkRaw
+  };
 }
 
 const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, researchRaw: any, characters: any, account: any, serverVars: any) => {
@@ -84,7 +120,9 @@ const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, rese
         saveSprinklerChance: saveSprinklerChance * 100
       } : {}),
       ...(index === 1 ? {
-        maxNuggetValue: maxNuggetValue(bonus?.result, getEquinoxBonus(account?.equinox?.upgrades, 'Metal_Detector'), account?.accountOptions?.[192])
+        // accountOptions[192] is the nugget count since the last upgrade - undefined without a
+        // save, which makes the whole maxNuggetValue product NaN.
+        maxNuggetValue: maxNuggetValue(bonus?.result, getEquinoxBonus(account?.equinox?.upgrades, 'Metal_Detector'), account?.accountOptions?.[192] ?? 0)
       } : {}),
       ...(index === 2 ? {
         acornShop
@@ -334,25 +372,29 @@ const getMutations = () => {
 
 const calcSuperbitBonus = (characters: any, account: any, index: any) => {
   let bonus, totalBonus, additionalInfo;
+  // The `isNaN(...) ? 0 : ...` at the bottom sanitises the returned numbers, but additionalInfo is
+  // built from the raw value before that, so an account with no tower waves rendered
+  // "Total Bonus: NaN% (undefined waves)". Read it once, guarded, for all seven branches below.
+  const totalWaves = account?.towers?.totalWaves ?? 0;
   if (index === 0) {
     bonus = account?.achievements?.filter(({ completed }: any) => completed)?.length ?? 0;
     totalBonus = Math.pow(1.03, bonus);
   }
   else if (index === 3 || index === 16) {
-    bonus = Math.floor(account?.towers?.totalWaves / 10);
-    additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
+    bonus = Math.floor(totalWaves / 10);
+    additionalInfo = `Total Bonus: ${bonus}% (${totalWaves} waves)`
   }
   else if (index === 11) {
-    bonus = 1.12 * Math.floor(account?.towers?.totalWaves / 10);
-    additionalInfo = `Total Bonus: ${bonus.toFixed(2)}% (${account?.towers?.totalWaves} waves)`
+    bonus = 1.12 * Math.floor(totalWaves / 10);
+    additionalInfo = `Total Bonus: ${bonus.toFixed(2)}% (${totalWaves} waves)`
   }
   else if (index === 13) {
-    bonus = Math.floor(account?.towers?.totalWaves / 10) * 13;
-    additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
+    bonus = Math.floor(totalWaves / 10) * 13;
+    additionalInfo = `Total Bonus: ${bonus}% (${totalWaves} waves)`
   }
   else if (index === 7) {
-    bonus = Math.floor(account?.towers?.totalWaves / 10);
-    additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
+    bonus = Math.floor(totalWaves / 10);
+    additionalInfo = `Total Bonus: ${bonus}% (${totalWaves} waves)`
   }
   else if (index === 12) {
     // skill level doesn't update if the character is away for a long time
@@ -360,12 +402,12 @@ const calcSuperbitBonus = (characters: any, account: any, index: any) => {
     totalBonus = Math.floor(highestGaming);
   }
   else if (index === 20) {
-    bonus = Math.floor(account?.towers?.totalWaves / 10) * 50;
-    additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
+    bonus = Math.floor(totalWaves / 10) * 50;
+    additionalInfo = `Total Bonus: ${bonus}% (${totalWaves} waves)`
   }
   else if (index === 27) {
-    bonus = 2.5 * Math.max(0, Math.floor((account?.towers?.totalWaves - 300) / 10));
-    additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
+    bonus = 2.5 * Math.max(0, Math.floor((totalWaves - 300) / 10));
+    additionalInfo = `Total Bonus: ${bonus}% (${totalWaves} waves)`
   }
   else if (index === 24) {
     const discoveriesCount = account?.spelunking?.discoveriesCount ?? 0;
@@ -397,8 +439,8 @@ const calcSuperbitBonus = (characters: any, account: any, index: any) => {
     additionalInfo = `${highestSneaking} sneaking level`
   }
   else if (index === 44) {
-    bonus = 0.3 * Math.max(0, Math.floor((account?.towers?.totalWaves - 300) / 10));
-    additionalInfo = `Total Bonus: ${bonus}% (${account?.towers?.totalWaves} waves)`
+    bonus = 0.3 * Math.max(0, Math.floor((totalWaves - 300) / 10));
+    additionalInfo = `Total Bonus: ${bonus}% (${totalWaves} waves)`
   }
   else if (index === 45) {
     const highestGaming = getHighestCharacterSkill(characters, 'gaming');
@@ -538,7 +580,9 @@ const calcFertilizerCost = (index: any, gamingRaw: any, serverVars: any) => {
 const calcAcornShop = (gamingSproutRaw: any, account: any) => {
   const bonusTexts = ['All plants give x{ bits', 'All plants grow {% faster', 'Boosts Palette Lucky by +{%']
   const [, , firstValue, secondValue] = gamingSproutRaw?.[27];
-  return [firstValue, secondValue, account?.accountOptions?.[415]].map((value, index) => {
+  // accountOptions[415] is the palette-luck acorn upgrade level. Undefined without a save, and both
+  // `Math.pow(value, 0.8)` and the cost expression below turn that into NaN.
+  return [firstValue, secondValue, account?.accountOptions?.[415] ?? 0].map((value, index) => {
     const bonus = index === 0 ? 1 + (8 * value) / (250 + (value)) : index === 1
       ? Math.pow(3 * (value), 0.8)
       : index === 2 ? Math.pow(value, 0.8) : 0;
@@ -742,7 +786,11 @@ export const getPaletteLuck = (paletteFinalBonus: any, ratKing: any, account: an
   const superbit28Unlocked = isSuperbitUnlocked(account, 'Lucky_Snail') ? 1 : 0;
   const acornShopBonus2 = account?.gaming?.imports?.[2]?.acornShop?.[2]?.bonus ?? 0;
   const exoticBonus44 = getExoticMarketBonus(account, 44) ?? 0;
-  const jadeEmporiumBonus = isJadeBonusUnlocked(account, 'Palette_Slot');
+  // isJadeBonusUnlocked returns the `unlocked` field, which is undefined when the account has no
+  // jade emporium at all - and this is the one call site that multiplies it instead of testing it,
+  // so `100 * undefined` turned the whole palette luck value, and every palette chance fed by it,
+  // into NaN. `true` and 1 multiply identically, so unlocked accounts are unaffected.
+  const jadeEmporiumBonus = isJadeBonusUnlocked(account, 'Palette_Slot') ? 1 : 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Palette_Luck')?.bonus ?? 0;
   const gridBonus = getResearchGridBonus(account, 107, 2);
   const superbit65Unlocked = isSuperbitUnlocked(account, 'Artistic_Gamer') ? 1 : 0;

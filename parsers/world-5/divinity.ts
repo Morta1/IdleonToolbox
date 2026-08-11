@@ -164,10 +164,13 @@ export const getDeityLinkedIndex = (account: any, characters: any, deityIndex: a
 export const getMinorDivinityBonus = (character: any, account: any, forcedDivinityIndex?: any, characters?: any) => {
   const bigPCharacter = characters?.find((char: any) => char.equippedBubbles?.find(({ bubbleName }: any) => bubbleName === 'BIG_P'));
   const bigPBubble = getActiveBubbleBonus((bigPCharacter || character || characters?.[0])?.equippedBubbles, 'BIG_P', account);
-  const divinityLevel = (character || bigPCharacter || characters?.[0])?.skillsInfo?.divinity?.level;
+  // An account with no characters has no divinity level, and `undefined / (60 + undefined)` is NaN.
+  // Callers guard with `?? 0`, which does not catch NaN, so it spread from here into gaming's grow
+  // time (rendered as "Sprouts grow back every NaN Min") among others.
+  const divinityLevel = (character || bigPCharacter || characters?.[0])?.skillsInfo?.divinity?.level ?? 0;
   const linkedDeity = forcedDivinityIndex ?? account?.divinity?.linkedDeities?.[character.playerId];
   const godIndex = (gods as any)?.[linkedDeity]?.godIndex;
-  const multiplier = gods?.[godIndex]?.minorBonusMultiplier;
+  const multiplier = gods?.[godIndex]?.minorBonusMultiplier ?? 0;
   const coralKidUpgBonus = getCoralKidUpgBonus(account, 3);
   return Math.max(1, bigPBubble) * (1 + coralKidUpgBonus / 100) * (divinityLevel / (60 + divinityLevel)) * multiplier;
 }

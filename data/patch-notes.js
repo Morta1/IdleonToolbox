@@ -17,7 +17,7 @@ export const patchNotes = [
       'Every page now has a proper browser tab title and description straight away, instead of only after the page finishes loading',
       'All pages are now viewable without signing in, showing the full game data with your progress at zero',
       'Signed-out visitors can now find every page from the navigation bar, tools menu, and search - previously most were hidden until you signed in, even though the pages themselves already worked',
-      'Sailing, Sushi Station, Divinity, Guild, and Equinox pages now show the full artifact, upgrade, god, bonus, and challenge lists instead of a "missing data" notice when you have not unlocked the feature'
+      'Sailing, Sushi Station, Divinity, Guild, Equinox, and Gaming pages now show the full artifact, upgrade, god, bonus, challenge, and import lists instead of a "missing data" notice when you have not unlocked the feature'
     ],
     'fixes': [
       'Vials: the vial bonus shown on the page was missing the Meritocracy vote bonus',
@@ -33,7 +33,8 @@ export const patchNotes = [
       'Printer, Highscores, Equinox, and Sailing pages no longer show "NaN" for boosted print values, minigame upgrade costs, charge rate, and boat travel times, and your total account level no longer breaks if one of your character slots has no data',
       'Death Note, Cooking, Spelunking, and Buildings pages no longer show "NaN" for kill counts, meal breakpoints, amber totals, and build progress when signed out',
       'Formulas, General, Kangaroo, Refinery, Grimoire, Tesseract, Merits, Compass, Breeding, Owl, Killroy, Sigils, Weekly Bosses, Armor Smithy, Atom Collider, Worship, and Sneaking pages no longer show "NaN" for formula results, currencies, upgrade costs, and stats when signed out',
-      'Task Board no longer fails to load when signed out, and Event Shop, Gem Shop, Weekly Bosses, Rift, Spelunking, and Formulas pages no longer show the word "undefined" for currencies, purchases, task progress, and rates when signed out'
+      'Task Board no longer fails to load when signed out, and Event Shop, Gem Shop, Weekly Bosses, Rift, Spelunking, and Formulas pages no longer show the word "undefined" for currencies, purchases, task progress, and rates when signed out',
+      'Gaming: sprout regrowth time, superbit tower-wave bonuses, and the acorn shop no longer show "NaN" before you have unlocked gaming, and Equinox no longer shows "Bosses killed: NaN"'
     ]
   },
   {

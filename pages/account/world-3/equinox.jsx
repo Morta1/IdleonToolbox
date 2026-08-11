@@ -39,8 +39,7 @@ const Equinox = () => {
                                                                 placeholder={'Upgrade is ready'}
                                                                 date={equinox.timeToFull}
                                                                 lastUpdated={state?.lastUpdated}/>}/>
-      </Stack> : <Typography variant={'h5'} mb={2}>Unlock Equinox first - every challenge and upgrade is listed
-        below</Typography>}
+      </Stack> : null}
       <Tabber tabs={getTabs(PAGES.ACCOUNT['world 3'].categories, 'Equinox')}>
         <Upgrades upgrades={equinox?.upgrades}/>
         <Challenges challenges={equinox?.challenges} completedClouds={equinox?.completedClouds}/>

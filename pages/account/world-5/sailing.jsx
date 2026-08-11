@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { Alert, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import Artifacts from '@components/account/Worlds/World5/Sailing/Artifacts';
 import LootPile from '@components/account/Worlds/World5/Sailing/LootPile';
 import { getTabs, prefix } from '@utility/helpers';
@@ -25,25 +25,17 @@ const Sailing = () => {
     trades,
     shopCaptains,
     minimumTravelTime,
-    minimumTravelTimeBreakdown,
-    unlocked
+    minimumTravelTimeBreakdown
   } = state?.account?.sailing || {};
 
-  // The parser now hands back the artifact catalog even when sailing is locked, so instead of a
-  // dead-end "missing data" notice the page still shows what sailing contains - all 41 artifacts and
-  // their bonuses - with the player's own numbers at zero. `unlocked === false` is the flag to
-  // branch on; never truthiness on `state.account.sailing`, which is always an object now.
-  const isLocked = unlocked === false;
-
+  // The parser hands back the artifact catalog even when sailing is locked, so instead of a
+  // dead-end "missing data" notice the page shows what sailing contains - all 41 artifacts and
+  // their bonuses - with the player's own numbers at zero.
   return <>
     <NextSeo
       title="Sailing | Idleon Toolbox"
       description="Keep track of your artiacts, boats and captains and their bonuses"
     />
-    {isLocked ? <Alert severity={'info'} sx={{ mb: 2 }}>
-      Sailing isn&apos;t unlocked on this account yet. The artifacts below are the full list and what
-      each one does — your own progress will fill in once you&apos;ve unlocked it.
-    </Alert> : null}
     <Stack mb={2} direction={'row'} gap={1}>
       <CardTitleAndValue title={'Chests'}>
         <Stack direction={'row'} gap={2}>

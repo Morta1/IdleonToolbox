@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../../components/common/context/AppProvider';
-import { Alert, Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix, tryToParse } from '@utility/helpers';
 import { getBubbleBonus } from '@parsers/world-2/alchemy';
 import { NextSeo } from 'next-seo';
@@ -42,9 +42,8 @@ const GodPlanner = () => {
     setBuild(buildCopy)
   }
 
-  // Divinity now reports `unlocked: false` and still carries the full god list rather than being
-  // absent, so the planner shows what there is to plan with instead of a dead-end notice.
-  const isLocked = state?.account?.divinity?.unlocked === false;
+  // Divinity carries the full god list even when it reports `unlocked: false`, so the planner can
+  // show every god and what its link gives without a save.
   return <>
     <NextSeo
       title="God Planner | Idleon Toolbox"
@@ -61,10 +60,6 @@ const GodPlanner = () => {
       ]
     )}/>
     <Typography variant={'h2'} mb={3}>God Planner</Typography>
-    {isLocked ? <Alert severity={'info'} sx={{ mb: 2 }}>
-      Divinity isn&apos;t unlocked on this account yet. You can still browse every god and what its
-      link gives — your own characters and levels will fill in once you&apos;ve unlocked it.
-    </Alert> : null}
     <Typography variant={'caption'} component={'div'}>* Click on a god to add it to the build</Typography>
     <FormControlLabel
       control={<Checkbox name={'mini'} checked={bigP}

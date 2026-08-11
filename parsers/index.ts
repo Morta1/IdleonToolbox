@@ -269,6 +269,11 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   }
   accountData.spelunking = safeSection<any>('spelunking', {}, () => getSpelunking(idleonData, accountData, charactersData));
   accountData.hatRack = safeSection<any>('hatRack', {}, () => getHatRack(idleonData, accountData));
+  // Unlike the other converted sections the fallback stays `null`. gaming's shape has ~35 keys fed
+  // by six catalogs and several cross-section lookups; a hand-written static twin would drift from
+  // it silently. Every consumer already tolerates null (they did while gaming was always null when
+  // locked), and `?.unlocked` reads falsy through it, so the error path degrades to exactly the
+  // behaviour that shipped before this change.
   accountData.gaming = safeSection<any>('gaming', null, () => getGaming(idleonData, charactersData, accountData, serverVars));
   // reapply atoms
   accountData.atoms = safeSection<any>('atoms', {}, () => getAtoms(idleonData, accountData));
