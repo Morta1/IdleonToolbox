@@ -42,8 +42,13 @@ export const getFarming = (idleonData: any, accountData: any, charactersData: an
 const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCrop: any, rawFarmingRanks: any, account: any, charactersData: any) => {
   const gemVineBonus = account?.gemShopPurchases?.find((value: any, index: any) => index === 139) ?? 0;
   const marketLevels = rawFarmingUpgrades?.slice(2, marketInfo.length + 2);
-  const beans = rawFarmingUpgrades?.[1];
-  const instaGrow = rawFarmingUpgrades?.[19];
+  // Same shape as instaGrow below: the market's "next requirement" renders this as the amount you
+  // own, so undefined leaves that line blank instead of showing you own none.
+  const beans = rawFarmingUpgrades?.[1] ?? 0;
+  // No save means none banked, not an unknown count. The page renders this straight into a card,
+  // and CardTitleAndValue draws nothing for undefined (as opposed to "0") - so the card showed a
+  // title with an empty body.
+  const instaGrow = rawFarmingUpgrades?.[19] ?? 0;
   const researchBonus171 = getResearchGridBonus(account, 171, 0);
   const cheaperDayMarket = Math.max(0.1, 1 - (getExoticMarketBonus(account, 34) ?? 0) / 100)
     * Math.max(0.1, 1 - (getExoticMarketBonus(account, 35) ?? 0) / 100);
