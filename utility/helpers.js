@@ -766,9 +766,17 @@ export const shouldDisplayDrawer = (pathname = '') => {
   return drawerPages.includes(pathname?.split('/').at(1))
 }
 
+// The "N days" fallback below exists for timestamps too far out for a Date to hold - a legitimate
+// "effectively never" result. NaN and Infinity land in the same branch though, and come out as
+// "NaNENaN days" / "NaNEInfinity days" on the dashboard tooltips. They mean "we have no data for
+// this", which is not a duration, so they get a placeholder instead.
+export const UNKNOWN_TIME = '—';
+export const isUnknownTime = (ms) => typeof ms !== 'number' || !Number.isFinite(ms);
+
 export const getRealDateInMs = (ms, shouldFormat = true, formatString = 'dd/MM/yyyy HH:mm:ss') => {
   const dateInMs = ms;
   if (shouldFormat) {
+    if (isUnknownTime(dateInMs)) return UNKNOWN_TIME;
     return isValid(new Date(dateInMs))
       ? format(dateInMs, formatString)
       : `${notateNumber(getTimeAsDays(dateInMs))} days`;
@@ -1135,3 +1143,14 @@ export function parseShorthandNumber(input) {
 }
 
 export const worldColor = ['#64b564', '#f1ac45', '#00bcd4', '#864ede', '#de4e4e', '#5FF1B4FF', '#40e0d0'];
+// Free companion claims are on a 6.875 day (594e6 ms) cooldown from the last one.
+//
+// `timeAway.GlobalTime` is absent on an account with no save, and `1e3 * undefined` is NaN - which
+// `Math.max(0, NaN)` passes straight through, so the dashboard tooltip read
+// "Next companion claim: NaNENaN days". This lived in three places that had already drifted (one
+// was missing the `?? 0` on lastFreeClaim); it lives here now so the next fix only happens once.
+export const getNextCompanionClaim = (account) => {
+  const globalTime = account?.timeAway?.GlobalTime ?? 0;
+  const lastFreeClaim = account?.companions?.lastFreeClaim ?? 0;
+  return new Date().getTime() + Math.max(0, 594e6 - (1e3 * globalTime - lastFreeClaim));
+};

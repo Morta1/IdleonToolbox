@@ -2,7 +2,7 @@ import { NextSeo } from 'next-seo';
 import { Card, CardContent, Chip, Divider, FormControlLabel, Radio, RadioGroup, Stack, Typography } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
-import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, getNextCompanionClaim, numberWithCommas, prefix } from '@utility/helpers';
 import Timer from '@components/common/Timer';
 import { CardTitleAndValue } from '../../../components/common/styles';
 import { companionGroups } from '@website-data';
@@ -59,7 +59,7 @@ const CompanionList = ({ title, companions }) => {
 const Pets = () => {
   const { state } = useContext(AppContext);
   const [filter, setFilter] = useState('all');
-  const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * state?.account?.timeAway?.GlobalTime - (state?.account?.companions?.lastFreeClaim ?? 0)));
+  const nextCompanionClaim = getNextCompanionClaim(state?.account);
 
   const allCompanions = state?.account?.companions?.list || [];
   const tokens = state?.account?.companions?.tokens;

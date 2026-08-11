@@ -77,6 +77,8 @@ const ALLOWED_NAN_TEXT = new Set([
   'Printer, Highscores, Equinox, and Sailing pages no longer show "NaN" for boosted print values, minigame upgrade costs, charge rate, and boat travel times, and your total account level no longer breaks if one of your character slots has no data',
   'Death Note, Cooking, Spelunking, and Buildings pages no longer show "NaN" for kill counts, meal breakpoints, amber totals, and build progress when signed out',
   'Formulas, General, Kangaroo, Refinery, Grimoire, Tesseract, Merits, Compass, Breeding, Owl, Killroy, Sigils, Weekly Bosses, Armor Smithy, Atom Collider, Worship, and Sneaking pages no longer show "NaN" for formula results, currencies, upgrade costs, and stats when signed out',
+  'Gaming: sprout regrowth time, superbit tower-wave bonuses, and the acorn shop no longer show "NaN" before you have unlocked gaming, and Equinox no longer shows "Bosses killed: NaN"',
+  'Dashboard: the companion claim and megaflesh timers no longer show "NaNENaN days" in their tooltips',
 ]);
 
 // Exact text that legitimately contains the standalone word "undefined" - same pattern as
@@ -149,4 +151,43 @@ test.describe('No "NaN"/"undefined"/crash fallback reaches the rendered page for
       expect(offending, `Bad text found on ${route}:\n${offending.join('\n')}`).toEqual([]);
     });
   }
+});
+
+/**
+ * The scan above reads text nodes that are in the DOM. MUI tooltips are not: they mount only while
+ * hovered. Every timer card on the dashboard keeps its wording in one, and two of them shipped
+ * reading "Next companion claim: NaNENaN days" and "Next megaflesh: NaNEInfinity days" through a
+ * fully green gate - found by a user, not by this suite.
+ *
+ * Both came from the same shape: `now + (cost - owned) / rate` is NaN when the save has no data and
+ * Infinity when a rate is 0, and getRealDateInMs sent both down its "too far out for a Date, show
+ * N days" branch. The guard now lives in getRealDateInMs / useRealDate, but the reason this went
+ * unnoticed was coverage, so hover them here too.
+ */
+test('dashboard timer tooltips render no NaN/Infinity/undefined for a logged-out visitor', async ({ page }) => {
+  await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(3500);
+
+  const hoverables = await page.$$('img');
+  const seen = new Set();
+  const offending = new Set();
+
+  for (const target of hoverables) {
+    try {
+      await target.hover({ timeout: 800 });
+      await page.waitForTimeout(100);
+      const tips = await page.$$eval('[role="tooltip"]', (els) => els.map((el) => el.innerText));
+      for (const text of tips) {
+        seen.add(text);
+        if (/\bNaN|\bInfinity\b|\bundefined\b/.test(text)) offending.add(text.slice(0, 200));
+      }
+    } catch {
+      // Not hoverable (offscreen, detached, covered) - skip it.
+    }
+  }
+
+  // Without this the test would pass trivially on a dashboard that rendered no tooltips at all,
+  // which is exactly the failure mode that let the two bugs above through.
+  expect(seen.size, 'expected the dashboard to expose timer tooltips to hover').toBeGreaterThan(5);
+  expect([...offending], `Bad tooltip text:\n${[...offending].join('\n')}`).toEqual([]);
 });
