@@ -86,13 +86,14 @@ const NavBar = ({ children }) => {
       pb: 'var(--nitro-ad-height, 0px)'
     }}>
       <Box sx={{ flex: 1 }}>
-        {(router?.pathname?.includes('account') || router?.pathname?.includes('tools'))
-          // The page heading shares this row rather than claiming one of its own - see PageTitle.
-          ? <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
-            <PageTitle/>
-            <Pin/>
-          </Stack>
-          : null}
+        {/* The page heading shares the Pin row rather than claiming one of its own - see PageTitle.
+            Pages without a Pin button still get the row, so every page has an h1. PageTitle renders
+            nothing on the homepage (its own h1) and on noindex pages, and the Stack then collapses
+            to nothing. */}
+        <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
+          <PageTitle/>
+          {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
+        </Stack>
         <ContentWrapper showSidebar={isInnerPage}>
           {children}
         </ContentWrapper>

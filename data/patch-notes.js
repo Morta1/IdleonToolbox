@@ -51,7 +51,8 @@ export const patchNotes = [
       'Forge: an empty slot showed a countdown that ticked upward instead of just saying "Empty"',
       'Anvil: the page was blank when signed out - it now lists all 14 anvil products with their smithing level, material cost, and exp per craft',
       'Storage: the Items tab was blank when signed out instead of saying so',
-      'Item, card, stamp, bubble and achievement icons now carry proper labels, so screen readers announce what they are instead of reading out file names'
+      'Item, card, stamp, bubble and achievement icons now carry proper labels, so screen readers announce what they are instead of reading out file names',
+      'Every page now shows its name as a heading, next to the pin button where there is one'
     ]
   },
   {
