@@ -76,7 +76,9 @@ const Tesseract = () => {
                                                                     imgStyle={{ objectPosition: '0 -6px' }}
       />)}
     </Stack>
-    <Divider sx={{ mt: { xs: 2, md: 0 } }}/>
+    {/* The card row above ends with its own bottom margin; the space below is the divider's job
+        now that the cards do not carry a top margin. */}
+    <Divider sx={{ mb: 3 }}/>
     <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Damage'} value={arcanistStats?.damage < 1e8
         ? numberWithCommas(Math.floor(arcanistStats?.damage) || '0')

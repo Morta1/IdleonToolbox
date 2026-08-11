@@ -112,7 +112,7 @@ const Refinery = () => {
         </Card>
       })}
     </Stack>
-    <Stack mb={3} direction={'row'} gap={2}>
+    <Stack mt={3} mb={3} direction={'row'} gap={2}>
       <CardTitleAndValue title={'More cycles'} stackProps>
         <FormControlLabel
           control={<Checkbox checked={includeSquireCycles}
