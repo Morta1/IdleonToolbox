@@ -46,7 +46,11 @@ export const patchNotes = [
       'Active Stuff Calculator: the Pets section was offered on every class instead of only Beast Master and Wind Walker',
       'Dashboard, Companions, and Breeding: countdown timers counted from 1970 when signed out, showing "20660d" instead of the real time remaining',
       'Traps: collect rates showed "-Infinity%" when signed out',
-      'Sailing: the Maneki Kat and Ashen Urn artifacts showed "-Infinity" for their total bonus when signed out'
+      'Sailing: the Maneki Kat and Ashen Urn artifacts showed "-Infinity" for their total bonus when signed out',
+      'Forge: the Slots tab was blank when signed out - it now shows all 16 slots empty, the same board a player who has not bought any slot upgrades sees',
+      'Forge: an empty slot showed a countdown that ticked upward instead of just saying "Empty"',
+      'Anvil: the page was blank when signed out - it now lists all 14 anvil products with their smithing level, material cost, and exp per craft',
+      'Storage: the Items tab was blank when signed out instead of saying so'
     ]
   },
   {

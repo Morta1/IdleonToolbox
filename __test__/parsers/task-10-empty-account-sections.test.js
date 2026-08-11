@@ -4,7 +4,8 @@ import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { getCards, calculateStars } from '@parsers/cards';
 import { cauldronsIndexMapping, getLiquidCauldrons, liquidsIndex } from '@parsers/world-2/alchemy';
 import { BOARD_SIZE } from '@parsers/world-3/constructionOptimizer';
-import { cards, constellations as constellationsCatalog, coralReef, equipmentSets, flagsReqs, sigils } from '@website-data';
+import { getAnvilProductCatalog } from '@parsers/world-1/anvil';
+import { anvilProducts, cards, constellations as constellationsCatalog, coralReef, equipmentSets, flagsReqs, invStorage, sigils } from '@website-data';
 import { tryToParse } from '@utility/helpers';
 import { isBundlePurchased } from '@parsers/misc';
 import first from '../fixtures/first.json';
@@ -279,7 +280,10 @@ describe('forge (forgeLevels?.[index] guard)', () => {
     const { account } = parseEmpty();
     expect(account.forge.upgrades).toHaveLength(6);
     expect(account.forge.upgrades.every((u) => u.level === 0)).toBe(true);
-    expect(account.forge.list).toEqual([]);
+    // This used to assert `list` was []. That was the behaviour at the time, not the goal: the
+    // Slots tab is the page's default tab, so an empty list meant a signed-out visitor's first sight
+    // of the forge was a blank page. See the 'forge slots' describe block below.
+    expect(account.forge.list).toHaveLength(account.forge.upgrades[0].maxLevel);
   });
 
   it.each(FIXTURES)('%s: upgrade levels the save covers are unchanged at the same index', (_name, fixture) => {
@@ -673,5 +677,101 @@ describe('constellations (catalog-driven: constellationsRaw loop -> constellatio
     expect(assertions).toBe(CATALOG.length);
     // Guards against a fixture with nothing completed making the `done` assertions vacuous.
     expect(completed).toBeGreaterThan(0);
+  });
+});
+
+/**
+ * Forge, anvil and storage were the last three pages still rendering essentially nothing to a
+ * signed-out visitor. Each needed a different answer, which is the point of keeping them together:
+ *
+ * - Forge slots ARE a catalog - every save ships all 16 regardless of how many are unlocked, with
+ *   the locked ones holding 'Blank'. The loop was sized by the save's own array instead.
+ * - The anvil has no per-character catalog at all, but WHAT it can produce is fixed game data.
+ * - Storage genuinely has no catalog: it is the items you own. Its chests do, and already rendered.
+ */
+describe('forge slots', () => {
+  const forgeSlotCount = (account) => account.forge.list.length;
+
+  it('renders every forge slot with no save, not an empty board', () => {
+    const { account } = parseEmpty();
+    // Derived, not hardcoded: the count is the "New Forge Slot" upgrade's maxLevel.
+    const expected = account.forge.upgrades[0].maxLevel;
+    expect(expected).toBeGreaterThan(0);
+    expect(forgeSlotCount(account)).toBe(expected);
+  });
+
+  it('every slot with no save is empty rather than half-built', () => {
+    const { account } = parseEmpty();
+    let assertions = 0;
+    account.forge.list.forEach(({ ore, barrel, bar }) => {
+      for (const material of [ore, barrel, bar]) {
+        expect(material.rawName).toBe('Blank');
+        expect(Number.isFinite(material.quantity)).toBe(true);
+        assertions++;
+      }
+    });
+    expect(assertions).toBe(account.forge.list.length * 3);
+  });
+
+  it.each(FIXTURES)('%s: a real save still reports the same slot count', (_name, fixture) => {
+    const { account } = parseFixture(fixture);
+    expect(forgeSlotCount(account)).toBe(account.forge.upgrades[0].maxLevel);
+  });
+
+  it('a real save still reads its own ore quantities, slot for slot', () => {
+    let assertions = 0;
+    let nonZero = 0;
+    for (const [, fixture] of FIXTURES) {
+      const data = fixture.data ?? fixture;
+      const quantities = tryToParse(data?.ForgeItemQuantity) || data?.ForgeItemQty;
+      const { account } = parseFixture(fixture);
+      account.forge.list.forEach(({ ore }, index) => {
+        expect(ore.quantity).toBe(quantities?.[index * 3]);
+        if (ore.quantity > 0) nonZero++;
+        assertions++;
+      });
+    }
+    expect(assertions).toBe(FIXTURES.length * 16);
+    // Counted across all fixtures rather than per fixture: latest.json happens to have every forge
+    // slot empty, so a per-fixture floor would fail on a save that is simply idle. Without any
+    // floor at all, a set of entirely empty saves would make the equality assertions vacuous.
+    expect(nonZero).toBeGreaterThan(0);
+  });
+});
+
+describe('anvil product catalog', () => {
+  it('lists every anvil product with no save', () => {
+    const catalog = getAnvilProductCatalog();
+    expect(catalog.length).toBe(Object.keys(anvilProducts).length);
+    expect(catalog.length).toBeGreaterThan(0);
+  });
+
+  it('resolves a display name, level requirement and cost for each product', () => {
+    let assertions = 0;
+    for (const { rawName, displayName, requiredAmount, levelReq, exp } of getAnvilProductCatalog()) {
+      expect(rawName).toBeTruthy();
+      // The fallback is rawName, so this also catches the catalog silently losing its item lookup.
+      expect(displayName).toBeTruthy();
+      expect(displayName).not.toBe(rawName);
+      expect(Number.isFinite(requiredAmount)).toBe(true);
+      expect(Number.isFinite(levelReq)).toBe(true);
+      expect(Number.isFinite(exp)).toBe(true);
+      assertions++;
+    }
+    expect(assertions).toBe(Object.keys(anvilProducts).length);
+  });
+});
+
+describe('storage', () => {
+  it('has no items with no save - there is no catalog to fall back on', () => {
+    const { account } = parseEmpty();
+    expect(account.storage.list).toEqual([]);
+  });
+
+  it('still lists every storage chest with no save, because those ARE a catalog', () => {
+    const { account } = parseEmpty();
+    expect(account.storage.storageChests.length).toBe(Object.keys(invStorage).length);
+    expect(account.storage.storageChests.length).toBeGreaterThan(0);
+    for (const { unlocked } of account.storage.storageChests) expect(unlocked).toBe(false);
   });
 });

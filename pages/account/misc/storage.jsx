@@ -108,9 +108,15 @@ const Looty = () => {
                 );
               })}
             </Stack>
-            : <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-              {renderItems(items)}
-            </Stack>}
+            : items?.length === 0
+              // Unlike most pages on the site there is no catalog to fall back on here - storage is
+              // the items you personally own, so with no save there is genuinely nothing to list.
+              // Say that, rather than leaving the tab looking broken. The Slots tab beside this one
+              // IS catalog-backed and lists every chest either way.
+              ? <Typography variant={'h6'}>Sign in to see the items in your storage</Typography>
+              : <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+                {renderItems(items)}
+              </Stack>}
         </Stack>
         <div>
           <CardWithBreakdown title={'Slots Owned'} value={`${state?.account?.storage?.slots?.value}`}

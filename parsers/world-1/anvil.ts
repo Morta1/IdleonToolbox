@@ -244,6 +244,17 @@ export const getTimeTillCap = ({
 
   return (stats?.anvilCapacity - futureProduction) / productionRate;
 };
+/**
+ * Everything else on this page is per-character, so a visitor with no characters saw an empty page.
+ * The one thing here that is fixed game data rather than save data is WHAT the anvil can produce -
+ * the same 14 products for everyone - so that is what the page falls back to.
+ */
+export const getAnvilProductCatalog = () => Object.values(anvilProducts as Record<string, any>)
+  .map((product: any) => ({
+    ...product,
+    displayName: items?.[product?.rawName]?.displayName ?? product?.rawName
+  }));
+
 export const calcTotals = (account: any, characters: any) => {
   return account?.anvil?.reduce((result: any, anvil: any, index: any) => {
     const { stats, production } = getPlayerAnvil(characters?.[index], characters, account);
