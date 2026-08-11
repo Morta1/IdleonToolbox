@@ -64,7 +64,7 @@ const BreedingUpgrades = ({ account, petUpgrades, meals }) => {
                 </Stack>
                 {index > 0 ? <Stack direction={'row'} alignItems={'center'}>
                   <MealAndPlate>
-                    <img src={`${prefix}data/CookingMB${upgrade?.foodIndex}.png`} alt={upgrade?.foodIndex}/>
+                    <img src={`${prefix}data/CookingMB${upgrade?.foodIndex}.png`} alt=""/>
                     <img src={`${prefix}data/CookingPlate0.png`} alt="Cooking Plate0"/>
                   </MealAndPlate>
                   <div style={{ textAlign: 'center' }}>

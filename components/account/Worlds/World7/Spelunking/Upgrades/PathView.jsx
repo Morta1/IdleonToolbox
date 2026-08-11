@@ -78,7 +78,7 @@ const UpgradeTree = ({ upgrade, depth = 0, hoveredNodeId, onHover }) => {
 
         <img
           src={`${prefix}data/CaveShopUpg${upgrade.originalIndex}.png`}
-          style={{ width: 20, height: 20, flexShrink: 0 }} alt={upgrade.originalIndex}/>
+          style={{ width: 20, height: 20, flexShrink: 0 }} alt=""/>
 
         <Typography
           variant="body2"

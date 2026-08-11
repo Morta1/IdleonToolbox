@@ -25,10 +25,10 @@ const Captain = ({
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <Stack gap={1}>
             {captainType === -1 ? <Box sx={{ width: 25, height: 25 }} /> : <img style={{ width: 25, height: 25, objectFit: 'contain' }}
-              src={`${prefix}etc/Sailing_Skill_${firstBonusIndex}.png`} alt={firstBonusIndex} />}
+              src={`${prefix}etc/Sailing_Skill_${firstBonusIndex}.png`} alt="" />}
             {captainType === -1 ? <Box sx={{ width: 25, height: 25 }} /> : secondBonusIndex >= 0 ? <img style={{ width: 25, height: 25, objectFit: 'contain' }}
               src={`${prefix}etc/Sailing_Skill_${secondBonusIndex}.png`}
-              alt={secondBonusIndex} /> : <>&nbsp;</>}
+              alt="" /> : <>&nbsp;</>}
           </Stack>
           <img style={{ width: 40, height: 50, objectFit: 'contain' }}
             src={`${prefix}etc/Captain_${captainType === -1 ? 0 : captainType}.png`} alt="" />

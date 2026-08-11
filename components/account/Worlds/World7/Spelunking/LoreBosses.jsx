@@ -29,7 +29,7 @@ const LoreBosses = ({ loreBosses, bestCaveLevels, account }) => {
                 <CardContent>
                   <Stack direction={'row'} gap={1} alignItems={'center'} mb={2}>
                     <img style={{ width: 72, height: 72, objectFit: 'contain', opacity: !boss.defeated ? 0.4 : 1 }}
-                         src={`${prefix}data/CaveBoss${boss.index}.png`} alt={boss.index}/>
+                         src={`${prefix}data/CaveBoss${boss.index}.png`} alt=""/>
                     <Stack direction={'row'} alignItems={'center'} gap={1} flex={1}>
                       <Typography sx={{ opacity: !boss.defeated ? 0.4 : 1 }}
                                   variant="body1">{cleanUnderscore(boss.description)}</Typography>

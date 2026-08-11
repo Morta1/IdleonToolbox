@@ -31,7 +31,7 @@ const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
       {[0, 1, 2, 3, 4, 5, 6]?.map((tabIndex) => {
         return <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' }, p: 1 }}
                     icon={<TabIcon selected={selectedCardPreset === tabIndex}
-                                   src={`${prefix}etc/Card_Preset_${tabIndex}.png`} alt={tabIndex}/>}
+                                   src={`${prefix}etc/Card_Preset_${tabIndex}.png`} alt=""/>}
                     key={`${tabIndex}-card-tab`}
                     aria-label={`${tabIndex}-card-tab`}/>
       })}

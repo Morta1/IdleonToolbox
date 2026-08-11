@@ -36,7 +36,7 @@ const VoteBallot = () => {
           }}>
             <CardContent>
               <Stack direction={'row'} gap={2}>
-                <img style={{ objectFit: 'contain' }} src={`${prefix}data/${bonus?.icon}`} alt={bonus?.icon}/>
+                <img style={{ objectFit: 'contain' }} src={`${prefix}data/${bonus?.icon}`} alt=""/>
                 <Stack>
                   <Typography>{cleanUnderscore(bonus?.[0].replace('{', bonus?.bonus.toFixed(3)).replace('}', (1 + bonus?.bonus / 100).toFixed(3)))}</Typography>
                   {bonus?.active ? <Typography mt={1}>Voters percent: {bonus?.percent}%</Typography> : null}
@@ -71,7 +71,7 @@ const VoteBallot = () => {
           }}>
             <CardContent>
               <Stack direction={'row'} gap={2}>
-                {index > 0 ? <img style={{ objectFit: 'contain' }} src={`${prefix}data/${bonus?.icon}`} alt={bonus?.icon}/> :
+                {index > 0 ? <img style={{ objectFit: 'contain' }} src={`${prefix}data/${bonus?.icon}`} alt=""/> :
                   <Box sx={{ width: 26, height: 26 }}></Box>}
                 <Stack>
                   <Typography>{cleanUnderscore(bonus?.description?.replace('{', bonus?.bonus.toFixed(3)).replace('}', (1 + bonus?.bonus / 100).toFixed(3)))}</Typography>

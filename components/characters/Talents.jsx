@@ -193,7 +193,7 @@ const Talents = ({
             <div className={'talent-wrapper'}>
               {isSuperTalent && <TalentIcon style={{ position: 'absolute' }} src={`${prefix}etc/Super_Talent_${isActiveTalent ? 'Active' : 'Passive'}_Border.png`} alt={isActiveTalent ? 'Active' : 'Passive'} />}
               {!name ? <TalentIcon src={`${prefix}data/UISkillIconLocke.png`} alt="UISkill Icon Locke" /> : <TalentIcon
-                src={`${prefix}data/UISkillIcon${talentId}.png`} alt={talentId} />}
+                src={`${prefix}data/UISkillIcon${talentId}.png`} alt="" />}
               <Typography fontSize={12} sx={levelTextSx}>
                 {levelText}
               </Typography>

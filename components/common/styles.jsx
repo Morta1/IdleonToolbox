@@ -101,7 +101,7 @@ export const TalentTooltip = ({ level, funcX, x1, x2, funcY, y1, y2, description
   const secondaryStat = level > 0 ? growth(funcY, level, y1, y2) : 0;
   return <>
     <Stack direction={'row'} alignItems={'center'} gap={1}>
-      <img src={`${prefix}data/UISkillIcon${talentId}.png`} alt={talentId}/>
+      <img src={`${prefix}data/UISkillIcon${talentId}.png`} alt=""/>
       <Typography fontWeight={'bold'} variant={'h6'}>{cleanUnderscore(name)}</Typography>
     </Stack>
     <Typography>{cleanUnderscore(description).replace('{', mainStat).replace('}', secondaryStat)}</Typography>

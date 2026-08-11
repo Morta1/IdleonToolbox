@@ -53,6 +53,34 @@ const findUnlabelled = () => {
   return { offenders, scanned };
 };
 
+/**
+ * The codemod that added the attributes above fell back to whatever identifier was interpolated into
+ * `src` when it had nothing better. Where that identifier was an index or a numeric id, the result
+ * was an image announcing a bare number - `alt={talentId}` sitting right beside the talent's real
+ * name, so a screen reader read "342, Printer Go Brrr".
+ *
+ * A number is never a label. Where the name is adjacent text the answer is `alt=""`; where the icon
+ * is the only signal the answer is to thread the display name through, which some of these still
+ * need. Either way the identifier itself must not be the alt.
+ */
+const INDEX_LIKE_ALT = /\balt=\{\s*[\w?.]*(?:[iI]ndex|Id|Face)\b[\w?.]*\s*\}/;
+
+const findIndexLabelled = () => {
+  const offenders = [];
+  for (const dir of SCANNED_DIRS) {
+    for (const file of collectFiles(path.join(ROOT, dir))) {
+      const source = fs.readFileSync(file, 'utf8');
+      for (const [tag] of source.matchAll(TAG)) {
+        if (!hasImageSrc(tag)) continue;
+        if (INDEX_LIKE_ALT.test(tag)) {
+          offenders.push(`${path.relative(ROOT, file)}  ${tag.replace(/\s+/g, ' ').slice(0, 110)}`);
+        }
+      }
+    }
+  }
+  return offenders;
+};
+
 describe('image alt attributes', () => {
   it('finds images to check at all', () => {
     // Without this the assertion below passes trivially if the tag regex or the directory list ever
@@ -64,5 +92,20 @@ describe('image alt attributes', () => {
   it('every image carries an alt attribute, even if empty', () => {
     const { offenders } = findUnlabelled();
     expect(offenders, `Images with no alt attribute:\n${offenders.join('\n')}`).toEqual([]);
+  });
+
+  it('the index-like matcher matches the shape it is meant to catch', () => {
+    // The rule below asserts an empty list, so it would pass just as happily if the pattern were
+    // broken and matched nothing at all.
+    expect(INDEX_LIKE_ALT.test('<img src={`a${talentId}.png`} alt={talentId}/>')).toBe(true);
+    expect(INDEX_LIKE_ALT.test('<img src={x} alt={upgrade.originalIndex}/>')).toBe(true);
+    expect(INDEX_LIKE_ALT.test('<img src={x} alt={monster.MonsterFace}/>')).toBe(true);
+    expect(INDEX_LIKE_ALT.test('<img src={x} alt={displayName}/>')).toBe(false);
+    expect(INDEX_LIKE_ALT.test('<img src={x} alt=""/>')).toBe(false);
+  });
+
+  it('no image is labelled with a bare index or numeric id', () => {
+    const offenders = findIndexLabelled();
+    expect(offenders, `Images whose alt is an index or id:\n${offenders.join('\n')}`).toEqual([]);
   });
 });

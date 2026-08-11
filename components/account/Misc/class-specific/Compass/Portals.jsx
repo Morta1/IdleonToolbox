@@ -23,7 +23,7 @@ const Portals = ({ maps }) => {
                      sx={{ position: 'relative' }}>
                 <Typography>{cleanUnderscore(mapName)}</Typography>
                 <img style={{ width: 32, height: 32, objectFit: 'contain' }}
-                     src={`${prefix}data/Mface${monster.MonsterFace}.png`} alt={monster.MonsterFace}/>
+                     src={`${prefix}data/Mface${monster.MonsterFace}.png`} alt=""/>
               </Stack>
               <Divider sx={{ my: 1.5 }}/>
               <Stack direction={'row'} alignItems={'center'} gap={1}

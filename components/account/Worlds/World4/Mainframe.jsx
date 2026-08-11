@@ -45,7 +45,7 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords, divinity }) =
             <CardContent>
               <Tooltip title={<BonusTooltip {...labBonus}/>}>
                 <BonusIcon src={`${prefix}data/LabBonus${labBonus?.index}.png`}
-                           alt={labBonus?.index}/>
+                           alt=""/>
               </Tooltip>
             </CardContent>
           </Card>

@@ -122,7 +122,7 @@ const Kitchens = ({
                   </Breakdown>
                   <Stack mt={2} alignItems={'center'}>
                     <Tooltip title={spicesNames[firstSpiceIndex]}>
-                      <SpiceIcon src={`${prefix}data/CookingSpice${firstSpiceIndex}.png`} alt={firstSpiceIndex}/>
+                      <SpiceIcon src={`${prefix}data/CookingSpice${firstSpiceIndex}.png`} alt=""/>
                     </Tooltip>
                     <Typography>{notateNumber(kitchen?.speedCost, 'Big')}</Typography>
                   </Stack>
@@ -137,7 +137,7 @@ const Kitchens = ({
                   </Breakdown>
                   <Stack mt={2} alignItems={'center'}>
                     <Tooltip title={spicesNames[secondSpiceIndex]}>
-                      <SpiceIcon src={`${prefix}data/CookingSpice${secondSpiceIndex}.png`} alt={secondSpiceIndex}/>
+                      <SpiceIcon src={`${prefix}data/CookingSpice${secondSpiceIndex}.png`} alt=""/>
                     </Tooltip>
                     <Typography>{notateNumber(kitchen?.fireCost, 'Big')}</Typography>
                   </Stack>

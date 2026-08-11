@@ -135,7 +135,7 @@ const Portals = ({ character, account, characters }) => {
                       marginRight: 4
                     }}
                     src={`${prefix}data/Mface${monster.MonsterFace}.png`}
-                    alt={monster.MonsterFace}
+                    alt=""
                   />
 
                   <Typography>{cleanUnderscore(mapName)}</Typography>

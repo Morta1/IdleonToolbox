@@ -143,7 +143,7 @@ const ApocDisplay = ({ apocName, charName, monsters }) => {
                 <Card sx={{ width: 75, height: 75 }} variant={'outlined'}>
                   <CardContent sx={{ '&:last-child': { padding: 0 } }}>
                     <Stack alignItems={'center'} gap={1}>
-                      <MonsterIcon src={`${prefix}data/Mface${monsterFace}.png`} alt={monsterFace}/>
+                      <MonsterIcon src={`${prefix}data/Mface${monsterFace}.png`} alt=""/>
                       <Typography>{notateNumber(kills, 'Big')}</Typography>
                     </Stack>
                   </CardContent>
