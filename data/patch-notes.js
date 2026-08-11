@@ -41,7 +41,9 @@ export const patchNotes = [
       'Coral Reef: reef upgrades and dancing corals were listed as unavailable when signed out, and for accounts from before the feature existed - all six of each now show with their bonuses and costs',
       'Stat cards sitting at zero showed an empty box instead of "0" - this affected every stat card across the site, most visibly on The Hole',
       'Constellations: the page showed only its column headers when signed out - it now lists all 49 constellations with their locations, requirements, and points',
-      'Construction optimizer: the plan could include steps that move an empty slot into another empty slot, which do nothing, and its progress bar could tick past 100%'
+      'Construction optimizer: the plan could include steps that move an empty slot into another empty slot, which do nothing, and its progress bar could tick past 100%',
+      'Active Stuff Calculator: every number showed as "NaN" if you had taken a snapshot before and then opened the page without being signed in - it now asks you to sign in instead',
+      'Active Stuff Calculator: the Pets section was offered on every class instead of only Beast Master and Wind Walker'
     ]
   },
   {

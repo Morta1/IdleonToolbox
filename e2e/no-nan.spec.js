@@ -79,6 +79,7 @@ const ALLOWED_NAN_TEXT = new Set([
   'Formulas, General, Kangaroo, Refinery, Grimoire, Tesseract, Merits, Compass, Breeding, Owl, Killroy, Sigils, Weekly Bosses, Armor Smithy, Atom Collider, Worship, and Sneaking pages no longer show "NaN" for formula results, currencies, upgrade costs, and stats when signed out',
   'Gaming: sprout regrowth time, superbit tower-wave bonuses, and the acorn shop no longer show "NaN" before you have unlocked gaming, and Equinox no longer shows "Bosses killed: NaN"',
   'Dashboard: the companion claim and megaflesh timers no longer show "NaNENaN days" in their tooltips',
+  'Active Stuff Calculator: every number showed as "NaN" if you had taken a snapshot before and then opened the page without being signed in - it now asks you to sign in instead',
 ]);
 
 // Exact text that legitimately contains the standalone word "undefined" - same pattern as
@@ -193,6 +194,31 @@ test.describe('No "NaN"/"undefined"/crash fallback reaches the rendered page for
  * N days" branch. The guard now lives in getRealDateInMs / useRealDate, but the reason this went
  * unnoticed was coverage, so hover them here too.
  */
+/**
+ * The route scan above always starts from a clean browser context, so it only ever sees pages in
+ * their first-visit state. Some pages read localStorage the app itself wrote earlier, and that state
+ * outlives signing out: the active stuff calculator kept a snapshot of your save under
+ * `activeDropPlayer`/`activeDropAcc`, and with that present but no save loaded, every section
+ * compared the snapshot against nothing and rendered "NaNENaN". A user found it; this suite could
+ * not have, because it never had a snapshot to leave behind.
+ *
+ * The snapshot below is deliberately minimal - just enough for the page to believe one exists, which
+ * is exactly the state that used to break it.
+ */
+test('active stuff calculator renders no NaN with a leftover snapshot and no save', async ({ page }) => {
+  await page.addInitScript(() => {
+    const snapshotTime = Date.now() - 3600_000;
+    // @mantine/hooks' useLocalStorage stores JSON.
+    window.localStorage.setItem('activeDropPlayer', JSON.stringify({ playerId: 0, name: 'Someone', snapshotTime }));
+    window.localStorage.setItem('activeDropAcc', JSON.stringify({ snapshotTime }));
+  });
+  await page.goto('/tools/active-stuff-calculator', { waitUntil: 'domcontentloaded' });
+  await waitForRender(page);
+
+  const hits = await findOffendingTextNodes(page);
+  expect(hits, `Bad text found:\n${hits.join('\n')}`).toEqual([]);
+});
+
 test('dashboard timer tooltips render no NaN/Infinity/undefined for a logged-out visitor', async ({ page }) => {
   await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
   await waitForRender(page);
