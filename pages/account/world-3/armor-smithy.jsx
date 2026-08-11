@@ -24,7 +24,7 @@ const ArmorSmithy = () => {
       title="Armor Smithy | Idleon Toolbox"
       description="Track your armor smithy set completion progress, set bonuses, and required items in Legends of Idleon"
     />
-    <Stack direction={'row'} gap={2} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} alignItems={'center'}>
       <CardTitleAndValue title={'Completed sets'} value={`${unlockedSets.length} / ${sets.length}`}/>
       {!isSmithyUnlocked ? <CardTitleAndValue title={'Unlock smithy in'} value={`${30 - days} days`}/> : null}
     </Stack>

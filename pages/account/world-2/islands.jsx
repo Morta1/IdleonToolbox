@@ -31,7 +31,7 @@ const Islands = () => {
       title="Islands | Idleon Toolbox"
       description="Track your island exploration progress, available upgrades, and trash island bonuses in Legends of Idleon"
     />
-    <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
+    <Stack mb={3} direction={'row'} flexWrap={'wrap'} gap={2}>
       <CardTitleAndValue title={'Bottles'} value={Math.round(islands?.bottles)}/>
       <CardTitleAndValue title={'Bottles/day'} value={islands?.bottlesPerDay || '0'}/>
       <CardTitleAndValue title={'Trash/day *'} value={islands?.trashPerDay}

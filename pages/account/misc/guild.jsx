@@ -93,7 +93,7 @@ const Guild = () => {
         <Typography variant={'h3'}>{state?.account?.accountOptions?.[37]} <Typography component="span"
                                                                                       variant={'h5'}>({guild?.members?.length} / {guild?.maxMembers})</Typography></Typography>
       </Stack>
-      <Stack sx={{ mb: 1 }} direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack mb={3} sx={{ mb: 1 }} direction={'row'} gap={2} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Members'} value={`${guild?.members?.length} / ${guild?.maxMembers}`}/>
         <CardTitleAndValue title={'Exp'}>
           <ProgressBar boxSx={{ width: 200 }}

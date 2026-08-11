@@ -28,7 +28,7 @@ const UpgradeVault = () => {
       title="Upgrade Vault | Idleon Toolbox"
       description="Keep track of your upgrade vault progress, upgrade, levels, cost to upgrade and more"
     />
-    <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Total Levels'} value={totalUpgradeLevels}/>
       {costReduction?.cheaperFactor > 1 ? <CardTitleAndValue title={'Vault cost reduction'} value={
         <Stack direction={'row'} gap={1} alignItems={'center'}>

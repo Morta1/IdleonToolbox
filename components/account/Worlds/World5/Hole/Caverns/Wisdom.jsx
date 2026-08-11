@@ -7,7 +7,7 @@ import ProgressBar from '@components/common/ProgressBar';
 
 const Wisdom = ({ hole }) => {
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Attempts'} icon={'etc/Wisdom_Attempts.png'} imgStyle={{ width: 24, height: 24 }}
                          value={`${hole?.caverns?.wisdom?.attempts}`}/>
       <CardTitleAndValue title={'Attempts per round'} icon={'etc/Wisdom_Attempts.png'} imgStyle={{ width: 24, height: 24 }}

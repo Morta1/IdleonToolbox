@@ -20,7 +20,7 @@ const Battles = ({ battles, armyHealth, armyDamage, highestEndlessLevel, winnerB
   const [hide, setHide] = useState(true);
   battles[9] = getEndlessBattles(200, highestEndlessLevel, winnerBonuses);
   return <>
-    <Stack direction={'row'} gap={2}>
+    <Stack mb={3} direction={'row'} gap={2}>
       <CardTitleAndValue value={armyDamage < 1e7 ? commaNotation(armyDamage) : notateNumber(armyDamage)}
                          icon={'data/SumUpgIc3.png'} imgStyle={{ width: 25 }}/>
       <CardTitleAndValue value={armyHealth < 1e7 ? commaNotation(armyHealth) : notateNumber(armyHealth)}

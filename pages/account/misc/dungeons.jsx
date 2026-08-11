@@ -30,7 +30,7 @@ const Dungeons = () => {
         title="Dungeons | Idleon Toolbox"
         description="Dungeon information including happy hour times, currency, upgrades and more"
       />
-      <Stack direction="row" flexWrap={'wrap'} gap={4}>
+      <Stack mb={3} direction="row" flexWrap={'wrap'} gap={4}>
         <CardTitleAndValue title={'Rank'}>
           <Stack direction={'row'} gap={2}>
             <CurrencyIcon src={`${prefix}data/Dung_Rank${dungeons?.rank}.png`} alt="dungeon-icon"/>

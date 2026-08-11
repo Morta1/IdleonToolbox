@@ -9,7 +9,7 @@ const Abominations = ({ abominations }) => {
   const [CheckboxFutureEl, hideFutureAbominations] = useCheckbox('Hide future abominations', true);
 
   return <>
-    <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
+    <Stack mb={3} direction="row" gap={2} flexWrap="wrap" alignItems="center">
       <CardTitleAndValue title={''} value={<CheckboxEl/>}/>
       <CardTitleAndValue title={''} value={<CheckboxFutureEl/>}/>
     </Stack>

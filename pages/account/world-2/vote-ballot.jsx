@@ -17,7 +17,7 @@ const VoteBallot = () => {
 
   const renderBonusTab = () => (
     <>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
         <CardWithBreakdown title={'Bonus multi'} value={`${voteBallot?.voteMulti?.toFixed(3)}x`}
                            breakdown={voteBallot?.voteMultiBreakdown}/>
         <CardTitleAndValue title={'Selected bonus'} value={' '} icon={`data/${voteBallot?.selectedBonus?.icon}`}/>
@@ -51,7 +51,7 @@ const VoteBallot = () => {
 
   const renderMeritocracyTab = () => (
     <>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
         <CardWithBreakdown title={'Meritocracy multi'} value={`${voteBallot?.meritocracyMult?.toFixed(3)}x`}
                            breakdown={voteBallot?.meritocracyMultBreakdown}/>
         <CardTitleAndValue title={'Selected meritocracy bonus'} value={' '}

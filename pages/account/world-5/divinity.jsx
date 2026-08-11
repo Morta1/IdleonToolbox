@@ -29,7 +29,9 @@ const Divinity = () => {
     />
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'divinity')}>
     <div>
-    <CardTitleAndValue title={'God Rank'} value={godRank || 1}/>
+    {/* Its parent is a bare <div> with nothing to hang a margin on, so this one card carries its
+        own - the cards themselves no longer have a default bottom margin. */}
+    <CardTitleAndValue title={'God Rank'} value={godRank || 1} cardSx={{ mb: 3 }}/>
     <FormControlLabel
       control={<Checkbox name={'mini'} checked={showCost} size={'small'} onChange={() => setShowCost(!showCost)}/>}
       label={'Show upgrade cost'}/>

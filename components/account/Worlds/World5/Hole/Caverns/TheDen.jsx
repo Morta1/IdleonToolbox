@@ -4,7 +4,7 @@ import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/h
 
 const TheDen = ({ hole }) => {
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Best score'} icon={'etc/Amp_Best_Score.png'}
                          imgStyle={{ width: 24, height: 24, objectFit: 'none' }}
                          value={hole?.caverns?.theDen?.bestScore}/>

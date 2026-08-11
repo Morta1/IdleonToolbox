@@ -29,7 +29,7 @@ const General = ({ account, characters, lastUpdated }) => {
   const bitMulti = getBitsMulti(account, characters);
 
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Bits'} value={notateNumber(bits, 'bits')} icon={`etc/Bits_${getBitIndex(bits)}.png`}/>
       <CardWithBreakdown title={'Bit Multi'} value={`${notateNumber(bitMulti?.value)}x`} breakdown={bitMulti?.breakdown} notation={'MultiplierInfo'}/>
       <CardTitleAndValue title={'Sprouts'} value={`${availableSprouts} / ${sproutsCapacity ?? 0}`}

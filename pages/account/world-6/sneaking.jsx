@@ -41,7 +41,7 @@ const Sneaking = () => {
       title="Sneaking | Idleon Toolbox"
       description="Keep track of your ninja and jade upgrades and much more bonuses"
     />
-    <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Jade coins'} value={notateNumber(jadeCoins)} icon={`etc/jade_coin.png`}/>
       <CardTitleAndValue title={'Daily charm rolls used'} value={`${dailyCharmRollCount || 0}/120`}/>
       <CardTitleAndValue title={'Remaining pristine rolls'} stackProps>

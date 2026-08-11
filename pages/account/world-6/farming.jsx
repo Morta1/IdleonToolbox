@@ -69,7 +69,7 @@ const Farming = () => {
       title="Farming | Idleon Toolbox"
       description="Track your farming garden plots, crop progress, OG bonuses, and evolution upgrades in Legends of Idleon"
     />
-    <Stack direction={'row'} gap={1} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={1} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Character'} stackProps>
         <FormControl sx={{ width: 170, mt: 1 }}>
           <InputLabel id="farming-selected-character">Character</InputLabel>
@@ -127,7 +127,7 @@ const Farming = () => {
                            breakdown={stats?.cropValue}/>
       </Stack> : null}
     </Stack>
-    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mt={1}>
+    <Stack mb={3} direction={'row'} gap={1} flexWrap={'wrap'} mt={1}>
       {Object.entries(cropDepot).map(([stat, { name, value }], index) => {
         const isMulti = stat === 'gamingEvo' || stat === 'cookingSpeed';
         const isBase = stat === 'critters';

@@ -155,7 +155,7 @@ const Stamps = () => {
         title="Stamps | Idleon Toolbox"
         description="Track your stamp levels, upgrade costs, and bonus effects across all stamp categories in Legends of Idleon"
       />
-      <Stack mt={1} direction={'row'} gap={3} justifyContent={'center'} flexWrap={'wrap'}>
+      <Stack mb={3} mt={1} direction={'row'} gap={3} justifyContent={'center'} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Legend'} stackProps={{ gap: .7 }}>
           <Color onChange={handleSwitchChange} name={'level'} value={types.level} color={'#1d1c1c'}
                  desc={'Level 0'}/>

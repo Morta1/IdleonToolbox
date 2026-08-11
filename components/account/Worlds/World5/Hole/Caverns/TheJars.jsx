@@ -10,14 +10,14 @@ import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
 const TheJars = ({ hole }) => {
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       {hole?.caverns?.theJars?.rupies?.map((amount, index) => <CardTitleAndValue
         cardSx={{my:0}}
         title={''} key={`rupie-${index}`} stackProps icon={`data/HoleJarR${index}.png`}
         value={notateNumber(Math.floor(amount))}/>)}
     </Stack>
     <Divider sx={{ mt: 1 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardWithBreakdown title={'Progress per hour'}
                          value={notateNumber(hole?.caverns?.theJars?.perHour?.value, 'Big')}
                          breakdown={hole?.caverns?.theJars?.perHour?.breakdown}/>

@@ -40,7 +40,7 @@ const [searchQuery, setSearchQuery] = useState('');
       description="View your Legend talent levels, bonus effects, and upgrade costs in Legends of Idleon World 7"
     />
 
-    <Stack sx={{ mb: 3 }} direction="row" alignItems="center" gap={2}>
+    <Stack mb={3} sx={{ mb: 3 }} direction="row" alignItems="center" gap={2}>
       <CardTitleAndValue title={'Legend Points'}>
         <Stack direction="row" alignItems={'center'} gap={1}>
           <Typography>

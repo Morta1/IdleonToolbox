@@ -46,7 +46,7 @@ const Territory = ({ territories, spices }) => {
                            alt={''}/>
                     </Tooltip>
                   </Stack>
-                  <Stack direction={'row'} flexWrap={'wrap'}>
+                  <Stack mb={3} direction={'row'} flexWrap={'wrap'}>
                     <CardTitleAndValue cardSx={{ my: 0, width: 150 }} variant={'outlined'} title={'Spice'}>
                       <Stack direction={'row'} gap={1}>
                         <img src={`${prefix}data/${spice?.rawName}.png`} alt={spice?.rawName}/>

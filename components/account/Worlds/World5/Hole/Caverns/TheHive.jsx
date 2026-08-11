@@ -3,7 +3,7 @@ import { CardTitleAndValue } from '@components/common/styles';
 
 const TheHive = ({ hole }) => {
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Catching eff req'} value={hole?.caverns?.theHive?.fishingEff}/>
       <CardTitleAndValue title={'Layer'} value={hole?.caverns?.theHive?.layer}/>
       <CardTitleAndValue title={'Bugs'} icon={'data/Bug14_x1.png'}

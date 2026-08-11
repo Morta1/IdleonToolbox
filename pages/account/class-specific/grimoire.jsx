@@ -35,7 +35,7 @@ const Grimoire = () => {
       title="Grimoire | Idleon Toolbox"
       description="Keep track of your grimoire levels, upgrades and wraith stats"
     />
-    <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       {deathBringers.length > 1 ? <CardTitleAndValue title={'Character'}
                                                      value={<Select size={'small'} value={selectedChar}
                                                                     onChange={(e) => setSelectedChar(e.target.value)}>
@@ -69,7 +69,7 @@ const Grimoire = () => {
       />)}
     </Stack>
     <Divider sx={{ my: { xs: 2, md: 0 } }}/>
-    <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Wraith Max HP'} value={notateNumber(wraithStats?.hp)}/>
       <CardTitleAndValue title={'Wraith Damage'} value={notateNumber(wraithStats?.damage)}/>
       <CardTitleAndValue title={'Wraith Accuracy'} value={notateNumber(wraithStats?.accuracy)}/>

@@ -107,7 +107,7 @@ const ArcadeShop = () => {
         title="Arcade Shop | Idleon Toolbox"
         description="Track your arcade shop upgrades, ball counts, golden balls, and bonus effects in Legends of Idleon"
       />
-      <Stack direction="row" gap={2} flexWrap={'wrap'}>
+      <Stack mb={3} direction="row" gap={2} flexWrap={'wrap'}>
         <CardTitleAndValue title="Balls">
           <Stack direction="row" gap={2}>
             <BallIcon src={`${prefix}data/PachiBall0.png`} alt="arcade-silver-balls"/>

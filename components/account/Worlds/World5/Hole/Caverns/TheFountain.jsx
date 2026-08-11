@@ -276,7 +276,7 @@ const TheFountain = ({ hole }) => {
   const visibleWaters = fountain.waters.filter((w) => w.implemented);
 
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Marble Currency'} value={commaNotation(fountain.marbleCurrency)}/>
       <CardTitleAndValue
         title={'Max coins'}

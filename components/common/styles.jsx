@@ -145,8 +145,13 @@ export const CardTitleAndValue = ({
   // sites that pass children actually mean by "no value".
   const hasValue = value !== undefined && value !== null && value !== '';
   return <Tooltip title={tooltipTitle || ''}>
-    <Card variant={variant} raised={raised}
-          sx={{ mb: { xs: 2, md: 3 }, width: 'fit-content', ...cardSx }}>
+    <Card variant={variant} raised={raised} data-card-title-value
+          // No margin of its own: spacing between these cards, and below a row of them, belongs to
+          // the container that lays them out. This used to carry mb, which did two jobs at once -
+          // it added to the container's row gap, so wrapped rows sat 48px apart while the columns
+          // beside them were 24px, and it was also the only thing holding a card row off the
+          // section below it. Both jobs now sit on the container, where they can agree.
+          sx={{ width: 'fit-content', ...cardSx }}>
       <CardContent sx={{ '&:last-child': contentPadding ? { p: contentPadding } : {}, height: '100%' }}>
         <Stack sx={{ display: stackProps ? 'flex' : 'block', ...(stackProps || {}) }}>
           {title ? <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom

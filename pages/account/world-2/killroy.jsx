@@ -22,7 +22,7 @@ const MyComponent = () => {
       title="Killroy | Idleon Toolbox"
       description="Track your Killroy skull kills, progression tiers, and bonus rewards in Legends of Idleon"
     />
-    <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
+    <Stack mb={3} direction={'row'} flexWrap={'wrap'} gap={1}>
       <CardTitleAndValue title={'Skulls'} value={notateNumber(killroy?.skulls)} icon={'etc/Killroy_Skull.png'}/>
       <CardTitleAndValue title={'Total Kills'} value={notateNumber(killroy.totalKills)} />
       <CardTitleAndValue title={'Total Damage Multi'} value={`${Math.floor(100 * killroy.totalDamageMulti) / 100}x`}/>

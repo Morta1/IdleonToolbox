@@ -101,7 +101,7 @@ const Sigils = () => {
         title="Sigils | Idleon Toolbox"
         description="View your sigil levels, unlock progress, and bonus effects for alchemy in Legends of Idleon"
       />
-      <Stack direction={'row'} gap={3}>
+      <Stack mb={3} direction={'row'} gap={3}>
         <CardTitleAndValue title={'Sigil Speed'}>
           <Stack direction={'row'} gap={1} justifyContent={'space-between'}>
             {notateNumber(sigilSpeed?.value, 'MultiplierInfo')}

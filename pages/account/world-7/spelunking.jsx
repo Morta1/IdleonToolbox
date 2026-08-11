@@ -48,7 +48,7 @@ const Spelunking = () => {
       description="Keep track of your spelunking levels, upgrades and stats"
     />
 
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Power'} >
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg17.png`} alt="Cave Shop Upg17" />

@@ -103,7 +103,7 @@ const Gallery = () => {
       description="Keep track of your gallery bonuses, podiums, and trophies"
     />
 
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Total Podiums'} value={podiumsOwned || 0} />
       <CardTitleAndValue title={'Bonus Multiplier'} value={`${notateNumber(bonusMulti, 'MultiplierInfo')}x`} />
       <CardTitleAndValue title={'Level 2 Podiums'} value={lv2PodiumsOwned || '0'} icon={'data/GalleryPod1.png'} imgStyle={{ width: 24, heigth: 24 }} />

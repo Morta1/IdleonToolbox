@@ -21,7 +21,7 @@ const Vials = () => {
       title="Vials | Idleon Toolbox"
       description="View your vial levels, upgrade costs, and bonus effects for alchemy progression in Legends of Idleon"
     />
-    <Stack sx={{ flexDirection: 'row', gap: 2, mb:1 }}>
+    <Stack mb={3} sx={{ flexDirection: 'row', gap: 2, mb:1 }}>
       <CardTitleAndValue title={'Vial bonus'}>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <Typography>{`${(vialBonus || 1).toFixed(3)}x`}</Typography>

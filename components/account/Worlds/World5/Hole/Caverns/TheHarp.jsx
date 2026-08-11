@@ -9,7 +9,7 @@ const harpNoteIcon = (noteId) => `${prefix}etc/HarpNote_${109 + Number(noteId ||
 const TheHarp = ({ hole }) => {
   const { theHarp } = hole?.caverns;
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Power'} value={`${100 > theHarp?.power
         ? '' + notateNumber(theHarp?.power, 'Small')
         : 1E6 > theHarp?.power

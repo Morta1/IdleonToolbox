@@ -76,7 +76,7 @@ const Pets = () => {
       title="Premium Pets | Idleon Toolbox"
       description="View your companion collection, abilities, trade offers, and pet crystal upgrades in Legends of Idleon"
     />
-    <Stack direction={'row'} gap={3} flexWrap={'wrap'} alignItems="center">
+    <Stack mb={3} direction={'row'} gap={3} flexWrap={'wrap'} alignItems="center">
       <CardTitleAndValue title={'Pet Crystals'} value={numberWithCommas(state?.account?.companions?.petCrystals ?? 0)} icon='data/PremiumGem.png' imgStyle={{ filter: 'hue-rotate(280deg)', width: 24, height: 24 }} />
       <CardTitleAndValue title={'Total Box Opened'} value={numberWithCommas(state?.account?.companions?.totalBoxesOpened ?? 0)} />
       <CardTitleAndValue title={'Tokens Available'} value={numberWithCommas(tokens?.remaining ?? 0)} icon='data/Quest119.png' imgStyle={{ width: 24, height: 24 }} />

@@ -9,14 +9,14 @@ const Gambit = ({ hole }) => {
   const nextUnlock = hole?.caverns?.gambit?.nextUnlock;
 
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       {hole?.caverns?.gambit?.times?.map((time, index) => <CardTitleAndValue
         title={''} key={`rupie-${index}`} stackProps icon={`etc/Gambit_${index}.png`}
         imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
         value={msToDate(time * 1000)} />)}
     </Stack>
     <Divider />
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Base points'} value={numberWithCommas(Math.floor(hole?.caverns?.gambit?.basePoints))} />
       <CardTitleAndValue title={'Points'} value={numberWithCommas(Math.floor(hole?.caverns?.gambit?.points))} />
       <CardTitleAndValue title={'PointsMulti'}

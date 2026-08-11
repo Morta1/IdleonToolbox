@@ -19,7 +19,7 @@ const Kangaroo = () => {
       title="Poppy The Kangaroo | Idleon Toolbox"
       description="Track your Kangaroo minigame upgrades, jump progress, and bonus rewards in Legends of Idleon"
     />
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
       <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}
                          title={'Avg. Points/Reset'}
                          value={notation(kangaroo?.avgResetPoints)}/>
@@ -43,7 +43,7 @@ const Kangaroo = () => {
         <Section title={'Progress'} value={`${notation(kangaroo?.shinyProgress)}%`} icon={'etc/KShiny.png'}/>
         <Section title={'Shiny/m'} value={`${notation(kangaroo?.shinyRatePercent)}%`} icon={'etc/KShiny.png'}/>
       </CardTitleAndValue>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
         {kangaroo?.bonuses.map(({ name, bonus, percentage }, index) => {
           if (index === 0) return;
           bonus = Math.round(10 * bonus) / 10;
@@ -52,7 +52,7 @@ const Kangaroo = () => {
                                     icon={`etc/Kangaroob_${index}.png`}/>
         })}
       </Stack>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
         {kangaroo?.megaFish?.map(({ description, unlocked, amount, totalBonus }, index) => {
           return <CardTitleAndValue cardSx={{ my: 1 }} value={amount > 0 ? amount : ''}
                                     tooltipTitle={cleanUnderscore(description.replace('{', totalBonus))}

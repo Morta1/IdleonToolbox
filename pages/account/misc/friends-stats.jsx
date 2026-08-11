@@ -16,7 +16,7 @@ const FriendsStats = () => {
         description="View all friendship bonuses and their effects on your Legends of Idleon account progression"
       />
       <Stack gap={2}>
-        <Stack direction={'row'} flexWrap={'wrap'} gap={3} alignItems="center">
+        <Stack mb={3} direction={'row'} flexWrap={'wrap'} gap={3} alignItems="center">
           <CardTitleAndValue
             title={'Slots'}
             value={`${slots}`}

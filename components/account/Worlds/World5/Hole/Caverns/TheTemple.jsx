@@ -5,7 +5,7 @@ import React from 'react';
 
 const TheTemple = ({ hole }) => {
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Torches'} value={Math.floor(hole?.caverns?.theTemple?.torches)}
                          imgStyle={{ width: 32, height: 32, marginBottom: -10, marginRight: -10 }} icon={'data/HoleUIbuildUpg77.png'}/>
       <CardTitleAndValue title={'Layer'} value={hole?.caverns?.theTemple?.layer}/>

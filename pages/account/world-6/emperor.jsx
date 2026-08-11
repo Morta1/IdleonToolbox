@@ -26,7 +26,7 @@ const Emperor = () => {
       title="Emperor | Idleon Toolbox"
       description="Track your Emperor showdown progress, boss HP, attempt counts, and bonus rewards in Legends of Idleon"
     />
-    <Stack direction={'row'} gap={2} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} alignItems={'center'}>
       <CardTitleAndValue title={'Highest showdown'} value={highestEmperorShowdown || '0'}/>
       <CardTitleAndValue title={'Daily Attempts'} value={dailyAttempts} icon={'data/GemP45.png'}
                          imgStyle={{ width: 24 }}/>

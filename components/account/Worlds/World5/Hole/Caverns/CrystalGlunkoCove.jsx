@@ -15,7 +15,7 @@ const CrystalGlunkoCove = ({ hole }) => {
   if (!cove) return null;
 
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Drop Rate (in Cove)'} value={`${notateNumber(cove.dropRate, 'MultiplierInfo')}x`}/>
       <CardTitleAndValue title={'AFK Gains (in Cove)'} value={`${notateNumber(100 * cove.afkGains, 'Big')}%`}/>
       <CardTitleAndValue title={'Multikill Per Tier'} value={`${notateNumber(cove.multiKillTier, 'Big')}%`}/>

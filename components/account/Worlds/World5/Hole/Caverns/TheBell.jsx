@@ -18,7 +18,7 @@ import Tooltip from 'components/Tooltip';
 
 const TheBell = ({ hole }) => {
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'New method chance'}
                          value={`${notateNumber(hole?.caverns?.theBell?.newMethodChance * 100, 'MultiplierInfo')}%`}/>
       <CardTitleAndValue title={'Rings'}
