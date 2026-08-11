@@ -28,7 +28,7 @@ const CompanionList = ({ title, companions }) => {
                 <Stack direction='row' gap={2}>
                   <img width={42} height={42}
                     style={{ objectFit: 'contain' }}
-                    src={`${prefix}afk_targets/${name}.png`} alt={''} />
+                    src={`${prefix}afk_targets/${name}.png`} alt={name} />
                   <Stack gap={1}>
                     <Stack direction='row' gap={1} alignItems='center'>
                       <Typography variant='body1'>{cleanUnderscore(name)}</Typography>

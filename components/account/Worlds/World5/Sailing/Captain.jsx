@@ -25,10 +25,10 @@ const Captain = ({
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <Stack gap={1}>
             {captainType === -1 ? <Box sx={{ width: 25, height: 25 }} /> : <img style={{ width: 25, height: 25, objectFit: 'contain' }}
-              src={`${prefix}etc/Sailing_Skill_${firstBonusIndex}.png`} alt="" />}
+              src={`${prefix}etc/Sailing_Skill_${firstBonusIndex}.png`} alt={firstBonusIndex} />}
             {captainType === -1 ? <Box sx={{ width: 25, height: 25 }} /> : secondBonusIndex >= 0 ? <img style={{ width: 25, height: 25, objectFit: 'contain' }}
               src={`${prefix}etc/Sailing_Skill_${secondBonusIndex}.png`}
-              alt="" /> : <>&nbsp;</>}
+              alt={secondBonusIndex} /> : <>&nbsp;</>}
           </Stack>
           <img style={{ width: 40, height: 50, objectFit: 'contain' }}
             src={`${prefix}etc/Captain_${captainType === -1 ? 0 : captainType}.png`} alt="" />
@@ -44,7 +44,7 @@ const Captain = ({
             <Typography>Exp: {exp} / {expReq}</Typography>
           </> : <Stack sx={{ my: 1 }} gap={1} direction={'row'}>
             <img style={{ width: 25, objectFit: 'contain' }}
-              src={`${prefix}data/SailT0.png`} alt="" />
+              src={`${prefix}data/SailT0.png`} alt="Sail T0" />
             <Typography
               color={lootPile?.[0]?.amount >= cost ? 'success.light' : 'error.light'}
               component={'span'}>{notateNumber(lootPile?.[0]?.amount, 'Big')}/{notateNumber(cost, 'Big')}</Typography>

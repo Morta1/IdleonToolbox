@@ -30,7 +30,7 @@ const Chests = ({ chests }) => {
           <CardContent>
             <Stack>
               <Stack direction={'row'} alignItems={'center'}>
-                <img style={{ objectFit: 'contain', width: 50 }} src={`${prefix}data/${rawName}.png`} alt=""/>
+                <img style={{ objectFit: 'contain', width: 50 }} src={`${prefix}data/${rawName}.png`} alt={rawName}/>
                 <Stack>
                   {done ? <><Typography>No more artifacts!</Typography>
                     <Typography>&nbsp;</Typography></> : <>
@@ -63,7 +63,7 @@ const Chests = ({ chests }) => {
                            alignItems={'center'}>
                       <img src={`${prefix}data/${artifact?.rawName}.png`}
                            width={24} height={24}
-                           alt=""/>
+                           alt={artifact?.rawName}/>
                     </Stack>
                   </Tooltip>)}
                 </Stack> : null}

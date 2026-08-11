@@ -9,7 +9,7 @@ export const IconWithText = forwardRef((props, ref) => {
   const { stat, icon, img, title = '', ...rest } = props
   return <Tooltip title={title}>
     <Stack alignItems={'center'} {...rest} ref={ref} style={{ position: 'relative', width: 'fit-content' }}>
-      <img {...img} src={`${prefix}data/${icon}.png`} alt=""/>
+      <img {...img} src={`${prefix}data/${icon}.png`} alt={typeof title === 'string' && title ? title : icon}/>
       <Typography variant={'body1'}
                   component={'span'}>{stat}</Typography>
     </Stack>
@@ -38,6 +38,8 @@ export const CardAndBorder = (cardProps) => {
   const realCardName = variant === 'cardSet' ? name : cardName;
 
   return <>
+    {/* The border is decorative: the star count it represents is already announced by the card's
+        own label and tooltip, so labelling it too would just repeat. */}
     {stars > 0 && !forceDisable ?
       <BorderIcon src={`${prefix}data/CardEquipBorder${stars}.png`} alt=""/> : null}
     <Tooltip title={<CardTooltip {...{ ...cardProps, cardName: realCardName, nextLevelReq, amount }}/>}>
@@ -45,7 +47,7 @@ export const CardAndBorder = (cardProps) => {
         forceDisable={forceDisable}
         isCardSet={variant === 'cardSet'}
         amount={amount}
-        src={iconSrc} alt=""/>
+        src={iconSrc} alt={cleanUnderscore(realCardName ?? rawName ?? '')}/>
     </Tooltip>
   </>
 }
@@ -61,7 +63,7 @@ const CardTooltip = ({ displayName, effect, bonus, stars, showInfo, nextLevelReq
     {showInfo ? <Stack mt={1} direction={'row'} gap={1} flexWrap={'wrap'}>
       {[1, 2, 3, 4, 5, 6, 7].map((_, index) => {
         return <Stack key={`${displayName}-${index}`} alignItems={'center'} justifyContent={'space-between'}>
-          {index === 0 ? <Typography>Base</Typography> : <StarIcon src={`${prefix}etc/Star${index}.png`} alt=""/>}
+          {index === 0 ? <Typography>Base</Typography> : <StarIcon src={`${prefix}etc/Star${index}.png`} alt={`${index} star`}/>}
           <Typography>{bonus * (index + 1)}</Typography>
         </Stack>
       })}
@@ -99,7 +101,7 @@ export const TalentTooltip = ({ level, funcX, x1, x2, funcY, y1, y2, description
   const secondaryStat = level > 0 ? growth(funcY, level, y1, y2) : 0;
   return <>
     <Stack direction={'row'} alignItems={'center'} gap={1}>
-      <img src={`${prefix}data/UISkillIcon${talentId}.png`} alt=""/>
+      <img src={`${prefix}data/UISkillIcon${talentId}.png`} alt={talentId}/>
       <Typography fontWeight={'bold'} variant={'h6'}>{cleanUnderscore(name)}</Typography>
     </Stack>
     <Typography>{cleanUnderscore(description).replace('{', mainStat).replace('}', secondaryStat)}</Typography>
@@ -113,7 +115,7 @@ export const PlayersList = ({ players, characters }) => {
       <img
         style={{ width: 24, height: 24 }}
         src={`${prefix}data/ClassIcons${characters?.[index]?.classIndex}.png`}
-        alt=""
+        alt={characters?.[index]?.name ?? 'character'}
       />
     </Tooltip>)}
   </Stack>
@@ -150,7 +152,10 @@ export const CardTitleAndValue = ({
           {title ? <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom
                                component={'span'}>{title}</Typography> : null}
           {(hasValue || imgOnly) ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
-            <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`} alt=""/>
+            {/* The card's title is right beside it, so the icon is decorative when there is one and
+                needs a label only when there is not. */}
+            <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`}
+                 alt={typeof title === 'string' && title ? '' : icon.split('/').pop().replace(/\.\w+$/, '')}/>
             {hasValue ? <Typography component={'div'}>{value}</Typography> : null}
           </Stack> : <Typography component={'div'}>{value}</Typography> : children}
         </Stack>

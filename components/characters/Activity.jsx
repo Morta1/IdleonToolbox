@@ -31,14 +31,14 @@ const Activity = ({ playerId, afkTarget, targetMonster, monsterFace, account, di
                 <Typography>{cleanUnderscore(afkTarget)}</Typography>
               </Stack>
               {isLabConnectedByDivinity() ? <Stack direction={'row'} alignItems="center" gap={1}>
-                <ActivityImg src={`${prefix}afk_targets/Divinity.png`} alt="" />
+                <ActivityImg src={`${prefix}afk_targets/Divinity.png`} alt="Divinity" />
                 <Typography>Divinity</Typography>
               </Stack> : null}
             </Stack>
           </Stack>
         ) : (
           <Stack direction="row" alignItems="center" gap={1}>
-            <ActivityImg src={`${prefix}data/Afkz5.png`} alt="" />
+            <ActivityImg src={`${prefix}data/Afkz5.png`} alt="Afkz5" />
             <Typography>Nothing</Typography>
           </Stack>
         )}

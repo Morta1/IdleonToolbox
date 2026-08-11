@@ -441,11 +441,11 @@ const Bubbles = () => {
                         />}>
                         <Stack sx={{ position: 'relative' }}>
                           {isPrisma ? <img style={{ position: 'absolute', width: 48, height: 48 }}
-                                           src={`${prefix}data/aUpgradesGlow${cauldronIndex}.png`}/> : null}
+                                           src={`${prefix}data/aUpgradesGlow${cauldronIndex}.png`} alt=""/> : null}
                           <BubbleIcon width={48} height={48}
                                       level={level}
                                       src={`${prefix}data/${rawName}.png`}
-                                      alt=""/>
+                                      alt={rawName}/>
                         </Stack>
 
                       </HtmlTooltip>
@@ -512,7 +512,7 @@ const AdditionalInfo = ({
     <Stack gap={2} direction={'row'}>
       <Stack gap={bubbleMaxBonus && thresholdObj?.thresholdMissingLevels > 0 ? 0 : 2} justifyContent={'center'}
              alignItems={'center'}>
-        <BonusIcon src={`${prefix}data/SignStar1b.png`} alt=""/>
+        <BonusIcon src={`${prefix}data/SignStar1b.png`} alt="Sign Star1b"/>
         <Typography variant={(bubbleMaxBonus) && thresholdObj?.thresholdMissingLevels > 0
           ? 'caption'
           : ''}>{numberWithCommas(goalBonus.toFixed(3).replace('.000', ''))} {(bubbleMaxBonus)
@@ -569,7 +569,7 @@ const AdditionalInfo = ({
                   color={account?.atoms?.particles > atomCost
                     ? 'success.light'
                     : ''}>{Math.floor(account?.atoms?.particles)} / {atomCost}</Typography>}>
-                  <ItemIcon src={`${prefix}etc/Particle.png`} alt=""/>
+                  <ItemIcon src={`${prefix}etc/Particle.png`} alt="Particle"/>
                 </Tooltip>
                 <HtmlTooltip title={atomCost}>
                   <Typography>{notateNumber(atomCost, 'Big')}</Typography>
@@ -579,7 +579,7 @@ const AdditionalInfo = ({
                    alignItems={'center'}>
               <HtmlTooltip title={cleanUnderscore(updatedName)}>
                 <ItemIcon src={`${prefix}data/${itemName}.png`}
-                          alt=""/>
+                          alt={itemName}/>
               </HtmlTooltip>
               <Typography color={amount >= total
                 ? 'success.dark'
@@ -693,18 +693,18 @@ const UpgradeableBubblesList = ({ bubbles, accumulatedCost, account }) => {
           {lithium
             ? <HtmlTooltip title={'15% chance to be upgraded by lithium (atom collider)'}>
               <img style={{ position: 'absolute', top: -10, right: -15, width: 30, height: 30 }}
-                   src={`${prefix}data/Atom2.png`} alt=""/></HtmlTooltip>
+                   src={`${prefix}data/Atom2.png`} alt="Atom2"/></HtmlTooltip>
             : null}
           {isZenithMarket
             ? <Stack sx={{ position: 'absolute', top: -10, right: lithium ? -45 : -15, width: 30, height: 30 }}>
               <Breakdown data={dailyLevelsBreakdown}>
-                <img src={`${prefix}data/DivGod8.png`} alt="" style={{ width: 30, height: 30 }}/>
+                <img src={`${prefix}data/DivGod8.png`} alt="Div God8" style={{ width: 30, height: 30 }}/>
               </Breakdown>
             </Stack> : null}
           {isGrindTime
             ? <HtmlTooltip title={`Grind Time Bubble - ${dailyLevels} daily levels from Coral Reef`}>
               <img style={{ position: 'absolute', top: -10, right: lithium ? -45 : -15, width: 30, height: 30 }}
-                   src={`${prefix}data/Reefz1.png`} alt=""/></HtmlTooltip>
+                   src={`${prefix}data/Reefz1.png`} alt="Reefz1"/></HtmlTooltip>
             : null}
           <Stack alignItems={'center'}>
             <HtmlTooltip title={<>
@@ -718,13 +718,13 @@ const UpgradeableBubblesList = ({ bubbles, accumulatedCost, account }) => {
                     : rawName;
                   return <Stack alignItems={'center'} direction={'row'} gap={1} key={'req' + rawName + index}>
                     <Stack alignItems={'center'} justifyContent={'space-between'}>
-                      <ItemIcon src={`${prefix}data/${itemName}.png`} alt=""/>
+                      <ItemIcon src={`${prefix}data/${itemName}.png`} alt={itemName}/>
                       <Typography>{notateNumber(total, 'Big')}</Typography>
                     </Stack>
                     {atomCost > 0 ? <Stack alignItems={'center'} justifyContent={'space-between'}>
                       <Stack sx={{ width: 32, height: 32 }} alignItems={'center'} justifyContent={'center'}>
                         <img width={18} height={18}
-                             src={`${prefix}etc/Particle.png`} alt=""/>
+                             src={`${prefix}etc/Particle.png`} alt="Particle"/>
                       </Stack>
                       <Typography>{atomCost}</Typography>
                     </Stack> : null}
@@ -735,7 +735,7 @@ const UpgradeableBubblesList = ({ bubbles, accumulatedCost, account }) => {
               <img
                 width={32}
                 height={32}
-                src={`${prefix}data/${rawName}.png`} alt=""/>
+                src={`${prefix}data/${rawName}.png`} alt={rawName}/>
             </HtmlTooltip>
             <Stack direction={'row'} alignItems={'center'} gap={.5}>
               {atomCost > 0 ?
@@ -744,7 +744,7 @@ const UpgradeableBubblesList = ({ bubbles, accumulatedCost, account }) => {
                     ? 'success.light'
                     : ''}>{Math.floor(account?.atoms?.particles)} / {atomCost}</Typography>}>
                   <img width={14} height={14}
-                       src={`${prefix}etc/Particle.png`} alt=""/>
+                       src={`${prefix}etc/Particle.png`} alt="Particle"/>
                 </Tooltip> : null}
               <Typography variant={'body1'}>{level}</Typography>
             </Stack>

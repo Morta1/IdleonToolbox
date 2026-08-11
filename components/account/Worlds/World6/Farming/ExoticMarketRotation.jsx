@@ -124,7 +124,7 @@ const ExoticMarketRotation = () => {
                     >
                       <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                         <Stack direction="row" gap={2} alignItems="center">
-                          <img src={`${prefix}data/FarmCrop${upgrade.x2}.png`} alt="" width={24} height={24}/>
+                          <img src={`${prefix}data/FarmCrop${upgrade.x2}.png`} alt={upgrade.x2} width={24} height={24}/>
                           <Typography fontWeight="bold">
                             {cleanUnderscore(upgrade.name.toLowerCase().capitalizeAll())}
                           </Typography>

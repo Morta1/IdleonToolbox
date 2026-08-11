@@ -52,7 +52,7 @@ const MyComponent = () => {
               <Typography>Lv. {level}</Typography>
               <Stack direction={'row'} gap={1}>
                 <Typography>{cost < 9999999 ? commaNotation(Math.ceil(cost)) : notateNumber(cost, 'Big')}</Typography>
-                <img src={`${prefix}etc/Owlb_0.png`} alt={''}/>
+                <img src={`${prefix}etc/Owlb_0.png`} alt="Owlb 0"/>
               </Stack>
             </Stack>
           </CardContent>

@@ -54,7 +54,7 @@ const AppDrawer = ({ permanent }) => {
             sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1 }}
             color="inherit" noWrap variant={'h6'}
       >
-        <img src={`${prefix}data/Coins5.png`} alt={''}/>
+        <img src={`${prefix}data/Coins5.png`} alt="Coins5"/>
         <span>{isXs ? 'IT' : 'Idleon Toolbox'}</span>
       </Link>
     </Stack> : null}

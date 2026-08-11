@@ -684,7 +684,9 @@ const Alert = ({
       <IconImg onError={onError} style={{ ...imgStyle }} vial={vial} src={`${prefix}${iconPath}.png`} alt=""/>
       {atom || breedability ? <FloatingIcon vial={vial} src={`${prefix}etc/${atom ? 'Particle' : breedability
         ? 'PetHeart'
-        : ''}.png`} alt=""/> : null}
+        : ''}.png`} alt={atom ? 'Particle' : breedability
+        ? 'PetHeart'
+        : ''}/> : null}
       {vial ? <div style={{ width: 35, height: 35, overflow: 'hidden' }}>
         <img
           key={vial?.name}
@@ -710,7 +712,7 @@ const RefineryTitle = ({ missingMats }) => {
         <IconImg
           key={rawName}
           src={`${prefix}data/${rawName}.png`}
-          alt=""/>)}
+          alt={rawName}/>)}
     </Stack>
   </Stack>
 }
@@ -719,7 +721,7 @@ const ShopTitle = ({ shop }) => {
   return <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
     {shop?.map(({ amount, rawName }, index) => {
       return <Stack alignItems={'center'} key={rawName + index}>
-        <IconImg key={'shop' + rawName} src={`${prefix}data/${rawName}.png`}/>
+        <IconImg key={'shop' + rawName} src={`${prefix}data/${rawName}.png`} alt={rawName}/>
         <Typography>{notateNumber(amount)}</Typography>
       </Stack>
     })}

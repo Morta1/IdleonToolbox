@@ -71,7 +71,7 @@ const Emperor = () => {
         return <Card key={'upgrade-' + index} sx={{ width: 350 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={1}>
-              {icon ? <img src={`${prefix}${icon}.png`} style={{ width: 32, height: 32 }}/> : <Box
+              {icon ? <img src={`${prefix}${icon}.png`} style={{ width: 32, height: 32 }} alt=""/> : <Box
                 sx={{ width: 32, height: 32, border: '1px solid grey' }}/>}
               <Typography>{realValue} ({baseValue} base) {bonusName}</Typography>
             </Stack>

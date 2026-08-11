@@ -270,11 +270,11 @@ const Refinery = () => {
                 <Stack direction={'row'} gap={5} alignItems={'center'}
                        justifyContent={'center'}>
                   <Stack sx={{ width: 50 }} alignSelf={'center'} alignItems={'center'}>
-                    <img width={32} height={32} src={`${prefix}data/${rawName}.png`} alt=""/>
+                    <img width={32} height={32} src={`${prefix}data/${rawName}.png`} alt={rawName}/>
                     <Typography>{notateNumber(powerPerCycle)}</Typography>
                   </Stack>
                   <Stack sx={{ width: 50 }} alignSelf={'center'} alignItems={'center'}>
-                    <img width={32} height={32} src={`${prefix}data/${rawName}.png`} alt=""/>
+                    <img width={32} height={32} src={`${prefix}data/${rawName}.png`} alt={rawName}/>
                     <Typography>{notateNumber(saltPerHour)}</Typography>
                   </Stack>
                 </Stack>
@@ -303,7 +303,7 @@ const ItemCell = forwardRef((props, ref) => {
     ref={ref}
     direction={'row'}
     alignItems={'center'}>
-    <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
+    <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
     <Stack>
       <Typography
         fontSize={14}

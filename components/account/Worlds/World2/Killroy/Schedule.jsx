@@ -31,7 +31,7 @@ const Schedule = ({ killroy, schedule }) => {
                         <Stack alignItems={'center'}>
                           <img style={{ width: 42, height: 42, objectFit: 'contain' }}
                                src={`${prefix}data/Mface${monsterFaceId}.png`}
-                               alt=""/>
+                               alt={monsterFaceId}/>
                           <Typography variant={'caption'}>{notateNumber(kills)}</Typography>
                         </Stack>
                       </Stack>

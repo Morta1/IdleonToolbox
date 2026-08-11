@@ -31,8 +31,7 @@ const Monsters = ({ monsters }) => {
               <Stack direction="row" gap={1} alignItems="center">
                 <img
                   style={{ width: 24, height: 24, objectPosition: '0 -6px' }}
-                  src={`${prefix}data/Bone${index}_x1.png`}
-                />
+                  src={`${prefix}data/Bone${index}_x1.png`} alt=""/>
                 {name}
               </Stack>
             </MenuItem>
@@ -60,7 +59,7 @@ const Monsters = ({ monsters }) => {
                 <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center"
                        sx={{ position: 'relative' }}>
                   <img style={{ width: 41, height: 41, objectFit: 'contain' }}
-                       src={`${prefix}afk_targets/${Name}.png`}/>
+                       src={`${prefix}afk_targets/${Name}.png`} alt={Name}/>
                   <Stack>
                     <Typography>{cleanUnderscore(Name)}</Typography>
                     <Typography variant={'caption'}>{description ? `(${description})` : ''}</Typography>
@@ -71,7 +70,7 @@ const Monsters = ({ monsters }) => {
                   <Stack direction={'row'} alignItems="center" sx={{ ml: 'auto' }}>
                     <Typography variant={'body1'}>{numberWithCommas(Math.floor(boneQuantity))}</Typography>
                     <img style={{ width: 42, height: 42, marginTop: -15 }}
-                         src={`${prefix}data/Bone${boneType}_x1.png`}/>
+                         src={`${prefix}data/Bone${boneType}_x1.png`} alt=""/>
                   </Stack>
                 </Stack>
               </CardContent>

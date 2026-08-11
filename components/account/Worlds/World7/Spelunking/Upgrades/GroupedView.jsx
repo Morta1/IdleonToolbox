@@ -30,7 +30,7 @@ const GroupedView = ({ grouped, currentAmber, denominator, amberIndex, searchTer
                   <Fragment key={u.name}>
                     <Box>
                       <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ opacity: u.level > 0 ? 1 : 0.5 }}>
-                        <img src={`${prefix}data/CaveShopUpg${u.originalIndex}.png`} />
+                        <img src={`${prefix}data/CaveShopUpg${u.originalIndex}.png`} alt=""/>
                         <Stack mb={1} >
                           <Typography variant="subtitle1">{cleanUnderscore(u.name)}</Typography>
                           <Typography variant="subtitle2">Lv. {Math.max(u.level, 0)} / {u.x3}</Typography>

@@ -50,7 +50,7 @@ const Anvil = () => {
           </>}>
             <CardContent>
               <Stack alignItems={'center'} gap={1} direction={'row'}>
-                <img width={25} height={25} src={`${prefix}data/${rawName}.png`} alt={''}/>
+                <img width={25} height={25} src={`${prefix}data/${rawName}.png`} alt={rawName}/>
                 <Stack>
                   <Typography>{notateNumber(value, 'Big')}<Typography component={'span'} variant={'caption'} color={'text.secondary'}> /hr</Typography></Typography>
                   <Typography variant={'caption'} color={'text.secondary'}>{notateNumber(value * 24, 'Big')} /day</Typography>
@@ -142,7 +142,7 @@ const Anvil = () => {
                           vertical: 'top',
                           horizontal: 'left'
                         }} color="secondary" variant={'standard'} badgeContent={hammers > 1 ? hammers : 0}>
-                          <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
+                          <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
                         </Badge>
                         <Stack gap={.4} sx={{ minWidth: 165 }}>
                           <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1}>
@@ -220,7 +220,7 @@ const AnvilProductCatalog = () => {
         <Card key={`${rawName}-${index}`} sx={{ width: 200 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={1.5}>
-              <ItemIcon src={`${prefix}data/${rawName}.png`} alt={''}/>
+              <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
               <Typography variant={'subtitle2'}>{cleanUnderscore(displayName)}</Typography>
             </Stack>
             <Divider sx={{ my: 1 }}/>

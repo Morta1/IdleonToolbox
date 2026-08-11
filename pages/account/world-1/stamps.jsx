@@ -174,7 +174,7 @@ const Stamps = () => {
         </CardTitleAndValue>
         <CardTitleAndValue title={'Gilded Stamp'}>
           <Stack alignItems={'center'} direction={'row'} gap={2}>
-            <img src={`${prefix}data/GildedStamp.png`} alt=""/>
+            <img src={`${prefix}data/GildedStamp.png`} alt="Gilded Stamp"/>
             <Stack>
               <Typography>Owned: {gildedStamps}</Typography>
               <Typography>Chance: {calcStampLevels(state?.account?.stamps) / 100}%</Typography>
@@ -204,7 +204,7 @@ const Stamps = () => {
         </CardTitleAndValue>
         <CardTitleAndValue title={'Stamp Reducer'}>
           <Stack alignItems={'center'} direction={'row'} gap={2}>
-            <img src={`${prefix}data/Atom0.png`} height={36} alt=""/>
+            <img src={`${prefix}data/Atom0.png`} height={36} alt="Atom0"/>
             {stampReducer ?? 0}%
           </Stack>
           <FormControl fullWidth sx={{ mt: 3 }}>
@@ -225,7 +225,7 @@ const Stamps = () => {
           <Typography sx={{ fontSize: 14, mb: 1 }} variant={'body1'} color={'text.secondary'}>Exalted
             Stamps</Typography>
           <Stack direction={'row'} alignItems={'center'} gap={2}>
-            <img src={`${prefix}etc/Exalted_Stamp_Frame.png`} style={{ width: 32, height: 32 }}/>
+            <img src={`${prefix}etc/Exalted_Stamp_Frame.png`} style={{ width: 32, height: 32 }} alt="Exalted Stamp Frame"/>
             <Typography>{state?.account?.compass?.remainingExaltedStamps} / {state?.account?.compass?.usedExaltedStamps + state?.account?.compass?.remainingExaltedStamps}</Typography>
           </Stack>
         </CardTitleAndValue>
@@ -361,11 +361,11 @@ const Stamps = () => {
                                   width: 40,
                                   height: 40
                                 }}
-                                src={`${prefix}etc/Exalted_Stamp_Frame.png`}/> : null}
+                                src={`${prefix}etc/Exalted_Stamp_Frame.png`} alt="Exalted Stamp Frame"/> : null}
                               <StampIcon width={40} height={40}
                                          level={level}
                                          src={`${prefix}data/${rawName}.png`}
-                                         alt=""/>
+                                         alt={rawName}/>
                               <Typography>{level}</Typography>
                             </Stack>
                           </CardContent>
@@ -461,7 +461,7 @@ const CostSection = ({
     <Typography variant={'subtitle2'}>{level}</Typography>
     {mode === 'material' || showBoth ? <Stack my={1} direction={'row'} alignItems={'center'} gap={1}>
       <ItemIcon src={`${prefix}data/${rawName}.png`}
-                alt=""/>
+                alt={rawName}/>
       <Typography variant={'subtitle2'}>{materialCost
         ? notateNumber(materialCost, 'Big')
         : null}</Typography>

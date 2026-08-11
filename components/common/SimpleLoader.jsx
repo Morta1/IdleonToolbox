@@ -20,7 +20,7 @@ const SimpleLoader = ({ message = 'Loading data...' }) => {
       }}
     >
       <Stack spacing={2} alignItems="center">
-        <img src={`${prefix}etc/Coins.gif`} width={40} height={40} alt="" />
+        <img src={`${prefix}etc/Coins.gif`} width={40} height={40} alt="Coins" />
         <Typography variant="body1" color="text.secondary">
           {message}
         </Typography>

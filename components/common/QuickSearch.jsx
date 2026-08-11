@@ -281,8 +281,7 @@ const QuickSearch = () => {
                       width: 48,
                       height: 48,
                       objectFit: 'scale-down'
-                    }}
-                  />}
+                    }} alt=""/>}
                 </ListItemIcon>
                 <ListItemText
                   primary={result.label}

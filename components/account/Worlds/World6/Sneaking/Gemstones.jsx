@@ -28,7 +28,7 @@ const Gemstones = ({ gemStones }) => {
                       }, index) => (
         <Stack key={'gemstone-' + index} sx={{ opacity: unlocked || baseValue > 0 ? 1 : 0.5 }}>
           <Stack direction={'row'} gap={1} alignItems={'center'} mb={1}>
-            <img style={{ objectFit: 'contain', width: 32, height: 32 }} src={`${prefix}data/${rawName}.png`} alt={''}/>
+            <img style={{ objectFit: 'contain', width: 32, height: 32 }} src={`${prefix}data/${rawName}.png`} alt={rawName}/>
             <Typography variant={'h6'}>{name}</Typography>
           </Stack>
           <Card variant={'outlined'} sx={{ height: '100%' }}>

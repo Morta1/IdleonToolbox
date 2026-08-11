@@ -76,7 +76,7 @@ const BoatsAndCaptains = ({
           <Stack direction={'row'} alignItems={'center'} gap={1}>
             <BoatWrapper>
               <img style={{ width: 50, objectFit: 'contain' }}
-                   src={`${prefix}etc/${rawName}.png`} alt=""/>
+                   src={`${prefix}etc/${rawName}.png`} alt={rawName}/>
               <Typography component={'span'}>{boatIndex + 1}</Typography>
             </BoatWrapper>
             <Stack>
@@ -176,7 +176,7 @@ const Resources = ({ resources, inline = false }) => {
         {resources?.map(({ required, amount, rawName }, index) => <Stack key={`${rawName}-${index}`}
                                                                          direction={'row'}>
           <img style={{ width: 25, objectFit: 'contain' }}
-               src={`${prefix}data/${rawName}.png`} alt=""/>
+               src={`${prefix}data/${rawName}.png`} alt={rawName}/>
           <Typography
             color={amount >= required
               ? 'success.light'

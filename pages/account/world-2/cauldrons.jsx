@@ -104,7 +104,7 @@ const Cauldrons = () => {
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
                     {isDragonic ? <Tooltip title={'Dragonic cauldron'}>
                       <img style={{ width: 24, height: 24, objectFit: 'contain' }} src={`${prefix}data/GemP18.png`}
-                           alt=""/>
+                           alt="Gem P18"/>
                     </Tooltip> : null}
                     <PlayersList players={players} characters={state?.characters}/>
                   </Stack>

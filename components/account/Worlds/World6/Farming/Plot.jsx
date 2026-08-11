@@ -64,11 +64,11 @@ const Plot = ({ plot, market, ranks, lastUpdated, account, characters, selectedC
         return <Card key={'plot-' + index} sx={{ width: 200, mt: 1 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={2}>
-              <img src={`${prefix}etc/${seedRawName}`} alt={''}/>
+              <img src={`${prefix}etc/${seedRawName}`} alt={seedRawName}/>
               <Stack>
                 <Stack direction={'row'} gap={1}>
                   <Typography>{cropQuantity}</Typography>
-                  <img width={20} height={20} src={`${prefix}data/${cropRawName}`} alt={''}/>
+                  <img width={20} height={20} src={`${prefix}data/${cropRawName}`} alt={cropRawName}/>
                   <Tooltip title={<Typography style={{ fontWeight: 400 }}>Max
                     time: {msToDate(maxTimeLeft * 1000)}</Typography>}>
                     <IconInfoCircleFilled size={18}/>

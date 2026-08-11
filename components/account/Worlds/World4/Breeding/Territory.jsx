@@ -49,7 +49,7 @@ const Territory = ({ territories, spices }) => {
                   <Stack direction={'row'} flexWrap={'wrap'}>
                     <CardTitleAndValue cardSx={{ my: 0, width: 150 }} variant={'outlined'} title={'Spice'}>
                       <Stack direction={'row'} gap={1}>
-                        <img src={`${prefix}data/${spice?.rawName}.png`} alt={''}/>
+                        <img src={`${prefix}data/${spice?.rawName}.png`} alt={spice?.rawName}/>
                         <Stack>
                           <Typography variant={'caption'}>{spice?.toClaim ?? 0}</Typography>
                           <Typography variant={'caption'}>({spice?.amount
@@ -91,7 +91,7 @@ const Territory = ({ territories, spices }) => {
                                 height: 64,
                                 objectFit: 'contain'
                               }}
-                              src={`${prefix}afk_targets/${realName}.png`} alt={''}/>
+                              src={`${prefix}afk_targets/${realName}.png`} alt={realName}/>
                             <Stack sx={{ width: '100%' }} mt={1} direction={'row'} justifyContent={'space-between'}
                                    alignItems={'center'}>
                               <img style={{ width: 30, height: 30 }}
@@ -119,7 +119,7 @@ const EnemiesTooltip = ({ enemies }) => {
       {enemies?.map(({ name, health }, index) => {
         const realName = monsters?.[name]?.Name;
         return <img style={{ width: 42, height: 42, objectFit: 'contain' }} key={'enemy' + index} src={`${prefix}afk_targets/${realName}.png`}
-                    alt={''}/>
+                    alt={realName}/>
       })}
 
     </Stack>

@@ -94,7 +94,7 @@ const Farming = () => {
       </CardTitleAndValue>
       <CardTitleAndValue title={'Bean Trade'}>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <img style={{ objectFit: 'contain', width: 24 }} src={`${prefix}data/Quest80_x1.png`} alt=""/>
+          <img style={{ objectFit: 'contain', width: 24 }} src={`${prefix}data/Quest80_x1.png`} alt="Quest80"/>
           <Typography>{notateNumber(Math.round(beanTrade))}</Typography>
           {stats?.magicBean ? <Breakdown data={stats.magicBean}>
             <Stack alignContent={'center'}>

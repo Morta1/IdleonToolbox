@@ -38,7 +38,7 @@ const CoralReef = () => {
       <CardTitleAndValue title={'Owned'} value={`${commaNotation(ownedCorals || 0)}`} icon={`data/Coral0.png`} imgStyle={{ width: 24, height: 24 }} />
       <CardTitleAndValue title={'Reef Day Gains'} >
         <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <img style={{ width: 24, height: 24 }} src={`${prefix}data/Coral0.png`} alt="" />
+          <img style={{ width: 24, height: 24 }} src={`${prefix}data/Coral0.png`} alt="Coral0" />
           <Typography>{commaNotation(reefDayGains?.value, "Big")}</Typography>
           <Breakdown data={reefDayGains?.breakdown} >
             <Stack alignContent={'center'}>

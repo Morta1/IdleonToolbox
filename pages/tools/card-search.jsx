@@ -179,7 +179,7 @@ export default function CardSearch() {
                   {isCardSets ? <Typography my={1} variant={'h4'}>Card Sets</Typography> :
                     <img src={`${prefix}etc/${cardSet}_Card_Header.png`}
                          style={{ margin: '20px 0 10px 0' }}
-                         alt=""
+                         alt={cardSet}
                     />}
                   <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: 600 }}>
                     {cardsArr.map((card, index) => {

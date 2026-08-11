@@ -20,7 +20,7 @@ const Upgrades = ({ upgrades }) => {
             <Typography>Lv. {level}</Typography>
             <Stack direction={'row'} gap={1} alignItems={'center'}>
               <Typography>{cost < 9999999 ? commaNotation(Math.ceil(cost)) : notateNumber(cost, 'Big')}</Typography>
-              <img style={{ objectFit: 'contain', width: 20, height: 20 }} src={`${prefix}etc/Bubba_0.png`} alt={''} />
+              <img style={{ objectFit: 'contain', width: 20, height: 20 }} src={`${prefix}etc/Bubba_0.png`} alt="Bubba 0" />
             </Stack>
           </Stack>
         </CardContent>

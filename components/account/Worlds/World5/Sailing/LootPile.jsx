@@ -8,7 +8,7 @@ const LootPile = ({ lootPile }) => {
       return <Card key={rawName}>
         <CardContent>
           <Stack direction={'row'} gap={1} sx={{ width: 100 }}>
-            <img src={`${prefix}data/${rawName}.png`} alt=""/>
+            <img src={`${prefix}data/${rawName}.png`} alt={rawName}/>
             <Typography>{kFormatter(amount)}</Typography>
           </Stack>
         </CardContent>

@@ -25,14 +25,14 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords, divinity }) =
                   {connectedByGod ? <img style={{ position: 'absolute', top: -16, right: -16 }}
                                          width={24} height={24}
                                          src={`${prefix}data/DivGod1.png`}
-                                         alt=""/> : null}
+                                         alt="Div God1"/> : null}
                   <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
                   <Stack>
                     <Typography>{playerName}</Typography>
                     <Typography>{playerCord?.lineWidth}px</Typography>
                     <Typography variant={'caption'}>({playerCord.x},{playerCord.y})</Typography>
                   </Stack>
-                  {/*<img src={`${prefix}data/head.png`} alt={''}/>*/}
+                  {/*<img src={`${prefix}data/head.png`} alt="head"/>*/}
                 </Stack>
               </CardContent>
             </Card> : null;
@@ -45,7 +45,7 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords, divinity }) =
             <CardContent>
               <Tooltip title={<BonusTooltip {...labBonus}/>}>
                 <BonusIcon src={`${prefix}data/LabBonus${labBonus?.index}.png`}
-                           alt=""/>
+                           alt={labBonus?.index}/>
               </Tooltip>
             </CardContent>
           </Card>
@@ -58,7 +58,7 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords, divinity }) =
             <CardContent>
               <Tooltip title={<JewelTooltip {...jewel}/>}>
                 <JewelIcon style={{ borderRadius: '50%' }}
-                           src={`${prefix}data/${jewel?.rawName}.png`} alt=""/>
+                           src={`${prefix}data/${jewel?.rawName}.png`} alt={jewel?.rawName}/>
               </Tooltip>
             </CardContent>
           </Card>
@@ -138,7 +138,7 @@ const Map = ({ playersCords, labBonuses, jewels }) => {
                     opacity: active ? 1 : .5
                   }}>
         <JewelIcon style={{ width: 24 }}
-                   src={`${prefix}data/${rawName}.png`} alt=""/>
+                   src={`${prefix}data/${rawName}.png`} alt={rawName}/>
       </Box>
     })}
   </Box>

@@ -29,7 +29,7 @@ const LoreBosses = ({ loreBosses, bestCaveLevels, account }) => {
                 <CardContent>
                   <Stack direction={'row'} gap={1} alignItems={'center'} mb={2}>
                     <img style={{ width: 72, height: 72, objectFit: 'contain', opacity: !boss.defeated ? 0.4 : 1 }}
-                         src={`${prefix}data/CaveBoss${boss.index}.png`}/>
+                         src={`${prefix}data/CaveBoss${boss.index}.png`} alt={boss.index}/>
                     <Stack direction={'row'} alignItems={'center'} gap={1} flex={1}>
                       <Typography sx={{ opacity: !boss.defeated ? 0.4 : 1 }}
                                   variant="body1">{cleanUnderscore(boss.description)}</Typography>
@@ -123,7 +123,7 @@ const LoreBosses = ({ loreBosses, bestCaveLevels, account }) => {
                             width: 32, height: 32, objectFit: 'contain',
                             opacity: discovery.acquired ? 1 : 0.3
                           }}
-                               src={`${prefix}data/CaveRock${iconLetter}${discovery.index}.png`}/>
+                               src={`${prefix}data/CaveRock${iconLetter}${discovery.index}.png`} alt=""/>
                         </Tooltip>
                       );
                     })}

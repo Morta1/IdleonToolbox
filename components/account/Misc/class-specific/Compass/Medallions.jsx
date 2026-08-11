@@ -34,8 +34,7 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
               <Stack direction="row" gap={1} alignItems="center">
                 <img
                   style={{ width: 24, height: 24, objectPosition: '0 -6px' }}
-                  src={`${prefix}data/Dust${value}_x1.png`}
-                />
+                  src={`${prefix}data/Dust${value}_x1.png`} alt=""/>
                 {label}
               </Stack>
             </MenuItem> : null
@@ -72,13 +71,13 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
               <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center"
                      sx={{ position: 'relative' }}>
                 <img style={{ width: 41, height: 41, objectFit: 'contain' }}
-                     src={`${prefix}afk_targets/${imageName || Name}.png`}/>
+                     src={`${prefix}afk_targets/${imageName || Name}.png`} alt={imageName || Name}/>
                 <Stack>
                   <Typography>{cleanUnderscore(Name)}</Typography>
                   <Typography variant={'caption'}>{description ? `(${description})` : ''}</Typography>
                 </Stack>
                 {acquired ? <img style={{ width: 41, height: 41, marginLeft: 'auto' }}
-                                 src={`${prefix}data/WWcoin.png`}/> : null}
+                                 src={`${prefix}data/WWcoin.png`} alt="WWcoin"/> : null}
               </Stack>
               {showWindWalkerDrops ? <>
                 <Divider sx={{ my: 1 }}/>
@@ -86,15 +85,15 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
                   {drops?.length > 0 ? drops.map((item, index) => {
                     return <Tooltip key={rawName + '-drop-' + item?.rawName + '-index-' + index}
                                     title={<ItemDisplay {...item} />}>
-                      <img style={{ width: 42, height: 42 }} src={`${prefix}data/${item?.rawName}.png`}/>
+                      <img style={{ width: 42, height: 42 }} src={`${prefix}data/${item?.rawName}.png`} alt={item?.rawName}/>
                     </Tooltip>
                   }) : <Box sx={{ width: 42, height: 42 }}/>}
                   <Stack direction={'row'} alignItems="center" sx={{ ml: 'auto' }}>
                     <Typography variant={'body1'}>{numberWithCommas(Math.floor(dustBaseQuantity))}</Typography>
                     <img style={{ width: 42, height: 42, marginTop: -15 }}
-                         src={`${prefix}data/Dust${dustType}_x1.png`}/>
+                         src={`${prefix}data/Dust${dustType}_x1.png`} alt=""/>
                     <img style={{ width: 24, height: 24 }}
-                         src={`${prefix}data/WWeffect${weakness}.png`}/>
+                         src={`${prefix}data/WWeffect${weakness}.png`} alt=""/>
                   </Stack>
                 </Stack>
               </> : null}

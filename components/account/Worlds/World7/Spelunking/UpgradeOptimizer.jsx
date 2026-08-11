@@ -367,7 +367,7 @@ const UpgradeOptimizer = ({ character, account }) => {
                       <img
                         style={{ width: 32, height: 32 }}
                         src={`${prefix}data/CaveShopUpg${upgrade.originalIndex}.png`}
-                        alt=""
+                        alt={upgrade.originalIndex}
                       />
                       <Box>
                         <Typography variant="subtitle1">
@@ -458,7 +458,7 @@ const UpgradeOptimizer = ({ character, account }) => {
                         <img
                           style={{ width: 24, height: 24 }}
                           src={`${prefix}data/CaveShopUpg${upgrade.originalIndex}.png`}
-                          alt=""
+                          alt={upgrade.originalIndex}
                         />
                       </TableCell>
                       <TableCell>{cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))}</TableCell>

@@ -79,7 +79,7 @@ const ArcadeShop = () => {
             }}>
         <CardContent sx={{ width: 330 }}>
           <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-            <UpgradeIcon src={`${prefix}data/${iconName}.png`}/>
+            <UpgradeIcon src={`${prefix}data/${iconName}.png`} alt=""/>
             <Stack>
               <Typography variant={'body1'} style={{ fontWeight: 'bold' }}>{eff}</Typography>
               <Divider sx={{ my: .5 }}/>

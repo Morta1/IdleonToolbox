@@ -16,7 +16,7 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
   const formatDate = useFormatDate();
   return (<>
     <Stack sx={{ width: '100%' }} direction={'row'} alignItems={'center'} gap={2}>
-      <img style={{ width: 50, height: 50 }} src={`${prefix}etc/${bossName}.png`} alt=""/>
+      <img style={{ width: 50, height: 50 }} src={`${prefix}etc/${bossName}.png`} alt={bossName}/>
       <Stack>
         <Typography variant={'h4'}>{cleanUnderscore(bossName)}</Typography>
         <Typography variant={'caption'}>{isValid(date) ? formatDate(date) : null}</Typography>
@@ -28,12 +28,12 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
       {shopItems?.map(({ name, rawName, x1 }) => {
         const fixedRawName = rawName === 'FoodG' ? 'FoodG1' : rawName;
         return <Stack key={rawName} direction={'row'} alignItems={'center'} gap={2}>
-          {name.includes('_UI') ? <UiIcon src={`${prefix}data/${fixedRawName}.png`} alt=""/> : <IconImg
-            src={`${prefix}data/${fixedRawName}.png`} alt=""/>}
+          {name.includes('_UI') ? <UiIcon src={`${prefix}data/${fixedRawName}.png`} alt={fixedRawName}/> : <IconImg
+            src={`${prefix}data/${fixedRawName}.png`} alt={fixedRawName}/>}
           <Stack>
             <Typography>{cleanUnderscore(name)}</Typography>
             <Stack gap={2} direction={'row'} alignItems={'center'}>
-              <Trophie src={`${prefix}data/Trophie.png`} alt=""/>
+              <Trophie src={`${prefix}data/Trophie.png`} alt="Trophie"/>
               <Typography variant={'body1'}>{x1}</Typography>
             </Stack>
           </Stack>
@@ -55,7 +55,7 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
                                                                       : ''
                                                                   }}
                                                                   src={`${prefix}etc/Req_Icon_${task?.rawName}.png`}
-                                                                  alt=""/> : null)}
+                                                                  alt={task?.rawName}/> : null)}
       </Stack>
     </Stack>
     <Stack>
@@ -65,7 +65,7 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
         return (
           (<React.Fragment key={'triplets' + index}>
             <Stack mb={1} direction={'row'} alignItems={'center'} gap={2}>
-              <IconImg src={`${prefix}etc/Req_Icon_${task?.rawName}.png`} alt=""/>
+              <IconImg src={`${prefix}etc/Req_Icon_${task?.rawName}.png`} alt={task?.rawName}/>
               <Stack>
                 <Typography
                   color={bossIndex === 0 && account?.accountOptions?.[185] === index ? 'success.light' : 'text.primary'}

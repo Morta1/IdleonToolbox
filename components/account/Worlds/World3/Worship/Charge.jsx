@@ -60,7 +60,7 @@ const Charge = () => {
                 <Stack direction={'row'}>
                   <img src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
                   {skull && <Tooltip title={cleanUnderscore(skull.name)}>
-                    <img style={{ height: 38 }} src={`${prefix}data/${skull.rawName}.png`} alt=""/>
+                    <img style={{ height: 38 }} src={`${prefix}data/${skull.rawName}.png`} alt={skull.rawName}/>
                   </Tooltip>}
                 </Stack>
                 <Typography sx={{ typography: { xs: 'body2', sm: 'body1' } }}>{name}</Typography>

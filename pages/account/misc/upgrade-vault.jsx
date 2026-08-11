@@ -91,7 +91,7 @@ const UpgradeVault = () => {
               borderColor: maxed ? 'success.light' : 'none'
             }}>
               <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-                <img style={{ width: 32, height: 32 }} src={`${prefix}data/VaultUpg${index}.png`}/>
+                <img style={{ width: 32, height: 32 }} src={`${prefix}data/VaultUpg${index}.png`} alt=""/>
                 <Typography>{cleanUnderscore(name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(Tap_for_Info)', '').replace('(#)', ''))} ({maxed
                   ? 'Maxed'
                   : `${level} / ${maxLevel}`})</Typography>

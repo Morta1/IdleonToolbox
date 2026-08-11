@@ -123,7 +123,7 @@ const Talents = ({
       <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
         onClick={() => setActiveTab(STAR_TAB_INDEX)}
         aria-label={`star-sign-tab`}
-        icon={<TabIcon src={`${prefix}data/ClassIcons0.png`} alt="" />} />
+        icon={<TabIcon src={`${prefix}data/ClassIcons0.png`} alt="Class Icons0" />} />
     </Tabs>
     {activeTab === STAR_TAB_INDEX ? <Typography variant={'caption'} mt={2} style={{
       opacity: activeTab === 4
@@ -173,7 +173,7 @@ const Talents = ({
 
         return (talentId === 'Blank' || talentId === '84' || talentId === 'arrow') ?
           <div key={talentId + '' + index} className={`blank ${(index === 10 || index === 14) && 'arrow'}`}>
-            {(index !== 10 && index !== 14) && <TalentIcon src={`${prefix}data/UISkillIconLocke.png`} alt="" />}
+            {(index !== 10 && index !== 14) && <TalentIcon src={`${prefix}data/UISkillIconLocke.png`} alt="UISkill Icon Locke" />}
             {index === 10 && specialsTab > 0 ?
               <div>
                 <TalentIcon onClick={() => switchSpecials(specialsTab - 1)} className={'arrow'}
@@ -191,9 +191,9 @@ const Talents = ({
           </div> :
           <Tooltip key={talentId + '' + index} title={talentId >= 0 ? <TalentTooltip {...talentDetails} /> : ''}>
             <div className={'talent-wrapper'}>
-              {isSuperTalent && <TalentIcon style={{ position: 'absolute' }} src={`${prefix}etc/Super_Talent_${isActiveTalent ? 'Active' : 'Passive'}_Border.png`} alt="" />}
-              {!name ? <TalentIcon src={`${prefix}data/UISkillIconLocke.png`} alt="" /> : <TalentIcon
-                src={`${prefix}data/UISkillIcon${talentId}.png`} alt="" />}
+              {isSuperTalent && <TalentIcon style={{ position: 'absolute' }} src={`${prefix}etc/Super_Talent_${isActiveTalent ? 'Active' : 'Passive'}_Border.png`} alt={isActiveTalent ? 'Active' : 'Passive'} />}
+              {!name ? <TalentIcon src={`${prefix}data/UISkillIconLocke.png`} alt="UISkill Icon Locke" /> : <TalentIcon
+                src={`${prefix}data/UISkillIcon${talentId}.png`} alt={talentId} />}
               <Typography fontSize={12} sx={levelTextSx}>
                 {levelText}
               </Typography>

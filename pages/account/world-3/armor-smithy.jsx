@@ -45,7 +45,7 @@ const ArmorSmithy = () => {
         return <Card key={'upgrade-' + index} sx={{ width: 350 }}>
           <CardContent>
             <Stack direction={'row'} alignItems={'center'} gap={1} sx={{ width: '100%' }}>
-              <img src={`${prefix}data/${armors?.[0]}.png`} style={{ width: 32, height: 32 }}/>
+              <img src={`${prefix}data/${armors?.[0]}.png`} style={{ width: 32, height: 32 }} alt=""/>
               <Stack sx={{ width: '100%' }}>
                 <Stack direction={'row'} alignItems={'center'}>
                   <Typography
@@ -90,7 +90,7 @@ const RequiredItems = ({ title, requiredItems, account, allItems }) => {
         const owners = allItems.filter(({ rawName: rName }) => rName === rawName).map(({ owner }) => owner);
         return <Tooltip key={rawName + index}
                         title={<ItemDisplay {...items[rawName]} owners={owners} account={account}/>}>
-          <img src={`${prefix}data/${rawName}.png`} style={{ width: 32, height: 32 }}/>
+          <img src={`${prefix}data/${rawName}.png`} style={{ width: 32, height: 32 }} alt={rawName}/>
         </Tooltip>
       })}
     </Stack>

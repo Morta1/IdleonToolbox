@@ -113,7 +113,7 @@ const Character = ({
                 {name} ({level})
               </Typography>
               {trophy ?
-                <TrophyIcon src={`${prefix}data/${trophy.replace('Replica', '')}disp.png`} style={{ width: 102, height: 19 }} alt="" /> : <Box
+                <TrophyIcon src={`${prefix}data/${trophy.replace('Replica', '')}disp.png`} style={{ width: 102, height: 19 }} alt={trophy.replace('Replica', '')} /> : <Box
                   sx={{ width: 102, height: 19 }}></Box>}
             </Stack>
           </Stack>
