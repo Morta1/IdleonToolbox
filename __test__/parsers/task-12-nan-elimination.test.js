@@ -57,91 +57,15 @@ const parseRaw = () => parseFixture(raw);
 // farming, alchemy, clamWork, owl, libraryTimes, killroy, gallery, emperor, tasksDescriptions,
 // towers, rift, arcade, atoms, coralReef.
 //
-// This was NOT every account key when written - dozens of other sections (achievements, printer,
-// guild, sailing, character-level formulas, ...) were never in either batch's scope and carried their
-// own pre-existing NaN on real (non-empty) fixtures, unrelated to the empty-account contract this
-// branch was building at the time. Asserting zero NaN against those here would either have forced
-// fixing far outside this task's brief or forced adding a wall of unjustified exceptions.
+// The curated SECTIONS_TO_CHECK gate that lived here is gone. It walked 25 named sections, which is
+// exactly why 1549 NaN across printer/highscores/equinox/sailing/accountLevel went unnoticed while
+// this file stayed green - none of those five was on the list. task-14-nan-elimination.test.js
+// replaced it with an unscoped walk over every account key on all seven saves, and this file's own
+// comment already recorded that its gates "remain green as a subset of that stronger gate". A gate
+// that can only pass when a strictly stronger one passes earns nothing and still costs a read.
 //
-// Task 14 closed that exact hole: printer/highscores/equinox/sailing/accountLevel were the last
-// sections carrying real NaN (350/491/491/217 across the four non-latest fixtures) and this curated,
-// batch-A/B-only gate is why they went unnoticed while this file stayed green. See
-// task-14-nan-elimination.test.js for the fix and, more importantly, the gate that superseded this
-// one: a fully UNSCOPED walk (every account key, not a curated list) across all seven available saves
-// (empty parse, data/raw.json, and every fixture file, discovered dynamically so new fixtures are
-// covered automatically). This SECTIONS_TO_CHECK list and its two gates below are kept only for their
-// per-section historical documentation value and remain green as a subset of that stronger gate.
-export const SECTIONS_TO_CHECK = [
-  // Batch A (Task 12)
-  'stamps', 'islands', 'currencies', 'breeding', 'summoning',
-  // Batch B (Task 13)
-  'hole', 'research', 'voteBallot', 'sneaking', 'spelunking', 'kangaroo', 'farming', 'alchemy',
-  'clamWork', 'owl', 'libraryTimes', 'killroy', 'gallery', 'emperor', 'tasksDescriptions', 'towers',
-  'rift', 'arcade', 'atoms', 'coralReef'
-];
-// Paths that are allowed to still be NaN, with a reason. Must shrink toward empty as sections are
-// fixed - never add an entry here just to make this test pass. Empty as of Task 13 (batch B): every
-// path named in the brief was fixed at the root; nothing needed a documented exception.
-export const KNOWN_NAN_EXCEPTIONS = [];
-
-export const countNaN = (root, sectionKeys) => {
-  let count = 0;
-  const seen = new WeakSet();
-  const walk = (v, path, depth) => {
-    if (depth > 14 || v == null) return;
-    if (typeof v === 'number') {
-      if (Number.isNaN(v) && !KNOWN_NAN_EXCEPTIONS.includes(path.replace(/\.\d+\./g, '.[].'))) count++;
-      return;
-    }
-    if (typeof v !== 'object' || seen.has(v)) return;
-    seen.add(v);
-    Object.entries(v).forEach(([k, x]) => walk(x, `${path}.${k}`, depth + 1));
-  };
-  sectionKeys.forEach((key) => walk(root?.[key], key, 0));
-  return count;
-};
-
-describe('NaN gate: batch A (5 sections) + batch B (20 sections)', () => {
-  it('produces zero NaN on an empty parse', () => {
-    const { account } = parseEmpty();
-    expect(countNaN(account, SECTIONS_TO_CHECK)).toBe(0);
-  });
-
-  it('produces zero NaN on the real (raw.json) parse', () => {
-    const { account } = parseRaw();
-    expect(countNaN(account, SECTIONS_TO_CHECK)).toBe(0);
-  });
-
-  it.each(FIXTURES)('%s: produces zero NaN', (_name, fixture) => {
-    const { account } = parseFixture(fixture);
-    expect(countNaN(account, SECTIONS_TO_CHECK)).toBe(0);
-  });
-});
-
-describe('NaN gate: the ENTIRE empty-parse account, unscoped', () => {
-  // Stronger than the curated-list gate above: walks every top-level key parseData returns (not just
-  // the 25 sections these two tasks targeted), proving the empty-account contract holds account-wide,
-  // not just in the sections we remembered to name. This only runs against the empty parse - real
-  // fixtures carry pre-existing NaN in sections neither task touched (achievements, printer, guild,
-  // character-level formulas, ...), which is out of scope here and asserted nowhere in this branch.
-  it('produces zero NaN across every account key on an empty parse', () => {
-    const { account } = parseEmpty();
-    let nan = 0;
-    const seen = new WeakSet();
-    const walk = (v, depth) => {
-      if (depth > 14 || v == null) return;
-      if (typeof v === 'number') {
-        if (Number.isNaN(v)) nan++;
-        return;
-      }
-      if (typeof v !== 'object' || seen.has(v)) return;
-      seen.add(v);
-      Object.values(v).forEach((x) => walk(x, depth + 1));
-    };
-    Object.values(account).forEach((v) => walk(v, 0));
-    expect(nan).toBe(0);
-  });
-});
+// The per-section regression proofs below are the part worth keeping: each pins a specific formula
+// against its pre-fix replica, which the unscoped gate cannot do.
 
 // ---------------------------------------------------------------------------------------------
 // 2a. stamps.*.materialCost - the dominant fix (51 of 62 real NaN). Verbatim pre-fix getMaterialCost
@@ -504,48 +428,10 @@ describe('summoning upgrades[].totalCost / armyHealth / armyDamage (raw accountO
 // full downstream formula (multiple layers of bonus multipliers) for each one.
 // ---------------------------------------------------------------------------------------------
 
-describe('guard-only fixes are no-ops on real save data (guarded input is already defined/finite)', () => {
-  it.each(FIXTURES)('%s: every guarded input this task added `?? 0` / finite-checks to is already defined on a real save', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const { account } = parseFixture(fixture);
-    let assertions = 0;
+// A "guard-only fixes are no-ops on real save data" block lived here. It read raw inputs -
+// account.accountOptions[164], data.MoneyBANK, and so on - and asserted they were already finite.
+// Nothing downstream of the guards was checked, so removing a guard left it green: it documented
+// that the guards were no-ops rather than gating that they stay correct. The few parser OUTPUTS it
+// did touch were isFinite checks, which the unscoped NaN gate in task-14 already makes across every
+// account key on all seven saves.
 
-    // stamps.ts: account?.atoms?.stampReducer (Number.isFinite guard)
-    expect(Number.isFinite(account.atoms.stampReducer)).toBe(true);
-    assertions++;
-
-    // islands.ts: accountOptions[164/163/166/167], quests reduce, islandsUnlocked, shimmer bonus
-    expect(Number.isFinite(account.accountOptions?.[164])).toBe(true);
-    expect(Number.isFinite(account.accountOptions?.[163])).toBe(true);
-    expect(Number.isFinite(account.accountOptions?.[166])).toBe(true);
-    expect(Number.isFinite(account.accountOptions?.[167])).toBe(true);
-    expect(account.accountOptions?.[169]).toBeDefined();
-    assertions += 5;
-
-    // index.ts: idleonData.MoneyBANK (bankMoney guard)
-    expect(data?.MoneyBANK).toBeDefined();
-    assertions++;
-
-    // misc.ts: ColosseumTickets NPC day-tracking (unlike KeysAll 3/4, all 3 ticket NPCs are tracked)
-    [15, 35, 56].forEach((idx) => {
-      expect(Number.isFinite(account.accountOptions?.[idx])).toBe(true);
-      assertions++;
-    });
-
-    // breeding.ts: accountOptions[87] (timeToNextEgg), rift.currentRift, characters exist for
-    // eggsPowerRange's breedingLevel
-    expect(Number.isFinite(account.accountOptions?.[87])).toBe(true);
-    expect(Number.isFinite(account.rift?.currentRift)).toBe(true);
-    assertions += 2;
-
-    // summoning.ts: meritsDescriptions[5][4].level (raw accountOptions[319] re-reads are NOT a
-    // no-op on several of these fixtures - see the dedicated totalCost/armyHealth/armyDamage
-    // describe block above, which proves those with real before/after replicas instead).
-    expect(Number.isFinite(account.meritsDescriptions?.[5]?.[4]?.level)).toBe(true);
-    const rawSummon = tryToParse(data?.Summon);
-    expect(rawSummon?.[0]).toBeDefined();
-    assertions += 2;
-
-    expect(assertions).toBeGreaterThan(0);
-  });
-});
