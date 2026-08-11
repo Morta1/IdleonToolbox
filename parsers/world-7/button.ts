@@ -317,6 +317,14 @@ function formatTaskDescription(rawDescription: string, requirement: number): str
  * Formats large numbers with commas for display in task descriptions.
  */
 function formatLargeNumber(value: number): string {
+  // A requirement past Number.MAX_VALUE is unreachable rather than large, and `toExponential` on
+  // Infinity returns the literal string "Infinity", which is what the task description used to read.
+  //
+  // The game has no convention to copy here: it only ever computes Button_REQ for the task in front
+  // of you, so it never meets this. Only the lookahead below does, projecting `maxPresses` ahead,
+  // where the exponent-scaled tasks pass 1e308. The glyph matches how Sushi Station already renders
+  // an uncapped value.
+  if (!Number.isFinite(value)) return '∞';
   if (value >= 1e15) return value.toExponential(2);
   return Math.floor(value).toLocaleString('en-US');
 }

@@ -78,14 +78,16 @@ export const KNOWN_NON_FINITE_EXCEPTIONS = {
   // (present at this branch's merge base) and out of its scope.
   'stamps.misc.[].goldCost': 'float overflow on a genuinely astronomical cost - pre-existing',
   'stamps.misc.[].futureCosts.[].goldCost': 'float overflow on a genuinely astronomical cost - pre-existing',
-  // Same overflow shape, but this one is USER-VISIBLE and pre-existing: getTaskRequirement's
-  // `base * factor ** totalPresses` exceeds Number.MAX_VALUE on a large account, and
-  // formatLargeNumber sends anything >= 1e15 through toExponential, which renders Infinity as the
-  // literal string "Infinity" inside the task description. The e2e gate does match that word, but it
-  // only ever loads a page signed out, so nobody saw it. Left as found - deciding what an
-  // unreachable requirement should read as is a product call, not a parser fix.
-  'button.taskSequence.[].requirement': 'BUG (pre-existing): renders as the word "Infinity" on a large account',
-  'button.taskSequence.[].futureRequirements.[]': 'BUG (pre-existing): renders as the word "Infinity" on a large account',
+  // Genuine overflow, and correct to keep. getTaskRequirement's `base * factor ** presses` passes
+  // Number.MAX_VALUE for the exponent-scaled tasks once the lookahead projects far enough forward.
+  //
+  // The game never meets this: it only ever computes Button_REQ for the task in front of you, which
+  // is finite (verified live - task 18, requirement 4,609,057, matching taskSequence[0] exactly).
+  // The projection is the toolbox's own feature, so the toolbox picks the convention: a requirement
+  // past MAX_VALUE is unreachable rather than large, and both render paths now show the infinity
+  // glyph instead of the literal word "Infinity".
+  'button.taskSequence.[].requirement': 'unreachable projection past MAX_VALUE, rendered as the glyph',
+  'button.taskSequence.[].futureRequirements.[]': 'unreachable projection past MAX_VALUE, rendered as the glyph'
 };
 
 const countNonFinite = (root, { includeNaN }) => {
@@ -1174,5 +1176,41 @@ describe('gaming ratKing shop costs', () => {
     const { account } = parseEmpty();
     expect(account.gaming.ratKing.kingRatUnlocked).toBe(false);
     expect(account.gaming.ratKing.shopUpgrades.map(({ level }) => level)).toEqual([0, 0, 0]);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------
+// button task requirements - the lookahead projects past Number.MAX_VALUE, the game never does.
+// ---------------------------------------------------------------------------------------------
+
+describe('button task requirements', () => {
+  it('no task description ever contains the literal word "Infinity"', () => {
+    // formatLargeNumber sends anything >= 1e15 through toExponential, and Infinity.toExponential()
+    // is the string "Infinity" - which is what the description used to read on a large account.
+    const descriptions = [...FIXTURES, ['raw', raw]].flatMap(([name, fixture]) => {
+      const { account } = name === 'raw' ? parseRaw() : parseFixture(fixture);
+      return account.button?.taskSequence?.map(({ description }) => description) ?? [];
+    });
+    expect(descriptions.length).toBeGreaterThan(0);
+    expect(descriptions.filter((text) => /Infinity/.test(text))).toEqual([]);
+  });
+
+  it('raw.json really does project past MAX_VALUE, so the assertion above is not vacuous', () => {
+    const { account } = parseRaw();
+    const nonFinite = account.button.taskSequence.filter(({ requirement }) => !Number.isFinite(requirement));
+    expect(nonFinite.length).toBeGreaterThan(0);
+    // ...and those are the ones whose description would have read "Infinity".
+    nonFinite.forEach(({ description }) => expect(description).toContain('∞'));
+  });
+
+  it("the CURRENT task's requirement stays finite - it is what the game itself computes", () => {
+    // Checked against the running game: Button_REQ returned 4609057.595836196 for raw.json's save,
+    // which is exactly taskSequence[0].requirement. The overflow only ever affects the projection.
+    [...FIXTURES, ['raw', raw]].forEach(([name, fixture]) => {
+      const { account } = name === 'raw' ? parseRaw() : parseFixture(fixture);
+      const current = account.button?.taskSequence?.[0];
+      if (!current) return;
+      expect(Number.isFinite(current.requirement)).toBe(true);
+    });
   });
 });

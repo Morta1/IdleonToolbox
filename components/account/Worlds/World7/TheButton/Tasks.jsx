@@ -11,6 +11,12 @@ import { getCharacterTaskProgress } from '@parsers/world-7/button';
 
 const PRESSES_PER_CYCLE = 45; // 9 categories × 5 presses
 
+// The lookahead projects far enough forward that the exponent-scaled tasks pass Number.MAX_VALUE,
+// and notateNumber renders those as the literal word "Infinity". Such a requirement is unreachable
+// rather than big, so it gets the glyph - the same way Sushi Station shows an uncapped upgrade.
+// The game itself never computes these: it only ever evaluates the task in front of you.
+const notateRequirement = (value) => Number.isFinite(value) ? notateNumber(value, 'Big') : '∞';
+
 const Tasks = ({ taskSequence, bonuses, totalPresses, pressesIntoCurrentBonus }) => {
   const { state } = useContext(AppContext);
   const characters = state?.characters;
@@ -114,20 +120,20 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, pressesIntoCurrentBonus })
                 {isReady
                   ? <Typography variant="body2" color="success.main">Ready</Typography>
                   : <Typography variant="body2" color="text.secondary">
-                      {notateNumber(progress, 'Big')} / {notateNumber(task.requirement, 'Big')}
+                      {notateNumber(progress, 'Big')} / {notateRequirement(task.requirement)}
                     </Typography>
                 }
                 {task.futureRequirements?.length > 0 && (
                   <Stack direction="row" alignItems="center" gap={0.5} justifyContent="flex-end">
                     <Typography variant="caption" color="text.disabled">
-                      Next: {notateNumber(task.futureRequirements[0], 'Big')}
+                      Next: {notateRequirement(task.futureRequirements[0])}
                     </Typography>
                     <HtmlTooltip title={
                       <Stack gap={0.5}>
                         <Typography variant="body2" fontWeight="bold">Upcoming requirements</Typography>
                         {task.futureRequirements.map((req, i) => (
                           <Typography key={i} variant="caption">
-                            #{i + 2}: {notateNumber(req, 'Big')}
+                            #{i + 2}: {notateRequirement(req)}
                           </Typography>
                         ))}
                       </Stack>

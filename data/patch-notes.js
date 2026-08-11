@@ -58,7 +58,8 @@ export const patchNotes = [
       'Statues: the double statue drop chance lost its Divinity portion unless one of your characters was linked to Kattelkruk - the minor bonus applies once you own the god',
       'Kangaroo, Slab, and Tome: the second row of stat cards sat further from the first than the other rows did',
       'Gaming: the Rat King shop showed a cost of "Infinity" before you unlock the King Rat - it now shows the real starting cost',
-      'Coral Reef: only 6 of the 9 dancing corals were listed'
+      'Coral Reef: only 6 of the 9 dancing corals were listed',
+      'The Button: far-off task requirements showed the word "Infinity" - they now show an infinity symbol, since they are past what the game can count to'
     ]
   },
   {
