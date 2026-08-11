@@ -1,6 +1,6 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
-import { parseData } from '@parsers/index';
+import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { tryToParse } from '@utility/helpers';
 import first from '../fixtures/first.json';
 import second from '../fixtures/second.json';
@@ -42,8 +42,8 @@ const fixtures = { first, second, third, fourth, latest };
 describe('feature-locked sections stay null, never {}', () => {
   Object.entries(fixtures).forEach(([fixtureName, fixture]) => {
     it(`${fixtureName}: guild/divinity/equinox/gaming/sailing/sushiStation match their own not-unlocked guard`, () => {
-      const { data, charNames, companion, guildData, serverVars } = fixture;
-      const { account } = parseData(data, charNames, companion, guildData, serverVars);
+      const { data, guildData } = fixture;
+      const { account } = parseFixture(fixture);
       const locked = lockedConditions(data, guildData);
 
       for (const key of Object.keys(locked)) {

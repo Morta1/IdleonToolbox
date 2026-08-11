@@ -122,6 +122,35 @@ const findOffendingTextNodes = async (page) => {
   });
 };
 
+/**
+ * Every test here used to sleep a flat 3.5s to let the client-side empty-account parse land - 105
+ * routes x 3.5s was 6.7 of the suite's 6.8 minutes. This waits for the two things that sleep was
+ * standing in for, and returns as soon as both hold:
+ *
+ *   1. DataLoadingWrapper's loader is gone (data pages only - it never mounts on the others, so the
+ *      wait resolves immediately there). This is the deterministic half.
+ *   2. The rendered text has stopped changing, sampled twice 200ms apart. React renders in more
+ *      than one pass on most of these pages, so "loader gone" alone is too early.
+ *
+ * The old 3.5s remains the cap, so a page slower than before still gets exactly what it got before,
+ * and this can only make the gate wait longer than it needs - never read the DOM sooner than the
+ * page has settled.
+ */
+const waitForRender = async (page, maxMs = 3500) => {
+  const deadline = Date.now() + maxMs;
+  await page
+    .waitForFunction(() => !document.querySelector('[data-testid="page-loader"]'), null, { timeout: maxMs })
+    .catch(() => {});
+
+  let previous = null;
+  while (Date.now() < deadline) {
+    const length = await page.evaluate(() => document.body.innerText.length);
+    if (length > 0 && length === previous) return;
+    previous = length;
+    await page.waitForTimeout(200);
+  }
+};
+
 const routes = discoverRoutes();
 
 test.describe('No "NaN"/"undefined"/crash fallback reaches the rendered page for a logged-out visitor', () => {
@@ -136,7 +165,7 @@ test.describe('No "NaN"/"undefined"/crash fallback reaches the rendered page for
     runner(`${route} renders no NaN/undefined/crash fallback`, async ({ page }) => {
       await page.goto(route, { waitUntil: 'domcontentloaded' });
       // Give the client-side empty-account parse time to land and the tree to render.
-      await page.waitForTimeout(3500);
+      await waitForRender(page);
 
       const hits = await findOffendingTextNodes(page);
       const offending = hits
@@ -166,7 +195,7 @@ test.describe('No "NaN"/"undefined"/crash fallback reaches the rendered page for
  */
 test('dashboard timer tooltips render no NaN/Infinity/undefined for a logged-out visitor', async ({ page }) => {
   await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(3500);
+  await waitForRender(page);
 
   const hoverables = await page.$$('img');
   const seen = new Set();

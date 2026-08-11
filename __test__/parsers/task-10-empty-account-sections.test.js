@@ -1,6 +1,6 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
-import { parseData } from '@parsers/index';
+import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { getCards, calculateStars } from '@parsers/cards';
 import { getLiquidCauldrons } from '@parsers/world-2/alchemy';
 import { BOARD_SIZE } from '@parsers/world-3/constructionOptimizer';
@@ -14,12 +14,6 @@ import fourth from '../fixtures/fourth.json';
 import latest from '../fixtures/latest.json';
 
 const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
-const parseEmpty = () => parseData(undefined, [], null, null, undefined, undefined, null);
-const parseFixture = (fixture) => {
-  const data = fixture.data ?? fixture;
-  return parseData(data, fixture.charNames ?? [], fixture.companion ?? null, fixture.guildData ?? null, fixture.serverVars);
-};
 
 /**
  * Task 10: 13 sections threw on an empty account and were masked by safeSection's fallback. This

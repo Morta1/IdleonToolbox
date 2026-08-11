@@ -9,6 +9,15 @@ export default defineConfig({
   timeout: 30_000,
   expect: { timeout: 10_000 },
   retries: 0,
+  // Playwright parallelises by FILE by default, so no-nan.spec.js's ~105 independent route tests all
+  // queued behind one worker - 6.7 of the suite's 6.8 minutes. Its tests share no state (each opens
+  // its own context and navigates), so they can run in parallel. The generated smoke-*.spec.js files
+  // opt back out with their own `test.describe.configure({ mode: 'serial' })`, which wins over this,
+  // because they share a worker-scoped demo page and navigate it in sequence.
+  fullyParallel: true,
+  // Deliberately still 4, not higher: the bottleneck past this point is `next dev` (single server,
+  // compiling routes on demand), not the CPU. At 8 workers the whole suite got no faster and
+  // logged-out-nav started failing on contention alone.
   workers: 4,
   reporter: 'list',
   use: {

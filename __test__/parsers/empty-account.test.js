@@ -1,16 +1,11 @@
 import '../../polyfills';
 import { describe, expect, it, vi } from 'vitest';
-import { parseData } from '@parsers/index';
+import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { liveCount } from '@parsers/catalog';
 import demoJson from '../../data/raw.json';
 import * as websiteData from '@website-data';
 
-const parseEmpty = () => parseData(undefined, [], null, null, undefined, undefined, null);
-
-const parseReal = () => {
-  const { data, charNames, companion, guildData, serverVars } = demoJson;
-  return parseData(data, charNames, companion, guildData, serverVars);
-};
+const parseReal = () => parseFixture(demoJson);
 
 describe('parseData with no save', () => {
   it('returns an account instead of undefined', () => {

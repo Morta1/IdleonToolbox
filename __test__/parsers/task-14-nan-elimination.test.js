@@ -2,7 +2,7 @@ import '../../polyfills';
 import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { parseData } from '@parsers/index';
+import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { getPrinterMulti } from '@parsers/world-3/printer';
 import { getHoopsData, getDartsData } from '@parsers/highScores';
 import { isCompanionBonusActive, getEventShopBonus } from '@parsers/misc';
@@ -10,15 +10,7 @@ import { getCompassBonus } from '@parsers/class-specific/compass';
 import { mainStatMap } from '@parsers/talents';
 import raw from '../../data/raw.json';
 
-const parseEmpty = () => parseData(undefined, [], null, null, undefined, undefined, null);
-const parseFixture = (fixture) => {
-  const data = fixture.data ?? fixture;
-  return parseData(data, fixture.charNames ?? [], fixture.companion ?? null, fixture.guildData ?? null, fixture.serverVars);
-};
-const parseRaw = () => {
-  const { data, charNames, companion, guildData, serverVars } = raw;
-  return parseData(data, charNames, companion, guildData, serverVars);
-};
+const parseRaw = () => parseFixture(raw);
 
 /**
  * Task 14: batches A (Task 12) and B (Task 13) built a NaN gate that only ever walked the empty parse

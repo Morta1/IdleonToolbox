@@ -1,6 +1,6 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
-import { parseData } from '@parsers/index';
+import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { tryToParse } from '@utility/helpers';
 import { getKillRoyShopBonus } from '@parsers/misc';
 import first from '../fixtures/first.json';
@@ -12,15 +12,7 @@ import raw from '../../data/raw.json';
 
 const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
 
-const parseEmpty = () => parseData(undefined, [], null, null, undefined, undefined, null);
-const parseFixture = (fixture) => {
-  const data = fixture.data ?? fixture;
-  return parseData(data, fixture.charNames ?? [], fixture.companion ?? null, fixture.guildData ?? null, fixture.serverVars);
-};
-const parseRaw = () => {
-  const { data, charNames, companion, guildData, serverVars } = raw;
-  return parseData(data, charNames, companion, guildData, serverVars);
-};
+const parseRaw = () => parseFixture(raw);
 
 /**
  * Task 13 (batch B): eliminates the remaining 908 empty-parse NaN Task 12 explicitly left behind,

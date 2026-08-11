@@ -7,8 +7,10 @@ import { prefix } from '@utility/helpers';
  */
 const SimpleLoader = ({ message = 'Loading data...' }) => {
   return (
-    <Box 
-      sx={{ 
+    <Box
+      // e2e/no-nan.spec.js waits for this to disappear instead of sleeping a fixed 3.5s per route.
+      data-testid="page-loader"
+      sx={{
         width: '100%', 
         height: '100%', 
         display: 'flex', 

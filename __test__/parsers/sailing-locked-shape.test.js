@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import { parseData } from '@parsers/index';
+import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import {
   artifacts, equinoxChallenges, equinoxUpgrades, gamingPalette, gamingUpgrades, guildBonuses, superbitsUpgrades
 } from '@website-data';
@@ -31,13 +31,7 @@ import demoJson from '../../data/raw.json';
  *    they were real data.
  */
 
-const parseEmpty = () => parseData(undefined, [], null, null, undefined, undefined, null);
-const parseReal = () => {
-  const { data, charNames, companion, guildData, serverVars } = demoJson;
-  return parseData(data, charNames, companion, guildData, serverVars);
-};
-const parseFixture = ({ data, charNames, companion, guildData, serverVars }) =>
-  parseData(data, charNames, companion, guildData, serverVars);
+const parseReal = () => parseFixture(demoJson);
 
 // Every path holding a NaN, so a failure names the field instead of just saying "some number".
 //
