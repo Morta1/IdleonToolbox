@@ -59,7 +59,9 @@ export const patchNotes = [
       'Kangaroo, Slab, and Tome: the second row of stat cards sat further from the first than the other rows did',
       'Gaming: the Rat King shop showed a cost of "Infinity" before you unlock the King Rat - it now shows the real starting cost',
       'Coral Reef: only 6 of the 9 dancing corals were listed',
-      'The Button: far-off task requirements showed the word "Infinity" - they now show an infinity symbol, since they are past what the game can count to'
+      'The Button: far-off task requirements showed the word "Infinity" - they now show an infinity symbol, since they are past what the game can count to',
+      'Farming: the garden was empty when signed out - it now shows the full 36-plot grid',
+      'Summoning, Kangaroo, Bubba, The Jars, and Gambit: icons that had no label beside them now announce what they are to screen readers'
     ]
   },
   {

@@ -58,6 +58,7 @@ const Kangaroo = () => {
         {kangaroo?.megaFish?.map(({ description, unlocked, amount, totalBonus }, index) => {
           return <CardTitleAndValue cardSx={{ my: 1 }} value={amount > 0 ? amount : ''}
                                     tooltipTitle={cleanUnderscore(description.replace('{', totalBonus))}
+                                    iconAlt={cleanUnderscore(description.replace('{', totalBonus))}
                                     key={'mega' + index} icon={`data/RooMG${index}.png`}
                                     imgStyle={{ width: 32, opacity: unlocked ? 1 : .5 }} imgOnly/>
         })}

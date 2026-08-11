@@ -177,7 +177,21 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     }
   });
 
-  const plot = rawFarmingPlot?.map(([seedType, progress, cropType, isLocked, cropQuantity, currentOG, cropProgress]: any, cropIndex: any) => {
+  // With no save `rawFarmingPlot` is undefined, so this `.map` short-circuited and the garden grid
+  // rendered nothing at all - the last page on this branch still empty for a signed-out visitor.
+  //
+  // The plot count is progression-driven, not a fixed roster: the game computes it as
+  // `Math.round(Math.min(36, 1 + BasketUpgQTY + GemItemsPurchased[135] + Math.min(3, Tasks[2][5][2])))`,
+  // so a brand-new account owns 1 and the ceiling is 36. There is no catalog to size off, so the
+  // no-save case falls back to that ceiling: it shows what the feature IS, which is the whole point
+  // of rendering signed out, and matches the forge slots showing the full board rather than the one
+  // or two a fresh account has bought.
+  //
+  // A real save is untouched - it still maps its own array, however many plots it owns.
+  const MAX_PLOTS = 36;
+  const plotSource = rawFarmingPlot ?? Array.from({ length: MAX_PLOTS }, () => [0, 0, 0, 1, 0, 0, 0]);
+
+  const plot = plotSource?.map(([seedType, progress, cropType, isLocked, cropQuantity, currentOG, cropProgress]: any, cropIndex: any) => {
     const seed = seedInfo?.[seedType];
     // seedType can point past the seedInfo catalog on a real save's plot slot; 0 is the neutral
     // "no crop id offset" default, not an unknown.
@@ -615,9 +629,10 @@ const getCropValueBreakdown = (account: any, market: any) => {
   const exotic24 = getExoticMarketBonus(account, 24);
   const exotic25 = getExoticMarketBonus(account, 25);
   const voteBonus = getVoteBonus(account, 29);
-  // account.farming.plot is undefined with no save (rawFarmingPlot?.map(...) short-circuits the
-  // whole map, not just its elements) - optional chaining on the reduce call itself short-circuits to
-  // undefined too (not the reduce's own 0 seed), so this needs its own `?? 0`.
+  // The guards here predate the fallback roster above, which now means plot is always an array. They
+  // stay because this runs across serializeData's passes, where farming may not be built yet - and
+  // optional chaining on the reduce CALL short-circuits to undefined rather than to the reduce's own
+  // 0 seed, so the `?? 0` is doing real work whenever that happens.
   const avgRank = (account?.farming?.plot?.reduce((sum: any, p: any) => sum + (p?.rank ?? 0), 0) ?? 0)
     / (account?.farming?.plot?.length || 1);
 

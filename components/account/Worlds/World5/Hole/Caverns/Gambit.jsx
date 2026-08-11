@@ -12,6 +12,7 @@ const Gambit = ({ hole }) => {
     <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       {hole?.caverns?.gambit?.times?.map((time, index) => <CardTitleAndValue
         title={''} key={`rupie-${index}`} stackProps icon={`etc/Gambit_${index}.png`}
+        iconAlt={`Gambit ${index + 1} time`}
         imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
         value={msToDate(time * 1000)} />)}
     </Stack>

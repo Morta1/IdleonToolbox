@@ -135,6 +135,7 @@ export const CardTitleAndValue = ({
                                     value,
                                     children,
                                     icon,
+                                    iconAlt,
                                     tooltipTitle,
                                     stackProps,
                                     contentPadding
@@ -157,10 +158,14 @@ export const CardTitleAndValue = ({
           {title ? <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom
                                component={'span'}>{title}</Typography> : null}
           {(hasValue || imgOnly) ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
-            {/* The card's title is right beside it, so the icon is decorative when there is one and
-                needs a label only when there is not. */}
+            {/* The card's title is right beside it, so the icon is decorative when there is one.
+                With no title the icon IS the label, and the asset name is a poor one - "SumUpgIc3"
+                tells a screen-reader user nothing. Those call sites pass `iconAlt`; the filename
+                remains only as a last resort, since it at least resembles the thing. */}
             <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`}
-                 alt={typeof title === 'string' && title ? '' : icon.split('/').pop().replace(/\.\w+$/, '')}/>
+                 alt={typeof title === 'string' && title
+                   ? ''
+                   : (iconAlt ?? icon.split('/').pop().replace(/\.\w+$/, ''))}/>
             {hasValue ? <Typography component={'div'}>{value}</Typography> : null}
           </Stack> : <Typography component={'div'}>{value}</Typography> : children}
         </Stack>

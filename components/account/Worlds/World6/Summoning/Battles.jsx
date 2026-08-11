@@ -22,9 +22,9 @@ const Battles = ({ battles, armyHealth, armyDamage, highestEndlessLevel, winnerB
   return <>
     <Stack mb={3} direction={'row'} gap={2}>
       <CardTitleAndValue value={armyDamage < 1e7 ? commaNotation(armyDamage) : notateNumber(armyDamage)}
-                         icon={'data/SumUpgIc3.png'} imgStyle={{ width: 25 }}/>
+                         icon={'data/SumUpgIc3.png'} iconAlt={'Army damage'} imgStyle={{ width: 25 }}/>
       <CardTitleAndValue value={armyHealth < 1e7 ? commaNotation(armyHealth) : notateNumber(armyHealth)}
-                         icon={'data/SumUpgIc1.png'} imgStyle={{ width: 25 }}/>
+                         icon={'data/SumUpgIc1.png'} iconAlt={'Army health'} imgStyle={{ width: 25 }}/>
       <FormControlLabel
         sx={{ width: 'fit-content' }}
         control={<Checkbox checked={hide} onChange={() => setHide(prev => !prev)}/>}

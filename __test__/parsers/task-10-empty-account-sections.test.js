@@ -787,3 +787,34 @@ describe('storage', () => {
     for (const { unlocked } of account.storage.storageChests) expect(unlocked).toBe(false);
   });
 });
+
+/**
+ * The garden grid rendered nothing at all with no save: `plot` came from `rawFarmingPlot?.map(...)`,
+ * which short-circuits the whole map rather than its elements.
+ *
+ * Unlike the forge slots or the coral roster there is no catalog to size this off - the game computes
+ * the count as `Math.round(Math.min(36, 1 + BasketUpgQTY + GemItemsPurchased[135] + Math.min(3,
+ * Tasks[2][5][2])))`, so it is progression-driven, one plot on a fresh account and 36 at the ceiling.
+ * The no-save case therefore shows the ceiling, which is what the feature IS.
+ */
+describe('farming plot (no catalog: falls back to the game ceiling with no save)', () => {
+  const MAX_PLOTS = 36;
+
+  it('renders the full garden with no save instead of nothing', () => {
+    const { account } = parseEmpty();
+    expect(account.farming.plot).toHaveLength(MAX_PLOTS);
+    account.farming.plot.forEach((plot, index) => {
+      expect(plot.index).toBe(index);
+      expect(plot.seed).toBeTruthy();
+      expect(Number.isFinite(plot.rankRequirement)).toBe(true);
+    });
+  });
+
+  it('a real save still maps its own plots, not the ceiling', () => {
+    // The load-bearing half: the fallback must not overwrite a player who owns fewer than 36.
+    const counts = FIXTURES.map(([, fixture]) => parseFixture(fixture).account.farming?.plot?.length);
+    counts.forEach((count) => expect(count).toBeGreaterThan(0));
+    // At least one fixture owns fewer than the ceiling, so this cannot pass by everyone being at 36.
+    expect(counts.some((count) => count < MAX_PLOTS)).toBe(true);
+  });
+});

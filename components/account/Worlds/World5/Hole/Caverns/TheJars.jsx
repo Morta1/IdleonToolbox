@@ -14,6 +14,7 @@ const TheJars = ({ hole }) => {
       {hole?.caverns?.theJars?.rupies?.map((amount, index) => <CardTitleAndValue
         cardSx={{my:0}}
         title={''} key={`rupie-${index}`} stackProps icon={`data/HoleJarR${index}.png`}
+        iconAlt={`Rupie tier ${index + 1}`}
         value={notateNumber(Math.floor(amount))}/>)}
     </Stack>
     <Divider sx={{ mt: 1 }}/>

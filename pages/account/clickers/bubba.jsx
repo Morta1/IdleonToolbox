@@ -55,6 +55,7 @@ const Bubba = () => {
           : description;
         return <CardTitleAndValue cardSx={{ my: 1 }} value={amount > 0 ? amount : ''}
                                   tooltipTitle={cleanUnderscore(formattedDesc)}
+                                  iconAlt={cleanUnderscore(formattedDesc)}
                                   key={'megaflesh' + index} icon={`data/BubbaMF${index}.png`}
                                   imgStyle={{ width: 32, opacity: unlocked ? 1 : .5 }} imgOnly/>
       })}
