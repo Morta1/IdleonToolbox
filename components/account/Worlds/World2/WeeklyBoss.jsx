@@ -18,7 +18,7 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
     <Stack sx={{ width: '100%' }} direction={'row'} alignItems={'center'} gap={2}>
       <img style={{ width: 50, height: 50 }} src={`${prefix}etc/${bossName}.png`} alt={bossName}/>
       <Stack>
-        <Typography variant={'h4'}>{cleanUnderscore(bossName)}</Typography>
+        <Typography variant={'h5'}>{cleanUnderscore(bossName)}</Typography>
         <Typography variant={'caption'}>{isValid(date) ? formatDate(date) : null}</Typography>
       </Stack>
     </Stack>

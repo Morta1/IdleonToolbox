@@ -147,7 +147,7 @@ const GemShop = () => {
       if (visibleSections.length === 0) return null;
 
       return <Stack key={name} gap={2}>
-        <Typography sx={{ mt: 5 }} variant={'h4'}>{cleanUnderscore(name).capitalize()}</Typography>
+        <Typography sx={{ mt: 5 }} variant={'h5'}>{cleanUnderscore(name).capitalize()}</Typography>
         {visibleSections.map(([sectionName, sectionItems]) => {
           // Filter items to only visible ones
           const visibleItems = sectionItems?.filter(item => isItemVisible(item, sectionName));

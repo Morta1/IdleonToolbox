@@ -36,7 +36,7 @@ const Cauldrons = () => {
         title="Cauldrons | Idleon Toolbox"
         description="Track your alchemy cauldron levels, brewing speed, and liquid capacity in Legends of Idleon"
       />
-      <Typography variant={'h4'} mb={3}>Brewing</Typography>
+      <Typography variant={'h5'} mb={3}>Brewing</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
         {Object.entries(alchemy?.cauldrons || {})?.map(([name, stats], cauldronIndex) => {
           return <Card sx={{ width: { md: 450 } }} key={`${name}-${cauldronIndex}`}>
@@ -75,7 +75,7 @@ const Cauldrons = () => {
         })}
       </Stack>
 
-      <Typography my={3} variant={'h4'} mb={3}>Pay 2 Win</Typography>
+      <Typography my={3} variant={'h5'} mb={3}>Pay 2 Win</Typography>
 
       <Typography my={3} variant={'h5'} mb={3}>Liquids</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>

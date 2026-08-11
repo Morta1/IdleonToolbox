@@ -13,7 +13,7 @@ const All = ({ pets }) => {
       {pets?.map((list, worldIndex) => {
         return <React.Fragment key={`world-${worldIndex}`}>
           <Stack direction={'row'} alignItems={'center'} gap={2}>
-            <Typography variant={'h4'}>World {worldIndex + 1}</Typography>
+            <Typography variant={'h5'}>World {worldIndex + 1}</Typography>
             <Stack direction={'row'} alignItems={'center'} gap={2}>
               <img style={{ width: 32, height: 32 }} src={`${prefix}data/Genetic${worldIndex}.png`}
                    alt={'cells' + worldIndex}/>

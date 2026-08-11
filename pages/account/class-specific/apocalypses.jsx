@@ -111,7 +111,7 @@ const ApocDisplay = ({ apocName, charName, monsters }) => {
 
   const allDone = monsters?.list?.every(({ done }) => done.every((done) => done));
   return <Stack gap={2}>
-    <Typography variant={'h4'}>{charName} {apocName}ed {apocName === 'zow' || apocName === 'wow'
+    <Typography variant={'h5'}>{charName} {apocName}ed {apocName === 'zow' || apocName === 'wow'
       ? monsters.finished.at(0)
       : monsters?.finished?.join('/') ?? 0} monsters</Typography>
     {apocName === 'chow' ?

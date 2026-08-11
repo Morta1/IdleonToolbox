@@ -31,7 +31,7 @@ const Printer = () => {
       will also show atom per day)</Typography>
 
     <Stack direction={'row'} alignItems={'baseline'} gap={1}>
-      <Typography variant={'h4'}>Totals</Typography>
+      <Typography variant={'h5'}>Totals</Typography>
       <Typography variant={'caption'}>* per hour</Typography>
     </Stack>
     {/* Sits directly under the Totals heading with no layout container, so it carries its own top
