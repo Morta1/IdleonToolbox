@@ -39,7 +39,8 @@ export const patchNotes = [
       'Cauldrons: the page showed only its headings when signed out - it now lists all four brewing cauldrons with their boosts, and every Pay 2 Win liquid and cauldron upgrade, at zero',
       'Sigils: the page showed only its two header cards when signed out - it now lists all 24 sigils with their effects and unlock costs',
       'Coral Reef: reef upgrades and dancing corals were listed as unavailable when signed out, and for accounts from before the feature existed - all six of each now show with their bonuses and costs',
-      'Stat cards sitting at zero showed an empty box instead of "0" - this affected every stat card across the site, most visibly on The Hole'
+      'Stat cards sitting at zero showed an empty box instead of "0" - this affected every stat card across the site, most visibly on The Hole',
+      'Constellations: the page showed only its column headers when signed out - it now lists all 49 constellations with their locations, requirements, and points'
     ]
   },
   {

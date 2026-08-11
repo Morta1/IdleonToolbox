@@ -17,15 +17,12 @@ export const getStarSigns = (idleonData: IdleonData, account: Account): any[] | 
 export const getConstellations = (idleonData: IdleonData): { constellations: any[]; rawConstellationsDone: number } => {
   const constellationsRaw = tryToParse(idleonData?.SSprog) || idleonData?.StarSignProg;
   const constellationsParsed = parseConstellations(constellationsRaw);
-  // parseConstellations/the reduce below both short-circuit to undefined (not their `[]`/0 fallback)
-  // when constellationsRaw is missing, because optional chaining skips the whole call rather than
-  // running it with an empty input. safeSection can't catch that: it only replaces the section when
-  // the WHOLE return value is null/undefined, not per-field, so these leaked through as literally
-  // `undefined` on account.constellations/account.rawConstellationsDone for an empty parse.
-  // (`constellations` was on the plan's conversion list to become catalog-driven like starSigns,
-  // but wasn't converted here - parseConstellations's rawIndex/mapIndex lookup and null-mapIndex
-  // skip logic would need to be re-derived from the catalog side to do that safely, and this fix
-  // wave is scoped to restoring the neutral-default contract, not a further conversion.)
+  // The reduce below short-circuits to undefined (not its 0 fallback) when constellationsRaw is
+  // missing, because optional chaining skips the whole call rather than running it with an empty
+  // input. safeSection can't catch that: it only replaces the section when the WHOLE return value
+  // is null/undefined, not per-field, so it leaked through as literally `undefined` on
+  // account.rawConstellationsDone for an empty parse. (parseConstellations is catalog-driven now,
+  // so it always returns the full list; `?? []` below is kept only as a belt-and-braces guard.)
   return {
     constellations: constellationsParsed ?? [],
     rawConstellationsDone: constellationsRaw?.reduce((sum: number, [, done]: [any, number]) => sum + done, 0) ?? 0
@@ -55,23 +52,26 @@ export const parseStarSigns = (starSignsRaw: any, account: Account): any[] | und
 }
 
 export const parseConstellations = (constellationsRaw: any[]): any[] => {
-  // Static constellations have rawIndex matching their position in the game's StarQuests array.
-  // Raw save data has one entry per StarQuest slot (including unused placeholders).
-  const constellationsByRawIndex = new Map(
-    constellations?.map((c: any) => [c.rawIndex ?? c.mapIndex, c])
-  );
-  return constellationsRaw?.reduce((res: any[], constellation: any, index: number) => {
-    const constellationInfo = constellationsByRawIndex.get(index);
-    if (!constellationInfo) return res;
-    const [completedChars, done] = constellation;
-    const mapIndex = constellationInfo?.mapIndex;
-    return mapIndex != null ? [...res, {
-      ...constellationInfo,
-      location: mapNames[mapIndex],
-      completedChars,
-      done: !!done
-    }] : res;
-  }, []);
+  // Catalog-driven: which constellations exist is a property of the game, not of the save. The old
+  // loop walked the save's own StarQuests array, so an account with no save produced an empty list
+  // and the page rendered nothing but its column headers. `rawIndex` is the constellation's slot in
+  // that array (it holds one entry per StarQuest slot, including unused placeholders); a slot the
+  // save doesn't cover simply means nobody has completed it.
+  //
+  // The catalog is ordered by rawIndex ascending, which is the order the old raw-driven reduce
+  // produced, so the rendered list is unchanged for a real save.
+  return constellations
+    .filter(({ mapIndex }: any) => mapIndex != null)
+    .map((constellationInfo: any) => {
+      const rawIndex = constellationInfo.rawIndex ?? constellationInfo.mapIndex;
+      const [completedChars = '', done = 0] = constellationsRaw?.[rawIndex] ?? [];
+      return {
+        ...constellationInfo,
+        location: mapNames[constellationInfo.mapIndex],
+        completedChars,
+        done: !!done
+      };
+    });
 }
 
 export const getStarSignByEffect = (equippedStarSigns: any[], starEffect: string, _unused2?: any): number => {

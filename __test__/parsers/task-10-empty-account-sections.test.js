@@ -4,7 +4,7 @@ import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { getCards, calculateStars } from '@parsers/cards';
 import { cauldronsIndexMapping, getLiquidCauldrons, liquidsIndex } from '@parsers/world-2/alchemy';
 import { BOARD_SIZE } from '@parsers/world-3/constructionOptimizer';
-import { cards, coralReef, equipmentSets, flagsReqs, sigils } from '@website-data';
+import { cards, constellations as constellationsCatalog, coralReef, equipmentSets, flagsReqs, sigils } from '@website-data';
 import { tryToParse } from '@utility/helpers';
 import { isBundlePurchased } from '@parsers/misc';
 import first from '../fixtures/first.json';
@@ -624,5 +624,54 @@ describe('coral reef (catalog-driven: save-length loops -> coralReef catalog / f
       assertions++;
     });
     expect(assertions).toBe(DANCING_CORAL_COUNT);
+  });
+});
+
+/**
+ * `parseConstellations` walked the save's own StarQuests array, so the constellations page rendered
+ * its column headers and no rows at all when signed out. The 49 constellations are a catalog; the
+ * save only supplies who has completed each one.
+ */
+describe('constellations (catalog-driven: constellationsRaw loop -> constellations catalog)', () => {
+  const CATALOG = constellationsCatalog.filter(({ mapIndex }) => mapIndex != null);
+
+  it('renders every catalog constellation as uncompleted with no save', () => {
+    const { account } = parseEmpty();
+    expect(account.constellations).toHaveLength(CATALOG.length);
+    account.constellations.forEach((constellation, index) => {
+      expect(constellation.name).toBe(CATALOG[index].name);
+      expect(constellation.done).toBe(false);
+      expect(constellation.completedChars).toBe('');
+      expect(constellation.location).toBeTruthy();
+      expect(constellation.requiredPlayers).toBe(CATALOG[index].requiredPlayers);
+    });
+    expect(account.rawConstellationsDone).toBe(0);
+  });
+
+  it('reports a nonzero total points pool with no save, so the page is not "0 / 0"', () => {
+    const { account } = parseEmpty();
+    const totalPoints = account.constellations.reduce((sum, { points }) => sum + points, 0);
+    expect(totalPoints).toBe(CATALOG.reduce((sum, { points }) => sum + points, 0));
+    expect(totalPoints).toBeGreaterThan(0);
+  });
+
+  it.each(FIXTURES)('%s: each constellation still reads its own save slot by rawIndex', (_name, fixture) => {
+    const data = fixture.data ?? fixture;
+    const { account } = parseFixture(fixture);
+    const constellationsRaw = tryToParse(data?.SSprog) || data?.StarSignProg;
+
+    let assertions = 0;
+    let completed = 0;
+    account.constellations.forEach((constellation, index) => {
+      const catalogEntry = CATALOG[index];
+      const [completedChars = '', done = 0] = constellationsRaw?.[catalogEntry.rawIndex ?? catalogEntry.mapIndex] ?? [];
+      expect(constellation.completedChars).toBe(completedChars);
+      expect(constellation.done).toBe(!!done);
+      if (constellation.done) completed++;
+      assertions++;
+    });
+    expect(assertions).toBe(CATALOG.length);
+    // Guards against a fixture with nothing completed making the `done` assertions vacuous.
+    expect(completed).toBeGreaterThan(0);
   });
 });
