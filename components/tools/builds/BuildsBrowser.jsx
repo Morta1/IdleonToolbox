@@ -1,0 +1,460 @@
+import React, { useState } from 'react';
+import {
+  Alert,
+  Box,
+  Button,
+  Chip,
+  InputAdornment,
+  Menu,
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography
+} from '@mui/material';
+import Link from 'next/link';
+import AddIcon from '@mui/icons-material/Add';
+import PersonIcon from '@mui/icons-material/Person';
+import SearchIcon from '@mui/icons-material/Search';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import BoltIcon from '@mui/icons-material/Bolt';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import ClearIcon from '@mui/icons-material/Clear';
+import Tooltip from '@components/Tooltip';
+import SimpleLoader from '@components/common/SimpleLoader';
+import { PillTextField, TagChip } from '@components/tools/builds/styled';
+import ClassPicker from '@components/tools/builds/ClassPicker';
+import BuildCard from '@components/tools/builds/BuildCard';
+import { ACCENT } from '@utility/builds/classes';
+import { TAG_OPTIONS } from '@utility/builds/tags';
+import { slugToDisplayName } from '@utility/builds/class-paths.mjs';
+
+// The whole browse UI - header, class nav, search, filters, sort, grid, pagination - shared by
+// /tools/builds and the generated /tools/builds/[class] pages. The two differ only in where
+// their builds come from (Worker with cursor paging vs. the full class list already in static
+// props), so the parent owns the data and this owns everything a user sees. Keeping them as one
+// component is the point: a class page that looked like a stripped-down hub was a worse page for
+// a human in exchange for a better one for a crawler.
+
+export const INITIAL_FILTERS = {
+  class: null,
+  sort: 'new',
+  q: '',
+  tags: []
+};
+
+const SORTS = [
+  // 'hot' is temporarily disabled: the hotScore aging math makes older-liked-once builds outrank
+  // newer-liked-once ones. Re-enable once a Cron Trigger recomputes hotScore on a schedule.
+  { value: 'new', label: 'New', icon: <BoltIcon sx={{ fontSize: 16 }}/> },
+  { value: 'top', label: 'Top', icon: <TrendingUpIcon sx={{ fontSize: 16 }}/> }
+];
+
+const FilterPill = ({ label, value, count, onClick, active }) => (
+  <Button
+    onClick={onClick}
+    sx={{
+      textTransform: 'none',
+      borderRadius: 999,
+      height: 36,
+      px: 2,
+      background: active ? ACCENT.primarySoft : 'rgba(255,255,255,0.04)',
+      color: active ? ACCENT.primary : 'rgba(255,255,255,0.85)',
+      border: `1px solid ${active ? ACCENT.primaryBorder : 'rgba(255,255,255,0.08)'}`,
+      fontWeight: 500,
+      '&:hover': {
+        background: active ? ACCENT.primarySoft : 'rgba(255,255,255,0.07)',
+        borderColor: active ? ACCENT.primaryBorder : 'rgba(255,255,255,0.14)'
+      }
+    }}
+  >
+    <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, lineHeight: 1 }}>
+      <Box
+        component="span"
+        sx={{
+          fontSize: 13,
+          fontWeight: 600,
+          lineHeight: 1,
+          color: active ? ACCENT.primary : 'rgba(255,255,255,0.55)'
+        }}
+      >
+        {label}
+      </Box>
+      {value && <Box component="span" sx={{ fontSize: 13, lineHeight: 1 }}>{value}</Box>}
+      {count > 0 && !value && (
+        <Box
+          component="span"
+          sx={{
+            display: 'inline-block',
+            minWidth: 18,
+            height: 18,
+            lineHeight: '18px',
+            textAlign: 'center',
+            px: '5px',
+            fontSize: 10,
+            fontWeight: 700,
+            fontVariantNumeric: 'tabular-nums',
+            borderRadius: 999,
+            color: '#fff',
+            background: ACCENT.primary
+          }}
+        >
+          {count}
+        </Box>
+      )}
+      <KeyboardArrowDownIcon sx={{ fontSize: 18, opacity: 0.75 }}/>
+    </Box>
+  </Button>
+);
+
+// Real <a href> chips, not a filter control: on a class page the class lives in the path, so
+// switching class is navigation. That also gives crawlers a styled link to every sibling page
+// from every page, which the bare text links these replaced did too - just far worse-looking.
+const ClassNav = ({ slugs, activeSlug }) => {
+  if (!slugs?.length) return null;
+  return (
+    <Stack direction="row" gap={1} flexWrap="wrap" sx={{ mb: 2 }}>
+      <Chip
+        component={Link}
+        href="/tools/builds"
+        label="All builds"
+        size="small"
+        clickable
+        variant={activeSlug ? 'outlined' : 'filled'}
+        sx={activeSlug ? undefined : {
+          bgcolor: ACCENT.primarySoft,
+          color: ACCENT.primary,
+          borderColor: ACCENT.primaryBorder
+        }}
+      />
+      {slugs.map((slug) => {
+        const active = slug === activeSlug;
+        return (
+          <Chip
+            key={slug}
+            component={Link}
+            href={`/tools/builds/${slug}`}
+            label={slugToDisplayName(slug)}
+            size="small"
+            clickable
+            variant={active ? 'filled' : 'outlined'}
+            sx={active ? {
+              bgcolor: ACCENT.primarySoft,
+              color: ACCENT.primary,
+              borderColor: ACCENT.primaryBorder
+            } : undefined}
+          />
+        );
+      })}
+    </Stack>
+  );
+};
+
+const BuildsBrowser = ({
+  heading,
+  subtitle,
+  signedIn,
+  filters,
+  onFiltersChange,
+  builds,
+  loading,
+  error,
+  classSlugs,
+  activeClass,
+  hasMore,
+  onLoadMore,
+  onNewBuild
+}) => {
+  const [tagsAnchor, setTagsAnchor] = useState(null);
+
+  const setFilters = (next) => onFiltersChange(next);
+  const toggleTag = (tag) => {
+    const has = filters.tags?.includes(tag);
+    setFilters({
+      ...filters,
+      tags: has ? filters.tags.filter((t) => t !== tag) : [...(filters.tags || []), tag]
+    });
+  };
+
+  // The class filter is only a filter on the hub; on a class page it's the URL, so it isn't
+  // counted here and the picker is replaced by the nav chips above.
+  const activeFilterCount = (activeClass ? 0 : (filters.class ? 1 : 0)) + (filters.tags?.length || 0);
+  const filtered = activeFilterCount > 0 || filters.q;
+
+  return (
+    <>
+      <Box
+        sx={{
+          position: 'relative',
+          mt: 2,
+          mb: 3,
+          pb: 2,
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: '1px',
+            background: 'linear-gradient(90deg, rgba(32,135,232,0.35) 0%, rgba(32,135,232,0) 40%)'
+          }
+        }}
+      >
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          alignItems={{ sm: 'flex-end', md: 'center' }}
+          justifyContent="space-between"
+          gap={2}
+        >
+          <Box>
+            {heading}
+            <Typography variant="body2" color="text.secondary">{subtitle}</Typography>
+          </Box>
+          <Stack direction="row" gap={1}>
+            <Tooltip title={signedIn ? '' : 'Sign in to see your builds'}>
+              {/* span wrapper: MUI Tooltip can't bind pointer events to a disabled button. */}
+              <span>
+                <Button
+                  variant="outlined"
+                  sx={{ borderRadius: 999 }}
+                  component={Link}
+                  href="/tools/builds/my-builds"
+                  startIcon={<PersonIcon/>}
+                  disabled={!signedIn}
+                >
+                  My builds
+                </Button>
+              </span>
+            </Tooltip>
+            <Tooltip title={signedIn ? '' : 'Sign in to create a build'}>
+              <span>
+                <Button
+                  sx={{ borderRadius: 999 }}
+                  variant="contained"
+                  startIcon={<AddIcon/>}
+                  onClick={onNewBuild}
+                  disabled={!signedIn}
+                >
+                  New Build
+                </Button>
+              </span>
+            </Tooltip>
+          </Stack>
+        </Stack>
+      </Box>
+
+      {/* Rendered from build-time props, so crawlers reach every class page from every other one
+          even if the runtime fetch below fails or hasn't resolved. */}
+      <ClassNav slugs={classSlugs} activeSlug={activeClass}/>
+
+      <PillTextField
+        size="small"
+        placeholder="Search builds, titles, notes…"
+        value={filters.q}
+        onChange={(e) => setFilters({ ...filters, q: e.target.value })}
+        fullWidth
+        sx={{ mb: 1.5, '& .MuiOutlinedInput-root': { pl: 0.5 } }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon fontSize="small" sx={{ color: 'rgba(255,255,255,0.55)', ml: 0.5 }}/>
+            </InputAdornment>
+          ),
+          endAdornment: filters.q ? (
+            <InputAdornment position="end">
+              <Button
+                size="small"
+                onClick={() => setFilters({ ...filters, q: '' })}
+                sx={{ minWidth: 0, p: 0.5, color: 'rgba(255,255,255,0.55)' }}
+              >
+                <ClearIcon fontSize="small"/>
+              </Button>
+            </InputAdornment>
+          ) : null
+        }}
+      />
+
+      <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap" sx={{ mb: 3 }}>
+        {!activeClass && (
+          <ClassPicker
+            value={filters.class}
+            onChange={(next) => setFilters({ ...filters, class: next || null })}
+            label="Class"
+            placeholder="Any"
+          />
+        )}
+        <FilterPill
+          label="Tags"
+          count={filters.tags?.length || 0}
+          active={(filters.tags?.length || 0) > 0}
+          onClick={(e) => setTagsAnchor(e.currentTarget)}
+        />
+        {activeFilterCount > 0 && (
+          <Button
+            size="small"
+            onClick={() => setFilters({
+              ...INITIAL_FILTERS,
+              class: activeClass ? filters.class : null,
+              sort: filters.sort
+            })}
+            sx={{ textTransform: 'none', color: 'rgba(255,255,255,0.6)', fontSize: 12 }}
+          >
+            Clear all
+          </Button>
+        )}
+        <Box sx={{ flexGrow: 1 }}/>
+        <ToggleButtonGroup
+          exclusive
+          size="small"
+          value={filters.sort}
+          onChange={(_, v) => v && setFilters({ ...filters, sort: v })}
+          sx={{
+            borderRadius: 999,
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            p: 0.25,
+            gap: 0.25,
+            '& .MuiToggleButton-root': {
+              textTransform: 'none',
+              px: 1.5,
+              height: 30,
+              border: 0,
+              borderRadius: '999px !important',
+              color: 'rgba(255,255,255,0.6)',
+              '&:hover': { background: 'rgba(255,255,255,0.04)' }
+            },
+            '& .Mui-selected': {
+              bgcolor: `${ACCENT.primarySoft} !important`,
+              color: `${ACCENT.primary} !important`
+            }
+          }}
+        >
+          {SORTS.map((s) => (
+            <ToggleButton key={s.value} value={s.value}>
+              <Box
+                sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  lineHeight: 1,
+                  fontSize: 13,
+                  fontWeight: 600
+                }}
+              >
+                {s.icon}
+                <span>{s.label}</span>
+              </Box>
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
+      </Stack>
+
+      <Menu
+        anchorEl={tagsAnchor}
+        open={!!tagsAnchor}
+        onClose={() => setTagsAnchor(null)}
+        slotProps={{ paper: { sx: { mt: 1, p: 1.5, maxWidth: 360, borderRadius: 2 } } }}
+      >
+        <Stack gap={1}>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Typography variant="subtitle2">Tags</Typography>
+            {filters.tags?.length > 0 && (
+              <Button
+                size="small"
+                onClick={() => setFilters({ ...filters, tags: [] })}
+                sx={{ textTransform: 'none', fontSize: 12, color: 'rgba(255,255,255,0.6)' }}
+              >
+                Clear
+              </Button>
+            )}
+          </Stack>
+          <Stack direction="row" gap={1} flexWrap="wrap">
+            {TAG_OPTIONS.map((tag) => {
+              const selected = (filters.tags || []).includes(tag);
+              return (
+                <TagChip
+                  key={tag}
+                  label={tag}
+                  size="small"
+                  onClick={() => toggleTag(tag)}
+                  sx={selected ? {
+                    bgcolor: ACCENT.primarySoft,
+                    color: ACCENT.primary,
+                    borderColor: ACCENT.primaryBorder
+                  } : undefined}
+                />
+              );
+            })}
+          </Stack>
+        </Stack>
+      </Menu>
+
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
+      {loading && builds.length === 0 ? (
+        <SimpleLoader message="Loading builds…"/>
+      ) : builds.length === 0 ? (
+        <Stack
+          alignItems="center"
+          sx={{
+            py: 8,
+            textAlign: 'center',
+            borderRadius: 2,
+            border: '1px dashed rgba(255,255,255,0.08)',
+            background:
+              'radial-gradient(600px 200px at 50% 0%, rgba(32,135,232,0.06), transparent 70%)'
+          }}
+        >
+          <Typography variant="subtitle1" sx={{ mb: 0.5, fontWeight: 600 }}>
+            {filtered ? 'No builds match these filters.' : 'No builds yet.'}
+          </Typography>
+          <Typography color="text.secondary" variant="body2" sx={{ mb: 2 }}>
+            {filtered
+              ? 'Try clearing a filter, or publish the first build in this slice.'
+              : 'Be the first to publish one.'}
+          </Typography>
+          <Button
+            variant="contained"
+            onClick={onNewBuild}
+            disabled={!signedIn}
+            startIcon={<AddIcon/>}
+            size="small"
+          >
+            New Build
+          </Button>
+        </Stack>
+      ) : (
+        <>
+          <Box
+            sx={{
+              display: 'grid',
+              gap: 1.5,
+              gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))'
+            }}
+          >
+            {builds.map((b) => <BuildCard key={b.shortId} build={b}/>)}
+          </Box>
+          {hasMore && (
+            <Stack alignItems="center" sx={{ my: 3 }}>
+              <Button
+                onClick={onLoadMore}
+                disabled={loading}
+                variant="outlined"
+                size="small"
+                sx={{
+                  borderColor: 'rgba(255,255,255,0.2)',
+                  px: 3,
+                  borderRadius: 999,
+                  textTransform: 'none'
+                }}
+              >
+                {loading ? 'Loading…' : 'Load More'}
+              </Button>
+            </Stack>
+          )}
+        </>
+      )}
+    </>
+  );
+};
+
+export default BuildsBrowser;

@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
-  testMatch: ['smoke-*.spec.js', 'logged-out.spec.js', 'logged-out-nav.spec.js', 'no-nan.spec.js', 'static-head.spec.js'],
+  testMatch: ['smoke-*.spec.js', 'logged-out.spec.js', 'logged-out-nav.spec.js', 'no-nan.spec.js', 'static-head.spec.js', 'builds-parity.spec.js'],
   timeout: 30_000,
   expect: { timeout: 10_000 },
   retries: 0,
