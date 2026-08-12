@@ -4,6 +4,14 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.58',
+    'gameVer': '2.3.523',
+    'date': '12/08/2026',
+    'features': [
+      'Every page is now viewable without signing in, showing the full game data with your progress at zero. Getting there meant reworking how the site reads your save, which also fixed values that were missing or wrong while signed in - most noticeably Gaming superbit bonuses, which were not being applied at all if you had not reached World 7, and Death Note ranks, which were counting monsters you had never killed'
+    ]
+  },
+  {
     'ver': '3.3.57',
     'gameVer': '2.3.523',
     'date': '05/08/2026',
@@ -14,54 +22,12 @@ export const patchNotes = [
       'Vials: the vial bonus now has a breakdown showing every source that feeds into it',
       'Dashboard: the shimmer trial alert now shows this week\'s challenge in its tooltip',
       'Dashboard: new alert for stamps you can level with the coins you already have, with a setting for how much of your coins you are willing to spend',
-      'Every page now has a proper browser tab title and description straight away, instead of only after the page finishes loading',
-      'All pages are now viewable without signing in, showing the full game data with your progress at zero',
-      'Signed-out visitors can now find every page from the navigation bar, tools menu, and search - previously most were hidden until you signed in, even though the pages themselves already worked',
-      'Sailing, Sushi Station, Divinity, Guild, Equinox, and Gaming pages now show the full artifact, upgrade, god, bonus, challenge, and import lists instead of a "missing data" notice when you have not unlocked the feature'
+      'Every page now has a proper browser tab title and description straight away, instead of only after the page finishes loading'
     ],
     'fixes': [
       'Vials: the vial bonus shown on the page was missing the Meritocracy vote bonus',
       'Research: placeholder observations that show up as "Name" / "desc" are no longer listed',
-      'Statistics: the 11th character is now counted in the leaderboards and shown in the class distribution chart, and the total levels chart goes up to 18k',
-      'Refinery: salts you have not unlocked yet no longer show a fake rank or trigger a missing-materials alert',
-      'Alchemy: a cauldron\'s next-bubble requirement no longer inflates before you have unlocked every bubble in it',
-      'The "you\'re not signed in" banner no longer lingers on screen after manually importing a save file',
-      'The "not signed in" notice is now a single sticky bar under the navigation instead of repeating at the top of every page',
-      'Cards, Buildings, Forge, Armor Smithy, Atom Collider, Library, Owl, Statues, Colosseum, and Killroy pages now show the full game data instead of appearing empty when signed out',
-      'Stamps, Islands, Keys, Breeding, and Summoning pages no longer show "NaN" for material costs, island costs, key totals, breeding progress, and summoning costs/bonuses',
-      'The Hole, Research, Vote Ballot, Sneaking, Spelunking, Kangaroo, Farming, Alchemy, Clam Work, Owl, Library, Killroy, Gallery, Emperor, Task Board, Towers, Rift, Arcade, Atom Collider, and Coral Reef pages no longer show "NaN" for costs, bonuses, and rates - both signed out and while signed in',
-      'Printer, Highscores, Equinox, and Sailing pages no longer show "NaN" for boosted print values, minigame upgrade costs, charge rate, and boat travel times, and your total account level no longer breaks if one of your character slots has no data',
-      'Death Note, Cooking, Spelunking, and Buildings pages no longer show "NaN" for kill counts, meal breakpoints, amber totals, and build progress when signed out',
-      'Formulas, General, Kangaroo, Refinery, Grimoire, Tesseract, Merits, Compass, Breeding, Owl, Killroy, Sigils, Weekly Bosses, Armor Smithy, Atom Collider, Worship, and Sneaking pages no longer show "NaN" for formula results, currencies, upgrade costs, and stats when signed out',
-      'Task Board no longer fails to load when signed out, and Event Shop, Gem Shop, Weekly Bosses, Rift, Spelunking, and Formulas pages no longer show the word "undefined" for currencies, purchases, task progress, and rates when signed out',
-      'Gaming: sprout regrowth time, superbit tower-wave bonuses, and the acorn shop no longer show "NaN" before you have unlocked gaming, and Equinox no longer shows "Bosses killed: NaN"',
-      'Dashboard: the companion claim and megaflesh timers no longer show "NaNENaN days" in their tooltips',
-      'Cauldrons: the page showed only its headings when signed out - it now lists all four brewing cauldrons with their boosts, and every Pay 2 Win liquid and cauldron upgrade, at zero',
-      'Sigils: the page showed only its two header cards when signed out - it now lists all 24 sigils with their effects and unlock costs',
-      'Coral Reef: reef upgrades and dancing corals were listed as unavailable when signed out, and for accounts from before the feature existed - they now all show with their bonuses and costs',
-      'Stat cards sitting at zero showed an empty box instead of "0" - this affected every stat card across the site, most visibly on The Hole',
-      'Constellations: the page showed only its column headers when signed out - it now lists all 49 constellations with their locations, requirements, and points',
-      'Construction optimizer: the plan could include steps that move an empty slot into another empty slot, which do nothing, and its progress bar could tick past 100%',
-      'Active Stuff Calculator: every number showed as "NaN" if you had taken a snapshot before and then opened the page without being signed in - it now asks you to sign in instead',
-      'Active Stuff Calculator: the Pets section was offered on every class instead of only Beast Master and Wind Walker',
-      'Dashboard, Companions, and Breeding: countdown timers counted from 1970 when signed out, showing "20660d" instead of the real time remaining',
-      'Traps: collect rates showed "-Infinity%" when signed out',
-      'Sailing: the Maneki Kat and Ashen Urn artifacts showed "-Infinity" for their total bonus when signed out',
-      'Forge: the Slots tab was blank when signed out - it now shows all 16 slots empty, the same board a player who has not bought any slot upgrades sees',
-      'Forge: an empty slot showed a countdown that ticked upward instead of just saying "Empty"',
-      'Anvil: the page was blank when signed out - it now lists all 14 anvil products with their smithing level, material cost, and exp per craft',
-      'Storage: the Items tab was blank when signed out instead of saying so',
-      'Item, card, stamp, bubble and achievement icons now carry proper labels, so screen readers announce what they are instead of reading out file names',
-      'Every page now shows its name as a heading, next to the pin button where there is one',
-      'Removed the extra empty space above the first row of cards on a page',
-      'Farming: the Insta Grow card was blank instead of showing 0, and the bean market\'s "next requirement" did not show how many beans you own, when signed out',
-      'Statues: the double statue drop chance lost its Divinity portion unless one of your characters was linked to Kattelkruk - the minor bonus applies once you own the god',
-      'Kangaroo, Slab, and Tome: the second row of stat cards sat further from the first than the other rows did',
-      'Gaming: the Rat King shop showed a cost of "Infinity" before you unlock the King Rat - it now shows the real starting cost',
-      'Coral Reef: only 6 of the 9 dancing corals were listed',
-      'The Button: far-off task requirements showed the word "Infinity" - they now show an infinity symbol, since they are past what the game can count to',
-      'Farming: the garden was empty when signed out - it now shows the full 36-plot grid',
-      'Summoning, Kangaroo, Bubba, The Jars, and Gambit: icons that had no label beside them now announce what they are to screen readers'
+      'Statistics: the 11th character is now counted in the leaderboards and shown in the class distribution chart, and the total levels chart goes up to 18k'
     ]
   },
   {

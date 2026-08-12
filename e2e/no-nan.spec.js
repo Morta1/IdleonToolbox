@@ -103,11 +103,6 @@ const ALLOWED_UNDEFINED_TEXT = new Set([
 // elsewhere on the gem shop page still fails.
 const ALLOWED_INFINITY_TEXT = new Set([
   'Infinity hammer',
-  // Patch notes describing this very fix, which have to quote the broken value to be understood.
-  'Traps: collect rates showed "-Infinity%" when signed out',
-  'Sailing: the Maneki Kat and Ashen Urn artifacts showed "-Infinity" for their total bonus when signed out',
-  'Gaming: the Rat King shop showed a cost of "Infinity" before you unlock the King Rat - it now shows the real starting cost',
-  'The Button: far-off task requirements showed the word "Infinity" - they now show an infinity symbol, since they are past what the game can count to',
 ]);
 
 // The exact fallback titles pages/_app.jsx passes to ErrorBoundary. A caught render crash shows one
