@@ -9,7 +9,7 @@ export const test = base.extend({
   demoPage: [async ({ browser }, use) => {
     const context = await browser.newContext();
     const page = await context.newPage();
-    await page.goto('http://localhost:3001/dashboard?demo=true');
+    await page.goto('/dashboard?demo=true');
     await page.waitForLoadState('networkidle');
     await use(page);
     await context.close();

@@ -58,12 +58,11 @@ export const getHighscores = (idleonData: IdleonData, account: Account): Highsco
 }
 
 const parseColosseum = (coloHighscores: number[] | undefined): HighscoreEntry[] => {
-  // No save means no colosseum highscores at all - pure user state, nothing to backfill from a
-  // catalog. Guarded rather than populated with the fixed category list so an empty account shows
-  // no scores instead of fabricated zeros.
-  return (coloHighscores ?? []).slice(1)
-    .filter((_, index) => colosseumIndexMapping[index])
-    .map((score, index) => ({ name: colosseumIndexMapping[index], score: parseFloat(String(score)) }));
+  const scores = (coloHighscores ?? []).slice(1);
+  return Object.entries(colosseumIndexMapping).map(([index, name]) => {
+    const score = parseFloat(String(scores[Number(index)]));
+    return { name, score: Number.isFinite(score) ? score : 0 };
+  });
 }
 
 const parseMinigame = (coloHighscores: number[] | undefined): HighscoreEntry[] => {

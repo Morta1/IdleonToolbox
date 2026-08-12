@@ -8,7 +8,11 @@ export const patchNotes = [
     'gameVer': '2.3.523',
     'date': '12/08/2026',
     'features': [
-      'Every page is now viewable without signing in, showing the full game data with your progress at zero. Getting there meant reworking how the site reads your save, which also fixed values that were missing or wrong while signed in - most noticeably Gaming superbit bonuses, which were not being applied at all if you had not reached World 7, and Death Note ranks, which were counting monsters you had never killed'
+      'Every page is now viewable without signing in, showing the full game data with your progress at zero. Getting there meant reworking how the site reads your save, which also fixed values that were missing or wrong while signed in'
+    ],
+    'fixes': [
+      'Logging out no longer sends you back to the homepage - you stay on the page you were on, with your numbers at zero',
+      'Colosseum: the table listed nothing until you had a score - it now shows all six arenas'
     ]
   },
   {

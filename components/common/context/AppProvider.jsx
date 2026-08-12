@@ -30,12 +30,18 @@ function appReducer(state, action) {
   const actionHandlers = {
     [ACTION_TYPES.LOGIN]: () => ({ ...state, ...action.data }),
     [ACTION_TYPES.DATA]: () => ({ ...state, ...action.data }),
+    // Spreads state: this used to return a bare object, which also wiped filters, pinned pages,
+    // trackers and settings. That was invisible while logout redirected to '/' and the user
+    // reloaded soon after; without the redirect they stay on the page and would watch their
+    // preferences vanish. Only the account-bound keys are cleared.
     [ACTION_TYPES.LOGOUT]: () => ({
+      ...state,
       characters: null,
       account: null,
       signedIn: false,
       emailPassword: null,
-      appleLogin: null
+      appleLogin: null,
+      profile: null
     }),
     [ACTION_TYPES.DISPLAYED_CHARACTERS]: () => ({ ...state, displayedCharacters: action.data }),
     [ACTION_TYPES.FILTERS]: () => ({ ...state, filters: action.data }),
@@ -181,11 +187,23 @@ const AppProvider = ({ children }) => {
     parsedData = null;
   };
 
-  const logout = (manualImport, data) => {
+  // The state a visitor with no account should be in: the full game catalog parsed from nothing,
+  // with every value at zero. Both the never-signed-in path and logout need to reach exactly this,
+  // or the two produce different states for what is, to the user, the same situation.
+  const loadEmptyAccount = async () => {
+    const { parseData } = await import('@parsers/index');
+    const parsedData = parseData(undefined, [], null, null, undefined, undefined, null);
+    dispatch({
+      type: ACTION_TYPES.DATA,
+      data: { ...parsedData, signedIn: false, emptyAccount: true, isLoading: false }
+    });
+  };
+
+  const logout = async (manualImport, data) => {
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }
-    
+
     userSignOut();
     
     if (typeof window?.gtag !== 'undefined') {
@@ -200,12 +218,20 @@ const AppProvider = ({ children }) => {
     sessionStorage.removeItem('rawJson');
     dispatch({ type: ACTION_TYPES.LOGOUT });
     setWaitingForAuth(false);
-    
-    if (!manualImport) {
-      router.push({ pathname: '/', query: router.query });
-    } else {
+
+    if (manualImport) {
       dispatch({ type: ACTION_TYPES.DATA, data });
+      return;
     }
+
+    // No redirect to '/'. That existed because a logged-out visitor could not render an account
+    // page, so logging out from one had to move you somewhere that worked. Every page renders
+    // signed out now, so the user stays where they were and the numbers drop to zero around them.
+    //
+    // The empty account has to be loaded here rather than left to the init effect: that effect
+    // runs on [router.isReady], so it never fires again after logout. Without this, account and
+    // characters stay null and usePageDataLoading spins forever on the next data page.
+    await loadEmptyAccount();
   };
 
   useEffect(() => {
@@ -311,15 +337,9 @@ const AppProvider = ({ children }) => {
           const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
           unsubscribeRef.current = unsub;
         } else {
-          // Logged-out visitors used to be bounced to '/' unless they were on a small
-          // whitelist of pages that don't read account state. Instead, parse an empty
-          // account so every page renders the full game catalog with values at zero.
-          const { parseData } = await import('@parsers/index');
-          const parsedData = parseData(undefined, [], null, null, undefined, undefined, null);
-          dispatch({
-            type: ACTION_TYPES.DATA,
-            data: { ...parsedData, signedIn: false, emptyAccount: true, isLoading: false }
-          });
+          // Logged-out visitors used to be bounced to '/' unless they were on a small whitelist of
+          // pages that don't read account state.
+          await loadEmptyAccount();
         }
       } catch (error) {
         console.error(error);

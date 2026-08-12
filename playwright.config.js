@@ -15,19 +15,28 @@ export default defineConfig({
   // opt back out with their own `test.describe.configure({ mode: 'serial' })`, which wins over this,
   // because they share a worker-scoped demo page and navigate it in sequence.
   fullyParallel: true,
-  // Deliberately still 4, not higher: the bottleneck past this point is `next dev` (single server,
-  // compiling routes on demand), not the CPU. At 8 workers the whole suite got no faster and
-  // logged-out-nav started failing on contention alone.
+  // Was 4 to avoid overloading `next dev`. The static build has no per-route compilation, so the
+  // server is no longer the bottleneck and this can rise if the CPU allows.
   workers: 4,
   reporter: 'list',
   use: {
-    baseURL: 'http://localhost:3001',
+    // Every spec navigates with a relative path so the port lives here alone. 3002, not the dev
+    // server's 3001, so `npm run dev` can stay up while the suite runs against the build.
+    baseURL: 'http://localhost:3002',
     headless: true,
   },
+  /**
+   * Serves the static export, not `next dev`. `output: 'export'` means `out/` on a plain file
+   * server is what ships, and `next dev`'s on-demand route compilation was the source of two
+   * classes of flake here (cold routes blowing render-wait caps, ad scripts blocking networkidle).
+   *
+   * `reuseExistingServer: false` so a dev server left on this port cannot silently substitute for
+   * the build. `npm run test:e2e` builds first; `test:e2e:nobuild` reuses an existing `out/`.
+   */
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3001',
-    reuseExistingServer: true,
-    timeout: 60_000,
+    command: 'npm run serve:e2e',
+    url: 'http://localhost:3002',
+    reuseExistingServer: false,
+    timeout: 120_000,
   },
 });

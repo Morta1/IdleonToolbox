@@ -300,9 +300,16 @@ describe('forge (forgeLevels?.[index] guard)', () => {
 });
 
 describe('highscores (parseColosseum/parseMinigame null guard, pure user state)', () => {
-  it('returns empty colosseum highscores with no save instead of throwing', () => {
+  it('lists every colosseum arena at zero with no save', () => {
     const { account } = parseEmpty();
-    expect(account.highscores.coloHighscores).toEqual([]);
+    expect(account.highscores.coloHighscores).toEqual([
+      { name: 'dewdrop', score: 0 },
+      { name: 'sandstone', score: 0 },
+      { name: 'chillsnap', score: 0 },
+      { name: 'astro', score: 0 },
+      { name: 'molten', score: 0 },
+      { name: 'whimsical', score: 0 }
+    ]);
   });
 
   it.each(FIXTURES)('%s: colosseum scores the save covers are unchanged', (_name, fixture) => {

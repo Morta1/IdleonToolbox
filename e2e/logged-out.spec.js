@@ -1,6 +1,7 @@
 // Verifies Task 8: a logged-out visitor (no ?demo=true, no auth) reaches account pages instead
 // of being redirected to '/', and the page renders the zeroed game catalog rather than a spinner.
 import { test, expect } from '@playwright/test';
+import { waitForRender } from './wait-helpers';
 
 function collectErrors(page) {
   const errors = [];
@@ -29,10 +30,8 @@ test.describe('Logged-out visitors reach account pages', () => {
       const page = await context.newPage();
       const errors = collectErrors(page);
 
-      await page.goto(`http://localhost:3001${path}`);
-      await page.waitForLoadState('networkidle');
-      // Give React a moment to finish the empty-account parse + render.
-      await page.waitForTimeout(1000);
+      await page.goto(path);
+      await waitForRender(page);
 
       // Must NOT have been bounced to the homepage.
       expect(new URL(page.url()).pathname).toBe(path);
@@ -50,8 +49,9 @@ test.describe('Logged-out visitors reach account pages', () => {
       expect(bodyText).not.toContain('The app failed to load');
 
       // The empty-account banner itself must be present - this is the "why are these zero" cue.
-      expect(bodyText).toContain('Not signed in');
-      expect(bodyText).toContain('everything below is shown at zero');
+      // Not asserted on '/': the homepage deliberately suppresses the bar (useProfileBannerState),
+      // and every path in this list is an account page.
+      expect(bodyText).toContain('Browsing as a guest - numbers fill in once you sign in');
 
       expect(errors).toEqual([]);
 
@@ -62,8 +62,8 @@ test.describe('Logged-out visitors reach account pages', () => {
   test('/ (root) does not redirect a logged-out visitor away from itself', async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
-    await page.goto('http://localhost:3001/');
-    await page.waitForLoadState('networkidle');
+    await page.goto('/');
+    await waitForRender(page);
     expect(new URL(page.url()).pathname).toBe('/');
     await context.close();
   });

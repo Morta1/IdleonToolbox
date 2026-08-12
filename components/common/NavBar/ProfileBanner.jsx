@@ -73,7 +73,7 @@ const ProfileBanner = () => {
         <>
           <IconInfoCircle size={18} style={{ color: '#94baee', flexShrink: 0 }}/>
           <Typography sx={{ fontSize: 14, color: '#94baee' }}>
-            Not signed in - everything below is shown at zero
+            Browsing as a guest - numbers fill in once you sign in
           </Typography>
           <Button size="small" variant="outlined" onClick={() => setLoginOpen(true)} sx={bannerButtonSx}>
             Sign in

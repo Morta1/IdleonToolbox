@@ -20,8 +20,13 @@ const useProfileBannerState = () => {
   const router = useRouter();
   const profileName = router?.query?.profile;
 
-  const isProfileView = !!(state?.profile && profileName);
-  const isEmptyAccount = !isProfileView && !!state?.emptyAccount;
+  // The homepage shows no account data, so a notice about missing numbers points at nothing.
+  // Profile links always target /account/misc/general?profile=, never '/', so suppressing the whole
+  // bar here costs the profile view nothing.
+  const isHomepage = router?.pathname === '/';
+
+  const isProfileView = !isHomepage && !!(state?.profile && profileName);
+  const isEmptyAccount = !isHomepage && !isProfileView && !!state?.emptyAccount;
 
   return {
     isProfileView,

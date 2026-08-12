@@ -3,18 +3,12 @@
 // proved pages render on a direct goto(); it never proved a real visitor could click their way
 // there, which is exactly the gap this task closes.
 //
-// KNOWN LIMITATION: every navigational click below uses `dispatchEvent('click')` (see the `click`
-// helper) instead of Playwright's `locator.click()`, to route around a dev-only overlay - see the
-// comment on that helper for why. This forfeits Playwright's actionability hit-test, i.e. these
-// tests do NOT verify the target element is visible, unobscured, and actually receives pointer
-// events in the way a real mouse click would. They also only ever run against `next dev` (see
-// `playwright.config.js`'s `webServer.command`), never against a production `npm run build` +
-// `npm start` server. A genuine production-only obstruction - a real overlay left over a link, a
-// `pointer-events: none` bug, anything that would make a real user's click miss the target - is
-// not something this suite would catch. It proves the click handlers and routing are wired up
-// correctly once an event reaches the element; it does not prove the element is clickable by a
-// real cursor in production.
+// Clicks are real `locator.click()` calls, so Playwright's actionability hit-test applies: an
+// overlay or a `pointer-events: none` bug that would make a real user's click miss fails the test.
+// These were `dispatchEvent('click')` while the suite ran against `next dev`, whose dev-mode
+// overlay swallowed coordinate-based clicks; the static build has no such overlay.
 import { test, expect } from '@playwright/test';
+import { waitForRender } from './wait-helpers';
 
 const DESKTOP_VIEWPORT = { width: 1440, height: 900 };
 
@@ -29,46 +23,34 @@ function assertNoErrorBoundary(bodyText) {
   expect(bodyText).not.toContain('The app failed to load');
 }
 
-// Next.js's dev-mode indicator renders a <nextjs-portal> host that, depending on state, sits on
-// top of the page and swallows real (coordinate-based) mouse clicks aimed at elements underneath
-// it - a dev-server-only artifact (absent from `npm run build` output), unrelated to the app under
-// test. `locator.click()` (even with `force: true`) still performs a real hit-test at the target's
-// coordinates and gets intercepted. `dispatchEvent('click')` fires the click DOM event directly on
-// the target node instead, which still runs the exact same React/Next.js click handling (bubbling
-// through the real anchor and its onClick), so it verifies the same thing a real click would
-// without depending on nothing else being stacked on top of it.
 async function click(locator) {
-  await locator.dispatchEvent('click');
+  await locator.click();
 }
 
-// A click dispatched before React has hydrated the link does nothing at all - silently. The fixed
-// `waitForTimeout` sleeps this file used to rely on were sized for a quiet dev server; once the
-// suite went fullyParallel, `next dev` could still be compiling when the first click landed, and
-// this test started failing on machine load rather than on anything about the app.
-//
-// Re-dispatching until the router actually moves fixes that at the source. It is only safe for
-// clicks whose effect is idempotent - navigating to a link that is already the current page is a
-// no-op, so an extra dispatch costs nothing. Do NOT use it for a toggle (the drawer's world
-// sections), where a second dispatch would undo the first.
+// A click landing before React has hydrated the link does nothing, silently - actionability checks
+// cover visibility, not "the handler is attached". Re-clicking until the router moves fixes that.
+// Only safe for idempotent clicks: clicking a link to the page you are already on is a no-op. Do
+// NOT use for a toggle (the drawer's world sections), where a second click undoes the first.
 async function clickUntilPath(page, locator, expectedPath, timeout = 20_000) {
   const deadline = Date.now() + timeout;
   while (new URL(page.url()).pathname !== expectedPath && Date.now() < deadline) {
-    await locator.dispatchEvent('click').catch(() => {});
+    // A click can legitimately fail while the page settles; the expect below is what reports
+    // failure, so a genuinely unclickable element still fails the test.
+    await locator.click({ timeout: 5_000 }).catch(() => {});
     await page.waitForTimeout(400);
   }
-  await page.waitForLoadState('networkidle');
+  await waitForRender(page);
   expect(new URL(page.url()).pathname).toBe(expectedPath);
 }
 
-// networkidle fires once JS chunks are loaded, but React hydration (which is what makes the nav
-// links interactive) finishes shortly after. Waiting for a nav item to actually exist beats the
-// fixed sleep that used to stand here: under a loaded dev server that sleep could expire before the
-// nav rendered at all, which made the reads below see an empty list.
+// Waiting for a nav item to actually exist beats the fixed sleep that used to stand here: under a
+// loaded dev server that sleep could expire before the nav rendered at all, which made the reads
+// below see an empty list. waitForRender covers hydration settling; the locator wait then pins the
+// one element these tests read, since a page can be settled overall while the nav is still empty.
 async function gotoHomeAndWait(page) {
-  await page.goto('http://localhost:3001/');
-  await page.waitForLoadState('networkidle');
+  await page.goto('/');
+  await waitForRender(page);
   await page.locator('nav [data-cy^="nav-item-"]').first().waitFor({ state: 'attached' });
-  await page.waitForTimeout(500);
 }
 
 test.describe.configure({ mode: 'serial' });
@@ -114,11 +96,10 @@ test.describe('Logged-out visitors reach gated pages by clicking, not just by UR
       .sort();
 
     const demoPage = await context.newPage();
-    await demoPage.goto('http://localhost:3001/?demo=true');
-    await demoPage.waitForLoadState('networkidle');
+    await demoPage.goto('/?demo=true');
+    await waitForRender(demoPage);
     // Same reason as gotoHomeAndWait: read the nav once it exists, not once a timer expires.
     await demoPage.locator('nav [data-cy^="nav-item-"]').first().waitFor({ state: 'attached' });
-    await demoPage.waitForTimeout(500);
     const demoItems = (await demoPage.locator('nav [data-cy^="nav-item-"]').allTextContents())
       .map((t) => t.trim())
       .sort();

@@ -43,6 +43,7 @@
 import { test, expect } from '@playwright/test';
 import { readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
+import { waitForRender } from './wait-helpers';
 
 const PAGES_DIR = path.join(process.cwd(), 'pages');
 
@@ -167,40 +168,6 @@ const findOffendingTextNodes = async (page) => {
 const isAllowed = (text) => ALLOWED_NAN_TEXT.has(text)
   || ALLOWED_UNDEFINED_TEXT.has(text)
   || ALLOWED_INFINITY_TEXT.has(text);
-
-/**
- * Every test here used to sleep a flat 3.5s to let the client-side empty-account parse land - 105
- * routes x 3.5s was 6.7 of the suite's 6.8 minutes. This waits for the two things that sleep was
- * standing in for, and returns as soon as both hold:
- *
- *   1. DataLoadingWrapper's loader is gone (data pages only - it never mounts on the others, so the
- *      wait resolves immediately there). This is the deterministic half.
- *   2. The rendered text has stopped changing, sampled twice 200ms apart. React renders in more
- *      than one pass on most of these pages, so "loader gone" alone is too early.
- *
- * Running out of time is a failure, not a result. This used to return quietly when its cap expired,
- * which meant a page too slow to finish rendering got scanned half-built and passed the gate on the
- * strength of content that was not there yet. That is not hypothetical: /dashboard and
- * /account/world-4/breeding both render a broken "20660d:" timer, both fail this gate when run
- * alone, and both PASSED in the same full-suite run - four workers against one `next dev` made them
- * slow enough to be read early. A timeout now throws, so the gate can only be green about a page it
- * actually finished looking at.
- */
-const waitForRender = async (page, maxMs = 15_000) => {
-  const deadline = Date.now() + maxMs;
-  await page
-    .waitForFunction(() => !document.querySelector('[data-testid="page-loader"]'), null, { timeout: maxMs })
-    .catch(() => {});
-
-  let previous = null;
-  while (Date.now() < deadline) {
-    const length = await page.evaluate(() => document.body.innerText.length);
-    if (length > 0 && length === previous) return;
-    previous = length;
-    await page.waitForTimeout(200);
-  }
-  throw new Error(`page never stopped rendering within ${maxMs}ms - the scan below would have read a half-built DOM`);
-};
 
 const routes = discoverRoutes();
 

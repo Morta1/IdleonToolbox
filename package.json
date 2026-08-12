@@ -12,10 +12,12 @@
     "start": "npx serve@latest out",
     "postbuild": "node utility/generate-sitemap.mjs",
     "test": "vitest run",
-    "test:e2e": "node e2e/generate-specs.js && npx playwright test",
+    "test:e2e": "node e2e/generate-specs.js && npm run build && npx playwright test",
     "lint": "next lint",
     "prepare": "husky || true",
-    "prebuild": "node utility/build-worker.mjs"
+    "prebuild": "node utility/build-worker.mjs",
+    "test:e2e:nobuild": "node e2e/generate-specs.js && npx playwright test",
+    "serve:e2e": "npx serve@latest out -l 3002 --no-clipboard"
   },
   "dependencies": {
     "@ctrl/react-adsense": "^1.7.0",
