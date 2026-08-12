@@ -1,11 +1,11 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import {
-  assertSitemapMatchesOutput,
   buildClassSitemapEntries,
-  buildDetailSitemapEntries
+  buildDetailSitemapEntries,
+  pruneUnexportedSlugs
 } from '@utility/generate-sitemap.mjs';
 
 describe('buildClassSitemapEntries', () => {
@@ -55,7 +55,7 @@ describe('buildDetailSitemapEntries', () => {
   });
 });
 
-describe('assertSitemapMatchesOutput', () => {
+describe('pruneUnexportedSlugs', () => {
   const withExported = (slugs) => {
     const root = mkdtempSync(path.join(tmpdir(), 'sitemap-'));
     const dir = path.join(root, 'tools', 'builds');
@@ -64,26 +64,47 @@ describe('assertSitemapMatchesOutput', () => {
     return root;
   };
 
-  it('passes when every listed class page was exported', () => {
+  it('keeps every slug that has an exported page', () => {
     const out = withExported(['warrior', 'barbarian']);
-    expect(() => assertSitemapMatchesOutput(['warrior', 'barbarian'], out)).not.toThrow();
+    expect(pruneUnexportedSlugs(['warrior', 'barbarian'], out)).toEqual(['warrior', 'barbarian']);
   });
 
-  // The failure this exists for: next build honours .env.local, the sitemap script used to read
-  // .env.production only, so the two halves fetched different databases and disagreed.
-  it('throws when the sitemap names a class page that was never built', () => {
+  // A build published between next build's fetch and this script's fetch produces a slug with no
+  // page. Listing it would send a crawler to a 404; failing would kill the deploy over something
+  // the next one fixes on its own.
+  it('drops a slug with no exported page instead of throwing', () => {
     const out = withExported(['warrior']);
-    expect(() => assertSitemapMatchesOutput(['warrior', 'arcane-cultist'], out))
-      .toThrow(/arcane-cultist/);
+    let result;
+    expect(() => { result = pruneUnexportedSlugs(['warrior', 'arcane-cultist'], out); })
+      .not.toThrow();
+    expect(result).toEqual(['warrior']);
+  });
+
+  it('warns naming the dropped slug, so a persistent mismatch is visible', () => {
+    const out = withExported(['warrior']);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    pruneUnexportedSlugs(['warrior', 'arcane-cultist'], out);
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toContain('arcane-cultist');
+    warn.mockRestore();
+  });
+
+  it('stays silent when nothing is dropped', () => {
+    const out = withExported(['warrior']);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    pruneUnexportedSlugs(['warrior'], out);
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
   });
 
   it('tolerates extra exported pages the sitemap does not list', () => {
     const out = withExported(['warrior', 'barbarian', 'view']);
-    expect(() => assertSitemapMatchesOutput(['warrior'], out)).not.toThrow();
+    expect(pruneUnexportedSlugs(['warrior'], out)).toEqual(['warrior']);
   });
 
-  it('does nothing when out/ has not been produced', () => {
-    expect(() => assertSitemapMatchesOutput(['warrior'], path.join(tmpdir(), 'no-such-dir')))
-      .not.toThrow();
+  // Nothing to compare against yet - don't silently empty the sitemap.
+  it('returns the slugs untouched when out/ has not been produced', () => {
+    expect(pruneUnexportedSlugs(['warrior'], path.join(tmpdir(), 'no-such-dir')))
+      .toEqual(['warrior']);
   });
 });

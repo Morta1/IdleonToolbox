@@ -79,7 +79,7 @@ export function buildDetailSitemapEntries(builds, today) {
 // so on any machine with one the pages came from the dev Worker while the sitemap came from
 // production, and the two disagreed about which classes exist. The invariant that matters is
 // that the sitemap matches the pages actually built, not that it names a particular host.
-// assertSitemapMatchesOutput below enforces it regardless.
+// pruneUnexportedSlugs below enforces it regardless.
 const ENV_FILES = ['.env.local', '.env.production']
 
 // postbuild runs under plain Node, not Next, so nothing has loaded the .env files that
@@ -97,12 +97,19 @@ function loadBuildEnv() {
   }
 }
 
-// A sitemap entry for a class page that was never exported is a 404 served to a crawler that
-// was explicitly invited to it. Compare against the files on disk rather than trusting that
-// both halves of the build fetched the same data.
-export function assertSitemapMatchesOutput(slugs, outDir) {
+// A sitemap entry for a class page that was never exported is a 404 served to a crawler that was
+// explicitly invited to it, so the list is checked against the files on disk rather than trusting
+// that both halves of the build fetched the same data.
+//
+// Drops the offending slugs rather than failing. `next build` and this script fetch separately,
+// minutes apart, from a database other people write to - so a build published mid-run legitimately
+// produces a slug with no exported page. Failing there would kill a deploy (possibly carrying an
+// unrelated fix) over something that resolves itself on the next one, and the page still gets
+// listed then. The other cause, the two halves resolving different .env files, cannot happen in
+// CI at all: .env.local is gitignored, so both always land on .env.production.
+export function pruneUnexportedSlugs(slugs, outDir) {
   const dir = path.join(outDir, 'tools', 'builds')
-  if (!fs.existsSync(dir)) return
+  if (!fs.existsSync(dir)) return slugs
 
   const exported = new Set(
     fs.readdirSync(dir)
@@ -111,11 +118,13 @@ export function assertSitemapMatchesOutput(slugs, outDir) {
   )
   const missing = slugs.filter((slug) => !exported.has(slug))
   if (missing.length) {
-    throw new Error(
-      `sitemap lists ${missing.length} class page(s) that were not exported: ${missing.join(', ')}. ` +
-      `The pages and the sitemap were built from different data - check which .env file each half resolved.`
+    console.warn(
+      `warning: omitting ${missing.length} class page(s) from the sitemap - exported no HTML: ` +
+      `${missing.join(', ')}. Expected if a build was published mid-run; if it persists, check ` +
+      `which .env file next build and this script each resolved.`
     )
   }
+  return slugs.filter((slug) => exported.has(slug))
 }
 
 async function generateSitemap() {
@@ -141,8 +150,7 @@ async function generateSitemap() {
 
   const builds = await fetchAllBuildsAtBuildTime()
   const today = new Date().toISOString().split('T')[0]
-  const classSlugs = getBuildClassSlugs(builds)
-  assertSitemapMatchesOutput(classSlugs, 'out')
+  const classSlugs = pruneUnexportedSlugs(getBuildClassSlugs(builds), 'out')
   const classEntries = buildClassSitemapEntries(classSlugs, today)
   const detailEntries = buildDetailSitemapEntries(builds, today)
 
