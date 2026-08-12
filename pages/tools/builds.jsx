@@ -17,7 +17,6 @@ import AddIcon from '@mui/icons-material/Add';
 import PersonIcon from '@mui/icons-material/Person';
 import SearchIcon from '@mui/icons-material/Search';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import BoltIcon from '@mui/icons-material/Bolt';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -306,27 +305,13 @@ const Builds = () => {
       >
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
-          alignItems={{ sm: 'flex-end' }}
+          alignItems={{ sm: 'flex-end', md: 'center' }}
           justifyContent="space-between"
           gap={2}
         >
-          <Box>
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 700,
-                letterSpacing: -0.5,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 1
-              }}
-            >
-              Builds
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Community talent builds for every class and subclass.
-            </Typography>
-          </Box>
+          <Typography variant="body2" color="text.secondary">
+            Community talent builds for every class and subclass.
+          </Typography>
           <Stack direction="row" gap={1}>
             <Tooltip title={signedIn ? '' : 'Sign in to see your builds'}>
               {/* span wrapper: MUI Tooltip can't bind pointer events to a disabled button. */}
