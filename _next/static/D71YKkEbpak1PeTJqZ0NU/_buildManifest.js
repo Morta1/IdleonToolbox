@@ -282,7 +282,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/21nb0p-197uxz.js"
   ],
   "/tools/builds": [
-    "static/chunks/3-zmdqt1fr0ng.js"
+    "static/chunks/2fq_50fwp3a-s.js"
   ],
   "/tools/builds/edit": [
     "static/chunks/3zer25rkhudwu.js"

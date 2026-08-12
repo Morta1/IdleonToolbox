@@ -11,6 +11,6 @@ __turbopack_load_page_chunks__("/tools/builds", [
   "static/chunks/0-5raqfwjdvno.js",
   "static/chunks/0k6orgs2cex9a.js",
   "static/chunks/0k0wk6ajctsk8.js",
-  "static/chunks/18ys0572ye30v.js",
-  "static/chunks/turbopack-42gk1gab4bmm9.js"
+  "static/chunks/1fqcn6b_9bm0_.js",
+  "static/chunks/turbopack-2a4jd_oh3uczw.js"
 ])
