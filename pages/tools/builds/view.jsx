@@ -48,12 +48,17 @@ export function findInManifest(manifest, shortId) {
   return (manifest || []).find((entry) => entry.shortId === shortId) || null;
 }
 
+// The subclass alone, not "Barbarian Warrior" — the family adds no search value and produces
+// nonsense like "Journeyman Beginner". Falls back to the family for builds with no subclass.
 const classLabel = (summary) =>
-  [summary.subclass?.replace(/_/g, ' '), summary.class].filter(Boolean).join(' ');
+  (summary.subclass || summary.class || '').replace(/_/g, ' ');
 
+// Class first, user title second. Build titles are free text and frequently useless as
+// keywords ("Laealwaysforgets 2", "The build thus far.."); leading with them pushed the term
+// the page actually targets past Google's ~60-char cutoff on 52 of 111 builds.
 export function buildSeoTitle(summary) {
   if (!summary) return 'Build | Idleon Toolbox';
-  return `${summary.title} — ${classLabel(summary)} Build | Idleon Toolbox`;
+  return `${classLabel(summary)} Build — ${summary.title} | Idleon Toolbox`;
 }
 
 export function buildSeoDescription(summary) {

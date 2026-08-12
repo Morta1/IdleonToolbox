@@ -34,7 +34,13 @@ const OVERRIDES = {
     title: 'Build | Idleon Toolbox',
     description: 'Community build for Legends of Idleon'
   },
-  '/tools/builds/my-builds': { description: 'Your saved and liked Legends of Idleon builds.' }
+  '/tools/builds/my-builds': { description: 'Your saved and liked Legends of Idleon builds.' },
+  // One route pattern, 18 generated pages. Each supplies its real title and description through
+  // static props, which _document prefers over this map; these are the fallback only.
+  '/tools/builds/[class]': {
+    title: 'Idleon Builds by Class | Idleon Toolbox',
+    description: 'Community builds for every Legends of Idleon class and subclass.'
+  }
 };
 
 function walk(dir) {

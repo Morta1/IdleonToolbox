@@ -8,8 +8,10 @@
 // site missing pages Google has already indexed. A failed build leaves the
 // previous deploy serving; a degraded build 404s live URLs.
 
-// Cloudflare's browser-integrity check rejects default fetch agents with
-// HTTP 403 / error code 1010. A browser UA is required.
+// Cloudflare's browser-integrity check has rejected default fetch agents on this Worker with
+// HTTP 403 / error code 1010. It does not currently — a bare fetch returns 200 — but the check
+// is a dashboard toggle that can come back on without a code change, and a build that starts
+// failing on it is an outage. Kept deliberately.
 export const BUILD_FETCH_USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36';
 

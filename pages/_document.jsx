@@ -10,11 +10,20 @@ export default class MyDocument extends Document {
     // (they carry data-next-head) but the title never reaches the exported HTML, so every page
     // shipped untitled. _document renders once at export time, ahead of anything that could
     // hoist it away. next-seo still swaps in the page's own title after hydration.
-    const title = PAGE_SEO[this.props.__NEXT_DATA__?.page]?.title;
+    //
+    // PAGE_SEO is keyed by route pattern, so every page generated from a dynamic route shares
+    // one entry. Those pages pass their own copy through static props instead, which is why
+    // pageProps wins here.
+    const data = this.props.__NEXT_DATA__;
+    const pageSeo = PAGE_SEO[data?.page];
+    const pageProps = data?.props?.pageProps;
+    const title = pageProps?.seoTitle || pageSeo?.title;
+    const description = pageProps?.seoDescription || pageSeo?.description;
     return (
       <Html lang="en">
         <Head>
           {title ? <title>{title}</title> : null}
+          {description ? <meta name="description" content={description} /> : null}
           <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"

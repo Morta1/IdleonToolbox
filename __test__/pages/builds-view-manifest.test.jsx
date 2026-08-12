@@ -44,14 +44,35 @@ describe('findInManifest', () => {
 });
 
 describe('buildSeoTitle', () => {
-  it('includes subclass and class for a known build', () => {
+  it('leads with the class, not the free-text build title', () => {
     expect(buildSeoTitle(toBuildSummary(full)))
-      .toBe('Mago de talar — Wizard Mage Build | Idleon Toolbox');
+      .toBe('Wizard Build — Mago de talar | Idleon Toolbox');
   });
 
-  it('omits the subclass when there is none', () => {
+  it('names the subclass alone, never "<subclass> <family>"', () => {
+    const journeyman = toBuildSummary({ ...full, class: 'Beginner', subclass: 'Journeyman' });
+    expect(buildSeoTitle(journeyman)).toContain('Journeyman Build');
+    expect(buildSeoTitle(journeyman)).not.toContain('Journeyman Beginner');
+  });
+
+  it('falls back to the family when a build has no subclass', () => {
     const noSub = toBuildSummary({ ...full, subclass: null });
-    expect(buildSeoTitle(noSub)).toBe('Mago de talar — Mage Build | Idleon Toolbox');
+    expect(buildSeoTitle(noSub)).toBe('Mage Build — Mago de talar | Idleon Toolbox');
+  });
+
+  it('underscores in a subclass become spaces', () => {
+    const bb = toBuildSummary({ ...full, class: 'Warrior', subclass: 'Blood_Berserker' });
+    expect(buildSeoTitle(bb)).toBe('Blood Berserker Build — Mago de talar | Idleon Toolbox');
+  });
+
+  // Google truncates around 60 characters. Leading with the class is what keeps the term the
+  // page targets on screen when a user's title is long.
+  it('keeps the class within the first 60 characters even with a long title', () => {
+    const longTitle = toBuildSummary({
+      ...full,
+      title: 'Maestro Skilling: Left + Right Hands (~100) and then some more words'
+    });
+    expect(buildSeoTitle(longTitle).slice(0, 60)).toContain('Wizard Build');
   });
 
   it('falls back to a generic title for an unknown build', () => {
@@ -63,7 +84,7 @@ describe('buildSeoDescription', () => {
   it('mentions author, class and tags', () => {
     const d = buildSeoDescription(toBuildSummary(full));
     expect(d).toContain('Anon');
-    expect(d).toContain('Wizard Mage');
+    expect(d).toContain('Wizard');
     expect(d).toContain('afk');
   });
 

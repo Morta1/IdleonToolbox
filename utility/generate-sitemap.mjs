@@ -49,38 +49,83 @@ export function buildClassSitemapEntries(slugs, today) {
   </url>`).join('\n')
 }
 
-// This script runs as the `postbuild` npm script under plain Node, not through
-// Next.js — Next loads .env.production/.env.local for getStaticProps, but
-// plain Node loads nothing. Without this, fetchAllBuildsAtBuildTime() would
-// throw "NEXT_PUBLIC_BUILDS_URL is not set" on every build.
+// shortId is [A-Za-z0-9]{4,10} per the Worker's own route matcher, so it needs no XML escaping —
+// but assert it rather than trust it, since this interpolates straight into <loc>.
+const SAFE_SHORT_ID = /^[A-Za-z0-9]{4,10}$/
+
+// /tools/builds/view is excluded above because it renders nothing without a query param, but the
+// ?id= URLs are the actual build pages and each one now ships real metadata from the manifest in
+// view.jsx. Without these entries the only route to a build is a link that exists solely after
+// JS runs, which is the discovery failure this whole change set exists to fix.
+export function buildDetailSitemapEntries(builds, today) {
+  return (builds || [])
+    .filter((build) => SAFE_SHORT_ID.test(build?.shortId || ''))
+    .map((build) => `  <url>
+    <loc>https://idleontoolbox.com/tools/builds/view?id=${build.shortId}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>`).join('\n')
+}
+
+// This script runs as the `postbuild` npm script under plain Node, not through Next.js — Next
+// loads .env files for getStaticProps, plain Node loads nothing. Without this,
+// fetchAllBuildsAtBuildTime() would throw "NEXT_PUBLIC_BUILDS_URL is not set" on every build.
 //
-// Read .env.production only (not .env.local): .env.local is gitignored,
-// machine-local, and points at a localhost dev server — this script must
-// always resolve the real production URL when generating the deployed
-// sitemap. Real process.env values (e.g. injected by the host) win over
-// anything in the file.
-function loadProductionEnv() {
-  const envPath = path.resolve(process.cwd(), '.env.production')
-  if (!fs.existsSync(envPath)) return
+// Order mirrors Next's own precedence: .env.local wins over .env.production. An earlier version
+// deliberately read .env.production only, so the deployed sitemap would always name production
+// URLs. That produced the opposite of what it intended - `next build` still honoured .env.local,
+// so on any machine with one the pages came from the dev Worker while the sitemap came from
+// production, and the two disagreed about which classes exist. The invariant that matters is
+// that the sitemap matches the pages actually built, not that it names a particular host.
+// assertSitemapMatchesOutput below enforces it regardless.
+const ENV_FILES = ['.env.local', '.env.production']
 
-  const contents = fs.readFileSync(envPath, 'utf8')
-  for (const line of contents.split('\n')) {
-    const trimmed = line.trim()
-    if (!trimmed || trimmed.startsWith('#')) continue
+function loadBuildEnv() {
+  for (const file of ENV_FILES) {
+    const envPath = path.resolve(process.cwd(), file)
+    if (!fs.existsSync(envPath)) continue
 
-    const eqIndex = trimmed.indexOf('=')
-    if (eqIndex === -1) continue
+    const contents = fs.readFileSync(envPath, 'utf8')
+    for (const line of contents.split('\n')) {
+      const trimmed = line.trim()
+      if (!trimmed || trimmed.startsWith('#')) continue
 
-    const key = trimmed.slice(0, eqIndex).trim()
-    let value = trimmed.slice(eqIndex + 1).trim()
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
-      value = value.slice(1, -1)
+      const eqIndex = trimmed.indexOf('=')
+      if (eqIndex === -1) continue
+
+      const key = trimmed.slice(0, eqIndex).trim()
+      let value = trimmed.slice(eqIndex + 1).trim()
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
+        value = value.slice(1, -1)
+      }
+
+      if (!(key in process.env)) process.env[key] = value
     }
+  }
+}
 
-    if (!(key in process.env)) process.env[key] = value
+// A sitemap entry for a class page that was never exported is a 404 served to a crawler that
+// was explicitly invited to it. Compare against the files on disk rather than trusting that
+// both halves of the build fetched the same data.
+export function assertSitemapMatchesOutput(slugs, outDir) {
+  const dir = path.join(outDir, 'tools', 'builds')
+  if (!fs.existsSync(dir)) return
+
+  const exported = new Set(
+    fs.readdirSync(dir)
+      .filter((f) => f.endsWith('.html'))
+      .map((f) => f.replace(/\.html$/, ''))
+  )
+  const missing = slugs.filter((slug) => !exported.has(slug))
+  if (missing.length) {
+    throw new Error(
+      `sitemap lists ${missing.length} class page(s) that were not exported: ${missing.join(', ')}. ` +
+      `The pages and the sitemap were built from different data - check which .env file each half resolved.`
+    )
   }
 }
 
@@ -103,12 +148,16 @@ async function generateSitemap() {
 
   const builds = await fetchAllBuildsAtBuildTime()
   const today = new Date().toISOString().split('T')[0]
-  const classEntries = buildClassSitemapEntries(getBuildClassSlugs(builds), today)
+  const classSlugs = getBuildClassSlugs(builds)
+  assertSitemapMatchesOutput(classSlugs, 'out')
+  const classEntries = buildClassSitemapEntries(classSlugs, today)
+  const detailEntries = buildDetailSitemapEntries(builds, today)
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${keptPages.map(addPage).join('\n')}
 ${classEntries}
+${detailEntries}
 </urlset>`
 
   fs.writeFileSync('public/sitemap.xml', sitemap)
@@ -122,7 +171,7 @@ const isDirectRun =
   process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])
 
 if (isDirectRun) {
-  loadProductionEnv()
+  loadBuildEnv()
   console.log('starting sitemap generation')
   generateSitemap()
     .then(() => console.log('finished sitemap generation'))

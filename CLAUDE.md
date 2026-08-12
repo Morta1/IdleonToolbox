@@ -68,14 +68,11 @@ Configured in both `tsconfig.json` and `next.config.js`:
 - `@utility/*` → `utility/*`
 - `@website-data` → `data/website-data.json`
 
-Some source files instead use bare (unprefixed) top-level imports — e.g. `services/builds`,
-`components/Tooltip`, `utility/helpers`, `parsers/talents`, `data/...` — relying on
-`tsconfig.json`'s `baseUrl: "./"`. Keep whatever style a file already uses; don't rewrite it to
-the `@`-aliased form or vice versa. `vitest.config.js` mirrors this by adding a bare alias per
-top-level directory it sees imported this way (`services`, `components`, `utility`, `parsers`,
-`data`, ...) — Vite/vitest don't read `tsconfig.json`'s `baseUrl`, so each new bare top-level
-import prefix used anywhere in the app must be added there too, or the importing test fails with
-an opaque "Failed to resolve import".
+Some files use bare top-level imports instead — `services/builds`, `utility/helpers` — relying on
+`tsconfig.json`'s `baseUrl: "./"`. Keep whatever style a file already uses; don't rewrite it just
+to make a test resolve. `vitest.config.js` mirrors `baseUrl` with an anchored regex alias per
+prefix, because Vite doesn't read `baseUrl`. A new bare prefix needs an entry there, or the
+importing test fails with an opaque "Failed to resolve import".
 
 ## Date & Time Formatting
 

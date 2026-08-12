@@ -10,6 +10,14 @@ import {
   slugToDisplayName
 } from '@utility/builds/class-paths.mjs';
 
+// "Idleon Barbarian Builds" leads with the term these pages target - `idleon <class> build` is
+// the shape of essentially all class-related search demand.
+export const classPageTitle = (displayName) => `Idleon ${displayName} Builds | Idleon Toolbox`;
+
+export const classPageDescription = (displayName, count) => count
+  ? `Browse ${count} community ${displayName} builds for Legends of Idleon — talent trees, gear and progression.`
+  : `Community ${displayName} builds for Legends of Idleon — talent trees, gear and progression.`;
+
 // Exported for tests: the data logic, separated from Next's build pipeline.
 export function getBuildClassStaticPaths(builds) {
   return {
@@ -20,12 +28,18 @@ export function getBuildClassStaticPaths(builds) {
 }
 
 export function getBuildClassStaticProps(builds, slug) {
+  const displayName = slugToDisplayName(slug);
+  const matching = buildsForSlug(builds, slug);
   return {
     props: {
       slug,
-      displayName: slugToDisplayName(slug),
-      builds: buildsForSlug(builds, slug),
-      allSlugs: getBuildClassSlugs(builds)
+      displayName,
+      builds: matching,
+      allSlugs: getBuildClassSlugs(builds),
+      // PAGE_SEO is keyed by route pattern, so all 18 of these pages would share one title.
+      // _document prefers these over the map for exactly that reason.
+      seoTitle: classPageTitle(displayName),
+      seoDescription: classPageDescription(displayName, matching.length)
     }
   };
 }
@@ -40,17 +54,14 @@ export async function getStaticProps({ params }) {
   return getBuildClassStaticProps(builds, params.class);
 }
 
-const BuildClassPage = ({ slug, displayName, builds, allSlugs }) => {
-  const title = `Idleon ${displayName} Builds | Idleon Toolbox`;
-  const description = builds.length
-    ? `Browse ${builds.length} community ${displayName} builds for Legends of Idleon — talent trees, gear and progression.`
-    : `Community ${displayName} builds for Legends of Idleon — talent trees, gear and progression.`;
-
+const BuildClassPage = ({ slug, displayName, builds, allSlugs, seoTitle, seoDescription }) => {
+  // Same strings _document already emitted into the static HTML; NextSeo re-applies them after
+  // hydration so a client-side route change keeps the right ones.
   return (
     <>
       <NextSeo
-        title={title}
-        description={description}
+        title={seoTitle}
+        description={seoDescription}
         canonical={`https://idleontoolbox.com/tools/builds/${slug}`}
       />
 

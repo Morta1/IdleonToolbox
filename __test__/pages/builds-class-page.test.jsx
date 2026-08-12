@@ -65,3 +65,28 @@ describe('getBuildClassStaticProps', () => {
     expect(props.displayName).toBe('Archer');
   });
 });
+
+describe('static SEO props', () => {
+  // PAGE_SEO is keyed by route pattern, so all 18 generated pages would otherwise share one
+  // title. _document reads these props in preference to the map.
+  it('gives each class page its own title naming the class', () => {
+    const { props } = getBuildClassStaticProps(FIXTURE, 'barbarian');
+    expect(props.seoTitle).toBe('Idleon Barbarian Builds | Idleon Toolbox');
+  });
+
+  it('leads the title with the class, inside Google\'s ~60 character cutoff', () => {
+    const { props } = getBuildClassStaticProps(FIXTURE, 'blood-berserker');
+    expect(props.seoTitle.indexOf('Blood Berserker')).toBeLessThan(60);
+  });
+
+  it('counts the builds actually on the page in the description', () => {
+    const { props } = getBuildClassStaticProps(FIXTURE, 'barbarian');
+    expect(props.seoDescription).toContain('2 community Barbarian builds');
+  });
+
+  it('drops the count for a class with no builds rather than saying zero', () => {
+    const { props } = getBuildClassStaticProps(FIXTURE, 'beginner');
+    expect(props.seoDescription).not.toContain('0 community');
+    expect(props.seoDescription).toContain('Community Beginner builds');
+  });
+});
