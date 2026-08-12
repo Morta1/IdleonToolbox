@@ -34,8 +34,6 @@ const Printer = () => {
       <Typography variant={'h5'}>Totals</Typography>
       <Typography variant={'caption'}>* per hour</Typography>
     </Stack>
-    {/* Sits directly under the Totals heading with no layout container, so it carries its own top
-        margin now that the cards have no default one. */}
     <CardTitleAndValue title={'Atom threshold'} value={notateNumber(atomThreshold)} cardSx={{ mt: 3 }}/>
     <Stack direction={'row'} gap={2} sx={{ mt: 2, mb: 5 }} flexWrap={'wrap'}>
       {Object.entries(totals || {})?.map(([item, { boostedValue, atomable, atoms }], index) => {

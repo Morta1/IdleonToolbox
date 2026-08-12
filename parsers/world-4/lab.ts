@@ -19,11 +19,6 @@ export const getLab = (idleonData: any, charactersData: any, account: any, updat
 }
 
 const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharactersData: any) => {
-  // Catalog-driven: chips/jewels/labBonuses describe the lab's content and must be listed even
-  // without a save. The "wire connection" simulation below genuinely needs labRaw (player
-  // coordinates, chip repo counts, jewel acquisition flags) and cannot be derived without it, so a
-  // missing save short-circuits to the catalog lists with neutral (unacquired/inactive) per-user
-  // fields instead of attempting the simulation.
   if (!labRaw) {
     return {
       playersCords: [],

@@ -20,10 +20,6 @@ export const getDungeons = (idleonData: IdleonData, accountOptions: any[]): Reco
   return parseDungeons(dungeonUpgradesRaw, accountOptions);
 };
 
-// Classification: CATALOG-BACKED. `dungeonCreditShop` (the RNG credit shop), `dungeonStats` (the
-// "inside" trait upgrades) and `dungeonFlurboStats` (the flurbo shop) are website-data catalogs
-// defining every upgrade/item that exists; the save only supplies each one's level via a handful of
-// positional arrays inside `DungUpg`. A missing save means every level is 0, not a shorter list.
 const parseDungeons = (dungeonUpgrades: any, accountOptions: any[] | undefined): Record<string, any> => {
   const opts = accountOptions ?? [];
   const rngItemsRaw = dungeonUpgrades?.[0];
@@ -101,9 +97,6 @@ export const getBallBonus = (account: Account): number => {
     }
   }
   const vialArcadeBonus = getVialsBonusByStat((account as any)?.alchemy?.vials, 'arcadeBALLZ');
-  // account.tasks is a raw pass-through of the save's own Tasks array (out of this section's scope):
-  // a 7-element array of `undefined` entries with no save, so this chain optional-chains straight
-  // through to undefined. No save means 0 progress on this task.
   const taskArcadeBonus = (account as any)?.tasks?.[2]?.[1]?.[7] ?? 0;
   const stampArcadeBonus = Math.min(50, getStampsBonusByEffect(account, 'Arcade_Ball_recharge_rate'));
   return ballBonus + vialArcadeBonus + (5 * taskArcadeBonus) + stampArcadeBonus;

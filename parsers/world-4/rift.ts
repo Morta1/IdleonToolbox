@@ -12,12 +12,7 @@ const parseRift = (rawRift: any) => {
   const [currentRift, currentProgress, chars] = rawRift || [];
   return {
     list: riftInfo,
-    // parseInt(undefined) is NaN with no save; 0 rifts entered is the correct neutral default (the
-    // breeding.ts cross-section guard already assumed this exact fallback for the same field).
     currentRift: parseInt(currentRift) || 0,
-    // currentProgress feeds Tasks.jsx's `task?.replace('{', currentProgress)` - undefined there
-    // renders the literal word "undefined" into the task description; 0 progress is the honest
-    // reading for an account with no save (task-18).
     currentProgress: currentProgress ?? 0,
     chars
   }

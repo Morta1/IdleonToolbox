@@ -42,12 +42,7 @@ export const getFarming = (idleonData: any, accountData: any, charactersData: an
 const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCrop: any, rawFarmingRanks: any, account: any, charactersData: any) => {
   const gemVineBonus = account?.gemShopPurchases?.find((value: any, index: any) => index === 139) ?? 0;
   const marketLevels = rawFarmingUpgrades?.slice(2, marketInfo.length + 2);
-  // Same shape as instaGrow below: the market's "next requirement" renders this as the amount you
-  // own, so undefined leaves that line blank instead of showing you own none.
   const beans = rawFarmingUpgrades?.[1] ?? 0;
-  // No save means none banked, not an unknown count. The page renders this straight into a card,
-  // and CardTitleAndValue draws nothing for undefined (as opposed to "0") - so the card showed a
-  // title with an empty body.
   const instaGrow = rawFarmingUpgrades?.[19] ?? 0;
   const researchBonus171 = getResearchGridBonus(account, 171, 0);
   const cheaperDayMarket = Math.max(0.1, 1 - (getExoticMarketBonus(account, 34) ?? 0) / 100)
@@ -177,32 +172,15 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     }
   });
 
-  // With no save `rawFarmingPlot` is undefined, so this `.map` short-circuited and the garden grid
-  // rendered nothing at all - the last page on this branch still empty for a signed-out visitor.
-  //
-  // The plot count is progression-driven, not a fixed roster: the game computes it as
-  // `Math.round(Math.min(36, 1 + BasketUpgQTY + GemItemsPurchased[135] + Math.min(3, Tasks[2][5][2])))`,
-  // so a brand-new account owns 1 and the ceiling is 36. There is no catalog to size off, so the
-  // no-save case falls back to that ceiling: it shows what the feature IS, which is the whole point
-  // of rendering signed out, and matches the forge slots showing the full board rather than the one
-  // or two a fresh account has bought.
-  //
-  // A real save is untouched - it still maps its own array, however many plots it owns.
   const MAX_PLOTS = 36;
   const plotSource = rawFarmingPlot ?? Array.from({ length: MAX_PLOTS }, () => [0, 0, 0, 1, 0, 0, 0]);
 
   const plot = plotSource?.map(([seedType, progress, cropType, isLocked, cropQuantity, currentOG, cropProgress]: any, cropIndex: any) => {
     const seed = seedInfo?.[seedType];
-    // seedType can point past the seedInfo catalog on a real save's plot slot; 0 is the neutral
-    // "no crop id offset" default, not an unknown.
     const type = Math.round((seed?.cropIdMin ?? 0) + cropType);
     const growthReq = 14400 * Math.pow(1.5, seedType);
     const rank = farmingRanks?.[cropIndex];
     const rankProgress = ranksProgress?.[cropIndex];
-    // farmingRanks can be shorter than the plot array (a plot slot with no rank recorded yet, same
-    // "missing array entry" shape as breeding.territories' reqProgress fix in Task 12) - the raw
-    // `rank` field above stays untouched (matches owl.ts/kangaroo.ts `level` precedent), only this
-    // math gets the `?? 0` guard.
     const rankForMath = rank ?? 0;
     const rankRequirement = (7 * rankForMath + 25 * Math.floor(rankForMath / 5) + 10) * Math.pow(1.11, rankForMath);
     return {
@@ -629,10 +607,6 @@ const getCropValueBreakdown = (account: any, market: any) => {
   const exotic24 = getExoticMarketBonus(account, 24);
   const exotic25 = getExoticMarketBonus(account, 25);
   const voteBonus = getVoteBonus(account, 29);
-  // The guards here predate the fallback roster above, which now means plot is always an array. They
-  // stay because this runs across serializeData's passes, where farming may not be built yet - and
-  // optional chaining on the reduce CALL short-circuits to undefined rather than to the reduce's own
-  // 0 seed, so the `?? 0` is doing real work whenever that happens.
   const avgRank = (account?.farming?.plot?.reduce((sum: any, p: any) => sum + (p?.rank ?? 0), 0) ?? 0)
     / (account?.farming?.plot?.length || 1);
 
@@ -833,8 +807,6 @@ export const getExoticMarketBonus = (account: any, index: any) => {
 }
 
 const calcRankBonus = (index: any, apocalypseWow: any, exoticMulti: any, base: any, upgradeLevel: any) => {
-  // upgradeLevel (ranks[].upgradeLevel) is a raw, possibly-undefined pass-through with no save -
-  // guarded here only; the raw field itself stays untouched (matches owl.ts/kangaroo.ts precedent).
   const level = upgradeLevel ?? 0;
   return 4 === index || 9 === index || 14 === index || 19 === index
     ? Math.max(1, apocalypseWow) * exoticMulti * base * level
@@ -941,17 +913,10 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
     + Math.max(0, farmingLevel - 250) * exotic8;
 
   const achievementBonus = getAchievementStatus(account?.achievements, 355);
-  // Default to 0: no summoning level data means level 0, not an unknown value - undefined here
-  // makes Math.ceil((undefined + 1) / 50) NaN, which poisons summoningMealBonus even when
-  // mealBonus2 is 0.
   const summoningLevel = character?.skillsInfo?.summoning?.level ?? 0;
   const summoningMealBonus = mealBonus2 * Math.ceil((summoningLevel + 1) / 50);
   const landRankPerPlot = getLandRank(account?.farming?.ranks, 0) * (account?.farming?.plot?.[crop?.index]?.rank ?? 0) + voteBonus;
 
-  // Default to 0: no plot/crop selected (no save) means no seed planted, not an unknown value -
-  // undefined here poisons the multiplicative chain and the breakdown's .toExponential() calls
-  // via optional-chaining short-circuit. Math.pow(0, 0) is 1 per spec, so decay rate lands at a
-  // neutral 1x rather than 0.
   const nextCropChance = crop?.seed?.nextCropChance ?? 0;
   const nextCropDecay = crop?.seed?.nextCropDecay ?? 0;
   const baseCropType = crop?.baseCropType ?? 0;

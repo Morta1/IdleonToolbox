@@ -16,18 +16,6 @@ import latest from '../fixtures/latest.json';
 
 const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
 
-/**
- * Task 10: 13 sections threw on an empty account and were masked by safeSection's fallback. This
- * file is the permanent regression coverage for those fixes - one describe block per section,
- * proving (a) the empty-account crash is gone and produces a sane neutral value, and (b) real
- * fixture saves parse to the exact same values the fix's null-guards were designed to leave
- * untouched.
- *
- * Every `it.each(FIXTURES)` body that loops over save-derived data counts its own assertions and
- * checks the count is > 0 at the end. A `forEach` over a field a fixture happens to lack silently
- * asserts nothing and still shows green - this project has hit that exact defect four times before
- * (see progress.md), so every loop here is self-checking rather than trusted on faith.
- */
 
 describe('cards (catalog-driven: Object.entries(cardsRaw) -> Object.entries(cards))', () => {
   it('renders every catalog card with no save, not just the ones a save would have owned', () => {
@@ -43,13 +31,10 @@ describe('cards (catalog-driven: Object.entries(cardsRaw) -> Object.entries(card
     expect(firstCard.category).toBeTruthy();
   });
 
-  // Unconditional synthetic index-alignment test: proves the save's own amount is read by NAME
-  // (cards are keyed by rawName, not a positional index), independent of any fixture's content.
   it('reads a synthetic card amount by its raw name key, not position', () => {
     const anyCardName = Object.keys(cards)[5];
     const result = getCards({ Cards0: { [anyCardName]: 42 } }, {});
     expect(result[cards[anyCardName].displayName].amount).toBe(42);
-    // Every other card in the same parse is still present, just unowned.
     expect(Object.keys(result)).toHaveLength(Object.keys(cards).length);
   });
 
@@ -74,25 +59,8 @@ describe('cards (catalog-driven: Object.entries(cardsRaw) -> Object.entries(card
   });
 });
 
-/**
- * Fix round 1 (post-approval review finding): before Task 10's catalog conversion, `calculateStars`
- * only ever ran for cards present in the save's Cards0 - i.e. always owned (amountOfCards > 0). Now
- * every catalog card runs through it, including amount-0 ones. Its five/six-star special case
- * (`isInFiveStarList`/`isInSixStarList`, driven by accountOptions[155]/[603]) never consulted
- * ownership, so an unowned card whose name happened to sit in either list would come back with a
- * nonzero `stars` at `amount: 0` - and `components/common/styles.jsx` renders the star-tier border
- * off `stars > 0` alone, not ownership. Newly reachable, not previously exercised.
- *
- * Fixed by requiring `amountOfCards > 0` before the special case can fire. This block proves that
- * fix is a no-op for every real save: it independently re-derives the exact inputs `parseCards`
- * feeds `calculateStars` for every one of the 272 catalog cards (not just owned ones) from each
- * fixture's OWN parsed account (real accountOptions/rift/spelunking, not a stub), replays the
- * pre-fix (unguarded) formula, and asserts it matches `account.cards`'s actual stars byte-for-byte.
- */
 describe('calculateStars ownership guard (fix round 1: newly-reachable unowned-card path)', () => {
   it('does not award five-star tier to an unowned card even if it is in the five-star list', () => {
-    // amountOfCards: 0 - would have returned 5 before the ownership guard (cardLvCalco stays 0 for
-    // amountOfCards 0, so isInFiveStarList alone used to be enough to return 5).
     expect(calculateStars(5, 0, 'AnyCard', 4, true, false)).toBe(0);
   });
 
@@ -105,8 +73,6 @@ describe('calculateStars ownership guard (fix round 1: newly-reachable unowned-c
     expect(calculateStars(5, 1, 'AnyCard', 5, false, true)).toBe(6);
   });
 
-  // Verbatim pre-fix formula (the ownership guard removed) used only to prove the fix changes
-  // nothing for real data below - not a copy kept for any other purpose.
   const calculateStarsPreFix = (tierReq, amountOfCards, cardName, maxStars, isInFiveStarList, isInSixStarList) => {
     let cardLvCalco = 0;
     for (let i = 0; i < maxStars; i++) {
@@ -147,8 +113,6 @@ describe('calculateStars ownership guard (fix round 1: newly-reachable unowned-c
       expect(after).toBe(before);
       assertions++;
     });
-    // Documents the reviewer's finding for this fixture: zero unowned cards intersect either list,
-    // which is *why* the assertion above passes - not an assumption baked into the assertion itself.
     expect(intersectingUnownedCards).toBe(0);
     expect(assertions).toBe(Object.keys(cards).length);
   });
@@ -187,7 +151,6 @@ describe('alchemy.liquidCauldrons (structural 4 liquid types, not save-driven)',
     expect(account.alchemy.liquidCauldrons).toHaveLength(4);
   });
 
-  // Unconditional: 4 fixed slots regardless of what any fixture's save happens to contain.
   it.each(FIXTURES)('%s: still returns exactly 4 liquid cauldron slots and never throws', (_name, fixture) => {
     const { account } = parseFixture(fixture);
     expect(account.alchemy.liquidCauldrons).toHaveLength(4);
@@ -248,10 +211,6 @@ describe('armorSmithy (idleonData?.ServerGemsReceived guard)', () => {
     const data = fixture.data ?? fixture;
     const { account } = parseFixture(fixture);
     const accountOptions = tryToParse(data?.OptLacc);
-    // task-17: days now defaults to 0 (not undefined) when the save has never touched this
-    // accountOptions index - a real save with no elapsed days is 0 days in, not an unknown value.
-    // `30 - undefined` used to render "NaN days" on the page for these same fixtures; `isSmithyUnlocked`
-    // itself is unaffected (Math.round(30 - 0) = 30, still > 1 either way).
     const days = accountOptions?.[381] ?? 0;
     const hasBundle = isBundlePurchased(account.bundles, 'bun_i')?.owned ? 1 : 0;
     const expected = 2e3 <= (data?.ServerGemsReceived ?? 0) + 1500 * hasBundle || 1 > Math.round(30 - Number(days));
@@ -280,9 +239,6 @@ describe('forge (forgeLevels?.[index] guard)', () => {
     const { account } = parseEmpty();
     expect(account.forge.upgrades).toHaveLength(6);
     expect(account.forge.upgrades.every((u) => u.level === 0)).toBe(true);
-    // This used to assert `list` was []. That was the behaviour at the time, not the goal: the
-    // Slots tab is the page's default tab, so an empty list meant a signed-out visitor's first sight
-    // of the forge was a blank page. See the 'forge slots' describe block below.
     expect(account.forge.list).toHaveLength(account.forge.upgrades[0].maxLevel);
   });
 
@@ -360,10 +316,6 @@ describe('owl (account?.accountOptions?.[...] guards)', () => {
   it('renders every owl upgrade with no save instead of throwing', () => {
     const { account } = parseEmpty();
     expect(account.owl.upgrades.length).toBeGreaterThan(0);
-    // `level` is left `undefined` (not defaulted to 0) here on purpose - real saves leave it
-    // `undefined` too for any upgrade past what the account has ever touched (see the fixture
-    // regression below), so defaulting only for the empty-account case would be a real-save
-    // behavior change disguised as a neutral default.
     expect(account.owl.upgrades.every((u) => u.level === undefined || Number.isFinite(u.level))).toBe(true);
   });
 
@@ -394,14 +346,6 @@ describe('statues (getHighestLevelStatues empty-characters guard)', () => {
   });
 });
 
-/**
- * The cauldrons page rendered nothing but its four headings for a logged-out visitor: `getCauldrons`
- * looped `cauldronsRaw.length` and `getPay2Win` chunked the save's own arrays, so with no save every
- * one of them produced zero entries. All three are fixed structural counts baked into the game.
- *
- * Counts below are read from the catalogs (cauldronsIndexMapping / liquidsIndex), never hardcoded,
- * so adding a fifth cauldron to the game updates the expectation instead of breaking the test.
- */
 describe('alchemy cauldrons (catalog-driven: save-length loops -> cauldronsIndexMapping/liquidsIndex)', () => {
   const CAULDRON_NAMES = Object.values(cauldronsIndexMapping);
   const LIQUID_NAMES = Object.values(liquidsIndex);
@@ -417,7 +361,6 @@ describe('alchemy cauldrons (catalog-driven: save-length loops -> cauldronsIndex
       expect(cauldron.req).toBeGreaterThan(0);
       expect(Object.keys(cauldron.boosts)).toEqual(BOOSTS);
       Object.values(cauldron.boosts).forEach((boost) => {
-        // parseInt(undefined) is NaN, which is what reached the page before the zero-fill.
         expect(boost.level).toBe(0);
         expect(boost.progress).toBe(0);
         expect(Number.isFinite(boost.req)).toBe(true);
@@ -466,7 +409,6 @@ describe('alchemy cauldrons (catalog-driven: save-length loops -> cauldronsIndex
     const p2wRaw = tryToParse(data?.CauldronP2W) || data?.CauldronP2W || [];
     const [cauldronsRaw = [], liquidsRaw = []] = p2wRaw;
 
-    // Driving the loops off the catalog must not shift which save index each upgrade reads.
     let assertions = 0;
     account.alchemy.p2w.cauldrons.forEach(({ speed, newBubble, boostReq }, index) => {
       expect(speed.level).toBe(cauldronsRaw[index * 3] ?? 0);
@@ -500,14 +442,7 @@ describe('alchemy cauldrons (catalog-driven: save-length loops -> cauldronsIndex
   });
 });
 
-/**
- * Same defect, same page family: `parseSigils` looped the save's own [progress, unlocked] pairs, so
- * the sigils page rendered its two header cards and no sigils at all when signed out. The 24 sigils
- * are a catalog.
- */
 describe('alchemy sigils (catalog-driven: sigilsData.length loop -> sigils catalog)', () => {
-  // The save stores -1 for a sigil the player has not discovered; that is what an account with no
-  // save at all is in, so it is what the parser must report.
   const UNDISCOVERED = -1;
 
   it('renders every catalog sigil as undiscovered with no save', () => {
@@ -553,32 +488,17 @@ describe('alchemy sigils (catalog-driven: sigilsData.length loop -> sigils catal
     let assertions = 0;
     let unlockedSigils = 0;
     account.alchemy.p2w.sigils.forEach((sigil) => {
-      // Against the sigil's OWN tier fields, not the catalog's: applyArtifactBonusOnSigil scales
-      // `bonus` and every tier field by the Chilled Yarn artifact after parsing, so a catalog
-      // comparison would be testing that artifact rather than the tier mapping.
       const expected = tierBonus[sigil.unlocked] ? sigil[tierBonus[sigil.unlocked]] : 0;
       expect(sigil.bonus).toBe(expected);
       if (sigil.unlocked > UNDISCOVERED) unlockedSigils++;
       assertions++;
     });
     expect(assertions).toBe(sigils.length);
-    // Guards against a fixture whose sigils are all undiscovered making the tier mapping vacuous.
     expect(unlockedSigils).toBeGreaterThan(0);
   });
 });
 
-/**
- * The coral reef page rendered "No reef upgrades available" when signed out: `reefUpgrades` mapped
- * the save's own level array, and `dancingCoral` sized itself off the save's tower array. Both are
- * fixed rosters.
- */
 describe('coral reef (catalog-driven: save-length loops -> coralReef catalog / fixed coral roster)', () => {
-  // Derived from the catalog, not pinned. The parser used to hardcode 6 on the theory that the last
-  // four of generalSpelunky[22]/[23]'s 9 entries were unshipped because their descriptions read
-  // "who_knows". Checked against the running game, they are shipped: DancingCoralCOST returns a real
-  // cost for all 9 (index 5 -> 9900.99, index 8 -> 495049.5, matching generalSpelunky[22]'s 10000 and
-  // 500000 under the same reduction), and the game's own coral UI loops `9 > t`. Only the bonus TEXT
-  // is unwritten.
   const DANCING_CORAL_COUNT = generalSpelunky[22].length;
 
   it('renders every catalog reef upgrade at level 0 with no save', () => {
@@ -594,8 +514,6 @@ describe('coral reef (catalog-driven: save-length loops -> coralReef catalog / f
   });
 
   it('the coral catalog is the 9 the game ships, so the roster length is not pinned to a literal', () => {
-    // Guards the derivation: if generalSpelunky ever loses its shape, DANCING_CORAL_COUNT would go to
-    // 0 or undefined and every length assertion below would pass vacuously.
     expect(generalSpelunky[22]).toHaveLength(9);
     expect(generalSpelunky[23]).toHaveLength(9);
     expect(DANCING_CORAL_COUNT).toBe(9);
@@ -630,8 +548,6 @@ describe('coral reef (catalog-driven: save-length loops -> coralReef catalog / f
       expect(reef.name).toBe(coralReef[index].name);
       assertions++;
     });
-    // Catalog-length, not save-length: fixtures predating the feature have no levels at all and
-    // must still render the full catalog at zero.
     expect(assertions).toBe(coralReef.length);
   });
 
@@ -650,11 +566,6 @@ describe('coral reef (catalog-driven: save-length loops -> coralReef catalog / f
   });
 });
 
-/**
- * `parseConstellations` walked the save's own StarQuests array, so the constellations page rendered
- * its column headers and no rows at all when signed out. The 49 constellations are a catalog; the
- * save only supplies who has completed each one.
- */
 describe('constellations (catalog-driven: constellationsRaw loop -> constellations catalog)', () => {
   const CATALOG = constellationsCatalog.filter(({ mapIndex }) => mapIndex != null);
 
@@ -694,26 +605,15 @@ describe('constellations (catalog-driven: constellationsRaw loop -> constellatio
       assertions++;
     });
     expect(assertions).toBe(CATALOG.length);
-    // Guards against a fixture with nothing completed making the `done` assertions vacuous.
     expect(completed).toBeGreaterThan(0);
   });
 });
 
-/**
- * Forge, anvil and storage were the last three pages still rendering essentially nothing to a
- * signed-out visitor. Each needed a different answer, which is the point of keeping them together:
- *
- * - Forge slots ARE a catalog - every save ships all 16 regardless of how many are unlocked, with
- *   the locked ones holding 'Blank'. The loop was sized by the save's own array instead.
- * - The anvil has no per-character catalog at all, but WHAT it can produce is fixed game data.
- * - Storage genuinely has no catalog: it is the items you own. Its chests do, and already rendered.
- */
 describe('forge slots', () => {
   const forgeSlotCount = (account) => account.forge.list.length;
 
   it('renders every forge slot with no save, not an empty board', () => {
     const { account } = parseEmpty();
-    // Derived, not hardcoded: the count is the "New Forge Slot" upgrade's maxLevel.
     const expected = account.forge.upgrades[0].maxLevel;
     expect(expected).toBeGreaterThan(0);
     expect(forgeSlotCount(account)).toBe(expected);
@@ -751,9 +651,6 @@ describe('forge slots', () => {
       });
     }
     expect(assertions).toBe(FIXTURES.length * 16);
-    // Counted across all fixtures rather than per fixture: latest.json happens to have every forge
-    // slot empty, so a per-fixture floor would fail on a save that is simply idle. Without any
-    // floor at all, a set of entirely empty saves would make the equality assertions vacuous.
     expect(nonZero).toBeGreaterThan(0);
   });
 });
@@ -769,7 +666,6 @@ describe('anvil product catalog', () => {
     let assertions = 0;
     for (const { rawName, displayName, requiredAmount, levelReq, exp } of getAnvilProductCatalog()) {
       expect(rawName).toBeTruthy();
-      // The fallback is rawName, so this also catches the catalog silently losing its item lookup.
       expect(displayName).toBeTruthy();
       expect(displayName).not.toBe(rawName);
       expect(Number.isFinite(requiredAmount)).toBe(true);
@@ -795,15 +691,6 @@ describe('storage', () => {
   });
 });
 
-/**
- * The garden grid rendered nothing at all with no save: `plot` came from `rawFarmingPlot?.map(...)`,
- * which short-circuits the whole map rather than its elements.
- *
- * Unlike the forge slots or the coral roster there is no catalog to size this off - the game computes
- * the count as `Math.round(Math.min(36, 1 + BasketUpgQTY + GemItemsPurchased[135] + Math.min(3,
- * Tasks[2][5][2])))`, so it is progression-driven, one plot on a fresh account and 36 at the ceiling.
- * The no-save case therefore shows the ceiling, which is what the feature IS.
- */
 describe('farming plot (no catalog: falls back to the game ceiling with no save)', () => {
   const MAX_PLOTS = 36;
 
@@ -818,10 +705,8 @@ describe('farming plot (no catalog: falls back to the game ceiling with no save)
   });
 
   it('a real save still maps its own plots, not the ceiling', () => {
-    // The load-bearing half: the fallback must not overwrite a player who owns fewer than 36.
     const counts = FIXTURES.map(([, fixture]) => parseFixture(fixture).account.farming?.plot?.length);
     counts.forEach((count) => expect(count).toBeGreaterThan(0));
-    // At least one fixture owns fewer than the ceiling, so this cannot pass by everyone being at 36.
     expect(counts.some((count) => count < MAX_PLOTS)).toBe(true);
   });
 });

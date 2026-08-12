@@ -9,10 +9,6 @@ export const getDeathNote = (idleonData: any, charactersData: any, account: any)
   const allKills = getAllCharactersKills(charactersData);
   const miniBosses = bosses.map((rawName: any, index: any) => ({
     rawName,
-    // rawSneaking is undefined with no save, so miniBossesKills?.[index] is undefined - not the same
-    // as 0 kills. Left undefined, `getDeathNoteRank`'s `100 > kills` chain of comparisons is false
-    // for every threshold (NaN comparisons are always false), which fell through to the *highest*
-    // rank instead of the lowest. 0 kills is the correct "never fought this monster" default.
     kills: miniBossesKills?.[index] ?? 0
   })).reduce((res: any, { rawName, kills }: any) => {
     const rank = getDeathNoteRank(account, kills, true);
@@ -23,8 +19,6 @@ export const getDeathNote = (idleonData: any, charactersData: any, account: any)
   }, {});
   return deathNote.reduce((res: any, { rawName, world }) => {
     const mobIndex = mapEnemies?.[rawName];
-    // charactersData is [] with no save, so allKills is [] too and allKills?.[mobIndex] is
-    // undefined - see the miniBossesKills comment above for why that must default to 0.
     const kills = allKills?.[mobIndex] ?? 0;
     const rank = getDeathNoteRank(account, kills, false);
     return {

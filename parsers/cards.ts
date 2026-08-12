@@ -62,11 +62,6 @@ const parseCards = (cardsRaw: any, rawRift: any, account: Account): Record<strin
   const rawSixStarList = (account as any)?.accountOptions?.[603] || '';
   const sixStarList = rawSixStarList?.toString()?.split(',') || [];
 
-  // Catalog-driven: the set of cards that exist is a property of the game (the `cards` catalog is
-  // keyed by rawName, not a positional index, so no liveEntries/index bookkeeping is needed here -
-  // just drop placeholder entries and look each one's amount up in the save by its own key).
-  // The save only supplies each card's amount, and a missing save means an unowned (0) card - not a
-  // truncated card list.
   return Object.entries(cards).reduce(
     (res: Record<string, any>, [name, cardDetails]: [string, any]) => {
       if (isPlaceholder(cardDetails)) return res;

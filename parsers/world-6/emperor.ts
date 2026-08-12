@@ -85,8 +85,6 @@ export const getEmperor = (idleonData: any, account: any) => {
   };
   const nextLevelBonus = emperorBonuses.find((val, index) => index === highestEmperorShowdown + 1);
   const jadeEmporiumBonus = isJadeBonusUnlocked(account, 'Emperor_Season_Pass') ? 1 : 0;
-  // accountOptions[382]/[370] are undefined (never touched, real or empty) - guarded to 0, matching
-  // highestEmperorShowdown's own `?? 0` a few lines up.
   const dailyAttemptsOption = account?.accountOptions?.[382] ?? 0;
   const attemptsUsed = account?.accountOptions?.[370] ?? 0;
   const maxAttempts = Math.round(5 * jadeEmporiumBonus + 6 * dailyAttemptsOption + 5) + 1

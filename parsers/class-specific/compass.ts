@@ -95,9 +95,6 @@ export const getCompass = (idleonData: any, charactersData: any, accountData: an
   return parseCompass(compassRaw, charactersData, accountData, serverVars);
 };
 
-// Classification: CATALOG-BACKED (`compass`, `abominations`). The save only supplies each
-// upgrade's level and each abomination's kill flag; a missing save means every upgrade sits at
-// level 0 and every abomination is un-killed, not a shorter list.
 const parseCompass = (compassRaw: any, charactersData: any, accountData: any, serverVars: any) => {
   const [upgradesLevels, abominationsRaw, portalsRaw, medallionsRaw, exaltedStampsRaw] = compassRaw || [];
 
@@ -432,8 +429,6 @@ export const getCompassStats = (character: any, account: any) => {
           + getLocalCompassBonus(upgrades, 81)))))
     * Math.pow(1.05, equipmentWeaponPower)
     * (1 + equipBonus4 / 100)
-    // accountOptions[360]/[232] default to 0: no save means these are unset, not unknown -
-    // lavaLog(undefined) and Math.pow(x, undefined) are both NaN regardless of the paired bonus.
     * (1 + (getLocalCompassBonus(upgrades, 23)
       * lavaLog(account?.accountOptions?.[360] ?? 0)) / 100)
     * Math.pow(1 + getLocalCompassBonus(upgrades, 26) / 100, account?.accountOptions?.[232] ?? 0)
@@ -562,8 +557,6 @@ export const getExtraDust = (character: any, account: any) => {
   const meritocracyBonus = getMeritocracyBonus(account, 25) ?? 0;
   const { value: allMasterclassDropz, sources: amdSources } = getAllMasterclassDropz(character, account);
 
-  // Default to 0: no save means this multiplier is unset - lavaLog(undefined) is NaN, which
-  // poisons baseUpgrades even when getLocalCompassBonus(upgrades, 34) is itself 0.
   const baseUpgrades = getLocalCompassBonus(upgrades, 31)
     + getLocalCompassBonus(upgrades, 34) * lavaLog(account?.accountOptions?.[359] ?? 0)
     + exoticBonus;

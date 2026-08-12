@@ -1,5 +1,4 @@
 // @vitest-environment jsdom
-// The suite default is `node` (vitest.config.js); this file renders a component.
 import '../../polyfills';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -11,11 +10,6 @@ vi.mock('next/router', () => ({ useRouter: () => ({ pathname }) }));
 
 const PageTitle = (await import('@components/common/PageTitle')).default;
 
-/**
- * The page heading is the only h1 on every page but the homepage, so the two things that matter are
- * that it says the right thing and that there is exactly one of it. A second h1 splits the signal
- * instead of strengthening it, which is worse than having none.
- */
 describe('PageTitle', () => {
   beforeEach(() => { pathname = '/'; });
 
@@ -31,23 +25,17 @@ describe('PageTitle', () => {
     const heading = container.querySelector('h1');
     expect(heading).not.toBeNull();
     expect(heading.textContent).toBe('Anvil');
-    // Guards against the suffix strip silently doing nothing.
     expect(PAGE_SEO['/account/world-1/anvil'].title).toContain('| Idleon Toolbox');
     expect(heading.textContent).not.toContain('Idleon Toolbox');
   });
 
   it('renders nothing on /settings, which draws its own title', () => {
-    // The page already shows a visible "Settings" heading, so PageTitle would put the same word on
-    // screen twice.
     pathname = '/settings';
     const { container } = render(<PageTitle/>);
     expect(container.querySelector('h1')).toBeNull();
   });
 
   it('strips the site suffix whatever separator a title uses', () => {
-    // /settings was written "Settings - Idleon Toolbox" while the other 106 routes use "|", and a
-    // pipe-only strip left the suffix in the visible heading. The rule is anchored on the site name
-    // now, so a title with an incidental dash in it keeps the dash.
     const everyTitle = Object.values(PAGE_SEO).map(({ title }) => title);
     expect(everyTitle.some((title) => /\|\s*Idleon Toolbox\s*$/.test(title))).toBe(true);
 
@@ -65,7 +53,6 @@ describe('PageTitle', () => {
 
   it('renders nothing for a noindex page', () => {
     const noindexRoute = Object.entries(PAGE_SEO).find(([, seo]) => seo.noindex)?.[0];
-    // If nothing is marked noindex any more this assertion would pass vacuously.
     expect(noindexRoute, 'expected at least one noindex route in PAGE_SEO').toBeTruthy();
     pathname = noindexRoute;
     const { container } = render(<PageTitle/>);

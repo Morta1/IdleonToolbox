@@ -19,8 +19,6 @@ const Charge = () => {
     totalChargeRate,
     timeToOverCharge,
   } = getChargeWithSyphon(state?.characters);
-  // No wizard (no save) means both totalCharge and max+syphon are 0 - a 0/0 ratio.
-  // Number.isFinite guards that division-by-zero NaN, rendering an honest 0% instead.
   const maxChargeWithSyphon = (bestWizard?.worship?.maxCharge || 0) + bestChargeSyphon;
   const chargePercent = (totalCharge / maxChargeWithSyphon) * 100;
 

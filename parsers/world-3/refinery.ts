@@ -35,17 +35,7 @@ const parseRefinery = (refineryRaw: any[], storage: any[], tasks: any) => {
   }] : res, []);
   const combinedStorage = [...(storage || []), ...(refineryStorage || [])];
   const refinerySaltTaskLevel = tasks?.[2]?.[2]?.[6];
-  // Catalog-driven: the list of salts that exist is a property of the game, not of the save. The
-  // save only supplies each salt's refined/rank/active progress, and a missing/short save means
-  // an unrefined (rank 0) salt - not a truncated list.
   const refineryCatalog = Object.entries(refinery).map(([name, value]: [string, any]) => ({ rawName: name, ...value }));
-  // The game seeds every salt slot - unlocked or not - with [0,1,0,0,0], so a locked salt's rank
-  // reads as 1, not 0. Reading unconditionally (as the catalog-driven rewrite first did) would have
-  // rendered every locked salt at rank 1 and fed that rank into utility/dashboard/account.js's
-  // missing-materials alert, which false-positives real accounts. Same hazard as the shops/
-  // shopStock decision earlier on this branch: populating a catalog with zero-value rows for
-  // something the account hasn't unlocked yet can permanently trip a dashboard alert. Only read
-  // the save below the player's unlocked count; index >= unlocked stays neutral (rank 0).
   const unlockedSaltCount = refineryRaw?.[0]?.[0] ?? 0;
   const saltsArray = liveEntries<any>(refineryCatalog).map(({ entry, index }) => {
     const { rawName: name, saltName, cost } = entry;
@@ -106,10 +96,6 @@ export const getRefineryCycleBonuses = (account: Account, characters: any[]) => 
   const { alchemy, saltLick, charactersLevels, breeding, rift, towers } = account;
   const vials = alchemy?.vials;
   const redMaltVial = getVialsBonusByEffect(vials, 'Refinery_Cycle_Speed');
-  // Reuse the shared helper instead of reading .baseBonus * .level directly - an unowned salt
-  // lick has `level: undefined`, and getSaltLickBonus already guards that with `?? 0` while this
-  // call site didn't, poisoning the whole cycle-speed chain (and therefore every cycle time) with
-  // NaN.
   const saltLickUpgrade = getSaltLickBonus(saltLick, 2);
   const sigilRefinerySpeed = alchemy?.p2w?.sigils?.find((sigil: any) => sigil?.name === 'PIPE_GAUGE')?.bonus || 0;
   const stampRefinerySpeed = getStampsBonusByEffect(account, 'Faster_refinery_cycles');
@@ -218,7 +204,6 @@ export const getRefineryCycles = (account: Account, characters: any[], lastUpdat
   const combustion = {
     name: 'Combustion',
     time: Math.ceil(combustionTime),
-    // Default to 0: no save means no time has passed on this cycle yet, not an unknown value.
     timePast: (account?.refinery?.timePastCombustion ?? 0) + timePassed,
     breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 900 }, ...breakdown]
   };

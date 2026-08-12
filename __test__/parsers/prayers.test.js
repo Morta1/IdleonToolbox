@@ -37,8 +37,6 @@ describe('getPrayers', () => {
   });
 
   it('returns the full list even when the save is shorter than the catalog', () => {
-    // Regression: the save-driven version returned 5 entries here, hiding every prayer the player
-    // had not unlocked yet.
     const result = getPrayers({ PrayersUnlocked: [5, 3, 0, 0, 0] }, []);
     expect(result).toHaveLength(liveCount(prayers));
     expect(result[18].level).toBe(0);
@@ -53,7 +51,6 @@ describe('getPrayers fixture regression', () => {
     const raw = data?.PrayersUnlocked || tryToParse(data?.PrayOwned) || [];
     const result = getPrayers(data, []);
 
-    // Every level present in the save must survive at the same index.
     raw.slice(0, result.length).forEach((level, index) => {
       expect(result[index].level).toBe(level);
     });

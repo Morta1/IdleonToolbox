@@ -11,15 +11,9 @@ export const getPrayers = (idleonData: IdleonData, storage: any[]) => {
 }
 
 const parsePrayers = (prayersRaw: any[] | undefined, storage: any[]) => {
-  // Catalog-driven: the list of prayers that exist is a property of the game, not of the save.
-  // The save only supplies each prayer's level, and a short save means unlocked-yet levels of 0 —
-  // not a truncated list.
   return liveEntries<any>(prayers).map(({ entry, index }) => {
     const reqItem = entry?.soul;
     const totalAmount = calculateItemTotalAmount(storage, items?.[reqItem]?.displayName, true);
-    // `entry` already carries `prayerIndex` from website-data.json, and it always equals `index`
-    // (verified against the catalog) - dropped the redundant reassignment rather than keep a
-    // no-op line that reads as if it were doing something the spread hadn't already done.
     return {
       ...entry,
       totalAmount,

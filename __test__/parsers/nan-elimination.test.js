@@ -18,74 +18,20 @@ import raw from '../../data/raw.json';
 
 const parseRaw = () => parseFixture(raw);
 
-/**
- * Every NaN/Infinity gate and every pre-fix regression replica, in one file.
- *
- * This was three files (task-12/13/14), named after the plan tasks that produced them rather than
- * after what they cover. They each declared their own FIXTURES list, and that is the reason to merge
- * them rather than a tidiness argument: parseFixture memoizes on the fixture OBJECT's identity, and
- * two of the files static-imported the JSON while the third read the same files off disk. Different
- * objects, so the memo never hit across files, and vitest isolates a module registry per file, so
- * even the shared `raw` import was re-parsed. Seven saves were being parsed three times over - 21
- * parses to cover 7 - which is most of what these tests cost.
- *
- * What each part is for:
- *  1. The gates - one unscoped walk over every account key, on all seven saves (empty parse,
- *     data/raw.json, every fixture on disk). One for NaN, one for Infinity. The fixture list is read
- *     from the directory so a fixture added later is covered with no change here.
- *  2. Per-section regression replicas - each pins a specific formula against a verbatim copy of its
- *     pre-fix version, asserting every already-finite value is byte-identical and every previously
- *     non-finite one is finite now. The gates cannot do this: they prove nothing is broken, not that
- *     a specific fix did what it claimed.
- *
- * Both are needed. A curated version of the gate in (1) is what let 1549 NaN across five sections go
- * unnoticed - it walked 25 named sections and none of the five was on the list.
- *
- * Every `it.each(FIXTURES)` body counts its own assertions and asserts the count is > 0 at the end -
- * this project has hit the "silent vacuous loop over absent fixture data" defect four times.
- */
 
-// ---------------------------------------------------------------------------------------------
-// 1. The gates
-// ---------------------------------------------------------------------------------------------
 
 const FIXTURES_DIR = path.resolve(__dirname, '../fixtures');
 const FIXTURES = fs.readdirSync(FIXTURES_DIR)
   .filter((file) => file.endsWith('.json'))
   .map((file) => [file.replace(/\.json$/, ''), JSON.parse(fs.readFileSync(path.join(FIXTURES_DIR, file), 'utf-8'))]);
 
-// Paths allowed to still be NaN, with a reason. Must shrink toward empty as sections are fixed - never
-// add an entry just to make this test pass. It is empty: printer, highscores, equinox, sailing and
-// accountLevel were the last sections carrying NaN, all were fixed at the root, and re-running the
-// unscoped walk found nothing else left anywhere in any of the seven saves.
 export const KNOWN_NAN_EXCEPTIONS = [];
 
-// Infinity is the other half of "bad arithmetic", and until now nothing checked a real save for it.
-// The e2e gate matches the rendered word "Infinity", but it only ever loads a page signed out, so no
-// page built from a save was checked by anything - which is how gaming's ratKing shop costs sat at
-// Infinity on two fixtures until this gate was added. That one is fixed at the root now.
-//
-// Each entry needs a reason. An entry here is a claim that the value is CORRECT, or a recorded bug.
 export const KNOWN_NON_FINITE_EXCEPTIONS = {
-  // Deliberate sentinel: `maxLevel > 998 ? Infinity : maxLevel` in sushiStation.ts marks an uncapped
-  // upgrade. Upgrades.jsx renders it as the infinity glyph, never as the word.
   'sushiStation.upgrades.[].maxLevel': 'intentional uncapped-upgrade sentinel',
-  // 0 opals invested means a 0 exp rate, and time-to-next-level divides by it. Consumed only through
-  // getRealDateInMs, which has its own non-finite branch.
   'hole.villagers.[].timeLeft': 'no exp rate without opals invested; rendered via getRealDateInMs',
-  // Genuine float overflow, not a parsing mistake: the cost is baseCost * powBase ** (level * 10 /
-  // reqItemMultiplicationLevel), and a high enough stamp level exceeds Number.MAX_VALUE. Pre-existing
-  // (present at this branch's merge base) and out of its scope.
   'stamps.misc.[].goldCost': 'float overflow on a genuinely astronomical cost - pre-existing',
   'stamps.misc.[].futureCosts.[].goldCost': 'float overflow on a genuinely astronomical cost - pre-existing',
-  // Genuine overflow, and correct to keep. getTaskRequirement's `base * factor ** presses` passes
-  // Number.MAX_VALUE for the exponent-scaled tasks once the lookahead projects far enough forward.
-  //
-  // The game never meets this: it only ever computes Button_REQ for the task in front of you, which
-  // is finite (verified live - task 18, requirement 4,609,057, matching taskSequence[0] exactly).
-  // The projection is the toolbox's own feature, so the toolbox picks the convention: a requirement
-  // past MAX_VALUE is unreachable rather than large, and both render paths now show the infinity
-  // glyph instead of the literal word "Infinity".
   'button.taskSequence.[].requirement': 'unreachable projection past MAX_VALUE, rendered as the glyph',
   'button.taskSequence.[].futureRequirements.[]': 'unreachable projection past MAX_VALUE, rendered as the glyph'
 };
@@ -137,8 +83,6 @@ describe('NaN gate: every account key, on every save available', () => {
   });
 
   it('discovered at least the five known fixture files', () => {
-    // Guards against the fs.readdirSync glob silently matching nothing (e.g. a path typo), which
-    // would make every it.each below a vacuous zero-iteration loop.
     expect(FIXTURES.length).toBeGreaterThanOrEqual(5);
   });
 
@@ -170,13 +114,10 @@ describe('Infinity gate: every account key, on every save available', () => {
   });
 
   it('the walk really does see Infinity - every allowlisted path is still reachable', () => {
-    // Without this the allowlist could quietly cover paths that no longer exist, and the gate above
-    // would pass by finding nothing at all rather than by finding only explained values.
     const everyPath = new Set();
     [parseEmpty(), parseRaw(), ...FIXTURES.map(([, fixture]) => parseFixture(fixture))]
       .forEach(({ account }) => countNonFinite(account, { includeNaN: false, }).paths.forEach((p) => everyPath.add(p)));
 
-    // With the allowlist bypassed, the same walk must surface each entry - otherwise it is dead.
     const withoutAllowlist = new Set();
     const collect = (root) => {
       const seen = new WeakSet();
@@ -202,13 +143,6 @@ describe('Infinity gate: every account key, on every save available', () => {
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// 2a. printer - companionBonus/compassBonus/Winter-event all read `Number(accountOptions?.[N])`
-// unguarded; `Number(undefined)` is NaN and poisons the whole multiplicative chain even though the
-// paired bonus function (isCompanionBonusActive/getCompassBonus/getEventShopBonus) is itself always
-// finite. raw.json and latest.json both have these three indices defined, so they exercise the
-// no-op (byte-identical) side; first/second/third/fourth exercise the previously-NaN side.
-// ---------------------------------------------------------------------------------------------
 
 const getCompanionBonusPreFix = (account) =>
   1 + Number(account?.accountOptions?.[354]) * isCompanionBonusActive(account, 17) / 100;
@@ -264,13 +198,6 @@ describe('printer companionBonus/compassBonus/Winter-event (Number(accountOption
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// 2b. highscores hoops/darts upgrade cost - `.slice(N, N+4)` on a real (but short) accountOptions
-// array returns `[]`, not an array of zeros; the top-level `?? [0,0,0,0]` fallback only ever catches
-// a fully-missing accountOptions, never a short one, so `points[index]` was `undefined` and
-// `Math.floor(2 + undefined / 12)` was NaN. raw.json/latest.json's accountOptions arrays reach past
-// index 438, so they exercise the no-op side.
-// ---------------------------------------------------------------------------------------------
 
 const getPointsPreFix = (account, start) => (account?.accountOptions)?.slice(start, start + 4) ?? [0, 0, 0, 0];
 const getCostPreFix = (points, index) =>
@@ -313,10 +240,6 @@ describe('highscores hoops/darts upgrade cost (short-array `.slice` gap fix)', (
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// 2c. equinox Penguins bonus - `1 + accountOptions?.[320] / 10` unguarded; raw.json/latest.json have
-// index 320 defined (no-op side), first/second/third/fourth don't (previously-NaN side).
-// ---------------------------------------------------------------------------------------------
 
 const getPenguinsPreFix = (account) => 1 + account?.accountOptions?.[320] / 10;
 
@@ -340,14 +263,6 @@ describe('equinox Penguins bonus (accountOptions[320] guard fix)', () => {
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// 2d. sailing boats maxTime/timeLeft - islandIndex -1 (boat never dispatched) means `island` is
-// genuinely undefined, so `island?.distance` optional-chains to undefined and poisons the division.
-// This is a real "not applicable" case (a boat with no destination has no roundtrip time), fixed by
-// leaving maxTime/timeLeft `undefined` instead of computing a fabricated number - the replica formula
-// below is identical for every boat (optional chaining already no-ops when island is defined), so it
-// proves both the no-op (deployed boats) and previously-NaN (undeployed boats) cases in one pass.
-// ---------------------------------------------------------------------------------------------
 
 const getBoatMaxTimePreFix = (boat) => (boat.island?.distance / boat.speed?.value) * 3600 * 1000;
 const getBoatTimeLeftPreFix = (boat) => ((boat.island?.distance - boat.distanceTraveled) / boat.speed?.value) * 3600 * 1000;
@@ -362,7 +277,6 @@ describe('sailing boats maxTime/timeLeft (undeployed-boat undefined-island fix)'
       if (Number.isFinite(beforeMax)) {
         expect(boat.maxTime).toBe(beforeMax);
       } else {
-        // Previously NaN (undeployed boat, no island) - now "not applicable" (undefined), never NaN.
         expect(boat.maxTime).toBeUndefined();
       }
       expect(Number.isNaN(boat.maxTime)).toBe(false);
@@ -389,12 +303,6 @@ describe('sailing boats maxTime/timeLeft (undeployed-boat undefined-island fix)'
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// 2e. sailing.timeToFullChests - `Math.min(...roundtripTimes)` poisons to NaN the moment any single
-// boat's maxTime is undefined (an undeployed boat, per 2d above) - Math.min/max poison on ANY
-// NaN/undefined argument, unlike a plain comparison. Fixed by filtering to only deployed boats' times
-// before the fleet-wide fastest-roundtrip estimate.
-// ---------------------------------------------------------------------------------------------
 
 const calculateMaxCapacityTimePreFix = (roundtripTimes, maxCapacity) => {
   const minTime = Math.min(...roundtripTimes);
@@ -420,9 +328,6 @@ describe('sailing.timeToFullChests (Math.min NaN-poisoning-on-undeployed-boat fi
     if (Number.isFinite(before)) {
       expect(after).toBe(before);
     } else if (roundtripsBefore.filter((t) => Number.isFinite(t)).length === 0) {
-      // Every boat undeployed (first.json's real shape: a single, never-dispatched boat) - there is
-      // no fleet roundtrip to estimate from at all, so "not applicable" (undefined) is the honest
-      // value, not a fabricated 0 or Infinity from Math.min() on an empty spread.
       expect(after).toBeUndefined();
     } else {
       expect(Number.isFinite(after)).toBe(true);
@@ -443,12 +348,6 @@ describe('sailing.timeToFullChests (Math.min NaN-poisoning-on-undeployed-boat fi
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// 2f. sailing.artifacts Crystal_Steak additionalData[].bonus - a character slot with no parsed
-// class/stats (an empty companion slot, found on fourth.json's "KyroChallenge3/4") has `stat`
-// undefined, and `Math.floor(undefined / 100)` is NaN. `?? 0` on the read matches the same-shaped
-// guard the Socrates branch two cases below already applies to every one of its own stat reads.
-// ---------------------------------------------------------------------------------------------
 
 describe('sailing.artifacts Crystal_Steak additionalData[].bonus (empty character-slot stat guard)', () => {
   it.each([...FIXTURES, ['raw', raw]])('%s: every character bonus entry is byte-identical unless previously NaN, and is always finite now', (_name, fixture) => {
@@ -487,11 +386,6 @@ describe('sailing.artifacts Crystal_Steak additionalData[].bonus (empty characte
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// 2g. accountLevel - `charactersData.reduce((sum, { level }) => sum + level, 0)`; the same empty
-// character slots from 2f have `level` undefined, and `sum + undefined` poisons the running total to
-// NaN for every subsequent character too.
-// ---------------------------------------------------------------------------------------------
 
 const getAccountLevelPreFix = (characters) => characters?.reduce((sum, { level }) => sum + level, 0);
 
@@ -511,30 +405,12 @@ describe('accountLevel (empty character-slot level guard)', () => {
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// 3. Empty-account guards must not zero a real save.
-//
-// This is a defect class the NaN gate above is blind to by construction: a guard added to stop a
-// signed-out NaN can replace a real save's bonus with 0, and 0 is a finite, well-formed number that
-// every gate on this branch happily accepts.
-//
-// It happened. getDoubleStatueDrop gated its Kattelkruk minor bonus on `kattelkrukPlayer ? ... : 0`.
-// The minor bonus is gated on owning the god, not on someone being linked to it - see the
-// getMinorDivinityBonus calls in damage.ts, which gate on `hasDoot`. Three of the five fixtures have
-// no Kattelkruk link, and all three silently lost the bonus (8.44 / 9.70 / 5.71 -> 0) for the whole
-// life of the branch with the suite green.
-//
-// The guard was also unnecessary: the NaN it was written to stop is fixed at the root in
-// getMinorDivinityBonus, whose `?? 0` on the divinity level makes an empty account return 0 anyway.
-// ---------------------------------------------------------------------------------------------
 
 describe('getDoubleStatueDrop keeps the Kattelkruk minor bonus without a linked player', () => {
   const UNLINKED = ['second', 'third', 'fourth'];
 
   it.each(UNLINKED)('%s: has no Kattelkruk link, and still gets a non-zero divinity bonus', (name) => {
     const fixture = FIXTURES.find(([fixtureName]) => fixtureName === name);
-    // If a fixture is renamed the .find returns undefined and this test would throw rather than
-    // pass vacuously, but assert the premise anyway so the failure names the real cause.
     expect(fixture).toBeDefined();
     const { account, characters } = parseFixture(fixture[1]);
 
@@ -546,8 +422,6 @@ describe('getDoubleStatueDrop keeps the Kattelkruk minor bonus without a linked 
   });
 
   it('an empty account still gets 0, not NaN, with no guard in getDoubleStatueDrop', () => {
-    // The load-bearing half: without this, deleting the guard could reintroduce the NaN it was
-    // added for. The root fix lives in getMinorDivinityBonus, not here.
     const { account, characters } = parseEmpty();
     const { value, breakdown } = getDoubleStatueDrop(account, characters?.[0], characters);
     const divinity = breakdown.find(({ name: label }) => label === 'Divinity').value;
@@ -564,11 +438,6 @@ describe('getDoubleStatueDrop keeps the Kattelkruk minor bonus without a linked 
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// 2a. stamps.*.materialCost - the dominant fix (51 of 62 real NaN). Verbatim pre-fix getMaterialCost
-// (the tier exponent was `round(level / reqItemMultiplicationLevel) - 1`, negative - and therefore
-// NaN through `Math.pow(negative, 0.8)` - for any level below half of reqItemMultiplicationLevel).
-// ---------------------------------------------------------------------------------------------
 
 const getMaterialCostPreFix = (level, stamp, account, reduction = 0, gildedStamp) => {
   const reductionVial = getVialsBonusByEffect(account?.alchemy?.vials, 'material_cost_for_stamps');
@@ -588,11 +457,6 @@ const getMaterialCostPreFix = (level, stamp, account, reduction = 0, gildedStamp
 describe('stamps materialCost (tier exponent clamp fix)', () => {
   it.each(FIXTURES)('%s: every stamp materialCost is byte-identical unless it was previously NaN, and is always finite now', (_name, fixture) => {
     const { account } = parseFixture(fixture);
-    // evaluateStamp defaults gildedStamp to true and updateStamps never overrides it - see
-    // parsers/index.ts's `updateStamps(accountData, charactersData)` call with no third argument.
-    // account.atoms.stampReducer's own NaN-guard is a documented separate fix (proven a no-op for
-    // real saves in the "guard-only fixes" describe block below), so reading it directly here is
-    // exactly the value evaluateStamp fed into the pre-fix formula too.
     const stampReducer = account?.atoms?.stampReducer;
     let assertions = 0;
     ['combat', 'skills', 'misc'].forEach((category) => {
@@ -627,17 +491,11 @@ describe('stamps materialCost (tier exponent clamp fix)', () => {
         assertions++;
       });
     });
-    // Documents why this fixture is the interesting one: it actually exercises the previously-broken
-    // path (unleveled stamps), unlike an already-maxed test fixture might.
     expect(previouslyNaNCount).toBeGreaterThan(0);
     expect(assertions).toBeGreaterThan(0);
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// 2b. islands - the multiplier table gap (index 6, all islands unlocked) is the one change that can
-// alter a real fixture's non-NaN value; the rest are `?? 0` guards on always-defined real data.
-// ---------------------------------------------------------------------------------------------
 
 const ISLANDS_CATALOG = [
   { preUnlockCost: 4, baseCost: 10 },
@@ -681,11 +539,6 @@ describe('islands cost (multiplier table gap at index 6 fix)', () => {
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// 2c. currencies.KeysAll totalAmount - indices 3/4 (Troll's_Enclave_Key, Kruk's_Volcano_Key) have no
-// NPC dialog day-tracking in the `npcs` map at all, so `daysSincePickup` is undefined by design on
-// EVERY real account, not just an empty one - this is why raw.json itself had this NaN before the fix.
-// ---------------------------------------------------------------------------------------------
 
 describe('currencies.KeysAll totalAmount (undefined daysSincePickup for keys 3/4)', () => {
   it.each(FIXTURES)('%s: keys 0-2 (tracked NPCs) are byte-identical, keys 3-4 (untracked) are now finite instead of NaN', (_name, fixture) => {
@@ -694,12 +547,9 @@ describe('currencies.KeysAll totalAmount (undefined daysSincePickup for keys 3/4
     account.currencies.KeysAll.forEach((key, index) => {
       const before = Math.min(key.daysSincePickup, 3) * key.amountPerDay; // old formula, no `?? 0`
       if (index <= 2) {
-        // Tracked keys always have a defined daysSincePickup on a real save, so the guard is a no-op.
         expect(Number.isFinite(before)).toBe(true);
         expect(key.totalAmount).toBe(before);
       } else {
-        // Untracked keys: daysSincePickup is undefined by design, amountPerDay is 0, old formula was
-        // always NaN (`NaN * 0` is NaN, not 0) - new formula is 0 regardless of fixture content.
         expect(Number.isNaN(before)).toBe(true);
         expect(key.totalAmount).toBe(0);
       }
@@ -709,11 +559,6 @@ describe('currencies.KeysAll totalAmount (undefined daysSincePickup for keys 3/4
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// 2d. breeding.territories[].reqProgress - a territory past the length of the save's own Territory
-// array (locked/unreached) has no foraging-rounds entry; this is exactly what raw.json hit for real
-// (indices 26/27), not just an empty account.
-// ---------------------------------------------------------------------------------------------
 
 const terri = territoryCatalog.filter((_, index) => index !== 14);
 
@@ -759,11 +604,6 @@ describe('breeding.territories reqProgress (missing foragingRounds entry fix)', 
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// 2e. summoning careerWins[7] - deathNote goes up to world 6 (-> careerWins key 7), which the old
-// object never declared. raw.json has real wins logged against world-6 deathNote monsters, which is
-// exactly what made `.summoning.upgrades[0][0].totalBonus` NaN on a REAL account before the fix.
-// ---------------------------------------------------------------------------------------------
 
 const whiteBattleOrderReplica = ['Pet1', 'Pet2', 'Pet3', 'Pet0', 'Pet4', 'Pet6', 'Pet5', 'Pet10', 'Pet11'];
 
@@ -814,13 +654,6 @@ describe('summoning upgrade[originalIndex 0].totalBonus (careerWins[7] fix)', ()
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// 2f. summoning upgrades[].totalCost / armyHealth / armyDamage all used to re-read
-// `account?.accountOptions?.[319]` raw (no `?? 0`), unlike `highestEndlessLevel` a few lines above
-// each of them which already had the guard. accountOptions[319] (Endless Summoning depth) turns out
-// to be undefined on most of these fixtures too (most haven't touched that late-game feature) - this
-// was NOT a guard-only, empty-account-only fix; it was already NaN for real, non-empty accounts.
-// ---------------------------------------------------------------------------------------------
 
 const getTotalCostPreFix = (upgrade, flatUpgrades, account) => {
   const costDeflation = flatUpgrades.find((u) => u.originalIndex === 49);
@@ -915,32 +748,9 @@ describe('summoning upgrades[].totalCost / armyHealth / armyDamage (raw accountO
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// 2g. Guard-only fixes: every other change in this task is `X ?? 0` (or `Number.isFinite(x) ? x : 0`)
-// applied to a value that is only ever undefined/NaN when there's no save at all (or, for the atoms/
-// rift cross-section reads, when a section outside this task's scope hasn't been converted yet). A
-// nullish/NaN-coalescing guard is provably an identity function whenever its input is already
-// defined/finite, so proving the guarded input is defined/finite on every real fixture is a complete
-// proof that these guards cannot have changed any real fixture's output - no need to re-derive the
-// full downstream formula (multiple layers of bonus multipliers) for each one.
-// ---------------------------------------------------------------------------------------------
 
-// A "guard-only fixes are no-ops on real save data" block lived here. It read raw inputs -
-// account.accountOptions[164], data.MoneyBANK, and so on - and asserted they were already finite.
-// Nothing downstream of the guards was checked, so removing a guard left it green: it documented
-// that the guards were no-ops rather than gating that they stay correct. The few parser OUTPUTS it
-// did touch were isFinite checks, which the unscoped NaN gate above already makes across every
-// account key on all seven saves.
 
-// ---------------------------------------------------------------------------------------------
-// 2. Fixes that changed a REAL (non-empty fixture) previously-NaN value to finite - full pre-fix
-//    formula replicas, proving byte-identical output whenever the old formula was already finite.
-// ---------------------------------------------------------------------------------------------
 
-// 2a. sneaking.ts getSymbolBonus - sneakingSlots can be shorter than a real save's highest symbolLVID.
-// Inventory items (baseItemId 60) always have a symbol (isInventoryItem is unconditionally true), and
-// their symbolLVID is simply itemId - 36 = 60 + inventoryIndex - 36 = inventoryIndex + 24 - the
-// simplest, fully-covered case to replicate directly against the actual parsed field.
 const getSymbolBonusPreFix = (account, index) => {
   return 999 === index
     ? 50 * (account?.spelunking?.sneakingSlots?.[index] + 1)
@@ -978,7 +788,6 @@ describe('sneaking symbolBonus (sneakingSlots?.[index] guard)', () => {
   });
 });
 
-// 2b. farming.ts rankRequirement/cropType - farmingRanks/seedInfo can be shorter than the real plot.
 const calcRankRequirementPreFix = (rank) => (7 * rank + 25 * Math.floor(rank / 5) + 10) * Math.pow(1.11, rank);
 
 describe('farming.plot rankRequirement/cropType (missing array entry fixes)', () => {
@@ -1011,7 +820,6 @@ describe('farming.plot rankRequirement/cropType (missing array entry fixes)', ()
   });
 });
 
-// 2c. coralReef.ts getDancingCoralCost - rawSpelunking[4][7] can be a shorter save array.
 const getDancingCoralCostPreFix = (rawSpelunking, generalSpelunky22, index) => {
   const baseCost = Number(generalSpelunky22?.[index]) || 0;
   return baseCost / (1 + (10 * rawSpelunking?.[4]?.[7] + Math.pow(1.05, rawSpelunking?.[4]?.[7])) / 100);
@@ -1024,8 +832,6 @@ describe('coralReef.dancingCoral cost (rawSpelunking[4][7] guard)', () => {
     const rawSpelunking = tryToParse(data?.Spelunk);
     let assertions = 0;
     account.coralReef.dancingCoral.forEach((coral) => {
-      // generalSpelunky[22] isn't re-exported; the coral catalog names/order are stable, so compare
-      // against the parsed baseCost indirectly by checking the previously-NaN condition directly.
       const overstim = rawSpelunking?.[4]?.[7];
       const before = 1 + (10 * overstim + Math.pow(1.05, overstim)) / 100;
       const after = coral.cost;
@@ -1046,9 +852,6 @@ describe('coralReef.dancingCoral cost (rawSpelunking[4][7] guard)', () => {
   });
 });
 
-// 2d. misc.ts getKillRoyShopBonus - accountOptions[228..471] each used as both numerator and part of
-// the denominator; undefined on a never-bought shop slot made the WHOLE bonus (and every downstream
-// consumer - killroy, research, gallery) NaN, not just the one shop slot.
 const getKillRoyShopBonusPreFix = (account, index) => {
   const o = (i) => account?.accountOptions?.[i];
   return 0 === index
@@ -1094,7 +897,6 @@ describe('getKillRoyShopBonus (accountOptions[228..471] guards)', () => {
   });
 });
 
-// 2e. misc.ts getSlab - lootyRaw?.length was undefined (not 0) with no Looty save data at all.
 describe('getSlab lootedItems/rawLootedItems (lootyRaw?.length guard)', () => {
   it.each(FIXTURES)('%s: lootedItems and rawLootedItems are byte-identical unless previously NaN/undefined, and are always finite now', (_name, fixture) => {
     const data = fixture.data ?? fixture;
@@ -1111,34 +913,8 @@ describe('getSlab lootedItems/rawLootedItems (lootyRaw?.length guard)', () => {
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// 3. Guard-only fixes are no-ops on real save data: every remaining `?? 0` this task added guards a
-//    value that is only ever undefined with no save (or, for hole.ts, an index past a real array's
-//    length that never occurs on a real save - proven separately below). Proving the guarded input is
-//    already defined/finite on every real fixture where the code path is reached is a complete proof
-//    these guards cannot have changed any real fixture's output, per `??`'s definition as identity on
-//    a defined input.
-// ---------------------------------------------------------------------------------------------
 
-// A "guard-only fixes are no-ops on real save data" block lived here. It read raw inputs -
-// account.accountOptions[164], data.MoneyBANK, and so on - and asserted they were already finite.
-// Nothing downstream of the guards was checked, so removing a guard left it green: it documented
-// that the guards were no-ops rather than gating that they stay correct. The few parser OUTPUTS it
-// did touch were isFinite checks, which the unscoped NaN gate above already makes across every
-// account key on all seven saves.
 
-// ---------------------------------------------------------------------------------------------
-// gaming ratKing shop - GamingSprout[33] only holds the rat shop once the king rat is unlocked.
-//
-// Verified against the running game: on an unlocked account GamingSprout[33] is
-// [704, 67, 57, 75, 204, 383] - a base bonus then the three upgrade levels - which matches both
-// data/raw.json and the parser's destructure, and the game's own RatShopCost reads [33][t+1] exactly
-// as calcRatShopCost does. The index mapping was never wrong.
-//
-// While LOCKED the slot still carries whatever it held when that index was an ordinary sprout row,
-// and a sprout's [1] is an accumulated float - 11185751 on second, 11633189 on fourth - which read as
-// a level made the cost 1.15 ** 11185751, i.e. Infinity, rendered as the word.
-// ---------------------------------------------------------------------------------------------
 
 describe('gaming ratKing shop costs', () => {
   const ratCosts = (account) => account?.gaming?.ratKing?.shopUpgrades?.map(({ cost }) => cost) ?? [];
@@ -1151,8 +927,6 @@ describe('gaming ratKing shop costs', () => {
   });
 
   it('second and fourth really did produce Infinity before the unlock gate', () => {
-    // Without this the gate above could be passing because the input changed rather than because the
-    // fix works. Reads the raw slot the way the parser used to, unconditionally.
     const affected = ['second', 'fourth'].map((name) => {
       const fixture = FIXTURES.find(([fixtureName]) => fixtureName === name);
       expect(fixture).toBeDefined();
@@ -1164,8 +938,6 @@ describe('gaming ratKing shop costs', () => {
   });
 
   it('an unlocked account still reads its real upgrade levels', () => {
-    // The other half: the gate must not zero a shop that genuinely exists. raw.json's slot 33 is the
-    // same shape the live game reports.
     const { account } = parseRaw();
     expect(account.gaming.ratKing.kingRatUnlocked).toBe(true);
     expect(account.gaming.ratKing.shopUpgrades.map(({ level }) => level)).toEqual([67, 57, 75]);
@@ -1179,14 +951,9 @@ describe('gaming ratKing shop costs', () => {
   });
 });
 
-// ---------------------------------------------------------------------------------------------
-// button task requirements - the lookahead projects past Number.MAX_VALUE, the game never does.
-// ---------------------------------------------------------------------------------------------
 
 describe('button task requirements', () => {
   it('no task description ever contains the literal word "Infinity"', () => {
-    // formatLargeNumber sends anything >= 1e15 through toExponential, and Infinity.toExponential()
-    // is the string "Infinity" - which is what the description used to read on a large account.
     const descriptions = [...FIXTURES, ['raw', raw]].flatMap(([name, fixture]) => {
       const { account } = name === 'raw' ? parseRaw() : parseFixture(fixture);
       return account.button?.taskSequence?.map(({ description }) => description) ?? [];
@@ -1199,13 +966,10 @@ describe('button task requirements', () => {
     const { account } = parseRaw();
     const nonFinite = account.button.taskSequence.filter(({ requirement }) => !Number.isFinite(requirement));
     expect(nonFinite.length).toBeGreaterThan(0);
-    // ...and those are the ones whose description would have read "Infinity".
     nonFinite.forEach(({ description }) => expect(description).toContain('∞'));
   });
 
   it("the CURRENT task's requirement stays finite - it is what the game itself computes", () => {
-    // Checked against the running game: Button_REQ returned 4609057.595836196 for raw.json's save,
-    // which is exactly taskSequence[0].requirement. The overflow only ever affects the projection.
     [...FIXTURES, ['raw', raw]].forEach(([name, fixture]) => {
       const { account } = name === 'raw' ? parseRaw() : parseFixture(fixture);
       const current = account.button?.taskSequence?.[0];

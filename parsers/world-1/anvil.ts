@@ -186,8 +186,6 @@ export const getPlayerAnvil = (character: any, characters: any, account: any) =>
     .map((item: any) => anvilProducts[item]);
 
   return {
-    // `guildBonuses` is now populated from the catalog even for a guild-less account, so length is
-    // no longer a proxy for "is in a guild" - read the flag the parser sets instead.
     guild: account?.guild?.unlocked === true,
     stats,
     production,
@@ -244,11 +242,6 @@ export const getTimeTillCap = ({
 
   return (stats?.anvilCapacity - futureProduction) / productionRate;
 };
-/**
- * Everything else on this page is per-character, so a visitor with no characters saw an empty page.
- * The one thing here that is fixed game data rather than save data is WHAT the anvil can produce -
- * the same 14 products for everyone - so that is what the page falls back to.
- */
 export const getAnvilProductCatalog = () => Object.values(anvilProducts as Record<string, any>)
   .map((product: any) => ({
     ...product,

@@ -121,9 +121,6 @@ const CharactersDrawer = () => {
     }
   }
 
-  // Characters are pure user state - there is no catalog to fall back on - so an account with no
-  // save has none, permanently. Skeletons are for the genuinely-loading case only; treating an
-  // empty roster as "still loading" left logged-out visitors staring at placeholders forever.
   const hasCharacters = !!state?.characters?.length;
 
   const renderCharactersList = () => {
@@ -188,8 +185,6 @@ const CharactersDrawer = () => {
     });
   };
 
-  // Render "All" item with skeleton when loading. With no characters there is nothing to select,
-  // so the row is omitted entirely rather than left as a permanent skeleton.
   const renderAllItem = () => {
     if (!state.isLoading && !hasCharacters) return null;
 

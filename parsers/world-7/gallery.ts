@@ -298,8 +298,6 @@ export const getNametagBonuses = (rawSpelunk: any, account: any, character?: any
 }
 
 export const getGalleryBonusMulti = (rawSpelunk: any, account: any, character?: any, includeBubble = false) => {
-  // rawSpelunk is undefined with no save (idleonData?.Spelunk never parsed); 0 spelunk progress is
-  // the correct neutral default, not an unknown.
   const baseValue = rawSpelunk?.[13]?.[4] ?? 0;
   const chipBonus = character ? getPlayerLabChipBonus(character, account, 16) ? 10 : 0 : 0;
   const clamWorkBonus = 3 * getClamWorkBonus(account, 7);
@@ -339,10 +337,6 @@ export const getLv2PodiumsOwned = (account: any) => {
   const gemShopBonus = Math.floor((account?.gemShopPurchases?.find((value: any, index: any) => index === 40) ?? 0) / 2);
   const lv3Podiums = getLv3PodiumsOwned(account);
   const legendBonus = getLegendTalentBonus(account, 9);
-  // account.sailing is deliberately null when the feature is locked (real accounts too, not just
-  // empty ones) - isArtifactAcquired's own [] default then returns undefined. 0 acquired is the
-  // correct neutral default, the same fallback breeding.ts/stamps.ts use for other out-of-scope,
-  // possibly-null cross-section reads.
   const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'Deathskull')?.acquired ?? 0;
   const artifactBonus = Math.max(0,
     Math.min(2, Math.round(artifact) - 2) -

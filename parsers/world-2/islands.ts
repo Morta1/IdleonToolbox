@@ -87,12 +87,6 @@ export const getIslands = (account: Account, characters: any[]) => {
     { name: 'Shimmer', description: 'Do_Weekly_Challenges_for_Shimmer_Upgrades', preUnlockCost: 40, baseCost: 25 },
     { name: 'Fractal', description: 'Dump_your_time_candy_here_for..._nothing...?', preUnlockCost: 52, baseCost: 70 }
   ].map((island, index) => {
-    // islandsUnlocked (exported below unchanged) is undefined rather than 0 on a save that has never
-    // touched the island feature at all (accountOptions[169] doesn't exist yet) - and always undefined
-    // on an empty/no-save account. That undefined skipped straight to the "islands already unlocked"
-    // cost branch instead of the pre-unlock one, indexing `multipliers` with `undefined` -> NaN. The
-    // tier used for cost math only, so the account-level `islandsUnlocked` field itself stays exactly
-    // what it was (untouched real-save behavior).
     const costTier = islandsUnlocked ?? 0;
     return {
       ...island,
@@ -103,15 +97,9 @@ export const getIslands = (account: Account, characters: any[]) => {
       ...extraIslandDetails(account, characters, index)
     };
   })
-  // No save means no bottles collected, not an unknown count - and the page runs this through
-  // Math.round, which turns undefined into NaN.
   const bottles = (account as any)?.accountOptions?.[162] ?? 0;
   const bribeBonus = getBribeBonus((account as any)?.bribes, 'Bottle_Service');
   const bundleBonus = isBundlePurchased((account as any)?.bundles, 'bun_p') ? 30 : 0;
-  // On an empty/no-save account `quests` is `{}` and every optional-chain link below resolves to
-  // undefined, which used to flow straight into `10 * omarQuests` as `10 * undefined` -> NaN. A save
-  // that hasn't reached this NPC quest legitimately has 0 completions, so 0 is the correct count here,
-  // not just a display fallback.
   const omarQuests = (account as any)?.quests?.['Yum_Yum_Desert']?.find(({ name }: { name: string }) => name === 'Omar_Da_Ogar')?.npcQuests?.reduce((sum: number, { completed }: { completed: any }) => {
     return sum + (completed?.length > 0 ? 1 : 0)
   }, 0) ?? 0;
@@ -122,9 +110,6 @@ export const getIslands = (account: Account, characters: any[]) => {
   const bottlesPerDay = Math.floor(4 * (1 + bottlesBonus / 100));
 
   const numberOfDaysAfk = (account as any).accountOptions?.[160];
-  // Formula-only default: an account that has never opened Trash Island has afk'd it for 0 days,
-  // same neutral baseline the rest of this catalog-driven parse uses. Kept separate from the
-  // `numberOfDaysAfk` field returned below so that field's own real-save value never changes.
   const numberOfDaysAfkForCost = numberOfDaysAfk ?? 0;
   const trashUpgradeLevel = (account as any).accountOptions?.[163] ?? 0;
   let bonusPerDays;
@@ -251,8 +236,6 @@ const extraIslandDetails = (account: Account, characters: any[], index: number):
     const shimmerCurrency = (account as any)?.accountOptions?.[173];
     const shimmerShop = shimmerIslandShop?.map(({ effect, divider }, index: number) => {
       const bonus = (account as any)?.accountOptions?.[174 + index]
-      // `bonus` itself is left as-is below (undefined on a save that hasn't reached this shop, same
-      // as every other raw accountOptions passthrough here) - only the cost math needs a number.
       const bonusForCost = bonus ?? 0;
       return {
         effect: effect?.replace('{', bonus)?.replace(',', ' '),

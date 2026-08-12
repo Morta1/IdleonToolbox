@@ -32,7 +32,6 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords, divinity }) =
                     <Typography>{playerCord?.lineWidth}px</Typography>
                     <Typography variant={'caption'}>({playerCord.x},{playerCord.y})</Typography>
                   </Stack>
-                  {/*<img src={`${prefix}data/head.png`} alt="head"/>*/}
                 </Stack>
               </CardContent>
             </Card> : null;

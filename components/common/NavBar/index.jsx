@@ -86,17 +86,6 @@ const NavBar = ({ children }) => {
       pb: 'var(--nitro-ad-height, 0px)'
     }}>
       <Box sx={{ flex: 1 }}>
-        {/* The page heading shares the Pin row rather than claiming one of its own - see PageTitle.
-            Pages without a Pin button still get the row, so every page has an h1. PageTitle renders
-            nothing on the homepage (its own h1) and on noindex pages, and the Stack then collapses
-            to nothing.
-
-            The bottom margin is deliberately small. Pages bring their own top margin and it varies
-            enormously - measured from this row to the first thing that actually paints, the gap runs
-            from 7px on Card Search to 120px on The Hole, and a card stack at the top of a page adds
-            another 24px of its own. So this cannot make spacing consistent, and trying would only
-            inflate the pages that are already roomy. 8px does one job: keep the pages that would
-            otherwise sit flush against the heading off it. */}
         <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} sx={{ mb: 1 }}>
           <PageTitle/>
           {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}

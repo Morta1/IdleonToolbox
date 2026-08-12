@@ -88,8 +88,6 @@ const Cauldrons = () => {
             isDragonic,
             maxLiquidBreakdown
           } = alchemy?.liquidCauldrons?.[index] ?? {};
-          // `liquids` is the save's own array and is absent entirely without one - Math.round and
-          // the progress bar below would both render NaN.
           const currentLiquid = alchemy?.liquids?.[index] ?? 0;
           return <Card key={`${name}-${index}`}>
             <CardContent>

@@ -5,11 +5,6 @@ import type { IdleonData } from './types';
 
 const obolStats: string[] = ['STR', 'AGI', 'WIS', 'LUK', 'Weapon_Power', 'Defence', 'UQ1txt', 'UQ2txt'];
 
-// Classification: PURE USER STATE. Obols are equipment slots the player has physically socketed -
-// there is no website-data catalog defining "every obol slot that exists"; the save data itself IS
-// the full extent of what there is. An account with no save genuinely has no obols equipped, so an
-// empty `{ inventory: [], list: [], stats: {} }` is the correct (not a truncated) answer - unlike
-// prayers/shrines/etc, there is nothing to populate from a catalog here.
 
 export const getObols = (idleonData: IdleonData, account: boolean = true): Record<string, any> => {
   const obolsOrderRaw = tryToParse(idleonData?.ObolEqO1) || (account

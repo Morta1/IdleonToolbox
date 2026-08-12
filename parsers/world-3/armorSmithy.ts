@@ -6,8 +6,6 @@ import type { IdleonData, Account, ServerVars } from '../types';
 export const getArmorSmithy = (idleonData: IdleonData, serverVars: ServerVars, account: Account) => {
   const smithyUnlocked = account?.accountOptions?.[380];
   const [, ...unlockedSets] = (account?.accountOptions?.[379] ?? '').toString().split(',');
-  // Default to 0: no save means no days have passed toward unlocking the smithy, not an unknown
-  // value - `30 - undefined` (rendered on the page) and `Number(undefined)` are both NaN.
   const days = account?.accountOptions?.[381] ?? 0;
   const sets = equipmentSets.map((set) => {
     const description = set.description.replace('|', '_')

@@ -62,8 +62,6 @@ const Forge = () => {
                   })}
                   <Box>
                     <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Time till empty</Typography>
-                    {/* A slot with nothing in it has nothing to count down - it used to render a
-                        zero-length countdown, which then ticked upward as if it were overdue. */}
                     {empty
                       ? <Typography variant={'body2'} color={'text.secondary'}>Empty</Typography>
                       : <Timer type={'countdown'} lastUpdated={state?.lastUpdated}

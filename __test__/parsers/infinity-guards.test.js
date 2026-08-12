@@ -1,5 +1,3 @@
-// parsers/parseMaps.ts calls Array.prototype.toSimpleObject at module scope, so the polyfills have
-// to be installed before any parser import is evaluated.
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { getHighestLevelCharacter } from '@parsers/misc';
@@ -7,23 +5,8 @@ import { getTrapsBonuses } from '@parsers/world-3/traps';
 import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import raw from '../../data/raw.json';
 
-/**
- * "NaN" is only one of the shapes bad arithmetic takes, and the gates on this branch only ever
- * looked for that one. A logged-out sweep found five routes rendering a different shape - finite,
- * well-formed, and just as wrong: "Collect Rates: -Infinity%" (traps) and "+-Infinity% coins"
- * (sailing).
- *
- * Both come from the same mistake in two places: reducing an EMPTY list with Math.max/Math.min,
- * which return -Infinity and Infinity respectively rather than failing. A logged-out visitor has no
- * characters, so every character-derived list is empty and every such reduction is wrong.
- *
- * Each test below is paired with a check that the pre-fix expression really did produce a non-finite
- * value on the same input - without that, a guard could be silently unnecessary and these would pass
- * while proving nothing.
- */
 describe('Math.max/min over an empty character list', () => {
   describe('getHighestLevelCharacter', () => {
-    // The exact expression these functions used before the fix.
     const preFix = (characters) => Math.max(...characters.map(({ level }) => level ?? 0));
 
     it('the pre-fix expression really did return -Infinity with no characters', () => {
@@ -50,8 +33,6 @@ describe('Math.max/min over an empty character list', () => {
   });
 
   describe('getTrapsBonuses', () => {
-    // `characters?.map(...)` on an empty list returns [], which is truthy - so the `|| [1]` fallback
-    // the parser used could only fire when `characters` was undefined, never when it was empty.
     const preFix = (bonuses) => Math.max(...(bonuses || [1]));
 
     it('the pre-fix fallback really was unreachable for an empty list', () => {
@@ -63,7 +44,6 @@ describe('Math.max/min over an empty character list', () => {
       const bonuses = getTrapsBonuses({}, []);
       const rates = [bonuses.max.critter, bonuses.max.exp, bonuses.min.critter, bonuses.min.exp];
       for (const rate of rates) expect(Number.isFinite(rate)).toBe(true);
-      // 1 is what the original `|| [1]` fallback intended; the page renders it as "100%".
       expect(rates).toEqual([1, 1, 1, 1]);
     });
 
@@ -86,8 +66,6 @@ describe('Math.max/min over an empty character list', () => {
   });
 
   describe('the sailing artifacts that read getHighestLevelCharacter', () => {
-    // Maneki Kat and Ashen Urn scale off the highest character level and interpolate the result
-    // straight into their description, which is how -Infinity reached the page as text.
     it('renders no non-finite bonus in any artifact description on an empty parse', () => {
       const { account } = parseEmpty();
       const artifacts = account?.sailing?.artifacts ?? [];
@@ -100,10 +78,6 @@ describe('Math.max/min over an empty character list', () => {
 
     it('no artifact bonus is a non-finite number on an empty parse', () => {
       const { account } = parseEmpty();
-      // Deathskull leaves `bonus` undefined on an empty parse - it is only assigned inside an
-      // `index === 33` branch. That is a separate, pre-existing gap in the empty-account contract
-      // (an absent value, not a broken number) and nothing renders it today, so it is excluded here
-      // rather than quietly widened into this fix.
       const nonFinite = (account?.sailing?.artifacts ?? [])
         .filter(({ bonus }) => typeof bonus === 'number' && !Number.isFinite(bonus))
         .map(({ name, bonus }) => `${name}: ${bonus}`);

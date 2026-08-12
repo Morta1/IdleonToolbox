@@ -1,5 +1,3 @@
-// Verifies Task 8: a logged-out visitor (no ?demo=true, no auth) reaches account pages instead
-// of being redirected to '/', and the page renders the zeroed game catalog rather than a spinner.
 import { test, expect } from '@playwright/test';
 import { waitForRender } from './wait-helpers';
 
@@ -33,24 +31,17 @@ test.describe('Logged-out visitors reach account pages', () => {
       await page.goto(path);
       await waitForRender(page);
 
-      // Must NOT have been bounced to the homepage.
       expect(new URL(page.url()).pathname).toBe(path);
 
       const bodyText = await page.locator('body').innerText();
       expect(bodyText.trim().length).toBeGreaterThan(0);
 
-      // No spinner stuck forever, no missing-data placeholder for a page that should render.
       expect(bodyText).not.toContain('Loading account data');
       expect(bodyText).not.toContain('missing data');
 
-      // ErrorBoundary swallows render crashes into this fallback text instead of throwing, so it
-      // never reaches `pageerror` below - check for it explicitly or a crashing page reads "green".
       expect(bodyText).not.toContain('This page failed to render');
       expect(bodyText).not.toContain('The app failed to load');
 
-      // The empty-account banner itself must be present - this is the "why are these zero" cue.
-      // Not asserted on '/': the homepage deliberately suppresses the bar (useProfileBannerState),
-      // and every path in this list is an account page.
       expect(bodyText).toContain('Browsing as a guest - numbers fill in once you sign in');
 
       expect(errors).toEqual([]);

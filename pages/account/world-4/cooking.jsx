@@ -53,8 +53,6 @@ const Cooking = () => {
         title="Cooking | Idleon Toolbox"
         description="Track your kitchen meal levels, cooking speed, and recipe bonuses for all meals in Legends of Idleon"
       />
-      {/* mb, not my: first row on the page, so a top margin here is pure whitespace under the
-          page heading. */}
       <Stack mb={3} direction={'row'} gap={2} alignItems={'center'}>
         <FormControl sx={{ width: 170 }}>
           <InputLabel id="selected-character">Character</InputLabel>

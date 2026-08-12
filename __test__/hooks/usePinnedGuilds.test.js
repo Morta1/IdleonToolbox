@@ -1,6 +1,4 @@
 // @vitest-environment jsdom
-// The suite default is `node` (vitest.config.js) - parser tests never touch the DOM, and standing
-// up jsdom for all 40 files cost ~26s of the run. This is the only file that renders a hook.
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { usePinnedGuilds } from '../../hooks/usePinnedGuilds';

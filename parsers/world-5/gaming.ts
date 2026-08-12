@@ -24,14 +24,9 @@ import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 
-// Neutral stand-ins for the three saves gaming reads. parseGaming destructures fixed slots out of
-// them (`const [, snailLevel] = gamingSproutRaw[32]`, `gamingSproutRaw.slice(0, 25)`), so passing
-// `undefined` throws "undefined is not iterable" rather than yielding zeros. Sizes come from the
-// catalogs the slots feed, not from hardcoded lengths.
 const GAMING_SPROUT_IMPORTS_START = 25;
 const GAMING_SPROUT_RAT_SHOP = 33;
 const emptyGamingRaw = () => {
-  // [0..14] are scalar slots; [1..gamingUpgrades.length] are the fertilizer levels.
   const raw: any[] = new Array(Math.max(15, gamingUpgrades.length + 1)).fill(0);
   raw[11] = ''; // logbook unlock string
   raw[12] = ''; // superbit unlock string
@@ -39,7 +34,6 @@ const emptyGamingRaw = () => {
 };
 const emptyGamingSproutRaw = () => {
   const length = Math.max(GAMING_SPROUT_RAT_SHOP + 1, GAMING_SPROUT_IMPORTS_START + gamingImports.length + 1);
-  // Every slot is read as an array (`[1]`, `[2]`, or destructured), so each one has to be one.
   return Array.from({ length }, () => [0, 0, 0, 0]);
 };
 const emptySpelunkRaw = () => {
@@ -54,9 +48,6 @@ export const getGaming = (idleonData: any, characters: any, account: any, server
   const gamingSproutRaw = tryToParse(idleonData?.GamingSprout) || idleonData?.GamingSprout;
   const spelunkRaw = tryToParse(idleonData?.Spelunk) || idleonData?.Spelunk;
   const researchRaw = tryToParse(idleonData?.Research) || idleonData?.Research;
-  // The parse runs either way: imports, fertilizer upgrades, superbits, mutations and the palette
-  // are all built from their catalogs, so a locked account still sees what gaming contains.
-  // `unlocked` is what consumers branch on.
   return {
     ...parseGaming(
       gamingRaw || emptyGamingRaw(),
@@ -120,8 +111,6 @@ const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, rese
         saveSprinklerChance: saveSprinklerChance * 100
       } : {}),
       ...(index === 1 ? {
-        // accountOptions[192] is the nugget count since the last upgrade - undefined without a
-        // save, which makes the whole maxNuggetValue product NaN.
         maxNuggetValue: maxNuggetValue(bonus?.result, getEquinoxBonus(account?.equinox?.upgrades, 'Metal_Detector'), account?.accountOptions?.[192] ?? 0)
       } : {}),
       ...(index === 2 ? {
@@ -372,9 +361,6 @@ const getMutations = () => {
 
 const calcSuperbitBonus = (characters: any, account: any, index: any) => {
   let bonus, totalBonus, additionalInfo;
-  // The `isNaN(...) ? 0 : ...` at the bottom sanitises the returned numbers, but additionalInfo is
-  // built from the raw value before that, so an account with no tower waves rendered
-  // "Total Bonus: NaN% (undefined waves)". Read it once, guarded, for all seven branches below.
   const totalWaves = account?.towers?.totalWaves ?? 0;
   if (index === 0) {
     bonus = account?.achievements?.filter(({ completed }: any) => completed)?.length ?? 0;
@@ -580,8 +566,6 @@ const calcFertilizerCost = (index: any, gamingRaw: any, serverVars: any) => {
 const calcAcornShop = (gamingSproutRaw: any, account: any) => {
   const bonusTexts = ['All plants give x{ bits', 'All plants grow {% faster', 'Boosts Palette Lucky by +{%']
   const [, , firstValue, secondValue] = gamingSproutRaw?.[27];
-  // accountOptions[415] is the palette-luck acorn upgrade level. Undefined without a save, and both
-  // `Math.pow(value, 0.8)` and the cost expression below turn that into NaN.
   return [firstValue, secondValue, account?.accountOptions?.[415] ?? 0].map((value, index) => {
     const bonus = index === 0 ? 1 + (8 * value) / (250 + (value)) : index === 1
       ? Math.pow(3 * (value), 0.8)
@@ -602,17 +586,6 @@ export const isSuperbitUnlocked = (account: any, superbitName: any) => {
 }
 
 const calcRatKing = (gamingSproutRaw: any, researchRaw: any, account: any, superbitsUpg: any) => {
-  // GamingSprout[33] only holds the rat shop once the king rat is unlocked. Before that the slot
-  // still carries whatever it was when that index was an ordinary sprout row, and a sprout's [1] is
-  // an accumulated float - 11185751 on two of the fixtures - which read as an upgrade LEVEL made
-  // calcRatShopCost evaluate 1.15 ** 11185751, i.e. Infinity, rendered as the word.
-  //
-  // Verified against the running game: on an unlocked account GamingSprout[33] is
-  // [704, 67, 57, 75, 204, 383] - a base bonus then the three upgrade levels - which is exactly this
-  // destructure, and `RatShopCost` in the game reads [33][t+1] just as calcRatShopCost does. The
-  // index mapping was never wrong; reading the slot at all while locked is.
-  //
-  // The game gates on the same flag: its RatCurrencyGain returns 0 when KingRatUnlocked is 0.
   const kingRatUnlocked = account?.research?.kingRatUnlocked ?? 0;
   const ratShopRaw = kingRatUnlocked ? (gamingSproutRaw?.[33] ?? []) : [];
   const [ratBaseBonus, currencyUpgLv, crownOddsUpgLv, bitMultiUpgLv] = ratShopRaw;
@@ -797,10 +770,6 @@ export const getPaletteLuck = (paletteFinalBonus: any, ratKing: any, account: an
   const superbit28Unlocked = isSuperbitUnlocked(account, 'Lucky_Snail') ? 1 : 0;
   const acornShopBonus2 = account?.gaming?.imports?.[2]?.acornShop?.[2]?.bonus ?? 0;
   const exoticBonus44 = getExoticMarketBonus(account, 44) ?? 0;
-  // isJadeBonusUnlocked returns the `unlocked` field, which is undefined when the account has no
-  // jade emporium at all - and this is the one call site that multiplies it instead of testing it,
-  // so `100 * undefined` turned the whole palette luck value, and every palette chance fed by it,
-  // into NaN. `true` and 1 multiply identically, so unlocked accounts are unaffected.
   const jadeEmporiumBonus = isJadeBonusUnlocked(account, 'Palette_Slot') ? 1 : 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Palette_Luck')?.bonus ?? 0;
   const gridBonus = getResearchGridBonus(account, 107, 2);

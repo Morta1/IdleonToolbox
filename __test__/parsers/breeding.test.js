@@ -9,9 +9,6 @@ import third from '../fixtures/third.json';
 import fourth from '../fixtures/fourth.json';
 import latest from '../fixtures/latest.json';
 
-// petStats is a catalog imported directly from website-data, not from the save, so the pet list
-// was already catalog-driven before Task 6 - this test locks that in and covers the neutral-default
-// fix (level/shinyProgress/breedingProgress now default to 0 instead of undefined when unsaved).
 const TOTAL_PETS = petStats.reduce((sum, world) => sum + world.length, 0);
 
 describe('getBreeding', () => {
@@ -28,10 +25,6 @@ describe('getBreeding', () => {
 });
 
 describe('calcHighestPower', () => {
-  // Regression: `rawFencePets` is undefined when breeding never ran (no save), which used to make
-  // `fence` undefined too and crash `Math.max(...mappedPets, ...fence)` - spreading `undefined` is
-  // not iterable. Pre-existing bug, reproduces identically before and after Task 6; fixed here as a
-  // folded-in Task 7 item since it's exactly the class of crash this plan removes.
   it('does not throw and returns 0 when breeding is undefined', () => {
     expect(() => calcHighestPower(undefined)).not.toThrow();
     expect(calcHighestPower(undefined)).toBe(0);

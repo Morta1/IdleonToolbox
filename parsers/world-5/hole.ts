@@ -42,27 +42,6 @@ const VILLAGERS = {
   STUDIES: 4
 }
 
-/**
- * The `Holes` save array is a flat list of sub-arrays (villager levels, engineer schematics, well
- * sediment, extraCalculations, ...); with no save at all, every one of those sub-arrays defaults to
- * a real, empty `[]` (see the destructure below), not to an array padded with zeros. Real saves
- * always carry a defined number at every index every cavern formula below reads - verified: a real
- * signed-in parse carries 0 NaN in this entire section - so a direct `arr[i]` read is never
- * `undefined` there. On an empty account, though, every one of those direct index reads IS
- * `undefined`, and `undefined` propagates through the dozens of Math.pow/multiplication chains in
- * this file and its `caverns/*` siblings as NaN.
- *
- * Wrapping each raw numeric array in this proxy defaults any *missing* index to 0 - the same
- * "never touched this feature" neutral value used everywhere else in this codebase - while leaving
- * already-present values, `.length`, and array methods (`.slice`/`.map`/`.reduce`/spread) completely
- * untouched. It is a no-op whenever the underlying index is already defined, which is always true
- * for real save data - proven per-section in task-13-hole.test.js.
- *
- * Note this only guards *direct* index reads (`arr[5]`). A few call sites build a fixed-size sub-list
- * via `arr.slice(a, b)` and then map/reduce over it; since the proxy doesn't extend `.length`, those
- * still see a 0-length source when there's no save and are fixed individually at their call sites
- * (villagers roster, bravery/justice/wisdom monument bonuses, jars collectibles).
- */
 const zeroIndexProxy = (arr: any): any => {
   const target = Array.isArray(arr) ? arr : [];
   return new Proxy(target, {
@@ -156,11 +135,6 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     fountainBarProgress: zeroIndexProxy(fountainBarProgress),
     fountainCoinFlags
   }
-  // wishesUsed?.[index] is undefined for every wish with no save (the raw local array here is the
-  // real, un-proxied `[]`, not holesObject.wishesUsed) - this single value (index 5's `level`) feeds
-  // `discountWish` in getEngineerUpgradeCost below, and Math.pow(0.85, undefined) is NaN, which used
-  // to poison every one of the 106 engineerBonuses[].cost entries. `?? 0` makes "no wishes spent yet"
-  // the neutral default, matching every other un-touched-feature default in this file.
   const lampWishesList = lampWishes.map((wish, index) => {
     return {
       ...wish,
@@ -185,23 +159,10 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     }
   });
 
-  // VILLAGERS has a fixed 5-entry roster (Explore/Engineer/Bonuses/Measure/Studies). The old code
-  // built this roster off `villagersExp?.slice(0, 5)` - with no save, the raw array is a real,
-  // 0-length `[]` (not padded), so `.slice(0, 5)` returns `[]` too (a Proxy get-trap can't extend
-  // `.length`), leaving the roster empty and every downstream read (unlockedSchematics, engineer
-  // bonuses that depend on villager level) NaN. Iterating the fixed count directly and reading
-  // through the proxied holesObject fields (which default a missing index to 0) always produces a
-  // real save's identical 5 values (every real save writes at least 5 entries here - the original
-  // `.slice(0, 5)` already assumed as much) and a full 5-row, all-zero roster with no save.
   const villagerCount = Object.keys(VILLAGERS).length;
   const unlockedCaverns = Math.min(18, holesObject.villagersLevels[0]);
   const unlockedVillagers = Array.from({ length: villagerCount }, (_, index) => holesObject.villagersLevels[index])
     .filter((level: any) => level >= 1).length;
-  // Math.min(...[]) is Infinity when nobody is unlocked yet. Every real save has at least the
-  // Explorer villager unlocked (unlockedVillagers > 0, verified against every fixture + raw.json -
-  // real parse carries 0 Infinity here), so this ternary is a no-op there; it only changes the
-  // genuinely-unknown "no villager unlocked" empty-account case to the same neutral 0 default used
-  // everywhere else in this file.
   const leastOpalInvestedVillager = unlockedVillagers === 0
     ? 0
     : Math.min(...Array.from({ length: unlockedVillagers }, (_, index) => holesObject.opalsInvested[index]));
@@ -287,8 +248,6 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     const baseBonus = getMeasurementBaseBonus({ holesObject, t: index });
     const totalBonus = getMeasurementBonus({ holesObject, accountData, t: index });
     const multi = getMeasurementMulti({ holesObject, accountData, t: measureIndex })
-    // Reads through holesObject.measurementBuffLevels (proxied, defaults a missing index to 0), not
-    // the raw local `measurementBuffLevels` (real-empty with no save) - see zeroIndexProxy's comment.
     const cost = (1 / (1 + getFountainBonusTotal(holesObject, 2, 14) / 100)) * (250 + 50 * holesObject.measurementBuffLevels[index]) * Math.pow(1.6, index - 6 * Math.floor(index / 10)) * Math.pow(1.1, holesObject.measurementBuffLevels[index])
 
     const measuredBy = getMeasurementQuantity({ holesObject, accountData, t: measureIndex });
@@ -560,15 +519,11 @@ const getMeasurementQuantityFound = ({ holesObject, accountData, t, i }: any) =>
       break;
 
     case 7:
-      // Case 7: Tasks Calculation. `tasks` is a raw pass-through of the save's own Tasks array (out
-      // of this section's scope), which is a 7-element array of `undefined` entries with no save -
-      // lavaLog(undefined) is NaN (Math.max(undefined, 1) is NaN, not 1). No save means 0 progress.
       let tasksValue = accountData?.tasks?.[0]?.[1]?.[0] ?? 0;
       result = (i === 99) ? lavaLog(tasksValue) / 2 : tasksValue;
       break;
 
     case 8:
-      // Case 8: Cards Length. lootedItems defaults to 0 with no save (see misc.ts's getLooty fix).
       let cardsLength = accountData?.looty?.lootedItems ?? 0;
       result = (i === 99) ? cardsLength / 150 : cardsLength;
       break;

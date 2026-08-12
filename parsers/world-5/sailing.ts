@@ -53,21 +53,6 @@ export const getSailing = (idleonData: any, artifactsList: any, charactersData: 
   return parseSailing(artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRaw, charactersData, account, serverVars, charactersLevels);
 }
 
-/**
- * Sailing before the player has unlocked it.
- *
- * This used to be `null`, which forced the page into a bare "missing data" notice. But the artifact
- * catalog does not depend on the save at all - `getArtifacts` maps all 41 entries whether or not any
- * are acquired, and is computed separately and handed in - so a locked account can still show what
- * sailing actually contains.
- *
- * `unlocked` is the flag consumers should branch on. Everything the player would own is an EMPTY
- * collection rather than absent, deliberately: several consumers stop optional-chaining partway
- * through (`components/dashboard/Etc.jsx` reads `account?.sailing?.trades.length`, with no `?.`
- * after `trades`), so a missing key here throws where a `null` section used to short-circuit
- * harmlessly. Empty collections also keep the dashboard's captain/chest alerts silent, which is the
- * correct behaviour for a feature that is not unlocked.
- */
 export const getLockedSailing = (artifactsList: any) => ({
   unlocked: false,
   artifacts: artifactsList ?? [],
@@ -80,7 +65,6 @@ export const getLockedSailing = (artifactsList: any) => ({
   captainsOnBoats: {},
   trades: [],
   rareTreasureChance: 0,
-  // No fleet means there is no roundtrip to estimate from - "not applicable", not a fabricated 0.
   timeToFullChests: undefined,
   minimumTravelTime: 0,
   minimumTravelTimeBreakdown: []
@@ -99,8 +83,6 @@ const parseSailing = (artifactsList: any, sailingRaw: any, captainsRaw: any, boa
   const rareTreasureChance = getRareTreasureChance();
   const lootPileList = getLootPile(lootPile);
   const captainsAndBoats = getCaptainsAndBoats(sailingRaw, captainsRaw, boatsRaw, account, charactersData, charactersLevels, artifactsList, lootPileList);
-  // Undeployed boats (see getBoat) contribute `undefined` here - they aren't making trips, so they
-  // can't fill chests and are excluded from the fleet's fastest-roundtrip estimate below.
   const boatsRoundtrips = captainsAndBoats?.boats?.map(({ maxTime }: any) => maxTime).filter((time: any) => Number.isFinite(time));
   const timeToFullChests = calculateMaxCapacityTime(boatsRoundtrips, maxChests - (chests?.length || 0));
   const trades = getFutureTrades(captainsAndBoats, sailingRaw?.[0], lootPileList, artifactsList, account);
@@ -119,9 +101,6 @@ const parseSailing = (artifactsList: any, sailingRaw: any, captainsRaw: any, boa
 }
 
 const calculateMaxCapacityTime = (roundtripTimes: any, maxCapacity: any) => {
-  // No deployed boats at all (empty after the finite-value filter upstream) means there is no fleet
-  // roundtrip to estimate from - `Math.min()` with no arguments is Infinity, which would silently
-  // become a fabricated 0 through the division below. Report "not applicable" instead.
   if (!roundtripTimes?.length) return undefined;
   const minTime = Math.min(...roundtripTimes);
   const acquisitionRate = maxCapacity / minTime;
@@ -400,10 +379,6 @@ const getBoat = (boat: any, boatIndex: any, lootPile: any, captains: any, artifa
   boatObj.loot = getBoatLootValue(characters, account, artifactsList, boatObj, captain, daveyJones);
   const frame = getBoatFrame(lootLevel + speedLevel, account);
   boatObj.speed = getBoatSpeedValue(captain, island, speedLevel, baseSpeed * daveyJones, minimumTravelTime, frame)
-  // islandIndex -1 means the boat has never been sent out (no island assigned yet, e.g. a freshly
-  // bought boat) - `island` is genuinely undefined here, not a missing-data gap, so there is no
-  // roundtrip time to report. Leave undefined ("not applicable") rather than let `island?.distance`
-  // (undefined) poison the division into NaN.
   boatObj.maxTime = island ? (island.distance / boatObj.speed?.value) * 3600 * 1000 : undefined;
   boatObj.timeLeft = island ? ((island.distance - distanceTraveled) / boatObj.speed?.value) * 3600 * 1000 : undefined;
   return boatObj
@@ -845,9 +820,6 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
     bonus = (artifact?.baseBonus * lavaLog(ownedTurkey ?? 0));
   }
   else if (artifact?.name === 'Opera_Mask') {
-    // lootPile comes from the save and is absent entirely while sailing is locked. lavaLog does
-    // Math.log(Math.max(num, 1)), and Math.max(undefined, 1) is NaN - so the input has to be
-    // guarded, not the result. lavaLog(0) is 0, so this is a no-op for any real save.
     const sailingGold = lootPile?.[0] ?? 0;
     bonus = (artifact?.baseBonus * lavaLog(sailingGold));
   }
@@ -856,8 +828,6 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
     bonus = artifact?.baseBonus * lavaLog(account?.construction?.playersBuildRate ?? 0)
   }
   else if (artifact?.name === 'The_True_Lantern') {
-    // The `?? 0` used to sit outside lavaLog, where it could never fire: lavaLog(undefined) returns
-    // NaN, and `NaN ?? 0` is NaN. Guard the input instead.
     bonus = artifact?.baseBonus * lavaLog(account?.atoms?.particles ?? 0);
   }
   else if (artifact?.name === 'Gold_Relic') {
@@ -869,9 +839,6 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
   else if (artifact?.name === 'Crystal_Steak') {
     const mainStats = charactersData?.map(({ name, class: className, stats }: any) => {
       const mainStat = mainStatMap?.[className];
-      // A character slot with no class/stats (e.g. an empty companion slot) has no main stat to
-      // scale from - 0 is the honest value, matching the `?? 0` guards on every stat in the
-      // Socrates branch just below, which reads from the same charactersData shape.
       return { name, stat: stats?.[mainStat] ?? 0 };
     })
     fixedDescription = fixedDescription.replace('_Total_Bonus:_+}%_dmg', '')

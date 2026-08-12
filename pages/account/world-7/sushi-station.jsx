@@ -17,10 +17,6 @@ const SushiStation = () => {
   const { state } = useContext(AppContext);
   const sushiStation = state?.account?.sushiStation;
 
-  // The parser computes the full 45-upgrade catalog at level 0 rather than returning null when the
-  // station isn't unlocked, so the page shows what sushi station contains instead of a dead-end
-  // notice. Anything that needs to know whether it's real data reads `sushiStation.unlocked` -
-  // never the section's truthiness, which is now always true.
   const {
     uniqueSushi,
     fuel,

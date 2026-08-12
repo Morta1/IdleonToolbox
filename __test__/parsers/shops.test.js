@@ -16,16 +16,12 @@ describe('getShops', () => {
   });
 
   it('returns one array per catalog shop, all empty, when the save is missing', () => {
-    // Classification: `shops[i].items` is a catalog, but "in stock now" (amount) is live/server
-    // state that no catalog can supply - unlike prayers/compass, this does NOT fabricate stocked
-    // items at amount 0. It only guarantees the correct shop count instead of crashing/collapsing.
     const result = getShops(undefined);
     expect(result).toHaveLength(SHOP_COUNT);
     expect(result.every((shop) => Array.isArray(shop) && shop.length === 0)).toBe(true);
   });
 
   it('does not fabricate stock for an individual missing shop (synthetic, unconditional)', () => {
-    // Shop 0 has real stock, shop 1 is entirely absent from the raw save (e.g. not yet visited).
     const shopsRaw = { 0: { 0: 5 } };
     const result = parseShops(shopsRaw);
     expect(result).toHaveLength(SHOP_COUNT);

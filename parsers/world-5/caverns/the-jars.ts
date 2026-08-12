@@ -63,9 +63,6 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
   })
   rupies = [...rupies, ...whiteDarkRupies];
 
-  // Rewritten from `jarStuff?.slice(0, 40).map(...)`: a Proxy get-trap can't extend an array's
-  // .length, so slicing a real-empty (no-save) jarStuff still returns [], leaving the 40-collectible
-  // list empty instead of 40 zero-level rows. 40 is the fixed collectible count (holesInfo[67]).
   const collectibles = Array.from({ length: 40 }, (_, index) => holesObject?.jarStuff?.[index]).map((level: any, index: any) => {
     const [name, bonusModifier, , description] = holesInfo?.[67]?.[index]?.split('|') ?? [];
     const bonus = getJarBonus({ holesObject, i: index, account: accountData });

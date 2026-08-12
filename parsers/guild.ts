@@ -37,21 +37,6 @@ export interface GuildResult {
   totalGp: number;
 }
 
-/**
- * The shape returned when the visitor isn't in a guild (or isn't signed in at all). It used to be
- * `null`, which forced the page into a bare "you have to be in a guild" line - now the guild bonus
- * catalog comes back at level 0 so the page has something to show and describe.
- *
- * What is NOT filled in, deliberately:
- *  - `members` stays empty. Membership is pure user state; there is no catalog to fall back on.
- *  - `guildTasks` stays empty. The save maps rotating task slots onto the catalog by index
- *    (see parseGuildTasks), so there is no "the" daily/weekly set to show without one. Filling it
- *    from the catalog would also make utility/dashboard/account.js count every task as
- *    uncompleted for anyone whose guild data failed to load.
- *
- * `level`, `maxMembers` and `levelReq` are derived through the same functions the unlocked path
- * uses, rather than hardcoded, so they stay correct if the game's curve changes.
- */
 export const getLockedGuild = (): GuildResult => {
   const level = getGuildLevel(0);
   return {
@@ -79,9 +64,6 @@ export const getGuild = (idleonData: IdleonData, guildData: GuildData | null): G
     ...guildBonus,
     level: guildData?.stats?.[0]?.[index] ?? 0
   }))
-  // `guildData` is already guaranteed non-null here by the early return above - the old `if
-  // (guildData) { ... } return null;` wrapper around this block was dead code (guildData can't
-  // become falsy again), so it's removed rather than left with an unreachable trailing `return null`.
   const totalPoints = getGuildTotalPoints(guildRaw, updatedGuildBonuses, guildData?.points ?? 0)
   const level = getGuildLevel(totalPoints);
   const maxMembers = getMaxMembers(level);

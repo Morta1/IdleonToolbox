@@ -36,7 +36,6 @@ describe('getCooking', () => {
   });
 
   it('returns the full menu even when the save is shorter than the catalog', () => {
-    // Regression: the save-driven version only returned as many meals as the save's level list had.
     const result = getCooking({ Meals: [[5, 3, 0, 0, 0]] }, {}, []);
     expect(result.meals).toHaveLength(liveCount(cookingMenu));
     expect(result.meals[73].level).toBe(0);

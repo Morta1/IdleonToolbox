@@ -77,15 +77,6 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
     'Dropped_by_RIPtide'
   ];
 
-  // Sized off the catalog, not a literal. The previous `6` was wrong in both directions: it was a
-  // magic number, and it under-counted.
-  //
-  // The reasoning behind it was that generalSpelunky[22]/[23] carry 9 entries of which the last four
-  // have "who_knows" descriptions, so those must be unshipped. Checked against the running game,
-  // they are not: DancingCoralCOST returns a real cost for every one of the 9 (index 5 -> 9900.99,
-  // index 8 -> 495049.5, matching generalSpelunky[22] 10000 and 500000 reduced by the same 1.01),
-  // and the game's own coral UI loops `9 > t`. Only the BONUS descriptions are unwritten; the corals
-  // are purchasable, and the game displays them with the placeholder text exactly as this now does.
   const dancingCoralCount = dancingCoralDescriptions.length;
   const dancingCoral = Array.from({ length: dancingCoralCount }, (_, index) => {
     const level = rawDancingCoral?.[index] || 0;
@@ -104,8 +95,6 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
   });
 
   const grindTimeDaily = getGrindTimeDaily(account, coralReefLevels);
-  // Driven by the coralReef catalog, not by coralReefLevels (the save's own array, which is empty
-  // without a save - that is why the page showed "No reef upgrades available" when signed out).
   const reefUpgrades = coralReef.map((reefData: any, index: any) => {
     const level = coralReefLevels?.[index] ?? 0;
     let description = reefData?.name || '';
@@ -179,8 +168,6 @@ export const getCoralKidUpgBonus = (account: any, index: any) => {
 
 export const getDancingCoralCost = (rawSpelunking: any, index: any) => {
   const baseCost = Number(generalSpelunky?.[22]?.[index]) || 0;
-  // rawSpelunking[4][7] (overstim level) can be a shorter save array than expected - 0 is the
-  // correct "no overstim discount yet" default, matching this file's `?? 0`/`|| 0` convention.
   const overstimLevel = rawSpelunking?.[4]?.[7] ?? 0;
   return baseCost / (1 + (10 * overstimLevel + Math.pow(1.05, overstimLevel)) / 100);
 }

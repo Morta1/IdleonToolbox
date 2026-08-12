@@ -2,20 +2,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-/**
- * CardTitleAndValue carries no margin of its own - the container laying the cards out owns the
- * spacing. A codemod stamped `mb={3}` onto those containers, and in four places it stamped one onto
- * a container that is itself a flex child of another `mb={3}` container.
- *
- * That double-counts. `gap` and a child's `margin` ADD for a wrapped row, so the inner row ended up
- * 40px from its neighbour where 24px was intended. It is invisible in a diff - both lines look
- * correct on their own - and invisible to a rendered check unless you measure the wrapped case
- * specifically.
- *
- * This is the third distinct way spacing has gone wrong in this area (a card margin that worked in
- * two directions removed and only checked in one; a wrapper measured instead of the card; now this),
- * hence a gate rather than another round of fixes.
- */
 const ROOT = path.resolve(__dirname, '..');
 const SCANNED_DIRS = ['components', 'pages'];
 
@@ -31,11 +17,6 @@ const collectFiles = (dir, out = []) => {
   return out;
 };
 
-/**
- * Nesting is tracked by indentation rather than by parsing JSX. That is approximate, but it is the
- * approximation that matches how these files are actually formatted, and the assertion is paired
- * below with a fixture proving the walk detects the shape at all.
- */
 const findNestedBottomMargins = (files) => {
   const offenders = [];
   for (const file of files) {
@@ -63,8 +44,6 @@ describe('card row spacing', () => {
   });
 
   it('detects the nested shape it is meant to catch', () => {
-    // The rule below asserts an empty list, so without this it would pass just as happily with a
-    // walk that never matched anything.
     const fixture = path.join(ROOT, '__test__', '.nested-margin-fixture.jsx');
     fs.writeFileSync(fixture, [
       '<Stack mb={3} direction={\'row\'} flexWrap={\'wrap\'}>',

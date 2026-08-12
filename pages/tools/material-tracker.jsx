@@ -131,8 +131,6 @@ const MaterialTracker = () => {
         'Export or import your tracking list to save your configuration'
       ]
     )}/>
-    {/* Sits directly in the page with no layout container to hang a margin on, so it carries its
-        own - the cards themselves no longer have a default bottom margin. */}
     <CardTitleAndValue title={'Utility'} cardSx={{ mb: 3 }}>
       <Stack sx={{ mt: 1 }} direction={'row'} alignItems={'center'} gap={2}>
         <FileUploadButton onFileUpload={(data) => {

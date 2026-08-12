@@ -31,7 +31,6 @@ const Sigils = () => {
 
   const getSigilSpeed = () => {
     const achievement = getAchievementStatus(state?.account?.achievements, 112);
-    // Default to 0: no save means this gem shop purchase was never made, not an unknown value.
     const gemStore = state?.account?.gemShopPurchases?.find((value, index) => index === 110) ?? 0;
     const sigilBonus = getSigilBonus(alchemy?.p2w?.sigils, 'PEA_POD');
     const vial = getVialsBonusByStat(alchemy?.vials, 'SigSpd');
@@ -111,7 +110,6 @@ const Sigils = () => {
             </Tooltip>
           </Stack>
         </CardTitleAndValue>
-        {/* Blank rather than 0 without a save - accountOptions doesn't exist at all then. */}
         <CardTitleAndValue title={'Sigil Syrup'} value={state?.account?.accountOptions?.[409] ?? 0}
           imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
           icon={'data/SigilSyrup.png'} />

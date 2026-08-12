@@ -8,9 +8,6 @@ import ListItemButton from '@mui/material/ListItemButton';
 import { PAGES } from '@components/constants';
 import { prefix } from '@utility/helpers';
 
-// Still consumed by hooks/usePageDataLoading.js for an unrelated purpose (deciding whether a
-// tool page needs account data before it can render) — keep the export even though this file no
-// longer gates on it.
 export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true, itemPlanner: true };
 
 const ToolsDrawer = ({ fromList }) => {

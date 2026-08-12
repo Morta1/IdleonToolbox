@@ -30,8 +30,6 @@ const Summoning = () => {
       title="Summoning | Idleon Toolbox"
       description="View your summoning upgrades, winner bonuses, and battle rewards in Legends of Idleon"
     />
-    {/* mb, not my: this row sits at the top of the page, so a top margin here is pure whitespace
-        under the page heading. Same reason CardTitleAndValue dropped its own top margin. */}
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3} alignItems={'center'}>
       <CardTitleAndValue value={highestEndlessLevel}
                          icon={'etc/Endless_Summoning.png'} iconAlt={'Highest endless summoning level'}

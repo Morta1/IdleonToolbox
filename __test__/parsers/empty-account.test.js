@@ -21,21 +21,6 @@ describe('parseData with no save', () => {
     expect(emptyKeys).toEqual(realKeys);
   });
 
-  /**
-   * `Object.keys` only proves a key exists, not that it holds a usable value - a destructured
-   * section that returns `{ foo: undefined }` (e.g. getConstellations/getTasks used to, before this
-   * fix) has its key present but literally `undefined`, which the keys-only check above cannot see.
-   *
-   * `null` is allowed: guild/divinity/equinox/gaming/sailing/sushiStation are deliberately null on
-   * an empty/locked account and their pages gate on `if (!account.X) return <MissingData/>`.
-   *
-   * These six are also allowed: unlike every other key here, they are raw pass-throughs of
-   * idleonData/parseData's own parameters (`accountCreateTime`, `serverVars`, `talentPoints:
-   * idleonData?.CYTalentPoints`, ...) rather than the output of a safeSection-wrapped parser. They
-   * were never part of the empty-account catalog contract - there is no catalog to backfill a
-   * save-creation timestamp or server-side flags from - so leaving them `undefined` when there is no
-   * save is correct, not a leak.
-   */
   const RAW_PASSTHROUGH_KEYS = ['accountCreateTime', 'serverVars', 'accountOptions', 'timeAway', 'weeklyBossesRaw', 'talentPoints'];
 
   it('never leaves a top-level account value literally undefined', () => {
@@ -47,20 +32,6 @@ describe('parseData with no save', () => {
   });
 });
 
-/**
- * `Object.keys()`/`undefined`-checks above cannot tell a section that legitimately has no data from
- * one whose parser THREW and got safeSection's fallback - both look identical to those assertions.
- * That gap is exactly how 13 sections shipped throwing on an empty account while
- * `__test__/parsers/empty-account.test.js` stayed green (Task 10).
- *
- * This spies on console.error and matches safeSection's own log line
- * (`[parsers] section "X" failed, using fallback:`) during a full empty parse, so any section that
- * silently falls back is caught here directly, independent of what its fallback value happens to
- * look like.
- *
- * Sections that are still genuinely too entangled to convert go in ALLOWLISTED_FAILURES with a
- * comment explaining why - never delete a failure here to make the test pass.
- */
 const ALLOWLISTED_FAILURES = [];
 
 describe('no section silently falls back on an empty parse', () => {
@@ -82,24 +53,10 @@ describe('no section silently falls back on an empty parse', () => {
   });
 });
 
-/**
- * Sections that are backed by a catalog must be fully populated with no save at all — that is the
- * whole point of the change. Each entry maps an account key to the website-data catalog that
- * defines how many live rows it must have.
- *
- * Add a row here as each parser is converted in Tasks 5-7. A row that is present and failing is
- * the to-do list; a row that is present and passing is done.
- */
 const CATALOG_BACKED = [
   ['prayers', () => liveCount(websiteData.prayers)],
   ['shrines', () => liveCount(Object.values(websiteData.shrines))],
   ['starSigns', () => liveCount(websiteData.starSigns)]
-  // Tasks 6-7 append: cards, constellations, merits, achievements,
-  // sailing, breeding, cooking, lab, upgradeVault, minehead, ...
-  // Task 7's catalog-backed sections (compass/grimoire/tesseract/upgradeVault/dungeons/storage) are
-  // objects with a nested `.upgrades`/`.storageChests` array rather than a flat top-level array, so
-  // they're covered by the "Task 7 sections (catalog-backed and user-state)" describe block below
-  // instead of here.
 ];
 
 describe.each(CATALOG_BACKED)('catalog-backed section: %s', (key, expectedCount) => {
@@ -115,15 +72,6 @@ describe.each(CATALOG_BACKED)('catalog-backed section: %s', (key, expectedCount)
   });
 });
 
-/**
- * `stamps`, `alchemy`, and `refinery` are objects rather than flat arrays (`stamps` is
- * `{ combat, skills, misc }`), so they get their own assertions rather than a CATALOG_BACKED row.
- *
- * Verified against the real data/website-data.json (2026-08-09) — the plan's assumed shapes were
- * wrong in two ways: `stamps[category]` and `vials` are keyed objects (Record<string, entry>), not
- * arrays, so liveCount() needs Object.values() first; and `refinery` is keyed by salt name
- * (Refinery1..Refinery9), not `{ salts: [...] }` — the parser's `.salts` list is derived from it.
- */
 describe('nested catalog-backed sections', () => {
   it('stamps has every category populated', () => {
     const { stamps } = parseEmpty().account;
@@ -146,14 +94,6 @@ describe('nested catalog-backed sections', () => {
   });
 });
 
-/**
- * Task 7's converted sections. Most are catalog-backed (compass/grimoire/tesseract/upgradeVault/
- * dungeons/storage.storageChests) and are objects with a nested upgrade-list field rather than a
- * flat top-level array, so they get their own assertions rather than a CATALOG_BACKED row. `obols`
- * and `shopStock` are included here too even though they are explicitly NOT catalog-backed (pure
- * user state / live server state, respectively) - each `it()` name says so; only group them under
- * "Task 7 sections" rather than misdescribing all of them as catalog-backed.
- */
 describe('Task 7 sections (catalog-backed and user-state)', () => {
   it('compass has every upgrade and abomination populated', () => {
     const { compass } = parseEmpty().account;
@@ -229,15 +169,6 @@ describe('world 4-7 sections', () => {
   });
 
   it('sailing reports unlocked: false and still carries the artifact catalog', () => {
-    // This used to assert `sailing === null`. That was right while the page gated on truthiness -
-    // an earlier task had to revert exactly that change after `{}` made the gate fail open and
-    // rendered NaN for real users.
-    //
-    // The contract has since changed deliberately: the parser now decides what the page gets, and
-    // says "locked" with an explicit `unlocked: false` flag instead of by being absent. That lets a
-    // locked account still show the full artifact catalog, which needs no save data at all. The
-    // gate-fail-open hazard is covered by __test__/parsers/sailing-locked-shape.test.js, which
-    // asserts the shape is complete AND that no consumer truthiness-gates the section any more.
     const { sailing } = parseEmpty().account;
     expect(sailing).not.toBeNull();
     expect(sailing.unlocked).toBe(false);
@@ -246,26 +177,6 @@ describe('world 4-7 sections', () => {
 });
 
 describe('no fabricated values', () => {
-  // History: measured 2026-08-09 at the start of Task 7, an empty parse emitted 3624 NaN / 62
-  // Infinity versus 62 NaN / 35 Infinity for a real parse - hence this row started as `it.fails`.
-  // Task 7 -> 1564/62. Task 10 (13 crashing sections fixed) -> 1746/1 (NaN rose as newly-populated
-  // cards/construction data flowed into other still-unconverted sections' formulas). Task 12 (batch A)
-  // rooted out every real-parse NaN (62 -> 0, entirely inside stamps/islands/currencies/breeding/
-  // summoning) and brought empty-parse NaN to 908, all of it in the ~20 sections named in Task 13's
-  // brief (hole 523, research 90, voteBallot 38, sneaking 36, spelunking 27, kangaroo 27, farming 26,
-  // alchemy 21, clamWork 21, owl 13, libraryTimes 11, killroy 8, gallery 5, emperor 3,
-  // tasksDescriptions 54, towers/rift/arcade/atoms/coralReef 1 each).
-  //
-  // Task 13 (batch B) converted the rest at the root - see each parser file's inline comments for the
-  // specific cause per path (mostly `accountOptions`/raw-array reads landing in Math.pow/Math.max/
-  // division without a `?? 0` guard, one Proxy-based fix for `hole`'s ~30 raw arrays, and a few
-  // catalog-vs-save-length mismatches like the villager roster and jars collectibles). Re-measured
-  // 2026-08-10: empty parse is 0 NaN / 5 Infinity (the 5 are `hole.villagers[].timeLeft`, a genuine
-  // "infinite time at a 0 exp rate" value that every consuming component already gates on
-  // `expRate.value > 0` before rendering - see components/account/Worlds/World5/Hole/*.jsx). Real
-  // parse is unchanged at 0 NaN / 35 Infinity. `empty.nan <= real.nan` and `empty.inf <= real.inf` are
-  // both true for the first time - this row is flipped from `it.fails` to a plain `it(...)`, per the
-  // brief: "the milestone this whole effort has been driving at."
   it('emits no NaN or Infinity that a real parse does not already have', () => {
     const count = (root) => {
       let nan = 0;
@@ -288,8 +199,6 @@ describe('no fabricated values', () => {
 
     const empty = count(parseEmpty().account);
     const real = count(parseReal().account);
-    // Baseline measured 2026-08-09: real parse carries 62 NaN / 35 Infinity. An empty account has
-    // strictly less data, so it must not invent more broken numbers than a full one.
     expect(empty.nan).toBeLessThanOrEqual(real.nan);
     expect(empty.inf).toBeLessThanOrEqual(real.inf);
   });

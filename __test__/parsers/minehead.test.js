@@ -10,8 +10,6 @@ import third from '../fixtures/third.json';
 import fourth from '../fixtures/fourth.json';
 import latest from '../fixtures/latest.json';
 
-// mineheadUpgrades is mapped directly (`(mineheadUpgrades ?? []).map(...)`), so the upgrade list was
-// already catalog-driven before Task 6. This test locks that behavior in; no parser code changed.
 describe('getMinehead', () => {
   it('returns every live upgrade when the save is missing', () => {
     const result = getMinehead(undefined, {}, {});
@@ -25,10 +23,6 @@ describe('getMinehead', () => {
   });
 
   it('applies save levels at the right indexes', () => {
-    // Hand-built save: raw[8] is the upgrade-level list (raw[0-7] are unrelated minehead-state
-    // slots this test doesn't touch). Unlike the fixture rows below, this runs unconditionally -
-    // 4 of the 5 real fixtures have no `Research` field at all, so they can't be relied on alone
-    // to prove index alignment.
     const research = [];
     research[8] = [5, 3, 0, 0, 0];
     const result = getMinehead({ Research: research }, {}, {});
@@ -49,12 +43,6 @@ describe('getMinehead', () => {
 const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
 
 describe('getMinehead fixture regression', () => {
-  // NOTE: `first`-`fourth` have no `Research` field at all (real, pre-Minehead saves), so
-  // `upgradeLevels` is undefined and this row makes no assertions for those 4 fixtures - that is
-  // legitimate for them, not a gap, since there is nothing to check index alignment against. Only
-  // `latest` actually exercises the check here. The unconditional, hand-built save case above
-  // (`applies save levels at the right indexes`) is what proves index alignment regardless of
-  // fixture content.
   it.each(FIXTURES)('%s: upgrade levels the save covers are unchanged at the same index', (_name, fixture) => {
     const data = fixture.data ?? fixture;
     const researchRaw = tryToParse(data?.Research) || data?.Research;

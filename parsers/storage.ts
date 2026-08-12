@@ -56,11 +56,6 @@ export const getStorage = (idleonData: IdleonData, name = 'storage', account: Ac
 }
 
 export const parseStorage = (chestOrderRaw: any, chestQuantityRaw: any, name: string, chestStoneData: any, rawStorageChests: any, account: Account): StorageData => {
-  // Classification: `list` (the inventory itself) is PURE USER STATE - there is no catalog of
-  // "every item a player could have in storage"; an account with no save genuinely has an empty
-  // storage list, not a truncated one. `storageChests` below is CATALOG-BACKED (`invStorage`) and
-  // was already unconditionally mapped over the full catalog before this task - it only needed the
-  // `list` crash guarded, not a shape change.
   const list = getInventoryList(chestOrderRaw, chestQuantityRaw, name, chestStoneData);
   const storageChests = Object.entries(invStorage as Record<string, any>).map(([rawName, data]) => {
     return {

@@ -4,12 +4,6 @@ import { getGalleryBonus } from './world-7/gallery';
 import { getHatRackBonus } from './world-3/hatRack';
 import { getResearchGridBonus } from './world-7/research';
 
-// Classification: PURE USER STATE (utility module). Nothing here produces its own top-level
-// `account.*` section - these functions build/query per-character equipment and inventory lists
-// from whatever the save actually contains. There is no website-data catalog of "every item a
-// character could be holding"; the inventory IS the save. With no save, callers naturally end up
-// with empty inputs and these functions already return neutral empty results (`[]`/`{}`) rather
-// than fabricating owned items - guarded below purely so an absent array doesn't throw.
 
 export const addStoneDataToEquip = (baseItem: any, stoneData: any) => {
   if (!baseItem || !stoneData) return {};

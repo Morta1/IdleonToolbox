@@ -16,22 +16,6 @@ const bannerButtonSx = {
   '&:hover': { borderColor: '#94baee', color: '#fff' }
 };
 
-/**
- * A single sticky notice under the navbar for "special viewing mode" states - shown once for the
- * whole app rather than repeated per page:
- * - Viewing another player's public profile (`state.profile`)
- * - Browsing as a logged-out visitor whose whole catalog is zeroed out (`state.emptyAccount`)
- *
- * AppProvider keeps these mutually exclusive in practice: `handleProfile` always sets
- * `emptyAccount: false`, and the empty-account path (the `handleUnauthenticatedUser` catch branch)
- * never sets `profile`. If both were ever true at once, the profile view wins below - it means
- * real data for a specific player is on screen, which is a more useful thing to tell the visitor
- * than the generic "you're not signed in" fallback.
- *
- * Pinned to a fixed `profileBannerHeight` (from `components/constants.jsx`) rather than sizing
- * itself from padding/content, so AppDrawer can reserve exactly that much space for it and the
- * two can never disagree - see hooks/useProfileBannerState.js.
- */
 const ProfileBanner = () => {
   const { state } = useContext(AppContext);
   const router = useRouter();

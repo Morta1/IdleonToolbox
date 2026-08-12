@@ -50,8 +50,6 @@ describe('getStorage fixture regression', () => {
     const chestQuantityRaw = tryToParse(data?.ChestQuantity);
     const result = getStorage(data, 'storage', {});
 
-    // getInventoryList drops Blank/LockedInvSpace slots, so the surviving list isn't index-aligned
-    // with the raw arrays - rebuild the same filtered/positional pairing here instead.
     const expectedPairs = (chestOrderRaw ?? [])
       .map((itemName, index) => ({ itemName, amount: parseInt(chestQuantityRaw?.[index]) }))
       .filter(({ itemName }) => itemName !== 'LockedInvSpace' && itemName !== 'Blank');

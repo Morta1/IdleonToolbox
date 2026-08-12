@@ -20,22 +20,11 @@ export const getTasks = (idleonData: IdleonData): {
   ];
   const tasksDescriptions = tasks?.map((worldTasks: any[], worldIndex: number) => {
     return worldTasks?.map((task: any, taskIndex: number) => {
-      // tasksRaw defaults to a 7-element array of `undefined` sub-arrays with no save (each
-      // tryToParse(idleonData?.TaskZZn) on undefined idleonData), so the nested chain optional-chains
-      // straight through to undefined - `Math.floor(undefined / 5)` is NaN, poisoning every one of
-      // the 54 tasksDescriptions cells. No save means 0 progress on every task, same as everywhere
-      // else in this codebase.
       const stat = tasksRaw?.[0]?.[worldIndex]?.[taskIndex] ?? 0;
       const level = tasksRaw?.[1]?.[worldIndex]?.[taskIndex] ?? 0;
       const meritReward = Math.round(1 + Math.floor(level / 5));
       let realTask = task;
       if (taskIndex === 8) {
-        // No save means tasksRaw?.[5]?.[worldIndex] ("which random task is active") is undefined,
-        // so `8 + undefined` is NaN and `tasks?.[worldIndex]?.[NaN]` resolves to undefined - realTask
-        // (and every field spread from it below: name/description/filler1/filler2/breakpoints) stays
-        // undefined, which is what crashed tasks.jsx's `description.replace(...)` for a logged-out
-        // visitor (task-18). Default to the catalog's first random-task variant (index 0), same as
-        // the real game's own "no random task rolled yet" state.
         const randomTaskIndex = tasksRaw?.[5]?.[worldIndex] ?? 0;
         realTask = tasks?.[worldIndex]?.[8 + randomTaskIndex];
       }
@@ -50,9 +39,6 @@ export const getTasks = (idleonData: IdleonData): {
 
   const meritsDescriptions = merits?.map((world: any[], worldIndex: number) => {
     return world?.map((merit: any, meritIndex: number) => {
-      // Default to 0: no save means this merit hasn't been purchased, not an unknown level -
-      // the merits.jsx page multiplies this straight into its description text
-      // (`bonusPerLevel * level`), so undefined leaked as the literal string "NaN".
       const level = tasksRaw?.[2]?.[worldIndex]?.[meritIndex] ?? 0;
       return {
         ...merit,
@@ -68,9 +54,6 @@ export const getTasks = (idleonData: IdleonData): {
       }
     })
   });
-  // Optional chaining short-circuits to undefined (not the reduce's 0 seed) when tasksRaw is
-  // missing, and safeSection's top-level null/undefined check can't catch a leaked undefined
-  // nested inside an otherwise-defined object - same defect class as getConstellations.
   const unlockedRecipes = tasksRaw?.[3]?.flat()?.reduce((sum: number, unlock: number) => sum + unlock, 0) ?? 0;
   const unlockPointsOwned = getUnlockPointsOwned(unlockPointsFormula, tasksRaw?.[4]?.[0]) ?? 0;
   const pointsReq = getPointsReq(unlockPointsFormula, unlockPointsOwned, 0) ?? 0;

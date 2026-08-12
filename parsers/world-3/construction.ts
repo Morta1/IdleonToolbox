@@ -78,12 +78,6 @@ export const LEFT_FLAG_INDEX = 96;   // FlagUnlock/FlagsPlaced indices for left 
 export const RIGHT_FLAG_INDEX = 108; // FlagUnlock/FlagsPlaced indices for right extra column
 
 const parseFlags = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any[], cogsOrder: any[], account: Account, characters?: any[]) => {
-  // Catalog-driven: BOARD_SIZE is the game's fixed board grid, and flagsReqs (website-data) gives
-  // every slot's requirement regardless of the save. Always building the full BOARD_SIZE array
-  // (rather than one only as long as flagsUnlockedRaw) means a missing/short save renders an empty
-  // board instead of throwing on `board.map` a few lines down. Every observed real save's
-  // FlagUnlock is at least BOARD_SIZE long, so this reads the identical BOARD_SIZE values for a real
-  // account that the old `.slice(0, BOARD_SIZE)` did.
   let board: any[] = Array.from({ length: BOARD_SIZE }, (_, index) => {
     const flagSlot = flagsUnlockedRaw?.[index];
     const name = cogsOrder?.[index];
@@ -380,9 +374,6 @@ const parseTowers = (towersRaw: any, totemInfo: any) => {
   let wizardOverLevels = 0;
   let totalLevels = 0;
   const towersData = Object.entries(towers)?.map(([towerName, towerData]) => {
-    // towersRaw is undefined with no save; totalLevels accumulates every tower's level below, and
-    // `undefined + anything` is NaN forever after (the accumulator never recovers) - 0 is the correct
-    // "never built" default, same as every other un-touched-feature default in this codebase.
     const level = towersRaw?.[towerData?.index] ?? 0;
     if (towerData?.index >= 9 && towerData?.index <= 17) {
       if (level > 50) {
@@ -395,9 +386,6 @@ const parseTowers = (towersRaw: any, totemInfo: any) => {
       name: towerName,
       level,
       nextLevel: (level + 1) === towersRaw?.[towerData.index + towersLength],
-      // towersRaw is undefined with no save; a bare `undefined` progress makes the rendered
-      // "progress / buildCost" fraction NaN (see the `level` default above for the same reason).
-      // 0 is the correct "never built" default here too.
       progress: towersRaw?.[towerData?.index + 12 + towersLength * 2] ?? 0,
       inProgress: inProgress?.includes(towerData?.index),
       slot: inProgress?.findIndex((ind: any) => ind === towerData?.index)

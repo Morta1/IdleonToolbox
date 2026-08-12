@@ -28,9 +28,6 @@ const Chapters = ({ chapters }) => {
         return (
           <Stack key={groupIndex}>
             <Stack direction={'row'} gap={1} alignItems={'center'} mb={1}>
-              {/* Decorative: the chapter group's name is the heading right beside it. Explicitly
-                  empty rather than absent, so a screen reader skips it instead of reading the
-                  file name. */}
               <img style={{ width: 32, height: 32 }} src={`${prefix}data/Spelunking${groupIndex}.png`} alt=""/>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
                 <Typography variant="h6">{chapterGroupNames[groupIndex]}</Typography>

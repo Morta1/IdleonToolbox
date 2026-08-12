@@ -68,8 +68,6 @@ const Grimoire = () => {
                                                         imgStyle={{ objectPosition: '0 -6px' }}
       />)}
     </Stack>
-    {/* Nothing above it - the card row before this already ends with its own bottom margin. The
-        space below is the divider's own job now that the cards do not carry a top margin. */}
     <Divider sx={{ mb: 3 }}/>
     <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Wraith Max HP'} value={notateNumber(wraithStats?.hp)}/>

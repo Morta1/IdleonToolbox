@@ -58,11 +58,6 @@ export const getDoubleStatueDrop = (account: any, character: any, characters: an
   const tesseractBonus = getTesseractBonus(account, 18);
   const paletteBonus = getPaletteBonus(account, 19);
   const kattelkrukPlayer = characters?.find(({ linkedDeity }: any) => linkedDeity === 8); // kattelkruk is limited to only 1 player linked.
-  // Passing an undefined player is deliberate: getMinorDivinityBonus falls through to the first
-  // character for the divinity level, which is what a minor bonus reads. The minor bonus is gated
-  // on owning the god, not on someone being linked to it - see the getMinorDivinityBonus calls in
-  // damage.ts, which gate on `hasDoot` rather than on a link. Guarding this on `kattelkrukPlayer`
-  // zeroed the bonus on every save with no Kattelkruk link.
   const divinityMinorBonus = getMinorDivinityBonus(kattelkrukPlayer, account, 8, characters);
   const talentBonus = getTalentBonus(character?.flatStarTalents, 'STATUE_METALLURGY');
   
@@ -290,9 +285,6 @@ const calcBookCount = (account: any, characters: any, idleonData: any) => {
   const baseBookCount = account?.accountOptions?.[55] ?? 0;
   const timeAway = account?.timeAway;
   let libTime = timeAway?.BookLib ?? 0;
-  // No `timeAway` at all (empty account) means no elapsed-time-since-last-save to speak of - unlike
-  // a real save missing just one field, defaulting GlobalTime to 0 here would read as "1970", turn
-  // `afk` into ~1.7 billion seconds, and spin the while-loop below millions of times.
   let afk = timeAway ? (new Date).getTime() / 1e3 - timeAway.GlobalTime : 0;
   let bookCount = baseBookCount;
   if (afk > 300) libTime += afk;
@@ -319,8 +311,6 @@ export const getTimeToNextBooks = (bookCount: any, account: any, characters: any
   const bubbleBonus = getBubbleBonus(account, 'IGNORE_OVERDUES', false);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Talent_Book_Library');
   const stampBonus = getStampsBonusByEffect(account, 'Talent_Book_Library_Refresh_Speed')
-  // towersLevels is a raw pass-through of idleonData?.Tower (out of this section's scope), undefined
-  // with no save. No save means the Library tower has never been built.
   const libraryTowerLevel = towersLevels?.[1] ?? 0;
   const libraryBooker = getAtomBonus(account, 'Oxygen_-_Library_Booker');
   const superbit = isSuperbitUnlocked(account, 'Library_Checkouts');
@@ -467,8 +457,6 @@ export const getCurrencies = (account: any, idleonData: any, processedData: any)
 
   return {
     candies: { guaranteed: guaranteedCandies, special: specialCandies },
-    // Default the raw currency counters to 0: no save means the player owns none of these, not
-    // an unknown amount - commaNotation(undefined) renders the literal string "NaN".
     WorldTeleports: idleonData?.CYWorldTeleports ?? 0,
     KeysAll: getKeysObject(keys),
     ColosseumTickets: idleonData?.CYColosseumTickets ?? 0,
@@ -491,9 +479,6 @@ export const enhanceColoTickets = (tickets: any, characters: any, account: any) 
   const allTickets = Object.entries(npcs).reduce((res: any[], [, npc]: [string, any], index: any) => {
     // const amountPerDay = getAmountPerDay(npc, characters);
     const daysSincePickup = account?.accountOptions?.[npc?.daysSinceIndex];
-    // No save (or a save that has never opened this NPC's dialog) means 0 days elapsed, not an
-    // unknown day count - `Math.min(undefined, 3)` is NaN regardless of the other operand, which is
-    // what previously leaked NaN into every ticket's totalAmount on an empty account.
     return [...res,
     {
       rawName: `TixEZ${index}`,
@@ -509,8 +494,6 @@ export const enhanceColoTickets = (tickets: any, characters: any, account: any) 
   }
 }
 
-// Catalog-driven: the 5 key types are a fixed structural list (keysMap), not a property of the
-// save. A missing/short save means unowned (0) keys - not a truncated list of key types.
 const getKeysObject = (keys: any) => {
   return Object.entries(keysMap).map(([indexStr, info]) => ({
     amount: keys?.[Number(indexStr)] ?? 0,
@@ -528,13 +511,6 @@ export const enhanceKeysObject = (keysAll: any, characters: any, account: any) =
   return keysAll.map((key: any, keyIndex: any) => {
     const amountPerDay = getAmountPerDay((npcs as Record<string, any>)?.[keyIndex], characters);
     const daysSincePickup = account?.accountOptions?.[(npcs as Record<string, any>)?.[keyIndex]?.daysSinceIndex];
-    // World 4/5 keys (index 3-4) have no NPC dialog bonus - `npcs` has no entry for them, so
-    // `daysSinceIndex` and therefore `daysSincePickup` are undefined by design (there's nothing to
-    // read; `amountPerDay` is already correctly 0 for these via getAmountPerDay's own guard). But
-    // `Math.min(undefined, 3)` is NaN regardless of the other operand, so `NaN * 0` stayed NaN instead
-    // of the 0 total the missing mechanic actually implies. Default only the totalAmount math, not
-    // the `daysSincePickup` field itself (still undefined below - there's genuinely no such day count
-    // for these two keys, which is why Currencies.jsx already treats it as "isNaN -> show 0").
     const totalAmount = Math.min(daysSincePickup ?? 0, 3) * amountPerDay;
     return { ...key, amountPerDay, daysSincePickup, totalAmount };
   });
@@ -669,19 +645,11 @@ export const getCharacterByHighestSkillLevel = (characters: any, className: any,
 
 export const getHighestLevelCharacter = (characters: any) => {
   const levels = characters?.map(({ level }: any) => level ?? 0) ?? [];
-  // Same defect as getHighestCharacterSkill directly below, which was fixed while this sibling was
-  // missed: Math.max() of nothing is -Infinity, and with no characters this fed the Maneki Kat and
-  // Ashen Urn sailing artifacts, which render it as "+-Infinity% coins". Levels are never negative,
-  // so the 0 floor cannot change a real save's value.
   return Math.max(0, ...levels);
 };
 
 export const getHighestCharacterSkill = (characters: any = [], skillName: any) => {
   const levels = characters?.map(({ skillsInfo }: any) => skillsInfo?.[skillName]?.level ?? 0);
-  // Math.max(...[]) on an empty character list is -Infinity, which safeSection's null/undefined
-  // check can't catch. Skill levels are never negative, so a 0 floor can't change a real save's
-  // value - same fix already applied for this defect class in tome.ts:337/346/351, talents.ts:571,
-  // and breeding.ts:237.
   return Math.max(0, ...levels);
 };
 
@@ -1247,8 +1215,6 @@ export const getTypeGen = (type: any) => {
 
 export const getFoodBonus = (character: any, account: any, bonusName: any, ignoreFoodBonus = false) => {
   const foodBonus = getPlayerFoodBonus(character, account);
-  // `?? 0`: when character.food is missing (no save), the optional chain short-circuits the
-  // whole expression to undefined, bypassing reduce's own initial-value default entirely.
   return character?.food?.reduce((res: any, {
     Amount,
     Effect
@@ -1257,7 +1223,6 @@ export const getFoodBonus = (character: any, account: any, bonusName: any, ignor
 
 export const getHealthFoodBonus = (character: any, account: any, bonusName: any) => {
   const foodBonus = getPlayerFoodBonus(character, account, true);
-  // `?? 0`: same optional-chaining short-circuit issue as getFoodBonus above.
   return character?.food?.reduce((res: any, {
     Trigger,
     Amount,
@@ -1408,8 +1373,6 @@ export const getMiniBossesData = (account: any) => {
 }
 
 export const getKillRoy = (idleonData: any, charactersData: any, accountData: any, serverVars: any) => {
-  // Default to 0: no save means no skulls collected, not an unknown value -
-  // notateNumber(undefined) renders the literal string "NaNENaN".
   const skulls = accountData?.accountOptions?.[105] ?? 0;
   const killRoyKills = tryToParse(idleonData?.KRbest);
   const totalKills = Object.values(killRoyKills || {}).reduce((sum: any, num: any) => sum + num, 0);
@@ -1586,8 +1549,6 @@ export const getAllMasterclassDropz = (character: any, account: any) => {
 }
 
 export const getKillRoyShopBonus = (account: any, index: any) => {
-  // Every accountOptions read below is both the numerator and part of the denominator; undefined
-  // (never bought, real or empty) is NaN/0 = NaN, not the "no bonus yet" 0 the shop otherwise shows.
   const opt228 = account?.accountOptions?.[228] ?? 0;
   const opt229 = account?.accountOptions?.[229] ?? 0;
   const opt230 = account?.accountOptions?.[230] ?? 0;

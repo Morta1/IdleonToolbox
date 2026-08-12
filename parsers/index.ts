@@ -269,25 +269,14 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   }
   accountData.spelunking = safeSection<any>('spelunking', {}, () => getSpelunking(idleonData, accountData, charactersData));
   accountData.hatRack = safeSection<any>('hatRack', {}, () => getHatRack(idleonData, accountData));
-  // Unlike the other converted sections the fallback stays `null`. gaming's shape has ~35 keys fed
-  // by six catalogs and several cross-section lookups; a hand-written static twin would drift from
-  // it silently. Every consumer already tolerates null (they did while gaming was always null when
-  // locked), and `?.unlocked` reads falsy through it, so the error path degrades to exactly the
-  // behaviour that shipped before this change.
   accountData.gaming = safeSection<any>('gaming', null, () => getGaming(idleonData, charactersData, accountData, serverVars));
   // reapply atoms
   accountData.atoms = safeSection<any>('atoms', {}, () => getAtoms(idleonData, accountData));
-  // Fallback is the locked shape rather than null so `account.sailing` is always an object with an
-  // `unlocked` flag and empty collections - consumers branch on the flag, and some of them index
-  // into these keys without optional-chaining every hop.
   accountData.sailing = safeSection<any>('sailing', getLockedSailing(artifacts), () => getSailing(idleonData, artifacts, charactersData, accountData, serverVars, charactersLevels));
 
   const leaderboard = calculateLeaderboard(skills);
   charactersData = charactersData.map((character: any) => ({ ...character, skillsInfo: (leaderboard as Record<string, any>)[character?.name] }));
 
-  // A character slot with no parsed level (e.g. an empty companion slot with no class/stats data,
-  // see the same gap in sailing.ts's Crystal_Steak fix) contributes 0 levels rather than poisoning
-  // the whole sum to NaN via `sum + undefined`.
   accountData.accountLevel = charactersData?.reduce((sum: number, { level }: any) => sum + (level ?? 0), 0);
   accountData.highscores = safeSection<any>('highscores', { coloHighscores: [], minigameHighscores: [] }, () => getHighscores(idleonData, accountData));
 
@@ -301,8 +290,6 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.killroy = safeSection<any>('killroy', {}, () => getKillRoy(idleonData, charactersData, accountData, serverVars));
   accountData.anvil = charactersData.map(({ anvil }: any) => anvil);
 
-  // No save means no bank field at all - `parseFloat(undefined)` is NaN, not 0, so this needs the
-  // same `? value : 0` guard `playersMoney` below already uses for a missing character's money.
   const bankMoney = parseFloat((idleonData?.MoneyBANK ? idleonData?.MoneyBANK : 0) as any);
   const playersMoney = charactersData?.reduce((res: number, char: any) => {
     return res + parseFloat(char?.money ? char?.money : 0)

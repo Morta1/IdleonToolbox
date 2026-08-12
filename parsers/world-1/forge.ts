@@ -59,15 +59,9 @@ const upgradesData: ForgeUpgradeData[] = [
 ];
 
 const parseForge = (forgeOrderRaw: any, forgeQuantityRaw: any, forgeLevels: any, account: Account) => {
-  // upgradesData is a fixed local list (not save-driven) - always render all 6, level 0 with no save.
   const upgrades: ForgeUpgrade[] = upgradesData?.map((upgrade, index) => ({ ...upgrade, level: forgeLevels?.[index] ?? 0 }));
   const brimestoneSlots = (account?.gemShopPurchases as any)?.find((value: any, index: number) => index === 104) ?? 0;
   const forgeRowItems = 3;
-  // Every save ships all the slots regardless of how many are unlocked - the locked ones just hold
-  // 'Blank', which the page already renders as an empty slot. Sizing this loop by the save's own
-  // array instead meant a visitor with no save saw no slots at all, rather than the empty board a
-  // player at slot level 0 sees. The count is the slot upgrade's maxLevel rather than a literal 16,
-  // so it follows the catalog if the game ever adds slots.
   const forgeSlots = upgradesData[0].maxLevel;
   let forge: any[] = [];
   for (let index = 0; index < forgeSlots; index++) {

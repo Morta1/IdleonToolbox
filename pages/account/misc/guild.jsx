@@ -72,9 +72,6 @@ const Guild = () => {
     setDataTimestamp([]);
   }
 
-  // `guild.unlocked` is false for a visitor who isn't in a guild (including one who isn't signed
-  // in). Members and GP need a save, but the bonus catalog doesn't - show it rather than a bare
-  // notice, so the page still describes what guilds give you.
   if (!guild?.unlocked || guild?.members?.length === 0) {
     return <>
       <GuildSeo/>
@@ -128,8 +125,6 @@ const Guild = () => {
   </>
 };
 
-// Rendered on both branches so the page keeps its title and description whether or not the
-// visitor is in a guild - data/page-seo.js mirrors this and __test__/page-seo.test.js checks it.
 const GuildSeo = () => <NextSeo
   title="Guild | Idleon Toolbox"
   description="Keep track of your guild members, gp, bonuses and more"

@@ -62,8 +62,6 @@ export const getGrimoire = (idleonData: any, charactersData: any, account: any) 
   return parseGrimoire(grimoireRaw, ribbonRaw, charactersData, account);
 };
 
-// Classification: CATALOG-BACKED (`grimoire`). The save only supplies each upgrade's level; a
-// missing save means every upgrade sits at level 0, not a shorter list.
 const parseGrimoire = (grimoireRaw: any, ribbonRaw: any, charactersData: any, account: any) => {
   const monsterList = randomList?.[104];
   const bones = boneNames.map((_, index) => account?.accountOptions?.[330 + index] ?? 0);
@@ -182,9 +180,6 @@ export const getWraithStats = (character: any, account: any) => {
       + (calcGrimoireBonus(upgrades, 28)
         + (calcGrimoireBonus(upgrades, 43)
           + calcGrimoireBonus(upgrades, 50)))) / 100)
-    // accountOptions[334/335/336/330] default to 0: no save means these multipliers are unset,
-    // not unknown - undefined poisons the multiplication (and lavaLog(undefined) is NaN via
-    // Math.max(undefined, 1)) regardless of the paired calcGrimoireBonus value.
     * (1 + ((account?.accountOptions?.[334] ?? 0)
       * calcGrimoireBonus(upgrades, 13)
       + ((account?.accountOptions?.[335] ?? 0)
@@ -260,9 +255,6 @@ export const getExtraBonesBonus = (character: any, account: any) => {
 
   const gambitMulti = Math.min(2, 1 + getGambitBonus(account, 12));
   const gearMulti = Math.min(1.5, 1 + gearBonus / 100);
-  // Default to 0: no save means this multiplier is unset, not unknown - lavaLog(undefined) is
-  // NaN (Math.max(undefined, 1) is NaN), which poisons upgradeBonus regardless of the grimoire
-  // bonus at index 48.
   const upgradeBonus = calcGrimoireBonus(upgrades, 23)
     + calcGrimoireBonus(upgrades, 48) * lavaLog(account?.accountOptions?.[333] ?? 0)
     + arcadeBonus + mainframeBonus + paletteBonus + exoticBonus;

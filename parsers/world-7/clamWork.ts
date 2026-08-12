@@ -74,8 +74,6 @@ const getClamCost = (account: Account, index: number, requiredPearls?: number): 
   const workerClass = (account as any)?.accountOptions?.[464] ?? 0;
   const multi = parseFloat(generalSpelunky[29]?.[index] ?? 0);
 
-  // accountOptions[index + 455] (per-upgrade level) is undefined with no save; guarded to 0 wherever
-  // it feeds Math.pow/multiplication below (never touched = level 0, same as `workerClass` above).
   const upgradeLevel = (account as any)?.accountOptions?.[Math.round(index + 455)] ?? 0;
   if (index === 9) {
     return 1e5 * Math.pow(10, workerClass);
@@ -93,7 +91,6 @@ const getClamCost = (account: Account, index: number, requiredPearls?: number): 
 }
 
 const getClamWorkLocalBonuses = (account: Account, index: number): number => {
-  // See getClamCost's comment: accountOptions[index + 455] defaults to 0 (never touched).
   const upgradeLevel = (account as any)?.accountOptions?.[Math.round(index + 455)] ?? 0;
   // 3 is multi kill which is shit to calculate so we just return 1
   return 999 == index ? 1 : 3 == index

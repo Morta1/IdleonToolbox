@@ -40,8 +40,6 @@ describe('getTesseract', () => {
   });
 
   it('applies save levels at the right indexes (synthetic, unconditional)', () => {
-    // Hand-built save: Arcane is the upgrade-level array directly. Runs unconditionally because
-    // most fixtures below have no Arcane field at all.
     const idleonData = { Arcane: [5, 3, 0, 0, 0] };
     const result = getTesseract(idleonData, [], {});
     expect(result.upgrades[0].level).toBe(5);
@@ -53,12 +51,6 @@ describe('getTesseract', () => {
 
 const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
 
-// Only fixtures that actually carry an `Arcane` field can prove index alignment against real save
-// data - `first`-`fourth` are real pre-Tesseract saves and have no such field at all. Narrowed to
-// avoid a vacuous `it.each` row that silently ran zero assertions for 4 of 5 fixtures while still
-// reporting green; `latest` is the only one that currently qualifies. The unconditional, hand-built
-// synthetic case above ('applies save levels at the right indexes') is what proves index alignment
-// regardless of fixture content - this row is purely a real-data regression check.
 const FIXTURES_WITH_ARCANE = FIXTURES.filter(([, fixture]) => (fixture.data ?? fixture)?.Arcane != null);
 
 describe('getTesseract fixture regression', () => {

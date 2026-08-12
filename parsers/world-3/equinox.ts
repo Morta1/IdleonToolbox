@@ -12,19 +12,10 @@ import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 
-// `dream[0]` is the current charge and `dream[2..]` maps one-to-one onto equinoxUpgrades, so the
-// neutral save is that many zeros. Derived from the catalog rather than hardcoded, so it stays
-// correct when the game adds an upgrade.
 const DREAM_UPGRADES_OFFSET = 2;
 const dreamUpgradesEnd = () => DREAM_UPGRADES_OFFSET + equinoxUpgrades.length;
 const emptyDream = () => new Array(dreamUpgradesEnd()).fill(0);
 
-/**
- * The shape safeSection falls back to when getEquinox throws. It is built from the catalogs alone -
- * no account lookups - so it is cheap to construct eagerly and cannot itself throw. Every key the
- * unlocked shape exposes is present, because consumers stop optional-chaining partway through
- * (`account?.equinox?.upgrades[9]`, `account?.equinox?.challenges.find(...)`).
- */
 export const getLockedEquinox = () => ({
   unlocked: false,
   currentCharge: 0,
@@ -51,9 +42,6 @@ export const getLockedEquinox = () => ({
 export const getEquinox = (idleonData: any, account: any) => {
   const weeklyBoss = tryToParse(idleonData?.WeeklyBoss) || idleonData?.WeeklyBoss;
   const dream = tryToParse(idleonData?.Dream) || idleonData?.Dream;
-  // The parse runs either way: challenges and upgrades are built from their catalogs, so an
-  // account that hasn't unlocked equinox still gets every challenge and upgrade at zero instead of
-  // a bare "Unlock Equinox first" line. `unlocked` is what consumers branch on.
   return {
     ...parseEquinox(weeklyBoss || {}, dream || emptyDream(), account),
     unlocked: !!weeklyBoss && !!dream
@@ -175,8 +163,6 @@ const parseEquinoxUpgrades = (challenges: any, dream: any, account: any) => {
   const nbChallengeUnlocked = challenges.filter((challenge: any) => challenge.current === -1 && challenge.reward === 'Unlock_next_Equinox_upgrade').length;
   return equinoxUpgrades.map(({ name, description, maxLevel, bonus }, index) => {
     const realBonus = name === 'Hmm...' ? 0 : name === 'Food_Lust'
-      // accountOptions[193] is the boss kill count. Without a save it is undefined, and
-      // `Math.min(0, undefined)` is NaN, which the Upgrades card renders as "Bosses killed: NaN".
       ? Math.min(parseInt(dream[index]), account?.accountOptions?.[193] ?? 0)
       : bonus * dream[index] || 0;
     const winBonus = getWinnerBonus(account, '+{ Equinox Max LV');

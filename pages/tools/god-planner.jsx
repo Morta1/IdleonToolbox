@@ -42,8 +42,6 @@ const GodPlanner = () => {
     setBuild(buildCopy)
   }
 
-  // Divinity carries the full god list even when it reports `unlocked: false`, so the planner can
-  // show every god and what its link gives without a save.
   return <>
     <NextSeo
       title="God Planner | Idleon Toolbox"

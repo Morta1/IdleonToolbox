@@ -37,8 +37,6 @@ describe('getStamps', () => {
   });
 
   it('returns the full category even when the save is shorter than the catalog', () => {
-    // Regression: the save-driven version only returned as many entries as the save's
-    // Object.keys(item) had, hiding every stamp the player had not unlocked yet.
     const raw = { StampLv: [{ 0: 5 }, {}, {}] };
     const result = getStamps(raw, emptyAccount);
     expect(result.combat).toHaveLength(liveCount(Object.values(stamps.combat)));

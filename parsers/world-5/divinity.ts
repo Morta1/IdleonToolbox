@@ -10,10 +10,6 @@ import { tryToParse } from '@utility/helpers';
 
 export const getDivinity = (idleonData: any, serializedCharactersData: any, accountData: any) => {
   const divinityRaw = tryToParse(idleonData?.Divinity) || idleonData?.Divinity;
-  // This used to `return null` when the save had no Divinity data, leaving the page with nothing but
-  // a "missing data" notice. `deities` is built from the gods catalog rather than from the save, so
-  // running the parse anyway yields all 10 gods and their blessings at level 0 - what a locked
-  // account should see. `unlocked` is the flag consumers branch on, never the section's truthiness.
   return { ...parseDivinity(divinityRaw || [], serializedCharactersData, accountData), unlocked: !!divinityRaw };
 }
 
@@ -24,8 +20,6 @@ const parseDivinity = (divinityRaw: any, serializedCharactersData: any, accountD
   const blessingLevelsStartIndex = 28;
   const blessingLevels = divinityRaw?.slice(blessingLevelsStartIndex, blessingLevelsStartIndex + gods?.length + 1);
   const linkedStyles = divinityRaw?.slice(0, serializedCharactersData?.length + 1);
-  // Both default to 0 for a save that has never touched divinity: `undefined - 10` is NaN, and it
-  // propagates into every god's blessing bonus and maxLevel below.
   const unlockedDeities = divinityRaw?.[25] ?? 0;
   const godRank = unlockedDeities - 10;
   const coralKidBonus = getCoralKidUpgBonus(accountData, 1);
@@ -164,9 +158,6 @@ export const getDeityLinkedIndex = (account: any, characters: any, deityIndex: a
 export const getMinorDivinityBonus = (character: any, account: any, forcedDivinityIndex?: any, characters?: any) => {
   const bigPCharacter = characters?.find((char: any) => char.equippedBubbles?.find(({ bubbleName }: any) => bubbleName === 'BIG_P'));
   const bigPBubble = getActiveBubbleBonus((bigPCharacter || character || characters?.[0])?.equippedBubbles, 'BIG_P', account);
-  // An account with no characters has no divinity level, and `undefined / (60 + undefined)` is NaN.
-  // Callers guard with `?? 0`, which does not catch NaN, so it spread from here into gaming's grow
-  // time (rendered as "Sprouts grow back every NaN Min") among others.
   const divinityLevel = (character || bigPCharacter || characters?.[0])?.skillsInfo?.divinity?.level ?? 0;
   const linkedDeity = forcedDivinityIndex ?? account?.divinity?.linkedDeities?.[character.playerId];
   const godIndex = (gods as any)?.[linkedDeity]?.godIndex;

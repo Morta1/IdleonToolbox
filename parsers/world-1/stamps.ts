@@ -27,9 +27,6 @@ export const getStamps = (idleonData: any, account: any) => {
 }
 
 export const parseStamps = (stampLevelsRaw: any, stampMaxLevelsRaw: any, account: any) => {
-  // Catalog-driven: the list of stamps that exist is a property of the game, not of the save.
-  // The save only supplies each stamp's level/maxLevel, and a missing/short save means unlevelled
-  // (0) stamps - not a truncated category.
   return Object.entries(stampsMapping).reduce((acc: any, [categoryIndexStr, category]) => {
     const categoryIndex = Number(categoryIndexStr);
     const categoryCatalog = Object.values((stamps as Record<string, any>)[category as string]);
@@ -77,11 +74,6 @@ export const getStampsPerDay = (account: any) => {
 }
 
 export const evaluateStamp = (stamp: any, account: any, characters: any, gildedStamp = true, forcedStampReducer: any, forceMaxCapacity = false) => {
-  // account?.atoms?.stampReducer can come back NaN (not undefined) on an empty account - the atom
-  // collider multiplies its level by a raw accountOptions day-count that isn't backfilled by the
-  // catalog. NaN skips getMaterialCost's own `reduction = 0` default parameter (that only fires for
-  // undefined), so it has to be caught here: no computable reducer bonus means 0% reduction, same
-  // neutral default every other bonus in this formula (meritocracy, sigil, ...) already falls back to.
   const rawStampReducer = forcedStampReducer ?? account?.atoms?.stampReducer;
   const stampReducer = Number.isFinite(rawStampReducer) ? rawStampReducer : 0;
   const bestCharacter = getHighestCapacityCharacter(items?.[stamp?.itemReq?.rawName], characters, account, forceMaxCapacity);
@@ -254,12 +246,6 @@ const getMaterialCost = (level: any, stamp: any, account: any, reduction = 0, gi
   const stampReducerVal = Math.max(0.1, 1 - reduction / 100);
   const meritocracyBonus = 1 / (1 + getMeritocracyBonus(account, 14) / 100);
 
-  // The tier exponent is `round(level / reqItemMultiplicationLevel) - 1`, meant to index the
-  // material-cost tier (0, 1, 2, ...) the stamp is currently in. For any level below half of
-  // reqItemMultiplicationLevel - i.e. every stamp that hasn't been leveled yet - that rounds down
-  // to 0 and the `- 1` makes it negative. `Math.pow(negative, 0.8)` (a fractional exponent of a
-  // negative base) is NaN in JS, so an unleveled stamp's first-tier material cost came back NaN.
-  // Tier 0 (the very first material purchase) is the floor - clamp instead of letting it go negative.
   const tierExponent = Math.max(0, Math.round(level / stamp?.reqItemMultiplicationLevel) - 1);
   return Math.max(1, (stamp?.baseMatCost * (gildedStamp ? 0.05 : 1)
     * meritocracyBonus

@@ -20,8 +20,6 @@ const Divinity = () => {
   const { deities, linkedDeities, godRank } = state?.account?.divinity || {};
   const { coralKidUpgrades } = state?.account?.coralReef || {};
   const [showCost, setShowCost] = useState(false);
-  // The parser returns all 10 gods at level 0 when divinity isn't unlocked, so the page shows what
-  // divinity contains instead of a dead-end notice.
   return <>
     <NextSeo
       title="Divinity | Idleon Toolbox"
@@ -29,8 +27,6 @@ const Divinity = () => {
     />
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'divinity')}>
     <div>
-    {/* Its parent is a bare <div> with nothing to hang a margin on, so this one card carries its
-        own - the cards themselves no longer have a default bottom margin. */}
     <CardTitleAndValue title={'God Rank'} value={godRank || 1} cardSx={{ mb: 3 }}/>
     <FormControlLabel
       control={<Checkbox name={'mini'} checked={showCost} size={'small'} onChange={() => setShowCost(!showCost)}/>}

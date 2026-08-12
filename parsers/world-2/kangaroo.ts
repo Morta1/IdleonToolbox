@@ -34,15 +34,9 @@ const resetBonusesDesc = [
 ];
 
 const parseKangaroo = (account: any) => {
-  // Default to 0: no save means no fish caught, not an unknown value - notateNumber(undefined)
-  // renders the literal string "NaNENaN".
   const fish = account?.accountOptions?.[267] ?? 0;
   const progress = account?.accountOptions?.[280];
   const upgrades = poppyBonuses.map((upgrade, i) => {
-    // accountOptions[268/272/300/304] feed straight into arithmetic below; undefined (never touched,
-    // real or empty) makes commonFactor - and therefore every upgrade's cost - NaN. `?? 0` guards
-    // only this math; the raw `level` field a few lines down stays untouched (unowned-upgrade
-    // `undefined` there matches owl.ts's `level` field and task-10's precedent for that exact shape).
     const base = i === 0 ? 1 + (account?.accountOptions?.[268] ?? 0) : 1;
     const commonFactor = base
       * (1 / (1 + (10 * (account?.accountOptions?.[272] ?? 0)) / 100))
@@ -72,8 +66,6 @@ const parseKangaroo = (account: any) => {
   const nextLvReq = poppyBonuses?.[nextLvReqIndex]?.x3;
   const vaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 45);
   const fountainPoppyBonus = getFountainBonusTotal(account?.hole?.holesObject, 1, 18);
-  // Math.min/Math.max poison to NaN on an undefined argument (unlike a plain comparison, which is
-  // safely false) - every accountOptions read feeding one below is guarded with `?? 0`.
   const baseFishRate = (1 + Math.min(5, account?.accountOptions?.[275] ?? 0))
     * Math.max(1, 1 + 0.5 * ((account?.accountOptions?.[275] ?? 0) - 5)
       * getMegaFish(account, 5)) * getResetBonuses(account, 0)
@@ -90,7 +82,6 @@ const parseKangaroo = (account: any) => {
   // TAR
   const tarFishUnlocked = Math.min(8, Math.round(3 * getMegaFish(account, 0)
     + (3 * getMegaFish(account, 4) + 2 * getMegaFish(account, 7))));
-  // Default to 0: no save means no tar fish owned, not an unknown value.
   const tarFishOwned = account?.accountOptions?.[296] ?? 0;
   const tarFishRate = (1 / (1 + 0.05 *
       (account?.accountOptions?.[301] ?? 0)))
@@ -219,10 +210,6 @@ const parseKangaroo = (account: any) => {
 
 const formatDescription = (account: any, level: any, desc: any, upgradesIndex: any, i: any, data: any) => {
   const index = Math.round(268 + 29 * upgradesIndex + i);
-  // Default both the raw accountOptions read and the level argument to 0 for this function's own
-  // arithmetic only (the `level` field returned on the upgrade object itself stays undefined per
-  // the convention noted above parseKangaroo - this is purely about the description text, which
-  // should read "0" for an unowned upgrade rather than leak NaN).
   const optionValue = account?.accountOptions?.[index] ?? 0;
   const lvl = level ?? 0;
   let newDesc = desc;
@@ -258,7 +245,6 @@ const getShinyMulti = (account: any, i: any) => {
     if (i === 4) base = 250;
     if (i === 5) base = 500;
   }
-  // Math.max poisons to NaN on an undefined argument (unlike a plain comparison).
   return 1 + (base * Math.log(Math.max(1, account?.accountOptions?.[Math.round(281 + i)] ?? 0))) / 100;
 }
 

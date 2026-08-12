@@ -54,10 +54,6 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
 
   const totalCharactersSpelunkingLevels = characters?.reduce((res: any, { skillsInfo }: any) => res + (skillsInfo?.spelunking?.level ?? 0), 0) ?? 0;
   const highestSpelunkingLevelCharacter = characters?.reduce((res: any, { skillsInfo }: any) => Math.max(res, skillsInfo?.spelunking?.level ?? 0), 0) ?? 0;
-  // rawSpelunking?.[4] is undefined with no save, so every field below would otherwise come out
-  // undefined (not 0) - default destructuring only fires on an actually-missing element, so this
-  // leaves a real save's values untouched. 0 is correct for all five: no amber found, no overstim
-  // level/meter reached, no fragments found yet.
   const [
     currentAmber = 0,
     overstimLevel = 0,
@@ -261,8 +257,6 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
     rawDancingCoral,
     rawLoreThreshold,
     elixirs,
-    // currentAmber/overstimLevel/overstimCurrent/exaltedFragmentFound/prismaFragmentFound are all
-    // already defaulted to 0 at the destructure above.
     currentAmber,
     overstimLevel,
     overstimCurrent,
@@ -392,8 +386,6 @@ export const getDiscoveryHp = (discovery: any) => {
 export const getOverstimBonus = (account: any) => {
   const shopUpg6 = getSpelunkingBonus(account, 6);
   const overstimPerLevel = 30 + shopUpg6;
-  // account.spelunking.overstimLevel is defaulted to 0 in parseSpelunking's return value; the `?? 0`
-  // here is just defensive belt-and-suspenders for callers that pass a partial/mocked account.
   return overstimPerLevel * (account?.spelunking?.overstimLevel ?? 0);
 }
 

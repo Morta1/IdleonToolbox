@@ -12,25 +12,8 @@ import {
   WEIGHTED_STAT_KEYS
 } from '@parsers/world-3/construction';
 
-/**
- * The optimizer is a simulated annealer: it takes random swaps until its budget runs out. Two things
- * about that made this file the only flaky one in the suite, and by far the slowest (24s of the
- * ~30s run).
- *
- * 1. The budget was wall-clock, so the same call did more or less work depending on what else the
- *    machine was doing. `maxIterations` bounds the search by work instead, which is both
- *    reproducible and ~8x faster for the same quality of answer.
- * 2. Math.random made every run a different trajectory, so an assertion that held on almost every
- *    trajectory still failed occasionally - and the failure could not be reproduced to diagnose.
- *    (That is not hypothetical: it hid a real defect. See the no-op move test in `character cap`.)
- *
- * Seeding it does narrow what a single run explores, so the tests that assert an invariant rather
- * than an outcome run over SEEDS instead of a single trajectory - strictly more coverage than one
- * random run, and every failure is now reproducible from the seed in the test name.
- */
 export const SEEDS = [1, 2, 3, 4, 5];
 
-// mulberry32 - small, fast, and good enough to stand in for Math.random here.
 const seededRandom = (seed) => {
   let state = seed >>> 0;
   return () => {
@@ -377,8 +360,6 @@ describe('move list', () => {
     const seen = [];
     optimizeArrayWithSwaps(makeBoard(), {
       stat: 'totalBuildRate',
-      // Deliberately a wall-clock budget - this test is about the clock-driven progress reporting,
-      // so it is the one place in this file that keeps the non-deterministic path.
       time: 600,
       characters,
       onProgress: (progress) => seen.push(progress)
@@ -567,12 +548,6 @@ describe('character cap', () => {
     expect(countBoardCharacters(optimized.board)).toBeLessThanOrEqual(1);
   });
 
-  // Empty slots all score the same, so the annealer accepts swapping one for another and the plan
-  // ends with steps that shuffle blanks around without changing the board.
-  //
-  // Across seeds, because this is an invariant and not an outcome. Pinning it to one trajectory is
-  // what let the original defect through: the plan could also pick up a pointless blank move
-  // part-way along a chain of swaps, which only some trajectories produce.
   it.each(SEEDS)('never asks you to move one empty slot into another (seed %i)', (seed) => {
     useSeed(seed);
     const blanks = Array.from({ length: 40 }, (_, i) => ({
@@ -601,8 +576,6 @@ describe('character cap', () => {
       const { cog } = optimized.board[index];
       if (cog?.name === 'Blank') expect(cog.originalIndex).toBe(index);
     });
-    // The plan and the board it claims to produce must not drift apart - the no-op skip rewrites
-    // which interchangeable blank lands where, so this is the assertion that keeps them in step.
     const replayed = getBoardAtStep(board, [...spareCharacters(4), ...blanks], optimized.moves, optimized.moves.length, characters);
     replayed.board.forEach((slot, index) => {
       expect(slot.cog.originalIndex).toBe(optimized.board[index].cog.originalIndex);

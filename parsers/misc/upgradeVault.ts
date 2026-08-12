@@ -10,8 +10,6 @@ export const getUpgradeVault = (idleonData: any, accountData: any, charactersDat
   return parseUpgradeVault(upgradeVaultRaw, accountData, charactersData);
 }
 
-// Classification: CATALOG-BACKED (`upgradeVault`). The save only supplies each upgrade's level; a
-// missing save means every upgrade sits at level 0, not a shorter list.
 export const parseUpgradeVault = (upgradeVaultRaw: any, accountData: any, charactersData: any) => {
   const totalUpgradeLevels = upgradeVaultRaw?.reduce((sum: any, level: any) => sum + level, 0) ?? 0;
   const vaultTotalKills = getVaultTotalKills({ characters: charactersData, account: accountData });

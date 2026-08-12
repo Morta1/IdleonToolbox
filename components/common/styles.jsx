@@ -38,8 +38,6 @@ export const CardAndBorder = (cardProps) => {
   const realCardName = variant === 'cardSet' ? name : cardName;
 
   return <>
-    {/* The border is decorative: the star count it represents is already announced by the card's
-        own label and tooltip, so labelling it too would just repeat. */}
     {stars > 0 && !forceDisable ?
       <BorderIcon src={`${prefix}data/CardEquipBorder${stars}.png`} alt=""/> : null}
     <Tooltip title={<CardTooltip {...{ ...cardProps, cardName: realCardName, nextLevelReq, amount }}/>}>
@@ -140,28 +138,15 @@ export const CardTitleAndValue = ({
                                     stackProps,
                                     contentPadding
                                   }) => {
-  // A numeric 0 is a value, not an absent one. Gating on truthiness rendered a bare title with an
-  // empty card body for every stat sitting at zero - which is every stat on every page for a
-  // signed-out visitor. Only undefined/null/'' fall through to `children`, which is what the call
-  // sites that pass children actually mean by "no value".
   const hasValue = value !== undefined && value !== null && value !== '';
   return <Tooltip title={tooltipTitle || ''}>
     <Card variant={variant} raised={raised} data-card-title-value
-          // No margin of its own: spacing between these cards, and below a row of them, belongs to
-          // the container that lays them out. This used to carry mb, which did two jobs at once -
-          // it added to the container's row gap, so wrapped rows sat 48px apart while the columns
-          // beside them were 24px, and it was also the only thing holding a card row off the
-          // section below it. Both jobs now sit on the container, where they can agree.
           sx={{ width: 'fit-content', ...cardSx }}>
       <CardContent sx={{ '&:last-child': contentPadding ? { p: contentPadding } : {}, height: '100%' }}>
         <Stack sx={{ display: stackProps ? 'flex' : 'block', ...(stackProps || {}) }}>
           {title ? <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom
                                component={'span'}>{title}</Typography> : null}
           {(hasValue || imgOnly) ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
-            {/* The card's title is right beside it, so the icon is decorative when there is one.
-                With no title the icon IS the label, and the asset name is a poor one - "SumUpgIc3"
-                tells a screen-reader user nothing. Those call sites pass `iconAlt`; the filename
-                remains only as a last resort, since it at least resembles the thing. */}
             <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`}
                  alt={typeof title === 'string' && title
                    ? ''

@@ -69,10 +69,8 @@ const QuickSearch = () => {
 
   Object.keys(PAGES.ACCOUNT).forEach(category => {
     PAGES.ACCOUNT[category].categories.forEach(subCategory => {
-      // Base URL for the page
       const baseUrl = `/account/${toKebabCase(category)}/${toKebabCase(subCategory.label)}`;
 
-      // Add the main page
       allSearchItems.push({
         label: formatLabel(subCategory.label),
         url: baseUrl,
@@ -80,7 +78,6 @@ const QuickSearch = () => {
         icon: subCategory.icon || PAGES.ACCOUNT[category].icon || 'default-icon'
       });
 
-      // Add tabs if they exist
       if (subCategory.tabs && subCategory.tabs.length > 0) {
         subCategory.tabs.forEach(item => {
           allSearchItems.push({
@@ -94,7 +91,6 @@ const QuickSearch = () => {
         });
       }
 
-      // Add nested tabs if they exist
       if (subCategory.nestedTabs && subCategory.nestedTabs.length > 0) {
         subCategory.nestedTabs.forEach(({ tab, nestedTab, nestedTabs, icon }) => {
           allSearchItems.push({

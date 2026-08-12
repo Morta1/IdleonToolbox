@@ -221,12 +221,6 @@ export interface OptimizeOptions {
    * puts every one of them out there and leaves nobody making cogs. Omit for no limit.
    */
   maxCharacters?: number;
-  /**
-   * Stop after this many candidate swaps instead of after `time` milliseconds. A wall-clock budget
-   * makes a run unreproducible - the same call does more or less work depending on what else the
-   * machine is doing - so anything that needs the same answer twice (tests, a bug report you want to
-   * replay) bounds the search this way. The UI passes `time`.
-   */
   maxIterations?: number;
   onProgress?: (progress: OptimizeProgress) => void;
 }
@@ -249,10 +243,6 @@ export interface OptimizeMove {
   displacedOriginalIndex: number;
 }
 
-// An empty slot. Two spellings reach here: a board slot the player has not filled (`undefined`, from
-// `baseBoard.map(slot => slot?.cog)`) and an explicit placeholder cog. buildMoves already reported
-// both as "Blank" in the plan; treating only one of them as empty everywhere else is what let empty
-// slots be shuffled around.
 export const isBlankCog = (cog: any) => !cog || cog.name === 'Blank';
 
 // Turn "where every cog ended up" into the shortest list of swaps that gets you there from the
@@ -265,8 +255,6 @@ const buildMoves = (target: Int32Array, cogs: any[]): { moves: OptimizeMove[]; p
     current[index] = index;
     where[index] = index;
   }
-  // Which cog the plan wants at each position, and its inverse. Mutable, because empty slots are
-  // interchangeable and the pass below re-assigns them (see the swap in the loop).
   const desired = Int32Array.from(target);
   const wantedAt = new Int32Array(target.length);
   for (let index = 0; index < desired.length; index++) wantedAt[desired[index]] = index;
@@ -278,15 +266,6 @@ const buildMoves = (target: Int32Array, cogs: any[]): { moves: OptimizeMove[]; p
     if (current[position] === wanted) continue;
     const displaced = current[position];
 
-    // One empty slot is worth exactly as much as another, so carrying an empty into a slot that is
-    // already empty is a step that does nothing. Keep the empty that is already here and send the
-    // one the plan asked for to wherever this one was headed - the two are indistinguishable, so
-    // the board and every score are unchanged, and the plan loses a pointless step.
-    //
-    // This has to happen here rather than as a tidy-up of the target, because a blank can also
-    // arrive at a slot part-way through a chain of swaps: no amount of pre-sorting the target can
-    // see that. `wantedAt[displaced]` is always at or after `position` - if it were earlier, that
-    // position would already hold `displaced` and it could not also be here.
     if (isBlankCog(cogs[wanted]) && isBlankCog(cogs[displaced])) {
       const swapWith = wantedAt[displaced];
       desired[position] = displaced;
@@ -312,8 +291,6 @@ const buildMoves = (target: Int32Array, cogs: any[]): { moves: OptimizeMove[]; p
     current[source] = displaced;
     where[displaced] = source;
   }
-  // Equal to `target` except for which interchangeable empty landed where. Replaying `moves` from
-  // the starting board reproduces exactly this, which is why the caller builds its board from it.
   return { moves, placement: current };
 }
 
@@ -359,8 +336,6 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
     maxIterations,
     onProgress
   } = options;
-  // An iteration budget replaces the time budget when given; the anneal schedule then runs off
-  // progress through the iterations instead of through the clock, so the whole run is reproducible.
   const iterationBudget = Number.isFinite(maxIterations as number) && (maxIterations as number) > 0
     ? Math.trunc(maxIterations as number)
     : 0;
@@ -541,8 +516,6 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
     if (!onProgress || elapsed < nextProgressAt) return;
     nextProgressAt = elapsed + PROGRESS_INTERVAL;
     onProgress({
-      // The budget is only checked every TIME_CHECK_MASK iterations, so the last reading can land
-      // past it - which a progress bar reads as more than 100% done.
       elapsed: Math.min(elapsed, budget),
       budget,
       iterations,
@@ -552,8 +525,6 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
 
   while (elapsed < budget) {
     if (iterationBudget) {
-      // `elapsed` is the progress measure the anneal schedule reads, so under an iteration budget it
-      // simply counts iterations - same schedule, reproducible pacing.
       elapsed = iterations;
       reportProgress();
       if (elapsed >= budget) break;
@@ -627,11 +598,6 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
     }
   }
 
-  // buildMoves owns the "one empty slot is as good as another" tidy-up now - it drops the steps that
-  // move an empty into an already-empty slot, and hands back the placement that actually results.
-  // Doing it there instead of on bestPlacement here is what makes it complete: a blank can arrive at
-  // a slot part-way through a chain of swaps, which this end of the pipeline cannot see. The board
-  // is built from that placement so it and the move list stay in step.
   const { moves, placement: finalPlacement } = buildMoves(bestPlacement, cogs);
   const optimizedBoard = normalizedBoard.map((slot: any, index: number) => ({
     ...slot,

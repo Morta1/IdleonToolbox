@@ -130,9 +130,6 @@ const Refinery = () => {
       {refinery?.salts?.map((salt, saltIndex) => {
         const { saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage, unlocked } = salt;
         if (unlocked === false) {
-          // Catalog-driven: every salt slot (unlocked or not) is now in the list, so a locked salt
-          // gets its own minimal card instead of running the rank-up/timer math below, which
-          // assumes an active salt (rank 0 there means "unlocked but unrefined", not "locked").
           return <Card key={`${saltName}-${saltIndex}`} sx={{ width: 'fit-content', opacity: 0.5 }}>
             <CardContent>
               <Stack alignItems={'center'} gap={1}>

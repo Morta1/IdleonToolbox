@@ -205,12 +205,6 @@ const Anvil = () => {
   </>
 };
 
-/**
- * Every other block on this page is keyed off a character's own anvil, so with no characters the
- * page rendered nothing at all. These 14 products are fixed game data, identical for everyone, so
- * they are worth showing on their own - and they are what a signed-out visitor is most likely
- * looking for here anyway.
- */
 const AnvilProductCatalog = () => {
   const products = getAnvilProductCatalog();
   return <Stack gap={2}>

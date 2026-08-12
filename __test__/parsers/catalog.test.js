@@ -13,7 +13,6 @@ describe('isPlaceholder', () => {
   });
 
   it('does not flag real entries that merely contain "filler"', () => {
-    // petGenes has a legitimate entry named Refiller.
     expect(isPlaceholder({ name: 'Refiller' })).toBe(false);
     expect(isPlaceholder({ name: 'Big_Brain_Time' })).toBe(false);
   });

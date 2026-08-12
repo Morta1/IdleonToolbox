@@ -93,8 +93,6 @@ const getZenithMarket = (rawSpelunking: any) => {
 }
 
 const getHighestLevelStatues = (characters: any[], statueIndex: number): any => {
-  // `Array.prototype.reduce` with no seed throws on an empty array - an empty account has no
-  // characters at all, not just characters with unlevelled statues.
   if (!characters?.length) return undefined;
   return characters.reduce((prev: any, current: any) => (prev?.StatueLevels?.[statueIndex]?.[0] > current?.StatueLevels?.[statueIndex]?.[0])
     ? prev

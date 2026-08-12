@@ -1,5 +1,4 @@
 // @vitest-environment jsdom
-// The suite default is `node` (vitest.config.js); this file renders a component.
 import '../../polyfills';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
@@ -8,16 +7,8 @@ import { ThemeProvider } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
 import darkTheme from '../../styles/theme/darkTheme';
 
-// The card renders a MUI Tooltip, which reads theme.typography.pxToRem - it cannot mount without a
-// theme in context.
 const renderCard = (ui) => render(<ThemeProvider theme={darkTheme}>{ui}</ThemeProvider>);
 
-/**
- * `CardTitleAndValue` gated its value on truthiness, so a numeric 0 rendered a card with a title and
- * an empty body - on every stat sitting at zero, which for a signed-out visitor is every stat on
- * every page. It is used in ~600 places, so the distinction between "zero" and "absent" is pinned
- * here rather than left to whichever page happened to notice.
- */
 describe('CardTitleAndValue', () => {
   it('renders a numeric 0 as "0", not as an empty card', () => {
     renderCard(<CardTitleAndValue title={'Unlocked caverns'} value={0}/>);

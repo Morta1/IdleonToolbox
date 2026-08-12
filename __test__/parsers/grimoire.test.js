@@ -33,8 +33,6 @@ describe('getGrimoire', () => {
   });
 
   it('applies save levels at the right indexes (synthetic, unconditional)', () => {
-    // Hand-built save: Grimoire is the upgrade-level array directly. Runs unconditionally because
-    // most fixtures below have no Grimoire field at all.
     const idleonData = { Grimoire: [5, 3, 0, 0, 0] };
     const result = getGrimoire(idleonData, [], {});
     expect(result.upgrades[0].level).toBe(5);
@@ -46,12 +44,6 @@ describe('getGrimoire', () => {
 
 const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
 
-// Only fixtures that actually carry a `Grimoire` field can prove index alignment against real save
-// data - `first`-`fourth` are real pre-Grimoire saves and have no such field at all. Narrowed to
-// avoid a vacuous `it.each` row that silently ran zero assertions for 4 of 5 fixtures while still
-// reporting green; `latest` is the only one that currently qualifies. The unconditional, hand-built
-// synthetic case above ('applies save levels at the right indexes') is what proves index alignment
-// regardless of fixture content - this row is purely a real-data regression check.
 const FIXTURES_WITH_GRIMOIRE = FIXTURES.filter(([, fixture]) => (fixture.data ?? fixture)?.Grimoire != null);
 
 describe('getGrimoire fixture regression', () => {

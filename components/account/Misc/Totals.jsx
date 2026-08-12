@@ -23,9 +23,6 @@ const Totals = ({ account, characters }) => {
       <TotalStat text={'Stamps'} icon={'StampA34'} stat={totalStampLevels}/>
       <TotalStat text={'Statues'} icon={'EquipmentStatues1'} stat={totalStatueLevels}/>
       <TotalStat text={'Shrines'} icon={'UISkillIcon639'} stat={totalShrineLevels}/>
-      {/* No save means tasksRaw[0] (the raw stat array) is undefined - default each read to 0
-          rather than leaving it undefined, since notateNumber(undefined) renders "NaNENaN" and a
-          fresh account has genuinely done none of these (0 kills/orders/etc is the honest value). */}
       <TotalStat text={'Highest Damage'} icon={'StampA8'} stat={account?.tasks?.[0]?.[1]?.[0] ?? 0}/>
       <TotalStat text={'PO Orders'} icon={'DeliveryBox'} stat={account?.tasks?.[0]?.[1]?.[5] ?? 0}/>
       <TotalStat text={'Monsters Killed'} icon={'UISkillIcon110'} stat={account?.tasks?.[0]?.[0]?.[0] ?? 0}/>

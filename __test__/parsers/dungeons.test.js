@@ -33,9 +33,6 @@ describe('getDungeons', () => {
   });
 
   it('applies save levels at the right indexes (synthetic, unconditional)', () => {
-    // Hand-built save: DungUpg is a nested array - [0]=rng shop levels, [1]=inside upgrade levels,
-    // [2]=active stat boost indexes, [5]=flurbo shop levels. Runs unconditionally because most
-    // fixtures below have a DungUpg field but this proves index alignment directly regardless.
     const dungUpg = [[5, 3, 0], [5, 3, 0], [], [], [], [5, 3, 0]];
     const idleonData = { DungUpg: JSON.stringify(dungUpg) };
     const result = getDungeons(idleonData, []);

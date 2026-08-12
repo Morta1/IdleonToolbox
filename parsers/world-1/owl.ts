@@ -27,10 +27,6 @@ const parseOwl = (account: any) => {
   const feathers = account?.accountOptions?.[253];
   const progress = account?.accountOptions?.[263];
   const upgrades = owlData.map((upgrade, i) => {
-    // accountOptions[257/261/254] feed straight into multiplication below; undefined (never touched,
-    // real or empty) makes the whole commonFactor - and therefore every upgrade's cost - NaN. `?? 0`
-    // guards only this math; the raw `level` field a few lines down stays untouched (unowned-upgrade
-    // `undefined` there is the established, tested behavior - see task-10's note on this exact field).
     const commonFactor = (1 / (1 + (10 * (account?.accountOptions?.[257] ?? 0)) / 100))
       * (1 / (1 + (20 * (account?.accountOptions?.[261] ?? 0)) / 100))
       * (1 / (1 + (getMegaFeather(account, 2) * (account?.accountOptions?.[254] ?? 0)) / 100))
@@ -85,8 +81,6 @@ const parseOwl = (account: any) => {
   const meritocracyBonus = getMeritocracyBonus(account, 12);
 
   const fountainOrionBonus = getFountainBonusTotal(account?.hole?.holesObject, 0, 18);
-  // Every accountOptions read below multiplies/exponentiates into featherRate; any one of them being
-  // undefined (never touched, real or empty) makes the whole rate NaN, so all are guarded to 0 here.
   const featherRate = (
     (1 + 9 * getMegaFeather(account, 0)) *
     (1 + fountainOrionBonus / 100) *
@@ -134,8 +128,6 @@ const parseOwl = (account: any) => {
       percentage: stat.percentage
     })),
 
-    // Default to 0: no save means no shiny feather bonus, not an unknown value -
-    // commaNotation(undefined) renders the literal string "NaN".
     { name: 'Shiny Feather', bonus: account?.accountOptions?.[264] ?? 0 }
   ];
 
@@ -143,8 +135,6 @@ const parseOwl = (account: any) => {
     description,
     unlocked: index + 1 <= account?.accountOptions?.[262],
     ...(index === 9 ? {
-      // Comparison-based `unlocked` above is safe with undefined (false); this is a subtraction, so
-      // it needs the guard - undefined mega-feather tiers never touched means 0 stacked, not NaN.
       amount: (account?.accountOptions?.[262] ?? 0) - 10,
       totalBonus: 1 + totalFeatherBonus / 100
     } : {})

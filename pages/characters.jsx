@@ -52,9 +52,6 @@ const Characters = () => {
       </>
     ) : (
       <Stack alignItems={'center'} justifyContent={'center'} gap={1}>
-        {/* "Select a character" only makes sense when there are characters to select. An account
-            with no save has none at all - characters are pure user state, with no catalog behind
-            them - so it gets an empty state and a way out instead. */}
         <Typography variant={'h4'}>
           {hasCharacters ? 'Please select a character' : 'No characters to show'}
         </Typography>

@@ -44,10 +44,6 @@ const ActiveStuffCalculator = () => {
   });
   const [selectedChar, setSelectedChar] = useState('0');
   const selectedCharacterClass = state?.characters?.[selectedChar]?.class;
-  // The second half of this was `(state?.characters?.[selectedChar]?.class, CLASSES.Wind_Walker)` -
-  // a comma expression, which always evaluates to the constant on the right. That made this true for
-  // every class, so the Pets toggle and section showed up for characters that have no shiny progress
-  // to report, contradicting the class filter in the effect below.
   const isBeastMaster = checkCharClass(selectedCharacterClass, CLASSES.Beast_Master)
     || checkCharClass(selectedCharacterClass, CLASSES.Wind_Walker);
   const isShaman = checkCharClass(selectedCharacterClass, CLASSES.Shaman);
@@ -101,10 +97,6 @@ const ActiveStuffCalculator = () => {
     }
   };
 
-  // Every section divides by (lastUpdated - snapshotTime) to turn a difference into a rate. With no
-  // save loaded there is no `timeAway`, so this was NaN and it poisoned every number on the page -
-  // which is what a visitor saw if they had a snapshot left in localStorage from a previous session
-  // and then opened the page signed out. Sections are gated on this being a real timestamp below.
   const lastUpdatedSeconds = state?.account?.timeAway?.Player;
   const lastUpdated = Number.isFinite(lastUpdatedSeconds) ? lastUpdatedSeconds * 1000 : null;
   const currentCharacter = state?.characters?.[selectedChar];
@@ -178,8 +170,6 @@ const ActiveStuffCalculator = () => {
     </Stack>
     {selectedSections.length === 0
       ? <Typography mt={2} variant={'h6'}>Please select at least one section</Typography>
-      // A snapshot is only half of the comparison - the other half is the save as it stands now. A
-      // leftover snapshot with no save loaded used to render every section against nothing.
       : !currentCharacter || lastUpdated === null
         ? <Typography mt={2} variant={'h6'}>Sign in to compare your snapshot against your current save</Typography>
       : (snapshottedChar?.playerId + '') != selectedChar ? <Typography mt={2} variant={'h6'}>No snapshot available for

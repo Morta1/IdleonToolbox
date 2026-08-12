@@ -7,8 +7,6 @@ import Palette from '@components/account/Worlds/World5/Gaming/Palette';
 
 const Gaming = () => {
   const { state } = useContext(AppContext);
-  // The parser now returns a populated shape at zero rather than nothing, so the imports, fertilizer
-  // upgrades, superbits and mutations are all worth showing whether or not gaming is unlocked.
   const gaming = state?.account?.gaming;
   if (!gaming) return <MissingData name={'gaming'}/>;
   return <>

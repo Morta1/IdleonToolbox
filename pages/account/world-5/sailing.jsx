@@ -28,9 +28,6 @@ const Sailing = () => {
     minimumTravelTimeBreakdown
   } = state?.account?.sailing || {};
 
-  // The parser hands back the artifact catalog even when sailing is locked, so instead of a
-  // dead-end "missing data" notice the page shows what sailing contains - all 41 artifacts and
-  // their bonuses - with the player's own numbers at zero.
   return <>
     <NextSeo
       title="Sailing | Idleon Toolbox"

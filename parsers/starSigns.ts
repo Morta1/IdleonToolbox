@@ -17,12 +17,6 @@ export const getStarSigns = (idleonData: IdleonData, account: Account): any[] | 
 export const getConstellations = (idleonData: IdleonData): { constellations: any[]; rawConstellationsDone: number } => {
   const constellationsRaw = tryToParse(idleonData?.SSprog) || idleonData?.StarSignProg;
   const constellationsParsed = parseConstellations(constellationsRaw);
-  // The reduce below short-circuits to undefined (not its 0 fallback) when constellationsRaw is
-  // missing, because optional chaining skips the whole call rather than running it with an empty
-  // input. safeSection can't catch that: it only replaces the section when the WHOLE return value
-  // is null/undefined, not per-field, so it leaked through as literally `undefined` on
-  // account.rawConstellationsDone for an empty parse. (parseConstellations is catalog-driven now,
-  // so it always returns the full list; `?? []` below is kept only as a belt-and-braces guard.)
   return {
     constellations: constellationsParsed ?? [],
     rawConstellationsDone: constellationsRaw?.reduce((sum: number, [, done]: [any, number]) => sum + done, 0) ?? 0
@@ -32,12 +26,6 @@ export const getConstellations = (idleonData: IdleonData): { constellations: any
 export const parseStarSigns = (starSignsRaw: any, account: Account): any[] | undefined => {
   const infiniteStarsUnlocked = isRiftBonusUnlocked((account as any)?.rift, 'Infinite_Stars');
   const infiniteStars = infiniteStarsUnlocked ? 5 + getShinyBonus((account as any)?.breeding?.pets, 'Infinite_Star_Signs') : 0;
-  // Catalog-driven: the list of star signs that exist is a property of the game, not of the save.
-  // The save only supplies which ones are unlocked (keyed by starName, not position), and a
-  // missing save means every star sign is locked - not a truncated list. `index` is preserved from
-  // the ORIGINAL catalog array (liveEntries filters placeholder "Fillerz.." rows without
-  // reindexing), matching the meaning of `index < infiniteStars` below, which counts position
-  // among the game's real star sign ordering.
   return liveEntries<any>(starSigns).map(({ entry: starSign, index }) => {
     const { starName } = starSign;
     const isInfiniteStar = index < infiniteStars && !!starSignsRaw?.[starName];
@@ -52,14 +40,6 @@ export const parseStarSigns = (starSignsRaw: any, account: Account): any[] | und
 }
 
 export const parseConstellations = (constellationsRaw: any[]): any[] => {
-  // Catalog-driven: which constellations exist is a property of the game, not of the save. The old
-  // loop walked the save's own StarQuests array, so an account with no save produced an empty list
-  // and the page rendered nothing but its column headers. `rawIndex` is the constellation's slot in
-  // that array (it holds one entry per StarQuest slot, including unused placeholders); a slot the
-  // save doesn't cover simply means nobody has completed it.
-  //
-  // The catalog is ordered by rawIndex ascending, which is the order the old raw-driven reduce
-  // produced, so the rendered list is unchanged for a real save.
   return constellations
     .filter(({ mapIndex }: any) => mapIndex != null)
     .map((constellationInfo: any) => {

@@ -11,10 +11,6 @@ import { getCharacterTaskProgress } from '@parsers/world-7/button';
 
 const PRESSES_PER_CYCLE = 45; // 9 categories × 5 presses
 
-// The lookahead projects far enough forward that the exponent-scaled tasks pass Number.MAX_VALUE,
-// and notateNumber renders those as the literal word "Infinity". Such a requirement is unreachable
-// rather than big, so it gets the glyph - the same way Sushi Station shows an uncapped upgrade.
-// The game itself never computes these: it only ever evaluates the task in front of you.
 const notateRequirement = (value) => Number.isFinite(value) ? notateNumber(value, 'Big') : '∞';
 
 const Tasks = ({ taskSequence, bonuses, totalPresses, pressesIntoCurrentBonus }) => {

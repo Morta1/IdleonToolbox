@@ -52,14 +52,6 @@ describe('getRefinery fixture regression', () => {
     });
   });
 
-  /**
-   * Regression for the CRITICAL finding: the game seeds every salt slot - unlocked or not - with
-   * [0,1,0,0,0], so a locked salt's raw rank reads as 1. The catalog-driven rewrite first read
-   * every slot unconditionally and emitted locked salts at rank 1, inflating totalLevels (13 -> 16
-   * on `first`) and tripping utility/dashboard/account.js's missing-materials alert for salts the
-   * player hasn't unlocked yet. A locked salt must come out neutral (rank 0) and flagged unlocked:
-   * false, regardless of what the save's seeded slot contains.
-   */
   it.each(FIXTURES)('%s: salts at or beyond the unlocked count are neutral, not the seeded rank-1 slot', (_name, fixture) => {
     const data = fixture.data ?? fixture;
     const refineryRaw = tryToParse(data?.Refinery) || data?.Refinery;

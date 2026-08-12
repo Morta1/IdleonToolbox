@@ -39,9 +39,6 @@ const Formulas = () => {
   const dropRate = getDropRate(selectedChar, state?.account, state?.characters);
   const cropEvo = getCropEvolution(state?.account, selectedChar, state?.account?.farming?.plot?.[0])
   const printerMulti = getPrinterMulti(state?.account, state?.characters);
-  // Guarded the same way the Gaming page itself gates General.jsx: account.gaming is null while
-  // the feature is locked (e.g. a logged-out visitor), and getBitsMulti's arithmetic assumes a
-  // real gaming object, so calling it against null produces NaN rather than a meaningful value.
   const bitMulti = state?.account?.gaming ? getBitsMulti(state?.account, state?.characters) : null;
   const goldenFoodMulti = getGoldenFoodMulti(selectedChar, state?.account, state?.characters);
   const doubleStatueDropChance = getDoubleStatueDrop(state?.account, selectedChar, state?.characters);
@@ -52,8 +49,6 @@ const Formulas = () => {
         name: 'Crystal Chance',
         formula: selectedChar?.crystalSpawnChance?.expression,
         value: selectedChar?.crystalSpawnChance?.value,
-        // No selected character (e.g. a logged-out visitor has zero characters) means this was
-        // never computed - render a placeholder instead of the NaN that `1 / undefined` produces.
         renderValue: (value) => Number.isFinite(value)
           ? `1 in ${Math.floor(1 / value)} (${notateNumber(value * 100, 'MultiplierInfo')?.replace('.00', '')}%)`
           : '—',
@@ -108,9 +103,6 @@ const Formulas = () => {
         name: 'Equinox',
         formula: state?.account?.equinox?.expression,
         value: state?.account?.equinox?.chargeRate,
-        // account.equinox is null while the feature is locked (e.g. a logged-out visitor) - same
-        // shape as the bitMulti guard above, chargeRate is undefined rather than a real number, and
-        // `${undefined}/hr` rendered the literal word "undefined" (task-18).
         renderValue: (value) => Number.isFinite(value) ? `${value}/hr` : '—',
         description: 'Equinox Bonuses from all sources'
       },

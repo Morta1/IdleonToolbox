@@ -85,16 +85,9 @@ export const isPrismaBubble = (account: any, bubbleIndex: any) => {
 
 export const getLiquidCauldrons = (account: any) => {
   const liquidCauldrons = account?.alchemy?.cauldronsInfo?.slice(18) ?? [];
-  // The 4 liquid types (liquidsIndex) are a fixed structural count baked into the game, not
-  // save-driven - `liquidVal` (the save's own liquids array) is unused below, so iterating a fixed
-  // 4-length list instead of `account?.alchemy?.liquids` renders the same 4 slots with a missing
-  // save (which has no liquids array at all) instead of throwing.
   return Object.keys(liquidsIndex).map((_, index: any) => {
     const [decantCapProgress, decantCapLevel] = liquidCauldrons?.[index * 4] ?? [];
     const [decantRateProgress, decantRateLevel] = liquidCauldrons?.[(index * 4) + 1] ?? [];
-    // decantCapLevel/decantRateLevel are undefined with no save (the destructure above defaults the
-    // whole pair to `[]`, not zero-filled entries); `?? 0` guards only the math below - the raw
-    // `level` fields returned further down stay untouched, matching owl.ts/kangaroo.ts's precedent.
     const decantCapLevelValue = decantCapLevel ?? 0;
     const decantRateLevelValue = decantRateLevel ?? 0;
     const [decantCapReq, decantRateReq] = [getCauldronBrewReq(decantCapLevelValue + 1),
@@ -127,8 +120,6 @@ export const getLiquidCauldrons = (account: any) => {
     const stampBonus = getStampsBonusByEffect(account, 'Cap_for_all_Liquids_in_Alchemy');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cap_for_all_Liquids')?.bonus
 
-    // Math.max poisons to NaN on a NaN argument (unlike a plain comparison); no characters means no
-    // alchemy skill level at all with no save, not an unknown - 0 is the correct neutral default.
     const firstMath = bubbleBonus * Math.max(Math.pow((account?.totalSkillsLevels?.alchemy?.level ?? 0) / 25, 0.3), 0);
     const secondMath = bleachLiquidBonus + (mealBonus + 5 * skillMasteryBonus) / 100;
     const thirdMath = viaductOfGods * (10 + (brewBonus + (vialBonus + (p2wBonus + (firstMath + (stampBonus + Math.ceil(arcadeBonus)))))))
@@ -149,9 +140,6 @@ export const getLiquidCauldrons = (account: any) => {
         { name: 'Stamp', value: stampBonus },
         { name: 'Arcade', value: Math.ceil(arcadeBonus) }
       ],
-      // These four were left raw (undefined with no save) on the precedent that nothing rendered
-      // them. The cauldrons page renders them now that its liquid cards are catalog-driven, so they
-      // take the same neutral 0 the math above already uses - no save means level 0, not unknown.
       decantCap: {
         level: decantCapLevelValue,
         progress: decantCapProgress ?? 0,
@@ -184,13 +172,6 @@ const getPay2Win = (idleonData: any, alchemyActivity: any, serializedCharactersD
   const playersInLiquids = alchemyActivity.filter(({ activity }: any, index: any) => activity < 100 && activity >= 4 && activity !== -1 && index < serializedCharactersData?.length);
   const p2w: any = {};
   const [cauldrons = [], liquids = [], vials, player, , remainingAttempts = []] = tryToParse(idleonData?.CauldronP2W) || idleonData?.CauldronP2W || [];
-  // The 4 cauldrons (cauldronsIndexMapping) and 4 liquids (liquidsIndex) are a fixed structural
-  // count baked into the game, not save-driven. Chunking the save's own array produced ZERO entries
-  // with no save, so the whole Pay 2 Win half of the cauldrons page rendered nothing but its
-  // headings. Drive both off the catalogs and read the save per slot instead, so a missing save
-  // renders the same 4 + 4 upgrades at level 0. Slicing per index is also what dropped the old
-  // `.filter(({ name }) => name)` on liquids - a save longer than the catalog can no longer produce
-  // extra nameless entries in the first place.
   p2w.cauldrons = Object.keys(cauldronsIndexMapping).map((_: any, index: any) => {
     const [speed = 0, newBubble = 0, boostReq = 0] = cauldrons.slice(index * 3, index * 3 + 3);
     return {
@@ -242,8 +223,6 @@ const getPay2Win = (idleonData: any, alchemyActivity: any, serializedCharactersD
   p2w.totalEclecticSigils = p2w?.sigils?.filter((sigil: any) => sigil?.unlocked === 4)?.length || 0;
   p2w.vialsAttempts = {
     current: remainingAttempts[0],
-    // `vials` (unlike cauldrons/liquids/remainingAttempts a few lines up) has no `= []` destructure
-    // default, so it's `undefined` with no save; `?? 0` guards this specific math read.
     max: Math.round(3 + (vials?.[0] ?? 0))
   };
   return p2w;
@@ -298,9 +277,6 @@ const getBubbles = (bubblesRaw: any) => {
       25: '' // CORPIUS_MAPPER
     }
   };
-  // Catalog-driven: the 4 cauldrons are a fixed structural count (cauldronsIndexMapping), but how
-  // many bubbles each holds is a property of the game (cauldrons catalog), not of the save. A
-  // missing/short save means unlevelled (0) bubbles - not a truncated cauldron.
   return Object.entries(cauldronsIndexMapping).reduce((res: any, [cauldronIndexStr, category]) => {
     const cauldronIndex = Number(cauldronIndexStr);
     const catalogEntries = (cauldrons as Record<string, any>)[category as string];
@@ -413,17 +389,9 @@ export const getBubbleBonus = (account: any, bubbleName: any, round?: any, shoul
   return baseBubbleValue * basePrismaMultiplier * primaryMultiplier * secondaryMultiplier;
 };
 
-/**
- * Restores the original save-driven parser's `.filter(({ name }) => name)` guard, which
- * isPlaceholder does not cover (nameless is not the same predicate as filler-prefixed). No vial in
- * the current catalog is nameless, but a future data regen could ship one before it has a name.
- */
 export const isNamedVial = (entry: any): boolean => !!entry?.name;
 
 const getVials = (vialsRaw: any) => {
-  // Catalog-driven: the list of vials that exist is a property of the game, not of the save. The
-  // save only supplies each vial's level, and a missing/short save means unlevelled (0) vials -
-  // not a truncated list.
   return liveEntries<any>(Object.values(vials))
     .filter(({ entry }) => isNamedVial(entry))
     .map(({ entry, index }) => ({
@@ -505,20 +473,11 @@ const getCauldrons = (cauldronsProgress: any, cauldronsRaw: any, p2w: any, alche
   const cauldronsLevelsMapping: Record<number, string> = { 0: 'power', 4: 'quicc', 8: 'high-iq', 12: 'kazam' };
   let cauldronsObject: any = {};
   const chunk = 4;
-  // Driven by cauldronsLevelsMapping (the 4 cauldrons, each with the same 4 boosts - a fixed
-  // structural count baked into the game), not by cauldronsRaw.length. Looping the save's own array
-  // produced NOTHING for an account with no save, which is why the Brewing half of the cauldrons
-  // page rendered only its heading. Slots the save doesn't cover fall back to zero below.
   for (const key of Object.keys(cauldronsLevelsMapping)) {
     const i = Number(key);
     const [speed, luck, cost, extra] = cauldronsRaw.slice(i, i + chunk);
     const cauldronsAsObject = { speed, luck, cost, extra };
     const players = playersInCauldrons.filter(({ activity }: any) => activity === i / 4);
-    // getMaxCauldron(n) is the requirement for the NEXT bubble given the player has n. `n` must be
-    // the player's unlocked bubble count from the SAVE (alchemyRaw[i/4].length), not the catalog's
-    // fixed 35-bubble length - bubbles[category] is catalog-driven now (Task 5) so its .length is
-    // always the full catalog size regardless of what the account has actually unlocked. Using the
-    // catalog length here inflated every partially-unlocked account's requirement ~5x.
     const unlockedBubbleCount = alchemyRaw?.[i / 4]?.length ?? 0;
     cauldronsObject[cauldronsLevelsMapping[i]] = {
       progress: cauldronsProgress?.[i / 4] ?? 0,
@@ -526,9 +485,6 @@ const getCauldrons = (cauldronsProgress: any, cauldronsRaw: any, p2w: any, alche
       players
     };
     Object.entries(cauldronsAsObject).forEach(([name, stats]: any) => {
-      // `stats` is a [progress, level] pair from the save, or undefined for a slot the save doesn't
-      // cover. parseInt(undefined) is NaN, which would reach the page as "Lv. NaN" and as a NaN
-      // progress bar, so zero-fill the pair rather than the individual reads.
       const [progress = 0, level = 0] = stats ?? [];
       cauldronsObject[cauldronsLevelsMapping[i]] = {
         ...cauldronsObject[cauldronsLevelsMapping[i]],
@@ -581,16 +537,10 @@ export const getSigils = (idleonData: any, alchemyActivity: any, serializedChara
   return parseSigils(sigilsRaw, alchemyActivity, serializedCharactersData);
 };
 
-// The save carries one [progress, unlocked] pair per catalog sigil, and `unlocked` is -1 for one you
-// haven't discovered yet.
 const SIGIL_UNDISCOVERED = -1;
 
 const parseSigils = (sigilsRaw: any, alchemyActivity: any, serializedCharactersData: any) => {
   const sigilsData = sigilsRaw?.[4] ?? [];
-  // Driven by the sigils catalog, not by sigilsData.length: the old loop over the save's own array
-  // produced an empty list with no save, so the sigils page rendered its two header cards and
-  // nothing else. A slot the save doesn't cover reads as undiscovered - the same state the game
-  // itself stores for a sigil you haven't found - which is what the page already greys out.
   return sigils.map((sigilData: any, index: number) => {
     const [progress = 0, unlocked = SIGIL_UNDISCOVERED] = sigilsData.slice(index * 2, index * 2 + 2);
     const charactersInSigil = alchemyActivity.filter(({

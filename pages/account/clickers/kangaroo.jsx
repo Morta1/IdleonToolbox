@@ -43,8 +43,6 @@ const Kangaroo = () => {
         <Section title={'Progress'} value={`${notation(kangaroo?.shinyProgress)}%`} icon={'etc/KShiny.png'}/>
         <Section title={'Shiny/m'} value={`${notation(kangaroo?.shinyRatePercent)}%`} icon={'etc/KShiny.png'}/>
       </CardTitleAndValue>
-      {/* No bottom margin: this row is a flex child of the wrapped row above, whose gap already
-          separates it. A margin here would add to that gap instead of replacing it. */}
       <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
         {kangaroo?.bonuses.map(({ name, bonus, percentage }, index) => {
           if (index === 0) return;
