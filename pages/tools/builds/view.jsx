@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import Tooltip from '@components/Tooltip';
 import SimpleLoader from '@components/common/SimpleLoader';
+import { TagChip } from '@components/tools/builds/styled';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { NextSeo } from 'next-seo';
@@ -25,12 +26,61 @@ import BuildDetail from '@components/tools/builds/BuildDetail';
 import LikeButton from '@components/tools/builds/LikeButton';
 import UseAsTemplateButton from '@components/tools/builds/UseAsTemplateButton';
 import { getBuild, deleteBuild, getBuildState } from 'services/builds';
+import { fetchAllBuildsAtBuildTime } from '@utility/builds/static-fetch.mjs';
 
-const ViewBuild = () => {
+// Only the fields metadata needs. The full talent payload still comes from the
+// Worker at runtime — this manifest exists so <title> resolves on first render
+// instead of waiting on a cross-origin fetch Googlebot may never complete.
+export function toBuildSummary(build) {
+  return {
+    shortId: build.shortId,
+    title: build.title,
+    class: build.class,
+    subclass: build.subclass,
+    ownerName: build.ownerName,
+    tags: build.tags,
+    likeCount: build.likeCount
+  };
+}
+
+export function findInManifest(manifest, shortId) {
+  if (!shortId) return null;
+  return (manifest || []).find((entry) => entry.shortId === shortId) || null;
+}
+
+// The subclass alone, not "Barbarian Warrior" — the family adds no search value and produces
+// nonsense like "Journeyman Beginner". Falls back to the family for builds with no subclass.
+const classLabel = (summary) =>
+  (summary.subclass || summary.class || '').replace(/_/g, ' ');
+
+// Class first, user title second. Build titles are free text and frequently useless as
+// keywords ("Laealwaysforgets 2", "The build thus far.."); leading with them pushed the term
+// the page actually targets past Google's ~60-char cutoff on 52 of 111 builds.
+export function buildSeoTitle(summary) {
+  if (!summary) return 'Build | Idleon Toolbox';
+  return `${classLabel(summary)} Build — ${summary.title} | Idleon Toolbox`;
+}
+
+export function buildSeoDescription(summary) {
+  if (!summary) return 'Community build for Legends of Idleon';
+  const tags = (summary.tags || []).join(', ');
+  const tagPart = tags ? ` — ${tags}.` : '.';
+  return `${summary.title} by ${summary.ownerName}. ${classLabel(summary)} build for Legends of Idleon${tagPart} ${summary.likeCount || 0} likes.`;
+}
+
+export async function getStaticProps() {
+  const builds = await fetchAllBuildsAtBuildTime();
+  return { props: { manifest: builds.map(toBuildSummary) } };
+}
+
+const ViewBuild = ({ manifest }) => {
   const router = useRouter();
   const { state } = useContext(AppContext);
   const signedIn = !!state?.signedIn;
   const shortId = router.query?.id;
+
+  // Resolves synchronously on first render for any build present at build time.
+  const summary = findInManifest(manifest, shortId);
 
   const [build, setBuild] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -102,12 +152,41 @@ const ViewBuild = () => {
   return (
     <>
       <NextSeo
-        title={`${build?.title || 'Build'} | Idleon Toolbox`}
-        description={build?.description || 'Community build for Legends of Idleon'}
+        title={buildSeoTitle(summary)}
+        description={buildSeoDescription(summary)}
       />
       <Stack mt={2} gap={2}>
         {loading ? (
-          <SimpleLoader message="Loading build…"/>
+          // The manifest resolves synchronously, so a crawler (and a human on a
+          // slow connection) sees the real build title/author/tags immediately
+          // instead of a bare spinner that contradicts the <title> NextSeo already
+          // set above. The full talent payload still only arrives from the
+          // runtime getBuild fetch, so the loader stays visible beneath it.
+          summary ? (
+            <Stack gap={2}>
+              <Box>
+                <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
+                  {summary.title}
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  {classLabel(summary)}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  by {summary.ownerName}
+                </Typography>
+                {summary.tags?.length > 0 && (
+                  <Stack direction="row" gap={1} flexWrap="wrap" sx={{ mt: 1 }}>
+                    {summary.tags.map((tag) => (
+                      <TagChip key={tag} label={tag} size="small"/>
+                    ))}
+                  </Stack>
+                )}
+              </Box>
+              <SimpleLoader message="Loading build…"/>
+            </Stack>
+          ) : (
+            <SimpleLoader message="Loading build…"/>
+          )
         ) : error ? (
           <Alert severity="error">{error}</Alert>
         ) : build ? (

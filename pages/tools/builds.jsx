@@ -29,6 +29,8 @@ import { listBuilds } from 'services/builds';
 import { ACCENT } from '@utility/builds/classes';
 import { TAG_OPTIONS } from '@utility/builds/tags';
 import Tooltip from 'components/Tooltip';
+import { fetchAllBuildsAtBuildTime } from '@utility/builds/static-fetch.mjs';
+import { getBuildClassSlugs, slugToDisplayName } from '@utility/builds/class-paths.mjs';
 
 const INITIAL_FILTERS = {
   class: null,
@@ -72,6 +74,13 @@ const queriesEqual = (a, b) => {
   if (aKeys.length !== bKeys.length) return false;
   return aKeys.every((k) => a[k] === b[k]);
 };
+
+// The static seed is exactly one slice: unfiltered, sort 'new', first
+// LANDING_SEED_LIMIT by createdAt desc. It may only be used as a fallback for a
+// request asking for that same slice — otherwise we would present unfiltered
+// builds as though they satisfied the user's filters.
+export const matchesSeedSlice = (f) =>
+  !f?.class && !f?.q && !f?.tags?.length && f?.sort === INITIAL_FILTERS.sort;
 
 const SORTS = [
   // Temporarily disabled — see VALID_SORTS comment above.
@@ -150,17 +159,39 @@ const FilterPill = ({ label, value, count, onClick, active }) => (
   </Button>
 );
 
+// Matches INITIAL_FILTERS.sort === 'new' and the runtime fetch's `limit` below.
+// The build-time fetch pulls every build with no sort applied (Worker default
+// is hotScore desc), so this re-sorts by createdAt desc and caps it at 24 —
+// the exact slice the first runtime fetch will return. Without this, the
+// seeded render would visibly reorder and shrink the instant the mount fetch
+// lands.
+const LANDING_SEED_LIMIT = 24;
+
+// Exported for tests: separates the data shape from Next's build pipeline.
+export function getBuildsLandingStaticProps(builds) {
+  const seeded = [...(builds || [])]
+    .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
+    .slice(0, LANDING_SEED_LIMIT);
+  return { props: { initialBuilds: seeded, classSlugs: getBuildClassSlugs(builds) } };
+}
+
+export async function getStaticProps() {
+  const builds = await fetchAllBuildsAtBuildTime();
+  return getBuildsLandingStaticProps(builds);
+}
+
 // -- Page --------------------------------------------------------------------
 
-const Builds = () => {
+const Builds = ({ initialBuilds, classSlugs }) => {
   const router = useRouter();
   const { state } = useContext(AppContext);
   const signedIn = !!state?.signedIn;
 
   const [filters, setFilters] = useState(INITIAL_FILTERS);
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState(initialBuilds || []);
   const [nextCursor, setNextCursor] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Already have server-rendered builds — don't show a skeleton over real content.
+  const [loading, setLoading] = useState(!initialBuilds?.length);
   const [error, setError] = useState('');
   const fetchIdRef = useRef(0);
   // Hydration is tracked via React state (not a ref) so the mirror-to-URL
@@ -217,7 +248,7 @@ const Builds = () => {
         q: nextFilters.q || undefined,
         tag: nextFilters.tags?.length ? nextFilters.tags : undefined,
         cursor: cursor || undefined,
-        limit: 24
+        limit: LANDING_SEED_LIMIT
       });
       if (id !== fetchIdRef.current) return;
       if (cursor) setItems((prev) => [...prev, ...(res?.items || [])]);
@@ -225,9 +256,26 @@ const Builds = () => {
       setNextCursor(res?.nextCursor || null);
     } catch (err) {
       if (id !== fetchIdRef.current) return;
-      if (!cursor) setItems([]);
-      setNextCursor(null);
-      setError('Unable to load builds right now. Please try again.');
+      // The very first fetch (id === 1, fired ~250ms after mount) races the
+      // seeded static props against the Worker. The seed exists precisely
+      // because the Worker may be unreachable — that's the whole premise of
+      // this branch — so if it fails, we already have seeded builds on
+      // screen, and this request is asking for the exact slice the seed
+      // represents (unfiltered, sort 'new', no cursor), keep showing the
+      // seed instead of wiping a working page down to an error banner. Any
+      // other failure (a filtered first fetch hydrated from the URL, a
+      // filter change, pagination) is a real user-triggered request with no
+      // matching seed to fall back on, so it keeps the original
+      // clear-and-report behaviour.
+      const canFallBackToSeed =
+        id === 1 && !cursor && matchesSeedSlice(nextFilters) && initialBuilds?.length;
+      if (canFallBackToSeed) {
+        setNextCursor(null);
+      } else {
+        if (!cursor) setItems([]);
+        setNextCursor(null);
+        setError('Unable to load builds right now. Please try again.');
+      }
     } finally {
       if (id === fetchIdRef.current) setLoading(false);
     }
@@ -344,6 +392,20 @@ const Builds = () => {
           </Stack>
         </Stack>
       </Box>
+
+      {/* Static links to every class page, rendered from build-time props so
+          they're present regardless of runtime fetch outcome — crawlers
+          reach every /tools/builds/[class] page from here even if the
+          Worker request below fails or hasn't resolved yet. */}
+      {classSlugs?.length > 0 && (
+        <Stack direction="row" gap={1} flexWrap="wrap" sx={{ mb: 2 }}>
+          {classSlugs.map((slug) => (
+            <Link key={slug} href={`/tools/builds/${slug}`}>
+              {slugToDisplayName(slug)} builds
+            </Link>
+          ))}
+        </Stack>
+      )}
 
       {/* Search row — distinct rounded pill */}
       <PillTextField

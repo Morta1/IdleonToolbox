@@ -60,14 +60,13 @@ const MyApp = (props) => {
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
         {/* Nothing below <WaitForRouter> renders during the static export, so a page's own
-            <NextSeo> never runs at build time. PAGE_SEO is generated from those same NextSeo
-            props and emitted here, above the gate, so the exported HTML ships a real title and
-            description. After hydration the page's NextSeo takes over with identical copy -
-            verified across client-side route changes, including unmapped routes. */}
+            <NextSeo> never runs at build time. Title and description come from PAGE_SEO in
+            _document - next/head drops <title> entirely, so both live there together rather
+            than split across two files. After hydration the page's NextSeo takes over with
+            identical copy - verified across client-side route changes, including unmapped
+            routes. */}
         <meta name="googlebot" content={pageSeo?.noindex ? 'noindex,follow' : 'index,follow'}/>
         {pageSeo?.noindex ? <meta name="robots" content="noindex,follow"/> : null}
-        {pageSeo?.title ? <title>{pageSeo.title}</title> : null}
-        {pageSeo?.description ? <meta name="description" content={pageSeo.description}/> : null}
         {preConnections?.map((link) => <link key={link} rel="preconnect" href={link}/>)}
       </Head>
       <div id="ncmp-consent-link"></div>

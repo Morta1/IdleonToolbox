@@ -3,6 +3,10 @@ import path from 'path';
 
 export default defineConfig({
   resolve: {
+    // Mirrors tsconfig.json's baseUrl: "./", which lets Next resolve bare root-relative imports
+    // like 'services/builds'. Vite doesn't read baseUrl, so each prefix needs an entry. Anchored
+    // regexes rather than plain strings: a string alias of 'data' would also rewrite any
+    // specifier merely starting with those characters.
     alias: [
       { find: '@components', replacement: path.resolve(__dirname, 'components') },
       { find: '@parsers', replacement: path.resolve(__dirname, 'parsers') },
@@ -13,6 +17,8 @@ export default defineConfig({
       { find: /^parsers\//, replacement: `${path.resolve(__dirname, 'parsers')}/` },
       { find: /^utility\//, replacement: `${path.resolve(__dirname, 'utility')}/` },
       { find: /^hooks\//, replacement: `${path.resolve(__dirname, 'hooks')}/` },
+      { find: /^services\//, replacement: `${path.resolve(__dirname, 'services')}/` },
+      { find: /^data\//, replacement: `${path.resolve(__dirname, 'data')}/` },
     ],
   },
   esbuild: { jsx: 'automatic' },

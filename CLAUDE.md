@@ -68,6 +68,12 @@ Configured in both `tsconfig.json` and `next.config.js`:
 - `@utility/*` → `utility/*`
 - `@website-data` → `data/website-data.json`
 
+Some files use bare top-level imports instead — `services/builds`, `utility/helpers` — relying on
+`tsconfig.json`'s `baseUrl: "./"`. Keep whatever style a file already uses; don't rewrite it just
+to make a test resolve. `vitest.config.js` mirrors `baseUrl` with an anchored regex alias per
+prefix, because Vite doesn't read `baseUrl`. A new bare prefix needs an entry there, or the
+importing test fails with an opaque "Failed to resolve import".
+
 ## Date & Time Formatting
 
 All user-facing dates and times must respect user preferences (DD/MM vs MM/DD, 24h vs 12h). Preferences are stored in localStorage (`pref-dateFormat`, `pref-timeFormat`) and exposed via `PreferencesContext`.
