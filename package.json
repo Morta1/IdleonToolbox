@@ -13,11 +13,11 @@
     "postbuild": "node utility/generate-sitemap.mjs",
     "test": "vitest run",
     "test:e2e": "node e2e/generate-specs.js && npm run build && npx playwright test",
+    "test:e2e:nobuild": "node e2e/generate-specs.js && npx playwright test",
+    "serve:e2e": "npx serve@latest out -l 3002 --no-clipboard",
     "lint": "next lint",
     "prepare": "husky || true",
-    "prebuild": "node utility/build-worker.mjs",
-    "test:e2e:nobuild": "node e2e/generate-specs.js && npx playwright test",
-    "serve:e2e": "npx serve@latest out -l 3002 --no-clipboard"
+    "prebuild": "node utility/build-worker.mjs"
   },
   "dependencies": {
     "@ctrl/react-adsense": "^1.7.0",
@@ -55,7 +55,7 @@
     "lodash.debounce": "^4.0.8",
     "lodash.merge": "^4.6.2",
     "marked": "^18.0.2",
-    "next": "^16.2.10",
+    "next": "16.2.11",
     "next-seo": "^5.15.0",
     "react": "^19.2.4",
     "react-cookie-consent": "^10.0.1",
@@ -67,7 +67,10 @@
     "typescript": "^5.9.3"
   },
   "overrides": {
-    "postcss": "^8.5.10"
+    "postcss": "^8.5.23",
+    "nanoid": "^3.3.17",
+    "js-yaml": "^4.3.1",
+    "sharp": "^0.35.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
