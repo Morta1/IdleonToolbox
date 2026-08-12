@@ -26,7 +26,7 @@ import ClassPicker from '@components/tools/builds/ClassPicker';
 import BuildCard from '@components/tools/builds/BuildCard';
 import { ACCENT } from '@utility/builds/classes';
 import { TAG_OPTIONS } from '@utility/builds/tags';
-import { slugToDisplayName } from '@utility/builds/class-paths.mjs';
+import { classToSlug, slugToClassKey, slugToDisplayName } from '@utility/builds/class-paths.mjs';
 
 // The whole browse UI - header, class nav, search, filters, sort, grid, pagination - shared by
 // /tools/builds and the generated /tools/builds/[class] pages. The two differ only in where
@@ -35,8 +35,8 @@ import { slugToDisplayName } from '@utility/builds/class-paths.mjs';
 // component is the point: a class page that looked like a stripped-down hub was a worse page for
 // a human in exchange for a better one for a crawler.
 
+// No `class` key: class is the URL on both pages, never filter state.
 export const INITIAL_FILTERS = {
-  class: null,
   sort: 'new',
   q: '',
   tags: []
@@ -106,29 +106,21 @@ const FilterPill = ({ label, value, count, onClick, active }) => (
   </Button>
 );
 
-// Real <a href> chips, not a filter control: on a class page the class lives in the path, so
-// switching class is navigation. That also gives crawlers a styled link to every sibling page
-// from every page, which the bare text links these replaced did too - just far worse-looking.
-const ClassNav = ({ slugs, activeSlug }) => {
+// Crawlable links to every class page, at the foot of the page rather than the top: the class
+// picker above is the control a person uses, and putting a second full set of class controls in
+// the header meant two ways to do one thing.
+const ClassLinkFooter = ({ slugs, activeSlug }) => {
   if (!slugs?.length) return null;
   return (
-    <Stack direction="row" gap={1} flexWrap="wrap" sx={{ mb: 2 }}>
-      <Chip
-        component={Link}
-        href="/tools/builds"
-        label="All builds"
-        size="small"
-        clickable
-        variant={activeSlug ? 'outlined' : 'filled'}
-        sx={activeSlug ? undefined : {
-          bgcolor: ACCENT.primarySoft,
-          color: ACCENT.primary,
-          borderColor: ACCENT.primaryBorder
-        }}
-      />
-      {slugs.map((slug) => {
-        const active = slug === activeSlug;
-        return (
+    <Box component="nav" aria-label="Browse builds by class" sx={{ mt: 6, pt: 3, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+      <Typography variant="subtitle2" sx={{ mb: 1.5, color: 'rgba(255,255,255,0.6)' }}>
+        Browse by class
+      </Typography>
+      <Stack direction="row" gap={1} flexWrap="wrap">
+        {activeSlug && (
+          <Chip component={Link} href="/tools/builds" label="All builds" size="small" clickable variant="outlined"/>
+        )}
+        {slugs.filter((slug) => slug !== activeSlug).map((slug) => (
           <Chip
             key={slug}
             component={Link}
@@ -136,16 +128,11 @@ const ClassNav = ({ slugs, activeSlug }) => {
             label={slugToDisplayName(slug)}
             size="small"
             clickable
-            variant={active ? 'filled' : 'outlined'}
-            sx={active ? {
-              bgcolor: ACCENT.primarySoft,
-              color: ACCENT.primary,
-              borderColor: ACCENT.primaryBorder
-            } : undefined}
+            variant="outlined"
           />
-        );
-      })}
-    </Stack>
+        ))}
+      </Stack>
+    </Box>
   );
 };
 
@@ -162,7 +149,8 @@ const BuildsBrowser = ({
   activeClass,
   hasMore,
   onLoadMore,
-  onNewBuild
+  onNewBuild,
+  onClassChange
 }) => {
   const [tagsAnchor, setTagsAnchor] = useState(null);
 
@@ -175,9 +163,9 @@ const BuildsBrowser = ({
     });
   };
 
-  // The class filter is only a filter on the hub; on a class page it's the URL, so it isn't
-  // counted here and the picker is replaced by the nav chips above.
-  const activeFilterCount = (activeClass ? 0 : (filters.class ? 1 : 0)) + (filters.tags?.length || 0);
+  // Class is never a filter - it's the URL on both pages, so the picker navigates. That keeps one
+  // control and one URL per class instead of a picker and a chip row disagreeing about which.
+  const activeFilterCount = filters.tags?.length || 0;
   const filtered = activeFilterCount > 0 || filters.q;
 
   return (
@@ -242,10 +230,6 @@ const BuildsBrowser = ({
         </Stack>
       </Box>
 
-      {/* Rendered from build-time props, so crawlers reach every class page from every other one
-          even if the runtime fetch below fails or hasn't resolved. */}
-      <ClassNav slugs={classSlugs} activeSlug={activeClass}/>
-
       <PillTextField
         size="small"
         placeholder="Search builds, titles, notes…"
@@ -274,14 +258,12 @@ const BuildsBrowser = ({
       />
 
       <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap" sx={{ mb: 3 }}>
-        {!activeClass && (
-          <ClassPicker
-            value={filters.class}
-            onChange={(next) => setFilters({ ...filters, class: next || null })}
-            label="Class"
-            placeholder="Any"
-          />
-        )}
+        <ClassPicker
+          value={activeClass ? slugToClassKey(activeClass) : null}
+          onChange={(next) => onClassChange(next ? classToSlug(next) : null)}
+          label="Class"
+          placeholder="Any"
+        />
         <FilterPill
           label="Tags"
           count={filters.tags?.length || 0}
@@ -291,11 +273,7 @@ const BuildsBrowser = ({
         {activeFilterCount > 0 && (
           <Button
             size="small"
-            onClick={() => setFilters({
-              ...INITIAL_FILTERS,
-              class: activeClass ? filters.class : null,
-              sort: filters.sort
-            })}
+            onClick={() => setFilters({ ...INITIAL_FILTERS, sort: filters.sort })}
             sx={{ textTransform: 'none', color: 'rgba(255,255,255,0.6)', fontSize: 12 }}
           >
             Clear all
@@ -453,6 +431,8 @@ const BuildsBrowser = ({
           )}
         </>
       )}
+
+      <ClassLinkFooter slugs={classSlugs} activeSlug={activeClass}/>
     </>
   );
 };

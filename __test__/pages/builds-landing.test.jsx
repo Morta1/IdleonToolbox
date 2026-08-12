@@ -46,8 +46,10 @@ describe('matchesSeedSlice', () => {
     expect(matchesSeedSlice({ class: null, sort: 'new', q: '', tags: [] })).toBe(true);
   });
 
-  it('does not match when a class filter is set', () => {
-    expect(matchesSeedSlice({ class: 'Mage', sort: 'new', q: '', tags: [] })).toBe(false);
+  // Class is the URL now, not filter state - the hub only ever shows every class, so a stray
+  // `class` key from an old shared link must not stop the seed from being used.
+  it('ignores a leftover class key', () => {
+    expect(matchesSeedSlice({ class: 'Mage', sort: 'new', q: '', tags: [] })).toBe(true);
   });
 
   it('does not match when q is non-empty', () => {

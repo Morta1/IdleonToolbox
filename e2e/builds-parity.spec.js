@@ -61,3 +61,28 @@ test('class page filters its own builds without a network request', async ({ pag
   expect(apiCalls, `class page should not call the builds API: ${apiCalls.join(', ')}`)
     .toHaveLength(0);
 });
+
+// One control, one URL per class. The picker used to filter in place on the hub while a chip row
+// navigated - same intent, two URLs, two behaviours. It navigates from both pages now.
+test('the class picker navigates rather than filtering in place', async ({ page }) => {
+  await page.goto('/tools/builds?demo=true');
+  await waitForRender(page);
+
+  await page.getByRole('button', { name: /Class/i }).first().click();
+  await page.getByRole('menuitem', { name: 'Barbarian', exact: true }).click();
+
+  await expect(page).toHaveURL(/\/tools\/builds\/barbarian/);
+  await expect(page.getByRole('heading', { name: /Idleon Barbarian Builds/i })).toBeVisible();
+});
+
+test('the picker shows the current class on a class page', async ({ page }) => {
+  await page.goto('/tools/builds/barbarian?demo=true');
+  await waitForRender(page);
+  await expect(page.getByRole('button', { name: /Class/i }).first()).toContainText('Barbarian');
+});
+
+test('a legacy ?class= link redirects to the class page', async ({ page }) => {
+  await page.goto('/tools/builds?class=Blood_Berserker&demo=true');
+  await waitForRender(page);
+  await expect(page).toHaveURL(/\/tools\/builds\/blood-berserker/);
+});

@@ -13,11 +13,14 @@ const FAMILY_SLUGS = BUILD_FAMILIES.map((f) => f.toLowerCase());
 
 export const classToSlug = (name) => String(name).toLowerCase().replace(/_/g, '-');
 
-export const slugToDisplayName = (slug) =>
-  String(slug)
-    .split('-')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+const titleCaseParts = (slug) =>
+  String(slug).split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+
+export const slugToDisplayName = (slug) => titleCaseParts(slug).join(' ');
+
+// The inverse of classToSlug: back to the CLASSES key ClassPicker uses as its value
+// ('blood-berserker' -> 'Blood_Berserker').
+export const slugToClassKey = (slug) => titleCaseParts(slug).join('_');
 
 export const isFamilySlug = (slug) => FAMILY_SLUGS.includes(slug);
 

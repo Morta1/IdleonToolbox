@@ -97,6 +97,7 @@ const BuildClassPage = ({ slug, builds, allSlugs, seoTitle, seoDescription }) =>
         error=""
         classSlugs={allSlugs}
         activeClass={slug}
+        onClassChange={(next) => router.push(next ? `/tools/builds/${next}` : '/tools/builds')}
         hasMore={false}
         onNewBuild={handleNew}
       />

@@ -5,25 +5,24 @@ import { AppContext } from '@components/common/context/AppProvider';
 import BuildsBrowser, { INITIAL_FILTERS } from '@components/tools/builds/BuildsBrowser';
 import { listBuilds } from 'services/builds';
 import { fetchAllBuildsAtBuildTime } from '@utility/builds/static-fetch.mjs';
-import { getBuildClassSlugs } from '@utility/builds/class-paths.mjs';
+import { classToSlug, getBuildClassSlugs } from '@utility/builds/class-paths.mjs';
 
 const VALID_SORTS = new Set(['new', 'top']);
 
-// URL <-> filters helpers. The URL serialises user-visible filters only (class / sort / tags /
-// search). Cursor pagination stays in memory - a shareable link is always "the first page of
-// this slice".
+// URL <-> filters helpers. Class is deliberately absent: it lives in the path
+// (/tools/builds/<class>), so there is one URL per class rather than a path and a ?class= that
+// render the same thing. Cursor pagination stays in memory - a shareable link is always "the
+// first page of this slice".
 const filtersFromQuery = (query) => {
-  const cls = typeof query.class === 'string' && query.class ? query.class : null;
   const sort = typeof query.sort === 'string' && VALID_SORTS.has(query.sort) ? query.sort : 'new';
   const q = typeof query.q === 'string' ? query.q : '';
   const tagsRaw = typeof query.tags === 'string' ? query.tags : '';
   const tags = tagsRaw.split(',').map((t) => t.trim()).filter(Boolean);
-  return { class: cls, sort, q, tags };
+  return { sort, q, tags };
 };
 
 const filtersToQuery = (filters) => {
   const q = {};
-  if (filters.class) q.class = filters.class;
   if (filters.sort && filters.sort !== 'new') q.sort = filters.sort;
   if (filters.q) q.q = filters.q;
   if (filters.tags?.length) q.tags = filters.tags.join(',');
@@ -41,7 +40,7 @@ const queriesEqual = (a, b) => {
 // createdAt desc. It may only be used as a fallback for a request asking for that same slice -
 // otherwise we would present unfiltered builds as though they satisfied the user's filters.
 export const matchesSeedSlice = (f) =>
-  !f?.class && !f?.q && !f?.tags?.length && f?.sort === INITIAL_FILTERS.sort;
+  !f?.q && !f?.tags?.length && f?.sort === INITIAL_FILTERS.sort;
 
 // Matches INITIAL_FILTERS.sort === 'new' and the runtime fetch's `limit` below. The build-time
 // fetch pulls every build with no sort applied (Worker default is hotScore desc), so this
@@ -102,7 +101,7 @@ const Builds = ({ initialBuilds, classSlugs }) => {
   useEffect(() => {
     if (!hydrated) return;
     const nextFilterQuery = filtersToQuery(filters);
-    const filterKeys = ['class', 'sort', 'q', 'tags'];
+    const filterKeys = ['sort', 'q', 'tags'];
     const currentFilterQuery = Object.fromEntries(
       Object.entries(router.query || {}).filter(([k]) => filterKeys.includes(k))
     );
@@ -118,7 +117,7 @@ const Builds = ({ initialBuilds, classSlugs }) => {
       { shallow: true, scroll: false }
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.class, filters.sort, filters.q, filters.tags?.join(',')]);
+  }, [filters.sort, filters.q, filters.tags?.join(',')]);
 
   const runFetch = async (nextFilters, cursor = null) => {
     const id = ++fetchIdRef.current;
@@ -126,7 +125,6 @@ const Builds = ({ initialBuilds, classSlugs }) => {
     setError('');
     try {
       const res = await listBuilds({
-        className: nextFilters.class,
         sort: nextFilters.sort,
         q: nextFilters.q || undefined,
         tag: nextFilters.tags?.length ? nextFilters.tags : undefined,
@@ -189,12 +187,22 @@ const Builds = ({ initialBuilds, classSlugs }) => {
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady, filters.class, filters.sort, filters.q, currentTagsKey]);
+  }, [router.isReady, filters.sort, filters.q, currentTagsKey]);
 
   const handleNew = () => {
     if (!signedIn) return;
     router.push('/tools/builds/new');
   };
+
+  // Links shared before class moved into the path still arrive as ?class=Blood_Berserker.
+  // Send them to the page that now owns that content instead of silently ignoring the param.
+  useEffect(() => {
+    if (!router.isReady) return;
+    const legacy = router.query?.class;
+    if (typeof legacy === 'string' && legacy) {
+      router.replace(`/tools/builds/${classToSlug(legacy)}`);
+    }
+  }, [router.isReady, router.query?.class]);
 
   return (
     <>
@@ -211,6 +219,7 @@ const Builds = ({ initialBuilds, classSlugs }) => {
         loading={loading}
         error={error}
         classSlugs={classSlugs}
+        onClassChange={(slug) => router.push(slug ? `/tools/builds/${slug}` : '/tools/builds')}
         hasMore={!!nextCursor}
         onLoadMore={() => runFetch(filters, nextCursor)}
         onNewBuild={handleNew}
