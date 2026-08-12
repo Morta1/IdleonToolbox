@@ -99,14 +99,20 @@ This project uses **React Compiler** (`reactCompiler: true` in `next.config.js`)
 ### Page titles and descriptions
 
 `data/page-seo.js` is **generated — do not edit by hand**. It mirrors every page's own
-`<NextSeo>` and is rendered in `_app.jsx` above `<WaitForRouter>`, which is the only reason the
-static export ships titles at all (nothing below the gate renders at build time).
+`<NextSeo>`, and `_document.jsx` renders it — nothing below `<WaitForRouter>` runs at build time.
 
-After changing a page's `<NextSeo>` title or description, re-run `node utility/generate-page-seo.mjs`.
-`__test__/page-seo.test.js` fails if the map drifts from the pages.
-
-Keep `<NextSeo>` above any early-return loader in a page, or the page loses its title while
-loading.
+Gotchas:
+- **`<title>` must come from `_document`, not `_app`.** `next/head` silently drops it under
+  Next 16 + React 19; every other tag it renders reaches the HTML. The whole site shipped
+  untitled for months this way.
+- **`PAGE_SEO` is keyed by route pattern**, so all pages from one `[param].jsx` share an entry.
+  Those pages pass `seoTitle`/`seoDescription` through `getStaticProps`; `_document` prefers
+  props over the map. They also need an `OVERRIDES` entry or the generator reports them.
+- After changing a `<NextSeo>` title or description, re-run `node utility/generate-page-seo.mjs`.
+  `__test__/page-seo.test.js` catches map drift; `e2e/static-head.spec.js` is the real gate — it
+  fetches raw served HTML with no JS. **Never assert head tags against the rendered DOM**;
+  hydration masks exactly this bug.
+- Keep `<NextSeo>` above any early-return loader, or the page loses its title while loading.
 
 ### Patch notes
 Every user-facing change (feature or fix) gets a patch note entry in `@IdleonToolbox/data/patch-notes.js`.

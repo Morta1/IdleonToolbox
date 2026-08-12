@@ -1,6 +1,5 @@
 import fs from 'fs'
 import path from 'path'
-import { fileURLToPath } from 'url'
 import {globby} from 'globby'
 import { fetchAllBuildsAtBuildTime } from './builds/static-fetch.mjs'
 import { getBuildClassSlugs } from './builds/class-paths.mjs'
@@ -17,23 +16,25 @@ function getPagePriority(path) {
   return 0.7;
 }
 
-function addPage(page) {
-  const path = page.replace('pages', '').replace('.jsx', '').replace('.js', '').replace('.mdx', '')
-  const route = path === '/index' ? '' : path
-  const priority = getPagePriority(path)
-  const today = new Date().toISOString().split('T')[0]
-
-  return `  <url>
-    <loc>${`https://idleontoolbox.com${route}`}</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
+const urlBlock = ({ loc, lastmod, changefreq = 'weekly', priority }) => `  <url>
+    <loc>https://idleontoolbox.com${loc}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`
+
+function addPage(page) {
+  const path = page.replace('pages', '').replace('.jsx', '').replace('.js', '').replace('.mdx', '')
+  return urlBlock({
+    loc: path === '/index' ? '' : path,
+    lastmod: new Date().toISOString().split('T')[0],
+    priority: getPagePriority(path)
+  })
 }
 
 // Interactive or user-specific pages with no search value. /view without a
 // query param renders nothing at all.
-export const EXCLUDED_BUILD_ROUTES = [
+const EXCLUDED_BUILD_ROUTES = [
   '/tools/builds/new',
   '/tools/builds/edit',
   '/tools/builds/my-builds',
@@ -81,30 +82,18 @@ export function buildDetailSitemapEntries(builds, today) {
 // assertSitemapMatchesOutput below enforces it regardless.
 const ENV_FILES = ['.env.local', '.env.production']
 
+// postbuild runs under plain Node, not Next, so nothing has loaded the .env files that
+// fetchAllBuildsAtBuildTime() needs for NEXT_PUBLIC_BUILDS_URL.
+//
+// Order mirrors Next's own precedence: .env.local wins, and a real process.env value beats both.
+// An earlier version read .env.production only, so the deployed sitemap would always name
+// production URLs - which produced the opposite of what it intended, since `next build` still
+// honoured .env.local. On any machine with one, the pages came from the dev Worker and the
+// sitemap from production, and the two disagreed about which classes exist.
 function loadBuildEnv() {
   for (const file of ENV_FILES) {
     const envPath = path.resolve(process.cwd(), file)
-    if (!fs.existsSync(envPath)) continue
-
-    const contents = fs.readFileSync(envPath, 'utf8')
-    for (const line of contents.split('\n')) {
-      const trimmed = line.trim()
-      if (!trimmed || trimmed.startsWith('#')) continue
-
-      const eqIndex = trimmed.indexOf('=')
-      if (eqIndex === -1) continue
-
-      const key = trimmed.slice(0, eqIndex).trim()
-      let value = trimmed.slice(eqIndex + 1).trim()
-      if (
-        (value.startsWith('"') && value.endsWith('"')) ||
-        (value.startsWith("'") && value.endsWith("'"))
-      ) {
-        value = value.slice(1, -1)
-      }
-
-      if (!(key in process.env)) process.env[key] = value
-    }
+    if (fs.existsSync(envPath)) process.loadEnvFile(envPath)
   }
 }
 
@@ -144,7 +133,11 @@ async function generateSitemap() {
   const routeOf = (page) =>
     page.replace('pages', '').replace('.jsx', '').replace('.js', '').replace('.mdx', '')
 
-  const keptPages = pages.filter((page) => !EXCLUDED_BUILD_ROUTES.includes(routeOf(page)))
+  // globby's order isn't stable, and an unsorted sitemap rewrites itself on every build - noise
+  // in the diff and a fresh commit on the gh-pages branch for no change in content.
+  const keptPages = pages
+    .filter((page) => !EXCLUDED_BUILD_ROUTES.includes(routeOf(page)))
+    .sort()
 
   const builds = await fetchAllBuildsAtBuildTime()
   const today = new Date().toISOString().split('T')[0]
@@ -167,10 +160,7 @@ ${detailEntries}
 }
 
 // Only run when invoked as a script (npm postbuild), not when imported by tests.
-const isDirectRun =
-  process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])
-
-if (isDirectRun) {
+if (import.meta.main) {
   loadBuildEnv()
   console.log('starting sitemap generation')
   generateSitemap()

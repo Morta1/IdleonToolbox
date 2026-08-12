@@ -12,9 +12,9 @@ import {
 
 // "Idleon Barbarian Builds" leads with the term these pages target - `idleon <class> build` is
 // the shape of essentially all class-related search demand.
-export const classPageTitle = (displayName) => `Idleon ${displayName} Builds | Idleon Toolbox`;
+const classPageTitle = (displayName) => `Idleon ${displayName} Builds | Idleon Toolbox`;
 
-export const classPageDescription = (displayName, count) => count
+const classPageDescription = (displayName, count) => count
   ? `Browse ${count} community ${displayName} builds for Legends of Idleon — talent trees, gear and progression.`
   : `Community ${displayName} builds for Legends of Idleon — talent trees, gear and progression.`;
 
@@ -33,7 +33,6 @@ export function getBuildClassStaticProps(builds, slug) {
   return {
     props: {
       slug,
-      displayName,
       builds: matching,
       allSlugs: getBuildClassSlugs(builds),
       // PAGE_SEO is keyed by route pattern, so all 18 of these pages would share one title.
@@ -54,7 +53,8 @@ export async function getStaticProps({ params }) {
   return getBuildClassStaticProps(builds, params.class);
 }
 
-const BuildClassPage = ({ slug, displayName, builds, allSlugs, seoTitle, seoDescription }) => {
+const BuildClassPage = ({ slug, builds, allSlugs, seoTitle, seoDescription }) => {
+  const displayName = slugToDisplayName(slug);
   // Same strings _document already emitted into the static HTML; NextSeo re-applies them after
   // hydration so a client-side route change keeps the right ones.
   return (

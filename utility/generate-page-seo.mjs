@@ -1,13 +1,17 @@
 // Extracts each page's <NextSeo> title/description into data/page-seo.js.
 //
 // The static export renders nothing below <WaitForRouter>, so a page's own <NextSeo> never runs
-// at build time and the exported HTML ships no title. _app.jsx renders this map above the gate
-// instead. Generating it from the pages themselves keeps the two copies identical - the client
-// still swaps in the page's own NextSeo after hydration, and a mismatch there would mean
+// at build time. _document.jsx renders this map instead - not _app.jsx, because next/head drops
+// <title> entirely. Generating it from the pages themselves keeps the two copies identical - the
+// client still swaps in the page's own NextSeo after hydration, and a mismatch there would mean
 // crawlers and users see different titles.
 //
+// Pages generated from a dynamic route need an OVERRIDES entry: their real title comes from
+// static props, but extractSeo can't parse a non-literal title= and would report them as
+// problems.
+//
 // Run: node utility/generate-page-seo.mjs
-// Drift is caught by __test__/page-seo.test.js.
+// Drift is caught by __test__/page-seo.test.js; e2e/static-head.spec.js checks the served bytes.
 
 import { readdirSync, readFileSync, writeFileSync, statSync } from 'fs';
 import { join, relative, sep } from 'path';

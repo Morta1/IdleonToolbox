@@ -18,7 +18,6 @@ export default defineConfig({
       { find: /^utility\//, replacement: `${path.resolve(__dirname, 'utility')}/` },
       { find: /^hooks\//, replacement: `${path.resolve(__dirname, 'hooks')}/` },
       { find: /^services\//, replacement: `${path.resolve(__dirname, 'services')}/` },
-      { find: /^data\//, replacement: `${path.resolve(__dirname, 'data')}/` },
     ],
   },
   esbuild: { jsx: 'automatic' },

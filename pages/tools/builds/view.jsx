@@ -73,6 +73,19 @@ export async function getStaticProps() {
   return { props: { manifest: builds.map(toBuildSummary) } };
 }
 
+const BuildSummaryHeader = ({ summary }) => (
+  <Box>
+    <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>{summary.title}</Typography>
+    <Typography variant="body1" color="text.secondary">{classLabel(summary)}</Typography>
+    <Typography variant="body2" color="text.secondary">by {summary.ownerName}</Typography>
+    {summary.tags?.length > 0 && (
+      <Stack direction="row" gap={1} flexWrap="wrap" sx={{ mt: 1 }}>
+        {summary.tags.map((tag) => <TagChip key={tag} label={tag} size="small"/>)}
+      </Stack>
+    )}
+  </Box>
+);
+
 const ViewBuild = ({ manifest }) => {
   const router = useRouter();
   const { state } = useContext(AppContext);
@@ -157,36 +170,14 @@ const ViewBuild = ({ manifest }) => {
       />
       <Stack mt={2} gap={2}>
         {loading ? (
-          // The manifest resolves synchronously, so a crawler (and a human on a
-          // slow connection) sees the real build title/author/tags immediately
-          // instead of a bare spinner that contradicts the <title> NextSeo already
-          // set above. The full talent payload still only arrives from the
-          // runtime getBuild fetch, so the loader stays visible beneath it.
-          summary ? (
-            <Stack gap={2}>
-              <Box>
-                <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
-                  {summary.title}
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  {classLabel(summary)}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  by {summary.ownerName}
-                </Typography>
-                {summary.tags?.length > 0 && (
-                  <Stack direction="row" gap={1} flexWrap="wrap" sx={{ mt: 1 }}>
-                    {summary.tags.map((tag) => (
-                      <TagChip key={tag} label={tag} size="small"/>
-                    ))}
-                  </Stack>
-                )}
-              </Box>
-              <SimpleLoader message="Loading build…"/>
-            </Stack>
-          ) : (
+          // The manifest resolves synchronously, so a crawler (and a human on a slow connection)
+          // sees the real title/author/tags immediately rather than a bare spinner contradicting
+          // the <title> NextSeo set above. The talent payload still comes from the runtime
+          // fetch, so the loader stays beneath it.
+          <Stack gap={2}>
+            {summary && <BuildSummaryHeader summary={summary}/>}
             <SimpleLoader message="Loading build…"/>
-          )
+          </Stack>
         ) : error ? (
           <Alert severity="error">{error}</Alert>
         ) : build ? (

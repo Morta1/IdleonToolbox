@@ -5,8 +5,7 @@ import path from 'node:path';
 import {
   assertSitemapMatchesOutput,
   buildClassSitemapEntries,
-  buildDetailSitemapEntries,
-  EXCLUDED_BUILD_ROUTES
+  buildDetailSitemapEntries
 } from '@utility/generate-sitemap.mjs';
 
 describe('buildClassSitemapEntries', () => {
@@ -28,21 +27,6 @@ describe('buildClassSitemapEntries', () => {
 
   it('returns an empty string for no slugs', () => {
     expect(buildClassSitemapEntries([], '2026-08-08')).toBe('');
-  });
-});
-
-describe('EXCLUDED_BUILD_ROUTES', () => {
-  it('excludes interactive and user-specific builds routes', () => {
-    expect(EXCLUDED_BUILD_ROUTES).toEqual(expect.arrayContaining([
-      '/tools/builds/new',
-      '/tools/builds/edit',
-      '/tools/builds/my-builds',
-      '/tools/builds/view'
-    ]));
-  });
-
-  it('does not exclude the builds landing page', () => {
-    expect(EXCLUDED_BUILD_ROUTES).not.toContain('/tools/builds');
   });
 });
 
