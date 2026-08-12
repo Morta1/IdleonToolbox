@@ -163,19 +163,19 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/account/prem-currency/bundles</loc>
+    <loc>https://idleontoolbox.com/account/clickers/bubba</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/account/prem-currency/gem-shop</loc>
+    <loc>https://idleontoolbox.com/account/clickers/kangaroo</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/account/prem-currency/pets</loc>
+    <loc>https://idleontoolbox.com/account/clickers/owl</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -266,24 +266,6 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/account/world-1/stamps</loc>
-    <lastmod>2026-08-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/account/clickers/bubba</loc>
-    <lastmod>2026-08-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/account/clickers/kangaroo</loc>
-    <lastmod>2026-08-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/account/clickers/owl</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -445,6 +427,24 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://idleontoolbox.com/account/prem-currency/bundles</loc>
+    <lastmod>2026-08-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/account/prem-currency/gem-shop</loc>
+    <lastmod>2026-08-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/account/prem-currency/pets</loc>
+    <lastmod>2026-08-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://idleontoolbox.com/account/world-4/breeding</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>weekly</changefreq>
@@ -475,36 +475,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/account/world-6/beanstalk</loc>
-    <lastmod>2026-08-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/account/world-6/emperor</loc>
-    <lastmod>2026-08-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/account/world-6/farming</loc>
-    <lastmod>2026-08-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/account/world-6/sneaking</loc>
-    <lastmod>2026-08-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/account/world-6/summoning</loc>
-    <lastmod>2026-08-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://idleontoolbox.com/account/world-5/divinity</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>weekly</changefreq>
@@ -530,6 +500,36 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/account/world-5/slab</loc>
+    <lastmod>2026-08-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/account/world-6/beanstalk</loc>
+    <lastmod>2026-08-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/account/world-6/emperor</loc>
+    <lastmod>2026-08-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/account/world-6/farming</loc>
+    <lastmod>2026-08-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/account/world-6/sneaking</loc>
+    <lastmod>2026-08-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/account/world-6/summoning</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

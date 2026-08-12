@@ -2,12 +2,19 @@ import * as React from 'react';
 import Document, { Head, Html, Main, NextScript } from 'next/document';
 import createEmotionServer from '@emotion/server/create-instance';
 import createEmotionCache from '../utility/createEmotionCache';
+import { PAGE_SEO } from '../data/page-seo';
 
 export default class MyDocument extends Document {
   render() {
+    // The <title> lives here rather than in _app's next/head: next/head emits every other tag
+    // (they carry data-next-head) but the title never reaches the exported HTML, so every page
+    // shipped untitled. _document renders once at export time, ahead of anything that could
+    // hoist it away. next-seo still swaps in the page's own title after hydration.
+    const title = PAGE_SEO[this.props.__NEXT_DATA__?.page]?.title;
     return (
       <Html lang="en">
         <Head>
+          {title ? <title>{title}</title> : null}
           <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
