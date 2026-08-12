@@ -12,7 +12,8 @@ export const patchNotes = [
     ],
     'fixes': [
       'Logging out no longer sends you back to the homepage - you stay on the page you were on, with your numbers at zero',
-      'Colosseum: the table listed nothing until you had a score - it now shows all six arenas'
+      'Colosseum: the table listed nothing until you had a score - it now shows all six arenas',
+      'Shrines: a shrine you have not built yet showed a bonus it does not give, and an unbuilt Crystal Shrine inflated the shrine EXP bonus on every other shrine'
     ]
   },
   {

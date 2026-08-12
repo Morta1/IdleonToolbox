@@ -1,5 +1,6 @@
 import { test as base, expect } from '@playwright/test';
 import { PAGES } from '../components/constants.jsx';
+import { waitForRender } from './wait-helpers';
 
 // ---------------------------------------------------------------------------
 // Custom fixture: one demo-loaded page per worker
@@ -10,7 +11,7 @@ export const test = base.extend({
     const context = await browser.newContext();
     const page = await context.newPage();
     await page.goto('/dashboard?demo=true');
-    await page.waitForLoadState('networkidle');
+    await waitForRender(page);
     await use(page);
     await context.close();
   }, { scope: 'worker' }],
@@ -101,7 +102,9 @@ export async function clientNavigate(page, pathname, query = {}) {
   await page.evaluate(({ pathname, query }) => {
     window.next.router.push({ pathname, query: { demo: 'true', ...query } });
   }, { pathname, query });
-  await page.waitForTimeout(800);
+  // Was a flat 800ms, which every smoke test paid whether the page needed it or not, and which
+  // could still expire early on a slow one.
+  await waitForRender(page);
 }
 
 export function collectErrors(page) {

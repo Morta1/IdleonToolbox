@@ -21,6 +21,13 @@ export const getShrines = (idleonData: any, account: any) => {
   return parseShrines(shrinesRaw, towersRaw, account);
 }
 
+// (shrineLevel - 1) yields a bonus at level 0, so an unbuilt shrine advertised one it does not
+// give. getShrineBonus already discards it, but crystalShrineBonus did not - an unbuilt Crystal
+// Shrine fed a phantom bonus straight into shrine EXP.
+const shrineBonus = (shrineLevel: number, entry: any, passiveCardBonus: number) => shrineLevel > 0
+  ? (1 + passiveCardBonus / 100) * ((shrineLevel - 1) * entry.bonusPerLevel + entry.baseBonus)
+  : 0;
+
 export const parseShrines = (shrinesRaw: any, towersRaw: any, account: any) => {
   const worldTour = account?.lab?.labBonuses?.find((bonus: any) => bonus.name === 'Shrine_World_Tour')?.active;
   const shrineCatalog = Object.entries(shrines)
@@ -30,21 +37,20 @@ export const parseShrines = (shrinesRaw: any, towersRaw: any, account: any) => {
   const shrineStuff = liveShrines.map(({ entry, index: localIndex }) => {
     const item = shrinesRaw?.[localIndex];
     const [, , , shrineLevel = 0] = item ?? [];
-    const { baseBonus, bonusPerLevel } = entry;
-    return (1 + (passiveCardBonus) / 100) * ((shrineLevel - 1) * bonusPerLevel + baseBonus)
+    return shrineBonus(shrineLevel, entry, passiveCardBonus);
   })
   return liveShrines.map(({ entry, index: localIndex }) => {
     const index = startingIndex + localIndex;
     const item = shrinesRaw?.[localIndex];
     const [mapId = 0, , , shrineLevel = 0, progress = 0] = item ?? [];
-    const { shrineName, desc, baseBonus, bonusPerLevel } = entry;
+    const { shrineName, desc } = entry;
     const crystalShrineBonus = shrinesRaw?.[2]?.[0] === mapId ? shrineStuff?.[2] : 0;
     return {
       mapId,
       shrineLevel,
       name: shrineName,
       rawName: `ConTowerB${index}`,
-      bonus: (1 + (passiveCardBonus) / 100) * ((shrineLevel - 1) * bonusPerLevel + baseBonus),
+      bonus: shrineBonus(shrineLevel, entry, passiveCardBonus),
       progress,
       desc,
       worldTour,
