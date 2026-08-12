@@ -79,7 +79,7 @@ const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData:
             { name: 'Vote', value: params.voteBonus },
             {
               name: 'Winter event',
-              value: 1 + (2 * Number(accountData?.accountOptions?.[323]) * getEventShopBonus(accountData, 4)) / 100
+              value: 1 + (2 * Number(accountData?.accountOptions?.[323] ?? 0) * getEventShopBonus(accountData, 4)) / 100
             },
             {
               name: 'Legend Talent',
@@ -112,8 +112,8 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
         : goldRelic?.acquired === 2
           ? goldRelic?.ancientMultiplier
           : 0;
-  const daysSinceLastSample = accountData?.accountOptions?.[125];
-  const orbOfRemembranceKills = accountData?.accountOptions?.[138];
+  const daysSinceLastSample = accountData?.accountOptions?.[125] ?? 0;
+  const orbOfRemembranceKills = accountData?.accountOptions?.[138] ?? 0;
   const divineKnights = charactersData?.filter((character) => checkCharClass(character?.class, CLASSES.Divine_Knight));
   const highestKingOfRemembrance = divineKnights?.reduce((res, { flatTalents, addedLevels }) => {
     const kingOfRemembrance = getTalentBonus(flatTalents, 'KING_OF_THE_REMEMBERED', false, false, addedLevels, false);
@@ -131,8 +131,8 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
   // this._DNprint = .1 + m._customBlock_WorkbenchStuff("ExtraPrinting", this._DRI, 0)
   const charmBonus = getCharmBonus(accountData, 'Lolly_Flower');
   const voteBonus = (1 + getVoteBonus(accountData, 11) / 100);
-  const companionBonus = 1 + Number(accountData?.accountOptions?.[354]) * isCompanionBonusActive(accountData, 17) / 100;
-  const compassBonus = 1 + (Number(accountData?.accountOptions?.[364]) * getCompassBonus(accountData, 43)) / 100;
+  const companionBonus = 1 + Number(accountData?.accountOptions?.[354] ?? 0) * isCompanionBonusActive(accountData, 17) / 100;
+  const compassBonus = 1 + (Number(accountData?.accountOptions?.[364] ?? 0) * getCompassBonus(accountData, 43)) / 100;
   // Legend talent "Yet Another Printer Multi" (index 17): +x% printer output per day for 20 days, resets on sample
   const legendTalentDays = Number(accountData?.accountOptions?.[479]) || 0;
   const legendTalentBonus = getLegendTalentBonus(accountData, 17) ?? 0;
@@ -142,7 +142,7 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
     * (1 + skillMasteryBonus / 100
     ) * (1 + charmBonus / 100)
     * voteBonus
-    * (1 + (2 * Number(accountData?.accountOptions?.[323]) * getEventShopBonus(accountData, 4)) / 100)
+    * (1 + (2 * Number(accountData?.accountOptions?.[323] ?? 0) * getEventShopBonus(accountData, 4)) / 100)
     * companionBonus
     * compassBonus
     * yetAnotherPrinterMulti;

@@ -39,7 +39,7 @@ const ZenithMarket = () => {
         title={'Zenith Clusters'}
       >
         <Stack direction={'row'} alignItems={'center'} gap={2}>
-          <img style={{ objectFit: 'contain', width: 24, height: 24 }} src={`${prefix}etc/Cluster.png`} alt=""/>
+          <img style={{ objectFit: 'contain', width: 24, height: 24 }} src={`${prefix}etc/Cluster.png`} alt="Cluster"/>
           <Typography component={'div'}>{clusters !== undefined ? commaNotation(clusters) : '0'}</Typography>
           {clusterInventoryData.length > 0 && (
             <Tooltip

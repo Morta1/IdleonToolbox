@@ -4,7 +4,7 @@ import { Badge, Card, CardContent, Divider, Stack, Typography } from '@mui/mater
 import { cleanUnderscore, fillArrayToLength, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import Timer from 'components/common/Timer';
 import styled from '@emotion/styled';
-import { calcTotals, getPlayerAnvil, getTimeTillCap } from '@parsers/world-1/anvil';
+import { calcTotals, getAnvilProductCatalog, getPlayerAnvil, getTimeTillCap } from '@parsers/world-1/anvil';
 import { NextSeo } from 'next-seo';
 import Tooltip from '../../../components/Tooltip';
 import ProgressBar from '../../../components/common/ProgressBar';
@@ -50,7 +50,7 @@ const Anvil = () => {
           </>}>
             <CardContent>
               <Stack alignItems={'center'} gap={1} direction={'row'}>
-                <img width={25} height={25} src={`${prefix}data/${rawName}.png`} alt={''}/>
+                <img width={25} height={25} src={`${prefix}data/${rawName}.png`} alt={rawName}/>
                 <Stack>
                   <Typography>{notateNumber(value, 'Big')}<Typography component={'span'} variant={'caption'} color={'text.secondary'}> /hr</Typography></Typography>
                   <Typography variant={'caption'} color={'text.secondary'}>{notateNumber(value * 24, 'Big')} /day</Typography>
@@ -142,7 +142,7 @@ const Anvil = () => {
                           vertical: 'top',
                           horizontal: 'left'
                         }} color="secondary" variant={'standard'} badgeContent={hammers > 1 ? hammers : 0}>
-                          <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
+                          <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
                         </Badge>
                         <Stack gap={.4} sx={{ minWidth: 165 }}>
                           <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1}>
@@ -201,7 +201,40 @@ const Anvil = () => {
         </Card>
       })}
     </Stack>
+    {anvil?.length ? null : <AnvilProductCatalog/>}
   </>
+};
+
+const AnvilProductCatalog = () => {
+  const products = getAnvilProductCatalog();
+  return <Stack gap={2}>
+    <Typography variant={'h6'}>Anvil products</Typography>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      {products.map(({ rawName, displayName, requiredAmount, levelReq, exp }, index) => (
+        <Card key={`${rawName}-${index}`} sx={{ width: 200 }}>
+          <CardContent>
+            <Stack direction={'row'} alignItems={'center'} gap={1.5}>
+              <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
+              <Typography variant={'subtitle2'}>{cleanUnderscore(displayName)}</Typography>
+            </Stack>
+            <Divider sx={{ my: 1 }}/>
+            <Stack direction={'row'} justifyContent={'space-between'}>
+              <Typography variant={'caption'} color={'text.secondary'}>Smithing lv.</Typography>
+              <Typography variant={'caption'}>{levelReq}</Typography>
+            </Stack>
+            <Stack direction={'row'} justifyContent={'space-between'}>
+              <Typography variant={'caption'} color={'text.secondary'}>Materials</Typography>
+              <Typography variant={'caption'}>{numberWithCommas(requiredAmount)}</Typography>
+            </Stack>
+            <Stack direction={'row'} justifyContent={'space-between'}>
+              <Typography variant={'caption'} color={'text.secondary'}>Exp per craft</Typography>
+              <Typography variant={'caption'}>{numberWithCommas(exp)}</Typography>
+            </Stack>
+          </CardContent>
+        </Card>
+      ))}
+    </Stack>
+  </Stack>;
 };
 
 const ItemIcon = styled.img`

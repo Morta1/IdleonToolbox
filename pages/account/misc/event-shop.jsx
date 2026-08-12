@@ -19,11 +19,11 @@ const EventShop = () => {
       title="Event Shop | Idleon Toolbox"
       description="Track your event shop purchases, star currency, and bonus progression in Legends of Idleon"
     />
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Stars'}
         imgStyle={{ width: 24, height: 24 }}
         icon={'etc/Event_Currency.png'}
-        value={numberWithCommas(state?.account?.accountOptions?.[310])} />
+        value={numberWithCommas(state?.account?.accountOptions?.[310] ?? 0)} />
       <CardTitleAndValue title={'Total bonuses'}
         value={`${ownedBonuses.length} / ${shopItems.length}`} />
       <CardTitleAndValue>

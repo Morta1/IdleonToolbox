@@ -41,7 +41,7 @@ const Tesseract = () => {
       title="Tesseract | Idleon Toolbox"
       description="Keep track of your compass levels, upgrades and compass stats"
     />
-    <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       {arcanists.length > 1 ? <CardTitleAndValue title={'Character'}
                                                  value={<Select size={'small'} value={selectedChar}
                                                                 onChange={(e) => setSelectedChar(e.target.value)}>
@@ -76,8 +76,8 @@ const Tesseract = () => {
                                                                     imgStyle={{ objectPosition: '0 -6px' }}
       />)}
     </Stack>
-    <Divider sx={{ mt: { xs: 2, md: 0 } }}/>
-    <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+    <Divider sx={{ mb: 3 }}/>
+    <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Damage'} value={arcanistStats?.damage < 1e8
         ? numberWithCommas(Math.floor(arcanistStats?.damage) || '0')
         : notateNumber(arcanistStats?.damage || 0)}/>

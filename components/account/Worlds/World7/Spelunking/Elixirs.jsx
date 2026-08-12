@@ -10,7 +10,7 @@ const Elixirs = ({ elixirs, ownedElixirs, ownedSlots, maxElixirDuplicates }) => 
 
   return (
     <>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Elixirs'} value={`${ownedElixirs} / 12`} />
         <CardTitleAndValue title={'Slots'} value={`${ownedSlots} / 5`} />
         <CardTitleAndValue title={'Duplicates'} value={`${maxElixirDuplicates} / 4`} />

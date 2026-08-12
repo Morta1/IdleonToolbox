@@ -51,7 +51,7 @@ const Imports = ({ account, lastUpdated }) => {
             <CardContent>
               <Stack>
                 <Stack direction={'row'} alignItems={'center'} gap={2}>
-                  <ImportImg src={`${prefix}data/${rawName}.png`} alt="" />
+                  <ImportImg src={`${prefix}data/${rawName}.png`} alt={rawName} />
                   <Typography>{cleanUnderscore(name)} ({cleanUnderscore(boxName)})</Typography>
                 </Stack>
                 {index !== 5 ? <Divider sx={{ my: 2 }} /> : null}

@@ -34,7 +34,7 @@ const getUpgLvREQ = (t: number) => {
 
 export const getSushiStation = (idleonData: any, account: any) => {
   const raw = getRawSushi(idleonData);
-  if (!raw.length) return null;
+  const unlocked = raw.length > 0;
 
   const slotTiers: number[] = raw[0] ?? [];
   const slotEffects: number[] = raw[1] ?? [];
@@ -341,6 +341,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
   }));
 
   return {
+    unlocked,
     uniqueSushi,
     fuel: { current: fuel, cap: fuelCap, generation: fuelGen },
     currency: { bucks, currencyMulti, currencyPerHR, overtunedMulti },

@@ -16,10 +16,10 @@ const Mutations = ({ account }) => {
   } = account?.gaming;
 
   return <>
-    <Stack direction={'row'} gap={3} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={3} flexWrap={'wrap'}>
       <CardTitleAndValue title={'DNA'}>
         <Stack direction={'row'} gap={2}>
-          <img style={{ objectFit: 'contain' }} src={`${prefix}etc/DNA.png`} alt=""/>
+          <img style={{ objectFit: 'contain' }} src={`${prefix}etc/DNA.png`} alt="DNA"/>
           <Typography>{dna} ~ {newMutationChance}% chance</Typography>
           <Tooltip title={<BreakpointsTooltip breakpoints={mutationChanceBreakpoints}/>}>
             <InfoIcon/>

@@ -72,15 +72,17 @@ const Guild = () => {
     setDataTimestamp([]);
   }
 
-  if (!guild || guild?.members?.length === 0) {
-    return <Typography variant={'h3'} mb={3}>You have to be in a guild to view this page's content</Typography>
+  if (!guild?.unlocked || guild?.members?.length === 0) {
+    return <>
+      <GuildSeo/>
+
+      <Typography variant={'h5'} mb={2}>Guild bonuses</Typography>
+      <GuildBonuses bonuses={guild?.guildBonuses}/>
+    </>
   }
 
   return <>
-    <NextSeo
-      title="Guild | Idleon Toolbox"
-      description="Keep track of your guild members, gp, bonuses and more"
-    />
+    <GuildSeo/>
     <Stack>
       <Stack direction={'row'} alignItems={'center'} gap={1}>
         <img src={`${prefix}data/G2icon${state?.account?.accountOptions?.[38]}.png`}
@@ -88,7 +90,7 @@ const Guild = () => {
         <Typography variant={'h3'}>{state?.account?.accountOptions?.[37]} <Typography component="span"
                                                                                       variant={'h5'}>({guild?.members?.length} / {guild?.maxMembers})</Typography></Typography>
       </Stack>
-      <Stack sx={{ mb: 1 }} direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack mb={3} sx={{ mb: 1 }} direction={'row'} gap={2} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Members'} value={`${guild?.members?.length} / ${guild?.maxMembers}`}/>
         <CardTitleAndValue title={'Exp'}>
           <ProgressBar boxSx={{ width: 200 }}
@@ -122,6 +124,11 @@ const Guild = () => {
     </Tabber>
   </>
 };
+
+const GuildSeo = () => <NextSeo
+  title="Guild | Idleon Toolbox"
+  description="Keep track of your guild members, gp, bonuses and more"
+/>;
 
 const CardTitleAndValue = ({ cardSx, title, value, children }) => {
   return <Card sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>

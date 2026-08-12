@@ -527,8 +527,7 @@ const GenericUpgradeOptimizer = ({
                         style={{ objectPosition: '0 -3px', marginLeft: -5, marginRight: 5 }}
                         src={`${prefix}data/${resourceImagePrefix}${index}_x1.png`}
                         width={24}
-                        height={24}
-                      />
+                        height={24} alt=""/>
                     }}
                     type="text"
                     size="small"

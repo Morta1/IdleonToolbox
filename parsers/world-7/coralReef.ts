@@ -77,7 +77,8 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
     'Dropped_by_RIPtide'
   ];
 
-  const dancingCoral = Array.from({ length: rawDancingCoral?.length || 0 }, (_, index) => {
+  const dancingCoralCount = dancingCoralDescriptions.length;
+  const dancingCoral = Array.from({ length: dancingCoralCount }, (_, index) => {
     const level = rawDancingCoral?.[index] || 0;
     const baseDescription = dancingCoralDescriptions[index] || '';
     const description = getDancingCoralDescription(baseDescription, account, index);
@@ -91,11 +92,11 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
       bonus: getDancingCoralBonus(account, index, 0),
       tower: account?.towers?.data?.slice(18)?.[index] || ''
     };
-  }).filter((coral, index) => index < 6);
+  });
 
   const grindTimeDaily = getGrindTimeDaily(account, coralReefLevels);
-  const reefUpgrades = coralReefLevels?.map((level: any, index: any) => {
-    const reefData = coralReef?.[index];
+  const reefUpgrades = coralReef.map((reefData: any, index: any) => {
+    const level = coralReefLevels?.[index] ?? 0;
     let description = reefData?.name || '';
     if (index === 0) {
       description = description.replace('{', '' + Math.round(grindTimeDaily));
@@ -122,7 +123,7 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
       cost: getReefCost(account, index, level || 0),
       bonus: index === 0 ? grindTimeDaily : index === 4 ? 0 : 0
     };
-  }) || [];
+  });
 
 
   return {
@@ -130,8 +131,8 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
     dancingCoral,
     reefUpgrades,
     grindTimeDaily,
-    unlockedCorals: rawSpelunking?.[4]?.[6],
-    ownedCorals: rawSpelunking?.[4]?.[5],
+    unlockedCorals: rawSpelunking?.[4]?.[6] ?? 0,
+    ownedCorals: rawSpelunking?.[4]?.[5] ?? 0,
     reefDayGains: getReefDayGains(account) // Default to first reef
   };
 }
@@ -167,7 +168,8 @@ export const getCoralKidUpgBonus = (account: any, index: any) => {
 
 export const getDancingCoralCost = (rawSpelunking: any, index: any) => {
   const baseCost = Number(generalSpelunky?.[22]?.[index]) || 0;
-  return baseCost / (1 + (10 * rawSpelunking?.[4]?.[7] + Math.pow(1.05, rawSpelunking?.[4]?.[7])) / 100);
+  const overstimLevel = rawSpelunking?.[4]?.[7] ?? 0;
+  return baseCost / (1 + (10 * overstimLevel + Math.pow(1.05, overstimLevel)) / 100);
 }
 
 // DancingCoralBonus from Thingies.js line 68-71
@@ -268,7 +270,7 @@ export const getReefDayGains = (account: any) => {
 
 // GrindTimeDaily from Thingies.js line 131-133
 export const getGrindTimeDaily = (account: any, coralReefLevels: any) => {
-  return Math.floor((10 * coralReefLevels?.[0]
+  return Math.floor((10 * (coralReefLevels?.[0] ?? 0)
     + 15 * getClamWorkBonus(account, 6)
     + getMineheadBonusQTY(account, 13))
     * (1 + getMeritocracyBonus(account, 24) / 100));

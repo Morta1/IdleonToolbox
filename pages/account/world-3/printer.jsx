@@ -31,10 +31,10 @@ const Printer = () => {
       will also show atom per day)</Typography>
 
     <Stack direction={'row'} alignItems={'baseline'} gap={1}>
-      <Typography variant={'h4'}>Totals</Typography>
+      <Typography variant={'h5'}>Totals</Typography>
       <Typography variant={'caption'}>* per hour</Typography>
     </Stack>
-    <CardTitleAndValue title={'Atom threshold'} value={notateNumber(atomThreshold)}/>
+    <CardTitleAndValue title={'Atom threshold'} value={notateNumber(atomThreshold)} cardSx={{ mt: 3 }}/>
     <Stack direction={'row'} gap={2} sx={{ mt: 2, mb: 5 }} flexWrap={'wrap'}>
       {Object.entries(totals || {})?.map(([item, { boostedValue, atomable, atoms }], index) => {
         const isAtom = item === 'atom'
@@ -140,22 +140,22 @@ const TotalTooltip = ({ item, value, atoms, highestBrr, highestMaxLevelBrr }) =>
   }
   return <Stack gap={1}>
     {item !== 'atom' ? <Stack direction={'row'} gap={1} alignItems={'center'}>
-      <img width={30} height={30} src={`${prefix}data/${item}.png`} alt=""/>
+      <img width={30} height={30} src={`${prefix}data/${item}.png`} alt={item}/>
       <Typography>{notateNumber(perDay)} / day</Typography>
     </Stack> : null}
     {maxPrinterGoBrrr > 0 && !highestPrinterGoBrr ? <Stack sx={{ ml: .5 }} direction={'row'} gap={2}
                                                            alignItems={'center'}>
-      <img width={24} height={24} src={`${prefix}data/UISkillIcon32.png`} alt=""/>
+      <img width={24} height={24} src={`${prefix}data/UISkillIcon32.png`} alt="UISkill Icon32"/>
       <Typography>{notateNumber(value * maxPrinterGoBrrr)} / printer go brr ({maxPrinterGoBrrr} hours)</Typography>
     </Stack> : null}
     {highestPrinterGoBrr > 0 ? <Stack sx={{ ml: .5 }} direction={'row'} gap={2} alignItems={'center'}>
-      <img width={24} height={24} src={`${prefix}data/UISkillIcon32.png`} alt=""/>
+      <img width={24} height={24} src={`${prefix}data/UISkillIcon32.png`} alt="UISkill Icon32"/>
       <Typography>{notateNumber(value * highestPrinterGoBrr)} / printer go brr
         ({highestPrinterGoBrr} hours)</Typography>
     </Stack> : null}
     {(atoms || isAtom) ?
       <Stack sx={{ ml: .5 }} direction={'row'} gap={2} alignItems={'center'}>
-        <img width={24} height={24} src={`${prefix}etc/Particle.png`} alt=""/>
+        <img width={24} height={24} src={`${prefix}etc/Particle.png`} alt="Particle"/>
         <Typography>{notateNumber(atoms * 24)} / day </Typography>
       </Stack> : null}
   </Stack>

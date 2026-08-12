@@ -26,6 +26,7 @@ export interface GuildTaskEntry {
 }
 
 export interface GuildResult {
+  unlocked: boolean;
   id?: string;
   guildBonuses: GuildBonusEntry[];
   guildTasks: { daily: GuildTaskEntry[] | undefined; weekly: GuildTaskEntry[] | undefined };
@@ -36,9 +37,26 @@ export interface GuildResult {
   totalGp: number;
 }
 
+export const getLockedGuild = (): GuildResult => {
+  const level = getGuildLevel(0);
+  return {
+    unlocked: false,
+    id: undefined,
+    guildBonuses: guildBonuses?.map((guildBonus: any) => ({ ...guildBonus, level: 0 })) ?? [],
+    guildTasks: { daily: [], weekly: [] },
+    members: [],
+    maxMembers: getMaxMembers(level),
+    level,
+    levelReq: getGuildLevelReq(null, 0),
+    totalGp: 0
+  };
+}
+
+const getMaxMembers = (level: number): number => 30 + 4 * level;
+
 export const getGuild = (idleonData: IdleonData, guildData: GuildData | null): GuildResult | null => {
   if (!guildData) {
-    return null;
+    return getLockedGuild();
   }
   const guildRaw = tryToParse(idleonData?.Guild) || (idleonData as any)?.GuildTasks;
   const parsedGuildTasks = parseGuildTasks(guildRaw);
@@ -46,27 +64,25 @@ export const getGuild = (idleonData: IdleonData, guildData: GuildData | null): G
     ...guildBonus,
     level: guildData?.stats?.[0]?.[index] ?? 0
   }))
-  if (guildData) {
-    const totalPoints = getGuildTotalPoints(guildRaw, updatedGuildBonuses, guildData?.points ?? 0)
-    const level = getGuildLevel(totalPoints);
-    const maxMembers = 30 + 4 * level;
-    const levelReq = getGuildLevelReq(guildRaw, totalPoints)
-    const members = parseGuildMembers(guildData, updatedGuildBonuses);
-    const totalStatCost = updatedGuildBonuses?.reduce((sum: number, { level }: any, index: number) => sum + calculateGuildBonusCost(level,
-      guildBonuses?.[index]?.gpBaseCost, guildBonuses?.[index]?.gpIncrease), 0);
-    const totalGp = (guildData?.points ?? 0) + totalStatCost;
-    return {
-      id: guildData.id ?? undefined,
-      guildBonuses: updatedGuildBonuses,
-      guildTasks: parsedGuildTasks,
-      members,
-      maxMembers,
-      level,
-      levelReq,
-      totalGp
-    }
+  const totalPoints = getGuildTotalPoints(guildRaw, updatedGuildBonuses, guildData?.points ?? 0)
+  const level = getGuildLevel(totalPoints);
+  const maxMembers = getMaxMembers(level);
+  const levelReq = getGuildLevelReq(guildRaw, totalPoints)
+  const members = parseGuildMembers(guildData, updatedGuildBonuses);
+  const totalStatCost = updatedGuildBonuses?.reduce((sum: number, { level }: any, index: number) => sum + calculateGuildBonusCost(level,
+    guildBonuses?.[index]?.gpBaseCost, guildBonuses?.[index]?.gpIncrease), 0);
+  const totalGp = (guildData?.points ?? 0) + totalStatCost;
+  return {
+    unlocked: true,
+    id: guildData.id ?? undefined,
+    guildBonuses: updatedGuildBonuses,
+    guildTasks: parsedGuildTasks,
+    members,
+    maxMembers,
+    level,
+    levelReq,
+    totalGp
   }
-  return null;
 }
 
 const getGuildTotalPoints = (guildRaw: any, guildBonuses: any[], points: number): number => {

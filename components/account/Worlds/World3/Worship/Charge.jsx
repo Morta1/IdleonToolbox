@@ -19,6 +19,8 @@ const Charge = () => {
     totalChargeRate,
     timeToOverCharge,
   } = getChargeWithSyphon(state?.characters);
+  const maxChargeWithSyphon = (bestWizard?.worship?.maxCharge || 0) + bestChargeSyphon;
+  const chargePercent = (totalCharge / maxChargeWithSyphon) * 100;
 
   return (
     <>
@@ -35,9 +37,9 @@ const Charge = () => {
                                                       lastUpdated={state?.lastUpdated}/> :
             <Typography>Everyone</Typography>}
         </CardTitleAndValue>
-        <CardTitleAndValue title={`Best Wizard -${bestWizard?.name}`}>
-          <Typography>Charge with syphon ({((bestWizard?.worship?.maxCharge || 0) + bestChargeSyphon)})</Typography>
-          <ProgressBar percent={(totalCharge / ((bestWizard?.worship?.maxCharge || 0) + bestChargeSyphon)) * 100}
+        <CardTitleAndValue title={`Best Wizard -${bestWizard?.name ?? '—'}`}>
+          <Typography>Charge with syphon ({maxChargeWithSyphon})</Typography>
+          <ProgressBar percent={Number.isFinite(chargePercent) ? chargePercent : 0}
                        bgColor={'secondary.dark'}/>
           <Timer type={'countdown'}
                  placeholder={'You have overflowing charge'}
@@ -56,7 +58,7 @@ const Charge = () => {
                 <Stack direction={'row'}>
                   <img src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
                   {skull && <Tooltip title={cleanUnderscore(skull.name)}>
-                    <img style={{ height: 38 }} src={`${prefix}data/${skull.rawName}.png`} alt=""/>
+                    <img style={{ height: 38 }} src={`${prefix}data/${skull.rawName}.png`} alt={skull.rawName}/>
                   </Tooltip>}
                 </Stack>
                 <Typography sx={{ typography: { xs: 'body2', sm: 'body1' } }}>{name}</Typography>

@@ -51,7 +51,7 @@ const Tome = () => {
       <>
         {/*<Typography variant={'caption'}>* Bubble bonus might be inaccurate because it is determined by your active*/}
         {/*  character.</Typography>*/}
-        <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+        <Stack mb={3} direction={'row'} gap={1} flexWrap={'wrap'}>
           <CardTitleAndValue title={'Total Points'} value={commaNotation(state?.account?.tome?.totalPoints)} />
           <CardTitleAndValue title={'Rank'} value={!state?.account?.tome?.tops ? '' : <Tooltip title={<Stack gap={1}>
             {state?.account?.tome?.tops?.map((score, index) => <Stack direction={'row'} gap={1}

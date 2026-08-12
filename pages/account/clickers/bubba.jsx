@@ -30,12 +30,12 @@ const Bubba = () => {
       description="Track your Bubba minigame upgrades, candy progress, and bonus effects in Legends of Idleon"
     />
 
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Meat Slices'} value={formatMeatsliceRate(bubba?.meatSlices || 0)} icon={'etc/Bubba_0.png'} />
       <CardTitleAndValue title={'Progress'} value={`${formatMeatsliceRate(bubba?.progress)}/${formatMeatsliceRate(bubba?.progressReq)}`} icon={'etc/Bubba_0.png'} />
       <CardTitleAndValue title={'Meat Slices/min'} value={formatMeatsliceRate(bubba?.meatsliceRate || 0)} icon={'etc/Bubba_0.png'} />
     </Stack>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
       {bubba?.bonuses && Object.values(bubba.bonuses).map(({ name, bonus, percentage, isNegative }, index) => {
         const formattedBonus = isNegative ? '-' + notateNumber(bonus, 'MultiplierInfo').replace('.00', '') + '%' : notateNumber(bonus, 'MultiplierInfo').replace('.00', '') + '%';
 
@@ -48,13 +48,14 @@ const Bubba = () => {
         />
       })}
     </Stack>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
       {bubba?.megaFlesh?.map(({ description, unlocked, amount, totalBonus }, index) => {
         const formattedDesc = totalBonus !== undefined
           ? description.replace('$', totalBonus)
           : description;
         return <CardTitleAndValue cardSx={{ my: 1 }} value={amount > 0 ? amount : ''}
                                   tooltipTitle={cleanUnderscore(formattedDesc)}
+                                  iconAlt={cleanUnderscore(formattedDesc)}
                                   key={'megaflesh' + index} icon={`data/BubbaMF${index}.png`}
                                   imgStyle={{ width: 32, opacity: unlocked ? 1 : .5 }} imgOnly/>
       })}

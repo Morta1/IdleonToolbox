@@ -12,12 +12,12 @@ const Trade = ({ rawName, date, lootItemCost, moneyValue }) => {
     </Stack>
     <Stack direction={'row'} alignItems={'center'} gap={1} justifyContent={'center'}>
       <Stack direction={'row'} gap={1}>
-        <img src={`${prefix}data/${rawName}.png`} alt=""/>
+        <img src={`${prefix}data/${rawName}.png`} alt={rawName}/>
         {notateNumber(lootItemCost)}
       </Stack>
       <CompareArrowsIcon/>
       <Stack direction={'row'} gap={1}>
-        <img src={`${prefix}data/SailT0.png`} alt=""/>
+        <img src={`${prefix}data/SailT0.png`} alt="Sail T0"/>
         {notateNumber(moneyValue)}
       </Stack>
     </Stack>

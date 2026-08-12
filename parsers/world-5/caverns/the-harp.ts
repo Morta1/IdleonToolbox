@@ -80,7 +80,7 @@ const getHarpNoteProduced = ({ index, holesObject, stringTypes, power, accountDa
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 3 }) / 100)
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 8 }) / 100)
     * (1 + getBellBonus({ holesObject, t: 2 }) / 100)
-    * (1 + accountData?.gemShopPurchases?.[2] / 2)
+    * (1 + (accountData?.gemShopPurchases?.[2] ?? 0) / 2)
     * (1 + getJarBonus({ holesObject, i: 20, account: accountData }) / 100)
     * (1 + stampBonus / 100)
     * (1 + getCglunkoBonus(accountData, 14) / 100)) / Math.pow(4, index);
@@ -99,14 +99,14 @@ const getHarpExpGain = (holesObject: any, accountData: any, stringTypes: any, po
     * getHarpStringAllBonus(holesObject, stringTypes, power)
     * (1 + getHarpStringBonus(holesObject, 4) / 100)
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 6 }) / 100)
-    * (1 + accountData?.gemShopPurchases?.[2] / 2)
+    * (1 + (accountData?.gemShopPurchases?.[2] ?? 0) / 2)
     * fountainNoteBonus
     : (1 + getStudyBonus(holesObject, 5, 99))
     * (power / 100)
     * getHarpStringAllBonus(holesObject, stringTypes, power)
     * (1 + getHarpStringBonus(holesObject, 4) / 100)
     * (1 + getMeasurementBonus({ holesObject, accountData, t: 6 }) / 100)
-    * (1 + accountData?.gemShopPurchases?.[2] / 2)
+    * (1 + (accountData?.gemShopPurchases?.[2] ?? 0) / 2)
     * fountainNoteBonus;
 }
 

@@ -6,7 +6,7 @@ import type { IdleonData, Account, ServerVars } from '../types';
 export const getArmorSmithy = (idleonData: IdleonData, serverVars: ServerVars, account: Account) => {
   const smithyUnlocked = account?.accountOptions?.[380];
   const [, ...unlockedSets] = (account?.accountOptions?.[379] ?? '').toString().split(',');
-  const days = account?.accountOptions?.[381];
+  const days = account?.accountOptions?.[381] ?? 0;
   const sets = equipmentSets.map((set) => {
     const description = set.description.replace('|', '_')
       .replace('{', String(set.bonusValue))
@@ -19,7 +19,7 @@ export const getArmorSmithy = (idleonData: IdleonData, serverVars: ServerVars, a
     }
   });
   const hasBundle = isBundlePurchased(account?.bundles, 'bun_i')?.owned ? 1 : 0;
-  const isSmithyUnlocked = 2e3 <= (idleonData.ServerGemsReceived ?? 0) + 1500 * hasBundle || 1 > Math.round(30 - Number(days));
+  const isSmithyUnlocked = 2e3 <= (idleonData?.ServerGemsReceived ?? 0) + 1500 * hasBundle || 1 > Math.round(30 - Number(days));
   return {
     sets: sets as any,
     days,

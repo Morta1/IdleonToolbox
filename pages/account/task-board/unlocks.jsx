@@ -22,7 +22,7 @@ const Tasks = () => {
       title="Tasks | Idleon Toolbox"
       description="Track your task board unlock progression, merit rewards, and task tier requirements in Legends of Idleon"
     />
-    <Stack direction={'row'} alignItems={'center'} gap={2}>
+    <Stack mb={3} direction={'row'} alignItems={'center'} gap={2}>
       <CardTitleAndValue title={'Available unlocks'}
                          value={Math.max(0, state?.account?.taskUnlocks?.unlockPointsOwned - state?.account?.taskUnlocks?.unlockedRecipes) + ''}/>
       <CardTitleAndValue title={'Next unlock'}

@@ -1,5 +1,6 @@
 import { growth, tryToParse } from '@utility/helpers';
 import { chips, classes, jewels, labBonuses, merits, randomList, talents } from '@website-data';
+import { liveEntries } from '@parsers/catalog';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { isArenaBonusActive, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
@@ -18,7 +19,18 @@ export const getLab = (idleonData: any, charactersData: any, account: any, updat
 }
 
 const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharactersData: any) => {
-  if (!labRaw) return {}
+  if (!labRaw) {
+    return {
+      playersCords: [],
+      playersChips: [],
+      connectedPlayers: [],
+      jewels: liveEntries<any>(jewels as any[]).map(({ entry }) => ({ ...entry, acquired: false, active: false })),
+      chips: liveEntries<any>(chips as any[]).map(({ entry }) => ({ ...entry, repoAmount: 0, amount: 0, totalAmount: 0 })),
+      labBonuses: liveEntries<any>(labBonuses as any[]).map(({ entry }) => ({ ...entry, active: false })),
+      totalRawChips: 0,
+      currentRotation: []
+    };
+  }
   const arenaWave = account?.accountOptions?.[89];
   const waveReqs = randomList?.[53];
   const [cords] = labRaw;

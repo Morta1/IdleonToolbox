@@ -28,7 +28,7 @@ const UpgradeVault = () => {
       title="Upgrade Vault | Idleon Toolbox"
       description="Keep track of your upgrade vault progress, upgrade, levels, cost to upgrade and more"
     />
-    <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Total Levels'} value={totalUpgradeLevels}/>
       {costReduction?.cheaperFactor > 1 ? <CardTitleAndValue title={'Vault cost reduction'} value={
         <Stack direction={'row'} gap={1} alignItems={'center'}>
@@ -91,7 +91,7 @@ const UpgradeVault = () => {
               borderColor: maxed ? 'success.light' : 'none'
             }}>
               <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-                <img style={{ width: 32, height: 32 }} src={`${prefix}data/VaultUpg${index}.png`}/>
+                <img style={{ width: 32, height: 32 }} src={`${prefix}data/VaultUpg${index}.png`} alt=""/>
                 <Typography>{cleanUnderscore(name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(Tap_for_Info)', '').replace('(#)', ''))} ({maxed
                   ? 'Maxed'
                   : `${level} / ${maxLevel}`})</Typography>

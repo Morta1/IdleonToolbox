@@ -35,7 +35,7 @@ export const getHighscores = (idleonData: IdleonData, account: Account): Highsco
         score: (account?.accountOptions as any)?.[99] || 0
       }, {
         name: 'poing',
-        score: (account?.gaming as any)?.poingHighscore
+        score: (account?.gaming as any)?.poingHighscore || 0
       },
       {
         name: 'hoops',
@@ -55,14 +55,16 @@ export const getHighscores = (idleonData: IdleonData, account: Account): Highsco
   }
 }
 
-const parseColosseum = (coloHighscores: number[]): HighscoreEntry[] => {
-  return coloHighscores.slice(1)
-    .filter((_, index) => colosseumIndexMapping[index])
-    .map((score, index) => ({ name: colosseumIndexMapping[index], score: parseFloat(String(score)) }));
+const parseColosseum = (coloHighscores: number[] | undefined): HighscoreEntry[] => {
+  const scores = (coloHighscores ?? []).slice(1);
+  return Object.entries(colosseumIndexMapping).map(([index, name]) => {
+    const score = parseFloat(String(scores[Number(index)]));
+    return { name, score: Number.isFinite(score) ? score : 0 };
+  });
 }
 
-const parseMinigame = (coloHighscores: number[]): HighscoreEntry[] => {
-  return coloHighscores
+const parseMinigame = (coloHighscores: number[] | undefined): HighscoreEntry[] => {
+  return (coloHighscores ?? [])
     .filter((_, index) => minigameIndexMapping[index])
     .map((score, index) => ({ name: minigameIndexMapping[index], score }));
 }
@@ -78,7 +80,7 @@ export const calcMinigameTotalScore = (colo: HighscoreEntry[] | undefined): numb
 export const getDartsData = (account: Account): { totalPoints: number; upgrades: MinigameUpgrade[] } => {
   const upgradeTexts = ["+{%_Extra_Damage_against_Monsters!", "+{_Talent_PTS_for_the_first_page!", "All_Vault_upgrades_are_}x_Cheaper!", "+{%_Movement_Speed,_so_you_can_run_faster!"];
   const upgradeReqs = [0, 40, 150, 250];
-  const points = (account?.accountOptions as any)?.slice(435, 439) ?? [0, 0, 0, 0];
+  const points = [435, 436, 437, 438].map((index) => (account?.accountOptions as any)?.[index] ?? 0);
   const totalPoints = points.reduce((res: number, point: number) => res + point, 0);
   const upgrades = upgradeTexts.map((text, index) => ({
     description: text.replace('{', points[index]),
@@ -97,7 +99,7 @@ export const getDartsData = (account: Account): { totalPoints: number; upgrades:
 export const getHoopsData = (account: Account): { totalPoints: number; upgrades: MinigameUpgrade[] } => {
   const upgradeTexts = ["+{%_Damage_to_Monsters", "+{%_Coins_dropped_by_monsters", "+{%_Class_EXP_when_killing_monsters", "+{%_Efficiency_for_all_Skills,_like_Mining_and_Choppin!"];
   const upgradeReqs = [0, 12, 80, 200];
-  const points = (account?.accountOptions as any)?.slice(419, 423) ?? [0, 0, 0, 0];
+  const points = [419, 420, 421, 422].map((index) => (account?.accountOptions as any)?.[index] ?? 0);
   const totalPoints = points.reduce((res: number, point: number) => res + point, 0);
   const upgrades = upgradeTexts.map((text, index) => ({
     description: text.replace('{', points[index]),

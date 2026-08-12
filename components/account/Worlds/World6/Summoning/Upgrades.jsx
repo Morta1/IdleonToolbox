@@ -94,7 +94,7 @@ const Upgrades = ({ upgrades, totalUpgradesLevels, resourceKey = prefix }) => {
                 </Stack>
                 {doubled ? <img style={{ marginLeft: 'auto' }} width={24} height={24}
                                 src={`${prefix}etc/Doubled.png`}
-                                alt={''}/> : null}
+                                alt="Doubled"/> : null}
               </Stack>
               <Typography>{cleanUnderscore(bonus.replace('{', value).replace('}', totalBonus))}</Typography>
               <Typography mt={'auto'} variant={'caption'}>Cost: {totalCost ? notateNumber(totalCost) : 0}</Typography>
@@ -129,7 +129,7 @@ const Upgrades = ({ upgrades, totalUpgradesLevels, resourceKey = prefix }) => {
                     </Stack>
                     {doubled ? <img style={{ marginLeft: 'auto' }} width={24} height={24}
                                     src={`${prefix}etc/Doubled.png`}
-                                    alt={''}/> : null}
+                                    alt="Doubled"/> : null}
                   </Stack>
                   <Typography>{cleanUnderscore(bonus.replace('{', value).replace('}', totalBonus))}</Typography>
                   <Typography mt={'auto'} variant={'caption'}>Cost: {totalCost

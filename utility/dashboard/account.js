@@ -2,7 +2,7 @@ import { getMaxClaimTime, getSecPerBall } from '@parsers/dungeons';
 import { getBuildCost } from '@parsers/world-3/construction';
 import { MAX_VIAL_LEVEL, vialCostsArray } from '@parsers/world-2/alchemy';
 import { getChipsAndJewels, maxNumberOfSpiceClicks } from '@parsers/world-4/cooking';
-import { cleanUnderscore, getDuration, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
+import { cleanUnderscore, getDuration, getNextCompanionClaim, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { items, liquidsShop } from '@website-data';
 import { getPowerPerCycle, hasMissingMats } from '@parsers/world-3/refinery';
@@ -202,7 +202,7 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
       }
     }
     if (options?.etc?.freeCompanion?.checked) {
-      const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - account?.companions?.lastFreeClaim));
+      const nextCompanionClaim = getNextCompanionClaim(account);
       if (isPast(nextCompanionClaim)) {
         etc.freeCompanion = true;
       }
@@ -856,7 +856,7 @@ export const getWorld4Alerts = (account, fields, options) => {
 export const getWorld5Alerts = (account, fields, options) => {
   const alerts = {};
   if (!account?.finishedWorlds?.World4) return alerts;
-  if (fields?.gaming?.checked) {
+  if (fields?.gaming?.checked && account?.gaming?.unlocked) {
     const gaming = {};
     const { shovel, sprouts, squirrel } = options?.gaming || {};
     if (sprouts?.checked && account?.gaming?.availableSprouts >= account?.gaming?.sproutsCapacity) {

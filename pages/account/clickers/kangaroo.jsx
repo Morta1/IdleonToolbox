@@ -19,7 +19,7 @@ const Kangaroo = () => {
       title="Poppy The Kangaroo | Idleon Toolbox"
       description="Track your Kangaroo minigame upgrades, jump progress, and bonus rewards in Legends of Idleon"
     />
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
       <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}
                          title={'Avg. Points/Reset'}
                          value={notation(kangaroo?.avgResetPoints)}/>
@@ -56,6 +56,7 @@ const Kangaroo = () => {
         {kangaroo?.megaFish?.map(({ description, unlocked, amount, totalBonus }, index) => {
           return <CardTitleAndValue cardSx={{ my: 1 }} value={amount > 0 ? amount : ''}
                                     tooltipTitle={cleanUnderscore(description.replace('{', totalBonus))}
+                                    iconAlt={cleanUnderscore(description.replace('{', totalBonus))}
                                     key={'mega' + index} icon={`data/RooMG${index}.png`}
                                     imgStyle={{ width: 32, opacity: unlocked ? 1 : .5 }} imgOnly/>
         })}

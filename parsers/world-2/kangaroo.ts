@@ -34,20 +34,20 @@ const resetBonusesDesc = [
 ];
 
 const parseKangaroo = (account: any) => {
-  const fish = account?.accountOptions?.[267];
+  const fish = account?.accountOptions?.[267] ?? 0;
   const progress = account?.accountOptions?.[280];
   const upgrades = poppyBonuses.map((upgrade, i) => {
-    const base = i === 0 ? 1 + account?.accountOptions?.[268] : 1;
+    const base = i === 0 ? 1 + (account?.accountOptions?.[268] ?? 0) : 1;
     const commonFactor = base
-      * (1 / (1 + (10 * account?.accountOptions?.[272]) / 100))
-      * (1 / (1 + (15 * account?.accountOptions?.[300]) / 100))
+      * (1 / (1 + (10 * (account?.accountOptions?.[272] ?? 0)) / 100))
+      * (1 / (1 + (15 * (account?.accountOptions?.[300] ?? 0)) / 100))
       * (1 / (1 + (5 * getMegaFish(account, 10)
-        * account?.accountOptions?.[304]) / 100));
+        * (account?.accountOptions?.[304] ?? 0)) / 100));
 
     const cost = commonFactor
       * (1 / Math.max(1, getResetBonuses(account, 2)))
       * upgrade?.x1
-      * Math.pow(upgrade?.x2, account?.accountOptions?.[268 + i])
+      * Math.pow(upgrade?.x2, account?.accountOptions?.[268 + i] ?? 0)
 
     const level = account?.accountOptions?.[268 + i]
     const nextLvReq = poppyBonuses?.[i + 1]?.x3;
@@ -66,34 +66,34 @@ const parseKangaroo = (account: any) => {
   const nextLvReq = poppyBonuses?.[nextLvReqIndex]?.x3;
   const vaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 45);
   const fountainPoppyBonus = getFountainBonusTotal(account?.hole?.holesObject, 1, 18);
-  const baseFishRate = (1 + Math.min(5, account?.accountOptions?.[275]))
-    * Math.max(1, 1 + 0.5 * (account?.accountOptions?.[275] - 5)
+  const baseFishRate = (1 + Math.min(5, account?.accountOptions?.[275] ?? 0))
+    * Math.max(1, 1 + 0.5 * ((account?.accountOptions?.[275] ?? 0) - 5)
       * getMegaFish(account, 5)) * getResetBonuses(account, 0)
     * (1 + vaultUpgradeBonus / 100)
     * (1 + getGambitBonus(account, 8) / 100)
     * (1 + fountainPoppyBonus / 100)
-    * (10 * account?.accountOptions?.[268] + (100 * account?.accountOptions?.[297] +
-      1e3 * account?.accountOptions?.[304]) + (50 * account?.accountOptions?.[273]
-      + 200 * account?.accountOptions?.[278])) * getShinyMulti(account, -1)
-    * (1 + (8 * account?.accountOptions?.[299]) / 100);
-  const catchReq = 30 / (1 + (5 * account?.accountOptions?.[269]) / 100)
+    * (10 * (account?.accountOptions?.[268] ?? 0) + (100 * (account?.accountOptions?.[297] ?? 0) +
+      1e3 * (account?.accountOptions?.[304] ?? 0)) + (50 * (account?.accountOptions?.[273] ?? 0)
+      + 200 * (account?.accountOptions?.[278] ?? 0))) * getShinyMulti(account, -1)
+    * (1 + (8 * (account?.accountOptions?.[299] ?? 0)) / 100);
+  const catchReq = 30 / (1 + (5 * (account?.accountOptions?.[269] ?? 0)) / 100)
   const fishRate = baseFishRate * (60 / catchReq)
 
   // TAR
   const tarFishUnlocked = Math.min(8, Math.round(3 * getMegaFish(account, 0)
     + (3 * getMegaFish(account, 4) + 2 * getMegaFish(account, 7))));
-  const tarFishOwned = account?.accountOptions?.[296];
+  const tarFishOwned = account?.accountOptions?.[296] ?? 0;
   const tarFishRate = (1 / (1 + 0.05 *
-      account?.accountOptions?.[301]))
+      (account?.accountOptions?.[301] ?? 0)))
     * 1800 * (1 / Math.max(1, getResetBonuses(account, 4)))
     * (1 / (1 + 2 * getMegaFish(account, 4)))
     * (1 / (1 + 2 * getMegaFish(account, 7)));
 
   const tarUpgrades = poppyTarBonuses.map((tarUpgrade, i) => {
-    const base = (1 / (1 + (5 * getMegaFish(account, 10) * account?.accountOptions?.[304]) / 100));
-    const cost = account?.accountOptions?.[297 + i]
+    const base = (1 / (1 + (5 * getMegaFish(account, 10) * (account?.accountOptions?.[304] ?? 0)) / 100));
+    const cost = (account?.accountOptions?.[297 + i] ?? 0)
       + base * tarUpgrade?.x1
-      * Math.pow(tarUpgrade?.x2, account?.accountOptions?.[297 + i]);
+      * Math.pow(tarUpgrade?.x2, account?.accountOptions?.[297 + i] ?? 0);
 
     const level = account?.accountOptions?.[297 + i];
     const newDesc = formatDescription(account, level, tarUpgrade?.desc, 1, i, poppyTarBonuses);
@@ -108,12 +108,12 @@ const parseKangaroo = (account: any) => {
   });
 
   const baseShinyRate = getResetBonuses(account, 1)
-    * account?.accountOptions?.[270] * (1 + (getMegaFish(account, 9) * account?.accountOptions?.[268]) / 100)
-    * Math.max(1, 1 + 0.5 * (account?.accountOptions?.[275] - 5) * getMegaFish(account, 5));
+    * (account?.accountOptions?.[270] ?? 0) * (1 + (getMegaFish(account, 9) * (account?.accountOptions?.[268] ?? 0)) / 100)
+    * Math.max(1, 1 + 0.5 * ((account?.accountOptions?.[275] ?? 0) - 5) * getMegaFish(account, 5));
   const shinyRate = .05 * baseShinyRate * 1200;
-  const shinyReq = 7200 / (1 + (4 * account?.accountOptions?.[276]) / 100);
+  const shinyReq = 7200 / (1 + (4 * (account?.accountOptions?.[276] ?? 0)) / 100);
   const shinyRatePercent = 100 * Math.max(0, shinyRate / shinyReq)
-  const shinyProgress = 100 * Math.max(0, account?.accountOptions?.[289] / shinyReq);
+  const shinyProgress = 100 * Math.max(0, (account?.accountOptions?.[289] ?? 0) / shinyReq);
   const legendTalentBonus = getLegendTalentBonus(account, 26);
 
   const totalFishRate = 50 * getMegaFish(account, 1)
@@ -154,7 +154,7 @@ const parseKangaroo = (account: any) => {
     description,
     unlocked: index + 1 <= account?.accountOptions?.[279],
     ...(index === 11 ? {
-      amount: account?.accountOptions?.[279] - 12,
+      amount: (account?.accountOptions?.[279] ?? 0) - 12,
       totalBonus: 1 + totalFishRate / 100
     } : {})
   }));
@@ -210,11 +210,13 @@ const parseKangaroo = (account: any) => {
 
 const formatDescription = (account: any, level: any, desc: any, upgradesIndex: any, i: any, data: any) => {
   const index = Math.round(268 + 29 * upgradesIndex + i);
+  const optionValue = account?.accountOptions?.[index] ?? 0;
+  const lvl = level ?? 0;
   let newDesc = desc;
-  newDesc = newDesc.replace('{', '' + commaNotation(((account?.accountOptions?.[index]) * (data[i]?.x6))));
-  newDesc = newDesc.replace(']', '' + Math.round(100 + (level * (data[i]?.x6))) / 100);
-  newDesc = newDesc.replace('~', '' + notateNumber(100 * (1 - 1 / (1 + level * (data[i]?.x6) / 100)), 'Small'));
-  newDesc = newDesc.replace('?', '' + notateNumber((data[i]?.x6) * (level / (40 + level)), 'Small'));
+  newDesc = newDesc.replace('{', '' + commaNotation(optionValue * (data[i]?.x6)));
+  newDesc = newDesc.replace(']', '' + Math.round(100 + (lvl * (data[i]?.x6))) / 100);
+  newDesc = newDesc.replace('~', '' + notateNumber(100 * (1 - 1 / (1 + lvl * (data[i]?.x6) / 100)), 'Small'));
+  newDesc = newDesc.replace('?', '' + notateNumber((data[i]?.x6) * (lvl / (40 + lvl)), 'Small'));
   return newDesc;
 }
 
@@ -243,20 +245,20 @@ const getShinyMulti = (account: any, i: any) => {
     if (i === 4) base = 250;
     if (i === 5) base = 500;
   }
-  return 1 + (base * Math.log(Math.max(1, account?.accountOptions?.[Math.round(281 + i)]))) / 100;
+  return 1 + (base * Math.log(Math.max(1, account?.accountOptions?.[Math.round(281 + i)] ?? 0))) / 100;
 }
 
 const getResetBonuses = (account: any, i: any) => {
   const base = 0 === i
-    ? (1 + 0.4 * account?.accountOptions?.[291])
+    ? (1 + 0.4 * (account?.accountOptions?.[291] ?? 0))
     : 1 === i
-      ? (1 + 0.3 * account?.accountOptions?.[292])
+      ? (1 + 0.3 * (account?.accountOptions?.[292] ?? 0))
       : 2 === i
-        ? (1 + 0.15 * account?.accountOptions?.[293])
+        ? (1 + 0.15 * (account?.accountOptions?.[293] ?? 0))
         : 3 === i
-          ? (1 + 0.04 * account?.accountOptions?.[294])
-          : (1 + 0.2 * account?.accountOptions?.[295]);
-  const secondBase = i !== 3 && 0 < account?.accountOptions?.[291 + i] ? 1 + .04 * account?.accountOptions?.[294] : 1;
+          ? (1 + 0.04 * (account?.accountOptions?.[294] ?? 0))
+          : (1 + 0.2 * (account?.accountOptions?.[295] ?? 0));
+  const secondBase = i !== 3 && 0 < (account?.accountOptions?.[291 + i] ?? 0) ? 1 + .04 * (account?.accountOptions?.[294] ?? 0) : 1;
   return base * secondBase;
 }
 export const getKangarooBonus = (bonuses: any, bonusName: any) => {

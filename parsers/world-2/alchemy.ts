@@ -1,5 +1,6 @@
 import { cleanUnderscore, createArrayOfArrays, growth, tryToParse } from '@utility/helpers';
 import { cauldrons, p2w, sigils, vials } from '@website-data';
+import { liveEntries } from '@parsers/catalog';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
@@ -44,7 +45,7 @@ export const getAlchemy = (idleonData: any, serializedCharactersData: any, accou
   const cauldronJobs1Raw = tryToParse(idleonData?.CauldronJobs1);
   const cauldronsInfo = getCauldronStats(idleonData);
   if (alchemyRaw?.[8] && alchemyRaw?.[8]?.length === 0) {
-    alchemyRaw[8] = cauldronsInfo.slice(0, 16);
+    alchemyRaw[8] = cauldronsInfo?.slice(0, 16) ?? [];
   }
   return parseAlchemy(idleonData, alchemyRaw, cauldronJobs1Raw, cauldronsInfo, serializedCharactersData, account);
 };
@@ -53,10 +54,10 @@ export const parseAlchemy = (idleonData: any, alchemyRaw: any, cauldronJobs1Raw:
   const alchemyActivity = cauldronJobs1Raw?.map((playerAlchActivity: any, index: any) => ({
     activity: playerAlchActivity,
     index
-  }));
+  })) ?? [];
   const p2w = getPay2Win(idleonData, alchemyActivity, serializedCharactersData);
   const bubbles = getBubbles(alchemyRaw);
-  const cauldrons = getCauldrons(alchemyRaw?.[5], cauldronsInfo.slice(0, 16), p2w, bubbles, alchemyActivity);
+  const cauldrons = getCauldrons(alchemyRaw?.[5], cauldronsInfo?.slice(0, 16) ?? [], p2w, alchemyRaw, alchemyActivity);
   const vials = getVials(alchemyRaw?.[4]);
 
   const totalBubbleLevelsTill100 = alchemyRaw?.slice(0, 4)?.flat()?.reduce((sum: any, level: any) => sum + Math.min(100, level), 0);
@@ -83,14 +84,15 @@ export const isPrismaBubble = (account: any, bubbleIndex: any) => {
 }
 
 export const getLiquidCauldrons = (account: any) => {
-  const liquids = account?.alchemy?.liquids;
-  const liquidCauldrons = account?.alchemy?.cauldronsInfo.slice(18);
-  return liquids.map((liquidVal: any, index: any) => {
+  const liquidCauldrons = account?.alchemy?.cauldronsInfo?.slice(18) ?? [];
+  return Object.keys(liquidsIndex).map((_, index: any) => {
     const [decantCapProgress, decantCapLevel] = liquidCauldrons?.[index * 4] ?? [];
     const [decantRateProgress, decantRateLevel] = liquidCauldrons?.[(index * 4) + 1] ?? [];
-    const [decantCapReq, decantRateReq] = [getCauldronBrewReq(decantCapLevel + 1),
-    getCauldronBrewReq(decantRateLevel + 1)]
-    const brewBonus = getCauldronBrewBonus(index + 4, decantCapLevel); // CauldStatDN1
+    const decantCapLevelValue = decantCapLevel ?? 0;
+    const decantRateLevelValue = decantRateLevel ?? 0;
+    const [decantCapReq, decantRateReq] = [getCauldronBrewReq(decantCapLevelValue + 1),
+    getCauldronBrewReq(decantRateLevelValue + 1)]
+    const brewBonus = getCauldronBrewBonus(index + 4, decantCapLevelValue); // CauldStatDN1
     const bleachLiquidCauldron = account?.gemShopPurchases?.find((value: any, index: any) => index === 106) ?? 0;
     const saltLickBonus = getSaltLickBonus(account?.saltLick, 5);
     let bleachLiquidBonus = 0;
@@ -114,11 +116,11 @@ export const getLiquidCauldrons = (account: any) => {
       : '34'}`, blackDiamondRhinestone);
     const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.alchemy?.rank, 4);
     const viaductOfGods = getLabBonus(account?.lab.labBonuses, 6);
-    const p2wBonus = account?.alchemy?.p2w?.liquids?.[index]?.capacity?.level;
+    const p2wBonus = account?.alchemy?.p2w?.liquids?.[index]?.capacity?.level ?? 0;
     const stampBonus = getStampsBonusByEffect(account, 'Cap_for_all_Liquids_in_Alchemy');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Cap_for_all_Liquids')?.bonus
 
-    const firstMath = bubbleBonus * Math.max(Math.pow(account?.totalSkillsLevels?.alchemy?.level / 25, 0.3), 0);
+    const firstMath = bubbleBonus * Math.max(Math.pow((account?.totalSkillsLevels?.alchemy?.level ?? 0) / 25, 0.3), 0);
     const secondMath = bleachLiquidBonus + (mealBonus + 5 * skillMasteryBonus) / 100;
     const thirdMath = viaductOfGods * (10 + (brewBonus + (vialBonus + (p2wBonus + (firstMath + (stampBonus + Math.ceil(arcadeBonus)))))))
 
@@ -139,13 +141,13 @@ export const getLiquidCauldrons = (account: any) => {
         { name: 'Arcade', value: Math.ceil(arcadeBonus) }
       ],
       decantCap: {
-        level: decantCapLevel,
-        progress: decantCapProgress,
+        level: decantCapLevelValue,
+        progress: decantCapProgress ?? 0,
         req: decantCapReq
       },
       decantRate: {
-        level: decantRateLevel,
-        progress: decantRateProgress,
+        level: decantRateLevelValue,
+        progress: decantRateProgress ?? 0,
         req: decantRateReq
       }
     }
@@ -169,39 +171,45 @@ const getPay2Win = (idleonData: any, alchemyActivity: any, serializedCharactersD
   const liquidMapping = { 0: 4, 1: 5, 2: 6 };
   const playersInLiquids = alchemyActivity.filter(({ activity }: any, index: any) => activity < 100 && activity >= 4 && activity !== -1 && index < serializedCharactersData?.length);
   const p2w: any = {};
-  const [cauldrons, liquids, vials, player, , remainingAttempts] = tryToParse(idleonData?.CauldronP2W) || idleonData?.CauldronP2W;
-  p2w.cauldrons = cauldrons.toChunks(3).map(([speed, newBubble, boostReq]: any, index: any) => ({
-    name: (cauldronsIndexMapping as Record<string, any>)[index],
-    speed: {
-      cost: getP2wCauldronCost('cauldron', 0, speed),
-      costToMax: getCostToMax('cauldron', 0, speed, CAULDRONS_MAX_LEVELS.cauldronsSpeed),
-      level: speed
-    },
-    newBubble: {
-      cost: getP2wCauldronCost('cauldron', 1, newBubble),
-      costToMax: getCostToMax('cauldron', 1, newBubble, CAULDRONS_MAX_LEVELS.cauldronsNewBubble),
-      level: newBubble
-    },
-    boostReq: {
-      cost: getP2wCauldronCost('cauldron', 2, boostReq),
-      costToMax: getCostToMax('cauldron', 2, boostReq, CAULDRONS_MAX_LEVELS.cauldronsBoostReq),
-      level: boostReq
-    }
-  }));
-  p2w.liquids = liquids.toChunks(2).map(([regen, capacity]: any, index: any) => ({
-    name: (liquidsIndex as Record<string, any>)[index],
-    regen: {
-      cost: getP2wCauldronCost('liquid', 0, regen),
-      costToMax: getCostToMax('liquid', 0, regen, CAULDRONS_MAX_LEVELS.liquidsRegen),
-      level: regen
-    },
-    capacity: {
-      cost: getP2wCauldronCost('liquid', 1, capacity),
-      costToMax: getCostToMax('liquid', 1, capacity, CAULDRONS_MAX_LEVELS.liquidsCapacity),
-      level: capacity
-    },
-    players: playersInLiquids?.filter(({ activity }: any) => activity === (liquidMapping as Record<string, any>)?.[index])
-  })).filter(({ name }: any) => name);
+  const [cauldrons = [], liquids = [], vials, player, , remainingAttempts = []] = tryToParse(idleonData?.CauldronP2W) || idleonData?.CauldronP2W || [];
+  p2w.cauldrons = Object.keys(cauldronsIndexMapping).map((_: any, index: any) => {
+    const [speed = 0, newBubble = 0, boostReq = 0] = cauldrons.slice(index * 3, index * 3 + 3);
+    return {
+      name: (cauldronsIndexMapping as Record<string, any>)[index],
+      speed: {
+        cost: getP2wCauldronCost('cauldron', 0, speed),
+        costToMax: getCostToMax('cauldron', 0, speed, CAULDRONS_MAX_LEVELS.cauldronsSpeed),
+        level: speed
+      },
+      newBubble: {
+        cost: getP2wCauldronCost('cauldron', 1, newBubble),
+        costToMax: getCostToMax('cauldron', 1, newBubble, CAULDRONS_MAX_LEVELS.cauldronsNewBubble),
+        level: newBubble
+      },
+      boostReq: {
+        cost: getP2wCauldronCost('cauldron', 2, boostReq),
+        costToMax: getCostToMax('cauldron', 2, boostReq, CAULDRONS_MAX_LEVELS.cauldronsBoostReq),
+        level: boostReq
+      }
+    };
+  });
+  p2w.liquids = Object.keys(liquidsIndex).map((_: any, index: any) => {
+    const [regen = 0, capacity = 0] = liquids.slice(index * 2, index * 2 + 2);
+    return {
+      name: (liquidsIndex as Record<string, any>)[index],
+      regen: {
+        cost: getP2wCauldronCost('liquid', 0, regen),
+        costToMax: getCostToMax('liquid', 0, regen, CAULDRONS_MAX_LEVELS.liquidsRegen),
+        level: regen
+      },
+      capacity: {
+        cost: getP2wCauldronCost('liquid', 1, capacity),
+        costToMax: getCostToMax('liquid', 1, capacity, CAULDRONS_MAX_LEVELS.liquidsCapacity),
+        level: capacity
+      },
+      players: playersInLiquids?.filter(({ activity }: any) => activity === (liquidMapping as Record<string, any>)?.[index])
+    };
+  });
 
   p2w.vials = { attempts: vials?.[0] || 0, rng: vials?.[1] || 0 };
   p2w.player = {
@@ -215,7 +223,7 @@ const getPay2Win = (idleonData: any, alchemyActivity: any, serializedCharactersD
   p2w.totalEclecticSigils = p2w?.sigils?.filter((sigil: any) => sigil?.unlocked === 4)?.length || 0;
   p2w.vialsAttempts = {
     current: remainingAttempts[0],
-    max: Math.round(3 + vials?.[0])
+    max: Math.round(3 + (vials?.[0] ?? 0))
   };
   return p2w;
 }
@@ -250,7 +258,7 @@ const getP2wCauldronCost = (type: any, index: any, level: any) => {
   return 0;
 }
 
-const getBubbles = (bubbles: any) => {
+const getBubbles = (bubblesRaw: any) => {
   const etc = {
     0: {
       5: '', // max hp
@@ -269,31 +277,22 @@ const getBubbles = (bubbles: any) => {
       25: '' // CORPIUS_MAPPER
     }
   };
-  return bubbles?.reduce(
-    (res: any, array: any, cauldronIndex: any) =>
-      cauldronIndex <= 3
-        ? {
-          ...res,
-          [(cauldronsIndexMapping as Record<string, any>)?.[cauldronIndex]]: Object.keys(array)?.reduce(
-            (res: any[], key, bubbleIndex) => key !== 'length'
-              ? [
-                ...res,
-                {
-                  level: parseInt(array?.[key]) || 0,
-                  index: bubbleIndex,
-                  rawName: `aUpgrades${(cauldronsTextMapping as Record<string, any>)[cauldronIndex]}${bubbleIndex}`,
-                  ...(cauldrons as Record<string, any>)[(cauldronsIndexMapping as Record<string, any>)?.[cauldronIndex]][key],
-                  desc: (cauldrons as Record<string, any>)[(cauldronsIndexMapping as Record<string, any>)?.[cauldronIndex]][key]?.desc.replace('$', (etc as Record<string, any>)?.[cauldronIndex]?.[bubbleIndex])
-                }
-              ]
-              : res
-            ,
-            []
-          )
-        }
-        : res,
-    {}
-  );
+  return Object.entries(cauldronsIndexMapping).reduce((res: any, [cauldronIndexStr, category]) => {
+    const cauldronIndex = Number(cauldronIndexStr);
+    const catalogEntries = (cauldrons as Record<string, any>)[category as string];
+    const bubbleList = liveEntries<any>(catalogEntries).map(({ entry: bubbleDetails, index: bubbleIndex }) => {
+      const rawLevel = bubblesRaw?.[cauldronIndex]?.[bubbleIndex];
+      const level = rawLevel != null ? parseInt(rawLevel) || 0 : 0;
+      return {
+        level,
+        index: bubbleIndex,
+        rawName: `aUpgrades${(cauldronsTextMapping as Record<string, any>)[cauldronIndex]}${bubbleIndex}`,
+        ...bubbleDetails,
+        desc: bubbleDetails?.desc?.replace('$', (etc as Record<string, any>)?.[cauldronIndex]?.[bubbleIndex])
+      };
+    });
+    return { ...res, [category as string]: bubbleList };
+  }, {});
 };
 
 export const getEquippedBubbles = (idleonData: any, bubbles: any, serializedCharactersData: any) => {
@@ -390,21 +389,15 @@ export const getBubbleBonus = (account: any, bubbleName: any, round?: any, shoul
   return baseBubbleValue * basePrismaMultiplier * primaryMultiplier * secondaryMultiplier;
 };
 
+export const isNamedVial = (entry: any): boolean => !!entry?.name;
+
 const getVials = (vialsRaw: any) => {
-  return Object.keys(vialsRaw)
-    .reduce((res: any[], key, index) => {
-      const vial = vials?.[index];
-      return key !== 'length'
-        ? [
-          ...res,
-          {
-            ...vial,
-            level: parseInt(vialsRaw?.[key]) || 0
-          }
-        ]
-        : res;
-    }, [])
-    .filter(({ name }: any) => name);
+  return liveEntries<any>(Object.values(vials))
+    .filter(({ entry }) => isNamedVial(entry))
+    .map(({ entry, index }) => ({
+      ...entry,
+      level: parseInt(vialsRaw?.[index]) || 0
+    }));
 };
 
 export const getVialsBonusByEffect = (vials: any, effectName: any, statName?: any) => {
@@ -475,22 +468,24 @@ export const updateVials = (accountData: any) => {
   return applyVialsMulti(accountData.alchemy.vials, value);
 }
 
-const getCauldrons = (cauldronsProgress: any, cauldronsRaw: any, p2w: any, bubbles: any, alchemyActivity: any) => {
+const getCauldrons = (cauldronsProgress: any, cauldronsRaw: any, p2w: any, alchemyRaw: any, alchemyActivity: any) => {
   const playersInCauldrons = alchemyActivity.filter(({ activity }: any) => activity < 100 && activity !== -1);
   const cauldronsLevelsMapping: Record<number, string> = { 0: 'power', 4: 'quicc', 8: 'high-iq', 12: 'kazam' };
   let cauldronsObject: any = {};
   const chunk = 4;
-  for (let i = 0, j = cauldronsRaw.length; i < j; i += chunk) {
+  for (const key of Object.keys(cauldronsLevelsMapping)) {
+    const i = Number(key);
     const [speed, luck, cost, extra] = cauldronsRaw.slice(i, i + chunk);
     const cauldronsAsObject = { speed, luck, cost, extra };
     const players = playersInCauldrons.filter(({ activity }: any) => activity === i / 4);
+    const unlockedBubbleCount = alchemyRaw?.[i / 4]?.length ?? 0;
     cauldronsObject[cauldronsLevelsMapping[i]] = {
-      progress: cauldronsProgress?.[i / 4],
-      req: getMaxCauldron(bubbles?.[cauldronsLevelsMapping[i]]?.length),
+      progress: cauldronsProgress?.[i / 4] ?? 0,
+      req: getMaxCauldron(unlockedBubbleCount),
       players
     };
     Object.entries(cauldronsAsObject).forEach(([name, stats]: any) => {
-      const [progress, level] = stats;
+      const [progress = 0, level = 0] = stats ?? [];
       cauldronsObject[cauldronsLevelsMapping[i]] = {
         ...cauldronsObject[cauldronsLevelsMapping[i]],
         boosts: {
@@ -542,32 +537,27 @@ export const getSigils = (idleonData: any, alchemyActivity: any, serializedChara
   return parseSigils(sigilsRaw, alchemyActivity, serializedCharactersData);
 };
 
+const SIGIL_UNDISCOVERED = -1;
+
 const parseSigils = (sigilsRaw: any, alchemyActivity: any, serializedCharactersData: any) => {
-  const sigilsData = sigilsRaw?.[4];
-  let sigilsList: any[] = [];
-  for (let i = 0, j = sigilsData.length; i < j; i += 2) {
-    const [progress, unlocked] = sigilsData.slice(i, i + 2);
-    const sigilData = sigils?.[i / 2];
+  const sigilsData = sigilsRaw?.[4] ?? [];
+  return sigils.map((sigilData: any, index: number) => {
+    const [progress = 0, unlocked = SIGIL_UNDISCOVERED] = sigilsData.slice(index * 2, index * 2 + 2);
     const charactersInSigil = alchemyActivity.filter(({
       activity,
+      index: characterIndex
+    }: any) => activity >= 100 && Math.floor(activity - 100) === index && characterIndex < serializedCharactersData?.length);
+    return {
+      ...sigilData,
+      unlocked,
+      progress,
+      bonus: unlocked === 4 ? sigilData?.eclecticBonus : unlocked === 3 ? sigilData?.etherealBonus : unlocked === 2 ? sigilData.jadeBonus : unlocked === 1 ? sigilData?.boostBonus : unlocked === 0
+        ? sigilData?.unlockBonus
+        : 0,
+      characters: charactersInSigil,
       index
-    }: any) => activity >= 100 && Math.floor(activity - 100) === i / 2 && index < serializedCharactersData?.length);
-    if (sigilData) {
-      sigilsList = [
-        ...sigilsList,
-        {
-          ...sigilData,
-          unlocked,
-          progress,
-          bonus: unlocked === 4 ? sigilData?.eclecticBonus : unlocked === 3 ? sigilData?.etherealBonus : unlocked === 2 ? sigilData.jadeBonus : unlocked === 1 ? sigilData?.boostBonus : unlocked === 0
-            ? sigilData?.unlockBonus
-            : 0,
-          characters: charactersInSigil
-        }
-      ];
-    }
-  }
-  return sigilsList.map((sigil, index) => ({ ...sigil, index }));
+    };
+  });
 };
 
 export const getSigilBonus = (sigils: any, name: any, excludeEclectic?: boolean) => {

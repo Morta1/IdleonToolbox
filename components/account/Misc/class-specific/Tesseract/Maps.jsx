@@ -36,7 +36,7 @@ const Portals = ({ character, account, characters }) => {
   return (
     <>
       {/* Header controls */}
-      <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
+      <Stack mb={3} direction="row" gap={2} flexWrap="wrap" alignItems="center">
       <CardTitleAndValue
           title="Tachyon Type"
           value={
@@ -52,8 +52,7 @@ const Portals = ({ character, account, characters }) => {
                   <Stack direction="row" gap={1} alignItems="center">
                     <img
                       style={{ width: 24, height: 24, objectPosition: '0 -6px' }}
-                      src={`${prefix}data/Tach${value}_x1.png`}
-                    />
+                      src={`${prefix}data/Tach${value}_x1.png`} alt=""/>
                     {label}
                   </Stack>
                 </MenuItem>

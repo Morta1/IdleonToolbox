@@ -54,7 +54,7 @@ const LabRotation = () => {
                 width={24}
                 height={24}
                 src={`${prefix}data/${option?.rawName}.png`}
-                alt=""
+                alt={option?.rawName}
               />
               {option?.name?.replace(/_/g, ' ')}
             </Stack>
@@ -132,7 +132,7 @@ const LabRotation = () => {
                               const totalAmount = getRequirementAmount(name, rawName, state?.account);
                               return <Stack alignItems={'center'} gap={1} key={`req-${rawName}-${reqIndex}`}>
                                 <Tooltip title={cleanUnderscore(name)}>
-                                  <Icon src={`${prefix}data/${rawName}.png`} alt="" />
+                                  <Icon src={`${prefix}data/${rawName}.png`} alt={rawName} />
                                 </Tooltip>
                                 <Tooltip title={`${notateNumber(amount)} / ${notateNumber(totalAmount)}`}>
                                   <Typography color={amount < totalAmount

@@ -9,7 +9,7 @@ const TheLamp = ({ hole }) => {
   const { theLamp } = hole?.caverns;
 
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Wishes'}
                          value={theLamp?.currentWishes}/>
       <CardTitleAndValue title={'Wish per day'}

@@ -59,7 +59,21 @@ export const getIslands = (account: Account, characters: any[]) => {
   // this._DN2 = 15 : 2 == this._DN3 ? this._DN2 = 45
   // : 3 == this._DN3 ? this._DN2 = 100 : 4 == this._DN3
   // ? this._DN2 = 200 : 5 == this._DN3 && (this._DN2 = 500),
-  const multipliers: Record<number, number> = { 0: 0, 1: 15, 2: 45, 3: 100, 4: 200, 5: 500 };
+  // The game's own source is a ternary chain that only assigns a new multiplier for DN3 (islandsUnlocked)
+  // 0 through 5; once all 6 islands are unlocked (DN3 === 6) none of its branches match, so the
+  // instance variable it writes to is simply never reassigned and keeps whatever it was left at when
+  // DN3 was last 5 - i.e. it freezes at 500. `6: 500` reproduces that freeze instead of leaving the
+  // lookup miss undefined (which turned every unlocked island's `cost` into NaN once a player unlocks
+  // all six - see reference ternary preserved above).
+  //
+  // Partly confirmed against the running game. Its PRE-unlock chain is visible in full and ends at 5
+  // with no sixth branch, and its values are exactly OLD_PRE_UNLOCK_MULTIPLIERS below - so the shape
+  // this reasoning depends on is real. The post-unlock chain is written the same way but sits in a
+  // single minified line too long to read whole, and the account available for checking has 5 of the
+  // 6 islands, so DN3 === 6 could not be exercised without editing a save. The `500` is therefore
+  // inferred from a verified pattern, not observed. What IS certain is that leaving index 6 out
+  // produces NaN, which is strictly worse than a wrong-but-finite multiplier.
+  const multipliers: Record<number, number> = { 0: 0, 1: 15, 2: 45, 3: 100, 4: 200, 5: 500, 6: 500 };
   const islands = [
     { name: 'Trash', description: 'Trade_garbage_that_washs_up_each_day_for_items', preUnlockCost: 4, baseCost: 10 },
     { name: 'Rando', description: 'Guaranteed_Random_Event_once_a_week', preUnlockCost: 12, baseCost: 12 },
@@ -72,37 +86,41 @@ export const getIslands = (account: Account, characters: any[]) => {
     },
     { name: 'Shimmer', description: 'Do_Weekly_Challenges_for_Shimmer_Upgrades', preUnlockCost: 40, baseCost: 25 },
     { name: 'Fractal', description: 'Dump_your_time_candy_here_for..._nothing...?', preUnlockCost: 52, baseCost: 70 }
-  ].map((island, index) => ({
-    ...island,
-    unlocked: islandsKeys?.indexOf((number2letter as any)?.[index]) !== -1,
-    cost: islandsUnlocked === 0
-      ? island.preUnlockCost + preUnlockMultipliers?.[islandsUnlocked]
-      : island.baseCost + multipliers?.[islandsUnlocked],
-    ...extraIslandDetails(account, characters, index)
-  }))
-  const bottles = (account as any)?.accountOptions?.[162];
+  ].map((island, index) => {
+    const costTier = islandsUnlocked ?? 0;
+    return {
+      ...island,
+      unlocked: islandsKeys?.indexOf((number2letter as any)?.[index]) !== -1,
+      cost: costTier === 0
+        ? island.preUnlockCost + preUnlockMultipliers?.[costTier]
+        : island.baseCost + multipliers?.[costTier],
+      ...extraIslandDetails(account, characters, index)
+    };
+  })
+  const bottles = (account as any)?.accountOptions?.[162] ?? 0;
   const bribeBonus = getBribeBonus((account as any)?.bribes, 'Bottle_Service');
   const bundleBonus = isBundlePurchased((account as any)?.bundles, 'bun_p') ? 30 : 0;
   const omarQuests = (account as any)?.quests?.['Yum_Yum_Desert']?.find(({ name }: { name: string }) => name === 'Omar_Da_Ogar')?.npcQuests?.reduce((sum: number, { completed }: { completed: any }) => {
     return sum + (completed?.length > 0 ? 1 : 0)
-  }, 0);
-  const baseBottleValue = (account as any)?.accountOptions?.[164]; // not sure about the name
+  }, 0) ?? 0;
+  const baseBottleValue = (account as any)?.accountOptions?.[164] ?? 0; // not sure about the name
   const bottlesBonus = bribeBonus +
     (10 * baseBottleValue +
       10 * (omarQuests) + bundleBonus);
   const bottlesPerDay = Math.floor(4 * (1 + bottlesBonus / 100));
 
   const numberOfDaysAfk = (account as any).accountOptions?.[160];
-  const trashUpgradeLevel = (account as any).accountOptions?.[163];
+  const numberOfDaysAfkForCost = numberOfDaysAfk ?? 0;
+  const trashUpgradeLevel = (account as any).accountOptions?.[163] ?? 0;
   let bonusPerDays;
-  if (14 > numberOfDaysAfk) {
-    bonusPerDays = .25 + numberOfDaysAfk
+  if (14 > numberOfDaysAfkForCost) {
+    bonusPerDays = .25 + numberOfDaysAfkForCost
   } else {
-    bonusPerDays = Math.pow(8 * numberOfDaysAfk, .5);
+    bonusPerDays = Math.pow(8 * numberOfDaysAfkForCost, .5);
   }
-  const trashPerDaysAfk = numberOfDaysAfk === 0
+  const trashPerDaysAfk = numberOfDaysAfkForCost === 0
     ? 0
-    : Math.round(3 * bonusPerDays * Math.floor(1.01 + (.5 + (Math.min(numberOfDaysAfk, 70) / 100 + trashUpgradeLevel / 5))))
+    : Math.round(3 * bonusPerDays * Math.floor(1.01 + (.5 + (Math.min(numberOfDaysAfkForCost, 70) / 100 + trashUpgradeLevel / 5))))
   const trashPerDay = Math.round(3 * 1.25 * Math.floor(1.01 + (.5 + (Math.min(1, 70) / 100 + trashUpgradeLevel / 5))));
   const allShimmerBonus = Math.max(1, Math.min(4, 1 + 100 * (isArtifactAcquired((account as any)?.sailing?.artifacts, 'The_Shim_Lantern')?.bonus ?? 0) / 100));
 
@@ -176,8 +194,8 @@ const extraIslandDetails = (account: Account, characters: any[], index: number):
                                                    }: { rawName: string; obtained: any }) => rawName === 'EquipmentNametag6b' && obtained)
       }
     ];
-    const trashShopPrices = [20, 40, 80, 300, 7 * Math.pow(1.4, (account as any)?.accountOptions?.[163]), 135,
-      25 * Math.pow(1.5, (account as any)?.accountOptions?.[164]), 450, 1500]?.map((cost: number, index: number) => {
+    const trashShopPrices = [20, 40, 80, 300, 7 * Math.pow(1.4, (account as any)?.accountOptions?.[163] ?? 0), 135,
+      25 * Math.pow(1.5, (account as any)?.accountOptions?.[164] ?? 0), 450, 1500]?.map((cost: number, index: number) => {
       const upgrades = index === 4 ? (account as any)?.accountOptions?.[163] : index === 6
         ? (account as any)?.accountOptions?.[164]
         : null;
@@ -194,11 +212,11 @@ const extraIslandDetails = (account: Account, characters: any[], index: number):
       learnMore: true, shop: [
         {
           effect: `5% Loot (${(account as any)?.accountOptions?.[166]})`,
-          cost: Math.round(10 * Math.pow(1.5, (account as any)?.accountOptions?.[166]))
+          cost: Math.round(10 * Math.pow(1.5, (account as any)?.accountOptions?.[166] ?? 0))
         },
         {
           effect: `3% Double boss (${(account as any)?.accountOptions?.[167]})`,
-          cost: Math.round(6 * Math.pow(1.4, (account as any)?.accountOptions?.[167]))
+          cost: Math.round(6 * Math.pow(1.4, (account as any)?.accountOptions?.[167] ?? 0))
         },
         {
           effect: 'data/TalentBook1',
@@ -218,10 +236,11 @@ const extraIslandDetails = (account: Account, characters: any[], index: number):
     const shimmerCurrency = (account as any)?.accountOptions?.[173];
     const shimmerShop = shimmerIslandShop?.map(({ effect, divider }, index: number) => {
       const bonus = (account as any)?.accountOptions?.[174 + index]
+      const bonusForCost = bonus ?? 0;
       return {
         effect: effect?.replace('{', bonus)?.replace(',', ' '),
         bonus,
-        cost: 1 + Math.floor(bonus / divider)
+        cost: 1 + Math.floor(bonusForCost / divider)
       }
     })
     result = {

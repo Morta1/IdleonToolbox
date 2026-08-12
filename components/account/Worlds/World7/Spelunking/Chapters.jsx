@@ -28,7 +28,7 @@ const Chapters = ({ chapters }) => {
         return (
           <Stack key={groupIndex}>
             <Stack direction={'row'} gap={1} alignItems={'center'} mb={1}>
-              <img style={{ width: 32, height: 32 }} src={`${prefix}data/Spelunking${groupIndex}.png`} />
+              <img style={{ width: 32, height: 32 }} src={`${prefix}data/Spelunking${groupIndex}.png`} alt=""/>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
                 <Typography variant="h6">{chapterGroupNames[groupIndex]}</Typography>
               </Stack>

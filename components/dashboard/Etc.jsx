@@ -2,7 +2,7 @@ import React from 'react';
 import Library from '../account/Worlds/World3/Library';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
-import { cleanUnderscore, getDuration, getTimeAsDays, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, getDuration, getNextCompanionClaim, getTimeAsDays, notateNumber, prefix } from '@utility/helpers';
 import useRealDate from '@hooks/useRealDate';
 import { getCharacterByHighestSkillLevel, getEventShopBonus, getMiniBossesData, getRandomEvents } from '@parsers/misc';
 import Tooltip from '../Tooltip';
@@ -40,7 +40,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const events = getRandomEvents(account);
   const nextHappyHours = calcHappyHours(account?.serverVars?.HappyHours) || [];
   const nextPrinterCycle = now + (3600 - (account?.timeAway?.GlobalTime - account?.timeAway?.Printer)) * 1000;
-  const nextCompanionClaim = now + Math.max(0, 594e6 - (1e3 * account?.timeAway?.GlobalTime - (account?.companions?.lastFreeClaim ?? 0)));
+  const nextCompanionClaim = getNextCompanionClaim(account);
   const nextFeatherRestart = now + (account?.owl?.upgrades?.[4]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
   const nextMegaFeatherRestart = now + (account?.owl?.upgrades?.[8]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
   const nextMegaFleshRestart = now + (account?.bubba?.upgrades?.[8]?.cost - account?.bubba?.meatSlices) / account?.bubba?.meatsliceRate * 60 * 1000;
@@ -271,7 +271,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
       {!emptyAlerts?.Clickers && <Section title={'Clickers'}>
         {trackers?.Clickers?.featherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
           {!isFinite(nextFeatherRestart) ? <Stack direction={'row'} gap={1} alignItems={'center'}>
-            <IconImg src={`${prefix}etc/Owl_4.png`} />
+            <IconImg src={`${prefix}etc/Owl_4.png`} alt=""/>
             <Typography>A long time</Typography>
           </Stack> : nextFeatherRestart < maxTimeValue ? <TimerCard
             page={'account/clickers/owl'}
@@ -282,7 +282,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             timerPlaceholder={'Restart available'}
           /> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
             onClick={() => router.push({ pathname: 'account/clickers/owl' })}>
-            <IconImg src={`${prefix}etc/Owl_4.png`} />
+            <IconImg src={`${prefix}etc/Owl_4.png`} alt=""/>
             <Typography>{notateNumber(getTimeAsDays(nextFeatherRestart))} days</Typography>
           </Stack>}
         </> : null}
@@ -292,7 +292,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             onClick={() => router.push({ pathname: 'account/clickers/owl' })}
             title={'Next mega feather: ' + getRealDateInMs(nextMegaFeatherRestart)}>
             <Stack direction={'row'} gap={1} alignItems={'center'}>
-              <IconImg src={`${prefix}etc/Owl_8.png`} />
+              <IconImg src={`${prefix}etc/Owl_8.png`} alt=""/>
               <Typography>A long time</Typography>
             </Stack>
           </Tooltip> : <TimerCard
@@ -314,18 +314,18 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         /> : account?.kangaroo?.fishRate <= 0 ? <Stack direction={'row'} gap={1} alignItems={'center'}
           sx={{ cursor: 'pointer' }}
           onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
-          <IconImg src={`${prefix}etc/KUpga_11.png`} />
+          <IconImg src={`${prefix}etc/KUpga_11.png`} alt=""/>
           <Typography>A long time</Typography>
         </Stack> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
           onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
-          <IconImg src={`${prefix}etc/KUpga_6.png`} />
+          <IconImg src={`${prefix}etc/KUpga_6.png`} alt=""/>
           <Typography>{notateNumber(getTimeAsDays(nextFisherooReset))} days</Typography>
         </Stack> : null}
         {trackers?.Clickers?.greatestCatch?.checked && account?.kangaroo?.fish > 0 ? !isPast(nextGreatestCatch) && gcLongDuration ? <Tooltip
           title={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}>
           <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
             onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
-            <IconImg src={`${prefix}etc/KUpga_11.png`} />
+            <IconImg src={`${prefix}etc/KUpga_11.png`} alt=""/>
             <Typography>A long time</Typography>
           </Stack>
         </Tooltip> : <TimerCard
@@ -342,7 +342,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             onClick={() => router.push({ pathname: 'account/clickers/bubba' })}
             title={'Next megaflesh: ' + getRealDateInMs(nextMegaFleshRestart)}>
             <Stack direction={'row'} gap={1} alignItems={'center'}>
-              <IconImg src={`${prefix}etc/Bubbo_Upgrade_8.png`} />
+              <IconImg src={`${prefix}etc/Bubbo_Upgrade_8.png`} alt=""/>
               <Typography>A long time</Typography>
             </Stack>
           </Tooltip> : <TimerCard
@@ -590,7 +590,7 @@ const TimerCard = ({
   return <Tooltip title={tooltipContent}>
     <Stack sx={{ cursor: page ? 'pointer' : 'auto' }} direction={'row'} gap={1} alignItems={'center'}
       onClick={() => page && router.push({ pathname: page, query })}>
-      <IconImg src={`${prefix}${icon}`} />
+      <IconImg src={`${prefix}${icon}`} alt=""/>
       {forcePlaceholder ? <Typography color={'error.light'}>{timerPlaceholder}</Typography> : <Timer
         type={'countdown'} date={time}
         sx={{ color: showAsError ? 'error.light' : ' ' }}
@@ -622,7 +622,7 @@ const MonumentCard = ({
   return <Tooltip title={tooltipContent}>
     <Stack sx={{ cursor: page ? 'pointer' : 'auto' }} direction={'row'} gap={1} alignItems={'center'}
       onClick={() => page && router.push({ pathname: page, query })}>
-      <IconImg src={`${prefix}${icon}`} />
+      <IconImg src={`${prefix}${icon}`} alt=""/>
       <Typography color={isOverMax ? 'error.light' : 'inherit'}>{isOverMax ? 'Go fight!' : `${currentMultiRounded}x / ${maxMultiRounded}x`}</Typography>
     </Stack>
   </Tooltip>

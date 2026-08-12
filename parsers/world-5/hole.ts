@@ -42,6 +42,18 @@ const VILLAGERS = {
   STUDIES: 4
 }
 
+const zeroIndexProxy = (arr: any): any => {
+  const target = Array.isArray(arr) ? arr : [];
+  return new Proxy(target, {
+    get(t, prop, receiver) {
+      if (typeof prop === 'string' && /^\d+$/.test(prop) && !(prop in t)) {
+        return 0;
+      }
+      return Reflect.get(t, prop, receiver);
+    }
+  });
+};
+
 export const getHole = (idleonData: any, accountData: any) => {
   const holeRaw = tryToParse(idleonData?.Holes) || idleonData?.Holes;
   const jarsRaw = tryToParse(idleonData?.Jars) || idleonData?.Jars;
@@ -88,45 +100,45 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
   ] = holeRaw || [];
   const holesObject = {
     charactersCavernLocation,
-    villagersLevels,
-    villagersExp,
-    opalsInvested,
-    holeMajiks,
-    villageMajiks,
-    idleonMajiks,
-    opalsPerCavern,
-    sedimentMulti,
-    wellSediment,
-    wellBuckets,
-    extraCalculations,
-    dawgDenAmplifierLevels,
-    engineerSchematics,
-    braveryMonument,
-    braveryBonuses,
-    bellImprovementMethods,
-    bellRingLevels,
-    bellRelated,
-    harpRelated,
-    harpStringNotes,
-    wishesUsed,
-    measurementBuffLevels,
-    parallelVillagersGemShop,
-    jarStuff,
-    jarProgress,
-    studyStuff,
-    studyProgress,
-    gambitStuff,
+    villagersLevels: zeroIndexProxy(villagersLevels),
+    villagersExp: zeroIndexProxy(villagersExp),
+    opalsInvested: zeroIndexProxy(opalsInvested),
+    holeMajiks: zeroIndexProxy(holeMajiks),
+    villageMajiks: zeroIndexProxy(villageMajiks),
+    idleonMajiks: zeroIndexProxy(idleonMajiks),
+    opalsPerCavern: zeroIndexProxy(opalsPerCavern),
+    sedimentMulti: zeroIndexProxy(sedimentMulti),
+    wellSediment: zeroIndexProxy(wellSediment),
+    wellBuckets: zeroIndexProxy(wellBuckets),
+    extraCalculations: zeroIndexProxy(extraCalculations),
+    dawgDenAmplifierLevels: zeroIndexProxy(dawgDenAmplifierLevels),
+    engineerSchematics: zeroIndexProxy(engineerSchematics),
+    braveryMonument: zeroIndexProxy(braveryMonument),
+    braveryBonuses: zeroIndexProxy(braveryBonuses),
+    bellImprovementMethods: zeroIndexProxy(bellImprovementMethods),
+    bellRingLevels: zeroIndexProxy(bellRingLevels),
+    bellRelated: zeroIndexProxy(bellRelated),
+    harpRelated: zeroIndexProxy(harpRelated),
+    harpStringNotes: zeroIndexProxy(harpStringNotes),
+    wishesUsed: zeroIndexProxy(wishesUsed),
+    measurementBuffLevels: zeroIndexProxy(measurementBuffLevels),
+    parallelVillagersGemShop: zeroIndexProxy(parallelVillagersGemShop),
+    jarStuff: zeroIndexProxy(jarStuff),
+    jarProgress: zeroIndexProxy(jarProgress),
+    studyStuff: zeroIndexProxy(studyStuff),
+    studyProgress: zeroIndexProxy(studyProgress),
+    gambitStuff: zeroIndexProxy(gambitStuff),
     fountainCoinSpaces,
     fountainSpaceFilled,
     fountainUpgradeLevels,
     fountainMarbleizeLevels,
-    fountainBarProgress,
+    fountainBarProgress: zeroIndexProxy(fountainBarProgress),
     fountainCoinFlags
   }
   const lampWishesList = lampWishes.map((wish, index) => {
     return {
       ...wish,
-      level: wishesUsed?.[index]
+      level: wishesUsed?.[index] ?? 0
     }
   })
 
@@ -147,13 +159,18 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     }
   });
 
-  const unlockedCaverns = Math.min(18, villagersLevels?.[0]);
-  const unlockedVillagers = villagersLevels?.slice(0, 5)?.filter((level: any) => level >= 1)?.length;
-  const leastOpalInvestedVillager = Math.min(...opalsInvested?.slice(0, unlockedVillagers));
-  const villagers = villagersExp?.slice(0, 5).map((exp: any, index: any) => {
-    const level = villagersLevels?.[index];
+  const villagerCount = Object.keys(VILLAGERS).length;
+  const unlockedCaverns = Math.min(18, holesObject.villagersLevels[0]);
+  const unlockedVillagers = Array.from({ length: villagerCount }, (_, index) => holesObject.villagersLevels[index])
+    .filter((level: any) => level >= 1).length;
+  const leastOpalInvestedVillager = unlockedVillagers === 0
+    ? 0
+    : Math.min(...Array.from({ length: unlockedVillagers }, (_, index) => holesObject.opalsInvested[index]));
+  const villagers = Array.from({ length: villagerCount }, (_, index) => {
+    const exp = holesObject.villagersExp[index];
+    const level = holesObject.villagersLevels[index];
     const expReq = getVillagerExpReq(level, index);
-    const opalInvested = opalsInvested?.[index];
+    const opalInvested = holesObject.opalsInvested[index];
     const expRate = getVillagerExpPerHour(holesObject, accountData, index, leastOpalInvestedVillager, unlockedCaverns)
     const timeLeft = (expReq - exp) / expRate?.value * 1000 * 3600;
     return {
@@ -190,7 +207,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
   const theBottomlessTrench = getBottomlessTrench(holesObject, accountData);
   const crystalGlunkoCove = getCrystalGlunkoCove(holesObject, accountData);
 
-  const majiksRaw = [holeMajiks, villageMajiks, idleonMajiks];
+  const majiksRaw = [holesObject.holeMajiks, holesObject.villageMajiks, holesObject.idleonMajiks];
   let godsLinks: any[] = [];
   const majiks = cosmoUpgrades.map((majik, majikIndex) => {
     return majik.map((bonusRaw, bonusIndex) => {
@@ -231,7 +248,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     const baseBonus = getMeasurementBaseBonus({ holesObject, t: index });
     const totalBonus = getMeasurementBonus({ holesObject, accountData, t: index });
     const multi = getMeasurementMulti({ holesObject, accountData, t: measureIndex })
-    const cost = (1 / (1 + getFountainBonusTotal(holesObject, 2, 14) / 100)) * (250 + 50 * measurementBuffLevels[index]) * Math.pow(1.6, index - 6 * Math.floor(index / 10)) * Math.pow(1.1, measurementBuffLevels[index])
+    const cost = (1 / (1 + getFountainBonusTotal(holesObject, 2, 14) / 100)) * (250 + 50 * holesObject.measurementBuffLevels[index]) * Math.pow(1.6, index - 6 * Math.floor(index / 10)) * Math.pow(1.1, holesObject.measurementBuffLevels[index])
 
     const measuredBy = getMeasurementQuantity({ holesObject, accountData, t: measureIndex });
     const itemReqIndex = holesInfo[50]?.[index];
@@ -457,8 +474,8 @@ const getMeasurementQuantity = ({ holesObject, accountData, t }: any) => {
       label: 'Deathnote pts',
       value: Object.values(accountData?.deathNote || {}).reduce((sum: any, val: any) => sum + (val?.rank ?? 0), 0)
     },
-    7: { label: 'Highest DMG', value: accountData?.tasks?.[0]?.[1]?.[0] },
-    8: { label: 'Slab Items', value: accountData?.looty?.lootedItems },
+    7: { label: 'Highest DMG', value: accountData?.tasks?.[0]?.[1]?.[0] ?? 0 },
+    8: { label: 'Slab Items', value: accountData?.looty?.lootedItems ?? 0 },
     9: { label: 'Studies done', value: holesObject?.studyStuff?.reduce((sum: any, level: any) => sum + level, 0) },
     10: { label: 'Golem kills', value: Math.floor(holesObject?.extraCalculations?.[63]) }
   };
@@ -502,14 +519,12 @@ const getMeasurementQuantityFound = ({ holesObject, accountData, t, i }: any) =>
       break;
 
     case 7:
-      // Case 7: Tasks Calculation
-      let tasksValue = accountData?.tasks?.[0]?.[1]?.[0]
+      let tasksValue = accountData?.tasks?.[0]?.[1]?.[0] ?? 0;
       result = (i === 99) ? lavaLog(tasksValue) / 2 : tasksValue;
       break;
 
     case 8:
-      // Case 8: Cards Length
-      let cardsLength = accountData?.looty?.lootedItems;
+      let cardsLength = accountData?.looty?.lootedItems ?? 0;
       result = (i === 99) ? cardsLength / 150 : cardsLength;
       break;
     case 9:
@@ -567,7 +582,7 @@ const getVillagerExpPerHour = (holesObject: any, accountData: any, t: any, least
   const compassBonus = getCompassBonus(accountData, 59);
   const charmBonus = getCharmBonus(accountData, 'Candy_Cache');
   const firstVillagerExp = t === 0 && unlockedCaverns < 13
-    ? Math.pow(1.5, accountData?.accountOptions?.[355])
+    ? Math.pow(1.5, accountData?.accountOptions?.[355] ?? 0)
     : t === 2
       ? 1 + getFountainBonusTotal(holesObject, 0, 14) / 100
       : 1;

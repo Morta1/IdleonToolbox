@@ -1,5 +1,5 @@
 import '../../polyfills';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   BOARD_SIZE,
   BOARD_X,
@@ -11,6 +11,24 @@ import {
   WEIGHTED_STAT,
   WEIGHTED_STAT_KEYS
 } from '@parsers/world-3/construction';
+
+export const SEEDS = [1, 2, 3, 4, 5];
+
+const seededRandom = (seed) => {
+  let state = seed >>> 0;
+  return () => {
+    state = (state + 0x6D2B79F5) >>> 0;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
+
+const useSeed = (seed) => vi.spyOn(Math, 'random').mockImplementation(seededRandom(seed));
+
+beforeEach(() => useSeed(SEEDS[0]));
+afterEach(() => vi.restoreAllMocks());
 
 const slotToXY = (index) => ({ x: index % BOARD_X, y: (BOARD_Y - 1) - Math.floor(index / BOARD_X) });
 
@@ -109,7 +127,7 @@ describe('construction board scoring', () => {
 
   it('scores the optimized board consistently with the board it returns', () => {
     const board = makeBoard();
-    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 250, characters });
+    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', maxIterations: 40000, characters });
     // Rebuild plain slots from the optimized placement and re-score them from scratch.
     const replayed = optimized.board.map((slot) => {
       const original = [...board, ...[]].find((base) => base.cog.originalIndex === slot.cog.originalIndex);
@@ -123,21 +141,21 @@ describe('optimizeArrayWithSwaps', () => {
   it('never returns a board worse than the starting one', () => {
     const board = makeBoard();
     const baseline = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 0, characters });
-    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 400, characters });
+    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', maxIterations: 64000, characters });
     expect(optimized.totalBuildRate).toBeGreaterThanOrEqual(baseline.totalBuildRate);
   });
 
   it('improves the target stat on a deliberately bad layout', () => {
     const board = makeBoard();
     const baseline = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 0, characters });
-    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 750, characters });
+    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', maxIterations: 120000, characters });
     expect(optimized.totalBuildRate).toBeGreaterThan(baseline.totalBuildRate);
   });
 
   it('optimizes player exp rate against real character exp values', () => {
     const board = makeBoard();
     const baseline = optimizeArrayWithSwaps(board, { stat: 'totalPlayerExpRate', time: 0, characters });
-    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalPlayerExpRate', time: 750, characters });
+    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalPlayerExpRate', maxIterations: 120000, characters });
     expect(baseline.totalPlayerExpRate).toBeGreaterThan(0);
     expect(optimized.totalPlayerExpRate).toBeGreaterThan(baseline.totalPlayerExpRate);
   });
@@ -149,7 +167,7 @@ describe('optimizeArrayWithSwaps', () => {
       stats: { a: { name: '_Build_Rate/HR', value: 1e6 } },
       originalIndex: 150
     };
-    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 750, characters, spareCogs: [spare] });
+    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', maxIterations: 120000, characters, spareCogs: [spare] });
     const placed = optimized.board.some(({ cog }) => cog?.originalIndex === 150);
     expect(placed).toBe(true);
     expect(optimized.totalBuildRate).toBeGreaterThan(1e6);
@@ -159,7 +177,7 @@ describe('optimizeArrayWithSwaps', () => {
     const board = makeBoard();
     board[3] = { ...board[3], currentAmount: 0, requiredAmount: 100 };
     board[7] = { ...board[7], flagPlaced: true };
-    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 500, characters });
+    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', maxIterations: 80000, characters });
     expect(optimized.board[3].cog.originalIndex).toBe(3);
     expect(optimized.board[7].cog.originalIndex).toBe(7);
   });
@@ -170,7 +188,7 @@ describe('optimizeArrayWithSwaps', () => {
     const buildOnly = optimizeArrayWithSwaps(board, {
       stat: WEIGHTED_STAT,
       weights: { totalBuildRate: 1, totalPlayerExpRate: 0, totalFlaggyRate: 0 },
-      time: 750,
+      maxIterations: 120000,
       characters
     });
     expect(buildOnly.totalBuildRate).toBeGreaterThan(baseline.totalBuildRate);
@@ -179,11 +197,11 @@ describe('optimizeArrayWithSwaps', () => {
   it('trades a single stat away for a better balance across all three', () => {
     const board = makeBoard();
     const baseline = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 0, characters });
-    const buildOnly = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 1000, characters });
+    const buildOnly = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', maxIterations: 160000, characters });
     const balanced = optimizeArrayWithSwaps(board, {
       stat: WEIGHTED_STAT,
       weights: { totalBuildRate: 1, totalPlayerExpRate: 1, totalFlaggyRate: 1 },
-      time: 1000,
+      maxIterations: 160000,
       characters
     });
 
@@ -210,7 +228,7 @@ describe('optimizeArrayWithSwaps', () => {
     const optimized = optimizeArrayWithSwaps(board, {
       stat: WEIGHTED_STAT,
       weights: { totalBuildRate: 0, totalPlayerExpRate: 0, totalFlaggyRate: 0 },
-      time: 500,
+      maxIterations: 80000,
       characters
     });
     expect(optimized.totalBuildRate).toBeGreaterThanOrEqual(baseline.totalBuildRate);
@@ -223,7 +241,7 @@ describe('optimizeArrayWithSwaps', () => {
       e: { name: '%_Build_Rate', value: 20 },
       h: 'everything'
     }, 'CogZ');
-    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 750, characters });
+    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', maxIterations: 120000, characters });
     const omniSlot = optimized.board.findIndex(({ cog }) => cog?.name === 'CogZ');
     expect(omniSlot).toBeGreaterThanOrEqual(0);
     // Its own build rate must be boosted by whatever now surrounds it.
@@ -250,7 +268,7 @@ describe('move list', () => {
     ];
     const optimized = optimizeArrayWithSwaps(board, {
       stat: 'totalBuildRate',
-      time: 750,
+      maxIterations: 120000,
       characters,
       spareCogs: structuredClone(spares)
     });
@@ -267,7 +285,7 @@ describe('move list', () => {
 
   it('lands on the optimized board at the last step and leaves it untouched at step 0', () => {
     const board = makeBoard();
-    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 750, characters });
+    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', maxIterations: 120000, characters });
 
     const start = getBoardAtStep(board, [], optimized.moves, 0, characters);
     start.board.forEach((slot, index) => expect(slot.cog.originalIndex).toBe(index));
@@ -288,7 +306,7 @@ describe('move list', () => {
     ];
     const optimized = optimizeArrayWithSwaps(board, {
       stat: 'totalBuildRate',
-      time: 750,
+      maxIterations: 120000,
       characters,
       spareCogs: structuredClone(spares)
     });
@@ -304,7 +322,7 @@ describe('move list', () => {
     const board = makeBoard();
     board[3] = { ...board[3], currentAmount: 0, requiredAmount: 100 };
     board[7] = { ...board[7], flagPlaced: true };
-    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 750, characters });
+    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', maxIterations: 120000, characters });
 
     // One swap per displaced cog, minus one per cycle - so strictly fewer than the number of cogs
     // that ended up somewhere new.
@@ -321,7 +339,7 @@ describe('move list', () => {
     const spare = { name: 'Monster', stats: { a: { name: '_Build_Rate/HR', value: 1e7 } }, originalIndex: 150 };
     const optimized = optimizeArrayWithSwaps(board, {
       stat: 'totalBuildRate',
-      time: 750,
+      maxIterations: 120000,
       characters,
       spareCogs: [spare]
     });
@@ -388,7 +406,7 @@ describe('excogia squares', () => {
   it('keeps an assembled square intact', () => {
     const board = makeBoard();
     placeExcogia(board, 30);
-    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 750, characters });
+    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', maxIterations: 120000, characters });
 
     const anchors = excogiaAnchors(optimized.board);
     expect(anchors).toHaveLength(1);
@@ -399,7 +417,7 @@ describe('excogia squares', () => {
     const board = makeBoard();
     placeExcogia(board, 26);
     placeExcogia(board, 28);
-    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 1000, characters });
+    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', maxIterations: 160000, characters });
 
     const anchors = excogiaAnchors(optimized.board);
     expect(anchors).toHaveLength(2);
@@ -417,7 +435,7 @@ describe('excogia squares', () => {
       board[index] = makeSlot(index, { e: { name: '%_Build_Rate', value: 400 }, h: 'around' });
     });
     const baseline = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 0, characters });
-    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 1500, characters });
+    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', maxIterations: 240000, characters });
 
     const anchors = excogiaAnchors(optimized.board);
     expect(anchors).toHaveLength(1);
@@ -436,7 +454,7 @@ describe('excogia squares', () => {
       if (inSquare || column === 6 || column === 7) continue;
       board[index] = { ...board[index], flagPlaced: true };
     }
-    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 750, characters });
+    const optimized = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', maxIterations: 120000, characters });
 
     const anchors = excogiaAnchors(optimized.board);
     expect(anchors).toHaveLength(1);
@@ -465,7 +483,7 @@ describe('excogia squares', () => {
     const spare = { name: 'CogZA00', stats: excogiaStats(), originalIndex: 150 };
     const optimized = optimizeArrayWithSwaps(board, {
       stat: 'totalBuildRate',
-      time: 750,
+      maxIterations: 120000,
       characters,
       spareCogs: [spare]
     });
@@ -501,7 +519,7 @@ describe('character cap', () => {
 
   const runWithCap = (maxCharacters, spares = mixedSpares()) => optimizeArrayWithSwaps(makeBoard(), {
     stat: 'totalPlayerExpRate',
-    time: 750,
+    maxIterations: 120000,
     characters,
     spareCogs: spares,
     ...(maxCharacters === undefined ? {} : { maxCharacters })
@@ -530,9 +548,8 @@ describe('character cap', () => {
     expect(countBoardCharacters(optimized.board)).toBeLessThanOrEqual(1);
   });
 
-  // Empty slots all score the same, so the annealer used to accept swapping one for another and the
-  // plan ended with a run of steps that shuffled blanks around without changing the board.
-  it('never asks you to move one empty slot into another', () => {
+  it.each(SEEDS)('never asks you to move one empty slot into another (seed %i)', (seed) => {
+    useSeed(seed);
     const blanks = Array.from({ length: 40 }, (_, i) => ({
       name: 'Blank',
       stats: {},
@@ -545,7 +562,7 @@ describe('character cap', () => {
     });
     const optimized = optimizeArrayWithSwaps(board, {
       stat: 'totalPlayerExpRate',
-      time: 750,
+      maxIterations: 120000,
       characters,
       spareCogs: [...spareCharacters(4), ...blanks],
       maxCharacters: 2
@@ -558,6 +575,10 @@ describe('character cap', () => {
     [5, 17, 40].forEach((index) => {
       const { cog } = optimized.board[index];
       if (cog?.name === 'Blank') expect(cog.originalIndex).toBe(index);
+    });
+    const replayed = getBoardAtStep(board, [...spareCharacters(4), ...blanks], optimized.moves, optimized.moves.length, characters);
+    replayed.board.forEach((slot, index) => {
+      expect(slot.cog.originalIndex).toBe(optimized.board[index].cog.originalIndex);
     });
   });
 

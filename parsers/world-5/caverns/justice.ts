@@ -30,7 +30,7 @@ export const getJustice = (holesObject: any, accountData: any) => {
     ?.slice(10, 20)
     ?.filter((name: any) => !name.includes('Monument_'))
     .map((description: any, index: any) => {
-      const level = holesObject?.braveryBonuses?.slice(10)?.[index];
+      const level = holesObject?.braveryBonuses?.[10 + index];
       const bonus = getMonumentBonus({ holesObject, t: 1, i: index });
       const scalingValue = parseFloat(holesInfo?.[37]?.[10 + index]);
       const isSoftCap = scalingValue >= 30;

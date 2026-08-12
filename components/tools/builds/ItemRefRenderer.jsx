@@ -77,7 +77,7 @@ const ItemRefChip = ({ rawName }) => {
       <Typography component="span" sx={CHIP_SX}>
         <img
           src={`${prefix}data/${rawName}.png`}
-          alt=""
+          alt={rawName}
           width={18}
           height={18}
           style={{ objectFit: 'contain', flexShrink: 0 }}

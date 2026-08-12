@@ -9,7 +9,7 @@ export const IconWithText = forwardRef((props, ref) => {
   const { stat, icon, img, title = '', ...rest } = props
   return <Tooltip title={title}>
     <Stack alignItems={'center'} {...rest} ref={ref} style={{ position: 'relative', width: 'fit-content' }}>
-      <img {...img} src={`${prefix}data/${icon}.png`} alt=""/>
+      <img {...img} src={`${prefix}data/${icon}.png`} alt={typeof title === 'string' && title ? title : icon}/>
       <Typography variant={'body1'}
                   component={'span'}>{stat}</Typography>
     </Stack>
@@ -45,7 +45,7 @@ export const CardAndBorder = (cardProps) => {
         forceDisable={forceDisable}
         isCardSet={variant === 'cardSet'}
         amount={amount}
-        src={iconSrc} alt=""/>
+        src={iconSrc} alt={cleanUnderscore(realCardName ?? rawName ?? '')}/>
     </Tooltip>
   </>
 }
@@ -61,7 +61,7 @@ const CardTooltip = ({ displayName, effect, bonus, stars, showInfo, nextLevelReq
     {showInfo ? <Stack mt={1} direction={'row'} gap={1} flexWrap={'wrap'}>
       {[1, 2, 3, 4, 5, 6, 7].map((_, index) => {
         return <Stack key={`${displayName}-${index}`} alignItems={'center'} justifyContent={'space-between'}>
-          {index === 0 ? <Typography>Base</Typography> : <StarIcon src={`${prefix}etc/Star${index}.png`} alt=""/>}
+          {index === 0 ? <Typography>Base</Typography> : <StarIcon src={`${prefix}etc/Star${index}.png`} alt={`${index} star`}/>}
           <Typography>{bonus * (index + 1)}</Typography>
         </Stack>
       })}
@@ -113,7 +113,7 @@ export const PlayersList = ({ players, characters }) => {
       <img
         style={{ width: 24, height: 24 }}
         src={`${prefix}data/ClassIcons${characters?.[index]?.classIndex}.png`}
-        alt=""
+        alt={characters?.[index]?.name ?? 'character'}
       />
     </Tooltip>)}
   </Stack>
@@ -133,20 +133,25 @@ export const CardTitleAndValue = ({
                                     value,
                                     children,
                                     icon,
+                                    iconAlt,
                                     tooltipTitle,
                                     stackProps,
                                     contentPadding
                                   }) => {
+  const hasValue = value !== undefined && value !== null && value !== '';
   return <Tooltip title={tooltipTitle || ''}>
-    <Card variant={variant} raised={raised}
-          sx={{ my: { xs: 0, md: 3 }, mb: { xs: 2 }, width: 'fit-content', ...cardSx }}>
+    <Card variant={variant} raised={raised} data-card-title-value
+          sx={{ width: 'fit-content', ...cardSx }}>
       <CardContent sx={{ '&:last-child': contentPadding ? { p: contentPadding } : {}, height: '100%' }}>
         <Stack sx={{ display: stackProps ? 'flex' : 'block', ...(stackProps || {}) }}>
           {title ? <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom
                                component={'span'}>{title}</Typography> : null}
-          {(value || imgOnly) ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
-            <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`} alt=""/>
-            {value ? <Typography component={'div'}>{value}</Typography> : null}
+          {(hasValue || imgOnly) ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
+            <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`}
+                 alt={typeof title === 'string' && title
+                   ? ''
+                   : (iconAlt ?? icon.split('/').pop().replace(/\.\w+$/, ''))}/>
+            {hasValue ? <Typography component={'div'}>{value}</Typography> : null}
           </Stack> : <Typography component={'div'}>{value}</Typography> : children}
         </Stack>
       </CardContent>

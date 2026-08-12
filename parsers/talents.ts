@@ -568,7 +568,7 @@ export const calcTotalStarTalent = (characters: any, account: any) => {
       [character.name]: totalStarPoints
     };
   }, {});
-  return Math.max(...Object.values(levels) as number[]);
+  return Math.max(0, ...Object.values(levels) as number[]);
 }
 
 export const getCrystalCountdownSkills = () => {

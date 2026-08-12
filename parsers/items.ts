@@ -4,6 +4,7 @@ import { getGalleryBonus } from './world-7/gallery';
 import { getHatRackBonus } from './world-3/hatRack';
 import { getResearchGridBonus } from './world-7/research';
 
+
 export const addStoneDataToEquip = (baseItem: any, stoneData: any) => {
   if (!baseItem || !stoneData) return {};
 
@@ -136,7 +137,7 @@ export const getStatFromEquipment = (item: any, statName: string) => {
 
 export const createItemsWithUpgrades = (charItems: any, stoneData: any, owner: string) => {
 
-  return Array.from(Object.values(charItems)).reduce((res: any[], item: any, itemIndex) => {
+  return Array.from(Object.values(charItems ?? {})).reduce((res: any[], item: any, itemIndex) => {
     const stoneResult = addStoneDataToEquip(items?.[item], stoneData?.[itemIndex]);
     let misc = '';
     const maxUpgradeSlots = Math.max((stoneResult as any)?.Upgrade_Slots_Left ?? 0, items?.[item]?.Upgrade_Slots_Left ?? 0);
@@ -182,7 +183,7 @@ export const getTotalStatFromEquipment = (arr: any, statKey: any, statName: any)
 
 export const findItemInInventory = (arr: any, itemName: any) => {
   if (!itemName) return {};
-  return arr.reduce((res: any, item: any) => {
+  return (arr ?? []).reduce((res: any, item: any) => {
     const { name, owner, amount } = item;
     if (name === itemName) {
       // an owner can hold the same item in multiple stacks, sum them all
@@ -200,7 +201,7 @@ export const findItemInInventory = (arr: any, itemName: any) => {
 
 export const findItemByDescriptionInInventory = (arr: any, desc: any) => {
   if (!desc) return {};
-  const relevantItems = arr.filter(({
+  const relevantItems = (arr ?? []).filter(({
     misc,
     description
   }: any) => cleanUnderscore(description)?.toLowerCase()?.includes(desc?.toLowerCase()) || cleanUnderscore(misc)?.toLowerCase()?.includes(desc?.toLowerCase()), []);
@@ -260,7 +261,7 @@ export const findQuantityOwned = (items: any, itemName: any) => {
 }
 
 export const addEquippedItems = (characters: any, shouldInclude: any) => {
-  return shouldInclude ? characters?.reduce((res: any, {
+  return shouldInclude ? (characters ?? []).reduce((res: any, {
     tools,
     equipment,
     food
@@ -278,7 +279,7 @@ export const getAllItems = (characters: any, account: any) => {
 export const mergeItemsByOwner = (items: any) => {
   const mergedItems: Record<string, any> = {};
 
-  items.forEach((item: any) => {
+  (items ?? []).forEach((item: any) => {
     if (!item.displayName) return;
     const key = item.owner + item.displayName;
     if (mergedItems[key]) {

@@ -3,7 +3,6 @@ import { checkUserStatus, signInWithCustom, signInWithToken, subscribe, userSign
 import { useRouter } from 'next/router';
 import useInterval from '@hooks/useInterval';
 import { getUserToken } from '../../../services/auth/google';
-import { offlineTools } from '../NavBar/AppDrawer/ToolsDrawer';
 import { geAppleStatus } from '../../../services/auth/apple';
 import { getProfile } from '../../../services/profiles';
 import { setRawJson } from '@utility/helpers';
@@ -31,13 +30,21 @@ function appReducer(state, action) {
   const actionHandlers = {
     [ACTION_TYPES.LOGIN]: () => ({ ...state, ...action.data }),
     [ACTION_TYPES.DATA]: () => ({ ...state, ...action.data }),
-    [ACTION_TYPES.LOGOUT]: () => ({
-      characters: null,
-      account: null,
-      signedIn: false,
-      emailPassword: null,
-      appleLogin: null
-    }),
+    // Keeps UI preferences, drops everything else. A blocklist was tried and rotted immediately:
+    // spreading state and naming the account keys to clear missed loginType/loginData, which the
+    // auth poll below reads whenever waitingForAuth is set. Both login components arm that flag
+    // before their fresh credentials arrive, so a second sign-in re-subscribed with the previous
+    // user's uid and token. A whitelist drops any future session key by default.
+    [ACTION_TYPES.LOGOUT]: () => {
+      const { filters, pinnedPages, displayedCharacters, trackers, godPlanner, planner, settings,
+        showRankOneOnly, showUnmaxedBoxesOnly } = state;
+      return {
+        filters, pinnedPages, displayedCharacters, trackers, godPlanner, planner, settings,
+        showRankOneOnly, showUnmaxedBoxesOnly,
+        signedIn: false,
+        isLoading: false
+      };
+    },
     [ACTION_TYPES.DISPLAYED_CHARACTERS]: () => ({ ...state, displayedCharacters: action.data }),
     [ACTION_TYPES.FILTERS]: () => ({ ...state, filters: action.data }),
     [ACTION_TYPES.PINNED_PAGES]: () => ({ ...state, pinnedPages: action.data }),
@@ -110,13 +117,6 @@ const AppProvider = ({ children }) => {
   const unsubscribeRef = useRef(null);
   const isInitializedRef = useRef(false);
 
-  const checkOfflineTool = () => {
-    if (!router.pathname.includes('tools')) return false;
-    const endPoint = router.pathname.split('/')?.[2] || '';
-    const formattedEndPoint = endPoint?.replace('-', ' ')?.toCamelCase();
-    return !state?.signedIn && router.pathname.includes('tools') && offlineTools[formattedEndPoint];
-  };
-
   const handleCloudUpdate = async (
     data, 
     charNames, 
@@ -165,6 +165,7 @@ const AppProvider = ({ children }) => {
       data: {
         ...parsedData,
         signedIn: true,
+        emptyAccount: false,
         manualImport: false,
         profile: false,
         lastUpdated,
@@ -188,11 +189,20 @@ const AppProvider = ({ children }) => {
     parsedData = null;
   };
 
-  const logout = (manualImport, data) => {
+  const loadEmptyAccount = async () => {
+    const { parseData } = await import('@parsers/index');
+    const parsedData = parseData(undefined, [], null, null, undefined, undefined, null);
+    dispatch({
+      type: ACTION_TYPES.DATA,
+      data: { ...parsedData, signedIn: false, emptyAccount: true, isLoading: false }
+    });
+  };
+
+  const logout = async (manualImport, data) => {
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }
-    
+
     userSignOut();
     
     if (typeof window?.gtag !== 'undefined') {
@@ -207,12 +217,13 @@ const AppProvider = ({ children }) => {
     sessionStorage.removeItem('rawJson');
     dispatch({ type: ACTION_TYPES.LOGOUT });
     setWaitingForAuth(false);
-    
-    if (!manualImport) {
-      router.push({ pathname: '/', query: router.query });
-    } else {
+
+    if (manualImport) {
       dispatch({ type: ACTION_TYPES.DATA, data });
+      return;
     }
+
+    await loadEmptyAccount();
   };
 
   useEffect(() => {
@@ -259,6 +270,7 @@ const AppProvider = ({ children }) => {
             profile: true,
             manualImport: false,
             signedIn: !!user,
+            emptyAccount: false,
             lastUpdated,
             isLoading: false
           }
@@ -296,6 +308,7 @@ const AppProvider = ({ children }) => {
           ...parsedData,
           lastUpdated: timestamp,
           demo: true,
+          emptyAccount: false,
           isLoading: false
         }
       });
@@ -316,20 +329,7 @@ const AppProvider = ({ children }) => {
           const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
           unsubscribeRef.current = unsub;
         } else {
-          // /guilds is public and links to both of these, so logged-out visitors clicking
-          // through were silently bounced home. Neither page reads any account state.
-          const isAllowedPath = router.pathname === '/' ||
-            checkOfflineTool() ||
-            router.pathname === '/guilds' ||
-            router.pathname === '/guilds/detail' ||
-            router.pathname === '/guilds/ecosystem' ||
-            router.pathname === '/statistics' ||
-            router.pathname === '/leaderboards';
-
-          if (!isAllowedPath) {
-            router.push({ pathname: '/', query: router?.query });
-          }
-          dispatch({ type: ACTION_TYPES.SET_LOADING, data: false });
+          await loadEmptyAccount();
         }
       } catch (error) {
         console.error(error);

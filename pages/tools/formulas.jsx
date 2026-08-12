@@ -39,7 +39,7 @@ const Formulas = () => {
   const dropRate = getDropRate(selectedChar, state?.account, state?.characters);
   const cropEvo = getCropEvolution(state?.account, selectedChar, state?.account?.farming?.plot?.[0])
   const printerMulti = getPrinterMulti(state?.account, state?.characters);
-  const bitMulti = getBitsMulti(state?.account, state?.characters);
+  const bitMulti = state?.account?.gaming ? getBitsMulti(state?.account, state?.characters) : null;
   const goldenFoodMulti = getGoldenFoodMulti(selectedChar, state?.account, state?.characters);
   const doubleStatueDropChance = getDoubleStatueDrop(state?.account, selectedChar, state?.characters);
   const doubleGoldenFoodDropChance = getDoubleGoldenFoodDrop(state?.account, selectedChar, state?.characters);
@@ -49,7 +49,9 @@ const Formulas = () => {
         name: 'Crystal Chance',
         formula: selectedChar?.crystalSpawnChance?.expression,
         value: selectedChar?.crystalSpawnChance?.value,
-        renderValue: (value) => `1 in ${Math.floor(1 / value)} (${notateNumber(value * 100, 'MultiplierInfo')?.replace('.00', '')}%)`,
+        renderValue: (value) => Number.isFinite(value)
+          ? `1 in ${Math.floor(1 / value)} (${notateNumber(value * 100, 'MultiplierInfo')?.replace('.00', '')}%)`
+          : '—',
         description: 'How often a crystal mob is spawned'
       },
       {
@@ -101,7 +103,7 @@ const Formulas = () => {
         name: 'Equinox',
         formula: state?.account?.equinox?.expression,
         value: state?.account?.equinox?.chargeRate,
-        renderValue: (value) => `${value}/hr`,
+        renderValue: (value) => Number.isFinite(value) ? `${value}/hr` : '—',
         description: 'Equinox Bonuses from all sources'
       },
       {
@@ -128,7 +130,7 @@ const Formulas = () => {
         formula: bitMulti?.expression,
         value: bitMulti?.value,
         breakdown: bitMulti?.breakdown,
-        renderValue: (value) => `${notateNumber(value)}%`,
+        renderValue: (value) => Number.isFinite(value) ? `${notateNumber(value)}%` : '—',
         description: 'Bit multi bonuses from all sources'
       },
       {

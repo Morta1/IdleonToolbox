@@ -215,7 +215,7 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
   const totalLevels = pets.reduce((acc, pet) => (isShiny ? pet.shinyLevel : pet.breedingLevel) + acc, 0)
 
   return <>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
+    <Stack mb={3} direction={'row'} flexWrap={'wrap'} gap={2}>
       <CardTitleAndValue title={'Misc'} value={<Stack gap={1}>
         <Stack direction={'row'} gap={.5} alignItems={'center'}>
           <Typography variant={'body1'}>

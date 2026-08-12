@@ -65,7 +65,7 @@ const Kitchens = ({
           return spice ? <Card key={`${spice?.rawName}-${index}`}>
             <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Tooltip title={spice?.name}>
-                <SpiceIcon src={`${prefix}data/${spice?.rawName}.png`} alt=""/>
+                <SpiceIcon src={`${prefix}data/${spice?.rawName}.png`} alt={spice?.rawName}/>
               </Tooltip>
               <Tooltip title={parseInt(spice?.amount)}>
                 <Typography>{notateNumber(parseInt(spice?.amount), 'Big')}</Typography>
@@ -74,7 +74,7 @@ const Kitchens = ({
           </Card> : null;
         })}
       </Stack>
-      <Typography variant={'h4'}>Totals</Typography>
+      <Typography variant={'h5'}>Totals</Typography>
       <Stack my={2} direction={'row'} gap={2} flexWrap={'wrap'}>
         {Object.entries((totals || {}))?.map(([foodName, meal], index) => {
           const { total } = meal;
@@ -83,7 +83,7 @@ const Kitchens = ({
               <Tooltip placement={'top'}
                        title={<MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal}
                                            lab={lab} equinoxUpgrades={equinoxUpgrades} account={account}/>}>
-                <MealIcon src={`${prefix}data/${foodName}.png`} alt=""/>
+                <MealIcon src={`${prefix}data/${foodName}.png`} alt={foodName}/>
               </Tooltip>
               <div>{notateNumber(total, 'Big')}/hr</div>
               <MealTooltip achievements={achievements} totalMealSpeed={totalMealSpeed} meal={meal} lab={lab}
@@ -94,7 +94,7 @@ const Kitchens = ({
         <Card>
           <CardContent sx={{ height: '100%' }}>
             <Stack alignItems={'center'} gap={2} justifyContent={'center'}>
-              <img src={`${prefix}etc/Kitchen.png`} alt=""/>
+              <img src={`${prefix}etc/Kitchen.png`} alt="Kitchen"/>
               <Typography>Total Speed</Typography>
               <Typography>{notateNumber(totalMealSpeed, 'Big')}/hr</Typography>
             </Stack>
@@ -122,7 +122,7 @@ const Kitchens = ({
                   </Breakdown>
                   <Stack mt={2} alignItems={'center'}>
                     <Tooltip title={spicesNames[firstSpiceIndex]}>
-                      <SpiceIcon src={`${prefix}data/CookingSpice${firstSpiceIndex}.png`} alt={''}/>
+                      <SpiceIcon src={`${prefix}data/CookingSpice${firstSpiceIndex}.png`} alt=""/>
                     </Tooltip>
                     <Typography>{notateNumber(kitchen?.speedCost, 'Big')}</Typography>
                   </Stack>
@@ -137,7 +137,7 @@ const Kitchens = ({
                   </Breakdown>
                   <Stack mt={2} alignItems={'center'}>
                     <Tooltip title={spicesNames[secondSpiceIndex]}>
-                      <SpiceIcon src={`${prefix}data/CookingSpice${secondSpiceIndex}.png`} alt={''}/>
+                      <SpiceIcon src={`${prefix}data/CookingSpice${secondSpiceIndex}.png`} alt=""/>
                     </Tooltip>
                     <Typography>{notateNumber(kitchen?.fireCost, 'Big')}</Typography>
                   </Stack>
@@ -162,7 +162,7 @@ const Kitchens = ({
                   {kitchen?.spices?.map((spice, index) => {
                     if (spice === -1) return null;
                     return <SpiceIcon src={`${prefix}data/CookingSpice${spice}.png`} key={`${spice}-${index}`}
-                                      alt={''}/>
+                                      alt={spice}/>
                   })}
                 </Stack>
                 {kitchen?.possibleMeals?.length > 0 ?
@@ -172,7 +172,7 @@ const Kitchens = ({
                       missing={meals?.[food?.index]?.level === 0}
                       key={`possible-${food?.rawName}-${index}`}
                       src={`${prefix}data/${food?.rawName}.png`}
-                      alt=""/>)}
+                      alt={food?.rawName}/>)}
                   </Stack> : null}
                 <Tooltip title={`${percentOfCap}%`}>
                   <ProgressBar percent={percentOfCap}/>
@@ -190,7 +190,7 @@ const Kitchens = ({
                                              lab={lab}
                                              meal={kitchen?.meal} equinoxUpgrades={equinoxUpgrades}
                                              account={account}/>}>
-                  <MealIcon src={`${prefix}data/${kitchen?.meal?.rawName}.png`} alt=""/>
+                  <MealIcon src={`${prefix}data/${kitchen?.meal?.rawName}.png`} alt={kitchen?.meal?.rawName}/>
                 </Tooltip>
                 <div>{notateNumber(kitchen?.mealSpeed / kitchen?.meal?.cookReq, 2)}/hr</div>
               </Stack>}

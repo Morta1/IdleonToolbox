@@ -67,7 +67,7 @@ const StyledSection = ({ title, list, icon, topMargin = true }) => {
     <Box sx={{ marginTop: topMargin ? '20px' : 0 }}>
       <Stack direction={'row'} alignItems={'center'} gap={1}>
         {icons[icon]}
-        <Typography sx={{ color: icon === 'add' ? green[500] : deepPurple[200] }} variant={"h4"}>{title}</Typography>
+        <Typography sx={{ color: icon === 'add' ? green[500] : deepPurple[200] }} variant={"h5"}>{title}</Typography>
       </Stack>
       <ul style={{ marginTop: 20 }}>
         {list.map((item, index) => {

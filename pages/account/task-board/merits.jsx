@@ -20,7 +20,7 @@ const Merits = () => {
       description="Track your merit shop purchases, point spending, and available upgrades in Legends of Idleon"
     />
     <Tabber tabs={worldsArray} onTabChange={handleWorldChange}>
-      <Stack alignItems={'center'}>
+      <Stack mb={3} alignItems={'center'}>
         <CardTitleAndValue title={'Merits'}>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
             <img src={`${prefix}etc/Merit_${world}.png`} alt={`merit_${world}`}/>

@@ -7,9 +7,12 @@ export const getShops = (idleonData: IdleonData): any[][] => {
   return parseShops(shopsRaw);
 }
 
-export const parseShops = (shopsRaw: any[]): any[][] => {
-  return shopsRaw.reduce((res: any[][], shopObject: any, shopIndex: number) => {
-    const mapped = Object.values(shopObject)?.reduce((res: any[], item: any, itemIndex: number) => {
+export const parseShops = (shopsRaw: any[] | undefined): any[][] => {
+  const shopIndexes = Object.keys(shops).map(Number).sort((a, b) => a - b);
+  return shopIndexes.map((shopIndex) => {
+    const shopObject = shopsRaw?.[shopIndex];
+    if (!shopObject) return [];
+    return Object.values(shopObject).reduce((res: any[], item: any, itemIndex: number) => {
       const isIncluded = (shopMapping as any)?.[shopIndex]?.[itemIndex];
       const amount = parseInt(item) || 0;
       return amount > 0 && isIncluded ? [...res,
@@ -17,9 +20,8 @@ export const parseShops = (shopsRaw: any[]): any[][] => {
         amount: item, ...shops[shopIndex]?.items?.[itemIndex],
         shopName: shops[shopIndex]?.name
       }] : res;
-    }, [])
-    return [...res, mapped]
-  }, []);
+    }, []);
+  });
 }
 
 export const getRawShopItems = (): Record<string, boolean> => {

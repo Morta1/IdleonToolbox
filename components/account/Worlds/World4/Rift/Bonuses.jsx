@@ -38,7 +38,7 @@ const Bonuses = ({ list, currentRift, account }) => {
         <CardContent sx={{ width: 300 }}>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
             <img src={`${prefix}etc/${riftBonusIcon}.png`}
-                 alt=""/>
+                 alt={riftBonusIcon}/>
             <Typography>{cleanUnderscore(riftBonus)}</Typography>
           </Stack>
           <Typography variant={'caption'} component={'span'}>{index <= currentRift ?

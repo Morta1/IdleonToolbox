@@ -2,7 +2,7 @@ import { NextSeo } from 'next-seo';
 import { Card, CardContent, Chip, Divider, FormControlLabel, Radio, RadioGroup, Stack, Typography } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
-import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, getNextCompanionClaim, numberWithCommas, prefix } from '@utility/helpers';
 import Timer from '@components/common/Timer';
 import { CardTitleAndValue } from '../../../components/common/styles';
 import { companionGroups } from '@website-data';
@@ -28,7 +28,7 @@ const CompanionList = ({ title, companions }) => {
                 <Stack direction='row' gap={2}>
                   <img width={42} height={42}
                     style={{ objectFit: 'contain' }}
-                    src={`${prefix}afk_targets/${name}.png`} alt={''} />
+                    src={`${prefix}afk_targets/${name}.png`} alt={name} />
                   <Stack gap={1}>
                     <Stack direction='row' gap={1} alignItems='center'>
                       <Typography variant='body1'>{cleanUnderscore(name)}</Typography>
@@ -59,7 +59,7 @@ const CompanionList = ({ title, companions }) => {
 const Pets = () => {
   const { state } = useContext(AppContext);
   const [filter, setFilter] = useState('all');
-  const nextCompanionClaim = new Date().getTime() + Math.max(0, 594e6 - (1e3 * state?.account?.timeAway?.GlobalTime - (state?.account?.companions?.lastFreeClaim ?? 0)));
+  const nextCompanionClaim = getNextCompanionClaim(state?.account);
 
   const allCompanions = state?.account?.companions?.list || [];
   const tokens = state?.account?.companions?.tokens;
@@ -76,7 +76,7 @@ const Pets = () => {
       title="Premium Pets | Idleon Toolbox"
       description="View your companion collection, abilities, trade offers, and pet crystal upgrades in Legends of Idleon"
     />
-    <Stack direction={'row'} gap={3} flexWrap={'wrap'} alignItems="center">
+    <Stack mb={3} direction={'row'} gap={3} flexWrap={'wrap'} alignItems="center">
       <CardTitleAndValue title={'Pet Crystals'} value={numberWithCommas(state?.account?.companions?.petCrystals ?? 0)} icon='data/PremiumGem.png' imgStyle={{ filter: 'hue-rotate(280deg)', width: 24, height: 24 }} />
       <CardTitleAndValue title={'Total Box Opened'} value={numberWithCommas(state?.account?.companions?.totalBoxesOpened ?? 0)} />
       <CardTitleAndValue title={'Tokens Available'} value={numberWithCommas(tokens?.remaining ?? 0)} icon='data/Quest119.png' imgStyle={{ width: 24, height: 24 }} />

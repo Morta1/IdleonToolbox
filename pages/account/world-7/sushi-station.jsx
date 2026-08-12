@@ -4,7 +4,7 @@ import { NextSeo } from 'next-seo';
 import { Stack } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import HtmlTooltip from '@components/Tooltip';
-import { CardTitleAndValue, MissingData } from '@components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
 import { commaNotation, getTabs, notateNumber } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
@@ -16,8 +16,6 @@ import SushiBonuses from '@components/account/Worlds/World7/SushiStation/SushiBo
 const SushiStation = () => {
   const { state } = useContext(AppContext);
   const sushiStation = state?.account?.sushiStation;
-
-  if (!sushiStation) return <MissingData name={'sushi station'}/>;
 
   const {
     uniqueSushi,
@@ -31,7 +29,7 @@ const SushiStation = () => {
     shakerUses,
     knowledgeSummary,
     sushiCooking
-  } = sushiStation;
+  } = sushiStation || {};
 
   return <>
     <NextSeo

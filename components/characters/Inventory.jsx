@@ -20,7 +20,7 @@ const Inventory = ({
                    width: '25%',
                    p: 1
                  }}>
-            <img width={32} height={32} src={`${prefix}data/${item?.rawName}.png`} alt=""/>
+            <img width={32} height={32} src={`${prefix}data/${item?.rawName}.png`} alt={item?.rawName}/>
             {item?.perHour ? <Stack>
                 {item?.perHour ? <Typography variant={'body2'}>{numberWithCommas(item?.perHour.toFixed(2))} /
                   hr</Typography> : null}

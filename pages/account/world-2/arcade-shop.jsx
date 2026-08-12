@@ -79,7 +79,7 @@ const ArcadeShop = () => {
             }}>
         <CardContent sx={{ width: 330 }}>
           <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-            <UpgradeIcon src={`${prefix}data/${iconName}.png`}/>
+            <UpgradeIcon src={`${prefix}data/${iconName}.png`} alt=""/>
             <Stack>
               <Typography variant={'body1'} style={{ fontWeight: 'bold' }}>{eff}</Typography>
               <Divider sx={{ my: .5 }}/>
@@ -107,7 +107,7 @@ const ArcadeShop = () => {
         title="Arcade Shop | Idleon Toolbox"
         description="Track your arcade shop upgrades, ball counts, golden balls, and bonus effects in Legends of Idleon"
       />
-      <Stack direction="row" gap={2} flexWrap={'wrap'}>
+      <Stack mb={3} direction="row" gap={2} flexWrap={'wrap'}>
         <CardTitleAndValue title="Balls">
           <Stack direction="row" gap={2}>
             <BallIcon src={`${prefix}data/PachiBall0.png`} alt="arcade-silver-balls"/>

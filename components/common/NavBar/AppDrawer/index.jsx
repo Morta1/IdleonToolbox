@@ -1,10 +1,10 @@
 import Box from '@mui/material/Box';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Drawer from '@mui/material/Drawer';
 import MenuIcon from '@mui/icons-material/Menu';
 import IconButton from '@mui/material/IconButton';
 import styled from '@emotion/styled';
-import { drawerWidth, navBarHeight } from '../../../constants';
+import { drawerWidth, navBarHeight, profileBannerHeight } from '../../../constants';
 import Toolbar from '@mui/material/Toolbar';
 import NavItemsList from '../NavItemsList';
 import { useRouter } from 'next/router';
@@ -15,14 +15,11 @@ import AccountDrawer from './AccountDrawer';
 import CharactersDrawer from './CharactersDrawer';
 import ToolsDrawer from './ToolsDrawer';
 import { prefix, shouldDisplayDrawer } from '@utility/helpers';
-import { AppContext } from '../../context/AppProvider';
-
-const profileBannerHeight = 40;
+import useProfileBannerState from '@hooks/useProfileBannerState';
 
 const AppDrawer = ({ permanent }) => {
-  const { state } = useContext(AppContext);
   const router = useRouter();
-  const showProfileBanner = !!state?.profile && !!router?.query?.profile;
+  const { isVisible: showProfileBanner } = useProfileBannerState();
   const [open, setOpen] = useState(false);
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
 
@@ -57,7 +54,7 @@ const AppDrawer = ({ permanent }) => {
             sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1 }}
             color="inherit" noWrap variant={'h6'}
       >
-        <img src={`${prefix}data/Coins5.png`} alt={''}/>
+        <img src={`${prefix}data/Coins5.png`} alt="Coins5"/>
         <span>{isXs ? 'IT' : 'Idleon Toolbox'}</span>
       </Link>
     </Stack> : null}

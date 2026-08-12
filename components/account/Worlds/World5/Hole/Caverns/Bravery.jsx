@@ -7,7 +7,7 @@ import ProgressBar from '@components/common/ProgressBar';
 
 const Bravery = ({ hole }) => {
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Damage'} icon={'etc/Bravery_Sword.png'} imgStyle={{ width: 24, height: 24 }}
                          value={`${commaNotation(hole?.caverns?.bravery?.damage?.min)} - ${commaNotation(hole?.caverns?.bravery?.damage?.max)}`}/>
       <CardTitleAndValue title={'Swords'} icon={'data/HoleBraverySword.png'} imgStyle={{ width: 24, height: 24 }}

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { NextLinkComposed } from '../NextLinkComposed';
-import { drawerWidth, navItems, offlinePages } from '../../constants';
+import { drawerWidth, navItems } from '../../constants';
 import { useRouter } from 'next/router';
 import { Collapse, List, ListItem, ListItemButton, ListItemText, Stack, useMediaQuery } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
@@ -32,12 +32,6 @@ const NavItemsList = ({ drawer }) => {
     >
       <ItemsWrapper drawer={drawer}>
         {navItems.map((navItem, index) => {
-          if (
-            (!state?.signedIn && !state?.profile && !state?.demo && !state?.manualImport) &&
-            !offlinePages.includes(navItem)
-          )
-            return null;
-
           if (state?.profile && navItem === 'guilds') return null;
 
           if (isXs && (navItem === 'account' || navItem === 'tools')) {

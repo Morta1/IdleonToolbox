@@ -25,7 +25,7 @@ const HatRackPage = () => {
         description="Keep track of your hat rack bonuses and premium hats"
       />
 
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
         <CardTitleAndValue title={'Total Hats'} value={totalHats || 0} />
         <CardTitleAndValue title={'Bonus Multiplier'} value={`${notateNumber(bonusMulti, 'MultiplierInfo')}x`} />
       </Stack>

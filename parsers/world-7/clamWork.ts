@@ -13,7 +13,7 @@ const parseClamWork = (account: Account, spelunkingRaw: any) => {
   const promotionChance = 0.5 / (2 + workerClass);
   const promotionCost = 1e6 > getClamCost(account, 9) ? commaNotation(getClamCost(account, 9)) : notateNumber(getClamCost(account, 9), "Big");
   const clamHp = 1e16 * Math.pow(30, workerClass);
-  const mobs = Math.min(25, 2 + (account as any)?.accountOptions?.[456]);
+  const mobs = Math.min(25, 2 + ((account as any)?.accountOptions?.[456] ?? 0));
   const blackPearlValue = getBlackPearlValue(account);
   const pearlValue = getClamPearlValue(account);
 
@@ -74,26 +74,28 @@ const getClamCost = (account: Account, index: number, requiredPearls?: number): 
   const workerClass = (account as any)?.accountOptions?.[464] ?? 0;
   const multi = parseFloat(generalSpelunky[29]?.[index] ?? 0);
 
+  const upgradeLevel = (account as any)?.accountOptions?.[Math.round(index + 455)] ?? 0;
   if (index === 9) {
     return 1e5 * Math.pow(10, workerClass);
   } else if (index === 0) {
     return (1 / (1 + getClamWorkLocalBonuses(account, 4) / 100)) * (1 / (1 + getClamWorkLocalBonuses(account, 8) / 100))
-      * (Math.pow(multi, (account as any)?.accountOptions?.[Math.round(index + 455)])
-        + (3 * (account as any)?.accountOptions?.[Math.round(index + 455)]) + Math.pow((account as any)?.accountOptions?.[Math.round(index + 455)], 2.5));
+      * (Math.pow(multi, upgradeLevel)
+        + (3 * upgradeLevel) + Math.pow(upgradeLevel, 2.5));
   } else {
     return (1 / (1 + getClamWorkLocalBonuses(account, 4) / 100)) * (1 / (1 + getClamWorkLocalBonuses(account, 8) / 100))
       * (((requiredPearls ?? 0) / 5)
-        * Math.pow(multi, (account as any)?.accountOptions?.[Math.round(index + 455)])
-        + (2 * (account as any)?.accountOptions?.[Math.round(index + 455)])
-        + Math.pow((account as any)?.accountOptions?.[Math.round(index + 455)], 1.5));
+        * Math.pow(multi, upgradeLevel)
+        + (2 * upgradeLevel)
+        + Math.pow(upgradeLevel, 1.5));
   }
 }
 
 const getClamWorkLocalBonuses = (account: Account, index: number): number => {
+  const upgradeLevel = (account as any)?.accountOptions?.[Math.round(index + 455)] ?? 0;
   // 3 is multi kill which is shit to calculate so we just return 1
   return 999 == index ? 1 : 3 == index
-    ? 1 * parseFloat(generalSpelunky[28]?.[index] ?? 0) * (account as any)?.accountOptions?.[Math.round(index + 455)]
-    : parseFloat(generalSpelunky[28]?.[index] ?? 0) * (account as any)?.accountOptions?.[Math.round(index + 455)];
+    ? 1 * parseFloat(generalSpelunky[28]?.[index] ?? 0) * upgradeLevel
+    : parseFloat(generalSpelunky[28]?.[index] ?? 0) * upgradeLevel;
 }
 
 const getBlackPearlValue = (account: Account): number => {

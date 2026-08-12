@@ -11,9 +11,9 @@ const LogBook = ({ logBook, ownedLogBooks }) => {
             opacity: unlocked ? 1 : .5,
             filter: crowned ? 'hue-rotate(220deg) saturate(2)' : 'none'
           }}
-               src={`${prefix}data/${rawName}`} alt={''}/>
+               src={`${prefix}data/${rawName}`} alt={rawName}/>
           {crowned && <img style={{ position: 'absolute', top: 0, right: 0, width: 28, height: 28 }}
-                           src={`${prefix}data/GamingRatCrown.png`} alt={''}/>}
+                           src={`${prefix}data/GamingRatCrown.png`} alt="Gaming Rat Crown"/>}
         </Box>
       })}
     </Stack>

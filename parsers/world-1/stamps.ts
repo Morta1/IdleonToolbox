@@ -1,5 +1,6 @@
 import { groupByKey, growth, tryToParse } from '@utility/helpers';
 import { crafts, items, stamps } from '@website-data';
+import { liveEntries } from '@parsers/catalog';
 import { getTalentBonus } from '@parsers/talents';
 import { calculateItemTotalAmount, flattenCraftObject } from '@parsers/items';
 import { getEventShopBonus, getHighestCapacityCharacter, isBundlePurchased } from '@parsers/misc';
@@ -26,17 +27,14 @@ export const getStamps = (idleonData: any, account: any) => {
 }
 
 export const parseStamps = (stampLevelsRaw: any, stampMaxLevelsRaw: any, account: any) => {
-  const stampsObject = stampLevelsRaw?.reduce((result: any, item: any, index: any) => ({
-    ...result,
-    [(stampsMapping as Record<string, any>)?.[index]]: Object.keys(item).reduce((res: any[], key, stampIndex) => (key !== 'length' ? [
-      ...res,
-      { level: parseFloat(item[key]), maxLevel: stampMaxLevelsRaw?.[index]?.[stampIndex] }
-    ]
-      : res), [])
-  }), {});
-  return Object.entries(stampsObject)?.reduce((acc, [category, stampsLevels]: any) => {
-    const stampList = stampsLevels?.map((stamp: any, index: any) => {
-      const stampDetails = (stamps as Record<string, any>)[category][index];
+  return Object.entries(stampsMapping).reduce((acc: any, [categoryIndexStr, category]) => {
+    const categoryIndex = Number(categoryIndexStr);
+    const categoryCatalog = Object.values((stamps as Record<string, any>)[category as string]);
+    const stampList = liveEntries<any>(categoryCatalog).map(({ entry: stampDetails, index }) => {
+      const rawLevel = stampLevelsRaw?.[categoryIndex]?.[index];
+      const level = rawLevel != null ? parseFloat(rawLevel) : 0;
+      const rawMaxLevel = stampMaxLevelsRaw?.[categoryIndex]?.[index];
+      const maxLevel = rawMaxLevel != null ? parseFloat(rawMaxLevel) : 0;
       const requiredItem = stampDetails?.itemReq?.[0];
       const materials = flattenCraftObject(crafts[requiredItem?.name]);
       const ownedMats = account?.storage?.list?.reduce((sum: any, { rawName: storageRawName, amount }: any) => {
@@ -44,9 +42,9 @@ export const parseStamps = (stampLevelsRaw: any, stampMaxLevelsRaw: any, account
         return sum + (amount || 0);
       }, 0);
       const greenStackOwnedMats = Math.max(0, ownedMats - 1e7);
-      return { ...stampDetails, ...stamp, materials, ownedMats, greenStackOwnedMats, itemReq: requiredItem, category }
-    })
-    return { ...acc, [category]: stampList };
+      return { ...stampDetails, level, maxLevel, materials, ownedMats, greenStackOwnedMats, itemReq: requiredItem, category };
+    });
+    return { ...acc, [category as string]: stampList };
   }, {});
 }
 
@@ -76,7 +74,8 @@ export const getStampsPerDay = (account: any) => {
 }
 
 export const evaluateStamp = (stamp: any, account: any, characters: any, gildedStamp = true, forcedStampReducer: any, forceMaxCapacity = false) => {
-  const stampReducer = forcedStampReducer ?? account?.atoms?.stampReducer;
+  const rawStampReducer = forcedStampReducer ?? account?.atoms?.stampReducer;
+  const stampReducer = Number.isFinite(rawStampReducer) ? rawStampReducer : 0;
   const bestCharacter = getHighestCapacityCharacter(items?.[stamp?.itemReq?.rawName], characters, account, forceMaxCapacity);
   const goldCost = getGoldCost(stamp?.level, stamp, account);
   const hasMoney = account?.currencies?.rawMoney >= goldCost;
@@ -247,11 +246,12 @@ const getMaterialCost = (level: any, stamp: any, account: any, reduction = 0, gi
   const stampReducerVal = Math.max(0.1, 1 - reduction / 100);
   const meritocracyBonus = 1 / (1 + getMeritocracyBonus(account, 14) / 100);
 
+  const tierExponent = Math.max(0, Math.round(level / stamp?.reqItemMultiplicationLevel) - 1);
   return Math.max(1, (stamp?.baseMatCost * (gildedStamp ? 0.05 : 1)
     * meritocracyBonus
     * stampReducerVal
     * sigilReduction
-    * Math.pow(stamp?.powMatBase, Math.pow(Math.round(level / stamp?.reqItemMultiplicationLevel) - 1, 0.8)))
+    * Math.pow(stamp?.powMatBase, Math.pow(tierExponent, 0.8)))
     * Math.max(0.1, 1 - (reductionVial / 100)));
 }
 

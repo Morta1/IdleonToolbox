@@ -112,7 +112,7 @@ const Refinery = () => {
         </Card>
       })}
     </Stack>
-    <Stack direction={'row'} gap={2}>
+    <Stack mt={3} mb={3} direction={'row'} gap={2}>
       <CardTitleAndValue title={'More cycles'} stackProps>
         <FormControlLabel
           control={<Checkbox checked={includeSquireCycles}
@@ -128,7 +128,18 @@ const Refinery = () => {
     </Stack>
     <Stack gap={3} direction={'row'} flexWrap={'wrap'}>
       {refinery?.salts?.map((salt, saltIndex) => {
-        const { saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage } = salt;
+        const { saltName, refined, powerCap, rawName, rank, active, cost, autoRefinePercentage, unlocked } = salt;
+        if (unlocked === false) {
+          return <Card key={`${saltName}-${saltIndex}`} sx={{ width: 'fit-content', opacity: 0.5 }}>
+            <CardContent>
+              <Stack alignItems={'center'} gap={1}>
+                <img src={`${prefix}data/${rawName}.png`} alt="salt-icon" style={{ filter: 'grayscale(1)' }}/>
+                <Typography variant={'h6'}>{cleanUnderscore(saltName)}</Typography>
+                <Typography color={'text.secondary'}>Locked</Typography>
+              </Stack>
+            </CardContent>
+          </Card>;
+        }
         const progressPercentage = refined / powerCap * 100;
         const hasMaterialsForCycle = cost?.every(({
                                                     rawName,
@@ -256,11 +267,11 @@ const Refinery = () => {
                 <Stack direction={'row'} gap={5} alignItems={'center'}
                        justifyContent={'center'}>
                   <Stack sx={{ width: 50 }} alignSelf={'center'} alignItems={'center'}>
-                    <img width={32} height={32} src={`${prefix}data/${rawName}.png`} alt=""/>
+                    <img width={32} height={32} src={`${prefix}data/${rawName}.png`} alt={rawName}/>
                     <Typography>{notateNumber(powerPerCycle)}</Typography>
                   </Stack>
                   <Stack sx={{ width: 50 }} alignSelf={'center'} alignItems={'center'}>
-                    <img width={32} height={32} src={`${prefix}data/${rawName}.png`} alt=""/>
+                    <img width={32} height={32} src={`${prefix}data/${rawName}.png`} alt={rawName}/>
                     <Typography>{notateNumber(saltPerHour)}</Typography>
                   </Stack>
                 </Stack>
@@ -289,7 +300,7 @@ const ItemCell = forwardRef((props, ref) => {
     ref={ref}
     direction={'row'}
     alignItems={'center'}>
-    <ItemIcon src={`${prefix}data/${rawName}.png`} alt=""/>
+    <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
     <Stack>
       <Typography
         fontSize={14}

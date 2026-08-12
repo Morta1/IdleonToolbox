@@ -43,8 +43,10 @@ const ActiveStuffCalculator = () => {
     defaultValue: sections
   });
   const [selectedChar, setSelectedChar] = useState('0');
-  const isBeastMaster = checkCharClass(state?.characters?.[selectedChar]?.class, CLASSES.Beast_Master) || (state?.characters?.[selectedChar]?.class, CLASSES.Wind_Walker);
-  const isShaman = checkCharClass(state?.characters?.[selectedChar]?.class, CLASSES.Shaman);
+  const selectedCharacterClass = state?.characters?.[selectedChar]?.class;
+  const isBeastMaster = checkCharClass(selectedCharacterClass, CLASSES.Beast_Master)
+    || checkCharClass(selectedCharacterClass, CLASSES.Wind_Walker);
+  const isShaman = checkCharClass(selectedCharacterClass, CLASSES.Shaman);
 
   useEffect(() => {
     if (snapshottedChar) {
@@ -95,7 +97,9 @@ const ActiveStuffCalculator = () => {
     }
   };
 
-  const lastUpdated = state?.account?.timeAway?.Player * 1000;
+  const lastUpdatedSeconds = state?.account?.timeAway?.Player;
+  const lastUpdated = Number.isFinite(lastUpdatedSeconds) ? lastUpdatedSeconds * 1000 : null;
+  const currentCharacter = state?.characters?.[selectedChar];
 
   return <>
     <NextSeo
@@ -166,6 +170,8 @@ const ActiveStuffCalculator = () => {
     </Stack>
     {selectedSections.length === 0
       ? <Typography mt={2} variant={'h6'}>Please select at least one section</Typography>
+      : !currentCharacter || lastUpdated === null
+        ? <Typography mt={2} variant={'h6'}>Sign in to compare your snapshot against your current save</Typography>
       : (snapshottedChar?.playerId + '') != selectedChar ? <Typography mt={2} variant={'h6'}>No snapshot available for
         this
         character</Typography> : <>

@@ -30,13 +30,15 @@ const Summoning = () => {
       title="Summoning | Idleon Toolbox"
       description="View your summoning upgrades, winner bonuses, and battle rewards in Legends of Idleon"
     />
-    <Stack direction={'row'} gap={1} flexWrap={'wrap'} my={3} alignItems={'center'}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3} alignItems={'center'}>
       <CardTitleAndValue value={highestEndlessLevel}
-                         icon={'etc/Endless_Summoning.png'} imgStyle={{ width: 25 }} cardSx={{ my: 0, mb: 0 }}/>
+                         icon={'etc/Endless_Summoning.png'} iconAlt={'Highest endless summoning level'}
+                         imgStyle={{ width: 25 }} cardSx={{ my: 0, mb: 0 }}/>
       <Divider flexItem orientation={'vertical'}/>
       {essences?.map((value, index) => {
         if (index >= Object.keys(summonEssenceColor).length) return null;
         return <CardTitleAndValue key={index} value={notateNumber(value)} icon={`data/SummC${index + 1}.png`}
+                                  iconAlt={`${summonEssenceColor[index]} essence`}
                                   cardSx={{ my: 0, mb: 0 }}/>
       })}
     </Stack>

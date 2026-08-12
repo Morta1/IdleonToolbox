@@ -43,7 +43,7 @@ const Slab = () => {
       title="Slab | Idleon Toolbox"
       description="Track your Slab item collection progress and discover missing items in Legends of Idleon World 5"
     />
-    <Stack direction={'row'} gap={3} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={3} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Looted items'}
                          value={`${state?.account?.looty?.lootedItems} / ${state?.account?.looty?.totalItems}`}/>
       <CardTitleAndValue title={'Missing items'}

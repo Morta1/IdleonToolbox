@@ -61,14 +61,17 @@ export const getTrapsBonuses = (account: any, characters: any) => {
     characters,
     isExp: true
   }))
+  const withFallback = (bonuses: any[] | undefined, pick: (...values: number[]) => number) =>
+    bonuses?.length ? pick(...bonuses) : 1;
+
   return {
     max: {
-      critter: Math.max(...(critterBonuses || [1])),
-      exp: Math.max(...(expBonuses || [1]))
+      critter: withFallback(critterBonuses, Math.max),
+      exp: withFallback(expBonuses, Math.max)
     },
     min: {
-      critter: Math.min(...(critterBonuses || [1])),
-      exp: Math.min(...(expBonuses || [1]))
+      critter: withFallback(critterBonuses, Math.min),
+      exp: withFallback(expBonuses, Math.min)
     }
   }
 }

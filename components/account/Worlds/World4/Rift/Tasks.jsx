@@ -18,7 +18,7 @@ const Tasks = ({ list, currentRift, currentProgress, characters, chars }) => {
       {list?.map(({ monsterName, task, icon, riftBonus, riftBonusIcon }, riftIndex) => {
         if ((!minimized && riftIndex < currentRift)) return;
         const isCurrent = currentRift === riftIndex;
-        const realTask = isCurrent ? task?.replace('{', currentProgress) : task.split('.')?.[0];
+        const realTask = isCurrent ? task?.replace('@', '').replace('{', currentProgress) : task.split('.')?.[0];
         return <Card key={`${monsterName}-${riftIndex}`} sx={{
           width: 250,
           minHeight: 200,

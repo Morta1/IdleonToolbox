@@ -17,7 +17,7 @@ const AtomCollider = ({}) => {
       title="Atom Collider | Idleon Toolbox"
       description="Track your Atom Collider upgrade levels, stamp bonuses, and particle costs in Legends of Idleon"
     />
-    <Stack direction={'row'} gap={2}>
+    <Stack mb={3} direction={'row'} gap={2}>
       <CardTitleAndValue title={'Particles'}>
         <Stack direction={'row'} gap={2}>
           <img src={`${prefix}etc/Particle.png`}

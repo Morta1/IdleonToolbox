@@ -125,7 +125,7 @@ const Traps = () => {
 };
 
 const Totals = ({ array, index, outlined = false, hideExp }) => {
-  return <Stack direction={'row'} gap={2}>
+  return <Stack mb={3} direction={'row'} gap={2}>
     <CardTitleAndValue variant={outlined ? 'outlined' : 'elevation'} title={'Totals'} cardSx={{ my: 0, mb: 0 }}>
       <Stack direction={'row'} gap={3} flexWrap={'wrap'}>
         {Object.entries(array).map(([critterName, { critters, exp }], totalIndex) => {

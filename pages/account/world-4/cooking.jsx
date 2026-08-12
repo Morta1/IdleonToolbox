@@ -53,7 +53,7 @@ const Cooking = () => {
         title="Cooking | Idleon Toolbox"
         description="Track your kitchen meal levels, cooking speed, and recipe bonuses for all meals in Legends of Idleon"
       />
-      <Stack my={3} direction={'row'} gap={2} alignItems={'center'}>
+      <Stack mb={3} direction={'row'} gap={2} alignItems={'center'}>
         <FormControl sx={{ width: 170 }}>
           <InputLabel id="selected-character">Character</InputLabel>
           <Select

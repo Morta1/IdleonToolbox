@@ -23,7 +23,7 @@ const TheWell = ({ hole }) => {
   const goldenBucketsOwned = hole?.caverns?.theWell?.goldenBucketsOwned ?? 0;
 
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Opal cost'} icon={'data/HoleWellFill1.png'}
                          imgStyle={{ width: 24, height: 24, objectFit: 'none' }}
                          value={hole?.caverns?.theWell?.opalCost}/>

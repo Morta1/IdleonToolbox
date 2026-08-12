@@ -18,7 +18,7 @@ const CogStatCalculator = () => {
   };
 
   return (
-    <Stack alignItems={'center'}>
+    <Stack mb={3} alignItems={'center'}>
       <CardTitleAndValue title={'Highest Cons level'} value={highestDK?.skillsInfo?.construction?.level || 0}/>
       <FormControl>
         <FormLabel id="demo-row-radio-buttons-group-label">Cog type</FormLabel>

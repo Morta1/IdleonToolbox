@@ -221,6 +221,7 @@ export interface OptimizeOptions {
    * puts every one of them out there and leaves nobody making cogs. Omit for no limit.
    */
   maxCharacters?: number;
+  maxIterations?: number;
   onProgress?: (progress: OptimizeProgress) => void;
 }
 
@@ -242,22 +243,39 @@ export interface OptimizeMove {
   displacedOriginalIndex: number;
 }
 
+export const isBlankCog = (cog: any) => !cog || cog.name === 'Blank';
+
 // Turn "where every cog ended up" into the shortest list of swaps that gets you there from the
-// board you have now. Applying them top to bottom reproduces the optimized board exactly.
-const buildMoves = (target: Int32Array, cogs: any[]): OptimizeMove[] => {
+// board you have now. Applying them top to bottom reproduces the returned placement exactly - which
+// is why the caller builds its board from that placement rather than from the one it passed in.
+const buildMoves = (target: Int32Array, cogs: any[]): { moves: OptimizeMove[]; placement: Int32Array } => {
   const current = new Int32Array(target.length);
   const where = new Int32Array(target.length);
   for (let index = 0; index < target.length; index++) {
     current[index] = index;
     where[index] = index;
   }
+  const desired = Int32Array.from(target);
+  const wantedAt = new Int32Array(target.length);
+  for (let index = 0; index < desired.length; index++) wantedAt[desired[index]] = index;
+
   const moves: OptimizeMove[] = [];
   // Only board positions need fixing; whatever shuffling that leaves in the inventory is invisible.
   for (let position = 0; position < BOARD_SIZE; position++) {
-    const wanted = target[position];
+    const wanted = desired[position];
     if (current[position] === wanted) continue;
-    const source = where[wanted];
     const displaced = current[position];
+
+    if (isBlankCog(cogs[wanted]) && isBlankCog(cogs[displaced])) {
+      const swapWith = wantedAt[displaced];
+      desired[position] = displaced;
+      wantedAt[displaced] = position;
+      desired[swapWith] = wanted;
+      wantedAt[wanted] = swapWith;
+      continue;
+    }
+
+    const source = where[wanted];
     moves.push({
       from: source,
       to: position,
@@ -273,7 +291,7 @@ const buildMoves = (target: Int32Array, cogs: any[]): OptimizeMove[] => {
     current[source] = displaced;
     where[displaced] = source;
   }
-  return moves;
+  return { moves, placement: current };
 }
 
 // Build rate, player XP and flaggy rate differ by orders of magnitude and by account, so a raw
@@ -315,8 +333,12 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
     spareCogs,
     multipliers,
     maxCharacters,
+    maxIterations,
     onProgress
   } = options;
+  const iterationBudget = Number.isFinite(maxIterations as number) && (maxIterations as number) > 0
+    ? Math.trunc(maxIterations as number)
+    : 0;
   const baseBoard = arr || [];
   const spares = spareCogs || [];
   const assembled = findExcogiaBlocks(baseBoard);
@@ -353,11 +375,11 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
   // Empty slots are all alike, so trading one for another scores the same and the annealer takes it.
   // Harmless to the board, but it fills the plan with steps that move nothing.
   const isBlank = new Uint8Array(pool.length);
-  for (let index = 0; index < cogs.length; index++) isBlank[index] = cogs[index]?.name === 'Blank' ? 1 : 0;
+  for (let index = 0; index < cogs.length; index++) isBlank[index] = isBlankCog(cogs[index]) ? 1 : 0;
   let charactersOnBoard = 0;
   for (let index = 0; index < BOARD_SIZE; index++) charactersOnBoard += isCharacter[placement[index]];
 
-  const budget = Math.max(0, Number(time) || 0);
+  const budget = iterationBudget || Math.max(0, Number(time) || 0);
   const normalizedBoard = baseBoard.map((slot: any, index: number) => ({ ...slot, cog: cogs[index] }));
   if (boardSlots.length < 2 || budget === 0) {
     return { ...applyBoardMultipliers(evaluateBoard(normalizedBoard, characters), multipliers), moves: [] };
@@ -494,7 +516,7 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
     if (!onProgress || elapsed < nextProgressAt) return;
     nextProgressAt = elapsed + PROGRESS_INTERVAL;
     onProgress({
-      elapsed,
+      elapsed: Math.min(elapsed, budget),
       budget,
       iterations,
       gain: bestScore / Math.max(Math.abs(baselineScore), 1e-6) - 1
@@ -502,7 +524,11 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
   }
 
   while (elapsed < budget) {
-    if ((iterations & TIME_CHECK_MASK) === 0) {
+    if (iterationBudget) {
+      elapsed = iterations;
+      reportProgress();
+      if (elapsed >= budget) break;
+    } else if ((iterations & TIME_CHECK_MASK) === 0) {
       elapsed = Date.now() - startTime;
       reportProgress();
       if (elapsed >= budget) break;
@@ -572,33 +598,14 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
     }
   }
 
-  // One empty slot is worth exactly as much as another, so a slot that ends up empty should keep the
-  // empty it already had rather than being handed one from somewhere else. Without this the plan ends
-  // with a run of steps that drag blanks around the board to no effect. Scores are untouched: only
-  // blanks move, and only ever onto positions already holding a blank.
-  const blankHolder = new Int32Array(bestPlacement.length).fill(-1);
-  for (let position = 0; position < bestPlacement.length; position++) {
-    if (isBlank[bestPlacement[position]]) blankHolder[bestPlacement[position]] = position;
-  }
-  for (let position = 0; position < bestPlacement.length; position++) {
-    if (!isBlank[position] || !isBlank[bestPlacement[position]]) continue;
-    const displaced = bestPlacement[position];
-    if (displaced === position) continue;
-    const home = blankHolder[position];
-    if (home < 0) continue;
-    bestPlacement[position] = position;
-    bestPlacement[home] = displaced;
-    blankHolder[position] = position;
-    blankHolder[displaced] = home;
-  }
-
+  const { moves, placement: finalPlacement } = buildMoves(bestPlacement, cogs);
   const optimizedBoard = normalizedBoard.map((slot: any, index: number) => ({
     ...slot,
-    cog: cogs[bestPlacement[index]] ?? { name: 'Blank', stats: {}, originalIndex: index }
+    cog: cogs[finalPlacement[index]] ?? { name: 'Blank', stats: {}, originalIndex: index }
   }));
   return {
     ...applyBoardMultipliers(evaluateBoard(optimizedBoard, characters), multipliers),
-    moves: buildMoves(bestPlacement, cogs)
+    moves
   };
 }
 

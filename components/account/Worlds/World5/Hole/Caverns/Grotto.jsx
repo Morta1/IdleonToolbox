@@ -10,7 +10,7 @@ const Grotto = ({ hole }) => {
   const mushroomKillsLeftNotation = commaNotation(Math.ceil(grotto?.mushroomKillsLeft));
 
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Layer'} value={grotto?.layer}/>
       <CardTitleAndValue title={'Monarch HP'} value={notateNumber(grotto?.monarchHp, 'Big')}/>
       <CardTitleAndValue title={'Mushroom kills progress'} value={`${mushKills} / ${mushKillsReq}`}/>
@@ -19,7 +19,7 @@ const Grotto = ({ hole }) => {
                          value={hole?.holesObject?.opalsPerCavern?.[8] || 0}/>
     </Stack>
     <Divider />
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Lootie bonus'} value={`${engineerBonuses?.[44]?.totalBonus}%`}/>
       <CardTitleAndValue title={'Expie bonus'} value={`${engineerBonuses?.[46]?.totalBonus}%`}/>
       <CardTitleAndValue title={'Opie bonus'} value={`${engineerBonuses?.[47]?.totalBonus}%`}/>

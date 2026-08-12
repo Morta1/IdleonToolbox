@@ -18,7 +18,7 @@ const PetGrid = ({ label, pets, companions, totalPower }) => (
       <Typography variant="caption" color="text.secondary">{label}</Typography>
       {totalPower > 0 && (
         <Stack direction="row" alignItems="center" gap={0.5}>
-          <img width={14} height={14} style={{ objectFit: 'contain' }} src={`${prefix}etc/Companion_Power.png`} alt={''} />
+          <img width={14} height={14} style={{ objectFit: 'contain' }} src={`${prefix}etc/Companion_Power.png`} alt="Companion Power" />
           <Typography variant="caption" color="primary.main">{totalPower}</Typography>
         </Stack>
       )}
@@ -40,7 +40,7 @@ const PetGrid = ({ label, pets, companions, totalPower }) => (
             </Box>
             {(comp.tourPower ?? 0) > 0 && (
               <Stack direction="row" alignItems="center" gap={1}>
-                <img width={10} height={10} style={{ objectFit: 'contain' }} src={`${prefix}etc/Companion_Power.png`} alt={''} />
+                <img width={10} height={10} style={{ objectFit: 'contain' }} src={`${prefix}etc/Companion_Power.png`} alt="Companion Power" />
                 <Typography variant="caption" sx={{ lineHeight: 1, color: 'text.secondary' }}>
                   {comp.tourPower}
                 </Typography>

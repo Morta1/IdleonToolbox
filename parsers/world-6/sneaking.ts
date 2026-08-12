@@ -83,7 +83,7 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
 
   const sneakingExpThing = rawSneaking?.[102]?.[0];
   const jadeEmporiumUnlocks = rawSneaking?.[102]?.[9];
-  const jadeCoins = rawSneaking?.[102]?.[1];
+  const jadeCoins = rawSneaking?.[102]?.[1] ?? 0;
   const lastLooted = rawSneaking?.[102]?.[2];
   const ninjaUpgradeLevels = rawSneaking?.[103];
   const totalNinjaUpgradeLevels = ninjaUpgradeLevels?.reduce((sum: any, level: any) => sum + level, 0);
@@ -132,7 +132,7 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     return {
       ...upgrade,
       level,
-      value: level * (upgrade.modifier ?? 1),
+      value: (level ?? 0) * (upgrade.modifier ?? 1),
       isUnlocked,
       isSpecialUpgrade,
       prerequisiteIndex: !isSpecialUpgrade ? upgrade.x9 : null,
@@ -245,7 +245,8 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
 };
 
 export const getLocalNinjaUpgradeBonus = (upgrades: any, index: any, gemstones: any, inventory: any, account: any) => {
-  const { level, modifier } = upgrades?.[index] ?? {};
+  const { level: rawLevel, modifier } = upgrades?.[index] ?? {};
+  const level = rawLevel ?? 0;
   const masteryLootLevel = upgrades?.[3]?.level || 0;
   const selectedMasteryLevel = account?.accountOptions?.[231] || 0;
 
@@ -324,9 +325,10 @@ const parseNinjaItems = (array: any, doChunks: any, gemstones: any, account: any
 };
 
 const getSymbolBonus = (account: any, index: any) => {
+  const slotLevel = account?.spelunking?.sneakingSlots?.[index] ?? 0;
   return 999 == index ?
-    50 * (account?.spelunking?.sneakingSlots?.[index] + 1)
-    : 50 * account?.spelunking?.sneakingSlots?.[index];
+    50 * (slotLevel + 1)
+    : 50 * slotLevel;
 }
 
 const itemIdToSymbolLevelId = (itemId: any) => {

@@ -45,7 +45,8 @@ const Achievements = () => {
                 return visualIndex !== -1 && !name.includes('FILLER') ?
                   <Stack sx={{ position: 'relative' }} key={`${name}-${index}`}>
                     <HtmlTooltip title={<AchievementTooltip {...achievement}/>}>
-                      <Achievement completed={completed} src={`${prefix}data/${rawName}.png`} alt=""/>
+                      <Achievement completed={completed} src={`${prefix}data/${rawName}.png`}
+                                   alt={cleanUnderscore(name)}/>
                     </HtmlTooltip>
                     {currentQuantity ? <Quantity>
                       {notateNumber(currentQuantity)} {quantity > 1 ?

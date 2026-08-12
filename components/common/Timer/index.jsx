@@ -27,7 +27,7 @@ const Timer = forwardRef(({
         return setTime({ ...duration });
       }
       const tempTime = new Date();
-      const timePassed = (tempTime.getTime() - (lastUpdated ?? 0));
+      const timePassed = lastUpdated ? tempTime.getTime() - lastUpdated : 0;
       const dateIsInPast = isPast(date)
       let duration = getDuration(tempTime?.getTime(), date + (timePassed * (type === 'countdown' ? -1 : 1)));
       setTime({ ...duration, overtime: type === 'countdown' ? dateIsInPast : false });

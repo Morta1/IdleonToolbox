@@ -6,7 +6,7 @@ import LootPile from '@components/account/Worlds/World5/Sailing/LootPile';
 import { getTabs, prefix } from '@utility/helpers';
 import Chests from '@components/account/Worlds/World5/Sailing/Chests';
 import BoatsAndCaptains from '@components/account/Worlds/World5/Sailing/BoatsAndCaptains';
-import { CardTitleAndValue, MissingData } from '@components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
 import Trades from '@components/account/Worlds/World5/Sailing/Trades';
 import Tabber from '../../../components/common/Tabber';
@@ -27,7 +27,6 @@ const Sailing = () => {
     minimumTravelTime,
     minimumTravelTimeBreakdown
   } = state?.account?.sailing || {};
-  if (!state?.account?.sailing) return <MissingData name={'sailing'}/>;
 
   return <>
     <NextSeo

@@ -48,7 +48,7 @@ const LeaderboardRow = ({ rank, name, points, companions, totalTourPower, isPlay
         </Typography>
         {totalTourPower > 0 && (
           <Stack direction="row" alignItems="center" gap={0.5}>
-            <img width={14} height={14} style={{ objectFit: 'contain' }} src={`${prefix}etc/Companion_Power.png`} alt="" />
+            <img width={14} height={14} style={{ objectFit: 'contain' }} src={`${prefix}etc/Companion_Power.png`} alt="Companion Power" />
             <Typography variant="caption" color="text.secondary">{totalTourPower}</Typography>
           </Stack>
         )}
@@ -71,7 +71,7 @@ const LeaderboardRow = ({ rank, name, points, companions, totalTourPower, isPlay
               style={{ objectFit: 'contain' }}
               src={`${prefix}afk_targets/${c.name}.png`}
               title={c.name}
-              alt=""
+              alt={c.name}
             />
           ))}
         </Stack>

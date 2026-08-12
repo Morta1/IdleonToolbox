@@ -17,7 +17,7 @@ export const getAtoms = (idleonData: IdleonData, account: Account) => {
 
 const parseAtoms = (divinityRaw: any, atomsRaw: any, account: Account) => {
   const localAtoms = atomsRaw ?? [];
-  const particles = divinityRaw?.[39];
+  const particles = divinityRaw?.[39] ?? 0;
   const atoms = atomsInfo?.map((atomInfo, index) => {
     const level = localAtoms?.[index] ?? 0;
     const atomColliderLevel = account?.towers?.data?.[8]?.level ?? 0;
@@ -56,7 +56,7 @@ const parseAtoms = (divinityRaw: any, atomsRaw: any, account: Account) => {
       bonus
     }
   });
-  const daysSinceUsed = account?.accountOptions?.[134];
+  const daysSinceUsed = account?.accountOptions?.[134] ?? 0;
   const stampReducer = atoms?.find(({ name }) => name === 'Hydrogen_-_Stamp_Decreaser');
   const value = Math.min(90, (stampReducer?.level ?? 0) * Number(daysSinceUsed));
 
@@ -86,7 +86,7 @@ const getCost = ({
   const paletteBonus = getPaletteBonus(account, 35);
   const bubbaAtomCostBonus = account?.bubba?.bonuses?.atomCost?.bonus ?? 0;
   const baseCost = (1 / (1 + (paletteBonus + stampBonusReduction + atomReductionFromAtom + 10 * (reduxSuperbit ? 1 : 0)
-    + (grimoireBonus + compassBonus) + bubbleBonus + atomColliderLevel / 10 + 7 * account?.tasks?.[2][4][6] + bubbaAtomCostBonus) / 100));
+    + (grimoireBonus + compassBonus) + bubbleBonus + atomColliderLevel / 10 + 7 * (account?.tasks?.[2]?.[4]?.[6] ?? 0) + bubbaAtomCostBonus) / 100));
   return baseCost * (atomInfo?.x3 + atomInfo?.x1 * level) * Math.pow(atomInfo?.x2, level);
 }
 const getCostToMax = (costObject: any) => {

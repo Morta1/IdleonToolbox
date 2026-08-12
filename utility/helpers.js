@@ -766,9 +766,13 @@ export const shouldDisplayDrawer = (pathname = '') => {
   return drawerPages.includes(pathname?.split('/').at(1))
 }
 
+export const UNKNOWN_TIME = '—';
+export const isUnknownTime = (ms) => typeof ms !== 'number' || !Number.isFinite(ms);
+
 export const getRealDateInMs = (ms, shouldFormat = true, formatString = 'dd/MM/yyyy HH:mm:ss') => {
   const dateInMs = ms;
   if (shouldFormat) {
+    if (isUnknownTime(dateInMs)) return UNKNOWN_TIME;
     return isValid(new Date(dateInMs))
       ? format(dateInMs, formatString)
       : `${notateNumber(getTimeAsDays(dateInMs))} days`;
@@ -941,7 +945,7 @@ export const handleLoadJson = async (dispatch) => {
       tournament,
       lastUpdated
     });
-    dispatch({ type: 'data', data: { ...parsedData, lastUpdated, manualImport: true } });
+    dispatch({ type: 'data', data: { ...parsedData, lastUpdated, manualImport: true, emptyAccount: false } });
 
     if (typeof window.gtag !== 'undefined') {
       window.gtag('event', 'save_imported', {
@@ -1133,3 +1137,8 @@ export function parseShorthandNumber(input) {
 }
 
 export const worldColor = ['#64b564', '#f1ac45', '#00bcd4', '#864ede', '#de4e4e', '#5FF1B4FF', '#40e0d0'];
+export const getNextCompanionClaim = (account) => {
+  const globalTime = account?.timeAway?.GlobalTime ?? 0;
+  const lastFreeClaim = account?.companions?.lastFreeClaim ?? 0;
+  return new Date().getTime() + Math.max(0, 594e6 - (1e3 * globalTime - lastFreeClaim));
+};

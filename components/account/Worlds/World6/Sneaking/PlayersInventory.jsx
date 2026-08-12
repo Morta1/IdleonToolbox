@@ -36,7 +36,7 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
                     {characters?.[playerIndex]?.name}
                   </Typography>
                   <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-                    <img width={20} src={`${prefix}data/ClassIcons58.png`} alt={''} />
+                    <img width={20} src={`${prefix}data/ClassIcons58.png`} alt="Class Icons58" />
                     <Typography variant={'body2'}>{characters?.[playerIndex]?.skillsInfo?.sneaking?.level}</Typography>
                   </Stack>
                 </Stack>
@@ -63,7 +63,7 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
                     <Tooltip
                       title={cleanUnderscore(getDescription({ description, value, type, subType }))}
                       key={`droplist-${rawName}-${index}`}>
-                      <img width={22} src={`${prefix}data/${rawName}.png`} alt={''} />
+                      <img width={22} src={`${prefix}data/${rawName}.png`} alt={rawName} />
                     </Tooltip> : null)}
                 </Stack>
               </Stack>
@@ -107,7 +107,7 @@ const Item = ({ level, description, name, rawName }) => {
         variant={'caption'}>{numberWithCommas(level)}</Typography>
       : null}
     <Tooltip title={description === '0' || name === 'Nothing' ? '' : cleanUnderscore(description)}>
-      <img width={32} style={{ zIndex: 2 }} src={`${prefix}data/${rawName}.png`} alt={''} />
+      <img width={32} style={{ zIndex: 2 }} src={`${prefix}data/${rawName}.png`} alt={rawName} />
     </Tooltip>
   </Stack>
 }

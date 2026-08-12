@@ -1,4 +1,5 @@
 import { atomsInfo, cookingMenu, monsters, randomList, randomList2, bonuses } from '@website-data';
+import { liveEntries } from '@parsers/catalog';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getStatsFromGear } from '@parsers/items';
 import { lavaLog, notateNumber, tryToParse } from '@utility/helpers';
@@ -119,23 +120,23 @@ const getMeals = (mealsRaw: any, account: any, cookMasterRaw?: any) => {
   const mealsLevelsListRaw = mealsRaw?.[0];
   const mealsQuantityListRaw = mealsRaw?.[2];
   const shinyMealBonus = getShinyBonus(account?.breeding?.pets, 'Bonuses_from_All_Meals');
-  return mealsLevelsListRaw?.map((mealLevel: any, index: any) => {
-    if (!cookingMenu?.[index]) return null;
+  return liveEntries<any>(cookingMenu).map(({ entry, index }) => {
+    const mealLevel = mealsLevelsListRaw?.[index] ?? 0;
     const levelCost = getMealLevelCost(mealLevel, account?.achievements, account);
     const cookingMasteryNodeLevel = cookMasterRaw?.[0]?.[index] ?? 0;
     return {
       index,
       level: mealLevel,
-      amount: parseFloat(mealsQuantityListRaw?.[index]),
+      amount: parseFloat(mealsQuantityListRaw?.[index]) || 0,
       shinyMulti: shinyMealBonus,
       levelCost,
       cookingMasteryNode: {
         level: cookingMasteryNodeLevel,
         multi: getMealNodeMulti(cookingMasteryNodeLevel)
       },
-      ...(cookingMenu?.[index] || {})
+      ...entry
     }
-  }).filter((meal: any) => meal);
+  });
 }
 
 export const applyMealsMulti = (meals: any, multiplier: any) => {
@@ -217,9 +218,10 @@ export const getMealsBonusByEffectOrStat = (account: any, effectName: any, statN
 export const getRibbonBonus = (account: any, t: any) => {
   const armorSetBonus = getArmorSetBonus(account, 'EMPEROR_SET');
   const cloudBonus73 = account?.equinox?.challenges?.[73]?.current === -1 ? 1 : 0;
-  return 1 + (Math.floor(5 * t + Math.floor(t / 2) *
-    (4 + 6.5 * Math.floor(t / 5))) + Math.floor(t / 4) * (armorSetBonus / 4)
-    + Math.floor(t / 10) * cloudBonus73) / 100;
+  const rank = t ?? 0;
+  return 1 + (Math.floor(5 * rank + Math.floor(rank / 2) *
+    (4 + 6.5 * Math.floor(rank / 5))) + Math.floor(rank / 4) * (armorSetBonus / 4)
+    + Math.floor(rank / 10) * cloudBonus73) / 100;
 }
 
 export const COOKING_MASTERY_RANK_THRESHOLDS = [0, 1, 5, 10, 25, 100, 150, 250, 500];
@@ -755,7 +757,7 @@ export const getMealLevelCost = (level: any, achievements: any, account?: any, l
     * Math.pow(10, 22 * Math.floor((level + 1e3) / 1111))
     * (1 / Math.min(5, Math.max(1, 1 + (10 * getAchievementStatus(achievements, 233)) / 100)))
     * Math.max(0.001, Math.pow(Math.max(0.58, 0.8 - 0.22 * foodLustChallenge),
-      Math.min(account?.accountOptions?.[193],
+      Math.min(account?.accountOptions?.[193] ?? 0,
         getEquinoxBonus(localEquinoxUpgrades || account?.equinox?.upgrades, 'Food_Lust')))) *
     (10 + (level
       + Math.pow(level, 2)))

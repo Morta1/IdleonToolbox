@@ -244,7 +244,11 @@ function getTaskProgress(taskIndex: number, account: any, characters: any = []):
     case 40: return account?.gaming?.totalPlantsPicked ?? 0;
 
     // 41: Palette Multi (in-game "Palette Multi" = Palette Luck multiplier, shown as "x")
-    case 41: return account?.gaming?.paletteLuck?.value ?? 0;
+    // Gated on `unlocked`: gaming now parses to a populated shape when the feature is locked, and
+    // its neutral palette luck is 1 (a multiplier's identity), which would silently move this task's
+    // progress from 0 to 1 for every real account that has not unlocked gaming. Whether 1 is the
+    // better number here is a separate question from this change, so keep what shipped.
+    case 41: return account?.gaming?.unlocked ? (account?.gaming?.paletteLuck?.value ?? 0) : 0;
 
     // 42: Items found (Slab)
     case 42: return account?.looty?.lootedItems ?? 0;
@@ -313,6 +317,7 @@ function formatTaskDescription(rawDescription: string, requirement: number): str
  * Formats large numbers with commas for display in task descriptions.
  */
 function formatLargeNumber(value: number): string {
+  if (!Number.isFinite(value)) return '∞';
   if (value >= 1e15) return value.toExponential(2);
   return Math.floor(value).toLocaleString('en-US');
 }

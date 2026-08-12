@@ -9,7 +9,7 @@ export const getDeathNote = (idleonData: any, charactersData: any, account: any)
   const allKills = getAllCharactersKills(charactersData);
   const miniBosses = bosses.map((rawName: any, index: any) => ({
     rawName,
-    kills: miniBossesKills?.[index]
+    kills: miniBossesKills?.[index] ?? 0
   })).reduce((res: any, { rawName, kills }: any) => {
     const rank = getDeathNoteRank(account, kills, true);
     return {
@@ -19,7 +19,7 @@ export const getDeathNote = (idleonData: any, charactersData: any, account: any)
   }, {});
   return deathNote.reduce((res: any, { rawName, world }) => {
     const mobIndex = mapEnemies?.[rawName];
-    const kills = allKills?.[mobIndex];
+    const kills = allKills?.[mobIndex] ?? 0;
     const rank = getDeathNoteRank(account, kills, false);
     return {
       ...res,

@@ -48,7 +48,7 @@ const Compass = () => {
       title="Compass | Idleon Toolbox"
       description="Keep track of your compass levels, upgrades and compass stats"
     />
-    <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       {windWalkers.length > 1 ? <CardTitleAndValue title={'Character'}
                                                    value={<Select size={'small'} value={selectedChar}
                                                                   onChange={(e) => setSelectedChar(e.target.value)}>
@@ -94,7 +94,7 @@ const Compass = () => {
       />)}
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
-    <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Hp'} value={numberWithCommas(Math.floor(tempestStats?.hp)).replace('.00', '')}/>
       <CardTitleAndValue title={'Damage'} value={tempestStats?.damage < 1e8
         ? numberWithCommas(Math.floor(tempestStats?.damage) || '0')

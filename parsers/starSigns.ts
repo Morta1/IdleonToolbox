@@ -1,5 +1,6 @@
 import { tryToParse } from '@utility/helpers';
 import { constellations, mapNames, starSigns } from '@website-data';
+import { liveEntries } from '@parsers/catalog';
 import { starSignsIndicesMap } from './parseMaps';
 import { isRiftBonusUnlocked } from './world-4/rift';
 import { getShinyBonus } from './world-4/breeding';
@@ -16,13 +17,16 @@ export const getStarSigns = (idleonData: IdleonData, account: Account): any[] | 
 export const getConstellations = (idleonData: IdleonData): { constellations: any[]; rawConstellationsDone: number } => {
   const constellationsRaw = tryToParse(idleonData?.SSprog) || idleonData?.StarSignProg;
   const constellationsParsed = parseConstellations(constellationsRaw);
-  return { constellations: constellationsParsed, rawConstellationsDone: constellationsRaw?.reduce((sum: number, [, done]: [any, number]) => sum + done, 0) }
+  return {
+    constellations: constellationsParsed ?? [],
+    rawConstellationsDone: constellationsRaw?.reduce((sum: number, [, done]: [any, number]) => sum + done, 0) ?? 0
+  }
 }
 
 export const parseStarSigns = (starSignsRaw: any, account: Account): any[] | undefined => {
   const infiniteStarsUnlocked = isRiftBonusUnlocked((account as any)?.rift, 'Infinite_Stars');
   const infiniteStars = infiniteStarsUnlocked ? 5 + getShinyBonus((account as any)?.breeding?.pets, 'Infinite_Star_Signs') : 0;
-  return starSigns?.map((starSign: any, index: number) => {
+  return liveEntries<any>(starSigns).map(({ entry: starSign, index }) => {
     const { starName } = starSign;
     const isInfiniteStar = index < infiniteStars && !!starSignsRaw?.[starName];
     return {
@@ -32,27 +36,22 @@ export const parseStarSigns = (starSignsRaw: any, account: Account): any[] | und
       unlocked: !!starSignsRaw?.[starName],
       isInfiniteStar
     }
-  }, []);
+  });
 }
 
 export const parseConstellations = (constellationsRaw: any[]): any[] => {
-  // Static constellations have rawIndex matching their position in the game's StarQuests array.
-  // Raw save data has one entry per StarQuest slot (including unused placeholders).
-  const constellationsByRawIndex = new Map(
-    constellations?.map((c: any) => [c.rawIndex ?? c.mapIndex, c])
-  );
-  return constellationsRaw?.reduce((res: any[], constellation: any, index: number) => {
-    const constellationInfo = constellationsByRawIndex.get(index);
-    if (!constellationInfo) return res;
-    const [completedChars, done] = constellation;
-    const mapIndex = constellationInfo?.mapIndex;
-    return mapIndex != null ? [...res, {
-      ...constellationInfo,
-      location: mapNames[mapIndex],
-      completedChars,
-      done: !!done
-    }] : res;
-  }, []);
+  return constellations
+    .filter(({ mapIndex }: any) => mapIndex != null)
+    .map((constellationInfo: any) => {
+      const rawIndex = constellationInfo.rawIndex ?? constellationInfo.mapIndex;
+      const [completedChars = '', done = 0] = constellationsRaw?.[rawIndex] ?? [];
+      return {
+        ...constellationInfo,
+        location: mapNames[constellationInfo.mapIndex],
+        completedChars,
+        done: !!done
+      };
+    });
 }
 
 export const getStarSignByEffect = (equippedStarSigns: any[], starEffect: string, _unused2?: any): number => {

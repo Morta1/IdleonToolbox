@@ -48,10 +48,10 @@ const Spelunking = () => {
       description="Keep track of your spelunking levels, upgrades and stats"
     />
 
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Power'} >
         <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg17.png`} alt="" />
+          <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg17.png`} alt="Cave Shop Upg17" />
           <Typography>{notateNumber(power.value, "Big")}</Typography>
           <Breakdown data={power.breakdown}>
             <Stack alignContent={'center'}>
@@ -73,10 +73,10 @@ const Spelunking = () => {
           </Breakdown>
         </Stack>
       </CardTitleAndValue>
-      <CardTitleAndValue title={'Daily Page Reads'} value={`${state?.account?.accountOptions?.[410]} / ${maxDailyPageReads}`} />
+      <CardTitleAndValue title={'Daily Page Reads'} value={`${state?.account?.accountOptions?.[410] ?? 0} / ${maxDailyPageReads}`} />
       <CardTitleAndValue title={'Stamina Regen Rate'} >
         <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg4.png`} alt="" />
+          <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg4.png`} alt="Cave Shop Upg4" />
           <Typography>{notateNumber(staminaRegenRate.value, "MultiplierInfo")}</Typography>
           <Breakdown data={staminaRegenRate.breakdown}>
             <Stack alignContent={'center'}>
@@ -87,13 +87,13 @@ const Spelunking = () => {
       </CardTitleAndValue>
       <CardTitleAndValue title={'Overstim'}>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg6.png`} alt="" />
+          <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg6.png`} alt="Cave Shop Upg6" />
           <Typography>{notateNumber(overstimLevel, "Big")} + {notateNumber(overstimCurrent, "Big")}%</Typography>
         </Stack>
       </CardTitleAndValue>
       <CardTitleAndValue title={'Overstim Rate'}>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg6.png`} alt="" />
+          <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg6.png`} alt="Cave Shop Upg6" />
           <Typography>{notateNumber(overstimRate, "Big")}</Typography>
           <Tooltip title={`${charactersAtMaxStamina ?? 0} character${(charactersAtMaxStamina ?? 0) === 1 ? '' : 's'} at max stamina contributing to overstim rate`}>
             <IconInfoCircleFilled size={18} />

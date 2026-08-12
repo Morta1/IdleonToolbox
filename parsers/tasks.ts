@@ -20,12 +20,12 @@ export const getTasks = (idleonData: IdleonData): {
   ];
   const tasksDescriptions = tasks?.map((worldTasks: any[], worldIndex: number) => {
     return worldTasks?.map((task: any, taskIndex: number) => {
-      const stat = tasksRaw?.[0]?.[worldIndex]?.[taskIndex];
-      const level = tasksRaw?.[1]?.[worldIndex]?.[taskIndex];
+      const stat = tasksRaw?.[0]?.[worldIndex]?.[taskIndex] ?? 0;
+      const level = tasksRaw?.[1]?.[worldIndex]?.[taskIndex] ?? 0;
       const meritReward = Math.round(1 + Math.floor(level / 5));
       let realTask = task;
       if (taskIndex === 8) {
-        const randomTaskIndex = tasksRaw?.[5]?.[worldIndex];
+        const randomTaskIndex = tasksRaw?.[5]?.[worldIndex] ?? 0;
         realTask = tasks?.[worldIndex]?.[8 + randomTaskIndex];
       }
       return {
@@ -39,7 +39,7 @@ export const getTasks = (idleonData: IdleonData): {
 
   const meritsDescriptions = merits?.map((world: any[], worldIndex: number) => {
     return world?.map((merit: any, meritIndex: number) => {
-      const level = tasksRaw?.[2]?.[worldIndex]?.[meritIndex];
+      const level = tasksRaw?.[2]?.[worldIndex]?.[meritIndex] ?? 0;
       return {
         ...merit,
         level
@@ -54,7 +54,7 @@ export const getTasks = (idleonData: IdleonData): {
       }
     })
   });
-  const unlockedRecipes = tasksRaw?.[3]?.flat()?.reduce((sum: number, unlock: number) => sum + unlock, 0);
+  const unlockedRecipes = tasksRaw?.[3]?.flat()?.reduce((sum: number, unlock: number) => sum + unlock, 0) ?? 0;
   const unlockPointsOwned = getUnlockPointsOwned(unlockPointsFormula, tasksRaw?.[4]?.[0]) ?? 0;
   const pointsReq = getPointsReq(unlockPointsFormula, unlockPointsOwned, 0) ?? 0;
   const taskUnlocks = {

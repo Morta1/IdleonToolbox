@@ -58,14 +58,14 @@ const BreedingUpgrades = ({ account, petUpgrades, meals }) => {
               </Stack>
               <Stack mt={2} gap={2}>
                 <Stack direction={'row'} alignItems={'center'} gap={2}>
-                  <img src={`${prefix}data/${upgrade?.material}.png`} alt=""/>
+                  <img src={`${prefix}data/${upgrade?.material}.png`} alt={upgrade?.material}/>
                   {notateNumber(calcCellCost(upgrade))}
                   <div>({cellCostToMax})</div>
                 </Stack>
                 {index > 0 ? <Stack direction={'row'} alignItems={'center'}>
                   <MealAndPlate>
                     <img src={`${prefix}data/CookingMB${upgrade?.foodIndex}.png`} alt=""/>
-                    <img src={`${prefix}data/CookingPlate0.png`} alt=""/>
+                    <img src={`${prefix}data/CookingPlate0.png`} alt="Cooking Plate0"/>
                   </MealAndPlate>
                   <div style={{ textAlign: 'center' }}>
                     <Typography>{notateNumber(foodAmount)} / {notateNumber(foodUpgradeCost)} ({foodCostToMax})</Typography>

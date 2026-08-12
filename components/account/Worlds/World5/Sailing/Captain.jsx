@@ -44,7 +44,7 @@ const Captain = ({
             <Typography>Exp: {exp} / {expReq}</Typography>
           </> : <Stack sx={{ my: 1 }} gap={1} direction={'row'}>
             <img style={{ width: 25, objectFit: 'contain' }}
-              src={`${prefix}data/SailT0.png`} alt="" />
+              src={`${prefix}data/SailT0.png`} alt="Sail T0" />
             <Typography
               color={lootPile?.[0]?.amount >= cost ? 'success.light' : 'error.light'}
               component={'span'}>{notateNumber(lootPile?.[0]?.amount, 'Big')}/{notateNumber(cost, 'Big')}</Typography>

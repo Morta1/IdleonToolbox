@@ -27,25 +27,25 @@ const parseOwl = (account: any) => {
   const feathers = account?.accountOptions?.[253];
   const progress = account?.accountOptions?.[263];
   const upgrades = owlData.map((upgrade, i) => {
-    const commonFactor = (1 / (1 + (10 * account?.accountOptions?.[257]) / 100))
-      * (1 / (1 + (20 * (account?.accountOptions?.[261])) / 100))
-      * (1 / (1 + (getMegaFeather(account, 2) * (account?.accountOptions?.[254])) / 100))
+    const commonFactor = (1 / (1 + (10 * (account?.accountOptions?.[257] ?? 0)) / 100))
+      * (1 / (1 + (20 * (account?.accountOptions?.[261] ?? 0)) / 100))
+      * (1 / (1 + (getMegaFeather(account, 2) * (account?.accountOptions?.[254] ?? 0)) / 100))
       * (upgrade?.x1);
 
     const cost = 0 === i
       ? commonFactor
-      * (account?.accountOptions?.[254 + i])
-      * Math.pow(Math.max(1.05, (upgrade?.x2) - 0.025 * getMegaFeather(account, 8)), (account?.accountOptions?.[254 + i]))
+      * (account?.accountOptions?.[254 + i] ?? 0)
+      * Math.pow(Math.max(1.05, (upgrade?.x2) - 0.025 * getMegaFeather(account, 8)), (account?.accountOptions?.[254 + i] ?? 0))
       : commonFactor
-      * Math.pow((upgrade?.x2), (account?.accountOptions?.[254 + i]));
+      * Math.pow((upgrade?.x2), (account?.accountOptions?.[254 + i] ?? 0));
 
     let description = upgrade?.desc;
 
     const megaFeather6 = getMegaFeather(account, 6) || 0;
-    const option258 = account.accountOptions[258] || 0;
+    const option258 = account?.accountOptions?.[258] || 0;
     const bonus1 = Math.pow(Math.round(3 + 2 * megaFeather6), option258 + 1);
 
-    const option254PlusI = account.accountOptions[254 + i] || 0;
+    const option254PlusI = account?.accountOptions?.[254 + i] || 0;
     const multiplier = parseInt('1 0 5 10 0 5 1 20 0'.split(' ')[i]) || 0;
     const bonus2 = multiplier * option254PlusI;
     const bonus3 = Math.floor(1e4 * (1 - 1 / (1 + 10 * option254PlusI / 100))) / 100;
@@ -57,7 +57,7 @@ const parseOwl = (account: any) => {
 
 
     if (i === 0 && getMegaFeather(account, 2) === 1) {
-      const option254 = account.accountOptions[254] || 0;
+      const option254 = account?.accountOptions?.[254] || 0;
       const costReductionBonus = Math.floor(
         1e4 * (1 - 1 / (1 + getMegaFeather(account, 2) * option254 / 100))
       ) / 100;
@@ -87,12 +87,12 @@ const parseOwl = (account: any) => {
     (1 + vaultUpgradeBonus / 100) *
     (1 + meritocracyBonus / 100) *
     (1 + getGambitBonus(account, 8) / 100) *
-    ((account?.accountOptions?.[254])
-      + (5 * (account?.accountOptions?.[259])
-        + (2 * getMegaFeather(account, 4) * (account?.accountOptions?.[257]) + 4 * getMegaFeather(account, 4) * (account?.accountOptions?.[261]))
+    ((account?.accountOptions?.[254] ?? 0)
+      + (5 * (account?.accountOptions?.[259] ?? 0)
+        + (2 * getMegaFeather(account, 4) * (account?.accountOptions?.[257] ?? 0) + 4 * getMegaFeather(account, 4) * (account?.accountOptions?.[261] ?? 0))
       )
-    ) * (1 + (5 * (account?.accountOptions?.[256])) / 100)
-    * Math.pow(3 + 2 * getMegaFeather(account, 6), (account?.accountOptions?.[258])) * (1 + ((account?.accountOptions?.[264]) * (account?.accountOptions?.[260])) / 100)
+    ) * (1 + (5 * (account?.accountOptions?.[256] ?? 0)) / 100)
+    * Math.pow(3 + 2 * getMegaFeather(account, 6), (account?.accountOptions?.[258] ?? 0)) * (1 + ((account?.accountOptions?.[264] ?? 0) * (account?.accountOptions?.[260] ?? 0)) / 100)
   );
   const totalFeatherBonus = 100 * getMegaFeather(account, 1)
     + (100 * getMegaFeather(account, 3)
@@ -128,14 +128,14 @@ const parseOwl = (account: any) => {
       percentage: stat.percentage
     })),
 
-    { name: 'Shiny Feather', bonus: account?.accountOptions?.[264] }
+    { name: 'Shiny Feather', bonus: account?.accountOptions?.[264] ?? 0 }
   ];
 
   const megaFeathers = megaFeathersDesc.map((description, index) => ({
     description,
     unlocked: index + 1 <= account?.accountOptions?.[262],
     ...(index === 9 ? {
-      amount: account?.accountOptions?.[262] - 10,
+      amount: (account?.accountOptions?.[262] ?? 0) - 10,
       totalBonus: 1 + totalFeatherBonus / 100
     } : {})
   }));
@@ -148,7 +148,7 @@ const parseOwl = (account: any) => {
     megaFeathers,
     featherRate,
     restartMulti: Math.pow(3 + 2
-      * getMegaFeather(account, 6), (account?.accountOptions?.[258] + 1))
+      * getMegaFeather(account, 6), (account?.accountOptions?.[258] ?? 0) + 1)
   }
 }
 

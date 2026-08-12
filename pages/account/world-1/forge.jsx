@@ -54,7 +54,7 @@ const Forge = () => {
                   {materials?.map(({ rawName, quantity }, matIndex) => {
                     return <Stack key={`${rawName}-${matIndex}`} sx={slot}>
                       <img style={{ width: !isMd ? 'auto' : 36, opacity: empty ? 0 : 1 }}
-                           src={`${prefix}data/${!empty ? rawName : 'CopperBar'}.png`} alt=""/>
+                           src={`${prefix}data/${!empty ? rawName : 'CopperBar'}.png`} alt={!empty ? rawName : 'CopperBar'}/>
                       {quantity > 0 ?
                         <Typography variant={'body1'} component={'span'}>{quantity}</Typography> : <Typography
                           variant={'body1'} component={'span'}>&nbsp;</Typography>}
@@ -62,8 +62,10 @@ const Forge = () => {
                   })}
                   <Box>
                     <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>Time till empty</Typography>
-                    <Timer type={'countdown'} lastUpdated={state?.lastUpdated}
-                           date={new Date().getTime() + timeTillEmpty}/>
+                    {empty
+                      ? <Typography variant={'body2'} color={'text.secondary'}>Empty</Typography>
+                      : <Timer type={'countdown'} lastUpdated={state?.lastUpdated}
+                               date={new Date().getTime() + timeTillEmpty}/>}
                   </Box>
                 </Stack>
               </CardContent>

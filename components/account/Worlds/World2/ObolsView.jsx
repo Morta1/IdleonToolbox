@@ -61,7 +61,7 @@ const ObolsView = ({ obols, type = 'character', obolStats, characters }) => {
                           <Typography variant={'caption'} className={'lv-req'}>{levelReq}</Typography> : null}
                         <img key={displayName + '' + index} src={`${prefix}${imgName}.png`}
                              style={style}
-                             alt=""/>
+                             alt={imgName}/>
                       </span>
                     </Tooltip>
                   </div>;

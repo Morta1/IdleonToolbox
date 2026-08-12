@@ -49,7 +49,7 @@ const Bonus = ({ name, label, value }) => {
   return value ? <Card sx={{ width: 180 }}>
     <CardContent>
       <Stack direction={'row'} alignItems={'center'} gap={2}>
-        <img src={`${prefix}etc/${name}.png`} alt=""/>
+        <img src={`${prefix}etc/${name}.png`} alt={name}/>
         <Stack>
           <Typography>{label}</Typography>
           <Typography>{value}</Typography>

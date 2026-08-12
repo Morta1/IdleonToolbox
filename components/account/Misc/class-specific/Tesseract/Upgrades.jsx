@@ -63,7 +63,7 @@ const Upgrades = ({ upgrades, tachyons }) => {
         >
           <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center" sx={{ position: 'relative' }}>
             <img style={{ width: 32, height: 32, zIndex: 1 }}
-                 src={`${prefix}data/ArcaneUpg${index}.png`}/>
+                 src={`${prefix}data/ArcaneUpg${index}.png`} alt=""/>
             <Typography>
               {cleanUnderscore(
                 name
@@ -89,7 +89,7 @@ const Upgrades = ({ upgrades, tachyons }) => {
             <Divider sx={{ my: 1 }}/>
           </> : null}
           <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
-            <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Tach${tachyonType}_x1.png`}/>
+            <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Tach${tachyonType}_x1.png`} alt=""/>
             {level < x4 ? <Typography>
               Cost: {notateNumber(tachyons?.[tachyonType]?.value || 0)} / {notateNumber(cost, 'Big')}
             </Typography> : <Typography>Maxed</Typography>}
@@ -150,7 +150,7 @@ const Upgrades = ({ upgrades, tachyons }) => {
             <Stack key={x3} direction="column" gap={2}>
               <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
                 <Typography variant="h6">Tachyon Type</Typography>
-                <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Tach${x3}_x1.png`}/>
+                <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Tach${x3}_x1.png`} alt=""/>
               </Stack>
               <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
                 {sortedGroup.map((upgrade, i) => renderUpgradeCard(upgrade, i, x3))}

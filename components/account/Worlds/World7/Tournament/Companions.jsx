@@ -12,7 +12,7 @@ const PetCard = ({ name, rawName, tourPower }) => (
           width={50} height={50}
           style={{ objectFit: 'contain' }}
           src={`${prefix}afk_targets/${name}.png`}
-          alt={''}
+          alt={name}
         />
         <Typography variant={'body2'} textAlign={'center'} fontSize={11}>
           {cleanUnderscore(name)}
@@ -20,7 +20,7 @@ const PetCard = ({ name, rawName, tourPower }) => (
         {tourPower > 0 && (
           <Stack direction={'row'} alignItems={'center'} gap={0.5}>
             <img width={16} height={16} style={{ objectFit: 'contain' }} src={`${prefix}etc/Companion_Power.png`}
-                 alt={''}/>
+                 alt="Companion Power"/>
             <Typography variant={'caption'} color={'text.secondary'}>{tourPower}</Typography>
           </Stack>
         )}

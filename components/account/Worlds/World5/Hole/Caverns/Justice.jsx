@@ -7,7 +7,7 @@ import ProgressBar from '@components/common/ProgressBar';
 
 const Justice = ({ hole }) => {
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
       <CardTitleAndValue title={'Mental health'} icon={'etc/Justice_Health.png'} imgStyle={{ width: 24, height: 24 }}
                          value={`${hole?.caverns?.justice?.health}`}/>
       <CardTitleAndValue title={'Coins'} icon={'etc/Justice_Coin.png'} imgStyle={{ width: 24, height: 24 }}

@@ -10,7 +10,7 @@ const PlayerBubbles = ({ bubbles }) => {
         <CardContent><Tooltip title={'Missing Active Bubble'}>
           <img src={`${prefix}data/aUpgradesG2.png`}
                style={{ width: 42, height: 42, filter: 'brightness(0)' }}
-               alt=""/>
+               alt="a Upgrades G2"/>
         </Tooltip></CardContent></Card> : null}
       {!empty ? <Card variant={'outlined'}>
         <CardContent>
@@ -23,7 +23,7 @@ const PlayerBubbles = ({ bubbles }) => {
                               title={<BubbleTooltip {...{ ...bubble, bubbleName: alteredBubbleName }}/>}>
                 <img src={`${prefix}data/${rawName}.png`}
                      style={{ width: 42, height: 42 }}
-                     alt=""/>
+                     alt={rawName}/>
               </Tooltip>;
             })}
           </Stack>

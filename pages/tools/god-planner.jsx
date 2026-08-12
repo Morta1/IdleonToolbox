@@ -7,7 +7,6 @@ import { NextSeo } from 'next-seo';
 import StructuredData, { createHowToData } from '@components/common/StructuredData';
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
-import { MissingData } from '@components/common/styles';
 import Tooltip from '../../components/Tooltip';
 import { gods } from '@website-data';
 
@@ -43,7 +42,6 @@ const GodPlanner = () => {
     setBuild(buildCopy)
   }
 
-  if (!state?.account?.divinity) return <MissingData name={'divinity'}/>;
   return <>
     <NextSeo
       title="God Planner | Idleon Toolbox"

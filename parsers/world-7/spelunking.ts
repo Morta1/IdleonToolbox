@@ -54,7 +54,13 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
 
   const totalCharactersSpelunkingLevels = characters?.reduce((res: any, { skillsInfo }: any) => res + (skillsInfo?.spelunking?.level ?? 0), 0) ?? 0;
   const highestSpelunkingLevelCharacter = characters?.reduce((res: any, { skillsInfo }: any) => Math.max(res, skillsInfo?.spelunking?.level ?? 0), 0) ?? 0;
-  const [currentAmber, overstimLevel, overstimCurrent, exaltedFragmentFound, prismaFragmentFound] = rawSpelunking?.[4] || [];
+  const [
+    currentAmber = 0,
+    overstimLevel = 0,
+    overstimCurrent = 0,
+    exaltedFragmentFound = 0,
+    prismaFragmentFound = 0
+  ] = rawSpelunking?.[4] || [];
   const biggestHauls = rawSpelunking?.[2] ?? [];
   const biggestHaul = biggestHauls?.reduce((sum: any, value: any) => {
     return sum + Math.ceil(lavaLog(value));
@@ -87,7 +93,9 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
       const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Pointagon')?.bonus ?? 0;
 
       // const baseMultiplier = chapter?.x4 ? 1 + artifactBonus / 100 : 1;
-      const baseMultiplier = chapter?.x4 === 1 ? 1 + account?.sailing?.artifacts?.[35]?.bonus / 100 : 1; // TODO: remove after this is fixed in-game
+      // account.sailing is deliberately null when the feature is locked (real accounts too, not just
+      // empty ones) - guard to 0, matching the artifactBonus fallback two lines up.
+      const baseMultiplier = chapter?.x4 === 1 ? 1 + (account?.sailing?.artifacts?.[35]?.bonus ?? 0) / 100 : 1; // TODO: remove after this is fixed in-game
       const bonus = baseMultiplier * growth(chapter?.func, level, chapter?.x1, chapter?.x2, false) || 0;
       const isDecay = chapter?.func === 'decay' || chapter?.func === 'decayMulti';
       const maxBonus = chapter?.func === 'decay'
@@ -251,7 +259,7 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
     elixirs,
     currentAmber,
     overstimLevel,
-    overstimCurrent: overstimCurrent ?? 0,
+    overstimCurrent,
     overstimReq: 100 * Math.pow(1.3, overstimLevel),
     overstimFillRate,
     overstimRate,
@@ -378,7 +386,7 @@ export const getDiscoveryHp = (discovery: any) => {
 export const getOverstimBonus = (account: any) => {
   const shopUpg6 = getSpelunkingBonus(account, 6);
   const overstimPerLevel = 30 + shopUpg6;
-  return overstimPerLevel * account?.spelunking?.overstimLevel;
+  return overstimPerLevel * (account?.spelunking?.overstimLevel ?? 0);
 }
 
 export const getLoreBonus = (account: any, index: any) => {

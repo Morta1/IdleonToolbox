@@ -131,7 +131,7 @@ const MaterialTracker = () => {
         'Export or import your tracking list to save your configuration'
       ]
     )}/>
-    <CardTitleAndValue title={'Utility'}>
+    <CardTitleAndValue title={'Utility'} cardSx={{ mb: 3 }}>
       <Stack sx={{ mt: 1 }} direction={'row'} alignItems={'center'} gap={2}>
         <FileUploadButton onFileUpload={(data) => {
           setTrackedItems(data);
@@ -162,7 +162,7 @@ const MaterialTracker = () => {
           return tag.map((option, index) => (
             <Chip
               key={index}
-              icon={<img width={24} height={24} src={`${prefix}data/${option?.rawName}.png`} alt={''}/>}
+              icon={<img width={24} height={24} src={`${prefix}data/${option?.rawName}.png`} alt={option?.rawName}/>}
               label={option?.displayName?.replace(/_/g, ' ')}
               {...getTagProps({ index })}
             />

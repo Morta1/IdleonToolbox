@@ -1,5 +1,6 @@
 import { commaNotation, notateNumber, tryToParse, lavaLog } from '@utility/helpers';
 import { upgradeVault } from '@website-data';
+import { liveEntries } from '@parsers/catalog';
 import { isBundlePurchased, getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
@@ -10,7 +11,7 @@ export const getUpgradeVault = (idleonData: any, accountData: any, charactersDat
 }
 
 export const parseUpgradeVault = (upgradeVaultRaw: any, accountData: any, charactersData: any) => {
-  const totalUpgradeLevels = upgradeVaultRaw?.reduce((sum: any, level: any) => sum + level, 0);
+  const totalUpgradeLevels = upgradeVaultRaw?.reduce((sum: any, level: any) => sum + level, 0) ?? 0;
   const vaultTotalKills = getVaultTotalKills({ characters: charactersData, account: accountData });
   const descriptionContext = {
     vaultKills: vaultTotalKills,
@@ -20,10 +21,10 @@ export const parseUpgradeVault = (upgradeVaultRaw: any, accountData: any, charac
     bugsCaught: accountData?.accountOptions?.[346] ?? 0,
     knockoutProgress: accountData?.accountOptions?.[338] ?? 0
   };
-  let upgrades = upgradeVault.map((upgrade, index) => {
+  let upgrades = liveEntries<any>(upgradeVault).map(({ entry: upgrade, index }) => {
     return {
       ...upgrade,
-      level: upgradeVaultRaw?.[index],
+      level: upgradeVaultRaw?.[index] ?? 0,
       maxLevel: getVaultUpgMaxLevel(index, upgrade?.maxLevel, accountData),
       unlocked: totalUpgradeLevels >= upgrade?.unlockLevel
     }

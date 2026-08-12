@@ -18,7 +18,7 @@ const Battles = ({ stones }) => {
               <img style={{ width: 50, height: 50, objectFit: 'contain' }}
                 src={`${prefix}etc/SumStone_${index}.png`} alt={''} />
               <img style={{ width: 50, height: 50, objectFit: 'contain' }}
-                src={`${prefix}${monsterIcon}.png`} alt={''} />
+                src={`${prefix}${monsterIcon}.png`} alt={monsterIcon} />
               <Stack>
                 <Typography variant={'caption'}>Kills: {kills}</Typography>
                 <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1}>
@@ -51,7 +51,7 @@ const Battles = ({ stones }) => {
               {mapMonsterIcon && mapMonsterName && (
                 <Stack direction={'row'} alignItems={'center'} gap={1} mt={0.5}>
                   <img style={{ width: 40, height: 40, objectFit: 'contain' }}
-                    src={`${prefix}${mapMonsterIcon}.png`} alt={''} />
+                    src={`${prefix}${mapMonsterIcon}.png`} alt={mapMonsterIcon} />
                   <Typography variant={'caption'} color={'text.secondary'}>
                     {cleanUnderscore(mapMonsterName)}
                   </Typography>

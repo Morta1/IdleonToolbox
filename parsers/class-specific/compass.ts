@@ -6,6 +6,7 @@ import {
   tryToParse
 } from '@utility/helpers';
 import { getFilteredPortals } from '@parsers/portals';
+import { liveEntries } from '@parsers/catalog';
 import {
   abominations,
   compass,
@@ -97,12 +98,12 @@ export const getCompass = (idleonData: any, charactersData: any, accountData: an
 const parseCompass = (compassRaw: any, charactersData: any, accountData: any, serverVars: any) => {
   const [upgradesLevels, abominationsRaw, portalsRaw, medallionsRaw, exaltedStampsRaw] = compassRaw || [];
 
-  const totalUpgradeLevels = upgradesLevels?.reduce((sum: any, level: any) => sum + level, 0);
-  const dusts = accountData?.accountOptions?.slice(357, 362).map((value: any, index: any) => ({
-    value,
-    name: (dustNames as Record<string, any>)?.[index]
+  const totalUpgradeLevels = upgradesLevels?.reduce((sum: any, level: any) => sum + level, 0) ?? 0;
+  const dusts = Object.entries(dustNames).map(([index, name]) => ({
+    value: accountData?.accountOptions?.[357 + Number(index)] ?? 0,
+    name
   }));
-  const totalDustsCollected = accountData?.accountOptions?.[362];
+  const totalDustsCollected = accountData?.accountOptions?.[362] ?? 0;
 
   const unlockedPortals = (portalsRaw || []).reduce((result: any, mapRaw: any) => {
     return {
@@ -134,7 +135,7 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
     }
   })
   const abominationsList = abominations.map((abomination, index) => {
-    const unlocked = abominationsRaw?.[index]
+    const unlocked = abominationsRaw?.[index] ?? false
     return {
       ...abomination,
       unlocked,
@@ -144,8 +145,8 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
       world: Math.floor((abomination?.x2 / 50) + 1)
     }
   })
-  let upgrades = compass.map((upgrade, index) => {
-    const level = upgradesLevels?.[index];
+  let upgrades = liveEntries<any>(compass).map(({ entry: upgrade, index }) => {
+    const level = upgradesLevels?.[index] ?? 0;
     const shapeIcon = 1 === upgrade?.x9 ? 'CompassCir' : level >= upgrade?.x4 ? 'CompassSqMax' : 'CompassSq';
     return {
       ...upgrade,
@@ -162,7 +163,7 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
     const isMulti = upgrade?.description.includes('}');
     let extraData;
     if (upgrade?.name === 'Top_of_the_Mornin\'') {
-      const killsLeft = Math.max(0, accountData?.accountOptions?.[365]);
+      const killsLeft = Math.max(0, accountData?.accountOptions?.[365] ?? 0);
       const totalKills = getLocalCompassBonus(upgrades, 9) + getLocalCompassBonus(upgrades, 71);
       topOfTheMorninKills = `${totalKills - killsLeft} / ${totalKills}`;
       extraData = `Kills: ${topOfTheMorninKills}`
@@ -192,18 +193,18 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
       }
     }
   }, { combat: {}, skills: {}, misc: {} });
-  const remainingExaltedStamps = getRemainingExaltedStamps(accountData, exaltedStampsRaw?.length, 0);
+  const remainingExaltedStamps = getRemainingExaltedStamps(accountData, exaltedStampsRaw?.length ?? 0, 0);
   return {
     upgrades,
     groupedUpgrades: getGroupedUpgrades(upgrades, abominationsList),
     abominations: abominationsList,
     medallions,
     maps,
-    totalAcquiredMedallions: medallionsRaw?.length,
-    totalKilledAbominations: abominationsRaw?.reduce((sum: any, killed: any) => killed > 0 ? sum + 1 : sum, 0),
+    totalAcquiredMedallions: medallionsRaw?.length ?? 0,
+    totalKilledAbominations: abominationsRaw?.reduce((sum: any, killed: any) => killed > 0 ? sum + 1 : sum, 0) ?? 0,
     dusts,
     exaltedStamps,
-    usedExaltedStamps: exaltedStampsRaw?.length,
+    usedExaltedStamps: exaltedStampsRaw?.length ?? 0,
     remainingExaltedStamps,
     totalUpgradeLevels,
     totalDustsCollected,
@@ -388,7 +389,7 @@ const getGroupedUpgrades = (upgrades: any[], abominations: any[]) => {
 const getRemainingExaltedStamps = (account: any, usedExaltedStamps: number, index: number): any => {
   return 999 === index ?
     getCompassBonus(account, 44)
-    + account?.accountOptions?.[366]
+    + (account?.accountOptions?.[366] ?? 0)
     + getEventShopBonus(account, 18)
     : Math.round(getRemainingExaltedStamps(account, usedExaltedStamps, 999) - usedExaltedStamps);
 }
@@ -429,8 +430,8 @@ export const getCompassStats = (character: any, account: any) => {
     * Math.pow(1.05, equipmentWeaponPower)
     * (1 + equipBonus4 / 100)
     * (1 + (getLocalCompassBonus(upgrades, 23)
-      * lavaLog(account?.accountOptions?.[360])) / 100)
-    * Math.pow(1 + getLocalCompassBonus(upgrades, 26) / 100, account?.accountOptions?.[232])
+      * lavaLog(account?.accountOptions?.[360] ?? 0)) / 100)
+    * Math.pow(1 + getLocalCompassBonus(upgrades, 26) / 100, account?.accountOptions?.[232] ?? 0)
     * (1 + (getLocalCompassBonus(upgrades, 6) * account?.compass?.totalAcquiredMedallions) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 119) + getLocalCompassBonus(upgrades, 10) + (getLocalCompassBonus(upgrades, 121)
       + (getLocalCompassBonus(upgrades, 122) + (getLocalCompassBonus(upgrades, 123)
@@ -448,7 +449,7 @@ export const getCompassStats = (character: any, account: any) => {
     * (1 + (defenceAndAccTalent
       * (totalUpgradeLevels / 100)) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 22)
-      * lavaLog(account?.accountOptions?.[357])) / 100)
+      * lavaLog(account?.accountOptions?.[357] ?? 0)) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 6) * account?.compass?.totalAcquiredMedallions) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 120) + (getLocalCompassBonus(upgrades, 124)
       + (getLocalCompassBonus(upgrades, 125) + (getLocalCompassBonus(upgrades, 128)
@@ -463,7 +464,7 @@ export const getCompassStats = (character: any, account: any) => {
     * (1 + (defenceAndAccTalent
       * (totalUpgradeLevels / 100)) / 100)
     * (1 + (getLocalCompassBonus(upgrades, 30)
-      * lavaLog(account?.accountOptions?.[358])) / 100)
+      * lavaLog(account?.accountOptions?.[358] ?? 0)) / 100)
     * (1 + equipBonus / 100)
     * (1 + (getLocalCompassBonus(upgrades, 137)
       + (getLocalCompassBonus(upgrades, 138)
@@ -544,7 +545,7 @@ export const getExtraDust = (character: any, account: any) => {
   const { value: equipBonus1 } = getStatsFromGear(character, 79, account);
   const dustTalent = getTalentBonus(character?.flatTalents, 'ETERNAL_HUNT');
   const compassTalent = getTalentBonus(character?.flatTalents, 'COMPASS');
-  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Windwalker_Dust')?.bonus;
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Windwalker_Dust')?.bonus ?? 0;
 
   const charmBonus = getCharmBonus(account, 'Twinkle_Taffy'); // Pristine charm 19
   const emperorBonus = getEmperorBonus(account, 4);
@@ -557,7 +558,7 @@ export const getExtraDust = (character: any, account: any) => {
   const { value: allMasterclassDropz, sources: amdSources } = getAllMasterclassDropz(character, account);
 
   const baseUpgrades = getLocalCompassBonus(upgrades, 31)
-    + getLocalCompassBonus(upgrades, 34) * lavaLog(account?.accountOptions?.[359])
+    + getLocalCompassBonus(upgrades, 34) * lavaLog(account?.accountOptions?.[359] ?? 0)
     + exoticBonus;
   const upgrade38 = getLocalCompassBonus(upgrades, 38);
   const gearBonus = equipBonus + equipBonus1;
@@ -682,7 +683,7 @@ const getUpgradeCost = (upgrades: any[], index: number, serverVars: any, account
   }
 
   // Final cost calculation
-  const dustCost = Math.max(serverVars?.DustCost, 6.2);
+  const dustCost = Math.max(serverVars?.DustCost ?? 0, 6.2);
   const bonusReduction = 1 + (
     getLocalCompassBonus(upgrades, 36) +
     getLocalCompassBonus(upgrades, 77)

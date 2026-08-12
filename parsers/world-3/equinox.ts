@@ -12,15 +12,44 @@ import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 
+const DREAM_UPGRADES_OFFSET = 2;
+const dreamUpgradesEnd = () => DREAM_UPGRADES_OFFSET + equinoxUpgrades.length;
+const emptyDream = () => new Array(dreamUpgradesEnd()).fill(0);
+
+export const getLockedEquinox = () => ({
+  unlocked: false,
+  currentCharge: 0,
+  chargeRequired: 0,
+  chargeRate: 0,
+  timeToFull: undefined,
+  challenges: equinoxChallenges.map(({ label, goal, reward }) => ({
+    label, goal, reward, current: 0, active: false, locked: false
+  })),
+  upgrades: equinoxUpgrades.map(({ name, description, maxLevel }, index) => ({
+    name,
+    bonus: 0,
+    desc: description?.replace('{}', '0').replace('{', '').replace('}', '0').split('_@_'),
+    lvl: 0,
+    maxLvl: maxLevel,
+    unlocked: index === 0
+  })),
+  completedClouds: 0,
+  rawDream: emptyDream(),
+  breakdown: [],
+  expression: ''
+});
+
 export const getEquinox = (idleonData: any, account: any) => {
   const weeklyBoss = tryToParse(idleonData?.WeeklyBoss) || idleonData?.WeeklyBoss;
   const dream = tryToParse(idleonData?.Dream) || idleonData?.Dream;
-  if (!weeklyBoss || !dream) return null;
-  return parseEquinox(weeklyBoss, dream, account);
+  return {
+    ...parseEquinox(weeklyBoss || {}, dream || emptyDream(), account),
+    unlocked: !!weeklyBoss && !!dream
+  };
 }
 
 const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
-  const totalUpgrade = dream.slice(2, 16).reduce((accumulator: any, currentValue: any) => accumulator + currentValue, 0);
+  const totalUpgrade = dream.slice(DREAM_UPGRADES_OFFSET, dreamUpgradesEnd()).reduce((accumulator: any, currentValue: any) => accumulator + currentValue, 0);
   const clouds: Record<string, any> = Object.keys(weeklyBoss).filter(key => key.startsWith('d_')).reduce((obj: Record<string, any>, key) => {
     obj[key.substring(2)] = weeklyBoss[key];
     return obj;
@@ -36,7 +65,7 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
     active: clouds[index] !== -1 && 0 < nbChallengeActive--,
     locked: index >= 36 && researchG8Level < 1
   }));
-  const upgrades = parseEquinoxUpgrades(challenges, dream.slice(2, 16), account);
+  const upgrades = parseEquinoxUpgrades(challenges, dream.slice(DREAM_UPGRADES_OFFSET, dreamUpgradesEnd()), account);
   const bundleBonus = isBundlePurchased(account?.bundles, 'bun_q');
   const eqBarVial = getVialsBonusByStat(account?.alchemy?.vials, 'EqBar');
   const voteBonus = getVoteBonus(account, 32);
@@ -71,7 +100,7 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
     * (1 + companionBonus)
     * (1 + cosmoBonus / 100)
     * (1 + 0.5 * eventShopBonus)
-    * (1 + account?.accountOptions?.[320] / 10)
+    * (1 + (account?.accountOptions?.[320] ?? 0) / 10)
     * (1 + tesseractBonus / 100)
     * (1 + cloudMulti45 / 100)
     * (1 + cloudMulti49 / 100)
@@ -90,7 +119,7 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
     { name: 'Tome', value: loreEpiBonus / 100 },
     { name: 'Companion', value: companionBonus },
     { name: 'Event shop', value: .5 * eventShopBonus },
-    { name: 'Penguins', value: 1 + account?.accountOptions?.[320] / 10 },
+    { name: 'Penguins', value: 1 + (account?.accountOptions?.[320] ?? 0) / 10 },
     { name: 'Vial', value: eqBarVial / 100 },
     { name: 'Clouds (additive)', value: cloudsBonus / 100 },
     { name: 'Cloud Multi 45', value: cloudMulti45 / 100 },
@@ -134,7 +163,7 @@ const parseEquinoxUpgrades = (challenges: any, dream: any, account: any) => {
   const nbChallengeUnlocked = challenges.filter((challenge: any) => challenge.current === -1 && challenge.reward === 'Unlock_next_Equinox_upgrade').length;
   return equinoxUpgrades.map(({ name, description, maxLevel, bonus }, index) => {
     const realBonus = name === 'Hmm...' ? 0 : name === 'Food_Lust'
-      ? Math.min(parseInt(dream[index]), account?.accountOptions?.[193])
+      ? Math.min(parseInt(dream[index]), account?.accountOptions?.[193] ?? 0)
       : bonus * dream[index] || 0;
     const winBonus = getWinnerBonus(account, '+{ Equinox Max LV');
     const cloudBonusMap = {

@@ -13,6 +13,7 @@ import { Link, Stack, Typography, useMediaQuery } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import AdBlockerPopup from '@components/common/AdBlockerPopup';
 import Pin from '@components/common/favorites/Pin';
+import PageTitle from '@components/common/PageTitle';
 import QuickSearch from '@components/common/QuickSearch';
 import UserMenu from '@components/common/NavBar/UserMenu';
 
@@ -85,7 +86,10 @@ const NavBar = ({ children }) => {
       pb: 'var(--nitro-ad-height, 0px)'
     }}>
       <Box sx={{ flex: 1 }}>
-        {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
+        <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} sx={{ mb: 1 }}>
+          <PageTitle/>
+          {(router?.pathname?.includes('account') || router?.pathname?.includes('tools')) ? <Pin/> : null}
+        </Stack>
         <ContentWrapper showSidebar={isInnerPage}>
           {children}
         </ContentWrapper>

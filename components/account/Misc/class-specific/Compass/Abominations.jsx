@@ -9,7 +9,7 @@ const Abominations = ({ abominations }) => {
   const [CheckboxFutureEl, hideFutureAbominations] = useCheckbox('Hide future abominations', true);
 
   return <>
-    <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
+    <Stack mb={3} direction="row" gap={2} flexWrap="wrap" alignItems="center">
       <CardTitleAndValue title={''} value={<CheckboxEl/>}/>
       <CardTitleAndValue title={''} value={<CheckboxFutureEl/>}/>
     </Stack>
@@ -38,14 +38,14 @@ const Abominations = ({ abominations }) => {
               <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center" sx={{ position: 'relative' }}>
                 {unlocked || (!unlocked && !hideFutureAbominations)
                   ? <img style={{ width: 32, height: 32, zIndex: 1 }}
-                         src={`${prefix}data/CompassUpg${119 + index}.png`}/>
+                         src={`${prefix}data/CompassUpg${119 + index}.png`} alt=""/>
                   : <Box sx={{ width: 32, height: 32 }}></Box>}
                 <Typography>{cleanUnderscore(name)}</Typography>
               </Stack>
               <Divider sx={{ my: 1 }}/>
               <Stack direction="row" gap={.5} flexWrap="wrap" alignItems="center" sx={{ position: 'relative' }}>
                 <Typography>Weakness: {cleanUnderscore(weakness?.name)}</Typography>
-                <img style={{ width: 24, height: 24, zIndex: 1 }} src={`${prefix}data/WWeffect${weakness?.index}.png`}/>
+                <img style={{ width: 24, height: 24, zIndex: 1 }} src={`${prefix}data/WWeffect${weakness?.index}.png`} alt=""/>
               </Stack>
               <Typography>HP: {notateNumber(hp)}</Typography>
               <Typography>Map: {cleanUnderscore(map)} (World: {world})</Typography>

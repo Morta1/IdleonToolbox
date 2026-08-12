@@ -67,9 +67,9 @@ const Upgrades = ({ upgrades, dusts }) => {
         >
           <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center" sx={{ position: 'relative' }}>
             <img style={{ width: 32, height: 32, position: 'absolute', left: 0, top: 0 }}
-                 src={`${prefix}data/${shapeIcon}.png`}/>
+                 src={`${prefix}data/${shapeIcon}.png`} alt={shapeIcon}/>
             <img style={{ width: 32, height: 32, zIndex: 1 }}
-                 src={`${prefix}data/CompassUpg${iconIndex}.png`}/>
+                 src={`${prefix}data/CompassUpg${iconIndex}.png`} alt=""/>
             <Typography>
               {cleanUnderscore(
                 name
@@ -95,7 +95,7 @@ const Upgrades = ({ upgrades, dusts }) => {
             <Divider sx={{ my: 1 }}/>
           </> : null}
           <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
-            <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Dust${dustType ?? x3}_x1.png`}/>
+            <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Dust${dustType ?? x3}_x1.png`} alt=""/>
             {level < x4 ? <Typography>
               Cost: {notateNumber(dusts?.[dustType || x3]?.value || 0)} / {notateNumber(cost, 'Big')}
             </Typography> : <Typography>Maxed</Typography>}
@@ -159,7 +159,7 @@ const Upgrades = ({ upgrades, dusts }) => {
             <Stack key={x3} direction="column" gap={2}>
               <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
                 <Typography variant="h6">Dust Type</Typography>
-                <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Dust${x3}_x1.png`}/>
+                <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Dust${x3}_x1.png`} alt=""/>
               </Stack>
               <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
                 {sortedGroup.map((upgrade, i) => renderUpgradeCard(upgrade, i, x3))}

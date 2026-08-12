@@ -36,7 +36,7 @@ const Cauldrons = () => {
         title="Cauldrons | Idleon Toolbox"
         description="Track your alchemy cauldron levels, brewing speed, and liquid capacity in Legends of Idleon"
       />
-      <Typography variant={'h4'} mb={3}>Brewing</Typography>
+      <Typography variant={'h5'} mb={3}>Brewing</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
         {Object.entries(alchemy?.cauldrons || {})?.map(([name, stats], cauldronIndex) => {
           return <Card sx={{ width: { md: 450 } }} key={`${name}-${cauldronIndex}`}>
@@ -75,11 +75,11 @@ const Cauldrons = () => {
         })}
       </Stack>
 
-      <Typography my={3} variant={'h4'} mb={3}>Pay 2 Win</Typography>
+      <Typography my={3} variant={'h5'} mb={3}>Pay 2 Win</Typography>
 
       <Typography my={3} variant={'h5'} mb={3}>Liquids</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-        {alchemy?.p2w.liquids?.map((cauldron, index) => {
+        {alchemy?.p2w?.liquids?.map((cauldron, index) => {
           const { name, regen, capacity, players } = cauldron;
           const {
             maxLiquid,
@@ -87,8 +87,8 @@ const Cauldrons = () => {
             decantRate,
             isDragonic,
             maxLiquidBreakdown
-          } = alchemy?.liquidCauldrons?.[index];
-          const currentLiquid = alchemy?.liquids?.[index];
+          } = alchemy?.liquidCauldrons?.[index] ?? {};
+          const currentLiquid = alchemy?.liquids?.[index] ?? 0;
           return <Card key={`${name}-${index}`}>
             <CardContent>
               <Stack mb={1} direction={'row'} alignItems={'center'} gap={2}>
@@ -102,7 +102,7 @@ const Cauldrons = () => {
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
                     {isDragonic ? <Tooltip title={'Dragonic cauldron'}>
                       <img style={{ width: 24, height: 24, objectFit: 'contain' }} src={`${prefix}data/GemP18.png`}
-                           alt=""/>
+                           alt="Gem P18"/>
                     </Tooltip> : null}
                     <PlayersList players={players} characters={state?.characters}/>
                   </Stack>
@@ -166,7 +166,7 @@ const Cauldrons = () => {
 
       <Typography my={3} variant={'h5'} mb={3}>Cauldrons</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-        {alchemy?.p2w.cauldrons?.map((cauldron, index) => {
+        {alchemy?.p2w?.cauldrons?.map((cauldron, index) => {
           const { name, speed, newBubble, boostReq } = cauldron;
           return <Card sx={{ width: { md: 485 } }} key={`${name}-${index}`}>
             <CardContent>

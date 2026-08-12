@@ -58,7 +58,7 @@ const Tabber = ({
       {(components ?? tabs)?.map((tab, index) => {
         return <Tab
           iconPosition="start"
-          icon={icons?.[index] ? <img src={`${prefix}${icons?.[index]}.png`}/> : null}
+          icon={icons?.[index] ? <img src={`${prefix}${icons?.[index]}.png`} alt=""/> : null}
           wrapped label={iconsOnly ? '' : tab}
           sx={{ minWidth: 62 }}
           key={`${tab?.[index]}-${index}`}/>;

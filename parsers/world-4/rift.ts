@@ -12,8 +12,8 @@ const parseRift = (rawRift: any) => {
   const [currentRift, currentProgress, chars] = rawRift || [];
   return {
     list: riftInfo,
-    currentRift: parseInt(currentRift),
-    currentProgress,
+    currentRift: parseInt(currentRift) || 0,
+    currentProgress: currentProgress ?? 0,
     chars
   }
 }

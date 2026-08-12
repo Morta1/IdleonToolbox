@@ -25,7 +25,7 @@ const Totems = () => {
             <CardContent>
               <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
                 <TotemImg src={`${prefix}etc/totem_${index}.png`} alt={'totem' + index}/>
-                <Stack direction={'row'} gap={4} flexWrap={'wrap'}>
+                <Stack mb={3} direction={'row'} gap={4} flexWrap={'wrap'}>
                   <CardTitleAndValue title={'Name'} value={cleanUnderscore(index === 5 ? 'Citric Conflict' : index === 6 ? 'Breezy Battle' : index === 7 ? 'Pufferblob Brawl' : name)}/>
                   <CardTitleAndValue title={'Map name'} value={cleanUnderscore(map)}/>
                   <CardTitleAndValue title={'Max Wave'} value={maxWave || '0'}/>

@@ -238,7 +238,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
         <Stack direction={'row'} alignItems={'center'}>
           <Typography>NMLB:</Typography>
           <img style={{ marginTop: -30, marginRight: -10 }} src={`${prefix}data/${noMealLeftBehind.rawName}.png`}
-               alt=""/>
+               alt={noMealLeftBehind.rawName}/>
           {cleanUnderscore(noMealLeftBehind.name)}
         </Stack>
       </ToggleButton> : null}
@@ -303,7 +303,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
               <CardContent>
                 <Stack direction={'row'} alignItems={'center'}>
                   <MealAndPlate>
-                    <img src={`${prefix}data/${rawName}.png`} alt=""/>
+                    <img src={`${prefix}data/${rawName}.png`} alt={rawName}/>
                     {level > 0 ?
                       <img className="plate" src={`${prefix}data/CookingPlate${level - 1}.png`} alt=""/> : null}
                   </MealAndPlate>
@@ -316,15 +316,16 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
                       ({notateNumber(bonusDiff, 'MultiplierInfo')})
                     </CenteredTypography>
                     <Typography component={'span'}>
-                      Next Level: {new Date().getTime() + timeTillNextLevel * 3600 * 1000 < maxTimeValue ?
+                      Next Level: {!Number.isFinite(timeTillNextLevel) ? 'Never' :
+                      new Date().getTime() + timeTillNextLevel * 3600 * 1000 < maxTimeValue ?
                       <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
                              staticTime={true}/> : `${getTimeAsDays(timeTillNextLevel)} days`}
                     </Typography>
                     <Stack direction={'row'} alignItems={'center'} gap={1}>
-                      <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
-                      <HtmlTooltip title={numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}>
+                      <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={32} height={32}/>
+                      {Number.isFinite(timeTillNextLevel) ? <HtmlTooltip title={numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}>
                         <span>{notateNumber(Math.ceil(timeTillNextLevel), 'Big')}</span>
-                      </HtmlTooltip>
+                      </HtmlTooltip> : <span>—</span>}
                     </Stack>
                   </Stack>
                 </Stack>
@@ -369,7 +370,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
                                         blackDiamondRhinestone={blackDiamondRhinestone}
                                         equinoxUpgrades={localEquinoxUpgrades} {...meal}/>}>
                     <MealAndPlate>
-                      <img src={`${prefix}data/${rawName}.png`} alt=""/>
+                      <img src={`${prefix}data/${rawName}.png`} alt={rawName}/>
                       {level > 0 ?
                         <img className="plate" src={`${prefix}data/CookingPlate${level - 1}.png`} alt=""/> : null}
                     </MealAndPlate>
@@ -418,7 +419,8 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
                         }
                         {level < mealMaxLevel ? <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
                           <Typography>Next Milestone: </Typography>
-                          {new Date().getTime() + timeInMs < maxTimeValue
+                          {!Number.isFinite(timeToBp) ? 'Never' :
+                          new Date().getTime() + timeInMs < maxTimeValue
                             ? <Timer
                               date={new Date().getTime() + timeToBp * 3600 * 1000}
                               staticTime={true}/>
@@ -426,10 +428,10 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
                           }
                         </Stack> : null}
                         <Stack direction={'row'} alignItems={'center'} gap={1}>
-                          <img src={`${prefix}data/Ladle.png`} alt="" width={32} height={32}/>
-                          <HtmlTooltip title={numberWithCommas(parseFloat(timeToBp).toFixed(2))}>
+                          <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={32} height={32}/>
+                          {Number.isFinite(timeToBp) ? <HtmlTooltip title={numberWithCommas(parseFloat(timeToBp).toFixed(2))}>
                             <span>{notateNumber(Math.ceil(timeToBp), 'Big')}</span>
-                          </HtmlTooltip>
+                          </HtmlTooltip> : <span>—</span>}
                         </Stack>
                       </Stack> : null
                     }) : null}

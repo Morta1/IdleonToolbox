@@ -1781,7 +1781,10 @@ export const notateExpMulti = (value: number) => {
 
 export const getClassExpMulti = (character: any, account: any, characters: any) => {
   // _customBlock_ExpMulti(0)
-  const { luck } = character?.stats || {};
+  // luck defaults to 0: a character with no stats data (e.g. no save) has no luck, not an
+  // unknown value - without this the `luck < 1e3` branch check is always false for undefined
+  // (NaN comparisons are always false), sending it down the else branch that computes NaN.
+  const { luck = 0 } = character?.stats || {};
 
   // ExpGainLUK — luck multi
   let expGainLUK;
@@ -1854,7 +1857,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
       + (winnerBonus
         + (grimoireBonus
           + (upgradeVaultBonus2
-            + (upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345])
+            + (upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345] ?? 0)
               + schematicBonus2)))));
 
   // ExpGainLUK5 — multiplicative chain
@@ -2113,7 +2116,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
               value:
                 ((isLowestLevel ? upgradeVaultBonus : 0) +
                   upgradeVaultBonus2 +
-                  upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345])) /
+                  upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345] ?? 0)) /
                 100,
             },
             { name: "Vials", value: vialBonus / 100 },
@@ -2227,7 +2230,9 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
 export const getDropRate = (character: any, account: any, characters: any) => {
   // _customBlock_TotalStats
   // "Drop_Rarity" == e
-  const { luck } = character?.stats || {};
+  // luck defaults to 0 for the same reason as getClassExpMulti above - undefined luck breaks the
+  // `luck < 1e3` branch check (always false) and falls through to a NaN-producing formula.
+  const { luck = 0 } = character?.stats || {};
   let luckMulti;
   if (luck < 1e3) {
     luckMulti = (Math.pow(luck + 1, 0.37) - 1) / 40;
@@ -2260,7 +2265,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   const companionDropRate = isCompanionBonusActive(account, 3) ? account?.companions?.list?.at(3)?.bonus : 0;
   const secondCompanionDropRate = isCompanionBonusActive(account, 22) ? account?.companions?.list?.at(22)?.bonus : 0;
   const fourthCompanionDropRate = isCompanionBonusActive(account, 50) ? account?.companions?.list?.at(50)?.bonus : 0;
-  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Drop_Rate')?.bonus;
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Drop_Rate')?.bonus ?? 0;
   const equinoxDropRateBonus = getEquinoxBonus(account?.equinox?.upgrades, 'Faux_Jewels');
   const chipBonus = getPlayerLabChipBonus(character, account, 3);
   const summoningBonus = getWinnerBonus(account, '+{% Drop Rate');
@@ -2277,7 +2282,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   const secondSchematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 82, i: 20 });
   const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 44);
   const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 18);
-  const cropDepotBonus = account?.farming?.cropDepot?.dropRate?.value;
+  const cropDepotBonus = account?.farming?.cropDepot?.dropRate?.value ?? 0;
   const measurementBonus = getMeasurementBonus({
     holesObject: account?.hole?.holesObject,
     accountData: account,
@@ -2598,7 +2603,10 @@ final *= Math.max(1, Math.min(1.01, 1 + fourthCompanionDropRate / 2500));`
 
 export const getCashMulti = (character: any, account: any, characters: any, playerInfo?: any) => {
   // ArbitraryCode("MonsterCash")
-  const { strength, agility, wisdom } = character?.stats || {};
+  // strength/agility/wisdom default to 0: a character with no stats data has none of these
+  // stats, not an unknown value - without this, Math.floor(undefined / 250) is NaN and poisons
+  // the whole multiplicative chain below.
+  const { strength = 0, agility = 0, wisdom = 0 } = character?.stats || {};
   const cashStrBubble = getBubbleBonus(account, 'PENNY_OF_STRENGTH', false, mainStatMap?.[character?.class] === 'strength');
   const cashAgiBubble = getBubbleBonus(account, 'DOLLAR_OF_AGILITY', false, mainStatMap?.[character?.class] === 'agility');
   const cashWisBubble = getBubbleBonus(account, 'NICKEL_OF_WISDOM', false, mainStatMap?.[character?.class] === 'wisdom');
@@ -2705,7 +2713,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
       + flurboBonus
       + (arcadeBonus + secondArcadeBonus)
       + postOfficeBonus
-      + guildBonus * (1 + Math.floor(character?.mapIndex / 50))
+      + guildBonus * (1 + Math.floor((character?.mapIndex ?? 0) / 50))
       + coinsForCharonBonus
       + americanTipperBonus
       + goldFoodBonus
@@ -2759,7 +2767,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
           { name: 'Dungeons', value: flurboBonus },
           { name: 'Arcade', value: arcadeBonus + secondArcadeBonus },
           { name: 'Post Office', value: postOfficeBonus },
-          { name: 'Guild', value: guildBonus * (1 + Math.floor(character?.mapIndex / 50)) },
+          { name: 'Guild', value: guildBonus * (1 + Math.floor((character?.mapIndex ?? 0) / 50)) },
           { name: 'Golden Food', value: goldFoodBonus },
           { name: 'Vault Ores', value: vault17 * lavaLog(account?.accountOptions?.[340] ?? 0) },
           { name: 'Achievements', value: 5 * achievementBonus + 10 * secondAchievementBonus + 20 * thirdAchievementBonus },
@@ -2812,7 +2820,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
     + flurboBonus
     + (arcadeBonus + secondArcadeBonus)
     + postOfficeBonus
-    + guildBonus * (1 + Math.floor(character?.mapIndex / 50))
+    + guildBonus * (1 + Math.floor((character?.mapIndex ?? 0) / 50))
     + coinsForCharonBonus
     + americanTipperBonus
     + goldFoodBonus

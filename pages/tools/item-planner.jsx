@@ -360,7 +360,7 @@ const ItemPlanner = ({}) => {
                               title={<MaterialsTooltip name={item?.itemName} items={flattenCraftObject(item)}/>}>
                               <img key={item?.rawName + ' ' + index}
                                    src={`${prefix}data/${item?.rawName}.png`}
-                                   alt=""/>
+                                   alt={item?.rawName}/>
                             </Tooltip>
                           </Badge>
                           {buttons?.[`${sectionIndex}-${index}`] ? <div className={'buttons'}>
@@ -440,7 +440,7 @@ const MaterialsTooltip = ({ name, items }) => {
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       {items?.map(({ rawName, itemQuantity }, index) => {
         return <Stack alignItems={'center'} key={rawName + '' + index}>
-          <MaterialIcon src={`${prefix}data/${rawName}.png`} alt=""/>
+          <MaterialIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
           <Typography>{itemQuantity}</Typography>
         </Stack>
       })}

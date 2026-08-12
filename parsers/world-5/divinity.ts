@@ -10,8 +10,7 @@ import { tryToParse } from '@utility/helpers';
 
 export const getDivinity = (idleonData: any, serializedCharactersData: any, accountData: any) => {
   const divinityRaw = tryToParse(idleonData?.Divinity) || idleonData?.Divinity;
-  if (!divinityRaw) return null;
-  return parseDivinity(divinityRaw, serializedCharactersData, accountData);
+  return { ...parseDivinity(divinityRaw || [], serializedCharactersData, accountData), unlocked: !!divinityRaw };
 }
 
 const parseDivinity = (divinityRaw: any, serializedCharactersData: any, accountData: any) => {
@@ -21,11 +20,11 @@ const parseDivinity = (divinityRaw: any, serializedCharactersData: any, accountD
   const blessingLevelsStartIndex = 28;
   const blessingLevels = divinityRaw?.slice(blessingLevelsStartIndex, blessingLevelsStartIndex + gods?.length + 1);
   const linkedStyles = divinityRaw?.slice(0, serializedCharactersData?.length + 1);
-  const unlockedDeities = divinityRaw?.[25];
+  const unlockedDeities = divinityRaw?.[25] ?? 0;
   const godRank = unlockedDeities - 10;
   const coralKidBonus = getCoralKidUpgBonus(accountData, 1);
   const deities = gods?.map((god, index) => {
-      const level = blessingLevels?.[index];
+      const level = blessingLevels?.[index] ?? 0;
       let emporiumBonus = 1;
       if (isJadeBonusUnlocked(accountData, 'True_Godly_Blessings')) {
         emporiumBonus = (1 + 0.05 * Math.max(0, godRank));
@@ -159,10 +158,10 @@ export const getDeityLinkedIndex = (account: any, characters: any, deityIndex: a
 export const getMinorDivinityBonus = (character: any, account: any, forcedDivinityIndex?: any, characters?: any) => {
   const bigPCharacter = characters?.find((char: any) => char.equippedBubbles?.find(({ bubbleName }: any) => bubbleName === 'BIG_P'));
   const bigPBubble = getActiveBubbleBonus((bigPCharacter || character || characters?.[0])?.equippedBubbles, 'BIG_P', account);
-  const divinityLevel = (character || bigPCharacter || characters?.[0])?.skillsInfo?.divinity?.level;
+  const divinityLevel = (character || bigPCharacter || characters?.[0])?.skillsInfo?.divinity?.level ?? 0;
   const linkedDeity = forcedDivinityIndex ?? account?.divinity?.linkedDeities?.[character.playerId];
   const godIndex = (gods as any)?.[linkedDeity]?.godIndex;
-  const multiplier = gods?.[godIndex]?.minorBonusMultiplier;
+  const multiplier = gods?.[godIndex]?.minorBonusMultiplier ?? 0;
   const coralKidUpgBonus = getCoralKidUpgBonus(account, 3);
   return Math.max(1, bigPBubble) * (1 + coralKidUpgBonus / 100) * (divinityLevel / (60 + divinityLevel)) * multiplier;
 }

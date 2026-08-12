@@ -108,9 +108,11 @@ const Looty = () => {
                 );
               })}
             </Stack>
-            : <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-              {renderItems(items)}
-            </Stack>}
+            : items?.length === 0
+              ? <Typography variant={'h6'}>Sign in to see the items in your storage</Typography>
+              : <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+                {renderItems(items)}
+              </Stack>}
         </Stack>
         <div>
           <CardWithBreakdown title={'Slots Owned'} value={`${state?.account?.storage?.slots?.value}`}

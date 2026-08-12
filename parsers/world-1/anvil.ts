@@ -186,7 +186,7 @@ export const getPlayerAnvil = (character: any, characters: any, account: any) =>
     .map((item: any) => anvilProducts[item]);
 
   return {
-    guild: account?.guild?.guildBonuses?.length > 0,
+    guild: account?.guild?.unlocked === true,
     stats,
     production,
     selected: selectedProducts
@@ -242,6 +242,12 @@ export const getTimeTillCap = ({
 
   return (stats?.anvilCapacity - futureProduction) / productionRate;
 };
+export const getAnvilProductCatalog = () => Object.values(anvilProducts as Record<string, any>)
+  .map((product: any) => ({
+    ...product,
+    displayName: items?.[product?.rawName]?.displayName ?? product?.rawName
+  }));
+
 export const calcTotals = (account: any, characters: any) => {
   return account?.anvil?.reduce((result: any, anvil: any, index: any) => {
     const { stats, production } = getPlayerAnvil(characters?.[index], characters, account);

@@ -264,7 +264,7 @@ export const getLibraryBookTimes = (idleonData: any, characters: any, account: a
   let breakpoints = [16, 18, 20].map((maxCount) => {
     return {
       breakpoint: maxCount,
-      time: calcTimeToXBooks(bookCount, maxCount, account, characters, idleonData) - timeAway?.BookLib
+      time: calcTimeToXBooks(bookCount, maxCount, account, characters, idleonData) - (timeAway?.BookLib ?? 0)
     }
   })
   breakpoints = [...breakpoints,
@@ -282,10 +282,10 @@ export const getLibraryBookTimes = (idleonData: any, characters: any, account: a
 }
 
 const calcBookCount = (account: any, characters: any, idleonData: any) => {
-  const baseBookCount = account?.accountOptions?.[55];
+  const baseBookCount = account?.accountOptions?.[55] ?? 0;
   const timeAway = account?.timeAway;
-  let libTime = timeAway?.BookLib;
-  let afk = (new Date).getTime() / 1e3 - timeAway.GlobalTime;
+  let libTime = timeAway?.BookLib ?? 0;
+  let afk = timeAway ? (new Date).getTime() / 1e3 - timeAway.GlobalTime : 0;
   let bookCount = baseBookCount;
   if (afk > 300) libTime += afk;
   const { breakdown } = getTimeToNextBooks(bookCount, account, characters, idleonData);
@@ -311,7 +311,7 @@ export const getTimeToNextBooks = (bookCount: any, account: any, characters: any
   const bubbleBonus = getBubbleBonus(account, 'IGNORE_OVERDUES', false);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Talent_Book_Library');
   const stampBonus = getStampsBonusByEffect(account, 'Talent_Book_Library_Refresh_Speed')
-  const libraryTowerLevel = towersLevels?.[1];
+  const libraryTowerLevel = towersLevels?.[1] ?? 0;
   const libraryBooker = getAtomBonus(account, 'Oxygen_-_Library_Booker');
   const superbit = isSuperbitUnlocked(account, 'Library_Checkouts');
   let superbitBonus = 0;
@@ -404,14 +404,14 @@ export const getSlab = (idleonData: any) => {
   return {
     slabItems,
     lootyRaw,
-    lootedItems: lootyRaw?.length,
+    lootedItems: lootyRaw?.length ?? 0,
     missingItems,
     greenStacks,
     greenStackedCount: greenStacks?.length ?? 0,
     greenstackableCount,
     greenstackableStackedCount,
     totalItems: slab?.length,
-    rawLootedItems: lootyRaw?.length
+    rawLootedItems: lootyRaw?.length ?? 0
   };
 };
 
@@ -457,15 +457,15 @@ export const getCurrencies = (account: any, idleonData: any, processedData: any)
 
   return {
     candies: { guaranteed: guaranteedCandies, special: specialCandies },
-    WorldTeleports: idleonData?.CYWorldTeleports,
+    WorldTeleports: idleonData?.CYWorldTeleports ?? 0,
     KeysAll: getKeysObject(keys),
-    ColosseumTickets: idleonData?.CYColosseumTickets,
-    ObolFragments: idleonData?.CYObolFragments,
-    SilverPens: idleonData?.CYSilverPens,
-    GoldPens: idleonData?.CYGoldPens,
-    DeliveryBoxComplete: idleonData?.CYDeliveryBoxComplete,
-    DeliveryBoxStreak: idleonData?.CYDeliveryBoxStreak,
-    DeliveryBoxMisc: idleonData?.CYDeliveryBoxMisc,
+    ColosseumTickets: idleonData?.CYColosseumTickets ?? 0,
+    ObolFragments: idleonData?.CYObolFragments ?? 0,
+    SilverPens: idleonData?.CYSilverPens ?? 0,
+    GoldPens: idleonData?.CYGoldPens ?? 0,
+    DeliveryBoxComplete: idleonData?.CYDeliveryBoxComplete ?? 0,
+    DeliveryBoxStreak: idleonData?.CYDeliveryBoxStreak ?? 0,
+    DeliveryBoxMisc: idleonData?.CYDeliveryBoxMisc ?? 0,
     minigamePlays: account?.accountOptions?.[33] ?? 0
   };
 };
@@ -485,7 +485,7 @@ export const enhanceColoTickets = (tickets: any, characters: any, account: any) 
       amountPerDay: 1,
       daysSincePickup,
       amount: tickets,
-      totalAmount: Math.min(daysSincePickup, 3)
+      totalAmount: Math.min(daysSincePickup ?? 0, 3)
     }];
   }, [])
   return {
@@ -495,8 +495,10 @@ export const enhanceColoTickets = (tickets: any, characters: any, account: any) 
 }
 
 const getKeysObject = (keys: any) => {
-  return keys.reduce((res: any, keyAmount: any, index: any) => (index < 5 ? [...res,
-  { amount: keyAmount, ...(keysMap as Record<string, any>)[index] }] : res), []);
+  return Object.entries(keysMap).map(([indexStr, info]) => ({
+    amount: keys?.[Number(indexStr)] ?? 0,
+    ...(info as Record<string, any>)
+  }));
 }
 
 export const enhanceKeysObject = (keysAll: any, characters: any, account: any) => {
@@ -509,7 +511,8 @@ export const enhanceKeysObject = (keysAll: any, characters: any, account: any) =
   return keysAll.map((key: any, keyIndex: any) => {
     const amountPerDay = getAmountPerDay((npcs as Record<string, any>)?.[keyIndex], characters);
     const daysSincePickup = account?.accountOptions?.[(npcs as Record<string, any>)?.[keyIndex]?.daysSinceIndex];
-    return { ...key, amountPerDay, daysSincePickup, totalAmount: Math.min(daysSincePickup, 3) * amountPerDay };
+    const totalAmount = Math.min(daysSincePickup ?? 0, 3) * amountPerDay;
+    return { ...key, amountPerDay, daysSincePickup, totalAmount };
   });
 }
 
@@ -641,13 +644,13 @@ export const getCharacterByHighestSkillLevel = (characters: any, className: any,
 };
 
 export const getHighestLevelCharacter = (characters: any) => {
-  const levels = characters?.map(({ level }: any) => level ?? 0);
-  return Math.max(...levels);
+  const levels = characters?.map(({ level }: any) => level ?? 0) ?? [];
+  return Math.max(0, ...levels);
 };
 
 export const getHighestCharacterSkill = (characters: any = [], skillName: any) => {
   const levels = characters?.map(({ skillsInfo }: any) => skillsInfo?.[skillName]?.level ?? 0);
-  return Math.max(...levels);
+  return Math.max(0, ...levels);
 };
 
 export const calculateLeaderboard = (characters: any) => {
@@ -1215,7 +1218,7 @@ export const getFoodBonus = (character: any, account: any, bonusName: any, ignor
   return character?.food?.reduce((res: any, {
     Amount,
     Effect
-  }: any) => res + (Effect === bonusName ? Amount * (ignoreFoodBonus ? 1 : foodBonus) : 0), 0);
+  }: any) => res + (Effect === bonusName ? Amount * (ignoreFoodBonus ? 1 : foodBonus) : 0), 0) ?? 0;
 }
 
 export const getHealthFoodBonus = (character: any, account: any, bonusName: any) => {
@@ -1225,7 +1228,7 @@ export const getHealthFoodBonus = (character: any, account: any, bonusName: any)
     Amount,
     Cooldown,
     Effect
-  }: any) => res + (Trigger > 0 && Effect === bonusName ? Amount * foodBonus / Math.max(Cooldown, 1) * 3600 : 0), 0);
+  }: any) => res + (Trigger > 0 && Effect === bonusName ? Amount * foodBonus / Math.max(Cooldown, 1) * 3600 : 0), 0) ?? 0;
 }
 
 export const getMinigameScore = (account: any, bonusName: any) => {
@@ -1370,7 +1373,7 @@ export const getMiniBossesData = (account: any) => {
 }
 
 export const getKillRoy = (idleonData: any, charactersData: any, accountData: any, serverVars: any) => {
-  const skulls = accountData?.accountOptions?.[105];
+  const skulls = accountData?.accountOptions?.[105] ?? 0;
   const killRoyKills = tryToParse(idleonData?.KRbest);
   const totalKills = Object.values(killRoyKills || {}).reduce((sum: any, num: any) => sum + num, 0);
   const totalDamageMulti = 1 + Math.floor(Math.pow(totalKills as number, 0.4)) / 100;
@@ -1546,22 +1549,30 @@ export const getAllMasterclassDropz = (character: any, account: any) => {
 }
 
 export const getKillRoyShopBonus = (account: any, index: any) => {
+  const opt228 = account?.accountOptions?.[228] ?? 0;
+  const opt229 = account?.accountOptions?.[229] ?? 0;
+  const opt230 = account?.accountOptions?.[230] ?? 0;
+  const opt467 = account?.accountOptions?.[467] ?? 0;
+  const opt468 = account?.accountOptions?.[468] ?? 0;
+  const opt469 = account?.accountOptions?.[469] ?? 0;
+  const opt470 = account?.accountOptions?.[470] ?? 0;
+  const opt471 = account?.accountOptions?.[471] ?? 0;
   return 0 === index
-    ? 1 + (account?.accountOptions?.[228]) / (300 + (account?.accountOptions?.[228]))
+    ? 1 + opt228 / (300 + opt228)
     : 1 === index
-      ? 1 + ((account?.accountOptions?.[229]) / (300 + (account?.accountOptions?.[229]))) * 9
+      ? 1 + (opt229 / (300 + opt229)) * 9
       : 2 === index
-        ? 1 + ((account?.accountOptions?.[230]) / (300 + (account?.accountOptions?.[230]))) * 2
+        ? 1 + (opt230 / (300 + opt230)) * 2
         : 3 === index
-          ? ((account?.accountOptions?.[467]) / (200 + (account?.accountOptions?.[467]))) * 10
+          ? (opt467 / (200 + opt467)) * 10
           : 4 === index
-            ? 1 + ((account?.accountOptions?.[468]) / (200 + (account?.accountOptions?.[468]))) * 1.3
+            ? 1 + (opt468 / (200 + opt468)) * 1.3
             : 5 === index
-              ? 1 + ((account?.accountOptions?.[469]) / (150 + (account?.accountOptions?.[469]))) * 0.8
+              ? 1 + (opt469 / (150 + opt469)) * 0.8
               : 6 === index
-                ? ((account?.accountOptions?.[470]) / (250 + (account?.accountOptions?.[470]))) * 25
+                ? (opt470 / (250 + opt470)) * 25
                 : 7 === index
-                  ? 1 + ((account?.accountOptions?.[471]) / (200 + (account?.accountOptions?.[471]))) * 2
+                  ? 1 + (opt471 / (200 + opt471)) * 2
                   : 1
 }
 
@@ -1603,14 +1614,14 @@ export const getKillRoyClasses = (rooms: any, account: any, serverVars: any, ign
     if (!ignoreSkipConditions && (skipConditions as Record<string, any>)[done] && (skipConditions as Record<string, any>)[done].includes(i)) {
       continue;
     }
-    const seed = Math.round(baseSeed + iteration + (50 * i + serverVars.KillroySwap));
+    const seed = Math.round(baseSeed + iteration + (50 * i + (serverVars?.KillroySwap ?? 0)));
     const rng = new LavaRand(seed);
     const random = 3 * rng.rand();
     const classIndex = Math.max(0, Math.min(3, Math.ceil(random - Math.floor(i / 2))));
     classes.push(classIndex);
   }
   for (let i = 0; i < rooms; i++) {
-    const seed = Math.round(baseSeed + iteration + (50 * i + serverVars.KillroySwap));
+    const seed = Math.round(baseSeed + iteration + (50 * i + (serverVars?.KillroySwap ?? 0)));
     const rng = new LavaRand(seed);
     const random = Math.floor(1e3 * rng.rand());
     if (random < 300 || i === 0) {

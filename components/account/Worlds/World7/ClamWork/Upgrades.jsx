@@ -51,7 +51,7 @@ const Upgrades = ({ upgrades, account }) => {
                 <Stack direction={'row'} gap={1.5} alignItems={'center'}>
                   <img
                     src={`${prefix}data/ClamPearl0.png`}
-                    alt=""
+                    alt="Clam Pearl0"
                     style={{ width: 32, height: 32 }}
                   />
                   <Stack flex={1}>

@@ -1,5 +1,6 @@
 import { growth, tryToParse } from '@utility/helpers';
 import { classFamilyBonuses, items, randomList, refinery } from '@website-data';
+import { liveEntries } from '@parsers/catalog';
 import { calculateItemTotalAmount } from '@parsers/items';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { getVialsBonusByEffect } from '@parsers/world-2/alchemy';
@@ -12,6 +13,7 @@ import { checkCharClass, CLASSES, getHighestTalentByClass } from '@parsers/talen
 import { getFamilyBonusBonus } from '@parsers/family';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
@@ -31,13 +33,15 @@ const parseRefinery = (refineryRaw: any[], storage: any[], tasks: any) => {
     amount: refineryStorageQuantityRaw?.[index],
     owner: 'refinery'
   }] : res, []);
-  const combinedStorage = [...storage, ...(refineryStorage || [])];
+  const combinedStorage = [...(storage || []), ...(refineryStorage || [])];
   const refinerySaltTaskLevel = tasks?.[2]?.[2]?.[6];
-  const salts = refineryRaw?.slice(3, 3 + refineryRaw?.[0]?.[0]);
-  const saltsArray = salts?.reduce((res, salt, index) => {
-    const name = `Refinery${index + 1}`
-    const [refined, rank, , active, autoRefinePercentage] = salt;
-    const { saltName, cost } = (refinery as Record<string, any>)?.[name] || {};
+  const refineryCatalog = Object.entries(refinery).map(([name, value]: [string, any]) => ({ rawName: name, ...value }));
+  const unlockedSaltCount = refineryRaw?.[0]?.[0] ?? 0;
+  const saltsArray = liveEntries<any>(refineryCatalog).map(({ entry, index }) => {
+    const { rawName: name, saltName, cost } = entry;
+    const unlocked = index < unlockedSaltCount;
+    const salt = unlocked ? refineryRaw?.[3 + index] : undefined;
+    const [refined = 0, rank = 0, , active = 0, autoRefinePercentage = 0] = salt ?? [];
     const componentsWithTotalAmount = cost?.map((item: any) => {
       let amount = calculateItemTotalAmount(combinedStorage, item?.name, true);
       return {
@@ -45,20 +49,18 @@ const parseRefinery = (refineryRaw: any[], storage: any[], tasks: any) => {
         totalAmount: amount
       }
     })
-    return [
-      ...res,
-      {
-        saltName,
-        cost: componentsWithTotalAmount,
-        rawName: name,
-        powerCap: getPowerCap(rank),
-        refined,
-        rank,
-        active,
-        autoRefinePercentage
-      }
-    ];
-  }, []);
+    return {
+      saltName,
+      cost: componentsWithTotalAmount,
+      rawName: name,
+      powerCap: getPowerCap(rank),
+      refined,
+      rank,
+      active,
+      autoRefinePercentage,
+      unlocked
+    };
+  });
 
   return {
     salts: saltsArray,
@@ -94,7 +96,7 @@ export const getRefineryCycleBonuses = (account: Account, characters: any[]) => 
   const { alchemy, saltLick, charactersLevels, breeding, rift, towers } = account;
   const vials = alchemy?.vials;
   const redMaltVial = getVialsBonusByEffect(vials, 'Refinery_Cycle_Speed');
-  const saltLickUpgrade = saltLick?.[2] ? (saltLick?.[2]?.baseBonus * saltLick?.[2]?.level) : 0;
+  const saltLickUpgrade = getSaltLickBonus(saltLick, 2);
   const sigilRefinerySpeed = alchemy?.p2w?.sigils?.find((sigil: any) => sigil?.name === 'PIPE_GAUGE')?.bonus || 0;
   const stampRefinerySpeed = getStampsBonusByEffect(account, 'Faster_refinery_cycles');
   const shinyRefineryBonus = getShinyBonus(breeding?.pets, 'Faster_Refinery_Speed');
@@ -202,19 +204,19 @@ export const getRefineryCycles = (account: Account, characters: any[], lastUpdat
   const combustion = {
     name: 'Combustion',
     time: Math.ceil(combustionTime),
-    timePast: account?.refinery?.timePastCombustion + timePassed,
+    timePast: (account?.refinery?.timePastCombustion ?? 0) + timePassed,
     breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 900 }, ...breakdown]
   };
   const synthesis = {
     name: 'Synthesis',
     time: Math.ceil(synthesisTime),
-    timePast: account?.refinery?.timePastSynthesis + timePassed,
+    timePast: (account?.refinery?.timePastSynthesis ?? 0) + timePassed,
     breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 3600 }, ...breakdown]
   }
   const polymerize = {
     name: 'Polymerize',
     time: Math.ceil(polymerizeTime),
-    timePast: account?.refinery?.timePastPolymerize + timePassed,
+    timePast: (account?.refinery?.timePastPolymerize ?? 0) + timePassed,
     breakdown: [{ title: 'Additive' }, { name: '' }, { name: 'Base', value: 360000 }, ...breakdown,
       { name: 'Materials Science', value: (researchGridBonus + mealBonus) / 100 }
     ]

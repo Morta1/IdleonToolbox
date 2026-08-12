@@ -2,20 +2,21 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
-  testMatch: 'smoke-*.spec.js',
+  testMatch: ['smoke-*.spec.js', 'logged-out.spec.js', 'logged-out-nav.spec.js', 'no-nan.spec.js'],
   timeout: 30_000,
   expect: { timeout: 10_000 },
   retries: 0,
+  fullyParallel: true,
   workers: 4,
   reporter: 'list',
   use: {
-    baseURL: 'http://localhost:3001',
+    baseURL: 'http://localhost:3002',
     headless: true,
   },
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3001',
-    reuseExistingServer: true,
-    timeout: 60_000,
+    command: 'npm run serve:e2e',
+    url: 'http://localhost:3002',
+    reuseExistingServer: false,
+    timeout: 120_000,
   },
 });

@@ -40,10 +40,10 @@ export const getFarming = (idleonData: any, accountData: any, charactersData: an
 }
 
 const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCrop: any, rawFarmingRanks: any, account: any, charactersData: any) => {
-  const gemVineBonus = account?.gemShopPurchases?.find((value: any, index: any) => index === 139);
+  const gemVineBonus = account?.gemShopPurchases?.find((value: any, index: any) => index === 139) ?? 0;
   const marketLevels = rawFarmingUpgrades?.slice(2, marketInfo.length + 2);
-  const beans = rawFarmingUpgrades?.[1];
-  const instaGrow = rawFarmingUpgrades?.[19];
+  const beans = rawFarmingUpgrades?.[1] ?? 0;
+  const instaGrow = rawFarmingUpgrades?.[19] ?? 0;
   const researchBonus171 = getResearchGridBonus(account, 171, 0);
   const cheaperDayMarket = Math.max(0.1, 1 - (getExoticMarketBonus(account, 34) ?? 0) / 100)
     * Math.max(0.1, 1 - (getExoticMarketBonus(account, 35) ?? 0) / 100);
@@ -172,13 +172,17 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     }
   });
 
-  const plot = rawFarmingPlot?.map(([seedType, progress, cropType, isLocked, cropQuantity, currentOG, cropProgress]: any, cropIndex: any) => {
+  const MAX_PLOTS = 36;
+  const plotSource = rawFarmingPlot ?? Array.from({ length: MAX_PLOTS }, () => [0, 0, 0, 1, 0, 0, 0]);
+
+  const plot = plotSource?.map(([seedType, progress, cropType, isLocked, cropQuantity, currentOG, cropProgress]: any, cropIndex: any) => {
     const seed = seedInfo?.[seedType];
-    const type = Math.round(seed?.cropIdMin + cropType);
+    const type = Math.round((seed?.cropIdMin ?? 0) + cropType);
     const growthReq = 14400 * Math.pow(1.5, seedType);
     const rank = farmingRanks?.[cropIndex];
     const rankProgress = ranksProgress?.[cropIndex];
-    const rankRequirement = (7 * rank + 25 * Math.floor(rank / 5) + 10) * Math.pow(1.11, rank);
+    const rankForMath = rank ?? 0;
+    const rankRequirement = (7 * rankForMath + 25 * Math.floor(rankForMath / 5) + 10) * Math.pow(1.11, rankForMath);
     return {
       seed,
       index: cropIndex,
@@ -603,7 +607,7 @@ const getCropValueBreakdown = (account: any, market: any) => {
   const exotic24 = getExoticMarketBonus(account, 24);
   const exotic25 = getExoticMarketBonus(account, 25);
   const voteBonus = getVoteBonus(account, 29);
-  const avgRank = account?.farming?.plot?.reduce((sum: any, p: any) => sum + (p?.rank ?? 0), 0)
+  const avgRank = (account?.farming?.plot?.reduce((sum: any, p: any) => sum + (p?.rank ?? 0), 0) ?? 0)
     / (account?.farming?.plot?.length || 1);
 
   const cap = 10000 * (1 + (exotic23 + exotic24 + exotic25) / 100);
@@ -803,9 +807,10 @@ export const getExoticMarketBonus = (account: any, index: any) => {
 }
 
 const calcRankBonus = (index: any, apocalypseWow: any, exoticMulti: any, base: any, upgradeLevel: any) => {
+  const level = upgradeLevel ?? 0;
   return 4 === index || 9 === index || 14 === index || 19 === index
-    ? Math.max(1, apocalypseWow) * exoticMulti * base * upgradeLevel
-    : Math.max(1, apocalypseWow) * exoticMulti * ((1.7 * base * upgradeLevel) / (upgradeLevel + 80));
+    ? Math.max(1, apocalypseWow) * exoticMulti * base * level
+    : Math.max(1, apocalypseWow) * exoticMulti * ((1.7 * base * level) / (level + 80));
 }
 
 export const getLandRank = (ranks: any, index: any, characters?: any, activeCharacter?: any) => {
@@ -908,8 +913,13 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
     + Math.max(0, farmingLevel - 250) * exotic8;
 
   const achievementBonus = getAchievementStatus(account?.achievements, 355);
-  const summoningMealBonus = mealBonus2 * Math.ceil((character?.skillsInfo?.summoning?.level + 1) / 50);
+  const summoningLevel = character?.skillsInfo?.summoning?.level ?? 0;
+  const summoningMealBonus = mealBonus2 * Math.ceil((summoningLevel + 1) / 50);
   const landRankPerPlot = getLandRank(account?.farming?.ranks, 0) * (account?.farming?.plot?.[crop?.index]?.rank ?? 0) + voteBonus;
+
+  const nextCropChance = crop?.seed?.nextCropChance ?? 0;
+  const nextCropDecay = crop?.seed?.nextCropDecay ?? 0;
+  const baseCropType = crop?.baseCropType ?? 0;
 
   let value = (1 + marketBonus1 / 100)
     * (1 + winBonus / 100)
@@ -940,8 +950,8 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
     * (1 + exotic3 / 100)
     * (1 + scalingExotics / 100)
     * (1 + sushiBonus / 100)
-    * crop?.seed?.nextCropChance
-    * Math.pow(crop?.seed?.nextCropDecay, crop?.baseCropType);
+    * nextCropChance
+    * Math.pow(nextCropDecay, baseCropType);
 
   value = Math.min(100, 100 * value);
   value = Math.round(10 * value) / 10;
@@ -950,8 +960,8 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
     value,
     breakdown: [
       { title: 'Additive' },
-      { name: 'Base Chance', value: crop?.seed?.nextCropChance.toExponential(3) },
-      { name: 'Decay Rate', value: Math.pow(crop?.seed?.nextCropDecay, crop?.baseCropType).toExponential(3) },
+      { name: 'Base Chance', value: nextCropChance.toExponential(3) },
+      { name: 'Decay Rate', value: Math.pow(nextCropDecay, baseCropType).toExponential(3) },
       { name: 'Market', value: Number(((1 + marketBonus1 / 100) * Math.max(1, marketBonus2)).toFixed(3)) },
       { name: 'Summoning', value: Number((1 + winBonus / 100).toFixed(3)) },
       { name: 'Lamp', value: Number((1 + lampBonus / 100).toFixed(3)) },

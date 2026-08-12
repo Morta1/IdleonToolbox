@@ -33,6 +33,12 @@ alwaysApply: true
 ## Testing
 When testing add "http://localhost:3001?demo=true" to be able to access all pages without login in
 
+E2E gotchas (`npm run test:e2e` — builds, then serves `out/` on **3002**; `test:e2e:nobuild` reuses `out/`):
+- E2E runs against the **static export, not `next dev`**. A stale `out/` tests old code.
+- Never `waitForLoadState('networkidle')` — ad scripts never let it settle. Use `waitForRender` from `e2e/wait-helpers.js`.
+- Navigate with relative paths; the port lives only in `playwright.config.js`'s `baseURL`.
+- Pre-commit runs the full vitest suite. Never `--no-verify`.
+
 ## TypeScript
 
 This is a **gradual TypeScript migration**. The codebase is mixed JS/TS:
@@ -104,6 +110,25 @@ Every user-facing change (feature or fix) gets a patch note entry in `@IdleonToo
 - Make sure the patch notes are concise and easy to understand, don't add too much information.
 - Describe the user-visible effect, not the implementation.
 - Skip only for changes users can't see: refactors, tests, tooling, docs, type-only changes.
+
+### Empty-account contract (parsers)
+
+Every page must render logged-out, showing the full catalog at zero (SEO requirement). Gotchas:
+
+- **Loop the catalog, not the save.** Save-driven loops produce an empty page with no save. Most common way to break this.
+- **Return populated objects, never `undefined`/`null`/`[]`** for content that exists regardless of progress. Feature-locked sections are the exception — `null` + `unlocked: false`, pinned by `null-fallback-shape.test.js`.
+- **`?? 0` is wrong where the identity is 1** (multipliers, rates). A default that's wrong when data IS present silently changes real users' numbers.
+- **No hardcoded content counts** — derive from the catalog, or it goes stale next game update.
+- **A guard added for the empty case usually also fires on real saves.** Check both.
+- `parseData` returns `{ account, characters }`, not `{ accountData, charactersData }` (that's internal).
+- Verify real-save output is unchanged against the five `__test__/fixtures/`. Gates: `empty-account.test.js`, `nan-elimination.test.js` (NaN **and** non-finite), `e2e/no-nan.spec.js`.
+- Helpers: `liveEntries` (`parsers/catalog.ts`) drops placeholder rows; `safeSection` isolates a throwing parser.
+
+### Comments
+
+Few and load-bearing — why, not what. No narrating the investigation.
+
+Never delete a directive comment: `// @vitest-environment jsdom`, `eslint-*`, `@ts-*`, `webpackChunkName`, `prettier-ignore`. They're behaviour, not documentation.
 
 ### Multi-pass serialization rule
 

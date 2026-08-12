@@ -4,6 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.58',
+    'gameVer': '2.3.523',
+    'date': '12/08/2026',
+    'features': [
+      'Every page is now viewable without signing in, showing the full game data with your progress at zero. Getting there meant reworking how the site reads your save, which also fixed values that were missing or wrong while signed in'
+    ],
+    'fixes': [
+      'Logging out no longer sends you back to the homepage - you stay on the page you were on, with your numbers at zero',
+      'Colosseum: the table listed nothing until you had a score - it now shows all six arenas',
+      'Shrines: a shrine you have not built yet showed a bonus it does not give, and an unbuilt Crystal Shrine inflated the shrine EXP bonus on every other shrine'
+    ]
+  },
+  {
     'ver': '3.3.57',
     'gameVer': '2.3.523',
     'date': '05/08/2026',

@@ -17,7 +17,7 @@ const VoteBallot = () => {
 
   const renderBonusTab = () => (
     <>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
         <CardWithBreakdown title={'Bonus multi'} value={`${voteBallot?.voteMulti?.toFixed(3)}x`}
                            breakdown={voteBallot?.voteMultiBreakdown}/>
         <CardTitleAndValue title={'Selected bonus'} value={' '} icon={`data/${voteBallot?.selectedBonus?.icon}`}/>
@@ -36,7 +36,7 @@ const VoteBallot = () => {
           }}>
             <CardContent>
               <Stack direction={'row'} gap={2}>
-                <img style={{ objectFit: 'contain' }} src={`${prefix}data/${bonus?.icon}`} alt={''}/>
+                <img style={{ objectFit: 'contain' }} src={`${prefix}data/${bonus?.icon}`} alt=""/>
                 <Stack>
                   <Typography>{cleanUnderscore(bonus?.[0].replace('{', bonus?.bonus.toFixed(3)).replace('}', (1 + bonus?.bonus / 100).toFixed(3)))}</Typography>
                   {bonus?.active ? <Typography mt={1}>Voters percent: {bonus?.percent}%</Typography> : null}
@@ -51,7 +51,7 @@ const VoteBallot = () => {
 
   const renderMeritocracyTab = () => (
     <>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
         <CardWithBreakdown title={'Meritocracy multi'} value={`${voteBallot?.meritocracyMult?.toFixed(3)}x`}
                            breakdown={voteBallot?.meritocracyMultBreakdown}/>
         <CardTitleAndValue title={'Selected meritocracy bonus'} value={' '}
@@ -71,7 +71,7 @@ const VoteBallot = () => {
           }}>
             <CardContent>
               <Stack direction={'row'} gap={2}>
-                {index > 0 ? <img style={{ objectFit: 'contain' }} src={`${prefix}data/${bonus?.icon}`} alt={''}/> :
+                {index > 0 ? <img style={{ objectFit: 'contain' }} src={`${prefix}data/${bonus?.icon}`} alt=""/> :
                   <Box sx={{ width: 26, height: 26 }}></Box>}
                 <Stack>
                   <Typography>{cleanUnderscore(bonus?.description?.replace('{', bonus?.bonus.toFixed(3)).replace('}', (1 + bonus?.bonus / 100).toFixed(3)))}</Typography>

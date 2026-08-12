@@ -93,6 +93,7 @@ const getZenithMarket = (rawSpelunking: any) => {
 }
 
 const getHighestLevelStatues = (characters: any[], statueIndex: number): any => {
+  if (!characters?.length) return undefined;
   return characters.reduce((prev: any, current: any) => (prev?.StatueLevels?.[statueIndex]?.[0] > current?.StatueLevels?.[statueIndex]?.[0])
     ? prev
     : current)

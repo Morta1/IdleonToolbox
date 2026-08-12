@@ -23,13 +23,13 @@ const Totals = ({ account, characters }) => {
       <TotalStat text={'Stamps'} icon={'StampA34'} stat={totalStampLevels}/>
       <TotalStat text={'Statues'} icon={'EquipmentStatues1'} stat={totalStatueLevels}/>
       <TotalStat text={'Shrines'} icon={'UISkillIcon639'} stat={totalShrineLevels}/>
-      <TotalStat text={'Highest Damage'} icon={'StampA8'} stat={account?.tasks?.[0]?.[1]?.[0]}/>
-      <TotalStat text={'PO Orders'} icon={'DeliveryBox'} stat={account?.tasks?.[0]?.[1]?.[5]}/>
-      <TotalStat text={'Monsters Killed'} icon={'UISkillIcon110'} stat={account?.tasks?.[0]?.[0]?.[0]}/>
-      <TotalStat text={'Refined Salts'} icon={'TaskSc6'} stat={account?.tasks?.[0]?.[2]?.[0]}/>
-      <TotalStat text={'Mats Printed'} icon={'PrintSlot'} stat={account?.tasks?.[0]?.[2]?.[3]}/>
-      <TotalStat text={'Trashed Cogs'} icon={'Cog3B4'} stat={account?.tasks?.[0]?.[2]?.[1]}/>
-      <TotalStat text={'Plants Picked'} icon={'GamingPlant1'} stat={account?.tasks?.[0]?.[4]?.[3]}/>
+      <TotalStat text={'Highest Damage'} icon={'StampA8'} stat={account?.tasks?.[0]?.[1]?.[0] ?? 0}/>
+      <TotalStat text={'PO Orders'} icon={'DeliveryBox'} stat={account?.tasks?.[0]?.[1]?.[5] ?? 0}/>
+      <TotalStat text={'Monsters Killed'} icon={'UISkillIcon110'} stat={account?.tasks?.[0]?.[0]?.[0] ?? 0}/>
+      <TotalStat text={'Refined Salts'} icon={'TaskSc6'} stat={account?.tasks?.[0]?.[2]?.[0] ?? 0}/>
+      <TotalStat text={'Mats Printed'} icon={'PrintSlot'} stat={account?.tasks?.[0]?.[2]?.[3] ?? 0}/>
+      <TotalStat text={'Trashed Cogs'} icon={'Cog3B4'} stat={account?.tasks?.[0]?.[2]?.[1] ?? 0}/>
+      <TotalStat text={'Plants Picked'} icon={'GamingPlant1'} stat={account?.tasks?.[0]?.[4]?.[3] ?? 0}/>
       {account?.finishedWorlds?.World2 ? <>
         <Stack direction={'row'} alignItems={'center'} gap={2}>
           <Tooltip title={<Stack>

@@ -3,7 +3,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, getBitIndex, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
 import Tooltip from 'components/Tooltip';
-import { CardTitleAndValue, MissingData } from '@components/common/styles';
+import { CardTitleAndValue } from '@components/common/styles';
 import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
 import { NextSeo } from 'next-seo';
 import { isCompanionBonusActive } from '../../../parsers/misc';
@@ -20,7 +20,6 @@ const Divinity = () => {
   const { deities, linkedDeities, godRank } = state?.account?.divinity || {};
   const { coralKidUpgrades } = state?.account?.coralReef || {};
   const [showCost, setShowCost] = useState(false);
-  if (!state?.account?.divinity) return <MissingData name={'divinity'}/>;
   return <>
     <NextSeo
       title="Divinity | Idleon Toolbox"
@@ -28,7 +27,7 @@ const Divinity = () => {
     />
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'divinity')}>
     <div>
-    <CardTitleAndValue title={'God Rank'} value={godRank || 1}/>
+    <CardTitleAndValue title={'God Rank'} value={godRank || 1} cardSx={{ mb: 3 }}/>
     <FormControlLabel
       control={<Checkbox name={'mini'} checked={showCost} size={'small'} onChange={() => setShowCost(!showCost)}/>}
       label={'Show upgrade cost'}/>

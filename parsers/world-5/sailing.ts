@@ -49,9 +49,26 @@ export const getSailing = (idleonData: any, artifactsList: any, charactersData: 
   const captainsRaw = tryToParse(idleonData?.Captains) || idleonData?.Captains;
   const boatsRaw = tryToParse(idleonData?.Boats) || idleonData?.Boats;
   const chestsRaw = tryToParse(idleonData?.SailChests) || idleonData?.SailChests;
-  if (!sailingRaw || !captainsRaw || !boatsRaw || !chestsRaw) return null;
+  if (!sailingRaw || !captainsRaw || !boatsRaw || !chestsRaw) return getLockedSailing(artifactsList);
   return parseSailing(artifactsList, sailingRaw, captainsRaw, boatsRaw, chestsRaw, charactersData, account, serverVars, charactersLevels);
 }
+
+export const getLockedSailing = (artifactsList: any) => ({
+  unlocked: false,
+  artifacts: artifactsList ?? [],
+  lootPile: [],
+  chests: [],
+  maxChests: 0,
+  captains: [],
+  boats: [],
+  shopCaptains: [],
+  captainsOnBoats: {},
+  trades: [],
+  rareTreasureChance: 0,
+  timeToFullChests: undefined,
+  minimumTravelTime: 0,
+  minimumTravelTimeBreakdown: []
+});
 
 const parseSailing = (artifactsList: any, sailingRaw: any, captainsRaw: any, boatsRaw: any, chestsRaw: any, charactersData: any, account: any, serverVars: any, charactersLevels: any) => {
   const lootPile = sailingRaw?.[1];
@@ -66,11 +83,12 @@ const parseSailing = (artifactsList: any, sailingRaw: any, captainsRaw: any, boa
   const rareTreasureChance = getRareTreasureChance();
   const lootPileList = getLootPile(lootPile);
   const captainsAndBoats = getCaptainsAndBoats(sailingRaw, captainsRaw, boatsRaw, account, charactersData, charactersLevels, artifactsList, lootPileList);
-  const boatsRoundtrips = captainsAndBoats?.boats?.map(({ maxTime }: any) => maxTime);
+  const boatsRoundtrips = captainsAndBoats?.boats?.map(({ maxTime }: any) => maxTime).filter((time: any) => Number.isFinite(time));
   const timeToFullChests = calculateMaxCapacityTime(boatsRoundtrips, maxChests - (chests?.length || 0));
   const trades = getFutureTrades(captainsAndBoats, sailingRaw?.[0], lootPileList, artifactsList, account);
 
   return {
+    unlocked: true,
     maxChests,
     artifacts: artifactsList,
     lootPile: lootPileList,
@@ -83,6 +101,7 @@ const parseSailing = (artifactsList: any, sailingRaw: any, captainsRaw: any, boa
 }
 
 const calculateMaxCapacityTime = (roundtripTimes: any, maxCapacity: any) => {
+  if (!roundtripTimes?.length) return undefined;
   const minTime = Math.min(...roundtripTimes);
   const acquisitionRate = maxCapacity / minTime;
   let accumulatedTime = 0;
@@ -360,8 +379,8 @@ const getBoat = (boat: any, boatIndex: any, lootPile: any, captains: any, artifa
   boatObj.loot = getBoatLootValue(characters, account, artifactsList, boatObj, captain, daveyJones);
   const frame = getBoatFrame(lootLevel + speedLevel, account);
   boatObj.speed = getBoatSpeedValue(captain, island, speedLevel, baseSpeed * daveyJones, minimumTravelTime, frame)
-  boatObj.maxTime = ((island?.distance) / boatObj.speed?.value) * 3600 * 1000;
-  boatObj.timeLeft = ((island?.distance - distanceTraveled) / boatObj.speed?.value) * 3600 * 1000;
+  boatObj.maxTime = island ? (island.distance / boatObj.speed?.value) * 3600 * 1000 : undefined;
+  boatObj.timeLeft = island ? ((island.distance - distanceTraveled) / boatObj.speed?.value) * 3600 * 1000 : undefined;
   return boatObj
 }
 
@@ -798,10 +817,10 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
   }
   else if (artifact?.name === 'Triagulon') {
     const ownedTurkey = account?.cooking?.meals?.[0]?.amount;
-    bonus = (artifact?.baseBonus * lavaLog(ownedTurkey));
+    bonus = (artifact?.baseBonus * lavaLog(ownedTurkey ?? 0));
   }
   else if (artifact?.name === 'Opera_Mask') {
-    const sailingGold = lootPile?.[0];
+    const sailingGold = lootPile?.[0] ?? 0;
     bonus = (artifact?.baseBonus * lavaLog(sailingGold));
   }
   else if (artifact?.name === 'Fun_Hippoete') {
@@ -809,7 +828,7 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
     bonus = artifact?.baseBonus * lavaLog(account?.construction?.playersBuildRate ?? 0)
   }
   else if (artifact?.name === 'The_True_Lantern') {
-    bonus = artifact?.baseBonus * (lavaLog(account?.atoms?.particles) ?? 0);
+    bonus = artifact?.baseBonus * lavaLog(account?.atoms?.particles ?? 0);
   }
   else if (artifact?.name === 'Gold_Relic') {
     const daysSinceLastSample = account?.accountOptions?.[125];
@@ -820,7 +839,7 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
   else if (artifact?.name === 'Crystal_Steak') {
     const mainStats = charactersData?.map(({ name, class: className, stats }: any) => {
       const mainStat = mainStatMap?.[className];
-      return { name, stat: stats?.[mainStat] };
+      return { name, stat: stats?.[mainStat] ?? 0 };
     })
     fixedDescription = fixedDescription.replace('_Total_Bonus:_+}%_dmg', '')
     additionalData = mainStats.map(({ name, stat }: any) => ({

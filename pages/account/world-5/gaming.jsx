@@ -7,12 +7,14 @@ import Palette from '@components/account/Worlds/World5/Gaming/Palette';
 
 const Gaming = () => {
   const { state } = useContext(AppContext);
-  if (!state?.account?.gaming) return <MissingData name={'gaming'}/>;
+  const gaming = state?.account?.gaming;
+  if (!gaming) return <MissingData name={'gaming'}/>;
   return <>
     <NextSeo
       title="Gaming | Idleon Toolbox"
       description="Keep track of your gaming upgrades including dirty shovel and autumn squirrel timers"
     />
+
     <General account={state?.account} characters={state?.characters} lastUpdated={state?.lastUpdated}/>
   </>
 };

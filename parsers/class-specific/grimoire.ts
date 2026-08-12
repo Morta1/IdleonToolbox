@@ -1,5 +1,6 @@
 import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { grimoire, mapEnemiesArray, mapNames, monsterDrops, monsters, randomList } from '@website-data';
+import { liveEntries } from '@parsers/catalog';
 import { CLASSES, getTalentBonus } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
@@ -63,12 +64,12 @@ export const getGrimoire = (idleonData: any, charactersData: any, account: any) 
 
 const parseGrimoire = (grimoireRaw: any, ribbonRaw: any, charactersData: any, account: any) => {
   const monsterList = randomList?.[104];
-  const bones = account?.accountOptions?.slice(330, 334);
-  const totalUpgradeLevels = grimoireRaw?.reduce((sum: any, level: any) => sum + level, 0);
-  const totalBonesCollected = account?.accountOptions?.[329];
-  let upgrades = grimoire.map((upgrade, index) => {
+  const bones = boneNames.map((_, index) => account?.accountOptions?.[330 + index] ?? 0);
+  const totalUpgradeLevels = grimoireRaw?.reduce((sum: any, level: any) => sum + level, 0) ?? 0;
+  const totalBonesCollected = account?.accountOptions?.[329] ?? 0;
+  let upgrades = liveEntries<any>(grimoire).map(({ entry: upgrade, index }) => {
     const { x1, x2 } = upgrade;
-    const level = grimoireRaw?.[index]
+    const level = grimoireRaw?.[index] ?? 0;
     const cost = getUpgradeCost({ x1, x2, index, level, account: account })
     return {
       ...upgrade,
@@ -179,14 +180,14 @@ export const getWraithStats = (character: any, account: any) => {
       + (calcGrimoireBonus(upgrades, 28)
         + (calcGrimoireBonus(upgrades, 43)
           + calcGrimoireBonus(upgrades, 50)))) / 100)
-    * (1 + (account?.accountOptions?.[334]
+    * (1 + ((account?.accountOptions?.[334] ?? 0)
       * calcGrimoireBonus(upgrades, 13)
-      + (account?.accountOptions?.[335]
+      + ((account?.accountOptions?.[335] ?? 0)
         * calcGrimoireBonus(upgrades, 21)
-        + account?.accountOptions?.[336]
+        + (account?.accountOptions?.[336] ?? 0)
         * calcGrimoireBonus(upgrades, 31))) / 100)
     * (1 + (calcGrimoireBonus(upgrades, 18)
-      * lavaLog(account?.accountOptions?.[330])) / 100)
+      * lavaLog(account?.accountOptions?.[330] ?? 0)) / 100)
     * (1 + (marauderStyle * (totalUpgradeLevels / 100)) / 100);
   const accuracy = (2 + (calcGrimoireBonus(upgrades, 1)
       + (calcGrimoireBonus(upgrades, 12)
@@ -196,7 +197,7 @@ export const getWraithStats = (character: any, account: any) => {
     * (1 + (calcGrimoireBonus(upgrades, 7)
       + calcGrimoireBonus(upgrades, 38)) / 100)
     * (1 + (calcGrimoireBonus(upgrades, 41)
-      * lavaLog(account?.accountOptions?.[332])) / 100)
+      * lavaLog(account?.accountOptions?.[332] ?? 0)) / 100)
     * (1 + (marauderStyle
       * (totalUpgradeLevels / 100)) / 100);
   const defence = (calcGrimoireBonus(upgrades, 2)
@@ -207,7 +208,7 @@ export const getWraithStats = (character: any, account: any) => {
     * (1 + (calcGrimoireBonus(upgrades, 7)
       + calcGrimoireBonus(upgrades, 38)) / 100)
     * (1 + (calcGrimoireBonus(upgrades, 27)
-      * lavaLog(account?.accountOptions?.[331])) / 100)
+      * lavaLog(account?.accountOptions?.[331] ?? 0)) / 100)
     * (1 + (bulwarkStyle
       * (totalUpgradeLevels / 100)) / 100);
   const critChance = 10 + (calcGrimoireBonus(upgrades, 10)
@@ -255,7 +256,7 @@ export const getExtraBonesBonus = (character: any, account: any) => {
   const gambitMulti = Math.min(2, 1 + getGambitBonus(account, 12));
   const gearMulti = Math.min(1.5, 1 + gearBonus / 100);
   const upgradeBonus = calcGrimoireBonus(upgrades, 23)
-    + calcGrimoireBonus(upgrades, 48) * lavaLog(account?.accountOptions?.[333])
+    + calcGrimoireBonus(upgrades, 48) * lavaLog(account?.accountOptions?.[333] ?? 0)
     + arcadeBonus + mainframeBonus + paletteBonus + exoticBonus;
 
   const value = (1 + charmBonus / 100)
