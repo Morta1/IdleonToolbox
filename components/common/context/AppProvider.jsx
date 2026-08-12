@@ -30,15 +30,21 @@ function appReducer(state, action) {
   const actionHandlers = {
     [ACTION_TYPES.LOGIN]: () => ({ ...state, ...action.data }),
     [ACTION_TYPES.DATA]: () => ({ ...state, ...action.data }),
-    [ACTION_TYPES.LOGOUT]: () => ({
-      ...state,
-      characters: null,
-      account: null,
-      signedIn: false,
-      emailPassword: null,
-      appleLogin: null,
-      profile: null
-    }),
+    // Keeps UI preferences, drops everything else. A blocklist was tried and rotted immediately:
+    // spreading state and naming the account keys to clear missed loginType/loginData, which the
+    // auth poll below reads whenever waitingForAuth is set. Both login components arm that flag
+    // before their fresh credentials arrive, so a second sign-in re-subscribed with the previous
+    // user's uid and token. A whitelist drops any future session key by default.
+    [ACTION_TYPES.LOGOUT]: () => {
+      const { filters, pinnedPages, displayedCharacters, trackers, godPlanner, planner, settings,
+        showRankOneOnly, showUnmaxedBoxesOnly } = state;
+      return {
+        filters, pinnedPages, displayedCharacters, trackers, godPlanner, planner, settings,
+        showRankOneOnly, showUnmaxedBoxesOnly,
+        signedIn: false,
+        isLoading: false
+      };
+    },
     [ACTION_TYPES.DISPLAYED_CHARACTERS]: () => ({ ...state, displayedCharacters: action.data }),
     [ACTION_TYPES.FILTERS]: () => ({ ...state, filters: action.data }),
     [ACTION_TYPES.PINNED_PAGES]: () => ({ ...state, pinnedPages: action.data }),
