@@ -39,6 +39,39 @@ describe('isLiveShrineEntry', () => {
   });
 });
 
+describe('unbuilt shrines award nothing', () => {
+  // Every fixture has the Crystal Shrine built, which is exactly why the bug this covers survived:
+  // crystalShrineBonus read the level-0 bonus with no level check and fed it into shrine EXP.
+  // A synthetic save is the only way to exercise it.
+  const CRYSTAL_INDEX = 2;
+  const build = (levels) => levels.map((level, index) => [index === 0 ? 0 : index * 10, 0, 0, level, 0]);
+
+  it('gives a level-0 shrine no bonus', () => {
+    const result = getShrines({ ShrineInfo: build([0, 0, 0, 0, 0, 0, 0, 0, 0]) }, {});
+    expect(result.every((s) => s.bonus === 0)).toBe(true);
+    expect(result.every((s) => s.crystalShrineBonus === 0)).toBe(true);
+  });
+
+  it('gives no crystalShrineBonus while the Crystal Shrine is unbuilt, but keeps the others', () => {
+    const levels = [5, 5, 0, 5, 5, 5, 5, 5, 5];
+    const result = getShrines({ ShrineInfo: build(levels) }, {});
+
+    expect(result[CRYSTAL_INDEX].bonus).toBe(0);
+    expect(result.every((s) => s.crystalShrineBonus === 0)).toBe(true);
+    result.forEach((shrine, index) => {
+      if (index === CRYSTAL_INDEX) return;
+      expect(shrine.bonus).toBeGreaterThan(0);
+    });
+  });
+
+  it('restores crystalShrineBonus once the Crystal Shrine is built', () => {
+    const levels = [5, 5, 5, 5, 5, 5, 5, 5, 5];
+    const result = getShrines({ ShrineInfo: build(levels) }, {});
+    const onItsOwnMap = result[CRYSTAL_INDEX];
+    expect(onItsOwnMap.crystalShrineBonus).toBeGreaterThan(0);
+  });
+});
+
 const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
 
 describe('getShrines fixture regression', () => {
