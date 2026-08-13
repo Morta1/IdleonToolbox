@@ -10,6 +10,8 @@ import Head from 'next/head';
 import AppProvider from '../components/common/context/AppProvider';
 import PreferencesProvider from '../components/common/context/PreferencesProvider';
 import WaitForRouter from '../components/common/WaitForRouter';
+import CrawlLinks from '../components/common/CrawlLinks';
+import PreHydrationLoader from '../components/common/PreHydrationLoader';
 import { DefaultSeo } from 'next-seo';
 import NavBar from '../components/common/NavBar';
 import DataLoadingWrapper from '../components/common/DataLoadingWrapper';
@@ -23,6 +25,7 @@ import RouteProgress from '@components/common/RouteProgress';
 import ErrorBoundary from '@components/common/ErrorBoundary';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PAGE_SEO } from '../data/page-seo';
+import { resolveSeoHead } from '../utility/seo-head.mjs';
 
 const clientSideEmotionCache = createEmotionCache();
 const queryClient = new QueryClient({
@@ -57,17 +60,30 @@ const MyApp = (props) => {
   const noindex = pageProps?.seoNoindex ?? pageSeo?.noindex;
   const canonicalUrl = `https://idleontoolbox.com${asPath.split('?')[0].split('#')[0]}`;
   const isGdprRegion = useGdprRegion();
+  const { title: staticTitle, description: staticDescription } = resolveSeoHead({ pageProps, pageSeo });
 
   return (
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
         {/* Nothing below <WaitForRouter> renders during the static export, so a page's own
-            <NextSeo> never runs at build time. Title and description come from PAGE_SEO in
-            _document - next/head drops <title> entirely, so both live there together rather
-            than split across two files. After hydration the page's NextSeo takes over with
-            identical copy - verified across client-side route changes, including unmapped
-            routes. */}
+            <NextSeo> never runs at build time. Title, description and canonical are declared
+            here, above the gate, so they exist in three states that all used to be wrong: in the
+            export (a page's NextSeo cannot run at build time), during hydration (the title used
+            to blank for a second before NextSeo restored it), and after a client-side navigation
+            (asPath is the only source that stays correct). NextSeo overrides all three with
+            identical copy once the gate opens.
+
+            The description has to live in next/head rather than _document: a tag _document
+            writes is outside next/head's control, so it cannot be deduped against NextSeo's
+            copy - every page carried two, and _document's froze at the landing page and went
+            stale on every client-side navigation after it. */}
+        {staticTitle ? <title>{staticTitle}</title> : null}
+        {staticDescription ? <meta name="description" content={staticDescription}/> : null}
+        {/* key must stay "canonical": next-seo emits its own tag under that key once the gate
+            opens, and next/head only collapses two <link>s when their keys match. Without it the
+            page ends up with two canonicals. */}
+        {noindex ? null : <link rel="canonical" href={canonicalUrl} key="canonical"/>}
         <meta name="googlebot" content={noindex ? 'noindex,follow' : 'index,follow'}/>
         {noindex ? <meta name="robots" content="noindex,follow"/> : null}
         {preConnections?.map((link) => <link key={link} rel="preconnect" href={link}/>)}
@@ -164,6 +180,12 @@ const MyApp = (props) => {
             <RouteProgress/>
             {/* Outer net for the shell itself (providers, NavBar). Still beats a blank root. */}
             <ErrorBoundary resetKey={asPath} title={'The app failed to load'}>
+            {/* Above the gate on purpose: this is the only content the static export can ship
+                for a page. Pages opt in by returning crawlLinks from getStaticProps. */}
+            <CrawlLinks links={pageProps?.crawlLinks} heading={pageProps?.crawlHeading}/>
+            {/* Also above the gate, and on every page: without it the export is a blank screen
+                until React hydrates. Both unmount on hydration. */}
+            <PreHydrationLoader/>
             <WaitForRouter>
               <PreferencesProvider>
               <AppProvider>
@@ -173,7 +195,10 @@ const MyApp = (props) => {
                       description set here overwrites the page's own. 105 of 108 pages define
                       their own NextSeo; the rest set one locally. */}
                   <DefaultSeo
-                    canonical={canonicalUrl}
+                    // Same condition as the <link> above the gate, or a noindex page ships no
+                    // canonical and then grows one on hydration - including the 404, which would
+                    // claim a canonical for whatever URL failed to resolve.
+                    canonical={noindex ? undefined : canonicalUrl}
                     openGraph={{
                       type: 'website',
                       locale: 'en_US',

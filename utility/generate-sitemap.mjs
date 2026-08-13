@@ -3,6 +3,7 @@ import path from 'path'
 import {globby} from 'globby'
 import { fetchAllBuildsAtBuildTime } from './builds/static-fetch.mjs'
 import { getBuildClassSlugs } from './builds/class-paths.mjs'
+import { buildStaticHref, buildToSlug } from './builds/build-pages.mjs'
 
 // Helper to determine priority based on path
 function getPagePriority(path) {
@@ -23,10 +24,18 @@ const urlBlock = ({ loc, lastmod, changefreq = 'weekly', priority }) => `  <url>
     <priority>${priority}</priority>
   </url>`
 
+// An index page exports as its directory, not as a file called index: pages/tools/index.jsx
+// becomes out/tools.html, so a /tools/index entry is a crawler sent to a 404. Only the root was
+// special-cased before, so /tools/index shipped in every sitemap.
+export function routeToLoc(path) {
+  if (path === '/index') return ''
+  return path.replace(/\/index$/, '')
+}
+
 function addPage(page) {
   const path = page.replace('pages', '').replace('.jsx', '').replace('.js', '').replace('.mdx', '')
   return urlBlock({
-    loc: path === '/index' ? '' : path,
+    loc: routeToLoc(path),
     lastmod: new Date().toISOString().split('T')[0],
     priority: getPagePriority(path)
   })
@@ -54,15 +63,14 @@ export function buildClassSitemapEntries(slugs, today) {
 // but assert it rather than trust it, since this interpolates straight into <loc>.
 const SAFE_SHORT_ID = /^[A-Za-z0-9]{4,10}$/
 
-// /tools/builds/view is excluded above because it renders nothing without a query param, but the
-// ?id= URLs are the actual build pages and each one now ships real metadata from the manifest in
-// view.jsx. Without these entries the only route to a build is a link that exists solely after
-// JS runs, which is the discovery failure this whole change set exists to fix.
+// Each build has its own exported page now. /tools/builds/view still resolves builds published
+// since the last deploy, but it is one URL serving many builds and canonicalises to the static
+// path, so it has no place here — these entries are the static pages themselves.
 export function buildDetailSitemapEntries(builds, today) {
   return (builds || [])
     .filter((build) => SAFE_SHORT_ID.test(build?.shortId || ''))
     .map((build) => `  <url>
-    <loc>https://idleontoolbox.com/tools/builds/view?id=${build.shortId}</loc>
+    <loc>https://idleontoolbox.com${buildStaticHref(build)}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -107,15 +115,22 @@ function loadBuildEnv() {
 // unrelated fix) over something that resolves itself on the next one, and the page still gets
 // listed then. The other cause, the two halves resolving different .env files, cannot happen in
 // CI at all: .env.local is gitignored, so both always land on .env.production.
-export function pruneUnexportedSlugs(slugs, outDir) {
+// Null when out/ has no builds directory at all — nothing was exported to check against, so
+// callers pass their list through untouched rather than pruning it to nothing.
+function exportedSlugs(outDir) {
   const dir = path.join(outDir, 'tools', 'builds')
-  if (!fs.existsSync(dir)) return slugs
-
-  const exported = new Set(
+  if (!fs.existsSync(dir)) return null
+  return new Set(
     fs.readdirSync(dir)
       .filter((f) => f.endsWith('.html'))
       .map((f) => f.replace(/\.html$/, ''))
   )
+}
+
+export function pruneUnexportedSlugs(slugs, outDir) {
+  const exported = exportedSlugs(outDir)
+  if (!exported) return slugs
+
   const missing = slugs.filter((slug) => !exported.has(slug))
   if (missing.length) {
     console.warn(
@@ -127,6 +142,25 @@ export function pruneUnexportedSlugs(slugs, outDir) {
   return slugs.filter((slug) => exported.has(slug))
 }
 
+// Same rule for build pages, and for the same reason: a build published between next build's
+// fetch and this script's fetch has a slug but no exported file, and a sitemap entry pointing at
+// a 404 is worse than one missing entry that the next deploy adds.
+export function pruneUnexportedBuilds(builds, outDir) {
+  const exported = exportedSlugs(outDir)
+  if (!exported) return builds
+
+  const kept = (builds || []).filter((build) => exported.has(buildToSlug(build)))
+  const dropped = (builds || []).length - kept.length
+  if (dropped) {
+    console.warn(
+      `warning: omitting ${dropped} build page(s) from the sitemap - exported no HTML. ` +
+      `Expected if a build was published mid-run; if it persists, check which .env file ` +
+      `next build and this script each resolved.`
+    )
+  }
+  return kept
+}
+
 async function generateSitemap() {
   const pages = await globby([
     'pages/**/*{.js,.jsx,.mdx}',
@@ -135,8 +169,8 @@ async function generateSitemap() {
     '!pages/404.jsx',
     '!pages/api',
     // Dynamic route — real slugs are appended below. Without this exclusion the
-    // glob emits a literal /tools/builds/[class] URL.
-    '!pages/tools/builds/[class].jsx',
+    // glob emits a literal /tools/builds/[slug] URL.
+    '!pages/tools/builds/[slug].jsx',
   ])
 
   const routeOf = (page) =>
@@ -152,7 +186,7 @@ async function generateSitemap() {
   const today = new Date().toISOString().split('T')[0]
   const classSlugs = pruneUnexportedSlugs(getBuildClassSlugs(builds), 'out')
   const classEntries = buildClassSitemapEntries(classSlugs, today)
-  const detailEntries = buildDetailSitemapEntries(builds, today)
+  const detailEntries = buildDetailSitemapEntries(pruneUnexportedBuilds(builds, 'out'), today)
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

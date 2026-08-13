@@ -20,8 +20,19 @@ import { AppContext } from '@components/common/context/AppProvider';
 import BuildCard from '@components/tools/builds/BuildCard';
 import useAuthReady from '@hooks/useAuthReady';
 import { listMyBuilds, listLikedBuilds } from 'services/builds';
+import { fetchAllBuildsAtBuildTime } from '@utility/builds/static-fetch.mjs';
+import { staticIdSet } from '@utility/builds/build-pages.mjs';
 
-const MyBuilds = () => {
+// The builds themselves are fetched per-user at runtime, but which of them have an exported page
+// is a build-time fact - without it every card here would link to /tools/builds/view?id=.
+export async function getStaticProps() {
+  const builds = await fetchAllBuildsAtBuildTime();
+  // Account-scoped: the export ships an empty shell, and a signed-out visitor gets a sign-in
+  // prompt. Nothing here for a crawler to rank.
+  return { props: { staticIds: [...staticIdSet(builds)], seoNoindex: true } };
+}
+
+const MyBuilds = ({ staticIds }) => {
   const router = useRouter();
   const { state } = useContext(AppContext);
   const { authReady, signedIn } = useAuthReady();
@@ -60,7 +71,7 @@ const MyBuilds = () => {
   if (!authReady) {
     return (
       <>
-        <NextSeo title="My builds | Idleon Toolbox"/>
+        <NextSeo title="My builds | Idleon Toolbox" noindex/>
         <SimpleLoader message="Checking sign-in…"/>
       </>
     );
@@ -69,7 +80,7 @@ const MyBuilds = () => {
   if (!signedIn) {
     return (
       <>
-        <NextSeo title="My builds | Idleon Toolbox"/>
+        <NextSeo title="My builds | Idleon Toolbox" noindex/>
         <Stack mt={2} gap={2}>
           <Typography variant="h4">My builds</Typography>
           <Alert severity="info">Sign in to see your builds and the ones you've liked.</Alert>
@@ -85,7 +96,7 @@ const MyBuilds = () => {
 
   return (
     <>
-      <NextSeo title="My builds | Idleon Toolbox"/>
+      <NextSeo title="My builds | Idleon Toolbox" noindex/>
       <Stack mt={2} gap={2}>
         <Stack direction="row" alignItems="center" gap={1}>
           <Tooltip title="Back to builds">
@@ -120,7 +131,7 @@ const MyBuilds = () => {
           <Grid container spacing={2}>
             {items.map((b) => (
               <Grid item xs={12} sm={6} md={4} key={b.shortId}>
-                <BuildCard build={b}/>
+                <BuildCard build={b} staticIds={new Set(staticIds)}/>
               </Grid>
             ))}
           </Grid>

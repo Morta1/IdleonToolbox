@@ -2,28 +2,22 @@ import * as React from 'react';
 import Document, { Head, Html, Main, NextScript } from 'next/document';
 import createEmotionServer from '@emotion/server/create-instance';
 import createEmotionCache from '../utility/createEmotionCache';
-import { PAGE_SEO } from '../data/page-seo';
 
 export default class MyDocument extends Document {
   render() {
-    // The <title> lives here rather than in _app's next/head: next/head emits every other tag
-    // (they carry data-next-head) but the title never reaches the exported HTML, so every page
-    // shipped untitled. _document renders once at export time, ahead of anything that could
-    // hoist it away. next-seo still swaps in the page's own title after hydration.
+    // No <title> or <meta name="description"> here on purpose. Both used to live in this file,
+    // because next/head was dropping <title> and the whole site shipped untitled. next/head no
+    // longer drops it (the exported tag carries data-next-head), and _app declares both above
+    // its <WaitForRouter> gate instead, so they reach the export and stay correct across
+    // client-side navigation.
     //
-    // PAGE_SEO is keyed by route pattern, so every page generated from a dynamic route shares
-    // one entry. Those pages pass their own copy through static props instead, which is why
-    // pageProps wins here.
-    const data = this.props.__NEXT_DATA__;
-    const pageSeo = PAGE_SEO[data?.page];
-    const pageProps = data?.props?.pageProps;
-    const title = pageProps?.seoTitle || pageSeo?.title;
-    const description = pageProps?.seoDescription || pageSeo?.description;
+    // A tag written here is outside next/head's control, so it cannot be deduped against the
+    // page's own <NextSeo> copy: two <title> tags, and a description that froze at the landing
+    // page while NextSeo's followed the route. e2e/static-head.spec.js asserts exactly one of
+    // each in the exported bytes and after hydration.
     return (
       <Html lang="en">
         <Head>
-          {title ? <title>{title}</title> : null}
-          {description ? <meta name="description" content={description} /> : null}
           <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"

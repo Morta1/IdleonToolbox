@@ -8,6 +8,12 @@ import useAuthReady from '@hooks/useAuthReady';
 import { getBuild } from 'services/builds';
 
 // Supports optional `?from=<shortId>` template pre-fill.
+// Signed out, this page immediately redirects to /tools/builds - an indexable URL that bounces is
+// a soft 404, and Google can hold that against its neighbours.
+export async function getStaticProps() {
+  return { props: { seoNoindex: true } };
+}
+
 const NewBuild = () => {
   const router = useRouter();
   const { authReady, signedIn } = useAuthReady();
@@ -65,6 +71,7 @@ const NewBuild = () => {
       <NextSeo
         title="New build | Idleon Toolbox"
         description="Create a new community build for Legends of Idleon"
+        noindex
       />
       <Stack mt={2} gap={2}>
         {templateError && <Alert severity="error">{templateError}</Alert>}

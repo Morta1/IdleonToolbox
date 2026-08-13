@@ -39,7 +39,7 @@ const Tesseract = () => {
   return <>
     <NextSeo
       title="Tesseract | Idleon Toolbox"
-      description="Keep track of your compass levels, upgrades and compass stats"
+      description="Keep track of your tesseract upgrades, tachyons and arcanist stats"
     />
     <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       {arcanists.length > 1 ? <CardTitleAndValue title={'Character'}

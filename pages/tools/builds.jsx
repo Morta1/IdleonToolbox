@@ -1,23 +1,20 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import { AppContext } from '@components/common/context/AppProvider';
 import BuildsBrowser, { INITIAL_FILTERS } from '@components/tools/builds/BuildsBrowser';
 import { listBuilds } from 'services/builds';
 import { fetchAllBuildsAtBuildTime } from '@utility/builds/static-fetch.mjs';
-import { classToSlug, getBuildClassSlugs } from '@utility/builds/class-paths.mjs';
+import { buildCrawlLink, classCrawlLink, staticIdSet } from '@utility/builds/build-pages.mjs';
+import { classToSlug } from '@utility/builds/class-paths.mjs';
 import { CLASS_KEYS } from '@utility/builds/classes';
+import { filterAndSortBuilds } from '@utility/builds/filter-builds';
 
 const VALID_SORTS = new Set(['new', 'top']);
 
-// The legacy ?class= value goes straight into a router path, so it is matched against the real
-// class list rather than merely slugified. Left unchecked, ?class=../../etc navigates to /etc.
-const CLASS_SLUGS = new Set(CLASS_KEYS.map(classToSlug));
-
 // URL <-> filters helpers. Class is deliberately absent: it lives in the path
 // (/tools/builds/<class>), so there is one URL per class rather than a path and a ?class= that
-// render the same thing. Cursor pagination stays in memory - a shareable link is always "the
-// first page of this slice".
+// render the same thing.
 const filtersFromQuery = (query) => {
   const sort = typeof query.sort === 'string' && VALID_SORTS.has(query.sort) ? query.sort : 'new';
   const q = typeof query.q === 'string' ? query.q : '';
@@ -41,25 +38,30 @@ const queriesEqual = (a, b) => {
   return aKeys.every((k) => a[k] === b[k]);
 };
 
-// The static seed is exactly one slice: unfiltered, sort 'new', first LANDING_SEED_LIMIT by
-// createdAt desc. It may only be used as a fallback for a request asking for that same slice -
-// otherwise we would present unfiltered builds as though they satisfied the user's filters.
-export const matchesSeedSlice = (f) =>
-  !f?.q && !f?.tags?.length && f?.sort === INITIAL_FILTERS.sort;
-
-// Matches INITIAL_FILTERS.sort === 'new' and the runtime fetch's `limit` below. The build-time
-// fetch pulls every build with no sort applied (Worker default is hotScore desc), so this
-// re-sorts by createdAt desc and caps it at 24 - the exact slice the first runtime fetch will
-// return. Without this, the seeded render would visibly reorder and shrink the instant the mount
-// fetch lands.
-const LANDING_SEED_LIMIT = 24;
+// How many of the newest builds the mount-time refresh asks for. Only builds published since the
+// last deploy can be missing from static props, so this is a freshness window, not a page size.
+const REFRESH_LIMIT = 24;
 
 // Exported for tests: separates the data shape from Next's build pipeline.
+//
+// Every build, not a slice. The hub is the only page that links all of them, and a link that
+// only exists after a cross-origin fetch resolves is a link Googlebot may never follow.
 export function getBuildsLandingStaticProps(builds) {
-  const seeded = [...(builds || [])]
-    .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
-    .slice(0, LANDING_SEED_LIMIT);
-  return { props: { initialBuilds: seeded, classSlugs: getBuildClassSlugs(builds) } };
+  const all = [...(builds || [])].sort(
+    (a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || ''))
+  );
+  return {
+    props: {
+      initialBuilds: all,
+      // The hub is the index the rest of the section hangs off: every class page and every build
+      // page is one hop from here for a crawler that never runs JS.
+      crawlHeading: 'Idleon builds by class',
+      crawlLinks: [
+        ...CLASS_KEYS.map((key) => classCrawlLink(classToSlug(key), key.replace(/_/g, ' '))),
+        ...all.map(buildCrawlLink)
+      ]
+    }
+  };
 }
 
 export async function getStaticProps() {
@@ -69,40 +71,37 @@ export async function getStaticProps() {
 
 // -- Page --------------------------------------------------------------------
 
-const Builds = ({ initialBuilds, classSlugs }) => {
+const Builds = ({ initialBuilds }) => {
   const router = useRouter();
   const { state } = useContext(AppContext);
   const signedIn = !!state?.signedIn;
 
+  // Derived from initialBuilds, never from `items`: only the builds present at build time have
+  // an exported page, and the mount refresh below merges in ones that don't.
+  const staticIds = staticIdSet(initialBuilds);
+
   const [filters, setFilters] = useState(INITIAL_FILTERS);
   const [items, setItems] = useState(initialBuilds || []);
-  const [nextCursor, setNextCursor] = useState(null);
-  // Already have server-rendered builds — don't show a skeleton over real content.
-  const [loading, setLoading] = useState(!initialBuilds?.length);
-  const [error, setError] = useState('');
-  const fetchIdRef = useRef(0);
-  // Hydration is tracked via React state (not a ref) so the mirror-to-URL
-  // effect doesn't race with the setFilters commit during the first pass.
-  // With a ref, the mirror would see `hydrated === true` on the same render
-  // where the hydration effect synchronously mutated it, but `filters` would
-  // still be INITIAL_FILTERS — stripping the incoming URL's query params.
+  // Hydration is tracked via React state (not a ref) so the mirror-to-URL effect doesn't race
+  // with the setFilters commit during the first pass. With a ref, the mirror would see
+  // `hydrated === true` on the same render where the hydration effect synchronously mutated it,
+  // but `filters` would still be INITIAL_FILTERS — stripping the incoming URL's query params.
   const [hydrated, setHydrated] = useState(false);
 
-  const [tagsAnchor, setTagsAnchor] = useState(null);
+  // Every build is already here, so searching, tagging and sorting run in memory. Nothing about
+  // filtering touches the network.
+  const visible = filterAndSortBuilds(items, filters);
 
-  // Hydrate filters from the URL once the router reports its query as ready.
-  // After this, `filters` state is the source of truth and we replace the URL
-  // on every change (see below).
+  // Hydrate filters from the URL once the router reports its query as ready. After this,
+  // `filters` state is the source of truth and we replace the URL on every change (see below).
   useEffect(() => {
     if (!router.isReady || hydrated) return;
-    const fromUrl = filtersFromQuery(router.query || {});
-    setFilters(fromUrl);
+    setFilters(filtersFromQuery(router.query || {}));
     setHydrated(true);
   }, [router.isReady, router.query, hydrated]);
 
-  // Mirror filter state back into the URL (shallow — no re-mount, no re-fetch
-  // of anything else on the page). Runs only after hydration so we don't clobber
-  // the initial URL read on the first render.
+  // Mirror filter state back into the URL (shallow — no re-mount). Runs only after hydration so
+  // we don't clobber the initial URL read on the first render.
   useEffect(() => {
     if (!hydrated) return;
     const nextFilterQuery = filtersToQuery(filters);
@@ -111,8 +110,8 @@ const Builds = ({ initialBuilds, classSlugs }) => {
       Object.entries(router.query || {}).filter(([k]) => filterKeys.includes(k))
     );
     if (queriesEqual(currentFilterQuery, nextFilterQuery)) return;
-    // Preserve any unrelated query params the app might set elsewhere and
-    // rebuild only the filter slice of the URL.
+    // Preserve any unrelated query params the app might set elsewhere and rebuild only the
+    // filter slice of the URL.
     const preserved = Object.fromEntries(
       Object.entries(router.query || {}).filter(([k]) => !filterKeys.includes(k))
     );
@@ -124,115 +123,49 @@ const Builds = ({ initialBuilds, classSlugs }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.sort, filters.q, filters.tags?.join(',')]);
 
-  const runFetch = async (nextFilters, cursor = null) => {
-    const id = ++fetchIdRef.current;
-    setLoading(true);
-    setError('');
-    try {
-      const res = await listBuilds({
-        sort: nextFilters.sort,
-        q: nextFilters.q || undefined,
-        tag: nextFilters.tags?.length ? nextFilters.tags : undefined,
-        cursor: cursor || undefined,
-        limit: LANDING_SEED_LIMIT
-      });
-      if (id !== fetchIdRef.current) return;
-      if (cursor) setItems((prev) => [...prev, ...(res?.items || [])]);
-      else setItems(res?.items || []);
-      setNextCursor(res?.nextCursor || null);
-    } catch (err) {
-      if (id !== fetchIdRef.current) return;
-      // The very first fetch (id === 1, fired ~250ms after mount) races the
-      // seeded static props against the Worker. The seed exists precisely
-      // because the Worker may be unreachable — that's the whole premise of
-      // this branch — so if it fails, we already have seeded builds on
-      // screen, and this request is asking for the exact slice the seed
-      // represents (unfiltered, sort 'new', no cursor), keep showing the
-      // seed instead of wiping a working page down to an error banner. Any
-      // other failure (a filtered first fetch hydrated from the URL, a
-      // filter change, pagination) is a real user-triggered request with no
-      // matching seed to fall back on, so it keeps the original
-      // clear-and-report behaviour.
-      const canFallBackToSeed =
-        id === 1 && !cursor && matchesSeedSlice(nextFilters) && initialBuilds?.length;
-      if (canFallBackToSeed) {
-        setNextCursor(null);
-      } else {
-        if (!cursor) setItems([]);
-        setNextCursor(null);
-        setError('Unable to load builds right now. Please try again.');
-      }
-    } finally {
-      if (id === fetchIdRef.current) setLoading(false);
-    }
-  };
-
-  // Debounce filter changes so rapid chip-clicks / typing don't spam the API.
-  // Tag toggling uses a longer window because users often click several chips
-  // in succession; class / sort / text are snappier (tag joins into the key
-  // so we can diff against the previous value to decide which delay to use).
-  // Wait for URL hydration before firing so the first fetch uses the hydrated
-  // filter set, not the default one.
-  const debounceTimer = useRef(null);
-  const prevTagsKey = useRef(filters.tags?.join(',') || '');
-  const prevSort = useRef(filters.sort);
-  const currentTagsKey = filters.tags?.join(',') || '';
+  // Builds published since the last deploy aren't in static props and have no static page. One
+  // request, no debounce — they arrive with a view?id= href from buildHref.
   useEffect(() => {
-    if (!router.isReady) return;
-    const tagsChanged = prevTagsKey.current !== currentTagsKey;
-    const sortChanged = prevSort.current !== filters.sort;
-    prevTagsKey.current = currentTagsKey;
-    prevSort.current = filters.sort;
-    // Tag chips and sort buttons are both "try-a-few-quickly" controls — give
-    // them a longer window so rapid toggles coalesce into a single fetch.
-    const delay = tagsChanged || sortChanged ? 600 : 250;
-    if (debounceTimer.current) clearTimeout(debounceTimer.current);
-    debounceTimer.current = setTimeout(() => runFetch(filters, null), delay);
+    let cancelled = false;
+    listBuilds({ sort: 'new', limit: REFRESH_LIMIT })
+      .then((res) => {
+        if (cancelled) return;
+        setItems((prev) => {
+          const known = new Set(prev.map((b) => b.shortId));
+          const fresh = (res?.items || []).filter((b) => !known.has(b.shortId));
+          return fresh.length ? [...fresh, ...prev] : prev;
+        });
+      })
+      // The static list is complete as of the last deploy, so a failed refresh costs at most the
+      // newest few builds — not worth an error banner over a page that is already working.
+      .catch(() => {});
     return () => {
-      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+      cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady, filters.sort, filters.q, currentTagsKey]);
+  }, []);
 
   const handleNew = () => {
     if (!signedIn) return;
     router.push('/tools/builds/new');
   };
 
-  // Links shared before class moved into the path still arrive as ?class=Blood_Berserker.
-  // Send them to the page that now owns that content instead of silently ignoring the param.
-  // Anything that isn't a real class drops the param and stays here rather than being turned
-  // into a path - a 404 at best, and somewhere else entirely for a value containing '..'.
-  useEffect(() => {
-    if (!router.isReady) return;
-    const legacy = router.query?.class;
-    if (typeof legacy !== 'string' || !legacy) return;
-    const slug = classToSlug(legacy);
-    if (CLASS_SLUGS.has(slug)) {
-      router.replace(`/tools/builds/${slug}`);
-    } else {
-      const { class: _dropped, ...rest } = router.query;
-      router.replace({ pathname: '/tools/builds', query: rest }, undefined, { shallow: true });
-    }
-  }, [router.isReady, router.query?.class]);
-
   return (
     <>
       <NextSeo
         title="Builds | Idleon Toolbox"
         description="Browse and share optimized talent builds for every class and subclass in Legends of Idleon"
+        // ?sort=, ?q=, ?tags= and the legacy ?class= are all views of this one page. Without a
+        // fixed canonical each combination is a separate URL competing with it.
+        canonical="https://idleontoolbox.com/tools/builds"
       />
       <BuildsBrowser
+        title="Idleon Builds"
         subtitle="Community talent builds for every class and subclass."
         signedIn={signedIn}
         filters={filters}
         onFiltersChange={setFilters}
-        builds={items}
-        loading={loading}
-        error={error}
-        onClassChange={(slug) => router.push(slug ? `/tools/builds/${slug}` : '/tools/builds')}
-        hasMore={!!nextCursor}
-        onLoadMore={() => runFetch(filters, nextCursor)}
+        builds={visible}
+        staticIds={staticIds}
         onNewBuild={handleNew}
       />
     </>

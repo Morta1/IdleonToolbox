@@ -30,18 +30,24 @@ const OVERRIDES = {
     title: 'Guild History | Idleon Toolbox',
     description: 'Weekly GP progress and contributors for Legends of Idleon guilds.'
   },
+  // Both are noindex through getStaticProps as well; repeated here because extractSeo cannot read
+  // it off a page whose <NextSeo> it already cannot parse, and a map that disagrees invites a
+  // future edit to "fix" it.
   '/tools/builds/edit': {
     title: 'Edit build | Idleon Toolbox',
-    description: 'Edit one of your Legends of Idleon builds.'
+    description: 'Edit one of your Legends of Idleon builds.',
+    noindex: true
   },
   '/tools/builds/view': {
     title: 'Build | Idleon Toolbox',
-    description: 'Community build for Legends of Idleon'
+    description: 'Community build for Legends of Idleon',
+    noindex: true
   },
   '/tools/builds/my-builds': { description: 'Your saved and liked Legends of Idleon builds.' },
-  // One route pattern, 18 generated pages. Each supplies its real title and description through
-  // static props, which _document prefers over this map; these are the fallback only.
-  '/tools/builds/[class]': {
+  // One route pattern, one page per class and one per published build. Each supplies its real
+  // title and description through static props, which _app prefers over this map; these are the
+  // fallback only.
+  '/tools/builds/[slug]': {
     title: 'Idleon Builds by Class | Idleon Toolbox',
     description: 'Community builds for every Legends of Idleon class and subclass.'
   }

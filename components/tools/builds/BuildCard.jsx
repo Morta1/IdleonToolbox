@@ -7,6 +7,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import Link from 'next/link';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import { classToSlug } from '@utility/builds/class-paths.mjs';
+import { buildHref } from '@utility/builds/build-pages.mjs';
 import { classes } from '@website-data';
 import {
   TEXT_MUTED,
@@ -23,10 +24,9 @@ import { SurfaceCard, TagChip } from './styled';
 // subdued class breadcrumb — no gradient hero, no heavy uppercase labels.
 //
 // The card is a div with an onClick rather than one big <a>, because the breadcrumb inside it
-// links to the class pages and anchors cannot nest. Those links are the only thing pointing a
-// crawler at /tools/builds/<class>: the class picker is a MUI menu, so its items aren't in the
-// DOM until it opens. Keeping them in the cards means no navigation bar has to exist to carry
-// them. The title stays a real <a> so the card is still keyboard-reachable and middle-clickable.
+// links to the class pages and anchors cannot nest. The title stays a real <a> so the card is
+// still keyboard-reachable and middle-clickable. None of these reach the static export - that is
+// CrawlLinks' job - they are here for the hydrated page.
 
 const formatCount = (n) => {
   if (!n) return '0';
@@ -52,6 +52,8 @@ const ClassCrumb = ({ classKey, children }) => (
   <Typography
     component={Link}
     href={`/tools/builds/${classToSlug(classKey)}`}
+    // Class slugs and build slugs share one namespace; this names which kind this link is.
+    data-class-link=""
     // The card's onClick would otherwise fire too and navigate to the build instead.
     onClick={(e) => e.stopPropagation()}
     sx={{
@@ -65,7 +67,7 @@ const ClassCrumb = ({ classKey, children }) => (
   </Typography>
 );
 
-const BuildCard = ({ build }) => {
+const BuildCard = ({ build, staticIds }) => {
   const router = useRouter();
   if (!build) return null;
 
@@ -75,7 +77,9 @@ const BuildCard = ({ build }) => {
   const iconIndex = classes.indexOf(classKey);
   const hasTags = Array.isArray(build.tags) && build.tags.length > 0;
   const views = build.viewCount || 0;
-  const buildHref = `/tools/builds/view?id=${build.shortId}`;
+  // The static page when this build has one, view?id= when it was published since the last
+  // deploy - fallback: false means there is no page to link it to yet.
+  const href = buildHref(build, staticIds);
 
   return (
     <SurfaceCard
@@ -92,7 +96,7 @@ const BuildCard = ({ build }) => {
       }}
     >
       <Box
-        onClick={() => router.push(buildHref)}
+        onClick={() => router.push(href)}
         sx={{
           p: 1.75,
           pl: 2,
@@ -123,7 +127,7 @@ const BuildCard = ({ build }) => {
             <Typography
               variant="body1"
               component={Link}
-              href={buildHref}
+              href={href}
               onClick={(e) => e.stopPropagation()}
               sx={{ ...titleSx, display: 'block', textDecoration: 'none' }}
               noWrap

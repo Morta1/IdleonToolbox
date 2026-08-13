@@ -45,6 +45,24 @@ describe('PageTitle', () => {
     expect(strip('Co-op Guide | Idleon Toolbox')).toBe('Co-op Guide');
   });
 
+  // PAGE_SEO is keyed by route pattern, so its entry for this route ("Idleon Builds by Class") is
+  // a fallback shared by 22 class pages and every build page - wrong copy on all of them. Those
+  // pages draw their own h1, so PageTitle must stay out.
+  it('renders nothing on /tools/builds/[slug], which draws its own title per page', () => {
+    pathname = '/tools/builds/[slug]';
+    const { container } = render(<PageTitle/>);
+    expect(container.querySelector('h1')).toBeNull();
+  });
+
+  // The hub shares BuildsBrowser's header with the class pages, so it draws the same h1 they do.
+  // A NavBar title on top of that gave the hub two h1s and moved the whole page every time a
+  // visitor switched between "All" and a class.
+  it('renders nothing on /tools/builds, which shares the class pages\' header', () => {
+    pathname = '/tools/builds';
+    const { container } = render(<PageTitle/>);
+    expect(container.querySelector('h1')).toBeNull();
+  });
+
   it('renders nothing for a route with no SEO entry', () => {
     pathname = '/not/a/real/route';
     const { container } = render(<PageTitle/>);

@@ -1,4 +1,4 @@
-// Routing helpers for /tools/builds/[class].
+// Routing helpers for the class pages served by /tools/builds/[slug].
 //
 // Dependency-free ESM on purpose — utility/generate-sitemap.mjs imports this
 // and is a plain Node script that cannot resolve Next aliases or TypeScript.

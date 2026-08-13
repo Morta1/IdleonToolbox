@@ -8,6 +8,12 @@ import BuildForm from '@components/tools/builds/BuildForm';
 import useAuthReady from '@hooks/useAuthReady';
 import { getBuild, getBuildState } from 'services/builds';
 
+// Account-scoped and edits one build by ?id=, which the export cannot resolve. Signed out it
+// shows a sign-in prompt.
+export async function getStaticProps() {
+  return { props: { seoNoindex: true } };
+}
+
 const EditBuild = () => {
   const router = useRouter();
   const { state } = useContext(AppContext);
@@ -52,7 +58,7 @@ const EditBuild = () => {
 
   return (
     <>
-      <NextSeo title={`Edit ${build?.title || 'build'} | Idleon Toolbox`}/>
+      <NextSeo title={`Edit ${build?.title || 'build'} | Idleon Toolbox`} noindex/>
       <Stack mt={2} gap={2}>
         {authReady && !signedIn && (
           <Alert severity="warning">Sign in to edit your builds.</Alert>

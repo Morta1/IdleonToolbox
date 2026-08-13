@@ -98,21 +98,40 @@ This project uses **React Compiler** (`reactCompiler: true` in `next.config.js`)
 
 ### Page titles and descriptions
 
-`data/page-seo.js` is **generated — do not edit by hand**. It mirrors every page's own
-`<NextSeo>`, and `_document.jsx` renders it — nothing below `<WaitForRouter>` runs at build time.
+`data/page-seo.js` is **generated — do not edit by hand**. `<title>`, `<meta name="description">`
+and `<link rel="canonical">` all come from `_app`'s `<Head>`, above the `<WaitForRouter>` gate —
+nothing below it runs at build time. After changing a `<NextSeo>` title or description, re-run
+`node utility/generate-page-seo.mjs`.
 
-Gotchas:
-- **`<title>` must come from `_document`, not `_app`.** `next/head` silently drops it under
-  Next 16 + React 19; every other tag it renders reaches the HTML. The whole site shipped
-  untitled for months this way.
+- **Never write a head tag from `_document`.** It lands outside `next/head`'s control and can't be
+  deduped against the page's `<NextSeo>` copy: every page shipped two descriptions, and
+  `_document`'s froze at the landing page while `NextSeo`'s followed the route.
+- **The canonical must keep `key="canonical"`.** next-seo emits its own under that key, and
+  `next/head` collapses two `<link>`s only when keys match.
+- **A page shipping `seoNoindex` must repeat `noindex` in its own `<NextSeo>`.** next-seo emits a
+  robots tag regardless and replaces `_app`'s by meta-name dedupe, so the page un-noindexes itself
+  once JS runs — invisible to any check on the bytes.
 - **`PAGE_SEO` is keyed by route pattern**, so all pages from one `[param].jsx` share an entry.
-  Those pages pass `seoTitle`/`seoDescription` through `getStaticProps`; `_document` prefers
-  props over the map. They also need an `OVERRIDES` entry or the generator reports them.
-- After changing a `<NextSeo>` title or description, re-run `node utility/generate-page-seo.mjs`.
-  `__test__/page-seo.test.js` catches map drift; `e2e/static-head.spec.js` is the real gate — it
-  fetches raw served HTML with no JS. **Never assert head tags against the rendered DOM**;
-  hydration masks exactly this bug.
+  Those pages pass `seoTitle`/`seoDescription`/`seoNoindex` through `getStaticProps` instead, and
+  need an `OVERRIDES` entry or the generator reports them.
+- **Match `<title[^>]*>`, not `<title>`.** Next emits `<title data-next-head="">`; a naive regex
+  finds 1 of 251 files and calls the site untitled.
+- `e2e/static-head.spec.js` is the gate, and needs both halves — raw served HTML with no JS, and
+  the same counts re-measured after hydration. The two states have disagreed in both directions.
 - Keep `<NextSeo>` above any early-return loader, or the page loses its title while loading.
+
+Static export gotchas (`/tools/builds/[slug]` learned both the hard way):
+- **Two dynamic siblings can't coexist.** `[class].jsx` and `[build].jsx` in one directory is a
+  build error — Next refuses different param names for one dynamic path. One route branches on
+  what the slug turns out to be.
+- **Slugs that reach the filesystem must be lowercase.** The export writes one file per page, and
+  a local export runs on a case-insensitive filesystem: `frZFgN-x` and `FRzfGn-x` overwrite each
+  other on Windows while staying distinct on GitHub Pages.
+- **`fallback: false` means anything published after the deploy 404s.** `/tools/builds/view?id=`
+  stays alive for exactly that case, and is `noindex` because it duplicates every build page.
+- **Nothing below `<WaitForRouter>` reaches the export**, so a page's links don't either. Pages
+  that need crawlable internal links return `crawlLinks` from `getStaticProps`;
+  `components/common/CrawlLinks.jsx` renders them above the gate and unmounts on hydration.
 
 ### Patch notes
 Every user-facing change (feature or fix) gets a patch note entry in `@IdleonToolbox/data/patch-notes.js`.

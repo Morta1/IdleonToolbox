@@ -81,7 +81,9 @@ const BuildDetail = ({ build, actions = null, backHref = null }) => {
               </IconButton>
             </Tooltip>
           )}
-          <Typography variant="h4">{build.title}</Typography>
+          {/* The page's only h1 - PageTitle skips this route because one PAGE_SEO entry covers
+              every build and class page under it. */}
+          <Typography variant="h4" component="h1">{build.title}</Typography>
         </Stack>
         <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
           <Typography variant="body2" color="text.secondary">

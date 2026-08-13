@@ -7,6 +7,7 @@ import { waitForRender } from './wait-helpers';
 
 const CONTROLS = [
   { name: 'search field', locator: (p) => p.getByPlaceholder(/Search builds/i) },
+  { name: 'class strip', locator: (p) => p.getByRole('link', { name: 'All', exact: true }) },
   { name: 'tags filter', locator: (p) => p.getByRole('button', { name: /Tags/i }) },
   { name: 'New sort', locator: (p) => p.getByRole('button', { name: 'New', exact: true }) },
   { name: 'Top sort', locator: (p) => p.getByRole('button', { name: 'Top', exact: true }) },
@@ -24,19 +25,24 @@ for (const page of ['/tools/builds', '/tools/builds/barbarian']) {
   });
 }
 
-// The class pages have no navigation bar: the only crawlable links to them live inside the build
-// cards, and a class page reaches its siblings through one line of text links. If either goes
-// away, /tools/builds/<class> is reachable from the sitemap alone.
+// Class slugs and build slugs share the /tools/builds/ namespace, so an href pattern can't tell
+// 'blood-berserker' from a build slug. The links say which they are.
+const classPageLinks = (page) => page.locator('a[data-class-link]');
+const buildLinks = (page) => page.locator(
+  'a[href^="/tools/builds/"]:not([data-class-link]):not([href$="/my-builds"])'
+  + ':not([href$="/new"]):not([href$="/edit"])'
+);
+
 test('build cards link to the class pages they belong to', async ({ page }) => {
   await page.goto('/tools/builds?demo=true');
   await waitForRender(page);
 
-  const classLinks = classPageLinks(page);
-  const hrefs = await classLinks.evaluateAll((els) => els.map((e) => e.getAttribute('href')));
+  const hrefs = await classPageLinks(page)
+    .evaluateAll((els) => els.map((e) => e.getAttribute('href')));
 
-  expect(hrefs.length, 'no class links found in the cards').toBeGreaterThan(0);
+  expect(hrefs.length, 'no class links found').toBeGreaterThan(0);
   // Families and subclasses both, e.g. /tools/builds/mage and /tools/builds/wizard.
-  expect(new Set(hrefs).size, 'cards should link to more than one class').toBeGreaterThan(1);
+  expect(new Set(hrefs).size, 'should link to more than one class').toBeGreaterThan(1);
   for (const href of hrefs) {
     expect(href, `${href} is not a class page`).toMatch(/^\/tools\/builds\/[a-z0-9-]+$/);
   }
@@ -61,7 +67,7 @@ test('class page filters its own builds without a network request', async ({ pag
   await page.goto('/tools/builds/barbarian?demo=true');
   await waitForRender(page);
 
-  const cards = page.locator('a[href^="/tools/builds/view"]');
+  const cards = buildLinks(page);
   const before = await cards.count();
   expect(before, 'no build cards rendered - the rest of this test would be vacuous')
     .toBeGreaterThan(1);
@@ -78,74 +84,73 @@ test('class page filters its own builds without a network request', async ({ pag
     .toHaveLength(0);
 });
 
-// One control, one URL per class. The picker used to filter in place on the hub while a chip row
-// navigated - same intent, two URLs, two behaviours. It navigates from both pages now.
-test('the class picker navigates rather than filtering in place', async ({ page }) => {
+// One control, one URL per class. The strip replaced a MUI menu whose items were never in the
+// DOM until it opened - so no crawler ever saw a class link, and changing class took two clicks.
+test('the class strip links every family from the hub', async ({ page }) => {
   await page.goto('/tools/builds?demo=true');
   await waitForRender(page);
 
-  await page.getByRole('button', { name: /Class/i }).first().click();
-  await page.getByRole('menuitem', { name: 'Barbarian', exact: true }).click();
-
-  await expect(page).toHaveURL(/\/tools\/builds\/barbarian/);
-  await expect(page.getByRole('heading', { name: /Idleon Barbarian Builds/i })).toBeVisible();
+  for (const fam of ['Beginner', 'Warrior', 'Archer', 'Mage']) {
+    await expect(page.getByRole('link', { name: fam, exact: true }).first())
+      .toHaveAttribute('href', `/tools/builds/${fam.toLowerCase()}`);
+  }
+  await expect(page.getByRole('link', { name: 'All', exact: true }))
+    .toHaveAttribute('href', '/tools/builds');
 });
 
-test('the picker shows the current class on a class page', async ({ page }) => {
-  await page.goto('/tools/builds/barbarian?demo=true');
+test('a family page exposes its subclasses, and only its own', async ({ page }) => {
+  await page.goto('/tools/builds/warrior?demo=true');
   await waitForRender(page);
-  await expect(page.getByRole('button', { name: /Class/i }).first()).toContainText('Barbarian');
+
+  await expect(page.getByRole('link', { name: 'Blood Berserker', exact: true }).first())
+    .toHaveAttribute('href', '/tools/builds/blood-berserker');
+  // A Mage subclass has no business in the strip on a Warrior page. Cards can still name one,
+  // so this checks the strip itself.
+  await expect(page.locator('a[data-class-link][href="/tools/builds/wizard"]')).toHaveCount(0);
 });
 
-test('a legacy ?class= link redirects to the class page', async ({ page }) => {
-  await page.goto('/tools/builds?class=Blood_Berserker&demo=true');
+test('clicking a family in the strip navigates to its page', async ({ page }) => {
+  await page.goto('/tools/builds?demo=true');
   await waitForRender(page);
-  await expect(page).toHaveURL(/\/tools\/builds\/blood-berserker/);
+
+  await page.getByRole('link', { name: 'Warrior', exact: true }).first().click();
+  await expect(page).toHaveURL(/\/tools\/builds\/warrior/);
+  await expect(page.getByRole('heading', { name: /Idleon Warrior Builds/i })).toBeVisible();
 });
 
-// The param is interpolated into a router path, so it is matched against the real class list
-// rather than merely slugified. '../../etc' navigated to /etc before this.
-for (const bad of ['garbage', 'Not_A_Class', '../../etc']) {
-  test(`?class=${bad} drops the param instead of becoming a path`, async ({ page }) => {
-    await page.goto(`/tools/builds?class=${encodeURIComponent(bad)}&demo=true`);
+// The redirect that used to live here turned an unvalidated param into a router path
+// ('../../etc' navigated to /etc) and trained browsers to autocomplete /tools/builds into a
+// class URL. The param now falls through to the hub, which canonicalises to itself.
+for (const value of ['Blood_Berserker', 'garbage', '../../etc']) {
+  test(`?class=${value} stays on the hub`, async ({ page }) => {
+    await page.goto(`/tools/builds?class=${encodeURIComponent(value)}&demo=true`);
     await waitForRender(page);
-    // Back on the hub itself, not a path built out of the bad value.
     expect(new URL(page.url()).pathname).toBe('/tools/builds');
-    expect(page.url()).not.toContain(bad);
-    expect(page.url()).not.toContain(encodeURIComponent(bad));
   });
 }
 
 // BuildCard stopped being one big <a> so the class links could live inside it. These cover what
 // that restructure could plausibly break.
-// /tools/builds/{new,edit,my-builds,view} are pages, not classes - the header's My builds button
-// matches a naive href prefix and is disabled, which is not what these tests mean.
-const classPageLinks = (page) => page.locator(
-  'a[href^="/tools/builds/"]:not([href*="view?id="]):not([href$="/my-builds"])'
-  + ':not([href$="/new"]):not([href$="/edit"])'
-);
-
 test.describe('build card click targets', () => {
   test('clicking the card body opens the build', async ({ page }) => {
     await page.goto('/tools/builds?demo=true');
     await waitForRender(page);
 
-    // The class icon sits inside the card's clickable area but inside no anchor, so it exercises
-    // the card's own onClick rather than a link.
     // The class icon sits inside the card's clickable area but inside no anchor, so clicking it
-    // exercises the card's own onClick rather than a link.
-    const icon = page.locator('img[src*="ClassIcons"]').first();
+    // exercises the card's own onClick rather than a link. The strip's pills carry the same
+    // icons inside anchors and are decorative there, so alt text is what separates them.
+    const icon = page.locator('img[src*="ClassIcons"][alt]:not([alt=""])').first();
     await expect(icon).toBeVisible();
     await icon.click();
 
-    await expect(page).toHaveURL(/\/tools\/builds\/view\?id=[A-Za-z0-9]+/);
+    await expect(page).toHaveURL(/\/tools\/builds\/[a-z0-9]+-/);
   });
 
   test('clicking a class breadcrumb opens the class page, not the build', async ({ page }) => {
     await page.goto('/tools/builds?demo=true');
     await waitForRender(page);
 
-    const crumb = classPageLinks(page).first();
+    const crumb = classPageLinks(page).last();
     const href = await crumb.getAttribute('href');
     await crumb.click();
 
@@ -156,8 +161,8 @@ test.describe('build card click targets', () => {
     await page.goto('/tools/builds?demo=true');
     await waitForRender(page);
 
-    const titleLink = page.locator('a[href*="/tools/builds/view?id="]').first();
-    await expect(titleLink).toHaveAttribute('href', /\/tools\/builds\/view\?id=/);
+    const titleLink = buildLinks(page).first();
+    await expect(titleLink).toHaveAttribute('href', /^\/tools\/builds\//);
     await expect(titleLink).toBeVisible();
   });
 });

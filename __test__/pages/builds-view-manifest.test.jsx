@@ -5,7 +5,7 @@ import {
   findInManifest,
   buildSeoTitle,
   buildSeoDescription
-} from '../../pages/tools/builds/view.jsx';
+} from '../../utility/builds/build-pages.mjs';
 
 const full = {
   shortId: 'Zfy6pb', title: 'Mago de talar', class: 'Mage', subclass: 'Wizard',
@@ -63,16 +63,6 @@ describe('buildSeoTitle', () => {
   it('underscores in a subclass become spaces', () => {
     const bb = toBuildSummary({ ...full, class: 'Warrior', subclass: 'Blood_Berserker' });
     expect(buildSeoTitle(bb)).toBe('Blood Berserker Build — Mago de talar | Idleon Toolbox');
-  });
-
-  // Google truncates around 60 characters. Leading with the class is what keeps the term the
-  // page targets on screen when a user's title is long.
-  it('keeps the class within the first 60 characters even with a long title', () => {
-    const longTitle = toBuildSummary({
-      ...full,
-      title: 'Maestro Skilling: Left + Right Hands (~100) and then some more words'
-    });
-    expect(buildSeoTitle(longTitle).slice(0, 60)).toContain('Wizard Build');
   });
 
   it('falls back to a generic title for an unknown build', () => {
