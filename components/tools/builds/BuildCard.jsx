@@ -1,10 +1,12 @@
 import React from 'react';
-import { Box, CardActionArea, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
+import { useRouter } from 'next/router';
 import Tooltip from '@components/Tooltip';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import Link from 'next/link';
 import { cleanUnderscore, prefix } from '@utility/helpers';
+import { classToSlug } from '@utility/builds/class-paths.mjs';
 import { classes } from '@website-data';
 import {
   TEXT_MUTED,
@@ -19,6 +21,12 @@ import { SurfaceCard, TagChip } from './styled';
 
 // Calm text-first card. Family color shows as a thin left accent bar plus a
 // subdued class breadcrumb — no gradient hero, no heavy uppercase labels.
+//
+// The card is a div with an onClick rather than one big <a>, because the breadcrumb inside it
+// links to the class pages and anchors cannot nest. Those links are the only thing pointing a
+// crawler at /tools/builds/<class>: the class picker is a MUI menu, so its items aren't in the
+// DOM until it opens. Keeping them in the cards means no navigation bar has to exist to carry
+// them. The title stays a real <a> so the card is still keyboard-reachable and middle-clickable.
 
 const formatCount = (n) => {
   if (!n) return '0';
@@ -40,7 +48,25 @@ const Separator = () => (
   />
 );
 
+const ClassCrumb = ({ classKey, children }) => (
+  <Typography
+    component={Link}
+    href={`/tools/builds/${classToSlug(classKey)}`}
+    // The card's onClick would otherwise fire too and navigate to the build instead.
+    onClick={(e) => e.stopPropagation()}
+    sx={{
+      ...breadcrumbSx,
+      textDecoration: 'none',
+      '&:hover': { color: 'rgba(255,255,255,0.9)', textDecoration: 'underline' }
+    }}
+    noWrap
+  >
+    {children}
+  </Typography>
+);
+
 const BuildCard = ({ build }) => {
+  const router = useRouter();
   if (!build) return null;
 
   const classKey = build.subclass || build.class;
@@ -49,6 +75,7 @@ const BuildCard = ({ build }) => {
   const iconIndex = classes.indexOf(classKey);
   const hasTags = Array.isArray(build.tags) && build.tags.length > 0;
   const views = build.viewCount || 0;
+  const buildHref = `/tools/builds/view?id=${build.shortId}`;
 
   return (
     <SurfaceCard
@@ -64,16 +91,16 @@ const BuildCard = ({ build }) => {
         }
       }}
     >
-      <CardActionArea
-        component={Link}
-        href={`/tools/builds/view?id=${build.shortId}`}
+      <Box
+        onClick={() => router.push(buildHref)}
         sx={{
           p: 1.75,
           pl: 2,
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'stretch'
+          alignItems: 'stretch',
+          cursor: 'pointer'
         }}
       >
         {/* Row 1: icon + title + likes/views */}
@@ -93,19 +120,27 @@ const BuildCard = ({ build }) => {
           </Box>
 
           <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-            <Typography variant="body1" sx={titleSx} noWrap title={build.title}>
+            <Typography
+              variant="body1"
+              component={Link}
+              href={buildHref}
+              onClick={(e) => e.stopPropagation()}
+              sx={{ ...titleSx, display: 'block', textDecoration: 'none' }}
+              noWrap
+              title={build.title}
+            >
               {build.title || '(untitled)'}
             </Typography>
             <Stack direction="row" alignItems="center" gap={0.75} sx={{ mt: 0.25 }}>
-              <Typography component="span" sx={breadcrumbSx}>
+              <ClassCrumb classKey={hierarchy.class}>
                 {cleanUnderscore(hierarchy.class)}
-              </Typography>
+              </ClassCrumb>
               {hierarchy.subclass && (
                 <>
                   <Separator/>
-                  <Typography component="span" sx={breadcrumbSx} noWrap>
+                  <ClassCrumb classKey={hierarchy.subclass}>
                     {cleanUnderscore(hierarchy.subclass)}
-                  </Typography>
+                  </ClassCrumb>
                 </>
               )}
             </Stack>
@@ -148,7 +183,7 @@ const BuildCard = ({ build }) => {
             </Box>
           </Stack>
         )}
-      </CardActionArea>
+      </Box>
     </SurfaceCard>
   );
 };

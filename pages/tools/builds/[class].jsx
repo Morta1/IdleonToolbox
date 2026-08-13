@@ -2,15 +2,18 @@ import React, { useContext, useState } from 'react';
 import { Typography } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { AppContext } from '@components/common/context/AppProvider';
 import BuildsBrowser, { INITIAL_FILTERS } from '@components/tools/builds/BuildsBrowser';
 import { fetchAllBuildsAtBuildTime } from '@utility/builds/static-fetch.mjs';
 import {
   buildsForSlug,
   getBuildClassSlugs,
+  slugToClassKey,
   slugToDisplayName
 } from '@utility/builds/class-paths.mjs';
 import { filterAndSortBuilds } from '@utility/builds/filter-builds';
+import { resolveHierarchy } from '@utility/builds/classes';
 
 // "Idleon Barbarian Builds" leads with the term these pages target - `idleon <class> build` is
 // the shape of essentially all class-related search demand.
@@ -29,14 +32,26 @@ export function getBuildClassStaticPaths(builds) {
   };
 }
 
+// Same-family classes only. Cards already link to the class pages they belong to, but on a class
+// page nearly every card is this class - so its siblings would be unreachable without this.
+export function siblingSlugs(allSlugs, slug) {
+  const family = resolveHierarchy(slugToClassKey(slug)).family;
+  return allSlugs.filter(
+    (other) => other !== slug && resolveHierarchy(slugToClassKey(other)).family === family
+  );
+}
+
 export function getBuildClassStaticProps(builds, slug) {
   const displayName = slugToDisplayName(slug);
   const matching = buildsForSlug(builds, slug);
+  const allSlugs = getBuildClassSlugs(builds);
   return {
     props: {
       slug,
       builds: matching,
-      allSlugs: getBuildClassSlugs(builds),
+      allSlugs,
+      siblings: siblingSlugs(allSlugs, slug),
+      family: resolveHierarchy(slugToClassKey(slug)).family,
       // PAGE_SEO is keyed by route pattern, so all these pages would share one title.
       // _document prefers these over the map for exactly that reason.
       seoTitle: classPageTitle(displayName),
@@ -55,7 +70,7 @@ export async function getStaticProps({ params }) {
   return getBuildClassStaticProps(builds, params.class);
 }
 
-const BuildClassPage = ({ slug, builds, allSlugs, seoTitle, seoDescription }) => {
+const BuildClassPage = ({ slug, builds, siblings, family, seoTitle, seoDescription }) => {
   const router = useRouter();
   const { state } = useContext(AppContext);
   const signedIn = !!state?.signedIn;
@@ -95,12 +110,25 @@ const BuildClassPage = ({ slug, builds, allSlugs, seoTitle, seoDescription }) =>
         builds={visible}
         loading={false}
         error=""
-        classSlugs={allSlugs}
         activeClass={slug}
         onClassChange={(next) => router.push(next ? `/tools/builds/${next}` : '/tools/builds')}
         hasMore={false}
         onNewBuild={handleNew}
       />
+
+      {siblings?.length > 0 && (
+        <Typography variant="body2" sx={{ mt: 4, color: 'rgba(255,255,255,0.55)' }}>
+          {`Other ${family} builds: `}
+          {siblings.map((other, i) => (
+            <React.Fragment key={other}>
+              {i > 0 && ' · '}
+              <Link href={`/tools/builds/${other}`} style={{ color: 'inherit' }}>
+                {slugToDisplayName(other)}
+              </Link>
+            </React.Fragment>
+          ))}
+        </Typography>
+      )}
     </>
   );
 };

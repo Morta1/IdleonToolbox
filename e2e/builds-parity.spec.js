@@ -24,16 +24,32 @@ for (const page of ['/tools/builds', '/tools/builds/barbarian']) {
   });
 }
 
-test('class page links to sibling classes and back to the hub', async ({ page }) => {
-  await page.goto('/tools/builds/barbarian?demo=true');
+// The class pages have no navigation bar: the only crawlable links to them live inside the build
+// cards, and a class page reaches its siblings through one line of text links. If either goes
+// away, /tools/builds/<class> is reachable from the sitemap alone.
+test('build cards link to the class pages they belong to', async ({ page }) => {
+  await page.goto('/tools/builds?demo=true');
   await waitForRender(page);
 
-  await expect(page.getByRole('link', { name: 'All builds' })).toHaveAttribute(
-    'href', '/tools/builds'
-  );
-  await expect(page.getByRole('link', { name: 'Wizard', exact: true })).toHaveAttribute(
-    'href', '/tools/builds/wizard'
-  );
+  const classLinks = classPageLinks(page);
+  const hrefs = await classLinks.evaluateAll((els) => els.map((e) => e.getAttribute('href')));
+
+  expect(hrefs.length, 'no class links found in the cards').toBeGreaterThan(0);
+  // Families and subclasses both, e.g. /tools/builds/mage and /tools/builds/wizard.
+  expect(new Set(hrefs).size, 'cards should link to more than one class').toBeGreaterThan(1);
+  for (const href of hrefs) {
+    expect(href, `${href} is not a class page`).toMatch(/^\/tools\/builds\/[a-z0-9-]+$/);
+  }
+});
+
+test('a class page links to its same-family siblings', async ({ page }) => {
+  await page.goto('/tools/builds/wizard?demo=true');
+  await waitForRender(page);
+
+  const line = page.getByText(/Other Mage builds:/i);
+  await expect(line).toBeVisible();
+  await expect(line.getByRole('link', { name: 'Shaman', exact: true }))
+    .toHaveAttribute('href', '/tools/builds/shaman');
 });
 
 test('class page filters its own builds without a network request', async ({ page }) => {
@@ -85,4 +101,50 @@ test('a legacy ?class= link redirects to the class page', async ({ page }) => {
   await page.goto('/tools/builds?class=Blood_Berserker&demo=true');
   await waitForRender(page);
   await expect(page).toHaveURL(/\/tools\/builds\/blood-berserker/);
+});
+
+// BuildCard stopped being one big <a> so the class links could live inside it. These cover what
+// that restructure could plausibly break.
+// /tools/builds/{new,edit,my-builds,view} are pages, not classes - the header's My builds button
+// matches a naive href prefix and is disabled, which is not what these tests mean.
+const classPageLinks = (page) => page.locator(
+  'a[href^="/tools/builds/"]:not([href*="view?id="]):not([href$="/my-builds"])'
+  + ':not([href$="/new"]):not([href$="/edit"])'
+);
+
+test.describe('build card click targets', () => {
+  test('clicking the card body opens the build', async ({ page }) => {
+    await page.goto('/tools/builds?demo=true');
+    await waitForRender(page);
+
+    // The class icon sits inside the card's clickable area but inside no anchor, so it exercises
+    // the card's own onClick rather than a link.
+    // The class icon sits inside the card's clickable area but inside no anchor, so clicking it
+    // exercises the card's own onClick rather than a link.
+    const icon = page.locator('img[src*="ClassIcons"]').first();
+    await expect(icon).toBeVisible();
+    await icon.click();
+
+    await expect(page).toHaveURL(/\/tools\/builds\/view\?id=[A-Za-z0-9]+/);
+  });
+
+  test('clicking a class breadcrumb opens the class page, not the build', async ({ page }) => {
+    await page.goto('/tools/builds?demo=true');
+    await waitForRender(page);
+
+    const crumb = classPageLinks(page).first();
+    const href = await crumb.getAttribute('href');
+    await crumb.click();
+
+    await expect(page).toHaveURL(new RegExp(`${href}$`));
+  });
+
+  test('the build title is a real link, so it survives middle click and keyboard', async ({ page }) => {
+    await page.goto('/tools/builds?demo=true');
+    await waitForRender(page);
+
+    const titleLink = page.locator('a[href*="/tools/builds/view?id="]').first();
+    await expect(titleLink).toHaveAttribute('href', /\/tools\/builds\/view\?id=/);
+    await expect(titleLink).toBeVisible();
+  });
 });

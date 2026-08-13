@@ -218,7 +218,6 @@ const Builds = ({ initialBuilds, classSlugs }) => {
         builds={items}
         loading={loading}
         error={error}
-        classSlugs={classSlugs}
         onClassChange={(slug) => router.push(slug ? `/tools/builds/${slug}` : '/tools/builds')}
         hasMore={!!nextCursor}
         onLoadMore={() => runFetch(filters, nextCursor)}

@@ -3,7 +3,6 @@ import {
   Alert,
   Box,
   Button,
-  Chip,
   InputAdornment,
   Menu,
   Stack,
@@ -26,7 +25,7 @@ import ClassPicker from '@components/tools/builds/ClassPicker';
 import BuildCard from '@components/tools/builds/BuildCard';
 import { ACCENT } from '@utility/builds/classes';
 import { TAG_OPTIONS } from '@utility/builds/tags';
-import { classToSlug, slugToClassKey, slugToDisplayName } from '@utility/builds/class-paths.mjs';
+import { classToSlug, slugToClassKey } from '@utility/builds/class-paths.mjs';
 
 // The whole browse UI - header, class nav, search, filters, sort, grid, pagination - shared by
 // /tools/builds and the generated /tools/builds/[class] pages. The two differ only in where
@@ -106,36 +105,6 @@ const FilterPill = ({ label, value, count, onClick, active }) => (
   </Button>
 );
 
-// Crawlable links to every class page, at the foot of the page rather than the top: the class
-// picker above is the control a person uses, and putting a second full set of class controls in
-// the header meant two ways to do one thing.
-const ClassLinkFooter = ({ slugs, activeSlug }) => {
-  if (!slugs?.length) return null;
-  return (
-    <Box component="nav" aria-label="Browse builds by class" sx={{ mt: 6, pt: 3, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-      <Typography variant="subtitle2" sx={{ mb: 1.5, color: 'rgba(255,255,255,0.6)' }}>
-        Browse by class
-      </Typography>
-      <Stack direction="row" gap={1} flexWrap="wrap">
-        {activeSlug && (
-          <Chip component={Link} href="/tools/builds" label="All builds" size="small" clickable variant="outlined"/>
-        )}
-        {slugs.filter((slug) => slug !== activeSlug).map((slug) => (
-          <Chip
-            key={slug}
-            component={Link}
-            href={`/tools/builds/${slug}`}
-            label={slugToDisplayName(slug)}
-            size="small"
-            clickable
-            variant="outlined"
-          />
-        ))}
-      </Stack>
-    </Box>
-  );
-};
-
 const BuildsBrowser = ({
   heading,
   subtitle,
@@ -145,7 +114,6 @@ const BuildsBrowser = ({
   builds,
   loading,
   error,
-  classSlugs,
   activeClass,
   hasMore,
   onLoadMore,
@@ -431,8 +399,6 @@ const BuildsBrowser = ({
           )}
         </>
       )}
-
-      <ClassLinkFooter slugs={classSlugs} activeSlug={activeClass}/>
     </>
   );
 };
