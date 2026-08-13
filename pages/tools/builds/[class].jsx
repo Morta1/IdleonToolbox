@@ -8,12 +8,12 @@ import BuildsBrowser, { INITIAL_FILTERS } from '@components/tools/builds/BuildsB
 import { fetchAllBuildsAtBuildTime } from '@utility/builds/static-fetch.mjs';
 import {
   buildsForSlug,
-  getBuildClassSlugs,
+  classToSlug,
   slugToClassKey,
   slugToDisplayName
 } from '@utility/builds/class-paths.mjs';
 import { filterAndSortBuilds } from '@utility/builds/filter-builds';
-import { resolveHierarchy } from '@utility/builds/classes';
+import { CLASS_KEYS, resolveHierarchy } from '@utility/builds/classes';
 
 // "Idleon Barbarian Builds" leads with the term these pages target - `idleon <class> build` is
 // the shape of essentially all class-related search demand.
@@ -23,11 +23,20 @@ const classPageDescription = (displayName, count) => count
   ? `Browse ${count} community ${displayName} builds for Legends of Idleon — talent trees, gear and progression.`
   : `Community ${displayName} builds for Legends of Idleon — talent trees, gear and progression.`;
 
+// Every class in the game gets a page, including the four with no builds yet (Siege Breaker,
+// Arcane Cultist, Death Bringer, Wind Walker). They are offered by the class picker, and with
+// fallback: false anything not listed here is a hard 404 - so generating only the classes that
+// happen to have a build means the picker can navigate the user off a cliff.
+//
+// Empty ones are noindex (see getBuildClassStaticProps), so they cost nothing in thin content
+// and become indexable on their own the moment someone publishes the first build for that class.
+export const ALL_CLASS_SLUGS = CLASS_KEYS.map(classToSlug);
+
 // Exported for tests: the data logic, separated from Next's build pipeline.
-export function getBuildClassStaticPaths(builds) {
+export function getBuildClassStaticPaths() {
   return {
     // fallback MUST be false — output: 'export' does not support true/'blocking'.
-    paths: getBuildClassSlugs(builds).map((slug) => ({ params: { class: slug } })),
+    paths: ALL_CLASS_SLUGS.map((slug) => ({ params: { class: slug } })),
     fallback: false
   };
 }
@@ -44,25 +53,25 @@ export function siblingSlugs(allSlugs, slug) {
 export function getBuildClassStaticProps(builds, slug) {
   const displayName = slugToDisplayName(slug);
   const matching = buildsForSlug(builds, slug);
-  const allSlugs = getBuildClassSlugs(builds);
   return {
     props: {
       slug,
       builds: matching,
-      allSlugs,
-      siblings: siblingSlugs(allSlugs, slug),
+      siblings: siblingSlugs(ALL_CLASS_SLUGS, slug),
       family: resolveHierarchy(slugToClassKey(slug)).family,
       // PAGE_SEO is keyed by route pattern, so all these pages would share one title.
       // _document prefers these over the map for exactly that reason.
       seoTitle: classPageTitle(displayName),
-      seoDescription: classPageDescription(displayName, matching.length)
+      seoDescription: classPageDescription(displayName, matching.length),
+      // A class nobody has published for has nothing to rank on. Keep it reachable so the picker
+      // can't 404, keep it out of the index until it has content.
+      seoNoindex: matching.length === 0
     }
   };
 }
 
 export async function getStaticPaths() {
-  const builds = await fetchAllBuildsAtBuildTime();
-  return getBuildClassStaticPaths(builds);
+  return getBuildClassStaticPaths();
 }
 
 export async function getStaticProps({ params }) {
@@ -70,7 +79,7 @@ export async function getStaticProps({ params }) {
   return getBuildClassStaticProps(builds, params.class);
 }
 
-const BuildClassPage = ({ slug, builds, siblings, family, seoTitle, seoDescription }) => {
+const BuildClassPage = ({ slug, builds, siblings, family, seoTitle, seoDescription, seoNoindex }) => {
   const router = useRouter();
   const { state } = useContext(AppContext);
   const signedIn = !!state?.signedIn;
@@ -94,6 +103,7 @@ const BuildClassPage = ({ slug, builds, siblings, family, seoTitle, seoDescripti
         title={seoTitle}
         description={seoDescription}
         canonical={`https://idleontoolbox.com/tools/builds/${slug}`}
+        noindex={seoNoindex}
       />
       <BuildsBrowser
         heading={

@@ -23,14 +23,23 @@ const FIXTURE = [
 
 describe('getBuildClassStaticPaths', () => {
   it('uses fallback: false, required by output: export', () => {
-    expect(getBuildClassStaticPaths(FIXTURE).fallback).toBe(false);
+    expect(getBuildClassStaticPaths().fallback).toBe(false);
   });
 
   it('emits a path entry per slug in the shape Next expects', () => {
-    const { paths } = getBuildClassStaticPaths(FIXTURE);
+    const { paths } = getBuildClassStaticPaths();
     expect(paths).toContainEqual({ params: { class: 'barbarian' } });
     expect(paths).toContainEqual({ params: { class: 'warrior' } });
-    expect(paths.map((p) => p.params.class)).not.toContain('siege-breaker');
+  });
+
+  // fallback: false makes any unlisted path a hard 404, and the class picker offers every class
+  // in the game - so a class with no builds yet still needs a page or the picker walks the user
+  // into a dead end.
+  it('generates a page for classes that have no builds yet', () => {
+    const slugs = getBuildClassStaticPaths().paths.map((p) => p.params.class);
+    for (const empty of ['siege-breaker', 'arcane-cultist', 'death-bringer', 'wind-walker']) {
+      expect(slugs, `${empty} would 404 from the class picker`).toContain(empty);
+    }
   });
 });
 
@@ -59,5 +68,12 @@ describe('getBuildClassStaticProps', () => {
     expect(props.builds).toEqual([]);
     expect(props.seoDescription).not.toContain('0 community');
     expect(props.seoDescription).toContain('Community Archer builds');
+  });
+
+  // Reachable, but nothing to rank on until someone publishes for it. Flips on its own at the
+  // next deploy once a build exists.
+  it('noindexes a class with no builds, and only that case', () => {
+    expect(getBuildClassStaticProps(FIXTURE, 'siege-breaker').props.seoNoindex).toBe(true);
+    expect(getBuildClassStaticProps(FIXTURE, 'barbarian').props.seoNoindex).toBe(false);
   });
 });

@@ -51,7 +51,10 @@ const MyApp = (props) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
   const [openPolicy, setOpenPolicy] = useState(false);
   const { asPath, pathname } = useRouter();
+  // Pages generated from a dynamic route share one PAGE_SEO entry, so they carry their own
+  // noindex through static props - a class page with no builds yet must stay out of the index.
   const pageSeo = PAGE_SEO[pathname];
+  const noindex = pageProps?.seoNoindex ?? pageSeo?.noindex;
   const canonicalUrl = `https://idleontoolbox.com${asPath.split('?')[0].split('#')[0]}`;
   const isGdprRegion = useGdprRegion();
 
@@ -65,8 +68,8 @@ const MyApp = (props) => {
             than split across two files. After hydration the page's NextSeo takes over with
             identical copy - verified across client-side route changes, including unmapped
             routes. */}
-        <meta name="googlebot" content={pageSeo?.noindex ? 'noindex,follow' : 'index,follow'}/>
-        {pageSeo?.noindex ? <meta name="robots" content="noindex,follow"/> : null}
+        <meta name="googlebot" content={noindex ? 'noindex,follow' : 'index,follow'}/>
+        {noindex ? <meta name="robots" content="noindex,follow"/> : null}
         {preConnections?.map((link) => <link key={link} rel="preconnect" href={link}/>)}
       </Head>
       <div id="ncmp-consent-link"></div>
