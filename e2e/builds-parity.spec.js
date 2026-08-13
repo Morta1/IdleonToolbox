@@ -103,6 +103,19 @@ test('a legacy ?class= link redirects to the class page', async ({ page }) => {
   await expect(page).toHaveURL(/\/tools\/builds\/blood-berserker/);
 });
 
+// The param is interpolated into a router path, so it is matched against the real class list
+// rather than merely slugified. '../../etc' navigated to /etc before this.
+for (const bad of ['garbage', 'Not_A_Class', '../../etc']) {
+  test(`?class=${bad} drops the param instead of becoming a path`, async ({ page }) => {
+    await page.goto(`/tools/builds?class=${encodeURIComponent(bad)}&demo=true`);
+    await waitForRender(page);
+    // Back on the hub itself, not a path built out of the bad value.
+    expect(new URL(page.url()).pathname).toBe('/tools/builds');
+    expect(page.url()).not.toContain(bad);
+    expect(page.url()).not.toContain(encodeURIComponent(bad));
+  });
+}
+
 // BuildCard stopped being one big <a> so the class links could live inside it. These cover what
 // that restructure could plausibly break.
 // /tools/builds/{new,edit,my-builds,view} are pages, not classes - the header's My builds button

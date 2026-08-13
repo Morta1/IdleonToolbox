@@ -6,8 +6,13 @@ import BuildsBrowser, { INITIAL_FILTERS } from '@components/tools/builds/BuildsB
 import { listBuilds } from 'services/builds';
 import { fetchAllBuildsAtBuildTime } from '@utility/builds/static-fetch.mjs';
 import { classToSlug, getBuildClassSlugs } from '@utility/builds/class-paths.mjs';
+import { CLASS_KEYS } from '@utility/builds/classes';
 
 const VALID_SORTS = new Set(['new', 'top']);
+
+// The legacy ?class= value goes straight into a router path, so it is matched against the real
+// class list rather than merely slugified. Left unchecked, ?class=../../etc navigates to /etc.
+const CLASS_SLUGS = new Set(CLASS_KEYS.map(classToSlug));
 
 // URL <-> filters helpers. Class is deliberately absent: it lives in the path
 // (/tools/builds/<class>), so there is one URL per class rather than a path and a ?class= that
@@ -196,11 +201,18 @@ const Builds = ({ initialBuilds, classSlugs }) => {
 
   // Links shared before class moved into the path still arrive as ?class=Blood_Berserker.
   // Send them to the page that now owns that content instead of silently ignoring the param.
+  // Anything that isn't a real class drops the param and stays here rather than being turned
+  // into a path - a 404 at best, and somewhere else entirely for a value containing '..'.
   useEffect(() => {
     if (!router.isReady) return;
     const legacy = router.query?.class;
-    if (typeof legacy === 'string' && legacy) {
-      router.replace(`/tools/builds/${classToSlug(legacy)}`);
+    if (typeof legacy !== 'string' || !legacy) return;
+    const slug = classToSlug(legacy);
+    if (CLASS_SLUGS.has(slug)) {
+      router.replace(`/tools/builds/${slug}`);
+    } else {
+      const { class: _dropped, ...rest } = router.query;
+      router.replace({ pathname: '/tools/builds', query: rest }, undefined, { shallow: true });
     }
   }, [router.isReady, router.query?.class]);
 
