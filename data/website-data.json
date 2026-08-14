@@ -334896,6 +334896,14 @@
       "spriteNumFrames": 4
     },
     "Scripticus": {
+      "1": {
+        "Type": "None",
+        "DialogueText": "Actually,_there_is_one_thing_that_might_turn_you_back_into_a_Pro_Gamer!_Now_stand_back_as_I_utter_the_magic_words..._________@_________________@_Git_Gud.",
+        "NextIndex": 5,
+        "QuestName": "Scripticus1",
+        "Difficulty": "1",
+        "Name": "The_Journey_Begins!"
+      },
       "2": {
         "Type": "Custom",
         "DialogueText": "Here's_your_first_quest!_@_MAIN_QUEST:Go_to_the_right_and_defeat_5_green_spores.",
@@ -337449,6 +337457,14 @@
       "spriteNumFrames": 17
     },
     "Desert_Davey": {
+      "1": {
+        "Type": "None",
+        "DialogueText": "I'm_another_one_of_them_task_dudes..._You_seen_my_friend_Gary,_yea?_Well,_I'm_like_him_but_cooler.",
+        "NextIndex": 2,
+        "QuestName": "Desert_Davey1",
+        "Difficulty": "1",
+        "Name": "More_Tasks_Pls"
+      },
       "2": {
         "Type": "ItemsAndSpaceRequired",
         "DialogueText": "Gary,_over_in_them_Blunderhills,_hes_got_some_cool_recipes._Bring_me_some_proof_that_you_chose_the_cool_ones._@_QUEST:_Bring_cool_proof._And_dont_worry,_you'll_get_to_keep_the_items!",

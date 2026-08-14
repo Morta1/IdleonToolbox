@@ -5,7 +5,6 @@ import WorldQuest from 'components/account/Misc/WorldQuest';
 import { prefix } from 'utility/helpers';
 import { AppContext } from 'components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { calcTotalQuestCompleted } from '@parsers/misc';
 
 const Quests = () => {
   const { state } = useContext(AppContext);

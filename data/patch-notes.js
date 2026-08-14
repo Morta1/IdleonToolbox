@@ -14,7 +14,10 @@ export const patchNotes = [
     'fixes': [
       'Breeding: the egg power range was too high - the Curviture of the Paw bonus was counted twice over, and it is now taken from your best Wind Walker for that talent, as the game does',
       'Sneaking: Pristine Charms sitting in your inventory showed a broken image with no name or description',
-      'Sneaking: a weapon past level 110 showed an Infinity stat instead of its real value'
+      'Sneaking: a weapon past level 110 showed an Infinity stat instead of its real value',
+      'Quests: five NPCs were missing from the page entirely - Obol Altar, Nebula Neddy, Lava Larry, Spirit Sungmin and Zenelith',
+      'Quests: a quest you are still on lost its character marker if you had already finished a later quest from the same NPC',
+      "Quests: Scripticus was missing his first quest, so his list showed 12 of 13"
     ]
   },
   {

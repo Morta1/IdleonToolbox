@@ -4,15 +4,20 @@ import type { Character, Account } from './types';
 
 
 export const isWorldFinished = (characters: Character[], accountData: Account, worldIndex: number): boolean => {
-  const worldGatekeeper: Record<number, string> = {
+  // A world counts as finished once its exit has been used: either a character has talked to the
+  // gatekeeper NPC standing past it, or (world 6) the account flag for restoring the world 7 portal is set.
+  const worldGatekeeper: Record<number, string | number | undefined> = {
     1: 'Builder_Bird',
     2: 'Constructor_Crow',
     3: 'Carpenter_Cardinal',
     4: 'Muhmuguh',
-    5: 'Lafu_Shi' ,
+    5: 'Lafu_Shi',
     6: (accountData as any)?.accountOptions?.[408]
   }
-  return characters?.some(({ npcDialog }: any) => (!isNaN(worldGatekeeper?.[worldIndex] as any) && parseFloat(worldGatekeeper?.[worldIndex]) > 0) || npcDialog?.[worldGatekeeper?.[worldIndex]]);
+  const gatekeeper = worldGatekeeper?.[worldIndex];
+  if (gatekeeper === undefined || gatekeeper === null) return false;
+  if (typeof gatekeeper !== 'string' || !isNaN(gatekeeper as any)) return parseFloat(gatekeeper as any) > 0;
+  return !!characters?.some(({ npcDialog }: any) => npcDialog?.[gatekeeper]);
 }
 
 export const getQuests = (characters: Character[]): Record<string, any[]> => {
@@ -30,18 +35,26 @@ export const getQuests = (characters: Character[]): Record<string, any[]> => {
         const questIndex = questIndices[j];
         const questStatus = rawQuest[questIndex];
         if (!npcQuests[questIndex]) continue;
-        if (npcQuests?.[questIndex as any - 1] && (!skip && (questStatus === 0 || questStatus === -1) || questStatus === 1)) {
-          npcQuests[questIndex as any - 1].progress = npcQuests[questIndex as any - 1]?.progress?.filter(({ charIndex }: any) => charIndex !== i);
+        const previousIndex = questIndex as any - 1;
+        // Move the character's marker off the previous quest, unless they're still actively on it —
+        // quests aren't strictly sequential, a later one can be turned in while an earlier one is open.
+        if (npcQuests?.[previousIndex] && rawQuest[previousIndex] !== 0
+          && (!skip && (questStatus === 0 || questStatus === -1) || questStatus === 1)) {
+          npcQuests[previousIndex].progress = npcQuests[previousIndex]?.progress?.filter(({ charIndex }: any) => charIndex !== i);
         }
         if (questStatus === 1) { // completed
           npcQuests[questIndex].completed = [...(npcQuests[questIndex]?.completed || []), {
             charIndex: i,
             status: questStatus
           }];
-          npcQuests[questIndex].progress = [...(npcQuests[questIndex]?.progress || []), {
-            charIndex: i,
-            status: questStatus
-          }];
+          // `progress` holds a single marker per character - where they currently stand with this
+          // NPC. Once an open quest has claimed it, a later completed one must not take it back.
+          if (!skip) {
+            npcQuests[questIndex].progress = [...(npcQuests[questIndex]?.progress || []), {
+              charIndex: i,
+              status: questStatus
+            }];
+          }
         } else if (!skip && (questStatus === 0 || questStatus === -1)) {
           npcQuests[questIndex].progress = [...(npcQuests[questIndex]?.progress || []), {
             charIndex: i,
@@ -84,237 +97,196 @@ export const getPlayerQuests = (quests: Record<string, any>): Record<string, any
 
 export const worldNpcMap: Record<string, { world: string; index?: number }> = {
   'Scripticus': {
-    'world': 'Blunder_Hills',
+    world: 'Blunder_Hills',
     index: 0
   },
   'Glumlee': {
-    'world': 'Blunder_Hills',
+    world: 'Blunder_Hills',
     index: 1
   },
   'Krunk': {
-    'world': 'Blunder_Hills',
+    world: 'Blunder_Hills',
     index: 2
   },
   'Mutton': {
-    'world': 'Blunder_Hills',
+    world: 'Blunder_Hills',
     index: 3
   },
   'Woodsman': {
-    'world': 'Blunder_Hills',
+    world: 'Blunder_Hills',
     index: 4
   },
   'Hamish': {
-    'world': 'Blunder_Hills',
+    world: 'Blunder_Hills',
     index: 5
   },
   'Toadstall': {
-    'world': 'Blunder_Hills',
-    index: 5
+    world: 'Blunder_Hills',
+    index: 6
   },
   'Picnic_Stowaway': {
-    'world': 'Blunder_Hills',
-    index: 6
-  },
-  'Promotheus': {
-    'world': 'Blunder_Hills',
-    index: 6
-  },
-  'Typhoon': {
-    'world': 'Blunder_Hills',
+    world: 'Blunder_Hills',
     index: 7
   },
-  'Sprout': {
-    'world': 'Blunder_Hills',
+  'Promotheus': {
+    world: 'Blunder_Hills',
     index: 8
   },
-  'Dazey': {
-    'world': 'Blunder_Hills',
+  'Typhoon': {
+    world: 'Blunder_Hills',
     index: 9
   },
-  'Telescope': {
-    'world': 'Blunder_Hills',
+  'Sprout': {
+    world: 'Blunder_Hills',
     index: 10
   },
-  'Stiltzcho': {
-    'world': 'Blunder_Hills',
+  'Dazey': {
+    world: 'Blunder_Hills',
     index: 11
   },
-  'Funguy': {
-    'world': 'Blunder_Hills',
+  'Telescope': {
+    world: 'Blunder_Hills',
     index: 12
   },
-  'Tiki_Chief': {
-    'world': 'Blunder_Hills',
+  'Stiltzcho': {
+    world: 'Blunder_Hills',
     index: 13
   },
-  'Dog_Bone': {
-    'world': 'Blunder_Hills',
+  'Funguy': {
+    world: 'Blunder_Hills',
     index: 14
   },
-  'Papua_Piggea': {
-    'world': 'Blunder_Hills',
+  'Tiki_Chief': {
+    world: 'Blunder_Hills',
     index: 15
   },
-  'TP_Pete': {
-    'world': 'Blunder_Hills',
+  'Dog_Bone': {
+    world: 'Blunder_Hills',
     index: 16
   },
-  'Meel': {
-    'world': 'Blunder_Hills',
+  'Papua_Piggea': {
+    world: 'Blunder_Hills',
     index: 17
   },
-  'Town_Marble': {
-    'world': ''
+  'TP_Pete': {
+    world: 'Blunder_Hills',
+    index: 18
   },
-  'Mr_Pigibank': {
-    'world': ''
+  'Meel': {
+    world: 'Blunder_Hills',
+    index: 19
   },
-  'Secretkeeper': {
-    'world': ''
-  },
-  'Bushlyte': {
-    'world': ''
-  },
-  'Rocklyte': {
-    'world': ''
+  'Obol_Altar': {
+    world: 'Blunder_Hills',
+    index: 20
   },
   'Cowbo_Jones': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 0
   },
   'Fishpaste97': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 1
   },
   'Scubidew': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 2
   },
   'Whattso': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 3
   },
   'Bandit_Bob': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 4
   },
   'Carpetiem': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 5
   },
   'Centurion': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 6
   },
   'Goldric': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 7
   },
   'Snake_Jar': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 8
   },
   'Speccius': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 9
   },
   'XxX_Cattleprod_XxX': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 10
   },
   'Loominadi': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 11
   },
   'Wellington': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 12
   },
   'Djonnut': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 13
   },
   'Walupiggy': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 14
   },
   'Gangster_Gus': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 15
   },
   'Omar_Da_Ogar': {
-    'world': 'Yum_Yum_Desert',
+    world: 'Yum_Yum_Desert',
     index: 16
   },
-  'Builder_Bird': {
-    'world': ''
-  },
-  'Postboy_Pablob': {
-    'world': ''
-  },
-  'Desert_Davey': {
-    'world': ''
-  },
-  'Giftmas_Blobulyte': {
-    'world': ''
-  },
-  'Loveulyte': {
-    'world': ''
-  },
-  'Constructor_Crow': {
-    'world': ''
-  },
-  'Iceland_Irwin': {
-    'world': ''
-  },
-  'Egggulyte': {
-    'world': ''
-  },
   'Hoggindaz': {
-    'world': 'Frostbite_Tundra',
+    world: 'Frostbite_Tundra',
     index: 0
   },
   'Worldo': {
-    'world': 'Frostbite_Tundra',
-    index: 0
-  },
-  'Lord_of_the_Hunt': {
-    'world': 'Frostbite_Tundra',
+    world: 'Frostbite_Tundra',
     index: 1
   },
-  'Lonely_Hunter': {
-    'world': 'Frostbite_Tundra',
+  'Lord_of_the_Hunt': {
+    world: 'Frostbite_Tundra',
     index: 2
   },
-  'Snouts': {
-    'world': 'Frostbite_Tundra',
+  'Lonely_Hunter': {
+    world: 'Frostbite_Tundra',
     index: 3
   },
-  'Shuvelle': {
-    'world': 'Frostbite_Tundra',
+  'Snouts': {
+    world: 'Frostbite_Tundra',
     index: 4
   },
-  'Yondergreen': {
-    'world': 'Frostbite_Tundra',
+  'Shuvelle': {
+    world: 'Frostbite_Tundra',
     index: 5
   },
-  'Crystalswine': {
-    'world': 'Frostbite_Tundra',
+  'Yondergreen': {
+    world: 'Frostbite_Tundra',
     index: 6
   },
-  'Bill_Brr': {
-    'world': 'Frostbite_Tundra',
+  'Crystalswine': {
+    world: 'Frostbite_Tundra',
     index: 7
   },
-  'Bellows': {
-    'world': 'Frostbite_Tundra',
+  'Bill_Brr': {
+    world: 'Frostbite_Tundra',
     index: 8
   },
-  'Cactolyte': {
-    'world': ''
-  },
-  'Coastiolyte': {
-    'world': ''
+  'Bellows': {
+    world: 'Frostbite_Tundra',
+    index: 9
   },
   'Gobo': {
     world: 'Hyperion_Nebula',
@@ -348,72 +320,137 @@ export const worldNpcMap: Record<string, { world: string; index?: number }> = {
     world: 'Hyperion_Nebula',
     index: 7
   },
+  'Nebula_Neddy': {
+    world: 'Hyperion_Nebula',
+    index: 8
+  },
   'Muhmuguh': {
-    world: 'Smolderin\'_Plateau',
-    index: 1
+    world: "Smolderin'_Plateau",
+    index: 0
   },
   'Slargon': {
-    world: 'Smolderin\'_Plateau',
-    index: 2
+    world: "Smolderin'_Plateau",
+    index: 1
   },
   'Pirate_Porkchop': {
-    world: 'Smolderin\'_Plateau',
-    index: 3
+    world: "Smolderin'_Plateau",
+    index: 2
   },
   'Poigu': {
-    world: 'Smolderin\'_Plateau',
-    index: 4
+    world: "Smolderin'_Plateau",
+    index: 3
   },
   'Tired_Mole': {
-    world: 'Smolderin\'_Plateau',
+    world: "Smolderin'_Plateau",
+    index: 4
+  },
+  'Lava_Larry': {
+    world: "Smolderin'_Plateau",
     index: 5
   },
   'Lafu_Shi': {
     world: 'Spirited_Valley',
-    index: 1
+    index: 0
   },
   'Hoov': {
     world: 'Spirited_Valley',
-    index: 2
+    index: 1
   },
   'Masterius': {
     world: 'Spirited_Valley',
-    index: 4
+    index: 2
   },
   'Woodlin_Elder': {
     world: 'Spirited_Valley',
-    index: 5
-  },
-  'Tribal_Shaman': {
-    world: 'Spirited_Valley',
-    index: 6
-  },
-  'Legumulyte': {
-    world: 'Spirited_Valley',
-    index: 7
+    index: 3
   },
   'Sussy_Gene': {
     world: 'Spirited_Valley',
-    index: 8
+    index: 4
   },
   'Potti': {
     world: 'Spirited_Valley',
-    index: 9
+    index: 5
   },
-  'Sad_Urie':{
+  'Spirit_Sungmin': {
+    world: 'Spirited_Valley',
+    index: 6
+  },
+  'Sad_Urie': {
     world: 'Shimmerfin_Deep',
     index: 0
   },
-  'Snootie':{
+  'Snootie': {
     world: 'Shimmerfin_Deep',
     index: 1
   },
-  'Bloo_Radley':{
+  'Bloo_Radley': {
     world: 'Shimmerfin_Deep',
     index: 2
   },
-  'Toobus_Goobus':{
+  'Toobus_Goobus': {
     world: 'Shimmerfin_Deep',
     index: 3
+  },
+  'Zenelith': {
+    world: 'Shimmerfin_Deep',
+    index: 4
+  },
+  'Town_Marble': {
+    world: ''
+  },
+  'Mr_Pigibank': {
+    world: ''
+  },
+  'Secretkeeper': {
+    world: ''
+  },
+  'Bushlyte': {
+    world: ''
+  },
+  'Rocklyte': {
+    world: ''
+  },
+  'Builder_Bird': {
+    world: ''
+  },
+  'Postboy_Pablob': {
+    world: ''
+  },
+  'Desert_Davey': {
+    world: ''
+  },
+  'Giftmas_Blobulyte': {
+    world: ''
+  },
+  'Loveulyte': {
+    world: ''
+  },
+  'Constructor_Crow': {
+    world: ''
+  },
+  'Carpenter_Cardinal': {
+    world: ''
+  },
+  'Iceland_Irwin': {
+    world: ''
+  },
+  'Egggulyte': {
+    world: ''
+  },
+  'Cactolyte': {
+    world: ''
+  },
+  'Coastiolyte': {
+    world: ''
+  },
+  'Nebulyte': {
+    world: ''
+  },
+  'Bubbulyte': {
+    world: ''
+  },
+  'Falloween_Pumpkin': {
+    world: ''
   }
 };
