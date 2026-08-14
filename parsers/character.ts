@@ -137,7 +137,14 @@ import { tryToParse, createIndexedArray, createArrayOfArrays, cashFormatter } fr
 import type { IdleonData, Account } from './types';
 
 export const getCharacters = (idleonData: IdleonData, charsNames?: any) => {
-  const chars = charsNames ? charsNames : [0, 1, 2, 3, 4, 5, 6, 7, 8];
+  // Callers without a names list (the legacy profile format) fell back to a fixed nine slots,
+  // silently dropping anyone past the ninth. Read the count off the save's own per-character keys
+  // instead so it tracks the game adding slots, keeping the old list only when there are none to read.
+  const slotsInSave = Object.keys(idleonData || {})
+    .filter((key) => /^Lv0_\d+$/.test(key))
+    .map((key) => Number(key.slice('Lv0_'.length)))
+    .sort((a: number, b: number) => a - b);
+  const chars = charsNames ?? (slotsInSave.length ? slotsInSave : [0, 1, 2, 3, 4, 5, 6, 7, 8]);
   return chars?.map((charName: any, playerId: any) => {
     const characterDetails = Object.entries(idleonData)?.reduce((res: any, [key, details]: [string, any]) => {
       const reg = new RegExp(`_${playerId}$`);

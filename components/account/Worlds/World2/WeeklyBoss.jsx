@@ -1,4 +1,4 @@
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { cleanUnderscore, MAX_CHARACTERS, prefix } from '@utility/helpers';
 import { Divider, Stack, Typography } from '@mui/material';
 import React from 'react';
 import styled from '@emotion/styled';
@@ -48,7 +48,7 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
           turn: {(account?.accountOptions?.[185] ?? 0) + 1}</Typography> : null}
       </Stack>
       <Stack flexWrap={'wrap'} direction={'row'}>
-        {triplets?.map(({ task }, index) => index < (characters?.length ?? 10) ? <IconImg key={'all-moves' + index}
+        {triplets?.map(({ task }, index) => index < (characters?.length ?? MAX_CHARACTERS) ? <IconImg key={'all-moves' + index}
                                                                   style={{
                                                                     border: bossIndex === 0 && account?.accountOptions?.[185] === index
                                                                       ? '1px solid #81c784'
@@ -60,7 +60,7 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
     </Stack>
     <Stack>
       {triplets?.map(({ actions, task }, index) => {
-        if (index >= (characters?.length ?? 10)) return null;
+        if (index >= (characters?.length ?? MAX_CHARACTERS)) return null;
         const quantity = getTaskQuantity(index, task?.taskIndex, account, characters);
         return (
           (<React.Fragment key={'triplets' + index}>

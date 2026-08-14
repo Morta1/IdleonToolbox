@@ -17,7 +17,10 @@ export const patchNotes = [
       'Sneaking: a weapon past level 110 showed an Infinity stat instead of its real value',
       'Quests: five NPCs were missing from the page entirely - Obol Altar, Nebula Neddy, Lava Larry, Spirit Sungmin and Zenelith',
       'Quests: a quest you are still on lost its character marker if you had already finished a later quest from the same NPC',
-      "Quests: Scripticus was missing his first quest, so his list showed 12 of 13"
+      "Quests: Scripticus was missing his first quest, so his list showed 12 of 13",
+      'Quests: an NPC now turns green once every selected character has finished its final quest, instead of staying orange forever over an early quest that can no longer be started',
+      'Monuments: the AFK hours breakdown stopped at 10 characters',
+      'Weekly Boss: the action list fell back to 10 characters when no save was loaded'
     ]
   },
   {

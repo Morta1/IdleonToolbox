@@ -1,7 +1,7 @@
 import { holesInfo } from '@website-data';
 import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
-import { fillArrayToLength, notateNumber } from '@utility/helpers';
+import { fillArrayToLength, MAX_CHARACTERS, notateNumber } from '@utility/helpers';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
@@ -170,7 +170,7 @@ export const getMonumentAfkReq = (afkPercent: any, requiredHours: any, ownedAfkH
     categories: [
       {
         name: "Characters",
-        sources: Array.from({ length: 10 }, (_, index) => {
+        sources: Array.from({ length: MAX_CHARACTERS }, (_, index) => {
           const characters = index + 1
           const hoursPerCharacter = Math.ceil(realHoursNeeded / characters)
   

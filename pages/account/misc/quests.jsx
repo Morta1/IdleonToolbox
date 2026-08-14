@@ -41,8 +41,20 @@ const Quests = () => {
             inProgressQuests++;
           }
         }
+        // Every selected character finished the final quest, so there's nothing left to do here
+        // even if an earlier quest went unfinished - some are unreachable once you've moved past
+        // them, and would otherwise hold the npc at "in progress" forever.
+        const lastQuest = clonedNpcQuests[clonedNpcQuests.length - 1];
+        const charactersAtTheEnd = (lastQuest?.progress || [])
+          .filter(({ status }) => status === 1)
+          .map(({ charIndex }) => charIndex);
+        const everyoneFinished = filteredCharacters?.length > 0
+          && filteredCharacters.every((charIndex) => charactersAtTheEnd.includes(charIndex));
+
         let questsStatus;
-        if (completedQuests === 0) {
+        if (everyoneFinished) {
+          questsStatus = 1;
+        } else if (completedQuests === 0) {
           if (inProgressQuests > 0) {
             questsStatus = 0;
           } else {

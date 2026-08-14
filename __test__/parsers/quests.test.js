@@ -22,6 +22,29 @@ describe('quest markers', () => {
     expect(npc.npcQuests.filter(({ progress }) => progress?.length)).toHaveLength(1);
   });
 
+  it('carries the marker past a quest that was never unlocked', () => {
+    // Promotheus1 stays at -1 for characters who moved on without it
+    const qc = { Promotheus1: -1, Promotheus2: 1, Promotheus3: 1, Promotheus4: 1 };
+
+    const npc = findNpc(getQuests(build(qc)), 'Blunder_Hills', 'Promotheus');
+    const withMarker = npc.npcQuests.filter(({ progress }) => progress?.length);
+
+    expect(withMarker).toHaveLength(1);
+    expect(withMarker[0].QuestName).toBe('Promotheus4');
+    expect(npc.npcQuests.filter(({ completed }) => completed?.length)).toHaveLength(3);
+  });
+
+  it('parks the marker on the next quest once the previous one is turned in', () => {
+    const qc = { Promotheus1: 1, Promotheus2: -1 };
+
+    const npc = findNpc(getQuests(build(qc)), 'Blunder_Hills', 'Promotheus');
+    const withMarker = npc.npcQuests.filter(({ progress }) => progress?.length);
+
+    expect(withMarker).toHaveLength(1);
+    expect(withMarker[0].QuestName).toBe('Promotheus2');
+    expect(withMarker[0].progress[0].status).toBe(-1);
+  });
+
   it('leaves the marker on the last quest once the whole chain is done', () => {
     const qc = {};
     for (let i = 1; i <= 13; i++) qc[`Scripticus${i}`] = 1;
@@ -38,8 +61,8 @@ describe('quest markers', () => {
     const npc = findNpc(getQuests(build(qc)), 'Blunder_Hills', 'Scripticus');
     const questNamed = (name) => npc.npcQuests.find((quest) => quest.QuestName === name);
 
-    expect(questNamed('Scripticus2').progress).toEqual([]);
-    expect(questNamed('Scripticus3').progress).toEqual([]);
+    expect(questNamed('Scripticus2').progress ?? []).toEqual([]);
+    expect(questNamed('Scripticus3').progress ?? []).toEqual([]);
     expect(questNamed('Scripticus4').progress).toEqual([{ charIndex: 0, status: 0 }]);
   });
 

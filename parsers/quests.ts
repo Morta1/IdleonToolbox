@@ -29,39 +29,36 @@ export const getQuests = (characters: Character[]): Record<string, any[]> => {
     if (!worldName) return res;
     for (let i = 0; i < characters?.length; i++) {
       const rawQuest = cloneObject((characters as any)?.[i]?.quests?.[npcName]) || {};
-      const questIndices = Object.keys(rawQuest);
-      let skip = false;
+      const questIndices = Object.keys(rawQuest).filter((questIndex) => npcQuests[questIndex]);
+      // `marker` is the one quest this character currently stands on - the single avatar drawn
+      // under the NPC's list. Quests aren't strictly sequential: a later one can be turned in
+      // while an earlier one is still open (repeatable/trophy quests) or was never unlocked.
+      // It walks forward with every quest the character has touched, except that an accepted
+      // but unfinished quest holds onto it - that's the one they still have to do.
+      let marker: string | undefined;
+      let claimedByUnfinished = false;
       for (let j = 0; j < questIndices?.length; j++) {
         const questIndex = questIndices[j];
         const questStatus = rawQuest[questIndex];
-        if (!npcQuests[questIndex]) continue;
-        const previousIndex = questIndex as any - 1;
-        // Move the character's marker off the previous quest, unless they're still actively on it —
-        // quests aren't strictly sequential, a later one can be turned in while an earlier one is open.
-        if (npcQuests?.[previousIndex] && rawQuest[previousIndex] !== 0
-          && (!skip && (questStatus === 0 || questStatus === -1) || questStatus === 1)) {
-          npcQuests[previousIndex].progress = npcQuests[previousIndex]?.progress?.filter(({ charIndex }: any) => charIndex !== i);
-        }
-        if (questStatus === 1) { // completed
+        if (questStatus === 1) {
           npcQuests[questIndex].completed = [...(npcQuests[questIndex]?.completed || []), {
             charIndex: i,
             status: questStatus
           }];
-          // `progress` holds a single marker per character - where they currently stand with this
-          // NPC. Once an open quest has claimed it, a later completed one must not take it back.
-          if (!skip) {
-            npcQuests[questIndex].progress = [...(npcQuests[questIndex]?.progress || []), {
-              charIndex: i,
-              status: questStatus
-            }];
-          }
-        } else if (!skip && (questStatus === 0 || questStatus === -1)) {
-          npcQuests[questIndex].progress = [...(npcQuests[questIndex]?.progress || []), {
-            charIndex: i,
-            status: questStatus
-          }]
-          skip = true;
         }
+        if (marker !== undefined && rawQuest[marker] === 0) continue;
+        if (questStatus === 1) {
+          marker = questIndex;
+        } else if (!claimedByUnfinished) {
+          marker = questIndex;
+          claimedByUnfinished = true;
+        }
+      }
+      if (marker !== undefined) {
+        npcQuests[marker].progress = [...(npcQuests[marker]?.progress || []), {
+          charIndex: i,
+          status: rawQuest[marker]
+        }];
       }
     }
     return {

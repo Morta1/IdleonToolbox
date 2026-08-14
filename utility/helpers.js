@@ -704,6 +704,12 @@ export const totalHoursBetweenDates = (start, end) => {
   }
 }
 
+// Character slots the game currently sells. Its unlock table is
+// [0, 8, 30, 70, 150, 300, 500, 750, 1100, 1500, 5e3, 99999, ...] indexed by how many characters
+// you own - index 10 costs 5000 combined levels for the 11th, and 99999 past that means locked.
+// Bump this when that sentinel moves.
+export const MAX_CHARACTERS = 11;
+
 export const fillArrayToLength = (length, array, defaultValue = {}) => {
   return [...new Array(length)].map((item, index) => {
     return array !== undefined ? array?.[index] ?? defaultValue : defaultValue;
