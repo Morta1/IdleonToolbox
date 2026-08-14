@@ -524,6 +524,12 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={`${alerts?.['World 6']?.farming?.plots?.length} plots reached the threshold of ${alerts?.['World 6']?.farming?.plots?.[0]?.threshold} OGs (x${Math.min(1e9, Math.max(1, Math.pow(2, alerts?.['World 6']?.farming?.plots?.[0]?.threshold)))})`}
                   iconPath={'data/ClassIcons57'}/> : null}
+              {alerts?.['World 6']?.farming?.finishedPlots ?
+                <Alert
+                  title={`${alerts?.['World 6']?.farming?.finishedPlots.plots.length} plot${alerts?.['World 6']?.farming?.finishedPlots.plots.length > 1
+                    ? 's'
+                    : ''} won't double again within ${alerts?.['World 6']?.farming?.finishedPlots.days} days - collect to restart them`}
+                  iconPath={'data/FarmPlant1'}/> : null}
               {alerts?.['World 6']?.farming?.totalCrops > 0 ?
                 <Alert
                   title={`You have ${commaNotation(alerts?.['World 6']?.farming?.totalCrops)} crops ready to be collected`}

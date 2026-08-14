@@ -804,6 +804,22 @@ export const msToDate = (ms) => {
   }
 }
 
+const SECONDS_IN = { minute: 60, hour: 3600, day: 86400, year: 31536000 };
+
+/**
+ * A single rounded unit for spans that can reach centuries, where msToDate's hours-only format
+ * stops being readable. Anything past a human lifetime reads as "never".
+ */
+export const secondsToCoarseDuration = (seconds) => {
+  if (!(seconds > 0)) return null;
+  if (seconds < SECONDS_IN.hour) return `${Math.max(1, Math.round(seconds / SECONDS_IN.minute))}m`;
+  if (seconds < SECONDS_IN.day) return `${Math.round(seconds / SECONDS_IN.hour)}h`;
+  if (seconds < SECONDS_IN.year) return `${Math.round(seconds / SECONDS_IN.day)}d`;
+  const years = seconds / SECONDS_IN.year;
+  if (years >= 100) return 'never';
+  return `${years < 10 ? years.toFixed(1) : Math.round(years)}y`;
+}
+
 export const fillMissingTalents = (arr) => {
   const talentIds = arr.map(obj => obj.talentId);
   const minTalentId = Math.min(...talentIds);

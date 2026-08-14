@@ -23,6 +23,12 @@ export const getSneaking = (idleonData: any, serverVars: any, charactersData: an
 const doorMaxHps = ninjaExtraInfo?.[3];
 // Gemstone counters are capped at 10M gems.
 const GEMSTONE_MAX_VALUE = 1e7;
+// Pristine charms live in their own list rather than in `ninjaEquipment`, but inventory slots
+// reference them by raw name like any other item.
+const pristineCharmItems: Record<string, any> = rawPristineCharms.reduce((result, charm) => ({
+  ...result,
+  [charm.rawName]: charm
+}), {});
 
 const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, charactersData: any, account: any) => {
   const gemStonesUnlocked = rawSneaking?.[106]?.filter((name: any) => name.includes('NjGem'));
@@ -301,7 +307,7 @@ const parseNinjaItems = (array: any, doChunks: any, gemstones: any, account: any
     const hasSymbol = isInventoryItem || isCharSymbolSlot;
     const symbolLVID = hasSymbol ? itemIdToSymbolLevelId(itemId) : -1;
     return {
-      ...ninjaEquipment[itemName],
+      ...((ninjaEquipment as Record<string, any>)[itemName] ?? pristineCharmItems[itemName]),
       level,
       symbolBonus: hasSymbol ? getSymbolBonus(account, symbolLVID) : 0,
       symbolLevel: hasSymbol ? (account?.spelunking?.sneakingSlots?.[symbolLVID] ?? 0) : 0
@@ -339,12 +345,16 @@ const getItemValue = ({ type, subType, level, x3, x5 }: any) => {
   if (type === 1) {
     if (subType === 0) {
       return 10 * x3 * ((level + 10) / (level + 40));
-    } else {
+    }
+    if (level < 111) {
       return x3
         * Math.pow(1.23, level)
         * Math.pow(0.92, Math.max(0, level - 80))
         * Math.pow(0.94, Math.max(0, level - 110));
     }
+    // Past 110 the game folds the three terms into a single factor (1.23 * 0.92 * 0.94). Same
+    // curve, but 1.23^level no longer overflows to Infinity on a high level weapon.
+    return x3 * Math.pow(1.23, 110) * Math.pow(0.92, 30) * Math.pow(1.063704, level - 110);
   }
 
   if (type === 2) {

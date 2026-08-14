@@ -26422,6 +26422,7 @@
   ],
   "pristineCharms": [
     {
+      "rawName": "NjTrP0",
       "x1": 3,
       "x2": 0,
       "name": "Sparkle_Log",
@@ -26430,6 +26431,7 @@
       "bonus": "}x_Total_DMG"
     },
     {
+      "rawName": "NjTrP1",
       "x1": 3,
       "x2": 1,
       "name": "Fruit_Rolle",
@@ -26438,6 +26440,7 @@
       "bonus": "+{%_AGI"
     },
     {
+      "rawName": "NjTrP2",
       "x1": 3,
       "x2": 2,
       "name": "Glowing_Veil",
@@ -26446,6 +26449,7 @@
       "bonus": "}x_Artifact_Find_Chance"
     },
     {
+      "rawName": "NjTrP3",
       "x1": 3,
       "x2": 3,
       "name": "Cotton_Candy",
@@ -26454,6 +26458,7 @@
       "bonus": "}x_Drop_Rate"
     },
     {
+      "rawName": "NjTrP4",
       "x1": 3,
       "x2": 4,
       "name": "Sugar_Bomb",
@@ -26462,6 +26467,7 @@
       "bonus": "+{%_STR"
     },
     {
+      "rawName": "NjTrP5",
       "x1": 3,
       "x2": 5,
       "name": "Gumm_Eye",
@@ -26470,6 +26476,7 @@
       "bonus": "+{%_LUK"
     },
     {
+      "rawName": "NjTrP6",
       "x1": 3,
       "x2": 6,
       "name": "Bubblegum_Law",
@@ -26478,6 +26485,7 @@
       "bonus": "}x_Kill_per_Kill"
     },
     {
+      "rawName": "NjTrP7",
       "x1": 3,
       "x2": 7,
       "name": "Sour_Wowzer",
@@ -26486,6 +26494,7 @@
       "bonus": "+{%_Sneaking_EXP_gain"
     },
     {
+      "rawName": "NjTrP8",
       "x1": 3,
       "x2": 8,
       "name": "Crystal_Comb",
@@ -26494,6 +26503,7 @@
       "bonus": "}x_Bigger_Summoning_Winner_Bonuses"
     },
     {
+      "rawName": "NjTrP9",
       "x1": 3,
       "x2": 9,
       "name": "Rock_Candy",
@@ -26502,6 +26512,7 @@
       "bonus": "+{%_Farming_EXP_gain"
     },
     {
+      "rawName": "NjTrP10",
       "x1": 3,
       "x2": 10,
       "name": "Lollipop_Law",
@@ -26510,6 +26521,7 @@
       "bonus": "+{%_WIS"
     },
     {
+      "rawName": "NjTrP11",
       "x1": 3,
       "x2": 11,
       "name": "Taffy_Disc",
@@ -26518,6 +26530,7 @@
       "bonus": "}x_Higher_Overgrowth_Chance"
     },
     {
+      "rawName": "NjTrP12",
       "x1": 3,
       "x2": 12,
       "name": "Stick_of_Chew",
@@ -26526,6 +26539,7 @@
       "bonus": "}x_All_Essence_Generation"
     },
     {
+      "rawName": "NjTrP13",
       "x1": 3,
       "x2": 13,
       "name": "Treat_Sack",
@@ -26534,6 +26548,7 @@
       "bonus": "}x_Jade_Coin_gain"
     },
     {
+      "rawName": "NjTrP14",
       "x1": 3,
       "x2": 14,
       "name": "Gumm_Stick",
@@ -26542,6 +26557,7 @@
       "bonus": "+{%_Golden_Food_bonus"
     },
     {
+      "rawName": "NjTrP15",
       "x1": 3,
       "x2": 15,
       "name": "Lolly_Flower",
@@ -26550,6 +26566,7 @@
       "bonus": "+{%_Printer_Output"
     },
     {
+      "rawName": "NjTrP16",
       "x1": 3,
       "x2": 16,
       "name": "Gumball_Necklace",
@@ -26558,6 +26575,7 @@
       "bonus": "}x_Money_from_Monsters"
     },
     {
+      "rawName": "NjTrP17",
       "x1": 3,
       "x2": 17,
       "name": "Liqorice_Rolle",
@@ -26566,6 +26584,7 @@
       "bonus": "}x_Bigger_Bonuses_of_Non_Misc_Stamps"
     },
     {
+      "rawName": "NjTrP18",
       "x1": 3,
       "x2": 18,
       "name": "Glimmerchain",
@@ -26574,6 +26593,7 @@
       "bonus": "}x_Extra_Deathbringer_Bones"
     },
     {
+      "rawName": "NjTrP19",
       "x1": 3,
       "x2": 19,
       "name": "Twinkle_Taffy",
@@ -26582,6 +26602,7 @@
       "bonus": "}x_Extra_Windwalker_Dust"
     },
     {
+      "rawName": "NjTrP20",
       "x1": 3,
       "x2": 20,
       "name": "Jellypick",
@@ -26590,6 +26611,7 @@
       "bonus": "+{%_Stamp_Doubler_Bonus"
     },
     {
+      "rawName": "NjTrP21",
       "x1": 3,
       "x2": 21,
       "name": "Candy_Cache",
@@ -26598,6 +26620,7 @@
       "bonus": "}x_Villager_EXP"
     },
     {
+      "rawName": "NjTrP22",
       "x1": 3,
       "x2": 22,
       "name": "Mystery_Fizz",

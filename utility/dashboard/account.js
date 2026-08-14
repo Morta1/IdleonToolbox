@@ -1092,13 +1092,27 @@ export const getWorld6Alerts = (account, fields, options) => {
   }
   if (fields?.farming?.checked) {
     const farming = {};
-    const { plots, totalCrops, missingPlots, beanTrade, exoticPurchases } = options?.farming || {};
+    const { plots, finishedPlots, totalCrops, missingPlots, beanTrade, exoticPurchases } = options?.farming || {};
     if (plots?.checked) {
       const availablePots = account?.farming?.plot?.filter(({ currentOG }) => plots?.props?.value > 0
         ? currentOG >= plots?.props?.value
         : currentOG > 0).map((plot) => ({ ...plot, threshold: plots?.props?.value }));
       if (availablePots.length > 0) {
         farming.plots = availablePots;
+      }
+    }
+    if (finishedPlots?.checked) {
+      // A plot that has stopped doubling earns nothing at all - its crop quantity was fixed when the
+      // crop first grew, so only the OG multiplier can still add value. Collecting resets it to x1.
+      const days = finishedPlots?.props?.value ?? 7;
+      // A null eta means the plot isn't rolling for OGs yet (empty, or still growing its first
+      // crop), not that it never will - those aren't waiting on anything, so they aren't flagged.
+      const donePlots = (account?.farming?.plot ?? []).filter(({ isLocked, nextOGEta }) => {
+        if (isLocked || nextOGEta === null) return false;
+        return nextOGEta > days * 86400;
+      });
+      if (donePlots.length > 0) {
+        farming.finishedPlots = { plots: donePlots, days };
       }
     }
     if (totalCrops?.checked) {

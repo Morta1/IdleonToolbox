@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 63,
+  version: 64,
   account: {
     General: {
       tasks: {
@@ -389,6 +389,13 @@ const baseTrackers = {
             type: 'input',
             props: { label: 'OG Threshold', value: 0, minValue: 0, helperText: '1=x2, 2=x4, 3=x8, 4=x16' },
             checked: true
+          },
+          {
+            name: 'finishedPlots',
+            type: 'input',
+            checked: false,
+            helperText: 'How long you\'ll wait for a plot to double. Plots slower than this get flagged - collect them to start the doubling over',
+            props: { label: 'Days', value: 7, minValue: 1, maxValue: 365, helperText: '' }
           },
           {
             name: 'totalCrops',

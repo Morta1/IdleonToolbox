@@ -201,14 +201,29 @@ const Fields = ({ config, onChange, configType, section }) => {
   })
 }
 
+// Locks every input to the same x. The widest label sharing a row with an input is 23 characters
+// ("Affordable Stamp Levels"), which fits inside this alongside the checkbox. Checkbox-only rows
+// keep their natural width so the few far longer labels ("Show Gilded When No Atom Discount",
+// 33 characters) stay on one line.
+const INPUT_LABEL_WIDTH = 200;
+
 const BaseField = ({ option, trackerName, onChange, configType, section }) => {
   const { type, props } = option || {};
+  const isImageArray = props?.type === 'img';
   return <>
     {option?.category ? <Typography variant={'caption'}>{option?.category?.camelToTitleCase()}</Typography> : null}
-    <Stack direction={'row'} gap={2}>
-      {type !== 'array' ? <Stack>
-        <FormControlLabel
-          sx={{ minWidth: props?.type === 'img' ? 'inherit' : 100, [`.${typographyClasses.root}`]: { fontSize: 14 } }}
+    <Stack>
+      {/* The helper sits under the whole row, not beside the label - a long one used to stretch
+       the label column and knock that row's input out of line with every other row. */}
+      <Stack direction={'row'} gap={2}>
+        {type !== 'array' ? <FormControlLabel
+          sx={{
+            minWidth: isImageArray ? 'inherit' : 100,
+            // Only lock the width once there's room for it - on a phone the label keeps its
+            // natural size so the row doesn't overflow sideways.
+            ...(type === 'input' ? { width: { xs: 'auto', sm: INPUT_LABEL_WIDTH }, flexShrink: 0 } : {}),
+            [`.${typographyClasses.root}`]: { fontSize: 14 }
+          }}
           control={<Checkbox name={option?.name}
                              checked={option?.checked}
                              size={'small'}
@@ -217,16 +232,16 @@ const BaseField = ({ option, trackerName, onChange, configType, section }) => {
           label={<>
             <Typography>{option?.name?.camelToTitleCase()}</Typography>
           </>}
-        />
-        {option?.helperText ? <FormHelperText sx={{ ml: 3, mt: 0 }}>{option?.helperText}</FormHelperText> : null}
-      </Stack> : null}
-      {type === 'input' ?
-        <InputField option={option} trackerName={trackerName} configType={configType} onChange={onChange}
-                    section={section}/> : null}
-      {type === 'array'
-        ? <ArrayField option={option} trackerName={trackerName} configType={configType} onChange={onChange}
-                      section={section}/>
-        : null}
+        /> : null}
+        {type === 'input' ?
+          <InputField option={option} trackerName={trackerName} configType={configType} onChange={onChange}
+                      section={section}/> : null}
+        {type === 'array'
+          ? <ArrayField option={option} trackerName={trackerName} configType={configType} onChange={onChange}
+                        section={section}/>
+          : null}
+      </Stack>
+      {option?.helperText ? <FormHelperText sx={{ ml: 3, mt: 0 }}>{option?.helperText}</FormHelperText> : null}
     </Stack></>
 }
 

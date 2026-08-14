@@ -14,7 +14,7 @@ const Charms = ({ charms }) => {
         }} key={'charm-' + index}>
           <CardContent>
             <Stack direction={'row'} gap={1}>
-              <img style={{ objectFit: 'contain' }} src={`${prefix}data/NjTrP${index}.png`} alt={''}/>
+              <img style={{ objectFit: 'contain' }} src={`${prefix}data/${rawName}.png`} alt={''}/>
               <Stack>
                 <Typography>{cleanUnderscore(name)}</Typography>
                 <Typography>{cleanUnderscore(bonus)}</Typography>

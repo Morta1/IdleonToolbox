@@ -1383,6 +1383,31 @@ const migration63 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration64 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
+  const world6 = dashboardConfig?.account?.['World 6'];
+  if (world6) {
+    if (!world6.farming) {
+      world6.farming = { checked: true, options: [] };
+    }
+    if (!Array.isArray(world6.farming.options)) {
+      world6.farming.options = [];
+    }
+  }
+  const farmingOptions = world6?.farming?.options;
+  if (Array.isArray(farmingOptions) && !farmingOptions.some((option) => option?.name === 'finishedPlots')) {
+    farmingOptions.push({
+      name: 'finishedPlots',
+      type: 'input',
+      checked: false,
+      helperText: 'How long you\'ll wait for a plot to double. Plots slower than this get flagged - collect them to start the doubling over',
+      props: { label: 'Days', value: 7, minValue: 1, maxValue: 365, helperText: '' }
+    });
+  }
+  dashboardConfig.version = 64;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1448,6 +1473,7 @@ const migrations = {
   61: migration61,
   62: migration62,
   63: migration63,
+  64: migration64,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

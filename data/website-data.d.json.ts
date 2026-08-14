@@ -1662,6 +1662,7 @@ declare module '@website-data' {
       x11: number;
     }[];
   export const pristineCharms: {
+      rawName: string;
       x1: number;
       x2: number;
       name: string;

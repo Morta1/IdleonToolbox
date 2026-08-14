@@ -137,7 +137,7 @@ Static export gotchas (`/tools/builds/[slug]` learned both the hard way):
 Every user-facing change (feature or fix) gets a patch note entry in `@IdleonToolbox/data/patch-notes.js`.
 
 - Add it as part of the change itself, in the same commit — don't leave it for later.
-- Append to the top (newest) entry's `features` or `fixes` array if that version hasn't shipped yet; only add a new version entry when the top one is already released.
+- Append to the top (newest) entry's `features` or `fixes` array **only if its `date` is today**. If the top entry's date is any earlier day, it has shipped — add a new entry above it instead: bump the patch version by one, set `date` to today (DD/MM/YYYY), carry `gameVer` over, and leave the unused `features`/`fixes` array empty.
 - Make sure the patch notes are concise and easy to understand, don't add too much information.
 - Describe the user-visible effect, not the implementation.
 - Skip only for changes users can't see: refactors, tests, tooling, docs, type-only changes.

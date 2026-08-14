@@ -339,6 +339,24 @@ export const getRanksTotalBonus = (ranks: any, index: any) => {
           : 4 === index ? ranks?.[5]?.bonus + (ranks?.[12]?.bonus + ranks?.[16]?.bonus) : 1;
 }
 
+/**
+ * The game rolls for an OG once per growth cycle (N.js growth tick), so the wait until the next
+ * one is geometric and its average is one cycle divided by the chance. Returns that average in
+ * seconds — a readable stand-in for a per-cycle percentage that means nothing on its own.
+ *
+ * The average, not a high percentile: a 95% figure is 3x longer than the typical wait, which
+ * reads as "how long until it doubles" while actually describing the pessimistic tail.
+ *
+ * Null when the plot isn't rolling at all: the game only rolls once a crop is on the vine
+ * (cropQuantity > 0), so an empty or still-growing plot has no meaningful wait.
+ */
+export const getNextOGEta = (crop: any, nextOGChance: number, maxTimeLeft: number): number | null => {
+  if (crop?.seedType === -1 || !(crop?.cropQuantity > 0)) return null;
+  const chance = Math.min(1, nextOGChance);
+  if (!(chance > 0) || !(maxTimeLeft > 0)) return null;
+  return maxTimeLeft / chance;
+}
+
 const getCropsWithStockEqualOrGreaterThan = (cropDepot: any, stockLimit: any) => {
   return Object.values(cropDepot)?.filter((value: any) => value >= stockLimit).length;
 }
@@ -500,6 +518,7 @@ export const updateFarming = (characters: any, account: any) => {
     return {
       ...crop,
       nextOGChance,
+      nextOGEta: getNextOGEta(crop, nextOGChance, maxTimeLeft),
       growthRate,
       ogMulti,
       timeLeft,

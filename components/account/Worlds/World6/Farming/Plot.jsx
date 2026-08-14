@@ -1,5 +1,5 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { commaNotation, msToDate, notateNumber, prefix } from '@utility/helpers';
+import { commaNotation, msToDate, notateNumber, prefix, secondsToCoarseDuration } from '@utility/helpers';
 import Timer from '@components/common/Timer';
 import React from 'react';
 import LockIcon from '@mui/icons-material/Lock';
@@ -52,6 +52,7 @@ const Plot = ({ plot, market, ranks, lastUpdated, account, characters, selectedC
           cropRawName,
           seedRawName,
           nextOGChance,
+          nextOGEta,
           isLocked,
           currentOG,
           ogMulti,
@@ -91,7 +92,14 @@ const Plot = ({ plot, market, ranks, lastUpdated, account, characters, selectedC
               {isLocked ? <LockIcon sx={{ ml: 'auto' }}/> : null}
             </Stack>
             <Typography mt={2}>Current OG: {currentOG} (x{ogMulti})</Typography>
-            <Typography>Next OG: {nextOGChance.toFixed(3).replace('.000', '')}%</Typography>
+            <Stack direction={'row'} gap={.5} alignItems={'center'}>
+              <Typography>Next OG: {nextOGChance.toFixed(3).replace('.000', '')}%</Typography>
+              {nextOGEta ? <Tooltip title={<Typography style={{ fontWeight: 400 }}>Average wait for this plot to
+                double again</Typography>}>
+                <Typography variant={'caption'}
+                            color={'text.secondary'}>(~{secondsToCoarseDuration(nextOGEta)})</Typography>
+              </Tooltip> : null}
+            </Stack>
             <Timer type={'countdown'} lastUpdated={lastUpdated}
                    placeholder={'Ready'}
                    date={new Date().getTime() + timeLeft * 1000}/>

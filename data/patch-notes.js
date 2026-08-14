@@ -4,6 +4,20 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.59',
+    'gameVer': '2.3.523',
+    'date': '14/08/2026',
+    'features': [
+      'Farming: each plot now shows roughly how long its next OG will take, so a tiny percentage like 0.002% tells you something',
+      'Dashboard: new optional alert for plots that will not double again any time soon - they earn nothing until you collect them'
+    ],
+    'fixes': [
+      'Breeding: the egg power range was too high - the Curviture of the Paw bonus was counted twice over, and it is now taken from your best Wind Walker for that talent, as the game does',
+      'Sneaking: Pristine Charms sitting in your inventory showed a broken image with no name or description',
+      'Sneaking: a weapon past level 110 showed an Infinity stat instead of its real value'
+    ]
+  },
+  {
     'ver': '3.3.58',
     'gameVer': '2.3.523',
     'date': '12/08/2026',
