@@ -96,6 +96,16 @@ All user-facing dates and times must respect user preferences (DD/MM vs MM/DD, 2
 
 This project uses **React Compiler** (`reactCompiler: true` in `next.config.js`), so manual memoization with `useMemo` and `useCallback` is generally unnecessary. The compiler automatically optimizes component re-renders.
 
+### Local storage
+
+Use `useLocalStorage` from `@mantine/hooks` (`[value, setValue, remove]`), never
+`localStorage.getItem`/`setItem` with `useState`. For a one-off read outside render, use
+`readLocalStorageValue`. Keys may be dynamic (e.g. scoped by `state.uid`) — the hook re-reads when
+the key changes.
+
+- Values are JSON-serialized: `'public'` is stored as `"public"`.
+- Omit `defaultValue` when "never set" must stay distinguishable — it gets written back to storage.
+
 ### Page titles and descriptions
 
 `data/page-seo.js` is **generated — do not edit by hand**. `<title>`, `<meta name="description">`
@@ -136,7 +146,8 @@ Static export gotchas (`/tools/builds/[slug]` learned both the hard way):
 ### Patch notes
 Every user-facing change (feature or fix) gets a patch note entry in `@IdleonToolbox/data/patch-notes.js`.
 
-- Add it as part of the change itself, in the same commit — don't leave it for later.
+- **Always ask first.** Never add a patch note entry unprompted — propose it and wait for approval, or add it only when asked.
+- Once approved, add it as part of the change itself, in the same commit — don't leave it for later.
 - Append to the top (newest) entry's `features` or `fixes` array **only if its `date` is today**. If the top entry's date is any earlier day, it has shipped — add a new entry above it instead: bump the patch version by one, set `date` to today (DD/MM/YYYY), carry `gameVer` over, and leave the unused `features`/`fixes` array empty.
 - Make sure the patch notes are concise and easy to understand, don't add too much information.
 - Describe the user-visible effect, not the implementation.

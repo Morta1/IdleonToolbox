@@ -38,10 +38,12 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Popper from '@components/common/Popper';
 import { TitleAndValue } from '@components/common/styles';
-import { useLocalStorage } from '@mantine/hooks';
+import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks';
 
 const HOURS = 4;
 const WAIT_TIME = 1000 * 60 * 60 * HOURS;
+
+const ACCESS_LABELS = { off: 'Off', public: 'Public', anonymous: 'Anonymous' };
 
 const SectionHeader = ({ icon: Icon, title, description }) => (
   <>
@@ -112,10 +114,16 @@ const Settings = () => {
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [lastUpload, setLastUpload] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [uploaded, setUploaded] = useState(false);
-  const [anonId, setAnonId] = useState(null);
+  const [lastUpload, setLastUpload, removeLastUpload] = useLocalStorage({ key: `${state?.uid}/lastUpload` });
+  const [anonId, setAnonId, removeAnonId] = useLocalStorage({ key: `${state?.uid}/anonId` });
+  const [lastUploadAccess, setLastUploadAccess, removeLastUploadAccess] = useLocalStorage({
+    key: `${state?.uid}/lastUploadAccess`
+  });
+  const [lastUploadParticipation, setLastUploadParticipation, removeLastUploadParticipation] = useLocalStorage({
+    key: `${state?.uid}/lastUploadParticipation`
+  });
   const [profileAccess, setProfileAccess] = useLocalStorage({
     key: 'data:profileAccess',
     defaultValue: 'off'
@@ -125,16 +133,10 @@ const Settings = () => {
     defaultValue: 'off'
   });
   const [removeGemsInfo, setRemoveGemsInfo] = useLocalStorage({ key: 'data:removeGemsInfo', defaultValue: true });
+  const [, setMigrated] = useLocalStorage({ key: 'profileAccess:migrated' });
   const [error, setError] = useState('');
   const [open, setOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
-
-  useEffect(() => {
-    if (state?.uid) {
-      setLastUpload(localStorage.getItem(`${state?.uid}/lastUpload`));
-      setAnonId(localStorage.getItem(`${state.uid}/anonId`));
-    }
-  }, [state?.uid]);
 
   useEffect(() => {
     if (lastUpload) {
@@ -145,17 +147,11 @@ const Settings = () => {
   // One-time migration: derive new profileAccess + leaderboardParticipation
   // from the old profileVisibility + leaderboardConsent localStorage keys.
   useEffect(() => {
-    const migrated = localStorage.getItem('profileAccess:migrated');
-    if (migrated) return;
-    localStorage.setItem('profileAccess:migrated', '1');
+    if (readLocalStorageValue({ key: 'profileAccess:migrated' })) return;
+    setMigrated('1');
 
-    const oldVisibility = localStorage.getItem('data:profileVisibility');
-    const oldConsentRaw = localStorage.getItem('data:leaderboardConsent');
-    // Mantine useLocalStorage stores values JSON-encoded, so parse if possible
-    let oldConsent = oldConsentRaw;
-    try { oldConsent = JSON.parse(oldConsentRaw); } catch { /* keep raw */ }
-    let oldVis = oldVisibility;
-    try { oldVis = JSON.parse(oldVisibility); } catch { /* keep raw */ }
+    let oldConsent = readLocalStorageValue({ key: 'data:leaderboardConsent' });
+    const oldVis = readLocalStorageValue({ key: 'data:profileVisibility' });
 
     // Normalize legacy boolean consent
     if (oldConsent === true) oldConsent = 'public';
@@ -228,8 +224,9 @@ const Settings = () => {
           }
         });
       } else if (storageKey === 'last-upload-time') {
-        localStorage.removeItem(`${state?.uid}/lastUpload`);
-        setLastUpload(false);
+        removeLastUpload();
+        removeLastUploadAccess();
+        removeLastUploadParticipation();
       } else {
         localStorage.removeItem(storageKey);
       }
@@ -261,16 +258,15 @@ const Settings = () => {
           leaderboardParticipation: safeParticipation
         }, state?.accessToken);
         const newAnonId = result?.anonId || null;
-        setAnonId(newAnonId);
         if (newAnonId) {
-          localStorage.setItem(`${state.uid}/anonId`, newAnonId);
+          setAnonId(newAnonId);
         } else {
-          localStorage.removeItem(`${state.uid}/anonId`);
+          removeAnonId();
         }
         setUploaded(true);
-        const now = Date.now();
-        localStorage.setItem(`${state?.uid}/lastUpload`, now);
-        setLastUpload(now);
+        setLastUpload(Date.now());
+        setLastUploadAccess(profileAccess);
+        setLastUploadParticipation(safeParticipation);
 
         if (typeof window.gtag !== 'undefined') {
           window.gtag('event', 'profile_uploaded', {
@@ -296,6 +292,10 @@ const Settings = () => {
   if (!state?.signedIn && !state?.profile && !state?.manualImport && !state?.demo) {
     return null;
   }
+
+  const effectiveParticipation = profileAccess === 'off' ? 'off' : leaderboardParticipation;
+  const settingsChangedSinceUpload = lastUploadAccess
+    && (lastUploadAccess !== profileAccess || lastUploadParticipation !== effectiveParticipation);
 
   return <>
     <NextSeo title="Settings | Idleon Toolbox" description="Configure your Idleon Toolbox preferences and manage your profile"/>
@@ -327,6 +327,13 @@ const Settings = () => {
                       end: new Date().getTime() - WAIT_TIME
                     })}/>
                 </Stack>}
+                {lastUploadAccess && <> &middot; Uploaded as: <strong>{ACCESS_LABELS[lastUploadAccess] ?? lastUploadAccess}</strong></>}
+                {lastUploadParticipation && <> &middot; Leaderboard:
+                  {' '}<strong>{lastUploadParticipation === 'on' ? 'On' : 'Off'}</strong></>}
+                {settingsChangedSinceUpload && <Typography component="span" variant="body2" color="warning.main">
+                  {' '}&middot; Now set to <strong>{ACCESS_LABELS[profileAccess] ?? profileAccess}</strong>
+                  {' '}/ leaderboard <strong>{effectiveParticipation === 'on' ? 'On' : 'Off'}</strong> - upload again to apply
+                </Typography>}
                 {anonId && <> &middot; Anonymous ID: <strong>{anonId}</strong></>}
                 {error && <Typography color="error" variant="body2">{error}</Typography>}
                 <br/>
