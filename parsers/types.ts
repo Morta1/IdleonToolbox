@@ -4,7 +4,7 @@
  * Sources:
  *   - generated-firebase-types.ts  ← node scripts/generate-firebase-types.mjs
  *   - generated-types.ts           ← npx jest __test__/extract-types.test.js
- *   - data/website-data.d.json.ts  ← z-processing/typeGenerator.js (via process.js)
+ *   - data/website-data.d.ts       ← z-processing/tools/typeGenerator.js (via process.js)
  */
 
 // Raw Firebase save data

@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Checkbox, Chip, FormControlLabel, InputAdornment, Stack, TextField, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from 'utility/helpers';
-import { cards, cardSets, stats } from 'data/website-data';
+import { cards, cardSets, stats } from '@website-data';
 import ClearIcon from '@mui/icons-material/Clear';
 import styled from '@emotion/styled';
 import { AppContext } from 'components/common/context/AppProvider';

@@ -1,5 +1,5 @@
 import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
-import { grimoire, mapEnemiesArray, mapNames, monsterDrops, monsters, randomList } from '@website-data';
+import { grimoire, mapEnemiesArray, mapNames, monsterCoinQuantity, monsters, randomList } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { CLASSES, getTalentBonus } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
@@ -113,7 +113,7 @@ const getMonsterDrops = () => {
     'Chizoar\'s_Cavern', 'KattleKruk\'s_Volcano', 'Castle_Interior', 'Emperor\'s_Castle'] as any).toSimpleObject();
   const list = Object.values(mapNames).map((mapName, index) => {
     const monsterRawName = mapEnemiesArray?.[index];
-    const coinQuantity = monsterDrops?.[monsterRawName]?.find(({ rawName }: any) => rawName === 'COIN')?.quantity;
+    const coinQuantity = (monsterCoinQuantity as any)?.[monsterRawName];
     const boneType = 6e3 === Math.floor(coinQuantity)
     || 12500 === Math.floor(coinQuantity) || 22e3 === Math.floor(coinQuantity) ||
     35e4 === Math.floor(coinQuantity) ? 0 : 4e5 === Math.floor(coinQuantity) ?

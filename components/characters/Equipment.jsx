@@ -4,6 +4,7 @@ import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 import ItemDisplay from '../common/ItemDisplay';
 import { notateNumber, prefix } from 'utility/helpers';
 import Tooltip from '../Tooltip';
+import { getGoldenFoodBonus } from '@parsers/misc';
 
 const Equipment = ({ equipment, tools, food, account, character }) => {
   return <Stack>
@@ -33,7 +34,8 @@ const EquipmentPage = ({ items, character, account }) => {
             <Stack alignItems={'center'} justifyContent={'center'}>
             <Tooltip
               title={displayName && displayName !== 'ERROR' ? <ItemDisplay {...item} character={character}
-                                                                           account={account}/> : ''}>
+                                                                           account={account}
+                                                                           getGoldenFoodBonus={getGoldenFoodBonus}/> : ''}>
               <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
             </Tooltip>
             {displayName !== 'ERROR' && rawName !== 'Blank' ? amount >= 1e5 ? notateNumber(amount) : amount : ' '}

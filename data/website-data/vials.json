@@ -1,0 +1,2152 @@
+{
+  "0": {
+    "name": "COPPER_CORONA",
+    "mainItem": "Copper",
+    "desc": "Orange_bubble_cauldron_brew_speed_is_increased_by_+{%",
+    "func": "add",
+    "stat": "OrangeBrew",
+    "x1": 3,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Copper",
+        "name": "Copper_Ore"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "1": {
+    "name": "SIPPY_SPLINTERS",
+    "mainItem": "OakTree",
+    "desc": "Green_bubble_cauldron_brew_speed_is_increased_by_+{%",
+    "func": "add",
+    "stat": "GreenBrew",
+    "x1": 3,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "OakTree",
+        "name": "Oak_Logs"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "2": {
+    "name": "MUSHROOM_SOUP",
+    "mainItem": "Grasslands1",
+    "desc": "Yellow_cauldron_brew_speed_is_increased_by_+{%",
+    "func": "add",
+    "stat": "YellowBrew",
+    "x1": 3,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Grasslands1",
+        "name": "Spore_Cap"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "3": {
+    "name": "SPOOL_SPRITE",
+    "mainItem": "CraftMat1",
+    "desc": "Purple_cauldron_brew_speed_is_increased_by_+{%",
+    "func": "add",
+    "stat": "PurpleBrew",
+    "x1": 3,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "CraftMat1",
+        "name": "Thread"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "4": {
+    "name": "BARIUM_MIXTURE",
+    "mainItem": "CopperBar",
+    "desc": "+{_Water_Droplet_max_capacity._Thats_the_1st_liquid_type_in_Alchemy,_btw.",
+    "func": "add",
+    "stat": "Liquid1Cap",
+    "x1": 3,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "CopperBar",
+        "name": "Copper_Bar"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "5": {
+    "name": "DIETER_DRINK",
+    "mainItem": "Grasslands3",
+    "desc": "Monsters_drop_+{%_more_money.",
+    "func": "add",
+    "stat": "MonsterCash",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Grasslands3",
+        "name": "Bean_Slices"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "6": {
+    "name": "SKINNY_0_CAL",
+    "mainItem": "Jungle2",
+    "desc": "+{%_chance_to_get_double_points_when_depositing_statues._So_like..._if_you_deposit_one_statue,_it_might_count_as_one!_Or_two.",
+    "func": "add",
+    "stat": "StatueDouble",
+    "x1": 2.5,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Jungle2",
+        "name": "Snake_Skin"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "7": {
+    "name": "THUMB_POW",
+    "mainItem": "CraftMat5",
+    "desc": "When_converting_Skill_EXP_into_Class_EXP_using_the_'EXP_CONVERTER'_star_talent,_you'll_get_{%_more_Class_EXP_than_you_usually_do.",
+    "func": "add",
+    "stat": "ClassEXPconvert",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "CraftMat5",
+        "name": "Trusty_Nails"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "8": {
+    "name": "JUNGLE_JUICE",
+    "mainItem": "JungleTree",
+    "desc": "+{%_liquid_regen_rate_for_all_liquid_cauldrons._Yes,_even_the_secret_one!",
+    "func": "add",
+    "stat": "LiquidRegen",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "JungleTree",
+        "name": "Jungle_Logs"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "9": {
+    "name": "BARLEY_BREW",
+    "mainItem": "IronBar",
+    "desc": "Alchemy_bubble_upgrade_costs_are_{%_lower_for_all_bubbles!_Even_the_giraffe_bubbles_that_look_strangely_like_elephants!",
+    "func": "add",
+    "stat": "AlchBubbleCost",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "IronBar",
+        "name": "Iron_Bar"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "10": {
+    "name": "ANEARFUL",
+    "mainItem": "Forest1",
+    "desc": "+{%_Card_drop_rate._Even_works_offline,_just_like_it_always_has!_What_do_you_mean_this_used_to_say_something_different...?",
+    "func": "add",
+    "stat": "CardDrop",
+    "x1": 2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Forest1",
+        "name": "Glublin_Ear"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "11": {
+    "name": "TEA_WITH_PEA",
+    "mainItem": "ToiletTree",
+    "desc": "+{_Liquid_Nitrogen_max_capacity._Thats_the_2nd_liquid_type_in_Alchemy,_btw.",
+    "func": "add",
+    "stat": "Liquid2Cap",
+    "x1": 3,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "ToiletTree",
+        "name": "Potty_Rolls"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "12": {
+    "name": "GOLD_GUZZLE",
+    "mainItem": "Gold",
+    "desc": "+{%_Shop_sell_price.",
+    "func": "add",
+    "stat": "ShopSell",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Gold",
+        "name": "Gold_Ore"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "13": {
+    "name": "RAMIFICOCTION",
+    "mainItem": "Forest3",
+    "desc": "+{_Talent_Points_for_Tab_1._Shout_out_to_that_1_person_who'll_make_it_this_far_without_knowing_what_talents_are,_you're_my_hero!",
+    "func": "add",
+    "stat": "Tab1Pts",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Forest3",
+        "name": "Bullfrog_Horn"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "14": {
+    "name": "SEAWATER",
+    "mainItem": "Fish1",
+    "desc": "+{%_chance_for_1_kill_to_count_for_2_when_trying_to_open_new_portals,_but_only_while_actively_playing._One,_two,_buckle_my_shoe.",
+    "func": "add",
+    "stat": "MultiKillPlay",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Fish1",
+        "name": "Goldfish"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "15": {
+    "name": "TAIL_TIME",
+    "mainItem": "Sewers2",
+    "desc": "+{_Weapon_Power._This_is_gonna_be_OP_in_later_worlds_I_can_already_tell.",
+    "func": "add",
+    "stat": "WeaponPOW",
+    "x1": 0.5,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Sewers2",
+        "name": "Rats_Tail"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "16": {
+    "name": "FLY_IN_MY_DRINK",
+    "mainItem": "Bug1",
+    "desc": "Eww_go_get_me_another_one,_I_can't_drink_this!_...what,_why_are_you_looking_at_me_like_that?_OH_right,_uh,_this_gives_+{_base_Accuracy.",
+    "func": "add",
+    "stat": "baseACC",
+    "x1": 3,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Bug1",
+        "name": "Fly"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "17": {
+    "name": "MIMICRAUGHT",
+    "mainItem": "DesertA2",
+    "desc": "+{%_EXP_from_monsters._Sorry,_I_know_this_is_a_lame_bonus._Send_me_an_email_if_you_want_me_change_it_to_+{%_NPC_dialogue_talking_speed.",
+    "func": "add",
+    "stat": "MonsterEXP",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "DesertA2",
+        "name": "Megalodon_Tooth"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "18": {
+    "name": "BLUE_FLAV",
+    "mainItem": "Plat",
+    "desc": "-{%_material_cost_for_stamps._You_know_how_it's_hard_to_increase_stamps_max_levels?_Well_this_kinda_makes_that_a_bit_less_factual!",
+    "func": "decay",
+    "stat": "MatCostStamp",
+    "x1": 30,
+    "x2": 7,
+    "itemReq": [
+      {
+        "rawName": "Plat",
+        "name": "Platinum_Ore"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "19": {
+    "name": "SLUG_SLURP",
+    "mainItem": "Fish2",
+    "desc": "+{_Post_Office_Box_Points_for_every_character,_and_easily_the_best_bonus_in_the_game._A_box_will_never_abandon_you!",
+    "func": "add",
+    "stat": "BoxPoints",
+    "x1": 2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Fish2",
+        "name": "Hermit_Can"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "20": {
+    "name": "PICKLE_JAR",
+    "mainItem": "BobJoePickle",
+    "desc": "+{%_Nothing._Absolutely_nothing,_now_and_forever._It's_a_darn_pickle,_what_were_you_expecting?",
+    "func": "add",
+    "stat": "Nothing",
+    "x1": 50,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "BobJoePickle",
+        "name": "BobJoePickle"
+      },
+      {
+        "rawName": "Liquid2",
+        "name": "Liquid2"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "21": {
+    "name": "FUR_REFRESHER",
+    "mainItem": "SnowA1",
+    "desc": "+{%_higher_Shiny_Critter_chance._This_is_a_multiplier,_so_+1%_from_this_vial_means_1.01x,_so_5%_shiny_chance_would_go_to_5.05%.",
+    "func": "add",
+    "stat": "Shiny1",
+    "x1": 2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "SnowA1",
+        "name": "Floof_Ploof"
+      },
+      {
+        "rawName": "Liquid2",
+        "name": "Liquid2"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "22": {
+    "name": "SIPPY_SOUL",
+    "mainItem": "Soul1",
+    "desc": "+{_Talent_Points_for_Tab_2.",
+    "func": "add",
+    "stat": "Tab2Pts",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Soul1",
+        "name": "Forest_Soul"
+      },
+      {
+        "rawName": "Liquid2",
+        "name": "Liquid2"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "23": {
+    "name": "CRAB_JUICE",
+    "mainItem": "Critter2",
+    "desc": "+{_Starting_points_in_Worship_Tower_Defence._Of_course,_a_true_balloon_monkey_wouldn't_accept_handouts_like_this.",
+    "func": "add",
+    "stat": "TDpts",
+    "x1": 4,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Critter2",
+        "name": "Crabbo"
+      },
+      {
+        "rawName": "Liquid2",
+        "name": "Liquid2"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "24": {
+    "name": "VOID_VIAL",
+    "mainItem": "Void",
+    "desc": "+{%_Mining_Efficiency.",
+    "func": "add",
+    "stat": "MinEff",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Void",
+        "name": "Void_Ore"
+      },
+      {
+        "rawName": "Liquid2",
+        "name": "Liquid2"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "25": {
+    "name": "RED_MALT",
+    "mainItem": "Refinery1",
+    "desc": "+{%_Refinery_Cycle_Speed._I_just_want_to_see_you_squirm_a_bit_more_as_you_decide_where_to_spend_your_precious_salts_hahahaha!!",
+    "func": "add",
+    "stat": "RefSpd",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Refinery1",
+        "name": "Redox_Salts"
+      },
+      {
+        "rawName": "Liquid2",
+        "name": "Liquid2"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "26": {
+    "name": "EW_GROSS_GROSS",
+    "mainItem": "Bug5",
+    "desc": "+{%_Catching_Efficiency.",
+    "func": "add",
+    "stat": "CatchEff",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Bug5",
+        "name": "Mosquisnow"
+      },
+      {
+        "rawName": "Liquid2",
+        "name": "Liquid2"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "27": {
+    "name": "THE_SPANISH_SAHARA",
+    "mainItem": "SaharanFoal",
+    "desc": "+{%_Choppin_Efficiency.",
+    "func": "add",
+    "stat": "ChopEff",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "SaharanFoal",
+        "name": "Tundra_Logs"
+      },
+      {
+        "rawName": "Liquid2",
+        "name": "Liquid2"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "28": {
+    "name": "POISON_TINCTURE",
+    "mainItem": "Critter1A",
+    "desc": "Eagle_Eye_Trap-O-Vision_gives_+{%_more_critters.",
+    "func": "add",
+    "stat": "TrapOvision",
+    "x1": 3,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Critter1A",
+        "name": "Poison_Froge"
+      },
+      {
+        "rawName": "Liquid2",
+        "name": "Liquid2"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "29": {
+    "name": "ETRUSCAN_LAGER",
+    "mainItem": "SnowB2",
+    "desc": "+{%_Fishing_Efficiency.",
+    "func": "add",
+    "stat": "FishEff",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "SnowB2",
+        "name": "Mamooth_Tusk"
+      },
+      {
+        "rawName": "Liquid2",
+        "name": "Liquid2"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "30": {
+    "name": "CHONKER_CHUG",
+    "mainItem": "Soul2",
+    "desc": "+{%_Talent_Book_Library_checkout_speed.",
+    "func": "add",
+    "stat": "TalBookSpd",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Soul2",
+        "name": "Dune_Soul"
+      },
+      {
+        "rawName": "Liquid2",
+        "name": "Liquid2"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "31": {
+    "name": "BUBONIC_BURP",
+    "mainItem": "Critter4",
+    "desc": "+{_Cog_Inventory_spaces._DONT_PANIC!!!_I_KNOW_ITS_ALARMING_THAT_A_VIAL_FINALLY_GIVES_A_USEFUL_BONUS,_BUT_STAY_CALM!",
+    "func": "add",
+    "stat": "CogInv",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Critter4",
+        "name": "Mousey"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "32": {
+    "name": "VISIBLE_INK",
+    "mainItem": "SnowB3",
+    "desc": "+{%_Construction_Exp_gain.",
+    "func": "add",
+    "stat": "ConsExp",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "SnowB3",
+        "name": "Pen"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "33": {
+    "name": "ORANGE_MALT",
+    "mainItem": "Refinery2",
+    "desc": "+{%_higher_Shiny_Critter_chance._This_stacks_with_the_shiny_chance_from_the_Fur_Refresher_vial._You_see,_they_have_the_same_shaped_vial.",
+    "func": "add",
+    "stat": "Shiny2",
+    "x1": 5,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Refinery2",
+        "name": "Explosive_Salts"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "34": {
+    "name": "SNOW_SLURRY",
+    "mainItem": "SnowB5",
+    "desc": "+{%_Printer_sample_size._My_my_there_are_a_lot_of_these_'sample_size'_bonuses_in_the_game..._too_many...",
+    "func": "add",
+    "stat": "SampleSize",
+    "x1": 0.5,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "SnowB5",
+        "name": "Snow_Ball"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "35": {
+    "name": "SLOWERGY_DRINK",
+    "mainItem": "Soul4",
+    "desc": "+{%_Base_Multikill_per_Multikill_Tier_for_all_worlds._Stack_them_skulls!",
+    "func": "add",
+    "stat": "Overkill",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Soul4",
+        "name": "Frigid_Soul"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "36": {
+    "name": "SIPPY_CUP",
+    "mainItem": "SnowC1",
+    "desc": "+{%_Cog_production_speed.",
+    "func": "add",
+    "stat": "CogSpd",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "SnowC1",
+        "name": "Sippy_Straw"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "37": {
+    "name": "BUNNY_BREW",
+    "mainItem": "Critter7",
+    "desc": "+{_Talent_Points_for_Tab_3.",
+    "func": "add",
+    "stat": "Tab3Pts",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Critter7",
+        "name": "Bunny"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "38": {
+    "name": "40-40_PURITY",
+    "mainItem": "SnowC4",
+    "desc": "+{_Trench_Seawater_max_capacity._Thats_the_3rd_liquid_type_in_Alchemy,_btw.",
+    "func": "add",
+    "stat": "Liquid3Cap",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "SnowC4",
+        "name": "Contact_Lense"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "39": {
+    "name": "SHAVED_ICE",
+    "mainItem": "Refinery5",
+    "desc": "+{%_base_Giant_Monster_spawn_rate.",
+    "func": "add",
+    "stat": "GiantMob",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Refinery5",
+        "name": "Purple_Salt"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "40": {
+    "name": "GOOSEY_GLUG",
+    "mainItem": "Critter9",
+    "desc": "+{_base_critter_per_trap._This_is_a_sHONKingly_good_bonus,_the_aren't_many_others_of_its_kind!",
+    "func": "add",
+    "stat": "CritterBASED",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Critter9",
+        "name": "Honker"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "41": {
+    "name": "BALL_PICKLE_JAR",
+    "mainItem": "BallJoePickle",
+    "desc": "+{%_arcade_ball_gain_rate,_and_those_are_balls_blessed_by_Balljoepickle_himself,_so_you_know_they're_extra_lucky!",
+    "func": "add",
+    "stat": "arcadeBALLZ",
+    "x1": 25,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "BallJoePickle",
+        "name": "BallJoePickle"
+      },
+      {
+        "rawName": "Liquid1",
+        "name": "Liquid1"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "42": {
+    "name": "CAPACHINO",
+    "mainItem": "GalaxyA1",
+    "desc": "+{%_Breeding_EXP_gain",
+    "func": "add",
+    "stat": "BreedXP",
+    "x1": 4,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "GalaxyA1",
+        "name": "Purple_Mush_Cap"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "43": {
+    "name": "DONUT_DRINK",
+    "mainItem": "GalaxyA3",
+    "desc": "+{%_Chance_to_breed_a_new_pet._Multiplicative,_so_+5%_here_would_change_a_1_in_100_to_1_in_95_chance.",
+    "func": "add",
+    "stat": "NewPet",
+    "x1": 5,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "GalaxyA3",
+        "name": "Half_Eaten_Donut"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "44": {
+    "name": "LONG_ISLAND_TEA",
+    "mainItem": "Fish6",
+    "desc": "+{%_Meal_Cooking_Speed",
+    "func": "add",
+    "stat": "MealCook",
+    "x1": 6,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Fish6",
+        "name": "Sand_Shark"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "45": {
+    "name": "SPOOK_PINT",
+    "mainItem": "Soul5",
+    "desc": "+{%_New_Recipe_Cooking_Speed",
+    "func": "add",
+    "stat": "RecCook",
+    "x1": 5,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Soul5",
+        "name": "Squishy_Soul"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "46": {
+    "name": "CALCIUM_CARBONATE",
+    "mainItem": "GalaxyB3",
+    "desc": "+{_Starting_Worship_Pts.",
+    "func": "add",
+    "stat": "TDpts",
+    "x1": 11,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "GalaxyB3",
+        "name": "Tongue_Bone"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "47": {
+    "name": "BLOAT_DRAFT",
+    "mainItem": "Critter10",
+    "desc": "+{%_Lab_EXP_gain._Strange,_you'd_think_someone_dumb_enough_to_drink_a_bloated_blobfish_drink_wouldn't_get_bonus_lab_exp_at_all...",
+    "func": "add",
+    "stat": "LabXP",
+    "x1": 3,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Critter10",
+        "name": "Blobfish"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "48": {
+    "name": "CHOCO_MILKSHAKE",
+    "mainItem": "GalaxyB4",
+    "desc": "-{%_Kitchen_Upgrading_Cost.",
+    "func": "decay",
+    "stat": "Kcosts",
+    "x1": 50,
+    "x2": 7,
+    "itemReq": [
+      {
+        "rawName": "GalaxyB4",
+        "name": "Crumpled_Wrapper"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "49": {
+    "name": "PEARL_SELTZER",
+    "mainItem": "GalaxyC1b",
+    "desc": "+{%_All_Stats._If_you_don't_know_what_all_stats_means_by_now,_you've_prolly_got_bigger_problems_than_not_knowing_what_all_stats_means.",
+    "func": "add",
+    "stat": "AllStatPCT",
+    "x1": 0.5,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "GalaxyC1b",
+        "name": "Pearler_Shell"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "50": {
+    "name": "KRAKENADE",
+    "mainItem": "Fish8",
+    "desc": "+{_Weapon_Power._Unleash_the_kraken...",
+    "func": "add",
+    "stat": "WeaponPOW",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Fish8",
+        "name": "Kraken"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "51": {
+    "name": "ELECTROLYTE",
+    "mainItem": "GalaxyC4",
+    "desc": "+{%_Mob_Team_Damage",
+    "func": "add",
+    "stat": "PetDmg",
+    "x1": 2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "GalaxyC4",
+        "name": "Condensed_Zap"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "52": {
+    "name": "ASH_AGUA",
+    "mainItem": "LavaA1",
+    "desc": "+{_Talent_Points_for_Tab_4",
+    "func": "add",
+    "stat": "Tab4Pts",
+    "x1": 2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "LavaA1",
+        "name": "Suggma_Ashes"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "53": {
+    "name": "MAPLE_SYRUP",
+    "mainItem": "Tree9",
+    "desc": "+{%_Divinity_EXP._Maple_syrup_helps_you_keep_calm_and_meditate_with_the_divine..._No_wonder_those_Canadians_are_so_nice!",
+    "func": "add",
+    "stat": "DivXP",
+    "x1": 2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Tree9",
+        "name": "Maple_Logs"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "54": {
+    "name": "HAMPTER_DRIPPY",
+    "mainItem": "LavaA5b",
+    "desc": "+{%_Sailing_EXP_gain._Doesn't_help_level_up_captains,_only_yourself._So_yea,_I'm_basically_saying_you're_a_crappy_captain_lol",
+    "func": "add",
+    "stat": "SailXP",
+    "x1": 2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "LavaA5b",
+        "name": "Hampter"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "55": {
+    "name": "DREADNOG",
+    "mainItem": "DreadloBar",
+    "desc": "+{%_Cooking_Speed_for_meals._No,_MEALS,_not_meel,_dont_cook_him!!_Stop!!_STOP!!!!",
+    "func": "add",
+    "stat": "MealCook",
+    "x1": 2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "DreadloBar",
+        "name": "Dreadlo_Bar"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "56": {
+    "name": "DUSTED_DRINK",
+    "mainItem": "Bug10",
+    "desc": "+{%_Gaming_EXP._Cool.",
+    "func": "add",
+    "stat": "GameXP",
+    "x1": 2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Bug10",
+        "name": "Dust_Mote"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "57": {
+    "name": "OJ_JOOCE",
+    "mainItem": "LavaB3",
+    "desc": "+{%_Sailing_Speed._If_only_there_was_a_way_to_also_lower_the_minimum_sailing_time..._I'm_sure_you'll_find_it_eventually...",
+    "func": "add",
+    "stat": "SailSpd",
+    "x1": 2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "LavaB3",
+        "name": "Orange_Slice"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "58": {
+    "name": "OOZIE_OOBLEK",
+    "mainItem": "Soul6",
+    "desc": "+{%_Bits_gained_in_Gaming._Cool.",
+    "func": "add",
+    "stat": "GameBits",
+    "x1": 2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Soul6",
+        "name": "Oozie_Soul"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "59": {
+    "name": "VENISON_MALT",
+    "mainItem": "LavaC2",
+    "desc": "-{%_material_cost_for_stamps._Have_at_it_endgamers!",
+    "func": "add",
+    "stat": "MatCostStamp",
+    "x1": 2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "LavaC2",
+        "name": "Mongo_Worm_Slices"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "60": {
+    "name": "MARBLE_MOCHA",
+    "mainItem": "Marble",
+    "desc": "+{%_Faster_Equinox_Bar_Fill_Rate",
+    "func": "add",
+    "stat": "EqBar",
+    "x1": 5,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Marble",
+        "name": "Marble_Ore"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "61": {
+    "name": "WILLOW_SIPPY",
+    "mainItem": "Tree11",
+    "desc": "+{%_Faster_Sigil_Charge_Rate",
+    "func": "add",
+    "stat": "SigSpd",
+    "x1": 4,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Tree11",
+        "name": "Willow_Logs"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "62": {
+    "name": "SHINYFIN_STEW",
+    "mainItem": "Fish13",
+    "desc": "+{%_Construction_Build_Rate,_so_you_can_hit_all_those_boosted_max_levels_you_keep_unlocking",
+    "func": "add",
+    "stat": "Contspd",
+    "x1": 7,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Fish13",
+        "name": "Equinox_Fish"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "63": {
+    "name": "DREAMY_DRINK",
+    "mainItem": "Bug11",
+    "desc": "Shrines_charge_+{%_faster,_so_this_way_they_charge_faster,_compared_to_like_if_bonus_this_wasn't_oven_you_of_out_hot_eat_the_food.",
+    "func": "add",
+    "stat": "ShrineSpd",
+    "x1": 3.5,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Bug11",
+        "name": "Dream_Particulate"
+      },
+      {
+        "rawName": "Liquid3",
+        "name": "Liquid3"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "64": {
+    "name": "RICECAKORADE",
+    "mainItem": "SpiA2",
+    "desc": "+{%_Farming_Speed,_so_the_plants_grow_faster._Makes_sense,_plants_do_get_energy_from_the_dumbest_things...",
+    "func": "add",
+    "stat": "6FarmSpd",
+    "x1": 2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "SpiA2",
+        "name": "Rice_Cake"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "65": {
+    "name": "LADYBUG_SERUM",
+    "mainItem": "Bug12",
+    "desc": "+{%_White_Essence_gain,_and_before_you_make_an_angry_rant,_male_ladybugs_were_also_used_to_flavor_this_vial!",
+    "func": "add",
+    "stat": "6WhiteEss",
+    "x1": 4,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Bug12",
+        "name": "Ladybug"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "66": {
+    "name": "FLAVORGIL",
+    "mainItem": "Fish12",
+    "desc": "+{%_Farming_Crop_Evolution_chance._I_guess_like,_the_fishbits_mutate_with_the_crops?_Idk_I'm_not_a_planterman.",
+    "func": "add",
+    "stat": "6FarmEvo",
+    "x1": 7,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Fish12",
+        "name": "Caulifish"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "67": {
+    "name": "GREENLEAF_TEA",
+    "mainItem": "SpiB1",
+    "desc": "+{%_Ninja_Untying_rate._I_wonder_if_bomb_diffusers_drink_tea_before_going_to_work?",
+    "func": "add",
+    "stat": "6Untie",
+    "x1": 1.5,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "SpiB1",
+        "name": "Leafy_Branch"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "68": {
+    "name": "FIREFLY_GROG",
+    "mainItem": "Bug13",
+    "desc": "+{%_Cooking_Speed,_but_multiplicative_so_it_stacks_big_time_with_the_other_892,314_cooking_bonuses_you_have!",
+    "func": "add",
+    "stat": "6CookSpd",
+    "x1": 5,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Bug13",
+        "name": "Firefly"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "69": {
+    "name": "DABAR_SPECIAL",
+    "mainItem": "GodshardBar",
+    "desc": "+{%_Total_Skill_efficiency,_but_not_multiplicative_so_that_it_drowns_in_the_sea_of_bonuses_you_already_have.",
+    "func": "add",
+    "stat": "6SkillEff",
+    "x1": 4,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "GodshardBar",
+        "name": "Godshard_Bar"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "70": {
+    "name": "REFRESHMENT",
+    "mainItem": "Soul7",
+    "desc": "+{%_Sneaking_EXP_gain._Something_about_it_makes_you_feel_light_on_your_feet,_as_if_u_just_wanna_fly...",
+    "func": "add",
+    "stat": "6SneakEXP",
+    "x1": 2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Soul7",
+        "name": "Breezy_Soul"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "71": {
+    "name": "GIBBED_DRINK",
+    "mainItem": "SpiC2",
+    "desc": "+{%_Summoning_EXP_gain._No,_the_horn_doesn't_contribute_to_the_flavor,_just_the_fleshy_bits_inside.",
+    "func": "add",
+    "stat": "6SummEXP",
+    "x1": 3.5,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "SpiC2",
+        "name": "Eviscerated_Chunk"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "72": {
+    "name": "DED_SAP",
+    "mainItem": "Tree13",
+    "desc": "+{%_Farming_EXP_gain,_but_dont_drink_too_much_since_Eucalyptus_oil_is_toxic_IRL_no_joke_fr_fr_search_it_or_just_take_my_word.",
+    "func": "add",
+    "stat": "6FarmEXP",
+    "x1": 3.5,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Tree13",
+        "name": "Effervescent_Logs"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "73": {
+    "name": "ROYALE_COLA",
+    "mainItem": "SpiD3",
+    "desc": "+{%_Jade_Gain_in_Sneaking._Congratulations_btw_on_trekking_through_World_6_like_that,_what_a_journey!",
+    "func": "add",
+    "stat": "6Jade",
+    "x1": 3.5,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "SpiD3",
+        "name": "Royal_Headpiece"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "74": {
+    "name": "TURTLE_TISANE",
+    "mainItem": "Critter11",
+    "desc": "+{%_Artifact_find_chance,_Sigil_SPD,_Cooking_SPD,_and_Construction_Build_rate._All_MULTIPLICATIVE!_A_very_special_vial_indeed...",
+    "func": "add",
+    "stat": "6turtle",
+    "x1": 4,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Critter11",
+        "name": "Tuttle"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "75": {
+    "name": "CHAPTER_CHUG",
+    "mainItem": "Spelunking0",
+    "desc": "+{%_Total_Damage_MULTIPLIER!_Yesss_multi_yeeeesss_I_know_how_it_is_I'm_chill_with_it",
+    "func": "add",
+    "stat": "7dmg",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Spelunking0",
+        "name": "Chapter_One_'The_Fear_Within'"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "76": {
+    "name": "SIPPY_SEAWEED",
+    "mainItem": "Tree14",
+    "desc": "+{%_faster_Spelunking_Speed..._like,_for_finding_chapter_pages_and_leveling_up!",
+    "func": "add",
+    "stat": "7spelunkspd",
+    "x1": 0.5,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Tree14",
+        "name": "Seaweed_Logs"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "77": {
+    "name": "WRIGGLE_WATER",
+    "mainItem": "w7A3",
+    "desc": "+{%_Spelunking_Amber_gain",
+    "func": "add",
+    "stat": "7amber",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "w7A3",
+        "name": "Earl_Tail"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "78": {
+    "name": "ROCKY_BOBA",
+    "mainItem": "Prehistrium",
+    "desc": "+{%_Gaming_Bits_multiplier!_Wait,_bits?_Gaming??_That's_not_very_World_7_of_you_mister_Prehistrium,_not_very_W7_of_you_at_all...",
+    "func": "add",
+    "stat": "7bits",
+    "x1": 10,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Prehistrium",
+        "name": "Prehistrium_Ore"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "79": {
+    "name": "OCTOSODA",
+    "mainItem": "Soul8",
+    "desc": "+{%_AFK_Gains_rate_for_Spelunking",
+    "func": "add",
+    "stat": "7skillw7afk",
+    "x1": 0.2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Soul8",
+        "name": "Deepsea_Soul"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "80": {
+    "name": "PAPER_PINT",
+    "mainItem": "Spelunking2",
+    "desc": "+{%_extra_Masterclass_drops,_specifically_DB's_Bones,_WW's_Dust,_and_AC's_Tachyons!_We_love_our_acronyms_don't_we!",
+    "func": "add",
+    "stat": "7masta",
+    "x1": 1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Spelunking2",
+        "name": "Chapter_Three_'This_is_Gospel'"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "81": {
+    "name": "SCALE_ON_ICE",
+    "mainItem": "w7A5",
+    "desc": "+{%_daily_Coral_for_the_Coral_Reef!_I'm_a_bit_of_a_miserly_vial,_so_you'll_be_lucky_to_get_even_a_few_percent_from_me!",
+    "func": "add",
+    "stat": "7corale",
+    "x1": 0.1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "w7A5",
+        "name": "Scaled_Fragment"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "82": {
+    "name": "TRASH_DRANK",
+    "mainItem": "Bug15",
+    "desc": "+{%_Spelunking_Efficiency,_so_you_can_find_more_chapter_pages_and_help_solve_the_illiteracy_problem_that_plagues_our_community!",
+    "func": "add",
+    "stat": "7spelunkeff",
+    "x1": 2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Bug15",
+        "name": "Litterbug"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "83": {
+    "name": "CRABOMAYSE",
+    "mainItem": "w7A12",
+    "desc": "+{%_Class_EXP_gain_MULTIPLIER!_What?_No,_don't_thank_Lava,_thank_ME!!!_I'm_the_one_giving_you_my_bonus!",
+    "func": "add",
+    "stat": "7classexp",
+    "x1": 0.5,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "w7A12",
+        "name": "Guardian_Mace"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "84": {
+    "name": "SHIPINABOTTLE",
+    "mainItem": "w7B12b",
+    "desc": "+{%_Drop_Rate_MULTIPLIER!_It's_golden_and_pirate_themed,_of_course_it_gives_DR!",
+    "func": "add",
+    "stat": "7drMulto",
+    "x1": 0.1,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "w7B12b",
+        "name": "Pirate_Ship_Figurine"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  },
+  "85": {
+    "name": "CANTEEN_READ",
+    "mainItem": "Spelunking5",
+    "desc": "+{%_extra_Cooking_Mastery_EXP_gain!",
+    "func": "add",
+    "stat": "7cookmastery",
+    "x1": 0.2,
+    "x2": 0,
+    "itemReq": [
+      {
+        "rawName": "Spelunking5",
+        "name": "Chapter_Six_'Kelp_Primeval'"
+      },
+      {
+        "rawName": "Liquid4",
+        "name": "Liquid4"
+      },
+      {
+        "rawName": "Blank"
+      },
+      {
+        "rawName": "Blank"
+      }
+    ]
+  }
+}

@@ -9,6 +9,7 @@ import { items } from '@website-data';
 import ItemDisplay from '@components/common/ItemDisplay';
 import { addEquippedItems, getAllItems, mergeItemsByOwner } from '@parsers/items';
 import useCheckbox from '@components/common/useCheckbox';
+import { getGoldenFoodBonus } from '@parsers/misc';
 
 const ArmorSmithy = () => {
   const { state } = useContext(AppContext);
@@ -89,7 +90,7 @@ const RequiredItems = ({ title, requiredItems, account, allItems }) => {
       {requiredItems?.map((rawName, index) => {
         const owners = allItems.filter(({ rawName: rName }) => rName === rawName).map(({ owner }) => owner);
         return <Tooltip key={rawName + index}
-                        title={<ItemDisplay {...items[rawName]} owners={owners} account={account}/>}>
+                        title={<ItemDisplay {...items[rawName]} owners={owners} account={account} getGoldenFoodBonus={getGoldenFoodBonus}/>}>
           <img src={`${prefix}data/${rawName}.png`} style={{ width: 32, height: 32 }} alt={rawName}/>
         </Tooltip>
       })}

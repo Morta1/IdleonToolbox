@@ -1,9 +1,8 @@
 import { Autocomplete, Button, Chip, createFilterOptions, Stack, TextField, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NextSeo } from 'next-seo';
 import StructuredData, { createHowToData } from '@components/common/StructuredData';
-import { monsterDrops } from '@website-data';
 
 const filterOptions = createFilterOptions({
   trim: true,
@@ -11,7 +10,18 @@ const filterOptions = createFilterOptions({
 });
 const GuaranteedDropCalculator = () => {
   const [value, setValue] = useState(null);
-  const items = Object.values(monsterDrops).flat().filter((monster) => monster?.rawName !== 'COIN' && !monster?.rawName?.includes('DungCredits') && monster?.chance > 0);
+  // monsterDrops is 2.08MB and feeds one Autocomplete on this page alone. Imported statically
+  // it sits on the critical path; loaded here it arrives after first paint and the options
+  // fill in. Imported by path rather than through @website-data so the barrel doesn't pull
+  // the rest of the data set along with it.
+  const [monsterDrops, setMonsterDrops] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    import('../../data/website-data/monsterDrops.json')
+      .then((mod) => { if (!cancelled) setMonsterDrops(mod.default); });
+    return () => { cancelled = true; };
+  }, []);
+  const items = monsterDrops === null ? [] : Object.values(monsterDrops).flat().filter((monster) => monster?.rawName !== 'COIN' && !monster?.rawName?.includes('DungCredits') && monster?.chance > 0);
 
   // Group by monster
   const groupedItems = items.reduce((acc, item) => {

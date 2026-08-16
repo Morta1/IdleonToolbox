@@ -8,6 +8,7 @@ import Tooltip from '@components/Tooltip';
 import ItemDisplay from '@components/common/ItemDisplay';
 import AutoGrid from '@components/common/AutoGrid';
 import { CardTitleAndValue } from '@components/common/styles';
+import { getGoldenFoodBonus } from '@parsers/misc';
 
 const Tasks = () => {
   const { state } = useContext(AppContext);
@@ -43,7 +44,7 @@ const Tasks = () => {
                 {unlocks?.map((item, itemIndex) => {
                   if (!item?.rawName) return null;
                   return <Stack key={item?.rawName + itemIndex} direction={'row'} alignItems={'center'} gap={2}>
-                    <Tooltip title={<ItemDisplay {...item} account={state?.account}/>}>
+                    <Tooltip title={<ItemDisplay {...item} account={state?.account} getGoldenFoodBonus={getGoldenFoodBonus}/>}>
                       <img style={{ width: 32 }} src={`${prefix}data/${item?.rawName}.png`}
                            alt={'item' + index + itemIndex}/>
                     </Tooltip>

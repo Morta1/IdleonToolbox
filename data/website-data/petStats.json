@@ -1,0 +1,1030 @@
+[
+  [
+    {
+      "monsterName": "Green_Mushroom",
+      "monsterRawName": "mushG",
+      "passiveIndex": "1",
+      "passive": "+{%_Faster_Shiny_Mob_Lv_Up_Rate",
+      "icon": "Mface1",
+      "baseValue": 3,
+      "gene": {
+        "name": "Fighter",
+        "abilityType": 0,
+        "combatAbility": "Throws_a_Rusty_Sword,_which_deals_200%_Damage",
+        "bonusAbility": "When_in_combat,_all_Mobs_on_team_deal_1.20x_Damage",
+        "index": 0
+      }
+    },
+    {
+      "monsterName": "Squirrel",
+      "monsterRawName": "Pet0",
+      "passiveIndex": "2",
+      "passive": "+{_Infinite_Star_Signs",
+      "icon": "Mface23",
+      "baseValue": 2,
+      "gene": {
+        "name": "Forager",
+        "abilityType": 1,
+        "combatAbility": "Heals_all_Mobs_by_25%_HP",
+        "bonusAbility": "When_foraging,_this_Mob_contributes_2x_Foraging_Speed",
+        "index": 2
+      }
+    },
+    {
+      "monsterName": "Frog",
+      "monsterRawName": "frogG",
+      "passiveIndex": "3",
+      "passive": "+{%_Total_Damage",
+      "icon": "Mface14",
+      "baseValue": 1,
+      "gene": {
+        "name": "Boomer",
+        "abilityType": 0,
+        "combatAbility": "Throws_a_boomerang,_which_deals_60%_Damage_and_has_an_80%_chance_to_bounce",
+        "bonusAbility": "When_in_combat,_the_Mob_in_front_of_this_one_has_ability_reset_to_30%",
+        "index": 7
+      }
+    },
+    {
+      "monsterName": "Bored_Bean",
+      "monsterRawName": "beanG",
+      "passiveIndex": "4",
+      "passive": "+{%_Faster_Refinery_Speed",
+      "icon": "Mface7",
+      "baseValue": 2,
+      "gene": {
+        "name": "Fleeter",
+        "abilityType": 1,
+        "combatAbility": "Boosts_ability_recharge_rate_for_all_Mobs_by_+30%_for_8_sec._Doesn't_boost_other_Fleeter_Mobs_though.",
+        "bonusAbility": "When_foraging,_all_Mobs_contribute_1.30x_more_Foraging_Speed",
+        "index": 3
+      }
+    },
+    {
+      "monsterName": "Red_Mushroom",
+      "monsterRawName": "mushR",
+      "passiveIndex": "5",
+      "passive": "+{%_Bonuses_from_All_Meals",
+      "icon": "Mface19",
+      "baseValue": 1,
+      "gene": {
+        "name": "Fighter",
+        "abilityType": 0,
+        "combatAbility": "Throws_a_Rusty_Sword,_which_deals_200%_Damage",
+        "bonusAbility": "When_in_combat,_all_Mobs_on_team_deal_1.20x_Damage",
+        "index": 0
+      }
+    },
+    {
+      "monsterName": "Slime",
+      "monsterRawName": "slimeG",
+      "passiveIndex": "6",
+      "passive": "+{%_Drop_Rate",
+      "icon": "Mface24",
+      "baseValue": 1,
+      "gene": {
+        "name": "Cursory",
+        "abilityType": 0,
+        "combatAbility": "Shoots_a_Cursed_Skull,_which_deals_50%_Damage,_and_makes_all_future_attacks_deal_+5%_more_dmg",
+        "bonusAbility": "When_in_combat,_Mobs_in_front_and_behind_this_one_deal_1.50x_Damage",
+        "index": 12
+      }
+    },
+    {
+      "monsterName": "Mr_Pig",
+      "monsterRawName": "Pet1",
+      "passiveIndex": "8",
+      "passive": "+{_Infinite_Star_Signs",
+      "icon": "Mface23",
+      "baseValue": 2,
+      "gene": {
+        "name": "Amplifier",
+        "abilityType": 0,
+        "combatAbility": "Summons_a_spiral,_which_deals_100%_Damage,_and_+50%_more_Damage_for_each_attack_that_moves_through_it",
+        "bonusAbility": "When_in_combat,_all_Mobs_have_+10%_Crit_Chance",
+        "index": 9
+      }
+    },
+    {
+      "monsterName": "Baby_Boa",
+      "monsterRawName": "snakeG",
+      "passiveIndex": "9",
+      "passive": "+{%_Multikill_Per_Tier",
+      "icon": "Mface25",
+      "baseValue": 1,
+      "gene": {
+        "name": "Targeter",
+        "abilityType": 1,
+        "combatAbility": "The_next_non_Basic_Attack_fired_will_deal_x2.50_Damage.",
+        "bonusAbility": "When_foraging,_this_Mob_contributes_5x_Foraging_Speed_if_the_Mob_above_this_one_is_also_a_Targeter",
+        "index": 20
+      }
+    },
+    {
+      "monsterName": "Carrotman",
+      "monsterRawName": "carrotO",
+      "passiveIndex": "11",
+      "passive": "+{_Base_Efficiency_for_All_Skills",
+      "icon": "Mface9",
+      "baseValue": 20,
+      "gene": {
+        "name": "Mercenary",
+        "abilityType": 0,
+        "combatAbility": "Throws_2-3_small_daggers_which_deal_150%_Damage",
+        "bonusAbility": "No_bonus.",
+        "index": 6
+      }
+    },
+    {
+      "monsterName": "Glublin",
+      "monsterRawName": "goblinG",
+      "passiveIndex": "13",
+      "passive": "+{_Infinite_Star_Signs",
+      "icon": "Mface15",
+      "baseValue": 2,
+      "gene": {
+        "name": "Refiller",
+        "abilityType": 1,
+        "combatAbility": "For_5_seconds,_every_non_Basic_Attack_that_hits_a_monster_refills_a_random_ability_on_the_team_by_5%",
+        "bonusAbility": "When_in_combat,_all_abilites_start_at_+25%_filled",
+        "index": 22
+      }
+    },
+    {
+      "monsterName": "Wode_Board",
+      "monsterRawName": "plank",
+      "passiveIndex": "16",
+      "passive": "+{%_Faster_Shiny_Mob_Lv_Up_Rate",
+      "icon": "Mface3",
+      "baseValue": 3,
+      "gene": {
+        "name": "Miasma",
+        "abilityType": 1,
+        "combatAbility": "Fully_heal_all_Mobs._Also,_for_60_sec_all_enemies_have_-100%_crit_chance_and_all_Mobs_have_+20%_block_chance._Always_starts_100%_filled",
+        "bonusAbility": "When_foraging,_all_Mobs_on_the_team_contribute_4.00x_more_Foraging_Speed_if_there_aren't_two_Mobs_of_the_same_type.",
+        "index": 26
+      }
+    },
+    {
+      "monsterName": "Gigafrog",
+      "monsterRawName": "frogBIG",
+      "passiveIndex": "19",
+      "passive": "+{_Base_Efficiency_for_All_Skills",
+      "icon": "Mface13",
+      "baseValue": 20,
+      "gene": {
+        "name": "Amplifier",
+        "abilityType": 0,
+        "combatAbility": "Summons_a_spiral,_which_deals_100%_Damage,_and_+50%_more_Damage_for_each_attack_that_moves_through_it",
+        "bonusAbility": "When_in_combat,_all_Mobs_have_+10%_Crit_Chance",
+        "index": 9
+      }
+    },
+    {
+      "monsterName": "Wild_Boar",
+      "monsterRawName": "Pet2",
+      "passiveIndex": "22",
+      "passive": "+{_Base_AGI",
+      "icon": "Mface23",
+      "baseValue": 2,
+      "gene": {
+        "name": "Heavyweight",
+        "abilityType": 0,
+        "combatAbility": "Shoots_a_giant_fist_that_deals_300%_Damage._The_giant_fist_itself_shoots_a_basic_fist_attack_every_1_sec.",
+        "bonusAbility": "When_in_combat,_all_Mobs_shoot_their_basic_fist_attacks_+10%_faster",
+        "index": 28
+      }
+    },
+    {
+      "monsterName": "Walking_Stick",
+      "monsterRawName": "branch",
+      "passiveIndex": "28",
+      "passive": "+{_Base_Critters_per_Trap",
+      "icon": "Mface8",
+      "baseValue": 1,
+      "gene": {
+        "name": "Refiller",
+        "abilityType": 1,
+        "combatAbility": "For_5_seconds,_every_non_Basic_Attack_that_hits_a_monster_refills_a_random_ability_on_the_team_by_5%",
+        "bonusAbility": "When_in_combat,_all_abilites_start_at_+25%_filled",
+        "index": 22
+      }
+    },
+    {
+      "monsterName": "Nutto",
+      "monsterRawName": "acorn",
+      "passiveIndex": "33",
+      "passive": "+{%_Total_Damage",
+      "icon": "Mface5",
+      "baseValue": 1,
+      "gene": {
+        "name": "Borger",
+        "abilityType": 1,
+        "combatAbility": "Shoots_2_basic_attacks,_but_would_much_rather_have_shot_2_burgers_into_its_mouth",
+        "bonusAbility": "When_in_combat,_this_Mob_has_+2000%_hp._Big_borger,_big_health._@_When_foraging,_this_Mob_contributes_10x_more_foraging_speed_if_the_territory_above_has_at_least_one_Forager_type_(the_Green_Leaf_type)_Mob.",
+        "index": 33
+      }
+    },
+    {
+      "monsterName": "Poop",
+      "monsterRawName": "poopSmall",
+      "passiveIndex": "38",
+      "passive": "+{%_Farming_EXP_gain",
+      "icon": "Mface20",
+      "baseValue": 1,
+      "gene": {
+        "name": "Tsar",
+        "abilityType": 0,
+        "combatAbility": "Drop_da_bomba...",
+        "bonusAbility": "No_bonus,_only_boom.",
+        "index": 10
+      }
+    },
+    {
+      "monsterName": "Rat",
+      "monsterRawName": "ratB",
+      "passiveIndex": "44",
+      "passive": "+{%_Multikill_Per_Tier",
+      "icon": "Mface22",
+      "baseValue": 1,
+      "gene": {
+        "name": "Monolithic",
+        "abilityType": 1,
+        "combatAbility": "Freezes_time_for_6_seconds._During_this,_Mob_continue_to_shoot_Basic_Attacks_and_regenerate_abilities",
+        "bonusAbility": "When_foraging,_the_requirement_to_fill_the_reward_bar_goes_up_less_every_time_it_is_filled",
+        "index": 16
+      }
+    }
+  ],
+  [
+    {
+      "monsterName": "Sandy_Pot",
+      "monsterRawName": "jarSand",
+      "passiveIndex": "7",
+      "passive": "+{%_Class_EXP",
+      "icon": "Mface16",
+      "baseValue": 1,
+      "gene": {
+        "name": "Looter",
+        "abilityType": 1,
+        "combatAbility": "Activates_a_random_ability,_selected_from_all_the_abilites_across_all_Mobs_you've_ever_unlocked",
+        "bonusAbility": "When_foraging,_there_is_a_small_chance_to_find_extra_spices_when_filling_the_reward_bar_many_times_before_claiming",
+        "index": 21
+      }
+    },
+    {
+      "monsterName": "Mimic",
+      "monsterRawName": "mimicA",
+      "passiveIndex": "10",
+      "passive": "+{_Tab_1_Talent_Pts",
+      "icon": "Mface17",
+      "baseValue": 2,
+      "gene": {
+        "name": "Defender",
+        "abilityType": 0,
+        "combatAbility": "Throws_an_Armored_Shield,_which_gives_85%_block_chance_to_Mobs_it_passes_over,_and_deals_50%_Damage",
+        "bonusAbility": "When_in_combat,_all_Mobs_have_+12%_Block_Chance",
+        "index": 1
+      }
+    },
+    {
+      "monsterName": "Crabcake",
+      "monsterRawName": "crabcake",
+      "passiveIndex": "12",
+      "passive": "+{%_Skill_EXP",
+      "icon": "Mface11",
+      "baseValue": 2,
+      "gene": {
+        "name": "Fleeter",
+        "abilityType": 1,
+        "combatAbility": "Boosts_ability_recharge_rate_for_all_Mobs_by_+30%_for_8_sec._Doesn't_boost_other_Fleeter_Mobs_though.",
+        "bonusAbility": "When_foraging,_all_Mobs_contribute_1.30x_more_Foraging_Speed",
+        "index": 3
+      }
+    },
+    {
+      "monsterName": "Mafioso",
+      "monsterRawName": "coconut",
+      "passiveIndex": "14",
+      "passive": "+{_Tab_2_Talent_Pts",
+      "icon": "Mface10",
+      "baseValue": 2,
+      "gene": {
+        "name": "Forager",
+        "abilityType": 1,
+        "combatAbility": "Heals_all_Mobs_by_25%_HP",
+        "bonusAbility": "When_foraging,_this_Mob_contributes_2x_Foraging_Speed",
+        "index": 2
+      }
+    },
+    {
+      "monsterName": "Mallay",
+      "monsterRawName": "Pet3",
+      "passiveIndex": "15",
+      "passive": "+{%_Line_Width_in_Lab",
+      "icon": "Mface23",
+      "baseValue": 1,
+      "gene": {
+        "name": "Opticular",
+        "abilityType": 1,
+        "combatAbility": "Permanently_boosts_the_Crit_Chance_of_all_Mobs._Only_recharges_when_an_attack_Critical_Hits",
+        "bonusAbility": "When_foraging,_this_Mob_contributes_3x_Foraging_Speed_if_it_has_the_largest_Number_on_the_team",
+        "index": 15
+      }
+    },
+    {
+      "monsterName": "Sand_Castle",
+      "monsterRawName": "sandcastle",
+      "passiveIndex": "17",
+      "passive": "+{_Base_STR",
+      "icon": "Mface28",
+      "baseValue": 2,
+      "gene": {
+        "name": "Defstone",
+        "abilityType": 0,
+        "combatAbility": "Shoots_multiple_rocks_based_on_the_total_number_of_blocks_by_your_team._Rocks_deal_250%_Damage._Resets_total_number_of_blocks_when_activated",
+        "bonusAbility": "When_in_combat,_all_Mobs_start_2x_max_HP._Multiplies_with_other_defstone_Mobs.",
+        "index": 19
+      }
+    },
+    {
+      "monsterName": "Pincermin",
+      "monsterRawName": "pincermin",
+      "passiveIndex": "18",
+      "passive": "+{%_Total_Damage",
+      "icon": "Mface2",
+      "baseValue": 1,
+      "gene": {
+        "name": "Fighter",
+        "abilityType": 0,
+        "combatAbility": "Throws_a_Rusty_Sword,_which_deals_200%_Damage",
+        "bonusAbility": "When_in_combat,_all_Mobs_on_team_deal_1.20x_Damage",
+        "index": 0
+      }
+    },
+    {
+      "monsterName": "Mashed_Potato",
+      "monsterRawName": "potato",
+      "passiveIndex": "19",
+      "passive": "+{_Base_Efficiency_for_All_Skills",
+      "icon": "Mface21",
+      "baseValue": 20,
+      "gene": {
+        "name": "Amplifier",
+        "abilityType": 0,
+        "combatAbility": "Summons_a_spiral,_which_deals_100%_Damage,_and_+50%_more_Damage_for_each_attack_that_moves_through_it",
+        "bonusAbility": "When_in_combat,_all_Mobs_have_+10%_Crit_Chance",
+        "index": 9
+      }
+    },
+    {
+      "monsterName": "Tyson",
+      "monsterRawName": "steak",
+      "passiveIndex": "20",
+      "passive": "+{%_Higher_Artifact_Find_Chance",
+      "icon": "Mface31",
+      "baseValue": 2,
+      "gene": {
+        "name": "Fastidious",
+        "abilityType": 1,
+        "combatAbility": "Permanently_gives_all_Mobs_+1%_Crit_Chance,_+5%_Crit_DMG,_and_+2%_ability_regen_speed._After_20_stacks,_additional_stacks_give_less_bonus.",
+        "bonusAbility": "When_foraging,_all_Mobs_contribute_1.50x_more_Foraging_Speed_if_there_is_at_least_1_Combat_Pet_in_team",
+        "index": 13
+      }
+    },
+    {
+      "monsterName": "Whale",
+      "monsterRawName": "Pet4",
+      "passiveIndex": "24",
+      "passive": "+{%_Faster_Refinery_Speed",
+      "icon": "Mface23",
+      "baseValue": 2,
+      "gene": {
+        "name": "Badumdum",
+        "abilityType": 1,
+        "combatAbility": "Permanently_boost_the_Basic_Attack_speed_of_all_Mobs._Only_recharges_when_a_Basic_Attack_hits",
+        "bonusAbility": "When_foraging,_the_Mobs_in_the_territory_above_and_below_contribute_1.20x_Foraging_Speed",
+        "index": 18
+      }
+    },
+    {
+      "monsterName": "Moonmoon",
+      "monsterRawName": "moonman",
+      "passiveIndex": "26",
+      "passive": "+{_Base_WIS",
+      "icon": "Mface30",
+      "baseValue": 2,
+      "gene": {
+        "name": "Mercenary",
+        "abilityType": 0,
+        "combatAbility": "Throws_2-3_small_daggers_which_deal_150%_Damage",
+        "bonusAbility": "No_bonus.",
+        "index": 6
+      }
+    },
+    {
+      "monsterName": "Sand_Giant",
+      "monsterRawName": "sandgiant",
+      "passiveIndex": "30",
+      "passive": "+{_Base_Efficiency_for_All_Skills",
+      "icon": "Mface29",
+      "baseValue": 20,
+      "gene": {
+        "name": "Rattler",
+        "abilityType": 0,
+        "combatAbility": "Throws_5_bones._Bones_deal_5%_Damage,_+1%_more_damage_for_each_bone_ever_thrown",
+        "bonusAbility": "When_in_combat,_this_Mob's_Basic_Attack_is_now_a_Bone_instead_of_a_Fist",
+        "index": 11
+      }
+    },
+    {
+      "monsterName": "Snelbie",
+      "monsterRawName": "snailZ",
+      "passiveIndex": "35",
+      "passive": "+{_Tab_4_Talent_Pts",
+      "icon": "Mface27",
+      "baseValue": 2,
+      "gene": {
+        "name": "Monolithic",
+        "abilityType": 1,
+        "combatAbility": "Freezes_time_for_6_seconds._During_this,_Mob_continue_to_shoot_Basic_Attacks_and_regenerate_abilities",
+        "bonusAbility": "When_foraging,_the_requirement_to_fill_the_reward_bar_goes_up_less_every_time_it_is_filled",
+        "index": 16
+      }
+    },
+    {
+      "monsterName": "Dig_Doug",
+      "monsterRawName": "shovelR",
+      "passiveIndex": "46",
+      "passive": "+{%_Farming_EXP_gain",
+      "icon": "Mface23",
+      "baseValue": 1,
+      "gene": {
+        "name": "Lazarus",
+        "abilityType": 0,
+        "combatAbility": "Fires_a_laser,_dealing_100%_Damage_to_all_enemies_every_1_sec._Strangely_enough,_the_laser_will_continue_zapping_as_long_as_you_dont_click_anything.",
+        "bonusAbility": "When_in_combat,_all_Mobs_have_their_abilities_fill_up_+10%_faster",
+        "index": 24
+      }
+    },
+    {
+      "monsterName": "Beefie",
+      "monsterRawName": "steakR",
+      "passiveIndex": "53",
+      "passive": "+{_Base_LUK",
+      "icon": "Mface31",
+      "baseValue": 2,
+      "gene": {
+        "name": "Trasher",
+        "abilityType": 1,
+        "combatAbility": "The_next_6_taps_delete_any_enemy_attack_you_tap_on._This_ability_will_not_refill_while_you_have_taps_remaining",
+        "bonusAbility": "When_in_Fence_Yard,_+25_daily_spice_claims._Only_works_if_Mob_is_in_Fence_Yard_before_the_start_of_the_day.",
+        "index": 25
+      }
+    },
+    {
+      "monsterName": "Crescent_Spud",
+      "monsterRawName": "potatoB",
+      "passiveIndex": "60",
+      "passive": "+{%_Faster_Shiny_Mob_Lv_Up_Rate",
+      "icon": "Mface21",
+      "baseValue": 3,
+      "gene": {
+        "name": "Monolithic",
+        "abilityType": 1,
+        "combatAbility": "Freezes_time_for_6_seconds._During_this,_Mob_continue_to_shoot_Basic_Attacks_and_regenerate_abilities",
+        "bonusAbility": "When_foraging,_the_requirement_to_fill_the_reward_bar_goes_up_less_every_time_it_is_filled",
+        "index": 16
+      }
+    },
+    {
+      "monsterName": "Chippy",
+      "monsterRawName": "Pet5",
+      "passiveIndex": "62",
+      "passive": "+{%_Summoning_EXP_gain",
+      "icon": "Mface23",
+      "baseValue": 1,
+      "gene": {
+        "name": "Eggshell",
+        "abilityType": 1,
+        "combatAbility": "For_10_seconds,_every_critical_hit_boosts_the_block_chance_of_all_Mobs_by_1%",
+        "bonusAbility": "When_in_Fence_Yard,_randomly_lays_eggs_which_can_be_picked_up_and_will_appear_in_your_incubator._Egg_laying_time_takes_MANY_hours,_but_will_stay_until_you_revisit_the_Mob_yard_personally,_you_don't_need_to_stand_around_personally_and_wait.",
+        "index": 23
+      }
+    }
+  ],
+  [
+    {
+      "monsterName": "Sheepie",
+      "monsterRawName": "sheep",
+      "passiveIndex": "21",
+      "passive": "+{%_Bonuses_from_All_Meals",
+      "icon": "Mface35",
+      "baseValue": 1,
+      "gene": {
+        "name": "Sniper",
+        "abilityType": 0,
+        "combatAbility": "Fires_a_bullet_at_farthest_enemy._200%_Damage,_+30%_Crit_chance,_4x_Crit_DMG",
+        "bonusAbility": "When_in_combat,_all_Mobs_have_+25%_Crit_DMG",
+        "index": 8
+      }
+    },
+    {
+      "monsterName": "Frost_Flake",
+      "monsterRawName": "flake",
+      "passiveIndex": "23",
+      "passive": "+{_Tab_3_Talent_Pts",
+      "icon": "Mface36",
+      "baseValue": 2,
+      "gene": {
+        "name": "Ninja",
+        "abilityType": 0,
+        "combatAbility": "Shoots_4_ninja_stars,_which_deal_175%_Damage_each",
+        "bonusAbility": "When_in_combat,_adjacent_Mobs_and_this_one_throw_ninja_stars_instead_of_basic_attacks",
+        "index": 30
+      }
+    },
+    {
+      "monsterName": "Sir_Stache",
+      "monsterRawName": "stache",
+      "passiveIndex": "25",
+      "passive": "+{_Infinite_Star_Signs",
+      "icon": "Mface37",
+      "baseValue": 2,
+      "gene": {
+        "name": "Eggshell",
+        "abilityType": 1,
+        "combatAbility": "For_10_seconds,_every_critical_hit_boosts_the_block_chance_of_all_Mobs_by_1%",
+        "bonusAbility": "When_in_Fence_Yard,_randomly_lays_eggs_which_can_be_picked_up_and_will_appear_in_your_incubator._Egg_laying_time_takes_MANY_hours,_but_will_stay_until_you_revisit_the_Mob_yard_personally,_you_don't_need_to_stand_around_personally_and_wait.",
+        "index": 23
+      }
+    },
+    {
+      "monsterName": "Xylobone",
+      "monsterRawName": "skele",
+      "passiveIndex": "27",
+      "passive": "+{%_Drop_Rate",
+      "icon": "Mface23",
+      "baseValue": 1,
+      "gene": {
+        "name": "Opticular",
+        "abilityType": 1,
+        "combatAbility": "Permanently_boosts_the_Crit_Chance_of_all_Mobs._Only_recharges_when_an_attack_Critical_Hits",
+        "bonusAbility": "When_foraging,_this_Mob_contributes_3x_Foraging_Speed_if_it_has_the_largest_Number_on_the_team",
+        "index": 15
+      }
+    },
+    {
+      "monsterName": "Bunny",
+      "monsterRawName": "Pet6",
+      "passiveIndex": "29",
+      "passive": "+{_Base_LUK",
+      "icon": "Mface23",
+      "baseValue": 2,
+      "gene": {
+        "name": "Flashy",
+        "abilityType": 1,
+        "combatAbility": "Duplicates_all_friendly_attacks_instantly,_almost_like_magic!",
+        "bonusAbility": "When_foraging,_all_Mobs_contribute_1.50x_more_Foraging_Speed_if_there_are_no_Combat_Pets_in_team",
+        "index": 14
+      }
+    },
+    {
+      "monsterName": "Bloque",
+      "monsterRawName": "bloque",
+      "passiveIndex": "31",
+      "passive": "+{%_Multikill_Per_Tier",
+      "icon": "Mface32",
+      "baseValue": 1,
+      "gene": {
+        "name": "Alchemic",
+        "abilityType": 1,
+        "combatAbility": "Turns_all_friendly_attacks_into_Cursed_Skulls",
+        "bonusAbility": "When_foraging,_there_is_a_50%_chance_for_2_spices_when_filling_the_reward_bar",
+        "index": 17
+      }
+    },
+    {
+      "monsterName": "Mamooth",
+      "monsterRawName": "mamoth",
+      "passiveIndex": "32",
+      "passive": "+{%_Higher_Artifact_Find_Chance",
+      "icon": "Mface38",
+      "baseValue": 2,
+      "gene": {
+        "name": "Looter",
+        "abilityType": 1,
+        "combatAbility": "Activates_a_random_ability,_selected_from_all_the_abilites_across_all_Mobs_you've_ever_unlocked",
+        "bonusAbility": "When_foraging,_there_is_a_small_chance_to_find_extra_spices_when_filling_the_reward_bar_many_times_before_claiming",
+        "index": 21
+      }
+    },
+    {
+      "monsterName": "Snowman",
+      "monsterRawName": "snowball",
+      "passiveIndex": "34",
+      "passive": "+{%_Class_EXP",
+      "icon": "Mface39",
+      "baseValue": 1,
+      "gene": {
+        "name": "Defstone",
+        "abilityType": 0,
+        "combatAbility": "Shoots_multiple_rocks_based_on_the_total_number_of_blocks_by_your_team._Rocks_deal_250%_Damage._Resets_total_number_of_blocks_when_activated",
+        "bonusAbility": "When_in_combat,_all_Mobs_start_2x_max_HP._Multiplies_with_other_defstone_Mobs.",
+        "index": 19
+      }
+    },
+    {
+      "monsterName": "Penguin",
+      "monsterRawName": "penguin",
+      "passiveIndex": "36",
+      "passive": "+{_Infinite_Star_Signs",
+      "icon": "Mface40",
+      "baseValue": 2,
+      "gene": {
+        "name": "Fastidious",
+        "abilityType": 1,
+        "combatAbility": "Permanently_gives_all_Mobs_+1%_Crit_Chance,_+5%_Crit_DMG,_and_+2%_ability_regen_speed._After_20_stacks,_additional_stacks_give_less_bonus.",
+        "bonusAbility": "When_foraging,_all_Mobs_contribute_1.50x_more_Foraging_Speed_if_there_is_at_least_1_Combat_Pet_in_team",
+        "index": 13
+      }
+    },
+    {
+      "monsterName": "Thermister",
+      "monsterRawName": "thermostat",
+      "passiveIndex": "37",
+      "passive": "+{%_Skill_EXP",
+      "icon": "Mface41",
+      "baseValue": 2,
+      "gene": {
+        "name": "Sniper",
+        "abilityType": 0,
+        "combatAbility": "Fires_a_bullet_at_farthest_enemy._200%_Damage,_+30%_Crit_chance,_4x_Crit_DMG",
+        "bonusAbility": "When_in_combat,_all_Mobs_have_+25%_Crit_DMG",
+        "index": 8
+      }
+    },
+    {
+      "monsterName": "Quenchie",
+      "monsterRawName": "glass",
+      "passiveIndex": "39",
+      "passive": "+{%_Faster_Shiny_Mob_Lv_Up_Rate",
+      "icon": "Mface42",
+      "baseValue": 3,
+      "gene": {
+        "name": "Boomer",
+        "abilityType": 0,
+        "combatAbility": "Throws_a_boomerang,_which_deals_60%_Damage_and_has_an_80%_chance_to_bounce",
+        "bonusAbility": "When_in_combat,_the_Mob_in_front_of_this_one_has_ability_reset_to_30%",
+        "index": 7
+      }
+    },
+    {
+      "monsterName": "Cryosnake",
+      "monsterRawName": "snakeB",
+      "passiveIndex": "40",
+      "passive": "+{_Star_Talent_Pts",
+      "icon": "Mface43",
+      "baseValue": 2,
+      "gene": {
+        "name": "Eggshell",
+        "abilityType": 1,
+        "combatAbility": "For_10_seconds,_every_critical_hit_boosts_the_block_chance_of_all_Mobs_by_1%",
+        "bonusAbility": "When_in_Fence_Yard,_randomly_lays_eggs_which_can_be_picked_up_and_will_appear_in_your_incubator._Egg_laying_time_takes_MANY_hours,_but_will_stay_until_you_revisit_the_Mob_yard_personally,_you_don't_need_to_stand_around_personally_and_wait.",
+        "index": 23
+      }
+    },
+    {
+      "monsterName": "Mechanical_Mouse",
+      "monsterRawName": "Pet7",
+      "passiveIndex": "43",
+      "passive": "+{_Base_STR",
+      "icon": "Mface23",
+      "baseValue": 2,
+      "gene": {
+        "name": "Trasher",
+        "abilityType": 1,
+        "combatAbility": "The_next_6_taps_delete_any_enemy_attack_you_tap_on._This_ability_will_not_refill_while_you_have_taps_remaining",
+        "bonusAbility": "When_in_Fence_Yard,_+25_daily_spice_claims._Only_works_if_Mob_is_in_Fence_Yard_before_the_start_of_the_day.",
+        "index": 25
+      }
+    },
+    {
+      "monsterName": "Bop_Box",
+      "monsterRawName": "speaker",
+      "passiveIndex": "51",
+      "passive": "+{_Infinite_Star_Signs",
+      "icon": "Mface44",
+      "baseValue": 2,
+      "gene": {
+        "name": "Converter",
+        "abilityType": 1,
+        "combatAbility": "For_15_seconds,_all_basic_fist_attacks_have_a_30%_chance_to_turn_into_the_weapon_of_that_Mob's_ability,_but_only_if_their_ability_is_a_weapon.",
+        "bonusAbility": "When_foraging,_there_is_a_50%_chance_to_not_reset_trekking_progress_when_claiming,_essentially_giving_you_FREE_SPICE!_Multiple_converter_Mobs_won't_stack._@_WARNING:_Placing_this_Mob_in_a_territory_will_reset_that_territory's_trekking_progress.",
+        "index": 27
+      }
+    },
+    {
+      "monsterName": "Neyeptune",
+      "monsterRawName": "eye",
+      "passiveIndex": "54",
+      "passive": "+{%_Farming_EXP_gain",
+      "icon": "Mface45",
+      "baseValue": 1,
+      "gene": {
+        "name": "Lazarus",
+        "abilityType": 0,
+        "combatAbility": "Fires_a_laser,_dealing_100%_Damage_to_all_enemies_every_1_sec._Strangely_enough,_the_laser_will_continue_zapping_as_long_as_you_dont_click_anything.",
+        "bonusAbility": "When_in_combat,_all_Mobs_have_their_abilities_fill_up_+10%_faster",
+        "index": 24
+      }
+    },
+    {
+      "monsterName": "Dedotated_Ram",
+      "monsterRawName": "ram",
+      "passiveIndex": "58",
+      "passive": "+{%_Multikill_Per_Tier",
+      "icon": "Mface46",
+      "baseValue": 1,
+      "gene": {
+        "name": "Amplifier",
+        "abilityType": 0,
+        "combatAbility": "Summons_a_spiral,_which_deals_100%_Damage,_and_+50%_more_Damage_for_each_attack_that_moves_through_it",
+        "bonusAbility": "When_in_combat,_all_Mobs_have_+10%_Crit_Chance",
+        "index": 9
+      }
+    },
+    {
+      "monsterName": "Bloodbone",
+      "monsterRawName": "skele2",
+      "passiveIndex": "61",
+      "passive": "+{%_Farming_EXP_gain",
+      "icon": "Mface48",
+      "baseValue": 1,
+      "gene": {
+        "name": "Targeter",
+        "abilityType": 1,
+        "combatAbility": "The_next_non_Basic_Attack_fired_will_deal_x2.50_Damage.",
+        "bonusAbility": "When_foraging,_this_Mob_contributes_5x_Foraging_Speed_if_the_Mob_above_this_one_is_also_a_Targeter",
+        "index": 20
+      }
+    },
+    {
+      "monsterName": "Panda",
+      "monsterRawName": "Pet8",
+      "passiveIndex": "64",
+      "passive": "+{%_Total_Damage",
+      "icon": "Mface23",
+      "baseValue": 1,
+      "gene": {
+        "name": "Converter",
+        "abilityType": 1,
+        "combatAbility": "For_15_seconds,_all_basic_fist_attacks_have_a_30%_chance_to_turn_into_the_weapon_of_that_Mob's_ability,_but_only_if_their_ability_is_a_weapon.",
+        "bonusAbility": "When_foraging,_there_is_a_50%_chance_to_not_reset_trekking_progress_when_claiming,_essentially_giving_you_FREE_SPICE!_Multiple_converter_Mobs_won't_stack._@_WARNING:_Placing_this_Mob_in_a_territory_will_reset_that_territory's_trekking_progress.",
+        "index": 27
+      }
+    }
+  ],
+  [
+    {
+      "monsterName": "Purp_Mushroom",
+      "monsterRawName": "mushP",
+      "passiveIndex": "38",
+      "passive": "+{%_Farming_EXP_gain",
+      "icon": "Mface49",
+      "baseValue": 1,
+      "gene": {
+        "name": "Tsar",
+        "abilityType": 0,
+        "combatAbility": "Drop_da_bomba...",
+        "bonusAbility": "No_bonus,_only_boom.",
+        "index": 10
+      }
+    },
+    {
+      "monsterName": "TV",
+      "monsterRawName": "w4a2",
+      "passiveIndex": "41",
+      "passive": "+{%_Sail_Captain_EXP_Gain",
+      "icon": "Mface50",
+      "baseValue": 3,
+      "gene": {
+        "name": "Rattler",
+        "abilityType": 0,
+        "combatAbility": "Throws_5_bones._Bones_deal_5%_Damage,_+1%_more_damage_for_each_bone_ever_thrown",
+        "bonusAbility": "When_in_combat,_this_Mob's_Basic_Attack_is_now_a_Bone_instead_of_a_Fist",
+        "index": 11
+      }
+    },
+    {
+      "monsterName": "Donut",
+      "monsterRawName": "w4a3",
+      "passiveIndex": "42",
+      "passive": "+{%_Summoning_EXP_gain",
+      "icon": "Mface51",
+      "baseValue": 1,
+      "gene": {
+        "name": "Flashy",
+        "abilityType": 1,
+        "combatAbility": "Duplicates_all_friendly_attacks_instantly,_almost_like_magic!",
+        "bonusAbility": "When_foraging,_all_Mobs_contribute_1.50x_more_Foraging_Speed_if_there_are_no_Combat_Pets_in_team",
+        "index": 14
+      }
+    },
+    {
+      "monsterName": "Demon_Genie",
+      "monsterRawName": "demonP",
+      "passiveIndex": "45",
+      "passive": "+{%_Faster_Refinery_Speed",
+      "icon": "Mface52",
+      "baseValue": 2,
+      "gene": {
+        "name": "Superboomer",
+        "abilityType": 0,
+        "combatAbility": "Throws_2_super_boomerangs,_which_deal_100%_Damage_and_has_an_80%_chance_to_bounce",
+        "bonusAbility": "When_in_combat,_all_Mobs_deal_1.40x_Damage",
+        "index": 31
+      }
+    },
+    {
+      "monsterName": "Flying_Worm",
+      "monsterRawName": "w4b1",
+      "passiveIndex": "47",
+      "passive": "+{_Base_AGI",
+      "icon": "Mface53",
+      "baseValue": 2,
+      "gene": {
+        "name": "Borger",
+        "abilityType": 1,
+        "combatAbility": "Shoots_2_basic_attacks,_but_would_much_rather_have_shot_2_burgers_into_its_mouth",
+        "bonusAbility": "When_in_combat,_this_Mob_has_+2000%_hp._Big_borger,_big_health._@_When_foraging,_this_Mob_contributes_10x_more_foraging_speed_if_the_territory_above_has_at_least_one_Forager_type_(the_Green_Leaf_type)_Mob.",
+        "index": 33
+      }
+    },
+    {
+      "monsterName": "Dog",
+      "monsterRawName": "Pet9",
+      "passiveIndex": "48",
+      "passive": "+{%_Lower_Minimum_Travel_Time_for_Sailing",
+      "icon": "Mface23",
+      "baseValue": 1,
+      "gene": {
+        "name": "Peapeapod",
+        "abilityType": 0,
+        "combatAbility": "Shoot_10_tiny_peas_which_deal_75%_damage._Pow_pow_pow_pow_pow_pow_pow_pow_pow_pow!!!",
+        "bonusAbility": "When_in_combat,_all_Mobs_have_a_25%_chance_to_shoot_another_basic_attack._This_can_happen_multiple_times_in_a_row.",
+        "index": 32
+      }
+    },
+    {
+      "monsterName": "Soda_Can",
+      "monsterRawName": "w4b2",
+      "passiveIndex": "49",
+      "passive": "+{%_Higher_Artifact_Find_Chance",
+      "icon": "Mface54",
+      "baseValue": 2,
+      "gene": {
+        "name": "Fastihoop",
+        "abilityType": 0,
+        "combatAbility": "Shoots_a_gold_hoop,_which_deals_50%_Damage._Each_bullet_that_passes_through_the_hoop_has_a_30%_chance_to_give_a_permanent_+1_Fastidious_buff.",
+        "bonusAbility": "When_in_combat,_all_Mobs_have_a_+20%_crit_chance",
+        "index": 29
+      }
+    },
+    {
+      "monsterName": "Gelatinous_Cuboid",
+      "monsterRawName": "w4b3",
+      "passiveIndex": "50",
+      "passive": "+{%_Total_Damage",
+      "icon": "Mface55",
+      "baseValue": 1,
+      "gene": {
+        "name": "Flashy",
+        "abilityType": 1,
+        "combatAbility": "Duplicates_all_friendly_attacks_instantly,_almost_like_magic!",
+        "bonusAbility": "When_foraging,_all_Mobs_contribute_1.50x_more_Foraging_Speed_if_there_are_no_Combat_Pets_in_team",
+        "index": 14
+      }
+    },
+    {
+      "monsterName": "Choccie",
+      "monsterRawName": "w4b4",
+      "passiveIndex": "52",
+      "passive": "+{%_Drop_Rate",
+      "icon": "Mface56",
+      "baseValue": 1,
+      "gene": {
+        "name": "Superboomer",
+        "abilityType": 0,
+        "combatAbility": "Throws_2_super_boomerangs,_which_deal_100%_Damage_and_has_an_80%_chance_to_bounce",
+        "bonusAbility": "When_in_combat,_all_Mobs_deal_1.40x_Damage",
+        "index": 31
+      }
+    },
+    {
+      "monsterName": "Biggole_Wurm",
+      "monsterRawName": "w4b5",
+      "passiveIndex": "55",
+      "passive": "+{%_Class_EXP",
+      "icon": "Mface57",
+      "baseValue": 1,
+      "gene": {
+        "name": "Tsar",
+        "abilityType": 0,
+        "combatAbility": "Drop_da_bomba...",
+        "bonusAbility": "No_bonus,_only_boom.",
+        "index": 10
+      }
+    },
+    {
+      "monsterName": "Cool_Bird",
+      "monsterRawName": "Pet10",
+      "passiveIndex": "56",
+      "passive": "+{_Base_STR",
+      "icon": "Mface23",
+      "baseValue": 2,
+      "gene": {
+        "name": "Borger",
+        "abilityType": 1,
+        "combatAbility": "Shoots_2_basic_attacks,_but_would_much_rather_have_shot_2_burgers_into_its_mouth",
+        "bonusAbility": "When_in_combat,_this_Mob_has_+2000%_hp._Big_borger,_big_health._@_When_foraging,_this_Mob_contributes_10x_more_foraging_speed_if_the_territory_above_has_at_least_one_Forager_type_(the_Green_Leaf_type)_Mob.",
+        "index": 33
+      }
+    },
+    {
+      "monsterName": "Clammie",
+      "monsterRawName": "w4c1",
+      "passiveIndex": "57",
+      "passive": "+{%_Skill_EXP",
+      "icon": "Mface58",
+      "baseValue": 2,
+      "gene": {
+        "name": "Mercenary",
+        "abilityType": 0,
+        "combatAbility": "Throws_2-3_small_daggers_which_deal_150%_Damage",
+        "bonusAbility": "No_bonus.",
+        "index": 6
+      }
+    },
+    {
+      "monsterName": "Octodar",
+      "monsterRawName": "w4c2",
+      "passiveIndex": "59",
+      "passive": "+{_Base_Critters_per_Trap",
+      "icon": "Mface59",
+      "baseValue": 1,
+      "gene": {
+        "name": "Cursory",
+        "abilityType": 0,
+        "combatAbility": "Shoots_a_Cursed_Skull,_which_deals_50%_Damage,_and_makes_all_future_attacks_deal_+5%_more_dmg",
+        "bonusAbility": "When_in_combat,_Mobs_in_front_and_behind_this_one_deal_1.50x_Damage",
+        "index": 12
+      }
+    },
+    {
+      "monsterName": "Flombeige",
+      "monsterRawName": "w4c3",
+      "passiveIndex": "63",
+      "passive": "+{_Base_AGI",
+      "icon": "Mface60",
+      "baseValue": 2,
+      "gene": {
+        "name": "Trasher",
+        "abilityType": 1,
+        "combatAbility": "The_next_6_taps_delete_any_enemy_attack_you_tap_on._This_ability_will_not_refill_while_you_have_taps_remaining",
+        "bonusAbility": "When_in_Fence_Yard,_+25_daily_spice_claims._Only_works_if_Mob_is_in_Fence_Yard_before_the_start_of_the_day.",
+        "index": 25
+      }
+    },
+    {
+      "monsterName": "Stilted_Seeker",
+      "monsterRawName": "w4c4",
+      "passiveIndex": "65",
+      "passive": "+{_Base_WIS",
+      "icon": "Mface61",
+      "baseValue": 2,
+      "gene": {
+        "name": "Borger",
+        "abilityType": 1,
+        "combatAbility": "Shoots_2_basic_attacks,_but_would_much_rather_have_shot_2_burgers_into_its_mouth",
+        "bonusAbility": "When_in_combat,_this_Mob_has_+2000%_hp._Big_borger,_big_health._@_When_foraging,_this_Mob_contributes_10x_more_foraging_speed_if_the_territory_above_has_at_least_one_Forager_type_(the_Green_Leaf_type)_Mob.",
+        "index": 33
+      }
+    },
+    {
+      "monsterName": "Hedgehog",
+      "monsterRawName": "Pet11",
+      "passiveIndex": "66",
+      "passive": "+{_Base_LUK",
+      "icon": "Mface23",
+      "baseValue": 2,
+      "gene": {
+        "name": "Peapeapod",
+        "abilityType": 0,
+        "combatAbility": "Shoot_10_tiny_peas_which_deal_75%_damage._Pow_pow_pow_pow_pow_pow_pow_pow_pow_pow!!!",
+        "bonusAbility": "When_in_combat,_all_Mobs_have_a_25%_chance_to_shoot_another_basic_attack._This_can_happen_multiple_times_in_a_row.",
+        "index": 32
+      }
+    }
+  ]
+]

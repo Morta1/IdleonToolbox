@@ -15,7 +15,7 @@ import {
   mapEnemiesArray,
   mapNames,
   mapPortals,
-  monsterDrops,
+  monsterCoinQuantity,
   monsters,
   randomList
 } from '@website-data';
@@ -231,7 +231,7 @@ const getMedallions = (medallions: any, upgrades: any[]) => {
   return Array.from(
     new Map(
       randomList?.[112]?.map((monsterRawName: any) => {
-        const coinQuantity = monsterDrops?.[monsterRawName]?.find(({ rawName }: any) => rawName === 'COIN')?.quantity;
+        const coinQuantity = (monsterCoinQuantity as any)?.[monsterRawName];
         const bowDrop = 5 > Math.floor(coinQuantity / 3) % 16 ? (1 <= getLocalCompassBonus(upgrades, 3)
           ? Math.floor(coinQuantity / 3) % 16 : -1) : 670 === coinQuantity
             || 2500 === coinQuantity || 13e4 === coinQuantity

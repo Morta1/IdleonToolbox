@@ -1,0 +1,2993 @@
+{
+  "combat": {
+    "0": {
+      "displayName": "Sword_Stamp",
+      "rawName": "StampA1",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 3,
+      "baseCoinCost": 10,
+      "powCoinBase": 1.2,
+      "powMatBase": 5,
+      "skillIndex": 0,
+      "effect": "+{_Base_Damage",
+      "placeholderEffect": "{}_Base_Damage",
+      "stat": "BaseDmg",
+      "itemReq": [
+        {
+          "name": "Spore_Cap",
+          "rawName": "Grasslands1"
+        }
+      ]
+    },
+    "1": {
+      "displayName": "Heart_Stamp",
+      "rawName": "StampA2",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 5,
+      "baseCoinCost": 15,
+      "powCoinBase": 1.2,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{_Base_HP",
+      "placeholderEffect": "{}_Base_HP",
+      "stat": "BaseHP",
+      "itemReq": [
+        {
+          "name": "Oak_Logs",
+          "rawName": "OakTree"
+        }
+      ]
+    },
+    "2": {
+      "displayName": "Mana_Stamp",
+      "rawName": "StampA3",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 6,
+      "baseCoinCost": 30,
+      "powCoinBase": 1.2,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{_Base_MP",
+      "placeholderEffect": "{}_Base_MP",
+      "stat": "BaseMP",
+      "itemReq": [
+        {
+          "name": "Copper_Ore",
+          "rawName": "Copper"
+        }
+      ]
+    },
+    "3": {
+      "displayName": "Tomahawk_Stamp",
+      "rawName": "StampA4",
+      "func": "decay",
+      "x1": 6,
+      "x2": 40,
+      "reqItemMultiplicationLevel": 4,
+      "baseMatCost": 5,
+      "baseCoinCost": 50,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{%_Total_Damage",
+      "placeholderEffect": "{}%_Total_Damage",
+      "stat": "PctDmg",
+      "itemReq": [
+        {
+          "name": "Copper_Bar",
+          "rawName": "CopperBar"
+        }
+      ]
+    },
+    "4": {
+      "displayName": "Target_Stamp",
+      "rawName": "StampA5",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 5,
+      "baseCoinCost": 50,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{_Base_Accuracy",
+      "placeholderEffect": "{}_Base_Accuracy",
+      "stat": "BaseAcc",
+      "itemReq": [
+        {
+          "name": "Thread",
+          "rawName": "CraftMat1"
+        }
+      ]
+    },
+    "5": {
+      "displayName": "Shield_Stamp",
+      "rawName": "StampA6",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 5,
+      "baseCoinCost": 50,
+      "powCoinBase": 1.3,
+      "powMatBase": 7,
+      "skillIndex": 0,
+      "effect": "+{_Base_Defence",
+      "placeholderEffect": "{}_Base_Defence",
+      "stat": "BaseDef",
+      "itemReq": [
+        {
+          "name": "Iron_Ore",
+          "rawName": "Iron"
+        }
+      ]
+    },
+    "6": {
+      "displayName": "Longsword_Stamp",
+      "rawName": "StampA7",
+      "func": "add",
+      "x1": 2,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 4,
+      "baseMatCost": 10,
+      "baseCoinCost": 50,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{_Base_Damage",
+      "placeholderEffect": "{}_Base_Damage",
+      "stat": "BaseDmg",
+      "itemReq": [
+        {
+          "name": "Bean_Slices",
+          "rawName": "Grasslands3"
+        }
+      ]
+    },
+    "7": {
+      "displayName": "Kapow_Stamp",
+      "rawName": "StampA8",
+      "func": "decay",
+      "x1": 8,
+      "x2": 40,
+      "reqItemMultiplicationLevel": 3,
+      "baseMatCost": 20,
+      "baseCoinCost": 50,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{%_Critical_Damage",
+      "placeholderEffect": "{}%_Critical_Damage",
+      "stat": "CritDmg",
+      "itemReq": [
+        {
+          "name": "Trusty_Nails",
+          "rawName": "CraftMat5"
+        }
+      ]
+    },
+    "8": {
+      "displayName": "Fist_Stamp",
+      "rawName": "StampA9",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 20,
+      "baseCoinCost": 50,
+      "powCoinBase": 1.3,
+      "powMatBase": 7,
+      "skillIndex": 0,
+      "effect": "+{_STR",
+      "placeholderEffect": "{}_STR",
+      "stat": "BaseSTR",
+      "itemReq": [
+        {
+          "name": "Bleach_Logs",
+          "rawName": "BirchTree"
+        }
+      ]
+    },
+    "9": {
+      "displayName": "Battleaxe_Stamp",
+      "rawName": "StampA10",
+      "func": "decay",
+      "x1": 10,
+      "x2": 40,
+      "reqItemMultiplicationLevel": 4,
+      "baseMatCost": 15,
+      "baseCoinCost": 50,
+      "powCoinBase": 1.3,
+      "powMatBase": 4,
+      "skillIndex": 0,
+      "effect": "+{%_Total_Damage",
+      "placeholderEffect": "{}%_Total_Damage",
+      "stat": "PctDmg",
+      "itemReq": [
+        {
+          "name": "Grass_Leaf",
+          "rawName": "Leaf1"
+        }
+      ]
+    },
+    "10": {
+      "displayName": "Agile_Stamp",
+      "rawName": "StampA11",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 1,
+      "baseCoinCost": 50,
+      "powCoinBase": 1.3,
+      "powMatBase": 4,
+      "skillIndex": 0,
+      "effect": "+{_AGI",
+      "placeholderEffect": "{}_AGI",
+      "stat": "BaseAGI",
+      "itemReq": [
+        {
+          "name": "Copper_Chopper",
+          "rawName": "EquipmentToolsHatchet3",
+          "materials": [
+            {
+              "itemName": "Oak_Logs",
+              "type": "Item",
+              "subType": "LOG",
+              "rawName": "OakTree",
+              "itemQuantity": 6
+            }
+          ]
+        }
+      ]
+    },
+    "11": {
+      "displayName": "Vitality_Stamp",
+      "rawName": "StampA12",
+      "func": "add",
+      "x1": 2,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 4,
+      "baseMatCost": 25,
+      "baseCoinCost": 50,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{_Base_HP",
+      "placeholderEffect": "{}_Base_HP",
+      "stat": "BaseHP",
+      "itemReq": [
+        {
+          "name": "Snake_Skin",
+          "rawName": "Jungle2"
+        }
+      ]
+    },
+    "12": {
+      "displayName": "Book_Stamp",
+      "rawName": "StampA13",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 20,
+      "baseCoinCost": 50,
+      "powCoinBase": 1.35,
+      "powMatBase": 5,
+      "skillIndex": 0,
+      "effect": "+{_WIS",
+      "placeholderEffect": "{}_WIS",
+      "stat": "BaseWIS",
+      "itemReq": [
+        {
+          "name": "Iron_Bar",
+          "rawName": "IronBar"
+        }
+      ]
+    },
+    "13": {
+      "displayName": "Manamoar_Stamp",
+      "rawName": "StampA14",
+      "func": "add",
+      "x1": 2,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 3,
+      "baseMatCost": 25,
+      "baseCoinCost": 75,
+      "powCoinBase": 1.32,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{_Base_MP",
+      "placeholderEffect": "{}_Base_MP",
+      "stat": "BaseMP",
+      "itemReq": [
+        {
+          "name": "Glublin_Ear",
+          "rawName": "Forest1"
+        }
+      ]
+    },
+    "14": {
+      "displayName": "Clover_Stamp",
+      "rawName": "StampA15",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 1,
+      "baseCoinCost": 300,
+      "powCoinBase": 1.38,
+      "powMatBase": 2,
+      "skillIndex": 0,
+      "effect": "+{_LUK",
+      "placeholderEffect": "{}_LUK",
+      "stat": "BaseLUK",
+      "itemReq": [
+        {
+          "name": "Iron_Platebody",
+          "rawName": "EquipmentShirts12",
+          "materials": [
+            {
+              "itemName": "Iron_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "IronBar",
+              "itemQuantity": 25
+            },
+            {
+              "itemName": "Jungle_Logs",
+              "type": "Item",
+              "subType": "LOG",
+              "rawName": "JungleTree",
+              "itemQuantity": 60
+            }
+          ]
+        }
+      ]
+    },
+    "15": {
+      "displayName": "Scimitar_Stamp",
+      "rawName": "StampA16",
+      "func": "add",
+      "x1": 3,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 4,
+      "baseMatCost": 75,
+      "baseCoinCost": 2000,
+      "powCoinBase": 1.33,
+      "powMatBase": 7,
+      "skillIndex": 0,
+      "effect": "+{_Base_Damage",
+      "placeholderEffect": "{}_Base_Damage",
+      "stat": "BaseDmg",
+      "itemReq": [
+        {
+          "name": "Goldfish",
+          "rawName": "Fish1"
+        }
+      ]
+    },
+    "16": {
+      "displayName": "Bullseye_Stamp",
+      "rawName": "StampA17",
+      "func": "add",
+      "x1": 2,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 100,
+      "baseCoinCost": 5000,
+      "powCoinBase": 1.36,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{_Base_Accuracy.",
+      "placeholderEffect": "{}_Base_Accuracy",
+      "stat": "BaseAcc",
+      "itemReq": [
+        {
+          "name": "Sentient_Cereal",
+          "rawName": "Bug3"
+        }
+      ]
+    },
+    "17": {
+      "displayName": "Feather_Stamp",
+      "rawName": "StampA18",
+      "func": "decay",
+      "x1": 5,
+      "x2": 50,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 25,
+      "baseCoinCost": 2500,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{%_Movement_Speed",
+      "placeholderEffect": "{}_Base_Move_Speed",
+      "stat": "PctMoveSpd",
+      "itemReq": [
+        {
+          "name": "Coconotnotto",
+          "rawName": "DesertB1"
+        }
+      ]
+    },
+    "18": {
+      "displayName": "Polearm_Stamp",
+      "rawName": "StampA19",
+      "func": "decay",
+      "x1": 16,
+      "x2": 40,
+      "reqItemMultiplicationLevel": 6,
+      "baseMatCost": 1,
+      "baseCoinCost": 3000,
+      "powCoinBase": 1.3,
+      "powMatBase": 2,
+      "skillIndex": 0,
+      "effect": "+{%_Total_Damage",
+      "placeholderEffect": "{}%_Total_Damage",
+      "stat": "PctDmg",
+      "itemReq": [
+        {
+          "name": "Steel_Axe",
+          "rawName": "TestObj7",
+          "materials": [
+            {
+              "itemName": "Slime_Sludge",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Jungle1",
+              "itemQuantity": 125
+            },
+            {
+              "itemName": "Trusty_Nails",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "CraftMat5",
+              "itemQuantity": 125
+            }
+          ]
+        }
+      ]
+    },
+    "19": {
+      "displayName": "Violence_Stamp",
+      "rawName": "StampA20",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 3,
+      "baseMatCost": 10,
+      "baseCoinCost": 10000,
+      "powCoinBase": 1.3,
+      "powMatBase": 7,
+      "skillIndex": 0,
+      "effect": "+{_STR",
+      "placeholderEffect": "{}_STR",
+      "stat": "BaseSTR",
+      "itemReq": [
+        {
+          "name": "Dementia_Ore",
+          "rawName": "Dementia"
+        }
+      ]
+    },
+    "20": {
+      "displayName": "Buckler_Stamp",
+      "rawName": "StampA21",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 7,
+      "baseMatCost": 25,
+      "baseCoinCost": 2200,
+      "powCoinBase": 1.305,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{_Base_Defence",
+      "placeholderEffect": "{}_Base_Defence",
+      "stat": "BaseDef",
+      "itemReq": [
+        {
+          "name": "Platinum_Bar",
+          "rawName": "PlatBar"
+        }
+      ]
+    },
+    "21": {
+      "displayName": "Hermes_Stamp",
+      "rawName": "StampA22",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 3,
+      "baseMatCost": 30,
+      "baseCoinCost": 10000,
+      "powCoinBase": 1.3,
+      "powMatBase": 7,
+      "skillIndex": 0,
+      "effect": "+{_AGI",
+      "placeholderEffect": "{}_STR",
+      "stat": "BaseAGI",
+      "itemReq": [
+        {
+          "name": "Rooted_Soul",
+          "rawName": "Soul3"
+        }
+      ]
+    },
+    "22": {
+      "displayName": "Sukka_Foo",
+      "rawName": "StampA23",
+      "func": "decay",
+      "x1": 20,
+      "x2": 60,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 3,
+      "baseCoinCost": 10000,
+      "powCoinBase": 1.34,
+      "powMatBase": 5,
+      "skillIndex": 0,
+      "effect": "+{%_Damage_Toward_Bosses",
+      "placeholderEffect": "{}%_Boss_Damage",
+      "stat": "BossDmg",
+      "itemReq": [
+        {
+          "name": "Amarok_Slab",
+          "rawName": "Quest17"
+        }
+      ]
+    },
+    "23": {
+      "displayName": "Arcane_Stamp",
+      "rawName": "StampA24",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 3,
+      "baseMatCost": 50,
+      "baseCoinCost": 1550,
+      "powCoinBase": 1.36,
+      "powMatBase": 7,
+      "skillIndex": 0,
+      "effect": "+{_WIS",
+      "placeholderEffect": "{}_Base_WIS",
+      "stat": "BaseWIS",
+      "itemReq": [
+        {
+          "name": "Gold_Bar",
+          "rawName": "GoldBar"
+        }
+      ]
+    },
+    "24": {
+      "displayName": "Avast_Yar_Stamp",
+      "rawName": "StampA25",
+      "func": "add",
+      "x1": 6,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 75,
+      "baseCoinCost": 15000,
+      "powCoinBase": 1.33,
+      "powMatBase": 7,
+      "skillIndex": 0,
+      "effect": "+{_Base_Damage",
+      "placeholderEffect": "{}_Base_Damage",
+      "stat": "BaseDmg",
+      "itemReq": [
+        {
+          "name": "Bunny",
+          "rawName": "Critter7"
+        }
+      ]
+    },
+    "25": {
+      "displayName": "Steve_Sword",
+      "rawName": "StampA26",
+      "func": "decay",
+      "x1": 20,
+      "x2": 60,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 150,
+      "baseCoinCost": 10000,
+      "powCoinBase": 1.32,
+      "powMatBase": 5,
+      "skillIndex": 0,
+      "effect": "+{%_Total_Damage._Also_grats_on_1_million_followers!",
+      "placeholderEffect": "{}%_Total_Damage",
+      "stat": "PctDmg",
+      "itemReq": [
+        {
+          "name": "Fruitfly",
+          "rawName": "Bug4"
+        }
+      ]
+    },
+    "26": {
+      "displayName": "Blover_Stamp",
+      "rawName": "StampA27",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 4,
+      "baseMatCost": 100,
+      "baseCoinCost": 25000,
+      "powCoinBase": 1.39,
+      "powMatBase": 7,
+      "skillIndex": 0,
+      "effect": "+{_LUK",
+      "placeholderEffect": "{}_Base_LUK",
+      "stat": "BaseLUK",
+      "itemReq": [
+        {
+          "name": "Jellyfish",
+          "rawName": "Fish3"
+        }
+      ]
+    },
+    "27": {
+      "displayName": "Stat_Graph_Stamp",
+      "rawName": "StampA28",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 2,
+      "baseCoinCost": 2000,
+      "powCoinBase": 1.36,
+      "powMatBase": 2,
+      "skillIndex": 0,
+      "effect": "+{_All_Stats._''All_Stats''_means_STR,_AGI,_WIS,_and_LUK",
+      "placeholderEffect": "{}_All_Stats",
+      "stat": "BaseAllStat",
+      "itemReq": [
+        {
+          "name": "Mystery_Upgrade_Stone_I",
+          "rawName": "StoneZ1"
+        }
+      ]
+    },
+    "28": {
+      "displayName": "Gilded_Axe_Stamp",
+      "rawName": "StampA29",
+      "func": "add",
+      "x1": 8,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 6,
+      "baseMatCost": 200,
+      "baseCoinCost": 2000000,
+      "powCoinBase": 1.43,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{_Base_Damage",
+      "placeholderEffect": "{}_Base_Damage",
+      "stat": "BaseDmg",
+      "itemReq": [
+        {
+          "name": "Thingymabob",
+          "rawName": "CraftMat12"
+        }
+      ]
+    },
+    "29": {
+      "displayName": "Diamond_Axe_Stamp",
+      "rawName": "StampA30",
+      "func": "decay",
+      "x1": 20,
+      "x2": 60,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 200,
+      "baseCoinCost": 3000000,
+      "powCoinBase": 1.47,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{%_Total_Damage",
+      "placeholderEffect": "{}%_Total_Damage",
+      "stat": "PctDmg",
+      "itemReq": [
+        {
+          "name": "PVC_Pipe",
+          "rawName": "CraftMat14"
+        }
+      ]
+    },
+    "30": {
+      "displayName": "Tripleshot_Stamp",
+      "rawName": "StampA31",
+      "func": "add",
+      "x1": 3,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 200,
+      "baseCoinCost": 1500000,
+      "powCoinBase": 1.4,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{_Base_Accuracy",
+      "placeholderEffect": "{}_Base_Accuracy",
+      "stat": "BaseAcc",
+      "itemReq": [
+        {
+          "name": "Tangled_Cords",
+          "rawName": "CraftMat13"
+        }
+      ]
+    },
+    "31": {
+      "displayName": "Blackheart_Stamp",
+      "rawName": "StampA32",
+      "func": "add",
+      "x1": 10,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 15,
+      "baseMatCost": 200,
+      "baseCoinCost": 1000000,
+      "powCoinBase": 1.4,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{_Base_HP",
+      "placeholderEffect": "{}_Base_HP",
+      "stat": "BaseHP",
+      "itemReq": [
+        {
+          "name": "Purple_Screw",
+          "rawName": "CraftMat11"
+        }
+      ]
+    },
+    "32": {
+      "displayName": "Maxo_Slappo_Stamp",
+      "rawName": "StampA33",
+      "func": "add",
+      "x1": 4,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 7,
+      "baseMatCost": 1000,
+      "baseCoinCost": 100000000,
+      "powCoinBase": 1.4,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{_STR",
+      "placeholderEffect": "{}_Base_STR",
+      "stat": "BaseSTR",
+      "itemReq": [
+        {
+          "name": "Maple_Logs",
+          "rawName": "Tree9"
+        }
+      ]
+    },
+    "33": {
+      "displayName": "Sashe_Sidestamp",
+      "rawName": "StampA34",
+      "func": "add",
+      "x1": 4,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 7,
+      "baseMatCost": 1000,
+      "baseCoinCost": 100000000,
+      "powCoinBase": 1.4,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{_AGI",
+      "placeholderEffect": "{}_Base_AGI",
+      "stat": "BaseAGI",
+      "itemReq": [
+        {
+          "name": "Scarab",
+          "rawName": "Bug9"
+        }
+      ]
+    },
+    "34": {
+      "displayName": "Intellectostampo",
+      "rawName": "StampA35",
+      "func": "add",
+      "x1": 4,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 7,
+      "baseMatCost": 150,
+      "baseCoinCost": 100000000,
+      "powCoinBase": 1.4,
+      "powMatBase": 7,
+      "skillIndex": 0,
+      "effect": "+{_WIS",
+      "placeholderEffect": "{}_Base_WIS",
+      "stat": "BaseWIS",
+      "itemReq": [
+        {
+          "name": "Oozie_Soul",
+          "rawName": "Soul6"
+        }
+      ]
+    },
+    "35": {
+      "displayName": "Conjocharmo_Stamp",
+      "rawName": "StampA36",
+      "func": "add",
+      "x1": 4,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 1000,
+      "baseCoinCost": 100000000,
+      "powCoinBase": 1.4,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{_LUK",
+      "placeholderEffect": "{}_Base_LUK",
+      "stat": "BaseLUK",
+      "itemReq": [
+        {
+          "name": "Suggma_Ashes",
+          "rawName": "LavaA1"
+        }
+      ]
+    },
+    "36": {
+      "displayName": "Dementia_Sword_Stamp",
+      "rawName": "StampA37",
+      "func": "decay",
+      "x1": 25,
+      "x2": 80,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 1000,
+      "baseCoinCost": 200000000,
+      "powCoinBase": 1.43,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_Total_Damage",
+      "placeholderEffect": "{}%_Total_Damage",
+      "stat": "PctDmg",
+      "itemReq": [
+        {
+          "name": "Dreadlo_Ore",
+          "rawName": "Dreadlo"
+        }
+      ]
+    },
+    "37": {
+      "displayName": "Golden_Sixes_Stamp",
+      "rawName": "StampA38",
+      "func": "decay",
+      "x1": 20,
+      "x2": 80,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 250,
+      "baseCoinCost": 10000000,
+      "powCoinBase": 1.43,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_Drop_Rate",
+      "placeholderEffect": "{}%_Drop_Rate",
+      "stat": "DropRate",
+      "itemReq": [
+        {
+          "name": "Kraken",
+          "rawName": "Fish8"
+        }
+      ]
+    },
+    "38": {
+      "displayName": "Stat_Wallstreet_Stamp",
+      "rawName": "StampA39",
+      "func": "add",
+      "x1": 2,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 5,
+      "baseCoinCost": 25000000,
+      "powCoinBase": 1.36,
+      "powMatBase": 2,
+      "skillIndex": 0,
+      "effect": "+{_All_Stats.",
+      "placeholderEffect": "{}_All_Stats",
+      "stat": "BaseAllStat",
+      "itemReq": [
+        {
+          "name": "Mystery_Upgrade_Stone_II",
+          "rawName": "StoneZ2"
+        }
+      ]
+    },
+    "39": {
+      "displayName": "Void_Sword_Stamp",
+      "rawName": "StampA40",
+      "func": "add",
+      "x1": 12,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 20000,
+      "baseCoinCost": 2500000000,
+      "powCoinBase": 1.36,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{_Base_Damage",
+      "placeholderEffect": "{}_Base_Damage",
+      "stat": "BaseDmg",
+      "itemReq": [
+        {
+          "name": "Rice_Cake",
+          "rawName": "SpiA2"
+        }
+      ]
+    },
+    "40": {
+      "displayName": "Void_Axe_Stamp",
+      "rawName": "StampA41",
+      "func": "decay",
+      "x1": 35,
+      "x2": 200,
+      "reqItemMultiplicationLevel": 15,
+      "baseMatCost": 25000,
+      "baseCoinCost": 66000000000,
+      "powCoinBase": 1.36,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_Total_Damage",
+      "placeholderEffect": "{}%_Total_Damage",
+      "stat": "PctDmg",
+      "itemReq": [
+        {
+          "name": "Bamboo_Logs",
+          "rawName": "Tree12"
+        }
+      ]
+    },
+    "41": {
+      "displayName": "Captalist_Stats_Stamp",
+      "rawName": "StampA42",
+      "func": "decay",
+      "x1": 5,
+      "x2": 100,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 40000,
+      "baseCoinCost": 2200000000000,
+      "powCoinBase": 1.36,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_All_Stats",
+      "placeholderEffect": "{}%_All_Stats",
+      "stat": "AllStatPct",
+      "itemReq": [
+        {
+          "name": "Firefly",
+          "rawName": "Bug13"
+        }
+      ]
+    },
+    "42": {
+      "displayName": "Splosion_Stamp",
+      "rawName": "StampA43",
+      "func": "decay",
+      "x1": 50,
+      "x2": 200,
+      "reqItemMultiplicationLevel": 15,
+      "baseMatCost": 50000,
+      "baseCoinCost": 660000000000000,
+      "powCoinBase": 1.36,
+      "powMatBase": 7,
+      "skillIndex": 0,
+      "effect": "+{%_Total_Damage",
+      "placeholderEffect": "{}%_Total_Damage",
+      "stat": "PctDmg",
+      "itemReq": [
+        {
+          "name": "Earl_Tail",
+          "rawName": "w7A3"
+        }
+      ]
+    },
+    "43": {
+      "displayName": "Gud_EXP_Stamp",
+      "rawName": "StampA44",
+      "func": "decay",
+      "x1": 4,
+      "x2": 200,
+      "reqItemMultiplicationLevel": 15,
+      "baseMatCost": 250000,
+      "baseCoinCost": 66000000000000000,
+      "powCoinBase": 1.45,
+      "powMatBase": 12,
+      "skillIndex": 0,
+      "effect": "+{%_Class_EXP_Multi",
+      "placeholderEffect": "{}%_Class_EXP_Multi",
+      "stat": "classxp",
+      "itemReq": [
+        {
+          "name": "Crabclaw",
+          "rawName": "w7A11"
+        }
+      ]
+    }
+  },
+  "skills": {
+    "0": {
+      "displayName": "Pickaxe_Stamp",
+      "rawName": "StampB1",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 5,
+      "baseCoinCost": 10,
+      "powCoinBase": 1.2,
+      "powMatBase": 4,
+      "skillIndex": 1,
+      "effect": "+{_Base_Mining_Efficiency",
+      "placeholderEffect": "{}_Mining_Efficiency",
+      "stat": "BaseMinEff",
+      "itemReq": [
+        {
+          "name": "Oak_Logs",
+          "rawName": "OakTree"
+        }
+      ]
+    },
+    "1": {
+      "displayName": "Hatchet_Stamp",
+      "rawName": "StampB2",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 10,
+      "baseCoinCost": 10,
+      "powCoinBase": 1.2,
+      "powMatBase": 4,
+      "skillIndex": 3,
+      "effect": "+{_Base_Choppin'_Efficiency",
+      "placeholderEffect": "{}_Choppin_Efficiency",
+      "stat": "BaseChopEff",
+      "itemReq": [
+        {
+          "name": "Thread",
+          "rawName": "CraftMat1"
+        }
+      ]
+    },
+    "2": {
+      "displayName": "Anvil_Zoomer_Stamp",
+      "rawName": "StampB3",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 25,
+      "baseCoinCost": 50,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 2,
+      "effect": "+{%_Anvil_Production_Speed._This_affects_the_'Produce'_tab_within_the_anvil.",
+      "placeholderEffect": "{}%_Anvil_Production_Spd",
+      "stat": "AnvilPAspd",
+      "itemReq": [
+        {
+          "name": "Copper_Ore",
+          "rawName": "Copper"
+        }
+      ]
+    },
+    "3": {
+      "displayName": "Lil'_Mining_Baggy_Stamp",
+      "rawName": "StampB4",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 25,
+      "baseCoinCost": 50,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 1,
+      "effect": "+{%_Carrying_Capacity_for_Mining_Items",
+      "placeholderEffect": "{}_Mining_Carry_Cap",
+      "stat": "MinCap",
+      "itemReq": [
+        {
+          "name": "Jungle_Logs",
+          "rawName": "JungleTree"
+        }
+      ]
+    },
+    "4": {
+      "displayName": "Twin_Ores_Stamp",
+      "rawName": "StampB5",
+      "func": "decay",
+      "x1": 15,
+      "x2": 40,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 1,
+      "baseCoinCost": 10000,
+      "powCoinBase": 1.3,
+      "powMatBase": 3,
+      "skillIndex": 1,
+      "effect": "+{%_Multi-Ore_Chance",
+      "placeholderEffect": "{}%_Multi_Ore_Chance",
+      "stat": "DoubleMin",
+      "itemReq": [
+        {
+          "name": "Thief_Hood",
+          "rawName": "EquipmentHats3",
+          "materials": [
+            {
+              "itemName": "Copper_Helmet",
+              "type": "Equip",
+              "subType": "HELMET",
+              "rawName": "EquipmentHats17",
+              "itemQuantity": 1,
+              "materials": [
+                {
+                  "itemName": "Copper_Ore",
+                  "type": "Consumable",
+                  "subType": "ORE",
+                  "rawName": "Copper",
+                  "itemQuantity": 20
+                },
+                {
+                  "itemName": "Bean_Slices",
+                  "type": "Quest",
+                  "subType": "MONSTER_DROP",
+                  "rawName": "Grasslands3",
+                  "itemQuantity": 40
+                }
+              ]
+            },
+            {
+              "itemName": "Iron_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "IronBar",
+              "itemQuantity": 15
+            },
+            {
+              "itemName": "Thread",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "CraftMat1",
+              "itemQuantity": 40
+            }
+          ]
+        }
+      ]
+    },
+    "5": {
+      "displayName": "Choppin'_Bag_Stamp",
+      "rawName": "StampB6",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 25,
+      "baseCoinCost": 50,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 3,
+      "effect": "+{%_Carrying_Capacity_for_Choppin'_Items",
+      "placeholderEffect": "{}_Choppin_Carry_Cap",
+      "stat": "ChopCap",
+      "itemReq": [
+        {
+          "name": "Carrot_Cube",
+          "rawName": "Jungle3"
+        }
+      ]
+    },
+    "6": {
+      "displayName": "Duplogs_Stamp",
+      "rawName": "StampB7",
+      "func": "decay",
+      "x1": 15,
+      "x2": 40,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 1,
+      "baseCoinCost": 20000,
+      "powCoinBase": 1.3,
+      "powMatBase": 3,
+      "skillIndex": 3,
+      "effect": "+{%_Multi-Log_Chance",
+      "placeholderEffect": "{}%_Multi_Log_Chance",
+      "stat": "DoubleChop",
+      "itemReq": [
+        {
+          "name": "Militia_Helm",
+          "rawName": "EquipmentHats20",
+          "materials": [
+            {
+              "itemName": "Copper_Helmet",
+              "type": "Equip",
+              "subType": "HELMET",
+              "rawName": "EquipmentHats17",
+              "itemQuantity": 1,
+              "materials": [
+                {
+                  "itemName": "Copper_Ore",
+                  "type": "Consumable",
+                  "subType": "ORE",
+                  "rawName": "Copper",
+                  "itemQuantity": 20
+                },
+                {
+                  "itemName": "Bean_Slices",
+                  "type": "Quest",
+                  "subType": "MONSTER_DROP",
+                  "rawName": "Grasslands3",
+                  "itemQuantity": 40
+                }
+              ]
+            },
+            {
+              "itemName": "Iron_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "IronBar",
+              "itemQuantity": 15
+            },
+            {
+              "itemName": "Copper_Ore",
+              "type": "Consumable",
+              "subType": "ORE",
+              "rawName": "Copper",
+              "itemQuantity": 80
+            }
+          ]
+        }
+      ]
+    },
+    "7": {
+      "displayName": "Matty_Bag_Stamp",
+      "rawName": "StampB8",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 1,
+      "baseCoinCost": 50,
+      "powCoinBase": 1.3,
+      "powMatBase": 2,
+      "skillIndex": 2,
+      "effect": "+{%_Carrying_Capacity_for_Material_Items",
+      "placeholderEffect": "{}_Material_Carry_Cap",
+      "stat": "MatCap",
+      "itemReq": [
+        {
+          "name": "Cramped_Material_Pouch",
+          "rawName": "MaxCapBagM2",
+          "materials": [
+            {
+              "itemName": "Thread",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "CraftMat1",
+              "itemQuantity": 50
+            },
+            {
+              "itemName": "Frog_Leg",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Grasslands2",
+              "itemQuantity": 50
+            }
+          ]
+        }
+      ]
+    },
+    "8": {
+      "displayName": "Smart_Dirt_Stamp",
+      "rawName": "StampB9",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 25,
+      "baseCoinCost": 80,
+      "powCoinBase": 1.35,
+      "powMatBase": 6,
+      "skillIndex": 1,
+      "effect": "+{%_Mining_Exp_Gain",
+      "placeholderEffect": "{}%_Mining_Exp",
+      "stat": "MinExp",
+      "itemReq": [
+        {
+          "name": "Plank",
+          "rawName": "Forest2"
+        }
+      ]
+    },
+    "9": {
+      "displayName": "Cool_Diggy_Tool_Stamp",
+      "rawName": "StampB10",
+      "func": "add",
+      "x1": 2,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 1,
+      "baseCoinCost": 35000,
+      "powCoinBase": 1.4,
+      "powMatBase": 2,
+      "skillIndex": 1,
+      "effect": "+{_Base_Mining_Efficicency",
+      "placeholderEffect": "{}_Mining_Efficiency",
+      "stat": "BaseMinEff",
+      "itemReq": [
+        {
+          "name": "Iron_Hatchet",
+          "rawName": "EquipmentToolsHatchet1",
+          "materials": [
+            {
+              "itemName": "Jungle_Logs",
+              "type": "Item",
+              "subType": "LOG",
+              "rawName": "JungleTree",
+              "itemQuantity": 200
+            }
+          ]
+        }
+      ]
+    },
+    "10": {
+      "displayName": "High_IQ_Lumber_Stamp",
+      "rawName": "StampB11",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 25,
+      "baseCoinCost": 80,
+      "powCoinBase": 1.35,
+      "powMatBase": 6,
+      "skillIndex": 3,
+      "effect": "+{%_Choppin_Exp_Gain",
+      "placeholderEffect": "{}%_Choppin_Exp",
+      "stat": "ChopExp",
+      "itemReq": [
+        {
+          "name": "Bullfrog_Horn",
+          "rawName": "Forest3"
+        }
+      ]
+    },
+    "11": {
+      "displayName": "Swag_Swingy_Tool_Stamp",
+      "rawName": "StampB12",
+      "func": "add",
+      "x1": 2,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 1,
+      "baseCoinCost": 50000,
+      "powCoinBase": 1.36,
+      "powMatBase": 2,
+      "skillIndex": 3,
+      "effect": "+{_Base_Choppin'_Efficiency",
+      "placeholderEffect": "{}_Choppin_Efficiency",
+      "stat": "BaseChopEff",
+      "itemReq": [
+        {
+          "name": "Copper_Pickaxe",
+          "rawName": "EquipmentTools2",
+          "materials": [
+            {
+              "itemName": "Copper_Ore",
+              "type": "Consumable",
+              "subType": "ORE",
+              "rawName": "Copper",
+              "itemQuantity": 8
+            }
+          ]
+        }
+      ]
+    },
+    "12": {
+      "displayName": "Alch_Go_Brrr_Stamp",
+      "rawName": "StampB13",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 4,
+      "baseMatCost": 40,
+      "baseCoinCost": 800,
+      "powCoinBase": 1.29,
+      "powMatBase": 6,
+      "skillIndex": -1,
+      "effect": "+{%_Alchemy_Speed",
+      "placeholderEffect": "{}%_Alch_Speed",
+      "stat": "AlchSpd",
+      "itemReq": [
+        {
+          "name": "Forest_Fibres",
+          "rawName": "ForestTree"
+        }
+      ]
+    },
+    "13": {
+      "displayName": "Brainstew_Stamps",
+      "rawName": "StampB14",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 40,
+      "baseCoinCost": 1250,
+      "powCoinBase": 1.28,
+      "powMatBase": 6,
+      "skillIndex": 5,
+      "effect": "+{%_Alchemy_Exp_Gain",
+      "placeholderEffect": "{}%_Alch_Exp",
+      "stat": "AlchExp",
+      "itemReq": [
+        {
+          "name": "Gold_Ore",
+          "rawName": "Gold"
+        }
+      ]
+    },
+    "14": {
+      "displayName": "Drippy_Drop_Stamp",
+      "rawName": "StampB15",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 60,
+      "baseCoinCost": 1000,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": -1,
+      "effect": "+{%_Liquid_Regen_Speed_in_Alchemy",
+      "placeholderEffect": "{}%_Liquid_Spd",
+      "stat": "LiquidSpd",
+      "itemReq": [
+        {
+          "name": "Pocket_Sand",
+          "rawName": "DesertA1"
+        }
+      ]
+    },
+    "15": {
+      "displayName": "Droplots_Stamp",
+      "rawName": "StampB16",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 25,
+      "baseCoinCost": 2500,
+      "powCoinBase": 1.3,
+      "powMatBase": 4,
+      "skillIndex": -1,
+      "effect": "+{_Cap_for_all_Liquids_in_Alchemy",
+      "placeholderEffect": "{}_Liquid_Cap",
+      "stat": "LiquidCap",
+      "itemReq": [
+        {
+          "name": "Bloach",
+          "rawName": "Fish4"
+        }
+      ]
+    },
+    "16": {
+      "displayName": "Fishing_Rod_Stamp",
+      "rawName": "StampB17",
+      "func": "add",
+      "x1": 2,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 50,
+      "baseCoinCost": 1000,
+      "powCoinBase": 1.32,
+      "powMatBase": 6,
+      "skillIndex": 4,
+      "effect": "+{_Base_Fishing_Efficiency_",
+      "placeholderEffect": "{}_Fishing_Efficiency",
+      "stat": "BaseFishEff",
+      "itemReq": [
+        {
+          "name": "Fly",
+          "rawName": "Bug1"
+        }
+      ]
+    },
+    "17": {
+      "displayName": "Fishhead_Stamp",
+      "rawName": "StampB18",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 55,
+      "baseCoinCost": 1500,
+      "powCoinBase": 1.33,
+      "powMatBase": 9,
+      "skillIndex": 4,
+      "effect": "+{%_Fishing_Exp_Gain",
+      "placeholderEffect": "{}%_Fishing_Exp",
+      "stat": "FishExp",
+      "itemReq": [
+        {
+          "name": "Megalodon_Tooth",
+          "rawName": "DesertA2"
+        }
+      ]
+    },
+    "18": {
+      "displayName": "Catch_Net_Stamp",
+      "rawName": "StampB19",
+      "func": "add",
+      "x1": 2,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 50,
+      "baseCoinCost": 1000,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 6,
+      "effect": "+{_Base_Catching_Efficiency",
+      "placeholderEffect": "{}_Catching_Efficiency",
+      "stat": "BaseCatchEff",
+      "itemReq": [
+        {
+          "name": "Goldfish",
+          "rawName": "Fish1"
+        }
+      ]
+    },
+    "19": {
+      "displayName": "Fly_Intel_Stamp",
+      "rawName": "StampB20",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 40,
+      "baseCoinCost": 1500,
+      "powCoinBase": 1.33,
+      "powMatBase": 10,
+      "skillIndex": 6,
+      "effect": "+{%_Catching_Exp_Gain",
+      "placeholderEffect": "{}%_Catching_Exp",
+      "stat": "CatchExp",
+      "itemReq": [
+        {
+          "name": "Crabby_Cakey",
+          "rawName": "DesertA3"
+        }
+      ]
+    },
+    "20": {
+      "displayName": "Bag_o_Heads_Stamp",
+      "rawName": "StampB21",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 8,
+      "baseMatCost": 35,
+      "baseCoinCost": 1000,
+      "powCoinBase": 1.3,
+      "powMatBase": 7,
+      "skillIndex": 4,
+      "effect": "+{%_Carry_Capacity_for_Fishing_Items",
+      "placeholderEffect": "{}%_Fish_Carry_Cap",
+      "stat": "FishCap",
+      "itemReq": [
+        {
+          "name": "Butterfly",
+          "rawName": "Bug2"
+        }
+      ]
+    },
+    "21": {
+      "displayName": "Holy_Mackerel_Stamp",
+      "rawName": "StampB22",
+      "func": "decay",
+      "x1": 20,
+      "x2": 40,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 30,
+      "baseCoinCost": 1500,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 4,
+      "effect": "+{%_Multi-Fish_Chance",
+      "placeholderEffect": "{}%_Multifish_Chance",
+      "stat": "DoubleFish",
+      "itemReq": [
+        {
+          "name": "Platinum_Ore",
+          "rawName": "Plat"
+        }
+      ]
+    },
+    "22": {
+      "displayName": "Bugsack_Stamp",
+      "rawName": "StampB23",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 8,
+      "baseMatCost": 35,
+      "baseCoinCost": 1000,
+      "powCoinBase": 1.3,
+      "powMatBase": 7,
+      "skillIndex": 6,
+      "effect": "+{%_Carry_Capacity_for_Catching_Items",
+      "placeholderEffect": "{}%_Bug_Carry_Cap",
+      "stat": "CatchCap",
+      "itemReq": [
+        {
+          "name": "Hermit_Can",
+          "rawName": "Fish2"
+        }
+      ]
+    },
+    "23": {
+      "displayName": "Buzz_Buzz_Stamp",
+      "rawName": "StampB24",
+      "func": "decay",
+      "x1": 20,
+      "x2": 40,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 45,
+      "baseCoinCost": 1500,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 6,
+      "effect": "+{%_Multi-Bug_Chance",
+      "placeholderEffect": "{}%_Multibug_Chance",
+      "stat": "DoubleCatch",
+      "itemReq": [
+        {
+          "name": "Potty_Rolls",
+          "rawName": "ToiletTree"
+        }
+      ]
+    },
+    "24": {
+      "displayName": "Hidey_Box_Stamp",
+      "rawName": "StampB25",
+      "func": "add",
+      "x1": 2,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 100,
+      "baseCoinCost": 7500,
+      "powCoinBase": 1.3,
+      "powMatBase": 5,
+      "skillIndex": 7,
+      "effect": "+{_Base_Trapping_Efficiency",
+      "placeholderEffect": "{}_Trapping_Efficiency",
+      "stat": "TrappingEff",
+      "itemReq": [
+        {
+          "name": "Crabbo",
+          "rawName": "Critter2"
+        }
+      ]
+    },
+    "25": {
+      "displayName": "Purp_Froge_Stamp",
+      "rawName": "StampB26",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 125,
+      "baseCoinCost": 10000,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 7,
+      "effect": "+{%_Shiny_Catch_rate,_multiplier",
+      "placeholderEffect": "{}%_Shiny_Chance",
+      "stat": "ShinyChance",
+      "itemReq": [
+        {
+          "name": "Scorpie",
+          "rawName": "Critter3"
+        }
+      ]
+    },
+    "26": {
+      "displayName": "Spikemouth_Stamp",
+      "rawName": "StampB27",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 3,
+      "baseMatCost": 150,
+      "baseCoinCost": 12500,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 7,
+      "effect": "+{%_Trapping_Exp_Gain",
+      "placeholderEffect": "{}%_Trapping_Exp",
+      "stat": "TrappingExp",
+      "itemReq": [
+        {
+          "name": "Mousey",
+          "rawName": "Critter4"
+        }
+      ]
+    },
+    "27": {
+      "displayName": "Shiny_Crab_Stamp",
+      "rawName": "StampB28",
+      "func": "add",
+      "x1": 2,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 3,
+      "baseMatCost": 200,
+      "baseCoinCost": 15000,
+      "powCoinBase": 1.3,
+      "powMatBase": 7,
+      "skillIndex": 7,
+      "effect": "+{%_Shiny_Catch_rate,_multiplier",
+      "placeholderEffect": "{}%_Shiny_Chance",
+      "stat": "ShinyChance",
+      "itemReq": [
+        {
+          "name": "Owlio",
+          "rawName": "Critter5"
+        }
+      ]
+    },
+    "28": {
+      "displayName": "Gear_Stamp",
+      "rawName": "StampB29",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 3,
+      "baseMatCost": 100,
+      "baseCoinCost": 10000,
+      "powCoinBase": 1.3,
+      "powMatBase": 5,
+      "skillIndex": 8,
+      "effect": "+{%_Building_Speed",
+      "placeholderEffect": "{}%_Building_Spd",
+      "stat": "BuildProd",
+      "itemReq": [
+        {
+          "name": "Sticky_Stick",
+          "rawName": "SnowB1"
+        }
+      ]
+    },
+    "29": {
+      "displayName": "Stample_Stamp",
+      "rawName": "StampB30",
+      "func": "decay",
+      "x1": 4,
+      "x2": 30,
+      "reqItemMultiplicationLevel": 4,
+      "baseMatCost": 100,
+      "baseCoinCost": 10000,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{%_3D_Printer_Sampling_Size",
+      "placeholderEffect": "{}%_Sample_Size",
+      "stat": "SampleRate",
+      "itemReq": [
+        {
+          "name": "Floof_Ploof",
+          "rawName": "SnowA1"
+        }
+      ]
+    },
+    "30": {
+      "displayName": "Saw_Stamp",
+      "rawName": "StampB31",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 3,
+      "baseMatCost": 20,
+      "baseCoinCost": 15000,
+      "powCoinBase": 1.3,
+      "powMatBase": 5,
+      "skillIndex": 8,
+      "effect": "+{%_Construction_Exp_Gain",
+      "placeholderEffect": "{}%_Construction_Exp",
+      "stat": "ConstructionExp",
+      "itemReq": [
+        {
+          "name": "Dementia_Bar",
+          "rawName": "DementiaBar"
+        }
+      ]
+    },
+    "31": {
+      "displayName": "Amplestample_Stamp",
+      "rawName": "StampB32",
+      "func": "decay",
+      "x1": 5,
+      "x2": 30,
+      "reqItemMultiplicationLevel": 4,
+      "baseMatCost": 2500,
+      "baseCoinCost": 50000,
+      "powCoinBase": 1.5,
+      "powMatBase": 12,
+      "skillIndex": 0,
+      "effect": "+{%_3D_Printer_Sampling_Size",
+      "placeholderEffect": "{}%_Sample_Size",
+      "stat": "SampleRate",
+      "itemReq": [
+        {
+          "name": "Mosquisnow",
+          "rawName": "Bug5"
+        }
+      ]
+    },
+    "32": {
+      "displayName": "SpoOoky_Stamp",
+      "rawName": "StampB33",
+      "func": "add",
+      "x1": 2,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 45,
+      "baseCoinCost": 7500,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 9,
+      "effect": "+{_Base_Worship_Efficiency",
+      "placeholderEffect": "{}_Worship_Efficiency",
+      "stat": "WorshipEff",
+      "itemReq": [
+        {
+          "name": "Forest_Soul",
+          "rawName": "Soul1"
+        }
+      ]
+    },
+    "33": {
+      "displayName": "Flowin_Stamp",
+      "rawName": "StampB34",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 2,
+      "baseCoinCost": 15000,
+      "powCoinBase": 1.3,
+      "powMatBase": 5,
+      "skillIndex": 9,
+      "effect": "+{%_Charge_Rate_per_Hour,_multiplier",
+      "placeholderEffect": "{}%_Charging_Speed",
+      "stat": "WorshipCharge",
+      "itemReq": [
+        {
+          "name": "Redox_Salts",
+          "rawName": "Refinery1"
+        }
+      ]
+    },
+    "34": {
+      "displayName": "Prayday_Stamp",
+      "rawName": "StampB35",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 150,
+      "baseCoinCost": 10000,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 9,
+      "effect": "+{%_Max_Charge",
+      "placeholderEffect": "{}%_Max_Charge",
+      "stat": "WorshipMax",
+      "itemReq": [
+        {
+          "name": "Cracked_Glass",
+          "rawName": "SnowB4"
+        }
+      ]
+    },
+    "35": {
+      "displayName": "Banked_Pts_Stamp",
+      "rawName": "StampB36",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 6,
+      "baseMatCost": 100,
+      "baseCoinCost": 6000,
+      "powCoinBase": 1.3,
+      "powMatBase": 3,
+      "skillIndex": 9,
+      "effect": "+{_Starting_Points_in_Worship_Tower_Defense",
+      "placeholderEffect": "{}_Starting_TD_Pts",
+      "stat": "WorshipPTS",
+      "itemReq": [
+        {
+          "name": "Dune_Soul",
+          "rawName": "Soul2"
+        }
+      ]
+    },
+    "36": {
+      "displayName": "Cooked_Meal_Stamp",
+      "rawName": "StampB37",
+      "func": "add",
+      "x1": 2,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 15,
+      "baseMatCost": 200,
+      "baseCoinCost": 1000000,
+      "powCoinBase": 1.35,
+      "powMatBase": 5,
+      "skillIndex": 0,
+      "effect": "+{%_Meal_Cooking_Speed",
+      "placeholderEffect": "{}%_Meal_Cooking_Spd",
+      "stat": "MealCook",
+      "itemReq": [
+        {
+          "name": "Skelefish",
+          "rawName": "Fish5"
+        }
+      ]
+    },
+    "37": {
+      "displayName": "Spice_Stamp",
+      "rawName": "StampB38",
+      "func": "add",
+      "x1": 2,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 15,
+      "baseMatCost": 200,
+      "baseCoinCost": 1000000,
+      "powCoinBase": 1.35,
+      "powMatBase": 5,
+      "skillIndex": 0,
+      "effect": "+{%_New_Recipe_Cooking_Speed",
+      "placeholderEffect": "{}%_New_Recipe_Spd",
+      "stat": "RecipeCook",
+      "itemReq": [
+        {
+          "name": "Purple_Mush_Cap",
+          "rawName": "GalaxyA1"
+        }
+      ]
+    },
+    "38": {
+      "displayName": "Ladle_Stamp",
+      "rawName": "StampB39",
+      "func": "add",
+      "x1": 25,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 200,
+      "baseCoinCost": 1000000,
+      "powCoinBase": 1.35,
+      "powMatBase": 5,
+      "skillIndex": 0,
+      "effect": "+{_Cooking_Efficiency",
+      "placeholderEffect": "{}_Cooking_Efficiency",
+      "stat": "CookingEff",
+      "itemReq": [
+        {
+          "name": "Sand_Shark",
+          "rawName": "Fish6"
+        }
+      ]
+    },
+    "39": {
+      "displayName": "Nest_Eggs_Stamp",
+      "rawName": "StampB40",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 200,
+      "baseCoinCost": 1000000,
+      "powCoinBase": 1.4,
+      "powMatBase": 5,
+      "skillIndex": 0,
+      "effect": "+{%_Breeding_EXP_Gain",
+      "placeholderEffect": "{}%_Breeding_EXP",
+      "stat": "BreedExp",
+      "itemReq": [
+        {
+          "name": "Alien_Hive_Chunk",
+          "rawName": "AlienTree"
+        }
+      ]
+    },
+    "40": {
+      "displayName": "Egg_Stamp",
+      "rawName": "StampB41",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 15,
+      "baseMatCost": 200,
+      "baseCoinCost": 1000000,
+      "powCoinBase": 1.4,
+      "powMatBase": 5,
+      "skillIndex": 0,
+      "effect": "+{%_New_Mob_Chance",
+      "placeholderEffect": "{}%_New_Mob_Chance",
+      "stat": "NewPet",
+      "itemReq": [
+        {
+          "name": "Half_Eaten_Donut",
+          "rawName": "GalaxyA3"
+        }
+      ]
+    },
+    "41": {
+      "displayName": "Lab_Tube_Stamp",
+      "rawName": "StampB42",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 200,
+      "baseCoinCost": 1000000,
+      "powCoinBase": 1.35,
+      "powMatBase": 5,
+      "skillIndex": 0,
+      "effect": "+{%_Lab_Exp_Gain",
+      "placeholderEffect": "{}%_Lab_EXP",
+      "stat": "LabExp",
+      "itemReq": [
+        {
+          "name": "Bottle_Cap",
+          "rawName": "GalaxyB1"
+        }
+      ]
+    },
+    "42": {
+      "displayName": "Sailboat_Stamp",
+      "rawName": "StampB43",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 1000,
+      "baseCoinCost": 500000000,
+      "powCoinBase": 1.35,
+      "powMatBase": 5,
+      "skillIndex": 0,
+      "effect": "+{%_Sailing_Speed",
+      "placeholderEffect": "{}%_Sailing_Speed",
+      "stat": "SailSpd",
+      "itemReq": [
+        {
+          "name": "Stilt_Pole",
+          "rawName": "LavaA5"
+        }
+      ]
+    },
+    "43": {
+      "displayName": "Gamejoy_Stamp",
+      "rawName": "StampB44",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 500,
+      "baseCoinCost": 500000000,
+      "powCoinBase": 1.35,
+      "powMatBase": 8,
+      "skillIndex": 0,
+      "effect": "+{%_Gaming_EXP_Gain",
+      "placeholderEffect": "{}%_Gaming_EXP",
+      "stat": "GamingExp",
+      "itemReq": [
+        {
+          "name": "Dandielogs",
+          "rawName": "Tree10"
+        }
+      ]
+    },
+    "44": {
+      "displayName": "Divine_Stamp",
+      "rawName": "StampB45",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 8,
+      "baseMatCost": 1000,
+      "baseCoinCost": 500000000,
+      "powCoinBase": 1.35,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_Divinity_EXP_Gain",
+      "placeholderEffect": "{}%_Divinity_EXP",
+      "stat": "DivineExp",
+      "itemReq": [
+        {
+          "name": "Orange_Slice",
+          "rawName": "LavaB3"
+        }
+      ]
+    },
+    "45": {
+      "displayName": "Multitool_Stamp",
+      "rawName": "StampB46",
+      "func": "add",
+      "x1": 10,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 500,
+      "baseCoinCost": 800000000,
+      "powCoinBase": 1.35,
+      "powMatBase": 8,
+      "skillIndex": 0,
+      "effect": "+{_All_Skill_Efficiency",
+      "placeholderEffect": "{}_All_Efficiency",
+      "stat": "BaseAllEff",
+      "itemReq": [
+        {
+          "name": "Dust_Mote",
+          "rawName": "Bug10"
+        }
+      ]
+    },
+    "46": {
+      "displayName": "Skelefish_Stamp",
+      "rawName": "StampB47",
+      "func": "decay",
+      "x1": 0.2,
+      "x2": 20,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 250,
+      "baseCoinCost": 800000000,
+      "powCoinBase": 1.35,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_Fishing_Efficiency_per_Fishing_Lv",
+      "placeholderEffect": "{}%_Fishing_Eff_Per_Fishing_Lv",
+      "stat": "FishEffPerLv",
+      "itemReq": [
+        {
+          "name": "Skelefish",
+          "rawName": "Fish5"
+        }
+      ]
+    },
+    "47": {
+      "displayName": "Crop_Evo_Stamp",
+      "rawName": "StampB48",
+      "func": "add",
+      "x1": 5,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 12000,
+      "baseCoinCost": 100000000000,
+      "powCoinBase": 1.37,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_Crop_Evolution_Chance",
+      "placeholderEffect": "{}%_Crop_Evolution_Chance",
+      "stat": "CropEvo",
+      "itemReq": [
+        {
+          "name": "Icefish",
+          "rawName": "Fish9"
+        }
+      ]
+    },
+    "48": {
+      "displayName": "Sneaky_Peeky_Stamp",
+      "rawName": "StampB49",
+      "func": "decay",
+      "x1": 50,
+      "x2": 150,
+      "reqItemMultiplicationLevel": 8,
+      "baseMatCost": 20000,
+      "baseCoinCost": 50000000000,
+      "powCoinBase": 1.37,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_Sneaking_EXP_Gain",
+      "placeholderEffect": "{}%_Sneaking_EXP_gain",
+      "stat": "SneakExp",
+      "itemReq": [
+        {
+          "name": "Leafy_Horn",
+          "rawName": "SpiA4"
+        }
+      ]
+    },
+    "49": {
+      "displayName": "Jade_Mint_Stamp",
+      "rawName": "StampB50",
+      "func": "add",
+      "x1": 0.5,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 15,
+      "baseCoinCost": 20000000000,
+      "powCoinBase": 1.37,
+      "powMatBase": 7,
+      "skillIndex": 0,
+      "effect": "+{%_Jade_Coin_Gain",
+      "placeholderEffect": "{}%_Jade_Coin_gain",
+      "stat": "JadeCoin",
+      "itemReq": [
+        {
+          "name": "Stacked_Rice_Cake",
+          "rawName": "SpiA2b"
+        }
+      ]
+    },
+    "50": {
+      "displayName": "Summoner_Stone_Stamp",
+      "rawName": "StampB51",
+      "func": "decay",
+      "x1": 50,
+      "x2": 150,
+      "reqItemMultiplicationLevel": 8,
+      "baseMatCost": 8000,
+      "baseCoinCost": 50000000000,
+      "powCoinBase": 1.37,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_Summoning_EXP_Gain",
+      "placeholderEffect": "{}%_Summoning_EXP_gain",
+      "stat": "SummonExp",
+      "itemReq": [
+        {
+          "name": "Breezy_Soul",
+          "rawName": "Soul7"
+        }
+      ]
+    },
+    "51": {
+      "displayName": "White_Essence_Stamp",
+      "rawName": "StampB52",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 8,
+      "baseMatCost": 15000,
+      "baseCoinCost": 60000000000,
+      "powCoinBase": 1.37,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_White_Essence_Gain",
+      "placeholderEffect": "{}%_White_Essence_Gain_gain",
+      "stat": "WhiteEss",
+      "itemReq": [
+        {
+          "name": "Ladybug",
+          "rawName": "Bug12"
+        }
+      ]
+    },
+    "52": {
+      "displayName": "Triad_Essence_Stamp",
+      "rawName": "StampB53",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 8,
+      "baseMatCost": 8000,
+      "baseCoinCost": 800000000000,
+      "powCoinBase": 1.37,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_G,_Y,_B_Essence_Gain",
+      "placeholderEffect": "{}%_G_Y_and_B_Essence_gain",
+      "stat": "123Ess",
+      "itemReq": [
+        {
+          "name": "Caulifish",
+          "rawName": "Fish12"
+        }
+      ]
+    },
+    "53": {
+      "displayName": "Dark_Triad_Essence_Stamp",
+      "rawName": "StampB54",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 8,
+      "baseMatCost": 45000,
+      "baseCoinCost": 12000000000000,
+      "powCoinBase": 1.37,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_P,_R,_C_Essence_Gain",
+      "placeholderEffect": "{}%_P_R_and_C_Essence_gain",
+      "stat": "456Ess",
+      "itemReq": [
+        {
+          "name": "Effervescent_Logs",
+          "rawName": "Tree13"
+        }
+      ]
+    },
+    "54": {
+      "displayName": "Amber_Stamp",
+      "rawName": "StampB55",
+      "func": "decay",
+      "x1": 30,
+      "x2": 150,
+      "reqItemMultiplicationLevel": 8,
+      "baseMatCost": 500,
+      "baseCoinCost": 1200000000000000,
+      "powCoinBase": 1.37,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_Spelunking_Amber_gain",
+      "placeholderEffect": "{}%_Amber_Gain",
+      "stat": "spelunkamb",
+      "itemReq": [
+        {
+          "name": "Chapter_Two_'Decay_Surrounds'",
+          "rawName": "Spelunking1"
+        }
+      ]
+    },
+    "55": {
+      "displayName": "Little_Rock_Stamp",
+      "rawName": "StampB56",
+      "func": "decay",
+      "x1": 200,
+      "x2": 220,
+      "reqItemMultiplicationLevel": 8,
+      "baseMatCost": 100,
+      "baseCoinCost": 1200000000000000,
+      "powCoinBase": 1.37,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_Spelunking_Efficiency",
+      "placeholderEffect": "{}%_Spelunking_Efficiency",
+      "stat": "spelunkeff",
+      "itemReq": [
+        {
+          "name": "Chapter_One_'The_Fear_Within'",
+          "rawName": "Spelunking0"
+        }
+      ]
+    },
+    "56": {
+      "displayName": "Hardhat_Stamp",
+      "rawName": "StampB57",
+      "func": "decay",
+      "x1": 50,
+      "x2": 150,
+      "reqItemMultiplicationLevel": 8,
+      "baseMatCost": 100,
+      "baseCoinCost": 1200000000000000,
+      "powCoinBase": 1.37,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_Spelunking_EXP_Gain",
+      "placeholderEffect": "{}%_Spelunking_EXP_gain",
+      "stat": "spelunkxp",
+      "itemReq": [
+        {
+          "name": "Chapter_Three_'This_is_Gospel'",
+          "rawName": "Spelunking2"
+        }
+      ]
+    }
+  },
+  "misc": {
+    "0": {
+      "displayName": "Questin_Stamp",
+      "rawName": "StampC1",
+      "func": "decay",
+      "x1": 70,
+      "x2": 50,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 30,
+      "baseCoinCost": 500,
+      "powCoinBase": 1.32,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{%_Quest_Exp",
+      "placeholderEffect": "{}%_Quest_EXP",
+      "stat": "QuestExp",
+      "itemReq": [
+        {
+          "name": "Slime_Sludge",
+          "rawName": "Jungle1"
+        }
+      ]
+    },
+    "1": {
+      "displayName": "Mason_Jar_Stamp",
+      "rawName": "StampC2",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 4,
+      "baseMatCost": 1,
+      "baseCoinCost": 4000,
+      "powCoinBase": 1.28,
+      "powMatBase": 3,
+      "skillIndex": 0,
+      "effect": "+{%_Carry_Capacity_for_ALL_item_types!",
+      "placeholderEffect": "{}%_All_Carry_Cap",
+      "stat": "AllCarryCap",
+      "itemReq": [
+        {
+          "name": "Glass_Shard",
+          "rawName": "DesertA1b"
+        }
+      ]
+    },
+    "2": {
+      "displayName": "Crystallin",
+      "rawName": "StampC3",
+      "func": "decay",
+      "x1": 110,
+      "x2": 50,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 35,
+      "baseCoinCost": 800,
+      "powCoinBase": 1.31,
+      "powMatBase": 8,
+      "skillIndex": 0,
+      "effect": "+{%_Crystal_Monster_Spawn_Chance",
+      "placeholderEffect": "{}%_Spawn_Chance",
+      "stat": "CrySpawn",
+      "itemReq": [
+        {
+          "name": "Boring_Brick",
+          "rawName": "CraftMat6"
+        }
+      ]
+    },
+    "3": {
+      "displayName": "Arcade_Ball_Stamp",
+      "rawName": "StampC4",
+      "func": "decay",
+      "x1": 50,
+      "x2": 100,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 30,
+      "baseCoinCost": 1500,
+      "powCoinBase": 1.33,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{%_Arcade_Ball_recharge_rate",
+      "placeholderEffect": "{}%_ball_gain_rate",
+      "stat": "ArcadeBallz",
+      "itemReq": [
+        {
+          "name": "Copper_Ore",
+          "rawName": "Copper"
+        }
+      ]
+    },
+    "4": {
+      "displayName": "Gold_Ball_Stamp",
+      "rawName": "StampC5",
+      "func": "decay",
+      "x1": 40,
+      "x2": 100,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 50,
+      "baseCoinCost": 1000,
+      "powCoinBase": 1.33,
+      "powMatBase": 6.5,
+      "skillIndex": 0,
+      "effect": "+{%_reduced_golden_ball_cost_for_upgrades",
+      "placeholderEffect": "{}%_HP_Food_Effect",
+      "stat": "GoldBallz",
+      "itemReq": [
+        {
+          "name": "Goldfish",
+          "rawName": "Fish1"
+        }
+      ]
+    },
+    "5": {
+      "displayName": "Potion_Stamp",
+      "rawName": "StampC6",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 50,
+      "baseCoinCost": 1500,
+      "powCoinBase": 1.305,
+      "powMatBase": 8,
+      "skillIndex": 0,
+      "effect": "+{%_Effect_from_Boost_Food,_like_Potions_and_stuff,_like,_such_as!",
+      "placeholderEffect": "{}%_Boost_Food_Effect",
+      "stat": "BFood",
+      "itemReq": [
+        {
+          "name": "Icing_Ironbite",
+          "rawName": "FoodMining1",
+          "materials": [
+            {
+              "itemName": "Iron_Ore",
+              "type": "Consumable",
+              "subType": "ORE",
+              "rawName": "Iron",
+              "itemQuantity": 5
+            },
+            {
+              "itemName": "Small_Mana_Potion",
+              "type": "Consumable",
+              "subType": "BOOST_FOOD",
+              "rawName": "FoodPotMana1",
+              "itemQuantity": 2
+            }
+          ]
+        }
+      ]
+    },
+    "6": {
+      "displayName": "Golden_Apple_Stamp",
+      "rawName": "StampC7",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 4,
+      "baseMatCost": 2,
+      "baseCoinCost": 3000,
+      "powCoinBase": 1.3,
+      "powMatBase": 4,
+      "skillIndex": 0,
+      "effect": "+{%_Effect_from_Golden_Food._Sparkle_sparkle!",
+      "placeholderEffect": "{}%_Gold_Food_Effect",
+      "stat": "GFood",
+      "itemReq": [
+        {
+          "name": "Golden_Nomwich",
+          "rawName": "FoodG4"
+        }
+      ]
+    },
+    "7": {
+      "displayName": "Ball_Timer_Stamp",
+      "rawName": "StampC8",
+      "func": "decay",
+      "x1": 12,
+      "x2": 30,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 100,
+      "baseCoinCost": 1000,
+      "powCoinBase": 1.32,
+      "powMatBase": 15,
+      "skillIndex": 0,
+      "effect": "+{hr_Arcade_Ball_claim_max_time",
+      "placeholderEffect": "{}hr_Max_Claim_Time",
+      "stat": "ArcadeTimeMax",
+      "itemReq": [
+        {
+          "name": "Oak_Logs",
+          "rawName": "OakTree"
+        }
+      ]
+    },
+    "8": {
+      "displayName": "Card_Stamp",
+      "rawName": "StampC9",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 25,
+      "baseCoinCost": 1200,
+      "powCoinBase": 1.31,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{%_Card_Drop_Rate._Go_get_them_cards_boy-o!",
+      "placeholderEffect": "{}%_Card_Drop_Rate",
+      "stat": "CardDrop",
+      "itemReq": [
+        {
+          "name": "Furled_Flag",
+          "rawName": "DesertB2"
+        }
+      ]
+    },
+    "9": {
+      "displayName": "Forge_Stamp",
+      "rawName": "StampC10",
+      "func": "decay",
+      "x1": 120,
+      "x2": 250,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 250,
+      "baseCoinCost": 5000000000000,
+      "powCoinBase": 1.3,
+      "powMatBase": 8,
+      "skillIndex": 0,
+      "effect": "+{%_Forge_Max_Capacity",
+      "placeholderEffect": "{}%_Forge_Capacity",
+      "stat": "ForgeCap",
+      "itemReq": [
+        {
+          "name": "Godshard_Ore",
+          "rawName": "Godshard"
+        }
+      ]
+    },
+    "10": {
+      "displayName": "Vendor_Stamp",
+      "rawName": "StampC11",
+      "func": "decay",
+      "x1": 35,
+      "x2": 100,
+      "reqItemMultiplicationLevel": 10,
+      "baseMatCost": 100,
+      "baseCoinCost": 30000,
+      "powCoinBase": 1.5,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_Shop_Stock_Quantity",
+      "placeholderEffect": "{}%_Higher_Shop_QTY",
+      "stat": "ShopQty",
+      "itemReq": [
+        {
+          "name": "Cue_Tape",
+          "rawName": "CraftMat3"
+        }
+      ]
+    },
+    "11": {
+      "displayName": "Sigil_Stamp",
+      "rawName": "StampC12",
+      "func": "decay",
+      "x1": 40,
+      "x2": 150,
+      "reqItemMultiplicationLevel": 12,
+      "baseMatCost": 2000,
+      "baseCoinCost": 1000000,
+      "powCoinBase": 1.32,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{%_Sigil_Charge_rate",
+      "placeholderEffect": "{}%_Sigil_Charge_rate",
+      "stat": "SigilCharge",
+      "itemReq": [
+        {
+          "name": "Ram_Wool",
+          "rawName": "SnowA4"
+        }
+      ]
+    },
+    "12": {
+      "displayName": "Talent_I_Stamp",
+      "rawName": "StampC13",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 50,
+      "baseCoinCost": 2000,
+      "powCoinBase": 1.4,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{_Talent_Points_for_Tab_1",
+      "placeholderEffect": "{}_Talent_1_Pts",
+      "stat": "Talent1",
+      "itemReq": [
+        {
+          "name": "Frog_Leg",
+          "rawName": "Grasslands2"
+        }
+      ]
+    },
+    "13": {
+      "displayName": "Talent_II_Stamp",
+      "rawName": "StampC14",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 200,
+      "baseCoinCost": 4000,
+      "powCoinBase": 1.35,
+      "powMatBase": 8,
+      "skillIndex": 0,
+      "effect": "+{_Talent_Points_for_Tab_2",
+      "placeholderEffect": "{}_Talent_2_Pts",
+      "stat": "Talent2",
+      "itemReq": [
+        {
+          "name": "Pincer_Arm",
+          "rawName": "DesertB3"
+        }
+      ]
+    },
+    "14": {
+      "displayName": "Talent_III_Stamp",
+      "rawName": "StampC15",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 20,
+      "baseCoinCost": 40000,
+      "powCoinBase": 1.35,
+      "powMatBase": 4,
+      "skillIndex": 0,
+      "effect": "+{_Talent_Points_for_Tab_3",
+      "placeholderEffect": "{}_Talent_3_Pts",
+      "stat": "Talent3",
+      "itemReq": [
+        {
+          "name": "Arctic_Leaf",
+          "rawName": "Leaf3"
+        }
+      ]
+    },
+    "15": {
+      "displayName": "Talent_IV_Stamp",
+      "rawName": "StampC16",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 2,
+      "baseCoinCost": 300000000,
+      "powCoinBase": 1.4,
+      "powMatBase": 3,
+      "skillIndex": 0,
+      "effect": "+{_Talent_Points_for_Tab_4",
+      "placeholderEffect": "{}_Talent_4_Pts",
+      "stat": "Talent4",
+      "itemReq": [
+        {
+          "name": "Royal_Suggma_Urn",
+          "rawName": "LavaA1b"
+        }
+      ]
+    },
+    "16": {
+      "displayName": "Talent_V_Stamp",
+      "rawName": "StampC17",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 25,
+      "baseCoinCost": 50,
+      "powCoinBase": 1.3,
+      "powMatBase": 6,
+      "skillIndex": 0,
+      "effect": "+{_Talent_Points_for_Tab_5",
+      "placeholderEffect": "{}_Talent_5_Pts",
+      "stat": "Talent5",
+      "itemReq": [
+        {
+          "name": "Copper_Ore",
+          "rawName": "Copper"
+        }
+      ]
+    },
+    "17": {
+      "displayName": "Talent_S_Stamp",
+      "rawName": "StampC18",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 20,
+      "baseCoinCost": 50,
+      "powCoinBase": 1.3,
+      "powMatBase": 4,
+      "skillIndex": 0,
+      "effect": "+{_Talent_Points_for_Star_Tab",
+      "placeholderEffect": "{}_Star_Talent_Pts",
+      "stat": "TalentS",
+      "itemReq": [
+        {
+          "name": "Twisty_Leaf",
+          "rawName": "Leaf2"
+        }
+      ]
+    },
+    "18": {
+      "displayName": "Multikill_Stamp",
+      "rawName": "StampC19",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 100,
+      "baseCoinCost": 10000,
+      "powCoinBase": 1.3,
+      "powMatBase": 3,
+      "skillIndex": 0,
+      "effect": "+{%_Base_Multikill_Rate,_for_all_worlds.",
+      "placeholderEffect": "{}%_Base_Overkill",
+      "stat": "Overkill",
+      "itemReq": [
+        {
+          "name": "Spore_Cap",
+          "rawName": "Grasslands1"
+        }
+      ]
+    },
+    "19": {
+      "displayName": "Biblio_Stamp",
+      "rawName": "StampC20",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 2,
+      "baseMatCost": 125,
+      "baseCoinCost": 12500,
+      "powCoinBase": 1.3,
+      "powMatBase": 5,
+      "skillIndex": 0,
+      "effect": "+{%_Talent_Book_Library_Refresh_Speed",
+      "placeholderEffect": "{}%_Faster_Books",
+      "stat": "BookSpd",
+      "itemReq": [
+        {
+          "name": "Tundra_Logs",
+          "rawName": "SaharanFoal"
+        }
+      ]
+    },
+    "20": {
+      "displayName": "DNA_Stamp",
+      "rawName": "StampC21",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 3,
+      "baseMatCost": 200,
+      "baseCoinCost": 1000000,
+      "powCoinBase": 1.6,
+      "powMatBase": 5,
+      "skillIndex": 0,
+      "effect": "+{%_DNA_gained_from_Splicing",
+      "placeholderEffect": "{}%_more_DNA",
+      "stat": "DNAsplice",
+      "itemReq": [
+        {
+          "name": "Worker_Bee",
+          "rawName": "Bug7"
+        }
+      ]
+    },
+    "21": {
+      "displayName": "Refinery_Stamp",
+      "rawName": "StampC22",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 5,
+      "baseMatCost": 250,
+      "baseCoinCost": 25000000,
+      "powCoinBase": 1.52,
+      "powMatBase": 5,
+      "skillIndex": 0,
+      "effect": "+{%_Faster_refinery_cycles",
+      "placeholderEffect": "{}%_faster_refinery",
+      "stat": "RefinerySpd",
+      "itemReq": [
+        {
+          "name": "Cheesy_Crumbs",
+          "rawName": "LavaA4"
+        }
+      ]
+    },
+    "22": {
+      "displayName": "Atomic_Stamp",
+      "rawName": "StampC23",
+      "func": "decay",
+      "x1": 20,
+      "x2": 80,
+      "reqItemMultiplicationLevel": 8,
+      "baseMatCost": 2500,
+      "baseCoinCost": 25000000,
+      "powCoinBase": 1.52,
+      "powMatBase": 5,
+      "skillIndex": 0,
+      "effect": "+{%_Lower_Atom_Upgrade_Costs",
+      "placeholderEffect": "{}%_lower_Atom_upgrade_costs",
+      "stat": "AtomCost",
+      "itemReq": [
+        {
+          "name": "Bamboo",
+          "rawName": "SpiA3"
+        }
+      ]
+    },
+    "23": {
+      "displayName": "Cavern_Resource_Stamp",
+      "rawName": "StampC24",
+      "func": "decay",
+      "x1": 100,
+      "x2": 250,
+      "reqItemMultiplicationLevel": 20,
+      "baseMatCost": 10,
+      "baseCoinCost": 2000000000,
+      "powCoinBase": 1.72,
+      "powMatBase": 20,
+      "skillIndex": 0,
+      "effect": "+{%_more_Resources_from_all_Caverns",
+      "placeholderEffect": "{}%_more_resources_from_caverns",
+      "stat": "CavernRes",
+      "itemReq": [
+        {
+          "name": "Cooking_Ladle",
+          "rawName": "Ladle"
+        }
+      ]
+    },
+    "24": {
+      "displayName": "Study_Hall_Stamp",
+      "rawName": "StampC25",
+      "func": "decay",
+      "x1": 30,
+      "x2": 160,
+      "reqItemMultiplicationLevel": 15,
+      "baseMatCost": 30,
+      "baseCoinCost": 2000000000,
+      "powCoinBase": 1.72,
+      "powMatBase": 20,
+      "skillIndex": 0,
+      "effect": "+{%_Study_rate_for_Bolaia",
+      "placeholderEffect": "{}%_faster_Study_Rate_for_Bolaia",
+      "stat": "VillageStudy",
+      "itemReq": [
+        {
+          "name": "Villager_Statue",
+          "rawName": "EquipmentStatues29"
+        }
+      ]
+    },
+    "25": {
+      "displayName": "Kruker_Stamp",
+      "rawName": "StampC26",
+      "func": "add",
+      "x1": 1,
+      "x2": 0,
+      "reqItemMultiplicationLevel": 1,
+      "baseMatCost": 20000,
+      "baseCoinCost": 2000000000000000000,
+      "powCoinBase": 4.5,
+      "powMatBase": 100,
+      "skillIndex": 0,
+      "effect": "+{_daily_Kattlekruk_bubble_LVs",
+      "placeholderEffect": "{}_daily_Kattlekruk_bubble_LVs",
+      "stat": "krukd",
+      "itemReq": [
+        {
+          "name": "Equinox_Flesh",
+          "rawName": "w7A1"
+        }
+      ]
+    },
+    "26": {
+      "displayName": "Corale_Stamp",
+      "rawName": "StampC27",
+      "func": "decay",
+      "x1": 10,
+      "x2": 150,
+      "reqItemMultiplicationLevel": 15,
+      "baseMatCost": 2500,
+      "baseCoinCost": 20000000000000,
+      "powCoinBase": 1.72,
+      "powMatBase": 10,
+      "skillIndex": 0,
+      "effect": "+{%_Daily_Coral_gain_for_the_Coral_Reef",
+      "placeholderEffect": "{}%_extra_daily_Reef_Coral",
+      "stat": "corale",
+      "itemReq": [
+        {
+          "name": "Demonflesh",
+          "rawName": "w7A9"
+        }
+      ]
+    }
+  }
+}

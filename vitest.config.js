@@ -12,7 +12,7 @@ export default defineConfig({
       { find: '@parsers', replacement: path.resolve(__dirname, 'parsers') },
       { find: '@utility', replacement: path.resolve(__dirname, 'utility') },
       { find: '@hooks', replacement: path.resolve(__dirname, 'hooks') },
-      { find: '@website-data', replacement: path.resolve(__dirname, 'data/website-data.json') },
+      { find: '@website-data', replacement: path.resolve(__dirname, 'data/website-data/index.js') },
       { find: /^components\//, replacement: `${path.resolve(__dirname, 'components')}/` },
       { find: /^parsers\//, replacement: `${path.resolve(__dirname, 'parsers')}/` },
       { find: /^utility\//, replacement: `${path.resolve(__dirname, 'utility')}/` },

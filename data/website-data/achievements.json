@@ -1,0 +1,5825 @@
+[
+  {
+    "name": "Learn_2_Forge",
+    "rawName": "TaskAchA1",
+    "quantity": 1,
+    "desc": "Get_the_mining_certificate_from_Glumlee.",
+    "rewards": [
+      "10_gems_",
+      "1hr_time_candy"
+    ],
+    "misc": "0",
+    "visualIndex": 0,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 42
+  },
+  {
+    "name": "Another_Me!",
+    "rawName": "TaskAchA2",
+    "quantity": 1,
+    "desc": "Create_a_2nd_character._Trust_me,_you_wanna_do_this_ASAP.",
+    "rewards": [
+      "8_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 2,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 14
+  },
+  {
+    "name": "Sleepy_Gamer",
+    "rawName": "TaskAchA3",
+    "quantity": 1,
+    "desc": "Claim_100+_hours_of_AFK_rewards.",
+    "rewards": [
+      "5_gems_",
+      "1hr_time_candy"
+    ],
+    "misc": "0",
+    "visualIndex": 1,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 46
+  },
+  {
+    "name": "Classy!",
+    "rawName": "TaskAchA4",
+    "quantity": 1,
+    "desc": "Choose_one_of_the_3_starting_classes_from_Promotheus.",
+    "rewards": [
+      "18_gems_",
+      "2hr_time_candy"
+    ],
+    "misc": "0",
+    "visualIndex": 3,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 45
+  },
+  {
+    "name": "Hitting_the_Mark",
+    "rawName": "TaskAchA5",
+    "quantity": 1,
+    "desc": "Chop_15_yellow_sections_in_a_row_during_the_Choppin'_Minigame.",
+    "rewards": [
+      "5%_Chopping_EXP_for_all_character"
+    ],
+    "misc": "0",
+    "visualIndex": 4,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Learn_2_Entertain",
+    "rawName": "TaskAchA6",
+    "quantity": 1,
+    "desc": "Get_the_golden_jam_from_the_Picnic_Stowaway.",
+    "rewards": [
+      "15_gems_",
+      "2hr_time_candy"
+    ],
+    "misc": "0",
+    "visualIndex": 5,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 43
+  },
+  {
+    "name": "5_'hunned_Copper",
+    "rawName": "TaskAchA7",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_500_Copper_Ore_in_your_Storage_Chest.",
+    "rewards": [
+      "RNG_Item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 6,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Rookie_Player",
+    "rawName": "TaskAchA8",
+    "quantity": 1,
+    "desc": "Reach_level_20_on_any_character.",
+    "rewards": [
+      "8_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 8,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 3
+  },
+  {
+    "name": "1.5_Ki'log'grams",
+    "rawName": "TaskAchA9",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_1500_Oak_Logs_in_your_Storage_Chest.",
+    "rewards": [
+      "RNG_Item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 9,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Small_Savings",
+    "rawName": "TaskAchA10",
+    "quantity": 1,
+    "desc": "Save_up_10000_coins.",
+    "rewards": [
+      "8_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 10,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 9
+  },
+  {
+    "name": "Copper_Quipment",
+    "rawName": "TaskAchA11",
+    "quantity": 1,
+    "desc": "Equip_the_Copper_Helmet_and_Copper_Platebody",
+    "rewards": [
+      "RNG_Item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 11,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "The_Sculpture_Within",
+    "rawName": "TaskAchA12",
+    "quantity": 1,
+    "desc": "Buy_the_Sculpting_Tools_from_the_Blunder_Hills_town_shop",
+    "rewards": [
+      "10_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 12,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 0
+  },
+  {
+    "name": "Card_Collector",
+    "rawName": "TaskAchA13",
+    "quantity": 1,
+    "desc": "Collect_10_unique_cards._They_drop_randomly_from_monsters!",
+    "rewards": [
+      "8_gems_"
+    ],
+    "misc": "0",
+    "visualIndex": 13,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 20
+  },
+  {
+    "name": "Do_What_You're_Told",
+    "rawName": "TaskAchA14",
+    "quantity": 1,
+    "desc": "Complete_25_unique_quests._Unique_here_means_different,_not_interesting_btw_lol",
+    "rewards": [
+      "8_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 14,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 17
+  },
+  {
+    "name": "Learn_2_Translate",
+    "rawName": "TaskAchA15",
+    "quantity": 1,
+    "desc": "Get_the_scouting_report_from_Stiltzcho,_the_friendly_jungle_leaf",
+    "rewards": [
+      "20_gems_",
+      "2_'2hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 15,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 44
+  },
+  {
+    "name": "Wode_Together",
+    "rawName": "TaskAchA16",
+    "quantity": 250,
+    "desc": "Defeat_250_Wode_Boards_with_at_least_1_other_party_member",
+    "rewards": [
+      "RNG_Item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 16,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "2_Tons_of_Iron",
+    "rawName": "TaskAchA17",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_2,000_Iron_Ore_in_your_Storage_Chest.",
+    "rewards": [
+      "RNG_Item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 17,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Giga_Decimation",
+    "rawName": "TaskAchA18",
+    "quantity": 1,
+    "desc": "Defeat_all_Giga_Frogs_before_any_respawn.",
+    "rewards": [
+      "Encroaching_Forest_BG_for_Title_Screen"
+    ],
+    "misc": "0",
+    "visualIndex": 20,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Shut_it_Poochy",
+    "rawName": "TaskAchA19",
+    "quantity": 1,
+    "desc": "Defeat_Amarok,_the_stone_golem_wolf_of_the_Encroaching_Forest.",
+    "rewards": [
+      "RNG_Item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 21,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Average_Player",
+    "rawName": "TaskAchA20",
+    "quantity": 1,
+    "desc": "Reach_level_40_on_any_character",
+    "rewards": [
+      "12_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 22,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 4
+  },
+  {
+    "name": "Slimeicidal_Endeavor",
+    "rawName": "TaskAchA21",
+    "quantity": 1,
+    "desc": "Defeat_25,000_slimes_in_total._This_counts_kills_from_all_your_characters!",
+    "rewards": [
+      "Jungle_Background_for_Title_Screen"
+    ],
+    "misc": "0",
+    "visualIndex": 23,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Right_to_Bear_Iron",
+    "rawName": "TaskAchA22",
+    "quantity": 1,
+    "desc": "Equip_an_Iron_Helmet,_Iron_Chestplate,_Iron_Pants,_and_one_Iron_Tool.",
+    "rewards": [
+      "RNG_Item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 24,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "5-6_Pick_up_Sticks",
+    "rawName": "TaskAchA23",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_20,000_Sticks_in_your_Storage_Chest.",
+    "rewards": [
+      "Tree_Interior_BG_for_Title_Screen"
+    ],
+    "misc": "0",
+    "visualIndex": 25,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "20_Bundles_of_Jungle",
+    "rawName": "TaskAchA24",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_20,000_Forest_Fibers_in_your_Storage_Chest.",
+    "rewards": [
+      "RNG_Item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 26,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Colosseum_Contender",
+    "rawName": "TaskAchA25",
+    "quantity": 1,
+    "desc": "Get_a_score_of_25,000_or_more_in_the_Dewdrop_Colosseum.",
+    "rewards": [
+      "RNG_Item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 27,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Crystal_Beatdown",
+    "rawName": "TaskAchA26",
+    "quantity": 1,
+    "desc": "Defeat_a_Crystal_monster,_who_have_a_1_in_2000_chance_of_spawning_when_a_monster_dies.",
+    "rewards": [
+      "8_gems_",
+      "2_'1hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 28,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 33
+  },
+  {
+    "name": "Ten_Trips_of_Gold",
+    "rawName": "TaskAchA27",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_30,000_Gold_Ore_in_your_Storage_Chest.",
+    "rewards": [
+      "Mining_Cave_Background_for_Title_Screen"
+    ],
+    "misc": "0",
+    "visualIndex": 29,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Minecart_Maniac",
+    "rawName": "TaskAchA28",
+    "quantity": 1,
+    "desc": "Slam_on_a_yellow_ore_vein_in_the_Mining_Minigame,_which_gives_3_points!",
+    "rewards": [
+      "5%_Mining_EXP_Bonus_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 30,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Spike_Minigame_Master",
+    "rawName": "TaskAchA29",
+    "quantity": 1,
+    "desc": "Get_a_score_of_13_in_the_spike_minigame._Remember_to_say_'If_u_love_me_let_me_go'",
+    "rewards": [
+      "20_gems_",
+      "4hr_Time_Candy"
+    ],
+    "misc": "0",
+    "visualIndex": 31,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 27
+  },
+  {
+    "name": "Anvil_Expansion",
+    "rawName": "TaskAchA30",
+    "quantity": 1,
+    "desc": "Craft_the_anvil_expander,_and_unlock_a_new_tab_of_item_recipes!",
+    "rewards": [
+      "10_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 32,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 23
+  },
+  {
+    "name": "Steppin'_on_the_Rats",
+    "rawName": "TaskAchA31",
+    "quantity": 500,
+    "desc": "Defeat_500_Rats_with_at_least_1_other_party_member",
+    "rewards": [
+      "Sewers_BG"
+    ],
+    "misc": "0",
+    "visualIndex": 33,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Tree_Top_Dropout",
+    "rawName": "TaskAchA32",
+    "quantity": 1,
+    "desc": "Reach_the_top_of_the_Giant_Tree_in_Blunder_Hills",
+    "rewards": [
+      "15_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 34,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 28
+  },
+  {
+    "name": "Naked_and_Unafraid",
+    "rawName": "TaskAchA33",
+    "quantity": 1,
+    "desc": "Enter_the_Sewers_with_no_equipment_or_weapon,_and_defeat_a_sewer_poop._Don't_want_to_get_your_stuff_dirty!",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 35,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "House_Flipper",
+    "rawName": "TaskAchA34",
+    "quantity": 1,
+    "desc": "Defeat_Baba_Yaga_in_under_25_seconds_after_they_spawn_in_the_Birch_Enclave",
+    "rewards": [
+      "RNG_Item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 36,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Platinum_200G",
+    "rawName": "TaskAchA35",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_200,000_Platinum_Ore_in_your_Storage_Chest.",
+    "rewards": [
+      "W1_Boss_Key_EZ-Access"
+    ],
+    "misc": "0",
+    "visualIndex": 37,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Guild_Member",
+    "rawName": "TaskAchA36",
+    "quantity": 1,
+    "desc": "Claim_500_GP_for_your_guild.",
+    "rewards": [
+      "14_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 39,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 12
+  },
+  {
+    "name": "Boss_Buster",
+    "rawName": "TaskAchA37",
+    "quantity": 1,
+    "desc": "Defeat_both_minibosses_in_Blunder_Hills",
+    "rewards": [
+      "15_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 40,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 25
+  },
+  {
+    "name": "Nutty_Crafter",
+    "rawName": "TaskAchA38",
+    "quantity": 42,
+    "desc": "Craft_42_golden_peanuts,_whatever_those_might_be!",
+    "rewards": [
+      "5%_Gold_Food_Bonus_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 43,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Minecart_Master",
+    "rawName": "TaskAchA39",
+    "quantity": 1,
+    "desc": "Get_a_score_of_103+_in_the_Mining_Minigame,_beating_the_developers_highscore!",
+    "rewards": [
+      "25_gems_",
+      "2_'4hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 44,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 29
+  },
+  {
+    "name": "Choppin'_to_the_Beat",
+    "rawName": "TaskAchA40",
+    "quantity": 1,
+    "desc": "Get_a_score_of_141+_in_the_Choppin'_Minigame,_beating_the_developers_highscore!",
+    "rewards": [
+      "25_gems_",
+      "4hr_time_candy"
+    ],
+    "misc": "0",
+    "visualIndex": 45,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 30
+  },
+  {
+    "name": "Decked_Out_in_Gold",
+    "rawName": "TaskAchA41",
+    "quantity": 1,
+    "desc": "Equip_Golden_Helmet,_Chestplate,_Pants,_Shoes,_two_Golden_tools,_and_the_Defenders_Dignity_ring.",
+    "rewards": [
+      "3%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 46,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Nice_Fur_Suit",
+    "rawName": "TaskAchA42",
+    "quantity": 1,
+    "desc": "Equip_all_4_pieces_of_Amarok_armor.",
+    "rewards": [
+      "Forest_Villa_Teleport"
+    ],
+    "misc": "0",
+    "visualIndex": 47,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Half_a_Mill-log",
+    "rawName": "TaskAchA43",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_500,000_Veiny_Logs_in_your_Storage_Chest.",
+    "rewards": [
+      "W1_Colosseum_EZ-Access_",
+      "W1_Shops_EZ-Access"
+    ],
+    "misc": "0",
+    "visualIndex": 48,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Bad_Doggy!",
+    "rawName": "TaskAchA44",
+    "quantity": 1,
+    "desc": "Defeat_Chaotic_Amarok.",
+    "rewards": [
+      "25_gems_",
+      "2_'2hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 50,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 36
+  },
+  {
+    "name": "Two-Time_Savior",
+    "rawName": "TaskAchA45",
+    "quantity": 2,
+    "desc": "Equip_the_Blunder_Hero_Trophy,_while_also_having_another_in_your_inventory.",
+    "rewards": [
+      "5%_Faster_Respawn_for_all_Blunder_Hills_mobs"
+    ],
+    "misc": "0",
+    "visualIndex": 51,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Million_Null_'n_Void",
+    "rawName": "TaskAchA46",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_1,000,000_Void_Ore_in_your_Storage_Chest.",
+    "rewards": [
+      "Deep_Mining_Teleport"
+    ],
+    "misc": "0",
+    "visualIndex": 52,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Lucky_7s",
+    "rawName": "TaskAchA47",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_Punch_a_monster,_win_the_Jackpot!_Well,_hypothetically...",
+    "rewards": [
+      "1%_Arcade_balls/hr_",
+      "15_Gems_",
+      "7_'1hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 54,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "What_a_View!",
+    "rawName": "TaskAchA48",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_Climb_the_2nd_tallest_tree_in_all_of_Blunder_Hills,_and_say_'Great_view,_1_star'",
+    "rewards": [
+      "1%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 55,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "Cavernous_Nook",
+    "rawName": "TaskAchA49",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_Find_the_SECRET_mining_area!",
+    "rewards": [
+      "Nothing!"
+    ],
+    "misc": "0",
+    "visualIndex": 56,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "Seriousleaf-ast!",
+    "rawName": "TaskAchA50",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_Score_a_point_in_the_Choppin'_Minigame_while_the_leaf_is_zooming_at_hyperspeed",
+    "rewards": [
+      "1%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 57,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "Peanut_Pioneer",
+    "rawName": "TaskAchA51",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_Talk_to_the_jungle_bush,_join_the_club...",
+    "rewards": [
+      "25_gems_",
+      "2_'2hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 58,
+    "steamExclusive": true,
+    "secretAchievement": true,
+    "steamIndex": 39
+  },
+  {
+    "name": "Meel_Time!",
+    "rawName": "TaskAchA52",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_Shake_it!_To_the_left,_to_the_left!_Oh_yea!!!",
+    "rewards": [
+      "25_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 59,
+    "steamExclusive": true,
+    "secretAchievement": true,
+    "steamIndex": 40
+  },
+  {
+    "name": "Pro_Gamer_Move",
+    "rawName": "TaskAchA53",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_Keep_the_oil._Precious,_precious_oil...",
+    "rewards": [
+      "10_gems_",
+      "1hr_time_candy"
+    ],
+    "misc": "0",
+    "visualIndex": 60,
+    "steamExclusive": true,
+    "secretAchievement": true,
+    "steamIndex": 38
+  },
+  {
+    "name": "Meet_the_Dev",
+    "rawName": "TaskAchA54",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_I_heard_he's_12_feet_tall_and_can_spawn_bosses_just_by_talking...",
+    "rewards": [
+      "40_gems_",
+      "4_'2hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 61,
+    "steamExclusive": true,
+    "secretAchievement": true,
+    "steamIndex": 41
+  },
+  {
+    "name": "Heyo!",
+    "rawName": "TaskAchA55",
+    "quantity": 1,
+    "desc": "Say_'Hi'_to_250_different_people_without_closing_the_game.",
+    "rewards": [
+      "5_'Tab_1'_Talent_Pts_",
+      "1%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 7,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Anothervil_Expansion",
+    "rawName": "TaskAchA56",
+    "quantity": 1,
+    "desc": "Craft_the_Anvil_III_expander._More_things_to_craft,_hooray!",
+    "rewards": [
+      "30_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 49,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 24
+  },
+  {
+    "name": "Based_Roots",
+    "rawName": "TaskAchA57",
+    "quantity": 20,
+    "desc": "Reach_The_Roots,_which_is_the_map_below_the_Sticks_monsters_in_the_Giant_Tree",
+    "rewards": [
+      "Acorn_Hat_Recipe"
+    ],
+    "misc": "0",
+    "visualIndex": 38,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Dungeon_Pinch",
+    "rawName": "TaskAchA58",
+    "quantity": 1,
+    "desc": "Deal_100_or_more_damage_in_a_single_hit_in_any_party_dungeon.",
+    "rewards": [
+      "1%_Class_EXP_bonus_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 18,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Big_Frog_Angry",
+    "rawName": "TaskAchA59",
+    "quantity": 1,
+    "desc": "Defeat_Grandfrogger_on_his_1st_Difficulty.",
+    "rewards": [
+      "2%_Total_DMG_for_all_characters_outside_of_dungeons"
+    ],
+    "misc": "0",
+    "visualIndex": 19,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Big_Frog_Furious",
+    "rawName": "TaskAchA60",
+    "quantity": 1,
+    "desc": "Defeat_Grandfrogger_on_his_2nd_Difficulty.",
+    "rewards": [
+      "3%_Total_DMG_for_all_characters_outside_of_dungeons"
+    ],
+    "misc": "0",
+    "visualIndex": 42,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Big_Frog_Big_Sad",
+    "rawName": "TaskAchA61",
+    "quantity": 1,
+    "desc": "Defeat_Grandfrogger_on_his_3rd_Difficulty.",
+    "rewards": [
+      "5%_Total_DMG_for_all_characters_outside_of_dungeons"
+    ],
+    "misc": "0",
+    "visualIndex": 53,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "2_minute_meal",
+    "rawName": "TaskAchA62",
+    "quantity": 1,
+    "desc": "Spawn_Grandfrogger_within_2_minutes_of_entering_the_dungeon.",
+    "rewards": [
+      "3%_Class_EXP_bonus_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 41,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Big_Frog_Big_Mad",
+    "rawName": "TaskAchA63",
+    "quantity": 1,
+    "desc": "Defeat_Grandfrogger_on_his_4th_Difficulty,_and_avoid_becoming_one_with_the_soup...",
+    "rewards": [
+      "5%_Total_DMG_for_all_characters_outside_of_dungeons"
+    ],
+    "misc": "0",
+    "visualIndex": 62,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchA64",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 63,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchA65",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 64,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchA66",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 65,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchA67",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 66,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchA68",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 67,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchA69",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 68,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchA70",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 69,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "Down_by_the_Desert",
+    "rawName": "TaskAchB1",
+    "quantity": 1,
+    "desc": "Reach_world_2!",
+    "rewards": [
+      "18_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 0,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 1
+  },
+  {
+    "name": "Elite_Player",
+    "rawName": "TaskAchB2",
+    "quantity": 1,
+    "desc": "Reach_level_60_on_any_character",
+    "rewards": [
+      "16_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 2,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 5
+  },
+  {
+    "name": "Retirement_Fund",
+    "rawName": "TaskAchB3",
+    "quantity": 1,
+    "desc": "Save_up_1,000,000_coins,_also_known_as_1_Platinum_coin!",
+    "rewards": [
+      "15_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 3,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 10
+  },
+  {
+    "name": "More_and_More_Me!",
+    "rawName": "TaskAchB4",
+    "quantity": 1,
+    "desc": "Create_your_4th_character,_who_will_never_appreciate_the_struggle_your_first_3_characters_had.",
+    "rewards": [
+      "16_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 1,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 15
+  },
+  {
+    "name": "Golden_Fly",
+    "rawName": "TaskAchB5",
+    "quantity": 1,
+    "desc": "Pass_through_the_small_golden_hoop_in_the_Catching_Minigame._It's_worth_3_points!",
+    "rewards": [
+      "5%_Catching_Efficiency"
+    ],
+    "misc": "0",
+    "visualIndex": 4,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Hammer_Bub",
+    "rawName": "TaskAchB6",
+    "quantity": 1,
+    "desc": "Level_up_the_'Hammer_Hammer'_Alchemy_bubble_to_Lv._10",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 5,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Wassup_Yo!",
+    "rawName": "TaskAchB7",
+    "quantity": 1,
+    "desc": "Say_'Hi'_to_100_unique_people_without_closing_the_game_or_changing_Servers.",
+    "rewards": [
+      "2_'Tab_2'_Talent_Pts_",
+      "2%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 6,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Gold_School",
+    "rawName": "TaskAchB8",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_1500_Goldfish_in_your_Storage_Chest.",
+    "rewards": [
+      "1%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 7,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Buzz_Buzz",
+    "rawName": "TaskAchB9",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_2500_Flies_in_your_Storage_Chest.",
+    "rewards": [
+      "3_'Tab_2'_Talent_Pts"
+    ],
+    "misc": "0",
+    "visualIndex": 8,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Careful,_it's_Sharp!",
+    "rawName": "TaskAchB10",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_15_Glass_Shards_in_your_Storage_Chest.",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 9,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Hybernation",
+    "rawName": "TaskAchB11",
+    "quantity": 1,
+    "desc": "Leave_one_of_your_players_AFK_for_an_entire_week,_which_is_168_hours!_Anything_more_counts_too!",
+    "rewards": [
+      "3%_Arcade_balls/hr_",
+      "Good_nights_sleep"
+    ],
+    "misc": "0",
+    "visualIndex": 10,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Vial_Noob",
+    "rawName": "TaskAchB12",
+    "quantity": 1,
+    "desc": "Get_3_vials_to_Lv._4,_which_are_the_green_ones",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 11,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Specializational!",
+    "rawName": "TaskAchB13",
+    "quantity": 2,
+    "desc": "Choose_a_subclass_for_two_of_your_characters.",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 12,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Obols_Oh_Boy!",
+    "rawName": "TaskAchB14",
+    "quantity": 1,
+    "desc": "Have_10_Silver_Obols_equipped_at_once._The_Family_tab_counts_here!",
+    "rewards": [
+      "2%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 13,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Well_Learned",
+    "rawName": "TaskAchB15",
+    "quantity": 1,
+    "desc": "Get_a_lv_92_or_higher_Star_Book_from_Alchemy!_The_1st_one,_specifically.",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 14,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "B-o-B_to_Help",
+    "rawName": "TaskAchB16",
+    "quantity": 1,
+    "desc": "Complete_75_unique_quests_on_a_single_character._I'm_not_sure_what_B-o-B_stands_for_either...",
+    "rewards": [
+      "16_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 17,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 18
+  },
+  {
+    "name": "Card_Enthusiast",
+    "rawName": "TaskAchB17",
+    "quantity": 1,
+    "desc": "Collect_30_unique_cards._If_u_wanna_trade,_I_got_some_spare_Amarok_cards!",
+    "rewards": [
+      "16_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 18,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 21
+  },
+  {
+    "name": "Efaunt_Trumped",
+    "rawName": "TaskAchB18",
+    "quantity": 1,
+    "desc": "Defeat_Efaunt,_the_Mummified_Elephant_God._He_will_remember_you_doing_this.",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 19,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Fishing_Finesse",
+    "rawName": "TaskAchB19",
+    "quantity": 1,
+    "desc": "Get_a_score_of_67+_in_the_Fishing_Minigame,_beating_the_developers_highscore!",
+    "rewards": [
+      "25_gems_",
+      "2_'4hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 20,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 31
+  },
+  {
+    "name": "Catching_Coronation",
+    "rawName": "TaskAchB20",
+    "quantity": 1,
+    "desc": "Get_a_score_of_128+_in_the_Catching_Minigame,_beating_the_developers_highscore!",
+    "rewards": [
+      "25_gems_",
+      "4hr_time_candy"
+    ],
+    "misc": "0",
+    "visualIndex": 21,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 32
+  },
+  {
+    "name": "Crystal_Superslam",
+    "rawName": "TaskAchB21",
+    "quantity": 1,
+    "desc": "Defeat_100_Crystal_Mobs._This_could_go_a_couple_rounds...",
+    "rewards": [
+      "20_gems_",
+      "2_'2hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 22,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 34
+  },
+  {
+    "name": "Slumbering_Gamer",
+    "rawName": "TaskAchB22",
+    "quantity": 1,
+    "desc": "Claim_2000+_hours_of_AFK_progress_across_all_characters._So_lazy!",
+    "rewards": [
+      "12_gems_",
+      "'12hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 23,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 47
+  },
+  {
+    "name": "My_First_Trophy!",
+    "rawName": "TaskAchB23",
+    "quantity": 1,
+    "desc": "Equip_any_trophy,_other_than_the_limited_edition_ones_which_don't_count_lol.",
+    "rewards": [
+      "25_gems_",
+      "'4hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 24,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 51
+  },
+  {
+    "name": "A_Fish_Too_Far",
+    "rawName": "TaskAchB24",
+    "quantity": 1000,
+    "desc": "Catch_a_total_of_1000_fish_across_all_Fishing_Minigame_plays.",
+    "rewards": [
+      "Beach_Background_for_Title_Screen"
+    ],
+    "misc": "0",
+    "visualIndex": 25,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Rat-a-tat-tat",
+    "rawName": "TaskAchB25",
+    "quantity": 1,
+    "desc": "Level_up_the_'FMJ'_Alchemy_bubble_to_Lv._30",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 26,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Pillars_of_Sand",
+    "rawName": "TaskAchB26",
+    "quantity": 1,
+    "desc": "Defeat_250,000_Sandy_Pots_combined_across_all_characters._Forget_the_Pillars_of_Salt_though.",
+    "rewards": [
+      "Desert_Oasis_BG_for_Title_Screen"
+    ],
+    "misc": "0",
+    "visualIndex": 27,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Vial_Connoisseur",
+    "rawName": "TaskAchB27",
+    "quantity": 1,
+    "desc": "Get_6_vials_to_Lv._7,_which_are_the_pink_ones",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 28,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Coarse_Cards",
+    "rawName": "TaskAchB28",
+    "quantity": 1,
+    "desc": "Level_up_cards_for_Mafioso,_Sandcastle,_Pincermin,_and_Mashed_Potato,_all_up_to_1_star.",
+    "rewards": [
+      "Coarse_Mountains_BG_for_Title_Screen"
+    ],
+    "misc": "0",
+    "visualIndex": 29,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Trial_by_Time",
+    "rawName": "TaskAchB29",
+    "quantity": 1,
+    "desc": "Run_from_Town_to_Efaunt's_Tomb_in_under_2_minutes._No_teleporting_using_the_World_Map.",
+    "rewards": [
+      "2%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 30,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Golden_Obolden!",
+    "rawName": "TaskAchB30",
+    "quantity": 1,
+    "desc": "Have_15_Golden_Obols_equipped_at_once._The_Family_tab_counts_here!",
+    "rewards": [
+      "20%_Obol_Fragments_gained_when_trashing_obols"
+    ],
+    "misc": "0",
+    "visualIndex": 31,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Monocle_No_More",
+    "rawName": "TaskAchB31",
+    "quantity": 1,
+    "desc": "Defeat_160_Sand_Giants_within_10_minutes_of_entering_the_map._Auto_must_be_off.",
+    "rewards": [
+      "Twilight_Desert_BG_for_Title_Screen"
+    ],
+    "misc": "0",
+    "visualIndex": 32,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Jellyfish_Jelly",
+    "rawName": "TaskAchB32",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_6000_Jellyfish_in_your_Storage_Chest._I_heard_their_Jelly_goes_good_with_burgers_btw.",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 33,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Super_Cereal",
+    "rawName": "TaskAchB33",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_50,000_Sentient_Cereal_in_your_Storage_Chest.",
+    "rewards": [
+      "W2_Colosseum_EZ-Access_",
+      "W2_Shops_EZ-Access"
+    ],
+    "misc": "0",
+    "visualIndex": 34,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Sweet_Victory",
+    "rawName": "TaskAchB34",
+    "quantity": 1,
+    "desc": "Get_a_Score_of_200,000_or_more_in_the_Sandstone_Colosseum",
+    "rewards": [
+      "2%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 35,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Ink_Blot",
+    "rawName": "TaskAchB35",
+    "quantity": 101,
+    "desc": "Use_101_silver_pens_in_the_Post_Office",
+    "rewards": [
+      "20%_chance_to_keep_silver_pens_after_using_one"
+    ],
+    "misc": "0",
+    "visualIndex": 36,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Demon_Demolisher",
+    "rawName": "TaskAchB36",
+    "quantity": 1,
+    "desc": "Defeat_the_big_hourglass_and_the_toilet_paper_guy!",
+    "rewards": [
+      "25_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 37,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 26
+  },
+  {
+    "name": "Dumbo_Destroyer",
+    "rawName": "TaskAchB37",
+    "quantity": 1,
+    "desc": "Defeat_Chaotic_Efaunt._Look_out_for_the_kick,_kapow!",
+    "rewards": [
+      "35_gems_",
+      "2_'2hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 41,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 37
+  },
+  {
+    "name": "Threadin'_the_Needle",
+    "rawName": "TaskAchB38",
+    "quantity": 1,
+    "desc": "Pass_through_the_teenie_tiny_Lava_hoop_in_the_Catching_Minigame._It_only_appears_if_you_go_through_25_hoops_in_a_row!",
+    "rewards": [
+      "5%_catching_EXP_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 42,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "S-M-R-T",
+    "rawName": "TaskAchB39",
+    "quantity": 1,
+    "desc": "Level_up_the_'Smarty_Boi'_Alchemy_bubble_to_Lv._50",
+    "rewards": [
+      "-10%_Bubble_upgrading_costs"
+    ],
+    "misc": "0",
+    "visualIndex": 43,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Two_Desserts!",
+    "rawName": "TaskAchB40",
+    "quantity": 2,
+    "desc": "Have_the_YumYum_Sheriff_trophy_equipped,_while_also_having_another_in_your_inventory.",
+    "rewards": [
+      "5%_faster_respawn_for_YumYum_Desert_Monsters"
+    ],
+    "misc": "0",
+    "visualIndex": 44,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Nuget_Nightmare",
+    "rawName": "TaskAchB41",
+    "quantity": 1,
+    "desc": "Kill_Crabbycakes_manually,_without_Auto_on,_until_one_drops_a_Nuget_Cake._Good_luck...",
+    "rewards": [
+      "Nuget_Cake_Hat_Recipe"
+    ],
+    "misc": "0",
+    "visualIndex": 45,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Bigtime_Bloacher",
+    "rawName": "TaskAchB42",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_100,000_Bloaches_in_your_Storage_Chest.",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 46,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Vial_Junkee",
+    "rawName": "TaskAchB43",
+    "quantity": 1,
+    "desc": "Get_10_vials_to_Lv._9,_which_are_the_hyperlight_Orange_ones._Stop_focusing_so_much_on_vials,_it's_not_healthy!",
+    "rewards": [
+      "20%_Sigil_Charging_Speed"
+    ],
+    "misc": "0",
+    "visualIndex": 47,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Fruit_Salad",
+    "rawName": "TaskAchB44",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_1,000,000_Fruit_Flies_in_your_Storage_Chest.",
+    "rewards": [
+      "5%_catching_speed_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 48,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Your_Skin,_My_Skin",
+    "rawName": "TaskAchB45",
+    "quantity": 1,
+    "desc": "Wear_the_Efaunt_helmet,_Ribcage,_Hipillium,_and_Ankles._Also_have_1_Efaunt_Obol_equipped.",
+    "rewards": [
+      "Djonnuttown_Teleport"
+    ],
+    "misc": "0",
+    "visualIndex": 49,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "WAAAAAAAHH!",
+    "rawName": "TaskAchB46",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_Complete_all_available_Treasure_Hunts!_You_can_find_them_on_Youtube,_just_search_for_it!",
+    "rewards": [
+      "3%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 51,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "Bobjoepicklejar",
+    "rawName": "TaskAchB47",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_Pickles_belong_in_containers,_after_all!",
+    "rewards": [
+      "1%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 52,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "Fish_Aint_Biting",
+    "rawName": "TaskAchB48",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_I'm_tellin'_ya,_the_fish_ain't_bitin'_today_gosh_darn_it!",
+    "rewards": [
+      "5%_Fishing_Exp_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 53,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "Skill_Master",
+    "rawName": "TaskAchB49",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_Goldric's_bag_of_peanuts_may_be_nearly_empty,_but_even_just_one_peanut_is_enough_for_some...",
+    "rewards": [
+      "W2_Boss_Key_EZ-Access"
+    ],
+    "misc": "0",
+    "visualIndex": 54,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "Tomb_Raider",
+    "rawName": "TaskAchB50",
+    "quantity": 1,
+    "desc": "Defeat_Snakenhotep_on_his_1st_Difficulty.",
+    "rewards": [
+      "2%_Total_DMG_for_all_characters_outside_of_dungeons"
+    ],
+    "misc": "0",
+    "visualIndex": 15,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Tomb_Defiler",
+    "rawName": "TaskAchB51",
+    "quantity": 1,
+    "desc": "Defeat_Snakenhotep_on_his_2nd_Difficulty.",
+    "rewards": [
+      "3%_Total_DMG_for_all_characters_outside_of_dungeons"
+    ],
+    "misc": "0",
+    "visualIndex": 38,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Tomb_Completionist",
+    "rawName": "TaskAchB52",
+    "quantity": 1,
+    "desc": "Defeat_Snakenhotep_on_his_3rd_Difficulty.",
+    "rewards": [
+      "5%_Total_DMG_for_all_characters_outside_of_dungeons"
+    ],
+    "misc": "0",
+    "visualIndex": 50,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Wazzzzam!",
+    "rawName": "TaskAchB53",
+    "quantity": 125,
+    "desc": "Wazam_125_rooms_in_Snakenhotep's_Dungeon_by_performing_exceptionally_well_in_a_room.",
+    "rewards": [
+      "6%_Multikill_bonus_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 40,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Just_Passing_By",
+    "rawName": "TaskAchB54",
+    "quantity": 30,
+    "desc": "Pass_30_rooms_in_Snakenhotep's_Dungeon_by_doing_the_thingy_the_room_says_to_do.",
+    "rewards": [
+      "2%_Multikill_bonus_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 16,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Dungeon_Slap",
+    "rawName": "TaskAchB55",
+    "quantity": 1,
+    "desc": "Deal_1000_or_more_damage_in_a_single_hit_within_any_Dungeon.",
+    "rewards": [
+      "2%_Class_EXP_bonus_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 39,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchB56",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 55,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchB57",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 56,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchB58",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 57,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchB59",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 58,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchB60",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 59,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchB61",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 60,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchB62",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 61,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchB63",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 62,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchB64",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 63,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchB65",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 64,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchB66",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 65,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchB67",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 66,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchB68",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 67,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchB69",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 68,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchB70",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 69,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "Snowy_Wonderland",
+    "rawName": "TaskAchC1",
+    "quantity": 1,
+    "desc": "Reach_World_3,_the_coolest_world_in_the_game!",
+    "rewards": [
+      "25_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 0,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 2
+  },
+  {
+    "name": "Veteran_Gamer",
+    "rawName": "TaskAchC2",
+    "quantity": 1,
+    "desc": "Reach_level_80_on_any_character._I'm_glad_you're_enjoying_the_game,_hope_you_get_to_Lv._100!",
+    "rewards": [
+      "20_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 2,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 6
+  },
+  {
+    "name": "A_Family_of_Me!",
+    "rawName": "TaskAchC3",
+    "quantity": 1,
+    "desc": "Create_your_8th_character,_who_will_never_get_the_love_you_gave_to_your_earlier_characters_when_making_new_ones_was_still_special.",
+    "rewards": [
+      "20_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 5,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 16
+  },
+  {
+    "name": "Croakin'_Froge",
+    "rawName": "TaskAchC4",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_250_Doge_-I_mean_froge-_critters_in_your_Storage_Chest.",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 4,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Sad_Souls",
+    "rawName": "TaskAchC5",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_1,000_Forest_Souls_in_your_Storage_Chest.",
+    "rewards": [
+      "1%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 1,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Checkout_Takeout",
+    "rawName": "TaskAchC6",
+    "quantity": 1000,
+    "desc": "Checkout_a_total_of_1000_talent_books_from_the_Talent_Book_Library",
+    "rewards": [
+      "5_Book_Max_LV_",
+      "30%_Library_charge_rate"
+    ],
+    "misc": "0",
+    "visualIndex": 3,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Yawning_Cogs",
+    "rawName": "TaskAchC7",
+    "quantity": 1,
+    "desc": "Have_4_unclaimed_Yellow_Cogs_during_any_single_moment_in_time,_apart_from_March_16,_2022_at_3.07pm",
+    "rewards": [
+      "2%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 6,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Blunder_Skull",
+    "rawName": "TaskAchC8",
+    "quantity": 1,
+    "desc": "Get_a_Copper_Skull_or_higher_on_every_Blunder_Hills_monster_in_the_Deathnote.",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 7,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Too_Cute_To_Live",
+    "rawName": "TaskAchC9",
+    "quantity": 1,
+    "desc": "You're_gonna_kill_all_them_lil'_poofs?_You_monster..._well,_at_least_make_it_quick,_like_20s_or_less_after_entering_the_map.",
+    "rewards": [
+      "5%_Total_Multikill_on_all_monsters"
+    ],
+    "misc": "0",
+    "visualIndex": 8,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Big_Mobs_Eek",
+    "rawName": "TaskAchC10",
+    "quantity": 5,
+    "desc": "Defeat_5_Giant_Monsters._Giants_only_spawn_IF_you_equip_the_Titan_Tachion_prayer,_unlocked_by_beating_wave_10_of_Waka_Tower_Defence_(world_2)",
+    "rewards": [
+      "15_gems_",
+      "2_'2hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 9,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 52
+  },
+  {
+    "name": "Powdered_Neutronium",
+    "rawName": "TaskAchC11",
+    "quantity": 1,
+    "desc": "Rank_up_the_Explosive_Combustion_refinery_chamber_to_Rank_2.",
+    "rewards": [
+      "15_gems_",
+      "3_'2hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 10,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 53
+  },
+  {
+    "name": "Soulslike",
+    "rawName": "TaskAchC12",
+    "quantity": 1,
+    "desc": "Have_4_Prayers_in_your_Prayer_Rock_thingy._You_get_Prayers_by_placing_these_wizard_dudes_into_towers_and_stuff_and_kickin'_butt!",
+    "rewards": [
+      "2%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 11,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Good_Times_Roll",
+    "rawName": "TaskAchC13",
+    "quantity": 1,
+    "desc": "Beat_wave_50_in_Glublin_Gorefest_using_ONLY_Boulder_Roller_wizards._No_freeze,_no_confetti,_just_boulder.",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 12,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Cog_in_the_System",
+    "rawName": "TaskAchC14",
+    "quantity": 1,
+    "desc": "Have_20_Grey_Cogs_placed_on_the_board_at_once._Not_sure_why_this_is_an_achievement,_cogs_are_boring.",
+    "rewards": [
+      "5%_Build_Speed_in_Construction"
+    ],
+    "misc": "0",
+    "visualIndex": 13,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "I_Create...",
+    "rawName": "TaskAchC15",
+    "quantity": 1,
+    "desc": "Upgrade_buildings_in_construction_a_total_of_50_times._Any_buildings,_utilities,_wizards,_shrines,_they_all_count!",
+    "rewards": [
+      "1%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 14,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "I_Sawed...",
+    "rawName": "TaskAchC16",
+    "quantity": 1,
+    "desc": "Upgrade_buildings_in_construction_a_total_of_250_times.",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 16,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Hairy_Ice_Comb",
+    "rawName": "TaskAchC17",
+    "quantity": 3000,
+    "desc": "Manually_loot_1000_floof_poofs,_then_1000_melty_cubes,_then_1000_moustache_combs._So_3000_in_total!",
+    "rewards": [
+      "Frosty_Peaks_BG_for_Title_Screen"
+    ],
+    "misc": "0",
+    "visualIndex": 17,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Giant_Slayer",
+    "rawName": "TaskAchC18",
+    "quantity": 25,
+    "desc": "Defeat_5_Giant_Mobs_of_each_type;_Bloque,_Mamooth,_Snowman,_Penguin,_then_Thermister,_IN_THAT_ORDER._So_25_in_total!.",
+    "rewards": [
+      "Tundra_Outback_BG_for_Title_Screen"
+    ],
+    "misc": "0",
+    "visualIndex": 18,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Saharan_Skull",
+    "rawName": "TaskAchC19",
+    "quantity": 1,
+    "desc": "Get_a_Golden_Skull_or_higher_on_every_YumYum_Desert_monster_in_the_Deathnote.",
+    "rewards": [
+      "1%_Printer_Sample_Rate"
+    ],
+    "misc": "0",
+    "visualIndex": 19,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Fat_Souls",
+    "rawName": "TaskAchC20",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_10,000_Dune_Souls_in_your_Storage_Chest.",
+    "rewards": [
+      "Start_with_15_more_points_in_Worship_Tower_Defence"
+    ],
+    "misc": "0",
+    "visualIndex": 20,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Borrowed_Pens",
+    "rawName": "TaskAchC21",
+    "quantity": 1,
+    "desc": "Remember_all_those_pens_you_lent_out_in_school_and_never_got_back?_You've_got_13_seconds_to_vent_your_anger_on_every_penguin_mob!",
+    "rewards": [
+      "3%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 21,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Large_Fortune",
+    "rawName": "TaskAchC22",
+    "quantity": 1,
+    "desc": "Save_up_100,000,000_coins._But_remember,_as_far_as_the_idleon_government_knows,_none_of_those_coins_came_from_a_taxable_income_wink_wink.",
+    "rewards": [
+      "25_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 22,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 11
+  },
+  {
+    "name": "Sqeakin'_Mousey",
+    "rawName": "TaskAchC23",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_60,000_Mouseys_in_your_Storage_Chest._Imagine_the_noise_in_that_chest_of_yours..._or_even_the_smell,_ugh.",
+    "rewards": [
+      "Hunters_Grove_BG_for_Title_Screen"
+    ],
+    "misc": "0",
+    "visualIndex": 23,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Geared_for_Success",
+    "rawName": "TaskAchC24",
+    "quantity": 1,
+    "desc": "Have_40_Yellow_Cogs_placed_on_the_board_at_once._Alright_now_I_see_how_this_is_achievement_worthy,_cogs_are_kinda_neat.",
+    "rewards": [
+      "5%_Construction_EXP_gain"
+    ],
+    "misc": "0",
+    "visualIndex": 24,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Guild_Higher-Up",
+    "rawName": "TaskAchC25",
+    "quantity": 1,
+    "desc": "Contribute_3,000_GP_to_your_guild,_putting_you_above_the_other_guild_members_who_only_have_the_500_GP_Achievment!",
+    "rewards": [
+      "22_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 25,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 13
+  },
+  {
+    "name": "Legendary_Gamer",
+    "rawName": "TaskAchC26",
+    "quantity": 1,
+    "desc": "Reach_level_100_on_any_character!_Just_4_more_digits_and_you'd_have_a_phone_number!",
+    "rewards": [
+      "23_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 26,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 7
+  },
+  {
+    "name": "Entangled_Compounds",
+    "rawName": "TaskAchC27",
+    "quantity": 1,
+    "desc": "Rank_up_the_Spontaneous_Combustion_refinery_chamber_to_Rank_3.",
+    "rewards": [
+      "5_'Tab_3'_Talent_Pts"
+    ],
+    "misc": "0",
+    "visualIndex": 27,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "There_Can_Be_Only_1",
+    "rawName": "TaskAchC28",
+    "quantity": 1,
+    "desc": "Beat_wave_50_of_Wakawaka_War_without_using_more_than_1_of_any_specific_tower._Can't_have_2_pulsers,_or_2_frozones!",
+    "rewards": [
+      "25_gems_",
+      "3_'12hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 28,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 54
+  },
+  {
+    "name": "Blurple_Skull",
+    "rawName": "TaskAchC29",
+    "quantity": 1,
+    "desc": "Get_a_Dementia_Skull_or_higher_on_every_Frostbite_Tundra_monster_in_the_Deathnote.",
+    "rewards": [
+      "30_gems_",
+      "5_'72hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 30,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 55
+  },
+  {
+    "name": "Souped_Up_Salts",
+    "rawName": "TaskAchC30",
+    "quantity": 1,
+    "desc": "Rank_up_the_Redox_Combustion_refinery_chamber_to_Rank_10.",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 31,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "I_Constructed!",
+    "rawName": "TaskAchC31",
+    "quantity": 1,
+    "desc": "Upgrade_buildings_in_construction_a_total_of_900_times.",
+    "rewards": [
+      "10_'Tab_3'_Talent_Pts"
+    ],
+    "misc": "0",
+    "visualIndex": 32,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Cogs_Be_Waitin'",
+    "rawName": "TaskAchC32",
+    "quantity": 1,
+    "desc": "Have_16_unclaimed_Grey_Cogs_at_once._Jeez,_I'm_glad_anthropomorphic_cogs_aren't_real.",
+    "rewards": [
+      "4%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 33,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Simpin'_for_NPC's",
+    "rawName": "TaskAchC33",
+    "quantity": 1,
+    "desc": "Complete_150_unique_quests_on_a_single_character._Apparently_people_find_'simp'_offensive,_and_I'm_kinda_offended_by_that...",
+    "rewards": [
+      "24_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 35,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 19
+  },
+  {
+    "name": "Top_Cogs",
+    "rawName": "TaskAchC34",
+    "quantity": 1,
+    "desc": "78_Cogs._All_purple_cogs._Did_I_say_cogs_are_great?_I_think_cogs_are_great._Cog_cog_cog!",
+    "rewards": [
+      "W3_Boss_Key_EZ-Access"
+    ],
+    "misc": "0",
+    "visualIndex": 36,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Card_Dude",
+    "rawName": "TaskAchC35",
+    "quantity": 1,
+    "desc": "Collect_120_unique_cards._Not_sure_why_something_as_mundane_as_'dude'_is_the_descriptor_here,_don't_read_too_much_into_it.",
+    "rewards": [
+      "24_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 37,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 22
+  },
+  {
+    "name": "Crystal_Champ",
+    "rawName": "TaskAchC36",
+    "quantity": 1,
+    "desc": "Defeat_2000_crystal_mobs._You_must've_watched_a_whole_lotta_Dev_Streams_to_get_this!",
+    "rewards": [
+      "30_gems_",
+      "12hr_time_candy"
+    ],
+    "misc": "0",
+    "visualIndex": 38,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 35
+  },
+  {
+    "name": "Smirky_Souls",
+    "rawName": "TaskAchC37",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_250,000_Rooted_Souls_in_your_Storage_Chest.",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 39,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Comatosed_Gamer",
+    "rawName": "TaskAchC38",
+    "quantity": 1,
+    "desc": "Claim_30,000+_Hrs_of_AFK_gains._Thats_two_years,_woah!",
+    "rewards": [
+      "25_gems_",
+      "24hr_time_candy"
+    ],
+    "misc": "0",
+    "visualIndex": 40,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 48
+  },
+  {
+    "name": "Knock_on_Wood",
+    "rawName": "TaskAchC39",
+    "quantity": 1,
+    "desc": "Beat_wave_50_of_Acorn_Assault_with_just_4_towers_active._Place_down_a_5th_tower_at_any_time,_and_it_wont_count!",
+    "rewards": [
+      "3%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 41,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "The_Goose_is_Loose",
+    "rawName": "TaskAchC40",
+    "quantity": 1,
+    "desc": "Have_a_HONK_of_exactly_1,000,000_Honkers_in_your_HONK_Chest._HONKHONKHONK_HOOOONK!!!",
+    "rewards": [
+      "HONK_Hat_Recipe"
+    ],
+    "misc": "0",
+    "visualIndex": 42,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Sepia_Vision",
+    "rawName": "TaskAchC41",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_500_Black_Lenses_in_your_Storage_Chest._Better_complete_this_before_I_make_it_1,000!",
+    "rewards": [
+      "Crystal_Caverns_BG_for_Title_Screen"
+    ],
+    "misc": "0",
+    "visualIndex": 43,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Rattle_them_Bones",
+    "rawName": "TaskAchC42",
+    "quantity": 1,
+    "desc": "Defeat_every_Bloodbone_in_just_12_seconds_after_entering_the_map._Wow,_wild.",
+    "rewards": [
+      "Pristalle_Lake_BG_for_Title_Screen"
+    ],
+    "misc": "0",
+    "visualIndex": 45,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "A_Most_Nice_Sale",
+    "rawName": "TaskAchC43",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_You_SOLD_gems_to_the_World_3_town_store...?_All_at_once?_How_many...?_Nice.",
+    "rewards": [
+      "1_gem_",
+      "1_'24hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 48,
+    "steamExclusive": true,
+    "secretAchievement": true,
+    "steamIndex": 56
+  },
+  {
+    "name": "Cool_Score!",
+    "rawName": "TaskAchC44",
+    "quantity": 1,
+    "desc": "Get_a_Score_of_2,500,000_or_more_in_the_Chillsnap_Colosseum",
+    "rewards": [
+      "W3_Colosseum_EZ-Access_",
+      "W3_Shops_EZ-Access"
+    ],
+    "misc": "0",
+    "visualIndex": 34,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Dungeon_Wallop",
+    "rawName": "TaskAchC45",
+    "quantity": 1,
+    "desc": "Deal_25000_or_more_damage_in_a_single_hit_within_any_Dungeon.",
+    "rewards": [
+      "4%_Crit_Chance_Bonus_for_all_characters_outside_of_dungeon"
+    ],
+    "misc": "0",
+    "visualIndex": 47,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Boss_Defeated",
+    "rawName": "TaskAchC46",
+    "quantity": 1,
+    "desc": "Defeat_Glaciaxus_on_its_1st_difficulty",
+    "rewards": [
+      "2%_Total_DMG_for_all_characters_outside_of_dungeons"
+    ],
+    "misc": "0",
+    "visualIndex": 15,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Manager_Defeated",
+    "rawName": "TaskAchC47",
+    "quantity": 1,
+    "desc": "Defeat_Glaciaxus_on_its_2nd_difficulty",
+    "rewards": [
+      "3%_Total_DMG_for_all_characters_outside_of_dungeons"
+    ],
+    "misc": "0",
+    "visualIndex": 29,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Kingpin_Defeated",
+    "rawName": "TaskAchC48",
+    "quantity": 1,
+    "desc": "Defeat_Glaciaxus_on_its_3rd_difficulty",
+    "rewards": [
+      "5%_Total_DMG_for_all_characters_outside_of_dungeons"
+    ],
+    "misc": "0",
+    "visualIndex": 46,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Capitalist_Win",
+    "rawName": "TaskAchC49",
+    "quantity": 1000,
+    "desc": "Complete_1000_jobs_within_the_Glacial_Basement_dungeon.",
+    "rewards": [
+      "5%_Class_EXP_for_all_characters_outside_of_dungeons"
+    ],
+    "misc": "0",
+    "visualIndex": 44,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Equinox_Visitor",
+    "rawName": "TaskAchC50",
+    "quantity": 1,
+    "desc": "Find_the_Equinox_Mirror_drop_from_Bloodbones,_a_1_in_1000_drop,_and_use_it_to_visit_the_Equinox_Valley.",
+    "rewards": [
+      "4%_Total_DMG_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 49,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC51",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 50,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC52",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 51,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC53",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 52,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC54",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 53,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC55",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 54,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC56",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 55,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC57",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 56,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC58",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 57,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC59",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 58,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC60",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 59,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC61",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 60,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC62",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 61,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC63",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 62,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC64",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 63,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC65",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 64,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC66",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 65,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC67",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 66,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC68",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 67,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC69",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 68,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchC70",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "30_gems_",
+      "Item3"
+    ],
+    "misc": "0",
+    "visualIndex": 69,
+    "steamExclusive": true,
+    "secretAchievement": false
+  },
+  {
+    "name": "Milky_Wayfarer",
+    "rawName": "TaskAchD1",
+    "quantity": 1,
+    "desc": "Reach_World_4,_the_purple_one_with_outer_space_stuff!",
+    "rewards": [
+      "RNG_item_unlock_",
+      "Some_Gems_and_Candy"
+    ],
+    "misc": "0",
+    "visualIndex": 0,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 60
+  },
+  {
+    "name": "Channel_Surfing",
+    "rawName": "TaskAchD2",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_75,000_TV_remotes_in_your_Storage_Chest.",
+    "rewards": [
+      "Nebula_BG_for_Title_Screen"
+    ],
+    "misc": "0",
+    "visualIndex": 1,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Bottle_Capital",
+    "rawName": "TaskAchD3",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_800,000_Bottle_Caps_in_your_Storage_Chest.",
+    "rewards": [
+      "10_Star_Tab_Talent_Pts"
+    ],
+    "misc": "0",
+    "visualIndex": 8,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Too_Many_Tentacles",
+    "rawName": "TaskAchD4",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_10,000,000_Wriggly_Balls_in_your_Storage_Chest._Green_Stack_bro!",
+    "rewards": [
+      "3%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 20,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Mythical_Gamer",
+    "rawName": "TaskAchD5",
+    "quantity": 1,
+    "desc": "Reach_level_125_on_any_character!_This_used_to_be_a_HUGE_deal,_now_it's_just_a_big_deal.",
+    "rewards": [
+      "30_gems"
+    ],
+    "misc": "0",
+    "visualIndex": 10,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 8
+  },
+  {
+    "name": "Matrix_Wickermen",
+    "rawName": "TaskAchD6",
+    "quantity": 8760,
+    "desc": "Accumulate_8760_hours,_or_an_entire_year,_of_Lab_AFK_time_across_all_players.",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 21,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Bland_Dish",
+    "rawName": "TaskAchD7",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_What_exactly_were_you_expecting_to_cook,_an_invisible_meal?",
+    "rewards": [
+      "6_Tab_1_Talent_Pts"
+    ],
+    "misc": "0",
+    "visualIndex": 26,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "Lv._5_Nothing",
+    "rawName": "TaskAchD8",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_Ah,_I_see_you_enjoy_reading_upgrade_flavor_text_as_well!",
+    "rewards": [
+      "30_gems_",
+      "2_'12hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 27,
+    "steamExclusive": true,
+    "secretAchievement": true,
+    "steamIndex": 58
+  },
+  {
+    "name": "I_Like_This_Mob",
+    "rawName": "TaskAchD9",
+    "quantity": 1,
+    "desc": "Get_a_Breedability_III_heart_on_at_least_2_Mobs_within_the_nest.",
+    "rewards": [
+      "Mob_Breedability_multiplier_goes_up_1.20x_faster"
+    ],
+    "misc": "0",
+    "visualIndex": 2,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "I_LOVE_These_Mobs",
+    "rawName": "TaskAchD10",
+    "quantity": 1,
+    "desc": "Get_a_Breedability_VII_heart_on_at_least_15_Mobs_within_the_nest.",
+    "rewards": [
+      "10_Tab_3_Talent_Pts"
+    ],
+    "misc": "0",
+    "visualIndex": 11,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Shiny_Shells",
+    "rawName": "TaskAchD11",
+    "quantity": 1,
+    "desc": "Have_6_bronze_(or_rarer)_eggs_in_your_nest_at_the_same_time,_waiting_to_be_hatched!",
+    "rewards": [
+      "10%_Faster_Egg_Incubator_Speed"
+    ],
+    "misc": "0",
+    "visualIndex": 3,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Gilded_Shells",
+    "rawName": "TaskAchD12",
+    "quantity": 1,
+    "desc": "Have_12_gold_(or_rarer)_eggs_in_your_nest_at_the_same_time,_waiting_to_be_hatched!",
+    "rewards": [
+      "Eggs_increase_in_rarity_1.10x_more_often"
+    ],
+    "misc": "0",
+    "visualIndex": 12,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Barley_Lost",
+    "rawName": "TaskAchD13",
+    "quantity": 1,
+    "desc": "Fail_a_Mob_battle_with_the_enemy_team_having_only_5%_HP_or_less._Wait,_it's_spelled_HOW???",
+    "rewards": [
+      "5%_Mob_Fight_Damage"
+    ],
+    "misc": "0",
+    "visualIndex": 4,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Mobless",
+    "rawName": "TaskAchD14",
+    "quantity": 1,
+    "desc": "Trash_a_total_of_2500_Mobs._How_could_you_be_so_heartless,_so_cold...",
+    "rewards": [
+      "50_gems_",
+      "1_'72hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 13,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 59
+  },
+  {
+    "name": "Cabbage_Patch",
+    "rawName": "TaskAchD15",
+    "quantity": 1,
+    "desc": "Have_5_kitchens_all_cooking_cabbages_at_the_same_time._Remember_gamers,_eat_your_vegetables,_they_ain't_so_bad!",
+    "rewards": [
+      "10%_Meal_Cooking_Speed"
+    ],
+    "misc": "0",
+    "visualIndex": 5,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Le_Pretzel_Bleu",
+    "rawName": "TaskAchD16",
+    "quantity": 1,
+    "desc": "Have_8_kitchens_all_cooking_Pretzels_at_the_same_time._Don't_get_it_twisted,_them_pretzels_are_the_real_deal.",
+    "rewards": [
+      "20%_Meal_Cooking_Speed"
+    ],
+    "misc": "0",
+    "visualIndex": 14,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Michelin_Ranked",
+    "rawName": "TaskAchD17",
+    "quantity": 1,
+    "desc": "Upgrade_any_kitchen_stat_to_Lv._300,_giving_you_an_elite_crown_over_the_upgrade_bars,_thus_resulting_in_dopamine.",
+    "rewards": [
+      "RNG_item_unlock"
+    ],
+    "misc": "0",
+    "visualIndex": 15,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "WOAH_That's_Fast",
+    "rawName": "TaskAchD18",
+    "quantity": 1,
+    "desc": "Have_a_speed_of_'Too_Fast'_displayed_while_cooking_an_Eggplant._No_this_is_not_a_metaphor.",
+    "rewards": [
+      "2%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 16,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Stars_Among_Stars",
+    "rawName": "TaskAchD19",
+    "quantity": 1,
+    "desc": "Complete_all_constellations_in_the_Hyperion_Nebula._Thats_what_world_4_is_called_btw.",
+    "rewards": [
+      "Eternity_Beach_BG_for_Title_Screen"
+    ],
+    "misc": "0",
+    "visualIndex": 22,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Chippin'_Away",
+    "rawName": "TaskAchD20",
+    "quantity": 25,
+    "desc": "Claim_25_chips_from_the_Chip_Repository._I_was_gonna_make_this_250_chips,_but_people_from_the_future_told_me_not_to.",
+    "rewards": [
+      "2%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 17,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Hunned_Times_a_Day",
+    "rawName": "TaskAchD21",
+    "quantity": 10000,
+    "desc": "Claim_spices_by_any_means_10,000_times._Like,_individual_claims.",
+    "rewards": [
+      "8_Tab_2_Talent_Pts"
+    ],
+    "misc": "0",
+    "visualIndex": 9,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Good_Plate",
+    "rawName": "TaskAchD22",
+    "quantity": 1,
+    "desc": "Upgrade_a_meal_at_the_Dinner_Menu_to_the_point_where_it_gets_a_diamond_plate!",
+    "rewards": [
+      "RNG_item_unlock_",
+      "W4_Shops_EZ-Access"
+    ],
+    "misc": "0",
+    "visualIndex": 6,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Great_Plate",
+    "rawName": "TaskAchD23",
+    "quantity": 1,
+    "desc": "Upgrade_a_meal_at_the_Dinner_Menu_to_the_point_where_it_gets_a_purple_plate!",
+    "rewards": [
+      "2%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 18,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Best_Plate",
+    "rawName": "TaskAchD24",
+    "quantity": 1,
+    "desc": "Upgrade_a_meal_at_the_Dinner_Menu_to_the_point_where_it_gets_a_void_pearl_plate!",
+    "rewards": [
+      "-10%_lower_cost_to_upgrade_meals_at_the_Dinner_Table"
+    ],
+    "misc": "0",
+    "visualIndex": 23,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Space_Party!!!",
+    "rawName": "TaskAchD25",
+    "quantity": 1,
+    "desc": "Dance_with_at_least_5_other_people_while_you're_all_in_World_4_town!",
+    "rewards": [
+      "2%_Arcade_balls/hr"
+    ],
+    "misc": "0",
+    "visualIndex": 7,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Zero_G_Scorin'",
+    "rawName": "TaskAchD26",
+    "quantity": 1,
+    "desc": "Get_a_Score_of_10,000,000_or_more_in_the_Astro_Colosseum",
+    "rewards": [
+      "5%_Cash_from_Monsters"
+    ],
+    "misc": "0",
+    "visualIndex": 19,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Hibernating_Gamer",
+    "rawName": "TaskAchD27",
+    "quantity": 1,
+    "desc": "Claim_111,000_hours_of_AFK_time._Jeez,_thats_like_an_entire_year_of_all_characters_idling_to_the_max.",
+    "rewards": [
+      "100_gems_",
+      "1_'72hr_time_candy'"
+    ],
+    "misc": "0",
+    "visualIndex": 24,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 49
+  },
+  {
+    "name": "Mutant_Massacrer",
+    "rawName": "TaskAchD28",
+    "quantity": 1,
+    "desc": "Defeat_both_Mutant_Minibosses,_the_W3_Slush_and_W4_Mush._You_must_defeat_Slush_before_Mush,_in_that_order.",
+    "rewards": [
+      "RNG_item_unlock_",
+      "Some_Gems_and_Candy"
+    ],
+    "misc": "0",
+    "visualIndex": 25,
+    "steamExclusive": true,
+    "secretAchievement": false,
+    "steamIndex": 57
+  },
+  {
+    "name": "Soda_Poisoning",
+    "rawName": "TaskAchD29",
+    "quantity": 1,
+    "desc": "Beat_wave_50_of_Clash_of_Cans_with_3_Poisonic_Elders_at_Lv_5_or_higher._Also,_you_can't_sell_towers.",
+    "rewards": [
+      "Starfield_Belt_BG_for_Title_Screen"
+    ],
+    "misc": "0",
+    "visualIndex": 28,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "The_True_King",
+    "rawName": "TaskAchD30",
+    "quantity": 1000000,
+    "desc": "Reach_a_total_of_1_million_Orb_Kills.",
+    "rewards": [
+      "10_Tab_4_Talent_Pts"
+    ],
+    "misc": "0",
+    "visualIndex": 29,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "The_True_Pirate",
+    "rawName": "TaskAchD31",
+    "quantity": 1000000,
+    "desc": "Reach_a_total_of_1_million_Plunderous_Kills._This_one_is_the_true_challenge_of_the_three.",
+    "rewards": [
+      "15_Tab_4_Talent_Pts_1%_Total_Dmg"
+    ],
+    "misc": "0",
+    "visualIndex": 30,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "The_True_Emperor",
+    "rawName": "TaskAchD32",
+    "quantity": 1000000,
+    "desc": "Reach_a_total_of_1_million_Wormhole_Kills.",
+    "rewards": [
+      "12_Tab_4_Talent_Pts"
+    ],
+    "misc": "0",
+    "visualIndex": 31,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Veritable_Master",
+    "rawName": "TaskAchD33",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_Destruction_comes_to_all_who_cross_your_path,_no_matter_how_many_times_you_cross_paths.",
+    "rewards": [
+      "1_Void_Talent_Pt"
+    ],
+    "misc": "0",
+    "visualIndex": 32,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD34",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 33,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD35",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 34,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD36",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 35,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD37",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 36,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD38",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 37,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD39",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 38,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD40",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 39,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD41",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 40,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD42",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 41,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD43",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 42,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD44",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 43,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD45",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 44,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD46",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 45,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD47",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 46,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD48",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 47,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD49",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 48,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD50",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 49,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD51",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 50,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD52",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 51,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD53",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 52,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD54",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 53,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD55",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 54,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD56",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 55,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD57",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 56,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD58",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 57,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD59",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 58,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD60",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 59,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD61",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 60,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD62",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 61,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD63",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 62,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD64",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 63,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD65",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 64,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD66",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 65,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD67",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 66,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD68",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 67,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD69",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 68,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchD70",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 69,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Maple_Logger",
+    "rawName": "TaskAchE1",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_200,000_Maple_Logs_in_your_Storage_Chest.",
+    "rewards": [
+      "1%_Damage_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 1,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Vitamin_D-licious",
+    "rawName": "TaskAchE2",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_5,000,000_Orange_Slices_in_your_Storage_Chest.",
+    "rewards": [
+      "50%_Forge_Ore_Capacity"
+    ],
+    "misc": "0",
+    "visualIndex": 7,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Wurm_Wumbo",
+    "rawName": "TaskAchE3",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_100,000,000_Mongo_Worm_Slices_in_your_Storage_Chest.",
+    "rewards": [
+      "Wurm_Catacombs_BG"
+    ],
+    "misc": "0",
+    "visualIndex": 24,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Supernatural_Gamer",
+    "rawName": "TaskAchE4",
+    "quantity": 1,
+    "desc": "Reach_level_300_on_any_character!_My_oh_my!_This_would_have_been_inconceivable_just_a_few_years_ago!",
+    "rewards": [
+      "10%_All_Skill_EXP"
+    ],
+    "misc": "0",
+    "visualIndex": 5,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Smokin'_Stars",
+    "rawName": "TaskAchE5",
+    "quantity": 1,
+    "desc": "Complete_all_constellations_in_the_Smolderin'_Plateau._You_can_check_your_progress_within_the_Telescope.",
+    "rewards": [
+      "20%_All_Skill_EXP"
+    ],
+    "misc": "0",
+    "visualIndex": 20,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "The_Plateauourist",
+    "rawName": "TaskAchE6",
+    "quantity": 1,
+    "desc": "Reach_World_5,_a_personal_favorite_world_of_mine!_Look,_I_like_lava_what_can_I_say.",
+    "rewards": [
+      "4_Daily_Crystal_Mob_Spawn_Guarantee"
+    ],
+    "misc": "0",
+    "visualIndex": 0,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "No_Krakens?_):",
+    "rawName": "TaskAchE7",
+    "quantity": 1,
+    "desc": "Reach_Wave_50_of_Citric_Conflict_tower_defence_without_placing_a_single_Kraken_Towers._Not_even_one.",
+    "rewards": [
+      "25%_Class_EXP"
+    ],
+    "misc": "0",
+    "visualIndex": 19,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Artifact_Finder",
+    "rawName": "TaskAchE8",
+    "quantity": 1,
+    "desc": "Collect_15_Artifacts_from_Sailing",
+    "rewards": [
+      "1_Extra_Chest_Slot_in_Sailing_Loot_Pile"
+    ],
+    "misc": "0",
+    "visualIndex": 2,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Artifact_Enjoyer",
+    "rawName": "TaskAchE9",
+    "quantity": 1,
+    "desc": "Collect_all_30_Artifacts_from_Sailing",
+    "rewards": [
+      "Magma_Rivertown_BG"
+    ],
+    "misc": "0",
+    "visualIndex": 6,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Artifact_Jones",
+    "rawName": "TaskAchE10",
+    "quantity": 1,
+    "desc": "Collect_all_30_ANCIENT_Artifacts_from_Sailing._All_that_glitters_is_not_gold,_but_it_sure_is_shiny!",
+    "rewards": [
+      "20_Star_Talent_Pts"
+    ],
+    "misc": "0",
+    "visualIndex": 23,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Gilded_Vessel",
+    "rawName": "TaskAchE11",
+    "quantity": 1,
+    "desc": "Upgrade_a_boat_to_Lv_100_in_Sailing._It'll_turn_gold_to_reflect_its_power!",
+    "rewards": [
+      "1_Extra_Chest_Slot_in_Sailing_Loot_Pile"
+    ],
+    "misc": "0",
+    "visualIndex": 18,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Maroon_Warship",
+    "rawName": "TaskAchE12",
+    "quantity": 1,
+    "desc": "Upgrade_a_boat_to_Lv_300_in_Sailing._This_is_the_pinnacle_of_naval_prowess,_it_doesn't_get_fancier_than_this!",
+    "rewards": [
+      "1_Lv_to_all_Talents_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 21,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Glory_To_Nobisect",
+    "rawName": "TaskAchE13",
+    "quantity": 1,
+    "desc": "Unlock_the_3rd_Divinity_God.",
+    "rewards": [
+      "10_'Tab_4'_Talent_Pts"
+    ],
+    "misc": "0",
+    "visualIndex": 4,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "All_Hail_Purrmep",
+    "rawName": "TaskAchE14",
+    "quantity": 1,
+    "desc": "Unlock_the_7th_Divinity_God.",
+    "rewards": [
+      "10_Alternate_Particle_Alchemy_Upgrades_Per_Day"
+    ],
+    "misc": "0",
+    "visualIndex": 17,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Long_Live_Bagur",
+    "rawName": "TaskAchE15",
+    "quantity": 1,
+    "desc": "Unlock_the_10th_and_final_Divinity_God.",
+    "rewards": [
+      "10%_All_Skill_EXP"
+    ],
+    "misc": "0",
+    "visualIndex": 22,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "POiNG_Champion",
+    "rawName": "TaskAchE16",
+    "quantity": 1,
+    "desc": "Get_a_POiNG_score_of_25,000_or_more!_My_personal_highscore_is_38,323_at_the_time_of_coding_this!",
+    "rewards": [
+      "10_'Tab_4'_Talent_Pts"
+    ],
+    "misc": "0",
+    "visualIndex": 8,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Lucky_Harvest",
+    "rawName": "TaskAchE17",
+    "quantity": 1,
+    "desc": "Harvest_a_plant_with_a_Bit_worth_who's_first_3_digits_are_777._For_example,_77.7K_Bits_would_count,_or_777M_Bits_too!",
+    "rewards": [
+      "1.05x_Bit_Gain_in_Gaming"
+    ],
+    "misc": "0",
+    "visualIndex": 14,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Chemical_Collector",
+    "rawName": "TaskAchE18",
+    "quantity": 1000,
+    "desc": "Harvest_a_total_of_1000_Chemical-type_Plants_in_Gaming.",
+    "rewards": [
+      "3%_Damage_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 25,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Voraci_Vantasia",
+    "rawName": "TaskAchE19",
+    "quantity": 500,
+    "desc": "Harvest_a_total_of_500_Voraci-type_Plants_in_Gaming.",
+    "rewards": [
+      "10%_Divinity_Points_Gained"
+    ],
+    "misc": "0",
+    "visualIndex": 9,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Bonsai_Bonanza",
+    "rawName": "TaskAchE20",
+    "quantity": 100,
+    "desc": "Harvest_a_total_of_100_Bonsai-type_Plants_in_Gaming.",
+    "rewards": [
+      "W5_Shop_EZ-Access"
+    ],
+    "misc": "0",
+    "visualIndex": 3,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Perfect_Trade_Deal",
+    "rawName": "TaskAchE21",
+    "quantity": 1,
+    "desc": "Make_a_trade_with_Blobby_G_worth_a_gold_bar_amount_that_starts_with_777,_like_777K_or_7.77M_for_example._PS;_776_and_778_work_too_lol",
+    "rewards": [
+      "1_additional_Treasure_Per_Chest_for_Sailing"
+    ],
+    "misc": "0",
+    "visualIndex": 15,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "True_Naval_Captain",
+    "rawName": "TaskAchE22",
+    "quantity": 1,
+    "desc": "Buy_all_20_Boats_in_Sailing._Uh,_yea,_there_is_a_scroll_bar_below_the_boats,_you_can_buy_more_than_5_boats_#",
+    "rewards": [
+      "20%_Captain_EXP_for_sailing"
+    ],
+    "misc": "0",
+    "visualIndex": 10,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Legendary_Orb",
+    "rawName": "TaskAchE23",
+    "quantity": 1,
+    "desc": "On_your_Divine_Knight,_get_an_Orb_Score_of_400_or_more_on_OJ_Bay._This_is_the_number_above_your_Orb!",
+    "rewards": [
+      "Smoggy_Basin_BG"
+    ],
+    "misc": "0",
+    "visualIndex": 11,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Legendary_Flag",
+    "rawName": "TaskAchE24",
+    "quantity": 1,
+    "desc": "On_your_Siege_Breaker,_get_a_Flag_Score_of_150_or_more_on_Erruption_River._This_is_the_number_above_your_Flag!",
+    "rewards": [
+      "2%_Damage_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 12,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Legendary_Wormhole",
+    "rawName": "TaskAchE25",
+    "quantity": 1,
+    "desc": "On_your_Elemental_Sorcerer,_get_a_Wormhole_Score_of_83_or_more_on_Niagrilled_Falls._This_is_the_number_above_your_Wormhole!",
+    "rewards": [
+      "10%_Divinity_Points_Gained"
+    ],
+    "misc": "0",
+    "visualIndex": 13,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Utter_DISRESPECT",
+    "rawName": "TaskAchE26",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_Why_did_you_even_hire_the_poor_fella_in_the_first_place???",
+    "rewards": [
+      "20_Star_Talent_Pts"
+    ],
+    "misc": "0",
+    "visualIndex": 28,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "Sneaky_Stealing",
+    "rawName": "TaskAchE27",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_Walk_to_a_uh..._weird_location?_Well_it's_not_that_weird,_but_it's_just_like,_what_ya_doin'_back_there?",
+    "rewards": [
+      "25%_Shop_Capacity_for_all_Town_Shops"
+    ],
+    "misc": "0",
+    "visualIndex": 29,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "Broken_Controller",
+    "rawName": "TaskAchE28",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_You_got..._zero?_Literally_zero??_Jeez,_Im_sorry_but_I_think_you_need_to_uninstall_^",
+    "rewards": [
+      "1.05x_Bit_Gain_in_Gaming"
+    ],
+    "misc": "0",
+    "visualIndex": 30,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "Lavathian_Skulls",
+    "rawName": "TaskAchE29",
+    "quantity": 1,
+    "desc": "Get_a_Lava_Skull_or_higher_on_every_Smolderin'_Plateau_monster_in_the_Deathnote._Yea,_the_100M_Kill_Skull._This_is_gonna_take_a_while.",
+    "rewards": [
+      "2%_Faster_Monster_Respawn_Time_for_All_World_5_mobs"
+    ],
+    "misc": "0",
+    "visualIndex": 27,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Seaworthy_Captain",
+    "rawName": "TaskAchE30",
+    "quantity": 1,
+    "desc": "Level_up_a_Sailing_Captain_to_Lv_15._Few_captains_in_the_universe_can_rival_their_ability_to_plunder!",
+    "rewards": [
+      "1%_ALL_STAT_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 26,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Grand_Captain",
+    "rawName": "TaskAchE31",
+    "quantity": 1,
+    "desc": "Level_up_a_Sailing_Captain_to_Lv_10._They_shall_sail_the_seas_with_confidence!",
+    "rewards": [
+      "20%_Captain_EXP_for_sailing"
+    ],
+    "misc": "0",
+    "visualIndex": 16,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Hug_from_Timmy",
+    "rawName": "TaskAchE32",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_The_lil'_fella_REALLY_likes_icecream!",
+    "rewards": [
+      "10%_Monument_AFK"
+    ],
+    "misc": "0",
+    "visualIndex": 31,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE33",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 32,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE34",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 33,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE35",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 34,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE36",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 35,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE37",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 36,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE38",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 37,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE39",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 38,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE40",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 39,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE41",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 40,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE42",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 41,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE43",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 42,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE44",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 43,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE45",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 44,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE46",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 45,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE47",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 46,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE48",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 47,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE49",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 48,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE50",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 49,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE51",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 50,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE52",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 51,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE53",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 52,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE54",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 53,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE55",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 54,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE56",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 55,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE57",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 56,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE58",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 57,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE59",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 58,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE60",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 59,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE61",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 60,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE62",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 61,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE63",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 62,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE64",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 63,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE65",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 64,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE66",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 65,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE67",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 66,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE68",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 67,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE69",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 68,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchE70",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 69,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Valley_Visitor",
+    "rawName": "TaskAchF1",
+    "quantity": 1,
+    "desc": "Reach_World_6,_the_Spirited_Valley!_You'll_love_it_here,_all_the_spirits_are_very_friendly!",
+    "rewards": [
+      "10%_Money_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 0,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Scorin'_the_Ladies",
+    "rawName": "TaskAchF2",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_250,000_Ladybugs_in_your_Storage_Chest.",
+    "rewards": [
+      "10%_Catching_Efficiency"
+    ],
+    "misc": "0",
+    "visualIndex": 1,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Effervess_Enthusiess",
+    "rawName": "TaskAchF3",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_5,000,000_Effervescent_Logs_in_your_Storage_Chest.",
+    "rewards": [
+      "10%_Choppin_Efficiency"
+    ],
+    "misc": "0",
+    "visualIndex": 16,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "That's_MY_Crown",
+    "rawName": "TaskAchF4",
+    "quantity": 1,
+    "desc": "Have_a_stack_of_exactly_100,000,000_Royal_Headpiece_in_your_Storage_Chest.",
+    "rewards": [
+      "Dharma_Mesa_BG"
+    ],
+    "misc": "0",
+    "visualIndex": 28,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Leet_Lanterns",
+    "rawName": "TaskAchF5",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_Oh_yea,_that's_a_good_number._Sure,_it's_no_69420,_but_it's_vintage!",
+    "rewards": [
+      "4%_Damage_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 33,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "Lil'_Overgrowth",
+    "rawName": "TaskAchF6",
+    "quantity": 1,
+    "desc": "Get_an_overgrowth_of_32x_on_a_single_crop.",
+    "rewards": [
+      "1.05x_Crop_Evo_chance"
+    ],
+    "misc": "0",
+    "visualIndex": 2,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Major_Overgrowth",
+    "rawName": "TaskAchF7",
+    "quantity": 1,
+    "desc": "Get_an_overgrowth_of_1,024x_on_a_single_crop.",
+    "rewards": [
+      "15%_Farming_EXP"
+    ],
+    "misc": "0",
+    "visualIndex": 12,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Unreal_Overgrowth",
+    "rawName": "TaskAchF8",
+    "quantity": 1,
+    "desc": "Get_an_overgrowth_of_8,192x_on_a_single_crop.",
+    "rewards": [
+      "20%_Class_EXP"
+    ],
+    "misc": "0",
+    "visualIndex": 21,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Doctor_Repellant",
+    "rawName": "TaskAchF9",
+    "quantity": 1,
+    "desc": "Have_10,000_or_more_Apple_crops_in_your_Depot_at_once._You_can_lock_the_first_crop_before_it_grows_to_guarantee_an_apple!",
+    "rewards": [
+      "W6_Shop_EZ_Access"
+    ],
+    "misc": "0",
+    "visualIndex": 9,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Cob_Enjoyer",
+    "rawName": "TaskAchF10",
+    "quantity": 1,
+    "desc": "Have_1,000,000_or_more_Corn_crops_in_your_Depot_at_once._Mmmm,_Corn!",
+    "rewards": [
+      "15%_All_Skill_EXP"
+    ],
+    "misc": "0",
+    "visualIndex": 26,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Science_Undergrad",
+    "rawName": "TaskAchF11",
+    "quantity": 1,
+    "desc": "Find_30_unique_crops,_as_shown_by_the_Crop_Scientist!",
+    "rewards": [
+      "10%_Farm_EXP"
+    ],
+    "misc": "0",
+    "visualIndex": 3,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Science_Graduate",
+    "rawName": "TaskAchF12",
+    "quantity": 1,
+    "desc": "Find_70_unique_crops,_as_shown_by_the_Crop_Scientist!",
+    "rewards": [
+      "Spirit_Fields_BG"
+    ],
+    "misc": "0",
+    "visualIndex": 11,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Science_Post_Doc",
+    "rawName": "TaskAchF13",
+    "quantity": 1,
+    "desc": "Find_110_unique_crops,_as_shown_by_the_Crop_Scientist!",
+    "rewards": [
+      "1%_All_Stat_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 24,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Crop_Flooding",
+    "rawName": "TaskAchF14",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_That's..._That's_enough..._THAT'S_ENOUGH_WATER!_THAT'S_ENOUGH!",
+    "rewards": [
+      "5%_Magic_Beans_from_Legumulyte"
+    ],
+    "misc": "0",
+    "visualIndex": 30,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "Legumulucky",
+    "rawName": "TaskAchF15",
+    "quantity": 1,
+    "desc": "Make_a_crop_trade_with_the_Legumulyte_worth_exactly_777_magic_beans.",
+    "rewards": [
+      "2%_Damage_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 7,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Big_Time_Land_Owner",
+    "rawName": "TaskAchF16",
+    "quantity": 1,
+    "desc": "Get_27_plots_of_land_in_your_farm.",
+    "rewards": [
+      "1.15x_Crop_OG_Chance"
+    ],
+    "misc": "0",
+    "visualIndex": 15,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Ceramic_Sneaking",
+    "rawName": "TaskAchF17",
+    "quantity": 1,
+    "desc": "Reach_the_Sneaking_Floor_with_the_Petrified_Ceramist_guest.",
+    "rewards": [
+      "1.03x_Jade_Gain"
+    ],
+    "misc": "0",
+    "visualIndex": 4,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Top_Floor_Sneaking",
+    "rawName": "TaskAchF18",
+    "quantity": 1,
+    "desc": "Reach_what_seems_like_the_top_Floor_of_Sneaking_with_the_Eldar_Kingulyte_guest.",
+    "rewards": [
+      "1.07x_Jade_Gain"
+    ],
+    "misc": "0",
+    "visualIndex": 23,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Untying_Extraordinaire",
+    "rawName": "TaskAchF19",
+    "quantity": 1,
+    "desc": "Untie_6_other_Ninja_Twins.",
+    "rewards": [
+      "1.05x_Stealth_for_all_Ninja_Twins"
+    ],
+    "misc": "0",
+    "visualIndex": 10,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Lucky_Stealy",
+    "rawName": "TaskAchF20",
+    "quantity": 1,
+    "desc": "Successfully_find_6_items_in_a_row,_in_a_single_AFK_claim_within_Sneaking.",
+    "rewards": [
+      "1.05x_Jade_Gain"
+    ],
+    "misc": "0",
+    "visualIndex": 20,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Yellow_Belt",
+    "rawName": "TaskAchF21",
+    "quantity": 1,
+    "desc": "Find_a_论50_Yellow_Belt_Sneaking_Charm._Yes,_exactly_论50.",
+    "rewards": [
+      "10%_Sneaking_EXP_gain"
+    ],
+    "misc": "0",
+    "visualIndex": 13,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Straw_Hat_Stacking",
+    "rawName": "TaskAchF22",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_It's_a_shame_you_can't_wear_them_all_at_once...",
+    "rewards": [
+      "1.01x_DMG_Multiplier_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 34,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "Best_Bloomie",
+    "rawName": "TaskAchF23",
+    "quantity": 1,
+    "desc": "Get_a_Bloomy_Summoning_Familiar.",
+    "rewards": [
+      "1.05x_All_Essence_Gain"
+    ],
+    "misc": "0",
+    "visualIndex": 8,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Regalis_My_Beloved",
+    "rawName": "TaskAchF24",
+    "quantity": 1,
+    "desc": "Get_a_Regalis_Summoning_Familiar.",
+    "rewards": [
+      "1.01x_larger_Winners_Bonuses_from_Summoning"
+    ],
+    "misc": "0",
+    "visualIndex": 27,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "This,_is,_Summoning!",
+    "rawName": "TaskAchF25",
+    "quantity": 1,
+    "desc": "Survive_for_5_minutes_in_The_King's_Gambit._Find_this_feature_in_Cavern_14_of_the_Hole_in_world_5.",
+    "rewards": [
+      "1.05x_All_Essence_Gain"
+    ],
+    "misc": "0",
+    "visualIndex": 14,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Summoning_CM",
+    "rawName": "TaskAchF26",
+    "quantity": 1,
+    "desc": "Get_10_Career_Wins_within_Summoning",
+    "rewards": [
+      "3%_Damage_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 5,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Summoning_IM",
+    "rawName": "TaskAchF27",
+    "quantity": 1,
+    "desc": "Get_25_Career_Wins_within_Summoning",
+    "rewards": [
+      "20%_Money_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 17,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Summoning_GM",
+    "rawName": "TaskAchF28",
+    "quantity": 1,
+    "desc": "Get_58_Career_Wins_within_Summoning",
+    "rewards": [
+      "6%_Drop_Rate_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 25,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Penta_Defence",
+    "rawName": "TaskAchF29",
+    "quantity": 1,
+    "desc": "Reach_Wave_50_in_Breezy_Battle_without_placing_more_than_5_Towers_in_total.",
+    "rewards": [
+      "Lullaby_Airways_BG"
+    ],
+    "misc": "0",
+    "visualIndex": 18,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Spectre_Stars",
+    "rawName": "TaskAchF30",
+    "quantity": 1,
+    "desc": "Complete_all_constellations_in_the_Spirited_Valley._You_can_check_your_progress_within_the_Telescope.",
+    "rewards": [
+      "1.01x_larger_Winners_Bonuses_from_Summoning"
+    ],
+    "misc": "0",
+    "visualIndex": 22,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Beanstacker_Trainee",
+    "rawName": "TaskAchF31",
+    "quantity": 1,
+    "desc": "Add_5_different_golden_foods_to_The_Beanstalk.",
+    "rewards": [
+      "2%_All_Golden_Food_Bonuses"
+    ],
+    "misc": "0",
+    "visualIndex": 6,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "Big_Big_Hampter",
+    "rawName": "TaskAchF32",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_Hampter_is_worth_it!",
+    "rewards": [
+      "4%_Drop_Rate_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 32,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "Ghost_Buster",
+    "rawName": "TaskAchF33",
+    "quantity": 1,
+    "desc": "SECRET_ACHIEVEMENT_------------------------_You_took_out_the_baddest_spirit_of_them_all!",
+    "rewards": [
+      "Bamboo_Forest_BG"
+    ],
+    "misc": "0",
+    "visualIndex": 31,
+    "steamExclusive": false,
+    "secretAchievement": true
+  },
+  {
+    "name": "Beanstacker_Prodigy",
+    "rawName": "TaskAchF34",
+    "quantity": 1,
+    "desc": "Add_14_different_golden_foods_to_The_Beanstalk.",
+    "rewards": [
+      "3%_All_Golden_Food_Bonuses"
+    ],
+    "misc": "0",
+    "visualIndex": 19,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "W6_is_Donezo",
+    "rawName": "TaskAchF35",
+    "quantity": 1,
+    "desc": "Get_a_Lava_Skull_or_higher_on_every_Spirited_Valley_monster_in_the_Deathnote.",
+    "rewards": [
+      "1.01x_DMG_Multiplier_for_all_characters"
+    ],
+    "misc": "0",
+    "visualIndex": 29,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF36",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 35,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF37",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 36,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF38",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 37,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF39",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 38,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF40",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 39,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF41",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 40,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF42",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 41,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF43",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 42,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF44",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 43,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF45",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 44,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF46",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 45,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF47",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 46,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF48",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 47,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF49",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 48,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF50",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 49,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF51",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 50,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF52",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 51,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF53",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 52,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF54",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 53,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF55",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 54,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF56",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 55,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF57",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 56,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF58",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 57,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF59",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 58,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF60",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 59,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF61",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 60,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF62",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 61,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF63",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 62,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF64",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 63,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF65",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 64,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF66",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 65,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF67",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 66,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF68",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 67,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF69",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 68,
+    "steamExclusive": false,
+    "secretAchievement": false
+  },
+  {
+    "name": "FILLERZZZ_ACH",
+    "rawName": "TaskAchF70",
+    "quantity": 20,
+    "desc": "-",
+    "rewards": [
+      "FILLERZ_",
+      "FILLERZ_",
+      "FILLERZ"
+    ],
+    "misc": "0",
+    "visualIndex": 69,
+    "steamExclusive": false,
+    "secretAchievement": false
+  }
+]

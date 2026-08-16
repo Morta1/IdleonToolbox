@@ -13,7 +13,9 @@
 //   }
 
 import { talents } from '@website-data';
-import { talentPagesMap } from '@parsers/talents';
+// From classDefinitions, not talents.ts: talents.ts imports 18 other parser modules and would
+// drag the whole parser data graph onto every public builds page for one plain lookup table.
+import { talentPagesMap } from '@parsers/classDefinitions';
 
 export const normalizeTalent = (v) => {
   if (v == null) return 0;

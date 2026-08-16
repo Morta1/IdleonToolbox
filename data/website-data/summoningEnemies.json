@@ -1,0 +1,1830 @@
+[
+  {
+    "enemyId": "mushG",
+    "xOff": 26,
+    "yOff": 41,
+    "width": 8,
+    "territoryName": "Jonesy_and_his_Lil_Mushies",
+    "bonusId": 0,
+    "bonus": {
+      "bonusId": 0,
+      "bonus": "<x Total DMG"
+    },
+    "bonusQty": 15,
+    "difficulty": 4
+  },
+  {
+    "enemyId": "frogG",
+    "xOff": 27,
+    "yOff": 18,
+    "width": 9,
+    "territoryName": "Lex_and_her_Hoppy_Frogs",
+    "bonusId": 1,
+    "bonus": {
+      "bonusId": 1,
+      "bonus": "<x Jade Gain"
+    },
+    "bonusQty": 30,
+    "difficulty": 6
+  },
+  {
+    "enemyId": "Copper",
+    "xOff": 20,
+    "yOff": 21,
+    "width": 10,
+    "territoryName": "_",
+    "bonusId": "_",
+    "bonusQty": "_",
+    "difficulty": "_"
+  },
+  {
+    "enemyId": "Iron",
+    "xOff": 21,
+    "yOff": 17,
+    "width": 11,
+    "territoryName": "_",
+    "bonusId": "_",
+    "bonusQty": "_",
+    "difficulty": "_"
+  },
+  {
+    "enemyId": "poopSmall",
+    "xOff": 26,
+    "yOff": 19,
+    "width": 11,
+    "territoryName": "TP_Pete_Jr_and_his_Battle_Poops",
+    "bonusId": 5,
+    "bonus": {
+      "bonusId": 5,
+      "bonus": "<x All Essence"
+    },
+    "bonusQty": 15,
+    "difficulty": 25
+  },
+  {
+    "enemyId": "Plat",
+    "xOff": 20,
+    "yOff": 17,
+    "width": 10,
+    "territoryName": "_",
+    "bonusId": "_",
+    "bonusQty": "_",
+    "difficulty": "_"
+  },
+  {
+    "enemyId": "Void",
+    "xOff": 19,
+    "yOff": 17,
+    "width": 11,
+    "territoryName": "_",
+    "bonusId": "_",
+    "bonusQty": "_",
+    "difficulty": "_"
+  },
+  {
+    "enemyId": "Starfire",
+    "xOff": 18,
+    "yOff": 17,
+    "width": 10,
+    "territoryName": "_",
+    "bonusId": "_",
+    "bonusQty": "_",
+    "difficulty": "_"
+  },
+  {
+    "enemyId": "branch",
+    "xOff": 32,
+    "yOff": 31,
+    "width": 20,
+    "territoryName": "Kyle_and_his_Branch_Brigade",
+    "bonusId": 2,
+    "bonus": {
+      "bonusId": 2,
+      "bonus": "<x Farming SPD"
+    },
+    "bonusQty": 4,
+    "difficulty": 31
+  },
+  {
+    "enemyId": "beanG",
+    "xOff": 47,
+    "yOff": 32,
+    "width": 16,
+    "territoryName": "Bongo_and_his_Lazy_Beans",
+    "bonusId": 0,
+    "bonus": {
+      "bonusId": 0,
+      "bonus": "<x Total DMG"
+    },
+    "bonusQty": 16,
+    "difficulty": 8
+  },
+  {
+    "enemyId": "ratB",
+    "xOff": 31,
+    "yOff": 19,
+    "width": 13,
+    "territoryName": "Michael_and_his_Rodents",
+    "bonusId": 3,
+    "bonus": {
+      "bonusId": 3,
+      "bonus": "<x Artifact Find"
+    },
+    "bonusQty": 15,
+    "difficulty": 28
+  },
+  {
+    "enemyId": "slimeG",
+    "xOff": 23,
+    "yOff": 15,
+    "width": 10,
+    "territoryName": "Sam_and_his_Goopy_Slimes",
+    "bonusId": 4,
+    "bonus": {
+      "bonusId": 4,
+      "bonus": "+{ Lab Con Range"
+    },
+    "bonusQty": 0.3,
+    "difficulty": 10
+  },
+  {
+    "enemyId": "mushR",
+    "xOff": 20,
+    "yOff": 38,
+    "width": 13,
+    "territoryName": "Walter_and_his_Lil_Shrooms",
+    "bonusId": 6,
+    "bonus": {
+      "bonusId": 6,
+      "bonus": "<x Sneak EXP"
+    },
+    "bonusQty": 10,
+    "difficulty": 5
+  },
+  {
+    "enemyId": "acorn",
+    "xOff": 42,
+    "yOff": 25,
+    "width": 17,
+    "territoryName": "Aaron_and_his_Aacorn_Gang",
+    "bonusId": 5,
+    "bonus": {
+      "bonusId": 5,
+      "bonus": "<x All Essence"
+    },
+    "bonusQty": 20,
+    "difficulty": 39
+  },
+  {
+    "enemyId": "snakeG",
+    "xOff": 33,
+    "yOff": 24,
+    "width": 14,
+    "territoryName": "Mika_and_his_Itty_Bitty_Baby_Boas",
+    "bonusId": 1,
+    "bonus": {
+      "bonusId": 1,
+      "bonus": "<x Jade Gain"
+    },
+    "bonusQty": 35,
+    "difficulty": 12
+  },
+  {
+    "enemyId": "carrotO",
+    "xOff": 42,
+    "yOff": 22,
+    "width": 24,
+    "territoryName": "Guy_Montag_and_his_Walking_Veggies",
+    "bonusId": 2,
+    "bonus": {
+      "bonusId": 2,
+      "bonus": "<x Farming SPD"
+    },
+    "bonusQty": 5,
+    "difficulty": 15
+  },
+  {
+    "enemyId": "goblinG",
+    "xOff": 38,
+    "yOff": 34,
+    "width": 16,
+    "territoryName": "Gork_and_his_Ugly_Glublins",
+    "bonusId": 3,
+    "bonus": {
+      "bonusId": 3,
+      "bonus": "<x Artifact Find"
+    },
+    "bonusQty": 20,
+    "difficulty": 17
+  },
+  {
+    "enemyId": "plank",
+    "xOff": 44,
+    "yOff": 21,
+    "width": 21,
+    "territoryName": "Ed_and_his_Stolen_Planks",
+    "bonusId": 7,
+    "bonus": {
+      "bonusId": 7,
+      "bonus": "<x Sigil SPD"
+    },
+    "bonusQty": 10,
+    "difficulty": 19
+  },
+  {
+    "enemyId": "frogBIG",
+    "xOff": 56,
+    "yOff": 33,
+    "width": 22,
+    "territoryName": "Gigachad_and_his_Awesome_Gigafrogs",
+    "bonusId": 4,
+    "bonus": {
+      "bonusId": 4,
+      "bonus": "+{ Lab Con Range"
+    },
+    "bonusQty": 0.3,
+    "difficulty": 21
+  },
+  {
+    "enemyId": "mushW",
+    "xOff": 26,
+    "yOff": 37,
+    "width": 13,
+    "territoryName": "Kip_and_his_Lil_Fungi",
+    "bonusId": 0,
+    "bonus": {
+      "bonusId": 0,
+      "bonus": "<x Total DMG"
+    },
+    "bonusQty": 19,
+    "difficulty": 50
+  },
+  {
+    "enemyId": "poopD",
+    "xOff": 27,
+    "yOff": 21,
+    "width": 14,
+    "territoryName": "Bob_and_his_Boops_of_Death",
+    "bonusId": 5,
+    "bonus": {
+      "bonusId": 5,
+      "bonus": "<x All Essence"
+    },
+    "bonusQty": 25,
+    "difficulty": "_"
+  },
+  {
+    "enemyId": "jarSand",
+    "xOff": 31,
+    "yOff": 20,
+    "width": 12,
+    "territoryName": "Karen_and_her_Pots",
+    "bonusId": 8,
+    "bonus": {
+      "bonusId": 8,
+      "bonus": "<x Farming EXP"
+    },
+    "bonusQty": 5,
+    "difficulty": 9
+  },
+  {
+    "enemyId": "mimicA",
+    "xOff": 33,
+    "yOff": 30,
+    "width": 16,
+    "territoryName": "Jimmy_and_his_Enthusiastic_Mimics",
+    "bonusId": 6,
+    "bonus": {
+      "bonusId": 6,
+      "bonus": "<x Sneak EXP"
+    },
+    "bonusQty": 15,
+    "difficulty": 11
+  },
+  {
+    "enemyId": "crabcake",
+    "xOff": 35,
+    "yOff": 43,
+    "width": 21,
+    "territoryName": "Eugene_and_his_Frosted_Crabs",
+    "bonusId": 9,
+    "bonus": {
+      "bonusId": 9,
+      "bonus": "+{% Drop Rate"
+    },
+    "bonusQty": 2,
+    "difficulty": 14
+  },
+  {
+    "enemyId": "coconut",
+    "xOff": 49,
+    "yOff": 25,
+    "width": 14,
+    "territoryName": "Nobby_and_his_Gang_of_Nuts",
+    "bonusId": 1,
+    "bonus": {
+      "bonusId": 1,
+      "bonus": "<x Jade Gain"
+    },
+    "bonusQty": 40,
+    "difficulty": 16
+  },
+  {
+    "enemyId": "sandcastle",
+    "xOff": 32,
+    "yOff": 17,
+    "width": 17,
+    "territoryName": "Tiny_Tim_and_his_Cool_Castles",
+    "bonusId": 7,
+    "bonus": {
+      "bonusId": 7,
+      "bonus": "<x Sigil SPD"
+    },
+    "bonusQty": 15,
+    "difficulty": 18
+  },
+  {
+    "enemyId": "pincermin",
+    "xOff": 39,
+    "yOff": 54,
+    "width": 26,
+    "territoryName": "Tira_and_her_Shrewd_Pincermen",
+    "bonusId": 6,
+    "bonus": {
+      "bonusId": 6,
+      "bonus": "<x Sneak EXP"
+    },
+    "bonusQty": 25,
+    "difficulty": 22
+  },
+  {
+    "enemyId": "potato",
+    "xOff": 57,
+    "yOff": 58,
+    "width": 28,
+    "territoryName": "Misha_and_her_Super_Spuds",
+    "bonusId": 2,
+    "bonus": {
+      "bonusId": 2,
+      "bonus": "<x Farming SPD"
+    },
+    "bonusQty": 6,
+    "difficulty": 26
+  },
+  {
+    "enemyId": "steak",
+    "xOff": 55,
+    "yOff": 37,
+    "width": 23,
+    "territoryName": "Wlad_and_his_Rootin'_Tootin'_Tysons",
+    "bonusId": 4,
+    "bonus": {
+      "bonusId": 4,
+      "bonus": "+{ Lab Con Range"
+    },
+    "bonusQty": 0.3,
+    "difficulty": 30
+  },
+  {
+    "enemyId": "moonman",
+    "xOff": 27,
+    "yOff": 29,
+    "width": 22,
+    "territoryName": "Mac_and_his_Many_Moonmoons",
+    "bonusId": 10,
+    "bonus": {
+      "bonusId": 10,
+      "bonus": "<x Crop EVO"
+    },
+    "bonusQty": 10,
+    "difficulty": 34
+  },
+  {
+    "enemyId": "sandgiant",
+    "xOff": 50,
+    "yOff": 21,
+    "width": 23,
+    "territoryName": "Sir_Reginald_and_his_Gentlemen_Giants",
+    "bonusId": 3,
+    "bonus": {
+      "bonusId": 3,
+      "bonus": "<x Artifact Find"
+    },
+    "bonusQty": 20,
+    "difficulty": 45
+  },
+  {
+    "enemyId": "snailZ",
+    "xOff": 42,
+    "yOff": 26,
+    "width": 25,
+    "territoryName": "Shelby_and_her_Shelled_Snelbies",
+    "bonusId": 0,
+    "bonus": {
+      "bonusId": 0,
+      "bonus": "<x Total DMG"
+    },
+    "bonusQty": 25,
+    "difficulty": 60
+  },
+  {
+    "enemyId": "sheep",
+    "xOff": 32,
+    "yOff": 31,
+    "width": 14,
+    "territoryName": "Paulie_and_his_Sheepie_Herd",
+    "bonusId": 11,
+    "bonus": {
+      "bonusId": 11,
+      "bonus": "+{% AFK Gains"
+    },
+    "bonusQty": 1,
+    "difficulty": 20
+  },
+  {
+    "enemyId": "flake",
+    "xOff": 35,
+    "yOff": 28,
+    "width": 14,
+    "territoryName": "Dirk_and_his_Celsius_Flakes",
+    "bonusId": 8,
+    "bonus": {
+      "bonusId": 8,
+      "bonus": "<x Farming EXP"
+    },
+    "bonusQty": 10,
+    "difficulty": 23
+  },
+  {
+    "enemyId": "stache",
+    "xOff": 30,
+    "yOff": 19,
+    "width": 14,
+    "territoryName": "Mr_Harrison_and_his_Mighty_Staches",
+    "bonusId": 5,
+    "bonus": {
+      "bonusId": 5,
+      "bonus": "<x All Essence"
+    },
+    "bonusQty": 30,
+    "difficulty": 27
+  },
+  {
+    "enemyId": "bloque",
+    "xOff": 40,
+    "yOff": 27,
+    "width": 12,
+    "territoryName": "Gibby_and_his_Bloque_Offensive",
+    "bonusId": 0,
+    "bonus": {
+      "bonusId": 0,
+      "bonus": "<x Total DMG"
+    },
+    "bonusQty": 30,
+    "difficulty": 29
+  },
+  {
+    "enemyId": "mamoth",
+    "xOff": 37,
+    "yOff": 22,
+    "width": 14,
+    "territoryName": "Esther_and_her_Trampler_Mamooths",
+    "bonusId": 7,
+    "bonus": {
+      "bonusId": 7,
+      "bonus": "<x Sigil SPD"
+    },
+    "bonusQty": 15,
+    "difficulty": 32
+  },
+  {
+    "enemyId": "snowball",
+    "xOff": 33,
+    "yOff": 26,
+    "width": 20,
+    "territoryName": "Frosty_and_his_Relatives",
+    "bonusId": 12,
+    "bonus": {
+      "bonusId": 12,
+      "bonus": "+{% Skill EXP"
+    },
+    "bonusQty": 10,
+    "difficulty": 35
+  },
+  {
+    "enemyId": "penguin",
+    "xOff": 52,
+    "yOff": 24,
+    "width": 22,
+    "territoryName": "The_Accountant_and_his_Trusty_Penguins",
+    "bonusId": 1,
+    "bonus": {
+      "bonusId": 1,
+      "bonus": "<x Jade Gain"
+    },
+    "bonusQty": 50,
+    "difficulty": 38
+  },
+  {
+    "enemyId": "thermostat",
+    "xOff": 43,
+    "yOff": 39,
+    "width": 25,
+    "territoryName": "Fermi_and_his_Thermies",
+    "bonusId": 3,
+    "bonus": {
+      "bonusId": 3,
+      "bonus": "<x Artifact Find"
+    },
+    "bonusQty": 20,
+    "difficulty": 41
+  },
+  {
+    "enemyId": "glass",
+    "xOff": 35,
+    "yOff": 27,
+    "width": 15,
+    "territoryName": "Kristen_and_her_Chill_Quenchies",
+    "bonusId": 9,
+    "bonus": {
+      "bonusId": 9,
+      "bonus": "+{% Drop Rate"
+    },
+    "bonusQty": 3,
+    "difficulty": 46
+  },
+  {
+    "enemyId": "snakeB",
+    "xOff": 31,
+    "yOff": 18,
+    "width": 14,
+    "territoryName": "Rob_and_his_Ice_Cold_Killer_Snakes",
+    "bonusId": 13,
+    "bonus": {
+      "bonusId": 13,
+      "bonus": "<x Construct SPD"
+    },
+    "bonusQty": 30,
+    "difficulty": 49
+  },
+  {
+    "enemyId": "speaker",
+    "xOff": 30,
+    "yOff": 38,
+    "width": 21,
+    "territoryName": "Lil_Plump_and_his_Dope_Bops",
+    "bonusId": 14,
+    "bonus": {
+      "bonusId": 14,
+      "bonus": "<x Skill Effncy."
+    },
+    "bonusQty": 10,
+    "difficulty": 51
+  },
+  {
+    "enemyId": "eye",
+    "xOff": 39,
+    "yOff": 23,
+    "width": 18,
+    "territoryName": "Nadia_and_her_All_Seeing_Eyes",
+    "bonusId": 6,
+    "bonus": {
+      "bonusId": 6,
+      "bonus": "<x Sneak EXP"
+    },
+    "bonusQty": 30,
+    "difficulty": 54
+  },
+  {
+    "enemyId": "ram",
+    "xOff": 37,
+    "yOff": 42,
+    "width": 21,
+    "territoryName": "Shepherd_and_his_Flock_of_Rams",
+    "bonusId": 4,
+    "bonus": {
+      "bonusId": 4,
+      "bonus": "+{ Lab Con Range"
+    },
+    "bonusQty": 0.3,
+    "difficulty": 65
+  },
+  {
+    "enemyId": "skele2",
+    "xOff": 33,
+    "yOff": 31,
+    "width": 30,
+    "territoryName": "Brody_and_his_Infamous_Bloodbones",
+    "bonusId": 10,
+    "bonus": {
+      "bonusId": 10,
+      "bonus": "<x Crop EVO"
+    },
+    "bonusQty": 15,
+    "difficulty": 74
+  },
+  {
+    "enemyId": "mushP",
+    "xOff": 33,
+    "yOff": 32,
+    "width": 16,
+    "territoryName": "ProXD_and_his_Mushrooms_of_Mischief",
+    "bonusId": 15,
+    "bonus": {
+      "bonusId": 15,
+      "bonus": "<x Cooking SPD"
+    },
+    "bonusQty": 50,
+    "difficulty": 33
+  },
+  {
+    "enemyId": "w4a2",
+    "xOff": 31,
+    "yOff": 36,
+    "width": 23,
+    "territoryName": "Tallie_and_her_Rambunctious_TVs",
+    "bonusId": 8,
+    "bonus": {
+      "bonusId": 8,
+      "bonus": "<x Farming EXP"
+    },
+    "bonusQty": 15,
+    "difficulty": 36
+  },
+  {
+    "enemyId": "w4a3",
+    "xOff": 37,
+    "yOff": 37,
+    "width": 21,
+    "territoryName": "Homer_and_his_Epic_Donuts",
+    "bonusId": 0,
+    "bonus": {
+      "bonusId": 0,
+      "bonus": "<x Total DMG"
+    },
+    "bonusQty": 35,
+    "difficulty": 37
+  },
+  {
+    "enemyId": "demonP",
+    "xOff": 53,
+    "yOff": 34,
+    "width": 31,
+    "territoryName": "Nostalgo_and_his_Genies_of_Olde",
+    "bonusId": 2,
+    "bonus": {
+      "bonusId": 2,
+      "bonus": "<x Farming SPD"
+    },
+    "bonusQty": 6,
+    "difficulty": 42
+  },
+  {
+    "enemyId": "w4b2",
+    "xOff": 28,
+    "yOff": 29,
+    "width": 18,
+    "territoryName": "Dalia_and_her_Hyperactive_Drinks",
+    "bonusId": 11,
+    "bonus": {
+      "bonusId": 11,
+      "bonus": "+{% AFK Gains"
+    },
+    "bonusQty": 2,
+    "difficulty": 43
+  },
+  {
+    "enemyId": "w4b1",
+    "xOff": 19,
+    "yOff": 23,
+    "width": 10,
+    "territoryName": "Werm_and_his_Worms",
+    "bonusId": 5,
+    "bonus": {
+      "bonusId": 5,
+      "bonus": "<x All Essence"
+    },
+    "bonusQty": 35,
+    "difficulty": 47
+  },
+  {
+    "enemyId": "w4b3",
+    "xOff": 36,
+    "yOff": 36,
+    "width": 22,
+    "territoryName": "JelloL0ver87_and_his_Beloved_Gel_Cubes",
+    "bonusId": 7,
+    "bonus": {
+      "bonusId": 7,
+      "bonus": "<x Sigil SPD"
+    },
+    "bonusQty": 20,
+    "difficulty": 52
+  },
+  {
+    "enemyId": "w4b4",
+    "xOff": 46,
+    "yOff": 32,
+    "width": 28,
+    "territoryName": "Megacorp_Representative_and_his_Product",
+    "bonusId": 12,
+    "bonus": {
+      "bonusId": 12,
+      "bonus": "+{% Skill EXP"
+    },
+    "bonusQty": 15,
+    "difficulty": 56
+  },
+  {
+    "enemyId": "w4b5",
+    "xOff": 37,
+    "yOff": 33,
+    "width": 30,
+    "territoryName": "Werm's_Stepsister_and_her_Worms",
+    "bonusId": 0,
+    "bonus": {
+      "bonusId": 0,
+      "bonus": "<x Total DMG"
+    },
+    "bonusQty": 50,
+    "difficulty": 61
+  },
+  {
+    "enemyId": "w4c1",
+    "xOff": 26,
+    "yOff": 26,
+    "width": 14,
+    "territoryName": "DQ_and_their_abandoned_Clammies",
+    "bonusId": 1,
+    "bonus": {
+      "bonusId": 1,
+      "bonus": "<x Jade Gain"
+    },
+    "bonusQty": 75,
+    "difficulty": 62
+  },
+  {
+    "enemyId": "w4c2",
+    "xOff": 19,
+    "yOff": 24,
+    "width": 10,
+    "territoryName": "Dee_and_her_'dars",
+    "bonusId": 3,
+    "bonus": {
+      "bonusId": 3,
+      "bonus": "<x Artifact Find"
+    },
+    "bonusQty": 25,
+    "difficulty": 66
+  },
+  {
+    "enemyId": "w4c3",
+    "xOff": 33,
+    "yOff": 30,
+    "width": 24,
+    "territoryName": "Gordon_and_his_Eloquent_Flombeiges",
+    "bonusId": 9,
+    "bonus": {
+      "bonusId": 9,
+      "bonus": "+{% Drop Rate"
+    },
+    "bonusQty": 5,
+    "difficulty": 70
+  },
+  {
+    "enemyId": "w4c4",
+    "xOff": 66,
+    "yOff": 39,
+    "width": 30,
+    "territoryName": "Giuseppe_and_his_Power_Tools",
+    "bonusId": 13,
+    "bonus": {
+      "bonusId": 13,
+      "bonus": "<x Construct SPD"
+    },
+    "bonusQty": 60,
+    "difficulty": 78
+  },
+  {
+    "enemyId": "w5a1",
+    "xOff": 24,
+    "yOff": 20,
+    "width": 10,
+    "territoryName": "Jawz_and_his_Hot_Smokin_Suggmas",
+    "bonusId": 16,
+    "bonus": {
+      "bonusId": 16,
+      "bonus": "<x Gaming Bits"
+    },
+    "bonusQty": 30,
+    "difficulty": 44
+  },
+  {
+    "enemyId": "w5a2",
+    "xOff": 20,
+    "yOff": 28,
+    "width": 12,
+    "territoryName": "Macdonald_and_his_Homemade_Maccies",
+    "bonusId": 14,
+    "bonus": {
+      "bonusId": 14,
+      "bonus": "<x Skill Effncy."
+    },
+    "bonusQty": 10,
+    "difficulty": 48
+  },
+  {
+    "enemyId": "w5a3",
+    "xOff": 43,
+    "yOff": 36,
+    "width": 29,
+    "territoryName": "Brandon_and_his_Iconic_Brightsides",
+    "bonusId": 0,
+    "bonus": {
+      "bonusId": 0,
+      "bonus": "<x Total DMG"
+    },
+    "bonusQty": 40,
+    "difficulty": 53
+  },
+  {
+    "enemyId": "w5a4",
+    "xOff": 30,
+    "yOff": 27,
+    "width": 18,
+    "territoryName": "Lola_and_her_Crazy_Crackers",
+    "bonusId": 4,
+    "bonus": {
+      "bonusId": 4,
+      "bonus": "+{ Lab Con Range"
+    },
+    "bonusQty": 0.3,
+    "difficulty": 55
+  },
+  {
+    "enemyId": "w5a5",
+    "xOff": 32,
+    "yOff": 32,
+    "width": 28,
+    "territoryName": "Mr_M_and_his_Holey_Moleys",
+    "bonusId": 10,
+    "bonus": {
+      "bonusId": 10,
+      "bonus": "<x Crop EVO"
+    },
+    "bonusQty": 25,
+    "difficulty": 57
+  },
+  {
+    "enemyId": "w5b1",
+    "xOff": 20,
+    "yOff": 27,
+    "width": 11,
+    "territoryName": "The_Don's_Molto_Bene_Moltis",
+    "bonusId": 15,
+    "bonus": {
+      "bonusId": 15,
+      "bonus": "<x Cooking SPD"
+    },
+    "bonusQty": 90,
+    "difficulty": 59
+  },
+  {
+    "enemyId": "w5b2",
+    "xOff": 22,
+    "yOff": 27,
+    "width": 18,
+    "territoryName": "Smoggy_Shaman_and_their_Scary_Bones",
+    "bonusId": 6,
+    "bonus": {
+      "bonusId": 6,
+      "bonus": "<x Sneak EXP"
+    },
+    "bonusQty": 30,
+    "difficulty": 63
+  },
+  {
+    "enemyId": "w5b3",
+    "xOff": 23,
+    "yOff": 24,
+    "width": 18,
+    "territoryName": "Thomas_and_his_Halftime_Breakforce",
+    "bonusId": 17,
+    "bonus": {
+      "bonusId": 17,
+      "bonus": "<x Shiny EXP"
+    },
+    "bonusQty": 25,
+    "difficulty": 69
+  },
+  {
+    "enemyId": "w5b4",
+    "xOff": 28,
+    "yOff": 30,
+    "width": 24,
+    "territoryName": "Larry_and_his_Lava_Lamps",
+    "bonusId": 8,
+    "bonus": {
+      "bonusId": 8,
+      "bonus": "<x Farming EXP"
+    },
+    "bonusQty": 25,
+    "difficulty": 71
+  },
+  {
+    "enemyId": "w5b5",
+    "xOff": 31,
+    "yOff": 31,
+    "width": 28,
+    "territoryName": "OwO_and_their_Spirit_Army",
+    "bonusId": 2,
+    "bonus": {
+      "bonusId": 2,
+      "bonus": "<x Farming SPD"
+    },
+    "bonusQty": 7,
+    "difficulty": 75
+  },
+  {
+    "enemyId": "w5b6",
+    "xOff": 34,
+    "yOff": 37,
+    "width": 23,
+    "territoryName": "Briggs_and_his_Mole_Workforce",
+    "bonusId": 5,
+    "bonus": {
+      "bonusId": 5,
+      "bonus": "<x All Essence"
+    },
+    "bonusQty": 25,
+    "difficulty": 79
+  },
+  {
+    "enemyId": "w5c1",
+    "xOff": 21,
+    "yOff": 22,
+    "width": 11,
+    "territoryName": "Krepe_and_his_Crawlies",
+    "bonusId": 3,
+    "bonus": {
+      "bonusId": 3,
+      "bonus": "<x Artifact Find"
+    },
+    "bonusQty": 15,
+    "difficulty": 82
+  },
+  {
+    "enemyId": "w5c2",
+    "xOff": 34,
+    "yOff": 25,
+    "width": 22,
+    "territoryName": "Grinder23_and_his_Favorite_Mobs",
+    "bonusId": 9,
+    "bonus": {
+      "bonusId": 9,
+      "bonus": "+{% Drop Rate"
+    },
+    "bonusQty": 10,
+    "difficulty": 84
+  },
+  {
+    "enemyId": "w6a1",
+    "xOff": 22,
+    "yOff": 25,
+    "width": 16,
+    "territoryName": "Spiffy_Jr_and_their_Whelming_Liquids",
+    "bonusId": 18,
+    "bonus": {
+      "bonusId": 18,
+      "bonus": "+{% All Stat"
+    },
+    "bonusQty": 3,
+    "difficulty": 58
+  },
+  {
+    "enemyId": "w6a2",
+    "xOff": 27,
+    "yOff": 34,
+    "width": 19,
+    "territoryName": "iFarm_and_their_0cal_Units",
+    "bonusId": 1,
+    "bonus": {
+      "bonusId": 1,
+      "bonus": "<x Jade Gain"
+    },
+    "bonusQty": 50,
+    "difficulty": 64
+  },
+  {
+    "enemyId": "w6a3",
+    "xOff": 35,
+    "yOff": 39,
+    "width": 27,
+    "territoryName": "Spiffy_Sr_and_his_Bigtime_Liquids",
+    "bonusId": 7,
+    "bonus": {
+      "bonusId": 7,
+      "bonus": "<x Sigil SPD"
+    },
+    "bonusQty": 20,
+    "difficulty": 67
+  },
+  {
+    "enemyId": "w6a4",
+    "xOff": 33,
+    "yOff": 27,
+    "width": 22,
+    "territoryName": "Bart_and_his_Trollsquad",
+    "bonusId": 11,
+    "bonus": {
+      "bonusId": 11,
+      "bonus": "+{% AFK Gains"
+    },
+    "bonusQty": 2,
+    "difficulty": 68
+  },
+  {
+    "enemyId": "w6a5",
+    "xOff": 36,
+    "yOff": 35,
+    "width": 29,
+    "territoryName": "Grunkle_and_their_Rooted_Whimsy",
+    "bonusId": 13,
+    "bonus": {
+      "bonusId": 13,
+      "bonus": "<x Construct SPD"
+    },
+    "bonusQty": 80,
+    "difficulty": 72
+  },
+  {
+    "enemyId": "w6b1",
+    "xOff": 46,
+    "yOff": 36,
+    "width": 34,
+    "territoryName": "Barb_and_her_Overworked_Blobs",
+    "bonusId": 12,
+    "bonus": {
+      "bonusId": 12,
+      "bonus": "+{% Skill EXP"
+    },
+    "bonusQty": 20,
+    "difficulty": 73
+  },
+  {
+    "enemyId": "w6b2",
+    "xOff": 25,
+    "yOff": 29,
+    "width": 22,
+    "territoryName": "Lumi_and_her_Bright_Lights",
+    "bonusId": 0,
+    "bonus": {
+      "bonusId": 0,
+      "bonus": "<x Total DMG"
+    },
+    "bonusQty": 60,
+    "difficulty": 76
+  },
+  {
+    "enemyId": "w6b3",
+    "xOff": 36,
+    "yOff": 33,
+    "width": 26,
+    "territoryName": "Marge_and_her_Troll_Patrol",
+    "bonusId": 15,
+    "bonus": {
+      "bonusId": 15,
+      "bonus": "<x Cooking SPD"
+    },
+    "bonusQty": 120,
+    "difficulty": 77
+  },
+  {
+    "enemyId": "w6b4",
+    "xOff": 45,
+    "yOff": 34,
+    "width": 31,
+    "territoryName": "Lief_and_his_Overzealous_Leeks",
+    "bonusId": 4,
+    "bonus": {
+      "bonusId": 4,
+      "bonus": "+{ Lab Con Range"
+    },
+    "bonusQty": 0.3,
+    "difficulty": 80
+  },
+  {
+    "enemyId": "w6c1",
+    "xOff": 29,
+    "yOff": 27,
+    "width": 19,
+    "territoryName": "Seru_and_their_Ceramic_Entities",
+    "bonusId": 14,
+    "bonus": {
+      "bonusId": 14,
+      "bonus": "<x Skill Effncy."
+    },
+    "bonusQty": 20,
+    "difficulty": 81
+  },
+  {
+    "enemyId": "w6c2",
+    "xOff": 38,
+    "yOff": 33,
+    "width": 27,
+    "territoryName": "Mr_Walker_and_his_Untiring_Doggies",
+    "bonusId": 16,
+    "bonus": {
+      "bonusId": 16,
+      "bonus": "<x Gaming Bits"
+    },
+    "bonusQty": 50,
+    "difficulty": 83
+  },
+  {
+    "enemyId": "w6d1",
+    "xOff": 23,
+    "yOff": 24,
+    "width": 14,
+    "territoryName": "Duke_of_Yolk_and_his_Subjects",
+    "bonusId": 2,
+    "bonus": {
+      "bonusId": 2,
+      "bonus": "<x Farming SPD"
+    },
+    "bonusQty": 8,
+    "difficulty": 85
+  },
+  {
+    "enemyId": "w6d2",
+    "xOff": 27,
+    "yOff": 31,
+    "width": 16,
+    "territoryName": "Sorel_and_her_Esteemed_Sludge",
+    "bonusId": 17,
+    "bonus": {
+      "bonusId": 17,
+      "bonus": "<x Shiny EXP"
+    },
+    "bonusQty": 70,
+    "difficulty": 86
+  },
+  {
+    "enemyId": "w6d3",
+    "xOff": 42,
+    "yOff": 41,
+    "width": 32,
+    "territoryName": "Shinji_and_his_Inevitable_Army",
+    "bonusId": 19,
+    "bonus": {
+      "bonusId": 19,
+      "bonus": "+{ Library Max"
+    },
+    "bonusQty": 3,
+    "difficulty": 87
+  },
+  {
+    "enemyId": "Pet1",
+    "xOff": 29,
+    "yOff": 24,
+    "width": 12,
+    "territoryName": "Pablo_and_his_Plump_Piggies",
+    "bonusId": 0,
+    "bonus": {
+      "bonusId": 0,
+      "bonus": "<x Total DMG"
+    },
+    "bonusQty": 8,
+    "difficulty": 0
+  },
+  {
+    "enemyId": "Pet2",
+    "xOff": 25,
+    "yOff": 26,
+    "width": 12,
+    "territoryName": "Gam3rPr0digy_and_their_Boar_Stampede",
+    "bonusId": 1,
+    "bonus": {
+      "bonusId": 1,
+      "bonus": "<x Jade Gain"
+    },
+    "bonusQty": 15,
+    "difficulty": 1
+  },
+  {
+    "enemyId": "Pet3",
+    "xOff": 23,
+    "yOff": 22,
+    "width": 17,
+    "territoryName": "Donald_and_his_Quacky_Ducks",
+    "bonusId": 2,
+    "bonus": {
+      "bonusId": 2,
+      "bonus": "<x Farming SPD"
+    },
+    "bonusQty": 3,
+    "difficulty": 2
+  },
+  {
+    "enemyId": "Pet0",
+    "xOff": 28,
+    "yOff": 23,
+    "width": 12,
+    "territoryName": "Sandy_and_her_Nutty_Squirrels",
+    "bonusId": 5,
+    "bonus": {
+      "bonusId": 5,
+      "bonus": "<x All Essence"
+    },
+    "bonusQty": 7,
+    "difficulty": 3
+  },
+  {
+    "enemyId": "Pet4",
+    "xOff": 30,
+    "yOff": 25,
+    "width": 18,
+    "territoryName": "Popo_and_their_Largest_of_Mammalians",
+    "bonusId": 3,
+    "bonus": {
+      "bonusId": 3,
+      "bonus": "<x Artifact Find"
+    },
+    "bonusQty": 15,
+    "difficulty": 5
+  },
+  {
+    "enemyId": "Pet6",
+    "xOff": 34,
+    "yOff": 21,
+    "width": 18,
+    "territoryName": "Little_Susie_and_her_Bunny_Family",
+    "bonusId": 1,
+    "bonus": {
+      "bonusId": 1,
+      "bonus": "<x Jade Gain"
+    },
+    "bonusQty": 25,
+    "difficulty": 7
+  },
+  {
+    "enemyId": "Pet5",
+    "xOff": 26,
+    "yOff": 29,
+    "width": 14,
+    "territoryName": "MovieFan84_and_his_Famous_Nacho_Batallion",
+    "bonusId": 0,
+    "bonus": {
+      "bonusId": 0,
+      "bonus": "<x Total DMG"
+    },
+    "bonusQty": 12,
+    "difficulty": 13
+  },
+  {
+    "enemyId": "Pet10",
+    "xOff": 30,
+    "yOff": 38,
+    "width": 15,
+    "territoryName": "Ronaldo_and_his_Cool_Freakin'_Birdz",
+    "bonusId": 4,
+    "bonus": {
+      "bonusId": 4,
+      "bonus": "+{ Lab Con Range"
+    },
+    "bonusQty": 0.3,
+    "difficulty": 24
+  },
+  {
+    "enemyId": "Pet11",
+    "xOff": 34,
+    "yOff": 30,
+    "width": 16,
+    "territoryName": "Master_Oogman_and_his_Speedy_Hedgehogs",
+    "bonusId": 2,
+    "bonus": {
+      "bonusId": 2,
+      "bonus": "<x Farming SPD"
+    },
+    "bonusQty": 4,
+    "difficulty": 40
+  },
+  {
+    "enemyId": "rift1",
+    "xOff": 40,
+    "yOff": 37,
+    "width": 24,
+    "territoryName": "ENIGMA_INFINITE_and_their_Rift_Spookers",
+    "bonusId": 19,
+    "bonus": {
+      "bonusId": 19,
+      "bonus": "+{ Library Max"
+    },
+    "bonusQty": 0,
+    "difficulty": 20
+  },
+  {
+    "enemyId": "rift2",
+    "xOff": 35,
+    "yOff": 59,
+    "width": 18,
+    "territoryName": "ENIGMA_INFINITE_and_their_Rift_Slugs",
+    "bonusId": 19,
+    "bonus": {
+      "bonusId": 19,
+      "bonus": "+{ Library Max"
+    },
+    "bonusQty": 0,
+    "difficulty": 20
+  },
+  {
+    "enemyId": "rift3",
+    "xOff": 48,
+    "yOff": 34,
+    "width": 28,
+    "territoryName": "ENIGMA_INFINITE_and_their_Rift_Jocunds",
+    "bonusId": 19,
+    "bonus": {
+      "bonusId": 19,
+      "bonus": "+{ Library Max"
+    },
+    "bonusQty": 0,
+    "difficulty": 20
+  },
+  {
+    "enemyId": "rift4",
+    "xOff": 36,
+    "yOff": 37,
+    "width": 22,
+    "territoryName": "ENIGMA_INFINITE_and_their_Rift_Hiveminds",
+    "bonusId": 19,
+    "bonus": {
+      "bonusId": 19,
+      "bonus": "+{ Library Max"
+    },
+    "bonusQty": 0,
+    "difficulty": 20
+  },
+  {
+    "enemyId": "rift5",
+    "xOff": 54,
+    "yOff": 39,
+    "width": 32,
+    "territoryName": "ENIGMA_INFINITE_and_their_Rift_Stalkers",
+    "bonusId": 19,
+    "bonus": {
+      "bonusId": 19,
+      "bonus": "+{ Library Max"
+    },
+    "bonusQty": 0,
+    "difficulty": 20
+  },
+  {
+    "enemyId": "Crystal1",
+    "xOff": 35,
+    "yOff": 42,
+    "width": 20,
+    "territoryName": "King's_Gambit",
+    "bonusId": 19,
+    "bonus": {
+      "bonusId": 19,
+      "bonus": "+{ Library Max"
+    },
+    "bonusQty": 0,
+    "difficulty": 20
+  },
+  {
+    "enemyId": "Crystal2",
+    "xOff": 35,
+    "yOff": 35,
+    "width": 15,
+    "territoryName": "Horsey's_Gambit",
+    "bonusId": 19,
+    "bonus": {
+      "bonusId": 19,
+      "bonus": "+{ Library Max"
+    },
+    "bonusQty": 0,
+    "difficulty": 20
+  },
+  {
+    "enemyId": "Crystal3",
+    "xOff": 36,
+    "yOff": 38,
+    "width": 20,
+    "territoryName": "Bishop's_Gambit",
+    "bonusId": 19,
+    "bonus": {
+      "bonusId": 19,
+      "bonus": "+{ Library Max"
+    },
+    "bonusQty": 0,
+    "difficulty": 20
+  },
+  {
+    "enemyId": "Crystal4",
+    "xOff": 35,
+    "yOff": 35,
+    "width": 30,
+    "territoryName": "Queen's_Gambit",
+    "bonusId": 19,
+    "bonus": {
+      "bonusId": 19,
+      "bonus": "+{ Library Max"
+    },
+    "bonusQty": 0,
+    "difficulty": 20
+  },
+  {
+    "enemyId": "Crystal0",
+    "xOff": 44,
+    "yOff": 44,
+    "width": 22,
+    "territoryName": "Castle's_Gambit",
+    "bonusId": 19,
+    "bonus": {
+      "bonusId": 19,
+      "bonus": "+{ Library Max"
+    },
+    "bonusQty": 0,
+    "difficulty": 20
+  },
+  {
+    "enemyId": "Crystal5",
+    "xOff": 30,
+    "yOff": 30,
+    "width": 23,
+    "territoryName": "Noob's_Gambit",
+    "bonusId": 19,
+    "bonus": {
+      "bonusId": 19,
+      "bonus": "+{ Library Max"
+    },
+    "bonusQty": 0,
+    "difficulty": 20
+  },
+  {
+    "enemyId": "babaMummy",
+    "xOff": 83,
+    "yOff": 0,
+    "width": 90,
+    "territoryName": "The_Aetherdoot",
+    "bonusId": -1,
+    "bonusQty": 0,
+    "difficulty": 20,
+    "hp": 250000
+  },
+  {
+    "enemyId": "slimeB",
+    "xOff": 50,
+    "yOff": 7,
+    "width": 90,
+    "territoryName": "The_Grover_Glunko",
+    "bonusId": -1,
+    "bonusQty": 0,
+    "difficulty": 20,
+    "hp": 1000000
+  },
+  {
+    "enemyId": "mini6a",
+    "xOff": 61,
+    "yOff": -12,
+    "width": 90,
+    "territoryName": "The_Shimmerlord",
+    "bonusId": -1,
+    "bonusQty": 0,
+    "difficulty": 20,
+    "hp": 150000000
+  },
+  {
+    "enemyId": "mini3a",
+    "xOff": 42,
+    "yOff": -30,
+    "width": 90,
+    "territoryName": "The_Freezerslush",
+    "bonusId": -1,
+    "bonusQty": 0,
+    "difficulty": 20,
+    "hp": 10000000
+  },
+  {
+    "enemyId": "mini4a",
+    "xOff": 84,
+    "yOff": 3,
+    "width": 90,
+    "territoryName": "The_Hexermush",
+    "bonusId": -1,
+    "bonusQty": 0,
+    "difficulty": 20,
+    "hp": 4000000
+  },
+  {
+    "enemyId": "mini5a",
+    "xOff": 30,
+    "yOff": 10,
+    "width": 90,
+    "territoryName": "The_Cinderdomeo",
+    "bonusId": -1,
+    "bonusQty": 0,
+    "difficulty": 20,
+    "hp": 40000000
+  },
+  {
+    "enemyId": "Boss6",
+    "xOff": 61,
+    "yOff": 45,
+    "width": 90,
+    "territoryName": "The_Zephyeror",
+    "bonusId": -1,
+    "bonusQty": 0,
+    "difficulty": 20,
+    "hp": 500000000
+  },
+  {
+    "enemyId": "babayaga",
+    "xOff": 0,
+    "yOff": 0,
+    "width": 90,
+    "territoryName": "W7_boss",
+    "bonusId": -1,
+    "bonusQty": 0,
+    "difficulty": 20,
+    "hp": 2000000000
+  },
+  {
+    "enemyId": "babayaga",
+    "xOff": 0,
+    "yOff": 0,
+    "width": 90,
+    "territoryName": "W8_boss",
+    "bonusId": -1,
+    "bonusQty": 0,
+    "difficulty": 20,
+    "hp": 2000000000
+  },
+  {
+    "enemyId": "w7a1",
+    "xOff": 19,
+    "yOff": 17,
+    "width": 14,
+    "territoryName": "Danny_and_his_Shiny_Fishies",
+    "bonusId": 0,
+    "bonus": {
+      "bonusId": 0,
+      "bonus": "<x Total DMG"
+    },
+    "bonusQty": 250,
+    "difficulty": 95
+  },
+  {
+    "enemyId": "w7a2",
+    "xOff": 31,
+    "yOff": 29,
+    "width": 22,
+    "territoryName": "Monty_and_his_Dastardly_Doodlefish",
+    "bonusId": 3,
+    "bonus": {
+      "bonusId": 3,
+      "bonus": "<x Artifact Find"
+    },
+    "bonusQty": 17,
+    "difficulty": 120
+  },
+  {
+    "enemyId": "w7a3",
+    "xOff": 39,
+    "yOff": 29,
+    "width": 18,
+    "territoryName": "Rhea_and_her_Eccentric_Eels",
+    "bonusId": 9,
+    "bonus": {
+      "bonusId": 9,
+      "bonus": "+{% Drop Rate"
+    },
+    "bonusQty": 5,
+    "difficulty": 150
+  },
+  {
+    "enemyId": "w7a4",
+    "xOff": 38,
+    "yOff": 25,
+    "width": 20,
+    "territoryName": "Clarence_and_his_Slug_Entourage",
+    "bonusId": 11,
+    "bonus": {
+      "bonusId": 11,
+      "bonus": "+{% AFK Gains"
+    },
+    "bonusQty": 3,
+    "difficulty": 180
+  },
+  {
+    "enemyId": "w7a5",
+    "xOff": 50,
+    "yOff": 47,
+    "width": 41,
+    "territoryName": "Nina_and_her_Birthday_Balloonfish",
+    "bonusId": 0,
+    "bonus": {
+      "bonusId": 0,
+      "bonus": "<x Total DMG"
+    },
+    "bonusQty": 350,
+    "difficulty": 220
+  },
+  {
+    "enemyId": "w7a6",
+    "xOff": 32,
+    "yOff": 31,
+    "width": 20,
+    "territoryName": "Karl_and_his_Downtrodden_Clamrades",
+    "bonusId": 16,
+    "bonus": {
+      "bonusId": 16,
+      "bonus": "<x Gaming Bits"
+    },
+    "bonusQty": 250,
+    "difficulty": 206
+  },
+  {
+    "enemyId": "w7a7",
+    "xOff": 36,
+    "yOff": 29,
+    "width": 17,
+    "territoryName": "Jojo_and_his_Bizarre_Recyclables",
+    "bonusId": 3,
+    "bonus": {
+      "bonusId": 3,
+      "bonus": "<x Artifact Find"
+    },
+    "bonusQty": 20,
+    "difficulty": 300
+  },
+  {
+    "enemyId": "w7a8",
+    "xOff": 29,
+    "yOff": 28,
+    "width": 22,
+    "territoryName": "Penny_and_her_Lane_of_Puffers",
+    "bonusId": 13,
+    "bonus": {
+      "bonusId": 13,
+      "bonus": "<x Construct SPD"
+    },
+    "bonusQty": 300,
+    "difficulty": 320
+  },
+  {
+    "enemyId": "w7a9",
+    "xOff": 38,
+    "yOff": 25,
+    "width": 22,
+    "territoryName": "Bill_and_his_Spiky_Balls_of_Pain",
+    "bonusId": 19,
+    "bonus": {
+      "bonusId": 19,
+      "bonus": "+{ Library Max"
+    },
+    "bonusQty": 1,
+    "difficulty": 350
+  },
+  {
+    "enemyId": "w7a10",
+    "xOff": 34,
+    "yOff": 37,
+    "width": 15,
+    "territoryName": "Maple_and_her_Nostalgic_Spearfish",
+    "bonusId": 0,
+    "bonus": {
+      "bonusId": 0,
+      "bonus": "<x Total DMG"
+    },
+    "bonusQty": 500,
+    "difficulty": 400
+  },
+  {
+    "enemyId": "w7a11",
+    "xOff": 31,
+    "yOff": 31,
+    "width": 22,
+    "territoryName": "Mr._K_and_his_Crusty_Crabs",
+    "bonusId": 3,
+    "bonus": {
+      "bonusId": 3,
+      "bonus": "<x Artifact Find"
+    },
+    "bonusQty": 23,
+    "difficulty": 450
+  },
+  {
+    "enemyId": "w7a12",
+    "xOff": 58,
+    "yOff": 42,
+    "width": 31,
+    "territoryName": "Frankton_and_his_Crab_Army_of_Doom",
+    "bonusId": 10,
+    "bonus": {
+      "bonusId": 10,
+      "bonus": "<x Crop EVO"
+    },
+    "bonusQty": 90,
+    "difficulty": 500
+  },
+  {
+    "enemyId": "w7b1",
+    "xOff": 31,
+    "yOff": 34,
+    "width": 15,
+    "territoryName": "Kai_and_his_Bluesteel_Koi",
+    "bonusId": 0,
+    "bonus": {
+      "bonusId": 0,
+      "bonus": "<x Total DMG"
+    },
+    "bonusQty": 400,
+    "difficulty": 525
+  },
+  {
+    "enemyId": "w7b2",
+    "xOff": 39,
+    "yOff": 36,
+    "width": 22,
+    "territoryName": "Minnie_and_her_Merciless_Mines",
+    "bonusId": 8,
+    "bonus": {
+      "bonusId": 8,
+      "bonus": "<x Farming EXP"
+    },
+    "bonusQty": 80,
+    "difficulty": 550
+  },
+  {
+    "enemyId": "w7b3",
+    "xOff": 34,
+    "yOff": 38,
+    "width": 21,
+    "territoryName": "Crusty_and_his_Smol_Crew",
+    "bonusId": 15,
+    "bonus": {
+      "bonusId": 15,
+      "bonus": "<x Cooking SPD"
+    },
+    "bonusQty": 150,
+    "difficulty": 575
+  },
+  {
+    "enemyId": "w7b4",
+    "xOff": 30,
+    "yOff": 34,
+    "width": 17,
+    "territoryName": "Ozeki_and_his_Roll_Tide",
+    "bonusId": 10,
+    "bonus": {
+      "bonusId": 10,
+      "bonus": "<x Crop EVO"
+    },
+    "bonusQty": 70,
+    "difficulty": 600
+  },
+  {
+    "enemyId": "w7b5",
+    "xOff": 49,
+    "yOff": 45,
+    "width": 25,
+    "territoryName": "Jeremiah_and_his_Juiced_Up_Jellies",
+    "bonusId": 16,
+    "bonus": {
+      "bonusId": 16,
+      "bonus": "<x Gaming Bits"
+    },
+    "bonusQty": 200,
+    "difficulty": 625
+  },
+  {
+    "enemyId": "w7b6",
+    "xOff": 46,
+    "yOff": 41,
+    "width": 28,
+    "territoryName": "Lazlo_and_his_Killer_Kelpos",
+    "bonusId": 0,
+    "bonus": {
+      "bonusId": 0,
+      "bonus": "<x Total DMG"
+    },
+    "bonusQty": 500,
+    "difficulty": 650
+  },
+  {
+    "enemyId": "w7b7",
+    "xOff": null,
+    "yOff": null,
+    "width": null,
+    "bonusId": 20,
+    "bonus": {
+      "bonusId": 20,
+      "bonus": "+{ Stamp LV/day"
+    },
+    "bonusQty": 1,
+    "difficulty": null
+  }
+]

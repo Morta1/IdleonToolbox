@@ -6,6 +6,7 @@ import { prefix } from 'utility/helpers';
 import Tooltip from '../../Tooltip';
 import { CLASSES, talentPagesMap } from '@parsers/talents';
 import { items as itemsList } from '@website-data';
+import { getGoldenFoodBonus } from '@parsers/misc';
 
 const Equipment = ({ equipment, tools, food, account, character, weaponByClass, hideEmpty, allAccountItems }) => {
   return <Stack>
@@ -65,7 +66,7 @@ const EquipmentPage = ({ allAccountItems, items, character, account, hideEmpty, 
                 <Tooltip
                   title={
                     displayName && displayName !== 'ERROR'
-                      ? <ItemDisplay {...(itemIndex === 1 && actualItem ? actualItem : item)} character={character} account={account} owners={owners}/>
+                      ? <ItemDisplay {...(itemIndex === 1 && actualItem ? actualItem : item)} character={character} account={account} owners={owners} getGoldenFoodBonus={getGoldenFoodBonus}/>
                       : ''
                   }
                 >

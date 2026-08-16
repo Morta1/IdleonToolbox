@@ -1,7 +1,7 @@
 import { commaNotation, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
 import { getFilteredPortals } from '@parsers/portals';
 import { liveEntries } from '@parsers/catalog';
-import { mapEnemiesArray, mapPortals, monsterDrops, monsters, tesseract, items } from '@website-data';
+import { mapEnemiesArray, mapPortals, monsterCoinQuantity, monsters, tesseract, items } from '@website-data';
 import { CLASSES, getCharacterByHighestTalent, getTalentBonus, getHighestTalentByClass } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
@@ -249,7 +249,7 @@ export const getMaps = (account: any, characters: any, character: any) => {
       }
     });
     const monsterRawName = (mapEnemiesArray as any)?.[mapIndex];
-    const coinQuantity = monsterDrops?.[monsterRawName]?.find(({ rawName }: any) => rawName === 'COIN')?.quantity;
+    const coinQuantity = (monsterCoinQuantity as any)?.[monsterRawName];
     const tachyonQuantity = getTachyonQuantityBase(coinQuantity);
     const tachyonType = getTachyonType(coinQuantity);
     const mapBonuses = getMapMultiBonus(mapBonusRaw?.[mapIndex], maxMapBonus);

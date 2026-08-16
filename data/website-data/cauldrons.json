@@ -1,0 +1,4210 @@
+{
+  "power": [
+    {
+      "bubbleIndex": "_0",
+      "bubbleName": "ROID_RAGIN",
+      "x1": 1,
+      "x2": 0,
+      "func": "addDECAY",
+      "desc": "+{_Total_STR_for_all_players,_always.",
+      "stat": "TotalSTR",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "Copper",
+          "name": "Copper_Ore",
+          "baseCost": 1
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_1",
+      "bubbleName": "WARRIORS_RULE",
+      "x1": 2,
+      "x2": 50,
+      "func": "decayMulti",
+      "desc": "All_Orange_Passive_Bubbles,_which_are_the_smaller_sized_ones,_give_a_{x_higher_bonus_to_your_warrior-based_classes.",
+      "stat": "Opassz",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "Grasslands1",
+          "name": "Spore_Cap",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_2",
+      "bubbleName": "HEARTY_DIGGY",
+      "x1": 50,
+      "x2": 100,
+      "func": "decay",
+      "desc": "+{%_mining_efficiency_per_power_of_10_max_HP_that_your_character_has._The_perfect_bonus_for_miners_with_infinite_HP!",
+      "stat": "MinEff",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "JungleTree",
+          "name": "Jungle_Logs",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_3",
+      "bubbleName": "WYOMING_BLOOD",
+      "x1": 23.5,
+      "x2": 1.5,
+      "func": "bigBase",
+      "desc": "+{%_chance_for_Multiple_Ores_while_Mining,_and_the_max_is_now_300%,_not_100%._Big_bubbles_like_this_must_be_equipped_to_give_bonus.",
+      "stat": "MiningACTIVE",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "Bug1",
+          "name": "Fly",
+          "baseCost": 10
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_4",
+      "bubbleName": "REELY_SMART",
+      "x1": 100,
+      "x2": 80,
+      "func": "decay",
+      "desc": "+{%_Mining_and_Fishing_EXP_gain._Y'know_what,_I'll_even_DOUBLE_that_bonus_for_whichever_skill_has_the_lower_level!",
+      "stat": "MinFishEXP",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "CraftMat6",
+          "name": "Boring_Brick",
+          "baseCost": 20
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_5",
+      "bubbleName": "BIG_MEATY_CLAWS",
+      "x1": 4,
+      "x2": 0,
+      "func": "addDECAY",
+      "desc": "Increases_base_damage_by_+$._This_bonus_increases_based_on_how_much_Max_HP_you_have_above_250.",
+      "stat": "bdmgHP",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "DesertB2",
+          "name": "Furled_Flag",
+          "baseCost": 200
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_6",
+      "bubbleName": "SPLOOSH_SPLOOSH",
+      "x1": 23.5,
+      "x2": 1.5,
+      "func": "bigBase",
+      "desc": "Multi-Fish_fishing_chance_is_increased_by_+{%,_and_your_max_Multi-Fish_chance_is_300%_instead_of_100%.",
+      "stat": "FishingACTIVE",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "Fish2",
+          "name": "Hermit_Can",
+          "baseCost": 100
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_7",
+      "bubbleName": "STRONK_TOOLS",
+      "x1": 65,
+      "x2": 70,
+      "func": "decay",
+      "desc": "The_following_tools_give_+{%_more_skilling_Power_than_normal:_$",
+      "stat": "ToolW",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "Plat",
+          "name": "Platinum_Ore",
+          "baseCost": 60
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_8",
+      "bubbleName": "FMJ",
+      "x1": 0.5,
+      "x2": 0,
+      "func": "addDECAY",
+      "desc": "+{%_more_defence_from_Equipment._Also,_+1_base_Def_per_Class_LV,_up_to_+{.",
+      "stat": "DefPct",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "Bug4",
+          "name": "Fruitfly",
+          "baseCost": 50
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_9",
+      "bubbleName": "BAPPITY_BOOPITY",
+      "x1": 35,
+      "x2": 100,
+      "func": "decay",
+      "desc": "+{%_critical_Damage._Badabing,_badaboom!_Or_in_Italian,_Babadabinga,_babadaboomahh!",
+      "stat": "critDMG",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "CraftMat8",
+          "name": "Pinion_Spur",
+          "baseCost": 100
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_10",
+      "bubbleName": "BRITTLEY_SPEARS",
+      "x1": 40,
+      "x2": 50,
+      "func": "decay",
+      "desc": "+{%_Total_damage._This_multiplies_with_other_damage_bonuses,_but_adds_with_the_other_'+%_Total_Damage'_bubbles.",
+      "stat": "pctDmg1",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "Critter1",
+          "name": "Froge",
+          "baseCost": 10
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_11",
+      "bubbleName": "CALL_ME_BOB",
+      "x1": 25,
+      "x2": 2.5,
+      "func": "bigBase",
+      "desc": "+{%_Construction_EXP_Gain._Also_gives_+50%_Bug-Fixing_speed_if_your_username_is_LavaFlame2.",
+      "stat": "conEXPACTIVE",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "SnowA3",
+          "name": "Moustache_Comb",
+          "baseCost": 120
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_12",
+      "bubbleName": "CARPENTER",
+      "x1": 5,
+      "x2": 50,
+      "func": "decay",
+      "desc": "+{%_Build_Speed_per_Construction_Level._Not_affected_by_'Warriors_Rule'_bubble.",
+      "stat": "Construction",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "Refinery2",
+          "name": "Explosive_Salts",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_13",
+      "bubbleName": "BUFF_BOI_TALENT",
+      "x1": 5,
+      "x2": 1,
+      "func": "bigBase",
+      "desc": "+{_Talent_Points_for_EACH_tab!_But_it's_just_for_warriors,_don't_tell_the_other_classes!!_NOTE:_Doesn't_affect_Master_Class",
+      "stat": "TalWarrior",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "Critter4",
+          "name": "Mousey",
+          "baseCost": 50
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_14",
+      "bubbleName": "ORANGE_BARGAIN",
+      "x1": 40,
+      "x2": 12,
+      "func": "decay",
+      "desc": "The_material_costs_of_ALL_orange_bubbles_are_{%_lower",
+      "stat": "BubbleCostOr",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "Soul4",
+          "name": "Frigid_Soul",
+          "baseCost": 30
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_15",
+      "bubbleName": "PENNY_OF_STRENGTH",
+      "x1": 18,
+      "x2": 30,
+      "func": "decay",
+      "desc": "+{%_Cash_from_Monsters_for_every_250_STR._The_pennies_reflect_your_strength_in_themselves,_thus_making_them_more_valuable!",
+      "stat": "CashSTR",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "Fish5",
+          "name": "Skelefish",
+          "baseCost": 200
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_16",
+      "bubbleName": "MULTORANGE",
+      "x1": 1.4,
+      "x2": 30,
+      "func": "decayMulti",
+      "desc": "The_following_orange_bubbles_give_{x_higher_bonus_than_displayed:_1st,_3rd,_5th,_8th,_15th",
+      "stat": "MultiOr",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "GalaxyA3",
+          "name": "Half_Eaten_Donut",
+          "baseCost": 250
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_17",
+      "bubbleName": "DREAM_OF_IRONFISH",
+      "x1": 12,
+      "x2": 30,
+      "func": "decay",
+      "desc": "+{%_Mining_and_Fishing_AFK_GAINS_rate._Wow,_how_bias_can_you_get..._giving_the_warrior's_bubble_TWO_afk_gain_bonuses.",
+      "stat": "MinFshAFK",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "CraftMat13",
+          "name": "Tangled_Cords",
+          "baseCost": 200
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_18",
+      "bubbleName": "SHIMMERON",
+      "x1": 80,
+      "x2": 40,
+      "func": "decay",
+      "desc": "+{%_Gold_Food_Effect._Go_on,_its_ok,_I_won't_be_offended._No_seriously,_go_upgrade_something_else,_I_know_I'm_not_a_good_upgrade...",
+      "stat": "GFoodz",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "CraftMat14",
+          "name": "PVC_Pipe",
+          "baseCost": 300
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_19",
+      "bubbleName": "BITE_BUT_NOT_CHEW",
+      "x1": 50,
+      "x2": 40,
+      "func": "decay",
+      "desc": "+{%_Food_Non-Consume_chance._Also,_if_your_capped_Non-Consume_chance_happens_to_be_98%,_this_changes_it_to_99%!",
+      "stat": "nonFoodACTIVE",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "GalaxyC4",
+          "name": "Condensed_Zap",
+          "baseCost": 200
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_20",
+      "bubbleName": "SPEAR_POWAH",
+      "x1": 40,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{%_more_Weapon_Power_from_your_weapon,_but_only_if_its_a_Spear!",
+      "stat": "W1",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "Bits",
+          "name": "Bits",
+          "baseCost": 10000
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_21",
+      "bubbleName": "SLABI_OREFISH",
+      "x1": 3,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{_Mining_and_Fishing_Power_per_100_items_found,_shown_on_The_Slab!",
+      "stat": "W2",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "Soul6",
+          "name": "Oozie_Soul",
+          "baseCost": 150
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_22",
+      "bubbleName": "GAMER_AT_HEART",
+      "x1": 20,
+      "x2": 60,
+      "func": "decay",
+      "desc": "When_claiming_AFK_Gains,_+{%_chance_to_gain_an_equal_amount_of_time_for_Gaming_progress!",
+      "stat": "W3ACTIVE",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "SailTr9",
+          "name": "Strung_Jewels",
+          "baseCost": 100
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_23",
+      "bubbleName": "SLABI_STRENGTH",
+      "x1": 25,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{_Base_STR_per_100_items_found,_shown_on_The_Slab!",
+      "stat": "W4",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "LavaB3b",
+          "name": "OJ_Juice",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_24",
+      "bubbleName": "POWER_TRIONE",
+      "x1": 23,
+      "x2": 50,
+      "func": "decay",
+      "desc": "+{%_Total_Damage_per_250_STR,_but_only_for_warriors!_No_triple_dipping_into_AGI_and_WIS!_Also_this,_but_for_beginners_with_LUK!",
+      "stat": "W5",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "SailTr20",
+          "name": "Strung_Jewels",
+          "baseCost": 150
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_25",
+      "bubbleName": "FARQUAD_FORCE",
+      "x1": 30,
+      "x2": 60,
+      "func": "decay",
+      "desc": "The_effect_STR_has_on_Damage_is_increased_by_+{%",
+      "stat": "W6",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "W6item1",
+          "name": "Strung_Jewels",
+          "baseCost": 100
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_26",
+      "bubbleName": "ENDGAME_EFF_I",
+      "x1": 3,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{_Mining_and_Fishing_Power._This_bonus_increases_based_on_every_10_Class_LVs_you_are_above_500.",
+      "stat": "W7",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "SpiA2b",
+          "name": "Stacked_Rice_Cake",
+          "baseCost": 150
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_27",
+      "bubbleName": "TOME_STRENGTH",
+      "x1": 2.5,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{%_STR_for_every_2000_Tome_Completion_Points_over_5000._So_you'd_get_one_stack_of_this_at_7000_pts,_two_at_9000,_etc",
+      "stat": "W8",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "W6item8",
+          "name": "Strung_Jewels",
+          "baseCost": 500
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_28",
+      "bubbleName": "ESSENCE_BOOST",
+      "x1": 50,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{%_Red_Essence_Gain,_this_bonus_increases_based_on_the_total_level_of_ALL_your_warriors!",
+      "stat": "W9AllCharz",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "Tree13",
+          "name": "Effervescent_Logs",
+          "baseCost": 200
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_29",
+      "bubbleName": "CROP_CHAPTER",
+      "x1": 12,
+      "x2": 50,
+      "func": "decay",
+      "desc": "+{%_Crop_Evolution_chance_for_every_2000_Tome_Completion_Points_above_5000.",
+      "stat": "W10AllCharz",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "W6item10",
+          "name": "Strung_Jewels",
+          "baseCost": 1500
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_30",
+      "bubbleName": "DOUBLE_PAGEY",
+      "x1": 30,
+      "x2": 130,
+      "func": "decay",
+      "desc": "+{%_Multi_Page_chance_for_active_Spelunking!_Now_you_can_not_read_things_TWICE_as_much!!_Who_am_I_even_talking_to!!!",
+      "stat": "W11",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "w7A1",
+          "name": "Equinox_Flesh",
+          "baseCost": 4000
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 7
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_31",
+      "bubbleName": "DMG_OF_THE_SUN",
+      "x1": 4000,
+      "x2": 300,
+      "func": "decay",
+      "desc": "+{%_Total_Damage._This_is_additive,_so_the_better_you_are_the_less_you'll_even_notice_this_bonus.",
+      "stat": "W12",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "W7item0",
+          "name": "Strung_Jewels",
+          "baseCost": 10
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 8
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_32",
+      "bubbleName": "BONE_BUBBLE",
+      "x1": 200,
+      "x2": 500,
+      "func": "decay",
+      "desc": "+{%_Extra_Dust_for_Deathbringers._Wait_I_meant_Bones,_since_Dust_is_for_Arcane_Cultists._Wait_I_meant_Windwalkers.",
+      "stat": "W13",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "Bug15",
+          "name": "Litterbug",
+          "baseCost": 1000
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 9
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_33",
+      "bubbleName": "BUBBLE",
+      "x1": 99,
+      "x2": 40,
+      "func": "decay",
+      "desc": "It's_just_a_normal_bubble._It_doesn't_have_a_bonus_yet,_it_just_floats_and_is_round.",
+      "stat": "W14",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "FillerMaterial",
+          "name": "Not_Yet",
+          "baseCost": 2500
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "_34",
+      "bubbleName": "BUBBLE",
+      "x1": 99,
+      "x2": 40,
+      "func": "decay",
+      "desc": "It's_just_a_normal_bubble._It_doesn't_have_a_bonus_yet,_it_just_floats_and_is_round.",
+      "stat": "W15",
+      "cauldron": "power",
+      "itemReq": [
+        {
+          "rawName": "FillerMaterial",
+          "name": "Not_Yet",
+          "baseCost": 2500
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    }
+  ],
+  "quicc": [
+    {
+      "bubbleIndex": "a0",
+      "bubbleName": "SWIFT_STEPPIN",
+      "x1": 1,
+      "x2": 0,
+      "func": "addDECAY",
+      "desc": "+{_Total_AGI_for_all_players,_always.",
+      "stat": "TotalAGI",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "DesertA1",
+          "name": "Pocket_Sand",
+          "baseCost": 1
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a1",
+      "bubbleName": "ARCHER_OR_BUST",
+      "x1": 2,
+      "x2": 50,
+      "func": "decayMulti",
+      "desc": "All_Green_Passive_Bonuses,_which_are_the_smaller_sized_ones,_give_{x_more_bonuses_to_your_archer-based_characters.",
+      "stat": "Gpassz",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Grasslands1",
+          "name": "Spore_Cap",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a2",
+      "bubbleName": "HAMMER_HAMMER",
+      "x1": 23,
+      "x2": 2,
+      "func": "bigBase",
+      "desc": "Lets_you_produce_two_items_at_once_in_the_anvil,_and_gives_+{%_production_speed._Big_bubbles_like_this_must_be_equipped_to_give_bonus.",
+      "stat": "AnvilACTIVE",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Iron",
+          "name": "Iron_Ore",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a3",
+      "bubbleName": "LIL_BIG_DAMAGE",
+      "x1": 20,
+      "x2": 100,
+      "func": "decay",
+      "desc": "+{%_Mastery._Mastery_is_your_stat_that_boosts_minimum_damage._Just_like_in_Maplest..._err,_just_like_how_I_thought_it_up_myself!",
+      "stat": "Mastery",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Fish1",
+          "name": "Goldfish",
+          "baseCost": 10
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a4",
+      "bubbleName": "ANVILNOMICS",
+      "x1": 40,
+      "x2": 100,
+      "func": "decay",
+      "desc": "Costs_for_buying_Anvil_Production_Points_is_reduced_by_{%._This_is_just_like_a_tax_cut,_so_remember_me_as_a_hero!",
+      "stat": "AnvilProdCost",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "ForestTree",
+          "name": "Forest_Fibres",
+          "baseCost": 20
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a5",
+      "bubbleName": "QUICK_SLAP",
+      "x1": 4,
+      "x2": 0,
+      "func": "addDECAY",
+      "desc": "Increases_base_damage_by_+$._This_bonus_increases_based_on_how_much_Movement_Speed_you_have_above_110%.",
+      "stat": "bdmgSPD",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "DesertB1",
+          "name": "Coconotnotto",
+          "baseCost": 90
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a6",
+      "bubbleName": "SANIC_TOOLS",
+      "x1": 65,
+      "x2": 70,
+      "func": "decay",
+      "desc": "The_following_tools_give_+{%_more_skilling_Power_than_normal:_$",
+      "stat": "ToolA",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Jungle1",
+          "name": "Slime_Sludge",
+          "baseCost": 130
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a7",
+      "bubbleName": "BUG]",
+      "x1": 23.5,
+      "x2": 1.5,
+      "func": "bigBase",
+      "desc": "Multi-Bug_catching_chance_is_increased_by_+{%,_and_your_max_Multi-Bug_chance_is_300%_instead_of_100%.",
+      "stat": "CatchingACTIVE",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Bug3",
+          "name": "Sentient_Cereal",
+          "baseCost": 70
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a8",
+      "bubbleName": "SHAQURACY",
+      "x1": 1,
+      "x2": 0,
+      "func": "addDECAY",
+      "desc": "Your_secondary_stat_(WIS_for_warrior,_STR_for_archer,_AGI_for_mage)_gives_+{%_more_Accuracy_than_normal.",
+      "stat": "AccPct",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Fish4",
+          "name": "Bloach",
+          "baseCost": 65
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a9",
+      "bubbleName": "CHEAP_SHOT",
+      "x1": 7,
+      "x2": 100,
+      "func": "decay",
+      "desc": "+{%_critical_Chance,_as_it_increases_the_chance_for_your_attack_to_hit_the_monster's_privates,_and_for_the_monster_to_be_male.",
+      "stat": "CritChance",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Bug5",
+          "name": "Mosquisnow",
+          "baseCost": 35
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a10",
+      "bubbleName": "BOW_JACK",
+      "x1": 40,
+      "x2": 50,
+      "func": "decay",
+      "desc": "+{%_Total_damage._This_multiplies_with_other_damage_bonuses,_but_adds_with_the_other_'+%_Total_Damage'_bubbles.",
+      "stat": "pctDmg2",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Soul1",
+          "name": "Forest_Soul",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a11",
+      "bubbleName": "CALL_ME_ASH",
+      "x1": 25,
+      "x2": 2,
+      "func": "bigBase",
+      "desc": "+{%_Trapping_Efficiency_when_this_bubble_is_equipped._Also,_+1_Placeable_Trap_ALWAYS,_even_when_this_isn't_equipped!",
+      "stat": "TrapACTIVE",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "SaharanFoal",
+          "name": "Tundra_Logs",
+          "baseCost": 100
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a12",
+      "bubbleName": "CUZ_I_CATCH_EM_ALL",
+      "x1": 3,
+      "x2": 100,
+      "func": "decayMulti",
+      "desc": "{x_more_likely_to_catch_shiny_critters_when_opening_a_trap.",
+      "stat": "CritShiny",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Soul3",
+          "name": "Rooted_Soul",
+          "baseCost": 25
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a13",
+      "bubbleName": "FAST_BOI_TALENT",
+      "x1": 5,
+      "x2": 1,
+      "func": "bigBase",
+      "desc": "+{_Talent_Points_for_EACH_tab,_but_just_for_Archers!_Oh,_and_also_for_the_SECRET_class..._NOTE:_Doesn't_affect_Master_Class",
+      "stat": "TalArchers",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Bug6",
+          "name": "Flycicle",
+          "baseCost": 120
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a14",
+      "bubbleName": "GREEN_BARGAIN",
+      "x1": 40,
+      "x2": 12,
+      "func": "decay",
+      "desc": "The_material_costs_of_ALL_green_bubbles_are_{%_lower",
+      "stat": "BubbleCostGr",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Critter5",
+          "name": "Owlio",
+          "baseCost": 200
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a15",
+      "bubbleName": "DOLLAR_OF_AGILITY",
+      "x1": 18,
+      "x2": 30,
+      "func": "decay",
+      "desc": "+{%_Cash_from_Monsters_for_every_250_AGI._The_extra_agility_allows_the_dollars_to_stretch_in_size_and_increase_in_value!",
+      "stat": "CashAGI",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "CraftMat11",
+          "name": "Purple_Screw",
+          "baseCost": 250
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a16",
+      "bubbleName": "PREMIGREEN",
+      "x1": 1.4,
+      "x2": 30,
+      "func": "decayMulti",
+      "desc": "The_following_green_bubbles_give_{x_higher_bonus_than_displayed:_1st,_7th,_10th,_13th,_15th",
+      "stat": "MultiGr",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Critter8",
+          "name": "Dung_Beat",
+          "baseCost": 150
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a17",
+      "bubbleName": "FLY_IN_MIND",
+      "x1": 12,
+      "x2": 40,
+      "func": "decay",
+      "desc": "+{%_Catching_AFK_Gains_Rate._Now_you_too_can_dream_about_bugs_in_your_sleep,_just_like_I_do_all_the_time!!!!",
+      "stat": "CatchinAFK",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Bug7",
+          "name": "Worker_Bee",
+          "baseCost": 350
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a18",
+      "bubbleName": "KILL_PER_KILL",
+      "x1": 70,
+      "x2": 40,
+      "func": "decay",
+      "desc": "+{%_extra_Kills_for_Deathnote_and_opening_portals_to_new_maps._Shoutout_to_my_Idle_Skilling_players_who_remember_'Kill_Per_Kill'!",
+      "stat": "kpkACTIVE",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Refinery4",
+          "name": "Dioxide_Synthesis",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a19",
+      "bubbleName": "AFK_EXPEXP",
+      "x1": 40,
+      "x2": 40,
+      "func": "decay",
+      "desc": "+{%_chance_for_Double_EXP_when_claiming_AFK_gains._You'll_know_this_happens_because_it_literally_tells_you_it_happened!",
+      "stat": "DubEXP",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Bug8",
+          "name": "Fairy",
+          "baseCost": 300
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a20",
+      "bubbleName": "BOW_POWER",
+      "x1": 40,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{%_more_Weapon_Power_from_your_weapon,_but_only_if_its_a_Bow!",
+      "stat": "A1",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Bits",
+          "name": "Bits",
+          "baseCost": 10000
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a21",
+      "bubbleName": "SLABO_CRITTERBUG",
+      "x1": 3,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{_Catching_and_Trapping_Power_per_100_items_found,_shown_on_The_Slab!",
+      "stat": "A2",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Tree9",
+          "name": "Maple_Logs",
+          "baseCost": 500
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a22",
+      "bubbleName": "SAILOR_AT_HEART",
+      "x1": 16,
+      "x2": 60,
+      "func": "decay",
+      "desc": "When_claiming_AFK_Gains,_+{%_chance_to_gain_an_equal_amount_of_time_for_Sailing_progress!",
+      "stat": "A3ACTIVE",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "SailTr11",
+          "name": "Strung_Jewels",
+          "baseCost": 100
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a23",
+      "bubbleName": "SLABO_AGILITY",
+      "x1": 25,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{_Base_AGI_and_LUK_per_100_items_found,_shown_on_The_Slab!_Woah_cool_this_is_like_a_Archer_Beginner_crossover_bubble!",
+      "stat": "A4",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "LavaB6",
+          "name": "Hard_Hat",
+          "baseCost": 250
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a24",
+      "bubbleName": "POWER_TRITWO",
+      "x1": 23,
+      "x2": 50,
+      "func": "decay",
+      "desc": "+{%_Total_Damage_per_250_AGI,_but_only_for_archers!_No_triple_dipping_into_STR_and_WIS!",
+      "stat": "A5",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "SailTr24",
+          "name": "Strung_Jewels",
+          "baseCost": 150
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a25",
+      "bubbleName": "QUICKDRAW_QUIVER",
+      "x1": 40,
+      "x2": 60,
+      "func": "decay",
+      "desc": "The_effect_AGI_has_on_Damage_is_increased_by_+{%",
+      "stat": "A6",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "W6item0",
+          "name": "Error_Item",
+          "baseCost": 25000
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a26",
+      "bubbleName": "ESSENCE_BOOST",
+      "x1": 50,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{%_Green_Essence_Gain,_this_bonus_increases_based_on_the_total_level_of_ALL_your_archers!",
+      "stat": "A7AllCharz",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Tree12",
+          "name": "Bamboo_Logs",
+          "baseCost": 500
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a27",
+      "bubbleName": "ENDGAME_EFF_II",
+      "x1": 3,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{_Catching_and_Trapping_Power._This_bonus_increases_based_on_every_10_Class_LVs_you_are_above_500.",
+      "stat": "A8",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "W6item3",
+          "name": "Strung_Jewels",
+          "baseCost": 150
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a28",
+      "bubbleName": "TOME_AGILITY",
+      "x1": 2.5,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{%_AGI_for_every_2000_Tome_Completion_Points_over_5000._So_you'd_get_one_stack_of_this_at_7000_pts,_two_at_9000,_etc",
+      "stat": "A9",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Bug13",
+          "name": "Firefly",
+          "baseCost": 750
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a29",
+      "bubbleName": "STEALTH_CHAPTER",
+      "x1": 10,
+      "x2": 50,
+      "func": "decay",
+      "desc": "+{%_Stealth_(the_stat_that_lowers_detection_rate_in_Sneaking)_for_every_2000_Tome_Completion_Points_above_5000.",
+      "stat": "A10AllCharz",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "W6item5",
+          "name": "Strung_Jewels",
+          "baseCost": 250
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a30",
+      "bubbleName": "SPAPUNKIE",
+      "x1": 400,
+      "x2": 150,
+      "func": "decay",
+      "desc": "+{%_Spelunking_Efficiency._You_yearn_that_much_more_for_the_tiny_gaps_in_caverns_that_man_was_not_meant_to_venture...",
+      "stat": "A11",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "w7A2",
+          "name": "Doodlefins",
+          "baseCost": 4000
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 7
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a31",
+      "bubbleName": "DMG_OF_THE_MOON",
+      "x1": 4000,
+      "x2": 300,
+      "func": "decay",
+      "desc": "+{%_Total_Damage._This_is_additive,_so_the_better_you_are_the_less_you'll_even_notice_this_bonus.",
+      "stat": "A12",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Spelunking1",
+          "name": "Chapter_Two_'Decay_Surrounds'",
+          "baseCost": 100
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 8
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a32",
+      "bubbleName": "DUST_BUBBLE",
+      "x1": 200,
+      "x2": 500,
+      "func": "decay",
+      "desc": "+{%_Extra_Dust_for_Windwalkers.",
+      "stat": "A13",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "Soul8",
+          "name": "Deepsea_Soul",
+          "baseCost": 300
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 9
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a33",
+      "bubbleName": "BUBBLE",
+      "x1": 99,
+      "x2": 40,
+      "func": "decay",
+      "desc": "It's_just_a_normal_bubble._It_doesn't_have_a_bonus_yet,_it_just_floats_and_is_round.",
+      "stat": "A14",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "FillerMaterial",
+          "name": "Not_Yet",
+          "baseCost": 2500
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "a34",
+      "bubbleName": "BUBBLE",
+      "x1": 99,
+      "x2": 40,
+      "func": "decay",
+      "desc": "It's_just_a_normal_bubble._It_doesn't_have_a_bonus_yet,_it_just_floats_and_is_round.",
+      "stat": "A15",
+      "cauldron": "quicc",
+      "itemReq": [
+        {
+          "rawName": "FillerMaterial",
+          "name": "Not_Yet",
+          "baseCost": 2500
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    }
+  ],
+  "high-iq": [
+    {
+      "bubbleIndex": "b0",
+      "bubbleName": "STABLE_JENIUS",
+      "x1": 1,
+      "x2": 0,
+      "func": "addDECAY",
+      "desc": "+{_Total_WIS_for_all_players,_always.",
+      "stat": "TotalWIS",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "OakTree",
+          "name": "Oak_Logs",
+          "baseCost": 1
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b1",
+      "bubbleName": "MAGE_IS_BEST",
+      "x1": 2,
+      "x2": 50,
+      "func": "decayMulti",
+      "desc": "All_Purple_Passive_Bonuses,_which_are_the_smaller_sized_ones,_give_{x_more_bonuses_to_your_mage-based_characters.",
+      "stat": "Ppassz",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "Grasslands1",
+          "name": "Spore_Cap",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b2",
+      "bubbleName": "HOCUS_CHOPPUS",
+      "x1": 50,
+      "x2": 100,
+      "func": "decay",
+      "desc": "+{%_choppin_efficiency_per_power_of_10_max_MP_that_your_character_has._Super_diaper!_Err,_duper.",
+      "stat": "ChopEff",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "CraftMat5",
+          "name": "Trusty_Nails",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b3",
+      "bubbleName": "MOLTO_LOGGO",
+      "x1": 23.5,
+      "x2": 1.5,
+      "func": "bigBase",
+      "desc": "+{%_chance_for_Multiple_Logs_while_Choppin,_and_the_max_is_now_300%,_not_100%._Big_bubbles_like_this_must_be_equipped_to_give_bonus.",
+      "stat": "MultiLogACTIVE",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "IronBar",
+          "name": "Iron_Bar",
+          "baseCost": 10
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b4",
+      "bubbleName": "NOODUBBLE",
+      "x1": 100,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{%_Choppin'_and_Alchemy_EXP_gain._Y'know_what,_I'll_even..._actually,_never_mind.",
+      "stat": "ChopAlchEXP",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "CraftMat7",
+          "name": "Chain_Link",
+          "baseCost": 20
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b5",
+      "bubbleName": "NAME_I_GUESS",
+      "x1": 4,
+      "x2": 0,
+      "func": "addDECAY",
+      "desc": "Increases_base_damage_by_+$._This_bonus_increases_based_on_how_much_Max_MP_you_have_above_150.",
+      "stat": "bdmgMP",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "Gold",
+          "name": "Gold_Ore",
+          "baseCost": 40
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b6",
+      "bubbleName": "LE_BRAIN_TOOLS",
+      "x1": 65,
+      "x2": 70,
+      "func": "decay",
+      "desc": "The_following_tools_give_+{%_more_skilling_Power_than_normal:_$",
+      "stat": "ToolM",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "Bug3",
+          "name": "Sentient_Cereal",
+          "baseCost": 55
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b7",
+      "bubbleName": "COOKIN_ROADKILL",
+      "x1": 120,
+      "x2": 70,
+      "func": "decay",
+      "desc": "Cranium_Cooking_lasts_{%_longer,_gives_{%_more_progress_per_kill,_and_has_a_{%_lower_cooldown._Also_+{%_Alchemy_EXP!",
+      "stat": "AlchemyACTIVE",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "ToiletTree",
+          "name": "Potty_Rolls",
+          "baseCost": 75
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b8",
+      "bubbleName": "BREWSTACHIO",
+      "x1": 50,
+      "x2": 100,
+      "func": "decay",
+      "desc": "+{%_Brew_Speed._This_a_multiplicative_bonus,_which_means_its_ultra_powerful,_all_the_time!_Even_on_Mondays,_the_worst_day!",
+      "stat": "BrewSpd",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "DesertC1",
+          "name": "High_Steaks",
+          "baseCost": 150
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b9",
+      "bubbleName": "ALL_FOR_KILL",
+      "x1": 40,
+      "x2": 100,
+      "func": "decay",
+      "desc": "Attack_Talents_give_+{%_higher_bonuses_to_Offline_Gains_than_they_normally_do._So_you_might_as_well_just_AFK_forever,_bye!",
+      "stat": "AttackAfk",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "StumpTree",
+          "name": "Veiny_Logs",
+          "baseCost": 100
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b10",
+      "bubbleName": "MATTY_STAFFORD",
+      "x1": 40,
+      "x2": 50,
+      "func": "decay",
+      "desc": "+{%_Total_damage._This_multiplies_with_other_damage_bonuses,_but_adds_with_the_other_'+%_Total_Damage'_bubbles.",
+      "stat": "pctDmg3",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "Refinery1",
+          "name": "Redox_Salts",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b11",
+      "bubbleName": "CALL_ME_POPE",
+      "x1": 2.4,
+      "x2": 70,
+      "func": "decayMulti",
+      "desc": "{x_Worship_Charge_rate_per_hour._Also,_{x_Max_Worship_Charge!_You_bouta_go_super_with_all_that_charge..._just_sayin'",
+      "stat": "worshipACTIVE",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "Critter2",
+          "name": "Crabbo",
+          "baseCost": 25
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b12",
+      "bubbleName": "GOSPEL_LEADER",
+      "x1": 60,
+      "x2": 30,
+      "func": "decay",
+      "desc": "+{%_Max_Charge_per_10_Worship_levels._I_guess_you_could_say_this_upgrade_doesn't_come_Free_of_Charge!",
+      "stat": "maxCharge",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "Bug5",
+          "name": "Mosquisnow",
+          "baseCost": 150
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b13",
+      "bubbleName": "SMART_BOI_TALENT",
+      "x1": 5,
+      "x2": 1,
+      "func": "bigBase",
+      "desc": "Sorry,_mages_don't_get_anything..._Ok_fine,_you_can_have_+{_Talent_Points_for_each_tab._NOTE:_Doesn't_affect_Master_Class",
+      "stat": "TalWiz",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "SnowC1",
+          "name": "Sippy_Straw",
+          "baseCost": 150
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b14",
+      "bubbleName": "PURPLE_BARGAIN",
+      "x1": 40,
+      "x2": 12,
+      "func": "decay",
+      "desc": "The_material_costs_of_ALL_purple_bubbles_are_{%_lower",
+      "stat": "BubbleCostPu",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "Soul1",
+          "name": "Forest_Soul",
+          "baseCost": 500
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b15",
+      "bubbleName": "NICKEL_OF_WISDOM",
+      "x1": 18,
+      "x2": 30,
+      "func": "decay",
+      "desc": "+{%_Cash_from_Monsters_for_every_250_WIS._Wisdom_allows_the_nickel_to_trick_others_into_thinking_its_a_Dime,_increasing_its_value!",
+      "stat": "CashWIS",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "AlienTree",
+          "name": "Alien_Hive_Chunk",
+          "baseCost": 150
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b16",
+      "bubbleName": "SEVERAPURPLE",
+      "x1": 1.4,
+      "x2": 30,
+      "func": "decayMulti",
+      "desc": "The_following_purple_bubbles_give_{x_higher_bonus_than_displayed:_1st,_3rd,_5th,_13th,_15th",
+      "stat": "MultiPu",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "Void",
+          "name": "Void_Ore",
+          "baseCost": 175
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b17",
+      "bubbleName": "TREE_SLEEPER",
+      "x1": 12,
+      "x2": 40,
+      "func": "decay",
+      "desc": "+{%_Choppin'_AFK_Gains_Rate._Ain't_nothin'_like_sittin'_down_at_the_ol'_tree_and_havin'_a_snooze_n'_a_sleep!",
+      "stat": "ChoppinAFK",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "Soul5",
+          "name": "Squishy_Soul",
+          "baseCost": 60
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b18",
+      "bubbleName": "HYPERSWIFT",
+      "x1": 30,
+      "x2": 30,
+      "func": "decay",
+      "desc": "+{%_Basic_Attack_Speed._Just_like_all_other_Basic_Attack_Speed_bonuses,_this_boosts_AFK_kills/hr_if_you_do_enough_dmg!",
+      "stat": "BAspd",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "Fish7",
+          "name": "Manta_Ray",
+          "baseCost": 250
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b19",
+      "bubbleName": "MATRIX_EVOLVED",
+      "x1": 60,
+      "x2": 40,
+      "func": "decay",
+      "desc": "+{%_Lab_EXP_Gain._Also_+{%_ineptitude_to_face_the_reality_of_what's_REALLY_going_on_behind_the_scenes...",
+      "stat": "LabXpACTIVE",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "Tree8",
+          "name": "Cubed_Logs",
+          "baseCost": 250
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b20",
+      "bubbleName": "WAND_PAWUR",
+      "x1": 40,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{%_more_Weapon_Power_from_your_weapon,_but_only_if_its_a_Wand!_Or_a_fisticuff_I_guess...",
+      "stat": "M1",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "Bits",
+          "name": "Bits",
+          "baseCost": 10000
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b21",
+      "bubbleName": "SLABE_LOGSOUL",
+      "x1": 3,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{_Choppin_and_Worship_Power_per_100_items_found,_shown_on_The_Slab!",
+      "stat": "M2",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "Bug9",
+          "name": "Scarab",
+          "baseCost": 250
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b22",
+      "bubbleName": "PIOUS_AT_HEART",
+      "x1": 300,
+      "x2": 100,
+      "func": "decay",
+      "desc": "+{%_Divinity_EXP_Gain",
+      "stat": "M3ACTIVE",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "SailTr13",
+          "name": "Strung_Jewels",
+          "baseCost": 15
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b23",
+      "bubbleName": "SLABE_WISDOM",
+      "x1": 25,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{_Base_WIS_per_100_items_found,_shown_on_The_Slab!",
+      "stat": "M4",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "LavaC1",
+          "name": "Wormie_Slices",
+          "baseCost": 200
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b24",
+      "bubbleName": "POWER_TRITHREE",
+      "x1": 23,
+      "x2": 50,
+      "func": "decay",
+      "desc": "+{%_Total_Damage_per_250_WIS,_but_only_for_mages!_No_triple_dipping_into_STR_and_AGI!",
+      "stat": "M5",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "SailTr28",
+          "name": "Strung_Jewels",
+          "baseCost": 200
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b25",
+      "bubbleName": "SMARTER_SPELLS",
+      "x1": 25,
+      "x2": 60,
+      "func": "decay",
+      "desc": "The_effect_WIS_has_on_Damage_is_increased_by_+{%",
+      "stat": "M6",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "W6item6",
+          "name": "Strung_Jewels",
+          "baseCost": 500
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b26",
+      "bubbleName": "ENDGAME_EFF_III",
+      "x1": 3,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{_Choppin_and_Worship_Power._This_bonus_increases_based_on_every_10_Class_LVs_you_are_above_500.",
+      "stat": "M7",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "W6item7",
+          "name": "Strung_Jewels",
+          "baseCost": 950
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b27",
+      "bubbleName": "ESSENCE_BOOST",
+      "x1": 50,
+      "x2": 100,
+      "func": "decay",
+      "desc": "+{%_Purple_Essence_Gain,_this_bonus_increases_based_on_the_total_level_of_ALL_your_mages!",
+      "stat": "M8AllCharz",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "Soul7",
+          "name": "Breezy_Soul",
+          "baseCost": 250
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b28",
+      "bubbleName": "TOME_WISDOM",
+      "x1": 2.5,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{%_WIS_for_every_2000_Tome_Completion_Points_over_5000._So_you'd_get_one_stack_of_this_at_7000_pts,_two_at_9000,_etc",
+      "stat": "M9",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "W6item4",
+          "name": "Strung_Jewels",
+          "baseCost": 150
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b29",
+      "bubbleName": "ESSENCE_CHAPTER",
+      "x1": 15,
+      "x2": 50,
+      "func": "decay",
+      "desc": "+{%_All_Essence_Gain_for_every_2000_Tome_Completion_Points_above_5000.",
+      "stat": "M10AllCharz",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "W6item0",
+          "name": "Error_Item",
+          "baseCost": 250000
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b30",
+      "bubbleName": "DEEP_DEPTH",
+      "x1": 8,
+      "x2": 200,
+      "func": "decay",
+      "desc": "+{%_chance_to_find_the_rope_'n_hole_to_the_next_Depth_in_Speluking_Delves.",
+      "stat": "M11",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "Prehistrium",
+          "name": "Prehistrium_Ore",
+          "baseCost": 1000
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 7
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b31",
+      "bubbleName": "DMG_OF_THE_SOUL",
+      "x1": 4000,
+      "x2": 300,
+      "func": "decay",
+      "desc": "+{%_Total_Damage._This_is_additive,_so_the_better_you_are_the_less_you'll_even_notice_this_bonus.",
+      "stat": "M12",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "w7A4",
+          "name": "Cracked_Shell",
+          "baseCost": 4000
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 8
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b32",
+      "bubbleName": "TACHYON_BUBBLE",
+      "x1": 250,
+      "x2": 500,
+      "func": "decay",
+      "desc": "+{%_Extra_Tachyons_for_Arcane_Cultist.",
+      "stat": "M13",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "w7A8",
+          "name": "Pufferflesh",
+          "baseCost": 4000
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 9
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b33",
+      "bubbleName": "BUBBLE",
+      "x1": 99,
+      "x2": 40,
+      "func": "decay",
+      "desc": "It's_just_a_normal_bubble._It_doesn't_have_a_bonus_yet,_it_just_floats_and_is_round.",
+      "stat": "M14",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "FillerMaterial",
+          "name": "Not_Yet",
+          "baseCost": 2500
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "b34",
+      "bubbleName": "BUBBLE",
+      "x1": 99,
+      "x2": 40,
+      "func": "decay",
+      "desc": "It's_just_a_normal_bubble._It_doesn't_have_a_bonus_yet,_it_just_floats_and_is_round.",
+      "stat": "M14",
+      "cauldron": "high-iq",
+      "itemReq": [
+        {
+          "rawName": "FillerMaterial",
+          "name": "Not_Yet",
+          "baseCost": 2500
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    }
+  ],
+  "kazam": [
+    {
+      "bubbleIndex": "c0",
+      "bubbleName": "LOTTO_SKILLS",
+      "x1": 1,
+      "x2": 0,
+      "func": "addDECAY",
+      "desc": "+{_LUK_for_all_players,_always.",
+      "stat": "TotalLUK",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "CraftMat1",
+          "name": "Thread",
+          "baseCost": 1
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c1",
+      "bubbleName": "DROPPIN_LOADS",
+      "x1": 40,
+      "x2": 70,
+      "func": "decay",
+      "desc": "+{%_Drop_Rate._Thanks_to_this_upgrade,_you_can_get_even_MORE_angry_when_you_keep_not_getting_that_rare_item_you're_grinding_for!",
+      "stat": "DropRate",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Fish1",
+          "name": "Goldfish",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c2",
+      "bubbleName": "STARTUE_EXP",
+      "x1": 25,
+      "x2": 60,
+      "func": "decay",
+      "desc": "Leveling_up_a_statue_resets_it's_exp_bar_down_to_{%,_instead_of_0%._Staturrific!_Yea..._the_jokes_are_only_gonna_go_downhill_from_here_lol",
+      "stat": "StatueStartEXP",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "BirchTree",
+          "name": "Bleach_Logs",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c3",
+      "bubbleName": "LEVEL_UP_GIFT",
+      "x1": 100,
+      "x2": 30,
+      "func": "decay",
+      "desc": "{%_chance_for_a_gift_to_drop_when_leveling_up,_like_a_gem_or_an_EXP_Balloon!_Big_bubbles_like_this_must_be_equipped_to_give_bonus.",
+      "stat": "LevelUpACTIVE",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "DesertA3",
+          "name": "Crabby_Cakey",
+          "baseCost": 10
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c4",
+      "bubbleName": "PROWESESSARY",
+      "x1": 1.5,
+      "x2": 60,
+      "func": "decayMulti",
+      "desc": "The_Prowess_Bonus_for_every_skill_is_multiplied_by_{._Prowess_lowers_the_Efficiency_needed_to_get_multiple_QTY_per_drop_from_resources.",
+      "stat": "ProwessMulti",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "ToiletTree",
+          "name": "Potty_Rolls",
+          "baseCost": 20
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c5",
+      "bubbleName": "STAMP_TRAMP",
+      "x1": 1,
+      "x2": 0,
+      "func": "addDECAY",
+      "desc": "Increases_the_Max_Lv_of_the_'Toilet_Paper_Postage'_Talent_to_{._You_unlock_this_talent_by_typing_'More_like_Poopy_Pete'_near_Pete.",
+      "stat": "TPpostage",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Bug2",
+          "name": "Butterfly",
+          "baseCost": 45
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c6",
+      "bubbleName": "UNDEVELOPED_COSTS",
+      "x1": 40,
+      "x2": 70,
+      "func": "decay",
+      "desc": "Reduces_the_material_costs_of_all_Alchemy_Bubbles_by_{%._They_are_just_bubbles_though,_how_much_could_they_even_cost?_10_dollars?",
+      "stat": "BubbleCost",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Fish3",
+          "name": "Jellyfish",
+          "baseCost": 65
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c7",
+      "bubbleName": "DA_DAILY_DRIP",
+      "x1": 30,
+      "x2": 100,
+      "func": "decay",
+      "desc": "Increases_the_Max_Cap_for_every_liquid_by_+$._This_bonus_increases_based_on_the_combined_Alchemy_LV_of_all_your_characters!",
+      "stat": "LqdCap",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "CraftMat9",
+          "name": "Leather_Hide",
+          "baseCost": 125
+        },
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 8
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c8",
+      "bubbleName": "GRIND_TIME",
+      "x1": 9.7,
+      "x2": 0.3,
+      "func": "bigBase",
+      "desc": "+{%_Class_EXP._The_go-to_active_bubble_for_anyone_who_wants_to_reach_max_level_faster_and_finally_start_playing_the_game!",
+      "stat": "expACTIVE",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Liquid1",
+          "name": "Liquid1",
+          "baseCost": 50
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 25
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c9",
+      "bubbleName": "LAAARRRRYYYY",
+      "x1": 120,
+      "x2": 100,
+      "func": "decay",
+      "desc": "Every_time_you_upgrade_an_Alchemy_bubble,_there's_a_{%_chance_it'll_upgrade_2_times,_for_no_extra_cost!_Two_fer_one,_getter_dun!",
+      "stat": "DoubleBubbleUpg",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Dementia",
+          "name": "Dementia_Ore",
+          "baseCost": 50
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c10",
+      "bubbleName": "COGS_FOR_HANDS",
+      "x1": 4,
+      "x2": 0,
+      "func": "addDECAY",
+      "desc": "+{%_Cog_Production_speed._Cogs_are_great._I_really_really_like_cogs._I_guess_you_could_say_I_think_they're_pretty_Coggers...",
+      "stat": "CogMakeSpd",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "SnowA2",
+          "name": "Melty_Cube",
+          "baseCost": 50
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c11",
+      "bubbleName": "SAMPLE_IT",
+      "x1": 12,
+      "x2": 40,
+      "func": "decay",
+      "desc": "+{%_Sample_Size_when_taking_samples_for_the_3d_printer._Finally,_your_statisitcal_analysis_will_be_accurate!",
+      "stat": "SampleSize",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Soul2",
+          "name": "Dune_Soul",
+          "baseCost": 15
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c12",
+      "bubbleName": "BIG_GAME_HUNTER",
+      "x1": 60,
+      "x2": 30,
+      "func": "decay",
+      "desc": "Killing_a_Giant_Monster_has_a_{%_chance_to_not_decrease_the_Giant_Mob_Spawn_Odds,_which_reset_at_the_end_of_each_week.",
+      "stat": "GiantsACTIVE",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Critter3",
+          "name": "Scorpie",
+          "baseCost": 40
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c13",
+      "bubbleName": "IGNORE_OVERDUES",
+      "x1": 100,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{%_Book_Checkout_speed,_all_thanks_to_this_one_little_bubble_that_librarians_do_NOT_want_you_to_know_about!",
+      "stat": "booksSpeed",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Tree7",
+          "name": "Wispy_Lumber",
+          "baseCost": 120
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 2
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c14",
+      "bubbleName": "YELLOW_BARGAIN",
+      "x1": 40,
+      "x2": 12,
+      "func": "decay",
+      "desc": "The_material_costs_of_ALL_yellow_bubbles_are_{%_lower.",
+      "stat": "BubbleCostYe",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Critter6",
+          "name": "Pingy",
+          "baseCost": 250
+        },
+        {
+          "rawName": "Liquid2",
+          "name": "Liquid2",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c15",
+      "bubbleName": "MR_MASSACRE",
+      "x1": 90,
+      "x2": 50,
+      "func": "decay",
+      "desc": "+{%_Multikill_per_damage_tier._Remember,_damage_tier_is_shown_by_the_Purple_Bar_in_AFK_info,_and_multikill_is_bigtime_for_resources",
+      "stat": "MKtierACTIVE",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Refinery3",
+          "name": "Spontaneity_Salts",
+          "baseCost": 8
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 3
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c16",
+      "bubbleName": "EGG_INK",
+      "x1": 40,
+      "x2": 40,
+      "func": "decay",
+      "desc": "+{%_faster_Egg_Incubation_Time_in_the_Mob_Nest._This_will_be_an_absolutely_VITAL_upgrade_once_you_unlock_mob_egg_rarity!",
+      "stat": "EggInc",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Spice0",
+          "name": "Spice",
+          "baseCost": 100
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c17",
+      "bubbleName": "DIAMOND_CHEF",
+      "x1": 0.3,
+      "x2": 13,
+      "func": "decayMulti",
+      "desc": "{x_faster_Meal_and_Fire_Kitchen_Speeds_for_every_Meal_at_Lv_11+._This_is_when_the_meal_plate_becomes_Diamond_Blue,_just_so_you_know!",
+      "stat": "MealSpdz",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Spice6",
+          "name": "Spice",
+          "baseCost": 100
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 4
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c18",
+      "bubbleName": "CARD_CHAMP",
+      "x1": 100,
+      "x2": 40,
+      "func": "decay",
+      "desc": "+{%_Card_Drop_Chance_for_all_card_types,_even_Party_Dungeon_cards!",
+      "stat": "CardDropz",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Spice9",
+          "name": "Strung_Jewels",
+          "baseCost": 100
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c19",
+      "bubbleName": "PETTING_THE_RIFT",
+      "x1": 15,
+      "x2": 50,
+      "func": "decay",
+      "desc": "+{%_Shiny_Mob_Chance_for_every_new_Rift_level_you_reach._Go_find_the_Rift_Ripper,_above_the_Octodars_in_World_4.",
+      "stat": "NewPetRift",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Critter10",
+          "name": "Blobfish",
+          "baseCost": 100
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c20",
+      "bubbleName": "BOATY_BUBBLE",
+      "x1": 135,
+      "x2": 70,
+      "func": "decay",
+      "desc": "+{%_Sailing_Speed_for_all_boats",
+      "stat": "Y1",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Bits",
+          "name": "Bits",
+          "baseCost": 5000
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c21",
+      "bubbleName": "BIG_P",
+      "x1": 0.5,
+      "x2": 60,
+      "func": "decayMulti",
+      "desc": "{x_higher_bonus_than_displayed_from_the_Minor_Link_bonus_of_the_deity_you're_linked_to_in_Divinity._AKA_bigger_god_passive!",
+      "stat": "Y2ACTIVE",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "SailTr1",
+          "name": "Strung_Jewels",
+          "baseCost": 50
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c22",
+      "bubbleName": "BIT_BY_BIT",
+      "x1": 50,
+      "x2": 70,
+      "func": "decay",
+      "desc": "+{%_more_bits_earned_in_gaming_per_plant_found,_as_shown_in_the_Log_Book_found_in_the_top_right_of_the_gaming_garden!",
+      "stat": "Y3",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Tree10",
+          "name": "Dandielogs",
+          "baseCost": 200
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c23",
+      "bubbleName": "GIFTS_ABOUND",
+      "x1": 40,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{%_chance_to_not_use_up_Divinity_points_when_offering_a_gift!",
+      "stat": "Y4",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Bug10",
+          "name": "Dust_Mote",
+          "baseCost": 200
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c24",
+      "bubbleName": "ATOM_SPLIT",
+      "x1": 14,
+      "x2": 40,
+      "func": "decay",
+      "desc": "+{%_lower_particle_cost_for_upgrading_all_atoms_",
+      "stat": "Y5",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "LavaC2",
+          "name": "Mongo_Worm_Slices",
+          "baseCost": 250
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c25",
+      "bubbleName": "CROPIUS_MAPPER",
+      "x1": 5,
+      "x2": 70,
+      "func": "decay",
+      "desc": "+{%_Crop_Evolution_chance_for_EVERY_map_you_unlock_in_world_6,_across_all_characters!_Total_bonus:_$",
+      "stat": "Y6",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "SpiA5",
+          "name": "Wooden_Aortic_Mass",
+          "baseCost": 1000
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c26",
+      "bubbleName": "ESSENCE_BOOST",
+      "x1": 50,
+      "x2": 60,
+      "func": "decay",
+      "desc": "+{%_Yellow_Essence_Gain._This_bonus_doesn't_increase_based_on_anything!",
+      "stat": "Y7",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Bug12",
+          "name": "Ladybug",
+          "baseCost": 1500
+        },
+        {
+          "rawName": "Liquid3",
+          "name": "Liquid3",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c27",
+      "bubbleName": "HINGE_BUSTER",
+      "x1": 100,
+      "x2": 70,
+      "func": "decay",
+      "desc": "Your_ninja_twins_do_+{%_more_damage_to_doors!_Knock_knock,_let_'em_in,_let_'em_in!",
+      "stat": "Y8",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "W6item2",
+          "name": "Strung_Jewels",
+          "baseCost": 120
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 5
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c28",
+      "bubbleName": "NINJA_LOOTER",
+      "x1": 0.3,
+      "x2": 60,
+      "func": "decayMulti",
+      "desc": "{x_Item_Find_chance_for_your_ninja_twin_while_sneaking!",
+      "stat": "Y9ACTIVE",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "W6item9",
+          "name": "Strung_Jewels",
+          "baseCost": 1200
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c29",
+      "bubbleName": "LO_COST_MO_JADE",
+      "x1": 99,
+      "x2": 40,
+      "func": "decay",
+      "desc": "The_Jade_Cost_of_'Currency_Conduit'_scales_{%_slower,_making_it_cheaper,_allowing_you_to_buy_it_more_and_get_more_JADE!",
+      "stat": "Y10",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "SpiD1",
+          "name": "Royal_Yolk",
+          "baseCost": 2500
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c30",
+      "bubbleName": "FASTER_NRG",
+      "x1": 20,
+      "x2": 100,
+      "func": "decay",
+      "desc": "+{%_faster_Stamina_Regeneration_for_Spelunking._Delve_fast,_delve_often.",
+      "stat": "Y11",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "Tree14",
+          "name": "Seaweed_Logs",
+          "baseCost": 1000
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 7
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c31",
+      "bubbleName": "KATTLE_DA_GOAT",
+      "x1": 40,
+      "x2": 300,
+      "func": "decay",
+      "desc": "Kattlekruk,_who_took_literally_2.5yrs_after_being_released_to_let_you_have_his_bonus,_now_gives_+{%_more_Bubble_LVs_per_day.",
+      "stat": "Y12",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "W7item1",
+          "name": "Strung_Jewels",
+          "baseCost": 10
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 8
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c32",
+      "bubbleName": "CODFREY_RULZ_OK",
+      "x1": 5,
+      "x2": 500,
+      "func": "decay",
+      "desc": "+{%_higher_Gallery_Bonus_Multi._This_boosts_the_bonuses_from_both_Trophies_and_Nametags,_incase_you_didn't_know.",
+      "stat": "Y13",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "W7item2",
+          "name": "Strung_Jewels",
+          "baseCost": 20
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 9
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c33",
+      "bubbleName": "BUBBLE",
+      "x1": 99,
+      "x2": 40,
+      "func": "decay",
+      "desc": "It's_just_a_normal_bubble._It_doesn't_have_a_bonus_yet,_it_just_floats_and_is_round.",
+      "stat": "Y14",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "FillerMaterial",
+          "name": "Not_Yet",
+          "baseCost": 2500
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    },
+    {
+      "bubbleIndex": "c34",
+      "bubbleName": "BUBBLE",
+      "x1": 99,
+      "x2": 40,
+      "func": "decay",
+      "desc": "It's_just_a_normal_bubble._It_doesn't_have_a_bonus_yet,_it_just_floats_and_is_round.",
+      "stat": "Y15",
+      "cauldron": "kazam",
+      "itemReq": [
+        {
+          "rawName": "FillerMaterial",
+          "name": "Not_Yet",
+          "baseCost": 2500
+        },
+        {
+          "rawName": "Liquid4",
+          "name": "Liquid4",
+          "baseCost": 6
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        },
+        {
+          "rawName": "Blank",
+          "baseCost": 0
+        }
+      ]
+    }
+  ]
+}

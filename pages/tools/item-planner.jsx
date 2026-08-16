@@ -1,4 +1,4 @@
-import { crafts, itemsArray } from 'data/website-data';
+import { crafts, itemsArray } from '@website-data';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   Accordion,

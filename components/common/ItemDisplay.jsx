@@ -2,9 +2,8 @@ import styled from '@emotion/styled';
 import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import { Divider, Stack, Typography } from '@mui/material';
 import { TitleAndValue } from './styles';
-import { getGoldenFoodBonus } from '../../parsers/misc';
 import React from 'react';
-import { getPowerType } from '@parsers/obols';
+import { getPowerType } from '@parsers/powerTypes';
 
 const ItemDisplay = ({
                        character,
@@ -49,7 +48,13 @@ const ItemDisplay = ({
                        changes,
                        owners,
                        showRawName,
-                       additionalInfo
+                       additionalInfo,
+                       // Injected rather than imported. getGoldenFoodBonus lives in parsers/misc,
+                       // which imports 32 other parser modules; importing it here put the whole
+                       // parser graph on every page that renders an item tooltip - including the
+                       // 148 public /tools/builds/* pages, where it returns 0 anyway because they
+                       // have no character. Callers holding account context pass the real one.
+                       getGoldenFoodBonus = () => 0
                      }) => {
 
   const allDesc = [desc_line1, desc_line2, desc_line3, desc_line4, desc_line5, desc_line6, desc_line7, desc_line8];

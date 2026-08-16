@@ -1,0 +1,1605 @@
+[
+  [
+    {
+      "name": "Faceless_Deathmachine",
+      "description": "Defeat_a_total_of_{_monsters._Thats_{_},_all_thanks_to_you!",
+      "filler1": "broken_homes|more_widows|sad_children|grieving_families|life_insurance_claims|extra_gravestones|bitter_memories|steps_to_extinction|lives_cut_short|loot_rolls",
+      "x": "5",
+      "filler2": "1|0|Was_it_worth_it?_All_that_bloodshed,_all_for_nothi--_oh_wow_thats_some_cool_loot!",
+      "breakpoints": [
+        "2000",
+        "10000",
+        "20000",
+        "100000",
+        "500000",
+        "2000000",
+        "6000000",
+        "12000000",
+        "25000000",
+        "50000000"
+      ]
+    },
+    {
+      "name": "Just_One_More_Before_Bed",
+      "description": "Level_up_{_times._This_is_shared_between_all_characters,_as_is_every_other_task!",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "1|0|Be_honest,_you_just_kept_playing_in_bed_from_your_phone_didn't_you",
+      "breakpoints": [
+        "30",
+        "70",
+        "150",
+        "300",
+        "600",
+        "1200",
+        "2500",
+        "8000",
+        "15000",
+        "25000"
+      ]
+    },
+    {
+      "name": "Super_Explosive_Gameplay",
+      "description": "Claim_{_hours_of_AFK_gains.",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "1|0|The_waiiiiiiiting_is_the_hardest_parrrt._Well,_and_the_everything_else_too.",
+      "breakpoints": [
+        "10",
+        "70",
+        "300",
+        "1000",
+        "2500",
+        "8000",
+        "20000",
+        "60000",
+        "140000",
+        "250000"
+      ]
+    },
+    {
+      "name": "Nakedknuckle_Boxing",
+      "description": "Defeat_{_}s_with_no_weapon_equipped._Must_be_done_actively,_ya_knob!",
+      "filler1": "Bored_Bean|Slime|Carrotman|Gigafrog|Poop|Rat|Nutto|Amarok|Baba_Yaga|Dr_Defecaus",
+      "x": "5",
+      "filler2": "2|1|This_quest_really_sounds_like_it'd_be_about_something_else,_doesn't_it.",
+      "breakpoints": [
+        "50",
+        "50",
+        "100",
+        "150",
+        "200",
+        "250",
+        "300",
+        "5",
+        "5",
+        "5"
+      ]
+    },
+    {
+      "name": "Pack_Mule_Crafter",
+      "description": "Craft_{_different_Items._No_using_Storage_Chest,_leaving_town,_or_dropping_items!",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "2|1|Imagine_even_thinking_about_possibly_using_the_Storage_Chest._Bah,_preposterous!",
+      "breakpoints": [
+        "3",
+        "8",
+        "14",
+        "24",
+        "34",
+        "45",
+        "55",
+        "70",
+        "90",
+        "110"
+      ]
+    },
+    {
+      "name": "Stamp_Coolection",
+      "description": "Upgrade_your_stamps_a_total_of_{_times._Dont_let_them_piggies_steal_'em_back!",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "2|0|Wow_that's_a_dope_collection,_you_could_impress_people_IRL_with_it_I'm_sure!",
+      "breakpoints": [
+        "15",
+        "40",
+        "150",
+        "300",
+        "500",
+        "800",
+        "1250",
+        "1800",
+        "3000",
+        "5000"
+      ]
+    },
+    {
+      "name": "Such_Rock_Very_Dog_Wow",
+      "description": "}",
+      "filler1": "Defeat_Amarock_without_pooping_your_pants_IRL_out_of_fear!|Defeat_Amarock_5_times._That_first_one_didn't_count_I_wasn't_looking!|Defeat_Amarock_with_Boxing_Gloves_equipped_from_the_start_of_the_fight.|Defeat_Amarok_without_taking_ANY_damage._Not_a_single_hit,_not_even_one!|Defeat_Amarok_on_your_1st,_2nd,_3rd,_and_4th_player,_in_that_order!|Defeat_Amarok_on_Chaotic_mode.|Defeat_Amarok_on_Chaotic_mode,_without_equipping_a_weapon_or_helmet!|Kill_Amarok_on_Chaotic_mode_on_6_players._This_must_be_done_in_order!|Defeat_Amarok_on_Nightmare._Heh,_imagine_having_a_nightmare_about_pixel_art|Defeat_Amarok_on_Nightmare_with_no_Talent_Points_Spent._Star_Talents_are_fine.",
+      "x": "5",
+      "filler2": "2|1|The_Wolf_Golem_says_they_were_under_strict_command_to_steal_the_gem,_but_from_who..?",
+      "breakpoints": [
+        "1",
+        "5",
+        "1",
+        "1",
+        "4",
+        "1",
+        "1",
+        "6",
+        "1",
+        "1"
+      ]
+    },
+    {
+      "name": "Achievement_Hunter",
+      "description": "Complete_{_Blunder_Hills_achievements,_accessed_with_that_button_in_the_top_left!",
+      "filler1": "5",
+      "x": "2|0|Filler_lol",
+      "filler2": "5",
+      "breakpoints": [
+        "10",
+        "15",
+        "20",
+        "25",
+        "30",
+        "40",
+        "50",
+        "60",
+        "70"
+      ]
+    },
+    {
+      "name": "It's_a_me,_Regularigi!",
+      "description": "Defeat_{_Poops._Try_to_resist_your_urge_to_jump_on_them_though...",
+      "filler1": "Blank420q",
+      "x": "4",
+      "filler2": "0",
+      "breakpoints": [
+        "69"
+      ]
+    },
+    {
+      "name": "Sayin'_yo_to_your_bro",
+      "description": "Say_hi_to_Funguy._Like..._literally_say_hi.",
+      "filler1": "Blank420q",
+      "x": "2",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Cant_stop_my_Chop_A",
+      "description": "Chop_{_oak_logs._Minigames_will_probably_make_this_easier!",
+      "filler1": "Blank420q",
+      "x": "2",
+      "filler2": "0",
+      "breakpoints": [
+        "250"
+      ]
+    },
+    {
+      "name": "Cant_stop_my_Chop_B",
+      "description": "Chop_{_bleach_logs._Minigames_will_probably_make_this_easier!",
+      "filler1": "Blank420q",
+      "x": "2",
+      "filler2": "0",
+      "breakpoints": [
+        "200"
+      ]
+    },
+    {
+      "name": "Cant_stop_my_Chop_C",
+      "description": "Chop_{_jungle_logs._Minigames_will_probably_make_this_easier!",
+      "filler1": "Blank420q",
+      "x": "3",
+      "filler2": "0",
+      "breakpoints": [
+        "150"
+      ]
+    },
+    {
+      "name": "Cant_stop_my_Chop_D",
+      "description": "Chop_{_forest_fibre_logs._Minigames_will_probably_make_this_easier!",
+      "filler1": "Blank420q",
+      "x": "3",
+      "filler2": "0",
+      "breakpoints": [
+        "100"
+      ]
+    },
+    {
+      "name": "Cant_stop_my_Chop_E",
+      "description": "Chop_{_toilet_logs._You_can_find_this_tree_somewhere_smelly!",
+      "filler1": "Blank420q",
+      "x": "4",
+      "filler2": "0",
+      "breakpoints": [
+        "75"
+      ]
+    },
+    {
+      "name": "Cant_stop_my_Chop_F",
+      "description": "Chop_{_veiny_logs._You_can_find_this_tree_somewhere_tree-y!",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "50"
+      ]
+    },
+    {
+      "name": "..._so_I_started_swingin_A",
+      "description": "Mine_{_copper_ores.",
+      "filler1": "Blank420q",
+      "x": "2",
+      "filler2": "0",
+      "breakpoints": [
+        "200"
+      ]
+    },
+    {
+      "name": "..._so_I_started_swingin_B",
+      "description": "Mine_{_iron_ores.",
+      "filler1": "Blank420q",
+      "x": "2",
+      "filler2": "0",
+      "breakpoints": [
+        "125"
+      ]
+    },
+    {
+      "name": "..._so_I_started_swingin_C",
+      "description": "Mine_{_gold_ores.",
+      "filler1": "Blank420q",
+      "x": "3",
+      "filler2": "0",
+      "breakpoints": [
+        "80"
+      ]
+    },
+    {
+      "name": "..._so_I_started_swingin_D",
+      "description": "Mine_{_platinum_ores.",
+      "filler1": "Blank420q",
+      "x": "4",
+      "filler2": "0",
+      "breakpoints": [
+        "50"
+      ]
+    },
+    {
+      "name": "Escapin'_the_'laws",
+      "description": "Save_the_Picnic_Stowaway_from_having_lunch_with_his_Inlaws",
+      "filler1": "Blank420q",
+      "x": "2",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Spiketrap_Strikeout",
+      "description": "Get_a_score_of_at_least_3_in_the_Spiketrap_Surprise_minigame.",
+      "filler1": "Blank420q",
+      "x": "2",
+      "filler2": "0",
+      "breakpoints": [
+        "3"
+      ]
+    },
+    {
+      "name": "Lol_get_rekt_rocco_doggo",
+      "description": "Say_'sit_noob'_over_the_destroyed_rubble_of_a_very_big_bad_doggy",
+      "filler1": "Blank420q",
+      "x": "2",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Oh_no,_not_mikey!",
+      "description": "Sell_one_of_your_boss_keys_to_the_tiki_vendor_in_the_Forest_Villa_town.",
+      "filler1": "Blank420q",
+      "x": "3",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Baboon_Yoda",
+      "description": "Gaze_upon_Bolby_Yoga..._or_is_it_Baba_Yo_Gabba_Gabba?_Just_go_see_the_House_Boss",
+      "filler1": "Blank420q",
+      "x": "2",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Pranking_the_prankster",
+      "description": "Drop_a_green_leaf_on_Stiltzcho.",
+      "filler1": "Blank420q",
+      "x": "2",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "No_Purchase_Necessary",
+      "description": "Wear_a_Gem_Shop_hat._Or_say_in_chat_'Gimme_a_free_pass_Lava_or_Ill_rate_1_star'.",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Here_Friend!",
+      "description": "Send_a_bonus_to_a_friend!_Easily_done_through_the_Friends_Tab_in_the_Codex!",
+      "filler1": "Blank420q",
+      "x": "2",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Best_Friend_Forever!",
+      "description": "Add_someone_to_your_friends_list!_Make_sure_to_enable_'2x_tap'_in_the_Options!",
+      "filler1": "Blank420q",
+      "x": "2",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Look_son,_a_legend!",
+      "description": "Double_tap_on_a_player_who_is_over_Lv._50!_Make_sure_to_enable_'2x_tap'_in_the_Options!",
+      "filler1": "Blank420q",
+      "x": "3",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Statue_Simp",
+      "description": "Deposit_a_statue_because_I_told_you_to,_you_simp!_lol..._whats_a_simp_btw?",
+      "filler1": "Blank420q",
+      "x": "2",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Forge_Foreman_Grillin",
+      "description": "Grill_some_raw_iron_into_a_sizzlin_stack_of_25_Iron_Bars!_Juicy!",
+      "filler1": "Blank420q",
+      "x": "3",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "The_sun_burns_my_eyes!",
+      "description": "Craft_5_Farmer_Brims.",
+      "filler1": "Blank420q",
+      "x": "3",
+      "filler2": "0",
+      "breakpoints": [
+        "5"
+      ]
+    },
+    {
+      "name": "The_grass_ticles_my_feet!",
+      "description": "Craft_1_Flip_Flops.",
+      "filler1": "Blank420q",
+      "x": "3",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "The_thorns_cut_my_ankle!",
+      "description": "Craft_3_Torn_Jeans._Hopefully_it_isnt_their_right_ankle_being_scraped...",
+      "filler1": "Blank420q",
+      "x": "3",
+      "filler2": "0",
+      "breakpoints": [
+        "3"
+      ]
+    },
+    {
+      "name": "The_wind_chills_my_body!",
+      "description": "Craft_4_Orange_Tee's,_better_make_them_Extra_Large_too.",
+      "filler1": "Blank420q",
+      "x": "3",
+      "filler2": "0",
+      "breakpoints": [
+        "4"
+      ]
+    }
+  ],
+  [
+    {
+      "name": "Road_to_Max_Damage",
+      "description": "Deal_{_damage_in_a_single_attack._Crit_damage_counts!",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "1|0|The_most_damage_you've_ever_done_in_one_hit_is_{!",
+      "breakpoints": [
+        "600",
+        "2000",
+        "6000",
+        "25000",
+        "50000",
+        "100000",
+        "200000",
+        "400000",
+        "750000",
+        "999999"
+      ]
+    },
+    {
+      "name": "Investing_in..._bubbles?",
+      "description": "Reach_a_total_level_of_{_across_all_your_Alchemy_Bubbles._No,_vials_don't_count.",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "1|0|Ahahahaha,_it's_a_giraffe!!!",
+      "breakpoints": [
+        "15",
+        "60",
+        "130",
+        "300",
+        "650",
+        "1200",
+        "2700",
+        "5000",
+        "10000",
+        "16000"
+      ]
+    },
+    {
+      "name": "Avast,_Bankruptcy_Ho!",
+      "description": "Buy_a_total_of_{_Golden_Dubloons._Ye_can_do_this_across_multiple_days,_arrgh!",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "1|0|Ye_thinks_ye_plundered_the_store,_but_ye_got_plundered_by_thar_store_arrgagagaga!",
+      "breakpoints": [
+        "5",
+        "20",
+        "75",
+        "200",
+        "700",
+        "2200",
+        "6000",
+        "10000",
+        "25000",
+        "100000"
+      ]
+    },
+    {
+      "name": "Maximum_Efficiency",
+      "description": "Have_at_least_}_Skill_efficiency_in_{_different_skills_across_your_account.",
+      "filler1": "500|1500|3000|5000|10000|25000|50000|250000|1000000|5000000|10000000",
+      "x": "11",
+      "filler2": "2|1|YouresoefficientIbetspacebars_wouldbeunnecessaryforyou!",
+      "breakpoints": [
+        "2",
+        "2",
+        "3",
+        "3",
+        "4",
+        "4",
+        "5",
+        "5",
+        "6",
+        "6"
+      ]
+    },
+    {
+      "name": "No_Time_to_Brews!",
+      "description": "Have_the_speed_of_your_4_Bubble_Cauldrons_add_up_to_at_least_{/hr.",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|So_much_speed..._and_yet_so_few_bubbles_left_to_unlock_haha!",
+      "breakpoints": [
+        "30",
+        "100",
+        "225",
+        "400",
+        "800",
+        "1500",
+        "6000",
+        "12000",
+        "50000",
+        "150000"
+      ]
+    },
+    {
+      "name": "The_Unstoppable_USPS",
+      "description": "Complete_a_total_of_{_Post_Office_Orders_across_all_companies.",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|Congrats!_Postboy_Pablob_has_decided_to_promote_you!_But_who_cares,_that_doesn't_affect_gameplay.",
+      "breakpoints": [
+        "10",
+        "25",
+        "50",
+        "75",
+        "110",
+        "180",
+        "275",
+        "500",
+        "750",
+        "1111"
+      ]
+    },
+    {
+      "name": "Twilight_Tombstone",
+      "description": "}",
+      "filler1": "Defeat_Efaunt_without_playing_his_ribs_like_a_xylophone,_tempting_as_it_may_be|Defeat_Efaunt_5_times..._no,_7_times.|Defeat_Efaunt_without_a_Helmet_and_Shirt.|Defeat_Efaunt_in_under_2_minutes|Defeat_Efaunt_on_6_players,_in_order_starting_with_the_1st.|Defeat_all_arms_of_Chaotic_Efaunt|Defeat_Chaotic_Efaunt_without_taking_any_damage|Defeat_Nightmare_Efaunt|Defeat_Nightmare_Efaunt_in_less_than_120_seconds|Defeat_Nightmare_Efaunt_with_no_helmet_or_weapon.",
+      "x": "10",
+      "filler2": "2|1|The_elephant_shakes_his_head,_saying_he_was_just_doing_as_'the_big_one'_instructed.",
+      "breakpoints": [
+        "1",
+        "7",
+        "1",
+        "1",
+        "6",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1"
+      ]
+    },
+    {
+      "name": "Achievement_Cowboy",
+      "description": "Complete_{_Yum-Yum_Desert_achieves,_accessed_with_that_button_in_the_top_left!",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|Filler_haha",
+      "breakpoints": [
+        "5",
+        "10",
+        "15",
+        "20",
+        "25",
+        "30",
+        "40",
+        "50",
+        "60",
+        "70"
+      ]
+    },
+    {
+      "name": "Fishin_for_Fishies_A",
+      "description": "Reel_in_{_Goldfish._No,_theyre_not_smiling_back,_why_do_u_ask?",
+      "filler1": "Blank420q",
+      "x": "4",
+      "filler2": "0",
+      "breakpoints": [
+        "150"
+      ]
+    },
+    {
+      "name": "Fishin_for_Fishies_B",
+      "description": "Reel_in_{_Hermit_Cans._Mhmmmm,_oily!",
+      "filler1": "Blank420q",
+      "x": "4",
+      "filler2": "0",
+      "breakpoints": [
+        "80"
+      ]
+    },
+    {
+      "name": "Fishin_for_Fishies_C",
+      "description": "Reel_in_{_Jellyfish._Don't_use_their_tentacles_as_shoelaces!",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "50"
+      ]
+    },
+    {
+      "name": "Fishin_for_Fishies_D",
+      "description": "Reel_in_{_Bloaches._Go_on_then,_no_use_reading_any_longer!",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "20"
+      ]
+    },
+    {
+      "name": "Doing_the_Dev's_Job_A",
+      "description": "Catch_{_bugs,_specifically_Flies.",
+      "filler1": "Blank420q",
+      "x": "4",
+      "filler2": "0",
+      "breakpoints": [
+        "200"
+      ]
+    },
+    {
+      "name": "Doing_the_Dev's_Job_B",
+      "description": "Catch_{_bugs,_specifically_Butterflies.",
+      "filler1": "Blank420q",
+      "x": "4",
+      "filler2": "0",
+      "breakpoints": [
+        "150"
+      ]
+    },
+    {
+      "name": "Doing_the_Dev's_Job_C",
+      "description": "Catch_{_bugs,_specifically_Cereal.",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "100"
+      ]
+    },
+    {
+      "name": "Doing_the_Dev's_Job_D",
+      "description": "Catch_{_bugs,_specifically_Fruitflies.",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "50"
+      ]
+    },
+    {
+      "name": "Obol,_More_like_Garbo!",
+      "description": "Turn_{_Obols_into_fragments.",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "2"
+      ]
+    },
+    {
+      "name": "Well_Yes,_but_Actually_No",
+      "description": "Say_'Those_would_be_cool_crusade_bosses'_at_the_Sands_of_Time",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Lol_Gottem!",
+      "description": "Get_hit_by_the_desert_boss's_most_deadly_attack",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Into_the_Mix_You_Go!",
+      "description": "Drop_Bobjoepickle_into_the_Cauldron._Good_luck!",
+      "filler1": "Blank420q",
+      "x": "4",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Lift_with_your_Back!",
+      "description": "Pick_up_{_Items._Also,_don't_lift_with_your_back_IRL,_only_in_game!",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "300"
+      ]
+    },
+    {
+      "name": "Take_a_Breather",
+      "description": "No_Daily_Task_today,_have_a_rest_day!",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Pie_is_Better!",
+      "description": "Defeat_{_Crabcakes_actively.",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "69"
+      ]
+    },
+    {
+      "name": "I_am_the_High_Tide",
+      "description": "Defeat_{_Sandcastles_actively.",
+      "filler1": "Blank420q",
+      "x": "6",
+      "filler2": "0",
+      "breakpoints": [
+        "69"
+      ]
+    },
+    {
+      "name": "Boppin'_Spuds",
+      "description": "Defeat_{_Mashed_Potatos_actively.",
+      "filler1": "Blank420q",
+      "x": "6",
+      "filler2": "0",
+      "breakpoints": [
+        "69"
+      ]
+    }
+  ],
+  [
+    {
+      "name": "Why_so_Salty?",
+      "description": "Refine_a_total_of_{_Salts_of_any_type.",
+      "filler1": "Blank420q",
+      "x": "15",
+      "filler2": "1|0|As_long_as_you_remember_to_throw_it_over_your_left_shoulder_you'll_be_fine.",
+      "breakpoints": [
+        "25",
+        "150",
+        "600",
+        "2500",
+        "7000",
+        "25000",
+        "100000",
+        "200000",
+        "750000",
+        "2000000"
+      ]
+    },
+    {
+      "name": "Poof,_Cogone!",
+      "description": "Trash_a_total_of_{_Cogs._Er,_I_mean_crocs..._no,_I_did_mean_cogs.",
+      "filler1": "Blank420q",
+      "x": "15",
+      "filler2": "1|0|The_cogs_are_gone!_At_least_all_the_ones_you_trashed._The_rest_are_still_there.",
+      "breakpoints": [
+        "10",
+        "40",
+        "120",
+        "250",
+        "500",
+        "1000",
+        "1650",
+        "2500",
+        "4500",
+        "8000"
+      ]
+    },
+    {
+      "name": "My_Shrines,_m'lord.",
+      "description": "In_a_single_map,_have_the_total_lv_of_all_shrines_be_at_least_{",
+      "filler1": "Blank420q",
+      "x": "15",
+      "filler2": "1|1|My_shrines_aren't_even_half_the_LV_of_yours!_Please,_go_teach_mine_how_to_be_better.",
+      "breakpoints": [
+        "4",
+        "12",
+        "24",
+        "35",
+        "48",
+        "70",
+        "86",
+        "100",
+        "120",
+        "150"
+      ]
+    },
+    {
+      "name": "Printer_go_Brrrr",
+      "description": "Print_a_total_of_{_resources._If_only_you_could_sample_gems...",
+      "filler1": "Blank420q",
+      "x": "15",
+      "filler2": "2|0|And_brrr_it_went,_all_through_the_night.",
+      "breakpoints": [
+        "5000",
+        "25000",
+        "100000",
+        "300000",
+        "1000000",
+        "2000000",
+        "5000000",
+        "15000000",
+        "40000000",
+        "100000000"
+      ]
+    },
+    {
+      "name": "The_True_TD_Wizard",
+      "description": "Have_your_'Best_Waves'_in_Worship_add_up_to_at_least_{",
+      "filler1": "Blank420q",
+      "x": "15",
+      "filler2": "2|0|Congratulations!!!_What,_what_are_you_looking_at?_I_was_talking_to_the_wizards...",
+      "breakpoints": [
+        "25",
+        "40",
+        "70",
+        "100",
+        "130",
+        "170",
+        "220",
+        "280",
+        "370",
+        "500"
+      ]
+    },
+    {
+      "name": "Come_'ere_Critters!",
+      "description": "Collect_a_total_of_{_Traps._+2%_shiny_chance_each_time_you_complete_this!_",
+      "filler1": "Blank420q",
+      "x": "15",
+      "filler2": "2|0|Remember_when_you_naively_placed_all_those_10_minute_traps?_Haha_good_times.",
+      "breakpoints": [
+        "10",
+        "50",
+        "200",
+        "500",
+        "1200",
+        "2000",
+        "4000",
+        "8000",
+        "15000",
+        "30000"
+      ]
+    },
+    {
+      "name": "Chill_Out_Big_Boy!",
+      "description": "}",
+      "filler1": "Defeat_Chizoar_without_making_a_pun_about_how_'cool'_they_are.|Defeat_Chizoar_5_times._Like,_for_real_this_time,_just_5.|Defeat_Chizoar_without_a_helmet,_shirt,_or_pants.|Defeat_Chizoar_before_he_spawns_ice_orbs_a_2nd_time.|Defeat_Chizoar_on_8_players,_in_order_starting_with_the_1st.|Defeat_Chaotic_Chizoar|Defeat_Chaotic_Chizoar_without_taking_any_damage|Defeat_Nightmare_Chizoar|Defeat_Nightmare_Chizoar_before_he_spawns_ice_orbs_a_3rd_time.|Defeat_Nightmare_Chizoar_on_4_players,_in_order_starting_from_the_1st.",
+      "x": "17",
+      "filler2": "2|1|The_cloaked_figure_crumbles,_revealing_it_was_posessed_by_a_greater_power",
+      "breakpoints": [
+        "1",
+        "5",
+        "1",
+        "1",
+        "8",
+        "1",
+        "1",
+        "1",
+        "1",
+        "4"
+      ]
+    },
+    {
+      "name": "Achievement_Inuit",
+      "description": "Complete_{_Frostbite_Tundra_achieves,_accessed_with_that_button_in_the_top_left!",
+      "filler1": "Blank420q",
+      "x": "15",
+      "filler2": "2|0|There_snow_better_feeling_than_an_ice_fully_completed_achievement_list!",
+      "breakpoints": [
+        "5",
+        "10",
+        "15",
+        "20",
+        "25",
+        "30",
+        "40",
+        "50",
+        "60",
+        "70"
+      ]
+    },
+    {
+      "name": "Critter_Collector_A",
+      "description": "Collect_{_Froge_from_a_trap._Just_don't_let_it_hop_away!",
+      "filler1": "Blank420q",
+      "x": "4",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Critter_Collector_B",
+      "description": "Collect_{_scorpie_trap._Just_don't_let_it_sting_you_in_'that'_area!",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Critter_Collector_C",
+      "description": "Collect_{_Mousey_from_a_trap._Just_don't_let_it_gross_you_out!",
+      "filler1": "Blank420q",
+      "x": "6",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Critter_Collector_D",
+      "description": "Collect_{_Pingy_from_a_trap._Just_don't_let_it_ping_you_in_discord!",
+      "filler1": "Blank420q",
+      "x": "7",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Worship_my_Skill_A",
+      "description": "Defeat_{_Glublins_in_Tower_Defence._Good,_they're_ugly_anyway!",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "150"
+      ]
+    },
+    {
+      "name": "Worship_my_Skill_B",
+      "description": "Defeat_{_Moonmoons_in_Tower_Defence.",
+      "filler1": "Blank420q",
+      "x": "6",
+      "filler2": "0",
+      "breakpoints": [
+        "100"
+      ]
+    },
+    {
+      "name": "Worship_my_Skill_C",
+      "description": "Defeat_{_Nuttos_in_Tower_Defence.",
+      "filler1": "Blank420q",
+      "x": "7",
+      "filler2": "0",
+      "breakpoints": [
+        "80"
+      ]
+    },
+    {
+      "name": "Worship_my_Skill_D",
+      "description": "Defeat_{_Snowmen_in_Tower_Defence.",
+      "filler1": "Blank420q",
+      "x": "8",
+      "filler2": "0",
+      "breakpoints": [
+        "60"
+      ]
+    },
+    {
+      "name": "Cogs,_Crocs,_Clocks!",
+      "description": "Make_{_Cogs._You_can_make_them_in_Quick-ref_by_the_way!!",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "4"
+      ]
+    },
+    {
+      "name": "Star_Spangled_Bookworm",
+      "description": "Checkout_'Star_Player'_Talent_for_any_class,_{_times.",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Begone,_Skeleton!",
+      "description": "Defeat_{_Xylobones_in_the_Colosseum,_summoned_from_the_Skull_Rock.",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "10"
+      ]
+    },
+    {
+      "name": "Wizard_Boom_Boom_Pow",
+      "description": "Defeat_{_of_any_monster_in_Tower_Defence.",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "300"
+      ]
+    },
+    {
+      "name": "LMNOP_Up_in_Here",
+      "description": "Say_'LMNOP_Gang'_next_to_anyone_whose_name_starts_with_L,M,N,O_or_P",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Dying_To_Refine",
+      "description": "Refine_any_salt._Yep,_super_painless,_right?",
+      "filler1": "Blank420q",
+      "x": "7",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "But_they're_so_Cute!",
+      "description": "Defeat_{_Sheepies_actively",
+      "filler1": "Blank420q",
+      "x": "5",
+      "filler2": "0",
+      "breakpoints": [
+        "69"
+      ]
+    },
+    {
+      "name": "You're_So_Hot!",
+      "description": "Melt_{_Bloques_actively._You_know,_like_defeat_them.",
+      "filler1": "Blank420q",
+      "x": "6",
+      "filler2": "0",
+      "breakpoints": [
+        "69"
+      ]
+    },
+    {
+      "name": "You_broke_my_Glasses!",
+      "description": "Defeat_{_Quenchies_actively.",
+      "filler1": "Blank420q",
+      "x": "6",
+      "filler2": "0",
+      "breakpoints": [
+        "69"
+      ]
+    }
+  ],
+  [
+    {
+      "name": "Firing_Up_Le_Grill",
+      "description": "Have_{_Fire_when_finishing_a_recipe_in_a_kitchen.",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "1|1|I_may_be_called_LavaFlame2,_but_you're_more_Fiery_than_me!",
+      "breakpoints": [
+        "200",
+        "1000",
+        "6000",
+        "40000",
+        "200000",
+        "1000000",
+        "6000000",
+        "50000000",
+        "200000000",
+        "1750000000"
+      ]
+    },
+    {
+      "name": "Dishin'_Out_Some_Meals",
+      "description": "Upgrade_Meal_}_to_Lv._{_within_the_Dinner_Menu!",
+      "filler1": "Turkey_a_la_Thank|Salad|Garlic_Bread|Cabbage|Sawdust|Bunt_Cake|Mutton|Massive_Fig|Giant_Tomato|BillJackPepper",
+      "x": "10",
+      "filler2": "1|1|All_that_meal_prep_and_it's_still_RAW!_PATHETIC!",
+      "breakpoints": [
+        "2",
+        "5",
+        "7",
+        "10",
+        "14",
+        "17",
+        "20",
+        "23",
+        "27",
+        "30"
+      ]
+    },
+    {
+      "name": "Cracking_Eggs",
+      "description": "Breed_a_}_Mob_{_times.",
+      "filler1": "Squirrel|Piggo|Mallay|Wild_Boar|Mecho_Mouse|Choccie|Cool_Bird|Chippy|Panda|Hedgehog",
+      "x": "10",
+      "filler2": "1|1|I_tell_u_hwat_that_right_thers_quite_the_animal_farm_ya_got_pardner!",
+      "breakpoints": [
+        "5",
+        "10",
+        "30",
+        "50",
+        "100",
+        "150",
+        "200",
+        "400",
+        "600",
+        "1500"
+      ]
+    },
+    {
+      "name": "Mob_Bullet_Bursting",
+      "description": "Deal_{_dmg_in_a_Mob_Battle_within_a_5sec_timeframe.",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|1|Wow_that_was_a_KILLER_team_you_used_just_now!",
+      "breakpoints": [
+        "200",
+        "1250",
+        "4000",
+        "15000",
+        "80000",
+        "400000",
+        "2500000",
+        "10000000",
+        "75000000",
+        "300000000"
+      ]
+    },
+    {
+      "name": "Light_'em_Up_Up_Up",
+      "description": "Light_up_{_lab_features_at_the_same_time._Bonuses_and_jewels_both_count!",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|IM_ON_FIIIIIIIREEE!!!!",
+      "breakpoints": [
+        "4",
+        "8",
+        "12",
+        "16",
+        "21",
+        "26",
+        "32",
+        "35",
+        "37",
+        "42"
+      ]
+    },
+    {
+      "name": "Consolidating_Chips",
+      "description": "Equip_{_chips_across_all_players_in_the_Lab._Gonna_need_some_lab_levels_for_this",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|So_many_chips,_so_little_space...",
+      "breakpoints": [
+        "4",
+        "9",
+        "15",
+        "20",
+        "26",
+        "32",
+        "40",
+        "50",
+        "60",
+        "70"
+      ]
+    },
+    {
+      "name": "Begone_Troll!",
+      "description": "}",
+      "filler1": "Defeat_the_Massive_Troll._He's_the_one_who_trolled_you_a_while_back...|Succeed_at_20_of_the_Troll's_mindgames,_aka_when_he_lets_you_hit_him|Defeat_the_Massive_Troll_without_failing_a_single_Mindgame._He_heals_when_you_fail_one.|Defeat_the_Troll_on_5_players,_in_order,_starting_with_the_1st|Kill_the_Chaotic_Massive_Troll,_or_CMT_for_short,_or_Chaotical_Massiveie_Trolle_for_long|Kill_Chaotic_Massive_Troll_on_6_players,_starting_with_the_1st.|Kill_Chaotic_Massive_Troll_within_the_first_10_mindgames|Defeat_the_Nightmare_Massive_Troll,_or_Nightmare_Massive_T_for_short|Defeat_Nightmare_Troll_on_10_players,_in_order_from_the_1st|Defeat_Nightmare_Troll_within_5_mindgames,_equipping_the_red_boxing_gloves",
+      "x": "10",
+      "filler2": "2|1|The_troll_obviously_isn't_dying_despite_insisting_he_is..._very_suspicious...",
+      "breakpoints": [
+        "1",
+        "20",
+        "1",
+        "5",
+        "1",
+        "6",
+        "1",
+        "1",
+        "10",
+        "1"
+      ]
+    },
+    {
+      "name": "Achievement_Astronaut",
+      "description": "Complete_{_Hyperion_Nebula_achieves,_accessed_with_that_button_in_the_top_left!",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|Filler_haha",
+      "breakpoints": [
+        "5",
+        "10",
+        "15",
+        "20",
+        "25",
+        "30",
+        "40",
+        "50",
+        "60",
+        "70"
+      ]
+    },
+    {
+      "name": "Cracked_Crystals",
+      "description": "Defeat_{_Crystal_monster_from_any_world.",
+      "filler1": "Blank420q",
+      "x": "4",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    },
+    {
+      "name": "Miniboss_Masher",
+      "description": "Defeat_{_Miniboss_from_any_world.",
+      "filler1": "Blank420q",
+      "x": "6",
+      "filler2": "0",
+      "breakpoints": [
+        "1"
+      ]
+    }
+  ],
+  [
+    {
+      "name": "Sailin'_Round_Town",
+      "description": "Travel_a_total_of_{m_in_sailing.",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "1|0|Now_do_you_understand,_that_the_singular_piece_isn't_fake???",
+      "breakpoints": [
+        "100",
+        "1000",
+        "5000",
+        "50000",
+        "500000",
+        "2500000",
+        "20000000",
+        "100000000",
+        "400000000",
+        "2000000000"
+      ]
+    },
+    {
+      "name": "Decked_out_Decks",
+      "description": "Upgrade_your_boats_{_times._In_other_words,_the_Lv_of_all_your_boats_combined.",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "1|0|Thems_some_fiiiine_lookin'_boats!_I_guess_you_really_are_the_captian_now!",
+      "breakpoints": [
+        "20",
+        "160",
+        "360",
+        "640",
+        "1000",
+        "1440",
+        "2000",
+        "2750",
+        "3600",
+        "5000"
+      ]
+    },
+    {
+      "name": "Divinilicious_Licks",
+      "description": "Have_the_total_Divinity_LV_of_all_your_characters_add_up_to_{",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "1|0|If_Idleoneers_could_draw,_they'd_draw_their_gods_in_their_image.",
+      "breakpoints": [
+        "25",
+        "60",
+        "100",
+        "150",
+        "225",
+        "300",
+        "450",
+        "600",
+        "750",
+        "900"
+      ]
+    },
+    {
+      "name": "Truly_Riveting_Gaming",
+      "description": "Pick_a_total_of_{_plants_in_gaming.",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|Wow!_You_should_go_wishlist_IdleOn_Gardening_Deluxe,_my_next_spinoff_game!_Haha_jk,_unless...?",
+      "breakpoints": [
+        "25",
+        "100",
+        "200",
+        "500",
+        "2000",
+        "7500",
+        "15000",
+        "25000",
+        "75000",
+        "200000"
+      ]
+    },
+    {
+      "name": "Now_I_Aint_Sayin_You_A...",
+      "description": "Get_A_Gold_Nugget_Multi_of_at_least_{x.",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|You're_quite_the_Digger_mate!_But_u_don't_hang_'round_no_broken_spade...",
+      "breakpoints": [
+        "10",
+        "100",
+        "500",
+        "2500",
+        "10000",
+        "25000",
+        "50000",
+        "100000",
+        "200000",
+        "999999"
+      ]
+    },
+    {
+      "name": "Slab_of_Legend",
+      "description": "Find_a_total_of_{_items_in_the_Slab.",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|You_found_EVERYTHING!_Well,_everything_until_I_add_more_hehe!",
+      "breakpoints": [
+        "500",
+        "600",
+        "700",
+        "800",
+        "900",
+        "1000",
+        "1100",
+        "1200",
+        "1300",
+        "1405"
+      ]
+    },
+    {
+      "name": "Cracking_The_Kruk!",
+      "description": "}",
+      "filler1": "Defeat_the_evil_KattleKruk_Divinity_from_within_his_Volcano|Defeat_Kattlekruk_without_letting_moles_heal_him_more_than_5_times|Defeat_Kattlekruk_on_6_players,_in_order,_starting_with_the_1st|Kill_Chaotic_Kattlekruk.|Kill_Chaotic_Kattlekruk_without_letting_moles_heal_more_than_3_times.|Defeat_Chaotic_Kattlekruk_within_30_seconds_of_entering.|Defeat_Chaotic_Kattlekruk_on_7_players,_in_order_from_the_1st|Defeat_Nightmare_Kattlekruk,_the_scariest_boss_of_all_time.|Defeat_Nightmare_Kattlekruk_before_he_heals_even_once_from_moles|Defeat_Nightmare_Kattlekruk_on_10_players,_in_order_from_the_1st",
+      "x": "10",
+      "filler2": "2|1|Kattlekruk's_demeanor_gives_you_the_feeling_there_are_powers_greater_than_the_Gods",
+      "breakpoints": [
+        "1",
+        "1",
+        "6",
+        "1",
+        "1",
+        "1",
+        "7",
+        "1",
+        "1",
+        "10"
+      ]
+    },
+    {
+      "name": "Achievement_Promethean",
+      "description": "Complete_{_Smolderin_Plateau_achieves,_accessed_with_that_button_in_the_top_left!",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|Filler_haha",
+      "breakpoints": [
+        "5",
+        "10",
+        "15",
+        "20",
+        "25",
+        "30",
+        "40",
+        "50",
+        "60",
+        "70"
+      ]
+    },
+    {
+      "name": "Nope",
+      "description": "You_have_enough_daily_stuff_already._Go_do_the_other_world's_daily_task!",
+      "filler1": "Blank420q",
+      "x": "6",
+      "filler2": "0",
+      "breakpoints": [
+        "69420"
+      ]
+    },
+    {
+      "name": "Nuh_uh",
+      "description": "Seriously,_you_don't_need_more_daily_stuff_to_do._I_wont_let_you.",
+      "filler1": "Blank420q",
+      "x": "4",
+      "filler2": "0",
+      "breakpoints": [
+        "69420"
+      ]
+    }
+  ],
+  [
+    {
+      "name": "Crop_Numbah",
+      "description": "Have_a_total_of_{_digits_across_all_crops_owned,_so_813_apples_is_+3_digits",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|Thats_a_LOT_of_crops..._yea_best_I_can_give_is_4_magic_beans.",
+      "breakpoints": [
+        "30",
+        "60",
+        "120",
+        "180",
+        "250",
+        "350",
+        "500",
+        "750",
+        "1000",
+        "1400"
+      ]
+    },
+    {
+      "name": "OG,_Oh_Geez",
+      "description": "Overgrow_your_crops_a_total_of_{_times.",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "1|0|Oh_Geez..._you_lost_so_much_gains_by_waiting_for_1024x_all_those_times!",
+      "breakpoints": [
+        "100",
+        "300",
+        "1000",
+        "2500",
+        "5000",
+        "10000",
+        "25000",
+        "50000",
+        "100000",
+        "250000"
+      ]
+    },
+    {
+      "name": "Peak_Sneak",
+      "description": "Have_at_least_one_Ninja_Twin_with_a_Sneaking_LV_of_{",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|Woah_impressive,_when_did_you_finish_this?_I_didn't_even_notice...",
+      "breakpoints": [
+        "20",
+        "30",
+        "50",
+        "75",
+        "100",
+        "120",
+        "140",
+        "160",
+        "180",
+        "210"
+      ]
+    },
+    {
+      "name": "Gold's_Charm",
+      "description": "Have_the_total_+LV_of_all_your_best_Gold_Charms_in_Sneaking_add_up_to_{",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "1|0|All_those_LVs_and_you_still_want_more,_when_will_it_be_enough?",
+      "breakpoints": [
+        "20",
+        "50",
+        "100",
+        "150",
+        "200",
+        "250",
+        "300",
+        "350",
+        "400",
+        "500"
+      ]
+    },
+    {
+      "name": "Essential_Digits",
+      "description": "Have_a_total_of_{_digits_across_all_essence_owned_within_Summoning.",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "1|0|Essentially_speaking,_you_have_a_lot_of_unspent_essence.",
+      "breakpoints": [
+        "4",
+        "10",
+        "15",
+        "20",
+        "30",
+        "45",
+        "60",
+        "80",
+        "100",
+        "125"
+      ]
+    },
+    {
+      "name": "I'll_Take_It",
+      "description": "Find_{_items_while_sneaking_around.",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "1|0|You_stole_all_those_items._Hope_you're_proud..._oh_you_are?_Well_good!",
+      "breakpoints": [
+        "10",
+        "25",
+        "100",
+        "250",
+        "500",
+        "1000",
+        "2000",
+        "3500",
+        "7500",
+        "15000"
+      ]
+    },
+    {
+      "name": "Pillaging_The_Emperor!",
+      "description": "}",
+      "filler1": "Defeat_the_Emperor_on_his_own_sacred_Castle_Grounds|Reach_Showdown_3_by_defeating_the_Emperor_twice|Defeat_the_Emperor_on_3_players,_in_order,_starting_with_the_1st|Reach_Showdown_5_by_defeating_the_Emperor_twice.|Reach_Showdown_10_by_defeating_the_Emperor_nine_times.|Reach_Showdown_15_by_defeating_the_Emperor_fourteen_times.|Reach_Showdown_21_by_defeating_the_Emperor_twenty_times|Reach_Showdown_50_by_defeating_the_Emperor_fourty_nine_times|Reach_Showdown_75_by_defeating_the_Emperor_seventy_four_times|Reach_Showdown_100_by_defeating_the_Emperor_ninety_nine_times",
+      "x": "10",
+      "filler2": "2|1|Kattlekruk's_demeanor_gives_you_the_feeling_there_are_powers_greater_than_the_Gods",
+      "breakpoints": [
+        "1",
+        "1",
+        "3",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1"
+      ]
+    },
+    {
+      "name": "Achievement_Theist",
+      "description": "Complete_{_Spirited_Valley_achieves,_accessed_with_that_button_in_the_top_left!",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|Filler_haha",
+      "breakpoints": [
+        "5",
+        "10",
+        "15",
+        "20",
+        "25",
+        "30",
+        "40",
+        "50",
+        "60",
+        "70"
+      ]
+    },
+    {
+      "name": "Nope",
+      "description": "You_have_enough_daily_stuff_already._Go_do_the_other_world's_daily_task!",
+      "filler1": "Blank420q",
+      "x": "6",
+      "filler2": "0",
+      "breakpoints": [
+        "69420"
+      ]
+    },
+    {
+      "name": "Nuh_uh",
+      "description": "Seriously,_you_don't_need_more_daily_stuff_to_do._I_wont_let_you.",
+      "filler1": "Blank420q",
+      "x": "4",
+      "filler2": "0",
+      "breakpoints": [
+        "69420"
+      ]
+    }
+  ]
+]

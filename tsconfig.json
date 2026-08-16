@@ -23,7 +23,7 @@
         "utility/*"
       ],
       "@website-data": [
-        "data/website-data.json"
+        "data/website-data/index.js"
       ]
     },
     "lib": [

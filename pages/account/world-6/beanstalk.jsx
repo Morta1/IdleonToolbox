@@ -9,7 +9,7 @@ import { addEquippedItems, findItemInInventory, getAllItems, mergeItemsByOwner }
 import Tooltip from '@components/Tooltip';
 import { Breakdown } from '@components/common/styles';
 import ItemDisplay from '@components/common/ItemDisplay';
-import { getGoldenFoodMulti } from '@parsers/misc';
+import { getGoldenFoodMulti, getGoldenFoodBonus } from '@parsers/misc';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const breakpoints = [10000, 100000, 1e6];
@@ -78,7 +78,8 @@ const Beanstalk = () => {
             <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
               <Tooltip
                 title={displayName && displayName !== 'ERROR' ? <ItemDisplay {...item} character={state?.character}
-                                                                             account={state?.account}/> : ''}>
+                                                                             account={state?.account}
+                                                                             getGoldenFoodBonus={getGoldenFoodBonus}/> : ''}>
                 <img width={42} height={42} src={`${prefix}data/${rawName}.png`} alt={displayName}/>
               </Tooltip>
               <Stack direction={'row'} gap={1}>

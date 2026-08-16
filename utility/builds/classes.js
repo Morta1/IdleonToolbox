@@ -1,8 +1,9 @@
 // Class hierarchy + family theming for builds UI.
-// Built entirely on the existing definitions in parsers/talents.ts so we don't
-// duplicate the Idleon class tree.
+// Built entirely on the existing class definitions so we don't duplicate the Idleon class tree.
 
-import { CLASSES, getBaseClass, talentPagesMap } from '@parsers/talents';
+// From classDefinitions, not talents.ts: talents.ts imports 18 other parser modules and would
+// drag the whole parser data graph onto every public builds page for three plain values.
+import { CLASSES, getBaseClass, talentPagesMap } from '@parsers/classDefinitions';
 
 // The first entry of a class's talent-page sequence tells us the family.
 // Warrior subclasses start with 'Rage_Basics', archers with 'Calm_Basics', etc.

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { itemsArray } from 'data/website-data';
+import { itemsArray } from '@website-data';
 import {
   addEquippedItems,
   findItemByDescriptionInInventory,

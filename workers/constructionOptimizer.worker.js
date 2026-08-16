@@ -1,7 +1,7 @@
 // Runs the construction optimizer off the main thread. The search burns the whole compute budget in
 // a tight loop, so on the main thread it would freeze the tab for the full duration.
 // Imports the leaf optimizer module on purpose - pulling in the full construction parser would drag
-// the 9MB website-data.json into this bundle.
+// the data/website-data/ directory (~7.7MB on disk, e.g. monsterDrops.json alone at ~2MB) into this bundle.
 import { optimizeArrayWithSwaps } from '../parsers/world-3/constructionOptimizer';
 
 self.onmessage = ({ data }) => {
