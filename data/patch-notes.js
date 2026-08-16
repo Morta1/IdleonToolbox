@@ -4,6 +4,16 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.60',
+    'gameVer': '2.3.523',
+    'date': '16/08/2026',
+    'features': [],
+    'fixes': [
+      "Compass: two upgrades were missing from the Upgrades page - Stop Drop and Roll and Grumblo's Guarantee",
+      'Farming: Night Market future requirements showed several levels added together instead of the next one, making the bean cost look like a huge jump'
+    ]
+  },
+  {
     'ver': '3.3.59',
     'gameVer': '2.3.523',
     'date': '14/08/2026',

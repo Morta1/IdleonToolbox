@@ -725,6 +725,20 @@ const getNextUpgradesReq = ({
                               emperorCostCalc,
                               marketCostReduction = 1
                             }: any) => {
+  // Night market (index >= 8) pays magic beans for every level — N.js only resolves a crop type for
+  // the day and exotic markets. Grouping its levels by crop type collapses several levels onto one
+  // key and sums their costs, so preview the next individual levels instead.
+  if (index >= 8) {
+    const upgrades = [];
+    for (let nextLevel = level + 1; upgrades.length < 4 && nextLevel < maxLvl; nextLevel++) {
+      upgrades.push({
+        type: getCropType({ index, cropId, cropIdIncrement, level: nextLevel }),
+        cost: emperorCostCalc * cost * Math.pow(costExponent, nextLevel) * marketCostReduction
+      });
+    }
+    return upgrades;
+  }
+
   const upgradeMap = new Map();
 
   let extraLv = 0;

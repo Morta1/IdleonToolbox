@@ -376,13 +376,15 @@ const getGroupedUpgrades = (upgrades: any[], abominations: any[]) => {
     return { path, list };
   }).filter(Boolean);
 
-  // Handle "Default" group separately
-  const defaultList = [upgrades[0], upgrades[170]].filter(Boolean);
-  const defaultUnlockedCount = defaultList[0]?.level ?? 0;
-  const defaultListWithUnlocks = defaultList.map((upg, i) => ({
-    ...upg,
-    unlocked: i <= defaultUnlockedCount
-  }));
+  // Default group: 0 always shown, 170 gated on Pathfinder, 171/172 on their own drop-unlock upgrades
+  const defaultListWithUnlocks = [
+    { upgrade: upgrades[0], unlocked: true },
+    { upgrade: upgrades[170], unlocked: (upgrades[0]?.level ?? 0) >= 1 },
+    { upgrade: upgrades[171], unlocked: getLocalCompassBonus(upgrades, 3) >= 0.01 },
+    { upgrade: upgrades[172], unlocked: getLocalCompassBonus(upgrades, 4) >= 0.01 }
+  ]
+    .filter(({ upgrade }) => upgrade)
+    .map(({ upgrade, unlocked }) => ({ ...upgrade, unlocked }));
   return [{ path: 'Default', list: defaultListWithUnlocks }, ...groupedUpgrades];
 }
 
