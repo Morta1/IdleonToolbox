@@ -100,40 +100,40 @@ const subscribe = async (uid, accessToken, callback) => {
   goOnline(database);
   const dbRef = ref(database);
 
-  const charNames = await getSnapshot(dbRef, `_uid/${uid}`);
-  if (!charNames) {
+  // Independent bootstrap reads, fetched concurrently. The cloudsave itself is
+  // deliberately NOT fetched here - the onSnapshot below delivers the same document,
+  // and a getDoc first would download the full save twice per login (and prime the
+  // SDK cache into an extra cache-then-server listener firing).
+  const [charNames, serverVarsDoc, tournamentDoc] = await Promise.all([
+    getSnapshot(dbRef, `_uid/${uid}`),
+    getDoc(doc(firestore, '_vars', '_vars')),
+    getDoc(doc(firestore, '_TOURNAMENT', '_TOURNAMENT'))
+  ]);
+
+  if (!charNames || charNames?.length === 0) {
     throw new Error('No characters found for this account');
   }
 
   let serverVars;
-  const serverVarsDoc = await getDoc(doc(firestore, '_vars', '_vars'));
   if (serverVarsDoc.exists()) {
     serverVars = serverVarsDoc.data();
   }
 
-  if (charNames?.length === 0) {
-    throw new Error('No characters found for this account');
-  }
-
-  const docSnapshot = await getDoc(doc(firestore, '_data', uid));
-  let createTime;
-  if (docSnapshot.exists()) {
-    createTime = docSnapshot._document.createTime.toTimestamp();
-  }
-
-  const tournamentDoc = await getDoc(doc(firestore, '_TOURNAMENT', '_TOURNAMENT'));
   let tournamentData;
   if (tournamentDoc.exists()) {
     tournamentData = tournamentDoc.data();
   }
 
+  // No includeMetadataChanges: the callback never reads snapshot metadata, and the
+  // flag delivers metadata-only confirmations that each re-run the five side fetches
+  // and a full account parse.
   return onSnapshot(
     doc(firestore, '_data', uid),
-    { includeMetadataChanges: true },
     async (docSnapshot) => {
       if (!docSnapshot.exists()) return;
 
       const cloudsave = docSnapshot.data();
+      const createTime = docSnapshot._document?.createTime?.toTimestamp();
 
       const [companion, guildId, tournamentUser, tournamentMatchData, tournamentGlobal] = await Promise.all([
         getSnapshot(dbRef, `_comp/${uid}`),
@@ -161,7 +161,7 @@ const subscribe = async (uid, accessToken, callback) => {
         match: tournamentMatchData,
         global: tournamentGlobal ?? tournamentData,
         leaderboard: []
-      }
+      };
 
       callback(
         cloudsave,
