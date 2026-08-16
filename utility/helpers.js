@@ -458,7 +458,10 @@ function applyThousandSeparator(
 }
 
 export const numberWithCommas = (numStr, isFloat = true) => {
-  numStr = String(numStr);
+  // Number#toString switches to exponential notation at 1e21, which the grouping below would mangle
+  numStr = typeof numStr === 'number' && Number.isFinite(numStr) && Math.abs(numStr) >= 1e21
+    ? BigInt(Math.round(numStr)).toString()
+    : String(numStr);
   const hasDecimalSeparator = numStr.indexOf('.') !== -1;
   let { beforeDecimal, afterDecimal } = splitDecimal(numStr); // eslint-disable-line prefer-const
   beforeDecimal = applyThousandSeparator(beforeDecimal, ',');
@@ -613,9 +616,22 @@ export const notateNumber = (e, s) => {
 export const commaNotation = (number) => {
   // Initialize variables
   let formattedNumber = '';
-  const roundedNumberAsString = '' + Math.round(number);
 
-  // Initialize CommaDT1 and CommaDT2
+  // The game shortens past 1e9 so the digit string never reaches exponential notation
+  let roundedNumberAsString = '' + Math.round(number);
+  let suffix = '';
+  if (number > 1e9) {
+    roundedNumberAsString = '' + Math.round(number / 1e6);
+    suffix = 'M';
+    if (number > 1e15) {
+      roundedNumberAsString = '' + Math.round(number / 1e12);
+      suffix = 'T';
+      if (number > 1e21) {
+        roundedNumberAsString = '' + Math.round(number / 1e18);
+        suffix = 'QQ';
+      }
+    }
+  }
 
   // Calculate number of commas needed
   const numberOfCommas = Math.floor((roundedNumberAsString.length - 1) / 3) + 1;
@@ -634,7 +650,7 @@ export const commaNotation = (number) => {
   }
 
   // Return formatted number
-  return formattedNumber;
+  return formattedNumber + suffix;
 }
 
 
