@@ -5,6 +5,9 @@ import path from 'node:path';
 import {
   buildClassSitemapEntries,
   buildDetailSitemapEntries,
+  buildLastmod,
+  classLastmod,
+  pageLastmod,
   pruneUnexportedBuilds,
   pruneUnexportedSlugs,
   routeToLoc
@@ -42,12 +45,80 @@ describe('buildClassSitemapEntries', () => {
     expect(xml).not.toContain('[class]');
   });
 
-  it('uses the supplied lastmod date', () => {
+  it('falls back to the supplied date for a class with no builds', () => {
     expect(buildClassSitemapEntries(['warrior'], '2026-08-08')).toContain('<lastmod>2026-08-08</lastmod>');
+  });
+
+  // A class page shows the builds in it, so a stale date on a class that gained a build last week
+  // is the case this whole change exists to fix.
+  it('dates a class page from its newest build, not the build date', () => {
+    const builds = [
+      { shortId: 'aaa111', class: 'Warrior', subclass: 'Barbarian', createdAt: '2026-05-02T10:00:00.000Z' },
+      { shortId: 'bbb222', class: 'Warrior', subclass: 'Barbarian', createdAt: '2026-07-19T10:00:00.000Z' }
+    ];
+    const xml = buildClassSitemapEntries(['barbarian'], '2026-08-08', builds);
+    expect(xml).toContain('<lastmod>2026-07-19</lastmod>');
+    expect(xml).not.toContain('2026-08-08');
+  });
+
+  // The family page is the catch-all for its subclasses, so its date has to move when any of them
+  // does - filtering on subclass alone would freeze /tools/builds/warrior forever.
+  it('dates a family page from every build in the family', () => {
+    const builds = [
+      { shortId: 'aaa111', class: 'Warrior', subclass: 'Barbarian', createdAt: '2026-07-19T10:00:00.000Z' },
+      { shortId: 'bbb222', class: 'Warrior', subclass: 'Squire', createdAt: '2026-08-01T10:00:00.000Z' }
+    ];
+    expect(buildClassSitemapEntries(['warrior'], '2026-01-01', builds))
+      .toContain('<lastmod>2026-08-01</lastmod>');
   });
 
   it('returns an empty string for no slugs', () => {
     expect(buildClassSitemapEntries([], '2026-08-08')).toBe('');
+  });
+});
+
+describe('buildLastmod', () => {
+  it('prefers updatedAt, which only exists once a build has been edited', () => {
+    expect(buildLastmod({ createdAt: '2026-03-01T00:00:00.000Z', updatedAt: '2026-06-14T09:12:00.000Z' }))
+      .toBe('2026-06-14');
+  });
+
+  it('uses createdAt as the real date when nothing has edited the build', () => {
+    expect(buildLastmod({ createdAt: '2026-03-01T23:59:59.000Z' })).toBe('2026-03-01');
+  });
+
+  it('falls back when the date is missing or unparseable', () => {
+    expect(buildLastmod({}, '2026-08-16')).toBe('2026-08-16');
+    expect(buildLastmod({ createdAt: 'not a date' }, '2026-08-16')).toBe('2026-08-16');
+    expect(buildLastmod(undefined, '2026-08-16')).toBe('2026-08-16');
+  });
+});
+
+describe('classLastmod', () => {
+  it('ignores builds from other classes', () => {
+    const builds = [
+      { class: 'Mage', subclass: 'Wizard', createdAt: '2026-08-01T00:00:00.000Z' },
+      { class: 'Warrior', subclass: 'Barbarian', createdAt: '2026-02-02T00:00:00.000Z' }
+    ];
+    expect(classLastmod(builds, 'barbarian', '2026-08-16')).toBe('2026-02-02');
+  });
+
+  it('falls back when the class has no builds at all', () => {
+    expect(classLastmod([], 'warrior', '2026-08-16')).toBe('2026-08-16');
+    expect(classLastmod(undefined, 'warrior', '2026-08-16')).toBe('2026-08-16');
+  });
+});
+
+describe('pageLastmod', () => {
+  it('uses the page file own commit date', () => {
+    const dates = new Map([['pages/account/world-3/printer.jsx', '2026-04-11']]);
+    expect(pageLastmod('pages/account/world-3/printer.jsx', dates, '2026-08-16')).toBe('2026-04-11');
+  });
+
+  // An uncommitted page really did change today, and a shallow clone yields no map at all.
+  it('falls back for a page git has never seen, and when there is no map', () => {
+    expect(pageLastmod('pages/brand-new.jsx', new Map(), '2026-08-16')).toBe('2026-08-16');
+    expect(pageLastmod('pages/account/world-3/printer.jsx', null, '2026-08-16')).toBe('2026-08-16');
   });
 });
 

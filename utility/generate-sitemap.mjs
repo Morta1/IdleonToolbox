@@ -1,8 +1,9 @@
 import fs from 'fs'
 import path from 'path'
+import { execFileSync } from 'child_process'
 import {globby} from 'globby'
 import { fetchAllBuildsAtBuildTime } from './builds/static-fetch.mjs'
-import { getBuildClassSlugs } from './builds/class-paths.mjs'
+import { buildsForSlug, getBuildClassSlugs } from './builds/class-paths.mjs'
 import { buildStaticHref, buildToSlug } from './builds/build-pages.mjs'
 
 // Helper to determine priority based on path
@@ -32,11 +33,78 @@ export function routeToLoc(path) {
   return path.replace(/\/index$/, '')
 }
 
-function addPage(page) {
+// Every entry used to carry the build date, so all 231 URLs claimed to have changed on every
+// deploy. Google's sitemap docs are explicit that it ignores lastmod outright once it decides the
+// value is unreliable, and "everything changed today, again" is the canonical way to earn that -
+// so the field was not merely useless, it was spending the one recrawl-prioritisation signal the
+// sitemap has. Each generator below now derives a date from whatever actually determines that
+// page's content.
+//
+// Understating is the safe direction. A page whose imported component changed but whose own file
+// did not keeps its older date and is recrawled a little later; overstating is what makes Google
+// stop reading the field at all.
+const DATE_LINE = /^\d{4}-\d{2}-\d{2}$/
+
+// A shallow clone has no per-file history: `git log` sees one commit, so every page would report
+// the same date and we would be back to a synthetic value. actions/checkout defaults to
+// fetch-depth 1, hence the explicit `fetch-depth: 0` in .github/workflows/deploy.yml.
+function isShallowRepo() {
+  try {
+    return execFileSync('git', ['rev-parse', '--is-shallow-repository'], { encoding: 'utf8' })
+      .trim() === 'true'
+  } catch {
+    return false
+  }
+}
+
+// One `git log` walk rather than a subprocess per page - there are ~110 of them and this runs on
+// every deploy. Output is newest-first, so the first date seen for a path is that path's latest.
+export function gitCommitDates(dir) {
+  if (isShallowRepo()) {
+    console.warn(
+      'warning: shallow git clone - falling back to the build date for page lastmod. ' +
+      'Set fetch-depth: 0 on actions/checkout so per-file history exists.'
+    )
+    return null
+  }
+
+  let out
+  try {
+    out = execFileSync(
+      'git',
+      ['log', '--format=%cs', '--name-only', '--diff-filter=ACMRT', '--', dir],
+      { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }
+    )
+  } catch (error) {
+    console.warn(`warning: git log failed (${error.message}) - page lastmod falls back to the build date.`)
+    return null
+  }
+
+  const dates = new Map()
+  let current = null
+  for (const line of out.split('\n')) {
+    const entry = line.trim()
+    if (!entry) continue
+    if (DATE_LINE.test(entry)) {
+      current = entry
+      continue
+    }
+    if (current && !dates.has(entry)) dates.set(entry, current)
+  }
+  return dates
+}
+
+// A page with no git date is one that is new and uncommitted, so the build date is the honest
+// answer rather than a fallback.
+export function pageLastmod(page, dates, fallback) {
+  return dates?.get(page) || fallback
+}
+
+function addPage(page, dates, fallback) {
   const path = page.replace('pages', '').replace('.jsx', '').replace('.js', '').replace('.mdx', '')
   return urlBlock({
     loc: routeToLoc(path),
-    lastmod: new Date().toISOString().split('T')[0],
+    lastmod: pageLastmod(page, dates, fallback),
     priority: getPagePriority(path)
   })
 }
@@ -50,10 +118,29 @@ const EXCLUDED_BUILD_ROUTES = [
   '/tools/builds/view'
 ]
 
-export function buildClassSitemapEntries(slugs, today) {
+// updatedAt is absent on a build nobody has edited, so createdAt is the real date there rather
+// than a fallback. Both come back from the list endpoint as ISO 8601.
+export function buildLastmod(build, fallback) {
+  const raw = build?.updatedAt || build?.createdAt
+  if (!raw) return fallback
+  const ms = new Date(raw).getTime()
+  return Number.isNaN(ms) ? fallback : new Date(ms).toISOString().split('T')[0]
+}
+
+// What a class page shows is the builds in it, so it changed when its newest member did. A family
+// slug covers its whole family and always has a page, so one with no builds at all falls back.
+// YYYY-MM-DD sorts lexicographically, which is why this can reduce on the strings.
+export function classLastmod(builds, slug, fallback) {
+  const dates = buildsForSlug(builds, slug)
+    .map((build) => buildLastmod(build, null))
+    .filter(Boolean)
+  return dates.length ? dates.reduce((a, b) => (a > b ? a : b)) : fallback
+}
+
+export function buildClassSitemapEntries(slugs, fallback, builds) {
   return (slugs || []).map((slug) => `  <url>
     <loc>https://idleontoolbox.com/tools/builds/${slug}</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${classLastmod(builds, slug, fallback)}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>`).join('\n')
@@ -66,12 +153,12 @@ const SAFE_SHORT_ID = /^[A-Za-z0-9]{4,10}$/
 // Each build has its own exported page now. /tools/builds/view still resolves builds published
 // since the last deploy, but it is one URL serving many builds and canonicalises to the static
 // path, so it has no place here — these entries are the static pages themselves.
-export function buildDetailSitemapEntries(builds, today) {
+export function buildDetailSitemapEntries(builds, fallback) {
   return (builds || [])
     .filter((build) => SAFE_SHORT_ID.test(build?.shortId || ''))
     .map((build) => `  <url>
     <loc>https://idleontoolbox.com${buildStaticHref(build)}</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${buildLastmod(build, fallback)}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>`).join('\n')
@@ -184,13 +271,14 @@ async function generateSitemap() {
 
   const builds = await fetchAllBuildsAtBuildTime()
   const today = new Date().toISOString().split('T')[0]
+  const gitDates = gitCommitDates('pages')
   const classSlugs = pruneUnexportedSlugs(getBuildClassSlugs(builds), 'out')
-  const classEntries = buildClassSitemapEntries(classSlugs, today)
+  const classEntries = buildClassSitemapEntries(classSlugs, today, builds)
   const detailEntries = buildDetailSitemapEntries(pruneUnexportedBuilds(builds, 'out'), today)
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${keptPages.map(addPage).join('\n')}
+${keptPages.map((page) => addPage(page, gitDates, today)).join('\n')}
 ${classEntries}
 ${detailEntries}
 </urlset>`

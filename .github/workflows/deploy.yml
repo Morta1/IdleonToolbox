@@ -11,6 +11,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # postbuild derives each page's sitemap <lastmod> from that file's last commit date.
+          # The default fetch-depth of 1 leaves one commit of history, which would give every
+          # page the same date - the synthetic value the change was meant to remove.
+          fetch-depth: 0
 
       - name: Use Node.js 24
         uses: actions/setup-node@v4
