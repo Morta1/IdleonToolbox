@@ -31,6 +31,7 @@ import {
   evaluateStamp,
   getStampBonus,
   getStampsPerDay,
+  MAX_STAMP_REDUCTION,
   unobtainableStamps,
   updateStamps
 } from '@parsers/world-1/stamps';
@@ -63,6 +64,7 @@ const Stamps = () => {
       money: true,
       materials: true,
       player: true,
+      impossible: true,
       equipments: true,
       reduction: true,
       upgradable: true
@@ -107,14 +109,22 @@ const Stamps = () => {
   });
   const [SnapshotCheckboxEl, showSnapshotLevels] = useCheckbox('Show level-up indicator', true);
   const stampReducer = state?.account?.atoms?.stampReducer;
-  const localStamps = updateStamps(state?.account, state?.characters, forcedGildedStamp, forcedStampReducer, forceMaxCapacity);
+  const localStamps = updateStamps(state?.account, state?.characters, forcedGildedStamp, forcedStampReducer, forceMaxCapacity, true);
   const exaltedMulti = getExaltedStampBonus(state?.account);
 
   const getStampTypeAndBorder = (stamp, mode) => {
-    const { materials, level, hasMoney, hasMaterials, greenStackHasMaterials, enoughPlayerStorage } = stamp;
+    const {
+      materials, level, hasMoney, hasMaterials, greenStackHasMaterials, enoughPlayerStorage,
+      minReduction, greenStackMinReduction
+    } = stamp;
     if (level <= 0) return { border: '#1d1c1c', type: 'level' };
     if (!hasMoney && mode === 'money') {
       return { border: 'warning.light', type: 'money' };
+    }
+    // Out of reach before the softer "missing X" states: no reducer value can pay for these, so
+    // they'd otherwise sit in the same bucket as stamps a reducer change can actually unlock.
+    else if (mode === 'material' && isOutOfReach(subtractGreenStacks ? greenStackMinReduction : minReduction)) {
+      return { border: 'error.dark', type: 'impossible' };
     }
     else if (!enoughPlayerStorage && mode === 'material') {
       return { border: '#e3e310', type: 'player' }
@@ -165,6 +175,10 @@ const Stamps = () => {
                  desc={'Missing Materials'}/>
           <Color onChange={handleSwitchChange} name={'player'} value={types.player} color={'#e3e310'}
                  desc={'Not Enough Player Storage'}/>
+          <Color onChange={handleSwitchChange} name={'impossible'} value={types.impossible ?? true}
+                 color={'error.dark'}
+                 desc={'Out of reach'}
+                 info={`Costs more than your carry capacity or stored materials even at the ${MAX_STAMP_REDUCTION}% reducer cap, so no reduction can unlock it. Raise carry capacity or stockpile more materials first.`}/>
           <Color onChange={handleSwitchChange} name={'equipments'} value={types.equipments} color={'grey'}
                  desc={'Equipments'}/>
           <Color onChange={handleSwitchChange} name={'reduction'} value={types.reduction} color={'secondary.dark'}
@@ -328,6 +342,7 @@ const Stamps = () => {
                       size={{ xs: 4, sm: 3 }}>
                       <Tooltip maxWidth={450}
                                title={isBlank ? '' : <StampInfo {...stamp} bonus={bonus}
+                                                                currentReduction={forcedStampReducer}
                                                                 subtractGreenStacks={subtractGreenStacks}/>}>
                         <Card sx={{
                           position: 'relative',
@@ -400,11 +415,15 @@ const StampInfo = ({
                      enoughPlayerStorage,
                      itemReq,
                      bonus,
-                     maxLevel
+                     maxLevel,
+                     minReduction,
+                     greenStackMinReduction,
+                     currentReduction
                    }) => {
   const storageColor = enoughPlayerStorage ? '' : '#e57373';
   const materialColor = hasMaterials ? '' : '#e57373';
   const mode = level < maxLevel ? 'money' : 'material';
+  const requiredReduction = subtractGreenStacks ? greenStackMinReduction : minReduction;
   return <Box sx={{ p: 1 }}>
     <Typography variant={'h6'}>{cleanUnderscore(displayName)} (Lv {level})</Typography>
     <Typography sx={{ color: level > 0 && multiplier > 1 ? 'info.dark' : '' }}
@@ -419,6 +438,8 @@ const StampInfo = ({
                    goldCost={goldCost}
                    mode={mode}
                    level={level}/>
+      {mode === 'material' ? <MinReductionInfo minReduction={requiredReduction}
+                                              currentReduction={currentReduction}/> : null}
       <Divider variant={'middle'} sx={{ bgcolor: grey[600], my: 1 }}/>
       {futureCosts?.map((futureCost, index) => {
         return <CostSection key={'future-' + index}
@@ -442,6 +463,30 @@ const StampInfo = ({
       </Stack>
     </> : null}
   </Box>;
+}
+
+const BLOCKER_TEXT = {
+  capacity: 'capacity',
+  materials: 'materials',
+  both: 'capacity & materials'
+};
+
+// Absent entirely when a caller skipped the calculation, versus present with a null reduction,
+// which is the real "no reducer value can pay for this" answer.
+const isOutOfReach = (minReduction) => Boolean(minReduction) && minReduction.reduction == null;
+
+const MinReductionInfo = ({ minReduction, currentReduction }) => {
+  if (!minReduction) return null;
+  const { reduction, blockedBy } = minReduction;
+  if (reduction == null) {
+    return <Typography variant={'body2'} sx={{ color: 'warning.light' }}>
+      {`${MAX_STAMP_REDUCTION}% reduction isn't enough: need ${BLOCKER_TEXT[blockedBy] ?? 'materials'}`}
+    </Typography>;
+  }
+  const isAffordable = reduction <= (currentReduction ?? 0);
+  return <Typography variant={'body2'} sx={{ color: isAffordable ? 'success.light' : '#e57373' }}>
+    Min. reduction needed: {reduction}%
+  </Typography>;
 }
 
 const CostSection = ({
@@ -486,11 +531,12 @@ const ItemIcon = styled.img`
   opacity: ${({ hide }) => hide ? 0.5 : 1};
 `;
 
-const Color = ({ color, desc, value, onChange, name }) => {
+const Color = ({ color, desc, value, onChange, name, info }) => {
   return <Stack direction={'row'} gap={1} alignItems={'center'} justifyContent={'space-between'}>
     <Stack direction={'row'} gap={1} alignItems={'center'}>
       <Avatar sx={{ bgcolor: color, width: 24, height: 24 }} alt={color} src={''}>&nbsp;</Avatar>
       <Typography variant={'body2'}>{desc}</Typography>
+      {info ? <Tooltip title={info}><IconInfoCircleFilled size={16}/></Tooltip> : null}
     </Stack>
     <Switch size={'small'} checked={value} onChange={(e) => onChange(e, name)}/>
   </Stack>
