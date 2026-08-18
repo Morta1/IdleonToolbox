@@ -2541,7 +2541,7 @@ export const patchNotes = [
     features: [
       'Added a dashboard alert for max capacity liquids in alchemy',
       <Typography>Added liquids progress to the <Link
-        href={'https://idleontoolbox.com/account/orld-2/cauldrons'}>cauldrons</Link> page</Typography>,
+        href={'https://idleontoolbox.com/account/world-2/cauldrons'}>cauldrons</Link> page</Typography>,
       'Added 0 to 20 (static) timer to library '
     ],
     fixes: [
