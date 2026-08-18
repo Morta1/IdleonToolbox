@@ -22,6 +22,7 @@ export const expandLeaderboardInfo = (account, characters) => {
   const logbooks = account?.gaming?.logBook?.reduce((sum, { unlocked }) => sum + unlocked, 0);
   const villagers = account?.hole?.villagers?.map(({ expRate }) => expRate.value)?.filter(val => val > 0);
   const highestVillagerExpPerHour = villagers?.length > 0 ? Math.max(...villagers) : 0;
+  const totalVillagerExpPerHour = villagers?.reduce((sum, expRate) => sum + expRate, 0) ?? 0;
   return {
     dropRate: Math.max(dropRate, withDefault(account.accountOptions?.[200])),
     defence: withDefault(defence),
@@ -38,6 +39,7 @@ export const expandLeaderboardInfo = (account, characters) => {
     tomePoints,
     tomeRankThresholds,
     highestVillagerExpPerHour,
+    totalVillagerExpPerHour,
     topKilledMonsters: account?.topKilledMonsters,
     accountAge: differenceInYears(new Date(), new Date(account?.accountCreateTime)),
     currentWorld: account?.currentWorld,
