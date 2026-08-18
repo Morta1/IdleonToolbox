@@ -23,7 +23,8 @@ export const patchNotes = [
       'Poppy: the Fish and Tars counters left out everything banked up since your last visit, so both read low',
       'Gem Shop: items without a priority tier vanished when filtering by S/A/B/C. They now show under a new "Unranked" filter',
       'Breeding: a pet at Breedability level 9 kept counting down to a level 10 that does not exist in game. It now shows Maxed!',
-      'Breeding: the "To level X" estimate on pet cards was too high, and the level box accepted levels above the max'
+      'Breeding: the "To level X" estimate on pet cards was too high, and the level box accepted levels above the max',
+      'Stamps: a stamp could ignore the legend filters and stay on screen even with every type switched off'
     ]
   },
   {

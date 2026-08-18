@@ -135,7 +135,12 @@ const Stamps = () => {
     else if (materials.length > 0) {
       return { border: 'grey', type: 'equipments' };
     }
-    else if (materials.length === 0 && ((hasMaterials && enoughPlayerStorage) || mode === 'money') && hasMoney) {
+    // Every remaining state must map to a type: an untyped stamp slips past the legend filter
+    // entirely (types.hasOwnProperty(undefined) is false), so it shows even with all switches off.
+    else if (!hasMoney) {
+      return { border: 'warning.light', type: 'money' };
+    }
+    else {
       const index = reducerValues.indexOf(forcedStampReducer);
       const minReductionStamp = evaluateStamp(stamp, state?.account, state?.characters, gildedStamps, reducerValues[index - 1], forceMaxCapacity);
       if (forcedStampReducer !== 0 && minReductionStamp?.materials.length === 0 && ((minReductionStamp?.hasMaterials && minReductionStamp?.enoughPlayerStorage) || mode === 'money') && minReductionStamp?.hasMoney) {
