@@ -10,7 +10,9 @@ export const patchNotes = [
     'features': [
       'Dashboard: new World 6 timer counting down to the next fully grown crop'
     ],
-    'fixes': []
+    'fixes': [
+      'Item Planner: materials you are still short on vanished from the missing list when "Include Equipped Items" was on and you already owned one of the crafted parts'
+    ]
   },
   {
     'ver': '3.3.60',
