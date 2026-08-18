@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 65,
+  version: 66,
   account: {
     General: {
       tasks: {
@@ -592,7 +592,17 @@ const baseTrackers = {
         checked: true
       }]
     },
-    equipment: { checked: true, options: [{ name: 'availableUpgradesSlots', checked: true }] },
+    equipment: {
+      checked: true,
+      options: [{ name: 'availableUpgradesSlots', checked: true }, {
+        name: 'emptyGearSlots',
+        type: 'array',
+        category: 'emptyGearSlots',
+        checked: true,
+        helperText: 'Alert when a gear slot is empty. Only the first equipment page is checked - tools, food and the second page are ignored',
+        props: { value: { weapon: true, armor: true, amulet: false, rings: false } }
+      }]
+    },
     classSpecific: {
       checked: true,
       options: [

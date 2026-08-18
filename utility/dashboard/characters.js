@@ -241,6 +241,20 @@ export const getDivinityAlert = (account, characters, character, lastUpdated, op
   }
   return null;
 };
+// character.equipment holds both gear pages back to back - indices 0-7 are the first page, which is
+// the only one this alert looks at. Page 2 (keychains, trophy, cape...), tools and food are left out
+// on purpose: they're legitimately empty for most accounts.
+const EQUIPMENT_SLOTS = [
+  { index: 0, group: 'armor', label: 'Helmet' },
+  { index: 1, group: 'weapon', label: 'Weapon' },
+  { index: 2, group: 'armor', label: 'Shirt' },
+  { index: 3, group: 'amulet', label: 'Pendant' },
+  { index: 4, group: 'armor', label: 'Pants' },
+  { index: 5, group: 'rings', label: 'Ring' },
+  { index: 6, group: 'armor', label: 'Shoes' },
+  { index: 7, group: 'rings', label: 'Ring' }
+];
+
 export const getEquipmentAlert = (account, characters, character, lastUpdated, options) => {
   const alerts = {};
   if (options?.equipment?.availableUpgradesSlots?.checked) {
@@ -250,6 +264,14 @@ export const getEquipmentAlert = (account, characters, character, lastUpdated, o
         ? [...result, item]
         : result;
     }, [])
+  }
+  if (options?.equipment?.emptyGearSlots?.checked) {
+    const enabledGroups = options?.equipment?.emptyGearSlots?.props?.value || {};
+    alerts.emptyGearSlots = EQUIPMENT_SLOTS.reduce((result, { index, group, label }) => {
+      return enabledGroups?.[group] && character?.equipment?.[index]?.rawName === 'Blank'
+        ? [...result, label]
+        : result;
+    }, []);
   }
   return alerts;
 };

@@ -211,6 +211,9 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                                 }}/>}
                                 iconPath={`data/${rawName}`}/>;
                 }) : null}
+              {trackers?.equipment && alerts?.equipment?.emptyGearSlots?.length > 0 ?
+                <Alert title={`${name} has empty equipment slots: ${alerts?.equipment?.emptyGearSlots?.join(', ')}`}
+                       iconPath={'data/EquipmentTransparent1'}/> : null}
               {trackers?.anvil && alerts?.anvil?.anvilOverdue?.length > 0 ?
                 alerts?.anvil?.anvilOverdue?.map(({ diff, name, rawName }) => {
                   const isFull = diff <= 0;

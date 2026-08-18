@@ -1426,6 +1426,27 @@ const migration65 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration66 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
+  const equipment = dashboardConfig?.characters?.equipment;
+  if (equipment && !Array.isArray(equipment.options)) {
+    equipment.options = [];
+  }
+  const equipmentOptions = equipment?.options;
+  if (Array.isArray(equipmentOptions) && !equipmentOptions.some((option) => option?.name === 'emptyGearSlots')) {
+    equipmentOptions.push({
+      name: 'emptyGearSlots',
+      type: 'array',
+      category: 'emptyGearSlots',
+      checked: true,
+      helperText: 'Alert when a gear slot is empty. Only the first equipment page is checked - tools, food and the second page are ignored',
+      props: { value: { weapon: true, armor: true, amulet: false, rings: false } }
+    });
+  }
+  dashboardConfig.version = 66;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1493,6 +1514,7 @@ const migrations = {
   63: migration63,
   64: migration64,
   65: migration65,
+  66: migration66,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {
