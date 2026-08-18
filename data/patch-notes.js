@@ -20,7 +20,8 @@ export const patchNotes = [
       'Item Planner: materials you are still short on vanished from the missing list when "Include Equipped Items" was on and you already owned one of the crafted parts',
       'Weekly Bosses: the quest task showed each character\'s own quest count instead of the account-wide unique total the game uses',
       "Dashboard: Poppy's Fisheroo Reset and Greatest Catch timers could sit on the same value for days. They now count the fish banked up since your last visit, so they match what you actually have when you open her",
-      'Poppy: the Fish and Tars counters left out everything banked up since your last visit, so both read low'
+      'Poppy: the Fish and Tars counters left out everything banked up since your last visit, so both read low',
+      'Gem Shop: items without a priority tier vanished when filtering by S/A/B/C. They now show under a new "Unranked" filter'
     ]
   },
   {

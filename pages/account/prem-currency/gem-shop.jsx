@@ -20,36 +20,45 @@ import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 
 
+// Keyed by `${categoryName}_${globalIndex}` - globalIndex is reused across categories
+// (e.g. usables>Limited_Specials and past_limited_specials both use 87-94), so a flat
+// globalIndex-only key would mistag items across categories.
 const priorities = {
-  103: 'S',
-  106: 'S',
-  111: 'S',
-  63: 'S',
-  56: 'A',
-  58: 'A',
-  55: 'A',
-  104: 'A',
-  84: 'A',
-  59: 'A',
-  115: 'A',
-  120: 'A',
-  119: 'A',
-  129: 'A',
-  131: 'A',
-  133: 'A',
-  130: 'A',
-  72: 'B',
-  71: 'B',
-  105: 'B',
-  112: 'B',
-  117: 'B',
-  122: 'B',
-  57: 'C',
-  114: 'C',
-  118: 'C',
-  113: 'C',
-  125: 'C'
+  bonuses_103: 'S',
+  bonuses_106: 'S',
+  bonuses_111: 'S',
+  usables_63: 'S',
+  usables_56: 'A',
+  usables_58: 'A',
+  usables_55: 'A',
+  bonuses_104: 'A',
+  usables_84: 'A',
+  usables_59: 'A',
+  bonuses_115: 'A',
+  bonuses_120: 'A',
+  bonuses_119: 'A',
+  bonuses_129: 'A',
+  bonuses_131: 'A',
+  bonuses_133: 'A',
+  bonuses_130: 'A',
+  usables_72: 'B',
+  usables_71: 'B',
+  bonuses_105: 'B',
+  bonuses_112: 'B',
+  bonuses_117: 'B',
+  bonuses_122: 'B',
+  bonuses_57: 'C',
+  bonuses_114: 'C',
+  bonuses_118: 'C',
+  bonuses_113: 'C',
+  bonuses_125: 'C'
 };
+
+const PRIORITY_TIERS = ['S', 'A', 'B', 'C'];
+
+// Items without a curated tier fall into 'Unranked' instead of no tier at all, so they
+// stay reachable when a tier filter is selected instead of silently disappearing.
+const getPriority = (categoryName, globalIndex) => priorities[`${categoryName}_${globalIndex}`] || 'Unranked';
 
 const calculateTotalCostToMax = (baseCost, costIncrement, currentPurchases, maxPurchases) => {
   let totalCost = 0;
@@ -78,11 +87,11 @@ const GemShop = () => {
     setSelectedPriorities(finalArray);
   };
 
-  const isItemVisible = (item, sectionName) => {
+  const isItemVisible = (item, sectionName, categoryName) => {
     const { globalIndex, rawName, displayName, desc, maxPurchases } = item;
     const purchased = state?.account?.gemShopPurchases?.[globalIndex] || 0;
-    const priority = priorities?.[globalIndex];
-    
+    const priority = getPriority(categoryName, globalIndex);
+
     if (rawName === 'Blank' || displayName === 'NAME_OF_ITEM') return false;
     if (showMissingOnly && purchased >= maxPurchases) return false;
     if (!selectedPriorities.includes('All') && !selectedPriorities?.includes(priority)) return false;
@@ -123,6 +132,7 @@ const GemShop = () => {
         <ToggleButton value="A">A</ToggleButton>
         <ToggleButton value="B">B</ToggleButton>
         <ToggleButton value="C">C</ToggleButton>
+        <ToggleButton value="Unranked">Unranked</ToggleButton>
       </ToggleButtonGroup>} />
       <CardTitleAndValue title={'Search'} value={<TextField
         label="Enter search term"
@@ -140,7 +150,7 @@ const GemShop = () => {
       const visibleSections = Object.entries(sections).filter(([sectionName, sectionItems]) => {
         const isAllBlanks = sectionItems?.every(({ rawName }) => rawName === 'Blank');
         if (isAllBlanks) return false;
-        return sectionItems?.some(item => isItemVisible(item, sectionName));
+        return sectionItems?.some(item => isItemVisible(item, sectionName, name));
       });
 
       // Only show category if it has visible sections
@@ -150,7 +160,7 @@ const GemShop = () => {
         <Typography sx={{ mt: 5 }} variant={'h5'}>{cleanUnderscore(name).capitalize()}</Typography>
         {visibleSections.map(([sectionName, sectionItems]) => {
           // Filter items to only visible ones
-          const visibleItems = sectionItems?.filter(item => isItemVisible(item, sectionName));
+          const visibleItems = sectionItems?.filter(item => isItemVisible(item, sectionName, name));
           
           // Only show section if it has visible items
           if (!visibleItems || visibleItems.length === 0) return null;
@@ -170,7 +180,10 @@ const GemShop = () => {
                 }, index) => {
                   const purchased = state?.account?.gemShopPurchases?.[globalIndex] ?? 0;
                   const addedCost = purchased * costIncrement;
-                  return <Badge badgeContent={priorities?.[globalIndex] || 0} color={'warning'} key={rawName + index}>
+                  const priority = getPriority(name, globalIndex);
+                  return <Badge
+                    badgeContent={PRIORITY_TIERS.includes(priority) ? priority : 0}
+                    color={'warning'} key={rawName + index}>
                     <Card variant={'outlined'}
                       sx={{
                         width: 300,
