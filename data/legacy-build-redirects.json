@@ -1,0 +1,193 @@
+{
+  "beginner": {
+    "class": "beginner",
+    "builds": {}
+  },
+  "journeyman": {
+    "class": "journeyman",
+    "builds": {
+      "0": "3qc6gn-journeyman-afk-40",
+      "1": "ro7g0a-journeyman-afk-55",
+      "2": "cdkegs-journeyman-afk-70",
+      "3": "bbb6kd-journeyman"
+    }
+  },
+  "maestro": {
+    "class": "maestro",
+    "builds": {
+      "0": "mlzmaq-maestro-skilling-100",
+      "1": "jxwklu-maestro-skilling-left-right-hands-100",
+      "2": "sprnmm-maestro-afk-70",
+      "3": "bbaono-maestro-active-70",
+      "4": "r2tpop-maestro-active-crystal-cards-70",
+      "5": "hgbijj-maestro-afk-money-170",
+      "6": "rekesx-maestro-afk-150"
+    }
+  },
+  "voidwalker": {
+    "class": "voidwalker",
+    "builds": {}
+  },
+  "warrior": {
+    "class": "warrior",
+    "builds": {
+      "0": "ba0u4g-mining-active-afk-warrior-30",
+      "1": "hvfmxd-warrior-active-35",
+      "2": "gyqq2b-warrior-afk-35"
+    }
+  },
+  "barbarian": {
+    "class": "barbarian",
+    "builds": {
+      "0": "eyqwbk-mining-active-afk-barb-50",
+      "1": "6ltbet-mining-active-afk-barb-100",
+      "2": "oxg3ea-fishing-active-afk-barb-50",
+      "3": "hrqhqr-fishing-active-afk-barb-100",
+      "4": "l5zkab-barbarian-active-50",
+      "5": "8b4hlg-barbarian-active-70",
+      "6": "l75qz2-barbarian-active-85",
+      "7": "pfcpxu-barbarian-active-zow-farming-85",
+      "8": "pdznzk-barbarian-active-100",
+      "9": "vz5nvi-barbarian-afk-50",
+      "10": "qn3ph6-barbarian-afk-70",
+      "11": "3hafdx-barbarian-afk-150"
+    }
+  },
+  "blood_berserker": {
+    "class": "blood-berserker",
+    "builds": {
+      "0": "rf2tz7-ultimate-skiller-200",
+      "1": "aeq0hx-active-blood-beserker-150"
+    }
+  },
+  "death_bringer": {
+    "class": "death-bringer",
+    "builds": {}
+  },
+  "squire": {
+    "class": "squire",
+    "builds": {
+      "0": "15dut6-mining-active-afk-squire-50",
+      "1": "aa5m9x-mining-active-afk-squire-100",
+      "2": "9atddi-mining-construction-hybrid-squire-100",
+      "3": "hyaaw4-squire-active-50",
+      "4": "s6bgto-squire-active-70",
+      "5": "h5ogec-squire-afk-50",
+      "6": "dmsjc9-squire-afk-70",
+      "7": "1loa9z-squire-afk-150"
+    }
+  },
+  "divine_knight": {
+    "class": "divine-knight",
+    "builds": {
+      "0": "be7qeu-active-dk"
+    }
+  },
+  "archer": {
+    "class": "archer",
+    "builds": {
+      "0": "rblex2-archer-afk-35"
+    }
+  },
+  "bowman": {
+    "class": "bowman",
+    "builds": {
+      "0": "yz656c-catching-active-afk-50",
+      "1": "dqtwv9-catching-active-afk-70",
+      "2": "1czvll-catching-active-afk-100",
+      "3": "azc7pk-bowman-active-50",
+      "4": "pcofys-bowman-active-70",
+      "5": "t9afqi-bowman-active-90",
+      "6": "dzckos-bowman-afk-50",
+      "7": "h5tewg-bowman-afk-70",
+      "8": "tq1zpl-bowman-afk-90",
+      "9": "bahxc0-bowman-boss-killer",
+      "10": "fexok0-bowman-afk-150"
+    }
+  },
+  "siege_breaker": {
+    "class": "siege-breaker",
+    "builds": {}
+  },
+  "hunter": {
+    "class": "hunter",
+    "builds": {
+      "0": "qb2tkv-hunter-trapping-70",
+      "1": "vh8z0k-hunter-trapping-100",
+      "2": "eu7dqm-hunter-active-50",
+      "3": "0w3qcr-hunter-active-70",
+      "4": "qwfjvs-hunter-active-90",
+      "5": "9vjyrc-hunter-afk-50",
+      "6": "aygzfd-hunter-afk-70",
+      "7": "f7f2rs-hunter-afk-90",
+      "8": "crultp-hunter-afk-170",
+      "9": "sbqwc0-rams-active-hunter-150"
+    }
+  },
+  "beast_master": {
+    "class": "beast-master",
+    "builds": {
+      "0": "pnfw12-beast-master-colosseum-clearer-200"
+    }
+  },
+  "wind_walker": {
+    "class": "wind-walker",
+    "builds": {}
+  },
+  "mage": {
+    "class": "mage",
+    "builds": {
+      "0": "k8ma0u-woodcutter-active-afk-mage-30",
+      "1": "f4gfsp-mage-active-35",
+      "2": "sfeypx-mage-afk-35"
+    }
+  },
+  "shaman": {
+    "class": "shaman",
+    "builds": {
+      "0": "pvxxjh-woodcutter-active-afk-shaman-50",
+      "1": "kvjlqh-alchemy-choppin-hybrid-shaman-100",
+      "2": "a81c5b-shaman-active-50",
+      "3": "1kaonb-shaman-active-70",
+      "4": "7eqyas-shaman-active-c-amarok-killer-90",
+      "5": "yif41j-shaman-afk-50",
+      "6": "tirdwx-shaman-afk-70",
+      "7": "oxsyjd-shaman-afk-90",
+      "8": "c6o0m6-alchemy-choppin-hybrid",
+      "9": "cgmygf-shaman-afk-150",
+      "10": "bphtid-shaman-colo-100"
+    }
+  },
+  "bubonic_conjuror": {
+    "class": "bubonic-conjuror",
+    "builds": {
+      "0": "7wr1wu-active-bubo",
+      "1": "igobde-ultimate-skiller-200"
+    }
+  },
+  "arcane_cultist": {
+    "class": "arcane-cultist",
+    "builds": {}
+  },
+  "wizard": {
+    "class": "wizard",
+    "builds": {
+      "0": "ubilag-woodcutter-active-afk-wizard-50",
+      "1": "38a1rv-worship-choppin-hybrid-wizard-100",
+      "2": "zl3mei-wizard-active-50",
+      "3": "yqczzz-wizard-active-70",
+      "4": "4hkdoj-wizard-afk-50",
+      "5": "e2obmh-wizard-afk-70",
+      "6": "4a0ngm-wizard-afk-90",
+      "7": "eq2xpx-wizard-afk-wor-170",
+      "8": "8kt1td-active-afk-wizard-150"
+    }
+  },
+  "elemental_sorcerer": {
+    "class": "elemental-sorcerer",
+    "builds": {
+      "0": "o7mpbo-active-es",
+      "1": "sae4ov-combat-es-mostly-active"
+    }
+  }
+}
