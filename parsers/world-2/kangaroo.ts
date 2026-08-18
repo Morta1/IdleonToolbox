@@ -79,6 +79,13 @@ const parseKangaroo = (account: any) => {
   const catchReq = 30 / (1 + (5 * (account?.accountOptions?.[269] ?? 0)) / 100)
   const fishRate = baseFishRate * (60 / catchReq)
 
+  // Fish don't accrue straight into the fish counter. Elapsed seconds bank into accountOptions[288]
+  // (online and offline alike), and only convert to fish while the Poppy menu is actually open in
+  // game. A player who hasn't visited Poppy in days carries a bank worth days of fish that the raw
+  // counter doesn't show, so any timer using `fish` alone stays frozen instead of counting down.
+  const pendingFish = Math.floor((account?.accountOptions?.[288] ?? 0) / catchReq) * baseFishRate;
+  const totalFish = fish + pendingFish;
+
   // TAR
   const tarFishUnlocked = Math.min(8, Math.round(3 * getMegaFish(account, 0)
     + (3 * getMegaFish(account, 4) + 2 * getMegaFish(account, 7))));
@@ -88,6 +95,10 @@ const parseKangaroo = (account: any) => {
     * 1800 * (1 / Math.max(1, getResetBonuses(account, 4)))
     * (1 / (1 + 2 * getMegaFish(account, 4)))
     * (1 / (1 + 2 * getMegaFish(account, 7)));
+
+  // Same banked-then-converted pattern as fish, via accountOptions[305].
+  const pendingTarFish = Math.floor((account?.accountOptions?.[305] ?? 0) / tarFishRate);
+  const totalTarFishOwned = tarFishOwned + pendingTarFish;
 
   const tarUpgrades = poppyTarBonuses.map((tarUpgrade, i) => {
     const base = (1 / (1 + (5 * getMegaFish(account, 10) * (account?.accountOptions?.[304] ?? 0)) / 100));
@@ -192,12 +203,16 @@ const parseKangaroo = (account: any) => {
     upgrades,
     bonuses,
     fish,
+    pendingFish,
+    totalFish,
     progress,
     nextLvReq,
     megaFish,
     fishRate,
     tarFishRate,
     tarFishOwned,
+    pendingTarFish,
+    totalTarFishOwned,
     totalMulti,
     allMultipliers,
     tarUpgrades,

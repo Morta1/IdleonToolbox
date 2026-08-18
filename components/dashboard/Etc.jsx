@@ -46,8 +46,11 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const nextMegaFleshRestart = now + (account?.bubba?.upgrades?.[8]?.cost - account?.bubba?.meatSlices) / account?.bubba?.meatsliceRate * 60 * 1000;
   const mfDuration = getDuration(now, nextMegaFeatherRestart);
   const mfLongDuration = nextMegaFeatherRestart > maxTimeValue || mfDuration?.days > 365;
-  const nextFisherooReset = now + (account?.kangaroo?.upgrades?.[6]?.cost - account?.kangaroo?.fish) / account?.kangaroo?.fishRate * 60 * 1000;
-  const nextGreatestCatch = now + (account?.kangaroo?.upgrades?.[11]?.cost - account?.kangaroo?.fish) / account?.kangaroo?.fishRate * 60 * 1000;
+  // `totalFish` includes the fish banked since the last Poppy visit. Using the raw `fish` counter
+  // froze these timers, because it only moves when the player opens the Poppy menu in game.
+  const kangarooFish = account?.kangaroo?.totalFish;
+  const nextFisherooReset = now + (account?.kangaroo?.upgrades?.[6]?.cost - kangarooFish) / account?.kangaroo?.fishRate * 60 * 1000;
+  const nextGreatestCatch = now + (account?.kangaroo?.upgrades?.[11]?.cost - kangarooFish) / account?.kangaroo?.fishRate * 60 * 1000;
   const gcDuration = getDuration(now, nextGreatestCatch);
   const gcLongDuration = nextGreatestCatch > maxTimeValue || gcDuration?.days > 365;
   const cfDuration = getDuration(now, nextMegaFleshRestart);
@@ -312,7 +315,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             timerPlaceholder={'Mega feather restart available'}
           />}
         </> : null}
-        {trackers?.Clickers?.fisherooReset?.checked && account?.kangaroo?.fish > 0 ? nextFisherooReset < maxTimeValue ? <TimerCard
+        {trackers?.Clickers?.fisherooReset?.checked && kangarooFish > 0 ? nextFisherooReset < maxTimeValue ? <TimerCard
           page={'account/clickers/kangaroo'}
           tooltipContent={'Next fisheroo reset: ' + getRealDateInMs(nextFisherooReset)}
           lastUpdated={lastUpdated}
@@ -329,7 +332,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           <IconImg src={`${prefix}etc/KUpga_6.png`} alt=""/>
           <Typography>{notateNumber(getTimeAsDays(nextFisherooReset))} days</Typography>
         </Stack> : null}
-        {trackers?.Clickers?.greatestCatch?.checked && account?.kangaroo?.fish > 0 ? !isPast(nextGreatestCatch) && gcLongDuration ? <Tooltip
+        {trackers?.Clickers?.greatestCatch?.checked && kangarooFish > 0 ? !isPast(nextGreatestCatch) && gcLongDuration ? <Tooltip
           title={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}>
           <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
             onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>

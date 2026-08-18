@@ -25,7 +25,7 @@ const Kangaroo = () => {
                          value={notation(kangaroo?.avgResetPoints)}/>
       <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}
                          stackProps={{ flexDirection: 'row', gap: '16px', flexWrap: 'wrap' }}>
-        <Section title={'Fish'} value={notation(kangaroo?.fish)} icon={'etc/KFish.png'}/>
+        <Section title={'Fish'} value={notation(kangaroo?.totalFish)} icon={'etc/KFish.png'}/>
         <Section title={'Fish/m'} value={notation(kangaroo?.bonuses?.[0]?.bonus)} icon={'etc/KFish.png'}/>
         <Section title={'Fish/h'} value={notation(kangaroo?.bonuses?.[0]?.bonus * 60)}
                  icon={'etc/KFish.png'}/>
@@ -35,7 +35,7 @@ const Kangaroo = () => {
       </CardTitleAndValue>
       <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}
                          stackProps={{ flexDirection: 'row', gap: '16px', flexWrap: 'wrap' }}>
-        <Section title={'Tars'} value={notation(kangaroo?.tarFishOwned)} icon={'etc/KTar.png'}/>
+        <Section title={'Tars'} value={notation(kangaroo?.totalTarFishOwned)} icon={'etc/KTar.png'}/>
         <Section title={'Tar/h'} value={notation(3600 / kangaroo?.tarFishRate)} icon={'etc/KTar.png'}/>
       </CardTitleAndValue>
       <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}

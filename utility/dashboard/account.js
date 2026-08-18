@@ -525,14 +525,16 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
       unlocked,
       name
     }) => name === 'Fisheroo_Reset' && unlocked);
-    if (options?.kangaroo?.fisherooReset?.checked && fisherooReset && account?.kangaroo?.fish >= fisherooReset?.cost) {
+    // `totalFish` counts the fish banked since the last Poppy visit; the raw counter only moves
+    // when the player opens the Poppy menu in game, so it under-reports for days at a time.
+    if (options?.kangaroo?.fisherooReset?.checked && fisherooReset && account?.kangaroo?.totalFish >= fisherooReset?.cost) {
       kangaroo.fisherooReset = true;
     }
     const greatestCatch = account?.kangaroo?.upgrades?.find(({
       unlocked,
       name
     }) => name === 'Greatest_Catch' && unlocked);
-    if (options?.kangaroo?.greatestCatch?.checked && greatestCatch && account?.kangaroo?.fish >= greatestCatch?.cost) {
+    if (options?.kangaroo?.greatestCatch?.checked && greatestCatch && account?.kangaroo?.totalFish >= greatestCatch?.cost) {
       kangaroo.greatestCatch = true;
     }
     if (Object.keys(kangaroo).length > 0) {
