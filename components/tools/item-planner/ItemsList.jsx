@@ -9,13 +9,23 @@ import { crafts } from '@website-data';
 // Every copy of a craftable equip you already own is a copy you no longer have to build, so the
 // materials that copy would have consumed drop out of the requirement. Credits are keyed by item
 // name and gathered up front so the result doesn't depend on where the equip sits in the list.
+//
+// Equips on one upgrade chain are walked outermost-first, because an owned outer equip already
+// accounts for every tier below it: crediting an inner one again would double-count the materials
+// they share and hide a row that is still short. An ancestor's flattened recipe is a superset of
+// its descendants', so recipe size orders the chain; unrelated chains never overlap.
 export const getOwnedEquipCredits = (itemsList, inventoryItems) => {
-  return (itemsList ?? []).reduce((credits, item) => {
-    if (item?.type !== 'Equip') return credits;
+  const equips = (itemsList ?? [])
+    .filter((item) => item?.type === 'Equip')
+    .map((item) => ({ item, recipe: flattenCraftObject(crafts[item?.itemName]) ?? [] }))
+    .sort((a, b) => b.recipe.length - a.recipe.length);
+
+  return equips.reduce((credits, { item, recipe }) => {
     const { amount } = findQuantityOwned(inventoryItems, item?.itemName);
-    const covered = Math.min(amount ?? 0, item?.itemQuantity ?? 0);
+    const stillToBuild = Math.max(0, (item?.itemQuantity ?? 0) - (credits[item?.itemName] ?? 0));
+    const covered = Math.min(amount ?? 0, stillToBuild);
     if (covered <= 0) return credits;
-    flattenCraftObject(crafts[item?.itemName])?.forEach(({ itemName, itemQuantity }) => {
+    recipe.forEach(({ itemName, itemQuantity }) => {
       credits[itemName] = (credits[itemName] ?? 0) + (itemQuantity ?? 0) * covered;
     });
     return credits;

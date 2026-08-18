@@ -143,6 +143,27 @@ describe('mapItems - show missing items', () => {
     expect(result.HELMET).toEqual([['Militia_Helm', 2, 1]]);
   });
 
+  it('does not credit an inner equip that an owned outer equip already covers', () => {
+    // 2 Militia_Helms; own 1 finished helm and 5 spare Copper_Helmets. The finished helm already
+    // accounts for one Copper_Helmet, so only one spare may be credited: crediting all of them
+    // would erase 20 Copper_Ore the remaining helm still needs.
+    const list = [...scale(militiaMaterials, 2),
+      { ...crafts['Militia_Helm'], itemQuantity: 2, materials: undefined }];
+    const result = names(mapItems(list, '0', [owned('Militia_Helm', 1), owned('Copper_Helmet', 5)]));
+    expect(result.ORE).toEqual([['Copper_Ore', 80, 0]]);
+    expect(result.BAR).toEqual([['Iron_Bar', 15, 0]]);
+  });
+
+  it('keeps a material needed at the top tier when two equips on one chain are owned', () => {
+    // Prehistoric_Skull needs Nullo_Salt twice: 10000 inside Dreadnaught_Skull and 5000 of its own.
+    // Owning both Crystal_Skull and the Cultist_Skull it was built from must not credit the inner
+    // 10000 twice and hide the 5000 that is still missing.
+    const list = flattenCraftObject(crafts['Prehistoric_Skull']);
+    const result = names(mapItems(list, '0',
+      [owned('Crystal_Skull_of_Esquire_Vnoze', 1), owned('Cultist_Skull', 1)]));
+    expect(result.REFINERY_SALTS).toContainEqual(['Nullo_Salt', 5000, 0]);
+  });
+
   it('never drops an item it does not fully cover', () => {
     const inventory = [owned('Copper_Helmet', 1)];
     const credits = getOwnedEquipCredits(militiaMaterials, inventory);
