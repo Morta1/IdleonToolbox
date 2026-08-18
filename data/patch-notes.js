@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.61',
+    'gameVer': '2.3.523',
+    'date': '18/08/2026',
+    'features': [
+      'Dashboard: new World 6 timer counting down to the next fully grown crop'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.60',
     'gameVer': '2.3.523',
     'date': '16/08/2026',

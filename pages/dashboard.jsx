@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 64,
+  version: 65,
   account: {
     General: {
       tasks: {
@@ -660,6 +660,9 @@ const baseTrackers = {
       },
       coinFill: { checked: true, options: [] },
       marbleFill: { checked: true, options: [] }
+    },
+    'World 6': {
+      cropsReady: { checked: true, options: [] }
     },
     'World 7': {
       researchLevelUp: { checked: true, options: [] },

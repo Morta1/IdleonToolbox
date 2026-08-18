@@ -178,6 +178,14 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const marbleFillIsFull = !!marbleFillBar && marbleFillBar.progress >= marbleFillBar.req;
   const marbleFillTime = marbleFillBar ? (marbleFillIsFull ? now : now + marbleFillBar.timeToFullMs) : null;
 
+  // seedType === -1 is an empty plot; a plot past its growthReq holds a grown crop and stops progressing.
+  const growingPlots = (account?.farming?.plot ?? []).filter(({ isLocked, seedType }) => !isLocked && seedType >= 0);
+  const nextCropTimeLeft = growingPlots.reduce((closest, { progress, growthReq, timeLeft }) => {
+    if (progress >= growthReq) return closest;
+    return closest === null || timeLeft < closest ? timeLeft : closest;
+  }, null);
+  const allCropsGrown = growingPlots.length > 0 && nextCropTimeLeft === null;
+
   const sushiFuel = account?.sushiStation?.fuel;
   const sushiFuelIsFull = sushiFuel && sushiFuel.cap > 0 && sushiFuel.current >= sushiFuel.cap;
   const sushiFuelFullTime = sushiFuel && sushiFuel.generation > 0 && !sushiFuelIsFull
@@ -477,6 +485,20 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           icon={'data/HoleFountainBar1.png'}
           timerPlaceholder={'Full!'}
           forcePlaceholder={marbleFillIsFull}
+        /> : null}
+      </Section>}
+
+      {!emptyAlerts?.['World 6'] && account?.finishedWorlds?.World5 && <Section title={'World 6'}>
+        {trackers?.['World 6']?.cropsReady?.checked && (nextCropTimeLeft !== null || allCropsGrown) ? <TimerCard
+          page={'account/world-6/farming'}
+          tooltipContent={allCropsGrown
+            ? 'All crops are fully grown!'
+            : 'Next crop fully grown: ' + getRealDateInMs(now + nextCropTimeLeft * 1000)}
+          lastUpdated={lastUpdated}
+          time={allCropsGrown ? now : now + nextCropTimeLeft * 1000}
+          icon={'data/FarmPlant6.png'}
+          timerPlaceholder={'Crops ready!'}
+          forcePlaceholder={allCropsGrown}
         /> : null}
       </Section>}
 

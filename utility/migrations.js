@@ -1408,6 +1408,24 @@ const migration64 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration65 = (dashboardConfig) => {
+  // Rebuild the timers object so 'World 6' lands before 'World 7' — plain assignment would
+  // append it after 'World 7' (object key order drives the settings UI ordering).
+  const timers = dashboardConfig.timers ?? {};
+  if (!timers['World 6']?.cropsReady) {
+    const ordered = {};
+    for (const [group, value] of Object.entries(timers)) {
+      if (group === 'World 7' && !ordered['World 6']) ordered['World 6'] = timers['World 6'] ?? {};
+      ordered[group] = value;
+    }
+    if (!ordered['World 6']) ordered['World 6'] = {};
+    ordered['World 6'].cropsReady = { checked: true, options: [] };
+    dashboardConfig.timers = ordered;
+  }
+  dashboardConfig.version = 65;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1474,6 +1492,7 @@ const migrations = {
   62: migration62,
   63: migration63,
   64: migration64,
+  65: migration65,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {
