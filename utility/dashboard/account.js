@@ -290,6 +290,9 @@ export const getWorld1Alerts = (account, fields, options) => {
         stamps.affordableStampLevels = affordable;
       }
     }
+    if (options?.stamps?.exaltedStamps?.checked && account?.compass?.remainingExaltedStamps > 0) {
+      stamps.exaltedStamps = account?.compass?.remainingExaltedStamps;
+    }
     if (Object.keys(stamps).length > 0) {
       alerts.stamps = stamps;
     }

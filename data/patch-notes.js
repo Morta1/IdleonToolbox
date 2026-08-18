@@ -9,7 +9,8 @@ export const patchNotes = [
     'date': '18/08/2026',
     'features': [
       'Dashboard: new World 6 timer counting down to the next fully grown crop',
-      'Dashboard: new alert when a character has an empty gear slot. Weapon and armor are checked by default, amulet and rings are optional'
+      'Dashboard: new alert when a character has an empty gear slot. Weapon and armor are checked by default, amulet and rings are optional',
+      'Dashboard: new alert when you have exalted stamps from the compass that you have not applied yet'
     ],
     'fixes': [
       'Item Planner: materials you are still short on vanished from the missing list when "Include Equipped Items" was on and you already owned one of the crafted parts'

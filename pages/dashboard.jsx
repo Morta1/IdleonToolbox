@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 66,
+  version: 65,
   account: {
     General: {
       tasks: {
@@ -86,6 +86,11 @@ const baseTrackers = {
               endAdornment: '%',
               helperText: ''
             }
+          },
+          {
+            name: 'exaltedStamps',
+            checked: true,
+            helperText: 'Alert when you have compass exalted stamps you haven\'t applied yet'
           }
         ]
       },

@@ -12,6 +12,7 @@ alwaysApply: true
   - @IdleonToolbox/utility/dashboard/account.js
   - @IdleonToolbox/utility/dashboard/characters.js
 - If the "baseTrackers" object version in dashboard.jsx was already updated in the current changes, don't update it, if it didn't make sure to bump it one version and add the relevant migration.
+- **Ask before writing the migration**: if the latest migration hasn't been released to users yet, folding the new option into it is preferable to adding another version. Ask whether to add a new migration or extend the last one — only the user knows what has shipped.
 
 ## New page
 - When being asked to create new page, make sure to add it to the correct folder path, when unsure, ask.

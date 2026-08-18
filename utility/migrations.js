@@ -1409,6 +1409,7 @@ const migration64 = (dashboardConfig) => {
 };
 
 const migration65 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
   // Rebuild the timers object so 'World 6' lands before 'World 7' — plain assignment would
   // append it after 'World 7' (object key order drives the settings UI ordering).
   const timers = dashboardConfig.timers ?? {};
@@ -1422,12 +1423,7 @@ const migration65 = (dashboardConfig) => {
     ordered['World 6'].cropsReady = { checked: true, options: [] };
     dashboardConfig.timers = ordered;
   }
-  dashboardConfig.version = 65;
-  return dashboardConfig;
-};
 
-const migration66 = (dashboardConfig) => {
-  ensureDashboardOptions(dashboardConfig);
   const equipment = dashboardConfig?.characters?.equipment;
   if (equipment && !Array.isArray(equipment.options)) {
     equipment.options = [];
@@ -1443,7 +1439,25 @@ const migration66 = (dashboardConfig) => {
       props: { value: { weapon: true, armor: true, amulet: false, rings: false } }
     });
   }
-  dashboardConfig.version = 66;
+
+  const world1 = dashboardConfig?.account?.['World 1'];
+  if (world1) {
+    if (!world1.stamps) {
+      world1.stamps = { checked: true, options: [] };
+    }
+    if (!Array.isArray(world1.stamps.options)) {
+      world1.stamps.options = [];
+    }
+  }
+  const stampsOptions = world1?.stamps?.options;
+  if (Array.isArray(stampsOptions) && !stampsOptions.some((option) => option?.name === 'exaltedStamps')) {
+    stampsOptions.push({
+      name: 'exaltedStamps',
+      checked: true,
+      helperText: 'Alert when you have compass exalted stamps you haven\'t applied yet'
+    });
+  }
+  dashboardConfig.version = 65;
   return dashboardConfig;
 };
 
@@ -1514,7 +1528,6 @@ const migrations = {
   63: migration63,
   64: migration64,
   65: migration65,
-  66: migration66,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

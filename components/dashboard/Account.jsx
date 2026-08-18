@@ -141,6 +141,9 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 1']?.stamps?.affordableStampLevels ?
                 <Alert title={<AffordableStampLevels {...alerts?.['World 1']?.stamps?.affordableStampLevels}/>}
                        iconPath={'data/StampA34'}/> : null}
+              {alerts?.['World 1']?.stamps?.exaltedStamps > 0 ?
+                <Alert title={`You have ${alerts?.['World 1']?.stamps?.exaltedStamps} unused exalted stamps`}
+                       iconPath={'etc/Exalted_Stamp_Frame'}/> : null}
               {alerts?.['World 1']?.owl?.featherRestart ?
                 <Alert title={`Feather restart can be upgraded`}
                        iconPath={'etc/Owl_4'}/> : null}
