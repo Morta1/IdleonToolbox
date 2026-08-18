@@ -26,6 +26,7 @@ import { getRefinery } from './world-3/refinery';
 import { getTasks } from './tasks';
 import { getArcade } from './world-2/arcade';
 import {
+  calcTotalQuestCompleted,
   calculateLeaderboard,
   calculateTotalSkillsLevel,
   enhanceColoTickets,
@@ -284,6 +285,9 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.refinery = safeSection<any>('refinery', {}, () => getRefinery(idleonData, accountData.storage?.list, accountData.tasks));
   accountData.printer = safeSection<any>('printer', {}, () => getPrinter(idleonData, charactersData, accountData));
   accountData.quests = safeSection<any>('quests', {}, () => getQuests(charactersData));
+  // Each quest counts once account-wide, no matter how many characters finished it - that's what
+  // the QUEST_KAPOW! / QUEST_CHUNGUS star talents scale off.
+  accountData.totalQuestsCompleted = safeSection<number>('totalQuestsCompleted', 0, () => calcTotalQuestCompleted(charactersData) as number);
   accountData.islands = safeSection<any>('islands', {}, () => getIslands(accountData, charactersData));
   accountData.deathNote = safeSection<any>('deathNote', {}, () => getDeathNote(idleonData, charactersData, accountData));
   accountData.topKilledMonsters = safeSection<any>('topKilledMonsters', [], () => getTopKilledMonsters(charactersData));

@@ -13,10 +13,12 @@ export const patchNotes = [
       'Dashboard: new alert when you have exalted stamps from the compass that you have not applied yet',
       'Leaderboards: new Total Villager Exp/hr board, adding up every villager instead of only your best one',
       'Stamps: stamp tooltips now show the minimum stamp reducer % needed to afford the next upgrade',
-      'Stamps: new "Out of reach" legend filter to hide stamps that no reduction can unlock'
+      'Stamps: new "Out of reach" legend filter to hide stamps that no reduction can unlock',
+      'Quests: the page now shows how many unique quests you have completed across the account, the number QUEST KAPOW! and QUEST CHUNGUS scale off'
     ],
     'fixes': [
-      'Item Planner: materials you are still short on vanished from the missing list when "Include Equipped Items" was on and you already owned one of the crafted parts'
+      'Item Planner: materials you are still short on vanished from the missing list when "Include Equipped Items" was on and you already owned one of the crafted parts',
+      'Weekly Bosses: the quest task showed each character\'s own quest count instead of the account-wide unique total the game uses'
     ]
   },
   {

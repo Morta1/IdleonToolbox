@@ -123,7 +123,9 @@ export const getTaskQuantity = (turn: number, bossId: number, account: Account, 
   if (bossId === 13) return character?.defence?.value;
   if (bossId === 14) return 100 * character?.movementSpeed;
   if (bossId === 15) return character?.carryCapBags?.[0]?.capacityPerSlot;
-  if (bossId === 16) return character?.questCompleted;
+  // Unlike its neighbours this one isn't per character - the game reads the account-wide unique
+  // quest count, so every character's turn contributes the same number.
+  if (bossId === 16) return account?.totalQuestsCompleted;
   if (bossId === 17) {
     return Math.ceil(lavaLog(character?.kills?.[53]));
   }

@@ -2,14 +2,18 @@ import React, { useContext, useEffect, useState } from 'react';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import { Container, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import WorldQuest from 'components/account/Misc/WorldQuest';
-import { prefix } from 'utility/helpers';
+import { numberWithCommas, prefix } from 'utility/helpers';
 import { AppContext } from 'components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
+import { CardTitleAndValue } from '@components/common/styles';
+import HtmlTooltip from '@components/Tooltip';
+import InfoIcon from '@mui/icons-material/Info';
 
 const Quests = () => {
   const { state } = useContext(AppContext);
   const [worldQuests, setWorldQuests] = useState();
   const [filteredCharacters, setFilteredCharacters] = useState([0]);
+  const totalQuestsCompleted = state?.account?.totalQuestsCompleted ?? 0;
 
   useEffect(() => {
     if (!filteredCharacters) return;
@@ -101,6 +105,17 @@ const Quests = () => {
       />
       {filteredCharacters ? (
         <>
+          <Stack direction={'row'} mt={2} justifyContent={'center'} flexWrap={'wrap'} gap={2}>
+            <CardTitleAndValue title={'Unique quests completed'}>
+              <Stack direction={'row'} alignItems={'center'} gap={1}>
+                <Typography>{numberWithCommas(totalQuestsCompleted)}</Typography>
+                <HtmlTooltip
+                  title={'Every quest counts once, no matter how many characters finished it. This is the number the QUEST KAPOW! and QUEST CHUNGUS star talents scale off.'}>
+                  <InfoIcon sx={{ fontSize: 16, cursor: 'pointer' }}/>
+                </HtmlTooltip>
+              </Stack>
+            </CardTitleAndValue>
+          </Stack>
           <Stack direction={'row'} my={2} justifyContent={'center'} flexWrap={'wrap'}>
             <ToggleButtonGroup
               size={'small'}
