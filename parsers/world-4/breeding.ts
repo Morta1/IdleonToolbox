@@ -126,7 +126,7 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
       // Tome calc
       totalShinyLevels += shinyLevel === 0 ? 1 : shinyLevel;
 
-      const shinyGoal = Math.floor((1 + Math.pow(shinyLevel, 1.6)) * Math.pow(1.7, shinyLevel));
+      const shinyGoal = getLevelGoal(shinyLevel, true);
       const passiveValue = Math.round(pet?.baseValue * shinyLevel);
       const petInfo = {
         ...pet,
@@ -186,6 +186,15 @@ const getShinyLevel = (shinyPetsLevels: any, worldIndex: any, petIndex: any) => 
   return shinyPetsLevels?.[worldIndex]?.[petIndex] === 0 ? 0 : shinyLevel === 0 ? 1 : shinyLevel;
 }
 
+export const MAX_SHINY_LEVEL = 20;
+export const MAX_BREEDABILITY_LEVEL = 9;
+
+// Both shiny and breedability goals are absolute thresholds on the raw progress counter,
+// not per-level increments, so the goal for a level is a single term and never a sum.
+const getLevelGoal = (level: number, isShiny: boolean) => isShiny
+  ? Math.floor((1 + Math.pow(level, 1.6)) * Math.pow(1.7, level))
+  : Math.pow(Math.pow(Math.E, Math.pow(level, 1.25)), 1 / 0.725) - 1;
+
 export const addBreedingChance = (idleonData: any, account: any) => {
   const breedingRaw = tryToParse(idleonData?.Breeding) || idleonData?.Breeding;
   let totalBreedabilityLv = 0;
@@ -193,8 +202,8 @@ export const addBreedingChance = (idleonData: any, account: any) => {
     return petList?.map((pet: any, petIndex: any) => {
       const totalKitchenLevels = getTotalKitchenLevels(account?.cooking?.kitchens)
       const breedingMultipliers = getBreedingMulti(account, breedingRaw, worldIndex, petIndex, account?.breeding?.unlockedBreedingMulti, totalKitchenLevels);
-      const breedingLevel = Math.min(9, Math.floor(Math.pow(breedingMultipliers?.second - 1, .8)) + 1);
-      const breedingGoal = Math.pow(Math.pow(Math.E, Math.pow(breedingLevel, 1.25)), 1 / 0.725) - 1;
+      const breedingLevel = Math.min(MAX_BREEDABILITY_LEVEL, Math.floor(Math.pow(breedingMultipliers?.second - 1, .8)) + 1);
+      const breedingGoal = getLevelGoal(breedingLevel, false);
       totalBreedabilityLv += breedingLevel;
       return {
         ...pet,
@@ -282,18 +291,11 @@ export const getShinyBonus = (pets: any, passiveName: any) => {
 export const getTimeToLevel = (pet: any, multi: any, copies: any, targetLevel: any, isShiny: any) => {
   const currentLevel = isShiny ? pet?.shinyLevel : pet?.breedingLevel;
   const currentProgress = isShiny ? pet?.shinyProgress : pet?.breedingProgress;
+  const target = Math.min(isShiny ? MAX_SHINY_LEVEL : MAX_BREEDABILITY_LEVEL, Number(targetLevel) || 0);
 
-  if (currentLevel === targetLevel) return 0;
+  if (currentLevel >= target) return 0;
 
-  let goal = 0;
-  for (let i = currentLevel; i < targetLevel; i++) {
-    if (isShiny) {
-      goal += Math.floor((1 + Math.pow(i, 1.6)) * Math.pow(1.7, i));
-    }
-    else {
-      goal += Math.pow(Math.pow(Math.E, Math.pow(i, 1.25)), 1 / 0.725) - 1
-    }
-  }
+  const goal = getLevelGoal(target - 1, isShiny);
 
   return ((goal - currentProgress) / multi / (copies || 1)) * 8.64e+7;
 }

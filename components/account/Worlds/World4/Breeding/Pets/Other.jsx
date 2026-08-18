@@ -11,7 +11,7 @@ import Timer from '@components/common/Timer';
 import { AppContext } from '@components/common/context/AppProvider';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { useLocalStorage } from '@mantine/hooks';
-import { getTimeToLevel } from '@parsers/world-4/breeding';
+import { getTimeToLevel, MAX_BREEDABILITY_LEVEL, MAX_SHINY_LEVEL } from '@parsers/world-4/breeding';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
 const PetCard = ({
@@ -22,8 +22,7 @@ const PetCard = ({
   state,
   applyThreshold,
   showAllPets,
-  shinyThreshold,
-  breedabilityThreshold
+  threshold
 }) => {
   const {
     monsterName,
@@ -43,8 +42,9 @@ const PetCard = ({
 
   const progress = isShiny ? shinyProgress : breedingProgress;
   const level = isShiny ? shinyLevel : breedingLevel;
-  const currentThreshold = isShiny ? shinyThreshold : breedabilityThreshold;
-  if (applyThreshold && level >= currentThreshold) return null;
+  const maxLevel = isShiny ? MAX_SHINY_LEVEL : MAX_BREEDABILITY_LEVEL;
+  const isMaxed = level >= maxLevel;
+  if (applyThreshold && level >= threshold) return null;
   const goal = isShiny ? shinyGoal : breedingGoal;
   const fencePet = fencePets[monsterRawName];
   const amount = isShiny ? fencePet?.shiny : fencePet?.breedability;
@@ -54,9 +54,8 @@ const PetCard = ({
   const totalChance = breedingMultipliers?.totalChance > 0.1
     ? `${notateNumber(Math.min(100, 100 * breedingMultipliers?.totalChance), 'Micro')}%`
     : `1 in ${Math.max(1, Math.ceil(1 / breedingMultipliers?.totalChance))}`;
-  const timeToThreshold = getTimeToLevel(pet, multi.value, amount, applyThreshold
-    ? currentThreshold
-    : 5, isShiny);
+  const targetLevel = applyThreshold ? threshold : 5;
+  const timeToThreshold = getTimeToLevel(pet, multi.value, amount, targetLevel, isShiny);
 
 
   return <Card variant={'outlined'}
@@ -66,7 +65,7 @@ const PetCard = ({
       border: amount > 0 && (isShiny ? fencePet?.shiny > 0 : fencePet?.breedability > 0)
         ? '1px solid'
         : '',
-      borderColor: isShiny && level >= 20
+      borderColor: isMaxed
         ? 'error.light'
         : amount > 0 && (isShiny ? fencePet?.shiny > 0 : fencePet?.breedability > 0)
           ? 'success.main'
@@ -89,7 +88,7 @@ const PetCard = ({
           </Stack>
           <Stack direction={'row'} divider={<Divider orientation={'vertical'} sx={{ mx: 1 }} flexItem />}>
             <Typography variant={'caption'}> Lv. {level}</Typography>
-            {progress < goal ? <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+            {!isMaxed && progress < goal ? <Stack direction={'row'} alignItems={'center'} gap={0.5}>
               <Typography variant={'caption'}>
                 {notateNumber(goal - progress)} Days left
               </Typography>
@@ -98,19 +97,17 @@ const PetCard = ({
               </Tooltip>
             </Stack> : null}
           </Stack>
-          {(timeLeft && level < 20) || !isShiny ? <Stack direction="row" alignItems={'center'} gap={1}>
+          {!isMaxed && (timeLeft || !isShiny) ? <Stack direction="row" alignItems={'center'} gap={1}>
             <Typography variant={'body2'}>Next lv: </Typography>
             <Timer type={'countdown'} lastUpdated={state?.lastUpdated}
               staticTime
               variant={'body2'}
               date={new Date().getTime() + (timeLeft)} />
-          </Stack> : <Typography variant={'body2'}>{level >= 20 ? 'Maxed!' : '\u00A0'}</Typography>}
-          {timeToThreshold > 0 && timeLeft && timeToThreshold !== timeLeft ? <>
+          </Stack> : <Typography variant={'body2'}>{isMaxed ? 'Maxed!' : '\u00A0'}</Typography>}
+          {!isMaxed && timeToThreshold > 0 && timeLeft && timeToThreshold !== timeLeft ? <>
             <Stack flexWrap={'wrap'} direction={'row'}
               gap={1}>
-              <Typography component={'span'} variant={'body2'}>To {(isShiny
-                ? shinyThreshold
-                : breedabilityThreshold) ?? 5}:</Typography>
+              <Typography component={'span'} variant={'body2'}>To {targetLevel}:</Typography>
               <Timer variant={'caption'} type={'countdown'} lastUpdated={state?.lastUpdated}
                 staticTime
                 date={new Date().getTime() + (timeToThreshold)} />
@@ -168,6 +165,14 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
     defaultValue: null
   });
 
+  const maxThreshold = isShiny ? MAX_SHINY_LEVEL : MAX_BREEDABILITY_LEVEL;
+  // Stored thresholds can predate the cap (or be typed past it), so clamp on read as well as on write.
+  const threshold = Math.max(1, Math.min(maxThreshold, Number(isShiny ? shinyThreshold : breedabilityThreshold) || 1));
+  const setThreshold = (value) => {
+    const clamped = Math.max(1, Math.min(maxThreshold, Number(value) || 1));
+    return isShiny ? setShinyThreshold(clamped) : setBreedabilityThreshold(clamped);
+  };
+
   const uniquePassives = [...new Set(pets.map(pet => cleanUnderscore(pet.rawPassive).replace(/[{}+]/g, '')))].sort();
 
   let hasPetsUnderThreshold = true;
@@ -180,12 +185,12 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
         if (!amount) return false;
         if (isShiny && !fencePet?.shiny > 0) return false;
         if (!isShiny && !fencePet?.breedability > 0) return false;
-        return isShiny ? shinyLevel < shinyThreshold : breedingLevel < breedabilityThreshold;
+        return (isShiny ? shinyLevel : breedingLevel) < threshold;
       });
     } else {
       hasPetsUnderThreshold = pets.some(({ shinyLevel, breedingLevel, rawPassive }) => {
         if (isShiny && selectedPassive && cleanUnderscore(rawPassive).replace(/[{}+]/g, '') !== selectedPassive) return false;
-        return isShiny ? shinyLevel < shinyThreshold : breedingLevel < breedabilityThreshold;
+        return (isShiny ? shinyLevel : breedingLevel) < threshold;
       });
     }
   }
@@ -241,13 +246,12 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
         value={<Stack>
           <ThresholdElement checked={applyThreshold} />
           <TextField size={'small'} sx={{ width: 'fit-content', mt: 1 }}
-            type={'number'} value={isShiny ? shinyThreshold : breedabilityThreshold}
-            onChange={(e) => isShiny
-              ? setShinyThreshold(e.target.value)
-              : setBreedabilityThreshold(e.target.value)}
+            type={'number'} value={threshold}
+            slotProps={{ htmlInput: { min: 1, max: maxThreshold } }}
+            onChange={(e) => setThreshold(e.target.value)}
             helperText={isShiny
-              ? 'Show shiny pets under this level only'
-              : 'Show breedability pets under this level only'} />
+              ? `Show shiny pets under this level only (max ${maxThreshold})`
+              : `Show breedability pets under this level only (max ${maxThreshold})`} />
         </Stack>} />
       {isShiny ? <CardTitleAndValue title={'Filter by stat'} value={
         <Autocomplete
@@ -285,8 +289,7 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
               state={state}
               applyThreshold={applyThreshold}
               showAllPets={showAllPets}
-              shinyThreshold={shinyThreshold}
-              breedabilityThreshold={breedabilityThreshold}
+              threshold={threshold}
             />
           ))}
         </Stack>
@@ -302,8 +305,7 @@ const Other = ({ pets, fencePets, isShiny, multi }) => {
           state={state}
           applyThreshold={applyThreshold}
           showAllPets={showAllPets}
-          shinyThreshold={shinyThreshold}
-          breedabilityThreshold={breedabilityThreshold}
+          threshold={threshold}
         />
       ))}
     </AutoGrid>}

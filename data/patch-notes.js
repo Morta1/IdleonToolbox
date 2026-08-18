@@ -21,7 +21,9 @@ export const patchNotes = [
       'Weekly Bosses: the quest task showed each character\'s own quest count instead of the account-wide unique total the game uses',
       "Dashboard: Poppy's Fisheroo Reset and Greatest Catch timers could sit on the same value for days. They now count the fish banked up since your last visit, so they match what you actually have when you open her",
       'Poppy: the Fish and Tars counters left out everything banked up since your last visit, so both read low',
-      'Gem Shop: items without a priority tier vanished when filtering by S/A/B/C. They now show under a new "Unranked" filter'
+      'Gem Shop: items without a priority tier vanished when filtering by S/A/B/C. They now show under a new "Unranked" filter',
+      'Breeding: a pet at Breedability level 9 kept counting down to a level 10 that does not exist in game. It now shows Maxed!',
+      'Breeding: the "To level X" estimate on pet cards was too high, and the level box accepted levels above the max'
     ]
   },
   {
