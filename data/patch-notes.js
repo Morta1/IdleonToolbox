@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.523',
     'date': '19/08/2026',
     'features': [
-      'The Jars: each jar now shows how many you are holding and of which tiers, plus a Total quantity card counting every jar as its tier 1 equivalent'
+      'The Jars: each jar now shows how many you are holding and of which tiers, plus a Total quantity card counting every jar as its tier 1 equivalent',
+      'Upgrade Optimizer: new "Split by resource" option groups the recommended sequence by tachyon, dust or bone type, so you can work through one material at a time'
     ],
     'fixes': [
       'Upgrade Optimizer: Tesseract, Compass and Grimoire now account for Hoarding upgrades, which scale with how much of a resource you are holding. Spending lowers that bonus, so the optimizer no longer recommends purchases that would drop your stats',

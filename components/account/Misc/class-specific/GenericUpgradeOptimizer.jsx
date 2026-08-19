@@ -5,11 +5,13 @@ import {
   Button,
   Card,
   CardContent,
+  Checkbox,
   Dialog,
   DialogContent,
   DialogTitle,
   Divider,
   FormControl,
+  FormControlLabel,
   InputLabel,
   MenuItem,
   Paper,
@@ -77,6 +79,10 @@ const GenericUpgradeOptimizer = ({
   const [groupMode, setGroupMode] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:groupMode`,
     defaultValue: 'None'
+  });
+  const [splitByResource, setSplitByResource] = useLocalStorage({
+    key: `${resourceKey}:genericUpgradeOptimizer:splitByResource`,
+    defaultValue: false
   });
   const [AffordableCheckboxEl, onlyAffordable] = useCheckbox('Only affordable');
   // const [MasterclassReductionCheckbox, masterClassReduction] = useCheckbox('Masterclass reduction');
@@ -262,6 +268,28 @@ const GenericUpgradeOptimizer = ({
       return costSortOrder === 'asc' ? costA - costB : costB - costA;
     });
   }
+  // numbered once here so the '#' column stays the same whether or not the list is split
+  displayUpgrades = displayUpgrades.map((upgrade, index) => ({ ...upgrade, displayPosition: index + 1 }));
+
+  // Split into per-resource sections, ordered by first appearance so the material to farm first comes first
+  const resourceSections = [];
+  if (splitByResource) {
+    const sectionsByType = {};
+    displayUpgrades.forEach(upgrade => {
+      const resourceType = getResourceType(upgrade);
+      if (!sectionsByType[resourceType]) {
+        sectionsByType[resourceType] = {
+          resourceType,
+          name: resourceNames[resourceType] ?? resourceType,
+          upgrades: [],
+          cost: 0
+        };
+        resourceSections.push(sectionsByType[resourceType]);
+      }
+      sectionsByType[resourceType].upgrades.push(upgrade);
+      sectionsByType[resourceType].cost += upgrade.totalCost || upgrade.cost;
+    });
+  }
   // Calculate total resource costs by type
   const resourceUsageMap = {};
   optimizedUpgrades.forEach(upgrade => {
@@ -420,6 +448,143 @@ const GenericUpgradeOptimizer = ({
     }
   };
 
+  const renderResourceSectionHeader = (section) => {
+    const rph = resourcePerHour[section.resourceType];
+    const hasRph = optimizationMethod === 'rph' && rph && !isNaN(rph) && rph > 0;
+    const farmingHours = hasRph ? section.cost / rph : null;
+    return (
+      <Stack direction="row" gap={1} alignItems="center">
+        <img
+          style={{ objectPosition: '0 -6px' }}
+          src={`${prefix}data/${resourceImagePrefix}${section.resourceType}_x1.png`}
+          alt=""
+          width={24}
+          height={24}
+        />
+        <Typography variant="subtitle1">{section.name}</Typography>
+        <Typography variant="body2" color="text.secondary">
+          {section.upgrades.length} {section.upgrades.length === 1 ? 'upgrade' : 'upgrades'} · {notateNumber(section.cost)}
+          {farmingHours && farmingHours >= (1 / 60) ? ` · ${splitTime(farmingHours)}` : ''}
+        </Typography>
+      </Stack>
+    );
+  };
+
+  const renderUpgradeCard = (upgrade) => {
+    const hasSequence = upgrade.sequence && upgrade.sequence.length > 1;
+    const originalIndex = upgrade.upgradeIndex;
+    const resourceTypeKey = getResourceType(upgrade);
+    let iconIndex = getUpgradeIconIndex ? getUpgradeIconIndex(upgrade) : upgrade.index;
+    return (
+      <Card key={originalIndex} sx={{ width: 350 }}>
+        <CardContent>
+          <Stack direction="row" gap={2} sx={{ position: 'relative' }}>
+            <img
+              style={{ width: 32, height: 32 }}
+              src={`${prefix}data/${upgradeImagePrefix}${iconIndex}.png`}
+              alt=""
+            />
+            <Box>
+              <Typography variant="subtitle1">
+                {cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '')
+                  .replace('(Tap_for_more_info)', '')
+                  .replace('(#)', ''))} ({upgrade.level} / {upgrade.x4})
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {hasSequence
+                  ? `Upgrade Group (#${originalIndex + 1}${upgrade.sequence.length > 1
+                    ? ` to #${originalIndex + upgrade.sequence.length}`
+                    : ''})`
+                  : `Upgrade #${originalIndex + 1}`}
+              </Typography>
+            </Box>
+          </Stack>
+          {hasSequence && upgrade.combinedStatChanges
+            ? renderCombinedStats(upgrade)
+            : (
+              <>
+                <Divider sx={{ my: 1 }} />
+                {category === 'all' ? cleanUnderscore(upgrade.description
+                ) : renderStatChanges(upgrade.statChanges, upgrade)}
+                <Divider sx={{ my: 1 }} />
+                <Stack direction="row" gap={1} alignItems="center">
+                  <img
+                    style={{ objectPosition: '0 -6px' }}
+                    src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}_x1.png`}
+                    alt=""
+                  />
+                  <Typography variant="body2">
+                    Cost: {notateNumber(upgrade.cost)}
+                  </Typography>
+                </Stack>
+              </>
+            )
+          }
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const renderUpgradeRow = (upgrade) => {
+    const hasSequence = upgrade.sequence && upgrade.sequence.length > 1;
+    const resourceTypeKey = getResourceType(upgrade);
+    let iconIndex = getUpgradeIconIndex ? getUpgradeIconIndex(upgrade) : upgrade.index;
+    return (
+      <TableRow key={upgrade.upgradeIndex}>
+        <TableCell>{upgrade.displayPosition}</TableCell>
+        <TableCell>
+          <img
+            style={{ width: 24, height: 24 }}
+            src={`${prefix}data/${upgradeImagePrefix}${iconIndex}.png`}
+            alt=""
+          />
+        </TableCell>
+        <TableCell>{cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))}</TableCell>
+        <TableCell>{upgrade.level} / {upgrade.x4}</TableCell>
+        <TableCell>
+          {hasSequence && upgrade.combinedStatChanges
+            ? (
+              <>
+                <Typography
+                  variant="caption">Levels {upgrade.startLevel} → {upgrade.finalLevel}</Typography>
+                {upgrade.combinedStatChanges.map((statChange, i) => (
+                  <div key={i}>
+                    {statChange.stat.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()).trim()}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
+                    {renderHoardingNote(statChange, getRebuildTime(upgrade))}
+                  </div>
+                ))}
+              </>
+            )
+            : (
+              category === 'all'
+                ? cleanUnderscore(upgrade.description)
+                : upgrade.statChanges.map((statChange, i) => (
+                  <div key={i}>
+                    {statChange.stat.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()).trim()}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
+                    {renderHoardingNote(statChange, getRebuildTime(upgrade))}
+                  </div>
+                ))
+            )
+          }
+        </TableCell>
+        <TableCell>
+          <Stack direction="row" gap={1} alignItems="center">
+            <img
+              style={{ objectPosition: '0 -6px' }}
+              src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}_x1.png`}
+              alt=""
+              width={20}
+              height={20}
+            />
+            {hasSequence && upgrade.totalCost
+              ? notateNumber(upgrade.totalCost)
+              : notateNumber(upgrade.cost)}
+          </Stack>
+        </TableCell>
+      </TableRow>
+    );
+  };
+
   return (
     <Stack gap={3}>
       <Stack direction="row" gap={2} alignItems="center" flexWrap="wrap">
@@ -505,6 +670,15 @@ const GenericUpgradeOptimizer = ({
             ))}
           </Select>
         </FormControl>
+        <FormControlLabel
+          sx={{ width: 'fit-content' }}
+          control={<Checkbox
+            checked={splitByResource}
+            size="small"
+            onChange={() => setSplitByResource(prev => !prev)}
+          />}
+          label="Split by resource"
+        />
         <TextField
           size="small"
           type="number"
@@ -618,62 +792,22 @@ const GenericUpgradeOptimizer = ({
       )}
       {displayUpgrades.length > 0 ? (
         viewMode === 'grid' ? (
-          <Stack direction="row" gap={2} flexWrap="wrap">
-            {displayUpgrades.map((upgrade) => {
-              const hasSequence = upgrade.sequence && upgrade.sequence.length > 1;
-              const originalIndex = upgrade.upgradeIndex;
-              const resourceTypeKey = getResourceType(upgrade);
-              let iconIndex = getUpgradeIconIndex ? getUpgradeIconIndex(upgrade) : upgrade.index;
-              return (
-                <Card key={originalIndex} sx={{ width: 350 }}>
-                  <CardContent>
-                    <Stack direction="row" gap={2} sx={{ position: 'relative' }}>
-                      <img
-                        style={{ width: 32, height: 32 }}
-                        src={`${prefix}data/${upgradeImagePrefix}${iconIndex}.png`}
-                        alt=""
-                      />
-                      <Box>
-                        <Typography variant="subtitle1">
-                          {cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '')
-                            .replace('(Tap_for_more_info)', '')
-                            .replace('(#)', ''))} ({upgrade.level} / {upgrade.x4})
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {hasSequence
-                            ? `Upgrade Group (#${originalIndex + 1}${upgrade.sequence.length > 1
-                              ? ` to #${originalIndex + upgrade.sequence.length}`
-                              : ''})`
-                            : `Upgrade #${originalIndex + 1}`}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                    {hasSequence && upgrade.combinedStatChanges
-                      ? renderCombinedStats(upgrade)
-                      : (
-                        <>
-                          <Divider sx={{ my: 1 }} />
-                          {category === 'all' ? cleanUnderscore(upgrade.description
-                          ) : renderStatChanges(upgrade.statChanges, upgrade)}
-                          <Divider sx={{ my: 1 }} />
-                          <Stack direction="row" gap={1} alignItems="center">
-                            <img
-                              style={{ objectPosition: '0 -6px' }}
-                              src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}_x1.png`}
-                              alt=""
-                            />
-                            <Typography variant="body2">
-                              Cost: {notateNumber(upgrade.cost)}
-                            </Typography>
-                          </Stack>
-                        </>
-                      )
-                    }
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </Stack>
+          splitByResource ? (
+            <Stack gap={3}>
+              {resourceSections.map((section) => (
+                <Stack key={section.resourceType} gap={1}>
+                  {renderResourceSectionHeader(section)}
+                  <Stack direction="row" gap={2} flexWrap="wrap">
+                    {section.upgrades.map(renderUpgradeCard)}
+                  </Stack>
+                </Stack>
+              ))}
+            </Stack>
+          ) : (
+            <Stack direction="row" gap={2} flexWrap="wrap">
+              {displayUpgrades.map(renderUpgradeCard)}
+            </Stack>
+          )
         ) : (
           <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
             <Table size="small">
@@ -696,65 +830,18 @@ const GenericUpgradeOptimizer = ({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {displayUpgrades.map((upgrade, idx) => {
-                  const hasSequence = upgrade.sequence && upgrade.sequence.length > 1;
-                  const resourceTypeKey = getResourceType(upgrade);
-                  let iconIndex = getUpgradeIconIndex ? getUpgradeIconIndex(upgrade) : upgrade.index;
-                  return (
-                    <TableRow key={upgrade.upgradeIndex}>
-                      <TableCell>{idx + 1}</TableCell>
-                      <TableCell>
-                        <img
-                          style={{ width: 24, height: 24 }}
-                          src={`${prefix}data/${upgradeImagePrefix}${iconIndex}.png`}
-                          alt=""
-                        />
-                      </TableCell>
-                      <TableCell>{cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))}</TableCell>
-                      <TableCell>{upgrade.level} / {upgrade.x4}</TableCell>
-                      <TableCell>
-                        {hasSequence && upgrade.combinedStatChanges
-                          ? (
-                            <>
-                              <Typography
-                                variant="caption">Levels {upgrade.startLevel} → {upgrade.finalLevel}</Typography>
-                              {upgrade.combinedStatChanges.map((statChange, i) => (
-                                <div key={i}>
-                                  {statChange.stat.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()).trim()}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
-                                  {renderHoardingNote(statChange, getRebuildTime(upgrade))}
-                                </div>
-                              ))}
-                            </>
-                          )
-                          : (
-                            category === 'all'
-                              ? cleanUnderscore(upgrade.description)
-                              : upgrade.statChanges.map((statChange, i) => (
-                                <div key={i}>
-                                  {statChange.stat.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()).trim()}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
-                                  {renderHoardingNote(statChange, getRebuildTime(upgrade))}
-                                </div>
-                              ))
-                          )
-                        }
-                      </TableCell>
-                      <TableCell>
-                        <Stack direction="row" gap={1} alignItems="center">
-                          <img
-                            style={{ objectPosition: '0 -6px' }}
-                            src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}_x1.png`}
-                            alt=""
-                            width={20}
-                            height={20}
-                          />
-                          {hasSequence && upgrade.totalCost
-                            ? notateNumber(upgrade.totalCost)
-                            : notateNumber(upgrade.cost)}
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                {splitByResource
+                  ? resourceSections.map((section) => (
+                    <React.Fragment key={section.resourceType}>
+                      <TableRow>
+                        <TableCell colSpan={6} sx={{ backgroundColor: 'action.hover' }}>
+                          {renderResourceSectionHeader(section)}
+                        </TableCell>
+                      </TableRow>
+                      {section.upgrades.map(renderUpgradeRow)}
+                    </React.Fragment>
+                  ))
+                  : displayUpgrades.map(renderUpgradeRow)}
               </TableBody>
             </Table>
           </TableContainer>
@@ -769,5 +856,6 @@ const GenericUpgradeOptimizer = ({
     </Stack>
   );
 };
+
 
 export default GenericUpgradeOptimizer;

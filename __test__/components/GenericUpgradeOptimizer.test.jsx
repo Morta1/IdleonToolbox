@@ -126,3 +126,54 @@ describe('GenericUpgradeOptimizer hoarding breakdown', () => {
     expect(container.textContent).not.toContain('hoarding');
   });
 });
+
+const buildTypedRow = ({ resourceType, cost = 5 }) => ({
+  ...buildRow({ cost }),
+  x3: resourceType
+});
+
+const seedSetting = (key, value) => window.localStorage.setItem(
+  `tesseract.tachyons:genericUpgradeOptimizer:${key}`,
+  JSON.stringify(value)
+);
+
+describe('GenericUpgradeOptimizer split by resource', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it('leaves the sequence unsectioned by default', () => {
+    const { container } = renderOptimizer([
+      buildTypedRow({ resourceType: 0 }),
+      buildTypedRow({ resourceType: 1 })
+    ]);
+    expect(container.textContent).not.toMatch(/upgrades? ·/);
+  });
+
+  it('sections the sequence by resource, ordered by first appearance', () => {
+    seedSetting('splitByResource', true);
+    const { container } = renderOptimizer([
+      buildTypedRow({ resourceType: 1 }),
+      buildTypedRow({ resourceType: 0 }),
+      buildTypedRow({ resourceType: 1 })
+    ]);
+    const text = container.textContent;
+    expect(text).toMatch(/Brown2 upgrades · 10/);
+    expect(text).toMatch(/Purple1 upgrade · 5/);
+    // Brown is farmed first because the optimizer wants it first
+    expect(text.indexOf('Brown')).toBeLessThan(text.indexOf('Purple'));
+  });
+
+  it('keeps the real purchase order visible in the numbering', () => {
+    seedSetting('splitByResource', true);
+    seedSetting('viewMode', 'list');
+    const { container } = renderOptimizer([
+      buildTypedRow({ resourceType: 1 }),
+      buildTypedRow({ resourceType: 0 }),
+      buildTypedRow({ resourceType: 1 })
+    ]);
+    const firstCells = [...container.querySelectorAll('tbody tr')]
+      .map(row => row.querySelector('td')?.textContent ?? '');
+    expect(firstCells.filter(cell => /^\d+$/.test(cell))).toEqual(['1', '3', '2']);
+  });
+});
