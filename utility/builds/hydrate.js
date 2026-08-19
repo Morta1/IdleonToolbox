@@ -16,6 +16,7 @@ import { talents } from '@website-data';
 // From classDefinitions, not talents.ts: talents.ts imports 18 other parser modules and would
 // drag the whole parser data graph onto every public builds page for one plain lookup table.
 import { talentPagesMap } from '@parsers/classDefinitions';
+import { isSuperTalentEligible } from './superTalents';
 
 export const normalizeTalent = (v) => {
   if (v == null) return 0;
@@ -34,7 +35,10 @@ const toTalent = (talentDef) => ({
   y1: talentDef.y1 ?? null,
   y2: talentDef.y2 ?? null,
   funcY: talentDef.funcY ?? 'txt',
-  lvlUpText: talentDef.lvlUpText ?? ''
+  lvlUpText: talentDef.lvlUpText ?? '',
+  // Active talents get a different super-talent border in game, and the only
+  // thing separating the two is having a mana cost and a cooldown.
+  isActiveTalent: talentDef.manaCost != null && talentDef.cooldown != null
 });
 
 export const hydrate = (compactBuild) => {
@@ -51,6 +55,13 @@ export const hydrate = (compactBuild) => {
   }
 
   const payload = compactBuild?.payload || emptyPayload();
+  // Stored build-wide (super points are one pool per character, not per tab),
+  // but stamped per talent so consumers read it off the talent like any other field.
+  const superSet = new Set(
+    (Array.isArray(payload.super) ? payload.super : [])
+      .map(Number)
+      .filter(isSuperTalentEligible)
+  );
   const tabs = tabNames.map((tabName, tabIndex) => {
     const userTab = payload.tabs?.[tabIndex] || null;
     const userTalents = userTab?.talents || {};
@@ -63,6 +74,7 @@ export const hydrate = (compactBuild) => {
         return {
           ...meta,
           level: normalizeTalent(userTalents[String(meta.skillIndex)]),
+          isSuperTalent: superSet.has(Number(meta.skillIndex)),
           note: ''
         };
       })

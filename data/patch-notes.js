@@ -9,7 +9,8 @@ export const patchNotes = [
     'date': '19/08/2026',
     'features': [
       'The Jars: each jar now shows how many you are holding and of which tiers, plus a Total quantity card counting every jar as its tier 1 equivalent',
-      'Upgrade Optimizer: new "Split by resource" option groups the recommended sequence by tachyon, dust or bone type, so you can work through one material at a time'
+      'Upgrade Optimizer: new "Split by resource" option groups the recommended sequence by tachyon, dust or bone type, so you can work through one material at a time',
+      'Builds: authors can now mark which talents to spend Super Talent points on, shown with the in-game golden border'
     ],
     'fixes': [
       'Upgrade Optimizer: the recommended sequence only considered upgrades that were already unlocked when it started, so it kept buying more of a weak upgrade while a stronger one came into range along the way. Upgrades that unlock as you buy now appear, marked with how many purchases they need first',

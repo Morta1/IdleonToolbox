@@ -28,6 +28,7 @@ import ClassPicker from './ClassPicker';
 import RichTextEditor from './RichTextEditor';
 import { hydrate, hydrateEmpty } from '@utility/builds/hydrate';
 import { toStorageBuild } from '@utility/builds/compact';
+import { collectSuperTalents } from '@utility/builds/superTalents';
 import { clearDraft, loadDraft, makeDebouncedSaver } from '@utility/builds/draft';
 import { cleanUnderscore } from '@utility/helpers';
 import { createBuild, updateBuild } from 'services/builds';
@@ -193,6 +194,10 @@ const BuildForm = ({
       setTabs((prev) => applyNoteChange(prev, tabIndex, tabNote));
     }
   };
+
+  // One pool for the whole build, so every tab needs the total to know when
+  // it's out of points.
+  const superUsed = collectSuperTalents(tabs).length;
 
   const toggleTag = (tag) => {
     setTags((prev) =>
@@ -460,6 +465,7 @@ const BuildForm = ({
                       layout="row"
                       onCustomBuildChange={handleCustomBuildChange}
                       tabIndex={index}
+                      superUsed={superUsed}
                     />
                   </Box>
                 </SurfaceCard>

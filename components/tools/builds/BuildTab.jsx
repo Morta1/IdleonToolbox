@@ -4,6 +4,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import Tooltip from '@components/Tooltip';
 import ItemRefRenderer from './ItemRefRenderer';
 import { cleanUnderscore, growth, prefix } from '@utility/helpers';
+import { SUPER_TALENT_MAX_POINTS, isSuperTalentEligible } from '@utility/builds/superTalents';
 import styled from '@emotion/styled';
 
 // Fully controlled: talent values come straight from the parent
@@ -18,8 +19,18 @@ import styled from '@emotion/styled';
 // headings. Pre-existing builds that still carry a `note` render it read-only
 // in edit mode with a Remove button (so authors aren't stuck with frozen
 // legacy data), and render it normally in view mode.
-const BuildTab = ({ note, talents: talentList = [], createMode, onCustomBuildChange, tabIndex, layout = 'stack' }) => {
+const BuildTab = ({
+  note,
+  talents: talentList = [],
+  createMode,
+  onCustomBuildChange,
+  tabIndex,
+  layout = 'stack',
+  superUsed = 0
+}) => {
   const talents = talentList || [];
+  // Super points are one build-wide pool, so `superUsed` counts every tab.
+  const superPoolFull = superUsed >= SUPER_TALENT_MAX_POINTS;
 
   const handleLevelChange = (e, index) => {
     const val = e.target.value;
@@ -29,11 +40,21 @@ const BuildTab = ({ note, talents: talentList = [], createMode, onCustomBuildCha
     onCustomBuildChange?.({ tabIndex, tabTalents: nextTalents });
   };
 
+  const handleToggleSuper = (index) => {
+    const talent = talents[index];
+    if (!talent || !isSuperTalentEligible(talent.skillIndex)) return;
+    if (!talent.isSuperTalent && superPoolFull) return;
+    const nextTalents = talents.map((t, ind) =>
+      ind === index ? { ...t, isSuperTalent: !t.isSuperTalent } : t
+    );
+    onCustomBuildChange?.({ tabIndex, tabTalents: nextTalents });
+  };
+
   const handleRemoveLegacyNote = () => {
     onCustomBuildChange?.({ tabIndex, tabNote: '' });
   };
 
-  const grid = (
+  const talentGrid = (
     <Stack
       gap={1}
       direction="row"
@@ -41,15 +62,30 @@ const BuildTab = ({ note, talents: talentList = [], createMode, onCustomBuildCha
       sx={{ width: 320, minHeight: 255.95, flexShrink: 0 }}
     >
       {talents.map((skill, index) => {
-        const { name, skillIndex, level } = skill;
+        const { name, skillIndex, level, isSuperTalent, isActiveTalent } = skill;
+        const eligible = isSuperTalentEligible(skillIndex);
+        const canStar = createMode && eligible && (isSuperTalent || !superPoolFull);
         return (
           <Stack alignItems="center" key={skillIndex} sx={{ width: 56, height: 56 }}>
-            <Tooltip title={<TalentTooltip name={name} level={level} skill={skill}/>}>
-              <img
-                style={{ opacity: createMode ? 1 : level === 0 ? 0.3 : 1 }}
-                src={`${prefix}data/UISkillIcon${skillIndex}.png`}
-                alt="skill-icon"
-              />
+            <Tooltip title={<TalentTooltip name={name} level={level} skill={skill}
+                                           isSuperTalent={isSuperTalent}
+                                           canStar={canStar}
+                                           createMode={createMode}
+                                           eligible={eligible}/>}>
+              <Box
+                onClick={canStar ? () => handleToggleSuper(index) : undefined}
+                sx={{ position: 'relative', lineHeight: 0, cursor: canStar ? 'pointer' : 'default' }}
+              >
+                <img
+                  style={{ opacity: createMode ? 1 : level === 0 ? 0.3 : 1 }}
+                  src={`${prefix}data/UISkillIcon${skillIndex}.png`}
+                  alt="skill-icon"
+                />
+                {isSuperTalent ? <SuperBorder
+                  src={`${prefix}etc/Super_Talent_${isActiveTalent ? 'Active' : 'Passive'}_Border.png`}
+                  alt={isActiveTalent ? 'Active' : 'Passive'}
+                /> : null}
+              </Box>
             </Tooltip>
             {createMode ? (
               <CustomInput
@@ -65,6 +101,17 @@ const BuildTab = ({ note, talents: talentList = [], createMode, onCustomBuildCha
       })}
     </Stack>
   );
+
+  // Authors mark Super Talents by clicking the icon, so the grid needs to say
+  // so somewhere — nothing else on the card hints that the icons are clickable.
+  const grid = createMode ? (
+    <Stack gap={0.5} sx={{ width: 320, flexShrink: 0 }}>
+      <Typography variant="caption" color={superPoolFull ? 'warning.main' : 'text.secondary'}>
+        Click an icon to mark a Super Talent ({superUsed}/{SUPER_TALENT_MAX_POINTS})
+      </Typography>
+      {talentGrid}
+    </Stack>
+  ) : talentGrid;
 
   // Note card. In view mode, renders normally. In create/edit mode with a
   // legacy note, renders read-only with a Remove button so the author can
@@ -129,20 +176,44 @@ const BuildTab = ({ note, talents: talentList = [], createMode, onCustomBuildCha
   );
 };
 
-const TalentTooltip = ({ name, skill, level }) => {
+const TalentTooltip = ({ name, skill, level, isSuperTalent, createMode, eligible, canStar }) => {
   const { description, funcX, x1, x2, funcY, y1, y2 } = skill;
   const realLevel = isNaN(parseInt(level)) ? 100 : parseInt(level);
   const mainStat = realLevel > 0 ? growth(funcX, realLevel, x1, x2) : 0;
   const secondaryStat = realLevel > 0 ? growth(funcY, realLevel, y1, y2) : 0;
+  const superHint = isSuperTalent
+    ? 'Super Talent' + (createMode ? ': click to unmark' : '')
+    : createMode
+      ? !eligible
+        ? "Can't be a Super Talent"
+        : canStar
+          ? 'Click to mark as a Super Talent'
+          : `All ${SUPER_TALENT_MAX_POINTS} Super Talent points are used`
+      : null;
   return (
     <>
       <Typography variant="h5">{cleanUnderscore(name)}</Typography>
       <Typography variant="body1">
         {cleanUnderscore(cleanUnderscore(description).replace('{', mainStat).replace('}', secondaryStat))}
       </Typography>
+      {superHint ? <Typography variant="caption"
+                               sx={{ display: 'block', mt: 1, color: isSuperTalent ? '#ffd75e' : 'text.secondary' }}>
+        {superHint}
+      </Typography> : null}
     </>
   );
 };
+
+// Same overlay the character Talents tab draws. Kept at its natural 58px
+// against the 56px icon and centred, so it reads as a ring around the icon
+// the way the asset was cut rather than a frame clipped to its edges.
+const SuperBorder = styled.img`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+`;
 
 const CustomInput = styled(InputBase)`
   & .MuiInputBase-input {

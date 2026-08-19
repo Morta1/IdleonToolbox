@@ -9,7 +9,9 @@
 //   }
 //
 // Output (what we store under `payload`):
-//   { v: 1, tabs: [ null | { note, talents: { [skillIndex]: number | string } } ] }
+//   { v: 1, tabs: [ null | { note, talents: { [skillIndex]: number | string } } ], super: [skillIndex] }
+
+import { collectSuperTalents } from './superTalents';
 
 const isMeaningfulLevel = (level) => {
   if (level == null) return false;
@@ -56,7 +58,10 @@ export const compactPayload = (fullBuild) => {
   // Trim trailing nulls so we don't waste bytes on empty tails
   while (tabs.length > 0 && tabs[tabs.length - 1] == null) tabs.pop();
 
-  return { v: 1, tabs };
+  const superTalents = collectSuperTalents(fullBuild?.tabs);
+  const payload = { v: 1, tabs };
+  if (superTalents.length > 0) payload.super = superTalents;
+  return payload;
 };
 
 // Hard caps mirror the editor-level constraints. The editor enforces them via
