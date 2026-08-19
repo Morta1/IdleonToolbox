@@ -133,6 +133,9 @@ const GenericUpgradeOptimizer = ({
       getResourceType
     });
   }
+  // read before the grouping below, which maps the array and loses the property
+  const stoppedReason = optimizedUpgrades.stoppedReason ?? null;
+  const holdingBeatsSpending = stoppedReason === 'hoarding';
 
   // Group upgrades by name if consolidation is enabled
   let displayUpgrades;
@@ -180,11 +183,15 @@ const GenericUpgradeOptimizer = ({
               combinedStats[statChange.stat] = {
                 stat: statChange.stat,
                 change: 0,
-                percentChange: 0
+                percentChange: 0,
+                grossPercentChange: 0,
+                hoardingPercentChange: 0
               };
             }
             combinedStats[statChange.stat].change += statChange.change;
             combinedStats[statChange.stat].percentChange += statChange.percentChange;
+            combinedStats[statChange.stat].grossPercentChange += statChange.grossPercentChange ?? statChange.percentChange;
+            combinedStats[statChange.stat].hoardingPercentChange += statChange.hoardingPercentChange ?? 0;
           });
         }
       });
@@ -225,11 +232,15 @@ const GenericUpgradeOptimizer = ({
             g.combinedStatChanges[statChange.stat] = {
               stat: statChange.stat,
               change: 0,
-              percentChange: 0
+              percentChange: 0,
+              grossPercentChange: 0,
+              hoardingPercentChange: 0
             };
           }
           g.combinedStatChanges[statChange.stat].change += statChange.change;
           g.combinedStatChanges[statChange.stat].percentChange += statChange.percentChange;
+          g.combinedStatChanges[statChange.stat].grossPercentChange += statChange.grossPercentChange ?? statChange.percentChange;
+          g.combinedStatChanges[statChange.stat].hoardingPercentChange += statChange.hoardingPercentChange ?? 0;
         });
       }
     });
@@ -286,10 +297,50 @@ const GenericUpgradeOptimizer = ({
   const formatPercentChange = (percentChange) => {
     return `+${percentChange.toFixed(2).replace(/\.00$/, '')}%`;
   };
-  const renderStatChanges = (statChanges) => {
+  // one precision for the whole breakdown, or the three numbers stop adding up on screen
+  const formatSignedPercent = (percentChange, decimals) => {
+    const sign = percentChange >= 0 ? '+' : '';
+    return `${sign}${percentChange.toFixed(decimals)}%`;
+  };
+  // Hours of farming needed to rebuild the resource this purchase spends
+  const getRebuildTime = (upgrade) => {
+    if (optimizationMethod !== 'rph') return null;
+    const rph = resourcePerHour[getResourceType(upgrade)];
+    if (!rph || isNaN(rph) || rph <= 0) return null;
+    const cost = upgrade.totalCost || upgrade.cost;
+    return cost ? cost / rph : null;
+  };
+  // Hoarding upgrades scale with the resource you're holding, so spending gives some of it back.
+  // Show the gross gain and what hoarding takes off it, plus how long the stash takes to recover.
+  // The test is relative: hoarding loss varies by orders of magnitude between accounts, so what
+  // matters is the share of the gain it eats, not its absolute size.
+  const HOARDING_NOTE_MIN_SHARE = 0.01;
+  const renderHoardingNote = (statChange, rebuildTime) => {
+    if (!(statChange?.hoardingPercentChange > 0) || !(statChange?.grossPercentChange > 0)) return null;
+    if (statChange.hoardingPercentChange < statChange.grossPercentChange * HOARDING_NOTE_MIN_SHARE) return null;
+    const smallest = Math.min(
+      Math.abs(statChange.grossPercentChange),
+      Math.abs(statChange.hoardingPercentChange),
+      Math.abs(statChange.percentChange)
+    );
+    const decimals = smallest >= 0.01 ? 2 : 4;
+    // a rebuild measured in centuries means the rate is a placeholder, not a real farming rate
+    const showRebuild = rebuildTime && rebuildTime >= 1 / 60 && rebuildTime <= 24 * 365;
+    return (
+      <Typography variant="caption" color="text.secondary" component="div">
+        gross {formatSignedPercent(statChange.grossPercentChange, decimals)},
+        hoarding {formatSignedPercent(-statChange.hoardingPercentChange, decimals)},
+        net {formatSignedPercent(statChange.percentChange, decimals)}
+        {showRebuild ? `, stash back in ${splitTime(rebuildTime)}` : ''}
+      </Typography>
+    );
+  };
+  const renderStatChanges = (statChanges, upgrade) => {
+    const rebuildTime = getRebuildTime(upgrade);
     return statChanges.map((change, index) => (
-      <Typography key={index} variant="body2">
+      <Typography key={index} variant="body2" component="div">
         {change.stat.charAt(0).toUpperCase() + change.stat.slice(1)}: {formatChange(change.change)} ({formatPercentChange(change.percentChange)})
+        {renderHoardingNote(change, rebuildTime)}
       </Typography>
     ));
   };
@@ -303,8 +354,9 @@ const GenericUpgradeOptimizer = ({
           Total Benefits (Levels {upgrade.startLevel} → {upgrade.finalLevel})
         </Typography>
         {upgrade.combinedStatChanges.map((statChange, index) => (
-          <Typography key={index} variant="body2">
+          <Typography key={index} variant="body2" component="div">
             {statChange.stat.charAt(0).toUpperCase() + statChange.stat.slice(1)}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
+            {renderHoardingNote(statChange, getRebuildTime(upgrade))}
           </Typography>
         ))}
         <Divider sx={{ my: 1 }} />
@@ -559,6 +611,11 @@ const GenericUpgradeOptimizer = ({
       )}
 
       <Typography variant="h6" data-testid="optimizer-heading">Recommended Upgrade Sequence</Typography>
+      {holdingBeatsSpending && displayUpgrades.length > 0 && (
+        <Typography variant="body2" color="text.secondary">
+          Stopping here: past this point, spending costs more in Hoarding bonus than it gains. Build the stash back up first.
+        </Typography>
+      )}
       {displayUpgrades.length > 0 ? (
         viewMode === 'grid' ? (
           <Stack direction="row" gap={2} flexWrap="wrap">
@@ -597,7 +654,7 @@ const GenericUpgradeOptimizer = ({
                         <>
                           <Divider sx={{ my: 1 }} />
                           {category === 'all' ? cleanUnderscore(upgrade.description
-                          ) : renderStatChanges(upgrade.statChanges)}
+                          ) : renderStatChanges(upgrade.statChanges, upgrade)}
                           <Divider sx={{ my: 1 }} />
                           <Stack direction="row" gap={1} alignItems="center">
                             <img
@@ -664,6 +721,7 @@ const GenericUpgradeOptimizer = ({
                               {upgrade.combinedStatChanges.map((statChange, i) => (
                                 <div key={i}>
                                   {statChange.stat.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()).trim()}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
+                                  {renderHoardingNote(statChange, getRebuildTime(upgrade))}
                                 </div>
                               ))}
                             </>
@@ -674,6 +732,7 @@ const GenericUpgradeOptimizer = ({
                               : upgrade.statChanges.map((statChange, i) => (
                                 <div key={i}>
                                   {statChange.stat.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()).trim()}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
+                                  {renderHoardingNote(statChange, getRebuildTime(upgrade))}
                                 </div>
                               ))
                           )
@@ -702,7 +761,9 @@ const GenericUpgradeOptimizer = ({
         )
       ) : (
         <Typography variant="body1" color="text.secondary">
-          No viable upgrades found for this category with your current resources.
+          {holdingBeatsSpending
+            ? 'Build up your stash instead: every upgrade you can afford would cost more in Hoarding bonus than it would gain. Keep collecting and check back once your stash is bigger.'
+            : 'No viable upgrades found for this category with your current resources.'}
         </Typography>
       )}
     </Stack>

@@ -46,6 +46,34 @@ function isUpgradeAffordable(upgrade: any, cost: any, simulatedResources: any, r
   return false;
 }
 
+// Resource type key (which dust/bone/tachyon color an upgrade is paid with)
+function getResourceTypeKey(upgrade: any, extraArgs: any) {
+  if (extraArgs?.getResourceType) return extraArgs.getResourceType(upgrade);
+  if (upgrade?.x3 !== undefined) return upgrade.x3;
+  if (upgrade?.boneType !== undefined) return upgrade.boneType;
+  return upgrade?.name || 0;
+}
+
+// Several masterclass upgrades (Singulon Hoarding and friends) scale with the amount of resource
+// you're currently holding, so spending lowers them. heldResourceOptionBase is the accountOptions
+// index of the first resource color, letting the simulation deplete the held amounts as it buys.
+function buildSimulatedAccount(account: any, spentByResource: any, heldResourceOptionBase: any) {
+  if (heldResourceOptionBase === undefined || heldResourceOptionBase === null) return account;
+  const entries = Object.entries(spentByResource).filter(([, spent]: any) => spent > 0);
+  if (entries.length === 0) return account;
+  const accountOptions = [...(account?.accountOptions || [])];
+  entries.forEach(([resourceKey, spent]: any) => {
+    const optionIndex = heldResourceOptionBase + Number(resourceKey);
+    if (!Number.isFinite(optionIndex)) return;
+    accountOptions[optionIndex] = Math.max(0, (account?.accountOptions?.[optionIndex] ?? 0) - spent);
+  });
+  return { ...account, accountOptions };
+}
+
+function addSpending(spentByResource: any, resourceKey: any, cost: any) {
+  return { ...spentByResource, [resourceKey]: (spentByResource[resourceKey] ?? 0) + cost };
+}
+
 export function getOptimizedGenericUpgrades({
                                               character,
                                               account,
@@ -58,6 +86,7 @@ export function getOptimizedGenericUpgrades({
                                               getUpgradeCost,
                                               updateResourcesAfterUpgrade,
                                               resourceNames,
+                                              heldResourceOptionBase,
                                               extraArgs = {}
                                             }: any) {
   // Extract onlyAffordable from extraArgs, defaulting to false
@@ -67,26 +96,32 @@ export function getOptimizedGenericUpgrades({
   let simulatedUpgrades = JSON.parse(JSON.stringify(getUpgrades(account)));
   let simulatedResources = JSON.parse(JSON.stringify(getResources(account)));
 
+  // Resource spent so far in the simulation, per resource type. Feeds the held-resource bonuses.
+  let spentByResource: any = {};
+  let simAccount = account;
+
   // Track current stats for comparison
-  let currentStats = getCurrentStats(simulatedUpgrades, character, account, extraArgs);
+  let currentStats = getCurrentStats(simulatedUpgrades, character, simAccount, extraArgs);
 
   // Special handling for dust category
   let getExtraDust = extraArgs.getExtraDust;
   let getExtraTachyon = extraArgs.getExtraTachyon;
   let currentDustMultiplier = (category === 'dust' && typeof getExtraDust === 'function')
     ? getExtraDust(character, {
-      ...account,
-      compass: { ...account.compass, upgrades: simulatedUpgrades }
+      ...simAccount,
+      compass: { ...simAccount.compass, upgrades: simulatedUpgrades }
     }).value
     : 0;
   let currentTachyonMultiplier = (category === 'tachyons' && typeof getExtraTachyon === 'function')
     ? getExtraTachyon(character, {
-      ...account,
-      tesseract: { ...account.tesseract, upgrades: simulatedUpgrades }
+      ...simAccount,
+      tesseract: { ...simAccount.tesseract, upgrades: simulatedUpgrades }
     }).value
     : 0;
 
-  const results = [];
+  const results: any = [];
+  // Why the walk stopped, so the UI can tell "nothing left to buy" apart from "holding beats buying"
+  let stoppedReason = null;
 
   // Refactored 'all' category: simulate sequential cheapest upgrades
   if (category === 'all') {
@@ -97,7 +132,7 @@ export function getOptimizedGenericUpgrades({
         if (!upgrade.unlocked) return false;
         if (onlyAffordable) {
           const cost = getUpgradeCost(upgrade, upgrade.index, {
-            account,
+            account: simAccount,
             upgrades: simulatedUpgrades,
             ...extraArgs,
             forceLegendTalent: reductionsRemaining > 0
@@ -122,7 +157,7 @@ export function getOptimizedGenericUpgrades({
       let minEffectiveCost = Infinity;
       for (const u of availableUpgrades) {
         let effectiveCost = getUpgradeCost(u, u.index, {
-          account,
+          account: simAccount,
           upgrades: simulatedUpgrades,
           ...extraArgs,
           forceLegendTalent: reductionsRemaining > 0
@@ -149,7 +184,7 @@ export function getOptimizedGenericUpgrades({
 
       // Get the actual cost BEFORE level increment
       const actualCost = getUpgradeCost(cheapestUpgrade, cheapestUpgrade.index, {
-        account,
+        account: simAccount,
         upgrades: simulatedUpgrades,
         ...extraArgs,
         forceLegendTalent: reductionsRemaining > 0
@@ -166,10 +201,14 @@ export function getOptimizedGenericUpgrades({
         simulatedResources = tempResources;
       }
 
+      // Deplete the held resource so hoarding-based bonuses (and costs) reflect the purchase
+      spentByResource = addSpending(spentByResource, getResourceTypeKey(cheapestUpgrade, extraArgs), actualCost);
+      simAccount = buildSimulatedAccount(account, spentByResource, heldResourceOptionBase);
+
       // Recalculate cost for all upgrades after this purchase
       simulatedUpgrades = simulatedUpgrades.map((upgrade: any) => {
         const cost = getUpgradeCost(upgrade, upgrade.index, {
-          account,
+          account: simAccount,
           upgrades: simulatedUpgrades,
           ...extraArgs
         });
@@ -198,6 +237,8 @@ export function getOptimizedGenericUpgrades({
     let bestNewDustMultiplier = 0;
     let bestNewTachyonMultiplier = 0;
     let bestTempUpgrades = null;
+    let bestCost = 0;
+    let leastBadCandidate: any = null;
 
     // Find available upgrades for this category
     const availableUpgrades = simulatedUpgrades.filter((upgrade: any) => {
@@ -207,7 +248,7 @@ export function getOptimizedGenericUpgrades({
       // If onlyAffordable is true, check if upgrade is affordable with current simulatedResources
       if (onlyAffordable) {
         const cost = getUpgradeCost(upgrade, upgrade.index, {
-          account,
+          account: simAccount,
           upgrades: simulatedUpgrades,
           ...extraArgs,
           forceLegendTalent: reductionsRemaining > 0
@@ -232,21 +273,35 @@ export function getOptimizedGenericUpgrades({
       // Apply upgrade by creating a new object
       const idx = tempUpgrades.findIndex((u: any) => u.index === upgrade.index);
       tempUpgrades[idx] = { ...tempUpgrades[idx], level: tempUpgrades[idx].level + 1 };
-      const newStats = getCurrentStats(tempUpgrades, character, account, extraArgs);
+
+      // Paying for the upgrade lowers the held resource, which lowers the hoarding bonuses,
+      // so the stats after the purchase have to be read from a depleted account
+      const upgradeCostForStats = getUpgradeCost(upgrade, upgrade.index, {
+        account: simAccount,
+        upgrades: simulatedUpgrades,
+        ...extraArgs,
+        forceLegendTalent: reductionsRemaining > 0
+      });
+      const candidateAccount = buildSimulatedAccount(
+        account,
+        addSpending(spentByResource, getResourceTypeKey(upgrade, extraArgs), upgradeCostForStats),
+        heldResourceOptionBase
+      );
+      const newStats = getCurrentStats(tempUpgrades, character, candidateAccount, extraArgs);
 
       // Special handling for dust
       let newDustMultiplier = currentDustMultiplier;
       let newTachyonMultiplier = currentTachyonMultiplier;
       if (category === 'dust' && typeof getExtraDust === 'function') {
         newDustMultiplier = getExtraDust(character, {
-          ...account,
-          compass: { ...account.compass, upgrades: tempUpgrades }
+          ...candidateAccount,
+          compass: { ...candidateAccount.compass, upgrades: tempUpgrades }
         }).value;
       }
       if (category === 'tachyons' && typeof getExtraTachyon === 'function') {
         newTachyonMultiplier = getExtraTachyon(character, {
-          ...account,
-          tesseract: { ...account.tesseract, upgrades: tempUpgrades }
+          ...candidateAccount,
+          tesseract: { ...candidateAccount.tesseract, upgrades: tempUpgrades }
         }).value;
       }
 
@@ -285,12 +340,7 @@ export function getOptimizedGenericUpgrades({
 
       // Calculate total efficiency with master class reduction
       const totalStatChange = statChanges.reduce((sum: any, change: any) => sum + change.percentChange, 0);
-      const cost = getUpgradeCost(upgrade, upgrade.index, {
-        account,
-        upgrades: simulatedUpgrades,
-        ...extraArgs,
-        forceLegendTalent: reductionsRemaining > 0
-      });
+      const cost = upgradeCostForStats;
 
       let efficiency;
       if (extraArgs.resourcePerHour) {
@@ -320,24 +370,72 @@ export function getOptimizedGenericUpgrades({
         bestNewDustMultiplier = newDustMultiplier;
         bestNewTachyonMultiplier = newTachyonMultiplier;
         bestTempUpgrades = tempUpgrades;
+        bestCost = cost;
+      }
+      if (!leastBadCandidate || totalStatChange > leastBadCandidate.totalStatChange) {
+        leastBadCandidate = { tempUpgrades, totalStatChange };
       }
     }
 
     if (bestUpgrade && bestEfficiency > 0) {
       // Create a snapshot for the result
       const upgradeSnapshot = { ...bestUpgrade, level: bestUpgrade.level + 1 };
-      const cost = getUpgradeCost(bestUpgrade, bestUpgrade.index, {
-        account,
-        upgrades: simulatedUpgrades,
-        ...extraArgs,
-        forceLegendTalent: reductionsRemaining > 0
+      const cost = bestCost;
+
+      // The same purchase measured against an untouched stash. The gap between gross and net is
+      // the bonus given up by spending down hoarding-scaled upgrades.
+      const tracksHeldResource = heldResourceOptionBase !== undefined && heldResourceOptionBase !== null;
+      const grossStats = tracksHeldResource
+        ? getCurrentStats(bestTempUpgrades, character, simAccount, extraArgs)
+        : bestNewStats;
+      let grossDustMultiplier = bestNewDustMultiplier;
+      let grossTachyonMultiplier = bestNewTachyonMultiplier;
+      if (tracksHeldResource && category === 'dust' && typeof getExtraDust === 'function') {
+        grossDustMultiplier = getExtraDust(character, {
+          ...simAccount,
+          compass: { ...simAccount.compass, upgrades: bestTempUpgrades }
+        }).value;
+      }
+      if (tracksHeldResource && category === 'tachyons' && typeof getExtraTachyon === 'function') {
+        grossTachyonMultiplier = getExtraTachyon(character, {
+          ...simAccount,
+          tesseract: { ...simAccount.tesseract, upgrades: bestTempUpgrades }
+        }).value;
+      }
+
+      const statChangesWithHoarding = (bestStatChanges as any[]).map((statChange: any) => {
+        let grossValue;
+        let currentValue;
+        if (statChange.stat === 'extraDust') {
+          grossValue = grossDustMultiplier;
+          currentValue = currentDustMultiplier;
+        }
+        else if (statChange.stat === 'extraTachyon') {
+          grossValue = grossTachyonMultiplier;
+          currentValue = currentTachyonMultiplier;
+        }
+        else {
+          grossValue = grossStats[statChange.stat] || 0;
+          currentValue = currentStats[statChange.stat] || 0;
+        }
+        const grossChange = grossValue - currentValue;
+        const grossPercentChange = currentValue > 0 ? (grossChange / currentValue) * 100 : 0;
+        return {
+          ...statChange,
+          grossChange,
+          grossPercentChange,
+          hoardingChange: grossChange - statChange.change,
+          hoardingPercentChange: grossPercentChange - statChange.percentChange
+        };
       });
+      const totalHoardingChange = statChangesWithHoarding.reduce((sum: number, change: any) => sum + change.hoardingPercentChange, 0);
 
       results.push({
         ...upgradeSnapshot,
         efficiency: bestEfficiency,
-        statChanges: bestStatChanges,
+        statChanges: statChangesWithHoarding,
         totalStatChange: bestTotalChange,
+        totalHoardingChange,
         cost,
         hadReduction: reductionsRemaining > 0
       });
@@ -353,6 +451,10 @@ export function getOptimizedGenericUpgrades({
         simulatedResources = tempResources;
       }
 
+      // Deplete the held resource so hoarding-based bonuses reflect the purchase
+      spentByResource = addSpending(spentByResource, getResourceTypeKey(bestUpgrade, extraArgs), cost);
+      simAccount = buildSimulatedAccount(account, spentByResource, heldResourceOptionBase);
+
       // Update current stats for next iteration
       currentStats = bestNewStats;
       if (category === 'dust' && typeof getExtraDust === 'function') {
@@ -365,7 +467,7 @@ export function getOptimizedGenericUpgrades({
       // Recalculate all upgrade costs after this purchase (no mutation)
       simulatedUpgrades = simulatedUpgrades.map((upgrade: any) => {
         const cost = getUpgradeCost(upgrade, upgrade.index, {
-          account,
+          account: simAccount,
           upgrades: simulatedUpgrades,
           ...extraArgs
         });
@@ -373,10 +475,55 @@ export function getOptimizedGenericUpgrades({
       });
     }
     else {
-      // No more efficient upgrades available
+      // Nothing worth buying. Separate "there is nothing left" from "buying would cost more
+      // hoarding bonus than it gains", which is a hold signal rather than a dead end.
+      const tracksHeld = heldResourceOptionBase !== undefined && heldResourceOptionBase !== null;
+      if (availableUpgrades.length === 0) {
+        stoppedReason = 'no-candidates';
+      }
+      else if (tracksHeld && leastBadCandidate) {
+        const grossStats = getCurrentStats(leastBadCandidate.tempUpgrades, character, simAccount, extraArgs);
+        let grossDust = currentDustMultiplier;
+        let grossTachyon = currentTachyonMultiplier;
+        if (category === 'dust' && typeof getExtraDust === 'function') {
+          grossDust = getExtraDust(character, {
+            ...simAccount,
+            compass: { ...simAccount.compass, upgrades: leastBadCandidate.tempUpgrades }
+          }).value;
+        }
+        if (category === 'tachyons' && typeof getExtraTachyon === 'function') {
+          grossTachyon = getExtraTachyon(character, {
+            ...simAccount,
+            tesseract: { ...simAccount.tesseract, upgrades: leastBadCandidate.tempUpgrades }
+          }).value;
+        }
+        const grossTotal = categoryInfo.stats.reduce((sum: number, stat: any) => {
+          let currentValue;
+          let grossValue;
+          if (category === 'dust' && stat === 'dust') {
+            currentValue = currentDustMultiplier;
+            grossValue = grossDust;
+          }
+          else if (category === 'tachyons' && stat === 'tachyons') {
+            currentValue = currentTachyonMultiplier;
+            grossValue = grossTachyon;
+          }
+          else {
+            currentValue = currentStats[stat] || 0;
+            grossValue = grossStats[stat] || 0;
+          }
+          return sum + (currentValue > 0 ? ((grossValue - currentValue) / currentValue) * 100 : 0);
+        }, 0);
+        // the upgrade would help on its own, so the held-resource loss is what sank it
+        stoppedReason = grossTotal > 0 ? 'hoarding' : 'no-gain';
+      }
+      else {
+        stoppedReason = 'no-gain';
+      }
       break;
     }
   }
 
+  results.stoppedReason = stoppedReason;
   return results;
 }

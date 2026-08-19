@@ -332,6 +332,7 @@ export const getOptimizedGrimoireUpgrades = (character: any, account: any, categ
       if (resources[boneIdx] !== undefined) resources[boneIdx] -= cost;
     },
     resourceNames: boneNames,
+    heldResourceOptionBase: 330, // accountOptions[330 + type] = bones currently held
     extraArgs: options
   });
 };

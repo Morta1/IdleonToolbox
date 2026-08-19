@@ -4,6 +4,16 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.62',
+    'gameVer': '2.3.523',
+    'date': '19/08/2026',
+    'features': [],
+    'fixes': [
+      'Upgrade Optimizer: Tesseract, Compass and Grimoire now account for Hoarding upgrades, which scale with how much of a resource you are holding. Spending lowers that bonus, so the optimizer no longer recommends purchases that would drop your stats',
+      'Upgrade Optimizer: upgrades now show the gross gain, what Hoarding takes off it and the net result, plus how long the stash takes to farm back. When holding beats every purchase you can afford, the page says to build your stash up instead of showing an empty list'
+    ]
+  },
+  {
     'ver': '3.3.61',
     'gameVer': '2.3.523',
     'date': '18/08/2026',

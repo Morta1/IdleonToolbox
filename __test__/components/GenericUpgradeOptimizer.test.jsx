@@ -1,0 +1,128 @@
+// @vitest-environment jsdom
+import '../../polyfills';
+import React from 'react';
+import { describe, expect, it, beforeEach } from 'vitest';
+import { render } from '@testing-library/react';
+import { ThemeProvider } from '@mui/material';
+import GenericUpgradeOptimizer from '@components/account/Misc/class-specific/GenericUpgradeOptimizer';
+import darkTheme from '../../styles/theme/darkTheme';
+
+const resourceNames = { 0: 'Purple', 1: 'Brown' };
+
+const buildRow = ({ hoardingPercentChange = 0, grossPercentChange = 1, cost = 1e6 }) => ({
+  name: 'Arcanist_Damage_II',
+  index: 6,
+  level: 10,
+  x3: 0,
+  x4: 999999,
+  cost,
+  statChanges: [{
+    stat: 'damage',
+    change: 1234,
+    percentChange: grossPercentChange - hoardingPercentChange,
+    grossChange: 1500,
+    grossPercentChange,
+    hoardingChange: 266,
+    hoardingPercentChange
+  }]
+});
+
+const renderOptimizer = (rows) => render(
+  <ThemeProvider theme={darkTheme}>
+    <GenericUpgradeOptimizer
+      character={{ name: 'Tester' }}
+      account={{ tesseract: { tachyons: [{ name: 'Purple', value: 1e9 }, { name: 'Brown', value: 1e9 }] } }}
+      getOptimizedUpgradesFn={() => rows}
+      upgradeCategories={{ damage: { name: 'Damage', stats: ['damage'], upgradeIndices: [6] } }}
+      resourceNames={resourceNames}
+      resourceKey="tesseract.tachyons"
+      resourceImagePrefix="Tach"
+      upgradeImagePrefix="ArcaneUpg"
+      getResourceType={(upgrade) => upgrade.x3}
+      tooltipText="test tooltip"
+    />
+  </ThemeProvider>
+);
+
+const withReason = (rows, reason) => {
+  const list = [...rows];
+  list.stoppedReason = reason;
+  return list;
+};
+
+describe('GenericUpgradeOptimizer empty state', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it('tells the user to hoard when holding beats every affordable purchase', () => {
+    const { container } = renderOptimizer(withReason([], 'hoarding'));
+    expect(container.textContent).toContain('Build up your stash instead');
+    expect(container.textContent).not.toContain('No viable upgrades found');
+  });
+
+  it('keeps the plain message when there is genuinely nothing to buy', () => {
+    const { container } = renderOptimizer(withReason([], 'no-candidates'));
+    expect(container.textContent).toContain('No viable upgrades found');
+    expect(container.textContent).not.toContain('Build up your stash');
+  });
+
+  it('falls back to the plain message when the optimizer reports no reason', () => {
+    const { container } = renderOptimizer([]);
+    expect(container.textContent).toContain('No viable upgrades found');
+  });
+
+  it('notes the early stop when a partial list came back', () => {
+    const { container } = renderOptimizer(withReason([buildRow({ grossPercentChange: 2.1 })], 'hoarding'));
+    expect(container.textContent).toContain('Stopping here');
+  });
+});
+
+describe('GenericUpgradeOptimizer hoarding breakdown', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it('shows gross gain and hoarding loss when spending gives back a hoarding bonus', () => {
+    const { container } = renderOptimizer([buildRow({ grossPercentChange: 2.1, hoardingPercentChange: 1.4 })]);
+    const text = container.textContent;
+    // net stays the headline number
+    expect(text).toContain('+0.70%');
+    expect(text).toContain('gross +2.10%, hoarding -1.40%, net +0.70%');
+    // cost 1e6 at the default 1/hour rebuilds over a century, which is a placeholder rate, not a real one
+    expect(text).not.toMatch(/stash back in/);
+  });
+
+  it('shows the stash rebuild time when the farming rate makes it plausible', () => {
+    // 5 resources at the default 1/hour rebuilds in 5 hours
+    const { container } = renderOptimizer([buildRow({ grossPercentChange: 2.1, hoardingPercentChange: 1.4, cost: 5 })]);
+    expect(container.textContent).toMatch(/stash back in/);
+  });
+
+  it('stays quiet when hoarding costs nothing', () => {
+    const { container } = renderOptimizer([buildRow({ grossPercentChange: 2.1, hoardingPercentChange: 0 })]);
+    expect(container.textContent).toContain('+2.10%');
+    expect(container.textContent).not.toContain('hoarding');
+  });
+
+  it('shows a tiny absolute loss when it still eats a real share of the gain', () => {
+    // absolute loss is minute, but it swallows 90% of the gain - the case the old fixed
+    // 0.005pp threshold hid from exactly the accounts with the deepest stashes
+    const { container } = renderOptimizer([buildRow({ grossPercentChange: 0.001, hoardingPercentChange: 0.0009 })]);
+    expect(container.textContent).toContain('gross +0.0010%, hoarding -0.0009%, net +0.0001%');
+  });
+
+  it('stays quiet when the loss is large in absolute terms but trivial next to the gain', () => {
+    const { container } = renderOptimizer([buildRow({ grossPercentChange: 100, hoardingPercentChange: 0.5 })]);
+    expect(container.textContent).not.toContain('hoarding');
+  });
+
+  it('tolerates rows from an optimizer that reports no hoarding data', () => {
+    const row = buildRow({ grossPercentChange: 2.1 });
+    delete row.statChanges[0].grossPercentChange;
+    delete row.statChanges[0].hoardingPercentChange;
+    const { container } = renderOptimizer([row]);
+    expect(container.textContent).toContain('+2.10%');
+    expect(container.textContent).not.toContain('hoarding');
+  });
+});

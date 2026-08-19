@@ -653,6 +653,7 @@ export const getOptimizedTesseractUpgrades = (character: any, account: any, cate
       if (resource) resource.value -= cost;
     },
     resourceNames: tachyonNames,
+    heldResourceOptionBase: 388, // accountOptions[388 + color] = tachyons currently held
     extraArgs: options
   });
 };

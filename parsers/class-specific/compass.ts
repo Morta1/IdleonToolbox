@@ -733,6 +733,7 @@ export const getOptimizedUpgrades = (character: any, account: any, category: str
       if (resource) resource.value -= cost;
     },
     resourceNames: dustNames,
+    heldResourceOptionBase: 357, // accountOptions[357 + color] = dust currently held
     extraArgs: options
   });
 }
