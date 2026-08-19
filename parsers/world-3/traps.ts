@@ -77,30 +77,32 @@ export const getTrapsBonuses = (account: any, characters: any) => {
 }
 
 export const calcCrittersBonus = ({ currentCharacterIndex, account, characters, isExp }: any) => {
-  // CollectAllPCT
+  // CollectAllPCT / CollectAllPCTexp
+  // The game floors the whole sum at 50 (40 for exp) *after* adding the account-wide bonuses to the
+  // Eagle Eye talent, so a low talent can still be carried over the floor by vials/compass/sets.
   const atomBonus = getAtomBonus(account, 'Magnesium_-_Trap_Compounder') * account?.accountOptions?.[363];
   const dementiaSetBonus = getArmorSetBonus(account, 'DEMENTIA_SET');
   const paletteBonus = getPaletteBonus(account, 12);
-  let moreCritters = isExp
+  const accountBonuses = isExp
     ? 0
     : getVialsBonusByStat(account?.alchemy?.vials, 'TrapOvision') + getCompassBonus(account, 42)
     + atomBonus + dementiaSetBonus + paletteBonus;
+  let talentBonus = 0;
   if (checkCharClass(characters?.[currentCharacterIndex]?.class, CLASSES.Hunter)) {
     const bestHunter = getCharacterByHighestTalent(characters, CLASSES.Hunter, 'EAGLE_EYE', isExp);
-    moreCritters += isExp
-      ? Math.max(40, Math.min(getTalentBonus(bestHunter?.flatTalents, 'EAGLE_EYE', isExp), 99))
-      : Math.max(50, getTalentBonus(bestHunter?.flatTalents, 'EAGLE_EYE'));
+    talentBonus = isExp
+      ? Math.min(getTalentBonus(bestHunter?.flatTalents, 'EAGLE_EYE', isExp), 99)
+      : getTalentBonus(bestHunter?.flatTalents, 'EAGLE_EYE');
   } else {
-    let highestCritterBonus = 0;
     for (let i = 0; i < characters?.length; i++) {
-      if (checkCharClass(characters?.[i]?.class, CLASSES.Hunter)) {
-        const bestHunter = getCharacterByHighestTalent(characters, CLASSES.Hunter, 'EAGLE_EYE', isExp, true);
-        highestCritterBonus = Math.max(highestCritterBonus, getTalentBonus(bestHunter?.flatTalents, 'EAGLE_EYE', isExp, true));
-      } else {
-        highestCritterBonus = Math.max(highestCritterBonus, isExp ? 40 : 50);
-      }
+      if (!checkCharClass(characters?.[i]?.class, CLASSES.Hunter)) continue;
+      const bestHunter = getCharacterByHighestTalent(characters, CLASSES.Hunter, 'EAGLE_EYE', isExp, true);
+      const bonus = getTalentBonus(bestHunter?.flatTalents, 'EAGLE_EYE', isExp, true);
+      talentBonus = Math.max(talentBonus, isExp ? Math.min(bonus, 99) : bonus);
     }
-    moreCritters += highestCritterBonus;
   }
-  return Math.floor(Math.min(2e9,isNaN(moreCritters) ? 1 : moreCritters / 100));
+  const moreCritters = Math.max(isExp ? 40 : 50, talentBonus + accountBonuses);
+  // The result is a multiplier (166% -> 1.66), so it must not be floored - the game only floors the
+  // resulting item count, never the rate itself.
+  return Math.min(2e9, isNaN(moreCritters) ? 1 : moreCritters / 100);
 }

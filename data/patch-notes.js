@@ -10,7 +10,8 @@ export const patchNotes = [
     'features': [],
     'fixes': [
       'Upgrade Optimizer: Tesseract, Compass and Grimoire now account for Hoarding upgrades, which scale with how much of a resource you are holding. Spending lowers that bonus, so the optimizer no longer recommends purchases that would drop your stats',
-      'Upgrade Optimizer: upgrades now show the gross gain, what Hoarding takes off it and the net result, plus how long the stash takes to farm back. When holding beats every purchase you can afford, the page says to build your stash up instead of showing an empty list'
+      'Upgrade Optimizer: upgrades now show the gross gain, what Hoarding takes off it and the net result, plus how long the stash takes to farm back. When holding beats every purchase you can afford, the page says to build your stash up instead of showing an empty list',
+      'Traps: collect rates were rounded down to a whole multiplier, so anything under 200% showed as 100% and every critter total was under-counted'
     ]
   },
   {
