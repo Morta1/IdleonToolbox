@@ -3,7 +3,7 @@ import { cleanUnderscore } from 'utility/helpers';
 
 const PlayerStarSigns = ({ signs }) => {
   const sortedSigns = signs?.toSorted((a, b) => a?.starName.localeCompare(b?.starName, 'en'))
-  return <Stack>
+  return <Stack sx={{ width: { xs: '100%', sm: 340 } }}>
     <Typography variant={'h5'}>Star Signs</Typography>
     <Stack gap={1}>
       {sortedSigns?.map(({ starName, bonuses }, index) => {
