@@ -29,7 +29,7 @@ const Study = ({ account }) => {
     });
 
   return <>
-    <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+    <Stack mb={2} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Study rate'} value={`${commaNotation(hole?.studies?.studyPerHour)} / hr` || '0'}
                          icon={'etc/Study_Rate.png'}
                          imgStyle={{ width: 22, height: 22 }}/>

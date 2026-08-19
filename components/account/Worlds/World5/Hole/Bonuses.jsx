@@ -11,7 +11,7 @@ const Bonuses = ({ hole }) => {
   const [,,bonuses] = hole?.villagers || [];
 
   return <>
-    <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+    <Stack mb={2} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Level'} value={bonuses?.level}/>
       <CardTitleAndValue title={'Exp'} value={`${bonuses?.exp} / ${bonuses?.expReq}`}/>
       <ExpRateCard title={'Exp rate'} expRate={bonuses?.expRate} />

@@ -28,7 +28,7 @@ const Explore = ({ hole }) => {
   const [explore] = hole?.villagers || [];
   const caverns = fillArrayToLength(18);
   return <>
-    <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+    <Stack mb={2} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Level'} value={explore?.level}/>
       <CardTitleAndValue title={'Exp'} value={`${explore?.exp} / ${explore?.expReq}`}/>
       <ExpRateCard title={'Exp rate'} expRate={explore?.expRate}/>

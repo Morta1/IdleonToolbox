@@ -1,6 +1,6 @@
 import { CardTitleAndValue } from '@components/common/styles';
 import React, { useState } from 'react';
-import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, msToDate, notateNumber, prefix } from '@utility/helpers';
 import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
 
@@ -36,7 +36,7 @@ const Engineer = ({ hole }) => {
   const [showAll, setShowAll] = useState(false);
 
   return <>
-    <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+    <Stack mb={2} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Level'} value={engineer?.level}/>
       <CardTitleAndValue title={'Exp'} value={`${engineer?.exp} / ${engineer?.expReq}`}/>
       <ExpRateCard title={'Exp rate'} expRate={engineer?.expRate}/>
@@ -48,6 +48,7 @@ const Engineer = ({ hole }) => {
       <CardTitleAndValue title={'Opals invested'} value={engineer?.opalInvested || '0'} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
     </Stack>
+    <Divider/>
     <FormControlLabel
       control={<Checkbox checked={showAll} onChange={() => setShowAll(!showAll)}/>}
       name={'Show all schematics'}

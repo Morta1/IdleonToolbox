@@ -7,7 +7,7 @@ import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
 const Measure = ({ hole }) => {
   const [, , , measure] = hole?.villagers || [];
   return <>
-    <Stack mb={1} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
+    <Stack mb={2} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       <CardTitleAndValue title={'Level'} value={measure?.level}/>
       <CardTitleAndValue title={'Exp'} value={`${measure?.exp} / ${measure?.expReq}`}/>
       <ExpRateCard title={'Exp rate'} expRate={measure?.expRate} />
