@@ -36,8 +36,8 @@ toolbox is designed to assist you in your adventures.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE). Feel free to use, modify, and distribute the code as
-permitted by the license.
+This project is licensed under the [GNU General Public License v3.0](LICENSE). You may use, modify, and distribute
+the code, provided derivative works are released under the same license.
 
 ## Community
 
