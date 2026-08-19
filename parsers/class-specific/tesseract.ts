@@ -653,6 +653,13 @@ export const getOptimizedTesseractUpgrades = (character: any, account: any, cate
       if (resource) resource.value -= cost;
     },
     resourceNames: tachyonNames,
+    // x6 is the unlock gate, checked against total levels bought anywhere in the tree
+    getUnlockedIndices: (upgrades: any) => {
+      const totalLevels = upgrades.reduce((sum: number, upgrade: any) => sum + (upgrade?.level ?? 0), 0);
+      return new Set(upgrades
+        .filter((upgrade: any) => (upgrade?.x6 ?? 0) <= totalLevels)
+        .map((upgrade: any) => upgrade.index));
+    },
     heldResourceOptionBase: 388, // accountOptions[388 + color] = tachyons currently held
     extraArgs: options
   });

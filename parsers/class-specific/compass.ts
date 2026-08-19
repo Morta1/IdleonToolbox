@@ -366,10 +366,13 @@ const getGroupedUpgrades = (upgrades: any[], abominations: any[]) => {
     else {
       // Apply "unlocked" based on first upgrade's level
       const unlockedCount = list[0]?.level ?? 0;
+      const pathRootIndex = list[0]?.index;
       list = list.map((upg: any, i: any) => ({
         ...upg,
         unlocked: i <= unlockedCount,
-        unlocksAt: i
+        unlocksAt: i,
+        // lets the optimizer re-check the gate as it buys root levels during the walk
+        pathRootIndex
       }));
     }
 
@@ -733,6 +736,15 @@ export const getOptimizedUpgrades = (character: any, account: any, category: str
       if (resource) resource.value -= cost;
     },
     resourceNames: dustNames,
+    // Path upgrades unlock off their path's root upgrade level, so buying root levels opens new ones
+    getUnlockedIndices: (upgrades: any) => {
+      const levelByIndex = new Map(upgrades.map((upgrade: any) => [upgrade.index, upgrade?.level ?? 0]));
+      return new Set(upgrades
+        .filter((upgrade: any) => (upgrade?.pathRootIndex === undefined
+          ? !!upgrade.unlocked
+          : (upgrade?.unlocksAt ?? 0) <= (levelByIndex.get(upgrade.pathRootIndex) ?? 0)))
+        .map((upgrade: any) => upgrade.index));
+    },
     heldResourceOptionBase: 357, // accountOptions[357 + color] = dust currently held
     extraArgs: options
   });

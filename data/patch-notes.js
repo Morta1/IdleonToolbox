@@ -12,6 +12,7 @@ export const patchNotes = [
       'Upgrade Optimizer: new "Split by resource" option groups the recommended sequence by tachyon, dust or bone type, so you can work through one material at a time'
     ],
     'fixes': [
+      'Upgrade Optimizer: the recommended sequence only considered upgrades that were already unlocked when it started, so it kept buying more of a weak upgrade while a stronger one came into range along the way. Upgrades that unlock as you buy now appear, marked with how many purchases they need first',
       'Upgrade Optimizer: Tesseract, Compass and Grimoire now account for Hoarding upgrades, which scale with how much of a resource you are holding. Spending lowers that bonus, so the optimizer no longer recommends purchases that would drop your stats',
       'Upgrade Optimizer: upgrades now show the gross gain, what Hoarding takes off it and the net result, plus how long the stash takes to farm back. When holding beats every purchase you can afford, the page says to build your stash up instead of showing an empty list',
       'Traps: collect rates were rounded down to a whole multiplier, so anything under 200% showed as 100% and every critter total was under-counted',

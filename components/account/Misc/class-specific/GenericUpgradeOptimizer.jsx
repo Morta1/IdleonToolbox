@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   Checkbox,
+  Chip,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -489,6 +490,7 @@ const GenericUpgradeOptimizer = ({
                 {cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '')
                   .replace('(Tap_for_more_info)', '')
                   .replace('(#)', ''))} ({upgrade.level} / {upgrade.x4})
+                {renderUnlockChip(upgrade)}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 {hasSequence
@@ -525,6 +527,25 @@ const GenericUpgradeOptimizer = ({
     );
   };
 
+  // Rows can include upgrades that are still locked in game: the plan buys the levels that open
+  // them first. Without this marker the list reads as "buy all of these right now".
+  const renderUnlockChip = (upgrade) => {
+    if (!upgrade.lockedNow) return null;
+    const steps = upgrade.unlocksAfterStep;
+    const label = steps > 0
+      ? `Unlocks after ${steps} ${steps === 1 ? 'purchase' : 'purchases'}`
+      : 'Locked now';
+    return (
+      <Chip
+        size="small"
+        variant="outlined"
+        color="warning"
+        label={label}
+        sx={{ ml: 1, height: 20, '& .MuiChip-label': { px: 0.75, fontSize: 11 } }}
+      />
+    );
+  };
+
   const renderUpgradeRow = (upgrade) => {
     const hasSequence = upgrade.sequence && upgrade.sequence.length > 1;
     const resourceTypeKey = getResourceType(upgrade);
@@ -539,7 +560,10 @@ const GenericUpgradeOptimizer = ({
             alt=""
           />
         </TableCell>
-        <TableCell>{cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))}</TableCell>
+        <TableCell>
+          {cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))}
+          {renderUnlockChip(upgrade)}
+        </TableCell>
         <TableCell>{upgrade.level} / {upgrade.x4}</TableCell>
         <TableCell>
           {hasSequence && upgrade.combinedStatChanges

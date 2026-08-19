@@ -177,3 +177,30 @@ describe('GenericUpgradeOptimizer split by resource', () => {
     expect(firstCells.filter(cell => /^\d+$/.test(cell))).toEqual(['1', '3', '2']);
   });
 });
+
+describe('GenericUpgradeOptimizer unlock marker', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it('marks a row that is still locked in game and says how far off it is', () => {
+    const { container } = renderOptimizer([
+      buildRow({}),
+      { ...buildRow({}), lockedNow: true, unlocksAfterStep: 1 }
+    ]);
+    expect(container.textContent).toContain('Unlocks after 1 purchase');
+  });
+
+  it('pluralises the purchase count', () => {
+    const { container } = renderOptimizer([
+      { ...buildRow({}), lockedNow: true, unlocksAfterStep: 7 }
+    ]);
+    expect(container.textContent).toContain('Unlocks after 7 purchases');
+  });
+
+  it('leaves already unlocked rows unmarked', () => {
+    const { container } = renderOptimizer([buildRow({})]);
+    expect(container.textContent).not.toContain('Unlocks after');
+    expect(container.textContent).not.toContain('Locked now');
+  });
+});

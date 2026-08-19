@@ -332,6 +332,13 @@ export const getOptimizedGrimoireUpgrades = (character: any, account: any, categ
       if (resources[boneIdx] !== undefined) resources[boneIdx] -= cost;
     },
     resourceNames: boneNames,
+    // Unlock gate is total levels bought anywhere in the tree, so it moves as the walk buys
+    getUnlockedIndices: (upgrades: any) => {
+      const totalLevels = upgrades.reduce((sum: number, upgrade: any) => sum + (upgrade?.level ?? 0), 0);
+      return new Set(upgrades
+        .filter((upgrade: any) => (upgrade?.unlockLevel ?? 0) <= totalLevels)
+        .map((upgrade: any) => upgrade.index));
+    },
     heldResourceOptionBase: 330, // accountOptions[330 + type] = bones currently held
     extraArgs: options
   });

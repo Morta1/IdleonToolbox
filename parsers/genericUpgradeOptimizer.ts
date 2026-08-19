@@ -87,6 +87,7 @@ export function getOptimizedGenericUpgrades({
                                               updateResourcesAfterUpgrade,
                                               resourceNames,
                                               heldResourceOptionBase,
+                                              getUnlockedIndices,
                                               extraArgs = {}
                                             }: any) {
   // Extract onlyAffordable from extraArgs, defaulting to false
@@ -95,6 +96,34 @@ export function getOptimizedGenericUpgrades({
   // Deep clone upgrades and resources to avoid mutating input data
   let simulatedUpgrades = JSON.parse(JSON.stringify(getUpgrades(account)));
   let simulatedResources = JSON.parse(JSON.stringify(getResources(account)));
+
+  // Unlock gates are driven by levels bought (total levels in the tree for Grimoire/Tesseract, the
+  // path's root upgrade for Compass), so buying anything can bring new upgrades in range mid-walk.
+  // getUnlockedIndices is re-run every step; without it we fall back to the static `unlocked` flag.
+  const resolveUnlocked = (upgrades: any) => (getUnlockedIndices
+    ? getUnlockedIndices(upgrades, { account, extraArgs })
+    : null);
+  let unlockedIndices = resolveUnlocked(simulatedUpgrades);
+  const isUpgradeUnlocked = (upgrade: any) => (unlockedIndices
+    ? unlockedIndices.has(upgrade.index)
+    : !!upgrade.unlocked);
+  // Locked right now in game, so the UI can mark the row instead of reading as "buy this today"
+  const initiallyLocked = new Set<any>(simulatedUpgrades
+    .filter((upgrade: any) => !isUpgradeUnlocked(upgrade))
+    .map((upgrade: any) => upgrade.index));
+  // index -> number of purchases that had to happen first before it came in range
+  const unlockStep: any = {};
+  const trackUnlocks = (step: number) => {
+    if (initiallyLocked.size === 0) return;
+    simulatedUpgrades.forEach((upgrade: any) => {
+      if (!initiallyLocked.has(upgrade.index)) return;
+      if (unlockStep[upgrade.index] !== undefined) return;
+      if (isUpgradeUnlocked(upgrade)) unlockStep[upgrade.index] = step;
+    });
+  };
+  const unlockInfo = (upgrade: any) => (initiallyLocked.has(upgrade.index)
+    ? { lockedNow: true, unlocksAfterStep: unlockStep[upgrade.index] ?? null }
+    : { lockedNow: false, unlocksAfterStep: null });
 
   // Resource spent so far in the simulation, per resource type. Feeds the held-resource bonuses.
   let spentByResource: any = {};
@@ -126,10 +155,12 @@ export function getOptimizedGenericUpgrades({
   // Refactored 'all' category: simulate sequential cheapest upgrades
   if (category === 'all') {
     for (let step = 0; step < maxUpgrades; step++) {
+      unlockedIndices = resolveUnlocked(simulatedUpgrades);
+      trackUnlocks(step);
       // Find all available upgrades (unlocked, not maxed, affordable if needed)
       const availableUpgrades = simulatedUpgrades.filter((upgrade: any) => {
         if (upgrade.level >= upgrade.x4) return false;
-        if (!upgrade.unlocked) return false;
+        if (!isUpgradeUnlocked(upgrade)) return false;
         if (onlyAffordable) {
           const cost = getUpgradeCost(upgrade, upgrade.index, {
             account: simAccount,
@@ -218,6 +249,7 @@ export function getOptimizedGenericUpgrades({
       // Add to results
       results.push({
         ...cheapestUpgrade,
+        ...unlockInfo(cheapestUpgrade),
         level: cheapestUpgrade.level + 1,
         cost: actualCost,
         hadReduction: reductionsRemaining > 0
@@ -229,6 +261,8 @@ export function getOptimizedGenericUpgrades({
   }
 
   for (let step = 0; step < maxUpgrades; step++) {
+    unlockedIndices = resolveUnlocked(simulatedUpgrades);
+    trackUnlocks(step);
     let bestUpgrade = null;
     let bestEfficiency = 0;
     let bestStatChanges = null;
@@ -244,7 +278,7 @@ export function getOptimizedGenericUpgrades({
     const availableUpgrades = simulatedUpgrades.filter((upgrade: any) => {
       if (!categoryInfo.upgradeIndices.includes(upgrade.index)) return false;
       if (upgrade.level >= upgrade.x4) return false;
-      if (!upgrade.unlocked) return false; // Only unlocked upgrades
+      if (!isUpgradeUnlocked(upgrade)) return false; // Only unlocked upgrades
       // If onlyAffordable is true, check if upgrade is affordable with current simulatedResources
       if (onlyAffordable) {
         const cost = getUpgradeCost(upgrade, upgrade.index, {
@@ -432,6 +466,7 @@ export function getOptimizedGenericUpgrades({
 
       results.push({
         ...upgradeSnapshot,
+        ...unlockInfo(bestUpgrade),
         efficiency: bestEfficiency,
         statChanges: statChangesWithHoarding,
         totalStatChange: bestTotalChange,
