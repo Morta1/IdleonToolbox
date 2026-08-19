@@ -18,7 +18,7 @@ const TheJars = ({ hole }) => {
         value={notateNumber(Math.floor(amount))}/>)}
     </Stack>
     <Divider sx={{ mt: 1 }}/>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'} mt={3}>
       <CardWithBreakdown title={'Progress per hour'}
                          value={notateNumber(hole?.caverns?.theJars?.perHour?.value, 'Big')}
                          breakdown={hole?.caverns?.theJars?.perHour?.breakdown}/>
@@ -28,6 +28,16 @@ const TheJars = ({ hole }) => {
                          value={notateNumber(hole?.caverns?.theJars?.rupieValue.value, 'Big')} breakdown={hole?.caverns?.theJars?.rupieValue.breakdown} notation={'MultiplierInfo'}/>
       <CardTitleAndValue title={'Total jars'}
                          value={`${hole?.caverns?.theJars?.totalJars} / 120`}/>
+      <CardTitleAndValue title={'Total quantity'}>
+        <Stack direction={'row'} alignItems={'center'} gap={1}>
+          <Typography>{notateNumber(hole?.caverns?.theJars?.totalJarQuantity ?? 0, 'Big')}</Typography>
+          <Tooltip title={'Every jar counted as its tier 1 equivalent (a T2 jar is worth 10)'}>
+            <Stack alignContent={'center'}>
+              <IconInfoCircleFilled size={18}/>
+            </Stack>
+          </Tooltip>
+        </Stack>
+      </CardTitleAndValue>
       <CardTitleAndValue title={'Total enhancing levels'}
                          value={numberWithCommas(hole?.caverns?.theJars?.totalEnhancingLevels ?? 0)}/>
       <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
@@ -42,11 +52,11 @@ const TheJars = ({ hole }) => {
     <Divider sx={{ mb: 2 }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole', 'Explore', 'The Jars')} queryKey={'dnt'}>
       <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-        {hole?.caverns?.theJars?.jars?.map(({ name, unlocked, req, effect, destroyed, enchant }, index) => {
+        {hole?.caverns?.theJars?.jars?.map(({ name, unlocked, req, effect, destroyed, enchant, owned }, index) => {
           return <Card key={`jar-${index}`}>
             <CardContent sx={{
               width: 350,
-              minHeight: 215,
+              minHeight: 265,
               opacity: unlocked ? 1 : .5
             }}>
               <Stack direction={'row'} alignItems={'center'} gap={1}>
@@ -76,6 +86,24 @@ const TheJars = ({ hole }) => {
                 </Tooltip>
               </Stack>
               <Typography variant={'body1'}>Jars destroyed: {numberWithCommas(destroyed)}</Typography>
+              <Divider sx={{ my: 1 }}/>
+              <Stack direction={'row'} alignItems={'center'} gap={1}>
+                <Typography variant={'body1'}>
+                  Held: {numberWithCommas(owned?.total ?? 0)} ({notateNumber(owned?.quantity ?? 0, 'Big')} quantity)
+                </Typography>
+                {owned?.tiers?.length ? <Tooltip title={<Stack>
+                  {owned.tiers.map(({ tier, count }) => <Typography key={`tier-${tier}`} variant={'body2'}>
+                    T{tier}: {numberWithCommas(count)} ({notateNumber(count * Math.pow(10, tier - 1), 'Big')} quantity)
+                  </Typography>)}
+                </Stack>}>
+                  <Stack alignContent={'center'}>
+                    <IconInfoCircleFilled size={18}/>
+                  </Stack>
+                </Tooltip> : null}
+              </Stack>
+              <Typography variant={'body2'} sx={{ opacity: .7, minHeight: 21 }}>
+                {owned?.tiers?.map(({ tier, count }) => `T${tier} x${count}`).join(' · ')}
+              </Typography>
               <Divider sx={{ my: 1 }}/>
               <Typography variant={'body1'}>Time to
                 full: {msToDate(req / hole?.caverns?.theJars?.perHour?.value * 1000 * 3600)}</Typography>

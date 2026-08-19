@@ -7,7 +7,9 @@ export const patchNotes = [
     'ver': '3.3.62',
     'gameVer': '2.3.523',
     'date': '19/08/2026',
-    'features': [],
+    'features': [
+      'The Jars: each jar now shows how many you are holding and of which tiers, plus a Total quantity card counting every jar as its tier 1 equivalent'
+    ],
     'fixes': [
       'Upgrade Optimizer: Tesseract, Compass and Grimoire now account for Hoarding upgrades, which scale with how much of a resource you are holding. Spending lowers that bonus, so the optimizer no longer recommends purchases that would drop your stats',
       'Upgrade Optimizer: upgrades now show the gross gain, what Hoarding takes off it and the net result, plus how long the stash takes to farm back. When holding beats every purchase you can afford, the page says to build your stash up instead of showing an empty list',

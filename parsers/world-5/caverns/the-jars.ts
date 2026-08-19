@@ -32,6 +32,7 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
   const enchant = getEnchantChance({ holesObject, account: accountData });
   const rupieValue = getRupieValue({ holesObject, accountData });
   const jarAesthetic = getJarAesthetic({ holesObject });
+  const jarInventory = getJarInventory(jarsRaw);
   const jars = jarNames.map((name, index) => {
     const bonus = index === 1 ? notateNumber(100 * opalChance, 'Small') : index === 2
       ? notateNumber(100 * newCollectibleChance, 'Small')
@@ -42,6 +43,7 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
       unlocked: index <= jarTypes,
       req: getProductionReq({ holesObject, i: index }),
       destroyed: holesObject?.extraCalculations?.slice(40, 50)?.[index] || 0,
+      owned: jarInventory?.[index],
       // Enchanted Jar (index 4): expose precise odds, per-tier scaling and source breakdown
       enchant: index === 4 ? enchant : undefined
     }
@@ -89,9 +91,35 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
     perHour,
     jars,
     totalJars: jarsRaw?.length,
+    jarInventory,
+    totalJarQuantity: jarInventory.reduce((sum, { quantity }) => sum + quantity, 0),
     totalEnhancingLevels,
     collectibles
   }
+}
+
+// A raw Jars entry is [typeIndex, tierExponent, x, y, roll]. The tier exponent is
+// what the game raises 10 to when a jar is broken (rupie value, opal odds and
+// enchant odds all scale by 10^exponent), so one jar is worth 10^exponent
+// base-tier jars. Displayed tier is 1-based, hence exponent 0 is "T1".
+const getJarInventory = (jarsRaw: any) => {
+  const inventory = jarNames.map(() => ({ total: 0, quantity: 0, tiers: [] as { tier: number, count: number }[] }));
+  (jarsRaw ?? []).forEach((jar: any) => {
+    const entry = inventory?.[Math.round(parseFloat(jar?.[0]))];
+    if (!entry) return;
+    const tier = Math.round(parseFloat(jar?.[1])) + 1;
+    entry.total += 1;
+    entry.quantity += Math.pow(10, tier - 1);
+    const existing = entry.tiers.find((t) => t.tier === tier);
+    if (existing) {
+      existing.count += 1;
+    }
+    else {
+      entry.tiers.push({ tier, count: 1 });
+    }
+  });
+  inventory.forEach(({ tiers }) => tiers.sort((a, b) => a.tier - b.tier));
+  return inventory;
 }
 
 const _randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -362,11 +390,3 @@ const getEnchantChance = ({ holesObject, account }: any) => {
 
   return { value, label: formatEnchantPercent(value), tiers, breakdown };
 }
-
-// TODO: TBD
-// 11 == this._DN4 ? a.engine.getGameAttribute("Holes")[11][39] = c.asNumber(a.engine.getGameAttribute("Holes")[11][39])
-//   + n._customBlock_Holes("JarRupieValue", 0, 0) * Math.pow(10, c.asNumber(a.engine.getGameAttribute("Jars")[this._DRI | 0][1]))
-//   : 10 == this._DN4 ? a.engine.getGameAttribute("Holes")[11][38] = c.asNumber(a.engine.getGameAttribute("Holes")[11][38])
-//     + n._customBlock_Holes("JarRupieValue", 0, 0) * Math.pow(10, c.asNumber(a.engine.getGameAttribute("Jars")[this._DRI | 0][1]))
-//     : a.engine.getGameAttribute("Holes")[9][Math.round(20 + this._DN4)] = c.asNumber(a.engine.getGameAttribute("Holes")[9][Math.round(20 + this._DN4)])
-//       + n._customBlock_Holes("JarRupieValue", 0, 0) * Math.pow(10, c.asNumber(a.engine.getGameAttribute("Jars")[this._DRI | 0][1]))
