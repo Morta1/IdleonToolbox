@@ -330,7 +330,8 @@ const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
       <TitleAndValue title={'Cash multi'} value={`${notateNumber(cashMulti)}%`}/>
       <TitleAndValue title={'Drop rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}/>
       <TitleAndValue title={'Respawn rate'} value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}/>
-      <TitleAndValue title={'Afk gains'} value={`${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}/>
+      <TitleAndValue title={'Afk gains'}
+                     value={afkGains == null ? 'N/A' : `${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}/>
       <TitleAndValue title={'Crystal Chance'} value={(1 / crystalSpawnChance?.value) < 100
         ?
         `${notateNumber(crystalSpawnChance?.value * 100, 'MultiplierInfo')?.replace('.00', '')}%`

@@ -118,7 +118,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
                      breakdown={rtBreakdown} breakdownNotation={'Smaller'}/>
             <Stat title={'AFK Gains'}
                   useDoubleColumn
-                  value={`${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}
+                  value={afkGains == null ? 'N/A' : `${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}
                   breakdown={agBreakdown} breakdownNotation={'Smaller'}/>
             <Stat title={'Non Consume Chance'}
                   value={`${kFormatter(nonConsumeChance, 2)}%`}

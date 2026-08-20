@@ -3037,7 +3037,8 @@ export const getPlayerSpeedBonus = (character: any, characters: any, account: an
   return Math.round(finalSpeed * 100);
 }
 export const getAfkGain = (character: any, characters: any, account: any) => {
-  let breakdown: any[] = [], gains = 0;
+  // null until a branch below claims the afkType, so an unhandled type stays distinguishable from a real 0
+  let breakdown: any[] = [], gains: number | null = null;
   const { afkType } = character;
   const { guild, bribes, shrines, charactersLevels, tasks } = account;
   const afkGainsTaskBonus = tasks?.[2]?.[1]?.[2] > character?.playerId ? 2 : 0;
@@ -3440,16 +3441,32 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
     ]
   }
 
-  let math = gains;
-  breakdown = [
-    ...breakdown
-  ]
-  const final = Math.max(.01, math);
+  // The game shows no AFK gains rate for these targets, so neither do we: a 1% floor would be a made-up number
+  if (gains === null) {
+    const reason = getAfkGainsUnavailableReason(afkType);
+    return {
+      afkGains: null,
+      afkGainsUnavailableReason: reason,
+      breakdown: [
+        { title: reason },
+        { name: '' },
+        ...breakdown
+      ]
+    };
+  }
+
   return {
-    afkGains: final,
+    afkGains: Math.max(.01, gains),
     breakdown
   };
 }
+
+const getAfkGainsUnavailableReason = (afkType: string) => {
+  if (afkType === 'Paying_Respect') return 'No AFK gains rate: paying respect at a monument';
+  if (afkType === 'Nothing') return 'No AFK gains rate: character has no AFK target';
+  return 'No AFK gains rate: unrecognized AFK target';
+}
+
 const getTrappingStuff = (type: any, index: any, account: any) => {
   if (type === 'TrapMGbonus') {
     const value = account?.accountOptions?.[99];

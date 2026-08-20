@@ -93,6 +93,8 @@ export const getMaxDamage = (character: Character, characters: Character[], acco
   playerInfo.respawnRate = respawnRate;
   const { afkGains } = getAfkGain(character, characters, account);
   playerInfo.afkGains = afkGains;
+  // null means the character has no AFK target, so it earns nothing per hour
+  const afkGainsRate = afkGains ?? 0;
   playerInfo.maxHp = getMaxHp(character, characters, account);
   playerInfo.maxMp = getMaxMp(character, characters, account);
   playerInfo.movementSpeed = getPlayerSpeedBonus(character, characters, account);
@@ -124,13 +126,13 @@ export const getMaxDamage = (character: Character, characters: Character[], acco
   playerInfo.defence = getPlayerDefence(character, characters, account, playerInfo);
   playerInfo.survivability = getSurvivability(character, characters, account, playerInfo);
   playerInfo.killsPerHour = getKillsPerHour(character, characters, account, playerInfo);
-  playerInfo.survivabilityMath = playerInfo.killsPerHour * playerInfo.afkGains * (playerInfo.survivability / 100);
+  playerInfo.survivabilityMath = playerInfo.killsPerHour * afkGainsRate * (playerInfo.survivability / 100);
   playerInfo.survivability = getSurvivability(character, characters, account, playerInfo);
   playerInfo.killsPerHour = getKillsPerHour(character, characters, account, playerInfo);
 
   playerInfo.killPerkill = getKillPerKill(character, characters, account, playerInfo);
 
-  playerInfo.finalKillsPerHour = Math.floor(playerInfo.killsPerHour * playerInfo.afkGains * (playerInfo.survivability / 100) * playerInfo.killPerkill.value);
+  playerInfo.finalKillsPerHour = Math.floor(playerInfo.killsPerHour * afkGainsRate * (playerInfo.survivability / 100) * playerInfo.killPerkill.value);
 
   return playerInfo;
 }
