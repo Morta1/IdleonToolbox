@@ -384,6 +384,13 @@ export const cleanUnderscore = (str) => {
   }
 };
 
+// Star sign bonuses use "{" as a value placeholder, but decimal-valued bonuses
+// use the "{.{" token pair instead, so both have to be substituted.
+export const formatStarSignBonus = (rawName, bonus) => {
+  if (!rawName) return '';
+  return String(rawName).replace('{.{', bonus).replace(/{/g, bonus);
+};
+
 export const getActivityIcon = (character) => {
   const { afkTarget, targetMonster, monsterFace } = character || {};
   if (!afkTarget || afkTarget === '_' || afkTarget === 'Nothing') return 'data/Afkz5';

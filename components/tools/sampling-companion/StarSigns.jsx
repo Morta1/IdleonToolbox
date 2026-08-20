@@ -1,6 +1,6 @@
 import { Grid, Stack, Typography } from '@mui/material';
 import React from 'react';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, formatStarSignBonus } from '@utility/helpers';
 
 const Chips = ({ starSigns, account, character }) => {
   return <Stack>
@@ -15,7 +15,7 @@ const Chips = ({ starSigns, account, character }) => {
             <Stack sx={{ opacity: isEquipped ? 1 : .5 }}>
               <Typography>{cleanUnderscore(starName)}</Typography>
               <Typography
-                variant={'body2'}>{cleanUnderscore(realStarSign?.rawName?.replace('{', realStarSign?.bonus))}</Typography>
+                variant={'body2'}>{cleanUnderscore(formatStarSignBonus(realStarSign?.rawName, realStarSign?.bonus))}</Typography>
             </Stack>
           </Grid>
         })}

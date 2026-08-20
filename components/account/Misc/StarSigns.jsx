@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Divider, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
-import { cleanUnderscore, getTabs, prefix } from 'utility/helpers';
+import { cleanUnderscore, formatStarSignBonus, getTabs, prefix } from 'utility/helpers';
 import Tabber from '../../common/Tabber';
 import { PAGES } from '@components/constants';
 
@@ -47,7 +47,7 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
                         ? bonuses?.map(({
                                           rawName,
                                           bonus
-                                        }) => cleanUnderscore(rawName.replace("{.{", bonus).replace(/{/g, bonus))).join(', ')
+                                        }) => cleanUnderscore(formatStarSignBonus(rawName, bonus))).join(', ')
                         : cleanUnderscore(description)}
                     </Typography>
                   </Grid>
