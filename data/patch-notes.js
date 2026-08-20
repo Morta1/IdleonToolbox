@@ -27,7 +27,9 @@ export const patchNotes = [
       'Drop Rate: passive card bonuses ignored their in-game caps',
       'Class EXP multi was missing the Tobiko Temaki sushi bonus, showing 1.25x lower than the real value',
       'Spelunking: Amber gain counted the Litterfish card once instead of twice, missing most of its bonus',
-      'Star Talent Points: passive card bonuses ignored their in-game caps'
+      'Star Talent Points: passive card bonuses ignored their in-game caps',
+      'Coral Reef: the Coral Kid Divinity upgrade showed a hugely inflated Minor Link multiplier, such as 6.65x instead of 2.08x',
+      'Divinity: an Elemental Sorcerer\'s second linked deity left out the Coral Kid upgrade, showing a lower minor bonus than the real value'
     ]
   },
   {

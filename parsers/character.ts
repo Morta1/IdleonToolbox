@@ -479,8 +479,6 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
   character.zow = getBarbarianZowChow(kills, [1e5]);
   character.chow = getBarbarianZowChow(kills, [1e6, 1e8]);
   character.wow = getBarbarianZowChow(kills, [1e9]);
-  const bigPBubble = getActiveBubbleBonus(character.equippedBubbles, 'BIG_P', account);
-  const divinityLevel = character.skillsInfo?.divinity?.level;
   const linkedDeity = account?.divinity?.linkedDeities?.[character.playerId];
   character.linkedDeity = linkedDeity;
   if (linkedDeity !== -1) {
@@ -493,9 +491,8 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
     const god = gods?.[gIndex];
     if (god && (god?.godIndex !== linkedDeity)) {
       secondLinkedDeity = god?.godIndex;
-      const multiplier = (gods as any)?.[secondLinkedDeity]?.minorBonusMultiplier;
       character.secondLinkedDeityIndex = gIndex;
-      character.secondDeityMinorBonus = Math.max(1, bigPBubble) * (divinityLevel / (60 + divinityLevel)) * multiplier;
+      character.secondDeityMinorBonus = getMinorDivinityBonus(character, account, gIndex);
     }
   }
   const divStyleIndex = account?.divinity?.linkedStyles?.[character?.playerId];

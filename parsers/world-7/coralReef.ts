@@ -306,7 +306,7 @@ const getCoralKidDescription = (baseDescription: any, level: any, index: any, bo
 
   const bonus3 = getCoralKidUpgBonus(account, 3);
   const highestDivinityLevel = getHighestCharacterSkill(charactersData, 'divinity'); // TODO: possibly add char select
-  const divisor = 100;
+  const divisor = 60 + highestDivinityLevel;
   const hatValue = 1 + (1 + bonus3 / 100) * highestDivinityLevel / divisor;
   const hatNotation = notateNumber(hatValue, 'MultiplierInfo');
   description = description.replace('^', hatNotation);
