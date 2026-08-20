@@ -32,6 +32,7 @@ import ConstructionSmallCogs from './ConstructionSmallCogs';
 import ConstructionMoves from './ConstructionMoves';
 import { useConstructionOptimizer } from '@hooks/useConstructionOptimizer';
 import { navBarHeight } from '@components/constants';
+import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
 
 // The board pins under the fixed nav bar so it stays in view while the steps list scrolls beside it -
 // the step highlight is useless if the board it lights up is three screens away.
@@ -126,13 +127,8 @@ const ConstructionMain = () => {
   }, []);
 
   const handleCopy = async (data, label) => {
-    try {
-      await navigator.clipboard.writeText(data);
-      setCopied(`${label} copied to clipboard`);
-    } catch (err) {
-      console.error(err);
-      setCopied('Could not copy - your browser blocked clipboard access');
-    }
+    const copied = await copyText(data);
+    setCopied(copied ? `${label} copied to clipboard` : CLIPBOARD_ERROR_MESSAGE);
   };
 
   const handleStatChange = (nextStat) => {

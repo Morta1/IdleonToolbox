@@ -9,6 +9,7 @@ import {
   InputAdornment,
   IconButton,
   Snackbar,
+  Alert,
   useMediaQuery,
   useTheme,
   SwipeableDrawer,
@@ -23,6 +24,7 @@ import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import ImageIcon from "@mui/icons-material/Image";
 import { notateNumber } from "@utility/helpers";
+import { CLIPBOARD_ERROR_MESSAGE, copyText } from "@utility/clipboard";
 import useBreakdown from "./Breakdown.hook";
 import GameIconNotation from "@components/common/GameIconNotation";
 
@@ -61,7 +63,18 @@ interface StatBreakdownTooltipProps {
 export function Breakdown({ data, children, valueNotation = "MultiplierInfo", skipNotation }: StatBreakdownTooltipProps) {
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
-  const { copyImageToClipboard } = useBreakdown({ data, valueNotation, setFeedbackMessage, setShowFeedback, skipNotation })
+  const [feedbackSeverity, setFeedbackSeverity] = useState<"success" | "error">("success");
+  const { copyImageToClipboard } = useBreakdown({ data, valueNotation, skipNotation })
+
+  const showResult = (succeeded: boolean, successMessage: string) => {
+    setFeedbackSeverity(succeeded ? "success" : "error")
+    setFeedbackMessage(succeeded ? successMessage : CLIPBOARD_ERROR_MESSAGE)
+    setShowFeedback(true)
+  }
+
+  const handleCopyImage = async () => {
+    showResult(await copyImageToClipboard(), "Copied image to clipboard")
+  }
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set([0]))
   const [expandedSubSections, setExpandedSubSections] = useState<Set<string>>(new Set())
   const [open, setOpen] = useState(false)
@@ -136,7 +149,7 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
     setExpandedSubSections(new Set())
   }
 
-  const handleCopyBreakdown = () => {
+  const handleCopyBreakdown = async () => {
     if (!data) return
     let text = `${data.statName}: ${data.totalValue}\n\n`
 
@@ -161,9 +174,7 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
       text += "\n"
     })
     
-    navigator.clipboard.writeText(text)
-    setShowFeedback(true)
-    setFeedbackMessage("Copied text to clipboard")
+    showResult(await copyText(text), "Copied text to clipboard")
   }
 
   let filteredData = data
@@ -395,7 +406,7 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
             <IconButtonWithTooltip tooltip="Copy as Text" onClick={handleCopyBreakdown}>
               <ContentCopyIcon fontSize="small" />
             </IconButtonWithTooltip>
-            <IconButtonWithTooltip tooltip="Copy as Image" onClick={copyImageToClipboard}>
+            <IconButtonWithTooltip tooltip="Copy as Image" onClick={handleCopyImage}>
               <ImageIcon fontSize="small" />
             </IconButtonWithTooltip>
           </Stack>
@@ -639,11 +650,14 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
 
       <Snackbar
         open={showFeedback}
-        autoHideDuration={2000}
+        autoHideDuration={feedbackSeverity === "error" ? 5000 : 2000}
         onClose={() => setShowFeedback(false)}
-        message={feedbackMessage}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      />
+      >
+        <Alert severity={feedbackSeverity} variant="filled" onClose={() => setShowFeedback(false)}>
+          {feedbackMessage}
+        </Alert>
+      </Snackbar>
     </>
   )
 }

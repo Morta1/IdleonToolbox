@@ -1,6 +1,7 @@
 import { format, getDaysInMonth, getDaysInYear, intervalToDuration, isValid } from 'date-fns';
 import { drawerPages } from '@components/constants';
 import merge from 'lodash.merge';
+import { copyText } from '@utility/clipboard';
 
 export const getTabs = (array, label, tabName, nestedTabName) => {
   const navItem = array.find((item) => item.label === label);
@@ -904,12 +905,8 @@ function renameSettingInPostOffice(obj) {
 }
 
 export const handleCopyToClipboard = async (data, beautify = true) => {
-  try {
-    const text = beautify ? JSON.stringify(data, null, 2) : data;
-    await navigator.clipboard.writeText(text);
-  } catch (err) {
-    console.error(err);
-  }
+  const text = beautify ? JSON.stringify(data, null, 2) : data;
+  return copyText(text);
 };
 
 export const handleDownload = (jsonData, fileName) => {
@@ -957,12 +954,12 @@ export const copyForSupport = async (account, characters) => {
   const data = JSON.parse(sessionStorage.getItem('rawJson'));
   const extraData = expandLeaderboardInfo(account, characters);
   const sanitized = { ...data, data: sanitizeRawData(data?.data) };
-  await navigator.clipboard.writeText(JSON.stringify(sortKeys({ ...sanitized, extraData }), null, 2));
+  return copyText(JSON.stringify(sortKeys({ ...sanitized, extraData }), null, 2));
 };
 
 export const copyRawData = async () => {
   const data = JSON.parse(sessionStorage.getItem('rawJson'));
-  await navigator.clipboard.writeText(JSON.stringify(sortKeys(sanitizeRawData(data?.data)), null, 2));
+  return copyText(JSON.stringify(sortKeys(sanitizeRawData(data?.data)), null, 2));
 };
 
 export const handleLoadJson = async (dispatch) => {

@@ -18,7 +18,8 @@ export const patchNotes = [
       'Material Tracker: an imported list was lost on refresh, since the import was never saved',
       'Research: the "Magnifiers" count actually included your Optical Monocles and Kaleidoscopes, since that\'s how the game stores it. It\'s now labelled "Total Lenses", with separate counts for Magnifying Glasses, Optical Monocles and Kaleidoscopes',
       'Dashboard: while a random event was running, the tile showed that event\'s icon and name next to a countdown to the following event. Both now refer to the same upcoming event',
-      'Refinery: the cycle time breakdown showed the Polymer Refinery bonus 100x too large and listed a Companion bonus that is not part of cycle speed'
+      'Refinery: the cycle time breakdown showed the Polymer Refinery bonus 100x too large and listed a Companion bonus that is not part of cycle speed',
+      'Copy buttons could silently copy nothing, and some still reported success. They now fall back to a second copy method when the browser blocks clipboard access, and show an error when the copy really fails'
     ]
   },
   {

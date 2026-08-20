@@ -1,8 +1,8 @@
 import { IconCopy, IconDatabase, IconLogin2, IconLogout2, IconSettings, IconUser } from '@tabler/icons-react';
 import IconButton from '@mui/material/IconButton';
 import {
-  Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
-  Divider, listClasses, ListItemIcon, ListItemText, Menu
+  Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+  Divider, listClasses, ListItemIcon, ListItemText, Menu, Snackbar
 } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import React, { useContext, useState } from 'react';
@@ -11,6 +11,7 @@ import LoginDialog from '@components/common/NavBar/LoginDialog';
 import { useRouter } from 'next/router';
 import { IconClipboard } from '@tabler/icons-react';
 import { copyForSupport, copyRawData, handleLoadJson, isProd } from '@utility/helpers';
+import { CLIPBOARD_ERROR_MESSAGE } from '@utility/clipboard';
 
 const UserMenu = () => {
   const { dispatch, state, logout } = useContext(AppContext);
@@ -18,6 +19,7 @@ const UserMenu = () => {
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [prevSignedIn, setPrevSignedIn] = useState(state?.signedIn);
+  const [copyResult, setCopyResult] = useState(null);
   const open = Boolean(anchorEl);
   const router = useRouter();
   const { profile, ...queryParams } = router.query;
@@ -35,22 +37,26 @@ const UserMenu = () => {
     setAnchorEl(null);
   };
 
-  const handleCopyForSupport = async () => {
+  const runCopy = async (copy, successMessage) => {
+    let copied = false;
     try {
-      await copyForSupport(state?.account, state?.characters);
+      copied = await copy();
     } catch (err) {
       console.error(err);
     }
+    setCopyResult({
+      severity: copied ? 'success' : 'error',
+      message: copied ? successMessage : CLIPBOARD_ERROR_MESSAGE
+    });
     handleClose();
   };
 
+  const handleCopyForSupport = async () => {
+    await runCopy(() => copyForSupport(state?.account, state?.characters), 'Copied to clipboard');
+  };
+
   const handleCopyRawData = async () => {
-    try {
-      await copyRawData();
-    } catch (err) {
-      console.error(err);
-    }
-    handleClose();
+    await runCopy(() => copyRawData(), 'Copied to clipboard');
   };
 
   const handleLogout = () => {
@@ -146,6 +152,16 @@ const UserMenu = () => {
         <ListItemText>Logout</ListItemText>
       </MenuItem>}
     </Menu>
+    <Snackbar
+      open={Boolean(copyResult)}
+      autoHideDuration={copyResult?.severity === 'error' ? 5000 : 2000}
+      onClose={() => setCopyResult(null)}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+    >
+      <Alert severity={copyResult?.severity} variant="filled" onClose={() => setCopyResult(null)}>
+        {copyResult?.message}
+      </Alert>
+    </Snackbar>
     <LoginDialog open={dialogOpen} setOpen={setDialogOpen} onClose={() => setDialogOpen(false)}/>
     <Dialog open={logoutConfirmOpen} onClose={() => setLogoutConfirmOpen(false)}>
       <DialogTitle>Logout</DialogTitle>

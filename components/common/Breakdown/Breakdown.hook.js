@@ -1,12 +1,11 @@
 import { notateNumber } from '@utility/helpers';
+import { copyBlob } from '@utility/clipboard';
 import { useState } from 'react';
 import useFormatDate from '@hooks/useFormatDate';
 
 const useBreakdown = ({
                         data,
                         valueNotation = 'MultiplierInfo',
-                        setFeedbackMessage,
-                        setShowFeedback,
                         skipNotation
                       }) => {
   const formatDate = useFormatDate();
@@ -31,7 +30,10 @@ const useBreakdown = ({
     // Create canvas
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      setIsExporting(false);
+      throw new Error('Canvas 2d context unavailable');
+    }
 
     // Canvas dimensions - matching Material UI theme
     const width = 500;
@@ -217,18 +219,13 @@ const useBreakdown = ({
   };
 
   const copyImageToClipboard = async () => {
-    const blob = await generateImage();
-    if (!navigator.clipboard || !window.ClipboardItem) {
-      throw new Error('Clipboard image API not supported')
+    try {
+      const blob = await generateImage();
+      return await copyBlob(blob);
+    } catch (err) {
+      console.error(err);
+      return false;
     }
-
-    const item = new ClipboardItem({
-      [blob.type]: blob
-    })
-
-    await navigator.clipboard.write([item])
-    setFeedbackMessage('Copied image to clipboard');
-    setShowFeedback(true);
   }
 
 

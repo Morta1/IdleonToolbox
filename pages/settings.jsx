@@ -32,6 +32,7 @@ import { intervalToDuration, isValid } from 'date-fns';
 import { uploadProfile } from '../services/profiles';
 import { expandLeaderboardInfo } from '../services/leaderboardInfo';
 import { copyForSupport, copyRawData, notateNumber, sortKeys } from '@utility/helpers';
+import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
 import useTimeout from '@hooks/useTimeout';
 import NormalTimer from '../components/common/Timer/Normal';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
@@ -115,6 +116,7 @@ const Settings = () => {
   const [showClearOptions, setShowClearOptions] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [popperMessage, setPopperMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [uploaded, setUploaded] = useState(false);
@@ -185,36 +187,37 @@ const Settings = () => {
 
   useTimeout(() => {
     setAnchorEl(null);
-  }, anchorEl ? 1000 : null);
+  }, anchorEl ? (popperMessage ? 4000 : 1000) : null);
 
-  const handleCopyITRaw = async (e) => {
+  const showPopper = (target, message = null) => {
+    setPopperMessage(message);
+    setAnchorEl(target);
+  };
+
+  // The popper reports the result, so it can only be shown once the write has actually resolved.
+  const runCopy = async (target, copy) => {
+    let copied = false;
     try {
-      setAnchorEl(e.currentTarget);
-      await copyForSupport(state?.account, state?.characters);
+      copied = await copy();
     } catch (err) {
       console.error(err);
     }
+    showPopper(target, copied ? null : CLIPBOARD_ERROR_MESSAGE);
+  };
+
+  const handleCopyITRaw = async (e) => {
+    await runCopy(e.currentTarget, () => copyForSupport(state?.account, state?.characters));
   };
 
   const handleCopyRaw = async (e) => {
-    try {
-      setAnchorEl(e.currentTarget);
-      await copyRawData();
-    } catch (err) {
-      console.error(err);
-    }
+    await runCopy(e.currentTarget, () => copyRawData());
   };
 
   const handleCopyLink = async (e) => {
     const target = e.currentTarget;
     const charName = state?.characters?.[0]?.name;
     if (!charName) return;
-    try {
-      await navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_IT_URL}/account/misc/general?profile=${encodeURIComponent(charName)}`);
-      setAnchorEl(target);
-    } catch (err) {
-      console.error(err);
-    }
+    await runCopy(target, () => copyText(`${process.env.NEXT_PUBLIC_IT_URL}/account/misc/general?profile=${encodeURIComponent(charName)}`));
   };
 
   const handleStorageClear = (keys) => {
@@ -518,7 +521,7 @@ const Settings = () => {
         </Stack>
       </Stack>
     </Container>
-    <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)}/>
+    <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)} message={popperMessage ?? undefined}/>
   </>;
 };
 

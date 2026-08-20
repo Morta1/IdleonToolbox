@@ -15,13 +15,6 @@ const WeeklyBosses = () => {
   const { state } = useContext(AppContext);
   const formatDate = useFormatDate();
   const [weeks, setWeeks] = useState(10);
-  const handleCopy = async (data) => {
-    try {
-      await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   const weeklyBosses = getWeeklyBoss(state?.account, weeks);
   return weeklyBosses?.length ? <>

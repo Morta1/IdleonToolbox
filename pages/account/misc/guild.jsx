@@ -10,6 +10,7 @@ import ProgressBar from '../../../components/common/ProgressBar';
 import useFormatDate from '@hooks/useFormatDate';
 import Box from '@mui/material/Box';
 import Popper from '@components/common/Popper';
+import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
 
 const Guild = () => {
   const { state } = useContext(AppContext);
@@ -17,6 +18,7 @@ const Guild = () => {
   const { guild } = state?.account || {};
   const [dataTimestamp, setDataTimestamp] = useState([]);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [popperMessage, setPopperMessage] = React.useState(null);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -55,16 +57,19 @@ const Guild = () => {
   }
 
   const exportToJson = async (e) => {
-    setAnchorEl(e.currentTarget)
+    const target = e.currentTarget;
+    let copied = false;
     try {
       const exportedData = {
         date: formatDate(new Date()),
         members: guild?.members?.map(({ name, gpEarned }) => ({ name, gpEarned }))
       }
-      await navigator.clipboard.writeText(JSON.stringify(exportedData, null, 2));
+      copied = await copyText(JSON.stringify(exportedData, null, 2));
     } catch (e) {
       console.error('exportToJson -> ', e);
     }
+    setPopperMessage(copied ? null : CLIPBOARD_ERROR_MESSAGE);
+    setAnchorEl(target);
   }
 
   const onClear = () => {
@@ -109,7 +114,7 @@ const Guild = () => {
             <Stack direction={'row'} alignItems={'center'} gap={2}>
               <Button variant={'contained'} onClick={saveToLS}>Save</Button>
               <Button variant={'contained'} onClick={exportToJson}>Export</Button>
-              <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)}/>
+              <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)} message={popperMessage ?? undefined}/>
               <Button variant={'contained'} color={'warning'} onClick={onClear}>Clear
                 all</Button>
             </Stack>

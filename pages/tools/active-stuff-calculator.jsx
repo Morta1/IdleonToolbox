@@ -2,10 +2,12 @@ import { NextSeo } from 'next-seo';
 import React, { useContext, useEffect, useState } from 'react';
 import {
   Checkbox,
+  Alert,
   Divider,
   FormControlLabel,
   Select,
   selectClasses,
+  Snackbar,
   Stack,
   ToggleButton,
   ToggleButtonGroup,
@@ -28,6 +30,7 @@ import { checkCharClass, CLASSES } from '@parsers/talents';
 import CoinsSection from '@components/tools/active-calculator/CoinsSection';
 import CauldronsSection from '@components/tools/active-calculator/CauldronsSection';
 import ObolsSection from '@components/tools/active-calculator/ObolsSection';
+import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
 
 
 const sections = ['coins', 'pets', 'kills', 'exp', 'cards', 'drops', 'cauldrons', 'obols'];
@@ -37,6 +40,7 @@ const ActiveStuffCalculator = () => {
   const formatDate = useFormatDate();
   const [snapshottedAcc, setSnapshottedAcc] = useLocalStorage({ key: 'activeDropAcc', defaultValue: null });
   const [snapshottedChar, setSnapshottedChar] = useLocalStorage({ key: 'activeDropPlayer', defaultValue: null });
+  const [copyResult, setCopyResult] = useState(null);
   const [resultsOnly, setResultsOnly] = useLocalStorage({ key: 'activeDropResultsOnly', defaultValue: false });
   const [selectedSections, setSelectedSections] = useLocalStorage({
     key: 'activeDropSections',
@@ -87,14 +91,17 @@ const ActiveStuffCalculator = () => {
     setSnapshottedAcc({ ...state?.account, snapshotTime: new Date().getTime() })
   }
 
-  const handleCopySnapshot = () => {
-    if (snapshottedAcc && snapshottedChar) {
-      const snapshotData = {
-        account: snapshottedAcc,
-        character: snapshottedChar
-      };
-      navigator.clipboard.writeText(JSON.stringify(snapshotData, null, 2));
-    }
+  const handleCopySnapshot = async () => {
+    if (!snapshottedAcc || !snapshottedChar) return;
+    const snapshotData = {
+      account: snapshottedAcc,
+      character: snapshottedChar
+    };
+    const copied = await copyText(JSON.stringify(snapshotData, null, 2));
+    setCopyResult({
+      severity: copied ? 'success' : 'error',
+      message: copied ? 'Copied snapshot to clipboard' : CLIPBOARD_ERROR_MESSAGE
+    });
   };
 
   const lastUpdatedSeconds = state?.account?.timeAway?.Player;
@@ -188,6 +195,16 @@ const ActiveStuffCalculator = () => {
         {isDisplayed('cauldrons') ? <CauldronsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
         {isDisplayed('obols') ? <ObolsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
       </>}
+    <Snackbar
+      open={Boolean(copyResult)}
+      autoHideDuration={copyResult?.severity === 'error' ? 5000 : 2000}
+      onClose={() => setCopyResult(null)}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+    >
+      <Alert severity={copyResult?.severity} variant={'filled'} onClose={() => setCopyResult(null)}>
+        {copyResult?.message}
+      </Alert>
+    </Snackbar>
   </>;
 };
 

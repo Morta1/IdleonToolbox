@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../context/AppProvider';
 import { getUserAndDeviceCode } from '../../../services/auth/google';
+import { copyText } from '@utility/clipboard';
 
 const googleDeviceUrl = 'https://www.google.com/device';
 const GoogleLogin = () => {
@@ -25,15 +26,12 @@ const GoogleLogin = () => {
     getCode();
   }, []);
 
-  const handleCopyAndOpenUrl = () => {
+  const handleCopyAndOpenUrl = async () => {
     window.open(googleDeviceUrl, '_blank', 'noopener,noreferrer');
     setWaitingForAuth(true);
     setOpenedGooglePage(true);
 
-    navigator.clipboard?.writeText(userCode).catch((err) => {
-      console.error('Could not copy the login code to the clipboard:', err);
-      setCopyFailed(true);
-    });
+    setCopyFailed(!(await copyText(userCode)));
   }
 
   return <Stack alignItems={'center'} gap={2} sx={{ px: 5 }}>
