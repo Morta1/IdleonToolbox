@@ -7,6 +7,7 @@ import Tooltip from '@components/Tooltip';
 import { TitleAndValue } from '@components/common/styles';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
+// Bonus texts mirror the game's own skill mastery panel (N.js _GenINFO[95..98])
 const defaultBonuses = [
   '+25%_{_EXP_GAIN',
   '+10%_{_EFFICIENCY',
@@ -17,13 +18,8 @@ const defaultBonuses = [
   '+25%_ALL_SKILL_EXP'
 ];
 
+// _GenINFO[98] - always replaces the 2nd bonus, and only for these skills
 const specialBonuses = {
-  mining: 'ALL_MINING_CARDS_ARE_NOW_PASSIVE',
-  fishing: 'ALL_FISHING_CARDS_ARE_NOW_PASSIVE',
-  chopping: 'ALL_CHOPPING_CARDS_ARE_NOW_PASSIVE',
-  catching: 'ALL_CATCHING_CARDS_ARE_NOW_PASSIVE',
-  trapping: 'ALL_TRAPPING_CARDS_ARE_NOW_PASSIVE',
-  worship: 'ALL_WORSHIP_CARDS_ARE_NOW_PASSIVE',
   smithing: '+25%_FORGE_ORE_CAPACITY',
   alchemy: '+5%_ALL_LIQUID_CAP',
   construction: '+15%_SHRINE_LV_UP_RATE',
@@ -31,40 +27,57 @@ const specialBonuses = {
   sailing: '+15%_BOAT_SAILING_SPEED',
   divinity: '+15%_DIVINITY_PTS_GAINED',
   gaming: '1.15X_GAMING_BITS_GAINED',
-  sneaking: '1.10X_JADE_COIN_GAIN',
   farming: '1.15X_CROP_EVO_CHANCE',
+  sneaking: '1.10X_JADE_COIN_GAIN',
   summoning: '1.10X_ESSENCE_GAIN'
 }
 
+// These skills trade their 3rd bonus for passive cards instead
+const passiveCardSkills = ['mining', 'chopping', 'fishing', 'catching', 'trapping', 'worship'];
+
 const extraSpecialBonuses = {
-  spelunking: {
-    0: '+25%_SPELUNKING_EXP',
-    1: '+30%_SPELUNKING_EFFICIENCY',
-    2: 'ALL_SPELUNKING_CARDS_ARE_NOW_PASSIVE',
-    3: '+15_MAX_STAMINA_FOR_EVERYONE',
-    4: '+3_DAILY_PAGE_READS',
-    5: '+10%_STAMINA_REGEN_RATE',
-    6: '1.50x_ALL_AMBER_GAIN'
-  },
+  spelunking: [
+    '+25%_SPELUNKING_EXP',
+    '+30%_SPELUNKING_EFFICIENCY',
+    'ALL_SPELUNKING_CARDS_ARE_NOW_PASSIVE',
+    '+15_MAX_STAMINA_FOR_EVERYONE',
+    '+3_DAILY_PAGE_READS',
+    '+10%_STAMINA_REGEN_RATE',
+    '1.50X_ALL_AMBER_GAIN'
+  ]
 }
 
-const thresholds = [0, 0, 300, 400, 500, 750, 1000];
+// research has no rift mastery bonuses in game
+const skillsWithoutMastery = ['character', 'research'];
+
+const thresholds = [150, 200, 300, 400, 500, 750, 1000];
+
+const getBonusText = (skillName, bonusIndex) => {
+  const extraSpecialBonus = extraSpecialBonuses?.[skillName]?.[bonusIndex];
+  if (extraSpecialBonus) return extraSpecialBonus;
+  if (bonusIndex === 1 && specialBonuses?.[skillName]) return specialBonuses[skillName];
+  if (bonusIndex === 2 && passiveCardSkills.includes(skillName)) {
+    return `ALL_${skillName.toUpperCase()}_CARDS_ARE_NOW_PASSIVE`;
+  }
+  return defaultBonuses[bonusIndex].replace('{', skillName);
+}
+
 const SkillMastery = ({ totalSkillsLevels, characters }) => {
   return <>
     <Typography variant={'h5'}>Skill level thresholds</Typography>
-    <Stack sx={{ my: 2 }} direction={'row'} gap={2}>
-      {thresholds?.map((threshold, index) => threshold > 0 ? <Card key={index} sx={{ width: 100 }}>
+    <Stack sx={{ my: 2 }} direction={'row'} gap={2} flexWrap={'wrap'}>
+      {thresholds?.map((threshold, index) => <Card key={index} sx={{ width: 100 }}>
         <CardContent>
-          <Typography color={getSkillRankColor(threshold)}>{threshold ? `Lv. ${threshold} ` : ''}</Typography>
+          <Typography color={getSkillRankColor(threshold)}>Lv. {threshold}</Typography>
         </CardContent>
-      </Card> : null)}
+      </Card>)}
     </Stack>
 
     <Typography variant={'h5'}>Skills</Typography>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {Object.entries(totalSkillsLevels)?.map(([skillName, { icon, level, rank, color }], index) => {
-        if (skillName === 'character') return;
-        return <Card key={`${skillName}-${index}`} sx={{
+      {Object.entries(totalSkillsLevels)?.map(([skillName, { icon, level, rank, color }]) => {
+        if (skillsWithoutMastery.includes(skillName)) return null;
+        return <Card key={skillName} sx={{
           width: 250,
           minHeight: 200,
           display: 'flex'
@@ -85,30 +98,15 @@ const SkillMastery = ({ totalSkillsLevels, characters }) => {
             <Divider sx={{ my: 1 }} />
             <Stack gap={1}>
               {defaultBonuses?.map((bonus, bonusIndex) => {
-                let displayText;
-
-                // Check for extraSpecialBonuses first when index >= 18
-                if (index >= 18 && extraSpecialBonuses?.[skillName]?.[bonusIndex]) {
-                  displayText = extraSpecialBonuses[skillName][bonusIndex].toLowerCase().capitalizeAll();
-                } else {
-                  // Check for specialBonuses
-                  const shouldUseSpecialBonus = specialBonuses?.[skillName] && (
-                    (index < 12 && bonusIndex === 2 && index !== 11) ||
-                    (index >= 12 && bonusIndex === 1 && index !== 11) ||
-                    (index === 11 && bonusIndex === 1)
-                  );
-
-                  displayText = shouldUseSpecialBonus
-                    ? specialBonuses[skillName].toLowerCase().capitalizeAll()
-                    : bonus.replace('{', skillName).toLowerCase().capitalizeAll();
-                }
+                const unlocked = rank > bonusIndex;
+                const displayText = getBonusText(skillName, bonusIndex).toLowerCase().capitalizeAll();
 
                 return (
                   <Typography
-                    sx={{ opacity: bonusIndex < rank ? 1 : .6 }}
+                    sx={{ opacity: unlocked ? 1 : .6 }}
                     key={`${skillName}-bonus-${bonusIndex}`}
                   >
-                    {cleanUnderscore(displayText)}
+                    {unlocked ? '' : `Lv. ${thresholds[bonusIndex]}: `}{cleanUnderscore(displayText)}
                   </Typography>
                 );
               })}

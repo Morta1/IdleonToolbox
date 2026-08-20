@@ -123,10 +123,8 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
     return res;
   }, 0);
 
-  const isSkillMasteryUnlocked = accountData?.rift?.currentRift > 15;
-  const skillMasteryBonus = isSkillMasteryUnlocked
-    ? getSkillMasteryBonusByIndex(accountData?.totalSkillsLevels, accountData?.rift, 3)
-    : 0;
+  // The game applies RiftSkillETC ungated here - it already returns its base 7 when the rift is too low
+  const skillMasteryBonus = getSkillMasteryBonusByIndex(accountData?.totalSkillsLevels, accountData?.rift, 3);
 
   // this._DNprint = .1 + m._customBlock_WorkbenchStuff("ExtraPrinting", this._DRI, 0)
   const charmBonus = getCharmBonus(accountData, 'Lolly_Flower');
