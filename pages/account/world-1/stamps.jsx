@@ -121,6 +121,14 @@ const Stamps = () => {
     if (!hasMoney && mode === 'money') {
       return { border: 'warning.light', type: 'money' };
     }
+    // Equipment cost before every material state: `materials` is only non-empty when the required
+    // item is craftable gear, and that gate outranks how many sub-materials happen to be on hand.
+    // Checked later it would almost never win, since gear costs run into the hundreds and the
+    // stamp would already have been typed 'impossible'/'player'/'materials' - which is why the
+    // Equipments legend switch only ever hid the handful of stamps whose craft was affordable.
+    else if (materials.length > 0) {
+      return { border: 'grey', type: 'equipments' };
+    }
     // Out of reach before the softer "missing X" states: no reducer value can pay for these, so
     // they'd otherwise sit in the same bucket as stamps a reducer change can actually unlock.
     else if (mode === 'material' && isOutOfReach(subtractGreenStacks ? greenStackMinReduction : minReduction)) {
@@ -131,9 +139,6 @@ const Stamps = () => {
     }
     else if (mode === 'material' && (!hasMaterials || (subtractGreenStacks && !greenStackHasMaterials))) {
       return { border: 'error.light', type: 'materials' };
-    }
-    else if (materials.length > 0) {
-      return { border: 'grey', type: 'equipments' };
     }
     // Every remaining state must map to a type: an untyped stamp slips past the legend filter
     // entirely (types.hasOwnProperty(undefined) is false), so it shows even with all switches off.

@@ -29,7 +29,8 @@ export const patchNotes = [
       'Spelunking: Amber gain counted the Litterfish card once instead of twice, missing most of its bonus',
       'Star Talent Points: passive card bonuses ignored their in-game caps',
       'Coral Reef: the Coral Kid Divinity upgrade showed a hugely inflated Minor Link multiplier, such as 6.65x instead of 2.08x',
-      'Divinity: an Elemental Sorcerer\'s second linked deity left out the Coral Kid upgrade, showing a lower minor bonus than the real value'
+      'Divinity: an Elemental Sorcerer\'s second linked deity left out the Coral Kid upgrade, showing a lower minor bonus than the real value',
+      'Stamps: turning off the Equipments legend toggle only hid stamps whose equipment you could already afford to craft. It now hides every stamp that needs a crafted equipment'
     ]
   },
   {
