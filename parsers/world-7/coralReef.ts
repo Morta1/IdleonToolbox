@@ -58,12 +58,12 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
     'Reef_Coral',
     'Vibrant_Coral',
     'Glowing_Coral',
+    'Char_Coral',
     'Neon_Coral',
+    'Aegean_Coral',
+    'Gilded_Coral',
     'Twisted_Coral',
-    '6th_Coral',
-    '7th_Coral',
-    '8th_Coral',
-    '9th_Coral'
+    'Eternal_Coral'
   ];
   const dancingCoralDropResources = [
     'Generated_Daily_in_Town',
@@ -77,20 +77,24 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
     'Dropped_by_RIPtide'
   ];
 
+  const unlockedCorals = rawSpelunking?.[4]?.[6] ?? 0;
   const dancingCoralCount = dancingCoralDescriptions.length;
   const dancingCoral = Array.from({ length: dancingCoralCount }, (_, index) => {
     const level = rawDancingCoral?.[index] || 0;
     const baseDescription = dancingCoralDescriptions[index] || '';
     const description = getDancingCoralDescription(baseDescription, account, index);
+    const tower = account?.towers?.data?.slice(18)?.[index] || '';
     return {
       index,
       level,
+      unlocked: index < unlockedCorals,
       coralName: dancingCoralNames[index] || '',
       description,
       dropResource: dancingCoralDropResources[index] || '',
       cost: getDancingCoralCost(rawSpelunking, index),
       bonus: getDancingCoralBonus(account, index, 0),
-      tower: account?.towers?.data?.slice(18)?.[index] || ''
+      tower,
+      towerEffect: getShrineEffect(tower?.desc)
     };
   });
 
@@ -131,7 +135,7 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
     dancingCoral,
     reefUpgrades,
     grindTimeDaily,
-    unlockedCorals: rawSpelunking?.[4]?.[6] ?? 0,
+    unlockedCorals,
     ownedCorals: rawSpelunking?.[4]?.[5] ?? 0,
     reefDayGains: getReefDayGains(account) // Default to first reef
   };
@@ -312,6 +316,17 @@ const getCoralKidDescription = (baseDescription: any, level: any, index: any, bo
   description = description.replace('^', hatNotation);
 
   return description;
+}
+
+// The shrine's own effect, minus the "how to level it" tail and the current bonuses block.
+// The game does the same trim when it appends the coral line to a shrine's tooltip.
+const getShrineEffect = (desc: any) => {
+  if (!desc) return '';
+  return desc
+    .split('_@_')?.[0]
+    ?.replace('Level_it_up_by_claiming_AFK_Gains_on_the_same_map.', '')
+    ?.trim()
+    ?.replace(/_+$/, '') || '';
 }
 
 // Calculate Dancing Coral description based on game logic

@@ -16,24 +16,43 @@ const DancingCoral = ({ dancingCoral }) => {
     <Box>
       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 2 }}>
         {dancingCoral.map((coral, index) => (
-          <Card key={index} variant={'outlined'} sx={{ opacity: coral.level > 0 ? 1 : 0.6, height: '100%' }}>
+          <Card key={index} variant={'outlined'} sx={{ opacity: coral.unlocked ? 1 : 0.6, height: '100%' }}>
             <CardContent>
               <Stack spacing={1.5}>
                 {/* Header Section */}
                 <Stack spacing={0.5}>
                   {coral.coralName && (
-                    <Typography variant="subtitle1" sx={{ mb: 0.5 }}>
-                      {cleanUnderscore(coral.coralName)}
+                    <Stack direction="row" alignItems="center" gap={1} sx={{ mb: 0.5 }}>
+                      <img
+                        onError={(e) => {
+                          e.target.src = `${prefix}data/Coral0.png`;
+                        }}
+                        src={`${prefix}data/Coral${index}.png`}
+                        alt={cleanUnderscore(coral.coralName)}
+                        style={{ width: 20, height: 20 }} />
+                      <Typography variant="subtitle1">
+                        {cleanUnderscore(coral.coralName)}
+                      </Typography>
+                    </Stack>
+                  )}
+                  {coral.tower?.name && (
+                    <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                      +100 Max Level for {cleanUnderscore(coral.tower.name)}
+                    </Typography>
+                  )}
+                  {coral.towerEffect && (
+                    <Typography variant="body2" color="text.secondary">
+                      {cleanUnderscore(coral.towerEffect)}
                     </Typography>
                   )}
                   {coral.description && (
-                    <Typography variant="body2" sx={{ opacity: 0.85, mb: 0.5 }}>
+                    <Typography variant="body2" color="primary.main" sx={{ mt: 0.5 }}>
                       {cleanUnderscore(coral.description)}
+                      {coral.tower?.name
+                        ? ` per ${cleanUnderscore(coral.tower.name)} LV above Lv.200`
+                        : ''}
                     </Typography>
                   )}
-                  {<Typography variant="body2" sx={{ opacity: 0.85 }}>
-                    +100 levels to {cleanUnderscore(coral.tower.name)}
-                  </Typography>}
                 </Stack>
 
                 {/* Divider */}
@@ -43,7 +62,7 @@ const DancingCoral = ({ dancingCoral }) => {
                 <Stack spacing={1}>
                   <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
                     <Typography variant="body2" color="text.secondary" component="span">
-                      Level:
+                      {coral.tower?.name ? `${cleanUnderscore(coral.tower.name)} Level:` : 'Shrine Level:'}
                     </Typography>
                     <Typography
                       variant="body2"
@@ -93,7 +112,7 @@ const DancingCoral = ({ dancingCoral }) => {
                       {coral.bonus !== undefined && coral.bonus > 0 && (
                         <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
                           <Typography variant="body2" color="text.secondary" component="span">
-                            Bonus:
+                            Current bonus:
                           </Typography>
                           <Typography variant="body2" color="primary.main" component="span">
                             {notateNumber(coral.bonus, "Big")}
@@ -113,4 +132,3 @@ const DancingCoral = ({ dancingCoral }) => {
 };
 
 export default DancingCoral;
-
