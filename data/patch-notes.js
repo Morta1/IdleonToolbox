@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.63',
+    'gameVer': '2.3.523',
+    'date': '20/08/2026',
+    'features': [],
+    'fixes': [
+      "Tesseract: the Rollin' Tundra map showed the wrong tachyon type and a far higher amount per drop than it actually gives"
+    ]
+  },
+  {
     'ver': '3.3.62',
     'gameVer': '2.3.523',
     'date': '19/08/2026',

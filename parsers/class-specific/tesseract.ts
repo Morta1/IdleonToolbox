@@ -349,7 +349,7 @@ export const getTachyonType = (index: any) => {
   if (index === 5e5) return 5;
   if (index === 12500 || index === 4e5) return 4;
   if (index === 2500 || index === 1850) return 3;
-  if (index === 770 || index === 1500 || index === 22e3 || index === 23e4) return 2;
+  if (index === 770 || index === 870 || index === 1500 || index === 22e3 || index === 23e4) return 2;
   if (index === 6e3 || index === 2e5) return 1;
   if (index === 8500 || index === 17e3 || index === 175e3) return 0;
   if (index >= 1e4) {
