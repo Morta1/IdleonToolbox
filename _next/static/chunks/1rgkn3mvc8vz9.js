@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/account/world-7/gallery", [
+  "static/chunks/0ygauydgh359o.js",
+  "static/chunks/1yissmy_tcuyk.js",
+  "static/chunks/3crj7nj7bef6f.js",
+  "static/chunks/15wwp9pko2-ju.js",
+  "static/chunks/3-lfny1a0_b2g.js",
+  "static/chunks/1ir4i_xr1vm25.js",
+  "static/chunks/0r28klnec03dk.js",
+  "static/chunks/3g5y_jljhp4t6.js",
+  "static/chunks/1pzaay6t0e4zr.js",
+  "static/chunks/23xj_0gknn7mn.js",
+  "static/chunks/0d2es5h88fb-5.js",
+  "static/chunks/07wp-9pnxol_q.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/3vj9-yux50exo.js",
+  "static/chunks/146jzvwv62ois.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/221qb0hencwzd.js",
+  "static/chunks/turbopack-29cyirqwm-raf.js"
+])

@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/account/world-5/divinity", [
+  "static/chunks/2to3v3r_vuf7g.js",
+  "static/chunks/1ir4i_xr1vm25.js",
+  "static/chunks/1ejw893wuk_ll.js",
+  "static/chunks/0vidhj5e76ex9.js",
+  "static/chunks/3-lfny1a0_b2g.js",
+  "static/chunks/0r28klnec03dk.js",
+  "static/chunks/3crj7nj7bef6f.js",
+  "static/chunks/25rdri8_ip1vu.js",
+  "static/chunks/3vj9-yux50exo.js",
+  "static/chunks/1pzaay6t0e4zr.js",
+  "static/chunks/3g5y_jljhp4t6.js",
+  "static/chunks/1ibre2a2c7-u7.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/146jzvwv62ois.js",
+  "static/chunks/0iy9oicl72nzr.js",
+  "static/chunks/turbopack-2g-7ywrbrsuu5.js"
+])

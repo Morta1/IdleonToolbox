@@ -32,7 +32,7 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/account/clickers/kangaroo</loc>
-    <lastmod>2026-08-12</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -74,13 +74,13 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/account/misc/guild</loc>
-    <lastmod>2026-08-12</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://idleontoolbox.com/account/misc/quests</loc>
-    <lastmod>2026-08-14</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -116,7 +116,7 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/account/prem-currency/gem-shop</loc>
-    <lastmod>2026-08-12</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -170,7 +170,7 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/account/world-1/stamps</loc>
-    <lastmod>2026-08-11</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -182,7 +182,7 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/account/world-2/bubbles</loc>
-    <lastmod>2026-08-11</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -224,7 +224,7 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/account/world-2/weekly-bosses</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -368,7 +368,7 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/account/world-6/beanstalk</loc>
-    <lastmod>2026-08-16</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -440,7 +440,7 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/account/world-7/research</loc>
-    <lastmod>2026-04-11</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -482,7 +482,7 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/dashboard</loc>
-    <lastmod>2026-08-18</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -524,7 +524,7 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/settings</loc>
-    <lastmod>2026-08-15</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -542,19 +542,19 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/tools/active-stuff-calculator</loc>
-    <lastmod>2026-08-12</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://idleontoolbox.com/tools/builds</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://idleontoolbox.com/tools/card-search</loc>
-    <lastmod>2026-08-16</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -602,13 +602,13 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/tools/material-tracker</loc>
-    <lastmod>2026-08-12</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://idleontoolbox.com/tools/sampling-companion</loc>
-    <lastmod>2026-03-20</lastmod>
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -697,13 +697,13 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/tools/builds/hunter</loc>
+    <loc>https://idleontoolbox.com/tools/builds/bubonic-conjuror</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/tools/builds/bubonic-conjuror</loc>
+    <loc>https://idleontoolbox.com/tools/builds/hunter</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -741,12 +741,6 @@
   <url>
     <loc>https://idleontoolbox.com/tools/builds/kifkzy-420-dv-aktiv</loc>
     <lastmod>2026-05-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/tools/builds/ro7g0a-journeyman-afk-55</loc>
-    <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -829,24 +823,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/tools/builds/3qc6gn-journeyman-afk-40</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/tools/builds/kvgs3n-bowman-build</loc>
-    <lastmod>2026-06-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/tools/builds/pcofys-bowman-active-70</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://idleontoolbox.com/tools/builds/0mzegl-early-game-dmg-until-specific-classes</loc>
     <lastmod>2026-04-21</lastmod>
     <changefreq>monthly</changefreq>
@@ -885,12 +861,6 @@
   <url>
     <loc>https://idleontoolbox.com/tools/builds/xqkgsd-squire-afk-combat</loc>
     <lastmod>2026-06-03</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/tools/builds/0w3qcr-hunter-active-70</loc>
-    <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -955,6 +925,12 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://idleontoolbox.com/tools/builds/kvgs3n-bowman-build</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://idleontoolbox.com/tools/builds/6w55am-vlegga-preset-1</loc>
     <lastmod>2026-04-22</lastmod>
     <changefreq>monthly</changefreq>
@@ -962,12 +938,6 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/tools/builds/pvxxjh-woodcutter-active-afk-shaman-50</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/tools/builds/7eqyas-shaman-active-c-amarok-killer-90</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -1015,12 +985,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/tools/builds/k4c9a0-shaman-alchemy</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://idleontoolbox.com/tools/builds/hgbijj-maestro-afk-money-170</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
@@ -1039,8 +1003,8 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/tools/builds/mlzmaq-maestro-skilling-100</loc>
-    <lastmod>2026-04-26</lastmod>
+    <loc>https://idleontoolbox.com/tools/builds/k4c9a0-shaman-alchemy</loc>
+    <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -1075,12 +1039,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/tools/builds/aa5m9x-mining-active-afk-squire-100</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://idleontoolbox.com/tools/builds/gyqq2b-warrior-afk-35</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
@@ -1094,12 +1052,6 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/tools/builds/pnfw12-beast-master-colosseum-clearer-200</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/tools/builds/c6o0m6-alchemy-choppin-hybrid</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -1160,18 +1112,6 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/tools/builds/cgmygf-shaman-afk-150</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/tools/builds/8b4hlg-barbarian-active-70</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/tools/builds/cdkegs-journeyman-afk-70</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -1261,12 +1201,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/tools/builds/aygzfd-hunter-afk-70</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://idleontoolbox.com/tools/builds/dzckos-bowman-afk-50</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
@@ -1285,43 +1219,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/tools/builds/vh8z0k-hunter-trapping-100</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://idleontoolbox.com/tools/builds/38a1rv-worship-choppin-hybrid-wizard-100</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/tools/builds/s6bgto-squire-active-70</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/tools/builds/t9afqi-bowman-active-90</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/tools/builds/crultp-hunter-afk-170</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://idleontoolbox.com/tools/builds/oxsyjd-shaman-afk-90</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/tools/builds/f7f2rs-hunter-afk-90</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -1357,7 +1261,19 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://idleontoolbox.com/tools/builds/vh8z0k-hunter-trapping-100</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://idleontoolbox.com/tools/builds/fexok0-bowman-afk-150</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/crultp-hunter-afk-170</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -1369,7 +1285,43 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://idleontoolbox.com/tools/builds/cdkegs-journeyman-afk-70</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/f7f2rs-hunter-afk-90</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/aygzfd-hunter-afk-70</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://idleontoolbox.com/tools/builds/e2obmh-wizard-afk-70</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/aa5m9x-mining-active-afk-squire-100</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/15dut6-mining-active-afk-squire-50</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/s6bgto-squire-active-70</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -1381,7 +1333,55 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/tools/builds/15dut6-mining-active-afk-squire-50</loc>
+    <loc>https://idleontoolbox.com/tools/builds/t9afqi-bowman-active-90</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/8b4hlg-barbarian-active-70</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/mlzmaq-maestro-skilling-100</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/c6o0m6-alchemy-choppin-hybrid</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/3qc6gn-journeyman-afk-40</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/pcofys-bowman-active-70</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/ro7g0a-journeyman-afk-55</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/7eqyas-shaman-active-c-amarok-killer-90</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/0w3qcr-hunter-active-70</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
