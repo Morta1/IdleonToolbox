@@ -437,7 +437,8 @@ const baseTrackers = {
             name: 'emperor',
             type: 'input',
             props: { label: 'Attempts', value: 20 },
-            checked: true
+            checked: true,
+            helperText: 'Alerts at this number, or at your attempt cap if it\'s lower'
           }
         ]
       }

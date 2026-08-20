@@ -1182,7 +1182,10 @@ export const getWorld6Alerts = (account, fields, options) => {
   if (fields?.etc?.checked) {
     const etc = {};
     const { emperor } = options?.etc;
-    if (emperor?.checked && account?.emperor?.attempts >= emperor?.props?.value) {
+    // The configured threshold can sit above the account's attempt cap (6 base, 11 with Jade
+    // Emporium, 23 fully upgraded), which would stop the alert from ever firing.
+    const threshold = Math.min(emperor?.props?.value ?? 0, account?.emperor?.maxAttempts ?? Infinity);
+    if (emperor?.checked && account?.emperor?.attempts >= threshold) {
       etc.emperorAttempts = account?.emperor?.attempts;
     }
     if (Object.keys(etc).length > 0) {
