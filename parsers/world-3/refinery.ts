@@ -115,7 +115,6 @@ export const getRefineryCycleBonuses = (account: Account, characters: any[]) => 
   const familyRefinerySpeed = getFamilyBonusBonus(classFamilyBonuses, 'Refinery_Speed', highestLevelDivineKnight);
   const amplifiedFamilyBonus = (familyRefinerySpeed * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0)
   const voteBonus = getVoteBonus(account, 33);
-  const companionBonus = isCompanionBonusActive(account, 35);
   const researchGridBonus1 = getResearchGridBonus(account, 49, 0);
 
   const bonusBreakdown = [
@@ -128,8 +127,7 @@ export const getRefineryCycleBonuses = (account: Account, characters: any[]) => 
     { name: 'Const mastery', value: constructionMastery / 100 },
     { name: 'Arcade', value: arcadeBonus / 100 },
     { name: 'Vote', value: voteBonus / 100 },
-    { name: 'Companion', value: companionBonus ? 2 : 0 },
-    { name: 'Polymer Refinery', value: researchGridBonus1 }
+    { name: 'Polymer Refinery', value: researchGridBonus1 / 100 }
   ]
   return {
     bonusBreakdown,

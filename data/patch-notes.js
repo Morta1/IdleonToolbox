@@ -17,7 +17,8 @@ export const patchNotes = [
       'AFK Gains showed a flat 1% for characters parked at a monument or with no AFK target. The game has no AFK rate for those, so it now shows N/A with the reason, and Kills Per Hour no longer scales by that fake 1%',
       'Material Tracker: an imported list was lost on refresh, since the import was never saved',
       'Research: the "Magnifiers" count actually included your Optical Monocles and Kaleidoscopes, since that\'s how the game stores it. It\'s now labelled "Total Lenses", with separate counts for Magnifying Glasses, Optical Monocles and Kaleidoscopes',
-      'Dashboard: while a random event was running, the tile showed that event\'s icon and name next to a countdown to the following event. Both now refer to the same upcoming event'
+      'Dashboard: while a random event was running, the tile showed that event\'s icon and name next to a countdown to the following event. Both now refer to the same upcoming event',
+      'Refinery: the cycle time breakdown showed the Polymer Refinery bonus 100x too large and listed a Companion bonus that is not part of cycle speed'
     ]
   },
   {
