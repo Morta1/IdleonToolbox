@@ -168,6 +168,13 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
       topOfTheMorninKills = `${totalKills - killsLeft} / ${totalKills}`;
       extraData = `Kills: ${topOfTheMorninKills}`
     }
+    let description = upgrade?.description
+      .replace(/{/g, '' + commaNotation(bonus))
+      .replace(/}/g, '' + notateNumber(1 + bonus / 100, 'MultiplierInfo'));
+    const totalBonus = getTotalBonusText(index, bonus, accountData);
+    if (totalBonus !== null) {
+      description = description.replace(/\$/g, () => totalBonus);
+    }
     return {
       ...upgrade,
       bonus,
@@ -175,7 +182,7 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
       bonusDiff: nextLevelBonus - bonus,
       cost,
       isMulti,
-      description: upgrade?.description.replace(/{/g, '' + commaNotation(bonus)).replace(/}/g, '' + notateNumber(1 + bonus / 100, 'MultiplierInfo')),
+      description,
       extraData
     }
   });
@@ -526,6 +533,28 @@ export const getCompassStats = (character: any, account: any) => {
 
 export const getCompassBonus = (account: any, index: number) => {
   return account?.compass?.upgrades?.[index]?.bonus || 0;
+}
+
+// A few descriptions carry a "$" placeholder that the game fills with a per-upgrade total, computed
+// separately from the "{" / "}" per-level bonus. Indices without an entry here keep the raw "$".
+const getTotalBonusText = (index: number, bonus: number, accountData: any): string | null => {
+  const dustOwned = (dustIndex: number) => lavaLog(accountData?.accountOptions?.[357 + dustIndex] ?? 0);
+  switch (index) {
+    case 22:
+      return commaNotation(bonus * dustOwned(0));
+    case 23:
+      return commaNotation(bonus * dustOwned(3));
+    case 26:
+      return notateNumber(Math.pow(1 + bonus / 100, accountData?.accountOptions?.[232] ?? 0), 'MultiplierInfo') + 'x';
+    case 30:
+      return commaNotation(bonus * dustOwned(1));
+    case 34:
+      return commaNotation(bonus * dustOwned(2));
+    case 36:
+      return notateNumber(100 * (1 - 1 / (1 + bonus / 100)), 'Small');
+    default:
+      return null;
+  }
 }
 
 const getCompassBonusAtLevel = (upgrades: any[], index: number, levelOverride: number) => {

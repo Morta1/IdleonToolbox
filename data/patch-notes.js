@@ -35,7 +35,8 @@ export const patchNotes = [
       'Star Talent Points: passive card bonuses ignored their in-game caps',
       'Coral Reef: the Coral Kid Divinity upgrade showed a hugely inflated Minor Link multiplier, such as 6.65x instead of 2.08x',
       'Divinity: an Elemental Sorcerer\'s second linked deity left out the Coral Kid upgrade, showing a lower minor bonus than the real value',
-      'Stamps: turning off the Equipments legend toggle only hid stamps whose equipment you could already afford to craft. It now hides every stamp that needs a crafted equipment'
+      'Stamps: turning off the Equipments legend toggle only hid stamps whose equipment you could already afford to craft. It now hides every stamp that needs a crafted equipment',
+      'Compass: Knockoff Compass and the dust Hoarding upgrades showed a blank number instead of their total bonus. Knockoff Compass now shows the real discount, which is lower than its raw bonus'
     ]
   },
   {
