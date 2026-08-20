@@ -6,7 +6,8 @@ import {
   kFormatter,
   notateNumber,
   numberWithCommas,
-  prefix
+  prefix,
+  secondsToCoarseDuration
 } from '@utility/helpers';
 import React from 'react';
 import styled from '@emotion/styled';
@@ -30,13 +31,43 @@ const indexSx = {
   backgroundColor: 'blue'
 };
 
-const CogTooltip = ({ character, index, currentAmount, requiredAmount, cog, affectedBy, affects, roundedValues }) => {
+/**
+ * How long the flag standing in this slot still has to build. The game gives every placed flag the
+ * whole board's flaggy rate rather than a share of it (N.js:92672 and :93493), and only the 96 board
+ * slots take the neighbour flag speed boost - the small cog columns build at the plain rate.
+ */
+const getFlagEta = (currentAmount, requiredAmount, flagPlaced, flagSpeedBoost, flaggyRate) => {
+  if (!flagPlaced || !(flaggyRate > 0)) return null;
+  const remaining = requiredAmount - currentAmount;
+  if (!(remaining > 0)) return null;
+  return secondsToCoarseDuration((remaining / (flaggyRate * (flagSpeedBoost || 1))) * 3600);
+};
+
+const CogTooltip = ({
+                      character,
+                      index,
+                      currentAmount,
+                      requiredAmount,
+                      cog,
+                      affectedBy,
+                      affects,
+                      roundedValues,
+                      flagPlaced,
+                      flagSpeedBoost,
+                      flaggyRate
+                    }) => {
+  const eta = getFlagEta(currentAmount, requiredAmount, flagPlaced, flagSpeedBoost, flaggyRate);
   return (
     <>
       <Typography sx={{ fontWeight: 'bold' }}>{character || getCogDisplayName(cog?.name)}</Typography>
       {currentAmount < requiredAmount ? (
         <Typography>
           {kFormatter(currentAmount, 2)} / {kFormatter(requiredAmount, 2)} ({kFormatter((currentAmount / requiredAmount) * 100, 2)}%)
+        </Typography>
+      ) : null}
+      {eta ? (
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          Unlocks in {eta}
         </Typography>
       ) : null}
       {Object.values(cog?.stats || {})?.map(({ name, value }, statIndex) =>
@@ -74,7 +105,7 @@ const SLOT_MAX = 52;
  */
 export const BOARD_MIN_WIDTH = (BOARD_X + 2) * SLOT_MIN + (BOARD_X + 1) * SLOT_GAP;
 
-const ConstructionBoard = ({ view, board, showTooltip, roundedValues, leftColumn, rightColumn, markSpares, dimUnchanged, highlightSlots }) => {
+const ConstructionBoard = ({ view, board, showTooltip, roundedValues, leftColumn, rightColumn, markSpares, dimUnchanged, highlightSlots, boardFlaggyRate }) => {
   // The side strips hold 12 small cogs against the board's 8 rows. Laying all three out in one grid
   // left 48 blank cells in the middle, so each is its own grid and they simply sit side by side.
   const columns = [
@@ -145,6 +176,7 @@ const ConstructionBoard = ({ view, board, showTooltip, roundedValues, leftColumn
         >
           <Tooltip title={showTooltip ? <CogTooltip {...slot} index={cog?.originalIndex}
                                                     roundedValues={roundedValues}
+                                                    flaggyRate={boardFlaggyRate}
                                                     character={cog?.name?.includes('Player')
                                                       ? cog?.name?.split('Player_')[1]
                                                       : ''}/> : ''}>

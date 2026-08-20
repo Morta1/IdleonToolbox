@@ -95,6 +95,12 @@ const ConstructionMain = () => {
     ? getBoardAtStep(current?.baseBoard, current?.spareCogs ?? [], moves, cursor, state?.characters)
     : null;
   const shownBoard = stepped?.board ?? current?.board;
+  // Flag unlock ETAs are read off the board on screen, so a partway-through step reports the rate
+  // that step would run at. evaluateBoard returns the raw sum, which still needs the gem multiplier
+  // the parser applies to the totals it stores.
+  const shownFlaggyRate = stepped
+    ? stepped.totalFlaggyRate * (current?.boardMultipliers?.flaggy ?? 1)
+    : current?.totalFlaggyRate;
   // Everyone who could stand on the board: those already on it, plus the rack the spares come from.
   const totalCharacters = countBoardCharacters(state?.account?.construction?.baseBoard)
     + (state?.account?.construction?.spareCogs ?? []).filter(isCharacterCog).length;
@@ -327,6 +333,7 @@ const ConstructionMain = () => {
                                dimUnchanged={cursor > 0}
                                highlightSlots={highlightSlots}
                                board={shownBoard}
+                               boardFlaggyRate={shownFlaggyRate}
                                leftColumn={state?.account?.construction?.leftColumn}
                                rightColumn={state?.account?.construction?.rightColumn}/>
             {/* Only the legend lives under the board - Back and Next moved into the steps panel,

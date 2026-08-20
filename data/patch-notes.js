@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.523',
     'date': '20/08/2026',
     'features': [
-      'Cooking: the meal list can now be narrowed down to the cheapest meals to upgrade, with a readout of how many ladles that takes per meal and in total. A new Book Order toggle lists the filtered meals in cooking book order'
+      'Cooking: the meal list can now be narrowed down to the cheapest meals to upgrade, with a readout of how many ladles that takes per meal and in total. A new Book Order toggle lists the filtered meals in cooking book order',
+      'Construction: hovering a slot with a flag in it now shows how long until that flag unlocks, following along as you step through an optimized board'
     ],
     'fixes': [
       'Dashboard & Dungeons: the Happy Hour timer was off by your timezone offset every Thursday, and stopped counting down after the last Happy Hour of the week',
