@@ -91,7 +91,7 @@ const Character = ({
         charactersPage />, filter: 'Chips'
     },
     {
-      component: <Equipment {...{ charName: name, equipment, tools, food, character, account }} />,
+      component: <Equipment {...{ charName: name, equipment, tools, food, character, characters, account }} />,
       filter: 'Equipment'
     },
     { component: <PlayerBubbles bubbles={equippedBubbles} />, filter: 'Equipped Bubbles' }

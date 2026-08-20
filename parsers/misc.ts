@@ -3,6 +3,7 @@ import { filteredGemShopItems, filteredLootyItems, keysMap } from './parseMaps';
 import {
   bonuses,
   bundles as bundlesData,
+  cards as cardsData,
   classFamilyBonuses,
   companions,
   deathNote,
@@ -40,7 +41,7 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getObolsBonus } from '@parsers/obols';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
-import { getCardBonusByEffect } from '@parsers/cards';
+import { calcCardBonus, getCardBonusByEffect } from '@parsers/cards';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getMinorDivinityBonus } from '@parsers/world-5/divinity';
@@ -821,7 +822,14 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
   const companionBonus = isCompanionBonusActive(account, 48) ? account?.companions?.list?.at(48)?.bonus : 0;
   const companionBonus155 = isCompanionBonusActive(account, 155) ? account?.companions?.list?.at(155)?.bonus : 0;
   const legendTalentBonus = getLegendTalentBonus(account, 25);
-  const cardBonus = Math.min(getCardBonusByEffect(account?.cards, 'Gold_Food_Effect_(Passive)'), 50);
+  // Two cards carry the Gold_Food_Effect_(Passive) tag and the game caps each one separately
+  // (min(4 * CardLv(cropfallEvent1), 50) + min(5 * CardLv(anni5Event1), 50)), so the pair can
+  // reach +100. Summing them through getCardBonusByEffect and capping the total at 50 halved it.
+  const goldenFoodCardBonus = (rawName: string) => {
+    const card = account?.cards?.[(cardsData as Record<string, any>)?.[rawName]?.displayName];
+    return card?.amount > 0 ? Math.min(calcCardBonus(card), 50) : 0;
+  };
+  const cardBonus = goldenFoodCardBonus('cropfallEvent1') + goldenFoodCardBonus('anni5Event1');
   const vaultBonus86 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 86);
 
   const deathBringer = characters?.find((char: any) => checkCharClass(char?.class, CLASSES.Death_Bringer));
@@ -914,23 +922,42 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
   };
 }
 
+const goldenFoodEffects: Record<string, string> = (() => {
+  const map: Record<string, string> = {};
+  for (const item of Object.values(items as Record<string, any>)) {
+    if (item?.Type === 'GOLDEN_FOOD' && item?.displayName) map[item.displayName] = item.Effect;
+  }
+  return map;
+})();
+
+// The game's GoldFoodBonuses() keys off a food's Effect, not its name, so every golden food sharing
+// that Effect feeds the same stat. Two foods carry DropRatez - Golden_Cake and Golden_Sugar_Cookie -
+// and matching on the name alone dropped whichever one wasn't hardcoded at the call site.
 export const getGoldenFoodBonus = (foodName: any, character: any, account: any, characters: any) => {
   if (!character) return 0;
-  const goldenFood = character?.food?.find(({ name }: any) => name === foodName);
+  const effect = goldenFoodEffects?.[foodName];
+  if (!effect) return 0;
   const goldenFoodMulti = getGoldenFoodMulti(character, account, characters);
-  const baseBonus = !goldenFood?.Amount || !goldenFood?.amount
+  const foodBonus = (amount: any, quantity: any) => !amount || !quantity
     ? 0
-    : goldenFood?.Amount * goldenFoodMulti?.value * 0.05 * lavaLog(1 + goldenFood?.amount) * (1 + lavaLog(1 + goldenFood?.amount) / 2.14);
-  if (isJadeBonusUnlocked(account, 'Gold_Food_Beanstalk')) {
-    const beanstalkData = account?.sneaking?.beanstalkData;
-    const beanstalkGoldenFoods = ninjaExtraInfo[29]?.filter((str: any) => isNaN(str))
-      .map((gFood: any, index: any) => ({ ...(items?.[gFood] || {}), active: beanstalkData?.[index] > 0, index }));
-    const beanstalkFood = beanstalkGoldenFoods?.find(({ displayName, active }: any) => displayName === foodName && active);
-    if (!beanstalkFood) return baseBonus;
-    return baseBonus + beanstalkFood?.Amount! * goldenFoodMulti?.value * .05 * lavaLog(1 + 1e3 * Math.pow(10, beanstalkData?.[beanstalkFood?.index]))
-      * (1 + lavaLog(1 + 1e3 * Math.pow(10, beanstalkData?.[beanstalkFood?.index])) / 2.14);
-  }
-  return baseBonus;
+    : amount * goldenFoodMulti?.value * 0.05 * lavaLog(1 + quantity) * (1 + lavaLog(1 + quantity) / 2.14);
+
+  // Equipped slots: the game walks every food slot and adds each GOLDEN_FOOD whose Effect matches.
+  const baseBonus = (character?.food ?? []).reduce((sum: number, food: any) => food?.Type === 'GOLDEN_FOOD'
+  && food?.Effect === effect
+    ? sum + foodBonus(food?.Amount, food?.amount)
+    : sum, 0);
+  if (!isJadeBonusUnlocked(account, 'Gold_Food_Beanstalk')) return baseBonus;
+
+  // Beanstalk: the game stops at the FIRST food with a matching Effect and only counts it when it's
+  // actually on the stalk. It breaks either way, so a later food sharing that Effect never counts.
+  const beanstalkData = account?.sneaking?.beanstalkData;
+  const beanstalkGoldenFoods = ninjaExtraInfo[29]?.filter((str: any) => isNaN(str));
+  const index = beanstalkGoldenFoods?.findIndex((gFood: any) => items?.[gFood]?.Effect === effect) ?? -1;
+  if (index === -1) return baseBonus;
+  const rank = beanstalkData?.[index] ?? 0;
+  if (rank <= 0) return baseBonus;
+  return baseBonus + foodBonus(items?.[beanstalkGoldenFoods[index]]?.Amount, 1e3 * Math.pow(10, rank));
 };
 
 export const getRandomEvents = (account: any) => {

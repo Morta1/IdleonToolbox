@@ -8,26 +8,26 @@ import { CLASSES, talentPagesMap } from '@parsers/talents';
 import { items as itemsList } from '@website-data';
 import { getGoldenFoodBonus } from '@parsers/misc';
 
-const Equipment = ({ equipment, tools, food, account, character, weaponByClass, hideEmpty, allAccountItems }) => {
+const Equipment = ({ equipment, tools, food, account, character, characters, weaponByClass, hideEmpty, allAccountItems }) => {
   return <Stack>
     <Typography variant={'h5'}>Equipment</Typography>
     <Stack mt={2} direction={'row'} gap={1} flexWrap={'wrap'} justifyContent={'center'}>
       <EquipmentPage allAccountItems={allAccountItems} weaponByClass={weaponByClass} windowName={'equipment'}
                      hideEmpty={hideEmpty}
                      items={equipment?.slice(0, 8)} character={character}
-                     account={account}/>
+                     account={account} characters={characters}/>
       <EquipmentPage allAccountItems={allAccountItems} windowName={'equipment'} hideEmpty={hideEmpty}
                      items={equipment?.slice(8)} character={character}
-                     account={account}/>
+                     account={account} characters={characters}/>
       <EquipmentPage allAccountItems={allAccountItems} windowName={'tools'} hideEmpty={hideEmpty} items={tools}
-                     character={character} account={account}/>
+                     character={character} account={account} characters={characters}/>
       <EquipmentPage allAccountItems={allAccountItems} windowName={'food'} hideEmpty={hideEmpty} items={food}
-                     character={character} account={account}/>
+                     character={character} account={account} characters={characters}/>
     </Stack>
   </Stack>
 };
 
-const EquipmentPage = ({ allAccountItems, items, character, account, hideEmpty, windowName, weaponByClass }) => {
+const EquipmentPage = ({ allAccountItems, items, character, account, characters, hideEmpty, windowName, weaponByClass }) => {
   const classes = [CLASSES.Warrior, CLASSES.Mage, CLASSES.Archer];
   const baseClass = classes.find(cls => talentPagesMap?.[character?.class]?.includes(cls)) || CLASSES.Beginner;
   const actualItem = itemsList?.[weaponByClass?.[baseClass]];
@@ -66,7 +66,7 @@ const EquipmentPage = ({ allAccountItems, items, character, account, hideEmpty, 
                 <Tooltip
                   title={
                     displayName && displayName !== 'ERROR'
-                      ? <ItemDisplay {...(itemIndex === 1 && actualItem ? actualItem : item)} character={character} account={account} owners={owners} getGoldenFoodBonus={getGoldenFoodBonus}/>
+                      ? <ItemDisplay {...(itemIndex === 1 && actualItem ? actualItem : item)} character={character} account={account} characters={characters} owners={owners} getGoldenFoodBonus={getGoldenFoodBonus}/>
                       : ''
                   }
                 >

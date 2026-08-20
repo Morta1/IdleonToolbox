@@ -54,13 +54,14 @@ const ItemDisplay = ({
                        // parser graph on every page that renders an item tooltip - including the
                        // 148 public /tools/builds/* pages, where it returns 0 anyway because they
                        // have no character. Callers holding account context pass the real one.
-                       getGoldenFoodBonus = () => 0
+                       getGoldenFoodBonus = () => 0,
+                       characters
                      }) => {
 
   const allDesc = [desc_line1, desc_line2, desc_line3, desc_line4, desc_line5, desc_line6, desc_line7, desc_line8];
   let goldenFoodBonus = 0, isGoldenFood = displayName?.includes('Golden');
   if (isGoldenFood) {
-    goldenFoodBonus = getGoldenFoodBonus(displayName, character, account)
+    goldenFoodBonus = getGoldenFoodBonus(displayName, character, account, characters)
   }
   const mergedDesc = allDesc.filter((desc) => desc !== 'Filler').join(' ').replace(/\[/, isGoldenFood
     ? notateNumber(goldenFoodBonus, 'Small')

@@ -98,6 +98,7 @@ const SamplingCompanion = () => {
               tools={selectedSetup?.tools}
               food={selectedSetup?.food}
               character={selectedChar}
+              characters={state?.characters}
               account={state?.account}
               allAccountItems={items}
             />
