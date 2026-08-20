@@ -38,6 +38,10 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   }, {});
   const router = useRouter();
   const events = getRandomEvents(account);
+  // `events[0]` is still listed while its hour is running, so it's the event happening NOW, not the
+  // next one to spawn. The icon and the countdown have to resolve to the same event or the tile
+  // shows one event's name above another event's timer.
+  const nextEvent = events?.find(({ date }) => date > now) ?? events?.[0];
   const nextHappyHours = calcHappyHours(account?.serverVars?.HappyHours) || [];
   const nextPrinterCycle = now + (3600 - (account?.timeAway?.GlobalTime - account?.timeAway?.Printer)) * 1000;
   const nextCompanionClaim = getNextCompanionClaim(account);
@@ -253,13 +257,13 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           ? <Stack
             gap={1}>
             {trackers?.General?.randomEvents?.checked && events?.length > 0 ? <Tooltip dark title={
-              <RandomEvent {...events?.[0]} />}>
+              <RandomEvent {...nextEvent} />}>
               <div>
                 <Stack sx={{ cursor: 'pointer' }}
                   onClick={() => router.push({ pathname: '/account/misc/random-events' })}
                   direction={'row'} gap={1}>
-                  <IconImg src={`${prefix}etc/${events?.[0]?.eventName}.png`} alt="" />
-                  <Timer type={'countdown'} date={events?.[0]?.date < now ? (events?.[1]?.date ?? events?.[0]?.date + 3600 * 1000) : events?.[0]?.date} lastUpdated={lastUpdated} />
+                  <IconImg src={`${prefix}etc/${nextEvent?.eventName}.png`} alt="" />
+                  <Timer type={'countdown'} date={nextEvent?.date} lastUpdated={lastUpdated} />
                 </Stack>
                 <Divider sx={{ mt: 1 }} />
               </div>
