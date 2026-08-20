@@ -502,7 +502,7 @@ export const getCompassStats = (character: any, account: any) => {
     + (getLocalCompassBonus(upgrades, 141)
       + getLocalCompassBonus(upgrades, 62)));
 
-  const multiShopPct = getLocalCompassBonus(upgrades, 18)
+  const multiShotPct = getLocalCompassBonus(upgrades, 18)
     + (getLocalCompassBonus(upgrades, 125)
       + getLocalCompassBonus(upgrades, 73)
       + multiTalent
@@ -520,7 +520,7 @@ export const getCompassStats = (character: any, account: any) => {
     invulnerableTime,
     range,
     moveSpeed,
-    multiShopPct
+    multiShotPct
   }
 }
 

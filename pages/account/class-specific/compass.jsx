@@ -1,6 +1,6 @@
 import { Divider, Select, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, commaNotation, getTabs, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
@@ -32,16 +32,15 @@ const Compass = () => {
     totalAcquiredMedallions,
     topOfTheMorninKills
   } = state?.account?.compass || {};
-  const [selectedChar, setSelectedChar] = useState(0);
+  const [selectedChar, setSelectedChar] = useState(null);
   const windWalkers = state?.characters?.filter((character) => checkCharClass(character?.class, CLASSES.Wind_Walker));
-  const tempestStats = getCompassStats(state?.characters?.[selectedChar], state?.account);
-  const extraDust = getExtraDust(state?.characters?.[selectedChar], state?.account);
-
-  useEffect(() => {
-    if (windWalkers.length === 1) {
-      setSelectedChar(windWalkers?.[0]?.playerId);
-    }
-  }, []);
+  // Derived rather than stored: an initial index only ever matched the right character when the
+  // account had exactly one wind walker, so two or more left every stat on the first character
+  // in the account - who usually isn't a wind walker at all.
+  const selectedWindWalker = windWalkers?.find((character) => character?.playerId === selectedChar)
+    ?? windWalkers?.[0];
+  const tempestStats = getCompassStats(selectedWindWalker, state?.account);
+  const extraDust = getExtraDust(selectedWindWalker, state?.account);
 
   return <>
     <NextSeo
@@ -50,12 +49,13 @@ const Compass = () => {
     />
     <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
       {windWalkers.length > 1 ? <CardTitleAndValue title={'Character'}
-                                                   value={<Select size={'small'} value={selectedChar}
+                                                   value={<Select size={'small'}
+                                                                  value={selectedWindWalker?.playerId ?? ''}
                                                                   onChange={(e) => setSelectedChar(e.target.value)}>
                                                      {windWalkers?.map((character, index) => {
                                                        return <MenuItem key={character?.name + index}
                                                                         value={character?.playerId}
-                                                                        selected={selectedChar === character?.playerId}>
+                                                                        selected={selectedWindWalker?.playerId === character?.playerId}>
                                                          <Stack direction={'row'} alignItems={'center'} gap={2}>
                                                            <img
                                                              src={`${prefix}data/ClassIcons${character?.classIndex}.png`}
@@ -121,11 +121,13 @@ const Compass = () => {
                          value={notateNumber(tempestStats?.range, 'MultiplierInfo').replace('.00', '')}/>
       <CardTitleAndValue title={'Move speed'}
                          value={`${notateNumber(tempestStats?.moveSpeed, 'MultiplierInfo').replace('.00', '')}%`}/>
+      <CardTitleAndValue title={'Multishot'}
+                         value={`${notateNumber(tempestStats?.multiShotPct, 'MultiplierInfo').replace('.00', '')}%`}/>
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'compass')}>
       <Upgrades upgrades={groupedUpgrades} dusts={dusts}/>
-      <UpgradeOptimizer character={state?.characters?.[selectedChar]} account={state?.account}/>
+      <UpgradeOptimizer character={selectedWindWalker} account={state?.account}/>
       <Abominations abominations={abominations}/>
       <Medallions medallions={medallions} totalAcquiredMedallions={totalAcquiredMedallions}/>
       <Portals maps={maps}/>
