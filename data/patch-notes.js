@@ -7,7 +7,9 @@ export const patchNotes = [
     'ver': '3.3.63',
     'gameVer': '2.3.523',
     'date': '20/08/2026',
-    'features': [],
+    'features': [
+      'Cooking: the meal list can now be narrowed down to the cheapest meals to upgrade, with a readout of how many ladles that takes per meal and in total. A new Book Order toggle lists the filtered meals in cooking book order'
+    ],
     'fixes': [
       'Dashboard & Dungeons: the Happy Hour timer was off by your timezone offset every Thursday, and stopped counting down after the last Happy Hour of the week',
       'Coral Reef: each Dancing Coral now shows which shrine it raises the max level of and what that shrine does, plus its bonus per shrine level. Corals 4 through 9 were also named wrong',

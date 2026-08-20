@@ -10,7 +10,19 @@ import {
   numberWithCommas,
   prefix
 } from 'utility/helpers';
-import { Card, CardContent, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import {
+  Button,
+  Card,
+  CardContent,
+  Divider,
+  Slider,
+  Stack,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography
+} from '@mui/material';
+import { useLocalStorage } from '@mantine/hooks';
 import styled from '@emotion/styled';
 import Tooltip from 'components/Tooltip';
 import HtmlTooltip from 'components/Tooltip';
@@ -36,6 +48,11 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
   const [sortBy, setSortBy] = useState(breakpoints[0]);
   const [foodLust, setFoodLust] = useState(account?.equinox?.upgrades?.find(({ name }) => name === 'Food_Lust')?.bonus)
   const [localEquinoxUpgrades, setLocalEquinoxUpgrades] = useState(account?.equinox?.upgrades);
+  // 0 means "no limit" - the slider sitting at its maximum.
+  const [mealLimit, setMealLimit] = useLocalStorage({
+    key: 'meals-filter-limit',
+    defaultValue: 0
+  });
   const spelunkerObolMulti = getLabBonus(lab?.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(lab?.jewels, 16, spelunkerObolMulti);
   const allPurpleActive = lab?.jewels?.slice(0, 3)?.every(({ active }) => active) ? 2 : 1;
@@ -174,6 +191,46 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
   };
   const defaultMeals = calcMeals(meals);
 
+  // Ladles and hours are the same number (1 ladle = 1 hour of cook time), so a single
+  // threshold covers both. Cost is measured against the sort target when it's a real
+  // breakpoint, otherwise against the next level.
+  const getMealCost = (meal) => {
+    const entry = sortBy > 0
+      ? meal?.breakpointTimes?.find(({ bpLevel }) => bpLevel === sortBy)
+      : meal?.breakpointTimes?.[0];
+    return parseFloat(entry?.timeToBp);
+  }
+  const isMealUpgradable = (meal) => {
+    if (!meal || meal.level === 0 || meal.level >= mealMaxLevel) return false;
+    return !(sortBy > 0 && meal.level >= sortBy);
+  }
+  const applyMealLimit = (meals, limit, upgradable) => {
+    if (!limit || limit >= upgradable) return meals;
+    const candidates = meals?.filter((meal) => isMealUpgradable(meal) && Number.isFinite(getMealCost(meal))) ?? [];
+    // Pick by cost, then keep the incoming sort order for display.
+    const chosen = new Set([...candidates]
+      .sort((a, b) => getMealCost(a) - getMealCost(b))
+      .slice(0, limit)
+      .map(({ index }) => index));
+    return candidates.filter(({ index }) => chosen.has(index));
+  }
+  const getCostStats = (meals) => {
+    const costs = meals?.filter(isMealUpgradable)?.map(getMealCost)?.filter(Number.isFinite) ?? [];
+    if (costs.length === 0) return null;
+    return {
+      max: Math.max(...costs),
+      total: costs.reduce((sum, cost) => sum + cost, 0)
+    };
+  }
+  // Derived at render, not in the effect: the limit only slices an already-computed list, and
+  // putting it in the effect deps re-ran the whole breakpoint recalc on every slider release.
+  const upgradableCount = localMeals?.filter(isMealUpgradable)?.length ?? 0;
+  const limited = mealLimit > 0 && mealLimit < upgradableCount;
+  const limitedMeals = applyMealLimit(localMeals, mealLimit, upgradableCount);
+  const visibleMeals = filters.includes('bookOrder')
+    ? limitedMeals?.filter(Boolean)?.toSorted((a, b) => a?.index - b?.index)
+    : limitedMeals;
+
   useEffect(() => {
     const tempFoodLust = equinoxUpgrades?.find(({ name }) => name === 'Food_Lust')?.bonus;
     setFoodLust(tempFoodLust);
@@ -245,6 +302,15 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
       <ToggleButtonGroup sx={{ my: 2, flexWrap: 'wrap' }} value={filters} onChange={handleFilters}>
         <ToggleButton value="minimized">Minimized</ToggleButton>
         <ToggleButton value="hide">Hide Capped</ToggleButton>
+        <ToggleButton value="bookOrder">
+          <Stack direction={'row'} gap={1}>
+            <Typography>Book Order</Typography>
+            <Tooltip
+              title={'Keeps the filters above, but lists the meals in cooking book order so you can go straight down the book'}>
+              <InfoIcon/>
+            </Tooltip>
+          </Stack>
+        </ToggleButton>
         <ToggleButton value="overflow">
           <Stack direction={'row'} gap={1}>
             <Typography>Overflowing Ladle</Typography>
@@ -335,8 +401,11 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
         </Stack>
       </Stack>
       <Typography my={1} variant={'h5'}>Meals</Typography>
+      <MealsFilterBar upgradableCount={upgradableCount} stats={getCostStats(visibleMeals)}
+                      limited={limited} value={limited ? mealLimit : upgradableCount}
+                      onCommit={(val) => setMealLimit(val >= upgradableCount ? 0 : val)}/>
       <Stack direction={'row'} flexWrap="wrap" gap={2}>
-        {localMeals?.map((meal, index) => {
+        {visibleMeals?.map((meal, index) => {
           if (!meal) return null;
           const {
             name,
@@ -445,6 +514,56 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
   );
 };
 
+
+// Slider narrows the list to the N cheapest meals to upgrade. The ladle figures next to it are
+// the point: drag until "max each" is a stack you can actually withdraw.
+const MealsFilterBar = ({ upgradableCount, stats, limited, value, onCommit }) => {
+  // Drag position is kept here on purpose: the meal list only changes on release, so letting it
+  // live in the parent re-rendered every card on every mousemove.
+  const [dragValue, setDragValue] = useState(null);
+  if (upgradableCount === 0) return null;
+  const shownValue = dragValue ?? value;
+  return (
+    <Stack direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'} mb={2}>
+      <Stack direction={'row'} alignItems={'center'} gap={2}>
+        <Slider size={'small'} sx={{ width: 130 }} min={1} max={upgradableCount} value={shownValue}
+                onChange={(e, val) => setDragValue(val)}
+                onChangeCommitted={(e, val) => {
+                  setDragValue(null);
+                  onCommit(val);
+                }}/>
+        <TextField size={'small'} type={'number'} value={shownValue}
+                   slotProps={{ htmlInput: { min: 1, max: upgradableCount } }}
+                   sx={{ width: 80 }}
+                   onChange={({ target }) => {
+                     const parsed = parseInt(target.value, 10);
+                     onCommit(Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), upgradableCount) : upgradableCount);
+                   }}/>
+        <Tooltip
+          title={'Narrows the list to the cheapest meals to upgrade, so you can pull one page of ladles and work straight down it. Cost is measured against the sort target above, and ladles and hours are the same number.'}>
+          <Typography sx={{ color: limited ? 'info.light' : '', whiteSpace: 'nowrap' }}>
+            of {upgradableCount}
+          </Typography>
+        </Tooltip>
+      </Stack>
+      <Stack direction={'row'} alignItems={'center'} gap={2} divider={<Divider orientation={'vertical'} flexItem/>}>
+        {stats ? <>
+          <Stack direction={'row'} alignItems={'center'} gap={1}>
+            <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={32} height={32}/>
+            <HtmlTooltip title={`${numberWithCommas(stats.max.toFixed(2))} ladles - withdraw this much per meal`}>
+              <Typography sx={{ whiteSpace: 'nowrap' }}>{notateNumber(Math.ceil(stats.max), 'Big')} max
+                each</Typography>
+            </HtmlTooltip>
+          </Stack>
+          <HtmlTooltip title={`${numberWithCommas(stats.total.toFixed(2))} ladles to upgrade every meal shown`}>
+            <Typography sx={{ whiteSpace: 'nowrap' }}>{notateNumber(Math.ceil(stats.total), 'Big')} total</Typography>
+          </HtmlTooltip>
+        </> : null}
+        {limited ? <Button size={'small'} onClick={() => onCommit(upgradableCount)}>Reset</Button> : null}
+      </Stack>
+    </Stack>
+  );
+};
 
 const MealTooltip = ({
                        account,
