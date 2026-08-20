@@ -130,6 +130,17 @@ export const getCardBonusByEffect = (cards: Record<string, any>, effectName: str
   }, 0);
 }
 
+// RunCodeOfTypeXforThingY("CardLv", rawName) - a single card's level, 0 when unowned.
+// Formulas that cap a card (or a group of them) have to write the game's own coefficient out
+// against the level, because the cap and the coefficient belong to the formula, not to the card:
+// the same card appears at 5x and at 10x in Spelunk Amber, and one cap can span two cards.
+// Deliberately level, not calcCardBonus - the game's CardLv carries no chip or legend boost.
+export const getCardLevel = (cards: Record<string, any>, rawName: string): number => {
+  const card: any = Object.values(cards || {})?.find((c: any) => c?.rawName === rawName);
+  if (!card || card?.amount <= 0) return 0;
+  return (card?.stars ?? -1) + 1;
+}
+
 export const calcCardBonus = (card: any): number => {
   if (!card) return 0;
   return (card?.bonus * ((card?.stars ?? -1) + 1)) * (card?.chipBoost ?? 1) * (card?.legendBonus ?? 1);

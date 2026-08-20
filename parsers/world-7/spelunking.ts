@@ -5,7 +5,7 @@ import { getSlabBonus, isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getExoticMarketBonus, getStickerBonus } from '@parsers/world-6/farming';
-import { getCardBonusByEffect } from '@parsers/cards';
+import { getCardBonusByEffect, getCardLevel } from '@parsers/cards';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
@@ -442,7 +442,11 @@ export const getAmberGain = (account: any, loreBonuses: any) => {
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '7amber');
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'SplkAmb');
   const dancingCoralBonus = getDancingCoralBonus(account, 2, 0);
-  const cardBonus = getCardBonusByEffect(account?.cards, 'Spelunk_Amber_(Passive)');
+  // Game: min(5 * CardLv("w7a7"), 40) + min(10 * CardLv("w7a7"), 100)
+  // Litterfish is counted twice, at two coefficients with two caps, so an effect lookup
+  // (which yields one bonus * level term) can only ever see the first half of it.
+  const litterfishLv = getCardLevel(account?.cards, 'w7a7');
+  const cardBonus = Math.min(5 * litterfishLv, 40) + Math.min(10 * litterfishLv, 100);
   const winnerBonus = getWinnerBonus(account, '<x Amber Gain');
   const shopUpg7 = getSpelunkingBonus(account, 7, 1);
   const shopUpg20 = getSpelunkingBonus(account, 20);

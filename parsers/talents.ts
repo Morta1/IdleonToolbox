@@ -8,7 +8,7 @@ import { getFamilyBonus, getFamilyBonusBonus } from '@parsers/family';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getGuildBonusBonus } from '@parsers/guild';
 import { getDungeonFlurboStatBonus } from '@parsers/dungeons';
-import { getCardBonusByEffect } from '@parsers/cards';
+import { getCardBonusByEffect, getCardLevel } from '@parsers/cards';
 import { getSigilBonus } from '@parsers/world-2/alchemy';
 import { getShinyBonus } from '@parsers/world-4/breeding';
 import { getBribeBonus } from '@parsers/world-1/bribes';
@@ -485,7 +485,13 @@ export const calcTotalStarTalent = (characters: any, account: any) => {
     const stampBonus = getStampsBonusByEffect(account, 'Talent_Points_for_Star_Tab')
     const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 11);
     const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Talent_Pts');
-    const cardPassiveBonus = getCardBonusByEffect(account?.cards, 'Star_Talent_Pts_(Passive)');
+    // Game: min(5 * CardLv("w4b2"), 50) + min(15 * CardLv("Boss2C"), 100) + min(4 * CardLv("fallEvent1"), 100)
+    // Each card is capped on its own, which a summed effect lookup cannot express.
+    const starTalentCardLv = (rawName: string) => getCardLevel(account?.cards, rawName);
+    const cardPassiveBonus =
+      Math.min(5 * starTalentCardLv('w4b2'), 50)
+      + Math.min(15 * starTalentCardLv('Boss2C'), 100)
+      + Math.min(4 * starTalentCardLv('fallEvent1'), 100);
     const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'TWO_STARZ');
     const achievement = getAchievementStatus(account?.achievements, 212);
     const secondAchievement = getAchievementStatus(account?.achievements, 289);

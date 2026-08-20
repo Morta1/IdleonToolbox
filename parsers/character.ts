@@ -57,6 +57,7 @@ import {
 import {
   calcCardBonus,
   getCardBonusByEffect,
+  getCardLevel,
   getEquippedCardBonus,
   getEquippedCardsData,
   getPlayerCards
@@ -2289,7 +2290,14 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   const achievementBonus = getAchievementStatus(account?.achievements, 377);
   const secondAchievementBonus = getAchievementStatus(account?.achievements, 381);
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Cake', character, account, characters);
-  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Drop_Rate_(Passive)');
+  // Each passive drop-rate card group is capped on its own, so they cannot collapse into one
+  // summed effect lookup - and one cap spans caveC and caveD together.
+  const dropRateCardLv = (rawName: string) => getCardLevel(account?.cards, rawName);
+  const passiveCardBonus =
+    Math.min(1.5 * dropRateCardLv('mini5a'), 10)
+    + Math.min(4 * dropRateCardLv('caveC') + 6 * dropRateCardLv('caveD'), 100)
+    + Math.min(2 * dropRateCardLv('anni4Event1'), 20)
+    + Math.min(3 * dropRateCardLv('luckEvent1'), 25);
   const tomeBonus = account?.tome?.bonuses?.[2]?.bonus ?? 0;
   const tomeMulti = account?.tome?.bonuses?.[7]?.bonus ?? 0;
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Drop Rate');

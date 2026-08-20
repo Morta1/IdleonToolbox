@@ -22,7 +22,12 @@ export const patchNotes = [
       'Copy buttons could silently copy nothing, and some still reported success. They now fall back to a second copy method when the browser blocks clipboard access, and show an error when the copy really fails',
       'Star Signs: bonuses with a decimal value showed a stray ".{" after the number, such as Blue Hedgehog\'s Ring Drop',
       'Sneaking: the max level shown for Charms left out the +100 from the Equinox challenge reward',
-      'Cash Multiplier left out both Sushi Station extra coin bonuses, showing 1.68x lower than the real value'
+      'Cash Multiplier left out both Sushi Station extra coin bonuses, showing 1.68x lower than the real value',
+      'Drop Rate was missing Mama Troll, Crystal Glunko and several other bonuses',
+      'Drop Rate: passive card bonuses ignored their in-game caps',
+      'Class EXP multi was missing the Tobiko Temaki sushi bonus, showing 1.25x lower than the real value',
+      'Spelunking: Amber gain counted the Litterfish card once instead of twice, missing most of its bonus',
+      'Star Talent Points: passive card bonuses ignored their in-game caps'
     ]
   },
   {

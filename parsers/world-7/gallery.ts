@@ -10,7 +10,7 @@ import {
 } from '@parsers/misc';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getBubbleBonus } from '@parsers/world-2/alchemy';
-import { getCardBonusByEffect } from '@parsers/cards';
+import { getCardLevel } from '@parsers/cards';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getPlayerLabChipBonus } from '@parsers/world-4/lab';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
@@ -297,17 +297,16 @@ export const getNametagBonuses = (rawSpelunk: any, account: any, character?: any
   };
 }
 
-export const getGalleryBonusMulti = (rawSpelunk: any, account: any, character?: any, includeBubble = false) => {
+export const getGalleryBonusMulti = (rawSpelunk: any, account: any, character?: any) => {
   const baseValue = rawSpelunk?.[13]?.[4] ?? 0;
   const chipBonus = character ? getPlayerLabChipBonus(character, account, 16) ? 10 : 0 : 0;
   const clamWorkBonus = 3 * getClamWorkBonus(account, 7);
   const killroyBonus = getKillRoyShopBonus(account, 3);
-  // Include bubble when a character is provided (per-character path runs after alchemy is resolved)
-  // or when explicitly requested via includeBubble.
-  // Account-level (no character) defaults to excluding bubble to avoid stale data in early serialization passes.
-  const shouldIncludeBubble = includeBubble || !!character;
-  const bubbleBonus = shouldIncludeBubble ? Math.min(20, getBubbleBonus(account, 'CODFREY_RULZ_OK', false)) : 0;
-  const cardBonus = Math.min(getCardBonusByEffect(account?.cards, 'Gallery_Bonus_(Passive)'), 10);
+  // Bubble is account-wide, so it belongs on the account-level multi too. Alchemy is serialized
+  // (index.ts) well before gallery in the same pass, so there is no stale-data window to guard.
+  const bubbleBonus = Math.min(20, getBubbleBonus(account, 'CODFREY_RULZ_OK', false));
+  // Game: min(CardLv("w7a11"), 10) - the coefficient is 1 and the cap is on the level itself.
+  const cardBonus = Math.min(getCardLevel(account?.cards, 'w7a11'), 10);
   const companionBonus = isCompanionBonusActive(account, 49) ? account?.companions?.list?.at(49)?.bonus : 0;
   const sushiBonus54 = getSushiBonus(account, 54);
 
