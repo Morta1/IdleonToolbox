@@ -135,6 +135,8 @@ const MaterialTracker = () => {
       <Stack sx={{ mt: 1 }} direction={'row'} alignItems={'center'} gap={2}>
         <FileUploadButton onFileUpload={(data) => {
           setTrackedItems(data);
+          // Save to local storage
+          localStorage.setItem('material-tracker', JSON.stringify(data));
         }}>Import</FileUploadButton>
         <Button onClick={() => handleDownload(trackedItems, 'it-material-tracker')} variant={'outlined'}
                 startIcon={<IconFileExport size={18}/>}
