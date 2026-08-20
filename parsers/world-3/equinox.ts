@@ -233,8 +233,11 @@ const parseEquinoxUpgrades = (challenges: any, dream: any, account: any) => {
   });
 };
 
-const getCloudBonus = (arr: any, index: any) => {
-  const bonus = arr.find((challenge: any, ind: any) => ind === index && challenge.current === -1);
+// Dreamstuff("CloudBonus", index) - returns 1 when equinox challenge `index` is complete, 0 otherwise.
+// It is a completion flag, not a magnitude: "clouds" are the challenges themselves (CloudX/CloudY are
+// only their on-screen grid positions), and every caller applies its own multiplier, e.g. 5 * cb / 100.
+export const getCloudBonus = (arr: any, index: any) => {
+  const bonus = (arr || []).find((challenge: any, ind: any) => ind === index && challenge.current === -1);
   return bonus ? 1 : 0;
 }
 

@@ -90,7 +90,7 @@ import { getArcadeBonus } from './world-2/arcade';
 import { isArtifactAcquired } from './world-5/sailing';
 import { getShinyBonus } from './world-4/breeding';
 import { getDeityLinkedIndex, getDivStylePerHour, getGodByIndex, getMinorDivinityBonus } from './world-5/divinity';
-import { getEquinoxBonus } from './world-3/equinox';
+import { getCloudBonus, getEquinoxBonus } from './world-3/equinox';
 import { getConstructMastery } from './world-4/rift';
 import { getAtomBonus } from './world-3/atomCollider';
 import {
@@ -1941,12 +1941,18 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const bubbaRoGBonus = account?.bubba?.bonuses?.expMulti?.bonus ?? 0;
 
   const fountainClassExpBonus = getFountainBonusTotal(account?.hole?.holesObject, 0, 16);
+  // SushiStuff("RoG_BonusQTY", 15) - Tobiko Temaki
+  const sushiClassExpBonus = getSushiBonus(account, 15);
+  // 5 * Dreamstuff("CloudBonus", 70) - equinox challenge "Reach LV. 100 for any Palette Colour in Gaming"
+  const equinoxClassExpMulti = 5 * getCloudBonus(account?.equinox?.challenges, 70);
   expGainLUK5 *= (1 + arcaneMapMulti / 100)
     * (1 + spelunkBigFish / 100)
     * (1 + dancingCoralBonus / 100)
     * Math.pow(1 + coralKidUpgBonus / 100, coralKidUpgPow)
     * (1 + cardSet12Bonus / 100)
     * (1 + bubbaRoGBonus / 100)
+    * (1 + sushiClassExpBonus / 100)
+    * (1 + equinoxClassExpMulti / 100)
     * (1 + fountainClassExpBonus / 100);
 
   // SuperBitType(24) * pow(1.03, spelunk[6].length), Meritocracy(27), accountOptions[464]
@@ -2168,6 +2174,9 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
             { name: "Coral Kid Upgrade", value: Math.pow(1 + coralKidUpgBonus / 100, coralKidUpgPow) },
             { name: "Card Set (12)", value: 1 + cardSet12Bonus / 100 },
             { name: "Bubba (RoG)", value: 1 + bubbaRoGBonus / 100 },
+            { name: "Sushi (Tobiko Temaki)", value: 1 + sushiClassExpBonus / 100 },
+            { name: "Equinox Multi", value: 1 + equinoxClassExpMulti / 100 },
+            { name: "Fountain", value: 1 + fountainClassExpBonus / 100 },
             { name: "Classy Discoveries", value: Math.max(1, Math.pow(1.03, spelunkRocksFound) * superbit24 * (1 + meritocBonus27 / 100) * (1 + Math.max(0, 5 * (opt464 - 8)) / 100)) },
             { name: "Class EXP Equip", value: 1 + equipBonus78 / 100 },
           ],
@@ -2191,7 +2200,8 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
 * shinyMedallion
 * companions * researchGrid * sticker * experiencedGamer * zenithMarket * santaSnakeMulti
 * classExpMultiEquip * arcadeClassXPMulti * vialClassExp * slayerAbominator
-* arcaneMapMulti * spelunkBigFish * dancingCoral * coralKidUpg * cardSet12 * bubbaRoG * classyDiscoveries
+* arcaneMapMulti * spelunkBigFish * dancingCoral * coralKidUpg * cardSet12 * bubbaRoG
+* sushiClassExp * equinoxClassExpMulti * fountainClassExp * classyDiscoveries
 * (1 + classExpMultiEquip / 100)
 * (
     luckMulti * (1 + luckyCharmTalentBonus / 100) / 1.8
@@ -2305,6 +2315,9 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   const researchGridBonus = getResearchGridBonus(account, 173, 0);
   const fifthCompanionDropRate = isCompanionBonusActive(account, 111) ? account?.companions?.list?.at(111)?.bonus : 0;
   const sixthCompanionDropRate = isCompanionBonusActive(account, 158) ? account?.companions?.list?.at(158)?.bonus : 0;
+  // Mama Troll (companion 132) is read twice by the game: once additively (+100) and once as a
+  // multiplier, where min(0.5, bonus) clamps the same 100 down to the advertised 1.50x.
+  const mamaTrollDropRate = isCompanionBonusActive(account, 132) ? account?.companions?.list?.at(132)?.bonus : 0;
 
   const additive =
     robbingHoodTalentBonus +
@@ -2351,7 +2364,8 @@ export const getDropRate = (character: any, account: any, characters: any) => {
     spelunkingBonus +
     researchGridBonus +
     fifthCompanionDropRate +
-    sixthCompanionDropRate;
+    sixthCompanionDropRate +
+    mamaTrollDropRate;
 
   let dropRate = 1.4 * luckMulti + additive / 100 + 1;
   if (dropRate < 5 && chipBonus > 0) {
@@ -2387,17 +2401,30 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   const { value: equipmentDrMulti, newBreakdown: newEquipmentDrMultiBreakdown } = getStatsFromGear(character, 91, account);
   const thirdCompanionDropRate = isCompanionBonusActive(account, 26) ? account?.companions?.list?.at(26)?.bonus : 0;
   const seventhCompanionDropRate = isCompanionBonusActive(account, 160) ? account?.companions?.list?.at(160)?.bonus : 0;
+  // Crystal Glunko (companion 168) - account-wide 1.30x, distinct from the Crystal Glunko Cove
+  // multiplier, which only applies while standing in cavern 18 and so is not part of this stat.
+  const crystalGlunkoDropRate = isCompanionBonusActive(account, 168) ? account?.companions?.list?.at(168)?.bonus : 0;
+  // SushiStuff("RoG_BonusQTY", 48) - Unagi Nigiri
+  const sushiDropRateBonus = getSushiBonus(account, 48);
+  // 5 * Dreamstuff("CloudBonus", 69) - equinox challenge "Acquire at least 10 Megaflesh from Bubba the Seal"
+  const equinoxDropRateMulti = 5 * getCloudBonus(account?.equinox?.challenges, 69);
+  const vialDrMulti = getVialsBonusByStat(account?.alchemy?.vials, '7drMulto');
 
-  // Game: *= (1+tesseract/100) * (1+cardMulti/100) * max(1,glimboDR) * (1+tomeMulti/100) * (1+equip99/100) * (1+mineheadQTY0/100)
+  // Game: *= (1+tesseract/100) * (1+cardMulti/100) * (1+0.3*comp168) * (1+min(0.5,comp132)) * (1+sushi48/100)
+  //       * max(1,glimboDR) * (1+tomeMulti/100) * (1+equip99/100) * (1+mineheadQTY0/100) * (1+5*cloud69/100)
   final *= (1 + (tesseractMapBonus || 0) / 100)
     * (1 + cardMulti / 100)
+    * (1 + 0.3 * crystalGlunkoDropRate)
+    * (1 + Math.min(0.5, mamaTrollDropRate))
+    * (1 + sushiDropRateBonus / 100)
     * Math.max(1, glimboDRmulti)
     * (1 + tomeMulti / 100)
     * (1 + dropChanceEquip2 / 100)
-    * (1 + mineheadBonusQTY0 / 100);
+    * (1 + mineheadBonusQTY0 / 100)
+    * (1 + equinoxDropRateMulti / 100);
 
-  // Game: *= (1+charm/100) * (1+equip91/100)
-  final *= (1 + charmBonus / 100) * (1 + equipmentDrMulti / 100);
+  // Game: *= (1+charm/100) * (1+equip91/100) * (1+vial7drMulto/100)
+  final *= (1 + charmBonus / 100) * (1 + equipmentDrMulti / 100) * (1 + vialDrMulti / 100);
 
   // Game: *= max(1, min(1.3, 1+comp26) * min(1.5, 1+0.5*comp160)) * max(1, min(1.01, 1+comp50/2500))
   final *= Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate) * Math.min(1.5, 1 + 0.5 * seventhCompanionDropRate));
@@ -2441,6 +2468,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
           { name: 'Santa Snake', value: fourthCompanionDropRate / 100 },
           { name: 'Clammie', value: fifthCompanionDropRate / 100 },
           { name: 'Lucky Slug', value: sixthCompanionDropRate / 100 },
+          { name: 'Mama Troll', value: mamaTrollDropRate / 100 },
           { name: 'Equinox', value: equinoxDropRateBonus / 100 },
           { name: 'Stamps', value: stampBonus / 100 },
           { name: 'Tome', value: tomeBonus / 100 },
@@ -2494,10 +2522,15 @@ export const getDropRate = (character: any, account: any, characters: any) => {
           { name: 'Gem Bundle', value: hasDrBundle ? 0.2 : 0 },
           { name: 'Tesseract Map', value: (tesseractMapBonus || 0) / 100 },
           { name: 'Card Multi', value: cardMulti / 100 },
+          { name: 'Crystal Glunko', value: 1 + 0.3 * crystalGlunkoDropRate },
+          { name: 'Mama Troll', value: 1 + Math.min(0.5, mamaTrollDropRate) },
+          { name: 'Sushi (Unagi Nigiri)', value: sushiDropRateBonus / 100 },
           { name: 'Glimbo DR', value: glimboDRmulti },
           { name: 'Tome Multi', value: tomeMulti / 100 },
           { name: 'Minehead', value: mineheadBonusQTY0 / 100 },
+          { name: 'Equinox Multi', value: equinoxDropRateMulti / 100 },
           { name: 'Pristine Charm', value: charmBonus / 100 },
+          { name: 'DR Vial', value: vialDrMulti / 100 },
           {
             name: 'Mallay',
             value: Math.min(1.3, 1 + thirdCompanionDropRate)
@@ -2570,6 +2603,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
     + researchGridBonus
     + fifthCompanionDropRate
     + sixthCompanionDropRate
+    + mamaTrollDropRate
   ) / 100 + 1;
 
 if (dropRate < 5 && chipBonus > 0) {
@@ -2594,13 +2628,18 @@ if (hasDrBundle) {
 
 final *= (1 + tesseractMapBonus / 100)
   * (1 + cardMulti / 100)
+  * (1 + 0.3 * crystalGlunkoDropRate)
+  * (1 + Math.min(0.5, mamaTrollDropRate))
+  * (1 + sushiDropRateBonus / 100)
   * Math.max(1, glimboDRmulti)
   * (1 + tomeMulti / 100)
   * (1 + dropChanceEquip2 / 100)
-  * (1 + mineheadBonusQTY0 / 100);
+  * (1 + mineheadBonusQTY0 / 100)
+  * (1 + equinoxDropRateMulti / 100);
 
 final *= (1 + charmBonus / 100)
-  * (1 + equipmentDrMulti / 100);
+  * (1 + equipmentDrMulti / 100)
+  * (1 + vialDrMulti / 100);
 
 final *= Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate)
   * Math.min(1.5, 1 + 0.5 * seventhCompanionDropRate));
