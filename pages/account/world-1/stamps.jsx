@@ -114,8 +114,7 @@ const Stamps = () => {
 
   const getStampTypeAndBorder = (stamp, mode) => {
     const {
-      materials, level, hasMoney, hasMaterials, greenStackHasMaterials, enoughPlayerStorage,
-      minReduction, greenStackMinReduction
+      materials, level, hasMoney, hasMaterials, greenStackHasMaterials, enoughPlayerStorage, minReduction
     } = stamp;
     if (level <= 0) return { border: '#1d1c1c', type: 'level' };
     if (!hasMoney && mode === 'money') {
@@ -129,9 +128,10 @@ const Stamps = () => {
     else if (materials.length > 0) {
       return { border: 'grey', type: 'equipments' };
     }
-    // Out of reach before the softer "missing X" states: no reducer value can pay for these, so
-    // they'd otherwise sit in the same bucket as stamps a reducer change can actually unlock.
-    else if (mode === 'material' && isOutOfReach(subtractGreenStacks ? greenStackMinReduction : minReduction)) {
+    // Out of reach before the softer "missing X" states: it's a strict refinement of 'player'
+    // (no reducer value fits the cost in carry capacity), so checked later it would never win.
+    // Stored materials are deliberately not part of it - a material shortage is 'materials'.
+    else if (mode === 'material' && isOutOfReach(minReduction)) {
       return { border: 'error.dark', type: 'impossible' };
     }
     else if (!enoughPlayerStorage && mode === 'material') {
@@ -188,7 +188,7 @@ const Stamps = () => {
           <Color onChange={handleSwitchChange} name={'impossible'} value={types.impossible ?? true}
                  color={'error.dark'}
                  desc={'Out of reach'}
-                 info={`Costs more than your carry capacity or stored materials even at the ${MAX_STAMP_REDUCTION}% reducer cap, so no reduction can unlock it. Raise carry capacity or stockpile more materials first.`}/>
+                 info={`Costs more than your carry capacity even at the ${MAX_STAMP_REDUCTION}% reducer cap, so no reduction can unlock it. Raise your carry capacity first. Stored materials don't count here: being short on the material shows as Missing Materials.`}/>
           <Color onChange={handleSwitchChange} name={'equipments'} value={types.equipments} color={'grey'}
                  desc={'Equipments'}/>
           <Color onChange={handleSwitchChange} name={'reduction'} value={types.reduction} color={'secondary.dark'}
@@ -427,13 +427,11 @@ const StampInfo = ({
                      bonus,
                      maxLevel,
                      minReduction,
-                     greenStackMinReduction,
                      currentReduction
                    }) => {
   const storageColor = enoughPlayerStorage ? '' : '#e57373';
   const materialColor = hasMaterials ? '' : '#e57373';
   const mode = level < maxLevel ? 'money' : 'material';
-  const requiredReduction = subtractGreenStacks ? greenStackMinReduction : minReduction;
   return <Box sx={{ p: 1 }}>
     <Typography variant={'h6'}>{cleanUnderscore(displayName)} (Lv {level})</Typography>
     <Typography sx={{ color: level > 0 && multiplier > 1 ? 'info.dark' : '' }}
@@ -448,7 +446,7 @@ const StampInfo = ({
                    goldCost={goldCost}
                    mode={mode}
                    level={level}/>
-      {mode === 'material' ? <MinReductionInfo minReduction={requiredReduction}
+      {mode === 'material' ? <MinReductionInfo minReduction={minReduction}
                                               currentReduction={currentReduction}/> : null}
       <Divider variant={'middle'} sx={{ bgcolor: grey[600], my: 1 }}/>
       {futureCosts?.map((futureCost, index) => {
@@ -475,27 +473,21 @@ const StampInfo = ({
   </Box>;
 }
 
-const BLOCKER_TEXT = {
-  capacity: 'capacity',
-  materials: 'materials',
-  both: 'capacity & materials'
-};
-
 // Absent entirely when a caller skipped the calculation, versus present with a null reduction,
-// which is the real "no reducer value can pay for this" answer.
+// which is the real "no reducer value fits this in carry capacity" answer.
 const isOutOfReach = (minReduction) => Boolean(minReduction) && minReduction.reduction == null;
 
 const MinReductionInfo = ({ minReduction, currentReduction }) => {
   if (!minReduction) return null;
-  const { reduction, blockedBy } = minReduction;
+  const { reduction } = minReduction;
   if (reduction == null) {
     return <Typography variant={'body2'} sx={{ color: 'warning.light' }}>
-      {`${MAX_STAMP_REDUCTION}% reduction isn't enough: need ${BLOCKER_TEXT[blockedBy] ?? 'materials'}`}
+      {`${MAX_STAMP_REDUCTION}% reduction still exceeds your carry capacity`}
     </Typography>;
   }
   const isAffordable = reduction <= (currentReduction ?? 0);
   return <Typography variant={'body2'} sx={{ color: isAffordable ? 'success.light' : '#e57373' }}>
-    Min. reduction needed: {reduction}%
+    Min. reduction to carry: {reduction}%
   </Typography>;
 }
 

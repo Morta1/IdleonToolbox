@@ -95,13 +95,11 @@ export const evaluateStamp = (stamp: any, account: any, characters: any, gildedS
 
   const enoughPlayerStorage = bestCharacter?.maxCapacity >= materialCost;
 
-  // Only the stamps page displays these, and they cost a storage scan plus several cost
-  // evaluations per stamp, so serialization (which runs updateStamps once per pass) skips them.
-  let minReduction = null, greenStackMinReduction = null;
+  // Only the stamps page displays this, and it costs several cost evaluations per stamp, so
+  // serialization (which runs updateStamps once per pass) skips it.
+  let minReduction = null;
   if (withMinReduction) {
-    const storageLimit = bestCharacter?.maxCapacity ?? 0;
-    minReduction = getMinReduction(stamp, account, gildedStamp, getMaterialLimit(stamp, account, false), storageLimit);
-    greenStackMinReduction = getMinReduction(stamp, account, gildedStamp, getMaterialLimit(stamp, account, true), storageLimit);
+    minReduction = getMinReduction(stamp, account, gildedStamp, bestCharacter?.maxCapacity ?? 0);
   }
 
   const newStampData = {
@@ -113,8 +111,7 @@ export const evaluateStamp = (stamp: any, account: any, characters: any, gildedS
     greenStackHasMaterials,
     hasMaterials,
     hasMoney,
-    minReduction,
-    greenStackMinReduction
+    minReduction
   };
 
   const futureCosts = getFutureCosts(newStampData, account, stampReducer, gildedStamp);
@@ -139,48 +136,25 @@ const checkHasMaterials = (materials: any, materialCost: any, account: any, subt
   })
 }
 
-// The highest material cost the account can currently pay for a single upgrade of this stamp.
-// Craft-based (equipment) stamps are limited by their scarcest non-Equip component.
-const getMaterialLimit = (stamp: any, account: any, subtractGreenStacks: boolean) => {
-  const applyGreenStacks = (amount: any) => subtractGreenStacks ? Math.max(0, (amount || 0) - 1e7) : (amount || 0);
-  if (stamp?.materials?.length > 0) {
-    return stamp?.materials?.reduce((lowest: number, { itemName, type, itemQuantity }: any) => {
-      if (type === 'Equip') return lowest;
-      const ownedMats = applyGreenStacks(calculateItemTotalAmount(account?.storage?.list, itemName, true));
-      return Math.min(lowest, Math.floor(ownedMats / (itemQuantity || 1)));
-    }, Number.MAX_SAFE_INTEGER);
-  }
-  return applyGreenStacks(stamp?.ownedMats);
-}
-
-// Smallest stamp reducer % that makes the current level's material cost affordable. Reduction is a
-// single linear factor inside getMaterialCost, so the value can be solved directly instead of
-// scanning every reducer step. When even the game's 90% cap isn't enough, reduction is null and
-// blockedBy names what the account is actually short on.
-const getMinReduction = (stamp: any, account: any, gildedStamp: any, materialLimit: number, storageLimit: number) => {
-  const safe = (limit: number) => Number.isFinite(limit) ? Math.max(0, limit) : 0;
-  const materials = safe(materialLimit);
-  const storage = safe(storageLimit);
-  const limit = Math.min(materials, storage);
+// Smallest stamp reducer % that brings the current level's material cost inside the best
+// character's carry capacity. Stored materials deliberately play no part: being short on a
+// material is a "Missing Materials" state the player fixes by farming, while a cost that outgrows
+// carry capacity is a wall no reducer value can climb. Reduction is a single linear factor inside
+// getMaterialCost, so the value is solved directly instead of scanning every reducer step. A null
+// reduction means even the game's 90% cap leaves the cost above capacity.
+const getMinReduction = (stamp: any, account: any, gildedStamp: any, storageLimit: number) => {
+  const limit = Number.isFinite(storageLimit) ? Math.max(0, storageLimit) : 0;
   const costAt = (reduction: number) => Math.floor(getMaterialCost(stamp?.level, stamp, account, reduction, gildedStamp));
 
-  const cappedCost = costAt(MAX_STAMP_REDUCTION);
-  if (cappedCost > limit) {
-    const missingStorage = cappedCost > storage;
-    const missingMaterials = cappedCost > materials;
-    return {
-      reduction: null,
-      blockedBy: missingStorage && missingMaterials ? 'both' : missingStorage ? 'capacity' : 'materials'
-    };
-  }
-  if (costAt(0) <= limit) return { reduction: 0, blockedBy: null };
+  if (costAt(MAX_STAMP_REDUCTION) > limit) return { reduction: null };
+  if (costAt(0) <= limit) return { reduction: 0 };
 
   const estimate = Math.ceil(100 * (1 - limit / getMaterialCost(stamp?.level, stamp, account, 0, gildedStamp)));
   let reduction = Math.min(MAX_STAMP_REDUCTION, Math.max(0, estimate));
   // The Math.floor/Math.max clamps inside getMaterialCost can shift the analytic result by a step.
   while (reduction > 0 && costAt(reduction - 1) <= limit) reduction--;
   while (reduction < MAX_STAMP_REDUCTION && costAt(reduction) > limit) reduction++;
-  return { reduction, blockedBy: null };
+  return { reduction };
 }
 
 const getFutureCosts = (stamp: any, account: any, stampReducer: any, gildedStamp: any) => {
