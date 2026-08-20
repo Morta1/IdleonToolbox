@@ -12,6 +12,7 @@ import {
   killRoySkullShop,
   mapEnemiesArray,
   mapNames,
+  mapPortals,
   monsters,
   ninjaExtraInfo,
   randomList,
@@ -1635,7 +1636,11 @@ export const getKillRoyClasses = (rooms: any, account: any, serverVars: any, ign
     21: [0, 1],
     321: [0, 1, 2]
   };
-  const unlockedMap = characters?.some(({ kills }: any) => kills?.[200] >= 0);
+  // Game: 0 >= KillsLeft2Advance[200][0], ie. Magma Rivertown (the World 5 town) has been reached.
+  // character.kills stores kills DONE (portal requirement minus kills left), so the equivalent test
+  // is kills[200] >= the requirement - an unreached town leaves kills[200] at 0, not at it.
+  const world5TownReq = parseFloat(mapPortals?.[200]?.[0] as any);
+  const unlockedMap = characters?.some(({ kills }: any) => kills?.[200] >= world5TownReq);
   const baseSeed = Math.floor((account?.timeAway?.GlobalTime + Math.round((account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]))) / 604800);
   for (let i = 0; i < rooms; i++) {
     if (!ignoreSkipConditions && (skipConditions as Record<string, any>)[done] && (skipConditions as Record<string, any>)[done].includes(i)) {
