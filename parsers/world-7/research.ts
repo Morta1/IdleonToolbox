@@ -238,6 +238,10 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
 
   const farmingStickerDMGUnlocked = getResearchGridBonusInternal(account, research, 47, 0) >= 1 ? 1 : 0;
 
+  const opticalMonocleOwned = Math.round(gridBonus91Lv);
+  const kaleidoscopeOwned = Math.round(getResearchGridBonusInternal(account, research, 72, 1) + (getEventShopBonus(account, 33) ? 1 : 0));
+  const magnifiersOwned = getMagnifiersOwned(account, research, researchLevel, gridBonus91Lv);
+
   return {
     gridSquares,
     observations,
@@ -248,9 +252,12 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
     rollsPerDay: Math.round(3 + gridBonus90Lv + 3 * (getEventShopBonus(account, 35) ? 1 : 0) + getSushiBonus(account, 2)),
     dailyRollsLeft,
     canLevelUpObservations: gridBonus91Lv >= 1 ? 1 : 0,
-    opticalMonocleOwned: Math.round(gridBonus91Lv),
-    kaleidoscopeOwned: Math.round(getResearchGridBonusInternal(account, research, 72, 1) + (getEventShopBonus(account, 33) ? 1 : 0)),
-    magnifiersOwned: getMagnifiersOwned(account, research, researchLevel, gridBonus91Lv),
+    opticalMonocleOwned,
+    kaleidoscopeOwned,
+    magnifiersOwned,
+    // Lens slots holding a Magnifying Glass (type 0). The game never stores this directly: MagnifiersOwned
+    // is the total slot count across all three lens types, so the glasses are whatever's left over.
+    magnifyingGlassOwned: Math.max(0, magnifiersOwned - kaleidoscopeOwned - opticalMonocleOwned),
     magnifiersPerSlot: Math.min(
       4,
       Math.round(
@@ -399,6 +406,9 @@ export function getResearchGridSquareDescription(account: any, research: any, gr
   return result;
 }
 
+// Game: _customBlock_ResearchStuff("MagnifiersOwned"). Despite the name this is the TOTAL number of lens
+// slots, covering all three lens types (Magnifying Glass, Optical Monocle, Kaleidoscope) - the game adds
+// KaleidoscopeOwned and OpticalMonocleOwned into the total, then draws ResMagni{type}.png for each slot.
 function getMagnifiersOwned(account: any, research: any, researchLevel: any, gridBonus91Lv: any) {
   const kaleidoscopeOwned = Math.round(getResearchGridBonusInternal(account, research, 72, 1) + (getEventShopBonus(account, 33) ? 1 : 0));
   const opticalMonocleOwned = Math.round(gridBonus91Lv);

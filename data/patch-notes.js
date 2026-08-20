@@ -15,7 +15,8 @@ export const patchNotes = [
       '3D Printer: the Skill Mastery printer bonus was dropped entirely at rift 15 and below',
       'Bubbles: prisma bubble bonuses were rounded before the prisma multiplier was applied, showing slightly less than the real in-game value',
       'AFK Gains showed a flat 1% for characters parked at a monument or with no AFK target. The game has no AFK rate for those, so it now shows N/A with the reason, and Kills Per Hour no longer scales by that fake 1%',
-      'Material Tracker: an imported list was lost on refresh, since the import was never saved'
+      'Material Tracker: an imported list was lost on refresh, since the import was never saved',
+      'Research: the "Magnifiers" count actually included your Optical Monocles and Kaleidoscopes, since that\'s how the game stores it. It\'s now labelled "Total Lenses", with separate counts for Magnifying Glasses, Optical Monocles and Kaleidoscopes'
     ]
   },
   {

@@ -31,6 +31,8 @@ const Research = () => {
     gridPTSpent,
     shapesOwned,
     magnifiersOwned,
+    magnifyingGlassOwned,
+    opticalMonocleOwned,
     kaleidoscopeOwned,
     gridSquares,
     observations,
@@ -67,7 +69,9 @@ const Research = () => {
         value={`${commaNotation(gridPTSpent ?? 0)} / ${commaNotation(gridPTSearned ?? 0)}`}
       />
       <CardTitleAndValue title={'Shapes Owned'} value={shapesOwned ?? 0} />
-      <CardTitleAndValue title={'Magnifiers'} value={magnifiersOwned ?? 0} />
+      <CardTitleAndValue title={'Total Lenses'} value={magnifiersOwned ?? 0} />
+      <CardTitleAndValue title={'Magnifying Glasses'} value={magnifyingGlassOwned ?? 0} />
+      <CardTitleAndValue title={'Optical Monocles'} value={opticalMonocleOwned ?? 0} />
       <CardTitleAndValue title={'Kaleidoscopes'} value={kaleidoscopeOwned ?? 0} />
     </Stack>
   );
