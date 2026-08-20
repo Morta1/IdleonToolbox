@@ -12,7 +12,6 @@ import { getStampsBonusByEffect } from './world-1/stamps';
 import { getBribeBonus } from './world-1/bribes';
 import { getVialsBonusByStat } from './world-2/alchemy';
 import { getAchievementStatus } from './achievements';
-import { isPast, isThursday, nextThursday, previousThursday, startOfToday } from 'date-fns';
 import type { IdleonData, Account } from './types';
 
 export const getDungeons = (idleonData: IdleonData, accountOptions: any[]): Record<string, any> => {
@@ -102,28 +101,30 @@ export const getBallBonus = (account: Account): number => {
   return ballBonus + vialArcadeBonus + (5 * taskArcadeBonus) + stampArcadeBonus;
 }
 
-export const getHappyHourDates = (happyHours: number[], thursday: number): number[] => {
-  const secondsInHour = 60 * 60;
+const SECONDS_IN_WEEK = 60 * 60 * 24 * 7;
+const SECONDS_IN_HOUR = 60 * 60;
+
+// `weekStart` is in seconds, not milliseconds. Each `HappyHours` entry is the second-of-week the
+// happy hour *ends* on (the game attribute is literally named TimeToEndOfNextHappyHour), so the
+// hour is subtracted to get the moment it starts, which is what the site displays.
+export const getHappyHourDates = (happyHours: number[], weekStart: number): number[] => {
   return happyHours?.map((time: number) => {
-    return time + Math.round(thursday / 1000) - secondsInHour;
+    return time + weekStart - SECONDS_IN_HOUR;
   });
 }
 
 export const calcHappyHours = (happyHours: number[]): number[] => {
-  let lastThursday: any;
-  if (isThursday(startOfToday())) {
-    lastThursday = startOfToday();
-  } else {
-    lastThursday = previousThursday(startOfToday());
-    lastThursday = lastThursday.getTime() - lastThursday.getTimezoneOffset() * 60 * 1000;
+  // The game picks the next happy hour with `GlobalTime - 604800 * floor(GlobalTime / 604800)`,
+  // and the unix epoch fell on a Thursday, so that anchor is always Thursday 00:00 *UTC*.
+  // Deriving it from browser-local dates instead (date-fns startOfToday/previousThursday plus a
+  // hand-rolled getTimezoneOffset correction) put every timer an offset's worth of hours out for
+  // anyone outside UTC, so keep this as plain UTC modulo arithmetic.
+  const nowInSeconds = Math.floor(Date.now() / 1000);
+  const weekStart = Math.floor(nowInSeconds / SECONDS_IN_WEEK) * SECONDS_IN_WEEK;
+  const upcoming = getHappyHourDates(happyHours, weekStart)?.filter((time: number) => time > nowInSeconds);
+  if (upcoming?.length) {
+    return upcoming.map((time: number) => time * 1000);
   }
-  const hhDates = getHappyHourDates(happyHours, lastThursday);
-  const nextHappyHours = hhDates?.filter((time: number) => !isPast(time * 1000)).map((time: number) => time * 1000);
-  if (nextHappyHours?.length === 0) {
-    let futureThursday: any = nextThursday(startOfToday());
-    futureThursday = futureThursday.getTime() - futureThursday.getTimezoneOffset() * 60 * 1000;
-    return getHappyHourDates(happyHours, futureThursday);
-  } else {
-    return nextHappyHours;
-  }
+  // Every happy hour this week is done: roll over to the first one of next week.
+  return getHappyHourDates(happyHours, weekStart + SECONDS_IN_WEEK)?.map((time: number) => time * 1000);
 };

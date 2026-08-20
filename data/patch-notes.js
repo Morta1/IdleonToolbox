@@ -9,6 +9,7 @@ export const patchNotes = [
     'date': '20/08/2026',
     'features': [],
     'fixes': [
+      'Dashboard & Dungeons: the Happy Hour timer was off by your timezone offset every Thursday, and stopped counting down after the last Happy Hour of the week',
       'Coral Reef: each Dancing Coral now shows which shrine it raises the max level of and what that shrine does, plus its bonus per shrine level. Corals 4 through 9 were also named wrong',
       "Tesseract: the Rollin' Tundra map showed the wrong tachyon type and a far higher amount per drop than it actually gives",
       'Rift: Skill Mastery listed the Smithing, Alchemy and Construction bonuses on the wrong tier, left out the Lv. 150 and Lv. 200 tiers, and showed bonuses for Research, which has none. Locked bonuses now show the level they unlock at',
