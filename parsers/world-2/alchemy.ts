@@ -1,4 +1,4 @@
-import { cleanUnderscore, createArrayOfArrays, growth, tryToParse } from '@utility/helpers';
+import { cleanUnderscore, createArrayOfArrays, growth, round, tryToParse } from '@utility/helpers';
 import { cauldrons, p2w, sigils, vials } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
@@ -319,19 +319,19 @@ export const getActiveBubbleBonus = (equippedBubbles: any, bubbleName: any, acco
   return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, false) ?? 0;
 };
 
-export const getBubbleBonus = (account: any, bubbleName: any, round?: any, shouldMultiply?: any) => {
+export const getBubbleBonus = (account: any, bubbleName: any, shouldRound?: any, shouldMultiply?: any) => {
   const targetBubble = account?.alchemy?.bubblesFlat?.find(
     ({ bubbleName: name }: any) => name === bubbleName
   );
   if (targetBubble === -1) return 0;
 
-  // Calculate base bubble value
+  // Calculate base bubble value (unrounded - the game never rounds intermediate growth values)
   const baseBubbleValue = growth(
     targetBubble?.func,
     targetBubble?.level,
     targetBubble?.x1,
     targetBubble?.x2,
-    round
+    false
   ) ?? 0;
 
   // Apply prisma multiplier to base bubble
@@ -349,7 +349,7 @@ export const getBubbleBonus = (account: any, bubbleName: any, round?: any, shoul
         primaryMultiBubble?.level,
         primaryMultiBubble?.x1,
         primaryMultiBubble?.x2,
-        round
+        false
       );
       const primaryPrismaMultiplier = isPrismaBubble(account, primaryMultiBubble?.bubbleIndex)
         ? getPrismaMulti(account)?.value
@@ -376,7 +376,7 @@ export const getBubbleBonus = (account: any, bubbleName: any, round?: any, shoul
         secondaryBubble?.level,
         secondaryBubble?.x1,
         secondaryBubble?.x2,
-        round
+        false
       );
       const secondaryPrismaMultiplier = isPrismaBubble(account, secondaryBubble?.bubbleIndex)
         ? getPrismaMulti(account)?.value
@@ -385,8 +385,9 @@ export const getBubbleBonus = (account: any, bubbleName: any, round?: any, shoul
     }
   }
 
-  // Return final calculated bonus
-  return baseBubbleValue * basePrismaMultiplier * primaryMultiplier * secondaryMultiplier;
+  // Return final calculated bonus - rounding only applies to the combined result
+  const result = baseBubbleValue * basePrismaMultiplier * primaryMultiplier * secondaryMultiplier;
+  return shouldRound ? round(result) : result;
 };
 
 export const isNamedVial = (entry: any): boolean => !!entry?.name;
@@ -841,7 +842,7 @@ export const findAddDecayThresholdLevel = (func: any, x1: any, x2: any, prismaMu
 
   for (let i = 0; i < 40; i++) {
     mid = (lo + hi) / 2;
-    const val = growth(func, mid, x1, x2, true) * prismaMulti;
+    const val = growth(func, mid, x1, x2, false) * prismaMulti;
 
     if (val >= target) hi = mid;
     else lo = mid;

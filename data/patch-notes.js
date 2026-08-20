@@ -12,7 +12,8 @@ export const patchNotes = [
       "Tesseract: the Rollin' Tundra map showed the wrong tachyon type and a far higher amount per drop than it actually gives",
       'Rift: Skill Mastery listed the Smithing, Alchemy and Construction bonuses on the wrong tier, left out the Lv. 150 and Lv. 200 tiers, and showed bonuses for Research, which has none. Locked bonuses now show the level they unlock at',
       'Card Search: Chopping, Fishing, Catching, Trapping and Worship cards were not counted as passive from Skill Mastery, so they never got the (P) mark and Hide Passive Cards left them on screen',
-      '3D Printer: the Skill Mastery printer bonus was dropped entirely at rift 15 and below'
+      '3D Printer: the Skill Mastery printer bonus was dropped entirely at rift 15 and below',
+      'Bubbles: prisma bubble bonuses were rounded before the prisma multiplier was applied, showing slightly less than the real in-game value'
     ]
   },
   {

@@ -26,7 +26,8 @@ import {
   notateNumber,
   numberWithCommas,
   pascalCase,
-  prefix
+  prefix,
+  round
 } from 'utility/helpers';
 import HtmlTooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
@@ -365,7 +366,7 @@ const Bubbles = () => {
                 const prismaMulti = isPrisma
                   ? getPrismaMulti(state?.account)?.value
                   : 1;
-                const goalBonus = growth(func, goalLevel, x1, x2, true) * (isPrisma ? prismaMulti : 1);
+                const goalBonus = round(growth(func, goalLevel, x1, x2, false) * (isPrisma ? prismaMulti : 1));
                 const bubbleMaxBonus = isPrisma ? getMaxBonus(func, x1) * prismaMulti : getMaxBonus(func, x1);
                 let effectHardCapPercent
                 if (func.toLowerCase() === 'adddecay' && bubbleMaxBonus) {
@@ -390,7 +391,7 @@ const Bubbles = () => {
                     thresholdObj = {
                       thresholdMissingLevels: thresholdLevelNeeded - goalLevel,
                       thresholdBonus:
-                        growth(func, thresholdLevelNeeded, x1, x2, true) * prismaMulti,
+                        round(growth(func, thresholdLevelNeeded, x1, x2, false) * prismaMulti),
                       effectHardCapPercent: effThreshold
                     };
                   }
@@ -400,7 +401,7 @@ const Bubbles = () => {
                     thresholdObj = {
                       thresholdMissingLevels: thresholdLevelNeeded - goalLevel,
                       thresholdBonus:
-                        growth(func, thresholdLevelNeeded, x1, x2, true) * prismaMulti,
+                        round(growth(func, thresholdLevelNeeded, x1, x2, false) * prismaMulti),
                       effectHardCapPercent:
                         thresholdLevelNeeded / (thresholdLevelNeeded + x2) * 100
                     };
