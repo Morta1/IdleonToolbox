@@ -2714,6 +2714,10 @@ export const getCashMulti = (character: any, account: any, characters: any, play
   const dustWalker = getHighestTalentByClass(characters, CLASSES.Wind_Walker, 'DUSTWALKER', false, false, false, false, character);
   const researchBonus = getResearchGridBonus(account, 149, 0) + getResearchGridBonus(account, 169, 0);
   const cropDepotBonus = account?.farming?.cropDepot?.cash?.value ?? 0;
+  // SushiStuff("RoG_BonusQTY", 18) and (…, 37) - both are "}x extra coins dropped by monsters",
+  // applied by the game as two separate multipliers rather than one summed term.
+  const sushiCashBonus18 = getSushiBonus(account, 18);
+  const sushiCashBonus37 = getSushiBonus(account, 37);
 
   // Vault bonuses — game uses VaultKillzTotal indices
   const vaultKills = account?.upgradeVault?.vaultTotalKills || [];
@@ -2739,6 +2743,8 @@ export const getCashMulti = (character: any, account: any, characters: any, play
     * (1 + 0.5 * eventBonus)
     * (1 + 0.6 * eventBonus2)
     * (1 + gearBonusMoney / 100)
+    * (1 + sushiCashBonus18 / 100)
+    * (1 + sushiCashBonus37 / 100)
     * (1 + researchBonus / 100)
     * (1 + gearExtraMoney / 100)
     * (1 + armorSetBonus / 100)
@@ -2787,6 +2793,8 @@ export const getCashMulti = (character: any, account: any, characters: any, play
           { name: 'Potluck', value: companionBonus159 },
           { name: 'Event shop', value: 0.5 * eventBonus },
           { name: 'Event shop 2', value: 0.6 * eventBonus2 },
+          { name: 'Sushi (Tobo Twins)', value: sushiCashBonus18 },
+          { name: 'Sushi (Aji Sashimi)', value: sushiCashBonus37 },
           { name: 'Research', value: researchBonus },
           { name: 'Gold set', value: armorSetBonus },
           { name: 'Gambit', value: gambitBonus },
@@ -2846,6 +2854,8 @@ export const getCashMulti = (character: any, account: any, characters: any, play
 * (1 + 0.5 * eventBonus)
 * (1 + 0.6 * eventBonus2)
 * (1 + gearBonusMoney / 100)
+* (1 + sushiCashBonus18 / 100)
+* (1 + sushiCashBonus37 / 100)
 * (1 + researchBonus / 100)
 * (1 + gearExtraMoney / 100)
 * (1 + armorSetBonus / 100)

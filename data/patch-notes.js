@@ -20,7 +20,9 @@ export const patchNotes = [
       'Dashboard: while a random event was running, the tile showed that event\'s icon and name next to a countdown to the following event. Both now refer to the same upcoming event',
       'Refinery: the cycle time breakdown showed the Polymer Refinery bonus 100x too large and listed a Companion bonus that is not part of cycle speed',
       'Copy buttons could silently copy nothing, and some still reported success. They now fall back to a second copy method when the browser blocks clipboard access, and show an error when the copy really fails',
-      'Star Signs: bonuses with a decimal value showed a stray ".{" after the number, such as Blue Hedgehog\'s Ring Drop'
+      'Star Signs: bonuses with a decimal value showed a stray ".{" after the number, such as Blue Hedgehog\'s Ring Drop',
+      'Sneaking: the max level shown for Charms left out the +100 from the Equinox challenge reward',
+      'Cash Multiplier left out both Sushi Station extra coin bonuses, showing 1.68x lower than the real value'
     ]
   },
   {

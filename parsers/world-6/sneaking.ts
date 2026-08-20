@@ -13,6 +13,7 @@ import { getLegendTalentBonus } from "@parsers/world-7/legendTalents";
 import { getUpgradeVaultBonus } from "@parsers/misc/upgradeVault";
 import { getPaletteBonus } from "@parsers/world-5/gaming";
 import { getCompassBonus } from "@parsers/class-specific/compass";
+import { getCloudBonus } from "@parsers/world-3/equinox";
 
 export const getSneaking = (idleonData: any, serverVars: any, charactersData: any, account: any) => {
   const rawSneaking = tryToParse(idleonData?.Ninja);
@@ -261,12 +262,14 @@ export const getLocalNinjaUpgradeBonus = (upgrades: any, index: any, gemstones: 
     const fireFrostBonus = gemstones?.[7]?.bonus || 0;
     const paletteBonus30 = getPaletteBonus(account, 30) || 0;
     const vaultBonus88 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 88) || 0;
+    // 100 * Dreamstuff("CloudBonus", 53) - equinox challenge "Get a LV. 7 slot in Sneaking, using Symbols"
+    const cloudBonus53 = 100 * getCloudBonus(account?.equinox?.challenges, 53);
     return Math.round(
       level * modifier
       + masteryLootLevel * selectedMasteryLevel
       + goldStar
       + Math.ceil(fireFrostBonus)
-      + Math.floor(paletteBonus30 + vaultBonus88)
+      + Math.floor(paletteBonus30 + vaultBonus88 + cloudBonus53)
     );
   }
   if (index === 6 || index === 7 || index === 10 || index === 12) {
