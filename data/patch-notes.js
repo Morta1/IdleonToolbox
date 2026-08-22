@@ -14,7 +14,8 @@ export const patchNotes = [
       'Equipment: the Silkrode chips were doubling the base stats of an item as well as its extra bonus. In game they only double the extra bonus',
       'Defence was rounded at the wrong point in the calculation, landing a few hundred above the in-game value',
       "Talents: account-wide talent bonuses were read from the highest-level character of that talent's own class. The game checks every character regardless of class, so a talent that appears on several class pages, like The Family Guy, could be read off the wrong one. This affects skill EXP, class EXP, drop rate, cash multiplier and AFK gains",
-      'Talents: added levels were counted in two places the game leaves them out: talents whose level sits in a range the game excludes, and the second bonus line of a talent. Both read higher than in game'
+      'Talents: added levels were counted in two places the game leaves them out: talents whose level sits in a range the game excludes, and the second bonus line of a talent. Both read higher than in game',
+      'Dashboard: the syphon charge timer now turns red when the charge is full, instead of quietly showing "Full" in plain text'
     ]
   },
   {

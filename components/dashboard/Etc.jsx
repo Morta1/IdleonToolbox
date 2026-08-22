@@ -229,6 +229,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             lastUpdated={lastUpdated} time={timeToOverCharge}
             icon={'data/UISkillIcon475.png'}
             timerPlaceholder={'Full'}
+            showAsError={isPast(timeToOverCharge)}
           />
         </> : null}
         {trackers?.General?.closestFullWorship?.checked && account?.finishedWorlds?.World2 && closestWorshiper?.timeLeft !== 0
