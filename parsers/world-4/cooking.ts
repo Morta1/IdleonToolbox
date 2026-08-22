@@ -12,7 +12,7 @@ import { getAchievementStatus } from '@parsers/achievements';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getShinyBonus } from '@parsers/world-4/breeding';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
-import { CLASSES, getHighestTalentByClass, getTalentBonus, getVoidWalkerTalentEnhancements } from '@parsers/talents';
+import { getTalentBonus, getVoidWalkerTalentEnhancements, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
 import LavaRand from '@utility/lavaRand';
 import { allProwess, getAllBaseSkillEff, getAllEff } from '@parsers/efficiency';
@@ -498,8 +498,8 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
       superbitBonus = superbit?.bonus;
     }
 
-    const voidWalkerEnhancementEclipse = getHighestTalentByClass(characters, CLASSES.Voidwalker, 'ENHANCEMENT_ECLIPSE');
-    const voidWalkerBloodMarrow = getHighestTalentByClass(characters, CLASSES.Voidwalker, 'BLOOD_MARROW');
+    const voidWalkerEnhancementEclipse = getHighestTalentAcrossCharacters(characters, 'ENHANCEMENT_ECLIPSE', getBestActiveCharacter(characters));
+    const voidWalkerBloodMarrow = getHighestTalentAcrossCharacters(characters, 'BLOOD_MARROW', getBestActiveCharacter(characters));
     const voidWalkerBonusTalent = Math.pow(Math.min(1.012, 1 + voidWalkerBloodMarrow / 100), totalMeals);
     const voidWalkerEnhancement = getVoidWalkerTalentEnhancements(characters, account, voidWalkerEnhancementEclipse, 146);
     const voidWalkerApocalypseBonus = Math.max(1, voidWalkerEnhancement as number);

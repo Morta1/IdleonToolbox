@@ -1,6 +1,6 @@
 import '../../polyfills';
 import 'core-js/modules/web.structured-clone';
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { parseData } from '@parsers/index';
 import latest from '../fixtures/latest.json';
 
@@ -18,6 +18,14 @@ const parseWith = (mutate) => {
 };
 
 describe('getKangaroo banked fish', () => {
+  // fishRate runs through getShinyMulti, which grows with wall-clock time. Without a frozen clock
+  // the breakpoint assertions below drift between runs.
+  beforeAll(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-08-20T12:00:00.000Z'));
+  });
+  afterAll(() => vi.useRealTimers());
+
   it('adds the banked catch timer on top of the raw fish counter', () => {
     const kangaroo = parseWith(() => {});
     expect(kangaroo.pendingFish).toBeGreaterThan(0);
@@ -56,8 +64,11 @@ describe('getKangaroo banked fish', () => {
       expect(remaining(days[day].totalFish)).toBeLessThan(remaining(days[day - 1].totalFish));
     }
     expect(remaining(days[0].totalFish)).toBeGreaterThan(0);
-    expect(remaining(days[1].totalFish)).toBeLessThanOrEqual(0);
-  });
+    // One day of banking lands the timer on zero; allow a part-per-billion of that day for the
+    // float residue of dividing ~1e12-magnitude fish counts.
+    const oneDayMs = 1440 * 60 * 1000;
+    expect(remaining(days[1].totalFish)).toBeLessThanOrEqual(oneDayMs * 1e-9);
+  }, 30000); // five full parseData runs; the 5s default is not enough when workers are contended
 
   it('banks tar fish the same way', () => {
     const kangaroo = parseWith(() => {});

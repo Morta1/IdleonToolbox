@@ -9,7 +9,7 @@ import { getShinyBonus } from '@parsers/world-4/breeding';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { constructionMasteryThresholds } from '@parsers/world-3/construction';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
-import { checkCharClass, CLASSES, getHighestTalentByClass } from '@parsers/talents';
+import { checkCharClass, CLASSES, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getFamilyBonusBonus } from '@parsers/family';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
@@ -111,7 +111,7 @@ export const getRefineryCycleBonuses = (account: Account, characters: any[]) => 
   const divineKnightsLevels = charactersLevels?.filter((character: any) =>
     checkCharClass(character?.class, CLASSES.Divine_Knight))?.map(({ level }: any) => level);
   const highestLevelDivineKnight = divineKnightsLevels?.length > 0 ? Math.max(...divineKnightsLevels) : 0;
-  const theFamilyGuy = getHighestTalentByClass(characters, CLASSES.Divine_Knight, 'THE_FAMILY_GUY')
+  const theFamilyGuy = getHighestTalentAcrossCharacters(characters, 'THE_FAMILY_GUY', getBestActiveCharacter(characters))
   const familyRefinerySpeed = getFamilyBonusBonus(classFamilyBonuses, 'Refinery_Speed', highestLevelDivineKnight);
   const amplifiedFamilyBonus = (familyRefinerySpeed * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0)
   const voteBonus = getVoteBonus(account, 33);

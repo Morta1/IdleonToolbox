@@ -8,7 +8,7 @@ import {
   randomList
 } from '@website-data';
 import { getLabBonus } from "@parsers/world-4/lab";
-import { CLASSES, getHighestTalentByClass } from "@parsers/talents";
+import { getBestActiveCharacter, getHighestTalentAcrossCharacters } from "@parsers/talents";
 import { getLegendTalentBonus } from "@parsers/world-7/legendTalents";
 import { getUpgradeVaultBonus } from "@parsers/misc/upgradeVault";
 import { getPaletteBonus } from "@parsers/world-5/gaming";
@@ -289,7 +289,7 @@ const getItemsMaxLevel = (upgrades: any, gemstones: any, inventory: any, account
 };
 
 const getGemstoneBonus = (gemstone: any, index: any, fifthGemstoneBonus: any, characters: any) => {
-  const talentBonus = getHighestTalentByClass(characters, CLASSES.Wind_Walker, 'GENERATIONAL_GEMSTONES') ?? 0;
+  const talentBonus = getHighestTalentAcrossCharacters(characters, 'GENERATIONAL_GEMSTONES', getBestActiveCharacter(characters)) ?? 0;
 
   return index === 5
     ? gemstone?.x3 + gemstone?.x5 * (gemstone?.baseValue / (1e3 + gemstone?.baseValue))
@@ -318,17 +318,24 @@ const parseNinjaItems = (array: any, doChunks: any, gemstones: any, account: any
   });
 
   if (doChunks) {
-    return result?.toChunks(4)?.map((array: any) => array.map((item: any) => ({ ...item, value: getItemValue(item) })));
+    return result?.toChunks(4)?.map((array: any) => array.map((item: any) => {
+      // rawValue too, so these items answer getInventoryNinjaItem's comparison like inventory ones
+      const rawValue = getItemValue(item);
+      return { ...item, rawValue, value: rawValue };
+    }));
   }
 
   return result?.map((item: any) => {
-    const legendTalentBonus = getLegendTalentBonus(account, 6);
+    const legendTalentBonus = getLegendTalentBonus(account, 6) || 0;
     const symbolBonus = item?.symbolBonus || 0;
+    const rawValue = getItemValue(item);
 
     return {
       ...item,
-      value: getItemValue(item) * (item?.name?.startsWith('Gold_') ? 1 + gemstoneBonus / 100
-        * (1 + symbolBonus / 100) * (1 + legendTalentBonus / 100) : 1)
+      rawValue,
+      value: rawValue * (item?.name?.startsWith('Gold_')
+        ? (1 + gemstoneBonus / 100) * (1 + legendTalentBonus / 100) * (1 + symbolBonus / 100)
+        : 1)
     }
   });
 };
@@ -369,8 +376,15 @@ const getItemValue = ({ type, subType, level, x3, x5 }: any) => {
   return 0;
 };
 
+// Deliberately compares the raw stat against the stored MULTIPLIED value — the game does
+// `if (ItemStat(slot) > NJbonusPerms[subType]) NJbonusPerms[subType] = ItemStat(slot) * gem * legend * symbol`,
+// so the two sides of that test are on different scales. It is a game quirk, not a typo: symbol
+// bonuses are per-item, so which duplicate wins can differ from plain max-by-value. Match it.
 export const getInventoryNinjaItem = (account: any, equipName: any) => {
-  return account?.sneaking?.inventory?.find(({ name }: any) => name === equipName)?.value;
+  return (account?.sneaking?.inventory ?? []).reduce((best: number, item: any) => {
+    if (item?.name !== equipName) return best;
+    return (item?.rawValue ?? 0) > best ? (item?.value ?? 0) : best;
+  }, 0);
 };
 
 export const getNinjaEquipmentBonus = (account: any, playerIndex: any, equipName: any) => {

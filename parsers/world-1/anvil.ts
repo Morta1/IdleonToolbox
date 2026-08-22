@@ -80,7 +80,10 @@ export const getAnvil = (char: any, character: any) => {
   const basePointsFromAcme = getTalentBonus(character?.flatTalents, 'ACME_ANVIL');
   let pointsFromAcme = 0;
   if (basePointsFromAcme) {
-    pointsFromAcme = char?.['SkillLevels']?.[281] + basePointsFromAcme * Math.floor(character?.skillsInfo?.smithing?.level / 10);
+    // A low-progress save's SkillLevels array stops short of 281, and a brand new character has no
+    // smithing level yet. Both are additive point sources, so the identity is 0.
+    pointsFromAcme = (char?.['SkillLevels']?.[281] ?? 0)
+      + basePointsFromAcme * Math.floor((character?.skillsInfo?.smithing?.level ?? 0) / 10);
   }
   const [availablePoints,
     pointsFromCoins,

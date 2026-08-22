@@ -2,7 +2,7 @@ import { commaNotation, lavaLog, lavaLog2, notateNumber, tryToParse } from '@uti
 import { getFilteredPortals } from '@parsers/portals';
 import { liveEntries } from '@parsers/catalog';
 import { mapEnemiesArray, mapPortals, monsterCoinQuantity, monsters, tesseract, items } from '@website-data';
-import { CLASSES, getCharacterByHighestTalent, getTalentBonus, getHighestTalentByClass } from '@parsers/talents';
+import { CLASSES, getCharacterByHighestTalent, getTalentBonus, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getStatsFromGear } from '@parsers/items';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getLabBonus } from '@parsers/world-4/lab';
@@ -238,7 +238,7 @@ export const getTesseractMapBonus = (account: any, characters: any, character: a
 }
 export const getMaps = (account: any, characters: any, character: any) => {
   const { unlockedPortals, upgrades, mapBonusRaw } = account?.tesseract;
-  const highestOverwhelmingEnergy = getHighestTalentByClass(characters, CLASSES.Arcane_Cultist, 'OVERWHELMING_ENERGY');
+  const highestOverwhelmingEnergy = getHighestTalentAcrossCharacters(characters, 'OVERWHELMING_ENERGY', character);
 
   const maxMapBonus = 100 * (highestOverwhelmingEnergy - 1) + Math.min(10, calcTesseractBonus(upgrades, 58, 0))
   return getFilteredPortals()?.map(({ mapIndex, mapName }) => {

@@ -8,7 +8,7 @@ import {
   isCompanionBonusActive,
   isMasteryBonusUnlocked
 } from '@parsers/misc';
-import { CLASSES, getHighestTalentByClass, mainStatMap } from '@parsers/talents';
+import { CLASSES, mainStatMap, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByStat } from '@parsers/world-2/alchemy';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
@@ -315,7 +315,7 @@ const getCaptainsAndBoats = (sailingRaw: any, captainsRaw: any, boatsRaw: any, a
   const captainsUnlocked = sailingRaw?.[2]?.[0] || 0;
   const boatsUnlocked = sailingRaw?.[2]?.[1] || 0;
   const highestLevelSiegeBreaker = getHighestLevelOfClass(charactersLevels, CLASSES.Siege_Breaker) ?? 0;
-  const theFamilyGuy = getHighestTalentByClass(characters, CLASSES.Siege_Breaker, 'THE_FAMILY_GUY') ?? 0;
+  const theFamilyGuy = getHighestTalentAcrossCharacters(characters, 'THE_FAMILY_GUY', getBestActiveCharacter(characters)) ?? 0;
   const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'FASTER_MINIMUM_BOAT_TRAVEL_TIME', highestLevelSiegeBreaker);
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Lower_Minimum_Travel_Time_for_Sailing');
   const amplifiedFamilyBonus = familyBonus * (1 + theFamilyGuy / 100);
@@ -540,7 +540,7 @@ const getFinalBoatLoot = ({
     * (1 + (treasureBoost ?? 0) / 100);
 }
 const getBoatLootValue = (characters: any, account: any, artifactsList: any, boat: any, captain: any, daveyJonesBonus?: any) => {
-  const unendingLootSearch = getHighestTalentByClass(characters, CLASSES.Siege_Breaker, 'UNENDING_LOOT_SEARCH');
+  const unendingLootSearch = getHighestTalentAcrossCharacters(characters, 'UNENDING_LOOT_SEARCH', getBestActiveCharacter(characters));
   const talentBonus = unendingLootSearch;
   const nextBreakpoint = boat?.lootLevel + (8 - (boat?.lootLevel % 8));
   const frame = getBoatFrame(boat?.lootLevel + boat?.speedLevel, account);

@@ -1,14 +1,7 @@
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { round, tryToParse } from '@utility/helpers';
 import { getCardBonusByEffect } from '@parsers/cards';
-import {
-  CLASSES,
-  getCharacterByHighestTalent,
-  getHighestTalentByClass,
-  getTalentBonus,
-  getTalentBonusIfActive,
-  mainStatMap
-} from '@parsers/talents';
+import { getCharacterByHighestTalent, getTalentBonus, getTalentBonusIfActive, mainStatMap, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { getActiveBubbleBonus, getBubbleBonus } from '@parsers/world-2/alchemy';
 import { mapNames, randomList, totems } from '@website-data';
@@ -147,8 +140,8 @@ export const getClosestWorshiper = (characters: any) => {
 export const getChargeWithSyphon = (characters: any) => {
   const totalCharge = characters?.reduce((res: any, { worship }: any) => res + (worship?.currentCharge || 0), 0);
   const totalChargeRate = characters?.reduce((res: any, { worship }: any) => res + (worship?.chargeRate || 0), 0);
-  const bestChargeSyphon = getHighestTalentByClass(characters, CLASSES.Wizard, 'CHARGE_SYPHON', 'y') || 0;
-  const bestWizard = getCharacterByHighestTalent(characters, CLASSES.Wizard, 'CHARGE_SYPHON', 'y');
+  const bestChargeSyphon = getHighestTalentAcrossCharacters(characters, 'CHARGE_SYPHON', getBestActiveCharacter(characters), 'y') || 0;
+  const bestWizard = getCharacterByHighestTalent(characters, null, 'CHARGE_SYPHON', 'y');
 
   return {
     bestWizard,

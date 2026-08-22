@@ -5,7 +5,7 @@ import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { isArenaBonusActive, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getShinyBonus } from '@parsers/world-4/breeding';
-import { checkCharClass, CLASSES, getHighestTalentByClass, getTalentBonus } from '@parsers/talents';
+import { checkCharClass, CLASSES, getTalentBonus, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { calculateItemTotalAmount, getStatsFromGear } from '@parsers/items';
@@ -314,10 +314,11 @@ export const getPlayerLineWidth = (playerCords: any, labLevel: any, soupedTube: 
 
   let purpleTubeBonus = 0;
   if (playerCords?.x >= buboPlayer?.x) {
-    const purpleTubeLevel = buboPlayer.SkillLevels[536] || 0;
+    // 535 is PURPLE_TUBE; 536 is GREEN_TUBE, whose level was previously fed into purple's growth
+    const purpleTubeLevel = buboPlayer.SkillLevels[535] || 0;
     const purpleTubeData = (talents as Record<string, any>)?.[CLASSES.Bubonic_Conjuror]?.['PURPLE_TUBE'] || {};
     if (updatedCharactersData) {
-      purpleTubeBonus = getHighestTalentByClass(updatedCharactersData, CLASSES.Bubonic_Conjuror, 'PURPLE_TUBE', false, true)
+      purpleTubeBonus = getHighestTalentAcrossCharacters(updatedCharactersData, 'PURPLE_TUBE', getBestActiveCharacter(updatedCharactersData))
     } else {
       purpleTubeBonus = growth(purpleTubeData?.funcX, purpleTubeLevel, purpleTubeData?.x1, purpleTubeData?.x2, false) ?? 0;
     }

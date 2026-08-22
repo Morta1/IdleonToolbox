@@ -19,7 +19,7 @@ import {
   rawMapNames,
   slab
 } from '@website-data';
-import { checkCharClass, CLASSES, getHighestTalentByClass, getTalentBonus, mainStatMap, talentPagesMap } from './talents';
+import { checkCharClass, CLASSES, getTalentBonus, mainStatMap, talentPagesMap, getHighestTalentAcrossCharacters } from './talents';
 import { getMealsBonusByEffectOrStat } from './world-4/cooking';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './world-2/alchemy';
 import { getStampsBonusByEffect } from './world-1/stamps';
@@ -834,7 +834,7 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
   const vaultBonus86 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 86);
 
   const deathBringer = characters?.find((char: any) => checkCharClass(char?.class, CLASSES.Death_Bringer));
-  const apocalypseWow = getHighestTalentByClass(characters, CLASSES.Death_Bringer, 'APOCALYPSE_WOW', false, false, false, false, character);
+  const apocalypseWow = getHighestTalentAcrossCharacters(characters, 'APOCALYPSE_WOW', character);
   const apocalypses = deathBringer?.wow?.finished?.at(0) || 0;
   const armorSetBonus = getArmorSetBonus(account, 'SECRET_SET');
   const value = (1 + armorSetBonus / 100)

@@ -8,7 +8,7 @@ import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { getBubbleBonus, getVialsBonusByStat } from '@parsers/world-2/alchemy';
-import { CLASSES, getHighestTalentByClass } from '@parsers/talents';
+import { getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getAchievementStatus } from '@parsers/achievements';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
@@ -206,7 +206,7 @@ export const getBitsMulti = (account: any, characters: any) => {
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'GamingBits');
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'GameBits');
   const vialBonus2 = getVialsBonusByStat(account?.alchemy?.vials, '7bits');
-  const bittyLittlyTalentBonus = getHighestTalentByClass(characters, CLASSES.Divine_Knight, 'BITTY_LITTY', undefined, undefined, false, true) ?? 0;
+  const bittyLittlyTalentBonus = getHighestTalentAcrossCharacters(characters, 'BITTY_LITTY', getBestActiveCharacter(characters)) ?? 0;
   const highestGaming = getHighestCharacterSkill(characters, 'gaming');
   const winBonus = getWinnerBonus(account, '<x Gaming Bits');
   const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 1, account });

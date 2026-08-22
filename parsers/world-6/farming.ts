@@ -8,7 +8,7 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getAchievementStatus } from '@parsers/achievements';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
-import { CLASSES, getHighestTalentByClass, getTalentBonus } from '@parsers/talents';
+import { getTalentBonus, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getEventShopBonus, getHighestCharacterSkill, getKillroyBonus, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
@@ -151,7 +151,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   const unlocks = ninjaExtraInfo?.[37];
   const names = ninjaExtraInfo?.[34];
   const bases = ninjaExtraInfo?.[36]?.map((base: any) => parseFloat(base));
-  const apocalypseWow = getHighestTalentByClass(charactersData, CLASSES.Death_Bringer, 'DANK_RANKS') ?? 0;
+  const apocalypseWow = getHighestTalentAcrossCharacters(charactersData, 'DANK_RANKS', getBestActiveCharacter(charactersData)) ?? 0;
   const exoticBonus14 = getExoticMarketBonus(account, 14) ?? 0;
   const exoticMulti = 1 + exoticBonus14 / 100;
   const ranks = ninjaExtraInfo?.[35]?.map((description: any, index: any) => {
@@ -561,7 +561,7 @@ export const updateFarming = (characters: any, account: any) => {
 }
 
 const getLandRankExpBreakdown = (account: any, characters: any) => {
-  const talentBonus = getHighestTalentByClass(characters, CLASSES.Death_Bringer, 'AGRICULTURAL_\'PRECIATION') ?? 0;
+  const talentBonus = getHighestTalentAcrossCharacters(characters, 'AGRICULTURAL_\'PRECIATION', getBestActiveCharacter(characters)) ?? 0;
   const marketBonus = getMarketBonus(account?.farming?.market, 'RANK_BOOST');
   const exotic9 = getExoticMarketBonus(account, 9);
   const exotic10 = getExoticMarketBonus(account, 10);
@@ -850,8 +850,7 @@ export const getLandRank = (ranks: any, index: any, characters?: any, activeChar
   const rank = ranks?.[index];
   if (!rank || !characters || !activeCharacter) return rank?.bonus;
   const { base, upgradeLevel, exoticMulti } = rank;
-  const apocalypseWow = getHighestTalentByClass(characters, CLASSES.Death_Bringer, 'DANK_RANKS',
-    false, false, false, false, activeCharacter) ?? 0;
+  const apocalypseWow = getHighestTalentAcrossCharacters(characters, 'DANK_RANKS', activeCharacter) ?? 0;
   return calcRankBonus(index, apocalypseWow, exoticMulti, base, upgradeLevel);
 }
 

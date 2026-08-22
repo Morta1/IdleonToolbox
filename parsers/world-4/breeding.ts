@@ -10,7 +10,7 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getCharacterByHighestSkillLevel } from '@parsers/misc';
-import { CLASSES, getHighestTalentByClass } from '@parsers/talents';
+import { CLASSES, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
@@ -475,7 +475,7 @@ export const getEggsPowerRange = (characters: any) => {
   const highestBreedingBM = getCharacterByHighestSkillLevel(characters, CLASSES.Wind_Walker, 'breeding');
   const breedingLevel = highestBreedingBM?.skillsInfo?.breeding?.level ?? 0;
   // Game maxes this talent across all characters (getbonus2(1, 373, -1)); decayMulti already includes the base 1
-  const baseTalentBonus = getHighestTalentByClass(characters, CLASSES.Wind_Walker, 'CURVITURE_OF_THE_PAW');
+  const baseTalentBonus = getHighestTalentAcrossCharacters(characters, 'CURVITURE_OF_THE_PAW', getBestActiveCharacter(characters));
   const base = Math.pow(4 * breedingLevel + Math.pow(breedingLevel / 2, 3), 0.85);
   const talentBonus = Math.min(2.1, Math.max(1, baseTalentBonus));
   const breedingBonus = Math.min(1.2 + breedingLevel / 12, 4);

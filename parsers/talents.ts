@@ -127,23 +127,92 @@ export const getActiveBuffs = (activeBuffs: any, talents: any) => {
   return activeBuffs?.map(([talentId]: any) => talents?.find(({ talentId: tId }: any) => talentId === tId))?.filter((talent: any) => talent);
 }
 
+// TalentBannedforAllLV: 49 <= t <= 59 || t == 149 || t == 374 || t == 539 || t == 505 || t > 614.
+// AllTalentLVz returns 0 for these ids, and getbonus2 hands it the talent's LEVEL where a talent id
+// belongs, so a talent whose base level lands here gets no added levels at all. Note the last clause
+// is unbounded, not a range — every base level past 614 is excluded.
+const isAllTalentLevelBanned = (level: number) => {
+  return (level >= 49 && level <= 59) || level === 149 || level === 374
+    || level === 505 || level === 539 || level > 614;
+};
+
+export const getAllTalentAddedLevels = (baseLevel: number, activeCharacter: any) => {
+  if (isAllTalentLevelBanned(baseLevel)) return 0;
+  const addedLevels = activeCharacter?.addedLevels ?? 0;
+  // Same level-as-id mix-up: the super talent list is searched for the base LEVEL, so a talent
+  // sitting on a level that happens to be one of the active character's super talent ids collects
+  // the per-talent super bonus on top.
+  const isSuper = activeCharacter?.superTalentsInfo?.talents?.some(({ talentIndex }: any) => talentIndex === baseLevel);
+  return isSuper ? addedLevels + (activeCharacter?.superTalentsInfo?.bonus ?? 0) : addedLevels;
+};
+
+// getbonus2 reads the added levels off whichever character is being played, so an account-wide
+// bonus has no single value. The save never names that character, but PTimeAway identifies it:
+// the played character's stamp tracks the clock while every other one stays frozen at the moment
+// it was left, so the newest stamp is the one that was active when the save was taken.
+// Characters that have never been played carry no stamp; if that's all of them, fall back to the
+// highest added levels, which is the ceiling of the range.
+export const getBestActiveCharacter = (characters: any) => {
+  const mostRecent = characters?.reduce((best: any, character: any) => (
+    Number.isFinite(character?.afkTime) && character.afkTime > (best?.afkTime ?? -Infinity)
+      ? character
+      : best
+  ), null);
+  return mostRecent ?? characters?.reduce((best: any, character: any) => (
+    (character?.addedLevels ?? 0) > (best?.addedLevels ?? -1) ? character : best
+  ), null);
+};
+
+// getbonus2(1, id, -1) walks every character and never looks at class — filtering by class only
+// matches it because most talent ids belong to a single class. THE_FAMILY_GUY is id 144 on six
+// different class pages, so for that one the class filter throws away the real maximum. Pass a null
+// className to get the game's actual behaviour.
+export const getHighestTalentAcrossCharacters = (characters: any, talentName?: any, activeCharacter?: any, yBonus?: any) => {
+  return getHighestTalentByClass(characters, null, talentName, yBonus, false, false, false, activeCharacter);
+};
+
+// getbonus2 evaluates growth() for every character including the ones sitting at level 0, so a
+// talent nobody owns still answers with its level-0 value — 0 for add/decay, but 1 for decayMulti
+// and x1 for bigBase, which are the identity for a multiplier. Returning 0 there is the classic
+// empty-account bug: tesseract reads `100 * (talent - 1)` and would land on -100 instead of 0.
+const talentMetaByName: Record<string, any> = Object.values(talents as Record<string, any>)
+  .reduce((map: Record<string, any>, page: any) => {
+    Object.values(page as Record<string, any>).forEach((talent: any) => {
+      if (talent?.name && !map[talent.name]) map[talent.name] = talent;
+    });
+    return map;
+  }, {});
+
+const unownedTalentBonus = (talentName: any, yBonus: any) => {
+  const meta = talentMetaByName[talentName];
+  if (!meta) return 0;
+  return (yBonus
+    ? growth(meta.funcY, 0, meta.y1, meta.y2, false)
+    : growth(meta.funcX, 0, meta.x1, meta.x2, false)) ?? 0;
+};
+
 export const getHighestTalentByClass = (characters: any, className: any, talentName?: any, yBonus?: any, useMaxLevel?: any, reduceAddedLevels = false, excludeSuperTalent = false, activeCharacter?: any) => {
-  const classes = characters?.filter((character: any) => checkCharClass(character?.class, className));
+  const classes = className == null
+    ? (characters ?? [])
+    : characters?.filter((character: any) => checkCharClass(character?.class, className));
+  const seed = activeCharacter ? unownedTalentBonus(talentName, yBonus) : 0;
   return classes?.reduce((res: any, { flatTalents, addedLevels }: any) => {
     let subtractLevels: any = false;
     if (activeCharacter) {
       // Mimic game's getbonus2(1, id, -1):
-      // - talentIndex >= 100: growth(baseLevel + activeChar.addedLevels)
+      // - talentIndex >= 100: growth(baseLevel + AllTalentLVz(baseLevel))
       // - talentIndex < 100: growth(baseLevel) — no addedLevels adjustment
+      // The y-variant is a separate branch in the game that reads SkillLevels straight, so added
+      // levels never reach it whatever the talent id.
       const talentObj = flatTalents?.find(({ name }: any) => name === talentName);
       if (talentObj) {
-        const level = talentObj.talentId >= 100
-          ? talentObj.baseLevel + activeCharacter.addedLevels
+        const level = talentObj.talentId >= 100 && !yBonus
+          ? talentObj.baseLevel + getAllTalentAddedLevels(talentObj.baseLevel, activeCharacter)
           : talentObj.baseLevel;
         const func = yBonus ? talentObj.funcY : talentObj.funcX;
         const p1 = yBonus ? talentObj.y1 : talentObj.x1;
         const p2 = yBonus ? talentObj.y2 : talentObj.x2;
-        const bonus = talentObj.baseLevel > 0 ? (growth(func, level, p1, p2, false) ?? 0) : 0;
+        const bonus = growth(func, level, p1, p2, false) ?? 0;
         return bonus > res ? bonus : res;
       }
       return res;
@@ -159,11 +228,15 @@ export const getHighestTalentByClass = (characters: any, className: any, talentN
       return talent
     }
     return res;
-  }, 0);
+  }, seed);
 }
 
+// A null className means every character, matching getHighestTalentByClass — callers that pair the
+// two must scope them the same way or they end up describing different characters.
 export const getCharacterByHighestTalent = (characters: any, className: any, talentName?: any, yBonus?: any, useMaxLevel?: any) => {
-  const classes = characters?.filter((character: any) => checkCharClass(character?.class, className));
+  const classes = className == null
+    ? (characters ?? [])
+    : characters?.filter((character: any) => checkCharClass(character?.class, className));
   return classes?.reduce((res: any, character: any) => {
     const { flatTalents } = character;
     const talent = getTalentBonus(flatTalents, talentName, yBonus, useMaxLevel);
@@ -439,7 +512,7 @@ export const getBubonicGreenTube = (character: any, characters: any, account: an
   if (!charCords || bubosCords?.length === 0) return 0;
   const affected = bubosCords?.some(({ x }: any) => x > charCords?.x);
   if (affected) {
-    return getHighestTalentByClass(characters, CLASSES.Bubonic_Conjuror, 'GREEN_TUBE')
+    return getHighestTalentAcrossCharacters(characters, 'GREEN_TUBE', character)
   }
   else {
     return 0;

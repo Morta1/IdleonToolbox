@@ -11,7 +11,7 @@ import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getPrismaMulti } from '@parsers/class-specific/tesseract';
-import { CLASSES, getHighestTalentByClass } from '@parsers/talents';
+import { getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getZenithBonus } from '@parsers/world-1/statues';
@@ -648,7 +648,7 @@ export const getNblbLevel = (acc: any, characters: any, isMin?: any) => {
     level += 2;
   }
 
-  const tachyonTruth = getHighestTalentByClass(characters, CLASSES.Arcane_Cultist, 'TACHYON_TRUTH');
+  const tachyonTruth = getHighestTalentAcrossCharacters(characters, 'TACHYON_TRUTH', getBestActiveCharacter(characters));
   if (tachyonTruth >= 1) {
     level += 3;
   }

@@ -33,9 +33,10 @@ describe('drop rate multiplicative sources', () => {
   });
 
   it('Unagi Nigiri sushi (RoG 48) multiplies by 1.10', () => {
-    const account49 = { ...account, sushiStation: { ...account.sushiStation, uniqueSushi: 49 } };
-    const { dropRate } = getDropRate(character, account49, characters);
-    expect(dropRate / base).toBeCloseTo(1.1, 10);
+    const withSushi = (uniqueSushi) => ({ ...account, sushiStation: { ...account.sushiStation, uniqueSushi } });
+    const locked = getDropRate(character, withSushi(48), characters).dropRate;
+    const unlocked = getDropRate(character, withSushi(49), characters).dropRate;
+    expect(unlocked / locked).toBeCloseTo(1.1, 10);
   });
 
   it('equinox challenge 69 multiplies by 1.05 once complete', () => {
