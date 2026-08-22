@@ -378,7 +378,7 @@ const Bubbles = () => {
 
                 let thresholdObj;
                 if (bubbleMaxBonus) {
-                  if (func === 'adddecay') {
+                  if (func.toLowerCase() === 'adddecay') {
                     const thresholdLevelNeeded = findAddDecayThresholdLevel(
                       func,
                       x1,
@@ -507,7 +507,6 @@ const AdditionalInfo = ({
                           goalLevel,
                           isPrisma
                         }) => {
-  console.log(itemReq)
   return <Box>
     {tooltip ? <BubbleTooltip {...{ ...bubble, goalBonus, isPrisma }} /> : null}
     <Stack gap={2} direction={'row'}>

@@ -834,19 +834,16 @@ export const getMaxBonus = (func: any, x1: any) => {
 };
 
 export const findAddDecayThresholdLevel = (func: any, x1: any, x2: any, prismaMulti: any, effThreshold: any, maxBonus: any) => {
-  const target = maxBonus * (effThreshold / 100);
+  // maxBonus already includes prismaMulti, so divide it back out to solve on the raw growth curve
+  const target = (maxBonus * (effThreshold / 100)) / prismaMulti;
 
-  let lo = 0;
-  let hi = 300000; // safe upper bound for addDECAY
-  let mid;
+  // addDECAY is linear (x1 * level) up to level 50000, then decays toward an extra x1 * 50000
+  const linearPart = x1 * 50000;
+  if (target <= linearPart) return target / x1;
 
-  for (let i = 0; i < 40; i++) {
-    mid = (lo + hi) / 2;
-    const val = growth(func, mid, x1, x2, false) * prismaMulti;
+  const remainder = target - linearPart;
+  // the decaying half never delivers its full x1 * 50000, so anything at or past it is unreachable
+  if (remainder >= linearPart) return Infinity;
 
-    if (val >= target) hi = mid;
-    else lo = mid;
-  }
-
-  return hi;
+  return 50000 + (150000 * remainder) / (linearPart - remainder);
 };
