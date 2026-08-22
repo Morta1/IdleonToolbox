@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { calcMealTime, calcTimeToNextLevel, getMealLevelCost, getRibbonBonus } from '@parsers/world-4/cooking';
+import {
+  calcMealTime,
+  calcTimeToNextLevel,
+  getMealLevelCost,
+  getNoMealLeftBehindQueue,
+  getRibbonBonus
+} from '@parsers/world-4/cooking';
 import {
   cleanUnderscore,
   commaNotation,
@@ -52,6 +58,10 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
   const [mealLimit, setMealLimit] = useLocalStorage({
     key: 'meals-filter-limit',
     defaultValue: 0
+  });
+  const [procCount, setProcCount] = useLocalStorage({
+    key: 'meals-nmlb-procs',
+    defaultValue: 15
   });
   const spelunkerObolMulti = getLabBonus(lab?.labBonuses, 8); // gem multi
   const blackDiamondRhinestone = getJewelBonus(lab?.jewels, 16, spelunkerObolMulti);
@@ -217,13 +227,20 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
   const getCostStats = (meals) => {
     const costs = meals?.filter(isMealUpgradable)?.map(getMealCost)?.filter(Number.isFinite) ?? [];
     if (costs.length === 0) return null;
-    return {
-      max: Math.max(...costs),
-      total: costs.reduce((sum, cost) => sum + cost, 0)
-    };
+    return { total: costs.reduce((sum, cost) => sum + cost, 0) };
   }
   // Derived at render, not in the effect: the limit only slices an already-computed list, and
   // putting it in the effect deps re-ran the whole breakpoint recalc on every slider release.
+  const nmlbQueue = sortBy === -2
+    ? getNoMealLeftBehindQueue(meals, mealMaxLevel, procCount, {
+      achievements,
+      account,
+      equinoxUpgrades: localEquinoxUpgrades,
+      mealSpeed,
+      overflowMulti: filters.includes('overflow') ? 1 + overflowingLadleBonus?.value / 100 : 1
+    })
+    : [];
+  const nmlbLadles = nmlbQueue.reduce((sum, { ladles }) => Number.isFinite(ladles) ? sum + ladles : sum, 0);
   const upgradableCount = localMeals?.filter(isMealUpgradable)?.length ?? 0;
   const limited = mealLimit > 0 && mealLimit < upgradableCount;
   const limitedMeals = applyMealLimit(localMeals, mealLimit, upgradableCount);
@@ -400,6 +417,47 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
           })}
         </Stack>
       </Stack>
+      {nmlbQueue.length > 0 ? <Stack my={2}>
+        <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} my={1}>
+          <Typography variant={'h5'}>NMLB Proc Queue</Typography>
+          <Tooltip
+            title={'No Meal Left Behind always levels your lowest meal and picks again after every proc, so one low meal can soak up a run of procs before anything else is touched. Each entry shows the ladles that proc saves you.'}>
+            <InfoIcon/>
+          </Tooltip>
+          <TextField size={'small'} type={'number'} label={'Procs'} value={procCount} sx={{ width: 90 }}
+                     slotProps={{ htmlInput: { min: 1, max: 50 } }}
+                     onChange={({ target }) => {
+                       const parsed = parseInt(target.value, 10);
+                       setProcCount(Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), 50) : 15);
+                     }}/>
+          <Stack direction={'row'} alignItems={'center'} gap={1}>
+            <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={32} height={32}/>
+            <HtmlTooltip title={`${numberWithCommas(nmlbLadles.toFixed(2))} ladles saved by these ${nmlbQueue.length} procs`}>
+              <Typography sx={{ whiteSpace: 'nowrap' }}>{notateNumber(Math.ceil(nmlbLadles), 'Big')} saved</Typography>
+            </HtmlTooltip>
+          </Stack>
+        </Stack>
+        <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
+          {nmlbQueue.map(({ index, name, rawName, fromLevel, ladles }, procIndex) => (
+            <ProcCard key={`nmlb-${index}-${procIndex}`}>
+              <Typography sx={{ color: 'text.secondary', width: 28 }}>#{procIndex + 1}</Typography>
+              <img src={`${prefix}data/${rawName}.png`} alt={rawName} width={36} height={36}/>
+              <Stack>
+                <Typography noWrap>{cleanUnderscore(name)}</Typography>
+                <Typography sx={{ color: 'text.secondary' }}>
+                  Lv. {fromLevel} <ArrowForwardIcon fontSize={'small'} sx={{ verticalAlign: 'middle' }}/> {fromLevel + 1}
+                </Typography>
+              </Stack>
+              <Stack direction={'row'} alignItems={'center'} gap={1} ml={'auto'}>
+                <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={24} height={24}/>
+                {Number.isFinite(ladles) ? <HtmlTooltip title={numberWithCommas(ladles.toFixed(2))}>
+                  <span>{notateNumber(Math.ceil(ladles), 'Big')}</span>
+                </HtmlTooltip> : <span>—</span>}
+              </Stack>
+            </ProcCard>
+          ))}
+        </Stack>
+      </Stack> : null}
       <Typography my={1} variant={'h5'}>Meals</Typography>
       <MealsFilterBar upgradableCount={upgradableCount} stats={getCostStats(visibleMeals)}
                       limited={limited} value={limited ? mealLimit : upgradableCount}
@@ -515,8 +573,9 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
 };
 
 
-// Slider narrows the list to the N cheapest meals to upgrade. The ladle figures next to it are
-// the point: drag until "max each" is a stack you can actually withdraw.
+// Slider narrows the list to the N cheapest meals to upgrade, and the total next to it is the
+// ladles that batch costs. Only the total is shown: a ladle stack is spent in full when used, so
+// a per-meal maximum would just tell people to over-pull on everything but the priciest meal.
 const MealsFilterBar = ({ upgradableCount, stats, limited, value, onCommit }) => {
   // Drag position is kept here on purpose: the meal list only changes on release, so letting it
   // live in the parent re-rendered every card on every mousemove.
@@ -539,25 +598,24 @@ const MealsFilterBar = ({ upgradableCount, stats, limited, value, onCommit }) =>
                      const parsed = parseInt(target.value, 10);
                      onCommit(Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), upgradableCount) : upgradableCount);
                    }}/>
+        <Typography sx={{ color: limited ? 'info.light' : '', whiteSpace: 'nowrap' }}>
+          of {upgradableCount}
+        </Typography>
         <Tooltip
           title={'Narrows the list to the cheapest meals to upgrade, so you can pull one page of ladles and work straight down it. Cost is measured against the sort target above, and ladles and hours are the same number.'}>
-          <Typography sx={{ color: limited ? 'info.light' : '', whiteSpace: 'nowrap' }}>
-            of {upgradableCount}
-          </Typography>
+          <InfoIcon/>
         </Tooltip>
       </Stack>
       <Stack direction={'row'} alignItems={'center'} gap={2} divider={<Divider orientation={'vertical'} flexItem/>}>
         {stats ? <>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
             <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={32} height={32}/>
-            <HtmlTooltip title={`${numberWithCommas(stats.max.toFixed(2))} ladles - withdraw this much per meal`}>
-              <Typography sx={{ whiteSpace: 'nowrap' }}>{notateNumber(Math.ceil(stats.max), 'Big')} max
-                each</Typography>
-            </HtmlTooltip>
-          </Stack>
-          <HtmlTooltip title={`${numberWithCommas(stats.total.toFixed(2))} ladles to upgrade every meal shown`}>
             <Typography sx={{ whiteSpace: 'nowrap' }}>{notateNumber(Math.ceil(stats.total), 'Big')} total</Typography>
-          </HtmlTooltip>
+            <Tooltip
+              title={`${numberWithCommas(stats.total.toFixed(2))} ladles to upgrade every meal shown - the sum of the per-meal figures on the cards below`}>
+              <InfoIcon/>
+            </Tooltip>
+          </Stack>
         </> : null}
         {limited ? <Button size={'small'} onClick={() => onCommit(upgradableCount)}>Reset</Button> : null}
       </Stack>
@@ -607,6 +665,15 @@ const MealAndPlate = styled.div`
   & img {
     margin-left: -30px;
   }
+`;
+
+const ProcCard = styled(Card)`
+  width: 320px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
 `;
 
 const CenteredTypography = styled(Typography)`

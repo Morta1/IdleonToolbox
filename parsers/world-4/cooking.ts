@@ -771,6 +771,58 @@ export const calcTimeToNextLevel = (amountNeeded: any, cookReq: any, totalMealSp
   return amountNeeded * cookReq / totalMealSpeed;
 }
 
+export interface NoMealLeftBehindProc {
+  index: number;
+  name: string;
+  rawName: string;
+  fromLevel: number;
+  ladles: number;
+}
+
+// No Meal Left Behind hands a free level to the lowest-level meal and picks its target again after
+// every proc, so the upcoming procs have to be simulated. Sorting once by level implies one proc
+// per meal and hides the runs where a single low meal soaks up procs until it catches up.
+export const getNoMealLeftBehindQueue = (meals: any[], mealMaxLevel: any, procCount: any, {
+  achievements,
+  account,
+  equinoxUpgrades,
+  mealSpeed,
+  overflowMulti = 1
+}: any = {}): NoMealLeftBehindProc[] => {
+  if (!isJadeBonusUnlocked(account, 'No_Meal_Left_Behind')) return [];
+  const state = meals
+    ?.filter((meal: any) => meal?.level > 5 && meal?.level < mealMaxLevel)
+    ?.map(({ index, name, rawName, level, amount, cookReq }: any) => ({
+      index,
+      name,
+      rawName,
+      level,
+      cookReq,
+      remaining: amount
+    })) ?? [];
+  const queue: NoMealLeftBehindProc[] = [];
+  for (let proc = 0; proc < procCount; proc++) {
+    // Ties go to the meal furthest down the book, matching the game's pick.
+    const target = state
+      .filter(({ level }: any) => level < mealMaxLevel)
+      .sort((a: any, b: any) => a.level === b.level ? b.index - a.index : a.level - b.level)
+      .at(0);
+    if (!target) break;
+    const levelCost = getMealLevelCost(target.level, achievements, account, equinoxUpgrades);
+    const needed = Math.max(0, levelCost - target.remaining);
+    queue.push({
+      index: target.index,
+      name: target.name,
+      rawName: target.rawName,
+      fromLevel: target.level,
+      ladles: calcTimeToNextLevel(needed, target.cookReq, mealSpeed) / overflowMulti
+    });
+    target.remaining = Math.max(0, target.remaining - levelCost);
+    target.level += 1;
+  }
+  return queue;
+}
+
 export const getTotalKitchenLevels = (kitchens: any) => {
   return kitchens?.reduce((sum: any, { speedLv, luckLv, fireLv }: any) => {
     return sum + speedLv + luckLv + fireLv;
