@@ -5,16 +5,11 @@ import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import { notateNumber, numberWithCommas } from '@utility/helpers';
 
-const PetSection = ({ lastUpdated, resultsOnly }) => {
-  const { state } = useContext(AppContext);
-  const [snapshottedAcc] = useLocalStorage({ key: 'activeDropAcc', defaultValue: null });
-
-  const snapshotProgress = snapshottedAcc?.breeding?.fencePets?.[0]?.shinyProgress || snapshottedAcc?.breeding?.fencePets?.[0]?.progress;
-  const currentProgress = state?.account?.breeding?.fencePets?.[0]?.shinyProgress;
+const ProgressSection = ({ title, snapshotProgress, currentProgress, elapsedMinutes, resultsOnly }) => {
   const diff = currentProgress - snapshotProgress;
-  const perMinute = diff / ((lastUpdated - snapshottedAcc?.snapshotTime) / 1000 / 60);
+  const perMinute = diff / elapsedMinutes;
 
-  return <Section title={'Shiny progress'}>
+  return <Section title={title}>
     {!resultsOnly ? <>
       <Stack>
         <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Snapshot</Typography>
@@ -33,6 +28,28 @@ const PetSection = ({ lastUpdated, resultsOnly }) => {
       <Typography variant={'body2'}>{notateNumber(perMinute * 60, 'MultiplierInfo')} / hr</Typography>
     </Stack>
   </Section>
+};
+
+const PetSection = ({ lastUpdated, resultsOnly }) => {
+  const { state } = useContext(AppContext);
+  const [snapshottedAcc] = useLocalStorage({ key: 'activeDropAcc', defaultValue: null });
+
+  const snapshotPet = snapshottedAcc?.breeding?.fencePets?.[0];
+  const currentPet = state?.account?.breeding?.fencePets?.[0];
+  const elapsedMinutes = (lastUpdated - snapshottedAcc?.snapshotTime) / 1000 / 60;
+
+  return <>
+    <ProgressSection title={'Shiny progress'}
+                     snapshotProgress={snapshotPet?.shinyProgress || snapshotPet?.progress}
+                     currentProgress={currentPet?.shinyProgress}
+                     elapsedMinutes={elapsedMinutes}
+                     resultsOnly={resultsOnly}/>
+    <ProgressSection title={'Breedability progress'}
+                     snapshotProgress={snapshotPet?.breedingProgress}
+                     currentProgress={currentPet?.breedingProgress}
+                     elapsedMinutes={elapsedMinutes}
+                     resultsOnly={resultsOnly}/>
+  </>
 };
 
 export default PetSection;

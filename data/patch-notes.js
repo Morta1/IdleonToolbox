@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.523',
     'date': '22/08/2026',
     'features': [
-      'Clam Work: a new Upgrade Optimizer tab picks the next upgrades to buy, either for pearl gain or for cost reduction. The page also shows pearl value, black pearl value, clam mobs and clam HP for a chosen character, with a multikill you can override'
+      'Clam Work: a new Upgrade Optimizer tab picks the next upgrades to buy, either for pearl gain or for cost reduction. The page also shows pearl value, black pearl value, clam mobs and clam HP for a chosen character, with a multikill you can override',
+      'Active Stuff Calculator: the pets section now tracks breedability progress alongside shiny progress, with gain per minute and per hour'
     ],
     'fixes': [
       'Prayers: for characters with no prayers equipped, only the first of the three "no prayers equipped" superbits was counted, so every prayer bonus they grant was paid at a fifth instead of up to three fifths. This fed through to Accuracy, Defence and Damage',
