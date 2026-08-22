@@ -88,6 +88,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
     }
     return closestBuilding;
   }, { timeLeft: 0, icon: '' });
+  // Salts the user has unchecked in the timer's selection are ignored (absent option = consider all).
+  const saltSelection = trackers?.['World 3']?.closestSalt?.options?.find((opt) => opt?.name === 'salts')?.props?.value;
   const closestSalt = account?.refinery?.salts?.reduce((closestSalt, {
     active,
     rank,
@@ -98,6 +100,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
     autoRefinePercentage
   }, saltIndex) => {
     if (!active || autoRefinePercentage !== 0) return closestSalt;
+    if (saltSelection && !saltSelection[rawName]) return closestSalt;
     const hasMaterialsForCycle = cost?.every(({
       rawName,
       quantity,

@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 65,
+  version: 66,
   account: {
     General: {
       tasks: {
@@ -658,7 +658,16 @@ const baseTrackers = {
       printer: { checked: true, options: [] },
       closestTrap: { checked: true, options: [] },
       closestBuilding: { checked: true, options: [] },
-      closestSalt: { checked: true, options: [] },
+      closestSalt: {
+        checked: true,
+        options: [{
+          name: 'salts',
+          type: 'array',
+          props: { value: getRawRefinerySalts(), type: 'img' },
+          checked: true,
+          helperText: 'Only the selected salts are considered when picking the closest one'
+        }]
+      },
       equinox: { checked: true, options: [] }
     },
     'World 5': {

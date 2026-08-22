@@ -1461,6 +1461,26 @@ const migration65 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration66 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
+  const world3 = dashboardConfig?.timers?.['World 3'];
+  // Selective salts: give the closest salt timer a per-salt array option, defaulting every salt to
+  // the timer's current checked state so behavior is unchanged until the user narrows it.
+  if (world3?.closestSalt && !world3.closestSalt.options?.some((option) => option?.name === 'salts')) {
+    const wasChecked = world3.closestSalt.checked ?? true;
+    const salts = Object.keys(getRawRefinerySalts()).reduce((res, key) => ({ ...res, [key]: wasChecked }), {});
+    world3.closestSalt.options = [{
+      name: 'salts',
+      type: 'array',
+      props: { value: salts, type: 'img' },
+      checked: wasChecked,
+      helperText: 'Only the selected salts are considered when picking the closest one'
+    }];
+  }
+  dashboardConfig.version = 66;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1528,6 +1548,7 @@ const migrations = {
   63: migration63,
   64: migration64,
   65: migration65,
+  66: migration66,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {
