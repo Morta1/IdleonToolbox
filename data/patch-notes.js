@@ -4,6 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.64',
+    'gameVer': '2.3.523',
+    'date': '22/08/2026',
+    'features': [],
+    'fixes': [
+      'Prayers: for characters with no prayers equipped, only the first of the three "no prayers equipped" superbits was counted, so every prayer bonus they grant was paid at a fifth instead of up to three fifths. This fed through to Accuracy, Defence and Damage',
+      'Equipment: keychains with an upgrade stone lost their own Defence and Weapon Power, counting for less than they do in game',
+      'Equipment: the Silkrode chips were doubling the base stats of an item as well as its extra bonus. In game they only double the extra bonus',
+      'Defence was rounded at the wrong point in the calculation, landing a few hundred above the in-game value'
+    ]
+  },
+  {
     'ver': '3.3.63',
     'gameVer': '2.3.523',
     'date': '20/08/2026',

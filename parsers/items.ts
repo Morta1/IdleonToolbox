@@ -20,7 +20,14 @@ export const addStoneDataToEquip = (baseItem: any, stoneData: any) => {
       };
     }
 
-    const baseItemStat = baseItem?.Type === 'KEYCHAIN' ? 0 : baseItem?.[statName];
+    // A keychain's stone replaces its UQ entry rather than adding to it, and the base UQ value can be
+    // a comma list ("2,4,6") that would string-concat onto the stone's number. Zero only those — the
+    // keychain's own combat stats still count, the way the game reads them off the item definition.
+    const rawBaseStat = baseItem?.[statName];
+    const isUqValue = statName === 'UQ1val' || statName === 'UQ2val';
+    const baseItemStat = ((baseItem?.Type === 'KEYCHAIN' && isUqValue) || isNaN(rawBaseStat))
+      ? 0
+      : rawBaseStat;
     const stoneStat = stoneData?.[statName];
 
     if (isNaN(stoneStat)) return { ...res, [statName]: stoneStat };
@@ -64,6 +71,7 @@ export const getStatsFromGear = (character: any, bonusIndex: any, account?: any,
   const silkroadProcessor = account?.lab?.playersChips?.[character?.playerId]?.find((chip: any) => chip.index === 18) ?? 0;
 
   // Resolve bonus name from index if needed
+  const isEtcBonus = !isNaN(bonusIndex);
   const bonusName = isNaN(bonusIndex) ? bonusIndex : bonuses?.etcBonuses?.[bonusIndex];
 
   // Items tracked in gallery (TROPHY, NAMETAG) or hatRack (PREMIUM_HELMET) should be skipped
@@ -83,7 +91,9 @@ export const getStatsFromGear = (character: any, bonusIndex: any, account?: any,
       return total; // Skip - bonus comes from gallery/hatRack
     }
     const statValue = getStatFromEquipment(item, bonusName);
-    const chipMultiplier = ((index === 3 && silkroadProcessor) || (index === 10 && silkroadMotherboard) || (index === 9 && silkroadSoftware)) ? 2 : 1;
+    // The Silkrode chips double the slot's UQ/etc bonus only — TotalStats applies them inside the
+    // UQ branch, never to an item's base stats.
+    const chipMultiplier = isEtcBonus && ((index === 3 && silkroadProcessor) || (index === 10 && silkroadMotherboard) || (index === 9 && silkroadSoftware)) ? 2 : 1;
     const researchMultiplier = index === 15 ? wellDressedMulti : 1;
     return total + (statValue * chipMultiplier * researchMultiplier);
   }, 0) || 0;

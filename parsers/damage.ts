@@ -1,12 +1,5 @@
 import type { Account, Character } from './types';
-import {
-  checkCharClass,
-  CLASSES,
-  getHighestTalentByClass,
-  getTalentBonus,
-  getTalentBonusIfActive,
-  mainStatMap
-} from './talents';
+import { checkCharClass, CLASSES, getTalentBonus, getTalentBonusIfActive, mainStatMap, getHighestTalentAcrossCharacters } from './talents';
 import { getPostOfficeBonus } from './world-3/postoffice';
 import { getDungeonFlurboStatBonus } from './dungeons';
 import { getCardBonusByEffect } from './cards';
@@ -203,10 +196,10 @@ const getDamagePercent = (character: Character, characters: Character[], account
   // === Pre-softcap bonuses (game DamageDealtLIST[2] initial push) ===
   // Game: WorkbenchStuff('AdditionExtraDMG') uses highest talent across ALL characters
   // (1 + talent508 * log(opt152) / 100) * (1 + talent208 * log(opt329) / 100)
-  const wormHoleTalent = getHighestTalentByClass(characters, CLASSES.Elemental_Sorcerer, 'WORMHOLE_EMPEROR', false, false, false, false, character);
+  const wormHoleTalent = getHighestTalentAcrossCharacters(characters, 'WORMHOLE_EMPEROR', character);
   const perWormholeKills = 1 + (wormHoleTalent * lavaLog(Number(account?.accountOptions?.[152]) || 0)) / 100;
   // Talent 208 = WRAITH_OVERLORD — available on Death_Bringer (Warrior path)
-  const wraithOverlordTalent = getHighestTalentByClass(characters, CLASSES.Death_Bringer, 'WRAITH_OVERLORD', false, false, false, false, character);
+  const wraithOverlordTalent = getHighestTalentAcrossCharacters(characters, 'WRAITH_OVERLORD', character);
   const perEquinoxKills = 1 + (wraithOverlordTalent * lavaLog(Number(account?.accountOptions?.[329]) || 0)) / 100;
   const vialDmgBonus = getVialsBonusByStat(account?.alchemy?.vials, '7dmg') || 0;
   const eclipseSkulls = getEclipseSkullsBonus(account);
@@ -218,9 +211,8 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'NO_PAIN_NO_GAIN');
   const starSignBonus = getStarSignBonus(character, account, 'Total_Damage');
   const unlockedGods = account?.divinity?.unlockedDeities ?? 0;
-  // Game uses getbonus2(1, talentId, -1) = highest across ALL characters
-  const godTalent = getHighestTalentByClass(characters, CLASSES.Elemental_Sorcerer, 'GODS_CHOSEN_CHILDREN', false, true, false, false, character);
-  const orbTalent = getHighestTalentByClass(characters, CLASSES.Voidwalker, 'POWER_ORB', false, false, false, false, character);
+  const godTalent = getHighestTalentAcrossCharacters(characters, 'GODS_CHOSEN_CHILDREN', character);
+  const orbTalent = getHighestTalentAcrossCharacters(characters, 'POWER_ORB', character);
   const friendBonus = getFriendBonus(account, 0);
 
   const grimoireUpg35 = getGrimoireBonus(account?.grimoire?.upgrades, 35);
@@ -909,9 +901,13 @@ const getAccuracy = (character: Character, characters: Character[], account: Acc
   const voteBonus = getVoteBonus(account, 3) || 0;
   const amarokSetBonus = getArmorSetBonus(account, 'AMAROK_SET') || 0;
   const hasDoot = isCompanionBonusActive(account, 0);
-  const minorBonus = hasDoot ? getMinorDivinityBonus(character, account, 0) : character?.linkedDeity === 0
-    ? character?.deityMinorBonus
-    : 0;
+  // Snehebatu's minor bonus is the accuracy/defence one, and gem shop item 9 grants it account-wide
+  // whoever you are linked to: `GemItemsPurchased[9] == 1 && 0 == i` in the game's Bonus_Minor.
+  const snehebatuUnlocked = Number(account?.gemShopPurchases?.[9]) > 0;
+  const minorBonus = hasDoot || snehebatuUnlocked ? getMinorDivinityBonus(character, account, 0)
+    : character?.linkedDeity === 0 ? character?.deityMinorBonus
+      : character?.secondLinkedDeityIndex === 0 ? character?.secondDeityMinorBonus
+        : 0;
 
   let accuracy = (character?.stats as any)?.[accuracyStat]
     * (1 + bubbleBonus / 100) *
@@ -1280,12 +1276,17 @@ const getPlayerDefence = (character: Character, characters: Character[], account
   const vaultUpgBonus5 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 5) || 0;
   const voteBonus3 = getVoteBonus(account, 3) || 0;
 
-  const minorBonus = hasDoot || coralKidLinked ? getMinorDivinityBonus(character, account, 0) : character?.linkedDeity === 0
-    ? character?.deityMinorBonus
-    : 0;
+  const snehebatuUnlocked = Number(account?.gemShopPurchases?.[9]) > 0;
+  const minorBonus = hasDoot || coralKidLinked || snehebatuUnlocked
+    ? getMinorDivinityBonus(character, account, 0)
+    : character?.linkedDeity === 0 ? character?.deityMinorBonus
+      : character?.secondLinkedDeityIndex === 0 ? character?.secondDeityMinorBonus
+        : 0;
 
   // gearBonus now includes gallery and hatRack bonuses
-  const value = Math.floor((postOfficeBonus
+  // The game floors the additive base only, then multiplies — truncating before a ~200x multiplier,
+  // not after it. Flooring the whole expression instead loses the difference.
+  const base = Math.floor(postOfficeBonus
     + cardBonus + Math.min(character?.level,
       bubbleBonus)
     + (stampBonus
@@ -1294,14 +1295,16 @@ const getPlayerDefence = (character: Character, characters: Character[], account
       + statueBonus)
     + ((gearBonus + obolsBonus)
       * (1 + (bubbleBonus + vaultUpgBonus46 + secondCardBonus + companionBonus21 + passiveCardBonus) / 100)
-      + (mealBonus + talentBonus)))
+      + (mealBonus + talentBonus)));
+
+  const value = base
     * (1 + (shrineBonus + bribeBonus) / 100)
     * Math.max(0.05, 1 - (prayerCurse + secondPrayerCurse) / 100)
     * (1 + (goldenFoodBonus + secondTalentBonus +
       ((secondEquipmentBonusEtc + secondObolsBonus) + (starSignBonus
         + (activeBuff + (cardSetBonus + (flurboBonus
           + chipBonus + amarokSetBonus)))))) / 100) * (1 + (minorBonus + voteBonus3) / 100)
-    + rooBonus1 + vaultUpgBonus5);
+    + rooBonus1 + vaultUpgBonus5;
 
   const breakdown = {
     statName: "Defence",
@@ -1441,7 +1444,7 @@ const getMultiKillTotal = (character: Character, characters: Character[], accoun
   const deathNoteRank = account?.deathNote?.[Math.floor(character?.mapIndex / 50)]?.rank || 0;
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'Overkill');
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'VOID_RADIUS');
-  const voidTalentBonus = getHighestTalentByClass(characters, CLASSES.Voidwalker, 'MASTER_OF_THE_SYSTEM', false, false, false, false, character);
+  const voidTalentBonus = getHighestTalentAcrossCharacters(characters, 'MASTER_OF_THE_SYSTEM', character);
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Multikill_per_Tier')?.bonus ?? 0;
   const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Trilobite_Rock')?.bonus ?? 0;
   const secondActiveBuff = getTalentBonusIfActive(character?.activeBuffs, 'MANA_IS_LIFE', 'y');

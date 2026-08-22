@@ -23,9 +23,13 @@ const parsePrayers = (prayersRaw: any[] | undefined, storage: any[]) => {
 }
 
 export const getPrayerBonusAndCurse = (prayers: any[], prayerName: string, account?: Account, forcePrayer: boolean = false) => {
-  const superbitUnlocked = isSuperbitUnlocked(account, 'No_more_Praying');
+  // _customBlock_prayersReal gates the no-prayers-equipped path on superbit 9 or 39, then adds a
+  // fifth of the bonus for each of the three superbits, so all three stack to 3/5ths.
+  const superbit9 = isSuperbitUnlocked(account, 'No_more_Praying') ? 1 : 0;
+  const superbit39 = isSuperbitUnlocked(account, 'Prayers_Begone') ? 1 : 0;
+  const superbit53 = isSuperbitUnlocked(account, 'Prayers_Aint_Meta') ? 1 : 0;
   let prayer;
-  const useSuperbit = superbitUnlocked && (!prayers || prayers?.length === 0);
+  const useSuperbit = (superbit9 || superbit39) && (!prayers || prayers?.length === 0);
 
   if (useSuperbit) {
     prayer = (account?.prayers as any[])?.find(({ name }: any) => name === prayerName);
@@ -46,9 +50,16 @@ export const getPrayerBonusAndCurse = (prayers: any[], prayerName: string, accou
   // If the prayer is being forced, treat it as if it's active (not using superbit rules)
   const isForcedPrayer = forcePrayer && !prayers?.find(({ name }) => name === prayerName);
 
+  if (useSuperbit) {
+    // prayerIndex 5 never gets the superbit bonus, and the prayer has to be levelled at all
+    const eligible = prayer.prayerIndex !== 5 && prayer.level > 0.5;
+    const superbitMulti = .2 * superbit9 + .2 * superbit39 + .2 * superbit53;
+    return { bonus: eligible ? Math.round(superbitMulti * bonus) : 0, curse: 0 };
+  }
+
   return {
-    bonus: Math.round(useSuperbit ? bonus / 5 : bonus),
-    curse: Math.round(useSuperbit || isForcedPrayer ? 0 : curse)
+    bonus: Math.round(bonus),
+    curse: Math.round(isForcedPrayer ? 0 : curse)
   }
 }
 
