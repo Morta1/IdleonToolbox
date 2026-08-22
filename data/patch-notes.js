@@ -25,7 +25,8 @@ export const patchNotes = [
       'Kill Per Kill: Nobisect doubling every kill now also counts when that god comes from a pocket divinity, from the World 7 chosen god, or from an Elemental Sorcerer second link',
       'Stamps: material costs now round the same way the game does, so cheap stamps no longer read one material above the in-game price',
       'Sigils: every sigil bonus now includes the meritocracy multiplier, which the game applies and the site was leaving out',
-      'Worship: the "First to full" card skipped characters that were already fully charged, naming someone still charging instead'
+      'Worship: the "First to full" card skipped characters that were already fully charged, naming someone still charging instead',
+      'Gaming: the Palette final bonus was multiplied by the painter legend talent, which the game only applies to each colour, level up chances were capped at "1 in 1", and locked colours showed an unlock chance even when they were nowhere near a colour you own'
     ]
   },
   {

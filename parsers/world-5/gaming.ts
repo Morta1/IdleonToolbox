@@ -667,6 +667,19 @@ export const calculateSnailEncouragementForSuccessChance = (snailLevel: any, des
   return low; // Return low as a whole number
 }
 
+// Neighbouring hexes per palette slot, mirrors the game's AdjacentHex{i} code blocks.
+// A locked colour is only rollable (and only shows its unlock chance) when it borders an owned one.
+const paletteAdjacency = [
+  [1, 7, 8], [0, 2, 8, 9], [1, 3, 9, 10], [2, 4, 10, 11], [3, 5, 11, 12], [4, 6, 12, 13], [5, 13, 14],
+  [0, 8, 15], [0, 1, 7, 9, 15, 16], [1, 2, 8, 10, 16, 17], [2, 3, 9, 11, 17, 18], [3, 4, 10, 12, 18, 19],
+  [4, 5, 11, 13, 19, 20], [5, 6, 12, 14, 20, 21], [6, 13, 21],
+  [7, 8, 16, 22, 23], [8, 9, 15, 17, 23, 24], [9, 10, 16, 18, 24, 25], [10, 11, 17, 19, 25, 26],
+  [11, 12, 18, 20, 26, 27], [12, 13, 19, 21, 27, 28], [13, 14, 20, 28, 29],
+  [15, 23, 30], [15, 16, 22, 24, 30, 31], [16, 17, 23, 25, 31, 32], [17, 18, 24, 26, 32, 33],
+  [18, 19, 25, 27, 33, 34], [19, 20, 26, 28, 34, 35], [20, 21, 27, 29, 35, 36], [21, 28, 36],
+  [22, 23, 31], [23, 24, 30, 32], [24, 25, 31, 33], [25, 26, 32, 34], [26, 27, 33, 35], [27, 28, 34, 36], [28, 29, 35]
+];
+
 const getPalette = (account: any, ratKing: any, spelunkRaw: any, characters: any) => {
   const palette = [];
   let sum = 0;
@@ -723,9 +736,19 @@ const getPalette = (account: any, ratKing: any, spelunkRaw: any, characters: any
     });
   }
 
-  const finalBonus = Math.round(sum * (1 + getLegendTalentBonus(account, 10) / 100));
+  // The game keeps the level sum raw here, the legend talent multiplier only applies per colour
+  const finalBonus = Math.round(sum);
   const paletteLuck = getPaletteLuck(sum, ratKing, { ...account, gaming: { ...account?.gaming, palette } }, characters);
   palette.push(finalBonus);
+
+  const unlockableSlots = new Set<number>();
+  for (let i = 0; i < 37; i++) {
+    if ((spelunkRaw?.[9]?.[i] ?? 0) > 0) {
+      for (const neighbour of paletteAdjacency[i]) {
+        unlockableSlots.add(neighbour);
+      }
+    }
+  }
 
   for (let i = 0; i < 37; i++) {
     const spelunkValue = spelunkRaw?.[9]?.[i];
@@ -736,14 +759,16 @@ const getPalette = (account: any, ratKing: any, spelunkRaw: any, characters: any
     let levelUpChance;
     if (baseValue && spelunkValue >= 0) {
       levelUpChance = paletteLuck?.value * (1 / (baseValue * Math.pow(multiplier, spelunkValue)));
-      levelUpChance = Math.min(1, levelUpChance);
     }
     if (spelunkValue >= 1) {
       (palette[i] as any).chance = levelUpChance;
     }
-    else {
+    else if (unlockableSlots.has(i)) {
       (palette[i] as any).chance = paletteLuck?.value
         * (1 / gamingPalette?.[i]?.x8);
+    }
+    else {
+      (palette[i] as any).chance = undefined;
     }
   }
 
