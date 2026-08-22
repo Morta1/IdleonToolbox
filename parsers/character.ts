@@ -3506,7 +3506,7 @@ const getAfkGainsUnavailableReason = (afkType: string) => {
   return 'No AFK gains rate: unrecognized AFK target';
 }
 
-const getTrappingStuff = (type: any, index: any, account: any) => {
+export const getTrappingStuff = (type: any, index: any, account: any) => {
   if (type === 'TrapMGbonus') {
     const value = account?.accountOptions?.[99];
     if (value >= 25 * (index + 1)) {

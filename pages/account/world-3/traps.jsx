@@ -7,15 +7,28 @@ import Timer from 'components/common/Timer';
 import Tooltip from '../../../components/Tooltip';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
-import { calcTotalCritters, getTrapsBonuses } from '@parsers/world-3/traps';
+import { calcTotalCritters, getShinyChanceInfo, getTrapsBonuses } from '@parsers/world-3/traps';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 import MenuItem from '@mui/material/MenuItem';
 
 const Traps = () => {
   const { state } = useContext(AppContext);
   const { traps } = state?.account || {};
-  const [bonus, setBonus] = useState('max');
+  const [selectedChar, setSelectedChar] = useState(null);
   const bonuses = getTrapsBonuses(state?.account, state?.characters);
-  const totals = calcTotalCritters(state?.account, bonuses?.[bonus]);
+  const collectRates = bonuses?.perCharacter ?? [];
+  // Derived rather than stored: the character list only arrives after mount, so an initial index
+  // would pin the page to whoever happened to be first instead of the best collector.
+  const bestIndex = collectRates.reduce((best, { critter }, index) => critter > collectRates[best].critter
+    ? index
+    : best, 0);
+  const selectedIndex = state?.characters?.findIndex((character) => character?.playerId === selectedChar) ?? -1;
+  const activeIndex = selectedIndex >= 0 ? selectedIndex : bestIndex;
+  const activeCharacter = state?.characters?.[activeIndex];
+  const collectRate = collectRates[activeIndex] ?? bonuses?.max;
+  const totals = calcTotalCritters(state?.account, collectRate);
+  const shiny = getShinyChanceInfo(state?.account, state?.characters, activeCharacter);
 
   return <>
     <NextSeo
@@ -24,22 +37,35 @@ const Traps = () => {
     />
     <Stack direction={'row'} gap={2}>
       <Stack>
-        <FormControl sx={{ mt: 2, mb: 1 }}>
-          <InputLabel id="demo-simple-select-label">Collect as</InputLabel>
+        {state?.characters?.length ? <FormControl sx={{ mt: 2, mb: 1 }}>
+          <InputLabel id="collect-as-label">Collect as</InputLabel>
           <Select
             size={'small'}
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={bonus}
+            labelId="collect-as-label"
+            id="collect-as-select"
+            value={activeCharacter?.playerId ?? ''}
             label="Collect as"
-            onChange={(e) => setBonus(e.target.value)}
+            onChange={(e) => setSelectedChar(e.target.value)}
           >
-            <MenuItem value={'max'}>Hunter</MenuItem>
-            <MenuItem value={'min'}>Non Hunter</MenuItem>
+            {state?.characters?.map((character, index) => <MenuItem key={`${character?.name}-${index}`}
+                                                                   value={character?.playerId}>
+              <Stack direction={'row'} alignItems={'center'} gap={2}>
+                <img src={`${prefix}data/ClassIcons${character?.classIndex}.png`} alt="" width={24} height={24}/>
+                <Typography>{character?.name}</Typography>
+              </Stack>
+            </MenuItem>)}
           </Select>
-        </FormControl>
-        <Typography component={'p'} variant={'caption'}>Collect Rates: {Math.round(bonuses?.[bonus]?.critter * 100)}%
-          and {Math.round(bonuses?.[bonus]?.exp * 100)}% EXP</Typography>
+        </FormControl> : null}
+        <Typography component={'p'} variant={'caption'}>Collect Rates: {Math.round(collectRate?.critter * 100)}%
+          and {Math.round(collectRate?.exp * 100)}% EXP</Typography>
+        <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+          <Typography component={'p'} variant={'caption'}>
+            Shiny: {notateNumber(shiny?.multiplier, 'MultiplierInfo')}x, {shiny?.bundleSize} per drop
+          </Typography>
+          <Breakdown data={shiny?.breakdown}>
+            <IconInfoCircleFilled size={16} style={{ cursor: 'pointer', display: 'block' }}/>
+          </Breakdown>
+        </Stack>
       </Stack>
       {totals ? <Totals hideExp array={totals} index={'total'}/> : null}
     </Stack>
@@ -63,8 +89,8 @@ const Traps = () => {
           return {
             ...total,
             [rawName]: {
-              critters: (total?.[rawName]?.critters ?? 0) + (crittersQuantity * bonuses?.[bonus]?.critter),
-              exp: (total?.[rawName]?.exp ?? 0) + (trapExp * bonuses?.[bonus]?.exp)
+              critters: (total?.[rawName]?.critters ?? 0) + (crittersQuantity * collectRate?.critter),
+              exp: (total?.[rawName]?.exp ?? 0) + (trapExp * collectRate?.exp)
             }
           }
         }, {});
@@ -99,8 +125,8 @@ const Traps = () => {
                           {slot?.name ? <>
                               <Stack direction={'row'}>
                                 <Tooltip
-                                  title={<TrapTooltip {...slot?.trapData} trapExp={slot?.trapExp * bonuses?.[bonus]?.exp}
-                                                      crittersQuantity={slot?.crittersQuantity * bonuses?.[bonus]?.critter}/>}>
+                                  title={<TrapTooltip {...slot?.trapData} trapExp={slot?.trapExp * collectRate?.exp}
+                                                      crittersQuantity={slot?.crittersQuantity * collectRate?.critter}/>}>
                                   <FloatingItemIcon src={`${prefix}data/TrapBoxSet${slot?.trapType + 1}.png`} alt="trap-icon"/>
                                 </Tooltip>
                                 <ItemIcon src={`${prefix}data/${slot?.rawName}.png`} alt="item-icon"/>
