@@ -204,8 +204,9 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.hole = safeSection<any>('hole', {}, () => getHole(idleonData, accountData));
   accountData.lab = safeSection<any>('lab', {}, () => getLab(idleonData, serializedCharactersData, accountData));
   accountData.shrines = safeSection<any>('shrines', [], () => getShrines(idleonData, accountData));
-  const { statues, zenith } = safeSection<any>('statues', { statues: [], zenith: {} }, () => getStatues(idleonData, serializedCharactersData, accountData));
+  const { statues, grades, zenith } = safeSection<any>('statues', { statues: [], grades: [], zenith: {} }, () => getStatues(idleonData, serializedCharactersData, accountData));
   accountData.statues = statues;
+  (accountData as any).statueGrades = grades;
   accountData.zenith = zenith;
 
   if (accountData.lab) {

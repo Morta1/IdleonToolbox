@@ -22,8 +22,8 @@ import {
 import { getStarSignBonus } from './starSigns';
 import { getArcadeBonus } from './world-2/arcade';
 import { getAfkGain, getPlayerSpeedBonus, getRespawnRate } from './character';
-import { getStatueBonus } from './world-1/statues';
-import { calcStampCollected, getStampsBonusByEffect } from './world-1/stamps';
+import { calcTotalOnyx, getStatueBonus } from './world-1/statues';
+import { calcStampCollected, getStampsBonusByEffect, getStampsBonusByStat } from './world-1/stamps';
 import { lavaLog, lavaLog2 } from '@utility/helpers';
 import { getShrineBonus } from './world-3/shrines';
 import { getPrayerBonusAndCurse } from './world-3/prayers';
@@ -37,7 +37,7 @@ import { isSuperbitUnlocked } from './world-5/gaming';
 import { constructionMasteryThresholds } from './world-3/construction';
 import { getSaltLickBonus } from './world-3/saltLick';
 import { getAchievementStatus } from './achievements';
-import { getGodBlessingBonus, getMinorDivinityBonus } from './world-5/divinity';
+import { getGodBlessingBonus, getMinorDivinityBonus, isMajorDivinityActive } from './world-5/divinity';
 // getEquinoxBonus not used — AdditionExtraDMG uses talent-based calculation
 import { getMiningEff } from '@parsers/efficiency';
 import { getUpgradeVaultBonus } from './misc/upgradeVault';
@@ -47,9 +47,9 @@ import { getVoteBonus } from './world-2/voteBallot';
 import { getLandRank, getExoticMarketBonus } from './world-6/farming';
 import { getWinnerBonus, getSummoningUpgradeBonus } from './world-6/summoning';
 import { getSchematicBonus } from './world-5/caverns/the-well';
-import { calcTotalQuestCompleted, getFriendBonus } from './misc';
+import { calcTotalQuestCompleted, getAdviceFishBonus, getFriendBonus } from './misc';
 import { getArmorSetBonus } from './world-3/armorSmithy';
-import { getCosmoBonus } from './world-5/hole';
+import { getCosmoBonus, getMeasurementBonus } from './world-5/hole';
 import { getPaletteBonus } from './world-5/gaming';
 import { getCharmBonus } from './world-6/sneaking';
 import { getGrimoireBonus } from './class-specific/grimoire';
@@ -58,6 +58,7 @@ import { getCompassBonus } from './class-specific/compass';
 import { getMeritocracyBonus } from './world-2/voteBallot';
 import { getMineheadBonusQTY } from './world-7/minehead';
 import { getSushiBonus } from './world-7/sushiStation';
+import { getLegendTalentBonus } from './world-7/legendTalents';
 import { isBundlePurchased } from './misc';
 import { getFountainBonusTotal } from './world-5/caverns/the-fountain';
 import { getCglunkoBonus } from './world-5/caverns/crystal-glunko-cove';
@@ -426,8 +427,9 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const hasDmgBundle = isBundlePurchased(account?.bundles, 'bon_a');
   if (hasDmgBundle) damage *= 1.5;
 
-  // Family bonus: FamBonusQTYs[80]
-  const famBonus80 = getFamilyBonusBonus(classFamilyBonuses, 'TOTAL_DMG_MULTIPLIER', getHighestLevelOf(characters, CLASSES.Elemental_Sorcerer));
+  // Family bonus: FamBonusQTYs[80]. The DNSM key is 2 * classIndex + I, so 80 is classFamilyBonuses[40],
+  // the Arcane Cultist. Elemental Sorcerer is class 34 and gives added talent levels instead.
+  const famBonus80 = getFamilyBonusBonus(classFamilyBonuses, 'TOTAL_DMG_MULTIPLIER', getHighestLevelOf(characters, CLASSES.Arcane_Cultist));
   damage *= (1 + famBonus80 / 100);
 
   // Reliquarium penalty
@@ -1349,51 +1351,96 @@ const getPlayerDefence = (character: Character, characters: Character[], account
   }
 }
 
+// KpKDumm: the world bonus band the game picks from the map the character stands on. World 7
+// (300-349) reads a Big Fish bonus on top of its gear index; below 50 and from 350 up there is no
+// band at all.
+const KILL_PER_KILL_WORLD_BONUS = [
+  { from: 50, to: 100, etcIndex: 70 },
+  { from: 100, to: 150, etcIndex: 68 },
+  { from: 150, to: 200, etcIndex: 69 },
+  { from: 200, to: 250, etcIndex: 73 },
+  { from: 250, to: 300, etcIndex: 90 }
+];
+
 const getKillPerKill = (character: Character, characters: Character[], account: Account, playerInfo: any) => {
-  const { value: equipmentBonus } = getStatsFromGear(character, 68, account);
-  const { value: secondEquipmentBonus } = getStatsFromGear(character, 69, account);
-  const { value: thirdEquipmentBonus } = getStatsFromGear(character, 70, account);
   const monster = monsters?.[character?.targetMonster];
   const monsterHp = getMonsterHpTotal(monster?.MonsterHPTotal, character, account);
-  const overKill = playerInfo?.maxDamage >= 2 * monsterHp && 0.5 < account?.towers?.towersTwo
+  const mapIndex = character?.mapIndex;
+  const diminished = mapIndex >= DIMINISHED_MULTIKILL_MAP_INDEX;
+
+  // OverkillStuffs('3'). The damage threshold uses the same exponent as the tier ladder, so it is
+  // 5 from World 6 onwards rather than 2.
+  const overKill = playerInfo?.maxDamage >= (diminished ? 5 : 2) * monsterHp && 0.5 < account?.towers?.towersTwo
     ? playerInfo?.accuracy > 1.5 * monster?.Defence
     : 0;
-  const labBonus = getLabBonus(account?.lab?.labBonuses, 4);
+
+  const etcBonus = (index: number) => {
+    const { value } = getStatsFromGear(character, index, account);
+    return value + getObolsBonus(character?.obols, bonuses?.etcBonuses?.[index]);
+  }
+  const companionBonus = (index: number) => (isCompanionBonusActive(account, index)
+    ? (account as any)?.companions?.list?.at(index)?.bonus ?? 0
+    : 0);
+
+  const band = KILL_PER_KILL_WORLD_BONUS.find(({ from, to }) => mapIndex >= from && mapIndex < to);
   let worldBonus = 0;
-  if (100 <= character?.mapIndex && 150 > character?.mapIndex) {
-    worldBonus = equipmentBonus
+  if (diminished && mapIndex < 350) {
+    worldBonus = getAdviceFishBonus(account, 3) + etcBonus(105);
+  } else if (band) {
+    worldBonus = etcBonus(band.etcIndex);
   }
-  else if (150 <= character?.mapIndex && 200 > character?.mapIndex) {
-    worldBonus = secondEquipmentBonus
-  }
-  else if (50 <= character?.mapIndex && 100 > character?.mapIndex) {
-    worldBonus = thirdEquipmentBonus
-  }
-  const majorBonus = isCompanionBonusActive(account, 0)
-    || character?.linkedDeity === 2
-    || character?.secondLinkedDeityIndex === 2 ? 1 : 0;
+  // FamBonusQTYs[28], the Death Bringer family bonus. THE_FAMILY_GUY enlarges only the bonus the
+  // character themself gives, and the game applies it only while that character is the one being
+  // played, so it lands on the provider rather than on everyone.
+  const highestDeathBringer = getHighestLevelOf(characters, CLASSES.Death_Bringer);
+  const rawFamilyBonus = getFamilyBonusBonus(classFamilyBonuses, 'KILL_PER_KILL', highestDeathBringer);
+  const givesFamilyBonus = checkCharClass(character?.class, CLASSES.Death_Bringer) && character?.level >= highestDeathBringer;
+  const familyBonus = givesFamilyBonus
+    ? rawFamilyBonus * (1 + getTalentBonus(character?.flatTalents, 'THE_FAMILY_GUY') / 100)
+    : rawFamilyBonus;
+  const votingBonus = getVoteBonus(account, 5);
+
+  const labBonus = getLabBonus(account?.lab?.labBonuses, 4);
+  // Divinity('Bonus_MAJOR', player, 7) is Nobisect, whose major bonus doubles every kill. A pocket
+  // divinity, the World 7 chosen god or the polytheism link can all supply it without a normal link.
+  const majorBonus = isMajorDivinityActive(character, account, 7) ? 1 : 0;
+
+  // KpKDumm2: the three stat talents are switched off entirely from World 6 onwards.
   const strTalentBonus = getTalentBonus(character?.flatTalents, 'CHARRED_SKULLS');
   const agiTalentBonus = getTalentBonus(character?.flatTalents, 'STACKED_SKULLS');
   const wisTalentBonus = getTalentBonus(character?.flatTalents, 'MEMORIAL_SKULLS');
+  // A character with no parsed stats contributes nothing here, rather than turning the whole
+  // kill-per-kill into NaN.
+  const strContribution = diminished ? 0 : strTalentBonus * ((character?.stats?.strength ?? 0) / 1e3);
+  const agiContribution = diminished ? 0 : agiTalentBonus * ((character?.stats?.agility ?? 0) / 1e3);
+  const wisContribution = diminished ? 0 : wisTalentBonus * ((character?.stats?.wisdom ?? 0) / 1e3);
+
   const warTalentBonus = getTalentBonus(character?.flatTalents, 'MONSTER_DECIMATOR');
   const multiKillTotal = getMultiKillTotal(character, characters, account, playerInfo);
   const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'KILL_PER_KILL', account);
-
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Fibers_of_Absence', account)?.bonus;
+  const charmBonus = getCharmBonus(account, 'Bubblegum_Law');
+  const exoticBonus = getExoticMarketBonus(account, 56);
+  const legendTalentBonus = getLegendTalentBonus(account, 16);
+  const bubbaBonus = (account as any)?.bubba?.bonuses?.allKills?.bonus ?? 0;
+  const vaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 64);
   const friendBonusExtraKills = getFriendBonus(account, 6); // Friend Bonus type 6 (+% Extra Kills)
 
-  const strContribution = strTalentBonus * (character?.stats?.strength / 1e3);
-  const agiContribution = agiTalentBonus * (character?.stats?.agility / 1e3);
-  const wisContribution = wisTalentBonus * (character?.stats?.wisdom / 1e3);
   const multiKillContribution = overKill ? multiKillTotal : 0;
   const additiveTotal = strContribution + agiContribution + wisContribution + warTalentBonus
-    + multiKillContribution + activeBubbleBonus + prayerBonus + friendBonusExtraKills;
+    + multiKillContribution + activeBubbleBonus + prayerBonus + charmBonus + exoticBonus
+    + legendTalentBonus + bubbaBonus + vaultBonus + friendBonusExtraKills;
 
   const labMulti = Math.max(1, labBonus);
-  const worldMulti = 1 + worldBonus / 100;
+  const companionMulti = (1 + companionBonus(14))
+    * (1 + 0.2 * companionBonus(168))
+    * (1 + companionBonus(29))
+    * (1 + companionBonus(154));
+  const gearMulti = (1 + etcBonus(96) / 100) * (1 + etcBonus(103) / 100);
+  const worldMulti = 1 + (worldBonus + familyBonus + votingBonus) / 100;
   const majorMulti = Math.max(1, 1 + majorBonus);
 
-  const value = labMulti * worldMulti * majorMulti * (1 + additiveTotal / 100);
+  const value = labMulti * companionMulti * gearMulti * worldMulti * majorMulti * (1 + additiveTotal / 100);
 
   const breakdown = {
     statName: 'Kill per Kill',
@@ -1403,6 +1450,8 @@ const getKillPerKill = (character: Character, characters: Character[], account: 
         name: 'Multiplicative',
         sources: [
           { name: 'Lab', value: labMulti },
+          { name: 'Companions', value: companionMulti },
+          { name: 'Equipment', value: gearMulti },
           { name: 'World Bonus', value: worldMulti },
           { name: 'Major Divinity (Nobisect)', value: majorMulti }
         ]
@@ -1417,6 +1466,11 @@ const getKillPerKill = (character: Character, characters: Character[], account: 
           { name: 'Multi-kill (Overkill only)', value: multiKillContribution / 100 },
           { name: 'Bubble', value: activeBubbleBonus / 100 },
           { name: 'Prayer (Fibers of Absence)', value: prayerBonus / 100 },
+          { name: 'Pristine Charm (Bubblegum Law)', value: charmBonus / 100 },
+          { name: 'Exotic Crop', value: exoticBonus / 100 },
+          { name: 'Legend Talent', value: legendTalentBonus / 100 },
+          { name: 'Bubba (Ring of Greed)', value: bubbaBonus / 100 },
+          { name: 'Upgrade Vault', value: vaultBonus / 100 },
           { name: 'Friend Bonus (Extra Kills)', value: friendBonusExtraKills / 100 }
         ]
       }
@@ -1426,22 +1480,38 @@ const getKillPerKill = (character: Character, characters: Character[], account: 
   return { value, breakdown };
 }
 
-const getMultiKillTotal = (character: Character, characters: Character[], account: Account, playerInfo: any) => {
+// MultiKill_base: everything that is not multiplied by the overkill tier count.
+export const getMultiKillBase = (character: Character, characters: Character[], account: Account) => {
   const starSignBonus = getStarSignBonus(character, account, 'Total_Multikill');
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 8);
-  const stampsBonus = getStampsBonusByEffect(account, 'Base_Overkill')
+  const stampsBonus = getStampsBonusByStat(account, 'Overkill');
   const { value: equipmentBonus } = getStatsFromGear(character, 29, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[29]);
-  const monster = monsters?.[character?.targetMonster];
-  const monsterHp = getMonsterHpTotal(monster?.MonsterHPTotal, character, account);
-  let multiKills = 1;
-  for (let i = 0; i < 50; i++) {
-    if (playerInfo?.maxDamage >= (2 * monsterHp * Math.pow(2, i + 1))) {
-      multiKills = i + 2;
-    }
-  }
-  if (playerInfo) playerInfo.multiKillTiers = multiKills;
-  const deathNoteRank = account?.deathNote?.[Math.floor(character?.mapIndex / 50)]?.rank || 0;
+  const achievement = getAchievementStatus(account?.achievements, 148);
+  const achievementTwo = getAchievementStatus(account?.achievements, 122);
+  const achievementThree = getAchievementStatus(account?.achievements, 123);
+  const onyxTalentBonus = calcTotalOnyx(account) * getTalentBonus(character?.flatStarTalents, 'MONOLITHIALISM');
+
+  return starSignBonus
+    + saltLickBonus
+    + (stampsBonus
+      + 2 * account?.towers?.towersTwo)
+    + ((equipmentBonus + obolsBonus)
+      + (Math.min(5, achievement)
+        + (6 * achievementTwo
+          + (2 * achievementThree
+            + onyxTalentBonus))));
+}
+
+// MultiKill_perTier: the part multiplied by the overkill tier count. `deathNoteIndex` is the
+// world the kills happen in (the game reads floor(CurrentMap / 50)), which is not always the
+// world the character is standing in.
+export const getMultiKillPerTier = (character: Character, characters: Character[], account: Account, deathNoteIndex?: number) => {
+  const noteIndex = deathNoteIndex ?? Math.floor(character?.mapIndex / 50);
+  const deathNoteRank = account?.deathNote?.[noteIndex]?.rank || 0;
+  // OverkillQTY(7) is the sneaking mini boss page of the death note. The game adds it on top of
+  // the current world's page every time, so it counts no matter where the kills happen.
+  const miniBossesRank = account?.deathNote?.miniBosses?.rank || 0;
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'Overkill');
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'VOID_RADIUS');
   const voidTalentBonus = getHighestTalentAcrossCharacters(characters, 'MASTER_OF_THE_SYSTEM', character);
@@ -1451,37 +1521,83 @@ const getMultiKillTotal = (character: Character, characters: Character[], accoun
   const chipBonus = getPlayerLabChipBonus(character, account, 14);
   const { value: secondEquipmentBonus } = getStatsFromGear(character, 71, account);
   const secondObolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[71]);
+  const measurementBonus = getMeasurementBonus({ holesObject: account?.hole?.holesObject, accountData: account, t: 9 });
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Multikill_per_tier');
+  const starSignBonus = getStarSignBonus(character, account, 'Multikill_Per_Tier');
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Pain', account)?.bonus;
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Multikill_Per_Tier');
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Utilitarian_Capsule', 1);
   const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'MR_MASSACRE', account);
-  const achievement = getAchievementStatus(account?.achievements, 148);
-  const achievementTwo = getAchievementStatus(account?.achievements, 122);
-  const achievementThree = getAchievementStatus(account?.achievements, 123);
+  const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet9' ? character?.cards?.cardSet?.bonus : 0;
 
-  return Math.floor(starSignBonus
-    + saltLickBonus
-    + (stampsBonus
-      + 2 * account?.towers?.towersTwo)
-    + ((equipmentBonus + obolsBonus)
-      + (Math.min(5, achievement)
-        + (6 * achievementTwo
-          + 2 * achievementThree)))
-    + multiKills
-    * (deathNoteRank
-      + (vialBonus
-        + (activeBuff
-          + voidTalentBonus
-          * Math.floor(Number(account?.accountOptions?.[158]) / 5))
-        + (arcadeBonus
-          + (artifactBonus
-            + secondActiveBuff)
-          + (chipBonus
-            + ((secondEquipmentBonus + secondObolsBonus)
-              + cardBonus
-              + (prayerBonus
-                + shinyBonus)))
-          + (postOfficeBonus + activeBubbleBonus)))))
+  return deathNoteRank
+    + miniBossesRank
+    + (vialBonus
+      + (activeBuff
+        + voidTalentBonus
+        * Math.floor(Number(account?.accountOptions?.[158]) / 5))
+      + (arcadeBonus
+        + (artifactBonus
+          + secondActiveBuff)
+        + (chipBonus
+          + ((secondEquipmentBonus + secondObolsBonus)
+            + measurementBonus
+            + (cardBonus + starSignBonus)
+            + (prayerBonus
+              + shinyBonus)))
+        + (postOfficeBonus + activeBubbleBonus + cardSetBonus)));
+}
 
+// From World 6 onwards the game squashes both halves of multikill through a bracketed curve and
+// steps the overkill tiers by 5 instead of 2. The gate is the map the character stands on.
+export const DIMINISHED_MULTIKILL_MAP_INDEX = 300;
+
+// From World 6 onwards (CurrentMap >= 300) the game squashes both halves of multikill through a
+// bracketed curve. The top bracket has no ceiling, it just flattens to a 1/50 slope, so a raw
+// 2557 reads back as 144.29 rather than being capped near 100.
+export const getMultiKillDiminished = (value: number) => {
+  if (value >= 250) return 98.14 + (value - 250) / 50;
+  if (value >= 200) return 95.6 + (value - 200) / 20;
+  if (value >= 150) return 90.6 + (value - 150) / 10;
+  if (value >= 100) return 80.6 + (value - 100) / 5;
+  if (value >= 50) return 47.3 + (value - 50) / 1.5;
+  if (value >= 20) return 20 + (value - 20) / 1.1;
+  return value;
+}
+
+// How many overkill tiers `maxDamage` reaches against a monster with `monsterHp`. The exponent is
+// 5 from World 6 onwards and 2 before it (DNSM.OverkillEXPONENT).
+export const getMultiKillTiers = (maxDamage: number, monsterHp: number, exponent = 2) => {
+  let tiers = 1;
+  for (let i = 0; i < 50; i++) {
+    if (maxDamage >= (exponent * monsterHp * Math.pow(exponent, i + 1))) {
+      tiers = i + 2;
+    }
+  }
+  return tiers;
+}
+
+// The Clamworks is map 306, so multikill there uses the World 6+ rules: both halves go through
+// the diminishing curve and the overkill exponent is 5, not 2. The clam's HP is overridden to
+// Clamz_HP on map load, so it has to be passed in rather than read from the monster data.
+export const getClamworksMultiKill = (character: Character, characters: Character[], account: Account, clamHp: number, maxDamage: number) => {
+  const base = getMultiKillDiminished(getMultiKillBase(character, characters, account));
+  // World 7 death note rank, regardless of where the character currently stands.
+  const perTier = getMultiKillDiminished(getMultiKillPerTier(character, characters, account, 6));
+  const tiers = getMultiKillTiers(maxDamage, clamHp, 5);
+  return Math.floor(base + tiers * perTier);
+}
+
+const getMultiKillTotal = (character: Character, characters: Character[], account: Account, playerInfo: any) => {
+  const monster = monsters?.[character?.targetMonster];
+  const monsterHp = getMonsterHpTotal(monster?.MonsterHPTotal, character, account);
+  const diminished = character?.mapIndex >= DIMINISHED_MULTIKILL_MAP_INDEX;
+  const multiKills = getMultiKillTiers(playerInfo?.maxDamage, monsterHp, diminished ? 5 : 2);
+  if (playerInfo) playerInfo.multiKillTiers = multiKills;
+
+  const base = getMultiKillBase(character, characters, account);
+  const perTier = getMultiKillPerTier(character, characters, account);
+  return diminished
+    ? Math.floor(getMultiKillDiminished(base) + multiKills * getMultiKillDiminished(perTier))
+    : Math.floor(base + multiKills * perTier);
 }

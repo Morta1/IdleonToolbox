@@ -294,6 +294,17 @@ export const getStampsBonusByEffect = (account: any, effectName: any, character?
   }, 0);
 }
 
+// The game's StampBonusOfTypeX looks the name up in CustomLists.StampBonusIndex, which is the
+// stamp's `stat` column rather than its display effect, and matches it whole. Multikill_Stamp is
+// the case where that matters: its stat is "Overkill" while its effect reads "Base_Multikill_Rate".
+export const getStampsBonusByStat = (account: any, statName: any, character?: any) => {
+  return account?.stamps && Object.entries(account?.stamps)?.reduce((final: any, [stampTreeName, stampTree]: any) => {
+    const foundStamps = stampTree?.filter(({ stat }: any) => stat === statName);
+    const sum = foundStamps?.reduce((stampsSum: any, { rawName }: any) => stampsSum + getStampBonus(account, stampTreeName, rawName, character), 0);
+    return final + sum;
+  }, 0);
+}
+
 export const getExaltedStampBonus = (account: any) => {
   const atomBonus = getAtomBonus(account, 'Aluminium_-_Stamp_Supercharger') ?? 0;
   const charmBonusExalted = getCharmBonus(account, 'Jellypick');

@@ -5,7 +5,7 @@ import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getCoralKidUpgBonus } from '@parsers/world-7/coralReef';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
-import { gods } from '@website-data';
+import { cosmoUpgrades, gods } from '@website-data';
 import { tryToParse } from '@utility/helpers';
 
 export const getDivinity = (idleonData: any, serializedCharactersData: any, accountData: any) => {
@@ -164,4 +164,49 @@ export const getMinorDivinityBonus = (character: any, account: any, forcedDivini
   const multiplier = gods?.[godIndex]?.minorBonusMultiplier ?? 0;
   const coralKidUpgBonus = getCoralKidUpgBonus(account, 3);
   return Math.max(1, bigPBubble) * (1 + coralKidUpgBonus / 100) * (divinityLevel / (60 + divinityLevel)) * multiplier;
+}
+
+// Holes("PocketDivOwned", i, 0). The two pocket divinity spots live in Holes[11][29] and [11][30]
+// and hold god slots, not god indices. How many of them count is Holes("CosmoBonusQTY", 2, 0).
+const isPocketDivinityOwned = (account: any, godIndex: number) => {
+  const holesObject = account?.hole?.holesObject;
+  const cosmoUpgrade = Number((cosmoUpgrades as any)?.[2]?.[0]?.x0) || 0;
+  const unlockedSpots = Math.floor(cosmoUpgrade * (Number(holesObject?.idleonMajiks?.[0]) || 0));
+  const first = Number((gods as any)?.[Number(holesObject?.extraCalculations?.[29])]?.godIndex);
+  const second = Number((gods as any)?.[Number(holesObject?.extraCalculations?.[30])]?.godIndex);
+  return (first === godIndex && unlockedSpots > 0) || (second === godIndex && unlockedSpots > 1);
+}
+
+// Divinity("W7divChosen", 0, 0). OptionsListAccount[425] is a 1-based god slot, 0 meaning nobody
+// has been chosen yet.
+export const getW7ChosenGodIndex = (account: any) => {
+  const chosen = Number(account?.accountOptions?.[425]) || 0;
+  if (chosen <= 0) return -1;
+  return Number((gods as any)?.[Math.max(0, chosen - 1)]?.godIndex);
+}
+
+// Divinity("Bonus_MAJOR", playerIndex, godIndex), which decides whether a character gets a god's
+// major bonus. `godIndex` is the god's bonus id (the GodsInfo[..][13] column), while every link the
+// save stores is a god slot, so each comparison goes through gods[slot].godIndex.
+// God indices 6 (Purrmep) and 8 (Kattlekruk) short circuit on their own unlock flags in the game;
+// nothing reads those through here yet, so they are not modelled.
+export const isMajorDivinityActive = (character: any, account: any, godIndex: number) => {
+  if (isCompanionBonusActive(account, 0)) return true;
+  if (isPocketDivinityOwned(account, godIndex)) return true;
+  if (getW7ChosenGodIndex(account) === godIndex) return true;
+  // Research grid square 173 hands Arctis to everyone, and gem shop item 9 does the same for
+  // Snehebatu, whoever the character is actually linked to.
+  if (godIndex === 2 && (account?.research?.gridSquares?.[173]?.bonuses?.[0] ?? 0) >= 1) return true;
+  if (godIndex === 0 && Number(account?.gemShopPurchases?.[9]) > 0) return true;
+
+  const linkedSlot = account?.divinity?.linkedDeities?.[character?.playerId];
+  // An unlinked character gets nothing, and the game does not fall through to the polytheism link.
+  if (linkedSlot == null || linkedSlot === -1) return false;
+  if (Number((gods as any)?.[linkedSlot]?.godIndex) === godIndex) return true;
+
+  const secondSlot = character?.secondLinkedDeityIndex;
+  if (secondSlot == null) return false;
+  if (Number((gods as any)?.[secondSlot]?.godIndex) !== godIndex) return false;
+  // The second link only pays out once that god slot has been unlocked account wide.
+  return (Number(account?.divinity?.unlockedDeities) || 0) > secondSlot;
 }

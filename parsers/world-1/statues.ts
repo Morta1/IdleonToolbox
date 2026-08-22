@@ -50,6 +50,10 @@ export const parseStatues = (statuesRaw: any, charactersData: any[], rawSpelunki
 
   return {
     statues,
+    // The raw grade per statue slot. StuG is longer than the named statue catalog, and the game's
+    // StatueOnyxOwned/StatueZenithOwned count every slot in it, so the counts have to come from
+    // here rather than from the catalog-shaped `statues` array.
+    grades: Array.isArray(statuesRaw) ? statuesRaw.map((grade: any) => Number(grade) || 0) : [],
     zenith: {
       market,
       clusters
@@ -197,5 +201,5 @@ export const calcStatueLevels = (allStatues: any): number => {
 
 export const calcTotalOnyx = (account: Account): number => {
   if ((account?.accountOptions as any)?.[69] < 2) return 0;
-  return (account?.statues as any[])?.reduce((res: number, { onyxStatue }: any) => res + (onyxStatue ? 1 : 0), 0);
+  return ((account as any)?.statueGrades as number[])?.reduce((res: number, grade: number) => res + (grade >= 2 ? 1 : 0), 0) ?? 0;
 }
