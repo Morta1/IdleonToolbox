@@ -76,6 +76,7 @@ import { getCompass } from '@parsers/class-specific/compass';
 import { getEmperor } from '@parsers/world-6/emperor';
 import { getArmorSmithy } from '@parsers/world-3/armorSmithy';
 import { getTesseract } from '@parsers/class-specific/tesseract';
+import { getSpeedrunBosses } from '@parsers/class-specific/speedrun';
 import { getSpelunking } from '@parsers/world-7/spelunking';
 import { getGallery, getCharacterGalleryBonuses } from '@parsers/world-7/gallery';
 import { getCoralReef } from '@parsers/world-7/coralReef';
@@ -240,6 +241,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.grimoire = safeSection<any>('grimoire', {}, () => getGrimoire(idleonData, charactersData, accountData));
   accountData.compass = safeSection<any>('compass', {}, () => getCompass(idleonData, charactersData, accountData, serverVars));
   accountData.tesseract = safeSection<any>('tesseract', {}, () => getTesseract(idleonData, charactersData, accountData, serverVars));
+  accountData.speedrun = safeSection<any>('speedrun', { bosses: [] }, () => ({ bosses: getSpeedrunBosses(idleonData) }));
   accountData.farming = updateFarming(charactersData, accountData);
   accountData.lab = safeSection<any>('lab', {}, () => getLab(idleonData, serializedCharactersData, accountData, charactersData));
   if (accountData.alchemy) {

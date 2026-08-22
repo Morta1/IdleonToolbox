@@ -12,6 +12,7 @@ export const patchNotes = [
       'Active Stuff Calculator: the pets section now tracks breedability progress alongside shiny progress, with gain per minute and per hour',
       'Dashboard: the closest salt timer can now be narrowed to specific salts, so you can track only the ones you care about',
       'Cooking: the NMLB sort now lists the upcoming No Meal Left Behind procs in order, showing which meal each free level lands on and the ladles it saves. A meal that lags behind takes several procs in a row before anything else is touched',
+      'Speedrun page for Voidwalkers: portal highscore and the bonuses it feeds, every portal grouped by world with kill costs and your clear times, and a breakdown of what drives your portal progress.',
       'Sushi Station: new Spark Multi and Overtuned Multi cards, each with a breakdown of how fast it grows and the next three breakpoints with time estimates'
     ],
     'fixes': [

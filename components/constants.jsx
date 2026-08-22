@@ -60,7 +60,8 @@ export const PAGES = {
           label: 'tesseract',
           icon: 'data/StatusArc0',
           tabs: ['Upgrades', 'Upgrade Optimizer', 'Maps']
-        }
+        },
+        { label: 'speedrun', icon: 'data/UISkillIcon45' }
       ]
     },
     'task board': {

@@ -1506,6 +1506,16 @@ export const getMultiKillBase = (character: Character, characters: Character[], 
 // MultiKill_perTier: the part multiplied by the overkill tier count. `deathNoteIndex` is the
 // world the kills happen in (the game reads floor(CurrentMap / 50)), which is not always the
 // world the character is standing in.
+// GetBuffBonuses(46, 2). Void Radius pays its multikill bonus out of the talent's y value, not
+// x - x is the hit radius in pixels - and the game only pays it at all to a Voidwalker
+// (CharacterClass 4) or Infinilyte (5) while a speedrun is actually running.
+const getVoidRadiusMultiKill = (character: Character) => {
+  const classIndex = (character as any)?.classIndex;
+  if (classIndex !== 4 && classIndex !== 5) return 0;
+  const speedrunning = (character?.activeBuffs as any)?.some(({ name }: any) => name === 'VOID_TRIAL_RERUN');
+  return speedrunning ? getTalentBonusIfActive(character?.activeBuffs, 'VOID_RADIUS', 'y') : 0;
+}
+
 export const getMultiKillPerTier = (character: Character, characters: Character[], account: Account, deathNoteIndex?: number) => {
   const noteIndex = deathNoteIndex ?? Math.floor(character?.mapIndex / 50);
   const deathNoteRank = account?.deathNote?.[noteIndex]?.rank || 0;
@@ -1513,7 +1523,7 @@ export const getMultiKillPerTier = (character: Character, characters: Character[
   // the current world's page every time, so it counts no matter where the kills happen.
   const miniBossesRank = account?.deathNote?.miniBosses?.rank || 0;
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'Overkill');
-  const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'VOID_RADIUS');
+  const activeBuff = getVoidRadiusMultiKill(character);
   const voidTalentBonus = getHighestTalentAcrossCharacters(characters, 'MASTER_OF_THE_SYSTEM', character);
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Multikill_per_Tier')?.bonus ?? 0;
   const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Trilobite_Rock')?.bonus ?? 0;

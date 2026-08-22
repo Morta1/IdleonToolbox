@@ -5,6 +5,7 @@ export const PAGE_SEO = {
   "/account/class-specific/apocalypses": { title: "Apocalypses | Idleon Toolbox", description: "Dedicated to the barbarian/blood berserker class to keep track of Zow and Chow talents" },
   "/account/class-specific/compass": { title: "Compass | Idleon Toolbox", description: "Keep track of your compass levels, upgrades and compass stats" },
   "/account/class-specific/grimoire": { title: "Grimoire | Idleon Toolbox", description: "Keep track of your grimoire levels, upgrades and wraith stats" },
+  "/account/class-specific/speedrun": { title: "Speedrun | Idleon Toolbox", description: "Track your voidwalker speedrun highscore, the bonuses it feeds and what every portal costs" },
   "/account/class-specific/tesseract": { title: "Tesseract | Idleon Toolbox", description: "Keep track of your tesseract upgrades, tachyons and arcanist stats" },
   "/account/clickers/bubba": { title: "Bubba | Idleon Toolbox", description: "Track your Bubba minigame upgrades, candy progress, and bonus effects in Legends of Idleon" },
   "/account/clickers/kangaroo": { title: "Poppy The Kangaroo | Idleon Toolbox", description: "Track your Kangaroo minigame upgrades, jump progress, and bonus rewards in Legends of Idleon" },
