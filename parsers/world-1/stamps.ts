@@ -276,14 +276,17 @@ const getMaterialCost = (level: any, stamp: any, account: any, reduction = 0, gi
   const sigilReduction = (1 / (1 + sigilBonus / 100));
   const stampReducerVal = Math.max(0.1, 1 - reduction / 100);
   const meritocracyBonus = 1 / (1 + getMeritocracyBonus(account, 14) / 100);
+  const vialReduction = Math.max(0.1, 1 - (reductionVial / 100));
 
   const tierExponent = Math.max(0, Math.round(level / stamp?.reqItemMultiplicationLevel) - 1);
-  return Math.max(1, (stamp?.baseMatCost * (gildedStamp ? 0.05 : 1)
+  const cost = stamp?.baseMatCost * (gildedStamp ? 0.05 : 1)
     * meritocracyBonus
     * stampReducerVal
     * sigilReduction
-    * Math.pow(stamp?.powMatBase, Math.pow(tierExponent, 0.8)))
-    * Math.max(0.1, 1 - (reductionVial / 100)));
+    * Math.pow(stamp?.powMatBase, Math.pow(tierExponent, 0.8));
+
+  // The game truncates before and after the vial cut, but skips both past 2b.
+  return Math.max(1, cost > 2e9 ? cost * vialReduction : Math.floor(Math.floor(cost) * vialReduction));
 }
 
 export const getStampsBonusByEffect = (account: any, effectName: any, character?: any) => {

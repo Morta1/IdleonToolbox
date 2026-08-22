@@ -572,18 +572,18 @@ export const getSigilBonus = (sigils: any, name: any, excludeEclectic?: boolean)
   }, 0);
 };
 
-export const applyArtifactBonusOnSigil = (sigils: any, artifacts: any) => {
+export const applyArtifactBonusOnSigil = (sigils: any, artifacts: any, meritocracyBonus = 0) => {
   const chilledYarnArtifact = isArtifactAcquired(artifacts, 'Chilled_Yarn');
-  if (!chilledYarnArtifact) return sigils;
-  const chilledYarnArtifactBonus = 1 + chilledYarnArtifact?.bonus;
+  const multi = (1 + (chilledYarnArtifact?.bonus ?? 0)) * (1 + meritocracyBonus / 100);
+  if (multi === 1) return sigils;
   return sigils?.map((sigil: any) => ({
     ...sigil,
-    bonus: sigil.bonus * chilledYarnArtifactBonus,
-    unlockBonus: sigil.unlockBonus * chilledYarnArtifactBonus,
-    boostBonus: sigil.boostBonus * chilledYarnArtifactBonus,
-    jadeBonus: sigil.jadeBonus * chilledYarnArtifactBonus,
-    etherealBonus: sigil.etherealBonus * chilledYarnArtifactBonus,
-    eclecticBonus: sigil.eclecticBonus * chilledYarnArtifactBonus
+    bonus: sigil.bonus * multi,
+    unlockBonus: sigil.unlockBonus * multi,
+    boostBonus: sigil.boostBonus * multi,
+    jadeBonus: sigil.jadeBonus * multi,
+    etherealBonus: sigil.etherealBonus * multi,
+    eclecticBonus: sigil.eclecticBonus * multi
   }))
 }
 

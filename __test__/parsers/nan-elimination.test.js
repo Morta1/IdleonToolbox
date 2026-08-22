@@ -446,12 +446,15 @@ const getMaterialCostPreFix = (level, stamp, account, reduction = 0, gildedStamp
   const stampReducerVal = Math.max(0.1, 1 - reduction / 100);
   const meritocracyBonus = 1 / (1 + getMeritocracyBonus(account, 14) / 100);
 
-  return Math.max(1, (stamp?.baseMatCost * (gildedStamp ? 0.05 : 1)
+  const vialReduction = Math.max(0.1, 1 - (reductionVial / 100));
+
+  const cost = stamp?.baseMatCost * (gildedStamp ? 0.05 : 1)
     * meritocracyBonus
     * stampReducerVal
     * sigilReduction
-    * Math.pow(stamp?.powMatBase, Math.pow(Math.round(level / stamp?.reqItemMultiplicationLevel) - 1, 0.8)))
-    * Math.max(0.1, 1 - (reductionVial / 100)));
+    * Math.pow(stamp?.powMatBase, Math.pow(Math.round(level / stamp?.reqItemMultiplicationLevel) - 1, 0.8));
+
+  return Math.max(1, cost > 2e9 ? cost * vialReduction : Math.floor(Math.floor(cost) * vialReduction));
 };
 
 describe('stamps materialCost (tier exponent clamp fix)', () => {

@@ -68,7 +68,7 @@ import { getSummoning } from '@parsers/world-6/summoning';
 import { getTome } from '@parsers/world-4/tome';
 import { getOwl } from '@parsers/world-1/owl';
 import { getKangaroo } from '@parsers/world-2/kangaroo';
-import { getVoteBallot } from '@parsers/world-2/voteBallot';
+import { getMeritocracyBonus, getVoteBallot } from '@parsers/world-2/voteBallot';
 import { getHole } from '@parsers/world-5/hole';
 import { getGrimoire } from '@parsers/class-specific/grimoire';
 import { getUpgradeVault } from '@parsers/misc/upgradeVault';
@@ -264,7 +264,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.atoms = safeSection<any>('atoms', {}, () => getAtoms(idleonData, accountData));
   const artifacts = getArtifacts(idleonData, charactersData, accountData)
   if (accountData.alchemy?.p2w) {
-    accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, artifacts);
+    accountData.alchemy.p2w.sigils = applyArtifactBonusOnSigil(accountData.alchemy.p2w.sigils, artifacts, getMeritocracyBonus(accountData, 21));
   }
   if (accountData.alchemy) {
     accountData.alchemy.liquidCauldrons = safeSection<any>('alchemy.liquidCauldrons', [], () => getLiquidCauldrons(accountData));

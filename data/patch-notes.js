@@ -21,7 +21,9 @@ export const patchNotes = [
       'Multikill: the base rate left out onyx statues and read the wrong stamp, and the per tier rate left out the sneaking mini boss deathnote page, measurements, cards, star signs and the card set. From World 6 onwards the game also runs both through a diminishing curve and counts overkill tiers in steps of 5 instead of 2, so multikill totals there read around ten times too high',
       'Kill Per Kill read far above the in-game value. The three skull talents stop counting from World 6, the world bonus for World 5 and up was missing, and the family, voting, lab, companion and equipment multipliers, along with several flat sources, were never added',
       'Damage: the +% Total Damage Multiplier family bonus was read from your highest level Elemental Sorcerer instead of your highest level Arcane Cultist',
-      'Kill Per Kill: Nobisect doubling every kill now also counts when that god comes from a pocket divinity, from the World 7 chosen god, or from an Elemental Sorcerer second link'
+      'Kill Per Kill: Nobisect doubling every kill now also counts when that god comes from a pocket divinity, from the World 7 chosen god, or from an Elemental Sorcerer second link',
+      'Stamps: material costs now round the same way the game does, so cheap stamps no longer read one material above the in-game price',
+      'Sigils: every sigil bonus now includes the meritocracy multiplier, which the game applies and the site was leaving out'
     ]
   },
   {
