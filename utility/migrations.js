@@ -1481,6 +1481,27 @@ const migration66 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration67 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
+  const zenithMarket = dashboardConfig?.account?.['World 7']?.zenithMarket;
+  // Cluster Farming state alert. Both states are legitimate, so it's an array option rather than a
+  // plain checkbox - the user picks which state(s) they want to be told about.
+  if (zenithMarket && !zenithMarket.options?.some((option) => option?.name === 'clusterFarming')) {
+    zenithMarket.options = [
+      ...(zenithMarket.options ?? []),
+      {
+        name: 'clusterFarming',
+        type: 'array',
+        category: 'Alert when Cluster Farming is',
+        props: { value: { Off: true, On: false } },
+        checked: true
+      }
+    ];
+  }
+  dashboardConfig.version = 67;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1549,6 +1570,7 @@ const migrations = {
   64: migration64,
   65: migration65,
   66: migration66,
+  67: migration67,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

@@ -606,6 +606,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={'You can afford Double Clusters upgrade'}
                   iconPath={'etc/Cluster'}/> : null}
+              {alerts?.['World 7']?.zenithMarket?.clusterFarming ?
+                <Alert
+                  title={`Zenith Cluster Farming is ${alerts?.['World 7']?.zenithMarket?.clusterFarming}`}
+                  iconPath={'etc/Cluster'}/> : null}
               {alerts?.['World 7']?.construction?.jeweledCogs ?
                 <Alert
                   title={`You have ${alerts?.['World 7']?.construction?.jeweledCogs?.available} jeweled cog pull${alerts?.['World 7']?.construction?.jeweledCogs?.available > 1

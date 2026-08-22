@@ -14,7 +14,8 @@ export const patchNotes = [
       'Cooking: the NMLB sort now lists the upcoming No Meal Left Behind procs in order, showing which meal each free level lands on and the ladles it saves. A meal that lags behind takes several procs in a row before anything else is touched',
       'Speedrun page for Voidwalkers: portal highscore and the bonuses it feeds, every portal grouped by world with kill costs and your clear times, and a breakdown of what drives your portal progress.',
       'Sushi Station: new Spark Multi and Overtuned Multi cards, each with a breakdown of how fast it grows and the next three breakpoints with time estimates',
-      'Traps: a new Shiny line shows your shiny critter multiplier and how many shinies land per drop, with a breakdown of every source feeding it and the resulting chance for each critter. The Collect as picker now lists your characters instead of Hunter and Non Hunter, and it drives both the collect rates and the shiny numbers'
+      'Traps: a new Shiny line shows your shiny critter multiplier and how many shinies land per drop, with a breakdown of every source feeding it and the resulting chance for each critter. The Collect as picker now lists your characters instead of Hunter and Non Hunter, and it drives both the collect rates and the shiny numbers',
+      'Dashboard: a new alert shows whether Zenith Cluster Farming is on or off. Pick the state you want to be told about, or both to always see the current one'
     ],
     'fixes': [
       'Cooking: the meal filter showed a "max each" ladle figure and told you to withdraw that much per meal. A ladle stack is spent in full when you use it, so that over-pulled on every meal except the priciest. Removed: use the figure on each meal card',

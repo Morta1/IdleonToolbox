@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 66,
+  version: 67,
   account: {
     General: {
       tasks: {
@@ -472,7 +472,16 @@ const baseTrackers = {
       },
       zenithMarket: {
         checked: true,
-        options: [{ name: 'doubleCluster', checked: true }]
+        options: [
+          { name: 'doubleCluster', checked: true },
+          {
+            name: 'clusterFarming',
+            type: 'array',
+            category: 'Alert when Cluster Farming is',
+            props: { value: { Off: true, On: false } },
+            checked: true
+          }
+        ]
       },
       construction: {
         checked: true,

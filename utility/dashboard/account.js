@@ -1334,6 +1334,22 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
         }
       }
     }
+    const clusterFarming = options?.zenithMarket?.clusterFarming;
+    if (clusterFarming?.checked) {
+      // OptionsListAccount[487] is the in-game Cluster Farming toggle (1 = on), and [488] flips to 1
+      // the first time it's ever switched on. Both states are legitimate - on converts 1M statues
+      // into a cluster, off keeps levelling statues - so the alert only fires for the state(s) the
+      // user asked to be told about.
+      const isOn = account?.accountOptions?.[487] === 1;
+      const clusters = account?.zenith?.clusters ?? 0;
+      const unlocked = isOn
+        || clusters > 0
+        || account?.accountOptions?.[488] === 1
+        || account?.statueGrades?.some((grade) => grade >= 3);
+      if (unlocked && clusterFarming?.props?.value?.[isOn ? 'On' : 'Off']) {
+        zenithMarket.clusterFarming = isOn ? 'ON' : 'OFF';
+      }
+    }
     if (Object.keys(zenithMarket).length > 0) {
       alerts.zenithMarket = zenithMarket;
     }
