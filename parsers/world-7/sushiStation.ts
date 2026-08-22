@@ -15,8 +15,30 @@ const getRawSushi = (idleonData: any) => {
   return Array.isArray(raw) ? raw : [];
 };
 
-const log2 = (x: number) => x > 0 ? Math.log(x) / Math.log(2) : 0;
-const getLOG = (x: number) => x > 0 ? Math.log(Math.max(x, 1)) / 2.302585 : 0;
+const log2 = (x: number) => Math.log(Math.max(x, 1)) / Math.log(2);
+const getLOG = (x: number) => Math.log(Math.max(x, 1)) / 2.302585;
+
+// Both the spark and overtuned multis are `coefficient * ln(raw / scale)` percentages, and the
+// game renders them as Math.round(100 * (1 + pct / 100)) / 100 - so the displayed multiplier
+// ticks up every whole percent. Inverting gives the raw amount each next tick needs.
+const SPARK_COEFFICIENT = 0.2 / Math.log(2) + 1 / 2.302585;
+const OVERTUNED_COEFFICIENT = 5 / Math.log(2) + 10 / 2.302585;
+
+const getNextBreakpoints = (currentPct: number, coefficient: number, scale: number, raw: number, perHr: number,
+                            hoursOffset = 0, count = 3) => {
+  const nextStep = Math.floor(currentPct + 0.5) + 1;
+  return Array.from({ length: count }, (_, i) => {
+    const step = nextStep + i;
+    const required = scale * Math.exp((step - 0.5) / coefficient);
+    const remaining = Math.max(0, required - raw);
+    return {
+      multi: (100 + step) / 100,
+      required,
+      remaining,
+      hours: perHr > 0 ? hoursOffset + remaining / perHr : null
+    };
+  });
+};
 
 const getUpgradeQTY = (upgradeLevels: number[], idx: number) => {
   const upgrade = (sushiUpgradesData as any)?.[idx];
@@ -157,6 +179,10 @@ export const getSushiStation = (idleonData: any, account: any) => {
     ? 0.2 * log2(sparks) + getLOG(sparks)
     : 0;
 
+  // Each purple (Potassium) fireplace generates 1 spark per second
+  const potassiumCount = fireplaceTypes.slice(0, 15).filter((type: number) => type === 4).length;
+  const sparksPerHr = 3600 * potassiumCount;
+
   // Orange fire sum (for fuel gen)
   let orangeFireSum = 0;
   for (let i = 0; i < 120; i++) {
@@ -186,6 +212,12 @@ export const getSushiStation = (idleonData: any, account: any) => {
   const overtunedMulti = overtunedValue > 1e6
     ? 5 * log2(overtunedValue / 1e6) + 10 * getLOG(overtunedValue / 1e6)
     : 0;
+
+  // Overtuned Fuel (upgrade 28) converts every point of fuel generated while at max capacity,
+  // so once fuel sits at the cap the whole fuel generation feeds the overtuned total.
+  const overtunedUnlocked = (Number(upgradeLevels?.[28]) || 0) >= 1;
+  const overtunedPerHr = overtunedUnlocked ? fuelGen : 0;
+  const hoursToFuelCap = fuelGen > 0 && fuel < fuelCap ? (fuelCap - fuel) / fuelGen : 0;
 
   // Currency multiplier — full formula matching game's customBlock_SushiStuff("CurrencyMulti")
   const arcadeBonus67 = getArcadeBonus(account?.arcade?.shop, 'Sushi_Bucks')?.bonus ?? 0;
@@ -344,8 +376,25 @@ export const getSushiStation = (idleonData: any, account: any) => {
     unlocked,
     uniqueSushi,
     fuel: { current: fuel, cap: fuelCap, generation: fuelGen },
-    currency: { bucks, currencyMulti, currencyPerHR, overtunedMulti },
+    currency: {
+      bucks, currencyMulti, currencyPerHR, overtunedMulti,
+      overtuned: {
+        value: overtunedValue,
+        multi: overtunedMulti,
+        perHr: overtunedPerHr,
+        unlocked: overtunedUnlocked,
+        hoursToFuelCap,
+        nextBreakpoints: getNextBreakpoints(overtunedMulti, OVERTUNED_COEFFICIENT, 1e6, overtunedValue,
+          overtunedPerHr, hoursToFuelCap)
+      }
+    },
     sparks,
+    sparkBonus: {
+      multi: fireplaceSparkMulti,
+      perHr: sparksPerHr,
+      potassiumCount,
+      nextBreakpoints: getNextBreakpoints(fireplaceSparkMulti, SPARK_COEFFICIENT, 1, sparks, sparksPerHr)
+    },
     slots,
     upgrades,
     knowledge,

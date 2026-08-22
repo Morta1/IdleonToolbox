@@ -11,7 +11,8 @@ export const patchNotes = [
       'Clam Work: a new Upgrade Optimizer tab picks the next upgrades to buy, either for pearl gain or for cost reduction. The page also shows pearl value, black pearl value, clam mobs and clam HP for a chosen character, with a multikill you can override',
       'Active Stuff Calculator: the pets section now tracks breedability progress alongside shiny progress, with gain per minute and per hour',
       'Dashboard: the closest salt timer can now be narrowed to specific salts, so you can track only the ones you care about',
-      'Cooking: the NMLB sort now lists the upcoming No Meal Left Behind procs in order, showing which meal each free level lands on and the ladles it saves. A meal that lags behind takes several procs in a row before anything else is touched'
+      'Cooking: the NMLB sort now lists the upcoming No Meal Left Behind procs in order, showing which meal each free level lands on and the ladles it saves. A meal that lags behind takes several procs in a row before anything else is touched',
+      'Sushi Station: new Spark Multi and Overtuned Multi cards, each with a breakdown of how fast it grows and the next three breakpoints with time estimates'
     ],
     'fixes': [
       'Cooking: the meal filter showed a "max each" ladle figure and told you to withdraw that much per meal. A ladle stack is spent in full when you use it, so that over-pulled on every meal except the priciest. Removed: use the figure on each meal card',
