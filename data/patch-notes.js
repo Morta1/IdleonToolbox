@@ -7,7 +7,9 @@ export const patchNotes = [
     'ver': '3.3.64',
     'gameVer': '2.3.523',
     'date': '22/08/2026',
-    'features': [],
+    'features': [
+      'Clam Work: a new Upgrade Optimizer tab picks the next upgrades to buy, either for pearl gain or for cost reduction. The page also shows pearl value, black pearl value, clam mobs and clam HP for a chosen character, with a multikill you can override'
+    ],
     'fixes': [
       'Prayers: for characters with no prayers equipped, only the first of the three "no prayers equipped" superbits was counted, so every prayer bonus they grant was paid at a fifth instead of up to three fifths. This fed through to Accuracy, Defence and Damage',
       'Equipment: keychains with an upgrade stone lost their own Defence and Weapon Power, counting for less than they do in game',
@@ -15,7 +17,11 @@ export const patchNotes = [
       'Defence was rounded at the wrong point in the calculation, landing a few hundred above the in-game value',
       "Talents: account-wide talent bonuses were read from the highest-level character of that talent's own class. The game checks every character regardless of class, so a talent that appears on several class pages, like The Family Guy, could be read off the wrong one. This affects skill EXP, class EXP, drop rate, cash multiplier and AFK gains",
       'Talents: added levels were counted in two places the game leaves them out: talents whose level sits in a range the game excludes, and the second bonus line of a talent. Both read higher than in game',
-      'Dashboard: the syphon charge timer now turns red when the charge is full, instead of quietly showing "Full" in plain text'
+      'Dashboard: the syphon charge timer now turns red when the charge is full, instead of quietly showing "Full" in plain text',
+      'Multikill: the base rate left out onyx statues and read the wrong stamp, and the per tier rate left out the sneaking mini boss deathnote page, measurements, cards, star signs and the card set. From World 6 onwards the game also runs both through a diminishing curve and counts overkill tiers in steps of 5 instead of 2, so multikill totals there read around ten times too high',
+      'Kill Per Kill read far above the in-game value. The three skull talents stop counting from World 6, the world bonus for World 5 and up was missing, and the family, voting, lab, companion and equipment multipliers, along with several flat sources, were never added',
+      'Damage: the +% Total Damage Multiplier family bonus was read from your highest level Elemental Sorcerer instead of your highest level Arcane Cultist',
+      'Kill Per Kill: Nobisect doubling every kill now also counts when that god comes from a pocket divinity, from the World 7 chosen god, or from an Elemental Sorcerer second link'
     ]
   },
   {
