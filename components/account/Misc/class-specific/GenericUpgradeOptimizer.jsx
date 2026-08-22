@@ -39,6 +39,11 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 
 const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
 const groupModes = ['None', 'Upgrade', 'Summary'];
+// Not every upgrade set has a max level - clam work upgrades are uncapped, and "5 / undefined"
+// reads as a bug.
+const formatLevel = (upgrade) => (Number.isFinite(upgrade?.x4)
+  ? `${upgrade.level} / ${upgrade.x4}`
+  : `${upgrade.level}`);
 const GenericUpgradeOptimizer = ({
   character,
   account,
@@ -51,16 +56,27 @@ const GenericUpgradeOptimizer = ({
   getResourceType,
   getUpgradeIconIndex,
   getResourceAmount,
-  tooltipText
+  tooltipText,
+  defaultCategory = 'damage',
+  showMasterclassReduction = true,
+  showSplitByResource = true,
+  statLabels
 }) => {
+  // Stat keys are camelCase, which reads as "PearlGain" once capitalised.
+  const statLabel = (stat) => statLabels?.[stat] ?? (stat.charAt(0).toUpperCase() + stat.slice(1));
   const [viewMode, setViewMode] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:viewMode`,
     defaultValue: 'grid'
   });
-  const [category, setCategory] = useLocalStorage({
+  const [storedCategory, setCategory] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:category`,
-    defaultValue: 'damage'
+    defaultValue: defaultCategory
   });
+  // Categories differ per consumer, and the stored value outlives them. Falling back keeps a key
+  // left over from another optimizer (or a renamed category) from reaching the parser as undefined.
+  const category = storedCategory === 'all' || upgradeCategories?.[storedCategory]
+    ? storedCategory
+    : defaultCategory;
   const [maxUpgrades, setMaxUpgrades] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:maxUpgrades`,
     defaultValue: 10
@@ -81,10 +97,11 @@ const GenericUpgradeOptimizer = ({
     key: `${resourceKey}:genericUpgradeOptimizer:groupMode`,
     defaultValue: 'None'
   });
-  const [splitByResource, setSplitByResource] = useLocalStorage({
+  const [storedSplitByResource, setSplitByResource] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:splitByResource`,
     defaultValue: false
   });
+  const splitByResource = showSplitByResource && storedSplitByResource;
   const [AffordableCheckboxEl, onlyAffordable] = useCheckbox('Only affordable');
   // const [MasterclassReductionCheckbox, masterClassReduction] = useCheckbox('Masterclass reduction');
   const [masterClassReduction, setMasterClassReduction] = useLocalStorage({
@@ -368,7 +385,7 @@ const GenericUpgradeOptimizer = ({
     const rebuildTime = getRebuildTime(upgrade);
     return statChanges.map((change, index) => (
       <Typography key={index} variant="body2" component="div">
-        {change.stat.charAt(0).toUpperCase() + change.stat.slice(1)}: {formatChange(change.change)} ({formatPercentChange(change.percentChange)})
+        {statLabel(change.stat)}: {formatChange(change.change)} ({formatPercentChange(change.percentChange)})
         {renderHoardingNote(change, rebuildTime)}
       </Typography>
     ));
@@ -384,7 +401,7 @@ const GenericUpgradeOptimizer = ({
         </Typography>
         {upgrade.combinedStatChanges.map((statChange, index) => (
           <Typography key={index} variant="body2" component="div">
-            {statChange.stat.charAt(0).toUpperCase() + statChange.stat.slice(1)}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
+            {statLabel(statChange.stat)}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
             {renderHoardingNote(statChange, getRebuildTime(upgrade))}
           </Typography>
         ))}
@@ -489,7 +506,7 @@ const GenericUpgradeOptimizer = ({
               <Typography variant="subtitle1">
                 {cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '')
                   .replace('(Tap_for_more_info)', '')
-                  .replace('(#)', ''))} ({upgrade.level} / {upgrade.x4})
+                  .replace('(#)', ''))} ({formatLevel(upgrade)})
                 {renderUnlockChip(upgrade)}
               </Typography>
               <Typography variant="caption" color="text.secondary">
@@ -564,7 +581,7 @@ const GenericUpgradeOptimizer = ({
           {cleanUnderscore(upgrade.name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))}
           {renderUnlockChip(upgrade)}
         </TableCell>
-        <TableCell>{upgrade.level} / {upgrade.x4}</TableCell>
+        <TableCell>{formatLevel(upgrade)}</TableCell>
         <TableCell>
           {hasSequence && upgrade.combinedStatChanges
             ? (
@@ -694,32 +711,36 @@ const GenericUpgradeOptimizer = ({
             ))}
           </Select>
         </FormControl>
-        <FormControlLabel
-          sx={{ width: 'fit-content' }}
-          control={<Checkbox
-            checked={splitByResource}
+        {showSplitByResource && (
+          <FormControlLabel
+            sx={{ width: 'fit-content' }}
+            control={<Checkbox
+              checked={splitByResource}
+              size="small"
+              onChange={() => setSplitByResource(prev => !prev)}
+            />}
+            label="Split by resource"
+          />
+        )}
+        {showMasterclassReduction && (
+          <TextField
             size="small"
-            onChange={() => setSplitByResource(prev => !prev)}
-          />}
-          label="Split by resource"
-        />
-        <TextField
-          size="small"
-          type="number"
-          inputProps={{ min: 0 }}
-          sx={{ width: 160 }}
-          label="Masterclass reductions"
-          value={masterClassReduction}
-          onChange={(e) => {
-            const v = parseInt(e.target.value, 10);
-            if (isNaN(v)) {
-              setMasterClassReduction('');
-            }
-            else {
-              setMasterClassReduction(Math.max(0, v));
-            }
-          }}
-        />
+            type="number"
+            inputProps={{ min: 0 }}
+            sx={{ width: 160 }}
+            label="Masterclass reductions"
+            value={masterClassReduction}
+            onChange={(e) => {
+              const v = parseInt(e.target.value, 10);
+              if (isNaN(v)) {
+                setMasterClassReduction('');
+              }
+              else {
+                setMasterClassReduction(Math.max(0, v));
+              }
+            }}
+          />
+        )}
         <Tooltip title={tooltipText}> <IconInfoCircleFilled size={16} /> </Tooltip>
         <Stack>
           <AffordableCheckboxEl />

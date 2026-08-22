@@ -239,7 +239,7 @@ export const PAGES = {
         { label: 'LegendTalents', icon: 'etc/Whallamus', tabs: [] },
         { label: 'coralReef', icon: 'data/ReefA1', tabs: ['Reef Upgrades', 'Dancing Coral'] },
         { label: 'zenithMarket', icon: 'etc/Cluster', tabs: [] },
-        { label: 'clamWork', icon: 'data/ClamPearl0', tabs: ['Upgrades', 'Compensations'] },
+        { label: 'clamWork', icon: 'data/ClamPearl0', tabs: ['Upgrades', 'Upgrade Optimizer', 'Compensations'] },
         { label: 'adviceFish', icon: 'data/W7_fish', tabs: [] },
         { label: 'minehead', icon: 'data/MineHead0', tabs: ['Upgrades', 'Opponents'] },
         { label: 'glimbo', icon: 'afk_targets/Glimbo', tabs: [] },
