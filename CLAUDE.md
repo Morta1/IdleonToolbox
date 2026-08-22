@@ -34,7 +34,12 @@ alwaysApply: true
 ## Testing
 When testing add "http://localhost:3001?demo=true" to be able to access all pages without login in
 
-E2E gotchas (`npm run test:e2e` — builds, then serves `out/` on **3002**; `test:e2e:nobuild` reuses `out/`):
+Ports are per-worktree so several sessions can run at once. The main worktree is slot 0 (dev 3001,
+e2e 3002); a worktree created by `npm run worktree <branch>` gets the next free slot and a
+`.worktree-slot` marker, which `utility/ports.mjs` and `playwright.config.js` read. Substitute your
+slot's dev port anywhere this file says 3001.
+
+E2E gotchas (`npm run test:e2e` — builds, then serves `out/` on the slot's e2e port; `test:e2e:nobuild` reuses `out/`):
 - E2E runs against the **static export, not `next dev`**. A stale `out/` tests old code.
 - Never `waitForLoadState('networkidle')` — ad scripts never let it settle. Use `waitForRender` from `e2e/wait-helpers.js`.
 - Navigate with relative paths; the port lives only in `playwright.config.js`'s `baseURL`.
