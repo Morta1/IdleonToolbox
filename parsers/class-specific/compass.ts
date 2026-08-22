@@ -551,7 +551,7 @@ const getTotalBonusText = (index: number, bonus: number, accountData: any): stri
     case 34:
       return commaNotation(bonus * dustOwned(2));
     case 36:
-      return notateNumber(100 * (1 - 1 / (1 + bonus / 100)), 'Small');
+      return String(notateNumber(100 * (1 - 1 / (1 + bonus / 100)), 'Small'));
     default:
       return null;
   }
