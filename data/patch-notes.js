@@ -29,7 +29,8 @@ export const patchNotes = [
       'Stamps: material costs now round the same way the game does, so cheap stamps no longer read one material above the in-game price',
       'Sigils: every sigil bonus now includes the meritocracy multiplier, which the game applies and the site was leaving out',
       'Worship: the "First to full" card skipped characters that were already fully charged, naming someone still charging instead',
-      'Gaming: the Palette final bonus was multiplied by the painter legend talent, which the game only applies to each colour, level up chances were capped at "1 in 1", and locked colours showed an unlock chance even when they were nowhere near a colour you own'
+      'Gaming: the Palette final bonus was multiplied by the painter legend talent, which the game only applies to each colour, level up chances were capped at "1 in 1", and locked colours showed an unlock chance even when they were nowhere near a colour you own',
+      'Library: the Library Checkouts superbit was read from your best gamer, while the game uses the character you last played, so books arrived early and the book count could read one ahead. The 16, 18 and 20 book breakpoints also subtracted time that had already been turned into books, which hid them'
     ]
   },
   {

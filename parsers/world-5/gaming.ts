@@ -383,9 +383,16 @@ const calcSuperbitBonus = (characters: any, account: any, index: any) => {
     additionalInfo = `Total Bonus: ${bonus}% (${totalWaves} waves)`
   }
   else if (index === 12) {
-    // skill level doesn't update if the character is away for a long time
-    const highestGaming = getHighestCharacterSkill(characters, 'gaming');
-    totalBonus = Math.floor(highestGaming);
+    // The game multiplies this superbit by Lv0[15] of the character you're logged in as, not by the
+    // account's best gamer, so using the highest level made the library book timer run fast for
+    // anyone whose last-played character wasn't their top gamer. getBestActiveCharacter recovers
+    // that character from the newest PTimeAway stamp, which is also the only one whose skill levels
+    // aren't frozen at the moment it was left.
+    const activeCharacter = getBestActiveCharacter(characters);
+    const activeGaming = activeCharacter
+      ? activeCharacter?.skillsInfo?.gaming?.level ?? 0
+      : getHighestCharacterSkill(characters, 'gaming');
+    totalBonus = Math.floor(activeGaming);
   }
   else if (index === 20) {
     bonus = Math.floor(totalWaves / 10) * 50;

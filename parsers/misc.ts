@@ -262,11 +262,10 @@ export const getBookLvRange = (account: any) => {
 
 export const getLibraryBookTimes = (idleonData: any, characters: any, account: any) => {
   const { bookCount, libTime, breakdown } = calcBookCount(account, characters, idleonData);
-  const timeAway = account?.timeAway;
   let breakpoints = [16, 18, 20].map((maxCount) => {
     return {
       breakpoint: maxCount,
-      time: calcTimeToXBooks(bookCount, maxCount, account, characters, idleonData) - (timeAway?.BookLib ?? 0)
+      time: calcTimeToXBooks(bookCount, maxCount, account, characters, idleonData) - libTime
     }
   })
   breakpoints = [...breakpoints,
