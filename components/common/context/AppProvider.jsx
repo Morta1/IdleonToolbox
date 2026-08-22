@@ -428,7 +428,9 @@ const AppProvider = ({ children }) => {
             if (appleCredential?.id_token) {
               id_token = appleCredential;
             }
-          } else {
+          } else if (state?.loginType === 'google') {
+            // Anything else (a poll armed a tick before loginType landed) falls through to the
+            // counter checks below instead of hitting google with an undefined device code.
             const user = (await getUserToken(state?.loginData?.deviceCode)) || {};
             id_token = user?.id_token;
 

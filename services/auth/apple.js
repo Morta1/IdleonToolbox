@@ -1,4 +1,9 @@
-const appleAuthorize = async ({ device_code, h_nonce, statusToken }) => {
+// Safari (and every iOS browser, they're all WKWebView) only allows window.open from inside the
+// click handler itself, so the popup is opened empty on click and pointed at apple once the
+// device code arrives.
+const openAuthPopup = () => window.open('', '_blank', 'popup');
+
+const appleAuthorize = async ({ device_code, h_nonce, statusToken }, popup) => {
   const params = new URLSearchParams({
     client_id: "com.lavaflame.idleon.service.signin",
     nonce: h_nonce,
@@ -9,7 +14,12 @@ const appleAuthorize = async ({ device_code, h_nonce, statusToken }) => {
     code: device_code,
     state: statusToken
   })
-  window.open(`https://appleid.apple.com/auth/authorize?${params.toString()}`, '_blank', 'popup');
+  const url = `https://appleid.apple.com/auth/authorize?${params.toString()}`;
+  if (popup && !popup.closed) {
+    popup.location.href = url;
+  } else {
+    window.open(url, '_blank', 'popup');
+  }
 }
 
 const getAppleCode = async () => {
@@ -39,6 +49,7 @@ const geAppleStatus = async ({ device_code, statusToken }) => {
 }
 
 export {
+  openAuthPopup,
   appleAuthorize,
   getAppleCode,
   geAppleStatus
