@@ -127,6 +127,10 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const { timeAway, voteBallot } = account || {};
   const bonusTimeLeft = timeAway ? (604800 - (timeAway?.GlobalTime + 197860 - 604800 * Math.floor((timeAway?.GlobalTime + 197860) / 604800))) * 1000 : 0;
   const meritocracyTimeLeft = timeAway ? (604800 - (timeAway?.GlobalTime + 543460 - 604800 * Math.floor((timeAway?.GlobalTime + 543460) / 604800))) * 1000 : 0;
+  // Server-wide weekly boundary (weekly bosses, jewel spinner / chip repo, exotic market). Those all
+  // roll on floor(GlobalTime / 604800), which is unrelated to the account's own weekly reset.
+  const serverWeeklyTimeLeft = timeAway ? (604800 - (timeAway?.GlobalTime - 604800 * Math.floor(timeAway?.GlobalTime / 604800))) * 1000 : 0;
+  const serverWeeklyReset = now + serverWeeklyTimeLeft;
   const nextVoteBonus = now + bonusTimeLeft;
   const nextMeritocracyVote = now + meritocracyTimeLeft;
   const hasVotedBonus = !!voteBallot?.selectedBonus?.[0];
@@ -206,17 +210,27 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
     <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
       {!emptyAlerts?.General && <Section title={'General'}>
         {trackers?.General?.daily?.checked && <TimerCard
-          tooltipContent={'Daily reset'}
+          tooltipContent={`Daily reset: ${getRealDateInMs(dailyReset)}`}
           lastUpdated={lastUpdated}
           time={dailyReset}
           icon={'etc/Daily.png'}
         />}
         {trackers?.General?.weekly?.checked && <TimerCard
-          tooltipContent={'Weekly reset'}
+          tooltipContent={`Weekly reset: ${getRealDateInMs(weeklyReset)}`}
           lastUpdated={lastUpdated}
           time={weeklyReset}
           icon={'etc/Weekly.png'}
         />}
+        {trackers?.General?.serverWeekly?.checked && timeAway ? <TimerCard
+          tooltipContent={<Stack gap={0.5}>
+            <Typography variant="body2">Server weekly reset: {getRealDateInMs(serverWeeklyReset)}</Typography>
+            <Divider/>
+            <Typography variant="body2">Weekly bosses, jewel spinner, chip repo, exotic market</Typography>
+          </Stack>}
+          lastUpdated={lastUpdated}
+          time={serverWeeklyReset}
+          icon={'etc/Server.png'}
+        /> : null}
         {trackers?.General?.companions?.checked && <TimerCard
           page={'account/prem-currency/companions'}
           tooltipContent={'Next companion claim: ' + getRealDateInMs(nextCompanionClaim)}

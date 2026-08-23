@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 66,
+  version: 67,
   account: {
     General: {
       tasks: {
@@ -676,6 +676,7 @@ const baseTrackers = {
     General: {
       daily: { checked: true, options: [] },
       weekly: { checked: true, options: [] },
+      serverWeekly: { checked: true, options: [] },
       companions: { checked: true, options: [] },
       syphonCharge: { checked: true, options: [] },
       closestFullWorship: { checked: true, options: [] },

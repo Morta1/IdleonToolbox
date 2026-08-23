@@ -1563,6 +1563,23 @@ const migration66 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+export const migration67 = (config) => {
+  let dashboardConfig = { ...config };
+  if (!dashboardConfig) {
+    dashboardConfig = {};
+  }
+
+  if (dashboardConfig?.timers?.General && !dashboardConfig.timers.General.serverWeekly) {
+    dashboardConfig.timers.General = {
+      ...dashboardConfig.timers.General,
+      serverWeekly: { checked: true, options: [] }
+    };
+  }
+
+  dashboardConfig.version = 67;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1631,6 +1648,7 @@ const migrations = {
   64: migration64,
   65: migration65,
   66: migration66,
+  67: migration67,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

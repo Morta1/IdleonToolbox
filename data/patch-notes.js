@@ -14,7 +14,9 @@ export const patchNotes = [
       "Dashboard: new alerts for the Arcanist weapon and ring drops left today, and for the Top of the Mornin' kills left today",
       'Dashboard: the Printer atoms alert can now exclude every refinery salt material, so the mats you park in the printer for the refinery stop setting it off',
       'Refinery: a new salt chain table shows what each salt produces and consumes per hour, its balance, and the highest rank it can reach without starving the salt before it',
-      'Dashboard: a new alert warns when a salt is at or past the rank the previous salt can keep fuelled. It can also tell you which salts still have room to rank up'
+      'Dashboard: a new alert warns when a salt is at or past the rank the previous salt can keep fuelled. It can also tell you which salts still have room to rank up',
+      'Dashboard: a new timer counts down to the server weekly reset, the one that rolls the weekly bosses, jewel spinner, chip repo and exotic market',
+      'Dashboard: the daily and weekly reset timers now show the exact reset date and time in their tooltip'
     ],
     'fixes': [
       'Refinery: auto refine was shown as a percentage, so it read 0% or 0.01%. It is an on/off toggle in game and now says On or Off'
