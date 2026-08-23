@@ -18,7 +18,8 @@ export const patchNotes = [
       'Dashboard: a new timer counts down to the server weekly reset, the one that rolls the weekly bosses, jewel spinner, chip repo and exotic market',
       'Dashboard: the daily and weekly reset timers now show the exact reset date and time in their tooltip',
       'Worship: a new Total Max Waves card on the Totems tab sums your best wave across every totem',
-      'Dashboard: a new alert shows how many Blinding Lanterns you can still use today, out of the daily cap of 12'
+      'Dashboard: a new alert shows how many Blinding Lanterns you can still use today, out of the daily cap of 12',
+      'Dashboard: a new alert tells you when you have enough pearls for a Clamworks worker class promotion'
     ],
     'fixes': [
       'Refinery: auto refine was shown as a percentage, so it read 0% or 0.01%. It is an on/off toggle in game and now says On or Off'

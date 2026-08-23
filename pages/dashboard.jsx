@@ -561,6 +561,14 @@ const baseTrackers = {
           { name: 'knowledgeLevelUp', checked: true },
         ]
       },
+      clamWork: {
+        checked: true,
+        options: [{
+          name: 'promotionAffordable',
+          checked: true,
+          helperText: 'Pearls are spent even when the promotion fails, and a successful one resets your pearls and every clam upgrade'
+        }]
+      },
       theButton: {
         checked: true,
         options: [

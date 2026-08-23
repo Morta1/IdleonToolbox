@@ -83,7 +83,9 @@ const ClamWork = () => {
       />
       <CardTitleAndValue
         title={'Promotion Cost'}
-        value={promotionCost ?? '0'}
+        value={1e6 > (promotionCost ?? 0)
+          ? commaNotation(promotionCost ?? 0)
+          : notateNumber(promotionCost ?? 0, 'Big')}
       />
       <CardTitleAndValue
         title={'Pearl Value Multiplier'}

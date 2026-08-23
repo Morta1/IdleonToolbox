@@ -1586,6 +1586,27 @@ export const migration67 = (config) => {
     });
   }
 
+  const world7 = dashboardConfig?.account?.['World 7'];
+  // Rebuild the group so Clam Work lands before The Button, matching baseTrackers - plain
+  // assignment would append it last (object key order drives the settings UI ordering).
+  if (world7 && !world7.clamWork) {
+    const clamWork = {
+      checked: true,
+      options: [{
+        name: 'promotionAffordable',
+        checked: true,
+        helperText: 'Pearls are spent even when the promotion fails, and a successful one resets your pearls and every clam upgrade'
+      }]
+    };
+    const ordered = {};
+    for (const [tracker, value] of Object.entries(world7)) {
+      if (tracker === 'theButton') ordered.clamWork = clamWork;
+      ordered[tracker] = value;
+    }
+    if (!ordered.clamWork) ordered.clamWork = clamWork;
+    dashboardConfig.account['World 7'] = ordered;
+  }
+
   dashboardConfig.version = 67;
   return dashboardConfig;
 };
