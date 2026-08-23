@@ -922,6 +922,10 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
   };
 }
 
+// How much of a golden food you have to OWN to raise it to the next beanstalk rank, indexed by its
+// current rank. Rank 3 is maxed, so there's no fourth entry.
+export const BEANSTALK_BREAKPOINTS = [10000, 100000, 1e6];
+
 const goldenFoodEffects: Record<string, string> = (() => {
   const map: Record<string, string> = {};
   for (const item of Object.values(items as Record<string, any>)) {

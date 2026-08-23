@@ -9,10 +9,9 @@ import { addEquippedItems, findItemInInventory, getAllItems, mergeItemsByOwner }
 import Tooltip from '@components/Tooltip';
 import { Breakdown } from '@components/common/styles';
 import ItemDisplay from '@components/common/ItemDisplay';
-import { getGoldenFoodMulti, getGoldenFoodBonus } from '@parsers/misc';
+import { BEANSTALK_BREAKPOINTS, getGoldenFoodMulti, getGoldenFoodBonus } from '@parsers/misc';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
-const breakpoints = [10000, 100000, 1e6];
 const Beanstalk = () => {
   const { state } = useContext(AppContext);
   const beanstalkData = state?.account?.sneaking?.beanstalkData;
@@ -88,9 +87,9 @@ const Beanstalk = () => {
                 <img width={42} height={42} src={`${prefix}data/${rawName}.png`} alt={displayName}/>
               </Tooltip>
               <Stack direction={'row'} gap={1}>
-                {breakpoints?.[rank] ? <Typography color={total >= breakpoints?.[rank]
+                {BEANSTALK_BREAKPOINTS?.[rank] ? <Typography color={total >= BEANSTALK_BREAKPOINTS?.[rank]
                     ? 'success.light'
-                    : ''}>{notateNumber(total)} / {notateNumber(breakpoints?.[rank])}</Typography> :
+                    : ''}>{notateNumber(total)} / {notateNumber(BEANSTALK_BREAKPOINTS?.[rank])}</Typography> :
                   <Typography>Maxed</Typography>}
                 <Tooltip title={<Breakdown breakdown={breakdown} titleStyle={{ width: 170 }}/>}>
                   <IconInfoCircleFilled size={22}/>

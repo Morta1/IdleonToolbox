@@ -431,6 +431,14 @@ const baseTrackers = {
           { name: 'remainingSymbolRolls', checked: true }
         ]
       },
+      beanstalk: {
+        checked: true,
+        options: [{
+          name: 'readyToPlant',
+          checked: true,
+          helperText: 'Alert when you own enough of a golden food to rank it up on the beanstalk'
+        }]
+      },
       farming: {
         checked: true,
         options: [
