@@ -696,7 +696,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 7']?.minehead?.currencyUpgrades?.length > 0 ?
                 alerts?.['World 7']?.minehead?.currencyUpgrades?.map((upgrade) => <Alert
                   key={`minehead-upgrade-${upgrade?.index}`}
-                  title={`You can afford ${cleanUnderscore(upgrade?.name)} (Lv. ${upgrade?.level})`}
+                  title={`You can afford ${cleanUnderscore(upgrade?.name)} Lv. ${upgrade?.level + 1} (${notateNumber(upgrade?.cost, 'Big')})`}
                   iconPath={`data/MineUpg${upgrade?.index}`}/>) : null}
               {alerts?.['World 7']?.research?.observationRollsLeft ?
                 <Alert

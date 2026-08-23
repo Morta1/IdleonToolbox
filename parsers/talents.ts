@@ -154,7 +154,7 @@ export const getAllTalentAddedLevels = (baseLevel: number, activeCharacter: any)
 // highest added levels, which is the ceiling of the range.
 export const getBestActiveCharacter = (characters: any) => {
   const mostRecent = characters?.reduce((best: any, character: any) => (
-    Number.isFinite(character?.afkTime) && character.afkTime > (best?.afkTime ?? -Infinity)
+    Number.isFinite(character?.afkTime) && character.afkTime > 0 && character.afkTime > (best?.afkTime ?? 0)
       ? character
       : best
   ), null);

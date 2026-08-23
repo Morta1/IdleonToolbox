@@ -54,11 +54,4 @@ describe('minehead currency upgrade alert', () => {
     expect(alerts?.minehead?.currencyUpgrades).toBeUndefined();
   });
 
-  it('ignores upgrades that are maxed or research locked', () => {
-    const alerts = getWorld7Alerts(withUpgrades({
-      5: { canAfford: false, isMaxed: true },
-      22: { canAfford: false, isLocked: true }
-    }), fields, optionsWith(allSelected), characters);
-    expect(alerts?.minehead?.currencyUpgrades).toBeUndefined();
-  });
 });

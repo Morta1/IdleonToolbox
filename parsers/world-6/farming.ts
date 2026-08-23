@@ -910,7 +910,7 @@ const getLandRankGoalOfUpgrade = (index: any) => Object.keys(LAND_RANK_GOALS)
  * covers four unrelated stats, so it sums their logs instead.
  */
 const getLandRankGoalScore = (goal: any, bonusAt: any, context: any) => {
-  const { plotRanks, voteBonus, cropValueConstant, cropValueCap } = context;
+  const { plotRanks, plotPrevRanks, voteBonus, cropValueConstant, cropValueCap } = context;
   const b = (index: any) => bonusAt(index);
   if ('evolution' === goal) {
     // A plot already sitting at 100% evolution chance is capped for the crop it currently grows,
@@ -930,10 +930,11 @@ const getLandRankGoalScore = (goal: any, bonusAt: any, context: any) => {
       sum + Math.min(cropValueCap, shared * (1 + (b(1) * rank + voteBonus) / 100)), 0));
   }
   if ('rankExp' === goal) {
-    // Upgrade 2 reads the rank of the *previous* land, so each plot is scored against its neighbour.
+    // Upgrade 2 reads the rank of the *previous* land, so each plot is scored against its
+    // physically adjacent neighbour, empty plots included.
     const shared = 1 + (b(6) + b(13)) / 100;
     return Math.log(plotRanks.reduce((sum: any, _: any, index: any) =>
-      sum + shared * (1 + (b(2) * (plotRanks[index - 1] ?? 0)) / 100), 0));
+      sum + shared * (1 + (b(2) * (plotPrevRanks?.[index] ?? 0)) / 100), 0));
   }
   if ('overgrowth' === goal) {
     return Math.log(1 + (b(7) + b(11) + b(18)) / 100);
@@ -978,13 +979,21 @@ export const getOptimizedLandRankUpgrades = (account: any, maxUpgrades = 10, opt
   const availablePoints = farming?.availablePoints ?? 0;
   // Mirrors getTotalCrop / getCropEvolution: the same plots, the same vote bonus, and the same
   // constant factors around the part the land ranks actually move.
-  const plotRanks = (farming?.plot ?? [])
+  const allPlots = farming?.plot ?? [];
+  const plotRanks = allPlots
     .filter(({ seedType }: any) => seedType !== -1)
     .map(({ rank }: any) => rank ?? 0);
+  // Upgrade 2 reads the rank of the physically previous land, so pair each growing plot with its
+  // neighbour before the empty-plot filter shifts the indices.
+  const plotPrevRanks = allPlots
+    .map((plot: any, index: number) => ({ seedType: plot?.seedType, prevRank: allPlots[index - 1]?.rank ?? 0 }))
+    .filter(({ seedType }: any) => seedType !== -1)
+    .map(({ prevRank }: any) => prevRank);
   const { productDoubler } = getProductDoubler(farming?.market);
   const speedGMO = getMarketBonus(farming?.market, 'VALUE_GMO', 'value');
   const context = {
     plotRanks,
+    plotPrevRanks,
     voteBonus: getVoteBonus(account, 29),
     cropValueConstant: Math.max(1, Math.floor(1 + productDoubler / 100)) * Math.max(1, speedGMO),
     cropValueCap: getCropValueMultiCap(account)

@@ -134,6 +134,9 @@ const UpgradeOptimizer = () => {
   else {
     displayUpgrades = optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
   }
+  // upgradeIndex is the plan step of the group's first point, so in Summary mode it is not a
+  // running row number; the table's # column needs its own position.
+  displayUpgrades = displayUpgrades.map((upgrade, index) => ({ ...upgrade, displayPosition: index + 1 }));
 
   const renderStatChange = (upgrade) => {
     const hasSequence = upgrade.sequence?.length > 1;
@@ -205,7 +208,7 @@ const UpgradeOptimizer = () => {
   const renderUpgradeRow = (upgrade) => {
     const hasSequence = upgrade.sequence?.length > 1;
     return <TableRow key={upgrade.upgradeIndex}>
-      <TableCell>{upgrade.upgradeIndex + 1}</TableCell>
+      <TableCell>{upgrade.displayPosition}</TableCell>
       <TableCell>
         <img style={{ width: 24, height: 24, objectFit: 'contain' }}
              src={`${prefix}data/RankUpg${upgrade.index}.png`}

@@ -181,7 +181,10 @@ export function getOptimizedGenericUpgrades({
         }
         return true;
       });
-      if (availableUpgrades.length === 0) break;
+      if (availableUpgrades.length === 0) {
+        stoppedReason = 'no-candidates';
+        break;
+      }
 
       // Find the cheapest upgrade, taking resourcePerHour into account if provided
       let cheapestUpgrade = availableUpgrades[0];
@@ -257,6 +260,7 @@ export function getOptimizedGenericUpgrades({
       reductionsRemaining = Math.max(0, reductionsRemaining - 1);
     }
 
+    results.stoppedReason = stoppedReason;
     return results;
   }
 

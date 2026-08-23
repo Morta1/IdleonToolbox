@@ -60,4 +60,14 @@ describe('getMinehead fixture regression', () => {
     const result = getMinehead(data, {}, {});
     expect(result.upgrades).toHaveLength(liveCount(mineheadUpgrades));
   });
+
+  // The dashboard currency-upgrade alert filters on canAfford alone, so the parser must keep
+  // maxed and research-locked upgrades out of it.
+  it.each(FIXTURES)('%s: canAfford is never true for a maxed or locked upgrade', (_name, fixture) => {
+    const data = fixture.data ?? fixture;
+    const result = getMinehead(data, {}, {});
+    result.upgrades.forEach((upgrade) => {
+      if (upgrade.isMaxed || upgrade.isLocked) expect(upgrade.canAfford).toBe(false);
+    });
+  });
 });
