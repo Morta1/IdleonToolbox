@@ -693,6 +693,11 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={`You have ${alerts?.['World 7']?.minehead?.dailyTries?.left} minehead attempt${alerts?.['World 7']?.minehead?.dailyTries?.left === 1 ? '' : 's'} left (${alerts?.['World 7']?.minehead?.dailyTries?.left}/${alerts?.['World 7']?.minehead?.dailyTries?.max})`}
                   iconPath={'data/MineHead0'}/> : null}
+              {alerts?.['World 7']?.minehead?.currencyUpgrades?.length > 0 ?
+                alerts?.['World 7']?.minehead?.currencyUpgrades?.map((upgrade) => <Alert
+                  key={`minehead-upgrade-${upgrade?.index}`}
+                  title={`You can afford ${cleanUnderscore(upgrade?.name)} (Lv. ${upgrade?.level})`}
+                  iconPath={`data/MineUpg${upgrade?.index}`}/>) : null}
               {alerts?.['World 7']?.research?.observationRollsLeft ?
                 <Alert
                   title={`You have ${alerts?.['World 7']?.research?.observationRollsLeft?.left} observation roll${alerts?.['World 7']?.research?.observationRollsLeft?.left === 1 ? '' : 's'} left (${alerts?.['World 7']?.research?.observationRollsLeft?.left}/${alerts?.['World 7']?.research?.observationRollsLeft?.max})`}

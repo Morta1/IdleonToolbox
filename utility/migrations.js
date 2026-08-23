@@ -1607,6 +1607,19 @@ export const migration67 = (config) => {
     dashboardConfig.account['World 7'] = ordered;
   }
 
+  const mineheadOptions = dashboardConfig?.account?.['World 7']?.minehead?.options;
+  // Mine currency gain upgrades (Miney Farmey I/II, Miney Damagey Synergy) - the ones worth saving
+  // for, so the alert lists them as an image array instead of a single catch-all checkbox.
+  if (Array.isArray(mineheadOptions) && !mineheadOptions.some((o) => o?.name === 'currencyUpgrades')) {
+    mineheadOptions.push({
+      name: 'currencyUpgrades',
+      type: 'array',
+      category: 'Alert when you can afford these mine currency upgrades',
+      props: { value: { MineUpg5: true, MineUpg22: true, MineUpg28: true }, type: 'img' },
+      checked: true
+    });
+  }
+
   const equinoxOptions = dashboardConfig?.account?.['World 3']?.equinox?.options;
   const foodLustOption = equinoxOptions?.find((o) => o?.name === 'foodLust');
   // Food Lust turned into a stacks threshold. Max value keeps the old "only when maxed" behaviour
