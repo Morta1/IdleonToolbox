@@ -78,9 +78,17 @@ export const getPowerCap = (rank: number) => {
   return parseFloat(String(Math.max(Number(powerCap?.[Math.min(rank, powerCap?.length - 2)]), 25)))
 }
 
+export const MAX_POWER_PER_CYCLE = 25e4;
+
 export const getPowerPerCycle = (rank: number, account: Account | null = null) => {
   const companionBonus = isCompanionBonusActive(account, 35) ? account?.companions?.list?.at(35)?.bonus : 0;
-  return Math.floor(Math.min(25e4, Math.pow(rank, 1.3) * (1 + (companionBonus ?? 0))));
+  return Math.floor(Math.min(MAX_POWER_PER_CYCLE, Math.pow(rank, 1.3) * (1 + (companionBonus ?? 0))));
+}
+
+// The rank at which power per cycle hits its cap - ranking past it only raises the salt's cost.
+export const getMaxUsefulRank = (account: Account | null = null) => {
+  const companionBonus = isCompanionBonusActive(account, 35) ? account?.companions?.list?.at(35)?.bonus : 0;
+  return Math.ceil(Math.pow(MAX_POWER_PER_CYCLE / (1 + (companionBonus ?? 0)), 1 / 1.3));
 }
 
 export const hasMissingMats = (saltIndex: number, rank: number, cost: any[], account: Account) => {
@@ -245,6 +253,87 @@ export const calcCost = (refinery: any, rank: number, quantity: number, item: st
   const isSalt = item?.includes('Refinery');
   return Math.floor(Math.pow(rank, (isSalt && index <= refinery?.refinerySaltTaskLevel) ? 1.3 : 1.5)) * quantity;
 };
+
+// The game ceils cycle times (CycleInitialTime), and at high refinery speed that rounding is a
+// meaningful slice of the cycle - round the same way so output and cost land on the game's rates.
+const getSaltCycleTime = (index: number, cycleTimes: any) => Math.ceil(index <= 2
+  ? cycleTimes?.combustionTime
+  : index <= 5 ? cycleTimes?.synthesisTime : cycleTimes?.polymerizeTime);
+
+// Largest rank whose per-cycle cost still fits in what the previous salt produces in that time.
+const solveMaxRank = (allowedCostPerCycle: number, quantity: number, scaling: number) => {
+  if (!(quantity > 0) || !(allowedCostPerCycle > 0)) return 0;
+  const costFor = (rank: number) => Math.floor(Math.pow(rank, scaling)) * quantity;
+  let rank = Math.max(0, Math.floor(Math.pow(allowedCostPerCycle / quantity, 1 / scaling)));
+  while (costFor(rank + 1) <= allowedCostPerCycle) rank++;
+  while (rank > 0 && costFor(rank) > allowedCostPerCycle) rank--;
+  return rank;
+}
+
+export interface SaltBalance {
+  index: number;
+  rawName: string;
+  saltName: string;
+  rank: number;
+  unlocked: boolean;
+  active: number;
+  autoRefinePercentage: number;
+  outputPerHour: number;
+  consumedPerHour: number;
+  balancePerHour: number;
+  isDeficit: boolean;
+  outputMaxed: boolean;
+  maxSafeRank: number;
+}
+
+// Each salt is fuelled by the one before it in the chain, so ranking a salt up raises what it
+// drains from its predecessor. Compares both sides per hour to find the rank where that flips.
+export const getSaltsBalance = (account: Account, characters: any[]): SaltBalance[] => {
+  const salts: any[] = account?.refinery?.salts ?? [];
+  const cycleTimes = computeRefineryCycleTimes(account, characters);
+  const maxUsefulRank = getMaxUsefulRank(account);
+  const saltTaskLevel = account?.refinery?.refinerySaltTaskLevel ?? 0;
+
+  return salts.reduce((res: SaltBalance[], salt: any, index: number) => {
+    const { rawName, saltName, rank, cost, active, autoRefinePercentage, unlocked } = salt;
+    const cycleTime = getSaltCycleTime(index, cycleTimes);
+    const powerPerCycle = getPowerPerCycle(rank, account);
+    const outputPerHour = unlocked ? powerPerCycle * 3600 / cycleTime : 0;
+
+    const nextSalt = salts?.[index + 1];
+    const nextSaltCost = nextSalt?.cost?.find((item: any) => item?.rawName === rawName);
+    const consumedPerHour = unlocked && nextSalt?.unlocked && nextSalt?.active && nextSaltCost
+      ? calcCost(account?.refinery, nextSalt?.rank, nextSaltCost?.quantity, nextSaltCost?.rawName, index + 1)
+      * 3600 / getSaltCycleTime(index + 1, cycleTimes)
+      : 0;
+
+    const previous = res?.[index - 1];
+    const previousCost = cost?.find((item: any) => item?.rawName === salts?.[index - 1]?.rawName);
+    let maxSafeRank = rank;
+    if (unlocked) {
+      maxSafeRank = previousCost
+        ? Math.min(maxUsefulRank, solveMaxRank((previous?.outputPerHour ?? 0) * cycleTime / 3600,
+          previousCost?.quantity, index <= saltTaskLevel ? 1.3 : 1.5))
+        : maxUsefulRank;
+    }
+
+    return [...res, {
+      index,
+      rawName,
+      saltName,
+      rank,
+      unlocked,
+      active,
+      autoRefinePercentage,
+      outputPerHour,
+      consumedPerHour,
+      balancePerHour: outputPerHour - consumedPerHour,
+      isDeficit: consumedPerHour > outputPerHour,
+      outputMaxed: powerPerCycle >= MAX_POWER_PER_CYCLE,
+      maxSafeRank
+    }];
+  }, []);
+}
 
 export const calcResourceToRankUp = (rank: number, refined: number, powerCap: number, itemCost: number, account: Account | null = null) => {
   const powerPerCycle = getPowerPerCycle(rank, account);

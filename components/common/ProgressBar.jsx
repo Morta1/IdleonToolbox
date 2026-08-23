@@ -2,7 +2,7 @@ import { Box, LinearProgress, Typography } from '@mui/material';
 import React from 'react';
 import Tooltip from '@components/Tooltip';
 
-const ProgressBar = ({ percent, bgColor, label = true, sx, boxSx = {}, pre, tooltipTitle = '' }) => {
+const ProgressBar = ({ percent, bgColor, label = true, labelText, sx, boxSx = {}, pre, tooltipTitle = '' }) => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', ...boxSx }}>
       {pre}
@@ -24,7 +24,7 @@ const ProgressBar = ({ percent, bgColor, label = true, sx, boxSx = {}, pre, tool
         </Tooltip>
       </Box>
       {label ? <Box>
-        <Typography variant="body2">{`${Math.round(percent)}%`}</Typography>
+        <Typography noWrap variant="body2">{labelText ?? `${Math.round(percent)}%`}</Typography>
       </Box> : null}
     </Box>
   );

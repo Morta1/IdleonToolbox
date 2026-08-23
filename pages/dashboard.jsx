@@ -243,6 +243,19 @@ const baseTrackers = {
             name: 'rankUp', type: 'array', props: { value: getRawRefinerySalts(), type: 'img' },
             checked: true,
             category: 'Refinery Rank up'
+          },
+          {
+            name: 'saltBalance', type: 'array', props: { value: getRawRefinerySalts(), type: 'img' },
+            checked: true,
+            category: 'Refinery salt balance'
+          },
+          {
+            name: 'saltBalanceDirection',
+            type: 'array',
+            category: 'Alert when a salt is',
+            props: { value: { 'At or past its limit': true, 'Below its limit': false } },
+            checked: true,
+            helperText: 'The limit is the highest rank the previous salt can keep fuelled'
           }
         ]
       },

@@ -5,7 +5,7 @@ import { getChipsAndJewels, maxNumberOfSpiceClicks } from '@parsers/world-4/cook
 import { cleanUnderscore, getDuration, getNextCompanionClaim, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { items, liquidsShop } from '@website-data';
-import { getPowerPerCycle, hasMissingMats } from '@parsers/world-3/refinery';
+import { getPowerPerCycle, getSaltsBalance, hasMissingMats } from '@parsers/world-3/refinery';
 import { calcTotals } from '@parsers/world-3/printer';
 import {
   addEquippedItems,
@@ -641,7 +641,7 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
   }
   if (fields?.construction?.checked) {
     const construction = {};
-    const { materials, rankUp, flags, buildings } = options?.construction || {};
+    const { materials, rankUp, flags, buildings, saltBalance, saltBalanceDirection } = options?.construction || {};
     if (flags?.checked) {
       const flags = account?.construction?.board?.filter(({
         flagPlaced,
@@ -692,6 +692,43 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
       });
       if (rUp.length > 0) {
         construction.rankUp = rUp;
+      }
+    }
+    if (saltBalance?.checked) {
+      const overRanked = [];
+      const roomToRank = [];
+      // Both sides of one comparison - a salt is either at/past the rank its predecessor can fuel
+      // or below it, never both - so the salt picker is shared and only the side is chosen here.
+      const directions = saltBalanceDirection?.checked ? saltBalanceDirection?.props?.value : null;
+      getSaltsBalance(account, characters).forEach(({
+        index,
+        rawName,
+        saltName,
+        rank,
+        maxSafeRank,
+        unlocked,
+        active,
+        autoRefinePercentage,
+        outputMaxed
+      }) => {
+        // The first salt eats printed materials rather than another salt, so it has no limit to
+        // hit, and a salt on auto refine never banks power to rank up with.
+        if (index === 0 || !unlocked || !active || autoRefinePercentage > 0) return;
+        if (!saltBalance?.props?.value?.[rawName]) return;
+        const previousSaltName = account?.refinery?.salts?.[index - 1]?.saltName;
+        if (rank < maxSafeRank) {
+          if (directions?.['Below its limit']) {
+            roomToRank.push({ rawName, saltName, maxSafeRank });
+          }
+        } else if (!outputMaxed && directions?.['At or past its limit']) {
+          overRanked.push({ rawName, saltName, previousSaltName, maxSafeRank, isDeficit: rank > maxSafeRank });
+        }
+      });
+      if (overRanked.length > 0) {
+        construction.saltDeficit = overRanked;
+      }
+      if (roomToRank.length > 0) {
+        construction.saltRankUpRoom = roomToRank;
       }
     }
     if (Object.keys(construction).length > 0) {

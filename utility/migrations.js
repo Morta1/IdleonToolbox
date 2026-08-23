@@ -1522,6 +1522,36 @@ const migration66 = (dashboardConfig) => {
       helperText: 'Alert when Top of the Mornin\' kills remain for today'
     });
   }
+  // Salt chain balance alert: one salt picker plus which side of the limit to be told about.
+  // "Below its limit" is off by default - it fires for nearly every salt on nearly every account,
+  // where being at or past the limit is the rare, actionable case.
+  const constructionOptions = dashboardConfig?.account?.['World 3']?.construction?.options;
+  if (Array.isArray(constructionOptions)) {
+    // An earlier build of this same (unreleased) migration shipped these as two salt pickers.
+    const legacy = constructionOptions.findIndex((option) => option?.name === 'saltDeficit'
+      || option?.name === 'saltRankUpRoom');
+    if (legacy !== -1) {
+      dashboardConfig.account['World 3'].construction.options = constructionOptions
+        .filter((option) => option?.name !== 'saltDeficit' && option?.name !== 'saltRankUpRoom');
+    }
+  }
+  const constructionOpts = dashboardConfig?.account?.['World 3']?.construction?.options;
+  if (Array.isArray(constructionOpts) && !constructionOpts.some((option) => option?.name === 'saltBalance')) {
+    constructionOpts.push({
+      name: 'saltBalance',
+      type: 'array',
+      props: { value: getRawRefinerySalts(), type: 'img' },
+      checked: true,
+      category: 'Refinery salt balance'
+    }, {
+      name: 'saltBalanceDirection',
+      type: 'array',
+      category: 'Alert when a salt is',
+      props: { value: { 'At or past its limit': true, 'Below its limit': false } },
+      checked: true,
+      helperText: 'The limit is the highest rank the previous salt can keep fuelled'
+    });
+  }
   // Refinery salt costs joined the printer exclusion list - graft the new keys on top of whatever
   // the user already toggled rather than resetting their choices.
   const printerResources = dashboardConfig?.account?.['World 3']?.printer?.options

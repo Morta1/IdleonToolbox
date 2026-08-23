@@ -323,6 +323,28 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                                                                                                  title={`${cleanUnderscore(saltName)} is ready to rank up`}
                                                                                                  iconPath={`data/${rawName}`}/>)
                 : null}
+              {alerts?.['World 3']?.construction?.saltDeficit?.length > 0
+                ?
+                alerts?.['World 3']?.construction?.saltDeficit?.map(({
+                  rawName,
+                  saltName,
+                  previousSaltName,
+                  maxSafeRank,
+                  isDeficit
+                }) => <Alert
+                  key={`salt-deficit-${rawName}`}
+                  title={isDeficit
+                    ? `${cleanUnderscore(saltName)} is consuming more ${cleanUnderscore(previousSaltName)} than you produce (max rank without a deficit: ${maxSafeRank})`
+                    : `Don't rank up ${cleanUnderscore(saltName)} past ${maxSafeRank}, it would cause a ${cleanUnderscore(previousSaltName)} deficit`}
+                  iconPath={`data/${rawName}`}/>)
+                : null}
+              {alerts?.['World 3']?.construction?.saltRankUpRoom?.length > 0
+                ?
+                alerts?.['World 3']?.construction?.saltRankUpRoom?.map(({ rawName, saltName, maxSafeRank }) => <Alert
+                  key={`salt-rank-room-${rawName}`}
+                  title={`${cleanUnderscore(saltName)} can be ranked up to ${maxSafeRank} without causing a deficit`}
+                  iconPath={`data/${rawName}`}/>)
+                : null}
               {alerts?.['World 3']?.construction?.buildings?.length > 0
                 ?
                 alerts?.['World 3']?.construction?.buildings?.map(({ name, index }) => <Alert key={name}
