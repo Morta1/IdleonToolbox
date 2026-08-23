@@ -341,3 +341,62 @@ export const calcResourceToRankUp = (rank: number, refined: number, powerCap: nu
   return (remainingProgress / powerPerCycle) * itemCost;
 }
 
+
+export interface SaltMatTimeLeft {
+  rawName: string;
+  totalAmount: number;
+  drainPerHour: number;
+  incomePerHour: number;
+  hoursLeft: number;
+}
+
+export interface SaltMatsTimeLeft {
+  index: number;
+  rawName: string;
+  saltName: string;
+  hoursLeft: number;
+  mats: SaltMatTimeLeft[];
+}
+
+// How long each running salt can keep cycling before one of its inputs runs dry. A material fed by
+// another salt only drains by the difference between the two rates, the same per-hour model
+// getSaltsBalance compares with; printed materials have no continuous income, so their stock is
+// treated as fixed until the player collects the printer again.
+export const getSaltMatsTimeLeft = (account: Account, characters: any[]): SaltMatsTimeLeft[] => {
+  const salts: any[] = account?.refinery?.salts ?? [];
+  const cycleTimes = computeRefineryCycleTimes(account, characters);
+
+  return salts.reduce((res: SaltMatsTimeLeft[], salt: any, index: number) => {
+    const { rawName, saltName, rank, cost, active, unlocked } = salt;
+    // An idle salt consumes nothing, so it has no depletion time at all.
+    if (!unlocked || !active) return res;
+    const cycleTime = getSaltCycleTime(index, cycleTimes);
+    if (!(cycleTime > 0)) return res;
+
+    const mats = (cost ?? []).map((item: any) => {
+      const totalAmount = item?.totalAmount ?? 0;
+      const drainPerHour = calcCost(account?.refinery, rank, item?.quantity, item?.rawName, index) * 3600 / cycleTime;
+      const producerIndex = salts.findIndex((producer: any) => producer?.rawName === item?.rawName);
+      const producer = producerIndex >= 0 ? salts[producerIndex] : null;
+      // A salt outputs `powerPerCycle` of its own item each cycle, which is the unit the next salt's
+      // cost is priced in.
+      const incomePerHour = producer?.unlocked && producer?.active
+        ? getPowerPerCycle(producer?.rank, account) * 3600 / getSaltCycleTime(producerIndex, cycleTimes)
+        : 0;
+      const netPerHour = drainPerHour - incomePerHour;
+      return {
+        rawName: item?.rawName,
+        totalAmount,
+        drainPerHour,
+        incomePerHour,
+        hoursLeft: netPerHour > 0 ? totalAmount / netPerHour : Infinity
+      };
+    });
+
+    const hoursLeft = mats.length > 0 ? Math.min(...mats.map(({ hoursLeft }: SaltMatTimeLeft) => hoursLeft)) : Infinity;
+    // Nothing is depleting - income covers every input - so there is no countdown to show.
+    if (!isFinite(hoursLeft)) return res;
+
+    return [...res, { index, rawName, saltName, hoursLeft, mats }];
+  }, []);
+};

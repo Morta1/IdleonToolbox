@@ -8,6 +8,7 @@ export const patchNotes = [
     'gameVer': '2.3.523',
     'date': '23/08/2026',
     'features': [
+      'Dashboard: the refinery materials alert can now warn you a set number of hours before a salt runs out, instead of only once it has already stalled. Set the lead time in the alert settings',
       'Killroy: permanent upgrades now show the next level worth stopping at and the bonus it gives, with an info icon listing every breakpoint up to 99% of the cap',
       'Dashboard: a new alert reminds you to wish on the Glimmerwick Candle each day, and shows how many wishes are left until the Top 0.1% Nametag is guaranteed',
       'Dashboard: a new alert lists the alchemy p2w cauldron and liquid upgrades you can afford, with the level and coin cost of each',

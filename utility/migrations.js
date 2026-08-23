@@ -1660,6 +1660,23 @@ export const migration67 = (config) => {
     dashboardConfig.account['World 6'] = ordered;
   }
 
+  const constructionOptions = dashboardConfig?.account?.['World 3']?.construction?.options;
+  // Lead time for the refinery materials alert. Splice it in right after `materials` so the two
+  // sit together in the settings UI (option order drives the rendering).
+  if (Array.isArray(constructionOptions) && !constructionOptions.some((o) => o?.name === 'matsThreshold')) {
+    const matsThreshold = {
+      name: 'matsThreshold',
+      type: 'input',
+      props: { label: 'Materials lead time', value: 0, minValue: 0, endAdornment: 'h' },
+      checked: true,
+      helperText: 'Alert this many hours before a salt runs out of materials (0 alerts only once they are gone)'
+    };
+    const materialsIndex = constructionOptions.findIndex((o) => o?.name === 'materials');
+    dashboardConfig.account['World 3'].construction.options = materialsIndex === -1
+      ? [...constructionOptions, matsThreshold]
+      : constructionOptions.toSpliced(materialsIndex + 1, 0, matsThreshold);
+  }
+
   dashboardConfig.version = 67;
   return dashboardConfig;
 };

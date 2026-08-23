@@ -240,6 +240,13 @@ const baseTrackers = {
             category: 'Materials'
           },
           {
+            name: 'matsThreshold',
+            type: 'input',
+            props: { label: 'Materials lead time', value: 0, minValue: 0, endAdornment: 'h' },
+            checked: true,
+            helperText: 'Alert this many hours before a salt runs out of materials (0 alerts only once they are gone)'
+          },
+          {
             name: 'rankUp', type: 'array', props: { value: getRawRefinerySalts(), type: 'img' },
             checked: true,
             category: 'Refinery Rank up'
