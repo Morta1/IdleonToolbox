@@ -22,7 +22,8 @@ export const patchNotes = [
       'Dashboard: a new alert tells you when you have enough pearls for a Clamworks worker class promotion',
       'Spelunking: upgrades with a level cap now show the total amber needed to max them, along with a total for each section',
       'Dashboard: a new World 3 timer counts down to the next construction flag finishing',
-      'Dashboard: new alerts for talents that still have points to spend, and for maxed talents a Talent Book Library book can raise further. Each lists the talents and the level they can reach, so you no longer have to open every character tab to find them'
+      'Dashboard: new alerts for talents that still have points to spend, and for maxed talents a Talent Book Library book can raise further. Each lists the talents and the level they can reach, so you no longer have to open every character tab to find them',
+      'Dashboard: a new alert tells you when you own enough of a golden food to rank it up on the beanstalk'
     ],
     'fixes': [
       'Refinery: auto refine was shown as a percentage, so it read 0% or 0.01%. It is an on/off toggle in game and now says On or Off',

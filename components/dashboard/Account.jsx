@@ -564,6 +564,18 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={`${alerts?.['World 6']?.sneaking?.remainingSymbolRolls.remaining} symbol rolls remaining (${alerts?.['World 6']?.sneaking?.remainingSymbolRolls.used}/75 used)`}
                   iconPath={'data/NjTrP0'}/> : null}
+              {alerts?.['World 6']?.beanstalk?.readyToPlant?.length > 0
+                ?
+                alerts?.['World 6']?.beanstalk?.readyToPlant?.map(({ rawName, displayName, total, breakpoint }) =>
+                  <Link
+                    key={'beanstalk' + rawName}
+                    href={'/account/world-6/beanstalk'}
+                    style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }}>
+                    <Alert
+                      title={`You own ${commaNotation(total)} ${cleanUnderscore(displayName)} - enough to rank it up on the beanstalk (${commaNotation(breakpoint)} needed)`}
+                      iconPath={`data/${rawName}`}/>
+                  </Link>)
+                : null}
               {alerts?.['World 6']?.summoning?.familiar ?
                 <Alert
                   title={`Summoning familiar bonus isn't maxed (${alerts?.['World 6']?.summoning?.familiar.level}/${alerts?.['World 6']?.summoning?.familiar.maxLvl})`}

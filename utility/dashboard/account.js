@@ -4,7 +4,7 @@ import { CAULDRON_INFO, CAULDRONS_MAX_LEVELS, LIQUID_INFO, MAX_VIAL_LEVEL, vialC
 import { getChipsAndJewels, maxNumberOfSpiceClicks } from '@parsers/world-4/cooking';
 import { cleanUnderscore, getDuration, getNextCompanionClaim, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
-import { items, liquidsShop } from '@website-data';
+import { items, liquidsShop, ninjaExtraInfo } from '@website-data';
 import { getPowerPerCycle, getSaltsBalance, hasMissingMats } from '@parsers/world-3/refinery';
 import { calcTotals } from '@parsers/world-3/printer';
 import {
@@ -15,7 +15,7 @@ import {
   mergeItemsByOwner
 } from '@parsers/items';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
-import { getGuaranteedCrystalMobs, getKillroySchedule, getMiniBossesData } from '@parsers/misc';
+import { BEANSTALK_BREAKPOINTS, getGuaranteedCrystalMobs, getKillroySchedule, getMiniBossesData } from '@parsers/misc';
 import { getRequirementAmount } from '@parsers/world-4/lab';
 import { getLandRank, getProductDoubler, getRanksTotalBonus } from '@parsers/world-6/farming';
 import { isPast } from 'date-fns';
@@ -1191,9 +1191,31 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
   }
   return alerts;
 };
-export const getWorld6Alerts = (account, fields, options) => {
+export const getWorld6Alerts = (account, fields, options, characters) => {
   const alerts = {};
   if (!account?.finishedWorlds?.World5) return alerts;
+  if (fields?.beanstalk?.checked && options?.beanstalk?.readyToPlant?.checked
+    && isJadeBonusUnlocked(account, 'Gold_Food_Beanstalk')) {
+    // getAllItems walks every character's inventory and storage, so it's only built when the
+    // alert is actually enabled.
+    const equippedItems = addEquippedItems(characters, true);
+    const totalItems = getAllItems(characters, account);
+    const totalOwnedItems = mergeItemsByOwner([...(totalItems || []), ...(equippedItems || [])]);
+    const beanstalkData = account?.sneaking?.beanstalkData;
+    const readyToPlant = (ninjaExtraInfo?.[29]?.filter((str) => isNaN(str)) ?? []).reduce((res, rawName, index) => {
+      const rank = beanstalkData?.[index] ?? 0;
+      const breakpoint = BEANSTALK_BREAKPOINTS?.[rank];
+      if (!breakpoint) return res;
+      const displayName = items?.[rawName]?.displayName;
+      const owned = findItemInInventory(totalOwnedItems, displayName);
+      const total = Object.values(owned || {}).reduce((sum, { amount }) => sum + amount, 0);
+      if (total < breakpoint) return res;
+      return [...res, { rawName, displayName, total, breakpoint, rank }];
+    }, []);
+    if (readyToPlant.length > 0) {
+      alerts.beanstalk = { readyToPlant };
+    }
+  }
   if (fields?.sneaking?.checked) {
     const sneaking = {};
     const { lastLooted, remainingPristineRolls, remainingSymbolRolls } = options?.sneaking || {};

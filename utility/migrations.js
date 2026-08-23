@@ -1639,6 +1639,27 @@ export const migration67 = (config) => {
     }
   }
 
+  const world6 = dashboardConfig?.account?.['World 6'];
+  // Rebuild the group so Beanstalk lands right after Sneaking, matching baseTrackers - plain
+  // assignment would append it last (object key order drives the settings UI ordering).
+  if (world6 && !world6.beanstalk) {
+    const beanstalk = {
+      checked: true,
+      options: [{
+        name: 'readyToPlant',
+        checked: true,
+        helperText: 'Alert when you own enough of a golden food to rank it up on the beanstalk'
+      }]
+    };
+    const ordered = {};
+    for (const [tracker, value] of Object.entries(world6)) {
+      ordered[tracker] = value;
+      if (tracker === 'sneaking') ordered.beanstalk = beanstalk;
+    }
+    if (!ordered.beanstalk) ordered.beanstalk = beanstalk;
+    dashboardConfig.account['World 6'] = ordered;
+  }
+
   dashboardConfig.version = 67;
   return dashboardConfig;
 };
