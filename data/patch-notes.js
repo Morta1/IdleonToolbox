@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.65',
+    'gameVer': '2.3.523',
+    'date': '23/08/2026',
+    'features': [
+      'Killroy: permanent upgrades now show the next level worth stopping at and the bonus it gives, with an info icon listing every breakpoint up to 99% of the cap'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.64',
     'gameVer': '2.3.523',
     'date': '22/08/2026',

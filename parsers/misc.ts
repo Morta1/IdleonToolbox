@@ -1488,6 +1488,11 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
     return `+${Math.floor(value * 100) / 100}%`;
   };
 
+  // The curve is asymptotic, so the cap is never actually reached.
+  // Inverting L/(decay+L) = percent gives the level needed for a given % of the cap.
+  const breakpointPercents = [50, 75, 90, 95, 99];
+  const getDecayBreakpointLevel = (percent: number, decay: number) => Math.ceil((decay * percent) / (100 - percent));
+
   const permanentUpgrades = killRoySkullShop?.slice(10)?.map((upgrade, i) => {
     const levelOption = permanentUpgradeLevelMap[i];
     const bonusIndex = permanentUpgradeBonusMap[i];
@@ -1498,6 +1503,18 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
     const progress = capInfo ? (level / (level + capInfo.decay)) * 100 : null;
     const bonusDisplay = capInfo ? formatBonus(bonus, capInfo.format) : null;
     const capDisplay = capInfo ? formatBonus(capInfo.cap, capInfo.format) : null;
+
+    // 'mult' bonuses start at 1x, the additive ones at 0.
+    const bonusBase = capInfo?.format === 'mult' ? 1 : 0;
+    const breakpoints = capInfo ? breakpointPercents.map((percent) => {
+      const breakpointLevel = getDecayBreakpointLevel(percent, capInfo.decay);
+      return {
+        percent,
+        level: breakpointLevel,
+        bonusDisplay: formatBonus(bonusBase + (capInfo.cap - bonusBase) * (percent / 100), capInfo.format)
+      };
+    }) : null;
+    const nextBreakpoint = breakpoints?.find((breakpoint) => breakpoint.level > level) ?? null;
 
     // Special case: Shop 15 (Gallery) changes description when level >= 2
     let description = upgrade?.description;
@@ -1514,6 +1531,8 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
       progress,
       bonusDisplay,
       capDisplay,
+      breakpoints,
+      nextBreakpoint,
       description: description?.replace(replacementChar, String(Math.floor(bonus * 100) / 100))
     }
   });
