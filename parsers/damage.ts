@@ -64,24 +64,43 @@ import { getFountainBonusTotal } from './world-5/caverns/the-fountain';
 import { getCglunkoBonus } from './world-5/caverns/crystal-glunko-cove';
 import { notateNumber } from '@utility/helpers';
 
-export const getMaxDamage = (character: Character, characters: Character[], account: Account) => {
+// The speedrun route re-runs this once per map with only mapIndex/targetMonster changed, so the
+// map-invariant stats can be computed once and passed back in via `shared` (one object per
+// character variant). Everything touching the map or its monster - maxHp (shrines), crit chance,
+// hit chance, the damage components reading them, respawn, kills per hour - stays per-call.
+export const getMaxDamage = (character: Character, characters: Character[], account: Account, shared?: any) => {
   const playerInfo: any = { survivabilityMath: 0 };
-  const mainStat = mainStatMap?.[character?.class];
-  const strTalentBonus = getTalentBonus(character?.flatTalents, 'STRENGTH_IN_NUMBERS');
-  const intTalentBonus = getTalentBonus(character?.flatTalents, 'KNOWLEDGE_IS_POWER');
-  const lukTalentBonus = getTalentBonus(character?.flatTalents, 'LUCKY_HIT');
-  let statBubbleBonus = 0;
-  if (mainStat === 'strength') {
-    statBubbleBonus = getBubbleBonus(account, 'FARQUAD_FORCE', false, mainStat === 'strength');
-  } else if (mainStat === 'agility') {
-    statBubbleBonus = getBubbleBonus(account, 'QUICKDRAW_QUIVER', false, mainStat === 'agility');
-  } else if (mainStat === 'wisdom') {
-    statBubbleBonus = getBubbleBonus(account, 'SMARTER_SPELLS', false, mainStat === 'wisdom');
+  if (!shared || !shared.invariants) {
+    const mainStat = mainStatMap?.[character?.class];
+    const strTalentBonus = getTalentBonus(character?.flatTalents, 'STRENGTH_IN_NUMBERS');
+    const intTalentBonus = getTalentBonus(character?.flatTalents, 'KNOWLEDGE_IS_POWER');
+    const lukTalentBonus = getTalentBonus(character?.flatTalents, 'LUCKY_HIT');
+    let statBubbleBonus = 0;
+    if (mainStat === 'strength') {
+      statBubbleBonus = getBubbleBonus(account, 'FARQUAD_FORCE', false, mainStat === 'strength');
+    } else if (mainStat === 'agility') {
+      statBubbleBonus = getBubbleBonus(account, 'QUICKDRAW_QUIVER', false, mainStat === 'agility');
+    } else if (mainStat === 'wisdom') {
+      statBubbleBonus = getBubbleBonus(account, 'SMARTER_SPELLS', false, mainStat === 'wisdom');
+    }
+    const damageFromStat = ((character?.stats as any)?.[mainStat] || 0) * (1 + (strTalentBonus
+      + (intTalentBonus
+        + lukTalentBonus)
+      + statBubbleBonus) / 100);
+    const movementSpeed = getPlayerSpeedBonus(character, characters, account);
+    const invariants = {
+      damageFromStat,
+      maxMp: getMaxMp(character, characters, account),
+      movementSpeed,
+      accuracy: getAccuracy(character, characters, account, movementSpeed),
+      critDamage: getCritDamage(character, characters, account),
+      mastery: getMastery(character, characters, account)
+    };
+    if (shared) shared.invariants = invariants;
+    playerInfo.invariants = invariants;
   }
-  const damageFromStat = ((character?.stats as any)?.[mainStat] || 0) * (1 + (strTalentBonus
-    + (intTalentBonus
-      + lukTalentBonus)
-    + statBubbleBonus) / 100);
+  const { damageFromStat, ...invariantStats } = shared?.invariants ?? playerInfo.invariants;
+  delete playerInfo.invariants;
 
   const { respawnRate } = getRespawnRate(character, account);
   playerInfo.respawnRate = respawnRate;
@@ -90,13 +109,13 @@ export const getMaxDamage = (character: Character, characters: Character[], acco
   // null means the character has no AFK target, so it earns nothing per hour
   const afkGainsRate = afkGains ?? 0;
   playerInfo.maxHp = getMaxHp(character, characters, account);
-  playerInfo.maxMp = getMaxMp(character, characters, account);
-  playerInfo.movementSpeed = getPlayerSpeedBonus(character, characters, account);
-  playerInfo.accuracy = getAccuracy(character, characters, account, playerInfo.movementSpeed);
-  playerInfo.critDamage = getCritDamage(character, characters, account);
+  playerInfo.maxMp = invariantStats.maxMp;
+  playerInfo.movementSpeed = invariantStats.movementSpeed;
+  playerInfo.accuracy = invariantStats.accuracy;
+  playerInfo.critDamage = invariantStats.critDamage;
   playerInfo.critChance = getCritChance(character, characters, account, playerInfo);
   playerInfo.hitChance = getHitChance(character, characters, account, playerInfo);
-  playerInfo.mastery = getMastery(character, characters, account);
+  playerInfo.mastery = invariantStats.mastery;
 
   // efficiencies
   playerInfo.miningEff = getMiningEff(character, characters, account, playerInfo);

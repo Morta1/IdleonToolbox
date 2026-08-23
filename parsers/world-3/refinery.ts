@@ -144,6 +144,10 @@ export const getRefineryCycleBonuses = (account: Account, characters: any[]) => 
       + constructionMastery + arcadeBonus + voteBonus + researchGridBonus1
   }
 }
+// Exported so one alert evaluation can compute the stamp/shiny/vial/talent stack once and feed it
+// to both getSaltMatsTimeLeft and getSaltsBalance.
+export const getRefineryCycleTimes = (account: Account, characters: any[]) => computeRefineryCycleTimes(account, characters);
+
 const computeRefineryCycleTimes = (account: Account, characters: any[]) => {
   const { bonus, bonusBreakdown } = getRefineryCycleBonuses(account, characters);
   const legendBonus = getLegendTalentBonus(account, 19);
@@ -288,9 +292,9 @@ export interface SaltBalance {
 
 // Each salt is fuelled by the one before it in the chain, so ranking a salt up raises what it
 // drains from its predecessor. Compares both sides per hour to find the rank where that flips.
-export const getSaltsBalance = (account: Account, characters: any[]): SaltBalance[] => {
+export const getSaltsBalance = (account: Account, characters: any[], precomputedCycleTimes?: any): SaltBalance[] => {
   const salts: any[] = account?.refinery?.salts ?? [];
-  const cycleTimes = computeRefineryCycleTimes(account, characters);
+  const cycleTimes = precomputedCycleTimes ?? computeRefineryCycleTimes(account, characters);
   const maxUsefulRank = getMaxUsefulRank(account);
   const saltTaskLevel = account?.refinery?.refinerySaltTaskLevel ?? 0;
 
@@ -362,9 +366,9 @@ export interface SaltMatsTimeLeft {
 // another salt only drains by the difference between the two rates, the same per-hour model
 // getSaltsBalance compares with; printed materials have no continuous income, so their stock is
 // treated as fixed until the player collects the printer again.
-export const getSaltMatsTimeLeft = (account: Account, characters: any[]): SaltMatsTimeLeft[] => {
+export const getSaltMatsTimeLeft = (account: Account, characters: any[], precomputedCycleTimes?: any): SaltMatsTimeLeft[] => {
   const salts: any[] = account?.refinery?.salts ?? [];
-  const cycleTimes = computeRefineryCycleTimes(account, characters);
+  const cycleTimes = precomputedCycleTimes ?? computeRefineryCycleTimes(account, characters);
 
   return salts.reduce((res: SaltMatsTimeLeft[], salt: any, index: number) => {
     const { rawName, saltName, rank, cost, active, unlocked } = salt;

@@ -1081,15 +1081,18 @@ export const getCropValueMultiCap = (account: any) => CROP_VALUE_MULTI_BASE_CAP
     + getExoticMarketBonus(account, 25)) / 100);
 
 export const getTotalCrop = (plot: any, market: any, ranks: any, account: any) => {
+  // Everything except the plot's own rank is account-wide, so it is computed once, not per plot.
+  const { productDoubler } = getProductDoubler(market);
+  const productionBoost = getLandRank(ranks, 1);
+  const voteBonus = getVoteBonus(account, 29);
+  const speedGMO = getMarketBonus(account?.farming?.market, 'VALUE_GMO', 'value');
+  const cap = getCropValueMultiCap(account);
+  const sharedMulti = Math.max(1, Math.floor(1 + (productDoubler / 100)))
+    * (1 + getRanksTotalBonus(ranks, 1) / 100)
+    * Math.max(1, speedGMO);
   return plot?.reduce((total: any, { seedType, cropQuantity, cropRawName, ogMulti, rank }: any) => {
     if (seedType === -1) return total;
-    const { productDoubler } = getProductDoubler(market);
-    const productionBoost = getLandRank(ranks, 1);
-    const voteBonus = getVoteBonus(account, 29);
-    const speedGMO = getMarketBonus(account?.farming?.market, 'VALUE_GMO', 'value');
-    const finalMulti = Math.min(getCropValueMultiCap(account), Math.round(Math.max(1, Math.floor(1 + (productDoubler / 100)))
-      * (1 + getRanksTotalBonus(ranks, 1) / 100)
-      * Math.max(1, speedGMO)
+    const finalMulti = Math.min(cap, Math.round(sharedMulti
       * (1 + (productionBoost * (rank ?? 0)
         + voteBonus) / 100)));
     return {

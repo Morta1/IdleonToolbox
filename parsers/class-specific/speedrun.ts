@@ -149,6 +149,9 @@ const getPortalProgressPerKill = (account: Account, killPerKill: number) =>
 export const getSpeedrunRoute = (account: Account, characters: Character[], character: Character): SpeedrunRouteEntry[] => {
   if (!character) return [];
 
+  // One cache per route: every per-map damage parse below differs only in mapIndex/targetMonster,
+  // so getMaxDamage computes its map-invariant stats once and reuses them across all ~200 maps.
+  const sharedDamageCache = {};
   const entries = getFilteredPortals()?.reduce((result: SpeedrunRouteEntry[], { mapIndex, mapName }: any) => {
     const index = Number(mapIndex);
     const monsterRawName = (mapEnemiesArray as any)?.[index];
@@ -159,7 +162,7 @@ export const getSpeedrunRoute = (account: Account, characters: Character[], char
     // Re-run the damage parser as if the character were parked on this map: respawn rate, hit
     // chance and the multikill tiers all key off targetMonster / mapIndex.
     const onMap = { ...character, mapIndex: index, targetMonster: monsterRawName };
-    const playerInfo = getMaxDamage(onMap as Character, characters, account);
+    const playerInfo = getMaxDamage(onMap as Character, characters, account, sharedDamageCache);
     const killsPerSecond = (playerInfo?.killsPerHour || 0) / 3600;
     const killPerKill = playerInfo?.killPerkill?.value || 1;
     const portalProgressPerKill = getPortalProgressPerKill(account, killPerKill);
