@@ -37,6 +37,8 @@ const Islands = () => {
       <CardTitleAndValue title={'Trash/day *'} value={islands?.trashPerDay}
                          tooltipTitle={trashDisclaimer}/>
       <CardTitleAndValue title={'Unclaimed days'} value={islands?.numberOfDaysAfk || '0'}/>
+      <CardTitleAndValue title={'Garbage to collect *'} value={islands?.trashPerDaysAfk || '0'}
+                         tooltipTitle={`${trashDisclaimer} A single collection is capped at 100 garbage.`}/>
     </Stack>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
       {islands?.list?.map((island, index) => {

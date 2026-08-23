@@ -501,6 +501,9 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
     if (options?.islands?.garbageUpgrade?.checked && trashIsland?.trash >= trashIsland?.shop?.[4]?.cost) {
       islands.garbageUpgrade = true;
     }
+    if (options?.islands?.collectibleGarbage?.checked && account?.islands?.trashPerDaysAfk >= options?.islands?.collectibleGarbage?.props?.value) {
+      islands.collectibleGarbage = account?.islands?.trashPerDaysAfk;
+    }
     if (Object.keys(islands).length > 0) {
       alerts.islands = islands;
     }
