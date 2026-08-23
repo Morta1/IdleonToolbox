@@ -67,6 +67,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.General?.etc?.tournamentRegister ?
                 <Alert title={'You have not registered for the current Pet Tournament'}
                        iconPath={'data/TournyRank0'}/> : null}
+              {alerts?.General?.etc?.glimmerwickCandle ?
+                <Alert
+                  title={`You haven't used the Glimmerwick Candle today (${alerts?.General?.etc?.glimmerwickCandle?.attempts}/${alerts?.General?.etc?.glimmerwickCandle?.pity} wishes until guaranteed)`}
+                  iconPath={'data/Quest114'}/> : null}
               {alerts?.General?.etc?.dailyCrystals ?
                 <Alert
                   title={`You have ${alerts?.General?.etc?.dailyCrystals} daily guaranteed crystal kill${alerts?.General?.etc?.dailyCrystals > 1 ? 's' : ''} remaining`}

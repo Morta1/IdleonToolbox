@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.523',
     'date': '23/08/2026',
     'features': [
-      'Killroy: permanent upgrades now show the next level worth stopping at and the bonus it gives, with an info icon listing every breakpoint up to 99% of the cap'
+      'Killroy: permanent upgrades now show the next level worth stopping at and the bonus it gives, with an info icon listing every breakpoint up to 99% of the cap',
+      'Dashboard: a new alert reminds you to wish on the Glimmerwick Candle each day, and shows how many wishes are left until the Top 0.1% Nametag is guaranteed'
     ],
     'fixes': []
   },

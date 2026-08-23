@@ -1502,6 +1502,19 @@ const migration67 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration68 = (dashboardConfig) => {
+  const etcOptions = dashboardConfig?.account?.General?.etc?.options;
+  if (Array.isArray(etcOptions) && !etcOptions.some((option) => option?.name === 'glimmerwickCandle')) {
+    etcOptions.push({
+      name: 'glimmerwickCandle',
+      checked: true,
+      helperText: 'Alert when you own a Glimmerwick Candle and haven\'t wished on it today'
+    });
+  }
+  dashboardConfig.version = 68;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
 const migrations = {
@@ -1571,6 +1584,7 @@ const migrations = {
   65: migration65,
   66: migration66,
   67: migration67,
+  68: migration68,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

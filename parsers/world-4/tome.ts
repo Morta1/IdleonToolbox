@@ -105,6 +105,37 @@ export const getTome = (idleonData: IdleonData, account: Account, characters: an
   };
 }
 
+// Odds that a Glimmerwick Candle (Quest114) wish grants the Top 0.1% Tome Nametag. The game keys
+// this off the tome rank tier, and hard-guarantees the wish once you've failed 1/chance times in a
+// row (accountOptions[490]), so the reciprocal doubles as the pity count.
+export const getTomeWishChance = (top: number) => {
+  if (top < 0) return 1 / 120;
+  switch (top) {
+    case 6:
+      return 1 / 30;
+    case 5:
+      return 1 / 40;
+    case 4:
+      return 1 / 50;
+    case 3:
+      return 1 / 60;
+    case 2:
+      return 1 / 70;
+    case 1:
+      return 1 / 80;
+    default:
+      return 1 / 90;
+  }
+}
+
+export const getTomeWishPity = (account: any) => {
+  const top = account?.tome?.top ?? -1;
+  return {
+    attempts: Math.round(account?.accountOptions?.[490] ?? 0),
+    pity: Math.round(1 / getTomeWishChance(top))
+  };
+}
+
 const getNametagClaim = (account: any, top: number, serverVars: any) => {
   const tomeUnlocked = serverVars?.TomeOn === 1;
   const claimed = account?.accountOptions?.[447] ?? 0;

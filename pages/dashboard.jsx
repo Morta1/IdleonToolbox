@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 67,
+  version: 68,
   account: {
     General: {
       tasks: {
@@ -63,6 +63,11 @@ const baseTrackers = {
             name: 'dailyCrystals',
             checked: true,
             helperText: 'Alert when daily guaranteed crystal kills remain'
+          },
+          {
+            name: 'glimmerwickCandle',
+            checked: true,
+            helperText: 'Alert when you own a Glimmerwick Candle and haven\'t wished on it today'
           }
         ]
       }

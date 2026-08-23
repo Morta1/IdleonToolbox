@@ -25,6 +25,7 @@ import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { isHatRackEligible } from '@parsers/world-3/hatRack';
 import { getGoldCostToMaxLevel, getStampsPerDay } from '@parsers/world-1/stamps';
+import { getTomeWishPity } from '@parsers/world-4/tome';
 
 export const getOptions = (data) => {
   return Object.entries(data)?.reduce((res, [fieldName, fieldData]) => {
@@ -223,6 +224,15 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
       const registeredThrough = account?.accountOptions?.[511] ?? 0;
       if (currentTournamentDay >= 1 && registeredThrough <= currentTournamentDay) {
         etc.tournamentRegister = true;
+      }
+    }
+    if (options?.etc?.glimmerwickCandle?.checked && account?.accountOptions?.[491] !== 1) {
+      // accountOptions[492] = candle already wished on today; the game clears it on daily reset.
+      // 491 = the wish already came true, so the candle is spent for good. Gate on actually owning
+      // Quest114 (inventory or storage) so the alert disappears once the event item is gone.
+      const ownsCandle = findQuantityOwned(getAllItems(characters, account), 'Glimmerwick_Candle')?.amount > 0;
+      if (ownsCandle && account?.accountOptions?.[492] !== 1) {
+        etc.glimmerwickCandle = getTomeWishPity(account);
       }
     }
     if (options?.etc?.dailyCrystals?.checked) {
