@@ -93,9 +93,14 @@ import { getFriendBonusStats } from '@parsers/misc';
 import { safeSection } from '@parsers/safeSection';
 import type { IdleonData, Account, CompanionData, GuildData, ServerVars, TournamentData } from './types';
 
-export const parseData = (idleonData: IdleonData, charNames: string[], companion: CompanionData, guildData: GuildData | null, serverVars: ServerVars, accountCreateTime: number, tournament: TournamentData | null) => {
+export interface ParseOptions {
+  // Companion indices the user asked to be treated as owned (pets page "what if" simulation).
+  simulatedCompanions?: number[];
+}
+
+export const parseData = (idleonData: IdleonData, charNames: string[], companion: CompanionData, guildData: GuildData | null, serverVars: ServerVars, accountCreateTime: number, tournament: TournamentData | null, options?: ParseOptions) => {
   try {
-    const staticData = getStaticData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, tournament);
+    const staticData = getStaticData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, tournament, options);
 
     // Multiple passes needed to resolve cross-dependencies between parsers
     let processedData: any = null;
@@ -122,7 +127,7 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
  * Pure/static parsers — only depend on raw input data, never on accountData.
  * Computed once and reused across all passes.
  */
-const getStaticData = (idleonData: IdleonData, charNames: string[], companion: CompanionData, guildData: GuildData | null, serverVars: ServerVars, accountCreateTime: number, tournament: TournamentData | null) => {
+const getStaticData = (idleonData: IdleonData, charNames: string[], companion: CompanionData, guildData: GuildData | null, serverVars: ServerVars, accountCreateTime: number, tournament: TournamentData | null, options?: ParseOptions) => {
   const serializedCharactersData = getCharacters(idleonData, charNames);
   const charactersLevels = serializedCharactersData?.map((char: any) => {
     const personalValuesMap = char?.[`PersonalValuesMap`];
@@ -140,7 +145,7 @@ const getStaticData = (idleonData: IdleonData, charNames: string[], companion: C
     serializedCharactersData,
     charactersLevels,
     accountCreateTime,
-    companions: safeSection<any>('companions', {}, () => getCompanions(companion, accountOptions)),
+    companions: safeSection<any>('companions', {}, () => getCompanions(companion, accountOptions, options?.simulatedCompanions)),
     bundles: safeSection<any>('bundles', [], () => getBundles(idleonData)),
     serverVars,
     accountOptions,

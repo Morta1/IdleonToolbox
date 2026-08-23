@@ -1,5 +1,6 @@
 import { format, getDaysInMonth, getDaysInYear, intervalToDuration, isValid } from 'date-fns';
-import { drawerPages } from '@components/constants';
+import { drawerPages, simulatedCompanionsKey } from '@components/constants';
+import { readLocalStorageValue } from '@mantine/hooks';
 import merge from 'lodash.merge';
 import { copyText } from '@utility/clipboard';
 
@@ -974,7 +975,9 @@ export const handleLoadJson = async (dispatch) => {
     const content = JSON.parse(await navigator.clipboard.readText());
     let { data = content, charNames, companion, guildData, serverVars = {}, accountCreateTime, tournament } = content;
     const { parseData } = await import('@parsers/index');
-    const parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTime, tournament);
+    const parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTime, tournament, {
+      simulatedCompanions: readLocalStorageValue({ key: simulatedCompanionsKey, defaultValue: [] })
+    });
     const lastUpdated = new Date().getTime();
     localStorage.setItem('lastUpdated', JSON.stringify(lastUpdated));
     // console.log('Manual Import', { ...parsedData, lastUpdated, manualImport: true });
