@@ -32,7 +32,8 @@ export const patchNotes = [
     ],
     'fixes': [
       'Refinery: auto refine was shown as a percentage, so it read 0% or 0.01%. It is an on/off toggle in game and now says On or Off',
-      'Bubba: upgrade descriptions showed a stray "@" where the game puts a line break'
+      'Bubba: upgrade descriptions showed a stray "@" where the game puts a line break',
+      'Clamworks: the 9th promotion compensation showed a raw placeholder instead of its Class EXP multiplier'
     ]
   },
   {
