@@ -4,6 +4,7 @@ import { Card, CardContent, Stack, TextField, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 import { getSoulsReward } from '@parsers/world-3/worship';
+import { CardTitleAndValue as StatCard } from '@components/common/styles';
 
 const Totems = () => {
   const { state } = useContext(AppContext);
@@ -17,11 +18,13 @@ const Totems = () => {
                    label={'Worship Efficiency'}/>
         <TextField size={'small'} value={foodEff} onChange={({ target }) => setFoodEff(target.value)}
                    label={'Food Effect'}/>
+        <StatCard title={'Total Max Waves'} icon={'etc/totem_0.png'} imgStyle={{ width: 24, height: 24 }}
+                  value={commaNotation(state?.account?.towers?.totalWaves ?? 0)}/>
       </Stack>
       <Stack direction={'row'} gap={2} sx={{ width: 'fit-content' }} flexWrap={'wrap'}>
         {state?.account?.totems?.map((totem, index) => {
           const { name, maxWave, expReward, map, chargeReq, minEfficiency } = totem;
-          return <Card key={name} sx={{ md: { minWidth: 500 } }}>
+          return <Card key={name ?? index} sx={{ md: { minWidth: 500 } }}>
             <CardContent>
               <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
                 <TotemImg src={`${prefix}etc/totem_${index}.png`} alt={'totem' + index}/>
