@@ -34,7 +34,8 @@ export const patchNotes = [
     'fixes': [
       'Refinery: auto refine was shown as a percentage, so it read 0% or 0.01%. It is an on/off toggle in game and now says On or Off',
       'Bubba: upgrade descriptions showed a stray "@" where the game puts a line break',
-      'Clamworks: the 9th promotion compensation showed a raw placeholder instead of its Class EXP multiplier'
+      'Clamworks: the 9th promotion compensation showed a raw placeholder instead of its Class EXP multiplier',
+      'Quests: quests you re-opened to reclaim their reward, and the Promotheus class quest after a Complete Class Redo, no longer show as unfinished on the quest tracker'
     ]
   },
   {

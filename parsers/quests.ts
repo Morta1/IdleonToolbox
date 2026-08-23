@@ -30,6 +30,18 @@ export const getQuests = (characters: Character[]): Record<string, any[]> => {
     for (let i = 0; i < characters?.length; i++) {
       const rawQuest = cloneObject((characters as any)?.[i]?.quests?.[npcName]) || {};
       const questIndices = Object.keys(rawQuest).filter((questIndex) => npcQuests[questIndex]);
+      // The game lets a handful of quests be re-opened to reclaim their reward item, and Complete
+      // Class Redo re-opens the class-choice ones (Promotheus2, Scripticus8) on its own. Their raw
+      // 0 is indistinguishable from a quest that was never finished, so the tell is a later quest
+      // from the same npc being turned in - those chains only ever move forward, so the earlier
+      // one must have been completed once already.
+      const status: Record<string, number> = questIndices?.reduce((res: Record<string, number>, questIndex: string, j: number) => {
+        const raw = rawQuest[questIndex];
+        const reclaimed = raw === 0
+          && npcQuests[questIndex]?.Reclaimable
+          && questIndices.slice(j + 1).some((later) => rawQuest[later] === 1);
+        return { ...res, [questIndex]: reclaimed ? 1 : raw };
+      }, {});
       // `marker` is the one quest this character currently stands on - the single avatar drawn
       // under the NPC's list. Quests aren't strictly sequential: a later one can be turned in
       // while an earlier one is still open (repeatable/trophy quests) or was never unlocked.
@@ -39,14 +51,14 @@ export const getQuests = (characters: Character[]): Record<string, any[]> => {
       let claimedByUnfinished = false;
       for (let j = 0; j < questIndices?.length; j++) {
         const questIndex = questIndices[j];
-        const questStatus = rawQuest[questIndex];
+        const questStatus = status[questIndex];
         if (questStatus === 1) {
           npcQuests[questIndex].completed = [...(npcQuests[questIndex]?.completed || []), {
             charIndex: i,
             status: questStatus
           }];
         }
-        if (marker !== undefined && rawQuest[marker] === 0) continue;
+        if (marker !== undefined && status[marker] === 0) continue;
         if (questStatus === 1) {
           marker = questIndex;
         } else if (!claimedByUnfinished) {
@@ -57,7 +69,7 @@ export const getQuests = (characters: Character[]): Record<string, any[]> => {
       if (marker !== undefined) {
         npcQuests[marker].progress = [...(npcQuests[marker]?.progress || []), {
           charIndex: i,
-          status: rawQuest[marker]
+          status: status[marker]
         }];
       }
     }
