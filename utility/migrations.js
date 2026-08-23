@@ -1621,6 +1621,24 @@ export const migration67 = (config) => {
     dashboardConfig.timers['World 3'] = ordered;
   }
 
+  const talentsOptions = dashboardConfig?.characters?.talents?.options;
+  if (Array.isArray(talentsOptions)) {
+    if (!talentsOptions.some((o) => o?.name === 'unmaxedTalents')) {
+      talentsOptions.push({
+        name: 'unmaxedTalents',
+        checked: true,
+        helperText: 'Alert when a class talent still has talent points left to spend before its max level'
+      });
+    }
+    if (!talentsOptions.some((o) => o?.name === 'libraryUpgradableTalents')) {
+      talentsOptions.push({
+        name: 'libraryUpgradableTalents',
+        checked: false,
+        helperText: 'Alert when a maxed class talent could still be raised by a Talent Book Library book'
+      });
+    }
+  }
+
   dashboardConfig.version = 67;
   return dashboardConfig;
 };
