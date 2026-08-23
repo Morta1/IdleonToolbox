@@ -566,7 +566,14 @@ const getChapterBonus = (account: any, chapterArrIndex: any, innerIndex: any) =>
   return chapter?.bonus;
 }
 
+// The game locks POW to a flat 2 until the spelunking tutorial is past step 8.
+const SPELUNKING_TUTORIAL_STEP_INDEX = 478;
+const SPELUNKING_TUTORIAL_POWER_STEP = 8;
+const SPELUNKING_TUTORIAL_POWER = 2;
+
 const getPower = (account: any, _unused1?: any) => {
+  const tutorialStep = account?.accountOptions?.[SPELUNKING_TUTORIAL_STEP_INDEX] ?? 0;
+  const inTutorial = tutorialStep < SPELUNKING_TUTORIAL_POWER_STEP;
   const basePower = 1 + getSpelunkingBonus(account, 0);
   // Power multiplier - combines many different bonuses
   const winnerBonus = getWinnerBonus(account, '<x Spelunk POW');
@@ -616,12 +623,20 @@ const getPower = (account: any, _unused1?: any) => {
     * (1 + getSushiBonus(account, 20) / 100)
     * (1 + getButtonBonus(account, 6) / 100);
 
+  const value = inTutorial ? SPELUNKING_TUTORIAL_POWER : basePower * powerMulti;
+
   return {
-    value: basePower * powerMulti,
+    value,
     breakdown: {
       statName: "Power",
-      totalValue: notateNumber(basePower * powerMulti, "Big"),
+      totalValue: notateNumber(value, "Big"),
       categories: [
+        ...(inTutorial ? [{
+          name: "Tutorial",
+          sources: [
+            { name: "Power is locked to 2 until the spelunking tutorial is done", value: SPELUNKING_TUTORIAL_POWER }
+          ]
+        }] : []),
         {
           name: "Additive",
           sources: [
