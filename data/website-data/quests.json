@@ -516,7 +516,8 @@
         }
       ],
       "Difficulty": "2",
-      "Name": "Hardcore_Gamer_Status,_Here_I_Come!"
+      "Name": "Hardcore_Gamer_Status,_Here_I_Come!",
+      "Reclaimable": true
     },
     "3": {
       "Type": "Custom",
@@ -727,7 +728,8 @@
         }
       ],
       "Difficulty": "4",
-      "Name": "Warrior,_Archer_or_Mage?"
+      "Name": "Warrior,_Archer_or_Mage?",
+      "Reclaimable": true
     },
     "9": {
       "Type": "ItemsAndSpaceRequired",
@@ -1131,7 +1133,8 @@
         }
       ],
       "Difficulty": "1",
-      "Name": "Literally_Burning_your_Money"
+      "Name": "Literally_Burning_your_Money",
+      "Reclaimable": true
     },
     "4": {
       "Type": "ItemsAndSpaceRequired",
@@ -1816,7 +1819,8 @@
         }
       ],
       "Difficulty": "1",
-      "Name": "Three_Right_Answers"
+      "Name": "Three_Right_Answers",
+      "Reclaimable": true
     },
     "3": {
       "Type": "Custom",
@@ -1880,7 +1884,8 @@
         }
       ],
       "Difficulty": "5",
-      "Name": "The_Witcher,_but_not_Really"
+      "Name": "The_Witcher,_but_not_Really",
+      "Reclaimable": true
     },
     "sprite": "sprite-84-28",
     "spriteAcross": 4,
@@ -2013,7 +2018,8 @@
         }
       ],
       "Difficulty": "3",
-      "Name": "How_It's_Made,_Episode_7._The_Super_Peanut"
+      "Name": "How_It's_Made,_Episode_7._The_Super_Peanut",
+      "Reclaimable": true
     },
     "2": {
       "Type": "ItemsAndSpaceRequired",
@@ -2072,7 +2078,8 @@
         }
       ],
       "Difficulty": "1",
-      "Name": "Becoming_the_Best_Beginner"
+      "Name": "Becoming_the_Best_Beginner",
+      "Reclaimable": true
     },
     "sprite": "sprite-84-26",
     "spriteAcross": 3,
@@ -2209,7 +2216,8 @@
         }
       ],
       "Difficulty": "1",
-      "Name": "Maestro!_The_Stro!_Mman!"
+      "Name": "Maestro!_The_Stro!_Mman!",
+      "Reclaimable": true
     },
     "sprite": "sprite-84-52",
     "spriteAcross": 5,
@@ -2326,7 +2334,8 @@
         }
       ],
       "Difficulty": "4",
-      "Name": "Investigator_by_Day,_Prankster_by_Night"
+      "Name": "Investigator_by_Day,_Prankster_by_Night",
+      "Reclaimable": true
     },
     "4": {
       "Type": "Custom",
@@ -3778,7 +3787,8 @@
         }
       ],
       "Difficulty": "3",
-      "Name": "Bringing_Bob's_Boxes"
+      "Name": "Bringing_Bob's_Boxes",
+      "Reclaimable": true
     },
     "4": {
       "Type": "ItemsAndSpaceRequired",
@@ -4230,7 +4240,8 @@
         }
       ],
       "Difficulty": "4",
-      "Name": "Dress_to_Impress"
+      "Name": "Dress_to_Impress",
+      "Reclaimable": true
     },
     "6": {
       "Type": "Custom",
@@ -6731,7 +6742,8 @@
         }
       ],
       "Difficulty": "3",
-      "Name": "Coin_Shenanigans"
+      "Name": "Coin_Shenanigans",
+      "Reclaimable": true
     },
     "5": {
       "Type": "ItemsAndSpaceRequired",
@@ -7165,7 +7177,8 @@
         }
       ],
       "Difficulty": "5",
-      "Name": "Legislative_Action"
+      "Name": "Legislative_Action",
+      "Reclaimable": true
     },
     "5": {
       "Type": "Custom",
@@ -7451,7 +7464,8 @@
         }
       ],
       "Difficulty": "5",
-      "Name": "Mayoral_Movie_Taste"
+      "Name": "Mayoral_Movie_Taste",
+      "Reclaimable": true
     },
     "5": {
       "Type": "Custom",
@@ -8796,7 +8810,8 @@
         }
       ],
       "Difficulty": "3",
-      "Name": "Right_side_wrong_side!"
+      "Name": "Right_side_wrong_side!",
+      "Reclaimable": true
     },
     "2": {
       "Type": "Custom",
@@ -8826,7 +8841,8 @@
         }
       ],
       "Difficulty": "4",
-      "Name": "No_room_on_the_Dance_Floor!"
+      "Name": "No_room_on_the_Dance_Floor!",
+      "Reclaimable": true
     },
     "3": {
       "Type": "Custom",
@@ -8856,7 +8872,8 @@
         }
       ],
       "Difficulty": "6",
-      "Name": "Everybody_move_it_move_it!"
+      "Name": "Everybody_move_it_move_it!",
+      "Reclaimable": true
     },
     "sprite": "sprite-84-76",
     "spriteAcross": 4,
@@ -8897,7 +8914,8 @@
         }
       ],
       "Difficulty": "1",
-      "Name": "Filling_the_Menu"
+      "Name": "Filling_the_Menu",
+      "Reclaimable": true
     },
     "2": {
       "Type": "Custom",
@@ -8940,7 +8958,8 @@
         }
       ],
       "Difficulty": "1",
-      "Name": "Diner_Deliverer"
+      "Name": "Diner_Deliverer",
+      "Reclaimable": true
     },
     "3": {
       "Type": "Custom",
@@ -8975,7 +8994,8 @@
         }
       ],
       "Difficulty": "1",
-      "Name": "Recipe_for_Fattening_Pastry"
+      "Name": "Recipe_for_Fattening_Pastry",
+      "Reclaimable": true
     },
     "sprite": "sprite-84-77",
     "spriteAcross": 4,
@@ -9539,7 +9559,8 @@
         }
       ],
       "Difficulty": "2",
-      "Name": "Bring_me_the_Booty"
+      "Name": "Bring_me_the_Booty",
+      "Reclaimable": true
     },
     "2": {
       "Type": "Custom",
@@ -9564,7 +9585,8 @@
         }
       ],
       "Difficulty": "3",
-      "Name": "Sailing_for_some_Sparks"
+      "Name": "Sailing_for_some_Sparks",
+      "Reclaimable": true
     },
     "3": {
       "Type": "Custom",
@@ -9589,7 +9611,8 @@
         }
       ],
       "Difficulty": "6",
-      "Name": "Seeking_Treasure_Shrooms"
+      "Name": "Seeking_Treasure_Shrooms",
+      "Reclaimable": true
     },
     "4": {
       "Type": "Custom",
@@ -9614,7 +9637,8 @@
         }
       ],
       "Difficulty": "8",
-      "Name": "Ye_finest_treasure_at_once!"
+      "Name": "Ye_finest_treasure_at_once!",
+      "Reclaimable": true
     },
     "sprite": "sprite-84-82",
     "spriteAcross": 1,
@@ -9655,7 +9679,8 @@
         }
       ],
       "Difficulty": "3",
-      "Name": "Think_twice_speak_once"
+      "Name": "Think_twice_speak_once",
+      "Reclaimable": true
     },
     "2": {
       "Type": "Custom",
@@ -9690,7 +9715,8 @@
         }
       ],
       "Difficulty": "5",
-      "Name": "Speak_from_the_heart_not_the_mind"
+      "Name": "Speak_from_the_heart_not_the_mind",
+      "Reclaimable": true
     },
     "3": {
       "Type": "Custom",
@@ -10084,7 +10110,8 @@
         }
       ],
       "Difficulty": "1",
-      "Name": "VMAN_ACHIEVED!"
+      "Name": "VMAN_ACHIEVED!",
+      "Reclaimable": true
     },
     "sprite": "sprite-84-87",
     "spriteAcross": 4,
@@ -10290,7 +10317,8 @@
         }
       ],
       "Difficulty": "6",
-      "Name": "Onyx_Statue_Crafting"
+      "Name": "Onyx_Statue_Crafting",
+      "Reclaimable": true
     },
     "3": {
       "Type": "Custom",
@@ -10856,7 +10884,8 @@
         }
       ],
       "Difficulty": "1",
-      "Name": "Sneak_Dropout"
+      "Name": "Sneak_Dropout",
+      "Reclaimable": true
     },
     "2": {
       "Type": "Custom",
@@ -10886,7 +10915,8 @@
         }
       ],
       "Difficulty": "3",
-      "Name": "Stealth_Check_1_2_3"
+      "Name": "Stealth_Check_1_2_3",
+      "Reclaimable": true
     },
     "3": {
       "Type": "Custom",
@@ -11131,7 +11161,8 @@
         }
       ],
       "Difficulty": "3",
-      "Name": "Goofin'_Around"
+      "Name": "Goofin'_Around",
+      "Reclaimable": true
     },
     "2": {
       "Type": "Custom",
@@ -11169,7 +11200,8 @@
         }
       ],
       "Difficulty": "5",
-      "Name": "Messin'_Around"
+      "Name": "Messin'_Around",
+      "Reclaimable": true
     },
     "3": {
       "Type": "Custom",
@@ -11212,7 +11244,8 @@
         }
       ],
       "Difficulty": "8",
-      "Name": "Loiterin'_Around"
+      "Name": "Loiterin'_Around",
+      "Reclaimable": true
     },
     "sprite": "sprite-84-98",
     "spriteAcross": 4,
@@ -11454,7 +11487,8 @@
         }
       ],
       "Difficulty": "7",
-      "Name": "Urie_Wants_to_be_a_Millionaire"
+      "Name": "Urie_Wants_to_be_a_Millionaire",
+      "Reclaimable": true
     },
     "sprite": "sprite-84-103",
     "spriteAcross": 4,
@@ -11485,7 +11519,8 @@
         }
       ],
       "Difficulty": "2",
-      "Name": "Lost_Possum"
+      "Name": "Lost_Possum",
+      "Reclaimable": true
     },
     "2": {
       "Type": "Custom",
@@ -11510,7 +11545,8 @@
         }
       ],
       "Difficulty": "4",
-      "Name": "Lost_Amber"
+      "Name": "Lost_Amber",
+      "Reclaimable": true
     },
     "3": {
       "Type": "Custom",
@@ -11535,7 +11571,8 @@
         }
       ],
       "Difficulty": "9",
-      "Name": "Lost_Doll"
+      "Name": "Lost_Doll",
+      "Reclaimable": true
     },
     "sprite": "sprite-84-104",
     "spriteAcross": 4,
@@ -11566,7 +11603,8 @@
         }
       ],
       "Difficulty": "2",
-      "Name": "To_Guide_a_Shypig"
+      "Name": "To_Guide_a_Shypig",
+      "Reclaimable": true
     },
     "2": {
       "Type": "Custom",
@@ -11591,7 +11629,8 @@
         }
       ],
       "Difficulty": "4",
-      "Name": "The_Hero's_Journey"
+      "Name": "The_Hero's_Journey",
+      "Reclaimable": true
     },
     "sprite": "sprite-84-105",
     "spriteAcross": 4,
@@ -11744,7 +11783,8 @@
         }
       ],
       "Difficulty": "9",
-      "Name": "1_Million_Statues"
+      "Name": "1_Million_Statues",
+      "Reclaimable": true
     },
     "sprite": "sprite-84-108",
     "spriteAcross": 1,

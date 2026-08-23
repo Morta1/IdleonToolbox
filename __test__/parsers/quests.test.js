@@ -22,6 +22,42 @@ describe('quest markers', () => {
     expect(npc.npcQuests.filter(({ progress }) => progress?.length)).toHaveLength(1);
   });
 
+  it('treats a reclaimable quest re-opened after the chain was finished as done', () => {
+    // Complete Class Redo resets Promotheus2 to 0 without touching the later story quests, so the
+    // raw data looks like an unfinished quest sitting in the middle of a completed chain.
+    const qc = { Promotheus1: 1, Promotheus2: 0, Promotheus3: 1, Promotheus4: 1 };
+
+    const npc = findNpc(getQuests(build(qc)), 'Blunder_Hills', 'Promotheus');
+    const questNamed = (name) => npc.npcQuests.find((quest) => quest.QuestName === name);
+    const withMarker = npc.npcQuests.filter(({ progress }) => progress?.length);
+
+    expect(questNamed('Promotheus2').completed).toEqual([{ charIndex: 0, status: 1 }]);
+    expect(withMarker).toHaveLength(1);
+    expect(withMarker[0].QuestName).toBe('Promotheus4');
+  });
+
+  it('leaves a reclaimable quest in progress while the rest of the chain is unfinished', () => {
+    // Same quest, first time through - nothing later is turned in, so it's genuinely open
+    const qc = { Promotheus1: 1, Promotheus2: 0, Promotheus3: -1, Promotheus4: -1 };
+
+    const npc = findNpc(getQuests(build(qc)), 'Blunder_Hills', 'Promotheus');
+    const questNamed = (name) => npc.npcQuests.find((quest) => quest.QuestName === name);
+
+    expect(questNamed('Promotheus2').completed ?? []).toEqual([]);
+    expect(questNamed('Promotheus2').progress).toEqual([{ charIndex: 0, status: 0 }]);
+  });
+
+  it('still holds the marker on an open repeatable that is not reclaimable', () => {
+    // Champion_of_the_Grasslands isn't on the game's reclaim list, so a later turn-in proves nothing
+    const qc = { Scripticus12: 0, Scripticus13: 1 };
+
+    const npc = findNpc(getQuests(build(qc)), 'Blunder_Hills', 'Scripticus');
+    const questNamed = (name) => npc.npcQuests.find((quest) => quest.QuestName === name);
+
+    expect(questNamed('Scripticus12').completed ?? []).toEqual([]);
+    expect(questNamed('Scripticus12').progress).toEqual([{ charIndex: 0, status: 0 }]);
+  });
+
   it('carries the marker past a quest that was never unlocked', () => {
     // Promotheus1 stays at -1 for characters who moved on without it
     const qc = { Promotheus1: -1, Promotheus2: 1, Promotheus3: 1, Promotheus4: 1 };
