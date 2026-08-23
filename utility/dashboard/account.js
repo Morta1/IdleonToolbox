@@ -783,9 +783,14 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
     }
     ``
     if (foodLust?.checked) {
-      const hasFoodLust = foodLustUpgrade?.lvl > 0 && foodLustUpgrade?.bonus >= foodLustUpgrade?.lvl;
+      // The threshold is clamped to the upgrade's level, so the max value means "only when maxed"
+      // no matter how many stacks that account can actually hold.
+      const threshold = Math.min(foodLust?.props?.value ?? foodLustUpgrade?.lvl, foodLustUpgrade?.lvl);
+      const hasFoodLust = foodLustUpgrade?.lvl > 0 && foodLustUpgrade?.bonus >= threshold;
       if (hasFoodLust) {
         equinoxAlerts.foodLust = hasFoodLust;
+        equinoxAlerts.foodLustStacks = foodLustUpgrade?.bonus;
+        equinoxAlerts.foodLustMaxed = foodLustUpgrade?.bonus >= foodLustUpgrade?.lvl;
       }
     }
     if (Object.keys(equinoxAlerts).length > 0) {
