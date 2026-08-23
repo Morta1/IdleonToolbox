@@ -1,3 +1,0 @@
-# Gitignored files copied into each new session's worktree.
-.env.local
-.claude/settings.local.json
