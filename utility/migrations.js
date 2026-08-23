@@ -1408,18 +1408,25 @@ const migration64 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+// Object key order drives the settings UI ordering, so a new tracker has to be rebuilt into place
+// next to its baseTrackers neighbour: plain assignment would append it last. Appends when the
+// anchor is missing so the tracker still lands somewhere.
+const insertKeyNear = (obj, anchorKey, newKey, value, { before = false } = {}) => {
+  const ordered = {};
+  for (const [key, existing] of Object.entries(obj)) {
+    if (before && key === anchorKey && !(newKey in ordered)) ordered[newKey] = value;
+    ordered[key] = existing;
+    if (!before && key === anchorKey) ordered[newKey] = value;
+  }
+  if (!(newKey in ordered)) ordered[newKey] = value;
+  return ordered;
+};
+
 const migration65 = (dashboardConfig) => {
   ensureDashboardOptions(dashboardConfig);
-  // Rebuild the timers object so 'World 6' lands before 'World 7' — plain assignment would
-  // append it after 'World 7' (object key order drives the settings UI ordering).
   const timers = dashboardConfig.timers ?? {};
   if (!timers['World 6']?.cropsReady) {
-    const ordered = {};
-    for (const [group, value] of Object.entries(timers)) {
-      if (group === 'World 7' && !ordered['World 6']) ordered['World 6'] = timers['World 6'] ?? {};
-      ordered[group] = value;
-    }
-    if (!ordered['World 6']) ordered['World 6'] = {};
+    const ordered = insertKeyNear(timers, 'World 7', 'World 6', timers['World 6'] ?? {}, { before: true });
     ordered['World 6'].cropsReady = { checked: true, options: [] };
     dashboardConfig.timers = ordered;
   }
@@ -1525,17 +1532,13 @@ const migration66 = (dashboardConfig) => {
   // Salt chain balance alert: one salt picker plus which side of the limit to be told about.
   // "Below its limit" is off by default - it fires for nearly every salt on nearly every account,
   // where being at or past the limit is the rare, actionable case.
-  const constructionOptions = dashboardConfig?.account?.['World 3']?.construction?.options;
-  if (Array.isArray(constructionOptions)) {
+  let constructionOpts = dashboardConfig?.account?.['World 3']?.construction?.options;
+  if (Array.isArray(constructionOpts)) {
     // An earlier build of this same (unreleased) migration shipped these as two salt pickers.
-    const legacy = constructionOptions.findIndex((option) => option?.name === 'saltDeficit'
-      || option?.name === 'saltRankUpRoom');
-    if (legacy !== -1) {
-      dashboardConfig.account['World 3'].construction.options = constructionOptions
-        .filter((option) => option?.name !== 'saltDeficit' && option?.name !== 'saltRankUpRoom');
-    }
+    constructionOpts = constructionOpts
+      .filter((option) => option?.name !== 'saltDeficit' && option?.name !== 'saltRankUpRoom');
+    dashboardConfig.account['World 3'].construction.options = constructionOpts;
   }
-  const constructionOpts = dashboardConfig?.account?.['World 3']?.construction?.options;
   if (Array.isArray(constructionOpts) && !constructionOpts.some((option) => option?.name === 'saltBalance')) {
     constructionOpts.push({
       name: 'saltBalance',
@@ -1593,24 +1596,16 @@ export const migration67 = (config) => {
   }
 
   const world7 = dashboardConfig?.account?.['World 7'];
-  // Rebuild the group so Clam Work lands before The Button, matching baseTrackers - plain
-  // assignment would append it last (object key order drives the settings UI ordering).
+  // Clam Work lands before The Button, matching baseTrackers.
   if (world7 && !world7.clamWork) {
-    const clamWork = {
+    dashboardConfig.account['World 7'] = insertKeyNear(world7, 'theButton', 'clamWork', {
       checked: true,
       options: [{
         name: 'promotionAffordable',
         checked: true,
         helperText: 'Pearls are spent even when the promotion fails, and a successful one resets your pearls and every clam upgrade'
       }]
-    };
-    const ordered = {};
-    for (const [tracker, value] of Object.entries(world7)) {
-      if (tracker === 'theButton') ordered.clamWork = clamWork;
-      ordered[tracker] = value;
-    }
-    if (!ordered.clamWork) ordered.clamWork = clamWork;
-    dashboardConfig.account['World 7'] = ordered;
+    }, { before: true });
   }
 
   const mineheadOptions = dashboardConfig?.account?.['World 7']?.minehead?.options;
@@ -1637,17 +1632,9 @@ export const migration67 = (config) => {
   }
 
   const world3 = dashboardConfig?.timers?.['World 3'];
-  // Closest flag timer. Rebuild the group so it lands right after closestTrap, matching
-  // baseTrackers - plain assignment would append it last (key order drives the settings UI).
+  // Closest flag timer, right after closestTrap, matching baseTrackers.
   if (world3 && !world3.closestFlag) {
-    const closestFlag = { checked: true, options: [] };
-    const ordered = {};
-    for (const [tracker, value] of Object.entries(world3)) {
-      ordered[tracker] = value;
-      if (tracker === 'closestTrap') ordered.closestFlag = closestFlag;
-    }
-    if (!ordered.closestFlag) ordered.closestFlag = closestFlag;
-    dashboardConfig.timers['World 3'] = ordered;
+    dashboardConfig.timers['World 3'] = insertKeyNear(world3, 'closestTrap', 'closestFlag', { checked: true, options: [] });
   }
 
   const talentsOptions = dashboardConfig?.characters?.talents?.options;
@@ -1669,24 +1656,16 @@ export const migration67 = (config) => {
   }
 
   const world6 = dashboardConfig?.account?.['World 6'];
-  // Rebuild the group so Beanstalk lands right after Sneaking, matching baseTrackers - plain
-  // assignment would append it last (object key order drives the settings UI ordering).
+  // Beanstalk lands right after Sneaking, matching baseTrackers.
   if (world6 && !world6.beanstalk) {
-    const beanstalk = {
+    dashboardConfig.account['World 6'] = insertKeyNear(world6, 'sneaking', 'beanstalk', {
       checked: true,
       options: [{
         name: 'readyToPlant',
         checked: true,
         helperText: 'Alert when you own enough of a golden food to rank it up on the beanstalk'
       }]
-    };
-    const ordered = {};
-    for (const [tracker, value] of Object.entries(world6)) {
-      ordered[tracker] = value;
-      if (tracker === 'sneaking') ordered.beanstalk = beanstalk;
-    }
-    if (!ordered.beanstalk) ordered.beanstalk = beanstalk;
-    dashboardConfig.account['World 6'] = ordered;
+    });
   }
 
   const constructionOptions = dashboardConfig?.account?.['World 3']?.construction?.options;
@@ -1724,24 +1703,16 @@ export const migration67 = (config) => {
   }
 
   const charTrackers = dashboardConfig?.characters;
-  // Rebuild the group so Quests lands right after Traps, matching baseTrackers - plain assignment
-  // would append it last (object key order drives the settings UI ordering).
+  // Quests lands right after Traps, matching baseTrackers.
   if (charTrackers && !charTrackers.quests) {
-    const quests = {
+    dashboardConfig.characters = insertKeyNear(charTrackers, 'traps', 'quests', {
       checked: true,
       options: [{
         name: 'picnicDaily',
         checked: true,
         helperText: 'Alert when a character hasn\'t completed any of the Picnic Stowaway daily quests today'
       }]
-    };
-    const ordered = {};
-    for (const [tracker, value] of Object.entries(charTrackers)) {
-      ordered[tracker] = value;
-      if (tracker === 'traps') ordered.quests = quests;
-    }
-    if (!ordered.quests) ordered.quests = quests;
-    dashboardConfig.characters = ordered;
+    });
   }
 
   dashboardConfig.version = 67;

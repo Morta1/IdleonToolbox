@@ -10,7 +10,8 @@ import {
   numberWithCommas,
   pascalCase,
   prefix,
-  randomFloatBetween
+  randomFloatBetween,
+  secondsToShortDuration
 } from '@utility/helpers';
 import HtmlTooltip from '../Tooltip';
 import {
@@ -801,17 +802,11 @@ const Alert = ({
 
 // Coarse on purpose - the projection is only as good as the current cycle rates, so minute
 // precision would read as more certain than it is.
-const formatHoursLeft = (hoursLeft) => {
-  if (hoursLeft < 1) return `${Math.max(1, Math.round(hoursLeft * 60))}m`;
-  if (hoursLeft < 24) return `${Math.floor(hoursLeft)}h`;
-  const days = Math.floor(hoursLeft / 24);
-  const hours = Math.floor(hoursLeft % 24);
-  return hours > 0 ? `${days}d ${hours}h` : `${days}d`;
-}
-
 const RefineryTitle = ({ missingMats, hoursLeft }) => {
   return <Stack alignItems={'center'}>
-    {hoursLeft > 0 ? `Materials run out in ${formatHoursLeft(hoursLeft)}` : 'Missing materials'}
+    {hoursLeft > 0
+      ? `Materials run out in ${secondsToShortDuration(hoursLeft * 3600, { minUnit: 'minute' })}`
+      : 'Missing materials'}
     <Stack direction={'row'}>
       {missingMats.map(({ rawName }) =>
         <IconImg

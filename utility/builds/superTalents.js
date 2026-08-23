@@ -12,6 +12,8 @@
 // The per-point level gain is account-dependent (50 + Legend Talent 7 + Zenith 5),
 // so it isn't shown here — a build can't know the reader's account.
 
+import { isTalentBannedForAllLevels } from '../talentBans';
+
 export const SUPER_TALENT_MAX_POINTS = 20;
 
 // Talents that can never receive a super talent point.
@@ -21,9 +23,7 @@ export const isSuperTalentEligible = (skillIndex) => {
   if (skillIndex == null || skillIndex === '') return false;
   const index = Number(skillIndex);
   if (!Number.isInteger(index)) return false;
-  if (index >= 49 && index <= 59) return false;
-  if (index === 149 || index === 374 || index === 505 || index === 539) return false;
-  return index >= 0 && index <= 614;
+  return index >= 0 && !isTalentBannedForAllLevels(index);
 };
 
 // Flat list of every starred skillIndex across all tabs. Super points are one

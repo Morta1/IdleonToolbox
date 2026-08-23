@@ -1,9 +1,8 @@
 import React from 'react';
 import { Alert, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, notateNumber, numberWithCommas, prefix, secondsToShortDuration } from '@utility/helpers';
 import { TitleAndValue } from '@components/common/styles';
 import useCheckbox from '@components/common/useCheckbox';
-import { formatSeconds } from './format';
 
 // One row per portal. Maps with two get two, told apart by where each door leads.
 const PortalRow = ({ portal, showDoor }) => {
@@ -14,8 +13,8 @@ const PortalRow = ({ portal, showDoor }) => {
       {destinationName ? `Door to ${cleanUnderscore(destinationName)}` : `Portal ${portalIndex + 1}`}
     </Typography> : null}
     <TitleAndValue title={'Kills needed'} value={reqKills === 0 ? 'Free' : numberWithCommas(reqKills)}/>
-    <TitleAndValue title={'Clear time'} value={reachable ? formatSeconds(secondsToClear) : 'Can\'t hit this monster'}/>
-    {reachable ? <TitleAndValue title={'With Void Radius'} value={formatSeconds(buffedSecondsToClear)}/> : null}
+    <TitleAndValue title={'Clear time'} value={reachable ? secondsToShortDuration(secondsToClear) : 'Can\'t hit this monster'}/>
+    {reachable ? <TitleAndValue title={'With Void Radius'} value={secondsToShortDuration(buffedSecondsToClear)}/> : null}
   </Stack>;
 };
 

@@ -851,6 +851,33 @@ export const secondsToCoarseDuration = (seconds) => {
   return `${years < 10 ? years.toFixed(1) : Math.round(years)}y`;
 }
 
+/**
+ * Up to the two largest units ("2d 5h", "3m 12s") for compact countdowns and split times.
+ * minUnit floors the precision: 'minute' turns sub-minute spans into "1m" instead of seconds.
+ */
+export const secondsToShortDuration = (seconds, { minUnit = 'second' } = {}) => {
+  if (!Number.isFinite(seconds)) return '-';
+  const floorSeconds = minUnit === 'minute' ? SECONDS_IN.minute : 1;
+  if (seconds < floorSeconds) return minUnit === 'minute' ? '1m' : '<1s';
+  const units = [
+    { label: 'd', size: SECONDS_IN.day },
+    { label: 'h', size: SECONDS_IN.hour },
+    { label: 'm', size: SECONDS_IN.minute },
+    { label: 's', size: 1 }
+  ].filter(({ size }) => size >= floorSeconds);
+  const first = units.findIndex(({ size }) => seconds >= size);
+  const major = units[first];
+  const minor = units[first + 1];
+  if (!minor) return `${Math.round(seconds / major.size)}${major.label}`;
+  let majorValue = Math.floor(seconds / major.size);
+  let minorValue = Math.round((seconds % major.size) / minor.size);
+  if (minorValue * minor.size >= major.size) {
+    majorValue += 1;
+    minorValue = 0;
+  }
+  return minorValue > 0 ? `${majorValue}${major.label} ${minorValue}${minor.label}` : `${majorValue}${major.label}`;
+}
+
 export const fillMissingTalents = (arr) => {
   const talentIds = arr.map(obj => obj.talentId);
   const minTalentId = Math.min(...talentIds);

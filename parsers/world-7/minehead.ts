@@ -10,6 +10,11 @@ import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 
+// The three mine currency gain upgrades (Miney Farmey I/II, Miney Damagey Synergy). The dashboard
+// alert filter and its `MineUpg{n}` config keys derive from this list; the currency formula below
+// spells the indices out because 28 scales with log10(bestHit) while 5 and 22 do not.
+export const MINE_CURRENCY_UPGRADE_INDICES = [5, 22, 28];
+
 const getRawMinehead = (idleonData: any) => {
   const raw = tryToParse(idleonData?.Research) || idleonData?.Research;
   return Array.isArray(raw) ? raw : [];

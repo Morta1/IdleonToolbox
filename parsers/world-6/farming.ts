@@ -957,15 +957,27 @@ export const isCropValueCapped = (account: any) => {
   const farming = account?.farming;
   const plots = (farming?.plot ?? []).filter(({ seedType }: any) => seedType !== -1);
   if (!plots.length) return false;
-  const { productDoubler } = getProductDoubler(farming?.market);
-  const speedGMO = getMarketBonus(farming?.market, 'VALUE_GMO', 'value');
-  const voteBonus = getVoteBonus(account, 29);
-  const productionBoost = getLandRank(farming?.ranks, 1);
-  return plots.every(({ rank }: any) => Math.round(Math.max(1, Math.floor(1 + productDoubler / 100))
-    * (1 + getRanksTotalBonus(farming?.ranks, 1) / 100)
-    * Math.max(1, speedGMO)
-    * (1 + (productionBoost * (rank ?? 0) + voteBonus) / 100)) >= getCropValueMultiCap(account));
+  const parts = getPlotCropMultiParts(account, farming?.market, farming?.ranks);
+  return plots.every(({ rank }: any) => getPlotCropMulti(parts, rank) >= parts.cap);
 };
+
+/**
+ * The per-plot crop multiplier (N.js CropsBonusValue), split in two: the constant factors
+ * (product doubler, VALUE GMO, vote, cap) and the land-rank-driven ones (ranksMulti,
+ * productionBoost), so the land-rank optimizer can re-derive the rank-driven part from candidate
+ * levels while getTotalCrop and isCropValueCapped take the whole thing.
+ */
+export const getPlotCropMultiParts = (account: any, market: any, ranks: any) => ({
+  constantMulti: Math.max(1, Math.floor(1 + (getProductDoubler(market)?.productDoubler ?? 0) / 100))
+    * Math.max(1, getMarketBonus(market, 'VALUE_GMO', 'value')),
+  ranksMulti: 1 + getRanksTotalBonus(ranks, 1) / 100,
+  productionBoost: getLandRank(ranks, 1),
+  voteBonus: getVoteBonus(account, 29),
+  cap: getCropValueMultiCap(account)
+});
+
+export const getPlotCropMulti = ({ constantMulti, ranksMulti, productionBoost, voteBonus, cap }: any, rank: any) =>
+  Math.min(cap, Math.round(constantMulti * ranksMulti * (1 + (productionBoost * (rank ?? 0) + voteBonus) / 100)));
 
 export const getOptimizedLandRankUpgrades = (account: any, maxUpgrades = 10, options: any = {}) => {
   const { goal = 'evolution', onlyAffordable = false } = options;
@@ -989,14 +1001,13 @@ export const getOptimizedLandRankUpgrades = (account: any, maxUpgrades = 10, opt
     .map((plot: any, index: number) => ({ seedType: plot?.seedType, prevRank: allPlots[index - 1]?.rank ?? 0 }))
     .filter(({ seedType }: any) => seedType !== -1)
     .map(({ prevRank }: any) => prevRank);
-  const { productDoubler } = getProductDoubler(farming?.market);
-  const speedGMO = getMarketBonus(farming?.market, 'VALUE_GMO', 'value');
+  const cropMultiParts = getPlotCropMultiParts(account, farming?.market, ranks);
   const context = {
     plotRanks,
     plotPrevRanks,
-    voteBonus: getVoteBonus(account, 29),
-    cropValueConstant: Math.max(1, Math.floor(1 + productDoubler / 100)) * Math.max(1, speedGMO),
-    cropValueCap: getCropValueMultiCap(account)
+    voteBonus: cropMultiParts.voteBonus,
+    cropValueConstant: cropMultiParts.constantMulti,
+    cropValueCap: cropMultiParts.cap
   };
 
   const levels = ranks.map(({ upgradeLevel }: any) => upgradeLevel ?? 0);
@@ -1082,19 +1093,10 @@ export const getCropValueMultiCap = (account: any) => CROP_VALUE_MULTI_BASE_CAP
 
 export const getTotalCrop = (plot: any, market: any, ranks: any, account: any) => {
   // Everything except the plot's own rank is account-wide, so it is computed once, not per plot.
-  const { productDoubler } = getProductDoubler(market);
-  const productionBoost = getLandRank(ranks, 1);
-  const voteBonus = getVoteBonus(account, 29);
-  const speedGMO = getMarketBonus(account?.farming?.market, 'VALUE_GMO', 'value');
-  const cap = getCropValueMultiCap(account);
-  const sharedMulti = Math.max(1, Math.floor(1 + (productDoubler / 100)))
-    * (1 + getRanksTotalBonus(ranks, 1) / 100)
-    * Math.max(1, speedGMO);
+  const parts = getPlotCropMultiParts(account, market, ranks);
   return plot?.reduce((total: any, { seedType, cropQuantity, cropRawName, ogMulti, rank }: any) => {
     if (seedType === -1) return total;
-    const finalMulti = Math.min(cap, Math.round(sharedMulti
-      * (1 + (productionBoost * (rank ?? 0)
-        + voteBonus) / 100)));
+    const finalMulti = getPlotCropMulti(parts, rank);
     return {
       ...total,
       [cropRawName]: (total?.[cropRawName] || 0) + (cropQuantity * ogMulti * finalMulti)
