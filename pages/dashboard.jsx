@@ -562,7 +562,16 @@ const baseTrackers = {
       },
       minehead: {
         checked: true,
-        options: [{ name: 'dailyTries', checked: true }]
+        options: [
+          { name: 'dailyTries', checked: true },
+          {
+            name: 'currencyUpgrades',
+            type: 'array',
+            category: 'Alert when you can afford these mine currency upgrades',
+            props: { value: { MineUpg5: true, MineUpg22: true, MineUpg28: true }, type: 'img' },
+            checked: true
+          }
+        ]
       },
       research: {
         checked: true,

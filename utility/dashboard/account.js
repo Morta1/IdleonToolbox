@@ -1555,6 +1555,18 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
         minehead.dailyTries = { left: triesLeft, max: triesMax };
       }
     }
+    if (options?.minehead?.currencyUpgrades?.checked) {
+      // Indices of the three mine currency gain upgrades - canAfford already excludes maxed and
+      // research-locked upgrades.
+      const selected = options?.minehead?.currencyUpgrades?.props?.value;
+      const affordable = [5, 22, 28]
+        .filter((index) => selected?.[`MineUpg${index}`])
+        .map((index) => account?.minehead?.upgrades?.[index])
+        .filter((upgrade) => upgrade?.canAfford);
+      if (affordable.length > 0) {
+        minehead.currencyUpgrades = affordable;
+      }
+    }
     if (Object.keys(minehead).length > 0) {
       alerts.minehead = minehead;
     }
