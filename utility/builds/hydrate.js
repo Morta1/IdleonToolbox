@@ -1,7 +1,7 @@
 // Hydrate a stored compact build into the shape BuildTab.jsx expects.
 //
 // Derives tab order from `talentPagesMap` in parsers/talents.ts and talent
-// metadata from `talents` in @website-data — no intermediate reference file.
+// metadata from `talents` in @website-data - no intermediate reference file.
 //
 // compactBuild shape:
 //   {
@@ -90,7 +90,7 @@ export const hydrate = (compactBuild) => {
   };
 };
 
-// Blank canvas for a given class — used when the user picks a class in the
+// Blank canvas for a given class - used when the user picks a class in the
 // create form before filling anything in.
 export const hydrateEmpty = (className, subclass) => {
   return hydrate({

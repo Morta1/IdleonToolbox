@@ -157,7 +157,7 @@ export const getBestActiveCharacter = (characters: any) => {
   ), null);
 };
 
-// getbonus2(1, id, -1) walks every character and never looks at class — filtering by class only
+// getbonus2(1, id, -1) walks every character and never looks at class - filtering by class only
 // matches it because most talent ids belong to a single class. THE_FAMILY_GUY is id 144 on six
 // different class pages, so for that one the class filter throws away the real maximum. Pass a null
 // className to get the game's actual behaviour.
@@ -166,7 +166,7 @@ export const getHighestTalentAcrossCharacters = (characters: any, talentName?: a
 };
 
 // getbonus2 evaluates growth() for every character including the ones sitting at level 0, so a
-// talent nobody owns still answers with its level-0 value — 0 for add/decay, but 1 for decayMulti
+// talent nobody owns still answers with its level-0 value - 0 for add/decay, but 1 for decayMulti
 // and x1 for bigBase, which are the identity for a multiplier. Returning 0 there is the classic
 // empty-account bug: tesseract reads `100 * (talent - 1)` and would land on -100 instead of 0.
 const talentMetaByName: Record<string, any> = Object.values(talents as Record<string, any>)
@@ -195,7 +195,7 @@ export const getHighestTalentByClass = (characters: any, className: any, talentN
     if (activeCharacter) {
       // Mimic game's getbonus2(1, id, -1):
       // - talentIndex >= 100: growth(baseLevel + AllTalentLVz(baseLevel))
-      // - talentIndex < 100: growth(baseLevel) — no addedLevels adjustment
+      // - talentIndex < 100: growth(baseLevel) - no addedLevels adjustment
       // The y-variant is a separate branch in the game that reads SkillLevels straight, so added
       // levels never reach it whatever the talent id.
       const talentObj = flatTalents?.find(({ name }: any) => name === talentName);
@@ -225,7 +225,7 @@ export const getHighestTalentByClass = (characters: any, className: any, talentN
   }, seed);
 }
 
-// A null className means every character, matching getHighestTalentByClass — callers that pair the
+// A null className means every character, matching getHighestTalentByClass - callers that pair the
 // two must scope them the same way or they end up describing different characters.
 export const getCharacterByHighestTalent = (characters: any, className: any, talentName?: any, yBonus?: any, useMaxLevel?: any) => {
   const classes = className == null

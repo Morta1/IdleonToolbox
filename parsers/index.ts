@@ -124,7 +124,7 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
 };
 
 /**
- * Pure/static parsers — only depend on raw input data, never on accountData.
+ * Pure/static parsers - only depend on raw input data, never on accountData.
  * Computed once and reused across all passes.
  */
 const getStaticData = (idleonData: IdleonData, charNames: string[], companion: CompanionData, guildData: GuildData | null, serverVars: ServerVars, accountCreateTime: number, tournament: TournamentData | null, options?: ParseOptions) => {

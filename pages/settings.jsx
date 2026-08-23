@@ -307,7 +307,7 @@ const Settings = () => {
     <Container maxWidth="md" sx={{ my: 3 }}>
       <Typography variant="h4" component="h1" sx={{ mb: 3 }}>Settings</Typography>
       <Stack divider={<Divider/>} spacing={3}>
-        {/* Profile — only show for account owner, not public profiles */}
+        {/* Profile - only show for account owner, not public profiles */}
         {state?.characters && !router.query.profile ? <Stack spacing={1.5}>
           <SectionHeader icon={IconUserCircle} title="Profile" description="Manage your public profile and leaderboard participation"/>
 

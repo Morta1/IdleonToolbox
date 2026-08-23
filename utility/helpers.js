@@ -797,7 +797,7 @@ export const shouldDisplayDrawer = (pathname = '') => {
   return drawerPages.includes(pathname?.split('/').at(1))
 }
 
-export const UNKNOWN_TIME = '—';
+export const UNKNOWN_TIME = '-';
 export const isUnknownTime = (ms) => typeof ms !== 'number' || !Number.isFinite(ms);
 
 export const getRealDateInMs = (ms, shouldFormat = true, formatString = 'dd/MM/yyyy HH:mm:ss') => {

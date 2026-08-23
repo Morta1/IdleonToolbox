@@ -21,7 +21,7 @@ export const addStoneDataToEquip = (baseItem: any, stoneData: any) => {
     }
 
     // A keychain's stone replaces its UQ entry rather than adding to it, and the base UQ value can be
-    // a comma list ("2,4,6") that would string-concat onto the stone's number. Zero only those — the
+    // a comma list ("2,4,6") that would string-concat onto the stone's number. Zero only those - the
     // keychain's own combat stats still count, the way the game reads them off the item definition.
     const rawBaseStat = baseItem?.[statName];
     const isUqValue = statName === 'UQ1val' || statName === 'UQ2val';
@@ -91,7 +91,7 @@ export const getStatsFromGear = (character: any, bonusIndex: any, account?: any,
       return total; // Skip - bonus comes from gallery/hatRack
     }
     const statValue = getStatFromEquipment(item, bonusName);
-    // The Silkrode chips double the slot's UQ/etc bonus only — TotalStats applies them inside the
+    // The Silkrode chips double the slot's UQ/etc bonus only - TotalStats applies them inside the
     // UQ branch, never to an item's base stats.
     const chipMultiplier = isEtcBonus && ((index === 3 && silkroadProcessor) || (index === 10 && silkroadMotherboard) || (index === 9 && silkroadSoftware)) ? 2 : 1;
     const researchMultiplier = index === 15 ? wellDressedMulti : 1;

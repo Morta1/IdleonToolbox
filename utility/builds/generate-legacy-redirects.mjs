@@ -8,7 +8,7 @@
 // a static map the landing page uses to redirect old URLs 1:1.
 //
 // Run: node utility/builds/generate-legacy-redirects.mjs
-// Re-run only if data/builds.json changes or imported builds are renamed — shortIds
+// Re-run only if data/builds.json changes or imported builds are renamed - shortIds
 // (and therefore slugs) are stable.
 
 import { readFile, writeFile } from 'fs/promises';
@@ -53,10 +53,10 @@ for (const [legacyClass, list] of Object.entries(legacy)) {
   const entry = { class: classToSlug(legacyClass), builds: {} };
 
   list.forEach((legacyBuild, index) => {
-    if (!norm(legacyBuild?.title)) return; // placeholder entry — class page is the right target
+    if (!norm(legacyBuild?.title)) return; // placeholder entry - class page is the right target
 
     const candidates = community.filter((cb) => norm(cb.title) === norm(legacyBuild.title));
-    // Duplicate titles exist across classes — the community build's subclass (or base
+    // Duplicate titles exist across classes - the community build's subclass (or base
     // class, for base-class builds) must agree with the legacy class the URL named.
     const hit = candidates.length === 1
       ? candidates[0]

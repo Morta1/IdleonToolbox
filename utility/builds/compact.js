@@ -21,7 +21,7 @@ const isMeaningfulLevel = (level) => {
     // numeric strings: "0" → false, "35" → true
     const n = Number(trimmed);
     if (!Number.isNaN(n)) return n !== 0;
-    // annotation strings like "*1" — keep
+    // annotation strings like "*1" - keep
     return true;
   }
   return level !== 0;
@@ -65,7 +65,7 @@ export const compactPayload = (fullBuild) => {
 };
 
 // Hard caps mirror the editor-level constraints. The editor enforces them via
-// `CharacterCount.configure({ limit })`, but that's a DOM-layer guard only —
+// `CharacterCount.configure({ limit })`, but that's a DOM-layer guard only -
 // direct API POSTs or edits of legacy content can exceed the cap. Re-slicing
 // here guarantees the stored document respects the limit regardless of path.
 const MAX_TITLE = 120;

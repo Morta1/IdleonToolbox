@@ -400,7 +400,7 @@ const getBaseSpeed = (account: any, characters: any, artifactsList: any) => {
   const statueBonus = getStatueBonus(account, 24)
   const voteBonus = getVoteBonus(account, 24);
   const msaBonus = account?.msaTotalizer?.sailing?.value ?? 0;
-  // DaveyJones is now per-boat — applied separately in getBoat
+  // DaveyJones is now per-boat - applied separately in getBoat
   return (1 + (divinityMinorBonus
     + (cardBonus
       + bubbleBonus)) / 125)
@@ -658,7 +658,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
   const killroyBonus = Math.max(1, getKillRoyShopBonus(account, 0));
   const researchGrid106 = getResearchGridBonus(account, 106, 0);
   const turtleVial = getVialsBonusByStat(account?.alchemy?.vials, '6turtle');
-  // Summer event shop: Purple Chest Slugs (EventShopOwned 48) — multiplies artifact find by 1.5^owned
+  // Summer event shop: Purple Chest Slugs (EventShopOwned 48) - multiplies artifact find by 1.5^owned
   const purpleChestSlugs = Math.max(1, Math.pow(1.5, getEventShopBonus(account, 48)));
   const winnerBonus = getWinnerBonus(account, '<x Artifact Find');
   const daveyJonesBonus = getDaveyJonesBonus(account, lootLevel, speedLevel);

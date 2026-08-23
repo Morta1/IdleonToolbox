@@ -102,11 +102,11 @@ const BuildForm = ({
     }
   }, [initialBuild]);
 
-  // Detect saved draft on mount — defer the actual restore until the user
+  // Detect saved draft on mount - defer the actual restore until the user
   // confirms in the dialog.
   useEffect(() => {
     if (mode !== 'create') return;
-    if (initialBuild) return; // template flow — don't overwrite
+    if (initialBuild) return; // template flow - don't overwrite
     const saved = loadDraft();
     if (saved?.draft) setPendingDraft(saved.draft);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -136,7 +136,7 @@ const BuildForm = ({
     setPendingDraft(null);
   };
 
-  // Persist draft on change (create mode only — edit mode saves through API)
+  // Persist draft on change (create mode only - edit mode saves through API)
   useEffect(() => {
     if (mode !== 'create') return;
     if (!classKey) return;
@@ -187,7 +187,7 @@ const BuildForm = ({
     if (tabTalents) {
       setTabs((prev) => applyTalentChange(prev, tabIndex, tabTalents));
     }
-    // tabNote is only emitted by the "Remove" button on legacy notes — edit
+    // tabNote is only emitted by the "Remove" button on legacy notes - edit
     // mode doesn't render a note editor. An empty string clears the note so
     // compactPayload drops it from storage on the next save.
     if (tabNote != null) {
@@ -207,7 +207,7 @@ const BuildForm = ({
 
   const canSubmit = !!title.trim() && !!classKey && !submitting;
 
-  // Mirror BuildDetail's back pattern — pop history so we don't push a fresh
+  // Mirror BuildDetail's back pattern - pop history so we don't push a fresh
   // entry and create an edit ↔ view loop.
   const handleBack = () => {
     if (typeof window !== 'undefined' && window.history.length > 1) {
@@ -253,7 +253,7 @@ const BuildForm = ({
       }
       clearDraft();
       if (shortId) {
-        // replace, not push — otherwise history is [..., view, edit, view]
+        // replace, not push - otherwise history is [..., view, edit, view]
         // and the back button pingpongs between edit and view.
         router.replace(`/tools/builds/view?id=${encodeURIComponent(shortId)}`);
       }
@@ -269,7 +269,7 @@ const BuildForm = ({
   //   2. Main content: tabs (editable) on the left, metadata sidebar on the right
   const hierarchy = resolveHierarchy(classKey);
 
-  // Only compute the preview hydration when preview mode is actually on —
+  // Only compute the preview hydration when preview mode is actually on -
   // `toStorageBuild` walks every tab/talent and reallocates arrays, so doing
   // it on every keystroke while the editor is active was wasted work.
   const hydratedForPreview =
@@ -361,7 +361,7 @@ const BuildForm = ({
         // Flex row + flex-wrap instead of MUI Grid so the split engages only
         // when the container actually has room for both halves. MUI Grid's
         // percentage-based columns (xl=8/4) produced a ~348px right column at
-        // 1536px viewport, but the tab card needs ~358px — the overflow
+        // 1536px viewport, but the tab card needs ~358px - the overflow
         // collided with the editor. With basis-based flex the right column
         // stays a fixed 360px and the left grows up to a cap; when the
         // container can't fit both (left's min-basis + right + gap), right
@@ -420,7 +420,7 @@ const BuildForm = ({
             />
           </Stack>
           {/* Right column: talent tab cards stacked vertically at a fixed
-              360px (320 grid + 40 card padding). Doesn't shrink — when the
+              360px (320 grid + 40 card padding). Doesn't shrink - when the
               container can't accommodate left's 600px basis + 360 + 16 gap,
               the flex-wrap drops this column to the row below, where it
               left-aligns naturally. Authors write tab-level prose in the

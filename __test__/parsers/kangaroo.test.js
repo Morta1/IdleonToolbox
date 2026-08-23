@@ -55,7 +55,7 @@ describe('getKangaroo banked fish', () => {
       options[288] = 86400 * day;
     }));
 
-    // The raw counter is frozen across every upload — this is the bug being guarded against.
+    // The raw counter is frozen across every upload - this is the bug being guarded against.
     expect(new Set(days.map(({ fish }) => fish)).size).toBe(1);
 
     // The banked total is not, so the timer counts down instead of sitting at "1 day" forever.

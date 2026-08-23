@@ -191,7 +191,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
     : null;
 
   // Per-observation insight level-up timers: found + optical monocle lens (type 1) + actively gaining insight XP.
-  // Use realInsightExpRate (actual level-up speed), NOT insightExpRate (in-game displayed rate — does not match).
+  // Use realInsightExpRate (actual level-up speed), NOT insightExpRate (in-game displayed rate - does not match).
   const observationInsightTimes = (account?.research?.observations ?? [])
     .filter((obs) => obs?.found && obs?.lensTypes?.includes(1) && obs?.realInsightExpRate > 0)
     .map((obs) => ({

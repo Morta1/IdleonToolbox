@@ -83,7 +83,7 @@ const CharacterMinibosses = ({ characters, account, overridePickles, overrideHpM
                       const hits = getHitsToKill(getMinibossHp(baseHp, prayerHpMulti, carried), averageDamage);
                       return <TableCell key={rawName} align={'center'}>
                         <Typography color={cap >= carried ? 'success.main' : 'error.main'}>
-                          {cap < 0 ? '—' : cap}
+                          {cap < 0 ? '-' : cap}
                         </Typography>
                         <Typography variant={'caption'} color={'text.secondary'}>{hitsLabel(hits)}</Typography>
                       </TableCell>;

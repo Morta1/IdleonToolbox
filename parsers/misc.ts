@@ -236,10 +236,10 @@ export const getMasterclassCostReduction = (account: any, forceLegendTalent: any
   return allMasterclassCostRedux * first3mcCostRedux;
 }
 
-// "minBookLv" / "maxBookLv" — the SkillLevelsMAX range the passive Library can raise a talent into.
+// "minBookLv" / "maxBookLv" - the SkillLevelsMAX range the passive Library can raise a talent into.
 // Only talents with skillIndex < 615 (main class talents, not star talents) are eligible, EXCEPT
 // skillIndex [10, 11, 12, 23, 75, 79, 86, 87, 266, 267, 446, 447] (STR/AGI/WIS/LUK and their paired
-// Basics-tab talents), which the game explicitly excludes via CustomLists.RANDOlist[16] — see
+// Basics-tab talents), which the game explicitly excludes via CustomLists.RANDOlist[16] - see
 // BOOK_INELIGIBLE_INDICES in components/characters/Talents.jsx.
 // TASK_SHOP_BOOK_LV_PER_MERIT is CustomLists.TaskShopDesc[2][2][11], a static game constant
 // (verified live: "+{ Max possible Lv of Talent books from the Talent Book Library", BonusPerLv = 2).
@@ -366,8 +366,8 @@ export const hasItemDropped = (account: any, itemName: any) => {
 // Greenstack = 10,000,000+ of a single item in the Storage Chest (game registers it with no item-type
 // check). The Storage Chest is NOT carry-capped, so any item that stacks there can reach the threshold.
 // An item is greenstackable iff it can sit in the Storage Chest as a stack:
-//   1. not equipment — typeGen starting with 'a' is its own qty-1 slot, never stacks;
-//   2. actually depositable — hole/cavern resources (Type CURRENCY) and dungeon-only drops (DUNGEON_*)
+//   1. not equipment - typeGen starting with 'a' is its own qty-1 slot, never stacks;
+//   2. actually depositable - hole/cavern resources (Type CURRENCY) and dungeon-only drops (DUNGEON_*)
 //      route to their own banks / evaporate on map exit, so they never get a chest slot.
 const NON_STORABLE_TYPES = new Set(['CURRENCY', 'DUNGEON_EVAPORATE', 'DUNGEON_FOOD', 'DUNGEON_ITEM', 'DUNGEON_KEY']);
 const isGreenstackable = (item: any): boolean =>
