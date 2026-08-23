@@ -352,7 +352,7 @@ export const getRanksTotalBonus = (ranks: any, index: any) => {
 /**
  * The game rolls for an OG once per growth cycle (N.js growth tick), so the wait until the next
  * one is geometric and its average is one cycle divided by the chance. Returns that average in
- * seconds — a readable stand-in for a per-cycle percentage that means nothing on its own.
+ * seconds - a readable stand-in for a per-cycle percentage that means nothing on its own.
  *
  * The average, not a high percentile: a 95% figure is 3x longer than the typical wait, which
  * reads as "how long until it doubles" while actually describing the pessimistic tail.
@@ -735,7 +735,7 @@ const getNextUpgradesReq = ({
                               emperorCostCalc,
                               marketCostReduction = 1
                             }: any) => {
-  // Night market (index >= 8) pays magic beans for every level — N.js only resolves a crop type for
+  // Night market (index >= 8) pays magic beans for every level - N.js only resolves a crop type for
   // the day and exotic markets. Grouping its levels by crop type collapses several levels onto one
   // key and sums their costs, so preview the next individual levels instead.
   if (index >= 8) {

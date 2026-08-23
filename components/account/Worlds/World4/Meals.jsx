@@ -409,7 +409,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
                       <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={32} height={32}/>
                       {Number.isFinite(timeTillNextLevel) ? <HtmlTooltip title={numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}>
                         <span>{notateNumber(Math.ceil(timeTillNextLevel), 'Big')}</span>
-                      </HtmlTooltip> : <span>—</span>}
+                      </HtmlTooltip> : <span>-</span>}
                     </Stack>
                   </Stack>
                 </Stack>
@@ -453,7 +453,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
                 <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={24} height={24}/>
                 {Number.isFinite(ladles) ? <HtmlTooltip title={numberWithCommas(ladles.toFixed(2))}>
                   <span>{notateNumber(Math.ceil(ladles), 'Big')}</span>
-                </HtmlTooltip> : <span>—</span>}
+                </HtmlTooltip> : <span>-</span>}
               </Stack>
             </ProcCard>
           ))}
@@ -559,7 +559,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
                           <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={32} height={32}/>
                           {Number.isFinite(timeToBp) ? <HtmlTooltip title={numberWithCommas(parseFloat(timeToBp).toFixed(2))}>
                             <span>{notateNumber(Math.ceil(timeToBp), 'Big')}</span>
-                          </HtmlTooltip> : <span>—</span>}
+                          </HtmlTooltip> : <span>-</span>}
                         </Stack>
                       </Stack> : null
                     }) : null}

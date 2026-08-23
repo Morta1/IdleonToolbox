@@ -15,6 +15,7 @@ import {
   useMediaQuery
 } from '@mui/material';
 import React, { useContext, useState } from 'react';
+import { useLocalStorage } from '@mantine/hooks';
 import { cleanUnderscore, handleDownload, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import { itemsArray } from '@website-data';
 import Button from '@mui/material/Button';
@@ -44,7 +45,7 @@ const MaterialTracker = () => {
   const [bounds, setBounds] = useState({ lowerBound: '', upperBound: '' });
   const [note, setNote] = useState('');
   const [hoverIcons, setHoverIcons] = useState({});
-  const [trackedItems, setTrackedItems] = useState(JSON.parse(localStorage.getItem('material-tracker')) || {});
+  const [trackedItems, setTrackedItems] = useLocalStorage({ key: 'material-tracker', defaultValue: {} });
   const items = itemsArray.filter(({
                                                    itemType,
                                                    typeGen,
@@ -84,9 +85,6 @@ const MaterialTracker = () => {
       }
     })
     setTrackedItems(updated)
-    // Save to local storage
-    localStorage.setItem('material-tracker', JSON.stringify(updated));
-    // Reset fields
     setValue([]);
     setBounds({ lowerBound: '', upperBound: '' });
     setNote('');
@@ -97,8 +95,6 @@ const MaterialTracker = () => {
     delete updated[rawName];
     setTrackedItems(updated);
     setHoverIcons({})
-    // Save to local storage
-    localStorage.setItem('material-tracker', JSON.stringify(updated));
   }
 
   const handleEdit = (rawName) => {
@@ -133,11 +129,7 @@ const MaterialTracker = () => {
     )}/>
     <CardTitleAndValue title={'Utility'} cardSx={{ mb: 3 }}>
       <Stack sx={{ mt: 1 }} direction={'row'} alignItems={'center'} gap={2}>
-        <FileUploadButton onFileUpload={(data) => {
-          setTrackedItems(data);
-          // Save to local storage
-          localStorage.setItem('material-tracker', JSON.stringify(data));
-        }}>Import</FileUploadButton>
+        <FileUploadButton onFileUpload={(data) => setTrackedItems(data)}>Import</FileUploadButton>
         <Button onClick={() => handleDownload(trackedItems, 'it-material-tracker')} variant={'outlined'}
                 startIcon={<IconFileExport size={18}/>}
                 size="small">Export</Button>

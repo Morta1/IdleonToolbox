@@ -38,7 +38,7 @@ import { constructionMasteryThresholds } from './world-3/construction';
 import { getSaltLickBonus } from './world-3/saltLick';
 import { getAchievementStatus } from './achievements';
 import { getGodBlessingBonus, getMinorDivinityBonus, isMajorDivinityActive } from './world-5/divinity';
-// getEquinoxBonus not used — AdditionExtraDMG uses talent-based calculation
+// getEquinoxBonus not used - AdditionExtraDMG uses talent-based calculation
 import { getMiningEff } from '@parsers/efficiency';
 import { getUpgradeVaultBonus } from './misc/upgradeVault';
 import { getOwlBonus } from './world-1/owl';
@@ -218,7 +218,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   // (1 + talent508 * log(opt152) / 100) * (1 + talent208 * log(opt329) / 100)
   const wormHoleTalent = getHighestTalentAcrossCharacters(characters, 'WORMHOLE_EMPEROR', character);
   const perWormholeKills = 1 + (wormHoleTalent * lavaLog(Number(account?.accountOptions?.[152]) || 0)) / 100;
-  // Talent 208 = WRAITH_OVERLORD — available on Death_Bringer (Warrior path)
+  // Talent 208 = WRAITH_OVERLORD - available on Death_Bringer (Warrior path)
   const wraithOverlordTalent = getHighestTalentAcrossCharacters(characters, 'WRAITH_OVERLORD', character);
   const perEquinoxKills = 1 + (wraithOverlordTalent * lavaLog(Number(account?.accountOptions?.[329]) || 0)) / 100;
   const vialDmgBonus = getVialsBonusByStat(account?.alchemy?.vials, '7dmg') || 0;
@@ -333,7 +333,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Precision', account)?.curse;
   const secondPrayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Fibers_of_Absence', account)?.curse;
 
-  // Pre-softcap damage calculation — each variable is a standalone multiplicative group
+  // Pre-softcap damage calculation - each variable is a standalone multiplicative group
   const talentMulti = perWormholeKills * perEquinoxKills;
   const vialMulti = (1 + vialDmgBonus / 100);
   const eclipseMulti = (1 + eclipseSkulls / 100);
@@ -341,7 +341,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const dreamMulti = (1 + dreamBonus / 10);
   const pristineMulti = (1 + pristineCharmBonus / 100);
   const summoningMulti = (1 + summUpg79 / 100);
-  // Game DamageDealed/Max: * (1 + Holes2("Cglunko_upgBon", 19) / 100) — Crystal Glunko Cove damage upgrade
+  // Game DamageDealed/Max: * (1 + Holes2("Cglunko_upgBon", 19) / 100) - Crystal Glunko Cove damage upgrade
   const glunkoDmgBonus = getCglunkoBonus(account, 19);
   const glunkoDmgMulti = (1 + glunkoDmgBonus / 100);
   const starSignAndTalentMulti = (1 + (activeBuff + friendBonus
@@ -397,7 +397,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   if (damage > 6e10) damage = 6e10 * Math.pow(damage / 6e10, .28);
 
   // === Post-softcap multipliers ===
-  // Game uses EtcBonuses("72") and EtcBonuses("75") — mapped via IDforETCbonus to
+  // Game uses EtcBonuses("72") and EtcBonuses("75") - mapped via IDforETCbonus to
   // %_DAMAGE_MULTI and %_DAMAGE_BONUS respectively. TotalStatsETCmap aggregates from
   // equipment, gallery trophies, nametags, and premium hats (NOT obols).
   const { value: postEtcBonus72 } = getStatsFromGear(character, 72, account);
@@ -436,7 +436,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   damage *= Math.max(1, (1 + companion12) * (1 + companion33) * (1 + 2 * companion160) * (1 + 0.5 * companion168));
 
   // Crystal card, meritocracy
-  // Game: min(1.5 * CardLv("Crystal6"), 15) — CardLv is 1-based star level
+  // Game: min(1.5 * CardLv("Crystal6"), 15) - CardLv is 1-based star level
   const crystal6Card: any = Object.values(account?.cards ?? {}).find((c: any) => c?.rawName === 'Crystal6');
   const crystalCardBonus = Math.min(1.5 * (crystal6Card?.amount > 0 ? (crystal6Card?.stars ?? 0) + 1 : 0), 15);
   const meritBonus5 = getMeritocracyBonus(account, 5);
@@ -624,12 +624,12 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
   const speedBonus = playerInfo.movementSpeed / 100 - 1;
   const dmgPerSpeedBonus = dmgPerSpeed * Math.floor(Math.min(speedBonus, 10) / .15);
 
-  // Talent 656 (DREAMER_DAMAGE) — star talent
+  // Talent 656 (DREAMER_DAMAGE) - star talent
   const dmgPerDream = getTalentBonus(character?.flatStarTalents, 'DREAMER_DAMAGE');
   const completedDreams = account?.equinox?.completedClouds || 0;
   const dmgPerDreamBonus = dmgPerDream * completedDreams;
 
-  // Talent 649 (FILTHY_DAMAGE) — star talent
+  // Talent 649 (FILTHY_DAMAGE) - star talent
   const dmgPerGarbage = getTalentBonus(character?.flatStarTalents, 'FILTHY_DAMAGE');
   const dmgPerGarbageBonus = dmgPerGarbage * lavaLog(account?.accountOptions?.[161] || 0);
 
@@ -1305,7 +1305,7 @@ const getPlayerDefence = (character: Character, characters: Character[], account
         : 0;
 
   // gearBonus now includes gallery and hatRack bonuses
-  // The game floors the additive base only, then multiplies — truncating before a ~200x multiplier,
+  // The game floors the additive base only, then multiplies - truncating before a ~200x multiplier,
   // not after it. Flooring the whole expression instead loses the difference.
   const base = Math.floor(postOfficeBonus
     + cardBonus + Math.min(character?.level,

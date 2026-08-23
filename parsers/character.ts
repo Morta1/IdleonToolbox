@@ -1774,7 +1774,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   // (NaN comparisons are always false), sending it down the else branch that computes NaN.
   const { luck = 0 } = character?.stats || {};
 
-  // ExpGainLUK — luck multi
+  // ExpGainLUK - luck multi
   let expGainLUK;
   if (luck < 1e3) {
     expGainLUK = (Math.pow(luck + 1, 0.37) - 1) / 30;
@@ -1783,7 +1783,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
     expGainLUK = (luck - 1e3) / (luck + 2500) * 0.8 + .3963;
   }
 
-  // ExpGainLUK2 — conditional additive
+  // ExpGainLUK2 - conditional additive
   let expGainLUK2 = 0;
   let expGainLUK3 = 0;
 
@@ -1813,7 +1813,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const levelBonus = character?.level < 10 ? 150 : character?.level < 30 ? 100 : character?.level < 50 ? 50 : 0;
   expGainLUK2 += levelBonus;
 
-  // Divinity — deity index 4 (Omniphau)
+  // Divinity - deity index 4 (Omniphau)
   const godLinks = getDeityLinkedIndex(account, characters, 4);
   const minorGodBonus = getMinorDivinityBonus(character, account, 4, characters);
   if (godLinks.includes(character?.playerId)) {
@@ -1824,14 +1824,14 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet26' ? character?.cards?.cardSet?.bonus : 0;
   expGainLUK2 += cardSetBonus;
 
-  // ExpGainLUK3 — superbit + bundle
+  // ExpGainLUK3 - superbit + bundle
   const hasBundle = isBundlePurchased(account?.bundles, 'bun_q');
   const bundleBonus = hasBundle ? 20 : 0;
   if (hasBundle) {
     expGainLUK3 += bundleBonus;
   }
 
-  // ExpGainLUK4 — compass + schematics + winner + grimoire + vault
+  // ExpGainLUK4 - compass + schematics + winner + grimoire + vault
   const compassBonus = getCompassBonus(account, 51);
   const schematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 47, i: 0 });
   const winnerBonus = getWinnerBonus(account, '+{% Class EXP');
@@ -1848,7 +1848,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
             + (upgradeVaultBonus3 * lavaLog(account?.accountOptions?.[345] ?? 0)
               + schematicBonus2)))));
 
-  // ExpGainLUK5 — multiplicative chain
+  // ExpGainLUK5 - multiplicative chain
   let expGainLUK5 = 1;
 
   // GenINFO[17] shiny medallion check with talent 429 (SHINY_MEDALLIONS)
@@ -1948,7 +1948,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
     * (1 + meritocBonus27 / 100)
     * (1 + Math.max(0, 5 * (opt464 - 8)) / 100));
 
-  // ExpGainLUK6 — additional additive
+  // ExpGainLUK6 - additional additive
   const cardLvSpringEvent = account?.cards?.['springEvent1']?.stars ?? 0;
   const comp3 = isCompanionBonusActive(account, 3) ? account?.companions?.list?.at(3)?.bonus : 0;
   const comp50Additive = isCompanionBonusActive(account, 50) ? account?.companions?.list?.at(50)?.bonus : 0;
@@ -2707,7 +2707,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
   const sushiCashBonus18 = getSushiBonus(account, 18);
   const sushiCashBonus37 = getSushiBonus(account, 37);
 
-  // Vault bonuses — game uses VaultKillzTotal indices
+  // Vault bonuses - game uses VaultKillzTotal indices
   const vaultKills = account?.upgradeVault?.vaultTotalKills || [];
   const vault34 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 34);
   const vault37 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 37);

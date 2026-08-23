@@ -16,7 +16,7 @@ export interface Miniboss {
   respawnTime: number;
 }
 
-// CustomLists.NinjaInfo[30] — the only monster types the pickle multiplier applies to, in the
+// CustomLists.NinjaInfo[30] - the only monster types the pickle multiplier applies to, in the
 // order the hidden Deathnote page lists them (also the index into the Ninja[105] kill counts).
 const MINIBOSS_TYPES = ['slimeB', 'poopBig', 'babayaga', 'babaHour', 'babaMummy', 'mini3a', 'mini4a', 'mini5a',
   'mini6a'];

@@ -11,10 +11,10 @@ import styled from '@emotion/styled';
 // (BuildForm or BuildDetail). No local mirrors, no useEffect resync needed.
 //
 // `layout` controls how the grid and the (view-only) tab-note are arranged:
-//   'stack'  (default) — grid on top, note card below (view / detail pages)
-//   'row'              — grid left, note card fills right (edit form)
+//   'stack'  (default) - grid on top, note card below (view / detail pages)
+//   'row'              - grid left, note card fills right (edit form)
 //
-// Create/edit mode no longer offers a note INPUT — authors describe tab
+// Create/edit mode no longer offers a note INPUT - authors describe tab
 // strategy inline in the main rich-text description via @-mentions and
 // headings. Pre-existing builds that still carry a `note` render it read-only
 // in edit mode with a Remove button (so authors aren't stuck with frozen
@@ -103,7 +103,7 @@ const BuildTab = ({
   );
 
   // Authors mark Super Talents by clicking the icon, so the grid needs to say
-  // so somewhere — nothing else on the card hints that the icons are clickable.
+  // so somewhere - nothing else on the card hints that the icons are clickable.
   const grid = createMode ? (
     <Stack gap={0.5} sx={{ width: 320, flexShrink: 0 }}>
       <Typography variant="caption" color={superPoolFull ? 'warning.main' : 'text.secondary'}>
@@ -140,7 +140,7 @@ const BuildTab = ({
   ) : null;
 
   if (layout === 'row') {
-    // Create mode has no noteBlock — just the grid. The enclosing tab card
+    // Create mode has no noteBlock - just the grid. The enclosing tab card
     // shrinks to fit the 320px grid so several tabs can sit side-by-side
     // instead of each stretching full-width with a big empty region.
     if (!noteBlock) return grid;

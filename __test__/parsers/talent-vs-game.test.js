@@ -9,7 +9,7 @@ import { CLASSES, getHighestTalentAcrossCharacters, getHighestTalentByClass } fr
 
 // Every talent reached by a getHighestTalentByClass call site anywhere in parsers/, read out of the
 // live client on 2026-08-20 with Morojo ('Ten') playing: _customBlock_getbonus2(1, id, -1), or
-// (2, id, -1) for the y-variant. Regenerate by switching character in game and re-reading — the
+// (2, id, -1) for the y-variant. Regenerate by switching character in game and re-reading - the
 // numbers move with whoever is active, so the whole table is tied to that one character.
 // [class, talent, talentId, expected, yBonus?]
 const TALENTS = [
@@ -71,7 +71,7 @@ describe('every talent used by a parser matches the game', () => {
 
   // Reads the parser sources rather than asserting a row count: a count only proves nobody edited
   // the array above it, and would fail on a legitimate addition while staying silent on the thing
-  // that matters — a new lookup landing with no pinned game value behind it.
+  // that matters - a new lookup landing with no pinned game value behind it.
   it('covers every talent the parsers look up', () => {
     const dir = path.resolve(__dirname, '../../parsers');
     const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((entry) => (
@@ -93,7 +93,7 @@ describe('every talent used by a parser matches the game', () => {
 
 // Read from a fresh account in the live client on 2026-08-20 (4 characters, none of these talents
 // levelled). getbonus2 still evaluates growth() at level 0, so an unowned talent answers with its
-// identity rather than zero — 0 for add/decay, 1 for decayMulti, x1 for bigBase. Returning 0 for a
+// identity rather than zero - 0 for add/decay, 1 for decayMulti, x1 for bigBase. Returning 0 for a
 // multiplier is the empty-account trap: tesseract reads `100 * (talent - 1)` and lands on -100.
 const UNOWNED = [
   ['ENHANCEMENT_ECLIPSE', 'add', 0],

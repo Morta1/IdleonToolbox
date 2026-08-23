@@ -96,12 +96,12 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     studyStuff, // 26
     studyProgress, // 27
     gambitStuff, // 28
-    fountainCoinSpaces, // 29 — array of coin arrays per fountain space
-    fountainSpaceFilled, // 30 — per-space filled flags / counts
-    fountainUpgradeLevels, // 31 — 3D: [waterType 0..2][upgradeIndex 0..19] level (cap 10)
-    fountainMarbleizeLevels, // 32 — 3D: [waterType][upgradeIndex] marbleize tier
-    fountainBarProgress, // 33 — array(3): bar fill per water type
-    fountainCoinFlags // 34 — per-space ready flag (used by Fount_GenerateCoin)
+    fountainCoinSpaces, // 29 - array of coin arrays per fountain space
+    fountainSpaceFilled, // 30 - per-space filled flags / counts
+    fountainUpgradeLevels, // 31 - 3D: [waterType 0..2][upgradeIndex 0..19] level (cap 10)
+    fountainMarbleizeLevels, // 32 - 3D: [waterType][upgradeIndex] marbleize tier
+    fountainBarProgress, // 33 - array(3): bar fill per water type
+    fountainCoinFlags // 34 - per-space ready flag (used by Fount_GenerateCoin)
   ] = holeRaw || [];
   const holesObject = {
     charactersCavernLocation,

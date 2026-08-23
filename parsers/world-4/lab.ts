@@ -75,7 +75,7 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
   });
   const soupedUpSlots = (account?.gemShopPurchases?.find((value: any, index: any) => index === 123) ?? 0) * 2;
   const holeMajikConnected = account?.hole?.godsLinks?.find(({ index }: any) => index === 1);
-  // Game: Divinity("Bonus_MAJOR", n, 2) — research grid 173 grants Arctis (lab god) bonus to ALL players
+  // Game: Divinity("Bonus_MAJOR", n, 2) - research grid 173 grants Arctis (lab god) bonus to ALL players
   const hasArctisResearch = getResearchGridBonus(account, 173, 0) >= 1;
   let playersInTubes = [...charactersData].filter((character, index) => isCompanionBonusActive(account, 0)
     || holeMajikConnected
@@ -172,7 +172,7 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
     return { ...bonus, bonusOn: bonus?.bonusOn + jewel19RawBonus / 100 };
   });
   const spelunkerObolMulti = getLabBonus(labBonusesList, 8);
-  // Game: jewel bonus = JewelDesc[n][12] * MainframeBonus(8) — pure spelunker multiplier
+  // Game: jewel bonus = JewelDesc[n][12] * MainframeBonus(8) - pure spelunker multiplier
   jewelsList = jewelsList.map((jewel: any, index: any) => ({
     ...jewel,
     multiplier: index === 19 ? 1 : spelunkerObolMulti

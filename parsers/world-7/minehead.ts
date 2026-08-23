@@ -37,7 +37,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   // raw[12] = glimbo trade counts per item
   const glimboRaw = raw[12] ?? [];
 
-  // Server vars — only affect high-index upgrades/opponents (index > 9). Default 1 if absent.
+  // Server vars - only affect high-index upgrades/opponents (index > 9). Default 1 if absent.
   const A_MineCost = Math.max(1, serverVars?.A_MineCost ?? 1);
   const A_MineHP = Math.max(1, serverVars?.A_MineHP ?? 1);
 
@@ -48,7 +48,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   // NOTE: These use underscores instead of spaces inside each description.
   const opponentBonusDescs = researchData?.[19] ?? [];
 
-  // researchData[11] = opponent names (array, 32 entries) — NOT in opponent order
+  // researchData[11] = opponent names (array, 32 entries) - NOT in opponent order
   // researchData[10] = name index per opponent slot (array, 32 entries)
   const opponentNamePool = researchData?.[11] ?? [];
   const opponentNameOrder = (researchData?.[10] ?? []).map(Number);
@@ -75,7 +75,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   // researchData[29] = flag per glimbo trade: '1' means Grid_Bonus[169] multiplies extra levels
   const glimboFlags = researchData?.[29] ?? [];
 
-  // Grid square 169 level — each level adds +1 to the per-trade multiplier for flagged glimbo trades
+  // Grid square 169 level - each level adds +1 to the per-trade multiplier for flagged glimbo trades
   // Formula: extraLevels = (1 + level) * (trades + 1). Uses mode 1 (level), NOT mode 0 (bonus)
   const grid169Level = getResearchGridBonus(account, 169, 1);
 
@@ -144,7 +144,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
 
   // --- Computed stats ---
 
-  // Daily tries max: 3 + Grid_Bonus(147, 1) — game uses mode 1 (level) here
+  // Daily tries max: 3 + Grid_Bonus(147, 1) - game uses mode 1 (level) here
   const grid147Level = getResearchGridBonus(account, 147, 1);
   const dailyTriesMax = Math.round(3 + grid147Level);
 
@@ -196,7 +196,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
     * (1 + getSushiBonus(account, 12) / 100)
     * (1 + getButtonBonus(account, 1) / 100);
 
-  // Currency/hr breakdown — each source shown as the multiplier it contributes;
+  // Currency/hr breakdown - each source shown as the multiplier it contributes;
   // product of all sources reproduces currencyGain above.
   const getGridName = (idx: number) => (researchGridSquares?.[idx]?.name ?? `Grid ${idx}`).replace(/_/g, ' ');
   const currencyGainBreakdown = {
@@ -235,10 +235,10 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
     }]
   };
 
-  // Bluecrown multiplier — used in description for upgrade 14
+  // Bluecrown multiplier - used in description for upgrade 14
   const getBluecrownMulti = () => 1.5 + getUpgradeQTY(14) / 100;
 
-  // Jackpot odds — used in description for upgrade 23
+  // Jackpot odds - used in description for upgrade 23
   const getJackpotOdds = () =>
     getUpgradeQTY(23) === 0 ? 0 : 0.01 * (1 + getUpgradeQTY(23) / 100);
 
@@ -353,7 +353,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
 
   const glimboTotalTrades = glimboRaw.reduce((sum: any, v: any) => sum + (Number(v) || 0), 0);
 
-  // NOTE: handleCurrentOutgoingDMG cannot be computed statically — it depends on the live
+  // NOTE: handleCurrentOutgoingDMG cannot be computed statically - it depends on the live
   // game board state (which tiles have been revealed during an active Minehead game session).
   // This value is only meaningful in real-time during gameplay.
 
@@ -382,7 +382,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
  * flat bonusValue (from researchData[20]):
  *   { → bonusValue (flat number)
  *   } → multiplier string (1 + bonusValue/100), e.g. "1.10" so "}x" becomes "1.10x"
- *   $ → requires live game state (weapon power, AFK rate, etc.) — left as-is
+ *   $ → requires live game state (weapon power, AFK rate, etc.) - left as-is
  *   @ → stripped (in-game annotation marker)
  * Underscores are replaced with spaces.
  */
@@ -392,11 +392,11 @@ function formatOpponentDescription(template: any, bonusValue: any) {
   // Replace { with flat bonus value
   desc = desc.split('{').join(commaNotation(bonusValue));
 
-  // Replace } with multiplier notation (no x — the template appends x where needed)
+  // Replace } with multiplier notation (no x - the template appends x where needed)
   const multStr = (notateNumber(1 + bonusValue / 100, 'MultiplierInfo') as string).replace(/#/g, '');
   desc = desc.split('}').join(multStr);
 
-  // $ requires game-state not available here (e.g. weapon power, current AFK rate) — leave as-is
+  // $ requires game-state not available here (e.g. weapon power, current AFK rate) - leave as-is
 
   // Strip @ annotation markers
   desc = desc.split('@').join('');

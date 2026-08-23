@@ -714,7 +714,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/ResMagni1'}/> : null}
               {alerts?.['World 7']?.sushiStation?.fuelFull ?
                 <Alert
-                  title={'Sushi Station fuel is full — cook some sushi!'}
+                  title={'Sushi Station fuel is full: cook some sushi!'}
                   iconPath={'data/Sushi6'}/> : null}
               {alerts?.['World 7']?.sushiStation?.shakerUses?.length > 0 ?
                 alerts?.['World 7']?.sushiStation?.shakerUses?.map((shaker) => {

@@ -116,7 +116,7 @@ describe('Bone Joe Calculator page', () => {
     await waitFor(() => expect(rowCells(character.name)[2]).toBe('5'));
     minibosses.forEach(({ baseHp }, index) => {
       const cap = getOneShotPickleCap(maxDamage, baseHp, 15.75);
-      expect(rowCells(character.name)[3 + index]).toContain(cap < 0 ? '—' : String(cap));
+      expect(rowCells(character.name)[3 + index]).toContain(cap < 0 ? '-' : String(cap));
     });
     expect(screen.getByText(/using the configuration above/)).toBeDefined();
   });
@@ -145,7 +145,7 @@ describe('Bone Joe Calculator page', () => {
     expect(cells[2]).toBe(String(getPickleCount(character)));
     minibosses.forEach(({ baseHp }, index) => {
       const cap = getOneShotPickleCap(maxDamage, baseHp, prayerHpMulti);
-      expect(cells[3 + index]).toContain(cap < 0 ? '—' : String(cap));
+      expect(cells[3 + index]).toContain(cap < 0 ? '-' : String(cap));
     });
   });
 

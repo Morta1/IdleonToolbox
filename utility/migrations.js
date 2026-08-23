@@ -1717,7 +1717,7 @@ const migration67 = (config) => {
 };
 
 // Registry of migration functions indexed by target version.
-// Each migration receives (config, baseTrackers) — baseTrackers is only used by some.
+// Each migration receives (config, baseTrackers) - baseTrackers is only used by some.
 const migrations = {
   2: migrateToVersion2,
   3: migrateToVersion3,

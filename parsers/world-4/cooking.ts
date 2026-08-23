@@ -242,7 +242,7 @@ export interface CookingMasteryCategory {
 }
 
 // Category labels + description templates. These are inline UI strings from the game's render
-// loop (N.js ~line 98188 / 98201) — they are NOT part of any data-returning function, so the
+// loop (N.js ~line 98188 / 98201) - they are NOT part of any data-returning function, so the
 // z-processing section/VM extractor cannot pull them (it only evaluates data functions, not
 // draw-loop literals). They are therefore maintained here by hand, indexed in category order:
 // SALTY, SPICY, SWEET, SMOKY, SOUR, SAVORY.
@@ -339,7 +339,7 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
     return null;                             // SMOKY (t=3): a ribbon-rank chance, no scaling source
   };
 
-  // BonusAmountcook(t, 99) — the actual % each category contributes to the EXP rate.
+  // BonusAmountcook(t, 99) - the actual % each category contributes to the EXP rate.
   const bonusAmount = (t: number) => {
     const m = categoryMult(t);
     if (t === 0) return lavaLog(cookMaster?.[1]?.[3] ?? 0) * m;

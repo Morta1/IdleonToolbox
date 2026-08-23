@@ -6,7 +6,7 @@ import { CLASSES, getAllTalentAddedLevels, getBestActiveCharacter, getHighestTal
 
 // Read out of the live client on 2026-08-20 via _customBlock_getbonus2(1, id, -1), once per active
 // character. getbonus2 reads the added levels off whoever is being played, so the same account
-// answers differently depending on that — which is the whole point of these four tables.
+// answers differently depending on that - which is the whole point of these four tables.
 //
 // 'Nine' is MortasNinth: AllTalentLVz 148, super talent list [168, 177, 165, 143, 144, 131, 86].
 // 'Six' is IAmTheHunterrr: AllTalentLVz 136, super talent list empty.
@@ -17,7 +17,7 @@ import { CLASSES, getAllTalentAddedLevels, getBestActiveCharacter, getHighestTal
 //
 // The MortaMan rows were PREDICTED from the parser and only then read out of the client, all exact.
 // Its list is the low-id case: AllTalentLVz("41") returns 244 (123 + 121) while AllTalentLVz("44")
-// returns a plain 123, so the super term is live — but no talent any parser looks up has a holder
+// returns a plain 123, so the super term is live - but no talent any parser looks up has a holder
 // sitting at base level 41-43, so it never actually fires in the table below.
 const ACTIVE = {
   Nine: [
@@ -58,7 +58,7 @@ const ACTIVE = {
     ['Wind_Walker', 'GENERATIONAL_GEMSTONES', 2.412698412698413],
     ['Elemental_Sorcerer', 'SHARED_BELIEFS', 80.1980198019802],
     ['Divine_Knight', 'BITTY_LITTY', 16.336996336996336],
-    // see the discriminator test below — this character's super talent list holds 535 and 536,
+    // see the discriminator test below - this character's super talent list holds 535 and 536,
     // which are these two talents' own ids, and neither fires
     ['Bubonic_Conjuror', 'PURPLE_TUBE', 31.718426501035196],
     ['Bubonic_Conjuror', 'GREEN_TUBE', 47.577639751552795],

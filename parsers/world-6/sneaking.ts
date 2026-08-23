@@ -304,7 +304,7 @@ const parseNinjaItems = (array: any, doChunks: any, gemstones: any, account: any
   let result = array?.map(([itemName, level]: any, index: any) => {
     const itemId = baseItemId + index;
     // Symbol upgrades apply to inventory items (raw 60+) and to character equipment item slots
-    // (raw 14+4t and 15+4t — i.e. the last two of each 4-slot character chunk; hat and weapon don't have symbols).
+    // (raw 14+4t and 15+4t - i.e. the last two of each 4-slot character chunk; hat and weapon don't have symbols).
     const isInventoryItem = itemId >= 60;
     const isCharSymbolSlot = !isInventoryItem && itemId >= 14 && (itemId - 14) % 4 < 2;
     const hasSymbol = isInventoryItem || isCharSymbolSlot;
@@ -376,7 +376,7 @@ const getItemValue = ({ type, subType, level, x3, x5 }: any) => {
   return 0;
 };
 
-// Deliberately compares the raw stat against the stored MULTIPLIED value — the game does
+// Deliberately compares the raw stat against the stored MULTIPLIED value - the game does
 // `if (ItemStat(slot) > NJbonusPerms[subType]) NJbonusPerms[subType] = ItemStat(slot) * gem * legend * symbol`,
 // so the two sides of that test are on different scales. It is a game quirk, not a typo: symbol
 // bonuses are per-item, so which duplicate wins can differ from plain max-by-value. Match it.

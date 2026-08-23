@@ -370,7 +370,7 @@ function getResearchGridBonusInternal(account: any, research: any, gridIndex: an
   if (obsIndex == null || Number(obsIndex) < 0) {
     return baseBonus * level * Math.max(1, allMulti);
   }
-  // Game: CustomLists.Research[5][Research[1][t]] / 100 — static observation bonus percentages
+  // Game: CustomLists.Research[5][Research[1][t]] / 100 - static observation bonus percentages
   const observationBonuses = (researchData[5] ?? []).map(Number);
   const observationBonusPct = observationBonuses[Number(obsIndex)] ?? 0;
   return baseBonus * level * (1 + observationBonusPct / 100) * Math.max(1, allMulti);

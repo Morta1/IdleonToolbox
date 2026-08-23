@@ -1,4 +1,4 @@
-// Super Talent Points — the game lets you spend a limited pool of points to
+// Super Talent Points - the game lets you spend a limited pool of points to
 // give individual talents a big flat level boost. Build guides need to say
 // where those points go, so authors mark them here and readers see the same
 // golden border the game draws.
@@ -10,7 +10,7 @@
 //     = talents excluded from every "added levels" source, super points included.
 //
 // The per-point level gain is account-dependent (50 + Legend Talent 7 + Zenith 5),
-// so it isn't shown here — a build can't know the reader's account.
+// so it isn't shown here - a build can't know the reader's account.
 
 import { isTalentBannedForAllLevels } from '../talentBans';
 
@@ -18,7 +18,7 @@ export const SUPER_TALENT_MAX_POINTS = 20;
 
 // Talents that can never receive a super talent point.
 export const isSuperTalentEligible = (skillIndex) => {
-  // Explicit, because Number(null) is 0 and 0 is a real talent — a stored
+  // Explicit, because Number(null) is 0 and 0 is a real talent - a stored
   // null would otherwise star the first talent of the first tab.
   if (skillIndex == null || skillIndex === '') return false;
   const index = Number(skillIndex);

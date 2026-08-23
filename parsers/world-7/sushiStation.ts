@@ -219,7 +219,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
   const overtunedPerHr = overtunedUnlocked ? fuelGen : 0;
   const hoursToFuelCap = fuelGen > 0 && fuel < fuelCap ? (fuelCap - fuel) / fuelGen : 0;
 
-  // Currency multiplier — full formula matching game's customBlock_SushiStuff("CurrencyMulti")
+  // Currency multiplier - full formula matching game's customBlock_SushiStuff("CurrencyMulti")
   const arcadeBonus67 = getArcadeBonus(account?.arcade?.shop, 'Sushi_Bucks')?.bonus ?? 0;
   const superbit67 = isSuperbitUnlocked(account, (superbitsUpgrades as any)?.[67]?.name) ? 1 : 0;
   const researchGrid189 = getResearchGridBonus(account, 189, 0) ?? 0;
