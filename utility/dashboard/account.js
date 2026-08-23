@@ -5,7 +5,7 @@ import { getChipsAndJewels, maxNumberOfSpiceClicks } from '@parsers/world-4/cook
 import { cleanUnderscore, getDuration, getNextCompanionClaim, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { items, liquidsShop, ninjaExtraInfo } from '@website-data';
-import { getPowerPerCycle, getSaltMatsTimeLeft, getSaltsBalance, hasMissingMats } from '@parsers/world-3/refinery';
+import { getPowerPerCycle, getRefineryCycleTimes, getSaltMatsTimeLeft, getSaltsBalance, hasMissingMats } from '@parsers/world-3/refinery';
 import { calcTotals } from '@parsers/world-3/printer';
 import {
   addEquippedItems,
@@ -31,6 +31,28 @@ import { getCompassBonus } from '@parsers/class-specific/compass';
 
 // The game hard caps Arcanist weapon and ring drops at 100 each per day.
 const ARCANIST_DAILY_DROP_CAP = 100;
+
+// getAllItems rebuilds a multi-thousand-item array from every inventory, storage and the forge,
+// and useAlerts calls each world's alert function once per checked tracker subgroup with the same
+// parsed objects, so the merged lists are cached per (account, characters) pair.
+const allItemsCache = new WeakMap();
+const getCachedAllItems = (characters, account) => {
+  const cached = allItemsCache.get(account);
+  if (cached?.characters === characters) return cached.items;
+  const items = getAllItems(characters, account);
+  allItemsCache.set(account, { characters, items });
+  return items;
+};
+
+const ownedItemsCache = new WeakMap();
+const getCachedOwnedItems = (characters, account) => {
+  const cached = ownedItemsCache.get(account);
+  if (cached?.characters === characters) return cached.items;
+  const equippedItems = addEquippedItems(characters, true);
+  const items = mergeItemsByOwner([...(getCachedAllItems(characters, account) || []), ...(equippedItems || [])]);
+  ownedItemsCache.set(account, { characters, items });
+  return items;
+};
 
 export const getOptions = (data) => {
   return Object.entries(data)?.reduce((res, [fieldName, fieldData]) => {
@@ -66,7 +88,7 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
   if (fields?.materialTracker?.checked) {
     const materials = tryToParse(localStorage.getItem('material-tracker'));
     if (Object.keys(materials || {}).length > 0) {
-      const totalOwnedItems = getAllItems(characters, account);
+      const totalOwnedItems = getCachedAllItems(characters, account);
       const allMaterials = Object.values(materials || {})?.reduce((res, {
         item,
         lowerBound,
@@ -235,7 +257,7 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
       // accountOptions[492] = candle already wished on today; the game clears it on daily reset.
       // 491 = the wish already came true, so the candle is spent for good. Gate on actually owning
       // Quest114 (inventory or storage) so the alert disappears once the event item is gone.
-      const ownsCandle = findQuantityOwned(getAllItems(characters, account), 'Glimmerwick_Candle')?.amount > 0;
+      const ownsCandle = findQuantityOwned(getCachedAllItems(characters, account), 'Glimmerwick_Candle')?.amount > 0;
       if (ownsCandle && account?.accountOptions?.[492] !== 1) {
         etc.glimmerwickCandle = getTomeWishPity(account);
       }
@@ -437,7 +459,7 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
     }
     if (options?.alchemy?.vialsAttempts?.checked) {
       const { current } = account?.alchemy?.p2w?.vialsAttempts;
-      const totalItems = getAllItems(characters, account);
+      const totalItems = getCachedAllItems(characters, account);
       const lockedVials = account?.alchemy?.vials?.filter(({ level }) => level === 0);
       const hasItems = lockedVials.filter(({ itemReq }) => {
         const item = itemReq?.[0]?.name;
@@ -672,12 +694,17 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
         construction.buildings = buildings
       }
     }
+    // The cycle-bonus stack (stamps, shiny pets, vials, highest-talent walk) is the expensive part,
+    // so one evaluation computes it once for both the materials and salt balance alerts.
+    const refineryCycleTimes = materials?.checked || saltBalance?.checked
+      ? getRefineryCycleTimes(account, characters)
+      : null;
     if (materials?.checked) {
       const enabled = materials?.props?.value || {};
       // Warn before a salt stalls as well as after: `matsThreshold` is how many hours of lead time
       // to alert on, and 0 keeps the original behaviour of alerting only once materials are gone.
       const thresholdHours = matsThreshold?.checked ? matsThreshold?.props?.value ?? 0 : 0;
-      const timeLeftBySalt = getSaltMatsTimeLeft(account, characters)
+      const timeLeftBySalt = getSaltMatsTimeLeft(account, characters, refineryCycleTimes)
         .reduce((res, entry) => ({ ...res, [entry?.rawName]: entry }), {});
       const mats = account?.refinery?.salts?.reduce((res, { rank, cost, rawName }, saltIndex) => {
         if (!enabled[rawName]) return res;
@@ -731,7 +758,7 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
       // Both sides of one comparison - a salt is either at/past the rank its predecessor can fuel
       // or below it, never both - so the salt picker is shared and only the side is chosen here.
       const directions = saltBalanceDirection?.checked ? saltBalanceDirection?.props?.value : null;
-      getSaltsBalance(account, characters).forEach(({
+      getSaltsBalance(account, characters, refineryCycleTimes).forEach(({
         index,
         rawName,
         saltName,
@@ -836,9 +863,7 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
   if (fields?.hatRack?.checked) {
     const hatRack = {};
     if (options?.hatRack?.hatsMissing?.checked) {
-      const equippedItems = addEquippedItems(characters, true);
-      const totalItems = getAllItems(characters, account)
-      const totalOwnedItems = mergeItemsByOwner([...(totalItems || []), ...(equippedItems || [])]);
+      const totalOwnedItems = getCachedOwnedItems(characters, account);
       const hatsUsed = account?.hatRack?.hatsUsed || [];
       const hatsUsedRawNames = new Set(
         hatsUsed
@@ -1216,7 +1241,7 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
     // Gate on actually owning Quest90 so the alert stays quiet for accounts with none left.
     const remainingLanterns = account?.hole?.blindingLanterns?.remaining ?? 0;
     if (lanterns?.checked && remainingLanterns >= (lanterns?.props?.value || 1)) {
-      const ownsLantern = findQuantityOwned(getAllItems(characters, account), 'Blinding_Lantern')?.amount > 0;
+      const ownsLantern = findQuantityOwned(getCachedAllItems(characters, account), 'Blinding_Lantern')?.amount > 0;
       if (ownsLantern) {
         hole.lanterns = remainingLanterns;
       }
@@ -1232,19 +1257,20 @@ export const getWorld6Alerts = (account, fields, options, characters) => {
   if (!account?.finishedWorlds?.World5) return alerts;
   if (fields?.beanstalk?.checked && options?.beanstalk?.readyToPlant?.checked
     && isJadeBonusUnlocked(account, 'Gold_Food_Beanstalk')) {
-    // getAllItems walks every character's inventory and storage, so it's only built when the
-    // alert is actually enabled.
-    const equippedItems = addEquippedItems(characters, true);
-    const totalItems = getAllItems(characters, account);
-    const totalOwnedItems = mergeItemsByOwner([...(totalItems || []), ...(equippedItems || [])]);
+    // The merged item list is only built when the alert is actually enabled, and each golden food
+    // looks its total up in one pass over it instead of a scan per food.
+    const totalOwnedItems = getCachedOwnedItems(characters, account);
+    const totalsByName = (totalOwnedItems ?? []).reduce((res, { name, amount }) => {
+      res[name] = (res[name] || 0) + (amount ?? 1);
+      return res;
+    }, {});
     const beanstalkData = account?.sneaking?.beanstalkData;
     const readyToPlant = (ninjaExtraInfo?.[29]?.filter((str) => isNaN(str)) ?? []).reduce((res, rawName, index) => {
       const rank = beanstalkData?.[index] ?? 0;
       const breakpoint = BEANSTALK_BREAKPOINTS?.[rank];
       if (!breakpoint) return res;
       const displayName = items?.[rawName]?.displayName;
-      const owned = findItemInInventory(totalOwnedItems, displayName);
-      const total = Object.values(owned || {}).reduce((sum, { amount }) => sum + amount, 0);
+      const total = totalsByName[displayName] || 0;
       if (total < breakpoint) return res;
       return [...res, { rawName, displayName, total, breakpoint, rank }];
     }, []);
@@ -1373,9 +1399,7 @@ export const getWorld6Alerts = (account, fields, options, characters) => {
 export const getWorld7Alerts = (account, fields, options, characters) => {
   const alerts = {};
   if (!account?.finishedWorlds?.World6) return alerts;
-  const equippedItems = addEquippedItems(characters, true);
-  const totalItems = getAllItems(characters, account)
-  const totalOwnedItems = mergeItemsByOwner([...(totalItems || []), ...(equippedItems || [])]);
+  const totalOwnedItems = getCachedOwnedItems(characters, account);
   const gallery = {};
   if (fields?.gallery?.checked) {
     if (options?.gallery?.trophiesMissing?.checked) {

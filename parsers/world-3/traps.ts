@@ -228,7 +228,9 @@ export const getShinyChanceInfo = (account: any, characters: any, selectedCharac
   const best = perCharacter.reduce((res: any, current: any) => current?.multiplier > (res?.multiplier ?? -1)
     ? current
     : res, null);
-  const selected = (selectedCharacter ? getShinyChance(selectedCharacter, account) : best)
+  const selected = (selectedCharacter
+    ? perCharacter.find(({ name }: any) => name === selectedCharacter?.name) ?? getShinyChance(selectedCharacter, account)
+    : best)
     ?? getShinyChance(null, account);
   const { multiplier, bundleSize, critters, sources } = selected;
 
