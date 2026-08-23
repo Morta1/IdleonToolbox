@@ -8,6 +8,7 @@ import {
   CLASSES,
   getTalentBonus,
   getTalentBonusIfActive,
+  isBookEligibleTalent,
   relevantTalents
 } from '../../parsers/talents';
 import { getAllTools } from '../../parsers/items';
@@ -162,7 +163,34 @@ export const talentsAlerts = (account, characters, character, lastUpdated, optio
       alerts.superTalentLeftToSpend = superTalentLeftToSpend;
     }
   }
+  if (options?.talents?.unmaxedTalents?.checked) {
+    alerts.unmaxedTalents = getUnmaxedTalents(character);
+  }
+  if (options?.talents?.libraryUpgradableTalents?.checked) {
+    alerts.libraryUpgradableTalents = getLibraryUpgradableTalents(character);
+  }
   return alerts;
+}
+
+// Class talents only - star talents have no per-talent cap to fill or book to raise. Placeholder
+// tiles ('Blank', locked slots) carry a non numeric skillIndex or no maxLevel, so they're skipped.
+const getRealTalents = (character) => character?.flatTalents?.filter(({ skillIndex, name, maxLevel }) =>
+  name && maxLevel > 0 && Number.isFinite(Number(skillIndex))) || [];
+
+// Talents with points left to spend - the white tier of the Talents page level color legend.
+export const getUnmaxedTalents = (character) => getRealTalents(character)
+  .filter(({ baseLevel, maxLevel }) => baseLevel < maxLevel)
+  .map(({ name, skillIndex, baseLevel, maxLevel }) => ({ name, skillIndex, level: baseLevel, target: maxLevel }));
+
+// Talents already at their cap that a Talent Book Library book could raise further - the blue tier
+// of the level color legend.
+export const getLibraryUpgradableTalents = (character) => {
+  const maxBookLv = character?.maxBookLv ?? 0;
+  return getRealTalents(character)
+    .filter(({ skillIndex, baseLevel, maxLevel }) => baseLevel >= maxLevel
+      && maxLevel < maxBookLv
+      && isBookEligibleTalent(skillIndex))
+    .map(({ name, skillIndex, maxLevel }) => ({ name, skillIndex, level: maxLevel, target: maxBookLv }));
 }
 export const isTalentReady = (character, options) => {
   const { talents } = options;

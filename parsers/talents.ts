@@ -425,6 +425,18 @@ export const applyTalentAddedLevels = (talents: any, flatTalents: any, addedLeve
   }, {} as any);
 }
 
+// Talent Book Library eligibility. Only main class talents (skillIndex < 615, star talents start
+// there) can be raised by books, EXCEPT the page 1 stat-allocation talents (STR/AGI/WIS/LUK) and
+// their paired Basics-tab talents, which the game excludes via CustomLists.RANDOlist[16] and shows
+// "This Book is not Available" for instead of a Book Lv Range.
+export const BOOK_ELIGIBLE_MAX_INDEX = 615;
+export const BOOK_INELIGIBLE_INDICES = [10, 11, 12, 23, 75, 79, 86, 87, 266, 267, 446, 447];
+
+export const isBookEligibleTalent = (skillIndex: any) => {
+  const index = Number(skillIndex);
+  return index < BOOK_ELIGIBLE_MAX_INDEX && !BOOK_INELIGIBLE_INDICES.includes(index);
+}
+
 const isTalentExcluded = (skillIndex: any) => {
   return 49 <= skillIndex && 59 >= skillIndex ||
     149 === skillIndex ||

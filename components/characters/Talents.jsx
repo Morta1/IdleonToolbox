@@ -6,14 +6,8 @@ import { Box, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { TalentTooltip } from '../common/styles';
 import { Breakdown } from '../common/Breakdown/Breakdown';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { isBookEligibleTalent } from '@parsers/talents';
 
-
-const BOOK_ELIGIBLE_MAX_INDEX = 615;
-// Talents excluded from Talent Book Library increases (game's RANDOlist[16] check —
-// shows "This Book is not Available" instead of a Book Lv Range). These are the page 1
-// stat-allocation talents (STR/AGI/WIS/LUK) plus their paired Basics-tab talents, which use
-// a different level mechanic than the book library system.
-const BOOK_INELIGIBLE_INDICES = [10, 11, 12, 23, 75, 79, 86, 87, 266, 267, 446, 447];
 
 const Talents = ({
   talents,
@@ -161,8 +155,7 @@ const Talents = ({
         const isActiveTalent = talentDetails.hasOwnProperty('manaCost') && talentDetails.hasOwnProperty('cooldown');
         const isStarTab = activeTab === STAR_TAB_INDEX;
         const isMaxed = isStarTab ? true : baseLevel >= maxLevel;
-        const isBookEligible = !isStarTab && Number(talentId) < BOOK_ELIGIBLE_MAX_INDEX
-          && !BOOK_INELIGIBLE_INDICES.includes(Number(talentId));
+        const isBookEligible = !isStarTab && isBookEligibleTalent(talentId);
         const pendingLibraryBooks = isMaxed && isBookEligible && maxLevel < maxBookLv;
         const levelText = getLevelAndMaxLevel(level, maxLevel);
         const levelTextSx = isStarTab || !isMaxed

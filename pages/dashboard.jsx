@@ -658,6 +658,14 @@ const baseTrackers = {
       }, {
         name: 'superTalentLeftToSpend',
         checked: true
+      }, {
+        name: 'unmaxedTalents',
+        checked: true,
+        helperText: 'Alert when a class talent still has talent points left to spend before its max level'
+      }, {
+        name: 'libraryUpgradableTalents',
+        checked: false,
+        helperText: 'Alert when a maxed class talent could still be raised by a Talent Book Library book'
       }]
     },
     equipment: {
