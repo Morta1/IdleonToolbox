@@ -14,6 +14,7 @@ import {
   getEquipmentAlert,
   obolsAlerts,
   postOfficeAlerts,
+  questsAlerts,
   starSignsAlerts,
   talentsAlerts,
   toolsAlerts,
@@ -47,6 +48,7 @@ const alertsMap = {
   anvil: anvilAlerts,
   worship: worshipAlerts,
   traps: trapsAlerts,
+  quests: questsAlerts,
   alchemy: alchemyAlerts,
   obols: obolsAlerts,
   postOffice: postOfficeAlerts,
@@ -137,6 +139,9 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                 <Alert title={`${name} traps are overdue`} iconPath={'data/TrapBoxSet1'}/> : null}
               {trackers?.traps && alerts?.traps?.missingTraps ?
                 <Alert title={`${name} is missing a trap`} iconPath={'data/ClassIcons48'}/> : null}
+              {trackers?.quests && alerts?.quests?.picnicDaily ?
+                <Alert title={`${name} hasn't done the Picnic Stowaway daily quest today`}
+                       iconPath={'etc/Picnic_Stowaway'}/> : null}
               {trackers?.alchemy && alerts?.alchemy?.missingBubbles ?
                 <Alert title={`${name} is missing an active bubble`} iconPath={'data/aJarB0'}/> : null}
               {trackers?.alchemy && alerts?.alchemy?.noActivity ?
