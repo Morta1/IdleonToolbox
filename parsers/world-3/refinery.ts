@@ -298,7 +298,7 @@ export const getSaltsBalance = (account: Account, characters: any[]): SaltBalanc
     const { rawName, saltName, rank, cost, active, autoRefinePercentage, unlocked } = salt;
     const cycleTime = getSaltCycleTime(index, cycleTimes);
     const powerPerCycle = getPowerPerCycle(rank, account);
-    const outputPerHour = unlocked ? powerPerCycle * 3600 / cycleTime : 0;
+    const outputPerHour = unlocked && active ? powerPerCycle * 3600 / cycleTime : 0;
 
     const nextSalt = salts?.[index + 1];
     const nextSaltCost = nextSalt?.cost?.find((item: any) => item?.rawName === rawName);

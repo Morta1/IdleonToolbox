@@ -1,6 +1,7 @@
 import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
 import { isCompanionBonusActive } from '@parsers/misc';
-import { getActiveBubbleBonus } from '@parsers/world-2/alchemy';
+import { getActiveBubbleBonus, isPrismaBubble } from '@parsers/world-2/alchemy';
+import { getPrismaMulti } from '@parsers/class-specific/tesseract';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getCoralKidUpgBonus } from '@parsers/world-7/coralReef';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
@@ -199,14 +200,21 @@ export const getMinorDivinityBonusCap = (inputs: Omit<MinorDivinityInputs, 'divi
 
 export const getBigPBubbleShape = (account: any) => {
   const bubble = account?.alchemy?.bubblesFlat?.find(({ bubbleName }: any) => bubbleName === 'BIG_P');
+  // CauldronStats("BubbleBonus") multiplies Math.max(1, PrismaBonusMult) into every prisma'd
+  // bubble, active ones included, so the minor-link formula sees the multiplied value.
+  const prismaMultiplier = isPrismaBubble(account, bubble?.bubbleIndex)
+    ? Math.max(1, getPrismaMulti(account)?.value ?? 1)
+    : 1;
   return {
     level: Number(bubble?.level) || 0,
     x1: Number(bubble?.x1) || 0.5,
-    x2: Number(bubble?.x2) || 60
+    x2: Number(bubble?.x2) || 60,
+    prismaMultiplier
   };
 }
 
-export const getBigPBubbleBonus = (level: number, x1 = 0.5, x2 = 60) => growth('decayMulti', Number(level) || 0, x1, x2, false) ?? 1;
+export const getBigPBubbleBonus = (level: number, x1 = 0.5, x2 = 60, prismaMultiplier = 1) =>
+  Math.max(1, prismaMultiplier) * (growth('decayMulti', Number(level) || 0, x1, x2, false) ?? 1);
 
 // Arctis hands out Math.ceil(bonus) talent levels, so a target of +40 needs the bonus to clear 39,
 // not to reach 40. Every solver below is written the same way: smallest whole level whose bonus is
@@ -230,20 +238,23 @@ export const getRequiredDivinityLevel = ({ targetBonus, bigPBubble, multiplier, 
     (divinityLevel) => getMinorDivinityBonusValue({ divinityLevel, ...inputs }));
 }
 
-export const getRequiredBigPLevel = ({ targetBonus, divinityLevel, multiplier, coralKidUpgBonus, x1 = 0.5, x2 = 60 }: Omit<MinorDivinityInputs, 'bigPBubble'> & {
+export const getRequiredBigPLevel = ({ targetBonus, divinityLevel, multiplier, coralKidUpgBonus, x1 = 0.5, x2 = 60, prismaMultiplier = 1 }: Omit<MinorDivinityInputs, 'bigPBubble'> & {
   targetBonus: number,
   x1?: number,
-  x2?: number
+  x2?: number,
+  prismaMultiplier?: number
 }) => {
-  const base = getMinorDivinityBonusValue({ divinityLevel, bigPBubble: 1, multiplier, coralKidUpgBonus });
+  const prisma = Math.max(1, prismaMultiplier);
+  const base = getMinorDivinityBonusValue({ divinityLevel, bigPBubble: prisma, multiplier, coralKidUpgBonus });
   if (base <= 0) return null;
-  // The bubble is a decayMulti, so it can never multiply by more than 1 + x1.
+  // The bubble is a decayMulti, so beyond its level-0 value it can never multiply by more than
+  // 1 + x1, prisma'd or not.
   const needed = targetBonus / base - 1;
   if (needed >= x1) return null;
   const closedForm = needed <= 0 ? 0 : (x2 * needed) / (x1 - needed);
   return smallestLevelAbove(closedForm, targetBonus, (level) => getMinorDivinityBonusValue({
     divinityLevel,
-    bigPBubble: getBigPBubbleBonus(level, x1, x2),
+    bigPBubble: getBigPBubbleBonus(level, x1, x2, prisma),
     multiplier,
     coralKidUpgBonus
   }));
@@ -262,11 +273,12 @@ export const getRequiredCoralKidLevel = ({ targetBonus, divinityLevel, bigPBubbl
 }
 
 // The floor no amount of divinity or bubble levels can get under: both maxed, only Coral Kid left.
-export const getMinCoralKidLevel = ({ targetBonus, multiplier, x1 = 0.5 }: { targetBonus: number, multiplier: number, x1?: number }) => {
-  const base = minorBonusFrom(1, { bigPBubble: 1 + x1, multiplier, coralKidUpgBonus: 0 });
+export const getMinCoralKidLevel = ({ targetBonus, multiplier, x1 = 0.5, prismaMultiplier = 1 }: { targetBonus: number, multiplier: number, x1?: number, prismaMultiplier?: number }) => {
+  const maxBubble = Math.max(1, prismaMultiplier) * (1 + x1);
+  const base = minorBonusFrom(1, { bigPBubble: maxBubble, multiplier, coralKidUpgBonus: 0 });
   if (base <= 0) return null;
   return smallestLevelAbove(100 * (targetBonus / base - 1), targetBonus, (level) => minorBonusFrom(1, {
-    bigPBubble: 1 + x1,
+    bigPBubble: maxBubble,
     multiplier,
     coralKidUpgBonus: Math.round(level)
   }));

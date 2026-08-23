@@ -1369,7 +1369,7 @@ const getKillPerKill = (character: Character, characters: Character[], account: 
   const diminished = mapIndex >= DIMINISHED_MULTIKILL_MAP_INDEX;
 
   // OverkillStuffs('3'). The damage threshold uses the same exponent as the tier ladder, so it is
-  // 5 from World 6 onwards rather than 2.
+  // 5 from World 7 onwards rather than 2.
   const overKill = playerInfo?.maxDamage >= (diminished ? 5 : 2) * monsterHp && 0.5 < account?.towers?.towersTwo
     ? playerInfo?.accuracy > 1.5 * monster?.Defence
     : 0;
@@ -1405,7 +1405,7 @@ const getKillPerKill = (character: Character, characters: Character[], account: 
   // divinity, the World 7 chosen god or the polytheism link can all supply it without a normal link.
   const majorBonus = isMajorDivinityActive(character, account, 7) ? 1 : 0;
 
-  // KpKDumm2: the three stat talents are switched off entirely from World 6 onwards.
+  // KpKDumm2: the three stat talents are switched off entirely from World 7 onwards.
   const strTalentBonus = getTalentBonus(character?.flatTalents, 'CHARRED_SKULLS');
   const agiTalentBonus = getTalentBonus(character?.flatTalents, 'STACKED_SKULLS');
   const wisTalentBonus = getTalentBonus(character?.flatTalents, 'MEMORIAL_SKULLS');
@@ -1558,11 +1558,13 @@ export const getMultiKillPerTier = (character: Character, characters: Character[
         + (postOfficeBonus + activeBubbleBonus + cardSetBonus)));
 }
 
-// From World 6 onwards the game squashes both halves of multikill through a bracketed curve and
-// steps the overkill tiers by 5 instead of 2. The gate is the map the character stands on.
+// From World 7 onwards (OverkillStuffs: 300 <= CurrentMap sets OverkillEXPONENT to 5) the game
+// squashes both halves of multikill through a bracketed curve and steps the overkill tiers by 5
+// instead of 2. The gate is the map the character stands on: World 6 maps (250-299) still use the
+// undiminished rules.
 export const DIMINISHED_MULTIKILL_MAP_INDEX = 300;
 
-// From World 6 onwards (CurrentMap >= 300) the game squashes both halves of multikill through a
+// From World 7 onwards (CurrentMap >= 300) the game squashes both halves of multikill through a
 // bracketed curve. The top bracket has no ceiling, it just flattens to a 1/50 slope, so a raw
 // 2557 reads back as 144.29 rather than being capped near 100.
 export const getMultiKillDiminished = (value: number) => {
@@ -1576,7 +1578,7 @@ export const getMultiKillDiminished = (value: number) => {
 }
 
 // How many overkill tiers `maxDamage` reaches against a monster with `monsterHp`. The exponent is
-// 5 from World 6 onwards and 2 before it (DNSM.OverkillEXPONENT).
+// 5 from World 7 onwards and 2 before it (DNSM.OverkillEXPONENT).
 export const getMultiKillTiers = (maxDamage: number, monsterHp: number, exponent = 2) => {
   let tiers = 1;
   for (let i = 0; i < 50; i++) {
@@ -1587,7 +1589,7 @@ export const getMultiKillTiers = (maxDamage: number, monsterHp: number, exponent
   return tiers;
 }
 
-// The Clamworks is map 306, so multikill there uses the World 6+ rules: both halves go through
+// The Clamworks is map 306, so multikill there uses the World 7+ rules: both halves go through
 // the diminishing curve and the overkill exponent is 5, not 2. The clam's HP is overridden to
 // Clamz_HP on map load, so it has to be passed in rather than read from the monster data.
 export const getClamworksMultiKill = (character: Character, characters: Character[], account: Account, clamHp: number, maxDamage: number) => {
