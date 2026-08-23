@@ -4,27 +4,39 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useRouter } from 'next/router';
 import usePin from '@components/common/favorites/usePin';
 import {
+  Alert,
   Box,
   Collapse,
+  Divider,
   List,
   ListItem,
   ListItemButton,
   listItemButtonClasses,
   ListItemText,
   Popover,
+  Snackbar,
+  Stack,
   Typography,
   useMediaQuery
 } from '@mui/material';
+import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import { IconGripVertical, IconX } from '@tabler/icons-react';
+import { IconFileExport, IconGripVertical, IconX } from '@tabler/icons-react';
 import { Reorder } from 'framer-motion';
 import { getPageIcon } from '@utility/pageIcons';
-import { prefix } from '@utility/helpers';
+import { handleDownload, prefix } from '@utility/helpers';
+import FileUploadButton from '@components/common/DownloadButton';
+
+// An exported file is a plain array of pin entries. Anything else (a dashboard config, some other
+// json) gets rejected rather than wiping the user's pins with garbage.
+const isValidPins = (data) => Array.isArray(data)
+  && data.every((page) => page && typeof page.name === 'string' && typeof page.url === 'string');
 
 const PinnedPages = ({}) => {
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('lg'), { noSsr: true });
   const [isOpen, setIsOpen] = useState(false);
-  const { pinnedPages, removePin, reorderPins } = usePin();
+  const [result, setResult] = useState(null);
+  const { pinnedPages, removePin, reorderPins, setPins } = usePin();
   const router = useRouter();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
@@ -77,6 +89,44 @@ const PinnedPages = ({}) => {
     event.preventDefault();
     handleNavigation(page);
   }
+
+  const handleExport = () => {
+    handleDownload(pinnedPages || [], 'it-pinned-pages');
+    if (typeof window.gtag !== 'undefined') {
+      window.gtag('event', 'pinned_pages_exported', {
+        event_category: 'engagement',
+        event_label: 'pinned_pages',
+        value: pinnedPages?.length ?? 0
+      });
+    }
+  }
+
+  const handleImport = (data) => {
+    if (!isValidPins(data)) {
+      setResult({ severity: 'error', message: 'That file doesn\'t contain pinned pages' });
+      return;
+    }
+    setPins(data);
+    setResult({ severity: 'success', message: `Imported ${data.length} pinned page${data.length === 1 ? '' : 's'}` });
+    if (typeof window.gtag !== 'undefined') {
+      window.gtag('event', 'pinned_pages_imported', {
+        event_category: 'engagement',
+        event_label: 'pinned_pages',
+        value: data.length
+      });
+    }
+  }
+
+  const renderActions = () => <Stack direction={'row'} gap={1} sx={{ px: 1, py: 1 }}>
+    <FileUploadButton onFileUpload={handleImport}>Import</FileUploadButton>
+    <Button onClick={handleExport}
+            disabled={!pinnedPages?.length}
+            variant={'outlined'}
+            size={'small'}
+            startIcon={<IconFileExport size={18}/>}>
+      Export
+    </Button>
+  </Stack>;
 
   const truncateMiddle = (text, maxLength) => {
     if (text.length <= maxLength) return text;
@@ -164,6 +214,8 @@ const PinnedPages = ({}) => {
           {pinnedPages?.map((page, index) => renderItem(page, index, { dense: false }))}
           {!pinnedPages?.length && <ListItemButton dense disabled>You don&apos;t have any pinned pages</ListItemButton>}
         </Reorder.Group>
+        <Divider/>
+        {renderActions()}
       </Collapse> : <Popover
         anchorEl={anchorEl}
         open={open}
@@ -178,21 +230,35 @@ const PinnedPages = ({}) => {
           horizontal: 'left'
         }}
       >
-        {pinnedPages?.length > 0 ? (
-          <Reorder.Group axis="y" values={pinnedPages} onReorder={reorderPins}
-                         style={{ listStyle: 'none', margin: 0, padding: '8px 0', minWidth: 300 }}>
-            {pinnedPages.map((page, index) => renderItem(page, index, { dense: true, maxLabelLength: 30 }))}
-          </Reorder.Group>
-        ) : (
-          <List sx={{ minWidth: 300 }}>
-            <ListItem dense disabled>
-              <ListItemText>
-                <Typography variant="body2">You don&apos;t have any pinned pages</Typography>
-              </ListItemText>
-            </ListItem>
-          </List>
-        )}
+        <Box sx={{ minWidth: 300 }}>
+          {pinnedPages?.length > 0 ? (
+            <Reorder.Group axis="y" values={pinnedPages} onReorder={reorderPins}
+                           style={{ listStyle: 'none', margin: 0, padding: '8px 0' }}>
+              {pinnedPages.map((page, index) => renderItem(page, index, { dense: true, maxLabelLength: 30 }))}
+            </Reorder.Group>
+          ) : (
+            <List>
+              <ListItem dense disabled>
+                <ListItemText>
+                  <Typography variant="body2">You don&apos;t have any pinned pages</Typography>
+                </ListItemText>
+              </ListItem>
+            </List>
+          )}
+          <Divider/>
+          {renderActions()}
+        </Box>
       </Popover>}
+      <Snackbar
+        open={Boolean(result)}
+        autoHideDuration={result?.severity === 'error' ? 5000 : 2000}
+        onClose={() => setResult(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity={result?.severity} variant="filled" onClose={() => setResult(null)}>
+          {result?.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }

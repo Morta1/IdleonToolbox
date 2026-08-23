@@ -62,7 +62,12 @@ const usePin = () => {
     dispatch({ type: 'pinnedPages', data: newOrder });
   }
 
-  return { pinnedPages: state.pinnedPages, isPinned, togglePin, removePin, reorderPins };
+  const setPins = (pages) => {
+    localStorage.setItem('pinnedPages', JSON.stringify(pages));
+    dispatch({ type: 'pinnedPages', data: pages });
+  }
+
+  return { pinnedPages: state.pinnedPages, isPinned, togglePin, removePin, reorderPins, setPins };
 };
 
 export default usePin;
