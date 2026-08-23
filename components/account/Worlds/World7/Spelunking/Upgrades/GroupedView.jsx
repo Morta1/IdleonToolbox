@@ -16,16 +16,31 @@ const columnNames = {
   12: 'Nova Blast', 13: 'Advanced Amber', 14: 'Grand Discoveries', 15: 'Etc', 16: 'Amber Red'
 };
 
+const formatAmber = (value, denominator) => {
+  const scaled = value / denominator;
+  return scaled < 1e9 ? commaNotation(scaled) : notateNumber(scaled, 'Big');
+}
+
 const GroupedView = ({ grouped, currentAmber, denominator, amberIndex, searchTerm = '' }) => {
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
-      {Object.entries(grouped).map(([groupKey, upgrades]) => (
+      {Object.entries(grouped).map(([groupKey, upgrades]) => {
+        const groupCostToMax = upgrades.reduce((sum, u) => sum + (u.costToMax ?? 0), 0);
+        const hasCappedUpgrades = upgrades.some((u) => u.costToMax !== null && u.costToMax !== undefined);
+        return (
         <Stack key={groupKey}>
-          <Typography variant="h6" mb={1}>{columnNames[groupKey]}</Typography>
+          <Stack direction={'row'} alignItems={'center'} gap={1} mb={1} flexWrap={'wrap'}>
+            <Typography variant="h6">{columnNames[groupKey]}</Typography>
+            {hasCappedUpgrades && groupCostToMax > 0 && <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+              <Typography variant="body2" sx={{ opacity: 0.8 }}>To max:</Typography>
+              <img src={`${prefix}data/CaveAmber${amberIndex}.png`} alt="" style={{ width: 16, height: 16 }}/>
+              <Typography variant="body2" sx={{ opacity: 0.8 }}>{formatAmber(groupCostToMax, denominator)}</Typography>
+            </Stack>}
+          </Stack>
           <Card variant={'outlined'} sx={{ height: '100%' }}>
             <CardContent>
               {upgrades.map((u, idx) => {
-                const costValue = u.cost < 1e9 ? commaNotation(u.cost / denominator) : notateNumber(u.cost / denominator, "Big");
+                const costValue = formatAmber(u.cost, denominator);
                 return (
                   <Fragment key={u.name}>
                     <Box>
@@ -51,6 +66,18 @@ const GroupedView = ({ grouped, currentAmber, denominator, amberIndex, searchTer
                           </Typography>
                         </Stack>
                       )}
+                      {u.costToMax > 0 && u.level < u.x3 && (
+                        <Stack direction={'row'} alignItems={'center'} gap={0.5} mt={.5}>
+                          <img
+                            src={`${prefix}data/CaveAmber${amberIndex}.png`}
+                            alt=""
+                            style={{ width: 16, height: 16 }}
+                          />
+                          <Typography variant="body2">
+                            To max ({u.x3 - Math.max(u.level, 0)} lv): {formatAmber(u.costToMax, denominator)}
+                          </Typography>
+                        </Stack>
+                      )}
                     </Box>
                     {idx < upgrades.length - 1 && <Divider sx={{ my: 2 }} />}
                   </Fragment>
@@ -59,7 +86,8 @@ const GroupedView = ({ grouped, currentAmber, denominator, amberIndex, searchTer
             </CardContent>
           </Card>
         </Stack>
-      ))}
+        )
+      })}
     </Box>
   )
 }
