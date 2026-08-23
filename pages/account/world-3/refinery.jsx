@@ -308,6 +308,32 @@ const Refinery = () => {
 
 // Each salt is fuelled by the one above it, so the numbers that matter are comparisons down the
 // chain - a table reads them at a glance where per-card lines would need scrolling between salts.
+// Ranks are permanent, so a salt past its limit can't be walked back - it only recovers when the
+// salt feeding it grows. That makes "wait for the one above" the honest answer for those rows,
+// where the numbers alone leave the reader stuck.
+const getSaltAction = ({
+                         unlocked,
+                         active,
+                         autoRefinePercentage,
+                         rank,
+                         maxSafeRank,
+                         outputMaxed,
+                         isDeficit
+                       }, previousSaltName) => {
+  if (!unlocked || !active || outputMaxed) return null;
+  if (rank >= maxSafeRank) {
+    return previousSaltName
+      ? { label: `Wait for ${cleanUnderscore(previousSaltName)}`, color: 'text.secondary' }
+      : null;
+  }
+  // Auto refine never lets a salt bank power to its cap, so its rank is frozen. Only worth
+  // mentioning when something downstream is starving on it - otherwise it's a deliberate setting.
+  if (autoRefinePercentage > 0) {
+    return isDeficit ? { label: 'Turn auto refine off', color: 'warning.light' } : null;
+  }
+  return { label: 'Rank up', color: 'success.light' };
+}
+
 const SaltChainSummary = ({ balances, salts }) => {
   if (!balances?.length) return null;
   return <TableContainer component={Paper} sx={{ mt: 3, width: 'fit-content', maxWidth: '100%' }}>
@@ -320,23 +346,41 @@ const SaltChainSummary = ({ balances, salts }) => {
           <TableCell align={'right'}>Consumed /hr</TableCell>
           <TableCell align={'right'}>Balance /hr</TableCell>
           <TableCell align={'right'}>Max rank (no deficit)</TableCell>
+          <TableCell>
+            <Stack direction={'row'} gap={.5} alignItems={'center'}>
+              Action
+              <Tooltip title={<Stack gap={1.5}>
+                {[
+                  { label: 'Rank up', color: 'success.light', text: 'Room to grow before it out-consumes the salt above' },
+                  { label: 'Turn auto refine off', color: 'warning.light', text: 'Auto refine freezes the rank' },
+                  { label: 'Wait for a salt', color: 'text.secondary', text: 'Ranks are permanent. This one recovers when the salt above grows' }
+                ].map(({ label, color, text }) => <Stack key={label}>
+                  <Typography variant={'body2'} sx={boldSx} color={color}>{label}</Typography>
+                  <Typography variant={'body2'}>{text}</Typography>
+                </Stack>)}
+              </Stack>} titleStyle={{ width: 230 }}>
+                <IconInfoCircleFilled size={16}/>
+              </Tooltip>
+            </Stack>
+          </TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
-        {balances.map(({
-                         index,
-                         rawName,
-                         saltName,
-                         rank,
-                         unlocked,
-                         outputPerHour,
-                         consumedPerHour,
-                         balancePerHour,
-                         isDeficit,
-                         maxSafeRank,
-                         outputMaxed
-                       }) => {
-          const consumerName = salts?.[index + 1]?.saltName;
+        {balances.map((balance) => {
+          const {
+            index,
+            rawName,
+            saltName,
+            rank,
+            unlocked,
+            outputPerHour,
+            consumedPerHour,
+            balancePerHour,
+            isDeficit,
+            maxSafeRank,
+            outputMaxed
+          } = balance;
+          const action = getSaltAction(balance, salts?.[index - 1]?.saltName);
           const balanceColor = consumedPerHour === 0 ? '' : isDeficit ? 'error.light' : 'success.light';
           // notateNumber leaves negatives unformatted, so notate the magnitude and carry the sign.
           const balanceSign = balancePerHour > 0 ? '+' : balancePerHour < 0 ? '-' : '';
@@ -351,13 +395,7 @@ const SaltChainSummary = ({ balances, salts }) => {
             </TableCell>
             <TableCell align={'right'}>{unlocked ? numberWithCommas(rank) : 'Locked'}</TableCell>
             <TableCell align={'right'}>{unlocked ? notateNumber(outputPerHour) : '-'}</TableCell>
-            <TableCell align={'right'}>
-              {consumedPerHour > 0
-                ? <Tooltip title={`Consumed by ${cleanUnderscore(consumerName)}`}>
-                  <Typography component={'span'}>{notateNumber(consumedPerHour)}</Typography>
-                </Tooltip>
-                : '-'}
-            </TableCell>
+            <TableCell align={'right'}>{consumedPerHour > 0 ? notateNumber(consumedPerHour) : '-'}</TableCell>
             <TableCell align={'right'} sx={{ color: balanceColor }}>
               {unlocked ? `${balanceSign}${notateNumber(Math.abs(balancePerHour))}` : '-'}
             </TableCell>
@@ -365,10 +403,18 @@ const SaltChainSummary = ({ balances, salts }) => {
               {!unlocked
                 ? '-'
                 : outputMaxed
-                  ? <Tooltip title={'Power per cycle is capped - ranking up adds cost but no output'}>
-                    <Typography component={'span'}>{numberWithCommas(rank)} (capped)</Typography>
-                  </Tooltip>
+                  ? <Stack direction={'row'} gap={.5} alignItems={'center'} justifyContent={'flex-end'}>
+                    {numberWithCommas(rank)} (capped)
+                    <Tooltip title={'Power per cycle is capped, so ranking up adds cost but no output'}>
+                      <IconInfoCircleFilled size={16}/>
+                    </Tooltip>
+                  </Stack>
                   : numberWithCommas(maxSafeRank)}
+            </TableCell>
+            <TableCell>
+              {action
+                ? <Typography noWrap component={'span'} color={action.color}>{action.label}</Typography>
+                : '-'}
             </TableCell>
           </TableRow>;
         })}
