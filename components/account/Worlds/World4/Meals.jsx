@@ -214,15 +214,16 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
     if (!meal || meal.level === 0 || meal.level >= mealMaxLevel) return false;
     return !(sortBy > 0 && meal.level >= sortBy);
   }
+  const isLimitCandidate = (meal) => isMealUpgradable(meal) && Number.isFinite(getMealCost(meal));
   const applyMealLimit = (meals, limit, upgradable) => {
     if (!limit || limit >= upgradable) return meals;
-    const candidates = meals?.filter((meal) => isMealUpgradable(meal) && Number.isFinite(getMealCost(meal))) ?? [];
     // Pick by cost, then keep the incoming sort order for display.
-    const chosen = new Set([...candidates]
+    const chosen = new Set((meals?.filter(isLimitCandidate) ?? [])
       .sort((a, b) => getMealCost(a) - getMealCost(b))
       .slice(0, limit)
       .map(({ index }) => index));
-    return candidates.filter(({ index }) => chosen.has(index));
+    // Only trims the upgradable pool; capped and unstarted meals stay governed by the other filters.
+    return meals?.filter((meal) => !isLimitCandidate(meal) || chosen.has(meal.index)) ?? [];
   }
   const getCostStats = (meals) => {
     const costs = meals?.filter(isMealUpgradable)?.map(getMealCost)?.filter(Number.isFinite) ?? [];
@@ -241,7 +242,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
     })
     : [];
   const nmlbLadles = nmlbQueue.reduce((sum, { ladles }) => Number.isFinite(ladles) ? sum + ladles : sum, 0);
-  const upgradableCount = localMeals?.filter(isMealUpgradable)?.length ?? 0;
+  const upgradableCount = localMeals?.filter(isLimitCandidate)?.length ?? 0;
   const limited = mealLimit > 0 && mealLimit < upgradableCount;
   const limitedMeals = applyMealLimit(localMeals, mealLimit, upgradableCount);
   const visibleMeals = filters.includes('bookOrder')

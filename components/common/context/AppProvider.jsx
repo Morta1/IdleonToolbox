@@ -263,6 +263,7 @@ const AppProvider = ({ children }) => {
             companion,
             guildData,
             serverVars,
+            accountCreateTime,
             tournament,
             lastUpdated: timestamp
           });

@@ -32,7 +32,7 @@ const MinorBonusCalculator = ({ characters, account }) => {
   const coralKidLevel = overrides?.coralKidLevel ?? savedCoralKidLevel;
 
   const multiplier = getGodMinorBonusMultiplier(godSlot);
-  const bigPBubble = getBigPBubbleBonus(bigPLevel, bubbleShape?.x1, bubbleShape?.x2);
+  const bigPBubble = getBigPBubbleBonus(bigPLevel, bubbleShape?.x1, bubbleShape?.x2, bubbleShape?.prismaMultiplier);
   // Coral Kid's divinity upgrade rounds its level into a flat percent.
   const coralKidUpgBonus = Math.round(coralKidLevel);
   const inputs = { divinityLevel, bigPBubble, multiplier, coralKidUpgBonus };
@@ -53,9 +53,10 @@ const MinorBonusCalculator = ({ characters, account }) => {
         multiplier,
         coralKidUpgBonus,
         x1: bubbleShape?.x1,
-        x2: bubbleShape?.x2
+        x2: bubbleShape?.x2,
+        prismaMultiplier: bubbleShape?.prismaMultiplier
       }),
-      note: `caps at ${1 + bubbleShape?.x1}x`
+      note: `caps at ${Math.round((1 + bubbleShape?.x1) * (bubbleShape?.prismaMultiplier ?? 1) * 100) / 100}x`
     },
     {
       label: 'Divinity level',
@@ -68,7 +69,12 @@ const MinorBonusCalculator = ({ characters, account }) => {
       required: getRequiredCoralKidLevel({ targetBonus, divinityLevel, bigPBubble, multiplier })
     }
   ];
-  const coralKidFloor = getMinCoralKidLevel({ targetBonus, multiplier, x1: bubbleShape?.x1 });
+  const coralKidFloor = getMinCoralKidLevel({
+    targetBonus,
+    multiplier,
+    x1: bubbleShape?.x1,
+    prismaMultiplier: bubbleShape?.prismaMultiplier
+  });
   const reached = currentBonus > targetBonus;
   // Coral Kid has no ceiling, so it is the only knob that can still be the answer once the bubble
   // and divinity level have both run out.

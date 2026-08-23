@@ -987,6 +987,7 @@ export const handleLoadJson = async (dispatch) => {
       companion,
       guildData,
       serverVars,
+      accountCreateTime,
       tournament,
       lastUpdated
     });
