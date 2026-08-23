@@ -13,7 +13,7 @@ const Upgrades = ({ upgrades }) => {
             <img src={`${prefix}etc/Bubbo_Upgrade_${index}.png`} alt={''} style={{ width: 32, height: 32, objectFit: 'contain' }} />
             <Typography>{cleanUnderscore(name)}</Typography>
           </Stack>
-          <Typography mt={1} variant={'body2'} color={'text.secondary'}>
+          <Typography mt={1} variant={'body2'} color={'text.secondary'} sx={{ whiteSpace: 'pre-line' }}>
             {cleanUnderscore(description)}
           </Typography>
           <Stack mt={1} direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
