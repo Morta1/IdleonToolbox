@@ -1522,6 +1522,13 @@ const migration66 = (dashboardConfig) => {
       helperText: 'Alert when Top of the Mornin\' kills remain for today'
     });
   }
+  // Refinery salt costs joined the printer exclusion list - graft the new keys on top of whatever
+  // the user already toggled rather than resetting their choices.
+  const printerResources = dashboardConfig?.account?.['World 3']?.printer?.options
+    ?.find((option) => option?.name === 'includeResource');
+  if (printerResources?.props?.value) {
+    printerResources.props.value = { ...getPrinterExclusions(), ...printerResources.props.value };
+  }
   dashboardConfig.version = 66;
   return dashboardConfig;
 };

@@ -8,6 +8,7 @@ import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getCompassBonus } from '@parsers/class-specific/compass';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { items, refinery } from '@website-data';
 import type { IdleonData, Account } from '../types';
 
 export const getPrinter = (idleonData: IdleonData, charactersData: any[], accountData: Account) => {
@@ -219,12 +220,15 @@ const calcAtoms = (totals: Record<string, any> = {}, atomThreshold: number, show
   }, {});
 }
 
+// Materials people park in the printer on purpose: the long standing defaults, plus every
+// refinery salt cost - the refinery eats those continuously, so their atom alerts are noise.
+const DEFAULT_PRINTER_EXCLUSIONS = ['Copper', 'OakTree', 'Grasslands1', 'Bug1', 'Fish1'];
+
 export const getPrinterExclusions = () => {
-  return ([
-    'Copper',
-    'OakTree',
-    'Grasslands1',
-    'Bug1',
-    'Fish1'
-  ] as any).toSimpleObject();
+  const refineryCosts = Object.values(refinery as any)
+    .flatMap((salt: any) => (salt?.cost ?? []).map(({ rawName }: any) => rawName))
+    .filter((rawName: string) => !/^Refinery\d+$/.test(rawName) // the salts themselves can't be printed
+      && rawName !== 'FillerMaterial' // placeholder cost on unreleased salts
+      && (items as any)?.[rawName]?.typeGen !== 'bBar'); // bars come from the forge, never from a sample
+  return ([...new Set([...DEFAULT_PRINTER_EXCLUSIONS, ...refineryCosts])] as any).toSimpleObject();
 }
