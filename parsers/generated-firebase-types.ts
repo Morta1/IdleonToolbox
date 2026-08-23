@@ -57,6 +57,7 @@ export interface IdleonData {
   CogO: string;
   Compass: string;
   Cooking: string;
+  CookMaster: string;
   CSver: number;
   CYAFKdoubles: number;
   CYAnvilTabsOwned: number;
@@ -96,6 +97,7 @@ export interface IdleonData {
   GemItemsPurchased: string;
   GemsOwned: number;
   GemsPacksPurchased: number[];
+  GreenStacks: string[];
   Grimoire: number[];
   Guild: string;
   HintStatus: string;
@@ -104,7 +106,7 @@ export interface IdleonData {
   Jars: string;
   KRbest: string;
   Lab: string;
-  MapBon: string;
+  MapBon: number[][];
   Meals: string;
   MoneyBANK: number;
   Ninja: string;
@@ -228,16 +230,16 @@ export interface IdleonData {
   'AttackLoadoutpre_7'?: string;
   'AttackLoadoutpre_8'?: string;
   'AttackLoadoutpre_9'?: string;
-  'BuffsActive_0'?: SparseArray[];
-  'BuffsActive_1'?: SparseArray[];
-  'BuffsActive_2'?: SparseArray[];
-  'BuffsActive_3'?: SparseArray[];
-  'BuffsActive_4'?: SparseArray[];
-  'BuffsActive_5'?: SparseArray[];
-  'BuffsActive_6'?: SparseArray[];
-  'BuffsActive_7'?: SparseArray[];
-  'BuffsActive_8'?: SparseArray[];
-  'BuffsActive_9'?: SparseArray[];
+  'BuffsActive_0'?: any[];
+  'BuffsActive_1'?: any[];
+  'BuffsActive_2'?: any[];
+  'BuffsActive_3'?: any[];
+  'BuffsActive_4'?: any[];
+  'BuffsActive_5'?: any[];
+  'BuffsActive_6'?: any[];
+  'BuffsActive_7'?: any[];
+  'BuffsActive_8'?: any[];
+  'BuffsActive_9'?: any[];
   'CardEquip_0'?: string[];
   'CardEquip_1'?: string[];
   'CardEquip_2'?: string[];
@@ -775,9 +777,10 @@ export interface IdleonData {
 
 /** Guild data from Firebase */
 export interface GuildData {
-  stats?: number[][];
+  id?: string;
   members?: (object)[];
   points?: number;
+  stats?: number[][];
   [key: string]: any;
 }
 
@@ -804,6 +807,7 @@ export interface ServerVars {
   '1LavaChat'?: string;
   A_divArc?: string;
   A_empoExpon?: number;
+  A_friendBons?: string;
   A_MineCost?: number;
   A_MineHP?: number;
   A_ResXP?: number;
@@ -836,6 +840,7 @@ export interface ServerVars {
   GemBundleOffer?: string;
   GemBundleOffer2?: string;
   GemBundleOffer3?: string;
+  GemD1_LvMAX?: number;
   GemEvoOrder?: string;
   GemPM_x?: number;
   GemPopupBundle?: string;
@@ -852,6 +857,7 @@ export interface ServerVars {
   OGtrophy?: number;
   PCpurchases?: number;
   PristineCharm?: number;
+  RaidLoot?: string;
   RandEvntHr?: number;
   RandEvntWorld?: number;
   RandomTest?: number;
@@ -861,7 +867,10 @@ export interface ServerVars {
   SteamEvent?: number;
   Test?: string;
   TestData?: string;
+  tgt_EoS?: number;
   tgt_req?: number[];
+  tgt_RPid?: number[];
+  tgt_season?: string;
   TomeOn?: number;
   TomePct?: number[];
   voteCat2?: number[];
@@ -876,9 +885,9 @@ export interface ServerVars {
 
 /** Tournament server data from Firebase */
 export interface TournamentData {
-  user?: Record<string, any>;
-  match?: Record<string, any>;
   global?: Record<string, any>;
   leaderboard?: any[];
+  match?: Record<string, any>;
+  user?: any;
   [key: string]: any;
 }
