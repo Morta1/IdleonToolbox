@@ -5,7 +5,7 @@ import { getChipsAndJewels, maxNumberOfSpiceClicks } from '@parsers/world-4/cook
 import { cleanUnderscore, getDuration, getNextCompanionClaim, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { items, liquidsShop, ninjaExtraInfo } from '@website-data';
-import { getPowerPerCycle, getSaltsBalance, hasMissingMats } from '@parsers/world-3/refinery';
+import { getPowerPerCycle, getSaltMatsTimeLeft, getSaltsBalance, hasMissingMats } from '@parsers/world-3/refinery';
 import { calcTotals } from '@parsers/world-3/printer';
 import {
   addEquippedItems,
@@ -641,7 +641,15 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
   }
   if (fields?.construction?.checked) {
     const construction = {};
-    const { materials, rankUp, flags, buildings, saltBalance, saltBalanceDirection } = options?.construction || {};
+    const {
+      materials,
+      matsThreshold,
+      rankUp,
+      flags,
+      buildings,
+      saltBalance,
+      saltBalanceDirection
+    } = options?.construction || {};
     if (flags?.checked) {
       const flags = account?.construction?.board?.filter(({
         flagPlaced,
@@ -663,19 +671,36 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
     }
     if (materials?.checked) {
       const enabled = materials?.props?.value || {};
+      // Warn before a salt stalls as well as after: `matsThreshold` is how many hours of lead time
+      // to alert on, and 0 keeps the original behaviour of alerting only once materials are gone.
+      const thresholdHours = matsThreshold?.checked ? matsThreshold?.props?.value ?? 0 : 0;
+      const timeLeftBySalt = getSaltMatsTimeLeft(account, characters)
+        .reduce((res, entry) => ({ ...res, [entry?.rawName]: entry }), {});
       const mats = account?.refinery?.salts?.reduce((res, { rank, cost, rawName }, saltIndex) => {
         if (!enabled[rawName]) return res;
         const previousSaltIndex = saltIndex > 0 ? saltIndex - 1 : null;
         const previousSalt = account?.refinery?.salts?.[previousSaltIndex];
         const missingMats = hasMissingMats(saltIndex, rank, cost, account);
         const previousSaltMissingMats = hasMissingMats(previousSaltIndex, previousSalt?.rank, previousSalt?.cost, account);
-        if (missingMats?.length === 1 && missingMats?.[0]?.rawName?.includes('Refinery')
+        const timeLeft = timeLeftBySalt?.[rawName];
+        // Materials that aren't gone yet but will be within the lead time. Both lists feed the same
+        // alert, so a salt running dry in an hour reads the same as one already stalled.
+        const runningOut = (timeLeft?.mats || []).filter(({ hoursLeft }) => hoursLeft <= thresholdHours);
+        const depletingMats = [
+          ...missingMats,
+          ...runningOut.filter(({ rawName: matName }) => !missingMats?.some((mat) => mat?.rawName === matName))
+        ];
+        if (depletingMats?.length === 1 && depletingMats?.[0]?.rawName?.includes('Refinery')
           && previousSalt?.autoRefinePercentage > 0
           || previousSalt?.active && previousSaltMissingMats?.length > 0) {
           return res;
         }
-        if (missingMats?.length > 0) {
-          res = [...res, { rawName, missingMats }]
+        if (depletingMats?.length > 0) {
+          res = [...res, {
+            rawName,
+            missingMats: depletingMats,
+            hoursLeft: missingMats?.length > 0 ? 0 : timeLeft?.hoursLeft
+          }]
         }
         return res;
       }, []);

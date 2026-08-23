@@ -307,10 +307,11 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert title={`Food Lust is maxed`} iconPath={'etc/Dream_Upgrade_10'}/> : null}
               {alerts?.['World 3']?.construction?.materials?.length > 0
                 ?
-                alerts?.['World 3']?.construction?.materials?.map(({ rawName, missingMats }) => <Alert key={rawName}
+                alerts?.['World 3']?.construction?.materials?.map(({ rawName, missingMats, hoursLeft }) => <Alert key={rawName}
                                                                                                        title={
                                                                                                          <RefineryTitle
-                                                                                                           missingMats={missingMats}/>}
+                                                                                                           missingMats={missingMats}
+                                                                                                           hoursLeft={hoursLeft}/>}
                                                                                                        imgStyle={{
                                                                                                          border: '1px solid',
                                                                                                          borderColor: '#833b3b'
@@ -786,9 +787,19 @@ const Alert = ({
   </HtmlTooltip>
 }
 
-const RefineryTitle = ({ missingMats }) => {
+// Coarse on purpose - the projection is only as good as the current cycle rates, so minute
+// precision would read as more certain than it is.
+const formatHoursLeft = (hoursLeft) => {
+  if (hoursLeft < 1) return `${Math.max(1, Math.round(hoursLeft * 60))}m`;
+  if (hoursLeft < 24) return `${Math.floor(hoursLeft)}h`;
+  const days = Math.floor(hoursLeft / 24);
+  const hours = Math.floor(hoursLeft % 24);
+  return hours > 0 ? `${days}d ${hours}h` : `${days}d`;
+}
+
+const RefineryTitle = ({ missingMats, hoursLeft }) => {
   return <Stack alignItems={'center'}>
-    Missing materials
+    {hoursLeft > 0 ? `Materials run out in ${formatHoursLeft(hoursLeft)}` : 'Missing materials'}
     <Stack direction={'row'}>
       {missingMats.map(({ rawName }) =>
         <IconImg
