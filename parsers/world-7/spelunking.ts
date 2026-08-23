@@ -165,12 +165,14 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
       grandDiscoveriesChance
     })
     const cost = getSpelunkingUpgradeCost(account, characters, upgrade);
+    const costToMax = getSpelunkingUpgradeCostToMax(account, characters, upgrade);
     return {
       ...upgrade,
       description,
       baseBonus,
       bonus,
-      cost
+      cost,
+      costToMax
     }
   });
 
@@ -671,6 +673,22 @@ const getSpelunkingUpgradeCost = (account: any, characters: any, upgrade: any) =
     const quadraticCost = Math.pow(upgrade?.level, 2) + 5 * upgrade?.level;
     return levelScaling + quadraticCost;
   }
+}
+
+// Upgrades without a real cap carry x3 = 99999, so a "cost to max" would be meaningless for them.
+const UNCAPPED_MAX_LEVEL = 99999;
+
+const getSpelunkingUpgradeCostToMax = (account: any, characters: any, upgrade: any) => {
+  const maxLevel = upgrade?.x3 ?? 0;
+  if (maxLevel >= UNCAPPED_MAX_LEVEL) return null;
+  const currentLevel = Math.max(0, upgrade?.level ?? 0);
+  if (currentLevel >= maxLevel) return 0;
+
+  let total = 0;
+  for (let level = currentLevel; level < maxLevel; level++) {
+    total += getSpelunkingUpgradeCost(account, characters, { ...upgrade, level }) ?? 0;
+  }
+  return isFinite(total) ? total : null;
 }
 
 const getSpelunkingUpgradeBonus = (
