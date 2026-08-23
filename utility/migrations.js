@@ -1694,6 +1694,27 @@ export const migration67 = (config) => {
       : islandsOptions.toSpliced(garbageUpgradeIndex + 1, 0, collectibleGarbage);
   }
 
+  const charTrackers = dashboardConfig?.characters;
+  // Rebuild the group so Quests lands right after Traps, matching baseTrackers - plain assignment
+  // would append it last (object key order drives the settings UI ordering).
+  if (charTrackers && !charTrackers.quests) {
+    const quests = {
+      checked: true,
+      options: [{
+        name: 'picnicDaily',
+        checked: true,
+        helperText: 'Alert when a character hasn\'t completed any of the Picnic Stowaway daily quests today'
+      }]
+    };
+    const ordered = {};
+    for (const [tracker, value] of Object.entries(charTrackers)) {
+      ordered[tracker] = value;
+      if (tracker === 'traps') ordered.quests = quests;
+    }
+    if (!ordered.quests) ordered.quests = quests;
+    dashboardConfig.characters = ordered;
+  }
+
   dashboardConfig.version = 67;
   return dashboardConfig;
 };

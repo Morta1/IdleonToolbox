@@ -91,6 +91,22 @@ export const trapsAlerts = (account, characters, character, lastUpdated, options
   }
   return alerts;
 }
+// Picnic Stowaway's repeatable daily questline is Picnic_Stowaway4 through Picnic_Stowaway12. The
+// daily reset clamps NPCdialogue.Picnic_Stowaway back down to 20 and sets every one of those quests
+// to -1 on every character, so a character with any of them completed (1) has already fed him today.
+const PICNIC_DAILY_QUESTS = [4, 5, 6, 7, 8, 9, 10, 11, 12];
+const PICNIC_QUESTLINE_DIALOG = 20;
+
+export const questsAlerts = (account, characters, character, lastUpdated, options) => {
+  const alerts = {};
+  if (options?.quests?.picnicDaily?.checked) {
+    const questlineUnlocked = character?.npcDialog?.Picnic_Stowaway >= PICNIC_QUESTLINE_DIALOG;
+    const picnicQuests = character?.quests?.Picnic_Stowaway;
+    alerts.picnicDaily = questlineUnlocked
+      && !PICNIC_DAILY_QUESTS.some((questIndex) => picnicQuests?.[questIndex] === 1);
+  }
+  return alerts;
+}
 export const alchemyAlerts = (account, characters, character, lastUpdated, options) => {
   const alerts = {};
   if (options?.alchemy?.missingBubbles?.checked) {

@@ -628,6 +628,14 @@ const baseTrackers = {
       checked: true,
       options: [{ name: 'missingTraps', checked: true }, { name: 'trapsOverdue', checked: true }]
     },
+    quests: {
+      checked: true,
+      options: [{
+        name: 'picnicDaily',
+        checked: true,
+        helperText: 'Alert when a character hasn\'t completed any of the Picnic Stowaway daily quests today'
+      }]
+    },
     alchemy: { checked: true, options: [{ name: 'missingBubbles', checked: true }] },
     obols: { checked: true, options: [{ name: 'missingObols', checked: true }] },
     postOffice: {
