@@ -55,7 +55,7 @@ const parseBubba = (rawBubba: any, account: any) => {
   const megafleshDesc = generalSpelunky?.[38] || [];
   const megaFlesh = megafleshDesc.map((description: any, index: any) => {
     const base = {
-      description,
+      description: replaceLineBreaks(description),
       unlocked: index + 1 <= megafleshOwned
     };
     if (index === 0) {
@@ -307,6 +307,9 @@ const formatTimerDisplay = (seconds: any) => {
   return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 };
 
+// The game renders @ as a line break
+const replaceLineBreaks = (description: any) => String(description ?? '').replace(/_*@_*/g, '\n');
+
 // Format upgrade description with bonus values
 const formatUpgradeDescription = (rawBubba: any, upgradeIndex: any) => {
   const upgrade = bubbaUpgrades?.[upgradeIndex];
@@ -368,7 +371,7 @@ const formatUpgradeDescription = (rawBubba: any, upgradeIndex: any) => {
     description = description.replace('~', timerValue);
   }
 
-  return description;
+  return replaceLineBreaks(description);
 };
 
 // Calculate MeatsliceRate
