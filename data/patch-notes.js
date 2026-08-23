@@ -20,7 +20,8 @@ export const patchNotes = [
       'Worship: a new Total Max Waves card on the Totems tab sums your best wave across every totem',
       'Dashboard: a new alert shows how many Blinding Lanterns you can still use today, out of the daily cap of 12',
       'Dashboard: a new alert tells you when you have enough pearls for a Clamworks worker class promotion',
-      'Spelunking: upgrades with a level cap now show the total amber needed to max them, along with a total for each section'
+      'Spelunking: upgrades with a level cap now show the total amber needed to max them, along with a total for each section',
+      'Dashboard: a new World 3 timer counts down to the next construction flag finishing'
     ],
     'fixes': [
       'Refinery: auto refine was shown as a percentage, so it read 0% or 0.01%. It is an on/off toggle in game and now says On or Off'

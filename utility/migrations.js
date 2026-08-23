@@ -1607,6 +1607,20 @@ export const migration67 = (config) => {
     dashboardConfig.account['World 7'] = ordered;
   }
 
+  const world3 = dashboardConfig?.timers?.['World 3'];
+  // Closest flag timer. Rebuild the group so it lands right after closestTrap, matching
+  // baseTrackers - plain assignment would append it last (key order drives the settings UI).
+  if (world3 && !world3.closestFlag) {
+    const closestFlag = { checked: true, options: [] };
+    const ordered = {};
+    for (const [tracker, value] of Object.entries(world3)) {
+      ordered[tracker] = value;
+      if (tracker === 'closestTrap') ordered.closestFlag = closestFlag;
+    }
+    if (!ordered.closestFlag) ordered.closestFlag = closestFlag;
+    dashboardConfig.timers['World 3'] = ordered;
+  }
+
   dashboardConfig.version = 67;
   return dashboardConfig;
 };

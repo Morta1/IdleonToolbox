@@ -122,6 +122,23 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
     }
     return closestTrap;
   }, 0);
+  // Every placed flag builds at the whole board's flaggy rate, not a share of it. Board slots carry
+  // their neighbour boost baked into `flagSpeed`; the small cog columns build at the plain rate.
+  const closestFlag = [
+    ...(account?.construction?.board || []),
+    ...(account?.construction?.leftColumn || []),
+    ...(account?.construction?.rightColumn || [])
+  ].reduce((closestFlag, { flagPlaced, currentAmount, requiredAmount, flagSpeed }) => {
+    if (!flagPlaced) return closestFlag;
+    const remaining = requiredAmount - currentAmount;
+    const rate = flagSpeed || account?.construction?.totalFlaggyRate;
+    if (!(remaining > 0) || !(rate > 0)) return closestFlag;
+    const timeLeft = remaining / rate * 3600 * 1000;
+    if (closestFlag === 0 || timeLeft < closestFlag) {
+      return timeLeft;
+    }
+    return closestFlag;
+  }, 0);
 
   const closestWorshiper = getClosestWorshiper(characters);
   const { timeAway, voteBallot } = account || {};
@@ -424,6 +441,12 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             page={'account/world-3/traps'}
             tooltipContent={'Closest trap: ' + getRealDateInMs(closestTrap)}
             lastUpdated={lastUpdated} time={closestTrap} icon={'data/TrapBoxSet1.png'} />
+          : null}
+        {trackers?.['World 3']?.closestFlag?.checked && account?.finishedWorlds?.World2 && closestFlag !== 0 ?
+          <TimerCard
+            page={'account/world-3/construction'}
+            tooltipContent={'Closest flag: ' + getRealDateInMs(now + closestFlag)}
+            lastUpdated={lastUpdated} time={now + closestFlag} icon={'data/CogFLflag.png'} />
           : null}
         {trackers?.['World 3']?.closestBuilding?.checked && account?.finishedWorlds?.World2 && closestBuilding?.timeLeft !== 0
           ?
