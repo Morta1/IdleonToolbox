@@ -208,7 +208,7 @@ export const PAGES = {
         {
           label: 'farming',
           icon: 'data/ClassIcons57',
-          tabs: ['Plot', 'Market', 'Exotic Market', 'Exotic Rotation', 'Rank database', 'Crop', 'Stickers']
+          tabs: ['Plot', 'Market', 'Exotic Market', 'Exotic Rotation', 'Rank database', 'Rank Optimizer', 'Crop', 'Stickers']
         },
         {
           label: 'sneaking',
