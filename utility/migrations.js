@@ -1582,8 +1582,14 @@ export const migration67 = (config) => {
       name: 'lanterns',
       checked: true,
       type: 'input',
-      props: { label: 'Remaining lanterns threshold', value: 1, minValue: 1, maxValue: 12 }
+      props: { label: 'Remaining lanterns threshold', value: 1, minValue: 1, maxValue: 12, helperText: 'Daily cap is 12' }
     });
+  }
+
+  // The emperor option predates its helper text (migration 23), so stored configs never pick it up.
+  const emperorOption = dashboardConfig?.account?.['World 6']?.etc?.options?.find((o) => o?.name === 'emperor');
+  if (emperorOption && !emperorOption.helperText) {
+    emperorOption.helperText = 'Alerts at this number, or at your attempt cap if it\'s lower';
   }
 
   const world7 = dashboardConfig?.account?.['World 7'];

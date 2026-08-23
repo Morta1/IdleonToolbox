@@ -691,7 +691,10 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
         const runningOut = (timeLeft?.mats || []).filter(({ hoursLeft }) => hoursLeft <= thresholdHours);
         const depletingMats = [
           ...missingMats,
-          ...runningOut.filter(({ rawName: matName }) => !missingMats?.some((mat) => mat?.rawName === matName))
+          // Merge the salt's own cost row in so both lists ship the same shape (name, quantity, ...).
+          ...runningOut
+            .filter(({ rawName: matName }) => !missingMats?.some((mat) => mat?.rawName === matName))
+            .map((mat) => ({ ...cost?.find(({ rawName: matName }) => matName === mat?.rawName), ...mat }))
         ];
         if (depletingMats?.length === 1 && depletingMats?.[0]?.rawName?.includes('Refinery')
           && previousSalt?.autoRefinePercentage > 0
