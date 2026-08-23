@@ -9,6 +9,7 @@ import Crop from '@components/account/Worlds/World6/Farming/Crop';
 import { CardTitleAndValue } from '@components/common/styles';
 import { commaNotation, getTabs, notateNumber, prefix } from '@utility/helpers';
 import RankDatabase from '@components/account/Worlds/World6/Farming/RankDatabase';
+import LandRankOptimizer from '@components/account/Worlds/World6/Farming/UpgradeOptimizer';
 import { PAGES } from '@components/constants';
 import ExoticMarket from '@components/account/Worlds/World6/Farming/ExoticMarket';
 import ExoticMarketRotation from '@components/account/Worlds/World6/Farming/ExoticMarketRotation';
@@ -147,6 +148,7 @@ const Farming = () => {
       <ExoticMarket market={exoticMarket} crop={crop}/>
       <ExoticMarketRotation/>
       <RankDatabase ranks={ranks} hasLandRank={hasLandRank}/>
+      <LandRankOptimizer/>
       <Crop crop={crop} maxTimes={maxTimes}/>
       <Stickers/>
     </Tabber>
