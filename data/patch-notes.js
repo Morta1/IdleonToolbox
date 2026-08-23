@@ -29,7 +29,8 @@ export const patchNotes = [
       'Islands: the trash island page now shows how much garbage is waiting to be collected, and a new dashboard alert warns you before it reaches the 100 cap where the rest is lost',
       'Pets: tick pets you do not own yet and the whole site counts them as owned, so you can see what their bonuses would be worth before farming for them. A banner shows while the simulation is on',
       'Farming: a new Rank Optimizer tab plans how to spend your unspent land rank points, with a category for each thing the ranks boost. It tells you when a category is already at its in game cap and the points would buy nothing',
-      'Dashboard: the Equinox Food Lust alert now takes a stacks threshold, so it can remind you at any number of stacks instead of only once it is maxed'
+      'Dashboard: the Equinox Food Lust alert now takes a stacks threshold, so it can remind you at any number of stacks instead of only once it is maxed',
+      'Tools: a new Bone Joe Calculator shows what Bone Joe Pickles and the three monster HP prayers do to each miniboss, and how many pickles every character can carry and still one shot them. Flip Apply to characters to price them off your own setup instead'
     ],
     'fixes': [
       'Refinery: auto refine was shown as a percentage, so it read 0% or 0.01%. It is an on/off toggle in game and now says On or Off',

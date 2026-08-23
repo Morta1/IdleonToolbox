@@ -1186,7 +1186,7 @@ const getTalentEffectOnKills = (character: Character, account: Account, stat: 'D
       + (fourthTalentBonus + fifthTalentBonus)))) / 100) : effect;
 }
 
-const getMonsterHpTotal = (baseHp: number, character: Character, account: Account) => {
+export const getMonsterHpTotal = (baseHp: number, character: Character, account: Account) => {
   // performETCaction: MonsterHPTotal
   const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Big_Brain_Time', account)?.curse;
   const secondPrayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Midas_Minded', account)?.curse;

@@ -285,6 +285,9 @@ export const PAGES = {
     },
     'guaranteedDropCalculator': {
       icon: 'data/TreeInterior1b'
+    },
+    'boneJoeCalculator': {
+      icon: 'data/BoneJoePickle'
     }
   }
 }
