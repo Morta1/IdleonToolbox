@@ -107,7 +107,7 @@ const SECONDS_IN_HOUR = 60 * 60;
 // `weekStart` is in seconds, not milliseconds. Each `HappyHours` entry is the second-of-week the
 // happy hour *ends* on (the game attribute is literally named TimeToEndOfNextHappyHour), so the
 // hour is subtracted to get the moment it starts, which is what the site displays.
-export const getHappyHourDates = (happyHours: number[], weekStart: number): number[] => {
+const getHappyHourDates = (happyHours: number[], weekStart: number): number[] => {
   return happyHours?.map((time: number) => {
     return time + weekStart - SECONDS_IN_HOUR;
   });

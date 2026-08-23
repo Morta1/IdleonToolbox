@@ -78,7 +78,7 @@ export const getPowerCap = (rank: number) => {
   return parseFloat(String(Math.max(Number(powerCap?.[Math.min(rank, powerCap?.length - 2)]), 25)))
 }
 
-export const MAX_POWER_PER_CYCLE = 25e4;
+const MAX_POWER_PER_CYCLE = 25e4;
 
 export const getPowerPerCycle = (rank: number, account: Account | null = null) => {
   const companionBonus = isCompanionBonusActive(account, 35) ? account?.companions?.list?.at(35)?.bonus : 0;
@@ -86,7 +86,7 @@ export const getPowerPerCycle = (rank: number, account: Account | null = null) =
 }
 
 // The rank at which power per cycle hits its cap - ranking past it only raises the salt's cost.
-export const getMaxUsefulRank = (account: Account | null = null) => {
+const getMaxUsefulRank = (account: Account | null = null) => {
   const companionBonus = isCompanionBonusActive(account, 35) ? account?.companions?.list?.at(35)?.bonus : 0;
   return Math.ceil(Math.pow(MAX_POWER_PER_CYCLE / (1 + (companionBonus ?? 0)), 1 / 1.3));
 }
@@ -348,16 +348,11 @@ export const calcResourceToRankUp = (rank: number, refined: number, powerCap: nu
 
 export interface SaltMatTimeLeft {
   rawName: string;
-  totalAmount: number;
-  drainPerHour: number;
-  incomePerHour: number;
   hoursLeft: number;
 }
 
 export interface SaltMatsTimeLeft {
-  index: number;
   rawName: string;
-  saltName: string;
   hoursLeft: number;
   mats: SaltMatTimeLeft[];
 }
@@ -371,7 +366,7 @@ export const getSaltMatsTimeLeft = (account: Account, characters: any[], precomp
   const cycleTimes = precomputedCycleTimes ?? computeRefineryCycleTimes(account, characters);
 
   return salts.reduce((res: SaltMatsTimeLeft[], salt: any, index: number) => {
-    const { rawName, saltName, rank, cost, active, unlocked } = salt;
+    const { rawName, rank, cost, active, unlocked } = salt;
     // An idle salt consumes nothing, so it has no depletion time at all.
     if (!unlocked || !active) return res;
     const cycleTime = getSaltCycleTime(index, cycleTimes);
@@ -390,9 +385,6 @@ export const getSaltMatsTimeLeft = (account: Account, characters: any[], precomp
       const netPerHour = drainPerHour - incomePerHour;
       return {
         rawName: item?.rawName,
-        totalAmount,
-        drainPerHour,
-        incomePerHour,
         hoursLeft: netPerHour > 0 ? totalAmount / netPerHour : Infinity
       };
     });
@@ -401,6 +393,6 @@ export const getSaltMatsTimeLeft = (account: Account, characters: any[], precomp
     // Nothing is depleting - income covers every input - so there is no countdown to show.
     if (!isFinite(hoursLeft)) return res;
 
-    return [...res, { index, rawName, saltName, hoursLeft, mats }];
+    return [...res, { rawName, hoursLeft, mats }];
   }, []);
 };

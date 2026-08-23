@@ -468,13 +468,11 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
   if (linkedDeity !== -1) {
     character.deityMinorBonus = getMinorDivinityBonus(character, account);
   }
-  let secondLinkedDeity;
   if (checkCharClass(character?.class, CLASSES.Elemental_Sorcerer)) {
     const polytheism = char?.SkillLevels?.[505];
     const gIndex = polytheism % 10;
     const god = gods?.[gIndex];
     if (god && (god?.godIndex !== linkedDeity)) {
-      secondLinkedDeity = god?.godIndex;
       character.secondLinkedDeityIndex = gIndex;
       character.secondDeityMinorBonus = getMinorDivinityBonus(character, account, gIndex);
     }

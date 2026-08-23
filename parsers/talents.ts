@@ -9,7 +9,7 @@ import { getFamilyBonus, getFamilyBonusBonus } from '@parsers/family';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getGuildBonusBonus } from '@parsers/guild';
 import { getDungeonFlurboStatBonus } from '@parsers/dungeons';
-import { getCardBonusByEffect, getCardLevel } from '@parsers/cards';
+import { getCardLevel } from '@parsers/cards';
 import { getSigilBonus } from '@parsers/world-2/alchemy';
 import { getShinyBonus } from '@parsers/world-4/breeding';
 import { getBribeBonus } from '@parsers/world-1/bribes';
@@ -423,7 +423,7 @@ export const applyTalentAddedLevels = (talents: any, flatTalents: any, addedLeve
 // there) can be raised by books, EXCEPT the page 1 stat-allocation talents (STR/AGI/WIS/LUK) and
 // their paired Basics-tab talents, which the game excludes via CustomLists.RANDOlist[16] and shows
 // "This Book is not Available" for instead of a Book Lv Range.
-export const BOOK_ELIGIBLE_MAX_INDEX = 615;
+const BOOK_ELIGIBLE_MAX_INDEX = 615;
 export const BOOK_INELIGIBLE_INDICES = [10, 11, 12, 23, 75, 79, 86, 87, 266, 267, 446, 447];
 
 export const isBookEligibleTalent = (skillIndex: any) => {

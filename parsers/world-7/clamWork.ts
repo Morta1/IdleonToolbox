@@ -112,7 +112,7 @@ export const parseClamWork = (account: Account, spelunkingRaw?: any, multiKill: 
 // Game rounds the drawn multiplier to 2 decimals. The max(0) matches the exp formula itself
 // (N.js: 1 + Math.max(0, 5 * (workerClass - 8)) / 100), so a locked compensation reads 1x rather
 // than the sub-1 number the game's draw code would produce for a class below 9.
-export const getClamClassExpMulti = (workerClass: number): number =>
+const getClamClassExpMulti = (workerClass: number): number =>
   Math.round(100 * (1 + Math.max(0, 5 * (workerClass - 8)) / 100)) / 100;
 
 export const getClamWorkBonus = (account: Account, index: number): number => {
@@ -164,7 +164,7 @@ const getClamPearlValue = (levels: number[], multiKill: number = DEFAULT_CLAM_MU
 // Relative pearl income: mobs on the map x pearl value x the 10x roll x drop chance. Proportional
 // to pearls per hour, so it ranks upgrades correctly. Drop rate and the Clamworks AFK penalty are
 // flat multipliers on top and cancel out of the comparison.
-export const getClamPearlGain = (levels: number[], workerClass: number, multiKill: number = DEFAULT_CLAM_MULTIKILL): number => {
+const getClamPearlGain = (levels: number[], workerClass: number, multiKill: number = DEFAULT_CLAM_MULTIKILL): number => {
   const dropMulti = (1 + getClamBonus(levels, 6) / 100) * Math.pow(0.66, workerClass);
   const pearlChance = 0.005 * dropMulti;
   // Pure pearls only enter the drop table once PURE_PEARLS is bought at least once.
@@ -180,7 +180,7 @@ export const getClamPearlGain = (levels: number[], workerClass: number, multiKil
 
 // The divisor FRUGALITY and ANTI_INFLATION apply to every upgrade cost. Ranking this directly
 // gives "% cheaper per pearl spent", which is what those two upgrades actually buy.
-export const getClamCostReduction = (levels: number[]): number => {
+const getClamCostReduction = (levels: number[]): number => {
   return (1 + getClamBonus(levels, 4) / 100) * (1 + getClamBonus(levels, 8) / 100);
 }
 

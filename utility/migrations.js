@@ -1566,11 +1566,8 @@ const migration66 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
-export const migration67 = (config) => {
-  let dashboardConfig = { ...config };
-  if (!dashboardConfig) {
-    dashboardConfig = {};
-  }
+const migration67 = (config) => {
+  const dashboardConfig = { ...config };
 
   if (dashboardConfig?.timers?.General && !dashboardConfig.timers.General.serverWeekly) {
     dashboardConfig.timers.General = {
