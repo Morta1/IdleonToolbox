@@ -25,7 +25,8 @@ export const patchNotes = [
       'Dashboard: a new World 3 timer counts down to the next construction flag finishing',
       'Dashboard: new alerts for talents that still have points to spend, and for maxed talents a Talent Book Library book can raise further. Each lists the talents and the level they can reach, so you no longer have to open every character tab to find them',
       'Dashboard: a new alert tells you when you own enough of a golden food to rank it up on the beanstalk',
-      'Islands: the trash island page now shows how much garbage is waiting to be collected, and a new dashboard alert warns you before it reaches the 100 cap where the rest is lost'
+      'Islands: the trash island page now shows how much garbage is waiting to be collected, and a new dashboard alert warns you before it reaches the 100 cap where the rest is lost',
+      'Pets: tick pets you do not own yet and the whole site counts them as owned, so you can see what their bonuses would be worth before farming for them. A banner shows while the simulation is on'
     ],
     'fixes': [
       'Refinery: auto refine was shown as a percentage, so it read 0% or 0.01%. It is an on/off toggle in game and now says On or Off',

@@ -1266,7 +1266,7 @@ export const getMinigameScore = (account: any, bonusName: any) => {
   return account?.highscores?.minigameHighscores?.find(({ name }: any) => name === bonusName)?.score || 0;
 }
 
-export const getCompanions = (companionObject: any = {}, accountOptions: any = []) => {
+export const getCompanions = (companionObject: any = {}, accountOptions: any = [], simulatedIndices: any = []) => {
   const maxStorage = companionObject?.p ?? 60;
   const [companionIndex] = companionObject?.e?.split(',') || [];
   const companion = companions?.[companionIndex];
@@ -1293,13 +1293,22 @@ export const getCompanions = (companionObject: any = {}, accountOptions: any = [
     : rawTokens.split(',').map((value: any) => Number(value)).filter((value: any) => Number.isFinite(value));
   const tokenIndexSet = new Set(tokenIndices);
 
+  // "What if I owned this pet" simulation: the user ticks unowned companions on the pets page and
+  // the whole site is parsed as if their bonus were active, exactly like a Pet Bonus Token does.
+  const simulatedIndexSet = new Set(
+    (Array.isArray(simulatedIndices) ? simulatedIndices : [])
+      .filter((value: any) => Number.isInteger(value) && value >= 0)
+  );
+
   const updatedCompanions = companions?.map((comp, index) => {
     const owned = (ownedCompanions?.[index]?.count || 0) > 0;
     const viaToken = !owned && tokenIndexSet.has(index);
+    const simulated = !owned && !viaToken && simulatedIndexSet.has(index);
     return {
       ...comp,
-      acquired: owned || viaToken,
+      acquired: owned || viaToken || simulated,
       viaToken,
+      simulated,
       copies: ownedCompanions?.[index]?.count ?? 0,
       tradableCount: ownedCompanions?.[index]?.tradableCount ?? 0,
       nonTradableCount: ownedCompanions?.[index]?.nonTradableCount ?? 0

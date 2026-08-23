@@ -1,6 +1,8 @@
 import React, { useContext, useState } from 'react';
 import { Button, Stack, Typography } from '@mui/material';
-import { IconEye, IconInfoCircle } from '@tabler/icons-react';
+import { IconEye, IconFlask, IconInfoCircle } from '@tabler/icons-react';
+import { useLocalStorage } from '@mantine/hooks';
+import { simulatedCompanionsKey } from '@components/constants';
 import { useRouter } from 'next/router';
 import { AppContext } from '../context/AppProvider';
 import { navBarHeight, profileBannerHeight } from '../../constants';
@@ -16,17 +18,32 @@ const bannerButtonSx = {
   '&:hover': { borderColor: '#94baee', color: '#fff' }
 };
 
+const simulationButtonSx = {
+  ml: 1,
+  fontSize: 12,
+  textTransform: 'none',
+  color: '#f0b849',
+  borderColor: '#f0b849',
+  '&:hover': { borderColor: '#ffd88a', color: '#fff' }
+};
+
 const ProfileBanner = () => {
-  const { state } = useContext(AppContext);
+  const { state, reparseOwnAccount } = useContext(AppContext);
   const router = useRouter();
   const profileName = router?.query?.profile;
   const { profile: _profile, ...queryParams } = router.query;
   const [loginOpen, setLoginOpen] = useState(false);
-  const { isProfileView, isVisible } = useProfileBannerState();
+  const [, setSimulatedCompanions] = useLocalStorage({ key: simulatedCompanionsKey, defaultValue: [] });
+  const { isProfileView, isSimulating, simulatedCompanions, isVisible } = useProfileBannerState();
 
   const handleBackToAccount = () => {
     router.push({ url: router.pathname, query: queryParams });
     setTimeout(() => router.reload());
+  };
+
+  const handleStopSimulating = async () => {
+    setSimulatedCompanions([]);
+    await reparseOwnAccount();
   };
 
   if (!isVisible) return null;
@@ -41,7 +58,17 @@ const ProfileBanner = () => {
       bgcolor: '#1C252E',
       borderBottom: '1px solid #2f3641'
     }}>
-      {isProfileView ? (
+      {isSimulating ? (
+        <>
+          <IconFlask size={18} style={{ color: '#f0b849', flexShrink: 0 }}/>
+          <Typography sx={{ fontSize: 14, color: '#f0b849' }}>
+            Pet simulation: <strong>{simulatedCompanions}</strong> unowned {simulatedCompanions === 1 ? 'pet' : 'pets'} counted as owned
+          </Typography>
+          <Button size="small" variant="outlined" onClick={handleStopSimulating} sx={simulationButtonSx}>
+            Turn off
+          </Button>
+        </>
+      ) : isProfileView ? (
         <>
           <IconEye size={18} style={{ color: '#94baee', flexShrink: 0 }}/>
           <Typography sx={{ fontSize: 14, color: '#94baee' }}>

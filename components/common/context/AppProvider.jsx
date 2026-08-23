@@ -6,6 +6,8 @@ import { getUserToken } from '../../../services/auth/google';
 import { geAppleStatus } from '../../../services/auth/apple';
 import { getProfile } from '../../../services/profiles';
 import { setRawJson } from '@utility/helpers';
+import { readLocalStorageValue } from '@mantine/hooks';
+import { simulatedCompanionsKey } from '@components/constants';
 
 export const AppContext = createContext({});
 
@@ -109,6 +111,12 @@ function init() {
   };
 }
 
+// Pets page simulation. Only ever applied to the user's own save - a profile view or the demo
+// account must show what that account really has.
+const getOwnAccountParseOptions = () => ({
+  simulatedCompanions: readLocalStorageValue({ key: simulatedCompanionsKey, defaultValue: [] })
+});
+
 const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, {}, init);
   const router = useRouter();
@@ -155,9 +163,10 @@ const AppProvider = ({ children }) => {
       guildData,
       serverVars,
       accountCreateTimeInSeconds * 1000,
-      tournament
+      tournament,
+      getOwnAccountParseOptions()
     );
-    
+
     localStorage.setItem('manualImport', JSON.stringify(false));
 
     dispatch({
@@ -484,12 +493,45 @@ const AppProvider = ({ children }) => {
     waitingForAuth ? (authCounter === 0 ? 1000 : 5000) : null
   );
 
+  // Re-runs the parsers over the cached raw save so a companion simulation change takes effect
+  // without a round trip to the cloud. Without a cached save there's nothing to re-parse, so fall
+  // back to a reload, which re-fetches and picks up the new setting on the way in.
+  const reparseOwnAccount = async () => {
+    let rawJson;
+    try {
+      rawJson = JSON.parse(sessionStorage.getItem('rawJson'));
+    } catch (err) {
+      console.warn('Could not read cached raw save:', err);
+    }
+
+    if (!rawJson?.data) {
+      window.location.reload();
+      return;
+    }
+
+    dispatch({ type: ACTION_TYPES.SET_LOADING, data: true });
+    const { data, charNames, companion, guildData, serverVars, accountCreateTime, tournament, lastUpdated } = rawJson;
+    const { parseData } = await import('@parsers/index');
+    const parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTime, tournament,
+      getOwnAccountParseOptions());
+
+    dispatch({
+      type: ACTION_TYPES.DATA,
+      data: {
+        ...parsedData,
+        lastUpdated: lastUpdated ?? state?.lastUpdated,
+        isLoading: false
+      }
+    });
+  };
+
   const providerValue = {
     state,
     dispatch,
     logout,
     waitingForAuth,
-    setWaitingForAuth
+    setWaitingForAuth,
+    reparseOwnAccount
   };
 
   return (
