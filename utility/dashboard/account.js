@@ -1,6 +1,6 @@
 import { getMaxClaimTime, getSecPerBall } from '@parsers/dungeons';
 import { getBuildCost } from '@parsers/world-3/construction';
-import { MAX_VIAL_LEVEL, vialCostsArray } from '@parsers/world-2/alchemy';
+import { CAULDRON_INFO, CAULDRONS_MAX_LEVELS, LIQUID_INFO, MAX_VIAL_LEVEL, vialCostsArray } from '@parsers/world-2/alchemy';
 import { getChipsAndJewels, maxNumberOfSpiceClicks } from '@parsers/world-4/cooking';
 import { cleanUnderscore, getDuration, getNextCompanionClaim, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
@@ -26,6 +26,11 @@ import { getResearchGridBonus } from '@parsers/world-7/research';
 import { isHatRackEligible } from '@parsers/world-3/hatRack';
 import { getGoldCostToMaxLevel, getStampsPerDay } from '@parsers/world-1/stamps';
 import { getTomeWishPity } from '@parsers/world-4/tome';
+import { getTesseractBonus } from '@parsers/class-specific/tesseract';
+import { getCompassBonus } from '@parsers/class-specific/compass';
+
+// The game hard caps Arcanist weapon and ring drops at 100 each per day.
+const ARCANIST_DAILY_DROP_CAP = 100;
 
 export const getOptions = (data) => {
   return Object.entries(data)?.reduce((res, [fieldName, fieldData]) => {
@@ -242,6 +247,29 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
         etc.dailyCrystals = remainingDailyCrystals;
       }
     }
+    if (options?.etc?.arcanistDailyDrops?.checked) {
+      // Mobs drop at most 100 Arcanist weapons and 100 Arcanist rings a day. accountOptions[396]
+      // / [397] count what already dropped today and reset to 0 on daily reset. Each drop type
+      // needs its quality upgrade bought (tesseract 5 / 23) before it can drop at all.
+      const arcanistDailyDrops = [
+        { type: 'weapon', dropped: account?.accountOptions?.[396] ?? 0, unlocked: getTesseractBonus(account, 5) > 0 },
+        { type: 'ring', dropped: account?.accountOptions?.[397] ?? 0, unlocked: getTesseractBonus(account, 23) > 0 }
+      ].reduce((res, { type, dropped, unlocked }) => {
+        const remaining = Math.max(0, ARCANIST_DAILY_DROP_CAP - dropped);
+        return unlocked && remaining > 0 ? [...res, { type, remaining }] : res;
+      }, []);
+      if (arcanistDailyDrops.length > 0) {
+        etc.arcanistDailyDrops = arcanistDailyDrops;
+      }
+    }
+    if (options?.etc?.topOfTheMornin?.checked && getCompassBonus(account, 9) > 0.1) {
+      // accountOptions[365] is the kills left on today's Top of the Mornin' allowance - the daily
+      // reset sets it to compass 9 + 71, and every Tempest kill takes one off, past zero.
+      const remainingKills = Math.max(0, account?.accountOptions?.[365] ?? 0);
+      if (remainingKills > 0) {
+        etc.topOfTheMornin = remainingKills;
+      }
+    }
     if (Object.keys(etc).length > 0) {
       alerts.etc = etc;
     }
@@ -418,6 +446,38 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
       });
       if (current > 0 && hasItems.length > 0) {
         alchemy.vialsAttempts = current > 0;
+      }
+    }
+    if (options?.alchemy?.p2wUpgrades?.checked) {
+      // Same measure the stamps alert uses - coins move freely between characters through the bank,
+      // so affordability is an account-wide question, not a per-character one.
+      const totalMoney = account?.currencies?.rawMoney ?? 0;
+      const getAffordableUpgrades = (list, upgrades, type, names) => list?.map((entry, index) => ({
+        type,
+        index,
+        name: names?.[index]?.displayName,
+        upgrades: upgrades?.filter(({ key, maxLevel }) => entry?.[key]?.level < maxLevel
+          && entry?.[key]?.cost <= totalMoney)
+          ?.map(({ key, label, maxLevel }) => ({
+            label,
+            level: entry?.[key]?.level,
+            maxLevel,
+            cost: entry?.[key]?.cost
+          }))
+      }))?.filter(({ upgrades }) => upgrades?.length > 0) ?? [];
+      const p2wUpgrades = [
+        ...getAffordableUpgrades(account?.alchemy?.p2w?.cauldrons, [
+          { key: 'speed', label: 'Speed', maxLevel: CAULDRONS_MAX_LEVELS.cauldronsSpeed },
+          { key: 'newBubble', label: 'New Bubble', maxLevel: CAULDRONS_MAX_LEVELS.cauldronsNewBubble },
+          { key: 'boostReq', label: 'Boost Req', maxLevel: CAULDRONS_MAX_LEVELS.cauldronsBoostReq }
+        ], 'cauldron', CAULDRON_INFO),
+        ...getAffordableUpgrades(account?.alchemy?.p2w?.liquids, [
+          { key: 'regen', label: 'Regen', maxLevel: CAULDRONS_MAX_LEVELS.liquidsRegen },
+          { key: 'capacity', label: 'Capacity', maxLevel: CAULDRONS_MAX_LEVELS.liquidsCapacity }
+        ], 'liquid', LIQUID_INFO)
+      ];
+      if (p2wUpgrades.length > 0) {
+        alchemy.p2wUpgrades = p2wUpgrades;
       }
     }
     if (options?.alchemy?.alternateParticles?.checked) {

@@ -1477,12 +1477,6 @@ const migration66 = (dashboardConfig) => {
       helperText: 'Only the selected salts are considered when picking the closest one'
     }];
   }
-  dashboardConfig.version = 66;
-  return dashboardConfig;
-};
-
-const migration67 = (dashboardConfig) => {
-  ensureDashboardOptions(dashboardConfig);
   const zenithMarket = dashboardConfig?.account?.['World 7']?.zenithMarket;
   // Cluster Farming state alert. Both states are legitimate, so it's an array option rather than a
   // plain checkbox - the user picks which state(s) they want to be told about.
@@ -1498,11 +1492,6 @@ const migration67 = (dashboardConfig) => {
       }
     ];
   }
-  dashboardConfig.version = 67;
-  return dashboardConfig;
-};
-
-const migration68 = (dashboardConfig) => {
   const etcOptions = dashboardConfig?.account?.General?.etc?.options;
   if (Array.isArray(etcOptions) && !etcOptions.some((option) => option?.name === 'glimmerwickCandle')) {
     etcOptions.push({
@@ -1511,7 +1500,29 @@ const migration68 = (dashboardConfig) => {
       helperText: 'Alert when you own a Glimmerwick Candle and haven\'t wished on it today'
     });
   }
-  dashboardConfig.version = 68;
+  const alchemyOptions = dashboardConfig?.account?.['World 2']?.alchemy?.options;
+  if (Array.isArray(alchemyOptions) && !alchemyOptions.some((option) => option?.name === 'p2wUpgrades')) {
+    alchemyOptions.push({
+      name: 'p2wUpgrades',
+      checked: true,
+      helperText: 'Cauldron and liquid p2w upgrades you can level with your account coins'
+    });
+  }
+  if (Array.isArray(etcOptions) && !etcOptions.some((option) => option?.name === 'arcanistDailyDrops')) {
+    etcOptions.push({
+      name: 'arcanistDailyDrops',
+      checked: true,
+      helperText: 'Alert when Arcanist weapon or ring drops remain for today'
+    });
+  }
+  if (Array.isArray(etcOptions) && !etcOptions.some((option) => option?.name === 'topOfTheMornin')) {
+    etcOptions.push({
+      name: 'topOfTheMornin',
+      checked: true,
+      helperText: 'Alert when Top of the Mornin\' kills remain for today'
+    });
+  }
+  dashboardConfig.version = 66;
   return dashboardConfig;
 };
 
@@ -1583,8 +1594,6 @@ const migrations = {
   64: migration64,
   65: migration65,
   66: migration66,
-  67: migration67,
-  68: migration68,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

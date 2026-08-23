@@ -75,6 +75,17 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={`You have ${alerts?.General?.etc?.dailyCrystals} daily guaranteed crystal kill${alerts?.General?.etc?.dailyCrystals > 1 ? 's' : ''} remaining`}
                   iconPath={'afk_targets/Crystal_Carrot'}/> : null}
+              {alerts?.General?.etc?.arcanistDailyDrops?.length > 0
+                ?
+                alerts?.General?.etc?.arcanistDailyDrops?.map(({ type, remaining }) => <Alert
+                  key={`arcanist-${type}`}
+                  title={`You have ${remaining} Arcanist ${type} drop${remaining > 1 ? 's' : ''} remaining today`}
+                  iconPath={type === 'weapon' ? 'data/EquipmentWandsArc0' : 'data/EquipmentRingsArc0'}/>)
+                : null}
+              {alerts?.General?.etc?.topOfTheMornin ?
+                <Alert
+                  title={`You have ${alerts?.General?.etc?.topOfTheMornin} Top of the Mornin' kill${alerts?.General?.etc?.topOfTheMornin > 1 ? 's' : ''} remaining today`}
+                  iconPath={'data/CompassUpg9'}/> : null}
               {alerts?.General?.etc?.newCharacters ?
                 <Alert
                   title={`You can create ${alerts?.General?.etc?.newCharacters} new character${alerts?.General?.etc?.newCharacters > 1
@@ -252,6 +263,18 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 2']?.alchemy?.vialsAttempts ? <Alert key={'vialsAttempts'}
                                                                     title={`You have available vial attempts`}
                                                                     iconPath={`data/aVials1`}/> : null}
+              {alerts?.['World 2']?.alchemy?.p2wUpgrades?.length > 0
+                ?
+                alerts?.['World 2']?.alchemy?.p2wUpgrades?.map(({ type, index, name, upgrades }) => <Alert
+                  key={`p2w-${type}-${index}`}
+                  title={<>
+                    <div>{name} {type === 'cauldron' ? 'cauldron' : 'liquid'} p2w upgrades you can afford</div>
+                    {upgrades?.map(({ label, level, maxLevel, cost }) => <div key={label}>
+                      {label}: Lv. {level} / {maxLevel} ({notateNumber(cost, 'Big')} coins)
+                    </div>)}
+                  </>}
+                  iconPath={`data/aJar${type === 'cauldron' ? 'B' : 'L'}${index}`}/>)
+                : null}
               {alerts?.['World 2']?.alchemy?.vials?.length > 0 ?
                 alerts?.['World 2']?.alchemy?.vials?.map((vial) => <Alert key={vial?.mainItem}
                                                                           vial={vial}

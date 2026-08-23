@@ -16,7 +16,7 @@ import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 
 const baseTrackers = {
-  version: 68,
+  version: 66,
   account: {
     General: {
       tasks: {
@@ -63,6 +63,16 @@ const baseTrackers = {
             name: 'dailyCrystals',
             checked: true,
             helperText: 'Alert when daily guaranteed crystal kills remain'
+          },
+          {
+            name: 'arcanistDailyDrops',
+            checked: true,
+            helperText: 'Alert when Arcanist weapon or ring drops remain for today'
+          },
+          {
+            name: 'topOfTheMornin',
+            checked: true,
+            helperText: 'Alert when Top of the Mornin\' kills remain for today'
           },
           {
             name: 'glimmerwickCandle',
@@ -124,6 +134,11 @@ const baseTrackers = {
           },
           { name: 'vials', category: 'vials', checked: true },
           { name: 'vialsAttempts', checked: true },
+          {
+            name: 'p2wUpgrades',
+            checked: true,
+            helperText: 'Cauldron and liquid p2w upgrades you can level with your account coins'
+          },
           { name: 'subtractGreenStacks', checked: true },
           { name: 'alternateParticles', checked: true }
         ]

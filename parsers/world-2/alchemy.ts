@@ -19,16 +19,27 @@ import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 
 export const MAX_VIAL_LEVEL = 13;
-export const cauldronColors = {
-  0: '#ff9000',
-  1: '#76ef5a',
-  2: '#f1a2fc',
-  3: '#f6f031'
-}
-export const cauldronsIndexMapping = { 0: 'power', 1: 'quicc', 2: 'high-iq', 3: 'kazam' };
-export const liquidsIndex = { 0: 'water drops', 1: 'liquid n2', 2: 'trench h2o', 3: 'toxic mercury' };
-const cauldronsTextMapping = { 0: 'O', 1: 'G', 2: 'P', 3: 'Y' };
-const bigBubblesIndices = { _: 'power', a: 'quicc', b: 'high-iq', c: 'kazam' };
+// One row per cauldron / liquid, in save order: the slug the catalog and the rest of the app key by,
+// the name the game's own p2w screen draws (N.js "POWER_CAULDRON" / "WATER_DROPS"), the chart color,
+// the bubble image letter, and the CauldronBubbles prefix. Every mapping below is derived from these.
+export const CAULDRON_INFO = [
+  { name: 'power', displayName: 'Power', color: '#ff9000', imageLetter: 'O', bubblePrefix: '_' },
+  { name: 'quicc', displayName: 'Quicc', color: '#76ef5a', imageLetter: 'G', bubblePrefix: 'a' },
+  { name: 'high-iq', displayName: 'High-IQ', color: '#f1a2fc', imageLetter: 'P', bubblePrefix: 'b' },
+  { name: 'kazam', displayName: 'Kazam', color: '#f6f031', imageLetter: 'Y', bubblePrefix: 'c' }
+];
+export const LIQUID_INFO = [
+  { name: 'water drops', displayName: 'Water Drops' },
+  { name: 'liquid n2', displayName: 'Liquid N2' },
+  { name: 'trench h2o', displayName: 'Trench H2O' },
+  { name: 'toxic mercury', displayName: 'Toxic Hg' }
+];
+const byIndex = (list: any[], key: string) => Object.fromEntries(list.map((entry, index) => [index, entry[key]]));
+export const cauldronColors: Record<string, any> = byIndex(CAULDRON_INFO, 'color');
+export const cauldronsIndexMapping: Record<string, any> = byIndex(CAULDRON_INFO, 'name');
+export const liquidsIndex: Record<string, any> = byIndex(LIQUID_INFO, 'name');
+const cauldronsTextMapping: Record<string, any> = byIndex(CAULDRON_INFO, 'imageLetter');
+const bigBubblesIndices: Record<string, any> = Object.fromEntries(CAULDRON_INFO.map(({ bubblePrefix, name }) => [bubblePrefix, name]));
 export const CAULDRONS_MAX_LEVELS = {
   brewing: 170,
   liquidsRegen: 100,
@@ -85,7 +96,7 @@ export const isPrismaBubble = (account: any, bubbleIndex: any) => {
 
 export const getLiquidCauldrons = (account: any) => {
   const liquidCauldrons = account?.alchemy?.cauldronsInfo?.slice(18) ?? [];
-  return Object.keys(liquidsIndex).map((_, index: any) => {
+  return LIQUID_INFO.map((_, index: any) => {
     const [decantCapProgress, decantCapLevel] = liquidCauldrons?.[index * 4] ?? [];
     const [decantRateProgress, decantRateLevel] = liquidCauldrons?.[(index * 4) + 1] ?? [];
     const decantCapLevelValue = decantCapLevel ?? 0;
@@ -172,10 +183,10 @@ const getPay2Win = (idleonData: any, alchemyActivity: any, serializedCharactersD
   const playersInLiquids = alchemyActivity.filter(({ activity }: any, index: any) => activity < 100 && activity >= 4 && activity !== -1 && index < serializedCharactersData?.length);
   const p2w: any = {};
   const [cauldrons = [], liquids = [], vials, player, , remainingAttempts = []] = tryToParse(idleonData?.CauldronP2W) || idleonData?.CauldronP2W || [];
-  p2w.cauldrons = Object.keys(cauldronsIndexMapping).map((_: any, index: any) => {
+  p2w.cauldrons = CAULDRON_INFO.map((cauldron: any, index: any) => {
     const [speed = 0, newBubble = 0, boostReq = 0] = cauldrons.slice(index * 3, index * 3 + 3);
     return {
-      name: (cauldronsIndexMapping as Record<string, any>)[index],
+      name: cauldron.name,
       speed: {
         cost: getP2wCauldronCost('cauldron', 0, speed),
         costToMax: getCostToMax('cauldron', 0, speed, CAULDRONS_MAX_LEVELS.cauldronsSpeed),
@@ -193,10 +204,10 @@ const getPay2Win = (idleonData: any, alchemyActivity: any, serializedCharactersD
       }
     };
   });
-  p2w.liquids = Object.keys(liquidsIndex).map((_: any, index: any) => {
+  p2w.liquids = LIQUID_INFO.map((liquid: any, index: any) => {
     const [regen = 0, capacity = 0] = liquids.slice(index * 2, index * 2 + 2);
     return {
-      name: (liquidsIndex as Record<string, any>)[index],
+      name: liquid.name,
       regen: {
         cost: getP2wCauldronCost('liquid', 0, regen),
         costToMax: getCostToMax('liquid', 0, regen, CAULDRONS_MAX_LEVELS.liquidsRegen),
@@ -277,21 +288,20 @@ const getBubbles = (bubblesRaw: any) => {
       25: '' // CORPIUS_MAPPER
     }
   };
-  return Object.entries(cauldronsIndexMapping).reduce((res: any, [cauldronIndexStr, category]) => {
-    const cauldronIndex = Number(cauldronIndexStr);
-    const catalogEntries = (cauldrons as Record<string, any>)[category as string];
+  return CAULDRON_INFO.reduce((res: any, { name: category }, cauldronIndex) => {
+    const catalogEntries = (cauldrons as Record<string, any>)[category];
     const bubbleList = liveEntries<any>(catalogEntries).map(({ entry: bubbleDetails, index: bubbleIndex }) => {
       const rawLevel = bubblesRaw?.[cauldronIndex]?.[bubbleIndex];
       const level = rawLevel != null ? parseInt(rawLevel) || 0 : 0;
       return {
         level,
         index: bubbleIndex,
-        rawName: `aUpgrades${(cauldronsTextMapping as Record<string, any>)[cauldronIndex]}${bubbleIndex}`,
+        rawName: `aUpgrades${cauldronsTextMapping[cauldronIndex]}${bubbleIndex}`,
         ...bubbleDetails,
         desc: bubbleDetails?.desc?.replace('$', (etc as Record<string, any>)?.[cauldronIndex]?.[bubbleIndex])
       };
     });
-    return { ...res, [category as string]: bubbleList };
+    return { ...res, [category]: bubbleList };
   }, {});
 };
 
@@ -301,7 +311,7 @@ export const getEquippedBubbles = (idleonData: any, bubbles: any, serializedChar
     ?.filter((_: any, index: any) => index < serializedCharactersData?.length)
     ?.map((charBubbles: any) => {
       return charBubbles?.reduce((res: any, bubbleIndStr: any) => {
-        const cauldronIndex = (bigBubblesIndices as Record<string, any>)[bubbleIndStr[0]];
+        const cauldronIndex = bigBubblesIndices[bubbleIndStr[0]];
         const bubbleIndex = cauldronIndex ? bubbleIndStr?.substring(1) : null;
         return [...res, (bubbleIndex ? bubbles?.[cauldronIndex]?.[bubbleIndex] : {})];
       }, []);
@@ -471,7 +481,8 @@ export const updateVials = (accountData: any) => {
 
 const getCauldrons = (cauldronsProgress: any, cauldronsRaw: any, p2w: any, alchemyRaw: any, alchemyActivity: any) => {
   const playersInCauldrons = alchemyActivity.filter(({ activity }: any) => activity < 100 && activity !== -1);
-  const cauldronsLevelsMapping: Record<number, string> = { 0: 'power', 4: 'quicc', 8: 'high-iq', 12: 'kazam' };
+  // The raw stats come in chunks of 4 per cauldron, so each cauldron starts at index * 4.
+  const cauldronsLevelsMapping: Record<number, string> = Object.fromEntries(CAULDRON_INFO.map(({ name }, index) => [index * 4, name]));
   let cauldronsObject: any = {};
   const chunk = 4;
   for (const key of Object.keys(cauldronsLevelsMapping)) {

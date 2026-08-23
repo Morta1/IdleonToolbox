@@ -37,6 +37,14 @@ const trackerDescriptions = {
   }
 };
 
+// camelToTitleCase splits on digits too, so names carrying one read wrong ("p2wUpgrades" becomes
+// "P 2w Upgrades"). Names listed here render as written instead.
+const labelOverrides = {
+  p2wUpgrades: 'P2W Upgrades'
+};
+
+const getLabel = (name) => labelOverrides[name] ?? name?.camelToTitleCase();
+
 const DashboardSettings = ({ open, onClose, config, onChange, onFileUpload }) => {
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
 
@@ -172,7 +180,7 @@ const Fields = ({ config, onChange, configType, section }) => {
           sx={{ [`.${typographyClasses.root}`]: { fontSize: 14 } }}
           control={<Checkbox name={trackerName} checked={data?.checked} size={'small'}/>}
           onChange={(e) => onChange(e, configType, null, null, section)}
-          label={trackerName?.camelToTitleCase()}/>
+          label={getLabel(trackerName)}/>
         {data?.options?.length > 0 ? <IconButton size={'small'}
                                                  onClick={() => handleArrowClick(trackerName)}>
           {showId === trackerName ? <ArrowDropUpIcon/> : <ArrowDropDownIcon/>}
@@ -230,7 +238,7 @@ const BaseField = ({ option, trackerName, onChange, configType, section }) => {
           />}
           onChange={(e) => onChange(e, configType, option, trackerName, section)}
           label={<>
-            <Typography>{option?.name?.camelToTitleCase()}</Typography>
+            <Typography>{getLabel(option?.name)}</Typography>
           </>}
         /> : null}
         {type === 'input' ?
