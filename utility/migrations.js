@@ -1607,6 +1607,16 @@ export const migration67 = (config) => {
     dashboardConfig.account['World 7'] = ordered;
   }
 
+  const equinoxOptions = dashboardConfig?.account?.['World 3']?.equinox?.options;
+  const foodLustOption = equinoxOptions?.find((o) => o?.name === 'foodLust');
+  // Food Lust turned into a stacks threshold. Max value keeps the old "only when maxed" behaviour
+  // because the alert clamps the threshold to the account's Food Lust level.
+  if (foodLustOption && foodLustOption?.type !== 'input') {
+    foodLustOption.type = 'input';
+    foodLustOption.props = { label: 'Stacks threshold', value: 14, minValue: 1, maxValue: 14 };
+    foodLustOption.helperText = 'Alerts once you hold this many stacks, capped at your Food Lust level, so the default only alerts when Food Lust is maxed';
+  }
+
   const world3 = dashboardConfig?.timers?.['World 3'];
   // Closest flag timer. Rebuild the group so it lands right after closestTrap, matching
   // baseTrackers - plain assignment would append it last (key order drives the settings UI).

@@ -308,7 +308,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert title={`You have ${alerts?.['World 3']?.equinox?.challenges} challenges to validate`}
                        iconPath={'data/Quest78'}/> : null}
               {alerts?.['World 3']?.equinox?.foodLust ?
-                <Alert title={`Food Lust is maxed`} iconPath={'etc/Dream_Upgrade_10'}/> : null}
+                <Alert title={alerts?.['World 3']?.equinox?.foodLustMaxed
+                  ? `Food Lust is maxed (${alerts?.['World 3']?.equinox?.foodLustStacks} stacks)`
+                  : `You have ${alerts?.['World 3']?.equinox?.foodLustStacks} Food Lust stacks`}
+                       iconPath={'etc/Dream_Upgrade_10'}/> : null}
               {alerts?.['World 3']?.construction?.materials?.length > 0
                 ?
                 alerts?.['World 3']?.construction?.materials?.map(({ rawName, missingMats, hoursLeft }) => <Alert key={rawName}

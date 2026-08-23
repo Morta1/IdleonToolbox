@@ -281,7 +281,13 @@ const baseTrackers = {
         checked: true, options: [
           { name: 'bar', checked: true },
           { name: 'challenges', checked: true },
-          { name: 'foodLust', checked: true }
+          {
+            name: 'foodLust',
+            type: 'input',
+            props: { label: 'Stacks threshold', value: 14, minValue: 1, maxValue: 14 },
+            checked: true,
+            helperText: 'Alerts once you hold this many stacks, capped at your Food Lust level, so the default only alerts when Food Lust is maxed'
+          }
         ]
       },
       atomCollider: {
