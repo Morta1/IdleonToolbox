@@ -1,5 +1,5 @@
 import type { IdleonData, Account } from '../types';
-import { tryToParse, notateNumber, commaNotation } from '@utility/helpers';
+import { tryToParse, notateNumber } from '@utility/helpers';
 import { generalSpelunky } from '@website-data';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
 
@@ -57,9 +57,7 @@ export const parseClamWork = (account: Account, spelunkingRaw?: any, multiKill: 
   const upgradesUnlocked = (account as any)?.accountOptions?.[465] ?? 0;
   const levels = getClamLevels(account);
   const promotionChance = 0.5 / (2 + workerClass);
-  const promotionCost = 1e6 > getClamPromotionCost(workerClass)
-    ? commaNotation(getClamPromotionCost(workerClass))
-    : notateNumber(getClamPromotionCost(workerClass), 'Big');
+  const promotionCost = getClamPromotionCost(workerClass);
   const clamHp = getClamHp(workerClass);
   const mobs = getClamMobs(levels);
   const blackPearlValue = getBlackPearlValue(levels);

@@ -705,6 +705,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                     key={`sushi-kn-${sushi.index}`}
                     title={`${sushi.name} is ready for knowledge level-up (Lv.${sushi.level})`}
                     iconPath={`data/Sushi${sushi.index}`}/>) : null}
+              {alerts?.['World 7']?.clamWork?.promotionAffordable ?
+                <Alert
+                  title={`You can afford a promotion to Worker Class Lv. ${alerts?.['World 7']?.clamWork?.promotionAffordable?.nextClass} (${notateNumber(alerts?.['World 7']?.clamWork?.promotionAffordable?.cost, 'Big')} pearls, ${(alerts?.['World 7']?.clamWork?.promotionAffordable?.chance * 100).toFixed(2)}% chance)`}
+                  iconPath={'data/ClamPearl0'}/> : null}
               {alerts?.['World 7']?.theButton?.instaSkipAvailable ?
                 <Alert
                   title={`${alerts?.['World 7']?.theButton?.instaSkipAvailable?.skipsLeft} insta-skip${alerts?.['World 7']?.theButton?.instaSkipAvailable?.skipsLeft === 1 ? '' : 's'} available - current task can be skipped`}

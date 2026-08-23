@@ -1564,6 +1564,25 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       alerts.sushiStation = sushiStation;
     }
   }
+  if (fields?.clamWork?.checked) {
+    const clamWork = {};
+    if (options?.clamWork?.promotionAffordable?.checked) {
+      const ownedPearls = account?.clamWork?.ownedPearls ?? 0;
+      const promotionCost = account?.clamWork?.promotionCost ?? 0;
+      // The game has no worker class cap, so affording the cost is the whole condition. The
+      // cheapest promotion already costs 100k pearls, which means Clamworks is unlocked by then.
+      if (promotionCost > 0 && ownedPearls >= promotionCost) {
+        clamWork.promotionAffordable = {
+          cost: promotionCost,
+          nextClass: (account?.clamWork?.workerClass ?? 0) + 1,
+          chance: account?.clamWork?.promotionChance ?? 0
+        };
+      }
+    }
+    if (Object.keys(clamWork).length > 0) {
+      alerts.clamWork = clamWork;
+    }
+  }
   if (fields?.theButton?.checked) {
     const theButton = {};
     const { instaSkipAvailable, taskReady } = options?.theButton || {};
