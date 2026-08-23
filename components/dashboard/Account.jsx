@@ -202,6 +202,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={'You have enough garbage to buy a \'Garbage Gain\' upgrade in trash island'}
                   iconPath={'etc/Trash_Currency'}/> : null}
+              {alerts?.['World 2']?.islands?.collectibleGarbage ?
+                <Alert
+                  title={`You have around ${alerts?.['World 2']?.islands?.collectibleGarbage} garbage waiting to be collected in trash island`}
+                  iconPath={'etc/Trash_Currency'}/> : null}
               {alerts?.['World 2']?.alchemy?.bargainTag ?
                 <Alert title={'You haven\'t use bargain tag even once today'} iconPath={'data/aShopItems10'}/> : null}
               {alerts?.['World 2']?.alchemy?.gems ?

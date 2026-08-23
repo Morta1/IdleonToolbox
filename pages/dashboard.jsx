@@ -153,7 +153,14 @@ const baseTrackers = {
             checked: true
           },
           { name: 'shimmerIsland', checked: true },
-          { name: 'garbageUpgrade', checked: true }
+          { name: 'garbageUpgrade', checked: true },
+          {
+            name: 'collectibleGarbage',
+            type: 'input',
+            props: { label: 'Threshold', value: 80, minValue: 1, maxValue: 100 },
+            checked: true,
+            helperText: 'A single collection is capped at 100 garbage, anything above it is lost'
+          }
         ]
       },
       postOffice: {

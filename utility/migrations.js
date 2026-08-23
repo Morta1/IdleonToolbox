@@ -1677,6 +1677,23 @@ export const migration67 = (config) => {
       : constructionOptions.toSpliced(materialsIndex + 1, 0, matsThreshold);
   }
 
+  const islandsOptions = dashboardConfig?.account?.['World 2']?.islands?.options;
+  // Uncollected trash island garbage. Splice it in right after `garbageUpgrade` so the two
+  // garbage alerts sit together in the settings UI (option order drives the rendering).
+  if (Array.isArray(islandsOptions) && !islandsOptions.some((o) => o?.name === 'collectibleGarbage')) {
+    const collectibleGarbage = {
+      name: 'collectibleGarbage',
+      type: 'input',
+      props: { label: 'Threshold', value: 80, minValue: 1, maxValue: 100 },
+      checked: true,
+      helperText: 'A single collection is capped at 100 garbage, anything above it is lost'
+    };
+    const garbageUpgradeIndex = islandsOptions.findIndex((o) => o?.name === 'garbageUpgrade');
+    dashboardConfig.account['World 2'].islands.options = garbageUpgradeIndex === -1
+      ? [...islandsOptions, collectibleGarbage]
+      : islandsOptions.toSpliced(garbageUpgradeIndex + 1, 0, collectibleGarbage);
+  }
+
   dashboardConfig.version = 67;
   return dashboardConfig;
 };

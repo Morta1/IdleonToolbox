@@ -118,9 +118,10 @@ export const getIslands = (account: Account, characters: any[]) => {
   } else {
     bonusPerDays = Math.pow(8 * numberOfDaysAfkForCost, .5);
   }
+  // The game drops one trash per unit, capped at 100 per collection
   const trashPerDaysAfk = numberOfDaysAfkForCost === 0
     ? 0
-    : Math.round(3 * bonusPerDays * Math.floor(1.01 + (.5 + (Math.min(numberOfDaysAfkForCost, 70) / 100 + trashUpgradeLevel / 5))))
+    : Math.min(100, Math.round(3 * bonusPerDays * Math.floor(1.01 + (.5 + (Math.min(numberOfDaysAfkForCost, 70) / 100 + trashUpgradeLevel / 5)))))
   const trashPerDay = Math.round(3 * 1.25 * Math.floor(1.01 + (.5 + (Math.min(1, 70) / 100 + trashUpgradeLevel / 5))));
   const allShimmerBonus = Math.max(1, Math.min(4, 1 + 100 * (isArtifactAcquired((account as any)?.sailing?.artifacts, 'The_Shim_Lantern')?.bonus ?? 0) / 100));
 
