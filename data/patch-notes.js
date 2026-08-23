@@ -31,9 +31,12 @@ export const patchNotes = [
       'Farming: a new Rank Optimizer tab plans how to spend your unspent land rank points, with a category for each thing the ranks boost. It tells you when a category is already at its in game cap and the points would buy nothing',
       'Dashboard: the Equinox Food Lust alert now takes a stacks threshold, so it can remind you at any number of stacks instead of only once it is maxed',
       'Tools: a new Bone Joe Calculator shows what Bone Joe Pickles and the three monster HP prayers do to each miniboss, and how many pickles every character can carry and still one shot them. Flip Apply to characters to price them off your own setup instead',
-      'Pinned pages: export your pins to a file and import them on another device or after clearing your browser data, so you no longer have to pin everything again from scratch'
+      'Pinned pages: export your pins to a file and import them on another device or after clearing your browser data, so you no longer have to pin everything again from scratch',
+      'God Planner: a new Bonus Calculator shows what a Minor Link Bonus is worth on any character, and how many Divinity, BIG P or Coral Kid levels a target still needs',
+      'God Planner: planned links now show the bonus each god gives, whether it is already linked, and which link a swap would spend. An Elemental Sorcerer holds two gods'
     ],
     'fixes': [
+      'God Planner: the minor link bonuses left out the Coral Kid divinity upgrade, so every number on the page was too low',
       'Refinery: auto refine was shown as a percentage, so it read 0% or 0.01%. It is an on/off toggle in game and now says On or Off',
       'Bubba: upgrade descriptions showed a stray "@" where the game puts a line break',
       'Clamworks: the 9th promotion compensation showed a raw placeholder instead of its Class EXP multiplier',
