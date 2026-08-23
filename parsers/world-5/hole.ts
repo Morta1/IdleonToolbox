@@ -34,6 +34,11 @@ import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 
+// The game refuses a Blinding Lantern once Holes[11][84] hits 12, and clears the counter on
+// daily reset (same block that grants the daily lamp wishes). The cap lives in code, not the
+// save, so it has to be mirrored here.
+const BLINDING_LANTERNS_PER_DAY = 12;
+
 const VILLAGERS = {
   EXPLORE: 0,
   ENGINEER: 1,
@@ -282,6 +287,12 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
   const totalResources = wellSediment?.reduce((sum: any, amount: any) => sum + Math.ceil(lavaLog(amount)), 0);
   const totalLayerResources = extraCalculations ? [1, 3, 5, 7].reduce((sum, index) =>
     sum + Math.round(Math.max(0, extraCalculations[index] || 0)), 0) : 0;
+  const blindingLanternsUsed = Math.max(0, Math.min(BLINDING_LANTERNS_PER_DAY, extraCalculations?.[84] ?? 0));
+  const blindingLanterns = {
+    used: blindingLanternsUsed,
+    max: BLINDING_LANTERNS_PER_DAY,
+    remaining: BLINDING_LANTERNS_PER_DAY - blindingLanternsUsed
+  };
   const totalVillagersLevels = villagersLevels?.reduce((sum: any, amount: any) => sum + amount, 0);
   const totalOpalsFound = opalsPerCavern?.reduce((sum: any, amount: any) => sum + amount, 0);
 
@@ -292,6 +303,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     engineerBonuses,
     unlockedSchematics: Math.min(Math.min(105,
       Math.round(1 + 3 * villagers?.[1]?.level + Math.floor(villagers?.[1]?.level / 5))), holesBuildings?.length),
+    blindingLanterns,
     caverns: {
       theWell,
       motherlode,

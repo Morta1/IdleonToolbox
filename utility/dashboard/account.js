@@ -965,7 +965,7 @@ export const getWorld4Alerts = (account, fields, options) => {
   }
   return alerts;
 };
-export const getWorld5Alerts = (account, fields, options) => {
+export const getWorld5Alerts = (account, fields, options, characters) => {
   const alerts = {};
   if (!account?.finishedWorlds?.World4) return alerts;
   if (fields?.gaming?.checked && account?.gaming?.unlocked) {
@@ -1111,7 +1111,8 @@ export const getWorld5Alerts = (account, fields, options) => {
       villagersLevelUp,
       jars,
       jarsFull,
-      studyLevelUp
+      studyLevelUp,
+      lanterns
     } = options?.hole || {};
     const expandWhenFull = account?.hole?.caverns?.theWell?.expandWhenFull;
     const [, ...restSediments] = account?.hole?.caverns?.theWell?.sediments;
@@ -1174,6 +1175,15 @@ export const getWorld5Alerts = (account, fields, options) => {
     const readyToLevelStudy = account?.hole?.studies?.studies?.filter(({ readyToLevel }) => readyToLevel);
     if (studyLevelUp?.checked && readyToLevelStudy.length > 0) {
       hole.studyLevelUp = readyToLevelStudy;
+    }
+    // Blinding Lanterns are capped at 12 uses a day and the counter resets on daily reset.
+    // Gate on actually owning Quest90 so the alert stays quiet for accounts with none left.
+    const remainingLanterns = account?.hole?.blindingLanterns?.remaining ?? 0;
+    if (lanterns?.checked && remainingLanterns >= (lanterns?.props?.value || 1)) {
+      const ownsLantern = findQuantityOwned(getAllItems(characters, account), 'Blinding_Lantern')?.amount > 0;
+      if (ownsLantern) {
+        hole.lanterns = remainingLanterns;
+      }
     }
     if (Object.keys(hole).length > 0) {
       alerts.hole = hole;

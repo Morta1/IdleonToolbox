@@ -1576,6 +1576,16 @@ export const migration67 = (config) => {
     };
   }
 
+  const holeOptions = dashboardConfig?.account?.['World 5']?.hole?.options;
+  if (Array.isArray(holeOptions) && !holeOptions.some((o) => o?.name === 'lanterns')) {
+    holeOptions.push({
+      name: 'lanterns',
+      checked: true,
+      type: 'input',
+      props: { label: 'Remaining lanterns threshold', value: 1, minValue: 1, maxValue: 12 }
+    });
+  }
+
   dashboardConfig.version = 67;
   return dashboardConfig;
 };

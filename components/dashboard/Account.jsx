@@ -543,6 +543,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   title={`${cleanUnderscore(name)} study is ready to level up`}
                   iconPath={`etc/Study_Rate`}/>)
                 : null}
+              {alerts?.['World 5']?.hole?.lanterns > 0 ?
+                <Alert
+                  title={`You can use ${alerts?.['World 5']?.hole?.lanterns} more Blinding Lantern${alerts?.['World 5']?.hole?.lanterns > 1 ? 's' : ''} today`}
+                  iconPath={'data/Quest90_x1'}/> : null}
             </Stack>
           </Stack> : null}
           {!emptyAlertRows?.['World 6'] ? <Stack direction={'row'} gap={4}>

@@ -401,7 +401,19 @@ const baseTrackers = {
             props: { label: 'Jars threshold', value: 120, minValue: 1, maxValue: 120, helperText: 'Max of 120 jars' }
           },
           { name: 'studyLevelUp', checked: true },
-          { name: 'jarsFull', checked: true }
+          { name: 'jarsFull', checked: true },
+          {
+            name: 'lanterns',
+            checked: true,
+            type: 'input',
+            props: {
+              label: 'Remaining lanterns threshold',
+              value: 1,
+              minValue: 1,
+              maxValue: 12,
+              helperText: 'Daily cap is 12'
+            }
+          }
         ]
       }
     },
