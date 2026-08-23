@@ -65,9 +65,11 @@ export const parseClamWork = (account: Account, spelunkingRaw?: any, multiKill: 
   const ownedPearls = (account as any)?.accountOptions?.[454] ?? 0;
 
   const clamWorkDescriptions = generalSpelunky?.[27];
+  const classExpMulti = getClamClassExpMulti(workerClass);
   const compensations = generalSpelunky?.[30].map((comp: string, index: number) => {
     return {
-      name: comp,
+      // Only the 9th compensation carries a placeholder, and it's the class exp multi.
+      name: comp.replace(/\}/g, `${classExpMulti}`),
       unlocked: getClamWorkBonus(account, index),
     }
 
@@ -106,6 +108,12 @@ export const parseClamWork = (account: Account, spelunkingRaw?: any, multiKill: 
     respawn: 60
   };
 }
+
+// Game rounds the drawn multiplier to 2 decimals. The max(0) matches the exp formula itself
+// (N.js: 1 + Math.max(0, 5 * (workerClass - 8)) / 100), so a locked compensation reads 1x rather
+// than the sub-1 number the game's draw code would produce for a class below 9.
+export const getClamClassExpMulti = (workerClass: number): number =>
+  Math.round(100 * (1 + Math.max(0, 5 * (workerClass - 8)) / 100)) / 100;
 
 export const getClamWorkBonus = (account: Account, index: number): number => {
   return (account as any)?.accountOptions?.[464] > index ? 1 : 0;
