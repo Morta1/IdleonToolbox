@@ -1581,7 +1581,7 @@ export const getMultiKillPerTier = (character: Character, characters: Character[
 // squashes both halves of multikill through a bracketed curve and steps the overkill tiers by 5
 // instead of 2. The gate is the map the character stands on: World 6 maps (250-299) still use the
 // undiminished rules.
-export const DIMINISHED_MULTIKILL_MAP_INDEX = 300;
+const DIMINISHED_MULTIKILL_MAP_INDEX = 300;
 
 // From World 7 onwards (CurrentMap >= 300) the game squashes both halves of multikill through a
 // bracketed curve. The top bracket has no ceiling, it just flattens to a 1/50 slope, so a raw

@@ -42,7 +42,7 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getObolsBonus } from '@parsers/obols';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
-import { calcCardBonus, getCardBonusByEffect } from '@parsers/cards';
+import { calcCardBonus } from '@parsers/cards';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getMinorDivinityBonus } from '@parsers/world-5/divinity';

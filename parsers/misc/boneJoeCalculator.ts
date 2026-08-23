@@ -2,7 +2,7 @@ import { monsters } from '@website-data';
 import { getMonsterHpTotal } from '@parsers/damage';
 import type { Account, Character } from '../types';
 
-export const BONE_JOE_PICKLE = 'BoneJoePickle';
+const BONE_JOE_PICKLE = 'BoneJoePickle';
 
 // The game floors `pickleQuantity + 0.81` before raising 1.1 to it, so a whole number of pickles
 // lands on itself and an empty inventory lands on 0.

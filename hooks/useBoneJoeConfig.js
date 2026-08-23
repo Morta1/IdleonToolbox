@@ -2,7 +2,7 @@ import { useDebouncedValue, useLocalStorage } from '@mantine/hooks';
 import { prayers } from '@website-data';
 import { getPrayerBonusAndCurse } from '@parsers/world-3/prayers';
 
-export const HP_CURSE_PRAYERS = ['Big_Brain_Time', 'Midas_Minded', 'Jawbreaker'];
+const HP_CURSE_PRAYERS = ['Big_Brain_Time', 'Midas_Minded', 'Jawbreaker'];
 
 // Long enough that holding a key down does not reprice every character on the way, short enough
 // that the table has caught up by the time you look at it.

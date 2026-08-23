@@ -967,7 +967,7 @@ export const isCropValueCapped = (account: any) => {
  * productionBoost), so the land-rank optimizer can re-derive the rank-driven part from candidate
  * levels while getTotalCrop and isCropValueCapped take the whole thing.
  */
-export const getPlotCropMultiParts = (account: any, market: any, ranks: any) => ({
+const getPlotCropMultiParts = (account: any, market: any, ranks: any) => ({
   constantMulti: Math.max(1, Math.floor(1 + (getProductDoubler(market)?.productDoubler ?? 0) / 100))
     * Math.max(1, getMarketBonus(market, 'VALUE_GMO', 'value')),
   ranksMulti: 1 + getRanksTotalBonus(ranks, 1) / 100,
@@ -976,7 +976,7 @@ export const getPlotCropMultiParts = (account: any, market: any, ranks: any) => 
   cap: getCropValueMultiCap(account)
 });
 
-export const getPlotCropMulti = ({ constantMulti, ranksMulti, productionBoost, voteBonus, cap }: any, rank: any) =>
+const getPlotCropMulti = ({ constantMulti, ranksMulti, productionBoost, voteBonus, cap }: any, rank: any) =>
   Math.min(cap, Math.round(constantMulti * ranksMulti * (1 + (productionBoost * (rank ?? 0) + voteBonus) / 100)));
 
 export const getOptimizedLandRankUpgrades = (account: any, maxUpgrades = 10, options: any = {}) => {
@@ -1080,13 +1080,13 @@ const calcCostToMax = ({ level, maxLvl, cost, costExponent, emperorCostCalc, mar
 }
 
 /** The game clamps each plot's crop multiplier here (N.js CropsBonusValue), before exotics. */
-export const CROP_VALUE_MULTI_BASE_CAP = 1e4;
+const CROP_VALUE_MULTI_BASE_CAP = 1e4;
 
 /**
  * Exotic market 23/24/25 scale the crop multiplier cap, so it isn't a flat 1e4 (N.js
  * CropsBonusValue: Math.min(1e4 * (1 + (Exotic23 + Exotic24 + Exotic25) / 100), ...)).
  */
-export const getCropValueMultiCap = (account: any) => CROP_VALUE_MULTI_BASE_CAP
+const getCropValueMultiCap = (account: any) => CROP_VALUE_MULTI_BASE_CAP
   * (1 + (getExoticMarketBonus(account, 23)
     + getExoticMarketBonus(account, 24)
     + getExoticMarketBonus(account, 25)) / 100);

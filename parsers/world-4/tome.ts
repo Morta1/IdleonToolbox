@@ -108,7 +108,7 @@ export const getTome = (idleonData: IdleonData, account: Account, characters: an
 // Odds that a Glimmerwick Candle (Quest114) wish grants the Top 0.1% Tome Nametag. The game keys
 // this off the tome rank tier, and hard-guarantees the wish once you've failed 1/chance times in a
 // row (accountOptions[490]), so the reciprocal doubles as the pity count.
-export const getTomeWishChance = (top: number) => {
+const getTomeWishChance = (top: number) => {
   if (top < 0) return 1 / 120;
   switch (top) {
     case 6:
