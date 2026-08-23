@@ -44,6 +44,23 @@ const groupModes = ['None', 'Upgrade', 'Summary'];
 const formatLevel = (upgrade) => (Number.isFinite(upgrade?.x4)
   ? `${upgrade.level} / ${upgrade.x4}`
   : `${upgrade.level}`);
+// Sums one statChange into a per-stat map; shared by the Upgrade and Summary grouping branches so
+// a field added to one can't silently produce NaN sums in the other.
+const accumulateStatChange = (map, statChange) => {
+  if (!map[statChange.stat]) {
+    map[statChange.stat] = {
+      stat: statChange.stat,
+      change: 0,
+      percentChange: 0,
+      grossPercentChange: 0,
+      hoardingPercentChange: 0
+    };
+  }
+  map[statChange.stat].change += statChange.change;
+  map[statChange.stat].percentChange += statChange.percentChange;
+  map[statChange.stat].grossPercentChange += statChange.grossPercentChange ?? statChange.percentChange;
+  map[statChange.stat].hoardingPercentChange += statChange.hoardingPercentChange ?? 0;
+};
 const GenericUpgradeOptimizer = ({
   character,
   account,
@@ -62,8 +79,9 @@ const GenericUpgradeOptimizer = ({
   showSplitByResource = true,
   statLabels
 }) => {
-  // Stat keys are camelCase, which reads as "PearlGain" once capitalised.
-  const statLabel = (stat) => statLabels?.[stat] ?? (stat.charAt(0).toUpperCase() + stat.slice(1));
+  // Stat keys are camelCase; the fallback spaces them out so "pearlGain" reads as "Pearl Gain".
+  const statLabel = (stat) => statLabels?.[stat]
+    ?? stat.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()).trim();
   const [viewMode, setViewMode] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:viewMode`,
     defaultValue: 'grid'
@@ -202,21 +220,7 @@ const GenericUpgradeOptimizer = ({
       upgrade.sequence.forEach(seq => {
         totalCost += seq.cost;
         if (category !== 'all') {
-          seq.statChanges.forEach(statChange => {
-            if (!combinedStats[statChange.stat]) {
-              combinedStats[statChange.stat] = {
-                stat: statChange.stat,
-                change: 0,
-                percentChange: 0,
-                grossPercentChange: 0,
-                hoardingPercentChange: 0
-              };
-            }
-            combinedStats[statChange.stat].change += statChange.change;
-            combinedStats[statChange.stat].percentChange += statChange.percentChange;
-            combinedStats[statChange.stat].grossPercentChange += statChange.grossPercentChange ?? statChange.percentChange;
-            combinedStats[statChange.stat].hoardingPercentChange += statChange.hoardingPercentChange ?? 0;
-          });
+          seq.statChanges.forEach(statChange => accumulateStatChange(combinedStats, statChange));
         }
       });
       return {
@@ -251,21 +255,7 @@ const GenericUpgradeOptimizer = ({
       g.totalCost += upgrade.cost;
 
       if (upgrade.statChanges) {
-        upgrade.statChanges.forEach(statChange => {
-          if (!g.combinedStatChanges[statChange.stat]) {
-            g.combinedStatChanges[statChange.stat] = {
-              stat: statChange.stat,
-              change: 0,
-              percentChange: 0,
-              grossPercentChange: 0,
-              hoardingPercentChange: 0
-            };
-          }
-          g.combinedStatChanges[statChange.stat].change += statChange.change;
-          g.combinedStatChanges[statChange.stat].percentChange += statChange.percentChange;
-          g.combinedStatChanges[statChange.stat].grossPercentChange += statChange.grossPercentChange ?? statChange.percentChange;
-          g.combinedStatChanges[statChange.stat].hoardingPercentChange += statChange.hoardingPercentChange ?? 0;
-        });
+        upgrade.statChanges.forEach(statChange => accumulateStatChange(g.combinedStatChanges, statChange));
       }
     });
 
@@ -588,23 +578,13 @@ const GenericUpgradeOptimizer = ({
               <>
                 <Typography
                   variant="caption">Levels {upgrade.startLevel} → {upgrade.finalLevel}</Typography>
-                {upgrade.combinedStatChanges.map((statChange, i) => (
-                  <div key={i}>
-                    {statChange.stat.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()).trim()}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
-                    {renderHoardingNote(statChange, getRebuildTime(upgrade))}
-                  </div>
-                ))}
+                {renderStatChanges(upgrade.combinedStatChanges, upgrade)}
               </>
             )
             : (
               category === 'all'
                 ? cleanUnderscore(upgrade.description)
-                : upgrade.statChanges.map((statChange, i) => (
-                  <div key={i}>
-                    {statChange.stat.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()).trim()}: {formatChange(statChange.change)} ({formatPercentChange(statChange.percentChange)})
-                    {renderHoardingNote(statChange, getRebuildTime(upgrade))}
-                  </div>
-                ))
+                : renderStatChanges(upgrade.statChanges, upgrade)
             )
           }
         </TableCell>

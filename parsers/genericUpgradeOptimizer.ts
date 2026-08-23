@@ -1,8 +1,7 @@
 // Generic Upgrade Optimizer
 // Consolidates the simulation logic for Compass, Grimoire, and Tesseract optimizers
 
-function isUpgradeAffordable(upgrade: any, cost: any, simulatedResources: any, resourceNames: any) {
-  const resourceType = upgrade?.x3 || upgrade?.boneType;
+function isUpgradeAffordable(upgrade: any, cost: any, simulatedResources: any, resourceNames: any, resourceType: any) {
   // Array of objects with value property
   if (Array.isArray(simulatedResources) && simulatedResources.length > 0 && typeof simulatedResources[0] === 'object' && simulatedResources[0] !== null && 'value' in simulatedResources[0]) {
     let resourceObj = null;
@@ -46,14 +45,6 @@ function isUpgradeAffordable(upgrade: any, cost: any, simulatedResources: any, r
   return false;
 }
 
-// Resource type key (which dust/bone/tachyon color an upgrade is paid with)
-function getResourceTypeKey(upgrade: any, extraArgs: any) {
-  if (extraArgs?.getResourceType) return extraArgs.getResourceType(upgrade);
-  if (upgrade?.x3 !== undefined) return upgrade.x3;
-  if (upgrade?.boneType !== undefined) return upgrade.boneType;
-  return upgrade?.name || 0;
-}
-
 // Several masterclass upgrades (Singulon Hoarding and friends) scale with the amount of resource
 // you're currently holding, so spending lowers them. heldResourceOptionBase is the accountOptions
 // index of the first resource color, letting the simulation deplete the held amounts as it buys.
@@ -93,6 +84,23 @@ export function getOptimizedGenericUpgrades({
   // Extract onlyAffordable from extraArgs, defaulting to false
   const { onlyAffordable = false, masterClassReduction = 0 } = extraArgs;
   let reductionsRemaining = masterClassReduction;
+  // Which resource color an upgrade is paid with. Every UI wrapper supplies getResourceType;
+  // the x3/boneType save fields cover direct parser calls that don't.
+  const resourceTypeOf = (upgrade: any) => {
+    if (extraArgs?.getResourceType) return extraArgs.getResourceType(upgrade);
+    if (upgrade?.x3 !== undefined) return upgrade.x3;
+    if (upgrade?.boneType !== undefined) return upgrade.boneType;
+    return upgrade?.name || 0;
+  };
+  // Effective resource-per-hour for an upgrade's color; 1 when RPH mode is off or has no entry,
+  // so dividing by it is a no-op.
+  const resourcePerHourOf = (upgrade: any) => {
+    const rph = extraArgs.resourcePerHour?.[resourceTypeOf(upgrade)];
+    return rph > 0 ? rph : 1;
+  };
+  // RPH mode skips colors the player earns none of per hour.
+  const isResourceEarnable = (upgrade: any) => (!extraArgs.resourcePerHour
+    || extraArgs.resourcePerHour[resourceTypeOf(upgrade)] !== 0);
   // Deep clone upgrades and resources to avoid mutating input data
   let simulatedUpgrades = JSON.parse(JSON.stringify(getUpgrades(account)));
   let simulatedResources = JSON.parse(JSON.stringify(getResources(account)));
@@ -132,21 +140,20 @@ export function getOptimizedGenericUpgrades({
   // Track current stats for comparison
   let currentStats = getCurrentStats(simulatedUpgrades, character, simAccount, extraArgs);
 
-  // Special handling for dust category
-  let getExtraDust = extraArgs.getExtraDust;
-  let getExtraTachyon = extraArgs.getExtraTachyon;
-  let currentDustMultiplier = (category === 'dust' && typeof getExtraDust === 'function')
-    ? getExtraDust(character, {
-      ...simAccount,
-      compass: { ...simAccount.compass, upgrades: simulatedUpgrades }
-    }).value
-    : 0;
-  let currentTachyonMultiplier = (category === 'tachyons' && typeof getExtraTachyon === 'function')
-    ? getExtraTachyon(character, {
-      ...simAccount,
-      tesseract: { ...simAccount.tesseract, upgrades: simulatedUpgrades }
-    }).value
-    : 0;
+  // The dust/tachyon multiplier itself scales with the upgrade tree being simulated, so every
+  // read grafts the candidate levels onto the account it's asked about. null = the category has
+  // no such multiplier. The result stat is renamed so the UI can tell it from the raw resource.
+  const resourceMultiplierStat = category === 'dust' ? 'extraDust' : category === 'tachyons' ? 'extraTachyon' : null;
+  const getResourceMultiplier = (acct: any, upgrades: any) => {
+    if (category === 'dust' && typeof extraArgs.getExtraDust === 'function') {
+      return extraArgs.getExtraDust(character, { ...acct, compass: { ...acct.compass, upgrades } }).value;
+    }
+    if (category === 'tachyons' && typeof extraArgs.getExtraTachyon === 'function') {
+      return extraArgs.getExtraTachyon(character, { ...acct, tesseract: { ...acct.tesseract, upgrades } }).value;
+    }
+    return null;
+  };
+  let currentResourceMultiplier = getResourceMultiplier(simAccount, simulatedUpgrades);
 
   const results: any = [];
   // Why the walk stopped, so the UI can tell "nothing left to buy" apart from "holding beats buying"
@@ -168,18 +175,9 @@ export function getOptimizedGenericUpgrades({
             ...extraArgs,
             forceLegendTalent: reductionsRemaining > 0
           });
-          if (!isUpgradeAffordable(upgrade, cost, simulatedResources, resourceNames)) return false;
+          if (!isUpgradeAffordable(upgrade, cost, simulatedResources, resourceNames, resourceTypeOf(upgrade))) return false;
         }
-        // If using RPH mode and this resource's RPH is 0, skip it
-        if (extraArgs.resourcePerHour) {
-          let resourceTypeKey = (extraArgs.getResourceType
-            ? extraArgs.getResourceType(upgrade)
-            : (upgrade.x3 !== undefined ? upgrade.x3 : (upgrade.name || 0)));
-          if (resourceTypeKey !== undefined && extraArgs.resourcePerHour[resourceTypeKey] === 0) {
-            return false;
-          }
-        }
-        return true;
+        return isResourceEarnable(upgrade);
       });
       if (availableUpgrades.length === 0) {
         stoppedReason = 'no-candidates';
@@ -197,19 +195,7 @@ export function getOptimizedGenericUpgrades({
           forceLegendTalent: reductionsRemaining > 0
         });
 
-        if (extraArgs.resourcePerHour) {
-          // Determine resource type key
-          let resourceTypeKey = (extraArgs.getResourceType
-            ? extraArgs.getResourceType(u)
-            : (u.x3 !== undefined ? u.x3 : (u.name || 0)));
-          let rph = 1;
-          if (extraArgs.resourcePerHour && resourceTypeKey !== undefined) {
-            if (extraArgs.resourcePerHour[resourceTypeKey] !== undefined && extraArgs.resourcePerHour[resourceTypeKey] > 0) {
-              rph = extraArgs.resourcePerHour[resourceTypeKey];
-            }
-          }
-          effectiveCost = effectiveCost / rph;
-        }
+        effectiveCost = effectiveCost / resourcePerHourOf(u);
         if (effectiveCost < minEffectiveCost) {
           minEffectiveCost = effectiveCost;
           cheapestUpgrade = u;
@@ -236,7 +222,7 @@ export function getOptimizedGenericUpgrades({
       }
 
       // Deplete the held resource so hoarding-based bonuses (and costs) reflect the purchase
-      spentByResource = addSpending(spentByResource, getResourceTypeKey(cheapestUpgrade, extraArgs), actualCost);
+      spentByResource = addSpending(spentByResource, resourceTypeOf(cheapestUpgrade), actualCost);
       simAccount = buildSimulatedAccount(account, spentByResource, heldResourceOptionBase);
 
       // Recalculate cost for all upgrades after this purchase
@@ -272,8 +258,7 @@ export function getOptimizedGenericUpgrades({
     let bestStatChanges = null;
     let bestTotalChange = 0;
     let bestNewStats = null;
-    let bestNewDustMultiplier = 0;
-    let bestNewTachyonMultiplier = 0;
+    let bestNewResourceMultiplier: any = null;
     let bestTempUpgrades = null;
     let bestCost = 0;
     let leastBadCandidate: any = null;
@@ -291,18 +276,9 @@ export function getOptimizedGenericUpgrades({
           ...extraArgs,
           forceLegendTalent: reductionsRemaining > 0
         });
-        if (!isUpgradeAffordable(upgrade, cost, simulatedResources, resourceNames)) return false;
+        if (!isUpgradeAffordable(upgrade, cost, simulatedResources, resourceNames, resourceTypeOf(upgrade))) return false;
       }
-      // If using RPH mode and this resource's RPH is 0, skip it
-      if (extraArgs.resourcePerHour) {
-        let resourceTypeKey = (extraArgs.getResourceType
-          ? extraArgs.getResourceType(upgrade)
-          : (upgrade.x3 !== undefined ? upgrade.x3 : (upgrade.name || 0)));
-        if (resourceTypeKey !== undefined && extraArgs.resourcePerHour[resourceTypeKey] === 0) {
-          return false;
-        }
-      }
-      return true;
+      return isResourceEarnable(upgrade);
     });
 
     for (const upgrade of availableUpgrades) {
@@ -322,49 +298,20 @@ export function getOptimizedGenericUpgrades({
       });
       const candidateAccount = buildSimulatedAccount(
         account,
-        addSpending(spentByResource, getResourceTypeKey(upgrade, extraArgs), upgradeCostForStats),
+        addSpending(spentByResource, resourceTypeOf(upgrade), upgradeCostForStats),
         heldResourceOptionBase
       );
       const newStats = getCurrentStats(tempUpgrades, character, candidateAccount, extraArgs);
-
-      // Special handling for dust
-      let newDustMultiplier = currentDustMultiplier;
-      let newTachyonMultiplier = currentTachyonMultiplier;
-      if (category === 'dust' && typeof getExtraDust === 'function') {
-        newDustMultiplier = getExtraDust(character, {
-          ...candidateAccount,
-          compass: { ...candidateAccount.compass, upgrades: tempUpgrades }
-        }).value;
-      }
-      if (category === 'tachyons' && typeof getExtraTachyon === 'function') {
-        newTachyonMultiplier = getExtraTachyon(character, {
-          ...candidateAccount,
-          tesseract: { ...candidateAccount.tesseract, upgrades: tempUpgrades }
-        }).value;
-      }
+      const newResourceMultiplier = getResourceMultiplier(candidateAccount, tempUpgrades);
 
       // Calculate stat changes
       const statChanges = categoryInfo.stats.map((stat: any) => {
-        if (category === 'dust' && stat === 'dust' && typeof getExtraDust === 'function') {
-          const change = newDustMultiplier - currentDustMultiplier;
-          const percentChange = currentDustMultiplier > 0
-            ? ((newDustMultiplier - currentDustMultiplier) / currentDustMultiplier) * 100
-            : 0;
+        if (stat === category && newResourceMultiplier !== null) {
+          const change = newResourceMultiplier - currentResourceMultiplier;
           return {
-            stat: 'extraDust',
+            stat: resourceMultiplierStat,
             change,
-            percentChange
-          };
-        }
-        if (category === 'tachyons' && stat === 'tachyons' && typeof getExtraTachyon === 'function') {
-          const change = newTachyonMultiplier - currentTachyonMultiplier;
-          const percentChange = currentTachyonMultiplier > 0
-            ? ((newTachyonMultiplier - currentTachyonMultiplier) / currentTachyonMultiplier) * 100
-            : 0;
-          return {
-            stat: 'extraTachyon',
-            change,
-            percentChange
+            percentChange: currentResourceMultiplier > 0 ? (change / currentResourceMultiplier) * 100 : 0
           };
         }
         const currentValue = currentStats[stat] || 0;
@@ -379,25 +326,7 @@ export function getOptimizedGenericUpgrades({
       // Calculate total efficiency with master class reduction
       const totalStatChange = statChanges.reduce((sum: any, change: any) => sum + change.percentChange, 0);
       const cost = upgradeCostForStats;
-
-      let efficiency;
-      if (extraArgs.resourcePerHour) {
-        // Use getResourceType if provided for resource type key
-        let resourceTypeKey = (extraArgs.getResourceType
-          ? extraArgs.getResourceType(upgrade)
-          : (upgrade.x3 !== undefined ? upgrade.x3 : (upgrade.name || 0)));
-        let rph = 1;
-        if (extraArgs.resourcePerHour && resourceTypeKey !== undefined) {
-          if (extraArgs.resourcePerHour[resourceTypeKey] !== undefined && extraArgs.resourcePerHour[resourceTypeKey] > 0) {
-            rph = extraArgs.resourcePerHour[resourceTypeKey];
-          }
-        }
-        const timeCost = cost / rph;
-        efficiency = totalStatChange / timeCost;
-      }
-      else {
-        efficiency = totalStatChange / cost;
-      }
+      const efficiency = totalStatChange / (cost / resourcePerHourOf(upgrade));
 
       if (efficiency > bestEfficiency) {
         bestUpgrade = upgrade;
@@ -405,8 +334,7 @@ export function getOptimizedGenericUpgrades({
         bestStatChanges = statChanges;
         bestTotalChange = totalStatChange;
         bestNewStats = newStats;
-        bestNewDustMultiplier = newDustMultiplier;
-        bestNewTachyonMultiplier = newTachyonMultiplier;
+        bestNewResourceMultiplier = newResourceMultiplier;
         bestTempUpgrades = tempUpgrades;
         bestCost = cost;
       }
@@ -426,31 +354,16 @@ export function getOptimizedGenericUpgrades({
       const grossStats = tracksHeldResource
         ? getCurrentStats(bestTempUpgrades, character, simAccount, extraArgs)
         : bestNewStats;
-      let grossDustMultiplier = bestNewDustMultiplier;
-      let grossTachyonMultiplier = bestNewTachyonMultiplier;
-      if (tracksHeldResource && category === 'dust' && typeof getExtraDust === 'function') {
-        grossDustMultiplier = getExtraDust(character, {
-          ...simAccount,
-          compass: { ...simAccount.compass, upgrades: bestTempUpgrades }
-        }).value;
-      }
-      if (tracksHeldResource && category === 'tachyons' && typeof getExtraTachyon === 'function') {
-        grossTachyonMultiplier = getExtraTachyon(character, {
-          ...simAccount,
-          tesseract: { ...simAccount.tesseract, upgrades: bestTempUpgrades }
-        }).value;
-      }
+      const grossResourceMultiplier = tracksHeldResource
+        ? getResourceMultiplier(simAccount, bestTempUpgrades)
+        : bestNewResourceMultiplier;
 
       const statChangesWithHoarding = (bestStatChanges as any[]).map((statChange: any) => {
         let grossValue;
         let currentValue;
-        if (statChange.stat === 'extraDust') {
-          grossValue = grossDustMultiplier;
-          currentValue = currentDustMultiplier;
-        }
-        else if (statChange.stat === 'extraTachyon') {
-          grossValue = grossTachyonMultiplier;
-          currentValue = currentTachyonMultiplier;
+        if (statChange.stat === resourceMultiplierStat) {
+          grossValue = grossResourceMultiplier;
+          currentValue = currentResourceMultiplier;
         }
         else {
           grossValue = grossStats[statChange.stat] || 0;
@@ -491,17 +404,12 @@ export function getOptimizedGenericUpgrades({
       }
 
       // Deplete the held resource so hoarding-based bonuses reflect the purchase
-      spentByResource = addSpending(spentByResource, getResourceTypeKey(bestUpgrade, extraArgs), cost);
+      spentByResource = addSpending(spentByResource, resourceTypeOf(bestUpgrade), cost);
       simAccount = buildSimulatedAccount(account, spentByResource, heldResourceOptionBase);
 
       // Update current stats for next iteration
       currentStats = bestNewStats;
-      if (category === 'dust' && typeof getExtraDust === 'function') {
-        currentDustMultiplier = bestNewDustMultiplier;
-      }
-      if (category === 'tachyons' && typeof getExtraTachyon === 'function') {
-        currentTachyonMultiplier = bestNewTachyonMultiplier;
-      }
+      currentResourceMultiplier = bestNewResourceMultiplier;
 
       // Recalculate all upgrade costs after this purchase (no mutation)
       simulatedUpgrades = simulatedUpgrades.map((upgrade: any) => {
@@ -522,30 +430,13 @@ export function getOptimizedGenericUpgrades({
       }
       else if (tracksHeld && leastBadCandidate) {
         const grossStats = getCurrentStats(leastBadCandidate.tempUpgrades, character, simAccount, extraArgs);
-        let grossDust = currentDustMultiplier;
-        let grossTachyon = currentTachyonMultiplier;
-        if (category === 'dust' && typeof getExtraDust === 'function') {
-          grossDust = getExtraDust(character, {
-            ...simAccount,
-            compass: { ...simAccount.compass, upgrades: leastBadCandidate.tempUpgrades }
-          }).value;
-        }
-        if (category === 'tachyons' && typeof getExtraTachyon === 'function') {
-          grossTachyon = getExtraTachyon(character, {
-            ...simAccount,
-            tesseract: { ...simAccount.tesseract, upgrades: leastBadCandidate.tempUpgrades }
-          }).value;
-        }
+        const grossResourceMultiplier = getResourceMultiplier(simAccount, leastBadCandidate.tempUpgrades);
         const grossTotal = categoryInfo.stats.reduce((sum: number, stat: any) => {
           let currentValue;
           let grossValue;
-          if (category === 'dust' && stat === 'dust') {
-            currentValue = currentDustMultiplier;
-            grossValue = grossDust;
-          }
-          else if (category === 'tachyons' && stat === 'tachyons') {
-            currentValue = currentTachyonMultiplier;
-            grossValue = grossTachyon;
+          if (stat === category && grossResourceMultiplier !== null) {
+            currentValue = currentResourceMultiplier;
+            grossValue = grossResourceMultiplier;
           }
           else {
             currentValue = currentStats[stat] || 0;

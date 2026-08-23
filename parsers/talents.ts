@@ -1,4 +1,5 @@
 import { growth } from '@utility/helpers';
+import { isTalentBannedForAllLevels } from '@utility/talentBans';
 import { classes, classFamilyBonuses, talents } from '@website-data';
 import { getAchievementStatus } from './achievements';
 import { getHighestLevelOfClass, isCompanionBonusActive } from './misc';
@@ -127,17 +128,10 @@ export const getActiveBuffs = (activeBuffs: any, talents: any) => {
   return activeBuffs?.map(([talentId]: any) => talents?.find(({ talentId: tId }: any) => talentId === tId))?.filter((talent: any) => talent);
 }
 
-// TalentBannedforAllLV: 49 <= t <= 59 || t == 149 || t == 374 || t == 539 || t == 505 || t > 614.
-// AllTalentLVz returns 0 for these ids, and getbonus2 hands it the talent's LEVEL where a talent id
-// belongs, so a talent whose base level lands here gets no added levels at all. Note the last clause
-// is unbounded, not a range — every base level past 614 is excluded.
-const isAllTalentLevelBanned = (level: number) => {
-  return (level >= 49 && level <= 59) || level === 149 || level === 374
-    || level === 505 || level === 539 || level > 614;
-};
-
 export const getAllTalentAddedLevels = (baseLevel: number, activeCharacter: any) => {
-  if (isAllTalentLevelBanned(baseLevel)) return 0;
+  // AllTalentLVz returns 0 for banned ids, and getbonus2 hands it the talent's LEVEL where a talent
+  // id belongs, so a talent whose base level lands on a banned id gets no added levels at all.
+  if (isTalentBannedForAllLevels(baseLevel)) return 0;
   const addedLevels = activeCharacter?.addedLevels ?? 0;
   // Same level-as-id mix-up: the super talent list is searched for the base LEVEL, so a talent
   // sitting on a level that happens to be one of the active character's super talent ids collects
@@ -392,7 +386,7 @@ export const applyTalentAddedLevels = (talents: any, flatTalents: any, addedLeve
 
       return {
         ...talent,
-        level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex)
+        level: talent.level >= 1 && !isTalentBannedForAllLevels(talent?.skillIndex)
           ? Math.floor(talent.level + addedLevels + superTalentBonus)
           : talent.level,
         baseLevel: talent.level,
@@ -408,7 +402,7 @@ export const applyTalentAddedLevels = (talents: any, flatTalents: any, addedLeve
 
       return {
         ...talent,
-        level: talent.level >= 1 && !isTalentExcluded(talent?.skillIndex)
+        level: talent.level >= 1 && !isTalentBannedForAllLevels(talent?.skillIndex)
           ? Math.floor(talent.level + addedLevels + superTalentBonus)
           : talent.level,
         baseLevel: talent.level,
@@ -435,15 +429,6 @@ export const BOOK_INELIGIBLE_INDICES = [10, 11, 12, 23, 75, 79, 86, 87, 266, 267
 export const isBookEligibleTalent = (skillIndex: any) => {
   const index = Number(skillIndex);
   return index < BOOK_ELIGIBLE_MAX_INDEX && !BOOK_INELIGIBLE_INDICES.includes(index);
-}
-
-const isTalentExcluded = (skillIndex: any) => {
-  return 49 <= skillIndex && 59 >= skillIndex ||
-    149 === skillIndex ||
-    374 === skillIndex ||
-    539 === skillIndex ||
-    505 === skillIndex ||
-    614 < skillIndex;
 }
 
 export const getFamilyBonusValue = function (e: any, t: any, n: any, a: any) {

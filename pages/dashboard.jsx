@@ -14,6 +14,7 @@ import { migrateConfig } from '@utility/migrations';
 import { IconSettingsFilled } from '@tabler/icons-react';
 import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
+import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 
 const baseTrackers = {
   version: 67,
@@ -568,7 +569,10 @@ const baseTrackers = {
             name: 'currencyUpgrades',
             type: 'array',
             category: 'Alert when you can afford these mine currency upgrades',
-            props: { value: { MineUpg5: true, MineUpg22: true, MineUpg28: true }, type: 'img' },
+            props: {
+              value: Object.fromEntries(MINE_CURRENCY_UPGRADE_INDICES.map((index) => [`MineUpg${index}`, true])),
+              type: 'img'
+            },
             checked: true
           }
         ]

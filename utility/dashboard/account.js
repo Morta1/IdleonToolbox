@@ -23,6 +23,7 @@ import { getIsland } from '@parsers/world-2/islands';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getResearchGridBonus } from '@parsers/world-7/research';
+import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 import { isHatRackEligible } from '@parsers/world-3/hatRack';
 import { getGoldCostToMaxLevel, getStampsPerDay } from '@parsers/world-1/stamps';
 import { getTomeWishPity } from '@parsers/world-4/tome';
@@ -1583,10 +1584,9 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       }
     }
     if (options?.minehead?.currencyUpgrades?.checked) {
-      // Indices of the three mine currency gain upgrades - canAfford already excludes maxed and
-      // research-locked upgrades.
+      // canAfford already excludes maxed and research-locked upgrades.
       const selected = options?.minehead?.currencyUpgrades?.props?.value;
-      const affordable = [5, 22, 28]
+      const affordable = MINE_CURRENCY_UPGRADE_INDICES
         .filter((index) => selected?.[`MineUpg${index}`])
         .map((index) => account?.minehead?.upgrades?.[index])
         .filter((upgrade) => upgrade?.canAfford);
