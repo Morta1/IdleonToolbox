@@ -2970,6 +2970,7 @@ declare module '@website-data' {
   export const mapDetails: ((number[])[])[];
   export const mapEnemies: Record<string, number>;
   export const mapEnemiesArray: string[];
+  export const mapMonsterCounts: Record<string, number>;
   export const mapNames: Record<string, string>;
   export const mapPortalDestinations: Record<string, any>;
   export const mapPortals: Record<string, any>;

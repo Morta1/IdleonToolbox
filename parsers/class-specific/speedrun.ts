@@ -1,5 +1,4 @@
-import { mapEnemiesArray, mapNames, mapPortalDestinations, mapPortals, monsters } from '@website-data';
-import { getFilteredPortals } from '@parsers/portals';
+import { mapEnemiesArray, mapMonsterCounts, mapNames, mapPortalDestinations, mapPortals, monsters } from '@website-data';
 import { getHighestTalentAcrossCharacters, getTalentBonus } from '@parsers/talents';
 import { getMaxDamage } from '@parsers/damage';
 import { getVialsBonusByStat } from '@parsers/world-2/alchemy';
@@ -146,13 +145,45 @@ const getPortalProgressPerKill = (account: Account, killPerKill: number) =>
  * buff hitting the whole screen. Deliberately unsorted - ordering these by cost would read as a
  * recommended route, and the real ordering depends on travel, unlocks and buff timing too.
  */
+// Maps the game never finished, matched on the name it ships them under. uAquaB9 and uAquaB10 are
+// the live example: both carry monsters and a kill requirement, but 322's forward exit
+// self-references instead of leading into them, so nothing reaches either - the wiki lists 322's
+// destination as "??? (under construction)", and characters that cleared 322's 500m kills and
+// finished the Pirate branch past them still sit at exactly the base requirement on both. Keyed on
+// the name so they return on their own once the game names them.
+const PLACEHOLDER_MAP_NAMES = /^(fillername|Unused|Filler|JungleZ|Tutorial[A-Z]|Z|Nothing|test.*)$/i;
+
+/**
+ * The maps a run can score a portal on.
+ *
+ * Two gates, and both are needed.
+ *
+ * The AFK target has to be a monster. The portal handler only counts an unlock while ExpType is 0,
+ * and ExpType is a scene value: N.js sets _DefaultExpType to 1 on the six mining maps and 4 on the
+ * four fishing maps, 0 everywhere else. On those ten the game answers
+ * ONLY_KILL_RELATED_MAP_UNLOCKS_COUNT instead of scoring the portal, so they stay out however many
+ * monsters they field.
+ *
+ * The map also has to field monsters. mapMonsterCounts is MonstersOnScreen, seeded from
+ * MapDetails[map][1][0]; at zero there is nothing to kill and the requirement can never be met.
+ * That is what takes out the boss arenas and the colosseums, without naming any of them.
+ *
+ * Towns need no gate - the portal handler itself skips CurrentMap % 50 == 0.
+ */
+const getSpeedrunMaps = () => Object.entries(mapNames as any)
+  .filter(([mapIndex, mapName]: any) => Number(mapIndex) % 50 !== 0
+    && ((monsters as any)?.[(mapEnemiesArray as any)?.[mapIndex]]?.AFKtype) === 'FIGHTING'
+    && ((mapMonsterCounts as any)?.[mapIndex] ?? 0) > 0
+    && !PLACEHOLDER_MAP_NAMES.test(mapName))
+  .map(([mapIndex, mapName]: any) => ({ mapIndex, mapName }));
+
 export const getSpeedrunRoute = (account: Account, characters: Character[], character: Character): SpeedrunRouteEntry[] => {
   if (!character) return [];
 
   // One cache per route: every per-map damage parse below differs only in mapIndex/targetMonster,
   // so getMaxDamage computes its map-invariant stats once and reuses them across all ~200 maps.
   const sharedDamageCache = {};
-  const entries = getFilteredPortals()?.reduce((result: SpeedrunRouteEntry[], { mapIndex, mapName }: any) => {
+  const entries = getSpeedrunMaps()?.reduce((result: SpeedrunRouteEntry[], { mapIndex, mapName }: any) => {
     const index = Number(mapIndex);
     const monsterRawName = (mapEnemiesArray as any)?.[index];
     const monster = (monsters as any)?.[monsterRawName];
@@ -174,14 +205,25 @@ export const getSpeedrunRoute = (account: Account, characters: Character[], char
     // couple of maps whose exits the game never lists, so an unresolved index means no name.
     const destinations = (mapPortalDestinations as any)?.[mapIndex];
 
-    reqs.forEach((req: any, portalIndex: number) => {
-      const reqKills = Number(req) || 0;
-      const destinationMapIndex = destinations?.[portalIndex];
+    // A zero requirement never scores. The portal actor's update only fires while its cached
+    // _KillsLeft is still above zero and the live counter has just reached it, so it runs once, on
+    // the killing blow that opens the portal. A portal whose base requirement is already zero when
+    // the map loads never enters that branch, and the run resets every counter to its base value.
+    // MapDetails also pads portal-less maps with a lone 0, so both cases fall out of one rule.
+    const doors = reqs
+      .map((req: any, portalIndex: number) => ({
+        portalIndex,
+        reqKills: Number(req) || 0,
+        destinationMapIndex: destinations?.[portalIndex]
+      }))
+      .filter(({ reqKills }: any) => reqKills > 0);
+
+    doors.forEach(({ portalIndex, reqKills, destinationMapIndex }: any) => {
       result.push({
         mapIndex: index,
         mapName,
         portalIndex,
-        portalCount: reqs.length,
+        portalCount: doors.length,
         destinationName: destinationMapIndex >= 0 ? (mapNames as any)?.[destinationMapIndex] ?? '' : '',
         reqKills,
         monster,
@@ -196,7 +238,7 @@ export const getSpeedrunRoute = (account: Account, characters: Character[], char
     return result;
   }, []) ?? [];
 
-  // getFilteredPortals walks mapNames, whose keys are numeric and so already ascend by map index.
+  // getSpeedrunMaps walks mapNames, whose keys are numeric and so already ascend by map index.
   return entries;
 }
 
@@ -209,7 +251,9 @@ const BOSS_ARENAS = [
   { mapIndex: 114, name: 'Chizoar' },
   { mapIndex: 165, name: 'Troll' },
   { mapIndex: 214, name: 'Kattlekruk' },
-  { mapIndex: 266, name: 'Emperor' }
+  // Boss5Death loops over BossInfo[4][0], not BossInfo[5][0] - the Emperor pays out on whatever
+  // difficulty Kattlekruk is set to. Every other boss reads its own. Replicated on purpose.
+  { mapIndex: 266, name: 'Emperor', payoutIndex: 4 }
 ];
 
 const BOSS_DIFFICULTIES = ['Normal', 'Chaotic', 'Nightmare'];
@@ -221,6 +265,8 @@ export interface SpeedrunBoss {
   difficulty: number;
   difficultyName: string;
   portals: number;
+  // Set only where the game pays out on another boss' difficulty, so the UI can say whose.
+  payoutBossName?: string;
 }
 
 /**
@@ -229,18 +275,24 @@ export interface SpeedrunBoss {
  * The game grants round(BossInfo[n][0] + 1) of them - so Normal 1, Chaotic 2, Nightmare 3 - once
  * per boss per run, and only when BOSSING_VAIN is learned (it checks GetTalentNumber(2, 47) > 0).
  * Killing a boss also speeds mob respawn for the rest of the run.
+ *
+ * The Emperor is the exception: its handler reads Kattlekruk's difficulty, so its payout follows
+ * that one. See BOSS_ARENAS.
  */
 export const getSpeedrunBosses = (idleonData: IdleonData): SpeedrunBoss[] => {
   const bossInfo = (idleonData as any)?.BossInfo;
-  return BOSS_ARENAS.map(({ mapIndex, name }, index) => {
-    const difficulty = Math.max(0, Math.round(Number(bossInfo?.[index]?.[0]) || 0));
+  return BOSS_ARENAS.map(({ mapIndex, name, payoutIndex }: any, index) => {
+    const difficultyAt = (at: number) => Math.max(0, Math.round(Number(bossInfo?.[at]?.[0]) || 0));
+    const difficulty = difficultyAt(index);
+    const payoutDifficulty = payoutIndex === undefined ? difficulty : difficultyAt(payoutIndex);
     return {
       mapIndex,
       name,
       world: Math.floor(mapIndex / 50) + 1,
+      ...(payoutIndex === undefined ? {} : { payoutBossName: BOSS_ARENAS[payoutIndex].name }),
       difficulty,
       difficultyName: BOSS_DIFFICULTIES[difficulty] ?? BOSS_DIFFICULTIES[0],
-      portals: difficulty + 1
+      portals: payoutDifficulty + 1
     };
   });
 }

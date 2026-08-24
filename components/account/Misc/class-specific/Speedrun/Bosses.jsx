@@ -11,12 +11,15 @@ const Bosses = ({ bosses, bossPortals }) => <Card sx={{ mb: 3 }}>
     </Typography>
     <Divider sx={{ mb: 1.5 }}/>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-      {bosses.map(({ mapIndex, name, world, difficultyName, portals }) => <Stack
+      {bosses.map(({ mapIndex, name, world, difficultyName, portals, payoutBossName }) => <Stack
         key={mapIndex} sx={{ px: 1.5, py: 0.5, borderRadius: 1, bgcolor: 'background.default' }}>
         <Typography variant={'body2'}>{name}</Typography>
         <Typography variant={'caption'} color={'text.secondary'}>
           W{world} &middot; {difficultyName} &middot; {bossPortals > 0 ? `+${portals}` : '+0'} portals
         </Typography>
+        {payoutBossName ? <Typography variant={'caption'} color={'text.secondary'}>
+          Pays out on {payoutBossName}&apos;s difficulty (game bug)
+        </Typography> : null}
       </Stack>)}
     </Stack>
   </CardContent>
