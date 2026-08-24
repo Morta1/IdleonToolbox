@@ -12,6 +12,7 @@ import {
 } from '@parsers/class-specific/speedrun';
 import { getVialsBonusByStat } from '@parsers/world-2/alchemy';
 import highend from '../fixtures/highend.json';
+import rankOne from '../fixtures/speedrun-rank1.json';
 
 let account;
 let characters;
@@ -120,17 +121,103 @@ describe('getSpeedrunRoute', () => {
 
   it('leaves the destination blank where the game lists no exit for the portal', () => {
     const route = getSpeedrunRoute(account, characters, character);
-    // Slamabam Straightaway has two portals but only one exit listed in SceneTransitions.
-    const slamabam = route.filter(({ mapIndex }) => mapIndex === 60).sort((a, b) => a.portalIndex - b.portalIndex);
-    expect(slamabam).toHaveLength(2);
+    // Crystal Basecamp's portal leads to a boss arena, which the world map never lists as a
+    // destination, so SceneTransitions holds nothing but the way back.
+    const basecamp = route.filter(({ mapIndex }) => mapIndex === 113);
+    expect(basecamp).toHaveLength(1);
+    expect(basecamp[0].reqKills).toBeGreaterThan(0);
+    expect(basecamp[0].destinationName).toBe('');
+  });
+
+  it('drops every portal that costs no kills', () => {
+    const route = getSpeedrunRoute(account, characters, character);
+    expect(route.every(({ reqKills }) => reqKills > 0)).toBe(true);
+
+    // Where the Branches End, Mummy Memorial, Hell Hath Frozen Over and Equinox Valley are dead
+    // ends: MapDetails pads them with a lone 0 and SceneTransitions lists only the way back.
+    [31, 69, 117, 120].forEach((mapIndex) => {
+      expect(route.filter((portal) => portal.mapIndex === mapIndex)).toHaveLength(0);
+    });
+    // Slamabam Straightaway keeps its real portal and loses the padded second one.
+    const slamabam = route.filter(({ mapIndex }) => mapIndex === 60);
+    expect(slamabam).toHaveLength(1);
+    expect(slamabam[0].portalCount).toBe(1);
     expect(slamabam[0].destinationName).toBe('The_Ring');
-    expect(slamabam[1].destinationName).toBe('');
+    // The Office's door is real, but it opens for free, so the run can never score it.
+    expect(route.filter(({ mapIndex }) => mapIndex === 9)).toHaveLength(0);
+  });
+
+  it('drops the mining and fishing maps, where a portal unlock does not score', () => {
+    const route = getSpeedrunRoute(account, characters, character);
+    // These ten field monsters and carry real requirements, but N.js gives them a non-zero
+    // _DefaultExpType (1 mining, 4 fishing) and the handler only scores while ExpType is 0, so the
+    // game answers ONLY_KILL_RELATED_MAP_UNLOCKS_COUNT instead of counting the portal.
+    [6, 7, 10, 11, 12, 32, 54, 55, 61, 72].forEach((mapIndex) => {
+      expect(route.filter((portal) => portal.mapIndex === mapIndex)).toHaveLength(0);
+    });
+    // Poopy Sewers sits next to them in world 1 and is a normal fighting map, so it stays.
+    expect(route.filter(({ mapIndex }) => mapIndex === 8)).toHaveLength(1);
+  });
+
+  it('drops the arenas and colosseums, which spawn nothing', () => {
+    const route = getSpeedrunRoute(account, characters, character);
+    // No name list needed - a zero monster count takes them out on its own.
+    [29, 66, 114, 115, 164, 165, 214, 266].forEach((mapIndex) => {
+      expect(route.filter((portal) => portal.mapIndex === mapIndex)).toHaveLength(0);
+    });
+  });
+
+  it('drops the maps the game never gave a name', () => {
+    const route = getSpeedrunRoute(account, characters, character);
+    // uAquaB9 / uAquaB10. Nothing leads into them - 322's forward exit points back at itself - and
+    // saves that cleared 322 and the Pirate branch past them still sit at the base requirement.
+    expect(route.filter(({ mapName }) => mapName === 'fillername')).toHaveLength(0);
+    [323, 324].forEach((mapIndex) => {
+      expect(route.filter((portal) => portal.mapIndex === mapIndex)).toHaveLength(0);
+    });
   });
 
   it('reports a single portal count for maps with one portal', () => {
     const route = getSpeedrunRoute(account, characters, character);
     const single = route.find(({ mapIndex }) => mapIndex === 1);
     expect(single.portalCount).toBe(1);
+  });
+});
+
+// An anonymised copy of the rank 1 speedrun account: highscore 118, every boss on Nightmare except
+// the Emperor. It is the one save that pins the Emperor payout, since its difficulty differs from
+// Kattlekruk's, and the only real-world check on the size of the portal catalog.
+describe('the rank 1 speedrun account', () => {
+  let rankOneAccount;
+  let rankOneCharacters;
+
+  beforeAll(() => {
+    const parsed = parseData(rankOne.data, rankOne.charNames, rankOne.companion, rankOne.guildData,
+      rankOne.serverVars);
+    rankOneAccount = parsed.account;
+    rankOneCharacters = parsed.characters;
+  });
+
+  it('reads the recorded highscore', () => {
+    const stats = getSpeedrunStats(rankOneAccount, rankOneCharacters, rankOneCharacters[0]);
+    expect(stats.highscore).toBe(118);
+  });
+
+  it('pays the Emperor 3 off Kattlekruk despite the Emperor sitting on Normal', () => {
+    const bosses = getSpeedrunBosses(rankOne.data);
+    expect(bosses.map(({ difficultyName }) => difficultyName))
+      .toEqual(['Nightmare', 'Nightmare', 'Nightmare', 'Nightmare', 'Nightmare', 'Normal']);
+    // Emperor reads BossInfo[4], so it pays like Kattlekruk rather than like itself.
+    expect(bosses.map(({ portals }) => portals)).toEqual([3, 3, 3, 3, 3, 3]);
+    expect(bosses.reduce((sum, { portals }) => sum + portals, 0)).toBe(18);
+  });
+
+  it('leaves the recorded score inside what the catalog allows', () => {
+    const route = getSpeedrunRoute(rankOneAccount, rankOneCharacters, rankOneCharacters[0]);
+    const bossPortals = getSpeedrunBosses(rankOne.data).reduce((sum, { portals }) => sum + portals, 0);
+    // 118 has to fit: a run cannot score a portal that is not in the catalog. A regression that
+    // over-trims the route shows up here as the recorded score exceeding what is reachable.
+    expect(route.length + bossPortals).toBeGreaterThanOrEqual(118);
   });
 });
 
@@ -145,9 +232,29 @@ describe('getSpeedrunBosses', () => {
   it('grants difficulty plus one portal per boss', () => {
     // BossInfo[n] is [difficulty, hp, defence]: Normal 0, Chaotic 1, Nightmare 2.
     const bosses = getSpeedrunBosses({ BossInfo: [[0], [1], [2], [1], [0], [2]] });
-    expect(bosses.map(({ portals }) => portals)).toEqual([1, 2, 3, 2, 1, 3]);
+    expect(bosses.slice(0, 5).map(({ portals }) => portals)).toEqual([1, 2, 3, 2, 1]);
     expect(bosses.map(({ difficultyName }) => difficultyName))
       .toEqual(['Normal', 'Chaotic', 'Nightmare', 'Chaotic', 'Normal', 'Nightmare']);
+  });
+
+  it("pays the Emperor out on Kattlekruk's difficulty, the way the game does", () => {
+    // Boss5Death loops over BossInfo[4][0] instead of BossInfo[5][0].
+    const emperorOf = (kattlekruk, emperor) =>
+      getSpeedrunBosses({ BossInfo: [[0], [0], [0], [0], [kattlekruk], [emperor]] })[5];
+
+    // Emperor on Nightmare still only pays 1 while Kattlekruk sits on Normal.
+    expect(emperorOf(0, 2).portals).toBe(1);
+    expect(emperorOf(0, 2).difficultyName).toBe('Nightmare');
+    // And an Emperor on Normal pays 3 once Kattlekruk is on Nightmare.
+    expect(emperorOf(2, 0).portals).toBe(3);
+    expect(emperorOf(2, 0).difficultyName).toBe('Normal');
+    expect(emperorOf(2, 0).payoutBossName).toBe('Kattlekruk');
+  });
+
+  it('leaves every other boss paying out on its own difficulty', () => {
+    const bosses = getSpeedrunBosses({ BossInfo: [[2], [2], [2], [2], [2], [2]] });
+    expect(bosses.slice(0, 5).every(({ payoutBossName }) => payoutBossName === undefined)).toBe(true);
+    expect(bosses.map(({ portals }) => portals)).toEqual([3, 3, 3, 3, 3, 3]);
   });
 });
 

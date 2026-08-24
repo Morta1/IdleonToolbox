@@ -12,7 +12,7 @@ const PortalRow = ({ portal, showDoor }) => {
     {showDoor ? <Typography variant={'caption'} color={'text.secondary'}>
       {destinationName ? `Door to ${cleanUnderscore(destinationName)}` : `Portal ${portalIndex + 1}`}
     </Typography> : null}
-    <TitleAndValue title={'Kills needed'} value={reqKills === 0 ? 'Free' : numberWithCommas(reqKills)}/>
+    <TitleAndValue title={'Kills needed'} value={numberWithCommas(reqKills)}/>
     <TitleAndValue title={'Clear time'} value={reachable ? secondsToShortDuration(secondsToClear) : 'Can\'t hit this monster'}/>
     {reachable ? <TitleAndValue title={'With Void Radius'} value={secondsToShortDuration(buffedSecondsToClear)}/> : null}
   </Stack>;
@@ -40,7 +40,6 @@ const MapCard = ({ mapName, monster, effectiveKillsPerSecond, reachable, portals
 </Card>;
 
 const Portals = ({ character, plan }) => {
-  const [FreeCheckboxEl, hideFreePortals] = useCheckbox('Hide free portals');
   const [BlockedCheckboxEl, hideUnclearable] = useCheckbox('Hide portals I can\'t hit');
   const [DetailedCheckboxEl, detailed] = useCheckbox('Detailed view');
 
@@ -48,9 +47,7 @@ const Portals = ({ character, plan }) => {
     return <Alert severity={'info'} variant={'outlined'}>Create a Voidwalker to see your portal costs.</Alert>;
   }
 
-  const visible = plan.portals
-    .filter(({ reqKills }) => !hideFreePortals || reqKills > 0)
-    .filter(({ reachable }) => !hideUnclearable || reachable);
+  const visible = plan.portals.filter(({ reachable }) => !hideUnclearable || reachable);
 
   // Grouped by world, maps in the game's own order. Any other ordering would read as a route, and
   // the real one turns on travel, unlocks and buff timing as much as on kill cost.
@@ -68,7 +65,6 @@ const Portals = ({ character, plan }) => {
 
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={2}>
-      <FreeCheckboxEl/>
       <BlockedCheckboxEl/>
       <DetailedCheckboxEl/>
     </Stack>

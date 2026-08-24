@@ -94,6 +94,7 @@ export const {
   mapDetails,
   mapEnemies,
   mapEnemiesArray,
+  mapMonsterCounts,
   mapNames,
   mapPortalDestinations,
   mapPortals,
