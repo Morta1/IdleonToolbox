@@ -1716,6 +1716,26 @@ const migration67 = (config) => {
   return dashboardConfig;
 };
 
+const migration68 = (config) => {
+  const dashboardConfig = { ...config };
+
+  const charTrackers = dashboardConfig?.characters;
+  // Bags lands right after Equipment, matching baseTrackers.
+  if (charTrackers && !charTrackers.bags) {
+    dashboardConfig.characters = insertKeyNear(charTrackers, 'equipment', 'bags', {
+      checked: true,
+      options: [{
+        name: 'unmaxedBags',
+        checked: true,
+        helperText: 'Alert when a carry capacity bag isn\'t at its max tier'
+      }]
+    });
+  }
+
+  dashboardConfig.version = 68;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) - baseTrackers is only used by some.
 const migrations = {
@@ -1785,6 +1805,7 @@ const migrations = {
   65: migration65,
   66: migration66,
   67: migration67,
+  68: migration68,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

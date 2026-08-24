@@ -7,6 +7,7 @@ import HtmlTooltip from '../Tooltip';
 import {
   alchemyAlerts,
   anvilAlerts,
+  bagsAlerts,
   cardsAlert,
   classSpecificAlerts,
   crystalCountdownAlerts,
@@ -59,6 +60,7 @@ const alertsMap = {
   cards: cardsAlert,
   divinityStyle: getDivinityAlert,
   equipment: getEquipmentAlert,
+  bags: bagsAlerts,
   classSpecific: classSpecificAlerts
 }
 
@@ -230,6 +232,9 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
               {trackers?.equipment && alerts?.equipment?.emptyGearSlots?.length > 0 ?
                 <Alert title={`${name} has empty equipment slots: ${alerts?.equipment?.emptyGearSlots?.join(', ')}`}
                        iconPath={'data/EquipmentTransparent1'}/> : null}
+              {trackers?.bags && alerts?.bags?.unmaxedBags?.length > 0 ?
+                <Alert title={<BagList name={name} bags={alerts?.bags?.unmaxedBags}/>}
+                       iconPath={'data/MaxCapBagM13'}/> : null}
               {trackers?.anvil && alerts?.anvil?.anvilOverdue?.length > 0 ?
                 alerts?.anvil?.anvilOverdue?.map(({ diff, name, rawName }) => {
                   const isFull = diff <= 0;
@@ -328,6 +333,21 @@ const TalentList = ({ name, verb, talents }) => {
       </Stack>
     ))}
     {rest > 0 ? <Typography variant={'caption'}>and {rest} more</Typography> : null}
+  </Stack>
+}
+
+const BAG_TYPE_NAMES = { bCraft: 'Materials', Foods: 'Food' };
+const BagList = ({ name, bags }) => {
+  return <Stack gap={.5}>
+    <Typography>{name} has {bags?.length} unmaxed carry bag{bags?.length === 1 ? '' : 's'}</Typography>
+    {bags?.map(({ bagType, capacity, maxCapacity, rawName }, index) => (
+      <Stack key={`${bagType}-${index}`} direction={'row'} alignItems={'center'} gap={1}>
+        <IconImg src={`${prefix}data/${rawName}.png`} alt="" style={{ width: 24, height: 24 }}/>
+        <Typography variant={'caption'}>
+          {BAG_TYPE_NAMES[bagType] || bagType}: {notateNumber(capacity)} -&gt; {notateNumber(maxCapacity)}
+        </Typography>
+      </Stack>
+    ))}
   </Stack>
 }
 

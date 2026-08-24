@@ -7,7 +7,9 @@ export const patchNotes = [
     'ver': '3.3.66',
     'gameVer': '2.3.523',
     'date': '24/08/2026',
-    'features': [],
+    'features': [
+      'Dashboard: a new character alert lists carry capacity bags that aren\'t at their max tier yet'
+    ],
     'fixes': [
       'The Jars: rupie value was missing the Cavernicus upgrade from Crystal Glunko Cove, so it read lower than in game'
     ]

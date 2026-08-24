@@ -17,7 +17,7 @@ import { getCrystalCountdownSkills } from '@parsers/talents';
 import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 
 const baseTrackers = {
-  version: 67,
+  version: 68,
   account: {
     General: {
       tasks: {
@@ -726,6 +726,14 @@ const baseTrackers = {
         checked: true,
         helperText: 'Alert when a gear slot is empty. Only the first equipment page is checked - tools, food and the second page are ignored',
         props: { value: { weapon: true, armor: true, amulet: false, rings: false } }
+      }]
+    },
+    bags: {
+      checked: true,
+      options: [{
+        name: 'unmaxedBags',
+        checked: true,
+        helperText: 'Alert when a carry capacity bag isn\'t at its max tier'
       }]
     },
     classSpecific: {

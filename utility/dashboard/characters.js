@@ -1,6 +1,6 @@
 import { differenceInHours, differenceInMinutes, isPast } from 'date-fns';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
-import { items, randomList } from '@website-data';
+import { carryBags, items, randomList } from '@website-data';
 import { getExpReq, isArenaBonusActive, isCompanionBonusActive } from '../../parsers/misc';
 import { getPlayerAnvil, getTimeTillCap } from '@parsers/world-1/anvil';
 import {
@@ -316,6 +316,29 @@ export const getEquipmentAlert = (account, characters, character, lastUpdated, o
         ? [...result, label]
         : result;
     }, []);
+  }
+  return alerts;
+};
+// MaxCarryCap also holds Quests/fillerz/Statues pseudo-bags that have no upgrade path.
+const NON_UPGRADABLE_CARRY_BAGS = ['Quests', 'fillerz', 'Statues'];
+export const bagsAlerts = (account, characters, character, lastUpdated, options) => {
+  const alerts = {};
+  if (options?.bags?.unmaxedBags?.checked) {
+    alerts.unmaxedBags = Object.entries(character?.maxCarryCap || {})
+      .filter(([bagType]) => !NON_UPGRADABLE_CARRY_BAGS.includes(bagType) && carryBags?.[bagType])
+      .map(([bagType, capacity]) => {
+        const tiers = Object.keys(carryBags?.[bagType]).map(Number).sort((a, b) => a - b);
+        const maxCapacity = tiers[tiers.length - 1];
+        if (capacity >= maxCapacity) return null;
+        const currentBag = carryBags?.[bagType]?.[capacity];
+        return {
+          bagType,
+          capacity,
+          maxCapacity,
+          rawName: currentBag?.rawName ?? carryBags?.[bagType]?.[maxCapacity]?.rawName
+        };
+      })
+      .filter(Boolean);
   }
   return alerts;
 };
