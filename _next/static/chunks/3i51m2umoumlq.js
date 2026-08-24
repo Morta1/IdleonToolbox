@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/account/task-board/unlocks", [
+  "static/chunks/05h9ydv70ttvw.js",
+  "static/chunks/13p5nn0-ly8-v.js",
+  "static/chunks/3crj7nj7bef6f.js",
+  "static/chunks/1ir4i_xr1vm25.js",
+  "static/chunks/3-lfny1a0_b2g.js",
+  "static/chunks/0r28klnec03dk.js",
+  "static/chunks/146jzvwv62ois.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/32f9cc7hm60y0.js",
+  "static/chunks/3f5b33wfthn-e.js",
+  "static/chunks/25-a7g7qcm77u.js",
+  "static/chunks/056e357_jziyk.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/1x8kjsqz_rkiv.js",
+  "static/chunks/00us_vp85tfa3.js",
+  "static/chunks/3o8ex59_d34n_.js",
+  "static/chunks/turbopack-1v_ixeubq1i8n.js"
+])
