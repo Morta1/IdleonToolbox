@@ -11,6 +11,7 @@ import useFormatDate from '@hooks/useFormatDate';
 
 import ListItemButton from '@mui/material/ListItemButton';
 import { PAGES } from '@components/constants';
+import { sessionQuery } from '@utility/nav-query';
 
 const nestedOptionPadding = 35;
 
@@ -20,8 +21,7 @@ const AccountDrawer = ({ fromList }) => {
   const [accordions, setAccordions] = useState({});
   const router = useRouter();
 
-  // Tab params belong to the page being left, not the one being opened.
-  const { t, nt, dnt, ...updatedQuery } = router.query;
+  const updatedQuery = sessionQuery(router.query);
 
   const buildUrl = (section, label) => section
     ? `/account/${section.split(' ').join('-')}/${label}`

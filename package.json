@@ -65,7 +65,8 @@
     "react-process-string": "^1.2.0",
     "react-syntax-highlighter": "^16.1.1",
     "react-transition-group": "^4.4.5",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "web-vitals": "4.2.4"
   },
   "overrides": {
     "postcss": "^8.5.23",

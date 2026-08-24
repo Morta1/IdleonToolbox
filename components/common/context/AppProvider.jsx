@@ -297,7 +297,11 @@ const AppProvider = ({ children }) => {
       } catch (err) {
         console.error('Failed to load data from profile api', err);
         trackEvent('import_failed', { import_source: 'profile', error_message: errorMessage(err) });
-        router.push({ pathname: '/404', query: { reason: 'profile', name: router?.query?.profile } });
+        // Masked with a bare `as`: the 404 still reads reason/name off router.query (Next derives
+        // it from the href, not from `as`), but the address bar stays /404. Spelling them into the
+        // URL put them in router.query for every link built afterwards, which is how Search Console
+        // ended up with hundreds of /leaderboards?reason=profile&name=... duplicates.
+        router.push({ pathname: '/404', query: { reason: 'profile', name: router?.query?.profile } }, '/404');
         dispatch({
           type: ACTION_TYPES.DATA,
           data: {
