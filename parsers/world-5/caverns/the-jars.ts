@@ -7,6 +7,7 @@ import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 
 
 const jarNames = [
@@ -156,6 +157,7 @@ const getRupieValue = ({ holesObject, accountData }: any) => {
     + getJarBonus({ holesObject, i: 21, account: accountData })
     + getJarBonus({ holesObject, i: 33, account: accountData })) / 100;
   const stampBonusMultiplier = 1 + stampBonus / 100;
+  const cavernicusBonus = 1 + getCglunkoBonus(accountData, 14) / 100;
 
   const value = (1 + schematicBonus1 + schematicBonus2 + schematicBonus3)
     * accountOptionBonus
@@ -168,7 +170,8 @@ const getRupieValue = ({ holesObject, accountData }: any) => {
     * jarBonus2
     * jarBonus3
     * jarBonus4
-    * stampBonusMultiplier;
+    * stampBonusMultiplier
+    * cavernicusBonus;
 
   const breakdown = {
     statName: "Rupie value",
@@ -191,6 +194,7 @@ const getRupieValue = ({ holesObject, accountData }: any) => {
           { name: "Gilded Jars", value: extraCalcBonus },
           { name: "Collectibles", value: jarBonus1 * jarBonus2 * jarBonus3 * jarBonus4 },
           { name: "Stamps", value: stampBonusMultiplier },
+          { name: "Crystal Glunko Cove", value: cavernicusBonus },
         ],
       },
     ],
