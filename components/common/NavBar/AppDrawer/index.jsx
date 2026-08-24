@@ -16,6 +16,7 @@ import CharactersDrawer from './CharactersDrawer';
 import ToolsDrawer from './ToolsDrawer';
 import { prefix, shouldDisplayDrawer } from '@utility/helpers';
 import useProfileBannerState from '@hooks/useProfileBannerState';
+import { sessionQuery } from '@utility/nav-query';
 
 const AppDrawer = ({ permanent }) => {
   const router = useRouter();
@@ -49,7 +50,7 @@ const AppDrawer = ({ permanent }) => {
       <MenuIcon/>
     </IconButton>
     {!permanent ? <Stack>
-      <Link to={{ pathname: '/', query: router.query }}
+      <Link to={{ pathname: '/', query: sessionQuery(router.query) }}
             underline="none" component={NextLinkComposed}
             sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1 }}
             color="inherit" noWrap variant={'h6'}

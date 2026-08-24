@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import { IconClipboard } from '@tabler/icons-react';
 import { copyForSupport, copyRawData, handleLoadJson, isProd } from '@utility/helpers';
 import { CLIPBOARD_ERROR_MESSAGE } from '@utility/clipboard';
+import { sessionQuery, sessionQueryWithoutProfile } from '@utility/nav-query';
 
 const UserMenu = () => {
   const { dispatch, state, logout } = useContext(AppContext);
@@ -22,7 +23,7 @@ const UserMenu = () => {
   const [copyResult, setCopyResult] = useState(null);
   const open = Boolean(anchorEl);
   const router = useRouter();
-  const { profile, ...queryParams } = router.query;
+  const queryParams = sessionQueryWithoutProfile(router.query);
 
   if (state?.signedIn !== prevSignedIn) {
     setPrevSignedIn(state?.signedIn);
@@ -116,7 +117,7 @@ const UserMenu = () => {
     >
       <Box sx={{ mb: 1 }}/>
       <MenuItem onClick={() => {
-        router.push({ pathname: '/settings', query: router.query });
+        router.push({ pathname: '/settings', query: sessionQuery(router.query) });
         handleClose();
       }}>
         <ListItemIcon><IconSettings/></ListItemIcon>

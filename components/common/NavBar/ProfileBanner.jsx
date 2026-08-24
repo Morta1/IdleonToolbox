@@ -8,6 +8,7 @@ import { AppContext } from '../context/AppProvider';
 import { navBarHeight, profileBannerHeight } from '../../constants';
 import useProfileBannerState from '@hooks/useProfileBannerState';
 import LoginDialog from './LoginDialog';
+import { sessionQueryWithoutProfile } from '@utility/nav-query';
 
 const bannerButtonSx = {
   ml: 1,
@@ -31,7 +32,7 @@ const ProfileBanner = () => {
   const { state, reparseOwnAccount } = useContext(AppContext);
   const router = useRouter();
   const profileName = router?.query?.profile;
-  const { profile: _profile, ...queryParams } = router.query;
+  const queryParams = sessionQueryWithoutProfile(router.query);
   const [loginOpen, setLoginOpen] = useState(false);
   const [, setSimulatedCompanions] = useLocalStorage({ key: simulatedCompanionsKey, defaultValue: [] });
   const { isProfileView, isSimulating, simulatedCompanions, isVisible } = useProfileBannerState();

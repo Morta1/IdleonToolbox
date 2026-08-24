@@ -10,12 +10,13 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import Kofi from '@components/common/Kofi';
 import ToolsDrawer from '@components/common/NavBar/AppDrawer/ToolsDrawer';
+import { sessionQuery } from '@utility/nav-query';
 
 
 const NavItemsList = ({ drawer }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
-  const { t, nt, dnt, ...updateQuery } = router?.query || {};
+  const updateQuery = sessionQuery(router?.query);
   const [openItems, setOpenItems] = useState({});
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('lg'), { noSsr: true });
   const toggleOpen = (key) => {

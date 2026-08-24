@@ -22,6 +22,7 @@ import { useRouter } from 'next/router';
 import { PAGES } from '@components/constants';
 import { prefix } from '@utility/helpers';
 import { trackEvent } from '@utility/analytics';
+import { sessionQuery } from '@utility/nav-query';
 
 const QuickSearch = () => {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -32,7 +33,7 @@ const QuickSearch = () => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('lg'), { noSsr: true });
   const breakpoint = useMediaQuery('(max-width: 1365px)', { noSsr: true });
   const router = useRouter();
-  const { t, nt, dnt, ...updateQuery } = router?.query || {};
+  const updateQuery = sessionQuery(router?.query);
 
   // Format label to add spaces between words
   const formatLabel = (str) => {

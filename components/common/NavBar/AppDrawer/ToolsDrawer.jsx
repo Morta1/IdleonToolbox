@@ -7,15 +7,14 @@ import Kofi from '../../Kofi';
 import ListItemButton from '@mui/material/ListItemButton';
 import { PAGES } from '@components/constants';
 import { prefix } from '@utility/helpers';
+import { sessionQuery } from '@utility/nav-query';
 
 export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true, itemPlanner: true };
 
 const ToolsDrawer = ({ fromList }) => {
   const router = useRouter();
 
-  // Tab params belong to the page being left, not the one being opened. Everything else (demo,
-  // profile, ...) has to survive the hop or the target page loses the session it was viewing.
-  const { t, nt, dnt, ...updatedQuery } = router.query;
+  const updatedQuery = sessionQuery(router.query);
 
   // Navigation itself is handled by next/link so the target page's chunk gets prefetched while
   // the item is on screen — clicking then costs ~100ms instead of a multi-second chunk download.

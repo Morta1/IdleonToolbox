@@ -27,6 +27,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PAGE_SEO } from '../data/page-seo';
 import { resolveSeoHead } from '../utility/seo-head.mjs';
 import { trackPageView } from '../utility/analytics';
+import { reportWebVitals } from '../utility/web-vitals';
 
 const clientSideEmotionCache = createEmotionCache();
 const queryClient = new QueryClient({
@@ -75,6 +76,12 @@ const MyApp = (props) => {
     // asPath is deliberately absent: the listener covers every later navigation.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.events]);
+
+  // Once per page load, not per route change: LCP, CLS and TTFB all describe the initial navigation,
+  // which is also what CrUX reports to Search Console. reportWebVitals is idempotent either way.
+  useEffect(() => {
+    reportWebVitals();
+  }, []);
 
   return (
     <>
@@ -165,26 +172,10 @@ const MyApp = (props) => {
           })
         }}
       />
-      <script
-        id="schema-website"
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'WebSite',
-            'name': 'Idleon Toolbox',
-            'url': 'https://idleontoolbox.com',
-            'potentialAction': {
-              '@type': 'SearchAction',
-              'target': {
-                '@type': 'EntryPoint',
-                'urlTemplate': 'https://idleontoolbox.com/tools/item-database?q={search_term_string}'
-              },
-              'query-input': 'required name=search_term_string'
-            }
-          })
-        }}
-      />
+      {/* No WebSite/SearchAction block here on purpose. Google retired the sitelinks search box in
+          2024, so the SearchAction bought nothing - and its urlTemplate was the only reason
+          Googlebot ever fetched /tools/item-database?q=%7Bsearch_term_string%7D, which it then
+          reported as a crawled-not-indexed URL. */}
       <QueryClientProvider client={queryClient}>
       <CacheProvider value={emotionCache}>
         <ThemeProvider theme={darkTheme}>
