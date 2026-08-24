@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.66',
+    'gameVer': '2.3.523',
+    'date': '24/08/2026',
+    'features': [],
+    'fixes': [
+      'The Jars: rupie value was missing the Cavernicus upgrade from Crystal Glunko Cove, so it read lower than in game'
+    ]
+  },
+  {
     'ver': '3.3.65',
     'gameVer': '2.3.523',
     'date': '23/08/2026',
