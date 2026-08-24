@@ -326,7 +326,12 @@ export const getActiveBubbleBonus = (equippedBubbles: any, bubbleName: any, acco
   }
   const bubble = equippedBubbles?.find(({ bubbleName: bName }: any) => bubbleName === bName);
   if (!bubble && !hasCompanionBonus) return 0;
-  return growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, false) ?? 0;
+  // The DNSM writer prices every bubble through CauldronStats("BubbleBonus"), which multiplies
+  // Math.max(1, PrismaBonusMult) into prisma'd bubbles - equipped ACTIVE bubbles included.
+  const prismaMultiplier = isPrismaBubble(account, bubble?.bubbleIndex)
+    ? Math.max(1, getPrismaMulti(account)?.value ?? 1)
+    : 1;
+  return prismaMultiplier * (growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, false) ?? 0);
 };
 
 export const getBubbleBonus = (account: any, bubbleName: any, shouldRound?: any, shouldMultiply?: any) => {
