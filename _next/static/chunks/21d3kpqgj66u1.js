@@ -17,6 +17,6 @@ __turbopack_load_page_chunks__("/account/world-2/bubbles", [
   "static/chunks/3f5b33wfthn-e.js",
   "static/chunks/1z-z110uc8xtv.js",
   "static/chunks/32e-4ukcz80-b.js",
-  "static/chunks/0uqelqcwek_ck.js",
-  "static/chunks/turbopack-23qmtjee1m8xq.js"
+  "static/chunks/0t1xhtb0o424h.js",
+  "static/chunks/turbopack-3cdl3lq-6r2qp.js"
 ])
