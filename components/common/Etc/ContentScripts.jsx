@@ -24,19 +24,21 @@ export default function ConsentScripts() {
             ad_storage: 'granted',
             analytics_storage: 'granted',
             ad_user_data: 'granted',
-            ad_personalisation: 'granted'
+            ad_personalization: 'granted'
           });
         ` : `
           gtag('consent', 'default', {
             ad_storage: 'denied',
             analytics_storage: 'denied',
             ad_user_data: 'denied',
-            ad_personalisation: 'denied'
+            ad_personalization: 'denied'
           });
         `}
         {`
           gtag('js', new Date());
-          gtag('config', 'G-YER8JY07QK');
+          // send_page_view is off because this is a client-routed app: page_view is sent from
+          // _app once the new title is on the document. See utility/analytics.js.
+          gtag('config', 'G-YER8JY07QK', { send_page_view: false });
         `}
       </Script>
       {/* Ad Scripts */}

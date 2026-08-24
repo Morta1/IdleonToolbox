@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { CacheProvider, ThemeProvider as EmotionThemeProvider } from '@emotion/react';
 import { CssBaseline, ThemeProvider } from '@mui/material';
@@ -26,6 +26,7 @@ import ErrorBoundary from '@components/common/ErrorBoundary';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PAGE_SEO } from '../data/page-seo';
 import { resolveSeoHead } from '../utility/seo-head.mjs';
+import { trackPageView } from '../utility/analytics';
 
 const clientSideEmotionCache = createEmotionCache();
 const queryClient = new QueryClient({
@@ -53,7 +54,8 @@ const preConnections = [
 const MyApp = (props) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
   const [openPolicy, setOpenPolicy] = useState(false);
-  const { asPath, pathname } = useRouter();
+  const router = useRouter();
+  const { asPath, pathname } = router;
   // Pages generated from a dynamic route share one PAGE_SEO entry, so they carry their own
   // noindex through static props - a class page with no builds yet must stay out of the index.
   const pageSeo = PAGE_SEO[pathname];
@@ -61,6 +63,18 @@ const MyApp = (props) => {
   const canonicalUrl = `https://idleontoolbox.com${asPath.split('?')[0].split('#')[0]}`;
   const isGdprRegion = useGdprRegion();
   const { title: staticTitle, description: staticDescription } = resolveSeoHead({ pageProps, pageSeo });
+
+  // GA's own history-change measurement reads document.title before next/head has swapped it, so
+  // every client-side navigation used to be reported under the previous page's title. Sending the
+  // hit here instead - including the first one, since send_page_view is off - keeps them aligned.
+  useEffect(() => {
+    trackPageView(router.asPath);
+    const handleRouteChange = (url) => trackPageView(url);
+    router.events.on('routeChangeComplete', handleRouteChange);
+    return () => router.events.off('routeChangeComplete', handleRouteChange);
+    // asPath is deliberately absent: the listener covers every later navigation.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.events]);
 
   return (
     <>

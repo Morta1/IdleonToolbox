@@ -3,6 +3,7 @@ import { drawerPages, simulatedCompanionsKey } from '@components/constants';
 import { readLocalStorageValue } from '@mantine/hooks';
 import merge from 'lodash.merge';
 import { copyText } from '@utility/clipboard';
+import { errorMessage, trackEvent } from '@utility/analytics';
 
 export const getTabs = (array, label, tabName, nestedTabName) => {
   const navItem = array.find((item) => item.label === label);
@@ -1029,6 +1030,7 @@ export const handleLoadJson = async (dispatch) => {
     }
   } catch (e) {
     console.error('Error while trying to manual import', e);
+    trackEvent('import_failed', { import_source: 'manual', error_message: errorMessage(e) });
   }
 }
 

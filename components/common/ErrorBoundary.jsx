@@ -1,5 +1,6 @@
 import React from 'react';
 import { Alert, AlertTitle, Box, Button, Stack, Typography } from '@mui/material';
+import { errorMessage, trackEvent } from '@utility/analytics';
 
 /**
  * Without a boundary anywhere in the tree, a single render error unmounts the entire React root -
@@ -16,6 +17,13 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, info) {
     console.error('[ErrorBoundary]', error, info?.componentStack);
+    // A parser that breaks on a game patch surfaces here for cloud and profile loads alike, since
+    // neither wraps its parse in a try/catch - without this the failure is only ever a console log
+    // on someone else's machine.
+    trackEvent('page_error', {
+      error_message: errorMessage(error),
+      page_path: typeof window !== 'undefined' ? window.location.pathname : ''
+    });
   }
 
   componentDidUpdate(prevProps) {
