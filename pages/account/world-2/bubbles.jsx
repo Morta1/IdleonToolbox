@@ -407,6 +407,7 @@ const Bubbles = () => {
                     };
                   }
                 }
+                const targetLevel = level + Math.ceil(thresholdObj?.thresholdMissingLevels ?? 0);
                 const isBeyondEffThreshold = func.toLowerCase().includes('decay') && (!bubbleMaxBonus || thresholdObj?.thresholdMissingLevels <= 0);
                 const isBeyondLevelThreshold = levelThreshold && level > levelThreshold;
                 const matchSearch = searchText ? findBubble(bubble) : true;
@@ -419,7 +420,7 @@ const Bubbles = () => {
                            sx={{
                              opacity: isHidden ? .2 : 1,
                              width: isSm ? 'inherit' : batchLayout ? 55 : showMissingLevels ? 150 : 100,
-                             height: showMissingLevels && batchLayout ? 110 : isSm || batchLayout ? showMissingLevels
+                             minHeight: showMissingLevels && batchLayout ? 110 : isSm || batchLayout ? showMissingLevels
                                ? 120
                                : 100 : 'inherit'
                            }}
@@ -455,18 +456,14 @@ const Bubbles = () => {
                           <Typography color={thresholdObj?.thresholdMissingLevels > 0 ? 'error.light' : ''}
                                       sx={{ mr: !batchLayout ? .5 : 0 }}
                                       variant={'caption'}>{commaNotation(level)}</Typography>
-                          {showMissingLevels && thresholdObj?.thresholdMissingLevels > 0 ? <>
-                            {batchLayout
-                              ? <Typography
-                                color={'error.light'}
-                                variant={'caption'}> / {level + Math.ceil(thresholdObj?.thresholdMissingLevels)}</Typography>
-                              : isSm
-                                ? <Typography component={'div'} color={'error.light'}
-                                              variant={'caption'}> / {level + Math.ceil(thresholdObj?.thresholdMissingLevels)}</Typography>
-                                : <Typography
-                                  color={'error.light'}
-                                  variant={'caption'}> / {level + Math.ceil(thresholdObj?.thresholdMissingLevels)}</Typography>}
-                          </> : null}
+                          {showMissingLevels && thresholdObj?.thresholdMissingLevels > 0
+                            ? <Typography component={!batchLayout && isSm ? 'div' : 'span'}
+                                          color={'error.light'}
+                                          variant={'caption'}
+                                          sx={{ whiteSpace: 'nowrap' }}> / {targetLevel >= 1e5
+                              ? notateNumber(targetLevel, 'Big')
+                              : commaNotation(targetLevel)}</Typography>
+                            : null}
                         </Stack>
                         {(bubbleMaxBonus) ? <Typography
                             fontSize={'0.70rem'}
