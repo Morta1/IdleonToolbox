@@ -32,6 +32,7 @@ import { intervalToDuration, isValid } from 'date-fns';
 import { uploadProfile } from '../services/profiles';
 import { expandLeaderboardInfo } from '../services/leaderboardInfo';
 import { copyForSupport, copyRawData, notateNumber, sortKeys } from '@utility/helpers';
+import { errorMessage } from '@utility/analytics';
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
 import useTimeout from '@hooks/useTimeout';
 import NormalTimer from '../components/common/Timer/Normal';
@@ -286,7 +287,8 @@ const Settings = () => {
           window.gtag('event', 'profile_uploaded', {
             event_category: 'engagement',
             event_label: 'failure',
-            value: 1
+            value: 1,
+            error_message: errorMessage(err)
           });
         }
       }

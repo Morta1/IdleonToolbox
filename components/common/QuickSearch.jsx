@@ -21,6 +21,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { PAGES } from '@components/constants';
 import { prefix } from '@utility/helpers';
+import { trackEvent } from '@utility/analytics';
 
 const QuickSearch = () => {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -149,8 +150,19 @@ const QuickSearch = () => {
     )
     : [];
 
+  // One event per search rather than one per keystroke: GA would otherwise record 'c', 'co' and
+  // 'con' as three terms and bury the one the user actually meant. Both ways out of the dialog
+  // report - the abandoned search is the interesting half, since a term that matched nothing is
+  // either a tool that doesn't exist or one named something nobody guesses.
+  const trackSearch = (term, resultsCount) => {
+    const searchTerm = term.trim().toLowerCase().slice(0, 100);
+    if (!searchTerm) return;
+    trackEvent('view_search_results', { search_term: searchTerm, results_count: resultsCount });
+  };
+
   // Handle navigation
   const handleNavigate = (url, params) => {
+    trackSearch(searchTerm, searchResults.length);
     if (typeof window.gtag !== 'undefined') {
       window.gtag('event', 'search_result_clicked', {
         event_category: 'engagement',
@@ -166,6 +178,9 @@ const QuickSearch = () => {
   // Reset search when dialog closes
   useEffect(() => {
     if (!searchOpen) {
+      // Navigating away already reported and cleared the term, so this only fires for a search
+      // the user gave up on.
+      trackSearch(searchTerm, searchResults.length);
       setSearchTerm('');
       setSelectedIndex(-1);
     }

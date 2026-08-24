@@ -4,7 +4,7 @@ export const getConsentObject = (granted) => ({
   ad_storage: granted ? 'granted' : 'denied',
   analytics_storage: granted ? 'granted' : 'denied',
   ad_user_data: granted ? 'granted' : 'denied',
-  ad_personalisation: granted ? 'granted' : 'denied'
+  ad_personalization: granted ? 'granted' : 'denied'
 });
 
 const useGdprRegion = () => {

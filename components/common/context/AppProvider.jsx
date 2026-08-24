@@ -6,6 +6,7 @@ import { getUserToken } from '../../../services/auth/google';
 import { geAppleStatus } from '../../../services/auth/apple';
 import { getProfile } from '../../../services/profiles';
 import { setRawJson } from '@utility/helpers';
+import { errorMessage, trackEvent } from '@utility/analytics';
 import { readLocalStorageValue } from '@mantine/hooks';
 import { simulatedCompanionsKey } from '@components/constants';
 
@@ -295,6 +296,7 @@ const AppProvider = ({ children }) => {
         }
       } catch (err) {
         console.error('Failed to load data from profile api', err);
+        trackEvent('import_failed', { import_source: 'profile', error_message: errorMessage(err) });
         router.push({ pathname: '/404', query: { reason: 'profile', name: router?.query?.profile } });
         dispatch({
           type: ACTION_TYPES.DATA,
