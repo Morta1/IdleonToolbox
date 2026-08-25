@@ -1,7 +1,10 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import {
+  getStrongestAttack,
+  getEffectiveDamage,
   getHitsToKill,
+  getSkillDamage,
   getKillCredit,
   getMinibossHp,
   getMinibosses,
@@ -85,10 +88,79 @@ describe('bone joe calculator', () => {
     expect(getHitsToKill(1000, 0)).toBe(Infinity);
   });
 
-  it('counts pickles across inventory stacks and tolerates an empty inventory', () => {
+  it('takes the last pickle stack the way the game does, and tolerates an empty inventory', () => {
     expect(getPickleCount({ inventory: [{ rawName: 'BoneJoePickle', amount: 12 }, { rawName: 'Copper', amount: 5 }] }))
       .toBe(12);
+    // The game assigns rather than adds while walking the inventory, so a split stack scores the last one.
+    expect(getPickleCount({
+      inventory: [{ rawName: 'BoneJoePickle', amount: 40 }, { rawName: 'BoneJoePickle', amount: 9 }]
+    })).toBe(9);
     expect(getPickleCount({ inventory: [] })).toBe(0);
     expect(getPickleCount({})).toBe(0);
+  });
+
+  // Level 88 of the star talent scores 376, matching GetTalentNumber(2, 640) read off a live game.
+  const megaCritChar = (level) => ({ flatStarTalents: [{ name: 'MEGA_CRIT', level, funcY: 'bigBase', y1: 200, y2: 2 }] });
+
+  it('prices a swing at the min-max average lifted by the crit multiplier', () => {
+    // 100 to 200 averages 150, and a 50% chance at 3x adds a full average hit back on top.
+    expect(getEffectiveDamage({ minDamage: 100, maxDamage: 200, critChance: 50, critDamage: 3 })).toBe(300);
+    // No crit damage over 1x leaves the plain average alone.
+    expect(getEffectiveDamage({ minDamage: 100, maxDamage: 200, critChance: 80, critDamage: 1 })).toBe(150);
+    // Without Mega Crit learned, crit chance past 100% buys nothing at all.
+    expect(getEffectiveDamage({ minDamage: 100, maxDamage: 200, critChance: 12372, critDamage: 3 }))
+      .toBe(getEffectiveDamage({ minDamage: 100, maxDamage: 200, critChance: 100, critDamage: 3 }));
+    expect(getEffectiveDamage({ minDamage: 100, maxDamage: 200, critChance: 12372, critDamage: 3 }, megaCritChar(0)))
+      .toBe(getEffectiveDamage({ minDamage: 100, maxDamage: 200, critChance: 100, critDamage: 3 }));
+    expect(getEffectiveDamage({})).toBe(0);
+  });
+
+  // Real talent data: bigBase pays x1 + x2 * level, and the description is the only thing in the
+  // data marking a talent as an attack at all.
+  const attack = (name, x1, x2, level, cooldown, description) => ({ name, level, funcX: 'bigBase', x1, x2, cooldown, description });
+  const powerStrike = (level) => attack('POWER_STRIKE', 130, 3, level, 3, 'Slash_forward_dealing_{%|damage_to_up_to|2_monsters');
+  const whirl = (level) => attack('WHIRL', 60, 1.5, level, 5, 'Swing_your_weapon_around_you|dealing_{%_damage_to_up_to|}_monsters');
+
+  it('takes the hardest equipped attack and ignores everything that is not an attack', () => {
+    const character = {
+      talentsLoadout: [
+        powerStrike(100),
+        whirl(100),
+        // Blocking and buffs word the description differently and must not register as attacks.
+        { name: 'BRICKY_SKIN', level: 100, funcX: 'decay', x1: 20, x2: 100, cooldown: 30,
+          description: 'Block_{%_of_all_damage._Also,_passively_gives_+}_base_DEF' },
+        { name: 'FIRMLY_GRASP_IT', level: 100, funcX: 'decay', x1: 15, x2: 100, cooldown: 60,
+          description: 'Temporarily_boosts_base_STR_by_{_for_}_minutes' }
+      ]
+    };
+    const strongest = getStrongestAttack(character);
+    // Power Strike pays 130 + 3 * 100 = 430%, Whirl 60 + 1.5 * 100 = 210%.
+    expect(strongest.name).toBe('POWER_STRIKE');
+    expect(strongest.multi).toBeCloseTo(4.3, 6);
+    // Blocking and buff talents are in the loadout but must not count as attacks.
+    expect(strongest.count).toBe(2);
+    expect(getStrongestAttack({ talentsLoadout: [] })).toBe(null);
+    expect(getStrongestAttack({})).toBe(null);
+  });
+
+  it('bounds the skill estimate by that attack and never drops below the basic swing', () => {
+    const playerInfo = { minDamage: 100, maxDamage: 200, critChance: 0, critDamage: 1 };
+    const character = { talentsLoadout: [powerStrike(100)] };
+    // 130 + 3 * 100 = 430% damage.
+    const multi = getStrongestAttack(character).multi;
+    expect(multi).toBeCloseTo(4.3, 6);
+    expect(getSkillDamage(playerInfo, character)).toBeCloseTo(150 * multi, 6);
+    // No attack equipped falls back to the basic swing rather than to zero damage.
+    expect(getSkillDamage(playerInfo, {})).toBe(150);
+  });
+
+  it('adds Mega Crit once crit chance runs past 100%', () => {
+    const playerInfo = { minDamage: 100, maxDamage: 200, critChance: 200, critDamage: 3 };
+    // Always crits and always mega crits: 3x swaps for 3 + 3.76.
+    expect(getEffectiveDamage(playerInfo, megaCritChar(88))).toBeCloseTo(150 * 6.76, 6);
+    // Half the surplus means half the swings upgrade.
+    expect(getEffectiveDamage({ ...playerInfo, critChance: 150 }, megaCritChar(88))).toBeCloseTo(150 * (3 + 3.76 / 2), 6);
+    // The curve opens at 2x and only climbs, so the game's floor never actually bites.
+    expect(getEffectiveDamage(playerInfo, megaCritChar(1))).toBeCloseTo(150 * 5.02, 6);
   });
 });
