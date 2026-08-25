@@ -479,7 +479,8 @@ export const getEggsPowerRange = (characters: any) => {
   const base = Math.pow(4 * breedingLevel + Math.pow(breedingLevel / 2, 3), 0.85);
   const talentBonus = Math.min(2.1, Math.max(1, baseTalentBonus));
   const breedingBonus = Math.min(1.2 + breedingLevel / 12, 4);
-  return createRange(0, 10).map((eggLevel) => {
+  // eggLevel is the egg's tier as stored in the save (1-11, matching PetEgg1-PetEgg11)
+  return createRange(1, 11).map((eggLevel) => {
     const eggLvScale = 0.2 * eggLevel + 0.3 * Math.floor((eggLevel + 1) / 4) + 1;
 
     return {
