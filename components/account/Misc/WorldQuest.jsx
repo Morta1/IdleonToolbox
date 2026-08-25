@@ -18,7 +18,7 @@ import Tooltip from 'components/Tooltip';
 import CoinDisplay from 'components/common/CoinDisplay';
 import { cleanUnderscore, getCoinsArray, numberWithCommas, prefix, worldColor } from 'utility/helpers';
 
-const WorldQuest = ({ quests, characters, totalCharacters, worldName, worldIndex }) => {
+const WorldQuest = ({ quests, characters, totalCharacters, worldName, worldIndex, hideCompleted }) => {
   const getQuestIndicator = (status) => {
     switch (status) {
       case 1:
@@ -34,30 +34,39 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName, worldIndex
   }
   const color = worldColor[worldIndex] || worldColor[0];
 
+  // Some npcs hold a repeatable quest that decides completion regardless of the rest of their list
+  const getNpcStatus = (npc) => {
+    let forceCompletion;
+    if (npc?.name === 'Picnic_Stowaway') {
+      const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Live-Action_Entertainment');
+      forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0;
+    }
+    else if (npc?.name === 'Scripticus') {
+      const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Champion_of_the_Grasslands');
+      forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0
+    }
+    else if (npc?.name === 'Potti') {
+      // const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Spirit_of_the_Hero');
+      // forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0
+    }
+    return forceCompletion || npc?.questsStatus;
+  }
+
+  const npcList = hideCompleted
+    ? quests?.[worldName]?.filter((npc) => getNpcStatus(npc) !== 1)
+    : quests?.[worldName];
+
   return (
     <Box sx={{ width: { xs: 350, sm: 400 } }}>
       <WorldTitle sx={{ justifySelf: 'flex-start', color: color }} variant="h6" component="h2">
         {cleanUnderscore(worldName)}
       </WorldTitle>
-      {quests?.[worldName]?.map((npc, index) => {
-        let forceCompletion;
-        if (npc?.name === 'Picnic_Stowaway') {
-          const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Live-Action_Entertainment');
-          forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0;
-        }
-        else if (npc?.name === 'Scripticus') {
-          const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Champion_of_the_Grasslands');
-          forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0
-        }
-        else if (npc?.name === 'Potti') {
-          // const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Spirit_of_the_Hero');
-          // forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0
-        }
+      {npcList?.map((npc, index) => {
         return <StyledAccordion key={npc?.name + index} TransitionProps={{ unmountOnExit: true }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <img width={50} height={50} src={`${prefix}npcs/${npc?.name}.gif`} alt="npc-icon" />
             <span className={'npc-name'}>{cleanUnderscore(npc?.name)}</span>
-            {getQuestIndicator(forceCompletion || npc?.questsStatus)}
+            {getQuestIndicator(getNpcStatus(npc))}
           </AccordionSummary>
           <StyledAccordionDetails>
             <Timeline sx={{ m: 0, p: 0 }}>

@@ -1,6 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
-import { Container, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import {
+  Checkbox,
+  Container,
+  FormControlLabel,
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography
+} from '@mui/material';
 import WorldQuest from 'components/account/Misc/WorldQuest';
 import { numberWithCommas, prefix } from 'utility/helpers';
 import { AppContext } from 'components/common/context/AppProvider';
@@ -13,6 +21,7 @@ const Quests = () => {
   const { state } = useContext(AppContext);
   const [worldQuests, setWorldQuests] = useState();
   const [filteredCharacters, setFilteredCharacters] = useState([0]);
+  const [hideCompleted, setHideCompleted] = useState(false);
   const totalQuestsCompleted = state?.account?.totalQuestsCompleted ?? 0;
 
   useEffect(() => {
@@ -145,6 +154,11 @@ const Quests = () => {
                 <FormatAlignCenterIcon/>
               </ToggleButton>
             </ToggleButtonGroup>
+            <FormControlLabel
+              sx={{ ml: 1 }}
+              control={<Checkbox checked={hideCompleted}
+                                 onChange={(e) => setHideCompleted(e.target.checked)}/>}
+              label={'Hide completed'}/>
           </Stack>
           <Stack mt={6} direction={'row'} justifyContent={'center'} flexWrap={'wrap'} gap={4}>
             <WorldQuest
@@ -153,6 +167,7 @@ const Quests = () => {
               characters={state?.characters}
               worldName={'Blunder_Hills'}
               worldIndex={0}
+              hideCompleted={hideCompleted}
             />
             <WorldQuest
               quests={worldQuests}
@@ -160,6 +175,7 @@ const Quests = () => {
               characters={state?.characters}
               worldName={'Yum_Yum_Desert'}
               worldIndex={1}
+              hideCompleted={hideCompleted}
             />
             <WorldQuest
               quests={worldQuests}
@@ -167,6 +183,7 @@ const Quests = () => {
               characters={state?.characters}
               worldName={'Frostbite_Tundra'}
               worldIndex={2}
+              hideCompleted={hideCompleted}
             />
             <WorldQuest
               quests={worldQuests}
@@ -174,6 +191,7 @@ const Quests = () => {
               characters={state?.characters}
               worldName={'Hyperion_Nebula'}
               worldIndex={3}
+              hideCompleted={hideCompleted}
             />
             <WorldQuest
               quests={worldQuests}
@@ -181,6 +199,7 @@ const Quests = () => {
               characters={state?.characters}
               worldName={'Smolderin\'_Plateau'}
               worldIndex={4}
+              hideCompleted={hideCompleted}
             />
             <WorldQuest
               quests={worldQuests}
@@ -188,6 +207,7 @@ const Quests = () => {
               characters={state?.characters}
               worldName={'Spirited_Valley'}
               worldIndex={5}
+              hideCompleted={hideCompleted}
             />
             <WorldQuest
               quests={worldQuests}
@@ -195,6 +215,7 @@ const Quests = () => {
               characters={state?.characters}
               worldName={'Shimmerfin_Deep'}
               worldIndex={6}
+              hideCompleted={hideCompleted}
             />
           </Stack>
         </>
