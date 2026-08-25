@@ -278,6 +278,9 @@ const Settings = () => {
           window.gtag('event', 'profile_uploaded', {
             event_category: 'engagement',
             event_label: 'success',
+            upload_status: 'success',
+            profile_access: profileAccess,
+            leaderboard: safeParticipation,
             value: 1
           });
         }
@@ -287,7 +290,8 @@ const Settings = () => {
           window.gtag('event', 'profile_uploaded', {
             event_category: 'engagement',
             event_label: 'failure',
-            value: 1,
+            upload_status: 'failure',
+            value: 0,
             error_message: errorMessage(err)
           });
         }
