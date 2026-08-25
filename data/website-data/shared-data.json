@@ -28349,6 +28349,1060 @@
       "x11": 147
     }
   ],
+  "npcPlacements": {
+    "Woodsman": [
+      1
+    ],
+    "Poigu": [
+      209
+    ],
+    "Tired_Mole": [
+      211
+    ],
+    "Capital_P": [
+      166,
+      157
+    ],
+    "Clown": [
+      72,
+      50,
+      0
+    ],
+    "Lafu_Shi": [
+      250
+    ],
+    "Spirit_Sungmin": [
+      250
+    ],
+    "Hoov": [
+      252
+    ],
+    "Masterius": [
+      254
+    ],
+    "Sprout": [
+      13
+    ],
+    "Woodlin_Elder": [
+      255
+    ],
+    "Tribal_Shaman": [
+      256
+    ],
+    "Legumulyte": [
+      258
+    ],
+    "Sussy_Gene": [
+      259
+    ],
+    "Potti": [
+      260
+    ],
+    "Picnic_Stowaway": [
+      2
+    ],
+    "Hamish": [
+      2
+    ],
+    "Rocklyte": [
+      2
+    ],
+    "Typhoon": [
+      2
+    ],
+    "Humble_Hugh": [
+      300
+    ],
+    "Toobus_Goobus": [
+      300
+    ],
+    "Zenelith": [
+      302
+    ],
+    "Promotheus": [
+      14
+    ],
+    "Snootie": [
+      303
+    ],
+    "Sad_Urie": [
+      307
+    ],
+    "Bloo_Radley": [
+      308,
+      309
+    ],
+    "Coralcave_Prince": [
+      312
+    ],
+    "TP_Pete": [
+      15
+    ],
+    "Stiltzcho": [
+      16
+    ],
+    "Dazey": [
+      18
+    ],
+    "Secretkeeper": [
+      20
+    ],
+    "Funguy": [
+      19
+    ],
+    "Bushlyte": [
+      24
+    ],
+    "Tiki_Chief": [
+      27,
+      29
+    ],
+    "Dog_Bone": [
+      27
+    ],
+    "Papua_Piggea": [
+      28
+    ],
+    "Obol_Altar": [
+      50
+    ],
+    "Cowbo_Jones": [
+      50
+    ],
+    "Desert_Davey": [
+      50
+    ],
+    "Postboy_Pablob": [
+      50
+    ],
+    "Constructor_Crow": [
+      50
+    ],
+    "Walupiggy": [
+      50
+    ],
+    "Town_Marble": [
+      0
+    ],
+    "Scripticus": [
+      0
+    ],
+    "Grasslands_Gary": [
+      0
+    ],
+    "Mr_Pigibank": [
+      0
+    ],
+    "Builder_Bird": [
+      0
+    ],
+    "Coastiolyte": [
+      0
+    ],
+    "Snake_Jar": [
+      52
+    ],
+    "Centurion": [
+      52
+    ],
+    "Speccius": [
+      53
+    ],
+    "Whattso": [
+      54
+    ],
+    "Fishpaste97": [
+      55
+    ],
+    "Scubidew": [
+      55
+    ],
+    "XxX_Cattleprod_XxX": [
+      57
+    ],
+    "Goldric": [
+      58
+    ],
+    "Glumlee": [
+      6
+    ],
+    "Carpetiem": [
+      60
+    ],
+    "Wellington": [
+      64
+    ],
+    "Loominadi": [
+      63
+    ],
+    "Djonnut": [
+      65
+    ],
+    "Cactolyte": [
+      65
+    ],
+    "Bandit_Bob": [
+      67
+    ],
+    "Krunk": [
+      7
+    ],
+    "Mutton": [
+      7
+    ],
+    "Meel": [
+      38
+    ],
+    "Telescope": [
+      31
+    ],
+    "Hoggindaz": [
+      100
+    ],
+    "Iceland_Irwin": [
+      100
+    ],
+    "Carpenter_Cardinal": [
+      100
+    ],
+    "Lonely_Hunter": [
+      103
+    ],
+    "Snouts": [
+      104
+    ],
+    "Shuvelle": [
+      106
+    ],
+    "Yondergreen": [
+      108
+    ],
+    "Crystalswine": [
+      111
+    ],
+    "Bill_Brr": [
+      112
+    ],
+    "Bellows": [
+      113
+    ],
+    "Lord_of_the_Hunt": [
+      102
+    ],
+    "Toadstall": [
+      39,
+      40,
+      36
+    ],
+    "Gangster_Gus": [
+      70,
+      71
+    ],
+    "Worldo": [
+      119,
+      118
+    ],
+    "Gobo": [
+      150
+    ],
+    "Nebula_Neddy": [
+      150
+    ],
+    "Nebulyte": [
+      150
+    ],
+    "Oinkin": [
+      153
+    ],
+    "Eliteus": [
+      154
+    ],
+    "Royal_Worm": [
+      156
+    ],
+    "Blobbo": [
+      158
+    ],
+    "Rift_Ripper": [
+      161
+    ],
+    "Monolith": [
+      162
+    ],
+    "Omar_Da_Ogar": [
+      61
+    ],
+    "Muhmuguh": [
+      200
+    ],
+    "Lava_Larry": [
+      200
+    ],
+    "Slargon": [
+      201
+    ],
+    "Pirate_Porkchop": [
+      204
+    ],
+    "Keymaster": [
+      12
+    ],
+    "Forest_Soul": [
+      26
+    ],
+    "Root_Soul": [
+      30
+    ],
+    "Pet_Dog": [
+      41
+    ],
+    "Dune_Soul": [
+      63
+    ],
+    "Frigid_Soul": [
+      107
+    ],
+    "Squish_Soul": [
+      155
+    ],
+    "Oozie_Soul": [
+      208
+    ],
+    "Brezy_Soul": [
+      259
+    ],
+    "Coral_Kid": [
+      305
+    ],
+    "Musselini": [
+      306
+    ],
+    "Deeps_Soul": [
+      308
+    ],
+    "Minehead": [
+      316
+    ],
+    "Glimbo": [
+      317
+    ],
+    "Sushi_Station": [
+      318
+    ],
+    "The_Button": [
+      321
+    ]
+  },
+  "npcRoster": {
+    "TP_Pete": {
+      "sprite": "sprite-84-0",
+      "spriteAcross": 3,
+      "spriteDown": 2,
+      "spriteNumFrames": 5
+    },
+    "Sprout": {
+      "sprite": "sprite-84-1",
+      "spriteAcross": 3,
+      "spriteDown": 2,
+      "spriteNumFrames": 5
+    },
+    "Dazey": {
+      "sprite": "sprite-84-2",
+      "spriteAcross": 3,
+      "spriteDown": 2,
+      "spriteNumFrames": 5
+    },
+    "Town_Marble": {
+      "sprite": "sprite-84-3",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Obol_Altar": {
+      "sprite": "sprite-84-4",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 7
+    },
+    "Woodsman": {
+      "sprite": "sprite-84-5",
+      "spriteAcross": 2,
+      "spriteDown": 2,
+      "spriteNumFrames": 4
+    },
+    "Krunk": {
+      "sprite": "sprite-84-6",
+      "spriteAcross": 3,
+      "spriteDown": 2,
+      "spriteNumFrames": 6
+    },
+    "Scripticus": {
+      "sprite": "sprite-84-7",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 9
+    },
+    "Glumlee": {
+      "sprite": "sprite-84-9",
+      "spriteAcross": 3,
+      "spriteDown": 2,
+      "spriteNumFrames": 6
+    },
+    "Picnic_Stowaway": {
+      "sprite": "sprite-84-10",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 12
+    },
+    "Hamish": {
+      "sprite": "sprite-84-12",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 7
+    },
+    "Grasslands_Gary": {
+      "sprite": "sprite-84-13",
+      "spriteAcross": 2,
+      "spriteDown": 2,
+      "spriteNumFrames": 4
+    },
+    "Secretkeeper": {
+      "sprite": "sprite-84-15",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Goldric": {
+      "sprite": "sprite-84-16",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 13
+    },
+    "Scubidew": {
+      "sprite": "sprite-84-17",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 7
+    },
+    "Mr_Pigibank": {
+      "sprite": "sprite-84-18",
+      "spriteAcross": 5,
+      "spriteDown": 4,
+      "spriteNumFrames": 17
+    },
+    "Funguy": {
+      "sprite": "sprite-84-19",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 15
+    },
+    "Bill_Brr": {
+      "sprite": "sprite-84-20",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 13
+    },
+    "Papua_Piggea": {
+      "sprite": "sprite-84-21",
+      "spriteAcross": 5,
+      "spriteDown": 4,
+      "spriteNumFrames": 17
+    },
+    "Stiltzcho": {
+      "sprite": "sprite-84-22",
+      "spriteAcross": 3,
+      "spriteDown": 2,
+      "spriteNumFrames": 6
+    },
+    "Mutton": {
+      "sprite": "sprite-84-23",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 8
+    },
+    "Bushlyte": {
+      "sprite": "sprite-84-25",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 12
+    },
+    "Rocklyte": {
+      "sprite": "sprite-84-26",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 8
+    },
+    "Tiki_Chief": {
+      "sprite": "sprite-84-27",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 8
+    },
+    "Promotheus": {
+      "sprite": "sprite-84-28",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 13
+    },
+    "Cowbo_Jones": {
+      "sprite": "sprite-84-29",
+      "spriteAcross": 5,
+      "spriteDown": 4,
+      "spriteNumFrames": 19
+    },
+    "Loominadi": {
+      "sprite": "sprite-84-30",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 10
+    },
+    "Builder_Bird": {
+      "sprite": "sprite-84-32",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 8
+    },
+    "Desert_Davey": {
+      "sprite": "sprite-84-33",
+      "spriteAcross": 2,
+      "spriteDown": 2,
+      "spriteNumFrames": 4
+    },
+    "Dog_Bone": {
+      "sprite": "sprite-84-34",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 10
+    },
+    "Speccius": {
+      "sprite": "sprite-84-35",
+      "spriteAcross": 2,
+      "spriteDown": 2,
+      "spriteNumFrames": 4
+    },
+    "Postboy_Pablob": {
+      "sprite": "sprite-84-36",
+      "spriteAcross": 5,
+      "spriteDown": 5,
+      "spriteNumFrames": 23
+    },
+    "Whattso": {
+      "sprite": "sprite-84-39",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Fishpaste97": {
+      "sprite": "sprite-84-40",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 14
+    },
+    "Omar_Da_Ogar": {
+      "sprite": "sprite-84-41",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 16
+    },
+    "Clown": {
+      "sprite": "sprite-84-42",
+      "spriteAcross": 6,
+      "spriteDown": 5,
+      "spriteNumFrames": 30
+    },
+    "Bandit_Bob": {
+      "sprite": "sprite-84-43",
+      "spriteAcross": 6,
+      "spriteDown": 5,
+      "spriteNumFrames": 26
+    },
+    "Djonnut": {
+      "sprite": "sprite-84-44",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 11
+    },
+    "Carpetiem": {
+      "sprite": "sprite-84-45",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 9
+    },
+    "Snake_Jar": {
+      "sprite": "sprite-84-46",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 12
+    },
+    "Typhoon": {
+      "sprite": "sprite-84-47",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 7
+    },
+    "Meel": {
+      "sprite": "sprite-84-48",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 12
+    },
+    "Wellington": {
+      "sprite": "sprite-84-49",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 11
+    },
+    "Giftmas_Blobulyte": {
+      "sprite": "sprite-84-50",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 8
+    },
+    "XxX_Cattleprod_XxX": {
+      "sprite": "sprite-84-51",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 16
+    },
+    "Cactolyte": {
+      "sprite": "sprite-84-52",
+      "spriteAcross": 5,
+      "spriteDown": 4,
+      "spriteNumFrames": 20
+    },
+    "Constructor_Crow": {
+      "sprite": "sprite-84-53",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 9
+    },
+    "Centurion": {
+      "sprite": "sprite-84-54",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 10
+    },
+    "Hoggindaz": {
+      "sprite": "sprite-84-55",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 13
+    },
+    "Telescope": {
+      "sprite": "sprite-84-56",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 8
+    },
+    "Loveulyte": {
+      "sprite": "sprite-84-57",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 10
+    },
+    "Iceland_Irwin": {
+      "sprite": "sprite-84-58",
+      "spriteAcross": 2,
+      "spriteDown": 2,
+      "spriteNumFrames": 4
+    },
+    "Bellows": {
+      "sprite": "sprite-84-59",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 10
+    },
+    "Worldo": {
+      "sprite": "sprite-84-60",
+      "spriteAcross": 5,
+      "spriteDown": 4,
+      "spriteNumFrames": 18
+    },
+    "Yondergreen": {
+      "sprite": "sprite-84-61",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 9
+    },
+    "Shuvelle": {
+      "sprite": "sprite-84-62",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 14
+    },
+    "Crystalswine": {
+      "sprite": "sprite-84-63",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Lonely_Hunter": {
+      "sprite": "sprite-84-64",
+      "spriteAcross": 3,
+      "spriteDown": 2,
+      "spriteNumFrames": 6
+    },
+    "Carpenter_Cardinal": {
+      "sprite": "sprite-84-65",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 9
+    },
+    "Lord_of_the_Hunt": {
+      "sprite": "sprite-84-66",
+      "spriteAcross": 3,
+      "spriteDown": 2,
+      "spriteNumFrames": 6
+    },
+    "Egggulyte": {
+      "sprite": "sprite-84-67",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 8
+    },
+    "Snouts": {
+      "sprite": "sprite-84-68",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 8
+    },
+    "Coastiolyte": {
+      "sprite": "sprite-84-69",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 15
+    },
+    "Walupiggy": {
+      "sprite": "sprite-84-70",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 13
+    },
+    "Toadstall": {
+      "sprite": "sprite-84-71",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 7
+    },
+    "Gangster_Gus": {
+      "sprite": "sprite-84-73",
+      "spriteAcross": 3,
+      "spriteDown": 2,
+      "spriteNumFrames": 6
+    },
+    "Falloween_Pumpkin": {
+      "sprite": "sprite-84-74",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 13
+    },
+    "Blobbo": {
+      "sprite": "sprite-84-75",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 8
+    },
+    "Capital_P": {
+      "sprite": "sprite-84-76",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 14
+    },
+    "Oinkin": {
+      "sprite": "sprite-84-77",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 11
+    },
+    "Gobo": {
+      "sprite": "sprite-84-78",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 8
+    },
+    "Nebula_Neddy": {
+      "sprite": "sprite-84-79",
+      "spriteAcross": 2,
+      "spriteDown": 2,
+      "spriteNumFrames": 4
+    },
+    "Eliteus": {
+      "sprite": "sprite-84-80",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 10
+    },
+    "Slargon": {
+      "sprite": "sprite-84-81",
+      "spriteAcross": 3,
+      "spriteDown": 2,
+      "spriteNumFrames": 6
+    },
+    "Pirate_Porkchop": {
+      "sprite": "sprite-84-82",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Poigu": {
+      "sprite": "sprite-84-83",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Muhmuguh": {
+      "sprite": "sprite-84-84",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 9
+    },
+    "Lava_Larry": {
+      "sprite": "sprite-84-85",
+      "spriteAcross": 2,
+      "spriteDown": 2,
+      "spriteNumFrames": 4
+    },
+    "Rift_Ripper": {
+      "sprite": "sprite-84-86",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 16
+    },
+    "Nebulyte": {
+      "sprite": "sprite-84-87",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 12
+    },
+    "Bubbulyte": {
+      "sprite": "sprite-84-88",
+      "spriteAcross": 3,
+      "spriteDown": 2,
+      "spriteNumFrames": 6
+    },
+    "Tired_Mole": {
+      "sprite": "sprite-84-89",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 8
+    },
+    "Monolith": {
+      "sprite": "sprite-84-90",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Royal_Worm": {
+      "sprite": "sprite-84-91",
+      "spriteAcross": 3,
+      "spriteDown": 2,
+      "spriteNumFrames": 6
+    },
+    "Lafu_Shi": {
+      "sprite": "sprite-84-92",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 15
+    },
+    "Hoov": {
+      "sprite": "sprite-84-93",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 13
+    },
+    "Potti": {
+      "sprite": "sprite-84-94",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 10
+    },
+    "Tribal_Shaman": {
+      "sprite": "sprite-84-95",
+      "spriteAcross": 3,
+      "spriteDown": 2,
+      "spriteNumFrames": 6
+    },
+    "Woodlin_Elder": {
+      "sprite": "sprite-84-96",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 7
+    },
+    "Legumulyte": {
+      "sprite": "sprite-84-97",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 14
+    },
+    "Sussy_Gene": {
+      "sprite": "sprite-84-98",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 12
+    },
+    "Spirit_Sungmin": {
+      "sprite": "sprite-84-99",
+      "spriteAcross": 2,
+      "spriteDown": 2,
+      "spriteNumFrames": 4
+    },
+    "Masterius": {
+      "sprite": "sprite-84-100",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 8
+    },
+    "Humble_Hugh": {
+      "sprite": "sprite-84-101",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 7
+    },
+    "Coralcave_Prince": {
+      "sprite": "sprite-84-102",
+      "spriteAcross": 3,
+      "spriteDown": 3,
+      "spriteNumFrames": 8
+    },
+    "Sad_Urie": {
+      "sprite": "sprite-84-103",
+      "spriteAcross": 4,
+      "spriteDown": 4,
+      "spriteNumFrames": 13
+    },
+    "Snootie": {
+      "sprite": "sprite-84-104",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 11
+    },
+    "Bloo_Radley": {
+      "sprite": "sprite-84-105",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 11
+    },
+    "Toobus_Goobus": {
+      "sprite": "sprite-84-106",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 12
+    },
+    "Bort": {
+      "sprite": "sprite-84-107",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 12
+    },
+    "Zenelith": {
+      "sprite": "sprite-84-108",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Coral_Kid": {
+      "sprite": "sprite-84-109",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Musselini": {
+      "sprite": "sprite-84-110",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Forest_Soul": {
+      "sprite": "sprite-84-111",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Dune_Soul": {
+      "sprite": "sprite-84-112",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Root_Soul": {
+      "sprite": "sprite-84-113",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Frigid_Soul": {
+      "sprite": "sprite-84-114",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Squish_Soul": {
+      "sprite": "sprite-84-115",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Oozie_Soul": {
+      "sprite": "sprite-84-116",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Brezy_Soul": {
+      "sprite": "sprite-84-117",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Deeps_Soul": {
+      "sprite": "sprite-84-118",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Keymaster": {
+      "sprite": "sprite-84-119",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Pet_Dog": {
+      "sprite": "sprite-84-120",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Minehead": {
+      "sprite": "sprite-84-121",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Glimbo": {
+      "sprite": "sprite-84-123",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "Luckulyte": {
+      "sprite": "sprite-84-124",
+      "spriteAcross": 4,
+      "spriteDown": 3,
+      "spriteNumFrames": 10
+    },
+    "Sushi_Station": {
+      "sprite": "sprite-84-126",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    },
+    "The_Button": {
+      "sprite": "sprite-84-127",
+      "spriteAcross": 1,
+      "spriteDown": 1,
+      "spriteNumFrames": 1
+    }
+  },
   "obols": {
     "character": {
       "0": {
@@ -34282,7 +35336,7 @@
       ]
     },
     "5": {
-      "name": "Hyperion_Nebula",
+      "name": "Outer_World_Town",
       "items": [
         {
           "name": "Pile_of_Processor_Chips",
@@ -34355,7 +35409,7 @@
       ]
     },
     "6": {
-      "name": "Smolderin'_Plateau",
+      "name": "Magma_Rivertown",
       "items": [
         {
           "name": "Lemon_Slice",
@@ -34396,6 +35450,7 @@
       ]
     },
     "7": {
+      "name": "Spirit_Village",
       "items": [
         {
           "name": "BoneJoePickle",
@@ -34452,6 +35507,7 @@
       ]
     },
     "8": {
+      "name": "Shimmerfin_Grove",
       "items": [
         {
           "name": "Replica_Trophy",
@@ -46109,6 +47165,68 @@
       "x7": 0,
       "x8": 0,
       "description": "}x_higher_bonuses_from_all_the_Vault_Upgrades_above_with_the_Red_Highlight!!!"
+    }
+  ],
+  "vialCosts": [
+    {
+      "level": 2,
+      "materials": 100,
+      "liquid": 3
+    },
+    {
+      "level": 3,
+      "materials": 1000,
+      "liquid": 6
+    },
+    {
+      "level": 4,
+      "materials": 2500,
+      "liquid": 9
+    },
+    {
+      "level": 5,
+      "materials": 10000,
+      "liquid": 12
+    },
+    {
+      "level": 6,
+      "materials": 50000,
+      "liquid": 15
+    },
+    {
+      "level": 7,
+      "materials": 100000,
+      "liquid": 18
+    },
+    {
+      "level": 8,
+      "materials": 500000,
+      "liquid": 21
+    },
+    {
+      "level": 9,
+      "materials": 1000001,
+      "liquid": 24
+    },
+    {
+      "level": 10,
+      "materials": 5000000,
+      "liquid": 27
+    },
+    {
+      "level": 11,
+      "materials": 25000000,
+      "liquid": 30
+    },
+    {
+      "level": 12,
+      "materials": 100000000,
+      "liquid": 33
+    },
+    {
+      "level": 13,
+      "materials": 1000000000,
+      "liquid": 36
     }
   ],
   "weeklyBosses": [

@@ -18,7 +18,8 @@
     "serve:e2e": "npx serve@latest out -l 3002 --no-clipboard",
     "lint": "next lint",
     "prepare": "husky || true",
-    "prebuild": "node utility/build-worker.mjs"
+    "prebuild": "node utility/build-worker.mjs && node scripts/entity-graph/build.mjs",
+    "build:graph": "node scripts/entity-graph/build.mjs"
   },
   "dependencies": {
     "@ctrl/react-adsense": "^1.7.0",

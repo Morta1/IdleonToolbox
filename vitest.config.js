@@ -27,5 +27,10 @@ export default defineConfig({
     include: ['__test__/**/*.test.{js,ts,jsx,tsx}'],
     exclude: ['e2e/**'],
     isolate: false,
+    // Parser tests parse the full ~4MB website-data fixtures, and with isolate:false they all
+    // share one environment under parallel load. Several sit near a second on their own and
+    // were intermittently blowing the 5s default, failing a different file on every run. The
+    // timeout is here to catch a genuine hang, which 20s still does.
+    testTimeout: 20000,
   },
 });

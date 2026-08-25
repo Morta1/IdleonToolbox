@@ -5,6 +5,7 @@ import {globby} from 'globby'
 import { fetchAllBuildsAtBuildTime } from './builds/static-fetch.mjs'
 import { buildsForSlug, getBuildClassSlugs } from './builds/class-paths.mjs'
 import { buildStaticHref, buildToSlug } from './builds/build-pages.mjs'
+import { hasListing } from './wiki/kinds.mjs'
 
 // Helper to determine priority based on path
 function getPagePriority(path) {
@@ -248,6 +249,35 @@ export function pruneUnexportedBuilds(builds, outDir) {
   return kept
 }
 
+// One entry per wiki entity, plus one per category listing. lastmod comes from the graph file
+// rather than from today: the wiki's content changes when the game data is regenerated, and dating
+// 3,466 URLs to every deploy is exactly the unreliable lastmod that makes Google ignore the field.
+export function buildWikiSitemapEntries(fallbackDate) {
+  const graphPath = path.join('data', 'entity-graph.json')
+  if (!fs.existsSync(graphPath)) return ''
+
+  const lastmod = fs.statSync(graphPath).mtime.toISOString().split('T')[0]
+  const date = DATE_LINE.test(lastmod) ? lastmod : fallbackDate
+  const { nodes } = JSON.parse(fs.readFileSync(graphPath, 'utf-8'))
+
+  const kinds = new Set()
+  const entities = []
+  for (const node of Object.values(nodes)) {
+    if (node.navigable === false || !node.slug) continue
+    kinds.add(node.kind)
+    entities.push(`/wiki/${node.kind}/${node.slug}`)
+  }
+
+  // Sorted, or the sitemap rewrites itself on every build and lands a fresh gh-pages commit for
+  // no change in content - the same reason keptPages is sorted.
+  // Only the kinds that have a listing page: quests are reached from their giver, and a sitemap
+  // entry for /wiki/quest would point at a URL the export never writes.
+  const locs = [...[...kinds].filter(hasListing).map((kind) => `/wiki/${kind}`), ...entities].sort()
+  return locs
+    .map((loc) => urlBlock({ loc, lastmod: date, priority: loc.split('/').length > 3 ? 0.6 : 0.7 }))
+    .join('\n')
+}
+
 async function generateSitemap() {
   const pages = await globby([
     'pages/**/*{.js,.jsx,.mdx}',
@@ -258,6 +288,9 @@ async function generateSitemap() {
     // Dynamic route — real slugs are appended below. Without this exclusion the
     // glob emits a literal /tools/builds/[slug] URL.
     '!pages/tools/builds/[slug].jsx',
+    // Same, for the wiki: one file serves 3,466 entities and six category listings.
+    '!pages/wiki/[kind]/[slug].jsx',
+    '!pages/wiki/[kind]/index.jsx',
   ])
 
   const routeOf = (page) =>
@@ -275,12 +308,14 @@ async function generateSitemap() {
   const classSlugs = pruneUnexportedSlugs(getBuildClassSlugs(builds), 'out')
   const classEntries = buildClassSitemapEntries(classSlugs, today, builds)
   const detailEntries = buildDetailSitemapEntries(pruneUnexportedBuilds(builds, 'out'), today)
+  const wikiEntries = buildWikiSitemapEntries(today)
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${keptPages.map((page) => addPage(page, gitDates, today)).join('\n')}
 ${classEntries}
 ${detailEntries}
+${wikiEntries}
 </urlset>`
 
   fs.writeFileSync('public/sitemap.xml', sitemap)

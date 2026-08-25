@@ -3060,6 +3060,13 @@ declare module '@website-data' {
       x10: number;
       x11: number;
     }[];
+  export const npcPlacements: Record<string, any>;
+  export const npcRoster: Record<string, {
+      sprite: string;
+      spriteAcross: number;
+      spriteDown: number;
+      spriteNumFrames: number;
+    }>;
   export const obols: {
     character: Record<string, {
         shape: string;
@@ -3511,7 +3518,7 @@ declare module '@website-data' {
       nextCropDecay: number;
     }[];
   export const shops: Record<string, {
-      name: string | null;
+      name: string;
       items: {
           name: string;
           rawName: string;
@@ -10100,9 +10107,15 @@ declare module '@website-data' {
       x8: number;
       description: string;
     }[];
+  export const vialCosts: {
+      level: number;
+      materials: number;
+      liquid: number;
+    }[];
   export const vials: Record<string, {
       name: string;
       mainItem: string;
+      discoveryScore: number;
       desc: string;
       func: string;
       stat: string;

@@ -3554,7 +3554,7 @@ export interface Account {
   clamWork: {
     workerClass: number;
     promotionChance: number;
-    promotionCost: number;
+    promotionCost: string;
     clamHp: number;
     mobs: number;
     pearlValue: number;
