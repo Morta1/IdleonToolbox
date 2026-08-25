@@ -752,16 +752,27 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
   </>
 };
 
-const AffordableStampLevels = ({ count, totalCost, percentOfMoney, stampsPerDay }) => {
-  return <>
+// Past this many stamps the tooltip turns into a wall of names, so the rest is summed up instead.
+const MAX_LISTED_STAMPS = 4;
+
+const AffordableStampLevels = ({ count, names = [], totalCost, percentOfMoney, stampsPerDay }) => {
+  const listed = names.slice(0, MAX_LISTED_STAMPS).map((name) => cleanUnderscore(name));
+  const others = names.length - listed.length;
+  return <Stack gap={.5}>
     <Typography>
       You can afford to level {count} stamp{count > 1 ? 's' : ''} for {notateNumber(totalCost)} coins
-      total ({percentOfMoney}% of your account coins)
+      ({percentOfMoney}% of your account coins){listed.length > 0 ? ':' : ''}
     </Typography>
+    {listed.length > 0 ? <Stack component={'ul'} sx={{ m: 0, pl: 2.5 }}>
+      {listed.map((name) => <Typography component={'li'} key={name}>{name}</Typography>)}
+      {others > 0 ? <Typography component={'li'} sx={{ opacity: .7 }}>
+        and {others} more
+      </Typography> : null}
+    </Stack> : null}
     {stampsPerDay > 0 ? <Typography>
       Level them before your +{stampsPerDay} free stamp LVs roll today
     </Typography> : null}
-  </>
+  </Stack>
 }
 
 const Alert = ({
