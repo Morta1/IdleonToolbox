@@ -328,6 +328,7 @@ const getAffordableStampLevels = (account, threshold) => {
 
   return {
     count: affordable.length,
+    names: affordable.map(({ displayName, name, rawName }) => displayName || name || rawName),
     totalCost,
     percentOfMoney: Math.ceil((totalCost / totalMoney) * 100),
     stampsPerDay: getStampsPerDay(account)?.value ?? 0
