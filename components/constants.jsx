@@ -2,7 +2,7 @@ export const drawerWidth = 240;
 export const navBarHeight = 70;
 export const profileBannerHeight = 40;
 export const simulatedCompanionsKey = 'simulatedCompanions';
-export const navItems = ['dashboard', 'characters', 'account', 'tools', 'guilds', 'statistics', 'leaderboards'];
+export const navItems = ['dashboard', 'characters', 'account', 'tools', 'guilds', 'statistics', 'leaderboards', 'wiki'];
 export const drawerPages = ['characters', 'account', 'tools'];
 
 export const PAGES = {
@@ -10,7 +10,8 @@ export const PAGES = {
     dashboard: { icon: 'data/GalleryBell' },
     characters: { icon: 'etc/Character' },
     guilds: { icon: 'etc/Guild' },
-    leaderboards: { icon: 'etc/Crown' }
+    leaderboards: { icon: 'etc/Crown' },
+    wiki: { icon: 'data/TalentBook1' }
   },
   ACCOUNT: {
     'misc': {

@@ -26,6 +26,17 @@ const SKIP = new Set(['_app.jsx', '_document.jsx', '_error.jsx']);
 // the specific one. Where the page already has its own fallback string, it is copied verbatim.
 const OVERRIDES = {
   '/404': { description: 'This page could not be found.' },
+  // One file serves 3,466 entities and one serves six category listings, so their real titles come
+  // from static props and there is no single literal for extractSeo to read. These are the generic
+  // strings, kept only so the map has an entry; every exported page carries its own.
+  '/wiki/[kind]/[slug]': {
+    title: 'Wiki | Idleon Toolbox',
+    description: 'A Legends of Idleon item, monster, NPC, quest, shop or area, and everything it connects to.'
+  },
+  '/wiki/[kind]': {
+    title: 'Wiki | Idleon Toolbox',
+    description: 'Browse every Legends of Idleon item, monster, NPC, quest, shop and area.'
+  },
   '/guilds/detail': {
     title: 'Guild History | Idleon Toolbox',
     description: 'Weekly GP progress and contributors for Legends of Idleon guilds.'

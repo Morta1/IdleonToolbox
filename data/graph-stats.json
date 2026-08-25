@@ -1,0 +1,26 @@
+{
+  "nodes": {
+    "item": 2432,
+    "monster": 397,
+    "npc": 118,
+    "quest": 348,
+    "shop": 9,
+    "map": 162,
+    "vial": 86,
+    "bubble": 140
+  },
+  "edges": {
+    "drops": 4184,
+    "craftedFrom": 1071,
+    "rewards": 642,
+    "requires": 213,
+    "gives": 348,
+    "hasShop": 9,
+    "sells": 149,
+    "spawns": 139,
+    "connectsTo": 134,
+    "hosts": 120,
+    "upgradedWith": 353
+  },
+  "unresolved": 0
+}

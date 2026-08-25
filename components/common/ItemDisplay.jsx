@@ -92,7 +92,7 @@ const ItemDisplay = ({
         {mergedDesc.length > 0 ? <TitleAndValue value={cleanUnderscore(mergedDesc)}/> : null}
         {(allowNegativeValues || Speed >= 0) && Speed ? <TitleAndValue title={'Speed'} value={Speed}/> : null}
         {(allowNegativeValues || Weapon_Power >= 0) && Weapon_Power ? <TitleAndValue
-          title={getPowerType(UQ1txt || rawName)} value={Weapon_Power}/> : null}
+          title={getPowerType(UQ1txt || rawName, Type)} value={Weapon_Power}/> : null}
         {(allowNegativeValues || STR >= 0) && STR ? <TitleAndValue titleStyle={{ color: 'error.dark' }} title={'STR'}
                                                                    value={STR}/> : null}
         {(allowNegativeValues || AGI >= 0) && AGI ? <TitleAndValue titleStyle={{ color: 'success.dark' }} title={'AGI'}
