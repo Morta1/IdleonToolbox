@@ -13,6 +13,10 @@ import {
   randomFloatBetween,
   secondsToShortDuration
 } from '@utility/helpers';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import HtmlTooltip from '../Tooltip';
 import {
   getGeneralAlerts,
@@ -25,6 +29,21 @@ import {
   getWorld7Alerts
 } from '@utility/dashboard/account';
 import useAlerts from '@hooks/useAlerts';
+
+// Every refinery alert draws the same salt icon, and one salt can raise several of them at once,
+// so a corner glyph says which condition fired without having to hover each copy.
+// The border repeats the badge colour in a muted tone so the pair reads as one signal at a glance,
+// with the glyph there for anyone the colour alone doesn't reach.
+// The drop arrows carry a lot of empty viewBox, so they need a larger size than the other glyphs
+// to end up looking the same weight inside the badge.
+const alertBadges = {
+  saltRankUp: { Icon: ArrowDropUpIcon, color: '#66bb6a', border: '#3e6b40', size: 36 },
+  // A chevron rather than a second filled triangle - this one is headroom to rank up later,
+  // not power already banked and waiting.
+  saltRankUpRoom: { Icon: KeyboardArrowUpIcon, color: '#66bb6a', border: '#3e6b40', size: 24 },
+  saltDeficit: { Icon: ArrowDropDownIcon, color: '#d62727', border: '#833b3b', size: 36 },
+  saltMaterials: { Icon: WarningRoundedIcon, color: '#d1921e', border: '#7a5a1e', size: 18 }
+};
 
 const alertsMap = {
   General: getGeneralAlerts,
@@ -215,9 +234,15 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert
                   title={`You have ${alerts?.['World 2']?.alchemy?.alternateParticles} alternate particles upgrades available`}
                   iconPath={'etc/Particle'}/> : null}
-              {alerts?.['World 2']?.weeklyBosses
+              {alerts?.['World 2']?.weeklyBosses?.daily
                 ?
-                <Alert title={'You haven\'t done a weekly (W2) boss fight this week'} iconPath={'data/Trophie'}/>
+                <Alert title={'You haven\'t done a W2 boss fight today'} iconPath={'data/Trophie'}/>
+                : null}
+              {alerts?.['World 2']?.weeklyBosses?.trophy
+                ?
+                <Alert
+                  title={`You can still earn W2 boss trophies this week (${alerts?.['World 2']?.weeklyBosses?.trophy?.bestSkulls}/${alerts?.['World 2']?.weeklyBosses?.trophy?.maxSkulls} skulls)`}
+                  iconPath={'data/Trophie'}/>
                 : null}
               {alerts?.['World 2']?.killRoy?.general
                 ?
@@ -320,16 +345,14 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                                                                                                          <RefineryTitle
                                                                                                            missingMats={missingMats}
                                                                                                            hoursLeft={hoursLeft}/>}
-                                                                                                       imgStyle={{
-                                                                                                         border: '1px solid',
-                                                                                                         borderColor: '#833b3b'
-                                                                                                       }}
+                                                                                                       badge={'saltMaterials'}
                                                                                                        iconPath={`data/${rawName}`}/>)
                 : null}
               {alerts?.['World 3']?.construction?.rankUp?.length > 0
                 ?
                 alerts?.['World 3']?.construction?.rankUp?.map(({ rawName, saltName }) => <Alert key={rawName}
                                                                                                  title={`${cleanUnderscore(saltName)} is ready to rank up`}
+                                                                                                 badge={'saltRankUp'}
                                                                                                  iconPath={`data/${rawName}`}/>)
                 : null}
               {alerts?.['World 3']?.construction?.saltDeficit?.length > 0
@@ -345,6 +368,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   title={isDeficit
                     ? `${cleanUnderscore(saltName)} is consuming more ${cleanUnderscore(previousSaltName)} than you produce (max rank without a deficit: ${maxSafeRank})`
                     : `Don't rank up ${cleanUnderscore(saltName)} past ${maxSafeRank}, it would cause a ${cleanUnderscore(previousSaltName)} deficit`}
+                  badge={'saltDeficit'}
                   iconPath={`data/${rawName}`}/>)
                 : null}
               {alerts?.['World 3']?.construction?.saltRankUpRoom?.length > 0
@@ -352,6 +376,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 alerts?.['World 3']?.construction?.saltRankUpRoom?.map(({ rawName, saltName, maxSafeRank }) => <Alert
                   key={`salt-rank-room-${rawName}`}
                   title={`${cleanUnderscore(saltName)} can be ranked up to ${maxSafeRank} without causing a deficit`}
+                  badge={'saltRankUpRoom'}
                   iconPath={`data/${rawName}`}/>)
                 : null}
               {alerts?.['World 3']?.construction?.buildings?.length > 0
@@ -784,11 +809,16 @@ const Alert = ({
                  style = {},
                  imgStyle = {},
                  onError = () => { },
+                 badge,
                  extra
                }) => {
+  const { Icon: BadgeIcon, color: badgeColor, border: badgeBorder, size: badgeSize } = alertBadges[badge] || {};
+  const badgeImgStyle = badgeBorder ? { border: '1px solid', borderColor: badgeBorder } : {};
   return <HtmlTooltip title={title}>
     <Stack sx={{ position: 'relative', ...style, alignItems: 'center', justifyContent: 'center' }}>
-      <IconImg onError={onError} style={{ ...imgStyle }} vial={vial} src={`${prefix}${iconPath}.png`} alt=""/>
+      <IconImg onError={onError} style={{ ...badgeImgStyle, ...imgStyle }} vial={vial}
+               src={`${prefix}${iconPath}.png`} alt=""/>
+      {BadgeIcon ? <AlertBadge badgeColor={badgeColor}><BadgeIcon sx={{ fontSize: badgeSize }}/></AlertBadge> : null}
       {atom || breedability ? <FloatingIcon vial={vial} src={`${prefix}etc/${atom ? 'Particle' : breedability
         ? 'PetHeart'
         : ''}.png`} alt={atom ? 'Particle' : breedability
@@ -838,6 +868,19 @@ const ShopTitle = ({ shop }) => {
     })}
   </Stack>
 }
+
+// Bottom right - the atom/breeding FloatingIcon owns the bottom left corner. The glyph sits bare on
+// top of the icon, with a dark outline so it stays readable over the brighter salt colours.
+const AlertBadge = styled.div`
+  position: absolute;
+  /* Anchored by a percentage of its own box so every glyph size hangs off the corner the same way. */
+  right: 0;
+  bottom: 0;
+  transform: translate(40%, 40%);
+  display: flex;
+  color: ${({ badgeColor }) => badgeColor};
+  filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 2px #000);
+`;
 
 const FloatingIcon = styled.img`
   width: 15px;
