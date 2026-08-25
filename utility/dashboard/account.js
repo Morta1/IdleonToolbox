@@ -33,6 +33,9 @@ import { getCompassBonus } from '@parsers/class-specific/compass';
 // The game hard caps Arcanist weapon and ring drops at 100 each per day.
 const ARCANIST_DAILY_DROP_CAP = 100;
 
+// Weekly boss difficulty stops at 5 skulls, and trophies only drop on a new weekly best.
+const MAX_WEEKLY_BOSS_SKULLS = 5;
+
 // getAllItems rebuilds a multi-thousand-item array from every inventory, storage and the forge,
 // and useAlerts calls each world's alert function once per checked tracker subgroup with the same
 // parsed objects, so the merged lists are cached per (account, characters) pair.
@@ -580,8 +583,22 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
       alerts.arcade = arcade;
     }
   }
-  if (fields?.weeklyBosses?.checked && account?.accountOptions?.[190] === 0) {
-    alerts.weeklyBosses = account?.accountOptions?.[190] === 0;
+  if (fields?.weeklyBosses?.checked) {
+    const weeklyBosses = {};
+    // 190 is the daily "reset the raid" flag, it goes back to 0 every daily reset.
+    if (options?.weeklyBosses?.daily?.checked && account?.accountOptions?.[190] === 0) {
+      weeklyBosses.daily = true;
+    }
+    // 189 is the highest skull tier beaten this week and it caps at 5, no more trophies once it's there.
+    if (options?.weeklyBosses?.trophy?.checked) {
+      const bestSkulls = account?.accountOptions?.[189] ?? 0;
+      if (bestSkulls < MAX_WEEKLY_BOSS_SKULLS) {
+        weeklyBosses.trophy = { bestSkulls, maxSkulls: MAX_WEEKLY_BOSS_SKULLS };
+      }
+    }
+    if (Object.keys(weeklyBosses).length > 0) {
+      alerts.weeklyBosses = weeklyBosses;
+    }
   }
   if (fields?.killRoy?.checked) {
     const killroy = {};

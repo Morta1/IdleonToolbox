@@ -1736,6 +1736,34 @@ const migration68 = (config) => {
   return dashboardConfig;
 };
 
+const migration69 = (config) => {
+  const dashboardConfig = { ...config };
+
+  // The weekly boss alert used to be a single flag on a daily value, so stored configs have no options.
+  const weeklyBosses = dashboardConfig?.account?.['World 2']?.weeklyBosses;
+  if (weeklyBosses) {
+    const weeklyBossesOptions = Array.isArray(weeklyBosses.options) ? weeklyBosses.options : [];
+    if (!weeklyBossesOptions.some((o) => o?.name === 'daily')) {
+      weeklyBossesOptions.push({
+        name: 'daily',
+        checked: true,
+        helperText: 'Alert when you haven\'t reset the W2 boss raid today (bonus class exp and damage)'
+      });
+    }
+    if (!weeklyBossesOptions.some((o) => o?.name === 'trophy')) {
+      weeklyBossesOptions.push({
+        name: 'trophy',
+        checked: true,
+        helperText: 'Alert until you\'ve beaten 5 skulls this week, the point where trophies stop dropping'
+      });
+    }
+    weeklyBosses.options = weeklyBossesOptions;
+  }
+
+  dashboardConfig.version = 69;
+  return dashboardConfig;
+};
+
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) - baseTrackers is only used by some.
 const migrations = {
@@ -1806,6 +1834,7 @@ const migrations = {
   66: migration66,
   67: migration67,
   68: migration68,
+  69: migration69,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {
