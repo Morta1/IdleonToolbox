@@ -9,13 +9,17 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Tooltip,
   Typography
 } from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
+import Tooltip from '@components/Tooltip';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { getMaxDamage } from '@parsers/damage';
 import {
+  getStrongestAttack,
+  getEffectiveDamage,
   getHitsToKill,
+  getSkillDamage,
   getMinibosses,
   getMinibossHp,
   getOneShotPickleCap,
@@ -25,8 +29,16 @@ import {
 
 const hitsLabel = (hits) => {
   if (!isFinite(hits)) return 'no damage';
-  if (hits <= 1) return 'one shot';
+  if (hits <= 1) return '1 hit';
   return `${notateNumber(hits, 'Big')} hits`;
+};
+
+// Best case to worst case. They collapse to one number when nothing widens the gap, which is either
+// a character with no attack equipped or a miniboss that dies in a single hit either way.
+const rangeLabel = (skillHits, basicHits) => {
+  if (!isFinite(skillHits) || !isFinite(basicHits)) return 'no damage';
+  if (Math.ceil(skillHits) === Math.ceil(basicHits)) return hitsLabel(basicHits);
+  return `${notateNumber(skillHits, 'Big')} to ${hitsLabel(basicHits)}`;
 };
 
 const CharacterMinibosses = ({ characters, account, overridePickles, overrideHpMulti }) => {
@@ -42,7 +54,9 @@ const CharacterMinibosses = ({ characters, account, overridePickles, overrideHpM
         {characters?.length ? <>
           <Typography variant={'caption'}>
             Each cell shows the most pickles that character can carry and still one shot that miniboss. Underneath is
-            how the fight looks at the pickles in the Pickles column. {usingOverride
+            how many hits the kill takes at the pickles in the Pickles column, as a range. The low end
+            assumes every hit is that character's hardest equipped attack, the high end assumes basic
+            attacks only, and a real fight lands between them. Both ends count crits. {usingOverride
             ? 'Both are using the configuration above, not what each character actually has.'
             : 'Both are using each character\'s own equipped prayers and carried pickles.'}
           </Typography>
@@ -65,7 +79,9 @@ const CharacterMinibosses = ({ characters, account, overridePickles, overrideHpM
                 {characters.map((character) => {
                   const playerInfo = getMaxDamage(character, characters, account) || {};
                   const maxDamage = playerInfo?.maxDamage ?? 0;
-                  const averageDamage = ((playerInfo?.minDamage ?? 0) + maxDamage) / 2;
+                  const effectiveDamage = getEffectiveDamage(playerInfo, character);
+                  const skillDamage = getSkillDamage(playerInfo, character);
+                  const strongest = getStrongestAttack(character);
                   const prayerHpMulti = usingOverride ? overrideHpMulti : getPrayerHpMulti(character, account);
                   const carried = usingOverride ? overridePickles : getPickleCount(character);
                   return <TableRow key={character?.name}>
@@ -76,16 +92,29 @@ const CharacterMinibosses = ({ characters, account, overridePickles, overrideHpM
                         {character?.name}
                       </Stack>
                     </TableCell>
-                    <TableCell align={'right'}>{notateNumber(maxDamage, 'Big')}</TableCell>
+                    <TableCell align={'right'}>
+                      <Stack direction={'row'} alignItems={'center'} justifyContent={'flex-end'} gap={0.5}>
+                        {notateNumber(maxDamage, 'Big')}
+                        <Tooltip title={strongest
+                          ? `Hit counts run from every hit being ${cleanUnderscore(strongest.name)} at ${notateNumber(strongest.multi * 100, 'Big')}% damage, the hardest of ${strongest.count} equipped attacks, up to basic attacks only. A real fight mixes both.`
+                          : 'No attack equipped, so hit counts are basic attacks only'}>
+                          <InfoIcon fontSize={'small'} sx={{ color: 'text.secondary' }}/>
+                        </Tooltip>
+                      </Stack>
+                    </TableCell>
                     <TableCell align={'right'}>{carried}</TableCell>
                     {minibosses.map(({ rawName, baseHp }) => {
                       const cap = getOneShotPickleCap(maxDamage, baseHp, prayerHpMulti);
-                      const hits = getHitsToKill(getMinibossHp(baseHp, prayerHpMulti, carried), averageDamage);
+                      const hp = getMinibossHp(baseHp, prayerHpMulti, carried);
+                      const hits = getHitsToKill(hp, effectiveDamage);
+                      const skillHits = getHitsToKill(hp, skillDamage);
                       return <TableCell key={rawName} align={'center'}>
                         <Typography color={cap >= carried ? 'success.main' : 'error.main'}>
                           {cap < 0 ? '-' : cap}
                         </Typography>
-                        <Typography variant={'caption'} color={'text.secondary'}>{hitsLabel(hits)}</Typography>
+                        <Typography variant={'caption'} color={'text.secondary'} component={'div'}>
+                          {rangeLabel(skillHits, hits)}
+                        </Typography>
                       </TableCell>;
                     })}
                   </TableRow>;

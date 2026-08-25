@@ -9,6 +9,9 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 import raw from '../../data/raw.json';
 import { notateNumber } from '@utility/helpers';
 import {
+  getEffectiveDamage,
+  getHitsToKill,
+  getSkillDamage,
   getMinibosses,
   getMinibossHp,
   getOneShotPickleCap,
@@ -149,17 +152,33 @@ describe('Bone Joe Calculator page', () => {
     });
   });
 
-  it('reports one shot in a cell whose HP is inside a single max hit', () => {
+  it('counts hits off the crit lifted swing rather than the plain average', () => {
     renderPage({ characters, account });
     const character = characters[0];
-    const { maxDamage } = getMaxDamage(character, characters, account);
+    const playerInfo = getMaxDamage(character, characters, account);
     const prayerHpMulti = getPrayerHpMulti(character, account);
     const carried = getPickleCount(character);
+    const effectiveDamage = getEffectiveDamage(playerInfo);
     const cells = rowCells(character.name);
+
+    // Crits are worth a real multiple here, so pricing a swing at the plain average would inflate
+    // every hit count on the row. That gap is the bug this covers.
+    const averageDamage = (playerInfo.minDamage + playerInfo.maxDamage) / 2;
+    expect(effectiveDamage).toBeGreaterThan(averageDamage);
+
+    const skillDamage = getSkillDamage(playerInfo, character);
+    // The skill bound has to be the optimistic end, or the range reads backwards.
+    expect(skillDamage).toBeGreaterThanOrEqual(effectiveDamage);
 
     minibosses.forEach(({ baseHp }, index) => {
       const hp = getMinibossHp(baseHp, prayerHpMulti, carried);
-      if (hp <= maxDamage) expect(cells[3 + index]).toContain('one shot');
+      const hits = getHitsToKill(hp, effectiveDamage);
+      const skillHits = getHitsToKill(hp, skillDamage);
+      // Worst case is always shown; the best case joins it whenever the two differ.
+      expect(cells[3 + index]).toContain(hits <= 1 ? '1 hit' : notateNumber(hits, 'Big'));
+      if (Math.ceil(skillHits) !== Math.ceil(hits)) {
+        expect(cells[3 + index]).toContain(`${notateNumber(skillHits, 'Big')} to `);
+      }
     });
   });
 });
