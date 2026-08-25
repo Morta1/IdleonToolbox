@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.523',
     'date': '25/08/2026',
     'features': [
-      'Quests: a new Hide completed toggle hides every NPC whose quests you have already finished'
+      'Quests: a new Hide completed toggle hides every NPC whose quests you have already finished',
+      'Dashboard: refinery salt alerts now carry an icon showing which one fired: rank up, room to rank up, salt deficit, or missing materials'
     ],
     'fixes': [
       'Speedrun: the portal list counted maps that have no portal, portals that cost no kills, and two unreleased maps. All of them are gone, so the totals now match what a run can actually score',
