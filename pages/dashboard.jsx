@@ -17,7 +17,7 @@ import { getCrystalCountdownSkills } from '@parsers/talents';
 import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 
 const baseTrackers = {
-  version: 68,
+  version: 69,
   account: {
     General: {
       tasks: {
@@ -189,7 +189,21 @@ const baseTrackers = {
           }
         ]
       },
-      weeklyBosses: { checked: true, options: [] },
+      weeklyBosses: {
+        checked: true,
+        options: [
+          {
+            name: 'daily',
+            checked: true,
+            helperText: 'Alert when you haven\'t reset the W2 boss raid today (bonus class exp and damage)'
+          },
+          {
+            name: 'trophy',
+            checked: true,
+            helperText: 'Alert until you\'ve beaten 5 skulls this week, the point where trophies stop dropping'
+          }
+        ]
+      },
       killRoy: {
         checked: true,
         options: [

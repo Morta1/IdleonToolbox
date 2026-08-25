@@ -92,7 +92,10 @@ export const AccountOptions = {
   // Weekly Bosses
   WEEKLY_BOSSES_TURN: 185,
   WEEKLY_BOSSES_VALUE: 188,
+  // Highest skull tier beaten this week (0-5), resets weekly. Trophies only drop on a new best,
+  // so 5 means no more trophies until reset. Also what the boss battle talent scales off.
   BOSS_BATTLE_TALENT: 189,
+  // Daily "reset the raid" flag, back to 0 on every daily reset.
   WEEKLY_BOSSES: 190,
   GAMING_NUGGETS_SINCE_UPGRADE: 192,
   GEMS_FROM_BOSSES: 195,

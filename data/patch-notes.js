@@ -13,7 +13,8 @@ export const patchNotes = [
     ],
     'fixes': [
       'Speedrun: the portal list counted maps that have no portal, portals that cost no kills, and two unreleased maps. All of them are gone, so the totals now match what a run can actually score',
-      'Speedrun: the Emperor\'s portal payout follows Kattlekruk\'s difficulty rather than its own, which is what the game does'
+      'Speedrun: the Emperor\'s portal payout follows Kattlekruk\'s difficulty rather than its own, which is what the game does',
+      'Dashboard: the W2 weekly boss alert is now two separate alerts, one for the daily fight and one for the weekly trophy that stops once you\'ve beaten 5 skulls'
     ]
   },
   {
