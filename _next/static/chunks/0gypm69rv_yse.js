@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/account/world-7/sushi-station", [
+  "static/chunks/20dyzqdk-6ui9.js",
+  "static/chunks/0z4dexk147-5z.js",
+  "static/chunks/2txj_ut8vh7xm.js",
+  "static/chunks/26k3j2smocaip.js",
+  "static/chunks/0r28klnec03dk.js",
+  "static/chunks/146jzvwv62ois.js",
+  "static/chunks/3crj7nj7bef6f.js",
+  "static/chunks/0xhizqgsn13xz.js",
+  "static/chunks/3qxplbq_eubul.js",
+  "static/chunks/1br516-4bf2tl.js",
+  "static/chunks/1ir4i_xr1vm25.js",
+  "static/chunks/0dj18xc8uzhaq.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/0pae4-fba5svc.js",
+  "static/chunks/23a1hfta0xuuz.js",
+  "static/chunks/1vnypk4998n1m.js",
+  "static/chunks/turbopack-0rxdvtlmqoupm.js"
+])
