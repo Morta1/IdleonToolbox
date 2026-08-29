@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/account/class-specific/apocalypses", [
+  "static/chunks/2rh5uiecubc3g.js",
+  "static/chunks/2pau8sa5f99kv.js",
+  "static/chunks/1e5a_0qvp1u5w.js",
+  "static/chunks/0110rmud18twt.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/0u_7k5rrrnrd7.js",
+  "static/chunks/12y-0ru4s44ei.js",
+  "static/chunks/1ir4i_xr1vm25.js",
+  "static/chunks/0dj18xc8uzhaq.js",
+  "static/chunks/1b-2hh0ybq719.js",
+  "static/chunks/02izvnovrj152.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/2gzb9b57991_o.js",
+  "static/chunks/0-j5hey0cs_01.js",
+  "static/chunks/3i7_v14gmm2oo.js",
+  "static/chunks/2c1fp5nscxo6c.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/turbopack-286su3s22au1x.js"
+])
