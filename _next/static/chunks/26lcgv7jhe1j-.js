@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/account/world-3/atom-collider", [
+  "static/chunks/2pau8sa5f99kv.js",
+  "static/chunks/2ebw_s3tnqapc.js",
+  "static/chunks/16bisl8o8q4tm.js",
+  "static/chunks/1ir4i_xr1vm25.js",
+  "static/chunks/2gzb9b57991_o.js",
+  "static/chunks/1fvi82bj366bh.js",
+  "static/chunks/12y-0ru4s44ei.js",
+  "static/chunks/0u9lh463ouvcg.js",
+  "static/chunks/0dj18xc8uzhaq.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/160y6mw8rrblw.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/3pl6g-heuw4xv.js",
+  "static/chunks/3gxtuc-tawmu9.js",
+  "static/chunks/12m2f73tx9vqh.js",
+  "static/chunks/turbopack-3a2nk8ot8nmln.js"
+])

@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/account/world-2/cauldrons", [
+  "static/chunks/2pau8sa5f99kv.js",
+  "static/chunks/1ir4i_xr1vm25.js",
+  "static/chunks/1e5a_0qvp1u5w.js",
+  "static/chunks/3sf6ne11947ud.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/1ss141sk5qi8n.js",
+  "static/chunks/12y-0ru4s44ei.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/0dj18xc8uzhaq.js",
+  "static/chunks/18g1cf5o55k2_.js",
+  "static/chunks/160y6mw8rrblw.js",
+  "static/chunks/2fl51b9ick-mf.js",
+  "static/chunks/2gzb9b57991_o.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/1zo_6c0-_r9dt.js",
+  "static/chunks/12m2f73tx9vqh.js",
+  "static/chunks/turbopack-428_ftwn7yn5p.js"
+])
