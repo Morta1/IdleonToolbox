@@ -402,10 +402,12 @@ const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
       <TitleAndValue title={'Respawn rate'} value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}/>
       <TitleAndValue title={'Afk gains'}
                      value={afkGains == null ? 'N/A' : `${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}/>
-      <TitleAndValue title={'Crystal Chance'} value={(1 / crystalSpawnChance?.value) < 100
+      {/* effectiveValue, not value: the game rolls min(cap, chance), so the raw number overstates
+          how often a crystal actually spawns. */}
+      <TitleAndValue title={'Crystal Chance'} value={(1 / crystalSpawnChance?.effectiveValue) < 100
         ?
-        `${notateNumber(crystalSpawnChance?.value * 100, 'MultiplierInfo')?.replace('.00', '')}%`
-        : `1 in ${Math.floor(1 / crystalSpawnChance?.value)}`}/>
+        `${notateNumber(crystalSpawnChance?.effectiveValue * 100, 'MultiplierInfo')?.replace('.00', '')}%`
+        : `1 in ${Math.floor(1 / crystalSpawnChance?.effectiveValue)}`}/>
       <TitleAndValue title={'Non consume chance'} value={`${kFormatter(nonConsumeChance, 2)}%`}/>
     </Stack>)
   );

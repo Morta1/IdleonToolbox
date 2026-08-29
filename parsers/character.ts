@@ -2986,6 +2986,10 @@ export const getBarbarianZowChow = (allKills: any, thresholds: any) => {
     list
   }
 }
+// game: "CrystalSpawnCAP". The spawn roll is min(CAP, CrystalSpawn) > randomFloat(), so chance
+// above this never improves how often a crystal mob appears.
+const CRYSTAL_SPAWN_CAP = 0.1;
+
 export const getPlayerCrystalChance = (character: any, account: any, idleonData: any) => {
   const sailingRaw = tryToParse(idleonData?.Sailing) || idleonData?.Sailing;
   const acquiredArtifacts = sailingRaw?.[3];
@@ -3016,10 +3020,16 @@ export const getPlayerCrystalChance = (character: any, account: any, idleonData:
     * (1 + crystals4DaysBonus / 100)
     * (1 + crystallinStampBonus / 100);
   const value = (5 * eventShop42 + product) / 2000;
+  // Chance past the cap is not wasted, it becomes game: "CrystalEmbiggener" = max(1, spawn / CAP),
+  // which scales the EXP a crystal mob gives (ExpGiven = 30 * embiggener * base). Their HP is a
+  // flat 15x and is NOT affected. So `value` stays the raw number the breakdown adds up to, and
+  // `effectiveValue` is how often one actually spawns.
+  const effectiveValue = Math.min(CRYSTAL_SPAWN_CAP, value);
+  const embiggener = Math.max(1, value / CRYSTAL_SPAWN_CAP);
 
   const breakdown = {
     statName: "Crystal Chance",
-    totalValue: notateNumber(value * 100, 'MultiplierInfo'),
+    totalValue: notateNumber(effectiveValue * 100, 'MultiplierInfo'),
     categories: [
       {
         name: "Crystal kills",
@@ -3046,12 +3056,31 @@ export const getPlayerCrystalChance = (character: any, account: any, idleonData:
           { name: "Demon Genie Card", value: demonGenieBonus },
         ],
       },
+      {
+        name: "Cap",
+        sources: [
+          {
+            name: "Uncapped chance",
+            value: value * 100,
+            formatted: `${notateNumber(value * 100, 'MultiplierInfo')}%`
+          },
+          {
+            name: "Spawn cap",
+            value: CRYSTAL_SPAWN_CAP * 100,
+            formatted: `${CRYSTAL_SPAWN_CAP * 100}%`
+          },
+        ],
+      },
     ],
   }
 
   return {
     breakdown,
     value,
+    effectiveValue,
+    cap: CRYSTAL_SPAWN_CAP,
+    capped: value > CRYSTAL_SPAWN_CAP,
+    embiggener,
     expression: `(5 * eventShop42 + product) / 2000
  product = (1 + cmonOutCrystalsBonus / 100)
  * (1 + (nonPredatoryBoxBonus + crystalShrineBonus + companion171Bonus + poopCardBonus + demonGenieBonus) / 100)
