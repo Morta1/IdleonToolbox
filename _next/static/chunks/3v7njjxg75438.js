@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/account/misc/storage", [
+  "static/chunks/3tf6ap4won2bp.js",
+  "static/chunks/3l299_g133h9i.js",
+  "static/chunks/1e5a_0qvp1u5w.js",
+  "static/chunks/26k3j2smocaip.js",
+  "static/chunks/1ir4i_xr1vm25.js",
+  "static/chunks/1ayj-8wp4_64k.js",
+  "static/chunks/0hpbe7yls5803.js",
+  "static/chunks/0xhizqgsn13xz.js",
+  "static/chunks/2gzb9b57991_o.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/0u_7k5rrrnrd7.js",
+  "static/chunks/12m2f73tx9vqh.js",
+  "static/chunks/04-d1tp65ssvp.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/12y-0ru4s44ei.js",
+  "static/chunks/0dj18xc8uzhaq.js",
+  "static/chunks/3-fj-v7tyr1bq.js",
+  "static/chunks/turbopack-0n1dzd8590h9p.js"
+])
