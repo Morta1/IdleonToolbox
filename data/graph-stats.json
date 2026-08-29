@@ -1,12 +1,12 @@
 {
   "nodes": {
-    "item": 2451,
+    "item": 2454,
     "monster": 402,
     "npc": 118,
     "quest": 348,
     "shop": 12,
     "bundle": 53,
-    "pet": 92,
+    "pet": 93,
     "talent": 376,
     "class": 23,
     "achievement": 268,
@@ -16,7 +16,7 @@
     "world": 7
   },
   "edges": {
-    "drops": 4268,
+    "drops": 4269,
     "craftedFrom": 1071,
     "rewards": 733,
     "requires": 213,

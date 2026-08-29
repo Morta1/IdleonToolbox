@@ -153,19 +153,24 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   const maxHP_You = Math.round(3 + getUpgradeQTY(6));
 
   // Base DMG:
-  //   (1 + QTY(0) + QTY(7) + QTY(25)) * (1 + (QTY(4)+QTY(21)+QTY(27)) / 100)
+  //   (1 + QTY(0) + QTY(7) + QTY(25) + dancingCoral(5)) * (1 + (QTY(4)+QTY(21)+QTY(27)) / 100)
   //   * (1 + grid167 / 100)
   const grid167Bonus = getResearchGridBonus(account, 167, 0);
   const nomenclatureAcquired = isArtifactAcquired(account?.sailing?.artifacts, 'Nomenclature')?.acquired ?? 0;
+  // game: Thingies("DancingCoralBonus", 5, 0) - the Aegean Coral tier feeds Minehead DMG and
+  // Minehead currency with the same number. Read off the account rather than imported: coralReef
+  // parses immediately before minehead in every serializeData pass, and importing it back here
+  // would close a cycle (coralReef already imports getMineheadBonusQTY from this file).
+  const dancingCoral5 = account?.coralReef?.dancingCoral?.[5]?.bonus ?? 0;
   const baseDMG =
-    (1 + getUpgradeQTY(0) + getUpgradeQTY(7) + getUpgradeQTY(25))
+    (1 + getUpgradeQTY(0) + getUpgradeQTY(7) + getUpgradeQTY(25) + dancingCoral5)
     * (1 + (getUpgradeQTY(4) + getUpgradeQTY(21) + getUpgradeQTY(27)) / 100)
     * (1 + grid167Bonus / 100)
     * (1 + (50 * nomenclatureAcquired) / 100);
 
   // Currency gain per hour:
   //   grid129 * (1+grid148/100) * companionMulti * min(3, 1+BonusQTY(6)/100)
-  //   * (1 + (QTY(5)+QTY(22)+QTY(28)*log10(bestHit)+arcade62) / 100)
+  //   * (1 + (QTY(5)+QTY(22)+QTY(28)*log10(bestHit)+arcade62+dancingCoral(5)) / 100)
   //   * (1 + atom13 / 100)
   //   * (1 + (grid147 + mealMineCurr) / 100)
   const grid129Bonus = getResearchGridBonus(account, 129, 0);
@@ -199,6 +204,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
         + getUpgradeQTY(22)
         + getUpgradeQTY(28) * Math.log10(Math.max(1, bestHit))
         + arcade62Bonus
+        + dancingCoral5
       ) / 100)
     * (1 + atom13Bonus / 100)
     * (1 + (grid147Bonus + grid166Bonus + mealMineCurrBonus) / 100)
@@ -221,6 +227,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
         { name: 'Royal Guardian Outpost', value: outpostRogBonus },
         { name: 'Opponent Bonus (capped 3x)', value: Math.min(3, 1 + getBonusQTY(6) / 100) },
         { name: 'Arcade Shop', value: 1 + arcade62Bonus / 100 },
+        { name: 'Dancing Coral (Aegean)', value: 1 + dancingCoral5 / 100 },
         { name: 'Atom Collider (Silicon)', value: 1 + atom13Bonus / 100 },
         { name: 'Cooking Meal', value: 1 + mealMineCurrBonus / 100 },
         { name: 'Sushi Station', value: 1 + getSushiBonus(account, 12) / 100 },

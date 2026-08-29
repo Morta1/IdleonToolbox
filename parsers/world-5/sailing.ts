@@ -375,8 +375,8 @@ const getBoat = (boat: any, boatIndex: any, lootPile: any, captains: any, artifa
   }
 
   const daveyJones = getDaveyJonesBonus(account, lootLevel, speedLevel);
-  boatObj.resources = getBoatResources(boatObj, lootPile);
-  boatObj.breakpointResources = getBoatBreakdownResources(boatObj, lootPile);
+  boatObj.resources = getBoatResources(boatObj, lootPile, account);
+  boatObj.breakpointResources = getBoatBreakdownResources(boatObj, lootPile, account);
   boatObj.loot = getBoatLootValue(characters, account, artifactsList, boatObj, captain, daveyJones);
   const frame = getBoatFrame(lootLevel + speedLevel, account);
   boatObj.speed = getBoatSpeedValue(captain, island, speedLevel, baseSpeed * daveyJones, minimumTravelTime, frame)
@@ -448,25 +448,25 @@ const getCaptain = (captain: any, index: any, isShop: any) => {
 }
 
 
-const getBoatBreakdownResources = (boat: any, lootPile: any) => {
+const getBoatBreakdownResources = (boat: any, lootPile: any, account: any) => {
   let sum = [{ required: 0 }, { required: 0 }];
   const lootBreakpoint = boat?.lootLevel + (8 - (boat?.lootLevel % 8));
   const speedBreakpoint = boat?.speedLevel + (7 - (boat?.speedLevel % 7));
   for (let level = boat?.lootLevel; level < lootBreakpoint; level++) {
-    const [resource] = getBoatResources({ ...boat, lootLevel: level }, lootPile);
+    const [resource] = getBoatResources({ ...boat, lootLevel: level }, lootPile, account);
     sum[0] = { ...resource, required: sum[0].required + resource?.required };
   }
   for (let level = boat?.speedLevel; level < speedBreakpoint; level++) {
-    const [, resource] = getBoatResources({ ...boat, speedLevel: level }, lootPile);
+    const [, resource] = getBoatResources({ ...boat, speedLevel: level }, lootPile, account);
     sum[1] = { ...resource, required: sum[1].required + resource?.required };
   }
   return sum;
 }
-const getBoatResources = (boat: any, lootPile: any) => {
+const getBoatResources = (boat: any, lootPile: any, account: any) => {
   return [0, 1].map((index) => {
     const boatType = getBoatUpgradeCostType(boat?.boatIndex, index);
     return {
-      required: getBoatUpgradeCost(boat, index),
+      required: getBoatUpgradeCost(boat, index, account),
       ...(lootPile?.[boatType] || {})
     }
   });
@@ -476,18 +476,19 @@ const getBoatUpgradeCostType = (boatIndex: any, itemIndex: any) => {
     2 > boatIndex ? boatIndex : 5 > boatIndex ? 1 + 2 * (boatIndex - 2) : Math.min(30, 2 * (boatIndex - 4));
 }
 
-const getBoatUpgradeCost = (boat: any, itemIndex: any) => {
+const getBoatUpgradeCost = (boat: any, itemIndex: any, account: any) => {
   const boatType = getBoatUpgradeCostType(boat?.boatIndex, itemIndex);
   const value = itemIndex === 0 ? boat?.lootLevel : boat?.speedLevel;
-  if (boatType === 0) {
-    return Math.round((5 + 4 * value) * Math.pow(1.17 - .12 * value / (value + 200), value))
-  }
-  else if (boatType % 2 === 1) {
-    return Math.round((5 + 2 * value) * Math.pow(1.15 - (0.1 * value) / (value + 200), value));
-  }
-  else {
-    return Math.round((2 + value) * Math.pow(1.12 - (0.07 * value) / (value + 200), value));
-  }
+  // game: "SailzCR" - event shop 55 "Boat Discount", one flag worth 1/1.43 (30% cheaper).
+  const costReduction = 1 / (1 + Math.max(0, 0.43 * getEventShopBonus(account, 55)));
+  const base = boatType === 0
+    ? (5 + 4 * value) * Math.pow(1.17 - (0.12 * value) / (value + 200), value)
+    : boatType % 2 === 1
+      ? (5 + 2 * value) * Math.pow(1.15 - (0.1 * value) / (value + 200), value)
+      : (2 + value) * Math.pow(1.12 - (0.07 * value) / (value + 200), value);
+  // The game only floors while the cost is under 1e6 and leaves it fractional above that.
+  const cost = base * costReduction;
+  return cost < 1e6 ? Math.floor(cost) : cost;
 }
 
 const getFinalBoatSpeed = ({ speedLevel, captainSpeedBonus, baseSpeed }: any) => {

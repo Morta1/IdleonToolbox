@@ -169,10 +169,10 @@ describe('getSpeedrunRoute', () => {
 
   it('drops the maps the game never gave a name', () => {
     const route = getSpeedrunRoute(account, characters, character);
-    // uAquaB9 / uAquaB10. Nothing leads into them - 322's forward exit points back at itself - and
-    // saves that cleared 322 and the Pirate branch past them still sit at the base requirement.
+    // uAquaB10 only. 2.3.527 shipped 323 (uAquaB9) as Ancient_Fissure and rewired 322's forward
+    // exit into it, so 323 is a real stop on the route now and only 324 is still unnamed.
     expect(route.filter(({ mapName }) => mapName === 'fillername')).toHaveLength(0);
-    [323, 324].forEach((mapIndex) => {
+    [324].forEach((mapIndex) => {
       expect(route.filter((portal) => portal.mapIndex === mapIndex)).toHaveLength(0);
     });
   });

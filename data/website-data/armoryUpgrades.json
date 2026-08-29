@@ -147,7 +147,7 @@
     "name": "Tundra_Outpost_PTS",
     "baseCost": 1,
     "costScaling": 1.6,
-    "costResourceIndex": 3,
+    "costResourceIndex": 2,
     "maxLevel": 999999,
     "bonusPerLevel": 1,
     "unlockTotalLevels": 75,
@@ -199,7 +199,7 @@
     "name": "Shimmerfin_Outpost_PTS",
     "baseCost": 1,
     "costScaling": 1.9,
-    "costResourceIndex": 4,
+    "costResourceIndex": 3,
     "maxLevel": 999999,
     "bonusPerLevel": 1,
     "unlockTotalLevels": 115,
@@ -264,7 +264,7 @@
     "name": "Tremendous_Traders",
     "baseCost": 1,
     "costScaling": 2.1,
-    "costResourceIndex": 10,
+    "costResourceIndex": 5,
     "maxLevel": 999999,
     "bonusPerLevel": 20,
     "unlockTotalLevels": 260,
@@ -280,7 +280,7 @@
     "costResourceIndex": 10,
     "maxLevel": 10,
     "bonusPerLevel": 5,
-    "unlockTotalLevels": 290,
+    "unlockTotalLevels": 270,
     "x7": 0,
     "x8": 0,
     "description": "Each_Guard_Unit_now_increases_the_connection_range_of_their_Outpost_by_+$px"
@@ -293,7 +293,7 @@
     "costResourceIndex": 11,
     "maxLevel": 999999,
     "bonusPerLevel": 15,
-    "unlockTotalLevels": 320,
+    "unlockTotalLevels": 280,
     "x7": 0,
     "x8": 0,
     "description": "Each_Surveyor_Unit_now_gives_$_EXP/hr_toward_their_Outpost's_Intel_Rank."
@@ -306,7 +306,7 @@
     "costResourceIndex": 11,
     "maxLevel": 999999,
     "bonusPerLevel": 25,
-    "unlockTotalLevels": 350,
+    "unlockTotalLevels": 300,
     "x7": 0,
     "x8": 0,
     "description": "Each_Militia_Unit_now_clears_away_$_Monsters/hr_in_Uncontrolled_Maps."
@@ -319,7 +319,7 @@
     "costResourceIndex": 11,
     "maxLevel": 999999,
     "bonusPerLevel": 5,
-    "unlockTotalLevels": 380,
+    "unlockTotalLevels": 320,
     "x7": 0,
     "x8": 0,
     "description": "Each_Commander_Unit_now_gives_$_EXP/hr_toward_their_Outpost's_Command_Rank."
@@ -332,7 +332,7 @@
     "costResourceIndex": 12,
     "maxLevel": 999999,
     "bonusPerLevel": 5,
-    "unlockTotalLevels": 400,
+    "unlockTotalLevels": 340,
     "x7": 0,
     "x8": 0,
     "description": "Each_Knight_Unit_now_gives_$_EXP/hr_toward_their_Outpost's_Military_Rank."
@@ -345,7 +345,7 @@
     "costResourceIndex": 12,
     "maxLevel": 999999,
     "bonusPerLevel": 10,
-    "unlockTotalLevels": 430,
+    "unlockTotalLevels": 380,
     "x7": 0,
     "x8": 0,
     "description": "Each_Priest_Unit_now_gives_$_EXP/hr_toward_their_Outpost's_Purity_Rank."
@@ -358,7 +358,7 @@
     "costResourceIndex": 10,
     "maxLevel": 1,
     "bonusPerLevel": 1,
-    "unlockTotalLevels": 450,
+    "unlockTotalLevels": 400,
     "x7": 0,
     "x8": 0,
     "description": "Unlocks_the_Trader_profession,_who_level_up_their_Outpost's_Trading_Rank!_Swap_professions_via_'Upgrade_Outposts'_button."
@@ -371,7 +371,7 @@
     "costResourceIndex": 13,
     "maxLevel": 1,
     "bonusPerLevel": 1,
-    "unlockTotalLevels": 490,
+    "unlockTotalLevels": 420,
     "x7": 0,
     "x8": 0,
     "description": "Unlocks_the_Guard_profession,_who_boost_their_Outpost's_connection_range!_Swap_professions_via_'Upgrade_Outposts'_button."
@@ -384,7 +384,7 @@
     "costResourceIndex": 13,
     "maxLevel": 1,
     "bonusPerLevel": 1,
-    "unlockTotalLevels": 520,
+    "unlockTotalLevels": 450,
     "x7": 0,
     "x8": 0,
     "description": "Unlocks_the_Surveyor_profession,_who_level_up_their_Outpost's_Intel_Rank!_Swap_professions_via_'Upgrade_Outposts'_button."
@@ -397,7 +397,7 @@
     "costResourceIndex": 14,
     "maxLevel": 1,
     "bonusPerLevel": 1,
-    "unlockTotalLevels": 550,
+    "unlockTotalLevels": 480,
     "x7": 0,
     "x8": 0,
     "description": "Adds_a_new_button_to_the_World_Map!_When_enabled,_you_can_click_and_drag_on_your_Outposts_to_connect_them_to_Resources!"
@@ -410,7 +410,7 @@
     "costResourceIndex": 13,
     "maxLevel": 1,
     "bonusPerLevel": 1,
-    "unlockTotalLevels": 600,
+    "unlockTotalLevels": 520,
     "x7": 0,
     "x8": 0,
     "description": "Adds_a_new_button_to_the_World_Map!_When_enabled,_you_can_click_on_any_Outpost_and_spend_its_PTS_on_upgrades!"
@@ -423,7 +423,7 @@
     "costResourceIndex": 14,
     "maxLevel": 1,
     "bonusPerLevel": 1,
-    "unlockTotalLevels": 650,
+    "unlockTotalLevels": 560,
     "x7": 0,
     "x8": 0,
     "description": "Adds_a_new_button_to_the_World_Map!_When_enabled,_you_can_click_and_drag_Movable_Units_to_change_which_Outpost_they're_stationed_at!"
@@ -436,7 +436,7 @@
     "costResourceIndex": 15,
     "maxLevel": 10,
     "bonusPerLevel": 10,
-    "unlockTotalLevels": 700,
+    "unlockTotalLevels": 590,
     "x7": 0,
     "x8": 0,
     "description": "Verminous_Rats,_found_in_the_cellar_dungeon_of_the_Royal_Castle,_respawn_+{%_faster."
@@ -449,7 +449,7 @@
     "costResourceIndex": 14,
     "maxLevel": 100,
     "bonusPerLevel": 1,
-    "unlockTotalLevels": 750,
+    "unlockTotalLevels": 630,
     "x7": 0,
     "x8": 0,
     "description": "Boosts_the_respawn_rate_of_Verminous_Rats_by_a_further_+{%"
@@ -462,7 +462,7 @@
     "costResourceIndex": 15,
     "maxLevel": 999999,
     "bonusPerLevel": 5,
-    "unlockTotalLevels": 800,
+    "unlockTotalLevels": 660,
     "x7": 0,
     "x8": 0,
     "description": "Boosts_the_base_damage_you_deal_within_the_Royal_Castle_by_+{"
@@ -475,7 +475,7 @@
     "costResourceIndex": 15,
     "maxLevel": 999999,
     "bonusPerLevel": 2,
-    "unlockTotalLevels": 850,
+    "unlockTotalLevels": 710,
     "x7": 0,
     "x8": 0,
     "description": "Boosts_the_total_damage_you_deal_within_the_Royal_Castle_by_+{%"
@@ -488,7 +488,7 @@
     "costResourceIndex": 20,
     "maxLevel": 1,
     "bonusPerLevel": 1,
-    "unlockTotalLevels": 900,
+    "unlockTotalLevels": 750,
     "x7": 0,
     "x8": 0,
     "description": "Verminous_Rats_now_have_a_1_in_$_chance_to_drop_Parchments_of_Enchantment,_which_are_used_to_upgrade_Royal_Statues!"
@@ -501,7 +501,7 @@
     "costResourceIndex": 20,
     "maxLevel": 999999,
     "bonusPerLevel": 1,
-    "unlockTotalLevels": 950,
+    "unlockTotalLevels": 800,
     "x7": 0,
     "x8": 0,
     "description": "Boosts_the_drop_rate_of_Parchments_of_Enchantment_by_+{%"
@@ -514,7 +514,7 @@
     "costResourceIndex": 20,
     "maxLevel": 100,
     "bonusPerLevel": 1,
-    "unlockTotalLevels": 1000,
+    "unlockTotalLevels": 850,
     "x7": 0,
     "x8": 0,
     "description": "Whenever_you_pick_up_Parchments_of_Enchantment,_there_is_a_$%_chance_to_get_DOUBLE!_So_like,_two_of_them!"
@@ -527,7 +527,7 @@
     "costResourceIndex": 21,
     "maxLevel": 50,
     "bonusPerLevel": 1,
-    "unlockTotalLevels": 1050,
+    "unlockTotalLevels": 900,
     "x7": 0,
     "x8": 0,
     "description": "When_using_Parchments_of_Enchantment_to_upgrade_Royal_Statues,_there_is_a_$%_chance_they_are_not_used_up._Free_Usage!"
@@ -540,7 +540,7 @@
     "costResourceIndex": 22,
     "maxLevel": 50,
     "bonusPerLevel": 1,
-    "unlockTotalLevels": 1100,
+    "unlockTotalLevels": 950,
     "x7": 0,
     "x8": 0,
     "description": "Mobs_in_maps_with_outposts_have_a_1_in_$_chance_to_drop_special_Marble_items,_which_are_used_to_unlock_the_Royal_Statues!"
@@ -553,7 +553,7 @@
     "costResourceIndex": 21,
     "maxLevel": 3,
     "bonusPerLevel": 1,
-    "unlockTotalLevels": 1150,
+    "unlockTotalLevels": 1000,
     "x7": 0,
     "x8": 0,
     "description": "You_can_modify_{_Outposts_per_World_into_Support_Camps._Connects_to_other_outposts,_givin'_$"
@@ -566,7 +566,7 @@
     "costResourceIndex": 21,
     "maxLevel": 100,
     "bonusPerLevel": 1,
-    "unlockTotalLevels": 1200,
+    "unlockTotalLevels": 1100,
     "x7": 0,
     "x8": 0,
     "description": "Support_Camps_give_}x_higher_boosts_to_their_connected_Outposts!"
@@ -579,7 +579,7 @@
     "costResourceIndex": 22,
     "maxLevel": 3,
     "bonusPerLevel": 1,
-    "unlockTotalLevels": 1250,
+    "unlockTotalLevels": 1200,
     "x7": 0,
     "x8": 0,
     "description": "You_can_now_modify_{_Outpost_per_World_into_Savage_Strongholds!_They_remove_$x_more_resources,_but_you_don't_keep_any!"
@@ -760,7 +760,7 @@
     "costScaling": 1.16,
     "costResourceIndex": 31,
     "maxLevel": 1000,
-    "bonusPerLevel": 5,
+    "bonusPerLevel": 4,
     "unlockTotalLevels": 1950,
     "x7": 0,
     "x8": 0,
@@ -913,10 +913,10 @@
     "index": 70,
     "name": "Resource_Replenish",
     "baseCost": 1,
-    "costScaling": 1.06,
+    "costScaling": 1.05,
     "costResourceIndex": 9,
     "maxLevel": 1000,
-    "bonusPerLevel": 5,
+    "bonusPerLevel": 1,
     "unlockTotalLevels": 8800,
     "x7": 0,
     "x8": 0,

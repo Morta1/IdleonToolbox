@@ -7,7 +7,7 @@ import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from '@parsers/world-2/alchemy';
-import { getHighestCharacterSkill, isArenaBonusActive, isMasteryBonusUnlocked, isCompanionBonusActive } from '@parsers/misc';
+import { getEventShopBonus, getHighestCharacterSkill, isArenaBonusActive, isMasteryBonusUnlocked, isCompanionBonusActive } from '@parsers/misc';
 import { getAchievementStatus } from '@parsers/achievements';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getShinyBonus } from '@parsers/world-4/breeding';
@@ -310,6 +310,8 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
 
   // Shared bonus inputs (all reused from existing parsers).
   const companion87 = isCompanionBonusActive(account, 87) ? 1 : 0; // Rift Spooker companion
+  // Event shop 54 "Bejeweled Ladle" - +5 Purple and Yellow PTS, same bracket as Rift Spooker.
+  const bejeweledLadle = getEventShopBonus(account, 54);
   const gridBonusExp = account?.research?.gridSquares?.[190]?.bonuses?.[0] ?? 0; // Masterius Cookerius (EXP)
   const gridBonusPts = account?.research?.gridSquares?.[190]?.bonuses?.[1] ?? 0; // Masterius Cookerius (extra points)
   const superbit68 = isSuperbitUnlocked(account, 'Cooking_Master') ? 1 : 0;
@@ -384,7 +386,7 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
 
   const categorySpent = (cookMaster?.[2] ?? []).reduce((sum: number, v: any) => sum + (Number(v) || 0), 0);
   const nodeSpent = (cookMaster?.[0] ?? []).reduce((sum: number, v: any) => sum + (Number(v) || 0), 0);
-  const basePoints = level + (1 + 5 * companion87);
+  const basePoints = level + (1 + 5 * bejeweledLadle + 5 * companion87);
 
   // Only the first 6 thresholds are used by the game (one per flavor category); 150/250/500 are unused.
   const categoryUnlockLevels = COOKING_MASTERY_RANK_THRESHOLDS.slice(0, 6);
@@ -462,6 +464,8 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
     const turtleVial = getVialsBonusByStat(account?.alchemy?.vials, '6turtle');
     const extraCookingSpeedVials = getVialsBonusByStat(account?.alchemy?.vials, '6CookSpd');
     const cookingSpeedMeals = getMealsBonusByEffectOrStat(account, null, 'Mcook');
+    // Event shop 53 "Dough Roller" - one flag worth a flat 2x meal speed.
+    const doughRoller = getEventShopBonus(account, 53);
     const diamondChef = getBubbleBonus(account, 'DIAMOND_CHEF', false);
     const kitchenEffMeals = getMealsBonusByEffectOrStat(account, null, 'KitchenEff');
     const trollCard = account?.cards?.Massive_Troll; // Kitchen Eff card
@@ -526,6 +530,7 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
       * (1 + voidWalkerBonusTalent / 100)
       * Math.max(1, account?.farming?.cropDepot?.cookingSpeed?.value)
       * Math.max(1, voidWalkerApocalypseBonus)
+      * (1 + doughRoller)
       * (1 + richelinBonus)
       * (1 + voteBonus / 100)
       * (1 + upgradeVaultBonus / 100)
@@ -564,6 +569,7 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
             { name: "Blood Marrow (Talent)", value: 1 + voidWalkerBonusTalent / 100 },
             { name: "Crop Depot", value: Math.max(1, account?.farming?.cropDepot?.cookingSpeed?.value) },
             { name: "Enhancement Eclipse", value: Math.max(1, voidWalkerApocalypseBonus) },
+            { name: "Dough Roller (Event Shop)", value: 1 + doughRoller },
             { name: "Richelin Kitchen", value: 1 + richelinBonus },
             { name: "Vote Bonus", value: 1 + voteBonus / 100 },
             { name: "Upgrade Vault", value: 1 + upgradeVaultBonus / 100 },

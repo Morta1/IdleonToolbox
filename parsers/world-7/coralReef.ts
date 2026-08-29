@@ -65,13 +65,16 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
     'Twisted_Coral',
     'Eternal_Coral'
   ];
+  // Kept hand-written rather than derived from monsterDrops: that catalog is ~3.8MB and nothing
+  // else in the bundle imports it. Verified against monsterDrops for Coral1-5; the last three
+  // corals have no drop entry yet, so their source is a guess until the tiers actually ship.
   const dancingCoralDropResources = [
     'Generated_Daily_in_Town',
     'Dropped_by_Shellslugs',
     'Dropped_by_Litterfish',
     'Dropped_by_Coralcave_Crab',
     'Dropped_by_Eggroll',
-    'Dropped_by_Glowfish',
+    'Dropped_by_Ancientfish',
     'Dropped_by_RIPtide',
     'Dropped_by_RIPtide',
     'Dropped_by_RIPtide'
@@ -346,6 +349,11 @@ const getDancingCoralDescription = (baseDescription: any, account: any, index: a
   const multiplier = 1 + baseBonus / 100;
   const multiplierNotation = notateNumber(multiplier, 'MultiplierInfo');
   description = description.replace('}', multiplierNotation);
+
+  // Coral 5 reads "+{%_Minehead_DMG潤Money". That glyph is an in-game icon font character (it only
+  // resolves inside the game's own font atlas), so it renders as mojibake on the site. The one
+  // bonus really does apply to both Minehead DMG and Minehead Money, so spell the pair out.
+  description = description.replace(/潤/g, '_&_');
 
   return description;
 }

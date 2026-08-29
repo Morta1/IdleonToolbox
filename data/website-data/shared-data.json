@@ -2582,6 +2582,9 @@
     },
     "ban_h": {
       "message": "The_Coralcave_Guardian_boosts_your_Royal_Guardian's_resource_collection_rate_by_3x,_and_the_Arctic_Furcoat_and_Bladed_Cape_pack_a_punch_too!_Click_to_check_it_out!"
+    },
+    "ban_i": {
+      "message": "Zzzz..._Rice_pet..._gems..._winning..._Click_to_check_out_my_dream_pack!"
     }
   },
   "ButtonBonusNames": [
@@ -4349,7 +4352,8 @@
         165,
         166,
         169,
-        173
+        173,
+        174
       ]
     }
   ],
@@ -10150,10 +10154,10 @@
       "250",
       "1000",
       "3000",
-      "10000",
       "25000",
-      "100000",
-      "500000"
+      "500000",
+      "10000000",
+      "250000000"
     ],
     [
       "+{%_Daily_Reef_Coral",
@@ -10161,7 +10165,7 @@
       "+{%_Spelunking_Amber_gain",
       "}x_Class_EXP_gain",
       "+{%_Research_EXP",
-      "+{%_who_knows",
+      "+{%_Minehead_DMG潤Money",
       "+{%_who_knows",
       "+{%_who_knows",
       "+{%_who_knows"
@@ -10172,7 +10176,7 @@
       "3",
       "4",
       "3",
-      "1",
+      "5",
       "1",
       "1",
       "1"
@@ -23448,7 +23452,7 @@
     "320": "Where_the_Kelp_Meets_Trench",
     "321": "Trench_Precipice",
     "322": "The_Glowing_Underbelly",
-    "323": "fillername",
+    "323": "Ancient_Fissure",
     "324": "fillername",
     "325": "Pirate_Mess_Hall",
     "326": "Dreadnaught_Chamber"
@@ -24018,10 +24022,10 @@
       322
     ],
     "322": [
-      322
+      323
     ],
     "323": [
-      324
+      323
     ],
     "324": [
       324
@@ -28070,13 +28074,13 @@
       "Coin_Stacking_@_Get_a_1.50x_multiplier_to_ALL_coin_gain,_and_profit_big_time!",
       "15",
       "Storage_Chest_@_Get_+12_storage_slots_for_your_storage_chest",
-      "15",
+      "20",
       "Storage_Vault_@_Get_+16_storage_slots_for_your_storage_chest",
       "40",
       "Secret_Pouch_@_Get_+3_Inventory_slots_for_your_Items_Backpack",
       "30",
       "Ribbon_Connoisseur_@_Get_+3_more_ribbons_every_day_for_your_Ribbon_Shelf",
-      "55",
+      "60",
       "Golden_Square_@_Get_+1_Trimmed_Construction_slot,_which_has_3x_speed!",
       "23",
       "Summoning_Star_@_Get_+10_Summoning_Doublers,_used_on_Summoning_Upgrades!",
@@ -28088,7 +28092,7 @@
       "Extra_Exaltedness_@_Get_+1_Exalted_Stamp_use,_and_+20%_Exalt_Bonus.",
       "35",
       "Smiley_Statue_@_All_statues_give_1.30x_higher_bonuses,_forever!",
-      "70",
+      "90",
       "Government_Subsidy_@_Get_1.60x_more_coins_from_defeating_monsters!",
       "17",
       "Automated_Mail_@_Get_+5_Boxes_at_the_Post_Office_every_day_you_play!",
@@ -28110,7 +28114,7 @@
       "Worldclass_Showcase_@_Turns_a_Gallery_Slot_in_World_7_to_Grade_4",
       "180",
       "King_of_the_Rack_@_+10%_Hat_Rack_Bonus_Multi",
-      "30",
+      "35",
       "Omega_Bubble_@_Kattlekruk_divinity_gives_1.50x_more_daily_bubbles",
       "90",
       "Legend_Scroll_@_Get_+2_more_Legend_Talent_PTS_for_World_7",
@@ -28150,7 +28154,17 @@
       "Doggie_Sticker_@_Boosts_Sticker_odds_by_2x_daily,_resets_when_finding_one",
       "250",
       "6_Star_Cardifiers_@_Gives_you_EIGHT_usable_6star_cardifiers!",
-      "200"
+      "200",
+      "Elegant_Ribbons_@_New_ribbons_have_25%_chance_to_be_+1_Tier_higher!",
+      "190",
+      "Fishmaxxing_@_5x_Fish_and_75%_cheaper_upgrades_for_Poppy!",
+      "275",
+      "Dough_Roller_@_2x_Cooking_Speed",
+      "50",
+      "Bejeweled_Ladle_@_+5_Purple_and_Yellow_PTS_for_Cooking_Mastery!",
+      "250",
+      "Boat_Discount_@_All_sailing_boat_upgrades_are_30%_cheaper",
+      "100"
     ],
     [
       "ForestBOSS",
@@ -28804,7 +28818,7 @@
     "Builder_Bird": [
       0
     ],
-    "Coastiolyte": [
+    "Bort": [
       0
     ],
     "Snake_Jar": [
@@ -35228,8 +35242,8 @@
       "61",
       "57",
       "23",
-      "47",
       "0",
+      "47",
       "10",
       "80",
       "28",
@@ -36710,7 +36724,7 @@
       "index": 23,
       "x": 271,
       "y": 185,
-      "baseMaxQuantity": 1000,
+      "baseMaxQuantity": 6000,
       "resourceIndex": 10
     },
     {
@@ -36731,7 +36745,7 @@
       "index": 26,
       "x": 353,
       "y": 228,
-      "baseMaxQuantity": 500,
+      "baseMaxQuantity": 1000,
       "resourceIndex": 10
     },
     {

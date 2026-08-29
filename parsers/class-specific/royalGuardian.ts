@@ -545,14 +545,16 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
   const xtraClearKillz = warboundPoliticsBonus * (1 + (orbletBonus(3) + getAdviceFishBonus(account, 6)) / 100);
   const militiaClearRate = 4000 * (1 + armoryBonus(23) / 100) * xtraClearKillz; // game: "UnitSpecEffect"(4)
 
-  // game: "BarExpRate" - EXP/hr into one rank bar of one outpost. Two things here look wrong and
-  // are deliberate: the game passes the RANK TYPE to isMapPurified, which takes a MAP, so the
-  // purity term reads maps 0-4 rather than the outpost's own; and its Glorified 2x doubles
-  // rBarXPdn before calling BarExpRate_Base, which reassigns that same variable, so the doubling
-  // never survives. Both are replicated so the site matches what the game prints.
+  // game: "BarExpRate" - EXP/hr into one rank bar of one outpost. The purity term still looks
+  // wrong and still is deliberate: the game passes the RANK TYPE to isMapPurified, which takes a
+  // MAP, so it reads maps 0-4 rather than the outpost's own. Replicated so the site matches what
+  // the game prints. The Glorified 2x used to be dead here (it doubled rBarXPdn, which
+  // BarExpRate_Base then reassigned); 2.3.527 moved it onto rBarXPdn2 so it now applies.
   const getBarExpRate = (rankType: number, mapIndex: number): number => {
     const intelRank = getOutpostExpRank(rawMaps?.[mapIndex], 1);
+    const glorified = toNum(rawMaps?.[mapIndex]?.[12]) >= 1 ? 2 : 1;
     return getBarExpRateBase(rankType)
+      * glorified
       * (1 + (200 * isMapPurified(rawMaps?.[rankType])) / 100)
       * (1 + (intelRank * armoryBonus(72)) / 100)
       * (1 + (200 * (1 + armoryBonus(43) / 100) * (supportCounts.get(mapIndex) ?? 0)) / 100);
@@ -589,8 +591,8 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
   // game: "MarbleDrop" - the Royal Marble drop chance. The game passes floor(CurrentMap / 50), so
   // the chance worsens per world and there is no single account-wide number; every world's chance
   // is reported instead of guessing which map the player is standing on.
-  // The talent is 232 AESTHETIC_POLITICS ("Monsters in outposts drop Marble {x more often"), read
-  // off the running client - z-processing/resources/N.js still has the pre-2.3.525 231 here.
+  // The talent is 232 AESTHETIC_POLITICS ("Monsters in outposts drop Marble {x more often"). N.js
+  // caught up in 2.3.527, the patch that untangled Warbound Politics from Aesthetic Politics.
   const marbleDropMulti = Math.max(1, getHighestTalentAcrossCharacters(characters, 'AESTHETIC_POLITICS', activeCharacter))
     * (1 + (armoryBonus(41)
       + getSushiBonus(account, 62)
@@ -842,7 +844,10 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     * (1 + (orbletBonus(1)
       + getSushiBonus(account, 60)
       + Math.min(50, getBubbleBonus(account, 'ROYAL_RICHES'))
-      + toNum(getArcadeBonus(account?.arcade?.shop, 'Kingdom_Resources')?.bonus)) / 100)
+      + toNum(getArcadeBonus(account?.arcade?.shop, 'Kingdom_Resources')?.bonus)
+      // Resource Replenish also pays +1% collection rate per level - the game only started
+      // applying it in 2.3.527, when its display was corrected from +5%/lv to +1%/lv.
+      + armoryBonus(70)) / 100)
     * (1 + (totalStatz[0] * armoryBonus(18)) / 100)
     * (1 + (totalStatz[1] * armoryBonus(50)) / 100)
     * (1 + (totalStatz[2] * armoryBonus(51)) / 100)
@@ -1145,9 +1150,9 @@ export const getArmoryUpgradeCost = (slot: number, slotToId: number[], armoryLev
   if (toNum(armoryLevels?.[46]) < 3 && id === 46) return 2;
   if (toNum(armoryLevels?.[58]) < 1 && id === 58) return 3;
   const upgrade = (armoryUpgradesCatalog as any[])?.[id];
-  return 35 * costReduction
-    * Math.pow(1.28, slot)
-    * (3 + 6 * slot)
+  return 25 * costReduction
+    * Math.pow(1.24, slot)
+    * (3 + 5 * slot)
     * toNum(upgrade?.baseCost)
     * Math.pow(toNum(upgrade?.costScaling), toNum(armoryLevels?.[id]));
 };
