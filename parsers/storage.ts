@@ -32,7 +32,8 @@ export interface StorageSlots {
     totalValue: number;
     categories: {
       name: string;
-      sources: { name: string; value: string | number }[];
+      // `formatted` wins over `value` when Breakdown renders, for sources that read "owned / max".
+      sources: { name: string; value: string | number; formatted?: string }[];
     }[];
   };
 }
@@ -98,6 +99,10 @@ export const getStorageSlots = (storageChests: any[], account: Account): Storage
     + moreSpaceSlots
     + extraSlots;
 
+  const storageChestSlots = 12 * getEventShopBonus(account, 10);
+  const storageVaultSlots = 16 * getEventShopBonus(account, 11);
+  const upgradeVaultSlots = getUpgradeVaultBonus((account?.upgradeVault as any)?.upgrades, 33);
+
   return {
     value,
     breakdown: {
@@ -111,32 +116,34 @@ export const getStorageSlots = (storageChests: any[], account: Account): Storage
           ],
         },
         {
+          // These read "owned / max", so they go through `formatted`. Putting the string in `value`
+          // renders NaN: Breakdown.tsx passes `value` to notateNumber unless `formatted` is set.
           name: "Bundles",
           sources: [
-            { name: "AutoLoot", value: `${bundleIBonus} / 8` },
-            { name: "Starter Pack", value: `${bundleCBonus} / 16` },
-            { name: "Storage Ram", value: `${bundleABonus} / 20` },
+            { name: "AutoLoot", value: bundleIBonus, formatted: `${bundleIBonus} / 8` },
+            { name: "Starter Pack", value: bundleCBonus, formatted: `${bundleCBonus} / 16` },
+            { name: "Storage Ram", value: bundleABonus, formatted: `${bundleABonus} / 20` },
           ],
         },
         {
           name: "Event shop",
           sources: [
-            { name: "Storage Chest", value: `${12 * getEventShopBonus(account, 10)} / 12` },
-            { name: "Storage Vault", value: `${16 * getEventShopBonus(account, 11)} / 16` },
+            { name: "Storage Chest", value: storageChestSlots, formatted: `${storageChestSlots} / 12` },
+            { name: "Storage Vault", value: storageVaultSlots, formatted: `${storageVaultSlots} / 16` },
           ],
         },
         {
           name: "Gem shop",
           sources: [
-            { name: "More Storage Space", value: `${moreSpaceSlots} / 90` },
+            { name: "More Storage Space", value: moreSpaceSlots, formatted: `${moreSpaceSlots} / 90` },
           ],
         },
         {
           name: "Other",
           sources: [
-            { name: "Tower Storage", value: `${towerStorageSlots} / 50` },
-            { name: "Chests", value: `${chestsSlots} / 336` },
-            { name: "Upgrade Vault", value: `${getUpgradeVaultBonus((account?.upgradeVault as any)?.upgrades, 33)} / 24` },
+            { name: "Tower Storage", value: towerStorageSlots, formatted: `${towerStorageSlots} / 50` },
+            { name: "Chests", value: chestsSlots, formatted: `${chestsSlots} / 336` },
+            { name: "Upgrade Vault", value: upgradeVaultSlots, formatted: `${upgradeVaultSlots} / 24` },
           ],
         },
       ],

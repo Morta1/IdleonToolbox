@@ -155,7 +155,10 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
             <CardContent>
               <Typography color={'info.light'}>Crystal Chance</Typography>
               <Stack direction={'row'} gap={1}>
-                <Typography>{`1 in ${Math.floor(1 / crystalSpawnChance?.value)}`} ({notateNumber(crystalSpawnChance?.value * 100, 'MultiplierInfo')?.replace('.00', '')}%)</Typography>
+                {/* The game rolls min(cap, chance), so past the cap this number stops improving and
+                    the overflow turns into Crystal Embiggener instead. */}
+                <Typography>{`1 in ${Math.floor(1 / crystalSpawnChance?.effectiveValue)}`} ({notateNumber(crystalSpawnChance?.effectiveValue * 100, 'MultiplierInfo')?.replace('.00', '')}%)</Typography>
+                {crystalSpawnChance?.capped ? <Typography sx={{ opacity: .7 }}>capped</Typography> : null}
                 <Breakdown data={crystalSpawnChance?.breakdown}>
                   <InfoIcon/>
                 </Breakdown>
