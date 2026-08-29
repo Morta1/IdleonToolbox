@@ -602,14 +602,11 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 6']?.beanstalk?.readyToPlant?.length > 0
                 ?
                 alerts?.['World 6']?.beanstalk?.readyToPlant?.map(({ rawName, displayName, total, breakpoint }) =>
-                  <Link
+                  <Alert
+                    target={'World 6.beanstalk.readyToPlant'}
                     key={'beanstalk' + rawName}
-                    href={'/account/world-6/beanstalk'}
-                    style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }}>
-                    <Alert
-                      title={`You own ${commaNotation(total)} ${cleanUnderscore(displayName)} - enough to rank it up on the beanstalk (${commaNotation(breakpoint)} needed)`}
-                      iconPath={`data/${rawName}`}/>
-                  </Link>)
+                    title={`You own ${commaNotation(total)} ${cleanUnderscore(displayName)} - enough to rank it up on the beanstalk (${commaNotation(breakpoint)} needed)`}
+                    iconPath={`data/${rawName}`}/>)
                 : null}
               {alerts?.['World 6']?.summoning?.familiar ?
                 <Alert target={'World 6.summoning.familiar'}
