@@ -14,6 +14,10 @@ export const patchNotes = [
       'Royal Guardian: armory upgrade costs follow this patch\'s 10-30% reduction, and the Upgrade Optimizer prices against the new costs'
     ],
     'fixes': [
+      'Dashboard: the Royal Guardian unspent PTS alert now counts each outpost on its own instead of the account total, and names the outposts that have enough to spend',
+      'Dashboard: outposts with no resource in range are no longer reported as unwired',
+      'Dashboard: the idle units alert now shows a militia icon, and stays quiet when their world has no map left to clear',
+      'Dashboard: the Restock Locked alert now explains that it goes away once you buy Resource Replenish',
       'Royal Guardian: Resource Replenish was missing its collection rate bonus to every outpost, matching the game fix',
       'Royal Guardian: Outpost Glorification now doubles rank EXP as intended, matching the game fix',
       'Summoning: the Verminous bundle was not counted in winner bonuses',

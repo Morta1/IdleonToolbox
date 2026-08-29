@@ -1824,6 +1824,41 @@ const migration70 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration71 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
+  const rgOptions = dashboardConfig?.account?.['World 7']?.royalGuardian?.options;
+  if (Array.isArray(rgOptions)) {
+    const unwired = rgOptions.find((option) => option?.name === 'unwiredOutposts');
+    if (unwired) {
+      unwired.helperText = 'Alert when an outpost has no resource connected, and one is in range';
+    }
+
+    // The threshold moved from the account total to a single outpost, so the old default carries a
+    // meaning it no longer has: 12 is what buys any upgrade on one outpost.
+    const unspentPts = rgOptions.find((option) => option?.name === 'unspentPts');
+    if (unspentPts) {
+      unspentPts.props = { ...unspentPts.props, label: 'Unspent PTS per outpost' };
+      if (unspentPts.props.value === 10) {
+        unspentPts.props.value = 12;
+      }
+      unspentPts.helperText = 'Alert when a single outpost holds this many unspent PTS or more';
+    }
+
+    const idleUnits = rgOptions.find((option) => option?.name === 'idleUnits');
+    if (idleUnits) {
+      idleUnits.helperText = 'Alert when units are clearing a map you have already claimed, or aren\'t assigned anywhere, while their world still has a map left to clear';
+    }
+
+    const restockLocked = rgOptions.find((option) => option?.name === 'restockLocked');
+    if (restockLocked) {
+      restockLocked.helperText = 'Alert until you buy Resource Replenish in the armory, the one-time upgrade that refills empty resources every day. It goes away once bought';
+    }
+  }
+
+  dashboardConfig.version = 71;
+  return dashboardConfig;
+};
+
 const migrations = {
   2: migrateToVersion2,
   3: migrateToVersion3,
@@ -1894,6 +1929,7 @@ const migrations = {
   68: migration68,
   69: migration69,
   70: migration70,
+  71: migration71,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

@@ -18,7 +18,7 @@ import { getCrystalCountdownSkills } from '@parsers/talents';
 import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 
 const baseTrackers = {
-  version: 70,
+  version: 71,
   account: {
     General: {
       tasks: {
@@ -544,7 +544,7 @@ const baseTrackers = {
           {
             name: 'unwiredOutposts',
             checked: true,
-            helperText: 'Alert when an outpost has no resource connected at all'
+            helperText: 'Alert when an outpost has no resource connected, and one is in range'
           },
           {
             name: 'idleSupportCamps',
@@ -554,8 +554,9 @@ const baseTrackers = {
           {
             name: 'unspentPts',
             type: 'input',
-            props: { label: 'Unspent PTS threshold', value: 10, minValue: 1 },
-            checked: true
+            props: { label: 'Unspent PTS per outpost', value: 12, minValue: 1 },
+            checked: true,
+            helperText: 'Alert when a single outpost holds this many unspent PTS or more'
           },
           {
             name: 'claimableMaps',
@@ -565,12 +566,12 @@ const baseTrackers = {
           {
             name: 'idleUnits',
             checked: true,
-            helperText: 'Alert when units are clearing a map you have already claimed, or aren\'t assigned anywhere'
+            helperText: 'Alert when units are clearing a map you have already claimed, or aren\'t assigned anywhere, while their world still has a map left to clear'
           },
           {
             name: 'restockLocked',
             checked: true,
-            helperText: 'Alert while Resource Replenish is unbought, which is what refills empty resources daily'
+            helperText: 'Alert until you buy Resource Replenish in the armory, the one-time upgrade that refills empty resources every day. It goes away once bought'
           }
         ]
       },

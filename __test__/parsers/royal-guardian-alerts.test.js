@@ -46,12 +46,19 @@ describe('royal guardian dashboard alerts', () => {
       .forEach(({ name }) => expect(supportNames.has(name)).toBe(false));
   });
 
-  it('counts unspent PTS against the threshold and claimable maps off the kill requirement', () => {
+  it('counts unspent PTS per outpost and claimable maps off the kill requirement', () => {
     const { account, characters } = parse();
     const alerts = getWorld7Alerts(account, FIELDS, OPTIONS, characters)?.royalGuardian;
 
-    const unspent = account.royalGuardian.outposts.reduce((sum, { ptsLeft }) => sum + Math.max(0, ptsLeft), 0);
-    expect(alerts.unspentPts).toEqual({ count: unspent, threshold: 10 });
+    // PTS are spent per outpost, so the alert counts the outposts that can each afford something,
+    // never the account-wide total.
+    const affordable = account.royalGuardian.outposts.filter(({ ptsLeft }) => ptsLeft >= 10);
+    const total = account.royalGuardian.outposts.reduce((sum, { ptsLeft }) => sum + Math.max(0, ptsLeft), 0);
+    expect(alerts.unspentPts.count).toBe(affordable.length);
+    expect(alerts.unspentPts.count).toBeLessThan(total);
+    expect(alerts.unspentPts.threshold).toBe(10);
+    expect(alerts.unspentPts.outposts.map(({ name }) => name)).toEqual(affordable.map(({ name }) => name));
+    alerts.unspentPts.outposts.forEach(({ ptsLeft }) => expect(ptsLeft).toBeGreaterThanOrEqual(10));
 
     const claimable = account.royalGuardian.clearingMaps.filter(({ progress }) => progress >= 1);
     expect(alerts.claimableMaps.length).toBe(claimable.length);
@@ -60,11 +67,36 @@ describe('royal guardian dashboard alerts', () => {
   it('flags units clearing a map that is already claimed', () => {
     const { account, characters } = parse();
     const alerts = getWorld7Alerts(account, FIELDS, OPTIONS, characters)?.royalGuardian;
-    const wasted = account.royalGuardian.deployments.filter(({ idle, unassigned }) => idle || unassigned);
+    const wasted = account.royalGuardian.deployments
+      .filter(({ idle, unassigned, hasClearableMap }) => (idle || unassigned) && hasClearableMap);
 
     expect(alerts.idleUnits.count).toBe(wasted.length);
     // With Peacetime Militia those units earn half rank EXP rather than nothing, and the alert says so.
     expect(alerts.idleUnits.discounted).toBe(account.royalGuardian.outpostStats.peacetimeMilitia);
+  });
+
+  it('only reports outposts that could be wired to something right now', () => {
+    const { account, characters } = parse();
+    const alerts = getWorld7Alerts(account, FIELDS, OPTIONS, characters)?.royalGuardian;
+
+    // An outpost with nothing in reach cannot be connected at all, so it is not a mistake to fix.
+    const unwired = account.royalGuardian.outposts
+      .filter(({ mode, connectedNodes }) => mode !== 1 && connectedNodes.length === 0);
+    expect(alerts.unwiredOutposts?.length ?? 0)
+      .toBe(unwired.filter(({ reachableNodes }) => reachableNodes.length > 0).length);
+    (alerts.unwiredOutposts ?? []).forEach(({ mapIndex }) => {
+      const outpost = account.royalGuardian.outposts.find((entry) => entry.mapIndex === mapIndex);
+      expect(outpost.reachableNodes.length).toBeGreaterThan(0);
+    });
+  });
+
+  it('leaves units alone once their world has nothing left to clear', () => {
+    const { account, characters } = parse();
+    const deployments = account.royalGuardian.deployments
+      .map((deployment) => ({ ...deployment, hasClearableMap: false }));
+    const stuck = { ...account, royalGuardian: { ...account.royalGuardian, deployments } };
+
+    expect(getWorld7Alerts(stuck, FIELDS, OPTIONS, characters)?.royalGuardian?.idleUnits).toBeUndefined();
   });
 
   it('reports nothing when the tracker or its options are off', () => {
