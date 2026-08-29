@@ -265,6 +265,9 @@ export interface RoyalDeployment {
   // (Peacetime_Militia), and only half of BarExpRate(3) with it.
   idle: boolean;
   unassigned: boolean;
+  // False once the unit's world has an outpost on every one of its kingdom maps: there is nothing
+  // left to clear, so standing still is the best the unit can do.
+  hasClearableMap: boolean;
 }
 
 export interface OutpostRankBar {
@@ -1029,6 +1032,19 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
   // game: the CollectAll loop walks RoyalG[6 + 2*w] / RoyalG[7 + 2*w] for all 8 worlds, so a
   // deployment can point at any map, including one that is already claimed.
   const claimedMaps = new Set(detailedOutposts.map(({ mapIndex }) => mapIndex));
+
+  // A unit can only be sent at a map its own world holds on the kingdom screen, so once every one
+  // of them carries an outpost the unit has nowhere better to stand and is not worth reporting.
+  const clearableMapsByWorld: Record<number, number> = {};
+  Object.keys(mapDetails as any).forEach((key) => {
+    const mapIndex = Number(key);
+    if (!Number.isFinite(mapIndex)) return;
+    if (!(toNum((mapDetails as any)?.[key]?.[2]?.[0]) < OFF_KINGDOM_MAP)) return;
+    if (claimedMaps.has(mapIndex)) return;
+    const mapWorld = 1 + Math.floor(mapIndex / 50);
+    clearableMapsByWorld[mapWorld] = (clearableMapsByWorld[mapWorld] ?? 0) + 1;
+  });
+
   const deployments: RoyalDeployment[] = [];
   for (let unitWorld = 0; unitWorld < UNIT_WORLDS; unitWorld++) {
     const jobs = raw?.[6 + 2 * unitWorld];
@@ -1051,7 +1067,8 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
           : `${(mapNames as any)?.[`${targetMap}`] ?? ''}`.replace(/_/g, ' '),
         targetClaimed,
         idle: job === UNIT_JOB_CLEAR && targetClaimed,
-        unassigned
+        unassigned,
+        hasClearableMap: unitWorld + 1 <= worldsUnlocked && (clearableMapsByWorld[unitWorld + 1] ?? 0) > 0
       });
     }
   }

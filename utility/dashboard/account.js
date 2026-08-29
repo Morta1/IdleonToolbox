@@ -1493,7 +1493,10 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
     }
 
     if (rgOptions?.unwiredOutposts?.checked) {
-      const unwired = collectors.filter(({ connectedNodes }) => !(connectedNodes?.length > 0));
+      // An outpost with nothing in range cannot be wired at all, so only the ones that could be
+      // connected right now are worth reporting.
+      const unwired = collectors.filter(({ connectedNodes, reachableNodes }) => !(connectedNodes?.length > 0)
+        && reachableNodes?.length > 0);
       if (unwired.length > 0) {
         royalGuardian.unwiredOutposts = unwired.map(({ name, mapIndex }) => ({ name, mapIndex }));
       }
@@ -1507,10 +1510,16 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
     }
 
     if (rgOptions?.unspentPts?.checked) {
-      const unspent = outposts.reduce((sum, { ptsLeft }) => sum + Math.max(0, ptsLeft || 0), 0);
+      // PTS are spent per outpost, so an account-wide total says nothing about whether any single
+      // outpost can actually afford an upgrade.
       const threshold = rgOptions?.unspentPts?.props?.value ?? 1;
-      if (unspent >= threshold) {
-        royalGuardian.unspentPts = { count: unspent, threshold };
+      const affordable = outposts.filter(({ ptsLeft }) => (ptsLeft || 0) >= threshold);
+      if (affordable.length > 0) {
+        royalGuardian.unspentPts = {
+          count: affordable.length,
+          threshold,
+          outposts: affordable.map(({ name, mapIndex, ptsLeft }) => ({ name, mapIndex, ptsLeft }))
+        };
       }
     }
 
@@ -1525,7 +1534,8 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       // A clearing unit on a claimed map earns nothing without Peacetime Militia, and only half
       // rank EXP with it. Either way it would do more on a map that still needs clearing.
       const deployments = account?.royalGuardian?.deployments ?? [];
-      const wasted = deployments.filter(({ idle, unassigned }) => idle || unassigned);
+      const wasted = deployments.filter(({ idle, unassigned, hasClearableMap }) => (idle || unassigned)
+        && hasClearableMap);
       if (wasted.length > 0) {
         royalGuardian.idleUnits = {
           count: wasted.length,

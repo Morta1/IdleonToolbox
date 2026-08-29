@@ -679,7 +679,14 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/UISkillIcon226'}/> : null}
               {alerts?.['World 7']?.royalGuardian?.unspentPts ?
                 <Alert target={'World 7.royalGuardian.unspentPts'}
-                  title={`You have ${alerts?.['World 7']?.royalGuardian?.unspentPts?.count} unspent outpost PTS (threshold: ${alerts?.['World 7']?.royalGuardian?.unspentPts?.threshold})`}
+                  title={<RoyalGuardianList
+                    headline={`${alerts?.['World 7']?.royalGuardian?.unspentPts?.count} outpost${alerts?.['World 7']?.royalGuardian?.unspentPts?.count === 1
+                      ? ' has'
+                      : 's have'} ${alerts?.['World 7']?.royalGuardian?.unspentPts?.threshold}+ unspent PTS`}
+                    entries={alerts?.['World 7']?.royalGuardian?.unspentPts?.outposts?.map(({ name, mapIndex, ptsLeft }) => ({
+                      name: `${name} (${ptsLeft} PTS)`,
+                      mapIndex
+                    }))}/>}
                   iconPath={'etc/Royal_Cost'} imgStyle={{ width: 18, height: 18 }} /> : null}
               {alerts?.['World 7']?.royalGuardian?.claimableMaps?.length > 0 ?
                 <Alert target={'World 7.royalGuardian.claimableMaps'}
@@ -696,7 +703,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                     : 'clearing a map you already claimed'}${alerts?.['World 7']?.royalGuardian?.idleUnits?.discounted
                     ? ', earning half rank EXP instead of clearing a new one'
                     : ', earning nothing'}`}
-                  iconPath={'etc/RGunit0'}/> : null}
+                  iconPath={'etc/RGmilitia'}/> : null}
               {alerts?.['World 7']?.royalGuardian?.restockLocked ?
                 <Alert target={'World 7.royalGuardian.restockLocked'}
                   title={'Resource Replenish is unbought, so your empty resources never refill'}
