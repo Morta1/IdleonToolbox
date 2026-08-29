@@ -5,6 +5,7 @@ import { IconWithText, TitleAndValue } from '@components/common/styles';
 import ProgressBar from 'components/common/ProgressBar';
 import Box from '@mui/material/Box';
 import { getStatueBonus } from '@parsers/world-1/statues';
+import { getStatueFlairExpMulti } from '@parsers/class-specific/royalGuardian';
 
 const Statues = ({ characters, account }) => {
   return (
@@ -13,9 +14,10 @@ const Statues = ({ characters, account }) => {
         const { name, rawName, level, bonus, talentMulti, progress } = statue;
         const calcBonus = level * bonus * talentMulti;
         const nextLv = Math.round(Math.pow(level, 1.17) * Math.pow(1.35, level / 10) + 1);
+        const flairMulti = getStatueFlairExpMulti(account, index);
         return <Box key={name + index}>
           <HtmlTooltip title={<StatueTooltip {...statue} calcBonus={calcBonus} nextLv={nextLv} account={account}
-                                             characters={characters} index={index}/>}>
+                                             characters={characters} index={index} flairMulti={flairMulti}/>}>
             <IconWithText stat={level} icon={rawName} img={{ style: { width: 40, height: 50, objectFit: 'contain' } }}/>
           </HtmlTooltip>
           <ProgressBar percent={progress / nextLv * 100} label={false}/>
@@ -34,7 +36,8 @@ const StatueTooltip = ({
                          characters,
                          calcBonus,
                          nextLv,
-                         index
+                         index,
+                         flairMulti
                        }) => {
   const desc = cleanUnderscore(pascalCase(effect?.replace(/(%?)(@)/, '$2$1_').replace('@', Math.floor(10 * calcBonus) / 10)));
   return <>
@@ -47,6 +50,9 @@ const StatueTooltip = ({
     <Divider sx={{ my: 1 }}/>
     <Typography component={'div'} variant={'caption'}>Voodo
       Statufication: {notateNumber(talentMulti, 'MultiplierInfo')}x</Typography>
+    {flairMulti > 1 ? <Typography component={'div'} variant={'caption'}>
+      Statue Flair: {notateNumber(flairMulti, 'MultiplierInfo')}x statue exp
+    </Typography> : null}
     <Divider sx={{ my: 1 }}/>
     <Stack>
       {characters?.map(({ name: cName, flatTalents }) => {

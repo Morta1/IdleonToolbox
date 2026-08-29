@@ -2,36 +2,54 @@ import { useContext, useState } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import Tabber from '../../../components/common/Tabber';
 import { NextSeo } from 'next-seo';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix, worldsArray } from '@utility/helpers';
 import ProgressBar from '../../../components/common/ProgressBar';
+import { CardTitleAndValue } from '@components/common/styles';
+import EmptyState from '@components/common/EmptyState';
+import useTabIndex from '@hooks/useTabIndex';
 
 const Tasks = () => {
   const { state } = useContext(AppContext);
-  const [world, setWorld] = useState(0);
+  const [world] = useTabIndex(worldsArray);
+  const [hideCompleted, setHideCompleted] = useState(false);
 
-  const handleWorldChange = (world) => {
-    setWorld(world);
-  }
+  const worldTasks = state?.account?.tasksDescriptions?.[world]?.slice(0, 9) ?? [];
+  // The 9th task (index 8) is a repeatable one with a single breakpoint, so it counts as 1 level.
+  const totalLevels = worldTasks.reduce((sum, { level }) => sum + level, 0);
+  const maxLevels = worldTasks.reduce((sum, { breakpoints }, index) => sum + (index === 8 ? 1 : breakpoints?.length ?? 0), 0);
+  const visibleTasks = worldTasks
+    .map((task, index) => ({ ...task, index }))
+    .filter(({ level, breakpoints, index }) => !(hideCompleted && level >= (index === 8 ? 1 : breakpoints?.length)));
 
   return (<>
     <NextSeo
       title="Tasks | Idleon Toolbox"
       description="Track your task board completion, rewards, and progression across all task categories in Legends of Idleon"
     />
-    <Tabber tabs={worldsArray} onTabChange={handleWorldChange}>
+    <Stack mb={3} direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
+      <CardTitleAndValue title={'Task levels'} value={`${totalLevels} / ${maxLevels}`}/>
+      <FormControlLabel
+        control={<Checkbox checked={hideCompleted}
+                           onChange={(e) => setHideCompleted(e.target.checked)}/>}
+        label={'Hide completed'}/>
+    </Stack>
+    <Tabber tabs={worldsArray} keepChildren>
       <Stack index={world} direction={'row'} flexWrap={'wrap'} gap={3} justifyContent={'center'}>
-        {state?.account?.tasksDescriptions?.[world]?.map(({
-                                                            stat,
-                                                            level,
-                                                            name,
-                                                            description,
-                                                            filler1,
-                                                            filler2,
-                                                            breakpoints,
-                                                            meritReward
-                                                          }, index) => {
-          if (index >= 9) return null;
+        {visibleTasks?.length === 0
+          ? <EmptyState hideCompleted={hideCompleted && worldTasks.length > 0} label={'tasks'}/>
+          : null}
+        {visibleTasks?.map(({
+                              stat,
+                              level,
+                              name,
+                              description,
+                              filler1,
+                              filler2,
+                              breakpoints,
+                              meritReward,
+                              index
+                            }) => {
           const req = (index === 8 ? breakpoints?.[0] : breakpoints?.[level]) ?? 0;
           let desc;
           if (level === breakpoints?.length && index !== 8) {

@@ -95,7 +95,8 @@ export const monsterNodes = (monsters, mapNames) => {
       kind: 'monster',
       rawName,
       name: monster.Name,
-      icon: `/afk_targets/${monster.Name}.png`,
+      icon: `/monsters/${rawName}/static.png`,
+      iconFallbacks: [`/afk_targets/${monster.Name}.png`],
       category: monsterCategory(rawName, monster),
       // Has a page, does not belong in the kind's listing. Same idea as COIN's navigable: false.
       ...(isBestiary(monsterCategory(rawName, monster)) ? {} : { catalog: false }),

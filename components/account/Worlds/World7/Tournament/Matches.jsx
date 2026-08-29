@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Button, Card, CardContent, Chip, Collapse, Divider, Stack, Typography } from '@mui/material';
 import Tooltip from '@components/Tooltip';
 import { cleanUnderscore, prefix } from '@utility/helpers';
+import { monsterImage } from '@utility/spriteImages';
 
 const teamPower = (pets, companions) =>
   pets.reduce((sum, idx) => sum + (companions?.[idx]?.tourPower ?? 0), 0);
@@ -34,7 +35,7 @@ const PetGrid = ({ label, pets, companions, totalPower }) => (
                 width={50}
                 height={50}
                 style={{ objectFit: 'contain' }}
-                src={`${prefix}afk_targets/${comp.name}.png`}
+                src={monsterImage(comp.name)}
                 alt={comp.name}
               />
             </Box>
@@ -74,7 +75,7 @@ const BattleStep = ({ step, companions }) => {
           cursor: 'default',
         }}>
           <img width={42} height={42} style={{ objectFit: 'contain', display: 'block' }}
-            src={`${prefix}afk_targets/${playerComp.name}.png`} alt={playerComp.name} />
+            src={monsterImage(playerComp.name)} alt={playerComp.name} />
         </Box>
       </Tooltip>
       <Typography variant="caption" color="text.disabled" sx={{ fontSize: 9 }}>vs</Typography>
@@ -85,7 +86,7 @@ const BattleStep = ({ step, companions }) => {
           cursor: 'default',
         }}>
           <img width={42} height={42} style={{ objectFit: 'contain', display: 'block' }}
-            src={`${prefix}afk_targets/${opponentComp.name}.png`} alt={opponentComp.name} />
+            src={monsterImage(opponentComp.name)} alt={opponentComp.name} />
         </Box>
       </Tooltip>
     </Stack>

@@ -9,7 +9,8 @@ export const npcNodes = (npcRoster) => {
       kind: 'npc',
       rawName,
       name: rawName.replace(/_/g, ' '),
-      icon: `/npcs/${rawName}.gif`,
+      icon: `/npcs/${rawName}/static.png`,
+      iconFallbacks: [`/npcs/${rawName}.gif`],
     };
   }
   return nodes;

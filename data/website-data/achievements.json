@@ -12,7 +12,12 @@
     "visualIndex": 0,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 42
+    "steamIndex": 42,
+    "gems": 10,
+    "candy": {
+      "rawName": "Timecandy1",
+      "quantity": 1
+    }
   },
   {
     "name": "Another_Me!",
@@ -26,7 +31,8 @@
     "visualIndex": 2,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 14
+    "steamIndex": 14,
+    "gems": 8
   },
   {
     "name": "Sleepy_Gamer",
@@ -41,7 +47,12 @@
     "visualIndex": 1,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 46
+    "steamIndex": 46,
+    "gems": 5,
+    "candy": {
+      "rawName": "Timecandy1",
+      "quantity": 1
+    }
   },
   {
     "name": "Classy!",
@@ -56,7 +67,12 @@
     "visualIndex": 3,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 45
+    "steamIndex": 45,
+    "gems": 18,
+    "candy": {
+      "rawName": "Timecandy2",
+      "quantity": 1
+    }
   },
   {
     "name": "Hitting_the_Mark",
@@ -84,7 +100,12 @@
     "visualIndex": 5,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 43
+    "steamIndex": 43,
+    "gems": 15,
+    "candy": {
+      "rawName": "Timecandy2",
+      "quantity": 1
+    }
   },
   {
     "name": "5_'hunned_Copper",
@@ -111,7 +132,8 @@
     "visualIndex": 8,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 3
+    "steamIndex": 3,
+    "gems": 8
   },
   {
     "name": "1.5_Ki'log'grams",
@@ -138,7 +160,8 @@
     "visualIndex": 10,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 9
+    "steamIndex": 9,
+    "gems": 8
   },
   {
     "name": "Copper_Quipment",
@@ -165,7 +188,8 @@
     "visualIndex": 12,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 0
+    "steamIndex": 0,
+    "gems": 10
   },
   {
     "name": "Card_Collector",
@@ -179,7 +203,8 @@
     "visualIndex": 13,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 20
+    "steamIndex": 20,
+    "gems": 8
   },
   {
     "name": "Do_What_You're_Told",
@@ -193,7 +218,8 @@
     "visualIndex": 14,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 17
+    "steamIndex": 17,
+    "gems": 8
   },
   {
     "name": "Learn_2_Translate",
@@ -208,7 +234,12 @@
     "visualIndex": 15,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 44
+    "steamIndex": 44,
+    "gems": 20,
+    "candy": {
+      "rawName": "Timecandy2",
+      "quantity": 2
+    }
   },
   {
     "name": "Wode_Together",
@@ -274,7 +305,8 @@
     "visualIndex": 22,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 4
+    "steamIndex": 4,
+    "gems": 12
   },
   {
     "name": "Slimeicidal_Endeavor",
@@ -354,7 +386,12 @@
     "visualIndex": 28,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 33
+    "steamIndex": 33,
+    "gems": 8,
+    "candy": {
+      "rawName": "Timecandy1",
+      "quantity": 2
+    }
   },
   {
     "name": "Ten_Trips_of_Gold",
@@ -395,7 +432,12 @@
     "visualIndex": 31,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 27
+    "steamIndex": 27,
+    "gems": 20,
+    "candy": {
+      "rawName": "Timecandy3",
+      "quantity": 1
+    }
   },
   {
     "name": "Anvil_Expansion",
@@ -409,7 +451,8 @@
     "visualIndex": 32,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 23
+    "steamIndex": 23,
+    "gems": 10
   },
   {
     "name": "Steppin'_on_the_Rats",
@@ -436,7 +479,8 @@
     "visualIndex": 34,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 28
+    "steamIndex": 28,
+    "gems": 15
   },
   {
     "name": "Naked_and_Unafraid",
@@ -489,7 +533,8 @@
     "visualIndex": 39,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 12
+    "steamIndex": 12,
+    "gems": 14
   },
   {
     "name": "Boss_Buster",
@@ -503,7 +548,8 @@
     "visualIndex": 40,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 25
+    "steamIndex": 25,
+    "gems": 15
   },
   {
     "name": "Nutty_Crafter",
@@ -531,7 +577,12 @@
     "visualIndex": 44,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 29
+    "steamIndex": 29,
+    "gems": 25,
+    "candy": {
+      "rawName": "Timecandy3",
+      "quantity": 2
+    }
   },
   {
     "name": "Choppin'_to_the_Beat",
@@ -546,7 +597,12 @@
     "visualIndex": 45,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 30
+    "steamIndex": 30,
+    "gems": 25,
+    "candy": {
+      "rawName": "Timecandy3",
+      "quantity": 1
+    }
   },
   {
     "name": "Decked_Out_in_Gold",
@@ -601,7 +657,12 @@
     "visualIndex": 50,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 36
+    "steamIndex": 36,
+    "gems": 25,
+    "candy": {
+      "rawName": "Timecandy2",
+      "quantity": 2
+    }
   },
   {
     "name": "Two-Time_Savior",
@@ -696,7 +757,12 @@
     "visualIndex": 58,
     "steamExclusive": true,
     "secretAchievement": true,
-    "steamIndex": 39
+    "steamIndex": 39,
+    "gems": 25,
+    "candy": {
+      "rawName": "Timecandy2",
+      "quantity": 2
+    }
   },
   {
     "name": "Meel_Time!",
@@ -710,7 +776,8 @@
     "visualIndex": 59,
     "steamExclusive": true,
     "secretAchievement": true,
-    "steamIndex": 40
+    "steamIndex": 40,
+    "gems": 25
   },
   {
     "name": "Pro_Gamer_Move",
@@ -725,7 +792,12 @@
     "visualIndex": 60,
     "steamExclusive": true,
     "secretAchievement": true,
-    "steamIndex": 38
+    "steamIndex": 38,
+    "gems": 10,
+    "candy": {
+      "rawName": "Timecandy1",
+      "quantity": 1
+    }
   },
   {
     "name": "Meet_the_Dev",
@@ -740,7 +812,12 @@
     "visualIndex": 61,
     "steamExclusive": true,
     "secretAchievement": true,
-    "steamIndex": 41
+    "steamIndex": 41,
+    "gems": 40,
+    "candy": {
+      "rawName": "Timecandy2",
+      "quantity": 4
+    }
   },
   {
     "name": "Heyo!",
@@ -768,7 +845,8 @@
     "visualIndex": 49,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 24
+    "steamIndex": 24,
+    "gems": 20
   },
   {
     "name": "Based_Roots",
@@ -971,7 +1049,8 @@
     "visualIndex": 0,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 1
+    "steamIndex": 1,
+    "gems": 18
   },
   {
     "name": "Elite_Player",
@@ -985,7 +1064,8 @@
     "visualIndex": 2,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 5
+    "steamIndex": 5,
+    "gems": 16
   },
   {
     "name": "Retirement_Fund",
@@ -999,7 +1079,8 @@
     "visualIndex": 3,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 10
+    "steamIndex": 10,
+    "gems": 15
   },
   {
     "name": "More_and_More_Me!",
@@ -1013,7 +1094,8 @@
     "visualIndex": 1,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 15
+    "steamIndex": 15,
+    "gems": 16
   },
   {
     "name": "Golden_Fly",
@@ -1172,7 +1254,8 @@
     "visualIndex": 17,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 18
+    "steamIndex": 18,
+    "gems": 16
   },
   {
     "name": "Card_Enthusiast",
@@ -1186,7 +1269,8 @@
     "visualIndex": 18,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 21
+    "steamIndex": 21,
+    "gems": 16
   },
   {
     "name": "Efaunt_Trumped",
@@ -1214,7 +1298,12 @@
     "visualIndex": 20,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 31
+    "steamIndex": 31,
+    "gems": 25,
+    "candy": {
+      "rawName": "Timecandy3",
+      "quantity": 2
+    }
   },
   {
     "name": "Catching_Coronation",
@@ -1229,7 +1318,12 @@
     "visualIndex": 21,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 32
+    "steamIndex": 32,
+    "gems": 25,
+    "candy": {
+      "rawName": "Timecandy3",
+      "quantity": 1
+    }
   },
   {
     "name": "Crystal_Superslam",
@@ -1244,7 +1338,12 @@
     "visualIndex": 22,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 34
+    "steamIndex": 34,
+    "gems": 20,
+    "candy": {
+      "rawName": "Timecandy2",
+      "quantity": 2
+    }
   },
   {
     "name": "Slumbering_Gamer",
@@ -1259,7 +1358,12 @@
     "visualIndex": 23,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 47
+    "steamIndex": 47,
+    "gems": 12,
+    "candy": {
+      "rawName": "Timecandy4",
+      "quantity": 1
+    }
   },
   {
     "name": "My_First_Trophy!",
@@ -1274,7 +1378,12 @@
     "visualIndex": 24,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 51
+    "steamIndex": 51,
+    "gems": 25,
+    "candy": {
+      "rawName": "Timecandy3",
+      "quantity": 1
+    }
   },
   {
     "name": "A_Fish_Too_Far",
@@ -1445,7 +1554,8 @@
     "visualIndex": 37,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 26
+    "steamIndex": 26,
+    "gems": 25
   },
   {
     "name": "Dumbo_Destroyer",
@@ -1460,7 +1570,12 @@
     "visualIndex": 41,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 37
+    "steamIndex": 37,
+    "gems": 35,
+    "candy": {
+      "rawName": "Timecandy2",
+      "quantity": 2
+    }
   },
   {
     "name": "Threadin'_the_Needle",
@@ -1918,7 +2033,8 @@
     "visualIndex": 0,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 2
+    "steamIndex": 2,
+    "gems": 25
   },
   {
     "name": "Veteran_Gamer",
@@ -1932,7 +2048,8 @@
     "visualIndex": 2,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 6
+    "steamIndex": 6,
+    "gems": 20
   },
   {
     "name": "A_Family_of_Me!",
@@ -1946,7 +2063,8 @@
     "visualIndex": 5,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 16
+    "steamIndex": 16,
+    "gems": 25
   },
   {
     "name": "Croakin'_Froge",
@@ -2040,7 +2158,12 @@
     "visualIndex": 9,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 52
+    "steamIndex": 52,
+    "gems": 15,
+    "candy": {
+      "rawName": "Timecandy2",
+      "quantity": 2
+    }
   },
   {
     "name": "Powdered_Neutronium",
@@ -2055,7 +2178,12 @@
     "visualIndex": 10,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 53
+    "steamIndex": 53,
+    "gems": 15,
+    "candy": {
+      "rawName": "Timecandy2",
+      "quantity": 3
+    }
   },
   {
     "name": "Soulslike",
@@ -2199,7 +2327,8 @@
     "visualIndex": 22,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 11
+    "steamIndex": 11,
+    "gems": 20
   },
   {
     "name": "Sqeakin'_Mousey",
@@ -2239,7 +2368,8 @@
     "visualIndex": 25,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 13
+    "steamIndex": 13,
+    "gems": 22
   },
   {
     "name": "Legendary_Gamer",
@@ -2253,7 +2383,8 @@
     "visualIndex": 26,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 7
+    "steamIndex": 7,
+    "gems": 23
   },
   {
     "name": "Entangled_Compounds",
@@ -2281,7 +2412,12 @@
     "visualIndex": 28,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 54
+    "steamIndex": 54,
+    "gems": 25,
+    "candy": {
+      "rawName": "Timecandy4",
+      "quantity": 3
+    }
   },
   {
     "name": "Blurple_Skull",
@@ -2296,7 +2432,12 @@
     "visualIndex": 30,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 55
+    "steamIndex": 55,
+    "gems": 30,
+    "candy": {
+      "rawName": "Timecandy6",
+      "quantity": 5
+    }
   },
   {
     "name": "Souped_Up_Salts",
@@ -2349,7 +2490,8 @@
     "visualIndex": 35,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 19
+    "steamIndex": 19,
+    "gems": 24
   },
   {
     "name": "Top_Cogs",
@@ -2376,7 +2518,8 @@
     "visualIndex": 37,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 22
+    "steamIndex": 22,
+    "gems": 24
   },
   {
     "name": "Crystal_Champ",
@@ -2391,7 +2534,12 @@
     "visualIndex": 38,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 35
+    "steamIndex": 35,
+    "gems": 30,
+    "candy": {
+      "rawName": "Timecandy4",
+      "quantity": 1
+    }
   },
   {
     "name": "Smirky_Souls",
@@ -2419,7 +2567,12 @@
     "visualIndex": 40,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 48
+    "steamIndex": 48,
+    "gems": 25,
+    "candy": {
+      "rawName": "Timecandy5",
+      "quantity": 1
+    }
   },
   {
     "name": "Knock_on_Wood",
@@ -2486,7 +2639,12 @@
     "visualIndex": 48,
     "steamExclusive": true,
     "secretAchievement": true,
-    "steamIndex": 56
+    "steamIndex": 56,
+    "gems": 1,
+    "candy": {
+      "rawName": "Timecandy5",
+      "quantity": 1
+    }
   },
   {
     "name": "Cool_Score!",
@@ -2873,7 +3031,12 @@
     "visualIndex": 0,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 60
+    "steamIndex": 60,
+    "gems": 50,
+    "candy": {
+      "rawName": "Timecandy4",
+      "quantity": 5
+    }
   },
   {
     "name": "Channel_Surfing",
@@ -2926,7 +3089,8 @@
     "visualIndex": 10,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 8
+    "steamIndex": 8,
+    "gems": 30
   },
   {
     "name": "Matrix_Wickermen",
@@ -2967,7 +3131,12 @@
     "visualIndex": 27,
     "steamExclusive": true,
     "secretAchievement": true,
-    "steamIndex": 58
+    "steamIndex": 58,
+    "gems": 30,
+    "candy": {
+      "rawName": "Timecandy4",
+      "quantity": 2
+    }
   },
   {
     "name": "I_Like_This_Mob",
@@ -3047,7 +3216,12 @@
     "visualIndex": 13,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 59
+    "steamIndex": 59,
+    "gems": 50,
+    "candy": {
+      "rawName": "Timecandy6",
+      "quantity": 1
+    }
   },
   {
     "name": "Cabbage_Patch",
@@ -3219,7 +3393,12 @@
     "visualIndex": 24,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 49
+    "steamIndex": 49,
+    "gems": 100,
+    "candy": {
+      "rawName": "Timecandy6",
+      "quantity": 1
+    }
   },
   {
     "name": "Mutant_Massacrer",
@@ -3234,7 +3413,12 @@
     "visualIndex": 25,
     "steamExclusive": true,
     "secretAchievement": false,
-    "steamIndex": 57
+    "steamIndex": 57,
+    "gems": 30,
+    "candy": {
+      "rawName": "Timecandy5",
+      "quantity": 1
+    }
   },
   {
     "name": "Soda_Poisoning",

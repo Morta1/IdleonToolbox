@@ -1528,12 +1528,12 @@
     "description": "Multiplies_your_EXP_gain_for_Cooking_Mastery,_a_feature_unlocked_at_Rift_61,_by_a_massive_}x_@_Also_gives_+|_Yellow_PTS_to_spend_on_Meals!"
   },
   {
-    "name": "Name",
-    "maxLv": 1,
-    "baseBonus": 1,
+    "name": "Royal_Rewards",
+    "maxLv": 4,
+    "baseBonus": 10,
     "x4": 0,
     "x5": 0,
-    "description": "desc"
+    "description": "Regal_Mobs_now_have_a_{%_chance_to_give_+3_kills_for_your_Royal_Guardian's_Orb_of_Virisimilitude_instead_of_simply_+2_kills"
   },
   {
     "name": "Name",

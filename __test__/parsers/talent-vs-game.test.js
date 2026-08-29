@@ -45,7 +45,31 @@ const TALENTS = [
   ["Bubonic_Conjuror", "GREEN_TUBE", 536, 47.577639751552795],
   ["Arcane_Cultist", "OVERWHELMING_ENERGY", 589, 1.4714587737843552],
   ["Arcane_Cultist", "PASSION_OF_THE_SUMMON", 596, 4.4576271186440675],
-  ["Arcane_Cultist", "TACHYON_TRUTH", 598, 7.4407294832826745]
+  ["Arcane_Cultist", "TACHYON_TRUTH", 598, 7.4407294832826745],
+  // Royal Guardian (patch 2.3.525, task D5): no character in this fixture has levelled these, so
+  // the pinned values are each talent's level-0 identity (0 for decay, 1 for decayMulti) - still a
+  // real regression lock, since a typo'd talent name would silently resolve to a different value.
+  ["Royal_Guardian", "AMBER_HOARD", 235, 0],
+  ["Royal_Guardian", "SPELUNKING_SPECIALTY", 236, 0],
+  ["Royal_Guardian", "GRAND_VEIN", 238, 1],
+  // Added with task D9 (Royal Armory "$" tooltip fix): also unlevelled in this fixture, so the
+  // pinned value is again the decayMulti level-0 identity (1).
+  ["Royal_Guardian", "WARBOUND_POLITICS", 231, 1],
+  // Added with the Outposts tab (OutpostResourceRate): unlevelled in this fixture too, so decay
+  // talents pin at 0 and decayMulti ones at 1.
+  ["Royal_Guardian", "CASTLE_CONVENE", 225, 0],
+  ["Royal_Guardian", "ROYAL_ARMORY", 226, 0],
+  ["Royal_Guardian", "INDUSTRIAL_POLITICS", 230, 1],
+  // Added with the outpost handler sweep (RI_chance / RI_mobs / OrbletMultiDrop). Also
+  // unlevelled here: the x half of REGAL_INTERVENTION is a decay talent, its y half is
+  // intervalAdd, which starts at 5 rather than 0.
+  ["Royal_Guardian", "REGAL_INTERVENTION", 229, 0],
+  ["Royal_Guardian", "REGAL_INTERVENTION", 229, 5, true],
+  ["Royal_Guardian", "LIL'_ORBLETS", 234, 0],
+  // Added with MarbleDrop. The live client reads talent 232 here, not the 231 that
+  // z-processing/resources/N.js still shows, so this pin is what catches a regression back to 231.
+  ["Royal_Guardian", "AESTHETIC_POLITICS", 232, 1]
+
 ];
 
 describe('every talent used by a parser matches the game', () => {

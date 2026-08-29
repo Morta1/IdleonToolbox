@@ -21783,7 +21783,7 @@
               "y1": 200,
               "y2": 200,
               "funcY": "decay",
-              "lvlUpText": "+{%_chance_%_+}%_range"
+              "lvlUpText": "+{%_chance_&_+}%_range"
             },
             {
               "name": "Marauder_Style",
@@ -60747,7 +60747,7 @@
               "skillIndex": 599,
               "level": 0,
               "note": "",
-              "description": "Backup_needed?_How_about_{x_Tachyon_Gain_and_-}_kills_needed_to_charge_Arcane_Crystals",
+              "description": "Backup_needed?_How_about_{x_Tachyon_Gain_and_}_less_kills_needed_to_charge_Arcane_Crystals",
               "x1": 0.5,
               "x2": 250,
               "funcX": "decayMulti",

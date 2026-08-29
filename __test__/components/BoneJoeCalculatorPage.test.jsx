@@ -115,11 +115,19 @@ describe('Bone Joe Calculator page', () => {
     fireEvent.change(screen.getByLabelText('Midas Minded'), { target: { value: '50' } });
     fireEvent.click(screen.getByLabelText('Apply to characters'));
 
-    // The configuration reaches the table on a debounce, so the pickle column lands a beat later.
-    await waitFor(() => expect(rowCells(character.name)[2]).toBe('5'));
-    minibosses.forEach(({ baseHp }, index) => {
+    // The pickles and the prayer curse reach the table on two SEPARATE debounces, so waiting on the
+    // pickle column alone is not enough: under load the pickles land a render before the curse
+    // does, and the caps are then computed against an uncursed miniboss. Waiting on a cap waits on
+    // both, since a cap is only right once the curse has arrived too.
+    const capOf = ({ baseHp }) => {
       const cap = getOneShotPickleCap(maxDamage, baseHp, 15.75);
-      expect(rowCells(character.name)[3 + index]).toContain(cap < 0 ? '-' : String(cap));
+      return cap < 0 ? '-' : String(cap);
+    };
+    await waitFor(() => {
+      expect(rowCells(character.name)[2]).toBe('5');
+      minibosses.forEach((miniboss, index) => {
+        expect(rowCells(character.name)[3 + index]).toContain(capOf(miniboss));
+      });
     });
     expect(screen.getByText(/using the configuration above/)).toBeDefined();
   });

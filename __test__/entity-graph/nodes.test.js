@@ -20,7 +20,7 @@ describe('node extractors', () => {
     const nodes = monsterNodes(monsters);
     expect(nodes['monster:mushG']).toEqual({
       kind: 'monster', rawName: 'mushG', name: 'Green_Mushroom',
-      icon: '/afk_targets/Green_Mushroom.png', category: 'Monster',
+      icon: '/monsters/mushG/static.png', iconFallbacks: ['/afk_targets/Green_Mushroom.png'], category: 'Monster',
       stats: null, location: null,
     });
     expect(nodes['monster:Copper'].category).toBe('Ore');
@@ -89,7 +89,7 @@ describe('node extractors', () => {
     });
     expect(nodes['npc:Grasslands_Gary']).toEqual({
       kind: 'npc', rawName: 'Grasslands_Gary', name: 'Grasslands Gary',
-      icon: '/npcs/Grasslands_Gary.gif',
+      icon: '/npcs/Grasslands_Gary/static.png', iconFallbacks: ['/npcs/Grasslands_Gary.gif'],
     });
     expect(Object.keys(nodes)).toHaveLength(2);
   });

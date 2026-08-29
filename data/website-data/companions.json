@@ -4,11 +4,15 @@
     "rawName": "babaMummy",
     "effect": "All_Divinities_from_World_5_count_as_Active",
     "bonus": 1,
-    "x": "-53",
+    "x": "-66",
     "y": "-22",
     "z": "-14",
     "filler": "2000",
-    "tourPower": 165
+    "tourPower": 165,
+    "x8": 3000,
+    "upgradedTourPower": 240,
+    "upgradedEffect": "All_Divinities_count_as_Active,_and_1.25x_Divinity_PTS_gain",
+    "upgradedBonus": 1
   },
   {
     "name": "Rift_Slug",
@@ -19,7 +23,11 @@
     "y": "6",
     "z": "-14",
     "filler": "450",
-    "tourPower": 125
+    "tourPower": 125,
+    "x8": 2500,
+    "upgradedTourPower": 180,
+    "upgradedEffect": "+35_Lv_for_all_Talents",
+    "upgradedBonus": 35
   },
   {
     "name": "Dedotated_Ram",
@@ -30,7 +38,11 @@
     "y": "16",
     "z": "-19",
     "filler": "150",
-    "tourPower": 120
+    "tourPower": 120,
+    "x8": 2100,
+    "upgradedTourPower": 170,
+    "upgradedEffect": "Use_Storage_Chest_from_anywhere,_and_+30%_Carry_Capacity",
+    "upgradedBonus": 1
   },
   {
     "name": "Crystal_Custard",
@@ -41,7 +53,11 @@
     "y": "20",
     "z": "-8",
     "filler": "150",
-    "tourPower": 110
+    "tourPower": 110,
+    "x8": 1750,
+    "upgradedTourPower": 150,
+    "upgradedEffect": "{130%_Drop_Rate_and_Class_Exp",
+    "upgradedBonus": 130
   },
   {
     "name": "Sheepie",
@@ -52,7 +68,11 @@
     "y": "0",
     "z": "-11",
     "filler": "10",
-    "tourPower": 80
+    "tourPower": 80,
+    "x8": 1500,
+    "upgradedTourPower": 130,
+    "upgradedEffect": "All_big_bubbles_in_Alchemy_count_as_equipped",
+    "upgradedBonus": 1
   },
   {
     "name": "Molti",
@@ -63,7 +83,11 @@
     "y": "0",
     "z": "-5",
     "filler": "10",
-    "tourPower": 70
+    "tourPower": 70,
+    "x8": 1400,
+    "upgradedTourPower": 100,
+    "upgradedEffect": "{8%_All_Skill_Efficiency",
+    "upgradedBonus": 8
   },
   {
     "name": "Bored_Bean",
@@ -74,7 +98,11 @@
     "y": "0",
     "z": "-22",
     "filler": "10",
-    "tourPower": 65
+    "tourPower": 65,
+    "x8": 1200,
+    "upgradedTourPower": 90,
+    "upgradedEffect": "{8%_AFK_Gains_Rate_for_Fighting_and_Skills",
+    "upgradedBonus": 8
   },
   {
     "name": "Slime",
@@ -85,7 +113,11 @@
     "y": "0",
     "z": "-1",
     "filler": "5",
-    "tourPower": 50
+    "tourPower": 50,
+    "x8": 1000,
+    "upgradedTourPower": 80,
+    "upgradedEffect": "+50%_Golden_Balls_earned_in_Arcade_for_Upgrades",
+    "upgradedBonus": 2
   },
   {
     "name": "Sandy_Pot",
@@ -96,7 +128,11 @@
     "y": "0",
     "z": "-3",
     "filler": "5",
-    "tourPower": 50
+    "tourPower": 50,
+    "x8": 800,
+    "upgradedTourPower": 80,
+    "upgradedEffect": "+20_Base_All_Stats_(STR/AGI/WIS/LUK)",
+    "upgradedBonus": 20
   },
   {
     "name": "Bloque",
@@ -107,7 +143,11 @@
     "y": "0",
     "z": "-17",
     "filler": "5",
-    "tourPower": 50
+    "tourPower": 50,
+    "x8": 700,
+    "upgradedTourPower": 75,
+    "upgradedEffect": "+30%_All_Skill_EXP",
+    "upgradedBonus": 30
   },
   {
     "name": "Frog",
@@ -118,7 +158,11 @@
     "y": "0",
     "z": "-5",
     "filler": "5",
-    "tourPower": 40
+    "tourPower": 40,
+    "x8": 600,
+    "upgradedTourPower": 70,
+    "upgradedEffect": "+15%_Total_Damage",
+    "upgradedBonus": 15
   },
   {
     "name": "Glunko_Supreme",
@@ -129,7 +173,11 @@
     "y": "0",
     "z": "-30",
     "filler": "1",
-    "tourPower": 10
+    "tourPower": 10,
+    "x8": 9999,
+    "upgradedTourPower": 11,
+    "upgradedEffect": "Only_100_of_these_exist_in_IdleOn...",
+    "upgradedBonus": 10
   },
   {
     "name": "Ancient_Golem",
@@ -140,7 +188,11 @@
     "y": "0",
     "z": "-35",
     "filler": "1000",
-    "tourPower": 150
+    "tourPower": 150,
+    "x8": 4700,
+    "upgradedTourPower": 230,
+    "upgradedEffect": "15x_Total_Damage",
+    "upgradedBonus": 14
   },
   {
     "name": "Samurai_Guardian",
@@ -151,7 +203,11 @@
     "y": "0",
     "z": "-19",
     "filler": "250",
-    "tourPower": 140
+    "tourPower": 140,
+    "x8": 3800,
+    "upgradedTourPower": 200,
+    "upgradedEffect": "4x_Villager_EXP_and_+33_Opals",
+    "upgradedBonus": 1.34
   },
   {
     "name": "Rift_Jocund",
@@ -162,7 +218,11 @@
     "y": "0",
     "z": "-16",
     "filler": "250",
-    "tourPower": 135
+    "tourPower": 135,
+    "x8": 3400,
+    "upgradedTourPower": 185,
+    "upgradedEffect": "3x_Kills_for_Opening_Portals_and_Deathnote",
+    "upgradedBonus": 1.5
   },
   {
     "name": "Leek_Spirit",
@@ -173,7 +233,11 @@
     "y": "0",
     "z": "-19",
     "filler": "100",
-    "tourPower": 110
+    "tourPower": 110,
+    "x8": 2900,
+    "upgradedTourPower": 160,
+    "upgradedEffect": "5.00x_faster_Equinox_Bar_Fill_Rate",
+    "upgradedBonus": 4
   },
   {
     "name": "Crystal_Capybara",
@@ -184,7 +248,11 @@
     "y": "0",
     "z": "-5",
     "filler": "100",
-    "tourPower": 110
+    "tourPower": 110,
+    "x8": 2800,
+    "upgradedTourPower": 160,
+    "upgradedEffect": "2.00x_Lab_EXP_and_Divinity_EXP_Gain",
+    "upgradedBonus": 1
   },
   {
     "name": "Biggole_Mole",
@@ -195,7 +263,11 @@
     "y": "0",
     "z": "-15",
     "filler": "100",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 2700,
+    "upgradedTourPower": 150,
+    "upgradedEffect": "3d_Printer_samples_grow_{2%/day_for_100_days",
+    "upgradedBonus": 2
   },
   {
     "name": "Gigafrog",
@@ -206,7 +278,11 @@
     "y": "0",
     "z": "-29",
     "filler": "10",
-    "tourPower": 80
+    "tourPower": 80,
+    "x8": 2200,
+    "upgradedTourPower": 125,
+    "upgradedEffect": "{35%_Carry_Capacity_for_all_item_types",
+    "upgradedBonus": 35
   },
   {
     "name": "Mashed_Potato",
@@ -217,7 +293,11 @@
     "y": "0",
     "z": "-25",
     "filler": "10",
-    "tourPower": 70
+    "tourPower": 70,
+    "x8": 1900,
+    "upgradedTourPower": 120,
+    "upgradedEffect": "{8%_Ballot_Bonus_Multi_(World_2_feature)",
+    "upgradedBonus": 8
   },
   {
     "name": "Flying_Worm",
@@ -228,7 +308,11 @@
     "y": "0",
     "z": "-5",
     "filler": "10",
-    "tourPower": 60
+    "tourPower": 60,
+    "x8": 1800,
+    "upgradedTourPower": 100,
+    "upgradedEffect": "{40_Talent_Points_for_all_classes",
+    "upgradedBonus": 40
   },
   {
     "name": "Poisonic_Frog",
@@ -239,7 +323,11 @@
     "y": "0",
     "z": "-5",
     "filler": "5",
-    "tourPower": 55
+    "tourPower": 55,
+    "x8": 1500,
+    "upgradedTourPower": 80,
+    "upgradedEffect": "+20%_Defence",
+    "upgradedBonus": 20
   },
   {
     "name": "Quenchie",
@@ -250,7 +338,11 @@
     "y": "0",
     "z": "-5",
     "filler": "5",
-    "tourPower": 50
+    "tourPower": 50,
+    "x8": 1400,
+    "upgradedTourPower": 70,
+    "upgradedEffect": "+20%_Drop_Rate",
+    "upgradedBonus": 20
   },
   {
     "name": "Green_Mushroom",
@@ -261,7 +353,11 @@
     "y": "0",
     "z": "-5",
     "filler": "5",
-    "tourPower": 30
+    "tourPower": 30,
+    "x8": 1300,
+    "upgradedTourPower": 60,
+    "upgradedEffect": "+20%_Accuracy",
+    "upgradedBonus": 20
   },
   {
     "name": "Cool_Bird",
@@ -272,7 +368,11 @@
     "y": "0",
     "z": "-13",
     "filler": "500",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 2500,
+    "upgradedTourPower": 150,
+    "upgradedEffect": "6x_Coins_from_Mobs",
+    "upgradedBonus": 5
   },
   {
     "name": "Axolotl",
@@ -283,7 +383,11 @@
     "y": "0",
     "z": "-20",
     "filler": "500",
-    "tourPower": 110
+    "tourPower": 110,
+    "x8": 2500,
+    "upgradedTourPower": 150,
+    "upgradedEffect": "{70%_AFK_Gains",
+    "upgradedBonus": 70
   },
   {
     "name": "Mallay",
@@ -294,7 +398,11 @@
     "y": "0",
     "z": "0",
     "filler": "500",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 2900,
+    "upgradedTourPower": 150,
+    "upgradedEffect": "1.50x_Drop_Rate",
+    "upgradedBonus": 0.5
   },
   {
     "name": "Spirit_Reindeer",
@@ -305,7 +413,11 @@
     "y": "0",
     "z": "-33",
     "filler": "500",
-    "tourPower": 150
+    "tourPower": 150,
+    "x8": 3200,
+    "upgradedTourPower": 240,
+    "upgradedEffect": "2.50x_Gold_Ball_Shop_Bonuses",
+    "upgradedBonus": 1.5
   },
   {
     "name": "RIP_Tide",
@@ -316,7 +428,11 @@
     "y": "0",
     "z": "-48",
     "filler": "500",
-    "tourPower": 200
+    "tourPower": 200,
+    "x8": 4500,
+    "upgradedTourPower": 300,
+    "upgradedEffect": "{40%_AFK_gains_for_World_7_skills,_and_{2_Worldclass_Showcase_Slots_in_Gallery",
+    "upgradedBonus": 40
   },
   {
     "name": "Squirrel",
@@ -327,7 +443,11 @@
     "y": "0",
     "z": "-8",
     "filler": "100",
-    "tourPower": 115
+    "tourPower": 115,
+    "x8": 2700,
+    "upgradedTourPower": 170,
+    "upgradedEffect": "1.75x_Kills_for_Opening_Portals_and_Deathnote",
+    "upgradedBonus": 0.75
   },
   {
     "name": "Mr_Pig",
@@ -338,7 +458,11 @@
     "y": "0",
     "z": "-5",
     "filler": "100",
-    "tourPower": 110
+    "tourPower": 110,
+    "x8": 3500,
+    "upgradedTourPower": 160,
+    "upgradedEffect": "2.5x_Friend_Bonuses,_{3_Friend_Bonus_Slots,_Auto_Loot,_Storage_Quickref_Usage,_Infinite_Teleporting",
+    "upgradedBonus": 1.5
   },
   {
     "name": "Wild_Boar",
@@ -349,7 +473,11 @@
     "y": "0",
     "z": "-8",
     "filler": "100",
-    "tourPower": 170
+    "tourPower": 170,
+    "x8": 3900,
+    "upgradedTourPower": 250,
+    "upgradedEffect": "{25%_Hat_Rack_Bonus_Multi",
+    "upgradedBonus": 25
   },
   {
     "name": "Whale",
@@ -360,7 +488,11 @@
     "y": "0",
     "z": "-13",
     "filler": "100",
-    "tourPower": 125
+    "tourPower": 125,
+    "x8": 2800,
+    "upgradedTourPower": 189,
+    "upgradedEffect": "2.5x_Class_EXP_gain_and_2.5x_All_Skill_EXP_gain",
+    "upgradedBonus": 1.5
   },
   {
     "name": "Chippy",
@@ -371,7 +503,11 @@
     "y": "0",
     "z": "-10",
     "filler": "100",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 2500,
+    "upgradedTourPower": 150,
+    "upgradedEffect": "2.5x_Total_Damage,_and_2.5x_Class_EXP_gain",
+    "upgradedBonus": 1.5
   },
   {
     "name": "Bunny",
@@ -382,7 +518,11 @@
     "y": "0",
     "z": "-9",
     "filler": "100",
-    "tourPower": 80
+    "tourPower": 80,
+    "x8": 2200,
+    "upgradedTourPower": 130,
+    "upgradedEffect": "4x_Class_EXP_gain",
+    "upgradedBonus": 3
   },
   {
     "name": "Panda",
@@ -393,7 +533,11 @@
     "y": "0",
     "z": "-13",
     "filler": "100",
-    "tourPower": 110
+    "tourPower": 110,
+    "x8": 2500,
+    "upgradedTourPower": 155,
+    "upgradedEffect": "3x_Refinery_Salts_produced_(affects_POW_produced_in_Refinery)",
+    "upgradedBonus": 2
   },
   {
     "name": "Hedgehog",
@@ -404,7 +548,11 @@
     "y": "0",
     "z": "-11",
     "filler": "100",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 2600,
+    "upgradedTourPower": 160,
+    "upgradedEffect": "{300%_Gold_Balls_gained_from_the_Arcade,",
+    "upgradedBonus": 300
   },
   {
     "name": "Whallamus",
@@ -415,7 +563,11 @@
     "y": "20",
     "z": "-33",
     "filler": "1000",
-    "tourPower": 150
+    "tourPower": 150,
+    "x8": 4900,
+    "upgradedTourPower": 250,
+    "upgradedEffect": "15x_Class_EXP_and_{15_Legend_Talent_PTS",
+    "upgradedBonus": 1.5
   },
   {
     "name": "Balloonfish",
@@ -426,7 +578,11 @@
     "y": "0",
     "z": "-15",
     "filler": "250",
-    "tourPower": 130
+    "tourPower": 130,
+    "x8": 3800,
+    "upgradedTourPower": 200,
+    "upgradedEffect": "6x_Coins_from_monsters,_and_6x_Masterclass_drops",
+    "upgradedBonus": 5
   },
   {
     "name": "Pufferblob",
@@ -437,7 +593,11 @@
     "y": "30",
     "z": "-7",
     "filler": "250",
-    "tourPower": 115
+    "tourPower": 115,
+    "x8": 3500,
+    "upgradedTourPower": 170,
+    "upgradedEffect": "+75%_Meritocracy_Bonus_Multi_(World_7_feature)",
+    "upgradedBonus": 75
   },
   {
     "name": "Shellslug",
@@ -448,7 +608,11 @@
     "y": "20",
     "z": "-19",
     "filler": "100",
-    "tourPower": 110
+    "tourPower": 110,
+    "x8": 2800,
+    "upgradedTourPower": 160,
+    "upgradedEffect": "2.00x_Daily_Reef_Coral_(World_7_feature)",
+    "upgradedBonus": 1
   },
   {
     "name": "Crystal_Cuttlefish",
@@ -459,7 +623,11 @@
     "y": "0",
     "z": "-14",
     "filler": "100",
-    "tourPower": 105
+    "tourPower": 105,
+    "x8": 2700,
+    "upgradedTourPower": 150,
+    "upgradedEffect": "{50%_Ballot_Bonus_Multi_(World_2_feature)",
+    "upgradedBonus": 50
   },
   {
     "name": "Eamsy_Earl",
@@ -470,7 +638,11 @@
     "y": "28",
     "z": "-17",
     "filler": "100",
-    "tourPower": 90
+    "tourPower": 90,
+    "x8": 2600,
+    "upgradedTourPower": 140,
+    "upgradedEffect": "{1_Grade_for_3_Gallery_Showcases_(World_7_feature)",
+    "upgradedBonus": 3
   },
   {
     "name": "Litterfish",
@@ -481,7 +653,11 @@
     "y": "0",
     "z": "-19",
     "filler": "10",
-    "tourPower": 80
+    "tourPower": 80,
+    "x8": 1900,
+    "upgradedTourPower": 125,
+    "upgradedEffect": "1.50x_Artifact_Find_chance_(World_5_feature)",
+    "upgradedBonus": 0.5
   },
   {
     "name": "Spearfish",
@@ -492,7 +668,11 @@
     "y": "0",
     "z": "-15",
     "filler": "10",
-    "tourPower": 75
+    "tourPower": 75,
+    "x8": 1800,
+    "upgradedTourPower": 120,
+    "upgradedEffect": "{1_Friend_Bonus_slot_and_{25%_Friend_Bonuses",
+    "upgradedBonus": 1
   },
   {
     "name": "Equinox_Broadbass",
@@ -503,7 +683,11 @@
     "y": "0",
     "z": "-5",
     "filler": "10",
-    "tourPower": 65
+    "tourPower": 65,
+    "x8": 1750,
+    "upgradedTourPower": 100,
+    "upgradedEffect": "2.50x_Coins_from_monsters",
+    "upgradedBonus": 1.5
   },
   {
     "name": "Mafioso",
@@ -514,7 +698,11 @@
     "y": "0",
     "z": "-24",
     "filler": "5",
-    "tourPower": 60
+    "tourPower": 60,
+    "x8": 1200,
+    "upgradedTourPower": 90,
+    "upgradedEffect": "+25%_faster_Alchemy_Brew_Speed",
+    "upgradedBonus": 25
   },
   {
     "name": "Baby_Boa",
@@ -525,7 +713,11 @@
     "y": "0",
     "z": "-9",
     "filler": "5",
-    "tourPower": 55
+    "tourPower": 55,
+    "x8": 900,
+    "upgradedTourPower": 80,
+    "upgradedEffect": "+15%_Class_EXP",
+    "upgradedBonus": 15
   },
   {
     "name": "Purp_Mushroom",
@@ -536,7 +728,11 @@
     "y": "0",
     "z": "-11",
     "filler": "5",
-    "tourPower": 50
+    "tourPower": 50,
+    "x8": 600,
+    "upgradedTourPower": 70,
+    "upgradedEffect": "+7%_Golden_Food_bonus",
+    "upgradedBonus": 7
   },
   {
     "name": "Bubba_the_Seal",
@@ -547,7 +743,11 @@
     "y": "0",
     "z": "-37",
     "filler": "5",
-    "tourPower": 165
+    "tourPower": 165,
+    "x8": 4500,
+    "upgradedTourPower": 280,
+    "upgradedEffect": "{50%_Gallery_Bonus_Multi_(World_7_feature)",
+    "upgradedBonus": 50
   },
   {
     "name": "Santa_Snake",
@@ -558,7 +758,11 @@
     "y": "0",
     "z": "-9",
     "filler": "0",
-    "tourPower": 60
+    "tourPower": 60,
+    "x8": 450,
+    "upgradedTourPower": 80,
+    "upgradedEffect": "{50%_Class_EXP,_{50%_Drop_Rate,_1.01x_Class_EXP,_and_1.01x_Drop_Rate",
+    "upgradedBonus": 50
   },
   {
     "name": "Santas_Little_Helper",
@@ -569,7 +773,11 @@
     "y": "0",
     "z": "-11",
     "filler": "100",
-    "tourPower": 130
+    "tourPower": 130,
+    "x8": 2900,
+    "upgradedTourPower": 225,
+    "upgradedEffect": "5x_bonuses_from_Orion,_Poppy,_and_Bubba_(and_all_future_Clickers)",
+    "upgradedBonus": 4
   },
   {
     "name": "Jellofish",
@@ -580,7 +788,11 @@
     "y": "0",
     "z": "-18",
     "filler": "1",
-    "tourPower": 120
+    "tourPower": 120,
+    "x8": 2500,
+    "upgradedTourPower": 180,
+    "upgradedEffect": "1.80x_Research_EXP_gain_(World_7_feature)",
+    "upgradedBonus": 0.8
   },
   {
     "name": "Koi_Fish",
@@ -591,7 +803,11 @@
     "y": "0",
     "z": "-18",
     "filler": "1",
-    "tourPower": 140
+    "tourPower": 140,
+    "x8": 2800,
+    "upgradedTourPower": 220,
+    "upgradedEffect": "200x_Gaming_Bits_gained_(World_5_feature)",
+    "upgradedBonus": 199
   },
   {
     "name": "Neonscale",
@@ -602,7 +818,11 @@
     "y": "0",
     "z": "-26",
     "filler": "1",
-    "tourPower": 165
+    "tourPower": 165,
+    "x8": 3900,
+    "upgradedTourPower": 250,
+    "upgradedEffect": "{1_new_Research_Shape,_and_a_new_1.15x_Research_EXP_multi",
+    "upgradedBonus": 1
   },
   {
     "name": "Pirate_Deckhand",
@@ -613,7 +833,11 @@
     "y": "0",
     "z": "-28",
     "filler": "1",
-    "tourPower": 200
+    "tourPower": 200,
+    "x8": 4900,
+    "upgradedTourPower": 300,
+    "upgradedEffect": "Multiplies_ALL_Research_Grid_bonuses_by_1.20x_(World_7_feature)",
+    "upgradedBonus": 20
   },
   {
     "name": "Magni_Pufferfin",
@@ -624,7 +848,11 @@
     "y": "0",
     "z": "-30",
     "filler": "1",
-    "tourPower": 260
+    "tourPower": 260,
+    "x8": 5400,
+    "upgradedTourPower": 370,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Dreadnaught_Captain",
@@ -635,7 +863,11 @@
     "y": "0",
     "z": "-41",
     "filler": "1",
-    "tourPower": 300
+    "tourPower": 300,
+    "x8": 5900,
+    "upgradedTourPower": 430,
+    "upgradedEffect": "Glimbo's_Swap_Meet's_prices_are_15.00x_cheaper_(World_7_feature)",
+    "upgradedBonus": 93.34
   },
   {
     "name": "Bubba_Supreme",
@@ -646,7 +878,11 @@
     "y": "0",
     "z": "-35",
     "filler": "1",
-    "tourPower": 420
+    "tourPower": 420,
+    "x8": 7000,
+    "upgradedTourPower": 600,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Nutto",
@@ -657,7 +893,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 60
+    "tourPower": 60,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Biggie_Hours",
@@ -668,7 +908,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 150
+    "tourPower": 150,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Baba_Yaga",
@@ -679,7 +923,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 150
+    "tourPower": 150,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Walking_Stick",
@@ -690,7 +938,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 55
+    "tourPower": 55,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Carrotman",
@@ -701,7 +953,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 80
+    "tourPower": 80,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Demon_Hound",
@@ -712,7 +968,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Gloomie_Mushroom",
@@ -723,7 +983,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Crabcake",
@@ -734,7 +998,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 60
+    "tourPower": 60,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Mr_Blueberry",
@@ -745,7 +1013,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Crystal_Carrot",
@@ -756,7 +1028,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 105
+    "tourPower": 105,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Crystal_Crabal",
@@ -767,7 +1043,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 105
+    "tourPower": 105,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Crystal_Cattle",
@@ -778,7 +1058,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Crystal_Candalight",
@@ -789,7 +1073,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Demon_Genie",
@@ -800,7 +1088,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Eldritch_Croaker",
@@ -811,7 +1103,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 125
+    "tourPower": 125,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Lava_Slimer",
@@ -822,7 +1118,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 120
+    "tourPower": 120,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "King_Frog",
@@ -833,7 +1133,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 110
+    "tourPower": 110,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Ghost",
@@ -844,7 +1148,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Glublin",
@@ -855,7 +1163,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 45
+    "tourPower": 45,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Mamooth",
@@ -866,7 +1178,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Mimic",
@@ -877,7 +1193,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 40
+    "tourPower": 40,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Moonmoon",
@@ -888,7 +1208,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 70
+    "tourPower": 70,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Red_Mushroom",
@@ -899,7 +1223,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 40
+    "tourPower": 40,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Wood_Mushroom",
@@ -910,7 +1238,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Pincermin",
@@ -921,7 +1253,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 95
+    "tourPower": 95,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Wode_Board",
@@ -932,7 +1268,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 50
+    "tourPower": 50,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Crescent_Spud",
@@ -943,7 +1283,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 110
+    "tourPower": 110,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Rat",
@@ -954,7 +1298,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 90
+    "tourPower": 90,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Rift_Spooker",
@@ -965,7 +1313,11 @@
     "y": "0",
     "z": "-15",
     "filler": "1",
-    "tourPower": 160
+    "tourPower": 160,
+    "x8": 3000,
+    "upgradedTourPower": 240,
+    "upgradedEffect": "4x_Cooking_Mastery_EXP_gain_and_{7_PTS_for_Cooking_Mastery",
+    "upgradedBonus": 1.5
   },
   {
     "name": "Rift_Hivemind",
@@ -976,7 +1328,11 @@
     "y": "0",
     "z": "-11",
     "filler": "1",
-    "tourPower": 170
+    "tourPower": 170,
+    "x8": 3500,
+    "upgradedTourPower": 255,
+    "upgradedEffect": "{75%_Prisma_Bubble_bonus_multi_and_{7_Prisma_Bubbles",
+    "upgradedBonus": 1.5
   },
   {
     "name": "Floofie",
@@ -987,7 +1343,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Sand_Castle",
@@ -998,7 +1358,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 45
+    "tourPower": 45,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Sand_Giant",
@@ -1009,7 +1373,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 105
+    "tourPower": 105,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Dig_Doug",
@@ -1020,7 +1388,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 50
+    "tourPower": 50,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "rawName": "shovel",
@@ -1030,7 +1402,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Xylobone",
@@ -1041,7 +1417,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Bloodbone",
@@ -1052,7 +1432,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Glunko_The_Massive",
@@ -1063,7 +1447,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "rawName": "slimmer",
@@ -1073,7 +1461,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Snelbie",
@@ -1084,7 +1476,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 115
+    "tourPower": 115,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Cryosnake",
@@ -1095,7 +1491,11 @@
     "y": "0",
     "z": "-5",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 1500,
+    "upgradedTourPower": 140,
+    "upgradedEffect": "All_Upgrade_Vault_upgrades_are_75%_cheaper!",
+    "upgradedBonus": 75
   },
   {
     "name": "Shell_Snake",
@@ -1106,7 +1506,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Snowman",
@@ -1117,7 +1521,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Bop_Box",
@@ -1128,7 +1536,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Tyson",
@@ -1139,7 +1551,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 85
+    "tourPower": 85,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Beefie",
@@ -1150,7 +1566,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Thermister",
@@ -1161,7 +1581,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "TV",
@@ -1172,7 +1596,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Donut",
@@ -1183,7 +1611,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Soda_Can",
@@ -1194,7 +1626,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Gelatinous_Cuboid",
@@ -1205,7 +1641,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Choccie",
@@ -1216,7 +1656,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Clammie",
@@ -1227,7 +1671,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 60
+    "tourPower": 60,
+    "x8": 1200,
+    "upgradedTourPower": 100,
+    "upgradedEffect": "{150%_Class_EXP_and_Drop_Rate",
+    "upgradedBonus": 150
   },
   {
     "name": "Octodar",
@@ -1238,7 +1686,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Flombeige",
@@ -1249,7 +1701,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Stilted_Seeker",
@@ -1260,7 +1716,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Suggma",
@@ -1271,7 +1731,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Maccie",
@@ -1282,7 +1746,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Mister_Brightside",
@@ -1293,7 +1761,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Cheese_Nub",
@@ -1304,7 +1776,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Stiltmole",
@@ -1315,7 +1791,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Citringe",
@@ -1326,7 +1806,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Lampar",
@@ -1337,7 +1821,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Fire_Spirit",
@@ -1348,7 +1836,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Crawler",
@@ -1359,7 +1851,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Tremor_Wurm",
@@ -1370,7 +1866,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Sprout_Spirit",
@@ -1381,7 +1881,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Ricecake",
@@ -1392,7 +1896,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "River_Spirit",
@@ -1403,7 +1911,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Baby_Troll",
@@ -1414,7 +1926,11 @@
     "y": "0",
     "z": "-4",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 1500,
+    "upgradedTourPower": 140,
+    "upgradedEffect": "{300%_Class_EXP_and_1.75x_Class_EXP_Multi",
+    "upgradedBonus": 300
   },
   {
     "name": "Woodlin_Spirit",
@@ -1425,7 +1941,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Bamboo_Spirit",
@@ -1436,7 +1956,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Lantern_Spirit",
@@ -1447,7 +1971,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Mama_Troll",
@@ -1458,7 +1986,11 @@
     "y": "0",
     "z": "-18",
     "filler": "1",
-    "tourPower": 175
+    "tourPower": 175,
+    "x8": 3500,
+    "upgradedTourPower": 265,
+    "upgradedEffect": "{300%_Drop_Rate_and_1.70x_Drop_Rate_Multi",
+    "upgradedBonus": 300
   },
   {
     "name": "Ceramic_Spirit",
@@ -1469,7 +2001,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Skydoggie_Spirit",
@@ -1480,7 +2016,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Royal_Egg",
@@ -1491,7 +2031,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 195
+    "tourPower": 195,
+    "x8": 4300,
+    "upgradedTourPower": 300,
+    "upgradedEffect": "3x_LVs_for_Monuments_Bonuses_when_selecting_Rewards!",
+    "upgradedBonus": 200
   },
   {
     "name": "Minichief_Spirit",
@@ -1502,7 +2046,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Doodlefish",
@@ -1513,7 +2061,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Noble_Clam",
@@ -1524,7 +2076,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Demonblub",
@@ -1535,7 +2091,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Coralcave_Crab",
@@ -1546,18 +2106,26 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Coralcave_Guardian",
     "rawName": "w7a12",
-    "effect": "Not_officially_in_the_game_and_may_never_be",
-    "bonus": 1,
-    "x": "0",
+    "effect": "3x_Resources_from_Outposts_for_Royal_Guardian",
+    "bonus": 2,
+    "x": "-31",
     "y": "0",
-    "z": "0",
+    "z": "-35",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 200,
+    "x8": 4400,
+    "upgradedTourPower": 310,
+    "upgradedEffect": "5x_Resources_from_Outposts_for_Royal_Guardian",
+    "upgradedBonus": 4
   },
   {
     "name": "Trench_Fish",
@@ -1568,7 +2136,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Boomy_Mine",
@@ -1579,7 +2151,11 @@
     "y": "0",
     "z": "-19",
     "filler": "1",
-    "tourPower": 190
+    "tourPower": 190,
+    "x8": 3700,
+    "upgradedTourPower": 280,
+    "upgradedEffect": "30x_total_Spelunking_POW,_and_3x_Minehead_Currency_Gain!",
+    "upgradedBonus": 30
   },
   {
     "name": "Pirate_Underling",
@@ -1590,7 +2166,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Eggroll",
@@ -1601,7 +2181,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 180
+    "tourPower": 180,
+    "x8": 3000,
+    "upgradedTourPower": 275,
+    "upgradedEffect": "4x_Class_EXP_gain",
+    "upgradedBonus": 3
   },
   {
     "name": "Kelpfish",
@@ -1612,7 +2196,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Mantaray",
@@ -1623,7 +2211,11 @@
     "y": "0",
     "z": "-33",
     "filler": "1",
-    "tourPower": 160
+    "tourPower": 160,
+    "x8": 2750,
+    "upgradedTourPower": 240,
+    "upgradedEffect": "All_bonuses_from_The_Button_in_W7_are_1.75x_bigger",
+    "upgradedBonus": 75
   },
   {
     "rawName": "w7b8zzz",
@@ -1633,7 +2225,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "rawName": "w7b9zzz",
@@ -1643,7 +2239,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 100
+    "tourPower": 100,
+    "x8": 9999,
+    "upgradedTourPower": 99,
+    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
+    "upgradedBonus": 1
   },
   {
     "name": "Bronze_Champion_Ram",
@@ -1654,7 +2254,11 @@
     "y": "0",
     "z": "-19",
     "filler": "1",
-    "tourPower": 10
+    "tourPower": 10,
+    "x8": 9999,
+    "upgradedTourPower": 12,
+    "upgradedEffect": "Congratulations_on_winning_the_Tournament!",
+    "upgradedBonus": 1
   },
   {
     "name": "Silver_Champion_Ram",
@@ -1665,7 +2269,11 @@
     "y": "0",
     "z": "-19",
     "filler": "1",
-    "tourPower": 10
+    "tourPower": 10,
+    "x8": 9999,
+    "upgradedTourPower": 12,
+    "upgradedEffect": "Congratulations_on_winning_the_Tournament!",
+    "upgradedBonus": 1
   },
   {
     "name": "Gold_Champion_Ram",
@@ -1676,7 +2284,11 @@
     "y": "0",
     "z": "-24",
     "filler": "1",
-    "tourPower": 10
+    "tourPower": 10,
+    "x8": 9999,
+    "upgradedTourPower": 12,
+    "upgradedEffect": "Congratulations_on_winning_the_Tournament!",
+    "upgradedBonus": 1
   },
   {
     "name": "Rift_Stalker",
@@ -1687,7 +2299,11 @@
     "y": "0",
     "z": "-20",
     "filler": "1",
-    "tourPower": 225
+    "tourPower": 225,
+    "x8": 4500,
+    "upgradedTourPower": 325,
+    "upgradedEffect": "{15_Research_PTS,_{30%_Research_AFK_Gains,_3x_Research_EXP_Gain,_and_{1_Magnifier",
+    "upgradedBonus": 1
   },
   {
     "name": "Glimbo",
@@ -1698,7 +2314,11 @@
     "y": "0",
     "z": "-22",
     "filler": "1",
-    "tourPower": 160
+    "tourPower": 160,
+    "x8": 2800,
+    "upgradedTourPower": 230,
+    "upgradedEffect": "2x_Kills_multi,_and_3x_Artifact_Find_Chance_for_Sailing!",
+    "upgradedBonus": 1
   },
   {
     "name": "Vanillie",
@@ -1709,7 +2329,11 @@
     "y": "0",
     "z": "-9",
     "filler": "1",
-    "tourPower": 175
+    "tourPower": 175,
+    "x8": 3000,
+    "upgradedTourPower": 250,
+    "upgradedEffect": "{4000%_additive_Gold_Food_bonus_effect",
+    "upgradedBonus": 4000
   },
   {
     "name": "Valenslime",
@@ -1720,7 +2344,11 @@
     "y": "0",
     "z": "-2",
     "filler": "1",
-    "tourPower": 60
+    "tourPower": 60,
+    "x8": 500,
+    "upgradedTourPower": 90,
+    "upgradedEffect": "{25%_Total_Damage",
+    "upgradedBonus": 25
   },
   {
     "name": "Mechanical_Mouse",
@@ -1731,7 +2359,11 @@
     "y": "0",
     "z": "-10",
     "filler": "1",
-    "tourPower": 110
+    "tourPower": 110,
+    "x8": 2100,
+    "upgradedTourPower": 175,
+    "upgradedEffect": "3x_Construction_Build_Speed",
+    "upgradedBonus": 200
   },
   {
     "name": "Lucky_Slug",
@@ -1742,7 +2374,11 @@
     "y": "0",
     "z": "5",
     "filler": "1",
-    "tourPower": 65
+    "tourPower": 65,
+    "x8": 1250,
+    "upgradedTourPower": 100,
+    "upgradedEffect": "{20%_Drop_Rate",
+    "upgradedBonus": 20
   },
   {
     "name": "Potluck",
@@ -1753,7 +2389,11 @@
     "y": "0",
     "z": "-5",
     "filler": "1",
-    "tourPower": 110
+    "tourPower": 110,
+    "x8": 2000,
+    "upgradedTourPower": 170,
+    "upgradedEffect": "4x_Coins_from_Mobs",
+    "upgradedBonus": 3
   },
   {
     "name": "Glunko_The_Massive",
@@ -1764,7 +2404,11 @@
     "y": "0",
     "z": "-34",
     "filler": "1",
-    "tourPower": 230
+    "tourPower": 230,
+    "x8": 5400,
+    "upgradedTourPower": 350,
+    "upgradedEffect": "5x_Total_Damage,_9x_Class_EXP_gain,_2x_Drop_Rate",
+    "upgradedBonus": 1
   },
   {
     "name": "Poppy",
@@ -1775,7 +2419,11 @@
     "y": "0",
     "z": "-15",
     "filler": "1",
-    "tourPower": 235
+    "tourPower": 235,
+    "x8": 5800,
+    "upgradedTourPower": 380,
+    "upgradedEffect": "2.5x_bonuses_from_Bonus_Ballot_and_Multi_Meritocracy",
+    "upgradedBonus": 150
   },
   {
     "name": "Wickerlight_Spirit",
@@ -1786,7 +2434,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 165
+    "tourPower": 165,
+    "x8": 3000,
+    "upgradedTourPower": 245,
+    "upgradedEffect": "All_meals_are_8x_cheaper_to_level_up,_and_give_1.40x_higher_bonuses!",
+    "upgradedBonus": 1.6
   },
   {
     "name": "Smoke_Devil",
@@ -1797,7 +2449,11 @@
     "y": "0",
     "z": "0",
     "filler": "1",
-    "tourPower": 190
+    "tourPower": 190,
+    "x8": 3750,
+    "upgradedTourPower": 290,
+    "upgradedEffect": "150x_Jade_Gain,_60x_Ninja_Stealth,_and_3.25x_Sneaking_EXP",
+    "upgradedBonus": 1.5
   },
   {
     "name": "Bronze_Champion_Troll",
@@ -1808,7 +2464,11 @@
     "y": "0",
     "z": "-5",
     "filler": "1",
-    "tourPower": 10
+    "tourPower": 10,
+    "x8": 9999,
+    "upgradedTourPower": 12,
+    "upgradedEffect": "Congratulations_on_winning_the_Tournament!",
+    "upgradedBonus": 1
   },
   {
     "name": "Silver_Champion_Troll",
@@ -1819,7 +2479,11 @@
     "y": "0",
     "z": "-5",
     "filler": "1",
-    "tourPower": 10
+    "tourPower": 10,
+    "x8": 9999,
+    "upgradedTourPower": 12,
+    "upgradedEffect": "Congratulations_on_winning_the_Tournament!",
+    "upgradedBonus": 1
   },
   {
     "name": "Gold_Champion_Troll",
@@ -1830,18 +2494,26 @@
     "y": "0",
     "z": "-5",
     "filler": "1",
-    "tourPower": 10
+    "tourPower": 10,
+    "x8": 9999,
+    "upgradedTourPower": 12,
+    "upgradedEffect": "Congratulations_on_winning_the_Tournament!",
+    "upgradedBonus": 1
   },
   {
     "name": "Abacus_Frog",
     "rawName": "fm_frog",
-    "effect": "Thank_you_for_rescuing_me_from_the_Fortune_Mill!",
+    "effect": "Thanks_a_million_for_rescuing_me_from_the_Fortune_Mill!",
     "bonus": 1,
     "x": "-18",
     "y": "0",
     "z": "-34",
     "filler": "1",
-    "tourPower": 177
+    "tourPower": 177,
+    "x8": 1000,
+    "upgradedTourPower": 277,
+    "upgradedEffect": "Thanks_a_million_for_rescuing_me_from_the_Fortune_Mill,_for_real!",
+    "upgradedBonus": 1
   },
   {
     "name": "Crystal_Glunko",
@@ -1852,7 +2524,11 @@
     "y": "0",
     "z": "-33",
     "filler": "1",
-    "tourPower": 210
+    "tourPower": 210,
+    "x8": 4000,
+    "upgradedTourPower": 310,
+    "upgradedEffect": "1.75x_Damage,_1.60x_Class_EXP,_1.45x_Drop_Rate,_and_1.30x_extra_Kills",
+    "upgradedBonus": 1.5
   },
   {
     "name": "Bin_Goosey",
@@ -1863,6 +2539,70 @@
     "y": "0",
     "z": "-23",
     "filler": "1",
-    "tourPower": 250
+    "tourPower": 250,
+    "x8": 5900,
+    "upgradedTourPower": 380,
+    "upgradedEffect": "All_daily_ribbons_have_a_50%_chance_to_be_+1_Tier,_40%_for_+4_Tiers,_and_10%_for_+8_Tiers",
+    "upgradedBonus": 1
+  },
+  {
+    "name": "Magician_Grub",
+    "rawName": "r0a",
+    "effect": "1.25x_Total_Damage",
+    "bonus": 0.25,
+    "x": "-8",
+    "y": "0",
+    "z": "-17",
+    "filler": "1",
+    "tourPower": 130,
+    "x8": 2500,
+    "upgradedTourPower": 225,
+    "upgradedEffect": "1.35x_Total_Damage",
+    "upgradedBonus": 0.35
+  },
+  {
+    "name": "Armadillo",
+    "rawName": "r0b",
+    "effect": "{100%_additive_Crystal_Monster_Spawn_chance",
+    "bonus": 100,
+    "x": "-28",
+    "y": "0",
+    "z": "-30",
+    "filler": "1",
+    "tourPower": 180,
+    "x8": 4400,
+    "upgradedTourPower": 300,
+    "upgradedEffect": "{175%_additive_Crystal_Monster_Spawn_chance",
+    "upgradedBonus": 175
+  },
+  {
+    "name": "Imperial_Ogre",
+    "rawName": "r0c",
+    "effect": "{20%_Marble_and_Parchment_drop_rate_for_Royal_Guardians",
+    "bonus": 20,
+    "x": "-48",
+    "y": "0",
+    "z": "-33",
+    "filler": "1",
+    "tourPower": 220,
+    "x8": 5500,
+    "upgradedTourPower": 390,
+    "upgradedEffect": "{35%_Marble_and_Parchment_drop_rate_for_Royal_Guardians",
+    "upgradedBonus": 35
+  },
+  {
+    "name": "Pipsqueak",
+    "rawName": "r0d",
+    "effect": "The_lord_of_amber_herself_is_keeping_her_bonus_a_secret..._for_now...",
+    "bonus": 1,
+    "x": "-100",
+    "y": "0",
+    "z": "-60",
+    "filler": "1",
+    "tourPower": 480,
+    "x8": 7200,
+    "upgradedTourPower": 650,
+    "upgradedEffect": "Bonus_still_unknown..._for_now...",
+    "upgradedBonus": 1
   }
 ]

@@ -52,7 +52,14 @@ export const entityNeighbourhood = (graph, id) => {
   const edges = graph.edges.filter((edge) => edge.from === id || edge.to === id);
   const firstHopIds = new Set(edges.map((edge) => (edge.from === id ? edge.to : edge.from)));
 
-  const secondHop = graph.edges.filter((edge) => SECOND_HOP_RELS.has(edge.rel) && firstHopIds.has(edge.from));
+  // Only edges that lead AWAY from the focal node. Without the second test, an item that a quest
+  // rewards collects that same edge twice: the quest arrives as a first hop, and then its own
+  // rewards are swept up again, one of which is the edge that brought it in. The panel duplicates
+  // whatever it is handed, so Tomahawk Stamp listed The Hamazing Plot Twist under Reward from
+  // quest twice, and every shop listed its own town twice under Located in.
+  const secondHop = graph.edges.filter((edge) => SECOND_HOP_RELS.has(edge.rel)
+    && firstHopIds.has(edge.from)
+    && edge.to !== id);
 
   const nodes = {};
   for (const otherId of firstHopIds) {

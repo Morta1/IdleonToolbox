@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Stack, Card, CardContent, Typography, Box, TextField, Checkbox, FormControlLabel } from '@mui/material';
+import { Stack, Card, CardContent, Typography, Box, TextField, Checkbox, FormControlLabel, Chip } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { MissingData, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
@@ -8,10 +8,18 @@ import { useLocalStorage } from '@mantine/hooks';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 
+const FEVER_COLORS = {
+  Yellow: '#e5c100',
+  Red: '#e05a4f',
+  Brown: '#a5764f',
+  Green: '#5cb85c'
+};
+
 const LegendTalents = () => {
   const { state } = useContext(AppContext);
   const { talents, pointsSpent, pointsOwned } = state?.account?.legendTalents || {};
 const [searchQuery, setSearchQuery] = useState('');
+  const [feverFilter, setFeverFilter] = useState('');
   const [hideMaxed, setHideMaxed] = useLocalStorage({
     key: `${prefix}:legendTalents:hideMaxed`,
     defaultValue: false
@@ -32,6 +40,9 @@ const [searchQuery, setSearchQuery] = useState('');
   }
   if (hideMaxed) {
     filteredTalents = filteredTalents.filter((talent) => !isCompleted(talent));
+  }
+  if (feverFilter) {
+    filteredTalents = filteredTalents.filter((talent) => talent.fever?.color === feverFilter);
   }
 
   return <>
@@ -82,6 +93,40 @@ const [searchQuery, setSearchQuery] = useState('');
           label="Hide maxed"
         />
       </Stack>
+      <Stack direction="row" alignItems="center" gap={1} flexWrap={'wrap'}>
+        <Stack direction="row" alignItems="center" gap={0.5}>
+          <Typography variant="body2" color="text.secondary">Fever:</Typography>
+          <Tooltip title={<Stack sx={{ maxWidth: 320 }} gap={1}>
+            <Typography variant="body2">
+              The Legendary Yellow/Red/Brown/Green Fever squares in the Research Grid each raise the max level of 5
+              specific Legend Talents by +1 per square level, up to +3.
+            </Typography>
+            <Typography variant="body2">
+              Affected talents show their fever next to the level, so you can tell what a fever square would unlock
+              before buying it. Click a colour to see only its talents.
+            </Typography>
+          </Stack>}>
+            <IconInfoCircleFilled size={18} />
+          </Tooltip>
+        </Stack>
+        {Object.entries(FEVER_COLORS).map(([color, hex]) => (
+          <Chip
+            key={color}
+            size="small"
+            label={color}
+            variant={feverFilter === color ? 'filled' : 'outlined'}
+            onClick={() => setFeverFilter(feverFilter === color ? '' : color)}
+            sx={{
+              borderColor: hex,
+              color: feverFilter === color ? 'black' : hex,
+              backgroundColor: feverFilter === color ? hex : 'transparent',
+              '&:hover, &:focus': {
+                backgroundColor: feverFilter === color ? hex : 'transparent'
+              }
+            }}
+          />
+        ))}
+      </Stack>
     </Stack>
 
 
@@ -91,9 +136,11 @@ const [searchQuery, setSearchQuery] = useState('');
         <Typography variant="body1" color="text.secondary">
           {searchQuery.trim()
             ? `No legend talents found matching "${searchQuery}"${hideMaxed ? ' (all remaining talents are maxed)' : ''}`
-            : hideMaxed
-              ? 'All legend talents are maxed'
-              : 'No legend talents available'}
+            : feverFilter
+              ? `No ${feverFilter} Fever talents to show${hideMaxed ? ' (all of them are maxed)' : ''}`
+              : hideMaxed
+                ? 'All legend talents are maxed'
+                : 'No legend talents available'}
         </Typography>
       </Box>
     ) : (
@@ -113,6 +160,13 @@ const [searchQuery, setSearchQuery] = useState('');
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Level: {talent.level || 0} / {talent.maxLevel}
+                    {talent.fever && (
+                      <Typography component="span" variant="body2" sx={{ color: FEVER_COLORS[talent.fever.color] }}>
+                        {talent.fever.level > 0
+                          ? ` (${talent.baseMaxLevel} base +${talent.fever.level} ${talent.fever.color})`
+                          : ` (${talent.fever.color} Fever)`}
+                      </Typography>
+                    )}
                   </Typography>
                 </Stack>
               </Stack>

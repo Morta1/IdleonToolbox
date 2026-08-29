@@ -47,6 +47,9 @@ const ALLOWED_UNDEFINED_TEXT = new Set([
 
 const ALLOWED_INFINITY_TEXT = new Set([
   'Infinity hammer',
+  // A patch note describing an Infinity bug, same as the NaN entries above: the word is the
+  // subject of the sentence, not a value that leaked onto the page.
+  'Sneaking: a weapon past level 110 showed an Infinity stat instead of its real value',
 ]);
 
 const ERROR_BOUNDARY_TEXT = ['This page failed to render', 'The app failed to load'];

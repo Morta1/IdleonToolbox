@@ -22,6 +22,10 @@ export interface Account {
       z: string;
       filler: string;
       tourPower: number;
+      x8: number;
+      upgradedTourPower: number;
+      upgradedEffect: string;
+      upgradedBonus: number;
     };
     list: {
         name: string;
@@ -33,22 +37,36 @@ export interface Account {
         z: string;
         filler: string;
         tourPower: number;
+        x8: number;
+        upgradedTourPower: number;
+        upgradedEffect: string;
+        upgradedBonus: number;
         acquired: boolean;
+        viaToken: boolean;
+        simulated: boolean;
         copies: number;
         tradableCount: number;
         nonTradableCount: number;
+        level: number;
+        upgraded: boolean;
       }[];
     lastFreeClaim: number;
     petCrystals: number;
     maxStorage: number;
+    tokens: {
+      owned: number;
+      used: number;
+      remaining: number;
+      usedIndices: any[];
+    };
   };
   bundles: {
       name: string;
       owned: boolean;
-      price: number;
+      price?: number;
     }[];
   serverVars: Record<string, any>;
-  accountOptions: (number | string)[];
+  accountOptions: number[];
   gemShopPurchases: number[];
   bribes: {
       name: string;
@@ -60,13 +78,12 @@ export interface Account {
       done: boolean;
     }[];
   timeAway: {
-    Arcade: number;
     GlobalTime: number;
+    Arcade: number;
     Player: number;
     Construction: number;
-    Sailing: number;
-    Printer: number;
     Cauldron: number;
+    Printer: number;
     Cooking: number;
     DailyRewards: number;
     BookLib: number;
@@ -74,6 +91,8 @@ export interface Account {
     ShopRestock: number;
     PostOfficeRefresh: number;
     Forge: number;
+    Sailing: number;
+    Lab: null;
   };
   obols: {
     inventory: (string[])[];
@@ -87,7 +106,6 @@ export interface Account {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -97,16 +115,15 @@ export interface Account {
         WIS: number;
         LUK: number;
         Defence: number;
-        UQ1txt: string;
+        UQ1txt: number | string;
         UQ1val: number;
-        UQ2txt: number | string;
+        UQ2txt: number;
         UQ2val: number;
         Upgrade_Slots_Left: number;
-        equip: string;
         itemType: string;
         Weapon_Power: number;
         SuperFunItemDisplayType?: string;
-        changes: any[] | Record<string, any>[];
+        changes?: Record<string, any>[] | any[];
         rerolled: boolean;
       }[];
     stats: {
@@ -125,13 +142,16 @@ export interface Account {
       Defence: {
         familyBonus: number;
       };
-      '%_DROP_RATE': {
-        familyBonus: number;
-      };
       Weapon_Power: {
         familyBonus: number;
       };
-      '%_SKILL_EFFICIENCY': {
+      _BASE_DAMAGE: {
+        familyBonus: number;
+      };
+      '%_DROP_RATE': {
+        familyBonus: number;
+      };
+      '%_MULTIKILL_PER_TIER': {
         familyBonus: number;
       };
       '%_ALL_STATS': {
@@ -144,11 +164,16 @@ export interface Account {
         name: string;
         rawName: string;
         obtained: boolean;
-        unobtainable?: boolean;
+        greenStacked: boolean;
+        greenstackable: boolean;
       }[];
     lootyRaw: string[];
     lootedItems: number;
     missingItems: number;
+    greenStacks: string[];
+    greenStackedCount: number;
+    greenstackableCount: number;
+    greenstackableStackedCount: number;
     totalItems: number;
     rawLootedItems: number;
   };
@@ -229,6 +254,11 @@ export interface Account {
       steamExclusive: boolean;
       secretAchievement: boolean;
       steamIndex?: number;
+      gems?: number;
+      candy?: {
+        rawName: string;
+        quantity: number;
+      };
       completed: boolean;
       currentQuantity?: number;
     }[];
@@ -247,6 +277,7 @@ export interface Account {
   };
   weeklyBossesRaw: Record<string, number>;
   constellations: {
+      rawIndex: number;
       mapIndex: number;
       requiredPlayers: number;
       points: number;
@@ -302,6 +333,8 @@ export interface Account {
       }[];
   };
   guild: {
+    unlocked: boolean;
+    id: string;
     guildBonuses: {
         name: string;
         xPos: number;
@@ -400,7 +433,7 @@ export interface Account {
           unlocked: number;
           progress: number;
           bonus: number;
-          characters: any[];
+          characters: any[] | Record<string, any>[];
           index: number;
         }[];
       totalEtherealSigils: number;
@@ -485,6 +518,7 @@ export interface Account {
     vials: {
         name: string;
         mainItem: string;
+        discoveryScore: number;
         desc: string;
         func: string;
         stat: string;
@@ -605,8 +639,7 @@ export interface Account {
         typeGen: string;
         ID: number;
         Type: string;
-        lvReqToCraft: number | string;
-        common: string;
+        lvReqToCraft: number;
         desc_line1?: string;
         desc_line2?: string;
         desc_line3?: string;
@@ -619,7 +652,6 @@ export interface Account {
         Amount?: number;
         Trigger?: number;
         Cooldown?: number;
-        consumable?: string;
         itemType: string;
         rawName: string;
         maxUpgradeSlots: number;
@@ -630,24 +662,23 @@ export interface Account {
         amount: number;
         misc: string;
         description: string;
-        lvReqToEquip?: number;
-        Class?: string;
+        Upgrade_Slots_Left?: number;
+        Weapon_Power?: number;
         Speed?: number;
         Reach?: number;
-        Weapon_Power?: number;
+        Power?: number;
+        Defence?: number;
         STR?: number;
         AGI?: number;
         WIS?: number;
         LUK?: number;
-        Defence?: number;
-        UQ1txt?: string;
         UQ1val?: number;
-        UQ2txt?: string;
         UQ2val?: number;
-        Upgrade_Slots_Left?: number;
-        equip?: string;
-        Power?: number;
-        changes?: Record<string, any>[];
+        changes?: any[];
+        lvReqToEquip?: number;
+        Class?: string;
+        UQ1txt?: string;
+        UQ2txt?: number;
       }[];
     slots: {
       value: number;
@@ -665,7 +696,6 @@ export interface Account {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -681,12 +711,12 @@ export interface Account {
         UQ2txt: number;
         UQ2val: number;
         Upgrade_Slots_Left: number;
-        equip: string;
         itemType: string;
         capacity: number;
         amount: number;
         unlocked: boolean;
       }[];
+    greenStacks: string[];
   };
   saltLick: {
       name: string;
@@ -785,7 +815,7 @@ export interface Account {
         rawName: string;
         amountPerDay: number;
         daysSincePickup?: number;
-        totalAmount: number | null;
+        totalAmount: number;
       }[];
     ColosseumTickets: {
       allTickets: {
@@ -848,6 +878,7 @@ export interface Account {
         greenStackHasMaterials: boolean;
         hasMaterials: boolean;
         hasMoney: boolean;
+        minReduction: null;
         futureCosts: Record<string, any>[];
       }[];
     skills: {
@@ -888,6 +919,7 @@ export interface Account {
         greenStackHasMaterials: boolean;
         hasMaterials: boolean;
         hasMoney: boolean;
+        minReduction: null;
         futureCosts: Record<string, any>[];
       }[];
     misc: {
@@ -922,11 +954,12 @@ export interface Account {
           skillsInfoArray: Record<string, any>[];
         };
         goldCost: number;
-        materialCost: number | null;
+        materialCost: number;
         enoughPlayerStorage: boolean;
         greenStackHasMaterials: boolean;
         hasMaterials: boolean;
         hasMoney: boolean;
+        minReduction: null;
         futureCosts: Record<string, any>[];
       }[];
   };
@@ -936,10 +969,27 @@ export interface Account {
         minPower: number;
         maxPower: number;
       }[];
-    passivesTotals: Record<string, number>;
+    passivesTotals: {
+      '+{%_Faster_Shiny_Mob_Lv_Up_Rate': number;
+      '+{_Infinite_Star_Signs': number;
+      '+{%_Total_Damage': number;
+      '+{%_Faster_Refinery_Speed': number;
+      '+{%_Bonuses_from_All_Meals': number;
+      '+{%_Drop_Rate': number;
+      '+{%_Multikill_Per_Tier': number;
+      '+{_Base_Efficiency_for_All_Skills': number;
+      '+{_Base_AGI': number;
+      '+{%_Class_EXP': number;
+      '+{_Tab_1_Talent_Pts': number;
+      '+{%_Line_Width_in_Lab': number;
+      '+{_Base_STR': number;
+      '+{%_Higher_Artifact_Find_Chance': number;
+      '+{%_Skill_EXP': number;
+      '+{%_Lower_Minimum_Travel_Time_for_Sailing': number;
+    };
     storedPets: {
         name: string;
-        level: string | number;
+        level: number | string;
         power: number;
       }[];
     eggs: number[];
@@ -971,7 +1021,92 @@ export interface Account {
         unlocked: boolean;
       }[];
     fencePetsObject: {
+      Pet11: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
       mushG: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
+      w4c4: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
+      bloque: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
+      potato: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
+      snowball: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
+      goblinG: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
+      Pet1: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
+      potatoB: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
+      slimeG: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
+      frogBIG: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
+      penguin: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
+      pincermin: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
+      snakeG: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
+      acorn: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
+      sheep: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
+      mamoth: {
+        amount: number;
+        shiny: number;
+        breedability: number;
+      };
+      plank: {
         amount: number;
         shiny: number;
         breedability: number;
@@ -1054,6 +1189,10 @@ export interface Account {
         amount: number;
         shinyMulti: number;
         levelCost: number;
+        cookingMasteryNode: {
+          level: number;
+          multi: number;
+        };
         name: string;
         cookReq: number;
         rawName: string;
@@ -1079,6 +1218,42 @@ export interface Account {
       numberOfClaims: number;
     };
     mealMaxLevel: number;
+    cookingMastery: {
+      level: number;
+      exp: number;
+      expReq: number;
+      expRate: number;
+      rank: number;
+      rankThresholds: number[];
+      nextRankLevel: number;
+      points: {
+        base: number;
+        gridBonus: number;
+        categorySpent: number;
+        categoryLeft: number;
+        nodeSpent: number;
+        nodeLeft: number;
+      };
+      categories: {
+          index: number;
+          name: string;
+          points: number;
+          baseMulti: number;
+          mult: number;
+          bonusAmount: number;
+          sourceValue: number | null;
+          isExpBoost: boolean;
+          unlockLevel: number;
+          unlocked: boolean;
+          label: string;
+          description: string;
+        }[];
+      expRateBreakdown: {
+        statName: string;
+        totalValue: string;
+        categories: Record<string, any>[];
+      };
+    };
     kitchens: {
         status: number;
         meal: {
@@ -1094,6 +1269,7 @@ export interface Account {
           amount: number;
           shinyMulti: number;
           levelCost: number;
+          cookingMasteryNode: Record<string, any>;
           multiplier: number;
         };
         luckLv: number;
@@ -1143,12 +1319,24 @@ export interface Account {
         unlocked: boolean;
         maxLevel: number;
         cost: {
-          cost: string;
+          type: string;
+          cost: number;
+          nextLevelCost: number;
+          costToMax: number;
+          currency: number;
+        } | {
+          type: string;
+          cost: number;
+          nextLevelCost: number;
+          costToMax: number;
+          currency: Record<string, any>;
         };
       }[];
     blessingLevels: number[];
     unlockedDeities: number;
     godRank: number;
+    divinityPoints: number;
+    unlocked: boolean;
   };
   sneaking: {
     totalNinjaUpgradeLevels: number;
@@ -1166,7 +1354,7 @@ export interface Account {
         unlocked: boolean;
         cost: number;
       }[];
-    jadeCoins: number;
+    jadeCoins: string;
     upgrades: {
         x0: number;
         x1: number;
@@ -1205,7 +1393,8 @@ export interface Account {
           level: number;
           symbolBonus: number;
           symbolLevel: number;
-          value: number | null;
+          rawValue: number;
+          value: number;
           x3?: number;
           x5?: number;
         }[])[];
@@ -1220,6 +1409,7 @@ export interface Account {
         level: number;
         symbolBonus: number;
         symbolLevel: number;
+        rawValue: number;
         value: number;
       }[];
     players: {
@@ -1228,6 +1418,7 @@ export interface Account {
         activityInfo: number;
       }[];
     pristineCharms: {
+        rawName: string;
         x1: number;
         x2: number;
         name: string;
@@ -1249,7 +1440,7 @@ export interface Account {
           x3?: number;
           x5?: number;
         }[])[];
-    doorsCurrentHp: number[];
+    doorsCurrentHp: (number | string)[];
     beanstalkData: number[];
     totalJadeEmporiumUnlocked: number;
     unlockedFloors: number;
@@ -1261,10 +1452,14 @@ export interface Account {
         x5: number;
         name: string;
         description: string;
-        unlocked: string;
+        unlocked?: string;
         baseValue: number;
         bonus: number;
+        maxBonus: number;
+        displayBonus: number;
+        displayMaxBonus: number;
         notatedBonus: string;
+        saturationPct: number;
       }[];
     lastLooted: number;
     ninjaMasteryBonuses: {
@@ -1278,6 +1473,9 @@ export interface Account {
         value: number;
       }[];
     dailyCharmRollCount: number;
+    remainingPristineRolls: number;
+    remainingSymbolRolls: number;
+    pristineCharmChance: number;
   };
   farming: {
     plot: {
@@ -1306,6 +1504,7 @@ export interface Account {
         cropRawName: string;
         seedRawName: string;
         nextOGChance: number;
+        nextOGEta: number;
         growthRate: number;
         ogMulti: number;
         timeLeft: number;
@@ -1355,11 +1554,17 @@ export interface Account {
         name: string;
         description: string;
         bonus: number;
+        base: number;
         upgradeLevel: number;
-        unlockAt: string;
+        unlockAt: number;
+        exoticMulti: number;
+        maxLevel: null | number;
       }[];
     totalPoints: number;
     usedPoints: number;
+    availablePoints: number;
+    fifthColumnMaxLevel: number;
+    rankMulti: number;
     hasLandRank: number;
     totalRanks: number;
     exoticMarkeMaxPurchases: number;
@@ -1409,7 +1614,11 @@ export interface Account {
     };
     maxTimes: {
         value: number;
-        breakdown: Record<string, any>[];
+        breakdown: {
+          statName: string;
+          totalValue: number;
+          categories: Record<string, any>[];
+        };
       }[];
     stickers: {
         name: string;
@@ -1422,6 +1631,38 @@ export interface Account {
     totalStickers: number;
     dmgMulti: number;
     stickersUnlocked: number;
+    stats: {
+      growthSpeed: {
+        statName: string;
+        totalValue: number;
+        categories: Record<string, any>[];
+      };
+      ogChance: {
+        statName: string;
+        totalValue: number;
+        categories: Record<string, any>[];
+      };
+      landRankExp: {
+        statName: string;
+        totalValue: number;
+        categories: Record<string, any>[];
+      };
+      cropsOnVine: {
+        statName: string;
+        totalValue: number;
+        categories: Record<string, any>[];
+      };
+      cropValue: {
+        statName: string;
+        totalValue: number;
+        categories: Record<string, any>[];
+      };
+      magicBean: {
+        statName: string;
+        totalValue: number;
+        categories: Record<string, any>[];
+      };
+    };
   };
   summoning: {
     upgrades: Record<string, any>;
@@ -1473,6 +1714,7 @@ export interface Account {
       effect: string;
       dk: number;
       bonus: number;
+      flairShardIndex: number;
       rawName: string;
       level: number;
       progress: number;
@@ -1518,12 +1760,21 @@ export interface Account {
         cost: number;
       }[];
     unlockedSchematics: number;
+    blindingLanterns: {
+      used: number;
+      max: number;
+      remaining: number;
+    };
     caverns: {
       theWell: {
         rockLayerIndex: number;
         sediments: (null | Record<string, any>)[];
         buckets: number[];
         fillRate: number;
+        bucketRates: number[];
+        totalFillRate: number;
+        goldenBucketsOwned: number;
+        goldenBucketMulti: number;
         opalCost: string;
         expandWhenFull: number;
       };
@@ -1554,6 +1805,7 @@ export interface Account {
         opalChance: number;
         hps: Record<string, any>[];
         bonuses: Record<string, any>[];
+        bonusLvsMultiplier: number;
         hours: number;
         timeForNextFight: number;
         rewardMulti: number;
@@ -1583,6 +1835,7 @@ export interface Account {
         chords: Record<string, any>[];
         opalChance: number;
         notes: number[];
+        stringNotes: number[];
       };
       theLamp: {
         wishes: Record<string, any>[];
@@ -1611,6 +1864,7 @@ export interface Account {
         hoursRewards: string[];
         hoursBreakpoints: Record<string, any>[];
         bonuses: Record<string, any>[];
+        bonusLvsMultiplier: number;
         timeForNextFight: number;
         coins: number;
         health: number;
@@ -1630,9 +1884,15 @@ export interface Account {
         jarAesthetic: number;
         activeSlots: Record<string, any>[];
         rupies: number[];
-        perHour: number;
+        perHour: {
+          value: number;
+          breakdown: Record<string, any>;
+        };
         jars: Record<string, any>[];
         totalJars: number;
+        jarInventory: Record<string, any>[];
+        totalJarQuantity: number;
+        totalEnhancingLevels: number;
         collectibles: Record<string, any>[];
       };
       evertree: {
@@ -1649,7 +1909,12 @@ export interface Account {
         hours: number;
         hoursRewards: string[];
         hoursBreakpoints: Record<string, any>[];
+        nextHourBreakpoint: {
+          hours: string;
+          reward: string;
+        };
         bonuses: Record<string, any>[];
+        bonusLvsMultiplier: number;
         timeForNextFight: number;
         opalChance: number;
         afkPercent: {
@@ -1661,7 +1926,11 @@ export interface Account {
         attemptsGainPerRound: number;
         timePerMatch: number;
         instantMatches: number;
-        monumentAfkReq: null;
+        monumentAfkReq: {
+          statName: string;
+          totalValue: number;
+          categories: Record<string, any>[];
+        };
       };
       gambit: {
         pointsMulti: number;
@@ -1679,6 +1948,39 @@ export interface Account {
         bonuses: Record<string, any>[];
         layer: number;
         torches: number;
+      };
+      theFountain: {
+        waters: Record<string, any>[];
+        watersOwned: number;
+        currentWaterType: number;
+        marbleCurrency: number;
+        desiredCurrency: number;
+        fountainSpeedBonus: number;
+        currencies: Record<string, any>[];
+        fountainBars: Record<string, any>[];
+        spacesOwned: number;
+        maxStackSize: number;
+      };
+      theBottomlessTrench: {
+        fishingEff: string;
+        layer: number;
+        fish: {
+          caught: string;
+          required: string;
+          maxed: boolean;
+        };
+      };
+      crystalGlunkoCove: {
+        upgrades: Record<string, any>[];
+        shapes: Record<string, any>[];
+        dropRate: number;
+        afkGains: number;
+        multiKillTier: number;
+        multiKillBase: number;
+        respawn: number;
+        doublePickup: number;
+        bdig: number;
+        pdig: number;
       };
     };
     totalResources: number;
@@ -1706,6 +2008,7 @@ export interface Account {
       bellRingLevels: number[];
       bellRelated: number[];
       harpRelated: number[];
+      harpStringNotes: number[];
       wishesUsed: number[];
       measurementBuffLevels: number[];
       parallelVillagersGemShop: number[];
@@ -1714,6 +2017,12 @@ export interface Account {
       studyStuff: number[];
       studyProgress: number[];
       gambitStuff: number[];
+      fountainCoinSpaces: (number[])[];
+      fountainSpaceFilled: number[];
+      fountainUpgradeLevels: (number[])[];
+      fountainMarbleizeLevels: (number[])[];
+      fountainBarProgress: number[];
+      fountainCoinFlags: number[];
     };
     majiks: ({
           x0: number;
@@ -1723,11 +2032,13 @@ export interface Account {
           level: number;
           maxLevel: number;
           bonus: number;
-          godsLinks: any[];
-          hasDoot: boolean;
+          godsLinks: Record<string, any>[];
         }[])[];
     cosmoSchematics: number;
-    godsLinks: any[];
+    godsLinks: {
+        index: number;
+        name: string;
+      }[];
     measurements: {
         description: string;
         baseBonus: number;
@@ -1740,6 +2051,9 @@ export interface Account {
         measuredBy: {
           label: string;
           value: number;
+        } | {
+          label: string;
+          value: string;
         };
         measureIndex: number;
       }[];
@@ -1771,7 +2085,7 @@ export interface Account {
         lineWidth: number;
         soupedUp: boolean;
       }[];
-    playersChips: (({
+    playersChips: ({
           index: number;
           name: string;
           bonus: string;
@@ -1783,7 +2097,7 @@ export interface Account {
           extraDescription: string;
           rawName: string;
           chipIndex: number;
-        } | number)[])[];
+        }[])[];
     connectedPlayers: {
         playerId: number;
         name: string;
@@ -1819,6 +2133,7 @@ export interface Account {
         rawName: string;
         repoAmount: number;
         amount: number;
+        totalAmount: number;
       }[];
     labBonuses: {
         index: number;
@@ -1829,7 +2144,7 @@ export interface Account {
         bonusOff: number;
         name: string;
         description: string;
-        active?: boolean;
+        active: boolean;
         extraData?: number | string;
         bonusDesc?: number;
       }[];
@@ -1848,6 +2163,7 @@ export interface Account {
       crystalShrineBonus: number;
       shrineTowerValue: number;
     }[];
+  statueGrades: number[];
   zenith: {
     market: {
         name: string;
@@ -1894,6 +2210,7 @@ export interface Account {
         reward: string;
         current: number;
         active: boolean;
+        locked: boolean;
       }[];
     upgrades: {
         name: string;
@@ -1904,12 +2221,14 @@ export interface Account {
         unlocked: boolean;
       }[];
     completedClouds: number;
+    rawDream: number[];
     breakdown: {
         title?: string;
         name?: string;
         value?: number;
       }[];
     expression: string;
+    unlocked: boolean;
   };
   starSigns: {
       starName: string;
@@ -1918,12 +2237,11 @@ export interface Account {
           bonus: number;
           effect: string;
           rawName: string;
-        }[] | null;
+        }[];
       tree: string;
       indexedStarName: string;
       unlocked: boolean;
       isInfiniteStar: boolean;
-      description?: string;
     }[];
   grimoire: {
     totalUpgradeLevels: number;
@@ -1971,6 +2289,7 @@ export interface Account {
         spriteAcross: number;
         spriteDown: number;
         spriteNumFrames: number;
+        durations: number[];
         rawName: string;
         mapName: string;
         boneType: number;
@@ -1992,6 +2311,7 @@ export interface Account {
         x9: number;
         x10: number;
         description: string;
+        baseIconIndex: null | number;
         level: number;
         shapeIcon: string;
         index: number;
@@ -2000,7 +2320,6 @@ export interface Account {
         bonusDiff: number;
         cost: number;
         isMulti: boolean;
-        baseIconIndex?: number;
       }[];
     groupedUpgrades: {
         path: string;
@@ -2054,7 +2373,10 @@ export interface Account {
         spriteAcross?: number;
         spriteDown?: number;
         spriteNumFrames?: number;
-        acquired: boolean;
+        durations?: number[];
+        rawName: string;
+        imageName: string;
+        acquired?: boolean;
         weakness: number;
         drops: Record<string, any>[] | any[];
         dustType: number;
@@ -2090,6 +2412,7 @@ export interface Account {
           spriteAcross: number;
           spriteDown: number;
           spriteNumFrames: number;
+          durations: number[];
         };
         unlocked: boolean;
       }[];
@@ -2143,6 +2466,153 @@ export interface Account {
     ringQuality: number;
     unlockedPortals: Record<string, any>;
     mapBonusRaw: (number[])[];
+  };
+  royalGuardian: {
+    unlocked: boolean;
+    hasRoyalGuardian: boolean;
+    deployments: any[];
+    raw: any[];
+    rawMaps: any[];
+    armory: {
+      upgrades: {
+          index: number;
+          name: string;
+          baseCost: number;
+          costScaling: number;
+          costResourceIndex: number;
+          maxLevel: number;
+          bonusPerLevel: number;
+          unlockTotalLevels: number;
+          x7: number;
+          x8: number;
+          description: string;
+          level: number;
+          bonus: number;
+          unlocked: boolean;
+          maxed: boolean;
+          slot: number;
+          cost: number;
+          costResourceRawName: string;
+        }[];
+      totalLevels: number;
+      unlockedSlots: number;
+      slotToId: number[];
+    };
+    royalStatues: {
+        index: number;
+        rawName: string;
+        description: string;
+        level: number;
+        bonus: number;
+        baseBonus: number;
+        bonusPerLevel: number;
+        upgradeOdds: number;
+        cost: number;
+        costItem: string;
+        named: boolean;
+      }[];
+    statueFlair: {
+      unlocked: boolean;
+      maxLevel: number;
+      statues: {
+          index: number;
+          name: string;
+          level: number;
+          maxLevel: number;
+          cost: number;
+          bonus: number;
+          expMulti: number;
+          shardIndex: number;
+          costItem: string;
+        }[];
+    };
+    orbletMarket: {
+        index: number;
+        name: string;
+        baseCost: number;
+        costScaling: number;
+        maxLevel: number;
+        bonusPerLevel: number;
+        x5: number;
+        description: string;
+        level: number;
+        bonus: number;
+        cost: number;
+        maxed: boolean;
+      }[];
+    orblets: number;
+    guardian: {
+      militiaClearRate: number;
+      activeKillClear: number;
+      ratRespawn: number;
+      ratDamage: number;
+      regalChance: number;
+      regalMobs: number;
+      regalMobsPurified: number;
+      orbletMultiDrop: number;
+      parchmentDropChance: number;
+      marbleDropChance: number[];
+      royalRadius: number;
+    };
+    resources: {
+        index: number;
+        world: number;
+        connectedMaps: any[];
+        connectedMap: number;
+        x: number;
+        y: number;
+        resourceIndex: number;
+        empty: boolean;
+        nodeLevel: number;
+        collected: number;
+        maxQuantity: number;
+        stored: number;
+        rawName: string;
+        connected: boolean;
+        anchorX: number;
+        anchorY: number;
+        connectedMapName: string;
+        exhausted: boolean;
+        fillPercent: number;
+      }[];
+    clearingMaps: any[];
+    outposts: any[];
+    outpostStats: {
+      built: number;
+      savageMulti: number;
+      typesUnlocked: number;
+      typesAllowed: number[];
+      typesUsedByWorld: Record<string, never>;
+      unitsUnlocked: number;
+      unitNames: string[];
+      peacetimeMilitia: boolean;
+      restockUnlocked: boolean;
+      gedUnlocked: boolean;
+      barsUnlocked: boolean[];
+      worldsUnlocked: number;
+      totalUpgradeLevels: number;
+      purifiedMaps: number;
+      totalNodeLevels: number;
+      resourceLogTotal: number;
+      selectedRogIndex: number;
+      rogBonuses: {
+          index: number;
+          name: string;
+          selected: boolean;
+          value: number;
+        }[];
+    };
+  };
+  speedrun: {
+    bosses: {
+        mapIndex: number;
+        name: string;
+        world: number;
+        difficulty: number;
+        difficultyName: string;
+        portals: number;
+        payoutBossName?: string;
+      }[];
   };
   finishedWorlds: {
     World1: boolean;
@@ -2303,67 +2773,7 @@ export interface Account {
       color: string;
     };
   };
-  construction: {
-    totalBuildRate: number;
-    totalExpRate: number;
-    totalFlaggyRate: number;
-    totalPlayerExpRate: number;
-    board: {
-        currentAmount: number;
-        requiredAmount: number;
-        flagPlaced: boolean;
-        cog: {
-          name: string;
-          stats: Record<string, any>;
-          originalIndex: number;
-        };
-        affectedBy: number[];
-        affects: number[] | any[];
-      }[];
-    baseBoard: {
-        currentAmount: number;
-        requiredAmount: number;
-        flagPlaced: boolean;
-        cog: {
-          name: string;
-          stats: Record<string, any>;
-          originalIndex: number;
-        };
-      }[];
-    playersBuildRate: number;
-    leftColumn: {
-        currentAmount: number;
-        requiredAmount: number;
-        flagPlaced: boolean;
-        cog: {
-          name: string;
-          stats: Record<string, any>;
-          originalIndex: number;
-        };
-        affectedBy: any[];
-        affects: any[];
-      }[];
-    rightColumn: {
-        currentAmount: number;
-        requiredAmount: number;
-        flagPlaced: boolean;
-        cog: {
-          name: string;
-          stats: Record<string, any>;
-          originalIndex: number;
-        } | {
-          name: string;
-          stats: Record<string, never>;
-          originalIndex: number;
-        };
-        affectedBy: any[];
-        affects: any[];
-      }[];
-    cogstruction: {
-      cogData: string;
-      empties: string;
-    };
-  };
+  highestSummoningLevel: number;
   atoms: {
     particles: number;
     atoms: {
@@ -2381,144 +2791,10 @@ export interface Account {
         costToMax: number;
         bonus?: number;
       }[];
+    totalAtomsAvailable: number;
     stampReducer: number;
   };
-  spelunking: {
-    sneakingSlots: number[];
-    totalGrandDiscoveries: number;
-    grandDiscoveriesChance: number;
-    exaltedFragmentFound: number;
-    prismaFragmentFound: number;
-    highestSpelunkingLevelCharacter: number;
-    totalUpgradeLevels: number;
-    coralReefLevels: number[];
-    biggestHaul: number;
-    biggestHauls: number[];
-    bestCaveLevels: number[];
-    cavesUnlocked: number;
-    totalBestCaveLevels: number;
-    totalCharactersSpelunkingLevels: number;
-    discoveriesCount: number;
-    maxDiscoveries: number;
-    discoveries: ({
-          name: string;
-          x1: number;
-          x2: number;
-          x3: number;
-          x4: number;
-          x5: number;
-          x6: number;
-          x7: number | null;
-          index: number;
-          hp: number;
-          powerReq: number;
-          powerReqFormatted: string;
-          acquired: boolean;
-          amount: number;
-        }[])[];
-    upgrades: {
-        name: string;
-        description: string;
-        x1: number;
-        x2: number;
-        x3: number;
-        x4: number;
-        x5: number;
-        x6: number;
-        x7: number;
-        x8: number;
-        x9: number;
-        x10: string;
-        x11: string;
-        level: number;
-        originalIndex: number;
-        baseBonus: number;
-        bonus: number;
-        cost: number;
-      }[];
-    chapters: ({
-          name: string;
-          x1: number;
-          x2: number;
-          func: string;
-          x4: number;
-          x5: number;
-          x6: number;
-          x7: number;
-          level: number;
-          bonus: number;
-          requiredPages: number;
-        }[])[];
-    power: {
-      value: number;
-      breakdown: {
-        statName: string;
-        totalValue: string;
-        categories: Record<string, any>[];
-      };
-    };
-    rawDancingCoral: number[];
-    rawLoreThreshold: number;
-    elixirs: {
-        description: string;
-        quantity: number;
-        bonus: string;
-        acquired: boolean;
-        isInUse: boolean;
-        timesUsed: number;
-      }[];
-    currentAmber: number;
-    overstimLevel: number;
-    overstimCurrent: number;
-    overstimReq: number;
-    overstimFillRate: number;
-    overstimRate: number;
-    charactersAtMaxStamina: number;
-    loreBonuses: {
-        name: string;
-        description: string;
-        isMulti: boolean;
-        bonus: number;
-        index: number;
-      }[];
-    amberGain: {
-      value: number;
-      breakdown: {
-        statName: string;
-        totalValue: string;
-        categories: Record<string, any>[];
-      };
-    };
-    maxDailyPageReads: number;
-    staminaRegenRate: {
-      value: number;
-      breakdown: {
-        statName: string;
-        totalValue: string;
-        categories: Record<string, any>[];
-      };
-    };
-    loreBosses: {
-        description: string;
-        index: number;
-        maxDiscoveries: number;
-        discoveriesCount: number;
-        discoveries: Record<string, any>[];
-        defeated: boolean;
-        biggestHaul: number;
-        bestCaveLevel: number;
-        foundAt: number;
-      }[];
-    ownedSlots: number;
-    ownedElixirs: number;
-    maxElixirDuplicates: number;
-    talentSpelunkArrays: (number[])[];
-    charactersStamina: {
-        characterStamina: number;
-        currentStamina: number;
-        timeToFull: number;
-      }[];
-  };
+  spelunking: Record<string, any>;
   hatRack: {
     bonusMulti: number;
     hatBonuses: {
@@ -2532,7 +2808,6 @@ export interface Account {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -2548,7 +2823,6 @@ export interface Account {
         UQ2txt: number;
         UQ2val: number;
         Upgrade_Slots_Left: number;
-        equip: string;
         itemType: string;
         rawName: string;
         hatIndex: number;
@@ -2561,7 +2835,6 @@ export interface Account {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -2574,13 +2847,12 @@ export interface Account {
         Defence: number;
         UQ1txt: number | string;
         UQ1val: number | string;
-        UQ2txt: number | string;
-        UQ2val: number | string;
+        UQ2txt: number;
+        UQ2val: number;
         Upgrade_Slots_Left: number;
-        equip: string;
-        rawName: string;
         itemType: string;
-        hatMultiplier: number;
+        rawName: string;
+        hatMultiplier?: number;
         isAcquired: boolean;
       }[];
     totalHats: number;
@@ -2711,8 +2983,10 @@ export interface Account {
           cost: number;
         }[];
     };
+    unlocked: boolean;
   };
   sailing: {
+    unlocked: boolean;
     maxChests: number;
     artifacts: {
         name: string;
@@ -2733,7 +3007,7 @@ export interface Account {
         bonus: number;
         acquired: number;
         rawName: string;
-        additionalData?: string;
+        additionalData?: string | Record<string, any>[];
       }[];
     lootPile: {
         amount: number;
@@ -2799,10 +3073,6 @@ export interface Account {
           value: number;
           nextLevelValue: number;
           nextBreakpointValue: number;
-        } | {
-          raw: number;
-          value: number;
-          nextLevelValue: number;
         };
         maxTime: number;
         timeLeft: number;
@@ -2825,25 +3095,25 @@ export interface Account {
       }[];
     captainsOnBoats: {
       A: number;
+      C: number;
+      T: number;
+      L: number;
+      M: number;
+      H: number;
+      F: number;
+      K: number;
+      D: number;
+      B: number;
       J: number;
       E: number;
+      G: number;
+      N: number;
+      O: number;
+      P: number;
       Q: number;
       R: number;
       S: number;
-      B: number;
-      P: number;
-      C: number;
-      T: number;
-      N: number;
-      O: number;
-      D: number;
-      H: number;
       I: number;
-      K: number;
-      L: number;
-      M: number;
-      G: number;
-      F: number;
     };
     minimumTravelTime: number;
     minimumTravelTimeBreakdown: {
@@ -2881,7 +3151,15 @@ export interface Account {
           owner: string;
         };
         bar: {
+          displayName: string;
+          sellPrice: number;
+          typeGen: string;
+          ID: number;
+          Type: string;
+          lvReqToCraft: number;
+          itemType: string;
           rawName: string;
+          name: string;
           amount: number;
           quantity: number;
           owner: string;
@@ -2905,18 +3183,14 @@ export interface Account {
         rank: number;
         active: number;
         autoRefinePercentage: number;
+        unlocked: boolean;
       }[];
     refinerySaltTaskLevel: number;
     timePastCombustion: number;
     timePastSynthesis: number;
     timePastPolymerize: number;
     totalLevels: number;
-    refineryStorage: {
-        rawName: string;
-        name: string;
-        amount: number;
-        owner: string;
-      }[];
+    refineryStorage: any[];
   };
   printer: ({
         item: string;
@@ -2963,6 +3237,7 @@ export interface Account {
         npcQuests: Record<string, any>[];
       }[];
   };
+  totalQuestsCompleted: number;
   islands: {
     islandsUnlocked: number;
     bottles: number;
@@ -2977,7 +3252,7 @@ export interface Account {
         preUnlockCost: number;
         baseCost: number;
         unlocked: boolean;
-        cost: null;
+        cost: number;
         trash?: number;
         learnMore?: boolean;
         shop?: Record<string, any>[];
@@ -3015,11 +3290,20 @@ export interface Account {
         bonusName: string;
         level: number;
         bonus: number;
+        progress: null | number;
+        bonusDisplay: null | string;
+        capDisplay: null | string;
+        breakpoints: null | Record<string, any>[];
+        nextBreakpoint: null | {
+          percent: number;
+          level: number;
+          bonusDisplay: string;
+        };
       }[];
     totalKills: number;
     totalDamageMulti: number;
     rooms: number;
-    killRoyClasses: any[];
+    killRoyClasses: string[];
     upgrades: {
         level: number;
         description: string;
@@ -3054,7 +3338,107 @@ export interface Account {
     breakpoints: {
         breakpoint: number;
         time: number;
+        label?: string;
       }[];
+  };
+  construction: {
+    totalBuildRate: number;
+    totalExpRate: number;
+    totalFlaggyRate: number;
+    totalPlayerExpRate: number;
+    board: {
+        currentAmount: number;
+        requiredAmount: number;
+        flagPlaced: boolean;
+        cog: {
+          name: string;
+          stats: Record<string, any>;
+          originalIndex: number;
+        };
+        flagSpeedBoost: number;
+        affectedBy: number[];
+        affects: any[] | number[];
+        flagSpeed: number;
+      }[];
+    baseBoard: {
+        currentAmount: number;
+        requiredAmount: number;
+        flagPlaced: boolean;
+        cog: {
+          name: string;
+          stats: Record<string, any>;
+          originalIndex: number;
+        };
+      }[];
+    spareCogs: {
+        name: string;
+        stats: {
+          a: Record<string, any>;
+          b: Record<string, any>;
+          c: Record<string, any>;
+        } | Record<string, never>;
+        originalIndex: number;
+      }[];
+    boardMultipliers: {
+      flaggy: number;
+      exp: number;
+    };
+    playersBuildRate: number;
+    leftColumn: {
+        currentAmount: number;
+        requiredAmount: number;
+        flagPlaced: boolean;
+        cog: {
+          name: string;
+          stats: Record<string, any>;
+          originalIndex: number;
+        };
+        affectedBy: any[];
+        affects: any[];
+      }[];
+    rightColumn: {
+        currentAmount: number;
+        requiredAmount: number;
+        flagPlaced: boolean;
+        cog: {
+          name: string;
+          stats: Record<string, any>;
+          originalIndex: number;
+        } | {
+          name: string;
+          stats: Record<string, never>;
+          originalIndex: number;
+        };
+        affectedBy: any[];
+        affects: any[];
+      }[];
+    smallCogs: {
+      upgrades: {
+          name: string;
+          originalIndex: number;
+          typeIndex: number;
+          type: string;
+          typeLabel: string;
+          bonus: number;
+          replaces: Record<string, any>;
+          slotIndex: number;
+          slotLabel: string;
+          gainPercent: number;
+        }[];
+      spares: {
+          name: string;
+          originalIndex: number;
+          typeIndex: number;
+          type: string;
+          typeLabel: string;
+          bonus: number;
+        }[];
+      freeSlots: number;
+    };
+    cogstruction: {
+      cogData: string;
+      empties: string;
+    };
   };
   shrinesExpBonus: {
     total: number[];
@@ -3135,6 +3519,12 @@ export interface Account {
     totalPoints: number;
     tops: number[];
     top: number;
+    nametagClaim: {
+      tomeUnlocked: boolean;
+      available: number;
+      claimed: number;
+      rewardTier: number;
+    };
   };
   owl: {
     upgrades: {
@@ -3190,6 +3580,8 @@ export interface Account {
         percentage?: boolean;
       }[];
     fish: number;
+    pendingFish: number;
+    totalFish: number;
     progress: number;
     megaFish: {
         description: string;
@@ -3198,6 +3590,8 @@ export interface Account {
     fishRate: number;
     tarFishRate: number;
     tarFishOwned: number;
+    pendingTarFish: number;
+    totalTarFishOwned: number;
     totalMulti: string;
     allMultipliers: {
         multi: string;
@@ -3218,6 +3612,7 @@ export interface Account {
     shinyProgress: number;
     shinyRate: number;
     shinyRatePercent: number;
+    avgResetPoints: number;
   };
   voteBallot: {
     bonuses: {
@@ -3241,7 +3636,23 @@ export interface Account {
         bonus: number;
       }[];
     voteMulti: number;
+    voteMultiBreakdown: {
+      statName: string;
+      totalValue: number;
+      categories: {
+          name: string;
+          sources: Record<string, any>[];
+        }[];
+    };
     meritocracyMult: number;
+    meritocracyMultBreakdown: {
+      statName: string;
+      totalValue: number;
+      categories: {
+          name: string;
+          sources: Record<string, any>[];
+        }[];
+    };
     selectedBonus: {
       '0': string;
       '1': string;
@@ -3285,18 +3696,41 @@ export interface Account {
       }[];
     totalUpgradeLevels: number;
     vaultTotalKills: number[];
+    costReduction: {
+      totalMulti: number;
+      cheaperFactor: number;
+      breakdown: {
+        statName: string;
+        totalValue: string;
+        categories: Record<string, any>[];
+      };
+    };
   };
   emperor: {
     highestEmperorShowdown: number;
     bossHp: number[];
     bonuses: {
         bonus: string;
+        baseBonus: string;
         totalBonus: number;
         rawIndex: number;
         icon: string;
         value: string;
         indexes: number[];
       }[];
+    bonusMulti: {
+      statName: string;
+      totalValue: number;
+      categories: {
+          name: string;
+          sources: Record<string, any>[];
+        }[];
+    };
+    nextLevelBonus: {
+      name: string;
+      value: number;
+      index: number;
+    };
     dailyAttempts: number;
     attempts: number;
     maxAttempts: number;
@@ -3312,6 +3746,13 @@ export interface Account {
         level: number;
         index: number;
         maxLevel: number;
+        baseMaxLevel: number;
+        fever: null | {
+          color: string;
+          gridIndex: number;
+          level: number;
+          maxLevel: number;
+        };
       }[];
     pointsLeftToSpend: number;
     pointsOwned: {
@@ -3325,6 +3766,7 @@ export interface Account {
     maxSpendable: number;
   };
   gallery: {
+    rawSpelunk: (number[])[];
     bonusMulti: number;
     trophyBonuses: {
         name: string;
@@ -3345,7 +3787,6 @@ export interface Account {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -3361,7 +3802,6 @@ export interface Account {
         UQ2txt: string | number;
         UQ2val: string | number;
         Upgrade_Slots_Left: number;
-        equip: string;
         itemType: string;
         rawName: string;
         podiumLevel: number;
@@ -3374,7 +3814,6 @@ export interface Account {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -3390,41 +3829,12 @@ export interface Account {
         UQ2txt: number | string;
         UQ2val: number | string;
         Upgrade_Slots_Left: number;
-        equip: string;
         itemType: string;
         rawName: string;
         level: number;
         nametagMultiplier: number;
       }[];
-    inventoryTrophies: {
-        displayName: string;
-        sellPrice: number;
-        typeGen: string;
-        ID: number;
-        Type: string;
-        lvReqToCraft: number;
-        common: string;
-        lvReqToEquip: number;
-        Class: string;
-        Speed: number;
-        Reach: number;
-        Weapon_Power: number;
-        STR: number;
-        AGI: number;
-        WIS: number;
-        LUK: number;
-        Defence: number;
-        UQ1txt: string;
-        UQ1val: string;
-        UQ2txt: number;
-        UQ2val: number;
-        Upgrade_Slots_Left: number;
-        equip: string;
-        itemType: string;
-        rawName: string;
-        inventoryIndex: number;
-        inventoryMultiplier: number;
-      }[];
+    inventoryTrophies: any[];
     allTrophies: {
         displayName: string;
         sellPrice: number;
@@ -3432,7 +3842,6 @@ export interface Account {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -3444,17 +3853,15 @@ export interface Account {
         LUK: number;
         Defence: number;
         UQ1txt: string;
-        UQ1val: string;
+        UQ1val: string | number;
         UQ2txt: number | string;
-        UQ2val: number | string;
+        UQ2val: number;
         Upgrade_Slots_Left: number;
-        equip: string;
-        rawName: string;
         itemType: string;
+        rawName: string;
         podiumLevel?: number;
         podiumMultiplier?: number;
         isAcquired: boolean;
-        inventoryMultiplier?: number;
       }[];
     allNametags: {
         displayName: string;
@@ -3463,7 +3870,6 @@ export interface Account {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -3475,15 +3881,14 @@ export interface Account {
         LUK: number;
         Defence: number;
         UQ1txt: string;
-        UQ1val: string;
+        UQ1val: string | number;
         UQ2txt: number | string;
         UQ2val: number | string;
         Upgrade_Slots_Left: number;
-        equip: string;
-        rawName: string;
         itemType: string;
-        level: number;
-        nametagMultiplier: number;
+        rawName: string;
+        level?: number;
+        nametagMultiplier?: number;
         isAcquired: boolean;
       }[];
   };
@@ -3498,6 +3903,7 @@ export interface Account {
     dancingCoral: {
         index: number;
         level: number;
+        unlocked: boolean;
         coralName: string;
         description: string;
         dropResource: string;
@@ -3517,6 +3923,7 @@ export interface Account {
           inProgress: boolean;
           slot: number;
         };
+        towerEffect: string;
       }[];
     reefUpgrades: {
         index: number;
@@ -3554,7 +3961,7 @@ export interface Account {
   clamWork: {
     workerClass: number;
     promotionChance: number;
-    promotionCost: string;
+    promotionCost: number;
     clamHp: number;
     mobs: number;
     pearlValue: number;
@@ -3564,10 +3971,16 @@ export interface Account {
         description: string;
         requiredPearls: number;
         bonus: number;
+        index: number;
+        level: number;
         cost: number;
         unlocked: boolean;
       }[];
     ownedPearls: number;
+    pearls: {
+        name: string;
+        value: number;
+      }[];
     compensations: {
         name: string;
         unlocked: number;
@@ -3583,6 +3996,15 @@ export interface Account {
     maxHP_You: number;
     baseDMG: number;
     currencyGain: number;
+    currencyGainBreakdown: {
+      statName: string;
+      totalValue: number;
+      categories: {
+          name: string;
+          sources: Record<string, any>[];
+          subSections: Record<string, any>[];
+        }[];
+    };
     upgrades: {
         index: number;
         name: string;
@@ -3639,6 +4061,137 @@ export interface Account {
     global: null;
   };
   research: Record<string, any>;
+  button: {
+    totalPresses: number;
+    instaSkipsLeft: number;
+    instaSkipsPerWeek: number;
+    currentTask: {
+      index: number;
+      description: string;
+      requirement: number;
+      futureRequirements: number[];
+      progress: number;
+      isReady: boolean;
+      bonusIdx: number;
+      pressNumber: number;
+    };
+    bonusMulti: number;
+    bonuses: {
+        name: string;
+        value: number;
+        displayFormat: string;
+        displayValue: string;
+        bonusPerPress: number;
+        level: number;
+      }[];
+    activeBonusIndex: number;
+    pressesIntoCurrentBonus: number;
+    taskSequence: {
+        index: number;
+        description: string;
+        requirement: number;
+        futureRequirements: number[] | any[];
+        progress: number;
+        isReady: boolean;
+        bonusIdx: number;
+        pressNumber: number;
+      }[];
+  };
+  sushiStation: {
+    unlocked: boolean;
+    uniqueSushi: number;
+    fuel: {
+      current: number;
+      cap: number;
+      generation: number;
+    };
+    currency: {
+      bucks: number;
+      currencyMulti: number;
+      currencyPerHR: number;
+      overtunedMulti: number;
+      overtuned: {
+        value: number;
+        multi: number;
+        perHr: number;
+        unlocked: boolean;
+        hoursToFuelCap: number;
+        nextBreakpoints: Record<string, any>[];
+      };
+    };
+    sparks: number;
+    sparkBonus: {
+      multi: number;
+      perHr: number;
+      potassiumCount: number;
+      nextBreakpoints: {
+          multi: number;
+          required: number;
+          remaining: number;
+          hours: null;
+        }[];
+    };
+    slots: {
+        tier: number;
+        slotEffect: number;
+        fireplaceType: number;
+        currencyPerSlot: number;
+      }[];
+    upgrades: {
+        name: string;
+        description: string;
+        level: number;
+        maxLevel: null | number;
+        cost: number;
+        bonusPerLevel: number;
+        upgradeQTY: number;
+        lvReq: number;
+        visualIndex: number;
+        upgradeIndex: number;
+      }[];
+    knowledge: {
+        name: string;
+        rawName: string;
+        level: number;
+        xp: number;
+        xpReq: number;
+        bonusSpecific: number;
+        bonusDescription: string;
+        category: number;
+        discovered: boolean;
+        perfecto: boolean;
+        perfectOdds?: number;
+        highestTier: number;
+      }[];
+    knowledgeTotals: number[];
+    rogBonuses: {
+        index: number;
+        name: string;
+        description: string;
+        value: number;
+        rawValue: number;
+        unlocked: boolean;
+      }[];
+    fireplaces: {
+        index: number;
+        type: number;
+        active: boolean;
+      }[];
+    sushiCooking: {
+      maxCookTier: number;
+      bonusCookTierPCT: number;
+      perfectOdds: number;
+      nextUnperfectedIdx: number;
+    };
+    knowledgeSummary: {
+        label: string;
+        value: number;
+        category: number;
+        sources: Record<string, any>[];
+      }[];
+    shakerUses: number[];
+    slotsOwned: number;
+  };
   bubba: {
     upgrades: {
         name: string;
@@ -3699,6 +4252,11 @@ export interface Account {
     };
     totalUpgTypesAvailable: number;
     megafleshOwned: number;
+    megaFlesh: {
+        description: string;
+        unlocked: boolean;
+        totalBonus?: string;
+      }[];
   };
   friendBonusStats: {
     slots: number;
@@ -3722,6 +4280,7 @@ export interface Character {
   afkTime: number;
   afkTarget: string;
   afkType: string;
+  monsterFace: number;
   targetMonster: string;
   mapIndex: number;
   currentMap: string;
@@ -3764,7 +4323,6 @@ export interface Character {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3780,24 +4338,23 @@ export interface Character {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
       rawName: string;
-      acquired: boolean;
+      acquired?: boolean;
     }[];
   maxCarryCap: {
-    Souls: number;
-    Chopping: number;
     Mining: number;
+    Chopping: number;
+    Souls: number;
     Quests: number;
-    fillerz: number;
     Fishing: number;
+    fillerz: number;
     Critters: number;
     Foods: number;
     bCraft: number;
-    Statues: number;
     Bugs: number;
+    Statues: number;
   };
   carryCapBags: {
       displayName: string;
@@ -3806,7 +4363,6 @@ export interface Character {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
       lvReqToEquip: number;
       Class: string;
       Speed: number;
@@ -3822,12 +4378,15 @@ export interface Character {
       UQ2txt: number;
       UQ2val: number;
       Upgrade_Slots_Left: number;
-      equip: string;
       itemType: string;
       capacity: number;
       rawName: string;
       capacityPerSlot: number;
       breakdown: {
+          title?: string;
+          value?: number;
+          name?: string;
+        }[] | {
           title?: string;
           name?: string;
           value?: number;
@@ -3836,36 +4395,34 @@ export interface Character {
     }[];
   statues: (number[])[];
   equipment: {
-      name: string;
+      name?: string;
       rawName: string;
       owner: string;
-      displayName: string;
-      sellPrice: number;
-      typeGen: string;
-      ID: number;
-      Type: string;
-      lvReqToCraft: number;
-      common: string;
-      lvReqToEquip: number;
-      Class: string;
-      Speed: number;
-      Reach: number;
-      Weapon_Power: number;
-      STR: number;
-      AGI: number;
-      WIS: number;
-      LUK: number;
-      Defence: number;
-      UQ1txt: string;
-      UQ1val: number;
-      UQ2txt: string | number;
-      UQ2val: number;
-      Upgrade_Slots_Left: number;
-      equip: string;
-      itemType: string;
+      displayName?: string;
+      sellPrice?: number;
+      typeGen?: string;
+      ID?: number;
+      Type?: string;
+      lvReqToCraft?: number;
+      lvReqToEquip?: number;
+      Class?: string;
+      Speed?: number;
+      Reach?: number;
+      Weapon_Power?: number;
+      STR?: number;
+      AGI?: number;
+      WIS?: number;
+      LUK?: number;
+      Defence?: number;
+      UQ1txt?: string;
+      UQ1val?: number;
+      UQ2txt?: string | number;
+      UQ2val?: number;
+      Upgrade_Slots_Left?: number;
+      itemType?: string;
       Power?: number;
-      changes: any;
-      maxUpgradeSlots: number;
+      changes?: any;
+      maxUpgradeSlots?: number;
       misc: string;
     }[];
   tools: {
@@ -3878,7 +4435,6 @@ export interface Character {
       ID?: number;
       Type?: string;
       lvReqToCraft?: number;
-      common?: string;
       lvReqToEquip?: number;
       Class?: string;
       Speed?: number;
@@ -3889,21 +4445,14 @@ export interface Character {
       WIS?: number;
       LUK?: number;
       Defence?: number;
-      UQ1txt?: string | number;
+      UQ1txt?: number | string;
       UQ1val?: number;
-      UQ2txt?: string | number;
+      UQ2txt?: number | string;
       UQ2val?: number;
       Upgrade_Slots_Left?: number;
-      equip?: string;
       itemType?: string;
       Power?: number;
-      changes?: {
-          Upgrade_Slots_Left?: number;
-          Weapon_Power?: number;
-          STR?: number;
-        }[] | any[] | {
-          Upgrade_Slots_Left: number;
-        }[];
+      changes?: any;
       maxUpgradeSlots?: number;
       misc: string;
     }[];
@@ -3918,7 +4467,6 @@ export interface Character {
       ID?: number;
       Type?: string;
       lvReqToCraft?: number;
-      common?: string;
       desc_line1?: string;
       desc_line2?: string;
       desc_line3?: string;
@@ -3931,7 +4479,6 @@ export interface Character {
       Amount?: number;
       Trigger?: number;
       Cooldown?: number;
-      consumable?: string;
       itemType?: string;
     }[];
   inventory: {
@@ -3941,30 +4488,6 @@ export interface Character {
       ID: number;
       Type: string;
       lvReqToCraft: number;
-      common: string;
-      desc_line1?: string;
-      desc_line2?: string;
-      desc_line3?: string;
-      desc_line4?: string;
-      desc_line5?: string;
-      desc_line6?: string;
-      desc_line7?: string;
-      desc_line8?: string;
-      Effect?: string;
-      Amount?: number;
-      Trigger?: number;
-      Cooldown?: number;
-      consumable?: string;
-      itemType: string;
-      rawName: string;
-      maxUpgradeSlots: number;
-      owner: string;
-      name: string;
-      type: string;
-      subType: string;
-      amount: number;
-      misc: string;
-      description: string;
       lvReqToEquip?: number;
       Class?: string;
       Speed?: number;
@@ -3975,14 +4498,35 @@ export interface Character {
       WIS?: number;
       LUK?: number;
       Defence?: number;
-      UQ1txt?: string | number;
+      UQ1txt?: string;
       UQ1val?: number;
-      UQ2txt?: string | number;
+      UQ2txt?: number | string;
       UQ2val?: number;
       Upgrade_Slots_Left?: number;
-      equip?: string;
+      itemType: string;
+      rawName: string;
       Power?: number;
       changes?: any;
+      maxUpgradeSlots: number;
+      owner: string;
+      name: string;
+      type: string;
+      subType: string;
+      amount: number;
+      misc: string;
+      description: string;
+      desc_line1?: string;
+      desc_line2?: string;
+      desc_line3?: string;
+      desc_line4?: string;
+      desc_line5?: string;
+      desc_line6?: string;
+      desc_line7?: string;
+      desc_line8?: string;
+      Effect?: string;
+      Amount?: number;
+      Trigger?: number;
+      Cooldown?: number;
     }[];
   inventorySlots: number;
   starSigns: {
@@ -4266,6 +4810,7 @@ export interface Character {
         }[];
     };
   };
+  maxBookLv: number;
   talents: Record<string, {
       name: string;
       id: number;
@@ -4292,8 +4837,8 @@ export interface Character {
           x1: number;
           x2: number;
           funcX: string;
-          y1: null | number;
-          y2: null | number;
+          y1: number | null;
+          y2: number | null;
           funcY: string;
           lvlUpText: string;
           skillIndex: number;
@@ -4318,8 +4863,8 @@ export interface Character {
           x1: number;
           x2: number;
           funcX: string;
-          y1: number | null;
-          y2: number | null;
+          y1: null | number;
+          y2: null | number;
           funcY: string;
           lvlUpText: string;
           skillIndex: number;
@@ -4499,7 +5044,6 @@ export interface Character {
         ID: number;
         Type: string;
         lvReqToCraft: number;
-        common: string;
         lvReqToEquip: number;
         Class: string;
         Speed: number;
@@ -4509,17 +5053,15 @@ export interface Character {
         WIS: number;
         LUK: number;
         Defence: number;
-        UQ1txt: number | string;
+        UQ1txt: string | number;
         UQ1val: number;
-        UQ2txt: number | string;
+        UQ2txt: number;
         UQ2val: number;
         Upgrade_Slots_Left: number;
-        equip: string;
         itemType: string;
-        Fishing_Power?: number;
         Weapon_Power: number;
-        changes: any[] | Record<string, any>[];
         rerolled: boolean;
+        changes?: Record<string, any>[] | any[];
         SuperFunItemDisplayType?: string;
       }[];
     stats: {
@@ -4543,22 +5085,37 @@ export interface Character {
         personalBonus: number;
         familyBonus: number;
       };
+      '%_XP_FROM_MONSTERS': {
+        personalBonus: number;
+      };
       Weapon_Power: {
         personalBonus: number;
         familyBonus: number;
       };
-      '%_FISHIN_EFFICINCY': {
+      '%_TOTAL_DAMAGE': {
         personalBonus: number;
       };
-      '%_ALL_STATS': {
+      _BASE_DAMAGE: {
         personalBonus: number;
         familyBonus: number;
       };
-      '%_SKILL_EFFICIENCY': {
+      '%_BUILD_SPD': {
         personalBonus: number;
-        familyBonus: number;
       };
       '%_DROP_RATE': {
+        personalBonus: number;
+        familyBonus: number;
+      };
+      '%_MULTIKILL': {
+        personalBonus: number;
+      };
+      '%_MONEY': {
+        personalBonus: number;
+      };
+      '%_MULTIKILL_PER_TIER': {
+        familyBonus: number;
+      };
+      '%_ALL_STATS': {
         familyBonus: number;
       };
     };
@@ -4569,10 +5126,19 @@ export interface Character {
     currentCharge: number;
   };
   quests: Record<string, {
-      '1': number;
+      '1'?: number;
       '2'?: number;
       '3'?: number;
       '4'?: number;
+      '5'?: number;
+      '6'?: number;
+      '7'?: number;
+      '8'?: number;
+      '9'?: number;
+      '10'?: number;
+      '11'?: number;
+      '12'?: number;
+      '13'?: number;
     }>;
   nonConsumeChance: number;
   kills: number[];
@@ -4634,6 +5200,13 @@ export interface Character {
       }[];
   };
   addedLevels: number;
+  superTalentsInfo: {
+    talents: {
+        talentIndex: number;
+        presetIndex: number;
+      }[];
+    bonus: number;
+  };
   talentsLoadout: {
       talentId: number;
       name: string;
@@ -4692,5 +5265,16 @@ export interface Character {
   };
   constructionSpeed: number;
   constructionExpPerHour: number;
+  gallery: {
+    bonusMulti: number;
+    trophyBonuses: {
+        name: string;
+        value: number;
+      }[];
+    nametagBonuses: {
+        name: string;
+        value: number;
+      }[];
+  };
   [key: string]: any;
 }

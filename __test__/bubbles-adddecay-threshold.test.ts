@@ -38,7 +38,7 @@ describe('addDECAY threshold level', () => {
 
   it('gives every addDECAY bubble a finite target level', () => {
     const { data, charNames, companion, guildData, serverVars } = raw as any;
-    const { account }: any = parseData(data, charNames, companion, guildData, serverVars);
+    const { account }: any = parseData(data, charNames, companion, guildData, serverVars, 0, null);
     const bubbles = Object.values(account?.alchemy?.bubbles ?? {}).flat() as any[];
     const addDecay = bubbles.filter((bubble) => bubble?.func?.toLowerCase() === 'adddecay');
 

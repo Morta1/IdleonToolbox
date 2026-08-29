@@ -4,6 +4,7 @@ import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { GeneIcon, MonsterIcon } from '@components/account/Worlds/World4/Breeding/Pets/styles';
 import Tooltip from '@components/Tooltip';
 import { AppContext } from '@components/common/context/AppProvider';
+import { monsterImage } from '@utility/spriteImages';
 
 const All = ({ pets }) => {
   const { state } = useContext(AppContext);
@@ -30,15 +31,15 @@ const All = ({ pets }) => {
                           unlocked,
                           level
                         }) => {
-              const missingIcon = (icon === 'Mface23' || icon === 'Mface21' || icon === 'Mface31') && monsterRawName !== 'shovelR';
+              const bodyIcon = icon?.startsWith('Mface');
               return <Card key={`${monsterName}-${worldIndex}`} variant="outlined"
                            sx={{ opacity: unlocked ? 1 : .6 }}>
                 <CardContent>
                   <Stack direction={'row'} alignItems={'center'} gap={1} justifyContent={'space-between'}>
                     <Stack justifyContent={'center'} alignItems={'center'}>
                       <MonsterIcon
-                        src={missingIcon ? `${prefix}afk_targets/${monsterName}.png` : `${prefix}data/${icon}.png`}
-                        missingIcon={missingIcon}
+                        src={bodyIcon ? monsterImage(monsterRawName) : `${prefix}data/${icon}.png`}
+                        missingIcon={bodyIcon}
                         alt=""/>
                       <Typography variant={'body2'}>Lv. {level}</Typography>
                     </Stack>

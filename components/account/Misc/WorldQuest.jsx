@@ -17,6 +17,7 @@ import {
 import Tooltip from 'components/Tooltip';
 import CoinDisplay from 'components/common/CoinDisplay';
 import { cleanUnderscore, getCoinsArray, numberWithCommas, prefix, worldColor } from 'utility/helpers';
+import { npcImage } from '@utility/spriteImages';
 
 const WorldQuest = ({ quests, characters, totalCharacters, worldName, worldIndex, hideCompleted }) => {
   const getQuestIndicator = (status) => {
@@ -64,7 +65,7 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName, worldIndex
       {npcList?.map((npc, index) => {
         return <StyledAccordion key={npc?.name + index} TransitionProps={{ unmountOnExit: true }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <img width={50} height={50} src={`${prefix}npcs/${npc?.name}.gif`} alt="npc-icon" />
+            <img width={50} height={50} src={npcImage(npc?.name)} alt="npc-icon" />
             <span className={'npc-name'}>{cleanUnderscore(npc?.name)}</span>
             {getQuestIndicator(getNpcStatus(npc))}
           </AccordionSummary>

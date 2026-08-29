@@ -12,8 +12,8 @@ import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getAdviceFishBonus, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
-import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
-import { getBubbleBonus, getVialsBonusByEffect } from '@parsers/world-2/alchemy';
+import { getStampsBonusByEffect, getStampsBonusByStat } from '@parsers/world-1/stamps';
+import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from '@parsers/world-2/alchemy';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
@@ -21,6 +21,9 @@ import { getZenithBonus } from '@parsers/world-1/statues';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
+import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
+import { getBestActiveCharacter, getHighestTalentAcrossCharacters, getTalentBonus } from '@parsers/talents';
+import { getAllEff } from '@parsers/efficiency';
 
 export const getSpelunking = (idleonData: any, account: any, characters: any) => {
   const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];
@@ -61,6 +64,15 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
     exaltedFragmentFound = 0,
     prismaFragmentFound = 0
   ] = rawSpelunking?.[4] || [];
+  // Spelunk[4][8] - Overstim stack count (scales upgrades 59-61). Spelunk[4][10] - Manic Mode flag.
+  const overstimStack = rawSpelunking?.[4]?.[8] ?? 0;
+  const manicModeFlag = rawSpelunking?.[4]?.[10] ?? 0;
+  // game: sum47 loops Spelunk[1].length (bestCaveLevels, 10 entries), NOT Spelunk[47].length - a
+  // real mismatch in the game's own code (see task D5 report), mirrored here deliberately.
+  const rawUpgradeExtra47 = rawSpelunking?.[47] ?? [];
+  const sum47 = rawUpgradeExtra47
+    ?.slice(0, bestCaveLevels?.length ?? 0)
+    ?.reduce((sum: number, value: any) => sum + (value || 0), 0) ?? 0;
   const biggestHauls = rawSpelunking?.[2] ?? [];
   const biggestHaul = biggestHauls?.reduce((sum: any, value: any) => {
     return sum + Math.ceil(lavaLog(value));
@@ -124,17 +136,29 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   const power = getPower(account, upgrades);
   const maxDailyPageReads = 5 + 3 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.spelunking?.rank, 4);
   const staminaRegenRate = getStaminaRegenRate(updatedAccount);
+  const activeCharacter = getBestActiveCharacter(characters);
+  // game: "SpelunkingEfficiency" - a per-character value; the active/currently-played character is
+  // the representative one shown on the account page, matching how the game itself only ever
+  // reports one number for whoever is logged in.
+  const spelunkingEfficiency = getSpelunkingEfficiency(activeCharacter, characters, updatedAccount);
   const taxRate = getSpelunkingBonus(account, 19);
   const prismaDropChance = getPrismaDropChance(account, rawSpelunking);
   const exaltedDropChance = getExaltedDropChance(account, rawSpelunking);
+  // Royal Guardian GRAND_VEIN (talent 238, mode 1 = getbonus2(1,238,-1)) and shop upgrade 55.
+  const grandVeinTalentBonus = Math.max(1, getHighestTalentAcrossCharacters(characters, 'GRAND_VEIN', activeCharacter));
+  const shopUpg55 = getSpelunkingBonus(account, 55);
   const sharedGrandDiscoveryFactors = (1 + getZenithBonus(account, 6, 0) / 100)
     * (1 + getChapterBonus(updatedAccount, 4, 0) / 100)
     * (1 + (highestSpelunkingLevelCharacter * (getMineheadBonusQTY(account, 14) + getSushiBonus(account, 21))) / 100)
-    * (1 + getCglunkoBonus(account, 20) / 100); // Grandioso (Crystal Glunko Cove)
+    * (1 + getCglunkoBonus(account, 20) / 100) // Grandioso (Crystal Glunko Cove)
+    * grandVeinTalentBonus
+    * (1 + shopUpg55 / 100);
   // Shop tooltip chance (upgrade 43)
   const grandDiscoveriesChance = 4e-5 * (1 + getSpelunkingBonus(account, 43, 0) / 100) * sharedGrandDiscoveryFactors;
-  // Actual base chance when destroying a rock (upgrade 32, before per-cave diminishing)
-  const grandDiscoveryActualBase = 4e-5 * (1 + getSpelunkingBonus(account, 32, 0) / 100) * sharedGrandDiscoveryFactors;
+  // Actual base chance when destroying a rock. Patch 2.3.525 realigned this branch's shop index
+  // from 32 to 43 - both branches now read the same upgrade, so this is numerically identical to
+  // grandDiscoveriesChance; kept as a separate variable since downstream (loreBosses) depends on it.
+  const grandDiscoveryActualBase = 4e-5 * (1 + getSpelunkingBonus(account, 43, 0) / 100) * sharedGrandDiscoveryFactors;
 
   upgrades = upgrades.map((upgrade, index) => {
     const baseBonus = baseBonuses?.[index] ?? 0;
@@ -143,7 +167,9 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
       totalBestCaveLevels,
       discoveriesCount,
       biggestHaul,
-      totalGrandDiscoveries
+      totalGrandDiscoveries,
+      sum47,
+      overstimStack
     }, false);
     const description = replacePlaceholders(upgrade.description, index, {
       baseBonus,
@@ -275,12 +301,32 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
     ownedElixirs,
     maxElixirDuplicates,
     talentSpelunkArrays,
-    charactersStamina
+    charactersStamina,
+    // Patch 2.3.525: Overstim stack, Manic Mode, and the sum47 upgrade tail.
+    overstimStack,
+    manicModeFlag,
+    manicModeActive: manicModeFlag >= 1,
+    sum47,
+    manicUnlocked: ((upgrades as any)?.[53]?.bonus ?? 0) >= 1,
+    elixirMemorizeSlots: Math.round((upgrades as any)?.[57]?.bonus ?? 0),
+    trackometerUnlocked: ((upgrades as any)?.[59]?.baseBonus ?? 0) >= 1,
+    overstimBonus2: [59, 60, 61].map((index) => ((upgrades as any)?.[index]?.baseBonus ?? 0) * overstimStack),
+    overstimQtyREQ2: 1000 * Math.pow(1.5, overstimStack),
+    amberDropChance: getAmberDropChance({ spelunking: { upgrades } }),
+    amberDropChance2nd: getAmberDropChance2nd({ spelunking: { upgrades } }),
+    staminaCostMulti: getStaminaCostMulti({ spelunking: { manicModeFlag } }),
+    spelunkingEfficiency
   }
 }
 
 const getCharacterStamina = (account: any, characters: any, upgrades: any, rawCurrentStamina: any, staminaRegenRate: any) => {
   const updatedAccount = { ...account, spelunking: { ...account?.spelunking, upgrades } };
+  // game: getbonus2(1,236,-1) - Royal Guardian SPELUNKING_SPECIALTY, account-wide max. The brief
+  // described this and ShopUpgBonus(61,0) as landing on opposite sides of the BigFish multiplier;
+  // the actual game code (N.js customBlock_Spelunk "StaminaMax") sums BOTH inside the same
+  // Math.floor(...) that then gets multiplied by BigFish - neither term is outside it. See report.
+  const shopUpg61 = getSpelunkingBonus(updatedAccount, 61);
+  const rgTalent236 = Math.max(0, getHighestTalentAcrossCharacters(characters, 'SPELUNKING_SPECIALTY', getBestActiveCharacter(characters)));
   return characters?.map(({ skillsInfo }: any, index: any) => {
     const currentStamina = rawCurrentStamina?.[index] ?? 0;
     const spelunkingLevel = Math.max(0, skillsInfo?.spelunking?.level ?? 0);
@@ -295,7 +341,7 @@ const getCharacterStamina = (account: any, characters: any, upgrades: any, rawCu
     const bigFishBonus = getAdviceFishBonus(updatedAccount, 1);
 
     const characterStamina = Math.floor(
-      (14 + spelunkingLevel + (shopUpg4 * Math.floor(spelunkingLevel / 10)) + chapterBonus2 + riftSkillBonus + shopUpg5 + chapterBonus3)
+      (shopUpg61 + 14 + spelunkingLevel + (shopUpg4 * Math.floor(spelunkingLevel / 10)) + chapterBonus2 + riftSkillBonus + shopUpg5 + chapterBonus3 + rgTalent236)
       * (1 + bigFishBonus / 100)
     );
 
@@ -461,10 +507,17 @@ export const getAmberGain = (account: any, loreBonuses: any) => {
   const shopUpg8 = getSpelunkingBonus(account, 8);
   const loreBonus = getLoreBonus({ ...account, spelunking: { ...account?.spelunking, loreBonuses } }, 4);
   const chapterBonus = getChapterBonus(account, 1, 3);
+  // game: three separate Math.max(1, ChapterBonus(...)) factors, all "}x_Total|Amber_Found".
+  const chapterBonus5_1 = getChapterBonus(account, 5, 1);
+  const chapterBonus4_1 = getChapterBonus(account, 4, 1);
   const exoticBonus = getExoticMarketBonus(account, 43);
   const shopUpg9 = getSpelunkingBonus(account, 9);
   const shopUpg10 = getSpelunkingBonus(account, 10);
   const shopUpg21 = getSpelunkingBonus(account, 21);
+  // Upgrade 67 (Amber Supply Swap): NOT divided by 100 - owning it alone is a flat 25x amber gain,
+  // traded off against a 20x-smaller drop chance (see getAmberDropChance/getAmberDropChance2nd).
+  const shopUpg67 = getSpelunkingBonus(account, 67);
+  const shopUpg60 = getSpelunkingBonus(account, 60);
 
   const amberGain = (1 + arcadeBonus / 100)
     * (1 + (cropBonus
@@ -485,11 +538,15 @@ export const getAmberGain = (account: any, loreBonuses: any) => {
     * (1 + shopUpg8 / 100)
     * (1 + loreBonus / 100)
     * Math.max(1, chapterBonus)
+    * Math.max(1, chapterBonus5_1)
+    * Math.max(1, chapterBonus4_1)
     * (1 + exoticBonus / 100)
     * (1 + shopUpg9 / 100)
     * (1 + shopUpg10 / 100)
     * (1 + shopUpg21 / 150)
-    * (1 + getSushiBonus(account, 28) / 100);
+    * (1 + getSushiBonus(account, 28) / 100)
+    * (1 + 24 * shopUpg67)
+    * (1 + shopUpg60 / 100);
 
   return {
     value: amberGain,
@@ -510,20 +567,29 @@ export const getAmberGain = (account: any, loreBonuses: any) => {
             { name: "Card", value: cardBonus / 100 },
             { name: "Winner", value: winnerBonus / 100 },
             { name: "Amber on the Rocks", value: shopUpg7 / 100 },
-            { name: "Deep Pockets", value: shopUpg20 / 100 },
+            { name: "Blue Amber Exclusivity Agreement", value: shopUpg20 / 100 },
             { name: "The Green Amber Clause of the Contract", value: shopUpg41 / 100 },
             { name: "The Red Amber Fine Print of the Contract", value: shopUpg51 / 100 },
             { name: "Grandiose_Amber", value: shopUpg44 / 100 },
             { name: "Overstim Meter", value: shopUpg6 / 100 },
             { name: "Overstim", value: overstimBonus / 100 },
             { name: "Rift Bonus", value: 50 * riftBonus / 100 },
-            { name: "Amber on the Brain", value: shopUpg8 },
+            { name: "Amber on the Brain", value: shopUpg8 / 100 },
             { name: "Lore", value: loreBonus / 100 },
-            { name: "Chapter", value: chapterBonus },
             { name: "Exotic", value: exoticBonus / 100 },
             { name: "Amber from the Depths", value: shopUpg9 / 100 },
             { name: "Amber from 'Em All", value: shopUpg10 / 100 },
             { name: "Deep Pockets", value: shopUpg21 / 150 },
+          ],
+        },
+        {
+          name: "Multiplicative",
+          sources: [
+            { name: "Chapter: Decay Surrounds", value: Math.max(1, chapterBonus) },
+            { name: "Chapter: Kelp Primeval", value: Math.max(1, chapterBonus5_1) },
+            { name: "Chapter: Sunken Plunder", value: Math.max(1, chapterBonus4_1) },
+            { name: "Amber Supply Swap", value: 1 + 24 * shopUpg67 },
+            { name: "Amber-Track", value: 1 + shopUpg60 / 100 },
           ],
         },
       ],
@@ -532,10 +598,14 @@ export const getAmberGain = (account: any, loreBonuses: any) => {
 }
 
 export const getAmberDenominator = (account: any) => {
+  const upgrade66 = getSpelunkingBonus(account, 66);
   const upgrade51 = getSpelunkingBonus(account, 51);
   const upgrade41 = getSpelunkingBonus(account, 41);
   const upgrade20 = getSpelunkingBonus(account, 20);
-  if (upgrade51 >= 1) {
+  if (upgrade66 >= 1) {
+    return 1e36;
+  }
+  else if (upgrade51 >= 1) {
     return 1e21;
   }
   else if (upgrade41 >= 1) {
@@ -551,7 +621,23 @@ export const getAmberDenominator = (account: any) => {
 
 export const getAmberIndex = (account: any) => {
   const denominator = getAmberDenominator(account);
-  return denominator === 1e21 ? 3 : denominator === 1e9 ? 2 : denominator === 1e3 ? 1 : 0;
+  return denominator === 1e36 ? 4 : denominator === 1e21 ? 3 : denominator === 1e9 ? 2 : denominator === 1e3 ? 1 : 0;
+}
+
+// game: AmberDropChance / AmberDropChance2nd. AmberDropChance2nd omits ElixirEffectQTY(6,0) *
+// GenINFO[107][6] - live per-character actor state absent from the save, the same limitation
+// already accepted by getPrismaDropChance/getExaltedDropChance above.
+export const getAmberDropChance = (account: any) => {
+  const shopUpg67 = getSpelunkingBonus(account, 67);
+  const shopUpg7 = getSpelunkingBonus(account, 7);
+  const shopUpg52 = getSpelunkingBonus(account, 52);
+  return Math.min(0.8, (1 / (1 + 19 * shopUpg67)) * ((shopUpg7 + shopUpg52) / 100));
+}
+
+export const getAmberDropChance2nd = (account: any) => {
+  const shopUpg67 = getSpelunkingBonus(account, 67);
+  const shopUpg42 = getSpelunkingBonus(account, 42);
+  return (1 / (1 + 19 * shopUpg67)) * ((5 + shopUpg42) / 100);
 }
 
 export const getSpelunkingBonus = (account: any, index: any, isBaseBonus?: any) => {
@@ -597,6 +683,8 @@ const getPower = (account: any, _unused1?: any) => {
   const stickerBonus6 = getStickerBonus(account, 6);
   const paletteBonus = getPaletteBonus(account, 13);
   const shopUpg46 = getSpelunkingBonus(account, 46);
+  // game: "POW_multi" - Manic_POW, inserted right after upgrade 46. Sum47-scaled.
+  const shopUpg54 = getSpelunkingBonus(account, 54);
 
   const exoticBonus = getExoticMarketBonus(account, 42);
   const cardBonus = Math.min(getCardBonusByEffect(account?.cards, 'Spelunk_POW_(Passive)'), 30);
@@ -618,6 +706,7 @@ const getPower = (account: any, _unused1?: any) => {
     * (1 + stickerBonus6 / 100)
     * (1 + paletteBonus / 100)
     * (1 + shopUpg46 / 100)
+    * (1 + shopUpg54 / 100)
     * (1 + (exoticBonus + cardBonus) / 100)
     * (1 + (toolUpg14 + toolUpg15 + toolUpg16 + toolUpg17) / 100)
     * (1 + getSushiBonus(account, 20) / 100)
@@ -657,6 +746,7 @@ const getPower = (account: any, _unused1?: any) => {
             { name: "Threepeat Champ Sticker", value: stickerBonus6 },
             { name: "Palette", value: paletteBonus },
             { name: "Grandiose_POW", value: shopUpg46 },
+            { name: "Manic_POW", value: shopUpg54 },
             { name: "Exotic Market", value: exoticBonus },
             { name: "Card", value: cardBonus },
             { name: "The Reliable Mace", value: toolUpg14 },
@@ -677,7 +767,21 @@ const getSpelunkingCostDiscount = (account: any, characters: any) => {
   const levelMultiplier = Math.max(1, Math.min(2, 1 + Math.floor(firstPlayerSpelunkingLevel / 50)));
   const costReduction = 1 / (1 + (mealBonus * levelMultiplier) / 100);
   const sushiDiscount = Math.max(getSushiBonus(account, 6), getSushiBonus(account, 27));
-  return costReduction * Math.max(0.1, 1 - sushiDiscount / 100);
+  // game: 1 / (1 + max(0, getbonus2(1,235,-1) * DNSM.CalcTalentMAP[235]) / 100) - Royal Guardian
+  // AMBER_HOARD (talent 235) times CalcTalentMAP[235]. The game defines CalcTalentMAP[235]
+  // as round(sum of RoyalG[0][0..7]) - the sum of the first eight Royal Statue LEVELS, not a talent
+  // read at all (confirmed by the in-game tooltip: "GetTalentNumber(1,235) *
+  // CalcTalentMAP[235]" then "% cheaper Shop"). 0 (accounts with no Royal Guardian statues) is the
+  // correct identity for a sum, matching the game's max(0, ...) clamp.
+  const activeCharacter = getBestActiveCharacter(characters);
+  const rgTalentBest = getHighestTalentAcrossCharacters(characters, 'AMBER_HOARD', activeCharacter);
+  const royalStatueLevelSum = Math.round(
+    ((account as any)?.royalGuardian?.royalStatues ?? [])
+      .slice(0, 8)
+      .reduce((sum: number, statue: any) => sum + (statue?.level ?? 0), 0)
+  );
+  const rgCostReduction = 1 / (1 + Math.max(0, rgTalentBest * royalStatueLevelSum) / 100);
+  return rgCostReduction * costReduction * Math.max(0.1, 1 - sushiDiscount / 100);
 }
 
 const getSpelunkingUpgradeCost = (account: any, characters: any, upgrade: any, discount?: number) => {
@@ -686,6 +790,11 @@ const getSpelunkingUpgradeCost = (account: any, characters: any, upgrade: any, d
     * upgrade?.x1
     * Math.pow(9.5, upgrade?.x7)
     * Math.pow(6.3, upgrade?.x8);
+
+  // game: two new base-cost tiers stacking in order (index >= 52 first, then >= 66).
+  const shopUpgradeIndex = upgrade?.originalIndex ?? upgrade?.index ?? 0;
+  if (shopUpgradeIndex >= 52) baseCost *= 1e7;
+  if (shopUpgradeIndex >= 66) baseCost *= 1e9;
 
   if (upgrade?.level !== -1) {
     const levelScaling = 0.25 * baseCost * Math.pow(upgrade?.x2, upgrade?.level);
@@ -720,7 +829,9 @@ const getSpelunkingUpgradeBonus = (
     totalBestCaveLevels = 0,
     discoveriesCount = 0,
     biggestHaul = 0,
-    totalGrandDiscoveries = 0
+    totalGrandDiscoveries = 0,
+    sum47 = 0,
+    overstimStack = 0
   } = {},
   directOnly = false
 ) => {
@@ -772,6 +883,16 @@ const getSpelunkingUpgradeBonus = (
         case 46: {
           return val * totalGrandDiscoveries;
         }
+        case 54:
+        case 55:
+        case 56: {
+          return val * (1 + (5 * sum47) / 100);
+        }
+        case 59:
+        case 60:
+        case 61: {
+          return val * overstimStack;
+        }
         default:
           return val;
       }
@@ -808,13 +929,16 @@ export const getStaminaRegenRate = (account: any) => {
   const shopUpg5 = getSpelunkingBonus(account, 5);
   const bubbleBonus = getBubbleBonus(account, 'FASTER_NRG', false);
   const chapterBonus = getChapterBonus(account, 2, 1);
+  const chapterBonus5_2 = getChapterBonus(account, 5, 2);
   const cardBonus = getCardBonusByEffect(account?.cards, 'Stamina_Regen_(Passive)');
   const riftBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.spelunking?.rank, 5);
+  const outpostRogBonus = Math.max(1, getOutpostRogBonus(account, 2));
 
   const value = 5 * (1 + getMeritocracyBonus(account, 17) / 100)
     * (1 + legendBonus / 100)
-    * (1 + (shopUpg5 + bubbleBonus + (chapterBonus + (10 * riftBonus + cardBonus))) / 100)
-    * (1 + getSushiBonus(account, 11) / 100);
+    * outpostRogBonus
+    * (1 + getSushiBonus(account, 11) / 100)
+    * (1 + (shopUpg5 + bubbleBonus + (chapterBonus + chapterBonus5_2 + (10 * riftBonus + cardBonus))) / 100);
 
   return {
     value,
@@ -830,14 +954,65 @@ export const getStaminaRegenRate = (account: any) => {
             { name: "Legend", value: legendBonus },
             { name: "Stamina Resurgence", value: shopUpg5 },
             { name: "Bubble", value: bubbleBonus },
-            { name: "Chapter", value: chapterBonus },
+            { name: "Chapter: This is gospel", value: chapterBonus },
+            { name: "Chapter: Kelp Primeval", value: chapterBonus5_2 },
             { name: "Rift", value: riftBonus / 100 },
             { name: "Card", value: cardBonus / 100 }
+          ],
+        },
+        {
+          name: "Multiplicative",
+          sources: [
+            { name: "Royal Guardian Outpost", value: outpostRogBonus }
           ],
         },
       ],
     }
   }
+}
+
+// game: "SpelunkingEfficiency" (customBlock_Spelunk). Brand new to the site this patch - no
+// pre-existing formula to amend, so this is a fresh implementation of the game's full formula
+// (per-character, like getMiningEff/getAllEff - AllEfficiencies and the RG talent both read off
+// whichever character is passed in).
+export const getSpelunkingEfficiency = (character: any, characters: any, account: any) => {
+  const chapterBonus00 = getChapterBonus(account, 0, 0);
+  const chapterBonus10 = getChapterBonus(account, 1, 0);
+  // getAllEff assumes a real character (it reaches into character.stats/questCompleted with no
+  // guard, e.g. Math.min(0.1 * character?.questCompleted, ...) - NaN when character is null). Every
+  // other call site only ever runs inside a per-character loop, so this never surfaced before. This
+  // is the first account-level call site, called even with zero characters - 1 (identity) is the
+  // correct empty-account value for a multiplier here, matching every other bonus in this formula.
+  const allEff = character ? getAllEff(character, characters, account) : 1;
+  // RiftSkillBonus(18, 1) - spelunking is skill index 18; bonusIndex 1 is this formula's own tier.
+  const riftBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.spelunking?.rank, 1);
+  const shopUpg56 = getSpelunkingBonus(account, 56);
+  const chapterBonus01 = getChapterBonus(account, 0, 1);
+  // GetTalentNumber(1, 237) - Royal Guardian PIT_O'_PAGES, current character's own x-bonus.
+  const talentBonus = getTalentBonus(character?.flatTalents, "PIT_O'_PAGES", false);
+  const stampBonus = getStampsBonusByStat(account, 'spelunkeff', character);
+  // CardBonusREAL(98) - traced in the game code: it resolves through CustomMaps.IDforCardBonus to an
+  // effect string and aggregates by effect exactly like getCardBonusByEffect does. Exact, not an
+  // approximation - the CardLv-indexed "one specific card" gotcha in project memory doesn't apply
+  // to CardBonusREAL reads.
+  const cardBonus = getCardBonusByEffect(account?.cards, 'Spelunking_Efficiency');
+  const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '7spelunkeff');
+  const bubbleBonus = getBubbleBonus(account, 'SPAPUNKIE', false);
+
+  return (10 + chapterBonus00 + chapterBonus10)
+    * Math.max(1, 1 + (allEff - 1) / 20)
+    * (1 + (30 * riftBonus) / 100)
+    * (1 + shopUpg56 / 100)
+    * (1 + chapterBonus01 / 100)
+    * Math.max(1, talentBonus)
+    * (1 + (stampBonus + cardBonus + vialBonus + bubbleBonus) / 100);
+}
+
+// game: "StaminaCostMulti". GenINFO[107][9]/[10] are live per-character combat-actor state, not
+// present in the save (same limitation as getPrismaDropChance/getExaltedDropChance); only the
+// save-derived Manic Mode term (Spelunk[4][10]) is representable here.
+export const getStaminaCostMulti = (account: any) => {
+  return 1 + 29 * (account?.spelunking?.manicModeFlag ?? 0);
 }
 
 const replacePlaceholders = (description: any, upgradeId: any, mockData: any = {}) => {
@@ -1008,6 +1183,8 @@ const getOptimizedSpelunkingUpgrades = (character: any, account: any, maxUpgrade
   const discoveriesCount = spelunkingData?.discoveriesCount ?? 0;
   const biggestHaul = spelunkingData?.biggestHaul ?? 0;
   const totalGrandDiscoveries = spelunkingData?.totalGrandDiscoveries ?? 0;
+  const sum47 = spelunkingData?.sum47 ?? 0;
+  const overstimStack = spelunkingData?.overstimStack ?? 0;
 
   // Deep clone upgrades to avoid mutating original data
   let simulatedUpgrades = JSON.parse(JSON.stringify(account.spelunking.upgrades));
@@ -1033,7 +1210,9 @@ const getOptimizedSpelunkingUpgrades = (character: any, account: any, maxUpgrade
         totalBestCaveLevels,
         discoveriesCount,
         biggestHaul,
-        totalGrandDiscoveries
+        totalGrandDiscoveries,
+        sum47,
+        overstimStack
       }, false);
       return {
         ...upgrade,
@@ -1212,6 +1391,8 @@ export const getOptimizedSpelunkingPowerUpgrades = (character: any, account: any
     const discoveriesCount = spelunkingData?.discoveriesCount ?? 0;
     const biggestHaul = spelunkingData?.biggestHaul ?? 0;
     const totalGrandDiscoveries = spelunkingData?.totalGrandDiscoveries ?? 0;
+    const sum47 = spelunkingData?.sum47 ?? 0;
+    const overstimStack = spelunkingData?.overstimStack ?? 0;
 
     const upgradesWithBonuses = upgrades.map((upgrade: any, index: any) => {
       const baseBonus = baseBonuses[index] ?? 0;
@@ -1220,7 +1401,9 @@ export const getOptimizedSpelunkingPowerUpgrades = (character: any, account: any
         totalBestCaveLevels,
         discoveriesCount,
         biggestHaul,
-        totalGrandDiscoveries
+        totalGrandDiscoveries,
+        sum47,
+        overstimStack
       }, false);
       return {
         ...upgrade,
@@ -1257,6 +1440,8 @@ export const getOptimizedSpelunkingAmberGainUpgrades = (character: any, account:
     const discoveriesCount = spelunkingData?.discoveriesCount ?? 0;
     const biggestHaul = spelunkingData?.biggestHaul ?? 0;
     const totalGrandDiscoveries = spelunkingData?.totalGrandDiscoveries ?? 0;
+    const sum47 = spelunkingData?.sum47 ?? 0;
+    const overstimStack = spelunkingData?.overstimStack ?? 0;
 
     return upgrades.map((upgrade: any, index: any) => {
       const baseBonus = baseBonuses[index] ?? 0;
@@ -1265,7 +1450,9 @@ export const getOptimizedSpelunkingAmberGainUpgrades = (character: any, account:
         totalBestCaveLevels,
         discoveriesCount,
         biggestHaul,
-        totalGrandDiscoveries
+        totalGrandDiscoveries,
+        sum47,
+        overstimStack
       }, false);
       return {
         ...upgrade,

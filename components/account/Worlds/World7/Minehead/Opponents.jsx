@@ -33,7 +33,7 @@ const Opponents = ({ opponents, opponentsBeat }) => {
                   <img
                     src={`${prefix}data/MineH${spriteID}.png`}
                     alt={name}
-                    style={{ width: 48, height: 48, imageRendering: 'pixelated' }}
+                    style={{ width: 48, height: 48 }}
                     onError={(e) => { e.target.style.display = 'none'; }}
                   />
                   <Stack flex={1}>

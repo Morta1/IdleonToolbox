@@ -3,7 +3,7 @@ import { ninjaExtraInfo, tomeData } from '@website-data';
 import { calcStampLevels } from '@parsers/world-1/stamps';
 import { calcStatueLevels, calcTotalOnyx } from '@parsers/world-1/statues';
 import { calcCardsLevels } from '@parsers/cards';
-import { calcTalentMaxLevel, calcTotalStarTalent } from '@parsers/talents';
+import { calcTalentMaxLevel, calcTotalStarTalent, getBestActiveCharacter } from '@parsers/talents';
 import { calcTotalQuestCompleted, getEventShopBonus } from '@parsers/misc';
 import { calcTotalTasks } from '@parsers/tasks';
 import { calcTotalAchievements } from '@parsers/achievements';
@@ -18,7 +18,7 @@ import { calcColoTotalScore, calcMinigameTotalScore } from '@parsers/highScores'
 import { calcArtifactsAcquired, calcTotalBoatLevels } from '@parsers/world-5/sailing';
 import { calcTotalBeanstalkLevel } from '@parsers/world-6/sneaking';
 import { calcTotalPrayersLevel } from '@parsers/world-3/prayers';
-import { lavaLog } from '@utility/helpers';
+import { lavaLog, tryToParse } from '@utility/helpers';
 import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
@@ -48,7 +48,7 @@ export const getTome = (idleonData: IdleonData, account: Account, characters: an
         : segmentColors.blue;
     const points = Math.ceil(pointsPercent * bonus?.x3);
     const maxPoints = getMaxPointsForBonus(bonus);
-    totalPoints += (account?.accountLevel ?? 0) > tomeLvReq ? points : 0;
+    totalPoints += (account?.accountLevel ?? 0) >= tomeLvReq ? points : 0;
     const requiredQuantities = getRequiredQuantitiesEfficient(bonus);
     return {
       ...bonus,
@@ -286,13 +286,23 @@ const calcPointsPercent = (bonus: any, quantity: number) => {
   }
 }
 
+// Game: TomeQTY[1] sums the logged-in character's own StatueLevels, so this reads one character's
+// levels rather than the per-statue maximum across the account (which can exceed every character).
+const calcActiveCharacterStatueLevels = (characters: any[], idleonData: any, account: any) => {
+  const activeCharacter = getBestActiveCharacter(characters);
+  const raw = tryToParse(idleonData?.[`StatueLevels_${activeCharacter?.playerId}`])
+    || idleonData?.[`StatueLevels_${activeCharacter?.playerId}`];
+  if (!Array.isArray(raw)) return calcStatueLevels(account?.statues);
+  return raw.reduce((sum: number, statue: any) => sum + (Number(statue?.[0]) || 0), 0);
+}
+
 // _customEvent_TomeQTY
 export const calcTomeQuantity = (account: any, characters: any[], idleonData?: any) => {
   const quantities: any[] = [];
   quantities.push(calcStampLevels(account?.stamps));
-  quantities.push(calcStatueLevels(account?.statues));
+  quantities.push(calcActiveCharacterStatueLevels(characters, idleonData, account));
   quantities.push(calcCardsLevels(account?.cards));
-  quantities.push(calcTalentMaxLevel(characters)); // TODO: CHECK
+  quantities.push(calcTalentMaxLevel(characters));
   quantities.push(calcTotalQuestCompleted(characters));
   quantities.push(account?.accountLevel);
   quantities.push(calcTotalTasks(account?.tasks));
@@ -317,7 +327,10 @@ export const calcTomeQuantity = (account: any, characters: any[], idleonData?: a
   quantities.push(calcVialsLevels(account?.alchemy?.vials));
   quantities.push(calcSigilsLevels(account?.alchemy?.p2w?.sigils));
   quantities.push(account.accountOptions?.[199]); // Jackpots Hit in Arcade
-  quantities.push(account?.currencies?.DeliveryBoxComplete + account?.currencies?.DeliveryBoxStreak + account?.currencies?.DeliveryBoxMisc);
+  // Game rounds each of the three delivery counters before summing them.
+  quantities.push(Math.round(account?.currencies?.DeliveryBoxComplete ?? 0)
+    + Math.round(account?.currencies?.DeliveryBoxStreak ?? 0)
+    + Math.round(account?.currencies?.DeliveryBoxMisc ?? 0));
   quantities.push(account.accountOptions?.[204]); // killroy warrior
   quantities.push(account.accountOptions?.[205]); // killroy archer
   quantities.push(account.accountOptions?.[206]); // killroy mage
@@ -408,7 +421,12 @@ export const calcTomeQuantity = (account: any, characters: any[], idleonData?: a
   quantities.push(account.research?.gridPTSpent); // 113 research grid upg
   quantities.push(account.minehead?.glimboTotalTrades); // 115 glimbo trades
   quantities.push(account?.sushiStation?.uniqueSushi); // 116 unique sushi
-  quantities.push(account?.accountOptions?.[594]); // 116 unique sushi
+  quantities.push(account?.accountOptions?.[594]); // 117 button presses
+  // game: TomeQTY[118] sums Math.max(0, RoyalG[0][t]) over all royal statues.
+  quantities.push(account?.royalGuardian?.royalStatues?.reduce(
+    (sum: number, statue: any) => sum + Math.max(0, statue?.level ?? 0), 0)); // 118 Total Royal Statue LV
+  quantities.push(account?.royalGuardian?.outpostStats?.built); // 119 Royal Guardian Outposts Built - game: RoyalG("TotalStatz", 4, 0)
+  quantities.push(account?.royalGuardian?.outpostStats?.totalNodeLevels); // 120 Total Resource Grade - game: RoyalG("TotalStatz", 0, 0)
 
   return quantities;
 }

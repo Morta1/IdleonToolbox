@@ -2,7 +2,7 @@ import { Card, CardContent, Container, Stack, Typography, useMediaQuery } from '
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
-import { monsters } from '@website-data';
+import { monsterImage } from '@utility/spriteImages';
 
 const AbilityTypes = {
   0: 'error.light',
@@ -64,7 +64,7 @@ const Territory = ({ territories, spices }) => {
                                        value={`${notateNumber(currentProgress)} / ${notateNumber(reqProgress)}`}/>
                   </Stack>
                   <Stack direction={'row'} flexWrap={'wrap'}>
-                    {team?.map(({ name, realName, power, gene }, monsterIndex) => {
+                    {team?.map(({ name, power, gene }, monsterIndex) => {
                       const slotFull = name !== 'none';
                       const color = AbilityTypes?.[gene?.abilityType];
                       return <Card sx={{ ml: monsterIndex === 0 && !breakpoint ? 'auto' : '' }}
@@ -91,7 +91,7 @@ const Territory = ({ territories, spices }) => {
                                 height: 64,
                                 objectFit: 'contain'
                               }}
-                              src={`${prefix}afk_targets/${realName}.png`} alt={realName}/>
+                              src={monsterImage(name)} alt={cleanUnderscore(name)}/>
                             <Stack sx={{ width: '100%' }} mt={1} direction={'row'} justifyContent={'space-between'}
                                    alignItems={'center'}>
                               <img style={{ width: 30, height: 30 }}
@@ -117,9 +117,8 @@ const EnemiesTooltip = ({ enemies }) => {
   return <Stack flexWrap={'wrap'} gap={1}>
     <Stack direction={'row'} gap={1}>
       {enemies?.map(({ name, health }, index) => {
-        const realName = monsters?.[name]?.Name;
-        return <img style={{ width: 42, height: 42, objectFit: 'contain' }} key={'enemy' + index} src={`${prefix}afk_targets/${realName}.png`}
-                    alt={realName}/>
+        return <img style={{ width: 42, height: 42, objectFit: 'contain' }} key={'enemy' + index} src={monsterImage(name)}
+                    alt={cleanUnderscore(name)}/>
       })}
 
     </Stack>

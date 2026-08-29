@@ -1766,6 +1766,64 @@ const migration69 = (config) => {
 
 // Registry of migration functions indexed by target version.
 // Each migration receives (config, baseTrackers) - baseTrackers is only used by some.
+const migration70 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
+  const world7 = dashboardConfig?.account?.['World 7'];
+  // The Royal Guardian had no dashboard coverage at all, so this adds the whole group rather than
+  // an option on an existing one.
+  if (world7 && !world7.royalGuardian) {
+    dashboardConfig.account['World 7'] = insertKeyNear(world7, 'gallery', 'royalGuardian', {
+      checked: true,
+      options: [
+        {
+          name: 'idleOutposts',
+          checked: true,
+          helperText: 'Alert when an outpost is connected to an empty resource and another in range still has some'
+        },
+        {
+          name: 'unwiredOutposts',
+          checked: true,
+          helperText: 'Alert when an outpost has no resource connected at all'
+        },
+        {
+          name: 'idleSupportCamps',
+          checked: true,
+          helperText: 'Alert when a support camp isn\'t boosting any outpost'
+        },
+        {
+          name: 'unspentPts',
+          type: 'input',
+          props: { label: 'Unspent PTS threshold', value: 10, minValue: 1 },
+          checked: true
+        },
+        {
+          name: 'claimableMaps',
+          checked: true,
+          helperText: 'Alert when a map has met its kill requirement and an outpost can be claimed'
+        },
+        {
+          name: 'idleUnits',
+          checked: true,
+          helperText: 'Alert when units are clearing a map you have already claimed, or aren\'t assigned anywhere'
+        },
+        {
+          name: 'restockLocked',
+          checked: true,
+          helperText: 'Alert while Resource Replenish is unbought, which is what refills empty resources daily'
+        }
+      ]
+    }, { before: true });
+  }
+
+  const timers = dashboardConfig.timers ?? {};
+  if (timers['World 7'] && !timers['World 7'].royalNodeCap) {
+    timers['World 7'].royalNodeCap = { checked: true, options: [] };
+  }
+
+  dashboardConfig.version = 70;
+  return dashboardConfig;
+};
+
 const migrations = {
   2: migrateToVersion2,
   3: migrateToVersion3,
@@ -1835,6 +1893,7 @@ const migrations = {
   67: migration67,
   68: migration68,
   69: migration69,
+  70: migration70,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

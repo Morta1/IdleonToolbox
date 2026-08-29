@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Tab, Tabs, useMediaQuery } from '@mui/material';
 import { prefix } from '@utility/helpers';
 import Box from '@mui/material/Box';
 import { useRouter } from 'next/router';
+import useTabIndex from '@hooks/useTabIndex';
 
 const Tabber = ({
                   tabs,
@@ -15,17 +16,19 @@ const Tabber = ({
                   iconsOnly,
                   queryKey = 't',
                   clearOnChange = [],
-                  disableQuery = false
+                  disableQuery = false,
+                  keepChildren,
+                  activeTab
                 }) => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
   const router = useRouter();
 
-  // State for managing active tab if `disableQuery` is enabled
-  const [activeTab, setActiveTab] = useState(0);
-
-  const queryValue = router.query[queryKey];
-  const activeTabIndex = tabs.findIndex((tab) => tab === queryValue);
-  const selectedTab = disableQuery ? activeTab : (activeTabIndex >= 0 ? activeTabIndex : 0);
+  // Pages that render their own content off the tab index read the same hook, so the strip and
+  // the page can't disagree on a deep link.
+  const [ownTab, setActiveTab] = useTabIndex(tabs, { queryKey, disableQuery });
+  // A parent that needs to select a tab itself (the dashboard alerts modal deep-links into one)
+  // passes activeTab and owns the index from then on, via onTabChange.
+  const selectedTab = activeTab ?? ownTab;
 
   // No default query is stamped on mount. A shallow router.replace here re-rendered the
   // app shell mid-hydration, which let DefaultSeo re-emit its head after the page's NextSeo
@@ -46,6 +49,9 @@ const Tabber = ({
   };
 
   const array = Array.isArray(children) ? children : [children];
+  // A parent that renders its own tab content passes one child for every tab, so it must not be
+  // filtered down to the selected index here.
+  const showAllChildren = keepChildren ?? Boolean(onTabChange);
   const useScrollable = forceScroll || (isMd && tabs.length >= 4) || tabs.length >= 8;
   return <Box sx={orientation === 'vertical' ? { flexGrow: 1, display: 'flex' } : {}}>
     <Tabs
@@ -70,7 +76,7 @@ const Tabber = ({
           key={`${tab?.[index]}-${index}`}/>;
       })}
     </Tabs>
-    {onTabChange ? children : array?.map((child, index) => {
+    {showAllChildren ? children : array?.map((child, index) => {
       return index === selectedTab ? child : null;
     })}
   </Box>

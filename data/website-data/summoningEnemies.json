@@ -1826,5 +1826,18 @@
     },
     "bonusQty": 1,
     "difficulty": null
+  },
+  {
+    "enemyId": "w7b8",
+    "xOff": null,
+    "yOff": null,
+    "width": null,
+    "bonusId": 21,
+    "bonus": {
+      "bonusId": 21,
+      "bonus": "+{% Villager EXP"
+    },
+    "bonusQty": 3,
+    "difficulty": null
   }
 ]

@@ -52,8 +52,7 @@ const rankBadgeSx = (rank) => ({
 const skillIconStyle = {
   width: 38,
   height: 36,
-  display: 'block',
-  imageRendering: 'pixelated'
+  display: 'block'
 };
 
 const normalizeBreakdown = (breakdown) => {

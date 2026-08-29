@@ -48,7 +48,7 @@ describe('liveEntries', () => {
     expect(liveCount(legendTalents)).toBe(40);  // 50 total, 10 placeholders
     expect(liveCount(achievements)).toBe(268);  // 420 total, 152 placeholders
     expect(liveCount(classes)).toBe(55);        // 63 total, 8 placeholders
-    expect(liveCount(itemsArray)).toBe(2426);   // 2431 total, 5 placeholders
+    expect(liveCount(itemsArray)).toBe(2445);   // 2450 total, 5 placeholders
     expect(liveCount(petGenes)).toBe(36);       // 36 total, 0 placeholders (Refiller is real)
   });
 });

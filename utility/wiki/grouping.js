@@ -8,6 +8,11 @@
 
 // A facet earns the job only if it actually divides the set. Twelve bands is about as many as a
 // page can carry before the bands are the noise; past that the facet is a filter, not a grouping.
+//
+// A caller can raise it where the facet is the game's own structure rather than a property the
+// data happens to carry. Talents are the case: the game lays them out in 27 class tabs and a player
+// already thinks of them that way, so 27 bands of about fifteen is how the thing is organised, not
+// noise imposed on it.
 export const FACET_MAX = 12;
 
 // And it has to divide it evenly enough to mean something. Every monster has a category, but 324
@@ -28,14 +33,14 @@ export const OTHER_BAND = 'Other';
 // Events, Dungeon and The Rift. An alphabet would open the page on Bosses and bury World 1.
 export const SECTION_ORDER = ['Bosses', 'Events', 'Dungeon', 'The Rift'];
 
-export const chooseGrouping = (categories, { missingMax = FACET_MISSING_MAX } = {}) => {
+export const chooseGrouping = (categories, { missingMax = FACET_MISSING_MAX, facetMax = FACET_MAX } = {}) => {
   const values = categories.filter(Boolean);
   if (values.length === 0) return 'none';
 
   const counts = {};
   for (const value of values) counts[value] = (counts[value] || 0) + 1;
   const distinct = Object.keys(counts).length;
-  if (distinct < 2 || distinct > FACET_MAX) return 'none';
+  if (distinct < 2 || distinct > facetMax) return 'none';
 
   const biggest = Math.max(...Object.values(counts));
   if (biggest / categories.length > FACET_DOMINANCE) return 'none';

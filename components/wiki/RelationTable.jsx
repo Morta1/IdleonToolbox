@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { Box, Chip, Link, Stack, TextField, Typography } from '@mui/material';
 import Tooltip from '@components/Tooltip';
+import InfoIcon from '@mui/icons-material/Info';
 import { EntityIcon } from './EntityPanel';
 import CoinAmount, { isCoin } from './CoinAmount';
+import Price from './Price';
 import { entityName } from '@utility/wiki/names';
-import { dropChanceLabel, dropTalentLabel, oneIn, percentLabel } from '@utility/wiki/drops';
+import { dropTalentLabel, oneIn, percentLabel } from '@utility/wiki/drops';
 
 // A flat list is right for the median entity, which has three relations. Silver Pen has 248, and
 // there a list is a wall: nothing lines up, nothing sorts, and the same monster appears five times
 // because it reaches the item through five drop tables. This is that section as a table.
 const PAGE_SIZE = 50;
+
+// A filter box earns its height over Silver Pen's 198 rows and looks like furniture over eight. The
+// short tables exist because a drop row needs columns, not because the section is long.
+const FILTER_MIN = 15;
 
 const HEAD = {
   fontSize: 12,
@@ -33,6 +39,22 @@ const CELL = {
   borderBottom: '1px solid',
   borderColor: 'action.hover'
 };
+
+// A column heading that needs a gloss carries an info icon, never the heading text itself: a
+// tooltip nobody can see is a tooltip nobody reads. The two that need one are the columns whose
+// number is not the number a reader assumes it is.
+const HeadNote = ({ note, children }) => <Stack
+  direction={'row'}
+  gap={0.5}
+  alignItems={'center'}
+  justifyContent={'flex-end'}
+  component={'span'}
+>
+  {children}
+  <Tooltip title={note}>
+    <InfoIcon sx={{ fontSize: 14, cursor: 'pointer' }}/>
+  </Tooltip>
+</Stack>;
 
 // Right-aligned tabular figures, so a column of rates compares by eye down the page. This is the
 // thing a list of inline captions cannot do at all.
@@ -86,10 +108,15 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
   // than no column. Coins always earn it, since their amount IS the interesting part.
   const rowAmount = (row) => row.edge?.meta?.quantity ?? row.edge?.meta?.amount;
   const anyQuantity = named.some((group) => group.rows.some((row) => rowAmount(row) > 1 || isCoin(row.other)));
-  const columns = 2 + (anyQuantity ? 1 : 0) + (anyMerged ? 1 : 0) + (showChance ? 2 : 0);
+  // Only the shop sections carry a price, and there every row has one.
+  const anyPrice = named.some((group) => group.rows.some((row) => row.edge?.meta?.price > 0));
+  const columns = 2 + (anyQuantity ? 1 : 0) + (anyPrice ? 1 : 0) + (anyMerged ? 1 : 0) + (showChance ? 2 : 0);
+
+  // Counted before filtering, so typing cannot make the box that is being typed into disappear.
+  const searchable = named.reduce((sum, group) => sum + group.rows.length, 0) >= FILTER_MIN;
 
   return <Stack gap={1} sx={{ mt: 1 }}>
-    <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
+    {searchable ? <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
       <TextField
         size={'small'}
         value={filter}
@@ -105,7 +132,7 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
           ? `showing ${visibleCount} of ${total.toLocaleString('en-US')}`
           : `${total.toLocaleString('en-US')} total`}
       </Typography>
-    </Stack>
+    </Stack> : null}
 
     <Box sx={{ overflowX: 'auto' }}>
       <Box component={'table'} sx={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -114,13 +141,16 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
           <Box component={'th'} sx={{ ...HEAD, width: 44 }}/>
           <Box component={'th'} sx={HEAD}>Name</Box>
           {anyQuantity ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: 130 }}>Qty</Box> : null}
+          {anyPrice ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: 150 }}>Price</Box> : null}
           {anyMerged ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: 80 }}>
-            <Tooltip title={'How many separate drop tables reach it. Each is its own roll.'}>
-              <span>Tables</span>
-            </Tooltip>
+            <HeadNote note={'How many separate drop tables reach it. Each is its own roll.'}>Tables</HeadNote>
           </Box> : null}
           {showChance ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: 140 }}>
-            {anyMerged ? 'Per kill' : 'Rate'}
+            {anyMerged
+              ? <HeadNote note={'The chance per kill of getting it from any of its tables, not from one of them.'}>
+                Per kill
+              </HeadNote>
+              : 'Rate'}
           </Box> : null}
           {showChance ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: 110 }}>Chance</Box> : null}
         </Box>
@@ -173,19 +203,20 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
                   {rowAmount(row) > 1 ? rowAmount(row).toLocaleString('en-US') : ''}
                 </Typography>}
             </Box> : null}
+            {anyPrice ? <Box component={'td'} sx={NUM}>
+              <Stack direction={'row'} justifyContent={'flex-end'}>
+                <Price price={row.edge?.meta?.price} currency={row.edge?.meta?.currency} size={16}/>
+              </Stack>
+            </Box> : null}
             {anyMerged ? <Box component={'td'} sx={NUM}>
               <Typography variant={'caption'} color={row.paths > 1 ? 'text.primary' : 'text.disabled'}>
                 {row.paths}
               </Typography>
             </Box> : null}
             {showChance ? <Box component={'td'} sx={NUM}>
-              <Tooltip title={row.paths > 1
-                ? `${dropChanceLabel({ effectiveChance: row.combinedChance })} across ${row.paths} tables, best single table ${oneIn(row.bestChance)}`
-                : dropChanceLabel(row.edge?.meta || {})}>
-                <Typography variant={'caption'} color={'text.secondary'} sx={{ cursor: 'help' }}>
-                  {oneIn(row.combinedChance)}
-                </Typography>
-              </Tooltip>
+              <Typography variant={'caption'} color={'text.secondary'}>
+                {oneIn(row.combinedChance)}
+              </Typography>
             </Box> : null}
             {/* The odds twice, deliberately: "1 in 618" is what a player quotes, a percentage is
                 what the game's own drop tables are written in, and neither converts in the head. */}

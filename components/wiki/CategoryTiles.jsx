@@ -6,13 +6,28 @@ import { prefix } from '@utility/helpers';
 
 // One recognisable piece of the game per category, picked for being the thing a player meets first:
 // Copper Ore, Green Mushroom, Scripticus.
-const KIND_ART = {
+export const KIND_ART = {
   item: 'data/Copper.png',
-  monster: 'afk_targets/Green_Mushroom.png',
-  npc: 'npcs/Scripticus.gif',
+  monster: 'monsters/mushG/static.png',
+  npc: 'npcs/Scripticus/static.png',
+  // The first achievement the game hands out, and the one every player has.
+  achievement: 'data/TaskAchA1.png',
   // The first bubble of the first cauldron, and the flask the game draws at every vial level.
   bubble: 'data/aUpgradesO0.png',
-  vial: 'data/aVials1.png'
+  vial: 'data/aVials1.png',
+  // Beginner, which every character starts as.
+  class: 'data/ClassIcons1.png',
+  // The first talent every character gets, and the icon the game files at index 0.
+  talent: 'data/UISkillIcon0.png',
+  // Whale: an Exclusive pet, and the one the site's own tournament page draws first.
+  pet: 'monsters/Pet4/static.png',
+  // The great tree on Blunder Hills, cut out of that world's own map. The full maps are 811x433
+  // and letterbox to an unreadable strip in a square tile, so the tile takes the one landmark on
+  // them that survives being 44px wide.
+  world: 'etc/World_Category.png',
+  // Not a bundle banner: at tile size a 711x120 strip is unreadable either squashed or cropped.
+  // The gem chest is what every bundle is drawn around, and it is square.
+  bundle: 'data/PremiumGem.png'
 };
 
 // Every listed kind carries real art, so there is no drawn stand-in any more: the glyphs existed
@@ -25,7 +40,7 @@ export const KindArt = ({ kind, size = 44 }) => {
     alt={''}
     width={size}
     height={size}
-    style={{ objectFit: 'contain', imageRendering: 'pixelated', flexShrink: 0 }}
+    style={{ objectFit: 'contain', flexShrink: 0 }}
   />;
 };
 

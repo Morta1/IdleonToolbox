@@ -17,8 +17,15 @@
 //
 // Map is absent too. Nobody arrives at the wiki wanting an area: they want an item or a mob, and
 // the map is where that trail leads rather than where it starts. Most are one hop from a monster's
-// "Found in" or an NPC's, and following the portals reaches all but three: Grand Owl Perch, The
-// Oasis and How_Did_u_get_here, real areas that host nothing and that nothing connects to.
-export const LISTED_KINDS = ['item', 'monster', 'npc', 'bubble', 'vial'];
+// "Found in" or an NPC's, and following the portals reaches almost all of them. World is what
+// covers the rest: Grand Owl Perch, The Oasis and How_Did_u_get_here host nothing and connect to
+// nothing, so they were pages nothing linked to until their world listed them.
+// World IS worth browsing where its 163 areas are not. Seven tiles, each the game's own map art,
+// and "what is in World 3" is the question somebody asks before they know an area's name.
+// Bundles ARE worth browsing, unlike the shops: 34 of them, each a set of things bought together,
+// and "what was in that pack" is the question they exist to answer.
+// Achievements ARE worth browsing: 420 of them, banded by world, and the question "what is left to
+// do in World 3" is a list question rather than a search one.
+export const LISTED_KINDS = ['item', 'monster', 'npc', 'world', 'class', 'talent', 'achievement', 'pet', 'bundle', 'bubble', 'vial'];
 
 export const hasListing = (kind) => LISTED_KINDS.includes(kind);

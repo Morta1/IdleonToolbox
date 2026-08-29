@@ -1,33 +1,46 @@
-import { useContext, useEffect, useState } from 'react';
-import { Box, Stack, Typography } from '@mui/material';
+import { useContext, useState } from 'react';
+import { Box, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import HtmlTooltip from 'components/Tooltip';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, notateNumber, prefix, worldsArray } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';
+import { CardTitleAndValue } from '@components/common/styles';
+import EmptyState from '@components/common/EmptyState';
+import useTabIndex from '@hooks/useTabIndex';
 
 const achievementsPerWorld = 70;
+// Every world reserves 70 slots, but the unused ones are fillers that the grid never renders.
+const isRealAchievement = ({ name, visualIndex }) => visualIndex !== -1 && !name?.includes('FILLER');
 
 const Achievements = () => {
   const { state } = useContext(AppContext);
-  const [localAchievements, setLocalAchievements] = useState(state?.account?.achievements);
-  const [world, setWorld] = useState(0);
+  const [world] = useTabIndex(worldsArray);
+  const [hideCompleted, setHideCompleted] = useState(false);
 
-  useEffect(() => {
-    setLocalAchievements(getWorldAchievements(world * achievementsPerWorld, world * achievementsPerWorld + achievementsPerWorld));
-  }, [state])
-
-  const handleWorldChange = (world) => {
-    setLocalAchievements(getWorldAchievements(world * achievementsPerWorld, world * achievementsPerWorld + achievementsPerWorld));
-    setWorld(world);
-  }
-
-  const getWorldAchievements = (start, end) => {
-    const achievements = state?.account?.achievements?.slice(start, end);
+  const getWorldAchievements = (worldIndex) => {
+    const start = worldIndex * achievementsPerWorld;
+    const achievements = state?.account?.achievements?.slice(start, start + achievementsPerWorld);
     achievements?.sort((a, b) => a?.visualIndex - b?.visualIndex);
     return achievements;
   }
+
+  const worldTotals = worldsArray.map((worldName, worldIndex) => {
+    const achievements = getWorldAchievements(worldIndex)?.filter(isRealAchievement) ?? [];
+    return {
+      worldName,
+      total: achievements.length,
+      completed: achievements.filter(({ completed }) => completed).length
+    };
+  }).filter(({ total }) => total > 0);
+  const combined = worldTotals.reduce((acc, { completed, total }) => ({
+    completed: acc.completed + completed,
+    total: acc.total + total
+  }), { completed: 0, total: 0 });
+
+  const worldAchievements = getWorldAchievements(world)?.filter(isRealAchievement) ?? [];
+  const localAchievements = worldAchievements.filter(({ completed }) => !(hideCompleted && completed));
 
   return (
     <Box>
@@ -35,26 +48,36 @@ const Achievements = () => {
         title="Achievements | Idleon Toolbox"
         description="Track your achievement completion, reward tiers, and unlockable bonuses in Legends of Idleon"
       />
-      <Tabber tabs={worldsArray} onTabChange={handleWorldChange}>
+      <Stack mb={3} direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
+        {worldTotals.map(({ worldName, completed, total }) => <CardTitleAndValue key={`total-${worldName}`}
+                                                                                title={worldName}
+                                                                                value={`${completed} / ${total}`}/>)}
+        <CardTitleAndValue title={'Total'} value={`${combined.completed} / ${combined.total}`}/>
+        <FormControlLabel
+          control={<Checkbox checked={hideCompleted}
+                             onChange={(e) => setHideCompleted(e.target.checked)}/>}
+          label={'Hide completed'}/>
+      </Stack>
+      <Tabber tabs={worldsArray} keepChildren>
         <Box display={'flex'} justifyContent={'center'}>
           {localAchievements?.length > 0 ?
             <Stack sx={{ width: { lg: 900 } }} justifyContent={'center'} mt={3} flexWrap={'wrap'} direction={'row'}
                    gap={3}>
               {localAchievements?.map((achievement, index) => {
-                const { name, rawName, completed, visualIndex, currentQuantity, quantity } = achievement;
-                return visualIndex !== -1 && !name.includes('FILLER') ?
-                  <Stack sx={{ position: 'relative' }} key={`${name}-${index}`}>
-                    <HtmlTooltip title={<AchievementTooltip {...achievement}/>}>
-                      <Achievement completed={completed} src={`${prefix}data/${rawName}.png`}
-                                   alt={cleanUnderscore(name)}/>
-                    </HtmlTooltip>
-                    {currentQuantity ? <Quantity>
-                      {notateNumber(currentQuantity)} {quantity > 1 ?
-                      <span> / {notateNumber(quantity, 'Big')}</span> : null}
-                    </Quantity> : null}
-                  </Stack> : null
+                const { name, rawName, completed, currentQuantity, quantity } = achievement;
+                return <Stack sx={{ position: 'relative' }} key={`${name}-${index}`}>
+                  <HtmlTooltip title={<AchievementTooltip {...achievement}/>}>
+                    <Achievement completed={completed} src={`${prefix}data/${rawName}.png`}
+                                 alt={cleanUnderscore(name)}/>
+                  </HtmlTooltip>
+                  {currentQuantity ? <Quantity>
+                    {notateNumber(currentQuantity)} {quantity > 1 ?
+                    <span> / {notateNumber(quantity, 'Big')}</span> : null}
+                  </Quantity> : null}
+                </Stack>
               })}
-            </Stack> : <Typography mt={2} variant={'h4'}>No achievements yet</Typography>}
+            </Stack> : <EmptyState hideCompleted={hideCompleted && worldAchievements.length > 0}
+                                   label={'achievements'}/>}
         </Box>
       </Tabber>
     </Box>

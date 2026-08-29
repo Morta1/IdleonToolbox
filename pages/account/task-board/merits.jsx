@@ -3,23 +3,30 @@ import { AppContext } from '../../../components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';
 import { cleanUnderscore, prefix, worldsArray } from '@utility/helpers';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
 import { CardTitleAndValue } from '@components/common/styles';
+import useTabIndex from '@hooks/useTabIndex';
+import EmptyState from '@components/common/EmptyState';
 
 const Merits = () => {
   const { state } = useContext(AppContext);
-  const [world, setWorld] = useState(0);
+  const [world] = useTabIndex(worldsArray);
+  const [hideCompleted, setHideCompleted] = useState(false);
 
-  const handleWorldChange = (world) => {
-    setWorld(world);
-  }
+  const worldMerits = state?.account?.meritsDescriptions?.[world]
+    ?.filter(({ descLine1, meritCost }) => descLine1 !== 'IDK_YET' && meritCost !== null) ?? [];
+  const visibleMerits = worldMerits.filter(({ level, totalLevels }) => !(hideCompleted && level >= totalLevels));
 
   return (<>
     <NextSeo
       title="Merits | Idleon Toolbox"
       description="Track your merit shop purchases, point spending, and available upgrades in Legends of Idleon"
     />
-    <Tabber tabs={worldsArray} onTabChange={handleWorldChange}>
+    <FormControlLabel
+      control={<Checkbox checked={hideCompleted}
+                         onChange={(e) => setHideCompleted(e.target.checked)}/>}
+      label={'Hide completed'}/>
+    <Tabber tabs={worldsArray} keepChildren>
       <Stack mb={3} alignItems={'center'}>
         <CardTitleAndValue title={'Merits'}>
           <Stack direction={'row'} alignItems={'center'} gap={1}>
@@ -29,17 +36,19 @@ const Merits = () => {
         </CardTitleAndValue>
       </Stack>
       <Stack index={world} direction={'row'} flexWrap={'wrap'} gap={3} justifyContent={'center'}>
-        {state?.account?.meritsDescriptions?.[world]?.map(({
-                                                             descLine1,
-                                                             descLine2,
-                                                             bonusPerLevel,
-                                                             level,
-                                                             extraStr,
-                                                             icon,
-                                                             meritCost,
-                                                             totalLevels
-                                                           }, index) => {
-          if (descLine1 === 'IDK_YET' || meritCost === null) return null;
+        {visibleMerits?.length === 0
+          ? <EmptyState hideCompleted={hideCompleted && worldMerits.length > 0} label={'merits'}/>
+          : null}
+        {visibleMerits?.map(({
+                               descLine1,
+                               descLine2,
+                               bonusPerLevel,
+                               level,
+                               extraStr,
+                               icon,
+                               meritCost,
+                               totalLevels
+                             }, index) => {
           let desc = ('Blank420q' !== extraStr
             ? descLine1.replace(/}/, extraStr.split('|')[level])
             : descLine1.replace(/{/, bonusPerLevel * level)) + (descLine2 !== 'Descline2' ? ` ${descLine2}` : '');

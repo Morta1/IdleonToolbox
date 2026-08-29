@@ -1,5 +1,6 @@
 import React from 'react';
 import Tooltip from '@components/Tooltip';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
 
@@ -50,7 +51,7 @@ const Observations = ({ observations }) => {
                 <img
                   src={`${prefix}data/ResObj${obs.index}.png`}
                   alt=""
-                  style={{ width: 36, height: 36, imageRendering: 'pixelated' }}
+                  style={{ width: 36, height: 36 }}
                   onError={(e) => { e.target.style.display = 'none'; }}
                 />
                 <Typography
@@ -75,7 +76,7 @@ const Observations = ({ observations }) => {
                           <img
                             src={`${prefix}${src}.png`}
                             alt={title}
-                            style={{ width: 20, height: 20, imageRendering: 'pixelated' }}
+                            style={{ width: 20, height: 20 }}
                           />
                         </Tooltip>
                       ) : null;
@@ -110,19 +111,21 @@ const Observations = ({ observations }) => {
                       </Typography>
                     </Stack>
                     <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-                      <Tooltip title="Insight EXP/hr as shown in-game (Insight rate * Research EXP Multi). This is what Idleon displays, but does NOT match how fast Insight actually levels up.">
-                        <Typography variant="body2" color="text.secondary" sx={{ textDecoration: 'underline dotted', cursor: 'help' }}>
-                          Displayed Insight / hr:
-                        </Typography>
-                      </Tooltip>
+                      <Stack direction="row" alignItems="center" gap={0.5}>
+                        <Typography variant="body2" color="text.secondary">Displayed Insight / hr:</Typography>
+                        <Tooltip title="Insight EXP/hr as shown in-game (Insight rate * Research EXP Multi). This is what Idleon displays, but does NOT match how fast Insight actually levels up.">
+                          <IconInfoCircleFilled size={14} style={{ cursor: 'pointer', display: 'block', opacity: 0.7 }}/>
+                        </Tooltip>
+                      </Stack>
                       <Typography variant="body2">{notateNumber(obs.insightExpRate ?? 0, 'Small')}</Typography>
                     </Stack>
                     <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-                      <Tooltip title="Actual Insight EXP/hr you gain (Displayed / Research EXP Multi). This matches how fast Insight levels up in practice.">
-                        <Typography variant="body2" color="text.secondary" sx={{ textDecoration: 'underline dotted', cursor: 'help' }}>
-                          Real Insight / hr:
-                        </Typography>
-                      </Tooltip>
+                      <Stack direction="row" alignItems="center" gap={0.5}>
+                        <Typography variant="body2" color="text.secondary">Real Insight / hr:</Typography>
+                        <Tooltip title="Actual Insight EXP/hr you gain (Displayed / Research EXP Multi). This matches how fast Insight levels up in practice.">
+                          <IconInfoCircleFilled size={14} style={{ cursor: 'pointer', display: 'block', opacity: 0.7 }}/>
+                        </Tooltip>
+                      </Stack>
                       <Typography variant="body2">{notateNumber(obs.realInsightExpRate ?? 0, 'Small')}</Typography>
                     </Stack>
                     <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>

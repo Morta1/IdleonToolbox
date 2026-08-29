@@ -24,7 +24,7 @@ const PostyNotes = ({ postyNotes }) => {
               <img
                 src={`${prefix}data/ResPosty${note.index}.png`}
                 alt=""
-                style={{ width: 36, height: 36, imageRendering: 'pixelated' }}
+                style={{ width: 36, height: 36 }}
                 onError={(e) => { e.target.style.display = 'none'; }}
               />
               <Typography variant="subtitle1" fontWeight={500}>

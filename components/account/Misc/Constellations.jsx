@@ -10,9 +10,10 @@ import {
   useMediaQuery
 } from '@mui/material';
 import React, { useState } from 'react';
-import { cleanUnderscore, prefix } from 'utility/helpers';
+import { cleanUnderscore } from 'utility/helpers';
 import CheckIcon from '@mui/icons-material/Check';
 import { mapEnemiesArray, monsters } from '@website-data';
+import { monsterImage } from '@utility/spriteImages';
 
 const CHAR_INDEX_MAP = Object.fromEntries('_abcdefghijklmnopqrstuvwxyz'.split('').map((c, i) => [c, i]));
 
@@ -96,7 +97,7 @@ const ConstellationsComp = ({ constellations = [], characters = [] }) => {
                 {monsterName ?
                   <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
                     <img
-                      src={`${prefix}afk_targets/${monsters?.[monsterRaw]?.Name}.png`}
+                      src={monsterImage(monsterRaw)}
                       alt={monsterName}
                       style={{ width: 28, height: 28, objectFit: 'contain' }}
                     />

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { collapseRows, combineChances } from '../../utility/wiki/relations';
+import { collapseRows, combineChances, DETAIL_TABLE_THRESHOLD, TABLE_THRESHOLD, tableThreshold } from '../../utility/wiki/relations';
 import { oneIn } from '../../utility/wiki/drops';
 
 const edge = (from, to, meta) => ({ from, to, rel: 'drops', meta });
@@ -50,7 +50,6 @@ describe('collapseRows', () => {
     expect(rows[0].otherId).toBe('monster:Boss2A');
     expect(rows[0].paths).toBe(3);
     expect(oneIn(rows[0].combinedChance)).toBe('1 in 618');
-    expect(oneIn(rows[0].bestChance)).toBe('1 in 1,850');
   });
 
   // One item rawName covers every talent book in the game, so the talent is what tells them apart.
@@ -83,5 +82,27 @@ describe('collapseRows', () => {
       edge('monster:a', 'item:X', { effectiveChance: 0.5 })
     ], 'to');
     expect(rows.map((row) => row.otherId)).toEqual(['monster:a', 'monster:b']);
+  });
+});
+
+describe('tableThreshold', () => {
+  // A drop row is a name plus a quantity, a rate and a percentage, and in a half-width column the
+  // long names wrap while the numbers land wherever the wrap left them. `Detail` is what renders
+  // those numbers, so it is what marks the section that needs columns early.
+  it('tabulates a section carrying per-row numbers far sooner than a list of names', () => {
+    expect(tableThreshold({ title: 'Drops', Detail: () => null })).toBe(DETAIL_TABLE_THRESHOLD);
+    expect(tableThreshold({ title: 'Used in crafting' })).toBe(TABLE_THRESHOLD);
+    expect(DETAIL_TABLE_THRESHOLD).toBeLessThan(TABLE_THRESHOLD);
+  });
+
+  // Iron drops 13 things and used to miss the old threshold of 15 by two, which is the whole
+  // complaint: the median monster drops 12, so most of the bestiary sat in that band.
+  it('puts a median monster drop list in a table', () => {
+    expect(13 > tableThreshold({ Detail: () => null })).toBe(true);
+    expect(13 > tableThreshold({})).toBe(false);
+  });
+
+  it('treats a missing section as a plain list rather than throwing', () => {
+    expect(tableThreshold(undefined)).toBe(TABLE_THRESHOLD);
   });
 });

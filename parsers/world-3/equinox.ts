@@ -11,6 +11,7 @@ import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getResearchGridBonus } from '@parsers/world-7/research';
+import { getArmoryUpgradeBonus } from '@parsers/class-specific/royalGuardian';
 
 const DREAM_UPGRADES_OFFSET = 2;
 const dreamUpgradesEnd = () => DREAM_UPGRADES_OFFSET + equinoxUpgrades.length;
@@ -76,6 +77,8 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
   const emperorBonus = getEmperorBonus(account, 5);
   const tesseractBonus = getTesseractBonus(account, 37);
   const loreEpiBonus = getLoreBossBonus(account, 8) ?? 0;
+  // game: ArmoryUpgBonus(76) - Farmer_Joe, "+{% Equinox Bar Fill rate".
+  const armoryBonus76 = getArmoryUpgradeBonus(account, 76);
 
   const cb = (i: number) => Number(clouds[i] === -1);
   const cloudsBonus =
@@ -102,6 +105,7 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
     * (1 + 0.5 * eventShopBonus)
     * (1 + (account?.accountOptions?.[320] ?? 0) / 10)
     * (1 + tesseractBonus / 100)
+    * (1 + armoryBonus76 / 100)
     * (1 + cloudMulti45 / 100)
     * (1 + cloudMulti49 / 100)
     * (1 + cloudMulti52 / 100)
@@ -129,12 +133,14 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
     { name: 'Cloud Multi 67', value: cloudMulti67 / 100 },
     { name: 'Emperor', value: emperorBonus / 100 },
     { name: 'Tesseract', value: tesseractBonus / 100 },
+    { name: 'Farmer Joe (Armory)', value: armoryBonus76 / 100 },
     { name: 'Bundle*', value: bundleBonus ? 90 : 60 }
   ]
 
   const chargeRate = bundleBonus ? Math.round(90 * base) : Math.round(60 * base);
 
-  const chargeRequired = Math.round((120 + 40 * totalUpgrade) * Math.pow(1.02, totalUpgrade));
+  // BarFillReq: no outer rounding since 2.3.525.
+  const chargeRequired = (120 + 40 * totalUpgrade) * Math.pow(1.02, totalUpgrade);
   const currentCharge = dream?.[0];
   const timeToFull = new Date().getTime() + ((chargeRequired - currentCharge) / chargeRate * 1000 * 3600);
 

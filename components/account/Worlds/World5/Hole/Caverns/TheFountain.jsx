@@ -326,23 +326,31 @@ const TheFountain = ({ hole }) => {
                 <Typography variant={'caption'} color={'text.secondary'}>
                   Time to full:&nbsp;{msToDate(bar.timeToFullMs)}
                 </Typography>
-                <Typography variant={'caption'} color={'text.secondary'} sx={{ cursor: 'help' }}>
+                {/* No tooltip behind this one, so it carried a help cursor promising something that
+                    was never there. */}
+                <Typography variant={'caption'} color={'text.secondary'}>
                   Full cycle:&nbsp;{msToDate(bar.timeFullCycleMs)}
                 </Typography>
                 {bar.tier === 0 && bar.activeMulti > 1 ? (
-                  <Tooltip title={'Fill speed multiplier while a character is actively standing in the fountain cavern'}>
-                    <Typography variant={'caption'} color={'text.secondary'} sx={{ cursor: 'help' }}>
+                  <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+                    <Typography variant={'caption'} color={'text.secondary'}>
                       Active fill:&nbsp;x{bar.activeMulti.toFixed(2)}
                     </Typography>
-                  </Tooltip>
+                    <Tooltip title={'Fill speed multiplier while a character is actively standing in the fountain cavern'}>
+                      <IconInfoCircleFilled size={14} style={{ cursor: 'pointer', display: 'block', opacity: 0.7 }}/>
+                    </Tooltip>
+                  </Stack>
                 ) : null}
                 {bar.tier === 2 && bar.duckChance != null ? (
-                  <Tooltip
-                    title={`1 in ${commaNotation(Math.round(1 / bar.duckChance))} chance per full bar to gain +1 Rubber Ducky stack`}>
-                    <Typography variant={'caption'} color={'text.secondary'} sx={{ cursor: 'help' }}>
+                  <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+                    <Typography variant={'caption'} color={'text.secondary'}>
                       Duck chance:&nbsp;{(bar.duckChance * 100).toPrecision(3)}%
                     </Typography>
-                  </Tooltip>
+                    <Tooltip
+                      title={`1 in ${commaNotation(Math.round(1 / bar.duckChance))} chance per full bar to gain +1 Rubber Ducky stack`}>
+                      <IconInfoCircleFilled size={14} style={{ cursor: 'pointer', display: 'block', opacity: 0.7 }}/>
+                    </Tooltip>
+                  </Stack>
                 ) : null}
               </Stack>
             </Stack>

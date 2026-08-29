@@ -2469,6 +2469,16 @@
     "perTier": 13,
     "category": "Bosses"
   },
+  "fm_rat": {
+    "rawName": "fm_rat",
+    "displayName": "Verminous",
+    "cardIndex": "Z27",
+    "visualIndex": 28,
+    "effect": "+{%_Masterclass_Drops_(Passive)",
+    "bonus": 1,
+    "perTier": 100000000,
+    "category": "Bosses"
+  },
   "ghost": {
     "rawName": "ghost",
     "displayName": "Ghost",

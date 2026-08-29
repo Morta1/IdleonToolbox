@@ -2,13 +2,14 @@ import { tryToParse, commaNotation, notateNumber } from '@utility/helpers';
 import { mineheadUpgrades, upgradeVault, research as researchData, researchGridSquares, items } from '@website-data';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
-import { isCompanionBonusActive, getEventShopBonus } from '@parsers/misc';
+import { isCompanionBonusActive, isCompanionLvl2Active, getEventShopBonus } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
+import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 
 // The three mine currency gain upgrades (Miney Farmey I/II, Miney Damagey Synergy). The dashboard
 // alert filter and its `MineUpg{n}` config keys derive from this list; the currency formula below
@@ -172,17 +173,25 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   const grid147Bonus = getResearchGridBonus(account, 147, 0); // CurrencyGain uses mode 0
   const grid166Bonus = getResearchGridBonus(account, 166, 0);
   const arcade62Bonus = account?.arcade?.shop?.[62]?.bonus ?? 0;
-  const atom13Bonus = getAtomBonus(account, 'Silicon_-_Minehead_Money_Printer') ?? 0;
+  const atom13Bonus = getAtomBonus(account, 'Silicon_-_Minehead_Currency_Printer') ?? 0;
   const mealMineCurrBonus = getMealsBonusByEffectOrStat(account, null, 'MineCurr') ?? 0;
 
-  // a max 2x multiplier to mine currency gain. The companion at toolbox index 143 is
-  // "Rift_Jocund" (2x kills for portals/deathnote), which does not appear to be minehead-related.
-  // This mapping may be incorrect. Verify against actual companion data before shipping.
-  const companionMulti = Math.max(1, Math.min(2, isCompanionBonusActive(account, 143) ? 2 : 1));
+  // A max 2x multiplier to mine currency gain, from Boomy_Mine (143) ("2x Minehead Currency Gain").
+  // Pet Mart+: upgraded adds a flat +1 (CompLV2 flag) inside the outer max but outside the inner
+  // min - it deliberately lets the multiplier exceed the old 2x cap (upgraded effect is "3x").
+  const companionLvl2Bonus = isCompanionLvl2Active(account, 143) ? 1 : 0;
+  const companionMulti = Math.max(1, Math.min(2, isCompanionBonusActive(account, 143) ? 2 : 1) + companionLvl2Bonus);
+
+  // game: (1 + 100 * EventShopOwned(44) / 100) - a flat 2x once owned.
+  const eventShop44 = getEventShopBonus(account, 44);
+  // ROG bonus 3 is "Minehead Currency Gain"; only the selected one is ever above the 1x identity.
+  const outpostRogBonus = Math.max(1, getOutpostRogBonus(account, 3));
 
   const currencyGain =
     grid129Bonus
+    * (1 + eventShop44)
     * (1 + grid148Bonus / 100)
+    * outpostRogBonus
     * companionMulti
     * Math.min(3, 1 + getBonusQTY(6) / 100)
     * (1 + (
@@ -196,8 +205,10 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
     * (1 + getSushiBonus(account, 12) / 100)
     * (1 + getButtonBonus(account, 1) / 100);
 
-  // Currency/hr breakdown - each source shown as the multiplier it contributes;
-  // product of all sources reproduces currencyGain above.
+  // Currency/hr breakdown - each source shown as the multiplier it contributes. The Arcade Shop /
+  // Miney Farmey I/II/III entries share one additive bracket in currencyGain (as do Cooking Meal
+  // and Research Grid 147/166), so their product only reproduces currencyGain above when at most
+  // one term per bracket is nonzero - otherwise the cross terms make this an approximation.
   const getGridName = (idx: number) => (researchGridSquares?.[idx]?.name ?? `Grid ${idx}`).replace(/_/g, ' ');
   const currencyGainBreakdown = {
     statName: 'Currency / hr',
@@ -206,6 +217,8 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
       name: 'Multiplicative',
       sources: [
         { name: 'Companion Bonus', value: companionMulti },
+        { name: 'Event Shop', value: 1 + eventShop44 },
+        { name: 'Royal Guardian Outpost', value: outpostRogBonus },
         { name: 'Opponent Bonus (capped 3x)', value: Math.min(3, 1 + getBonusQTY(6) / 100) },
         { name: 'Arcade Shop', value: 1 + arcade62Bonus / 100 },
         { name: 'Atom Collider (Silicon)', value: 1 + atom13Bonus / 100 },
@@ -311,13 +324,17 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   const glimbo = glimboItemNames.map((itemName: any, idx: any) => {
     const trades = Number(glimboRaw[idx]) || 0;
     const costBase = Number(glimboCostBases[idx]) || 1;
-    // handleGlimbo_Cost: (1 + trades + 1.5*trades) * base^trades * eventDiscount * companionDiscount, floored if < 1e9
+    // handleGlimbo_Cost: the 1e9 threshold check runs BEFORE the companion discount,
+    // and the two branches use different floors - 0.2 when floored/under 1e9, 0.01 (was 0.2 pre-2.3.525)
+    // in the uncapped/floorless branch above it. Both floors are replicated as-is; only the second
+    // one changed in this patch.
     const eventDiscount = Math.max(0.1, 1 - (25 * getEventShopBonus(account, 38)) / 100);
+    const uncappedCost = (1 + trades + 1.5 * trades) * Math.pow(costBase, trades) * eventDiscount;
     // Companion 57 (w7b12 "Swap Meet 5x cheaper") reduces cost
     const companion57 = isCompanionBonusActive(account, 57) ? (account?.companions?.list?.at(57)?.bonus ?? 0) : 0;
-    const companionDiscount = Math.max(0.2, 1 - companion57 / 100);
-    const rawCost = (1 + trades + 1.5 * trades) * Math.pow(costBase, trades) * eventDiscount * companionDiscount;
-    const cost = rawCost < 1e9 ? Math.floor(Math.max(1, rawCost)) : rawCost;
+    const cost = uncappedCost < 1e9
+      ? Math.floor(Math.max(1, uncappedCost * Math.max(0.2, 1 - companion57 / 100)))
+      : uncappedCost * Math.max(0.01, 1 - companion57 / 100);
 
     const vaultIdx = glimboVaultIndices[idx] ?? -1;
     const vaultEntry = upgradeVault?.[vaultIdx];

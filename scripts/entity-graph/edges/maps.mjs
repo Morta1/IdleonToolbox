@@ -3,7 +3,7 @@
 // 'Filler' for the placeholder it uses everywhere. 'JungleZ' is map 3 naming itself, an unfinished
 // map, and occurs exactly once in the whole game bundle. Treating these as ids put 162 phantom
 // entries in the unresolved report.
-const NO_ENEMY = new Set(['Nothing', 'Z', 'Filler', 'JungleZ']);
+export const NO_ENEMY = new Set(['Nothing', 'Z', 'Filler', 'JungleZ']);
 
 export const mapEdges = ({ mapEnemiesArray, mapMonsterCounts, mapPortalDestinations, npcPlacements }) => {
   const edges = [];

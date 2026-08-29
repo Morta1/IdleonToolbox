@@ -15,8 +15,9 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, notateNumber, numberWithCommas } from '@utility/helpers';
 import { getKillCredit, getMinibosses, getMinibossHp } from '@parsers/misc/boneJoeCalculator';
+import { monsterImage } from '@utility/spriteImages';
 
 const MinibossHp = ({
                       pickles,
@@ -84,7 +85,7 @@ const MinibossHp = ({
               {minibosses.map(({ rawName, name, baseHp }) => <TableRow key={rawName}>
                 <TableCell>
                   <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <img src={`${prefix}afk_targets/${name}.png`} alt="" width={24} height={24}
+                    <img src={monsterImage(name)} alt="" width={24} height={24}
                          style={{ objectFit: 'contain' }}/>
                     {cleanUnderscore(name)}
                   </Stack>

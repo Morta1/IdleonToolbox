@@ -942,7 +942,18 @@
     "1400000000",
     "1600000000",
     "1800000000",
-    "2000000000"
+    "2000000000",
+    "5000000000.0",
+    "15000000000.0",
+    "60000000000.0",
+    "100000000000.0",
+    "400000000000.0",
+    "800000000000.0",
+    "2000000000000.0",
+    "5000000000000.0",
+    "30000000000000.0",
+    "500000000000000.0",
+    "10000000000000000.0"
   ],
   [
     "51",
@@ -1795,8 +1806,8 @@
     "186"
   ],
   [
-    "Summer_Event_v1.19",
-    "*The_Summer_Event_is_HERE!_Collect_50_coolers_from_mobs_every_day_for_event_items_and_a_free_play_at_the_Buried_Treasure_event_game!_@_*FOR_THIS_EVENT_ONLY,_if_you_kill_a_single_monster_you_get_a_unique_PET_BONUS_TOKEN!_Use_it_to_get_the_bonus_of_ANY_pet_you_want!!_If_you_ever_get_the_pet_later_by_buying_it_or_from_trading,_your_token_is_REFUNDED_and_you_can_use_it_on_a_different_bonus!_@_*New_Friend_Bonus,_exclusive_to_this_event,_the_EXTRA_KILLS_bonus!_Go_give_it_to_a_friend_in_need!_@_*New_Map,_with_a_new_monster!_The_GLOWFISH_is_the_toughest_mob_in_the_game_with_5,000T_crystal_HP,_but_their_passive_Research_EXP_makes_them_more_than_worth_farming!_@_*Added_touchable_grass_to_World_1_maps,_watch_out!_@_*Friend_Bonus_max_is_increased_beyond_Lv._12000!_@_*Buffed_many_upgrades_in_Cavern_18,_including_Killionaire,_Slop_Drop,_Droplier,_and_Droplier+_@_*Fixed_the_Cardiovascular_and_Pulsation_star_talent_book_drops_from_W1_Minibosses.",
+    "Royal_Guardian_v1.20",
+    "*The_newest_masterclass_is_here,_the_ROYAL_GUARDIAN!_Unlock_them_by_completing_Masterius'_quest_in_World_6_on_your_Divine_Knight._@_*As_Royal_Guardian,_you_must_expand_the_Royal_Kingdom_across_all_of_IdleOn,_building_Outposts_and_recruiting_workers,_traders,_militia,_and_more!_@_*Spend_your_Kingdom's_resources_on_70_unique_upgrades_in_the_Royal_Armory,_many_of_which_unlock_new_mechanics_and_huge_bonuses_to_the_rest_of_IdleOn!_@_*New_Mechanic,_Royal_Statues!_Found_within_the_Royal_Castle,_these_give_overpowered_multiplicative_bonuses!_@_*15_new_Royal_Guardian_talents!_@_*New_Miniboss,_Verminous!_Find_them_in_large_swarms_beneath_the_floor_of_the_Royal_Castle._@_*New_Spelunking_Cavern,_the_EXILED_THRONE!_@_*15_new_Spelunking_Shop_upgrades,_including_the_new_MANIC_MODE!_@_*1_New_Research_Grid_upgrade_at_L3,_1_new_Zenith_Market_upgrade,_4_new_Sushi_Tiers,_1_new_Giant_Doodlefish_advice_to_buy,_and_1_new_Orange_Alchemy_bubble!_@_*Boss_Raids_added_to_The_Grand_Tournament!",
     "*Le Monde 6 est arrivé, avec tout ce que vous pourriez souhaiter ! De nouveaux monstres, de nouvelles compétences, de nouvelles cartes, de nouveaux tampons, de nouvelles bulles, de nouvelles fioles, de nouvelles statues, de nouveaux équipements, tellement de nouveautés ! @ *Vous pouvez découvrir le Monde 6 vous-même, à la place, ces notes de mise à jour concernent tous les changements de cette mise à jour non liés au Monde 6. @ *Nouvel affichage des pièces ajouté ! Collectez 100 pièces Godshard pour voir ce que je veux dire ! @ *Le succès Trial by Time peut désormais être complété à n'importe quelle vitesse de déplacement. @ *Mise à l'échelle du bonus ajustée sur la 6ème bulle de chaque couleur. C'est un buff pour toute personne en dessous du niveau de bulle 300, sinon c'est un nerf. @ * Correction du problème où les archers glissaient lorsqu'ils essayaient de combattre des foules protégées. @ *Les attaques au canon de Siege Breaker apparaissent désormais derrière lui.",
     "*Welt 6 ist da, mit allem, was Sie sich nur wünschen können! Neue Monster, neue Fähigkeiten, neue Karten, neue Stempel, neue Blasen, neue Fläschchen, neue Statuen, neue Ausrüstung, so viel neues Zeug! @ *Sie können Welt 6 selbst entdecken. Stattdessen gelten diese Patchnotizen für alle Änderungen in diesem Update, die nicht mit Welt 6 zusammenhängen. @ *Neue Münzanzeige hinzugefügt! Sammle 100 Godshard-Münzen, um zu sehen, was ich meine! @ *Die Errungenschaft „Prüfung durch Zeit“ kann jetzt bei jeder Bewegungsgeschwindigkeit abgeschlossen werden. @ *Bonusskalierung für die 6. Blase jeder Farbe angepasst. Es ist ein Buff für alle unter Bubble Lv 300, andernfalls ist es ein Nerf. @ *Das Problem wurde behoben, bei dem Bogenschützen herumrutschten, wenn sie versuchten, gegen abgeschirmte Mobs zu kämpfen. @ *Die Kanonenangriffe von Belagerungsbrecher erscheinen jetzt hinter ihm.",
     "*원하는 모든 것을 갖춘 월드 6이 도착했습니다! 새로운 몬스터, 새로운 기술, 새로운 지도, 새로운 우표, 새로운 거품, 새로운 약병, 새로운 조각상, 새로운 장비, 너무나 많은 새로운 것들! @ *월드 6를 직접 발견하실 수 있습니다. 대신 이 패치 노트는 월드 6과 관련되지 않은 이번 업데이트의 모든 변경 사항에 대한 것입니다. @ *새로운 코인 표시가 추가되었습니다! 100개의 갓샤드 동전을 모아 무슨 뜻인지 알아보세요! @ *이제 모든 이동 속도에서 시간별 시험 업적을 완료할 수 있습니다. @ *각 색상의 6번째 버블에 대한 보너스 스케일링을 조정했습니다. 버블 Lv 300 미만인 사람에게는 버프이고, 그렇지 않으면 너프입니다. @ *방어막이 있는 몹과 싸울 때 궁수가 미끄러지는 문제를 수정했습니다. @ *Siege Breaker의 대포 공격이 이제 그의 뒤에서 생성됩니다.",

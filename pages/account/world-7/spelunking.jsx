@@ -37,7 +37,11 @@ const Spelunking = () => {
     overstimRate,
     overstimLevel,
     overstimCurrent,
-    charactersAtMaxStamina
+    charactersAtMaxStamina,
+    overstimStack,
+    overstimQtyREQ2,
+    manicModeActive,
+    spelunkingEfficiency
   } = state?.account?.spelunking || {};
   const denominator = getAmberDenominator(state?.account);
   const amberFoundValue = currentAmber < 1e9 ? commaNotation(currentAmber / denominator) : notateNumber(currentAmber / denominator, "Big");
@@ -102,6 +106,13 @@ const Spelunking = () => {
       </CardTitleAndValue>
       <CardTitleAndValue title={'Discoveries'} value={`${discoveriesCount} / ${maxDiscoveries}`} />
       <CardTitleAndValue title={'Grand Discoveries'} value={`${totalGrandDiscoveries}`} />
+      <CardTitleAndValue title={'Spelunking Efficiency'} value={notateNumber(spelunkingEfficiency, "Big")} />
+      <CardTitleAndValue title={'Overstim Stack'}>
+        <Tooltip title={`Next stack at ${commaNotation(overstimQtyREQ2)}`}>
+          <Typography>{notateNumber(overstimStack, "Big")}</Typography>
+        </Tooltip>
+      </CardTitleAndValue>
+      <CardTitleAndValue title={'Manic Mode'} value={manicModeActive ? 'Active' : 'Inactive'} />
 
     </Stack>
 

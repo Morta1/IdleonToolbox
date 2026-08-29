@@ -2,21 +2,25 @@ import { useContext, useState } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import Tabber from '../../../components/common/Tabber';
 import { NextSeo } from 'next-seo';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
 import ItemDisplay from '@components/common/ItemDisplay';
 import AutoGrid from '@components/common/AutoGrid';
 import { CardTitleAndValue } from '@components/common/styles';
+import EmptyState from '@components/common/EmptyState';
+import useTabIndex from '@hooks/useTabIndex';
+
+const tabs = [1, 2, 3, 4, 5, 6].map((ind) => `Tab ${ind}`);
 import { getGoldenFoodBonus } from '@parsers/misc';
 
 const Tasks = () => {
   const { state } = useContext(AppContext);
-  const [world, setWorld] = useState(0);
+  const [world] = useTabIndex(tabs);
+  const [hideCompleted, setHideCompleted] = useState(false);
 
-  const handleWorldChange = (world) => {
-    setWorld(world);
-  }
+  const worldUnlocks = state?.account?.taskUnlocks?.taskUnlocksList?.[world] ?? [];
+  const visibleUnlocks = worldUnlocks.filter(({ unlocked }) => !(hideCompleted && unlocked));
 
   return (<>
     <NextSeo
@@ -29,10 +33,17 @@ const Tasks = () => {
       <CardTitleAndValue title={'Next unlock'}
                          value={`${numberWithCommas(state?.account?.taskUnlocks?.currentPoints)} / ${numberWithCommas(state?.account?.taskUnlocks?.pointsReq)} `}/>
       <CardTitleAndValue title={'Unlocked recipes'} value={state?.account?.taskUnlocks?.unlockedRecipes}/>
+      <FormControlLabel
+        control={<Checkbox checked={hideCompleted}
+                           onChange={(e) => setHideCompleted(e.target.checked)}/>}
+        label={'Hide completed'}/>
     </Stack>
-    <Tabber tabs={[1, 2, 3, 4, 5, 6].map((ind) => `Tab ${ind}`)} onTabChange={handleWorldChange}>
+    <Tabber tabs={tabs} keepChildren>
       <Stack index={world} direction={'row'} flexWrap={'wrap'} gap={3} justifyContent={'center'}>
-        {state?.account?.taskUnlocks?.taskUnlocksList?.[world]?.map(({ unlocks, unlocked }, index) => {
+        {visibleUnlocks?.length === 0
+          ? <EmptyState hideCompleted={hideCompleted && worldUnlocks.length > 0} label={'unlocks'}/>
+          : null}
+        {visibleUnlocks?.map(({ unlocks, unlocked }, index) => {
           return <Card key={'key' + index}>
             <CardContent sx={{
               opacity: unlocked ? 1 : .5,

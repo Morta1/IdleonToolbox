@@ -3,7 +3,7 @@ import { crafts, items, stamps } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { getTalentBonus } from '@parsers/talents';
 import { calculateItemTotalAmount, flattenCraftObject } from '@parsers/items';
-import { getEventShopBonus, getHighestCapacityCharacter, isBundlePurchased } from '@parsers/misc';
+import { getEventShopBonus, getHighestCapacityCharacter, isBundlePurchased, isEquipmentItem } from '@parsers/misc';
 import { getSigilBonus, getVialsBonusByEffect } from '@parsers/world-2/alchemy';
 import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
@@ -38,7 +38,13 @@ export const parseStamps = (stampLevelsRaw: any, stampMaxLevelsRaw: any, account
       const rawMaxLevel = stampMaxLevelsRaw?.[categoryIndex]?.[index];
       const maxLevel = rawMaxLevel != null ? parseFloat(rawMaxLevel) : 0;
       const requiredItem = stampDetails?.itemReq?.[0];
-      const materials = flattenCraftObject(crafts[requiredItem?.name]);
+      // Craft breakdown only for gear: equipment can't be stockpiled in the chest, so the cost has to
+      // be judged by its sub-materials. Every other required item (food, resources) stacks and is
+      // checked against the amount actually stored - flattening its craft would both mislabel the
+      // stamp as an equipment one and check the wrong items.
+      const materials = isEquipmentItem((items as any)?.[requiredItem?.rawName])
+        ? flattenCraftObject(crafts[requiredItem?.name])
+        : [];
       const ownedMats = account?.storage?.list?.reduce((sum: any, { rawName: storageRawName, amount }: any) => {
         if (storageRawName !== requiredItem?.rawName) return sum;
         return sum + (amount || 0);

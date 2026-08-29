@@ -992,23 +992,23 @@
     },
     {
       "bubbleIndex": "_33",
-      "bubbleName": "BUBBLE",
-      "x1": 99,
+      "bubbleName": "ROYAL_RICHES",
+      "x1": 20,
       "x2": 40,
       "func": "decay",
-      "desc": "It's_just_a_normal_bubble._It_doesn't_have_a_bonus_yet,_it_just_floats_and_is_round.",
+      "desc": "+{%_Resource_Collection_Rate_for_all_of_your_Royal_Guardian's_Outposts",
       "stat": "W14",
       "cauldron": "power",
       "itemReq": [
         {
-          "rawName": "FillerMaterial",
-          "name": "Not_Yet",
-          "baseCost": 2500
+          "rawName": "w7B2",
+          "name": "Bubble_N_Chains",
+          "baseCost": 10000
         },
         {
           "rawName": "Liquid4",
           "name": "Liquid4",
-          "baseCost": 6
+          "baseCost": 20
         },
         {
           "rawName": "Blank",
@@ -1033,12 +1033,12 @@
         {
           "rawName": "FillerMaterial",
           "name": "Not_Yet",
-          "baseCost": 2500
+          "baseCost": 50000
         },
         {
           "rawName": "Liquid4",
           "name": "Liquid4",
-          "baseCost": 6
+          "baseCost": 50
         },
         {
           "rawName": "Blank",

@@ -4,6 +4,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { prefix } from '@utility/helpers';
 import { getLeaderboard } from '../../../../../firebase';
 import { companions as companionsData } from '@website-data';
+import { monsterImage } from '@utility/spriteImages';
 
 const MEDAL_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32'];
 
@@ -69,7 +70,7 @@ const LeaderboardRow = ({ rank, name, points, companions, totalTourPower, isPlay
               key={i}
               width={32} height={32}
               style={{ objectFit: 'contain' }}
-              src={`${prefix}afk_targets/${c.name}.png`}
+              src={monsterImage(c.name)}
               title={c.name}
               alt={c.name}
             />

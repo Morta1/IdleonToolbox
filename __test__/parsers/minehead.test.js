@@ -38,6 +38,17 @@ describe('getMinehead', () => {
     expect(result.upgrades).toHaveLength(liveCount(mineheadUpgrades));
     expect(result.upgrades[29].level).toBe(0);
   });
+
+  // Regression: the atom lookup used the wrong website-data name ('...Money_Printer' instead of
+  // '...Currency_Printer'), so getAtomBonus's `atom?.name === name` filter never matched and the
+  // `?? 0` fallback silently zeroed out atom 13's 1.7x factor (41% of live currency/hr). Assert
+  // non-zero so a re-typo'd name fails loudly instead of quietly collapsing to the identity.
+  it('resolves a non-zero bonus for atom 13 (Silicon - Minehead Currency Printer)', () => {
+    const account = { atoms: { atoms: [{ name: 'Silicon_-_Minehead_Currency_Printer', level: 70, baseBonus: 1 }] } };
+    const result = getMinehead(undefined, account, {});
+    const atomSource = result.currencyGainBreakdown.categories[0].sources.find((s) => s.name === 'Atom Collider (Silicon)');
+    expect(atomSource.value).toBeCloseTo(1.7);
+  });
 });
 
 const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];

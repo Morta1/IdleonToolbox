@@ -4,6 +4,54 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.69',
+    'gameVer': '2.3.525',
+    'date': '29/08/2026',
+    'features': [
+      'Royal Guardian: a new page for the masterclass, with tabs for Armory, Outposts, Resources, Upgrade Optimizer, Royal Statues and Orblet Market',
+      'Royal Guardian: outposts can be viewed as a kingdom map showing which resource each one is connected to, or as cards. Empty resources are dimmed so you can see at a glance which outposts are collecting nothing',
+      'Royal Guardian is now a full class on the site, with its own characters, talents and build pages',
+      'Dashboard: new Royal Guardian alerts for outposts on an empty resource, outposts with nothing connected, idle support camps, unspent PTS, maps ready to claim, idle units and the daily resource refill, plus a timer for when your connected resources run out',
+      'Wiki: a new section covering everything in the game. Search or browse items, monsters, NPCs, worlds, classes, talents, achievements, pets, bundles, bubbles and vials, and each page shows what drops it, what it crafts into, who wants it and where to find it',
+      'Pets: companions upgraded at Pet Mart+ now show their upgraded bonus and a Pet Mart+ tag, and every bonus on the site uses the upgraded value',
+      'Spelunking: the Exiled Throne chapter, Manic Mode, Overstim stacks and the new shop upgrades are in. The page now also shows your spelunking efficiency, overstim stack and whether Manic Mode is on',
+      'Research: the third grid is now shown',
+      'Research: added your research level with EXP progress, and how long until the next level, both normally and with Research Registrant',
+      'Statues: each statue tooltip now shows its Statue Flair multiplier to statue EXP',
+      'Tome: added Total Royal Statue LV, Royal Guardian Outposts Built and Total Resource Grade',
+      'Killroy: the schedule now highlights monsters with under 100 kills, so you can spot equinox challenge opportunities months ahead',
+      'Active Stuff Calculator: new Orblets section for Royal Guardians, showing how many orblets you gained and your rate per hour and per day',
+      'Divinity: new Styles tab showing which characters use each meditation style, without hovering every god card',
+      'Task Board: Merits, Tasks, Task Unlocks and Achievements can now hide completed entries. Achievements also shows how many you have per world and overall, and Tasks shows your total task levels',
+      'Legend Talents: talents affected by the Legendary Yellow, Red, Brown and Green Fever now show which fever raises their max level and by how much, and can be filtered by colour',
+      'Dashboard: clicking an alert now opens the alert configuration on that alert\'s own setting, instead of having to find it in the list'
+    ],
+    'fixes': [
+      'Royal Guardian: the Royal Marble armory upgrade showed a placeholder instead of its drop chance. It now shows the real 1 in N chance to drop Marble',
+      'Damage and drop rate now include the Royal Statue bonuses, the Graded Rate talent, the Royal Guardian family bonus, the new Magician Grub pet and the Fire Hardhat spelunking upgrade',
+      'Kangaroo: Poppy\'s fish gain was missing its Meritocracy vote bonus, so it read lower than in game',
+      'Equinox: the bar fill requirement is no longer rounded, and now includes the Farmer Joe armory upgrade',
+      'Pets: the free pet claim timer is now daily instead of weekly',
+      'Minehead: Glimbo trade costs used the wrong discount floor once trades got expensive',
+      'Gallery and Sailing: RIP Tide and Glimbo were not counting their Pet Mart+ upgrade',
+      'Arcade: the two upgrades added this patch now show the correct cost',
+      'Sushi: the tier list comes from game data instead of a fixed cap, so new tiers show up on their own',
+      'Game images no longer use pixelated rendering, which was distorting some sprites',
+      'Tome: the score now matches the game exactly. Star talent points and statue levels are read from your active character, locked talents no longer subtract from talent max levels, and delivery boxes are rounded the way the game rounds them',
+      'Dashboard: Clickers timers now share one cutoff. Anything over a year away shows "A long time" with the exact date on hover, instead of some timers counting down for thousands of days',
+      'Stamps: the Out of reach filter now covers equipment stamps too, so gear stamps you can\'t afford even at max reduction hide with it. The Equipments filter keeps showing the ones you can still reach'
+    ]
+  },
+  {
+    'ver': '3.3.68',
+    'gameVer': '2.3.523',
+    'date': '28/08/2026',
+    'features': [],
+    'fixes': [
+      'Stamps: Potion Stamp is no longer treated as an equipment stamp, so the Equipments filter stops hiding it. Its cost is now checked against your stored food instead of that food\'s craft materials'
+    ]
+  },
+  {
     'ver': '3.3.67',
     'gameVer': '2.3.523',
     'date': '25/08/2026',

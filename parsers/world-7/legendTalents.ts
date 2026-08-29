@@ -1,6 +1,6 @@
 import type { IdleonData, Account } from '../types';
 import { commaNotation, notateNumber, tryToParse } from '@utility/helpers';
-import { generalSpelunky, legendTalents } from '@website-data';
+import { generalSpelunky, legendTalents, researchGridSquares } from '@website-data';
 import { getGildedBoostioBonus } from '@parsers/world-3/construction';
 import { getEventShopBonus, getGuaranteedCrystalMobs, isCompanionBonusActive } from '@parsers/misc';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
@@ -13,21 +13,31 @@ export const getLegendTalents = (idleonData: IdleonData, accountData: Account = 
   return parseLegendTalents(spelunkingRaw, accountData, charactersData);
 }
 
-const LEGEND_TALENT_MAX_LEVEL_GROUPS: { indices: Set<number>; gridIndex: number }[] = [
-  { indices: new Set([2, 13, 3, 18, 5]), gridIndex: 130 },
-  { indices: new Set([9, 23, 33, 1, 16]), gridIndex: 131 },
-  { indices: new Set([20, 31, 19, 27, 8]), gridIndex: 132 },
-  { indices: new Set([34, 30, 29, 6, 26]), gridIndex: 152 }
+// The "Legendary <color> Fever" research grid squares each raise the max level of 5 legend talents by +1 per square level.
+const LEGEND_TALENT_MAX_LEVEL_GROUPS: { indices: Set<number>; gridIndex: number; color: string }[] = [
+  { indices: new Set([2, 13, 3, 18, 5]), gridIndex: 130, color: 'Yellow' },
+  { indices: new Set([9, 23, 33, 1, 16]), gridIndex: 131, color: 'Red' },
+  { indices: new Set([20, 31, 19, 27, 8]), gridIndex: 132, color: 'Brown' },
+  { indices: new Set([34, 30, 29, 6, 26]), gridIndex: 152, color: 'Green' }
 ];
 
-const getLegendTalentMaxLevel = (talentIndex: number, baseMax: number, accountData: Account): number => {
-  for (const { indices, gridIndex } of LEGEND_TALENT_MAX_LEVEL_GROUPS) {
-    if (indices.has(talentIndex)) {
-      const gridBonus = getResearchGridBonus(accountData, gridIndex, 1);
-      return Math.floor(gridBonus + baseMax);
-    }
-  }
-  return baseMax;
+export interface LegendTalentFever {
+  color: string;
+  gridIndex: number;
+  level: number;
+  maxLevel: number;
+}
+
+const getLegendTalentFever = (talentIndex: number, accountData: Account): LegendTalentFever | null => {
+  const group = LEGEND_TALENT_MAX_LEVEL_GROUPS.find(({ indices }) => indices.has(talentIndex));
+  if (!group) return null;
+  const square = (researchGridSquares as any[])?.[group.gridIndex];
+  return {
+    color: group.color,
+    gridIndex: group.gridIndex,
+    level: Math.floor(getResearchGridBonus(accountData, group.gridIndex, 1) || 0),
+    maxLevel: Number(square?.maxLv ?? 3)
+  };
 };
 
 const parseLegendTalents = (spelunkingRaw: any, accountData: Account = {} as Account, charactersData: any[] = []) => {
@@ -37,7 +47,8 @@ const parseLegendTalents = (spelunkingRaw: any, accountData: Account = {} as Acc
   const talents = legendTalents?.map((legendTalent: any, index: number) => {
     const level = legendTalentsRaw?.[index] || 0;
     const bonus = legendTalent.x2 * level;
-    const maxLevel = getLegendTalentMaxLevel(index, legendTalent.x1, accountData);
+    const fever = getLegendTalentFever(index, accountData);
+    const maxLevel = Math.floor(legendTalent.x1 + (fever?.level ?? 0));
 
     // Process description with placeholders
     const processedDescription = processLegendTalentDescription(
@@ -54,6 +65,8 @@ const parseLegendTalents = (spelunkingRaw: any, accountData: Account = {} as Acc
       index: order?.indexOf(index + ''),
       bonus,
       maxLevel,
+      baseMaxLevel: legendTalent.x1,
+      fever,
       description: processedDescription || legendTalent.description
     }
   })

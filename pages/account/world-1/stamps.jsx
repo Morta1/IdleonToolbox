@@ -120,19 +120,19 @@ const Stamps = () => {
     if (!hasMoney && mode === 'money') {
       return { border: 'warning.light', type: 'money' };
     }
-    // Equipment cost before every material state: `materials` is only non-empty when the required
-    // item is craftable gear, and that gate outranks how many sub-materials happen to be on hand.
-    // Checked later it would almost never win, since gear costs run into the hundreds and the
-    // stamp would already have been typed 'impossible'/'player'/'materials' - which is why the
-    // Equipments legend switch only ever hid the handful of stamps whose craft was affordable.
-    else if (materials.length > 0) {
-      return { border: 'grey', type: 'equipments' };
-    }
-    // Out of reach before the softer "missing X" states: it's a strict refinement of 'player'
-    // (no reducer value fits the cost in carry capacity), so checked later it would never win.
-    // Stored materials are deliberately not part of it - a material shortage is 'materials'.
+    // Out of reach outranks everything below, gear cost included: no reducer value fits the cost in
+    // carry capacity, so nothing about the cost's shape is actionable yet. Keeping gear stamps typed
+    // 'equipments' here made the Out of reach switch unable to hide them, and left 'Equipments'
+    // meaning "gear cost, reachable or not". Stored materials are deliberately not part of it - a
+    // material shortage is 'materials'.
     else if (mode === 'material' && isOutOfReach(minReduction)) {
       return { border: 'error.dark', type: 'impossible' };
+    }
+    // Equipment cost before every remaining material state: the parser only fills `materials` when the
+    // required item is gear (isEquipmentItem), and that gate outranks how many sub-materials happen to
+    // be on hand.
+    else if (materials.length > 0) {
+      return { border: 'grey', type: 'equipments' };
     }
     else if (!enoughPlayerStorage && mode === 'material') {
       return { border: '#e3e310', type: 'player' }

@@ -26,7 +26,7 @@ const LiquidIcon = ({ liquid, size = 18 }) => {
     alt={''}
     width={size}
     height={size}
-    style={{ objectFit: 'contain', imageRendering: 'pixelated', flexShrink: 0 }}
+    style={{ objectFit: 'contain', flexShrink: 0 }}
   />;
 };
 

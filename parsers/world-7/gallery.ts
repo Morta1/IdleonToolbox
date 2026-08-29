@@ -6,7 +6,8 @@ import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import {
   getEventShopBonus,
   getKillRoyShopBonus,
-  isCompanionBonusActive
+  isCompanionBonusActive,
+  isCompanionLvl2Active
 } from '@parsers/misc';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getBubbleBonus } from '@parsers/world-2/alchemy';
@@ -356,11 +357,13 @@ export const getLv3PodiumsOwned = (account: any) => {
 }
 
 export const getLv4PodiumsOwned = (account: any) => {
-  const eventShopBonus = getEventShopBonus(account, 29);
   const companionBonus = isCompanionBonusActive(account, 28) ? account?.companions?.list?.at(28)?.bonus : 0;
+  // Pet Mart+: RIP_Tide (28) upgraded adds another Lv4 podium slot (CompLV2 flag).
+  const companionLvl2Bonus = isCompanionLvl2Active(account, 28) ? 1 : 0;
+  const eventShopBonus = getEventShopBonus(account, 29);
   const artifact = isArtifactAcquired(account?.sailing?.artifacts, 'Deathskull')?.acquired ?? 0;
   const sailingBonus = Math.min(1, Math.floor(artifact / 6));
-  return Math.min(1, companionBonus) + eventShopBonus + sailingBonus;
+  return Math.min(1, companionBonus) + Math.min(1, companionLvl2Bonus) + eventShopBonus + sailingBonus;
 }
 
 export const getAllTrophies = (rawSpelunk: any, account: any, character?: any) => {

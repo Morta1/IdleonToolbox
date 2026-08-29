@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Chip, Link, Stack, Typography } from '@mui/material';
 import Tooltip from '@components/Tooltip';
+import InfoIcon from '@mui/icons-material/Info';
 import { EntityIcon } from './EntityPanel';
 import CoinAmount, { isCoin } from './CoinAmount';
 import { itemTooltip } from './ItemTooltip';
@@ -116,14 +117,18 @@ const NpcQuestRow = ({ index, edge, other: quest, otherId, onNavigate, hrefFor }
       >
         {entityName(quest)}
       </Link>
-      {quest.difficulty ? <Tooltip title={'The game\'s own difficulty rating for this quest'}>
+      {/* The gloss hangs off an icon rather than off the chip: a chip does not look like
+          something you can hover, so the scale it is measured on was invisible. */}
+      {quest.difficulty ? <Stack direction={'row'} gap={0.5} alignItems={'center'}>
         <Chip
           size={'small'}
           variant={'outlined'}
           label={`Difficulty ${quest.difficulty}/${DIFFICULTY_MAX}`}
-          sx={{ cursor: 'help' }}
         />
-      </Tooltip> : null}
+        <Tooltip title={'The game\'s own difficulty rating for this quest'}>
+          <InfoIcon sx={{ fontSize: 14, cursor: 'pointer' }}/>
+        </Tooltip>
+      </Stack> : null}
     </Stack>
 
     {/* Everything below the title lines up under it, past the number. */}

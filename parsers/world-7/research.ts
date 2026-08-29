@@ -12,7 +12,7 @@ import { getZenithBonus } from '@parsers/world-1/statues';
 import { getSlabBonus, isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
-import { getHighestCharacterSkill, isCompanionBonusActive, getEventShopBonus } from '@parsers/misc';
+import { getHighestCharacterSkill, isCompanionBonusActive, isCompanionLvl2Active, getEventShopBonus } from '@parsers/misc';
 import { calcCardBonus, getCardBonusByEffect } from '@parsers/cards';
 import { getMineheadBonusQTY, getMineheadGlimboTotalTrades } from '@parsers/world-7/minehead';
 import { getStickerBonus } from '@parsers/world-6/farming';
@@ -23,7 +23,9 @@ import { getKillRoyShopBonus } from '@parsers/misc';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
+import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
+import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 
 // Save key for Research: game may use idleonData.Research or similar
 const getRawResearch = (idleonData: any) => {
@@ -82,15 +84,18 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
   const gridPTSpent = gridLevels.reduce((sum: any, level: any) => sum + (Number(level) || 0), 0);
   const gridBonus50Lv = getResearchGridBonusInternal(account, research, 50, 1);
   const companion153 = isCompanionBonusActive(account, 153) ? (account?.companions?.list?.at(153)?.bonus ?? 0) : 0;
+  // Pet Mart+: Rift_Stalker (153) upgraded adds another 5 Research grid points earned (CompLV2 flag * 5).
+  const companion153Lvl2Bonus = isCompanionLvl2Active(account, 153) ? 5 : 0;
   const fangAcquired = isArtifactAcquired(account?.sailing?.artifacts, 'Fang_of_the_Gods')?.acquired ?? 0;
   const gridPTSearned = Math.floor(
-    researchLevel + (10 * companion153 + Math.floor(researchLevel / 10) * Math.round(1 + (Math.min(1, Math.floor(researchLevel / 60)) + gridBonus50Lv)) + getSushiBonus(account, 3) + getSushiBonus(account, 13) + Math.min(10, Math.round(fangAcquired)))
+    researchLevel + (10 * companion153 + companion153Lvl2Bonus + Math.floor(researchLevel / 10) * Math.round(1 + (Math.min(1, Math.floor(researchLevel / 60)) + gridBonus50Lv)) + getSushiBonus(account, 3) + getSushiBonus(account, 13) + Math.min(10, Math.round(fangAcquired)))
   );
   const gridPTSavailable = Math.round(gridPTSearned - gridPTSpent);
 
   // Map grid index -> shape type (0=Magnifying Glass (Research EXP), 1=Optical Monocle (Insight), 2=Kaleidoscope). Game stores cell->shape in raw[1], type in raw[5][4*shapeIndex+3].
   const gridIndexToPlacementType: Record<number, any> = {};
-  for (let gridCellIndex = 0; gridCellIndex < 240; gridCellIndex++) {
+  const gridCellCount = (researchGridSquares || []).length;
+  for (let gridCellIndex = 0; gridCellIndex < gridCellCount; gridCellIndex++) {
     const shapeIndexOnCell = gridShapeIndex[gridCellIndex];
     if (shapeIndexOnCell != null && Number(shapeIndexOnCell) >= 0) {
       const lensType = shapePlacements[4 * shapeIndexOnCell + 3];
@@ -150,6 +155,21 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
     researchEXPrateTOT += getResearchEXPrateObj(account, research, obsIndex);
   }
   researchEXPrateTOT *= researchEXPmulti;
+
+  // Research EXP is account-wide: giveEXP(20, ...) adds the same amount to every character, so any
+  // character's Exp0[20] holds the same value. Take the max in case a character entry is stale.
+  const researchSkills = (characters ?? [])
+    .map(({ skillsInfo }: any) => skillsInfo?.research)
+    .filter((skill: any) => skill);
+  const researchEXP = Math.max(0, ...researchSkills.map(({ exp }: any) => exp ?? 0));
+  const researchEXPreq = Math.max(0, ...researchSkills.map(({ expReq }: any) => expReq ?? 0));
+  const researchEXPleft = Math.max(0, researchEXPreq - researchEXP);
+  const researchEXPpercent = researchEXPreq > 0 ? Math.min(100, (researchEXP / researchEXPreq) * 100) : 0;
+  // Registering for the tournament banks 12hrs of research gains, once per tournament day
+  // (event shop 46 -> Research[7][3] + 43200), so daily registration is worth a flat 1.5x rate.
+  const researchRegistrantOwned = getEventShopBonus(account, 46) ? 1 : 0;
+  const timeToLevel = researchEXPrateTOT > 0 ? researchEXPleft / researchEXPrateTOT : null;
+  const timeToLevelRegistrant = researchEXPrateTOT > 0 ? researchEXPleft / (researchEXPrateTOT * 1.5) : null;
 
   const gridBonus51Lv = getResearchGridBonusInternal(account, research, 51, 1);
   const gridBonus90Lv = getResearchGridBonusInternal(account, research, 90, 1);
@@ -304,7 +324,13 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
     nextUnlockResearchLv,
     gridCanWeUseButton0,
     gridCanWeUseButton1,
-    researchLevel
+    researchLevel,
+    researchEXP,
+    researchEXPreq,
+    researchEXPpercent,
+    researchRegistrantOwned,
+    timeToLevel,
+    timeToLevelRegistrant
   };
 };
 
@@ -527,7 +553,8 @@ function getResearchGridCanSelect(research: any, gridIndex: any) {
   const name = square?.name;
   if ((gridIndex % 20 >= 9 && gridIndex % 20 <= 10 && gridIndex >= 100 && gridIndex <= 140) || level >= 1) return true;
   if (name === 'Name') return false;
-  const clampGridIndex = (index: any) => Math.max(0, Math.min(239, Math.round(index)));
+  const lastGridIndex = (researchGridSquares || []).length - 1;
+  const clampGridIndex = (index: any) => Math.max(0, Math.min(lastGridIndex, Math.round(index)));
   if (gridIndex >= 20 && (Number(gridLevels[clampGridIndex(gridIndex - 20)]) || 0) >= 1) return true;
   if (gridIndex % 20 !== 0 && (Number(gridLevels[clampGridIndex(gridIndex - 1)]) || 0) >= 1) return true;
   if (gridIndex % 20 !== 19 && (Number(gridLevels[clampGridIndex(gridIndex + 1)]) || 0) >= 1) return true;
@@ -562,6 +589,9 @@ function getResearchEXPmulti(account: any, research: any) {
   const eggrollOverflow = Math.max(0, calcCardBonus(account?.cards?.Eggroll) - 15);
   const glowfishOverflow = Math.max(0, calcCardBonus(account?.cards?.Glowfish) - 20);
   const cardBonus = cardResearchBonus + cardGalleryBonus - eggrollOverflow - glowfishOverflow;
+  // game: ShopUpgBonus(63, 0) - Spelunking shop upgrade, not a card bonus; it just sits as the
+  // last term of the same additive sum right after the card terms (task D5).
+  const spelunkingShopUpg63 = getSpelunkingBonus(account, 63);
   const arcade63 = account?.arcade?.shop?.[63]?.bonus ?? 0;
   const grid70 = getResearchGridBonusInternal(account, research, 70, 0);
   const grid31 = getResearchGridBonusInternal(account, research, 31, 0);
@@ -589,18 +619,24 @@ function getResearchEXPmulti(account: any, research: any) {
     grid31 +
     grid51 +
     grid94_2 +
-    prehistoricSetBonus;
+    prehistoricSetBonus +
+    spelunkingShopUpg63;
 
   const additiveFactor = 1 + additive / 100;
   const grid70Factor = 1 + grid70 / 100;
   const companion153 = isCompanionBonusActive(account, 153) ? (account?.companions?.list?.at(153)?.bonus ?? 0) : 0;
-  const companionFactor = Math.max(1, (1 + companion52) * (1 + companion153));
+  // Pet Mart+: Rift_Stalker (153) upgraded adds +1 (CompLV2 flag) into its own factor; Neonscale (54)
+  // upgraded contributes a brand new 1.15x factor (1 + 0.15 * CompLV2 flag).
+  const companion153Lvl2Bonus = isCompanionLvl2Active(account, 153) ? 1 : 0;
+  const companion54Lvl2Factor = 1 + 0.15 * (isCompanionLvl2Active(account, 54) ? 1 : 0);
+  const companionFactor = Math.max(1, (1 + companion52) * (1 + companion153 + companion153Lvl2Bonus) * companion54Lvl2Factor);
   const nonstopStudies = getEquinoxBonus(account?.equinox?.upgrades, 'Nonstop_Studies');
   const nonstopFactor = 1 + nonstopStudies / 100;
   const holesObject = account?.hole?.holesObject;
   const greenWaterFactor = 1 + getFountainBonusTotal(holesObject, 2, 16) / 100; // Pen N Paper (Green Water)
   const cglunkoFactor = 1 + getCglunkoBonus(account, 11) / 100; // Researchy (Crystal Glunko Cove)
-  const value = additiveFactor * grid70Factor * nonstopFactor * companionFactor * (1 + getSushiBonus(account, 0) / 100) * (1 + getButtonBonus(account, 0) / 100) * killroyResearchBonus * greenWaterFactor * cglunkoFactor;
+  const outpostRogFactor = Math.max(1, getOutpostRogBonus(account, 1));
+  const value = additiveFactor * grid70Factor * nonstopFactor * companionFactor * (1 + getSushiBonus(account, 0) / 100) * (1 + getButtonBonus(account, 0) / 100) * killroyResearchBonus * greenWaterFactor * cglunkoFactor * outpostRogFactor;
 
   const breakdown = {
     statName: 'Research EXP Multi',
@@ -626,7 +662,8 @@ function getResearchEXPmulti(account: any, research: any) {
           { name: 'Grid 31', value: grid31 },
           { name: 'Sharp Eye', value: grid51 },
           { name: 'Obs Levels (Grid 94)', value: grid94_2 },
-          { name: 'Prehistoric Set', value: prehistoricSetBonus }
+          { name: 'Prehistoric Set', value: prehistoricSetBonus },
+          { name: 'Spelunking Shop', value: spelunkingShopUpg63 }
         ]
       },
       {
@@ -637,7 +674,8 @@ function getResearchEXPmulti(account: any, research: any) {
           { name: 'Nonstop Studies', value: nonstopFactor },
           { name: 'Companions', value: companionFactor },
           { name: 'Button Bonus', value: 1 + getButtonBonus(account, 0) / 100 },
-          { name: 'Killroy Research', value: killroyResearchBonus }
+          { name: 'Killroy Research', value: killroyResearchBonus },
+          { name: 'Royal Guardian Outpost', value: outpostRogFactor }
         ]
       }
     ]

@@ -18,13 +18,23 @@ const CHIP_LIMIT = 12;
 // every image on the page at once.
 const BAND_PREVIEW = 60;
 
+// How far past the preview a band may run before collapsing is worth it. World 1's achievements are
+// 63, which hid three of them behind a "Show 3 more" link: the link cost more attention than the
+// three rows it saved. A band only collapses when doing so actually shortens the page.
+const BAND_SLACK = 20;
+
 // Theme colours, cycled, so a facet band is identifiable before it is read. Not a new palette:
 // these are the MUI dark palette's own, which is what the rest of the wiki already uses.
+// The kinds whose art is a banner rather than an icon, and so are laid out two to a row.
+const BANNER_KINDS = new Set(['bundle', 'world']);
+
 const BAND_COLOURS = ['primary.main', 'warning.light', 'info.light', 'success.light', 'secondary.light', 'error.light'];
 
-const Band = ({ band, colour, index, onNavigate }) => {
+const Band = ({ band, colour, index, onNavigate, banner }) => {
   const [expanded, setExpanded] = useState(false);
-  const rows = expanded ? band.entries : band.entries.slice(0, BAND_PREVIEW);
+  const rows = expanded || band.entries.length <= BAND_PREVIEW + BAND_SLACK
+    ? band.entries
+    : band.entries.slice(0, BAND_PREVIEW);
   const hidden = band.entries.length - rows.length;
 
   return <Stack gap={1}>
@@ -47,12 +57,46 @@ const Band = ({ band, colour, index, onNavigate }) => {
       </Typography>
     </Stack> : null}
 
-    <Box sx={{
+    {/* A bundle's art is a 711x120 shop banner carrying its name, its price and its contents, and
+        a world's is the 811x433 island map carrying its name. In the five-column grid every other
+        category uses both arrive unreadable, so they get wide cards instead: the art IS the row. */}
+    <Box sx={banner ? {
+      display: 'grid',
+      gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+      gap: 1.5
+    } : {
       display: 'grid',
       gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(5, 1fr)' },
       columnGap: 2
     }}>
-      {rows.map((entry) => <Stack key={entry.id} direction={'row'} gap={1} alignItems={'center'} sx={{ py: 0.4 }}>
+      {rows.map((entry) => (banner ? <Stack
+        key={entry.id}
+        component={'button'}
+        type={'button'}
+        onClick={() => onNavigate(entry.id)}
+        gap={0.75}
+        sx={{
+          p: 1,
+          border: '1px solid',
+          borderColor: 'divider',
+          borderRadius: 1,
+          bgcolor: 'transparent',
+          // A native button does not inherit the theme's text colour, it takes the browser's own
+          // black, which on this background is invisible.
+          color: 'text.primary',
+          cursor: 'pointer',
+          textAlign: 'left',
+          '&:hover': { borderColor: 'text.disabled' }
+        }}
+      >
+        <Box
+          component={'img'}
+          src={entry.node.icon}
+          alt={''}
+          sx={{ width: '100%', height: 'auto', borderRadius: 0.5 }}
+        />
+        <Typography variant={'body2'} fontWeight={600}>{entry.label}</Typography>
+      </Stack> : <Stack key={entry.id} direction={'row'} gap={1} alignItems={'center'} sx={{ py: 0.4 }}>
         <EntityIcon node={entry.node} size={32}/>
         <Link
           component={'button'}
@@ -64,7 +108,7 @@ const Band = ({ band, colour, index, onNavigate }) => {
         >
           {entry.label}
         </Link>
-      </Stack>)}
+      </Stack>))}
     </Box>
 
     {hidden > 0 ? <Link
@@ -114,7 +158,11 @@ const EntityList = ({ index, kind, onNavigate, onBack }) => {
 
   // Same order as the bands: the worlds, then Bosses, Events, Dungeon, The Rift.
   const rankOf = (name) => (/^World \d+$/.test(name) ? -1 : SECTION_ORDER.indexOf(name));
-  const categories = [...new Set(all.map(facetOf).filter(Boolean))].sort((a, b) => (
+  const named = [...new Set(all.map(facetOf).filter(Boolean))];
+  // Where the entries carry the game's own order the bands follow it, so the picker has to as
+  // well: `all` is already sorted by it, which makes first-appearance the right sequence. Sorting
+  // these alphabetically would open the talent picker on Arcane Cultist and bury Beginner.
+  const categories = ordered ? named : named.sort((a, b) => (
     rankOf(a) !== rankOf(b) ? rankOf(a) - rankOf(b) : a.localeCompare(b, 'en', { numeric: true })
   ));
 
@@ -127,8 +175,17 @@ const EntityList = ({ index, kind, onNavigate, onBack }) => {
 
   // Decided from the whole category, not the filtered view, so the page does not silently change
   // shape as you type. Filtering to one category would otherwise always collapse to a single band.
-  const chosen = chooseGrouping(all.map(facetOf), byWorld ? { missingMax: 1 } : undefined);
+  //
+  // Talents raise the band ceiling because their facet is the game's own tab structure: 27 classes
+  // of about fifteen talents each is how a player already thinks of them, and a flat A-Z of 376
+  // names is the thing that would be unreadable.
+  const chosen = chooseGrouping(all.map(facetOf), {
+    ...(byWorld ? { missingMax: 1 } : {}),
+    ...(kind === 'talent' ? { facetMax: 40 } : {})
+  });
   const mode = chosen;
+  // Filtering to one facet already answers "which ones", so cutting that answer into A to Z adds a
+  // dozen headers and no information: the reader picked World 3, not the letter B.
   // Filtering to one facet already answers "which ones", so cutting that answer into A to Z adds a
   // dozen headers and no information: the reader picked World 3, not the letter B.
   const bands = groupEntries(matches, category ? 'none' : mode, facetOf);
@@ -183,6 +240,7 @@ const EntityList = ({ index, kind, onNavigate, onBack }) => {
       index={bandIndex}
       colour={mode === 'facet' && !category ? BAND_COLOURS[bandIndex % BAND_COLOURS.length] : 'divider'}
       onNavigate={onNavigate}
+      banner={BANNER_KINDS.has(kind)}
     />)}
   </Stack>;
 };

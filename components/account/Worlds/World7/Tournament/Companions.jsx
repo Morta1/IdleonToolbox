@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, prefix } from '@utility/helpers';
+import { monsterImage } from '@utility/spriteImages';
 
 const byPowerDesc = (a, b) => (b.tourPower ?? 0) - (a.tourPower ?? 0);
 
@@ -11,7 +12,7 @@ const PetCard = ({ name, rawName, tourPower }) => (
         <img
           width={50} height={50}
           style={{ objectFit: 'contain' }}
-          src={`${prefix}afk_targets/${name}.png`}
+          src={monsterImage(name)}
           alt={name}
         />
         <Typography variant={'body2'} textAlign={'center'} fontSize={11}>

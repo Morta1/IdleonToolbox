@@ -63,6 +63,15 @@ export const PAGES = {
           icon: 'data/StatusArc0',
           tabs: ['Upgrades', 'Upgrade Optimizer', 'Maps']
         },
+        {
+          // camelCase, not "royal guardian": AccountDrawer.jsx's sub-category label conversion
+          // (line ~81) only splits on capital letters, not spaces - every other multi-word
+          // category label here (friendsStats, randomEvents, eventShop, upgradeVault) follows the
+          // same convention so the drawer link and the /royal-guardian route agree.
+          label: 'royalGuardian',
+          icon: 'data/UISkillIcon226',
+          tabs: ['Armory', 'Outposts', 'Resources', 'Upgrade Optimizer', 'Royal Statues', 'Orblet Market']
+        },
         { label: 'speedrun', icon: 'data/UISkillIcon45' }
       ]
     },
@@ -163,7 +172,7 @@ export const PAGES = {
             { tab: 'Loot Pile', icon: 'data/SailT0' },
             { tab: 'Chests', icon: 'data/SailChest5' }]
         },
-        { label: 'divinity', icon: 'data/ClassIcons55', tabs: ['Gods', 'Coral Kid Upgrades'] },
+        { label: 'divinity', icon: 'data/ClassIcons55', tabs: ['Gods', 'Coral Kid Upgrades', 'Styles'] },
         {
           label: 'gaming',
           icon: 'data/ClassIcons56',
