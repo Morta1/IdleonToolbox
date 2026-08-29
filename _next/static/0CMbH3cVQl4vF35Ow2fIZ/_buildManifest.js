@@ -255,7 +255,7 @@ self.__BUILD_MANIFEST = {
     "static/chunks/1x27q-cs2p_17.js"
   ],
   "/dashboard": [
-    "static/chunks/0x5xr83vp52co.js"
+    "static/chunks/0og15z4-1ymvm.js"
   ],
   "/guilds": [
     "static/chunks/1ksbzaxt6y49o.js"
