@@ -1234,6 +1234,20 @@
       "x2": 100,
       "func": "decay",
       "bonusName": "+{%_EXP"
+    },
+    {
+      "effect": "+{%_Kingdom_Resources",
+      "x1": 6,
+      "x2": 100,
+      "func": "decay",
+      "bonusName": "+{%_Resources"
+    },
+    {
+      "effect": "+{%_Marble_Drop_Rate",
+      "x1": 3,
+      "x2": 100,
+      "func": "decay",
+      "bonusName": "+{%_Marble_DR"
     }
   ],
   "arenaBonuses": [
@@ -1629,7 +1643,8 @@
       "103": "%_MORE_KILLS",
       "104": "%_BIGGER_DAMAGE",
       "105": "%_KILLS_IN_WORLD_7",
-      "106": "%_BONUS_MC_DROPS"
+      "106": "%_BONUS_MC_DROPS",
+      "107": "%_MARBLE_DROP"
     },
     "cardBonuses": {
       "1": "+{_Base_HP",
@@ -2560,7 +2575,13 @@
       "message": "Sir,_another_Glunko_has_arrived_in_IdleOn..._the_CRYSTAL_GLUNKO!_Big,_Blue,_Beautiful,_this_creature_will_serve_you_well_in_the_years_to_come!_Click_to_check_it_out!"
     },
     "ban_f": {
-      "message": "Another_pack?_Boaring!_Haha_this_one's_got_extra_daily_ribbons,_synergizes_great_with_the_Bin_Goosey_pet!_Click_to_check_it_out!"
+      "message": "Another_pack,_Boaring!_Haha_this_one's_got_extra_daily_ribbons,_synergizes_great_with_the_Bin_Goosey_pet!_Click_to_check_it_out!"
+    },
+    "ban_g": {
+      "message": "An_armadillo_pet!_He_boosts_crystal_monster_spawn_chance,_he_does!_He_even_comes_with_a_nifty_crystal_Crescent_Cape!_Click_to_check_it_out!"
+    },
+    "ban_h": {
+      "message": "The_Coralcave_Guardian_boosts_your_Royal_Guardian's_resource_collection_rate_by_3x,_and_the_Arctic_Furcoat_and_Bladed_Cape_pack_a_punch_too!_Click_to_check_it_out!"
     }
   },
   "ButtonBonusNames": [
@@ -4009,10 +4030,10 @@
       "order": 34
     },
     {
-      "name": "ROYAL_GUARDIAN",
-      "func": "txt",
-      "x1": 0,
-      "x2": 0,
+      "name": "+{%_DROP_RATE_MULTIPLIER",
+      "func": "decay",
+      "x1": 10,
+      "x2": 800,
       "x3": 129,
       "order": 36
     },
@@ -4300,6 +4321,7 @@
         145,
         158,
         159,
+        141,
         147,
         162,
         87,
@@ -4308,7 +4330,10 @@
         163,
         135,
         167,
-        168
+        168,
+        170,
+        171,
+        172
       ]
     },
     {
@@ -4323,7 +4348,8 @@
         164,
         165,
         166,
-        169
+        169,
+        173
       ]
     }
   ],
@@ -6766,6 +6792,108 @@
       "type": "%"
     }
   ],
+  "dungeonKeychains": {
+    "EquipmentKeychain0": {
+      "UQ1txt": "_BASE_DEFENCE",
+      "UQ1val": "1,2,5"
+    },
+    "EquipmentKeychain1": {
+      "UQ1txt": "_ACCURACY",
+      "UQ1val": "2,3,5"
+    },
+    "EquipmentKeychain2": {
+      "UQ1txt": "%_MOVEMENT_SPEED",
+      "UQ1val": "1,1.5,2"
+    },
+    "EquipmentKeychain3": {
+      "UQ1txt": "_BASE_DAMAGE",
+      "UQ1val": "5,10,20"
+    },
+    "EquipmentKeychain4": {
+      "UQ1txt": "%_CARD_DROP_CHANCE",
+      "UQ1val": "3,6,10"
+    },
+    "EquipmentKeychain5": {
+      "UQ1txt": "%_MONEY",
+      "UQ1val": "4,7,10"
+    },
+    "EquipmentKeychain6": {
+      "UQ1txt": "_AGI",
+      "UQ1val": "2,4,6"
+    },
+    "EquipmentKeychain7": {
+      "UQ1txt": "_LUK",
+      "UQ1val": "2,4,6"
+    },
+    "EquipmentKeychain8": {
+      "UQ1txt": "%_DEFENCE",
+      "UQ1val": "1,2,4"
+    },
+    "EquipmentKeychain9": {
+      "UQ1txt": "%_MINING_XP_GAIN",
+      "UQ1val": "8,12,20"
+    },
+    "EquipmentKeychain10": {
+      "UQ1txt": "%_TOTAL_DAMAGE",
+      "UQ1val": "1.5,2.5,3"
+    },
+    "EquipmentKeychain11": {
+      "UQ1txt": "%_DROP_RATE",
+      "UQ1val": "3,5,8"
+    },
+    "EquipmentKeychain12": {
+      "UQ1txt": "%_BASIC_ATK_SPEED",
+      "UQ1val": "3,4,6"
+    },
+    "EquipmentKeychain13": {
+      "UQ1txt": "%_CRIT_CHANCE",
+      "UQ1val": "1.5,2.5,3"
+    },
+    "EquipmentKeychain14": {
+      "UQ1txt": "%_FISHING_XP_GAIN",
+      "UQ1val": "8,12,20"
+    },
+    "EquipmentKeychain15": {
+      "UQ1txt": "%_XP_FROM_MONSTERS",
+      "UQ1val": "4,6,10"
+    },
+    "EquipmentKeychain16": {
+      "UQ1txt": "%_MULTIKILL",
+      "UQ1val": "5,7,12"
+    },
+    "EquipmentKeychain17": {
+      "UQ1txt": "%_DEFENCE",
+      "UQ1val": "3,5,8"
+    },
+    "EquipmentKeychain18": {
+      "UQ1txt": "%_AGI",
+      "UQ1val": "2,4,6"
+    },
+    "EquipmentKeychain19": {
+      "UQ1txt": "%_ALL_AFK_GAIN",
+      "UQ1val": "2,3,5"
+    },
+    "EquipmentKeychain20": {
+      "UQ1txt": "%_TOTAL_DAMAGE",
+      "UQ1val": "3,4,7"
+    },
+    "EquipmentKeychain21": {
+      "UQ1txt": "%_LUK",
+      "UQ1val": "2,4,6"
+    },
+    "EquipmentKeychain22": {
+      "UQ1txt": "%_MOB_RESPAWN",
+      "UQ1val": "3,4,6"
+    },
+    "EquipmentKeychain23": {
+      "UQ1txt": "%_ALL_SKILL_SPEED",
+      "UQ1val": "1,1.5,2"
+    },
+    "EquipmentKeychain24": {
+      "UQ1txt": "%_ALL_STATS",
+      "UQ1val": "1,2.5,4"
+    }
+  },
   "dungeonStats": [
     {
       "effect": "Max_HP",
@@ -9820,7 +9948,7 @@
       "Bizarrio",
       "Glitter_End",
       "Scoutpost",
-      "Name10",
+      "Exiled_Throne",
       "Name11",
       "Name12",
       "Name13",
@@ -9836,8 +9964,8 @@
       "49",
       "69",
       "99",
-      "54",
-      "59",
+      "114",
+      "129",
       "64",
       "69",
       "79",
@@ -9924,7 +10052,7 @@
       "Sigils_can_be_upgraded_a_4th_time_to_Ethereal!_@_Each_one_also_gives_+0.2%_Prisma_Bubble_Multi!",
       "Get_a_brand_new_Shape_for_your_Research_Grid!",
       "Palette_Colours_now_give_1.50x_bonuses,_and_Palette_Luck_is_+4%_higher_per_Gaming_LV",
-      "9",
+      "1.50x_chance_for_Marble_Drops_on_Royal_Guardians,_and_+50_Royal_Guardian_Talent_PTS!",
       "10",
       "11",
       "12",
@@ -9975,7 +10103,8 @@
       "Advice_on_Sleeping,Don't_do_it_while_awake._@_+{%_Spelunking_AFK_Gains,20,31,filler",
       "Advice_on_Murder_One,Only_do_it_in_video_games._@_+{%_Kill_per_Kill_in_W7,10,33,filler",
       "Advice_on_Being_Smart,Use_100%_of_your_brain._@_}x_Class_EXP_Gain,25,35,filler",
-      "Advice_on_Materialism,Two_things_better_than_one_tbh._@_+{%_Double_Gold_Food_drop_chance,10,38,filler"
+      "Advice_on_Materialism,Two_things_better_than_one_tbh._@_+{%_Double_Gold_Food_drop_chance,10,38,filler",
+      "Advice_on_Settlement,Clear_mobs_build_outpost_ez._@_+{%_extra_mob_clear_for_Royal_Guardian,15,41,filler"
     ],
     [
       "241,614,301,5,3,4,0",
@@ -15143,6 +15272,180 @@
       "numberOfArtifacts": 4
     }
   ],
+  "itemSources": {
+    "bundles": {
+      "bun_a": {
+        "Trophy8": 1,
+        "Timecandy3": 7
+      },
+      "bun_b": {
+        "EquipmentHats45": 1,
+        "CardPack1": 4,
+        "Timecandy4": 4
+      },
+      "bun_c": {
+        "CardPack1": 4
+      },
+      "bun_d": {
+        "EquipmentHats57": 1,
+        "Timecandy2": 5,
+        "Timecandy3": 2,
+        "Timecandy5": 1
+      },
+      "bun_e": {
+        "EquipmentHats62": 1,
+        "CardPack3": 3,
+        "Timecandy5": 4
+      },
+      "bun_f": {
+        "Trophy14": 1,
+        "GemP9": 3,
+        "Timecandy2": 20
+      },
+      "bun_g": {
+        "CardPack4": 3
+      },
+      "bun_h": {
+        "EquipmentHats69": 3,
+        "Quest64": 250
+      },
+      "bun_j": {
+        "EquipmentCape0": 1,
+        "CardPack5": 3
+      },
+      "bun_k": {
+        "EquipmentCape2": 1,
+        "Quest42": 250,
+        "Quest44": 60
+      },
+      "bun_l": {
+        "EquipmentCape7": 1,
+        "CardPack6": 1,
+        "Quest72": 3,
+        "Quest73": 3
+      },
+      "bun_m": {
+        "Quest71": 100
+      },
+      "bun_n": {
+        "EquipmentCape11": 1,
+        "EquipmentNametag1": 1,
+        "CardPack5": 2,
+        "CardPack6": 2
+      },
+      "bun_o": {
+        "EquipmentCape12": 1
+      },
+      "bun_p": {
+        "EquipmentNametag7": 1
+      },
+      "bun_q": {
+        "EquipmentRingsChat11": 1
+      },
+      "bun_r": {
+        "EquipmentCape14": 1,
+        "CardPack7": 1,
+        "Quest81": 4,
+        "GemP30": 4,
+        "Quest82": 4
+      },
+      "bun_s": {
+        "Quest77": 1
+      },
+      "bun_t": {
+        "EquipmentCape16": 1,
+        "EquipmentNametag13": 1
+      },
+      "bun_u": {
+        "EquipmentGown1": 1
+      },
+      "bun_v": {
+        "EquipmentGown2": 1
+      },
+      "bun_w": {
+        "EquipmentGown3": 1,
+        "EquipmentNametag19": 1
+      },
+      "bun_x": {
+        "EquipmentGown4": 1
+      },
+      "bun_z": {
+        "EquipmentHats114": 1
+      },
+      "bon_g": {
+        "EquipmentCape18": 1
+      },
+      "bon_i": {
+        "EquipmentGown5": 1
+      },
+      "bon_l": {
+        "EquipmentHats127": 1
+      },
+      "bon_s": {
+        "EquipmentGown6": 1
+      },
+      "bon_v": {
+        "EquipmentCape19": 1
+      },
+      "ban_b": {
+        "EquipmentGown7": 1,
+        "EquipmentHats132": 1
+      },
+      "ban_c": {
+        "EquipmentCape20": 1,
+        "EquipmentNametag37": 1
+      },
+      "ban_g": {
+        "EquipmentCape21": 1
+      },
+      "ban_h": {
+        "EquipmentCape22": 1,
+        "EquipmentGown8": 1
+      },
+      "bon_y": {
+        "Quest38": 1,
+        "PremiumGem": 104,
+        "InvStorage5": 1,
+        "ClassSwap": 3,
+        "ResetBox": 5,
+        "Island0": 1,
+        "TixCol": 2,
+        "EquipmentNametag29": 1,
+        "NPCtoken15": 1,
+        "Key1": 1,
+        "COIN": 1,
+        "Trophy7": 1,
+        "Key2": 1,
+        "CardsB14": 10
+      }
+    },
+    "dungeon": {
+      "CardsX21": 1,
+      "DungeonA1": 1,
+      "FoodHealth1d": 1,
+      "DungeonA2": 1,
+      "DungeonA3": 1,
+      "DungeonA4": 1,
+      "DungeonA5": 1,
+      "DungeonA6": 1,
+      "DungeonA7": 1,
+      "DungeonA8": 1
+    },
+    "royalGuardian": {
+      "RGenh": 1,
+      "RGenhB": 1,
+      "Orblet": 1,
+      "Quest110": 1
+    },
+    "trashIsland": {
+      "StampB47": 1,
+      "StampB32": 1,
+      "StampA38": 1,
+      "StampA39": 1,
+      "TalentBook1": 1,
+      "EquipmentNametag6b": 1
+    }
+  },
   "jadeUpgrades": [
     {
       "name": "Quick_Ref_Access",
@@ -16912,9 +17215,9 @@
     {
       "name": "6_O'Clock_Crystals",
       "x1": 1,
-      "x2": 2000,
+      "x2": 300,
       "bonus": "}x_more_Daily_Guaranteed_Crystal_Mobs",
-      "description": "You_know_how_you're_guaranteed_to_spawn_$_Crystal_Mobs_every_day?_Well_that'll_be_}x_higher_with_this_talent!"
+      "description": "}x_more_Guaranteed_Crystal_Mobs_every_day._You_currently_get_$_daily_guaranteed."
     },
     {
       "name": "Shrine_World_Order_Bill",
@@ -17169,8 +17472,8 @@
         300
       ],
       [
-        999,
-        999,
+        9999,
+        9999,
         0
       ]
     ],
@@ -17184,8 +17487,8 @@
         300
       ],
       [
-        999,
-        2999921,
+        9999,
+        9999,
         0
       ]
     ],
@@ -17199,8 +17502,8 @@
         300
       ],
       [
-        999,
-        99999,
+        9999,
+        9999,
         0
       ]
     ],
@@ -17245,7 +17548,7 @@
         300
       ],
       [
-        536,
+        532,
         142,
         1
       ]
@@ -17260,7 +17563,7 @@
         300
       ],
       [
-        487,
+        470,
         130,
         1
       ]
@@ -17275,8 +17578,8 @@
         300
       ],
       [
-        333,
-        179,
+        345,
+        180,
         0
       ]
     ],
@@ -17323,7 +17626,7 @@
       ],
       [
         754,
-        207,
+        204,
         0
       ]
     ],
@@ -17353,8 +17656,8 @@
         300
       ],
       [
-        511,
-        139,
+        501,
+        136,
         1
       ]
     ],
@@ -17400,7 +17703,7 @@
       ],
       [
         765,
-        175,
+        169,
         0
       ]
     ],
@@ -17520,8 +17823,8 @@
         300
       ],
       [
-        631,
-        297,
+        627,
+        299,
         0
       ]
     ],
@@ -17581,8 +17884,8 @@
         999
       ],
       [
-        782,
-        217,
+        793,
+        227,
         0
       ]
     ],
@@ -17596,7 +17899,7 @@
         999
       ],
       [
-        763,
+        793,
         130,
         0
       ]
@@ -17686,8 +17989,8 @@
         999
       ],
       [
-        649,
-        244,
+        9999,
+        9999,
         1
       ]
     ],
@@ -17762,7 +18065,7 @@
       ],
       [
         662,
-        149,
+        135,
         1
       ]
     ],
@@ -17771,13 +18074,13 @@
         0
       ],
       [
-        0,
+        15,
         999,
         999
       ],
       [
-        9999,
-        9999,
+        300,
+        900,
         0
       ]
     ],
@@ -17898,8 +18201,8 @@
         500
       ],
       [
-        398,
-        200,
+        388,
+        188,
         0
       ]
     ],
@@ -17944,8 +18247,8 @@
         500
       ],
       [
-        215,
-        161,
+        230,
+        157,
         0
       ]
     ],
@@ -17959,8 +18262,8 @@
         500
       ],
       [
-        199,
-        195,
+        197,
+        185,
         0
       ]
     ],
@@ -18050,8 +18353,8 @@
         500
       ],
       [
-        225,
-        211,
+        227,
+        215,
         0
       ]
     ],
@@ -18230,8 +18533,8 @@
         999
       ],
       [
-        443,
-        206,
+        442,
+        208,
         1
       ]
     ],
@@ -18757,8 +19060,8 @@
         600
       ],
       [
-        691,
-        283,
+        683,
+        285,
         0
       ]
     ],
@@ -18788,7 +19091,7 @@
       ],
       [
         698,
-        214,
+        208,
         0
       ]
     ],
@@ -20214,8 +20517,8 @@
         600
       ],
       [
-        551,
-        294,
+        541,
+        292,
         0
       ]
     ],
@@ -20244,8 +20547,8 @@
         600
       ],
       [
-        426,
-        266,
+        418,
+        280,
         0
       ]
     ],
@@ -20260,7 +20563,7 @@
       ],
       [
         400,
-        257,
+        243,
         0
       ]
     ],
@@ -20274,8 +20577,8 @@
         600
       ],
       [
-        333,
-        261,
+        341,
+        264,
         0
       ]
     ],
@@ -20289,8 +20592,8 @@
         600
       ],
       [
-        296,
-        250,
+        290,
+        249,
         0
       ]
     ],
@@ -21764,8 +22067,8 @@
         600
       ],
       [
-        368,
-        122,
+        364,
+        118,
         0
       ]
     ],
@@ -22021,8 +22324,8 @@
         600
       ],
       [
-        533,
-        203,
+        523,
+        201,
         0
       ]
     ],
@@ -22207,7 +22510,7 @@
     "frogG",
     "Nothing",
     "Nothing",
-    "Z",
+    "Nothing",
     "Z",
     "Z",
     "Z",
@@ -22536,7 +22839,7 @@
     "40": 1,
     "41": 0,
     "42": 1,
-    "43": 0,
+    "43": 15,
     "44": 0,
     "45": 0,
     "46": 0,
@@ -22865,7 +23168,7 @@
     "40": "Grandfrog's_Gazebo",
     "41": "Pet_Park",
     "42": "Grand_Owl_Perch",
-    "43": "Z",
+    "43": "The_Royal_Castle",
     "44": "Z",
     "45": "Z",
     "46": "Z",
@@ -23172,7 +23475,7 @@
     ],
     "7": [
       10,
-      6
+      43
     ],
     "8": [
       15
@@ -25486,8 +25789,8 @@
     ],
     [
       {
-        "descLine1": "+{_Talent_Pts_for_Tab_5,_for_all_the",
-        "descLine2": "Classes_that_aren't_out_yet!_Exciting!",
+        "descLine1": "+{_Talent_Pts_for_the_5th_tab,_which",
+        "descLine2": "is_the_Master_Class's_tab!",
         "num1": 0,
         "num2": 0,
         "num3": 0,
@@ -25877,6 +26180,7 @@
     "ForgeA": 69,
     "ForgeB": 69,
     "Bandit_Bob": 69,
+    "fm_rat": 69,
     "mushPtutorial": 50,
     "demonPtutorial": 250,
     "behemoth": 1,
@@ -27403,7 +27707,8 @@
       "mini3a",
       "mini4a",
       "mini5a",
-      "mini6a"
+      "mini6a",
+      "fm_rat"
     ],
     [
       "+{%_DMG",
@@ -27524,6 +27829,9 @@
       "90",
       "100",
       "101",
+      "118",
+      "119",
+      "120",
       "95",
       "97",
       "103",
@@ -27901,7 +28209,7 @@
       "100",
       "0",
       "You're_guaranteed_}x_more_Crystal_Mobs_than_normal_to_start_each_day",
-      "900",
+      "100",
       "0",
       "Get_}x_more_Worship_PTS_while_playing_Tower_Defence",
       "100",
@@ -28698,709 +29006,1937 @@
       "sprite": "sprite-84-0",
       "spriteAcross": 3,
       "spriteDown": 2,
-      "spriteNumFrames": 5
+      "spriteNumFrames": 5,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Sprout": {
       "sprite": "sprite-84-1",
       "spriteAcross": 3,
       "spriteDown": 2,
-      "spriteNumFrames": 5
+      "spriteNumFrames": 5,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Dazey": {
       "sprite": "sprite-84-2",
       "spriteAcross": 3,
       "spriteDown": 2,
-      "spriteNumFrames": 5
+      "spriteNumFrames": 5,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Town_Marble": {
       "sprite": "sprite-84-3",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Obol_Altar": {
       "sprite": "sprite-84-4",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 7
+      "spriteNumFrames": 7,
+      "durations": [
+        1,
+        110,
+        125,
+        135,
+        135,
+        125,
+        110
+      ]
     },
     "Woodsman": {
       "sprite": "sprite-84-5",
       "spriteAcross": 2,
       "spriteDown": 2,
-      "spriteNumFrames": 4
+      "spriteNumFrames": 4,
+      "durations": [
+        1,
+        1450,
+        150,
+        350
+      ]
     },
     "Krunk": {
       "sprite": "sprite-84-6",
       "spriteAcross": 3,
       "spriteDown": 2,
-      "spriteNumFrames": 6
+      "spriteNumFrames": 6,
+      "durations": [
+        1,
+        1450,
+        125,
+        125,
+        850,
+        125
+      ]
     },
     "Scripticus": {
       "sprite": "sprite-84-7",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 9
+      "spriteNumFrames": 9,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Glumlee": {
       "sprite": "sprite-84-9",
       "spriteAcross": 3,
       "spriteDown": 2,
-      "spriteNumFrames": 6
+      "spriteNumFrames": 6,
+      "durations": [
+        1,
+        1850,
+        120,
+        240,
+        140,
+        100
+      ]
     },
     "Picnic_Stowaway": {
       "sprite": "sprite-84-10",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 12
+      "spriteNumFrames": 12,
+      "durations": [
+        1,
+        3500,
+        70,
+        85,
+        100,
+        650,
+        70,
+        1100,
+        70,
+        550,
+        100,
+        85
+      ]
     },
     "Hamish": {
       "sprite": "sprite-84-12",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 7
+      "spriteNumFrames": 7,
+      "durations": [
+        1,
+        150,
+        120,
+        85,
+        100,
+        120,
+        120
+      ]
     },
     "Grasslands_Gary": {
       "sprite": "sprite-84-13",
       "spriteAcross": 2,
       "spriteDown": 2,
-      "spriteNumFrames": 4
+      "spriteNumFrames": 4,
+      "durations": [
+        1,
+        1500,
+        145,
+        570
+      ]
     },
     "Secretkeeper": {
       "sprite": "sprite-84-15",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Goldric": {
       "sprite": "sprite-84-16",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 13
+      "spriteNumFrames": 13,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        10000,
+        100,
+        80,
+        80,
+        80,
+        80,
+        100
+      ]
     },
     "Scubidew": {
       "sprite": "sprite-84-17",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 7
+      "spriteNumFrames": 7,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Mr_Pigibank": {
       "sprite": "sprite-84-18",
       "spriteAcross": 5,
       "spriteDown": 4,
-      "spriteNumFrames": 17
+      "spriteNumFrames": 17,
+      "durations": [
+        1,
+        850,
+        135,
+        800,
+        100,
+        10000,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        1250,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Funguy": {
       "sprite": "sprite-84-19",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 15
+      "spriteNumFrames": 15,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        130,
+        280,
+        130,
+        100,
+        100,
+        100,
+        100,
+        130,
+        270
+      ]
     },
     "Bill_Brr": {
       "sprite": "sprite-84-20",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 13
+      "spriteNumFrames": 13,
+      "durations": [
+        1,
+        1300,
+        80,
+        80,
+        80,
+        90,
+        80,
+        80,
+        950,
+        80,
+        80,
+        1270,
+        80
+      ]
     },
     "Papua_Piggea": {
       "sprite": "sprite-84-21",
       "spriteAcross": 5,
       "spriteDown": 4,
-      "spriteNumFrames": 17
+      "spriteNumFrames": 17,
+      "durations": [
+        1,
+        750,
+        100,
+        125,
+        600,
+        125,
+        100,
+        900,
+        85,
+        85,
+        85,
+        750,
+        85,
+        600,
+        85,
+        600,
+        100
+      ]
     },
     "Stiltzcho": {
       "sprite": "sprite-84-22",
       "spriteAcross": 3,
       "spriteDown": 2,
-      "spriteNumFrames": 6
+      "spriteNumFrames": 6,
+      "durations": [
+        1,
+        93,
+        93,
+        93,
+        93,
+        93
+      ]
     },
     "Mutton": {
       "sprite": "sprite-84-23",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 8
+      "spriteNumFrames": 8,
+      "durations": [
+        1,
+        100,
+        130,
+        150,
+        100,
+        80,
+        80,
+        100
+      ]
     },
     "Bushlyte": {
       "sprite": "sprite-84-25",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 12
+      "spriteNumFrames": 12,
+      "durations": [
+        1,
+        1000,
+        85,
+        85,
+        85,
+        1250,
+        80,
+        750,
+        80,
+        600,
+        100,
+        80
+      ]
     },
     "Rocklyte": {
       "sprite": "sprite-84-26",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 8
+      "spriteNumFrames": 8,
+      "durations": [
+        1,
+        2500,
+        100,
+        100,
+        100,
+        1250,
+        100,
+        100
+      ]
     },
     "Tiki_Chief": {
       "sprite": "sprite-84-27",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 8
+      "spriteNumFrames": 8,
+      "durations": [
+        1,
+        130,
+        70,
+        200,
+        130,
+        130,
+        70,
+        200
+      ]
     },
     "Promotheus": {
       "sprite": "sprite-84-28",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 13
+      "spriteNumFrames": 13,
+      "durations": [
+        1,
+        2000,
+        130,
+        100,
+        450,
+        130,
+        100,
+        100,
+        80,
+        80,
+        80,
+        80,
+        130
+      ]
     },
     "Cowbo_Jones": {
       "sprite": "sprite-84-29",
       "spriteAcross": 5,
       "spriteDown": 4,
-      "spriteNumFrames": 19
+      "spriteNumFrames": 19,
+      "durations": [
+        1,
+        1850,
+        80,
+        80,
+        300,
+        320,
+        80,
+        80,
+        80,
+        80,
+        80,
+        80,
+        670,
+        80,
+        80,
+        80,
+        80,
+        400,
+        80
+      ]
     },
     "Loominadi": {
       "sprite": "sprite-84-30",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 10
+      "spriteNumFrames": 10,
+      "durations": [
+        1,
+        75,
+        75,
+        120,
+        200,
+        120,
+        75,
+        75,
+        75,
+        75
+      ]
     },
     "Builder_Bird": {
       "sprite": "sprite-84-32",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 8
+      "spriteNumFrames": 8,
+      "durations": [
+        1,
+        1100,
+        80,
+        100,
+        100,
+        100,
+        80,
+        100
+      ]
     },
     "Desert_Davey": {
       "sprite": "sprite-84-33",
       "spriteAcross": 2,
       "spriteDown": 2,
-      "spriteNumFrames": 4
+      "spriteNumFrames": 4,
+      "durations": [
+        1,
+        1150,
+        200,
+        400
+      ]
     },
     "Dog_Bone": {
       "sprite": "sprite-84-34",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 10
+      "spriteNumFrames": 10,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Speccius": {
       "sprite": "sprite-84-35",
       "spriteAcross": 2,
       "spriteDown": 2,
-      "spriteNumFrames": 4
+      "spriteNumFrames": 4,
+      "durations": [
+        1,
+        1300,
+        115,
+        760
+      ]
     },
     "Postboy_Pablob": {
       "sprite": "sprite-84-36",
       "spriteAcross": 5,
       "spriteDown": 5,
-      "spriteNumFrames": 23
+      "spriteNumFrames": 23,
+      "durations": [
+        1,
+        3000,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        1000,
+        100,
+        100,
+        100,
+        100,
+        3000,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Whattso": {
       "sprite": "sprite-84-39",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Fishpaste97": {
       "sprite": "sprite-84-40",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 14
+      "spriteNumFrames": 14,
+      "durations": [
+        1,
+        100,
+        100,
+        130,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        130,
+        100,
+        100,
+        100
+      ]
     },
     "Omar_Da_Ogar": {
       "sprite": "sprite-84-41",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 16
+      "spriteNumFrames": 16,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Clown": {
       "sprite": "sprite-84-42",
       "spriteAcross": 6,
       "spriteDown": 5,
-      "spriteNumFrames": 30
+      "spriteNumFrames": 30,
+      "durations": [
+        1,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70
+      ]
     },
     "Bandit_Bob": {
       "sprite": "sprite-84-43",
       "spriteAcross": 6,
       "spriteDown": 5,
-      "spriteNumFrames": 26
+      "spriteNumFrames": 26,
+      "durations": [
+        1,
+        270,
+        100,
+        100,
+        110,
+        100,
+        100,
+        10000,
+        130,
+        100,
+        130,
+        70,
+        70,
+        70,
+        350,
+        70,
+        70,
+        70,
+        130,
+        370,
+        70,
+        70,
+        70,
+        130,
+        100,
+        130
+      ]
     },
     "Djonnut": {
       "sprite": "sprite-84-44",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 11
+      "spriteNumFrames": 11,
+      "durations": [
+        1,
+        80,
+        80,
+        80,
+        80,
+        80,
+        80,
+        80,
+        80,
+        80,
+        80
+      ]
     },
     "Carpetiem": {
       "sprite": "sprite-84-45",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 9
+      "spriteNumFrames": 9,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Snake_Jar": {
       "sprite": "sprite-84-46",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 12
+      "spriteNumFrames": 12,
+      "durations": [
+        1,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70,
+        70
+      ]
     },
     "Typhoon": {
       "sprite": "sprite-84-47",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 7
+      "spriteNumFrames": 7,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Meel": {
       "sprite": "sprite-84-48",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 12
+      "spriteNumFrames": 12,
+      "durations": [
+        1,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85,
+        85
+      ]
     },
     "Wellington": {
       "sprite": "sprite-84-49",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 11
+      "spriteNumFrames": 11,
+      "durations": [
+        1,
+        100,
+        900,
+        90,
+        470,
+        70,
+        80,
+        80,
+        570,
+        100,
+        130
+      ]
     },
     "Giftmas_Blobulyte": {
       "sprite": "sprite-84-50",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 8
+      "spriteNumFrames": 8,
+      "durations": [
+        1,
+        1000,
+        100,
+        100,
+        100,
+        1000,
+        125,
+        90
+      ]
     },
     "XxX_Cattleprod_XxX": {
       "sprite": "sprite-84-51",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 16
+      "spriteNumFrames": 16,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Cactolyte": {
       "sprite": "sprite-84-52",
       "spriteAcross": 5,
       "spriteDown": 4,
-      "spriteNumFrames": 20
+      "spriteNumFrames": 20,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        1200,
+        80,
+        80,
+        80,
+        1200,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Constructor_Crow": {
       "sprite": "sprite-84-53",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 9
+      "spriteNumFrames": 9,
+      "durations": [
+        1,
+        1100,
+        80,
+        100,
+        100,
+        80,
+        100,
+        100,
+        100
+      ]
     },
     "Centurion": {
       "sprite": "sprite-84-54",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 10
+      "spriteNumFrames": 10,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Hoggindaz": {
       "sprite": "sprite-84-55",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 13
+      "spriteNumFrames": 13,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        90,
+        100,
+        100,
+        100,
+        85,
+        85,
+        85,
+        85
+      ]
     },
     "Telescope": {
       "sprite": "sprite-84-56",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 8
+      "spriteNumFrames": 8,
+      "durations": [
+        1,
+        1250,
+        100,
+        100,
+        100,
+        900,
+        100,
+        100
+      ]
     },
     "Loveulyte": {
       "sprite": "sprite-84-57",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 10
+      "spriteNumFrames": 10,
+      "durations": [
+        1,
+        100,
+        100,
+        150,
+        125,
+        100,
+        100,
+        100,
+        150,
+        125
+      ]
     },
     "Iceland_Irwin": {
       "sprite": "sprite-84-58",
       "spriteAcross": 2,
       "spriteDown": 2,
-      "spriteNumFrames": 4
+      "spriteNumFrames": 4,
+      "durations": [
+        1,
+        1500,
+        145,
+        570
+      ]
     },
     "Bellows": {
       "sprite": "sprite-84-59",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 10
+      "spriteNumFrames": 10,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Worldo": {
       "sprite": "sprite-84-60",
       "spriteAcross": 5,
       "spriteDown": 4,
-      "spriteNumFrames": 18
+      "spriteNumFrames": 18,
+      "durations": [
+        1,
+        300,
+        150,
+        100,
+        200,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Yondergreen": {
       "sprite": "sprite-84-61",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 9
+      "spriteNumFrames": 9,
+      "durations": [
+        1,
+        300,
+        200,
+        130,
+        70,
+        100,
+        100,
+        100,
+        130
+      ]
     },
     "Shuvelle": {
       "sprite": "sprite-84-62",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 14
+      "spriteNumFrames": 14,
+      "durations": [
+        1,
+        260,
+        100,
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        125,
+        100,
+        100
+      ]
     },
     "Crystalswine": {
       "sprite": "sprite-84-63",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Lonely_Hunter": {
       "sprite": "sprite-84-64",
       "spriteAcross": 3,
       "spriteDown": 2,
-      "spriteNumFrames": 6
+      "spriteNumFrames": 6,
+      "durations": [
+        1,
+        150,
+        120,
+        100,
+        130,
+        100
+      ]
     },
     "Carpenter_Cardinal": {
       "sprite": "sprite-84-65",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 9
+      "spriteNumFrames": 9,
+      "durations": [
+        1,
+        1100,
+        90,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Lord_of_the_Hunt": {
       "sprite": "sprite-84-66",
       "spriteAcross": 3,
       "spriteDown": 2,
-      "spriteNumFrames": 6
+      "spriteNumFrames": 6,
+      "durations": [
+        1,
+        150,
+        120,
+        100,
+        130,
+        100
+      ]
     },
     "Egggulyte": {
       "sprite": "sprite-84-67",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 8
+      "spriteNumFrames": 8,
+      "durations": [
+        1,
+        2100,
+        100,
+        100,
+        100,
+        1400,
+        100,
+        100
+      ]
     },
     "Snouts": {
       "sprite": "sprite-84-68",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 8
+      "spriteNumFrames": 8,
+      "durations": [
+        1,
+        125,
+        100,
+        100,
+        150,
+        125,
+        100,
+        125
+      ]
     },
     "Coastiolyte": {
       "sprite": "sprite-84-69",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 15
+      "spriteNumFrames": 15,
+      "durations": [
+        1,
+        1700,
+        100,
+        100,
+        90,
+        120,
+        90,
+        110,
+        110,
+        110,
+        1400,
+        90,
+        100,
+        1250,
+        100
+      ]
     },
     "Walupiggy": {
       "sprite": "sprite-84-70",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 13
+      "spriteNumFrames": 13,
+      "durations": [
+        1,
+        100,
+        900,
+        100,
+        90,
+        90,
+        480,
+        100,
+        100,
+        100,
+        570,
+        100,
+        100
+      ]
     },
     "Toadstall": {
       "sprite": "sprite-84-71",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 7
+      "spriteNumFrames": 7,
+      "durations": [
+        1,
+        100,
+        110,
+        120,
+        100,
+        160,
+        150
+      ]
     },
     "Gangster_Gus": {
       "sprite": "sprite-84-73",
       "spriteAcross": 3,
       "spriteDown": 2,
-      "spriteNumFrames": 6
+      "spriteNumFrames": 6,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Falloween_Pumpkin": {
       "sprite": "sprite-84-74",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 13
+      "spriteNumFrames": 13,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Blobbo": {
       "sprite": "sprite-84-75",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 8
+      "spriteNumFrames": 8,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Capital_P": {
       "sprite": "sprite-84-76",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 14
+      "spriteNumFrames": 14,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Oinkin": {
       "sprite": "sprite-84-77",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 11
+      "spriteNumFrames": 11,
+      "durations": [
+        1,
+        100,
+        130,
+        250,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Gobo": {
       "sprite": "sprite-84-78",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 8
+      "spriteNumFrames": 8,
+      "durations": [
+        1,
+        130,
+        130,
+        470,
+        130,
+        100,
+        100,
+        330
+      ]
     },
     "Nebula_Neddy": {
       "sprite": "sprite-84-79",
       "spriteAcross": 2,
       "spriteDown": 2,
-      "spriteNumFrames": 4
+      "spriteNumFrames": 4,
+      "durations": [
+        1,
+        1150,
+        200,
+        400
+      ]
     },
     "Eliteus": {
       "sprite": "sprite-84-80",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 10
+      "spriteNumFrames": 10,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Slargon": {
       "sprite": "sprite-84-81",
       "spriteAcross": 3,
       "spriteDown": 2,
-      "spriteNumFrames": 6
+      "spriteNumFrames": 6,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Pirate_Porkchop": {
       "sprite": "sprite-84-82",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Poigu": {
       "sprite": "sprite-84-83",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Muhmuguh": {
       "sprite": "sprite-84-84",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 9
+      "spriteNumFrames": 9,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Lava_Larry": {
       "sprite": "sprite-84-85",
       "spriteAcross": 2,
       "spriteDown": 2,
-      "spriteNumFrames": 4
+      "spriteNumFrames": 4,
+      "durations": [
+        1,
+        110,
+        125,
+        135
+      ]
     },
     "Rift_Ripper": {
       "sprite": "sprite-84-86",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 16
+      "spriteNumFrames": 16,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        850,
+        100,
+        100
+      ]
     },
     "Nebulyte": {
       "sprite": "sprite-84-87",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 12
+      "spriteNumFrames": 12,
+      "durations": [
+        1,
+        1250,
+        100,
+        100,
+        100,
+        100,
+        100,
+        2500,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Bubbulyte": {
       "sprite": "sprite-84-88",
       "spriteAcross": 3,
       "spriteDown": 2,
-      "spriteNumFrames": 6
+      "spriteNumFrames": 6,
+      "durations": [
+        1,
+        150,
+        100,
+        125,
+        150,
+        100
+      ]
     },
     "Tired_Mole": {
       "sprite": "sprite-84-89",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 8
+      "spriteNumFrames": 8,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Monolith": {
       "sprite": "sprite-84-90",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Royal_Worm": {
       "sprite": "sprite-84-91",
       "spriteAcross": 3,
       "spriteDown": 2,
-      "spriteNumFrames": 6
+      "spriteNumFrames": 6,
+      "durations": [
+        1,
+        100,
+        130,
+        100,
+        100,
+        130
+      ]
     },
     "Lafu_Shi": {
       "sprite": "sprite-84-92",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 15
+      "spriteNumFrames": 15,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Hoov": {
       "sprite": "sprite-84-93",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 13
+      "spriteNumFrames": 13,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        300,
+        200,
+        100,
+        150,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Potti": {
       "sprite": "sprite-84-94",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 10
+      "spriteNumFrames": 10,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Tribal_Shaman": {
       "sprite": "sprite-84-95",
       "spriteAcross": 3,
       "spriteDown": 2,
-      "spriteNumFrames": 6
+      "spriteNumFrames": 6,
+      "durations": [
+        1,
+        100,
+        100,
+        130,
+        160,
+        100
+      ]
     },
     "Woodlin_Elder": {
       "sprite": "sprite-84-96",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 7
+      "spriteNumFrames": 7,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Legumulyte": {
       "sprite": "sprite-84-97",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 14
+      "spriteNumFrames": 14,
+      "durations": [
+        1,
+        1920,
+        100,
+        100,
+        100,
+        1220,
+        100,
+        100,
+        100,
+        1000,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Sussy_Gene": {
       "sprite": "sprite-84-98",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 12
+      "spriteNumFrames": 12,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        330,
+        100,
+        100,
+        100,
+        100,
+        100,
+        300,
+        100
+      ]
     },
     "Spirit_Sungmin": {
       "sprite": "sprite-84-99",
       "spriteAcross": 2,
       "spriteDown": 2,
-      "spriteNumFrames": 4
+      "spriteNumFrames": 4,
+      "durations": [
+        1,
+        1450,
+        145,
+        580
+      ]
     },
     "Masterius": {
       "sprite": "sprite-84-100",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 8
+      "spriteNumFrames": 8,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Humble_Hugh": {
       "sprite": "sprite-84-101",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 7
+      "spriteNumFrames": 7,
+      "durations": [
+        1,
+        110,
+        110,
+        110,
+        110,
+        110,
+        110
+      ]
     },
     "Coralcave_Prince": {
       "sprite": "sprite-84-102",
       "spriteAcross": 3,
       "spriteDown": 3,
-      "spriteNumFrames": 8
+      "spriteNumFrames": 8,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Sad_Urie": {
       "sprite": "sprite-84-103",
       "spriteAcross": 4,
       "spriteDown": 4,
-      "spriteNumFrames": 13
+      "spriteNumFrames": 13,
+      "durations": [
+        1,
+        500,
+        100,
+        100,
+        100,
+        100,
+        150,
+        200,
+        150,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Snootie": {
       "sprite": "sprite-84-104",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 11
+      "spriteNumFrames": 11,
+      "durations": [
+        1,
+        5000,
+        100,
+        100,
+        100,
+        100,
+        100,
+        1200,
+        100,
+        100,
+        100
+      ]
     },
     "Bloo_Radley": {
       "sprite": "sprite-84-105",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 11
+      "spriteNumFrames": 11,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        20000,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Toobus_Goobus": {
       "sprite": "sprite-84-106",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 12
+      "spriteNumFrames": 12,
+      "durations": [
+        1,
+        120,
+        120,
+        130,
+        110,
+        100,
+        100,
+        100,
+        120,
+        130,
+        110,
+        100
+      ]
     },
     "Bort": {
       "sprite": "sprite-84-107",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 12
+      "spriteNumFrames": 12,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Zenelith": {
       "sprite": "sprite-84-108",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Coral_Kid": {
       "sprite": "sprite-84-109",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Musselini": {
       "sprite": "sprite-84-110",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Forest_Soul": {
       "sprite": "sprite-84-111",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Dune_Soul": {
       "sprite": "sprite-84-112",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Root_Soul": {
       "sprite": "sprite-84-113",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Frigid_Soul": {
       "sprite": "sprite-84-114",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Squish_Soul": {
       "sprite": "sprite-84-115",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Oozie_Soul": {
       "sprite": "sprite-84-116",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Brezy_Soul": {
       "sprite": "sprite-84-117",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Deeps_Soul": {
       "sprite": "sprite-84-118",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Keymaster": {
       "sprite": "sprite-84-119",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Pet_Dog": {
       "sprite": "sprite-84-120",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Minehead": {
       "sprite": "sprite-84-121",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Glimbo": {
       "sprite": "sprite-84-123",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "Luckulyte": {
       "sprite": "sprite-84-124",
       "spriteAcross": 4,
       "spriteDown": 3,
-      "spriteNumFrames": 10
+      "spriteNumFrames": 10,
+      "durations": [
+        1,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
     },
     "Sushi_Station": {
       "sprite": "sprite-84-126",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     },
     "The_Button": {
       "sprite": "sprite-84-127",
       "spriteAcross": 1,
       "spriteDown": 1,
-      "spriteNumFrames": 1
+      "spriteNumFrames": 1,
+      "durations": [
+        1
+      ]
     }
   },
   "obols": {
@@ -29589,6 +31125,108 @@
       }
     }
   },
+  "orbletMarket": [
+    {
+      "index": 0,
+      "name": "EMULSION",
+      "baseCost": 2,
+      "costScaling": 50,
+      "maxLevel": 5,
+      "bonusPerLevel": 1,
+      "x5": 1,
+      "description": "{%_chance_to_get_1M_statues_worth_of_Statue_EXP_when_a_Zenith_Cluster_is_formed!"
+    },
+    {
+      "index": 1,
+      "name": "HYDRATION",
+      "baseCost": 3,
+      "costScaling": 1.08,
+      "maxLevel": 200,
+      "bonusPerLevel": 5,
+      "x5": 1,
+      "description": "+{%_Resource_Collection_for_all_Outposts"
+    },
+    {
+      "index": 2,
+      "name": "TALENTED",
+      "baseCost": 5,
+      "costScaling": 1.12,
+      "maxLevel": 100,
+      "bonusPerLevel": 1,
+      "x5": 1,
+      "description": "+{_Talent_Points_for_Royal_Guardians"
+    },
+    {
+      "index": 3,
+      "name": "FULL_CLEAR",
+      "baseCost": 10,
+      "costScaling": 1.25,
+      "maxLevel": 50,
+      "bonusPerLevel": 1,
+      "x5": 4,
+      "description": "+{%_extra_kills_for_Clearing_Mobs_in_order_to_build_new_outposts!"
+    },
+    {
+      "index": 4,
+      "name": "GLORIFICATION",
+      "baseCost": 25,
+      "costScaling": 1.25,
+      "maxLevel": 50,
+      "bonusPerLevel": 4,
+      "x5": 1,
+      "description": "$"
+    },
+    {
+      "index": 5,
+      "name": "INTERVENE",
+      "baseCost": 20,
+      "costScaling": 1.125,
+      "maxLevel": 100,
+      "bonusPerLevel": 1,
+      "x5": 1,
+      "description": "}x_higher_chance_for_Regal_Intervention_to_trigger!"
+    },
+    {
+      "index": 6,
+      "name": "STRONK_RANK",
+      "baseCost": 50,
+      "costScaling": 1.2,
+      "maxLevel": 50,
+      "bonusPerLevel": 5,
+      "x5": 1,
+      "description": "All_kingdom_units_generate_Rank_EXP_+{%_faster"
+    },
+    {
+      "index": 7,
+      "name": "BARGAIN",
+      "baseCost": 100,
+      "costScaling": 1.5,
+      "maxLevel": 25,
+      "bonusPerLevel": 10,
+      "x5": 1,
+      "description": "All_Masterclass_upgrades_cost_+{%_less_than_before"
+    },
+    {
+      "index": 8,
+      "name": "LONG_RANGE",
+      "baseCost": 200,
+      "costScaling": 1.105,
+      "maxLevel": 20,
+      "bonusPerLevel": 1,
+      "x5": 1,
+      "description": "All_Outposts_get_+{px_longer_connection_range"
+    },
+    {
+      "index": 9,
+      "name": "PARCHMORE",
+      "baseCost": 500,
+      "costScaling": 1.15,
+      "maxLevel": 100,
+      "bonusPerLevel": 1,
+      "x5": 1,
+      "description": "+{%_Parchment_of_Enchantment_Drop_Rate_from_Verminous_Rats"
+    }
+  ],
   "owlData": [
     {
       "name": "Feather_Generation",
@@ -31995,7 +33633,7 @@
     "Dungeon1",
     "GrasslandsF",
     "GrasslandsG",
-    "Z",
+    "GrasslandsH",
     "Z",
     "Z",
     "Z",
@@ -33158,7 +34796,11 @@
       "Wasabaisamarama",
       "Kraken_Roll",
       "Leviathan_Roll",
-      "Golthulu_Roll"
+      "Golthulu_Roll",
+      "Wasomber_Nigiri",
+      "Leek_Nigiri",
+      "Atomiroll",
+      "Octolingo"
     ],
     [
       "lol"
@@ -33264,7 +34906,11 @@
       "6",
       "9",
       "8",
-      "10"
+      "10",
+      "3",
+      "5",
+      "8",
+      "7"
     ],
     [
       "+{%_more_Bucks_generated",
@@ -33351,7 +34997,11 @@
       "}x_Megacrop_Growth_Chance_for_getting_more_Farming_Stickers",
       "+{_Opals_for_your_Villagers",
       "}x_extra_Treasure_found_from_opening_Sailing_Chests",
-      "+{_Max_Build_LVs_for_all_Shrines_in_Construction"
+      "+{_Max_Build_LVs_for_all_Shrines_in_Construction",
+      "+{%_chance_for_an_additional_Orblet_stack_to_drop_on_Royal_Guardians!",
+      "+{%_Resource_Collection_Rate_for_all_your_Royal_Guardian_outposts!",
+      "Regal_Intervention_spawns_+{_more_Regal_Mobs_than_normal_when_triggered",
+      "+{%_drop_chance_for_Marble_for_your_Royal_Guardian"
     ],
     [
       "100",
@@ -33412,6 +35062,10 @@
       "25",
       "2",
       "30",
+      "10",
+      "10",
+      "30",
+      "2",
       "10"
     ],
     [
@@ -33521,6 +35175,107 @@
       "49",
       "46",
       "51"
+    ],
+    [
+      "}千_TOTAL_DAMAGE",
+      "}千_DROP_RATE",
+      "}千_EXTRA_KILLS",
+      "}千_CLASS_EXP",
+      "4",
+      "5",
+      "6",
+      "7"
+    ],
+    [
+      "200",
+      "50",
+      "30",
+      "300",
+      "10",
+      "10",
+      "10",
+      "10"
+    ],
+    [
+      "15",
+      "5",
+      "3",
+      "20",
+      "3",
+      "3",
+      "3",
+      "3"
+    ],
+    [
+      "30",
+      "46",
+      "58",
+      "31",
+      "9",
+      "41",
+      "70",
+      "37",
+      "78",
+      "35",
+      "27",
+      "71",
+      "20",
+      "60",
+      "32",
+      "19",
+      "79",
+      "2",
+      "61",
+      "57",
+      "23",
+      "47",
+      "0",
+      "10",
+      "80",
+      "28",
+      "21",
+      "68",
+      "73",
+      "24",
+      "50",
+      "56",
+      "38",
+      "81",
+      "42",
+      "43",
+      "3",
+      "62",
+      "18",
+      "11",
+      "52",
+      "36",
+      "29",
+      "72",
+      "22",
+      "76",
+      "44",
+      "69",
+      "48",
+      "74",
+      "25",
+      "17",
+      "33",
+      "39",
+      "4",
+      "63",
+      "12",
+      "75",
+      "26",
+      "77",
+      "53",
+      "49",
+      "40",
+      "1",
+      "51",
+      "82",
+      "59",
+      "45",
+      "55"
     ]
   ],
   "researchOccurrences": [
@@ -34753,6 +36508,602 @@
       "monsterName": "Rift_Stalker",
       "task": "YOU_CANNOT_PROGRESS_FURTHER._BUT_THERE_WILL_BE_MORE...",
       "icon": "Mface75"
+    }
+  ],
+  "royalKillRequirements": {
+    "6": 8000,
+    "7": 15000,
+    "10": 25000,
+    "11": 60000,
+    "12": 250000,
+    "13": 75000,
+    "14": 500,
+    "16": 1000,
+    "17": 5000,
+    "18": 200000,
+    "19": 2000,
+    "24": 7500,
+    "26": 20000,
+    "27": 60000,
+    "28": 100000,
+    "29": 27,
+    "30": 125000,
+    "31": 500000,
+    "32": 750000,
+    "42": 60000,
+    "54": 250000,
+    "55": 800000,
+    "61": 1500000,
+    "65": 3000000,
+    "67": 125000,
+    "73": 250000,
+    "112": 80000000,
+    "113": 120000000,
+    "116": 40000000,
+    "117": 75000000,
+    "120": 100000000,
+    "166": 4000000000
+  },
+  "royalResources": [
+    {
+      "index": 0,
+      "x": 93,
+      "y": 361,
+      "baseMaxQuantity": 1000000,
+      "resourceIndex": 5
+    },
+    {
+      "index": 1,
+      "x": 197,
+      "y": 151,
+      "baseMaxQuantity": 15000,
+      "resourceIndex": 3
+    },
+    {
+      "index": 2,
+      "x": 327,
+      "y": 115,
+      "baseMaxQuantity": 1500,
+      "resourceIndex": 3
+    },
+    {
+      "index": 3,
+      "x": 343,
+      "y": 281,
+      "baseMaxQuantity": 50000,
+      "resourceIndex": 3
+    },
+    {
+      "index": 4,
+      "x": 467,
+      "y": 403,
+      "baseMaxQuantity": 50000,
+      "resourceIndex": 5
+    },
+    {
+      "index": 5,
+      "x": 395,
+      "y": 198,
+      "baseMaxQuantity": 30000,
+      "resourceIndex": 0
+    },
+    {
+      "index": 6,
+      "x": 466,
+      "y": 333,
+      "baseMaxQuantity": 70000,
+      "resourceIndex": 4
+    },
+    {
+      "index": 7,
+      "x": 563,
+      "y": 226,
+      "baseMaxQuantity": 2000,
+      "resourceIndex": 0
+    },
+    {
+      "index": 8,
+      "x": 478,
+      "y": 247,
+      "baseMaxQuantity": 10000,
+      "resourceIndex": 0
+    },
+    {
+      "index": 9,
+      "x": 603,
+      "y": 346,
+      "baseMaxQuantity": 20000,
+      "resourceIndex": 4
+    },
+    {
+      "index": 10,
+      "x": 705,
+      "y": 305,
+      "baseMaxQuantity": 5000,
+      "resourceIndex": 4
+    },
+    {
+      "index": 11,
+      "x": 812,
+      "y": 266,
+      "baseMaxQuantity": 4000,
+      "resourceIndex": 2
+    },
+    {
+      "index": 12,
+      "x": 816,
+      "y": 173,
+      "baseMaxQuantity": 40000,
+      "resourceIndex": 2
+    },
+    {
+      "index": 13,
+      "x": 714,
+      "y": 118,
+      "baseMaxQuantity": 12000,
+      "resourceIndex": 2
+    },
+    {
+      "index": 14,
+      "x": 811,
+      "y": 43,
+      "baseMaxQuantity": 200000,
+      "resourceIndex": 5
+    },
+    {
+      "index": 15,
+      "x": 606,
+      "y": 106,
+      "baseMaxQuantity": 5000,
+      "resourceIndex": 1
+    },
+    {
+      "index": 16,
+      "x": 0,
+      "y": 0,
+      "baseMaxQuantity": 0,
+      "resourceIndex": -1
+    },
+    {
+      "index": 17,
+      "x": 0,
+      "y": 0,
+      "baseMaxQuantity": 0,
+      "resourceIndex": -1
+    },
+    {
+      "index": 18,
+      "x": 0,
+      "y": 0,
+      "baseMaxQuantity": 0,
+      "resourceIndex": -1
+    },
+    {
+      "index": 19,
+      "x": 0,
+      "y": 0,
+      "baseMaxQuantity": 0,
+      "resourceIndex": -1
+    },
+    {
+      "index": 20,
+      "x": 123,
+      "y": 126,
+      "baseMaxQuantity": 3000,
+      "resourceIndex": 13
+    },
+    {
+      "index": 21,
+      "x": 93,
+      "y": 362,
+      "baseMaxQuantity": 3000000,
+      "resourceIndex": 15
+    },
+    {
+      "index": 22,
+      "x": 173,
+      "y": 255,
+      "baseMaxQuantity": 50000,
+      "resourceIndex": 13
+    },
+    {
+      "index": 23,
+      "x": 271,
+      "y": 185,
+      "baseMaxQuantity": 1000,
+      "resourceIndex": 10
+    },
+    {
+      "index": 24,
+      "x": 254,
+      "y": 314,
+      "baseMaxQuantity": 750000,
+      "resourceIndex": 13
+    },
+    {
+      "index": 25,
+      "x": 365,
+      "y": 132,
+      "baseMaxQuantity": 250,
+      "resourceIndex": 10
+    },
+    {
+      "index": 26,
+      "x": 353,
+      "y": 228,
+      "baseMaxQuantity": 500,
+      "resourceIndex": 10
+    },
+    {
+      "index": 27,
+      "x": 396,
+      "y": 322,
+      "baseMaxQuantity": 2000,
+      "resourceIndex": 11
+    },
+    {
+      "index": 28,
+      "x": 450,
+      "y": 72,
+      "baseMaxQuantity": 80000,
+      "resourceIndex": 12
+    },
+    {
+      "index": 29,
+      "x": 565,
+      "y": 323,
+      "baseMaxQuantity": 5000,
+      "resourceIndex": 11
+    },
+    {
+      "index": 30,
+      "x": 567,
+      "y": 169,
+      "baseMaxQuantity": 25000,
+      "resourceIndex": 12
+    },
+    {
+      "index": 31,
+      "x": 637,
+      "y": 226,
+      "baseMaxQuantity": 10000,
+      "resourceIndex": 12
+    },
+    {
+      "index": 32,
+      "x": 598,
+      "y": 54,
+      "baseMaxQuantity": 150000,
+      "resourceIndex": 14
+    },
+    {
+      "index": 33,
+      "x": 793,
+      "y": 41,
+      "baseMaxQuantity": 1500000,
+      "resourceIndex": 15
+    },
+    {
+      "index": 34,
+      "x": 765,
+      "y": 132,
+      "baseMaxQuantity": 300000,
+      "resourceIndex": 14
+    },
+    {
+      "index": 35,
+      "x": 804,
+      "y": 251,
+      "baseMaxQuantity": 500000,
+      "resourceIndex": 14
+    },
+    {
+      "index": 36,
+      "x": 810,
+      "y": 336,
+      "baseMaxQuantity": 1000000,
+      "resourceIndex": 11
+    },
+    {
+      "index": 37,
+      "x": 0,
+      "y": 0,
+      "baseMaxQuantity": 0,
+      "resourceIndex": -1
+    },
+    {
+      "index": 38,
+      "x": 0,
+      "y": 0,
+      "baseMaxQuantity": 0,
+      "resourceIndex": -1
+    },
+    {
+      "index": 39,
+      "x": 0,
+      "y": 0,
+      "baseMaxQuantity": 0,
+      "resourceIndex": -1
+    },
+    {
+      "index": 40,
+      "x": 87,
+      "y": 137,
+      "baseMaxQuantity": 1000000,
+      "resourceIndex": 25
+    },
+    {
+      "index": 41,
+      "x": 158,
+      "y": 44,
+      "baseMaxQuantity": 500000,
+      "resourceIndex": 24
+    },
+    {
+      "index": 42,
+      "x": 199,
+      "y": 197,
+      "baseMaxQuantity": 750,
+      "resourceIndex": 20
+    },
+    {
+      "index": 43,
+      "x": 179,
+      "y": 314,
+      "baseMaxQuantity": 1250,
+      "resourceIndex": 20
+    },
+    {
+      "index": 44,
+      "x": 365,
+      "y": 347,
+      "baseMaxQuantity": 2000,
+      "resourceIndex": 20
+    },
+    {
+      "index": 45,
+      "x": 357,
+      "y": 265,
+      "baseMaxQuantity": 300,
+      "resourceIndex": 20
+    },
+    {
+      "index": 46,
+      "x": 382,
+      "y": 55,
+      "baseMaxQuantity": 200000,
+      "resourceIndex": 24
+    },
+    {
+      "index": 47,
+      "x": 436,
+      "y": 148,
+      "baseMaxQuantity": 5000,
+      "resourceIndex": 21
+    },
+    {
+      "index": 48,
+      "x": 493,
+      "y": 286,
+      "baseMaxQuantity": 10000,
+      "resourceIndex": 21
+    },
+    {
+      "index": 49,
+      "x": 476,
+      "y": 394,
+      "baseMaxQuantity": 800000,
+      "resourceIndex": 21
+    },
+    {
+      "index": 50,
+      "x": 509,
+      "y": 44,
+      "baseMaxQuantity": 3000000,
+      "resourceIndex": 25
+    },
+    {
+      "index": 51,
+      "x": 560,
+      "y": 186,
+      "baseMaxQuantity": 30000,
+      "resourceIndex": 21
+    },
+    {
+      "index": 52,
+      "x": 632,
+      "y": 55,
+      "baseMaxQuantity": 320000,
+      "resourceIndex": 23
+    },
+    {
+      "index": 53,
+      "x": 811,
+      "y": 47,
+      "baseMaxQuantity": 5000000,
+      "resourceIndex": 26
+    },
+    {
+      "index": 54,
+      "x": 736,
+      "y": 151,
+      "baseMaxQuantity": 100000,
+      "resourceIndex": 23
+    },
+    {
+      "index": 55,
+      "x": 741,
+      "y": 249,
+      "baseMaxQuantity": 75000,
+      "resourceIndex": 22
+    },
+    {
+      "index": 56,
+      "x": 698,
+      "y": 334,
+      "baseMaxQuantity": 50000,
+      "resourceIndex": 22
+    },
+    {
+      "index": 57,
+      "x": 807,
+      "y": 333,
+      "baseMaxQuantity": 500000,
+      "resourceIndex": 22
+    },
+    {
+      "index": 58,
+      "x": 0,
+      "y": 0,
+      "baseMaxQuantity": 0,
+      "resourceIndex": -1
+    },
+    {
+      "index": 59,
+      "x": 0,
+      "y": 0,
+      "baseMaxQuantity": 0,
+      "resourceIndex": -1
+    },
+    {
+      "index": 60,
+      "x": 98,
+      "y": 49,
+      "baseMaxQuantity": 4000000,
+      "resourceIndex": 35
+    },
+    {
+      "index": 61,
+      "x": 91,
+      "y": 358,
+      "baseMaxQuantity": 2500000,
+      "resourceIndex": 34
+    },
+    {
+      "index": 62,
+      "x": 141,
+      "y": 195,
+      "baseMaxQuantity": 150000,
+      "resourceIndex": 31
+    },
+    {
+      "index": 63,
+      "x": 237,
+      "y": 95,
+      "baseMaxQuantity": 300000,
+      "resourceIndex": 31
+    },
+    {
+      "index": 64,
+      "x": 202,
+      "y": 264,
+      "baseMaxQuantity": 50000,
+      "resourceIndex": 31
+    },
+    {
+      "index": 65,
+      "x": 371,
+      "y": 40,
+      "baseMaxQuantity": 6000000,
+      "resourceIndex": 36
+    },
+    {
+      "index": 66,
+      "x": 395,
+      "y": 212,
+      "baseMaxQuantity": 10000,
+      "resourceIndex": 32
+    },
+    {
+      "index": 67,
+      "x": 369,
+      "y": 398,
+      "baseMaxQuantity": 1000000,
+      "resourceIndex": 34
+    },
+    {
+      "index": 68,
+      "x": 460,
+      "y": 321,
+      "baseMaxQuantity": 100000,
+      "resourceIndex": 30
+    },
+    {
+      "index": 69,
+      "x": 511,
+      "y": 398,
+      "baseMaxQuantity": 25000,
+      "resourceIndex": 30
+    },
+    {
+      "index": 70,
+      "x": 573,
+      "y": 256,
+      "baseMaxQuantity": 5000,
+      "resourceIndex": 30
+    },
+    {
+      "index": 71,
+      "x": 704,
+      "y": 179,
+      "baseMaxQuantity": 1000,
+      "resourceIndex": 30
+    },
+    {
+      "index": 72,
+      "x": 682,
+      "y": 343,
+      "baseMaxQuantity": 3000,
+      "resourceIndex": 30
+    },
+    {
+      "index": 73,
+      "x": 476,
+      "y": 81,
+      "baseMaxQuantity": 500000,
+      "resourceIndex": 33
+    },
+    {
+      "index": 74,
+      "x": 644,
+      "y": 52,
+      "baseMaxQuantity": 1000000,
+      "resourceIndex": 33
+    },
+    {
+      "index": 75,
+      "x": 588,
+      "y": 176,
+      "baseMaxQuantity": 1500000,
+      "resourceIndex": 33
+    },
+    {
+      "index": 76,
+      "x": 813,
+      "y": 99,
+      "baseMaxQuantity": 10000000,
+      "resourceIndex": 37
+    },
+    {
+      "index": 77,
+      "x": 0,
+      "y": 0,
+      "baseMaxQuantity": 0,
+      "resourceIndex": -1
+    },
+    {
+      "index": 78,
+      "x": 0,
+      "y": 0,
+      "baseMaxQuantity": 0,
+      "resourceIndex": -1
+    },
+    {
+      "index": 79,
+      "x": 0,
+      "y": 0,
+      "baseMaxQuantity": 0,
+      "resourceIndex": -1
     }
   ],
   "saltLicks": [
@@ -37220,7 +39571,7 @@
         "name": "DMK_Snowgoon",
         "x1": 30000000,
         "x2": 120,
-        "x3": 1000000,
+        "x3": 1200000,
         "x4": 1,
         "x5": 1.32,
         "x6": 140,
@@ -37234,6 +39585,168 @@
         "x4": 0,
         "x5": 1,
         "x6": 115,
+        "x7": null
+      }
+    ],
+    [
+      {
+        "name": "Candles",
+        "x1": 1,
+        "x2": 2,
+        "x3": 15000,
+        "x4": 0,
+        "x5": 1,
+        "x6": 0,
+        "x7": 1.75e+28
+      },
+      {
+        "name": "Lil_Jar",
+        "x1": 2,
+        "x2": 3,
+        "x3": 20000,
+        "x4": 0,
+        "x5": 1,
+        "x6": 5,
+        "x7": null
+      },
+      {
+        "name": "Wreath",
+        "x1": 5,
+        "x2": 5,
+        "x3": 32000,
+        "x4": 0,
+        "x5": 1,
+        "x6": 12,
+        "x7": null
+      },
+      {
+        "name": "Stool",
+        "x1": 10,
+        "x2": 8,
+        "x3": 45000,
+        "x4": 0,
+        "x5": 1,
+        "x6": 24,
+        "x7": null
+      },
+      {
+        "name": "Candlssimo",
+        "x1": 50,
+        "x2": 10,
+        "x3": 65000,
+        "x4": 0,
+        "x5": 1,
+        "x6": 33,
+        "x7": null
+      },
+      {
+        "name": "Vase_of_Air",
+        "x1": 125,
+        "x2": 15,
+        "x3": 80000,
+        "x4": 0,
+        "x5": 1,
+        "x6": 42,
+        "x7": null
+      },
+      {
+        "name": "Barrier_Rope",
+        "x1": 300,
+        "x2": 25,
+        "x3": 110000,
+        "x4": 0,
+        "x5": 1,
+        "x6": 54,
+        "x7": null
+      },
+      {
+        "name": "Vase_of_Thistle",
+        "x1": 750,
+        "x2": 35,
+        "x3": 140000,
+        "x4": 0,
+        "x5": 1,
+        "x6": 68,
+        "x7": null
+      },
+      {
+        "name": "Chair",
+        "x1": 3000,
+        "x2": 40,
+        "x3": 190000,
+        "x4": 0,
+        "x5": 1,
+        "x6": 80,
+        "x7": null
+      },
+      {
+        "name": "Marble_Urn",
+        "x1": 15000,
+        "x2": 50,
+        "x3": 250000,
+        "x4": 0,
+        "x5": 1,
+        "x6": 91,
+        "x7": null
+      },
+      {
+        "name": "Holy_Visage",
+        "x1": 60000,
+        "x2": 60,
+        "x3": 350000,
+        "x4": 0,
+        "x5": 1,
+        "x6": 105,
+        "x7": null
+      },
+      {
+        "name": "Candelabra",
+        "x1": 200000,
+        "x2": 80,
+        "x3": 600000,
+        "x4": 0,
+        "x5": 1,
+        "x6": 120,
+        "x7": null
+      },
+      {
+        "name": "Squarelumn",
+        "x1": 5000000,
+        "x2": 100,
+        "x3": 1000000,
+        "x4": 0,
+        "x5": 1,
+        "x6": 140,
+        "x7": null
+      },
+      {
+        "name": "Crown_Jewel",
+        "x1": 20000000,
+        "x2": 120,
+        "x3": 1200000,
+        "x4": 1,
+        "x5": 1,
+        "x6": 160,
+        "x7": null
+      },
+      {
+        "name": "Vase_of_Sanctimony",
+        "x1": 60000000,
+        "x2": 150,
+        "x3": 1500000,
+        "x4": 1,
+        "x5": 1.35,
+        "x6": 180,
+        "x7": null
+      },
+      {
+        "name": "Esquire_Morose",
+        "x1": 10000000,
+        "x2": 15000,
+        "x3": 250000,
+        "x4": 0,
+        "x5": 1,
+        "x6": 130,
         "x7": null
       }
     ]
@@ -38022,13 +40535,238 @@
     {
       "name": "Amber_Be_Here",
       "description": "Amber_now_drops_+{%_more_often_from_destroying_rocks,_moving_you_ever_closer_to_your_childhood_dreams_of_having_100%_Amber_Drop_Chance!",
-      "x1": 10000000,
+      "x1": 1,
       "x2": 29.5,
       "x3": 10,
       "x4": 1,
       "x5": 1,
       "x6": 51,
       "x7": 16,
+      "x8": 1,
+      "x9": 1,
+      "x10": "_",
+      "x11": "_"
+    },
+    {
+      "name": "Manic_Mode",
+      "description": "You_can_now_toggle_Manic_Mode_ON_and_OFF_before_entering_a_tunnel._When_ON,_Stamina_Costs_are_30x_higher,_but_you_get_credited_with_a_new_'Manic_Best_Depth'_for_the_tunnel!",
+      "x1": 1,
+      "x2": 29.5,
+      "x3": 1,
+      "x4": 1,
+      "x5": 1,
+      "x6": 51,
+      "x7": 17,
+      "x8": 0,
+      "x9": 1,
+      "x10": "_",
+      "x11": "_"
+    },
+    {
+      "name": "Manic_POW",
+      "description": "+{%_POW._This_bonus_is_increased_by_1.05x_for_every_Manic_Depth_you've_reached_across_all_tunnels,_which_is_currently_^!_@_Total_Bonus:+$%_POW",
+      "x1": 10,
+      "x2": 2.15,
+      "x3": 100,
+      "x4": 1,
+      "x5": 1,
+      "x6": 53,
+      "x7": 17,
+      "x8": 1,
+      "x9": 0,
+      "x10": "_",
+      "x11": "_"
+    },
+    {
+      "name": "Manic_Discoveries",
+      "description": "+{%_Grand_Discovery_Chance._This_bonus_is_increased_by_1.05x_for_every_Manic_Depth_you've_reached_across_all_tunnels,_which_is_currently_^!_@_Total_Bonus:+$%_Grand_Discovery_Chance",
+      "x1": 25,
+      "x2": 2.2,
+      "x3": 100,
+      "x4": 1,
+      "x5": 1,
+      "x6": 54,
+      "x7": 17,
+      "x8": 2,
+      "x9": 0,
+      "x10": "_",
+      "x11": "_"
+    },
+    {
+      "name": "Manic_Efficiency",
+      "description": "+{%_Spelunking_Efficiency._This_bonus_is_increased_by_1.05x_for_every_Manic_Depth_you've_reached_across_all_tunnels,_which_is_currently_^!_@_Total_Bonus:+$%_Spelunking_Efficiency",
+      "x1": 200,
+      "x2": 2.3,
+      "x3": 100,
+      "x4": 1,
+      "x5": 1,
+      "x6": 55,
+      "x7": 17,
+      "x8": 3,
+      "x9": 0,
+      "x10": "_",
+      "x11": "_"
+    },
+    {
+      "name": "Elixir_Memorization",
+      "description": "Hold_down_on_an_Elixir_Option_(the_12_on_the_left-side)_to_memorize_it._You_start_every_run_with_one_usage_of_each_memorize_elixir!_@_You_can_memorize_up_to_{_different_elixirs.",
+      "x1": 1200,
+      "x2": 300000000,
+      "x3": 5,
+      "x4": 1,
+      "x5": 1,
+      "x6": 53,
+      "x7": 18,
+      "x8": 0,
+      "x9": 1,
+      "x10": "_",
+      "x11": "_"
+    },
+    {
+      "name": "Doublethink_Memory",
+      "description": "There's_a_{%_chance_to_get_TWO_elixir_usages_from_your_Memorized_Elixirs,_instead_of_just_one!",
+      "x1": 4000,
+      "x2": 2.4,
+      "x3": 100,
+      "x4": 1,
+      "x5": 1,
+      "x6": 57,
+      "x7": 18,
+      "x8": 1,
+      "x9": 1,
+      "x10": "_",
+      "x11": "_"
+    },
+    {
+      "name": "Stamina_Trackometer",
+      "description": "Unlocks_the_Stamina_Trackometer._This_meter_fills_up_whenever_you_use_stamina_during_a_delve,_and_levels_up_when_you've_used_enough!_@_Each_Trackometer_LV_gives_+{%_Stamina_EXP_Gain",
+      "x1": 20000,
+      "x2": 3.5,
+      "x3": 50,
+      "x4": 1,
+      "x5": 1,
+      "x6": 57,
+      "x7": 19,
+      "x8": 0,
+      "x9": 0,
+      "x10": "_",
+      "x11": "_"
+    },
+    {
+      "name": "Amber-Track",
+      "description": "Your_Trackometer_now_gives_+{%_Amber_per_LV!_@_Total_Bonus:_+$%_Amber_Gains",
+      "x1": 75000,
+      "x2": 3.6,
+      "x3": 50,
+      "x4": 2,
+      "x5": 1,
+      "x6": 59,
+      "x7": 19,
+      "x8": 1,
+      "x9": 0,
+      "x10": "_",
+      "x11": "_"
+    },
+    {
+      "name": "Maxima-Track",
+      "description": "Your_Trackometer_now_gives_+{_Max_Stamina_per_LV!_@_Total_Bonus:_+$_Max_Stamina_for_all_characters",
+      "x1": 200000,
+      "x2": 100,
+      "x3": 25,
+      "x4": 1,
+      "x5": 1,
+      "x6": 60,
+      "x7": 19,
+      "x8": 2,
+      "x9": 1,
+      "x10": "_",
+      "x11": "_"
+    },
+    {
+      "name": "Royal_Hardhat",
+      "description": "+{_Talent_PTS_for_your_Royal_Guardians!",
+      "x1": 1000000,
+      "x2": 5.5,
+      "x3": 50,
+      "x4": 1,
+      "x5": 1,
+      "x6": 59,
+      "x7": 20,
+      "x8": 0,
+      "x9": 1,
+      "x10": "_",
+      "x11": "_"
+    },
+    {
+      "name": "Paper_Hardhat",
+      "description": "+{%_Research_EXP_gain!",
+      "x1": 5000000,
+      "x2": 2.2,
+      "x3": 200,
+      "x4": 2,
+      "x5": 1,
+      "x6": 62,
+      "x7": 20,
+      "x8": 1,
+      "x9": 0,
+      "x10": "_",
+      "x11": "_"
+    },
+    {
+      "name": "Fire_Hardhat",
+      "description": "+{%_Total_Damage_for_all_characters_for_like,_fighting_monsters_and_stuff_and_things!",
+      "x1": 60000000,
+      "x2": 1.85,
+      "x3": 250,
+      "x4": 4,
+      "x5": 1,
+      "x6": 63,
+      "x7": 20,
+      "x8": 2,
+      "x9": 0,
+      "x10": "_",
+      "x11": "_"
+    },
+    {
+      "name": "Striped_Hardhat",
+      "description": "Your_Priest_units_generate_}x_more_Purity_EXP,_so_you_can_purify_maps_that_much_faster!",
+      "x1": 125000000,
+      "x2": 1.7,
+      "x3": 300,
+      "x4": 1,
+      "x5": 1,
+      "x6": 64,
+      "x7": 20,
+      "x8": 3,
+      "x9": 0,
+      "x10": "_",
+      "x11": "_"
+    },
+    {
+      "name": "The_Pink_Amber_Purposefully-Misleading-Part_of_the_Contract",
+      "description": "Red_was_never_part_of_the_agreement,_clearly!!_We_only_work_with_Pink_Amber,_worth_1Q_Red_Amber_(or_1e24_Orange_Amber)_each._As_a_show_of_good_faith_despite_your_misunderstanding,_you_get_+{%_more_amber.",
+      "x1": 1,
+      "x2": 1.25,
+      "x3": 99999,
+      "x4": 1,
+      "x5": 1,
+      "x6": 62,
+      "x7": 21,
+      "x8": 0,
+      "x9": 0,
+      "x10": "_",
+      "x11": "_"
+    },
+    {
+      "name": "Amber_Supply_Swap",
+      "description": "Amber_is_worth_25x_more_but_now_drops_20x_less_often,_utterly_destroying_your_naive_childhood_fantasy_of_achieving_100%_Amber_Drop_Chance._Oh,_what_a_shame.",
+      "x1": 2,
+      "x2": 29.5,
+      "x3": 1,
+      "x4": 1,
+      "x5": 1,
+      "x6": 66,
+      "x7": 21,
       "x8": 1,
       "x9": 1,
       "x10": "_",
@@ -40813,6 +43551,7 @@
     "CookingEXPgain": "Cooking EXP gain",
     "KitchenSpeed(Passive)": "Kitchen Speed (Passive)",
     "AllSkillEfficiency": "All Skill Efficiency",
+    "MasterclassDrops(Passive)": "Masterclass Drops (Passive)",
     "BoostFoodEffect": "Boost Food Effect",
     "ClassEXP(Passive)": "Class EXP (Passive)",
     "AllSkillEXP(Passive)": "All Skill EXP (Passive)",
@@ -40838,224 +43577,256 @@
       "name": "POWER",
       "effect": "@BASE_DAMAGE",
       "dk": 30,
-      "bonus": 3
+      "bonus": 3,
+      "flairShardIndex": 0
     },
     {
       "index": 1,
       "name": "SPEED",
       "effect": "%@MOVE_SPEED",
       "dk": 65,
-      "bonus": 0.1
+      "bonus": 0.1,
+      "flairShardIndex": 0
     },
     {
       "index": 2,
       "name": "MINING",
       "effect": "@MINING_POWER",
       "dk": 280,
-      "bonus": 0.3
+      "bonus": 0.3,
+      "flairShardIndex": 0
     },
     {
       "index": 3,
       "name": "FEASTY",
       "effect": "%@FOOD_EFFECT",
       "dk": 320,
-      "bonus": 1
+      "bonus": 1,
+      "flairShardIndex": 0
     },
     {
       "index": 4,
       "name": "HEALTH",
       "effect": "@BASE_HEALTH",
       "dk": 0,
-      "bonus": 3
+      "bonus": 3,
+      "flairShardIndex": 0
     },
     {
       "index": 5,
       "name": "KACHOW",
       "effect": "%@CRIT_DAMAGE",
       "dk": -15,
-      "bonus": 0.4
+      "bonus": 0.4,
+      "flairShardIndex": 1
     },
     {
       "index": 6,
       "name": "LUMBERBOB",
       "effect": "@CHOPPIN_POWER",
       "dk": 90,
-      "bonus": 0.3
+      "bonus": 0.3,
+      "flairShardIndex": 0
     },
     {
       "index": 7,
       "name": "THICC_SKIN",
       "effect": "@BASE_DEFENCE",
       "dk": 210,
-      "bonus": 1
+      "bonus": 1,
+      "flairShardIndex": 0
     },
     {
       "index": 8,
       "name": "OCEANMAN",
       "effect": "@FISHING_POWER",
       "dk": 115,
-      "bonus": 0.3
+      "bonus": 0.3,
+      "flairShardIndex": 1
     },
     {
       "index": 9,
       "name": "OL_RELIABLE",
       "effect": "@CATCHIN_POWER",
       "dk": 45,
-      "bonus": 0.3
+      "bonus": 0.3,
+      "flairShardIndex": 1
     },
     {
       "index": 10,
       "name": "EXP",
       "effect": "%@CLASS_EXP",
       "dk": 0,
-      "bonus": 0.1
+      "bonus": 0.1,
+      "flairShardIndex": 1
     },
     {
       "index": 11,
       "name": "ANVIL",
       "effect": "%@PRODUCT_SPD",
       "dk": 165,
-      "bonus": 0.5
+      "bonus": 0.5,
+      "flairShardIndex": 0
     },
     {
       "index": 12,
       "name": "CAULDRON",
       "effect": "%@ALCHEMY_EXP",
       "dk": 280,
-      "bonus": 0.5
+      "bonus": 0.5,
+      "flairShardIndex": 1
     },
     {
       "index": 13,
       "name": "BEHOLDER",
       "effect": "%@CRIT_CHANCE",
       "dk": 300,
-      "bonus": 0.2
+      "bonus": 0.2,
+      "flairShardIndex": 1
     },
     {
       "index": 14,
       "name": "BULLSEYE",
       "effect": "%@ACCURACY",
       "dk": 110,
-      "bonus": 0.8
+      "bonus": 0.8,
+      "flairShardIndex": 1
     },
     {
       "index": 15,
       "name": "BOX",
       "effect": "@TRAPPIN_POWER",
       "dk": 180,
-      "bonus": 0.3
+      "bonus": 0.3,
+      "flairShardIndex": 2
     },
     {
       "index": 16,
       "name": "TWOSOUL",
       "effect": "@WORSHIP_POWER",
       "dk": 260,
-      "bonus": 0.3
+      "bonus": 0.3,
+      "flairShardIndex": 2
     },
     {
       "index": 17,
       "name": "EHEXPEE",
       "effect": "%@SKILL_EXP",
       "dk": 69,
-      "bonus": 0.1
+      "bonus": 0.1,
+      "flairShardIndex": 2
     },
     {
       "index": 18,
       "name": "SEESAW",
       "effect": "%@CONS_EXP",
       "dk": 13,
-      "bonus": 0.5
+      "bonus": 0.5,
+      "flairShardIndex": 2
     },
     {
       "index": 19,
       "name": "PECUNIA",
       "effect": "%@COINS",
       "dk": 50,
-      "bonus": 1
+      "bonus": 1,
+      "flairShardIndex": 1
     },
     {
       "index": 20,
       "name": "MUTTON",
       "effect": "%@COOKING_EXP",
       "dk": 0,
-      "bonus": 0.3
+      "bonus": 0.3,
+      "flairShardIndex": 3
     },
     {
       "index": 21,
       "name": "EGG",
       "effect": "%@BREEDING_EXP",
       "dk": 25,
-      "bonus": 0.4
+      "bonus": 0.4,
+      "flairShardIndex": 3
     },
     {
       "index": 22,
       "name": "BATTLEAXE",
       "effect": "%@DAMAGE",
       "dk": 300,
-      "bonus": 0.2
+      "bonus": 0.2,
+      "flairShardIndex": 0
     },
     {
       "index": 23,
       "name": "SPIRAL",
       "effect": "%@DIVINITY_EXP",
       "dk": 70,
-      "bonus": 1
+      "bonus": 1,
+      "flairShardIndex": 4
     },
     {
       "index": 24,
       "name": "BOAT",
       "effect": "%@SAILING_SPD",
       "dk": 210,
-      "bonus": 0.5
+      "bonus": 0.5,
+      "flairShardIndex": 4
     },
     {
       "index": 25,
       "name": "COMPOST",
       "effect": "%@FARMING_EXP",
       "dk": 75,
-      "bonus": 0.4
+      "bonus": 0.4,
+      "flairShardIndex": 5
     },
     {
       "index": 26,
       "name": "STEALTH",
       "effect": "%@STEALTH",
       "dk": 185,
-      "bonus": 0.3
+      "bonus": 0.3,
+      "flairShardIndex": 5
     },
     {
       "index": 27,
       "name": "ESSENCE",
       "effect": "%@WHITE_ESS",
       "dk": 160,
-      "bonus": 0.6
+      "bonus": 0.6,
+      "flairShardIndex": 5
     },
     {
       "index": 28,
       "name": "VILLAGER",
       "effect": "%@VILLAGER_EXP",
       "dk": 120,
-      "bonus": 0.3
+      "bonus": 0.3,
+      "flairShardIndex": 4
     },
     {
       "index": 29,
       "name": "DRAGON",
       "effect": "%@STATUES_BONUS",
       "dk": 270,
-      "bonus": 0.2
+      "bonus": 0.2,
+      "flairShardIndex": 3
     },
     {
       "index": 30,
       "name": "SPELUNKY",
       "effect": "%@SPELUNK_EXP",
       "dk": 43,
-      "bonus": 0.1
+      "bonus": 0.1,
+      "flairShardIndex": 6
     },
     {
       "index": 31,
       "name": "CORAL",
       "effect": "%@DAILY_CORAL",
       "dk": 181,
-      "bonus": 0.02
+      "bonus": 0.02,
+      "flairShardIndex": 6
     }
   ],
   "summoningBonuses": [
@@ -45222,7 +47993,7 @@
     {
       "name": "Unique_Sushi_Created_",
       "info": "Basically,_the_highest_Tier_of_Sushi_you've_created_over_at_the_Sushi_Station_in_World_7!",
-      "x1": 54,
+      "x1": 63,
       "x2": 2,
       "x3": 800,
       "x4": null
@@ -45233,6 +48004,30 @@
       "x1": 300,
       "x2": 0,
       "x3": 500,
+      "x4": null
+    },
+    {
+      "name": "Total_Royal_Statue_LV",
+      "info": "filler",
+      "x1": 100,
+      "x2": 0,
+      "x3": 600,
+      "x4": null
+    },
+    {
+      "name": "Royal_Guardian_Outposts_Built",
+      "info": "filler",
+      "x1": 65,
+      "x2": 2,
+      "x3": 650,
+      "x4": null
+    },
+    {
+      "name": "Total_Resource_Grade_",
+      "info": "Resource_Grade_refers_to_the_Royal_Guardian_resource_system,_where_you_increase_each_resource_node's_Grade_by_collecting_all_its_resources.",
+      "x1": 1000,
+      "x2": 0,
+      "x3": 600,
       "x4": null
     }
   ],
@@ -47875,12 +50670,21 @@
     },
     {
       "name": "CLASSY_GOGO",
-      "x1": 25000,
+      "x1": 10000,
       "x2": 1.115,
       "x3": 100,
       "x4": 1,
       "x5": 1,
-      "description": "}x_Class_EXP_gain,_for_now..."
+      "description": "}x_Class_EXP_gain"
+    },
+    {
+      "name": "KINGDOMERCIAL",
+      "x1": 25000,
+      "x2": 1.41,
+      "x3": 100,
+      "x4": 1,
+      "x5": 1,
+      "description": "}x_Resource_gains_for_Royal_Guardian"
     }
   ]
 }

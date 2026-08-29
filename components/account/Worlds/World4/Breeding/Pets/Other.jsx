@@ -13,6 +13,7 @@ import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { useLocalStorage } from '@mantine/hooks';
 import { getTimeToLevel, MAX_BREEDABILITY_LEVEL, MAX_SHINY_LEVEL } from '@parsers/world-4/breeding';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { monsterImage } from '@utility/spriteImages';
 
 const PetCard = ({
   pet,
@@ -50,7 +51,7 @@ const PetCard = ({
   const amount = isShiny ? fencePet?.shiny : fencePet?.breedability;
   if (!showAllPets && !amount) return null;
   const timeLeft = ((goal - progress) / multi.value / amount) * 8.64e+7;
-  const missingIcon = (icon === 'Mface23' || icon === 'Mface21' || icon === 'Mface31') && monsterRawName !== 'shovelR';
+  const bodyIcon = icon?.startsWith('Mface');
   const totalChance = breedingMultipliers?.totalChance > 0.1
     ? `${notateNumber(Math.min(100, 100 * breedingMultipliers?.totalChance), 'Micro')}%`
     : `1 in ${Math.max(1, Math.ceil(1 / breedingMultipliers?.totalChance))}`;
@@ -78,8 +79,8 @@ const PetCard = ({
             ? (isShiny ? fencePet?.shiny : fencePet?.breedability) : null}
           sx={{ '& .MuiBadge-badge': { top: 10, left: 5 } }}>
           <MonsterIcon
-            src={missingIcon ? `${prefix}afk_targets/${monsterName}.png` : `${prefix}data/${icon}.png`}
-            missingIcon={missingIcon}
+            src={bodyIcon ? monsterImage(monsterRawName) : `${prefix}data/${icon}.png`}
+            missingIcon={bodyIcon}
             alt="" />
         </Badge>
         <Stack sx={{ width: '100%' }} gap={.5}>

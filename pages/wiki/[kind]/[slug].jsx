@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { Box } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import EntityPanel from '@components/wiki/EntityPanel';
+import WikiRail from '@components/wiki/WikiRail';
 import { pageIndex } from '@utility/wiki/page-graph';
 import { sessionQuery } from '@utility/nav-query';
 
@@ -15,23 +16,25 @@ const WikiEntity = ({ slice, seoTitle, seoDescription }) => {
 
   const go = (href) => router.push({ pathname: href, query: sessionQuery(router.query) });
 
-  return <Box sx={{ maxWidth: 1200 }}>
-    <NextSeo title={seoTitle} description={seoDescription}/>
-    <EntityPanel
-      index={index}
-      id={slice.id}
-      hrefFor={(id) => {
-        const node = index.byId[id];
-        return node?.slug ? `/wiki/${node.kind}/${node.slug}` : null;
-      }}
-      onNavigate={(id) => {
-        const node = index.byId[id];
-        if (node?.slug) go(`/wiki/${node.kind}/${node.slug}`);
-      }}
-      onBack={() => go('/wiki')}
-      onBrowseKind={(kind) => go(`/wiki/${kind}`)}
-    />
-  </Box>;
+  return <WikiRail current={slice.node?.kind}>
+    <Box sx={{ maxWidth: 1200 }}>
+      <NextSeo title={seoTitle} description={seoDescription}/>
+      <EntityPanel
+        index={index}
+        id={slice.id}
+        hrefFor={(id) => {
+          const node = index.byId[id];
+          return node?.slug ? `/wiki/${node.kind}/${node.slug}` : null;
+        }}
+        onNavigate={(id) => {
+          const node = index.byId[id];
+          if (node?.slug) go(`/wiki/${node.kind}/${node.slug}`);
+        }}
+        onBack={() => go('/wiki')}
+        onBrowseKind={(kind) => go(`/wiki/${kind}`)}
+      />
+    </Box>
+  </WikiRail>;
 };
 
 export const getStaticPaths = async () => {

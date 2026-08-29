@@ -14,6 +14,7 @@ import Tabber from '@components/common/Tabber';
 import { getTabs } from '@utility/helpers';
 import { PAGES } from '@components/constants';
 import CoralKidUpgrades from '@components/account/Worlds/World7/CoralReef/CoralKidUpgrades';
+import DivinityStyles from '@components/account/Worlds/World5/DivinityStyles';
 
 const Divinity = () => {
   const { state } = useContext(AppContext);
@@ -112,6 +113,7 @@ const Divinity = () => {
     </Stack>
     </div>
     <CoralKidUpgrades coralKidUpgrades={coralKidUpgrades} />
+    <DivinityStyles characters={state?.characters}/>
     </Tabber>
   </>;
 };

@@ -100,7 +100,11 @@ const MyApp = (props) => {
             copy - every page carried two, and _document's froze at the landing page and went
             stale on every client-side navigation after it. */}
         {staticTitle ? <title>{staticTitle}</title> : null}
-        {staticDescription ? <meta name="description" content={staticDescription}/> : null}
+        {/* key must stay "description", for the same reason as the canonical below: next-seo emits
+            its own copy under that key once the gate opens, and next/head only collapses two tags
+            when their keys match. Without it every page with its own NextSeo ships two
+            descriptions after hydration. */}
+        {staticDescription ? <meta name="description" content={staticDescription} key="description"/> : null}
         {/* key must stay "canonical": next-seo emits its own tag under that key once the gate
             opens, and next/head only collapses two <link>s when their keys match. Without it the
             page ends up with two canonicals. */}
@@ -200,6 +204,18 @@ const MyApp = (props) => {
                       description set here overwrites the page's own. 105 of 108 pages define
                       their own NextSeo; the rest set one locally. */}
                   <DefaultSeo
+                    // DefaultSeo emits a robots tag whether or not one is asked for, and next-seo
+                    // re-emits it AFTER the page's own NextSeo on every route change. Without this
+                    // it re-asserts "index,follow" over a page that shipped noindex statically, so
+                    // the page un-noindexes itself the moment JS runs.
+                    //
+                    // It has to be this prop and not `noindex`: DefaultSeo destructures a fixed
+                    // prop list that does not include noindex/nofollow, so a `noindex` here is
+                    // accepted and silently dropped. "AllPages" reads alarming but this value is
+                    // per-render and comes from the page's own seoNoindex, so it is only ever true
+                    // on a page that asked for it. nofollow is deliberately left alone: these
+                    // pages want "noindex,follow" so crawlers still traverse their links.
+                    dangerouslySetAllPagesToNoIndex={Boolean(noindex)}
                     // Same condition as the <link> above the gate, or a noindex page ships no
                     // canonical and then grows one on hydration - including the 404, which would
                     // claim a canonical for whatever URL failed to resolve.

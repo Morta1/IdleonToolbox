@@ -2,7 +2,7 @@ import React from 'react';
 import Library from '../account/Worlds/World3/Library';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
-import { cleanUnderscore, getDuration, getNextCompanionClaim, getTimeAsDays, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, getDuration, getNextCompanionClaim, prefix } from '@utility/helpers';
 import useRealDate from '@hooks/useRealDate';
 import { getCharacterByHighestSkillLevel, getEventShopBonus, getMiniBossesData, getRandomEvents } from '@parsers/misc';
 import Tooltip from '../Tooltip';
@@ -48,6 +48,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const nextFeatherRestart = now + (account?.owl?.upgrades?.[4]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
   const nextMegaFeatherRestart = now + (account?.owl?.upgrades?.[8]?.cost - account?.owl?.feathers) / account?.owl?.featherRate * 1000;
   const nextMegaFleshRestart = now + (account?.bubba?.upgrades?.[8]?.cost - account?.bubba?.meatSlices) / account?.bubba?.meatsliceRate * 60 * 1000;
+  const fDuration = getDuration(now, nextFeatherRestart);
+  const fLongDuration = nextFeatherRestart > maxTimeValue || fDuration?.days > 365;
   const mfDuration = getDuration(now, nextMegaFeatherRestart);
   const mfLongDuration = nextMegaFeatherRestart > maxTimeValue || mfDuration?.days > 365;
   // `totalFish` includes the fish banked since the last Poppy visit. Using the raw `fish` counter
@@ -55,6 +57,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const kangarooFish = account?.kangaroo?.totalFish;
   const nextFisherooReset = now + (account?.kangaroo?.upgrades?.[6]?.cost - kangarooFish) / account?.kangaroo?.fishRate * 60 * 1000;
   const nextGreatestCatch = now + (account?.kangaroo?.upgrades?.[11]?.cost - kangarooFish) / account?.kangaroo?.fishRate * 60 * 1000;
+  const frDuration = getDuration(now, nextFisherooReset);
+  const frLongDuration = nextFisherooReset > maxTimeValue || frDuration?.days > 365;
   const gcDuration = getDuration(now, nextGreatestCatch);
   const gcLongDuration = nextGreatestCatch > maxTimeValue || gcDuration?.days > 365;
   const cfDuration = getDuration(now, nextMegaFleshRestart);
@@ -217,6 +221,19 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   }, null);
   const allCropsGrown = growingPlots.length > 0 && nextCropTimeLeft === null;
 
+  // The soonest an outpost's resource runs out: past that it collects nothing until the daily
+  // restock, so this is the deadline for rewiring it to a resource that still has some left.
+  const royalCapHours = (account?.royalGuardian?.outposts ?? [])
+    .map(({ hoursToNodeCap }) => hoursToNodeCap)
+    .filter((hours) => hours != null && Number.isFinite(hours));
+  const royalNodeCapTime = royalCapHours.length > 0
+    ? now + Math.min(...royalCapHours) * 3600 * 1000
+    : null;
+  // Every wired outpost is already spent, which is a state the countdown itself cannot show.
+  const royalAllNodesEmpty = (account?.royalGuardian?.outposts ?? [])
+    .some(({ mode, connectedNodes }) => mode !== 1 && connectedNodes?.length > 0)
+    && royalCapHours.length === 0;
+
   const sushiFuel = account?.sushiStation?.fuel;
   const sushiFuelIsFull = sushiFuel && sushiFuel.cap > 0 && sushiFuel.current >= sushiFuel.cap;
   const sushiFuelFullTime = sushiFuel && sushiFuel.generation > 0 && !sushiFuelIsFull
@@ -323,18 +340,22 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           {!isFinite(nextFeatherRestart) ? <Stack direction={'row'} gap={1} alignItems={'center'}>
             <IconImg src={`${prefix}etc/Owl_4.png`} alt=""/>
             <Typography>A long time</Typography>
-          </Stack> : nextFeatherRestart < maxTimeValue ? <TimerCard
+          </Stack> : !isPast(nextFeatherRestart) && fLongDuration ? <Tooltip
+            sx={{ cursor: 'pointer' }}
+            onClick={() => router.push({ pathname: 'account/clickers/owl' })}
+            title={'Next feather restart: ' + getRealDateInMs(nextFeatherRestart)}>
+            <Stack direction={'row'} gap={1} alignItems={'center'}>
+              <IconImg src={`${prefix}etc/Owl_4.png`} alt=""/>
+              <Typography>A long time</Typography>
+            </Stack>
+          </Tooltip> : <TimerCard
             page={'account/clickers/owl'}
             tooltipContent={'Next feather restart: ' + getRealDateInMs(nextFeatherRestart)}
             lastUpdated={lastUpdated}
             time={nextFeatherRestart}
             icon={'etc/Owl_4.png'}
             timerPlaceholder={'Restart available'}
-          /> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
-            onClick={() => router.push({ pathname: 'account/clickers/owl' })}>
-            <IconImg src={`${prefix}etc/Owl_4.png`} alt=""/>
-            <Typography>{notateNumber(getTimeAsDays(nextFeatherRestart))} days</Typography>
-          </Stack>}
+          />}
         </> : null}
         {trackers?.Clickers?.megaFeatherRestart?.checked && account?.accountOptions?.[253] > 0 ? <>
           {!isPast(nextMegaFeatherRestart) && mfLongDuration ? <Tooltip
@@ -354,23 +375,27 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             timerPlaceholder={'Mega feather restart available'}
           />}
         </> : null}
-        {trackers?.Clickers?.fisherooReset?.checked && kangarooFish > 0 ? nextFisherooReset < maxTimeValue ? <TimerCard
-          page={'account/clickers/kangaroo'}
-          tooltipContent={'Next fisheroo reset: ' + getRealDateInMs(nextFisherooReset)}
-          lastUpdated={lastUpdated}
-          time={nextFisherooReset}
-          icon={'etc/KUpga_6.png'}
-          timerPlaceholder={'Restart available'}
-        /> : account?.kangaroo?.fishRate <= 0 ? <Stack direction={'row'} gap={1} alignItems={'center'}
-          sx={{ cursor: 'pointer' }}
-          onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
-          <IconImg src={`${prefix}etc/KUpga_11.png`} alt=""/>
-          <Typography>A long time</Typography>
-        </Stack> : <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
-          onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
-          <IconImg src={`${prefix}etc/KUpga_6.png`} alt=""/>
-          <Typography>{notateNumber(getTimeAsDays(nextFisherooReset))} days</Typography>
-        </Stack> : null}
+        {trackers?.Clickers?.fisherooReset?.checked && kangarooFish > 0 ? !isFinite(nextFisherooReset)
+          ? <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
+            onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}>
+            <IconImg src={`${prefix}etc/KUpga_6.png`} alt=""/>
+            <Typography>A long time</Typography>
+          </Stack> : !isPast(nextFisherooReset) && frLongDuration ? <Tooltip
+            sx={{ cursor: 'pointer' }}
+            onClick={() => router.push({ pathname: 'account/clickers/kangaroo' })}
+            title={'Next fisheroo reset: ' + getRealDateInMs(nextFisherooReset)}>
+            <Stack direction={'row'} gap={1} alignItems={'center'}>
+              <IconImg src={`${prefix}etc/KUpga_6.png`} alt=""/>
+              <Typography>A long time</Typography>
+            </Stack>
+          </Tooltip> : <TimerCard
+            page={'account/clickers/kangaroo'}
+            tooltipContent={'Next fisheroo reset: ' + getRealDateInMs(nextFisherooReset)}
+            lastUpdated={lastUpdated}
+            time={nextFisherooReset}
+            icon={'etc/KUpga_6.png'}
+            timerPlaceholder={'Restart available'}
+          /> : null}
         {trackers?.Clickers?.greatestCatch?.checked && kangarooFish > 0 ? !isPast(nextGreatestCatch) && gcLongDuration ? <Tooltip
           title={'Next greatest catch: ' + getRealDateInMs(nextGreatestCatch)}>
           <Stack direction={'row'} gap={1} alignItems={'center'} sx={{ cursor: 'pointer' }}
@@ -568,6 +593,19 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             icon={'etc/Fuel.png'}
             timerPlaceholder={'Full!'}
             forcePlaceholder={sushiFuelIsFull}
+          /> : null}
+        {trackers?.['World 7']?.royalNodeCap?.checked && (royalNodeCapTime || royalAllNodesEmpty) ?
+          <TimerCard
+            page={'account/class-specific/royal-guardian'}
+            tooltipContent={royalAllNodesEmpty
+              ? 'Every connected resource is empty'
+              : 'Next outpost resource runs out: ' + getRealDateInMs(royalNodeCapTime)}
+            lastUpdated={lastUpdated}
+            time={royalNodeCapTime ?? now}
+            icon={'data/UISkillIcon226.png'}
+            timerPlaceholder={'Empty!'}
+            forcePlaceholder={royalAllNodesEmpty}
+            showAsError={royalAllNodesEmpty}
           /> : null}
         {trackers?.['World 7']?.observationInsight?.checked
           ? observationInsightTimes.map((obs) =>

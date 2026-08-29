@@ -48,4 +48,22 @@ describe('searchEntities', () => {
     const { searchList } = indexGraph(graph);
     expect(searchEntities(searchList, '  ')).toEqual([]);
   });
+
+  // Typing a name in full should land it first. Both of these are prefix matches, so without an
+  // exact bucket the winner is whichever the graph happened to list first.
+  it('ranks an exact match above a longer prefix match that precedes it', () => {
+    const searchList = [
+      { id: 'item:CopperOreBar', kind: 'item', label: 'Copper Ore Bar' },
+      { id: 'item:Copper', kind: 'item', label: 'Copper Ore' }
+    ];
+    expect(searchEntities(searchList, 'Copper Ore')[0].id).toBe('item:Copper');
+  });
+
+  // The exact match can sit past the limit-th prefix match, so the scan cannot stop early.
+  it('finds an exact match sitting beyond the result limit', () => {
+    const searchList = Array.from({ length: 40 }, (_, i) => ({
+      id: `item:Filler${i}`, kind: 'item', label: `Copper Ore ${i}`
+    })).concat({ id: 'item:Copper', kind: 'item', label: 'Copper Ore' });
+    expect(searchEntities(searchList, 'copper ore')[0].id).toBe('item:Copper');
+  });
 });

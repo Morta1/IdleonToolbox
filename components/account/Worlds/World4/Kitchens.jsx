@@ -1,4 +1,5 @@
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { cleanUnderscore, kFormatter, notateNumber, prefix } from '@utility/helpers';
 import Tooltip from 'components/Tooltip';
 import Timer from 'components/common/Timer';
@@ -115,11 +116,12 @@ const Kitchens = ({
               <Stack direction={'row'} justifyContent={'center'}>
                 <Stack>
                   <Typography sx={{ color: 'success.light' }}>Speed ({kitchen?.speedLv})</Typography>
-                  <Breakdown data={kitchen?.mealSpeedBreakdown}>
-                    <Typography sx={{ borderBottom: '1px dotted', cursor: 'help' }}>
-                      {notateNumber(kitchen?.mealSpeed, 'Big') ?? 0}/hr
-                    </Typography>
-                  </Breakdown>
+                  <Stack direction={'row'} gap={0.5} alignItems={'center'}>
+                    <Typography>{notateNumber(kitchen?.mealSpeed, 'Big') ?? 0}/hr</Typography>
+                    <Breakdown data={kitchen?.mealSpeedBreakdown}>
+                      <IconInfoCircleFilled size={16} style={{ cursor: 'pointer', display: 'block' }}/>
+                    </Breakdown>
+                  </Stack>
                   <Stack mt={2} alignItems={'center'}>
                     <Tooltip title={spicesNames[firstSpiceIndex]}>
                       <SpiceIcon src={`${prefix}data/CookingSpice${firstSpiceIndex}.png`} alt=""/>
@@ -130,11 +132,12 @@ const Kitchens = ({
                 <Divider sx={{ mx: 2, backgroundColor: 'white' }} orientation="vertical" flexItem/>
                 <Stack>
                   <Typography sx={{ color: 'error.light' }}>Fire ({kitchen?.fireLv})</Typography>
-                  <Breakdown data={kitchen?.fireSpeedBreakdown}>
-                    <Typography sx={{ borderBottom: '1px dotted', cursor: 'help' }}>
-                      {notateNumber(kitchen?.fireSpeed, 'Big') ?? 0}/hr
-                    </Typography>
-                  </Breakdown>
+                  <Stack direction={'row'} gap={0.5} alignItems={'center'}>
+                    <Typography>{notateNumber(kitchen?.fireSpeed, 'Big') ?? 0}/hr</Typography>
+                    <Breakdown data={kitchen?.fireSpeedBreakdown}>
+                      <IconInfoCircleFilled size={16} style={{ cursor: 'pointer', display: 'block' }}/>
+                    </Breakdown>
+                  </Stack>
                   <Stack mt={2} alignItems={'center'}>
                     <Tooltip title={spicesNames[secondSpiceIndex]}>
                       <SpiceIcon src={`${prefix}data/CookingSpice${secondSpiceIndex}.png`} alt=""/>

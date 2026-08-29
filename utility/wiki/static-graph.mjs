@@ -48,7 +48,9 @@ export const staticNeighbourhood = (id) => {
   const secondHop = [];
   for (const otherId of firstHopIds) {
     for (const edge of edgesById.get(otherId) || []) {
-      if (SECOND_HOP_RELS.has(edge.rel) && edge.from === otherId) secondHop.push(edge);
+      // edge.to !== id for the same reason entityNeighbourhood has it: an edge that leads back to
+      // the focal node is already in the first hop, and collecting it again prints the row twice.
+      if (SECOND_HOP_RELS.has(edge.rel) && edge.from === otherId && edge.to !== id) secondHop.push(edge);
     }
   }
 

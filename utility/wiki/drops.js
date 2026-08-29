@@ -12,8 +12,6 @@ export const percentLabel = (value) => {
   return `${fixed}%`;
 };
 
-const percent = percentLabel;
-
 // "1 in 47,100" rather than "0.00213%", the way both the game and the wiki quote drop odds.
 // Three significant figures and then whole numbers, which is what idleon.wiki prints: a 14% drop
 // reads "1 in 7", not "1 in 7.14".
@@ -48,17 +46,6 @@ const DROP_TIER_LABELS = ['Base drops', 'Rare Drop', 'Mega-Rare'];
 
 export const dropTierLabel = (path) => DROP_TIER_LABELS[path.length]
   ?? (path[path.length - 1] || '').replace(/_/g, ' ');
-
-// The odds as a percentage, which is what the drop tables themselves are written in. Tiered drops
-// also carry their in-table chance, so the number the game shows stays findable.
-export const dropChanceLabel = (meta) => {
-  const effective = meta?.effectiveChance ?? meta?.chance;
-  if (effective == null) return '';
-  const tiered = meta?.dropTablePath?.length > 0;
-  return tiered
-    ? `${percent(effective)} per kill, ${percent(meta.chance)} inside ${dropTierLabel(meta.dropTablePath)}`
-    : `${percent(effective)} per kill`;
-};
 
 // Splits a monster's drops into the tiers the game shows, each headed by the odds of reaching that
 // table from a single kill. Cumulative, not relative to the tier above: Mega-Rare is 1 in 40,000

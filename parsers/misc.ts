@@ -42,8 +42,9 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getObolsBonus } from '@parsers/obols';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
-import { calcCardBonus } from '@parsers/cards';
+import { calcCardBonus, getCardLevel } from '@parsers/cards';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
+import { getArmoryUpgradeBonus, getOrbletMarketBonus } from '@parsers/class-specific/royalGuardian';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getMinorDivinityBonus } from '@parsers/world-5/divinity';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
@@ -115,7 +116,9 @@ export const getFriendBonusStats = (account: any = {}) => {
     )
   );
 
-  const extraMultiplier = 1 + (100 * (hasMrPig ? companionList?.[30]?.bonus ?? 0 : 0)) / 100;
+  // Pet Mart+: Spearfish (44) upgraded adds a flat +25% Friend Bonuses factor (CompLV2 flag, not scaled).
+  const spearfishLvl2Bonus = isCompanionLvl2Active(account, 44) ? 25 : 0;
+  const extraMultiplier = 1 + (100 * (hasMrPig ? companionList?.[30]?.bonus ?? 0 : 0) + spearfishLvl2Bonus) / 100;
   const rawFriendBonuses = account?.accountOptions?.[476];
   const bonuses = FRIEND_BONUS_NAMES.map((name, statIndex) => ({
     statIndex,
@@ -224,16 +227,40 @@ export const getGuaranteedCrystalMobs = (account: any) => {
       + (taskBonus + 4 * achievementBonus)))
 }
 
-export const getMasterclassCostReduction = (account: any, forceLegendTalent: any) => {
+// Game: "AllMasterclassCostReduxPrefix" - the pre-2.3.525 whole formula, now just the first factor.
+const getAllMasterclassCostReduxPrefix = (account: any, forceLegendTalent: any) => {
   const hasBonusBundle = isBundlePurchased(account?.bundles, 'bon_p');
   const hasLegendTalent = forceLegendTalent === undefined
     ? account?.accountOptions?.[480] < getLegendTalentBonus(account, 23)
     : forceLegendTalent;
-  const allMasterclassCostRedux = hasLegendTalent
+  return hasLegendTalent
     ? (hasBonusBundle ? 0.05 : 0.2)
     : (hasBonusBundle ? 0.25 : 1);
-  const first3mcCostRedux = 1 / (1 + (account?.accountOptions?.[499] ?? 0) / 100);
-  return allMasterclassCostRedux * first3mcCostRedux;
+}
+
+// Game: "AllMasterclassCostRedux" - applied alone by the Royal Armory (ArmoryUpgCost never touches
+// First3MC_CostRedux below). The orblet BARGAIN upgrade (index 7) is new in 2.3.525 and discounts
+// every masterclass, armory included, so it belongs here rather than in the "first 3" factor.
+export const getAllMasterclassCostRedux = (account: any, forceLegendTalent: any) => {
+  const orbletBargain = getOrbletMarketBonus(account, 7);
+  return getAllMasterclassCostReduxPrefix(account, forceLegendTalent) * (1 / (1 + orbletBargain / 100));
+}
+
+// Game: "First3MC_CostRedux" - Grimoire/Compass/Tesseract only. RoyalG[3][2] is the selected
+// Outpost ROG-bonus stat index (0-3) - the game multiplies it straight into ArmoryUpgBonus(79)
+// ("Compounding Outposting"), which reads like a copy-paste of the stat selector used elsewhere,
+// but it is the live formula.
+const getFirst3MasterclassCostRedux = (account: any) => {
+  const selectedRogIndex = account?.royalGuardian?.raw?.[3]?.[2] ?? 0;
+  const armoryBonus79 = getArmoryUpgradeBonus(account, 79);
+  return (1 / (1 + (account?.accountOptions?.[499] ?? 0) / 100))
+    * (1 / (1 + (selectedRogIndex * armoryBonus79) / 100));
+}
+
+// Combined value for the three "first 3" masterclasses (Grimoire, Compass, Tesseract) - the only
+// consumers of First3MC_CostRedux. Name/signature kept as-is so existing call sites are unaffected.
+export const getMasterclassCostReduction = (account: any, forceLegendTalent: any) => {
+  return getAllMasterclassCostRedux(account, forceLegendTalent) * getFirst3MasterclassCostRedux(account);
 }
 
 // "minBookLv" / "maxBookLv" - the SkillLevelsMAX range the passive Library can raise a talent into.
@@ -363,15 +390,20 @@ export const hasItemDropped = (account: any, itemName: any) => {
   return account?.looty?.lootyRaw?.includes(itemName);
 }
 
+// Equipment - tools, armor, weapons, carry bags. A typeGen starting with 'a' is gear: it takes its
+// own qty-1 inventory slot and never stacks, which is what separates it from every consumable.
+export const isEquipmentItem = (item: any): boolean =>
+  typeof item?.typeGen === 'string' && item.typeGen.charAt(0) === 'a';
+
 // Greenstack = 10,000,000+ of a single item in the Storage Chest (game registers it with no item-type
 // check). The Storage Chest is NOT carry-capped, so any item that stacks there can reach the threshold.
 // An item is greenstackable iff it can sit in the Storage Chest as a stack:
-//   1. not equipment - typeGen starting with 'a' is its own qty-1 slot, never stacks;
+//   1. not equipment - see isEquipmentItem, gear never stacks;
 //   2. actually depositable - hole/cavern resources (Type CURRENCY) and dungeon-only drops (DUNGEON_*)
 //      route to their own banks / evaporate on map exit, so they never get a chest slot.
 const NON_STORABLE_TYPES = new Set(['CURRENCY', 'DUNGEON_EVAPORATE', 'DUNGEON_FOOD', 'DUNGEON_ITEM', 'DUNGEON_KEY']);
 const isGreenstackable = (item: any): boolean =>
-  typeof item?.typeGen === 'string' && item.typeGen.charAt(0) !== 'a' && !NON_STORABLE_TYPES.has(item?.Type);
+  typeof item?.typeGen === 'string' && !isEquipmentItem(item) && !NON_STORABLE_TYPES.has(item?.Type);
 
 export const getSlab = (idleonData: any) => {
   const lootyRaw = idleonData?.Cards?.[1] || tryToParse(idleonData?.Cards1);
@@ -1047,19 +1079,22 @@ export const getAllCap = (character: any, account: any, forceMaxCapacity: any) =
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account, forceMaxCapacity)?.bonus;
   const bribeBonus = account?.bribes?.[23]?.done ? account?.bribes?.[23]?.value : 0;
   const companionBonus = isCompanionBonusActive(account, 18) ? account?.companions?.list?.at(18)?.bonus : 0;
+  // Pet Mart+: Dedotated_Ram (2) upgraded adds a flat +30% Carry Capacity term (CompLV2 flag * 30).
+  const ramLvl2Bonus = isCompanionLvl2Active(account, 2) ? 30 : 0;
 
   return {
     value: (1 + (guildBonus + talentBonus) / 100)
       * (1 + companionBonus / 100)
       * (1 + shrineBonus / 100) * Math.max(1 - prayerCurse / 100, 0.4)
-      * (1 + (prayerBonus + bribeBonus) / 100),
+      * (1 + (prayerBonus + bribeBonus + ramLvl2Bonus) / 100),
     breakdown: [
       { value: guildBonus, name: 'Guild' },
       { value: talentBonus, name: 'Talent' },
       { value: shrineBonus, name: 'Shrine' },
       { value: prayerBonus + (-prayerCurse), name: 'Prayer' },
       { value: bribeBonus, name: 'Bribe' },
-      { value: companionBonus, name: 'Companion' }
+      { value: companionBonus, name: 'Companion' },
+      { value: ramLvl2Bonus, name: 'Companion Lv2' }
     ]
   }
 }
@@ -1271,15 +1306,20 @@ export const getCompanions = (companionObject: any = {}, accountOptions: any = [
   const [companionIndex] = companionObject?.e?.split(',') || [];
   const companion = companions?.[companionIndex];
   const ownedCompanions = companionObject?.l?.reduce((result: any, comp: any) => {
-    const [companionIndex, isTradable] = comp?.split(',');
-    const current = result[companionIndex] || { count: 0, tradableCount: 0, nonTradableCount: 0 };
+    const [companionIndex, isTradable, , , levelRaw] = `${comp}`.split(',');
+    const current = result[companionIndex] || { count: 0, tradableCount: 0, nonTradableCount: 0, level: 0 };
     const tradable = isTradable === '1';
+    // Field index 4 is the Pet Mart+ upgrade level; the game keeps the max across owned copies.
+    // Absent/malformed (pre-patch saves) must resolve to 0, never NaN.
+    const parsedLevel = Number(levelRaw);
+    const level = Number.isFinite(parsedLevel) ? parsedLevel : 0;
     return {
       ...result,
       [companionIndex]: {
         count: current.count + 1,
         tradableCount: current.tradableCount + (tradable ? 1 : 0),
-        nonTradableCount: current.nonTradableCount + (tradable ? 0 : 1)
+        nonTradableCount: current.nonTradableCount + (tradable ? 0 : 1),
+        level: Math.max(current.level, level)
       }
     }
   }, {});
@@ -1300,10 +1340,15 @@ export const getCompanions = (companionObject: any = {}, accountOptions: any = [
       .filter((value: any) => Number.isInteger(value) && value >= 0)
   );
 
-  const updatedCompanions = companions?.map((comp, index) => {
+  const updatedCompanions = companions?.map((comp: any, index) => {
     const owned = (ownedCompanions?.[index]?.count || 0) > 0;
     const viaToken = !owned && tokenIndexSet.has(index);
     const simulated = !owned && !viaToken && simulatedIndexSet.has(index);
+    // Pet Mart+ (patch 2.3.525): a companion upgraded to level >= 1 uses upgradedBonus instead of
+    // bonus. Only owned copies carry a level - the "what if I owned this pet"
+    // simulation stays base-bonus-only, matching a Pet Bonus Token (see getCompanions doc above).
+    const level = ownedCompanions?.[index]?.level ?? 0;
+    const upgraded = level >= 1;
     return {
       ...comp,
       acquired: owned || viaToken || simulated,
@@ -1311,7 +1356,10 @@ export const getCompanions = (companionObject: any = {}, accountOptions: any = [
       simulated,
       copies: ownedCompanions?.[index]?.count ?? 0,
       tradableCount: ownedCompanions?.[index]?.tradableCount ?? 0,
-      nonTradableCount: ownedCompanions?.[index]?.nonTradableCount ?? 0
+      nonTradableCount: ownedCompanions?.[index]?.nonTradableCount ?? 0,
+      level,
+      upgraded,
+      bonus: upgraded ? (comp?.upgradedBonus ?? comp?.bonus) : comp?.bonus
     }
   })
 
@@ -1336,6 +1384,13 @@ export const getCompanions = (companionObject: any = {}, accountOptions: any = [
 
 export const isCompanionBonusActive = (account: any, index: any) => {
   return account?.companions?.list?.at(index)?.acquired;
+}
+
+// Pet Mart+ flag (game: _customBlock_CompLV2): true only when the companion is
+// both acquired and upgraded to level >= 1. Formulas multiply this flag by their own constant.
+export const isCompanionLvl2Active = (account: any, index: any) => {
+  const companion = account?.companions?.list?.at(index);
+  return companion?.acquired && (companion?.level ?? 0) >= 1;
 }
 
 export const getRandomEventItems = (account: any) => {
@@ -1585,6 +1640,10 @@ export const getAllMasterclassDropz = (character: any, account: any) => {
   const companion = isCompanionBonusActive(account, 38) ? (account?.companions?.list?.at(38)?.bonus ?? 0) : 0;
   const { value: gear101 } = getStatsFromGear(character, 101, account);
   const { value: gear106 } = getStatsFromGear(character, 106, account);
+  // Game: CardLv("fm_rat") - the Royal Guardian rat monster's card, capped at 25. Deliberately the
+  // raw card level (getCardLevel), not calcCardBonus - see the game function mapping doc for why a
+  // card's `effect` tag can't be trusted for this.
+  const ratCard = Math.min(getCardLevel(account?.cards, 'fm_rat'), 25);
 
   const value = (1 + killroy / 100)
     * (1 + spelunkShop / 100)
@@ -1592,7 +1651,8 @@ export const getAllMasterclassDropz = (character: any, account: any) => {
     * (1 + button / 100)
     * (1 + companion)
     * (1 + gear101 / 100)
-    * (1 + gear106 / 100);
+    * (1 + gear106 / 100)
+    * (1 + ratCard / 100);
 
   const sources = [
     { name: 'Killroy', value: killroy },
@@ -1602,6 +1662,7 @@ export const getAllMasterclassDropz = (character: any, account: any) => {
     { name: 'Companion', value: companion },
     { name: 'Gear (Masterclass drops)', value: gear101 },
     { name: 'Gear (Bonus MC drops)', value: gear106 },
+    { name: 'Card (Verminous)', value: ratCard },
   ];
 
   return { value, sources };

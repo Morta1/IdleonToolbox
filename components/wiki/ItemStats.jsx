@@ -54,15 +54,16 @@ const statGroups = (stats, rawName, type) => {
 // at all, and those pages used to carry no infobox whatsoever.
 const ItemStats = ({ node }) => {
   const sellPrice = node?.kind === 'item' ? node.sellPrice : null;
-  if (!node?.stats && !sellPrice) return null;
+  const obtainedFrom = node?.kind === 'item' ? node.obtainedFrom : null;
+  if (!node?.stats && !sellPrice && !obtainedFrom) return null;
 
   const groups = node.stats ? statGroups(node.stats, node.rawName, node.category) : [];
-  if (sellPrice) {
-    groups.push({
-      title: 'Other Info',
-      rows: [{ label: 'Sell Price', value: <CoinAmount amount={sellPrice} size={16}/> }]
-    });
-  }
+  // Where the item comes from when nothing in the graph can point at it: a dungeon run, a voyage,
+  // the anvil. Only set on items no edge reached, so it never contradicts a source above it.
+  const other = [];
+  if (obtainedFrom) other.push({ label: 'Obtained from', value: obtainedFrom });
+  if (sellPrice) other.push({ label: 'Sell Price', value: <CoinAmount amount={sellPrice} size={16}/> });
+  if (other.length > 0) groups.push({ title: 'Other Info', rows: other });
   return <InfoBox groups={groups}/>;
 };
 

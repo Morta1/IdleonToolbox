@@ -22,7 +22,7 @@ const CoinAmount = ({ amount, size = 18 }) => {
         alt={''}
         width={size}
         height={size}
-        style={{ objectFit: 'contain', imageRendering: 'pixelated' }}
+        style={{ objectFit: 'contain' }}
       />
       <Typography variant={'caption'} color={'text.secondary'}>{quantity.toLocaleString('en-US')}</Typography>
     </Stack>)}

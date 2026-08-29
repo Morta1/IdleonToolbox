@@ -47,8 +47,7 @@ export const collapseRows = (edges, dir) => {
       edge: row.edges[0],
       paths: row.edges.length,
       // Only meaningful when several paths merged; a single-path row's combined chance is its own.
-      combinedChance: combined > 0 ? combined : null,
-      bestChance: chances.length ? Math.max(...chances) : null
+      combinedChance: combined > 0 ? combined : null
     };
   });
 };
@@ -57,3 +56,16 @@ export const collapseRows = (edges, dir) => {
 // entity has 3 relations and Silver Pen has 248. A table's header earns its height somewhere in
 // between, and this is that line.
 export const TABLE_THRESHOLD = 15;
+
+// One threshold cannot serve both row shapes. A "Used in crafting" row is a name, and fifteen of
+// them read fine as a list. A drop row is a name plus a quantity, a rate and a percentage, and in a
+// half-width column the long names wrap while the numbers land wherever the wrap left them. Those
+// rows want the table's fixed columns much sooner.
+//
+// It is not an edge case: the median monster drops 12 things, and 148 of the 325 that drop anything
+// sit between six and fifteen, which is the whole band this moves.
+export const DETAIL_TABLE_THRESHOLD = 6;
+
+// A section carrying per-row numbers is the one that earns a table early. `Detail` is what renders
+// them, so it is also what marks the section.
+export const tableThreshold = (section) => (section?.Detail ? DETAIL_TABLE_THRESHOLD : TABLE_THRESHOLD);

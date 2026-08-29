@@ -6,6 +6,7 @@ import {
   getHighestLevelCharacter,
   getHighestLevelOfClass,
   isCompanionBonusActive,
+  isCompanionLvl2Active,
   isMasteryBonusUnlocked
 } from '@parsers/misc';
 import { CLASSES, mainStatMap, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
@@ -653,8 +654,11 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
 
   // --- Multiplicative factors ---
   const starSignBonus = getStarSignBonus(characters?.[0], account, 'Artifact_Find', false, true);
+  // Pet Mart+: Glimbo (154) upgraded adds a flat +1 (CompLV2 flag) inside the outer max but outside
+  // the inner min - it deliberately lets the multiplier exceed the old 2x cap.
+  const glimboLvl2Bonus = isCompanionLvl2Active(account, 154) ? 1 : 0;
   const glimboCompanion = isCompanionBonusActive(account, 154)
-    ? Math.max(1, Math.min(2, 1 + 2 * (account?.companions?.list?.at(154)?.bonus ?? 0))) : 1;
+    ? Math.max(1, Math.min(2, 1 + 2 * (account?.companions?.list?.at(154)?.bonus ?? 0)) + glimboLvl2Bonus) : 1;
   const killroyBonus = Math.max(1, getKillRoyShopBonus(account, 0));
   const researchGrid106 = getResearchGridBonus(account, 106, 0);
   const turtleVial = getVialsBonusByStat(account?.alchemy?.vials, '6turtle');

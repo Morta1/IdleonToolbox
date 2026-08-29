@@ -6,6 +6,7 @@ import useCheckbox from '@components/common/useCheckbox';
 import ItemDisplay from '@components/common/ItemDisplay';
 import Tooltip from '@components/Tooltip';
 import { dustNames } from '@parsers/class-specific/compass';
+import { monsterImage } from '@utility/spriteImages';
 
 const Medallions = ({ medallions, totalAcquiredMedallions }) => {
   const [CheckboxEl, hideCoinedPortals] = useCheckbox('Hide coined monsters');
@@ -46,8 +47,8 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
     <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
       {medallions?.map(({
                           Name,
-                          imageName,
                           rawName,
+                          imageName,
                           acquired,
                           description = '',
                           drops,
@@ -71,7 +72,7 @@ const Medallions = ({ medallions, totalAcquiredMedallions }) => {
               <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center"
                      sx={{ position: 'relative' }}>
                 <img style={{ width: 41, height: 41, objectFit: 'contain' }}
-                     src={`${prefix}afk_targets/${imageName || Name}.png`} alt={imageName || Name}/>
+                     src={monsterImage(imageName)} alt={Name}/>
                 <Stack>
                   <Typography>{cleanUnderscore(Name)}</Typography>
                   <Typography variant={'caption'}>{description ? `(${description})` : ''}</Typography>

@@ -9,6 +9,7 @@ import { NextSeo } from 'next-seo';
 import { getRawShopItems } from '@parsers/shops';
 import { getRawRefinerySalts } from '@parsers/misc';
 import DashboardSettings from '../components/common/DashboardSettings';
+import { DashboardSettingsProvider } from '@components/common/context/DashboardSettingsProvider';
 import Button from '@mui/material/Button';
 import { migrateConfig } from '@utility/migrations';
 import { IconSettingsFilled } from '@tabler/icons-react';
@@ -17,7 +18,7 @@ import { getCrystalCountdownSkills } from '@parsers/talents';
 import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 
 const baseTrackers = {
-  version: 69,
+  version: 70,
   account: {
     General: {
       tasks: {
@@ -532,6 +533,47 @@ const baseTrackers = {
       }
     },
     'World 7': {
+      royalGuardian: {
+        checked: true,
+        options: [
+          {
+            name: 'idleOutposts',
+            checked: true,
+            helperText: 'Alert when an outpost is connected to an empty resource and another in range still has some'
+          },
+          {
+            name: 'unwiredOutposts',
+            checked: true,
+            helperText: 'Alert when an outpost has no resource connected at all'
+          },
+          {
+            name: 'idleSupportCamps',
+            checked: true,
+            helperText: 'Alert when a support camp isn\'t boosting any outpost'
+          },
+          {
+            name: 'unspentPts',
+            type: 'input',
+            props: { label: 'Unspent PTS threshold', value: 10, minValue: 1 },
+            checked: true
+          },
+          {
+            name: 'claimableMaps',
+            checked: true,
+            helperText: 'Alert when a map has met its kill requirement and an outpost can be claimed'
+          },
+          {
+            name: 'idleUnits',
+            checked: true,
+            helperText: 'Alert when units are clearing a map you have already claimed, or aren\'t assigned anywhere'
+          },
+          {
+            name: 'restockLocked',
+            checked: true,
+            helperText: 'Alert while Resource Replenish is unbought, which is what refills empty resources daily'
+          }
+        ]
+      },
       gallery: {
         checked: true,
         options: [{ name: 'trophiesMissing', checked: true }, { name: 'nametagsMissing', checked: true }]
@@ -835,7 +877,8 @@ const baseTrackers = {
     'World 7': {
       researchLevelUp: { checked: true, options: [] },
       sushiFuelFull: { checked: true, options: [] },
-      observationInsight: { checked: true, options: [] }
+      observationInsight: { checked: true, options: [] },
+      royalNodeCap: { checked: true, options: [] }
     }
   }
 }
@@ -844,6 +887,8 @@ const Dashboard = () => {
   const { dispatch, state } = useContext(AppContext);
   const { characters, account, lastUpdated } = state;
   const [open, setOpen] = useState(false);
+  // Set when the modal is opened by clicking an alert, so it lands on that alert's own setting.
+  const [settingsTarget, setSettingsTarget] = useState(null);
   const [config, setConfig] = useState(() => {
     const migratedConfig = migrateConfig(baseTrackers, state?.trackers);
 
@@ -857,6 +902,16 @@ const Dashboard = () => {
   const [filters, setFilters] = React.useState(tryToParse(localStorage.getItem('dashboard-filters')) || ['account',
     'characters', 'timers']);
 
+
+  const handleOpenSettings = (configType, path) => {
+    setSettingsTarget({ configType, path });
+    setOpen(true);
+  };
+
+  const handleCloseSettings = () => {
+    setOpen(false);
+    setSettingsTarget(null);
+  };
 
   const handleConfigChange = (updatedConfig) => {
     setConfig(updatedConfig);
@@ -893,21 +948,26 @@ const Dashboard = () => {
         </ToggleButtonGroup>
         <Button variant={'outlined'} sx={{ textTransform: 'none', height: 32 }}
                 startIcon={<IconSettingsFilled size={20}/>}
-                onClick={() => setOpen(true)}>
+                onClick={() => {
+                  setSettingsTarget(null);
+                  setOpen(true);
+                }}>
           Configure alerts
         </Button>
       </Stack>
       <Stack gap={2}>
-        {isDisplayed('account') ? <Account trackers={config?.account} characters={characters}
-                                           account={account} lastUpdated={lastUpdated}/> : null}
-        {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
-                                                 account={account} lastUpdated={lastUpdated}/> : null}
-        {isDisplayed('timers') ? <Etc characters={characters} account={account} trackers={config?.timers}
-                                      lastUpdated={lastUpdated}/> : null}
+        <DashboardSettingsProvider onOpenSettings={handleOpenSettings}>
+          {isDisplayed('account') ? <Account trackers={config?.account} characters={characters}
+                                             account={account} lastUpdated={lastUpdated}/> : null}
+          {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
+                                                   account={account} lastUpdated={lastUpdated}/> : null}
+          {isDisplayed('timers') ? <Etc characters={characters} account={account} trackers={config?.timers}
+                                        lastUpdated={lastUpdated}/> : null}
+        </DashboardSettingsProvider>
       </Stack>
     </Stack>
     <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open}
-                       onClose={() => setOpen(false)} config={config}/>
+                       onClose={handleCloseSettings} config={config} target={settingsTarget}/>
   </>
 };
 

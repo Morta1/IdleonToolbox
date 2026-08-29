@@ -15,17 +15,29 @@ import {
 } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
-import { cleanUnderscore, getNextCompanionClaim, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, getNextCompanionClaim, numberWithCommas } from '@utility/helpers';
 import Timer from '@components/common/Timer';
 import { CardTitleAndValue } from '../../../components/common/styles';
 import { companionGroups } from '@website-data';
 import { useLocalStorage } from '@mantine/hooks';
 import { simulatedCompanionsKey } from '@components/constants';
+import { monsterImage } from '@utility/spriteImages';
 
 // Its own component so ticking a pet re-renders that one card instead of all ~170 of them: every
 // prop here is a primitive or a stable callback, which is what lets the compiler skip the rest.
 const CompanionCard = ({ companion, index, editable, checked, onToggle }) => {
-  const { name, effect, acquired = '', copies = 0, tradableCount = 0, viaToken = false, simulated = false } = companion;
+  const {
+    name,
+    effect,
+    upgradedEffect,
+    upgraded = false,
+    acquired = '',
+    copies = 0,
+    tradableCount = 0,
+    viaToken = false,
+    simulated = false
+  } = companion;
+  const displayedEffect = upgraded && upgradedEffect ? upgradedEffect : effect;
 
   return <Card
     onClick={editable ? () => onToggle(index) : undefined}
@@ -42,14 +54,15 @@ const CompanionCard = ({ companion, index, editable, checked, onToggle }) => {
           {editable && <Checkbox size='small' checked={checked} sx={{ p: 0, alignSelf: 'flex-start' }}/>}
           <img width={42} height={42}
             style={{ objectFit: 'contain' }}
-            src={`${prefix}afk_targets/${name}.png`} alt={name} />
+            src={monsterImage(name)} alt={name} />
           <Stack gap={1}>
             <Stack direction='row' gap={1} alignItems='center'>
               <Typography variant='body1'>{cleanUnderscore(name)}</Typography>
               {viaToken && <Chip label={'Token'} size={'small'} color={'primary'} sx={{ height: 18, fontSize: 10 }} />}
               {simulated && <Chip label={'Simulated'} size={'small'} color={'info'} sx={{ height: 18, fontSize: 10 }} />}
+              {upgraded && <Chip label={'Pet Mart+'} size={'small'} color={'success'} sx={{ height: 18, fontSize: 10 }} />}
             </Stack>
-            <Typography variant='body2' color='text.secondary'>{cleanUnderscore(effect?.replace('{', '+'))}</Typography>
+            <Typography variant='body2' color='text.secondary'>{cleanUnderscore(displayedEffect?.replace('{', '+'))}</Typography>
             {acquired && !viaToken && !simulated && (
               <Typography variant="body2">
                 Tradable: {numberWithCommas(tradableCount)}/{numberWithCommas(copies)}
@@ -177,11 +190,12 @@ const Pets = () => {
       </Stack>
       {editing && <Alert severity={'info'}>
         Tick the pets you don&apos;t own yet and hit save. The site will count them as owned, so you can
-        see what their bonuses would be worth.
+        see what their bonuses would be worth: at the base level, not the Pet Mart+ upgraded level.
       </Alert>}
       {!editing && simulatedCount > 0 && <Alert severity={'warning'}>
         Pet simulation is on. {simulatedCount} unowned {simulatedCount === 1 ? 'pet is' : 'pets are'} counted as owned,
-        so every bonus on the site includes {simulatedCount === 1 ? 'it' : 'them'}.
+        so every bonus on the site includes {simulatedCount === 1 ? 'it' : 'them'}, at the base level: not the
+        Pet Mart+ upgraded level shown on pets you actually own and have upgraded.
       </Alert>}
     </Stack>}
     <Stack gap={4}>

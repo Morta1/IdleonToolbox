@@ -26,6 +26,7 @@ import {
   getPickleCount,
   getPrayerHpMulti
 } from '@parsers/misc/boneJoeCalculator';
+import { monsterImage } from '@utility/spriteImages';
 
 const hitsLabel = (hits) => {
   if (!isFinite(hits)) return 'no damage';
@@ -69,7 +70,7 @@ const CharacterMinibosses = ({ characters, account, overridePickles, overrideHpM
                   <TableCell align={'right'}>Pickles</TableCell>
                   {minibosses.map(({ rawName, name }) => <TableCell key={rawName} align={'center'}>
                     <Tooltip title={cleanUnderscore(name)}>
-                      <img src={`${prefix}afk_targets/${name}.png`} alt={cleanUnderscore(name)} width={28} height={28}
+                      <img src={monsterImage(name)} alt={cleanUnderscore(name)} width={28} height={28}
                            style={{ objectFit: 'contain' }}/>
                     </Tooltip>
                   </TableCell>)}

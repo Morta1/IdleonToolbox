@@ -4,6 +4,23 @@ import { chooseGrouping, groupEntries } from '../../utility/wiki/grouping';
 const repeat = (value, times) => Array.from({ length: times }, () => value);
 
 describe('chooseGrouping', () => {
+  // The ceiling is about noise, not about the number itself. A caller raises it where the facet is
+  // the game's own structure: talents come in 27 class tabs of about fifteen, which is how a player
+  // already thinks of them, and a flat A-Z of 376 names is the unreadable option.
+  it('refuses a facet past the default ceiling and takes it when the caller raises one', () => {
+    const classes = Array.from({ length: 27 }, (_, tab) => `Class ${tab}`)
+      .flatMap((name) => Array.from({ length: 14 }, () => name));
+    expect(chooseGrouping(classes)).toBe('none');
+    expect(chooseGrouping(classes, { facetMax: 40 })).toBe('facet');
+  });
+
+  // Raising the ceiling does not switch the other guards off: a facet that does not divide the set
+  // is still refused however many values it has.
+  it('still refuses a facet one value dominates, whatever the ceiling', () => {
+    const lopsided = [...Array(200).fill('Monster'), 'Ore', 'Fish', 'Log'];
+    expect(chooseGrouping(lopsided, { facetMax: 40 })).toBe('none');
+  });
+
   // All 162 maps carry a world, spread 41/24/21/17/17/17/25. This is the case the facet was for.
   it('uses the facet when it divides the set evenly enough', () => {
     const categories = [

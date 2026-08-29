@@ -61,7 +61,7 @@ const Bonuses = ({ rogBonuses, uniqueSushi, knowledge }) => {
                             <img
                               src={`${prefix}etc/SushiPerfectoStar.png`}
                               alt="Perfecto"
-                              style={{ width: 28, height: 28, objectFit: 'contain', imageRendering: 'pixelated' }}
+                              style={{ width: 28, height: 28, objectFit: 'contain' }}
                             />
                           )}
                         </Stack>

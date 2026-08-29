@@ -1,5 +1,5 @@
 import { Card, CardContent, Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber } from '@utility/helpers';
 import React, { useState } from 'react';
 import { CardTitleAndValue } from '@components/common/styles';
 import { getEndlessBattles } from '@parsers/world-6/summoning';
@@ -58,7 +58,7 @@ const Battles = ({ battles, armyHealth, armyDamage, highestEndlessLevel, winnerB
               return <Card key={'upgrade-' + index} sx={{ width: 220, opacity: won ? .5 : 1 }}>
                 <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
-                    <img width={42} height={42} src={`${prefix}${icon}.png`} alt={''}/>
+                    <img width={42} height={42} src={icon} alt={''}/>
                     {colorBattleIndex === 9 ? <Typography variant={'caption'}>{index + 1}</Typography> : null}
                   </Stack>
                   <Divider sx={{ my: 2 }}></Divider>

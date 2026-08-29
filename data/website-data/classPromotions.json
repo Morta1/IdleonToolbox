@@ -1,0 +1,325 @@
+{
+  "Beginner": {
+    "index": 1,
+    "released": true,
+    "promotesTo": [
+      "Warrior",
+      "Archer",
+      "Mage"
+    ],
+    "talentTabs": [
+      "Beginner"
+    ]
+  },
+  "Journeyman": {
+    "index": 2,
+    "released": true,
+    "promotesTo": [
+      "Maestro"
+    ],
+    "talentTabs": [
+      "Beginner",
+      "Journeyman"
+    ]
+  },
+  "Maestro": {
+    "index": 3,
+    "released": true,
+    "promotesTo": [
+      "Voidwalker"
+    ],
+    "promotesFrom": "Journeyman",
+    "talentTabs": [
+      "Beginner",
+      "Journeyman",
+      "Maestro"
+    ]
+  },
+  "Voidwalker": {
+    "index": 4,
+    "released": true,
+    "promotesTo": [
+      "Infinilyte"
+    ],
+    "promotesFrom": "Maestro",
+    "talentTabs": [
+      "Beginner",
+      "Journeyman",
+      "Maestro",
+      "Voidwalker"
+    ]
+  },
+  "Warrior": {
+    "index": 7,
+    "released": true,
+    "promotesTo": [
+      "Barbarian",
+      "Squire"
+    ],
+    "promotesFrom": "Beginner",
+    "basicsTab": "Rage_Basics",
+    "talentTabs": [
+      "Rage_Basics",
+      "Warrior"
+    ]
+  },
+  "Barbarian": {
+    "index": 8,
+    "released": true,
+    "promotesTo": [
+      "Blood_Berserker"
+    ],
+    "promotesFrom": "Warrior",
+    "talentTabs": [
+      "Rage_Basics",
+      "Warrior",
+      "Barbarian"
+    ]
+  },
+  "Squire": {
+    "index": 9,
+    "released": true,
+    "promotesTo": [
+      "Divine_Knight"
+    ],
+    "promotesFrom": "Warrior",
+    "talentTabs": [
+      "Rage_Basics",
+      "Warrior",
+      "Squire"
+    ]
+  },
+  "Blood_Berserker": {
+    "index": 10,
+    "released": true,
+    "promotesTo": [
+      "Death_Bringer"
+    ],
+    "promotesFrom": "Barbarian",
+    "talentTabs": [
+      "Rage_Basics",
+      "Warrior",
+      "Barbarian",
+      "Blood_Berserker"
+    ]
+  },
+  "Divine_Knight": {
+    "index": 12,
+    "released": true,
+    "promotesTo": [
+      "Royal_Guardian"
+    ],
+    "promotesFrom": "Squire",
+    "talentTabs": [
+      "Rage_Basics",
+      "Warrior",
+      "Squire",
+      "Divine_Knight"
+    ]
+  },
+  "Archer": {
+    "index": 19,
+    "released": true,
+    "promotesTo": [
+      "Bowman",
+      "Hunter"
+    ],
+    "promotesFrom": "Beginner",
+    "basicsTab": "Calm_Basics",
+    "talentTabs": [
+      "Calm_Basics",
+      "Archer"
+    ]
+  },
+  "Bowman": {
+    "index": 20,
+    "released": true,
+    "promotesTo": [
+      "Siege_Breaker"
+    ],
+    "promotesFrom": "Archer",
+    "talentTabs": [
+      "Calm_Basics",
+      "Archer",
+      "Bowman"
+    ]
+  },
+  "Hunter": {
+    "index": 21,
+    "released": true,
+    "promotesTo": [
+      "Beast_Master"
+    ],
+    "promotesFrom": "Archer",
+    "talentTabs": [
+      "Calm_Basics",
+      "Archer",
+      "Hunter"
+    ]
+  },
+  "Beast_Master": {
+    "index": 25,
+    "released": true,
+    "promotesTo": [
+      "Wind_Walker"
+    ],
+    "promotesFrom": "Hunter",
+    "talentTabs": [
+      "Calm_Basics",
+      "Archer",
+      "Hunter",
+      "Beast_Master"
+    ]
+  },
+  "Mage": {
+    "index": 31,
+    "released": true,
+    "promotesTo": [
+      "Wizard",
+      "Shaman"
+    ],
+    "promotesFrom": "Beginner",
+    "basicsTab": "Savvy_Basics",
+    "talentTabs": [
+      "Savvy_Basics",
+      "Mage"
+    ]
+  },
+  "Wizard": {
+    "index": 32,
+    "released": true,
+    "promotesTo": [
+      "Elemental_Sorcerer"
+    ],
+    "promotesFrom": "Mage",
+    "talentTabs": [
+      "Savvy_Basics",
+      "Mage",
+      "Wizard"
+    ]
+  },
+  "Shaman": {
+    "index": 33,
+    "released": true,
+    "promotesTo": [
+      "Bubonic_Conjuror"
+    ],
+    "promotesFrom": "Mage",
+    "talentTabs": [
+      "Savvy_Basics",
+      "Mage",
+      "Shaman"
+    ]
+  },
+  "Elemental_Sorcerer": {
+    "index": 34,
+    "released": true,
+    "promotesTo": [
+      "Spiritual_Monk"
+    ],
+    "promotesFrom": "Wizard",
+    "talentTabs": [
+      "Savvy_Basics",
+      "Mage",
+      "Wizard",
+      "Elemental_Sorcerer"
+    ]
+  },
+  "Bubonic_Conjuror": {
+    "index": 36,
+    "released": true,
+    "promotesTo": [
+      "Arcane_Cultist"
+    ],
+    "promotesFrom": "Shaman",
+    "talentTabs": [
+      "Savvy_Basics",
+      "Mage",
+      "Shaman",
+      "Bubonic_Conjuror"
+    ]
+  },
+  "Infinilyte": {
+    "index": 5,
+    "released": false,
+    "promotesFrom": "Voidwalker",
+    "talentTabs": [
+      "Beginner",
+      "Journeyman",
+      "Maestro",
+      "Voidwalker",
+      "Infinilyte"
+    ]
+  },
+  "Death_Bringer": {
+    "index": 14,
+    "released": true,
+    "promotesFrom": "Blood_Berserker",
+    "talentTabs": [
+      "Rage_Basics",
+      "Warrior",
+      "Barbarian",
+      "Blood_Berserker",
+      "Death_Bringer"
+    ]
+  },
+  "Royal_Guardian": {
+    "index": 16,
+    "released": true,
+    "promotesFrom": "Divine_Knight",
+    "talentTabs": [
+      "Rage_Basics",
+      "Warrior",
+      "Squire",
+      "Divine_Knight",
+      "Royal_Guardian"
+    ]
+  },
+  "Siege_Breaker": {
+    "index": 22,
+    "released": true,
+    "promotesFrom": "Bowman",
+    "talentTabs": [
+      "Calm_Basics",
+      "Archer",
+      "Bowman",
+      "Siege_Breaker"
+    ]
+  },
+  "Wind_Walker": {
+    "index": 29,
+    "released": true,
+    "promotesFrom": "Beast_Master",
+    "talentTabs": [
+      "Calm_Basics",
+      "Archer",
+      "Hunter",
+      "Beast_Master",
+      "Wind_Walker"
+    ]
+  },
+  "Spiritual_Monk": {
+    "index": 35,
+    "released": false,
+    "promotesFrom": "Elemental_Sorcerer",
+    "talentTabs": [
+      "Savvy_Basics",
+      "Mage",
+      "Wizard",
+      "Elemental_Sorcerer",
+      "Spiritual_Monk"
+    ]
+  },
+  "Arcane_Cultist": {
+    "index": 40,
+    "released": true,
+    "promotesFrom": "Bubonic_Conjuror",
+    "talentTabs": [
+      "Savvy_Basics",
+      "Mage",
+      "Shaman",
+      "Bubonic_Conjuror",
+      "Arcane_Cultist"
+    ]
+  }
+}

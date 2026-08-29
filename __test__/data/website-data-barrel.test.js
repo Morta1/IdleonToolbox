@@ -2,10 +2,11 @@ import { describe, it, expect } from 'vitest';
 import * as data from '@website-data';
 
 describe('website-data barrel', () => {
-  // 148 keys are emitted as files; itemsArray is derived in the barrel. A missing name is a
-  // build break for whichever of the 116 importing files needed it.
-  it('exports 150 names', () => {
-    expect(Object.keys(data)).toHaveLength(150);
+  // 154 keys come from z-processing (26 in their own file, 128 inside shared-data.json);
+  // itemsArray is derived in the barrel. A missing name is a build break for whichever
+  // importing file needed it.
+  it('exports 157 names', () => {
+    expect(Object.keys(data)).toHaveLength(157);
   });
 
   it('has no empty export', () => {

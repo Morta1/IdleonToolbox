@@ -30,10 +30,11 @@ import { checkCharClass, CLASSES } from '@parsers/talents';
 import CoinsSection from '@components/tools/active-calculator/CoinsSection';
 import CauldronsSection from '@components/tools/active-calculator/CauldronsSection';
 import ObolsSection from '@components/tools/active-calculator/ObolsSection';
+import OrbletsSection from '@components/tools/active-calculator/OrbletsSection';
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
 
 
-const sections = ['coins', 'pets', 'kills', 'exp', 'cards', 'drops', 'cauldrons', 'obols'];
+const sections = ['coins', 'pets', 'kills', 'exp', 'cards', 'drops', 'cauldrons', 'obols', 'orblets'];
 
 const ActiveStuffCalculator = () => {
   const { state } = useContext(AppContext);
@@ -51,6 +52,7 @@ const ActiveStuffCalculator = () => {
   const isBeastMaster = checkCharClass(selectedCharacterClass, CLASSES.Beast_Master)
     || checkCharClass(selectedCharacterClass, CLASSES.Wind_Walker);
   const isShaman = checkCharClass(selectedCharacterClass, CLASSES.Shaman);
+  const isRoyalGuardian = checkCharClass(selectedCharacterClass, CLASSES.Royal_Guardian);
 
   useEffect(() => {
     if (snapshottedChar) {
@@ -61,6 +63,9 @@ const ActiveStuffCalculator = () => {
       }
       if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, CLASSES.Shaman)) {
         currentSections = currentSections.filter((name) => name !== 'cauldrons');
+      }
+      if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, CLASSES.Royal_Guardian)) {
+        currentSections = currentSections.filter((name) => name !== 'orblets');
       }
       setSelectedSections(currentSections);
     }
@@ -77,6 +82,10 @@ const ActiveStuffCalculator = () => {
     }
     if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, CLASSES.Shaman)) {
       currentSections = currentSections.filter((name) => name !== 'cauldrons');
+    }
+    // e.target.value is the playerId itself, not the character.
+    if (!checkCharClass(state?.characters?.[e.target?.value]?.class, CLASSES.Royal_Guardian)) {
+      currentSections = currentSections.filter((name) => name !== 'orblets');
     }
     setSelectedSections(currentSections);
     setSelectedChar(e.target.value);
@@ -162,6 +171,7 @@ const ActiveStuffCalculator = () => {
         {sections.map((section) => {
           if (section === 'pets' && !isBeastMaster) return null;
           if (section === 'cauldrons' && !isShaman) return null;
+          if (section === 'orblets' && !isRoyalGuardian) return null;
           return <ToggleButton key={section} value={section}>{section.camelToTitleCase()}</ToggleButton>
         })}
       </ToggleButtonGroup>
@@ -194,6 +204,9 @@ const ActiveStuffCalculator = () => {
         {isDisplayed('drops') ? <DropSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
         {isDisplayed('cauldrons') ? <CauldronsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
         {isDisplayed('obols') ? <ObolsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
+        {isDisplayed('orblets') && isRoyalGuardian
+          ? <OrbletsSection lastUpdated={lastUpdated} resultsOnly={resultsOnly}/>
+          : null}
       </>}
     <Snackbar
       open={Boolean(copyResult)}

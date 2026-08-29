@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Box, Divider, Grid, Stack, Typography, useMediaQuery } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
 import { cleanUnderscore, formatStarSignBonus, getTabs, prefix } from 'utility/helpers';
 import Tabber from '../../common/Tabber';
 import { PAGES } from '@components/constants';
+import useTabIndex from '@hooks/useTabIndex';
 
 const StarSigns = ({ starSigns, infiniteStars }) => {
-  const [selectedTab, setSelectedTab] = useState(0);
+  const tabs = getTabs(PAGES.ACCOUNT.misc.categories, 'constellations', 'Star Signs');
+  const [selectedTab] = useTabIndex(tabs, { queryKey: 'nt' });
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
   const chronus = starSigns.filter(({ tree }) => tree === 'chronus');
   const hydron = starSigns.filter(({ tree }) => tree === 'hydron');
@@ -15,7 +17,7 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
 
   return (
     <>
-      <Tabber queryKey={'nt'} tabs={getTabs(PAGES.ACCOUNT.misc.categories, 'constellations', 'Star Signs')} onTabChange={(selected) => setSelectedTab(selected)}>
+      <Tabber queryKey={'nt'} tabs={tabs} keepChildren>
         <Stack gap={3}>
           <Grid container>
             <Grid item md={4} sx={{ display: { sm: 'none', md: 'block' } }}>Name</Grid>

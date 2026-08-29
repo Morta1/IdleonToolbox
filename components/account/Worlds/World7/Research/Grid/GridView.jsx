@@ -5,7 +5,6 @@ import { cleanUnderscore } from '@utility/helpers';
 import { getShapeColor, hasShape } from './researchGridShared';
 
 const COLS = 20;
-const ROWS = 12;
 const CELL_SIZE = 30;
 
 /** Compute border/fill/tint for a grid cell from square data */
@@ -129,13 +128,15 @@ const GridCell = ({ sq, index }) => {
   );
 };
 
-/** Grid view: 12×20 cell grid */
+/** Grid view: fixed 20-column layout (the game's own index % 20 addressing), row count derived from the catalog so a future grid growing past 12 rows renders without a code change. */
 const GridView = ({ squares }) => {
+  const cellCount = Math.max(squares?.length ?? 0, COLS);
+  const rows = Math.ceil(cellCount / COLS);
   const getSquare = (row, col) => squares[row * COLS + col] ?? null;
 
   return (
     <Box sx={gridContainerSx}>
-      {Array.from({ length: ROWS * COLS }, (_, i) => {
+      {Array.from({ length: rows * COLS }, (_, i) => {
         const row = Math.floor(i / COLS);
         const col = i % COLS;
         const sq = getSquare(row, col);

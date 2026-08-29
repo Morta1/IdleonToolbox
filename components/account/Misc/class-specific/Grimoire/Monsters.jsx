@@ -3,6 +3,7 @@ import { Card, CardContent, Divider, Stack, Typography, Select, MenuItem, FormCo
 import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
 import React, { useState } from 'react';
 import { boneNames } from '@parsers/class-specific/grimoire';
+import { monsterImage } from '@utility/spriteImages';
 
 const Monsters = ({ monsters }) => {
   const [selectedBoneType, setSelectedBoneType] = useState('');
@@ -59,7 +60,7 @@ const Monsters = ({ monsters }) => {
                 <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center"
                        sx={{ position: 'relative' }}>
                   <img style={{ width: 41, height: 41, objectFit: 'contain' }}
-                       src={`${prefix}afk_targets/${Name}.png`} alt={Name}/>
+                       src={monsterImage(Name)} alt={Name}/>
                   <Stack>
                     <Typography>{cleanUnderscore(Name)}</Typography>
                     <Typography variant={'caption'}>{description ? `(${description})` : ''}</Typography>

@@ -393,14 +393,6 @@ export const formatStarSignBonus = (rawName, bonus) => {
   return String(rawName).replace('{.{', bonus).replace(/{/g, bonus);
 };
 
-export const getActivityIcon = (character) => {
-  const { afkTarget, targetMonster, monsterFace } = character || {};
-  if (!afkTarget || afkTarget === '_' || afkTarget === 'Nothing') return 'data/Afkz5';
-  if (monsterFace != null && monsterFace !== 0) return `data/Mface${monsterFace}`;
-  if (targetMonster) return `data/${targetMonster}_x1`;
-  return `afk_targets/${afkTarget}`;
-};
-
 export const getNumberWithOrdinal = (n) => {
   const s = ['th', 'st', 'nd', 'rd'], v = n % 100;
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
@@ -1212,8 +1204,12 @@ export function parseShorthandNumber(input) {
 }
 
 export const worldColor = ['#64b564', '#f1ac45', '#00bcd4', '#864ede', '#de4e4e', '#5FF1B4FF', '#40e0d0'];
+// The free pet claim went weekly -> daily ("The weekly 'Free Pet' chance is now daily. FOREVER.").
+// The game now computes this server-side (getFreeCompanionRemainingTimeDaily); its body isn't in
+// the client, so 24h is the best observable window, not a value read out of game code.
+const FREE_COMPANION_CLAIM_INTERVAL_MS = 86400000;
 export const getNextCompanionClaim = (account) => {
   const globalTime = account?.timeAway?.GlobalTime ?? 0;
   const lastFreeClaim = account?.companions?.lastFreeClaim ?? 0;
-  return new Date().getTime() + Math.max(0, 594e6 - (1e3 * globalTime - lastFreeClaim));
+  return new Date().getTime() + Math.max(0, FREE_COMPANION_CLAIM_INTERVAL_MS - (1e3 * globalTime - lastFreeClaim));
 };

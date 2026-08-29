@@ -129,8 +129,9 @@ const indexStampsByRawName = (stamps) => {
   return byRawName;
 };
 
-// What the stamp boosts, with no number: the amount depends on the stamp's level, which a page with
-// no save cannot know. idleon.wiki prints its Bonus the same way, "+ WIS" rather than a figure.
+// What the stamp boosts, with no number. This is the tooltip's and the meta description's copy,
+// where there is no room to explain which level a figure is for; the page's own Bonus row reads it
+// at level one instead, from the effect on stampInfo below.
 const stampBonus = (rawName, stampsByRawName) => {
   const effect = stampsByRawName[rawName]?.effect;
   if (!effect) return null;
@@ -139,13 +140,19 @@ const stampBonus = (rawName, stampsByRawName) => {
 
 // The rest of idleon.wiki's Stamp Info box. Its Number is the stamp's position in its own tab, and
 // the rawName's digits agree with that for all 128, so either derivation gives the same answer.
+//
+// effect carries the template with its `{` intact plus the growth the game reads it with, which is
+// what lets StampInfo print the level-one figure the way a vial's does. It travels as data rather
+// than a finished string because growth lives in utility/helpers, and this builder runs under bare
+// node where a .js module cannot be imported at all.
 const stampInfo = (rawName, stampsByRawName) => {
   const stamp = stampsByRawName[rawName];
   if (!stamp) return null;
   return {
     number: stamp.index + 1,
     category: `${stamp.group.charAt(0).toUpperCase()}${stamp.group.slice(1)} Stamp`,
-    material: stamp.itemReq?.[0]?.rawName ? stamp.itemReq[0].rawName : null
+    material: stamp.itemReq?.[0]?.rawName ? stamp.itemReq[0].rawName : null,
+    ...(stamp.func ? { effect: { template: stamp.effect, func: stamp.func, x1: stamp.x1, x2: stamp.x2 } } : {})
   };
 };
 

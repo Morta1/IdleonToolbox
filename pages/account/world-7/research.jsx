@@ -3,7 +3,8 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Stack } from '@mui/material';
 import { CardTitleAndValue, MissingData } from '@components/common/styles';
-import { notateNumber, commaNotation } from '@utility/helpers';
+import { notateNumber, commaNotation, secondsToShortDuration } from '@utility/helpers';
+import Tooltip from '@components/Tooltip';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
 import { getTabs } from '@utility/helpers';
@@ -36,11 +37,34 @@ const Research = () => {
     kaleidoscopeOwned,
     gridSquares,
     observations,
-    postyNotes
+    postyNotes,
+    researchLevel,
+    researchEXPpercent,
+    researchRegistrantOwned,
+    timeToLevel,
+    timeToLevelRegistrant
   } = research;
+
+  const formatEta = (hours) => (hours > 0 ? secondsToShortDuration(hours * 3600, { minUnit: 'minute' }) : '-');
 
   const overview = (
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+      <CardTitleAndValue
+        title={'Research Level'}
+        value={`${researchLevel ?? 0} (${(researchEXPpercent ?? 0).toFixed(2)}%)`}
+      />
+      <CardTitleAndValue title={'Time To Level'} value={formatEta(timeToLevel)}/>
+      <CardTitleAndValue title={'Time With Registrant'}>
+        <Stack direction="row" alignItems="center" gap={1}>
+          <span>{formatEta(timeToLevelRegistrant)}</span>
+          <Tooltip
+            title={`Research Registrant banks 12hrs of research gains every time you register for the tournament. Registering daily is a flat 1.5x rate.${researchRegistrantOwned ? '' : ' You don\'t own this upgrade yet.'}`}>
+            <Stack alignContent="center" sx={{ cursor: 'pointer' }}>
+              <IconInfoCircleFilled size={18}/>
+            </Stack>
+          </Tooltip>
+        </Stack>
+      </CardTitleAndValue>
       <CardTitleAndValue
         title={'Observations Found'}
         value={`${totalOccurrencesFound ?? 0} / ${occurrencesToBeFound ?? 0}`}

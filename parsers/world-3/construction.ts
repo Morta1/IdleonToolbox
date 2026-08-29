@@ -111,10 +111,12 @@ const parseFlags = (flagsUnlockedRaw: any[], flagsPlacedRaw: any[], cogsMap: any
   const expRateMulti = 1 + getSmallCogBonusTotal(cogsOrder, 2) / 100;
   const finalFlaggyRate = firstBoard?.totalFlaggyRate * flaggyMulti;
   // ExtraBuildSPDmulti and ExtraFlaggyRatemulti are deliberately not applied to these totals. The
-  // game bakes them into the character cogs' own stats before the board is summed (N.js:93466), so
-  // they are already inside the numbers below - multiplying again counts them twice, and would also
-  // apply them to plain cogs that never get them. Only the gem flaggy and small cog exp multipliers
-  // act on the total (N.js:93493 and :93495), which is what the two above are.
+  // game's WorkbenchStuff("PlayerBuildSpd", ...) result gets multiplied by both and written into
+  // each Player_ cog's own stats before the board is summed, so they are already inside the numbers
+  // below - multiplying again counts them twice, and would also apply them to plain cogs that never
+  // get them. Only the gem flaggy and small cog exp multipliers act on the total, which is what the
+  // two below are.
+  // The outpost factor this patch added to ExtraBuildSPDmulti is already inside that baked multiplier.
   return {
     ...firstBoard,
     baseBoard: board,

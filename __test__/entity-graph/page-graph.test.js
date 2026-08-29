@@ -107,3 +107,36 @@ describe('entityHref', () => {
     expect(entityHref({ kind: 'item' })).toBeNull();
   });
 });
+
+// The focal node's own edges are the first hop. The second hop follows the neighbours OUT, and an
+// edge that leads back is one already counted: Tomahawk Stamp listed the quest that rewards it
+// twice, and every shop listed its own town twice, because the panel draws a row per edge.
+describe('the second hop', () => {
+  const graph = {
+    nodes: {
+      'item:StampA4': { kind: 'item', rawName: 'StampA4', name: 'Tomahawk_Stamp' },
+      'quest:Hamish1': { kind: 'quest', rawName: 'Hamish1', name: 'The_Hamazing_Plot_Twist' },
+      'item:CopperBar': { kind: 'item', rawName: 'CopperBar', name: 'Copper_Bar' },
+      'npc:Hamish': { kind: 'npc', rawName: 'Hamish', name: 'Hamish' }
+    },
+    edges: [
+      { from: 'quest:Hamish1', to: 'item:StampA4', rel: 'rewards', meta: { amount: 1 } },
+      { from: 'quest:Hamish1', to: 'item:CopperBar', rel: 'requires', meta: { amount: 10 } },
+      { from: 'npc:Hamish', to: 'quest:Hamish1', rel: 'gives', meta: { order: 1 } }
+    ]
+  };
+
+  it('does not collect an edge that leads back to the focal node', () => {
+    const slice = entityNeighbourhood(graph, 'item:StampA4');
+    const rewards = slice.edges.filter((edge) => edge.rel === 'rewards' && edge.to === 'item:StampA4');
+    expect(rewards).toHaveLength(1);
+  });
+
+  // The hop still has to do its job: an NPC's quest chain renders each quest's items inline, and
+  // those are exactly the edges that do not touch the NPC.
+  it('still reaches what a neighbour leads to', () => {
+    const slice = entityNeighbourhood(graph, 'npc:Hamish');
+    expect(slice.edges.filter((edge) => edge.rel === 'rewards')).toHaveLength(1);
+    expect(slice.nodes['item:StampA4']).toBeTruthy();
+  });
+});

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  dropChanceLabel, dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, oneIn, percentLabel
+  dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, oneIn, percentLabel
 } from '../../utility/wiki/drops';
 
 // Gigafrog: 8 base drops, then Rare Drop at 1 in 200, then Mega-Rare at 1 in 200 of that.
@@ -76,21 +76,6 @@ describe('dropOdds', () => {
   });
 });
 
-describe('dropChanceLabel', () => {
-  it('shows only the per-kill percentage for a base drop', () => {
-    expect(dropChanceLabel(gigafrogEdges[0].meta)).toBe('14.0% per kill');
-  });
-
-  it('names the tier and keeps the in-table chance for a tabled drop', () => {
-    expect(dropChanceLabel(gigafrogEdges[3].meta))
-      .toBe('0.00213% per kill, 85.0% inside Mega-Rare');
-  });
-
-  it('renders nothing when there is no chance at all', () => {
-    expect(dropChanceLabel({})).toBe('');
-    expect(dropChanceLabel(undefined)).toBe('');
-  });
-});
 
 describe('dropTierGroups', () => {
   it('splits drops into the game tiers, ordered base first', () => {

@@ -69,6 +69,9 @@ const GenericUpgradeOptimizer = ({
   resourceNames,
   resourceKey,
   resourceImagePrefix,
+  // Grimoire/Compass/Tesseract's resource icons all have a `_x1` idle-quantity variant; the Royal
+  // Guardian's RGres{n} currencies don't, so this lets a consumer opt out instead of 404ing.
+  resourceImageSuffix = '_x1',
   upgradeImagePrefix,
   getResourceType,
   getUpgradeIconIndex,
@@ -314,11 +317,13 @@ const GenericUpgradeOptimizer = ({
   });
   const resourceArr = resourceKey.split('.').reduce((obj, key) => obj?.[key], account) || [];
   resourceArr.forEach((resource, idx) => {
-    const name = resourceNames[idx] || resource.name;
-    if (resourceUsageMap[name]) {
-      resourceUsageMap[name].currentAmount = getResourceAmount
+    // A save's resource array can be sparse: Royal Guardian's RoyalG[1] carries nulls in the
+    // slots its kingdom has not unlocked, so neither the entry nor a name for it is guaranteed.
+    const name = resourceNames[idx] || resource?.name;
+    if (name && resourceUsageMap[name]) {
+      resourceUsageMap[name].currentAmount = (getResourceAmount
         ? getResourceAmount(resource, idx, resourceNames)
-        : resource.value ?? resource;
+        : resource?.value ?? resource) ?? 0;
     }
   });
   const resourceUsage = Object.values(resourceUsageMap);
@@ -399,7 +404,7 @@ const GenericUpgradeOptimizer = ({
         <Stack direction="row" gap={1} alignItems="center">
           <img
             style={{ objectPosition: '0 -6px' }}
-            src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}_x1.png`}
+            src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
             alt=""
           />
           <Typography variant="body2">Total Cost: {notateNumber(upgrade.totalCost)}</Typography>
@@ -464,7 +469,7 @@ const GenericUpgradeOptimizer = ({
       <Stack direction="row" gap={1} alignItems="center">
         <img
           style={{ objectPosition: '0 -6px' }}
-          src={`${prefix}data/${resourceImagePrefix}${section.resourceType}_x1.png`}
+          src={`${prefix}data/${resourceImagePrefix}${section.resourceType}${resourceImageSuffix}.png`}
           alt=""
           width={24}
           height={24}
@@ -519,7 +524,7 @@ const GenericUpgradeOptimizer = ({
                 <Stack direction="row" gap={1} alignItems="center">
                   <img
                     style={{ objectPosition: '0 -6px' }}
-                    src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}_x1.png`}
+                    src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
                     alt=""
                   />
                   <Typography variant="body2">
@@ -592,7 +597,7 @@ const GenericUpgradeOptimizer = ({
           <Stack direction="row" gap={1} alignItems="center">
             <img
               style={{ objectPosition: '0 -6px' }}
-              src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}_x1.png`}
+              src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
               alt=""
               width={20}
               height={20}
@@ -737,7 +742,7 @@ const GenericUpgradeOptimizer = ({
             <Stack key={resource.name} direction="row" gap={1} alignItems="center">
               <img
                 style={{ objectPosition: '0 -6px' }}
-                src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}_x1.png`}
+                src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
                 alt={resource.name}
                 width={24}
                 height={24}
@@ -776,7 +781,7 @@ const GenericUpgradeOptimizer = ({
                     InputProps={{
                       startAdornment: <img
                         style={{ objectPosition: '0 -3px', marginLeft: -5, marginRight: 5 }}
-                        src={`${prefix}data/${resourceImagePrefix}${index}_x1.png`}
+                        src={`${prefix}data/${resourceImagePrefix}${index}${resourceImageSuffix}.png`}
                         width={24}
                         height={24} alt=""/>
                     }}

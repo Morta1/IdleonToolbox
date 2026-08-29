@@ -32,6 +32,7 @@ import {
   isArenaBonusActive,
   isBundlePurchased,
   isCompanionBonusActive,
+  isCompanionLvl2Active,
   isMasteryBonusUnlocked
 } from './misc';
 import { calculateItemTotalAmount, createItemsWithUpgrades, getStatsFromGear } from './items';
@@ -118,6 +119,7 @@ import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getGuaranteedCrystalMobs } from '@parsers/misc';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
+import { getRoyalStatueBonus } from '@parsers/class-specific/royalGuardian';
 import { tryToParse, createIndexedArray, createArrayOfArrays, cashFormatter } from '@utility/helpers';
 import type { IdleonData, Account } from './types';
 
@@ -1128,6 +1130,8 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const gemShopBonus = account?.gemShopPurchases?.find((value: any, index: any) => index === 130) ?? 0;
     const purrmepPlayer = characters?.find(({ linkedDeity }) => linkedDeity === 6); // purrmep is limited to only 1 player linked.\
     const companionBonus = isCompanionBonusActive(account, 16) ? account?.companions?.list?.at(16)?.bonus : 0;
+    // game: (1 + 0.25 * CompLV2(0)) - King Doot's Pet Mart+ upgrade, "1.25x Divinity PTS gain".
+    const kingDootLvl2 = isCompanionLvl2Active(account, 0) ? 1 : 0;
     const talentBonus = getHighestTalentAcrossCharacters(characters, 'SHARED_BELIEFS', character);
     const unlockedGods = account?.divinity?.unlockedDeities ?? 0;
     const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Box_of_Gosh', 0);
@@ -1151,6 +1155,7 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
 
     const value = character?.divStyle?.divPerHour
       * (1 + gemShopBonus / 4)
+      * (1 + 0.25 * kingDootLvl2)
       * (1 + sushiBonus46 / 100)
       * Math.max(1, 1 + (purrmepPlayer ? 1 : 0)) *
       (1 + talentBonus / 100) * (1 + companionBonus)
@@ -1177,6 +1182,7 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
       breakdown: [
         { name: 'Div style', value: character?.divStyle?.divPerHour / 100 },
         { name: 'Gem shop', value: gemShopBonus / 100 },
+        { name: 'King Doot (Pet Mart+)', value: 0.25 * kingDootLvl2 },
         { name: 'Sushi Station', value: sushiBonus46 / 100 },
         { name: 'Major', value: (purrmepPlayer ? 1 : 0) / 100 },
         { name: 'Talent', value: (talentBonus + talentBonus2) / 100 },
@@ -1878,6 +1884,12 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const superbit63 = isSuperbitUnlocked(account, 'Experienced_Gamer')?.unlocked ? 1 : 0;
   const zenithMarketBonus = getZenithBonus(account, 9);
   const comp50 = isCompanionBonusActive(account, 50) ? account?.companions?.list?.at(50)?.bonus : 0;
+  // game: (1 + (min(0.5, Companions(128)) + 0.25 * CompLV2(128))) - Baby Troll, 1.50x base and
+  // 1.75x once its Pet Mart+ upgrade is owned. Both halves were missing; the upgrade half alone
+  // would have read 1.25x, so the whole factor is added rather than just the new term.
+  const comp128 = isCompanionBonusActive(account, 128) ? account?.companions?.list?.at(128)?.bonus : 0;
+  const babyTrollLvl2 = isCompanionLvl2Active(account, 128) ? 1 : 0;
+  const babyTrollMulti = 1 + (Math.min(0.5, comp128) + 0.25 * babyTrollLvl2);
   const santaSnakeMulti = Math.max(1, Math.min(1.01, 1 + comp50 / 2500));
 
   expGainLUK5 *= Math.max(1,
@@ -1887,6 +1899,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
     * (1 + comp32)
     * (1 + 0.4 * comp168)
     * (1 + comp34)
+    * babyTrollMulti
     * (1 + researchGridTotal / 100)
     * (1 + stickerBonus / 100)
     * (1 + 0.1 * superbit63)
@@ -1926,6 +1939,9 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const sushiClassExpBonus = getSushiBonus(account, 15);
   // 5 * Dreamstuff("CloudBonus", 70) - equinox challenge "Reach LV. 100 for any Palette Colour in Gaming"
   const equinoxClassExpMulti = 5 * getCloudBonus(account?.equinox?.challenges, 70);
+  // Royal Statue 3 (CLASS EXP) - returns 0 for accounts with no Royal Guardian. The game appends
+  // this factor at the end of the same ExpGainLUK5 chain, right after the Fountain term.
+  const royalStatueClassExpBonus = getRoyalStatueBonus(account, 3);
   expGainLUK5 *= (1 + arcaneMapMulti / 100)
     * (1 + spelunkBigFish / 100)
     * (1 + dancingCoralBonus / 100)
@@ -1934,7 +1950,8 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
     * (1 + bubbaRoGBonus / 100)
     * (1 + sushiClassExpBonus / 100)
     * (1 + equinoxClassExpMulti / 100)
-    * (1 + fountainClassExpBonus / 100);
+    * (1 + fountainClassExpBonus / 100)
+    * (1 + royalStatueClassExpBonus / 100);
 
   // SuperBitType(24) * pow(1.03, spelunk[6].length), Meritocracy(27), accountOptions[464]
   const superbit24 = isSuperbitUnlocked(account, 'Classy_Discoveries')?.unlocked ? 1 : 0;
@@ -2140,6 +2157,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
             { name: "Companion (Glunko)", value: 1 + 4 * comp160 },
             { name: "Companion (Mr Pig)", value: 1 + comp32 },
             { name: "Companion (Whale)", value: 1 + comp34 },
+            { name: "Companion (Baby Troll)", value: babyTrollMulti },
             { name: "Research Grid", value: 1 + researchGridTotal / 100 },
             { name: "Sticker", value: 1 + stickerBonus / 100 },
             { name: "Superbit (Experienced Gamer)", value: 1 + 0.1 * superbit63 },
@@ -2158,6 +2176,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
             { name: "Sushi (Tobiko Temaki)", value: 1 + sushiClassExpBonus / 100 },
             { name: "Equinox Multi", value: 1 + equinoxClassExpMulti / 100 },
             { name: "Fountain", value: 1 + fountainClassExpBonus / 100 },
+            { name: "Royal Statue", value: 1 + royalStatueClassExpBonus / 100 },
             { name: "Classy Discoveries", value: Math.max(1, Math.pow(1.03, spelunkRocksFound) * superbit24 * (1 + meritocBonus27 / 100) * (1 + Math.max(0, 5 * (opt464 - 8)) / 100)) },
             { name: "Class EXP Equip", value: 1 + equipBonus78 / 100 },
           ],
@@ -2182,7 +2201,7 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
 * companions * researchGrid * sticker * experiencedGamer * zenithMarket * santaSnakeMulti
 * classExpMultiEquip * arcadeClassXPMulti * vialClassExp * slayerAbominator
 * arcaneMapMulti * spelunkBigFish * dancingCoral * coralKidUpg * cardSet12 * bubbaRoG
-* sushiClassExp * equinoxClassExpMulti * fountainClassExp * classyDiscoveries
+* sushiClassExp * equinoxClassExpMulti * fountainClassExp * royalStatueBonus * classyDiscoveries
 * (1 + classExpMultiEquip / 100)
 * (
     luckMulti * (1 + luckyCharmTalentBonus / 100) / 1.8
@@ -2306,6 +2325,15 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   // Mama Troll (companion 132) is read twice by the game: once additively (+100) and once as a
   // multiplier, where min(0.5, bonus) clamps the same 100 down to the advertised 1.50x.
   const mamaTrollDropRate = isCompanionBonusActive(account, 132) ? account?.companions?.list?.at(132)?.bonus : 0;
+  // Pet Mart+ upgrade for Mama Troll: a flat +0.2 added inside the same multiplier, outside the
+  // min(0.5, ...) clamp, so the upgraded companion reaches 1.70x instead of the base 1.50x cap.
+  const mamaTrollLvl2 = isCompanionLvl2Active(account, 132) ? 1 : 0;
+  // game: GetTalentNumber(1, 239) * RoyalG("TotalStatz", 0, 0) - Royal Guardian GRADED_RATE,
+  // "+{% Drop Rate per Resource Grade across all worlds"; TotalStatz(0) is the sum of RoyalG[5],
+  // the resource node grades. 0 for every non-Royal-Guardian character, matching the game.
+  const gradedRateTalentBonus = getTalentBonus(character?.flatTalents, 'GRADED_RATE');
+  const royalNodeGrades = account?.royalGuardian?.outpostStats?.totalNodeLevels ?? 0;
+  const gradedRateDropRate = gradedRateTalentBonus * royalNodeGrades;
 
   const additive =
     robbingHoodTalentBonus +
@@ -2353,6 +2381,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
     researchGridBonus +
     fifthCompanionDropRate +
     sixthCompanionDropRate +
+    gradedRateDropRate +
     mamaTrollDropRate;
 
   let dropRate = 1.4 * luckMulti + additive / 100 + 1;
@@ -2397,13 +2426,22 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   // 5 * Dreamstuff("CloudBonus", 69) - equinox challenge "Acquire at least 10 Megaflesh from Bubba the Seal"
   const equinoxDropRateMulti = 5 * getCloudBonus(account?.equinox?.challenges, 69);
   const vialDrMulti = getVialsBonusByStat(account?.alchemy?.vials, '7drMulto');
+  // Royal Statue 1 (DROP RATE) - returns 0 for accounts with no Royal Guardian. The game inserts
+  // this factor right after ArcaneMapMulti_bon in this same chain, before CardBonusREAL(101).
+  const royalStatueDropRateBonus = getRoyalStatueBonus(account, 1);
+  // FamBonusQTYs[32]: the DNSM key is 2 * classIndex, so 32 is classFamilyBonuses[16],
+  // "+{% DROP RATE MULTIPLIER" - the Royal Guardian class family bonus (see damage.ts).
+  const familyDropRateMulti = getFamilyBonusBonus(classFamilyBonuses, 'DROP_RATE_MULTIPLIER', getHighestLevelOf(characters, CLASSES.Royal_Guardian));
 
-  // Game: *= (1+tesseract/100) * (1+cardMulti/100) * (1+0.3*comp168) * (1+min(0.5,comp132)) * (1+sushi48/100)
-  //       * max(1,glimboDR) * (1+tomeMulti/100) * (1+equip99/100) * (1+mineheadQTY0/100) * (1+5*cloud69/100)
+  // Game: *= (1+tesseract/100) * (1+royalStatue/100) * (1+cardMulti/100) * (1+famBonus32/100) * (1+0.3*comp168)
+  //       * (1+min(0.5,comp132)+0.2*compLV2(132)) * (1+sushi48/100) * max(1,glimboDR) * (1+tomeMulti/100)
+  //       * (1+equip99/100) * (1+mineheadQTY0/100) * (1+5*cloud69/100)
   final *= (1 + (tesseractMapBonus || 0) / 100)
+    * (1 + royalStatueDropRateBonus / 100)
     * (1 + cardMulti / 100)
+    * (1 + familyDropRateMulti / 100)
     * (1 + 0.3 * crystalGlunkoDropRate)
-    * (1 + Math.min(0.5, mamaTrollDropRate))
+    * (1 + (Math.min(0.5, mamaTrollDropRate) + 0.2 * mamaTrollLvl2))
     * (1 + sushiDropRateBonus / 100)
     * Math.max(1, glimboDRmulti)
     * (1 + tomeMulti / 100)
@@ -2414,7 +2452,9 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   // Game: *= (1+charm/100) * (1+equip91/100) * (1+vial7drMulto/100)
   final *= (1 + charmBonus / 100) * (1 + equipmentDrMulti / 100) * (1 + vialDrMulti / 100);
 
-  // Game: *= max(1, min(1.3, 1+comp26) * min(1.5, 1+0.5*comp160)) * max(1, min(1.01, 1+comp50/2500))
+  // Game: *= max(1, min(1.3, 1+comp26) * (1+0.5*comp160)) * max(1, min(1.01, 1+comp50/2500)) - the
+  // Glunko term (comp160) has no game-side cap; the code's min(1.5, ...) is an extra clamp not
+  // present in the live formula.
   final *= Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate) * Math.min(1.5, 1 + 0.5 * seventhCompanionDropRate));
   final *= Math.max(1, Math.min(1.01, 1 + fourthCompanionDropRate / 2500));
 
@@ -2456,6 +2496,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
           { name: 'Santa Snake', value: fourthCompanionDropRate / 100 },
           { name: 'Clammie', value: fifthCompanionDropRate / 100 },
           { name: 'Lucky Slug', value: sixthCompanionDropRate / 100 },
+          { name: 'Graded Rate (Royal Guardian)', value: gradedRateDropRate / 100 },
           { name: 'Mama Troll', value: mamaTrollDropRate / 100 },
           { name: 'Equinox', value: equinoxDropRateBonus / 100 },
           { name: 'Stamps', value: stampBonus / 100 },
@@ -2509,9 +2550,11 @@ export const getDropRate = (character: any, account: any, characters: any) => {
           { name: 'Siege Breaker', value: extraDropRate },
           { name: 'Gem Bundle', value: hasDrBundle ? 0.2 : 0 },
           { name: 'Tesseract Map', value: (tesseractMapBonus || 0) / 100 },
+          { name: 'Royal Statue', value: royalStatueDropRateBonus / 100 },
           { name: 'Card Multi', value: cardMulti / 100 },
+          { name: 'Royal Guardian family', value: familyDropRateMulti / 100 },
           { name: 'Crystal Glunko', value: 1 + 0.3 * crystalGlunkoDropRate },
-          { name: 'Mama Troll', value: 1 + Math.min(0.5, mamaTrollDropRate) },
+          { name: 'Mama Troll', value: 1 + (Math.min(0.5, mamaTrollDropRate) + 0.2 * mamaTrollLvl2) },
           { name: 'Sushi (Unagi Nigiri)', value: sushiDropRateBonus / 100 },
           { name: 'Glimbo DR', value: glimboDRmulti },
           { name: 'Tome Multi', value: tomeMulti / 100 },
@@ -2615,6 +2658,7 @@ if (hasDrBundle) {
 }
 
 final *= (1 + tesseractMapBonus / 100)
+  * (1 + royalStatueDropRateBonus / 100)
   * (1 + cardMulti / 100)
   * (1 + 0.3 * crystalGlunkoDropRate)
   * (1 + Math.min(0.5, mamaTrollDropRate))
@@ -2956,15 +3000,21 @@ export const getPlayerCrystalChance = (character: any, account: any, idleonData:
   const crystals4DaysBonus = getTalentBonus(character?.flatStarTalents, 'CRYSTALS_4_DAYYS');
   const cmonOutCrystalsBonus = getTalentBonus(character?.flatTalents, 'CMON_OUT_CRYSTALS');
   const nonPredatoryBoxBonus = getPostOfficeBonus(character?.postOffice, 'Non_Predatory_Loot_Box', 2);
+  // Companion 171 = Armadillo, a new raid pet: base 100 (+100% additive), upgraded 175.
+  const companion171Bonus = isCompanionBonusActive(account, 171) ? account?.companions?.list?.at(171)?.bonus ?? 0 : 0;
 
-  
   const eventShop42 = getEventShopBonus(account, 42);
 
   const guaranteedCrystalMobs = getGuaranteedCrystalMobs(account);
   const remainingCrystalKills = guaranteedCrystalMobs - account?.accountOptions?.[101];
 
-  const product = (1 + cmonOutCrystalsBonus / 100) * (1 + (nonPredatoryBoxBonus + crystalShrineBonus) / 100) * (1 + crystals4DaysBonus / 100)
-    * (1 + crystallinStampBonus / 100) * (1 + (poopCardBonus + demonGenieBonus) / 100);
+  // Game moved the card term (poopCardBonus + demonGenieBonus) out of its own multiplicative factor
+  // and into this additive group, and added companion171Bonus alongside it. This is a deliberate
+  // nerf for high-card-level accounts (card term used to compound; now it just adds) - do not "fix".
+  const product = (1 + cmonOutCrystalsBonus / 100)
+    * (1 + (nonPredatoryBoxBonus + crystalShrineBonus + companion171Bonus + poopCardBonus + demonGenieBonus) / 100)
+    * (1 + crystals4DaysBonus / 100)
+    * (1 + crystallinStampBonus / 100);
   const value = (5 * eventShop42 + product) / 2000;
 
   const breakdown = {
@@ -2989,6 +3039,7 @@ export const getPlayerCrystalChance = (character: any, account: any, idleonData:
           { name: "Cmon Out Crystals", value: cmonOutCrystalsBonus },
           { name: "Crystal Shrine Crescent", value: crystalShrineBonus },
           { name: "Post Office", value: nonPredatoryBoxBonus },
+          { name: "Companion (Armadillo)", value: companion171Bonus },
           { name: "Crystals 4 Days", value: crystals4DaysBonus },
           { name: "Crystallin Stamp", value: crystallinStampBonus },
           { name: "Poop Card", value: poopCardBonus },
@@ -3003,10 +3054,9 @@ export const getPlayerCrystalChance = (character: any, account: any, idleonData:
     value,
     expression: `(5 * eventShop42 + product) / 2000
  product = (1 + cmonOutCrystalsBonus / 100)
- * (1 + (nonPredatoryBoxBonus + crystalShrineBonus) / 100)
+ * (1 + (nonPredatoryBoxBonus + crystalShrineBonus + companion171Bonus + poopCardBonus + demonGenieBonus) / 100)
  * (1 + crystals4DaysBonus / 100)
- * (1 + crystallinStampBonus / 100)
- * (1 + (poopCardBonus + demonGenieBonus) / 100)`
+ * (1 + crystallinStampBonus / 100)`
   }
 }
 

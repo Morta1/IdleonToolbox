@@ -7,18 +7,37 @@ import { monsterNodes } from './nodes/monsters.mjs';
 import { npcQuestNodes } from './nodes/npcs-quests.mjs';
 import { npcNodes } from './nodes/npcs.mjs';
 import { shopNodes } from './nodes/shops.mjs';
+import { currencyShopNodes } from './nodes/currency-shops.mjs';
 import { mapNodes } from './nodes/maps.mjs';
+import { WORLD_NAMES, worldNodes } from './nodes/worlds.mjs';
 import { bubbleNodes, vialNodes } from './nodes/alchemy.mjs';
 import { dropEdges } from './edges/drops.mjs';
 import { craftEdges } from './edges/crafts.mjs';
 import { questItemEdges } from './edges/quest-items.mjs';
 import { questNpcEdges } from './edges/quest-npc.mjs';
 import { shopEdges } from './edges/shops.mjs';
+import { currencyShopEdges } from './edges/currency-shops.mjs';
+import { containerEdges } from './edges/containers.mjs';
+import { cardEdges } from './edges/cards.mjs';
+import { harvestEdges } from './edges/harvests.mjs';
+import { codeGrantLabels, itemSourceEdges } from './edges/item-sources.mjs';
+import { bundleNodes } from './nodes/bundles.mjs';
+import { achievementNodes } from './nodes/achievements.mjs';
+import { achievementEdges } from './edges/achievements.mjs';
+import { achievementMentionEdges } from './edges/achievement-mentions.mjs';
+import { petNodes } from './nodes/pets.mjs';
+import { talentNodes } from './nodes/talents.mjs';
+import { classNodes } from './nodes/classes.mjs';
+import { classEdges } from './edges/classes.mjs';
+import { bundlePets, petEdges } from './edges/pets.mjs';
 import { mapEdges } from './edges/maps.mjs';
+import { worldEdges } from './edges/worlds.mjs';
 import { alchemyEdges } from './edges/alchemy.mjs';
 import { stampEdges } from './edges/stamps.mjs';
 import { resolveEdges } from './resolve.mjs';
 import { assignSlugs } from './slugs.mjs';
+import { obtainedFrom } from './obtained-from.mjs';
+import { recipeUnlocks } from './recipe-unlocks.mjs';
 import { aliases } from './aliases.mjs';
 import { ignore } from './ignore.mjs';
 
@@ -36,11 +55,28 @@ const stamps = readJson('stamps.json');
 const vials = readJson('vials.json');
 const cauldrons = readJson('cauldrons.json');
 const sharedData = readJson('shared-data.json');
+const gemShop = readJson('gemShop.json');
+const randomList = readJson('randomList.json');
+const achievements = readJson('achievements.json');
+const taskUnlocks = readJson('taskUnlocks.json');
+const companions = readJson('companions.json');
+const talents = readJson('talents.json');
+// Its own file rather than a shared-data key, so importing it never drags the 1MB bundle onto the
+// builds pages that read the same map.
+const classPromotions = readJson('classPromotions.json');
 const shops = sharedData.shops;
 const mapNames = sharedData.mapNames;
 const rawMapNames = sharedData.rawMapNames;
 const npcRoster = sharedData.npcRoster;
 const vialCosts = sharedData.vialCosts;
+const anvilProducts = sharedData.anvilProducts;
+const skullShop = sharedData.killRoySkullShop;
+const weeklyShop = sharedData.weeklyBossesShop;
+const itemSources = sharedData.itemSources;
+const bundleInfo = sharedData.bundles;
+const trappingInfo = sharedData.trappingInfo;
+const dungeonKeychains = sharedData.dungeonKeychains;
+const companionGroups = sharedData.companionGroups;
 
 const nodes = {
   ...itemNodes(items, monsters, cards, stamps, craftSellPrices(crafts, items)),
@@ -50,10 +86,19 @@ const nodes = {
   // where the quest-derived node has only a raw key.
   ...npcNodes(npcRoster),
   ...shopNodes(shops, mapNames),
+  ...currencyShopNodes(),
+  ...bundleNodes(itemSources, bundleInfo, items, bundlePets()),
+  ...petNodes(companions, companionGroups),
+  ...talentNodes(talents),
+  ...classNodes(classPromotions),
+  ...achievementNodes(achievements),
   ...mapNodes(mapNames, rawMapNames),
   ...vialNodes(vials, vialCosts),
   ...bubbleNodes(cauldrons),
 };
+
+// A world is derived from the areas in it, so it can only be built once the map nodes exist.
+Object.assign(nodes, worldNodes(nodes));
 
 // Every node addresses a page at /wiki/<kind>/<slug>, so the slug is part of the node, resolved
 // once here where the whole set is visible and name collisions can be seen.
@@ -64,11 +109,35 @@ const rawEdges = [
   ...craftEdges(crafts),
   ...questItemEdges(quests),
   ...questNpcEdges(quests),
-  ...shopEdges(shops, mapNames),
+  ...shopEdges(shops, mapNames, items),
+  ...currencyShopEdges(gemShop, skullShop, weeklyShop, items),
+  ...containerEdges(randomList),
+  ...harvestEdges(trappingInfo),
+  ...itemSourceEdges(itemSources, items),
+  ...achievementEdges(achievements, items),
+  // Reads the finished node set rather than a data file: it matches descriptions against the
+  // display names every other node already carries.
+  ...achievementMentionEdges(nodes),
+  // Reads the finished node set too: a class's talents are found by the tab they carry.
+  ...classEdges(nodes, classPromotions),
+  ...petEdges(nodes),
   ...mapEdges(sharedData),
+  // Reads the finished node set too: an area's enemy is named on the monster node.
+  ...worldEdges(nodes, sharedData),
   ...alchemyEdges(vials, cauldrons),
   ...stampEdges(stamps),
 ];
+
+// A card the monster already drops from its own table needs no edge of its own. cardEdges exists
+// for the 82 cards the tables never mention - every fish, ore and tree, awarded by the action
+// rather than rolled - but it fired for all of them, so 191 monsters listed their card twice: once
+// with real odds and once blank, since the card edge carries no chance to merge with.
+//
+// Appended after the drop edges rather than emitted with them, because knowing which cards are
+// already covered means having read those edges first.
+const droppedAlready = new Set(rawEdges.filter((edge) => edge.rel === 'drops').map((edge) => `${edge.from}|${edge.to}`));
+const cardsNotDropped = cardEdges(cards, items).filter((edge) => !droppedAlready.has(`${edge.from}|${edge.to}`));
+rawEdges.push(...cardsNotDropped);
 
 const { edges: resolvedEdges, unresolved } = resolveEdges(nodes, rawEdges, { aliases, ignore });
 
@@ -112,14 +181,9 @@ for (const node of Object.values(nodes)) {
 // It also solves the boss problem. A boss has no world anywhere in the data (not worldIndex, not
 // mapEnemies, not BossDetails, and its arena is only findable by matching its name against a map's,
 // which works for 5 of 27), but the card table knows it is a boss.
+// The world half comes from the world roster rather than a second copy of the same seven names.
 const CARD_SECTION = {
-  Blunder_Hills: 'World 1',
-  Yum_Yum_Desert: 'World 2',
-  Frostbite_Tundra: 'World 3',
-  Hyperion_Nebula: 'World 4',
-  "Smolderin'_Plateau": 'World 5',
-  Spirited_Valley: 'World 6',
-  Shimmerfin_Deep: 'World 7',
+  ...Object.fromEntries(Object.entries(WORLD_NAMES).map(([index, name]) => [name, `World ${index}`])),
   Bosses: 'Bosses',
   Events: 'Events',
   Dungeons: 'Dungeon'
@@ -151,16 +215,99 @@ for (const edge of edges) {
   if (npc.world == null || npc.world > world) npc.world = world;
 }
 
+// Where an item comes from when no edge can say it: a dungeon run, a voyage, the anvil. Applied
+// last so it can be limited to the items nothing else reached.
+const sourcedItems = new Set();
+for (const edge of edges) {
+  if (['drops', 'rewards', 'sells', 'yields'].includes(edge.rel) && nodes[edge.to]?.kind === 'item') sourcedItems.add(edge.to);
+  if (edge.rel === 'craftedFrom' && nodes[edge.from]?.kind === 'item') sourcedItems.add(edge.from);
+}
+// The code-derived labels take precedence: "Dungeon" from an actual DropSomething call beside
+// _customBlock_DungeonStat beats the same word guessed from an item's type.
+const labels = new Map([
+  ...obtainedFrom(items, anvilProducts, randomList, { dungeonKeychains }),
+  ...codeGrantLabels(itemSources)
+]);
+for (const [rawName, label] of labels) {
+  const node = nodes[`item:${rawName}`];
+  if (node && !sourcedItems.has(`item:${rawName}`)) node.obtainedFrom = label;
+}
+
+// The Task Board gates a recipe rather than granting an item, so this annotates the craft instead
+// of competing with the sources above: an item whose only source is crafting still needs to say
+// that the recipe itself is bought.
+let gatedRecipes = 0;
+for (const [rawName, gate] of recipeUnlocks(taskUnlocks)) {
+  const node = nodes[`item:${rawName}`];
+  if (!node) continue;
+  node.recipeUnlock = gate;
+  gatedRecipes += 1;
+}
+
 // Some nodes name art the game never shipped. Point at nothing rather than at a 404, so the UI
 // reserves the same empty box it uses for NPCs and quests instead of flashing a broken image.
 const publicDir = path.join(__dirname, '..', '..', 'public');
 let nulledIcons = 0;
 for (const node of Object.values(nodes)) {
-  if (!node.icon) continue;
-  if (fs.existsSync(path.join(publicDir, node.icon))) continue;
-  node.icon = null;
-  nulledIcons += 1;
+  if (!node.icon) {
+    delete node.iconFallbacks;
+    continue;
+  }
+  if (fs.existsSync(path.join(publicDir, node.icon))) {
+    delete node.iconFallbacks;
+    continue;
+  }
+  // Primary icon missing, check fallbacks
+  if (node.iconFallbacks && node.iconFallbacks.length > 0) {
+    let found = false;
+    for (const fallbackPath of node.iconFallbacks) {
+      if (fs.existsSync(path.join(publicDir, fallbackPath))) {
+        node.icon = fallbackPath;
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      node.icon = null;
+      nulledIcons += 1;
+    }
+  } else {
+    node.icon = null;
+    nulledIcons += 1;
+  }
+  delete node.iconFallbacks;
 }
+
+// Animation states for the entity page's Animations section: the gif variants that actually
+// exist on disk, checked the same way icons are so the list can never point at a 404.
+//
+// A pet takes the monster's states from the monster's own directory, for the same reason its icon
+// reads from afk_targets: the game shrinks the one sprite rather than drawing a second, and every
+// one of the 92 pets shares its rawName with the monster it is.
+const ANIMATION_VARIANTS = { monster: ['idle', 'walk', 'death'], pet: ['idle', 'walk', 'death'], npc: ['idle'] };
+const ANIMATION_DIRS = { monster: 'monsters', pet: 'monsters', npc: 'npcs' };
+for (const node of Object.values(nodes)) {
+  const variants = ANIMATION_VARIANTS[node.kind];
+  if (!variants || !node.rawName) continue;
+  const animations = variants.filter((variant) =>
+    fs.existsSync(path.join(publicDir, ANIMATION_DIRS[node.kind], node.rawName, `${variant}.gif`)));
+  if (animations.length > 0) node.animations = animations;
+}
+
+// Slim search index for the wiki-wide search bar: name, kind, slug and icon per navigable
+// node, nothing else. WikiSearchBar imports this lazily, so kind and entity pages get search
+// without ever downloading the full graph.
+const searchIndex = Object.entries(nodes)
+  .filter(([, node]) => node.navigable !== false && node.slug)
+  .map(([id, node]) => ({
+    id,
+    kind: node.kind,
+    label: (node.name || node.rawName).replace(/_/g, ' '),
+    slug: node.slug,
+    icon: node.icon ?? null
+  }));
+fs.writeFileSync(path.join(dataDir, 'wiki-search-index.json'), JSON.stringify(searchIndex));
+console.log(`[entity-graph] wiki search index: ${searchIndex.length} entries`);
 
 const stats = {
   nodes: Object.values(nodes).reduce((acc, n) => ({ ...acc, [n.kind]: (acc[n.kind] || 0) + 1 }), {}),
@@ -179,6 +326,7 @@ fs.writeFileSync(reportPath, JSON.stringify(unresolved, null, 2));
 console.log('[entity-graph] nodes:', JSON.stringify(stats.nodes));
 console.log('[entity-graph] edges:', JSON.stringify(stats.edges));
 console.log(`[entity-graph] dropped ${resolvedEdges.length - edges.length} duplicate edges, nulled ${nulledIcons} missing icons`);
+console.log(`[entity-graph] task board gates ${gatedRecipes} recipes`);
 console.log(`[entity-graph] unresolved: ${unresolved.length} (was ${previousCount})`);
 if (unresolved.length !== previousCount) {
   console.warn('[entity-graph] WARNING: unresolved count changed. Inspect scripts/entity-graph/unresolved-report.json and triage into aliases.mjs / ignore.mjs.');

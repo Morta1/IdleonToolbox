@@ -414,82 +414,82 @@
       ],
       "Limited_Specials": [
         {
-          "rawName": "InvStorageZ",
-          "displayName": "STORAGE_CHEST",
-          "desc": "IMPORTANT:_This_is_from_a_previous_event,_don't_buy_this_if_you_already_got_it_years_ago!_This_gives_16_Storage_Chest_slots_when_used_for_the_first_time!",
-          "cost": 2000,
+          "rawName": "EquipmentHats140",
+          "displayName": "LEGION_COMMANDER_HAT",
+          "desc": "Comes_with_a_small_+3%_Marble_Drop_Rate_bonus,_which_will_help_your_Royal_Guardian!",
+          "cost": 790,
           "globalIndex": 87,
           "maxPurchases": 1,
           "quantity": 1,
           "costIncrement": 0
         },
         {
-          "rawName": "EquipmentNametag8",
-          "displayName": "SUMMER_SHOVEL_NAMETAG",
-          "desc": "This_nifty_nametag_gives_15%_EXP_from_Mobs_and_+4%_ALL_STAT_bonuses._It's_humble_in_it's_greatness!",
-          "cost": 900,
+          "rawName": "Timecandy9",
+          "displayName": "COSMIC_TIME_CANDY",
+          "desc": "A_time_candy_that_gives_a_random_amount_of_time_for_a_nonrandom_cost_of_gems?_How_inexplicable!_@_These_candies_give_up_to_500_hours_of_AFK_time,_but_on_average_give_24_hrs.",
+          "cost": 395,
           "globalIndex": 88,
+          "maxPurchases": 20,
+          "quantity": 1,
+          "costIncrement": 0
+        },
+        {
+          "rawName": "EquipmentRings37",
+          "displayName": "WORLD_6_KILLS_RING",
+          "desc": "All_kills_in_World_6_count_1.30x_more_for_opening_portals_to_the_next_map._Helps_you_get_to_World_7_faster!",
+          "cost": 810,
+          "globalIndex": 89,
           "maxPurchases": 2,
           "quantity": 1,
           "costIncrement": 0
         },
         {
-          "rawName": "Quest49",
-          "displayName": "SUMMER_COOLER",
-          "desc": "FREEBIE!_This_will_help_you_get_that_new_Sun_Hat..._hopefully...",
-          "cost": 1,
-          "globalIndex": 89,
-          "maxPurchases": 1,
-          "quantity": 50,
+          "rawName": "RibbonBig16",
+          "displayName": "LEGEND_TIER_RIBBON",
+          "desc": "Gives_you_a_random_ribbon_for_your_Ribbon_Shelf,_found_at_the_Meals_Menu_in_World_4!_35%_chance_for_Tier_13,_30%_chance_for_Tier_14,_20%_for_Tier_15,_10%_for_Tier_16,_and_5%_for_Tier_17!",
+          "cost": 990,
+          "globalIndex": 90,
+          "maxPurchases": 10,
+          "quantity": 0,
           "costIncrement": 0
         },
         {
-          "rawName": "EquipmentHats35",
-          "displayName": "DEMON_HORNS",
-          "desc": "It_used_to_be_the_most_expensive_item_in_the_gemshop..._well,_it_still_is,_but_it_used_to_be_as_well._Don't_buy_this_for_stats_or_you_gon_be_big_angy.",
-          "cost": 3000,
-          "globalIndex": 90,
-          "maxPurchases": 1,
-          "quantity": 1,
+          "rawName": "GemQ18",
+          "displayName": "5_STAR_CARDIFIER",
+          "desc": "TWO_FREEBIES?!?!_Use_these_on_a_4_star_card_to_upgrade_it_to_5_stars!_It_works_like_4_star_cardifiers_do,_you_get_to_choose_which_card_gets_upgraded!",
+          "cost": 1,
+          "globalIndex": 91,
+          "maxPurchases": 2,
+          "quantity": 0,
           "costIncrement": 0
         },
         {
           "rawName": "GemQ19",
           "displayName": "6_STAR_CARDIFIER",
-          "desc": "Use_this_on_a_5_star_card_to_upgrade_it_to_6_stars!_You_get_to_choose_which_card_gets_upgraded,_no_randomness_involved!_Use_these_in_Codex.",
+          "desc": "Use_this_on_a_5_star_card_to_upgrade_it_to_6_stars!_It_works_like_5_star_cardifiers_do,_you_get_to_choose_which_card_gets_upgraded,_no_randomness_involved.",
           "cost": 880,
-          "globalIndex": 91,
+          "globalIndex": 92,
+          "maxPurchases": 6,
+          "quantity": 0,
+          "costIncrement": 0
+        },
+        {
+          "rawName": "GemP39",
+          "displayName": "EXALTED_STAMPS",
+          "desc": "Lets_you_turn_a_stamp_of_your_choice_into_an_Exalted_Stamp!_These_gives_2.00x_their_bonus,_or_even_up_to_3.00x_and_beyond_using_your_Windwalker's_Compass!",
+          "cost": 1100,
+          "globalIndex": 93,
           "maxPurchases": 1,
           "quantity": 0,
           "costIncrement": 0
         },
         {
-          "rawName": "EquipmentHats122",
-          "displayName": "ARCANIST_CROWN",
-          "desc": "Comes_with_a_+25%_Extra_Tachyon_multiplier,_which_will_help_upgrade_the_Tesseract_while_playing_on_your_Arcane_Cultist!",
-          "cost": 790,
-          "globalIndex": 92,
-          "maxPurchases": 1,
-          "quantity": 1,
-          "costIncrement": 0
-        },
-        {
-          "rawName": "EquipmentPendant31",
+          "rawName": "Blank",
           "displayName": "DEATHBLOSSOM_PENDANT",
           "desc": "This_necklace_equipment_comes_with_a_1.30X_Damage_Multi_bonus,_and_+20%_Mob_Respawn_bonus!",
           "cost": 870,
-          "globalIndex": 93,
-          "maxPurchases": 2,
-          "quantity": 1,
-          "costIncrement": 0
-        },
-        {
-          "rawName": "Blank",
-          "displayName": "RESEARCH_PAPERS",
-          "desc": "50%_OFF_NORMAL_PRICE!_Use_this_to_instantly_get_2_hours_of_Research_gains!_Research_EXP,_Minehead_currency,_and_Sushi_currency!",
-          "cost": 195,
           "globalIndex": 94,
-          "maxPurchases": 50,
+          "maxPurchases": 2,
           "quantity": 1,
           "costIncrement": 0
         }
@@ -1496,6 +1496,66 @@
     "sections": {
       "All": [
         {
+          "rawName": "EquipmentHats122",
+          "displayName": "ARCANIST_CROWN",
+          "desc": "Comes_with_a_+25%_Extra_Tachyon_multiplier,_which_will_help_upgrade_the_Tesseract_while_playing_on_your_Arcane_Cultist!",
+          "cost": 790,
+          "globalIndex": 92,
+          "maxPurchases": 1,
+          "quantity": 0,
+          "costIncrement": 0,
+          "firstSeen": "2.3.40",
+          "lastSeen": "2.3.523"
+        },
+        {
+          "rawName": "EquipmentHats35",
+          "displayName": "DEMON_HORNS",
+          "desc": "It_used_to_be_the_most_expensive_item_in_the_gemshop..._well,_it_still_is,_but_it_used_to_be_as_well._Don't_buy_this_for_stats_or_you_gon_be_big_angy.",
+          "cost": 3000,
+          "globalIndex": 90,
+          "maxPurchases": 1,
+          "quantity": 0,
+          "costIncrement": 0,
+          "firstSeen": "2.3.46",
+          "lastSeen": "2.3.523"
+        },
+        {
+          "rawName": "EquipmentNametag8",
+          "displayName": "SUMMER_SHOVEL_NAMETAG",
+          "desc": "This_nifty_nametag_gives_15%_EXP_from_Mobs_and_+4%_ALL_STAT_bonuses._It's_humble_in_it's_greatness!",
+          "cost": 900,
+          "globalIndex": 88,
+          "maxPurchases": 2,
+          "quantity": 0,
+          "costIncrement": 0,
+          "firstSeen": "2.3.523",
+          "lastSeen": "2.3.523"
+        },
+        {
+          "rawName": "EquipmentPendant31",
+          "displayName": "DEATHBLOSSOM_PENDANT",
+          "desc": "This_necklace_equipment_comes_with_a_1.30X_Damage_Multi_bonus,_and_+20%_Mob_Respawn_bonus!",
+          "cost": 870,
+          "globalIndex": 93,
+          "maxPurchases": 2,
+          "quantity": 0,
+          "costIncrement": 0,
+          "firstSeen": "2.3.34",
+          "lastSeen": "2.3.523"
+        },
+        {
+          "rawName": "Quest49",
+          "displayName": "SUMMER_COOLER",
+          "desc": "FREEBIE!_This_will_help_you_get_that_new_Sun_Hat..._hopefully...",
+          "cost": 1,
+          "globalIndex": 89,
+          "maxPurchases": 1,
+          "quantity": 0,
+          "costIncrement": 0,
+          "firstSeen": "2.3.523",
+          "lastSeen": "2.3.523"
+        },
+        {
           "rawName": "EquipmentHats118",
           "displayName": "WINDWALKER_HOOD",
           "desc": "Comes_with_a_1.25x_Extra_Dust_multiplier,_which_will_help_upgrade_The_Compass_while_playing_on_your_Windwalker!",
@@ -1517,18 +1577,6 @@
           "quantity": 0,
           "costIncrement": 0,
           "firstSeen": "2.3.43",
-          "lastSeen": "2.3.522"
-        },
-        {
-          "rawName": "GemQ18",
-          "displayName": "5_STAR_CARDIFIER",
-          "desc": "20%_OFF!_Use_this_on_a_4_star_card_to_upgrade_it_to_5_stars!_It_works_like_4_star_cardifiers_do,_you_get_to_choose_which_card_gets_upgraded,_no_randomness_involved!",
-          "cost": 400,
-          "globalIndex": 88,
-          "maxPurchases": 10,
-          "quantity": 0,
-          "costIncrement": 0,
-          "firstSeen": "2.3.34",
           "lastSeen": "2.3.522"
         },
         {
@@ -1706,18 +1754,6 @@
           "cost": 425,
           "globalIndex": 89,
           "maxPurchases": 6,
-          "quantity": 0,
-          "costIncrement": 0,
-          "firstSeen": "2.3.34",
-          "lastSeen": "2.3.492"
-        },
-        {
-          "rawName": "Timecandy9",
-          "displayName": "COSMIC_TIME_CANDY",
-          "desc": "A_time_candy_that_gives_a_random_amount_of_time_for_a_nonrandom_cost_of_gems?_How_inexplicable!_@_These_candies_give_up_to_500_hours_of_AFK_time,_but_on_average_give_24_hrs.",
-          "cost": 275,
-          "globalIndex": 92,
-          "maxPurchases": 12,
           "quantity": 0,
           "costIncrement": 0,
           "firstSeen": "2.3.34",
@@ -1926,18 +1962,6 @@
           "costIncrement": 0,
           "firstSeen": "2.3.37",
           "lastSeen": "2.3.37"
-        },
-        {
-          "rawName": "GemP39",
-          "displayName": "EXALTED_STAMPS",
-          "desc": "Lets_you_turn_a_stamp_of_your_choice_into_an_Exalted_Stamp!_These_gives_2.00x_their_bonus,_or_even_up_to_3.00x_and_beyond_using_your_Windwalker's_Compass!",
-          "cost": 535,
-          "globalIndex": 89,
-          "maxPurchases": 7,
-          "quantity": 0,
-          "costIncrement": 0,
-          "firstSeen": "2.3.35",
-          "lastSeen": "2.3.36"
         },
         {
           "rawName": "Quest96",

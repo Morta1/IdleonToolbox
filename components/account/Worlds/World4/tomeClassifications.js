@@ -115,18 +115,24 @@ const DEFAULT_CLASSIFICATIONS = [
   3,  // 103 Best Deathbringer Max Damage in Wraith Mode
   3,  // 104 Best Windwalker Max Damage in Tempest Mode
   3,  // 105 Best Arcane Cultist Max Damage in Arcanist Mode
-  3,  // 106 Spirited Valley Emperor Boss Kills
-  3,  // 107 Total Coral Reef upgrades
-  3,  // 108 Total Spelunk Shop Upgrades LV
-  3,  // 109 Total Spelunk Discoveries made
-  3,  // 110 Deepest Depth reached in a single Delve
-  3,  // 111 Biggest Haul in a single Delve
-  3,  // 112 Highest leveled Spelunker
-  3,  // 113 Minehead Opponents Defeated
-  3,  // 114 Total Research Grid Upgrades
-  3,  // 115 Total Glimbo Trades
-  3,  // 116 Unique Sushi Created
-  3,  // 117 Button Presses
+  // 2.3.525 inserted Total_Royal_Statue_LV / Royal_Guardian_Outposts_Built / Total_Resource_Grade
+  // here (display position, not tomeData array position - see ninjaExtraInfo[32] ordering), which
+  // pushes every entry below down by 3 display slots.
+  3,  // 106 Total Royal Statue LV
+  4,  // 107 Royal Guardian Outposts Built
+  3,  // 108 Total Resource Grade
+  3,  // 109 Spirited Valley Emperor Boss Kills
+  3,  // 110 Total Coral Reef upgrades
+  3,  // 111 Total Spelunk Shop Upgrades LV
+  3,  // 112 Total Spelunk Discoveries made
+  3,  // 113 Deepest Depth reached in a single Delve
+  3,  // 114 Biggest Haul in a single Delve
+  3,  // 115 Highest leveled Spelunker
+  3,  // 116 Minehead Opponents Defeated
+  3,  // 117 Total Research Grid Upgrades
+  3,  // 118 Total Glimbo Trades
+  3,  // 119 Unique Sushi Created
+  3,  // 120 Button Presses
 ];
 
 const STORAGE_KEY = 'tome-classifications';

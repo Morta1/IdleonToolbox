@@ -8,7 +8,9 @@ import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { isBundlePurchased, getEventShopBonus } from '@parsers/misc';
 import { getButtonBonus } from '@parsers/world-7/button';
 
-const MAX_TIER = 58;
+// The highest sushi tier index: research row 30 is the game's sushi name table, one entry per
+// tier, so the last valid index is its length - 1.
+const MAX_TIER = ((researchData as any[])?.[30]?.length ?? 1) - 1;
 
 const getRawSushi = (idleonData: any) => {
   const raw = tryToParse(idleonData?.Sushi) || idleonData?.Sushi;

@@ -1,6 +1,7 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getActivityIcon, prefix } from 'utility/helpers';
+import { cleanUnderscore, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
+import { getActivityIcon } from '@utility/spriteImages';
 import Tooltip from '../Tooltip';
 import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
 import { isCompanionBonusActive } from '@parsers/misc';
@@ -27,7 +28,7 @@ const Activity = ({ playerId, afkTarget, targetMonster, monsterFace, account, di
               </Tooltip> : null}
             <Stack>
               <Stack direction={'row'} alignItems="center" gap={1}>
-                <ActivityImg src={`${prefix}${getActivityIcon({ afkTarget, targetMonster, monsterFace })}.png`} alt="" />
+                <ActivityImg src={getActivityIcon({ afkTarget, targetMonster, monsterFace })} alt="" />
                 <Typography>{cleanUnderscore(afkTarget)}</Typography>
               </Stack>
               {isLabConnectedByDivinity() ? <Stack direction={'row'} alignItems="center" gap={1}>

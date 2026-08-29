@@ -4,6 +4,7 @@ import { Box } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import EntityList from '@components/wiki/EntityList';
 import { KIND_PLURALS } from '@components/wiki/EntityPanel';
+import WikiRail from '@components/wiki/WikiRail';
 import { sessionQuery } from '@utility/nav-query';
 import { hasListing } from '@utility/wiki/kinds.mjs';
 
@@ -18,18 +19,20 @@ const WikiKind = ({ kind, entries, seoTitle, seoDescription }) => {
   };
   const go = (href) => router.push({ pathname: href, query: sessionQuery(router.query) });
 
-  return <Box sx={{ maxWidth: 1200 }}>
-    <NextSeo title={seoTitle} description={seoDescription}/>
-    <EntityList
-      index={index}
-      kind={kind}
-      onNavigate={(id) => {
-        const node = index.byId[id];
-        if (node?.slug) go(`/wiki/${node.kind}/${node.slug}`);
-      }}
-      onBack={() => go('/wiki')}
-    />
-  </Box>;
+  return <WikiRail current={kind}>
+    <Box sx={{ maxWidth: 1200 }}>
+      <NextSeo title={seoTitle} description={seoDescription}/>
+      <EntityList
+        index={index}
+        kind={kind}
+        onNavigate={(id) => {
+          const node = index.byId[id];
+          if (node?.slug) go(`/wiki/${node.kind}/${node.slug}`);
+        }}
+        onBack={() => go('/wiki')}
+      />
+    </Box>
+  </WikiRail>;
 };
 
 export const getStaticPaths = async () => {

@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { getNextCompanionClaim, getRealDateInMs, UNKNOWN_TIME } from '@utility/helpers';
 
-const COOLDOWN_MS = 594e6;
+// 2.3.525 made the free pet claim daily instead of weekly; the exact server-side window isn't
+// observable, so the site uses a named 24h constant (see FREE_COMPANION_CLAIM_INTERVAL_MS).
+const COOLDOWN_MS = 86400000;
 
 describe('getNextCompanionClaim', () => {
   it('is finite for an account with no save at all', () => {

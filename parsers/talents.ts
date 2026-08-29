@@ -79,6 +79,7 @@ export const mainStatMap = {
   [CLASSES.Death_Bringer]: 'strength',
   [CLASSES.Squire]: 'strength',
   [CLASSES.Divine_Knight]: 'strength',
+  [CLASSES.Royal_Guardian]: 'strength',
 
   [CLASSES.Archer]: 'agility',
   [CLASSES.Bowman]: 'agility',
@@ -526,11 +527,14 @@ export const relevantTalents = {
   145: true // TASTE_TEST
 }
 
+// Game: for each SkillLevelsMAX index it walks every player with a running max seeded at 0, so a
+// locked talent's -1 contributes nothing rather than subtracting.
 export const calcTalentMaxLevel = (characters: any) => {
   const mappedLevels = characters.reduce((result: any, { flatTalents, flatStarTalents }: any) => {
     [...(flatTalents || []), ...(flatStarTalents || [])].forEach(({ skillIndex, maxLevel }) => {
-      if (!result?.[skillIndex] || (maxLevel > result?.[skillIndex])) {
-        result[skillIndex] = maxLevel;
+      const level = Math.max(0, maxLevel ?? 0);
+      if (!result?.[skillIndex] || (level > result?.[skillIndex])) {
+        result[skillIndex] = level;
       }
     })
     return result;
@@ -587,7 +591,10 @@ export const calcTotalStarTalent = (characters: any, account: any) => {
       [character.name]: totalStarPoints
     };
   }, {});
-  return Math.max(0, ...Object.values(levels) as number[]);
+  // Game: TotalTalentPoints reads the logged-in character's own levels and bonuses, so this is the
+  // active character's star tab total, not the best one across the account.
+  const activeCharacter = getBestActiveCharacter(characters);
+  return Math.max(0, (levels as any)?.[activeCharacter?.name] ?? 0);
 }
 
 export const getCrystalCountdownSkills = () => {

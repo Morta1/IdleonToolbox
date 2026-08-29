@@ -26,7 +26,7 @@ const GlimboTrades = ({ glimbo }) => {
                   <img
                     src={`${prefix}data/${rawItemName}.png`}
                     alt={itemName}
-                    style={{ width: 48, height: 48, imageRendering: 'pixelated' }}
+                    style={{ width: 48, height: 48 }}
                     onError={(e) => { e.target.style.display = 'none'; }}
                   />
                   <Typography variant="caption" color="text.secondary" textAlign={'center'}>
@@ -49,7 +49,7 @@ const GlimboTrades = ({ glimbo }) => {
                   <img
                     src={`${prefix}data/VaultUpg${vaultIdx}.png`}
                     alt={upgradeName}
-                    style={{ width: 48, height: 48, imageRendering: 'pixelated' }}
+                    style={{ width: 48, height: 48 }}
                     onError={(e) => { e.target.style.display = 'none'; }}
                   />
                   <Typography variant="body2">

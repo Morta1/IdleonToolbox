@@ -63,6 +63,8 @@ import { isBundlePurchased } from './misc';
 import { getFountainBonusTotal } from './world-5/caverns/the-fountain';
 import { getCglunkoBonus } from './world-5/caverns/crystal-glunko-cove';
 import { notateNumber } from '@utility/helpers';
+import { getSpelunkingBonus } from './world-7/spelunking';
+import { getRoyalStatueBonus } from './class-specific/royalGuardian';
 
 // The speedrun route re-runs this once per map with only mapIndex/targetMonster changed, so the
 // map-invariant stats can be computed once and passed back in via `shared` (one object per
@@ -380,7 +382,9 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const mineheadUpg4 = getMineheadBonusQTY(account, 4) || 0;
   const weaponWP = (character?.equipment?.[1]?.Weapon_Power || 0);
   const mineheadWepPow = mineheadUpg4 * weaponWP;
-  damage *= (1 + mineheadBonus / 100) * (1 + mineheadWepPow / 100);
+  // Royal Statue 0 (TOTAL DAMAGE) - returns 0 for accounts with no Royal Guardian.
+  const royalStatueDmgBonus = getRoyalStatueBonus(account, 0);
+  damage *= (1 + mineheadBonus / 100) * (1 + mineheadWepPow / 100) * (1 + royalStatueDmgBonus / 100);
 
   // Weekly boss guild bonus
   const weeklyBossBonus = account?.weeklyBossesRaw?.g ?? 0;
@@ -433,7 +437,9 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const companion33 = isCompanionBonusActive(account, 33) ? account?.companions?.list?.at(33)?.bonus ?? 0 : 0;
   const companion160 = isCompanionBonusActive(account, 160) ? account?.companions?.list?.at(160)?.bonus ?? 0 : 0;
   const companion168 = isCompanionBonusActive(account, 168) ? account?.companions?.list?.at(168)?.bonus ?? 0 : 0;
-  damage *= Math.max(1, (1 + companion12) * (1 + companion33) * (1 + 2 * companion160) * (1 + 0.5 * companion168));
+  // Companion 170 = Magician_Grub (new raid pet): base 0.25 -> 1.25x, upgraded 0.35 -> 1.35x total damage.
+  const companion170 = isCompanionBonusActive(account, 170) ? account?.companions?.list?.at(170)?.bonus ?? 0 : 0;
+  damage *= Math.max(1, (1 + companion12) * (1 + companion33) * (1 + 2 * companion160) * (1 + 0.5 * companion168) * (1 + companion170));
 
   // Crystal card, meritocracy
   // Game: min(1.5 * CardLv("Crystal6"), 15) - CardLv is 1-based star level
@@ -477,6 +483,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
         { name: 'Prayer Curse (Fibers)', value: -secondPrayerCurse },
         { name: 'Minehead', value: mineheadBonus },
         { name: 'Minehead (WP DMG%)', value: mineheadWepPow },
+        { name: 'Royal Statue (Total Damage)', value: royalStatueDmgBonus },
         { name: 'Weekly Boss', value: weeklyBossBonus },
         { name: 'Equipment (Dmg Multi)', value: postEtcBonus72 },
         { name: 'Equipment (Dmg Bonus)', value: postEtcBonus75 },
@@ -491,6 +498,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
         { name: 'Companion (Ancient Golem)', value: companion12 },
         { name: 'Companion (Chippy)', value: companion33 },
         { name: 'Companion (Glunko)', value: companion160 },
+        { name: 'Companion (Magician Grub)', value: companion170 },
         { name: 'Crystal Card', value: crystalCardBonus },
         { name: 'Meritocracy', value: meritBonus5 },
         { name: 'Bundle', value: hasDmgBundle ? 50 : 0 },
@@ -740,6 +748,8 @@ const getDamageFromHpMp = (character: Character, characters: Character[], accoun
 
   const bubbaRoGBonus = account?.bubba?.bonuses?.totalDamage?.bonus || 0;
   const vaultUpgBonus80 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 80) || 0;
+  // Game: Spelunk("ShopUpgBonus", 64, 0) - new spelunking shop upgrade this patch (Fire Hardhat).
+  const spelunkShop64Bonus = getSpelunkingBonus(account, 64, 0) || 0;
 
   const sources: any[] = [];
   const subSections = [{
@@ -760,6 +770,7 @@ const getDamageFromHpMp = (character: Character, characters: Character[], accoun
       { name: 'Kangaroo', value: kangarooBonus },
       { name: 'Bubba', value: bubbaRoGBonus },
       { name: 'Vault (Raw Damage)', value: vaultUpgBonus80 },
+      { name: 'Spelunking (Fire Hardhat)', value: spelunkShop64Bonus },
     ]
   }];
 
@@ -778,7 +789,8 @@ const getDamageFromHpMp = (character: Character, characters: Character[], accoun
             + (owlBonus
               + (kangarooBonus
                 + (bubbaRoGBonus
-                  + vaultUpgBonus80))))))) / 100;
+                  + vaultUpgBonus80
+                  + spelunkShop64Bonus))))))) / 100;
   return { value, sources, subSections };
 }
 
@@ -1451,7 +1463,12 @@ const getKillPerKill = (character: Character, characters: Character[], account: 
     + legendTalentBonus + bubbaBonus + vaultBonus + friendBonusExtraKills;
 
   const labMulti = Math.max(1, labBonus);
+  // Royal Statue 2 (EXTRA KILLS / multikill) - returns 0 for accounts with no Royal Guardian. The
+  // game inserts this factor right after Companions(14) in both the active and AFK KillPerKill
+  // branches; this site computes kill-per-kill with a single formula shared by both paths.
+  const royalStatueMultikillBonus = getRoyalStatueBonus(account, 2);
   const companionMulti = (1 + companionBonus(14))
+    * (1 + royalStatueMultikillBonus / 100)
     * (1 + 0.2 * companionBonus(168))
     * (1 + companionBonus(29))
     * (1 + companionBonus(154));

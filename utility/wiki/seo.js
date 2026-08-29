@@ -9,7 +9,12 @@ const KIND_WORD = {
   monster: 'monster',
   npc: 'NPC',
   quest: 'quest',
+  achievement: 'achievement',
+  class: 'class',
+  talent: 'talent',
+  pet: 'pet',
   shop: 'shop',
+  world: 'world',
   map: 'area',
   vial: 'alchemy vial',
   bubble: 'alchemy bubble'
@@ -31,6 +36,7 @@ const PHRASES = [
   { rel: 'sells', dir: 'from', phrase: (n) => `sells ${n} ${n === 1 ? 'item' : 'items'}` },
   { rel: 'sells', dir: 'to', phrase: () => 'sold in shops' },
   { rel: 'hosts', dir: 'from', phrase: (n) => `${n} ${n === 1 ? 'NPC' : 'NPCs'}` },
+  { rel: 'contains', dir: 'from', phrase: (n) => `${n} ${n === 1 ? 'area' : 'areas'}` },
   { rel: 'upgradedWith', dir: 'from', phrase: () => 'upgrade material' },
   { rel: 'upgradedWith', dir: 'to', phrase: (n) => `upgrades ${n} ${n === 1 ? 'bonus' : 'bonuses'}` }
 ];

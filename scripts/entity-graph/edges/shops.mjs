@@ -11,7 +11,15 @@ const mapIndexesByName = (mapNames) => {
   return byName;
 };
 
-export const shopEdges = (shops, mapNames) => {
+// What the shop charges. N.js:67512 is the whole rule: BuyPrice is `4 * sellPrice * (1 - bribe)`,
+// so four times the sell price is the price every player starts from and the Bribe only ever
+// reduces it. A save-less page shows the base, the same call the craftable sell price makes.
+const buyPrice = (rawName, items) => {
+  const sellPrice = Number(items?.[rawName]?.sellPrice ?? 0);
+  return sellPrice > 0 ? 4 * sellPrice : null;
+};
+
+export const shopEdges = (shops, mapNames, items = {}) => {
   const edges = [];
   const byName = mapIndexesByName(mapNames);
   for (const [shopRawName, shop] of Object.entries(shops || {})) {
@@ -27,11 +35,12 @@ export const shopEdges = (shops, mapNames) => {
     }
     for (const entry of shop?.items || []) {
       if (!entry?.rawName) continue;
+      const price = buyPrice(entry.rawName, items);
       edges.push({
         from: `shop:${shopRawName}`,
         to: `item:${entry.rawName}`,
         rel: 'sells',
-        meta: {},
+        meta: price ? { price } : {},
         source: 'shops'
       });
     }

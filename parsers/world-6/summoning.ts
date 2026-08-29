@@ -1,4 +1,5 @@
-import { createRange, groupByKey, notateNumber, tryToParse } from '@utility/helpers';
+import { createRange, groupByKey, notateNumber, prefix, tryToParse } from '@utility/helpers';
+import { monsterImage } from '@utility/spriteImages';
 import {
   deathNote,
   monsters,
@@ -64,7 +65,7 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
     const monsterData = summoningEnemies.find((enemy) => enemy.enemyId === enemyId);
     if (monsterData) {
       const extraData = getBattleData(enemyId, monsterData, wonBattles);
-      allBattles[0].push({ ...monsterData, ...extraData, icon: `afk_targets/${whiteBattleIcons?.[index]}` });
+      allBattles[0].push({ ...monsterData, ...extraData, icon: monsterImage(whiteBattleIcons?.[index]) });
     }
   });
   // 9 === this._GenINFO[146]
@@ -175,7 +176,7 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
       const mapMonsterName = monsters?.[(mapEnemiesArray as any)[(stoneMapsIds as any)[index]]]?.Name;
       return {
         name: enemy?.territoryName,
-        monsterIcon: isBoss6 ? `data/${enemy?.enemyId}` : `afk_targets/${monsterName}`,
+        monsterIcon: isBoss6 ? `${prefix}data/${enemy?.enemyId}.png` : monsterImage(monsterName),
         stoneName: (stoneNames as Record<number, string>)[index],
         kills: killsNum,
         index,
@@ -184,7 +185,7 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
         nextLevelHps,
         mapName: (mapNames as any)[(stoneMapsIds as any)[index]],
         mapMonsterName: mapMonsterName,
-        mapMonsterIcon: mapMonsterName ? `afk_targets/${mapMonsterName}` : null
+        mapMonsterIcon: mapMonsterName ? monsterImage(mapMonsterName) : null
       }
     })
     .toSorted((a, b) => a.index - b.index);
@@ -228,7 +229,7 @@ export const getEndlessBattles = (battles = 100, highestEndlessLevel: any, winne
       bonusQty,
       difficulty: { name, sentence: rest.join('_') },
       won: highestEndlessLevel > i,
-      icon: `etc/${monster?.enemyId}_monster`
+      icon: `${prefix}etc/${monster?.enemyId}_monster.png`
     });
   }
   return endlessBattles;
@@ -348,7 +349,7 @@ const getArmyDamage = (upgrades: any, totalUpgradesLevels: any, account: any) =>
       * Math.max(0, Math.floor(totalUpgradesLevels / 100))) / 100);
 }
 const getBattleData = (enemyId: any, monsterData: any, wonBattles: any) => {
-  const icon = `data/Mface${monsters?.[enemyId]?.MonsterFace}`;
+  const icon = monsterImage(enemyId, 'face');
   const won = wonBattles?.includes(enemyId);
   const { bonus, bonusId } = summoningBonuses.find((bonus) => bonus.bonusId === monsterData.bonusId)!;
   const base = 3.5 * monsterData?.bonusQty;

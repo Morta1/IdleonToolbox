@@ -16,6 +16,10 @@ const discoverRoutes = () => {
     for (const entry of readdirSync(dir)) {
       const full = path.join(dir, entry);
       if (statSync(full).isDirectory()) {
+        // A dynamic SEGMENT is not a URL either, and pages/wiki/[kind]/index.jsx puts one in a
+        // directory name rather than a file name - walking into it yields "/wiki/[kind]", which
+        // 404s. Same reasoning as the file-level check below.
+        if (entry.includes('[')) continue;
         walk(full, `${prefix}/${entry}`);
         continue;
       }

@@ -28,6 +28,11 @@ declare module '@website-data' {
       steamExclusive: boolean;
       secretAchievement: boolean;
       steamIndex?: number;
+      gems?: number;
+      candy?: {
+        rawName: string;
+        quantity: number;
+      };
     }[];
   export const anvilProducts: Record<string, {
       rawName: string;
@@ -50,6 +55,19 @@ declare module '@website-data' {
   export const arenaBonuses: {
       bonus: string;
       wave: number;
+    }[];
+  export const armoryUpgrades: {
+      index: number;
+      name: string;
+      baseCost: number;
+      costScaling: number;
+      costResourceIndex: number;
+      maxLevel: number;
+      bonusPerLevel: number;
+      unlockTotalLevels: number;
+      x7: number;
+      x8: number;
+      description: string;
     }[];
   export const artifacts: {
       name: string;
@@ -484,6 +502,177 @@ declare module '@website-data' {
       x3: number;
       order: number | null;
     }[];
+  export const classPromotions: {
+    Beginner: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      talentTabs: string[];
+    };
+    Journeyman: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      talentTabs: string[];
+    };
+    Maestro: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Voidwalker: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Warrior: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      promotesFrom: string;
+      basicsTab: string;
+      talentTabs: string[];
+    };
+    Barbarian: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Squire: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Blood_Berserker: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Divine_Knight: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Archer: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      promotesFrom: string;
+      basicsTab: string;
+      talentTabs: string[];
+    };
+    Bowman: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Hunter: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Beast_Master: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Mage: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      promotesFrom: string;
+      basicsTab: string;
+      talentTabs: string[];
+    };
+    Wizard: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Shaman: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Elemental_Sorcerer: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Bubonic_Conjuror: {
+      index: number;
+      released: boolean;
+      promotesTo: string[];
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Infinilyte: {
+      index: number;
+      released: boolean;
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Death_Bringer: {
+      index: number;
+      released: boolean;
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Royal_Guardian: {
+      index: number;
+      released: boolean;
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Siege_Breaker: {
+      index: number;
+      released: boolean;
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Wind_Walker: {
+      index: number;
+      released: boolean;
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Spiritual_Monk: {
+      index: number;
+      released: boolean;
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+    Arcane_Cultist: {
+      index: number;
+      released: boolean;
+      promotesFrom: string;
+      talentTabs: string[];
+    };
+  };
   export const cogKeyMap: {
     a: string;
     b: string;
@@ -511,6 +700,10 @@ declare module '@website-data' {
       z: string;
       filler: string;
       tourPower: number;
+      x8: number;
+      upgradedTourPower: number;
+      upgradedEffect: string;
+      upgradedBonus: number;
     }[];
   export const compass: {
       name: string;
@@ -620,6 +813,10 @@ declare module '@website-data' {
       bonusName: string;
       type: string;
     }[];
+  export const dungeonKeychains: Record<string, {
+      UQ1txt: string;
+      UQ1val: string;
+    }>;
   export const dungeonStats: {
       effect: string;
       x1: number;
@@ -2859,9 +3056,9 @@ declare module '@website-data' {
       WIS?: number;
       LUK?: number;
       Defence?: number;
-      UQ1txt?: number;
+      UQ1txt?: string | number;
       UQ1val?: number;
-      UQ2txt?: number;
+      UQ2txt?: number | string;
       UQ2val?: number;
       Upgrade_Slots_Left?: number;
     }>;
@@ -2896,12 +3093,186 @@ declare module '@website-data' {
       WIS?: number;
       LUK?: number;
       Defence?: number;
-      UQ1txt?: number;
+      UQ1txt?: string | number;
       UQ1val?: number;
-      UQ2txt?: number;
+      UQ2txt?: number | string;
       UQ2val?: number;
       Upgrade_Slots_Left?: number;
     }[];
+  export const itemSources: {
+    bundles: {
+      bun_a: {
+        Trophy8: number;
+        Timecandy3: number;
+      };
+      bun_b: {
+        EquipmentHats45: number;
+        CardPack1: number;
+        Timecandy4: number;
+      };
+      bun_c: {
+        CardPack1: number;
+      };
+      bun_d: {
+        EquipmentHats57: number;
+        Timecandy2: number;
+        Timecandy3: number;
+        Timecandy5: number;
+      };
+      bun_e: {
+        EquipmentHats62: number;
+        CardPack3: number;
+        Timecandy5: number;
+      };
+      bun_f: {
+        Trophy14: number;
+        GemP9: number;
+        Timecandy2: number;
+      };
+      bun_g: {
+        CardPack4: number;
+      };
+      bun_h: {
+        EquipmentHats69: number;
+        Quest64: number;
+      };
+      bun_j: {
+        EquipmentCape0: number;
+        CardPack5: number;
+      };
+      bun_k: {
+        EquipmentCape2: number;
+        Quest42: number;
+        Quest44: number;
+      };
+      bun_l: {
+        EquipmentCape7: number;
+        CardPack6: number;
+        Quest72: number;
+        Quest73: number;
+      };
+      bun_m: {
+        Quest71: number;
+      };
+      bun_n: {
+        EquipmentCape11: number;
+        EquipmentNametag1: number;
+        CardPack5: number;
+        CardPack6: number;
+      };
+      bun_o: {
+        EquipmentCape12: number;
+      };
+      bun_p: {
+        EquipmentNametag7: number;
+      };
+      bun_q: {
+        EquipmentRingsChat11: number;
+      };
+      bun_r: {
+        EquipmentCape14: number;
+        CardPack7: number;
+        Quest81: number;
+        GemP30: number;
+        Quest82: number;
+      };
+      bun_s: {
+        Quest77: number;
+      };
+      bun_t: {
+        EquipmentCape16: number;
+        EquipmentNametag13: number;
+      };
+      bun_u: {
+        EquipmentGown1: number;
+      };
+      bun_v: {
+        EquipmentGown2: number;
+      };
+      bun_w: {
+        EquipmentGown3: number;
+        EquipmentNametag19: number;
+      };
+      bun_x: {
+        EquipmentGown4: number;
+      };
+      bun_z: {
+        EquipmentHats114: number;
+      };
+      bon_g: {
+        EquipmentCape18: number;
+      };
+      bon_i: {
+        EquipmentGown5: number;
+      };
+      bon_l: {
+        EquipmentHats127: number;
+      };
+      bon_s: {
+        EquipmentGown6: number;
+      };
+      bon_v: {
+        EquipmentCape19: number;
+      };
+      ban_b: {
+        EquipmentGown7: number;
+        EquipmentHats132: number;
+      };
+      ban_c: {
+        EquipmentCape20: number;
+        EquipmentNametag37: number;
+      };
+      ban_g: {
+        EquipmentCape21: number;
+      };
+      ban_h: {
+        EquipmentCape22: number;
+        EquipmentGown8: number;
+      };
+      bon_y: {
+        Quest38: number;
+        PremiumGem: number;
+        InvStorage5: number;
+        ClassSwap: number;
+        ResetBox: number;
+        Island0: number;
+        TixCol: number;
+        EquipmentNametag29: number;
+        NPCtoken15: number;
+        Key1: number;
+        COIN: number;
+        Trophy7: number;
+        Key2: number;
+        CardsB14: number;
+      };
+    };
+    dungeon: {
+      CardsX21: number;
+      DungeonA1: number;
+      FoodHealth1d: number;
+      DungeonA2: number;
+      DungeonA3: number;
+      DungeonA4: number;
+      DungeonA5: number;
+      DungeonA6: number;
+      DungeonA7: number;
+      DungeonA8: number;
+    };
+    royalGuardian: {
+      RGenh: number;
+      RGenhB: number;
+      Orblet: number;
+      Quest110: number;
+    };
+    trashIsland: {
+      StampB47: number;
+      StampB32: number;
+      StampA38: number;
+      StampA39: number;
+      TalentBook1: number;
+      EquipmentNametag6b: number;
+    };
+  };
   export const jadeUpgrades: {
       name: string;
       x1: number;
@@ -3033,7 +3404,12 @@ declare module '@website-data' {
       spriteAcross?: number;
       spriteDown?: number;
       spriteNumFrames?: number;
+      durations?: number[];
+      spriteMovingFrame?: number;
+      spriteDeathFrame?: number;
+      spriteSaturation?: number;
       worldIndex?: number;
+      spriteFrame?: number;
     }>;
   export const ninjaEquipment: Record<string, {
       rawName: string;
@@ -3066,6 +3442,7 @@ declare module '@website-data' {
       spriteAcross: number;
       spriteDown: number;
       spriteNumFrames: number;
+      durations: number[];
     }>;
   export const obols: {
     character: Record<string, {
@@ -3077,6 +3454,16 @@ declare module '@website-data' {
         levelReq: number;
       }>;
   };
+  export const orbletMarket: {
+      index: number;
+      name: string;
+      baseCost: number;
+      costScaling: number;
+      maxLevel: number;
+      bonusPerLevel: number;
+      x5: number;
+      description: string;
+    }[];
   export const owlData: {
       name: string;
       desc: string;
@@ -3499,6 +3886,14 @@ declare module '@website-data' {
       riftBonusIcon?: string;
       riftDescription?: string;
     }[];
+  export const royalKillRequirements: Record<string, number>;
+  export const royalResources: {
+      index: number;
+      x: number;
+      y: number;
+      baseMaxQuantity: number;
+      resourceIndex: number;
+    }[];
   export const saltLicks: {
       name: string;
       rawName: string;
@@ -3663,6 +4058,7 @@ declare module '@website-data' {
       effect: string;
       dk: number;
       bonus: number;
+      flairShardIndex: number;
     }[];
   export const summoningBonuses: {
       bonusId: number;
@@ -6042,6 +6438,228 @@ declare module '@website-data' {
         skillIndex: number;
       };
       APOCALYPSE_WOW: {
+        name: string;
+        description: string;
+        x1: number;
+        x2: number;
+        funcX: string;
+        y1: number;
+        y2: number;
+        funcY: string;
+        lvlUpText: string;
+        skillIndex: number;
+      };
+    };
+    Royal_Guardian: {
+      CASTLE_CONVENE: {
+        name: string;
+        description: string;
+        x1: number;
+        x2: number;
+        funcX: string;
+        y1: number;
+        y2: number;
+        funcY: string;
+        lvlUpText: string;
+        skillIndex: number;
+        K: number;
+        D: number;
+        s: number;
+        cooldown: number;
+        castTime: number;
+        manaCost: number;
+        inputReq: number;
+        AFKrange: number;
+        AFKtype: string;
+        AFKactivity: number;
+      };
+      ROYAL_ARMORY: {
+        name: string;
+        description: string;
+        x1: number;
+        x2: number;
+        funcX: string;
+        y1: number;
+        y2: number;
+        funcY: string;
+        lvlUpText: string;
+        skillIndex: number;
+        K: number;
+        D: number;
+        s: number;
+        cooldown: number;
+        castTime: number;
+        manaCost: number;
+        inputReq: number;
+        AFKrange: number;
+        AFKtype: string;
+        AFKactivity: number;
+      };
+      GUARDIAN_DISCIPLE: {
+        name: string;
+        description: string;
+        x1: number;
+        x2: number;
+        funcX: string;
+        y1: number;
+        y2: number;
+        funcY: string;
+        lvlUpText: string;
+        skillIndex: number;
+        K: number;
+        D: number;
+        s: number;
+        cooldown: number;
+        castTime: number;
+        manaCost: number;
+        inputReq: number;
+        AFKrange: number;
+        AFKtype: string;
+        AFKactivity: number;
+      };
+      REGAL_INTERVENTION: {
+        name: string;
+        description: string;
+        x1: number;
+        x2: number;
+        funcX: string;
+        y1: number;
+        y2: number;
+        funcY: string;
+        lvlUpText: string;
+        skillIndex: number;
+      };
+      ORB_OF_VERISIMILITUDE: {
+        name: string;
+        description: string;
+        x1: number;
+        x2: number;
+        funcX: string;
+        y1: number;
+        y2: number;
+        funcY: string;
+        lvlUpText: string;
+        skillIndex: number;
+      };
+      INDUSTRIAL_POLITICS: {
+        name: string;
+        description: string;
+        x1: number;
+        x2: number;
+        funcX: string;
+        y1: number;
+        y2: number;
+        funcY: string;
+        lvlUpText: string;
+        skillIndex: number;
+      };
+      WARBOUND_POLITICS: {
+        name: string;
+        description: string;
+        x1: number;
+        x2: number;
+        funcX: string;
+        y1: number;
+        y2: number;
+        funcY: string;
+        lvlUpText: string;
+        skillIndex: number;
+      };
+      AESTHETIC_POLITICS: {
+        name: string;
+        description: string;
+        x1: number;
+        x2: number;
+        funcX: string;
+        y1: number;
+        y2: number;
+        funcY: string;
+        lvlUpText: string;
+        skillIndex: number;
+      };
+      BUILT_DIFFERENT: {
+        name: string;
+        description: string;
+        x1: number;
+        x2: number;
+        funcX: string;
+        y1: number;
+        y2: number;
+        funcY: string;
+        lvlUpText: string;
+        skillIndex: number;
+      };
+      'LIL\'_ORBLETS': {
+        name: string;
+        description: string;
+        x1: number;
+        x2: number;
+        funcX: string;
+        y1: number;
+        y2: number;
+        funcY: string;
+        lvlUpText: string;
+        skillIndex: number;
+        K: number;
+        D: number;
+        s: number;
+        cooldown: number;
+        castTime: number;
+        manaCost: number;
+        inputReq: number;
+        AFKrange: number;
+        AFKtype: string;
+        AFKactivity: number;
+      };
+      AMBER_HOARD: {
+        name: string;
+        description: string;
+        x1: number;
+        x2: number;
+        funcX: string;
+        y1: number;
+        y2: number;
+        funcY: string;
+        lvlUpText: string;
+        skillIndex: number;
+      };
+      SPELUNKING_SPECIALTY: {
+        name: string;
+        description: string;
+        x1: number;
+        x2: number;
+        funcX: string;
+        y1: number;
+        y2: number;
+        funcY: string;
+        lvlUpText: string;
+        skillIndex: number;
+      };
+      'PIT_O\'_PAGES': {
+        name: string;
+        description: string;
+        x1: number;
+        x2: number;
+        funcX: string;
+        y1: number;
+        y2: number;
+        funcY: string;
+        lvlUpText: string;
+        skillIndex: number;
+      };
+      GRAND_VEIN: {
+        name: string;
+        description: string;
+        x1: number;
+        x2: number;
+        funcX: string;
+        y1: number;
+        y2: number;
+        funcY: string;
+        lvlUpText: string;
+        skillIndex: number;
+      };
+      GRADED_RATE: {
         name: string;
         description: string;
         x1: number;

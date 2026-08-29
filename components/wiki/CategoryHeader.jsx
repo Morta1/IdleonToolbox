@@ -10,6 +10,12 @@ const BLURB = {
   item: 'Every item in Legends of Idleon: what drops it, what it crafts into, and which quests want it.',
   monster: 'Every enemy in Legends of Idleon, what it drops and where it spawns.',
   npc: 'Everyone who gives a quest, and what they want for it.',
+  achievement: 'Every achievement, banded by world, with the gems and time candy it pays out.',
+  world: 'Every world, and every area inside it with the enemy that lives there.',
+  class: 'Every class, what it promotes into, and the talents it brings with it.',
+  talent: 'Every talent in the game, what it does at each level, and what it costs to cast.',
+  pet: 'Every companion pet, its bonus, and the bundle it came in.',
+  bundle: 'Every bundle the game has sold, and what each one hands over.',
   vial: 'Every alchemy vial, what it is brewed from and what it gives you.',
   bubble: 'Every cauldron bubble, its ingredients and its effect.'
 };
