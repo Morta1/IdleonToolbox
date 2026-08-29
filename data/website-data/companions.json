@@ -1890,17 +1890,17 @@
   {
     "name": "Ricecake",
     "rawName": "w6a2",
-    "effect": "Not_officially_in_the_game_and_may_never_be",
-    "bonus": 1,
-    "x": "0",
+    "effect": "4x_Summoning_EXP_gain",
+    "bonus": 3,
+    "x": "-13",
     "y": "0",
-    "z": "0",
+    "z": "-3",
     "filler": "1",
-    "tourPower": 100,
-    "x8": 9999,
-    "upgradedTourPower": 99,
-    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
-    "upgradedBonus": 1
+    "tourPower": 160,
+    "x8": 2700,
+    "upgradedTourPower": 225,
+    "upgradedEffect": "7x_Summoning_EXP_gain",
+    "upgradedBonus": 6
   },
   {
     "name": "River_Spirit",
@@ -2604,5 +2604,20 @@
     "upgradedTourPower": 650,
     "upgradedEffect": "Bonus_still_unknown..._for_now...",
     "upgradedBonus": 1
+  },
+  {
+    "name": "Verminous",
+    "rawName": "fm_rat",
+    "effect": "+10000%_additive_Gold_Food_bonus_effect_and_1.50x_multiplier_to_Gold_Food",
+    "bonus": 1,
+    "x": "-56",
+    "y": "0",
+    "z": "-43",
+    "filler": "1",
+    "tourPower": 280,
+    "x8": 6800,
+    "upgradedTourPower": 410,
+    "upgradedEffect": "+20000%_additive_Gold_Food_bonus_effect_and_2x_multiplier_to_Gold_Food",
+    "upgradedBonus": 2
   }
 ]

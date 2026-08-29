@@ -10,6 +10,7 @@ import {
   mapEnemiesArray,
   mapNames
 } from '@website-data';
+import { isBundlePurchased } from '@parsers/misc';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getAchievementStatus } from '@parsers/achievements';
@@ -249,6 +250,8 @@ const getLocalWinnerBonus = (rawWinnerBonuses: any, account: any, index: any): a
   const secondAchievement = getAchievementStatus(account?.achievements, 379);
   const emperorBonus = getEmperorBonus(account, 8);
   const armorSetBonus = getArmorSetBonus(account, 'GODSHARD_SET')
+  // game: Thingies("Have_ban_i") - the Verminous bundle adds a flat 50 to the same additive bracket.
+  const bundleBonus = isBundlePurchased(account?.bundles, 'ban_i') ? 50 : 0;
   const { bonusPerLevel, level } = account?.meritsDescriptions?.[5]?.[4] ?? {};
   const meritLevel = level ?? 0;
   let val;
@@ -264,7 +267,8 @@ const getLocalWinnerBonus = (rawWinnerBonuses: any, account: any, index: any): a
         Math.min(10, meritLevel * bonusPerLevel) +
         firstAchievement +
         secondAchievement +
-        armorSetBonus) / 100);
+        armorSetBonus +
+        bundleBonus) / 100);
   }
   else if (index >= 20 && index <= 33) {
     const multiCalc: any = getLocalWinnerBonus(rawWinnerBonuses, account, 31);
@@ -277,6 +281,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses: any, account: any, index: any): a
         firstAchievement +
         secondAchievement +
         armorSetBonus +
+        bundleBonus +
         emperorBonus +
         multi) / 100);
   }
@@ -291,6 +296,7 @@ const getLocalWinnerBonus = (rawWinnerBonuses: any, account: any, index: any): a
         firstAchievement +
         secondAchievement +
         armorSetBonus +
+        bundleBonus +
         emperorBonus +
         multi) / 100);
   }

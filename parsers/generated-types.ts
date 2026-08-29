@@ -2369,10 +2369,10 @@ export interface Account {
         Damages: number[];
         mapIndex?: number;
         worldIndex?: number;
-        sprite?: string;
-        spriteAcross?: number;
-        spriteDown?: number;
-        spriteNumFrames?: number;
+        sprite: string;
+        spriteAcross: number;
+        spriteDown: number;
+        spriteNumFrames: number;
         durations?: number[];
         rawName: string;
         imageName: string;
@@ -2381,6 +2381,7 @@ export interface Account {
         drops: Record<string, any>[] | any[];
         dustType: number;
         dustBaseQuantity: number;
+        spriteFrame?: number;
         description?: string;
       }[];
     maps: {

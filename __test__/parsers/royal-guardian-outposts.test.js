@@ -246,7 +246,7 @@ describe('royal guardian outposts', () => {
     expect(parsed.outpostStats.savageMulti).toBe(5);
   });
 
-  it('rates each rank bar per hour, replicating two game quirks verbatim', () => {
+  it('rates each rank bar per hour, replicating the purity quirk verbatim', () => {
     const parsed = parse();
     const froggy = outpostOn(parsed, 2);
 
@@ -275,9 +275,12 @@ describe('royal guardian outposts', () => {
     // And Froggy itself is not purified, so an outpost-keyed reading would have moved nothing.
     expect(quirkFroggy.purified).toBe(false);
 
-    // QUIRK: the Glorified 2x doubles rBarXPdn before BarExpRate_Base reassigns it, so it is dead
-    // code in the game. The glorified outpost must NOT get double EXP.
-    close(outpostOn(parsed, 50).rankBars[0].expPerHour, 1);
+    // The Glorified 2x used to be dead code: it doubled rBarXPdn, which BarExpRate_Base then
+    // reassigned. 2.3.527 moved it onto rBarXPdn2, so map 50 (RoyalMaps[50][12] === 1) really
+    // does earn double rank EXP now.
+    close(outpostOn(parsed, 50).rankBars[0].expPerHour, 2);
+    // A map without the flag is untouched, so the doubling is keyed off the outpost, not global.
+    close(outpostOn(parsed, 0).rankBars[0].expPerHour, 1);
   });
 
   it('caps outpost types per world, not per account', () => {

@@ -853,6 +853,9 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
   const voteBonus = getVoteBonus(account, 26);
   const companionBonus = isCompanionBonusActive(account, 48) ? account?.companions?.list?.at(48)?.bonus : 0;
   const companionBonus155 = isCompanionBonusActive(account, 155) ? account?.companions?.list?.at(155)?.bonus : 0;
+  // Verminous carries its bonus (1 base, 2 upgraded) into BOTH brackets: 1e4x additive and 50x
+  // multiplicative, so one pet is worth +10000% and 1.50x, two levels worth +20000% and 2x.
+  const companionBonus174 = isCompanionBonusActive(account, 174) ? account?.companions?.list?.at(174)?.bonus : 0;
   const legendTalentBonus = getLegendTalentBonus(account, 25);
   // Two cards carry the Gold_Food_Effect_(Passive) tag and the game caps each one separately
   // (min(4 * CardLv(cropfallEvent1), 50) + min(5 * CardLv(anni5Event1), 50)), so the pair can
@@ -868,7 +871,7 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
   const apocalypseWow = getHighestTalentAcrossCharacters(characters, 'APOCALYPSE_WOW', character);
   const apocalypses = deathBringer?.wow?.finished?.at(0) || 0;
   const armorSetBonus = getArmorSetBonus(account, 'SECRET_SET');
-  const value = (1 + armorSetBonus / 100)
+  const value = (1 + (armorSetBonus + 50 * companionBonus174) / 100)
     * (Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
       + ((gearGoldFoodBonus + obolsBonus)
         + (hungryForGoldTalentBonus
@@ -876,7 +879,7 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
             + (goldenFoodAchievement
               + (goldenFoodBubbleBonus
                 + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus
-              + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses + companionBonus + legendTalentBonus + cardBonus + companionBonus155 + vaultBonus86))))) / 100);
+              + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses + companionBonus + legendTalentBonus + cardBonus + companionBonus155 + 1e4 * companionBonus174 + vaultBonus86))))) / 100);
 
   const breakdown = {
     statName: 'Golden food multi', // adjust if needed
@@ -888,7 +891,8 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
           {
             name: 'Armor Set',
             value: armorSetBonus
-          }
+          },
+          { name: 'Verminous Companion', value: 50 * companionBonus174 }
         ]
       },
       {
@@ -923,6 +927,7 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
           { name: 'Legend Talent', value: legendTalentBonus },
           { name: 'Card', value: cardBonus },
           { name: 'Vanillie Companion', value: companionBonus155 },
+          { name: 'Verminous Companion', value: 1e4 * companionBonus174 },
           { name: 'Vault Upgrade', value: vaultBonus86 }
         ],
         subSections: [

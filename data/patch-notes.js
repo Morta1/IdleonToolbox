@@ -4,6 +4,23 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.70',
+    'gameVer': '2.3.527',
+    'date': '30/08/2026',
+    'features': [
+      'Event Shop: the five new Cropfall collection items are in, and their bonuses now apply across the site. Fishmaxxing boosts Poppy\'s fish and cuts her upgrade costs, Dough Roller doubles meal speed, Bejeweled Ladle adds Cooking Mastery PTS and Boat Discount cuts sailing upgrade costs',
+      'Coral Reef: the new Aegean Coral tier is in, and its bonus now feeds Minehead damage and Minehead currency per hour',
+      'Pets: Verminous is in, with its Gold Food bonus applied to every character',
+      'Royal Guardian: armory upgrade costs follow this patch\'s 10-30% reduction, and the Upgrade Optimizer prices against the new costs'
+    ],
+    'fixes': [
+      'Royal Guardian: Resource Replenish was missing its collection rate bonus to every outpost, matching the game fix',
+      'Royal Guardian: Outpost Glorification now doubles rank EXP as intended, matching the game fix',
+      'Summoning: the Verminous bundle was not counted in winner bonuses',
+      'Coral Reef: the Aegean Coral tier listed the wrong monster as its source, and its bonus text showed a stray character'
+    ]
+  },
+  {
     'ver': '3.3.69',
     'gameVer': '2.3.525',
     'date': '29/08/2026',
