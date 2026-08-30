@@ -1,0 +1,23 @@
+__turbopack_load_page_chunks__("/account/world-3/construction", [
+  "static/chunks/2pau8sa5f99kv.js",
+  "static/chunks/12y-0ru4s44ei.js",
+  "static/chunks/1e5a_0qvp1u5w.js",
+  "static/chunks/1zo_6c0-_r9dt.js",
+  "static/chunks/0nb6ja_i07ih5.js",
+  "static/chunks/1ir4i_xr1vm25.js",
+  "static/chunks/072c2f3ve8k_o.js",
+  "static/chunks/0ccmdkaik7plf.js",
+  "static/chunks/0wk8omq7ik_-i.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/12m2f73tx9vqh.js",
+  "static/chunks/20j3l0_oxse1l.js",
+  "static/chunks/2gzb9b57991_o.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/2mx3-6ou38ao6.js",
+  "static/chunks/0dj18xc8uzhaq.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/225z7ymitvyow.js",
+  "static/chunks/024lcrvduvw_8.js",
+  "static/chunks/3kr1fy0ou5s46.js",
+  "static/chunks/turbopack-1zt41w6t2dkxg.js"
+])

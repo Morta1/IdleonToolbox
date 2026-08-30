@@ -1,0 +1,23 @@
+__turbopack_load_page_chunks__("/account/class-specific/royal-guardian", [
+  "static/chunks/2pau8sa5f99kv.js",
+  "static/chunks/12y-0ru4s44ei.js",
+  "static/chunks/1e5a_0qvp1u5w.js",
+  "static/chunks/1zo_6c0-_r9dt.js",
+  "static/chunks/1n_u8qy9psaj1.js",
+  "static/chunks/1ir4i_xr1vm25.js",
+  "static/chunks/20wx4cvooiipp.js",
+  "static/chunks/2m0wpccmqd5w6.js",
+  "static/chunks/2tvw95p-nhuq3.js",
+  "static/chunks/0g-q6j_mqosbv.js",
+  "static/chunks/2gj_qh7f41pef.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/2gzb9b57991_o.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/2w-ndt-4_7v0h.js",
+  "static/chunks/12m2f73tx9vqh.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/34a8ugl1y3x-m.js",
+  "static/chunks/139dr86fis356.js",
+  "static/chunks/0dj18xc8uzhaq.js",
+  "static/chunks/turbopack-3qvuqccjkq1l0.js"
+])

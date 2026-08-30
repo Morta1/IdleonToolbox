@@ -637,6 +637,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://idleontoolbox.com/wiki/changelog</loc>
+    <lastmod>2026-08-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://idleontoolbox.com/tools/builds/beginner</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>weekly</changefreq>
