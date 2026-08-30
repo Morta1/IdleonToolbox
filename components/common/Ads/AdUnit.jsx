@@ -47,11 +47,14 @@ export const HomeSidebarAds = () => {
     // Same reason as SidebarAd above: NitroAds relocates both rails into a body > div, so they must
     // sit behind a React-owned wrapper. A bare fragment leaves the relocated divs as the nodes React
     // itself removes on unmount, which throws NotFoundError and takes the whole tree down.
+    // teardownOnNavigate: these two are the only route-scoped rails, so they are the only ones that
+    // have to be destroyed on the way out of the page rather than on unmount. SidebarAd above stays
+    // mounted across navigation and must not opt in.
     return <div>
       <NitroRailAd id={'nitro-home-right-side-ad'} alignment={'right'} sizes={NITRO_HOME_AD_SIZES}
-                   mediaQuery={'(min-width: 1650px)'}/>
+                   mediaQuery={'(min-width: 1650px)'} teardownOnNavigate/>
       <NitroRailAd id={'nitro-home-left-side-ad'} alignment={'left'} sizes={NITRO_HOME_AD_SIZES}
-                   mediaQuery={'(min-width: 1650px)'}/>
+                   mediaQuery={'(min-width: 1650px)'} teardownOnNavigate/>
     </div>;
   }
   return null;
