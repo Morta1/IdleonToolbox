@@ -8,6 +8,7 @@ import QuestInfo from './QuestInfo';
 import StampInfo from './StampInfo';
 import AlchemyInfo from './AlchemyInfo';
 import TalentInfo from './TalentInfo';
+import EntityHistory from './EntityHistory';
 import { dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, percentLabel } from '@utility/wiki/drops';
 import { entityName } from '@utility/wiki/names';
 import { cleanUnderscore, prefix } from '@utility/helpers';
@@ -485,6 +486,7 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
           </Box>
         </Stack>)}
       </Stack>)}
+        <EntityHistory node={node}/>
         </Box>
         {/* One rail, not a row of siblings. Every infobox used to be a flex child of the same row
             as the relations, so an entity with two of them asked for 680px of boxes beside a
