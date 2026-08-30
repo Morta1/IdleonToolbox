@@ -33,6 +33,9 @@ export const petNodes = (companions, companionGroups) => {
     nodes[`pet:${pet.rawName}`] = {
       kind: 'pet',
       rawName: pet.rawName,
+      // The history is keyed by the game's companion index rather than by rawName, so the node
+      // has to carry the index it was built from.
+      companionIndex: index,
       name: pet.name,
       // The pet's art is the monster's art: the game shrinks the same sprite rather than drawing a
       // second one, which is why this reads from afk_targets like the monster page does.

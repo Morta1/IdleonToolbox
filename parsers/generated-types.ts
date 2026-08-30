@@ -3016,13 +3016,7 @@ export interface Account {
       }[];
     chests: any[];
     rareTreasureChance: number;
-    trades: {
-        amount: number;
-        rawName: string;
-        date: string;
-        moneyValue: number;
-        lootItemCost: number;
-      }[];
+    trades: any[];
     timeToFullChests: number;
     captains: {
         captainIndex: string;
@@ -5262,6 +5256,10 @@ export interface Character {
         }[];
     };
     value: number;
+    effectiveValue: number;
+    cap: number;
+    capped: boolean;
+    embiggener: number;
     expression: string;
   };
   constructionSpeed: number;

@@ -114,5 +114,6 @@ export const PAGE_SEO = {
   "/tools/sampling-companion": { title: "Sampling Companion | Idleon Toolbox", description: "Find out what your character needs for optimal sampling setups" },
   "/wiki": { title: "Wiki | Idleon Toolbox", description: "Search every Legends of Idleon item, monster, NPC and quest to see what drops it, what it crafts, and which quests use it" },
   "/wiki/[kind]/[slug]": { title: "Wiki | Idleon Toolbox", description: "A Legends of Idleon item, monster, NPC, quest, shop or area, and everything it connects to." },
-  "/wiki/[kind]": { title: "Wiki | Idleon Toolbox", description: "Browse every Legends of Idleon item, monster, NPC, quest, shop and area." }
+  "/wiki/[kind]": { title: "Wiki | Idleon Toolbox", description: "Browse every Legends of Idleon item, monster, NPC, quest, shop and area." },
+  "/wiki/changelog": { title: "Game changelog | Idleon Toolbox", description: "What each Legends of Idleon patch changed: items, monsters, recipes, companions and talents, version by version." }
 };

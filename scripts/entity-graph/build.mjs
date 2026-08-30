@@ -40,6 +40,7 @@ import { obtainedFrom } from './obtained-from.mjs';
 import { recipeUnlocks } from './recipe-unlocks.mjs';
 import { aliases } from './aliases.mjs';
 import { ignore } from './ignore.mjs';
+import { attachHistory } from './history.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, '..', '..', 'data');
@@ -64,6 +65,11 @@ const talents = readJson('talents.json');
 // Its own file rather than a shared-data key, so importing it never drags the 1MB bundle onto the
 // builds pages that read the same map.
 const classPromotions = readJson('classPromotions.json');
+// Not a website-data key: it is diffed from the version archive and exported on its own, the way
+// sprite-manifest.json is. Absent on a fresh checkout that has not run z-processing yet, so a
+// missing file degrades to no history rather than failing the build.
+const historyPath = path.join(dataDir, 'entity-history.json');
+const entityHistory = fs.existsSync(historyPath) ? JSON.parse(fs.readFileSync(historyPath, 'utf-8')) : {};
 const shops = sharedData.shops;
 const mapNames = sharedData.mapNames;
 const rawMapNames = sharedData.rawMapNames;
@@ -244,6 +250,8 @@ for (const [rawName, gate] of recipeUnlocks(taskUnlocks)) {
   gatedRecipes += 1;
 }
 
+const withHistory = attachHistory(nodes, entityHistory, crafts);
+
 // Some nodes name art the game never shipped. Point at nothing rather than at a 404, so the UI
 // reserves the same empty box it uses for NPCs and quests instead of flashing a broken image.
 const publicDir = path.join(__dirname, '..', '..', 'public');
@@ -327,6 +335,7 @@ console.log('[entity-graph] nodes:', JSON.stringify(stats.nodes));
 console.log('[entity-graph] edges:', JSON.stringify(stats.edges));
 console.log(`[entity-graph] dropped ${resolvedEdges.length - edges.length} duplicate edges, nulled ${nulledIcons} missing icons`);
 console.log(`[entity-graph] task board gates ${gatedRecipes} recipes`);
+console.log(`[entity-graph] history on ${withHistory} entities`);
 console.log(`[entity-graph] unresolved: ${unresolved.length} (was ${previousCount})`);
 if (unresolved.length !== previousCount) {
   console.warn('[entity-graph] WARNING: unresolved count changed. Inspect scripts/entity-graph/unresolved-report.json and triage into aliases.mjs / ignore.mjs.');

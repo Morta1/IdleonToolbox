@@ -27,6 +27,10 @@ export const achievementNodes = (achievements) => {
     nodes[`achievement:${achievement.rawName}`] = {
       kind: 'achievement',
       rawName: achievement.rawName,
+      // The snapshot stores achievements as a plain array, so the history it produces is keyed by
+      // position rather than by rawName. The node has to carry that same index to join against
+      // it, the same way companionIndex does for a pet.
+      achievementIndex: index,
       name: achievement.name,
       icon: `/data/${achievement.rawName}.png`,
       category: `World ${world}`,

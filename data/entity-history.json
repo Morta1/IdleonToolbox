@@ -1,0 +1,6976 @@
+{
+  "items/MaxCapBagT12": [
+    {
+      "v": "2.3.44",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "lvReqToEquip",
+          "from": 30000,
+          "to": 35000
+        }
+      ]
+    }
+  ],
+  "items/Quest109": [
+    {
+      "v": "2.3.44",
+      "t": "added"
+    }
+  ],
+  "items/GemP37": [
+    {
+      "v": "2.3.44",
+      "t": "added"
+    }
+  ],
+  "items/Trophy25": [
+    {
+      "v": "2.3.44",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "UQ2txt",
+          "to": 0
+        }
+      ]
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/TrophyReplica25": [
+    {
+      "v": "2.3.44",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "UQ2txt",
+          "to": 0
+        }
+      ]
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametag30": [
+    {
+      "v": "2.3.44",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametagReplica30": [
+    {
+      "v": "2.3.44",
+      "t": "added"
+    }
+  ],
+  "items/CardsY20": [
+    {
+      "v": "2.3.44",
+      "t": "added"
+    }
+  ],
+  "monsters/cropfallEvent1": [
+    {
+      "v": "2.3.44",
+      "t": "added"
+    }
+  ],
+  "cards/cropfallEvent1": [
+    {
+      "v": "2.3.44",
+      "t": "added"
+    }
+  ],
+  "items/SmithingHammerChisel4": [
+    {
+      "v": "2.3.45",
+      "t": "added"
+    }
+  ],
+  "items/Quest110": [
+    {
+      "v": "2.3.45",
+      "t": "added"
+    }
+  ],
+  "companions/28": [
+    {
+      "v": "2.3.45",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "{30%_AFK_gains_for_World_7_skills,_and_+1_World_Class_Showcase_Slot_(Grade_4)",
+          "to": "{30%_AFK_gains_for_World_7_skills,_and_{1_World_Class_Showcase_Slot_(Grade_4)"
+        }
+      ]
+    },
+    {
+      "v": "2.3.494",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "{30%_AFK_gains_for_World_7_skills,_and_{1_World_Class_Showcase_Slot_(Grade_4)",
+          "to": "{30%_AFK_gains_for_World_7_skills,_and_{1_Worldclass_Showcase_Slot_in_Gallery"
+        }
+      ]
+    }
+  ],
+  "companions/33": [
+    {
+      "v": "2.3.45",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Bababooey!",
+          "to": "2x_Total_Damage,_and_2x_Class_EXP_gain"
+        },
+        {
+          "field": "bonus",
+          "from": 3,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "items/EquipmentPendant6": [
+    {
+      "v": "2.3.46",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Blubbery_Icey",
+          "to": "Blubbery_Icecream"
+        },
+        {
+          "field": "Weapon_Power",
+          "from": 10,
+          "to": 5
+        },
+        {
+          "field": "STR",
+          "from": 3,
+          "to": 0
+        },
+        {
+          "field": "AGI",
+          "from": 3,
+          "to": 0
+        },
+        {
+          "field": "WIS",
+          "from": 3,
+          "to": 0
+        },
+        {
+          "field": "LUK",
+          "from": 3,
+          "to": 0
+        },
+        {
+          "field": "UQ1txt",
+          "from": "%_XP_FROM_MONSTERS",
+          "to": "%_AFK_GAINS_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 6,
+          "to": 8
+        },
+        {
+          "field": "Upgrade_Slots_Left",
+          "from": 2,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "items/StampA44": [
+    {
+      "v": "2.3.46",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc_line1",
+          "from": "classxp,decay,5,200,15,w7A3,50000,7,660000000000000,1.36,0,{}%_Class_EXP_Multi,0",
+          "to": "classxp,decay,4,200,15,w7A11,250000,12,66000000000000000,1.45,0,{}%_Class_EXP_Multi,0"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats10": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        },
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_MASTERCLASS_DROPS"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 4
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats84": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        },
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DAMAGE_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats21": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        },
+        {
+          "field": "Class",
+          "from": "BEGINNER",
+          "to": "ALL"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats107": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        },
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DAMAGE_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats42": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats111": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats51": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats55": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats108": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats56": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats63": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        },
+        {
+          "field": "UQ1val",
+          "from": 4,
+          "to": 5
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats64": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats66": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats67": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats75": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats76": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats78": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats79": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentTools16": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Prehistoric_Pixckaxe",
+          "to": "Prehistoric_Pickaxe"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats31": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_SKILL_EFFICIENCY"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 3
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats32": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DROP_CHANCE"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 2
+        }
+      ]
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats33": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_BONUS_MONEY"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 10
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats34": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DROP_CHANCE"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 3
+        }
+      ]
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats35": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_CLASS_EXP_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 8
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats40": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DROP_CHANCE"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 2
+        }
+      ]
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats37": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_SKILL_EFFICIENCY"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 5
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats46": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DROP_CHANCE"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 4
+        }
+      ]
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats47": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DAMAGE_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 3
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats48": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_SKILL_EFFICIENCY"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 5
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats49": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_AFK_GAINS_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 2
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats50": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DROP_CHANCE"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 3
+        }
+      ]
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats80": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_CLASS_EXP_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 2
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats109": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_CLASS_EXP_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 2
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats85": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_BONUS_KILLS"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 2
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats86": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DROP_RATE_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats87": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DAMAGE_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats88": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_BONUS_KILLS"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats89": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_CLASS_EXP_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats90": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DROP_CHANCE"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 5
+        }
+      ]
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats91": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_SKILL_EFFICIENCY"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 5
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats92": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_AFK_GAINS_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats93": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_CLASS_EXP_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 2
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats94": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DIVINITY_EXP"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 15
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats95": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DAMAGE_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats96": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DROP_RATE_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats97": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_BONUS_MONEY"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 15
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats98": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_MASTERCLASS_DROPS"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 5
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats99": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_AFK_GAINS_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats100": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DAMAGE_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats101": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DAMAGE_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats102": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_DROP_RATE_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 2
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats103": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_MASTERCLASS_DROPS"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats104": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_CLASS_EXP_MULTI"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 2
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats110": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": 0,
+          "to": "%_BONUS_KILLS"
+        },
+        {
+          "field": "UQ1val",
+          "from": 0,
+          "to": 2
+        }
+      ]
+    }
+  ],
+  "crafts/Birthday_Hat": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "subType",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "crafts/Acorn_Topper": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "subType",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "crafts/Nuget_Cake_Fedora": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "subType",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "crafts/Honker_Hat": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "subType",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "crafts/Shiny_Bored_Beanie": [
+    {
+      "v": "2.3.47",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "subType",
+          "from": "HELMET",
+          "to": "PREMIUM_HELMET"
+        }
+      ]
+    }
+  ],
+  "crafts/Prehistoric_Pickaxe": [
+    {
+      "v": "2.3.47",
+      "t": "added"
+    }
+  ],
+  "items/GfoodcouponS": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "items/Quest95": [
+    {
+      "v": "2.3.48",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Birthday_Candle",
+          "to": "Winter_Candle"
+        },
+        {
+          "field": "desc_line1",
+          "from": "I_hope_your_wish_came_true!",
+          "to": "Hold_down_on_this_candle_to_make_a_wish_for_new_pets!_Who_knows,_maybe_they'll_come_true!"
+        }
+      ]
+    }
+  ],
+  "items/Quest113": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "items/Quest114": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    },
+    {
+      "v": "2.3.523",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "EVENT_BOX",
+          "to": "EVENT_WISH"
+        }
+      ]
+    }
+  ],
+  "items/Quest112": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametag31": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametagReplica31": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats124": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats125": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats126": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats127": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/CardsY21": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "monsters/xmasEvent4": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "monsters/bubba": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "companions/34": [
+    {
+      "v": "2.3.48",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Bababooey!",
+          "to": "3x_Class_EXP_gain"
+        },
+        {
+          "field": "bonus",
+          "from": 3,
+          "to": 2
+        }
+      ]
+    }
+  ],
+  "companions/35": [
+    {
+      "v": "2.3.48",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Bababooey!",
+          "to": "2x_Refinery_Salts_produced_(affects_POW_produced_in_Refinery)"
+        },
+        {
+          "field": "bonus",
+          "from": 3,
+          "to": 1
+        }
+      ]
+    }
+  ],
+  "companions/36": [
+    {
+      "v": "2.3.48",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Bababooey!",
+          "to": "{200%_Gold_Balls_gained_from_the_Arcade,"
+        },
+        {
+          "field": "bonus",
+          "from": 3,
+          "to": 200
+        }
+      ]
+    }
+  ],
+  "companions/49": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "cards/xmasEvent4": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "bundles/bon_l": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "bundles/bon_m": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "bundles/bon_n": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "bundles/bon_o": [
+    {
+      "v": "2.3.48",
+      "t": "added"
+    }
+  ],
+  "monsters/snakeR": [
+    {
+      "v": "2.3.49",
+      "t": "added"
+    }
+  ],
+  "companions/3": [
+    {
+      "v": "2.3.49",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "{100%_Drop_Rate_and_Exp_from_monsters",
+          "to": "{100%_Drop_Rate_and_Class_Exp"
+        }
+      ]
+    }
+  ],
+  "companions/50": [
+    {
+      "v": "2.3.49",
+      "t": "added"
+    }
+  ],
+  "monsters/w6c2b": [
+    {
+      "v": "2.3.491",
+      "t": "added"
+    }
+  ],
+  "companions/51": [
+    {
+      "v": "2.3.491",
+      "t": "added"
+    }
+  ],
+  "bundles/bon_p": [
+    {
+      "v": "2.3.491",
+      "t": "added"
+    }
+  ],
+  "items/Spelunking4": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/Spelunking5": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/Spelunking6": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/StampB41": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc_line1",
+          "from": "NewPet,add,1,0,15,GalaxyA3,200,5,1000000,1.4,0,{}%_New_Pet_Chance,0",
+          "to": "NewPet,add,1,0,15,GalaxyA3,200,5,1000000,1.4,0,{}%_New_Mob_Chance,0"
+        }
+      ]
+    }
+  ],
+  "items/PetEgg": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Pet_Egg",
+          "to": "Mob_Egg"
+        },
+        {
+          "field": "Type",
+          "from": "PET_EGG",
+          "to": "MOB_EGG"
+        }
+      ]
+    }
+  ],
+  "items/Refinery7": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/Refinery8": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/Refinery9": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/w7B1": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/w7B1b": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/w7B2": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/w7B3": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/w7B4": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/w7B5": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/w7B6": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/w7B7": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/w7B8": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/w7B9": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/w7B10": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/w7B11": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/w7B12": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.507",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc_line1",
+          "from": "The_penultimate_emblem_given_to_legendary_pirates,_signifying_their_leadership_of_the_pirate_crew.",
+          "to": "The_ultimate_emblem_given_to_legendary_pirates,_signifying_their_leadership_of_the_pirate_crew."
+        }
+      ]
+    }
+  ],
+  "items/EquipmentGown6": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/Quest96": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc_line1",
+          "from": "Hold_down_to_instantly_get_2_Hours_of_Dust_added_to_the_Compass!_The_amount_is_based_on_the_current_hourly_rate_shown_in_AFK_info._You_must_be_on_your_Windwalker_to_use_this.",
+          "to": "Hold_down_to_instantly_get_1_Hour_of_Dust_added_to_the_Compass!_The_amount_is_based_on_the_current_hourly_rate_shown_in_AFK_info._You_must_be_on_your_Windwalker_to_use_this."
+        }
+      ]
+    }
+  ],
+  "items/Quest100": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc_line1",
+          "from": "Collect_1000_of_these_to_unlock_AFK_Dust_for_Windwalker!_Once_you_have_1000,_hold_down_on_this_item._You_will_then_earn_1_Aethermoon_per_2hr_AFK_claimed_on_your_Windwalker.",
+          "to": "Collect_1000_of_these_to_unlock_AFK_Dust_for_Windwalker!_Once_you_have_1000,_hold_down_on_this_item._You_will_then_earn_1_Aethermoon_per_1hr_AFK_claimed_on_your_Windwalker."
+        }
+      ]
+    }
+  ],
+  "items/Quest107": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Aether_Fragment",
+          "to": "Arcane_Fragment"
+        }
+      ]
+    }
+  ],
+  "items/Quest115": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentStatues22": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc_line1",
+          "from": "This_statue_somehow_boosts_the_effectiveness_of_pets_getting_it_on...",
+          "to": "This_statue_somehow_boosts_the_effectiveness_of_Mobs_getting_it_on..."
+        }
+      ]
+    }
+  ],
+  "items/Coral3": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Neon_Coral",
+          "to": "Char_Coral"
+        }
+      ]
+    }
+  ],
+  "items/Coral4": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/Coral5": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/Coral6": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/Coral7": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/Coral8": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/CardsF49": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/CardsF50": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/CardsF51": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/CardsJ13": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/CardsJ14": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/CardsJ15": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/CardsJ16": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/CardsJ17": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/CardsJ18": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/CardsJ19": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/CardsJ20": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/CardsJ21": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/CardsJ22": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/CardsJ23": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/CardsJ24": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/w7a11": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "MonsterHPTotal",
+          "from": 8e+24,
+          "to": 3e+24
+        }
+      ]
+    }
+  ],
+  "monsters/w7a12": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "MonsterHPTotal",
+          "from": 2e+26,
+          "to": 1e+26
+        }
+      ]
+    }
+  ],
+  "monsters/w7b1": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/w7b2": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/w7b3": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/w7b4": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/w7b5": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/w7b6": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/w7b7": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.501",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "MonsterHPTotal",
+          "from": 7.5e+29,
+          "to": 2.5e+31
+        },
+        {
+          "field": "ExpGiven",
+          "from": 1,
+          "to": 8000000000000
+        },
+        {
+          "field": "Defence",
+          "from": 2500000,
+          "to": 8000000000000
+        }
+      ]
+    },
+    {
+      "v": "2.3.523",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "MonsterHPTotal",
+          "from": 2.5e+31,
+          "to": 1e+31
+        },
+        {
+          "field": "ExpGiven",
+          "from": 8000000000000,
+          "to": 6000000000000
+        }
+      ]
+    }
+  ],
+  "monsters/w7b8": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.523",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "MonsterHPTotal",
+          "from": 3e+31,
+          "to": 5e+33
+        },
+        {
+          "field": "ExpGiven",
+          "from": 1,
+          "to": 22000000000000
+        }
+      ]
+    }
+  ],
+  "monsters/w7b9": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.527",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "MonsterHPTotal",
+          "from": 2e+33,
+          "to": 3e+35
+        },
+        {
+          "field": "ExpGiven",
+          "from": 1,
+          "to": 28000000000000
+        }
+      ]
+    }
+  ],
+  "monsters/w7b10": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/w7b11": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/w7b12": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.507",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "MonsterHPTotal",
+          "from": 1e+37,
+          "to": 7.5e+32
+        },
+        {
+          "field": "ExpGiven",
+          "from": 300000000000,
+          "to": 15000000000000
+        },
+        {
+          "field": "Defence",
+          "from": 2500000,
+          "to": 1000000000
+        },
+        {
+          "field": "Damages",
+          "from": [
+            600000,
+            1
+          ],
+          "to": [
+            600000000,
+            1
+          ]
+        }
+      ]
+    }
+  ],
+  "monsters/w7b1b": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/w7b6b": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/w7b3b": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/bubbab": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/T1a": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/T1b": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/T1c": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/Spelunking3": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Defence",
+          "from": 5000000,
+          "to": 2000000
+        }
+      ]
+    }
+  ],
+  "monsters/Spelunking4": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/Spelunking5": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/SpelunkingCard4": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "monsters/SpelunkingCard5": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/52": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/53": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/54": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.493",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "+1_new_Research_Shape,_shows_up_after_you_get_Research_LV._20",
+          "to": "{1_new_Research_Shape,_shows_up_after_you_get_Research_LV._20"
+        }
+      ]
+    }
+  ],
+  "companions/55": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.493",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "Multiplies_ALL_Research_Grid_bonuses_by_1.15x_(World_7_feature)"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 15
+        }
+      ]
+    }
+  ],
+  "companions/56": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/57": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.511",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "tourPower",
+          "from": 340,
+          "to": 300
+        }
+      ]
+    },
+    {
+      "v": "2.3.523",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "Glimbo's_Swap_Meet's_prices_are_5.00x_cheaper_(World_7_feature)"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 80
+        }
+      ]
+    }
+  ],
+  "companions/58": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/59": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/60": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/61": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/62": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/63": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/64": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/65": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/66": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/67": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/68": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/69": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/70": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/71": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/72": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/73": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/74": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/75": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/76": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/77": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/78": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/79": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/80": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/81": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/82": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/83": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/84": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/85": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/86": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/87": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.509",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "3x_Cooking_Mastery_EXP_gain_and_{5_PTS_for_Cooking_Mastery"
+        },
+        {
+          "field": "tourPower",
+          "from": 100,
+          "to": 160
+        }
+      ]
+    }
+  ],
+  "companions/88": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.493",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "tourPower",
+          "from": 100,
+          "to": 170
+        }
+      ]
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "{50%_Prisma_Bubble_bonus_multi_and_{5_Prisma_Bubbles"
+        }
+      ]
+    }
+  ],
+  "companions/89": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.493",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "name",
+          "from": "Rift_Stalker",
+          "to": "Floofie"
+        }
+      ]
+    }
+  ],
+  "companions/90": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/91": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/92": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/93": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/94": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/95": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/96": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/97": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/98": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/99": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "All_Upgrade_Vault_upgrades_are_50%_cheaper!"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 50
+        }
+      ]
+    }
+  ],
+  "companions/100": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/101": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/102": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/103": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/104": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/105": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/106": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/107": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/108": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/109": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/110": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/111": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "{100%_Class_EXP_and_Drop_Rate"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 100
+        }
+      ]
+    },
+    {
+      "v": "2.3.503",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "tourPower",
+          "from": 100,
+          "to": 60
+        }
+      ]
+    }
+  ],
+  "companions/112": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/113": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/114": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/115": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/116": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/117": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/118": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/119": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/120": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/121": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/122": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/123": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/124": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/125": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/126": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.527",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "4x_Summoning_EXP_gain"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 3
+        },
+        {
+          "field": "tourPower",
+          "from": 100,
+          "to": 160
+        },
+        {
+          "field": "upgradedTourPower",
+          "from": 99,
+          "to": 225
+        },
+        {
+          "field": "upgradedEffect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "7x_Summoning_EXP_gain"
+        },
+        {
+          "field": "upgradedBonus",
+          "from": 1,
+          "to": 6
+        }
+      ]
+    }
+  ],
+  "companions/127": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/128": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.502",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "+100%_Class_EXP_and_1.50x_Class_EXP_Multi"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 100
+        }
+      ]
+    },
+    {
+      "v": "2.3.503",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "+100%_Class_EXP_and_1.50x_Class_EXP_Multi",
+          "to": "{100%_Class_EXP_and_1.50x_Class_EXP_Multi"
+        }
+      ]
+    }
+  ],
+  "companions/129": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/130": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/131": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/132": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.503",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "{100%_Drop_Rate_and_1.50x_Drop_Rate_Multi"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 100
+        },
+        {
+          "field": "tourPower",
+          "from": 100,
+          "to": 175
+        }
+      ]
+    }
+  ],
+  "companions/133": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/134": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/135": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.503",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "2x_LVs_for_Monuments_Bonuses_when_selecting_Rewards!"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 100
+        },
+        {
+          "field": "tourPower",
+          "from": 100,
+          "to": 195
+        }
+      ]
+    }
+  ],
+  "companions/136": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/137": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/138": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/139": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/140": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/141": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "3x_Resources_from_Outposts_for_Royal_Guardian"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 2
+        },
+        {
+          "field": "tourPower",
+          "from": 100,
+          "to": 200
+        }
+      ]
+    }
+  ],
+  "companions/142": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/143": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/144": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/145": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "3x_Class_EXP_gain"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 2
+        },
+        {
+          "field": "tourPower",
+          "from": 100,
+          "to": 180
+        }
+      ]
+    }
+  ],
+  "companions/146": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/147": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.501",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "All_bonuses_from_The_Button_in_W7_are_1.50x_bigger"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 50
+        },
+        {
+          "field": "tourPower",
+          "from": 100,
+          "to": 160
+        }
+      ]
+    }
+  ],
+  "companions/148": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/149": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "companions/150": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.504",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Congratulations_on_winning_the_Bronze_Tournament_in_Season_1!",
+          "to": "Congratulations_on_winning_the_Tournament!"
+        }
+      ]
+    }
+  ],
+  "companions/151": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.504",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Congratulations_on_winning_the_Silver_Tournament_in_Season_1!",
+          "to": "Congratulations_on_winning_the_Tournament!"
+        }
+      ]
+    }
+  ],
+  "companions/152": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.504",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Congratulations_on_winning_the_Gold_Tournament_in_Season_1!",
+          "to": "Congratulations_on_winning_the_Tournament!"
+        }
+      ]
+    }
+  ],
+  "companions/153": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.493",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "tourPower",
+          "from": 170,
+          "to": 225
+        }
+      ]
+    },
+    {
+      "v": "2.3.494",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "{10_Research_PTS,_{20%_Research_AFK_Gains,_2x_Research_EXP_Gain,_and_{1_Magnifier"
+        }
+      ]
+    }
+  ],
+  "companions/154": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "crafts/Torn_Jeans": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Frog_Leg",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Grasslands2",
+              "itemQuantity": 6
+            },
+            {
+              "itemName": "Thread",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "CraftMat1",
+              "itemQuantity": 10
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Frog_Leg",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Grasslands2",
+              "itemQuantity": 6
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Flip_Flops": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Bean_Slices",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Grasslands3",
+              "itemQuantity": 12
+            },
+            {
+              "itemName": "Grass_Leaf",
+              "type": "Item",
+              "subType": "LEAF",
+              "rawName": "Leaf1",
+              "itemQuantity": 5
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Bean_Slices",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Grasslands3",
+              "itemQuantity": 12
+            },
+            {
+              "itemName": "Thread",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "CraftMat1",
+              "itemQuantity": 10
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Copper_Pickaxe": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Copper_Ore",
+              "type": "Consumable",
+              "subType": "ORE",
+              "rawName": "Copper",
+              "itemQuantity": 10
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Copper_Ore",
+              "type": "Consumable",
+              "subType": "ORE",
+              "rawName": "Copper",
+              "itemQuantity": 8
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Copper_Chopper": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Oak_Logs",
+              "type": "Item",
+              "subType": "LOG",
+              "rawName": "OakTree",
+              "itemQuantity": 6
+            },
+            {
+              "itemName": "Thread",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "CraftMat1",
+              "itemQuantity": 5
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Oak_Logs",
+              "type": "Item",
+              "subType": "LOG",
+              "rawName": "OakTree",
+              "itemQuantity": 6
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Leather_Cap": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Frog_Leg",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Grasslands2",
+              "itemQuantity": 30
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Frog_Leg",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Grasslands2",
+              "itemQuantity": 20
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Cramped_Material_Pouch": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Trusty_Nails",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "CraftMat5",
+              "itemQuantity": 80
+            },
+            {
+              "itemName": "Frog_Leg",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Grasslands2",
+              "itemQuantity": 50
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Thread",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "CraftMat1",
+              "itemQuantity": 50
+            },
+            {
+              "itemName": "Frog_Leg",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Grasslands2",
+              "itemQuantity": 50
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Copper_Platelegs": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Copper_Ore",
+              "type": "Consumable",
+              "subType": "ORE",
+              "rawName": "Copper",
+              "itemQuantity": 30
+            },
+            {
+              "itemName": "Bleach_Logs",
+              "type": "Item",
+              "subType": "LOG",
+              "rawName": "BirchTree",
+              "itemQuantity": 150
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Copper_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "CopperBar",
+              "itemQuantity": 10
+            },
+            {
+              "itemName": "Oak_Logs",
+              "type": "Item",
+              "subType": "LOG",
+              "rawName": "OakTree",
+              "itemQuantity": 150
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Copper_Boots": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Copper_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "CopperBar",
+              "itemQuantity": 75
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Copper_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "CopperBar",
+              "itemQuantity": 30
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Top_Hat": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Copper_Helmet",
+              "type": "Equip",
+              "subType": "HELMET",
+              "rawName": "EquipmentHats17",
+              "itemQuantity": 1
+            },
+            {
+              "itemName": "Iron_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "IronBar",
+              "itemQuantity": 15
+            },
+            {
+              "itemName": "Oak_Logs",
+              "type": "Item",
+              "subType": "LOG",
+              "rawName": "OakTree",
+              "itemQuantity": 150
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Copper_Helmet",
+              "type": "Equip",
+              "subType": "HELMET",
+              "rawName": "EquipmentHats17",
+              "itemQuantity": 1
+            },
+            {
+              "itemName": "Iron_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "IronBar",
+              "itemQuantity": 15
+            },
+            {
+              "itemName": "Bleach_Logs",
+              "type": "Item",
+              "subType": "LOG",
+              "rawName": "BirchTree",
+              "itemQuantity": 50
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Steel_Axe": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Slime_Sludge",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Jungle1",
+              "itemQuantity": 125
+            },
+            {
+              "itemName": "Boring_Brick",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "CraftMat6",
+              "itemQuantity": 125
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Slime_Sludge",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Jungle1",
+              "itemQuantity": 125
+            },
+            {
+              "itemName": "Trusty_Nails",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "CraftMat5",
+              "itemQuantity": 125
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Iron_Pickaxe": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Iron_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "IronBar",
+              "itemQuantity": 10
+            },
+            {
+              "itemName": "Carrot_Cube",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Jungle3",
+              "itemQuantity": 150
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Iron_Ore",
+              "type": "Consumable",
+              "subType": "ORE",
+              "rawName": "Iron",
+              "itemQuantity": 100
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Iron_Hatchet": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Jungle_Logs",
+              "type": "Item",
+              "subType": "LOG",
+              "rawName": "JungleTree",
+              "itemQuantity": 200
+            },
+            {
+              "itemName": "Boring_Brick",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "CraftMat6",
+              "itemQuantity": 100
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Jungle_Logs",
+              "type": "Item",
+              "subType": "LOG",
+              "rawName": "JungleTree",
+              "itemQuantity": 200
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Iron_Helmet": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Iron_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "IronBar",
+              "itemQuantity": 40
+            },
+            {
+              "itemName": "Glublin_Ear",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Forest1",
+              "itemQuantity": 300
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Iron_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "IronBar",
+              "itemQuantity": 20
+            },
+            {
+              "itemName": "Glublin_Ear",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Forest1",
+              "itemQuantity": 50
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Iron_Platebody": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Iron_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "IronBar",
+              "itemQuantity": 50
+            },
+            {
+              "itemName": "Jungle_Logs",
+              "type": "Item",
+              "subType": "LOG",
+              "rawName": "JungleTree",
+              "itemQuantity": 600
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Iron_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "IronBar",
+              "itemQuantity": 25
+            },
+            {
+              "itemName": "Jungle_Logs",
+              "type": "Item",
+              "subType": "LOG",
+              "rawName": "JungleTree",
+              "itemQuantity": 60
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Iron_Platelegs": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Iron_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "IronBar",
+              "itemQuantity": 70
+            },
+            {
+              "itemName": "Boring_Brick",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "CraftMat6",
+              "itemQuantity": 225
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Iron_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "IronBar",
+              "itemQuantity": 10
+            },
+            {
+              "itemName": "Boring_Brick",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "CraftMat6",
+              "itemQuantity": 50
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Anvil_Tab_2": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Iron_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "IronBar",
+              "itemQuantity": 100
+            },
+            {
+              "itemName": "Chain_Link",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "CraftMat7",
+              "itemQuantity": 200
+            },
+            {
+              "itemName": "Jungle_Logs",
+              "type": "Item",
+              "subType": "LOG",
+              "rawName": "JungleTree",
+              "itemQuantity": 400
+            },
+            {
+              "itemName": "Bullfrog_Horn",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Forest3",
+              "itemQuantity": 250
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Iron_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "IronBar",
+              "itemQuantity": 100
+            },
+            {
+              "itemName": "Chain_Link",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "CraftMat7",
+              "itemQuantity": 100
+            },
+            {
+              "itemName": "Jungle_Logs",
+              "type": "Item",
+              "subType": "LOG",
+              "rawName": "JungleTree",
+              "itemQuantity": 100
+            },
+            {
+              "itemName": "Bullfrog_Horn",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "Forest3",
+              "itemQuantity": 100
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "achievements/218": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "name",
+          "from": "I_Like_This_Pet",
+          "to": "I_Like_This_Mob"
+        },
+        {
+          "field": "desc",
+          "from": "Get_a_Breedability_III_heart_on_at_least_2_Pets_within_the_nest.",
+          "to": "Get_a_Breedability_III_heart_on_at_least_2_Mobs_within_the_nest."
+        },
+        {
+          "field": "rewards",
+          "from": [
+            "Pet_Breedability_multiplier_goes_up_1.20x_faster"
+          ],
+          "to": [
+            "Mob_Breedability_multiplier_goes_up_1.20x_faster"
+          ]
+        }
+      ]
+    }
+  ],
+  "achievements/219": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "name",
+          "from": "I_LOVE_These_Pets",
+          "to": "I_LOVE_These_Mobs"
+        },
+        {
+          "field": "desc",
+          "from": "Get_a_Breedability_VII_heart_on_at_least_15_pets_within_the_nest.",
+          "to": "Get_a_Breedability_VII_heart_on_at_least_15_Mobs_within_the_nest."
+        }
+      ]
+    }
+  ],
+  "achievements/222": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc",
+          "from": "Fail_a_pet_battle_with_the_enemy_team_having_only_5%_HP_or_less._Wait,_it's_spelled_HOW???",
+          "to": "Fail_a_Mob_battle_with_the_enemy_team_having_only_5%_HP_or_less._Wait,_it's_spelled_HOW???"
+        },
+        {
+          "field": "rewards",
+          "from": [
+            "5%_Pet_Fight_Damage"
+          ],
+          "to": [
+            "5%_Mob_Fight_Damage"
+          ]
+        }
+      ]
+    }
+  ],
+  "achievements/223": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "name",
+          "from": "Petless",
+          "to": "Mobless"
+        },
+        {
+          "field": "desc",
+          "from": "Trash_a_total_of_2500_pets._How_could_you_be_so_heartless,_so_cold...",
+          "to": "Trash_a_total_of_2500_Mobs._How_could_you_be_so_heartless,_so_cold..."
+        }
+      ]
+    }
+  ],
+  "cards/SpelunkingCard3": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "perTier",
+          "from": 50000,
+          "to": 40000
+        }
+      ]
+    }
+  ],
+  "cards/SpelunkingCard4": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "cards/SpelunkingCard5": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "cards/w7b1": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "cards/w7b2": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "cards/w7b3": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "cards/w7b4": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "cards/w7b5": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "cards/w7b6": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "cards/w7b7": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "cards/w7b8": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.501",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "+{%_Drop_Rate_Multi",
+          "to": "+{%_Research_EXP_(Passive)"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 3
+        }
+      ]
+    }
+  ],
+  "cards/w7b9": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "cards/w7b10": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "cards/w7b11": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "cards/w7b12": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    },
+    {
+      "v": "2.3.507",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "+{%_Drop_Rate_Multi",
+          "to": "+{%_Spelunk_Amber_(Passive)"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 10
+        },
+        {
+          "field": "perTier",
+          "from": 100000000,
+          "to": 40000000
+        }
+      ]
+    }
+  ],
+  "vials/51": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc",
+          "from": "+{%_Pet_Team_Damage",
+          "to": "+{%_Mob_Team_Damage"
+        }
+      ]
+    }
+  ],
+  "vials/79": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc",
+          "from": "+{%_AFK_Gains_rate_for_all_World_7_skills",
+          "to": "+{%_AFK_Gains_rate_for_Spelunking"
+        },
+        {
+          "field": "x1",
+          "from": 0.4,
+          "to": 0.2
+        }
+      ]
+    }
+  ],
+  "talents/Beast_Master": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "description",
+          "owner": "ANIMALISTIC_FEROCITY",
+          "from": "+{_Weapon_Power_per_power_of_10_Pet_Power_of_pet_in_1st_slot_of_Stored_Pets.",
+          "to": "+{_Weapon_Power_per_power_of_10_Mob_Power_of_mob_in_1st_slot_of_Stored_Mobs."
+        },
+        {
+          "field": "lvlUpText",
+          "owner": "ANIMALISTIC_FEROCITY",
+          "from": "+{_Wep_Pow_Based_on_Pet_Pow",
+          "to": "+{_Wep_Pow_Based_on_Mob_Pow"
+        },
+        {
+          "field": "description",
+          "owner": "ARENA_SPIRIT",
+          "from": "Get_unlimited_entries_to_the_Pet_Arena_for_{_mins._PASSIVE:_+}%_Pet_DMG",
+          "to": "Get_unlimited_entries_to_the_Mob_Arena_for_{_mins._PASSIVE:_+}%_Mob_DMG"
+        },
+        {
+          "field": "description",
+          "owner": "CURVITURE_OF_THE_PAW",
+          "from": "{x_Higher_Pet_Power,_no_matter_which_player_you_hatch_eggs_on!",
+          "to": "{x_Higher_Mob_Power,_no_matter_which_player_you_hatch_eggs_on!"
+        },
+        {
+          "field": "lvlUpText",
+          "owner": "CURVITURE_OF_THE_PAW",
+          "from": "+{x_Pet_Power_when_hatched",
+          "to": "+{x_Mob_Power_when_hatched"
+        }
+      ]
+    }
+  ],
+  "talents/Wind_Walker": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "description",
+          "owner": "PUMPIN'_POWER",
+          "from": "+{%_Tempest_Critical_Hit_chance_per_25_Breedability_LVs_across_all_Breeding_Pets",
+          "to": "+{%_Tempest_Critical_Hit_chance_per_25_Breedability_LVs_across_all_Breeding_Mobs"
+        }
+      ]
+    }
+  ],
+  "talents/Wizard": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "y1",
+          "owner": "CHARGE_SYPHON",
+          "from": 100,
+          "to": 4000
+        },
+        {
+          "field": "y2",
+          "owner": "CHARGE_SYPHON",
+          "from": 10,
+          "to": 1000
+        }
+      ]
+    }
+  ],
+  "talents/Special Talent 3": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "description",
+          "owner": "SPICE_SPILLAGE",
+          "from": "+{%_chance_to_claim_all_pet_spices_when_claiming_1hr+_AFK_gains.",
+          "to": "+{%_chance_to_claim_all_Mob_spices_when_claiming_1hr+_AFK_gains."
+        }
+      ]
+    }
+  ],
+  "bundles/bon_q": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "bundles/bon_r": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "bundles/bon_s": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "items/Critter6A": [
+    {
+      "v": "2.3.493",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Eternal_Lord_of__The_Undying_Ember",
+          "to": "Eternal_Lord_of_The_Undying_Ember"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametag32": [
+    {
+      "v": "2.3.493",
+      "t": "added"
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametagReplica32": [
+    {
+      "v": "2.3.493",
+      "t": "added"
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats128": [
+    {
+      "v": "2.3.493",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats129": [
+    {
+      "v": "2.3.493",
+      "t": "added"
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "monsters/w4b4b": [
+    {
+      "v": "2.3.493",
+      "t": "added"
+    }
+  ],
+  "companions/155": [
+    {
+      "v": "2.3.493",
+      "t": "added"
+    }
+  ],
+  "companions/156": [
+    {
+      "v": "2.3.493",
+      "t": "added"
+    },
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "name",
+          "from": "Valentslime",
+          "to": "Valenslime"
+        }
+      ]
+    }
+  ],
+  "crafts/Deuscythe": [
+    {
+      "v": "2.3.493",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "The_Ice_Breaker",
+              "type": "Equip",
+              "subType": "SPEAR",
+              "rawName": "EquipmentSword2",
+              "itemQuantity": 1
+            },
+            {
+              "itemName": "Black_Lense",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "SnowC4a",
+              "itemQuantity": 2
+            },
+            {
+              "itemName": "Eternal_Lord_of__The_Undying_Ember",
+              "type": "Consumable",
+              "subType": "CRITTER",
+              "rawName": "Critter6A",
+              "itemQuantity": 15
+            },
+            {
+              "itemName": "Dense_Water",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "PureWater2",
+              "itemQuantity": 7
+            }
+          ],
+          "to": [
+            {
+              "itemName": "The_Ice_Breaker",
+              "type": "Equip",
+              "subType": "SPEAR",
+              "rawName": "EquipmentSword2",
+              "itemQuantity": 1
+            },
+            {
+              "itemName": "Black_Lense",
+              "type": "Quest",
+              "subType": "MONSTER_DROP",
+              "rawName": "SnowC4a",
+              "itemQuantity": 2
+            },
+            {
+              "itemName": "Eternal_Lord_of_The_Undying_Ember",
+              "type": "Consumable",
+              "subType": "CRITTER",
+              "rawName": "Critter6A",
+              "itemQuantity": 15
+            },
+            {
+              "itemName": "Dense_Water",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "PureWater2",
+              "itemQuantity": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Steel_Traps": [
+    {
+      "v": "2.3.493",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Eternal_Lord_of__The_Undying_Ember",
+              "type": "Consumable",
+              "subType": "CRITTER",
+              "rawName": "Critter6A",
+              "itemQuantity": 6
+            },
+            {
+              "itemName": "Natural_Traps",
+              "type": "Equip",
+              "subType": "TRAP_BOX_SET",
+              "rawName": "TrapBoxSet4",
+              "itemQuantity": 1
+            },
+            {
+              "itemName": "Dense_Water",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "PureWater2",
+              "itemQuantity": 5
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Eternal_Lord_of_The_Undying_Ember",
+              "type": "Consumable",
+              "subType": "CRITTER",
+              "rawName": "Critter6A",
+              "itemQuantity": 6
+            },
+            {
+              "itemName": "Natural_Traps",
+              "type": "Equip",
+              "subType": "TRAP_BOX_SET",
+              "rawName": "TrapBoxSet4",
+              "itemQuantity": 1
+            },
+            {
+              "itemName": "Dense_Water",
+              "type": "Quest",
+              "subType": "MATERIAL",
+              "rawName": "PureWater2",
+              "itemQuantity": 5
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "crafts/Anvil_Tab_4": [
+    {
+      "v": "2.3.493",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "materials",
+          "from": [
+            {
+              "itemName": "Void_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "VoidBar",
+              "itemQuantity": 1000
+            },
+            {
+              "itemName": "Frigid_Soul",
+              "type": "Consumable",
+              "subType": "SOUL",
+              "rawName": "Soul4",
+              "itemQuantity": 2500
+            },
+            {
+              "itemName": "Eternal_Lord_of__The_Undying_Ember",
+              "type": "Consumable",
+              "subType": "CRITTER",
+              "rawName": "Critter6A",
+              "itemQuantity": 10
+            },
+            {
+              "itemName": "Spontaneity_Salts",
+              "type": "Quest",
+              "subType": "REFINERY_SALTS",
+              "rawName": "Refinery3",
+              "itemQuantity": 400
+            }
+          ],
+          "to": [
+            {
+              "itemName": "Void_Bar",
+              "type": "Item",
+              "subType": "BAR",
+              "rawName": "VoidBar",
+              "itemQuantity": 1000
+            },
+            {
+              "itemName": "Frigid_Soul",
+              "type": "Consumable",
+              "subType": "SOUL",
+              "rawName": "Soul4",
+              "itemQuantity": 2500
+            },
+            {
+              "itemName": "Eternal_Lord_of_The_Undying_Ember",
+              "type": "Consumable",
+              "subType": "CRITTER",
+              "rawName": "Critter6A",
+              "itemQuantity": 10
+            },
+            {
+              "itemName": "Spontaneity_Salts",
+              "type": "Quest",
+              "subType": "REFINERY_SALTS",
+              "rawName": "Refinery3",
+              "itemQuantity": 400
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "bundles/bon_t": [
+    {
+      "v": "2.3.493",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats52": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats83": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats106": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats119": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentPunching11": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentSword9": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentBows14": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentWands13": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentShirts38": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentShirts39": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentPants30": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentPants31": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentShoes36": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentShoes38": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentShoes40": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentPendant17": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentPendant18": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentCape7": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentCape17": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/ObolHyper0": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/ObolHyperB0": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/ObolSilverLuck": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/ObolGoldLuck": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/ObolPlatinumLuck": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/ObolPinkLuck": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/ObolBronzePop": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/ObolSilverPop": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/ObolGoldPop": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/ObolPlatinumPop": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/ObolPinkPop": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/ObolLava": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/ObolFrog": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/ObolKnight": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentGown1": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentGown3": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentGown5": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_RARITY",
+          "to": "%_BONUS_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentKeychain11": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentTools15": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentToolsHatchet10": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/FishingRod12": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/CatchingNet12": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/CatchingNet13": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Wrangler_of_the_Qoxzul",
+          "to": "Prehistoric_Netting"
+        }
+      ]
+    }
+  ],
+  "items/TrapBoxSet10": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/WorshipSkull11": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/WorshipSkull12": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Crystal_Skull_of_Esquire_Vnoze",
+          "to": "Prehistoric_Skull"
+        }
+      ]
+    }
+  ],
+  "items/FoodG13": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc_line1",
+          "from": "Increases_Drop_Rarity",
+          "to": "Increases_Drop_Rate"
+        }
+      ]
+    }
+  ],
+  "items/Trophy2": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/Trophy9": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/Trophy17": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/Trophy20": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/TrophyReplica2": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/TrophyReplica9": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/TrophyReplica17": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/TrophyReplica20": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametag3": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametag10": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametag19": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametag20": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametag21": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametag22": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametagReplica3": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametagReplica10": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametagReplica19": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametagReplica20": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ2txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametagReplica21": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametagReplica22": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats81": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats116": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "UQ1txt",
+          "from": "%_DROP_CHANCE",
+          "to": "%_DROP_RATE"
+        }
+      ]
+    }
+  ],
+  "monsters/slimeR": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Name",
+          "from": "Valentslime",
+          "to": "Valenslime"
+        }
+      ]
+    }
+  ],
+  "monsters/Pet7": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Name",
+          "from": "Mecho_Mouse",
+          "to": "Mechanical_Mouse"
+        },
+        {
+          "field": "MoveSPEED",
+          "from": 4,
+          "to": 5
+        }
+      ]
+    }
+  ],
+  "companions/157": [
+    {
+      "v": "2.3.493a",
+      "t": "added"
+    }
+  ],
+  "crafts/Prehistoric_Netting": [
+    {
+      "v": "2.3.493a",
+      "t": "added"
+    }
+  ],
+  "crafts/Prehistoric_Skull": [
+    {
+      "v": "2.3.493a",
+      "t": "added"
+    }
+  ],
+  "achievements/377": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "rewards",
+          "from": [
+            "6%_Drop_Chance_for_all_characters"
+          ],
+          "to": [
+            "6%_Drop_Rate_for_all_characters"
+          ]
+        }
+      ]
+    }
+  ],
+  "achievements/381": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "rewards",
+          "from": [
+            "4%_Drop_Chance_for_all_characters"
+          ],
+          "to": [
+            "4%_Drop_Rate_for_all_characters"
+          ]
+        }
+      ]
+    }
+  ],
+  "cards/slimeR": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Valentslime",
+          "to": "Valenslime"
+        }
+      ]
+    }
+  ],
+  "talents/Archer": [
+    {
+      "v": "2.3.493a",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "description",
+          "owner": "ROBBINGHOOD",
+          "from": "Monster_drop_rarity_increased_by_{%",
+          "to": "Monster_drop_rate_increased_by_{%"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentRingsChat12": [
+    {
+      "v": "2.3.494",
+      "t": "added"
+    }
+  ],
+  "items/w7B11b": [
+    {
+      "v": "2.3.494",
+      "t": "added"
+    }
+  ],
+  "monsters/rift5": [
+    {
+      "v": "2.3.494",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "MoveSPEED",
+          "from": 4,
+          "to": 3
+        }
+      ]
+    }
+  ],
+  "items/StampB10": [
+    {
+      "v": "2.3.495",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc_line1",
+          "from": "BaseMinEff,add,2,0,10,EquipmentToolsHatchet1,1,2,35000,1.4,\\t1,{}_Mining_Efficiency,0",
+          "to": "BaseMinEff,add,2,0,10,EquipmentToolsHatchet1,1,2,35000,1.4,\t1,{}_Mining_Efficiency,0"
+        }
+      ]
+    }
+  ],
+  "items/Quest80": [
+    {
+      "v": "2.3.495",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc_line1",
+          "from": "Drop_this_on_the_Legumulyte_(found_deep_in_Bamboo_Forest",
+          "to": "Drop_this_on_the_Legumulyte_(found_deep_in_Bamboo_Forest)_to_trade_in_ALL_your_crops_for_magic_beans_(Crop_Scientist_progress_wont_be_lost)_Or,_hold_down_on_ticket_to_see_how_many_beans_you_will_get_(you_wont_lose_anything_doing_this)"
+        }
+      ]
+    }
+  ],
+  "items/Quest111": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    },
+    {
+      "v": "2.3.503",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc_line1",
+          "from": "Hold_down_on_this_candle_to_see_the_Goldrush_Lucky_Pet_winners_list!_There's_a_new_winner_every_hour!",
+          "to": "Hold_down_on_this_candle_to_see_the_5th_Birthday_Lucky_Pet_winners_list!_There's_a_new_winner_every_5_MINUTES!_WOW!"
+        }
+      ]
+    }
+  ],
+  "items/Quest117": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametag33": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametag34": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametagReplica33": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametagReplica34": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats130": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats131": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "items/CardsY22": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "items/CardsY23": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "monsters/luckEvent1": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "monsters/luckEvent2": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "monsters/slugG": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "monsters/PotG": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "companions/158": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "companions/159": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "companions/160": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "cards/luckEvent1": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "cards/luckEvent2": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "bundles/bon_u": [
+    {
+      "v": "2.3.495",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentCape19": [
+    {
+      "v": "2.3.497",
+      "t": "added"
+    }
+  ],
+  "monsters/mushG": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 25,
+          "to": 15
+        }
+      ]
+    }
+  ],
+  "monsters/frogG": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 30,
+          "to": 16
+        }
+      ]
+    },
+    {
+      "v": "2.3.503",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "MonsterHPTotal",
+          "from": 100,
+          "to": 120
+        }
+      ]
+    }
+  ],
+  "monsters/beanG": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 30,
+          "to": 17
+        }
+      ]
+    },
+    {
+      "v": "2.3.503",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "MonsterHPTotal",
+          "from": 200,
+          "to": 300
+        }
+      ]
+    }
+  ],
+  "monsters/slimeG": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 30,
+          "to": 18
+        }
+      ]
+    },
+    {
+      "v": "2.3.503",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "MonsterHPTotal",
+          "from": 350,
+          "to": 500
+        },
+        {
+          "field": "ExpGiven",
+          "from": 26,
+          "to": 24
+        }
+      ]
+    }
+  ],
+  "monsters/snakeG": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 30,
+          "to": 18
+        }
+      ]
+    },
+    {
+      "v": "2.3.503",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "MonsterHPTotal",
+          "from": 700,
+          "to": 800
+        },
+        {
+          "field": "ExpGiven",
+          "from": 36,
+          "to": 30
+        },
+        {
+          "field": "MoveSPEED",
+          "from": 8,
+          "to": 7
+        }
+      ]
+    }
+  ],
+  "monsters/carrotO": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 30,
+          "to": 18
+        }
+      ]
+    },
+    {
+      "v": "2.3.503",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "MonsterHPTotal",
+          "from": 1100,
+          "to": 1500
+        },
+        {
+          "field": "ExpGiven",
+          "from": 46,
+          "to": 38
+        }
+      ]
+    }
+  ],
+  "monsters/goblinG": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 30,
+          "to": 15
+        }
+      ]
+    },
+    {
+      "v": "2.3.503",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "MonsterHPTotal",
+          "from": 1600,
+          "to": 2500
+        },
+        {
+          "field": "ExpGiven",
+          "from": 60,
+          "to": 50
+        }
+      ]
+    }
+  ],
+  "monsters/plank": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 30,
+          "to": 20
+        }
+      ]
+    },
+    {
+      "v": "2.3.503",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "MonsterHPTotal",
+          "from": 2000,
+          "to": 3500
+        }
+      ]
+    }
+  ],
+  "monsters/jarSand": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 25,
+          "to": 15
+        }
+      ]
+    }
+  ],
+  "monsters/mimicA": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 30,
+          "to": 16
+        }
+      ]
+    }
+  ],
+  "monsters/crabcake": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 30,
+          "to": 16
+        }
+      ]
+    }
+  ],
+  "monsters/coconut": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 31,
+          "to": 18
+        }
+      ]
+    }
+  ],
+  "monsters/sandcastle": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 32,
+          "to": 20
+        }
+      ]
+    }
+  ],
+  "monsters/pincermin": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 33,
+          "to": 21
+        }
+      ]
+    }
+  ],
+  "monsters/potato": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 34,
+          "to": 25
+        }
+      ]
+    }
+  ],
+  "monsters/steak": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 35,
+          "to": 28
+        }
+      ]
+    }
+  ],
+  "monsters/moonman": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 36,
+          "to": 30
+        }
+      ]
+    }
+  ],
+  "monsters/sandgiant": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 37,
+          "to": 32
+        }
+      ]
+    }
+  ],
+  "monsters/snailZ": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 38,
+          "to": 35
+        }
+      ]
+    }
+  ],
+  "monsters/sheep": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 40,
+          "to": 20
+        }
+      ]
+    }
+  ],
+  "monsters/flake": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 40,
+          "to": 20
+        }
+      ]
+    }
+  ],
+  "monsters/stache": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 40,
+          "to": 20
+        }
+      ]
+    }
+  ],
+  "monsters/ram": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 35,
+          "to": 25
+        }
+      ]
+    }
+  ],
+  "monsters/bloque": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 40,
+          "to": 25
+        }
+      ]
+    }
+  ],
+  "monsters/mamoth": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 40,
+          "to": 25
+        }
+      ]
+    }
+  ],
+  "monsters/snowball": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 40,
+          "to": 30
+        }
+      ]
+    }
+  ],
+  "monsters/penguin": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 40,
+          "to": 30
+        }
+      ]
+    }
+  ],
+  "monsters/thermostat": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 40,
+          "to": 30
+        }
+      ]
+    }
+  ],
+  "monsters/glass": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 45,
+          "to": 35
+        }
+      ]
+    }
+  ],
+  "monsters/snakeB": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 45,
+          "to": 35
+        }
+      ]
+    }
+  ],
+  "monsters/speaker": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 45,
+          "to": 40
+        }
+      ]
+    }
+  ],
+  "monsters/eye": [
+    {
+      "v": "2.3.497",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "RespawnTime",
+          "from": 43,
+          "to": 40
+        }
+      ]
+    }
+  ],
+  "bundles/bon_v": [
+    {
+      "v": "2.3.497",
+      "t": "added"
+    }
+  ],
+  "companions/38": [
+    {
+      "v": "2.3.502",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "4x_Masterclass_drops_(Bones/Dust/Tachyon)",
+          "to": "4x_Coins_from_monsters,_and_4x_Masterclass_drops"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentCape20": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentGown7": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "items/Quest85": [
+    {
+      "v": "2.3.503",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc_line1",
+          "from": "IdleOn_is_4_years_old!_Hold_down_to_open_this_box_and_celebrate!_Contains_a_random_Anniversary_goodie,_from_event_cards_to_foods_to_special_vent_equipment!",
+          "to": "IdleOn_is_5_years_old!_Hold_down_to_open_this_box_and_celebrate!_Contains_a_random_Anniversary_goodie,_from_event_cards_to_foods_to_special_event_hats!"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentNametag35": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametag36": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametag37": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametagReplica35": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametagReplica36": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametagReplica37": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats132": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats133": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats134": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats135": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "items/CardsY24": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "monsters/anni5Event1": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "monsters/w6b2b": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "monsters/w5b5b": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "monsters/poppy": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "companions/161": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "companions/162": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "companions/163": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "cards/anni5Event1": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "bundles/ban_a": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "bundles/ban_b": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "bundles/ban_c": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "items/Quest90": [
+    {
+      "v": "2.3.504",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc_line1",
+          "from": "Hold_down_to_instantly_gain_2_Hours_of_all_Cavern_progress_and_Villager_exp_gain!",
+          "to": "Hold_down_to_instantly_gain_2_Hours_of_all_Cavern_progress_and_Villager_exp_gain!______________________YOU_CAN_ONLY_USE_12_PER_DAY!_This_is_because_new_caverns_came_out_recently."
+        }
+      ]
+    }
+  ],
+  "items/EquipmentHats136": [
+    {
+      "v": "2.3.504",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats137": [
+    {
+      "v": "2.3.504",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats138": [
+    {
+      "v": "2.3.504",
+      "t": "added"
+    }
+  ],
+  "monsters/T2a": [
+    {
+      "v": "2.3.504",
+      "t": "added"
+    }
+  ],
+  "monsters/T2b": [
+    {
+      "v": "2.3.504",
+      "t": "added"
+    }
+  ],
+  "monsters/T2c": [
+    {
+      "v": "2.3.504",
+      "t": "added"
+    }
+  ],
+  "companions/164": [
+    {
+      "v": "2.3.504",
+      "t": "added"
+    }
+  ],
+  "companions/165": [
+    {
+      "v": "2.3.504",
+      "t": "added"
+    }
+  ],
+  "companions/166": [
+    {
+      "v": "2.3.504",
+      "t": "added"
+    }
+  ],
+  "items/w7B12b": [
+    {
+      "v": "2.3.507",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametagReplica38": [
+    {
+      "v": "2.3.507",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametagReplica39": [
+    {
+      "v": "2.3.507",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametagReplica40": [
+    {
+      "v": "2.3.507",
+      "t": "added"
+    }
+  ],
+  "monsters/fm_frog": [
+    {
+      "v": "2.3.507",
+      "t": "added"
+    }
+  ],
+  "vials/84": [
+    {
+      "v": "2.3.507",
+      "t": "added"
+    }
+  ],
+  "companions/167": [
+    {
+      "v": "2.3.508",
+      "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Thank_you_for_rescuing_me_from_the_Fortune_Mill!",
+          "to": "Thanks_a_million_for_rescuing_me_from_the_Fortune_Mill!"
+        }
+      ]
+    }
+  ],
+  "vials/85": [
+    {
+      "v": "2.3.509",
+      "t": "added"
+    }
+  ],
+  "bundles/ban_d": [
+    {
+      "v": "2.3.509",
+      "t": "added"
+    }
+  ],
+  "items/HoleGshape0": [
+    {
+      "v": "2.3.511",
+      "t": "added"
+    }
+  ],
+  "items/HoleGshape1": [
+    {
+      "v": "2.3.511",
+      "t": "added"
+    }
+  ],
+  "items/HoleGshape2": [
+    {
+      "v": "2.3.511",
+      "t": "added"
+    }
+  ],
+  "items/HoleGshape3": [
+    {
+      "v": "2.3.511",
+      "t": "added"
+    }
+  ],
+  "items/HoleGshape4": [
+    {
+      "v": "2.3.511",
+      "t": "added"
+    }
+  ],
+  "items/HoleGshape5": [
+    {
+      "v": "2.3.511",
+      "t": "added"
+    }
+  ],
+  "items/HoleGshape6": [
+    {
+      "v": "2.3.511",
+      "t": "added"
+    }
+  ],
+  "items/HoleGshape7": [
+    {
+      "v": "2.3.511",
+      "t": "added"
+    }
+  ],
+  "items/HoleGshape8": [
+    {
+      "v": "2.3.511",
+      "t": "added"
+    }
+  ],
+  "items/HoleGshape9": [
+    {
+      "v": "2.3.511",
+      "t": "added"
+    }
+  ],
+  "items/HoleGshape10": [
+    {
+      "v": "2.3.511",
+      "t": "added"
+    }
+  ],
+  "items/HoleGshape11": [
+    {
+      "v": "2.3.511",
+      "t": "added"
+    }
+  ],
+  "items/CardsH17": [
+    {
+      "v": "2.3.511",
+      "t": "added"
+    }
+  ],
+  "monsters/caveD": [
+    {
+      "v": "2.3.511",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Name",
+          "from": "Shimmer_Glunko",
+          "to": "Crystal_Glunko"
+        },
+        {
+          "field": "RespawnTime",
+          "from": 45,
+          "to": 30
+        },
+        {
+          "field": "MonsterHPTotal",
+          "from": 10000000,
+          "to": 10000000000000000000
+        }
+      ]
+    }
+  ],
+  "companions/168": [
+    {
+      "v": "2.3.511",
+      "t": "added"
+    }
+  ],
+  "cards/caveD": [
+    {
+      "v": "2.3.511",
+      "t": "added"
+    }
+  ],
+  "bundles/ban_e": [
+    {
+      "v": "2.3.511",
+      "t": "added"
+    }
+  ],
+  "items/Quest119": [
+    {
+      "v": "2.3.523",
+      "t": "added"
+    },
+    {
+      "v": "2.3.527",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "Type",
+          "from": "AMAZING_ITEM",
+          "to": "PET_TOKEN"
+        },
+        {
+          "field": "desc_line1",
+          "from": "Gives_ANY_pet_bonus_you_want!_Just_the_bonus,_not_the_pet._Use_this_within_the_Trade_Popup_found_by_Double_Clicking_a_player._If_you_get_the_pet_later_from_buying_or_trading,_your_token_is_REFUNDED!",
+          "to": "Gives_ANY_pet_bonus_you_want!_Used_within_the_Trade_Popup_found_by_Double_Clicking_a_player._If_you_get_the_pet_later_from_buying_or_trading,_your_token_is_REFUNDED!"
+        }
+      ]
+    }
+  ],
+  "items/Quest120": [
+    {
+      "v": "2.3.523",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametag41": [
+    {
+      "v": "2.3.523",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametagReplica41": [
+    {
+      "v": "2.3.523",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats139": [
+    {
+      "v": "2.3.523",
+      "t": "added"
+    }
+  ],
+  "monsters/fm_goose": [
+    {
+      "v": "2.3.523",
+      "t": "added"
+    }
+  ],
+  "monsters/demonPtutorial": [
+    {
+      "v": "2.3.523",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "SpecialType",
+          "from": "_",
+          "to": "a"
+        }
+      ]
+    }
+  ],
+  "companions/31": [
+    {
+      "v": "2.3.523",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Bababooey!",
+          "to": "{15%_Hat_Rack_Bonus_Multi"
+        },
+        {
+          "field": "bonus",
+          "from": 3,
+          "to": 15
+        },
+        {
+          "field": "tourPower",
+          "from": 90,
+          "to": 170
+        }
+      ]
+    }
+  ],
+  "companions/169": [
+    {
+      "v": "2.3.523",
+      "t": "added"
+    }
+  ],
+  "bundles/ban_f": [
+    {
+      "v": "2.3.523",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentRingsChat13": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentRingsChat14": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    },
+    {
+      "v": "2.3.527",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Bronze_Div_Ring",
+          "to": "Silver_Div_Ring"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentRingsChat15": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    },
+    {
+      "v": "2.3.527",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "Bronze_Div_Ring",
+          "to": "Gold_Div_Ring"
+        }
+      ]
+    }
+  ],
+  "items/EquipmentCape21": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentCape22": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentGown8": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/Orblet": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats140": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/RGenh": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/RGenhB": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/RGshard0": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/RGshard1": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/RGshard2": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/RGshard3": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/RGshard4": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/RGshard5": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/RGshard6": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/RGshard7": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/CardsZ27": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "monsters/fm_rat": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "monsters/r0a": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "monsters/r0b": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "monsters/r0c": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "monsters/r0d": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "companions/170": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "companions/171": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "companions/172": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "companions/173": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "cards/fm_rat": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "talents/Death_Bringer": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "lvlUpText",
+          "owner": "DETONATION",
+          "from": "+{%_chance_%_+}%_range",
+          "to": "+{%_chance_&_+}%_range"
+        }
+      ]
+    }
+  ],
+  "talents/Royal_Guardian": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "talents/Arcane_Cultist": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "description",
+          "owner": "BACKUP_ENERGY",
+          "from": "Backup_needed?_How_about_{x_Tachyon_Gain_and_-}_kills_needed_to_charge_Arcane_Crystals",
+          "to": "Backup_needed?_How_about_{x_Tachyon_Gain_and_}_less_kills_needed_to_charge_Arcane_Crystals"
+        }
+      ]
+    }
+  ],
+  "bundles/ban_g": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "bundles/ban_h": [
+    {
+      "v": "2.3.525",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametag42": [
+    {
+      "v": "2.3.527",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentNametagReplica42": [
+    {
+      "v": "2.3.527",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats141": [
+    {
+      "v": "2.3.527",
+      "t": "added"
+    }
+  ],
+  "companions/174": [
+    {
+      "v": "2.3.527",
+      "t": "added"
+    }
+  ],
+  "bundles/ban_i": [
+    {
+      "v": "2.3.527",
+      "t": "added"
+    }
+  ]
+}

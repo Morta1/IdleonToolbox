@@ -47,6 +47,10 @@ export const vialNodes = (vials, vialCosts = []) => {
     nodes[`vial:${vial.name}`] = {
       kind: 'vial',
       rawName: vial.name,
+      // The history is keyed by vials.json's own position (an object keyed '0'..'85') rather
+      // than by name, so the node has to carry the index it was built from, the same join
+      // companionIndex gives a pet.
+      vialIndex: index,
       name: vial.name,
       // The order of the game's Vials tab. Not an unlock sequence, since a vial can be discovered
       // whenever its item is found, but it is the order players read and refer to them in, and

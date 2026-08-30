@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import { Box, List, ListItemButton, ListItemIcon, ListItemText, Stack } from '@mui/material';
+import { Box, Divider, List, ListItemButton, ListItemIcon, ListItemText, Stack } from '@mui/material';
 import { LISTED_KINDS } from '@utility/wiki/kinds.mjs';
 import { KIND_PLURALS } from './EntityPanel';
 import { KIND_ART } from './CategoryTiles';
@@ -60,6 +60,12 @@ const WikiRail = ({ current, children }) => {
           </ListItemIcon>
           <ListItemText primary={KIND_PLURALS[kind] || kind}/>
         </ListItemButton>)}
+        {/* Below the divider because it is not a category: it cuts across all of them. */}
+        <Divider sx={{ my: 0.5 }}/>
+        <ListItemButton component={'a'} href={'/wiki/changelog'} selected={current === 'changelog'}
+                        onClick={(event) => go(event, '/wiki/changelog')}>
+          <ListItemText primary={'Changelog'}/>
+        </ListItemButton>
       </List>
     </Box>
     <Stack sx={{ flexGrow: 1, minWidth: 0 }} gap={3}>
