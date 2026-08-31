@@ -35245,7 +35245,7 @@
     "ID": 0,
     "Type": "EVENT_WISH",
     "lvReqToCraft": 15,
-    "desc_line1": "Hold_down_on_this_candle_to_see_the_5th_Birthday_Lucky_Pet_winners_list!_There's_a_new_winner_every_5_MINUTES!_WOW!",
+    "desc_line1": "Hold_down_on_this_candle_to_see_the_Lucky_Pet_winners_list!_Who_knows,_maybe_you'll_win!",
     "desc_line2": "Filler",
     "desc_line3": "Filler",
     "desc_line4": "Filler",
@@ -45979,7 +45979,7 @@
     "rawName": "EquipmentNametagReplica41"
   },
   "EquipmentNametagReplica42": {
-    "displayName": "All_That_Glitters_Nametag",
+    "displayName": "Singed_Nametag",
     "sellPrice": 1,
     "typeGen": "aNametag",
     "ID": 42,

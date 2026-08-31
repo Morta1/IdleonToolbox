@@ -5534,6 +5534,17 @@
           "to": "Hold_down_on_this_candle_to_see_the_5th_Birthday_Lucky_Pet_winners_list!_There's_a_new_winner_every_5_MINUTES!_WOW!"
         }
       ]
+    },
+    {
+      "v": "2.3.528",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc_line1",
+          "from": "Hold_down_on_this_candle_to_see_the_5th_Birthday_Lucky_Pet_winners_list!_There's_a_new_winner_every_5_MINUTES!_WOW!",
+          "to": "Hold_down_on_this_candle_to_see_the_Lucky_Pet_winners_list!_Who_knows,_maybe_you'll_win!"
+        }
+      ]
     }
   ],
   "items/Quest117": [
@@ -6953,6 +6964,17 @@
     {
       "v": "2.3.527",
       "t": "added"
+    },
+    {
+      "v": "2.3.528",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "displayName",
+          "from": "All_That_Glitters_Nametag",
+          "to": "Singed_Nametag"
+        }
+      ]
     }
   ],
   "items/EquipmentHats141": [
