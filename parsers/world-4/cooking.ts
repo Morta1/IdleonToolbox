@@ -7,7 +7,7 @@ import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from '@parsers/world-2/alchemy';
-import { getEventShopBonus, getHighestCharacterSkill, isArenaBonusActive, isMasteryBonusUnlocked, isCompanionBonusActive } from '@parsers/misc';
+import { getEventShopBonus, getHighestCharacterSkill, isArenaBonusActive, isMasteryBonusUnlocked, isCompanionBonusActive, isBundlePurchased } from '@parsers/misc';
 import { getAchievementStatus } from '@parsers/achievements';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getShinyBonus } from '@parsers/world-4/breeding';
@@ -782,12 +782,22 @@ export interface NoMealLeftBehindProc {
   name: string;
   rawName: string;
   fromLevel: number;
+  toLevel: number;
   ladles: number;
 }
 
-// No Meal Left Behind hands a free level to the lowest-level meal and picks its target again after
-// every proc, so the upcoming procs have to be simulated. Sorting once by level implies one proc
-// per meal and hides the runs where a single low meal soaks up procs until it catches up.
+// The daily meal level-up fires if either source is owned, and their levels stack onto one meal.
+export const getNoMealLeftBehindLevels = (account: any) => {
+  return (isJadeBonusUnlocked(account, 'No_Meal_Left_Behind') ? 1 : 0)
+    + (isBundlePurchased(account?.bundles, 'bun_s') ? 2 : 0);
+}
+
+// The game only ever considers meals at level 2 or higher.
+export const NO_MEAL_LEFT_BEHIND_MIN_LEVEL = 2;
+
+// No Meal Left Behind hands the day's free levels to the lowest-level meal and picks its target
+// again the next day, so the upcoming procs have to be simulated. Sorting once by level implies one
+// proc per meal and hides the runs where a single low meal soaks up procs until it catches up.
 export const getNoMealLeftBehindQueue = (meals: any[], mealMaxLevel: any, procCount: any, {
   achievements,
   account,
@@ -795,9 +805,10 @@ export const getNoMealLeftBehindQueue = (meals: any[], mealMaxLevel: any, procCo
   mealSpeed,
   overflowMulti = 1
 }: any = {}): NoMealLeftBehindProc[] => {
-  if (!isJadeBonusUnlocked(account, 'No_Meal_Left_Behind')) return [];
+  const levelsPerProc = getNoMealLeftBehindLevels(account);
+  if (levelsPerProc === 0) return [];
   const state = meals
-    ?.filter((meal: any) => meal?.level > 5 && meal?.level < mealMaxLevel)
+    ?.filter((meal: any) => meal?.level >= NO_MEAL_LEFT_BEHIND_MIN_LEVEL && meal?.level < mealMaxLevel)
     ?.map(({ index, name, rawName, level, amount, cookReq }: any) => ({
       index,
       name,
@@ -814,17 +825,23 @@ export const getNoMealLeftBehindQueue = (meals: any[], mealMaxLevel: any, procCo
       .sort((a: any, b: any) => a.level === b.level ? b.index - a.index : a.level - b.level)
       .at(0);
     if (!target) break;
-    const levelCost = getMealLevelCost(target.level, achievements, account, equinoxUpgrades);
-    const needed = Math.max(0, levelCost - target.remaining);
+    // All of the day's levels land on the same meal before the next pick happens.
+    const gained = Math.min(levelsPerProc, mealMaxLevel - target.level);
+    let ladles = 0;
+    for (let step = 0; step < gained; step++) {
+      const levelCost = getMealLevelCost(target.level + step, achievements, account, equinoxUpgrades);
+      ladles += calcTimeToNextLevel(Math.max(0, levelCost - target.remaining), target.cookReq, mealSpeed) / overflowMulti;
+      target.remaining = Math.max(0, target.remaining - levelCost);
+    }
     queue.push({
       index: target.index,
       name: target.name,
       rawName: target.rawName,
       fromLevel: target.level,
-      ladles: calcTimeToNextLevel(needed, target.cookReq, mealSpeed) / overflowMulti
+      toLevel: target.level + gained,
+      ladles
     });
-    target.remaining = Math.max(0, target.remaining - levelCost);
-    target.level += 1;
+    target.level += gained;
   }
   return queue;
 }
