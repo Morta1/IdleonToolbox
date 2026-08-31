@@ -1261,12 +1261,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/tools/builds/fexok0-bowman-afk-150</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://idleontoolbox.com/tools/builds/qn3ph6-barbarian-afk-70</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
@@ -1357,7 +1351,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/tools/builds/1kaonb-shaman-active-70</loc>
+    <loc>https://idleontoolbox.com/tools/builds/fexok0-bowman-afk-150</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -1387,12 +1381,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/tools/builds/a81c5b-shaman-active-50</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://idleontoolbox.com/tools/builds/pnfw12-beast-master-colosseum-clearer-200</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
@@ -1405,7 +1393,19 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://idleontoolbox.com/tools/builds/1kaonb-shaman-active-70</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://idleontoolbox.com/tools/builds/pcofys-bowman-active-70</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/a81c5b-shaman-active-50</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

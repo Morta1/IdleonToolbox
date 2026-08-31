@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/account/misc/dungeons", [
+  "static/chunks/2pau8sa5f99kv.js",
+  "static/chunks/1ir4i_xr1vm25.js",
+  "static/chunks/16bisl8o8q4tm.js",
+  "static/chunks/36fh1_wv-67gv.js",
+  "static/chunks/2gzb9b57991_o.js",
+  "static/chunks/1g6jb-92eawrs.js",
+  "static/chunks/12y-0ru4s44ei.js",
+  "static/chunks/1toy163k7g46f.js",
+  "static/chunks/07ejrw12w_ht3.js",
+  "static/chunks/0dj18xc8uzhaq.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/297zfifem5wv2.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/1zo_6c0-_r9dt.js",
+  "static/chunks/00b5olpgk7ra4.js",
+  "static/chunks/2in_0avo78xx1.js",
+  "static/chunks/turbopack-3-ws856t_ea3z.js"
+])

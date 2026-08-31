@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/account/world-3/buildings", [
+  "static/chunks/2pau8sa5f99kv.js",
+  "static/chunks/3y9gzrqd3-v7r.js",
+  "static/chunks/1e5a_0qvp1u5w.js",
+  "static/chunks/2n_4vl3ae09ci.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/1njxqw9xvjwbf.js",
+  "static/chunks/12y-0ru4s44ei.js",
+  "static/chunks/1ir4i_xr1vm25.js",
+  "static/chunks/225z7ymitvyow.js",
+  "static/chunks/0en3spb-f_0iv.js",
+  "static/chunks/2d7y_v4lf5iku.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/2gzb9b57991_o.js",
+  "static/chunks/0dj18xc8uzhaq.js",
+  "static/chunks/1zo_6c0-_r9dt.js",
+  "static/chunks/07ejrw12w_ht3.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/turbopack-3vag71l2dgyjv.js"
+])
