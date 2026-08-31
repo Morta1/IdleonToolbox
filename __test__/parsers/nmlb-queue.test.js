@@ -4,6 +4,8 @@ import { getNoMealLeftBehindQueue } from '@parsers/world-4/cooking';
 
 const account = { sneaking: { jadeEmporium: [{ name: 'No_Meal_Left_Behind', unlocked: true }] } };
 const locked = { sneaking: { jadeEmporium: [{ name: 'No_Meal_Left_Behind', unlocked: false }] } };
+const bundleOnly = { ...locked, bundles: [{ name: 'bun_s', owned: true }] };
+const both = { ...account, bundles: [{ name: 'bun_s', owned: true }] };
 const opts = { achievements: [], account, equinoxUpgrades: [], mealSpeed: 1 };
 
 const meal = (index, level, amount = 0) => ({
@@ -16,8 +18,24 @@ const meal = (index, level, amount = 0) => ({
 });
 
 describe('getNoMealLeftBehindQueue', () => {
-  it('returns nothing when the jade bonus is locked', () => {
+  it('returns nothing when neither the jade bonus nor the bundle is owned', () => {
     expect(getNoMealLeftBehindQueue([meal(0, 10)], 90, 5, { ...opts, account: locked })).toEqual([]);
+  });
+
+  it('procs off the Sacred Methods bundle alone, for 2 levels a time', () => {
+    const queue = getNoMealLeftBehindQueue([meal(0, 10)], 90, 2, { ...opts, account: bundleOnly });
+    expect(queue.map(({ fromLevel, toLevel }) => [fromLevel, toLevel])).toEqual([[10, 12], [12, 14]]);
+  });
+
+  it('stacks the bundle levels onto the jade level, all on the same meal', () => {
+    // Without stacking, the second and third level would be re-picked onto meal 1.
+    const queue = getNoMealLeftBehindQueue([meal(0, 10), meal(1, 11)], 90, 1, { ...opts, account: both });
+    expect(queue.map(({ index, fromLevel, toLevel }) => [index, fromLevel, toLevel])).toEqual([[0, 10, 13]]);
+  });
+
+  it('clamps the last proc to the meal max level', () => {
+    const queue = getNoMealLeftBehindQueue([meal(0, 88)], 90, 5, { ...opts, account: both });
+    expect(queue.map(({ fromLevel, toLevel }) => [fromLevel, toLevel])).toEqual([[88, 90]]);
   });
 
   it('keeps procing the same meal until it catches up to the pack', () => {
@@ -45,10 +63,15 @@ describe('getNoMealLeftBehindQueue', () => {
     expect(queue.map(({ index }) => index)).toEqual([9, 3]);
   });
 
-  it('skips meals outside the level > 5 and level < max window', () => {
-    const meals = [meal(0, 5), meal(1, 90), meal(2, 40)];
+  it('skips meals outside the level >= 2 and level < max window', () => {
+    const meals = [meal(0, 1), meal(1, 90), meal(2, 40)];
     const queue = getNoMealLeftBehindQueue(meals, 90, 3, opts);
     expect(queue.every(({ index }) => index === 2)).toBe(true);
+  });
+
+  it('targets the low meals the game hits first', () => {
+    const queue = getNoMealLeftBehindQueue([meal(0, 40), meal(1, 2)], 90, 1, opts);
+    expect(queue.map(({ index }) => index)).toEqual([1]);
   });
 
   it('stops once every meal is capped', () => {

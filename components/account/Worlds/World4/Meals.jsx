@@ -3,8 +3,10 @@ import {
   calcMealTime,
   calcTimeToNextLevel,
   getMealLevelCost,
+  getNoMealLeftBehindLevels,
   getNoMealLeftBehindQueue,
-  getRibbonBonus
+  getRibbonBonus,
+  NO_MEAL_LEFT_BEHIND_MIN_LEVEL
 } from '@parsers/world-4/cooking';
 import {
   cleanUnderscore,
@@ -37,7 +39,6 @@ import InfoIcon from '@mui/icons-material/Info';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import MenuItem from '@mui/material/MenuItem';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
-import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import { isCompanionBonusActive } from '@parsers/misc';
@@ -69,10 +70,10 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
   const realAmethystRhinestone = getJewelBonus(lab?.jewels, 0, spelunkerObolMulti) * allPurpleActive;
   const amethystRhinestone = 4.5;
   const getNoMealLeftBehind = (baseMeals, mealMaxLevel, returnArray) => {
-    const bonusActivated = isJadeBonusUnlocked(account, 'No_Meal_Left_Behind');
+    const bonusActivated = getNoMealLeftBehindLevels(account) > 0;
     if (bonusActivated) {
       const mealToUpgrade = 1;
-      const sortedMeals = baseMeals.filter(meal => meal.level > 5 && meal.level < mealMaxLevel).sort((meal1, meal2) => {
+      const sortedMeals = baseMeals.filter(meal => meal.level >= NO_MEAL_LEFT_BEHIND_MIN_LEVEL && meal.level < mealMaxLevel).sort((meal1, meal2) => {
         if (meal1.level === meal2.level) {
           return meal1.index > meal2.index ? -1 : 1
         }
@@ -422,7 +423,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
         <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} my={1}>
           <Typography variant={'h5'}>NMLB Proc Queue</Typography>
           <Tooltip
-            title={'No Meal Left Behind always levels your lowest meal and picks again after every proc, so one low meal can soak up a run of procs before anything else is touched. Each entry shows the ladles that proc saves you.'}>
+            title={'No Meal Left Behind always levels your lowest meal and picks again after every proc, so one low meal can soak up a run of procs before anything else is touched. The Sacred Methods bundle adds 2 more levels per proc, all landing on that same meal. Each entry shows the ladles that proc saves you.'}>
             <InfoIcon/>
           </Tooltip>
           <TextField size={'small'} type={'number'} label={'Procs'} value={procCount} sx={{ width: 90 }}
@@ -439,14 +440,14 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
           </Stack>
         </Stack>
         <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
-          {nmlbQueue.map(({ index, name, rawName, fromLevel, ladles }, procIndex) => (
+          {nmlbQueue.map(({ index, name, rawName, fromLevel, toLevel, ladles }, procIndex) => (
             <ProcCard key={`nmlb-${index}-${procIndex}`}>
               <Typography sx={{ color: 'text.secondary', width: 28 }}>#{procIndex + 1}</Typography>
               <img src={`${prefix}data/${rawName}.png`} alt={rawName} width={36} height={36}/>
               <Stack>
                 <Typography noWrap>{cleanUnderscore(name)}</Typography>
                 <Typography sx={{ color: 'text.secondary' }}>
-                  Lv. {fromLevel} <ArrowForwardIcon fontSize={'small'} sx={{ verticalAlign: 'middle' }}/> {fromLevel + 1}
+                  Lv. {fromLevel} <ArrowForwardIcon fontSize={'small'} sx={{ verticalAlign: 'middle' }}/> {toLevel}
                 </Typography>
               </Stack>
               <Stack direction={'row'} alignItems={'center'} gap={1} ml={'auto'}>

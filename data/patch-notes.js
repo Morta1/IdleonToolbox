@@ -4,6 +4,16 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.71',
+    'gameVer': '2.3.527',
+    'date': '31/08/2026',
+    'features': [],
+    'fixes': [
+      'Cooking: the NMLB Proc Queue ignored the Sacred Methods bundle - it now shows up for bundle owners without the jade upgrade, and counts the extra levels it grants, which all land on the same meal',
+      'Cooking: No Meal Left Behind skipped meals below level 6, hiding the low meals it actually targets first'
+    ]
+  },
+  {
     'ver': '3.3.70',
     'gameVer': '2.3.527',
     'date': '30/08/2026',
