@@ -1502,7 +1502,8 @@ export const getAllSkillsExp = (character: any, characters: any[], account: any)
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Skill_EXP');
   const superbitBonus = isSuperbitUnlocked(account, 'MSA_Skill_EXP')?.bonus ?? 0;
   const winnerBonus = getWinnerBonus(account, '+{% Skill EXP');
-  const companionBonus = isCompanionBonusActive(account, 9) ? 20 : 0;
+  // Bloque (9): 20% base, 30% once upgraded - the parsed bonus already resolves upgradedBonus.
+  const companionBonus = isCompanionBonusActive(account, 9) ? (account?.companions?.list?.at(9)?.bonus ?? 0) : 0;
   const schematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 49, i: 10 });
   let godBonus = 0;
   const flutterbisIndexes = getDeityLinkedIndex(account, characters, 7);

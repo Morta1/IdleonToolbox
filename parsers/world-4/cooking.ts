@@ -309,7 +309,8 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
   const categoryMultipliers = randomList2?.[8] ?? [];
 
   // Shared bonus inputs (all reused from existing parsers).
-  const companion87 = isCompanionBonusActive(account, 87) ? 1 : 0; // Rift Spooker companion
+  // Rift Spooker companion - upgraded (Spooker+) carries bonus 1.5, so 4x EXP and 7.5 PTS.
+  const companion87 = isCompanionBonusActive(account, 87) ? (account?.companions?.list?.at(87)?.bonus ?? 0) : 0;
   // Event shop 54 "Bejeweled Ladle" - +5 Purple and Yellow PTS, same bracket as Rift Spooker.
   const bejeweledLadle = getEventShopBonus(account, 54);
   const gridBonusExp = account?.research?.gridSquares?.[190]?.bonuses?.[0] ?? 0; // Masterius Cookerius (EXP)
@@ -427,9 +428,10 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
       base: basePoints,
       gridBonus: gridBonusPts,
       categorySpent,
-      categoryLeft: Math.max(0, basePoints - categorySpent),
+      // The game rounds the whole remainder (Rift Spooker+ contributes a fractional 7.5 PTS).
+      categoryLeft: Math.max(0, Math.round(basePoints - categorySpent)),
       nodeSpent,
-      nodeLeft: Math.max(0, basePoints + gridBonusPts - nodeSpent)
+      nodeLeft: Math.max(0, Math.round(basePoints + gridBonusPts - nodeSpent))
     },
     categories,
     expRateBreakdown
