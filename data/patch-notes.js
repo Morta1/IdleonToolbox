@@ -9,7 +9,8 @@ export const patchNotes = [
     'date': '01/09/2026',
     'features': [],
     'fixes': [
-      'Dashboard: the better class-specific ring alert scored a ring on both its stats at once, so an Arcane Cultist ring could win on accuracy alone. You can now pick which stats count, and ring and weapon alerts say which bag the item is in'
+      'Dashboard: the better class-specific ring alert scored a ring on both its stats at once, so an Arcane Cultist ring could win on accuracy alone. You can now pick which stats count, and ring and weapon alerts say which bag the item is in',
+      'Upgrade Optimizer: the recommended sequence priced purchases with Masterclass cost reductions you had already used up, showing Royal Guardian armory and Clam Work upgrades as much as 5x cheaper than the game charges'
     ]
   },
   {

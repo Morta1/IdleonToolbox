@@ -125,10 +125,18 @@ const GenericUpgradeOptimizer = ({
   const splitByResource = showSplitByResource && storedSplitByResource;
   const [AffordableCheckboxEl, onlyAffordable] = useCheckbox('Only affordable');
   // const [MasterclassReductionCheckbox, masterClassReduction] = useCheckbox('Masterclass reduction');
-  const [masterClassReduction, setMasterClassReduction] = useLocalStorage({
+  // The legend talent grants a fixed number of discounted masterclass purchases, and
+  // accountOptions[480] counts how many were already spent - the game only discounts while
+  // accountOptions[480] < getLegendTalentBonus(account, 23), so the leftovers are what the
+  // simulation may still spend, not the full grant.
+  const remainingReductions = Math.max(0, (getLegendTalentBonus(account, 23) ?? 0) - (account?.accountOptions?.[480] ?? 0));
+  const [storedMasterClassReduction, setMasterClassReduction] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:masterClassReduction`,
-    defaultValue: getLegendTalentBonus(account, 23) ?? 0
+    defaultValue: remainingReductions
   });
+  // Optimizers that hide the field (Royal Guardian, Clam Work) have no way to correct a stale
+  // stored seed, so they always price against the live remaining count.
+  const masterClassReduction = showMasterclassReduction ? storedMasterClassReduction : remainingReductions;
   const [resourcePerHour, setResourcePerHour] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:resourcePerHour`,
     defaultValue: (() => {
