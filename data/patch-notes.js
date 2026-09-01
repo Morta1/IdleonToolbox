@@ -17,7 +17,8 @@ export const patchNotes = [
       'Upgrade Optimizer: the recommended sequence priced purchases with Masterclass cost reductions you had already used up, showing Royal Guardian armory and Clam Work upgrades as much as 5x cheaper than the game charges',
       'Pets: upgraded pets were still counted at their base bonus in a few places. Rift Hivemind+ now gives its full 75% prisma multi, which was holding back Cooking Speed and Fire Speed on every prisma bubble, plus Rift Spooker+ its 4x Cooking Mastery EXP and Bloque+ its 30% Skill EXP',
       'Dashboard: the Royal Guardian idle units alert counted towns, minigame screens and other maps that can never hold an outpost as maps left to clear, so it kept firing for worlds you had fully claimed',
-      'Free pet: the claim timer was reading the wrong timestamp, so it was stuck on "Go claim!" and its dashboard alert never cleared. It now counts down the real 23 hour window'
+      'Free pet: the claim timer was reading the wrong timestamp, so it was stuck on "Go claim!" and its dashboard alert never cleared. It now counts down the real 23 hour window',
+      'Upgrade Optimizer: steps past your daily Masterclass discount were priced up to 5x too high with nothing saying why. Discounted steps are now marked, and the reductions field tracks your live count. Royal Guardian gets the field too'
     ]
   },
   {

@@ -211,7 +211,7 @@ const buildReductionAccount = ({ bonus, spent }) => ({
   accountOptions: { 480: spent }
 });
 
-const renderWithReductions = ({ bonus, spent, showMasterclassReduction = true }) => {
+const renderWithReductions = ({ bonus, spent, usesMasterclassReduction = true }) => {
   const calls = [];
   render(
     <ThemeProvider theme={darkTheme}>
@@ -228,7 +228,7 @@ const renderWithReductions = ({ bonus, spent, showMasterclassReduction = true })
         resourceImagePrefix="Tach"
         upgradeImagePrefix="ArcaneUpg"
         getResourceType={(upgrade) => upgrade.x3}
-        showMasterclassReduction={showMasterclassReduction}
+        usesMasterclassReduction={usesMasterclassReduction}
         tooltipText="test tooltip"
       />
     </ThemeProvider>
@@ -253,16 +253,64 @@ describe('GenericUpgradeOptimizer masterclass reductions', () => {
     expect(calls.at(-1).masterClassReduction).toBe(5);
   });
 
-  it('ignores a stale stored seed when the field is hidden', () => {
+  it('ignores the seed the old build froze into storage', () => {
+    // the pre-override key was written on first render and never followed the day rolling over
     seedSetting('masterClassReduction', 8);
-    const calls = renderWithReductions({ bonus: 8, spent: 12, showMasterclassReduction: false });
+    const calls = renderWithReductions({ bonus: 8, spent: 12 });
     expect(calls.at(-1).masterClassReduction).toBe(0);
   });
 
-  it('still honours a manual override where the field is editable', () => {
-    seedSetting('masterClassReduction', 4);
+  it('still honours an explicit manual override', () => {
+    seedSetting('masterClassReductionOverride', 4);
     const calls = renderWithReductions({ bonus: 8, spent: 12 });
     expect(calls.at(-1).masterClassReduction).toBe(4);
+  });
+
+  it('treats a cleared override as "follow the live count"', () => {
+    seedSetting('masterClassReductionOverride', null);
+    const calls = renderWithReductions({ bonus: 8, spent: 3 });
+    expect(calls.at(-1).masterClassReduction).toBe(5);
+  });
+
+  it('lets the override reach past today, for a plan that spans days', () => {
+    // the grant is per day and shared by every masterclass, so a plan spanning days gets it back -
+    // capping at today's leftovers quotes every later step 5x above what the game charges
+    seedSetting('masterClassReductionOverride', 200);
+    const calls = renderWithReductions({ bonus: 8, spent: 12 });
+    expect(calls.at(-1).masterClassReduction).toBe(200);
+  });
+
+  it('never invents an allowance for an account without the legend talent', () => {
+    const calls = renderWithReductions({ bonus: 0, spent: 0 });
+    expect(calls.at(-1).masterClassReduction).toBe(0);
+  });
+});
+
+const buildDiscountRow = (overrides) => ({ ...buildRow({}), ...overrides });
+
+describe('GenericUpgradeOptimizer discount marker', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it('marks the rows the daily allowance actually paid for', () => {
+    const { container } = renderOptimizer([buildDiscountRow({ hadReduction: true })]);
+    expect(container.textContent).toContain('-80%');
+  });
+
+  it('leaves full-price rows unmarked', () => {
+    const { container } = renderOptimizer([buildDiscountRow({ hadReduction: false })]);
+    expect(container.textContent).not.toContain('-80%');
+  });
+
+  it('counts how many steps of a grouped row were discounted', () => {
+    seedSetting('groupMode', 'Upgrade');
+    const { container } = renderOptimizer([
+      buildDiscountRow({ hadReduction: true, level: 10 }),
+      buildDiscountRow({ hadReduction: true, level: 11 }),
+      buildDiscountRow({ hadReduction: false, level: 12 })
+    ]);
+    expect(container.textContent).toContain('-80% on 2/3');
   });
 });
 

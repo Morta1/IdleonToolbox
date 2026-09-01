@@ -18,7 +18,9 @@ const UpgradeOptimizer = ({ character, account, multiKill }) => (
     upgradeImagePrefix="ClamPearl"
     getUpgradeIconIndex={() => 0}
     getResourceType={() => 0}
-    showMasterclassReduction={false}
+    // Clam upgrades are priced by getClamCostReduction, an unrelated mechanic - nothing here reads
+    // forceLegendTalent, so the Masterclass allowance has nothing to say about this optimizer.
+    usesMasterclassReduction={false}
     showSplitByResource={false}
     statLabels={{ pearlGain: 'Pearl gain', costReduction: 'Cost reduction' }}
     tooltipText={'Shows the most efficient upgrade path based on your available pearls, in order. Pearl Gain ranks upgrades by pearl income per pearl spent; Cost Reduction ranks Frugality and Anti Inflation by how much cheaper they make everything else.'}
