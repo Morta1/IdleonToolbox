@@ -3,6 +3,7 @@ import GenericUpgradeOptimizer from '../GenericUpgradeOptimizer';
 import {
   ARMORY_UPGRADE_CATEGORIES,
   getOptimizedArmoryUpgrades,
+  getRoyalResourcePerHour,
   ROYAL_RESOURCE_NAMES
 } from '@parsers/class-specific/royalGuardian';
 
@@ -30,7 +31,11 @@ const UpgradeOptimizer = ({ character, account }) => (
     // and the shared control's own reduction model (First3MC_CostRedux) never applies to the armory
     // at all. See task C2 report, "Critical trap".
     showMasterclassReduction={false}
-    tooltipText="Shows the cheapest available armory upgrade to buy next, in order. Unlike Grimoire/Compass/Tesseract, armory upgrades don't share a common stat, so this ranks by cost only."
+    // Unlike the other three masterclasses, RG income is passive: outposts bank a fixed rate off the
+    // nodes they're wired to, so the rate can be derived instead of typed in. Manual entry stays
+    // available as the "(manual)" method.
+    autoResourcePerHour={getRoyalResourcePerHour(account)}
+    tooltipText="Shows the cheapest available armory upgrade to buy next, in order. Unlike Grimoire/Compass/Tesseract, armory upgrades don't share a common stat, so this ranks by cost only. Auto RPH is read from your outposts and their connected nodes."
   />
 );
 
