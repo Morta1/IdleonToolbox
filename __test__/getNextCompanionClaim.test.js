@@ -1,36 +1,45 @@
 import { describe, expect, it } from 'vitest';
 import { getNextCompanionClaim, getRealDateInMs, UNKNOWN_TIME } from '@utility/helpers';
 
-// 2.3.525 made the free pet claim daily instead of weekly; the exact server-side window isn't
-// observable, so the site uses a named 24h constant (see FREE_COMPANION_CLAIM_INTERVAL_MS).
-const COOLDOWN_MS = 86400000;
+// 2.3.525 made the free pet claim daily instead of weekly. The window is server-side
+// (getFreeCompanionRemainingTimeDaily); probing it live gave max(0, lastFreeClaim + 82800000 - now),
+// so the site mirrors that 23h constant (see FREE_COMPANION_CLAIM_INTERVAL_MS).
+const COOLDOWN_MS = 82800000;
 
 describe('getNextCompanionClaim', () => {
   it('is finite for an account with no save at all', () => {
     expect(Number.isNaN(getNextCompanionClaim(undefined))).toBe(false);
     expect(Number.isNaN(getNextCompanionClaim({}))).toBe(false);
-    expect(Number.isNaN(getNextCompanionClaim({ timeAway: {} }))).toBe(false);
+    expect(Number.isNaN(getNextCompanionClaim({ companions: {} }))).toBe(false);
   });
 
-  it('returns a full cooldown from now when nothing has been claimed yet', () => {
-    const before = new Date().getTime();
-    const claim = getNextCompanionClaim({});
-    expect(claim - before).toBeGreaterThanOrEqual(COOLDOWN_MS - 50);
-    expect(claim - before).toBeLessThanOrEqual(COOLDOWN_MS + 50);
+  it('is claimable when nothing has ever been claimed', () => {
+    expect(getNextCompanionClaim({})).toBeLessThanOrEqual(new Date().getTime());
   });
 
-  it('never returns a time in the past - the cooldown floor is 0, not a negative offset', () => {
-    const account = { timeAway: { GlobalTime: 10_000_000 }, companions: { lastFreeClaim: 0 } };
-    expect(getNextCompanionClaim(account)).toBeLessThanOrEqual(new Date().getTime() + 1);
+  it('counts down a full cooldown from a claim that just happened', () => {
+    const now = new Date().getTime();
+    const claim = getNextCompanionClaim({ companions: { lastFreeClaim: now } });
+    expect(claim - now).toBe(COOLDOWN_MS);
   });
 
   it('counts down from the last claim for a real account', () => {
-    const globalTime = 1_000_000;
-    const lastFreeClaim = 1e3 * globalTime - COOLDOWN_MS / 2;
-    const claim = getNextCompanionClaim({ timeAway: { GlobalTime: globalTime }, companions: { lastFreeClaim } });
+    const lastFreeClaim = new Date().getTime() - COOLDOWN_MS / 2;
+    const claim = getNextCompanionClaim({ companions: { lastFreeClaim } });
     const remaining = claim - new Date().getTime();
     expect(remaining).toBeGreaterThan(COOLDOWN_MS / 2 - 50);
     expect(remaining).toBeLessThan(COOLDOWN_MS / 2 + 50);
+  });
+
+  it('is claimable again once a full cooldown has passed', () => {
+    const lastFreeClaim = new Date().getTime() - COOLDOWN_MS - 1000;
+    expect(getNextCompanionClaim({ companions: { lastFreeClaim } })).toBeLessThan(new Date().getTime());
+  });
+
+  it('ignores GlobalTime - the save clock drifts behind the browser clock', () => {
+    const lastFreeClaim = new Date().getTime();
+    const stale = { timeAway: { GlobalTime: 10_000_000 }, companions: { lastFreeClaim } };
+    expect(getNextCompanionClaim(stale)).toBe(lastFreeClaim + COOLDOWN_MS);
   });
 
   it('treats a missing lastFreeClaim as 0 rather than NaN', () => {
