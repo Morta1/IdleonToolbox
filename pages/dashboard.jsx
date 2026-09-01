@@ -18,7 +18,7 @@ import { getCrystalCountdownSkills } from '@parsers/talents';
 import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 
 const baseTrackers = {
-  version: 71,
+  version: 72,
   account: {
     General: {
       tasks: {
@@ -808,8 +808,11 @@ const baseTrackers = {
         },
         {
           name: 'betterRing',
+          type: 'array',
+          category: 'betterRing',
           checked: true,
-          helperText: 'Alert when there\'s a better form class-specific ring (higher stats, same type) in your inventory'
+          helperText: 'Alert when there\'s a better form class-specific ring (same type) in your inventory. Only the checked stats count towards "better" - Wind Walker rings roll a single stat and are always compared on it',
+          props: { value: { arcanistAccuracy: true, extraTachyons: true } }
         }
       ]
     }

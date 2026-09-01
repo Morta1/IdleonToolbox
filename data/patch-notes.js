@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.72',
+    'gameVer': '2.3.527',
+    'date': '01/09/2026',
+    'features': [],
+    'fixes': [
+      'Dashboard: the better class-specific ring alert scored a ring on both its stats at once, so an Arcane Cultist ring could win on accuracy alone. You can now pick which stats count, and ring and weapon alerts say which bag the item is in'
+    ]
+  },
+  {
     'ver': '3.3.71',
     'gameVer': '2.3.527',
     'date': '31/08/2026',

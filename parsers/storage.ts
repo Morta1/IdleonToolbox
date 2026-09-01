@@ -11,6 +11,7 @@ export interface StorageItem {
   type: string;
   subType: string;
   rawName: string;
+  slot: number;
   amount: number;
   misc: string;
   description: string;
@@ -175,6 +176,9 @@ export const getInventoryList = (chestOrderRaw: any[] | undefined, chestQuantity
         type: it?.itemType,
         subType: it?.Type,
         rawName: itemName,
+        // The raw index, not the position in this list - blanks and locked slots are dropped, so
+        // only this survives as the item's actual place in the bag or chest.
+        slot: index,
         amount: parseInt(chestQuantityRaw?.[index]),
         misc: cleanUnderscore(misc.trim()),
         description: cleanUnderscore(description.trim())
