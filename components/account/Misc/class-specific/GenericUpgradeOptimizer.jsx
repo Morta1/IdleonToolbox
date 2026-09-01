@@ -82,7 +82,9 @@ const GenericUpgradeOptimizer = ({
   // leave this null, keeping their manual "Set RPH" flow untouched.
   autoResourcePerHour = null,
   defaultCategory = 'damage',
-  showMasterclassReduction = true,
+  // False for optimizers whose costs never read forceLegendTalent, so the Daily Shopping Spree
+  // allowance has nothing to say about them (Clam Work).
+  usesMasterclassReduction = true,
   showSplitByResource = true,
   statLabels
 }) => {
@@ -133,14 +135,20 @@ const GenericUpgradeOptimizer = ({
   // accountOptions[480] counts how many were already spent - the game only discounts while
   // accountOptions[480] < getLegendTalentBonus(account, 23), so the leftovers are what the
   // simulation may still spend, not the full grant.
-  const remainingReductions = Math.max(0, (getLegendTalentBonus(account, 23) ?? 0) - (account?.accountOptions?.[480] ?? 0));
-  const [storedMasterClassReduction, setMasterClassReduction] = useLocalStorage({
-    key: `${resourceKey}:genericUpgradeOptimizer:masterClassReduction`,
-    defaultValue: remainingReductions
+  const dailyReductionGrant = getLegendTalentBonus(account, 23) ?? 0;
+  const remainingReductions = Math.max(0, dailyReductionGrant - (account?.accountOptions?.[480] ?? 0));
+  // Only an explicit edit is stored. Seeding storage with the live count instead froze whatever it
+  // read on the first visit - wrong the moment the day rolled over or anything was bought - and it
+  // was that frozen seed, not the field itself, that made the field unsafe to show on Royal Guardian.
+  // No defaultValue, so "never edited" stays distinguishable and keeps following the live count.
+  const [reductionOverride, setReductionOverride] = useLocalStorage({
+    key: `${resourceKey}:genericUpgradeOptimizer:masterClassReductionOverride`
   });
-  // Optimizers that hide the field (Royal Guardian, Clam Work) have no way to correct a stale
-  // stored seed, so they always price against the live remaining count.
-  const masterClassReduction = showMasterclassReduction ? storedMasterClassReduction : remainingReductions;
+  // The allowance is per DAY, and it is one pool shared by every masterclass, so a plan spanning
+  // more than today gets its charges back - raising the field past today's leftovers is how you
+  // price that. Left at the live count, every step past the last charge is quoted at full price:
+  // 5x the number the game shows, 20x with the bonus bundle.
+  const masterClassReduction = reductionOverride ?? remainingReductions;
   const [resourcePerHour, setResourcePerHour] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:resourcePerHour`,
     defaultValue: (() => {
@@ -239,9 +247,11 @@ const GenericUpgradeOptimizer = ({
       }
       const combinedStats = {};
       let totalCost = 0;
+      let discountedSteps = 0;
       const resourceType = getResourceType(upgrade);
       upgrade.sequence.forEach(seq => {
         totalCost += seq.cost;
+        if (seq.hadReduction) discountedSteps += 1;
         if (category !== 'all') {
           seq.statChanges.forEach(statChange => accumulateStatChange(combinedStats, statChange));
         }
@@ -250,6 +260,7 @@ const GenericUpgradeOptimizer = ({
         ...upgrade,
         combinedStatChanges: Object.values(combinedStats),
         totalCost,
+        discountedSteps,
         resourceType,
         startLevel: upgrade.startLevel,
         finalLevel: upgrade.finalLevel,
@@ -268,6 +279,7 @@ const GenericUpgradeOptimizer = ({
           finalLevel: upgrade.level,
           sequence: [],
           totalCost: 0,
+          discountedSteps: 0,
           combinedStatChanges: {}
         };
       }
@@ -276,6 +288,7 @@ const GenericUpgradeOptimizer = ({
       g.sequence.push(upgrade);
       g.finalLevel = Math.max(g.finalLevel, upgrade.level);
       g.totalCost += upgrade.cost;
+      if (upgrade.hadReduction) g.discountedSteps += 1;
 
       if (upgrade.statChanges) {
         upgrade.statChanges.forEach(statChange => accumulateStatChange(g.combinedStatChanges, statChange));
@@ -428,8 +441,23 @@ const GenericUpgradeOptimizer = ({
             alt=""
           />
           <Typography variant="body2">Total Cost: {notateNumber(upgrade.totalCost)}</Typography>
+          {renderDiscountNote(upgrade)}
         </Stack>
       </>
+    );
+  };
+
+  // Which rows the Daily Shopping Spree allowance actually paid for. Without this the walk silently
+  // spends the charges on the cheapest rows at the head of the plan and everything after reads as
+  // inexplicably expensive.
+  const renderDiscountNote = (upgrade) => {
+    const steps = upgrade.sequence?.length ?? 1;
+    const discounted = upgrade.discountedSteps ?? (upgrade.hadReduction ? 1 : 0);
+    if (!discounted) return null;
+    return (
+      <Typography variant="caption" color="success.main" component="span">
+        {steps > 1 ? `-80% on ${discounted}/${steps}` : '-80%'}
+      </Typography>
     );
   };
 
@@ -550,6 +578,7 @@ const GenericUpgradeOptimizer = ({
                   <Typography variant="body2">
                     Cost: {notateNumber(upgrade.cost)}
                   </Typography>
+                  {renderDiscountNote(upgrade)}
                 </Stack>
               </>
             )
@@ -625,6 +654,7 @@ const GenericUpgradeOptimizer = ({
             {hasSequence && upgrade.totalCost
               ? notateNumber(upgrade.totalCost)
               : notateNumber(upgrade.cost)}
+            {renderDiscountNote(upgrade)}
           </Stack>
         </TableCell>
       </TableRow>
@@ -751,24 +781,27 @@ const GenericUpgradeOptimizer = ({
             label="Split by resource"
           />
         )}
-        {showMasterclassReduction && (
-          <TextField
-            size="small"
-            type="number"
-            inputProps={{ min: 0 }}
-            sx={{ width: 160 }}
-            label="Masterclass reductions"
-            value={masterClassReduction}
-            onChange={(e) => {
-              const v = parseInt(e.target.value, 10);
-              if (isNaN(v)) {
-                setMasterClassReduction('');
-              }
-              else {
-                setMasterClassReduction(Math.max(0, v));
-              }
-            }}
-          />
+        {usesMasterclassReduction && (
+          <Stack direction="row" alignItems="center" gap={0.5}>
+            <TextField
+              size="small"
+              type="number"
+              inputProps={{ min: 0 }}
+              sx={{ width: 160 }}
+              label="Masterclass reductions"
+              // Clearing the field drops the override rather than meaning zero, so there is always
+              // a way back to the live remaining count.
+              value={masterClassReduction}
+              onChange={(e) => {
+                const v = parseInt(e.target.value, 10);
+                setReductionOverride(isNaN(v) ? null : Math.max(0, v));
+              }}
+            />
+            <Tooltip
+              title={`Daily Shopping Spree makes your first ${dailyReductionGrant} Masterclass purchases each day 80% cheaper, and the allowance resets every day. This starts at what today has left, so steps past it are priced at full rate - raise it to plan across several days, or clear the field to go back to the live count.`}>
+              <IconInfoCircleFilled size={16} />
+            </Tooltip>
+          </Stack>
         )}
         <Tooltip title={tooltipText}> <IconInfoCircleFilled size={16} /> </Tooltip>
         <Stack>

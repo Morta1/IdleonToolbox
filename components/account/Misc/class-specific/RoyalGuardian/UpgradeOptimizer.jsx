@@ -26,11 +26,6 @@ const UpgradeOptimizer = ({ character, account }) => (
     getUpgradeIconIndex={(upgrade) => upgrade.costResourceIndex}
     getResourceType={(upgrade) => upgrade.costResourceIndex}
     getResourceAmount={(amount) => amount}
-    // The parser already bakes the current masterclass cost reduction into every armory cost
-    // (royalGuardian.ts, getArmoryCostReduction) - a second reduction control here would double it,
-    // and the shared control's own reduction model (First3MC_CostRedux) never applies to the armory
-    // at all. See task C2 report, "Critical trap".
-    showMasterclassReduction={false}
     // Unlike the other three masterclasses, RG income is passive: outposts bank a fixed rate off the
     // nodes they're wired to, so the rate can be derived instead of typed in. Manual entry stays
     // available as the "(manual)" method.
