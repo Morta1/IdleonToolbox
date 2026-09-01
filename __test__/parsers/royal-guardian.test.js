@@ -407,3 +407,47 @@ describe('the Armory Upgrade Optimizer decays the Legend-Talent-23 discount acro
       .toBeGreaterThan(0.5);
   });
 });
+
+// game: "HasOutpost" (N.js) - a map can hold an outpost only when it is drawn on the kingdom
+// screen AND is none of the blacklisted ids, the world's town (index % 50 == 0), or a
+// NonAFKscreens entry. World 1 carries six of those (0, 8, 9, 39, 41, 43), so counting every
+// drawn map left `hasClearableMap` permanently true and the idle-units alert never went quiet.
+describe('a world whose every outpost slot is claimed has nothing left to clear', () => {
+  // Read out of the running game: every world 1 map with HasOutpost == 1.
+  const WORLD_1_SLOTS = [1, 2, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 24, 26, 27, 28, 30,
+    31, 32, 42];
+  // Blacklisted (8, 9, 39, 41, 43), the town (0), and the non-AFK screens (36, 40).
+  const NOT_SLOTS = [0, 8, 9, 36, 39, 40, 41, 43];
+
+  const parseWithClaimed = (claimed) => {
+    const maps = new Array(400).fill(null).map(() => []);
+    claimed.forEach((mapIndex) => {
+      maps[mapIndex] = [0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0, 211111111, 0];
+    });
+    const royalG = buildRoyalG();
+    royalG[6] = [4];
+    royalG[7] = [1];
+    return getRoyalGuardian(
+      { RoyalG: JSON.stringify(royalG), RoyalMaps: JSON.stringify(maps) },
+      account,
+      []
+    );
+  };
+
+  it('ignores towns, blacklisted maps and non-AFK screens', () => {
+    const parsed = parseWithClaimed(WORLD_1_SLOTS);
+    // The unit sits on map 1, which it already owns, and world 1 holds nothing else to clear.
+    expect(parsed.deployments[0].idle).toBe(true);
+    expect(parsed.deployments[0].hasClearableMap).toBe(false);
+    // None of these can ever hold an outpost, so leaving them unclaimed changes nothing.
+    NOT_SLOTS.forEach((mapIndex) => {
+      expect(parseWithClaimed(WORLD_1_SLOTS.concat(mapIndex)).deployments[0].hasClearableMap)
+        .toBe(false);
+    });
+  });
+
+  it('still reports a unit while a real slot is unclaimed', () => {
+    const parsed = parseWithClaimed(WORLD_1_SLOTS.filter((mapIndex) => mapIndex !== 12));
+    expect(parsed.deployments[0].hasClearableMap).toBe(true);
+  });
+});
