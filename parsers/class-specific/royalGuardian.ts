@@ -38,6 +38,14 @@ const ROYAL_STATUE_FIRST_ODDS = [25, 50, 100, 250, 500, 1000, 2500, 10000];
 // game: "SF_maxLV"
 const STATUE_FLAIR_MAX_LEVEL = 3;
 
+// game: "ResNodes_LVUPbon" - a flat 25% collection rate per node level. CollectAll applies it per
+// node, on top of the outpost's own OutpostResourceRate.
+const NODE_LEVEL_RATE_BONUS = 25;
+
+// The window the auto resource-per-hour averages a node's remaining capacity over: a node that caps
+// pays nothing until the daily restock, so a nearly spent one must not price as if it ran forever.
+export const RESOURCE_PER_HOUR_WINDOW_HOURS = 24;
+
 // game: "MarbleDrop" is called with floor(CurrentMap / 50), so its tier is the world the player is
 // standing in, and MARBLE_LORE_CAVE is the Spelunk[0] cave whose lore ("DoWeHaveLoreN1") pays +50%.
 const MAPS_PER_WORLD = 50;
@@ -216,10 +224,15 @@ export interface OutpostNode {
   index: number;
   resourceIndex: number;
   rawName: string;
+  nodeLevel: number;
   collected: number;
   maxQuantity: number;
   fillPercent: number;
   exhausted: boolean;
+  // What the outpost banks out of this node per hour, and what it takes out of the node per hour -
+  // the two differ on every mode but Resource Depot.
+  collectionRate: number;
+  drainRate: number;
 }
 
 export interface Outpost extends OutpostBase {
@@ -376,6 +389,42 @@ const applyBonusTokens = (description: string, bonus: number, dollarValue?: stri
   }
   return result;
 };
+
+// What the kingdom banks per hour, per resource index: RG income is passive, so the armory Upgrade
+// Optimizer can price upgrades off this instead of a hand-typed rate. A node pays its full rate only
+// until it caps, so each one is also capped by what it can still give over `windowHours`.
+const computeResourcePerHour = (
+  outposts: Outpost[],
+  windowHours: number,
+  restockUnlocked: boolean
+): Record<number, number> => {
+  const totals: Record<number, number> = {};
+  outposts.forEach(({ connectedNodes }) => {
+    connectedNodes.forEach(({ resourceIndex, collectionRate, collected, maxQuantity, exhausted }) => {
+      if (resourceIndex < 0 || !(collectionRate > 0)) return;
+      // game: "RestockRes" refills every spent node on the daily reset once armory 70 is bought, so
+      // over a day the node is worth its whole capacity again. Without it, a spent node is just dead.
+      const available = restockUnlocked ? maxQuantity : Math.max(0, maxQuantity - collected);
+      if (!restockUnlocked && exhausted) return;
+      const sustained = windowHours > 0
+        ? Math.min(collectionRate, available / windowHours)
+        : collectionRate;
+      totals[resourceIndex] = (totals[resourceIndex] ?? 0) + sustained;
+    });
+  });
+  return totals;
+};
+
+// The optimizer's entry point, so a caller can ask for a different averaging window than the one
+// baked into the parsed account.
+export const getRoyalResourcePerHour = (
+  account: Account,
+  windowHours: number = RESOURCE_PER_HOUR_WINDOW_HOURS
+): Record<number, number> => computeResourcePerHour(
+  (account as any)?.royalGuardian?.outposts ?? [],
+  windowHours,
+  (account as any)?.royalGuardian?.outpostStats?.restockUnlocked === true
+);
 
 export const getRoyalGuardian = (idleonData: IdleonData, account: Account, characters?: any[]) => {
   const raw = tryToParse((idleonData as any)?.RoyalG) || (idleonData as any)?.RoyalG || [];
@@ -860,21 +909,33 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     * (1 + (totalStatz[3] * armoryBonus(53)) / 100)
     * (1 + getZenithBonus(account, 10) / 100);
 
+  // game: "SavageCollection" - what a Savage Stronghold piles into its node instead of banking.
+  const savageMulti = 5 * (1 + armoryBonus(69) / 100);
+
   const nodeAt = (nodeIndex: number) => resources.find(({ index }) => index === nodeIndex);
-  const outpostNodes = (mapRaw: any): OutpostNode[] => CONNECTION_SLOTS
+  const outpostNodes = (mapRaw: any, resourceRate: number, mode: number): OutpostNode[] => CONNECTION_SLOTS
     .map((slot) => Math.round(toNum(mapRaw?.[slot])))
     .filter((link) => link >= 0 && link <= MAX_NODE_LINK)
     .map((link) => nodeAt(link))
     .filter((node): node is RoyalResource => node != null && !node.empty)
-    .map(({ index, resourceIndex, rawName, collected, maxQuantity, fillPercent, exhausted }) => ({
-      index,
-      resourceIndex,
-      rawName,
-      collected,
-      maxQuantity,
-      fillPercent,
-      exhausted
-    }));
+    .map(({ index, resourceIndex, rawName, nodeLevel, collected, maxQuantity, fillPercent, exhausted }) => {
+      // game: CollectAll prices each node at the outpost's rate times the node's own level bonus.
+      const rate = resourceRate * (1 + (NODE_LEVEL_RATE_BONUS * nodeLevel) / 100);
+      return {
+        index,
+        resourceIndex,
+        rawName,
+        nodeLevel,
+        collected,
+        maxQuantity,
+        fillPercent,
+        exhausted,
+        // Only a Resource Depot banks: CollectAll's outer guard skips a Support Camp entirely, and a
+        // Savage Stronghold pours savageMulti times what it pulls straight back into the node.
+        collectionRate: mode === 0 ? rate : 0,
+        drainRate: mode === 1 ? 0 : mode === 2 ? rate * savageMulti : rate
+      };
+    });
 
   const detailedOutposts: Outpost[] = outposts.map((outpost) => {
     const { mapIndex, raw: mapRaw, ranks, expandedBarracks, advancedLogistics, greaterEducation } = outpost;
@@ -991,12 +1052,12 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       : [];
 
     // A Savage Stronghold pours savageMulti times what it collects into its own node, so its node
-    // fills that much faster.
-    const connectedNodes = outpostNodes(mapRaw);
-    const nodeRate = resourceRate * (mode === 2 ? 5 * (1 + armoryBonus(69) / 100) : 1);
+    // fills that much faster, while a Support Camp never touches its nodes at all.
+    const connectedNodes = outpostNodes(mapRaw, resourceRate, mode);
     const nodeHours = connectedNodes
       .filter(({ exhausted }) => !exhausted)
-      .map(({ collected, maxQuantity }) => (nodeRate > 0 ? (maxQuantity - collected) / nodeRate : Infinity))
+      .map(({ collected, maxQuantity, drainRate }) =>
+        (drainRate > 0 ? (maxQuantity - collected) / drainRate : Infinity))
       .filter((hours) => Number.isFinite(hours));
     const freshNodeInReach = reachableNodes
       .some((nodeIndex) => resources.find(({ index }) => index === nodeIndex)?.exhausted === false);
@@ -1116,10 +1177,11 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     resources,
     clearingMaps,
     outposts: detailedOutposts,
+    resourcePerHour: computeResourcePerHour(detailedOutposts, RESOURCE_PER_HOUR_WINDOW_HOURS,
+      armoryBonus(70) >= 1),
     outpostStats: {
       built: totalStatz[4],
-      // game: "SavageCollection" - what a Savage Stronghold piles into its node instead of banking.
-      savageMulti: 5 * (1 + armoryBonus(69) / 100),
+      savageMulti,
       // game: "OutpostTypesUnlocked" / "OutpostTypesAllowed" - index 0 (Resource Depot) is
       // uncapped, the other two are bought with armory 42 and 44. The game counts against the cap
       // by walking the 50 maps of ONE world (50 * floor(map / 50) + t), so both the allowance and
@@ -1284,10 +1346,16 @@ export const getOptimizedArmoryUpgrades = (character: any, account: Account, cat
 
 // RGres{n}.png is the game's own icon for each currency; no text name exists anywhere in the
 // data (see task C2 report). Labelled positionally so the optimizer's resource list has
-// *something* to key its display off of. Derived from the catalog: only the currencies the
-// armory actually charges get a row, so the dialog cannot list slots the game never spends.
+// *something* to key its display off of.
+// The game reads the currency off ArmoryUpg[slot][3], and there are only as many shelves as the
+// slot order lists, so catalog rows past the last shelf (69-82) never charge anything: their
+// costResourceIndex is a placeholder 9 that no node produces and that has a blank icon. Keying off
+// the shelves instead leaves exactly the 27 currencies the kingdom's nodes actually pay out.
+const ARMORY_SHELF_COUNT = ((research as any)?.[RESEARCH_ARMORY_SLOT_TO_ID] ?? []).length;
+
 export const ROYAL_RESOURCE_NAMES: Record<number, string> = Object.fromEntries(
   Array.from(new Set(liveEntries<any>(armoryUpgradesCatalog as any[])
+    .filter(({ index }) => index < ARMORY_SHELF_COUNT)
     .map(({ entry }) => toNum(entry?.costResourceIndex))))
     .sort((a, b) => a - b)
     .map((index) => [index, `Resource ${index}`])

@@ -77,6 +77,10 @@ const GenericUpgradeOptimizer = ({
   getUpgradeIconIndex,
   getResourceAmount,
   tooltipText,
+  // A map of resourceType -> resource per hour the consumer derived itself. Royal Guardian income is
+  // passive (outposts banking off nodes), so it can be computed; the other masterclasses can't and
+  // leave this null, keeping their manual "Set RPH" flow untouched.
+  autoResourcePerHour = null,
   defaultCategory = 'damage',
   showMasterclassReduction = true,
   showSplitByResource = true,
@@ -165,10 +169,18 @@ const GenericUpgradeOptimizer = ({
     setResourcePerHourInput(obj);
   }, [resourcePerHour, resourceNames]);
   const [rphDialogOpen, setRphDialogOpen] = useState(false);
-  const [optimizationMethod, setOptimizationMethod] = useLocalStorage({
+  const autoRphAvailable = autoResourcePerHour != null;
+  const [storedOptimizationMethod, setOptimizationMethod] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:optimizationMethod`,
-    defaultValue: 'rph'
+    defaultValue: autoRphAvailable ? 'rph-auto' : 'rph'
   });
+  // A stored 'rph-auto' left behind by an optimizer that no longer supplies computed rates would
+  // price every upgrade at zero hours, so it falls back to the manual rate instead.
+  const optimizationMethod = storedOptimizationMethod === 'rph-auto' && !autoRphAvailable
+    ? 'rph'
+    : storedOptimizationMethod;
+  const usesRph = optimizationMethod === 'rph' || optimizationMethod === 'rph-auto';
+  const effectiveResourcePerHour = optimizationMethod === 'rph-auto' ? autoResourcePerHour : resourcePerHour;
   const valueCommitDebouncersRef = useRef({});
 
   useEffect(() => () => {
@@ -182,7 +194,7 @@ const GenericUpgradeOptimizer = ({
     optimizedUpgrades = getOptimizedUpgradesFn(character, account, category, maxToUse, {
       onlyAffordable,
       masterClassReduction: isNaN(masterClassReduction) ? 0 : masterClassReduction,
-      resourcePerHour: optimizationMethod === 'rph' ? resourcePerHour : undefined,
+      resourcePerHour: usesRph ? effectiveResourcePerHour : undefined,
       getResourceType
     });
   }
@@ -353,8 +365,8 @@ const GenericUpgradeOptimizer = ({
   };
   // Hours of farming needed to rebuild the resource this purchase spends
   const getRebuildTime = (upgrade) => {
-    if (optimizationMethod !== 'rph') return null;
-    const rph = resourcePerHour[getResourceType(upgrade)];
+    if (!usesRph) return null;
+    const rph = effectiveResourcePerHour[getResourceType(upgrade)];
     if (!rph || isNaN(rph) || rph <= 0) return null;
     const cost = upgrade.totalCost || upgrade.cost;
     return cost ? cost / rph : null;
@@ -470,8 +482,8 @@ const GenericUpgradeOptimizer = ({
   };
 
   const renderResourceSectionHeader = (section) => {
-    const rph = resourcePerHour[section.resourceType];
-    const hasRph = optimizationMethod === 'rph' && rph && !isNaN(rph) && rph > 0;
+    const rph = effectiveResourcePerHour[section.resourceType];
+    const hasRph = usesRph && rph && !isNaN(rph) && rph > 0;
     const farmingHours = hasRph ? section.cost / rph : null;
     return (
       <Stack direction="row" gap={1} alignItems="center">
@@ -642,7 +654,8 @@ const GenericUpgradeOptimizer = ({
             label="Optimization Method"
             onChange={e => setOptimizationMethod(e.target.value)}
           >
-            <MenuItem value="rph">Resource per hour</MenuItem>
+            {autoRphAvailable && <MenuItem value="rph-auto">Resource per hour (auto)</MenuItem>}
+            <MenuItem value="rph">Resource per hour{autoRphAvailable ? ' (manual)' : ''}</MenuItem>
             <MenuItem value="cost">Cost only</MenuItem>
           </Select>
         </FormControl>
@@ -650,6 +663,29 @@ const GenericUpgradeOptimizer = ({
           <Button sx={{ width: 'fit-content' }} variant="outlined" onClick={() => setRphDialogOpen(true)}>
             Set RPH
           </Button>
+        )}
+        {optimizationMethod === 'rph-auto' && (
+          <Stack direction="row" alignItems="center">
+            <Tooltip title={<Stack gap={.5}>
+              <Typography variant="body2">Rates derived from your outposts and their connected nodes,
+                each capped by how much its node can give over the next 24 hours.</Typography>
+              {Object.entries(resourceNames).map(([key, name]) => (
+                <Stack key={key} direction="row" gap={1} alignItems="center">
+                  <img
+                    style={{ objectPosition: '0 -3px' }}
+                    src={`${prefix}data/${resourceImagePrefix}${key}${resourceImageSuffix}.png`}
+                    width={24}
+                    height={24}
+                    alt=""/>
+                  <Typography variant="body2">
+                    {name}: {autoResourcePerHour?.[key] > 0 ? notateNumber(autoResourcePerHour[key]) : 0}/hr
+                  </Typography>
+                </Stack>
+              ))}
+            </Stack>}>
+              <IconInfoCircleFilled size={16}/>
+            </Tooltip>
+          </Stack>
         )}
         <FormControl size="small" sx={{ width: 160 }}>
           <InputLabel>Max Upgrades</InputLabel>
@@ -741,7 +777,7 @@ const GenericUpgradeOptimizer = ({
         <Divider sx={{ my: 1 }} flexItem orientation={'vertical'} />
         {resourceUsage.map((resource) => {
           const resourceTypeKey = Object.keys(resourceNames).find(key => resourceNames[key] === resource.name) || resource.name;
-          const resourcePerHourValue = resourcePerHour[resourceTypeKey];
+          const resourcePerHourValue = effectiveResourcePerHour[resourceTypeKey];
           const hasResourcePerHour = resourcePerHourValue && !isNaN(resourcePerHourValue) && resourcePerHourValue > 0;
           const timeEstimateHours = hasResourcePerHour ? resource.cost / resourcePerHourValue : null;
           // Only show time estimate if it's at least 1 minute (1/60 hour)
@@ -782,14 +818,16 @@ const GenericUpgradeOptimizer = ({
           <DialogTitle>Set Resource Per Hour</DialogTitle>
           <DialogContent>
             <Stack direction="column" gap={2}>
-              {Object.entries(resourceNames).map(([key, name], index) => (
+              {Object.entries(resourceNames).map(([key, name]) => (
                 <Stack direction="column" key={key}>
                   <Typography variant="caption">{name} per hour:</Typography>
                   <TextField
                     InputProps={{
+                      // The icon is keyed by resource type, not by position in the list: the Royal
+                      // Guardian's currency ids have gaps, so the two disagree.
                       startAdornment: <img
                         style={{ objectPosition: '0 -3px', marginLeft: -5, marginRight: 5 }}
-                        src={`${prefix}data/${resourceImagePrefix}${index}${resourceImageSuffix}.png`}
+                        src={`${prefix}data/${resourceImagePrefix}${key}${resourceImageSuffix}.png`}
                         width={24}
                         height={24} alt=""/>
                     }}

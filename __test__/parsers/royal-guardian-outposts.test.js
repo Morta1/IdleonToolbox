@@ -1,6 +1,10 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
-import { getRoyalGuardian } from '@parsers/class-specific/royalGuardian';
+import {
+  getRoyalGuardian,
+  getRoyalResourcePerHour,
+  RESOURCE_PER_HOUR_WINDOW_HOURS
+} from '@parsers/class-specific/royalGuardian';
 
 // The outpost formulas here were verified against the running game (patch 2.3.525) on the account
 // in data/raw.json, over the debug server: OutpostResourceRate on Froggy Fields returned
@@ -68,6 +72,12 @@ const buildRoyalMaps = () => {
 
 const parse = () => getRoyalGuardian(
   { RoyalG: JSON.stringify(buildRoyalG()), RoyalMaps: JSON.stringify(buildRoyalMaps()) },
+  { bundles: [] },
+  []
+);
+
+const parseWith = (royalG, royalMaps) => getRoyalGuardian(
+  { RoyalG: JSON.stringify(royalG), RoyalMaps: JSON.stringify(royalMaps) },
   { bundles: [] },
   []
 );
@@ -177,6 +187,84 @@ describe('royal guardian outposts', () => {
     // Purified: OutpostPurifyBonus = 200 + 50, and the glorified Worker is worth 70%.
     close(outpostOn(parsed, 50).resourceRate, 125 * 3.5 * 1.7);
     close(outpostOn(parsed, 1).resourceRate, 125);
+  });
+
+  it('prices each node at the outpost rate times its own node level bonus', () => {
+    const royalG = buildRoyalG();
+    royalG[5][0] = 2; // game: ResNodes_LVUPbon is 25 per level, so node 0 collects at 1.5x
+    const parsed = parseWith(royalG, buildRoyalMaps());
+    const froggy = outpostOn(parsed, 2);
+    const [node0, node1] = froggy.connectedNodes;
+
+    close(node0.collectionRate, froggy.resourceRate * 1.5);
+    close(node1.collectionRate, froggy.resourceRate);
+    // A Resource Depot takes out exactly what it banks.
+    close(node0.drainRate, node0.collectionRate);
+    close(froggy.hoursToNodeCap, Math.min(...froggy.connectedNodes
+      .map(({ maxQuantity, collected, drainRate }) => (maxQuantity - collected) / drainRate)));
+  });
+
+  it('banks nothing from a support camp or a savage stronghold', () => {
+    const royalMaps = buildRoyalMaps();
+    royalMaps[1] = [1, 0, 0, 0, 0, 0, 0, 0, 3, 1002, 1, 111111111, 0]; // support camp wired to node 3
+    const parsed = parseWith(buildRoyalG(), royalMaps);
+    const support = outpostOn(parsed, 1);
+    const savage = outpostOn(parsed, 0);
+
+    // game: CollectAll's outer guard skips a support camp, so its node is neither banked nor drained.
+    expect(support.connectedNodes[0].collectionRate).toBe(0);
+    expect(support.connectedNodes[0].drainRate).toBe(0);
+    expect(support.hoursToNodeCap).toBe(null);
+    // A Savage Stronghold drains at savageMulti and banks none of it.
+    expect(savage.connectedNodes[0].collectionRate).toBe(0);
+    close(savage.connectedNodes[0].drainRate, savage.resourceRate * parsed.outpostStats.savageMulti);
+  });
+
+  it('averages resource per hour over what each node still has to give', () => {
+    const royalG = buildRoyalG();
+    const parsed = parseWith(royalG, buildRoyalMaps());
+    const froggy = outpostOn(parsed, 2);
+    const [node0, node1] = froggy.connectedNodes;
+
+    // Fresh nodes here hold far more than a day of collection, so the rate itself is the cap.
+    close(parsed.resourcePerHour[node0.resourceIndex],
+      node0.resourceIndex === node1.resourceIndex
+        ? node0.collectionRate + node1.collectionRate
+        : node0.collectionRate);
+    expect(getRoyalResourcePerHour({ royalGuardian: parsed })).toEqual(parsed.resourcePerHour);
+
+    // Node 0 one hour from capping pays only that hour's worth, averaged over the window.
+    const nearlySpent = buildRoyalG();
+    nearlySpent[4][0] = node0.maxQuantity - node0.collectionRate;
+    const spentParsed = parseWith(nearlySpent, buildRoyalMaps());
+    const spentFroggy = outpostOn(spentParsed, 2);
+    const [spentNode0, spentNode1] = spentFroggy.connectedNodes;
+    close(spentParsed.resourcePerHour[spentNode0.resourceIndex],
+      spentNode0.collectionRate / RESOURCE_PER_HOUR_WINDOW_HOURS
+      + (spentNode1.resourceIndex === spentNode0.resourceIndex ? spentNode1.collectionRate : 0));
+
+    // An exhausted node (RoyalG[4] = -1) pays nothing without Resource Replenish to refill it.
+    const exhausted = buildRoyalG();
+    exhausted[4][0] = -1;
+    exhausted[4][1] = -1;
+    const exhaustedParsed = parseWith(exhausted, buildRoyalMaps());
+    expect(exhaustedParsed.outpostStats.restockUnlocked).toBe(false);
+    expect(exhaustedParsed.resourcePerHour[node0.resourceIndex] ?? 0).toBe(0);
+
+    // game: "RestockRes" refills every spent node on the daily reset, so with armory 70 the node is
+    // worth its whole capacity again over the window instead of nothing.
+    const restocked = buildRoyalG();
+    restocked[4][0] = -1;
+    restocked[4][1] = -1;
+    restocked[2][70] = 1;
+    const restockedParsed = parseWith(restocked, buildRoyalMaps());
+    const restockedFroggy = outpostOn(restockedParsed, 2);
+    expect(restockedParsed.outpostStats.restockUnlocked).toBe(true);
+    close(restockedParsed.resourcePerHour[node0.resourceIndex],
+      restockedFroggy.connectedNodes
+        .filter(({ resourceIndex }) => resourceIndex === node0.resourceIndex)
+        .reduce((sum, { collectionRate, maxQuantity }) =>
+          sum + Math.min(collectionRate, maxQuantity / RESOURCE_PER_HOUR_WINDOW_HOURS), 0));
   });
 
   it('computes the connection range off the soft Advanced Logistics curve', () => {

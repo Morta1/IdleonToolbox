@@ -7,8 +7,12 @@ export const patchNotes = [
     'ver': '3.3.72',
     'gameVer': '2.3.527',
     'date': '01/09/2026',
-    'features': [],
+    'features': [
+      'Royal Guardian: the armory Upgrade Optimizer can now work out your resource per hour from your outposts and the nodes it collects from, instead of asking you to type it in'
+    ],
     'fixes': [
+      'Royal Guardian: outpost node fill times ignored node levels, so a node looked like it would last up to 2.5x longer than it does, and support camps showed a fill time even though they never drain their node',
+      'Royal Guardian: the Set RPH dialog listed a resource the armory never charges, and showed the wrong icon next to every resource',
       'Dashboard: the better class-specific ring alert scored a ring on both its stats at once, so an Arcane Cultist ring could win on accuracy alone. You can now pick which stats count, and ring and weapon alerts say which bag the item is in',
       'Upgrade Optimizer: the recommended sequence priced purchases with Masterclass cost reductions you had already used up, showing Royal Guardian armory and Clam Work upgrades as much as 5x cheaper than the game charges'
     ]

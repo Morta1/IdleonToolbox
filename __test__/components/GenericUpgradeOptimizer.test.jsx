@@ -265,3 +265,59 @@ describe('GenericUpgradeOptimizer masterclass reductions', () => {
     expect(calls.at(-1).masterClassReduction).toBe(4);
   });
 });
+
+const renderWithAutoRph = (autoResourcePerHour, rows = []) => {
+  const calls = [];
+  const view = render(
+    <ThemeProvider theme={darkTheme}>
+      <GenericUpgradeOptimizer
+        character={{ name: 'Tester' }}
+        account={{ tesseract: { tachyons: [{ name: 'Purple', value: 1e9 }, { name: 'Brown', value: 1e9 }] } }}
+        getOptimizedUpgradesFn={(character, account, category, max, options) => {
+          calls.push(options);
+          return rows;
+        }}
+        upgradeCategories={{ damage: { name: 'Damage', stats: ['damage'], upgradeIndices: [6] } }}
+        resourceNames={resourceNames}
+        resourceKey="tesseract.tachyons"
+        resourceImagePrefix="Tach"
+        upgradeImagePrefix="ArcaneUpg"
+        getResourceType={(upgrade) => upgrade.x3}
+        autoResourcePerHour={autoResourcePerHour}
+        tooltipText="test tooltip"
+      />
+    </ThemeProvider>
+  );
+  return { calls, view };
+};
+
+describe('GenericUpgradeOptimizer auto resource per hour', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it('prices upgrades off the computed rates and hides the manual dialog', () => {
+    const { calls, view } = renderWithAutoRph({ 0: 2500, 1: 500 });
+
+    expect(calls.at(-1).resourcePerHour).toEqual({ 0: 2500, 1: 500 });
+    expect(view.container.textContent).not.toContain('Set RPH');
+  });
+
+  it('keeps the manual rates when the user picks the manual method', () => {
+    seedSetting('optimizationMethod', 'rph');
+    seedSetting('resourcePerHour', { 0: 7, 1: 9 });
+    const { calls, view } = renderWithAutoRph({ 0: 2500, 1: 500 });
+
+    expect(calls.at(-1).resourcePerHour).toEqual({ 0: 7, 1: 9 });
+    expect(view.container.textContent).toContain('Set RPH');
+  });
+
+  it('falls back to manual for an optimizer that has no computed rates', () => {
+    seedSetting('optimizationMethod', 'rph-auto');
+    seedSetting('resourcePerHour', { 0: 7, 1: 9 });
+    const { calls, view } = renderWithAutoRph(null);
+
+    expect(calls.at(-1).resourcePerHour).toEqual({ 0: 7, 1: 9 });
+    expect(view.container.textContent).toContain('Set RPH');
+  });
+});
