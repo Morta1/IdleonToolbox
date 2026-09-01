@@ -204,3 +204,64 @@ describe('GenericUpgradeOptimizer unlock marker', () => {
     expect(container.textContent).not.toContain('Locked now');
   });
 });
+
+const buildReductionAccount = ({ bonus, spent }) => ({
+  tesseract: { tachyons: [{ name: 'Purple', value: 1e9 }, { name: 'Brown', value: 1e9 }] },
+  legendTalents: { talents: [{ originalIndex: 23, bonus }] },
+  accountOptions: { 480: spent }
+});
+
+const renderWithReductions = ({ bonus, spent, showMasterclassReduction = true }) => {
+  const calls = [];
+  render(
+    <ThemeProvider theme={darkTheme}>
+      <GenericUpgradeOptimizer
+        character={{ name: 'Tester' }}
+        account={buildReductionAccount({ bonus, spent })}
+        getOptimizedUpgradesFn={(character, account, category, max, options) => {
+          calls.push(options);
+          return [];
+        }}
+        upgradeCategories={{ damage: { name: 'Damage', stats: ['damage'], upgradeIndices: [6] } }}
+        resourceNames={resourceNames}
+        resourceKey="tesseract.tachyons"
+        resourceImagePrefix="Tach"
+        upgradeImagePrefix="ArcaneUpg"
+        getResourceType={(upgrade) => upgrade.x3}
+        showMasterclassReduction={showMasterclassReduction}
+        tooltipText="test tooltip"
+      />
+    </ThemeProvider>
+  );
+  return calls;
+};
+
+describe('GenericUpgradeOptimizer masterclass reductions', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it('only offers the reductions the legend talent has left', () => {
+    // the game discounts while accountOptions[480] < the talent bonus, so 8 granted and 12
+    // already spent means nothing is left to discount
+    const calls = renderWithReductions({ bonus: 8, spent: 12 });
+    expect(calls.at(-1).masterClassReduction).toBe(0);
+  });
+
+  it('counts the unspent grant when purchases remain', () => {
+    const calls = renderWithReductions({ bonus: 8, spent: 3 });
+    expect(calls.at(-1).masterClassReduction).toBe(5);
+  });
+
+  it('ignores a stale stored seed when the field is hidden', () => {
+    seedSetting('masterClassReduction', 8);
+    const calls = renderWithReductions({ bonus: 8, spent: 12, showMasterclassReduction: false });
+    expect(calls.at(-1).masterClassReduction).toBe(0);
+  });
+
+  it('still honours a manual override where the field is editable', () => {
+    seedSetting('masterClassReduction', 4);
+    const calls = renderWithReductions({ bonus: 8, spent: 12 });
+    expect(calls.at(-1).masterClassReduction).toBe(4);
+  });
+});
