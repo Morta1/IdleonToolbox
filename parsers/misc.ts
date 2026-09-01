@@ -1375,7 +1375,7 @@ export const getCompanions = (companionObject: any = {}, accountOptions: any = [
     totalBoxesOpened: companionObject?.x,
     currentCompanion: companion,
     list: updatedCompanions,
-    lastFreeClaim: companionObject?.t,
+    lastFreeClaim: companionObject?.d,
     petCrystals: companionObject?.s,
     maxStorage,
     tokens: {
