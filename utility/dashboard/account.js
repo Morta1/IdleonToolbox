@@ -257,6 +257,18 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
         etc.tournamentRegister = true;
       }
     }
+    if (options?.etc?.raidRegister?.checked && account?.companions?.list?.some((companion) => companion?.acquired)) {
+      // The W7 raid is the tournament's sibling event, same registration shape:
+      // accountOptions[611] = raid-day registered-through (registering sets it to day + 1).
+      // The save's own current-raid-day mirror (613) only updates when the player opens the
+      // tournament UI, so it goes stale - the global doc's RD is refetched on every snapshot.
+      // RC is the raid's registration-closed flag, nothing to register for while it's set.
+      const currentRaidDay = account?.tournament?.global?.RD ?? 0;
+      const registeredThrough = account?.accountOptions?.[611] ?? 0;
+      if (currentRaidDay >= 1 && account?.tournament?.global?.RC !== true && registeredThrough <= currentRaidDay) {
+        etc.raidRegister = true;
+      }
+    }
     if (options?.etc?.glimmerwickCandle?.checked && account?.accountOptions?.[491] !== 1) {
       // accountOptions[492] = candle already wished on today; the game clears it on daily reset.
       // 491 = the wish already came true, so the candle is spent for good. Gate on actually owning

@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.527',
     'date': '01/09/2026',
     'features': [
-      'Royal Guardian: the armory Upgrade Optimizer can now work out your resource per hour from your outposts and the nodes it collects from, instead of asking you to type it in'
+      'Royal Guardian: the armory Upgrade Optimizer can now work out your resource per hour from your outposts and the nodes it collects from, instead of asking you to type it in',
+      'Dashboard: new alert for when you have not registered for the current Raid, next to the existing Pet Tournament one'
     ],
     'fixes': [
       'Royal Guardian: outpost node fill times ignored node levels, so a node looked like it would last up to 2.5x longer than it does, and support camps showed a fill time even though they never drain their node',

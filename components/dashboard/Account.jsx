@@ -88,6 +88,9 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.General?.etc?.tournamentRegister ?
                 <Alert target={'General.etc.tournamentRegister'} title={'You have not registered for the current Pet Tournament'}
                        iconPath={'data/TournyRank0'}/> : null}
+              {alerts?.General?.etc?.raidRegister ?
+                <Alert target={'General.etc.raidRegister'} title={'You have not registered for the current Raid'}
+                       iconPath={'data/TournyRankR0'}/> : null}
               {alerts?.General?.etc?.glimmerwickCandle ?
                 <Alert target={'General.etc.glimmerwickCandle'}
                   title={`You haven't used the Glimmerwick Candle today (${alerts?.General?.etc?.glimmerwickCandle?.attempts}/${alerts?.General?.etc?.glimmerwickCandle?.pity} wishes until guaranteed)`}

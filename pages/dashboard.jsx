@@ -62,6 +62,11 @@ const baseTrackers = {
             helperText: 'Alert when you have not registered for the current Pet Tournament'
           },
           {
+            name: 'raidRegister',
+            checked: true,
+            helperText: 'Alert when you have not registered for the current Raid'
+          },
+          {
             name: 'dailyCrystals',
             checked: true,
             helperText: 'Alert when daily guaranteed crystal kills remain'

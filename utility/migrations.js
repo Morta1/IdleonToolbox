@@ -1298,6 +1298,7 @@ const ensureDashboardOptions = (dashboardConfig) => {
     }
   };
   ensure(dashboardConfig?.account?.General?.etc?.options, 'tournamentRegister');
+  ensure(dashboardConfig?.account?.General?.etc?.options, 'raidRegister');
   ensure(dashboardConfig?.account?.['World 2']?.arcade?.options, 'unmaxedRotation');
   ensure(dashboardConfig?.account?.['World 2']?.arcade?.options, 'includeSuper', { checked: false });
   ensure(dashboardConfig?.characters?.classSpecific?.options, 'betterRing');
