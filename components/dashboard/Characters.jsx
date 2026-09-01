@@ -15,6 +15,7 @@ import {
   crystalCountdownAlerts,
   getDivinityAlert,
   getEquipmentAlert,
+  getInventoryLocation,
   obolsAlerts,
   postOfficeAlerts,
   questsAlerts,
@@ -46,6 +47,12 @@ const TALENT_BOOKS = {
   [CLASSES.Mage]: 'TalentBook5'
 };
 const getTalentBookIcon = (className) => TALENT_BOOKS?.[getBaseClass(className)] || 'TalentBook1';
+
+// An inventory alert names the item, which still leaves it to be found among a few hundred slots.
+const itemLocationSuffix = (item) => {
+  const location = getInventoryLocation(item?.slot);
+  return location ? ` - ${location}` : '';
+};
 
 const alertsMap = {
   anvil: anvilAlerts,
@@ -185,7 +192,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                        iconPath={`data/${alerts?.classSpecific?.wrongItems?.wwRings}`}
                 /> : null}
               {trackers?.classSpecific && alerts?.classSpecific?.betterWeapon ?
-                <Alert target={'classSpecific.betterWeapon'} title={`${name} has a better class-specific weapon in their inventory: ${cleanUnderscore(alerts?.classSpecific?.betterWeapon?.displayName || alerts?.classSpecific?.betterWeapon?.rawName)}${alerts?.classSpecific?.betterWeapon?.Weapon_Power ? ` (WP ${alerts?.classSpecific?.betterWeapon?.Weapon_Power}${alerts?.classSpecific?.betterWeapon?.UQ1txt ? `, +${alerts?.classSpecific?.betterWeapon?.UQ1val}% ${cleanUnderscore(alerts?.classSpecific?.betterWeapon?.UQ1txt)}` : ''})` : ''}`}
+                <Alert target={'classSpecific.betterWeapon'} title={`${name} has a better class-specific weapon in their inventory: ${cleanUnderscore(alerts?.classSpecific?.betterWeapon?.displayName || alerts?.classSpecific?.betterWeapon?.rawName)}${alerts?.classSpecific?.betterWeapon?.Weapon_Power ? ` (WP ${alerts?.classSpecific?.betterWeapon?.Weapon_Power}${alerts?.classSpecific?.betterWeapon?.UQ1txt ? `, +${alerts?.classSpecific?.betterWeapon?.UQ1val}% ${cleanUnderscore(alerts?.classSpecific?.betterWeapon?.UQ1txt)}` : ''})` : ''}${itemLocationSuffix(alerts?.classSpecific?.betterWeapon)}`}
                        iconPath={`data/${alerts?.classSpecific?.betterWeapon?.rawName}`}
                        extra={<img
                          src={`${prefix}data/UpgArrowG.png`}
@@ -199,7 +206,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
                          }}/>}
                 /> : null}
               {trackers?.classSpecific && alerts?.classSpecific?.betterRing ?
-                <Alert target={'classSpecific.betterRing'} title={`${name} has a better class-specific ring in their inventory: ${cleanUnderscore(alerts?.classSpecific?.betterRing?.displayName || alerts?.classSpecific?.betterRing?.rawName)}${alerts?.classSpecific?.betterRing?.UQ1txt ? ` (+${alerts?.classSpecific?.betterRing?.UQ1val}${cleanUnderscore(alerts?.classSpecific?.betterRing?.UQ1txt)}${alerts?.classSpecific?.betterRing?.UQ2txt ? `, +${alerts?.classSpecific?.betterRing?.UQ2val}${cleanUnderscore(alerts?.classSpecific?.betterRing?.UQ2txt)}` : ''})` : ''}`}
+                <Alert target={'classSpecific.betterRing'} title={`${name} has a better class-specific ring in their inventory: ${cleanUnderscore(alerts?.classSpecific?.betterRing?.displayName || alerts?.classSpecific?.betterRing?.rawName)}${alerts?.classSpecific?.betterRing?.UQ1txt ? ` (+${alerts?.classSpecific?.betterRing?.UQ1val}${cleanUnderscore(alerts?.classSpecific?.betterRing?.UQ1txt)}${alerts?.classSpecific?.betterRing?.UQ2txt ? `, +${alerts?.classSpecific?.betterRing?.UQ2val}${cleanUnderscore(alerts?.classSpecific?.betterRing?.UQ2txt)}` : ''})` : ''}${itemLocationSuffix(alerts?.classSpecific?.betterRing)}`}
                        iconPath={`data/${alerts?.classSpecific?.betterRing?.rawName}`}
                        extra={<img
                          src={`${prefix}data/UpgArrowG.png`}

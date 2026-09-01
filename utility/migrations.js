@@ -1859,6 +1859,29 @@ const migration71 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration72 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
+  const classSpecificOptions = dashboardConfig?.characters?.classSpecific?.options;
+  const betterRing = Array.isArray(classSpecificOptions)
+    ? classSpecificOptions.find((option) => option?.name === 'betterRing')
+    : null;
+  if (betterRing) {
+    // The alert used to score a ring on the sum of both its unique stats, which let an Arcane
+    // Cultist ring win on accuracy alone. Each stat is now opt-in, and both start on so the
+    // alert keeps behaving as it did until the user says otherwise.
+    betterRing.type = 'array';
+    betterRing.category = 'betterRing';
+    betterRing.helperText = 'Alert when there\'s a better form class-specific ring (same type) in your inventory. Only the checked stats count towards "better" - Wind Walker rings roll a single stat and are always compared on it';
+    betterRing.props = {
+      ...betterRing.props,
+      value: { arcanistAccuracy: true, extraTachyons: true, ...(betterRing.props?.value || {}) }
+    };
+  }
+
+  dashboardConfig.version = 72;
+  return dashboardConfig;
+};
+
 const migrations = {
   2: migrateToVersion2,
   3: migrateToVersion3,
@@ -1930,6 +1953,7 @@ const migrations = {
   69: migration69,
   70: migration70,
   71: migration71,
+  72: migration72,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

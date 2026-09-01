@@ -384,6 +384,27 @@ export const cardsAlert = (account, characters, character, lastUpdated, options)
   }
   return alerts;
 }
+// The game lays the inventory out as one 4x4 page per bag, so a raw slot index maps straight onto
+// the bag and grid position the item sits at in game.
+const INVENTORY_COLUMNS = 4;
+const INVENTORY_BAG_SIZE = 16;
+
+export const getInventoryLocation = (slot) => {
+  if (!Number.isInteger(slot) || slot < 0) return '';
+  const slotInBag = slot % INVENTORY_BAG_SIZE;
+  const bag = Math.floor(slot / INVENTORY_BAG_SIZE) + 1;
+  const row = Math.floor(slotInBag / INVENTORY_COLUMNS) + 1;
+  const column = (slotInBag % INVENTORY_COLUMNS) + 1;
+  return `bag ${bag}, row ${row}, col ${column}`;
+};
+
+// Maps a ring's unique stat tag to the betterRing option that turns it on and off. Only stats
+// listed here are optional - anything else always counts towards a ring's score.
+const RING_STAT_OPTIONS = {
+  '%_ARCANIST_ACC': 'arcanistAccuracy',
+  '%_EXTRA_TACHYONS': 'extraTachyons'
+};
+
 export const classSpecificAlerts = (account, characters, character, lastUpdated, options) => {
   const alerts = {};
   const wrongItems = {};
@@ -424,8 +445,17 @@ export const classSpecificAlerts = (account, characters, character, lastUpdated,
   }
   if (options?.classSpecific?.betterRing?.checked) {
     // A ring's worth is its combined unique stat values (UQ1val + UQ2val). "Better" means a ring
-    // of the same type (rawName) with a higher combined value than the one equipped.
-    const ringScore = (ring) => (ring?.UQ1val ?? 0) + (ring?.UQ2val ?? 0);
+    // of the same type (rawName) with a higher combined value than the one equipped. The Arcane
+    // Cultist ring is the only one rolling two stats, and its accuracy roll matters far less than
+    // its tachyon one, so each of its stats can be left out of the score. Tempest rings roll a
+    // single stat, which isn't listed here and so always counts.
+    const enabledRingStats = options?.classSpecific?.betterRing?.props?.value || {};
+    const statCounts = (uqTxt) => {
+      const optionName = RING_STAT_OPTIONS[uqTxt];
+      return optionName ? enabledRingStats[optionName] !== false : true;
+    };
+    const ringScore = (ring) => (statCounts(ring?.UQ1txt) ? ring?.UQ1val ?? 0 : 0)
+      + (statCounts(ring?.UQ2txt) ? ring?.UQ2val ?? 0 : 0);
     const equippedRings = [character?.equipment?.[5], character?.equipment?.[7]].filter(Boolean);
     const findBetterRing = (family) => {
       const invRings = character.inventory.filter(({ rawName }) => rawName?.includes(family));
