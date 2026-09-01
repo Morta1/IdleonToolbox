@@ -118,6 +118,24 @@ const REACH_SLACK = 15;
 // MapDetails[map][2] is (9999, 9999) for every map the kingdom screen does not draw.
 const OFF_KINGDOM_MAP = 9999;
 
+// game: "HasOutpost" - a map can only hold an outpost when it is drawn on the kingdom screen AND is
+// none of: a hand-picked blacklist, the first map of a world (the town), or a NonAFKscreens entry.
+// The blacklist is inline literals in the game, and CustomMaps.NonAFKscreens is not part of
+// website-data, so both are mirrored here.
+const NON_OUTPOST_MAPS = new Set([8, 9, 39, 41, 43, 120, 216, 306]);
+// game: "CustomMaps.NonAFKscreens" - screens with nothing to idle on (towns, shops, minigames).
+const NON_AFK_SCREENS = new Set([
+  29, 36, 37, 39, 40, 66, 68, 69, 70, 71,
+  114, 115, 118, 119, 164, 165, 214, 215, 265, 266
+]);
+
+const isOutpostSlot = (mapIndex: number): boolean => {
+  if (NON_OUTPOST_MAPS.has(mapIndex)) return false;
+  if (mapIndex % MAPS_PER_WORLD === 0) return false;
+  if (NON_AFK_SCREENS.has(mapIndex)) return false;
+  return toNum((mapDetails as any)?.[mapIndex]?.[2]?.[0]) !== OFF_KINGDOM_MAP;
+};
+
 // game: "GuardianRoyalRadius" - a flat constant, not derived from anything.
 const ROYAL_RADIUS = 180;
 
@@ -1094,13 +1112,13 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
   // deployment can point at any map, including one that is already claimed.
   const claimedMaps = new Set(detailedOutposts.map(({ mapIndex }) => mapIndex));
 
-  // A unit can only be sent at a map its own world holds on the kingdom screen, so once every one
-  // of them carries an outpost the unit has nowhere better to stand and is not worth reporting.
+  // A unit can only be sent at a map its own world can hold an outpost on, so once every one of
+  // them carries an outpost the unit has nowhere better to stand and is not worth reporting.
   const clearableMapsByWorld: Record<number, number> = {};
   Object.keys(mapDetails as any).forEach((key) => {
     const mapIndex = Number(key);
     if (!Number.isFinite(mapIndex)) return;
-    if (!(toNum((mapDetails as any)?.[key]?.[2]?.[0]) < OFF_KINGDOM_MAP)) return;
+    if (!isOutpostSlot(mapIndex)) return;
     if (claimedMaps.has(mapIndex)) return;
     const mapWorld = 1 + Math.floor(mapIndex / 50);
     clearableMapsByWorld[mapWorld] = (clearableMapsByWorld[mapWorld] ?? 0) + 1;
