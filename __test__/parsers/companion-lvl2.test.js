@@ -2,6 +2,11 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { getCompanions, isCompanionLvl2Active, getFriendBonusStats } from '@parsers/misc';
 import { getLv4PodiumsOwned } from '@parsers/world-7/gallery';
+import { getPrismaMulti } from '@parsers/class-specific/tesseract';
+import { getCookingMastery } from '@parsers/world-4/cooking';
+import { getAllSkillsExp } from '@parsers/character';
+import raw from '../../data/raw.json';
+import { parseFixture } from '../helpers/parsed-fixtures';
 
 describe('Pet Mart+ (CompanionLVz / CompLV2)', () => {
   it('parses the level from CSV field 4 and takes the max across duplicate owned copies', () => {
@@ -56,5 +61,51 @@ describe('Pet Mart+ (CompanionLVz / CompLV2)', () => {
 
     const upgraded = getLv4PodiumsOwned({ companions: { list: getCompanions({ l: ['28,1,0,0,1'] }, []).list } });
     expect(upgraded).toBe(2);
+  });
+});
+
+describe('Pet Mart+ companions that were still hardcoded to their base bonus', () => {
+  const accountWith = (csv) => ({ companions: { list: getCompanions({ l: [csv] }, []).list } });
+
+  it('Rift_Hivemind (88) upgraded raises the prisma multi from 50% to 75%', () => {
+    // game: PrismaBonusMult = min(4, 2 + (... + 50 * Companions(88)) / 100), and Companions()
+    // returns upgradedBonus (1.5) once the pet is level 1
+    expect(getPrismaMulti(accountWith('88,1,0,0,0')).value).toBeCloseTo(2.5, 10);
+    expect(getPrismaMulti(accountWith('88,1,0,0,1')).value).toBeCloseTo(2.75, 10);
+    expect(getPrismaMulti({}).value).toBeCloseTo(2, 10);
+  });
+
+  it('Rift_Spooker (87) upgraded raises Cooking Mastery EXP from 3x to 4x and PTS from 5 to 7.5', () => {
+    // game: expRate has (1 + 2 * Companions(87)); points are round(level + (1 + 5 * Companions(87)))
+    const mastery = (csv) => getCookingMastery([[], [0, 0], []], [], accountWith(csv));
+
+    const base = mastery('87,1,0,0,0');
+    const upgraded = mastery('87,1,0,0,1');
+
+    const spookerFactor = ({ expRateBreakdown }) => expRateBreakdown.categories[0].sources
+      .find(({ name }) => name === 'Rift Spooker (Companion)').value;
+
+    expect(spookerFactor(base)).toBeCloseTo(3, 10);
+    expect(spookerFactor(upgraded)).toBeCloseTo(4, 10);
+    expect(base.points.categoryLeft).toBe(6);
+    expect(upgraded.points.categoryLeft).toBe(9); // round(0 + 1 + 7.5)
+  });
+
+  it('Bloque (9) upgraded raises the all-skill EXP bonus from 20% to 30%', () => {
+    // getAllSkillsExp pulls from most of the account, so run it on the real fixture with
+    // only the Bloque entry swapped between its base and upgraded bonus.
+    const { account, characters } = parseFixture(raw);
+    const withBloque = (bonus) => ({
+      ...account,
+      companions: {
+        ...account.companions,
+        list: account.companions.list.map((companion, index) => index === 9
+          ? { ...companion, acquired: true, level: bonus === 30 ? 1 : 0, upgraded: bonus === 30, bonus }
+          : companion)
+      }
+    });
+    const skillExp = (bonus) => getAllSkillsExp(characters[0], characters, withBloque(bonus)).value;
+
+    expect(skillExp(30) - skillExp(20)).toBeCloseTo(10, 10);
   });
 });

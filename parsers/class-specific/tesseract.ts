@@ -569,7 +569,9 @@ export const getPrismaMulti = (account: any) => {
   const trophyBonus = hasItemDropped(account, 'Trophy23') ? 10 : 0;
   const totalEtherealSigils = account?.alchemy?.p2w?.totalEtherealSigils || 0;
   const sigilsBonus = 0.2 * totalEtherealSigils;
-  const companionBonus = isCompanionBonusActive(account, 88) ? 1 : 0;
+  // Rift Hivemind (88): the game reads CompanionBon, which holds upgradedBonus (1.5) once the
+  // pet is upgraded to level 1, so Hivemind+ is worth 75% here instead of 50%.
+  const companionBonus = isCompanionBonusActive(account, 88) ? (account?.companions?.list?.at(88)?.bonus ?? 0) : 0;
   const sushiBonus = getSushiBonus(account, 23);
 
   const value = Math.min(4, 2 + (tesseractBonus
