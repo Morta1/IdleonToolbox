@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.73',
+    'gameVer': '2.3.527',
+    'date': '02/09/2026',
+    'features': [
+      'Dashboard: Royal Guardian alerts now name each map\'s world and the monster or resource found there, so you can place a map without knowing its name by heart'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.72',
     'gameVer': '2.3.527',
     'date': '01/09/2026',
