@@ -12,7 +12,8 @@ export const patchNotes = [
       'Dashboard: three new Royal Guardian alerts for units doing nothing - Workers an outpost no longer needs to empty its resource in time, Workers left on an outpost whose resources are all spent, and two outposts sharing a resource only one of them needs. Traders in those slots earn Trade rank EXP instead'
     ],
     'fixes': [
-      'Royal Guardian: outpost rank bars showed a time to next rank that ignored how many units feed the bar, so it was several times too long with a full outpost, and showed a countdown at all for a bar with no unit on it'
+      'Royal Guardian: outpost rank bars showed a time to next rank that ignored how many units feed the bar, so it was several times too long with a full outpost, and showed a countdown at all for a bar with no unit on it',
+      'Dashboard: the three new Royal Guardian unit alerts did not name the world of each map or show its monster icon, unlike every other Royal Guardian alert'
     ]
   },
   {

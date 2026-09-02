@@ -81,7 +81,8 @@ describe('royal guardian dashboard alerts', () => {
       ...(alerts.unwiredOutposts ?? []),
       ...(alerts.idleSupportCamps ?? []),
       ...(alerts.unspentPts?.outposts ?? []),
-      ...(alerts.claimableMaps ?? [])
+      ...(alerts.claimableMaps ?? []),
+      ...(alerts.strandedWorkers?.outposts ?? [])
     ];
     expect(listed.length).toBeGreaterThan(0);
 
@@ -227,7 +228,8 @@ describe('royal guardian dashboard alerts', () => {
           // 3 Workers draining 100/h into a node with 500 left, against a 10h horizon. Worker
           // bonus 100 puts the current rate at 1 + 3 = 4x; 500 / 10 = 50/h needs only 2x of that,
           // which one Worker already buys, so the other two could be Traders.
-          name: 'Overkill', mapIndex: 2, mode: 0, freshNodeInReach: false,
+          name: 'Overkill', mapIndex: 2, world: 1, monsterRawName: 'mushG', monsterName: 'Green Mushroom',
+          mode: 0, freshNodeInReach: false,
           unitSlots: [0, 0, 0, 1], unitCounts: [3, 1, 0, 0],
           rankBars: [{ expPerUnit: 10 }],
           connectedNodes: [{ index: 5, exhausted: false, drainRate: 100, collected: 0, maxQuantity: 500 }]
@@ -249,7 +251,8 @@ describe('royal guardian dashboard alerts', () => {
         },
         {
           // ...so this one is spending a connection slot on a node it is not needed for.
-          name: 'Slow', mapIndex: 5, mode: 0, freshNodeInReach: false,
+          name: 'Slow', mapIndex: 5, world: 1, monsterRawName: 'frogG', monsterName: 'Frog',
+          mode: 0, freshNodeInReach: false,
           unitSlots: [1, 1], unitCounts: [0, 2, 0, 0],
           rankBars: [{ expPerUnit: 10 }],
           connectedNodes: [{ index: 9, exhausted: false, drainRate: 5, collected: 0, maxQuantity: 500 }]
@@ -270,7 +273,10 @@ describe('royal guardian dashboard alerts', () => {
 
     expect(alerts.overkillWorkers.horizon).toBe(10);
     expect(alerts.overkillWorkers.outposts).toEqual([
-      { name: 'Overkill', mapIndex: 2, workers: 2, expPerHour: 20 }
+      {
+        name: 'Overkill', mapIndex: 2, world: 1, monsterRawName: 'mushG', monsterName: 'Green Mushroom',
+        workers: 2, expPerHour: 20
+      }
     ]);
     expect(alerts.overkillWorkers.count).toBe(1);
   });
@@ -279,7 +285,9 @@ describe('royal guardian dashboard alerts', () => {
     const alerts = getWorld7Alerts(stubAccount(), FIELDS, OPTIONS, [])?.royalGuardian;
 
     // Only the slower of the two, and only because the faster one finishes the node alone.
-    expect(alerts.sharedNodes.outposts).toEqual([{ name: 'Slow', mapIndex: 5 }]);
+    expect(alerts.sharedNodes.outposts).toEqual([
+      { name: 'Slow', mapIndex: 5, world: 1, monsterRawName: 'frogG', monsterName: 'Frog' }
+    ]);
     expect(alerts.sharedNodes.count).toBe(1);
   });
 });
