@@ -1580,8 +1580,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
         .map((outpost) => ({ outpost, workers: getSpareWorkers(outpost, horizon, workerRateBonus) }))
         .filter(({ workers }) => workers > 0)
         .map(({ outpost, workers }) => ({
-          name: outpost.name,
-          mapIndex: outpost.mapIndex,
+          ...pickOutpostEntry(outpost),
           workers,
           expPerHour: (outpost.rankBars?.[0]?.expPerUnit ?? 0) * workers
         }));
@@ -1596,11 +1595,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       const stranded = collectors
         .filter(({ connectedNodes, freshNodeInReach }) => !freshNodeInReach
           && (!(connectedNodes?.length > 0) || connectedNodes.every(({ exhausted }) => exhausted)))
-        .map((outpost) => ({
-          name: outpost.name,
-          mapIndex: outpost.mapIndex,
-          workers: slotWorkersOf(outpost)
-        }))
+        .map((outpost) => ({ ...pickOutpostEntry(outpost), workers: slotWorkersOf(outpost) }))
         .filter(({ workers }) => workers > 0);
       if (stranded.length > 0) {
         royalGuardian.strandedWorkers = { count: stranded.length, outposts: stranded };
@@ -1629,10 +1624,8 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
         // Keep the fastest of the outposts that can finish it alone; every other link is spare.
         const keeper = soloCapable.reduce((best, link) =>
           (link.node.drainRate > best.node.drainRate ? link : best), soloCapable[0]);
-        links.filter((link) => link !== keeper).forEach(({ outpost }) => redundant.set(outpost.mapIndex, {
-          name: outpost.name,
-          mapIndex: outpost.mapIndex
-        }));
+        links.filter((link) => link !== keeper)
+          .forEach(({ outpost }) => redundant.set(outpost.mapIndex, pickOutpostEntry(outpost)));
       });
       if (redundant.size > 0) {
         royalGuardian.sharedNodes = { count: redundant.size, horizon, outposts: [...redundant.values()] };
