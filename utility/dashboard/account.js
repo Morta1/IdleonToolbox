@@ -1427,6 +1427,16 @@ export const getWorld6Alerts = (account, fields, options, characters) => {
   return alerts;
 };
 
+// Every Royal Guardian alert lists outposts the same way, and each one only needs enough of the
+// outpost to name it: the map, its world, and the monster or resource that map is known for.
+const pickOutpostEntry = ({ name, mapIndex, world, monsterRawName, monsterName }) => ({
+  name,
+  mapIndex,
+  world,
+  monsterRawName,
+  monsterName
+});
+
 export const getWorld7Alerts = (account, fields, options, characters) => {
   const alerts = {};
   if (!account?.finishedWorlds?.World6) return alerts;
@@ -1500,7 +1510,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
         && connectedNodes.every(({ exhausted }) => exhausted)
         && freshNodeInReach);
       if (idle.length > 0) {
-        royalGuardian.idleOutposts = idle.map(({ name, mapIndex }) => ({ name, mapIndex }));
+        royalGuardian.idleOutposts = idle.map(pickOutpostEntry);
       }
     }
 
@@ -1510,14 +1520,14 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       const unwired = collectors.filter(({ connectedNodes, reachableNodes }) => !(connectedNodes?.length > 0)
         && reachableNodes?.length > 0);
       if (unwired.length > 0) {
-        royalGuardian.unwiredOutposts = unwired.map(({ name, mapIndex }) => ({ name, mapIndex }));
+        royalGuardian.unwiredOutposts = unwired.map(pickOutpostEntry);
       }
     }
 
     if (rgOptions?.idleSupportCamps?.checked) {
       const idleCamps = outposts.filter(({ mode, supportLinks }) => mode === 1 && !(supportLinks?.length > 0));
       if (idleCamps.length > 0) {
-        royalGuardian.idleSupportCamps = idleCamps.map(({ name, mapIndex }) => ({ name, mapIndex }));
+        royalGuardian.idleSupportCamps = idleCamps.map(pickOutpostEntry);
       }
     }
 
@@ -1530,7 +1540,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
         royalGuardian.unspentPts = {
           count: affordable.length,
           threshold,
-          outposts: affordable.map(({ name, mapIndex, ptsLeft }) => ({ name, mapIndex, ptsLeft }))
+          outposts: affordable.map((outpost) => ({ ...pickOutpostEntry(outpost), ptsLeft: outpost.ptsLeft }))
         };
       }
     }
@@ -1538,7 +1548,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
     if (rgOptions?.claimableMaps?.checked) {
       const claimable = (account?.royalGuardian?.clearingMaps ?? []).filter(({ progress }) => progress >= 1);
       if (claimable.length > 0) {
-        royalGuardian.claimableMaps = claimable.map(({ name, mapIndex }) => ({ name, mapIndex }));
+        royalGuardian.claimableMaps = claimable.map(pickOutpostEntry);
       }
     }
 

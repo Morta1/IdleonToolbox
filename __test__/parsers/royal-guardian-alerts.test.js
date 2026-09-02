@@ -64,6 +64,41 @@ describe('royal guardian dashboard alerts', () => {
     expect(alerts.claimableMaps.length).toBe(claimable.length);
   });
 
+  it('names the world and native monster of every listed map', () => {
+    const { account, characters } = parse();
+    const alerts = getWorld7Alerts(account, FIELDS, OPTIONS, characters)?.royalGuardian;
+    const listed = [
+      ...(alerts.idleOutposts ?? []),
+      ...(alerts.unwiredOutposts ?? []),
+      ...(alerts.idleSupportCamps ?? []),
+      ...(alerts.unspentPts?.outposts ?? []),
+      ...(alerts.claimableMaps ?? [])
+    ];
+    expect(listed.length).toBeGreaterThan(0);
+
+    listed.forEach(({ mapIndex, world, monsterName }) => {
+      expect(world).toBe(1 + Math.floor(mapIndex / 50));
+      // Only the few outpost slots with nothing to idle on (towns, Grand Owl Perch) go nameless.
+      if (monsterName !== null) expect(monsterName).not.toMatch(/[_]/);
+    });
+  });
+
+  it('resolves both fighting monsters and resource nodes off the same lookup', () => {
+    const { account } = parse();
+    const byMap = new Map(account.royalGuardian.outposts
+      .concat(account.royalGuardian.clearingMaps)
+      .map((entry) => [entry.mapIndex, entry]));
+
+    // A fighting map and a mining map are the two shapes the requester asked for; both come out of
+    // mapEnemiesArray -> monsters, so one lookup has to cover "Green Mushroom" and "Plat" alike.
+    expect(byMap.get(1)?.monsterName).toBe('Green Mushroom');
+    expect(byMap.get(1)?.monsterRawName).toBe('mushG');
+    expect(byMap.get(10)?.monsterName).toBe('Plat');
+
+    // Outpost slots with no AFK target report null rather than the game's "_" placeholder.
+    expect(byMap.get(42)?.monsterName ?? null).toBe(null);
+  });
+
   it('flags units clearing a map that is already claimed', () => {
     const { account, characters } = parse();
     const alerts = getWorld7Alerts(account, FIELDS, OPTIONS, characters)?.royalGuardian;

@@ -2,7 +2,9 @@ import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpe
 import {
   armoryUpgrades as armoryUpgradesCatalog,
   mapDetails,
+  mapEnemiesArray,
   mapNames,
+  monsters,
   orbletMarket as orbletMarketCatalog,
   research,
   royalKillRequirements,
@@ -136,6 +138,21 @@ const isOutpostSlot = (mapIndex: number): boolean => {
   return toNum((mapDetails as any)?.[mapIndex]?.[2]?.[0]) !== OFF_KINGDOM_MAP;
 };
 
+// A map name on its own ("Hell Hath Frozen Over") tells a player nothing about where the map is,
+// but its native AFK target does. That target is a monster on most outpost slots and a mining /
+// fishing / catching node on the rest, and both live in the same mapEnemiesArray -> monsters
+// lookup, so one call covers "Bloodbone" and "Plat" alike.
+const getMapMonster = (mapIndex: number): { monsterRawName: string | null; monsterName: string | null } => {
+  const monsterRawName = (mapEnemiesArray as any)?.[mapIndex];
+  const rawMonsterName = `${(monsters as any)?.[monsterRawName]?.Name ?? ''}`;
+  // Towns and the few outpost slots with nothing to idle on report "Nothing" / "_". The check has
+  // to run before underscores are swapped for spaces, or the "_" placeholder becomes a blank name.
+  if (!monsterRawName || !rawMonsterName || rawMonsterName === '_') {
+    return { monsterRawName: null, monsterName: null };
+  }
+  return { monsterRawName, monsterName: rawMonsterName.replace(/_/g, ' ') };
+};
+
 // game: "GuardianRoyalRadius" - a flat constant, not derived from anything.
 const ROYAL_RADIUS = 180;
 
@@ -255,6 +272,10 @@ export interface OutpostNode {
 
 export interface Outpost extends OutpostBase {
   name: string;
+  // The map's native AFK target, so a map name can be shown alongside something the player
+  // recognises. Null on the handful of outpost slots with nothing to idle on.
+  monsterRawName: string | null;
+  monsterName: string | null;
   world: number;
   mode: number;
   modeName: string;
@@ -522,6 +543,7 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       return {
         mapIndex,
         name: `${(mapNames as any)?.[`${mapIndex}`] ?? ''}`.replace(/_/g, ' '),
+        ...getMapMonster(mapIndex),
         world: 1 + Math.floor(mapIndex / 50),
         kills,
         killsRequired,
@@ -1083,6 +1105,7 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     return {
       ...outpost,
       name: `${(mapNames as any)?.[`${mapIndex}`] ?? ''}`.replace(/_/g, ' '),
+      ...getMapMonster(mapIndex),
       world: outpostWorld,
       mode,
       modeName: OUTPOST_MODE_NAMES[mode] ?? OUTPOST_MODE_NAMES[0],
