@@ -1883,6 +1883,46 @@ const migration72 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration73 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
+  const royalGuardian = dashboardConfig?.account?.['World 7']?.royalGuardian;
+  const rgOptions = royalGuardian?.options;
+  if (Array.isArray(rgOptions)) {
+    // Three alerts on the same fact: a Worker only adds collection rate, so past the point its
+    // resource caps it earns nothing, while a Trader in that slot feeds the Trade rank bar the
+    // outpost's PTS come from. Inserted before restockLocked, which is the group's closing entry.
+    const added = [
+      {
+        name: 'overkillWorkers',
+        type: 'input',
+        props: { label: 'Hours to empty within', value: 24, minValue: 1 },
+        checked: true,
+        helperText: 'Alert when an outpost has more Workers than it needs to empty its resource within this many hours. Workers only add collection rate, so the spare ones could be Traders and earn Trade rank EXP instead'
+      },
+      {
+        name: 'strandedWorkers',
+        checked: true,
+        helperText: 'Alert when an outpost\'s resources are all empty and nothing better is in range, while Workers are still assigned to it. They add collection rate to a resource that has none left, so Traders would earn Trade rank EXP instead'
+      },
+      {
+        name: 'sharedNodes',
+        type: 'input',
+        props: { label: 'Hours to empty within', value: 24, minValue: 1 },
+        checked: true,
+        helperText: 'Alert when two outposts are wired to the same resource and one of them empties it within this many hours on its own, so the other is spending a connection slot for nothing'
+      }
+    ].filter(({ name }) => !rgOptions.some((option) => option?.name === name));
+
+    if (added.length > 0) {
+      const restockIndex = rgOptions.findIndex((option) => option?.name === 'restockLocked');
+      rgOptions.splice(restockIndex >= 0 ? restockIndex : rgOptions.length, 0, ...added);
+    }
+  }
+
+  dashboardConfig.version = 73;
+  return dashboardConfig;
+};
+
 const migrations = {
   2: migrateToVersion2,
   3: migrateToVersion3,
@@ -1955,6 +1995,7 @@ const migrations = {
   70: migration70,
   71: migration71,
   72: migration72,
+  73: migration73,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

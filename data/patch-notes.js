@@ -8,9 +8,12 @@ export const patchNotes = [
     'gameVer': '2.3.527',
     'date': '02/09/2026',
     'features': [
-      'Dashboard: Royal Guardian alerts now name each map\'s world and the monster or resource found there, so you can place a map without knowing its name by heart'
+      'Dashboard: Royal Guardian alerts now name each map\'s world and the monster or resource found there, so you can place a map without knowing its name by heart',
+      'Dashboard: three new Royal Guardian alerts for units doing nothing - Workers an outpost no longer needs to empty its resource in time, Workers left on an outpost whose resources are all spent, and two outposts sharing a resource only one of them needs. Traders in those slots earn Trade rank EXP instead'
     ],
-    'fixes': []
+    'fixes': [
+      'Royal Guardian: outpost rank bars showed a time to next rank that ignored how many units feed the bar, so it was several times too long with a full outpost, and showed a countdown at all for a bar with no unit on it'
+    ]
   },
   {
     'ver': '3.3.72',

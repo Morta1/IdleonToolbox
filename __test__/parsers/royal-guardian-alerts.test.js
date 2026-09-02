@@ -7,13 +7,22 @@ import raw from '../../data/raw.json';
 
 // Shaped like what useAlerts hands the world alert builders: the tracker's fields and its options.
 const FIELDS = { royalGuardian: { checked: true } };
-const OPTION_NAMES = [
+// The seven the group shipped with in v70 - migration 73 adds the three unit-composition alerts
+// after them, so the v69 -> v70 test below still has to compare against this list alone.
+const V70_OPTION_NAMES = [
   'idleOutposts',
   'unwiredOutposts',
   'idleSupportCamps',
   'unspentPts',
   'claimableMaps',
   'idleUnits',
+  'restockLocked'
+];
+const OPTION_NAMES = [
+  ...V70_OPTION_NAMES.slice(0, -1),
+  'overkillWorkers',
+  'strandedWorkers',
+  'sharedNodes',
   'restockLocked'
 ];
 const OPTIONS = {
@@ -156,9 +165,121 @@ describe('royal guardian dashboard alerts', () => {
     const migrated = migrateConfig({ version: 70 }, stored);
 
     expect(migrated.version).toBe(70);
-    expect(migrated.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(OPTION_NAMES);
+    expect(migrated.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(V70_OPTION_NAMES);
     expect(migrated.timers['World 7'].royalNodeCap.checked).toBe(true);
     // Inserted ahead of gallery so the group order matches baseTrackers.
     expect(Object.keys(migrated.account['World 7'])).toEqual(['royalGuardian', 'gallery']);
+  });
+
+  it('adds the unit composition alerts ahead of restockLocked, and only once', () => {
+    const stored = {
+      version: 69,
+      account: { 'World 7': { gallery: { checked: true, options: [] } } },
+      characters: {},
+      timers: { 'World 7': {} }
+    };
+
+    const migrated = migrateConfig({ version: 73 }, stored);
+
+    expect(migrated.version).toBe(73);
+    expect(migrated.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(OPTION_NAMES);
+    // Re-running it must not duplicate what it already inserted.
+    const twice = migrateConfig({ version: 73 }, { ...migrated, version: 72 });
+    expect(twice.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(OPTION_NAMES);
+  });
+
+  it('flags Workers stranded on a spent outpost with nothing left to rewire to', () => {
+    const { account, characters } = parse();
+    const alerts = getWorld7Alerts(account, FIELDS, OPTIONS, characters)?.royalGuardian;
+    const outpostBy = (name) => account.royalGuardian.outposts.find((outpost) => outpost.name === name);
+
+    // The kingdom in this save is fully drained, which is exactly the stranded case.
+    expect(alerts.strandedWorkers.count).toBeGreaterThan(0);
+    expect(alerts.strandedWorkers.count).toBe(alerts.strandedWorkers.outposts.length);
+
+    // Stranded is the case idleOutposts deliberately skips: nothing better is in range, so the
+    // Workers are the thing to change rather than the connection.
+    const idleNames = new Set((alerts.idleOutposts ?? []).map(({ name }) => name));
+    alerts.strandedWorkers.outposts.forEach(({ name, workers }) => {
+      const outpost = outpostBy(name);
+      expect(workers).toBe(outpost.unitSlots.filter((unit) => unit === 0).length);
+      expect(workers).toBeGreaterThan(0);
+      expect(outpost.mode).not.toBe(1);
+      expect(outpost.freshNodeInReach).toBe(false);
+      expect(outpost.connectedNodes.every(({ exhausted }) => exhausted)).toBe(true);
+      expect(idleNames.has(name)).toBe(false);
+    });
+  });
+
+  // Every node in data/raw.json is already spent, so the two alerts that need a LIVE node are
+  // driven off a hand-built kingdom instead, small enough that the counts are checkable on paper.
+  const stubAccount = () => ({
+    // getWorld7Alerts gates the whole world on World 6 being finished.
+    finishedWorlds: { World6: true },
+    royalGuardian: {
+      unlocked: true,
+      resources: [],
+      clearingMaps: [],
+      deployments: [],
+      outpostStats: { workerRateBonus: 100, restockUnlocked: true, peacetimeMilitia: false },
+      outposts: [
+        {
+          // 3 Workers draining 100/h into a node with 500 left, against a 10h horizon. Worker
+          // bonus 100 puts the current rate at 1 + 3 = 4x; 500 / 10 = 50/h needs only 2x of that,
+          // which one Worker already buys, so the other two could be Traders.
+          name: 'Overkill', mapIndex: 2, mode: 0, freshNodeInReach: false,
+          unitSlots: [0, 0, 0, 1], unitCounts: [3, 1, 0, 0],
+          rankBars: [{ expPerUnit: 10 }],
+          connectedNodes: [{ index: 5, exhausted: false, drainRate: 100, collected: 0, maxQuantity: 500 }]
+        },
+        {
+          // Same outpost against twice the node: 1000 / 10 = 100/h is the whole current rate, so
+          // every Worker on it is load-bearing.
+          name: 'Tight', mapIndex: 3, mode: 0, freshNodeInReach: false,
+          unitSlots: [0, 0, 0, 1], unitCounts: [3, 1, 0, 0],
+          rankBars: [{ expPerUnit: 10 }],
+          connectedNodes: [{ index: 6, exhausted: false, drainRate: 100, collected: 0, maxQuantity: 1000 }]
+        },
+        {
+          // Node 9 is wired to both of these. The fast one empties it alone well inside 10h...
+          name: 'Fast', mapIndex: 4, mode: 0, freshNodeInReach: false,
+          unitSlots: [1, 1], unitCounts: [0, 2, 0, 0],
+          rankBars: [{ expPerUnit: 10 }],
+          connectedNodes: [{ index: 9, exhausted: false, drainRate: 100, collected: 0, maxQuantity: 500 }]
+        },
+        {
+          // ...so this one is spending a connection slot on a node it is not needed for.
+          name: 'Slow', mapIndex: 5, mode: 0, freshNodeInReach: false,
+          unitSlots: [1, 1], unitCounts: [0, 2, 0, 0],
+          rankBars: [{ expPerUnit: 10 }],
+          connectedNodes: [{ index: 9, exhausted: false, drainRate: 5, collected: 0, maxQuantity: 500 }]
+        },
+        {
+          // A Support Camp drains nothing, so no collection alert may ever name it.
+          name: 'Camp', mapIndex: 6, mode: 1, freshNodeInReach: false,
+          unitSlots: [0, 0], unitCounts: [2, 0, 0, 0], supportLinks: [2],
+          rankBars: [{ expPerUnit: 10 }],
+          connectedNodes: []
+        }
+      ]
+    }
+  });
+
+  it('counts the Workers a live node no longer needs', () => {
+    const alerts = getWorld7Alerts(stubAccount(), FIELDS, OPTIONS, [])?.royalGuardian;
+
+    expect(alerts.overkillWorkers.horizon).toBe(10);
+    expect(alerts.overkillWorkers.outposts).toEqual([
+      { name: 'Overkill', mapIndex: 2, workers: 2, expPerHour: 20 }
+    ]);
+    expect(alerts.overkillWorkers.count).toBe(1);
+  });
+
+  it('flags the spare side of a shared node, keeping the outpost that empties it', () => {
+    const alerts = getWorld7Alerts(stubAccount(), FIELDS, OPTIONS, [])?.royalGuardian;
+
+    // Only the slower of the two, and only because the faster one finishes the node alone.
+    expect(alerts.sharedNodes.outposts).toEqual([{ name: 'Slow', mapIndex: 5 }]);
+    expect(alerts.sharedNodes.count).toBe(1);
   });
 });
