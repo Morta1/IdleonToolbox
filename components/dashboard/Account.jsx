@@ -708,6 +708,36 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                     ? ', earning half rank EXP instead of clearing a new one'
                     : ', earning nothing'}`}
                   iconPath={'etc/RGmilitia'}/> : null}
+              {alerts?.['World 7']?.royalGuardian?.overkillWorkers ?
+                <Alert target={'World 7.royalGuardian.overkillWorkers'}
+                  title={<RoyalGuardianList
+                    headline={`${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.count} outpost${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.count === 1
+                      ? ' has'
+                      : 's have'} more Workers than they need to empty their resource within ${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.horizon}h - the spare ones would earn Trade rank EXP as Traders`}
+                    entries={alerts?.['World 7']?.royalGuardian?.overkillWorkers?.outposts?.map((outpost) => ({
+                      ...outpost,
+                      name: `${outpost?.name} (${outpost?.workers} Worker${outpost?.workers === 1 ? '' : 's'}, +${notateNumber(outpost?.expPerHour, 'Big')} EXP/hr)`
+                    }))}/>}
+                  iconPath={'etc/RGunit0'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
+              {alerts?.['World 7']?.royalGuardian?.strandedWorkers ?
+                <Alert target={'World 7.royalGuardian.strandedWorkers'}
+                  title={<RoyalGuardianList
+                    headline={`${alerts?.['World 7']?.royalGuardian?.strandedWorkers?.count} outpost${alerts?.['World 7']?.royalGuardian?.strandedWorkers?.count === 1
+                      ? ' has'
+                      : 's have'} Workers on an empty resource with nothing better in range - Traders would earn Trade rank EXP instead`}
+                    entries={alerts?.['World 7']?.royalGuardian?.strandedWorkers?.outposts?.map((outpost) => ({
+                      ...outpost,
+                      name: `${outpost?.name} (${outpost?.workers} Worker${outpost?.workers === 1 ? '' : 's'})`
+                    }))}/>}
+                  iconPath={'etc/RGunit1'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
+              {alerts?.['World 7']?.royalGuardian?.sharedNodes ?
+                <Alert target={'World 7.royalGuardian.sharedNodes'}
+                  title={<RoyalGuardianList
+                    headline={`${alerts?.['World 7']?.royalGuardian?.sharedNodes?.count} outpost${alerts?.['World 7']?.royalGuardian?.sharedNodes?.count === 1
+                      ? ' is'
+                      : 's are'} sharing a resource the other outpost empties within ${alerts?.['World 7']?.royalGuardian?.sharedNodes?.horizon}h on its own, so the connection is spare`}
+                    entries={alerts?.['World 7']?.royalGuardian?.sharedNodes?.outposts}/>}
+                  iconPath={'data/RGresB5'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
               {alerts?.['World 7']?.royalGuardian?.restockLocked ?
                 <Alert target={'World 7.royalGuardian.restockLocked'}
                   title={'Resource Replenish is unbought, so your empty resources never refill'}

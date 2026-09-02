@@ -18,7 +18,7 @@ import { getCrystalCountdownSkills } from '@parsers/talents';
 import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 
 const baseTrackers = {
-  version: 72,
+  version: 73,
   account: {
     General: {
       tasks: {
@@ -572,6 +572,25 @@ const baseTrackers = {
             name: 'idleUnits',
             checked: true,
             helperText: 'Alert when units are clearing a map you have already claimed, or aren\'t assigned anywhere, while their world still has a map left to clear'
+          },
+          {
+            name: 'overkillWorkers',
+            type: 'input',
+            props: { label: 'Hours to empty within', value: 24, minValue: 1 },
+            checked: true,
+            helperText: 'Alert when an outpost has more Workers than it needs to empty its resource within this many hours. Workers only add collection rate, so the spare ones could be Traders and earn Trade rank EXP instead'
+          },
+          {
+            name: 'strandedWorkers',
+            checked: true,
+            helperText: 'Alert when an outpost\'s resources are all empty and nothing better is in range, while Workers are still assigned to it. They add collection rate to a resource that has none left, so Traders would earn Trade rank EXP instead'
+          },
+          {
+            name: 'sharedNodes',
+            type: 'input',
+            props: { label: 'Hours to empty within', value: 24, minValue: 1 },
+            checked: true,
+            helperText: 'Alert when two outposts are wired to the same resource and one of them empties it within this many hours on its own, so the other is spending a connection slot for nothing'
           },
           {
             name: 'restockLocked',

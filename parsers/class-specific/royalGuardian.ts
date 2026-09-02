@@ -107,6 +107,10 @@ export const ROYAL_UNIT_JOB_NAMES: Record<number, string> = {
   7: 'Purity rank EXP'
 };
 const UNIT_JOB_CLEAR = 4;
+// A job of 5 and up is a rank-EXP posting, and the game credits RoyalMaps[job] directly - so the
+// job number is the rank bar's own RoyalMaps slot, and the rank type is 3 less.
+const UNIT_JOB_BAR_BASE = 5;
+const UNIT_JOB_BAR_OFFSET = 3;
 const UNITS_PER_WORLD = 20;
 const UNIT_WORLDS = 8;
 
@@ -331,6 +335,10 @@ export interface OutpostRankBar {
   required: number;
   previous: number;
   progress: number;
+  // How many units actually feed this bar, and what one of them is worth per hour. The bar earns
+  // expPerUnit * units - nothing at all while no unit is posted to it.
+  units: number;
+  expPerUnit: number;
   expPerHour: number;
   hoursToNextRank: number;
 }
@@ -923,6 +931,37 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
   // game: "UnitSpecEffect" - only the four indices the outpost panel itself reads.
   const unitSpecEffect = [50 + armoryBonus(19), armoryBonus(20), 25 + armoryBonus(21), armoryBonus(22)];
 
+  // game: the CollectAll loop walks RoyalG[6 + 2*w] / RoyalG[7 + 2*w] for all 8 worlds, so a
+  // deployment can point at any map, including one that is already claimed.
+  const claimedMaps = new Set(outposts.map(({ mapIndex }) => mapIndex));
+
+  // game: the deployment tick credits the bar its unit's job names - 5/6/7 are Command/Military/
+  // Purity - on the map that unit is sent at, while a clearing unit (4) standing on an already
+  // claimed map falls through to Peacetime Militia instead. Counted here so an outpost below can
+  // price its own rank bars; the per-unit RoyalDeployment list repeats the walk further down.
+  const deployedBarUnits: Record<number, number[]> = {};
+  const militiaUnitsByMap: Record<number, number> = {};
+  for (let unitWorld = 0; unitWorld < UNIT_WORLDS; unitWorld++) {
+    const jobs = raw?.[6 + 2 * unitWorld];
+    const targets = raw?.[7 + 2 * unitWorld];
+    if (!Array.isArray(jobs)) continue;
+    for (let slot = 0; slot < Math.min(UNITS_PER_WORLD, jobs.length); slot++) {
+      const job = Math.round(toNum(jobs?.[slot]));
+      const targetMap = Math.round(toNum(targets?.[slot]));
+      if (!(targetMap >= 0)) continue;
+      if (job >= UNIT_JOB_BAR_BASE) {
+        const rankType = job - UNIT_JOB_BAR_OFFSET;
+        if (rankType >= OUTPOST_RANK_NAMES.length) continue;
+        const counts = deployedBarUnits[targetMap] ?? OUTPOST_RANK_NAMES.map(() => 0);
+        counts[rankType] += 1;
+        deployedBarUnits[targetMap] = counts;
+      } else if (job === UNIT_JOB_CLEAR && claimedMaps.has(targetMap)) {
+        militiaUnitsByMap[targetMap] = (militiaUnitsByMap[targetMap] ?? 0) + 1;
+      }
+    }
+  }
+  const peacetimeMilitia = armoryBonus(17) >= 1;
+
   const companion141 = isCompanionBonusActive(account, 141)
     ? toNum(account?.companions?.list?.at(141)?.bonus)
     : 0;
@@ -1029,13 +1068,30 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       + unitSpecEffect[2] * unitCounts[2]
       + ranks[3] * armoryBonus(74)));
 
+    // game: the outpost tick pays a bar BarExpRate ONCE PER UNIT feeding it, so a bar with nothing
+    // behind it never moves at all. The Trade bar runs on this outpost's own Traders and the Intel
+    // bar on its Surveyors; Command/Military/Purity run on the units deployed at this map.
+    const deployedBars = deployedBarUnits[mapIndex] ?? [];
+    const rankUnits = OUTPOST_RANK_NAMES.map((_, type) => type === 0
+      ? unitCounts[1]
+      : type === 1 ? unitCounts[3] : (deployedBars[type] ?? 0));
+    // game: Peacetime Militia pays an idle clearing unit half of the Military rate, and dumps it on
+    // whichever bar has the highest rank. The game's scan starts at Trade and compares with a
+    // strict >, so a tie goes to the earliest bar.
+    const militiaUnits = peacetimeMilitia ? (militiaUnitsByMap[mapIndex] ?? 0) : 0;
+    const militiaBarType = ranks.reduce((best, rank, type) => (rank > ranks[best] ? type : best), 0);
+
     const rankBars = OUTPOST_RANK_NAMES.map((name, type) => {
       const exp = outpost.rankExp[type];
       const rank = ranks[type];
       // game: "OutpostEXPreq" / "OutpostEXPreqPREV" - the bar runs between two adjacent thresholds.
       const required = getOutpostExpFormula(rank, type);
       const previous = rank === 0 ? 0 : getOutpostExpFormula(rank - 1, type);
-      const expPerHour = getBarExpRate(type, mapIndex);
+      // What one more unit on this bar is worth per hour - the whole rate is this times its units.
+      const expPerUnit = getBarExpRate(type, mapIndex);
+      const units = rankUnits[type];
+      const expPerHour = expPerUnit * units
+        + (type === militiaBarType ? (getBarExpRate(3, mapIndex) / 2) * militiaUnits : 0);
       return {
         type,
         name,
@@ -1047,6 +1103,8 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
         progress: required > previous
           ? Math.min(1, Math.max(0, (exp - previous) / (required - previous)))
           : 0,
+        units,
+        expPerUnit,
         expPerHour,
         hoursToNextRank: expPerHour > 0 ? Math.max(0, required - exp) / expPerHour : 0
       };
@@ -1130,10 +1188,6 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       freshNodeInReach
     };
   });
-
-  // game: the CollectAll loop walks RoyalG[6 + 2*w] / RoyalG[7 + 2*w] for all 8 worlds, so a
-  // deployment can point at any map, including one that is already claimed.
-  const claimedMaps = new Set(detailedOutposts.map(({ mapIndex }) => mapIndex));
 
   // A unit can only be sent at a map its own world can hold an outpost on, so once every one of
   // them carries an outpost the unit has nowhere better to stand and is not worth reporting.
@@ -1237,6 +1291,9 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
         ])),
       unitsUnlocked,
       unitNames: ROYAL_UNIT_NAMES,
+      // game: "UnitSpecEffect"(0) - the only unit effect that touches collection, so it is also the
+      // lever the "how many Workers does this node actually need" check works against.
+      workerRateBonus: unitSpecEffect[0],
       // game: "Peacetime_Milita" pays a clearing unit half rank EXP on an already claimed map;
       // without it such a unit earns nothing. "Resource_Replenish" is what refills spent nodes on
       // the daily reset, so an account without it never gets a node back.
@@ -1264,6 +1321,31 @@ const getRoyalStatueOdds = (index: number, level: number): number => {
 // game: "ArmoryUpgCost" - indexed by display slot; only the level and the two per-upgrade cost
 // factors come from the upgrade id behind that slot. Exported so the Upgrade Optimizer (task C2)
 // can re-price a slot at a hypothetical level without duplicating this formula.
+// How many of an outpost's slot Workers could be swapped for a Trader while every node it is wired
+// to still empties inside `horizonHours`. Workers are the only unit in the collection rate (game:
+// "OutpostResourceRate" multiplies by UnitSpecEffect(0) * TotalUnitsz(map, 0)), so dropping k of
+// them scales every drain rate by (1 + bonus*(W - k)/100) / (1 + bonus*W/100). Passive Workers are
+// excluded from the answer: they occupy no slot, so they cannot be traded away.
+export const getSpareWorkers = (outpost: Outpost, horizonHours: number, workerBonus: number): number => {
+  const slotWorkers = (outpost?.unitSlots ?? []).filter((unit) => unit === 0).length;
+  if (slotWorkers <= 0 || !(workerBonus > 0) || !(horizonHours > 0)) return 0;
+  // A Support Camp drains nothing, and an outpost with no live node is the stranded case instead.
+  const live = (outpost?.connectedNodes ?? [])
+    .filter(({ exhausted, drainRate }) => !exhausted && drainRate > 0);
+  if (live.length === 0) return 0;
+
+  const totalWorkers = outpost?.unitCounts?.[0] ?? 0;
+  const current = 1 + (workerBonus * totalWorkers) / 100;
+  // The tightest node sets the floor: all of them still have to cap inside the horizon.
+  const needed = Math.max(...live.map(({ collected, maxQuantity, drainRate }) =>
+    (Math.max(0, maxQuantity - collected) / horizonHours) / drainRate));
+  // Already too slow to cap in time, so every Worker on it is pulling its weight.
+  if (!(needed > 0) || needed > 1) return 0;
+
+  const minWorkers = Math.max(0, Math.ceil(((current * needed - 1) * 100) / workerBonus - 1e-9));
+  return Math.max(0, Math.min(slotWorkers, totalWorkers - minWorkers));
+};
+
 export const getArmoryUpgradeCost = (slot: number, slotToId: number[], armoryLevels: any[], costReduction: number): number => {
   if (slot < 0) return 0;
   const id = toNum(slotToId?.[slot]);

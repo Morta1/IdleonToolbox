@@ -28,6 +28,7 @@ import { isHatRackEligible } from '@parsers/world-3/hatRack';
 import { getGoldCostToMaxLevel, getStampsPerDay } from '@parsers/world-1/stamps';
 import { getTomeWishPity } from '@parsers/world-4/tome';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
+import { getSpareWorkers } from '@parsers/class-specific/royalGuardian';
 import { getCompassBonus } from '@parsers/class-specific/compass';
 
 // The game hard caps Arcanist weapon and ring drops at 100 each per day.
@@ -1564,6 +1565,77 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
           unassigned: wasted.filter(({ unassigned }) => unassigned).length,
           discounted: account?.royalGuardian?.outpostStats?.peacetimeMilitia === true
         };
+      }
+    }
+
+    // A Worker is the only unit in the collection rate, so it is worth nothing beyond the point the
+    // node caps. A Trader in its place feeds the Trade rank bar, which is where outpost PTS come
+    // from, so the three checks below all end in "make it a Trader".
+    const workerRateBonus = account?.royalGuardian?.outpostStats?.workerRateBonus ?? 0;
+    const slotWorkersOf = ({ unitSlots }) => (unitSlots ?? []).filter((unit) => unit === 0).length;
+
+    if (rgOptions?.overkillWorkers?.checked) {
+      const horizon = rgOptions?.overkillWorkers?.props?.value ?? 24;
+      const overkill = collectors
+        .map((outpost) => ({ outpost, workers: getSpareWorkers(outpost, horizon, workerRateBonus) }))
+        .filter(({ workers }) => workers > 0)
+        .map(({ outpost, workers }) => ({
+          name: outpost.name,
+          mapIndex: outpost.mapIndex,
+          workers,
+          expPerHour: (outpost.rankBars?.[0]?.expPerUnit ?? 0) * workers
+        }));
+      if (overkill.length > 0) {
+        royalGuardian.overkillWorkers = { count: overkill.length, horizon, outposts: overkill };
+      }
+    }
+
+    if (rgOptions?.strandedWorkers?.checked) {
+      // Only where a rewire is not on the table: with a fresh node in reach, idleOutposts already
+      // says the better thing, and moving the connection beats retraining the Workers.
+      const stranded = collectors
+        .filter(({ connectedNodes, freshNodeInReach }) => !freshNodeInReach
+          && (!(connectedNodes?.length > 0) || connectedNodes.every(({ exhausted }) => exhausted)))
+        .map((outpost) => ({
+          name: outpost.name,
+          mapIndex: outpost.mapIndex,
+          workers: slotWorkersOf(outpost)
+        }))
+        .filter(({ workers }) => workers > 0);
+      if (stranded.length > 0) {
+        royalGuardian.strandedWorkers = { count: stranded.length, outposts: stranded };
+      }
+    }
+
+    if (rgOptions?.sharedNodes?.checked) {
+      const horizon = rgOptions?.sharedNodes?.props?.value ?? 24;
+      // A node takes at most two connections, and both spend a slot on it. If either outpost drains
+      // it to its cap alone inside the horizon, the second one is buying nothing with that slot.
+      const byNode = new Map();
+      collectors.forEach((outpost) => (outpost.connectedNodes ?? []).forEach((node) => {
+        if (node.exhausted || !(node.drainRate > 0)) return;
+        byNode.set(node.index, [...(byNode.get(node.index) ?? []), { outpost, node }]);
+      }));
+      // Nodes have no readable name of their own (rawName is the sprite id), so the report names
+      // the outposts holding the spare link - an outpost has two slots at most, and its own panel
+      // shows which one to drop. Kept per outpost so a doubly-redundant one is listed once.
+      const redundant = new Map();
+      byNode.forEach((links) => {
+        if (links.length < 2) return;
+        const { node } = links[0];
+        const remaining = Math.max(0, node.maxQuantity - node.collected);
+        const soloCapable = links.filter(({ node: linked }) => linked.drainRate * horizon >= remaining);
+        if (soloCapable.length === 0) return;
+        // Keep the fastest of the outposts that can finish it alone; every other link is spare.
+        const keeper = soloCapable.reduce((best, link) =>
+          (link.node.drainRate > best.node.drainRate ? link : best), soloCapable[0]);
+        links.filter((link) => link !== keeper).forEach(({ outpost }) => redundant.set(outpost.mapIndex, {
+          name: outpost.name,
+          mapIndex: outpost.mapIndex
+        }));
+      });
+      if (redundant.size > 0) {
+        royalGuardian.sharedNodes = { count: redundant.size, horizon, outposts: [...redundant.values()] };
       }
     }
 
