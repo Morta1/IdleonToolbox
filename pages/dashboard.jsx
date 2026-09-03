@@ -18,7 +18,7 @@ import { getCrystalCountdownSkills } from '@parsers/talents';
 import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 
 const baseTrackers = {
-  version: 73,
+  version: 74,
   account: {
     General: {
       tasks: {
@@ -579,6 +579,11 @@ const baseTrackers = {
             props: { label: 'Hours to empty within', value: 24, minValue: 1 },
             checked: true,
             helperText: 'Alert when an outpost has more Workers than it needs to empty its resource within this many hours. Workers only add collection rate, so the spare ones could be Traders and earn Trade rank EXP instead'
+          },
+          {
+            name: 'overkillBeforeReset',
+            checked: true,
+            helperText: 'Measure that alert against the time left until the daily reset instead of the hours above. A resource only restocks and gains a level if it is already empty when the reset lands, so this is the deadline that actually matters. Falls back to the hours above if your save is older than the reset'
           },
           {
             name: 'strandedWorkers',

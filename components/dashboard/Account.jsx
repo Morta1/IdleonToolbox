@@ -713,7 +713,9 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   title={<RoyalGuardianList
                     headline={`${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.count} outpost${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.count === 1
                       ? ' has'
-                      : 's have'} more Workers than they need to empty their resource within ${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.horizon}h - the spare ones would earn Trade rank EXP as Traders`}
+                      : 's have'} more Workers than they need to empty their resource ${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.beforeReset
+                      ? "before today's reset"
+                      : `within ${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.horizon}h`} - the spare ones would earn Trade rank EXP as Traders`}
                     entries={alerts?.['World 7']?.royalGuardian?.overkillWorkers?.outposts?.map((outpost) => ({
                       ...outpost,
                       name: `${outpost?.name} (${outpost?.workers} Worker${outpost?.workers === 1 ? '' : 's'}, +${notateNumber(outpost?.expPerHour, 'Big')} EXP/hr)`
