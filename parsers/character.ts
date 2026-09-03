@@ -119,7 +119,7 @@ import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getGuaranteedCrystalMobs } from '@parsers/misc';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
-import { getRoyalStatueBonus } from '@parsers/class-specific/royalGuardian';
+import { ARMORY_TALENT_REATTAINMENT, getArmoryUpgradeBonus, getRoyalStatueBonus } from '@parsers/class-specific/royalGuardian';
 import { tryToParse, createIndexedArray, createArrayOfArrays, cashFormatter } from '@utility/helpers';
 import type { IdleonData, Account } from './types';
 
@@ -484,6 +484,12 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
   character.divStyle = { ...divStyles?.[divStyleIndex], index: divStyleIndex, divPerHour };
   character.isDivinityConnected = account?.divinity?.linkedDeities?.[character?.playerId] === 4 || isGodEnabledBySorcerer(character, 4);
 
+  // game: AllTalentLV caps the added levels handed to Royal Guardian talents (ids 225-239) at the
+  // Talent Reattainment armory upgrade, so they get none of the account-wide bonus until it is
+  // bought. The armory is parsed after the characters, so this reads 0 on the first pass and the
+  // real value on the later ones.
+  character.rgTalentAddedLevelsCap = getArmoryUpgradeBonus(account as any, ARMORY_TALENT_REATTAINMENT);
+
   // Initial calculation without added levels
   let familyEffBonus = getUpdatedFamilyBonus(character, charactersLevels);
   let addedLevels = getTalentAddedLevels(talents, selectedTalentPreset, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
@@ -493,7 +499,7 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
 
   while (iterations < maxIterations) {
     const tempCharacter = Object.assign({}, character);
-    tempCharacter.talents = applyTalentAddedLevels(talents, null, addedLevels?.value || 0, addedLevels?.superTalentsInfo, selectedTalentPreset);
+    tempCharacter.talents = applyTalentAddedLevels(talents, null, addedLevels?.value || 0, addedLevels?.superTalentsInfo, selectedTalentPreset, character.rgTalentAddedLevelsCap);
     familyEffBonus = getUpdatedFamilyBonus(tempCharacter, charactersLevels);
     addedLevels = getTalentAddedLevels(talents, selectedTalentPreset, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
 
@@ -503,15 +509,15 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
   character.addedLevelsBreakdown = addedLevels?.breakdown;
   character.addedLevels = addedLevels?.value;
   character.superTalentsInfo = addedLevels?.superTalentsInfo;
-  character.talents = applyTalentAddedLevels(talents, null, character.addedLevels, addedLevels?.superTalentsInfo, selectedTalentPreset);
-  character.flatTalents = applyTalentAddedLevels(talents, flatTalents, character.addedLevels, addedLevels?.superTalentsInfo, selectedTalentPreset);
+  character.talents = applyTalentAddedLevels(talents, null, character.addedLevels, addedLevels?.superTalentsInfo, selectedTalentPreset, character.rgTalentAddedLevelsCap);
+  character.flatTalents = applyTalentAddedLevels(talents, flatTalents, character.addedLevels, addedLevels?.superTalentsInfo, selectedTalentPreset, character.rgTalentAddedLevelsCap);
   if (talentPresetObject) {
     const otherPresetIndex = selectedTalentPreset === 0 ? 1 : 0;
     const presetAddedLevels = getTalentAddedLevels(character?.talentPreset?.talents, otherPresetIndex, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
     character.talentPreset = {
       ...character.talentPreset,
-      talents: applyTalentAddedLevels(character?.talentPreset?.talents, null, presetAddedLevels?.value, presetAddedLevels?.superTalentsInfo, otherPresetIndex),
-      flatTalents: applyTalentAddedLevels(character?.talentPreset?.talents, null, presetAddedLevels?.value, presetAddedLevels?.superTalentsInfo, otherPresetIndex),
+      talents: applyTalentAddedLevels(character?.talentPreset?.talents, null, presetAddedLevels?.value, presetAddedLevels?.superTalentsInfo, otherPresetIndex, character.rgTalentAddedLevelsCap),
+      flatTalents: applyTalentAddedLevels(character?.talentPreset?.talents, null, presetAddedLevels?.value, presetAddedLevels?.superTalentsInfo, otherPresetIndex, character.rgTalentAddedLevelsCap),
       addedLevels: presetAddedLevels?.value,
       addedLevelsBreakdown: presetAddedLevels?.breakdown
     }

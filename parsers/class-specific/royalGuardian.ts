@@ -34,6 +34,11 @@ const RESEARCH_ARMORY_SLOT_TO_ID = 43;
 const ARMORY_ROYAL_REVERENCE = 45;
 const ARMORY_STATUE_FLAIR = 78;
 
+// game: "AllTalentLV"/"AllTalentLVz" caps the added levels it hands a Royal Guardian talent at
+// ArmoryUpgBonus(55) - the Talent Reattainment upgrade - so RG talents get nothing at all until
+// it is bought. Every other talent runs uncapped (the game seeds the cap with 9999).
+export const ARMORY_TALENT_REATTAINMENT = 55;
+
 // game: "StatueUpgOdds" - the level-0 upgrade chance is 1 / this, per royal statue.
 const ROYAL_STATUE_FIRST_ODDS = [25, 50, 100, 250, 500, 1000, 2500, 10000];
 

@@ -129,11 +129,37 @@ export const getActiveBuffs = (activeBuffs: any, talents: any) => {
   return activeBuffs?.map(([talentId]: any) => talents?.find(({ talentId: tId }: any) => talentId === tId))?.filter((talent: any) => talent);
 }
 
+// game: talent ids 225-239 are the Royal Guardian page. AllTalentLV/AllTalentLVz swap their 9999
+// cap for ArmoryUpgBonus(55) (Talent Reattainment) on those ids, so without that upgrade an RG
+// talent gets zero added levels no matter how large the account-wide bonus is. BUILT_DIFFERENT is
+// id 203 and sits outside the range, so it keeps the uncapped bonus like any other talent.
+const RG_TALENT_FIRST_INDEX = 225;
+const RG_TALENT_LAST_INDEX = 239;
+
+export const isRoyalGuardianTalent = (skillIndex: any) => {
+  const index = Number(skillIndex);
+  return index >= RG_TALENT_FIRST_INDEX && index <= RG_TALENT_LAST_INDEX;
+};
+
+// The game's cap is a Math.min against the summed added levels, and the super talent term is added
+// AFTER it - Math.floor(Math.min(cap, sum) + AllTalMaxSUPERdn) - so a super RG talent still gets its
+// full super bonus on top of the capped added levels.
+export const capRoyalGuardianAddedLevels = (skillIndex: any, addedLevels: number, cap: any) =>
+  isRoyalGuardianTalent(skillIndex) && Number.isFinite(cap)
+    ? Math.min(addedLevels, cap)
+    : addedLevels;
+
 export const getAllTalentAddedLevels = (baseLevel: number, activeCharacter: any) => {
   // AllTalentLVz returns 0 for banned ids, and getbonus2 hands it the talent's LEVEL where a talent
   // id belongs, so a talent whose base level lands on a banned id gets no added levels at all.
   if (isTalentBannedForAllLevels(baseLevel)) return 0;
-  const addedLevels = activeCharacter?.addedLevels ?? 0;
+  // Same level-as-id mix-up for the Royal Guardian cap: the game tests 225-239 against whatever it
+  // was handed, so here it is the base LEVEL that decides whether the cap applies, not the talent.
+  const addedLevels = capRoyalGuardianAddedLevels(
+    baseLevel,
+    activeCharacter?.addedLevels ?? 0,
+    activeCharacter?.rgTalentAddedLevelsCap
+  );
   // Same level-as-id mix-up: the super talent list is searched for the base LEVEL, so a talent
   // sitting on a level that happens to be one of the active character's super talent ids collects
   // the per-talent super bonus on top.
@@ -379,16 +405,18 @@ export const getTalentAddedLevels = (talents: any, presetIndex: any, linkedDeity
   };
 }
 
-export const applyTalentAddedLevels = (talents: any, flatTalents: any, addedLevels: any, superTalentsInfo: any, presetIndex: any = null) => {
+export const applyTalentAddedLevels = (talents: any, flatTalents: any, addedLevels: any, superTalentsInfo: any, presetIndex: any = null, rgTalentAddedLevelsCap: any = undefined) => {
   if (flatTalents) {
     return flatTalents.map((talent: any) => {
       const superTalent = superTalentsInfo.talents.find(({ talentIndex }: any) => talentIndex === talent?.skillIndex);
       const superTalentBonus = (superTalent && superTalent.presetIndex === presetIndex) ? superTalentsInfo.bonus : 0;
 
+      const cappedAddedLevels = capRoyalGuardianAddedLevels(talent?.skillIndex, addedLevels, rgTalentAddedLevelsCap);
+
       return {
         ...talent,
         level: talent.level >= 1 && !isTalentBannedForAllLevels(talent?.skillIndex)
-          ? Math.floor(talent.level + addedLevels + superTalentBonus)
+          ? Math.floor(talent.level + cappedAddedLevels + superTalentBonus)
           : talent.level,
         baseLevel: talent.level,
         isSuperTalent: !!superTalent
@@ -401,10 +429,12 @@ export const applyTalentAddedLevels = (talents: any, flatTalents: any, addedLeve
       const superTalent = superTalentsInfo.talents.find(({ talentIndex }: any) => talentIndex === talent?.skillIndex);
       const superTalentBonus = (superTalent && superTalent.presetIndex === presetIndex) ? superTalentsInfo.bonus : 0;
 
+      const cappedAddedLevels = capRoyalGuardianAddedLevels(talent?.skillIndex, addedLevels, rgTalentAddedLevelsCap);
+
       return {
         ...talent,
         level: talent.level >= 1 && !isTalentBannedForAllLevels(talent?.skillIndex)
-          ? Math.floor(talent.level + addedLevels + superTalentBonus)
+          ? Math.floor(talent.level + cappedAddedLevels + superTalentBonus)
           : talent.level,
         baseLevel: talent.level,
         isSuperTalent: !!superTalent
