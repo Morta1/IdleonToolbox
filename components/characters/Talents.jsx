@@ -6,7 +6,8 @@ import { Box, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { TalentTooltip } from '../common/styles';
 import { Breakdown } from '../common/Breakdown/Breakdown';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
-import { isBookEligibleTalent } from '@parsers/talents';
+import { isBookEligibleTalent, isRoyalGuardianTalent } from '@parsers/talents';
+import { ARMORY_TALENT_REATTAINMENT, getArmoryUpgradeBonus } from '@parsers/class-specific/royalGuardian';
 
 
 const Talents = ({
@@ -28,8 +29,11 @@ const Talents = ({
   const [activeTalents, setActiveTalents] = useState();
   const [specialsTab, setSpecialTabs] = useState(0);
 
+  // `level` carries the added levels on top of the points actually invested, so summing it counts
+  // the account-wide bonus once per talent. Star talents never take added levels and carry no
+  // baseLevel, so they fall back to level.
   const spentTalentPoints = activeTalents?.orderedTalents?.reduce(
-    (res, { level = 0 }) => res + level,
+    (res, { level = 0, baseLevel }) => res + (baseLevel ?? level),
     0
   );
 
@@ -91,6 +95,27 @@ const Talents = ({
     ? talentPreset?.addedLevelsBreakdown
     : addedLevelsBreakdown;
 
+  // game: AllTalentLV caps the added levels it hands a Royal Guardian talent at the Talent
+  // Reattainment armory upgrade, so this tab shows what its talents actually receive.
+  const isRoyalGuardianTab = activeTalents?.orderedTalents?.some(({ skillIndex }) => isRoyalGuardianTalent(skillIndex));
+  const rgAddedLevelsCap = getArmoryUpgradeBonus(account, ARMORY_TALENT_REATTAINMENT);
+  const effectiveAddedLevels = isRoyalGuardianTab
+    ? Math.min(selectedAddedLevels ?? 0, rgAddedLevelsCap)
+    : selectedAddedLevels;
+  const effectiveAddedLevelsBreakdown = effectiveAddedLevels !== selectedAddedLevels
+    ? {
+      ...selectedAddedLevelsBreakdown,
+      totalValue: effectiveAddedLevels,
+      categories: [
+        ...(selectedAddedLevelsBreakdown?.categories ?? []),
+        {
+          name: 'Royal Guardian',
+          sources: [{ name: 'Talent Reattainment cap', value: effectiveAddedLevels - (selectedAddedLevels ?? 0) }]
+        }
+      ]
+    }
+    : selectedAddedLevelsBreakdown;
+
   return <StyledTalents active={activeTab}>
     <Tabs centered value={preset} onChange={(e, selected) => setSelectedPreset(selected)}>
       <Tab sx={{ minWidth: { xs: 'unset', sm: 'inherit' } }}
@@ -127,8 +152,8 @@ const Talents = ({
       <Typography variant={'caption'} mt={2}>{cleanUnderscore(talents?.[activeTab]?.name)}</Typography>}
     <Typography component={'div'} variant={'caption'}>Total Points Spent: {spentTalentPoints}</Typography>
     <Stack gap={1} direction={'row'} justifyContent={'center'} alignItems={'center'}>
-      <Typography component={'div'} variant={'caption'}>Added levels: {selectedAddedLevels}</Typography>
-      <Breakdown data={selectedAddedLevelsBreakdown} valueNotation="Big" >
+      <Typography component={'div'} variant={'caption'}>Added levels: {effectiveAddedLevels}</Typography>
+      <Breakdown data={effectiveAddedLevelsBreakdown} valueNotation="Big" >
         <Stack alignContent={'center'}>
           <IconInfoCircleFilled size={18} />
         </Stack>
