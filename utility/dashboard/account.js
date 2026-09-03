@@ -2,7 +2,7 @@ import { getMaxClaimTime, getSecPerBall } from '@parsers/dungeons';
 import { getBuildCost } from '@parsers/world-3/construction';
 import { CAULDRON_INFO, CAULDRONS_MAX_LEVELS, LIQUID_INFO, MAX_VIAL_LEVEL, vialCostsArray } from '@parsers/world-2/alchemy';
 import { getChipsAndJewels, maxNumberOfSpiceClicks } from '@parsers/world-4/cooking';
-import { cleanUnderscore, getDuration, getNextCompanionClaim, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
+import { cleanUnderscore, getDuration, getNextCompanionClaim, hoursUntilDailyReset, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { items, liquidsShop, ninjaExtraInfo } from '@website-data';
 import { getPowerPerCycle, getRefineryCycleTimes, getSaltMatsTimeLeft, getSaltsBalance, hasMissingMats } from '@parsers/world-3/refinery';
@@ -1575,7 +1575,13 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
     const slotWorkersOf = ({ unitSlots }) => (unitSlots ?? []).filter((unit) => unit === 0).length;
 
     if (rgOptions?.overkillWorkers?.checked) {
-      const horizon = rgOptions?.overkillWorkers?.props?.value ?? 24;
+      // game: "RestockRes" only refills a node, and only levels it up, when that node is ALREADY
+      // spent at the daily reset. So the deadline deciding whether a Worker is really spare is the
+      // reset itself, not a rolling window: a node that misses it by an hour loses the level up.
+      // The fixed hour count stays for anyone who wants it, and is the fallback when the save is
+      // too old to say when the next reset lands.
+      const resetHorizon = rgOptions?.overkillBeforeReset?.checked ? hoursUntilDailyReset(account) : null;
+      const horizon = resetHorizon ?? (rgOptions?.overkillWorkers?.props?.value ?? 24);
       const overkill = collectors
         .map((outpost) => ({ outpost, workers: getSpareWorkers(outpost, horizon, workerRateBonus) }))
         .filter(({ workers }) => workers > 0)
@@ -1585,7 +1591,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
           expPerHour: (outpost.rankBars?.[0]?.expPerUnit ?? 0) * workers
         }));
       if (overkill.length > 0) {
-        royalGuardian.overkillWorkers = { count: overkill.length, horizon, outposts: overkill };
+        royalGuardian.overkillWorkers = { count: overkill.length, horizon, beforeReset: resetHorizon != null, outposts: overkill };
       }
     }
 

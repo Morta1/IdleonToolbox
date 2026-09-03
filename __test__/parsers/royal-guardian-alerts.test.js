@@ -18,16 +18,26 @@ const V70_OPTION_NAMES = [
   'idleUnits',
   'restockLocked'
 ];
-const OPTION_NAMES = [
+// v73 shipped the three unit alerts; v74 adds the daily-reset modifier under the first of them.
+const V73_OPTION_NAMES = [
   ...V70_OPTION_NAMES.slice(0, -1),
   'overkillWorkers',
   'strandedWorkers',
   'sharedNodes',
   'restockLocked'
 ];
+const OPTION_NAMES = [
+  ...V70_OPTION_NAMES.slice(0, -1),
+  'overkillWorkers',
+  'overkillBeforeReset',
+  'strandedWorkers',
+  'sharedNodes',
+  'restockLocked'
+];
 const OPTIONS = {
   royalGuardian: Object.fromEntries(OPTION_NAMES.map((name) => [name, {
-    checked: true,
+    // overkillBeforeReset stays off here so the horizon is the fixed 10 these tests assert on.
+    checked: name !== 'overkillBeforeReset',
     props: { value: 10 }
   }]))
 };
@@ -183,10 +193,10 @@ describe('royal guardian dashboard alerts', () => {
     const migrated = migrateConfig({ version: 73 }, stored);
 
     expect(migrated.version).toBe(73);
-    expect(migrated.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(OPTION_NAMES);
+    expect(migrated.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(V73_OPTION_NAMES);
     // Re-running it must not duplicate what it already inserted.
     const twice = migrateConfig({ version: 73 }, { ...migrated, version: 72 });
-    expect(twice.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(OPTION_NAMES);
+    expect(twice.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(V73_OPTION_NAMES);
   });
 
   it('flags Workers stranded on a spent outpost with nothing left to rewire to', () => {
@@ -289,5 +299,78 @@ describe('royal guardian dashboard alerts', () => {
       { name: 'Slow', mapIndex: 5, world: 1, monsterRawName: 'frogG', monsterName: 'Frog' }
     ]);
     expect(alerts.sharedNodes.count).toBe(1);
+  });
+  // A node needing only 200 more: the 10h window frees all 3 Workers, a 5h deadline only 2.
+  const quickOutpost = () => ({
+    name: 'Quick', mapIndex: 7, world: 1, monsterRawName: 'mushG', monsterName: 'Green Mushroom',
+    mode: 0, freshNodeInReach: false,
+    unitSlots: [0, 0, 0], unitCounts: [3, 0, 0, 0],
+    rankBars: [{ expPerUnit: 10 }],
+    connectedNodes: [{ index: 11, exhausted: false, drainRate: 100, collected: 0, maxQuantity: 200 }]
+  });
+  const resetOptions = () => ({
+    royalGuardian: Object.fromEntries(OPTION_NAMES.map((name) => [name, { checked: true, props: { value: 10 } }]))
+  });
+
+  it('sizes the overkill horizon by the daily reset when asked to', () => {
+    // game: "RestockRes" only refills and levels a node that is ALREADY spent at the reset, so the
+    // reset is the real deadline - a rolling window frees Workers the node then misses the reset without.
+    const account = stubAccount();
+    account.timeAway = { GlobalTime: Date.now() / 1000, ShopRestock: 5 * 3600 };
+    account.royalGuardian.outposts.push(quickOutpost());
+
+    const alerts = getWorld7Alerts(account, FIELDS, resetOptions(), [])?.royalGuardian;
+
+    expect(alerts.overkillWorkers.beforeReset).toBe(true);
+    expect(alerts.overkillWorkers.horizon).toBeCloseTo(5, 2);
+    // Quick still finishes inside 5h without one Worker, but not without two.
+    expect(alerts.overkillWorkers.outposts.find(({ name }) => name === 'Quick').workers).toBe(2);
+    // Overkill needs its whole current rate to spend 500 in 5h, so it drops out entirely.
+    expect(alerts.overkillWorkers.outposts.find(({ name }) => name === 'Overkill')).toBeUndefined();
+  });
+
+  it('frees more Workers on the same kingdom when the horizon is the plain hour input', () => {
+    // Same account, reset modifier off: the 10h window is looser, so both outposts qualify and
+    // Quick gives up all three. This is the comparison that shows the option actually bites.
+    const account = stubAccount();
+    account.timeAway = { GlobalTime: Date.now() / 1000, ShopRestock: 5 * 3600 };
+    account.royalGuardian.outposts.push(quickOutpost());
+    const options = resetOptions();
+    options.royalGuardian.overkillBeforeReset.checked = false;
+
+    const alerts = getWorld7Alerts(account, FIELDS, options, [])?.royalGuardian;
+
+    expect(alerts.overkillWorkers.beforeReset).toBe(false);
+    expect(alerts.overkillWorkers.horizon).toBe(10);
+    expect(alerts.overkillWorkers.outposts.find(({ name }) => name === 'Quick').workers).toBe(3);
+    expect(alerts.overkillWorkers.outposts.find(({ name }) => name === 'Overkill').workers).toBe(2);
+  });
+
+  it('falls back to the fixed hours when the save is older than the reset it counted down to', () => {
+    const account = stubAccount();
+    // Saved 6h ago with 5h then left on the clock: that reset has already happened, so there is no
+    // deadline left to read and the hour input has to take over.
+    account.timeAway = { GlobalTime: Date.now() / 1000 - 6 * 3600, ShopRestock: 5 * 3600 };
+    const alerts = getWorld7Alerts(account, FIELDS, resetOptions(), [])?.royalGuardian;
+
+    expect(alerts.overkillWorkers.beforeReset).toBe(false);
+    expect(alerts.overkillWorkers.horizon).toBe(10);
+  });
+
+  it('adds the daily reset option under the alert it modifies', () => {
+    const stored = {
+      version: 69,
+      account: { 'World 7': { gallery: { checked: true, options: [] } } },
+      characters: {},
+      timers: { 'World 7': {} }
+    };
+
+    const migrated = migrateConfig({ version: 74 }, stored);
+
+    expect(migrated.version).toBe(74);
+    expect(migrated.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(OPTION_NAMES);
+    // Re-running it must not duplicate what it already inserted.
+    const twice = migrateConfig({ version: 74 }, { ...migrated, version: 73 });
+    expect(twice.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(OPTION_NAMES);
   });
 });

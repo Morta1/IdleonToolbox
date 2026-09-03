@@ -1923,6 +1923,24 @@ const migration73 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration74 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
+  const rgOptions = dashboardConfig?.account?.['World 7']?.royalGuardian?.options;
+  if (Array.isArray(rgOptions) && !rgOptions.some((option) => option?.name === 'overkillBeforeReset')) {
+    // Sits directly under the alert it modifies. On by default because it is the deadline the game
+    // actually enforces - a node only restocks and levels up if it is already empty at the reset.
+    const overkillIndex = rgOptions.findIndex((option) => option?.name === 'overkillWorkers');
+    rgOptions.splice(overkillIndex >= 0 ? overkillIndex + 1 : rgOptions.length, 0, {
+      name: 'overkillBeforeReset',
+      checked: true,
+      helperText: 'Measure that alert against the time left until the daily reset instead of the hours above. A resource only restocks and gains a level if it is already empty when the reset lands, so this is the deadline that actually matters. Falls back to the hours above if your save is older than the reset'
+    });
+  }
+
+  dashboardConfig.version = 74;
+  return dashboardConfig;
+};
+
 const migrations = {
   2: migrateToVersion2,
   3: migrateToVersion3,
@@ -1996,6 +2014,7 @@ const migrations = {
   71: migration71,
   72: migration72,
   73: migration73,
+  74: migration74,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {
