@@ -221,6 +221,8 @@ export interface OptimizeOptions {
    * puts every one of them out there and leaves nobody making cogs. Omit for no limit.
    */
   maxCharacters?: number;
+  /** Most in-game swaps allowed between the current board and the result. Omit for no limit. */
+  maxSwaps?: number;
   maxIterations?: number;
   onProgress?: (progress: OptimizeProgress) => void;
 }
@@ -294,6 +296,49 @@ const buildMoves = (target: Int32Array, cogs: any[]): { moves: OptimizeMove[]; p
   return { moves, placement: current };
 }
 
+// Same permutation walk as buildMoves, without allocating move descriptions. The optimizer calls
+// this in its hot loop to keep every candidate inside the user's actionable swap budget.
+const makeMoveCounter = (size: number, cogs: any[]) => {
+  const current = new Int32Array(size);
+  const where = new Int32Array(size);
+  const desired = new Int32Array(size);
+  const wantedAt = new Int32Array(size);
+
+  return (target: Int32Array, stopAfter = Infinity) => {
+    for (let index = 0; index < size; index++) {
+      current[index] = index;
+      where[index] = index;
+      desired[index] = target[index];
+      wantedAt[target[index]] = index;
+    }
+
+    let count = 0;
+    for (let position = 0; position < BOARD_SIZE; position++) {
+      const wanted = desired[position];
+      if (current[position] === wanted) continue;
+      const displaced = current[position];
+
+      if (isBlankCog(cogs[wanted]) && isBlankCog(cogs[displaced])) {
+        const swapWith = wantedAt[displaced];
+        desired[position] = displaced;
+        wantedAt[displaced] = position;
+        desired[swapWith] = wanted;
+        wantedAt[wanted] = swapWith;
+        continue;
+      }
+
+      count++;
+      if (count > stopAfter) return count;
+      const source = where[wanted];
+      current[position] = wanted;
+      where[wanted] = position;
+      current[source] = displaced;
+      where[displaced] = source;
+    }
+    return count;
+  };
+}
+
 // Build rate, player XP and flaggy rate differ by orders of magnitude and by account, so a raw
 // weighted sum would just track whichever number happens to be biggest. Scoring each stat against
 // the board's current value instead makes the weights pure priorities: the score sits at 1.0 for
@@ -333,6 +378,7 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
     spareCogs,
     multipliers,
     maxCharacters,
+    maxSwaps,
     maxIterations,
     onProgress
   } = options;
@@ -349,6 +395,9 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
   // at all, means no cap - which is how every caller behaved before the option existed.
   const characterCap = Number.isFinite(maxCharacters as number) && (maxCharacters as number) >= 0
     ? Math.trunc(maxCharacters as number)
+    : Infinity;
+  const swapCap = Number.isFinite(maxSwaps as number) && (maxSwaps as number) >= 0
+    ? Math.trunc(maxSwaps as number)
     : Infinity;
 
   // Slots that may give up their cog: unlocked, and not currently building a flag.
@@ -367,6 +416,7 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
 
   const placement = new Int32Array(pool.length);
   for (let index = 0; index < placement.length; index++) placement[index] = index;
+  const countMoves = makeMoveCounter(placement.length, cogs);
 
   const isCharacter = new Uint8Array(pool.length);
   if (characterCap !== Infinity) {
@@ -501,6 +551,16 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
     }
   }
 
+  // Enforcing the character cap can itself consume swaps. If that alone is over budget, keep the
+  // real board unchanged: returning a longer plan would violate the more explicit action limit.
+  if (swapCap !== Infinity && countMoves(placement, swapCap) > swapCap) {
+    return {
+      ...applyBoardMultipliers(evaluateBoard(normalizedBoard, characters), multipliers),
+      moves: [],
+      constraintMessage: `The character limit needs more than ${swapCap} swaps. Raise Max swaps or Max chars.`
+    };
+  }
+
   const baseline = scorePlacement(placement, pool);
   const objective = makeObjective(stat, weights, baseline);
   let currentScore = objective(baseline);
@@ -573,6 +633,17 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
       placement[from] = toCog;
       placement[to] = fromCog;
       charactersOnBoard += characterDelta;
+    }
+
+    if (swapCap !== Infinity && countMoves(placement, swapCap) > swapCap) {
+      if (movedBlock >= 0) {
+        revertBlockMove(movedBlock);
+      } else {
+        placement[from] = fromCog;
+        placement[to] = toCog;
+        charactersOnBoard -= characterDelta;
+      }
+      continue;
     }
 
     const score = objective(scorePlacement(placement, pool));

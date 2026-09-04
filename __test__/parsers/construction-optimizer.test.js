@@ -356,6 +356,36 @@ describe('move list', () => {
     expect(optimized.moves).toEqual([]);
   });
 
+  it.each([0, 1, 3, 8])('never returns more than a %i swap budget', (maxSwaps) => {
+    const board = makeBoard();
+    const optimized = optimizeArrayWithSwaps(board, {
+      stat: 'totalBuildRate',
+      maxIterations: 60000,
+      maxSwaps,
+      characters
+    });
+
+    expect(optimized.moves.length).toBeLessThanOrEqual(maxSwaps);
+    const replayed = applyMoves(board, [], optimized.moves);
+    optimized.board.forEach((slot, index) => {
+      expect(replayed[index].originalIndex).toBe(slot.cog.originalIndex);
+    });
+  });
+
+  it('finds a better board when only one swap is allowed', () => {
+    const board = makeBoard();
+    const baseline = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 0, characters });
+    const optimized = optimizeArrayWithSwaps(board, {
+      stat: 'totalBuildRate',
+      maxIterations: 120000,
+      maxSwaps: 1,
+      characters
+    });
+
+    expect(optimized.moves).toHaveLength(1);
+    expect(optimized.totalBuildRate).toBeGreaterThan(baseline.totalBuildRate);
+  });
+
   it('reports progress while it runs', () => {
     const seen = [];
     optimizeArrayWithSwaps(makeBoard(), {

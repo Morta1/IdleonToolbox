@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.75',
+    'gameVer': '2.3.527',
+    'date': '04/09/2026',
+    'features': [
+      'Construction: added a swap-limited cog optimizer that finds the best board it can reach within your chosen number of swaps'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.74',
     'gameVer': '2.3.527',
     'date': '04/09/2026',

@@ -73,6 +73,7 @@ const ConstructionMain = () => {
   const [stat, setStat] = useState('totalBuildRate');
   const [weights, setWeights] = useState({ totalBuildRate: 1, totalPlayerExpRate: 1, totalFlaggyRate: 1 });
   const [computeSeconds, setComputeSeconds] = useState(3);
+  const [maxSwaps, setMaxSwaps] = useState(10);
   // Two by default. Characters on the board stop making cogs, and left to itself the optimizer sends
   // every one of them out, so the starting point is a couple rather than the whole roster. Clamped
   // for anyone who has fewer than that to begin with.
@@ -142,7 +143,7 @@ const ConstructionMain = () => {
     if (VIEW_BY_STAT[nextStat]) setView(VIEW_BY_STAT[nextStat]);
   };
 
-  const handleOptimize = () => {
+  const handleOptimize = (limitSwaps = false) => {
     const construction = state?.account?.construction;
     setCurrent(construction);
     setHoverHighlight(null);
@@ -155,7 +156,8 @@ const ConstructionMain = () => {
       characters: state?.characters?.map(({ name, constructionExpPerHour }) => ({ name, constructionExpPerHour })),
       spareCogs: structuredClone(construction?.spareCogs ?? []),
       multipliers: construction?.boardMultipliers,
-      maxCharacters: Math.max(0, Math.min(totalCharacters, Math.trunc(Number(maxCharacters) || 0)))
+      maxCharacters: Math.max(0, Math.min(totalCharacters, Math.trunc(Number(maxCharacters) || 0))),
+      ...(limitSwaps ? { maxSwaps: Math.max(0, Math.trunc(Number(maxSwaps) || 0)) } : {})
     });
   }
 
@@ -278,6 +280,18 @@ const ConstructionMain = () => {
                     </ToggleButton>)}
                   </ToggleButtonGroup>
                 </Stack>
+                <Tooltip followCursor={false}
+                         title={'Limits the result to this many swaps from your current board.'}>
+                  <TextField onChange={({ target }) => setMaxSwaps(target.value)}
+                             type={'number'}
+                             disabled={running}
+                             inputProps={{ min: 0, max: 96, step: 1 }}
+                             variant={'standard'}
+                             size={'small'}
+                             sx={{ width: 82 }}
+                             label={'Max swaps'}
+                             value={maxSwaps}/>
+                </Tooltip>
                 {running
                   ? <Stack direction={'row'} alignItems={'center'} gap={1}>
                     <CircularProgress size={16}/>
@@ -288,7 +302,8 @@ const ConstructionMain = () => {
                             onClick={cancel}>Cancel</Button>
                   </Stack>
                   : <Stack direction={'row'} gap={1}>
-                    <Button variant={'contained'} onClick={handleOptimize}>Optimize</Button>
+                    <Button variant={'contained'} onClick={() => handleOptimize(false)}>Optimize</Button>
+                    <Button variant={'outlined'} onClick={() => handleOptimize(true)}>Optimize within limit</Button>
                     {optimized
                       ? <Button color={'inherit'} sx={{ textTransform: 'unset' }}
                                 onClick={() => { reset(); setCursor(0); }}>Clear</Button>
@@ -298,6 +313,11 @@ const ConstructionMain = () => {
               {running ? <LinearProgress variant={'determinate'} value={progress * 100}
                                          sx={{ height: 6, borderRadius: 3 }}/> : null}
               {error ? <Typography variant={'caption'} sx={{ color: 'error.main' }}>{error}</Typography> : null}
+              {optimized?.constraintMessage
+                ? <Typography variant={'caption'} sx={{ color: 'warning.main' }}>
+                  {optimized.constraintMessage}
+                </Typography>
+                : null}
             </Stack>
           </Paper>
           {/* Basis, not zero: the stats have to keep at least two columns, or the grid drops to one,
