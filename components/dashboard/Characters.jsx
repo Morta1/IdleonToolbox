@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { IconCircleCheckFilled, IconInfoCircleFilled } from '@tabler/icons-react';
 import { cleanUnderscore, kFormatter, notateNumber, pascalCase, prefix } from '@utility/helpers';
 import styled from '@emotion/styled';
 import { getActivityIcon } from '@utility/spriteImages';
@@ -73,258 +73,279 @@ const alertsMap = {
   classSpecific: classSpecificAlerts
 }
 
-const Characters = ({ characters = [], account, lastUpdated, trackers }) => {
-  return <>
-    <Stack gap={2} direction={'row'} flexWrap={'wrap'}>
-      {characters?.map((character, characterIndex) => {
-        const {
-          name,
-          classIndex,
-          afkTarget,
-          afkTime,
-          postOffice,
-          targetMonster,
-          monsterFace
-        } = character;
-        const options = Object.entries(trackers || {})?.reduce((result, [trackerName, data]) => {
-          const { options, ...rest } = data;
-          const optionObject = data?.options?.reduce((result, option) => ({
-            ...result,
-            [option?.name]: option
-          }), {});
-          return { ...result, [trackerName]: { ...rest, ...optionObject } }
-        }, {});
-        const alerts = Object.keys(options)?.reduce((result, trackerName) => {
-          result[trackerName] = alertsMap?.[trackerName]?.(account, characters, character, lastUpdated, options) || {};
-          return result;
-        }, {});
-        const isActive = () => {
-          const timePassed = new Date().getTime() + (afkTime - lastUpdated);
-          const minutes = differenceInMinutes(new Date(), new Date(timePassed));
-          return minutes <= 5;
-        };
-        const activity = afkTarget && afkTarget !== '_' ? afkTarget : 'Nothing';
-        const classIcon = classIndex !== undefined ? `data/ClassIcons${classIndex}.png` : 'afk_targets/Nothing.png'
-        const dbFormActive = getTalentBonusIfActive(character?.activeBuffs, 'WRAITH_FORM') && 'data/UISkillIcon195';
-        const acFormActive = getTalentBonusIfActive(character?.activeBuffs, 'ARCANIST_FORM') && 'data/UISkillIcon585';
-        const wwFormActive = getTalentBonusIfActive(character?.activeBuffs, 'TEMPEST_FORM') && 'data/UISkillIcon420';
-        const charForm = dbFormActive || acFormActive || wwFormActive;
+const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlertless }) => {
+  const cards = characters?.map((character, characterIndex) => {
+    const {
+      name,
+      classIndex,
+      afkTarget,
+      afkTime,
+      postOffice,
+      targetMonster,
+      monsterFace
+    } = character;
+    const options = Object.entries(trackers || {})?.reduce((result, [trackerName, data]) => {
+      const { options, ...rest } = data;
+      const optionObject = data?.options?.reduce((result, option) => ({
+        ...result,
+        [option?.name]: option
+      }), {});
+      return { ...result, [trackerName]: { ...rest, ...optionObject } }
+    }, {});
+    const alerts = Object.keys(options)?.reduce((result, trackerName) => {
+      result[trackerName] = alertsMap?.[trackerName]?.(account, characters, character, lastUpdated, options) || {};
+      return result;
+    }, {});
+    const isActive = () => {
+      const timePassed = new Date().getTime() + (afkTime - lastUpdated);
+      const minutes = differenceInMinutes(new Date(), new Date(timePassed));
+      return minutes <= 5;
+    };
+    const activity = afkTarget && afkTarget !== '_' ? afkTarget : 'Nothing';
+    const classIcon = classIndex !== undefined ? `data/ClassIcons${classIndex}.png` : 'afk_targets/Nothing.png'
+    const dbFormActive = getTalentBonusIfActive(character?.activeBuffs, 'WRAITH_FORM') && 'data/UISkillIcon195';
+    const acFormActive = getTalentBonusIfActive(character?.activeBuffs, 'ARCANIST_FORM') && 'data/UISkillIcon585';
+    const wwFormActive = getTalentBonusIfActive(character?.activeBuffs, 'TEMPEST_FORM') && 'data/UISkillIcon420';
+    const charForm = dbFormActive || acFormActive || wwFormActive;
 
-        return <Card key={name} sx={{ width: 300 }} data-cy={`character-${name}`}>
-          <CardContent>
-            <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-              <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}${classIcon}`}
-                                                                      alt=""/></Box>
-              <Stack>
-                <Typography>{name}</Typography>
-                {isActive() ? <Typography>Active</Typography> : <Timer variant={'caption'} type={'up'} date={afkTime}
-                                                                       lastUpdated={lastUpdated}/>}
-              </Stack>
-              <Stack direction={'row'} alignItems="center" gap={1} style={{ marginLeft: 'auto' }}>
-                <HtmlTooltip title={cleanUnderscore(activity)}>
-                  <IconImg src={getActivityIcon(character)} alt="activity icon"
-                           style={{ width: 32, height: 32 }}
-                  />
-                </HtmlTooltip>
-                {charForm ? <HtmlTooltip title={`${formMap?.[charForm]}`}>
-                  <IconImg src={`${prefix}${dbFormActive || acFormActive || wwFormActive}.png`} alt="form icon"
-                  />
-                </HtmlTooltip> : null}
-                <HtmlTooltip title={<CharacterInfo characters={characters} account={account} character={character}
-                                                   lastUpdated={lastUpdated}/>}>
-                  <IconInfoCircleFilled/>
-                </HtmlTooltip>
-              </Stack>
-            </Stack>
-            <Divider sx={{ my: 1 }}/>
-            <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-              {trackers?.worship && alerts?.worship?.unendingEnergy ?
-                <Alert target={'worship.unendingEnergy'} title={`${name} has unending energy prayer and is afk for more than 10 hours`}
-                       iconPath={'data/Prayer2'}/> : null}
-              {trackers?.divinityStyle && Object.keys(alerts?.divinityStyle).length ?
-                <Alert target={'divinityStyle'} title={`${name} ${alerts?.divinityStyle?.text}`}
-                       iconPath={`etc/${alerts?.divinityStyle?.icon}`}/> : null}
-              {trackers?.worship && alerts?.worship?.chargeOverdue ?
-                <Alert target={'worship.chargeOverdue'} title={`${name} worship is full`} iconPath={'data/ClassIcons50'}/> : null}
-              {trackers?.traps && alerts?.traps?.trapsOverdue ?
-                <Alert target={'traps.trapsOverdue'} title={`${name} traps are overdue`} iconPath={'data/TrapBoxSet1'}/> : null}
-              {trackers?.traps && alerts?.traps?.missingTraps ?
-                <Alert target={'traps.missingTraps'} title={`${name} is missing a trap`} iconPath={'data/ClassIcons48'}/> : null}
-              {trackers?.quests && alerts?.quests?.picnicDaily ?
-                <Alert target={'quests.picnicDaily'} title={`${name} hasn't done the Picnic Stowaway daily quest today`}
-                       iconPath={'etc/Picnic_Stowaway'}/> : null}
-              {trackers?.alchemy && alerts?.alchemy?.missingBubbles ?
-                <Alert target={'alchemy.missingBubbles'} title={`${name} is missing an active bubble`} iconPath={'data/aJarB0'}/> : null}
-              {trackers?.alchemy && alerts?.alchemy?.noActivity ?
-                <Alert target={'alchemy.noActivity'} title={`${name} is not doing any alchemy activity`} iconPath={'etc/NoAlcActivity'}/> : null}
-              {trackers?.cards && alerts?.cards?.cardSet ?
-                <Alert target={'cards.cardSet'} title={alerts?.cards?.cardSet?.text}
-                       iconPath={`data/${character?.cards?.cardSet?.rawName || 'CardSet0'}`}/> : null}
-              {trackers?.cards && alerts?.cards?.passiveCards ?
-                <Alert target={'cards.passiveCards'} title={`${name} has a passive card equipped`}
-                       iconPath={`etc/PassiveCard`}/> : null}
-              {trackers?.obols && alerts?.obols?.missingObols?.length > 0 ?
-                <Alert target={'obols.missingObols'} title={`${name} has ${alerts?.obols?.missingObols?.length} empty obol slots`}
-                       iconPath={'data/ObolLocked1'}/> : null}
-              {trackers?.postOffice && alerts?.postOffice?.unspentPoints ?
-                <Alert target={'postOffice.unspentPoints'} title={`${name} has ${Math.floor(postOffice?.unspentPoints)} unspent post office points`}
-                       iconPath={'data/UIboxUpg0'}/> : null}
-              {trackers?.anvil && alerts?.anvil?.missingHammers > 0 ?
-                <Alert target={'anvil.missingHammers'} title={`${name} is missing ${alerts?.anvil?.missingHammers} hammers`}
-                       iconPath={'data/GemP1'}/> : null}
-              {trackers?.anvil && alerts?.anvil?.unspentPoints > 0 ?
-                <Alert target={'anvil.unspentPoints'} title={`${name} has ${alerts?.anvil?.unspentPoints} unspent anvil points`}
-                       iconPath={'data/ClassIcons43'}/> : null}
-              {trackers?.classSpecific && alerts?.classSpecific?.wrongItems?.acWeapon ?
-                <Alert target={'classSpecific.wrongItems'} title={`${name} is not in Arcanist form but is using an Arcanist-form weapon`}
-                       iconPath={'data/EquipmentWandsArc0'}/> : null}
-              {trackers?.classSpecific && alerts?.classSpecific?.wrongItems?.acRings ?
-                <Alert target={'classSpecific.wrongItems'} title={`${name} is not in Arcanist form but is using an Arcanist-form ring`}
-                       iconPath={`data/${alerts?.classSpecific?.wrongItems?.acRings}`}/> : null}
-              {trackers?.classSpecific && alerts?.classSpecific?.wrongItems?.wwWeapon ?
-                <Alert target={'classSpecific.wrongItems'} title={`${name} is not in Temptest form but is using a Tempest-form weapon`}
-                       style={{ zIndex: 1 }}
-                       iconPath={`data/${alerts?.classSpecific?.wrongItems?.wwWeapon}`}
-                /> : null}
-              {trackers?.classSpecific && alerts?.classSpecific?.wrongItems?.wwRings ?
-                <Alert target={'classSpecific.wrongItems'} title={`${name} is not in Temptest form but is using a Tempest-form ring`}
-                       style={{ zIndex: 1 }}
-                       iconPath={`data/${alerts?.classSpecific?.wrongItems?.wwRings}`}
-                /> : null}
-              {trackers?.classSpecific && alerts?.classSpecific?.betterWeapon ?
-                <Alert target={'classSpecific.betterWeapon'} title={`${name} has a better class-specific weapon in their inventory: ${cleanUnderscore(alerts?.classSpecific?.betterWeapon?.displayName || alerts?.classSpecific?.betterWeapon?.rawName)}${alerts?.classSpecific?.betterWeapon?.Weapon_Power ? ` (WP ${alerts?.classSpecific?.betterWeapon?.Weapon_Power}${alerts?.classSpecific?.betterWeapon?.UQ1txt ? `, +${alerts?.classSpecific?.betterWeapon?.UQ1val}% ${cleanUnderscore(alerts?.classSpecific?.betterWeapon?.UQ1txt)}` : ''})` : ''}${itemLocationSuffix(alerts?.classSpecific?.betterWeapon)}`}
-                       iconPath={`data/${alerts?.classSpecific?.betterWeapon?.rawName}`}
-                       extra={<img
-                         src={`${prefix}data/UpgArrowG.png`}
-                         alt={"up-arrow"}
-                         style={{
-                           position: 'absolute',
-                           width: 12,
-                           height: 12,
-                           top: -2,
-                           right: -2
-                         }}/>}
-                /> : null}
-              {trackers?.classSpecific && alerts?.classSpecific?.betterRing ?
-                <Alert target={'classSpecific.betterRing'} title={`${name} has a better class-specific ring in their inventory: ${cleanUnderscore(alerts?.classSpecific?.betterRing?.displayName || alerts?.classSpecific?.betterRing?.rawName)}${alerts?.classSpecific?.betterRing?.UQ1txt ? ` (+${alerts?.classSpecific?.betterRing?.UQ1val}${cleanUnderscore(alerts?.classSpecific?.betterRing?.UQ1txt)}${alerts?.classSpecific?.betterRing?.UQ2txt ? `, +${alerts?.classSpecific?.betterRing?.UQ2val}${cleanUnderscore(alerts?.classSpecific?.betterRing?.UQ2txt)}` : ''})` : ''}${itemLocationSuffix(alerts?.classSpecific?.betterRing)}`}
-                       iconPath={`data/${alerts?.classSpecific?.betterRing?.rawName}`}
-                       extra={<img
-                         src={`${prefix}data/UpgArrowG.png`}
-                         alt={"up-arrow"}
-                         style={{
-                           position: 'absolute',
-                           width: 12,
-                           height: 12,
-                           top: -2,
-                           right: -2
-                         }}/>}
-                /> : null}
-              {trackers?.equipment && alerts?.equipment?.availableUpgradesSlots?.length > 0 ?
-                alerts?.equipment?.availableUpgradesSlots?.map(({
-                                                                  displayName,
-                                                                  rawName,
-                                                                  Upgrade_Slots_Left
-                                                                }, index) => {
-                  return <Alert target={'equipment.availableUpgradesSlots'} key={`slots-${name}-${characterIndex}-${rawName}-${index}`}
-                                title={`${cleanUnderscore(displayName)} has ${Upgrade_Slots_Left} available upgrade slots`}
-                                extra={<Box style={{
-                                  position: 'absolute',
-                                  width: 5,
-                                  height: 5,
-                                  top: -2,
-                                  right: -2,
-                                  borderRadius: '50%',
-                                  backgroundColor: '#d62727'
-                                }}/>}
-                                iconPath={`data/${rawName}`}/>;
-                }) : null}
-              {trackers?.equipment && alerts?.equipment?.emptyGearSlots?.length > 0 ?
-                <Alert target={'equipment.emptyGearSlots'} title={`${name} has empty equipment slots: ${alerts?.equipment?.emptyGearSlots?.join(', ')}`}
-                       iconPath={'data/EquipmentTransparent1'}/> : null}
-              {trackers?.bags && alerts?.bags?.unmaxedBags?.length > 0 ?
-                <Alert target={'bags.unmaxedBags'} title={<BagList name={name} bags={alerts?.bags?.unmaxedBags}/>}
-                       iconPath={'data/MaxCapBagM13'}/> : null}
-              {trackers?.anvil && alerts?.anvil?.anvilOverdue?.length > 0 ?
-                alerts?.anvil?.anvilOverdue?.map(({ diff, name, rawName }) => {
-                  const isFull = diff <= 0;
-                  return <Alert target={'anvil.anvilOverdue'} key={`${name}-${characterIndex}`}
-                                title={`${cleanUnderscore(name)} ${isFull
-                                  ? 'production is full'
-                                  : `is ${diff} minutes away from being full`}`}
-                                iconPath={`data/${rawName}`}/>;
-                }) : null}
-              {trackers?.starSigns && alerts?.starSigns?.missingStarSigns > 0 ?
-                <Alert target={'starSigns.missingStarSigns'} title={`${name} is missing ${alerts?.starSigns?.missingStarSigns} star signs`}
-                       iconPath={'data/SignStar1b'}/> : null}
-              {trackers?.talents && alerts?.talents?.talents?.length > 0 ? alerts?.talents?.talents?.map(({
-                                                                                                            name,
-                                                                                                            skillIndex,
-                                                                                                            cooldown
-                                                                                                          }, index) => (
-                <Alert target={'talents.talents'} key={skillIndex + '-' + index}
-                       style={{ opacity: cooldown > 0 ? .5 : 1 }}
-                       title={cooldown > 0
-                         ? <Timer type={'countdown'}
-                                  date={cooldown} lastUpdated={lastUpdated}/>
-                         : `${cleanUnderscore(pascalCase(name))} is ready`}
-                       iconPath={`data/UISkillIcon${skillIndex}`}/>
-              )) : null}
-              {trackers?.talents && alerts?.talents?.superTalentLeftToSpend > 0 ?
-                <Alert target={'talents.superTalentLeftToSpend'}
-                  title={`${name} has ${alerts?.talents?.superTalentLeftToSpend} unspent super talent point${alerts?.talents?.superTalentLeftToSpend === 1
-                    ? ''
-                    : 's'}`}
-                  iconPath={'data/LegendTalentIcon0'}/> : null}
-              {trackers?.talents && alerts?.talents?.unmaxedTalents?.length > 0 ?
-                <Alert target={'talents.unmaxedTalents'}
-                  title={<TalentList name={name} verb={'talents below max level'}
-                                     talents={alerts?.talents?.unmaxedTalents}/>}
-                  iconPath={`data/${getTalentBookIcon(character?.class)}`}/> : null}
-              {trackers?.talents && alerts?.talents?.libraryUpgradableTalents?.length > 0 ?
-                <Alert target={'talents.libraryUpgradableTalents'}
-                  title={<TalentList name={name} verb={'talents the Library can raise'}
-                                     talents={alerts?.talents?.libraryUpgradableTalents}/>}
-                  iconPath={`data/${getTalentBookIcon(character?.class)}`}/> : null}
-              {trackers?.tools?.checked && alerts?.tools?.length > 0 ? alerts?.tools?.map(({
-                                                                                             rawName,
-                                                                                             displayName
-                                                                                           }, index) => (
-                <Alert target={'tools'} key={`${character?.name}-${rawName}-${index}`}
-                       title={`${character?.name} can equip ${cleanUnderscore(pascalCase(displayName))}`}
-                       iconPath={`data/${rawName}`}/>
-              )) : null}
-              {trackers?.crystalCountdown && alerts?.crystalCountdown?.length > 0 ? alerts?.crystalCountdown?.map(({
-                                                                                                                     name,
-                                                                                                                     icon,
-                                                                                                                     reduction,
-                                                                                                                     crystalCountdown
-                                                                                                                   }, index) => {
-                  let { showMaxed, showNonMaxed } = options?.crystalCountdown || {};
-                  showMaxed = showMaxed?.checked;
-                  showNonMaxed = showNonMaxed?.checked;
-                  const ready = crystalCountdown > 0 && Math.floor(reduction) >= Math.floor(crystalCountdown);
-                  if (!showMaxed && ready || !showNonMaxed && (showMaxed && !ready) || (!showNonMaxed && !showMaxed)) return null;
-                  return <Alert target={'crystalCountdown'} key={icon + '-' + index + '-' + characterIndex}
-                                style={{
-                                  border: '1px solid',
-                                  borderColor: ready ? '#66bb6a' : reduction > 0 ? '#d1921e' : '',
-                                  borderRadius: 5,
-                                  opacity: ready || reduction > 0 ? 1 : .5
-                                }}
-                                title={`Crystal CD for ${cleanUnderscore(pascalCase(name))} is ${ready
-                                  ? 'maxed'
-                                  : ''} ${Math.round(reduction * 100) / 100}% ${!ready
-                                  ? `(Max: ${Math.round(crystalCountdown * 100) / 100})`
-                                  : ''}`}
-                                iconPath={`data/${icon}`}/>
-                }
-              ) : null}
-            </Stack>
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
-  </>
+
+    const alertIcons = <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+      {trackers?.worship && alerts?.worship?.unendingEnergy ?
+        <Alert target={'worship.unendingEnergy'} title={`${name} has unending energy prayer and is afk for more than 10 hours`}
+               iconPath={'data/Prayer2'}/> : null}
+      {trackers?.divinityStyle && Object.keys(alerts?.divinityStyle).length ?
+        <Alert target={'divinityStyle'} title={`${name} ${alerts?.divinityStyle?.text}`}
+               iconPath={`etc/${alerts?.divinityStyle?.icon}`}/> : null}
+      {trackers?.worship && alerts?.worship?.chargeOverdue ?
+        <Alert target={'worship.chargeOverdue'} title={`${name} worship is full`} iconPath={'data/ClassIcons50'}/> : null}
+      {trackers?.traps && alerts?.traps?.trapsOverdue ?
+        <Alert target={'traps.trapsOverdue'} title={`${name} traps are overdue`} iconPath={'data/TrapBoxSet1'}/> : null}
+      {trackers?.traps && alerts?.traps?.missingTraps ?
+        <Alert target={'traps.missingTraps'} title={`${name} is missing a trap`} iconPath={'data/ClassIcons48'}/> : null}
+      {trackers?.quests && alerts?.quests?.picnicDaily ?
+        <Alert target={'quests.picnicDaily'} title={`${name} hasn't done the Picnic Stowaway daily quest today`}
+               iconPath={'etc/Picnic_Stowaway'}/> : null}
+      {trackers?.alchemy && alerts?.alchemy?.missingBubbles ?
+        <Alert target={'alchemy.missingBubbles'} title={`${name} is missing an active bubble`} iconPath={'data/aJarB0'}/> : null}
+      {trackers?.alchemy && alerts?.alchemy?.noActivity ?
+        <Alert target={'alchemy.noActivity'} title={`${name} is not doing any alchemy activity`} iconPath={'etc/NoAlcActivity'}/> : null}
+      {trackers?.cards && alerts?.cards?.cardSet ?
+        <Alert target={'cards.cardSet'} title={alerts?.cards?.cardSet?.text}
+               iconPath={`data/${character?.cards?.cardSet?.rawName || 'CardSet0'}`}/> : null}
+      {trackers?.cards && alerts?.cards?.passiveCards ?
+        <Alert target={'cards.passiveCards'} title={`${name} has a passive card equipped`}
+               iconPath={`etc/PassiveCard`}/> : null}
+      {trackers?.obols && alerts?.obols?.missingObols?.length > 0 ?
+        <Alert target={'obols.missingObols'} title={`${name} has ${alerts?.obols?.missingObols?.length} empty obol slots`}
+               iconPath={'data/ObolLocked1'}/> : null}
+      {trackers?.postOffice && alerts?.postOffice?.unspentPoints ?
+        <Alert target={'postOffice.unspentPoints'} title={`${name} has ${Math.floor(postOffice?.unspentPoints)} unspent post office points`}
+               iconPath={'data/UIboxUpg0'}/> : null}
+      {trackers?.anvil && alerts?.anvil?.missingHammers > 0 ?
+        <Alert target={'anvil.missingHammers'} title={`${name} is missing ${alerts?.anvil?.missingHammers} hammers`}
+               iconPath={'data/GemP1'}/> : null}
+      {trackers?.anvil && alerts?.anvil?.unspentPoints > 0 ?
+        <Alert target={'anvil.unspentPoints'} title={`${name} has ${alerts?.anvil?.unspentPoints} unspent anvil points`}
+               iconPath={'data/ClassIcons43'}/> : null}
+      {trackers?.classSpecific && alerts?.classSpecific?.wrongItems?.acWeapon ?
+        <Alert target={'classSpecific.wrongItems'} title={`${name} is not in Arcanist form but is using an Arcanist-form weapon`}
+               iconPath={'data/EquipmentWandsArc0'}/> : null}
+      {trackers?.classSpecific && alerts?.classSpecific?.wrongItems?.acRings ?
+        <Alert target={'classSpecific.wrongItems'} title={`${name} is not in Arcanist form but is using an Arcanist-form ring`}
+               iconPath={`data/${alerts?.classSpecific?.wrongItems?.acRings}`}/> : null}
+      {trackers?.classSpecific && alerts?.classSpecific?.wrongItems?.wwWeapon ?
+        <Alert target={'classSpecific.wrongItems'} title={`${name} is not in Temptest form but is using a Tempest-form weapon`}
+               style={{ zIndex: 1 }}
+               iconPath={`data/${alerts?.classSpecific?.wrongItems?.wwWeapon}`}
+        /> : null}
+      {trackers?.classSpecific && alerts?.classSpecific?.wrongItems?.wwRings ?
+        <Alert target={'classSpecific.wrongItems'} title={`${name} is not in Temptest form but is using a Tempest-form ring`}
+               style={{ zIndex: 1 }}
+               iconPath={`data/${alerts?.classSpecific?.wrongItems?.wwRings}`}
+        /> : null}
+      {trackers?.classSpecific && alerts?.classSpecific?.betterWeapon ?
+        <Alert target={'classSpecific.betterWeapon'} title={`${name} has a better class-specific weapon in their inventory: ${cleanUnderscore(alerts?.classSpecific?.betterWeapon?.displayName || alerts?.classSpecific?.betterWeapon?.rawName)}${alerts?.classSpecific?.betterWeapon?.Weapon_Power ? ` (WP ${alerts?.classSpecific?.betterWeapon?.Weapon_Power}${alerts?.classSpecific?.betterWeapon?.UQ1txt ? `, +${alerts?.classSpecific?.betterWeapon?.UQ1val}% ${cleanUnderscore(alerts?.classSpecific?.betterWeapon?.UQ1txt)}` : ''})` : ''}${itemLocationSuffix(alerts?.classSpecific?.betterWeapon)}`}
+               iconPath={`data/${alerts?.classSpecific?.betterWeapon?.rawName}`}
+               extra={<img
+                 src={`${prefix}data/UpgArrowG.png`}
+                 alt={"up-arrow"}
+                 style={{
+                   position: 'absolute',
+                   width: 12,
+                   height: 12,
+                   top: -2,
+                   right: -2
+                 }}/>}
+        /> : null}
+      {trackers?.classSpecific && alerts?.classSpecific?.betterRing ?
+        <Alert target={'classSpecific.betterRing'} title={`${name} has a better class-specific ring in their inventory: ${cleanUnderscore(alerts?.classSpecific?.betterRing?.displayName || alerts?.classSpecific?.betterRing?.rawName)}${alerts?.classSpecific?.betterRing?.UQ1txt ? ` (+${alerts?.classSpecific?.betterRing?.UQ1val}${cleanUnderscore(alerts?.classSpecific?.betterRing?.UQ1txt)}${alerts?.classSpecific?.betterRing?.UQ2txt ? `, +${alerts?.classSpecific?.betterRing?.UQ2val}${cleanUnderscore(alerts?.classSpecific?.betterRing?.UQ2txt)}` : ''})` : ''}${itemLocationSuffix(alerts?.classSpecific?.betterRing)}`}
+               iconPath={`data/${alerts?.classSpecific?.betterRing?.rawName}`}
+               extra={<img
+                 src={`${prefix}data/UpgArrowG.png`}
+                 alt={"up-arrow"}
+                 style={{
+                   position: 'absolute',
+                   width: 12,
+                   height: 12,
+                   top: -2,
+                   right: -2
+                 }}/>}
+        /> : null}
+      {trackers?.equipment && alerts?.equipment?.availableUpgradesSlots?.length > 0 ?
+        alerts?.equipment?.availableUpgradesSlots?.map(({
+                                                          displayName,
+                                                          rawName,
+                                                          Upgrade_Slots_Left
+                                                        }, index) => {
+          return <Alert target={'equipment.availableUpgradesSlots'} key={`slots-${name}-${characterIndex}-${rawName}-${index}`}
+                        title={`${cleanUnderscore(displayName)} has ${Upgrade_Slots_Left} available upgrade slots`}
+                        extra={<Box style={{
+                          position: 'absolute',
+                          width: 5,
+                          height: 5,
+                          top: -2,
+                          right: -2,
+                          borderRadius: '50%',
+                          backgroundColor: '#d62727'
+                        }}/>}
+                        iconPath={`data/${rawName}`}/>;
+        }) : null}
+      {trackers?.equipment && alerts?.equipment?.emptyGearSlots?.length > 0 ?
+        <Alert target={'equipment.emptyGearSlots'} title={`${name} has empty equipment slots: ${alerts?.equipment?.emptyGearSlots?.join(', ')}`}
+               iconPath={'data/EquipmentTransparent1'}/> : null}
+      {trackers?.bags && alerts?.bags?.unmaxedBags?.length > 0 ?
+        <Alert target={'bags.unmaxedBags'} title={<BagList name={name} bags={alerts?.bags?.unmaxedBags}/>}
+               iconPath={'data/MaxCapBagM13'}/> : null}
+      {trackers?.anvil && alerts?.anvil?.anvilOverdue?.length > 0 ?
+        alerts?.anvil?.anvilOverdue?.map(({ diff, name, rawName }) => {
+          const isFull = diff <= 0;
+          return <Alert target={'anvil.anvilOverdue'} key={`${name}-${characterIndex}`}
+                        title={`${cleanUnderscore(name)} ${isFull
+                          ? 'production is full'
+                          : `is ${diff} minutes away from being full`}`}
+                        iconPath={`data/${rawName}`}/>;
+        }) : null}
+      {trackers?.starSigns && alerts?.starSigns?.missingStarSigns > 0 ?
+        <Alert target={'starSigns.missingStarSigns'} title={`${name} is missing ${alerts?.starSigns?.missingStarSigns} star signs`}
+               iconPath={'data/SignStar1b'}/> : null}
+      {trackers?.talents && alerts?.talents?.talents?.length > 0 ? alerts?.talents?.talents?.map(({
+                                                                                                    name,
+                                                                                                    skillIndex,
+                                                                                                    cooldown
+                                                                                                  }, index) => (
+        <Alert target={'talents.talents'} key={skillIndex + '-' + index}
+               style={{ opacity: cooldown > 0 ? .5 : 1 }}
+               title={cooldown > 0
+                 ? <Timer type={'countdown'}
+                          date={cooldown} lastUpdated={lastUpdated}/>
+                 : `${cleanUnderscore(pascalCase(name))} is ready`}
+               iconPath={`data/UISkillIcon${skillIndex}`}/>
+      )) : null}
+      {trackers?.talents && alerts?.talents?.superTalentLeftToSpend > 0 ?
+        <Alert target={'talents.superTalentLeftToSpend'}
+          title={`${name} has ${alerts?.talents?.superTalentLeftToSpend} unspent super talent point${alerts?.talents?.superTalentLeftToSpend === 1
+            ? ''
+            : 's'}`}
+          iconPath={'data/LegendTalentIcon0'}/> : null}
+      {trackers?.talents && alerts?.talents?.unmaxedTalents?.length > 0 ?
+        <Alert target={'talents.unmaxedTalents'}
+          title={<TalentList name={name} verb={'talents below max level'}
+                             talents={alerts?.talents?.unmaxedTalents}/>}
+          iconPath={`data/${getTalentBookIcon(character?.class)}`}/> : null}
+      {trackers?.talents && alerts?.talents?.libraryUpgradableTalents?.length > 0 ?
+        <Alert target={'talents.libraryUpgradableTalents'}
+          title={<TalentList name={name} verb={'talents the Library can raise'}
+                             talents={alerts?.talents?.libraryUpgradableTalents}/>}
+          iconPath={`data/${getTalentBookIcon(character?.class)}`}/> : null}
+      {trackers?.tools?.checked && alerts?.tools?.length > 0 ? alerts?.tools?.map(({
+                                                                                     rawName,
+                                                                                     displayName
+                                                                                   }, index) => (
+        <Alert target={'tools'} key={`${character?.name}-${rawName}-${index}`}
+               title={`${character?.name} can equip ${cleanUnderscore(pascalCase(displayName))}`}
+               iconPath={`data/${rawName}`}/>
+      )) : null}
+      {trackers?.crystalCountdown && alerts?.crystalCountdown?.length > 0 ? alerts?.crystalCountdown?.map(({
+                                                                                                             name,
+                                                                                                             icon,
+                                                                                                             reduction,
+                                                                                                             crystalCountdown
+                                                                                                           }, index) => {
+          let { showMaxed, showNonMaxed } = options?.crystalCountdown || {};
+          showMaxed = showMaxed?.checked;
+          showNonMaxed = showNonMaxed?.checked;
+          const ready = crystalCountdown > 0 && Math.floor(reduction) >= Math.floor(crystalCountdown);
+          if (!showMaxed && ready || !showNonMaxed && (showMaxed && !ready) || (!showNonMaxed && !showMaxed)) return null;
+          return <Alert target={'crystalCountdown'} key={icon + '-' + index + '-' + characterIndex}
+                        style={{
+                          border: '1px solid',
+                          borderColor: ready ? '#66bb6a' : reduction > 0 ? '#d1921e' : '',
+                          borderRadius: 5,
+                          opacity: ready || reduction > 0 ? 1 : .5
+                        }}
+                        title={`Crystal CD for ${cleanUnderscore(pascalCase(name))} is ${ready
+                          ? 'maxed'
+                          : ''} ${Math.round(reduction * 100) / 100}% ${!ready
+                          ? `(Max: ${Math.round(crystalCountdown * 100) / 100})`
+                          : ''}`}
+                        iconPath={`data/${icon}`}/>
+        }
+      ) : null}
+    </Stack>;
+    // toArray() mirrors what actually renders: it flattens the nested maps and drops the nulls of
+    // every unmet condition, so none of the alert conditions above have to be repeated here.
+    const hasAlerts = React.Children.toArray(alertIcons.props.children).length > 0;
+    if (hideAlertless && !hasAlerts) return null;
+
+    return <Card key={name} sx={{ width: 300 }} data-cy={`character-${name}`}>
+      <CardContent>
+        <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
+          <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}${classIcon}`}
+                                                                  alt=""/></Box>
+          <Stack>
+            <Typography>{name}</Typography>
+            {isActive() ? <Typography>Active</Typography> : <Timer variant={'caption'} type={'up'} date={afkTime}
+                                                                   lastUpdated={lastUpdated}/>}
+          </Stack>
+          <Stack direction={'row'} alignItems="center" gap={1} style={{ marginLeft: 'auto' }}>
+            <HtmlTooltip title={cleanUnderscore(activity)}>
+              <IconImg src={getActivityIcon(character)} alt="activity icon"
+                       style={{ width: 32, height: 32 }}
+              />
+            </HtmlTooltip>
+            {charForm ? <HtmlTooltip title={`${formMap?.[charForm]}`}>
+              <IconImg src={`${prefix}${dbFormActive || acFormActive || wwFormActive}.png`} alt="form icon"
+              />
+            </HtmlTooltip> : null}
+            <HtmlTooltip title={<CharacterInfo characters={characters} account={account} character={character}
+                                               lastUpdated={lastUpdated}/>}>
+              <IconInfoCircleFilled/>
+            </HtmlTooltip>
+          </Stack>
+        </Stack>
+        <Divider sx={{ my: 1 }}/>
+        {alertIcons}
+      </CardContent>
+    </Card>
+  })?.filter(Boolean);
+
+  if (hideAlertless && cards?.length === 0) {
+    return <Card>
+      <CardContent>
+        <Stack alignItems={'center'} gap={1} sx={{ py: 4 }}>
+          <IconCircleCheckFilled size={48} color={'#66bb6a'}/>
+          <Typography variant={'h6'}>All caught up</Typography>
+          <Typography variant={'body2'} color={'text.secondary'} textAlign={'center'}>
+            None of your characters have alerts right now.
+          </Typography>
+        </Stack>
+      </CardContent>
+    </Card>;
+  }
+
+  return <Stack gap={2} direction={'row'} flexWrap={'wrap'}>
+    {cards}
+  </Stack>
 };
 
 const TALENT_LIST_LIMIT = 15;

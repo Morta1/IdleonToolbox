@@ -16,6 +16,7 @@ import { IconSettingsFilled } from '@tabler/icons-react';
 import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
+import { useLocalStorage } from '@mantine/hooks';
 
 const baseTrackers = {
   version: 74,
@@ -934,6 +935,10 @@ const Dashboard = () => {
   });
   const [filters, setFilters] = React.useState(tryToParse(localStorage.getItem('dashboard-filters')) || ['account',
     'characters', 'timers']);
+  const [hideAlertless, setHideAlertless] = useLocalStorage({
+    key: 'dashboard-hide-alertless',
+    defaultValue: false
+  });
 
 
   const handleOpenSettings = (configType, path) => {
@@ -955,6 +960,10 @@ const Dashboard = () => {
     if (newFilters.length === 0) return;
     setFilters(newFilters);
     localStorage.setItem('dashboard-filters', JSON.stringify(newFilters));
+  };
+
+  const handleHideAlertless = (checked) => {
+    setHideAlertless(checked);
   };
 
   const isDisplayed = (filter) => {
@@ -993,14 +1002,16 @@ const Dashboard = () => {
           {isDisplayed('account') ? <Account trackers={config?.account} characters={characters}
                                              account={account} lastUpdated={lastUpdated}/> : null}
           {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
-                                                   account={account} lastUpdated={lastUpdated}/> : null}
+                                                   account={account} lastUpdated={lastUpdated}
+                                                   hideAlertless={hideAlertless}/> : null}
           {isDisplayed('timers') ? <Etc characters={characters} account={account} trackers={config?.timers}
                                         lastUpdated={lastUpdated}/> : null}
         </DashboardSettingsProvider>
       </Stack>
     </Stack>
     <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open}
-                       onClose={handleCloseSettings} config={config} target={settingsTarget}/>
+                       onClose={handleCloseSettings} config={config} target={settingsTarget}
+                       hideAlertless={hideAlertless} onHideAlertlessChange={handleHideAlertless}/>
   </>
 };
 
