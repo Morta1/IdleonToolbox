@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Divider,
   FormControlLabel,
   FormHelperText,
   formHelperTextClasses,
@@ -80,7 +81,16 @@ const highlightSx = (highlighted) => ({
 // A flat config (characters) has no sections, so both sides are compared as null.
 const sameSection = (a, b) => (a ?? null) === (b ?? null);
 
-const DashboardSettings = ({ open, onClose, config, onChange, onFileUpload, target }) => {
+const DashboardSettings = ({
+  open,
+  onClose,
+  config,
+  onChange,
+  onFileUpload,
+  target,
+  hideAlertless,
+  onHideAlertlessChange
+}) => {
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   // Null unless the modal was opened by clicking a dashboard alert.
   const resolvedTarget = resolveSettingsTarget(config, target?.configType, target?.path);
@@ -169,8 +179,23 @@ const DashboardSettings = ({ open, onClose, config, onChange, onFileUpload, targ
               onTabChange={setSelectedTab} keepChildren={false}>
         <Box><FieldsByType config={config?.account} configType={'account'} onChange={handleSettingChange}
                            target={resolvedTarget}/></Box>
-        <Box><FieldsByType config={config?.characters} configType={'characters'} onChange={handleSettingChange}
-                           target={resolvedTarget}/></Box>
+        <Box>
+          {/* A display preference rather than an alert, so it sits above the tracker list and is
+           stored per browser instead of in the exported config. */}
+          <Box sx={{ mb: 1 }}>
+            <FormControlLabel
+              sx={{ [`.${typographyClasses.root}`]: { fontSize: 14 } }}
+              control={<Checkbox checked={hideAlertless} size={'small'}/>}
+              onChange={(e) => onHideAlertlessChange(e.target.checked)}
+              label={'Hide characters without alerts'}/>
+            <FormHelperText sx={{ ml: 4, mt: -0.5 }}>
+              Characters with nothing to act on are left out of the dashboard
+            </FormHelperText>
+          </Box>
+          <Divider sx={{ mb: 1 }}/>
+          <FieldsByType config={config?.characters} configType={'characters'} onChange={handleSettingChange}
+                        target={resolvedTarget}/>
+        </Box>
         <Box><FieldsByType config={config?.timers} configType={'timers'} onChange={handleSettingChange}
                            target={resolvedTarget}/></Box>
       </Tabber>
