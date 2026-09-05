@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { IconLayoutDashboard, IconLogin2 } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
-import Head from 'next/head';
 import {
   Accordion,
   AccordionDetails,
@@ -57,7 +56,11 @@ const faqs = [
 const Home = () => {
   const { state } = useContext(AppContext);
   const theme = useTheme();
-  const [indexes] = useState(() => getRandomNumbersArray(6, 6));
+  // bg_0 always leads: the pre-hydration shell paints it from the exported HTML, which is not
+  // possible for an image chosen at runtime, and hydration must show the same one or the handoff
+  // is a visible swap. The rest still rotate randomly.
+  const [indexes] = useState(() => [0, ...getRandomNumbersArray(5, 5).map((i) => i + 1)]);
+  const [rotated, setRotated] = useState(false);
   const breakpoint = useMediaQuery('(max-width: 1245px)', { noSsr: true });
   const breakpointLg = useMediaQuery('(min-width: 1921px)', { noSsr: true });
   const [bgIndex, setBgIndex] = useState(0);
@@ -80,14 +83,12 @@ const Home = () => {
 
   useInterval(() => {
     const index = bgIndex + 1 === indexes?.length ? 0 : bgIndex + 1;
+    setRotated(true);
     setBgIndex(index)
   }, 5000);
 
   return (
     <Container>
-      <Head>
-        <link rel="preload" as="image" href={`${prefix}etc/bg_${indexes[0]}.png`}/>
-      </Head>
       <NextSeo
         title="Home | Idleon Toolbox"
         description="Power up your Legends of Idleon adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds, crafting, and more."
@@ -124,22 +125,42 @@ const Home = () => {
           </Stack>
         </Stack>
         <Stack sx={{ width: breakpoint ? '100%' : 'inherit' }} justifyContent={breakpoint ? 'flex-start' : 'center'}>
-          <Box sx={{ width: breakpoint ? '100%' : 550, height: 310, position: 'relative' }}>
+          {/* Aspect box rather than a fixed height: every rotation then paints at exactly the same
+              size (a later, larger image would re-anchor LCP), the phone layout shows the whole
+              image instead of a side-cropped one, and the dead space the fixed 310px left under
+              the image on narrow screens is gone.
+
+              3px narrower than the pre-hydration shell's copy, on purpose. Chrome re-anchors LCP
+              to any later paint that is LARGER, and pixel-snapping a fractional box at a different
+              subpixel offset can read a few hundred px^2 bigger for the same CSS size - measured
+              as LCP jumping from 152ms to the hydration paint on some loads and not others. A
+              strictly smaller box can never win, whatever the snapping does. Invisible on screen.
+              e2e/lcp-shell.spec.js holds the invariant. */}
+          <Box sx={{ width: breakpoint ? 'calc(100% - 3px)' : 547, aspectRatio: '1200 / 674', position: 'relative' }}>
             <MotionConfig transition={{ duration: .8 }}>
               <AnimatePresence>
                 {indexes.map((_, index) => {
                   return bgIndex === index ? <motion.img
                     key={'image' + index}
+                    // Fixed box + cover, so every rotation paints at exactly the same size. The
+                    // source PNGs differ by a pixel in height, and a later image that renders even
+                    // slightly larger becomes a new LCP candidate: measured as LCP jumping from
+                    // 164ms to 5.3s the moment the first rotation landed.
                     style={{
                       position: 'absolute',
                       width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
                       maxWidth: 550,
                       left: '50%',
                       transform: 'translateX(-50%)',
                       borderRadius: 10,
                       boxShadow: '0 10px 15px -3px #000000'
                     }}
-                    initial={{ opacity: 0 }}
+                    // No fade on first paint: the shell above the gate already showed this exact
+                    // image, and an opacity-0 element is not an LCP candidate, so the 0.8s fade
+                    // used to be added straight onto the metric. Rotations still fade.
+                    initial={rotated ? { opacity: 0 } : false}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     fetchPriority="high"

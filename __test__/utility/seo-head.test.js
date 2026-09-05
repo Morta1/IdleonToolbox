@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveSeoHead } from '../../utility/seo-head.mjs';
+import { headingOf, resolveSeoHead } from '../../utility/seo-head.mjs';
 
 // _document and _app both render the title, from this one resolution, so they cannot disagree
 // about what a page is called.
@@ -40,5 +40,25 @@ describe('resolveSeoHead', () => {
 
   it('returns nulls rather than throwing when it knows nothing', () => {
     expect(resolveSeoHead({})).toEqual({ title: null, description: null, noindex: false });
+  });
+});
+
+// Two renderers draw this heading - PageTitle after the gate, the pre-hydration shell before it -
+// and LCP only stays early if they agree to the character.
+describe('headingOf', () => {
+  it('strips the site suffix in every separator the titles use', () => {
+    expect(headingOf('Stamps | Idleon Toolbox')).toBe('Stamps');
+    expect(headingOf('Stamps - Idleon Toolbox')).toBe('Stamps');
+    expect(headingOf('Stamps – Idleon Toolbox')).toBe('Stamps');
+  });
+
+  it('leaves a title with no suffix alone', () => {
+    expect(headingOf('Idleon Wizard Builds')).toBe('Idleon Wizard Builds');
+  });
+
+  it('returns null rather than an empty heading', () => {
+    expect(headingOf(null)).toBeNull();
+    expect(headingOf('')).toBeNull();
+    expect(headingOf(' | Idleon Toolbox')).toBeNull();
   });
 });

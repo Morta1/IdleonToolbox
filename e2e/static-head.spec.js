@@ -204,3 +204,25 @@ test('every page from the slug route gets its own title, not the fallback', asyn
   const buildTitles = titles.filter((t) => / Build — .+ \| /.test(t));
   expect(buildTitles.length, 'no build pages among the exported routes').toBeGreaterThan(1);
 });
+
+// Field data (Sept 2026) put the LCP element on nearly every page at the h1, painted only after
+// hydration with render-delay the whole of the metric. The pre-hydration shell now ships it in
+// the bytes. Same gate as the head tags: assert on the served HTML, never the rendered DOM.
+test.describe('static export ships the page heading', () => {
+  for (const route of [...discoverRoutes(), ...exportedBuildRoutes()]) {
+    test(`${route} has an h1 in the served HTML`, async ({ request }) => {
+      const html = await (await request.get(route)).text();
+      // A noindex page (the 404, /tools/builds/view) has no heading to ship.
+      if (/content="noindex/.test(html)) return;
+      expect(html, `${route} shipped no h1`).toMatch(/<h1[^>]*>[^<]+<\/h1>/);
+    });
+  }
+
+  // The hero outsizes every text block on the landing page: unless it is in the export too, its
+  // own post-hydration paint re-anchors LCP and the heading buys nothing. In the bytes, the
+  // browser's preload scanner requests it before any script runs.
+  test('/ ships the hero image', async ({ request }) => {
+    const html = await (await request.get('/')).text();
+    expect(html).toMatch(/<img[^>]+src="\/etc\/bg_0\.png"/);
+  });
+});

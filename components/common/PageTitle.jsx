@@ -1,6 +1,7 @@
 import { Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { PAGE_SEO } from '../../data/page-seo';
+import { headingOf } from '../../utility/seo-head.mjs';
 
 
 // PAGE_SEO is keyed by route pattern, so a dynamic route's entry is a fallback for many pages and
@@ -15,6 +16,11 @@ const ALREADY_HAS_H1 = new Set([
   '/tools/builds/view'
 ]);
 
+// Must stay identical to the heading PreHydrationLoader paints above the gate: that copy is the
+// page's largest paint, and this one replaces it on hydration. If this grew larger, LCP would
+// re-anchor to the post-hydration paint and the shell would have bought nothing.
+export const PAGE_H1_SX = { fontSize: 24, fontWeight: 600, m: 0, whiteSpace: 'nowrap' };
+
 const PageTitle = () => {
   const router = useRouter();
   const pathname = router?.pathname;
@@ -23,14 +29,10 @@ const PageTitle = () => {
   const seo = PAGE_SEO[pathname];
   if (!seo || seo.noindex) return null;
 
-  const title = seo.title?.replace(/\s*[|\-–—]\s*Idleon Toolbox\s*$/i, '')?.trim();
+  const title = headingOf(seo.title);
   if (!title) return null;
 
-  return <Typography
-    component={'h1'}
-    sx={{ fontSize: 24, fontWeight: 600, m: 0, whiteSpace: 'nowrap' }}>
-    {title}
-  </Typography>;
+  return <Typography component={'h1'} sx={PAGE_H1_SX}>{title}</Typography>;
 };
 
 export default PageTitle;

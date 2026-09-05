@@ -18,3 +18,12 @@ export function resolveSeoHead({ pageProps, pageSeo }) {
     noindex: pageProps?.seoNoindex ?? pageSeo?.noindex ?? false
   };
 }
+
+// The visible heading is the title without the site suffix. PageTitle (below the gate) and the
+// pre-hydration shell (above it) both render it, and they have to agree to the character: the
+// shell's heading is what the browser records as the page's largest paint, and if the hydrated
+// h1 came out larger the paint time would move to after hydration - the exact cost the shell
+// exists to remove.
+export function headingOf(title) {
+  return title?.replace(/\s*[|\-–—]\s*Idleon Toolbox\s*$/i, '')?.trim() || null;
+}

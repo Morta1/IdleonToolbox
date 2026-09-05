@@ -25,7 +25,8 @@ import RouteProgress from '@components/common/RouteProgress';
 import ErrorBoundary from '@components/common/ErrorBoundary';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PAGE_SEO } from '../data/page-seo';
-import { resolveSeoHead } from '../utility/seo-head.mjs';
+import { headingOf, resolveSeoHead } from '../utility/seo-head.mjs';
+import { prefix, shouldDisplayDrawer } from '../utility/helpers';
 import { trackPageView } from '../utility/analytics';
 import { reportWebVitals } from '../utility/web-vitals';
 
@@ -64,6 +65,17 @@ const MyApp = (props) => {
   const canonicalUrl = `https://idleontoolbox.com${asPath.split('?')[0].split('#')[0]}`;
   const isGdprRegion = useGdprRegion();
   const { title: staticTitle, description: staticDescription } = resolveSeoHead({ pageProps, pageSeo });
+
+  // What the pre-hydration shell paints above the gate. The landing page's h1 is the site name,
+  // not the "Home" its title reduces to. The hero's first image is fixed (rather than random, as
+  // the rotation is) so the shell can paint the same one hydration will show. No explicit preload:
+  // React 19's server renderer emits one for the shell's <img> on its own, and with the tag in
+  // the HTML the browser's preload scanner finds it regardless.
+  const isHome = pathname === '/';
+  const shellHeading = isHome ? 'Idleon Toolbox' : noindex ? null : headingOf(staticTitle);
+  const shellHero = isHome
+    ? { src: `${prefix}etc/bg_0.png`, alt: 'Idleon Toolbox gameplay feature screenshot 1' }
+    : null;
 
   // GA's own history-change measurement reads document.title before next/head has swapped it, so
   // every client-side navigation used to be reported under the previous page's title. Sending the
@@ -194,7 +206,8 @@ const MyApp = (props) => {
             <CrawlLinks links={pageProps?.crawlLinks} heading={pageProps?.crawlHeading}/>
             {/* Also above the gate, and on every page: without it the export is a blank screen
                 until React hydrates. Both unmount on hydration. */}
-            <PreHydrationLoader/>
+            <PreHydrationLoader heading={shellHeading} description={staticDescription} hero={shellHero}
+                                withDrawer={shouldDisplayDrawer(pathname)}/>
             <WaitForRouter>
               <PreferencesProvider>
               <AppProvider>
