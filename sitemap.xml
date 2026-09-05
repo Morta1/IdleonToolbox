@@ -691,12 +691,6 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/tools/builds/elemental-sorcerer</loc>
-    <lastmod>2026-05-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://idleontoolbox.com/tools/builds/divine-knight</loc>
     <lastmod>2026-05-02</lastmod>
     <changefreq>weekly</changefreq>
@@ -711,6 +705,12 @@
   <url>
     <loc>https://idleontoolbox.com/tools/builds/bowman</loc>
     <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/elemental-sorcerer</loc>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -794,12 +794,6 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/tools/builds/bphtid-shaman-colo-100</loc>
-    <lastmod>2026-04-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/tools/builds/o7mpbo-active-es</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -949,6 +943,18 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://idleontoolbox.com/tools/builds/ih5wak-barbarian-fishing</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/qncffv-wizard-worship</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://idleontoolbox.com/tools/builds/b0sgry-bowman-catching</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
@@ -961,19 +967,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://idleontoolbox.com/tools/builds/ih5wak-barbarian-fishing</loc>
-    <lastmod>2026-06-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://idleontoolbox.com/tools/builds/cngkno-squire-mining-construction</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://idleontoolbox.com/tools/builds/qncffv-wizard-worship</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -1424,6 +1418,12 @@
   </url>
   <url>
     <loc>https://idleontoolbox.com/tools/builds/eyqwbk-mining-active-afk-barb-50</loc>
+    <lastmod>2026-04-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://idleontoolbox.com/tools/builds/o7mpbo-active-es</loc>
     <lastmod>2026-04-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
