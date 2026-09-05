@@ -255,14 +255,6 @@ const Stamps = () => {
         </CardTitleAndValue>
         <CardTitleAndValue title={'Options'}>
           <Stack gap={1}>
-            <Link underline={'hover'}
-                  sx={{ cursor: 'pointer' }}
-                  onClick={() => router.push({ pathname: 'old-stamps' })}>
-              <Stack direction={'row'} alignItems={'center'} gap={1}>
-                <IconChevronRight size={16}/>
-                <Typography>Old Page</Typography>
-              </Stack>
-            </Link>
             <FormControlLabel
               control={<Checkbox name={'mini'}
                                  checked={subtractGreenStacks}
