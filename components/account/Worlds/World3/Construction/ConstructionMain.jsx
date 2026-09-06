@@ -1,6 +1,13 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AppContext } from '../../../../common/context/AppProvider';
-import { countBoardCharacters, getBoardAtStep, isCharacterCog, WEIGHTED_STAT } from '@parsers/world-3/construction';
+import {
+  bestValuePlan,
+  countBoardCharacters,
+  curvePlans,
+  getBoardAtStep,
+  isCharacterCog,
+  WEIGHTED_STAT
+} from '@parsers/world-3/construction';
 import {
   Box,
   Checkbox,
@@ -23,6 +30,7 @@ import {
 import Tooltip from '../../../../Tooltip';
 import Link from '@mui/material/Link';
 import SettingsIcon from '@mui/icons-material/Settings';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import Button from '@mui/material/Button';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import MenuItem from '@mui/material/MenuItem';
@@ -60,6 +68,11 @@ const COMPUTE_PRESETS = [
   { label: 'Max', seconds: 30 }
 ];
 
+// A plan can come out behind the board you have: the character cap benches characters before the
+// search starts, and their build rate goes with them. That is worth showing rather than hiding, so
+// the sign comes from the number instead of being assumed.
+const formatGain = (gain) => `${(gain ?? 0) < 0 ? '' : '+'}${((gain ?? 0) * 100).toFixed(1)}%`;
+
 const LegendItem = ({ color, label }) => <Stack direction={'row'} alignItems={'center'} gap={0.5}>
   <Box sx={{ width: 12, height: 12, borderRadius: '2px', border: `2px solid ${color}` }}/>
   <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>{label}</Typography>
@@ -79,6 +92,9 @@ const ConstructionMain = () => {
   const [maxCharacters, setMaxCharacters] = useState(() => Math.min(2, countBoardCharacters(state?.account?.construction?.baseBoard)
     + (state?.account?.construction?.spareCogs ?? []).filter(isCharacterCog).length));
   const [current, setCurrent] = useState(state?.account?.construction);
+  // Which plan on the curve is on screen. undefined leaves it on whichever budget the curve says is
+  // the best value, so the common case needs no decision at all.
+  const [planBudget, setPlanBudget] = useState(undefined);
   const [cursor, setCursor] = useState(0);
   const [hoverHighlight, setHoverHighlight] = useState(null);
   const [copied, setCopied] = useState('');
@@ -86,8 +102,15 @@ const ConstructionMain = () => {
   const columnsRef = useRef(null);
   const stripRef = useRef(null);
   const [panelHeight, setPanelHeight] = useState(null);
-  const { status, progress, gain, result: optimized, error, run, cancel, reset } = useConstructionOptimizer();
+  const { status, progress, gain, result: curve, error, run, cancel, reset } = useConstructionOptimizer();
   const running = status === 'running';
+  // Every budget searched, cheapest first, with the unbudgeted search last when it is a board of its
+  // own. Picking one swaps which plan the board, the stats and the steps list are all showing.
+  const plans = curvePlans(curve);
+  const suggested = curve ? bestValuePlan(curve) : null;
+  const optimized = planBudget === undefined
+    ? suggested
+    : (plans.find(({ maxSwaps }) => maxSwaps === planBudget) ?? suggested);
   // One board that walks the plan: cursor 0 is the board you have now, the last step is the optimized
   // one, and everything between is what your board looks like partway through applying it.
   const moves = optimized?.moves;
@@ -147,6 +170,7 @@ const ConstructionMain = () => {
     setCurrent(construction);
     setHoverHighlight(null);
     setCursor(0);
+    setPlanBudget(undefined);
     run(structuredClone(construction?.baseBoard), {
       stat,
       weights,
@@ -156,7 +180,13 @@ const ConstructionMain = () => {
       spareCogs: structuredClone(construction?.spareCogs ?? []),
       multipliers: construction?.boardMultipliers,
       maxCharacters: Math.max(0, Math.min(totalCharacters, Math.trunc(Number(maxCharacters) || 0)))
-    });
+    }, 'curve');
+  }
+
+  const handlePlanChange = (maxSwaps) => {
+    setPlanBudget(maxSwaps);
+    setHoverHighlight(null);
+    setCursor(0);
   }
 
   const handleWeightChange = (key, value) => setWeights((previous) => ({
@@ -291,13 +321,58 @@ const ConstructionMain = () => {
                     <Button variant={'contained'} onClick={handleOptimize}>Optimize</Button>
                     {optimized
                       ? <Button color={'inherit'} sx={{ textTransform: 'unset' }}
-                                onClick={() => { reset(); setCursor(0); }}>Clear</Button>
+                                onClick={() => { reset(); setCursor(0); setPlanBudget(undefined); }}>Clear</Button>
                       : null}
                   </Stack>}
               </Stack>
               {running ? <LinearProgress variant={'determinate'} value={progress * 100}
                                          sx={{ height: 6, borderRadius: 3 }}/> : null}
               {error ? <Typography variant={'caption'} sx={{ color: 'error.main' }}>{error}</Typography> : null}
+              {/* Nobody knows up front whether the swaps worth making run out at three or at fifteen,
+                  so the run answers it: each budget with what it actually buys. The cheapest one that
+                  already gets effectively the whole gain starts selected. */}
+              {plans.length > 0 && !running
+                ? <Stack gap={0.5}>
+                  <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+                    <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>Plan</Typography>
+                    <Tooltip followCursor={false}
+                             title={'How much of the gain each swap budget buys. Fewer swaps means less dragging in game, and the gain usually flattens out well before the full plan.'}>
+                      <InfoOutlinedIcon sx={{ fontSize: 14, color: 'text.secondary' }}/>
+                    </Tooltip>
+                  </Stack>
+                  <ToggleButtonGroup size={'small'} exclusive value={optimized?.maxSwaps ?? null}
+                                     onChange={(e, value) => (value === undefined ? null : handlePlanChange(value))}
+                                     sx={{ flexWrap: 'wrap', gap: 0.75, '& .MuiToggleButtonGroup-grouped': {
+                                       border: 1, borderColor: 'divider', borderRadius: 1
+                                     } }}>
+                    {plans.map(({ maxSwaps, gain: planGain, moves: planMoves }) => <ToggleButton
+                      key={maxSwaps ?? 'all'} value={maxSwaps}
+                      sx={{ textTransform: 'unset', px: 2.5, py: 1, minWidth: 96, height: 'auto' }}>
+                      {/* The theme pins every toggle button to height 32, which two lines of text
+                          overflow - the label ends up sitting on the top border. height auto lets
+                          this one grow; the stack keeps the button itself a plain flex row. */}
+                      <Stack alignItems={'center'} gap={0.25}>
+                        <Typography variant={'caption'} sx={{ fontWeight: 500, lineHeight: 1.4 }}>
+                          {maxSwaps === null
+                            ? `All ${planMoves?.length ?? 0}`
+                            : `${planMoves?.length ?? 0} swap${planMoves?.length === 1 ? '' : 's'}`}
+                        </Typography>
+                        <Typography variant={'caption'} sx={{ color: 'text.secondary', lineHeight: 1.4 }}>
+                          {formatGain(planGain)}
+                        </Typography>
+                      </Stack>
+                    </ToggleButton>)}
+                  </ToggleButtonGroup>
+                  {suggested?.maxSwaps !== null && optimized?.maxSwaps === suggested?.maxSwaps
+                  && !curve?.unlimited?.redundant
+                    ? <Typography variant={'caption'} sx={{ color: 'text.secondary', mt: 0.5 }}>
+                      {suggested.moves?.length} swaps get
+                      you {((suggested.gain / (curve.unlimited.gain || suggested.gain)) * 100).toFixed(0)}% of
+                      the full {curve.unlimited.moves?.length}-swap plan.
+                    </Typography>
+                    : null}
+                </Stack>
+                : null}
             </Stack>
           </Paper>
           {/* Basis, not zero: the stats have to keep at least two columns, or the grid drops to one,

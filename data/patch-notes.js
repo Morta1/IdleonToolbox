@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.75',
+    'gameVer': '2.3.527',
+    'date': '06/09/2026',
+    'features': [
+      'Construction: Optimize now comes back with several plans instead of one - a handful of swaps up to the full board - and shows what each is worth, so you can take most of the gain without dragging cogs around all day'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.74',
     'gameVer': '2.3.527',
     'date': '04/09/2026',

@@ -19,20 +19,23 @@ import type { IdleonData, Account } from '../types';
 // The board maths lives in its own module so the optimizer can run in a Web Worker without pulling
 // website-data in. Re-exported here because everything already imports it from this file.
 export {
+  bestValuePlan,
   BOARD_SIZE,
   BOARD_X,
   BOARD_Y,
   countBoardCharacters,
+  curvePlans,
   evaluateBoard,
   getAffectedIndexes,
   getAllBoostedCogs,
   getBoardAtStep,
   isCharacterCog,
   optimizeArrayWithSwaps,
+  optimizeSwapCurve,
   WEIGHTED_STAT,
   WEIGHTED_STAT_KEYS
 } from '@parsers/world-3/constructionOptimizer';
-export type { OptimizeMove, OptimizeOptions, StatWeights, WeightedStatKey } from '@parsers/world-3/constructionOptimizer';
+export type { OptimizeMove, OptimizeOptions, StatWeights, SwapCurveOptions, WeightedStatKey } from '@parsers/world-3/constructionOptimizer';
 
 export const getConstruction = (idleonData: IdleonData, account: Account, characters?: any[]) => {
   const cogMapRaw = idleonData?.CogMap || tryToParse(idleonData?.CogM);

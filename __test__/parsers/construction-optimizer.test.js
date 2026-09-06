@@ -8,6 +8,9 @@ import {
   getAffectedIndexes,
   getBoardAtStep,
   optimizeArrayWithSwaps,
+  optimizeSwapCurve,
+  bestValuePlan,
+  curvePlans,
   WEIGHTED_STAT,
   WEIGHTED_STAT_KEYS
 } from '@parsers/world-3/construction';
@@ -617,5 +620,414 @@ describe('character cap', () => {
     const capped = countBoardCharacters(runWithCap(total, spares).board);
     expect(capped).toBeGreaterThan(countBoardCharacters(makeBoard()));
     expect(capped).toBeLessThanOrEqual(total);
+  });
+});
+
+// A budgeted run answers "the best board I can reach in at most N swaps", so the plan it hands back
+// has to be short enough to actually follow. Every assertion here is about that ceiling holding.
+describe('swap budget', () => {
+  const replay = (board, spares, moves) => {
+    const positions = [...board.map(({ cog }) => cog), ...spares];
+    moves.forEach(({ from, to }) => {
+      const carried = positions[from];
+      positions[from] = positions[to];
+      positions[to] = carried;
+    });
+    return positions;
+  };
+
+  const budgeted = (board, maxSwaps, extra = {}) => optimizeArrayWithSwaps(board, {
+    stat: 'totalBuildRate',
+    maxIterations: 60000,
+    characters,
+    maxSwaps,
+    ...extra
+  });
+
+  it.each([0, 1, 3, 8])('returns at most %i moves', (maxSwaps) => {
+    expect(budgeted(makeBoard(), maxSwaps).moves.length).toBeLessThanOrEqual(maxSwaps);
+  });
+
+  it('reproduces the board it returns when the budgeted moves are replayed', () => {
+    const board = makeBoard();
+    const optimized = budgeted(board, 5);
+    const replayed = replay(board, [], optimized.moves);
+    optimized.board.forEach((slot, index) => {
+      expect(replayed[index].originalIndex).toBe(slot.cog.originalIndex);
+    });
+  });
+
+  it('improves the board even when only one swap is allowed', () => {
+    const board = makeBoard();
+    const baseline = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 0, characters });
+    const optimized = budgeted(board, 1);
+
+    expect(optimized.moves).toHaveLength(1);
+    expect(optimized.totalBuildRate).toBeGreaterThan(baseline.totalBuildRate);
+  });
+
+  it('gets more out of a bigger budget', () => {
+    const board = makeBoard();
+    expect(budgeted(board, 8).totalBuildRate).toBeGreaterThan(budgeted(board, 2).totalBuildRate);
+  });
+
+  it('never returns a board worse than the starting one', () => {
+    const board = makeBoard();
+    const baseline = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 0, characters });
+    expect(budgeted(board, 4).totalBuildRate).toBeGreaterThanOrEqual(baseline.totalBuildRate);
+  });
+
+  it('leaves pinned slots alone', () => {
+    const board = makeBoard();
+    board[3] = { ...board[3], currentAmount: 0, requiredAmount: 100 };
+    board[7] = { ...board[7], flagPlaced: true };
+    budgeted(board, 6).moves.forEach(({ from, to }) => {
+      expect([from, to]).not.toContain(3);
+      expect([from, to]).not.toContain(7);
+    });
+  });
+
+  // A square is four cogs, so relocating one costs four of the budget. Rather than spend a small
+  // budget that way the search leaves squares where they are, which must not break them apart.
+  it('keeps an assembled Excogia square together', () => {
+    const board = makeBoard();
+    placeExcogia(board, 30);
+    const optimized = budgeted(board, 6);
+    expect(excogiaAnchors(optimized.board).some((anchor) => isAssembled(optimized.board, anchor))).toBe(true);
+  });
+
+  // Under a budget the character cap is a ceiling, not a chore to work through first. Benching nine
+  // characters can eat a small budget whole and hand back a board far worse than the one you have,
+  // so a budgeted run refuses to add characters past the cap and otherwise leaves the count alone.
+  it('never adds characters past the cap', () => {
+    const board = makeBoard().map((slot, index) => (index % 11 === 0
+      ? makeSlot(index, { a: { name: '_Build_Rate/HR', value: 40 } })
+      : slot));
+    const optimized = optimizeArrayWithSwaps(board, {
+      stat: 'totalPlayerExpRate',
+      maxIterations: 60000,
+      characters,
+      spareCogs: [...spareCharacters(8), ...spareCogs(12)],
+      maxCharacters: 2,
+      maxSwaps: 6
+    });
+
+    expect(optimized.moves.length).toBeLessThanOrEqual(6);
+    expect(countBoardCharacters(optimized.board)).toBeLessThanOrEqual(2);
+  });
+
+  it('spends the budget on gains rather than on benching characters', () => {
+    const board = makeBoard();
+    const baseline = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 0, characters });
+    // A cap far below the nine characters already out there, and nowhere near enough budget to meet
+    // it. Enforcing it first would burn every swap and hand back a much worse board.
+    const optimized = optimizeArrayWithSwaps(board, {
+      stat: 'totalBuildRate',
+      maxIterations: 60000,
+      characters,
+      spareCogs: spareCogs(12),
+      maxCharacters: 0,
+      maxSwaps: 4
+    });
+
+    expect(optimized.moves.length).toBeLessThanOrEqual(4);
+    expect(optimized.totalBuildRate).toBeGreaterThan(baseline.totalBuildRate);
+  });
+
+  // Bringing a board down to the character cap costs swaps of its own. Those come out of the same
+  // budget, so the ceiling still holds even when the cap alone cannot be met.
+  it('keeps the ceiling when the character cap needs more swaps than the budget', () => {
+    const board = makeBoard();
+    const optimized = optimizeArrayWithSwaps(board, {
+      stat: 'totalBuildRate',
+      maxIterations: 60000,
+      characters,
+      spareCogs: spareCogs(12),
+      maxCharacters: 0,
+      maxSwaps: 2
+    });
+
+    expect(optimized.moves.length).toBeLessThanOrEqual(2);
+  });
+
+  it('ignores a negative budget rather than refusing to move', () => {
+    expect(budgeted(makeBoard(), -1).moves.length).toBeGreaterThan(0);
+  });
+});
+
+// The point of the curve is that nobody knows up front whether the worthwhile swaps run out at 3 or
+// at 15, so the tool runs a few budgets and shows what each one buys.
+describe('optimizeSwapCurve', () => {
+  const curve = (board, extra = {}) => optimizeSwapCurve(board, {
+    stat: 'totalBuildRate',
+    characters,
+    swapBudgets: [1, 3, 8],
+    maxIterations: 20000,
+    ...extra
+  });
+
+  it('returns one entry per requested budget, in order', () => {
+    const { entries } = curve(makeBoard());
+    expect(entries.map(({ maxSwaps }) => maxSwaps)).toEqual([1, 3, 8]);
+  });
+
+  it('keeps every entry inside its own budget', () => {
+    curve(makeBoard()).entries.forEach(({ maxSwaps, moves }) => {
+      expect(moves.length).toBeLessThanOrEqual(maxSwaps);
+    });
+  });
+
+  it('reports each entry gain against the current board', () => {
+    const board = makeBoard();
+    const { current, entries } = curve(board);
+    const baseline = optimizeArrayWithSwaps(board, { stat: 'totalBuildRate', time: 0, characters });
+
+    expect(current.totalBuildRate).toBeCloseTo(baseline.totalBuildRate, 6);
+    entries.forEach(({ gain, totalBuildRate }) => {
+      expect(gain).toBeCloseTo(totalBuildRate / current.totalBuildRate - 1, 9);
+      expect(gain).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  it('includes the unbudgeted run so the budgets can be read as a fraction of it', () => {
+    const { unlimited } = curve(makeBoard());
+    expect(unlimited.maxSwaps).toBeNull();
+    expect(unlimited.moves.length).toBeGreaterThan(8);
+    expect(unlimited.gain).toBeGreaterThan(0);
+  });
+
+  it('carries a board on every entry so a chosen budget can be previewed', () => {
+    curve(makeBoard()).entries.forEach(({ board }) => {
+      expect(board).toHaveLength(BOARD_SIZE);
+    });
+  });
+
+  it('splits one time budget across the runs instead of spending it on each', () => {
+    const started = Date.now();
+    curve(makeBoard(), { time: 900, maxIterations: undefined });
+    // Four runs sharing 900ms, plus the greedy seeds. Generous, but far under 4 x 900.
+    expect(Date.now() - started).toBeLessThan(2600);
+  });
+
+  it('reports progress that runs to completion across the whole set', () => {
+    const seen = [];
+    curve(makeBoard(), { onProgress: (progress) => seen.push(progress) });
+    expect(seen.length).toBeGreaterThan(1);
+    seen.forEach((progress, index) => {
+      if (index === 0) return;
+      expect(progress.elapsed).toBeGreaterThanOrEqual(seen[index - 1].elapsed);
+    });
+    expect(seen.at(-1).elapsed / seen.at(-1).budget).toBeGreaterThan(0.9);
+  });
+});
+
+// Which budget to preselect. Left on the unbudgeted plan the curve is just extra reading, so the
+// default lands on the cheapest budget that already gets you effectively all of the gain.
+describe('bestValuePlan', () => {
+  const curveOf = (pairs, unlimitedGain) => ({
+    entries: pairs.map(([maxSwaps, gain]) => ({ maxSwaps, gain, moves: new Array(maxSwaps).fill({}) })),
+    unlimited: { maxSwaps: null, gain: unlimitedGain, moves: new Array(80).fill({}) }
+  });
+
+  it('picks the cheapest budget that reaches almost all of the gain', () => {
+    const curve = curveOf([[1, 0.02], [3, 0.05], [5, 0.0688], [10, 0.0695]], 0.07);
+    expect(bestValuePlan(curve).maxSwaps).toBe(5);
+  });
+
+  it('falls back to the unbudgeted plan when no budget comes close', () => {
+    const curve = curveOf([[1, 0.01], [3, 0.02], [5, 0.03]], 0.20);
+    expect(bestValuePlan(curve).maxSwaps).toBeNull();
+  });
+
+  it('takes the smallest budget when they all tie', () => {
+    const curve = curveOf([[1, 0.05], [3, 0.05], [5, 0.05]], 0.05);
+    expect(bestValuePlan(curve).maxSwaps).toBe(1);
+  });
+
+  it('returns the unbudgeted plan when nothing improves the board', () => {
+    const curve = curveOf([[1, 0], [3, 0]], 0);
+    expect(bestValuePlan(curve).maxSwaps).toBeNull();
+  });
+
+  it('skips a budget that produced no moves at all', () => {
+    const curve = { entries: [{ maxSwaps: 1, gain: 0.07, moves: [] }, { maxSwaps: 3, gain: 0.07, moves: [{}, {}] }], unlimited: { maxSwaps: null, gain: 0.07, moves: [{}] } };
+    expect(bestValuePlan(curve).maxSwaps).toBe(3);
+  });
+});
+
+// A bigger budget reading as worse than a cheaper one would be nonsense on screen. Nothing enforces
+// that directly - it falls out of the greedy seed, whose first k picks are the same whatever the cap,
+// and of the annealer only ever replacing that seed with something better. These guard the property
+// so a future change to either half cannot quietly lose it.
+describe('swap curve monotonicity', () => {
+  it('never reports a bigger budget as worse than a cheaper one', () => {
+    const { entries, unlimited } = optimizeSwapCurve(makeBoard(), {
+      stat: 'totalBuildRate',
+      characters,
+      swapBudgets: [1, 3, 5, 10],
+      // Deliberately mean: not enough for the wide searches to converge on their own.
+      maxIterations: 2000
+    });
+
+    entries.forEach(({ gain }, index) => {
+      if (index === 0) return;
+      expect(gain).toBeGreaterThanOrEqual(entries[index - 1].gain);
+    });
+    expect(unlimited.gain).toBeGreaterThanOrEqual(entries.at(-1).gain);
+  });
+
+  it('keeps a carried-forward plan inside the budget it is reported under', () => {
+    const { entries } = optimizeSwapCurve(makeBoard(), {
+      stat: 'totalBuildRate',
+      characters,
+      swapBudgets: [1, 3, 5, 10],
+      maxIterations: 2000
+    });
+
+    entries.forEach(({ maxSwaps, moves }) => {
+      expect(moves.length).toBeLessThanOrEqual(maxSwaps);
+    });
+  });
+
+  it('reports the gain of the plan it actually returns', () => {
+    const { current, entries, unlimited } = optimizeSwapCurve(makeBoard(), {
+      stat: 'totalBuildRate',
+      characters,
+      swapBudgets: [1, 5],
+      maxIterations: 2000
+    });
+
+    [...entries, unlimited].forEach(({ gain, totalBuildRate }) => {
+      expect(gain).toBeCloseTo(totalBuildRate / current.totalBuildRate - 1, 9);
+    });
+  });
+});
+
+// The unbudgeted search has no greedy seed, so on a tight clock a budgeted run can beat it outright.
+// Reporting that verbatim puts "all 89 moves, +72.5%" underneath "20 swaps, +73%", which reads as a
+// bug even though both numbers are real. An unlimited budget can afford any budgeted plan, so the
+// unbudgeted slot takes the best plan found rather than only its own.
+describe('unbudgeted plan is never beaten by a budgeted one', () => {
+  const starved = (extra = {}) => optimizeSwapCurve(makeBoard(), {
+    stat: 'totalBuildRate',
+    characters,
+    swapBudgets: [4, 12],
+    // Greedy runs to its budget regardless, so a near-zero iteration allowance starves the
+    // unconstrained annealer while the budgeted runs still find real gains.
+    maxIterations: 1,
+    ...extra
+  });
+
+  it('reports at least the best budgeted gain', () => {
+    const { entries, unlimited } = starved();
+    entries.forEach(({ gain }) => expect(unlimited.gain).toBeGreaterThanOrEqual(gain));
+  });
+
+  it('hands back the plan those numbers describe', () => {
+    const { current, unlimited } = starved();
+    expect(unlimited.gain).toBeCloseTo(unlimited.totalBuildRate / current.totalBuildRate - 1, 9);
+    expect(unlimited.board.length).toBe(BOARD_SIZE);
+  });
+
+  it('stays labelled as the unbudgeted plan', () => {
+    expect(starved().unlimited.maxSwaps).toBeNull();
+  });
+});
+
+// A budgeted plan is scored as a whole list, so a swap that drags an empty inventory slot onto the
+// board can ride along with genuinely good swaps and still come out ahead on the total. That leaves
+// real cogs in the bag and holes in the board, which is never what anyone asked for. No character
+// cap here, so eviction never runs and any hole is the search's own doing.
+// The case that actually bites needs a real board - see construction-optimizer-blanks.test.js.
+describe('swap budget never empties a board slot', () => {
+  const blankSpares = (count) => Array.from({ length: count }, (_, i) => ({
+    name: 'Blank',
+    stats: {},
+    originalIndex: 400 + i
+  }));
+
+  const wideRun = () => optimizeArrayWithSwaps(makeBoard(), {
+    stat: 'totalBuildRate',
+    characters,
+    spareCogs: [...blankSpares(30), ...spareCogs(6)],
+    maxSwaps: 40,
+    maxIterations: 40000
+  });
+
+  it('leaves every slot filled', () => {
+    expect(wideRun().board.filter(({ cog }) => cog?.name && cog.name !== 'Blank')).toHaveLength(BOARD_SIZE);
+  });
+
+  it('never lists a move that brings a blank in from the inventory', () => {
+    expect(wideRun().moves.filter(({ fromSlot, name }) => fromSlot === null && name === 'Blank')).toEqual([]);
+  });
+});
+
+// The unbudgeted slot adopts the best plan found, so when a budget wins outright the two describe
+// the same board and the picker would show the row twice. Flag it so the caller can drop one.
+describe('redundant unbudgeted plan', () => {
+  it('marks the unbudgeted plan redundant when a budget already found it', () => {
+    const { entries, unlimited } = optimizeSwapCurve(makeBoard(), {
+      stat: 'totalBuildRate',
+      characters,
+      swapBudgets: [4, 12],
+      // Starves the unconstrained annealer while the budgeted runs, which are greedy seeded, do not.
+      maxIterations: 1
+    });
+
+    expect(unlimited.gain).toBe(Math.max(...entries.map(({ gain }) => gain)));
+    expect(unlimited.redundant).toBe(true);
+  });
+
+  it('leaves the unbudgeted plan standing when it wins on its own', () => {
+    const { entries, unlimited } = optimizeSwapCurve(makeBoard(), {
+      stat: 'totalBuildRate',
+      characters,
+      swapBudgets: [1, 2],
+      maxIterations: 120000
+    });
+
+    expect(unlimited.gain).toBeGreaterThan(Math.max(...entries.map(({ gain }) => gain)));
+    expect(unlimited.redundant).toBe(false);
+  });
+});
+
+// What the picker actually renders: every budget, plus the unbudgeted plan only when it is its own
+// board rather than a second name for one of them.
+describe('curvePlans', () => {
+  const curveOf = (redundant) => ({
+    entries: [
+      { maxSwaps: 1, gain: 0.02, moves: [{}] },
+      { maxSwaps: 5, gain: 0.09, moves: [{}, {}] }
+    ],
+    unlimited: { maxSwaps: null, gain: redundant ? 0.09 : 0.2, moves: [{}, {}, {}], redundant }
+  });
+
+  it('drops the unbudgeted plan when a budget already found it', () => {
+    expect(curvePlans(curveOf(true)).map(({ maxSwaps }) => maxSwaps)).toEqual([1, 5]);
+  });
+
+  it('keeps the unbudgeted plan when it stands on its own', () => {
+    expect(curvePlans(curveOf(false)).map(({ maxSwaps }) => maxSwaps)).toEqual([1, 5, null]);
+  });
+
+  it('returns nothing without a curve', () => {
+    expect(curvePlans(null)).toEqual([]);
+  });
+
+  // Whatever the picker preselects has to be a row it is actually showing, or nothing looks selected.
+  it('always contains the plan bestValuePlan picks', () => {
+    [true, false].forEach((redundant) => {
+      const curve = curveOf(redundant);
+      expect(curvePlans(curve)).toContain(bestValuePlan(curve));
+    });
+  });
+
+  it('picks a shown plan even when nothing improves the board', () => {
+    const flat = {
+      entries: [{ maxSwaps: 3, gain: 0, moves: [{}] }],
+      unlimited: { maxSwaps: null, gain: 0, moves: [{}], redundant: true }
+    };
+    expect(curvePlans(flat)).toContain(bestValuePlan(flat));
   });
 });

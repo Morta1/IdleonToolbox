@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { optimizeArrayWithSwaps } from '@parsers/world-3/constructionOptimizer';
+import { optimizeArrayWithSwaps, optimizeSwapCurve } from '@parsers/world-3/constructionOptimizer';
 import { prefix } from '@utility/helpers';
 
 const IDLE = { status: 'idle', progress: 0, gain: 0, result: null, error: null };
@@ -31,7 +31,7 @@ export const useConstructionOptimizer = () => {
     workerRef.current = null;
   }, []);
 
-  const run = (board, options = {}) => {
+  const run = (board, options = {}, mode) => {
     const id = ++runIdRef.current;
     workerRef.current?.terminate();
     workerRef.current = null;
@@ -42,7 +42,7 @@ export const useConstructionOptimizer = () => {
     const runInline = () => {
       if (id !== runIdRef.current) return;
       try {
-        const result = optimizeArrayWithSwaps(board, options);
+        const result = (mode === 'curve' ? optimizeSwapCurve : optimizeArrayWithSwaps)(board, options);
         setState({ status: 'done', progress: 1, gain: 0, result, error: null });
       } catch (error) {
         setState({ ...IDLE, status: 'error', error: error?.message ?? String(error) });
@@ -89,7 +89,7 @@ export const useConstructionOptimizer = () => {
       if (workerRef.current === worker) workerRef.current = null;
       runInline();
     };
-    worker.postMessage({ id, board, options });
+    worker.postMessage({ id, board, options, mode });
   };
 
   const cancel = () => {

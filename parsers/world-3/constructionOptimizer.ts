@@ -201,6 +201,9 @@ export const WEIGHTED_STAT_KEYS = ['totalBuildRate', 'totalPlayerExpRate', 'tota
 export type WeightedStatKey = typeof WEIGHTED_STAT_KEYS[number];
 export type StatWeights = Partial<Record<WeightedStatKey, number>>;
 
+/** Budgets a curve run tries when the caller does not name its own. Spaced to show where the gain flattens. */
+export const DEFAULT_SWAP_BUDGETS = [1, 4, 10, 20];
+
 export interface OptimizeProgress {
   elapsed: number;
   budget: number;
@@ -221,8 +224,19 @@ export interface OptimizeOptions {
    * puts every one of them out there and leaves nobody making cogs. Omit for no limit.
    */
   maxCharacters?: number;
+  /**
+   * Most in-game swaps allowed between the board you have now and the result. A budgeted run answers
+   * "the best board I can reach in this many drags" rather than the best board outright, which is
+   * usually most of the gain for a small fraction of the clicking. Omit for no limit.
+   */
+  maxSwaps?: number;
   maxIterations?: number;
   onProgress?: (progress: OptimizeProgress) => void;
+}
+
+export interface SwapCurveOptions extends OptimizeOptions {
+  /** Budgets to search, smallest first. Defaults to DEFAULT_SWAP_BUDGETS. */
+  swapBudgets?: number[];
 }
 
 /** One drag in game: pick the cog up at `from`, drop it on `to`, which sends `displaced` back. */
@@ -333,6 +347,7 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
     spareCogs,
     multipliers,
     maxCharacters,
+    maxSwaps,
     maxIterations,
     onProgress
   } = options;
@@ -349,6 +364,9 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
   // at all, means no cap - which is how every caller behaved before the option existed.
   const characterCap = Number.isFinite(maxCharacters as number) && (maxCharacters as number) >= 0
     ? Math.trunc(maxCharacters as number)
+    : Infinity;
+  const swapCap = Number.isFinite(maxSwaps as number) && (maxSwaps as number) >= 0
+    ? Math.trunc(maxSwaps as number)
     : Infinity;
 
   // Slots that may give up their cog: unlocked, and not currently building a flag.
@@ -485,25 +503,204 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
   // loss and never gets accepted. Evict the surplus first, then the loop only has to stop the count
   // climbing back up. Characters on locked or flag-building slots cannot be moved, so a board can
   // still come out over the cap - the guard below is written to cope with that rather than deadlock.
-  if (charactersOnBoard > characterCap) {
+  // Evictions are swaps like any other, so under a budget they would come out of it - and benching
+  // nine characters can eat a small budget whole and hand back a board far worse than the one you
+  // started with. A budgeted run treats the cap as a ceiling instead: it refuses to add characters
+  // past it and otherwise leaves the count where it found it, spending the swaps on actual gains.
+  let evictionSwaps = 0;
+  if (swapCap === Infinity && charactersOnBoard > characterCap) {
     const benched: number[] = [];
     for (let position = BOARD_SIZE; position < placement.length; position++) {
       if (!isCharacter[placement[position]]) benched.push(position);
     }
     for (const position of boardSlots) {
       if (charactersOnBoard <= characterCap || benched.length === 0) break;
+      if (evictionSwaps >= swapCap) break;
       if (!isCharacter[placement[position]] || blockOwner[position] !== -1) continue;
       const spare = benched.pop() as number;
       const evicted = placement[position];
       placement[position] = placement[spare];
       placement[spare] = evicted;
       charactersOnBoard--;
+      evictionSwaps++;
     }
   }
+  const searchBudget = swapCap === Infinity ? Infinity : Math.max(0, swapCap - evictionSwaps);
 
   const baseline = scorePlacement(placement, pool);
   const objective = makeObjective(stat, weights, baseline);
   let currentScore = objective(baseline);
+
+  // A budgeted run searches in swap-list space rather than in board space: a state IS the list of
+  // swaps, so every candidate sits inside the budget by construction and nothing has to be counted
+  // or rejected. Applying k transpositions can never take more than k moves to describe, and
+  // buildMoves already returns the minimum, so the plan comes back at or under the cap.
+  if (searchBudget !== Infinity) {
+    const budgetStart = Date.now();
+    const elapsedOf = (done: number) => (iterationBudget ? done : Date.now() - budgetStart);
+    const base = Int32Array.from(placement);
+    const work = new Int32Array(base.length);
+    // Excogia squares move as a unit of four, which no small budget can afford, so a budgeted run
+    // leaves them where they are rather than spending most of the plan relocating one.
+    const openFrom = boardSlots.filter((slot) => blockOwner[slot] === -1);
+    const openTargets = swapTargets.filter((slot) => blockOwner[slot] === -1);
+
+    const applyList = (list: number[][]) => {
+      work.set(base);
+      for (let index = 0; index < list.length; index++) {
+        const [a, b] = list[index];
+        const carried = work[a];
+        work[a] = work[b];
+        work[b] = carried;
+      }
+      return work;
+    };
+    const countIn = (target: Int32Array) => {
+      let characters = 0;
+      let empties = 0;
+      for (let slot = 0; slot < BOARD_SIZE; slot++) {
+        characters += isCharacter[target[slot]];
+        empties += isBlank[target[slot]];
+      }
+      return { characters, empties };
+    };
+    const startingEmpties = countIn(base).empties;
+    // A list is scored as a whole, so a swap that drags an empty inventory slot onto the board can
+    // ride along with good swaps and still win on the total. The plain search refuses that move by
+    // move; here the check has to be on the finished board, or the plan comes back with holes in it
+    // and real cogs left in the bag.
+    const scoreList = (list: number[][]) => {
+      const target = applyList(list);
+      const { characters, empties } = countIn(target);
+      if (empties > startingEmpties) return -Infinity;
+      if (characterCap !== Infinity && characters > Math.max(characterCap, charactersOnBoard)) return -Infinity;
+      return objective(scorePlacement(target, pool));
+    };
+
+    let bestList: number[][] = [];
+    let bestScore = currentScore;
+    const report = (iterationsDone: number) => {
+      if (!onProgress) return;
+      onProgress({
+        elapsed: Math.min(elapsedOf(iterationsDone), budget),
+        budget,
+        iterations: iterationsDone,
+        gain: bestScore / Math.max(Math.abs(currentScore), 1e-6) - 1
+      });
+    };
+
+    // Greedy best-improvement seed. One swap at a time, always the best single swap available from
+    // where the list has got to, which is what makes a one-swap budget find the one swap worth doing.
+    const list: number[][] = [];
+    const cursor = Int32Array.from(base);
+    let cursorCharacters = charactersOnBoard;
+    for (let step = 0; step < searchBudget; step++) {
+      // Greedy is bounded by the budget, but a wide board still makes each pass cost real time, and
+      // a curve run splits one clock across several searches.
+      if (elapsedOf(0) >= budget) break;
+      let pickFrom = -1;
+      let pickTo = -1;
+      let pickScore = bestScore;
+      let pickCharacters = cursorCharacters;
+      for (let ai = 0; ai < openFrom.length; ai++) {
+        const a = openFrom[ai];
+        for (let bi = 0; bi < openTargets.length; bi++) {
+          const b = openTargets[bi];
+          if (a === b) continue;
+          // Never bring an empty slot in from off the board: emptying a board slot is pure loss.
+          if (b >= BOARD_SIZE && isBlank[cursor[b]]) continue;
+          const headcount = b >= BOARD_SIZE
+            ? cursorCharacters + isCharacter[cursor[b]] - isCharacter[cursor[a]]
+            : cursorCharacters;
+          if (characterCap !== Infinity && headcount > Math.max(characterCap, charactersOnBoard)) continue;
+
+          const carried = cursor[a];
+          cursor[a] = cursor[b];
+          cursor[b] = carried;
+          const score = objective(scorePlacement(cursor, pool));
+          cursor[b] = cursor[a];
+          cursor[a] = carried;
+
+          if (score > pickScore) {
+            pickScore = score;
+            pickFrom = a;
+            pickTo = b;
+            pickCharacters = headcount;
+          }
+        }
+      }
+      if (pickFrom === -1) break;
+      const carried = cursor[pickFrom];
+      cursor[pickFrom] = cursor[pickTo];
+      cursor[pickTo] = carried;
+      cursorCharacters = pickCharacters;
+      list.push([pickFrom, pickTo]);
+      bestScore = pickScore;
+      bestList = list.map(([a, b]) => [a, b]);
+    }
+
+    // Greedy is myopic: cog boosts are adjacency based, so two swaps can pay off together while
+    // neither pays alone. Anneal over the list itself to find those - retarget an entry, drop one,
+    // or add one while there is budget left.
+    const copy = (l: number[][]) => l.map(([a, b]) => [a, b]);
+    let cursorList = copy(bestList);
+    let cursorScore = bestScore;
+    const randomFrom = () => openFrom[(Math.random() * openFrom.length) | 0];
+    const randomTo = () => openTargets[(Math.random() * openTargets.length) | 0];
+
+    let iterations = 0;
+    let elapsed = elapsedOf(0);
+    let nextProgressAt = 0;
+    while (elapsed < budget && openFrom.length > 0 && openTargets.length > 0 && searchBudget > 0) {
+      if (iterationBudget) {
+        elapsed = iterations;
+      } else if ((iterations & TIME_CHECK_MASK) === 0) {
+        elapsed = Date.now() - budgetStart;
+      }
+      if (elapsed >= nextProgressAt) {
+        nextProgressAt = elapsed + PROGRESS_INTERVAL;
+        report(iterations);
+      }
+      if (elapsed >= budget) break;
+      iterations++;
+
+      const trial = copy(cursorList);
+      const roll = Math.random();
+      if (roll < 0.6 && trial.length > 0) {
+        trial[(Math.random() * trial.length) | 0] = [randomFrom(), randomTo()];
+      } else if (roll < 0.8 && trial.length > 0) {
+        trial.splice((Math.random() * trial.length) | 0, 1);
+      } else if (trial.length < searchBudget) {
+        trial.push([randomFrom(), randomTo()]);
+      } else {
+        continue;
+      }
+
+      const score = scoreList(trial);
+      const temperature = START_TEMPERATURE * Math.pow(END_TEMPERATURE / START_TEMPERATURE, Math.min(1, elapsed / budget));
+      const relativeDelta = (score - cursorScore) / Math.max(Math.abs(cursorScore), 1e-6);
+      if (score >= cursorScore || Math.random() < Math.exp(relativeDelta / temperature)) {
+        cursorList = trial;
+        cursorScore = score;
+        if (score > bestScore) {
+          bestScore = score;
+          bestList = copy(trial);
+        }
+      }
+    }
+    report(iterations);
+
+    const { moves: budgetedMoves, placement: budgetedPlacement } = buildMoves(applyList(bestList), cogs);
+    const budgetedBoard = normalizedBoard.map((slot: any, index: number) => ({
+      ...slot,
+      cog: cogs[budgetedPlacement[index]] ?? { name: 'Blank', stats: {}, originalIndex: index }
+    }));
+    return {
+      ...applyBoardMultipliers(evaluateBoard(budgetedBoard, characters), multipliers),
+      moves: budgetedMoves
+    };
+  }
+
   const bestPlacement = Int32Array.from(placement);
   let bestScore = currentScore;
 
@@ -607,6 +804,108 @@ export const optimizeArrayWithSwaps = (arr: any[], options: OptimizeOptions = {}
     ...applyBoardMultipliers(evaluateBoard(optimizedBoard, characters), multipliers),
     moves
   };
+}
+
+/**
+ * The swap budget worth setting is the one nobody knows up front: the worthwhile swaps might run out
+ * at three or at fifteen. So run a handful of budgets plus the unbudgeted search, and let the caller
+ * show what each one actually buys. The single time budget is split across the runs rather than
+ * spent on each, so a curve costs about what one search used to.
+ */
+export const optimizeSwapCurve = (arr: any[], options: SwapCurveOptions = {}) => {
+  const { swapBudgets, time = 2500, maxIterations, onProgress, stat = 'totalBuildRate', weights, ...rest } = options;
+  const budgets = [...new Set((swapBudgets ?? DEFAULT_SWAP_BUDGETS).map((value) => Math.trunc(value)))]
+    .filter((value) => value > 0)
+    .sort((left, right) => left - right);
+
+  const shared = { ...rest, stat, weights };
+  const current = optimizeArrayWithSwaps(arr, { ...shared, time: 0 });
+  // Gain is measured with the same objective the search optimises, so a weighted run reports the
+  // weighted improvement rather than whichever single stat happens to be biggest.
+  const objective = makeObjective(stat, weights, current);
+  const reference = objective(current);
+  const gainOf = (totals: any) => (Math.abs(reference) > 1e-6 ? objective(totals) / reference - 1 : 0);
+
+  const iterationBudget = Number.isFinite(maxIterations as number) && (maxIterations as number) > 0
+    ? Math.trunc(maxIterations as number)
+    : 0;
+  const totalBudget = iterationBudget || Math.max(0, Number(time) || 0);
+  // A wide search has more ground to cover than a narrow one - the greedy seed alone is one pass per
+  // swap of budget - so an even split starves exactly the runs that need the time. Weight each run's
+  // share by its budget instead, with the unbudgeted run treated as the widest.
+  const widest = Math.max(1, ...budgets);
+  const shares = [...budgets, widest];
+  const totalShares = shares.reduce((sum, share) => sum + share, 0);
+  const budgetFor = (index: number) => (totalBudget * shares[index]) / totalShares;
+
+  let spent = 0;
+  const forward = onProgress
+    ? (progress: OptimizeProgress) => onProgress({
+      elapsed: Math.min(totalBudget, spent + progress.elapsed),
+      budget: totalBudget,
+      iterations: progress.iterations,
+      gain: progress.gain
+    })
+    : undefined;
+
+  const run = (maxSwaps: number | null, index: number) => {
+    const share = budgetFor(index);
+    const result = optimizeArrayWithSwaps(arr, {
+      ...shared,
+      ...(iterationBudget ? { maxIterations: Math.max(1, Math.trunc(share)) } : { time: share }),
+      ...(maxSwaps === null ? {} : { maxSwaps }),
+      onProgress: forward
+    });
+    spent += share;
+    return { ...result, maxSwaps, gain: gainOf(result) };
+  };
+
+  const entries = budgets.map((maxSwaps, index) => run(maxSwaps, index));
+  // The unbudgeted search has no greedy seed, so on a tight clock a budgeted run can beat it. An
+  // unlimited budget can afford any of those plans, so take the best one found rather than only its
+  // own - otherwise the widest option on screen sits below a narrower one for no reason a reader
+  // could follow.
+  const searched = run(null, budgets.length);
+  const best = entries.reduce((winner, entry) => (entry.gain > winner.gain ? entry : winner), searched);
+  // When a budget won, the unbudgeted slot is showing that same board under a second name. Say so,
+  // rather than leaving the caller to compare gains and guess.
+  const unlimited = { ...best, maxSwaps: null, redundant: best !== searched };
+  onProgress?.({ elapsed: totalBudget, budget: totalBudget, iterations: 0, gain: unlimited.gain });
+
+  return { current, entries, unlimited };
+}
+
+// A budget inside this much of the best gain on offer counts as "all of it" - past the knee the
+// curve is flat and the extra swaps buy rounding error.
+const VALUE_THRESHOLD = 0.95;
+
+/**
+ * The plans worth showing: every budget, plus the unbudgeted plan only when it is its own board
+ * rather than a second name for a budget that already found it.
+ */
+export const curvePlans = (curve: { entries?: any[]; unlimited?: any } | null | undefined) => {
+  const { entries = [], unlimited } = curve ?? {};
+  return unlimited && !unlimited.redundant ? [...entries, unlimited] : [...entries];
+}
+
+/**
+ * Which plan on the curve to put in front of the user. Left on the unbudgeted plan the curve is just
+ * extra reading, so pick the cheapest budget that already gets effectively the whole gain, and fall
+ * back to the unbudgeted plan when no budget comes close.
+ */
+export const bestValuePlan = (curve: { entries: any[]; unlimited: any }) => {
+  const { entries = [], unlimited } = curve ?? {} as any;
+  // A redundant unbudgeted plan is not on screen, so falling back to it would leave the picker with
+  // nothing selected. The budget it copied is the same board under a name the reader can see.
+  const fallback = unlimited?.redundant
+    ? entries.reduce((winner, entry) => ((entry.gain ?? 0) > (winner?.gain ?? -Infinity) ? entry : winner), entries[0])
+    : unlimited;
+  const best = Math.max(unlimited?.gain ?? 0, ...entries.map(({ gain }) => gain ?? 0));
+  if (!(best > 0)) return fallback;
+  const target = best * VALUE_THRESHOLD;
+  return [...entries]
+    .sort((left, right) => left.maxSwaps - right.maxSwaps)
+    .find(({ gain, moves }) => (gain ?? 0) >= target && moves?.length > 0) ?? fallback;
 }
 
 /**
