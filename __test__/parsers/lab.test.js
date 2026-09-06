@@ -1,5 +1,7 @@
 import '../../polyfills';
+import 'core-js/modules/web.structured-clone';
 import { describe, expect, it } from 'vitest';
+import { parseData } from '@parsers/index';
 import { getLab } from '@parsers/world-4/lab';
 import { liveCount } from '@parsers/catalog';
 import { chips, jewels, labBonuses } from '@website-data';
@@ -49,5 +51,19 @@ describe('getLab fixture regression', () => {
     const result = getLab(data, [], {});
     expect(result.chips).toHaveLength(liveCount(chips));
     expect(result.labBonuses).toHaveLength(liveCount(labBonuses));
+  });
+});
+
+describe('lab tube connections', () => {
+  // Souped tubes go by rank among the characters AFK in the lab, not by raw character index:
+  // BrightFinThree is third in the account but second in the lab, so it gets the wider line that
+  // reaches the prism and seeds every other connection.
+  it('first: souped tubes follow lab-AFK order', () => {
+    const { data, charNames, companion, guildData, serverVars } = first;
+    const { account } = parseData(data, charNames, companion, guildData, serverVars);
+
+    expect(account.lab.playersCords[2].lineWidth).toBe(104);
+    expect(account.lab.connectedPlayers.map(({ playerId }) => playerId).sort()).toEqual([1, 2, 4, 5]);
+    expect(account.lab.labBonuses[1].active).toBe(true);
   });
 });

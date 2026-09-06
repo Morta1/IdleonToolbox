@@ -3,7 +3,7 @@ import { chips, classes, jewels, labBonuses, merits, randomList, talents } from 
 import { liveEntries } from '@parsers/catalog';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { getCardBonusByEffect } from '@parsers/cards';
-import { isArenaBonusActive, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
+import { isArenaBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getShinyBonus } from '@parsers/world-4/breeding';
 import { checkCharClass, CLASSES, getTalentBonus, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
@@ -11,7 +11,7 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { calculateItemTotalAmount, getStatsFromGear } from '@parsers/items';
 import { getAllBaseSkillEff, getAllEff } from '@parsers/efficiency';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
-import { getResearchGridBonus } from '@parsers/world-7/research';
+import { isMajorDivinityActive } from '@parsers/world-5/divinity';
 
 export const getLab = (idleonData: any, charactersData: any, account: any, updatedCharactersData?: any) => {
   const labRaw = tryToParse(idleonData?.Lab) || idleonData?.Lab;
@@ -74,21 +74,37 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
     });
   });
   const soupedUpSlots = (account?.gemShopPurchases?.find((value: any, index: any) => index === 123) ?? 0) * 2;
-  const holeMajikConnected = account?.hole?.godsLinks?.find(({ index }: any) => index === 1);
-  // Game: Divinity("Bonus_MAJOR", n, 2) - research grid 173 grants Arctis (lab god) bonus to ALL players
-  const hasArctisResearch = getResearchGridBonus(account, 173, 0) >= 1;
-  let playersInTubes = [...charactersData].filter((character, index) => isCompanionBonusActive(account, 0)
-    || holeMajikConnected
-    || hasArctisResearch
-    || character?.AFKtarget === 'Laboratory'
-    || isLabEnabledBySorcererRaw(character, 1)
-    || account?.divinity?.linkedDeities?.[index] === 1)
-    .map((character) => ({
+  // Game: contains(labAfkList, n) || Divinity("Bonus_MAJOR", n, 2) - Arctis is god bonus index 2.
+  // Lab gets raw save characters, which carry polytheism (talent 505) but not the parsed second
+  // divinity link isMajorDivinityActive reads, so resolve that slot here.
+  const withSecondDeityLink = (character: any) => {
+    const polytheism = Number(character?.SkillLevels?.[505]) || 0;
+    return polytheism > 0
+      ? { ...character, secondLinkedDeityIndex: character?.secondLinkedDeityIndex ?? polytheism % 10 }
+      : character;
+  }
+  const isInTube = (character: any) => character?.AFKtarget === 'Laboratory'
+    || isMajorDivinityActive(withSecondDeityLink(character), account, 2);
+  const labAfkPlayerIds = charactersData?.reduce((res: any[], character: any) => character?.AFKtarget === 'Laboratory'
+    ? [...res, character?.playerId]
+    : res, []) ?? [];
+  let playersInTubes = [...charactersData].filter(isInTube)
+    .map((character: any) => ({
       playerId: character?.playerId,
       name: character?.name,
       x: playersCords?.[character?.playerId]?.x,
       y: playersCords?.[character?.playerId]?.y
     }));
+  // Game: Labb("BonusLineWidth") - a player AFK in the lab is souped by its rank among the lab-AFK
+  // players, everyone else by its raw player index.
+  const soupedTubePlayerIds = charactersData?.reduce((res: any[], character: any) => {
+    const playerId = character?.playerId;
+    const afkRank = labAfkPlayerIds.indexOf(playerId);
+    const souped = afkRank !== -1
+      ? afkRank < soupedUpSlots
+      : playerId < soupedUpSlots && isMajorDivinityActive(withSecondDeityLink(character), account, 2);
+    return souped ? [...res, playerId] : res;
+  }, []) ?? [];
 
   const chipList: any[] = structuredClone(chipsData);
   chipRepo?.map((chipCount: any, chipIndex: any) => {
@@ -121,7 +137,7 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
     foundNewConnection = false;
     counter += 1;
     playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList,
-      playersChips, account, account?.cards, account?.gemShopPurchases, arenaWave, waveReqs, buboPlayer, charactersData, updatedCharactersData);
+      playersChips, account, account?.cards, soupedTubePlayerIds, arenaWave, waveReqs, buboPlayer, charactersData, updatedCharactersData);
 
     if (playersInTubes.length > 0 && connectedPlayers.length === 0) {
       const prismPlayer = getPrismPlayerConnection(playersInTubes);
@@ -150,7 +166,7 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
         if (jewelsList?.[16]?.acquired && !jewelsList?.[16]?.active) {
           jewelsList[16].active = true;
           playersInTubes = calcPlayerLineWidth(playersInTubes, labBonusesList, jewelsList,
-            playersChips, account, account?.cards, account?.gemShopPurchases, arenaWave, waveReqs, buboPlayer, charactersData, updatedCharactersData);
+            playersChips, account, account?.cards, soupedTubePlayerIds, arenaWave, waveReqs, buboPlayer, charactersData, updatedCharactersData);
           jewelsList[16].active = false;
         }
         labBonuses = checkConnection(labBonusesList, pyriteRhombolBonus, viralConnectionBonus, calculatedTaskConnectionRange, equinoxConnectionRangeBonus, winnerBonus, connectedPlayers?.[i], false);
@@ -271,15 +287,13 @@ const getRange = (connectionBonus: any, viralRangeBonus: any, taskConnectionRang
   return Math.floor((80 * (1 + (connectionBonus + viralRangeBonus) / 100)) + taskConnectionRange + equinoxConnectionRangeBonus + winnerBonus);
 }
 
-export const calcPlayerLineWidth = (playersInTubes: any, labBonuses: any, jewels: any, chips: any, account: any, cards: any, gemShopPurchases: any, arenaWave: any, waveReqs: any, buboPlayer: any, charactersData: any, updatedCharactersData: any) => {
+export const calcPlayerLineWidth = (playersInTubes: any, labBonuses: any, jewels: any, chips: any, account: any, cards: any, soupedTubePlayerIds: any, arenaWave: any, waveReqs: any, buboPlayer: any, charactersData: any, updatedCharactersData: any) => {
   return playersInTubes?.map((character: any) => {
-    const soupedTubes = (gemShopPurchases?.find((value: any, index: any) => index === 123) ?? 0) * 2;
     const petArenaBonus = isArenaBonusActive(arenaWave, waveReqs, 13) ? 1 : 0;
     const realCharacter = charactersData?.find(({ name }: any) => name === character?.name);
-    const realIndex = realCharacter?.playerId;
     const lineWidth = getPlayerLineWidth(character,
       realCharacter?.Lv0?.[12], // lab skill
-      soupedTubes > 0 && (realIndex < soupedTubes),
+      soupedTubePlayerIds?.includes(realCharacter?.playerId),
       labBonuses,
       jewels,
       chips?.[character?.playerId],
@@ -360,7 +374,7 @@ const checkConnection = (array: any, connectionRangeBonus: any, viralRangeBonus:
       object.active = true;
       newConnection = true;
     }
-    return { resArr: [...res.resArr, object], newConnection }
+    return { resArr: [...res.resArr, object], newConnection: res.newConnection || newConnection }
   }, { resArr: [], newConnection: false });
 };
 

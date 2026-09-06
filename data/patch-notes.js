@@ -10,7 +10,8 @@ export const patchNotes = [
     'features': [],
     'fixes': [
       'Royal Guardian: maxed armory and orblet market upgrades now say "Maxed" in place of the cost, matching the other class specific pages',
-      'Royal Guardian\'s page is now called Royal Armory, matching the skill name like the other class specific pages. Old links still work'
+      'Royal Guardian\'s page is now called Royal Armory, matching the skill name like the other class specific pages. Old links still work',
+      'Lab: souped up tubes went to the wrong characters. The bonus follows the order of who is idling in the lab, so characters could show a shorter line than they have in game and leave connected nodes looking inactive'
     ]
   },
   {
