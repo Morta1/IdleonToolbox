@@ -13,7 +13,9 @@ export const patchNotes = [
       'Cooking: new Ribbons tab with your total, highest and lowest ribbon ranks, the contents of your ribbon shelf, and what every rank from 1 to 25 is worth as a meal multiplier',
       'Cooking Mastery: added a time until next level'
     ],
-    'fixes': []
+    'fixes': [
+      'With an ad blocker on, leaving the home page left a blank screen until you refreshed'
+    ]
   },
   {
     'ver': '3.3.74',

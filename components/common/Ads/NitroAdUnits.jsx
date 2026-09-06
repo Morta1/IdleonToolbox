@@ -31,17 +31,18 @@ const createRail = (id, alignment, sizes, mediaQuery) => {
 };
 
 const destroyRail = (id) => {
-  // Rail ads are wrapped in a body > div created by NitroAds — remove the wrapper to fully clean up
-  const wrapper = document.querySelector(`body > div:has(#${id})`);
-  if (wrapper) {
-    wrapper.remove();
-    return;
-  }
-  // No wrapper yet means the ads script hasn't built its container, so the only node with this id
-  // is the one React rendered. Removing that leaves React holding a node it no longer owns, which
-  // throws NotFoundError on unmount — never touch anything inside the app root.
   const el = document.getElementById(id);
-  if (el && !document.getElementById('__next')?.contains(el)) el.remove();
+  if (!el) return;
+  // Anything still inside the app root belongs to React: with the ads script blocked (Firefox ETP,
+  // any ad blocker) window.nitroAds never exists, createRail bails, and the div is never relocated.
+  // It has to be left alone — removing it leaves React holding a node it no longer owns, which
+  // throws NotFoundError on unmount. Matching on `body > div:has(#id)` used to match #__next itself
+  // in exactly this case and delete the whole app root, silently blanking the page on every
+  // navigation off the home page until a manual refresh.
+  if (document.getElementById('__next')?.contains(el)) return;
+  // Relocated: rail ads are wrapped in a body > div created by NitroAds — remove the wrapper to
+  // fully clean up, or the bare node if there is no wrapper around it.
+  (el.closest('body > div') || el).remove();
 };
 
 export const NitroRailAd = ({
