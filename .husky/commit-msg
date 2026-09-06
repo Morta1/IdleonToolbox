@@ -1,0 +1,11 @@
+#!/bin/sh
+# Reject commit messages whose first or last line is a bare "@".
+# That is what a PowerShell here-string (@'...'@) turns into when run through bash.
+msg_file="$1"
+first=$(grep -v '^#' "$msg_file" | sed -n '1p')
+last=$(grep -v '^#' "$msg_file" | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' | sed -n '$p')
+if [ "$first" = "@" ] || [ "$last" = "@" ]; then
+  echo "commit-msg: message starts or ends with a bare '@' line (PowerShell here-string leaked into bash?)." >&2
+  echo "commit-msg: use a heredoc: git commit -F - <<'MSGEOF' ... MSGEOF" >&2
+  exit 1
+fi
