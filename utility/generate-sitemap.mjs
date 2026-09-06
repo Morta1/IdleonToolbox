@@ -291,6 +291,10 @@ async function generateSitemap() {
     // Same, for the wiki: one file serves 3,466 entities and six category listings.
     '!pages/wiki/[kind]/[slug].jsx',
     '!pages/wiki/[kind]/index.jsx',
+    // Redirect stub for the old /royal-guardian path, kept so bookmarks and indexed links don't
+    // 404. It is noindex and canonicals to /royal-armory, so listing it here would ask Google to
+    // crawl a page that only points at another one.
+    '!pages/account/class-specific/royal-guardian.jsx',
   ])
 
   const routeOf = (page) =>

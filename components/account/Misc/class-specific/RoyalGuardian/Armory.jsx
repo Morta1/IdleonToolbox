@@ -81,7 +81,6 @@ const Armory = ({ upgrades, resourceStorage }) => {
                   <Typography>
                     {cleanText(name)} ({level}{capped ? ` / ${maxLevel}` : ''})
                   </Typography>
-                  {maxed ? <Chip size="small" color="success" label="Maxed"/> : null}
                   {!unlocked ? <Chip size="small" variant="outlined" label="Locked"/> : null}
                 </Stack>
                 <Divider sx={{ my: 1 }}/>
@@ -89,7 +88,7 @@ const Armory = ({ upgrades, resourceStorage }) => {
                 <Divider sx={{ my: 1, mt: 'auto' }}/>
                 <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
                   <img style={{ width: 24, height: 24 }} src={`${prefix}data/${costResourceRawName}.png`} alt=""/>
-                  <Typography>Cost: {notateNumber(stored)} / {notateNumber(cost, 'Big')}</Typography>
+                  {maxed ? <Typography>Maxed</Typography> : <Typography>Cost: {notateNumber(stored)} / {notateNumber(cost, 'Big')}</Typography>}
                 </Stack>
                 <Divider sx={{ my: 1 }}/>
                 {/* The game numbers shelves from 1, the catalog slots from 0. */}

@@ -4,6 +4,16 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.76',
+    'gameVer': '2.3.527',
+    'date': '07/09/2026',
+    'features': [],
+    'fixes': [
+      'Royal Guardian: maxed armory and orblet market upgrades now say "Maxed" in place of the cost, matching the other class specific pages',
+      'Royal Guardian\'s page is now called Royal Armory, matching the skill name like the other class specific pages. Old links still work'
+    ]
+  },
+  {
     'ver': '3.3.75',
     'gameVer': '2.3.527',
     'date': '06/09/2026',

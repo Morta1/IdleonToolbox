@@ -596,7 +596,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           /> : null}
         {trackers?.['World 7']?.royalNodeCap?.checked && (royalNodeCapTime || royalAllNodesEmpty) ?
           <TimerCard
-            page={'account/class-specific/royal-guardian'}
+            page={'account/class-specific/royal-armory'}
             tooltipContent={royalAllNodesEmpty
               ? 'Every connected resource is empty'
               : 'Next outpost resource runs out: ' + getRealDateInMs(royalNodeCapTime)}
