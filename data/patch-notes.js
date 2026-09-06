@@ -9,7 +9,9 @@ export const patchNotes = [
     'date': '06/09/2026',
     'features': [
       'Construction: Optimize now comes back with several plans instead of one - a handful of swaps up to the full board - and shows what each is worth, so you can take most of the gain without dragging cogs around all day',
-      <Typography component={'span'}>New tool: <Link href={'/tools/wardrobe'}>Wardrobe</Link>. Dress a character in any hat, weapon, cape, costume, trophy, nametag or companion and watch it move the way the game draws it, with shareable links and PNG download</Typography>
+      <Typography component={'span'}>New tool: <Link href={'/tools/wardrobe'}>Wardrobe</Link>. Dress a character in any hat, weapon, cape, costume, trophy, nametag or companion and watch it move the way the game draws it, with shareable links and PNG download</Typography>,
+      'Cooking: new Ribbons tab with your total, highest and lowest ribbon ranks, the contents of your ribbon shelf, and what every rank from 1 to 25 is worth as a meal multiplier',
+      'Cooking Mastery: added a time until next level'
     ],
     'fixes': []
   },

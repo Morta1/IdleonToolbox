@@ -4,6 +4,7 @@ import { cleanUnderscore, commaNotation, notateNumber } from '@utility/helpers';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
+import Timer from 'components/common/Timer';
 
 const CookingMastery = ({ cookingMastery }) => {
   if (!cookingMastery) {
@@ -21,6 +22,8 @@ const CookingMastery = ({ cookingMastery }) => {
     expRateBreakdown
   } = cookingMastery;
 
+  const hoursToLevel = expRate > 0 ? Math.max(0, expReq - exp) / expRate : null;
+
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={3} mt={3} mb={1} alignItems={'stretch'}>
       <CardTitleAndValue title={'Mastery level'} value={level}/>
@@ -32,6 +35,13 @@ const CookingMastery = ({ cookingMastery }) => {
             <IconInfoCircleFilled size={18} style={{ cursor: 'pointer', display: 'block' }}/>
           </Breakdown>
         </Stack>
+      </CardTitleAndValue>
+      <CardTitleAndValue title={'Time until level'}>
+        <Typography component={'div'}>
+          {hoursToLevel !== null
+            ? <Timer date={new Date().getTime() + hoursToLevel * 3600 * 1000} staticTime={true}/>
+            : '-'}
+        </Typography>
       </CardTitleAndValue>
       <CardTitleAndValue
         title={'Rank'}

@@ -294,6 +294,25 @@ export interface CookingMastery {
   };
   categories: CookingMasteryCategory[];
   expRateBreakdown: any;
+  ribbons: CookingRibbons;
+}
+
+// Ribbon[0..27] is the Ribbon Shelf (0 = empty slot), Ribbon[28 + mealIndex] is the rank applied
+// to that meal. The game's total (DNSM.CkMst_RbLvT) sums the meal ranks only, shelf excluded.
+export const RIBBON_SHELF_SLOTS = 28;
+// CookingR('RibbonsMaxLV') - a constant 25 in the game.
+export const RIBBON_MAX_RANK = 25;
+
+export interface CookingRibbons {
+  total: number;
+  highest: number;
+  lowest: number;
+  ribbonedMeals: number;
+  totalMeals: number;
+  shelf: number[];
+  maxRank: number;
+  // How many meals carry each rank, indexed by rank (index 0 = meals without a ribbon).
+  rankCounts: number[];
 }
 
 export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: any, characters?: any): CookingMastery | null => {
@@ -328,9 +347,26 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
   const ladlesUsed = cookMaster?.[1]?.[3] ?? 0;
   const sumCookingLevels = characters?.reduce((sum: number, char: any) =>
     sum + (char?.skillsInfo?.cooking?.level || 0), 0) ?? 0;
-  const ribbonSum = (account?.grimoire?.ribbons ?? [])
-    .slice(28)
-    .reduce((sum: number, rank: any) => sum + (Number(rank) || 0), 0);
+  const mealRibbonRanks = (account?.grimoire?.ribbons ?? [])
+    .slice(RIBBON_SHELF_SLOTS)
+    .map((rank: any) => Number(rank) || 0);
+  const ribbonSum = mealRibbonRanks.reduce((sum: number, rank: number) => sum + rank, 0);
+  const ribbonedMeals = mealRibbonRanks.filter((rank: number) => rank > 0);
+  const ribbons: CookingRibbons = {
+    total: ribbonSum,
+    highest: ribbonedMeals.length > 0 ? Math.max(...ribbonedMeals) : 0,
+    lowest: ribbonedMeals.length > 0 ? Math.min(...ribbonedMeals) : 0,
+    ribbonedMeals: ribbonedMeals.length,
+    totalMeals: mealRibbonRanks.length,
+    shelf: (account?.grimoire?.ribbons ?? [])
+      .slice(0, RIBBON_SHELF_SLOTS)
+      .map((rank: any) => Number(rank) || 0),
+    maxRank: RIBBON_MAX_RANK,
+    rankCounts: mealRibbonRanks.reduce((counts: number[], rank: number) => {
+      if (rank >= 0 && rank <= RIBBON_MAX_RANK) counts[rank] += 1;
+      return counts;
+    }, new Array(RIBBON_MAX_RANK + 1).fill(0))
+  };
 
   // The live source amount each category scales with (null = no player-facing source, e.g. SMOKY).
   const categorySource = (t: number): number | null => {
@@ -434,7 +470,8 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
       nodeLeft: Math.max(0, Math.round(basePoints + gridBonusPts - nodeSpent))
     },
     categories,
-    expRateBreakdown
+    expRateBreakdown,
+    ribbons
   };
 };
 

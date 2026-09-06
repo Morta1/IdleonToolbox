@@ -1,6 +1,6 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
-import { getCooking } from '@parsers/world-4/cooking';
+import { getCooking, getCookingMastery } from '@parsers/world-4/cooking';
 import { liveCount } from '@parsers/catalog';
 import { cookingMenu } from '@website-data';
 import { tryToParse } from '@utility/helpers';
@@ -66,5 +66,32 @@ describe('getCooking fixture regression', () => {
     const data = fixture.data ?? fixture;
     const { meals } = getCooking(data, {}, []);
     expect(meals).toHaveLength(liveCount(cookingMenu));
+  });
+});
+
+describe('getCookingMastery ribbons', () => {
+  const account = (ribbons) => ({ grimoire: { ribbons } });
+
+  it('sums meal ranks only, shelf slots excluded (matches DNSM.CkMst_RbLvT)', () => {
+    const ribbons = new Array(28).fill(20).concat([9, 0, 3, 15]);
+    const { ribbons: summary } = getCookingMastery([[], [10, 0]], undefined, account(ribbons));
+    expect(summary.total).toBe(27);
+    expect(summary.highest).toBe(15);
+    expect(summary.lowest).toBe(3);
+    expect(summary.ribbonedMeals).toBe(3);
+    expect(summary.totalMeals).toBe(4);
+    expect(summary.shelf).toHaveLength(28);
+    expect(summary.maxRank).toBe(25);
+  });
+
+  it('counts meals per rank and stays empty for a ribbonless account', () => {
+    const { ribbons: summary } = getCookingMastery([[], [10, 0]], undefined, account(new Array(28).fill(0).concat([9, 9, 0])));
+    expect(summary.rankCounts[9]).toBe(2);
+    expect(summary.rankCounts[0]).toBe(1);
+    const empty = getCookingMastery([[], [10, 0]], undefined, {}).ribbons;
+    expect(empty.total).toBe(0);
+    expect(empty.highest).toBe(0);
+    expect(empty.lowest).toBe(0);
+    expect(empty.shelf).toEqual([]);
   });
 });
