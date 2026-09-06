@@ -18,7 +18,8 @@ export const patchNotes = [
     'fixes': [
       'Royal Guardian: picking a world on the Outposts tab changed the Support Camp and Savage Stronghold counts above it, which read like account totals. Those now always show the allowance, and per world usage stays in the world headers',
       'With an ad blocker on, leaving the home page left a blank screen until you refreshed',
-      'Slab: the four dungeon tier 4 armor pieces were listed as unobtainable, so they never showed up as missing'
+      'Slab: the four dungeon tier 4 armor pieces were listed as unobtainable, so they never showed up as missing',
+      'Lab: jewel tooltips showed a broken multiplier once Spelunker Obol boosted them, like a 1.25.6x meal bonus instead of 1.256x'
     ]
   },
   {

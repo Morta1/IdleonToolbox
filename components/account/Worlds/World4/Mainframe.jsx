@@ -1,6 +1,6 @@
 import React from 'react'
 import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from 'utility/helpers';
+import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from 'components/Tooltip';
 import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
@@ -86,6 +86,12 @@ const BonusTooltip = ({ name, description, bonusDesc, extraData }) => {
 }
 
 const JewelTooltip = ({ effect, bonus, name, multiplier = 1 }) => {
+  const value = bonus * multiplier;
+  // Some effects hardcode the "1." prefix of a multiplier (eg. "1.}x more damage"), which breaks
+  // once the multiplied bonus isn't a whole number (16 * 1.6 = 25.6 would render as "1.25.6x").
+  const description = effect?.includes('1.}')
+    ? effect.replace(/1\.}/g, notateNumber(1 + value / 100, 'ThreeDecimals'))
+    : effect?.replace(/}/g, notateNumber(value, 'Smaller'));
   return <>
     <Typography mb={1} fontWeight={'bold'}
                 variant={'h5'}>{cleanUnderscore(name.toLowerCase().capitalize())}</Typography>
@@ -94,7 +100,7 @@ const JewelTooltip = ({ effect, bonus, name, multiplier = 1 }) => {
         color: multiplier > 1
           ? 'multi'
           : ''
-      }}>{cleanUnderscore(effect?.replace(/}/g, bonus * multiplier)).split('@')[0]}</Typography>
+      }}>{cleanUnderscore(description).split('@')[0]}</Typography>
   </>;
 }
 
