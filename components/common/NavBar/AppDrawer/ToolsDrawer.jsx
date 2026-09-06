@@ -9,7 +9,7 @@ import { PAGES } from '@components/constants';
 import { prefix } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
 
-export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true, itemPlanner: true };
+export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true, itemPlanner: true, wardrobe: true };
 
 const ToolsDrawer = ({ fromList }) => {
   const router = useRouter();

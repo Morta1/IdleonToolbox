@@ -298,6 +298,9 @@ export const PAGES = {
     },
     'boneJoeCalculator': {
       icon: 'data/BoneJoePickle'
+    },
+    'wardrobe': {
+      icon: 'data/EquipmentHats1'
     }
   }
 }

@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.527',
     'date': '06/09/2026',
     'features': [
-      'Construction: Optimize now comes back with several plans instead of one - a handful of swaps up to the full board - and shows what each is worth, so you can take most of the gain without dragging cogs around all day'
+      'Construction: Optimize now comes back with several plans instead of one - a handful of swaps up to the full board - and shows what each is worth, so you can take most of the gain without dragging cogs around all day',
+      <Typography component={'span'}>New tool: <Link href={'/tools/wardrobe'}>Wardrobe</Link>. Dress a character in any hat, weapon, cape, costume, trophy, nametag or companion and watch it move the way the game draws it, with shareable links and PNG download</Typography>
     ],
     'fixes': []
   },
