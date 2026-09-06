@@ -201,11 +201,6 @@ export const filteredLootyItems = ([
   'DungWeaponSwordF3',
   'DungWeaponSwordF4',
   'DungWeaponSwordF5',
-
-  'DungEquipmentShoes4',
-  'DungEquipmentShirt4',
-  'DungEquipmentRings4',
-  'DungEquipmentPants4',
 ] as any).toSimpleObject();
 
 export const skillsMaps = {

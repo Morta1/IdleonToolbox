@@ -14,7 +14,8 @@ export const patchNotes = [
       'Cooking Mastery: added a time until next level'
     ],
     'fixes': [
-      'With an ad blocker on, leaving the home page left a blank screen until you refreshed'
+      'With an ad blocker on, leaving the home page left a blank screen until you refreshed',
+      'Slab: the four dungeon tier 4 armor pieces were listed as unobtainable, so they never showed up as missing'
     ]
   },
   {
