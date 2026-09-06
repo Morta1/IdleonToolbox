@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, Chip, Divider, FormControl, InputLabel, Select, Stack, TextField, Typography } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import useCheckbox from '@components/common/useCheckbox';
 
 // Same stray glyphs Grimoire/Compass/Tesseract strip from their own upgrade text, plus the three
@@ -57,7 +57,10 @@ const Armory = ({ upgrades, resourceStorage }) => {
 
       <Stack direction="row" gap={2} flexWrap="wrap" alignItems="stretch">
         {sorted.map((upgrade) => {
-          const { index, name, description, level, maxLevel, cost, unlocked, maxed, costResourceIndex, costResourceRawName } = upgrade;
+          const {
+            index, name, description, level, maxLevel, cost, unlocked, maxed, slot, shelfUnlockTotalLevels,
+            costResourceIndex, costResourceRawName
+          } = upgrade;
           if (hideMaxedUpgrades && maxed) return null;
           if (hideLockedUpgrades && !unlocked) return null;
           const capped = maxLevel < 999;
@@ -88,6 +91,9 @@ const Armory = ({ upgrades, resourceStorage }) => {
                   <img style={{ width: 24, height: 24 }} src={`${prefix}data/${costResourceRawName}.png`} alt=""/>
                   <Typography>Cost: {notateNumber(stored)} / {notateNumber(cost, 'Big')}</Typography>
                 </Stack>
+                <Divider sx={{ my: 1 }}/>
+                {/* The game numbers shelves from 1, the catalog slots from 0. */}
+                <Typography>Shelf {slot + 1} · Unlocks at: {commaNotation(shelfUnlockTotalLevels)} levels</Typography>
               </CardContent>
             </Card>
           );

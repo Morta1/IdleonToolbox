@@ -77,10 +77,6 @@ const Outposts = ({ outposts, outpostStats, resources }) => {
     return a.mapIndex - b.mapIndex;
   });
 
-  // The game caps Support Camps and Savage Strongholds PER WORLD, so a used/allowed pair only
-  // means anything once a single world is picked.
-  const worldUsage = world === ALL_WORLDS ? null : outpostStats?.typesUsedByWorld?.[world];
-
   const groupedWorlds = [...new Set(sorted.map(({ world: outpostWorld }) => outpostWorld))]
     .sort((a, b) => a - b);
 
@@ -110,7 +106,12 @@ const Outposts = ({ outposts, outpostStats, resources }) => {
         : 'Collects its nodes straight into your resource storage.';
 
     return (
-      <Card key={mapIndex} sx={{ height: '100%' }}>
+      // Glorified is the one outpost state worth spotting across a whole grid, so it gets a border
+      // rather than another word in the meta line.
+      <Card key={mapIndex} sx={{
+        height: '100%',
+        ...(boosted ? { border: '2px solid', borderColor: 'success.main' } : {})
+      }}>
         <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <Typography>{name || `Map ${mapIndex}`}</Typography>
           <Stack direction="row" gap={0.5} alignItems="center">
@@ -284,12 +285,13 @@ const Outposts = ({ outposts, outpostStats, resources }) => {
         <CardTitleAndValue title="Unit Types Unlocked"
                            value={`${outpostStats?.unitsUnlocked ?? 0} / ${unitNames.length}`}/>
         <CardTitleAndValue title="Worlds Unlocked" value={outpostStats?.worldsUnlocked ?? 0}/>
+        {/* The game caps Support Camps and Savage Strongholds PER WORLD, so these stay the account's
+            allowance: how many of them a given world spends is the world header's job, where the
+            world is actually named. */}
         {[1, 2].map((modeIndex) => (
           <CardTitleAndValue key={modeIndex}
                              title={`${OUTPOST_MODE_LABELS[modeIndex]} / World`}
-                             value={worldUsage
-                               ? `${worldUsage[modeIndex]} / ${outpostStats?.typesAllowed?.[modeIndex] ?? 0}`
-                               : `${outpostStats?.typesAllowed?.[modeIndex] ?? 0} allowed`}/>
+                             value={`${outpostStats?.typesAllowed?.[modeIndex] ?? 0} allowed`}/>
         ))}
       </Stack>
 
@@ -339,12 +341,15 @@ const Outposts = ({ outposts, outpostStats, resources }) => {
         ? groupedWorlds.map((groupWorld) => {
           const inWorld = sorted.filter(({ world: outpostWorld }) => outpostWorld === groupWorld);
           const usage = outpostStats?.typesUsedByWorld?.[groupWorld];
+          // Every map of the world that can hold an outpost. A search filter makes the numerator a
+          // subset, so the ratio is only honest while nothing is filtered out.
+          const worldSlots = searchText ? 0 : outpostStats?.slotsByWorld?.[groupWorld];
           return (
             <Stack key={groupWorld} direction="column" gap={1.5}>
               <Stack direction="row" gap={1.5} alignItems="baseline" flexWrap="wrap">
                 <Typography variant="h6">World {groupWorld}</Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {inWorld.length} outpost{inWorld.length === 1 ? '' : 's'}
+                  {inWorld.length}{worldSlots ? ` / ${worldSlots}` : ''} outpost{(worldSlots || inWorld.length) === 1 ? '' : 's'}
                   {usage
                     ? [1, 2].map((modeIndex) => ` \u00b7 ${OUTPOST_MODE_LABELS[modeIndex]} ${usage[modeIndex]} / ${outpostStats?.typesAllowed?.[modeIndex] ?? 0}`).join('')
                     : ''}

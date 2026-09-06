@@ -174,6 +174,7 @@ export interface ArmoryUpgrade {
   bonus: number;
   bonusPerLevel: number;
   unlockTotalLevels: number;
+  shelfUnlockTotalLevels: number;
   unlocked: boolean;
   maxed: boolean;
   slot: number;
@@ -506,6 +507,13 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     slotToId.length
   ));
 
+  // Shelves unlock by COUNT, so the total that opens shelf N is the Nth smallest threshold in the
+  // catalog - NOT the unlockTotalLevels of whichever upgrade happens to sit in that shelf, which is
+  // the entry's own gate and runs out of order against the shelf layout.
+  const shelfUnlockThresholds = catalogUpgrades
+    .map(({ entry }) => toNum(entry?.unlockTotalLevels))
+    .sort((a, b) => a - b);
+
   const armoryBonus = (index: number): number =>
     toNum(armoryLevels?.[index]) * toNum((armoryUpgradesCatalog as any[])?.[index]?.bonusPerLevel);
 
@@ -801,6 +809,9 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       bonus,
       bonusPerLevel: toNum(entry?.bonusPerLevel),
       unlockTotalLevels: toNum(entry?.unlockTotalLevels),
+      // The total armory levels that open this upgrade's SHELF, which is what the player is buying
+      // toward: its own unlockTotalLevels only feeds the shelf count.
+      shelfUnlockTotalLevels: slot >= 0 ? toNum(shelfUnlockThresholds?.[slot]) : 0,
       unlocked: slot >= 0 && slot < unlockedSlots,
       maxed: maxLevel < 999 && level >= maxLevel,
       slot,
@@ -1197,12 +1208,16 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
   // A unit can only be sent at a map its own world can hold an outpost on, so once every one of
   // them carries an outpost the unit has nowhere better to stand and is not worth reporting.
   const clearableMapsByWorld: Record<number, number> = {};
+  // Every map that CAN hold an outpost, claimed or not: the denominator a player checks a world
+  // against to notice a bonus map (Rats Nest and friends) they never cleared.
+  const slotsByWorld: Record<number, number> = {};
   Object.keys(mapDetails as any).forEach((key) => {
     const mapIndex = Number(key);
     if (!Number.isFinite(mapIndex)) return;
     if (!isOutpostSlot(mapIndex)) return;
-    if (claimedMaps.has(mapIndex)) return;
     const mapWorld = 1 + Math.floor(mapIndex / 50);
+    slotsByWorld[mapWorld] = (slotsByWorld[mapWorld] ?? 0) + 1;
+    if (claimedMaps.has(mapIndex)) return;
     clearableMapsByWorld[mapWorld] = (clearableMapsByWorld[mapWorld] ?? 0) + 1;
   });
 
@@ -1288,6 +1303,7 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       // the usage are PER WORLD, not per account.
       typesUnlocked: Math.round(1 + Math.min(1, armoryBonus(42)) + Math.min(1, armoryBonus(44))),
       typesAllowed: [999, Math.round(armoryBonus(42)), Math.round(armoryBonus(44))],
+      slotsByWorld,
       typesUsedByWorld: Object.fromEntries(
         [...new Set(detailedOutposts.map(({ world }) => world))].map((world) => [
           world,

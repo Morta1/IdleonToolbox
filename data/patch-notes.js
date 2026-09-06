@@ -11,9 +11,12 @@ export const patchNotes = [
       'Construction: Optimize now comes back with several plans instead of one - a handful of swaps up to the full board - and shows what each is worth, so you can take most of the gain without dragging cogs around all day',
       <Typography component={'span'}>New tool: <Link href={'/tools/wardrobe'}>Wardrobe</Link>. Dress a character in any hat, weapon, cape, costume, trophy, nametag or companion and watch it move the way the game draws it, with shareable links and PNG download</Typography>,
       'Cooking: new Ribbons tab with your total, highest and lowest ribbon ranks, the contents of your ribbon shelf, and what every rank from 1 to 25 is worth as a meal multiplier',
-      'Cooking Mastery: added a time until next level'
+      'Cooking Mastery: added a time until next level',
+      'Royal Guardian: armory upgrades now show their shelf number and the total armory levels that unlock that shelf',
+      'Royal Guardian: Glorified outposts are marked with a green border, and grouping by world shows how many outposts you own in each world (21 / 22), so a map you never claimed stands out'
     ],
     'fixes': [
+      'Royal Guardian: picking a world on the Outposts tab changed the Support Camp and Savage Stronghold counts above it, which read like account totals. Those now always show the allowance, and per world usage stays in the world headers',
       'With an ad blocker on, leaving the home page left a blank screen until you refreshed',
       'Slab: the four dungeon tier 4 armor pieces were listed as unobtainable, so they never showed up as missing'
     ]
