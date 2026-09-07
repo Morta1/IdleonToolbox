@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Card, CardActionArea, Stack, Typography } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import { sessionQuery } from '@utility/nav-query';
 import { KIND_PLURALS } from '@components/wiki/EntityPanel';
@@ -61,6 +61,28 @@ const Wiki = () => {
           Search above, or pick a category to browse.
         </Typography>
         <CategoryTiles searchList={entries} onSelect={(kind) => go(`/wiki/${kind}`)}/>
+        {/* The rail carries the changelog on desktop and is hidden below md, and it is not a
+            category so no tile leads to it either. Without this row it cannot be reached at all on
+            a phone. A real anchor, like the rail's own links, so copy-link and modified clicks work. */}
+        <Card variant={'outlined'} sx={{ display: { xs: 'block', md: 'none' } }}>
+          <CardActionArea
+            component={'a'}
+            href={'/wiki/changelog'}
+            onClick={(event) => {
+              if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+              event.preventDefault();
+              go('/wiki/changelog');
+            }}
+            sx={{ p: 1.5 }}
+          >
+            <Stack gap={0.25}>
+              <Typography fontWeight={600}>Changelog</Typography>
+              <Typography variant={'caption'} color={'text.secondary'}>
+                What the game changed, by version
+              </Typography>
+            </Stack>
+          </CardActionArea>
+        </Card>
       </Stack>}
     </Box>
   </WikiRail>;
