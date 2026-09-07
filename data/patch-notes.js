@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.77',
+    'gameVer': '2.3.530',
+    'date': '08/09/2026',
+    'features': [],
+    'fixes': [
+      'Dashboard: unchecking Stamp Reducer now hides its alert, without having to turn off Atom Collider'
+    ]
+  },
+  {
     'ver': '3.3.76',
     'gameVer': '2.3.530',
     'date': '07/09/2026',

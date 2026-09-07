@@ -861,10 +861,10 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
   }
   if (fields?.atomCollider?.checked) {
     const atomCollider = {};
-    const stampReducer = account?.atoms?.stampReducer >= options?.atomCollider?.stampReducer?.props?.value;
-    const stampReducerValue = options?.atomCollider?.stampReducer?.props?.value;
-    if (stampReducer) {
-      atomCollider.stampReducer = stampReducer;
+    const { stampReducer: stampReducerOption } = options?.atomCollider || {};
+    const stampReducerValue = stampReducerOption?.props?.value;
+    if (stampReducerOption?.checked && account?.atoms?.stampReducer >= stampReducerValue) {
+      atomCollider.stampReducer = true;
       atomCollider.stampReducerValue = stampReducerValue;
     }
     if (Object.keys(atomCollider).length > 0) {
