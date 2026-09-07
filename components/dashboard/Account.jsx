@@ -632,7 +632,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 6.farming.finishedPlots'}
                   title={`${alerts?.['World 6']?.farming?.finishedPlots.plots.length} plot${alerts?.['World 6']?.farming?.finishedPlots.plots.length > 1
                     ? 's'
-                    : ''} won't double again within ${alerts?.['World 6']?.farming?.finishedPlots.days} days - collect to restart them`}
+                    : ''} won't double again within ${alerts?.['World 6']?.farming?.finishedPlots.hours} hours - collect to restart them`}
                   iconPath={'data/FarmPlant1'}/> : null}
               {alerts?.['World 6']?.farming?.totalCrops > 0 ?
                 <Alert target={'World 6.farming.totalCrops'}

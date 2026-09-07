@@ -19,7 +19,7 @@ import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 import { useLocalStorage } from '@mantine/hooks';
 
 const baseTrackers = {
-  version: 74,
+  version: 75,
   account: {
     General: {
       tasks: {
@@ -495,7 +495,7 @@ const baseTrackers = {
             type: 'input',
             checked: false,
             helperText: 'How long you\'ll wait for a plot to double. Plots slower than this get flagged - collect them to start the doubling over',
-            props: { label: 'Days', value: 7, minValue: 1, maxValue: 365, helperText: '' }
+            props: { label: 'Hours', value: 168, minValue: 1, maxValue: 8760, helperText: '' }
           },
           {
             name: 'totalCrops',

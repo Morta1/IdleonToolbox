@@ -82,7 +82,9 @@ const Plot = ({ plot, market, ranks, lastUpdated, account, characters, selectedC
                   ? notateNumber(rankRequirement)
                   : 0}</Typography>
                 <Stack direction={'row'} gap={.5}>
-                  <Typography variant={'caption'}>Crop evo: {nextEvoChance?.value}%</Typography>
+                  <Typography variant={'caption'}>Crop evo: {nextEvoChance?.isLocked
+                    ? 'Locked'
+                    : `${nextEvoChance?.value}%`}</Typography>
                   <Tooltip
                     title={<Breakdown breakdown={nextEvoChance?.breakdown} titleStyle={{ width: 160 }} skipNotation/>}>
                     <IconInfoCircleFilled size={16}/>

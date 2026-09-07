@@ -1194,9 +1194,15 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
 
   value = Math.min(100, 100 * value);
   value = Math.round(10 * value) / 10;
+  // A plot's lock is exactly this roll's off switch - the game skips the crop type increment
+  // while it's set, and shows "NO" in place of the percentage. The bonuses below are still worth
+  // seeing, so only the chance itself is zeroed.
+  const isLocked = Boolean(crop?.isLocked);
+  if (isLocked) value = 0;
 
   return {
     value,
+    isLocked,
     breakdown: [
       { title: 'Additive' },
       { name: 'Base Chance', value: nextCropChance.toExponential(3) },

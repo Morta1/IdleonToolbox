@@ -7,10 +7,14 @@ export const patchNotes = [
     'ver': '3.3.77',
     'gameVer': '2.3.530',
     'date': '08/09/2026',
-    'features': [],
+    'features': [
+      'Dashboard: the Finished Plots threshold is now set in hours instead of days. Your current setting carries over'
+    ],
     'fixes': [
       'Dashboard: unchecking Stamp Reducer now hides its alert, without having to turn off Atom Collider',
-      'Pets: Tokens Available now counts both Pet Bonus Tokens instead of capping at one'
+      'Pets: Tokens Available now counts both Pet Bonus Tokens instead of capping at one',
+      'Dashboard: Finished Plots skipped locked plots. Locking only freezes a plot\'s crop type, so those plots stall like any other',
+      'Farming: a locked plot no longer shows a crop evolution chance, since locking stops evolution'
     ]
   },
   {
