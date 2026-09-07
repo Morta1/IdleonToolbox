@@ -1909,7 +1909,7 @@ const migration73 = (dashboardConfig) => {
         type: 'input',
         props: { label: 'Hours to empty within', value: 24, minValue: 1 },
         checked: true,
-        helperText: 'Alert when two outposts are wired to the same resource and one of them empties it within this many hours on its own, so the other is spending a connection slot for nothing'
+        helperText: 'Alert when two outposts are wired to the same resource and one of them empties it within this many hours on its own, so the other is spending a connection slot for nothing. Only when that outpost has another resource with something left in range to move the slot to'
       }
     ].filter(({ name }) => !rgOptions.some((option) => option?.name === name));
 

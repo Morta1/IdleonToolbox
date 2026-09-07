@@ -1630,7 +1630,9 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
         // Keep the fastest of the outposts that can finish it alone; every other link is spare.
         const keeper = soloCapable.reduce((best, link) =>
           (link.node.drainRate > best.node.drainRate ? link : best), soloCapable[0]);
-        links.filter((link) => link !== keeper)
+        // Spare only if the slot can go somewhere better: with nothing live in reach, dropping the
+        // link buys the outpost nothing, so the same rule as idleOutposts/strandedWorkers applies.
+        links.filter((link) => link !== keeper && link.outpost.freshNodeInReach)
           .forEach(({ outpost }) => redundant.set(outpost.mapIndex, pickOutpostEntry(outpost)));
       });
       if (redundant.size > 0) {

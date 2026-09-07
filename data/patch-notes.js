@@ -21,7 +21,8 @@ export const patchNotes = [
       'Royal Guardian: maxed armory and orblet market upgrades now say "Maxed" in place of the cost, matching the other class specific pages',
       'Royal Guardian\'s page is now called Royal Armory, matching the skill name like the other class specific pages. Old links still work',
       'Lab: souped up tubes went to the wrong characters. The bonus follows the order of who is idling in the lab, so characters could show a shorter line than they have in game and leave connected nodes looking inactive',
-      'Spelunking: Overstim Rate showed 0 whenever your max stamina had gone up, like from the new World 7 merit. It now counts every character, since a character below max only has to fill that stamina before it feeds overstim again'
+      'Spelunking: Overstim Rate showed 0 whenever your max stamina had gone up, like from the new World 7 merit. It now counts every character, since a character below max only has to fill that stamina before it feeds overstim again',
+      'Dashboard: the Royal Guardian shared resource alert no longer flags an outpost with no other resource in range, since there is nowhere to move the spare connection to'
     ]
   },
   {

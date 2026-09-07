@@ -260,12 +260,28 @@ describe('royal guardian dashboard alerts', () => {
           connectedNodes: [{ index: 9, exhausted: false, drainRate: 100, collected: 0, maxQuantity: 500 }]
         },
         {
-          // ...so this one is spending a connection slot on a node it is not needed for.
+          // ...so this one is spending a connection slot on a node it is not needed for, and it has
+          // a live node in reach to move that slot to.
           name: 'Slow', mapIndex: 5, world: 1, monsterRawName: 'frogG', monsterName: 'Frog',
-          mode: 0, freshNodeInReach: false,
+          mode: 0, freshNodeInReach: true,
           unitSlots: [1, 1], unitCounts: [0, 2, 0, 0],
           rankBars: [{ expPerUnit: 10 }],
           connectedNodes: [{ index: 9, exhausted: false, drainRate: 5, collected: 0, maxQuantity: 500 }]
+        },
+        {
+          // Wired to node 10 alongside 'Hog', which empties it alone - but with nothing live in
+          // reach the freed slot has nowhere to go, so the spare link is not worth reporting.
+          name: 'Stuck', mapIndex: 12, world: 1, monsterRawName: 'frogG', monsterName: 'Frog',
+          mode: 0, freshNodeInReach: false,
+          unitSlots: [1, 1], unitCounts: [0, 2, 0, 0],
+          rankBars: [{ expPerUnit: 10 }],
+          connectedNodes: [{ index: 10, exhausted: false, drainRate: 5, collected: 0, maxQuantity: 500 }]
+        },
+        {
+          name: 'Hog', mapIndex: 13, mode: 0, freshNodeInReach: false,
+          unitSlots: [1, 1], unitCounts: [0, 2, 0, 0],
+          rankBars: [{ expPerUnit: 10 }],
+          connectedNodes: [{ index: 10, exhausted: false, drainRate: 100, collected: 0, maxQuantity: 500 }]
         },
         {
           // A Support Camp drains nothing, so no collection alert may ever name it.
@@ -294,11 +310,23 @@ describe('royal guardian dashboard alerts', () => {
   it('flags the spare side of a shared node, keeping the outpost that empties it', () => {
     const alerts = getWorld7Alerts(stubAccount(), FIELDS, OPTIONS, [])?.royalGuardian;
 
-    // Only the slower of the two, and only because the faster one finishes the node alone.
+    // Only the slower of the two, and only because the faster one finishes the node alone. 'Stuck'
+    // loses its node to 'Hog' the same way but has nothing live in reach, so its slot is not spare.
     expect(alerts.sharedNodes.outposts).toEqual([
       { name: 'Slow', mapIndex: 5, world: 1, monsterRawName: 'frogG', monsterName: 'Frog' }
     ]);
     expect(alerts.sharedNodes.count).toBe(1);
+  });
+
+  it('flags that same link once the outpost has somewhere to rewire to', () => {
+    // 'Stuck' unchanged but for a live node in reach, so the reach check is what decides it.
+    const account = stubAccount();
+    account.royalGuardian.outposts.find(({ name }) => name === 'Stuck').freshNodeInReach = true;
+
+    const alerts = getWorld7Alerts(account, FIELDS, OPTIONS, [])?.royalGuardian;
+
+    expect(alerts.sharedNodes.outposts.map(({ name }) => name)).toEqual(['Slow', 'Stuck']);
+    expect(alerts.sharedNodes.count).toBe(2);
   });
   // A node needing only 200 more: the 10h window frees all 3 Workers, a 5h deadline only 2.
   const quickOutpost = () => ({
