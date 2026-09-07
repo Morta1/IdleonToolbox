@@ -198,7 +198,11 @@ const RichTextEditor = ({
       code: false,
       codeBlock: false,
       blockquote: false,
-      horizontalRule: false
+      horizontalRule: false,
+      // StarterKit bundles Link too. Registering both leaves which one wins to
+      // extension ordering, and the loser takes the rel/target hardening below
+      // with it, so the standalone Link.configure() is the only one enabled.
+      link: false
     }),
     // Function form reads the latest placeholder from the ref so prop changes
     // propagate without rebuilding the editor.
