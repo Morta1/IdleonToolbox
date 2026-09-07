@@ -9,7 +9,8 @@ export const patchNotes = [
     'date': '08/09/2026',
     'features': [],
     'fixes': [
-      'Dashboard: unchecking Stamp Reducer now hides its alert, without having to turn off Atom Collider'
+      'Dashboard: unchecking Stamp Reducer now hides its alert, without having to turn off Atom Collider',
+      'Pets: Tokens Available now counts both Pet Bonus Tokens instead of capping at one'
     ]
   },
   {

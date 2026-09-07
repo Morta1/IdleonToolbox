@@ -34,3 +34,59 @@ describe('getCompanions simulation', () => {
     expect(list.some((companion) => companion.simulated)).toBe(false);
   });
 });
+
+// Game: m._customBlock_Stuff2("PetBonusTokensOwned")
+//   Math.round(Math.min(1, opt[605]) + Math.min(1, opt[615]))
+// and "PetBonusTokensLeft" subtracts opt[606].split(',').length when `"" != opt[606]`.
+const tokenOptions = ({ o605, o615, o606 }) => {
+  const accountOptions = [];
+  if (o605 !== undefined) accountOptions[605] = o605;
+  if (o615 !== undefined) accountOptions[615] = o615;
+  if (o606 !== undefined) accountOptions[606] = o606;
+  return accountOptions;
+};
+
+describe('getCompanions pet bonus tokens', () => {
+  it('counts both token grants, not just opt[605]', () => {
+    const { tokens } = getCompanions(ownedCompanionObject, tokenOptions({ o605: 1, o615: 1, o606: '' }));
+    expect(tokens.owned).toBe(2);
+    expect(tokens.remaining).toBe(2);
+  });
+
+  it('counts the opt[615] token on its own', () => {
+    const { tokens } = getCompanions(ownedCompanionObject, tokenOptions({ o605: 0, o615: 1, o606: '' }));
+    expect(tokens.owned).toBe(1);
+  });
+
+  it('caps each grant at one', () => {
+    const { tokens } = getCompanions(ownedCompanionObject, tokenOptions({ o605: 5, o615: 3, o606: '' }));
+    expect(tokens.owned).toBe(2);
+  });
+
+  it('handles a pre-patch save with no opt[615]', () => {
+    const { tokens } = getCompanions(ownedCompanionObject, tokenOptions({ o605: 1, o606: '' }));
+    expect(tokens.owned).toBe(1);
+  });
+
+  it('subtracts spent tokens from the remaining count', () => {
+    const { tokens, list } = getCompanions(ownedCompanionObject, tokenOptions({ o605: 1, o615: 1, o606: '14' }));
+    expect(tokens.used).toBe(1);
+    expect(tokens.remaining).toBe(1);
+    expect(list[14].viaToken).toBe(true);
+  });
+
+  it('treats the string "0" as a token spent on companion index 0', () => {
+    const { tokens, list } = getCompanions(ownedCompanionObject, tokenOptions({ o605: 1, o615: 0, o606: '0' }));
+    expect(tokens.used).toBe(1);
+    expect(tokens.usedIndices).toEqual([0]);
+    expect(tokens.remaining).toBe(0);
+    expect(list[0].viaToken).toBe(true);
+  });
+
+  it('treats an untouched numeric 0 slot as no tokens spent', () => {
+    const { tokens, list } = getCompanions(ownedCompanionObject, tokenOptions({ o605: 1, o615: 0, o606: 0 }));
+    expect(tokens.used).toBe(0);
+    expect(tokens.remaining).toBe(1);
+    expect(list[0].viaToken).toBe(false);
+  });
+});

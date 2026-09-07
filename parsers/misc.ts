@@ -1344,9 +1344,13 @@ export const getCompanions = (companionObject: any = {}, accountOptions: any = [
 
   // Pet Bonus Token: opt[606] is a comma-list of companion indices the player spent a token on.
   // The game grants each such companion's full bonus (CompanionDB[i][2]) as if owned, even
-  // without owning the pet. opt[605] tracks tokens owned (capped at 1 usage).
-  const rawTokens = `${accountOptions?.[606] ?? ''}`;
-  const tokenIndices = rawTokens === '' || rawTokens === '0'
+  // without owning the pet. Tokens owned live in opt[605] and opt[615] (see tokensOwned below).
+  // The game gates the list on `"" != opt[606]`, a LOOSE compare: a numeric 0 (untouched slot)
+  // is empty, but the string "0" is a token spent on companion index 0. Test before stringifying,
+  // since `${0}` and `${'0'}` are indistinguishable afterwards.
+  const rawTokensValue = accountOptions?.[606] ?? '';
+  const rawTokens = rawTokensValue != '' ? `${rawTokensValue}` : '';
+  const tokenIndices = rawTokens === ''
     ? []
     : rawTokens.split(',').map((value: any) => Number(value)).filter((value: any) => Number.isFinite(value));
   const tokenIndexSet = new Set(tokenIndices);
@@ -1381,7 +1385,10 @@ export const getCompanions = (companionObject: any = {}, accountOptions: any = [
     }
   })
 
-  const tokensOwned = Math.min(1, Number(accountOptions?.[605]) || 0);
+  // Two separate token grants, each a 0/1 flag: opt[605] and opt[615] (the Quest119 drop).
+  // Game: Math.round(Math.min(1, opt[605]) + Math.min(1, opt[615])), so the max owned is 2.
+  const tokensOwned = Math.min(1, Number(accountOptions?.[605]) || 0)
+    + Math.min(1, Number(accountOptions?.[615]) || 0);
   const tokensUsed = tokenIndices.length;
 
   return {
