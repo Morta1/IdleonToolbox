@@ -38,6 +38,7 @@ const Spelunking = () => {
     overstimLevel,
     overstimCurrent,
     charactersAtMaxStamina,
+    charactersStamina,
     overstimStack,
     overstimQtyREQ2,
     manicModeActive,
@@ -99,7 +100,8 @@ const Spelunking = () => {
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <img style={{ width: 27, height: 27 }} src={`${prefix}data/CaveShopUpg6.png`} alt="Cave Shop Upg6" />
           <Typography>{notateNumber(overstimRate, "Big")}</Typography>
-          <Tooltip title={`${charactersAtMaxStamina ?? 0} character${(charactersAtMaxStamina ?? 0) === 1 ? '' : 's'} at max stamina contributing to overstim rate`}>
+          <Tooltip
+            title={`Every character's stamina regen feeds overstim once they're topped off. ${charactersAtMaxStamina ?? 0} of ${charactersStamina?.length ?? 0} are at max stamina right now, the rest fill their missing stamina first.`}>
             <IconInfoCircleFilled size={18} />
           </Tooltip>
         </Stack>

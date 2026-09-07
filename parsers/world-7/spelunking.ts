@@ -248,17 +248,23 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   const overstimFillRate = getChapterBonus(account, 2, 2);
   const shopUpg6 = getSpelunkingBonus(account, 6);
 
-  // Calculate total overstim rate by summing contributions from characters at max stamina
-  // Each character at max stamina contributes their stamina regen rate to overstim
+  // Snapshot count, for display only - see why it can't gate the rate right below.
   const charactersAtMaxStamina = charactersStamina.filter(({ characterStamina, currentStamina }: any) =>
     currentStamina >= characterStamina
   ).length;
 
-  // Overstim rate = sum of contributions from all characters at max stamina
-  // Each contribution = staminaRegenRate * (1 + overstimFillRate / 100)
-  // Only if overstim meter is unlocked (shop upgrade 6 >= 1)
-  const overstimRate = (shopUpg6 >= 1 && charactersAtMaxStamina > 0)
-    ? charactersAtMaxStamina * staminaRegenRate.value * (1 + overstimFillRate / 100)
+  // Overstim rate = every character's stamina regen, once the meter is unlocked (shop upgrade 6).
+  //
+  // The game's away tick is: Spelunk[3][i] += StaminaRegenRate(i) * awaySeconds / 3600, and any
+  // overflow past StaminaMax(i) becomes overstim - (1 + OverstimFillRate / 100) * the overflow -
+  // before the stored stamina is clamped back to the max. That tick only runs while the
+  // spelunking away-loop does, so Spelunk[3] in the save stays clamped to whatever the max was
+  // back then. Raise max stamina (the 2.3.530 merit, Glowfish) and every idle character reads as
+  // short of max forever, even though the game tops them up the moment spelunking is opened and
+  // pays the overflow to overstim regardless. Gating on the snapshot therefore reported 0 for
+  // whole accounts; a deficit only delays a character's contribution, it never removes it.
+  const overstimRate = shopUpg6 >= 1
+    ? (charactersStamina?.length ?? 0) * staminaRegenRate.value * (1 + overstimFillRate / 100)
     : 0;
 
     return {
