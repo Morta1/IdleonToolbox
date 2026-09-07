@@ -501,9 +501,23 @@ describe('what a bundle hands over', () => {
 
   // Everything else it gives IS an item or a pet, and the branch calls nothing but GiveItem, so
   // between the two the list is complete. A bundle with neither would be an empty page.
+  //
+  // The Pet Mart packs are exempt because the reasoning does not reach them: a pack whose pet the
+  // game still flags unreleased has no pet node to point at, yet its page carries a price, a gem
+  // count, pet crystals and the pet's own art. It is not the empty page this guards against, and
+  // the edge appears on its own once the game gives that pet a companion group.
   it('yields at least one item per bundle', () => {
     const yielded = new Set(graph.edges.filter((edge) => edge.rel === 'yields').map((edge) => edge.from));
-    expect(bundles.every((node) => yielded.has(`bundle:${node.rawName}`))).toBe(true);
+    const classic = bundles.filter((node) => !node.petMart);
+    expect(classic.every((node) => yielded.has(`bundle:${node.rawName}`))).toBe(true);
+  });
+
+  // The Pet Mart's own version of the same guarantee: nothing in the game data, no node.
+  it('gives every pet mart pack a price and both its currencies', () => {
+    const packs = bundles.filter((node) => node.petMart);
+    expect(packs).toHaveLength(18);
+    expect(packs.every((node) => node.price > 0 && node.gems > 0 && node.petCrystals > 0)).toBe(true);
+    expect(packs.every((node) => node.icon?.startsWith('/afk_targets/'))).toBe(true);
   });
 });
 

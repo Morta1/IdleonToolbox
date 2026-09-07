@@ -9,6 +9,10 @@ import { CardTitleAndValue } from '@components/common/styles';
 import EmptyState from '@components/common/EmptyState';
 import useTabIndex from '@hooks/useTabIndex';
 
+// Slots the game ships filled with a stand-in for content it hasn't released yet ("To be revealed
+// in World 7 Part 3!"). They are neither doable nor countable, so they stay out of the totals too.
+const isPlaceholderTask = ({ name }) => name === 'Undisclosed_Task';
+
 const Tasks = () => {
   const { state } = useContext(AppContext);
   const [world] = useTabIndex(worldsArray);
@@ -16,10 +20,13 @@ const Tasks = () => {
 
   const worldTasks = state?.account?.tasksDescriptions?.[world]?.slice(0, 9) ?? [];
   // The 9th task (index 8) is a repeatable one with a single breakpoint, so it counts as 1 level.
-  const totalLevels = worldTasks.reduce((sum, { level }) => sum + level, 0);
-  const maxLevels = worldTasks.reduce((sum, { breakpoints }, index) => sum + (index === 8 ? 1 : breakpoints?.length ?? 0), 0);
+  const totalLevels = worldTasks.reduce((sum, task) => isPlaceholderTask(task) ? sum : sum + task.level, 0);
+  const maxLevels = worldTasks.reduce((sum, task, index) => isPlaceholderTask(task)
+    ? sum
+    : sum + (index === 8 ? 1 : task.breakpoints?.length ?? 0), 0);
   const visibleTasks = worldTasks
     .map((task, index) => ({ ...task, index }))
+    .filter((task) => !isPlaceholderTask(task))
     .filter(({ level, breakpoints, index }) => !(hideCompleted && level >= (index === 8 ? 1 : breakpoints?.length)));
 
   return (<>

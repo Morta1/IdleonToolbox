@@ -1706,12 +1706,14 @@ export const getRespawnRate = (character: any, account: any) => {
     : worldIndex === 2 ? achieve109
       : (worldIndex >= 5) ? 2 * achieve308 : 0;
 
-  // Merit bonus (world-specific, W1-W6 only, not W7)
-  // merit index = worldIndex - 1 (0-based)
+  // Merit bonus (world-specific)
+  // merit index = worldIndex - 1 (0-based). 2.3.530 added the W7 merit ("All Shimmerfin Deep Mobs
+  // respawn +{% faster"), so W7 is no longer the exception it used to be - but it enters the W7
+  // branch below OUTSIDE the 0.65 scaling, alongside the Advice Fish term.
   const meritIdx = isRift ? 0 : worldIndex - 1;
   const meritLevel = account?.tasks?.[2]?.[meritIdx]?.[1] ?? 0;
   const meritBonusPerLevel = account?.meritsDescriptions?.[meritIdx]?.[1]?.bonusPerLevel ?? 0;
-  const meritBonus = worldIndex <= 6 || isRift ? meritLevel * meritBonusPerLevel : 0;
+  const meritBonus = worldIndex <= 7 || isRift ? meritLevel * meritBonusPerLevel : 0;
 
   // Rift: DIABOLICAL_SET bonus
   const diabolicalSetBonus = isRift ? getArmorSetBonus(account, 'DIABOLICAL_SET') : 0;
@@ -1724,8 +1726,8 @@ export const getRespawnRate = (character: any, account: any) => {
   // Compute total bonus
   let totalBonus;
   if (worldIndex === 7) {
-    // W7: 0.65 * (commonBonus + achievementBonus) + bigFishBonus
-    totalBonus = 0.65 * (commonBonus + achievementBonus) + bigFishBonus;
+    // W7: 0.65 * (commonBonus + achievementBonus) + bigFishBonus + merit
+    totalBonus = 0.65 * (commonBonus + achievementBonus) + bigFishBonus + meritBonus;
   } else {
     totalBonus = diabolicalSetBonus + commonBonus + achievementBonus + meritBonus;
   }

@@ -29,7 +29,7 @@ import { petNodes } from './nodes/pets.mjs';
 import { talentNodes } from './nodes/talents.mjs';
 import { classNodes } from './nodes/classes.mjs';
 import { classEdges } from './edges/classes.mjs';
-import { bundlePets, petEdges } from './edges/pets.mjs';
+import { bundlePets, petEdges, petMartEdges } from './edges/pets.mjs';
 import { mapEdges } from './edges/maps.mjs';
 import { worldEdges } from './edges/worlds.mjs';
 import { alchemyEdges } from './edges/alchemy.mjs';
@@ -93,7 +93,7 @@ const nodes = {
   ...npcNodes(npcRoster),
   ...shopNodes(shops, mapNames),
   ...currencyShopNodes(),
-  ...bundleNodes(itemSources, bundleInfo, items, bundlePets()),
+  ...bundleNodes(itemSources, bundleInfo, items, bundlePets(), companions),
   ...petNodes(companions, companionGroups),
   ...talentNodes(talents),
   ...classNodes(classPromotions),
@@ -127,6 +127,7 @@ const rawEdges = [
   // Reads the finished node set too: a class's talents are found by the tab they carry.
   ...classEdges(nodes, classPromotions),
   ...petEdges(nodes),
+  ...petMartEdges(bundleInfo, companions, nodes),
   ...mapEdges(sharedData),
   // Reads the finished node set too: an area's enemy is named on the monster node.
   ...worldEdges(nodes, sharedData),

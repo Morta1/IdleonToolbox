@@ -288,13 +288,15 @@ const AnimationsBox = ({ node }) => {
 };
 
 // Gems are not an item and have no node, so they cannot be a row like everything else on the page.
-const GemCount = ({ amount, isGreen }) => <Stack direction={'row'} gap={0.5} alignItems={'center'}>
+// Pet crystals get the same treatment as the buy-now bonus: the game has no separate icon for
+// them either and draws the gem recoloured, which is what the pets page does too.
+const GemCount = ({ amount, isGreen, isCrystal }) => <Stack direction={'row'} gap={0.5} alignItems={'center'}>
   <img
     src={`${prefix}data/PremiumGem.png`}
     alt={''}
     width={16}
     height={16}
-    style={{ objectFit: 'contain', filter: isGreen ? 'hue-rotate(280deg)' : 'unset' }}
+    style={{ objectFit: 'contain', filter: isGreen || isCrystal ? 'hue-rotate(280deg)' : 'unset' }}
   />
   <span>{amount.toLocaleString('en-US')}</span>
 </Stack>;
@@ -377,14 +379,16 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
           contents. A world's is the island map the game draws when you pick where to travel, which
           is the same shape and the same job. Both read as a header rather than as an avatar, so
           they span the card and the title sits under them. */}
-      {WIDE_HEADER[node.kind] && node.icon ? <Box
+      {WIDE_HEADER[node.kind] && node.icon && !node.petMart ? <Box
         component={'img'}
         src={node.icon}
         alt={''}
         sx={{ width: '100%', maxWidth: WIDE_HEADER[node.kind], height: 'auto', borderRadius: 1, mb: 1.5 }}
       /> : null}
       <Stack direction={'row'} gap={1.5} alignItems={'center'} flexWrap={'wrap'}>
-        {node.icon && !WIDE_HEADER[node.kind] ? <EntityIcon key={id} node={node} size={72}/> : null}
+        {/* A Pet Mart pack is a bundle with no banner: its art is the pet's own sprite, which the
+            banner treatment would blow up to 711px. It takes the avatar every other kind uses. */}
+        {node.icon && (!WIDE_HEADER[node.kind] || node.petMart) ? <EntityIcon key={id} node={node} size={72}/> : null}
         <Typography variant={'h5'} component={'h2'}>{entityName(node)}</Typography>
         <Chip size={'small'} variant={'outlined'} label={kindChip}/>
         {showCategory ? <Chip size={'small'} variant={'outlined'} label={node.category}/> : null}
@@ -524,6 +528,12 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
               ...(node.bonusGems > 0 ? [{
                 label: 'Buy now bonus',
                 value: <GemCount amount={node.bonusGems} isGreen />
+              }] : []),
+              // Only the Pet Mart packs pay a second currency, and it is the reason to buy one:
+              // pet crystals are what the pet shop itself runs on.
+              ...(node.petCrystals > 0 ? [{
+                label: 'Pet crystals',
+                value: <GemCount amount={node.petCrystals} isCrystal />
               }] : [])
             ]
           }]}/> : null}

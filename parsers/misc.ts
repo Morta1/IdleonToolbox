@@ -562,17 +562,30 @@ export const getBundles = (idleonData: any) => {
 
   if (!bundlesData) return [];
 
-  // Get all bundles from website-data and check ownership status
+  // Get all bundles from website-data and check ownership status.
+  // bin_* are the Pet Mart "evolving" packs: they carry a display name, the companion they grant
+  // and their two currency amounts, none of which the older bun_/bon_ bundles have.
   return Object.keys(bundlesData)
-    .map((bundleName) => ({
-      name: bundleName,
-      owned: !!ownedBundles[bundleName],
-      price: (bundlesData as Record<string, any>)[bundleName].price
-    }))
+    .map((bundleName) => {
+      const bundle = (bundlesData as Record<string, any>)[bundleName];
+      return {
+        name: bundleName,
+        owned: !!ownedBundles[bundleName],
+        price: bundle.price,
+        ...(bundle.evolving ? {
+          evolving: true,
+          displayName: bundle.name,
+          gems: bundle.gems,
+          petCrystals: bundle.petCrystals,
+          companionIndex: bundle.companionIndex
+        } : {})
+      };
+    })
     .sort((a, b) => {
-      // Sort by bundle type (bun_ vs bon_) then by letter
-      const aType = a.name.startsWith('bun_') ? 0 : a.name.startsWith('bon_') ? 1 : 2;
-      const bType = b.name.startsWith('bun_') ? 0 : b.name.startsWith('bon_') ? 1 : 2;
+      // Sort by bundle type (bun_, then bon_, then the evolving bin_ packs) then by letter
+      const bundleType = (name: string) => name.startsWith('bun_') ? 0 : name.startsWith('bon_') ? 1 : name.startsWith('bin_') ? 3 : 2;
+      const aType = bundleType(a.name);
+      const bType = bundleType(b.name);
       if (aType !== bType) return aType - bType;
       return a.name.localeCompare(b.name);
     });

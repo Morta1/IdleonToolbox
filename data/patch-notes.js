@@ -5,10 +5,19 @@ import React from 'react';
 export const patchNotes = [
   {
     'ver': '3.3.76',
-    'gameVer': '2.3.527',
+    'gameVer': '2.3.530',
     'date': '07/09/2026',
-    'features': [],
+    'features': [
+      'World 7 tasks and merits: the task board now covers Wavey Wayne\'s tasks and the five World 7 merit upgrades',
+      'Sushi Station: new Combo Meter card showing your best combo and the permanent Bucks multiplier it earns',
+      'Bundles: new Pet Mart tab with all 18 pet packs, each showing the pet it grants, its price, gems and pet crystals',
+      'Wiki: Pet Mart packs now have their own pages, listed apart from the gem shop bundles, each showing the version it arrived in'
+    ],
     'fixes': [
+      'World 7 merits now count toward Spelunking power and stamina, research points, Minehead currency and Shimmerfin mob respawn',
+      'Royal Guardian: Greater Education now boosts outpost rank EXP, and Glorified outposts double the boosted rate',
+      'Spelunking: Amber Supply Swap now reads 15x amber and 10x fewer drops, matching this patch\'s rebalance',
+      'Spelunking: the Glowfish companion now adds its max stamina',
       'Royal Guardian: maxed armory and orblet market upgrades now say "Maxed" in place of the cost, matching the other class specific pages',
       'Royal Guardian\'s page is now called Royal Armory, matching the skill name like the other class specific pages. Old links still work',
       'Lab: souped up tubes went to the wrong characters. The bonus follows the order of who is idling in the lab, so characters could show a shorter line than they have in game and leave connected nodes looking inactive'

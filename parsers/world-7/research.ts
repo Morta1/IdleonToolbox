@@ -87,8 +87,10 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
   // Pet Mart+: Rift_Stalker (153) upgraded adds another 5 Research grid points earned (CompLV2 flag * 5).
   const companion153Lvl2Bonus = isCompanionLvl2Active(account, 153) ? 5 : 0;
   const fangAcquired = isArtifactAcquired(account?.sailing?.artifacts, 'Fang_of_the_Gods')?.acquired ?? 0;
+  // game: W7 merit 3 ("+{ Research PTS."), 1 per level.
+  const meritBonus = account?.tasks?.[2]?.[6]?.[3] ?? 0;
   const gridPTSearned = Math.floor(
-    researchLevel + (10 * companion153 + companion153Lvl2Bonus + Math.floor(researchLevel / 10) * Math.round(1 + (Math.min(1, Math.floor(researchLevel / 60)) + gridBonus50Lv)) + getSushiBonus(account, 3) + getSushiBonus(account, 13) + Math.min(10, Math.round(fangAcquired)))
+    researchLevel + (10 * companion153 + companion153Lvl2Bonus + Math.floor(researchLevel / 10) * Math.round(1 + (Math.min(1, Math.floor(researchLevel / 60)) + gridBonus50Lv)) + getSushiBonus(account, 3) + getSushiBonus(account, 13) + Math.min(10, Math.round(fangAcquired)) + meritBonus)
   );
   const gridPTSavailable = Math.round(gridPTSearned - gridPTSpent);
 

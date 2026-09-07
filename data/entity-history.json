@@ -3063,12 +3063,64 @@
     {
       "v": "2.3.492",
       "t": "added"
+    },
+    {
+      "v": "2.3.530",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "Both_+200_and_1.20x_Max_Stamina_for_Spelunking!"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 20
+        },
+        {
+          "field": "tourPower",
+          "from": 100,
+          "to": 185
+        },
+        {
+          "field": "upgradedTourPower",
+          "from": 99,
+          "to": 280
+        },
+        {
+          "field": "upgradedEffect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "Both_+350_and_1.35x_Max_Stamina_for_Spelunking!"
+        },
+        {
+          "field": "upgradedBonus",
+          "from": 1,
+          "to": 35
+        }
+      ]
     }
   ],
   "companions/149": [
     {
       "v": "2.3.492",
       "t": "added"
+    },
+    {
+      "v": "2.3.530",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "tourPower",
+          "from": 100,
+          "to": 220
+        },
+        {
+          "field": "upgradedTourPower",
+          "from": 99,
+          "to": 320
+        }
+      ]
     }
   ],
   "companions/150": [
@@ -4170,6 +4222,48 @@
       "t": "added"
     }
   ],
+  "bundles/bin_a": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "bundles/bin_b": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "bundles/bin_c": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "bundles/bin_d": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "bundles/bin_e": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "bundles/bin_f": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
+  "bundles/bin_g": [
+    {
+      "v": "2.3.492",
+      "t": "added"
+    }
+  ],
   "items/Critter6A": [
     {
       "v": "2.3.493",
@@ -4469,6 +4563,18 @@
     }
   ],
   "bundles/bon_t": [
+    {
+      "v": "2.3.493",
+      "t": "added"
+    }
+  ],
+  "bundles/bin_h": [
+    {
+      "v": "2.3.493",
+      "t": "added"
+    }
+  ],
+  "bundles/bin_i": [
     {
       "v": "2.3.493",
       "t": "added"
@@ -5468,6 +5574,18 @@
       ]
     }
   ],
+  "bundles/bin_j": [
+    {
+      "v": "2.3.493a",
+      "t": "added"
+    }
+  ],
+  "bundles/bin_k": [
+    {
+      "v": "2.3.493a",
+      "t": "added"
+    }
+  ],
   "items/EquipmentRingsChat12": [
     {
       "v": "2.3.494",
@@ -6191,6 +6309,12 @@
       "t": "added"
     }
   ],
+  "bundles/bin_l": [
+    {
+      "v": "2.3.501",
+      "t": "added"
+    }
+  ],
   "companions/38": [
     {
       "v": "2.3.502",
@@ -6202,6 +6326,12 @@
           "to": "4x_Coins_from_monsters,_and_4x_Masterclass_drops"
         }
       ]
+    }
+  ],
+  "bundles/bin_m": [
+    {
+      "v": "2.3.502",
+      "t": "added"
     }
   ],
   "items/EquipmentCape20": [
@@ -6356,6 +6486,24 @@
     }
   ],
   "bundles/ban_c": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "bundles/bin_n": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "bundles/bin_o": [
+    {
+      "v": "2.3.503",
+      "t": "added"
+    }
+  ],
+  "bundles/bin_p": [
     {
       "v": "2.3.503",
       "t": "added"
@@ -6992,6 +7140,18 @@
   "bundles/ban_i": [
     {
       "v": "2.3.527",
+      "t": "added"
+    }
+  ],
+  "bundles/bin_q": [
+    {
+      "v": "2.3.530",
+      "t": "added"
+    }
+  ],
+  "bundles/bin_r": [
+    {
+      "v": "2.3.530",
       "t": "added"
     }
   ]

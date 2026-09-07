@@ -98,6 +98,17 @@ const SushiStation = () => {
           : notateNumber(Math.floor(currency?.currencyPerHR ?? 0), 'Big')}
         icon={'etc/Bucks.png'}
       />
+      {currency?.combo?.unlocked && <CardTitleAndValue
+        title={'Combo Multi'}
+        icon={'etc/Bucks.png'}
+        value={<Stack direction="row" gap={0.5} alignItems="center">
+          {`${commaNotation(currency?.combo?.best ?? 0)} best (${notateNumber(currency?.combo?.multi ?? 1, 'MultiplierInfo')}x)`}
+          <HtmlTooltip
+            title={'Multiplies all Bucks gained. Combining sushi adds the created tier to the combo, cooking new sushi or stalling ends it. Based on your best combo ever, caps just under 101x.'}>
+            <InfoIcon sx={{ fontSize: 16 }}/>
+          </HtmlTooltip>
+        </Stack>}
+      />}
       <CardTitleAndValue
         title={'Fuel'}
         value={`${notateNumber(fuel?.current ?? 0, 'Big')} / ${notateNumber(fuel?.cap ?? 0, 'Big')}`}

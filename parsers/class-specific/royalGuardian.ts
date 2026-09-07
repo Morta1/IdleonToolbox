@@ -666,7 +666,12 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
   const getBarExpRate = (rankType: number, mapIndex: number): number => {
     const intelRank = getOutpostExpRank(rawMaps?.[mapIndex], 1);
     const glorified = toNum(rawMaps?.[mapIndex]?.[12]) >= 1 ? 2 : 1;
+    // game: 2.3.530 fixed Greater Education (3rd outpost upgrade, OutpostLV_Bonuses(2) = 10 per
+    // level) to actually pay out - it now seeds rBarXPdn2 before the Glorified 2x, so Glorified
+    // doubles the educated rate rather than replacing it.
+    const greaterEducation = 1 + (10 * toNum(rawMaps?.[mapIndex]?.[2])) / 100;
     return getBarExpRateBase(rankType)
+      * greaterEducation
       * glorified
       * (1 + (200 * isMapPurified(rawMaps?.[rankType])) / 100)
       * (1 + (intelRank * armoryBonus(72)) / 100)

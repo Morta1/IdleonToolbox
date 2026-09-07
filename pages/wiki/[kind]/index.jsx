@@ -63,6 +63,16 @@ export const getStaticProps = async ({ params }) => {
         icon: node.icon ?? null,
         slug: node.slug,
         category: node.category ?? null,
+        // A bundle's art is a wide shop banner carrying its name, price and contents, and the card
+        // is built around that. A Pet Mart pack has none: just its pet's sprite. So the four things
+        // the banner would have shown travel with it and the card draws them itself.
+        ...(node.petMart ? {
+          petMart: true,
+          petName: node.petName ?? null,
+          price: node.price ?? null,
+          gems: node.gems ?? null,
+          petCrystals: node.petCrystals ?? null
+        } : {}),
         // Vials and bubbles unlock in a fixed sequence, and that sequence is how they are read.
         order: node.order ?? null,
         // Monsters and NPCs band by world, which is a different axis from their category.

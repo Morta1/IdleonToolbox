@@ -2585,6 +2585,150 @@
     },
     "ban_i": {
       "message": "Zzzz..._Rice_pet..._gems..._winning..._Click_to_check_out_my_dream_pack!"
+    },
+    "bin_a": {
+      "name": "JELLY_JOY_PACK",
+      "price": 6.99,
+      "gems": 2500,
+      "petCrystals": 800,
+      "companionIndex": 52,
+      "evolving": true
+    },
+    "bin_b": {
+      "name": "KOISOME_PACK",
+      "price": 12.99,
+      "gems": 3400,
+      "petCrystals": 1350,
+      "companionIndex": 53,
+      "evolving": true
+    },
+    "bin_c": {
+      "name": "NEONSCALE_PACK",
+      "price": 19.99,
+      "gems": 4200,
+      "petCrystals": 2100,
+      "companionIndex": 54,
+      "evolving": true
+    },
+    "bin_d": {
+      "name": "PIRATE_PACK",
+      "price": 29.99,
+      "gems": 5500,
+      "petCrystals": 3100,
+      "companionIndex": 55,
+      "evolving": true
+    },
+    "bin_e": {
+      "name": "MAGNIFISH_PACK",
+      "price": 39.99,
+      "gems": 8200,
+      "petCrystals": 4500,
+      "companionIndex": 56,
+      "evolving": true
+    },
+    "bin_f": {
+      "name": "DREADNAUGHT_PACK",
+      "price": 49.99,
+      "gems": 10000,
+      "petCrystals": 5500,
+      "companionIndex": 57,
+      "evolving": true
+    },
+    "bin_g": {
+      "name": "SUPADUPA_BUBBA",
+      "price": 64.99,
+      "gems": 12500,
+      "petCrystals": 7200,
+      "companionIndex": 58,
+      "evolving": true
+    },
+    "bin_h": {
+      "name": "NIGHTMARE_PACK",
+      "price": 34.99,
+      "gems": 6600,
+      "petCrystals": 3600,
+      "companionIndex": 153,
+      "evolving": true
+    },
+    "bin_i": {
+      "name": "HIVEMIND_PACK",
+      "price": 22.99,
+      "gems": 4700,
+      "petCrystals": 2500,
+      "companionIndex": 88,
+      "evolving": true
+    },
+    "bin_j": {
+      "name": "CRYOLOGY_PACK",
+      "price": 3.99,
+      "gems": 1000,
+      "petCrystals": 500,
+      "companionIndex": 99,
+      "evolving": true
+    },
+    "bin_k": {
+      "name": "MECHANIC_PACK",
+      "price": 5.99,
+      "gems": 1450,
+      "petCrystals": 700,
+      "companionIndex": 157,
+      "evolving": true
+    },
+    "bin_l": {
+      "name": "MANTA_RAY_PACK",
+      "price": 18.99,
+      "gems": 4100,
+      "petCrystals": 2000,
+      "companionIndex": 147,
+      "evolving": true
+    },
+    "bin_m": {
+      "name": "BABY_TROLL_PACK",
+      "price": 9.99,
+      "gems": 2600,
+      "petCrystals": 1100,
+      "companionIndex": 128,
+      "evolving": true
+    },
+    "bin_n": {
+      "name": "KING_DOOT_PACK",
+      "price": 9.99,
+      "gems": 2500,
+      "petCrystals": 1000,
+      "companionIndex": 0,
+      "evolving": true
+    },
+    "bin_o": {
+      "name": "CLAMMIE_PACK",
+      "price": 4.99,
+      "gems": 1250,
+      "petCrystals": 750,
+      "companionIndex": 111,
+      "evolving": true
+    },
+    "bin_p": {
+      "name": "MAMA_TROLL_PACK",
+      "price": 24.99,
+      "gems": 5250,
+      "petCrystals": 2650,
+      "companionIndex": 132,
+      "evolving": true
+    },
+    "bin_q": {
+      "name": "GLOWING_PACK",
+      "price": 26.99,
+      "gems": 5300,
+      "petCrystals": 2500,
+      "companionIndex": 148,
+      "evolving": true
+    },
+    "bin_r": {
+      "name": "ANCIENT_PACK",
+      "price": 33.99,
+      "gems": 5250,
+      "petCrystals": 3000,
+      "companionIndex": 149,
+      "evolving": true
     }
   },
   "ButtonBonusNames": [
@@ -4312,6 +4456,7 @@
         54,
         55,
         57,
+        126,
         128,
         132,
         143,
@@ -6194,6 +6339,16 @@
       "world": 6
     },
     {
+      "rawName": "w7b11",
+      "name": "Pirate_Deckhand",
+      "world": 6
+    },
+    {
+      "rawName": "w7b12",
+      "name": "Dreadnaught_Captain",
+      "world": 6
+    },
+    {
       "rawName": "w7b4",
       "name": "Eggroll",
       "world": 6
@@ -6211,6 +6366,21 @@
     {
       "rawName": "w7b7",
       "name": "Mantaray",
+      "world": 6
+    },
+    {
+      "rawName": "w7b8",
+      "name": "Glowfish",
+      "world": 6
+    },
+    {
+      "rawName": "w7b9",
+      "name": "Ancientfish",
+      "world": 6
+    },
+    {
+      "rawName": "w7b10",
+      "name": "Magni_Pufferfin",
       "world": 6
     }
   ],
@@ -25904,6 +26074,120 @@
         "icon": "Blank",
         "bonusPerLevel": 0
       }
+    ],
+    [
+      {
+        "descLine1": "+{%_Spelunking_POW,_but_like,_it's_a",
+        "descLine2": "multiplier!",
+        "num1": 0,
+        "num2": 0,
+        "num3": 0,
+        "totalLevels": 15,
+        "meritCost": 1,
+        "text1": "bonusGiven",
+        "text2": "BonusPerLv",
+        "extraStr": "Blank420q",
+        "icon": "Tasksy1",
+        "bonusPerLevel": 15
+      },
+      {
+        "descLine1": "All_Shimmerfin_Deep_Mobs_respawn_+{%",
+        "descLine2": "faster._This_boosts_AFK_kills_per_hour!",
+        "num1": 0,
+        "num2": 0,
+        "num3": 0,
+        "totalLevels": 10,
+        "meritCost": 1,
+        "text1": "bonusGiven",
+        "text2": "BonusPerLv",
+        "extraStr": "Blank420q",
+        "icon": "Tasksy2",
+        "bonusPerLevel": 1
+      },
+      {
+        "descLine1": "+{_max_Stamina_for_all_characters",
+        "descLine2": "in_Spelunking!",
+        "num1": 0,
+        "num2": 0,
+        "num3": 0,
+        "totalLevels": 5,
+        "meritCost": 1,
+        "text1": "bonusGiven",
+        "text2": "BonusPerLv",
+        "extraStr": "Blank420q",
+        "icon": "Tasksy3",
+        "bonusPerLevel": 20
+      },
+      {
+        "descLine1": "+{_Research_PTS.",
+        "descLine2": "Save_these_PTS_for_an_emergency_only!",
+        "num1": 0,
+        "num2": 0,
+        "num3": 0,
+        "totalLevels": 5,
+        "meritCost": 2,
+        "text1": "bonusGiven",
+        "text2": "BonusPerLv",
+        "extraStr": "Blank420q",
+        "icon": "Tasksy4",
+        "bonusPerLevel": 1
+      },
+      {
+        "descLine1": "+{%_Minehead_Currency_Gain!",
+        "descLine2": "This_is_a_multiplier_too!!!",
+        "num1": 0,
+        "num2": 0,
+        "num3": 0,
+        "totalLevels": 10,
+        "meritCost": 1,
+        "text1": "bonusGiven",
+        "text2": "BonusPerLv",
+        "extraStr": "Blank420q",
+        "icon": "Tasksy5",
+        "bonusPerLevel": 10
+      },
+      {
+        "descLine1": "Unlocks_recipe_to_craft_Nautilus_}.",
+        "descLine2": "Descline2",
+        "num1": 1,
+        "num2": 6,
+        "num3": 2,
+        "totalLevels": 4,
+        "meritCost": 2,
+        "text1": "bonusGiven",
+        "text2": "BonusPerLv",
+        "extraStr": "Shoes|Pants|Torso|Helmet|SoldOut",
+        "icon": "SmithingRecipes7",
+        "bonusPerLevel": 0
+      },
+      {
+        "descLine1": "IDK_YET",
+        "descLine2": "Descline2",
+        "num1": 0,
+        "num2": 0,
+        "num3": 0,
+        "totalLevels": 4,
+        "meritCost": 3,
+        "text1": "bonusGiven",
+        "text2": "BonusPerLv",
+        "extraStr": "Blank420q",
+        "icon": "Blank",
+        "bonusPerLevel": 5
+      },
+      {
+        "descLine1": "IDK_YET",
+        "descLine2": "Descline2",
+        "num1": 0,
+        "num2": 0,
+        "num3": 0,
+        "totalLevels": 5,
+        "meritCost": null,
+        "text1": "bonusGiven",
+        "text2": "BonusPerLv",
+        "extraStr": "Blank420q",
+        "icon": "Blank",
+        "bonusPerLevel": 0
+      }
     ]
   ],
   "mineheadUpgrades": [
@@ -28738,6 +29022,9 @@
     "Toobus_Goobus": [
       300
     ],
+    "Wavey_Wayne": [
+      300
+    ],
     "Zenelith": [
       302
     ],
@@ -30950,6 +31237,18 @@
       "spriteNumFrames": 1,
       "durations": [
         1
+      ]
+    },
+    "Wavey_Wayne": {
+      "sprite": "sprite-84-128",
+      "spriteAcross": 2,
+      "spriteDown": 2,
+      "spriteNumFrames": 4,
+      "durations": [
+        1,
+        1450,
+        140,
+        580
       ]
     }
   },
@@ -34832,6 +35131,7 @@
       "43",
       "17",
       "31",
+      "39",
       "14",
       "42",
       "13",
@@ -34864,7 +35164,7 @@
       "40",
       "38",
       "34",
-      "39"
+      "45"
     ],
     [
       "0",
@@ -35085,7 +35385,7 @@
     [
       "0,0",
       "82,23",
-      "82,23",
+      "100,81",
       "82,23"
     ],
     [
@@ -40773,7 +41073,7 @@
     },
     {
       "name": "Amber_Supply_Swap",
-      "description": "Amber_is_worth_25x_more_but_now_drops_20x_less_often,_utterly_destroying_your_naive_childhood_fantasy_of_achieving_100%_Amber_Drop_Chance._Oh,_what_a_shame.",
+      "description": "Amber_is_worth_15x_more_but_now_drops_10x_less_often,_utterly_destroying_your_naive_childhood_fantasy_of_achieving_100%_Amber_Drop_Chance._Oh,_what_a_shame.",
       "x1": 2,
       "x2": 29.5,
       "x3": 1,
@@ -45024,12 +45324,12 @@
       "Boosts_all_Sushi_EXP_gained_from_all_sources_by_+{%._That_includes_newly_created_Sushi_and_EXP_from_Cold_and_Milktoast_plates."
     ],
     [
-      "Rift_Guy's_Upgrade",
-      "0",
+      "Combo_Meter",
+      "1",
       "1.10",
       "1",
       "0",
-      "I've_got_my_hands_in_everything!_Minehead,_farming,_the_rift..._so_yea,_of_course_I'm_in_the_Sushi_biz_too,_don't_be_so_shocked."
+      "Combining_sushi_adds_score_to_the_Combo_Meter_equal_to_the_Tier_created,_but_cooking_new_sushi_OR_taking_too_long_ends_the_combo._Get_a_perma_Bucks_Multi_based_on_your_best_combo!"
     ],
     [
       "No_Tax_on_Tips",
@@ -45070,6 +45370,14 @@
       "1",
       "0",
       "Creating_a_new_sushi_type_gives_a_new_IdleOn_bonus_for_the_REST_of_the_game!_Check_them_out_in_the_BONUS_tap,_top_right_corner."
+    ],
+    [
+      "Rift_Guy's_Upgrade",
+      "0",
+      "1.10",
+      "1",
+      "0",
+      "I've_got_my_hands_in_everything!_Minehead,_farming,_the_rift..._so_yea,_of_course_I'm_in_the_Sushi_biz_too,_don't_be_so_shocked."
     ]
   ],
   "territory": [
@@ -47206,7 +47514,7 @@
     },
     {
       "name": "Average_kills_for_a_Crystal_Spawn_",
-      "info": "This_tracks_your_Crystal_Mob_spawn_chance!_While_this_is_capped_at_1_in_100,_you_get_BONUS_Exp_and_Drops_if_your_Crystal_Spawn_is_better!_For_example,_if_your_average_kills_is_20,_you're_getting_5x_Exp_and_Drops_from_Crystals!",
+      "info": "This_tracks_your_Crystal_Mob_spawn_chance!_While_this_is_capped_at_1_in_10,_you_get_BONUS_Exp_and_Drops_if_your_Crystal_Spawn_is_better!_For_example,_if_your_average_kills_is_1_in_5,_you're_getting_2x_Exp_and_Drops_from_Crystals!",
       "x1": 30,
       "x2": 3,
       "x3": 350,

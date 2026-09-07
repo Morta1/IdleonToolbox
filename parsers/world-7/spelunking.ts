@@ -327,6 +327,11 @@ const getCharacterStamina = (account: any, characters: any, upgrades: any, rawCu
   // Math.floor(...) that then gets multiplied by BigFish - neither term is outside it. See report.
   const shopUpg61 = getSpelunkingBonus(updatedAccount, 61);
   const rgTalent236 = Math.max(0, getHighestTalentAcrossCharacters(characters, 'SPELUNKING_SPECIALTY', getBestActiveCharacter(characters)));
+  // game: W7 merit 2 ("+{ max Stamina for all characters in Spelunking!"), 20 per level.
+  const meritBonus = 20 * (account?.tasks?.[2]?.[6]?.[2] ?? 0);
+  // Glowfish (148) pays twice in the same formula: a flat 10x its bonus inside the floor, and its
+  // own bonus as a percent multiplier outside it - "+200 and 1.20x" at base, "+350 and 1.35x" upgraded.
+  const companion148 = isCompanionBonusActive(account, 148) ? (account?.companions?.list?.at(148)?.bonus ?? 0) : 0;
   return characters?.map(({ skillsInfo }: any, index: any) => {
     const currentStamina = rawCurrentStamina?.[index] ?? 0;
     const spelunkingLevel = Math.max(0, skillsInfo?.spelunking?.level ?? 0);
@@ -341,8 +346,9 @@ const getCharacterStamina = (account: any, characters: any, upgrades: any, rawCu
     const bigFishBonus = getAdviceFishBonus(updatedAccount, 1);
 
     const characterStamina = Math.floor(
-      (shopUpg61 + 14 + spelunkingLevel + (shopUpg4 * Math.floor(spelunkingLevel / 10)) + chapterBonus2 + riftSkillBonus + shopUpg5 + chapterBonus3 + rgTalent236)
+      (shopUpg61 + meritBonus + 10 * companion148 + 14 + spelunkingLevel + (shopUpg4 * Math.floor(spelunkingLevel / 10)) + chapterBonus2 + riftSkillBonus + shopUpg5 + chapterBonus3 + rgTalent236)
       * (1 + bigFishBonus / 100)
+      * (1 + companion148 / 100)
     );
 
     // Effective current stamina (capped at max for time calculations)
@@ -545,7 +551,7 @@ export const getAmberGain = (account: any, loreBonuses: any) => {
     * (1 + shopUpg10 / 100)
     * (1 + shopUpg21 / 150)
     * (1 + getSushiBonus(account, 28) / 100)
-    * (1 + 24 * shopUpg67)
+    * (1 + 14 * shopUpg67)
     * (1 + shopUpg60 / 100);
 
   return {
@@ -588,7 +594,7 @@ export const getAmberGain = (account: any, loreBonuses: any) => {
             { name: "Chapter: Decay Surrounds", value: Math.max(1, chapterBonus) },
             { name: "Chapter: Kelp Primeval", value: Math.max(1, chapterBonus5_1) },
             { name: "Chapter: Sunken Plunder", value: Math.max(1, chapterBonus4_1) },
-            { name: "Amber Supply Swap", value: 1 + 24 * shopUpg67 },
+            { name: "Amber Supply Swap", value: 1 + 14 * shopUpg67 },
             { name: "Amber-Track", value: 1 + shopUpg60 / 100 },
           ],
         },
@@ -627,11 +633,15 @@ export const getAmberIndex = (account: any) => {
 // game: AmberDropChance / AmberDropChance2nd. AmberDropChance2nd omits ElixirEffectQTY(6,0) *
 // GenINFO[107][6] - live per-character actor state absent from the save, the same limitation
 // already accepted by getPrismaDropChance/getExaltedDropChance above.
+//
+// 2.3.530 rebalanced Amber Supply Swap (67) from 25x amber / 20x less often to 15x / 10x. The
+// divisor moved 19 -> 9 in AmberDropChance ONLY: AmberDropChance2nd still divides by 19 in the
+// game, so the two are deliberately out of step and the second one keeps the old constant.
 export const getAmberDropChance = (account: any) => {
   const shopUpg67 = getSpelunkingBonus(account, 67);
   const shopUpg7 = getSpelunkingBonus(account, 7);
   const shopUpg52 = getSpelunkingBonus(account, 52);
-  return Math.min(0.8, (1 / (1 + 19 * shopUpg67)) * ((shopUpg7 + shopUpg52) / 100));
+  return Math.min(0.8, (1 / (1 + 9 * shopUpg67)) * ((shopUpg7 + shopUpg52) / 100));
 }
 
 export const getAmberDropChance2nd = (account: any) => {
@@ -689,12 +699,16 @@ const getPower = (account: any, _unused1?: any) => {
   const exoticBonus = getExoticMarketBonus(account, 42);
   const cardBonus = Math.min(getCardBonusByEffect(account?.cards, 'Spelunk_POW_(Passive)'), 30);
 
+  // game: "POW_multi" - W7 merit 0 ("+{% Spelunking POW, but like, it's a multiplier!"), 15 per level.
+  const meritBonus = 15 * (account?.tasks?.[2]?.[6]?.[0] ?? 0);
+
   const toolUpg14 = getSpelunkingBonus(account, 14);
   const toolUpg15 = getSpelunkingBonus(account, 15);
   const toolUpg16 = getSpelunkingBonus(account, 16);
   const toolUpg17 = getSpelunkingBonus(account, 17);
 
   const powerMulti = (1 + winnerBonus / 100)
+    * (1 + meritBonus / 100)
     * gemItemBonus
     * chapterBonus1_2 * chapterBonus4_2 * chapterBonus5_0 * Math.max(1, companion143)
     * (1 + shopUpg1 / 100)
@@ -731,6 +745,7 @@ const getPower = (account: any, _unused1?: any) => {
           sources: [
             { name: "Learning the POW", value: basePower },
             { name: "Winner", value: winnerBonus },
+            { name: "Merit (Tasks)", value: meritBonus },
             { name: "Gem Item", value: gemItemBonus },
             { name: "Chapters", value: chapterBonus1_2 * chapterBonus4_2 * chapterBonus5_0 },
             { name: "Boomy Mine", value: companion143 },

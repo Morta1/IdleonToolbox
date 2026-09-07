@@ -91,6 +91,46 @@ const BUNDLES = {
 // they hand over is an account flag, which the graph has nothing to point at, so they would be
 // pages with an empty body. They stay out until there is something to put on them.
 
+// The Pet Mart packs (bin_*) are the exception to everything above. They are the same kind of
+// purchase - real money, one pet, gems - but the game keeps their whole record in EvolvingBundles
+// rather than in banner pixels: name, price, gems, pet crystals and the companion index are all
+// readable, so nothing about them is transcribed and a pack added next patch appears on its own.
+//
+// Two things they carry that no other bundle does. `petCrystals` is a second currency, which only
+// the Pet Mart pays out. And the shop rotates: a server var picks which packs are on offer, and a
+// pack whose pet you already own is dropped from that list.
+//
+// They have no banner art anywhere in the game's images, so the pack borrows its pet's sprite the
+// same way nodes/pets.mjs does.
+const petMartName = (name) => `${name || ''}`
+  .split('_')
+  .filter(Boolean)
+  .map((word) => word[0] + word.slice(1).toLowerCase())
+  .join(' ');
+
+const petMartNodes = (bundleInfo, companions) => {
+  const nodes = {};
+  for (const [key, bundle] of Object.entries(bundleInfo || {})) {
+    if (!bundle?.evolving) continue;
+    const pet = companions?.[bundle.companionIndex];
+    nodes[`bundle:${key}`] = {
+      kind: 'bundle',
+      rawName: key,
+      name: petMartName(bundle.name),
+      icon: pet?.name ? `/afk_targets/${pet.name}.png` : null,
+      category: 'Pet Mart',
+      petMart: true,
+      // The pet is the pack, so its name rides on the node: the listing has no edges to read and
+      // would otherwise show a sprite nobody can name.
+      petName: pet?.name ?? null,
+      ...(bundle.price > 0 ? { price: bundle.price } : {}),
+      ...(bundle.gems > 0 ? { gems: bundle.gems } : {}),
+      ...(bundle.petCrystals > 0 ? { petCrystals: bundle.petCrystals } : {})
+    };
+  }
+  return nodes;
+};
+
 // The marquee item is the cosmetic: a bundle pads itself out with card packs and time candies, and
 // the thing people call it by is the cape or the hat.
 const MARQUEE = [/^EquipmentCape/, /^EquipmentGown/, /^EquipmentHats/, /^EquipmentNametag/, /^Trophy/, /^EquipmentRings/];
@@ -108,8 +148,8 @@ const marqueeItem = (contents, items) => {
 // A bundle earns a node if it hands over anything the graph can point at: an item, or a pet. The
 // pet packs are the reason for the second half - 19 bundles grant a companion and no item, so
 // reading the item extraction alone left them out of the wiki entirely.
-export const bundleNodes = (itemSources, bundleInfo, items, bundlePets = {}) => {
-  const nodes = {};
+export const bundleNodes = (itemSources, bundleInfo, items, bundlePets = {}, companions = []) => {
+  const nodes = petMartNodes(bundleInfo, companions);
   const keys = new Set([...Object.keys(itemSources?.bundles || {}), ...Object.keys(bundlePets)]);
   for (const key of keys) {
     const contents = itemSources?.bundles?.[key] || {};
@@ -122,7 +162,10 @@ export const bundleNodes = (itemSources, bundleInfo, items, bundlePets = {}) => 
       // The banner the game shows in its own shop, which carries the bundle's real name and the
       // gems it comes with. One bundle has no art shipped.
       icon: `/data/${key}.png`,
-      category: null,
+      // The two shops the game sells through, and the listing bands on it. The gem shop is the
+      // bundles' own framing: every one of their nag messages ends "I'll take you to the gem shop
+      // to buy it!".
+      category: 'Gem Shop',
       ...(known?.price || bundleInfo?.[key]?.price > 0
         ? { price: known?.price ?? bundleInfo[key].price }
         : {}),

@@ -1601,5 +1601,179 @@
         "69420"
       ]
     }
+  ],
+  [
+    {
+      "name": "Marathon_Delver",
+      "description": "Use_up_{_or_more_Stamina_in_a_single_Spelunking_Delve",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|Ok,_now_go_use_up_IRL_Stamina_on_a_real_marathon!",
+      "breakpoints": [
+        "100",
+        "500",
+        "3100",
+        "8000",
+        "20000",
+        "40000",
+        "80000",
+        "150000",
+        "250000",
+        "500000"
+      ]
+    },
+    {
+      "name": "Record_Depths",
+      "description": "Have_a_total_Best_Depth_of_{_across_all_tunnels,_including_Manic_Mode!",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|Quit_while_you're_ahead..._or,_below?_I_guess?",
+      "breakpoints": [
+        "50",
+        "300",
+        "1000",
+        "2500",
+        "5000",
+        "10000",
+        "25000",
+        "50000",
+        "100000",
+        "10000"
+      ]
+    },
+    {
+      "name": "Minehead_1HKO",
+      "description": "Deal_{_Damage_in_a_single_round_of_Minehead's_Depth_Charge!",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "1|0|Aw_shucks,_I_knew_you_liked_minehead_all_along!",
+      "breakpoints": [
+        "5000",
+        "20000",
+        "100000",
+        "500000",
+        "2500000",
+        "10000000",
+        "50000000",
+        "250000000",
+        "1000000000",
+        "2000000000"
+      ]
+    },
+    {
+      "name": "Smarti_Sushi",
+      "description": "Reach_a_total_Knowledge_LV_across_all_your_Sushi_of_{",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|It's_not_real_knowledge_ya_know,_it's_just_pixellated_sushi.",
+      "breakpoints": [
+        "100",
+        "200",
+        "300",
+        "500",
+        "750",
+        "1000",
+        "1300",
+        "1600",
+        "2000",
+        "2500"
+      ]
+    },
+    {
+      "name": "Undisclosed_Task",
+      "description": "To_be_revealed_in_World_7_Part_3!",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "1|0|Essentially_speaking,_you_have_a_lot_of_unspent_essence.",
+      "breakpoints": [
+        "4",
+        "10",
+        "15",
+        "20",
+        "30",
+        "45",
+        "60",
+        "80",
+        "100",
+        "125"
+      ]
+    },
+    {
+      "name": "Undisclosed_Task",
+      "description": "To_be_revealed_in_World_7_Part_3!",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "1|0|You_stole_all_those_items._Hope_you're_proud..._oh_you_are?_Well_good!",
+      "breakpoints": [
+        "10",
+        "25",
+        "100",
+        "250",
+        "500",
+        "1000",
+        "2000",
+        "3500",
+        "7500",
+        "15000"
+      ]
+    },
+    {
+      "name": "Sinking_the_Nautilus!",
+      "description": "}",
+      "filler1": "Defeat_the_World_7_boss!|Reach_Showdown_3_by_defeating_the_Emperor_twice|Defeat_the_Emperor_on_3_players,_in_order,_starting_with_the_1st|Reach_Showdown_5_by_defeating_the_Emperor_twice.|Reach_Showdown_10_by_defeating_the_Emperor_nine_times.|Reach_Showdown_15_by_defeating_the_Emperor_fourteen_times.|Reach_Showdown_21_by_defeating_the_Emperor_twenty_times|Reach_Showdown_50_by_defeating_the_Emperor_fourty_nine_times|Reach_Showdown_75_by_defeating_the_Emperor_seventy_four_times|Reach_Showdown_100_by_defeating_the_Emperor_ninety_nine_times",
+      "x": "10",
+      "filler2": "2|1|Kattlekruk's_demeanor_gives_you_the_feeling_there_are_powers_greater_than_the_Gods",
+      "breakpoints": [
+        "1",
+        "1",
+        "3",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1"
+      ]
+    },
+    {
+      "name": "Achievement_Diver",
+      "description": "Complete_{_Shimmerfin_Achievements,_not_that_you_can_yet!",
+      "filler1": "Blank420q",
+      "x": "10",
+      "filler2": "2|0|Filler_haha",
+      "breakpoints": [
+        "5",
+        "10",
+        "15",
+        "20",
+        "25",
+        "30",
+        "40",
+        "50",
+        "60",
+        "70"
+      ]
+    },
+    {
+      "name": "Nope",
+      "description": "You_have_enough_daily_stuff_already._Go_do_the_other_world's_daily_task!",
+      "filler1": "Blank420q",
+      "x": "6",
+      "filler2": "0",
+      "breakpoints": [
+        "69420"
+      ]
+    },
+    {
+      "name": "Nuh_uh",
+      "description": "Seriously,_you_don't_need_more_daily_stuff_to_do._I_wont_let_you.",
+      "filler1": "Blank420q",
+      "x": "4",
+      "filler2": "0",
+      "breakpoints": [
+        "69420"
+      ]
+    }
   ]
 ]

@@ -4147,6 +4147,10 @@
     ],
     "The_Button": [
       "static"
+    ],
+    "Wavey_Wayne": [
+      "static",
+      "idle"
     ]
   }
 }

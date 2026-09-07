@@ -9946,6 +9946,52 @@
     "spriteDown": 2,
     "spriteNumFrames": 4
   },
+  "Wavey_Wayne": {
+    "1": {
+      "Type": "ItemsAndSpaceRequired",
+      "DialogueText": "Go_on_then,_gather_me_mob_drops_from_yonder_salty_shores!_@_QUEST:Gather_100_Equinox_Flesh,_Earl_Tails,_and_Scaled_Fragments_from_World_7_monsters_to_unlock_the_World_7_tasks!",
+      "NextIndex": 4,
+      "ConsumeItems": true,
+      "InventorySpacesNeeded": 2,
+      "NoSpaceIndex": 3,
+      "QuestName": "Wavey_Wayne1",
+      "itemReq": [
+        {
+          "rawName": "w7A1",
+          "name": "Equinox_Flesh",
+          "amount": 100
+        },
+        {
+          "rawName": "w7A3",
+          "name": "Earl_Tail",
+          "amount": 100
+        },
+        {
+          "rawName": "w7A5",
+          "name": "Scaled_Fragment",
+          "amount": 100
+        }
+      ],
+      "rewards": [
+        {
+          "rawName": "Quest108",
+          "name": "Stamina_Battery",
+          "amount": 2
+        },
+        {
+          "rawName": "Quest115",
+          "name": "Half_Finished_Research_Papers",
+          "amount": 4
+        }
+      ],
+      "Difficulty": "5",
+      "Name": "Briny_Tasks"
+    },
+    "sprite": "sprite-84-128",
+    "spriteAcross": 2,
+    "spriteDown": 2,
+    "spriteNumFrames": 4
+  },
   "Rift_Ripper": {
     "1": {
       "Type": "ItemsAndSpaceRequired",

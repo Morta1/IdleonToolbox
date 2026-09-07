@@ -160,7 +160,7 @@
     "name": "Hyperion_Outpost_PTS",
     "baseCost": 1,
     "costScaling": 1.65,
-    "costResourceIndex": 2,
+    "costResourceIndex": 4,
     "maxLevel": 999999,
     "bonusPerLevel": 1,
     "unlockTotalLevels": 80,

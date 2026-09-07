@@ -79,6 +79,10 @@ export const getSushiStation = (idleonData: any, account: any) => {
     Number(miscState[6]) || 0,
     Number(miscState[7]) || 0
   ];
+  // Combo Meter (2.3.530, upgrade 39): combining sushi builds a combo, and the best one ever
+  // reached pays a permanent Bucks multiplier. Cooking new sushi or stalling ends the combo.
+  const bestCombo = Number(miscState[8]) || 0;
+  const comboUnlocked = (Number(upgradeLevels?.[39]) || 0) >= 1;
 
   // Unique sushi count (consecutive discovered types)
   let uniqueSushi = 0;
@@ -230,8 +234,14 @@ export const getSushiStation = (idleonData: any, account: any) => {
   const sailingArt39 = Number(account?.sailing?.artifacts?.[39]?.acquired) || 0;
 
   const eventShopBonus45 = getEventShopBonus(account, 45);
+  // game: "ComboMulti" - min(10, best^0.3) from the early curve, plus a second term that approaches
+  // +90 as the best combo runs away past 1500, so the whole thing tops out just under 101x.
+  const comboOverflow = Math.max(0, bestCombo - 1500);
+  const comboMulti = 1 + Math.min(10, Math.pow(bestCombo, 0.3))
+    + (comboOverflow / (20000 + comboOverflow)) * 90;
   const currencyMulti = (1 + arcadeBonus67 / 100)
     * (1 + (100 * eventShopBonus45) / 100)
+    * comboMulti
     * Math.pow(1.1, uniqueSushi)
     * (1 + Math.min(1, bonVBundle))
     * (1 + (getUpgradeQTY(upgradeLevels, 30) + getUpgradeQTY(upgradeLevels, 31)
@@ -380,6 +390,11 @@ export const getSushiStation = (idleonData: any, account: any) => {
     fuel: { current: fuel, cap: fuelCap, generation: fuelGen },
     currency: {
       bucks, currencyMulti, currencyPerHR, overtunedMulti,
+      combo: {
+        best: bestCombo,
+        multi: comboMulti,
+        unlocked: comboUnlocked
+      },
       overtuned: {
         value: overtunedValue,
         multi: overtunedMulti,

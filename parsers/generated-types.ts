@@ -64,6 +64,11 @@ export interface Account {
       name: string;
       owned: boolean;
       price?: number;
+      evolving?: boolean;
+      displayName?: string;
+      gems?: number;
+      petCrystals?: number;
+      companionIndex?: number;
     }[];
   serverVars: Record<string, any>;
   accountOptions: number[];
@@ -659,6 +664,7 @@ export interface Account {
         name: string;
         type: string;
         subType: string;
+        slot: number;
         amount: number;
         misc: string;
         description: string;
@@ -1252,6 +1258,16 @@ export interface Account {
         statName: string;
         totalValue: string;
         categories: Record<string, any>[];
+      };
+      ribbons: {
+        total: number;
+        highest: number;
+        lowest: number;
+        ribbonedMeals: number;
+        totalMeals: number;
+        shelf: number[];
+        maxRank: number;
+        rankCounts: number[];
       };
     };
     kitchens: {
@@ -2489,6 +2505,7 @@ export interface Account {
           description: string;
           level: number;
           bonus: number;
+          shelfUnlockTotalLevels: number;
           unlocked: boolean;
           maxed: boolean;
           slot: number;
@@ -2578,14 +2595,17 @@ export interface Account {
       }[];
     clearingMaps: any[];
     outposts: any[];
+    resourcePerHour: Record<string, never>;
     outpostStats: {
       built: number;
       savageMulti: number;
       typesUnlocked: number;
       typesAllowed: number[];
+      slotsByWorld: Record<string, number>;
       typesUsedByWorld: Record<string, never>;
       unitsUnlocked: number;
       unitNames: string[];
+      workerRateBonus: number;
       peacetimeMilitia: boolean;
       restockUnlocked: boolean;
       gedUnlocked: boolean;
@@ -4105,6 +4125,11 @@ export interface Account {
       currencyMulti: number;
       currencyPerHR: number;
       overtunedMulti: number;
+      combo: {
+        best: number;
+        multi: number;
+        unlocked: boolean;
+      };
       overtuned: {
         value: number;
         multi: number;
@@ -4507,6 +4532,7 @@ export interface Character {
       name: string;
       type: string;
       subType: string;
+      slot: number;
       amount: number;
       misc: string;
       description: string;
@@ -5186,6 +5212,7 @@ export interface Character {
     index: number;
     divPerHour: number;
   };
+  rgTalentAddedLevelsCap: number;
   addedLevelsBreakdown: {
     statName: string;
     totalValue: number;

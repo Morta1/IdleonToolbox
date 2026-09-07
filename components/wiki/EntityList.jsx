@@ -3,7 +3,7 @@ import { Box, Chip, Link, MenuItem, Stack, TextField, Typography } from '@mui/ma
 import { EntityIcon, KIND_PLURALS } from './EntityPanel';
 import CategoryHeader from './CategoryHeader';
 import { SECTION_ORDER, chooseGrouping, groupEntries } from '@utility/wiki/grouping';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, prefix } from '@utility/helpers';
 
 // A facet is only offered as a FILTER when the data has one worth offering. Maps divide into seven
 // worlds and monsters into five kinds, so those become chips. Items have 112 distinct categories,
@@ -11,6 +11,41 @@ import { cleanUnderscore } from '@utility/helpers';
 // Matched to FACET_MAX: anything that earns a band earns a chip. The bestiary is eleven sections,
 // seven worlds plus Bosses, Events, Dungeon and The Rift, and a select would hide all of them.
 const CHIP_LIMIT = 12;
+
+// A Pet Mart pack has no banner: the game keeps its record in data instead of drawing it into art.
+// So the card draws what the banner beside it would have shown - the pet, what it is called, the
+// price and both currencies - rather than leaving a sprite alone in a banner-sized box.
+const Currency = ({ amount, isCrystal }) => <Stack direction={'row'} gap={0.5} alignItems={'center'}>
+  <Box
+    component={'img'}
+    src={`${prefix}data/PremiumGem.png`}
+    alt={''}
+    sx={{ width: 14, height: 14, objectFit: 'contain', filter: isCrystal ? 'hue-rotate(280deg)' : 'none' }}
+  />
+  <Typography variant={'caption'} color={'text.secondary'}>{amount.toLocaleString('en-US')}</Typography>
+</Stack>;
+
+const PetMartCard = ({ entry }) => <Stack direction={'row'} gap={1.5} alignItems={'center'}>
+  <Box
+    component={'img'}
+    src={entry.node.icon}
+    alt={''}
+    sx={{ height: 84, width: 84, objectFit: 'contain', flexShrink: 0 }}
+  />
+  <Stack gap={0.25} sx={{ minWidth: 0 }}>
+    <Typography variant={'body2'} fontWeight={600}>{entry.label}</Typography>
+    {entry.node.petName ? <Typography variant={'caption'} color={'text.secondary'}>
+      {cleanUnderscore(entry.node.petName)}
+    </Typography> : null}
+    <Stack direction={'row'} gap={1.5} alignItems={'center'} flexWrap={'wrap'} sx={{ mt: 0.25 }}>
+      {entry.node.price > 0
+        ? <Typography variant={'caption'} fontWeight={600}>${entry.node.price.toFixed(2)}</Typography>
+        : null}
+      {entry.node.gems > 0 ? <Currency amount={entry.node.gems}/> : null}
+      {entry.node.petCrystals > 0 ? <Currency amount={entry.node.petCrystals} isCrystal/> : null}
+    </Stack>
+  </Stack>
+</Stack>;
 
 // Bands replace paging. A band is a page: the whole category renders, but broken into runs a
 // reader can place themselves in, which is what the flat 100-per-page list never gave them.
@@ -89,13 +124,15 @@ const Band = ({ band, colour, index, onNavigate, banner }) => {
           '&:hover': { borderColor: 'text.disabled' }
         }}
       >
-        <Box
-          component={'img'}
-          src={entry.node.icon}
-          alt={''}
-          sx={{ width: '100%', height: 'auto', borderRadius: 0.5 }}
-        />
-        <Typography variant={'body2'} fontWeight={600}>{entry.label}</Typography>
+        {entry.node.petMart ? <PetMartCard entry={entry}/> : <>
+          <Box
+            component={'img'}
+            src={entry.node.icon}
+            alt={''}
+            sx={{ width: '100%', height: 'auto', borderRadius: 0.5 }}
+          />
+          <Typography variant={'body2'} fontWeight={600}>{entry.label}</Typography>
+        </>}
       </Stack> : <Stack key={entry.id} direction={'row'} gap={1} alignItems={'center'} sx={{ py: 0.4 }}>
         <EntityIcon node={entry.node} size={32}/>
         <Link
@@ -179,9 +216,14 @@ const EntityList = ({ index, kind, onNavigate, onBack }) => {
   // Talents raise the band ceiling because their facet is the game's own tab structure: 27 classes
   // of about fifteen talents each is how a player already thinks of them, and a flat A-Z of 376
   // names is the thing that would be unreadable.
+  //
+  // Bundles raise the dominance ceiling for a different reason: the gem shop packs outnumber the
+  // Pet Mart ones three to one, which reads as an uneven tail to the ratio, but they are two
+  // separate shops selling two different things and a reader browsing one is not browsing the other.
   const chosen = chooseGrouping(all.map(facetOf), {
     ...(byWorld ? { missingMax: 1 } : {}),
-    ...(kind === 'talent' ? { facetMax: 40 } : {})
+    ...(kind === 'talent' ? { facetMax: 40 } : {}),
+    ...(kind === 'bundle' ? { dominance: 1 } : {})
   });
   const mode = chosen;
   // Filtering to one facet already answers "which ones", so cutting that answer into A to Z adds a

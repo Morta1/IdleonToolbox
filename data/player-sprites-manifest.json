@@ -1,5 +1,5 @@
 {
-  "version": "2.3.528",
+  "version": "2.3.530",
   "frameW": 94,
   "frameH": 50,
   "hatFrameOffset": 2,
@@ -8758,6 +8758,57 @@
           "right": 100,
           "top": 35,
           "bottom": 77
+        }
+      },
+      "w7b8": {
+        "file": "companion/w7b8.png",
+        "frameW": 90,
+        "frameH": 75,
+        "across": 10,
+        "down": 1,
+        "numFrames": 10,
+        "durations": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "originX": 45,
+        "originY": 75,
+        "bounds": {
+          "left": 14,
+          "right": 73,
+          "top": 19,
+          "bottom": 75
+        }
+      },
+      "w7b9": {
+        "file": "companion/w7b9.png",
+        "frameW": 120,
+        "frameH": 75,
+        "across": 5,
+        "down": 1,
+        "numFrames": 5,
+        "durations": [
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "originX": 60,
+        "originY": 75,
+        "bounds": {
+          "left": 15,
+          "right": 102,
+          "top": 20,
+          "bottom": 75
         }
       },
       "T1a": {

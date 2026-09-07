@@ -189,6 +189,8 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
 
   // game: (1 + 100 * EventShopOwned(44) / 100) - a flat 2x once owned.
   const eventShop44 = getEventShopBonus(account, 44);
+  // game: W7 merit 4 ("+{% Minehead Currency Gain!"), 10 per level, its own multiplier.
+  const meritBonus = 10 * (account?.tasks?.[2]?.[6]?.[4] ?? 0);
   // ROG bonus 3 is "Minehead Currency Gain"; only the selected one is ever above the 1x identity.
   const outpostRogBonus = Math.max(1, getOutpostRogBonus(account, 3));
 
@@ -197,6 +199,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
     * (1 + eventShop44)
     * (1 + grid148Bonus / 100)
     * outpostRogBonus
+    * (1 + meritBonus / 100)
     * companionMulti
     * Math.min(3, 1 + getBonusQTY(6) / 100)
     * (1 + (
@@ -224,6 +227,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
       sources: [
         { name: 'Companion Bonus', value: companionMulti },
         { name: 'Event Shop', value: 1 + eventShop44 },
+        { name: 'Merit (Tasks)', value: 1 + meritBonus / 100 },
         { name: 'Royal Guardian Outpost', value: outpostRogBonus },
         { name: 'Opponent Bonus (capped 3x)', value: Math.min(3, 1 + getBonusQTY(6) / 100) },
         { name: 'Arcade Shop', value: 1 + arcade62Bonus / 100 },

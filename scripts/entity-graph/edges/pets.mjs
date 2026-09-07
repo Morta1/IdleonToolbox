@@ -43,6 +43,24 @@ const BUNDLE_PETS = {
 
 export const bundlePets = () => BUNDLE_PETS;
 
+// The Pet Mart packs need none of the above. Each one names the companion it grants by index, in
+// the same EvolvingBundles row that carries its price, so this is a join rather than a reading of
+// the art. Filtered on the pet node existing like the hand-written edges are: the two newest packs
+// grant pets the game has not put in a companion group yet (Glowfish) or still flags as unreleased
+// (Ancientfish), and neither has a node to point at until it does.
+export const petMartEdges = (bundleInfo, companions, petNodesByRawName) =>
+  Object.entries(bundleInfo || {})
+    .filter(([, bundle]) => bundle?.evolving)
+    .map(([key, bundle]) => [key, companions?.[bundle.companionIndex]?.rawName])
+    .filter(([, rawName]) => rawName && petNodesByRawName?.[`pet:${rawName}`])
+    .map(([key, rawName]) => ({
+      from: `bundle:${key}`,
+      to: `pet:${rawName}`,
+      rel: 'yields',
+      meta: {},
+      source: 'pets'
+    }));
+
 // `yields`, the same relation a bundle uses for its items: from a reader's side the question is the
 // same one, what comes in the box.
 export const petEdges = (petNodesByRawName) => Object.entries(BUNDLE_PETS)

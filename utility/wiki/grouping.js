@@ -18,6 +18,10 @@ export const FACET_MAX = 12;
 // And it has to divide it evenly enough to mean something. Every monster has a category, but 324
 // of 398 are the category "Monster", so banding by it produces one band and four slivers: that is
 // a worse read than A to Z, which at least tells you where you are.
+//
+// A caller can raise this too, for the case the ratio cannot see: bundles split 53 gem shop packs
+// against 18 Pet Mart ones, which is lopsided enough to fail the test, but the two are different
+// products bought in different places rather than one set with an uneven tail.
 export const FACET_DOMINANCE = 0.6;
 
 // Some entities genuinely have no facet: 23 of the 118 NPCs (the event ones, the souls, Bort) are
@@ -33,7 +37,7 @@ export const OTHER_BAND = 'Other';
 // Events, Dungeon and The Rift. An alphabet would open the page on Bosses and bury World 1.
 export const SECTION_ORDER = ['Bosses', 'Events', 'Dungeon', 'The Rift'];
 
-export const chooseGrouping = (categories, { missingMax = FACET_MISSING_MAX, facetMax = FACET_MAX } = {}) => {
+export const chooseGrouping = (categories, { missingMax = FACET_MISSING_MAX, facetMax = FACET_MAX, dominance = FACET_DOMINANCE } = {}) => {
   const values = categories.filter(Boolean);
   if (values.length === 0) return 'none';
 
@@ -43,7 +47,7 @@ export const chooseGrouping = (categories, { missingMax = FACET_MISSING_MAX, fac
   if (distinct < 2 || distinct > facetMax) return 'none';
 
   const biggest = Math.max(...Object.values(counts));
-  if (biggest / categories.length > FACET_DOMINANCE) return 'none';
+  if (biggest / categories.length > dominance) return 'none';
   // A few entities with no category go to their own band; a lot of them mean the facet is not
   // describing the set. 23 NPCs with no world is a band, 282 monsters with no world is not.
   const missing = (categories.length - values.length) / categories.length;

@@ -343,17 +343,19 @@ describe('royal guardian outposts', () => {
     // Trade reads armory 20, unlevelled here, so the base is 1.
     // Then Intel rank 2 * ArmoryUpgBonus(72) (unlevelled) leaves 1, and 2 support camps at
     // SupportEXP = 200 * (1 + armory 43 / 100) = 400 give (1 + 400 * 2 / 100) = 9.
-    close(froggy.rankBars[0].expPerUnit, 9);
+    // 2.3.530 made Greater Education pay out (10% per level, and Froggy Fields holds one level),
+    // so every bar on this outpost runs 1.1x.
+    close(froggy.rankBars[0].expPerUnit, 9.9);
     // The game pays that rate ONCE PER UNIT feeding the bar: the Trade bar runs on Traders, and
     // Froggy Fields packs two plus one passive from Command rank 5.
     expect(froggy.rankBars[0].units).toBe(3);
-    close(froggy.rankBars[0].expPerHour, 27);
+    close(froggy.rankBars[0].expPerHour, 29.7);
     // Time to next rank is the gap to the threshold over that rate.
-    close(froggy.rankBars[0].hoursToNextRank, (25 * Math.pow(1.3, 3) - 40) / 27);
+    close(froggy.rankBars[0].hoursToNextRank, (25 * Math.pow(1.3, 3) - 40) / 29.7);
 
     // The Intel bar runs on Surveyors, and this outpost has none - so it does not move at all,
     // however high BarExpRate(1) is.
-    close(froggy.rankBars[1].expPerUnit, 9);
+    close(froggy.rankBars[1].expPerUnit, 9.9);
     expect(froggy.rankBars[1].units).toBe(0);
     expect(froggy.rankBars[1].expPerHour).toBe(0);
     expect(froggy.rankBars[1].hoursToNextRank).toBe(0);
@@ -383,6 +385,15 @@ describe('royal guardian outposts', () => {
     close(outpostOn(parsed, 50).rankBars[0].expPerUnit, 2);
     // A map without the flag is untouched, so the doubling is keyed off the outpost, not global.
     close(outpostOn(parsed, 0).rankBars[0].expPerUnit, 1);
+
+    // Greater Education scales the same rate by 10% a level, and the Glorified 2x lands on top of
+    // the educated value rather than replacing it (2.3.530 moved it onto the same rBarXPdn2).
+    const educated = buildRoyalMaps();
+    educated[2][2] = 3;
+    educated[50][2] = 2;
+    const schooled = parseWith(buildRoyalG(), educated);
+    close(outpostOn(schooled, 2).rankBars[0].expPerUnit, 9 * 1.3);
+    close(outpostOn(schooled, 50).rankBars[0].expPerUnit, 1.2 * 2);
   });
 
   it('caps outpost types per world, not per account', () => {

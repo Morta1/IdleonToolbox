@@ -1205,7 +1205,7 @@
     "baseBonus": 10,
     "x4": 0,
     "x5": 0,
-    "description": "Reduces_the_cost_of_all_Masterclass_upgrades_by_{%_every_day,_FOREVER!_Total_Reduction:-&%"
+    "description": "Reduces_the_cost_of_all_OG_Masterclass_upgrades_(DB,_WW,_AC)_by_{%_every_day,_FOREVER!_Total_Reduction:-&%"
   },
   {
     "name": "Spelunking_Research",
