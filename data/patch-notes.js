@@ -15,7 +15,8 @@ export const patchNotes = [
       'Pets: Tokens Available now counts both Pet Bonus Tokens instead of capping at one',
       'Dashboard: Finished Plots skipped locked plots. Locking only freezes a plot\'s crop type, so those plots stall like any other',
       'Farming: a locked plot no longer shows a crop evolution chance, since locking stops evolution',
-      'Farming: the Land Rank optimizer found nothing for the All category while no crop was growing. Land ranks are permanent, so the plan no longer depends on what is planted right now'
+      'Farming: the Land Rank optimizer found nothing for the All category while no crop was growing. Land ranks are permanent, so the plan no longer depends on what is planted right now',
+      'Free pet: the claim timer read a timestamp the game deliberately stores days behind the real claim, so it was stuck on "Go claim!" or showed a date months in the past. It now counts down the real 23 hour window'
     ]
   },
   {

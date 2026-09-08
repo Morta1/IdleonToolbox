@@ -1217,16 +1217,26 @@ export function parseShorthandNumber(input) {
 }
 
 export const worldColor = ['#64b564', '#f1ac45', '#00bcd4', '#864ede', '#de4e4e', '#5FF1B4FF', '#40e0d0'];
-// The free pet claim went weekly -> daily ("The weekly 'Free Pet' chance is now daily. FOREVER.").
-// The game computes this server-side (getFreeCompanionRemainingTimeDaily), so the window was probed
-// against a live account: the server returns max(0, lastFreeClaim + 82800000 - now), i.e. 23h rolling
-// from the last claim, and `lastFreeClaim` is the companion save's `d` field (`t` is a different
-// timestamp - using it left the timer permanently on "Go claim!").
-const FREE_COMPANION_CLAIM_INTERVAL_MS = 82800000;
+// The free pet claim went weekly -> daily ("The weekly 'Free Pet' chance is now daily. FOREVER."),
+// but the deadline formula did not change with it. The game computes the window server-side and
+// getFreeCompanionRemainingTime still answers max(0, anchor + 594000000 - now); the daily cadence
+// comes from the server back-dating the anchor by 511200000 (594000000 - 23h) on every claim, so
+// the deadline lands 23h out. Two consequences worth spelling out, because both have already caused
+// a wrong fix here: the anchor reads ~5.9 days stale on a freshly claimed account (that is correct,
+// not drift), and pairing it with a 23h or 24h window puts the deadline permanently in the past,
+// which is what pinned the timer on "Go claim!".
+//
+// Verified against a live account by claiming the Pet Mart free pet and re-reading the save:
+//   before  anchor 1788156047455  server deadline 1788750047455  (= anchor + 594000000)
+//   after   anchor 1788343832258  server deadline 1788937832258  (= anchor + 594000000)
+//   after claim: anchor === claimTime - 511200000, deadline - now === 82776948 (~23h)
+// The `d` field is a dead legacy timestamp - a real claim leaves it untouched - so it must not be
+// used here. See getCompanions in parsers/misc.ts.
+const FREE_COMPANION_CLAIM_ANCHOR_OFFSET_MS = 594000000;
 export const getNextCompanionClaim = (account) => {
-  // The claim time is absolute, so it's compared against the browser clock rather than GlobalTime -
+  // The anchor is absolute, so it's compared against the browser clock rather than GlobalTime -
   // GlobalTime is the save snapshot's clock and drifts behind real time between uploads.
-  const lastFreeClaim = account?.companions?.lastFreeClaim ?? 0;
-  if (!isFinite(lastFreeClaim)) return new Date().getTime();
-  return lastFreeClaim + FREE_COMPANION_CLAIM_INTERVAL_MS;
+  const anchor = account?.companions?.freeClaimAnchor ?? 0;
+  if (!isFinite(anchor)) return new Date().getTime();
+  return anchor + FREE_COMPANION_CLAIM_ANCHOR_OFFSET_MS;
 };

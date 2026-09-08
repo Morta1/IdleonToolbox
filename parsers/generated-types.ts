@@ -50,7 +50,7 @@ export interface Account {
         level: number;
         upgraded: boolean;
       }[];
-    lastFreeClaim: number;
+    freeClaimAnchor: number;
     petCrystals: number;
     maxStorage: number;
     tokens: {
