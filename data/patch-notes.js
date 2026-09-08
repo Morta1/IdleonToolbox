@@ -21,7 +21,8 @@ export const patchNotes = [
       'Free pet: the claim timer read a timestamp the game deliberately stores days behind the real claim, so it was stuck on "Go claim!" or showed a date months in the past. It now counts down the real 23 hour window',
       'Talent bonuses taken from the best character on your account now follow the 2.3.530 rules for bonus talent levels. Most visible in the Spelunking shop, where upgrade costs read a few percent under the real price',
       'Slab: Missing greenstacks and the greenstack total no longer include items you can never greenstack, such as NPC tokens, talent point tabs and unobtainable items, so 100% is reachable',
-      'Spelunking: the Full Stamina alert never fired on some accounts, and the same count made Overstim Rate say nobody was at max. The game tops characters up to a cap it takes from its own cached bonuses, which lags behind an overstim stack or artifact upgrade, so idle characters sat a point or two under the real max forever'
+      'Spelunking: the Full Stamina alert never fired on some accounts, and the same count made Overstim Rate say nobody was at max. The game tops characters up to a cap it takes from its own cached bonuses, which lags behind an overstim stack or artifact upgrade, so idle characters sat a point or two under the real max forever',
+      'Dashboard: the Royal Guardian shared resource alert no longer flags an outpost with no other resource in range, since there is nowhere to move the spare connection to'
     ]
   },
   {
@@ -43,7 +44,6 @@ export const patchNotes = [
       'Royal Guardian\'s page is now called Royal Armory, matching the skill name like the other class specific pages. Old links still work',
       'Lab: souped up tubes went to the wrong characters. The bonus follows the order of who is idling in the lab, so characters could show a shorter line than they have in game and leave connected nodes looking inactive',
       'Spelunking: Overstim Rate showed 0 whenever your max stamina had gone up, like from the new World 7 merit. It now counts every character, since a character below max only has to fill that stamina before it feeds overstim again',
-      'Dashboard: the Royal Guardian shared resource alert no longer flags an outpost with no other resource in range, since there is nowhere to move the spare connection to'
     ]
   },
   {
