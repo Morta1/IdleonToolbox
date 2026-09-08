@@ -222,7 +222,15 @@ export const unrealisticGreenstackItems = ([
   // Repeatable in theory, zero stackers across all profiles
   'Crystal1', 'Crystal2', 'Crystal3', 'Crystal4', 'Crystal5', 'Mayo', 'Trash', 'Trash2', 'Trash3', 'KeyFrag',
   'RGshard0', 'RGshard1', 'RGshard2', 'RGshard3', 'RGshard4', 'RGshard5', 'RGenh', 'RGenhB',
-  'StoneTempestB0', 'StoneTempestB1', 'StoneTempestB2', 'StoneTempestR0', 'StoneTempestR1', 'StoneTempestR2'
+  'StoneTempestB0', 'StoneTempestB1', 'StoneTempestB2', 'StoneTempestR0', 'StoneTempestR1', 'StoneTempestR2',
+  // Player reports: shop stock of 500-1000/day, gem shop only, event boxes, or crafted from rare one-off parts.
+  // The handful of profiles that "stacked" these are hacked saves (the same ones hold 10M Gems)
+  'OilBarrel1', 'OilBarrel5', 'FoodHealth5', 'FoodPotYe1', 'FoodPotYe3', 'OilBarrel3', 'PureWater2', 'PremiumGem',
+  'Pearl1', 'Pearl2', 'Pearl3', 'Pearl6',
+  'Timecandy1', 'Timecandy2', 'Timecandy3', 'Timecandy4', 'Timecandy5', 'Timecandy6',
+  'FoodEvent1', 'FoodEvent2', 'FoodEvent3', 'FoodEvent4', // Giftmas event foods, 3-4 stackers
+  'ClassSwap', 'ResetBox', 'CardPack6', 'Quest30', 'Quest35', 'Quest36', 'Quest40', 'Quest71', 'Quest89', 'Timecandy8',
+  'EquipmentSmithingTabs4', 'EquipmentSmithingTabs5', 'EquipmentSmithingTabs6'
 ] as any).toSimpleObject();
 
 export const filteredLootyItems = ([

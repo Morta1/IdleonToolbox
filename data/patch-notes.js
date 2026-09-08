@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.78',
+    'gameVer': '2.3.530',
+    'date': '09/09/2026',
+    'features': [],
+    'fixes': [
+      'Slab: Unrealistic greenstacks now also covers items reported by players: Crude and Eco Friendly Oil, Dense Water, Cranberry Jam, Small and Decent EXP Potion, pearls, Gems, time candies, Giftmas foods, Sub Class Swap Token, Post Office Box Reseto, Googley Eyes, Dootjat Eye, Anvil Tabs 4 to 6, Smolderin Card Pack and the other event boxes'
+    ]
+  },
+  {
     'ver': '3.3.77',
     'gameVer': '2.3.530',
     'date': '08/09/2026',
