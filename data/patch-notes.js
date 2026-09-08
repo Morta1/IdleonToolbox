@@ -16,7 +16,8 @@ export const patchNotes = [
       'Dashboard: Finished Plots skipped locked plots. Locking only freezes a plot\'s crop type, so those plots stall like any other',
       'Farming: a locked plot no longer shows a crop evolution chance, since locking stops evolution',
       'Farming: the Land Rank optimizer found nothing for the All category while no crop was growing. Land ranks are permanent, so the plan no longer depends on what is planted right now',
-      'Free pet: the claim timer read a timestamp the game deliberately stores days behind the real claim, so it was stuck on "Go claim!" or showed a date months in the past. It now counts down the real 23 hour window'
+      'Free pet: the claim timer read a timestamp the game deliberately stores days behind the real claim, so it was stuck on "Go claim!" or showed a date months in the past. It now counts down the real 23 hour window',
+      'Talent bonuses taken from the best character on your account now follow the 2.3.530 rules for bonus talent levels. Most visible in the Spelunking shop, where upgrade costs read a few percent under the real price'
     ]
   },
   {

@@ -149,22 +149,25 @@ export const capRoyalGuardianAddedLevels = (skillIndex: any, addedLevels: number
     ? Math.min(addedLevels, cap)
     : addedLevels;
 
-export const getAllTalentAddedLevels = (baseLevel: number, activeCharacter: any) => {
-  // AllTalentLVz returns 0 for banned ids, and getbonus2 hands it the talent's LEVEL where a talent
-  // id belongs, so a talent whose base level lands on a banned id gets no added levels at all.
-  if (isTalentBannedForAllLevels(baseLevel)) return 0;
-  // Same level-as-id mix-up for the Royal Guardian cap: the game tests 225-239 against whatever it
-  // was handed, so here it is the base LEVEL that decides whether the cap applies, not the talent.
+// game (2.3.525+): getbonus2 calls AllTalentLVz with "<talentId>|<characterIndex>". Until 2.3.523 it
+// handed over the talent's LEVEL instead, which made the ban list and the Royal Guardian cap key off
+// whatever number the level happened to be; that mix-up is gone, so both are keyed by the talent id
+// now. The added-levels sum still comes off the character being played (the game reads Lv0/Dream/
+// Divinity of the live character), while AllTalWhichPlayer - and with it the super talent lookup - is
+// the character the loop is on.
+export const getAllTalentAddedLevels = (talentId: number, activeCharacter: any, ownerCharacter?: any) => {
+  if (isTalentBannedForAllLevels(talentId)) return 0;
   const addedLevels = capRoyalGuardianAddedLevels(
-    baseLevel,
+    talentId,
     activeCharacter?.addedLevels ?? 0,
     activeCharacter?.rgTalentAddedLevelsCap
   );
-  // Same level-as-id mix-up: the super talent list is searched for the base LEVEL, so a talent
-  // sitting on a level that happens to be one of the active character's super talent ids collects
-  // the per-talent super bonus on top.
-  const isSuper = activeCharacter?.superTalentsInfo?.talents?.some(({ talentIndex }: any) => talentIndex === baseLevel);
-  return isSuper ? addedLevels + (activeCharacter?.superTalentsInfo?.bonus ?? 0) : addedLevels;
+  // AllTalentLVz checks both preset arrays (Spelunk[20 + s] and Spelunk[20 + s + 12]), so a super
+  // talent counts here whichever preset it was bought on - unlike applyTalentAddedLevels, which is
+  // showing one preset and therefore filters by it.
+  const superTalentOwner = ownerCharacter ?? activeCharacter;
+  const isSuper = superTalentOwner?.superTalentsInfo?.talents?.some(({ talentIndex }: any) => talentIndex === talentId);
+  return isSuper ? addedLevels + (superTalentOwner?.superTalentsInfo?.bonus ?? 0) : addedLevels;
 };
 
 // getbonus2 reads the added levels off whichever character is being played, so an account-wide
@@ -217,18 +220,19 @@ export const getHighestTalentByClass = (characters: any, className: any, talentN
     ? (characters ?? [])
     : characters?.filter((character: any) => checkCharClass(character?.class, className));
   const seed = activeCharacter ? unownedTalentBonus(talentName, yBonus) : 0;
-  return classes?.reduce((res: any, { flatTalents, addedLevels }: any) => {
+  return classes?.reduce((res: any, character: any) => {
+    const { flatTalents, addedLevels } = character ?? {};
     let subtractLevels: any = false;
     if (activeCharacter) {
       // Mimic game's getbonus2(1, id, -1):
-      // - talentIndex >= 100: growth(baseLevel + AllTalentLVz(baseLevel))
-      // - talentIndex < 100: growth(baseLevel) - no addedLevels adjustment
+      // - talentIndex >= 100 and the character has levels in it: growth(baseLevel + AllTalentLVz(id))
+      // - anything else: growth(baseLevel) - no addedLevels adjustment
       // The y-variant is a separate branch in the game that reads SkillLevels straight, so added
       // levels never reach it whatever the talent id.
       const talentObj = flatTalents?.find(({ name }: any) => name === talentName);
       if (talentObj) {
-        const level = talentObj.talentId >= 100 && !yBonus
-          ? talentObj.baseLevel + getAllTalentAddedLevels(talentObj.baseLevel, activeCharacter)
+        const level = talentObj.talentId >= 100 && talentObj.baseLevel > 0 && !yBonus
+          ? talentObj.baseLevel + getAllTalentAddedLevels(talentObj.talentId, activeCharacter, character)
           : talentObj.baseLevel;
         const func = yBonus ? talentObj.funcY : talentObj.funcX;
         const p1 = yBonus ? talentObj.y1 : talentObj.x1;

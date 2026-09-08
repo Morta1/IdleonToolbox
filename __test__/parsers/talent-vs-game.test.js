@@ -8,9 +8,12 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 import { CLASSES, getHighestTalentAcrossCharacters, getHighestTalentByClass } from '@parsers/talents';
 
 // Every talent reached by a getHighestTalentByClass call site anywhere in parsers/, read out of the
-// live client on 2026-08-20 with Morojo ('Ten') playing: _customBlock_getbonus2(1, id, -1), or
+// live client on 2026-09-08 with MortasNinth ('Nine') playing: _customBlock_getbonus2(1, id, -1), or
 // (2, id, -1) for the y-variant. Regenerate by switching character in game and re-reading - the
 // numbers move with whoever is active, so the whole table is tied to that one character.
+// The Royal Guardian rows and CHARGE_SYPHON are the exception: this account has levelled all of them
+// since the fixture was taken, so the live client no longer answers what the fixture holds and they
+// stay pinned to the fixture's own values - see the notes on those rows.
 // [class, talent, talentId, expected, yBonus?]
 const TALENTS = [
   ["Voidwalker", "ENHANCEMENT_ECLIPSE", 49, 267],
@@ -19,33 +22,35 @@ const TALENTS = [
   ["Voidwalker", "VOODOO_STATUFICATION", 56, 99.24433249370277],
   ["Voidwalker", "MASTER_OF_THE_SYSTEM", 58, 4.126984126984127],
   ["Voidwalker", "BLOOD_MARROW", 59, 1.0230769230769232],
-  ["Divine_Knight", "THE_FAMILY_GUY", 144, 32.67399267399267],
-  ["Siege_Breaker", "THE_FAMILY_GUY", 144, 32.67399267399267],
-  ["Divine_Knight", "1000_HOURS_PLAYED", 176, 49.010989010989015],
-  ["Divine_Knight", "BITTY_LITTY", 177, 16.336996336996336],
-  ["Death_Bringer", "AGRICULTURAL_'PRECIATION", 206, 816],
-  ["Death_Bringer", "DANK_RANKS", 207, 2.3421052631578947],
-  ["Death_Bringer", "WRAITH_OVERLORD", 208, 1.3808049535603715],
-  ["Death_Bringer", "APOCALYPSE_WOW", 209, 1.3421052631578947],
-  ["Siege_Breaker", "UNENDING_LOOT_SEARCH", 325, 59.90157480314961],
-  ["Siege_Breaker", "EXPERTLY_SAILED", 326, 46.72566371681416],
-  ["Siege_Breaker", "ARCHLORD_OF_THE_PIRATES", 328, 4.228346456692913],
-  ["Beast_Master", "SHINING_BEACON_OF_EGG", 372, 74.22680412371135],
-  ["Wind_Walker", "CURVITURE_OF_THE_PAW", 373, 1.8954314720812184],
-  ["Wind_Walker", "SHINY_MEDALLIONS", 429, 2.6735537190082646],
-  ["Wind_Walker", "SNEAKY_SKILLING", 431, 177.5],
-  ["Wind_Walker", "GENERATIONAL_GEMSTONES", 432, 2.412698412698413],
-  ["Wind_Walker", "DUSTWALKER", 433, 18.549618320610687],
-  ["Wind_Walker", "SLAYER_ABOMINATOR", 434, 1.0309160305343512],
+  ["Divine_Knight", "THE_FAMILY_GUY", 144, 34.091580502215656],
+  ["Siege_Breaker", "THE_FAMILY_GUY", 144, 34.091580502215656],
+  ["Divine_Knight", "1000_HOURS_PLAYED", 176, 49.20863309352518],
+  ["Divine_Knight", "BITTY_LITTY", 177, 17.045790251107828],
+  ["Death_Bringer", "AGRICULTURAL_'PRECIATION", 206, 836],
+  ["Death_Bringer", "DANK_RANKS", 207, 2.45872801082544],
+  ["Death_Bringer", "WRAITH_OVERLORD", 208, 1.3902439024390243],
+  ["Death_Bringer", "APOCALYPSE_WOW", 209, 1.3527508090614886],
+  ["Siege_Breaker", "UNENDING_LOOT_SEARCH", 325, 60.38610038610039],
+  ["Siege_Breaker", "EXPERTLY_SAILED", 326, 47.01298701298701],
+  ["Siege_Breaker", "ARCHLORD_OF_THE_PIRATES", 328, 4.589341692789969],
+  ["Beast_Master", "SHINING_BEACON_OF_EGG", 372, 74.87437185929649],
+  ["Wind_Walker", "CURVITURE_OF_THE_PAW", 373, 1.9029702970297029],
+  ["Wind_Walker", "SHINY_MEDALLIONS", 429, 2.686991869918699],
+  ["Wind_Walker", "SNEAKY_SKILLING", 431, 2168.1],
+  ["Wind_Walker", "GENERATIONAL_GEMSTONES", 432, 2.440207972270364],
+  ["Wind_Walker", "DUSTWALKER", 433, 18.721804511278197],
+  ["Wind_Walker", "SLAYER_ABOMINATOR", 434, 1.031203007518797],
+  // pinned to the fixture (level 220, bigBase(4000, 1000)) rather than to the live client, which
+  // reads 372000 now that the account has levelled it further
   ["Wizard", "CHARGE_SYPHON", 475, 224000, true],
-  ["Elemental_Sorcerer", "SHARED_BELIEFS", 506, 80.1980198019802],
-  ["Elemental_Sorcerer", "GODS_CHOSEN_CHILDREN", 507, 6.694214876033058],
-  ["Elemental_Sorcerer", "WORMHOLE_EMPEROR", 508, 1.0945945945945945],
-  ["Bubonic_Conjuror", "PURPLE_TUBE", 535, 31.718426501035196],
-  ["Bubonic_Conjuror", "GREEN_TUBE", 536, 47.577639751552795],
-  ["Arcane_Cultist", "OVERWHELMING_ENERGY", 589, 1.4714587737843552],
-  ["Arcane_Cultist", "PASSION_OF_THE_SUMMON", 596, 4.4576271186440675],
-  ["Arcane_Cultist", "TACHYON_TRUTH", 598, 7.4407294832826745],
+  ["Elemental_Sorcerer", "SHARED_BELIEFS", 506, 84.27672955974843],
+  ["Elemental_Sorcerer", "GODS_CHOSEN_CHILDREN", 507, 7.282608695652174],
+  ["Elemental_Sorcerer", "WORMHOLE_EMPEROR", 508, 1.1720116618075802],
+  ["Bubonic_Conjuror", "PURPLE_TUBE", 535, 33.48534201954397],
+  ["Bubonic_Conjuror", "GREEN_TUBE", 536, 50.22801302931596],
+  ["Arcane_Cultist", "OVERWHELMING_ENERGY", 589, 1.4769874476987448],
+  ["Arcane_Cultist", "PASSION_OF_THE_SUMMON", 596, 4.8545887961859355],
+  ["Arcane_Cultist", "TACHYON_TRUTH", 598, 7.508982035928144],
   // Royal Guardian (patch 2.3.525, task D5): no character in this fixture has levelled these, so
   // the pinned values are each talent's level-0 identity (0 for decay, 1 for decayMulti) - still a
   // real regression lock, since a typo'd talent name would silently resolve to a different value.
@@ -74,7 +79,7 @@ const TALENTS = [
 
 describe('every talent used by a parser matches the game', () => {
   const { characters } = parseFixture(latest);
-  const active = characters.find((character) => character.name === 'Ten');
+  const active = characters.find((character) => character.name === 'Nine');
 
   // Every parser call site now goes through getHighestTalentAcrossCharacters, because getbonus2
   // itself never filters by class. The className column is documentation only.
