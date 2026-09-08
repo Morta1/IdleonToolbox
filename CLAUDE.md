@@ -143,11 +143,10 @@ Static export gotchas (`/tools/builds/[slug]` learned both the hard way):
 - **Nothing below `<WaitForRouter>` reaches the export**, so a page's links don't either. Pages
   that need crawlable internal links return `crawlLinks` from `getStaticProps`;
   `components/common/CrawlLinks.jsx` renders them above the gate and unmounts on hydration.
-- **The pre-hydration shell paints the h1, description and (on `/`) the hero above the gate**
-  (`PreHydrationLoader`, fed from `PAGE_SEO` by `_app`). Field data showed that text is the LCP
-  element on nearly every page and it was waiting on hydration. Its h1 must stay the same size as
-  `PageTitle`'s (shared `PAGE_H1_SX`): Chrome only moves LCP to a later paint when a larger element
-  arrives, so a bigger hydrated h1 would hand the metric right back.
+- **The pre-hydration shell is a spinner only** (`PreHydrationLoader`, above the gate, unmounts on
+  hydration). It once painted the page h1/description and the landing hero too, to pull LCP ahead
+  of hydration; that was removed 2026-09-08 because content that appears before the app and is
+  then swapped reads as broken. Don't put page content back into it.
 
 ### Patch notes
 Every user-facing change (feature or fix) gets a patch note entry in `@IdleonToolbox/data/patch-notes.js`.
