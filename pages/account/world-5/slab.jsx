@@ -7,6 +7,7 @@ import { NextSeo } from 'next-seo';
 import Image from 'next/image';
 import { CardTitleAndValue } from '@components/common/styles';
 import { getSlabBonus } from '@parsers/world-5/sailing';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const Slab = () => {
   const { state } = useContext(AppContext);
@@ -20,7 +21,9 @@ const Slab = () => {
     else if (itemDisplay === 'rotation' && item?.onRotation) return true;
     else if (itemDisplay === 'unobtainable' && item?.unobtainable) return true;
     else if (itemDisplay === 'greenstacked' && item?.greenStacked) return true;
-    else if (itemDisplay === 'greenstackable' && item?.greenstackable && !item?.greenStacked) return true;
+    else if (itemDisplay === 'greenstackable' && item?.greenstackable && !item?.greenStacked && !item?.unobtainable
+      && !item?.unrealisticGreenstack) return true;
+    else if (itemDisplay === 'unrealistic' && item?.unrealisticGreenstack) return true;
   }
 
   const searchTerm = search.trim().toLowerCase();
@@ -76,6 +79,12 @@ const Slab = () => {
           <FormControlLabel value="unobtainable" control={<Radio/>} label="Unobtainable"/>
           <FormControlLabel value="greenstacked" control={<Radio/>} label="Greenstacks"/>
           <FormControlLabel value="greenstackable" control={<Radio/>} label="Missing greenstacks"/>
+          <FormControlLabel value="unrealistic" control={<Radio/>} label={<Stack direction={'row'} alignItems={'center'} gap={.5}>
+            Unrealistic greenstacks
+            <HtmlTooltip title={'Items that can be looted but never greenstacked: their only source is a one-off quest, so you can hold at most one per character. They are excluded from Missing greenstacks and from the greenstack total.'}>
+              <IconInfoCircleFilled size={18} style={{ cursor: 'help' }}/>
+            </HtmlTooltip>
+          </Stack>}/>
         </RadioGroup>
       </FormControl>
       <TextField

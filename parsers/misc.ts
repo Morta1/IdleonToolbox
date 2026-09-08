@@ -1,5 +1,5 @@
 import { createRange, lavaLog, notateNumber, number2letter, tryToParse } from '@utility/helpers';
-import { filteredGemShopItems, filteredLootyItems, keysMap } from './parseMaps';
+import { filteredGemShopItems, filteredLootyItems, keysMap, unrealisticGreenstackItems } from './parseMaps';
 import {
   bonuses,
   bundles as bundlesData,
@@ -427,10 +427,12 @@ export const getSlab = (idleonData: any) => {
     greenStacked: greenStacksSet.has(name),
     greenstackable: isGreenstackable(allItems?.[name]),
     onRotation: filteredGemShopItems?.[name],
-    unobtainable: filteredLootyItems?.[name]
+    unobtainable: filteredLootyItems?.[name],
+    unrealisticGreenstack: unrealisticGreenstackItems?.[name]
   }));
   const missingItems = slabItems?.filter(({ obtained, unobtainable }) => !obtained && !unobtainable)?.length;
-  const greenstackableItems = slabItems?.filter(({ greenstackable }) => greenstackable);
+  const greenstackableItems = slabItems?.filter(({ greenstackable, unobtainable, unrealisticGreenstack }) =>
+    greenstackable && !unobtainable && !unrealisticGreenstack);
   const greenstackableCount = greenstackableItems?.length ?? 0;
   const greenstackableStackedCount = greenstackableItems?.filter(({ greenStacked }) => greenStacked)?.length ?? 0;
 
