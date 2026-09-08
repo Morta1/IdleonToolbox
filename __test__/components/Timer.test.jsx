@@ -2,7 +2,7 @@
 import '../../polyfills';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 import Timer from '@components/common/Timer';
 
 describe('Timer with no save loaded', () => {
@@ -38,8 +38,11 @@ describe('Timer with no save loaded', () => {
     expect(document.body.textContent).toBe('04h:00m:00s');
   });
 
+  // Read from this render's container, never from `screen`: with isolate:false the testing-library
+  // module is shared between files, and `screen` is bound at import time to the document.body of
+  // whichever jsdom loaded it first. In any later file that body is a stale, empty one.
   it('renders the placeholder for a target already in the past', () => {
-    render(<Timer type={'countdown'} date={Date.now() - HOUR} placeholder={'Go claim!'}/>);
-    expect(screen.getByText('Go claim!')).toBeDefined();
+    const { container } = render(<Timer type={'countdown'} date={Date.now() - HOUR} placeholder={'Go claim!'}/>);
+    expect(container.textContent).toBe('Go claim!');
   });
 });
