@@ -2,7 +2,7 @@
 import '../../polyfills';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import Timer from '@components/common/Timer';
 
 describe('Timer with no save loaded', () => {
@@ -12,7 +12,13 @@ describe('Timer with no save loaded', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-01-01T12:00:00Z'));
   });
-  afterEach(() => vi.useRealTimers());
+  // Explicit: with isolate:false the RTL module (and so its auto-cleanup hook) is shared between
+  // test files, and these assertions read the whole body, so a leftover render from the previous
+  // case would be counted as this one's output.
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+  });
 
   it('counts down from the target date rather than from the epoch', () => {
     render(<Timer type={'countdown'} date={Date.now() + 3 * HOUR}/>);

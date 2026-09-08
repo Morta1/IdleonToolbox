@@ -1968,6 +1968,19 @@ const migration75 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+// Overstim level-up countdown joins the World 7 timers. Same data the spelunking page already
+// shows, now as a timer next to the research and armory ones.
+const migration76 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
+  const timers = dashboardConfig.timers ?? {};
+  if (timers['World 7'] && !timers['World 7'].overstim) {
+    timers['World 7'].overstim = { checked: true, options: [] };
+  }
+
+  dashboardConfig.version = 76;
+  return dashboardConfig;
+};
+
 const migrations = {
   2: migrateToVersion2,
   3: migrateToVersion3,
@@ -2043,6 +2056,7 @@ const migrations = {
   73: migration73,
   74: migration74,
   75: migration75,
+  76: migration76,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

@@ -263,6 +263,23 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   // short of max forever, even though the game tops them up the moment spelunking is opened and
   // pays the overflow to overstim regardless. Gating on the snapshot therefore reported 0 for
   // whole accounts; a deficit only delays a character's contribution, it never removes it.
+  // The meter only spends what it banked while the spelunking UI is drawing: that loop subtracts
+  // OverstimQtyREQ from Spelunk[4][2] and adds a level, once per pass. Away time only ever adds to
+  // [4][2], so anyone who has not walked into spelunking lately carries a backlog that levels the
+  // meter the moment they do, and the stored level/progress read far behind. Replay that drain to
+  // get what the meter will actually show, and keep the raw pair for anything comparing to the save.
+  let overstimEffectiveLevel = overstimLevel;
+  let overstimEffectiveCurrent = overstimCurrent;
+  let overstimEffectiveReq = 100 * Math.pow(1.3, overstimEffectiveLevel);
+  // Each level costs 1.3x the last, so a real backlog clears in a few dozen steps; the cap is only
+  // there so a corrupt save cannot spin here.
+  for (let i = 0; i < 1000 && overstimEffectiveCurrent >= overstimEffectiveReq; i++) {
+    overstimEffectiveCurrent -= overstimEffectiveReq;
+    overstimEffectiveLevel += 1;
+    overstimEffectiveReq = 100 * Math.pow(1.3, overstimEffectiveLevel);
+  }
+  const overstimPendingLevels = overstimEffectiveLevel - overstimLevel;
+
   const overstimRate = shopUpg6 >= 1
     ? (charactersStamina?.length ?? 0) * staminaRegenRate.value * (1 + overstimFillRate / 100)
     : 0;
@@ -295,6 +312,10 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
     overstimLevel,
     overstimCurrent,
     overstimReq: 100 * Math.pow(1.3, overstimLevel),
+    overstimEffectiveLevel,
+    overstimEffectiveCurrent,
+    overstimEffectiveReq,
+    overstimPendingLevels,
     overstimFillRate,
     overstimRate,
     charactersAtMaxStamina,

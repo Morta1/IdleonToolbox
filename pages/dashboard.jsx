@@ -19,7 +19,7 @@ import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 import { useLocalStorage } from '@mantine/hooks';
 
 const baseTrackers = {
-  version: 75,
+  version: 76,
   account: {
     General: {
       tasks: {
@@ -912,7 +912,8 @@ const baseTrackers = {
       researchLevelUp: { checked: true, options: [] },
       sushiFuelFull: { checked: true, options: [] },
       observationInsight: { checked: true, options: [] },
-      royalNodeCap: { checked: true, options: [] }
+      royalNodeCap: { checked: true, options: [] },
+      overstim: { checked: true, options: [] }
     }
   }
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import Library from '../account/Worlds/World3/Library';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
-import { cleanUnderscore, getDuration, getNextCompanionClaim, prefix } from '@utility/helpers';
+import { cleanUnderscore, getDuration, getNextCompanionClaim, notateNumber, prefix } from '@utility/helpers';
 import useRealDate from '@hooks/useRealDate';
 import { getCharacterByHighestSkillLevel, getEventShopBonus, getMiniBossesData, getRandomEvents } from '@parsers/misc';
 import Tooltip from '../Tooltip';
@@ -233,6 +233,16 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const royalAllNodesEmpty = (account?.royalGuardian?.outposts ?? [])
     .some(({ mode, connectedNodes }) => mode !== 1 && connectedNodes?.length > 0)
     && royalCapHours.length === 0;
+
+  // Overstim gains at overstimRate per hour and levels when it reaches 100 * 1.3^level, so the
+  // countdown is the same shape as the research one. A rate of 0 means the meter is still locked
+  // (spelunking shop upgrade 6), and there is nothing to count down to.
+  // Effective, not stored: the game banks overstim while you are away and only spends it into levels
+  // once the spelunking screen draws, so the stored level lags behind what the meter will read.
+  const spelunking = account?.spelunking;
+  const overstimLevelUpTime = spelunking?.overstimRate > 0
+    ? now + ((spelunking.overstimEffectiveReq - spelunking.overstimEffectiveCurrent) / spelunking.overstimRate) * 3600 * 1000
+    : null;
 
   const sushiFuel = account?.sushiStation?.fuel;
   const sushiFuelIsFull = sushiFuel && sushiFuel.cap > 0 && sushiFuel.current >= sushiFuel.cap;
@@ -606,6 +616,17 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             timerPlaceholder={'Empty!'}
             forcePlaceholder={royalAllNodesEmpty}
             showAsError={royalAllNodesEmpty}
+          /> : null}
+        {trackers?.['World 7']?.overstim?.checked && overstimLevelUpTime ?
+          <TimerCard
+            page={'account/world-7/spelunking'}
+            tooltipContent={`Overstim Lv. ${spelunking.overstimEffectiveLevel} → ${spelunking.overstimEffectiveLevel
+              + 1}: ${notateNumber(spelunking.overstimEffectiveCurrent, 'Big')} / ${notateNumber(spelunking.overstimEffectiveReq, 'Big')}${spelunking.overstimPendingLevels > 0
+                ? ` (${spelunking.overstimPendingLevels} level${spelunking.overstimPendingLevels > 1 ? 's' : ''} banked, they apply when you open spelunking)`
+                : ''}`}
+            lastUpdated={lastUpdated}
+            time={overstimLevelUpTime}
+            icon={'data/CaveShopUpg6.png'}
           /> : null}
         {trackers?.['World 7']?.observationInsight?.checked
           ? observationInsightTimes.map((obs) =>

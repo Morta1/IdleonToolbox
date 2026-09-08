@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.530',
     'date': '08/09/2026',
     'features': [
-      'Dashboard: the Finished Plots threshold is now set in hours instead of days. Your current setting carries over'
+      'Dashboard: the Finished Plots threshold is now set in hours instead of days. Your current setting carries over',
+      'Dashboard: World 7 timers now include an Overstim level up countdown. The tooltip shows the meter, plus any levels waiting to apply the next time you open Spelunking'
     ],
     'fixes': [
       'Dashboard: unchecking Stamp Reducer now hides its alert, without having to turn off Atom Collider',
