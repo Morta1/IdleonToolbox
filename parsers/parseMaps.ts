@@ -197,7 +197,32 @@ export const unrealisticGreenstackItems = ([
   'Quest106', // Urie's Special Childhood Rock
   'PeanutS', // Stone Peanut
   'SmithingHammerChisel3', // Onyx Tools
-  'SmithingHammerChisel4' // Zenith Tools
+  'SmithingHammerChisel4', // Zenith Tools
+  // The groups below come from a 2.3.530 source scan cross-checked against 3,644 uploaded profiles:
+  // no farmable source (drops / crafting / anvil / skilling) and at most 2 profiles have ever greenstacked them.
+  // World shop only, daily stock 1-30
+  'StoneW5', 'StoneW8', 'StoneW9', 'StoneA5', 'StoneA7', 'StoneA8', 'StoneT3', 'StoneT4', 'StoneT5', 'StoneT7', 'StoneT8',
+  'SmithingHammerChisel', 'SmithingHammerChisel2', 'BobJoePickle', 'BoneJoePickle', 'Quest57', 'NPCtoken27', 'Quest37',
+  'Quest65', 'Quest66', 'Quest67', 'Quest83', 'Quest84', 'Quest80', 'Quest86', 'Quest104', 'Quest87', 'Whetstone', 'Quest103', 'Quest105',
+  'Weight1', 'Weight5', 'Weight10', 'Weight11', 'Line1', 'Line5', 'Line10',
+  // Gem shop / bundle only
+  'ClassSwapB', 'ClassSwapC', 'Quest38', 'Quest90', 'Quest117', 'Quest77', 'Quest96', 'Quest101', 'NPCtoken15', 'CardPack2', 'CardPack3', 'CardPack7',
+  // Finite quest rewards (some also gem shop)
+  'CraftMat2', 'OilBarrel4', 'ResetCompleted', 'TixCol', 'ExpBalloon2', 'ExpBalloon3', 'Pearl4', 'Pearl5', 'Quest43', 'Quest44', 'Quest70',
+  'Quest72', 'Quest73', 'Quest79', 'GemP30', 'Quest81', 'Quest82', 'Quest108', 'Quest115', 'Timecandy7', 'Timecandy9',
+  'StoneW6', 'StoneA1b', 'StoneHelm6', 'Quest64', 'EquipmentStatues6',
+  'Weight2', 'Weight6', 'Weight8', 'Weight12', 'Weight14', 'Line2', 'Line7', 'Line11', 'CardPack1', 'CardPack4', 'CardPack5',
+  // Crafted only from one-off personal NPC tokens
+  'BadgeG1', 'BadgeG2', 'BadgeG3', 'BadgeD1', 'BadgeD2', 'BadgeD3', 'BadgeI1', 'BadgeI2', 'BadgeI3',
+  'NPCtoken1', 'NPCtoken2', 'NPCtoken3', 'NPCtoken28', 'NPCtoken29', 'NPCtoken30', 'NPCtoken39', 'NPCtoken40', 'NPCtoken41',
+  // Event only / no source in the current build
+  'Quest39', 'Quest75', 'Quest85', 'Quest88', 'Quest91', 'Quest92', 'Quest109', 'Quest113', 'Quest111', 'Quest114', 'Quest119', 'Quest120',
+  'Quest93', 'Quest98', 'Quest100', 'Quest107', 'Quest97', 'Quest102', 'Quest76', 'GemP36', 'StoneT1e', 'StoneHelm1b', 'StoneW3b',
+  'FoodG15', 'Timecandy10', 'Line6', 'ItemsCoupon1', 'ItemsCoupon2', 'BallJoePickle', 'CaveGoldPiece',
+  // Repeatable in theory, zero stackers across all profiles
+  'Crystal1', 'Crystal2', 'Crystal3', 'Crystal4', 'Crystal5', 'Mayo', 'Trash', 'Trash2', 'Trash3', 'KeyFrag',
+  'RGshard0', 'RGshard1', 'RGshard2', 'RGshard3', 'RGshard4', 'RGshard5', 'RGenh', 'RGenhB',
+  'StoneTempestB0', 'StoneTempestB1', 'StoneTempestB2', 'StoneTempestR0', 'StoneTempestR1', 'StoneTempestR2'
 ] as any).toSimpleObject();
 
 export const filteredLootyItems = ([

@@ -10,7 +10,7 @@ export const patchNotes = [
     'features': [
       'Dashboard: the Finished Plots threshold is now set in hours instead of days. Your current setting carries over',
       'Dashboard: World 7 timers now include an Overstim level up countdown. The tooltip shows the meter, plus any levels waiting to apply the next time you open Spelunking',
-      'Slab: new Unrealistic greenstacks tab, listing the items whose only source is a one off quest, so you can hold at most one per character'
+      'Slab: new Unrealistic greenstacks tab for items nobody can reasonably reach 10M of: one off quest items, shop items with a stock of 1 to 30 a day, gem shop only items, event boxes, and boss key drops. The list was checked against 3,600 uploaded profiles, so anything real players have actually greenstacked stays in the count'
     ],
     'fixes': [
       'Dashboard: unchecking Stamp Reducer now hides its alert, without having to turn off Atom Collider',

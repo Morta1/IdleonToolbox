@@ -81,7 +81,7 @@ const Slab = () => {
           <FormControlLabel value="greenstackable" control={<Radio/>} label="Missing greenstacks"/>
           <FormControlLabel value="unrealistic" control={<Radio/>} label={<Stack direction={'row'} alignItems={'center'} gap={.5}>
             Unrealistic greenstacks
-            <HtmlTooltip title={'Items that can be looted but never greenstacked: their only source is a one-off quest, so you can hold at most one per character. They are excluded from Missing greenstacks and from the greenstack total.'}>
+            <HtmlTooltip title={'Items that can be looted but not reasonably greenstacked: one off quest rewards, shop items with a daily stock of 1 to 30, gem shop only items, event boxes and the like. Checked against uploaded profiles, so anything players have actually greenstacked is not here. They are excluded from Missing greenstacks and from the greenstack total.'}>
               <IconInfoCircleFilled size={18} style={{ cursor: 'help' }}/>
             </HtmlTooltip>
           </Stack>}/>
