@@ -4,6 +4,7 @@ import { parseData } from '@parsers/index';
 import raw from '../../data/raw.json';
 import { getOptimizedLandRankUpgrades, isFifthColumnRank, LAND_RANK_GOALS } from '@parsers/world-6/farming';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
+import { tryToParse } from '@utility/helpers';
 
 describe('land rank upgrade optimizer', () => {
   const { data, charNames, companion, guildData, serverVars } = raw;
@@ -117,5 +118,37 @@ describe('land rank upgrade optimizer', () => {
   it('still plans evolution upgrades even with every plot at 100% on its current crop', () => {
     const upgrades = getOptimizedLandRankUpgrades(account, 100, { goal: 'evolution' });
     expect(upgrades).toHaveLength(100);
+  });
+  // Between harvests every plot sits empty. The goals that sum over the growing plots would then
+  // sum over nothing - log(0) = -Infinity - and that one term dragged the combined 'all' score down
+  // with it, so the whole plan came back empty while Overgrowth and Farming EXP alone were healthy.
+  describe('with every plot collected', () => {
+    const collected = structuredClone(raw);
+    const plots = tryToParse(collected.data.FarmPlot) ?? collected.data.FarmPlot;
+    collected.data.FarmPlot = plots.map((plot) => [-1, ...plot.slice(1)]);
+    const emptyAccount = parseData(collected.data, charNames, companion, guildData, serverVars).account;
+    const planFor = (target, goal) => getOptimizedLandRankUpgrades(target, 10, { goal })
+      .map(({ index, newLevel }) => `${index}:${newLevel}`);
+
+    it('has no crop growing on any plot', () => {
+      expect(emptyAccount.farming.plot.every(({ seedType }) => seedType === -1)).toBe(true);
+    });
+
+    // Land ranks are permanent, so the plan can't depend on whether a crop happens to be on the
+    // vine at this second - an emptied farm plans exactly what the growing one did.
+    it('plans the same upgrades as the growing farm, for every goal', () => {
+      [...Object.keys(LAND_RANK_GOALS), 'all'].forEach((goal) => {
+        expect(planFor(emptyAccount, goal), goal).toEqual(planFor(account, goal));
+      });
+    });
+
+    it('still fills the combined goal', () => {
+      expect(getOptimizedLandRankUpgrades(emptyAccount, 10, { goal: 'all' })).toHaveLength(10);
+    });
+
+    it('scores a farm with no plots at all without producing -Infinity', () => {
+      const plotless = { ...emptyAccount, farming: { ...emptyAccount.farming, plot: [] } };
+      expect(getOptimizedLandRankUpgrades(plotless, 10, { goal: 'all' })).toHaveLength(10);
+    });
   });
 });

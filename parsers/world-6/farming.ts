@@ -912,11 +912,15 @@ const getLandRankGoalOfUpgrade = (index: any) => Object.keys(LAND_RANK_GOALS)
 const getLandRankGoalScore = (goal: any, bonusAt: any, context: any) => {
   const { plotRanks, plotPrevRanks, voteBonus, cropValueConstant, cropValueCap } = context;
   const b = (index: any) => bonusAt(index);
+  // No plots at all (farming barely started) - the three goals below sum over the plots, and a sum
+  // over none is log(0) = -Infinity, which would poison the combined 'all' score.
+  const plotless = !plotRanks.length;
   if ('evolution' === goal) {
     // A plot already sitting at 100% evolution chance is capped for the crop it currently grows,
     // not for good: pushing the bonus higher is what carries it onto a deeper crop, where the
     // decay has eaten the chance back down. Scoring this against the 100% cap would call the whole
     // evolution branch worthless the moment it starts working.
+    if (plotless) return 0;
     const shared = (1 + b(3) / 100) * (1 + b(10) / 100) * (1 + b(15) / 100);
     return Math.log(plotRanks.reduce((sum: any, rank: any) =>
       sum + shared * (1 + (b(0) * rank + voteBonus) / 100), 0));
@@ -925,6 +929,7 @@ const getLandRankGoalScore = (goal: any, bonusAt: any, context: any) => {
     // getTotalCrop caps each plot's multiplier, and unlike the evolution cap this one doesn't move
     // with the crop being grown - past it, more crop value bonus does nothing at all, ever. Scoring
     // the capped value is what stops the plan recommending points that buy zero.
+    if (plotless) return 0;
     const shared = cropValueConstant * (1 + (b(8) + b(17)) / 100);
     return Math.log(plotRanks.reduce((sum: any, rank: any) =>
       sum + Math.min(cropValueCap, shared * (1 + (b(1) * rank + voteBonus) / 100)), 0));
@@ -932,6 +937,7 @@ const getLandRankGoalScore = (goal: any, bonusAt: any, context: any) => {
   if ('rankExp' === goal) {
     // Upgrade 2 reads the rank of the *previous* land, so each plot is scored against its
     // physically adjacent neighbour, empty plots included.
+    if (plotless) return 0;
     const shared = 1 + (b(6) + b(13)) / 100;
     return Math.log(plotRanks.reduce((sum: any, _: any, index: any) =>
       sum + shared * (1 + (b(2) * (plotPrevRanks?.[index] ?? 0)) / 100), 0));
@@ -992,14 +998,18 @@ export const getOptimizedLandRankUpgrades = (account: any, maxUpgrades = 10, opt
   // Mirrors getTotalCrop / getCropEvolution: the same plots, the same vote bonus, and the same
   // constant factors around the part the land ranks actually move.
   const allPlots = farming?.plot ?? [];
-  const plotRanks = allPlots
-    .filter(({ seedType }: any) => seedType !== -1)
-    .map(({ rank }: any) => rank ?? 0);
-  // Upgrade 2 reads the rank of the physically previous land, so pair each growing plot with its
+  // Between harvests every plot sits empty, and the goals that sum over the growing ones would then
+  // sum over nothing - log(0) = -Infinity, which drags the combined 'all' score down with it and
+  // leaves the whole plan empty. Land ranks are permanent, so score every plot instead: the answer
+  // to "where do these points go" shouldn't flip to "nowhere" just because the crops were collected.
+  const growingPlots = allPlots.filter(({ seedType }: any) => seedType !== -1);
+  const scoredPlots = growingPlots.length ? growingPlots : allPlots;
+  const plotRanks = scoredPlots.map(({ rank }: any) => rank ?? 0);
+  // Upgrade 2 reads the rank of the physically previous land, so pair each plot with its
   // neighbour before the empty-plot filter shifts the indices.
   const plotPrevRanks = allPlots
     .map((plot: any, index: number) => ({ seedType: plot?.seedType, prevRank: allPlots[index - 1]?.rank ?? 0 }))
-    .filter(({ seedType }: any) => seedType !== -1)
+    .filter(({ seedType }: any) => growingPlots.length ? seedType !== -1 : true)
     .map(({ prevRank }: any) => prevRank);
   const cropMultiParts = getPlotCropMultiParts(account, farming?.market, ranks);
   const context = {

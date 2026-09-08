@@ -14,7 +14,8 @@ export const patchNotes = [
       'Dashboard: unchecking Stamp Reducer now hides its alert, without having to turn off Atom Collider',
       'Pets: Tokens Available now counts both Pet Bonus Tokens instead of capping at one',
       'Dashboard: Finished Plots skipped locked plots. Locking only freezes a plot\'s crop type, so those plots stall like any other',
-      'Farming: a locked plot no longer shows a crop evolution chance, since locking stops evolution'
+      'Farming: a locked plot no longer shows a crop evolution chance, since locking stops evolution',
+      'Farming: the Land Rank optimizer found nothing for the All category while no crop was growing. Land ranks are permanent, so the plan no longer depends on what is planted right now'
     ]
   },
   {
