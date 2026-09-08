@@ -1667,9 +1667,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
     if (options?.spelunking?.fullStaminaCharacters?.checked) {
       const threshold = options?.spelunking?.fullStaminaCharacters?.props?.value ?? 1;
       const charactersStamina = account?.spelunking?.charactersStamina ?? [];
-      const fullStaminaCount = charactersStamina.filter(({ characterStamina, currentStamina }) =>
-        currentStamina >= characterStamina
-      ).length;
+      const fullStaminaCount = charactersStamina.filter(({ isFull }) => isFull).length;
       if (fullStaminaCount >= threshold) {
         spelunking.fullStaminaCharacters = {
           count: fullStaminaCount,

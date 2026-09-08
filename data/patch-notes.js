@@ -20,7 +20,8 @@ export const patchNotes = [
       'Farming: the Land Rank optimizer found nothing for the All category while no crop was growing. Land ranks are permanent, so the plan no longer depends on what is planted right now',
       'Free pet: the claim timer read a timestamp the game deliberately stores days behind the real claim, so it was stuck on "Go claim!" or showed a date months in the past. It now counts down the real 23 hour window',
       'Talent bonuses taken from the best character on your account now follow the 2.3.530 rules for bonus talent levels. Most visible in the Spelunking shop, where upgrade costs read a few percent under the real price',
-      'Slab: Missing greenstacks and the greenstack total no longer include items you can never greenstack, such as NPC tokens, talent point tabs and unobtainable items, so 100% is reachable'
+      'Slab: Missing greenstacks and the greenstack total no longer include items you can never greenstack, such as NPC tokens, talent point tabs and unobtainable items, so 100% is reachable',
+      'Spelunking: the Full Stamina alert never fired on some accounts, and the same count made Overstim Rate say nobody was at max. The game tops characters up to a cap it takes from its own cached bonuses, which lags behind an overstim stack or artifact upgrade, so idle characters sat a point or two under the real max forever'
     ]
   },
   {

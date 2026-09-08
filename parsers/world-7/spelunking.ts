@@ -249,9 +249,7 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   const shopUpg6 = getSpelunkingBonus(account, 6);
 
   // Snapshot count, for display only - see why it can't gate the rate right below.
-  const charactersAtMaxStamina = charactersStamina.filter(({ characterStamina, currentStamina }: any) =>
-    currentStamina >= characterStamina
-  ).length;
+  const charactersAtMaxStamina = charactersStamina.filter(({ isFull }: any) => isFull).length;
 
   // Overstim rate = every character's stamina regen, once the meter is unlocked (shop upgrade 6).
   //
@@ -346,6 +344,10 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   }
 }
 
+// Stamina the game's cached max can lag ours by: one per stale overstim stack step, plus the
+// fraction a stale artifact tier costs the chapter lore bonus. Three leaves room for two steps.
+const STALE_MAX_STAMINA_TOLERANCE = 3;
+
 const getCharacterStamina = (account: any, characters: any, upgrades: any, rawCurrentStamina: any, staminaRegenRate: any) => {
   const updatedAccount = { ...account, spelunking: { ...account?.spelunking, upgrades } };
   // game: getbonus2(1,236,-1) - Royal Guardian SPELUNKING_SPECIALTY, account-wide max. The brief
@@ -388,10 +390,25 @@ const getCharacterStamina = (account: any, characters: any, upgrades: any, rawCu
       ? missingStamina / staminaRegenRate
       : 0;
 
+    // A character sitting at the cap is only ever exactly at it in the save because the game clamps
+    // (Spelunk[3][s] = StaminaMax) on the tick it overshoots. That equality breaks whenever our max
+    // is a hair above the game's - the game caches its own bonus tables (DNSM.SpelunkyUpgTOT,
+    // DNSM.SailzArtiBonusL) and keeps clamping to a stale max after an overstim stack or artifact
+    // tier goes up, so the save records the old cap. Reported by two accounts whose idle characters
+    // sat 1-2 stamina under our max forever.
+    //
+    // One minute of regen covers that on a developed account, but the gap is a whole stamina per
+    // stale stack step while a minute of regen is only half of one early on, so it also needs a
+    // small absolute floor. Either way it stays far under what a draining character is missing -
+    // the reported account's were 232 to 1039 short - so it can't swallow a real one.
+    const fullStaminaTolerance = Math.max(staminaRegenRate / 60, STALE_MAX_STAMINA_TOLERANCE);
+    const isFull = currentStamina >= characterStamina || missingStamina <= fullStaminaTolerance;
+
     return {
       characterStamina,
       currentStamina, // Show actual current stamina (may exceed max if overstim is active)
-      timeToFull
+      timeToFull,
+      isFull
     }
   })
 }
