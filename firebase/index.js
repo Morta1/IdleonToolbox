@@ -193,8 +193,8 @@ export const getLeaderboard = async (divisionIndex) => {
 
 export const getGuilds = async (callback) => {
   try {
-    // Loaded lazily so website-data (9.8MB JSON) and the parsers graph stay out of
-    // the shared every-page chunk (firebase/index.js is imported eagerly by AppProvider).
+    // Loaded lazily so website-data and the parsers graph ride with this call, not with the
+    // firebase module (which AppProvider itself now loads on demand).
     const [{ guildBonuses }, { calculateGuildBonusCost }] = await Promise.all([
       import('@website-data'),
       import('../parsers/guild')

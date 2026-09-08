@@ -1,5 +1,5 @@
 import { createContext, useEffect, useReducer, useRef, useState } from 'react';
-import { checkUserStatus, signInWithCustom, signInWithToken, subscribe, userSignOut } from '../../../firebase';
+import { firebaseRequested, loadFirebase } from '../../../firebase/lazy';
 import { useRouter } from 'next/router';
 import useInterval from '@hooks/useInterval';
 import { getUserToken } from '../../../services/auth/google';
@@ -213,8 +213,19 @@ const AppProvider = ({ children }) => {
       unsubscribeRef.current();
     }
 
-    userSignOut();
-    
+    // Firebase loads on demand, so an anonymous visitor has nothing to sign out of. And never
+    // throw here: handleUnauthenticatedUser's catch calls this, and an error before
+    // dispatch(LOGOUT) and loadEmptyAccount would leave isLoading false with no account, which
+    // every data page shows as an endless "Loading account data...".
+    if (firebaseRequested()) {
+      try {
+        const { userSignOut } = await loadFirebase();
+        userSignOut();
+      } catch (err) {
+        console.warn('Sign-out skipped:', err);
+      }
+    }
+
     if (typeof window?.gtag !== 'undefined') {
       window.gtag('event', 'logout', {
         action: 'logout',
@@ -272,6 +283,7 @@ const AppProvider = ({ children }) => {
 
         localStorage.setItem('manualImport', 'false');
         const lastUpdated = parsedData?.lastUpdated || new Date().getTime();
+        const { checkUserStatus } = await loadFirebase();
         const user = await checkUserStatus();
 
         dispatch({
@@ -340,6 +352,7 @@ const AppProvider = ({ children }) => {
 
     const handleUnauthenticatedUser = async () => {
       try {
+        const { checkUserStatus, subscribe } = await loadFirebase();
         const user = await checkUserStatus();
         if (!state?.account && user) {
           const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
@@ -430,6 +443,7 @@ const AppProvider = ({ children }) => {
         let id_token, uid, accessToken;
         
         if (state?.loginType === 'steam') {
+          const { signInWithCustom } = await loadFirebase();
           const userData = await signInWithCustom(state?.loginData?.token, dispatch);
           accessToken = userData?.accessToken;
           id_token = userData?.accessToken;
@@ -462,12 +476,14 @@ const AppProvider = ({ children }) => {
             }
           }
           if (id_token) {
+            const { signInWithToken } = await loadFirebase();
             const userData = await signInWithToken(id_token, state?.loginType);
             uid = userData?.uid;
           }
         }
-        
+
         if (id_token) {
+          const { subscribe } = await loadFirebase();
           const unsub = await subscribe(uid, accessToken || id_token?.id_token, handleCloudUpdate);
           unsubscribeRef.current = unsub;
           
