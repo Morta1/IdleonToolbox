@@ -65,7 +65,21 @@ const BANNER_KINDS = new Set(['bundle', 'world']);
 
 const BAND_COLOURS = ['primary.main', 'warning.light', 'info.light', 'success.light', 'secondary.light', 'error.light'];
 
-const Band = ({ band, colour, index, onNavigate, banner }) => {
+// The rows are real anchors so the exported HTML carries every link, and so middle-click,
+// copy-link and modified clicks all behave. A plain click still goes through the router, which
+// keeps the session query (demo, profile) on the URL.
+const linkProps = (hrefFor, id) => {
+  const href = hrefFor?.(id);
+  return href ? { href } : { component: 'button', type: 'button' };
+};
+
+const navigateOnPlainClick = (onNavigate, id) => (event) => {
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+  event.preventDefault();
+  onNavigate(id);
+};
+
+const Band = ({ band, colour, index, onNavigate, hrefFor, banner }) => {
   const [expanded, setExpanded] = useState(false);
   const rows = expanded || band.entries.length <= BAND_PREVIEW + BAND_SLACK
     ? band.entries
@@ -106,9 +120,9 @@ const Band = ({ band, colour, index, onNavigate, banner }) => {
     }}>
       {rows.map((entry) => (banner ? <Stack
         key={entry.id}
-        component={'button'}
-        type={'button'}
-        onClick={() => onNavigate(entry.id)}
+        component={hrefFor?.(entry.id) ? 'a' : 'button'}
+        {...(hrefFor?.(entry.id) ? { href: hrefFor(entry.id) } : { type: 'button' })}
+        onClick={navigateOnPlainClick(onNavigate, entry.id)}
         gap={0.75}
         sx={{
           p: 1,
@@ -121,6 +135,7 @@ const Band = ({ band, colour, index, onNavigate, banner }) => {
           color: 'text.primary',
           cursor: 'pointer',
           textAlign: 'left',
+          textDecoration: 'none',
           '&:hover': { borderColor: 'text.disabled' }
         }}
       >
@@ -136,17 +151,26 @@ const Band = ({ band, colour, index, onNavigate, banner }) => {
       </Stack> : <Stack key={entry.id} direction={'row'} gap={1} alignItems={'center'} sx={{ py: 0.4 }}>
         <EntityIcon node={entry.node} size={32}/>
         <Link
-          component={'button'}
-          type={'button'}
+          {...linkProps(hrefFor, entry.id)}
           variant={'body2'}
           underline={'hover'}
           textAlign={'left'}
-          onClick={() => onNavigate(entry.id)}
+          onClick={navigateOnPlainClick(onNavigate, entry.id)}
         >
           {entry.label}
         </Link>
       </Stack>))}
     </Box>
+
+    {/* The rows a collapsed band hides still have to reach the export: this listing is the only
+        path a crawler has to them. Text-only anchors, no icons, so a 2,400-row category does not
+        request 2,400 images for a block nobody sees. Removed once the band expands. */}
+    {hidden > 0 ? <Box component={'nav'} aria-hidden sx={{ display: 'none' }}>
+      {band.entries.slice(rows.length).map((entry) => {
+        const href = hrefFor?.(entry.id);
+        return href ? <a key={entry.id} href={href}>{entry.label}</a> : null;
+      })}
+    </Box> : null}
 
     {hidden > 0 ? <Link
       component={'button'}
@@ -161,7 +185,7 @@ const Band = ({ band, colour, index, onNavigate, banner }) => {
   </Stack>;
 };
 
-const EntityList = ({ index, kind, onNavigate, onBack }) => {
+const EntityList = ({ index, kind, onNavigate, onBack, hrefFor }) => {
   const [filter, setFilter] = useState('');
   const [category, setCategory] = useState('');
 
@@ -282,6 +306,7 @@ const EntityList = ({ index, kind, onNavigate, onBack }) => {
       index={bandIndex}
       colour={mode === 'facet' && !category ? BAND_COLOURS[bandIndex % BAND_COLOURS.length] : 'divider'}
       onNavigate={onNavigate}
+      hrefFor={hrefFor}
       banner={BANNER_KINDS.has(kind)}
     />)}
   </Stack>;
