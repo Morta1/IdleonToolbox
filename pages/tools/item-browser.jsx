@@ -25,7 +25,7 @@ import {
   Typography
 } from '@mui/material';
 import { kFormatter, prefix } from 'utility/helpers';
-import styled from '@emotion/styled';
+import { styled } from '@mui/material/styles';
 import ItemDisplay from 'components/common/ItemDisplay';
 import { AppContext } from 'components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
@@ -212,7 +212,7 @@ const ItemBrowser = ({}) => {
   );
 };
 
-const ItemBrowserStyle = styled.div`
+const ItemBrowserStyle = styled('div')`
 
   .main-header {
     font-size: 22px;

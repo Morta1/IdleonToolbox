@@ -3,7 +3,7 @@ import { Checkbox, Chip, FormControlLabel, InputAdornment, Stack, TextField, Typ
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import { cards, cardSets, stats } from '@website-data';
 import ClearIcon from '@mui/icons-material/Clear';
-import styled from '@emotion/styled';
+import { styled } from '@mui/material/styles';
 import { AppContext } from 'components/common/context/AppProvider';
 import { CardAndBorder } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
@@ -248,7 +248,7 @@ const StyledInputAdornment = styled(InputAdornment)`
   cursor: pointer;
 `;
 
-const Main = styled.main`
+const Main = styled('main')`
   color: white;
 
   .chips {

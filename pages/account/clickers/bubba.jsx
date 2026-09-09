@@ -4,10 +4,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { Card, CardContent, Chip, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
-import Tabber from '@components/common/Tabber';
 import Tooltip from '@components/Tooltip';
-import { getTabs } from '@utility/helpers';
-import { PAGES } from '@components/constants';
 import Upgrades from '@components/account/clickers/bubba/Upgrades';
 
 const formatMeatsliceRate = (value) => {

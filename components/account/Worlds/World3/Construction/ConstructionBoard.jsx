@@ -10,7 +10,7 @@ import {
   secondsToCoarseDuration
 } from '@utility/helpers';
 import React from 'react';
-import styled from '@emotion/styled';
+import { styled } from '@mui/material/styles';
 import { BOARD_SIZE, BOARD_X, getCogDisplayName } from '@parsers/world-3/construction';
 
 const bonusTextSx = {
@@ -246,12 +246,12 @@ const SlotBackground = styled(Stack)`
   }
 `;
 
-const FlagIcon = styled.img`
+const FlagIcon = styled('img')`
   width: var(--cog-slot);
   height: var(--cog-slot);
 `;
 
-const SlotIcon = styled.img`
+const SlotIcon = styled('img')`
   width: var(--cog-slot);
   height: var(--cog-slot);
 `;

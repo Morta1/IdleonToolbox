@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Drawer from '@mui/material/Drawer';
 import MenuIcon from '@mui/icons-material/Menu';
 import IconButton from '@mui/material/IconButton';
-import styled from '@emotion/styled';
+import { styled } from '@mui/material/styles';
 import { drawerWidth, navBarHeight, profileBannerHeight } from '../../../constants';
 import Toolbar from '@mui/material/Toolbar';
 import NavItemsList from '../NavItemsList';

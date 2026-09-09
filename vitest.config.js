@@ -26,6 +26,7 @@ export default defineConfig({
     environment: 'node',
     include: ['__test__/**/*.test.{js,ts,jsx,tsx}'],
     exclude: ['e2e/**'],
+    setupFiles: ['./__test__/vitest.setup.js'],
     isolate: false,
     // Parser tests parse the full ~4MB website-data fixtures, and with isolate:false they all
     // share one environment under parallel load. Several sit near a second on their own and

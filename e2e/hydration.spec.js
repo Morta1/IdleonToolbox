@@ -40,6 +40,9 @@ const SAMPLES = [
   // Not a 200, but page.goto follows it and the export still has to hydrate: the 404 is the page
   // a mistyped or retired URL lands on, which makes it the one nobody notices breaking.
   { route: '/404' },
+  // Data pages export DataLoadingWrapper's loader; the deep link must still hydrate cleanly.
+  { route: '/account/world-4/cooking?t=Kitchens' },
+  { route: '/account/world-3/printer' },
   { route: '/account/world-1/stamps?demo=true' },
   {
     route: '/characters?demo=true',
@@ -124,4 +127,20 @@ test.describe('a tab deep link selects the tab and its data', () => {
     // is that the tab's own leaderboard is what the page ends up asking for and showing.
     expect(requested.at(-1)).toBe('skills');
   });
+});
+
+// A styled(MuiComponent) override built with @emotion/styled lands in the server-extracted CSS
+// before MUI's own rule for the same property, so the export (and the hydrated page, which reuses
+// those style tags) showed MUI's default until the next client re-render. MUI's styled engine
+// injects in the right order; this pins the home page's Discord button as the canary.
+test('a styled override of a MUI component wins in the export without JS', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto('/');
+  const background = await page.evaluate(() => {
+    const button = document.querySelector('a[href="https://discord.gg/8Devcj7FzV"].MuiButton-root');
+    return button ? getComputedStyle(button).backgroundColor : 'missing';
+  });
+  expect(background).toBe('rgb(88, 101, 242)');
+  await context.close();
 });

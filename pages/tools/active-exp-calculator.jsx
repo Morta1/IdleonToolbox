@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { kFormatter, prefix, splitTime } from '@utility/helpers';
-import styled from '@emotion/styled';
+import { styled } from '@mui/material/styles';
 import { Stack, TextField, Typography } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
@@ -188,7 +188,7 @@ const StyledMenuItem = styled(MenuItem)`
   }
 `;
 
-const ActiveXpCalculatorStyle = styled.div`
+const ActiveXpCalculatorStyle = styled('div')`
   .selection {
     display: flex;
     align-items: baseline;

@@ -17,7 +17,7 @@ import { getRandomNumbersArray, prefix } from '@utility/helpers'
 import useInterval from '@hooks/useInterval';
 import { animate, AnimatePresence, motion, MotionConfig, useMotionValue } from 'framer-motion'
 import Button from '@mui/material/Button';
-import styled from '@emotion/styled';
+import { styled } from '@mui/material/styles';
 import { patchNotes } from '../data/patch-notes';
 import PatchNotes from './patch-notes';
 import { NextLinkComposed } from '@components/common/NextLinkComposed';

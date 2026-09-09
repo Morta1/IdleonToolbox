@@ -31,7 +31,7 @@ import {
   Typography
 } from '@mui/material';
 import { useLocalStorage } from '@mantine/hooks';
-import styled from '@emotion/styled';
+import { styled } from '@mui/material/styles';
 import Tooltip from 'components/Tooltip';
 import HtmlTooltip from 'components/Tooltip';
 import Timer from 'components/common/Timer';
@@ -653,7 +653,7 @@ const MealTooltip = ({
   );
 };
 
-const MealAndPlate = styled.div`
+const MealAndPlate = styled('div')`
   width: 82px;
   display: flex;
   flex-direction: column;
