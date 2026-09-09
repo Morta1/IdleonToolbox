@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { IconLayoutDashboard, IconLogin2 } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
 import Head from 'next/head';
@@ -63,7 +63,13 @@ const faqs = [
 const Home = () => {
   const { state } = useContext(AppContext);
   const theme = useTheme();
-  const [indexes] = useState(() => getRandomNumbersArray(6, 6));
+  // Slot 0 is the image both the export and the first client render show, so it must not be
+  // random: React compares it during hydration. Only the rotation order behind it is shuffled,
+  // in an effect, once that comparison is over.
+  const [indexes, setIndexes] = useState([0, 1, 2, 3, 4, 5]);
+  useEffect(() => {
+    setIndexes([0, ...getRandomNumbersArray(5, 5).map((n) => n + 1)]);
+  }, []);
   const [bgIndex, setBgIndex] = useState(0);
   const [loginOpen, setLoginOpen] = useState(false);
   const [pathIndex, setPathIndex] = useState(0);

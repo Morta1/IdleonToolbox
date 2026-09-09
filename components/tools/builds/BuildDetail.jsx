@@ -10,6 +10,7 @@ import { TagChip } from './styled';
 import { hydrate } from '@utility/builds/hydrate';
 import { cleanUnderscore } from '@utility/helpers';
 import useFormatDate from '@hooks/useFormatDate';
+import useHydrated from '@hooks/useHydrated';
 
 // Render a stored (compact) build. hydrate() derives tab/talent metadata from
 // the shared @website-data + talentPagesMap, so no extra data file is needed.
@@ -29,6 +30,10 @@ const TWO_COLUMN_DESC_CHARS = 200;
 const BuildDetail = ({ build, actions = null, backHref = null }) => {
   const router = useRouter();
   const formatDate = useFormatDate();
+  // The dates are formatted in the visitor's timezone, which the build machine does not share.
+  // They join the page after hydration; the export carries the build without them. Named
+  // isHydrated (not hydrated) because `hydrated` below is already the hydrate(build) result.
+  const isHydrated = useHydrated();
   if (!build) return null;
   const hydrated = hydrate(build);
   const className = build.subclass || build.class;
@@ -112,12 +117,12 @@ const BuildDetail = ({ build, actions = null, backHref = null }) => {
             flexWrap="wrap"
             sx={{ color: 'text.secondary', fontSize: 12 }}
           >
-            {createdMs && (
+            {isHydrated && createdMs && (
               <Tooltip title={formatDate(createdMs)}>
                 <span>Created {formatDate(createdMs)}</span>
               </Tooltip>
             )}
-            {wasUpdated && <>
+            {isHydrated && wasUpdated && <>
               <div>-</div>
               <Tooltip title={formatDate(updatedMs)}>
                 <span>Last Updated {formatDate(updatedMs)}</span>

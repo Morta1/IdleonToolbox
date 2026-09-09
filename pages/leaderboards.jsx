@@ -48,10 +48,12 @@ const Leaderboards = () => {
   const [selectedTab, setSelectedTab] = useState(t?.toLowerCase() || 'global');
   const [loadingSearchedChar, setLoadingSearchedChar] = useState(false);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
-  const [showAnonymous, setShowAnonymous] = useState(() => {
-    if (typeof window === 'undefined') return true;
-    return localStorage.getItem('leaderboard:showAnonymous') !== 'false';
-  });
+  // Read in an effect, not in the initialiser: the export renders with `true`, and a first
+  // client render that read storage would disagree with it for anyone who switched it off.
+  const [showAnonymous, setShowAnonymous] = useState(true);
+  useEffect(() => {
+    setShowAnonymous(localStorage.getItem('leaderboard:showAnonymous') !== 'false');
+  }, []);
   const queryClient = useQueryClient();
 
   const searchUserAndAppend = (data, username, userStats, { isLoggedUser } = {}) => {
