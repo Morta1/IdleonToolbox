@@ -13,12 +13,11 @@ import { Stack, Typography } from '@mui/material';
 // The whole query rides along verbatim - unlike a cross-page hop, these params (`t`, `profile`,
 // `demo`) all belong to the page being reopened.
 //
-// No <meta http-equiv="refresh"> fallback. Nothing below _app's router gate renders during the
-// export, so a tag declared here would never reach the exported HTML anyway - the noindex below
-// takes effect only because generate-page-seo.mjs lifts it into _app's static head. And a refresh
-// tag that did fire would fire before hydration, dropping the query a shared ?profile= link needs.
-// Without JS this page is blank like every other page on the site, so JS is the only path that
-// matters and Googlebot renders it.
+// No <meta http-equiv="refresh"> fallback. This is a data page: at build it exports
+// DataLoadingWrapper's loader, so the <NextSeo> below never runs during the export and the
+// noindex below takes effect only because generate-page-seo.mjs lifts it into _app's static head
+// via PAGE_SEO. A refresh tag would fire before hydration anyway, dropping the query a shared
+// ?profile= link needs - the redirect has to happen client-side, in the effect below.
 export const ROYAL_ARMORY_PATH = '/account/class-specific/royal-armory';
 
 const RoyalGuardianRedirect = () => {

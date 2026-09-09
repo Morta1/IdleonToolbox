@@ -188,10 +188,13 @@ const MyApp = (props) => {
             <PreferencesProvider>
             <AppProvider>
               <NavBar>
-                {/* The app-level SEO defaults. No title/description here on purpose: next-seo
-                    re-emits this head after the page's NextSeo on every client route change, so
-                    any title or description set here overwrites the page's own. 105 of 108 pages
-                    define their own NextSeo; the rest set one locally.
+                {/* The app-level SEO defaults. No title/description here on purpose: this NextSeo
+                    renders before <Component/>, so a page's own NextSeo comes later in tree order
+                    and next/head keeps its copy (see the dedupe note on the <Head> above) - a
+                    title or description set here would only reach the export on a page that
+                    defines neither, where it would just override the staticTitle/staticDescription
+                    copy in _app's own <Head> for no gain. 105 of 108 pages define their own
+                    NextSeo; the rest set one locally.
 
                     <NextSeo> rather than <DefaultSeo>, for one reason: DefaultSeo has no
                     `noindex` prop (it destructures a fixed list that omits noindex/nofollow, so

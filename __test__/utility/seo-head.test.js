@@ -43,8 +43,8 @@ describe('resolveSeoHead', () => {
   });
 });
 
-// Two renderers draw this heading - PageTitle after the gate, the pre-hydration shell before it -
-// and LCP only stays early if they agree to the character.
+// PageTitle draws this heading from the title next-seo resolves, so the two must agree to the
+// character.
 describe('headingOf', () => {
   it('strips the site suffix in every separator the titles use', () => {
     expect(headingOf('Stamps | Idleon Toolbox')).toBe('Stamps');

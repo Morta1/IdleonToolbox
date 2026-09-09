@@ -71,8 +71,8 @@ test.describe('static export ships crawlable head tags', () => {
       // against next/head's, so pages shipped two and the _document one went stale on navigation.
       const descriptions = (html.match(/<meta name="description"/g) || []).length;
       expect(descriptions, `${route} must have exactly one meta description`).toBe(1);
-      // og:title and robots gained a build-time writer when the router gate went: DefaultSeo and
-      // the page's NextSeo both render in the export now, and next/head must collapse them.
+      // og:title and robots gained a build-time writer when the router gate went: _app's NextSeo
+      // and the page's NextSeo both render in the export now, and next/head must collapse them.
       const ogTitles = (html.match(/<meta property="og:title"/g) || []).length;
       expect(ogTitles, `${route} must have exactly one og:title`).toBe(1);
       const robots = (html.match(/<meta name="robots"/g) || []).length;

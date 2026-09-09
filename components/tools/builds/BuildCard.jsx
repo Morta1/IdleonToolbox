@@ -26,7 +26,7 @@ import { SurfaceCard, TagChip } from './styled';
 // The card is a div with an onClick rather than one big <a>, because the breadcrumb inside it
 // links to the class pages and anchors cannot nest. The title stays a real <a> so the card is
 // still keyboard-reachable and middle-clickable - and, since the hub renders every build as one
-// of these at build time, so a crawler that never runs JS still reaches every build page.
+// of these at build time, a crawler that never runs JS still reaches every build page.
 
 const formatCount = (n) => {
   if (!n) return '0';

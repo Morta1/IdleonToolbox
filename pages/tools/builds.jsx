@@ -6,8 +6,6 @@ import BuildsBrowser, { INITIAL_FILTERS } from '@components/tools/builds/BuildsB
 import { listBuilds } from 'services/builds';
 import { fetchAllBuildsAtBuildTime } from '@utility/builds/static-fetch.mjs';
 import { staticIdSet } from '@utility/builds/build-pages.mjs';
-import { classToSlug } from '@utility/builds/class-paths.mjs';
-import { CLASS_KEYS } from '@utility/builds/classes';
 import { filterAndSortBuilds } from '@utility/builds/filter-builds';
 import legacyRedirects from 'data/legacy-build-redirects.json';
 
