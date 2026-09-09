@@ -9,6 +9,7 @@ export const patchNotes = [
     'date': '09/09/2026',
     'features': [],
     'fixes': [
+      'Spelunking: the upgrade optimizer never offered Manic POW or Amber-Track, so its plans left out two real upgrades',
       'Slab: Unrealistic greenstacks now also covers items reported by players: Crude and Eco Friendly Oil, Dense Water, Cranberry Jam, Small and Decent EXP Potion, pearls, Gems, time candies, Giftmas foods, Sub Class Swap Token, Post Office Box Reseto, Googley Eyes, Dootjat Eye, Anvil Tabs 4 to 6, Smolderin Card Pack and the other event boxes'
     ]
   },
