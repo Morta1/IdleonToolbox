@@ -46,7 +46,16 @@ const Leaderboards = () => {
   const [searchedChar, setSearchChar] = useState('');
   const router = useRouter();
   const { t } = router.query;
-  const [selectedTab, setSelectedTab] = useState(t?.toLowerCase() || 'global');
+  // Derived during render, never seeded into a useState initialiser: on a statically exported page
+  // carrying a query string router.isReady is false and router.query is {} for the first render, so
+  // an initialiser would freeze /leaderboards?t=Skills on the global data while the tab strip (which
+  // reads the router every render) highlighted Skills. isReady flips in a re-render, so no effect is
+  // needed. The clicked tab covers the moment between a click and Tabber's router.push landing.
+  const [clickedTab, setClickedTab] = useState(null);
+  const queryTab = router.isReady && typeof t === 'string' && tabs.some((tab) => tab.toLowerCase() === t.toLowerCase())
+    ? t.toLowerCase()
+    : null;
+  const selectedTab = queryTab ?? clickedTab ?? 'global';
   const [loadingSearchedChar, setLoadingSearchedChar] = useState(false);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
   // Mantine reads storage in an effect (getInitialValueInEffect is the default), so the export and
@@ -94,8 +103,8 @@ const Leaderboards = () => {
   const AGGREGATION_INTERVAL = 1000 * 60 * 30; // 30 minutes
 
   const { data: leaderboards, isLoading, error } = useQuery({
-    queryKey: ['leaderboard', selectedTab.toLowerCase()],
-    queryFn: () => fetchLeaderboard(selectedTab.toLowerCase()),
+    queryKey: ['leaderboard', selectedTab],
+    queryFn: () => fetchLeaderboard(selectedTab),
     staleTime: (query) => {
       const createdAt = query.state.data?.createdAt;
       if (!createdAt) return AGGREGATION_INTERVAL;
@@ -267,7 +276,7 @@ const Leaderboards = () => {
     </Box>
     <Tabber
       tabs={tabs} onTabChange={(selected) => {
-        setSelectedTab(tabs?.[selected]);
+        setClickedTab(tabs?.[selected]?.toLowerCase());
       }}>
       <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.global?.anonymous : leaderboards?.global?.public}
         loggedMainChar={loggedLeaderboardName} searchedChar={searchedChar} />

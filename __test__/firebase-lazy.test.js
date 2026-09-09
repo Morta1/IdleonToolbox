@@ -1,27 +1,37 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 // firebase/index.js initialises auth, database and firestore at module top: ~700 KB of JS. A
 // static import anywhere in the every-page tree puts it back into the chunk shared by all 4,800
 // exported pages. Only firebase/lazy.js may import it; everyone else awaits loadFirebase().
-const EVERY_PAGE_FILES = [
-  'components/common/context/AppProvider.jsx',
-  'components/common/Logins/EmailLogin.jsx',
-  'components/common/NavBar/index.jsx',
-  'components/common/NavBar/LoginDialog.jsx',
-  'pages/_app.jsx'
-];
+// Walked rather than listed: a hardcoded file list only ever catches the imports that already
+// existed when it was written.
+const ROOTS = ['components', 'pages', 'hooks'];
+
+// Page-scoped and mounted under DataLoadingWrapper, so its import lands in that page's own chunk
+// and never in the shared one. Left as it is rather than rewritten for the sake of the rule.
+const ALLOWED = new Set(['components/account/Worlds/World7/Tournament/Leaderboard.jsx']);
+
+const FIREBASE_IMPORT = /(?:from\s*|import\s*\()\s*['"][^'"]*firebase(?:\/index)?['"]/;
+
+const walk = (dir, out = []) => {
+  for (const entry of readdirSync(dir)) {
+    const full = path.join(dir, entry);
+    if (statSync(full).isDirectory()) walk(full, out);
+    else if (/\.(jsx?|tsx?)$/.test(entry)) out.push(full);
+  }
+  return out;
+};
 
 describe('firebase stays out of the every-page bundle', () => {
-  for (const file of EVERY_PAGE_FILES) {
-    it(`${file} has no static firebase import`, () => {
-      const source = readFileSync(path.join(process.cwd(), file), 'utf8');
-      const staticImports = source.split('\n')
-        .filter((line) => /^import .* from ['"].*firebase(\/index)?['"]/.test(line));
-      expect(staticImports).toEqual([]);
-    });
-  }
+  it('is imported by firebase/lazy.js alone', () => {
+    const hits = ROOTS.flatMap((root) => walk(path.join(process.cwd(), root)))
+      .filter((file) => FIREBASE_IMPORT.test(readFileSync(file, 'utf8')))
+      .map((file) => path.relative(process.cwd(), file).replace(/\\/g, '/'))
+      .filter((file) => !ALLOWED.has(file));
+    expect(hits).toEqual([]);
+  });
 
   it('firebase/lazy.js memoises a single dynamic import', () => {
     const source = readFileSync(path.join(process.cwd(), 'firebase/lazy.js'), 'utf8');

@@ -152,6 +152,12 @@ Static export gotchas (`/tools/builds/[slug]` learned both the hard way):
   fails on any. One mismatch anywhere makes React discard the server DOM for the whole page.
   `e2e/hydration.spec.js` is the gate: sample routes, three widths, foreign timezone and locale,
   seeded storage, zero React #418/#423/#425.
+- **`router.query` is empty on the first render of any page whose URL can carry a query string.**
+  Next only fills it for an `autoExport` page after mount, so `router.isReady` is `false` and
+  `router.query` is `{}` while the export's markup is being matched. Derive from the router during
+  render (`router.isReady ? router.query.x : fallback`, which re-renders the moment `isReady`
+  flips) or read it in an effect: never seed a `useState` initialiser from it, or a deep link
+  freezes on the fallback while everything that reads the router live moves on without it.
 - **Links must be real anchors to reach a crawler.** A `<Link component="button">` ships no
   `href`. Wiki listings render anchors for every row, including the ones a collapsed band hides.
 - **Firebase and game data load on demand.** `firebase/lazy.js` is the only importer of

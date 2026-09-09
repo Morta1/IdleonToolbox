@@ -73,8 +73,11 @@ const linkProps = (hrefFor, id) => {
   return href ? { href } : { component: 'button', type: 'button' };
 };
 
-const navigateOnPlainClick = (onNavigate, id) => (event) => {
-  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+// Only a row that IS an anchor can be left to the browser: on the fallback button a modified click
+// has nothing to open in a new tab, so bailing out would make it a dead no-op instead of a click.
+const navigateOnPlainClick = (onNavigate, id, hasHref) => (event) => {
+  const modified = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
+  if (hasHref && modified) return;
   event.preventDefault();
   onNavigate(id);
 };
@@ -122,7 +125,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner }) => {
         key={entry.id}
         component={hrefFor?.(entry.id) ? 'a' : 'button'}
         {...(hrefFor?.(entry.id) ? { href: hrefFor(entry.id) } : { type: 'button' })}
-        onClick={navigateOnPlainClick(onNavigate, entry.id)}
+        onClick={navigateOnPlainClick(onNavigate, entry.id, Boolean(hrefFor?.(entry.id)))}
         gap={0.75}
         sx={{
           p: 1,
@@ -155,7 +158,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner }) => {
           variant={'body2'}
           underline={'hover'}
           textAlign={'left'}
-          onClick={navigateOnPlainClick(onNavigate, entry.id)}
+          onClick={navigateOnPlainClick(onNavigate, entry.id, Boolean(hrefFor?.(entry.id)))}
         >
           {entry.label}
         </Link>

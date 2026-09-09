@@ -100,6 +100,8 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
     budget -= group.rows.length;
   }
   const visibleCount = visibleGroups.reduce((sum, group) => sum + group.rows.length, 0);
+  // Same order the budget was spent in, so this is exactly the tail the table left out.
+  const hiddenRows = filtered.flatMap((group) => group.rows).slice(visibleCount);
 
   // Only worth a column when at least one row actually merged several drop tables; on a section
   // where every row is a single path it would be a column of ones.
@@ -231,6 +233,19 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
         </tbody>
       </Box>
     </Box>
+
+    {/* Silver Pen's 198th drop still has to reach the export: this table is the only path a
+        crawler has to it, and the rows past the cap render nothing at all. Text-only anchors, no
+        icons and no cells, so a 248-row section does not request 200 images for a block nobody
+        sees. Removed once the table is expanded past them. */}
+    {hiddenRows.length > 0 ? <Box component={'nav'} aria-hidden sx={{ display: 'none' }}>
+      {hiddenRows.map((row) => {
+        const href = hrefFor?.(row.otherId);
+        return href && row.other.navigable !== false
+          ? <a key={row.key} href={href}>{entityName(row.other)}</a>
+          : null;
+      })}
+    </Box> : null}
 
     {visibleCount < total ? <Link
       component={'button'}

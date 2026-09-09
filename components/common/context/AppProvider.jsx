@@ -122,6 +122,18 @@ export const readStoredState = () => {
   return loadedState;
 };
 
+// Same guard as the read side. A visitor with site data blocked gets a SecurityError from every
+// localStorage touch, and the persist effect runs on the first render of every page (pinnedPages
+// is always supplied), so an unguarded write would reach the root ErrorBoundary and turn the
+// whole site into "The app failed to load".
+export const writeStored = (key, value) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (err) {
+    console.warn(`Failed to write ${key} to localStorage:`, err);
+  }
+};
+
 // Pets page simulation. Only ever applied to the user's own save - a profile view or the demo
 // account must show what that account really has.
 const getOwnAccountParseOptions = () => ({
@@ -217,7 +229,9 @@ const AppProvider = ({ children }) => {
     });
   };
 
-  const logout = async (manualImport, data) => {
+  // clearAuthHint is opt-out for the one caller that is not an actual sign-out: the init effect's
+  // error path, which cannot tell a transient firebase failure from a genuinely anonymous visitor.
+  const logout = async (manualImport, data, { clearAuthHint = true } = {}) => {
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }
@@ -246,7 +260,9 @@ const AppProvider = ({ children }) => {
     localStorage.removeItem('charactersData');
     sessionStorage.removeItem('rawJson');
     dispatch({ type: ACTION_TYPES.LOGOUT });
-    writeAuthHint('no');
+    if (clearAuthHint) {
+      writeAuthHint('no');
+    }
     setWaitingForAuth(false);
 
     if (manualImport) {
@@ -257,8 +273,9 @@ const AppProvider = ({ children }) => {
     await loadEmptyAccount();
   };
 
-  // Declared before the init effect on purpose: React runs mount effects in order, and init
-  // reads state that may have come from storage.
+  // What keeps the init effect from running against DEFAULT_STATE is not this effect's position:
+  // it is init's own `state.storageHydrated` guard plus that flag in its dep array. This effect
+  // dispatches HYDRATE_STORAGE, the flag flips, and init re-runs with the stored values in hand.
   useEffect(() => {
     dispatch({ type: ACTION_TYPES.HYDRATE_STORAGE, data: readStoredState() });
   }, []);
@@ -302,7 +319,12 @@ const AppProvider = ({ children }) => {
         // Skip only on an explicit 'no'. An absent hint on a profile link is a signed-in user's
         // first visit since the hint shipped, and treating that as anonymous would show them
         // "Login" with no way back to their own account.
-        const user = readAuthHint() === 'no' ? null : await (await loadFirebase()).checkUserStatus();
+        const askedFirebase = readAuthHint() !== 'no';
+        const user = askedFirebase ? await (await loadFirebase()).checkUserStatus() : null;
+        // Only on the branch that actually asked, and only ever 'no': nothing subscribes here, so
+        // 'yes' would be a claim this path never verified. Without it a profile link re-downloads
+        // the SDK on every visit for a visitor firebase already said has no session.
+        if (askedFirebase && !user) writeAuthHint('no');
 
         dispatch({
           type: ACTION_TYPES.DATA,
@@ -391,7 +413,11 @@ const AppProvider = ({ children }) => {
       } catch (error) {
         console.error(error);
         dispatch({ type: ACTION_TYPES.SET_LOADING, data: false });
-        logout();
+        // The hint survives this on purpose. Anything can land here: a blocked SDK download, an
+        // offline first paint, a firebase outage. 'no' means firebase itself reported no user, and
+        // writing it from a failure would permanently mark a signed-in visitor anonymous, so every
+        // later visit would skip the SDK and show them Login with no way back to their account.
+        logout(undefined, undefined, { clearAuthHint: false });
       }
     };
 
@@ -422,26 +448,26 @@ const AppProvider = ({ children }) => {
     if (!state.storageHydrated) return;
 
     if (state?.filters) {
-      localStorage.setItem('filters', JSON.stringify(state.filters));
+      writeStored('filters', state.filters);
     }
     if (state?.pinnedPages) {
-      localStorage.setItem('pinnedPages', JSON.stringify(state.pinnedPages));
+      writeStored('pinnedPages', state.pinnedPages);
     }
     if (state?.displayedCharacters) {
-      localStorage.setItem('displayedCharacters', JSON.stringify(state.displayedCharacters));
+      writeStored('displayedCharacters', state.displayedCharacters);
     }
     if (state?.planner) {
-      localStorage.setItem('planner', JSON.stringify(state.planner));
+      writeStored('planner', state.planner);
     }
     if (state?.trackers) {
-      localStorage.setItem('trackers', JSON.stringify(state.trackers));
+      writeStored('trackers', state.trackers);
     }
     if (state?.godPlanner) {
-      localStorage.setItem('godPlanner', JSON.stringify(state.godPlanner));
+      writeStored('godPlanner', state.godPlanner);
     }
     if (state?.manualImport) {
-      localStorage.setItem('manualImport', JSON.stringify(state.manualImport));
-      const lastUpdated = JSON.parse(localStorage.getItem('lastUpdated'));
+      writeStored('manualImport', state.manualImport);
+      const { lastUpdated = null } = readStoredState();
       if (state?.signedIn) {
         logout(true, { ...state, lastUpdated, signedIn: false, manualImport: true });
       }
