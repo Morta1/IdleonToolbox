@@ -7,6 +7,7 @@ import { geAppleStatus } from '../../../services/auth/apple';
 import { getProfile } from '../../../services/profiles';
 import { setRawJson } from '@utility/helpers';
 import { errorMessage, trackEvent } from '@utility/analytics';
+import { readAuthHint, writeAuthHint } from '@utility/auth-hint';
 import { readLocalStorageValue } from '@mantine/hooks';
 import { simulatedCompanionsKey } from '@components/constants';
 
@@ -237,6 +238,7 @@ const AppProvider = ({ children }) => {
     localStorage.removeItem('charactersData');
     sessionStorage.removeItem('rawJson');
     dispatch({ type: ACTION_TYPES.LOGOUT });
+    writeAuthHint('no');
     setWaitingForAuth(false);
 
     if (manualImport) {
@@ -283,8 +285,10 @@ const AppProvider = ({ children }) => {
 
         localStorage.setItem('manualImport', 'false');
         const lastUpdated = parsedData?.lastUpdated || new Date().getTime();
-        const { checkUserStatus } = await loadFirebase();
-        const user = await checkUserStatus();
+        // Skip only on an explicit 'no'. An absent hint on a profile link is a signed-in user's
+        // first visit since the hint shipped, and treating that as anonymous would show them
+        // "Login" with no way back to their own account.
+        const user = readAuthHint() === 'no' ? null : await (await loadFirebase()).checkUserStatus();
 
         dispatch({
           type: ACTION_TYPES.DATA,
@@ -352,11 +356,21 @@ const AppProvider = ({ children }) => {
 
     const handleUnauthenticatedUser = async () => {
       try {
+        // 'no' is only ever written after firebase itself reported no session, or on logout, so
+        // a visitor carrying it has nothing to restore and skips the SDK download entirely.
+        // Absent is undecided: ask firebase, which also covers everyone signed in before the
+        // hint existed.
+        if (readAuthHint() === 'no') {
+          await loadEmptyAccount();
+          return;
+        }
         const { checkUserStatus, subscribe } = await loadFirebase();
         const user = await checkUserStatus();
+        if (!user) writeAuthHint('no');
         if (!state?.account && user) {
           const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
           unsubscribeRef.current = unsub;
+          writeAuthHint('yes');
         } else {
           await loadEmptyAccount();
         }
@@ -486,7 +500,8 @@ const AppProvider = ({ children }) => {
           const { subscribe } = await loadFirebase();
           const unsub = await subscribe(uid, accessToken || id_token?.id_token, handleCloudUpdate);
           unsubscribeRef.current = unsub;
-          
+          writeAuthHint('yes');
+
           if (typeof window?.gtag !== 'undefined') {
             window.gtag('event', 'login', {
               action: 'login',

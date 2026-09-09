@@ -34,3 +34,29 @@ test('a wiki entity page references no firebase chunk', async ({ request }) => {
   const scripts = await referencedScripts(request, firstWikiEntityRoute());
   expect(offenders(scripts, FIREBASE_MARKER)).toEqual([]);
 });
+
+const loadedScriptUrls = (page) => page.evaluate(() =>
+  performance.getEntriesByType('resource').map((entry) => entry.name).filter((name) => name.endsWith('.js')));
+
+const loadedScripts = async (page, request) => {
+  const urls = await loadedScriptUrls(page);
+  return Promise.all(urls.map(async (url) => ({ src: url, body: await (await request.get(url)).text() })));
+};
+
+test.describe('firebase loads only when a session might exist', () => {
+  test('a visitor whose last visit had no session never downloads firebase', async ({ page, request }) => {
+    await page.addInitScript(() => localStorage.setItem('authHint', 'no'));
+    await page.goto('/');
+    await waitForRender(page);
+    // Give a wrongly-triggered dynamic import time to show up before reading the resource list.
+    await page.waitForTimeout(1500);
+    expect(offenders(await loadedScripts(page, request), FIREBASE_MARKER)).toEqual([]);
+  });
+
+  test('an undecided visitor downloads firebase once and is then marked as having no session', async ({ page, request }) => {
+    await page.goto('/');
+    await waitForRender(page);
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('authHint'))).toBe('no');
+    expect(offenders(await loadedScripts(page, request), FIREBASE_MARKER).length).toBeGreaterThan(0);
+  });
+});
