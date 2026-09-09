@@ -16,6 +16,7 @@ import {
 import Tabber from '../components/common/Tabber';
 import LeaderboardSection from '../components/Leaderboard';
 import React, { useContext, useEffect, useState } from 'react';
+import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { fetchLeaderboard, fetchUserLeaderboards } from '../services/profiles';
@@ -48,12 +49,10 @@ const Leaderboards = () => {
   const [selectedTab, setSelectedTab] = useState(t?.toLowerCase() || 'global');
   const [loadingSearchedChar, setLoadingSearchedChar] = useState(false);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
-  // Read in an effect, not in the initialiser: the export renders with `true`, and a first
-  // client render that read storage would disagree with it for anyone who switched it off.
-  const [showAnonymous, setShowAnonymous] = useState(true);
-  useEffect(() => {
-    setShowAnonymous(localStorage.getItem('leaderboard:showAnonymous') !== 'false');
-  }, []);
+  // Mantine reads storage in an effect (getInitialValueInEffect is the default), so the export and
+  // the first client render both show the default, and anyone who switched anonymous rows off
+  // gets their setting one render later: no hydration mismatch, no hand-rolled effect.
+  const [showAnonymous, setShowAnonymous] = useLocalStorage({ key: 'leaderboard:showAnonymous', defaultValue: true });
   const queryClient = useQueryClient();
 
   const searchUserAndAppend = (data, username, userStats, { isLoggedUser } = {}) => {
@@ -261,9 +260,7 @@ const Leaderboards = () => {
     <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
       <FormControlLabel
         control={<Switch checked={showAnonymous} onChange={() => {
-          const next = !showAnonymous;
-          setShowAnonymous(next);
-          localStorage.setItem('leaderboard:showAnonymous', String(next));
+          setShowAnonymous(!showAnonymous);
         }} />}
         label="Show anonymous players"
       />
