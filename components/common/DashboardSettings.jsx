@@ -91,7 +91,7 @@ const DashboardSettings = ({
   hideAlertless,
   onHideAlertlessChange
 }) => {
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
+  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   // Null unless the modal was opened by clicking a dashboard alert.
   const resolvedTarget = resolveSettingsTarget(config, target?.configType, target?.path);
   const [selectedTab, setSelectedTab] = useState(0);

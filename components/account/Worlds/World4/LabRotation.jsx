@@ -24,7 +24,7 @@ import { getRequirementAmount } from '@parsers/world-4/lab';
 const LabRotation = () => {
   const { state } = useContext(AppContext);
   const formatDate = useFormatDate();
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
+  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const [value, setValue] = useState([]);
   const [weeks, setWeeks] = useState(10);
   const [chipThreshold, setChipThreshold] = useState(0);

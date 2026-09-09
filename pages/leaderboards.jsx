@@ -30,7 +30,7 @@ const tabs = ['Global', 'General', 'Tasks', 'Skills', 'Character', 'Misc', 'Cave
 const Leaderboards = () => {
   const { state } = useContext(AppContext);
   const formatDate = useFormatDate();
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
+  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const loggedMainChar = state?.characters?.[0]?.name;
   const [loggedLeaderboardName, setLoggedLeaderboardName] = useState(loggedMainChar);
   useEffect(() => {

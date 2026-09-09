@@ -20,7 +20,7 @@ const Tabber = ({
                   keepChildren,
                   activeTab
                 }) => {
-  const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
+  const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const router = useRouter();
 
   // Pages that render their own content off the tab index read the same hook, so the strip and

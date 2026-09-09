@@ -6,7 +6,7 @@ import useAdBlockDetection from './useAdBlockDetection';
  * reserves the gutter the fixed-positioned rail sits in - the two must never disagree.
  */
 const useSidebarAd = () => {
-  const wideEnough = useMediaQuery('(min-width: 850px)', { noSsr: true });
+  const wideEnough = useMediaQuery('(min-width: 850px)');
   const adBlocked = useAdBlockDetection();
 
   return wideEnough && !adBlocked;

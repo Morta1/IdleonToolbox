@@ -39,7 +39,7 @@ const filterOptions = createFilterOptions({
 });
 const MaterialTracker = () => {
   const { state } = useContext(AppContext);
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
+  const isSm = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const [value, setValue] = useState([]);
   const [includeNearly, setIncludeNearly] = useState(false);
   const [bounds, setBounds] = useState({ lowerBound: '', upperBound: '' });

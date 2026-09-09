@@ -11,7 +11,7 @@ const AbilityTypes = {
 }
 
 const Territory = ({ territories, spices }) => {
-  const breakpoint = useMediaQuery('(max-width: 1500px)', { noSsr: true });
+  const breakpoint = useMediaQuery('(max-width: 1500px)');
 
   return (
     <Container maxWidth={'xl'}>

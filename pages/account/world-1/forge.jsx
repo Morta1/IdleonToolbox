@@ -15,7 +15,7 @@ const slot = {
 
 const Forge = () => {
   const { state } = useContext(AppContext);
-  const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
+  const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const getCost = (level, costMulti) => {
     if (!costMulti) {
       // this is forge slots, has it's own math.

@@ -5,7 +5,7 @@ import ItemDisplay from '../common/ItemDisplay';
 import { Card, CardContent, Divider, Stack, Typography, useMediaQuery } from '@mui/material';
 
 const Bags = ({ bags, capBags }) => {
-  const isXs = useMediaQuery('(max-width: 370px)', { noSsr: true });
+  const isXs = useMediaQuery('(max-width: 370px)');
 
   return (
     <Card variant={'outlined'} sx={{height:'fit-content'}}>

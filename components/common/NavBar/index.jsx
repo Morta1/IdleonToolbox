@@ -9,7 +9,7 @@ import AppDrawer from './AppDrawer';
 import { drawerWidth, navBarHeight } from '../../constants';
 import { useRouter } from 'next/router';
 import { shouldDisplayDrawer } from '@utility/helpers';
-import { Link, Stack, Typography, useMediaQuery } from '@mui/material';
+import { Link, Stack, Typography } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import AdBlockerPopup from '@components/common/AdBlockerPopup';
 import Pin from '@components/common/favorites/Pin';
@@ -30,7 +30,6 @@ import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 const NavBar = ({ children }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
-  const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const displayDrawer = shouldDisplayDrawer(router?.pathname);
   const pathname = router?.pathname || '';
   const isHomePage = pathname === '/' || pathname === '';

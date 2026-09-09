@@ -55,7 +55,7 @@ import { getAchievementStatus } from '@parsers/achievements';
 const bargainOptions = [0, 25, 43.75, 57.81, 68.36, 76.27, 82.20, 86.65, 90];
 const Bubbles = () => {
   const router = useRouter();
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
+  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const { state } = useContext(AppContext);
   const [viewMode, setViewMode] = useLocalStorage({
     key: `bubbles:viewMode`,

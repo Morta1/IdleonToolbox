@@ -18,7 +18,7 @@ const NavItemsList = ({ drawer }) => {
   const router = useRouter();
   const updateQuery = sessionQuery(router?.query);
   const [openItems, setOpenItems] = useState({});
-  const isXs = useMediaQuery((theme) => theme.breakpoints.down('lg'), { noSsr: true });
+  const isXs = useMediaQuery((theme) => theme.breakpoints.down('lg'));
   const toggleOpen = (key) => {
     setOpenItems((prev) => ({
       ...prev,

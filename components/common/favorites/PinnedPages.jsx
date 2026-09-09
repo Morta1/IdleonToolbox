@@ -33,7 +33,7 @@ const isValidPins = (data) => Array.isArray(data)
   && data.every((page) => page && typeof page.name === 'string' && typeof page.url === 'string');
 
 const PinnedPages = ({}) => {
-  const isXs = useMediaQuery((theme) => theme.breakpoints.down('lg'), { noSsr: true });
+  const isXs = useMediaQuery((theme) => theme.breakpoints.down('lg'));
   const [isOpen, setIsOpen] = useState(false);
   const [result, setResult] = useState(null);
   const { pinnedPages, removePin, reorderPins, setPins } = usePin();

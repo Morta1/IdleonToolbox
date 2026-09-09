@@ -7,7 +7,7 @@ import { useMediaQuery } from '@mui/material';
 
 const FileUploadButton = ({ children, onFileUpload }) => {
   const fileInputRef = useRef(null);
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
+  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
 
   const handleFileChange = (event) => {

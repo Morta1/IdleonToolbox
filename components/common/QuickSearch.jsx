@@ -29,9 +29,9 @@ const QuickSearch = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef(null);
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
-  const isMd = useMediaQuery((theme) => theme.breakpoints.down('lg'), { noSsr: true });
-  const breakpoint = useMediaQuery('(max-width: 1365px)', { noSsr: true });
+  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+  const isMd = useMediaQuery((theme) => theme.breakpoints.down('lg'));
+  const breakpoint = useMediaQuery('(max-width: 1365px)');
   const router = useRouter();
   const updateQuery = sessionQuery(router?.query);
 

@@ -8,8 +8,7 @@ import {
   AccordionSummary,
   Container,
   Stack,
-  Typography,
-  useMediaQuery
+  Typography
 } from '@mui/material';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import { useTheme } from '@emotion/react';
@@ -29,6 +28,13 @@ import { NextSeo } from 'next-seo';
 import Kofi from '@components/common/Kofi';
 import StructuredData, { createFAQData } from '@components/common/StructuredData';
 import { HomeSidebarAds } from '@components/common/Ads/AdUnit';
+
+// The hero's own breakpoints, not the theme's: the two-column layout needs 1246px, and the
+// extra top margin only helps on very wide screens. Media keys in sx keep the export and the
+// first client render identical; a useMediaQuery here rendered `false` at build and the real
+// value on the client, which is a hydration mismatch on every phone.
+const WIDE = '@media (min-width: 1246px)';
+const ULTRA_WIDE = '@media (min-width: 1921px)';
 
 // Rendered both as visible page content and as FAQPage structured data, so the two can't drift apart.
 const faqs = [
@@ -58,8 +64,6 @@ const Home = () => {
   const { state } = useContext(AppContext);
   const theme = useTheme();
   const [indexes] = useState(() => getRandomNumbersArray(6, 6));
-  const breakpoint = useMediaQuery('(max-width: 1245px)', { noSsr: true });
-  const breakpointLg = useMediaQuery('(min-width: 1921px)', { noSsr: true });
   const [bgIndex, setBgIndex] = useState(0);
   const [loginOpen, setLoginOpen] = useState(false);
   const [pathIndex, setPathIndex] = useState(0);
@@ -95,10 +99,13 @@ const Home = () => {
       <StructuredData data={faqData}/>
       <HomeSidebarAds/>
 
-      <Stack mt={breakpointLg ? 5 : breakpoint ? 1 : 1} direction={'row'} flexWrap={'wrap'}
-             sx={{ textAlign: breakpoint ? 'center' : 'inherit' }}
-             gap={breakpoint ? 6 : 2}>
-        <Stack sx={{ width: breakpoint ? '100%' : '50%' }}>
+      <Stack direction={'row'} flexWrap={'wrap'}
+             sx={{
+               mt: 1, textAlign: 'center', gap: 6,
+               [WIDE]: { textAlign: 'inherit', gap: 2 },
+               [ULTRA_WIDE]: { mt: 5 }
+             }}>
+        <Stack sx={{ width: '100%', [WIDE]: { width: '50%' } }}>
           <Typography style={{ fontWeight: 400 }} variant={'h1'}>
             Idleon Toolbox
           </Typography>
@@ -106,7 +113,8 @@ const Home = () => {
             Idleon
             adventure with Idleon Toolbox&#39;s essential tools and resources for optimizing gameplay, character builds,
             crafting, and more.</Typography>
-          <Stack direction={'row'} mt={3} gap={3} flexWrap={'wrap'} justifyContent={breakpoint ? 'center' : 'inherit'}>
+          <Stack direction={'row'} mt={3} gap={3} flexWrap={'wrap'}
+                 sx={{ justifyContent: 'center', [WIDE]: { justifyContent: 'inherit' } }}>
             {(state?.signedIn || state?.profile || state?.demo || state?.manualImport)
               ? <Button variant={'contained'} size={'medium'} startIcon={<IconLayoutDashboard/>}
                         component={NextLinkComposed} to={{ pathname: '/dashboard' }}>
@@ -123,12 +131,15 @@ const Home = () => {
             <Kofi/>
           </Stack>
         </Stack>
-        <Stack sx={{ width: breakpoint ? '100%' : 'inherit' }} justifyContent={breakpoint ? 'flex-start' : 'center'}>
+        <Stack sx={{
+          width: '100%', justifyContent: 'flex-start',
+          [WIDE]: { width: 'inherit', justifyContent: 'center' }
+        }}>
           {/* Aspect box rather than a fixed height: every rotation paints at exactly the same size
               (the source PNGs differ by a pixel in height), the phone layout shows the whole image
               instead of a side-cropped one, and the dead space the fixed 310px left under the
               image on narrow screens is gone. */}
-          <Box sx={{ width: breakpoint ? '100%' : 550, aspectRatio: '1200 / 674', position: 'relative' }}>
+          <Box sx={{ width: '100%', [WIDE]: { width: 550 }, aspectRatio: '1200 / 674', position: 'relative' }}>
             <MotionConfig transition={{ duration: .8 }}>
               <AnimatePresence>
                 {indexes.map((_, index) => {
@@ -158,9 +169,9 @@ const Home = () => {
           </Box>
         </Stack>
       </Stack>
-      <motion.div style={{ marginTop: breakpoint ? 0 : 80, marginBottom: 15 }} transition={{ duration: .8 }}
-                  initial={{ y: 50, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}>
+      <PatchNotesSection transition={{ duration: .8 }}
+                         initial={{ y: 50, opacity: 0 }}
+                         animate={{ y: 0, opacity: 1 }}>
         <Typography variant={'h4'} mt={2}>IT Patch Notes</Typography>
         <Link to={{ pathname: '/patch-notes' }}
               onMouseEnter={() => handleAnimation(true)}
@@ -177,7 +188,7 @@ const Home = () => {
         </svg>
         </Link>
         <PatchNotes patchNotes={patchNotes.slice(0, 3)}/>
-      </motion.div>
+      </PatchNotesSection>
       <Box sx={{ mt: 6, mb: 2 }} component={'section'}>
         <Typography variant={'h4'} mb={2}>Frequently Asked Questions</Typography>
         {faqs.map(({ question, answer }, index) => {
@@ -224,6 +235,17 @@ const DiscordButton = styled(Button)`
 
   &:hover {
     background-color: hsl(235 51.4% 52.4%);
+  }
+`
+
+// Inline style can't hold a media query, so the wide-screen top margin lives in CSS instead of
+// a useMediaQuery-driven style object: the export and the first client render stay identical.
+const PatchNotesSection = styled(motion.div)`
+  margin-top: 0;
+  margin-bottom: 15px;
+
+  ${WIDE} {
+    margin-top: 80px;
   }
 `
 
