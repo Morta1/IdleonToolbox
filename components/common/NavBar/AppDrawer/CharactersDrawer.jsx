@@ -41,15 +41,20 @@ const CharactersDrawer = () => {
     [name]: false
   }), {}));
 
-  // Re-sync the local checkbox state whenever the saved selection or the character roster changes
-  // (e.g. a newly created 11th character) — React's recommended "adjust state during render" pattern.
+  // Re-sync the local checkbox and chip state whenever the saved selection, the saved filters or
+  // the character roster changes (a newly created 11th character, or storage landing one render
+  // after mount): React's recommended "adjust state during render" pattern.
   const [syncSource, setSyncSource] = useState({
     displayed: state?.displayedCharacters,
-    length: state?.characters?.length
+    length: state?.characters?.length,
+    filters: state?.filters
   });
-  if (syncSource.displayed !== state?.displayedCharacters || syncSource.length !== state?.characters?.length) {
-    setSyncSource({ displayed: state?.displayedCharacters, length: state?.characters?.length });
+  if (syncSource.displayed !== state?.displayedCharacters
+    || syncSource.length !== state?.characters?.length
+    || syncSource.filters !== state?.filters) {
+    setSyncSource({ displayed: state?.displayedCharacters, length: state?.characters?.length, filters: state?.filters });
     setChecked(reconcileDisplayedCharacters(state?.displayedCharacters, state?.characters?.length));
+    if (state?.filters) setSelectedChips(state.filters);
   }
 
   // Persist the backfilled selection to global state so the characters page also includes new

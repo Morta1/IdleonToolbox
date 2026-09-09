@@ -13,7 +13,7 @@ import { simulatedCompanionsKey } from '@components/constants';
 
 export const AppContext = createContext({});
 
-const ACTION_TYPES = {
+export const ACTION_TYPES = {
   LOGIN: 'login',
   DATA: 'data',
   LOGOUT: 'logout',
@@ -27,10 +27,11 @@ const ACTION_TYPES = {
   SHOW_RANK_ONE_ONLY: 'showRankOneOnly',
   SHOW_UNMAXED_BOXES_ONLY: 'showUnmaxedBoxesOnly',
   SET_LOADING: 'setLoading',
-  SETTINGS: 'settings'
+  SETTINGS: 'settings',
+  HYDRATE_STORAGE: 'hydrateStorage'
 };
 
-function appReducer(state, action) {
+export function appReducer(state, action) {
   const actionHandlers = {
     [ACTION_TYPES.LOGIN]: () => ({ ...state, ...action.data }),
     [ACTION_TYPES.DATA]: () => ({ ...state, ...action.data }),
@@ -38,17 +39,22 @@ function appReducer(state, action) {
     // spreading state and naming the account keys to clear missed loginType/loginData, which the
     // auth poll below reads whenever waitingForAuth is set. Both login components arm that flag
     // before their fresh credentials arrive, so a second sign-in re-subscribed with the previous
-    // user's uid and token. A whitelist drops any future session key by default.
+    // user's uid and token. A whitelist drops any future session key by default. storageHydrated
+    // rides along too: dropping it would make the persist effect skip every write after a logout.
     [ACTION_TYPES.LOGOUT]: () => {
       const { filters, pinnedPages, displayedCharacters, trackers, godPlanner, planner, settings,
-        showRankOneOnly, showUnmaxedBoxesOnly } = state;
+        showRankOneOnly, showUnmaxedBoxesOnly, storageHydrated } = state;
       return {
         filters, pinnedPages, displayedCharacters, trackers, godPlanner, planner, settings,
         showRankOneOnly, showUnmaxedBoxesOnly,
+        storageHydrated,
         signedIn: false,
         isLoading: false
       };
     },
+    // localStorage is merged in an effect, never during render, so the build and the first
+    // client render start from the same constant. This is the merge.
+    [ACTION_TYPES.HYDRATE_STORAGE]: () => ({ ...state, ...action.data, storageHydrated: true }),
     [ACTION_TYPES.DISPLAYED_CHARACTERS]: () => ({ ...state, displayedCharacters: action.data }),
     [ACTION_TYPES.FILTERS]: () => ({ ...state, filters: action.data }),
     [ACTION_TYPES.PINNED_PAGES]: () => ({ ...state, pinnedPages: action.data }),
@@ -82,15 +88,21 @@ const STORAGE_KEYS = [
   'settings'
 ];
 
-function init() {
-  if (typeof window === 'undefined') return {};
+// Identical on the build machine and on the client. Anything that only the client can know
+// (localStorage) is merged by HYDRATE_STORAGE in an effect. storageHydrated is what the init and
+// persist effects wait for.
+export const DEFAULT_STATE = {
+  showRankOneOnly: false,
+  showUnmaxedBoxesOnly: false,
+  isLoading: true,
+  pinnedPages: [],
+  storageHydrated: false
+};
 
-  const defaultState = {
-    showRankOneOnly: false,
-    showUnmaxedBoxesOnly: false,
-    isLoading: true
-  };
-
+// Runs only inside an effect: reading storage during render would make the first client
+// render differ from the export, which React reports as a hydration mismatch and answers by
+// re-rendering the whole page client-side.
+export const readStoredState = () => {
   const loadedState = STORAGE_KEYS.reduce((state, key) => {
     try {
       const value = localStorage.getItem(key);
@@ -107,11 +119,8 @@ function init() {
     loadedState.pinnedPages = [];
   }
 
-  return {
-    ...defaultState,
-    ...loadedState
-  };
-}
+  return loadedState;
+};
 
 // Pets page simulation. Only ever applied to the user's own save - a profile view or the demo
 // account must show what that account really has.
@@ -120,12 +129,11 @@ const getOwnAccountParseOptions = () => ({
 });
 
 const AppProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(appReducer, {}, init);
+  const [state, dispatch] = useReducer(appReducer, DEFAULT_STATE);
   const router = useRouter();
   const [authCounter, setAuthCounter] = useState(0);
   const [waitingForAuth, setWaitingForAuth] = useState(false);
   const unsubscribeRef = useRef(null);
-  const isInitializedRef = useRef(false);
 
   const handleCloudUpdate = async (
     data, 
@@ -249,8 +257,14 @@ const AppProvider = ({ children }) => {
     await loadEmptyAccount();
   };
 
+  // Declared before the init effect on purpose: React runs mount effects in order, and init
+  // reads state that may have come from storage.
   useEffect(() => {
-    if (!router.isReady) return;
+    dispatch({ type: ACTION_TYPES.HYDRATE_STORAGE, data: readStoredState() });
+  }, []);
+
+  useEffect(() => {
+    if (!router.isReady || !state.storageHydrated) return;
 
     const handleProfile = async () => {
       try {
@@ -400,13 +414,12 @@ const AppProvider = ({ children }) => {
         unsubscribeRef.current();
       }
     };
-  }, [router.isReady]);
+  }, [router.isReady, state.storageHydrated]);
 
   useEffect(() => {
-    if (!isInitializedRef.current) {
-      isInitializedRef.current = true;
-      return;
-    }
+    // Nothing to persist until storage has been merged in: before that, every value here is
+    // DEFAULT_STATE, and writing it would wipe what the visitor saved.
+    if (!state.storageHydrated) return;
 
     if (state?.filters) {
       localStorage.setItem('filters', JSON.stringify(state.filters));
