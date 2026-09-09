@@ -3,7 +3,7 @@ import { cleanUnderscore, growth, notateNumber, numberWithCommas, prefix } from 
 import { Badge, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import Tooltip from '../Tooltip';
-import { calcCardBonus } from 'parsers/cards';
+import { calcCardBonus } from 'parsers/cardMath';
 
 export const IconWithText = forwardRef((props, ref) => {
   const { stat, icon, img, title = '', ...rest } = props

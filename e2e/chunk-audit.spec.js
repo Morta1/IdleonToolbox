@@ -35,6 +35,11 @@ test('a wiki entity page references no firebase chunk', async ({ request }) => {
   expect(offenders(scripts, FIREBASE_MARKER)).toEqual([]);
 });
 
+test('a wiki entity page references no game-data items chunk', async ({ request }) => {
+  const scripts = await referencedScripts(request, firstWikiEntityRoute());
+  expect(offenders(scripts, ITEMS_MARKER)).toEqual([]);
+});
+
 const loadedScriptUrls = (page) => page.evaluate(() =>
   performance.getEntriesByType('resource').map((entry) => entry.name).filter((name) => name.endsWith('.js')));
 
