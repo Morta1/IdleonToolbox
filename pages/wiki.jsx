@@ -3,10 +3,8 @@ import { useRouter } from 'next/router';
 import { Box, Card, CardActionArea, Stack, Typography } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import { sessionQuery } from '@utility/nav-query';
-import { KIND_PLURALS } from '@components/wiki/EntityPanel';
 import CategoryTiles from '@components/wiki/CategoryTiles';
 import WikiRail from '@components/wiki/WikiRail';
-import { hasListing } from '@utility/wiki/kinds.mjs';
 import SimpleLoader from '@components/common/SimpleLoader';
 
 const Wiki = () => {
@@ -88,21 +86,8 @@ const Wiki = () => {
   </WikiRail>;
 };
 
-export const getStaticProps = async () => {
-  const { staticGraph } = await import('@utility/wiki/static-graph.mjs');
-  const { graph } = staticGraph();
-  const kinds = [...new Set(Object.values(graph.nodes).filter((n) => n.navigable !== false).map((n) => n.kind))]
-    .filter(hasListing);
-  return {
-    props: {
-      // The category pages, so a crawler landing on /wiki has somewhere to go. Each of those then
-      // lists its whole category, which is how the entity pages are reached.
-      // The label, not the bare kind: this is the anchor text a crawler reads for the links that
-      // lead to every entity page.
-      crawlLinks: kinds.map((kind) => ({ h: `/wiki/${kind}`, t: KIND_PLURALS[kind] || kind })),
-      crawlHeading: 'Wiki categories'
-    }
-  };
-};
+// No getStaticProps: the category links a crawler follows from here are WikiRail's own anchors,
+// which every wiki page renders. They are hidden below md by CSS, not by a condition, so they are
+// in the exported markup either way.
 
 export default Wiki;

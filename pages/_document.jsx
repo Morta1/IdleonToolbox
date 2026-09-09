@@ -7,9 +7,9 @@ export default class MyDocument extends Document {
   render() {
     // No <title> or <meta name="description"> here on purpose. Both used to live in this file,
     // because next/head was dropping <title> and the whole site shipped untitled. next/head no
-    // longer drops it (the exported tag carries data-next-head), and _app declares both above
-    // its <WaitForRouter> gate instead, so they reach the export and stay correct across
-    // client-side navigation.
+    // longer drops it (the exported tag carries data-next-head), and _app declares both in its
+    // own <Head> instead, where next/head can dedupe them against the page's <NextSeo> copy and
+    // they stay correct across client-side navigation.
     //
     // A tag written here is outside next/head's control, so it cannot be deduped against the
     // page's own <NextSeo> copy: two <title> tags, and a description that froze at the landing

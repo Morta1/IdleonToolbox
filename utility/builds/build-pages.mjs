@@ -52,25 +52,6 @@ export function assertNoSlugCollisions(classSlugs, buildSlugs) {
   }
 }
 
-// -- Crawlable link lists ----------------------------------------------------
-//
-// Rendered above the router gate (components/common/CrawlLinks.jsx), which is the only way a
-// link reaches the exported HTML. Short keys because this ships in __NEXT_DATA__ on every page
-// that has one.
-//
-// Known gap: fetchAllBuildsAtBuildTime memoises per process, and Next forks workers for static
-// generation, so a page's getStaticProps can see a build that getStaticPaths never exported a
-// page for. The sitemap defends against this (pruneUnexportedBuilds); these links cannot, because
-// they are baked in before out/ exists. The window is one build published mid-build, and the next
-// deploy clears it.
-
-export const buildCrawlLink = (build) => ({
-  h: buildStaticHref(build),
-  t: `${(build.subclass || build.class || '').replace(/_/g, ' ')} — ${build.title}`
-});
-
-export const classCrawlLink = (slug, label) => ({ h: `/tools/builds/${slug}`, t: label });
-
 // -- Metadata ----------------------------------------------------------------
 
 export function toBuildSummary(build) {

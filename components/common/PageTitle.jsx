@@ -16,9 +16,7 @@ const ALREADY_HAS_H1 = new Set([
   '/tools/builds/view'
 ]);
 
-// Must stay identical to the heading PreHydrationLoader paints above the gate: that copy is the
-// page's largest paint, and this one replaces it on hydration. If this grew larger, LCP would
-// re-anchor to the post-hydration paint and the shell would have bought nothing.
+// One size for the page h1 wherever it is drawn, in NavBar or by a page with its own heading.
 export const PAGE_H1_SX = { fontSize: 24, fontWeight: 600, m: 0, whiteSpace: 'nowrap' };
 
 const PageTitle = () => {

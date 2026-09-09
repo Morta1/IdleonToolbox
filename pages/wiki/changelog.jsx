@@ -80,12 +80,7 @@ export const getStaticProps = async () => {
 
   return {
     props: {
-      versions,
-      // Nothing below WaitForRouter reaches the static export, so the entity links only survive
-      // as crawl links rendered above the gate.
-      crawlLinks: versions.flatMap(({ kinds }) => kinds.flatMap(({ entries }) => entries
-        .map((entry) => ({ h: `/wiki/${entry.kind}/${entry.slug}`, t: entry.name })))),
-      crawlHeading: 'Entities changed by game version'
+      versions
     }
   };
 };

@@ -96,9 +96,7 @@ export const getStaticProps = async ({ params }) => {
       kind: params.kind,
       entries,
       seoTitle: `${plural} | Idleon Toolbox`,
-      seoDescription: `Every one of the ${entries.length.toLocaleString('en-US')} ${plural.toLowerCase()} in Legends of Idleon, and what each one connects to.`,
-      crawlLinks: entries.map((entry) => ({ h: `/wiki/${entry.node.kind}/${entry.node.slug}`, t: entry.label })),
-      crawlHeading: `${plural} in Legends of Idleon`
+      seoDescription: `Every one of the ${entries.length.toLocaleString('en-US')} ${plural.toLowerCase()} in Legends of Idleon, and what each one connects to.`
     }
   };
 };

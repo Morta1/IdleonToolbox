@@ -28,8 +28,9 @@ export const useReportPageLoading = (isLoading) => {
   const { setLoading } = useContext(PageLoadingContext);
 
   // useLayoutEffect, not useEffect: with useEffect the collapse lands a frame after the loader
-  // paints, so the loader is briefly visible still off-centre. WaitForRouter means none of this
-  // renders on the server, so there is no SSR mismatch to worry about.
+  // paints, so the loader is briefly visible still off-centre. React 19 does not warn about
+  // useLayoutEffect during a server render, and the initial state is false on both sides, so
+  // there is no mismatch.
   useLayoutEffect(() => {
     setLoading(isLoading);
     return () => setLoading(false);

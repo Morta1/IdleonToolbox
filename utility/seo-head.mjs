@@ -2,9 +2,10 @@
 // <Head> renders all three and a page's own <NextSeo> re-renders them after hydration - the two
 // must not disagree about what a page is called or whether it may be indexed.
 //
-// Nothing below <WaitForRouter> in _app renders during `next build`, so every page's own
-// <NextSeo> is absent from the exported HTML. _app rebuilds the tags from PAGE_SEO, keyed by
-// route pattern, overridden by whatever the page put in static props.
+// A data page renders DataLoadingWrapper's loader during `next build`, so its own <NextSeo>
+// never runs and its title is absent from the exported HTML; on every page the title would also
+// blank for a moment during hydration before NextSeo restored it. _app rebuilds the tags from
+// PAGE_SEO, keyed by route pattern, overridden by whatever the page put in static props.
 //
 // The canonical URL is deliberately not here: it comes from asPath, so that it follows
 // client-side navigation - which a value resolved from build-time props cannot do.

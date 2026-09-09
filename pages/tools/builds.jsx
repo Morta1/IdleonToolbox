@@ -5,7 +5,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import BuildsBrowser, { INITIAL_FILTERS } from '@components/tools/builds/BuildsBrowser';
 import { listBuilds } from 'services/builds';
 import { fetchAllBuildsAtBuildTime } from '@utility/builds/static-fetch.mjs';
-import { buildCrawlLink, classCrawlLink, staticIdSet } from '@utility/builds/build-pages.mjs';
+import { staticIdSet } from '@utility/builds/build-pages.mjs';
 import { classToSlug } from '@utility/builds/class-paths.mjs';
 import { CLASS_KEYS } from '@utility/builds/classes';
 import { filterAndSortBuilds } from '@utility/builds/filter-builds';
@@ -66,14 +66,7 @@ export function getBuildsLandingStaticProps(builds) {
   );
   return {
     props: {
-      initialBuilds: all,
-      // The hub is the index the rest of the section hangs off: every class page and every build
-      // page is one hop from here for a crawler that never runs JS.
-      crawlHeading: 'Idleon builds by class',
-      crawlLinks: [
-        ...CLASS_KEYS.map((key) => classCrawlLink(classToSlug(key), key.replace(/_/g, ' '))),
-        ...all.map(buildCrawlLink)
-      ]
+      initialBuilds: all
     }
   };
 }
