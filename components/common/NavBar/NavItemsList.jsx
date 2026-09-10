@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { NextLinkComposed } from '../NextLinkComposed';
 import { drawerWidth, navItems } from '../../constants';
 import { useRouter } from 'next/router';
-import { Collapse, List, ListItem, ListItemButton, ListItemText, Stack, useMediaQuery } from '@mui/material';
+import { Collapse, List, ListItem, ListItemButton, ListItemText, Stack } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import PinnedPages from '@components/common/favorites/PinnedPages';
 import AccountDrawer from '@components/common/NavBar/AppDrawer/AccountDrawer';
@@ -18,7 +18,6 @@ const NavItemsList = ({ drawer }) => {
   const router = useRouter();
   const updateQuery = sessionQuery(router?.query);
   const [openItems, setOpenItems] = useState({});
-  const isXs = useMediaQuery((theme) => theme.breakpoints.down('lg'));
   const toggleOpen = (key) => {
     setOpenItems((prev) => ({
       ...prev,
@@ -35,7 +34,12 @@ const NavItemsList = ({ drawer }) => {
         {navItems.map((navItem, index) => {
           if (state?.profile && navItem === 'guilds') return null;
 
-          if (isXs && (navItem === 'account' || navItem === 'tools')) {
+          // The collapsible variant used to be picked by useMediaQuery(down('lg')), which is
+          // false at build and on the first client render, so a phone hydrated the desktop list
+          // and swapped it. CSS already draws that line: this list is display:none below lg and
+          // the drawer that carries `drawer` is display:none from lg up, so the prop is the
+          // breakpoint, without asking the viewport in JS.
+          if (drawer && (navItem === 'account' || navItem === 'tools')) {
             const isAccount = navItem === 'account';
             const isTools = navItem === 'tools';
 
@@ -85,7 +89,7 @@ const NavItemsList = ({ drawer }) => {
           );
         })}
         <PinnedPages text={'Pinned pages'}/>
-        {isXs && <List style={{ marginTop: 'auto', paddingBottom: 0 }}>
+        {drawer && <List style={{ marginTop: 'auto', paddingBottom: 0 }}>
           <ListItem>
             <ListItemText>
               <Kofi display={'inline-block'}/>

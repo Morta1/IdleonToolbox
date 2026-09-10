@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import '../../polyfills';
 import React, { useContext } from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import { act, render } from '@testing-library/react';
 
@@ -11,7 +11,7 @@ vi.mock('next/router', () => ({
   useRouter: () => ({ isReady: false, query: {}, pathname: '/wiki', push: vi.fn(), replace: vi.fn() })
 }));
 
-const { default: AppProvider, AppContext, ACTION_TYPES, DEFAULT_STATE, appReducer, readStoredState } =
+const { default: AppProvider, AppContext, ACTION_TYPES, DEFAULT_STATE, appReducer, readStoredState, removeStored } =
   await import('@components/common/context/AppProvider');
 
 const Probe = () => {
@@ -51,6 +51,29 @@ describe('readStoredState', () => {
     localStorage.setItem('filters', JSON.stringify({ a: true }));
     localStorage.setItem('planner', '{not json');
     expect(readStoredState()).toEqual({ filters: { a: true }, pinnedPages: [] });
+  });
+});
+
+describe('removeStored', () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it('swallows a throwing storage so logout still reaches loadEmptyAccount', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+      throw new Error('SecurityError');
+    });
+    expect(() => removeStored('charactersData')).not.toThrow();
+    expect(() => removeStored('rawJson', 'session')).not.toThrow();
+    expect(warn).toHaveBeenCalledTimes(2);
+  });
+
+  it('clears the key it was given', () => {
+    localStorage.setItem('charactersData', '1');
+    sessionStorage.setItem('rawJson', '1');
+    removeStored('charactersData');
+    removeStored('rawJson', 'session');
+    expect(localStorage.getItem('charactersData')).toBeNull();
+    expect(sessionStorage.getItem('rawJson')).toBeNull();
   });
 });
 

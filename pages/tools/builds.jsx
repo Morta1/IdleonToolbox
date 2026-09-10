@@ -146,7 +146,10 @@ const Builds = ({ initialBuilds }) => {
         setItems((prev) => {
           const known = new Set(prev.map((b) => b.shortId));
           const fresh = (res?.items || []).filter((b) => !known.has(b.shortId));
-          return fresh.length ? [...fresh, ...prev] : prev;
+          // Appended, not prepended, even under the "new" sort: the static rows are already
+          // painted, and inserting a row above them pushes the whole grid down, which is the
+          // layout shift this export exists to avoid. They lead the list on the next deploy.
+          return fresh.length ? [...prev, ...fresh] : prev;
         });
       })
       // The static list is complete as of the last deploy, so a failed refresh costs at most the

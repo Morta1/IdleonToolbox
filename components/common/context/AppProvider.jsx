@@ -134,6 +134,17 @@ export const writeStored = (key, value) => {
   }
 };
 
+// Same guard for the clear side. logout() calls it, and handleUnauthenticatedUser's catch calls
+// logout: a SecurityError here would abort before loadEmptyAccount and leave isLoading false with
+// no account, which every data page shows as an endless "Loading account data...".
+export const removeStored = (key, storage = 'local') => {
+  try {
+    (storage === 'session' ? sessionStorage : localStorage).removeItem(key);
+  } catch (err) {
+    console.warn(`Failed to remove ${key} from storage:`, err);
+  }
+};
+
 // Pets page simulation. Only ever applied to the user's own save - a profile view or the demo
 // account must show what that account really has.
 const getOwnAccountParseOptions = () => ({
@@ -257,8 +268,8 @@ const AppProvider = ({ children }) => {
       });
     }
     
-    localStorage.removeItem('charactersData');
-    sessionStorage.removeItem('rawJson');
+    removeStored('charactersData');
+    removeStored('rawJson', 'session');
     dispatch({ type: ACTION_TYPES.LOGOUT });
     if (clearAuthHint) {
       writeAuthHint('no');
@@ -402,11 +413,14 @@ const AppProvider = ({ children }) => {
         }
         const { checkUserStatus, subscribe } = await loadFirebase();
         const user = await checkUserStatus();
-        if (!user) writeAuthHint('no');
+        // Written the moment firebase answers, never after subscribe: subscribe does three network
+        // reads and throws by design on "No characters found", and a visitor carrying 'no' who
+        // signed in would keep it while holding a live session, so every later visit would skip
+        // the SDK and show them Login.
+        writeAuthHint(user ? 'yes' : 'no');
         if (!state?.account && user) {
           const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
           unsubscribeRef.current = unsub;
-          writeAuthHint('yes');
         } else {
           await loadEmptyAccount();
         }
@@ -417,7 +431,7 @@ const AppProvider = ({ children }) => {
         // offline first paint, a firebase outage. 'no' means firebase itself reported no user, and
         // writing it from a failure would permanently mark a signed-in visitor anonymous, so every
         // later visit would skip the SDK and show them Login with no way back to their account.
-        logout(undefined, undefined, { clearAuthHint: false });
+        await logout(undefined, undefined, { clearAuthHint: false });
       }
     };
 
@@ -536,10 +550,12 @@ const AppProvider = ({ children }) => {
         }
 
         if (id_token) {
+          // Before subscribe, not after: the sign-in has already resolved, and subscribe can throw
+          // on an account with no characters, which would leave a signed-in visitor marked 'no'.
+          writeAuthHint('yes');
           const { subscribe } = await loadFirebase();
           const unsub = await subscribe(uid, accessToken || id_token?.id_token, handleCloudUpdate);
           unsubscribeRef.current = unsub;
-          writeAuthHint('yes');
 
           if (typeof window?.gtag !== 'undefined') {
             window.gtag('event', 'login', {

@@ -12,4 +12,9 @@ const useSidebarAd = () => {
   return wideEnough && !adBlocked;
 };
 
+// The JS-only half of the decision. ContentWrapper reserves the gutter with a CSS media query so
+// the export and the first client render agree on the width; only "is an adblocker running" needs
+// JS, and it is the same detection SidebarAd sees.
+export const useSidebarAdBlocked = () => useAdBlockDetection();
+
 export default useSidebarAd;

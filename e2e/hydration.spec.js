@@ -75,6 +75,9 @@ for (const width of WIDTHS) {
 
       await page.goto(route);
       await waitForRender(page);
+      // waitForRender returns once innerText stops changing, which the static body already is
+      // before React runs: without this the assertion could pass on a page that never hydrated.
+      await page.waitForFunction(() => window.next?.router?.isReady === true, null, { timeout: 30_000 });
 
       expect(errors.filter((text) => HYDRATION_ERROR.test(text))).toEqual([]);
       await context.close();
@@ -118,6 +121,7 @@ test.describe('a tab deep link selects the tab and its data', () => {
 
     await page.goto('/leaderboards?t=Skills');
     await waitForRender(page);
+    await page.waitForFunction(() => window.next?.router?.isReady === true, null, { timeout: 30_000 });
 
     await expect(page.locator('[role="tab"][aria-selected="true"]')).toHaveText(/skills/i);
     await expect(page.getByText('Mining', { exact: true })).toBeVisible();
