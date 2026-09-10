@@ -159,6 +159,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
       index,
       description,
       totalBonus,
+      scaling: SCALING_SCHEMATIC_INDEXES.has(Number(index)),
       owned: isNaN(owned) ? 0 : owned,
       cost: getEngineerUpgradeCost({ ...upgrade, index: order, discountWish: lampWishesList?.[5]?.level })
     }
@@ -337,6 +338,11 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     leastOpalInvestedVillager
   }
 }
+
+// Schematics whose bonus scales with another hole stat (the switch cases in getEngineerTotalBonus)
+export const SCALING_SCHEMATIC_INDEXES = new Set([
+  14, 15, 38, 41, 45, 46, 47, 48, 52, 53, 54, 55, 56, 57, 58, 59, 72, 73, 76, 80, 82, 83, 84
+]);
 
 export const getEngineerTotalBonus = (upgrade: any, holesObject: any, index: any, accountData: any) => {
   let formattedDescription = upgrade?.description;

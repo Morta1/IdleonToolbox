@@ -34,6 +34,7 @@ const getUnlockLevelByIndex = (schematicIndex) => {
 const Engineer = ({ hole }) => {
   const [, engineer] = hole?.villagers || [];
   const [showAll, setShowAll] = useState(false);
+  const [showScaling, setShowScaling] = useState(false);
 
   return <>
     <Stack mb={2} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
@@ -49,13 +50,20 @@ const Engineer = ({ hole }) => {
                          imgStyle={{ width: 22, height: 22 }}/>
     </Stack>
     <Divider/>
-    <FormControlLabel
-      control={<Checkbox checked={showAll} onChange={() => setShowAll(!showAll)}/>}
-      name={'Show all schematics'}
-      label="Show all schematics"/>
+    <Stack direction={'row'} flexWrap={'wrap'}>
+      <FormControlLabel
+        control={<Checkbox checked={showAll} onChange={() => setShowAll(!showAll)}/>}
+        name={'Show all schematics'}
+        label="Show all schematics"/>
+      <FormControlLabel
+        control={<Checkbox checked={showScaling} onChange={() => setShowScaling(!showScaling)}/>}
+        name={'Show only scaling schematics'}
+        label="Show only scaling schematics"/>
+    </Stack>
     <Stack direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      {hole?.engineerBonuses?.map(({ index, name, description, unlocked, owned, cost, x2 }, order) => {
-        if (!showAll && unlocked) return null;
+      {hole?.engineerBonuses?.map(({ index, name, description, unlocked, owned, cost, x2, scaling }, order) => {
+        if (showScaling && !scaling) return null;
+        if (!showScaling && !showAll && unlocked) return null;
         const unlocksAt = getUnlockLevelByIndex(order);
         const img = x2 >= 20 ? `HoleJarR${x2 - 20}` : x2 >= 10 ? `HoleHarpNote${x2 - 10}` : `HoleWellFill${x2 + 1}`;
         return <Card key={`upgrade-${index}`}>

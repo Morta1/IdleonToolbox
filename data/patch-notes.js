@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.80',
+    'gameVer': '2.3.530',
+    'date': '11/09/2026',
+    'features': [
+      'Hole: new "Show only scaling schematics" filter on the Engineer tab, isolating the schematics whose bonus grows with other hole stats along with their current total bonus'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.79',
     'gameVer': '2.3.530',
     'date': '10/09/2026',
