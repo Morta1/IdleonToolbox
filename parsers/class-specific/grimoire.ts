@@ -248,7 +248,7 @@ export const getExtraBonesBonus = (character: any, account: any) => {
   const mainframeBonus = getLabBonus(account?.lab?.labBonuses, 121); // game MainframeBonus(121)
   const paletteBonus = getPaletteBonus(account, 22) ?? 0;
   const exoticBonus = getExoticMarketBonus(account, 53) ?? 0;
-  const bubbleBonus = getBubbleBonus(account, account?.alchemy?.bubbles?.power?.[13]?.bubbleName) ?? 0; // AlchBubbles.W13
+  const bubbleBonus = getBubbleBonus(account, 'BONE_BUBBLE') ?? 0; // AlchBubbles.W13 = BONE_BUBBLE (power, stat tag W13)
   const loreBonus = getLoreBossBonus(account, 0) ?? 0; // Tome epilogue (LoreEpiBon 0)
   const meritocracyBonus = getMeritocracyBonus(account, 25) ?? 0;
   const { value: allMasterclassDropz, sources: amdSources } = getAllMasterclassDropz(character, account);

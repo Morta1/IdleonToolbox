@@ -379,7 +379,7 @@ export const getExtraTachyon = (character: any, account: any) => {
   const paletteBonus = getPaletteBonus(account, 29) ?? 0;
   const exoticBonus = getExoticMarketBonus(account, 55) ?? 0;
   const emperorBonus = getEmperorBonus(account, 6);
-  const bubbleBonus = getBubbleBonus(account, account?.alchemy?.bubbles?.['high-iq']?.[13]?.bubbleName) ?? 0; // AlchBubbles.M13 (WIS cauldron)
+  const bubbleBonus = getBubbleBonus(account, 'TACHYON_BUBBLE') ?? 0; // AlchBubbles.M13 = TACHYON_BUBBLE (high-iq, stat tag M13)
   const charmBonus = getCharmBonus(account, 'Mystery_Fizz'); // Pristine charm 22
   const loreBonus = getLoreBossBonus(account, 6) ?? 0; // Tome epilogue (LoreEpiBon 6)
   const meritocracyBonus = getMeritocracyBonus(account, 25) ?? 0;

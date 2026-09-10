@@ -10,7 +10,9 @@ export const patchNotes = [
     'features': [
       'Pages should now load faster both for desktop and mobile'
     ],
-    'fixes': []
+    'fixes': [
+      'Extra Dust, Extra Bones and Extra Tachyons: the alchemy bubble bonus now uses the Windwalker, Deathbringer and Arcane Cultist bubbles instead of the talent point bubbles, which inflated the numbers'
+    ]
   },
   {
     'ver': '3.3.78',
