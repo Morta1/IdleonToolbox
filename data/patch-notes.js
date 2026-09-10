@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.79',
+    'gameVer': '2.3.530',
+    'date': '10/09/2026',
+    'features': [
+      'Pages should now load faster both for desktop and mobile'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.78',
     'gameVer': '2.3.530',
     'date': '09/09/2026',
