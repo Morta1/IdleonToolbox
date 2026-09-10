@@ -48,3 +48,6 @@ jobs:
         with:
           deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
           publish_dir: ./out
+          # One orphan commit per deploy. Without it every export (634 MB now that wiki pages
+          # render at build) stacks onto gh-pages history, which had reached 2,150 commits.
+          force_orphan: true

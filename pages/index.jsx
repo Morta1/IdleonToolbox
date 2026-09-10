@@ -147,7 +147,10 @@ const Home = () => {
               image on narrow screens is gone. */}
           <Box sx={{ width: '100%', [WIDE]: { width: 550 }, aspectRatio: '1200 / 674', position: 'relative' }}>
             <MotionConfig transition={{ duration: .8 }}>
-              <AnimatePresence>
+              {/* initial={false}: the first hero image must paint from the static HTML (it is the
+                  page's LCP candidate); with the default it exported at opacity 0 and only faded
+                  in after hydration. Later rotations still cross-fade. */}
+              <AnimatePresence initial={false}>
                 {indexes.map((_, index) => {
                   return bgIndex === index ? <motion.img
                     key={'image' + index}
