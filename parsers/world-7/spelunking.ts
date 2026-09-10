@@ -1215,10 +1215,17 @@ export const isEtherealBonusUnlocked = (account: any) => {
   return account?.spelunking?.loreBosses?.[6]?.defeated;
 }
 
-// Power-affecting upgrade indices: 0 (basePower), 1, 2, 3, 14, 15, 16, 17 (powerMulti)
-const POWER_UPGRADE_INDICES = [0, 1, 2, 3, 14, 15, 16, 17, 46];
-// Amber gain-affecting upgrade indices: 6, 7, 8, 9, 10, 20, 21, 41, 44, 51
-const AMBER_GAIN_UPGRADE_INDICES = [6, 7, 8, 9, 10, 20, 21, 41, 44, 51];
+// Every shop upgrade getPower reads: 0 (basePower), then the powerMulti factors.
+const POWER_UPGRADE_INDICES = [0, 1, 2, 3, 14, 15, 16, 17, 46, 54];
+// Every shop upgrade getAmberGain reads, except two the optimizer deliberately leaves out.
+// 67 (Amber Supply Swap) is a tradeoff: 15x amber gain against a 10x worse drop chance
+// (getAmberDropChance). The metric here is amber gain alone, so including 67 would score it as
+// a flat 15x win and pin it to the top of every recommendation. It stays out until the metric
+// accounts for drop chance too.
+// 35 (Jobs_All_Done) is "ShopUpgBonus(35) * GenINFO[90]" in the game, where GenINFO[90] counts
+// the depths fully cleared in the CURRENT delve - live actor state the save doesn't carry. It
+// is always 0 here, so 35 could only ever be recommended as a zero-gain purchase.
+const AMBER_GAIN_UPGRADE_INDICES = [6, 7, 8, 9, 10, 20, 21, 41, 44, 51, 60];
 
 // Generic optimization function that works for both power and amber gain
 const getOptimizedSpelunkingUpgrades = (character: any, account: any, maxUpgrades: any, options: any, {
