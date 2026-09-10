@@ -25,7 +25,7 @@ import {
   IconInfoCircle,
   IconUserCircle
 } from '@tabler/icons-react';
-import styled from '@emotion/styled';
+import { styled } from '@mui/material/styles';
 import HtmlTooltip from '@components/Tooltip';
 import { useRouter } from 'next/router';
 import { intervalToDuration, isValid } from 'date-fns';

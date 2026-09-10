@@ -32,8 +32,8 @@ const PLACEMENTS = {
  * Sidebar ad unit - sticky on the right side of content.
  */
 export const GoogleSidebarAd = () => {
-  const showWide = useMediaQuery('(min-width: 1600px)', { noSsr: true });
-  const showNarrow = useMediaQuery('(min-width: 850px)', { noSsr: true });
+  const showWide = useMediaQuery('(min-width: 1600px)');
+  const showNarrow = useMediaQuery('(min-width: 850px)');
   const router = useRouter();
 
   if (!showWide && !showNarrow) return null;
@@ -65,7 +65,7 @@ export const GoogleSidebarAd = () => {
  * Desktop: 728x90 (Leaderboard)
  */
 export const GoogleBottomBannerAd = ({ displayDrawer }) => {
-  const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
+  const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const router = useRouter();
 
   const size = isXs ? PLACEMENTS.bottomBanner.mobile : PLACEMENTS.bottomBanner.desktop;
@@ -105,7 +105,7 @@ export const GoogleBottomBannerAd = ({ displayDrawer }) => {
  * Size: 160x600 (Wide Skyscraper).
  */
 export const GoogleHomeSideAds = () => {
-  const showSideAds = useMediaQuery('(min-width: 1650px)', { noSsr: true });
+  const showSideAds = useMediaQuery('(min-width: 1650px)');
 
   if (!showSideAds) return null;
 

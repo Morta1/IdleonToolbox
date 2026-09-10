@@ -25,8 +25,8 @@ import { SurfaceCard, TagChip } from './styled';
 //
 // The card is a div with an onClick rather than one big <a>, because the breadcrumb inside it
 // links to the class pages and anchors cannot nest. The title stays a real <a> so the card is
-// still keyboard-reachable and middle-clickable. None of these reach the static export - that is
-// CrawlLinks' job - they are here for the hydrated page.
+// still keyboard-reachable and middle-clickable, and a crawler that never runs JS reaches every
+// build page through it.
 
 const formatCount = (n) => {
   if (!n) return '0';

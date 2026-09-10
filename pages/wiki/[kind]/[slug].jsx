@@ -57,22 +57,11 @@ export const getStaticProps = async ({ params }) => {
 
   const slice = staticNeighbourhood(id);
 
-  // Nothing below <WaitForRouter> reaches the export, so this list is the only trace of the page's
-  // links in the served HTML. Without it every entity page is a dead end to a crawler and the
-  // 3,466 URLs have no paths between them.
-  const crawlLinks = [...new Set(slice.edges.flatMap((edge) => [edge.from, edge.to]))]
-    .filter((other) => other !== id)
-    .map((other) => slice.nodes[other])
-    .filter((node) => node?.slug && node.navigable !== false)
-    .map((node) => ({ h: `/wiki/${node.kind}/${node.slug}`, t: (node.name || node.rawName).replace(/_/g, ' ') }));
-
   return {
     props: {
       slice,
       seoTitle: entityTitle(slice.node),
-      seoDescription: entityDescription(slice.node, slice.edges, id),
-      crawlLinks,
-      crawlHeading: `${(slice.node.name || slice.node.rawName).replace(/_/g, ' ')} links`
+      seoDescription: entityDescription(slice.node, slice.edges, id)
     }
   };
 };

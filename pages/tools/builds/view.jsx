@@ -20,11 +20,9 @@ export async function getStaticProps() {
   return {
     props: {
       manifest: builds.map(toBuildSummary),
-      // One URL serving 121 builds, every one of which has its own page. The canonical below
-      // would say so, but <NextSeo> renders under the <WaitForRouter> gate and never runs during
-      // the export - so in the served HTML this would be an indexable duplicate of every build
-      // page, defended by nothing. noindex ships statically from _app (see seoNoindex there),
-      // which is the mechanism that actually reaches a crawler.
+      // One URL serving every build, each of which has its own page. The canonical resolves from
+      // ?id=, which does not exist at build time, so only a statically shipped noindex keeps the
+      // export from being an indexable duplicate of every build page.
       seoNoindex: true
     }
   };

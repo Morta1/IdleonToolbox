@@ -4,7 +4,7 @@ import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedOutlinedIcon from '@mui/icons-material/RadioButtonUncheckedOutlined';
 import { Accordion, AccordionDetails, AccordionSummary, Avatar, Badge, Box, Stack, Typography } from '@mui/material';
-import styled from '@emotion/styled';
+import { styled } from '@mui/material/styles';
 import {
   Timeline,
   TimelineConnector,
@@ -209,12 +209,12 @@ const QuestTooltip = ({ rewards, itemReq, customArray }) => {
   </Stack>
 }
 
-const ItemIcon = styled.img`
+const ItemIcon = styled('img')`
   width: 40px;
   height: 40px;
 `
 
-const StatusIndicator = styled.div`
+const StatusIndicator = styled('div')`
   width: 12px;
   height: 12px;
   background-color: ${({ color }) => color};

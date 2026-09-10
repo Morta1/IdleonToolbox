@@ -9,7 +9,7 @@ import useTabIndex from '@hooks/useTabIndex';
 const StarSigns = ({ starSigns, infiniteStars }) => {
   const tabs = getTabs(PAGES.ACCOUNT.misc.categories, 'constellations', 'Star Signs');
   const [selectedTab] = useTabIndex(tabs, { queryKey: 'nt' });
-  const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
+  const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const chronus = starSigns.filter(({ tree }) => tree === 'chronus');
   const hydron = starSigns.filter(({ tree }) => tree === 'hydron');
   const seraph = starSigns.filter(({ tree }) => tree === 'seraph');

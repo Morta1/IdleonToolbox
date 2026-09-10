@@ -5,9 +5,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import BuildsBrowser, { INITIAL_FILTERS } from '@components/tools/builds/BuildsBrowser';
 import { listBuilds } from 'services/builds';
 import { fetchAllBuildsAtBuildTime } from '@utility/builds/static-fetch.mjs';
-import { buildCrawlLink, classCrawlLink, staticIdSet } from '@utility/builds/build-pages.mjs';
-import { classToSlug } from '@utility/builds/class-paths.mjs';
-import { CLASS_KEYS } from '@utility/builds/classes';
+import { staticIdSet } from '@utility/builds/build-pages.mjs';
 import { filterAndSortBuilds } from '@utility/builds/filter-builds';
 import legacyRedirects from 'data/legacy-build-redirects.json';
 
@@ -66,14 +64,7 @@ export function getBuildsLandingStaticProps(builds) {
   );
   return {
     props: {
-      initialBuilds: all,
-      // The hub is the index the rest of the section hangs off: every class page and every build
-      // page is one hop from here for a crawler that never runs JS.
-      crawlHeading: 'Idleon builds by class',
-      crawlLinks: [
-        ...CLASS_KEYS.map((key) => classCrawlLink(classToSlug(key), key.replace(/_/g, ' '))),
-        ...all.map(buildCrawlLink)
-      ]
+      initialBuilds: all
     }
   };
 }
@@ -102,9 +93,10 @@ const Builds = ({ initialBuilds }) => {
   // but `filters` would still be INITIAL_FILTERS - stripping the incoming URL's query params.
   const [hydrated, setHydrated] = useState(false);
 
-  // Every build is already here, so searching, tagging and sorting run in memory. Nothing about
-  // filtering touches the network.
-  const visible = filterAndSortBuilds(items, filters);
+  // Every build is already here, so searching, tagging and sorting run in memory. staticIds pins
+  // the exported rows ahead of anything the mount refresh merges in, so a newer fetched build
+  // can't sort above them and shift the grid after first paint.
+  const visible = filterAndSortBuilds(items, filters, { pinFirst: staticIds });
 
   // Legacy ?c=&b= URLs leave this page entirely - see legacyRedirectTarget.
   useEffect(() => {
@@ -155,7 +147,8 @@ const Builds = ({ initialBuilds }) => {
         setItems((prev) => {
           const known = new Set(prev.map((b) => b.shortId));
           const fresh = (res?.items || []).filter((b) => !known.has(b.shortId));
-          return fresh.length ? [...fresh, ...prev] : prev;
+          // Merge order is free: staticIds already pins the exported rows ahead of these.
+          return fresh.length ? [...prev, ...fresh] : prev;
         });
       })
       // The static list is complete as of the last deploy, so a failed refresh costs at most the

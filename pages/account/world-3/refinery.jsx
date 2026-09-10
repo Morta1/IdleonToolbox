@@ -41,7 +41,7 @@ const boldSx = { fontWeight: 'bold' };
 
 const Refinery = () => {
   const { state } = useContext(AppContext);
-  const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
+  const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const { refinery } = state?.account;
   const [includeSquireCycles, setIncludeSquireCycles] = useState(false);
   const [squiresCycles, setSquiresCycles] = useState(0);

@@ -1,7 +1,7 @@
 import React from 'react';
 import InfoBox from './InfoBox';
 import StarLadder from './StarLadder';
-import { calculateAmountToNextLevel } from '@parsers/cards';
+import { calculateAmountToNextLevel } from '@parsers/cardMath';
 import { cleanUnderscore, numberWithCommas } from '@utility/helpers';
 import { notateGame } from '@utility/wiki/notate';
 

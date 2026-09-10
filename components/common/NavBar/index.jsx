@@ -9,7 +9,7 @@ import AppDrawer from './AppDrawer';
 import { drawerWidth, navBarHeight } from '../../constants';
 import { useRouter } from 'next/router';
 import { shouldDisplayDrawer } from '@utility/helpers';
-import { Link, Stack, Typography, useMediaQuery } from '@mui/material';
+import { Link, Stack, Typography } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import AdBlockerPopup from '@components/common/AdBlockerPopup';
 import Pin from '@components/common/favorites/Pin';
@@ -21,7 +21,7 @@ import useFormatDate from '@hooks/useFormatDate';
 import { CONTENT_PERCENT_SIZE } from '@utility/consts';
 import AuthSkeleton from './AuthSkeleton';
 import { BottomBannerAd, SidebarAd } from '@components/common/Ads/AdUnit';
-import useSidebarAd from '@hooks/useSidebarAd';
+import { useSidebarAdBlocked } from '@hooks/useSidebarAd';
 import usePageDataLoading from '@hooks/usePageDataLoading';
 import PageLoadingProvider, { usePageLoadingState } from '@components/common/context/PageLoadingProvider';
 import ProfileBanner from './ProfileBanner';
@@ -30,7 +30,6 @@ import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
 const NavBar = ({ children }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
-  const isXs = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const displayDrawer = shouldDisplayDrawer(router?.pathname);
   const pathname = router?.pathname || '';
   const isHomePage = pathname === '/' || pathname === '';
@@ -124,7 +123,7 @@ const NavBar = ({ children }) => {
 };
 
 const ContentWrapper = ({ showSidebar, children }) => {
-  const showSidebarAd = useSidebarAd();
+  const adBlocked = useSidebarAdBlocked();
   const { loading } = usePageDataLoading();
   const pageReportedLoading = usePageLoadingState();
 
@@ -133,20 +132,31 @@ const ContentWrapper = ({ showSidebar, children }) => {
   // While the page is waiting for data there is nothing to keep clear of the fixed rail ad, and a
   // reserved gutter would push the loader ~165px left of the viewport centre with an empty 300px
   // void beside it. SidebarAd stays mounted through the collapse so the ad is never recreated.
-  const reserveGutter = showSidebarAd && !loading && !pageReportedLoading;
+  //
+  // The 850px breakpoint lives in CSS, not in a media query hook: a hook is false at build and on
+  // the first client render, so the export would ship a full-width column that jumps to 85% one
+  // render later. Adblock detection cannot be done in CSS and starts as "not blocked", so the
+  // export reserves the gutter and only adblock users see a collapse rather than an expansion.
+  const reserve = !adBlocked && !loading && !pageReportedLoading;
 
   return (
-    <Stack direction={'row'} gap={reserveGutter ? 2 : 0} justifyContent={'space-between'}
-           sx={{ width: '100%', minWidth: 0 }}>
+    <Stack direction={'row'} justifyContent={'space-between'}
+           sx={{ width: '100%', minWidth: 0, gap: 0, '@media (min-width: 850px)': { gap: reserve ? 2 : 0 } }}>
       <Stack
         sx={{
           width: '100%',
           minWidth: 0,
-          maxWidth: reserveGutter ? CONTENT_PERCENT_SIZE : '100%'
+          maxWidth: '100%',
+          '@media (min-width: 850px)': { maxWidth: reserve ? CONTENT_PERCENT_SIZE : '100%' }
         }}>
         {children}
       </Stack>
-      <Box sx={{ width: reserveGutter ? 300 : 0, flexShrink: 0, overflow: 'hidden' }}>
+      <Box sx={{
+        width: 0,
+        flexShrink: 0,
+        overflow: 'hidden',
+        '@media (min-width: 850px)': { width: reserve ? 300 : 0 }
+      }}>
         <SidebarAd/>
       </Box>
     </Stack>

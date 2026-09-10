@@ -22,7 +22,7 @@ const methods = [
 const LoginDialog = ({ open, setOpen, onClose }) => {
   const { dispatch, setWaitingForAuth } = useContext(AppContext);
   const [selectedTab, setSelectedTab] = useState(0);
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
+  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
   const handleTabChange = (e, selected) => {
     setSelectedTab(selected);

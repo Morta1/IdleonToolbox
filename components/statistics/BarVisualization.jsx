@@ -23,7 +23,7 @@ const BarVisualization = ({
                             labelTextColor = '#ffffff',
                             scale,
                           }) => {
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
+  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
   const resolvedMargin = isSm
     ? {

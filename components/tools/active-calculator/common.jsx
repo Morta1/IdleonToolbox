@@ -4,7 +4,7 @@ import { IconInfoCircleFilled } from '@tabler/icons-react';
 import React from 'react';
 
 export const Section = ({ title, tooltip, extra, children, topDivider = true }) => {
-  const isMd = useMediaQuery((theme) => theme.breakpoints.down('lg'), { noSsr: true });
+  const isMd = useMediaQuery((theme) => theme.breakpoints.down('lg'));
 
   return <>
     {topDivider ? <Divider sx={{ my: 2 }}/> : null}

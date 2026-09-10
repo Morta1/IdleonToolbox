@@ -5,7 +5,7 @@ import Tooltip from '@components/Tooltip';
 import ItemRefRenderer from './ItemRefRenderer';
 import { cleanUnderscore, growth, prefix } from '@utility/helpers';
 import { SUPER_TALENT_MAX_POINTS, isSuperTalentEligible } from '@utility/builds/superTalents';
-import styled from '@emotion/styled';
+import { styled } from '@mui/material/styles';
 
 // Fully controlled: talent values come straight from the parent
 // (BuildForm or BuildDetail). No local mirrors, no useEffect resync needed.
@@ -207,7 +207,7 @@ const TalentTooltip = ({ name, skill, level, isSuperTalent, createMode, eligible
 // Same overlay the character Talents tab draws. Kept at its natural 58px
 // against the 56px icon and centred, so it reads as a ring around the icon
 // the way the asset was cut rather than a frame clipped to its edges.
-const SuperBorder = styled.img`
+const SuperBorder = styled('img')`
   position: absolute;
   top: 50%;
   left: 50%;

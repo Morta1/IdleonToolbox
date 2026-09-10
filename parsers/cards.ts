@@ -2,6 +2,11 @@ import { bonuses, cards, cardSets } from '@website-data';
 import { tryToParse } from '@utility/helpers';
 import { isPlaceholder } from '@parsers/catalog';
 import type { IdleonData, Account } from './types';
+import { calcCardBonus, calculateAmountToNextLevel } from './cardMath';
+
+// Re-exported so account-side importers keep their path. Wiki components must import cardMath
+// directly instead: this file's @website-data import is what they cannot pull in.
+export { calcCardBonus, calculateAmountToNextLevel };
 
 export const getCards = (idleonData: IdleonData, account: Account): Record<string, any> => {
   const cardsRaw = (idleonData as any)?.Cards?.[0] || tryToParse(idleonData?.Cards0);
@@ -42,14 +47,6 @@ export const calculateStars = (tierReq: number, amountOfCards: number, cardName:
   }
   return cardLvCalco > 0 ? cardLvCalco - 1 : cardLvCalco;
 };
-
-export const calculateAmountToNextLevel = (perTier: number, stars: number, amountOfCards: number): number => {
-  return stars >= 7 ? 0 : Math.ceil(perTier
-    * Math.pow((stars + 1)
-      + (Math.floor((stars + 1) / 4)
-        + (16 * Math.floor((stars + 1) / 5)
-          + 100 * Math.floor((stars + 1) / 6))), 2) - amountOfCards) + 1;
-}
 
 const parseCards = (cardsRaw: any, rawRift: any, account: Account): Record<string, any> => {
   const [currentRift] = rawRift || [];
@@ -139,11 +136,6 @@ export const getCardLevel = (cards: Record<string, any>, rawName: string): numbe
   const card: any = Object.values(cards || {})?.find((c: any) => c?.rawName === rawName);
   if (!card || card?.amount <= 0) return 0;
   return (card?.stars ?? -1) + 1;
-}
-
-export const calcCardBonus = (card: any): number => {
-  if (!card) return 0;
-  return (card?.bonus * ((card?.stars ?? -1) + 1)) * (card?.chipBoost ?? 1) * (card?.legendBonus ?? 1);
 }
 
 export const getPlayerCards = (char: any, account: Account): Record<string, any> => {

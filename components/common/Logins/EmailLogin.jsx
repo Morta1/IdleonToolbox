@@ -1,7 +1,7 @@
 import { Card, CardContent, Stack, TextField, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import React, { useContext, useState } from 'react';
-import { signInWithEmailPassword } from '../../../firebase';
+import { loadFirebase } from '../../../firebase/lazy';
 import { AppContext } from '../context/AppProvider';
 
 const EmailLogin = () => {
@@ -30,6 +30,7 @@ const EmailLogin = () => {
       setWaitingForAuth(true);
       let data;
       try {
+        const { signInWithEmailPassword } = await loadFirebase();
         data = await signInWithEmailPassword({ email, password });
         dispatch({ type: 'login', data: { loginData: data, loginType: 'email' } })
       } catch (error) {

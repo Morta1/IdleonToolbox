@@ -16,6 +16,7 @@ import {
 import Tabber from '../components/common/Tabber';
 import LeaderboardSection from '../components/Leaderboard';
 import React, { useContext, useEffect, useState } from 'react';
+import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { fetchLeaderboard, fetchUserLeaderboards } from '../services/profiles';
@@ -30,7 +31,7 @@ const tabs = ['Global', 'General', 'Tasks', 'Skills', 'Character', 'Misc', 'Cave
 const Leaderboards = () => {
   const { state } = useContext(AppContext);
   const formatDate = useFormatDate();
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
+  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const loggedMainChar = state?.characters?.[0]?.name;
   const [loggedLeaderboardName, setLoggedLeaderboardName] = useState(loggedMainChar);
   useEffect(() => {
@@ -45,13 +46,20 @@ const Leaderboards = () => {
   const [searchedChar, setSearchChar] = useState('');
   const router = useRouter();
   const { t } = router.query;
-  const [selectedTab, setSelectedTab] = useState(t?.toLowerCase() || 'global');
+  // Derived during render, never seeded into a useState initialiser: on a statically exported page
+  // router.query is {} until isReady, so an initialiser would freeze /leaderboards?t=Skills on the
+  // global data while the tab strip, which reads the router live, highlighted Skills. clickedTab
+  // covers the moment between a click and Tabber's router.push landing.
+  const [clickedTab, setClickedTab] = useState(null);
+  const queryTab = router.isReady && typeof t === 'string' && tabs.some((tab) => tab.toLowerCase() === t.toLowerCase())
+    ? t.toLowerCase()
+    : null;
+  const selectedTab = queryTab ?? clickedTab ?? 'global';
   const [loadingSearchedChar, setLoadingSearchedChar] = useState(false);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
-  const [showAnonymous, setShowAnonymous] = useState(() => {
-    if (typeof window === 'undefined') return true;
-    return localStorage.getItem('leaderboard:showAnonymous') !== 'false';
-  });
+  // Mantine reads storage in an effect (getInitialValueInEffect is the default), so the export and
+  // the first client render both show the default and the stored value lands a render later.
+  const [showAnonymous, setShowAnonymous] = useLocalStorage({ key: 'leaderboard:showAnonymous', defaultValue: true });
   const queryClient = useQueryClient();
 
   const searchUserAndAppend = (data, username, userStats, { isLoggedUser } = {}) => {
@@ -93,8 +101,8 @@ const Leaderboards = () => {
   const AGGREGATION_INTERVAL = 1000 * 60 * 30; // 30 minutes
 
   const { data: leaderboards, isLoading, error } = useQuery({
-    queryKey: ['leaderboard', selectedTab.toLowerCase()],
-    queryFn: () => fetchLeaderboard(selectedTab.toLowerCase()),
+    queryKey: ['leaderboard', selectedTab],
+    queryFn: () => fetchLeaderboard(selectedTab),
     staleTime: (query) => {
       const createdAt = query.state.data?.createdAt;
       if (!createdAt) return AGGREGATION_INTERVAL;
@@ -259,16 +267,14 @@ const Leaderboards = () => {
     <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
       <FormControlLabel
         control={<Switch checked={showAnonymous} onChange={() => {
-          const next = !showAnonymous;
-          setShowAnonymous(next);
-          localStorage.setItem('leaderboard:showAnonymous', String(next));
+          setShowAnonymous(!showAnonymous);
         }} />}
         label="Show anonymous players"
       />
     </Box>
     <Tabber
       tabs={tabs} onTabChange={(selected) => {
-        setSelectedTab(tabs?.[selected]);
+        setClickedTab(tabs?.[selected]?.toLowerCase());
       }}>
       <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.global?.anonymous : leaderboards?.global?.public}
         loggedMainChar={loggedLeaderboardName} searchedChar={searchedChar} />

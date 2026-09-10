@@ -15,11 +15,9 @@ import {
 } from '@utility/builds/class-paths.mjs';
 import {
   assertNoSlugCollisions,
-  buildCrawlLink,
   buildSeoDescription,
   buildSeoTitle,
   buildToSlug,
-  classCrawlLink,
   staticIdSet,
   toBuildSummary
 } from '@utility/builds/build-pages.mjs';
@@ -84,20 +82,7 @@ export function getBuildSlugStaticProps(builds, slug, detail) {
         // share one title. _document prefers these props over the map.
         seoTitle: buildSeoTitle(summary),
         seoDescription: buildSeoDescription(summary),
-        seoNoindex: false,
-        // A build page's body is empty in the export (see components/common/CrawlLinks.jsx), so
-        // without these it is a leaf a crawler can reach but never leave.
-        crawlHeading: 'More Idleon builds',
-        crawlLinks: [
-          classCrawlLink(classToSlug(summary.class), `${summary.class.replace(/_/g, ' ')} builds`),
-          ...(summary.subclass
-            ? [classCrawlLink(
-              classToSlug(summary.subclass),
-              `${summary.subclass.replace(/_/g, ' ')} builds`
-            )]
-            : []),
-          { h: '/tools/builds', t: 'All Idleon builds' }
-        ]
+        seoNoindex: false
       }
     };
   }
@@ -113,14 +98,6 @@ export function getBuildSlugStaticProps(builds, slug, detail) {
       family: resolveHierarchy(slugToClassKey(slug)).family,
       seoTitle: classPageTitle(displayName),
       seoDescription: classPageDescription(displayName, matching.length),
-      crawlHeading: `Idleon ${displayName} builds`,
-      crawlLinks: [
-        ...matching.map(buildCrawlLink),
-        ...siblingSlugs(ALL_CLASS_SLUGS, slug).map(
-          (other) => classCrawlLink(other, `${slugToDisplayName(other)} builds`)
-        ),
-        { h: '/tools/builds', t: 'All Idleon builds' }
-      ],
       // A class nobody has published for has nothing to rank on. Keep it reachable so the strip
       // can't 404, keep it out of the index until it has content.
       seoNoindex: matching.length === 0
@@ -177,7 +154,9 @@ const BuildClassPage = ({
       <NextSeo
         title={seoTitle}
         description={seoDescription}
-        canonical={`https://idleontoolbox.com/tools/builds/${slug}`}
+        // Same condition as _app's canonical, or the two writers disagree and the page ships
+        // noindex with a self-canonical.
+        canonical={seoNoindex ? undefined : `https://idleontoolbox.com/tools/builds/${slug}`}
         noindex={seoNoindex}
       />
       <BuildsBrowser

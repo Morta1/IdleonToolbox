@@ -18,7 +18,7 @@ import { monsterImage } from '@utility/spriteImages';
 const CHAR_INDEX_MAP = Object.fromEntries('_abcdefghijklmnopqrstuvwxyz'.split('').map((c, i) => [c, i]));
 
 const ConstellationsComp = ({ constellations = [], characters = [] }) => {
-  const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'), { noSsr: true });
+  const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const [hideCompleted, setHideCompleted] = useState(false);
   const [expandedHints, setExpandedHints] = useState({});
 

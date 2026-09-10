@@ -1,9 +1,9 @@
 import React, { forwardRef } from 'react';
 import { cleanUnderscore, growth, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
 import { Badge, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import styled from '@emotion/styled';
+import { styled } from '@mui/material/styles';
 import Tooltip from '../Tooltip';
-import { calcCardBonus } from 'parsers/cards';
+import { calcCardBonus } from 'parsers/cardMath';
 
 export const IconWithText = forwardRef((props, ref) => {
   const { stat, icon, img, title = '', ...rest } = props
@@ -73,19 +73,19 @@ const CardTooltip = ({ displayName, effect, bonus, stars, showInfo, nextLevelReq
   </>
 }
 
-const StarIcon = styled.img`
+const StarIcon = styled('img')`
   height: 20px;
   object-fit: contain;
 `
 
-const CardIcon = styled.img`
+const CardIcon = styled('img')`
   width: 56px;
   height: 72px;
   object-fit: contain;
   opacity: ${({ amount, isCardSet, forceDisable }) => (!amount && !isCardSet) || forceDisable ? .5 : 1};
 `
 
-const BorderIcon = styled.img`
+const BorderIcon = styled('img')`
   position: absolute;
   left: 50%;
   top: -3px;

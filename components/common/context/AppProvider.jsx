@@ -1,5 +1,5 @@
 import { createContext, useEffect, useReducer, useRef, useState } from 'react';
-import { checkUserStatus, signInWithCustom, signInWithToken, subscribe, userSignOut } from '../../../firebase';
+import { firebaseRequested, loadFirebase } from '../../../firebase/lazy';
 import { useRouter } from 'next/router';
 import useInterval from '@hooks/useInterval';
 import { getUserToken } from '../../../services/auth/google';
@@ -7,12 +7,13 @@ import { geAppleStatus } from '../../../services/auth/apple';
 import { getProfile } from '../../../services/profiles';
 import { setRawJson } from '@utility/helpers';
 import { errorMessage, trackEvent } from '@utility/analytics';
+import { readAuthHint, writeAuthHint } from '@utility/auth-hint';
 import { readLocalStorageValue } from '@mantine/hooks';
 import { simulatedCompanionsKey } from '@components/constants';
 
 export const AppContext = createContext({});
 
-const ACTION_TYPES = {
+export const ACTION_TYPES = {
   LOGIN: 'login',
   DATA: 'data',
   LOGOUT: 'logout',
@@ -26,10 +27,11 @@ const ACTION_TYPES = {
   SHOW_RANK_ONE_ONLY: 'showRankOneOnly',
   SHOW_UNMAXED_BOXES_ONLY: 'showUnmaxedBoxesOnly',
   SET_LOADING: 'setLoading',
-  SETTINGS: 'settings'
+  SETTINGS: 'settings',
+  HYDRATE_STORAGE: 'hydrateStorage'
 };
 
-function appReducer(state, action) {
+export function appReducer(state, action) {
   const actionHandlers = {
     [ACTION_TYPES.LOGIN]: () => ({ ...state, ...action.data }),
     [ACTION_TYPES.DATA]: () => ({ ...state, ...action.data }),
@@ -37,17 +39,22 @@ function appReducer(state, action) {
     // spreading state and naming the account keys to clear missed loginType/loginData, which the
     // auth poll below reads whenever waitingForAuth is set. Both login components arm that flag
     // before their fresh credentials arrive, so a second sign-in re-subscribed with the previous
-    // user's uid and token. A whitelist drops any future session key by default.
+    // user's uid and token. A whitelist drops any future session key by default. storageHydrated
+    // rides along too, or the persist effect would skip every write after a logout.
     [ACTION_TYPES.LOGOUT]: () => {
       const { filters, pinnedPages, displayedCharacters, trackers, godPlanner, planner, settings,
-        showRankOneOnly, showUnmaxedBoxesOnly } = state;
+        showRankOneOnly, showUnmaxedBoxesOnly, storageHydrated } = state;
       return {
         filters, pinnedPages, displayedCharacters, trackers, godPlanner, planner, settings,
         showRankOneOnly, showUnmaxedBoxesOnly,
+        storageHydrated,
         signedIn: false,
         isLoading: false
       };
     },
+    // localStorage is merged here, never during render, so the build and the first client
+    // render start from the same constant.
+    [ACTION_TYPES.HYDRATE_STORAGE]: () => ({ ...state, ...action.data, storageHydrated: true }),
     [ACTION_TYPES.DISPLAYED_CHARACTERS]: () => ({ ...state, displayedCharacters: action.data }),
     [ACTION_TYPES.FILTERS]: () => ({ ...state, filters: action.data }),
     [ACTION_TYPES.PINNED_PAGES]: () => ({ ...state, pinnedPages: action.data }),
@@ -81,15 +88,20 @@ const STORAGE_KEYS = [
   'settings'
 ];
 
-function init() {
-  if (typeof window === 'undefined') return {};
+// Identical on the build machine and on the client: anything only the client can know
+// (localStorage) is merged by HYDRATE_STORAGE in an effect, which the init and persist effects
+// wait for via storageHydrated.
+export const DEFAULT_STATE = {
+  showRankOneOnly: false,
+  showUnmaxedBoxesOnly: false,
+  isLoading: true,
+  pinnedPages: [],
+  storageHydrated: false
+};
 
-  const defaultState = {
-    showRankOneOnly: false,
-    showUnmaxedBoxesOnly: false,
-    isLoading: true
-  };
-
+// Call only from an effect: reading storage during render would make the first client render
+// differ from the export, and React answers a mismatch by re-rendering the whole page.
+export const readStoredState = () => {
   const loadedState = STORAGE_KEYS.reduce((state, key) => {
     try {
       const value = localStorage.getItem(key);
@@ -106,11 +118,29 @@ function init() {
     loadedState.pinnedPages = [];
   }
 
-  return {
-    ...defaultState,
-    ...loadedState
-  };
-}
+  return loadedState;
+};
+
+// A visitor with site data blocked gets a SecurityError from every localStorage touch, and the
+// persist effect runs on the first render of every page, so an unguarded write would reach the
+// root ErrorBoundary and take the whole site down.
+export const writeStored = (key, value) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (err) {
+    console.warn(`Failed to write ${key} to localStorage:`, err);
+  }
+};
+
+// Same guard for the clear side: logout() calls it, so a SecurityError here would abort before
+// loadEmptyAccount and leave every data page loading forever.
+export const removeStored = (key, storage = 'local') => {
+  try {
+    (storage === 'session' ? sessionStorage : localStorage).removeItem(key);
+  } catch (err) {
+    console.warn(`Failed to remove ${key} from storage:`, err);
+  }
+};
 
 // Pets page simulation. Only ever applied to the user's own save - a profile view or the demo
 // account must show what that account really has.
@@ -119,12 +149,11 @@ const getOwnAccountParseOptions = () => ({
 });
 
 const AppProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(appReducer, {}, init);
+  const [state, dispatch] = useReducer(appReducer, DEFAULT_STATE);
   const router = useRouter();
   const [authCounter, setAuthCounter] = useState(0);
   const [waitingForAuth, setWaitingForAuth] = useState(false);
   const unsubscribeRef = useRef(null);
-  const isInitializedRef = useRef(false);
 
   const handleCloudUpdate = async (
     data, 
@@ -208,13 +237,25 @@ const AppProvider = ({ children }) => {
     });
   };
 
-  const logout = async (manualImport, data) => {
+  // clearAuthHint is opt-out for the one caller that is not an actual sign-out: the init effect's
+  // error path, which cannot tell a transient firebase failure from an anonymous visitor.
+  const logout = async (manualImport, data, { clearAuthHint = true } = {}) => {
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }
 
-    userSignOut();
-    
+    // Firebase loads on demand, so an anonymous visitor has nothing to sign out of. Never throw
+    // here: this runs from handleUnauthenticatedUser's catch, and an error before dispatch(LOGOUT)
+    // and loadEmptyAccount would leave every data page loading forever.
+    if (firebaseRequested()) {
+      try {
+        const { userSignOut } = await loadFirebase();
+        userSignOut();
+      } catch (err) {
+        console.warn('Sign-out skipped:', err);
+      }
+    }
+
     if (typeof window?.gtag !== 'undefined') {
       window.gtag('event', 'logout', {
         action: 'logout',
@@ -223,9 +264,12 @@ const AppProvider = ({ children }) => {
       });
     }
     
-    localStorage.removeItem('charactersData');
-    sessionStorage.removeItem('rawJson');
+    removeStored('charactersData');
+    removeStored('rawJson', 'session');
     dispatch({ type: ACTION_TYPES.LOGOUT });
+    if (clearAuthHint) {
+      writeAuthHint('no');
+    }
     setWaitingForAuth(false);
 
     if (manualImport) {
@@ -236,8 +280,14 @@ const AppProvider = ({ children }) => {
     await loadEmptyAccount();
   };
 
+  // The init effect below is held off by its own `state.storageHydrated` guard, not by this
+  // effect's position: dispatching here flips the flag and re-runs it with the stored values.
   useEffect(() => {
-    if (!router.isReady) return;
+    dispatch({ type: ACTION_TYPES.HYDRATE_STORAGE, data: readStoredState() });
+  }, []);
+
+  useEffect(() => {
+    if (!router.isReady || !state.storageHydrated) return;
 
     const handleProfile = async () => {
       try {
@@ -272,7 +322,13 @@ const AppProvider = ({ children }) => {
 
         localStorage.setItem('manualImport', 'false');
         const lastUpdated = parsedData?.lastUpdated || new Date().getTime();
-        const user = await checkUserStatus();
+        // Skip only on an explicit 'no': an absent hint means undecided, and treating that as
+        // anonymous would show a signed-in visitor "Login" with no way back to their account.
+        const askedFirebase = readAuthHint() !== 'no';
+        const user = askedFirebase ? await (await loadFirebase()).checkUserStatus() : null;
+        // Only on the branch that actually asked, and only ever 'no': nothing subscribes here, so
+        // 'yes' would be a claim this path never verified.
+        if (askedFirebase && !user) writeAuthHint('no');
 
         dispatch({
           type: ACTION_TYPES.DATA,
@@ -340,7 +396,19 @@ const AppProvider = ({ children }) => {
 
     const handleUnauthenticatedUser = async () => {
       try {
+        // 'no' is only ever written after firebase itself reported no session, or on logout, so
+        // a visitor carrying it has nothing to restore and skips the SDK download. Absent is
+        // undecided: ask firebase.
+        if (readAuthHint() === 'no') {
+          await loadEmptyAccount();
+          return;
+        }
+        const { checkUserStatus, subscribe } = await loadFirebase();
         const user = await checkUserStatus();
+        // Written the moment firebase answers, never after subscribe: subscribe throws by design
+        // on "No characters found", which would leave a signed-in visitor marked 'no' and skipping
+        // the SDK on every later visit.
+        writeAuthHint(user ? 'yes' : 'no');
         if (!state?.account && user) {
           const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
           unsubscribeRef.current = unsub;
@@ -350,7 +418,10 @@ const AppProvider = ({ children }) => {
       } catch (error) {
         console.error(error);
         dispatch({ type: ACTION_TYPES.SET_LOADING, data: false });
-        logout();
+        // The hint survives this on purpose: anything can land here (blocked SDK download, offline
+        // first paint, firebase outage), and 'no' written from a failure would permanently mark a
+        // signed-in visitor anonymous.
+        await logout(undefined, undefined, { clearAuthHint: false });
       }
     };
 
@@ -373,35 +444,34 @@ const AppProvider = ({ children }) => {
         unsubscribeRef.current();
       }
     };
-  }, [router.isReady]);
+  }, [router.isReady, state.storageHydrated]);
 
   useEffect(() => {
-    if (!isInitializedRef.current) {
-      isInitializedRef.current = true;
-      return;
-    }
+    // Nothing to persist until storage has been merged in: before that, every value here is
+    // DEFAULT_STATE, and writing it would wipe what the visitor saved.
+    if (!state.storageHydrated) return;
 
     if (state?.filters) {
-      localStorage.setItem('filters', JSON.stringify(state.filters));
+      writeStored('filters', state.filters);
     }
     if (state?.pinnedPages) {
-      localStorage.setItem('pinnedPages', JSON.stringify(state.pinnedPages));
+      writeStored('pinnedPages', state.pinnedPages);
     }
     if (state?.displayedCharacters) {
-      localStorage.setItem('displayedCharacters', JSON.stringify(state.displayedCharacters));
+      writeStored('displayedCharacters', state.displayedCharacters);
     }
     if (state?.planner) {
-      localStorage.setItem('planner', JSON.stringify(state.planner));
+      writeStored('planner', state.planner);
     }
     if (state?.trackers) {
-      localStorage.setItem('trackers', JSON.stringify(state.trackers));
+      writeStored('trackers', state.trackers);
     }
     if (state?.godPlanner) {
-      localStorage.setItem('godPlanner', JSON.stringify(state.godPlanner));
+      writeStored('godPlanner', state.godPlanner);
     }
     if (state?.manualImport) {
-      localStorage.setItem('manualImport', JSON.stringify(state.manualImport));
-      const lastUpdated = JSON.parse(localStorage.getItem('lastUpdated'));
+      writeStored('manualImport', state.manualImport);
+      const { lastUpdated = null } = readStoredState();
       if (state?.signedIn) {
         logout(true, { ...state, lastUpdated, signedIn: false, manualImport: true });
       }
@@ -430,6 +500,7 @@ const AppProvider = ({ children }) => {
         let id_token, uid, accessToken;
         
         if (state?.loginType === 'steam') {
+          const { signInWithCustom } = await loadFirebase();
           const userData = await signInWithCustom(state?.loginData?.token, dispatch);
           accessToken = userData?.accessToken;
           id_token = userData?.accessToken;
@@ -462,15 +533,20 @@ const AppProvider = ({ children }) => {
             }
           }
           if (id_token) {
+            const { signInWithToken } = await loadFirebase();
             const userData = await signInWithToken(id_token, state?.loginType);
             uid = userData?.uid;
           }
         }
-        
+
         if (id_token) {
+          // Before subscribe, not after: the sign-in has already resolved, and subscribe can throw
+          // on an account with no characters, which would leave a signed-in visitor marked 'no'.
+          writeAuthHint('yes');
+          const { subscribe } = await loadFirebase();
           const unsub = await subscribe(uid, accessToken || id_token?.id_token, handleCloudUpdate);
           unsubscribeRef.current = unsub;
-          
+
           if (typeof window?.gtag !== 'undefined') {
             window.gtag('event', 'login', {
               action: 'login',

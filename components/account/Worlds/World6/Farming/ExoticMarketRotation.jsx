@@ -22,7 +22,7 @@ import useFormatDate from '@hooks/useFormatDate';
 const ExoticMarketRotation = () => {
   const { state } = useContext(AppContext);
   const formatDate = useFormatDate();
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
+  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const [filter, setFilter] = useState([]);
   const [weeks, setWeeks] = useState(10);
 

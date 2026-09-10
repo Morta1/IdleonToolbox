@@ -33,7 +33,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import styled from '@emotion/styled';
+import { styled } from '@mui/material/styles';
 import ItemsList from 'components/tools/item-planner/ItemsList';
 import Tooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
@@ -448,11 +448,11 @@ const MaterialsTooltip = ({ name, items }) => {
   </>
 }
 
-const MaterialIcon = styled.img`
+const MaterialIcon = styled('img')`
   width: 50px;
 `
 
-const TodoStyle = styled.div`
+const TodoStyle = styled('div')`
   .item-wrapper {
     width: 105px;
     height: 102px;

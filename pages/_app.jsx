@@ -9,10 +9,7 @@ import '../styles/globals.css';
 import Head from 'next/head';
 import AppProvider from '../components/common/context/AppProvider';
 import PreferencesProvider from '../components/common/context/PreferencesProvider';
-import WaitForRouter from '../components/common/WaitForRouter';
-import CrawlLinks from '../components/common/CrawlLinks';
-import PreHydrationLoader from '../components/common/PreHydrationLoader';
-import { DefaultSeo } from 'next-seo';
+import { NextSeo } from 'next-seo';
 import NavBar from '../components/common/NavBar';
 import DataLoadingWrapper from '../components/common/DataLoadingWrapper';
 import ConsentScripts from '@components/common/Etc/ContentScripts';
@@ -87,30 +84,24 @@ const MyApp = (props) => {
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
-        {/* Nothing below <WaitForRouter> renders during the static export, so a page's own
-            <NextSeo> never runs at build time. Title, description and canonical are declared
-            here, above the gate, so they exist in three states that all used to be wrong: in the
-            export (a page's NextSeo cannot run at build time), during hydration (the title used
-            to blank for a second before NextSeo restored it), and after a client-side navigation
-            (asPath is the only source that stays correct). NextSeo overrides all three with
-            identical copy once the gate opens.
+        {/* Title, description and canonical are declared here as well as in each page's
+            <NextSeo>: a data page renders DataLoadingWrapper's loader at build time, so its
+            NextSeo never runs during the export, and without a copy here the title blanks during
+            hydration. next/head dedupes the two by key, and NextSeo's wins once it renders.
 
             The description has to live in next/head rather than _document: a tag _document
             writes is outside next/head's control, so it cannot be deduped against NextSeo's
             copy - every page carried two, and _document's froze at the landing page and went
             stale on every client-side navigation after it. */}
         {staticTitle ? <title>{staticTitle}</title> : null}
-        {/* key must stay "description", for the same reason as the canonical below: next-seo emits
-            its own copy under that key once the gate opens, and next/head only collapses two tags
-            when their keys match. Without it every page with its own NextSeo ships two
-            descriptions after hydration. */}
+        {/* key must stay "description": next-seo emits its own copy under that key, and next/head
+            only collapses two tags when their keys match. */}
         {staticDescription ? <meta name="description" content={staticDescription} key="description"/> : null}
-        {/* key must stay "canonical": next-seo emits its own tag under that key once the gate
-            opens, and next/head only collapses two <link>s when their keys match. Without it the
-            page ends up with two canonicals. */}
+        {/* key must stay "canonical", same dedupe rule, or the page ships two canonicals. */}
         {noindex ? null : <link rel="canonical" href={canonicalUrl} key="canonical"/>}
+        {/* googlebot only: next-seo never writes that one, while the robots tag is already
+            written by the <NextSeo> below from the same `noindex`. */}
         <meta name="googlebot" content={noindex ? 'noindex,follow' : 'index,follow'}/>
-        {noindex ? <meta name="robots" content="noindex,follow"/> : null}
         {preConnections?.map((link) => <link key={link} rel="preconnect" href={link}/>)}
       </Head>
       <div id="ncmp-consent-link"></div>
@@ -189,75 +180,64 @@ const MyApp = (props) => {
             <RouteProgress/>
             {/* Outer net for the shell itself (providers, NavBar). Still beats a blank root. */}
             <ErrorBoundary resetKey={asPath} title={'The app failed to load'}>
-            {/* Above the gate on purpose: this is the only content the static export can ship
-                for a page. Pages opt in by returning crawlLinks from getStaticProps. */}
-            <CrawlLinks links={pageProps?.crawlLinks} heading={pageProps?.crawlHeading}/>
-            {/* Also above the gate, and on every page: without it the export is a blank screen
-                until React hydrates. Both unmount on hydration. */}
-            <PreHydrationLoader/>
-            <WaitForRouter>
-              <PreferencesProvider>
-              <AppProvider>
-                <NavBar>
-                  {/* No title/description here on purpose. next-seo re-emits DefaultSeo's head
-                      after the page's NextSeo on every client route change, so any title or
-                      description set here overwrites the page's own. 105 of 108 pages define
-                      their own NextSeo; the rest set one locally. */}
-                  <DefaultSeo
-                    // DefaultSeo emits a robots tag whether or not one is asked for, and next-seo
-                    // re-emits it AFTER the page's own NextSeo on every route change. Without this
-                    // it re-asserts "index,follow" over a page that shipped noindex statically, so
-                    // the page un-noindexes itself the moment JS runs.
-                    //
-                    // It has to be this prop and not `noindex`: DefaultSeo destructures a fixed
-                    // prop list that does not include noindex/nofollow, so a `noindex` here is
-                    // accepted and silently dropped. "AllPages" reads alarming but this value is
-                    // per-render and comes from the page's own seoNoindex, so it is only ever true
-                    // on a page that asked for it. nofollow is deliberately left alone: these
-                    // pages want "noindex,follow" so crawlers still traverse their links.
-                    dangerouslySetAllPagesToNoIndex={Boolean(noindex)}
-                    // Same condition as the <link> above the gate, or a noindex page ships no
-                    // canonical and then grows one on hydration - including the 404, which would
-                    // claim a canonical for whatever URL failed to resolve.
-                    canonical={noindex ? undefined : canonicalUrl}
-                    openGraph={{
-                      type: 'website',
-                      locale: 'en_US',
-                      url: canonicalUrl,
-                      siteName: 'Idleon Toolbox',
-                      title: 'Idleon Toolbox - Essential Tools for Legends of Idleon',
-                      description: 'Power up your Legends of Idleon adventure with Idleon Toolbox\'s essential tools and resources for optimizing gameplay, character builds, crafting, and more.',
-                      images: [
-                        {
-                          url: 'https://idleontoolbox.com/data/Coins5.png',
-                          alt: 'Idleon Toolbox'
-                        }
-                      ]
-                    }}
-                    twitter={{
-                      handle: '@IdleonToolbox',
-                      site: '@IdleonToolbox',
-                      cardType: 'summary'
-                    }}
-                    additionalMetaTags={[
+            <PreferencesProvider>
+            <AppProvider>
+              <NavBar>
+                {/* App-level SEO defaults, deliberately without a title or description: every page
+                    declares its own, and _app's <Head> above covers the rest.
+
+                    <NextSeo> rather than <DefaultSeo>: DefaultSeo has no `noindex` prop (a
+                    `noindex` passed to it is silently dropped), and its
+                    dangerouslySetAllPagesToNoIndex writes into a module-level object next-seo
+                    never resets, so under `next build` one noindex page noindexes every page
+                    rendered after it in the same worker. Both render the same tags otherwise. */}
+                <NextSeo
+                  // next-seo emits a robots tag whether or not one is asked for, so this and the
+                  // page's own NextSeo both write it and next/head keeps the last one. Passing the
+                  // page's noindex here makes them agree; without it this one would re-assert
+                  // "index,follow" over a page that shipped noindex. nofollow stays off on
+                  // purpose: these pages want "noindex,follow" so crawlers still follow links.
+                  noindex={Boolean(noindex)}
+                  // Same condition as the <link> in the <Head> above, or a noindex page ships no
+                  // canonical and then grows one on hydration.
+                  canonical={noindex ? undefined : canonicalUrl}
+                  openGraph={{
+                    type: 'website',
+                    locale: 'en_US',
+                    url: canonicalUrl,
+                    siteName: 'Idleon Toolbox',
+                    title: 'Idleon Toolbox - Essential Tools for Legends of Idleon',
+                    description: 'Power up your Legends of Idleon adventure with Idleon Toolbox\'s essential tools and resources for optimizing gameplay, character builds, crafting, and more.',
+                    images: [
                       {
-                        name: 'keywords',
-                        content: 'Idleon, Legends of Idleon, Idleon Toolbox, Idleon calculator, Idleon builds, Idleon guide, idle game tools'
+                        url: 'https://idleontoolbox.com/data/Coins5.png',
+                        alt: 'Idleon Toolbox'
                       }
-                    ]}
-                  />
-                  <DynamicBreadcrumbs/>
-                  {/* Contains a page-level crash to this slot. Without it React unmounts the whole
-                      root and the app goes blank until a manual refresh. */}
-                  <ErrorBoundary resetKey={asPath} title={'This page failed to render'}>
-                    <DataLoadingWrapper>
-                      <Component {...pageProps} />
-                    </DataLoadingWrapper>
-                  </ErrorBoundary>
-                </NavBar>
-              </AppProvider>
-              </PreferencesProvider>
-            </WaitForRouter>
+                    ]
+                  }}
+                  twitter={{
+                    handle: '@IdleonToolbox',
+                    site: '@IdleonToolbox',
+                    cardType: 'summary'
+                  }}
+                  additionalMetaTags={[
+                    {
+                      name: 'keywords',
+                      content: 'Idleon, Legends of Idleon, Idleon Toolbox, Idleon calculator, Idleon builds, Idleon guide, idle game tools'
+                    }
+                  ]}
+                />
+                <DynamicBreadcrumbs/>
+                {/* Contains a page-level crash to this slot. Without it React unmounts the whole
+                    root and the app goes blank until a manual refresh. */}
+                <ErrorBoundary resetKey={asPath} title={'This page failed to render'}>
+                  <DataLoadingWrapper>
+                    <Component {...pageProps} />
+                  </DataLoadingWrapper>
+                </ErrorBoundary>
+              </NavBar>
+            </AppProvider>
+            </PreferencesProvider>
             </ErrorBoundary>
           </EmotionThemeProvider>
         </ThemeProvider>

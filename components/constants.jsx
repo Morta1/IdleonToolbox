@@ -5,6 +5,10 @@ export const simulatedCompanionsKey = 'simulatedCompanions';
 export const navItems = ['dashboard', 'characters', 'account', 'tools', 'guilds', 'statistics', 'leaderboards', 'wiki'];
 export const drawerPages = ['characters', 'account', 'tools'];
 
+// The task board pages tab by world. Spelled out rather than imported from utility/helpers'
+// worldsArray: this file must stay free of the website-data graph that helpers pulls in.
+const WORLD_TABS = ['World 1', 'World 2', 'World 3', 'World 4', 'World 5', 'World 6', 'World 7'];
+
 export const PAGES = {
   GENERAL: {
     dashboard: { icon: 'data/GalleryBell' },
@@ -35,7 +39,7 @@ export const PAGES = {
         { label: 'upgradeVault', icon: 'data/VaultBut' },
         { label: 'randomEvents', icon: 'etc/Mega_Grumblo' },
         { label: 'eventShop', icon: 'etc/Event_Currency' },
-        { label: 'guild', icon: 'etc/Guild' },
+        { label: 'guild', icon: 'etc/Guild', tabs: ['Members', 'Bonuses'] },
         { label: 'tournament', icon: 'data/TournyRank2', tabs: ['Companions', 'Matches', 'Leaderboard'] }
       ]
     },
@@ -45,7 +49,7 @@ export const PAGES = {
       categories: [
         { label: 'gemShop', icon: 'data/PremiumGem' },
         { label: 'pets', icon: 'data/PremiumGem', style: { filter: 'hue-rotate(280deg)' } },
-        { label: 'bundles', icon: 'data/PremiumGem' }
+        { label: 'bundles', icon: 'data/PremiumGem', tabs: ['Bundles', 'Pet Mart'] }
       ]
     },
     'class-specific': {
@@ -84,10 +88,10 @@ export const PAGES = {
     'task board': {
       icon: 'etc/TasksStar',
       categories: [
-        { label: 'achievements', icon: 'data/TaskAchBorder1' },
-        { label: 'tasks', icon: 'etc/TasksStar' },
-        { label: 'merits', icon: 'etc/Merit_4' },
-        { label: 'unlocks', icon: 'data/PetLockB0' }
+        { label: 'achievements', icon: 'data/TaskAchBorder1', tabs: WORLD_TABS },
+        { label: 'tasks', icon: 'etc/TasksStar', tabs: WORLD_TABS },
+        { label: 'merits', icon: 'etc/Merit_4', tabs: WORLD_TABS },
+        { label: 'unlocks', icon: 'data/PetLockB0', tabs: ['Tab 1', 'Tab 2', 'Tab 3', 'Tab 4', 'Tab 5', 'Tab 6'] }
       ]
     },
     'clickers': {
@@ -95,7 +99,7 @@ export const PAGES = {
       categories: [
         { label: 'owl', icon: 'etc/Owl' },
         { label: 'kangaroo', icon: 'data/RooA', tabs: ['Upgrades', 'Tar Upgrades', 'Bonuses'] },
-        { label: 'bubba', icon: 'etc/Bubba', tabs: ['Upgrades', 'Bonuses'] }
+        { label: 'bubba', icon: 'etc/Bubba' }
       ]
     },
     'world 1': {

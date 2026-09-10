@@ -22,8 +22,8 @@ const Statistics = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const isMd = useMediaQuery((theme) => theme.breakpoints.down('lg'), { noSsr: true });
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'), { noSsr: true });
+  const isMd = useMediaQuery((theme) => theme.breakpoints.down('lg'));
+  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const visualizationMap = getVisualizationMap(classes);
 
   // Whole page is a loader below - let the layout collapse the ad gutter so it centres

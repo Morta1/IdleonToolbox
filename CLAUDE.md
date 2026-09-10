@@ -110,8 +110,9 @@ the key changes.
 ### Page titles and descriptions
 
 `data/page-seo.js` is **generated — do not edit by hand**. `<title>`, `<meta name="description">`
-and `<link rel="canonical">` all come from `_app`'s `<Head>`, above the `<WaitForRouter>` gate —
-nothing below it runs at build time. After changing a `<NextSeo>` title or description, re-run
+and `<link rel="canonical">` all come from `_app`'s `<Head>` as well as each page's `<NextSeo>`: a
+data page renders a loader at build, so its NextSeo never runs in the export, and the title must
+not blank during hydration. After changing a `<NextSeo>` title or description, re-run
 `node utility/generate-page-seo.mjs`.
 
 - **Never write a head tag from `_document`.** It lands outside `next/head`'s control and can't be
@@ -140,13 +141,29 @@ Static export gotchas (`/tools/builds/[slug]` learned both the hard way):
   other on Windows while staying distinct on GitHub Pages.
 - **`fallback: false` means anything published after the deploy 404s.** `/tools/builds/view?id=`
   stays alive for exactly that case, and is `noindex` because it duplicates every build page.
-- **Nothing below `<WaitForRouter>` reaches the export**, so a page's links don't either. Pages
-  that need crawlable internal links return `crawlLinks` from `getStaticProps`;
-  `components/common/CrawlLinks.jsx` renders them above the gate and unmounts on hydration.
-- **The pre-hydration shell is a spinner only** (`PreHydrationLoader`, above the gate, unmounts on
-  hydration). It once painted the page h1/description and the landing hero too, to pull LCP ahead
-  of hydration; that was removed 2026-09-08 because content that appears before the app and is
-  then swapped reads as broken. Don't put page content back into it.
+- **Everything renders at build time.** There is no router gate: the export is the real page,
+  with `AppProvider` at `DEFAULT_STATE` (`isLoading: true`, no account, storage not yet merged).
+  Data pages therefore export `DataLoadingWrapper`'s loader; static pages export their body.
+  A page that throws under `DEFAULT_STATE` fails `next build`, which is the intended alarm.
+- **The first render must be identical on the build machine and the client.** No `localStorage`,
+  `typeof window`, `Date`, `Math.random` or timezone/locale formatting in render or in a
+  `useState` initialiser; read those in an effect, or gate the markup on `useHydrated()`
+  (`hooks/useHydrated.js`). No `useMediaQuery(..., { noSsr: true })`: `__test__/no-nossr.test.js`
+  fails on any. One mismatch anywhere makes React discard the server DOM for the whole page.
+  `e2e/hydration.spec.js` is the gate: sample routes, three widths, foreign timezone and locale,
+  seeded storage, zero React #418/#423/#425.
+- **`router.query` is empty on the first render of any page whose URL can carry a query string.**
+  Next only fills it for an `autoExport` page after mount, so `router.isReady` is `false` and
+  `router.query` is `{}` while the export's markup is being matched. Derive from the router during
+  render (`router.isReady ? router.query.x : fallback`, which re-renders the moment `isReady`
+  flips) or read it in an effect: never seed a `useState` initialiser from it, or a deep link
+  freezes on the fallback while everything that reads the router live moves on without it.
+- **Links must be real anchors to reach a crawler.** A `<Link component="button">` ships no
+  `href`. Wiki listings render anchors for every row, including the ones a collapsed band hides.
+- **Firebase and game data load on demand.** `firebase/lazy.js` is the only importer of
+  `firebase/index.js`; `authHint` in localStorage lets a known-anonymous visitor skip it. Pure
+  helpers the wiki needs live in data-free modules (`parsers/cardMath.ts`, `parsers/powerTypes.ts`),
+  never next to a `@website-data` import. `e2e/chunk-audit.spec.js` is the gate.
 
 ### Patch notes
 Every user-facing change (feature or fix) gets a patch note entry in `@IdleonToolbox/data/patch-notes.js`.
