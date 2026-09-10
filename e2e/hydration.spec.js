@@ -4,10 +4,9 @@ import path from 'node:path';
 import { waitForRender } from './wait-helpers';
 
 // React reports a hydration mismatch as a console error (minified #418/#423/#425) and answers it
-// by re-rendering the whole root client-side, which is exactly the cost the static export is
-// meant to avoid. One sample per page kind, at three widths, in a timezone and locale the build
-// machine does not have, in the states the export cannot know about: anonymous, demo data,
-// stored preferences.
+// by re-rendering the whole root client-side, which is the cost the static export exists to avoid.
+// The samples run in a timezone and locale the build machine does not have, and in the states the
+// export cannot know about: anonymous, demo data, stored preferences.
 
 const WIDTHS = [1280, 1500, 390];
 const HYDRATION_ERROR = /#418|#423|#425|hydrat/i;
@@ -37,8 +36,7 @@ const SAMPLES = [
   // A page whose first render depends on router.query: on a static export it is empty until
   // isReady, so anything read from it during render is a mismatch waiting to happen.
   { route: '/leaderboards?t=Skills' },
-  // Not a 200, but page.goto follows it and the export still has to hydrate: the 404 is the page
-  // a mistyped or retired URL lands on, which makes it the one nobody notices breaking.
+  // Not a 200, but page.goto follows it and the export still has to hydrate.
   { route: '/404' },
   // Data pages export DataLoadingWrapper's loader; the deep link must still hydrate cleanly.
   { route: '/account/world-4/cooking?t=Kitchens' },
@@ -85,19 +83,16 @@ for (const width of WIDTHS) {
   }
 }
 
-// The tab strip reads the router every render, the data used to be read once in a useState
-// initialiser. With no hydration gate router.query is {} on the first render of a statically
-// exported page, so the two disagreed: Skills highlighted, global data underneath.
+// router.query is {} on the first render of a statically exported page, so a tab strip that reads
+// the router live and data seeded once from a useState initialiser drift apart: the tab highlights
+// Skills while the global leaderboard stays underneath.
 test.describe('a tab deep link selects the tab and its data', () => {
   test('/leaderboards?t=Skills asks for the skills leaderboard', async ({ page }) => {
     const requested = [];
-    // Stubbed rather than left live, so the assertion is about which leaderboard the page asked
-    // for and not about what the API happens to be serving. The stub answers in the shape of the
-    // leaderboard it was asked for, and only the skills one carries a Mining section, so the
-    // heading below is proof of which response the page is rendering.
     // Matched by predicate, not by a URL glob: the page's own document request is
     // /leaderboards?t=Skills, and a glob loose enough to catch the API call catches that too,
-    // which answers the navigation itself with JSON.
+    // answering the navigation itself with JSON. Only the skills shape carries a Mining section,
+    // so the heading asserted below proves which response is being rendered.
     await page.route(
       (url) => url.pathname.endsWith('/leaderboards') && url.searchParams.has('leaderboard'),
       async (route) => {
@@ -125,18 +120,16 @@ test.describe('a tab deep link selects the tab and its data', () => {
 
     await expect(page.locator('[role="tab"][aria-selected="true"]')).toHaveText(/skills/i);
     await expect(page.getByText('Mining', { exact: true })).toBeVisible();
-    // The default goes out first and is discarded: the query cannot be held back with `enabled`
-    // because isLoading then differs between the export (where the server router reports ready)
-    // and the first client render, which is a hydration mismatch on the whole page. What matters
-    // is that the tab's own leaderboard is what the page ends up asking for and showing.
+    // The default request goes out first and is discarded: holding it back with `enabled` would
+    // make isLoading differ between the export and the first client render, which is a hydration
+    // mismatch on the whole page. Only the last request has to be the tab's own.
     expect(requested.at(-1)).toBe('skills');
   });
 });
 
 // A styled(MuiComponent) override built with @emotion/styled lands in the server-extracted CSS
-// before MUI's own rule for the same property, so the export (and the hydrated page, which reuses
-// those style tags) showed MUI's default until the next client re-render. MUI's styled engine
-// injects in the right order; this pins the home page's Discord button as the canary.
+// before MUI's own rule for the same property, so the export shows MUI's default until the next
+// client re-render. MUI's styled engine injects in the right order; the Discord button is the canary.
 test('a styled override of a MUI component wins in the export without JS', async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();

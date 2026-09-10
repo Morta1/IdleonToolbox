@@ -8,9 +8,8 @@ import { ThemeProvider } from '@mui/material';
 import EntityList from '@components/wiki/EntityList';
 import darkTheme from '../../styles/theme/darkTheme';
 
-// A kind listing is how a crawler reaches every entity of that kind. The rows used to be
-// buttons, with the anchors supplied separately by a link list rendered outside the page; now
-// the rows are the anchors, including the ones a collapsed band keeps out of view.
+// A kind listing is how a crawler reaches every entity of that kind, so the rows themselves must
+// be anchors, including the ones a collapsed band keeps out of view.
 
 const makeIndex = (count) => {
   const byId = {};

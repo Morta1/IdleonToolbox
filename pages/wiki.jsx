@@ -86,8 +86,7 @@ const Wiki = () => {
   </WikiRail>;
 };
 
-// No getStaticProps: the category links a crawler follows from here are WikiRail's own anchors,
-// which every wiki page renders. They are hidden below md by CSS, not by a condition, so they are
-// in the exported markup either way.
+// No getStaticProps: the category links a crawler follows from here are WikiRail's anchors, which
+// every wiki page renders and CSS (not a condition) hides below md, so they are in the export.
 
 export default Wiki;

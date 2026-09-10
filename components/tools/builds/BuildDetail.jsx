@@ -30,9 +30,8 @@ const TWO_COLUMN_DESC_CHARS = 200;
 const BuildDetail = ({ build, actions = null, backHref = null }) => {
   const router = useRouter();
   const formatDate = useFormatDate();
-  // The dates are formatted in the visitor's timezone, which the build machine does not share.
-  // They join the page after hydration; the export carries the build without them. Named
-  // isHydrated (not hydrated) because `hydrated` below is already the hydrate(build) result.
+  // The dates are formatted in the visitor's timezone, which the build machine does not share,
+  // so they join the page only after hydration.
   const isHydrated = useHydrated();
   if (!build) return null;
   const hydrated = hydrate(build);

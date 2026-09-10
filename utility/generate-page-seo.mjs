@@ -1,11 +1,9 @@
 // Extracts each page's <NextSeo> title/description into data/page-seo.js.
 //
 // A data page renders DataLoadingWrapper's loader at build time, so its own <NextSeo> never runs
-// and the export would carry no title; and on every page the title used to blank for a moment
-// during hydration before NextSeo restored it. _app.jsx renders this map in its <Head> instead.
-// Generating it from the pages themselves keeps the two copies identical - the client still
-// swaps in the page's own NextSeo, and a mismatch there would mean crawlers and users see
-// different titles.
+// and the export would carry no title. _app.jsx renders this map in its <Head> instead, and
+// generating it from the pages themselves keeps the two copies identical: the client swaps in the
+// page's own NextSeo, and a mismatch would mean crawlers and users see different titles.
 //
 // Pages generated from a dynamic route need an OVERRIDES entry: their real title comes from
 // static props, but extractSeo can't parse a non-literal title= and would report them as

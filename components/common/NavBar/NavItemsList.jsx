@@ -34,11 +34,9 @@ const NavItemsList = ({ drawer }) => {
         {navItems.map((navItem, index) => {
           if (state?.profile && navItem === 'guilds') return null;
 
-          // The collapsible variant used to be picked by useMediaQuery(down('lg')), which is
-          // false at build and on the first client render, so a phone hydrated the desktop list
-          // and swapped it. CSS already draws that line: this list is display:none below lg and
-          // the drawer that carries `drawer` is display:none from lg up, so the prop is the
-          // breakpoint, without asking the viewport in JS.
+          // `drawer` stands in for the lg breakpoint rather than a useMediaQuery, which is false
+          // at build and on the first client render: this list is display:none below lg and the
+          // drawer that passes `drawer` is display:none from lg up, so CSS already draws the line.
           if (drawer && (navItem === 'account' || navItem === 'tools')) {
             const isAccount = navItem === 'account';
             const isTools = navItem === 'tools';

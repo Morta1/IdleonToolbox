@@ -71,8 +71,8 @@ test.describe('static export ships crawlable head tags', () => {
       // against next/head's, so pages shipped two and the _document one went stale on navigation.
       const descriptions = (html.match(/<meta name="description"/g) || []).length;
       expect(descriptions, `${route} must have exactly one meta description`).toBe(1);
-      // og:title and robots gained a build-time writer when the router gate went: _app's NextSeo
-      // and the page's NextSeo both render in the export now, and next/head must collapse them.
+      // _app's NextSeo and the page's own both render in the export, so next/head has to collapse
+      // them into one og:title and one robots tag.
       const ogTitles = (html.match(/<meta property="og:title"/g) || []).length;
       expect(ogTitles, `${route} must have exactly one og:title`).toBe(1);
       const robots = (html.match(/<meta name="robots"/g) || []).length;
@@ -81,9 +81,8 @@ test.describe('static export ships crawlable head tags', () => {
   }
 });
 
-// Canonicals had the same failure shape as the title did: a data page renders a loader at build
-// time rather than its own <NextSeo canonical>, so for a long time no exported page carried one
-// at all and nothing noticed. _app declares one in its own <Head> now.
+// A data page renders a loader at build time rather than its own <NextSeo canonical>, so the
+// exported canonical can only come from _app's <Head>.
 test.describe('static export ships canonicals', () => {
   for (const route of [...discoverRoutes(), ...exportedBuildRoutes()]) {
     test(`${route} names its own canonical URL`, async ({ request }) => {
@@ -107,8 +106,8 @@ test.describe('static export ships canonicals', () => {
 });
 
 // The tab went blank for about a second on every page: next/head reconciled the head on
-// hydration and removed the title _document had written, and NextSeo only restored it a beat
-// later. _app declares the title itself now, so next/head owns one from the first render onwards.
+// hydration and removed the title _document had written. _app declares it inside next/head
+// instead, so next/head owns a title from the first render onwards.
 test('the title never blanks while the page hydrates', async ({ page }) => {
   const seen = [];
   await page.goto('/tools/builds/wizard');

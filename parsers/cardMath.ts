@@ -1,7 +1,6 @@
-// Pure card arithmetic with no data imports. The wiki renders card tiers and bonuses on static
-// pages whose data arrives through getStaticProps; importing these two from cards.ts pulled in
-// the website data barrel, and through its side effects 1.65 MB of items and shared data, onto
-// every wiki page. cards.ts re-exports both, so account-side importers are unaffected.
+// Pure card arithmetic, deliberately free of data imports: the wiki needs these two on static
+// pages, and reaching them through cards.ts drags the website data barrel (1.65 MB of items and
+// shared data) onto every wiki page.
 
 export const calculateAmountToNextLevel = (perTier: number, stars: number, amountOfCards: number): number => {
   return stars >= 7 ? 0 : Math.ceil(perTier

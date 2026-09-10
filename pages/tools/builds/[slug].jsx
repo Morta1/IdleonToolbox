@@ -154,10 +154,8 @@ const BuildClassPage = ({
       <NextSeo
         title={seoTitle}
         description={seoDescription}
-        // Same condition as _app's canonical: a class nobody has published for ships noindex, and
-        // a noindex page has nothing to consolidate. Both writers have to agree, or the page ends
-        // up noindex with a self-canonical - which is what the export showed once this NextSeo
-        // started running at build time.
+        // Same condition as _app's canonical, or the two writers disagree and the page ships
+        // noindex with a self-canonical.
         canonical={seoNoindex ? undefined : `https://idleontoolbox.com/tools/builds/${slug}`}
         noindex={seoNoindex}
       />

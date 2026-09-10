@@ -7,9 +7,8 @@ import { ThemeProvider } from '@mui/material';
 import RelationTable from '@components/wiki/RelationTable';
 import darkTheme from '../../styles/theme/darkTheme';
 
-// A drop section is how a crawler reaches the long tail of an entity's relations. The table caps
-// itself at 50 rows behind a "Show more" link, so everything past the cap has to ship as a hidden
-// anchor or it is simply not in the export.
+// The table caps itself at 50 rows behind a "Show more" link, so everything past the cap has to
+// ship as a hidden anchor or a crawler never reaches it.
 
 const makeProps = (count) => {
   const byId = {};

@@ -28,9 +28,8 @@ export const useReportPageLoading = (isLoading) => {
   const { setLoading } = useContext(PageLoadingContext);
 
   // useLayoutEffect, not useEffect: with useEffect the collapse lands a frame after the loader
-  // paints, so the loader is briefly visible still off-centre. React 19 does not warn about
-  // useLayoutEffect during a server render, and the initial state is false on both sides, so
-  // there is no mismatch.
+  // paints, so the loader is briefly visible still off-centre. The initial state is false on both
+  // sides, so this is still not a mismatch.
   useLayoutEffect(() => {
     setLoading(isLoading);
     return () => setLoading(false);

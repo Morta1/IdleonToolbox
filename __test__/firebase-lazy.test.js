@@ -3,14 +3,12 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 // firebase/index.js initialises auth, database and firestore at module top: ~700 KB of JS. A
-// static import anywhere in the every-page tree puts it back into the chunk shared by all 4,800
-// exported pages. Only firebase/lazy.js may import it; everyone else awaits loadFirebase().
-// Walked rather than listed: a hardcoded file list only ever catches the imports that already
-// existed when it was written.
+// static import anywhere in the every-page tree puts it back into the chunk shared by every
+// exported page. Only firebase/lazy.js may import it; everyone else awaits loadFirebase().
 const ROOTS = ['components', 'pages', 'hooks'];
 
 // Page-scoped and mounted under DataLoadingWrapper, so its import lands in that page's own chunk
-// and never in the shared one. Left as it is rather than rewritten for the sake of the rule.
+// and never in the shared one.
 const ALLOWED = new Set(['components/account/Worlds/World7/Tournament/Leaderboard.jsx']);
 
 const FIREBASE_IMPORT = /(?:from\s*|import\s*\()\s*['"][^'"]*firebase(?:\/index)?['"]/;

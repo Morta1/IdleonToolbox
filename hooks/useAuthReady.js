@@ -23,7 +23,7 @@ const useAuthReady = (graceMs = DEFAULT_GRACE_MS) => {
   const loginSettled = state?.isLoading === false;
   const [elapsed, setElapsed] = useState(false);
   // Storage is a client-only fact, so the build and the hydration render must both see `false`
-  // and only the render after may see the hint. Same pattern as useHydrated.
+  // and only the render after may see the hint (same pattern as useHydrated).
   const hasHint = useSyncExternalStore(subscribe, () => readAuthHint() === 'yes', () => false);
 
   useEffect(() => {
@@ -31,10 +31,9 @@ const useAuthReady = (graceMs = DEFAULT_GRACE_MS) => {
     return () => clearTimeout(t);
   }, [graceMs]);
 
-  // The grace period was calibrated when firebase shipped with the page. It now races a chunk
-  // download plus auth plus parse, and when the timer wins, a signed-in visitor is redirected away
-  // from /tools/builds/new and told to sign in on my-builds. A visitor the last session left
-  // signed in therefore waits for a real answer: signedIn, or login finishing either way.
+  // A visitor the hint says was signed in waits for a real answer instead of the grace period,
+  // which races a chunk download plus auth plus parse and, when the timer wins, redirects them
+  // away from their own builds.
   const resolved = hasHint ? (signedIn || loginSettled) : (signedIn || elapsed);
 
   return {

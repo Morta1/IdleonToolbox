@@ -9,10 +9,8 @@ import { classToSlug, slugToClassKey } from '@utility/builds/class-paths.mjs';
 // Row one is the four families plus All; row two appears only once a family is active and holds
 // that family's subclasses. Every pill is a real <a href> rather than a menu item, so changing
 // class is one click and survives middle-click - the MUI Menu this replaced took two and could
-// do neither. Row one's hrefs are how a crawler reaches the family pages; from there every class
-// page is reachable from its family's row two, and BuildCard's breadcrumb links reach them too.
-// Both rows scroll horizontally rather than wrapping, so the control stays one line tall no
-// matter how large a family is.
+// do neither. Row one's hrefs are also how a crawler reaches the family pages, and from there
+// every class page.
 
 const SUBCLASSES = Object.fromEntries(
   FAMILY_ORDER.map((fam) => [fam, CLASS_KEYS.filter((k) => familyOf(k) === fam && k !== fam)])

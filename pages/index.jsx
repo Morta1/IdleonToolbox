@@ -29,10 +29,8 @@ import Kofi from '@components/common/Kofi';
 import StructuredData, { createFAQData } from '@components/common/StructuredData';
 import { HomeSidebarAds } from '@components/common/Ads/AdUnit';
 
-// The hero's own breakpoints, not the theme's: the two-column layout needs 1246px, and the
-// extra top margin only helps on very wide screens. Media keys in sx keep the export and the
-// first client render identical; a useMediaQuery here rendered `false` at build and the real
-// value on the client, which is a hydration mismatch on every phone.
+// The hero's own breakpoints, not the theme's. Media keys in sx rather than useMediaQuery: the
+// hook renders `false` at build and the real value on the client, a mismatch on every phone.
 const WIDE = '@media (min-width: 1246px)';
 const ULTRA_WIDE = '@media (min-width: 1921px)';
 
@@ -64,8 +62,7 @@ const Home = () => {
   const { state } = useContext(AppContext);
   const theme = useTheme();
   // Slot 0 is the image both the export and the first client render show, so it must not be
-  // random: React compares it during hydration. Only the rotation order behind it is shuffled,
-  // in an effect, once that comparison is over.
+  // random: React compares it during hydration. The rest is shuffled in an effect afterwards.
   const [indexes, setIndexes] = useState([0, 1, 2, 3, 4, 5]);
   useEffect(() => {
     setIndexes([0, ...getRandomNumbersArray(5, 5).map((n) => n + 1)]);
@@ -147,9 +144,8 @@ const Home = () => {
               image on narrow screens is gone. */}
           <Box sx={{ width: '100%', [WIDE]: { width: 550 }, aspectRatio: '1200 / 674', position: 'relative' }}>
             <MotionConfig transition={{ duration: .8 }}>
-              {/* initial={false}: the first hero image must paint from the static HTML (it is the
-                  page's LCP candidate); with the default it exported at opacity 0 and only faded
-                  in after hydration. Later rotations still cross-fade. */}
+              {/* initial={false}: the first hero image is the page's LCP candidate and must paint
+                  from the static HTML, not fade in after hydration. Later rotations still fade. */}
               <AnimatePresence initial={false}>
                 {indexes.map((_, index) => {
                   return bgIndex === index ? <motion.img
@@ -247,8 +243,8 @@ const DiscordButton = styled(Button)`
   }
 `
 
-// Inline style can't hold a media query, so the wide-screen top margin lives in CSS instead of
-// a useMediaQuery-driven style object: the export and the first client render stay identical.
+// Inline style can't hold a media query, so the wide-screen top margin lives in CSS rather than
+// behind a useMediaQuery, which would differ between the export and the first client render.
 const PatchNotesSection = styled(motion.div)`
   margin-top: 0;
   margin-bottom: 15px;

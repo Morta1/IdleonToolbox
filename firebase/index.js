@@ -193,8 +193,8 @@ export const getLeaderboard = async (divisionIndex) => {
 
 export const getGuilds = async (callback) => {
   try {
-    // Loaded lazily so website-data and the parsers graph ride with this call, not with the
-    // firebase module (which AppProvider itself now loads on demand).
+    // Loaded lazily so website-data and the parsers graph ride with this call rather than with
+    // the firebase module itself.
     const [{ guildBonuses }, { calculateGuildBonusCost }] = await Promise.all([
       import('@website-data'),
       import('../parsers/guild')

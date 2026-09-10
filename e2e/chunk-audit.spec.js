@@ -10,9 +10,8 @@ const ITEMS_MARKER = '"displayName":"Copper_Ore"';
 
 const scriptsOf = (html) => [...html.matchAll(/<script[^>]+src="([^"]+\.js)"/g)].map((m) => m[1]);
 
-// Falls back rather than throwing at collection time: without out/ a readdir here takes the whole
-// file down with a TypeError before a single test runs, which reads as a broken spec instead of a
-// missing build. The fallback route fails the assertion it is given, which says what is wrong.
+// Falls back rather than throwing: a readdir at collection time takes the whole file down before
+// a test runs when out/ is missing, which reads as a broken spec instead of a missing build.
 const firstWikiEntityRoute = () => {
   try {
     const dir = path.join(process.cwd(), 'out', 'wiki', 'monster');

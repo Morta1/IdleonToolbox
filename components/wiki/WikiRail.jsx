@@ -16,8 +16,8 @@ const RAIL_TOP = navBarHeight + 8;
 // The wiki section's frame: search on top of every page, and a left rail of category links the
 // way idleon.wiki keeps its categories in reach. Rail is desktop only; below md the tiles and
 // back links already cover navigation. Real anchors, so middle-click, copy-link and modified
-// clicks all behave - and because the rail is hidden by CSS rather than by a condition, those
-// hrefs are in every wiki page's exported HTML, which is how a crawler reaches the categories.
+// clicks all behave, and hidden by CSS rather than by a condition so the hrefs stay in every
+// wiki page's exported HTML, which is how a crawler reaches the categories.
 const WikiRail = ({ current, children }) => {
   const router = useRouter();
   const go = (event, href) => {

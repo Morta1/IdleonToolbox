@@ -86,26 +86,21 @@ const MyApp = (props) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
         {/* Title, description and canonical are declared here as well as in each page's
             <NextSeo>: a data page renders DataLoadingWrapper's loader at build time, so its
-            NextSeo never runs during the export, and during hydration the title used to blank
-            for a second before NextSeo restored it. next/head dedupes the two copies by key, and
-            NextSeo's wins once it renders.
+            NextSeo never runs during the export, and without a copy here the title blanks during
+            hydration. next/head dedupes the two by key, and NextSeo's wins once it renders.
 
             The description has to live in next/head rather than _document: a tag _document
             writes is outside next/head's control, so it cannot be deduped against NextSeo's
             copy - every page carried two, and _document's froze at the landing page and went
             stale on every client-side navigation after it. */}
         {staticTitle ? <title>{staticTitle}</title> : null}
-        {/* key must stay "description", for the same reason as the canonical below: next-seo emits
-            its own copy under that key, and next/head only collapses two tags when their keys
-            match. Without it every page with its own NextSeo ships two descriptions. */}
+        {/* key must stay "description": next-seo emits its own copy under that key, and next/head
+            only collapses two tags when their keys match. */}
         {staticDescription ? <meta name="description" content={staticDescription} key="description"/> : null}
-        {/* key must stay "canonical": next-seo emits its own tag under that key, and next/head
-            only collapses two <link>s when their keys match. Without it the page ends up with
-            two canonicals. */}
+        {/* key must stay "canonical", same dedupe rule, or the page ships two canonicals. */}
         {noindex ? null : <link rel="canonical" href={canonicalUrl} key="canonical"/>}
-        {/* googlebot only. The app-level <NextSeo> below writes a robots tag on every page, from
-            the same `noindex`, and next/head keeps whichever of two <meta name="robots"> renders
-            last - so a copy here would be redundant at best. next-seo never writes googlebot. */}
+        {/* googlebot only: next-seo never writes that one, while the robots tag is already
+            written by the <NextSeo> below from the same `noindex`. */}
         <meta name="googlebot" content={noindex ? 'noindex,follow' : 'index,follow'}/>
         {preConnections?.map((link) => <link key={link} rel="preconnect" href={link}/>)}
       </Head>
@@ -188,33 +183,23 @@ const MyApp = (props) => {
             <PreferencesProvider>
             <AppProvider>
               <NavBar>
-                {/* The app-level SEO defaults. No title/description here on purpose: this NextSeo
-                    renders before <Component/>, so a page's own NextSeo comes later in tree order
-                    and next/head keeps its copy (see the dedupe note on the <Head> above) - a
-                    title or description set here would only reach the export on a page that
-                    defines neither, where it would just override the staticTitle/staticDescription
-                    copy in _app's own <Head> for no gain. 105 of 108 pages define their own
-                    NextSeo; the rest set one locally.
+                {/* App-level SEO defaults, deliberately without a title or description: every page
+                    declares its own, and _app's <Head> above covers the rest.
 
-                    <NextSeo> rather than <DefaultSeo>, for one reason: DefaultSeo has no
-                    `noindex` prop (it destructures a fixed list that omits noindex/nofollow, so
-                    the prop is accepted and silently dropped), and its only way to say noindex is
-                    dangerouslySetAllPagesToNoIndex - which writes true into a module-level object
-                    next-seo never resets. `next build` renders thousands of pages per worker
-                    process, so the first noindex page turned every page rendered after it in that
-                    worker into noindex,follow. NextSeo takes noindex per render and mutates
-                    nothing; underneath, both render the same buildTags output into next/head. */}
+                    <NextSeo> rather than <DefaultSeo>: DefaultSeo has no `noindex` prop (a
+                    `noindex` passed to it is silently dropped), and its
+                    dangerouslySetAllPagesToNoIndex writes into a module-level object next-seo
+                    never resets, so under `next build` one noindex page noindexes every page
+                    rendered after it in the same worker. Both render the same tags otherwise. */}
                 <NextSeo
                   // next-seo emits a robots tag whether or not one is asked for, so this and the
-                  // page's own NextSeo are two writers of one tag and next/head keeps whichever
-                  // renders last. Passing the page's own noindex here makes them agree; a bare
-                  // NextSeo here would assert "index,follow" and could un-noindex a page that
-                  // shipped noindex statically. nofollow is deliberately left alone: these pages
-                  // want "noindex,follow" so crawlers still traverse their links.
+                  // page's own NextSeo both write it and next/head keeps the last one. Passing the
+                  // page's noindex here makes them agree; without it this one would re-assert
+                  // "index,follow" over a page that shipped noindex. nofollow stays off on
+                  // purpose: these pages want "noindex,follow" so crawlers still follow links.
                   noindex={Boolean(noindex)}
-                  // Same condition as the <link> in _app's <Head> above, or a noindex page ships
-                  // no canonical and then grows one on hydration - including the 404, which
-                  // would claim a canonical for whatever URL failed to resolve.
+                  // Same condition as the <link> in the <Head> above, or a noindex page ships no
+                  // canonical and then grows one on hydration.
                   canonical={noindex ? undefined : canonicalUrl}
                   openGraph={{
                     type: 'website',

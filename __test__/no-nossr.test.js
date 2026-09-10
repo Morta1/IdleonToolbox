@@ -2,11 +2,10 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-// useMediaQuery's noSsr option renders the real match on the first client render while the
-// build rendered `false`: a hydration mismatch on every viewport where the query is true. With
-// no router gate in _app, one mismatch anywhere makes React throw the server DOM away and
-// re-render the whole page. Without the option MUI returns `false` on both sides and the real
-// value one render later, which is a frame of the narrow layout, not a mismatch.
+// useMediaQuery's noSsr option renders the real match on the first client render while the build
+// rendered `false`: a hydration mismatch on every viewport where the query is true, and one
+// mismatch makes React throw the server DOM away and re-render the whole page. Without the option
+// MUI returns `false` on both sides and the real value a render later.
 const ROOTS = ['components', 'pages', 'hooks'];
 
 const walk = (dir, out = []) => {

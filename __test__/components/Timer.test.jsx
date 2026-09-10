@@ -38,9 +38,8 @@ describe('Timer with no save loaded', () => {
     expect(document.body.textContent).toBe('04h:00m:00s');
   });
 
-  // Read from this render's container, never from `screen`: with isolate:false the testing-library
-  // module is shared between files, and `screen` is bound at import time to the document.body of
-  // whichever jsdom loaded it first. In any later file that body is a stale, empty one.
+  // Read from this render's container, never from `screen`: with isolate:false the shared
+  // testing-library module binds `screen` to the first jsdom's body, stale in every later file.
   it('renders the placeholder for a target already in the past', () => {
     const { container } = render(<Timer type={'countdown'} date={Date.now() - HOUR} placeholder={'Go claim!'}/>);
     expect(container.textContent).toBe('Go claim!');

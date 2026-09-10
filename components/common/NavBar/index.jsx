@@ -134,10 +134,9 @@ const ContentWrapper = ({ showSidebar, children }) => {
   // void beside it. SidebarAd stays mounted through the collapse so the ad is never recreated.
   //
   // The 850px breakpoint lives in CSS, not in a media query hook: a hook is false at build and on
-  // the first client render, so every export shipped a full-width column that jumped to 85% one
-  // render after hydration. Adblock detection cannot be done in CSS, and starts as "not blocked",
-  // so the export reserves the gutter: the majority get zero shift, and the minority running an
-  // adblocker get one collapse (~750ms in) instead of an expansion.
+  // the first client render, so the export would ship a full-width column that jumps to 85% one
+  // render later. Adblock detection cannot be done in CSS and starts as "not blocked", so the
+  // export reserves the gutter and only adblock users see a collapse rather than an expansion.
   const reserve = !adBlocked && !loading && !pageReportedLoading;
 
   return (

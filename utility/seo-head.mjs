@@ -2,10 +2,9 @@
 // <Head> renders all three and a page's own <NextSeo> re-renders them after hydration - the two
 // must not disagree about what a page is called or whether it may be indexed.
 //
-// A data page renders DataLoadingWrapper's loader during `next build`, so its own <NextSeo>
-// never runs and its title is absent from the exported HTML; on every page the title would also
-// blank for a moment during hydration before NextSeo restored it. _app rebuilds the tags from
-// PAGE_SEO, keyed by route pattern, overridden by whatever the page put in static props.
+// A data page renders DataLoadingWrapper's loader during `next build`, so its own <NextSeo> never
+// runs and the export would carry no title. _app rebuilds the tags from PAGE_SEO, keyed by route
+// pattern, overridden by whatever the page put in static props.
 //
 // The canonical URL is deliberately not here: it comes from asPath, so that it follows
 // client-side navigation - which a value resolved from build-time props cannot do.
@@ -20,9 +19,7 @@ export function resolveSeoHead({ pageProps, pageSeo }) {
   };
 }
 
-// The visible heading is the title without the site suffix. PageTitle is the only renderer of it
-// (in NavBar or on a page with its own heading), so this is a single source of truth rather than
-// something two renderers need to agree on.
+// The visible heading is the title without the site suffix, rendered only by PageTitle.
 export function headingOf(title) {
   return title?.replace(/\s*[|\-–—]\s*Idleon Toolbox\s*$/i, '')?.trim() || null;
 }

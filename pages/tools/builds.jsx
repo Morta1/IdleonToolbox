@@ -93,9 +93,9 @@ const Builds = ({ initialBuilds }) => {
   // but `filters` would still be INITIAL_FILTERS - stripping the incoming URL's query params.
   const [hydrated, setHydrated] = useState(false);
 
-  // Every build is already here, so searching, tagging and sorting run in memory. Nothing about
-  // filtering touches the network. staticIds pins the exported rows ahead of anything the mount
-  // refresh merges in below, so a newer fetched build can't sort above them and shift the grid.
+  // Every build is already here, so searching, tagging and sorting run in memory. staticIds pins
+  // the exported rows ahead of anything the mount refresh merges in, so a newer fetched build
+  // can't sort above them and shift the grid after first paint.
   const visible = filterAndSortBuilds(items, filters, { pinFirst: staticIds });
 
   // Legacy ?c=&b= URLs leave this page entirely - see legacyRedirectTarget.
@@ -147,9 +147,7 @@ const Builds = ({ initialBuilds }) => {
         setItems((prev) => {
           const known = new Set(prev.map((b) => b.shortId));
           const fresh = (res?.items || []).filter((b) => !known.has(b.shortId));
-          // Merge order doesn't matter here - staticIds pins the exported rows ahead of these in
-          // the sort, so a build fetched after the export can't land above rows already painted
-          // on screen. It takes its real place once the next deploy exports it too.
+          // Merge order is free: staticIds already pins the exported rows ahead of these.
           return fresh.length ? [...prev, ...fresh] : prev;
         });
       })

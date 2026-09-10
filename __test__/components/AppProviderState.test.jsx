@@ -5,8 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import { act, render } from '@testing-library/react';
 
-// isReady false keeps the init effect (and with it firebase) out of the picture: this file is
-// about the first render and the storage merge, nothing else.
+// isReady false keeps the init effect, and with it firebase, out of these renders.
 vi.mock('next/router', () => ({
   useRouter: () => ({ isReady: false, query: {}, pathname: '/wiki', push: vi.fn(), replace: vi.fn() })
 }));

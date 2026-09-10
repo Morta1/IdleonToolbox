@@ -234,10 +234,8 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
       </Box>
     </Box>
 
-    {/* Silver Pen's 198th drop still has to reach the export: this table is the only path a
-        crawler has to it, and the rows past the cap render nothing at all. Text-only anchors, no
-        icons and no cells, so a 248-row section does not request 200 images for a block nobody
-        sees. Removed once the table is expanded past them. */}
+    {/* Rows past the visible cap render nothing at all, so this listing is a crawler's only path
+        to them. Text-only anchors, or a 248-row section requests 200 images nobody sees. */}
     {hiddenRows.length > 0 ? <Box component={'nav'} aria-hidden sx={{ display: 'none' }}>
       {hiddenRows.map((row) => {
         const href = hrefFor?.(row.otherId);

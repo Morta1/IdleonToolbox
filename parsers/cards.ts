@@ -4,8 +4,8 @@ import { isPlaceholder } from '@parsers/catalog';
 import type { IdleonData, Account } from './types';
 import { calcCardBonus, calculateAmountToNextLevel } from './cardMath';
 
-// Re-exported so the 30+ account-side importers keep their import path. Wiki components import
-// cardMath directly: this file's @website-data import is what they must not reach.
+// Re-exported so account-side importers keep their path. Wiki components must import cardMath
+// directly instead: this file's @website-data import is what they cannot pull in.
 export { calcCardBonus, calculateAmountToNextLevel };
 
 export const getCards = (idleonData: IdleonData, account: Account): Record<string, any> => {

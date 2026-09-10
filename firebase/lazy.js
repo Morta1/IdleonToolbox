@@ -1,7 +1,7 @@
-// The only place allowed to import firebase/index.js. That module runs getAuth, getDatabase and
-// getFirestore at module top, so a static import from anything _app renders puts ~700 KB into
-// the chunk every exported page loads. One memoised promise: the first caller pays for the
-// download, later callers share it, and a rejected load is retried by the next call.
+// The only place allowed to import firebase/index.js: that module runs getAuth, getDatabase and
+// getFirestore at module top, so a static import from anything _app renders puts ~700 KB into the
+// chunk every exported page loads. The memoised promise is cleared on rejection so a failed load
+// can be retried.
 let pending = null;
 
 export const loadFirebase = () => {
@@ -14,6 +14,5 @@ export const loadFirebase = () => {
   return pending;
 };
 
-// Whether anyone has asked for firebase this session. logout() uses it to skip signing out of a
-// SDK that was never loaded, which is every anonymous visitor.
+// Lets logout() skip signing out of an SDK that was never loaded, which is every anonymous visit.
 export const firebaseRequested = () => pending !== null;

@@ -27,9 +27,8 @@ export const filterAndSortBuilds = (builds, filters = {}, options = {}) => {
   };
 
   const comparator = filters.sort === 'top' ? byLikes : byNewest;
-  // Builds already on the page (static props) sort ahead of ones fetched after the export,
-  // regardless of sort mode - otherwise a newer fetched build outranks an older static one and
-  // shifts the whole grid down after first paint.
+  // Builds already on the page (static props) sort ahead of ones fetched after the export, in
+  // every sort mode, or a newer fetched build outranks them and shifts the grid after first paint.
   const withPin = pinFirst
     ? (a, b) => (pinFirst.has(a.shortId) ? 0 : 1) - (pinFirst.has(b.shortId) ? 0 : 1) || comparator(a, b)
     : comparator;

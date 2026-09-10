@@ -1,6 +1,6 @@
-// With vitest's isolate:false the jsdom document and the module cache are shared across files, so
-// @testing-library's own afterEach(cleanup) registers against whichever file imported it first and
-// every later file leaves its render mounted for the next one to trip over. Unmount per file here.
+// With vitest's isolate:false the module cache is shared, so @testing-library's own
+// afterEach(cleanup) registers against whichever file imported it first and every later file
+// leaves its render mounted for the next one to trip over.
 import { afterEach } from 'vitest';
 
 afterEach(async () => {

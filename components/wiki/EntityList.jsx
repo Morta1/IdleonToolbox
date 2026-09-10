@@ -65,9 +65,8 @@ const BANNER_KINDS = new Set(['bundle', 'world']);
 
 const BAND_COLOURS = ['primary.main', 'warning.light', 'info.light', 'success.light', 'secondary.light', 'error.light'];
 
-// The rows are real anchors so the exported HTML carries every link, and so middle-click,
-// copy-link and modified clicks all behave. A plain click still goes through the router, which
-// keeps the session query (demo, profile) on the URL.
+// Real anchors so the exported HTML carries every link and modified clicks behave. A plain click
+// still goes through the router, which keeps the session query (demo, profile) on the URL.
 const linkProps = (hrefFor, id) => {
   const href = hrefFor?.(id);
   return href ? { href } : { component: 'button', type: 'button' };
@@ -165,9 +164,8 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner }) => {
       </Stack>))}
     </Box>
 
-    {/* The rows a collapsed band hides still have to reach the export: this listing is the only
-        path a crawler has to them. Text-only anchors, no icons, so a 2,400-row category does not
-        request 2,400 images for a block nobody sees. Removed once the band expands. */}
+    {/* The rows a collapsed band hides are only reachable to a crawler through here. Text-only
+        anchors, or a 2,400-row category requests 2,400 images for a block nobody sees. */}
     {hidden > 0 ? <Box component={'nav'} aria-hidden sx={{ display: 'none' }}>
       {band.entries.slice(rows.length).map((entry) => {
         const href = hrefFor?.(entry.id);

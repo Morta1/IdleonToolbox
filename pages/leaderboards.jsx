@@ -47,10 +47,9 @@ const Leaderboards = () => {
   const router = useRouter();
   const { t } = router.query;
   // Derived during render, never seeded into a useState initialiser: on a statically exported page
-  // carrying a query string router.isReady is false and router.query is {} for the first render, so
-  // an initialiser would freeze /leaderboards?t=Skills on the global data while the tab strip (which
-  // reads the router every render) highlighted Skills. isReady flips in a re-render, so no effect is
-  // needed. The clicked tab covers the moment between a click and Tabber's router.push landing.
+  // router.query is {} until isReady, so an initialiser would freeze /leaderboards?t=Skills on the
+  // global data while the tab strip, which reads the router live, highlighted Skills. clickedTab
+  // covers the moment between a click and Tabber's router.push landing.
   const [clickedTab, setClickedTab] = useState(null);
   const queryTab = router.isReady && typeof t === 'string' && tabs.some((tab) => tab.toLowerCase() === t.toLowerCase())
     ? t.toLowerCase()
@@ -59,8 +58,7 @@ const Leaderboards = () => {
   const [loadingSearchedChar, setLoadingSearchedChar] = useState(false);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
   // Mantine reads storage in an effect (getInitialValueInEffect is the default), so the export and
-  // the first client render both show the default, and anyone who switched anonymous rows off
-  // gets their setting one render later: no hydration mismatch, no hand-rolled effect.
+  // the first client render both show the default and the stored value lands a render later.
   const [showAnonymous, setShowAnonymous] = useLocalStorage({ key: 'leaderboard:showAnonymous', defaultValue: true });
   const queryClient = useQueryClient();
 

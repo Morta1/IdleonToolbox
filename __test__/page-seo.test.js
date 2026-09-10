@@ -2,11 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { collect } from '../utility/generate-page-seo.mjs';
 import { PAGE_SEO } from '../data/page-seo';
 
-// data/page-seo.js is generated from each page's own <NextSeo> and rendered in _app.jsx's
-// <Head>, which is the only reason a data page - whose NextSeo never runs at build time, because
-// DataLoadingWrapper renders its loader instead - has a title in the export at all. Nothing at
-// runtime re-reads the pages, so an edit to a page's NextSeo would silently leave the exported
-// HTML advertising the old copy. These tests are what catches that.
+// data/page-seo.js is generated from each page's own <NextSeo> and rendered in _app's <Head>,
+// which is the only reason a data page has a title in the export at all. Nothing re-reads the
+// pages at runtime, so an edit to a NextSeo would silently leave the export advertising the old
+// copy: these tests are what catches that.
 
 describe('page-seo map', () => {
   const { entries, problems } = collect();

@@ -40,7 +40,7 @@ export function appReducer(state, action) {
     // auth poll below reads whenever waitingForAuth is set. Both login components arm that flag
     // before their fresh credentials arrive, so a second sign-in re-subscribed with the previous
     // user's uid and token. A whitelist drops any future session key by default. storageHydrated
-    // rides along too: dropping it would make the persist effect skip every write after a logout.
+    // rides along too, or the persist effect would skip every write after a logout.
     [ACTION_TYPES.LOGOUT]: () => {
       const { filters, pinnedPages, displayedCharacters, trackers, godPlanner, planner, settings,
         showRankOneOnly, showUnmaxedBoxesOnly, storageHydrated } = state;
@@ -52,8 +52,8 @@ export function appReducer(state, action) {
         isLoading: false
       };
     },
-    // localStorage is merged in an effect, never during render, so the build and the first
-    // client render start from the same constant. This is the merge.
+    // localStorage is merged here, never during render, so the build and the first client
+    // render start from the same constant.
     [ACTION_TYPES.HYDRATE_STORAGE]: () => ({ ...state, ...action.data, storageHydrated: true }),
     [ACTION_TYPES.DISPLAYED_CHARACTERS]: () => ({ ...state, displayedCharacters: action.data }),
     [ACTION_TYPES.FILTERS]: () => ({ ...state, filters: action.data }),
@@ -88,9 +88,9 @@ const STORAGE_KEYS = [
   'settings'
 ];
 
-// Identical on the build machine and on the client. Anything that only the client can know
-// (localStorage) is merged by HYDRATE_STORAGE in an effect. storageHydrated is what the init and
-// persist effects wait for.
+// Identical on the build machine and on the client: anything only the client can know
+// (localStorage) is merged by HYDRATE_STORAGE in an effect, which the init and persist effects
+// wait for via storageHydrated.
 export const DEFAULT_STATE = {
   showRankOneOnly: false,
   showUnmaxedBoxesOnly: false,
@@ -99,9 +99,8 @@ export const DEFAULT_STATE = {
   storageHydrated: false
 };
 
-// Runs only inside an effect: reading storage during render would make the first client
-// render differ from the export, which React reports as a hydration mismatch and answers by
-// re-rendering the whole page client-side.
+// Call only from an effect: reading storage during render would make the first client render
+// differ from the export, and React answers a mismatch by re-rendering the whole page.
 export const readStoredState = () => {
   const loadedState = STORAGE_KEYS.reduce((state, key) => {
     try {
@@ -122,10 +121,9 @@ export const readStoredState = () => {
   return loadedState;
 };
 
-// Same guard as the read side. A visitor with site data blocked gets a SecurityError from every
-// localStorage touch, and the persist effect runs on the first render of every page (pinnedPages
-// is always supplied), so an unguarded write would reach the root ErrorBoundary and turn the
-// whole site into "The app failed to load".
+// A visitor with site data blocked gets a SecurityError from every localStorage touch, and the
+// persist effect runs on the first render of every page, so an unguarded write would reach the
+// root ErrorBoundary and take the whole site down.
 export const writeStored = (key, value) => {
   try {
     localStorage.setItem(key, JSON.stringify(value));
@@ -134,9 +132,8 @@ export const writeStored = (key, value) => {
   }
 };
 
-// Same guard for the clear side. logout() calls it, and handleUnauthenticatedUser's catch calls
-// logout: a SecurityError here would abort before loadEmptyAccount and leave isLoading false with
-// no account, which every data page shows as an endless "Loading account data...".
+// Same guard for the clear side: logout() calls it, so a SecurityError here would abort before
+// loadEmptyAccount and leave every data page loading forever.
 export const removeStored = (key, storage = 'local') => {
   try {
     (storage === 'session' ? sessionStorage : localStorage).removeItem(key);
@@ -241,16 +238,15 @@ const AppProvider = ({ children }) => {
   };
 
   // clearAuthHint is opt-out for the one caller that is not an actual sign-out: the init effect's
-  // error path, which cannot tell a transient firebase failure from a genuinely anonymous visitor.
+  // error path, which cannot tell a transient firebase failure from an anonymous visitor.
   const logout = async (manualImport, data, { clearAuthHint = true } = {}) => {
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
     }
 
-    // Firebase loads on demand, so an anonymous visitor has nothing to sign out of. And never
-    // throw here: handleUnauthenticatedUser's catch calls this, and an error before
-    // dispatch(LOGOUT) and loadEmptyAccount would leave isLoading false with no account, which
-    // every data page shows as an endless "Loading account data...".
+    // Firebase loads on demand, so an anonymous visitor has nothing to sign out of. Never throw
+    // here: this runs from handleUnauthenticatedUser's catch, and an error before dispatch(LOGOUT)
+    // and loadEmptyAccount would leave every data page loading forever.
     if (firebaseRequested()) {
       try {
         const { userSignOut } = await loadFirebase();
@@ -284,9 +280,8 @@ const AppProvider = ({ children }) => {
     await loadEmptyAccount();
   };
 
-  // What keeps the init effect from running against DEFAULT_STATE is not this effect's position:
-  // it is init's own `state.storageHydrated` guard plus that flag in its dep array. This effect
-  // dispatches HYDRATE_STORAGE, the flag flips, and init re-runs with the stored values in hand.
+  // The init effect below is held off by its own `state.storageHydrated` guard, not by this
+  // effect's position: dispatching here flips the flag and re-runs it with the stored values.
   useEffect(() => {
     dispatch({ type: ACTION_TYPES.HYDRATE_STORAGE, data: readStoredState() });
   }, []);
@@ -327,14 +322,12 @@ const AppProvider = ({ children }) => {
 
         localStorage.setItem('manualImport', 'false');
         const lastUpdated = parsedData?.lastUpdated || new Date().getTime();
-        // Skip only on an explicit 'no'. An absent hint on a profile link is a signed-in user's
-        // first visit since the hint shipped, and treating that as anonymous would show them
-        // "Login" with no way back to their own account.
+        // Skip only on an explicit 'no': an absent hint means undecided, and treating that as
+        // anonymous would show a signed-in visitor "Login" with no way back to their account.
         const askedFirebase = readAuthHint() !== 'no';
         const user = askedFirebase ? await (await loadFirebase()).checkUserStatus() : null;
         // Only on the branch that actually asked, and only ever 'no': nothing subscribes here, so
-        // 'yes' would be a claim this path never verified. Without it a profile link re-downloads
-        // the SDK on every visit for a visitor firebase already said has no session.
+        // 'yes' would be a claim this path never verified.
         if (askedFirebase && !user) writeAuthHint('no');
 
         dispatch({
@@ -404,19 +397,17 @@ const AppProvider = ({ children }) => {
     const handleUnauthenticatedUser = async () => {
       try {
         // 'no' is only ever written after firebase itself reported no session, or on logout, so
-        // a visitor carrying it has nothing to restore and skips the SDK download entirely.
-        // Absent is undecided: ask firebase, which also covers everyone signed in before the
-        // hint existed.
+        // a visitor carrying it has nothing to restore and skips the SDK download. Absent is
+        // undecided: ask firebase.
         if (readAuthHint() === 'no') {
           await loadEmptyAccount();
           return;
         }
         const { checkUserStatus, subscribe } = await loadFirebase();
         const user = await checkUserStatus();
-        // Written the moment firebase answers, never after subscribe: subscribe does three network
-        // reads and throws by design on "No characters found", and a visitor carrying 'no' who
-        // signed in would keep it while holding a live session, so every later visit would skip
-        // the SDK and show them Login.
+        // Written the moment firebase answers, never after subscribe: subscribe throws by design
+        // on "No characters found", which would leave a signed-in visitor marked 'no' and skipping
+        // the SDK on every later visit.
         writeAuthHint(user ? 'yes' : 'no');
         if (!state?.account && user) {
           const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
@@ -427,10 +418,9 @@ const AppProvider = ({ children }) => {
       } catch (error) {
         console.error(error);
         dispatch({ type: ACTION_TYPES.SET_LOADING, data: false });
-        // The hint survives this on purpose. Anything can land here: a blocked SDK download, an
-        // offline first paint, a firebase outage. 'no' means firebase itself reported no user, and
-        // writing it from a failure would permanently mark a signed-in visitor anonymous, so every
-        // later visit would skip the SDK and show them Login with no way back to their account.
+        // The hint survives this on purpose: anything can land here (blocked SDK download, offline
+        // first paint, firebase outage), and 'no' written from a failure would permanently mark a
+        // signed-in visitor anonymous.
         await logout(undefined, undefined, { clearAuthHint: false });
       }
     };

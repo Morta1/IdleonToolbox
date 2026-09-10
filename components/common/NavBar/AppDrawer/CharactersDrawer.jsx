@@ -41,9 +41,8 @@ const CharactersDrawer = () => {
     [name]: false
   }), {}));
 
-  // Re-sync the local checkbox and chip state whenever the saved selection, the saved filters or
-  // the character roster changes (a newly created 11th character, or storage landing one render
-  // after mount): React's recommended "adjust state during render" pattern.
+  // Adjust-during-render rather than an effect, because storage lands a render after mount and
+  // the roster can grow: the checkboxes have to follow both without a paint in between.
   const [syncSource, setSyncSource] = useState({
     displayed: state?.displayedCharacters,
     length: state?.characters?.length,
