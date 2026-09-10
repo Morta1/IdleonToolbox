@@ -581,7 +581,7 @@ export const getExtraDust = (character: any, account: any) => {
   const exoticBonus = getExoticMarketBonus(account, 54) ?? 0;
   const mainframeBonus = getLabBonus(account?.lab?.labBonuses, 122); // game MainframeBonus(122)
   const paletteBonus = getPaletteBonus(account, 4) ?? 0;
-  const bubbleBonus = getBubbleBonus(account, account?.alchemy?.bubbles?.quicc?.[13]?.bubbleName) ?? 0; // AlchBubbles.A13
+  const bubbleBonus = getBubbleBonus(account, account?.alchemy?.bubbles?.quicc?.[32]?.bubbleName) ?? 0; // AlchBubbles.A32
   const loreBonus = getLoreBossBonus(account, 2) ?? 0; // Tome epilogue (LoreEpiBon 2)
   const meritocracyBonus = getMeritocracyBonus(account, 25) ?? 0;
   const { value: allMasterclassDropz, sources: amdSources } = getAllMasterclassDropz(character, account);
