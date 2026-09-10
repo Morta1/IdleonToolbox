@@ -70,4 +70,33 @@ describe('filterAndSortBuilds', () => {
     expect(filterAndSortBuilds(undefined, {})).toEqual([]);
     expect(filterAndSortBuilds([], undefined)).toEqual([]);
   });
+
+  it('is unchanged when pinFirst is absent', () => {
+    const builds = [
+      b('old', { createdAt: '2026-01-01T00:00:00.000Z' }),
+      b('new', { createdAt: '2026-08-01T00:00:00.000Z' })
+    ];
+    expect(filterAndSortBuilds(builds, {}).map((x) => x.shortId)).toEqual(['new', 'old']);
+  });
+
+  it('pins builds ahead of a newer unpinned build under the "new" sort', () => {
+    const builds = [
+      b('freshest', { createdAt: '2026-09-01T00:00:00.000Z' }),
+      b('pinned-old', { createdAt: '2026-01-01T00:00:00.000Z' }),
+      b('pinned-new', { createdAt: '2026-06-01T00:00:00.000Z' })
+    ];
+    const pinFirst = new Set(['pinned-old', 'pinned-new']);
+    expect(filterAndSortBuilds(builds, {}, { pinFirst }).map((x) => x.shortId))
+      .toEqual(['pinned-new', 'pinned-old', 'freshest']);
+  });
+
+  it('pins builds ahead of others under the "top" sort too', () => {
+    const builds = [
+      b('mostLiked', { likeCount: 50 }),
+      b('pinned', { likeCount: 1 })
+    ];
+    const pinFirst = new Set(['pinned']);
+    expect(filterAndSortBuilds(builds, { sort: 'top' }, { pinFirst }).map((x) => x.shortId))
+      .toEqual(['pinned', 'mostLiked']);
+  });
 });

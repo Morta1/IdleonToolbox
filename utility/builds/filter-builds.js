@@ -13,9 +13,10 @@
 const byNewest = (a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
 const byLikes = (a, b) => (b.likeCount || 0) - (a.likeCount || 0) || byNewest(a, b);
 
-export const filterAndSortBuilds = (builds, filters = {}) => {
+export const filterAndSortBuilds = (builds, filters = {}, options = {}) => {
   const tags = filters.tags || [];
   const q = (filters.q || '').trim().toLowerCase();
+  const { pinFirst } = options;
 
   const matches = (build) => {
     if (tags.length && !tags.every((tag) => build?.tags?.includes(tag))) return false;
@@ -25,7 +26,15 @@ export const filterAndSortBuilds = (builds, filters = {}) => {
     return true;
   };
 
+  const comparator = filters.sort === 'top' ? byLikes : byNewest;
+  // Builds already on the page (static props) sort ahead of ones fetched after the export,
+  // regardless of sort mode - otherwise a newer fetched build outranks an older static one and
+  // shifts the whole grid down after first paint.
+  const withPin = pinFirst
+    ? (a, b) => (pinFirst.has(a.shortId) ? 0 : 1) - (pinFirst.has(b.shortId) ? 0 : 1) || comparator(a, b)
+    : comparator;
+
   return (builds || [])
     .filter(matches)
-    .sort(filters.sort === 'top' ? byLikes : byNewest);
+    .sort(withPin);
 };
