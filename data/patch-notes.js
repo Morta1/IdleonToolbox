@@ -11,7 +11,7 @@ export const patchNotes = [
       'Hole: new "Show only scaling schematics" filter on the Engineer tab, isolating the schematics whose bonus grows with other hole stats along with their current total bonus',
       'Leaderboards: added Total Button Presses, Total Fountain Upgrades, Total Sushi Perfectos, Total Spelunking Depths, Total Manic Spelunking Depths, Cooking Mastery Level, Total Advice Fish Upgrades, Total Equinox Upgrades, Total Royal Armory Upgrades, Total Royal Resource Grades and Total Royal Statue Levels',
       'Exotic Market: every upgrade card now shows when it next returns to rotation, and Off Rotation is sorted by soonest return',
-      'Pet Mart+ upgrade cost (Pet Crystals) is now shown on the Pets page, on wiki pet pages, and in a new Pet Mart tab on the Tournament page with today's rotation and every other pet off rotation'
+      'Pet Mart+ upgrade cost (Pet Crystals) is now shown on the Pets page, on wiki pet pages, and in a new Pet Mart tab on the Tournament page showing the current rotation and every other pet off rotation'
     ],
     'fixes': [
       'Active Stuff Calculator and Royal Armory now count Orblets still in character inventories, not just the Storage Chest',
