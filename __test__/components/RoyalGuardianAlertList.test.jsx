@@ -53,12 +53,15 @@ describe('royal guardian alert list', () => {
     await screen.findByText(/W1 Spore Meadows/);
 
     // A bare map name places nothing for most players, so each line carries its world and the
-    // monster or resource the map is known for.
-    expect(screen.getByText(/W1 Spore Meadows \(10 PTS\)/)).toBeTruthy();
+    // monster or resource the map is known for. The PTS count sits in its own column rather
+    // than inside the name.
+    expect(screen.getByText('W1 Spore Meadows')).toBeTruthy();
     expect(screen.getByText('Green Mushroom')).toBeTruthy();
+    expect(screen.getByText('10 PTS')).toBeTruthy();
     // Mining maps resolve off the same lookup and name the ore instead.
-    expect(screen.getByText(/W1 The Ol' Straightaway \(12 PTS\)/)).toBeTruthy();
+    expect(screen.getByText("W1 The Ol' Straightaway")).toBeTruthy();
     expect(screen.getByText('Plat')).toBeTruthy();
+    expect(screen.getByText('12 PTS')).toBeTruthy();
   });
 
   it('draws the monster sprite alongside the name', async () => {
@@ -76,8 +79,9 @@ describe('royal guardian alert list', () => {
     renderDashboard();
     fireEvent.mouseOver(document.querySelector('img[src*="Royal_Cost"]'));
 
-    const owlPerch = await screen.findByText(/W1 Grand Owl Perch \(11 PTS\)/);
+    const owlPerch = await screen.findByText('W1 Grand Owl Perch');
     // No monster means no trailing label at all, rather than an empty one.
-    expect(owlPerch.querySelectorAll('img').length).toBe(0);
+    expect(owlPerch.closest('li').querySelectorAll('img').length).toBe(0);
+    expect(screen.getByText('11 PTS')).toBeTruthy();
   });
 });

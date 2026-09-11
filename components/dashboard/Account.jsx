@@ -689,7 +689,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                       : 's have'} ${alerts?.['World 7']?.royalGuardian?.unspentPts?.threshold}+ unspent PTS`}
                     entries={alerts?.['World 7']?.royalGuardian?.unspentPts?.outposts?.map((outpost) => ({
                       ...outpost,
-                      name: `${outpost?.name} (${outpost?.ptsLeft} PTS)`
+                      detail: `${outpost?.ptsLeft} PTS`
                     }))}/>}
                   iconPath={'etc/Royal_Cost'} imgStyle={{ width: 18, height: 18 }} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
               {alerts?.['World 7']?.royalGuardian?.claimableMaps?.length > 0 ?
@@ -718,7 +718,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                       : `within ${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.horizon}h`} - the spare ones would earn Trade rank EXP as Traders`}
                     entries={alerts?.['World 7']?.royalGuardian?.overkillWorkers?.outposts?.map((outpost) => ({
                       ...outpost,
-                      name: `${outpost?.name} (${outpost?.workers} Worker${outpost?.workers === 1 ? '' : 's'}, +${notateNumber(outpost?.expPerHour, 'Big')} EXP/hr)`
+                      detail: `${outpost?.workers} Worker${outpost?.workers === 1 ? '' : 's'}, +${notateNumber(outpost?.expPerHour, 'Big')} EXP/hr`
                     }))}/>}
                   iconPath={'etc/RGunit0'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
               {alerts?.['World 7']?.royalGuardian?.strandedWorkers ?
@@ -729,7 +729,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                       : 's have'} Workers on an empty resource with nothing better in range - Traders would earn Trade rank EXP instead`}
                     entries={alerts?.['World 7']?.royalGuardian?.strandedWorkers?.outposts?.map((outpost) => ({
                       ...outpost,
-                      name: `${outpost?.name} (${outpost?.workers} Worker${outpost?.workers === 1 ? '' : 's'})`
+                      detail: `${outpost?.workers} Worker${outpost?.workers === 1 ? '' : 's'}`
                     }))}/>}
                   iconPath={'etc/RGunit1'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
               {alerts?.['World 7']?.royalGuardian?.sharedNodes ?
@@ -873,9 +873,10 @@ const MAX_LISTED_STAMPS = 4;
 // state, and a comma-joined line of eighteen map names is unreadable.
 const MAX_LISTED_OUTPOSTS = 6;
 
-// Each line carries a map name, its world, and the map's monster, which the 320px default
-// tooltip wraps into a ragged second line for most entries.
-const RG_LIST_TOOLTIP_WIDTH = 460;
+// Each line carries a map name, its world, the map's monster and, for some alerts, a numbers
+// column ("2 Workers, +6 EXP/hr"); the 320px default tooltip wraps that into a ragged second
+// line for most entries, and 460 still did for the longer map names.
+const RG_LIST_TOOLTIP_WIDTH = 540;
 
 const RoyalGuardianList = ({ headline, entries = [] }) => {
   const listed = entries.slice(0, MAX_LISTED_OUTPOSTS);
@@ -883,19 +884,27 @@ const RoyalGuardianList = ({ headline, entries = [] }) => {
   return <Stack gap={.5}>
     <Typography>{headline}{listed.length > 0 ? ':' : ''}</Typography>
     {listed.length > 0 ? <Stack component={'ul'} sx={{ m: 0, pl: 2.5 }}>
-      {listed.map(({ name, mapIndex, world, monsterRawName, monsterName }) => <Typography component={'li'}
-                                                                                          key={mapIndex}>
-        {/* The map name and the PTS count belong together on one line - only the monster label
-            after them is allowed to wrap, and it wraps whole rather than splitting in two. */}
-        <span style={{ whiteSpace: 'nowrap' }}>{world > 0 ? `W${world} ` : ''}{name}</span>
-        {/* Map names alone ("Hell Hath Frozen Over") place nothing for most players, so the map's
-            native monster or resource rides along as the thing they actually recognise. */}
-        {monsterName ? <span style={{ opacity: .7, marginLeft: 6, whiteSpace: 'nowrap' }}>
-          <img src={monsterImage(monsterRawName)}
-               alt={''}
-               style={{ width: 18, height: 18, objectFit: 'contain', verticalAlign: 'middle', marginRight: 4 }}/>
-          {monsterName}
-        </span> : null}
+      {listed.map(({ name, mapIndex, world, monsterRawName, monsterName, detail }) => <Typography component={'li'}
+                                                                                                  key={mapIndex}>
+        {/* Two columns: what the outpost is on the left, its numbers (worker count, PTS) on the
+            right, so the numbers line up down the list instead of trailing each name at a
+            different offset. */}
+        <span style={{ display: 'grid', gridTemplateColumns: detail ? 'minmax(0, 1fr) auto' : 'minmax(0, 1fr)', columnGap: 12 }}>
+          <span>
+            <span style={{ whiteSpace: 'nowrap' }}>{world > 0 ? `W${world} ` : ''}{name}</span>
+            {/* Map names alone ("Hell Hath Frozen Over") place nothing for most players, so the
+                map's native monster or resource rides along as the thing they actually recognise.
+                The space is the only break opportunity between the two nowrap spans - without it
+                the browser treats them as one unbreakable run and the label overflows the box. */}
+            {monsterName ? <>{' '}<span style={{ opacity: .7, marginLeft: 2, whiteSpace: 'nowrap' }}>
+              <img src={monsterImage(monsterRawName)}
+                   alt={''}
+                   style={{ width: 18, height: 18, objectFit: 'contain', verticalAlign: 'middle', marginRight: 4 }}/>
+              {monsterName}
+            </span></> : null}
+          </span>
+          {detail ? <span style={{ opacity: .7, whiteSpace: 'nowrap', textAlign: 'right' }}>{detail}</span> : null}
+        </span>
       </Typography>)}
       {others > 0 ? <Typography component={'li'} sx={{ opacity: .7 }}>
         and {others} more

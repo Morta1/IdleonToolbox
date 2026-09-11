@@ -13,7 +13,8 @@ export const patchNotes = [
       'Exotic Market: every upgrade card now shows when it next returns to rotation, and Off Rotation is sorted by soonest return'
     ],
     'fixes': [
-      'Active Stuff Calculator and Royal Armory now count Orblets still in character inventories, not just the Storage Chest'
+      'Active Stuff Calculator and Royal Armory now count Orblets still in character inventories, not just the Storage Chest',
+      'Royal Guardian dashboard alerts: outpost lists no longer overflow the tooltip, and worker/PTS counts sit in their own aligned column'
     ]
   },
   {
