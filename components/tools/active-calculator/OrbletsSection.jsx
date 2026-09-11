@@ -4,22 +4,21 @@ import React, { useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import { numberWithCommas, prefix } from '@utility/helpers';
-import { calcTotalItemInStorage } from '@parsers/storage';
 
-// Orblet is a plain CURRENCY item that the Orb drops straight into the Storage Chest, so the
-// balance is read from storage rather than from the snapshotted character's inventory - which is
-// why the Total Items section never picks these up.
+// The Orb drops Orblets into the farming character's inventory, and they only reach the Storage
+// Chest once deposited, so the balance is the parser's chest + inventories total. It has to come
+// off the account object: the snapshot stores the account alone, not the characters.
 const OrbletsSection = ({ lastUpdated, resultsOnly }) => {
   const { state } = useContext(AppContext);
   const [snapshottedAcc] = useLocalStorage({ key: 'activeDropAcc', defaultValue: null });
-  const snapshotOrblets = calcTotalItemInStorage(snapshottedAcc?.storage?.list, 'Orblet');
-  const currentOrblets = calcTotalItemInStorage(state?.account?.storage?.list, 'Orblet');
+  const snapshotOrblets = snapshottedAcc?.royalGuardian?.orblets;
+  const currentOrblets = state?.account?.royalGuardian?.orblets ?? 0;
   const difference = currentOrblets - snapshotOrblets;
   const perHour = (difference / ((lastUpdated - snapshottedAcc?.snapshotTime) / 1000 / 60)) * 60;
 
-  if (!snapshottedAcc?.storage?.list) {
+  if (!Number.isFinite(snapshotOrblets)) {
     return <Section title={'Orblets'}>
-      <Typography variant={'body1'}>Current snapshot is missing storage, please re-save a snapshot</Typography>
+      <Typography variant={'body1'}>Current snapshot is missing orblets, please re-save a snapshot</Typography>
     </Section>
   }
 

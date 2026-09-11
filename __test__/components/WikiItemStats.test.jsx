@@ -2,7 +2,7 @@
 import '../../polyfills';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import ItemStats from '@components/wiki/ItemStats';
 import darkTheme from '../../styles/theme/darkTheme';
@@ -15,17 +15,17 @@ describe('ItemStats sell price', () => {
   // Most priced items are resources with no stats at all, so this is the case that used to render
   // nothing: 1,496 items carry a sellPrice and only the 128 stamps ever showed one.
   it('shows a price for an item that has no stats', () => {
-    draw({ kind: 'item', rawName: 'Copper', category: 'MINING_ORE', sellPrice: 200 });
-    expect(screen.getByText('Sell Price')).toBeDefined();
+    const { getByText } = draw({ kind: 'item', rawName: 'Copper', category: 'MINING_ORE', sellPrice: 200 });
+    expect(getByText('Sell Price')).toBeDefined();
   });
 
   it('shows the price alongside the stats when an item has both', () => {
-    draw({
+    const { getByText } = draw({
       kind: 'item', rawName: 'Sword', category: 'WEAPON', sellPrice: 4000,
       stats: { Weapon_Power: 5, lvReqToEquip: 10 }
     });
-    expect(screen.getByText('Sell Price')).toBeDefined();
-    expect(screen.getByText('Level')).toBeDefined();
+    expect(getByText('Sell Price')).toBeDefined();
+    expect(getByText('Level')).toBeDefined();
   });
 
   it('renders nothing when there is neither a price nor stats', () => {

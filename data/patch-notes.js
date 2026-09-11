@@ -11,7 +11,9 @@ export const patchNotes = [
       'Hole: new "Show only scaling schematics" filter on the Engineer tab, isolating the schematics whose bonus grows with other hole stats along with their current total bonus',
       'Leaderboards: added Total Button Presses'
     ],
-    'fixes': []
+    'fixes': [
+      'Active Stuff Calculator and Royal Armory now count Orblets still in character inventories, not just the Storage Chest'
+    ]
   },
   {
     'ver': '3.3.79',

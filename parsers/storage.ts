@@ -190,3 +190,13 @@ export const getInventoryList = (chestOrderRaw: any[] | undefined, chestQuantity
 export const calcTotalItemInStorage = (storage: StorageItem[] | undefined, itemName: string): number => {
   return storage?.reduce((sum, { rawName, amount }) => rawName === itemName ? sum + amount : sum, 0) ?? 0;
 }
+
+// game: "_ItemsAndStorageOWNED" - the chest plus the logged-in character's InventoryOrder. There is
+// no logged-in character here, so every character's inventory counts; on an account-wide view that
+// is the total the player owns, and it only differs from the in-game figure when the same item sits
+// on more than one character at once.
+export const calcTotalItemOwned = (storage: { list?: StorageItem[] } | undefined, characters: { inventory?: StorageItem[] }[] | undefined, itemName: string): number => {
+  const inChest = calcTotalItemInStorage(storage?.list, itemName);
+  const inInventories = characters?.reduce((sum, { inventory } = {}) => sum + calcTotalItemInStorage(inventory, itemName), 0) ?? 0;
+  return inChest + inInventories;
+}

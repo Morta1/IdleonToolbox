@@ -21,7 +21,7 @@ import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getHatRackBonus } from '@parsers/world-3/hatRack';
 import { getBubbleBonus } from '@parsers/world-2/alchemy';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
-import { calcTotalItemInStorage } from '@parsers/storage';
+import { calcTotalItemOwned } from '@parsers/storage';
 import type { Account, IdleonData } from '../types';
 
 // Research rows 40-43 are the Royal Statue tables plus the armory shelf order (game: CustomLists.Research).
@@ -630,7 +630,9 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
   const orbletBonus = (index: number): number => orbletUpgrades.find((u) => u.index === index)?.bonus ?? 0;
 
   // game: "_ItemsAndStorageOWNED.h.Orblet" - the spendable balance shown above the Orblet Market.
-  const orblets = calcTotalItemInStorage((account as any)?.storage?.list, 'Orblet');
+  // The Orb drops Orblets on the ground and the pickup handler has no special case for them, so
+  // they sit in the farming character's inventory until deposited; the chest alone reads 0 mid-farm.
+  const orblets = calcTotalItemOwned((account as any)?.storage, characters, 'Orblet');
 
   // game: "BarExpRate_Base" - the per-Rank-Type EXP/hr rate behind Peacetime Militia (17) and the
   // five specialist Rank-unit tooltips (20 Trade, 22 Intel, 24 Command, 25 Military, 26 Purity).
@@ -1275,8 +1277,8 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       statues: statueFlair
     },
     orbletMarket: orbletUpgrades,
-    // game: "_ItemsAndStorageOWNED.h.Orblet" - Orblet is a plain CURRENCY item, and the Orb's drops
-    // route straight into the Storage Chest, so the balance lives there rather than in RoyalG.
+    // game: "_ItemsAndStorageOWNED.h.Orblet" - Orblet is a plain CURRENCY item held in inventories
+    // and the Storage Chest, so the balance lives there rather than in RoyalG.
     orblets,
     // The handlers that belong to the Royal Guardian's own play rather than to the kingdom map.
     guardian: {
