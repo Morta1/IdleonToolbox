@@ -1,0 +1,22 @@
+__turbopack_load_page_chunks__("/account/world-7/clam-work", [
+  "static/chunks/0_vel1973jndl.js",
+  "static/chunks/1l4j_g828zg59.js",
+  "static/chunks/32za-gw1jo3o1.js",
+  "static/chunks/2-v4_5zeozgmg.js",
+  "static/chunks/2m0wpccmqd5w6.js",
+  "static/chunks/0phnfmfs2f9__.js",
+  "static/chunks/3unx0eum7zna0.js",
+  "static/chunks/2tvw95p-nhuq3.js",
+  "static/chunks/0rfbsnxaklhoc.js",
+  "static/chunks/00sy5-ltu5tho.js",
+  "static/chunks/2tdbe_udbiv1d.js",
+  "static/chunks/2eyo_z9ijalkv.js",
+  "static/chunks/19tkn_otp0g3w.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/2y9yhae3176f5.js",
+  "static/chunks/3mxq2e7z-8_aa.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/1sx_wegd6a0kd.js",
+  "static/chunks/turbopack-3wb9l4qpiuho1.js"
+])

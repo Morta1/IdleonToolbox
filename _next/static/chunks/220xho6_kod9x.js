@@ -1,0 +1,22 @@
+__turbopack_load_page_chunks__("/tools/active-stuff-calculator", [
+  "static/chunks/0_vel1973jndl.js",
+  "static/chunks/2txj_ut8vh7xm.js",
+  "static/chunks/32za-gw1jo3o1.js",
+  "static/chunks/3unx0eum7zna0.js",
+  "static/chunks/2tdbe_udbiv1d.js",
+  "static/chunks/2m0wpccmqd5w6.js",
+  "static/chunks/2y9yhae3176f5.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/0wk8omq7ik_-i.js",
+  "static/chunks/3mxq2e7z-8_aa.js",
+  "static/chunks/23k-u99682yjd.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/1-5e11hzkhkn6.js",
+  "static/chunks/0zspmjagwju84.js",
+  "static/chunks/2-v4_5zeozgmg.js",
+  "static/chunks/1ro34s892--49.js",
+  "static/chunks/3ul-yeuejbhz3.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/26x8dvobx4p_q.js",
+  "static/chunks/turbopack-00x5gbqd_ckzb.js"
+])

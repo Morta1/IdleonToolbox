@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/tools/bone-joe-calculator", [
+  "static/chunks/0_vel1973jndl.js",
+  "static/chunks/2-v4_5zeozgmg.js",
+  "static/chunks/3unx0eum7zna0.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/0xhizqgsn13xz.js",
+  "static/chunks/38_kxiyl6-0x_.js",
+  "static/chunks/2y9yhae3176f5.js",
+  "static/chunks/16dqw4potvsuw.js",
+  "static/chunks/1sa56t_dr83yz.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/3ni5182cg-k_m.js",
+  "static/chunks/2tdbe_udbiv1d.js",
+  "static/chunks/3mxq2e7z-8_aa.js",
+  "static/chunks/3puu97mj_natd.js",
+  "static/chunks/1tq_j2cfys36r.js",
+  "static/chunks/turbopack-1r7vctbb8lot6.js"
+])

@@ -1,0 +1,23 @@
+__turbopack_load_page_chunks__("/account/world-2/vials", [
+  "static/chunks/3z6jpse6j0558.js",
+  "static/chunks/0_vel1973jndl.js",
+  "static/chunks/32za-gw1jo3o1.js",
+  "static/chunks/1wlo5d_56zy4w.js",
+  "static/chunks/3huh26rbq4zve.js",
+  "static/chunks/1ss141sk5qi8n.js",
+  "static/chunks/2y9yhae3176f5.js",
+  "static/chunks/3puu97mj_natd.js",
+  "static/chunks/3unx0eum7zna0.js",
+  "static/chunks/0xhizqgsn13xz.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/0srdu7s41jxi2.js",
+  "static/chunks/2tdbe_udbiv1d.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/2-v4_5zeozgmg.js",
+  "static/chunks/3mxq2e7z-8_aa.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/2vcju2j781o93.js",
+  "static/chunks/26k3j2smocaip.js",
+  "static/chunks/2y868deibcxhz.js",
+  "static/chunks/turbopack-3jf-melhiro7b.js"
+])

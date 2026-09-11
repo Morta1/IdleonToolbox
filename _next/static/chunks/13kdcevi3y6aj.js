@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/tools/god-planner", [
+  "static/chunks/0_vel1973jndl.js",
+  "static/chunks/2fcrrjuv541ll.js",
+  "static/chunks/3unx0eum7zna0.js",
+  "static/chunks/3vxrs1mwfoo25.js",
+  "static/chunks/2tdbe_udbiv1d.js",
+  "static/chunks/358jfnm6vpvsx.js",
+  "static/chunks/2y9yhae3176f5.js",
+  "static/chunks/2-v4_5zeozgmg.js",
+  "static/chunks/0srdu7s41jxi2.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/2vcju2j781o93.js",
+  "static/chunks/0u_7k5rrrnrd7.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/3puu97mj_natd.js",
+  "static/chunks/3mxq2e7z-8_aa.js",
+  "static/chunks/3l9oa-5_x-ne8.js",
+  "static/chunks/turbopack-1-inyh13ay7t2.js"
+])
