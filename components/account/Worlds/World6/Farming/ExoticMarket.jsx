@@ -4,7 +4,12 @@ import React, { useContext, useEffect, useState } from 'react';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { findExoticCappedThresholdLevel, getExoticMarketRotations } from '@parsers/world-6/farming';
+import {
+  findExoticCappedThresholdLevel,
+  getExoticMarketReturnWeeks,
+  getExoticMarketRotations
+} from '@parsers/world-6/farming';
+import ExoticReturnsIn from './ExoticReturnsIn';
 
 const formatCountdown = (ms) => {
   if (ms <= 0) return null;
@@ -38,8 +43,13 @@ const Market = ({ market, crop }) => {
     ? null
     : formatCountdown(nextRotationDate.getTime() - now.getTime());
 
-  const currentRotation = market?.filter(u => u.isAvailableThisWeek);
-  const offRotation = market?.filter(u => !u.isAvailableThisWeek);
+  const returnsIn = getExoticMarketReturnWeeks(state?.account);
+  const withReturnWeeks = market?.map((upgrade) => ({ ...upgrade, returnWeeks: returnsIn(upgrade.index) }));
+  const currentRotation = withReturnWeeks?.filter(u => u.isAvailableThisWeek);
+  // Soonest return first; upgrades outside the lookahead window sink to the bottom
+  const offRotation = withReturnWeeks
+    ?.filter(u => !u.isAvailableThisWeek)
+    ?.sort((a, b) => (a.returnWeeks ?? Infinity) - (b.returnWeeks ?? Infinity));
 
   const breakpoints = [50, 75, 90, 95, 99].map(pct => ({
     pct,
@@ -56,7 +66,8 @@ const Market = ({ market, crop }) => {
         percentOfCap,
         isCapped,
         displayText,
-        x2
+        x2,
+        returnWeeks
       },
       marketIndex
     ) => (
@@ -97,6 +108,7 @@ const Market = ({ market, crop }) => {
           <Typography mt={isCapped ? 1 : 2}>
             {cleanUnderscore(displayText)}
           </Typography>
+          <ExoticReturnsIn weeks={returnWeeks} sx={{ mt: 'auto', pt: 1 }}/>
         </CardContent>
       </Card>
     ));

@@ -16,7 +16,8 @@ import { cleanUnderscore, prefix } from '@utility/helpers';
 import { format, isValid } from 'date-fns';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { getExoticMarketRotations } from '@parsers/world-6/farming';
+import { getExoticMarketReturnWeeks, getExoticMarketRotations } from '@parsers/world-6/farming';
+import ExoticReturnsIn from './ExoticReturnsIn';
 import useFormatDate from '@hooks/useFormatDate';
 
 const ExoticMarketRotation = () => {
@@ -33,6 +34,7 @@ const ExoticMarketRotation = () => {
     ?.filter(({ name }) => name !== 'NAME_MAGNI') || [];
 
   const rotations = getExoticMarketRotations(state?.account, weeks);
+  const returnsIn = getExoticMarketReturnWeeks(state?.account);
 
   // Filter rotations based on selected upgrades
   const filteredRotations = filter.length === 0
@@ -133,6 +135,7 @@ const ExoticMarketRotation = () => {
                         <Typography variant="body2" mt={1}>
                           {cleanUnderscore(upgrade.displayText)}
                         </Typography>
+                        <ExoticReturnsIn weeks={returnsIn(upgrade.index, rotation.weekOffset)} sx={{ mt: 'auto', pt: 1 }}/>
                       </CardContent>
                     </Card>
                   );

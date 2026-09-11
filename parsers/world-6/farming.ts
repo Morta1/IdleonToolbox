@@ -129,6 +129,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
       isCapped,
       thresholdLevel: isCapped ? thresholdLevel : null,
       thresholdMissingLevels,
+      index,
       isAvailableThisWeek: availableExoticIndices.includes(index),
       displayText
     };
@@ -257,13 +258,20 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
   };
 }
 
-export const getExoticMarketRotation = (account: any) => {
-  if (!account?.timeAway?.GlobalTime) return [];
+const EXOTIC_MARKET_WEEK_SECONDS = 604_800;
 
-  const currentWeek = Math.floor(account.timeAway.GlobalTime / 604_800); // 1 week in seconds
-  const seed = Math.round(100 * currentWeek);
+const getExoticMarketCurrentWeek = (account: any) => {
+  if (!account?.timeAway?.GlobalTime) return null;
+  return Math.floor(account.timeAway.GlobalTime / EXOTIC_MARKET_WEEK_SECONDS);
+};
 
-  const selectedUpgrades: any[] = [];
+/**
+ * The 8 upgrade indices (0-59) the game rolls for a given absolute week.
+ * Mirrors the game's seeded LavaRand loop: retries with +1000 per attempt until 8 distinct indices.
+ */
+export const rollExoticMarketWeek = (week: number) => {
+  const seed = Math.round(100 * week);
+  const selectedUpgrades: number[] = [];
 
   for (let i = 0; i < 8; i++) {
     let attempts = 0;
@@ -286,37 +294,49 @@ export const getExoticMarketRotation = (account: any) => {
   return selectedUpgrades;
 };
 
-export const getExoticMarketRotations = (account: any, weeks = 10) => {
-  if (!account?.timeAway?.GlobalTime) return [];
+export const getExoticMarketRotation = (account: any) => {
+  const currentWeek = getExoticMarketCurrentWeek(account);
+  if (currentWeek === null) return [];
+  return rollExoticMarketWeek(currentWeek);
+};
 
-  const currentWeek = Math.floor(account.timeAway.GlobalTime / 604_800); // 1 week in seconds
+export const EXOTIC_MARKET_RETURN_LOOKAHEAD = 104;
+
+/**
+ * Weeks until an upgrade next appears in the rotation, strictly after `afterWeekOffset`
+ * (0 = the current week). Null when it doesn't show up within `lookahead` weeks of now.
+ * Only the index-only schedule is built here: the caller pairs it with the rotation cards it
+ * already renders, so the planner's 10-50 week selector doesn't cap the answer.
+ */
+export const getExoticMarketReturnWeeks = (account: any, lookahead = EXOTIC_MARKET_RETURN_LOOKAHEAD) => {
+  const currentWeek = getExoticMarketCurrentWeek(account);
+  if (currentWeek === null) return () => null;
+
+  const schedule: number[][] = [];
+  for (let weekOffset = 0; weekOffset <= lookahead; weekOffset++) {
+    schedule.push(rollExoticMarketWeek(currentWeek + weekOffset));
+  }
+
+  return (upgradeIndex: number, afterWeekOffset = 0): number | null => {
+    for (let weekOffset = afterWeekOffset + 1; weekOffset < schedule.length; weekOffset++) {
+      if (schedule[weekOffset].includes(upgradeIndex)) return weekOffset - afterWeekOffset;
+    }
+    return null;
+  };
+};
+
+export const getExoticMarketRotations = (account: any, weeks = 10) => {
+  const currentWeek = getExoticMarketCurrentWeek(account);
+  if (currentWeek === null) return [];
+
   const rotations = [];
   const processedExoticMarket = account?.farming?.exoticMarket || [];
 
   for (let weekOffset = 0; weekOffset < weeks; weekOffset++) {
-    const seed = Math.round(100 * (currentWeek + weekOffset));
-    const selectedUpgrades: any[] = [];
-
-    for (let i = 0; i < 8; i++) {
-      let attempts = 0;
-      let upgradeIndex;
-
-      do {
-        const currentSeed = seed + i + attempts * 1000;
-        const rng = new LavaRand(currentSeed);
-        const random = rng.rand();
-
-        // Generate index 0–59
-        upgradeIndex = Math.floor(Math.max(0, Math.min(59, 60 * random)));
-
-        attempts++;
-      } while (selectedUpgrades.includes(upgradeIndex));
-
-      selectedUpgrades.push(upgradeIndex);
-    }
+    const selectedUpgrades = rollExoticMarketWeek(currentWeek + weekOffset);
 
     // Calculate the date for this rotation
-    const dateInMs = Math.floor((currentWeek + weekOffset) * 604_800 * 1000);
+    const dateInMs = Math.floor((currentWeek + weekOffset) * EXOTIC_MARKET_WEEK_SECONDS * 1000);
 
     rotations.push({
       weekOffset,
