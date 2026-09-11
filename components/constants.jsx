@@ -40,7 +40,7 @@ export const PAGES = {
         { label: 'randomEvents', icon: 'etc/Mega_Grumblo' },
         { label: 'eventShop', icon: 'etc/Event_Currency' },
         { label: 'guild', icon: 'etc/Guild', tabs: ['Members', 'Bonuses'] },
-        { label: 'tournament', icon: 'data/TournyRank2', tabs: ['Companions', 'Matches', 'Leaderboard'] }
+        { label: 'tournament', icon: 'data/TournyRank2', tabs: ['Companions', 'Pet Mart', 'Matches', 'Leaderboard'] }
       ]
     },
     'prem-currency': {

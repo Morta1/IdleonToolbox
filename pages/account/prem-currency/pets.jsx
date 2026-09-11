@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
-import { cleanUnderscore, getNextCompanionClaim, numberWithCommas } from '@utility/helpers';
+import { cleanUnderscore, getNextCompanionClaim, numberWithCommas, prefix } from '@utility/helpers';
 import Timer from '@components/common/Timer';
 import { CardTitleAndValue } from '../../../components/common/styles';
 import { companionGroups } from '@website-data';
@@ -35,9 +35,13 @@ const CompanionCard = ({ companion, index, editable, checked, onToggle }) => {
     copies = 0,
     tradableCount = 0,
     viaToken = false,
-    simulated = false
+    simulated = false,
+    upgradeCost = null
   } = companion;
   const displayedEffect = upgraded && upgradedEffect ? upgradedEffect : effect;
+  // The Pet Mart+ list price in Pet Crystals (CompanionDB col 8). Null on pets with no + version.
+  // Once upgraded the price is spent, so the chip above replaces it.
+  const showUpgradeCost = !upgraded && upgradeCost > 0;
 
   return <Card
     onClick={editable ? () => onToggle(index) : undefined}
@@ -63,6 +67,14 @@ const CompanionCard = ({ companion, index, editable, checked, onToggle }) => {
               {upgraded && <Chip label={'Pet Mart+'} size={'small'} color={'success'} sx={{ height: 18, fontSize: 10 }} />}
             </Stack>
             <Typography variant='body2' color='text.secondary'>{cleanUnderscore(displayedEffect?.replace('{', '+'))}</Typography>
+            {showUpgradeCost && (
+              <Stack direction='row' gap={0.5} alignItems='center'>
+                <Typography variant='body2' color='text.secondary'>Pet Mart+:</Typography>
+                <img width={14} height={14} style={{ objectFit: 'contain', filter: 'hue-rotate(280deg)' }}
+                  src={`${prefix}data/PremiumGem.png`} alt='Pet Crystals' />
+                <Typography variant='body2'>{numberWithCommas(upgradeCost)}</Typography>
+              </Stack>
+            )}
             {acquired && !viaToken && !simulated && (
               <Typography variant="body2">
                 Tradable: {numberWithCommas(tradableCount)}/{numberWithCommas(copies)}
@@ -156,6 +168,14 @@ const Pets = () => {
     return result;
   };
 
+  // Pets the game has not put in a group yet but already priced for Pet Mart+: they are in the
+  // data ahead of release, and the price is the one thing worth knowing about them early. The
+  // 9999-priced filler entries read null and stay hidden; this is only the handful with a real cost.
+  const groupedIndices = new Set((companionGroups || []).flatMap((group) => group.indices));
+  const unreleasedIndices = indexedCompanions
+    .filter((comp) => !groupedIndices.has(comp.index) && comp.upgradeCost > 0)
+    .map((comp) => comp.index);
+
   return <>
     <NextSeo
       title="Premium Pets | Idleon Toolbox"
@@ -209,6 +229,15 @@ const Pets = () => {
           onToggle={toggleDraft}
         />
       ))}
+      {!editing && filter === 'all' && unreleasedIndices.length > 0 && (
+        <CompanionList
+          title={'Not yet released'}
+          companions={filterCompanions(unreleasedIndices)}
+          editing={false}
+          draft={draft}
+          onToggle={toggleDraft}
+        />
+      )}
       {(companionGroups || []).every((group) => filterCompanions(group.indices).length === 0) && (
         <Typography variant="body2" color="text.secondary">No pets match the selected filter</Typography>
       )}

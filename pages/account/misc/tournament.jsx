@@ -7,6 +7,7 @@ import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
 import { getTabs } from '@utility/helpers';
 import Companions from '@components/account/Worlds/World7/Tournament/Companions';
+import PetMart from '@components/account/Worlds/World7/Tournament/PetMart';
 import Matches from '@components/account/Worlds/World7/Tournament/Matches';
 import Leaderboard from '@components/account/Worlds/World7/Tournament/Leaderboard';
 
@@ -34,6 +35,7 @@ const Tournament = () => {
 
     <Tabber tabs={getTabs(PAGES.ACCOUNT['misc'].categories, 'tournament')}>
       <Companions companions={companions}/>
+      <PetMart petMart={tournament?.petMart} companions={companions}/>
       <Matches tournament={tournament} companions={companions}/>
       <Leaderboard tournament={tournament}/>
     </Tabber>

@@ -551,6 +551,9 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
                 : []),
               ...(node.upgradedEffect
                 ? [{ label: 'Upgraded', value: cleanUnderscore(node.upgradedEffect) }]
+                : []),
+              ...(node.upgradeCost > 0
+                ? [{ label: 'Pet Mart+ cost', value: <GemCount amount={node.upgradeCost} isCrystal /> }]
                 : [])
             ]
           }]}/> : null}

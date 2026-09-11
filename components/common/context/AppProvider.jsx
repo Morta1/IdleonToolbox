@@ -369,11 +369,13 @@ const AppProvider = ({ children }) => {
 
     const handleDemoData = async () => {
       const demoJson = (await import('../../../data/raw.json')).default;
-      const { data, charNames, companion, guildData, serverVars, lastUpdated } = demoJson;
+      const { data, charNames, companion, guildData, serverVars, lastUpdated, accountCreateTime, tournament } = demoJson;
       const { parseData } = await import('@parsers/index');
       const timestamp = lastUpdated || new Date().getTime();
 
-      const parsedData = parseData(data, charNames, companion, guildData, serverVars);
+      // The demo save carries a tournament doc snapshot too; without it the tournament page (and its
+      // Pet Mart rotation) reads as an account that never entered one.
+      const parsedData = parseData(data, charNames, companion, guildData, serverVars, accountCreateTime, tournament ?? null);
       dispatch({
         type: ACTION_TYPES.DATA,
         data: {

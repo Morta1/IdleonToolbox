@@ -47,7 +47,10 @@ export const petNodes = (companions, companionGroups) => {
       // same page to a reader.
       tourPower: pet.tourPower ?? null,
       upgradedTourPower: pet.upgradedTourPower ?? null,
-      upgradedEffect: effectText(pet.upgradedEffect)
+      upgradedEffect: effectText(pet.upgradedEffect),
+      // What the upgrade costs at the tournament's Pet Mart, in Pet Crystals. Already null in the
+      // data for pets that have no + version, so nothing to translate here.
+      upgradeCost: pet.upgradeCost ?? null
     };
   }
   return nodes;

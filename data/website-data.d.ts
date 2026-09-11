@@ -700,7 +700,7 @@ declare module '@website-data' {
       z: string;
       filler: string;
       tourPower: number;
-      x8: number;
+      upgradeCost: number | null;
       upgradedTourPower: number;
       upgradedEffect: string;
       upgradedBonus: number;

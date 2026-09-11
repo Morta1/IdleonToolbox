@@ -169,6 +169,34 @@ export const getTournament = (idleonData: IdleonData, account: Account, serverTo
 
   const playerName = matches[0]?.playerName ?? null;
 
+  // Tournament Pet Mart. The _TOURNAMENT doc carries today's rotation of five pets per counter:
+  // I/B/A for the base shop and LI/LB/LA for Pet Mart+ (the "+" upgrade of a pet you already own),
+  // each a companion index, its list price and its price after today's discount. Prices are Pet
+  // Crystals: the game gates purchaseLevelUp on getMyStars() >= LA[i], and getMyStars is the _comp
+  // doc's `s`, the field getCompanions exposes as petCrystals. The + list price is CompanionDB[i][8]
+  // (companions.upgradeCost); the server copy is what the shop actually charges, so it wins here.
+  const global = serverTournament?.global;
+  const readOffers = (ids: any, listPrices: any, prices: any) => (Array.isArray(ids) ? ids : [])
+    .map((rawIndex: any, i: number) => {
+      const companionIndex = Number(rawIndex);
+      const listPrice = Number(listPrices?.[i]);
+      const price = Number(prices?.[i]);
+      if (!Number.isInteger(companionIndex) || !Number.isFinite(price)) return null;
+      return {
+        companionIndex,
+        name: companionsData?.[companionIndex]?.name ?? null,
+        listPrice: Number.isFinite(listPrice) ? listPrice : price,
+        price
+      };
+    })
+    .filter(Boolean);
+  const petMart = {
+    shopDay: global?.S ?? 0,
+    petCrystals: (account as any)?.companions?.petCrystals ?? 0,
+    offers: readOffers(global?.I, global?.B, global?.A),
+    plusOffers: readOffers(global?.LI, global?.LB, global?.LA)
+  };
+
   return {
     divisionIndex,
     playerName,
@@ -181,6 +209,7 @@ export const getTournament = (idleonData: IdleonData, account: Account, serverTo
     registrationCount,
     matches: matchesWithResult,
     leaderboard,
+    petMart,
     global: serverTournament?.global ?? null,
   };
 };
