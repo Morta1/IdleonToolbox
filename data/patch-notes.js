@@ -9,7 +9,7 @@ export const patchNotes = [
     'date': '11/09/2026',
     'features': [
       'Hole: new "Show only scaling schematics" filter on the Engineer tab, isolating the schematics whose bonus grows with other hole stats along with their current total bonus',
-      'Leaderboards: added Total Button Presses',
+      'Leaderboards: added Total Button Presses, Total Fountain Upgrades, Total Sushi Perfectos, Total Spelunking Depths, Total Manic Spelunking Depths, Cooking Mastery Level, Total Advice Fish Upgrades, Total Equinox Upgrades, Total Royal Armory Upgrades, Total Royal Resource Grades and Total Royal Statue Levels',
       'Exotic Market: every upgrade card now shows when it next returns to rotation, and Off Rotation is sorted by soonest return'
     ],
     'fixes': [
