@@ -129,19 +129,26 @@ describe('drop rate: Royal Guardian family bonus and GRADED_RATE', () => {
   const dropRate = (char, acc, chars) => getDropRate(char, acc, chars).dropRate;
   const base = dropRate(character, account, characters);
 
-  // A Royal Guardian appended rather than an existing character retyped, so no other class's
-  // "highest level of" lookup moves underneath the comparison.
-  const withRoyalGuardian = (level) => [...characters, { ...characters[0], class: 'Royal_Guardian', level }];
+  // The family bonus is walked once per character at parse time (family-bonus-walk.test.js), so
+  // the multiplier is exercised by setting the value that walk would have produced.
+  const withRoyalGuardianFamily = (level, char = character) => ({
+    ...char,
+    familyBonuses: { ...char.familyBonuses, Royal_Guardian: getFamilyBonusBonus(classFamilyBonuses, 'DROP_RATE_MULTIPLIER', level) }
+  });
+
+  it('the fixture has no Royal Guardian family bonus to start from', () => {
+    expect(character.familyBonuses?.Royal_Guardian ?? 0).toBe(0);
+  });
 
   it('FamBonusQTYs[32] multiplies drop rate by the Royal Guardian family bonus', () => {
     const level = 1307;
     const expected = getFamilyBonusBonus(classFamilyBonuses, 'DROP_RATE_MULTIPLIER', level);
     expect(expected).toBeGreaterThan(0);
-    expect(dropRate(character, account, withRoyalGuardian(level)) / base).toBeCloseTo(1 + expected / 100, 10);
+    expect(dropRate(withRoyalGuardianFamily(level), account, characters) / base).toBeCloseTo(1 + expected / 100, 10);
   });
 
   it('a Royal Guardian below the family bonus level requirement changes nothing', () => {
-    expect(dropRate(character, account, withRoyalGuardian(50)) / base).toBeCloseTo(1, 10);
+    expect(dropRate(withRoyalGuardianFamily(50), account, characters) / base).toBeCloseTo(1, 10);
   });
 
   // GRADED_RATE: decay, x1 3, x2 500 (talents.json, skillIndex 239).
@@ -182,7 +189,7 @@ describe('drop rate: Royal Guardian family bonus and GRADED_RATE', () => {
   });
 
   it('both new sources are listed in the breakdown', () => {
-    const { breakdown } = getDropRate(withGradedRate(40), withNodeGrades(42), withRoyalGuardian(1307));
+    const { breakdown } = getDropRate(withRoyalGuardianFamily(1307, withGradedRate(40)), withNodeGrades(42), characters);
     const additive = breakdown.categories[0].sources.map((s) => s.name);
     const multi = breakdown.categories[1].sources.map((s) => s.name);
     expect(additive).toContain('Graded Rate (Royal Guardian)');

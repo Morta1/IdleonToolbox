@@ -62,7 +62,7 @@ import { getAnvil } from './world-1/anvil';
 import { getPrayerBonusAndCurse } from './world-3/prayers';
 import { getGuildBonusBonus } from './guild';
 import { getShrineBonus } from './world-3/shrines';
-import { getFamilyBonusBonus, getUpdatedFamilyBonus } from './family';
+import { getFamilyBonusBonus, getFamilyBonusesSeenBy } from './family';
 import { getSaltLickBonus } from './world-3/saltLick';
 import { getDungeonFlurboStatBonus, getDungeonStatBonus } from './dungeons';
 import { getCookingEff, getCookingProwess, getMealsBonusByEffectOrStat } from './world-4/cooking';
@@ -490,21 +490,14 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
   // real value on the later ones.
   character.rgTalentAddedLevelsCap = getArmoryUpgradeBonus(account as any, ARMORY_TALENT_REATTAINMENT);
 
-  // Initial calculation without added levels
-  let familyEffBonus = getUpdatedFamilyBonus(character, charactersLevels);
-  let addedLevels = getTalentAddedLevels(talents, selectedTalentPreset, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
-
-  let iterations = 0;
-  const maxIterations = 3;
-
-  while (iterations < maxIterations) {
-    const tempCharacter = Object.assign({}, character);
-    tempCharacter.talents = applyTalentAddedLevels(talents, null, addedLevels?.value || 0, addedLevels?.superTalentsInfo, selectedTalentPreset, character.rgTalentAddedLevelsCap);
-    familyEffBonus = getUpdatedFamilyBonus(tempCharacter, charactersLevels);
-    addedLevels = getTalentAddedLevels(talents, selectedTalentPreset, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
-
-    iterations++;
-  }
+  // The family walk reads THE_FAMILY_GUY with every added level but the Elemental Sorcerer family
+  // bonus, which is the one the walk is still building.
+  const levelsWithoutFamily = getTalentAddedLevels(talents, selectedTalentPreset, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, 0, account, character);
+  const familyGuy = applyTalentAddedLevels(talents, flatTalents, levelsWithoutFamily?.value, levelsWithoutFamily?.superTalentsInfo, selectedTalentPreset, character.rgTalentAddedLevelsCap)
+    ?.find(({ name }: any) => name === 'THE_FAMILY_GUY');
+  character.familyBonuses = getFamilyBonusesSeenBy(charactersLevels, character.playerId, familyGuy);
+  const familyEffBonus = character.familyBonuses[CLASSES.Elemental_Sorcerer] ?? 0;
+  const addedLevels = getTalentAddedLevels(talents, selectedTalentPreset, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
 
   character.addedLevelsBreakdown = addedLevels?.breakdown;
   character.addedLevels = addedLevels?.value;
@@ -2439,8 +2432,8 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   // this factor right after ArcaneMapMulti_bon in this same chain, before CardBonusREAL(101).
   const royalStatueDropRateBonus = getRoyalStatueBonus(account, 1);
   // FamBonusQTYs[32]: the DNSM key is 2 * classIndex, so 32 is classFamilyBonuses[16],
-  // "+{% DROP RATE MULTIPLIER" - the Royal Guardian class family bonus (see damage.ts).
-  const familyDropRateMulti = getFamilyBonusBonus(classFamilyBonuses, 'DROP_RATE_MULTIPLIER', getHighestLevelOf(characters, CLASSES.Royal_Guardian));
+  // "+{% DROP RATE MULTIPLIER" - the Royal Guardian class family bonus, as the played character sees it.
+  const familyDropRateMulti = character?.familyBonuses?.[CLASSES.Royal_Guardian] ?? 0;
 
   // Game: *= (1+tesseract/100) * (1+royalStatue/100) * (1+cardMulti/100) * (1+famBonus32/100) * (1+0.3*comp168)
   //       * (1+min(0.5,comp132)+0.2*compLV2(132)) * (1+sushi48/100) * max(1,glimboDR) * (1+tomeMulti/100)

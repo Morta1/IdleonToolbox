@@ -192,3 +192,12 @@ describe('getGoldenFoodMulti - golden food cards', () => {
     expect(cardSource({})).toBe(0);
   });
 });
+
+describe('getGoldenFoodMulti - Shaman family bonus', () => {
+  const withShamanFamily = (Shaman) => ({ ...baseCharacter, familyBonuses: { ...baseCharacter.familyBonuses, Shaman } });
+
+  it('reads FamBonusQTYs[66] as walked for the played character, never below 1', () => {
+    expect(multiOf(withShamanFamily(3), baseAccount)).toBeGreaterThan(multiOf(withShamanFamily(2), baseAccount));
+    expect(multiOf(withShamanFamily(0.4), baseAccount)).toBeCloseTo(multiOf(withShamanFamily(1), baseAccount), 10);
+  });
+});
