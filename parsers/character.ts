@@ -2454,10 +2454,9 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   // Game: *= (1+charm/100) * (1+equip91/100) * (1+vial7drMulto/100)
   final *= (1 + charmBonus / 100) * (1 + equipmentDrMulti / 100) * (1 + vialDrMulti / 100);
 
-  // Game: *= max(1, min(1.3, 1+comp26) * (1+0.5*comp160)) * max(1, min(1.01, 1+comp50/2500)) - the
-  // Glunko term (comp160) has no game-side cap; the code's min(1.5, ...) is an extra clamp not
-  // present in the live formula.
-  final *= Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate) * Math.min(1.5, 1 + 0.5 * seventhCompanionDropRate));
+  // Game: *= max(1, min(1.3, 1+comp26) * (1+0.5*comp160)) * max(1, min(1.01, 1+comp50/2500)) - only
+  // Mallay (comp26) is capped; the Glunko term (comp160) has no cap.
+  final *= Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate) * (1 + 0.5 * seventhCompanionDropRate));
   final *= Math.max(1, Math.min(1.01, 1 + fourthCompanionDropRate / 2500));
 
   const breakdown = {
@@ -2570,7 +2569,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
           },
           {
             name: 'Glunko The Massive',
-            value: Math.min(1.5, 1 + 0.5 * seventhCompanionDropRate)
+            value: 1 + 0.5 * seventhCompanionDropRate
           },
           {
             name: 'Santa Snake',
@@ -2676,7 +2675,7 @@ final *= (1 + charmBonus / 100)
   * (1 + vialDrMulti / 100);
 
 final *= Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate)
-  * Math.min(1.5, 1 + 0.5 * seventhCompanionDropRate));
+  * (1 + 0.5 * seventhCompanionDropRate));
 final *= Math.max(1, Math.min(1.01, 1 + fourthCompanionDropRate / 2500));`
   };
 }
