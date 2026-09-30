@@ -9,7 +9,8 @@ import {
   getOutpostRogBonus,
   getRoyalGuardian,
   getRoyalStatueBonus,
-  getStatueFlairExpMulti
+  getStatueFlairExpMulti,
+  getStatueFlairMarbleTotals
 } from '@parsers/class-specific/royalGuardian';
 import { lavaLog } from '@utility/helpers';
 
@@ -475,5 +476,27 @@ describe('a world whose every outpost slot is claimed has nothing left to clear'
   it('still reports a unit while a real slot is unclaimed', () => {
     const parsed = parseWithClaimed(WORLD_1_SLOTS.filter((mapIndex) => mapIndex !== 12));
     expect(parsed.deployments[0].hasClearableMap).toBe(true);
+  });
+});
+
+describe('statue flair marble totals', () => {
+  const statue = (index, level, shardIndex) => ({ index, level, maxLevel: 3, shardIndex, costItem: `RGshard${shardIndex}` });
+  const totals = getStatueFlairMarbleTotals([
+    statue(0, 0, 0), // steps 10, 50, 250
+    statue(1, 2, 0), // step to Lv 3 only: 20 * 25 = 500
+    statue(2, 3, 0), // maxed, skipped
+    statue(5, 1, 1), // steps 60 * 5 = 300, 60 * 25 = 1500
+    statue(6, 3, 2) // maxed, so marble 2 gets no row
+  ], (costItem) => ({ RGshard0: 123 })[costItem] ?? 0);
+
+  it('groups by marble and skips maxed statues', () => {
+    expect(totals.map(({ shardIndex, statuesLeft }) => [shardIndex, statuesLeft])).toEqual([[0, 2], [1, 1]]);
+  });
+  it('tiers are cumulative from each statue current level', () => {
+    expect(totals[0].tiers).toEqual([10, 60, 810]);
+    expect(totals[1].tiers).toEqual([0, 300, 1800]);
+  });
+  it('carries the owned balance per marble', () => {
+    expect(totals.map(({ owned }) => owned)).toEqual([123, 0]);
   });
 });

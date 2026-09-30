@@ -1,6 +1,7 @@
 import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import {
   armoryUpgrades as armoryUpgradesCatalog,
+  items,
   mapDetails,
   mapEnemiesArray,
   mapNames,
@@ -212,6 +213,17 @@ export interface StatueFlair {
   expMulti: number;
   shardIndex: number;
   costItem: string;
+}
+
+export interface StatueFlairMarbleTotal {
+  shardIndex: number;
+  costItem: string;
+  name: string;
+  owned: number;
+  statuesLeft: number;
+  // Cumulative: tiers[t] is the marble to bring every statue of this marble up to level t + 1 from
+  // where it is now, so the last tier is everything left and a tier all statues passed is 0.
+  tiers: number[];
 }
 
 export interface OrbletUpgrade {
@@ -903,13 +915,15 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       name: entry?.name ?? '',
       level,
       maxLevel: STATUE_FLAIR_MAX_LEVEL,
-      cost: 10 * (index + 1) * Math.pow(5, level), // game: "SF_costo"
+      cost: getStatueFlairCost(index, level),
       bonus,
       expMulti: 1 + bonus / 100, // game: "StatueEXPmulti"
       shardIndex,
       costItem: `RGshard${shardIndex}`
     };
   });
+  const statueFlairMarbleTotals = getStatueFlairMarbleTotals(statueFlair,
+    (costItem) => calcTotalItemOwned((account as any)?.storage, characters, costItem));
 
   // Node -> outposts, read off the connection slots of every map that has an outpost.
   const mapsByNode = new Map<number, number[]>();
@@ -1342,7 +1356,8 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     statueFlair: {
       unlocked: flairUnlocked,
       maxLevel: STATUE_FLAIR_MAX_LEVEL,
-      statues: statueFlair
+      statues: statueFlair,
+      marbleTotals: statueFlairMarbleTotals
     },
     orbletMarket: orbletUpgrades,
     // game: "_ItemsAndStorageOWNED.h.Orblet" - Orblet is a plain CURRENCY item held in inventories
@@ -1494,6 +1509,34 @@ export const getOutpostRank = (account: Account, mapIndex: number, type: number)
 
 export const isOutpostMapPurified = (account: Account, mapIndex: number): boolean =>
   findOutpost(account, mapIndex)?.purified ?? false;
+
+// game: "SF_costo"
+const getStatueFlairCost = (index: number, level: number): number => 10 * (index + 1) * Math.pow(5, level);
+
+// Sums SF_costo per marble type over the statues still below each flair level.
+export const getStatueFlairMarbleTotals = (statues: StatueFlair[], getOwned: (costItem: string) => number = () => 0): StatueFlairMarbleTotal[] => {
+  const byShard = new Map<number, StatueFlairMarbleTotal>();
+  for (const { index, level, maxLevel, shardIndex, costItem } of statues ?? []) {
+    if (level >= maxLevel) continue;
+    const row = byShard.get(shardIndex) ?? {
+      shardIndex,
+      costItem,
+      name: (items as any)?.[costItem]?.displayName ?? costItem,
+      // game: "SF_weOwn" reads _ItemsAndStorageOWNED, the same chest + inventory balance as Orblets.
+      owned: getOwned(costItem),
+      statuesLeft: 0,
+      tiers: Array(maxLevel).fill(0)
+    };
+    row.statuesLeft++;
+    let cumulative = 0;
+    for (let tier = level; tier < maxLevel; tier++) {
+      cumulative += getStatueFlairCost(index, tier);
+      row.tiers[tier] += cumulative;
+    }
+    byShard.set(shardIndex, row);
+  }
+  return [...byShard.values()].sort((a, b) => a.shardIndex - b.shardIndex);
+};
 
 export const getStatueFlairExpMulti = (account: Account, statueIndex: number): number =>
   byIndex((account as any)?.royalGuardian?.statueFlair?.statues, statueIndex)?.expMulti ?? 1;
