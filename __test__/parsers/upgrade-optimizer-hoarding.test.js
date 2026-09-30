@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import latest from '../fixtures/latest.json';
-import { getOptimizedTesseractUpgrades } from '@parsers/class-specific/tesseract';
+import { calcTesseractBonus, getOptimizedTesseractUpgrades } from '@parsers/class-specific/tesseract';
+import { lavaLog } from '@utility/helpers';
 
 // Singulon Hoarding (tesseract upgrade 12) multiplies Arcanist damage by lavaLog of the PURPLE
 // tachyons you are holding, so paying for a purple-funded upgrade gives part of that bonus back.
@@ -57,6 +58,43 @@ describe('upgrade optimizer: held-resource hoarding', () => {
   it('separates "cannot afford anything" from "should not buy anything"', () => {
     // a stash smaller than the real price leaves nothing to evaluate at all
     expect(optimize(cheapestPurpleCost * 1.05).stoppedReason).toBe('no-candidates');
+  });
+
+  describe('hold rates', () => {
+    const singulon = account.tesseract.upgrades[12];
+    const holdRatesFor = (stash, resourcePerHour) => getOptimizedTesseractUpgrades(arcane, buildScenario(account, stash), 'damage', 3, {
+      getResourceType: (upgrade) => upgrade.x3,
+      resourcePerHour
+    }).holdRates;
+
+    it('reports only the colors a damage hoarding upgrade reads', () => {
+      expect(singulon.level).toBeGreaterThan(0);
+      expect(holdRatesFor(1e10).map((rate) => rate.name)).toEqual(['Purple']);
+    });
+
+    it('prices a 10x stash at the Singulon bonus without RPH', () => {
+      const [purple] = holdRatesFor(1e10);
+      expect(purple.perHour).toBeNull();
+      // a 10x stash is one lavaLog step (lavaLog divides by 2.30259, so not exactly 1) of the
+      // Singulon bonus in the additive damage multiplier
+      const bonus = calcTesseractBonus(account.tesseract.upgrades, 12, 0);
+      const others = [4, 24, 31, 42, 53].reduce((sum, index) => sum + calcTesseractBonus(account.tesseract.upgrades, index, 0), 0);
+      const multiplier = 1 + (bonus * lavaLog(1e10) + others) / 100;
+      const step = lavaLog(1e11) - lavaLog(1e10);
+      expect(purple.perTenfold).toBeCloseTo((bonus * step / 100) / multiplier * 100, 8);
+    });
+
+    it('gives a per hour rate from RPH that shrinks as the stash grows', () => {
+      const small = holdRatesFor(1e6, { 0: 1e5 })[0].perHour;
+      const big = holdRatesFor(1e9, { 0: 1e5 })[0].perHour;
+      expect(small).toBeGreaterThan(0);
+      expect(big).toBeLessThan(small);
+    });
+
+    it('is empty for the "all" category', () => {
+      const rows = getOptimizedTesseractUpgrades(arcane, buildScenario(account, 1e10), 'all', 3, {});
+      expect(rows.holdRates).toEqual([]);
+    });
   });
 
   it('never recommends more upgrades as the stash shrinks', () => {

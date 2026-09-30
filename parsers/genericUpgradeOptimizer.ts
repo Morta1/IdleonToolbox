@@ -155,7 +155,50 @@ export function getOptimizedGenericUpgrades({
   };
   let currentResourceMultiplier = getResourceMultiplier(simAccount, simulatedUpgrades);
 
+  // Summed % change across the category's stats, the same measure an upgrade's efficiency uses
+  const totalPercentChange = (toStats: any, toResourceMultiplier: any) => categoryInfo.stats.reduce((sum: number, stat: any) => {
+    let currentValue;
+    let newValue;
+    if (stat === category && toResourceMultiplier !== null) {
+      currentValue = currentResourceMultiplier;
+      newValue = toResourceMultiplier;
+    }
+    else {
+      currentValue = currentStats[stat] || 0;
+      newValue = toStats[stat] || 0;
+    }
+    return sum + (currentValue > 0 ? ((newValue - currentValue) / currentValue) * 100 : 0);
+  }, 0);
+
+  // What holding more of each resource is worth with no purchase, so it can be set against buying.
+  // perHour is one hour of that resource's RPH; perTenfold (a 10x bigger stash) needs no RPH.
+  const tracksHeldResource = heldResourceOptionBase !== undefined && heldResourceOptionBase !== null;
+  const holdRates = !tracksHeldResource || category === 'all' || !resourceNames
+    ? []
+    : Object.entries(resourceNames).map(([resourceKey, name]: any) => {
+      const optionIndex = heldResourceOptionBase + Number(resourceKey);
+      const held = account?.accountOptions?.[optionIndex] ?? 0;
+      const gainWithHeld = (amount: number) => {
+        const accountOptions = [...(account?.accountOptions || [])];
+        accountOptions[optionIndex] = amount;
+        const heldAccount = { ...account, accountOptions };
+        return totalPercentChange(
+          getCurrentStats(simulatedUpgrades, character, heldAccount, extraArgs),
+          getResourceMultiplier(heldAccount, simulatedUpgrades)
+        );
+      };
+      const rph = extraArgs.resourcePerHour?.[resourceKey];
+      return {
+        resourceType: Number(resourceKey),
+        name,
+        held,
+        perTenfold: gainWithHeld(Math.max(held, 1) * 10),
+        perHour: rph > 0 ? gainWithHeld(held + rph) : null
+      };
+    }).filter((rate: any) => rate.perTenfold > 0);
+
   const results: any = [];
+  results.holdRates = holdRates;
   // Why the walk stopped, so the UI can tell "nothing left to buy" apart from "holding beats buying"
   let stoppedReason = null;
 
@@ -350,7 +393,6 @@ export function getOptimizedGenericUpgrades({
 
       // The same purchase measured against an untouched stash. The gap between gross and net is
       // the bonus given up by spending down hoarding-scaled upgrades.
-      const tracksHeldResource = heldResourceOptionBase !== undefined && heldResourceOptionBase !== null;
       const grossStats = tracksHeldResource
         ? getCurrentStats(bestTempUpgrades, character, simAccount, extraArgs)
         : bestNewStats;
@@ -424,26 +466,14 @@ export function getOptimizedGenericUpgrades({
     else {
       // Nothing worth buying. Separate "there is nothing left" from "buying would cost more
       // hoarding bonus than it gains", which is a hold signal rather than a dead end.
-      const tracksHeld = heldResourceOptionBase !== undefined && heldResourceOptionBase !== null;
       if (availableUpgrades.length === 0) {
         stoppedReason = 'no-candidates';
       }
-      else if (tracksHeld && leastBadCandidate) {
-        const grossStats = getCurrentStats(leastBadCandidate.tempUpgrades, character, simAccount, extraArgs);
-        const grossResourceMultiplier = getResourceMultiplier(simAccount, leastBadCandidate.tempUpgrades);
-        const grossTotal = categoryInfo.stats.reduce((sum: number, stat: any) => {
-          let currentValue;
-          let grossValue;
-          if (stat === category && grossResourceMultiplier !== null) {
-            currentValue = currentResourceMultiplier;
-            grossValue = grossResourceMultiplier;
-          }
-          else {
-            currentValue = currentStats[stat] || 0;
-            grossValue = grossStats[stat] || 0;
-          }
-          return sum + (currentValue > 0 ? ((grossValue - currentValue) / currentValue) * 100 : 0);
-        }, 0);
+      else if (tracksHeldResource && leastBadCandidate) {
+        const grossTotal = totalPercentChange(
+          getCurrentStats(leastBadCandidate.tempUpgrades, character, simAccount, extraArgs),
+          getResourceMultiplier(simAccount, leastBadCandidate.tempUpgrades)
+        );
         // the upgrade would help on its own, so the held-resource loss is what sank it
         stoppedReason = grossTotal > 0 ? 'hoarding' : 'no-gain';
       }

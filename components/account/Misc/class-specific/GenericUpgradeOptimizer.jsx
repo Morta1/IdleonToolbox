@@ -217,6 +217,8 @@ const GenericUpgradeOptimizer = ({
   // read before the grouping below, which maps the array and loses the property
   const stoppedReason = optimizedUpgrades.stoppedReason ?? null;
   const holdingBeatsSpending = stoppedReason === 'hoarding';
+  const holdRates = optimizedUpgrades.holdRates ?? [];
+  const bestBuy = optimizedUpgrades[0];
 
   // Group upgrades by name if consolidation is enabled
   let displayUpgrades;
@@ -415,6 +417,63 @@ const GenericUpgradeOptimizer = ({
         net {formatSignedPercent(statChange.percentChange, decimals)}
         {showRebuild ? `, stash back in ${splitTime(rebuildTime)}` : ''}
       </Typography>
+    );
+  };
+  // Growing the stash is itself a gain for hoarding upgrades. Per hour of farming it lines up with
+  // the best purchase (whose efficiency is % per hour of its own resource); without an RPH the
+  // only honest unit is a 10x bigger stash. The gain is logarithmic, so the hourly rate is "now".
+  // Same window as the rebuild note: an RPH that needs over a year to grow the stash 10x is the
+  // untouched default of 1, not a farming rate, and would print as +0%; a buy paid off in under a
+  // minute extrapolates to an absurd hourly rate.
+  const MAX_REAL_FARMING_HOURS = 24 * 365;
+  const renderHoldRates = () => {
+    if (!holdRates.length) return null;
+    const bestBuyHours = bestBuy ? getRebuildTime(bestBuy) : null;
+    const bestBuyPerHour = bestBuyHours >= 1 / 60 && bestBuyHours <= MAX_REAL_FARMING_HOURS
+      ? bestBuy.totalStatChange / bestBuyHours
+      : null;
+    const formatRate = (value) => {
+      const magnitude = Math.abs(value);
+      const digits = magnitude >= 1000
+        ? notateNumber(value)
+        : magnitude >= 0.01 ? value.toFixed(2) : value.toPrecision(2);
+      return `${value >= 0 ? '+' : ''}${digits}%`;
+    };
+    const rates = holdRates.map((rate) => {
+      const rph = usesRph ? effectiveResourcePerHour[rate.resourceType] : null;
+      const tenfoldHours = rph > 0 ? 9 * Math.max(rate.held, 1) / rph : Infinity;
+      return { ...rate, hourly: rate.perHour !== null && tenfoldHours <= MAX_REAL_FARMING_HOURS };
+    });
+    return (
+      <Stack gap={0.5}>
+        {rates.map((rate) => (
+          <Stack key={rate.resourceType} direction="row" gap={1} alignItems="center" flexWrap="wrap">
+            <img
+              style={{ objectPosition: '0 -6px' }}
+              src={`${prefix}${resourceImageDir}${resourceImagePrefix}${rate.resourceType}${resourceImageSuffix}.png`}
+              alt=""
+              width={24}
+              height={24}
+            />
+            <Typography variant="body2">
+              Holding {cleanUnderscore(rate.name)}: {rate.hourly
+              ? `${formatRate(rate.perHour)} per hour of farming right now`
+              : `${formatRate(rate.perTenfold)} per 10x stash`}
+            </Typography>
+            <Tooltip title={rate.hourly
+              ? 'What farming this resource adds just by keeping it, no purchase. It shrinks as the stash grows, since the bonus follows its log.'
+              : `What a stash 10x bigger than your ${notateNumber(rate.held)} would add, no purchase. Set a real resource per hour to see it per hour of farming.`}>
+              <IconInfoCircleFilled size={16}/>
+            </Tooltip>
+          </Stack>
+        ))}
+        {bestBuyPerHour !== null && rates.some((rate) => rate.hourly) && (
+          <Typography variant="body2" color="text.secondary">
+            Best buy: {cleanUnderscore(bestBuy.name)}, {formatRate(bestBuyPerHour)} per hour
+            of {cleanUnderscore(resourceNames[getResourceType(bestBuy)] ?? '')} farming
+          </Typography>
+        )}
+      </Stack>
     );
   };
   const renderStatChanges = (statChanges, upgrade) => {
@@ -902,6 +961,7 @@ const GenericUpgradeOptimizer = ({
       )}
 
       <Typography variant="h6" data-testid="optimizer-heading">Recommended Upgrade Sequence</Typography>
+      {renderHoldRates()}
       {holdingBeatsSpending && displayUpgrades.length > 0 && (
         <Typography variant="body2" color="text.secondary">
           Stopping here: past this point, spending costs more in Hoarding bonus than it gains. Build the stash back up first.

@@ -18,7 +18,8 @@ export const patchNotes = [
       'Cauldrons: exact new bubble chance per cauldron (no more 0.01% rounding), attempts ready, expected bubbles from stored brew, and the next bubbles with their chance',
       'Royal Armory: see the cost and time to afford an upgrade several levels ahead, maps being cleared now show in the outposts list with their progress and clear time, and resource nodes show when they will run empty',
       'Active Calculator: Royal Guardians now see territory clear rate and time left',
-      'Royal Statues: Statue Flair shows how much of each marble you need to bring all statues to each flair level, compared with what you own'
+      'Royal Statues: Statue Flair shows how much of each marble you need to bring all statues to each flair level, compared with what you own',
+      'Upgrade optimizers now show what building your stash is worth, per hour of farming or per 10x stash, next to the best buy'
     ],
     'fixes': [
       'Royal Guardian: Commander Rank EXP and passive units updated for the new game patch',
