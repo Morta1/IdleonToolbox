@@ -58,9 +58,11 @@ const RoyalArmory = () => {
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'royalArmory')}>
-      <Armory upgrades={armory?.upgrades} resourceStorage={raw?.[1]}/>
+      <Armory account={state?.account} upgrades={armory?.upgrades} resourceStorage={raw?.[1]}
+              resourcePerHour={royalGuardian?.resourcePerHour}/>
       <Outposts outposts={royalGuardian?.outposts} outpostStats={outpostStats}
-               resources={royalGuardian?.resources}/>
+               resources={royalGuardian?.resources} clearingMaps={royalGuardian?.clearingMaps}
+               activeKillClear={royalGuardian?.guardian?.activeKillClear}/>
       <Resources resources={royalGuardian?.resources} outposts={royalGuardian?.outposts}/>
       <UpgradeOptimizer account={state?.account} character={selectedRoyalGuardian}/>
       <RoyalStatues royalStatues={royalStatues} statueFlair={statueFlair}/>

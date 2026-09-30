@@ -7,6 +7,7 @@ import { checkCharClass, CLASSES, getTalentBonusIfActive } from '@parsers/talent
 import { notateNumber, numberWithCommas } from '@utility/helpers';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
+import { formatEta } from '@components/account/Misc/class-specific/RoyalGuardian/formatEta';
 
 const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
   const { state } = useContext(AppContext);
@@ -24,6 +25,7 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
   const isArcaneCultist = checkCharClass(characterClass, CLASSES.Arcane_Cultist) && acFormActive;
   const wwFormActive = getTalentBonusIfActive(character?.activeBuffs, 'TEMPEST_FORM');
   const isWindWalker = checkCharClass(characterClass, CLASSES.Wind_Walker) && wwFormActive;
+  const isRoyalGuardian = checkCharClass(characterClass, CLASSES.Royal_Guardian);
 
   const getPerHour = (difference) => Math.floor((difference / ((lastUpdated - snapshottedAcc?.snapshotTime) / 1000 / 60)) * 60);
   const getKills = (source) => Math.floor(source?.kills?.[snapshottedChar?.mapIndex] || 0);
@@ -62,6 +64,11 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
     'Cooldust': getDiff(360),
     'Novadust': getDiff(361)
   }
+
+  const findClearing = (source) => source?.royalGuardian?.clearingMaps
+    ?.find(({ mapIndex }) => mapIndex === snapshottedChar?.mapIndex);
+  const currentClearing = isRoyalGuardian ? findClearing(state?.account) : null;
+  const snapshotClearing = isRoyalGuardian ? findClearing(snapshottedAcc) : null;
 
   return (
     <Section title="Kills">
@@ -165,6 +172,9 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
           hour: {numberWithCommas(getPerHour(getKills(snapshottedChar) - getKills(state?.characters?.[selectedChar])))}</Typography>
         <Typography variant="body2">Per
           day: {numberWithCommas(getPerHour(getKills(snapshottedChar) - getKills(state?.characters?.[selectedChar])) * 24)}</Typography>
+        {currentClearing && snapshotClearing
+          ? <TerritoryClear current={currentClearing} snapshot={snapshotClearing} getPerHour={getPerHour}/>
+          : null}
         {isDivineKnight ? <>
           <Divider sx={{ my: 1 }}/>
           <Typography variant="body1">DK Orbs</Typography>
@@ -204,6 +214,41 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
       </Stack>
     </Section>
   );
+};
+
+// The clear counter moves from two sources at once: the Royal Guardian's own kills on the map and
+// the Clearing units sent at it. The measured diff has both; the militia half is the formula rate.
+const TerritoryClear = ({ current, snapshot, getPerHour }) => {
+  const measuredPerHour = Math.max(0, getPerHour(current.kills - snapshot.kills));
+  const militiaPerHour = current.militiaRate ?? 0;
+  const ownPerHour = Math.max(0, measuredPerHour - militiaPerHour);
+  const remaining = Math.max(0, current.killsRequired - current.kills);
+  return <>
+    <Divider sx={{ my: 1 }}/>
+    <Stack direction="row" alignItems="center" gap={0.5}>
+      <Typography variant="body1">Territory clear</Typography>
+      <Tooltip title={'Measured is how far the clear counter of the map moved since the snapshot, your kills and your Clearing units together. Militia is the rate your Clearing units add on their own.'}>
+        <IconInfoCircleFilled size={18}/>
+      </Tooltip>
+    </Stack>
+    <Typography variant="body2">{current.name}</Typography>
+    <Typography variant="body2">
+      Progress: {notateNumber(current.kills, 'Big')} / {notateNumber(current.killsRequired, 'Big')}
+    </Typography>
+    <Typography variant="body2">Measured: {notateNumber(measuredPerHour / 60, 'Big')} / min</Typography>
+    <Typography variant="body2">Measured: {notateNumber(measuredPerHour, 'Big')} / hr</Typography>
+    <Typography variant="body2">
+      Militia: {notateNumber(militiaPerHour, 'Big')} / hr ({current.militiaUnits ?? 0} unit{current.militiaUnits === 1 ? '' : 's'})
+    </Typography>
+    <Typography variant="body2">Yours: {notateNumber(ownPerHour, 'Big')} / hr</Typography>
+    <Typography variant="body2">
+      {remaining <= 0
+        ? 'Ready to claim'
+        : measuredPerHour > 0
+          ? `Clears in ${formatEta(remaining / measuredPerHour)}`
+          : militiaPerHour > 0 ? `Clears in ${formatEta(remaining / militiaPerHour)} (militia only)` : 'No clear progress yet'}
+    </Typography>
+  </>;
 };
 
 const AdvancedSection = ({ title, items, getPerHour }) => {

@@ -15,6 +15,7 @@ import { notateNumber, prefix } from '@utility/helpers';
 import { CardTitleAndValue } from '@components/common/styles';
 import Tooltip from '@components/Tooltip';
 import useCheckbox from '@components/common/useCheckbox';
+import { formatEta } from './formatEta';
 
 const ALL_WORLDS = 'all';
 
@@ -69,7 +70,7 @@ const Resources = ({ resources, outposts }) => {
       }}>
         {filtered.map((node) => {
           const { index, empty, rawName, resourceIndex, nodeLevel, collected, maxQuantity, stored } = node;
-          const { connected, connectedMaps, connectedMap, connectedMapName, exhausted, fillPercent } = node;
+          const { connected, connectedMaps, connectedMap, connectedMapName, exhausted, fillPercent, hoursToEmpty } = node;
           // A Savage Stronghold pours its collection back into the node instead of banking it.
           const collectors = connectedMaps.map((mapIndex, order) => (order === 0
             ? connectedMapName || `map ${mapIndex}`
@@ -101,6 +102,9 @@ const Resources = ({ resources, outposts }) => {
                   <LinearProgress variant="determinate" value={100 * fillPercent}
                                   color={exhausted ? 'warning' : 'primary'}
                                   sx={{ height: 6, borderRadius: 3, mt: 0.5 }}/>
+                  {hoursToEmpty != null
+                    ? <Typography variant="caption" sx={{ mt: 0.5 }}>Empties in {formatEta(hoursToEmpty)}</Typography>
+                    : null}
                   <Typography variant="caption" sx={{ mt: 1 }}>
                     In storage: {notateNumber(stored, 'Big')}
                   </Typography>

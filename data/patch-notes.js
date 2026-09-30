@@ -15,7 +15,9 @@ export const patchNotes = [
       'Pets: upgraded pets now show how many of their Pet Mart+ copies are tradable',
       'Leaderboards: added Best Jelly DPS, Total Jelly Cell Levels, Total Jelly Upgrades and Best Sushi Combo',
       'Islands: Crystal Island now shows how many giant crystal mobs are waiting, with a dashboard alert before the 14 day cap',
-      'Cauldrons: exact new bubble chance per cauldron (no more 0.01% rounding), attempts ready, expected bubbles from stored brew, and the next bubbles with their chance'
+      'Cauldrons: exact new bubble chance per cauldron (no more 0.01% rounding), attempts ready, expected bubbles from stored brew, and the next bubbles with their chance',
+      'Royal Armory: see the cost and time to afford an upgrade several levels ahead, maps being cleared now show in the outposts list with their progress and clear time, and resource nodes show when they will run empty',
+      'Active Calculator: Royal Guardians now see territory clear rate and time left'
     ],
     'fixes': [
       'Royal Guardian: Commander Rank EXP and passive units updated for the new game patch',

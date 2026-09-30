@@ -21,6 +21,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import KingdomMap from './KingdomMap';
+import { formatEta } from './formatEta';
 
 const ALL_WORLDS = 'all';
 
@@ -31,15 +32,6 @@ const OUTPOST_MODE_LABELS = ['Resource Depot', 'Support Camp', 'Savage Stronghol
 // A slot holds a unit type index; anything below zero is the game's empty marker ('1', or a slot
 // past the end of the packed string).
 const isEmptySlot = (unit) => !(unit >= 0);
-
-// Rank bars run from minutes to years apart, so a single unit reads badly across the whole range.
-const formatEta = (hours) => {
-  if (!(hours > 0)) return 'ready now';
-  if (hours < 1) return `${Math.ceil(hours * 60)}m`;
-  if (hours < 48) return `${Math.round(hours)}h`;
-  const days = hours / 24;
-  return days < 365 ? `${Math.round(days)}d` : `${Math.round(days / 365)}y`;
-};
 
 // A support camp stores the map index it feeds, not a name.
 const mapNameOf = (outposts, mapIndex) =>
@@ -53,7 +45,7 @@ const UnitIcon = ({ unit, height = 34 }) => (
        style={{ height, width: 'auto' }}/>
 );
 
-const Outposts = ({ outposts, outpostStats, resources }) => {
+const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillClear }) => {
   const [sortBy, setSortBy] = useState('map');
   const [world, setWorld] = useState(ALL_WORLDS);
   const [searchText, setSearchText] = useState('');
@@ -62,15 +54,21 @@ const Outposts = ({ outposts, outpostStats, resources }) => {
 
   const list = outposts ?? [];
   const unitNames = outpostStats?.unitNames ?? [];
-  const worlds = [...new Set(list.map(({ world: outpostWorld }) => outpostWorld))].sort((a, b) => a - b);
+  // A map still being cleared has no outpost yet, only its kill counter, but it belongs next to the
+  // outposts of its world: finishing the clear is what turns it into one.
+  const clearing = (clearingMaps ?? []).map((clearingMap) => ({ ...clearingMap, isClearing: true }));
+  const cards = [...list, ...clearing];
+  const worlds = [...new Set(cards.map(({ world: outpostWorld }) => outpostWorld))].sort((a, b) => a - b);
 
-  const filtered = list.filter((outpost) => {
+  const filtered = cards.filter((outpost) => {
     if (world !== ALL_WORLDS && outpost.world !== world) return false;
     if (!searchText) return true;
     return outpost.name?.toLowerCase().includes(searchText.toLowerCase().trim());
   });
 
   const sorted = [...filtered].sort((a, b) => {
+    // None of the outpost stats exist on a clearing map, so those sorts push them to the end.
+    if (sortBy !== 'map' && a.isClearing !== b.isClearing) return a.isClearing ? 1 : -1;
     if (sortBy === 'rate') return (b.resourceRate || 0) - (a.resourceRate || 0);
     if (sortBy === 'range') return (b.range || 0) - (a.range || 0);
     if (sortBy === 'pts') return (b.ptsLeft || 0) - (a.ptsLeft || 0);
@@ -82,6 +80,49 @@ const Outposts = ({ outposts, outpostStats, resources }) => {
 
   const totalRate = list.reduce((sum, { resourceRate }) => sum + (resourceRate || 0), 0);
   const unspentPts = list.reduce((sum, { ptsLeft }) => sum + Math.max(0, ptsLeft || 0), 0);
+
+  const clearingHint = activeKillClear > 0
+    ? `The ETA counts your Clearing units only. Every kill your Royal Guardian lands here adds ${notateNumber(activeKillClear, 'Big')} more.`
+    : 'The ETA counts your Clearing units only. Your own kills start counting once Solo Militia Status is bought in the armory.';
+
+  const renderClearing = ({
+    mapIndex, name, world: mapWorld, kills, killsRequired, progress, militiaUnits, militiaRate, hoursToClear
+  }) => (
+    <Card key={mapIndex} sx={{ height: '100%' }}>
+      <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <Typography>{name || `Map ${mapIndex}`}</Typography>
+        <Stack direction="row" gap={0.5} alignItems="center">
+          <Typography variant="caption" color="text.secondary">
+            {`W${mapWorld} · `}
+            <Box component="span" sx={{ color: 'warning.main' }}>Clearing</Box>
+          </Typography>
+          <Tooltip title={clearingHint}>
+            <InfoIcon sx={{ fontSize: 14, opacity: 0.7 }}/>
+          </Tooltip>
+        </Stack>
+
+        <Divider sx={{ my: 1 }}/>
+
+        <Stack direction="row" justifyContent="space-between" alignItems="baseline" gap={1}>
+          <Typography variant="body2">
+            {progress >= 1 ? 'Ready to claim' : `${Math.floor(100 * progress)}% cleared`}
+          </Typography>
+          <Typography variant="body2" sx={{ whiteSpace: 'nowrap' }}>
+            {notateNumber(kills, 'Big')} / {notateNumber(killsRequired, 'Big')}
+          </Typography>
+        </Stack>
+        <LinearProgress variant="determinate" value={100 * Math.min(1, progress)}
+                        color={progress >= 1 ? 'success' : 'primary'}
+                        sx={{ height: 6, borderRadius: 3, mt: 0.5 }}/>
+        <Typography variant="caption" sx={{ mt: 1 }}>
+          {militiaUnits > 0
+            ? `${militiaUnits} Clearing unit${militiaUnits > 1 ? 's' : ''} · ${notateNumber(militiaRate, 'Big')}/hr`
+            : 'No Clearing units sent here'}
+          {progress < 1 && hoursToClear != null ? ` · clears in ${formatEta(hoursToClear)}` : ''}
+        </Typography>
+      </CardContent>
+    </Card>
+  );
 
   // Shared by the flat list and the per-world groups.
   const renderOutpost = (outpost) => {
@@ -272,7 +313,7 @@ const Outposts = ({ outposts, outpostStats, resources }) => {
       gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
       alignItems: 'stretch'
     }}>
-      {items.map(renderOutpost)}
+      {items.map((item) => (item.isClearing ? renderClearing(item) : renderOutpost(item)))}
     </Box>
   );
 
@@ -340,6 +381,7 @@ const Outposts = ({ outposts, outpostStats, resources }) => {
       {groupByWorld
         ? groupedWorlds.map((groupWorld) => {
           const inWorld = sorted.filter(({ world: outpostWorld }) => outpostWorld === groupWorld);
+          const builtInWorld = inWorld.filter(({ isClearing }) => !isClearing).length;
           const usage = outpostStats?.typesUsedByWorld?.[groupWorld];
           // Every map of the world that can hold an outpost. A search filter makes the numerator a
           // subset, so the ratio is only honest while nothing is filtered out.
@@ -349,7 +391,7 @@ const Outposts = ({ outposts, outpostStats, resources }) => {
               <Stack direction="row" gap={1.5} alignItems="baseline" flexWrap="wrap">
                 <Typography variant="h6">World {groupWorld}</Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {inWorld.length}{worldSlots ? ` / ${worldSlots}` : ''} outpost{(worldSlots || inWorld.length) === 1 ? '' : 's'}
+                  {builtInWorld}{worldSlots ? ` / ${worldSlots}` : ''} outpost{(worldSlots || builtInWorld) === 1 ? '' : 's'}
                   {usage
                     ? [1, 2].map((modeIndex) => ` \u00b7 ${OUTPOST_MODE_LABELS[modeIndex]} ${usage[modeIndex]} / ${outpostStats?.typesAllowed?.[modeIndex] ?? 0}`).join('')
                     : ''}

@@ -3,16 +3,22 @@ import { Card, CardContent, Chip, Divider, FormControl, InputLabel, Select, Stac
 import MenuItem from '@mui/material/MenuItem';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import useCheckbox from '@components/common/useCheckbox';
+import { getArmoryCostToLevel } from '@parsers/class-specific/royalGuardian';
+import { formatEta } from './formatEta';
 
 // Same stray glyphs Grimoire/Compass/Tesseract strip from their own upgrade text, plus the three
 // that show up in Royal Guardian's own catalogs (statue names, orblet market, armory upgrades).
 const stripGlyphs = (str) => (str ?? '').replace(/[船般航舞製千膛]/g, '');
 const cleanText = (str) => cleanUnderscore(stripGlyphs(str));
 
+// A capped upgrade stops at its cap, so +100 already reaches max on almost every capped one.
+const LEVELS_AHEAD = [1, 5, 10, 25, 100];
+
 // The armory renders every upgrade at its OWN shelf currency icon (RGres{costResourceIndex}.png) -
 // this is the game's own render, not a per-upgrade icon; there is no such asset.
-const Armory = ({ upgrades, resourceStorage }) => {
+const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
   const [sortBy, setSortBy] = useState('slot');
+  const [levelsAhead, setLevelsAhead] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [CheckboxEl, hideMaxedUpgrades] = useCheckbox('Hide maxed upgrades');
   const [LockedCheckboxEl, hideLockedUpgrades] = useCheckbox('Hide locked upgrades');
@@ -51,6 +57,15 @@ const Armory = ({ upgrades, resourceStorage }) => {
           onChange={(e) => setSearchText(e.target.value)}
           sx={{ width: 250 }}
         />
+        <FormControl size="small" sx={{ width: 150 }}>
+          <InputLabel>Levels ahead</InputLabel>
+          <Select value={levelsAhead} label="Levels ahead" onChange={(e) => setLevelsAhead(e.target.value)}>
+            {LEVELS_AHEAD.map((amount) => (
+              // +1 is the card's own cost row with nothing added, so it reads as the default view.
+              <MenuItem key={amount} value={amount}>{amount === 1 ? 'Current' : `+${amount} levels`}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <CheckboxEl/>
         <LockedCheckboxEl/>
       </Stack>
@@ -65,6 +80,13 @@ const Armory = ({ upgrades, resourceStorage }) => {
           if (hideLockedUpgrades && !unlocked) return null;
           const capped = maxLevel < 999;
           const stored = resourceStorage?.[costResourceIndex] ?? 0;
+          const targetLevel = Math.min(level + levelsAhead, capped ? maxLevel : Infinity);
+          const targetCost = maxed ? 0 : getArmoryCostToLevel(account, upgrade, targetLevel);
+          const income = resourcePerHour?.[costResourceIndex] ?? 0;
+          const missing = Math.max(0, targetCost - stored);
+          const eta = income > 0
+            ? `ready in ${formatEta(missing / income)} · ${notateNumber(income, 'Big')}/hr`
+            : 'not collected by any outpost';
 
           return (
             <Card key={index}>
@@ -88,8 +110,28 @@ const Armory = ({ upgrades, resourceStorage }) => {
                 <Divider sx={{ my: 1, mt: 'auto' }}/>
                 <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
                   <img style={{ width: 24, height: 24 }} src={`${prefix}data/${costResourceRawName}.png`} alt=""/>
-                  {maxed ? <Typography>Maxed</Typography> : <Typography>Cost: {notateNumber(stored)} / {notateNumber(cost, 'Big')}</Typography>}
+                  {maxed
+                    ? <Typography>Maxed</Typography>
+                    : <Typography color={stored >= cost ? 'success.main' : 'error.light'}>
+                      Cost: {notateNumber(stored)} / {notateNumber(cost, 'Big')}
+                    </Typography>}
                 </Stack>
+                {/* The next level is always the cost row above; this line only prices the picker's
+                    target when it goes further, or says how far off the next level is. */}
+                {!maxed && (targetLevel > level + 1 || missing > 0)
+                  ? <Typography variant="caption" color="text.secondary" sx={{ pl: 4 }}>
+                    {targetLevel > level + 1
+                      ? <>
+                        {'Lv '}{targetLevel}{': '}
+                        <Typography component="span" variant="caption"
+                                    color={missing <= 0 ? 'success.main' : 'error.light'}>
+                          {notateNumber(targetCost, 'Big')}
+                        </Typography>
+                        {missing > 0 ? ` · ${eta}` : ''}
+                      </>
+                      : eta.charAt(0).toUpperCase() + eta.slice(1)}
+                  </Typography>
+                  : null}
                 <Divider sx={{ my: 1 }}/>
                 {/* The game numbers shelves from 1, the catalog slots from 0. */}
                 <Typography>Shelf {slot + 1} · Unlocks at: {commaNotation(shelfUnlockTotalLevels)} levels</Typography>

@@ -249,6 +249,27 @@ export interface RoyalResource {
   anchorY: number;
   exhausted: boolean;
   fillPercent: number;
+  // What every outpost wired to it takes out per hour, summed, and how long until that spends it.
+  // Null when nothing drains it or it is already spent.
+  drainRate?: number;
+  hoursToEmpty?: number | null;
+}
+
+// A map with a clear in progress. The game credits it from two places: every Clearing unit sent
+// at it (UnitSpecEffect(4) per hour each), and each kill the Royal Guardian lands on it
+// (ActiveKillClear per kill), so only the militia half has an offline rate.
+export interface RoyalClearingMap {
+  mapIndex: number;
+  name: string;
+  monsterRawName: string | null;
+  monsterName: string | null;
+  world: number;
+  kills: number;
+  killsRequired: number;
+  progress: number;
+  militiaUnits: number;
+  militiaRate: number;
+  hoursToClear: number | null;
 }
 
 interface OutpostBase {
@@ -1272,6 +1293,37 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     }
   }
 
+  // game: the collect loop pays UnitSpecEffect(4) per hour to a clearing map for every job-4 unit
+  // sent at it, and only while the map has exactly one RoyalMaps entry (clearingMaps' own filter).
+  const detailedClearingMaps: RoyalClearingMap[] = clearingMaps.map((clearingMap) => {
+    const militiaUnits = deployments
+      .filter(({ job, mapIndex }) => job === UNIT_JOB_CLEAR && mapIndex === clearingMap.mapIndex).length;
+    const militiaRate = militiaUnits * militiaClearRate;
+    const remaining = Math.max(0, clearingMap.killsRequired - clearingMap.kills);
+    return {
+      ...clearingMap,
+      militiaUnits,
+      militiaRate,
+      hoursToClear: remaining <= 0 ? 0 : militiaRate > 0 ? remaining / militiaRate : null
+    };
+  });
+
+  // Two outposts can drain the same node, so a node's time to empty has to sum every link.
+  const nodeDrain: Record<number, number> = {};
+  detailedOutposts.forEach(({ connectedNodes }) => connectedNodes.forEach(({ index, drainRate }) => {
+    nodeDrain[index] = (nodeDrain[index] ?? 0) + (drainRate || 0);
+  }));
+  const detailedResources: RoyalResource[] = resources.map((node) => {
+    const drainRate = nodeDrain[node.index] ?? 0;
+    return {
+      ...node,
+      drainRate,
+      hoursToEmpty: !node.exhausted && drainRate > 0
+        ? Math.max(0, node.maxQuantity - node.collected) / drainRate
+        : null
+    };
+  });
+
   return {
     unlocked,
     hasRoyalGuardian,
@@ -1312,8 +1364,8 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       marbleDropChance,
       royalRadius: ROYAL_RADIUS
     },
-    resources,
-    clearingMaps,
+    resources: detailedResources,
+    clearingMaps: detailedClearingMaps,
     outposts: detailedOutposts,
     resourcePerHour: computeResourcePerHour(detailedOutposts, RESOURCE_PER_HOUR_WINDOW_HOURS,
       armoryBonus(70) >= 1),
@@ -1453,6 +1505,25 @@ export const getStatueFlairExpMulti = (account: Account, statueIndex: number): n
 // as it does for Grimoire/Compass/Tesseract's own getUpgradeCost.
 export const getArmoryCostReduction = (account: Account, forceLegendTalent?: any): number =>
   getAllMasterclassCostRedux(account, forceLegendTalent);
+
+// Total resource to take one armory upgrade from its current level to targetLevel, re-pricing
+// every step with getArmoryUpgradeCost so the id 46/58 flat prices and the jelly slot quirk hold.
+// Only this upgrade's level moves: buying it does not touch any other price on the shelf.
+export const getArmoryCostToLevel = (account: Account, upgrade: ArmoryUpgrade, targetLevel: number): number => {
+  const armory = (account as any)?.royalGuardian?.armory;
+  if (!armory || !(upgrade?.slot >= 0)) return 0;
+  const armoryLevels: number[] = [];
+  (armory.upgrades ?? []).forEach((entry: ArmoryUpgrade) => { armoryLevels[entry.index] = entry.level; });
+  const costReduction = getArmoryCostReduction(account);
+  const cap = upgrade.maxLevel < 999 ? upgrade.maxLevel : Infinity;
+  const end = Math.min(targetLevel, cap);
+  let total = 0;
+  for (let level = upgrade.level; level < end; level++) {
+    armoryLevels[upgrade.index] = level;
+    total += getArmoryUpgradeCost(upgrade.slot, armory.slotToId, armoryLevels, costReduction, account);
+  }
+  return total;
+};
 
 // The armory has no per-stat categories the way Grimoire/Compass/Tesseract do - its 69 shelf
 // upgrades feed statues, outposts, minehead currency etc. with no common stat to rank by. The
