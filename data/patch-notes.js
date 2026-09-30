@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.531',
     'date': '01/10/2026',
     'features': [
-      'Dashboard: the Arcanist weapon and ring daily drop alerts can now be turned off separately'
+      'Dashboard: the Arcanist weapon and ring daily drop alerts can now be turned off separately',
+      'Leaderboards: added Day Market Levels and Night Market Levels'
     ],
     'fixes': [
       'Gaming: Sprout Capacity upgrade cost now matches the game at higher levels'
