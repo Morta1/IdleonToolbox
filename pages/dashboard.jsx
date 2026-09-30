@@ -19,7 +19,7 @@ import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 import { useLocalStorage } from '@mantine/hooks';
 
 const baseTrackers = {
-  version: 77,
+  version: 78,
   account: {
     General: {
       tasks: {
@@ -74,8 +74,11 @@ const baseTrackers = {
           },
           {
             name: 'arcanistDailyDrops',
+            type: 'array',
+            category: 'arcanistDailyDrops',
             checked: true,
-            helperText: 'Alert when Arcanist weapon or ring drops remain for today'
+            helperText: 'Alert when Arcanist weapon or ring drops remain for today. Each drop type can be turned off on its own',
+            props: { value: { weapon: true, ring: true } }
           },
           {
             name: 'topOfTheMornin',

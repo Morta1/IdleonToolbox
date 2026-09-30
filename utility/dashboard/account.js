@@ -289,13 +289,15 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
     if (options?.etc?.arcanistDailyDrops?.checked) {
       // Mobs drop at most 100 Arcanist weapons and 100 Arcanist rings a day. accountOptions[396]
       // / [397] count what already dropped today and reset to 0 on daily reset. Each drop type
-      // needs its quality upgrade bought (tesseract 5 / 23) before it can drop at all.
+      // needs its quality upgrade bought (tesseract 5 / 23) before it can drop at all. Each type
+      // has its own toggle; a config without one counts as on.
+      const enabledDropTypes = options?.etc?.arcanistDailyDrops?.props?.value || {};
       const arcanistDailyDrops = [
         { type: 'weapon', dropped: account?.accountOptions?.[396] ?? 0, unlocked: getTesseractBonus(account, 5) > 0 },
         { type: 'ring', dropped: account?.accountOptions?.[397] ?? 0, unlocked: getTesseractBonus(account, 23) > 0 }
       ].reduce((res, { type, dropped, unlocked }) => {
         const remaining = Math.max(0, ARCANIST_DAILY_DROP_CAP - dropped);
-        return unlocked && remaining > 0 ? [...res, { type, remaining }] : res;
+        return unlocked && remaining > 0 && enabledDropTypes?.[type] !== false ? [...res, { type, remaining }] : res;
       }, []);
       if (arcanistDailyDrops.length > 0) {
         etc.arcanistDailyDrops = arcanistDailyDrops;

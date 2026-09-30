@@ -2018,6 +2018,27 @@ const migration77 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration78 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
+  const etcOptions = dashboardConfig?.account?.General?.etc?.options;
+  const arcanistDrops = Array.isArray(etcOptions)
+    ? etcOptions.find((option) => option?.name === 'arcanistDailyDrops')
+    : null;
+  if (arcanistDrops && arcanistDrops.type !== 'array') {
+    // Weapon and ring drops shared one checkbox; each now has its own. Both inherit the old
+    // checkbox so a user who had the alert off doesn't get it back.
+    const wasOn = arcanistDrops.checked !== false;
+    arcanistDrops.type = 'array';
+    arcanistDrops.category = 'arcanistDailyDrops';
+    arcanistDrops.checked = true;
+    arcanistDrops.helperText = 'Alert when Arcanist weapon or ring drops remain for today. Each drop type can be turned off on its own';
+    arcanistDrops.props = { ...arcanistDrops.props, value: { weapon: wasOn, ring: wasOn } };
+  }
+
+  dashboardConfig.version = 78;
+  return dashboardConfig;
+};
+
 const migrations = {
   2: migrateToVersion2,
   3: migrateToVersion3,
@@ -2095,6 +2116,7 @@ const migrations = {
   75: migration75,
   76: migration76,
   77: migration77,
+  78: migration78,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {
