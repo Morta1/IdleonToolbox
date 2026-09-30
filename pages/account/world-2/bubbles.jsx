@@ -318,7 +318,7 @@ const Bubbles = () => {
               </Stack>
               <Stack direction={'row'} gap={1}>
                 <Typography variant={'caption'}>Future Bubbles</Typography>
-                <HtmlTooltip title={<FutureBubblesTooltip/>}><IconInfoCircleFilled size={16}/></HtmlTooltip>
+                <HtmlTooltip title={<FutureBubblesTooltip cauldrons={state?.account?.alchemy?.cauldrons}/>}><IconInfoCircleFilled size={16}/></HtmlTooltip>
               </Stack>
             </Section>
             <Stack sx={{ ml: 'auto' }} gap={1} justifyContent={'center'}>
@@ -621,17 +621,31 @@ const BubbleTooltip = ({ goalBonus, bubbleName, desc }) => {
   </>;
 }
 
-const FutureBubblesTooltip = () => {
-  const arr = new Array(15).fill(30).map((bubbleIndex, index) => getMaxCauldron(bubbleIndex + index)).toChunks(5);
+const FUTURE_BUBBLES_AHEAD = 10;
+const FUTURE_BUBBLES_MAX_ROWS = 30;
+// Shown when there's no cauldron progress to anchor on (logged out)
+const FUTURE_BUBBLES_FALLBACK = 30;
+
+// Brew needed to roll for each upcoming bubble, from the least progressed cauldron's next bubble to a
+// few past the furthest one. The game groups bubbles into worlds of 5.
+const FutureBubblesTooltip = ({ cauldrons }) => {
+  const progress = Object.values(cauldrons ?? {})
+    .map(({ unlockedBubbles }) => unlockedBubbles)
+    .filter((count) => count > 0);
+  const unlocked = progress.length ? progress : [FUTURE_BUBBLES_FALLBACK];
+  const last = Math.max(...unlocked) + FUTURE_BUBBLES_AHEAD;
+  const first = Math.max(Math.min(last, ...unlocked) + 1, last - FUTURE_BUBBLES_MAX_ROWS + 1);
+  const byWorld = Array.from({ length: last - first + 1 }, (_, index) => first + index)
+    .reduce((res, bubble) => {
+      const world = Math.ceil(bubble / 5);
+      return { ...res, [world]: [...(res[world] ?? []), bubble] };
+    }, {});
   return <Stack gap={2}>
-    {arr.map((chunk, index) => {
-      return <Stack key={index}>
-        <Typography sx={{ fontWeight: 'bold' }}>World {6 + index}</Typography>
+    {Object.entries(byWorld).map(([world, bubbles]) => {
+      return <Stack key={world}>
+        <Typography sx={{ fontWeight: 'bold' }}>World {world}</Typography>
         <Stack>
-          {chunk.map((i, bIndex) => {
-            const currentIndex = 31 + (index * 5) + bIndex;
-            return <Typography key={i}>{currentIndex} - {notateNumber(i)}</Typography>
-          })}
+          {bubbles.map((bubble) => <Typography key={bubble}>{bubble} - {notateNumber(getMaxCauldron(bubble - 1))}</Typography>)}
         </Stack>
       </Stack>
     })}

@@ -11,7 +11,7 @@ import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getPrismaMulti } from '@parsers/class-specific/tesseract';
-import { getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
+import { getAllTalentAddedLevels, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getZenithBonus } from '@parsers/world-1/statues';
@@ -495,10 +495,14 @@ const getCauldrons = (cauldronsProgress: any, cauldronsRaw: any, p2w: any, alche
     const [speed, luck, cost, extra] = cauldronsRaw.slice(i, i + chunk);
     const cauldronsAsObject = { speed, luck, cost, extra };
     const players = playersInCauldrons.filter(({ activity }: any) => activity === i / 4);
-    const unlockedBubbleCount = alchemyRaw?.[i / 4]?.length ?? 0;
+    const unlockedBubbles = getUnlockedBubbleCount(alchemyRaw?.[i / 4]);
+    const progress = cauldronsProgress?.[i / 4] ?? 0;
+    const req = getMaxCauldron(unlockedBubbles);
     cauldronsObject[cauldronsLevelsMapping[i]] = {
-      progress: cauldronsProgress?.[i / 4] ?? 0,
-      req: getMaxCauldron(unlockedBubbleCount),
+      progress,
+      req,
+      attempts: Math.floor(progress / req),
+      unlockedBubbles,
       players
     };
     Object.entries(cauldronsAsObject).forEach(([name, stats]: any) => {
@@ -520,9 +524,91 @@ const getCauldrons = (cauldronsProgress: any, cauldronsRaw: any, p2w: any, alche
 }
 
 
-export const getMaxCauldron = (length: any) => {
-  const math = Math.pow(3 * (length), 2.2)
-  return 3 + math * Math.pow(1.3, length);
+// The game counts only the unbroken run of unlocked bubbles from the first one (NumBubblesUnlocked).
+const getUnlockedBubbleCount = (bubbleLevels: any[] = []) => {
+  const firstLocked = bubbleLevels.findIndex((level) => !Number(level));
+  return firstLocked === -1 ? bubbleLevels.length : firstLocked;
+}
+
+// Brew needed per new bubble attempt (MaxCauldronQTY)
+export const getMaxCauldron = (unlockedBubbles: number) => {
+  if (unlockedBubbles < 5) return [0.01, 0.15, 0.75, 5, 20][unlockedBubbles];
+  const offset = unlockedBubbles - 3;
+  return 1 + Math.pow(3 * offset, 2.2) * Math.pow(1.3, offset);
+}
+
+// PctChanceNewBubble before the per-cauldron multipliers, in percent
+export const getBaseNewBubbleChance = (unlockedBubbles: number) => {
+  return 139 * Math.pow(0.73, unlockedBubbles + 1) / Math.max(0.1 * unlockedBubbles + 1, 1);
+}
+
+// Average number of bubbles the stored brew yields if every attempt is rolled. Each new bubble raises the
+// brew per attempt and lowers the chance, so the attempts can't just be multiplied by today's chance.
+// The game has no cap on the count, bubbles past the last real one are still rolled for.
+const MAX_EXPECTED_BUBBLES = 1000;
+export const getExpectedNewBubbles = (brew: number, unlockedBubbles: number, multi: number) => {
+  let remaining = brew;
+  let unlocked = unlockedBubbles;
+  let expected = 0;
+  while (expected < MAX_EXPECTED_BUBBLES) {
+    const req = getMaxCauldron(unlocked);
+    const chance = Math.min(getBaseNewBubbleChance(unlocked) * multi / 100, 1);
+    const attempts = Math.floor(remaining / req);
+    if (attempts <= 0 || chance <= 0) break;
+    const attemptsPerBubble = 1 / chance;
+    if (attempts < attemptsPerBubble) {
+      expected += attempts * chance;
+      break;
+    }
+    expected += 1;
+    remaining -= attemptsPerBubble * req;
+    unlocked += 1;
+  }
+  return expected;
+}
+
+// Bubble Breakthrough is read off the character doing the brewing, so show the best one the account has.
+const getBestBubbleBreakthrough = (characters: any) => {
+  return (characters ?? []).reduce((best: any, character: any) => {
+    const talent = character?.flatTalents?.find(({ talentId }: any) => talentId === 492);
+    if (!talent?.baseLevel) return best;
+    const level = talent.baseLevel + getAllTalentAddedLevels(talent.talentId, character, character);
+    const value = growth(talent.funcY, level, talent.y1, talent.y2, false) ?? 0;
+    return value > best.value ? { value, characterName: character?.name } : best;
+  }, { value: 0, characterName: null });
+}
+
+export const applyNewBubbleChances = (account: any, characters: any) => {
+  const bubbleBreakthrough = getBestBubbleBreakthrough(characters);
+  const ivoryCauldrons = `${account?.accountOptions?.[32] ?? ''}`;
+  return Object.fromEntries(Object.entries(account?.alchemy?.cauldrons ?? {}).map(([name, cauldron]: any) => {
+    const index = CAULDRON_INFO.findIndex((info) => info.name === name);
+    const luckLevel = cauldron?.boosts?.luck?.level ?? 0;
+    const luck = Math.round(10 * (1 + 0.05 * luckLevel)) / 10;
+    const [x1, x2, func] = p2w[0][1];
+    const p2wLevel = account?.alchemy?.p2w?.cauldrons?.[index]?.newBubble?.level ?? 0;
+    const p2wBonus = Math.max(growth(func, p2wLevel, x1, x2, false), 1);
+    const talentMulti = 1 + bubbleBreakthrough.value / 100;
+    const ivory = ivoryCauldrons.charAt(index) === '1' ? 1.5 : 1;
+    const multi = luck * p2wBonus * talentMulti * ivory;
+    const base = getBaseNewBubbleChance(cauldron?.unlockedBubbles ?? 0);
+    return [name, {
+      ...cauldron,
+      newBubble: {
+        chance: base * multi,
+        multi,
+        expectedBubbles: getExpectedNewBubbles(cauldron?.progress ?? 0, cauldron?.unlockedBubbles ?? 0, multi),
+        talentCharacter: bubbleBreakthrough.characterName,
+        breakdown: [
+          { name: 'Base', value: base },
+          { name: 'Luck brew', value: luck },
+          { name: 'P2W', value: p2wBonus },
+          { name: 'Bubble Breakthrough', value: talentMulti },
+          { name: 'Ivory cauldron', value: ivory }
+        ]
+      }
+    }];
+  }));
 }
 
 const getP2WBonus = (p2wIndex: any, bonusIndex: any, level: any) => {

@@ -14,7 +14,8 @@ export const patchNotes = [
       'Tome: added Successful Jelly Operations',
       'Pets: upgraded pets now show how many of their Pet Mart+ copies are tradable',
       'Leaderboards: added Best Jelly DPS, Total Jelly Cell Levels, Total Jelly Upgrades and Best Sushi Combo',
-      'Islands: Crystal Island now shows how many giant crystal mobs are waiting, with a dashboard alert before the 14 day cap'
+      'Islands: Crystal Island now shows how many giant crystal mobs are waiting, with a dashboard alert before the 14 day cap',
+      'Cauldrons: exact new bubble chance per cauldron (no more 0.01% rounding), attempts ready, expected bubbles from stored brew, and the next bubbles with their chance'
     ],
     'fixes': [
       'Royal Guardian: Commander Rank EXP and passive units updated for the new game patch',
@@ -23,7 +24,8 @@ export const patchNotes = [
       'Atom Collider: available atoms count corrected',
       'Sneaking: the sushi Stealth bonus no longer boosts Jade gain',
       'Class EXP now counts the Eggroll pet',
-      'Upgrade optimizers no longer show a -80% discount where the Masterclass allowance does not apply'
+      'Upgrade optimizers no longer show a -80% discount where the Masterclass allowance does not apply',
+      'Cauldrons: brew needed per new bubble attempt and the Future Bubbles tooltip showed the wrong amounts'
     ]
   },
   {

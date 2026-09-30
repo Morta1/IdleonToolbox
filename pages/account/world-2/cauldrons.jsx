@@ -1,14 +1,15 @@
 import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Breakdown as StatBreakdown } from '@components/common/Breakdown/Breakdown';
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import ProgressBar from '../../../components/common/ProgressBar';
-import { getCoinsArray, notateNumber, prefix } from '@utility/helpers';
+import { getCoinsArray, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import darkTheme from '../../../styles/theme/darkTheme';
 import { Breakdown, PlayersList } from '@components/common/styles';
 import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
 import CoinDisplay from '@components/common/CoinDisplay';
-import { CAULDRONS_MAX_LEVELS } from '@parsers/world-2/alchemy';
+import { CAULDRONS_MAX_LEVELS, getBaseNewBubbleChance, getMaxCauldron } from '@parsers/world-2/alchemy';
 import Tooltip from '@components/Tooltip';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 
@@ -38,41 +39,10 @@ const Cauldrons = () => {
       />
       <Typography variant={'h5'} mb={3}>Brewing</Typography>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-        {Object.entries(alchemy?.cauldrons || {})?.map(([name, stats], cauldronIndex) => {
-          return <Card sx={{ width: { md: 450 } }} key={`${name}-${cauldronIndex}`}>
-            <CardContent>
-              <Stack direction={'row'} gap={1}>
-                <Typography color={cauldronsColors[cauldronIndex]}>{name.capitalize()}</Typography>
-                <PlayersList players={stats.players} characters={state?.characters}/>
-              </Stack>
-              <ProgressBar bgColor={cauldronsColors[cauldronIndex]}
-                           percent={stats.progress / stats.req * 100}/>
-              <Typography>{notateNumber(stats.progress, 'Big')} / {notateNumber(stats.req, 'Big')}</Typography>
-              <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={2}>
-                {Object.entries(stats.boosts || {})?.map(([statName, { level, progress, req }], statIndex) => {
-                  return <Card sx={{
-                    width: 200,
-                    outline: level >= CAULDRONS_MAX_LEVELS.brewing ? '1px solid' : '',
-                    outlineColor: (theme) => level >= CAULDRONS_MAX_LEVELS.brewing ? theme.palette.success.light : ''
-                  }} variant={'outlined'} key={`${name}-${cauldronIndex}-${statIndex}`}>
-                    <CardContent>
-                      <Typography component={'span'}
-                                  sx={{
-                                    display: 'inline-block',
-                                    width: 50,
-                                    mr: 1
-                                  }}>{statName.capitalize()}</Typography>
-                      <Typography component={'span'}>Lv. {level} / {CAULDRONS_MAX_LEVELS.brewing}</Typography>
-                      <ProgressBar bgColor={cauldronsColors[cauldronIndex]}
-                                   percent={progress / req * 100}/>
-                      <Typography>{notateNumber(progress, 'Big')} / {notateNumber(req, 'Big')}</Typography>
-                    </CardContent>
-                  </Card>
-                })}
-              </Stack>
-            </CardContent>
-          </Card>
-        })}
+        {Object.entries(alchemy?.cauldrons || {})?.map(([name, stats], cauldronIndex) => (
+          <BrewingCard key={`${name}-${cauldronIndex}`} name={name} cauldron={stats}
+                       color={cauldronsColors[cauldronIndex]} characters={state?.characters}/>
+        ))}
       </Stack>
 
       <Typography my={3} variant={'h5'} mb={3}>Pay 2 Win</Typography>
@@ -246,6 +216,88 @@ const Cauldrons = () => {
     </>
   );
 };
+
+const NEXT_BUBBLES_SHOWN = 10;
+
+// The game rounds this to 0.01%, which hides everything past the first few worlds.
+const formatChance = (chance) => `${Math.min(chance, 100).toLocaleString('en-US', { maximumSignificantDigits: 3 })}%`;
+const formatOdds = (chance) => chance >= 100 ? 'guaranteed' : `1 in ${notateNumber(100 / chance, 'Big')}`;
+
+const BrewingCard = ({ name, cauldron, color, characters }) => {
+  const { newBubble, attempts = 0, progress = 0, req = 0, players = [], boosts = {} } = cauldron;
+  const towardNext = req > 0 ? progress - attempts * req : 0;
+  return <Card sx={{ width: { md: 450 } }}>
+    <CardContent>
+      <Stack direction={'row'} gap={1}>
+        <Typography color={color}>{name.capitalize()}</Typography>
+        <PlayersList players={players} characters={characters}/>
+      </Stack>
+      <ProgressBar bgColor={color} percent={req > 0 ? towardNext / req * 100 : 0}/>
+      <Typography>{notateNumber(towardNext, 'Big')} / {notateNumber(req, 'Big')}</Typography>
+      {newBubble ? <Stack direction={'row'} alignItems={'center'} columnGap={1.5} flexWrap={'wrap'}>
+        <Typography variant={'body2'}>
+          New bubble {formatChance(newBubble.chance)} ({formatOdds(newBubble.chance)})
+        </Typography>
+        <Typography variant={'body2'} color={'text.secondary'}>
+          {numberWithCommas(attempts)} attempts ready
+          {attempts > 0 ? ` (~${newBubble.expectedBubbles.toLocaleString('en-US', { maximumFractionDigits: 1 })} bubbles)` : ''}
+        </Typography>
+        <StatBreakdown data={getNewBubbleBreakdown(name, cauldron)}>
+          <IconInfoCircleFilled size={16}/>
+        </StatBreakdown>
+      </Stack> : null}
+      <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={2}>
+        {Object.entries(boosts).map(([statName, { level, progress, req }]) => {
+          return <Card sx={{
+            width: 200,
+            outline: level >= CAULDRONS_MAX_LEVELS.brewing ? '1px solid' : '',
+            outlineColor: (theme) => level >= CAULDRONS_MAX_LEVELS.brewing ? theme.palette.success.light : ''
+          }} variant={'outlined'} key={`${name}-${statName}`}>
+            <CardContent>
+              <Typography component={'span'}
+                          sx={{
+                            display: 'inline-block',
+                            width: 50,
+                            mr: 1
+                          }}>{statName.capitalize()}</Typography>
+              <Typography component={'span'}>Lv. {level} / {CAULDRONS_MAX_LEVELS.brewing}</Typography>
+              <ProgressBar bgColor={color} percent={progress / req * 100}/>
+              <Typography>{notateNumber(progress, 'Big')} / {notateNumber(req, 'Big')}</Typography>
+            </CardContent>
+          </Card>
+        })}
+      </Stack>
+    </CardContent>
+  </Card>
+}
+
+const getNewBubbleBreakdown = (name, cauldron) => {
+  const { newBubble, unlockedBubbles = 0 } = cauldron;
+  const nextBubbles = Array.from({ length: NEXT_BUBBLES_SHOWN }, (_, offset) => {
+    const unlocked = unlockedBubbles + offset;
+    const bubble = unlocked + 1;
+    return {
+      name: `#${bubble} (W${Math.ceil(bubble / 5)}), ${notateNumber(getMaxCauldron(unlocked), 'Big')} per attempt`,
+      value: getBaseNewBubbleChance(unlocked) * newBubble.multi,
+      formatted: formatChance(getBaseNewBubbleChance(unlocked) * newBubble.multi)
+    };
+  });
+  return {
+    statName: `${name.capitalize()} new bubble chance`,
+    totalValue: formatChance(newBubble.chance),
+    categories: [
+      {
+        name: 'Chance',
+        sources: newBubble.breakdown?.map(({ name, value }) => ({
+          name,
+          value,
+          formatted: name === 'Base' ? formatChance(value) : `x${notateNumber(value, 'MultiplierInfo')}`
+        }))
+      },
+      { name: 'Next bubbles', sources: nextBubbles }
+    ]
+  };
+}
 
 const CostTooltip = ({ children, shouldDisplay, cost, costToMax }) => {
   return shouldDisplay ? <Tooltip dark title={<Stack>
