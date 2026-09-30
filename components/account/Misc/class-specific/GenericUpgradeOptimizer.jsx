@@ -72,6 +72,8 @@ const GenericUpgradeOptimizer = ({
   // Grimoire/Compass/Tesseract's resource icons all have a `_x1` idle-quantity variant; the Royal
   // Guardian's RGres{n} currencies don't, so this lets a consumer opt out instead of 404ing.
   resourceImageSuffix = '_x1',
+  // Jelly Bloodcells are a font glyph kept in etc/, not a data/ sprite.
+  resourceImageDir = 'data/',
   upgradeImagePrefix,
   getResourceType,
   getUpgradeIconIndex,
@@ -86,6 +88,9 @@ const GenericUpgradeOptimizer = ({
   // allowance has nothing to say about them (Clam Work).
   usesMasterclassReduction = true,
   showSplitByResource = true,
+  // False where the currency has no hourly income to divide by (Jelly Bloodcells come from
+  // operations), which pins the method to cost only and hides the selector.
+  showResourcePerHour = true,
   statLabels
 }) => {
   // Stat keys are camelCase; the fallback spaces them out so "pearlGain" reads as "Pearl Gain".
@@ -184,9 +189,11 @@ const GenericUpgradeOptimizer = ({
   });
   // A stored 'rph-auto' left behind by an optimizer that no longer supplies computed rates would
   // price every upgrade at zero hours, so it falls back to the manual rate instead.
-  const optimizationMethod = storedOptimizationMethod === 'rph-auto' && !autoRphAvailable
-    ? 'rph'
-    : storedOptimizationMethod;
+  const optimizationMethod = !showResourcePerHour
+    ? 'cost'
+    : storedOptimizationMethod === 'rph-auto' && !autoRphAvailable
+      ? 'rph'
+      : storedOptimizationMethod;
   const usesRph = optimizationMethod === 'rph' || optimizationMethod === 'rph-auto';
   const effectiveResourcePerHour = optimizationMethod === 'rph-auto' ? autoResourcePerHour : resourcePerHour;
   const valueCommitDebouncersRef = useRef({});
@@ -201,7 +208,8 @@ const GenericUpgradeOptimizer = ({
       : maxUpgrades;
     optimizedUpgrades = getOptimizedUpgradesFn(character, account, category, maxToUse, {
       onlyAffordable,
-      masterClassReduction: isNaN(masterClassReduction) ? 0 : masterClassReduction,
+      // Optimizers whose costs never read the allowance must not spend it, or rows show a bogus -80%.
+      masterClassReduction: !usesMasterclassReduction || isNaN(masterClassReduction) ? 0 : masterClassReduction,
       resourcePerHour: usesRph ? effectiveResourcePerHour : undefined,
       getResourceType
     });
@@ -437,7 +445,7 @@ const GenericUpgradeOptimizer = ({
         <Stack direction="row" gap={1} alignItems="center">
           <img
             style={{ objectPosition: '0 -6px' }}
-            src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
+            src={`${prefix}${resourceImageDir}${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
             alt=""
           />
           <Typography variant="body2">Total Cost: {notateNumber(upgrade.totalCost)}</Typography>
@@ -517,7 +525,7 @@ const GenericUpgradeOptimizer = ({
       <Stack direction="row" gap={1} alignItems="center">
         <img
           style={{ objectPosition: '0 -6px' }}
-          src={`${prefix}data/${resourceImagePrefix}${section.resourceType}${resourceImageSuffix}.png`}
+          src={`${prefix}${resourceImageDir}${resourceImagePrefix}${section.resourceType}${resourceImageSuffix}.png`}
           alt=""
           width={24}
           height={24}
@@ -572,7 +580,7 @@ const GenericUpgradeOptimizer = ({
                 <Stack direction="row" gap={1} alignItems="center">
                   <img
                     style={{ objectPosition: '0 -6px' }}
-                    src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
+                    src={`${prefix}${resourceImageDir}${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
                     alt=""
                   />
                   <Typography variant="body2">
@@ -646,7 +654,7 @@ const GenericUpgradeOptimizer = ({
           <Stack direction="row" gap={1} alignItems="center">
             <img
               style={{ objectPosition: '0 -6px' }}
-              src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
+              src={`${prefix}${resourceImageDir}${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
               alt=""
               width={20}
               height={20}
@@ -677,7 +685,7 @@ const GenericUpgradeOptimizer = ({
             <MenuItem value={'all'}>All</MenuItem>
           </Select>
         </FormControl>
-        <FormControl size="small" sx={{ width: 180 }}>
+        {showResourcePerHour ? <FormControl size="small" sx={{ width: 180 }}>
           <InputLabel>Optimization Method</InputLabel>
           <Select
             value={optimizationMethod}
@@ -688,7 +696,7 @@ const GenericUpgradeOptimizer = ({
             <MenuItem value="rph">Resource per hour{autoRphAvailable ? ' (manual)' : ''}</MenuItem>
             <MenuItem value="cost">Cost only</MenuItem>
           </Select>
-        </FormControl>
+        </FormControl> : null}
         {optimizationMethod === 'rph' && (
           <Button sx={{ width: 'fit-content' }} variant="outlined" onClick={() => setRphDialogOpen(true)}>
             Set RPH
@@ -703,7 +711,7 @@ const GenericUpgradeOptimizer = ({
                 <Stack key={key} direction="row" gap={1} alignItems="center">
                   <img
                     style={{ objectPosition: '0 -3px' }}
-                    src={`${prefix}data/${resourceImagePrefix}${key}${resourceImageSuffix}.png`}
+                    src={`${prefix}${resourceImageDir}${resourceImagePrefix}${key}${resourceImageSuffix}.png`}
                     width={24}
                     height={24}
                     alt=""/>
@@ -809,7 +817,7 @@ const GenericUpgradeOptimizer = ({
         </Stack>
         <Divider sx={{ my: 1 }} flexItem orientation={'vertical'} />
         {resourceUsage.map((resource) => {
-          const resourceTypeKey = Object.keys(resourceNames).find(key => resourceNames[key] === resource.name) || resource.name;
+          const resourceTypeKey = Object.keys(resourceNames).find(key => resourceNames[key] === resource.name) ?? resource.name;
           const resourcePerHourValue = effectiveResourcePerHour[resourceTypeKey];
           const hasResourcePerHour = resourcePerHourValue && !isNaN(resourcePerHourValue) && resourcePerHourValue > 0;
           const timeEstimateHours = hasResourcePerHour ? resource.cost / resourcePerHourValue : null;
@@ -819,7 +827,7 @@ const GenericUpgradeOptimizer = ({
             <Stack key={resource.name} direction="row" gap={1} alignItems="center">
               <img
                 style={{ objectPosition: '0 -6px' }}
-                src={`${prefix}data/${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
+                src={`${prefix}${resourceImageDir}${resourceImagePrefix}${resourceTypeKey}${resourceImageSuffix}.png`}
                 alt={resource.name}
                 width={24}
                 height={24}
@@ -860,7 +868,7 @@ const GenericUpgradeOptimizer = ({
                       // Guardian's currency ids have gaps, so the two disagree.
                       startAdornment: <img
                         style={{ objectPosition: '0 -3px', marginLeft: -5, marginRight: 5 }}
-                        src={`${prefix}data/${resourceImagePrefix}${key}${resourceImageSuffix}.png`}
+                        src={`${prefix}${resourceImageDir}${resourceImagePrefix}${key}${resourceImageSuffix}.png`}
                         width={24}
                         height={24} alt=""/>
                     }}

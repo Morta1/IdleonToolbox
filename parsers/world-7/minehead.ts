@@ -2,10 +2,11 @@ import { tryToParse, commaNotation, notateNumber } from '@utility/helpers';
 import { mineheadUpgrades, upgradeVault, research as researchData, researchGridSquares, items } from '@website-data';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
-import { isCompanionBonusActive, isCompanionLvl2Active, getEventShopBonus } from '@parsers/misc';
+import { isCompanionBonusActive, isCompanionLvl2Active, getEventShopBonus, isBundlePurchased } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getButtonBonus } from '@parsers/world-7/button';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
@@ -166,7 +167,8 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
     (1 + getUpgradeQTY(0) + getUpgradeQTY(7) + getUpgradeQTY(25) + dancingCoral5)
     * (1 + (getUpgradeQTY(4) + getUpgradeQTY(21) + getUpgradeQTY(27)) / 100)
     * (1 + grid167Bonus / 100)
-    * (1 + (50 * nomenclatureAcquired) / 100);
+    * (1 + (50 * nomenclatureAcquired) / 100)
+    * (1 + getJellyBonus(account, 9) / 100);
 
   // Currency gain per hour:
   //   grid129 * (1+grid148/100) * companionMulti * min(3, 1+BonusQTY(6)/100)
@@ -193,6 +195,8 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   const meritBonus = 10 * (account?.tasks?.[2]?.[6]?.[4] ?? 0);
   // ROG bonus 3 is "Minehead Currency Gain"; only the selected one is ever above the 1x identity.
   const outpostRogBonus = Math.max(1, getOutpostRogBonus(account, 3));
+  const jellyBonus8 = getJellyBonus(account, 8);
+  const banJBundle = isBundlePurchased(account?.bundles, 'ban_j') ? 1 : 0;
 
   const currencyGain =
     grid129Bonus
@@ -212,6 +216,8 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
     * (1 + atom13Bonus / 100)
     * (1 + (grid147Bonus + grid166Bonus + mealMineCurrBonus) / 100)
     * (1 + getSushiBonus(account, 12) / 100)
+    * (1 + jellyBonus8 / 100)
+    * (1 + banJBundle)
     * (1 + getButtonBonus(account, 1) / 100);
 
   // Currency/hr breakdown - each source shown as the multiplier it contributes. The Arcade Shop /
@@ -235,6 +241,8 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
         { name: 'Atom Collider (Silicon)', value: 1 + atom13Bonus / 100 },
         { name: 'Cooking Meal', value: 1 + mealMineCurrBonus / 100 },
         { name: 'Sushi Station', value: 1 + getSushiBonus(account, 12) / 100 },
+        { name: 'Jelly Operator', value: 1 + jellyBonus8 / 100 },
+        { name: 'Bundle', value: 1 + banJBundle },
         { name: 'Button Upgrade', value: 1 + getButtonBonus(account, 1) / 100 },
       ],
       subSections: [

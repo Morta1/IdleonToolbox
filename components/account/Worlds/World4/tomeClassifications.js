@@ -133,6 +133,7 @@ const DEFAULT_CLASSIFICATIONS = [
   3,  // 118 Total Glimbo Trades
   3,  // 119 Unique Sushi Created
   3,  // 120 Button Presses
+  4,  // 121 Successful Jelly Operations
 ];
 
 const STORAGE_KEY = 'tome-classifications';

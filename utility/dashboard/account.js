@@ -1851,6 +1851,27 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       alerts.sushiStation = sushiStation;
     }
   }
+  if (fields?.jellyOperator?.checked && account?.jellyOperator?.unlocked) {
+    const jelly = account.jellyOperator;
+    const jellyOperator = {};
+    if (options?.jellyOperator?.operationsLeft?.checked && jelly.operationsLeft > 0) {
+      jellyOperator.operationsLeft = { left: jelly.operationsLeft, max: jelly.dailyOperations };
+    }
+    if (options?.jellyOperator?.slotsToBuy?.checked && jelly.slotPurchasesLeft > 0) {
+      jellyOperator.slotsToBuy = jelly.slotPurchasesLeft;
+    }
+    if (options?.jellyOperator?.emptySlots?.checked && jelly.layout?.emptySlots > 0) {
+      jellyOperator.emptySlots = jelly.layout.emptySlots;
+    }
+    // Only once the Virus cell itself is unlocked; before that the allowance can't be used.
+    const virusesLeft = (jelly.layout?.virusesAllowed ?? 0) - (jelly.layout?.virusesPlaced ?? 0);
+    if (options?.jellyOperator?.virusesUnplaced?.checked && jelly.cells?.[5]?.unlocked && virusesLeft > 0) {
+      jellyOperator.virusesUnplaced = virusesLeft;
+    }
+    if (Object.keys(jellyOperator).length > 0) {
+      alerts.jellyOperator = jellyOperator;
+    }
+  }
   if (fields?.clamWork?.checked) {
     const clamWork = {};
     if (options?.clamWork?.promotionAffordable?.checked) {

@@ -19,6 +19,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
 import { getZenithBonus } from '@parsers/world-1/statues';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
@@ -149,6 +150,7 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   const shopUpg55 = getSpelunkingBonus(account, 55);
   const sharedGrandDiscoveryFactors = (1 + getZenithBonus(account, 6, 0) / 100)
     * (1 + getChapterBonus(updatedAccount, 4, 0) / 100)
+    * (1 + getJellyBonus(account, 31) / 100)
     * (1 + (highestSpelunkingLevelCharacter * (getMineheadBonusQTY(account, 14) + getSushiBonus(account, 21))) / 100)
     * (1 + getCglunkoBonus(account, 20) / 100) // Grandioso (Crystal Glunko Cove)
     * grandVeinTalentBonus
@@ -750,6 +752,8 @@ const getPower = (account: any, _unused1?: any) => {
   const toolUpg15 = getSpelunkingBonus(account, 15);
   const toolUpg16 = getSpelunkingBonus(account, 16);
   const toolUpg17 = getSpelunkingBonus(account, 17);
+  const jellyBonus38 = getJellyBonus(account, 38);
+  const jellyBonus21 = getJellyBonus(account, 21);
 
   const powerMulti = (1 + winnerBonus / 100)
     * (1 + meritBonus / 100)
@@ -768,6 +772,8 @@ const getPower = (account: any, _unused1?: any) => {
     * (1 + (exoticBonus + cardBonus) / 100)
     * (1 + (toolUpg14 + toolUpg15 + toolUpg16 + toolUpg17) / 100)
     * (1 + getSushiBonus(account, 20) / 100)
+    * (1 + jellyBonus38 / 100)
+    * (1 + jellyBonus21 / 100)
     * (1 + getButtonBonus(account, 6) / 100);
 
   const value = inTutorial ? SPELUNKING_TUTORIAL_POWER : basePower * powerMulti;
@@ -811,7 +817,8 @@ const getPower = (account: any, _unused1?: any) => {
             { name: "The Reliable Mace", value: toolUpg14 },
             { name: "The Sturdy Mallet", value: toolUpg15 },
             { name: "The Risque Flail", value: toolUpg16 },
-            { name: "The Unaffiliated Warhammer", value: toolUpg17 }
+            { name: "The Unaffiliated Warhammer", value: toolUpg17 },
+            { name: "Jelly Operator", value: jellyBonus38 + jellyBonus21 }
           ],
         },
       ],
@@ -825,7 +832,7 @@ const getSpelunkingCostDiscount = (account: any, characters: any) => {
   const firstPlayerSpelunkingLevel = characters?.[0]?.skillsInfo?.spelunking?.level ?? 0;
   const levelMultiplier = Math.max(1, Math.min(2, 1 + Math.floor(firstPlayerSpelunkingLevel / 50)));
   const costReduction = 1 / (1 + (mealBonus * levelMultiplier) / 100);
-  const sushiDiscount = Math.max(getSushiBonus(account, 6), getSushiBonus(account, 27));
+  const sushiDiscount = Math.max(getSushiBonus(account, 6), getSushiBonus(account, 27)) + getJellyBonus(account, 22);
   // game: 1 / (1 + max(0, getbonus2(1,235,-1) * DNSM.CalcTalentMAP[235]) / 100) - Royal Guardian
   // AMBER_HOARD (talent 235) times CalcTalentMAP[235]. The game defines CalcTalentMAP[235]
   // as round(sum of RoyalG[0][0..7]) - the sum of the first eight Royal Statue LEVELS, not a talent

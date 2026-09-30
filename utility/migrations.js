@@ -1981,6 +1981,32 @@ const migration76 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration77 = (dashboardConfig) => {
+  ensureDashboardOptions(dashboardConfig);
+  const world7 = dashboardConfig?.account?.['World 7'];
+  const jellyOptions = [
+    { name: 'operationsLeft', checked: true, helperText: 'Alert when you have Jelly operations left for today' },
+    { name: 'slotsToBuy', checked: true, helperText: 'Alert when you can unlock more Jelly slots' },
+    { name: 'emptySlots', checked: true, helperText: 'Alert when open Jelly slots have no cell on them' },
+    { name: 'virusesUnplaced', checked: true, helperText: 'Alert when you can place more Viruses' }
+  ];
+  if (world7 && !world7.jellyOperator) {
+    dashboardConfig.account['World 7'] = insertKeyNear(world7, 'sushiStation', 'jellyOperator', {
+      checked: true,
+      options: jellyOptions
+    });
+  }
+  else if (Array.isArray(world7?.jellyOperator?.options)) {
+    // A config saved while this group only had operationsLeft picks up the rest.
+    jellyOptions.forEach((option) => {
+      if (!world7.jellyOperator.options.some(({ name }) => name === option.name)) world7.jellyOperator.options.push(option);
+    });
+  }
+
+  dashboardConfig.version = 77;
+  return dashboardConfig;
+};
+
 const migrations = {
   2: migrateToVersion2,
   3: migrateToVersion3,
@@ -2057,6 +2083,7 @@ const migrations = {
   74: migration74,
   75: migration75,
   76: migration76,
+  77: migration77,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

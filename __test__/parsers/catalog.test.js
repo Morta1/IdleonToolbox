@@ -48,8 +48,8 @@ describe('liveEntries', () => {
     expect(liveCount(legendTalents)).toBe(40);  // 50 total, 10 placeholders
     expect(liveCount(achievements)).toBe(268);  // 420 total, 152 placeholders
     expect(liveCount(classes)).toBe(55);        // 63 total, 8 placeholders
-    // 2.3.527 added EquipmentNametag42, EquipmentNametagReplica42 and EquipmentHats141.
-    expect(liveCount(itemsArray)).toBe(2448);   // 2453 total, 5 placeholders
+    // 2.3.531 added the season 5 tournament hats EquipmentHats142-144.
+    expect(liveCount(itemsArray)).toBe(2451);   // 2456 total, 5 placeholders
     expect(liveCount(petGenes)).toBe(36);       // 36 total, 0 placeholders (Refiller is real)
   });
 });

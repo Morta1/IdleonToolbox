@@ -3,6 +3,7 @@ import { commaNotation, notateNumber } from '@utility/helpers';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 
 
 const icons = {
@@ -46,7 +47,8 @@ export const getEmperor = (idleonData: any, account: any) => {
   }, {} as Record<string, any>);
   const tesseractBonus = getTesseractBonus(account, 48) ?? 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Emperor_Bonuses')?.bonus ?? 0;
-  const multiTotal = 1 + (tesseractBonus + arcadeBonus) / 100;
+  const jellyBonus = getJellyBonus(account, 28);
+  const multiTotal = 1 + (tesseractBonus + arcadeBonus + jellyBonus) / 100;
   const formatBonusName = (name: string, total: number) => name
     .replace('{', '' + commaNotation(total))
     .replace('}', '' + notateNumber(1 + total / 100, 'MultiplierInfo'))
@@ -78,7 +80,8 @@ export const getEmperor = (idleonData: any, account: any) => {
         sources: [
           { name: 'Base', value: 1 },
           { name: 'Arcade Shop', value: arcadeBonus },
-          { name: 'Tesseract (Vicar of the Emperor)', value: tesseractBonus }
+          { name: 'Tesseract (Vicar of the Emperor)', value: tesseractBonus },
+          { name: 'Jelly Operator', value: jellyBonus }
         ]
       }
     ]

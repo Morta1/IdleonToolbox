@@ -2634,6 +2634,42 @@
     {
       "v": "2.3.492",
       "t": "added"
+    },
+    {
+      "v": "2.3.531",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "10x_Farming_Sticker_find_chance"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 9
+        },
+        {
+          "field": "tourPower",
+          "from": 100,
+          "to": 180
+        },
+        {
+          "field": "upgradedTourPower",
+          "from": 99,
+          "to": 270
+        },
+        {
+          "field": "upgradedEffect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "20x_Farming_Sticker_find_chance"
+        },
+        {
+          "field": "upgradedBonus",
+          "from": 1,
+          "to": 19
+        }
+      ]
     }
   ],
   "companions/110": [
@@ -7152,6 +7188,66 @@
   "bundles/bin_r": [
     {
       "v": "2.3.530",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats142": [
+    {
+      "v": "2.3.531",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats143": [
+    {
+      "v": "2.3.531",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentHats144": [
+    {
+      "v": "2.3.531",
+      "t": "added"
+    }
+  ],
+  "monsters/T3a": [
+    {
+      "v": "2.3.531",
+      "t": "added"
+    }
+  ],
+  "monsters/T3b": [
+    {
+      "v": "2.3.531",
+      "t": "added"
+    }
+  ],
+  "monsters/T3c": [
+    {
+      "v": "2.3.531",
+      "t": "added"
+    }
+  ],
+  "companions/175": [
+    {
+      "v": "2.3.531",
+      "t": "added"
+    }
+  ],
+  "companions/176": [
+    {
+      "v": "2.3.531",
+      "t": "added"
+    }
+  ],
+  "companions/177": [
+    {
+      "v": "2.3.531",
+      "t": "added"
+    }
+  ],
+  "bundles/ban_j": [
+    {
+      "v": "2.3.531",
       "t": "added"
     }
   ]

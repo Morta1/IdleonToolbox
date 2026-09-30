@@ -492,7 +492,7 @@ describe('what a bundle hands over', () => {
     const coral = bundles.find((node) => node.rawName === 'ban_h');
     expect(coral.gems).toBe(8100);
     expect(coral.bonusGems).toBe(4100);
-    expect(bundles.filter((node) => node.bonusGems > 0)).toHaveLength(35);
+    expect(bundles.filter((node) => node.bonusGems > 0)).toHaveLength(36);
     // The Starter Pack's bonus is storage space and Gilded Treasure's is Prisma Bubbles, so
     // neither is counted as gems.
     expect(bundles.find((node) => node.rawName === 'bun_c').bonusGems).toBeUndefined();

@@ -6,6 +6,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 
 export const getKangaroo = (idleonData: any, accountData: any) => {
   return parseKangaroo(accountData);
@@ -75,6 +76,7 @@ const parseKangaroo = (account: any) => {
       * getMegaFish(account, 5)) * getResetBonuses(account, 0)
     * (1 + vaultUpgradeBonus / 100)
     * (1 + getGambitBonus(account, 8) / 100)
+    * (1 + getJellyBonus(account, 20) / 100)
     * (1 + fountainPoppyBonus / 100)
     // Meritocracy Bonus 12 (2.3.525 fix): was missing from Poppy's fish gain, only boosted Orion.
     * (1 + getMeritocracyBonus(account, 12) / 100)
@@ -99,7 +101,7 @@ const parseKangaroo = (account: any) => {
   const tarFishOwned = account?.accountOptions?.[296] ?? 0;
   const tarFishRate = (1 / (1 + 0.05 *
       (account?.accountOptions?.[301] ?? 0)))
-    * 1800 * (1 / Math.max(1, getResetBonuses(account, 4)))
+    * 1800 * (1 / Math.max(1, getResetBonuses(account, 4) * (1 + getJellyBonus(account, 39) / 100)))
     * (1 / (1 + 2 * getMegaFish(account, 4)))
     * (1 / (1 + 2 * getMegaFish(account, 7)));
 

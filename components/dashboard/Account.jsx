@@ -845,6 +845,22 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                     key={`sushi-kn-${sushi.index}`}
                     title={`${sushi.name} is ready for knowledge level-up (Lv.${sushi.level})`}
                     iconPath={`data/Sushi${sushi.index}`}/>) : null}
+              {alerts?.['World 7']?.jellyOperator?.operationsLeft ?
+                <Alert target={'World 7.jellyOperator.operationsLeft'}
+                  title={`You have ${alerts?.['World 7']?.jellyOperator?.operationsLeft?.left} Jelly operation${alerts?.['World 7']?.jellyOperator?.operationsLeft?.left === 1 ? '' : 's'} left (${alerts?.['World 7']?.jellyOperator?.operationsLeft?.left > alerts?.['World 7']?.jellyOperator?.operationsLeft?.max ? `${alerts?.['World 7']?.jellyOperator?.operationsLeft?.max}/day` : `${alerts?.['World 7']?.jellyOperator?.operationsLeft?.left}/${alerts?.['World 7']?.jellyOperator?.operationsLeft?.max}`})`}
+                  iconPath={'data/JellyUnit0'}/> : null}
+              {alerts?.['World 7']?.jellyOperator?.slotsToBuy ?
+                <Alert target={'World 7.jellyOperator.slotsToBuy'}
+                  title={`You can unlock ${alerts?.['World 7']?.jellyOperator?.slotsToBuy} more Jelly slot${alerts?.['World 7']?.jellyOperator?.slotsToBuy === 1 ? '' : 's'}`}
+                  iconPath={'data/JellySq0_0'}/> : null}
+              {alerts?.['World 7']?.jellyOperator?.emptySlots ?
+                <Alert target={'World 7.jellyOperator.emptySlots'}
+                  title={`${alerts?.['World 7']?.jellyOperator?.emptySlots} open Jelly slot${alerts?.['World 7']?.jellyOperator?.emptySlots === 1 ? ' has' : 's have'} no cell on ${alerts?.['World 7']?.jellyOperator?.emptySlots === 1 ? 'it' : 'them'}`}
+                  iconPath={'data/JellySq0_0'}/> : null}
+              {alerts?.['World 7']?.jellyOperator?.virusesUnplaced ?
+                <Alert target={'World 7.jellyOperator.virusesUnplaced'}
+                  title={`You can place ${alerts?.['World 7']?.jellyOperator?.virusesUnplaced} more Virus${alerts?.['World 7']?.jellyOperator?.virusesUnplaced === 1 ? '' : 'es'}`}
+                  iconPath={'data/JellyUnit5'}/> : null}
               {alerts?.['World 7']?.clamWork?.promotionAffordable ?
                 <Alert target={'World 7.clamWork.promotionAffordable'}
                   title={`You can afford a promotion to Worker Class Lv. ${alerts?.['World 7']?.clamWork?.promotionAffordable?.nextClass} (${notateNumber(alerts?.['World 7']?.clamWork?.promotionAffordable?.cost, 'Big')} pearls, ${(alerts?.['World 7']?.clamWork?.promotionAffordable?.chance * 100).toFixed(2)}% chance)`}

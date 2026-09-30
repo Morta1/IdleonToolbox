@@ -28,6 +28,7 @@ import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getObolsBonus } from '@parsers/obols';
@@ -221,7 +222,7 @@ export const getRibbonBonus = (account: any, t: any) => {
   const rank = t ?? 0;
   return 1 + (Math.floor(5 * rank + Math.floor(rank / 2) *
     (4 + 6.5 * Math.floor(rank / 5))) + Math.floor(rank / 4) * (armorSetBonus / 4)
-    + Math.floor(rank / 10) * cloudBonus73) / 100;
+    + Math.floor(rank / 10) * cloudBonus73 + Math.floor(rank / 20) * getJellyBonus(account, 60)) / 100;
 }
 
 export const COOKING_MASTERY_RANK_THRESHOLDS = [0, 1, 5, 10, 25, 100, 150, 250, 500];
@@ -424,6 +425,9 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
   const categorySpent = (cookMaster?.[2] ?? []).reduce((sum: number, v: any) => sum + (Number(v) || 0), 0);
   const nodeSpent = (cookMaster?.[0] ?? []).reduce((sum: number, v: any) => sum + (Number(v) || 0), 0);
   const basePoints = level + (1 + 5 * bejeweledLadle + 5 * companion87);
+  // game: PtsLeftCook_P (purple, CookMaster[2]) adds jelly 13, PtsLeftCook_Y (yellow, CookMaster[0]) adds jelly 5.
+  const purplePoints = basePoints + getJellyBonus(account, 13);
+  const yellowPoints = basePoints + getJellyBonus(account, 5);
 
   // Only the first 6 thresholds are used by the game (one per flavor category); 150/250/500 are unused.
   const categoryUnlockLevels = COOKING_MASTERY_RANK_THRESHOLDS.slice(0, 6);
@@ -465,9 +469,9 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
       gridBonus: gridBonusPts,
       categorySpent,
       // The game rounds the whole remainder (Rift Spooker+ contributes a fractional 7.5 PTS).
-      categoryLeft: Math.max(0, Math.round(basePoints - categorySpent)),
+      categoryLeft: Math.max(0, Math.round(purplePoints - categorySpent)),
       nodeSpent,
-      nodeLeft: Math.max(0, Math.round(basePoints + gridBonusPts - nodeSpent))
+      nodeLeft: Math.max(0, Math.round(yellowPoints + gridBonusPts - nodeSpent))
     },
     categories,
     expRateBreakdown,

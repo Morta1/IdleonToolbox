@@ -119,8 +119,13 @@ declare module '@website-data' {
       x6: number;
     }[];
   export const bundles: Record<string, {
-      message: string;
+      message?: string;
       price: number | null;
+      name?: string;
+      gems?: number;
+      petCrystals?: number;
+      companionIndex?: number;
+      evolving?: boolean;
     }>;
   export const ButtonBonusNames: string[];
   export const ButtonBonusPerPress: number[];
@@ -3229,6 +3234,13 @@ declare module '@website-data' {
         EquipmentCape22: number;
         EquipmentGown8: number;
       };
+      ban_j: {
+        EquipmentNametag15: number;
+        EquipmentNametag16: number;
+        EquipmentNametag17: number;
+        EquipmentNametag20: number;
+        EquipmentNametag31: number;
+      };
       bon_y: {
         Quest38: number;
         PremiumGem: number;
@@ -3282,6 +3294,7 @@ declare module '@website-data' {
       filler2: string;
       description: string;
     }[];
+  export const jellyUpgrades: (string[])[];
   export const jewels: {
       index: number;
       name: string;

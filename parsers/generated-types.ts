@@ -22,7 +22,7 @@ export interface Account {
       z: string;
       filler: string;
       tourPower: number;
-      x8: number;
+      upgradeCost: number;
       upgradedTourPower: number;
       upgradedEffect: string;
       upgradedBonus: number;
@@ -37,7 +37,7 @@ export interface Account {
         z: string;
         filler: string;
         tourPower: number;
-        x8: number;
+        upgradeCost: number | null;
         upgradedTourPower: number;
         upgradedEffect: string;
         upgradedBonus: number;
@@ -171,6 +171,7 @@ export interface Account {
         obtained: boolean;
         greenStacked: boolean;
         greenstackable: boolean;
+        unrealisticGreenstack?: boolean;
       }[];
     lootyRaw: string[];
     lootedItems: number;
@@ -1558,6 +1559,7 @@ export interface Account {
         isCapped: boolean;
         thresholdLevel: number;
         thresholdMissingLevels: number;
+        index: number;
         isAvailableThisWeek: boolean;
         displayText: string;
       }[];
@@ -1772,6 +1774,7 @@ export interface Account {
         unlocked: number;
         index: string;
         totalBonus: number;
+        scaling: boolean;
         owned: number;
         cost: number;
       }[];
@@ -4073,6 +4076,12 @@ export interface Account {
     registrationCount: number;
     matches: any[];
     leaderboard: any[];
+    petMart: {
+      shopDay: number;
+      petCrystals: number;
+      offers: any[];
+      plusOffers: any[];
+    };
     global: null;
   };
   research: Record<string, any>;
@@ -4211,6 +4220,59 @@ export interface Account {
       }[];
     shakerUses: number[];
     slotsOwned: number;
+  };
+  jellyOperator: {
+    unlocked: boolean;
+    obstructionsDefeated: number;
+    operationsLeft: number;
+    dailyOperations: number;
+    bloodcells: number;
+    bloodcellDaily: number;
+    bloodcellMulti: number;
+    bloodcellMultiSources: {
+        name: string;
+        value: number;
+      }[];
+    dpsRecord: number;
+    dpsMulti: number;
+    cellDamageMulti: number;
+    cellExpMulti: number;
+    cellLevelTotal: number;
+    unitsOwned: number;
+    slotsOwned: number;
+    slotPurchasesLeft: number;
+    upgrades: {
+        id: number;
+        position: number;
+        name: string;
+        description: string;
+        level: number;
+        maxLevel: number | null;
+        bonus: number;
+        cost: number;
+        lvReq: number;
+        unlocked: boolean;
+      }[];
+    cells: {
+        index: number;
+        name: string;
+        unlocked: boolean;
+        level: number;
+        expReq: number;
+        damage: number;
+      }[];
+    obstructions: {
+        index: number;
+        name: string;
+        description: string;
+        value: number;
+        defeated: boolean;
+        placeholder: boolean;
+        hp: number;
+        time: number;
+        attackCooldown: number;
+      }[];
+    organelleSpeed: number;
   };
   bubba: {
     upgrades: {

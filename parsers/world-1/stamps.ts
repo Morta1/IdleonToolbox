@@ -16,6 +16,7 @@ import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 
 export const MAX_STAMP_REDUCTION = 90;
 
@@ -326,10 +327,12 @@ export const getExaltedStampBonus = (account: any) => {
   const legendBonus = getLegendTalentBonus(account, 36);
 
   const sushiBonus = getSushiBonus(account, 17);
+  // game: (sushi17 + J50 / 100): only the jelly term is divided, so its 1 adds 0.01 here.
+  const jellyBonus = getJellyBonus(account, 50) / 100;
 
   return {
     value: 100 + (atomBonus + charmBonusExalted + compassBonus + armorSetBonus +
-      20 * eventBonus + paletteBonus + exoticBonus + exaltedFragmentFound + legendBonus + sushiBonus),
+      20 * eventBonus + paletteBonus + exoticBonus + exaltedFragmentFound + legendBonus + sushiBonus + jellyBonus),
     breakdown: [
       { name: 'Base', value: 100 },
       { name: 'Atom', value: atomBonus },
@@ -342,6 +345,7 @@ export const getExaltedStampBonus = (account: any) => {
       { name: 'Exalted Fragment', value: exaltedFragmentFound },
       { name: 'Legend Talent', value: legendBonus },
       { name: 'Sushi Station', value: sushiBonus },
+      { name: 'Jelly Operator', value: jellyBonus },
     ]
   };
 }

@@ -44,15 +44,16 @@ const renderWith = (chars) => render(
   </ThemeProvider>
 );
 
-// Every stat card is computed from the selected character, so multishot stands in for all of them.
-const multishotValue = () => screen.getByText('Multishot').parentElement.textContent;
+// Every stat card is computed from the selected character, so crit chance stands in for all of
+// them. Multishot used to, until 2.3.531 capped it at 800% for every character here.
+const critValue = () => screen.getByText('Crit pct').parentElement.textContent;
 
 describe('Compass character selection', () => {
   it('uses the wind walker, not the first character, when the account has one', () => {
     expect(nonWindWalker.playerId).toBe(0);
     expect(windWalker.playerId).not.toBe(0);
     renderWith(characters);
-    expect(multishotValue()).toContain('3903.51%');
+    expect(critValue()).toContain('156.7');
   });
 
   // The bug: the old code only picked a wind walker when there was exactly one, so two or more
@@ -60,18 +61,18 @@ describe('Compass character selection', () => {
   it('defaults to the first wind walker when the account has several', () => {
     const secondWindWalker = { ...windWalker, name: 'SecondWW', playerId: 7 };
     renderWith([...characters, secondWindWalker]);
-    expect(multishotValue()).toContain('3903.51%');
-    expect(multishotValue()).not.toContain('1907.46%');
+    expect(critValue()).toContain('156.7');
+    expect(critValue()).not.toContain('151%');
   });
 
   it('switches stats when another wind walker is picked', () => {
     const weaker = { ...nonWindWalker, class: windWalker.class, name: 'WeakWW', playerId: 7 };
     renderWith([...characters, weaker]);
-    expect(multishotValue()).toContain('3903.51%');
+    expect(critValue()).toContain('156.7');
 
     fireEvent.mouseDown(screen.getByRole('combobox'));
     fireEvent.click(screen.getByText('WeakWW'));
-    expect(multishotValue()).toContain('1907.46%');
+    expect(critValue()).toContain('151%');
   });
 
   it('renders without a wind walker on the account', () => {

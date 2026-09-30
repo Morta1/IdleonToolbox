@@ -4,6 +4,26 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.81',
+    'gameVer': '2.3.531',
+    'date': '30/09/2026',
+    'features': [
+      'New Jelly Operator page (World 7): your cell board with each cell DPS, passives and neighbour boosts, all obstructions and their bonuses, upgrades with costs, cells, and an Upgrade Optimizer',
+      'Jelly Operator obstruction bonuses are now counted everywhere they apply',
+      'Dashboard: new Jelly Operator alerts for operations left, slots to unlock, empty slots and Viruses left to place',
+      'Tome: added Successful Jelly Operations'
+    ],
+    'fixes': [
+      'Royal Guardian: Commander Rank EXP and passive units updated for the new game patch',
+      'Crystal spawn chance: the card bonus is now its own multiplier, matching the game fix',
+      'Compass: Tempest multishot is now capped at 800%',
+      'Atom Collider: available atoms count corrected',
+      'Sneaking: the sushi Stealth bonus no longer boosts Jade gain',
+      'Class EXP now counts the Eggroll pet',
+      'Upgrade optimizers no longer show a -80% discount where the Masterclass allowance does not apply'
+    ]
+  },
+  {
     'ver': '3.3.80',
     'gameVer': '2.3.530',
     'date': '11/09/2026',

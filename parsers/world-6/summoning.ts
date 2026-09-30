@@ -18,6 +18,7 @@ import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 
 export const summonEssenceColor = {
   0: 'white',
@@ -139,6 +140,7 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
     const cost = (1 / (1 + (costDeflation?.value ?? 0) / 100))
       * (1 / (1 + (costCrashing?.value ?? 0) / 100))
       * (1 / (1 + tesseractBonus / 100))
+      * (1 / (1 + getJellyBonus(account, 27) / 100))
       * upgrade?.cost
       * Math.pow(upgrade?.costExponent, upgrade?.level)
       * Math.max(0.1, 1 - Math.max(getSushiBonus(account, 38), getSushiBonus(account, 47)) / 100)

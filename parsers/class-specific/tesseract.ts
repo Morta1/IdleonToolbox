@@ -18,6 +18,7 @@ import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 
 export const tachyonNames = {
   0: 'Purple',
@@ -573,9 +574,10 @@ export const getPrismaMulti = (account: any) => {
   // pet is upgraded to level 1, so Hivemind+ is worth 75% here instead of 50%.
   const companionBonus = isCompanionBonusActive(account, 88) ? (account?.companions?.list?.at(88)?.bonus ?? 0) : 0;
   const sushiBonus = getSushiBonus(account, 23);
+  const jellyBonus = getJellyBonus(account, 36);
 
   const value = Math.min(4, 2 + (tesseractBonus
-    + (arcadeBonus + sushiBonus + (trophyBonus + (paletteBonus
+    + (arcadeBonus + (sushiBonus + jellyBonus) + (trophyBonus + (paletteBonus
        + (sigilsBonus + exoticMarketBonus)))) + legendBonus + 50 * companionBonus) / 100);
 
   return {
@@ -590,6 +592,7 @@ export const getPrismaMulti = (account: any) => {
             { name: "Tesseract", value: tesseractBonus },
             { name: "Arcade", value: arcadeBonus },
             { name: "Sushi", value: sushiBonus },
+            { name: "Jelly Operator", value: jellyBonus },
             { name: "Trophy", value: trophyBonus },
             { name: "Palette", value: paletteBonus },
             { name: "Ethereal Sigils", value: sigilsBonus },

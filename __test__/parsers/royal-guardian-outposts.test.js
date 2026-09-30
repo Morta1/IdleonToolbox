@@ -1,6 +1,7 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import {
+  getOutpostExpFormula,
   getRoyalGuardian,
   getRoyalResourcePerHour,
   getSpareWorkers,
@@ -60,7 +61,7 @@ const buildRoyalMaps = () => {
   const maps = new Array(400).fill(null).map(() => []);
   // Spore Meadows: a support camp feeding BOTH of its link slots into Froggy Fields (map 2).
   maps[1] = [1, 0, 0, 0, 0, 0, 0, 0, 1002, 1002, 1, 111111111, 0];
-  // Froggy Fields: ranks 3 / 2 / 5 / 4 / 0 from the OutpostEXPformula thresholds, three units
+  // Froggy Fields: ranks 3 / 2 / 4 / 4 / 0 from the OutpostEXPformula thresholds, three units
   // packed as Worker, Trader, Trader with the remaining six slots empty.
   // Slots 8 and 9 hold node indices for a depot: Froggy Fields collects nodes 0 and 1.
   maps[2] = [2, 3, 1, 40, 25, 2000, 70, 0, 0, 1, 0, 233111111, 0];
@@ -82,6 +83,9 @@ const parseWith = (royalG, royalMaps) => getRoyalGuardian(
   { bundles: [] },
   []
 );
+
+// Every Jelly Operator bonus is live once all its obstructions are down.
+const JELLY_ACCOUNT = { bundles: [], jellyOperator: { obstructionsDefeated: 72 } };
 
 const outpostOn = (parsed, mapIndex) => parsed?.outposts?.find((outpost) => outpost.mapIndex === mapIndex);
 
@@ -144,13 +148,15 @@ describe('royal guardian outposts', () => {
   it('ranks each bar off the game thresholds and reports the bar it is working towards', () => {
     const froggy = outpostOn(parse(), 2);
 
-    expect(froggy.ranks).toEqual([3, 2, 5, 4, 0]);
+    expect(froggy.ranks).toEqual([3, 2, 4, 4, 0]);
     // (10 + 5r) * 1.3^r for Trade, so rank 3 sits between 20 * 1.69 and 25 * 2.197.
     close(froggy.rankBars[0].previous, 20 * Math.pow(1.3, 2));
     close(froggy.rankBars[0].required, 25 * Math.pow(1.3, 3));
     close(froggy.rankBars[0].progress, (40 - 20 * Math.pow(1.3, 2)) / (25 * Math.pow(1.3, 3) - 20 * Math.pow(1.3, 2)));
-    // (50 + 50r) * 1.6^r for Command, and 1e5 * 10^r for Purity.
-    close(froggy.rankBars[2].required, 300 * Math.pow(1.6, 5));
+    // (50 + 50r) * 1.8^r for Command (2.3.531, was 1.6), and 1e5 * 10^r for Purity. 2000 Command
+    // EXP clears rank 3 (1166.4) but not rank 4 (2361.96).
+    close(froggy.rankBars[2].previous, 1166.4);
+    close(froggy.rankBars[2].required, 250 * Math.pow(1.8, 4));
     close(froggy.rankBars[4].required, 1e5);
     expect(froggy.rankBars.map(({ unlocked }) => unlocked)).toEqual([true, true, true, true, true]);
   });
@@ -161,9 +167,10 @@ describe('royal guardian outposts', () => {
     // Expanded Barracks 2 shows 1 + 2 = 3 slots, but TotalUnitsz reads all nine packed characters.
     expect(froggy.unitSlots).toEqual([0, 1, 1]);
     expect(froggy.unitSlots).toHaveLength(3);
-    // Command rank 5 grants a stationary Worker and Trader (every 4 ranks, offset per unit type).
-    expect(froggy.passiveUnits).toEqual([1, 1, 0, 0]);
-    expect(froggy.unitCounts).toEqual([2, 3, 0, 0]);
+    // Command rank 4 grants one stationary unit of each type: PassiveUnitsz rounds UP since 2.3.531,
+    // so type i arrives at rank i + 1.
+    expect(froggy.passiveUnits).toEqual([1, 1, 1, 1]);
+    expect(froggy.unitCounts).toEqual([2, 3, 1, 1]);
 
     // Glorification is worth one extra stationary Worker on its own.
     expect(outpostOn(parse(), 50).passiveUnits).toEqual([1, 0, 0, 0]);
@@ -181,10 +188,10 @@ describe('royal guardian outposts', () => {
   it('computes the collection rate from every live game factor', () => {
     const parsed = parse();
 
-    // 125 base, +5%/Advanced Logistics level, +25%/lv of Command Rank across 5 ranks,
+    // 125 base, +5%/Advanced Logistics level, +25%/lv of Command Rank across 4 ranks,
     // UnitSpecEffect(0) = 70 per Worker unit (2 of them), 400% per support camp (2 of them).
     // Expanded Barracks 2 is below the level-5 floor, so its own multiplier is still 1x.
-    close(outpostOn(parsed, 2).resourceRate, 125 * 1.15 * 3.5 * 2.4 * 9);
+    close(outpostOn(parsed, 2).resourceRate, 125 * 1.15 * 3 * 2.4 * 9);
     // Purified: OutpostPurifyBonus = 200 + 50, and the glorified Worker is worth 70%.
     close(outpostOn(parsed, 50).resourceRate, 125 * 3.5 * 1.7);
     close(outpostOn(parsed, 1).resourceRate, 125);
@@ -271,9 +278,9 @@ describe('royal guardian outposts', () => {
   it('computes the connection range off the soft Advanced Logistics curve', () => {
     const parsed = parse();
 
-    // 80 base + 250 * L/(L+100) + 45px per Guard unit (none) + 6px per Military rank (4).
-    expect(outpostOn(parsed, 2).range).toBe(Math.floor(80 + 250 * (3 / 103) + 4 * 6));
-    expect(outpostOn(parsed, 2).range).toBe(111);
+    // 80 base + 250 * L/(L+100) + 45px per Guard unit (the passive one) + 6px per Military rank (4).
+    expect(outpostOn(parsed, 2).range).toBe(Math.floor(80 + 250 * (3 / 103) + 45 + 4 * 6));
+    expect(outpostOn(parsed, 2).range).toBe(156);
     expect(outpostOn(parsed, 1).range).toBe(80);
   });
 
@@ -347,18 +354,26 @@ describe('royal guardian outposts', () => {
     // so every bar on this outpost runs 1.1x.
     close(froggy.rankBars[0].expPerUnit, 9.9);
     // The game pays that rate ONCE PER UNIT feeding the bar: the Trade bar runs on Traders, and
-    // Froggy Fields packs two plus one passive from Command rank 5.
+    // Froggy Fields packs two plus one passive from Command rank 4.
     expect(froggy.rankBars[0].units).toBe(3);
     close(froggy.rankBars[0].expPerHour, 29.7);
     // Time to next rank is the gap to the threshold over that rate.
     close(froggy.rankBars[0].hoursToNextRank, (25 * Math.pow(1.3, 3) - 40) / 29.7);
 
-    // The Intel bar runs on Surveyors, and this outpost has none - so it does not move at all,
-    // however high BarExpRate(1) is.
+    // The Intel bar runs on Surveyors, and this outpost's only one is the passive from Command rank 4.
     close(froggy.rankBars[1].expPerUnit, 9.9);
-    expect(froggy.rankBars[1].units).toBe(0);
-    expect(froggy.rankBars[1].expPerHour).toBe(0);
-    expect(froggy.rankBars[1].hoursToNextRank).toBe(0);
+    expect(froggy.rankBars[1].units).toBe(1);
+    close(froggy.rankBars[1].expPerHour, 9.9);
+    close(froggy.rankBars[1].hoursToNextRank, (20 * Math.pow(1.3, 2) - 25) / 9.9);
+
+    // With no Surveyor at all the bar does not move, however high BarExpRate(1) is.
+    const lowCommand = buildRoyalMaps();
+    lowCommand[2][5] = 1000; // Command rank 3: a Worker, a Trader and a Guard, but no Surveyor yet
+    const noSurveyor = outpostOn(parseWith(buildRoyalG(), lowCommand), 2);
+    expect(noSurveyor.passiveUnits).toEqual([1, 1, 1, 0]);
+    expect(noSurveyor.rankBars[1].units).toBe(0);
+    expect(noSurveyor.rankBars[1].expPerHour).toBe(0);
+    expect(noSurveyor.rankBars[1].hoursToNextRank).toBe(0);
 
     // QUIRK: the game passes the RANK TYPE to isMapPurified, which expects a MAP, so the 200%
     // purity term reads maps 0-4. Map 0 is the Savage Stronghold in this fixture and is not
@@ -455,7 +470,7 @@ describe('royal guardian outposts', () => {
 
     // A horizon short enough that even every Worker cannot cap the node in time leaves nothing
     // spare; past that, the answer is the largest drop that still caps.
-    const horizons = [1, 24, 500];
+    const horizons = [1, 24, 1000];
     expect(horizons.some((horizon) => capsWithin(0, horizon))).toBe(true);
     expect(horizons.some((horizon) => !capsWithin(0, horizon))).toBe(true);
 
@@ -474,6 +489,52 @@ describe('royal guardian outposts', () => {
     expect(getSpareWorkers(outpostOn(parsed, 1), 24, workerBonus)).toBe(0);
     // And an outpost with no Worker in a slot has nothing to give up either way.
     expect(getSpareWorkers(outpostOn(parsed, 50), 24, workerBonus)).toBe(0);
+  });
+
+  it('grows the Command rank bar by 1.8x a rank (2.3.531)', () => {
+    // Live-verified: OutpostEXPformula(rank 3, type 2) = 1166.4.
+    close(getOutpostExpFormula(3, 2), 1166.4);
+    close(getOutpostExpFormula(0, 2), 50);
+    // The other bars are untouched.
+    close(getOutpostExpFormula(3, 0), 25 * Math.pow(1.3, 3));
+    close(getOutpostExpFormula(1, 4), 1e6);
+  });
+
+  it('rounds passive units up, so each type arrives one Command rank after the last', () => {
+    const passivesAtRank = (rank) => {
+      const maps = buildRoyalMaps();
+      maps[2][5] = rank === 0 ? 0 : getOutpostExpFormula(rank - 1, 2);
+      const froggy = outpostOn(parseWith(buildRoyalG(), maps), 2);
+      expect(froggy.ranks[2]).toBe(rank);
+      return froggy.passiveUnits;
+    };
+    expect(passivesAtRank(0)).toEqual([0, 0, 0, 0]);
+    expect(passivesAtRank(1)).toEqual([1, 0, 0, 0]);
+    expect(passivesAtRank(2)).toEqual([1, 1, 0, 0]);
+    expect(passivesAtRank(3)).toEqual([1, 1, 1, 0]);
+    expect(passivesAtRank(4)).toEqual([1, 1, 1, 1]);
+    expect(passivesAtRank(5)).toEqual([2, 1, 1, 1]);
+    // Live-verified: PassiveUnitsz at Command rank 11 with RoyalMaps[map][12] = 0.
+    expect(passivesAtRank(11)).toEqual([3, 3, 3, 2]);
+  });
+
+  it('adds the Jelly Operator bonuses to PTS, support camps, rank EXP and the guardian odds', () => {
+    const plain = parse();
+    const jelly = getRoyalGuardian(
+      { RoyalG: JSON.stringify(buildRoyalG()), RoyalMaps: JSON.stringify(buildRoyalMaps()) },
+      JELLY_ACCOUNT,
+      []
+    );
+    // OutpostPTSleft: World 1 outposts read jelly bonus 3 (+5 PTS), World 2 reads bonus 15.
+    expect(outpostOn(jelly, 2).ptsTotal).toBe(outpostOn(plain, 2).ptsTotal + 5);
+    // SupportCollection / SupportEXP: 400% per camp + jelly 41 (+5), two camps on Froggy Fields.
+    close(outpostOn(jelly, 2).resourceRate, 125 * 1.15 * 3 * 2.4 * (1 + (405 * 2) / 100));
+    // BarExpRate: Greater Education 1.1x, the same two camps, then jelly 1 (+35%).
+    close(outpostOn(jelly, 2).rankBars[0].expPerUnit, 1.1 * (1 + (405 * 2) / 100) * 1.35);
+    // XtraClearKillz * (1 + jelly 2 / 100), RI_chance + jelly 56 / 1000, RI_mobs + jelly 35.
+    close(jelly.guardian.militiaClearRate, plain.guardian.militiaClearRate * 1.25);
+    close(jelly.guardian.regalChance, plain.guardian.regalChance + 0.001);
+    expect(jelly.guardian.regalMobs).toBe(plain.guardian.regalMobs + 1);
   });
 
   it('degrades to an empty kingdom rather than NaN', () => {

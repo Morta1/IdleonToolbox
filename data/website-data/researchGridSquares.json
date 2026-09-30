@@ -1480,28 +1480,28 @@
     "description": "desc"
   },
   {
-    "name": "Name",
-    "maxLv": 1,
-    "baseBonus": 1,
+    "name": "Cellular_Warfare",
+    "maxLv": 4,
+    "baseBonus": 5,
     "x4": 0,
     "x5": 0,
-    "description": "desc"
+    "description": "Multiplies_all_damage_dealt_by_your_cells_during_operations_by_}x_@_A_true_operator_must_consider_the_indirect_bloodcell_gain..."
   },
   {
-    "name": "Name",
-    "maxLv": 1,
-    "baseBonus": 1,
+    "name": "Daily_Operating_Procedure",
+    "maxLv": 4,
+    "baseBonus": 2,
     "x4": 0,
     "x5": 0,
-    "description": "desc"
+    "description": "Gives_you_+|_more_operations_to_start_every_day_at_the_Jelly_Operator_game!"
   },
   {
-    "name": "Name",
-    "maxLv": 1,
-    "baseBonus": 1,
+    "name": "Jelly_Operator_Linguistics",
+    "maxLv": 4,
+    "baseBonus": 10,
     "x4": 0,
     "x5": 0,
-    "description": "desc"
+    "description": "You_can_now_speak_to_the_Jelly_found_in_the_Jellofish_map_to_play_the_Jelly_Operator_game!_@_Also,_}x_more_Bloodcells_gained_from_operations!"
   },
   {
     "name": "Shakin'_It",

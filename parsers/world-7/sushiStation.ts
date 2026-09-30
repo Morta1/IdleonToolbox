@@ -7,6 +7,7 @@ import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { isBundlePurchased, getEventShopBonus } from '@parsers/misc';
 import { getButtonBonus } from '@parsers/world-7/button';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 
 // The highest sushi tier index: research row 30 is the game's sushi name table, one entry per
 // tier, so the last valid index is its length - 1.
@@ -105,6 +106,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
 
   // Bundle bonus
   const bonVBundle = isBundlePurchased(account?.bundles, 'bon_v') ? 1 : 0;
+  const banJBundle = isBundlePurchased(account?.bundles, 'ban_j') ? 1 : 0;
 
   // --- Knowledge ---
   const getKnowledgeBonusSpecific = (sushiIdx: number) => {
@@ -153,6 +155,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
       * (1 / (1 + upgQTY36 / 100))
       * Math.max(0.1, 1 - rogDiscount / 100)
       * (1 / (1 + knowledgeDiscount / 100))
+      * (1 / (1 + getJellyBonus(account, 18) / 100))
       * Math.pow(costExponent, level);
 
     return {
@@ -255,6 +258,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
     * (1 + overtunedMulti / 100)
     * (1 + atomBonus14 / 100)
     * (1 + getButtonBonus(account, 2) / 100)
+    * (1 + banJBundle)
     * (1 + (100 * sailingArt39) / 100);
 
   // Currency per tier

@@ -2937,6 +2937,36 @@
         "death"
       ]
     },
+    "T3a": {
+      "name": "Bronze_Champion_Earl",
+      "face": 94,
+      "variants": [
+        "static",
+        "idle",
+        "walk",
+        "death"
+      ]
+    },
+    "T3b": {
+      "name": "Silver_Champion_Earl",
+      "face": 94,
+      "variants": [
+        "static",
+        "idle",
+        "walk",
+        "death"
+      ]
+    },
+    "T3c": {
+      "name": "Gold_Champion_Earl",
+      "face": 94,
+      "variants": [
+        "static",
+        "idle",
+        "walk",
+        "death"
+      ]
+    },
     "r0a": {
       "name": "Magician_Grub",
       "face": 79,
@@ -3654,6 +3684,9 @@
     "Bronze_Champion_Troll": "T2a",
     "Silver_Champion_Troll": "T2b",
     "Gold_Champion_Troll": "T2c",
+    "Bronze_Champion_Earl": "T3a",
+    "Silver_Champion_Earl": "T3b",
+    "Gold_Champion_Earl": "T3c",
     "Magician_Grub": "r0a",
     "Armadillo": "r0b",
     "Imperial_Ogre": "r0c",
@@ -4151,6 +4184,9 @@
     "Wavey_Wayne": [
       "static",
       "idle"
+    ],
+    "Jelly": [
+      "static"
     ]
   }
 }

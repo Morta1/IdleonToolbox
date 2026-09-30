@@ -58,6 +58,7 @@ import { getCompassBonus } from './class-specific/compass';
 import { getMeritocracyBonus } from './world-2/voteBallot';
 import { getMineheadBonusQTY } from './world-7/minehead';
 import { getSushiBonus } from './world-7/sushiStation';
+import { getJellyBonus } from './world-7/jellyOperator';
 import { getLegendTalentBonus } from './world-7/legendTalents';
 import { isBundlePurchased } from './misc';
 import { getFountainBonusTotal } from './world-5/caverns/the-fountain';
@@ -384,7 +385,9 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const mineheadWepPow = mineheadUpg4 * weaponWP;
   // Royal Statue 0 (TOTAL DAMAGE) - returns 0 for accounts with no Royal Guardian.
   const royalStatueDmgBonus = getRoyalStatueBonus(account, 0);
-  damage *= (1 + mineheadBonus / 100) * (1 + mineheadWepPow / 100) * (1 + royalStatueDmgBonus / 100);
+  const jellyDmgBonus = getJellyBonus(account, 37);
+  damage *= (1 + mineheadBonus / 100) * (1 + mineheadWepPow / 100) * (1 + jellyDmgBonus / 100)
+    * (1 + royalStatueDmgBonus / 100);
 
   // Weekly boss guild bonus
   const weeklyBossBonus = account?.weeklyBossesRaw?.g ?? 0;
@@ -483,6 +486,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
         { name: 'Prayer Curse (Fibers)', value: -secondPrayerCurse },
         { name: 'Minehead', value: mineheadBonus },
         { name: 'Minehead (WP DMG%)', value: mineheadWepPow },
+        { name: 'Jelly Operator', value: jellyDmgBonus },
         { name: 'Royal Statue (Total Damage)', value: royalStatueDmgBonus },
         { name: 'Weekly Boss', value: weeklyBossBonus },
         { name: 'Equipment (Dmg Multi)', value: postEtcBonus72 },

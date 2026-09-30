@@ -1635,17 +1635,17 @@
   {
     "name": "Gelatinous_Cuboid",
     "rawName": "w4b3",
-    "effect": "Not_officially_in_the_game_and_may_never_be",
-    "bonus": 1,
-    "x": "0",
+    "effect": "10x_Farming_Sticker_find_chance",
+    "bonus": 9,
+    "x": "-18",
     "y": "0",
-    "z": "0",
+    "z": "-15",
     "filler": "1",
-    "tourPower": 100,
-    "upgradeCost": null,
-    "upgradedTourPower": 99,
-    "upgradedEffect": "Not_officially_in_the_game_and_may_never_be",
-    "upgradedBonus": 1
+    "tourPower": 180,
+    "upgradeCost": 2500,
+    "upgradedTourPower": 270,
+    "upgradedEffect": "20x_Farming_Sticker_find_chance",
+    "upgradedBonus": 19
   },
   {
     "name": "Choccie",
@@ -2621,5 +2621,50 @@
     "upgradedTourPower": 410,
     "upgradedEffect": "+20000%_additive_Gold_Food_bonus_effect_and_2x_multiplier_to_Gold_Food",
     "upgradedBonus": 2
+  },
+  {
+    "name": "Bronze_Champion_Earl",
+    "rawName": "T3a",
+    "effect": "Congratulations_on_winning_the_Tournament!",
+    "bonus": 1,
+    "x": "-9",
+    "y": "0",
+    "z": "-17",
+    "filler": "1",
+    "tourPower": 10,
+    "upgradeCost": null,
+    "upgradedTourPower": 12,
+    "upgradedEffect": "Congratulations_on_winning_the_Tournament!",
+    "upgradedBonus": 1
+  },
+  {
+    "name": "Silver_Champion_Earl",
+    "rawName": "T3b",
+    "effect": "Congratulations_on_winning_the_Tournament!",
+    "bonus": 1,
+    "x": "-9",
+    "y": "0",
+    "z": "-17",
+    "filler": "1",
+    "tourPower": 10,
+    "upgradeCost": null,
+    "upgradedTourPower": 12,
+    "upgradedEffect": "Congratulations_on_winning_the_Tournament!",
+    "upgradedBonus": 1
+  },
+  {
+    "name": "Gold_Champion_Earl",
+    "rawName": "T3c",
+    "effect": "Congratulations_on_winning_the_Tournament!",
+    "bonus": 1,
+    "x": "-9",
+    "y": "0",
+    "z": "-17",
+    "filler": "1",
+    "tourPower": 10,
+    "upgradeCost": null,
+    "upgradedTourPower": 12,
+    "upgradedEffect": "Congratulations_on_winning_the_Tournament!",
+    "upgradedBonus": 1
   }
 ]

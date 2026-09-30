@@ -19,7 +19,7 @@ import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 import { useLocalStorage } from '@mantine/hooks';
 
 const baseTrackers = {
-  version: 76,
+  version: 77,
   account: {
     General: {
       tasks: {
@@ -687,6 +687,15 @@ const baseTrackers = {
             checked: true
           },
           { name: 'knowledgeLevelUp', checked: true },
+        ]
+      },
+      jellyOperator: {
+        checked: true,
+        options: [
+          { name: 'operationsLeft', checked: true, helperText: 'Alert when you have Jelly operations left for today' },
+          { name: 'slotsToBuy', checked: true, helperText: 'Alert when you can unlock more Jelly slots' },
+          { name: 'emptySlots', checked: true, helperText: 'Alert when open Jelly slots have no cell on them' },
+          { name: 'virusesUnplaced', checked: true, helperText: 'Alert when you can place more Viruses' }
         ]
       },
       clamWork: {

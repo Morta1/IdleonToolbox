@@ -5,6 +5,7 @@ import { getPrismaMulti } from '@parsers/class-specific/tesseract';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getCoralKidUpgBonus } from '@parsers/world-7/coralReef';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { cosmoUpgrades, gods } from '@website-data';
 import { growth, tryToParse } from '@utility/helpers';
@@ -40,7 +41,8 @@ const parseDivinity = (divinityRaw: any, serializedCharactersData: any, accountD
         level,
         blessingBonus,
         unlocked: index < unlockedDeities,
-        maxLevel: Math.round(100 + (coralKidBonus + (getMineheadBonusQTY(accountData, 9) + getUpgradeVaultBonus(accountData?.upgradeVault?.upgrades, 76))))
+        maxLevel: Math.round(100 + (coralKidBonus + (getMineheadBonusQTY(accountData, 9) + (getUpgradeVaultBonus(accountData?.upgradeVault?.upgrades, 76)
+          + (getJellyBonus(accountData, 49) + getJellyBonus(accountData, 63))))))
       }
     }
   );

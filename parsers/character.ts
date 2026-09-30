@@ -116,6 +116,7 @@ import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getGuaranteedCrystalMobs } from '@parsers/misc';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
@@ -1602,6 +1603,8 @@ const getStealthRate = (character: any, account: any) => {
   const anotherNinjaEquip = getNinjaEquipmentBonus(account, character.playerId, 'Silk_Veil');
   const yetAnotherNinjaEquip = getNinjaEquipmentBonus(account, character.playerId, 'Rosaries');
   const companion163 = isCompanionBonusActive(account, 163) ? (account?.companions?.list?.at(163)?.bonus ?? 0) : 0;
+  const sushiBonus32 = getSushiBonus(account, 32);
+  const jellyBonus16 = getJellyBonus(account, 16);
   const math = stealthMulti
     * (1 + ninjaEquip / 100)
     * (1 + anotherNinjaEquip / 100)
@@ -1610,6 +1613,8 @@ const getStealthRate = (character: any, account: any) => {
       + starSignBonus) / 100)
     * (1 + statueBonus / 100)
     * (1 + passiveCardBonus / 100)
+    * (1 + sushiBonus32 / 100)
+    * (1 + jellyBonus16 / 100)
     * (1 + 39 * companion163)
 
   return (10 + ninjaUpgradeBonus * sneakingLevel) * math;
@@ -1648,7 +1653,6 @@ export const getJadeRate = (character: any, account: any) => {
   const starSignBonus = getStarSignBonus(character, account, 'Jade_Gain')
   const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.sneaking?.rank, 1);
   const vaultBonus81 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 81);
-  const sushiBonus32 = getSushiBonus(account, 32);
   const companion163Jade = isCompanionBonusActive(account, 163) ? (account?.companions?.list?.at(163)?.bonus ?? 0) : 0;
 
   return parseFloat(floorJadeModifier)
@@ -1662,7 +1666,6 @@ export const getJadeRate = (character: any, account: any) => {
         + vaultBonus81)) / 100)
     * (1 + starSignBonus / 100)
     * (1 + (10 * masteryBonus) / 100)
-    * (1 + sushiBonus32 / 100)
     * (1 + 99 * companion163Jade);
 }
 export const getRespawnRate = (character: any, account: any) => {
@@ -1880,6 +1883,9 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const comp32 = isCompanionBonusActive(account, 32) ? account?.companions?.list?.at(32)?.bonus : 0;
   const comp34 = isCompanionBonusActive(account, 34) ? account?.companions?.list?.at(34)?.bonus : 0;
   const comp168 = isCompanionBonusActive(account, 168) ? account?.companions?.list?.at(168)?.bonus : 0;
+  const comp145 = isCompanionBonusActive(account, 145) ? account?.companions?.list?.at(145)?.bonus : 0;
+  const jellyClassExp30 = getJellyBonus(account, 30);
+  const jellyClassExp62 = getJellyBonus(account, 62);
 
   // Research grid 130, 131, 132, 152
   const researchGrid130 = getResearchGridBonus(account, 130, 0);
@@ -1908,6 +1914,9 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
     * (1 + comp32)
     * (1 + 0.4 * comp168)
     * (1 + comp34)
+    * (1 + comp145)
+    * (1 + jellyClassExp30 / 100)
+    * (1 + jellyClassExp62 / 100)
     * babyTrollMulti
     * (1 + researchGridTotal / 100)
     * (1 + stickerBonus / 100)
@@ -2166,6 +2175,8 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
             { name: "Companion (Glunko)", value: 1 + 4 * comp160 },
             { name: "Companion (Mr Pig)", value: 1 + comp32 },
             { name: "Companion (Whale)", value: 1 + comp34 },
+            { name: "Companion (Eggroll)", value: 1 + comp145 },
+            { name: "Jelly Operator", value: (1 + jellyClassExp30 / 100) * (1 + jellyClassExp62 / 100) },
             { name: "Companion (Baby Troll)", value: babyTrollMulti },
             { name: "Research Grid", value: 1 + researchGridTotal / 100 },
             { name: "Sticker", value: 1 + stickerBonus / 100 },
@@ -2432,6 +2443,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   const crystalGlunkoDropRate = isCompanionBonusActive(account, 168) ? account?.companions?.list?.at(168)?.bonus : 0;
   // SushiStuff("RoG_BonusQTY", 48) - Unagi Nigiri
   const sushiDropRateBonus = getSushiBonus(account, 48);
+  const jellyDropRateBonus = getJellyBonus(account, 14);
   // 5 * Dreamstuff("CloudBonus", 69) - equinox challenge "Acquire at least 10 Megaflesh from Bubba the Seal"
   const equinoxDropRateMulti = 5 * getCloudBonus(account?.equinox?.challenges, 69);
   const vialDrMulti = getVialsBonusByStat(account?.alchemy?.vials, '7drMulto');
@@ -2443,7 +2455,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   const familyDropRateMulti = getFamilyBonusBonus(classFamilyBonuses, 'DROP_RATE_MULTIPLIER', getHighestLevelOf(characters, CLASSES.Royal_Guardian));
 
   // Game: *= (1+tesseract/100) * (1+royalStatue/100) * (1+cardMulti/100) * (1+famBonus32/100) * (1+0.3*comp168)
-  //       * (1+min(0.5,comp132)+0.2*compLV2(132)) * (1+sushi48/100) * max(1,glimboDR) * (1+tomeMulti/100)
+  //       * (1+min(0.5,comp132)+0.2*compLV2(132)) * (1+(sushi48+jelly14)/100) * max(1,glimboDR) * (1+tomeMulti/100)
   //       * (1+equip99/100) * (1+mineheadQTY0/100) * (1+5*cloud69/100)
   final *= (1 + (tesseractMapBonus || 0) / 100)
     * (1 + royalStatueDropRateBonus / 100)
@@ -2451,7 +2463,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
     * (1 + familyDropRateMulti / 100)
     * (1 + 0.3 * crystalGlunkoDropRate)
     * (1 + (Math.min(0.5, mamaTrollDropRate) + 0.2 * mamaTrollLvl2))
-    * (1 + sushiDropRateBonus / 100)
+    * (1 + (sushiDropRateBonus + jellyDropRateBonus) / 100)
     * Math.max(1, glimboDRmulti)
     * (1 + tomeMulti / 100)
     * (1 + dropChanceEquip2 / 100)
@@ -2565,6 +2577,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
           { name: 'Crystal Glunko', value: 1 + 0.3 * crystalGlunkoDropRate },
           { name: 'Mama Troll', value: 1 + (Math.min(0.5, mamaTrollDropRate) + 0.2 * mamaTrollLvl2) },
           { name: 'Sushi (Unagi Nigiri)', value: sushiDropRateBonus / 100 },
+          { name: 'Jelly Operator', value: jellyDropRateBonus / 100 },
           { name: 'Glimbo DR', value: glimboDRmulti },
           { name: 'Tome Multi', value: tomeMulti / 100 },
           { name: 'Minehead', value: mineheadBonusQTY0 / 100 },
@@ -3018,16 +3031,18 @@ export const getPlayerCrystalChance = (character: any, account: any, idleonData:
 
   const eventShop42 = getEventShopBonus(account, 42);
 
+  const jellyBonus8 = getJellyBonus(account, 8);
+  const cardBonus = poopCardBonus + demonGenieBonus;
+
   const guaranteedCrystalMobs = getGuaranteedCrystalMobs(account);
   const remainingCrystalKills = guaranteedCrystalMobs - account?.accountOptions?.[101];
 
-  // Game moved the card term (poopCardBonus + demonGenieBonus) out of its own multiplicative factor
-  // and into this additive group, and added companion171Bonus alongside it. This is a deliberate
-  // nerf for high-card-level accounts (card term used to compound; now it just adds) - do not "fix".
+  // 2.3.531: the card term (game CardBonusREAL(14)) is its own multiplier again, Jelly bonus 8 took its additive slot.
   const product = (1 + cmonOutCrystalsBonus / 100)
-    * (1 + (nonPredatoryBoxBonus + crystalShrineBonus + companion171Bonus + poopCardBonus + demonGenieBonus) / 100)
+    * (1 + (nonPredatoryBoxBonus + crystalShrineBonus + companion171Bonus + jellyBonus8) / 100)
     * (1 + crystals4DaysBonus / 100)
-    * (1 + crystallinStampBonus / 100);
+    * (1 + crystallinStampBonus / 100)
+    * (1 + cardBonus / 100);
   const value = (5 * eventShop42 + product) / 2000;
   // Chance past the cap is not wasted, it becomes game: "CrystalEmbiggener" = max(1, spawn / CAP),
   // which scales the EXP a crystal mob gives (ExpGiven = 30 * embiggener * base). Their HP is a
@@ -3055,10 +3070,16 @@ export const getPlayerCrystalChance = (character: any, account: any, idleonData:
       {
         name: "Additive",
         sources: [
-          { name: "Cmon Out Crystals", value: cmonOutCrystalsBonus },
           { name: "Crystal Shrine Crescent", value: crystalShrineBonus },
           { name: "Post Office", value: nonPredatoryBoxBonus },
           { name: "Companion (Armadillo)", value: companion171Bonus },
+          { name: "Jelly Operator", value: jellyBonus8 },
+        ],
+      },
+      {
+        name: "Multiplicative",
+        sources: [
+          { name: "Cmon Out Crystals", value: cmonOutCrystalsBonus },
           { name: "Crystals 4 Days", value: crystals4DaysBonus },
           { name: "Crystallin Stamp", value: crystallinStampBonus },
           { name: "Poop Card", value: poopCardBonus },
@@ -3092,9 +3113,10 @@ export const getPlayerCrystalChance = (character: any, account: any, idleonData:
     embiggener,
     expression: `(5 * eventShop42 + product) / 2000
  product = (1 + cmonOutCrystalsBonus / 100)
- * (1 + (nonPredatoryBoxBonus + crystalShrineBonus + companion171Bonus + poopCardBonus + demonGenieBonus) / 100)
+ * (1 + (nonPredatoryBoxBonus + crystalShrineBonus + companion171Bonus + jellyBonus8) / 100)
  * (1 + crystals4DaysBonus / 100)
- * (1 + crystallinStampBonus / 100)`
+ * (1 + crystallinStampBonus / 100)
+ * (1 + (poopCardBonus + demonGenieBonus) / 100)`
   }
 }
 

@@ -266,6 +266,7 @@ export const PAGES = {
         { label: 'minehead', icon: 'data/MineHead0', tabs: ['Upgrades', 'Opponents'] },
         { label: 'glimbo', icon: 'afk_targets/Glimbo', tabs: [] },
         { label: 'sushiStation', icon: 'data/Sushi6', tabs: ['Sushi', 'Upgrades', 'Bonuses', 'Sushi Bonuses'] },
+        { label: 'jellyOperator', icon: 'data/JellyUnit0', tabs: ['Layout', 'Obstructions', 'Upgrades', 'Upgrade Optimizer', 'Cells'] },
         { label: 'theButton', icon: 'etc/ButtonG', tabs: [] }
 
       ]

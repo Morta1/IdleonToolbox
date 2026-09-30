@@ -69,6 +69,7 @@ const BUNDLES = {
   ban_d: { name: 'The Spooky Pack', price: 19.99, gems: 4600, bonusGems: 900 },
   ban_e: { name: 'Crystalline Glunko Pack', price: 29.99, gems: 7000, bonusGems: 3100 },
   ban_f: { name: 'Paradise Pack', price: 24.99, gems: 5700, bonusGems: 2000 },
+  ban_j: { name: 'Gelatinous Pack', price: 24.99, gems: 5800, bonusGems: 2500 },
   bon_a: { name: 'Storage Ram Pack', price: 8.99, gems: 2100, bonusGems: 1000 },
   bon_c: { name: 'Blazing Star Anniversary Pack', price: 19.99, gems: 4600, bonusGems: 2000 },
   bon_d: { name: 'Midnight Tide Anniversary Pack', price: 19.99, gems: 5000, bonusGems: 1400 },

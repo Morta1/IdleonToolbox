@@ -504,11 +504,11 @@ export const getCompassStats = (character: any, account: any) => {
     + (getLocalCompassBonus(upgrades, 141)
       + getLocalCompassBonus(upgrades, 62)));
 
-  const multiShotPct = getLocalCompassBonus(upgrades, 18)
+  const multiShotPct = Math.min(800, getLocalCompassBonus(upgrades, 18)
     + (getLocalCompassBonus(upgrades, 125)
       + getLocalCompassBonus(upgrades, 73)
       + multiTalent
-      * (totalUpgradeLevels / 100));
+      * (totalUpgradeLevels / 100)));
 
   return {
     hp,

@@ -3,6 +3,7 @@ import { bubbaUpgrades, generalSpelunky } from '@website-data';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 
 export const getBubba = (idleonData: any, account: any) => {
@@ -402,5 +403,6 @@ const getMeatsliceRate = (rawBubba: any, account: any) => {
     * spareCoinsMulti
     * (1 + vaultBonus65 / 100)
     * (1 + getSushiBonus(account, 39) / 100)
+    * (1 + getJellyBonus(account, 58) / 100)
     * (1 + getFountainBonusTotal(account?.hole?.holesObject, 2, 18) / 100); // Bubba Forever (Green Water)
 };

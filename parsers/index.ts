@@ -87,6 +87,7 @@ import { getMinehead } from '@parsers/world-7/minehead';
 import { getButton } from '@parsers/world-7/button';
 import { getTournament } from '@parsers/world-7/tournament';
 import { getSushiStation } from '@parsers/world-7/sushiStation';
+import { getJellyOperator } from '@parsers/world-7/jellyOperator';
 import { getAdviceFish } from '@parsers/misc';
 import { getBubba } from '@parsers/clickers/bubba';
 import { getHatRack } from '@parsers/world-3/hatRack';
@@ -364,6 +365,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.research = safeSection<any>('research', {}, () => getResearch(idleonData, accountData, charactersData));
   accountData.button = safeSection<any>('button', {}, () => getButton(accountData, charactersData));
   accountData.sushiStation = safeSection<any>('sushiStation', {}, () => getSushiStation(idleonData, accountData));
+  (accountData as any).jellyOperator = safeSection<any>('jellyOperator', {}, () => getJellyOperator(idleonData, accountData));
   accountData.bubba = safeSection<any>('bubba', {}, () => getBubba(idleonData, accountData));
   accountData.friendBonusStats = safeSection<any>('friendBonusStats', {}, () => getFriendBonusStats(accountData));
 

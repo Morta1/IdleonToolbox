@@ -427,6 +427,7 @@ export const calcTomeQuantity = (account: any, characters: any[], idleonData?: a
     (sum: number, statue: any) => sum + Math.max(0, statue?.level ?? 0), 0)); // 118 Total Royal Statue LV
   quantities.push(account?.royalGuardian?.outpostStats?.built); // 119 Royal Guardian Outposts Built - game: RoyalG("TotalStatz", 4, 0)
   quantities.push(account?.royalGuardian?.outpostStats?.totalNodeLevels); // 120 Total Resource Grade - game: RoyalG("TotalStatz", 0, 0)
+  quantities.push(account?.jellyOperator?.obstructionsDefeated); // 121 Successful Jelly Operations - game: Research[7][9]
 
   return quantities;
 }

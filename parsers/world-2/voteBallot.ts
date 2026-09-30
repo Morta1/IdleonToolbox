@@ -9,6 +9,7 @@ import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 
 export const getVoteBallot = (idleonData: IdleonData, accountData: Account) => {
   return parseVoteBallot(idleonData, accountData);
@@ -26,12 +27,13 @@ const parseVoteBallot = (idleonData: IdleonData, accountData: Account) => {
   const legendTalentBonus = getLegendTalentBonus(accountData, 24) ?? 0;
   const clamWorkBonus = getClamWorkBonus(accountData, 3) ?? 0;
   const meritocracySushiBonus = getSushiBonus(accountData, 51) ?? 0;
+  const meritocracyJellyBonus = getJellyBonus(accountData, 33);
   const meritocracyEventShopBonus = getEventShopBonus(accountData, 23) ?? 0;
   const meritocracyMult = (1 + poppyBonus / 100) * (1 + (5 * clamWorkBonus
     + (companionBonus
       + (legendTalentBonus
         + (arcadeBonus
-          + (20 * meritocracyEventShopBonus + meritocracySushiBonus))))) / 100);
+          + (20 * meritocracyEventShopBonus + (meritocracySushiBonus + meritocracyJellyBonus)))))) / 100);
   const meritocracyMultBreakdown = {
     statName: 'Meritocracy multi',
     totalValue: meritocracyMult,
@@ -50,7 +52,8 @@ const parseVoteBallot = (idleonData: IdleonData, accountData: Account) => {
           { name: 'Legend Talent', value: legendTalentBonus },
           { name: 'Arcade', value: arcadeBonus },
           { name: 'Event Shop', value: 20 * meritocracyEventShopBonus },
-          { name: 'Sushi Tier 51', value: meritocracySushiBonus }
+          { name: 'Sushi Tier 51', value: meritocracySushiBonus },
+          { name: 'Jelly Operator', value: meritocracyJellyBonus }
         ]
       }
     ]

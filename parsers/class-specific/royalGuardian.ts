@@ -16,6 +16,7 @@ import { getAllMasterclassCostRedux, getAdviceFishBonus, isCompanionBonusActive 
 import { CLASSES, checkCharClass, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getZenithBonus } from '@parsers/world-1/statues';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getHatRackBonus } from '@parsers/world-3/hatRack';
@@ -57,6 +58,10 @@ export const RESOURCE_PER_HOUR_WINDOW_HOURS = 24;
 // standing in, and MARBLE_LORE_CAVE is the Spelunk[0] cave whose lore ("DoWeHaveLoreN1") pays +50%.
 const MAPS_PER_WORLD = 50;
 const MARBLE_LORE_CAVE = 9;
+
+// game: "OutpostPTSleft" - the Jelly Operator bonus that adds PTS to every outpost of a world
+// (index = world, W8 reuses W7's).
+const JELLY_OUTPOST_PTS_BY_WORLD = [3, 15, 32, 43, 48, 52, 61, 61];
 
 // Order matches RoyalG[3][2]; strings taken from the armory tooltip for upgrade 79
 // ("Compounding Outposting"), which is the only place the game names them.
@@ -374,7 +379,7 @@ const toNum = (value: any): number => {
 // game: "OutpostEXPformula" - i is the bar type, t the rank being tested.
 export const getOutpostExpFormula = (rank: number, type: number): number => {
   if (type === 4) return 1e5 * Math.pow(10, rank);
-  if (type === 2) return (50 + 50 * rank) * Math.pow(1.6, rank);
+  if (type === 2) return (50 + 50 * rank) * Math.pow(1.8, rank);
   return (10 + 5 * rank) * Math.pow(1.3, rank);
 };
 
@@ -517,6 +522,9 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
   const armoryBonus = (index: number): number =>
     toNum(armoryLevels?.[index]) * toNum((armoryUpgradesCatalog as any[])?.[index]?.bonusPerLevel);
 
+  // game: "SupportEXP" / "SupportCollection" - one formula, the % a single support camp adds.
+  const supportBonus = 200 * (1 + armoryBonus(43) / 100) + getJellyBonus(account, 41);
+
   // The armory calls AllMasterclassCostRedux only - NOT First3MC_CostRedux, which the game reserves
   // for grimoire/compass/tesseract (see getMasterclassCostReduction in misc.ts). account.royalGuardian
   // read here is this section's own PREVIOUS pass (multi-pass serialization, parsers/index.ts) -
@@ -657,7 +665,8 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     .filter((character: any) => checkCharClass(character?.class, CLASSES.Royal_Guardian))
     .reduce((max: number, character: any) => Math.max(max, toNum(character?.level)), 0);
   const warboundPoliticsBonus = Math.max(1, getHighestTalentAcrossCharacters(characters, 'WARBOUND_POLITICS', activeCharacter));
-  const xtraClearKillz = warboundPoliticsBonus * (1 + (orbletBonus(3) + getAdviceFishBonus(account, 6)) / 100);
+  const xtraClearKillz = warboundPoliticsBonus * (1 + (orbletBonus(3) + getAdviceFishBonus(account, 6)) / 100)
+    * (1 + getJellyBonus(account, 2) / 100);
   const militiaClearRate = 4000 * (1 + armoryBonus(23) / 100) * xtraClearKillz; // game: "UnitSpecEffect"(4)
 
   // game: "BarExpRate" - EXP/hr into one rank bar of one outpost. The purity term still looks
@@ -677,7 +686,8 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       * glorified
       * (1 + (200 * isMapPurified(rawMaps?.[rankType])) / 100)
       * (1 + (intelRank * armoryBonus(72)) / 100)
-      * (1 + (200 * (1 + armoryBonus(43) / 100) * (supportCounts.get(mapIndex) ?? 0)) / 100);
+      * (1 + (supportBonus * (supportCounts.get(mapIndex) ?? 0)) / 100)
+      * (1 + getJellyBonus(account, 1) / 100);
   };
 
   // game: "ActiveKillClear" - kills/hr you clear yourself, gated behind armory 58.
@@ -691,12 +701,14 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
 
   // game: "RI_chance" / "RI_mobs" - Regal Intervention (talent 229) on a Divine Intervention respawn.
   const regalChance = getHighestTalentAcrossCharacters(characters, 'REGAL_INTERVENTION', activeCharacter) / 100
-    * (1 + orbletBonus(5) / 100);
+    * (1 + orbletBonus(5) / 100)
+    + getJellyBonus(account, 56) / 1e3;
   // The game adds 10 more mobs on a purified map by reading CurrentMap, which has no offline
   // answer, so both ends are reported instead of guessing which map the player is standing on.
   const regalMobs = Math.floor(
     getHighestTalentAcrossCharacters(characters, 'REGAL_INTERVENTION', activeCharacter, 'y')
-    + getSushiBonus(account, 61));
+    + getSushiBonus(account, 61)
+    + getJellyBonus(account, 35));
 
   // game: "OrbletMultiDrop" - chance the Orb's 1-per-1000-kills drop comes out doubled.
   const orbletMultiDrop = getHighestTalentAcrossCharacters(characters, 'LIL\'_ORBLETS', activeCharacter)
@@ -705,7 +717,8 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
   // game: "ParchmentDrop" - 1-in-N chance a Verminous Rat drops a Parchment of Enchantment.
   const parchmentDropChance = armoryBonus(37) >= 1
     ? 0.001 * (1 + (armoryBonus(38) + orbletBonus(9)
-      + (isCompanionBonusActive(account, 172) ? (account?.companions?.list?.at(172)?.bonus ?? 0) : 0)) / 100)
+      + (isCompanionBonusActive(account, 172) ? (account?.companions?.list?.at(172)?.bonus ?? 0) : 0)
+      + getJellyBonus(account, 40)) / 100)
     : 0.001;
 
   // game: "MarbleDrop" - the Royal Marble drop chance. The game passes floor(CurrentMap / 50), so
@@ -761,7 +774,7 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       case 40: // Parchment_Recycling - game: ParchmentRecycle = min(0.75, ArmoryUpgBonus(40)/100), *100 cancels
         return String(notateNumber(Math.min(75, armoryBonus(40)), 'Small'));
       case 42: { // Support_Camps - SupportEXP and SupportCollection share one formula
-        const supportMulti = stripApprox(String(notateNumber(1 + (200 * (1 + armoryBonus(43) / 100)) / 100, 'MultiplierInfo')));
+        const supportMulti = stripApprox(String(notateNumber(1 + supportBonus / 100, 'MultiplierInfo')));
         return `${supportMulti}x_EXP_&_${supportMulti}x_Collection_Rate!`;
       }
       case 44: // Savage_Strongholds - game: "SavageCollection"
@@ -822,7 +835,7 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       unlocked: slot >= 0 && slot < unlockedSlots,
       maxed: maxLevel < 999 && level >= maxLevel,
       slot,
-      cost: getArmoryUpgradeCost(slot, slotToId, armoryLevels, costReduction),
+      cost: getArmoryUpgradeCost(slot, slotToId, armoryLevels, costReduction, account),
       costResourceIndex,
       costResourceRawName: costResourceIndex >= 0 ? `RGres${costResourceIndex}` : '',
       description: applyBonusTokens(entry?.description, bonus, resolveArmoryDollarToken(index))
@@ -1049,9 +1062,11 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     const onKingdomMap = toNum(mapPosition?.[0]) < OFF_KINGDOM_MAP;
 
     // game: "TotalUnitsz" - the units assigned in the packed string, plus the stationary ones the
-    // outpost earns every 4 Command Ranks (game: "PassiveUnitsz"), which occupy no slot.
+    // outpost earns from its Command Rank (game: "PassiveUnitsz"), which occupy no slot. It rounds
+    // up (2.3.531), so each type arrives one rank after the last: rank 1 a Worker, 2 a Trader,
+    // 3 a Guard, 4 a Surveyor, then one more of each every 4 ranks.
     const commandRank = ranks[2];
-    const passiveUnits = ROYAL_UNIT_NAMES.map((_, type) => Math.floor(Math.max(0, commandRank - type) / 4)
+    const passiveUnits = ROYAL_UNIT_NAMES.map((_, type) => Math.ceil(Math.max(0, commandRank - type) / 4)
       + (type === 0 ? Math.min(1, toNum(mapRaw?.[12])) : 0));
     const packed = `${mapRaw?.[11] ?? ''}`;
     const units = Array.from({ length: UNIT_SLOTS_MAX },
@@ -1066,7 +1081,8 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     // game: "OutpostPTSleft" - the guard is on the raw array length, so a stub outpost earns nothing.
     let ptsTotal = 0;
     if ((mapRaw?.length ?? 0) > 3) {
-      ptsTotal = 2 + armoryBonus(9 + Math.floor(mapIndex / 50)) + ranks[0];
+      ptsTotal = 2 + getJellyBonus(account, JELLY_OUTPOST_PTS_BY_WORLD[Math.min(7, Math.floor(mapIndex / 50))])
+        + armoryBonus(9 + Math.floor(mapIndex / 50)) + ranks[0];
       if (armoryBonus(71) >= 1) ptsTotal += Math.floor(ranks[0] / (11 - armoryBonus(71)));
       if (toNum(mapRaw?.[12]) >= 1) ptsTotal += 10;
     }
@@ -1078,7 +1094,7 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     // Advanced Logistics level; the Expanded Barracks multiplier only starts at level 6, caps at 5x.
     const resourceRate = globalResourceRate
       * (1 + ((200 + armoryBonus(1)) * (outpost.purified ? 1 : 0)) / 100)
-      * (1 + (200 * (1 + armoryBonus(43) / 100) * supports) / 100)
+      * (1 + (supportBonus * supports) / 100)
       * (1 + (5 * advancedLogistics) / 100)
       * (1 + (ranks[2] * armoryBonus(73)) / 100)
       * (1 + (unitSpecEffect[0] * unitCounts[0]) / 100)
@@ -1374,15 +1390,28 @@ export const getSpareWorkers = (outpost: Outpost, horizonHours: number, workerBo
   return Math.max(0, Math.min(slotWorkers, totalWorkers - minWorkers));
 };
 
-export const getArmoryUpgradeCost = (slot: number, slotToId: number[], armoryLevels: any[], costReduction: number): number => {
+export const getArmoryUpgradeCost = (
+  slot: number,
+  slotToId: number[],
+  armoryLevels: any[],
+  costReduction: number,
+  account?: any
+): number => {
   if (slot < 0) return 0;
   const id = toNum(slotToId?.[slot]);
   if (toNum(armoryLevels?.[46]) < 3 && id === 46) return 2;
   if (toNum(armoryLevels?.[58]) < 1 && id === 58) return 3;
   const upgrade = (armoryUpgradesCatalog as any[])?.[id];
+  // game quirk, replicated: the "first 5 / first 10 upgrades" jelly discounts look the SLOT number
+  // up in the slot -> id list as if it were an id, and a slot absent from it (-1) gets them twice.
+  const slotOrder: string[] = (research as any)?.[RESEARCH_ARMORY_SLOT_TO_ID] ?? [];
+  const position = slotOrder.indexOf(`${slot}`);
+  const jellyDiscount = Math.max(0, Math.ceil((5 - position) / 5)) * getJellyBonus(account, 11)
+    + Math.max(0, Math.ceil((10 - position) / 10)) * getJellyBonus(account, 26);
   return 25 * costReduction
     * Math.pow(1.24, slot)
     * (3 + 5 * slot)
+    * (1 / (1 + jellyDiscount / 100))
     * toNum(upgrade?.baseCost)
     * Math.pow(toNum(upgrade?.costScaling), toNum(armoryLevels?.[id]));
 };
@@ -1474,7 +1503,7 @@ export const getOptimizedArmoryUpgrades = (character: any, account: Account, cat
       const armoryLevels: number[] = [];
       (upgrades ?? []).forEach((u: any) => { armoryLevels[u.index] = u.level; });
       const costReduction = getArmoryCostReduction(account, forceLegendTalent);
-      return getArmoryUpgradeCost(upgrade.slot, slotToId, armoryLevels, costReduction);
+      return getArmoryUpgradeCost(upgrade.slot, slotToId, armoryLevels, costReduction, account);
     },
     updateResourcesAfterUpgrade: (resources: any, upgrade: any, resourceNames: any, cost: any) => {
       if (resources[upgrade.costResourceIndex] !== undefined) resources[upgrade.costResourceIndex] -= cost;

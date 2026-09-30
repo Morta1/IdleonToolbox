@@ -49,6 +49,7 @@ import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getMinorDivinityBonus } from '@parsers/world-5/divinity';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 import { getButtonBonus } from '@parsers/world-7/button';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
@@ -881,6 +882,7 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
   };
   const cardBonus = goldenFoodCardBonus('cropfallEvent1') + goldenFoodCardBonus('anni5Event1');
   const vaultBonus86 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 86);
+  const jellyBonus = getJellyBonus(account, 10) + getJellyBonus(account, 51);
 
   const deathBringer = characters?.find((char: any) => checkCharClass(char?.class, CLASSES.Death_Bringer));
   const apocalypseWow = getHighestTalentAcrossCharacters(characters, 'APOCALYPSE_WOW', character);
@@ -894,7 +896,7 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
             + (goldenFoodAchievement
               + (goldenFoodBubbleBonus
                 + goldenFoodSigilBonus) + mealBonus + starSignBonus + bribeBonus + charmBonus
-              + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses + companionBonus + legendTalentBonus + cardBonus + companionBonus155 + 1e4 * companionBonus174 + vaultBonus86))))) / 100);
+              + (2 * achievementBonus + 3 * secondAchievementBonus + voteBonus + apocalypseWow * apocalypses + companionBonus + legendTalentBonus + cardBonus + companionBonus155 + 1e4 * companionBonus174 + vaultBonus86 + jellyBonus))))) / 100);
 
   const breakdown = {
     statName: 'Golden food multi', // adjust if needed
@@ -943,7 +945,8 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
           { name: 'Card', value: cardBonus },
           { name: 'Vanillie Companion', value: companionBonus155 },
           { name: 'Verminous Companion', value: 1e4 * companionBonus174 },
-          { name: 'Vault Upgrade', value: vaultBonus86 }
+          { name: 'Vault Upgrade', value: vaultBonus86 },
+          { name: 'Jelly Operator', value: jellyBonus }
         ],
         subSections: [
           equipmentBonusBreakdown

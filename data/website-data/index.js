@@ -20,6 +20,7 @@ export { default as monsters } from './monsters.json';
 export { default as petStats } from './petStats.json';
 export { default as quests } from './quests.json';
 export { default as randomList } from './randomList.json';
+export { default as research } from './research.json';
 export { default as researchGridSquares } from './researchGridSquares.json';
 export { default as slab } from './slab.json';
 export { default as stamps } from './stamps.json';
@@ -90,6 +91,7 @@ export const {
   islands,
   itemSources,
   jadeUpgrades,
+  jellyUpgrades,
   jewels,
   killRoySkullShop,
   labBonuses,
@@ -126,7 +128,6 @@ export const {
   randomList2,
   rawMapNames,
   refinery,
-  research,
   researchOccurrences,
   researchShapes,
   riftInfo,

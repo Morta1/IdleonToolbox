@@ -56,7 +56,7 @@ describe('drop rate multiplicative sources', () => {
     const { breakdown } = getDropRate(character, account, characters);
     const multi = breakdown.categories[1].sources.map((s) => s.name);
     expect(multi).toEqual(expect.arrayContaining([
-      'Crystal Glunko', 'Mama Troll', 'Sushi (Unagi Nigiri)', 'Equinox Multi', 'DR Vial'
+      'Crystal Glunko', 'Mama Troll', 'Sushi (Unagi Nigiri)', 'Jelly Operator', 'Equinox Multi', 'DR Vial'
     ]));
     expect(breakdown.categories[0].sources.map((s) => s.name)).toContain('Mama Troll');
   });

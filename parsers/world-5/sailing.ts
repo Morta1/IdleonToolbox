@@ -31,6 +31,7 @@ import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getKillRoyShopBonus } from '@parsers/misc';
 import { getButtonBonus } from '@parsers/world-7/button';
@@ -666,6 +667,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
   // Summer event shop: Purple Chest Slugs (EventShopOwned 48) - multiplies artifact find by 1.5^owned
   const purpleChestSlugs = Math.max(1, Math.pow(1.5, getEventShopBonus(account, 48)));
   const winnerBonus = getWinnerBonus(account, '<x Artifact Find');
+  const jellyBonus = getJellyBonus(account, 19);
   const daveyJonesBonus = getDaveyJonesBonus(account, lootLevel, speedLevel);
   const labBonus = getLabBonus(account?.lab?.labBonuses, 14);
   const loreBonus = getLoreBonus(account, 3);
@@ -688,6 +690,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
     * (1 + turtleVial / 100)
     * purpleChestSlugs
     * (1 + winnerBonus / 100)
+    * (1 + jellyBonus / 100)
     * daveyJonesBonus
     * (1 + labBonus / 100)
     * (1 + loreBonus / 100)
@@ -730,6 +733,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
           { name: 'Vial - Turtle Tisane', value: 1 + turtleVial / 100 },
           { name: 'Purple Chest Slugs', value: purpleChestSlugs },
           { name: 'Summoning - Win Bonus', value: 1 + winnerBonus / 100 },
+          { name: 'Jelly Operator', value: 1 + jellyBonus / 100 },
           { name: 'Gem Shop (Davey Jones)', value: daveyJonesBonus },
           { name: 'Lab - Artifact Attraction', value: 1 + labBonus / 100 },
           { name: 'Lore Episode 3', value: 1 + loreBonus / 100 },

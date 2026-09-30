@@ -1,5 +1,5 @@
 {
-  "version": "2.3.530",
+  "version": "2.3.531",
   "frameW": 94,
   "frameH": 50,
   "hatFrameOffset": 2,
@@ -9423,6 +9423,81 @@
           "right": 122,
           "top": 15,
           "bottom": 100
+        }
+      },
+      "T3a": {
+        "file": "companion/T3a.png",
+        "frameW": 96,
+        "frameH": 60,
+        "across": 7,
+        "down": 1,
+        "numFrames": 7,
+        "durations": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "originX": 48,
+        "originY": 60,
+        "bounds": {
+          "left": 15,
+          "right": 76,
+          "top": 12,
+          "bottom": 50
+        }
+      },
+      "T3b": {
+        "file": "companion/T3b.png",
+        "frameW": 96,
+        "frameH": 60,
+        "across": 7,
+        "down": 1,
+        "numFrames": 7,
+        "durations": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "originX": 48,
+        "originY": 60,
+        "bounds": {
+          "left": 15,
+          "right": 76,
+          "top": 11,
+          "bottom": 50
+        }
+      },
+      "T3c": {
+        "file": "companion/T3c.png",
+        "frameW": 96,
+        "frameH": 60,
+        "across": 7,
+        "down": 1,
+        "numFrames": 7,
+        "durations": [
+          100,
+          100,
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "originX": 48,
+        "originY": 60,
+        "bounds": {
+          "left": 15,
+          "right": 76,
+          "top": 7,
+          "bottom": 50
         }
       }
     }

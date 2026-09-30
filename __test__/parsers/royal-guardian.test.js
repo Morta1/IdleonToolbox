@@ -204,6 +204,32 @@ describe('royal guardian parser matches the live game, with levels seeded in', (
   it('SF_unlocked flips on ArmoryUpgBonus(78)', () => expect(parsed.statueFlair.unlocked).toBe(true));
 });
 
+describe('ArmoryUpgCost applies the Jelly Operator armory discounts (2.3.531)', () => {
+  // Jelly bonus 11 is 50 and 26 is 30 once every obstruction is down.
+  const jellyAccount = { ...account, jellyOperator: { obstructionsDefeated: 72 } };
+  const royalG = buildRoyalG();
+  const armoryLevels = royalG[2];
+  const slotToId = parse(royalG).armory.slotToId;
+  const costReduction = getArmoryCostReduction(account);
+  const ratio = (slot) => getArmoryUpgradeCost(slot, slotToId, armoryLevels, costReduction, jellyAccount)
+    / getArmoryUpgradeCost(slot, slotToId, armoryLevels, costReduction);
+
+  // The game looks the SLOT number up in the slot -> id list, so the discount follows where that
+  // number happens to sit as an id, not the shelf position. Replicated as-is.
+  it('slot 9 (listed at position 4) gets both discounts', () => close(ratio(9), 1 / 1.8));
+  it('slot 35 (listed at position 9) gets only the first-10 discount', () => close(ratio(35), 1 / 1.3));
+  it('slot 2 (listed at position 17) gets neither', () => close(ratio(2), 1));
+  it('slot 5 (not listed, indexOf -1) gets both discounts twice', () => close(ratio(5), 1 / 2.6));
+  it('the parsed armory prices every shelf the same way', () => {
+    const jellyParsed = getRoyalGuardian(
+      { RoyalG: JSON.stringify(royalG), RoyalMaps: JSON.stringify(buildRoyalMaps()) },
+      jellyAccount,
+      []
+    );
+    close(jellyParsed.armory.upgrades.find((upgrade) => upgrade.slot === 9).cost, GAME.costs[9] / 1.8);
+  });
+});
+
 describe('royal guardian with no save', () => {
   const parsed = getRoyalGuardian({}, { bundles: [] }, []);
 

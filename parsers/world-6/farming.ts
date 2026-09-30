@@ -9,7 +9,13 @@ import { getAchievementStatus } from '@parsers/achievements';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getTalentBonus, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
-import { getEventShopBonus, getHighestCharacterSkill, getKillroyBonus, isMasteryBonusUnlocked } from '@parsers/misc';
+import {
+  getEventShopBonus,
+  getHighestCharacterSkill,
+  getKillroyBonus,
+  isCompanionBonusActive,
+  isMasteryBonusUnlocked
+} from '@parsers/misc';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
@@ -21,6 +27,7 @@ import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
@@ -252,7 +259,8 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
     hasLandRank,
     totalRanks: farmingRanks?.reduce((sum: any, rank: any) => sum + rank, 0),
     exoticMarkeMaxPurchases: Math.round(4 + (getMineheadBonusQTY(account, 8) + 8 * getEventShopBonus(account, 43)
-      + getSushiBonus(account, 33) + 3 * (account?.equinox?.challenges?.[66]?.current === -1 ? 1 : 0))),
+      + getSushiBonus(account, 33) + 3 * (account?.equinox?.challenges?.[66]?.current === -1 ? 1 : 0)
+      + getJellyBonus(account, 34))),
     pctExoticPurchasesFree: Math.min(80, 30 * getEventShopBonus(account, 43)) + Math.min(25, 25 * getMineheadBonusQTY(account, 8)),
     exoticMarketUpgradesPurchased: account?.accountOptions?.[416]
   };
@@ -442,6 +450,8 @@ const getStickerOddsMulti = (characters: any, account: any) => {
   const superBit55 = isSuperbitUnlocked(account, 'Mo_Stickers_Mo_Bonusers') ? 1 : 0;
   const farmingLevel = getHighestCharacterSkill(characters, 'farming') ?? 0;
   const sushiBonus55 = getSushiBonus(account, 55);
+  // Gelatinous Cuboid (109): bonus 9 (19 upgraded) -> 10x (20x) sticker odds
+  const cuboidCompanion = isCompanionBonusActive(account, 109) ? (account?.companions?.list?.at(109)?.bonus ?? 0) : 0;
   // W4 Golden Tome (opt[607]) multiplies sticker odds: 2^min(12,lvl) then +1500 per level past 11
   const goldenTome = Number(account?.accountOptions?.[607]) || 0;
   const goldenTomeMulti = Math.max(1, Math.pow(2, Math.min(12, goldenTome)) + 1500 * Math.max(0, goldenTome - 11));
@@ -451,7 +461,8 @@ const getStickerOddsMulti = (characters: any, account: any) => {
     * (1 + sticker5bonus / 100)
     * (1 + arcade64 / 100)
     * (1 + 0.02 * superBit55 * Math.max(0, farmingLevel - 300))
-    * (1 + sushiBonus55 / 100);
+    * (1 + sushiBonus55 / 100)
+    * (1 + cuboidCompanion);
 };
 
 const getStickerOdds = (characters: any, account: any, index: any) => {
