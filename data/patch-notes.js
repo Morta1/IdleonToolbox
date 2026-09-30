@@ -13,6 +13,7 @@ export const patchNotes = [
       'Dashboard: new Jelly Operator alerts for operations left, slots to unlock, empty slots and Viruses left to place',
       'Tome: added Successful Jelly Operations',
       'Pets: upgraded pets now show how many of their Pet Mart+ copies are tradable',
+      'Leaderboards: added Best Jelly DPS, Total Jelly Cell Levels, Total Jelly Upgrades and Best Sushi Combo',
       'Islands: Crystal Island now shows how many giant crystal mobs are waiting, with a dashboard alert before the 14 day cap'
     ],
     'fixes': [
