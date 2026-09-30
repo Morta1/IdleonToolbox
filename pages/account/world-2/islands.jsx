@@ -15,6 +15,8 @@ import {
 import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, numberWithCommas, prefix } from 'utility/helpers';
 import { CardTitleAndValue, CenteredStack, TitleAndValue } from '@components/common/styles';
+import Tooltip from '@components/Tooltip';
+import InfoIcon from '@mui/icons-material/Info';
 
 
 const trashDisclaimer = 'Estimate disclaimer: Randomly generated data is included in calculation, introducing variability. Figures are approximation, not precise value.'
@@ -52,6 +54,9 @@ const Islands = () => {
           bestDpsEver,
           shimmerCurrency,
           hoursAfk,
+          unclaimedDays,
+          maxDays,
+          mobsWaiting,
           learnMore
         } = island;
         return <Card key={name}
@@ -76,6 +81,15 @@ const Islands = () => {
                   <img src={`${prefix}etc/Shimmer_Currency.png`} alt="Shimmer Currency"/>
                   <Typography>{shimmerCurrency}</Typography>
                 </CenteredStack>
+              </Stack> : null}
+              {unlocked && island.hasOwnProperty('unclaimedDays') ? <Stack gap={1}>
+                <TitleAndValue title={'Mobs waiting'} value={mobsWaiting}/>
+                <Stack direction={'row'} gap={1} alignItems={'center'}>
+                  <TitleAndValue title={'Unclaimed days'} value={`${unclaimedDays}/${maxDays}`}/>
+                  <Tooltip title={`One unclaimed day is added per daily reset, up to ${maxDays}. A capped island spawns only 15 mobs while 13 days spawns 27, so visit before it caps.`}>
+                    <InfoIcon fontSize={'small'}/>
+                  </Tooltip>
+                </Stack>
               </Stack> : null}
               {unlocked && hoursAfk ? <Stack gap={1}>
                 <TitleAndValue title={'Hours Afk'} value={numberWithCommas(hoursAfk)}/>

@@ -404,6 +404,14 @@ export const getWorld1Alerts = (account, fields, options) => {
   }
   return alerts;
 };
+export const getCrystalIslandAlertTitle = ({ unclaimedDays, maxDays, mobsWaiting } = {}) => {
+  if (unclaimedDays >= maxDays) {
+    return `Crystal Island is capped: visit it, extra days are lost (only ${mobsWaiting} mobs spawn at the cap)`;
+  }
+  const capNote = unclaimedDays === maxDays - 1 ? 'it caps tomorrow' : `${unclaimedDays}/${maxDays} days`;
+  return `Visit Crystal Island: ${mobsWaiting} giant crystal mobs waiting, ${capNote}`;
+}
+
 export const getWorld2Alerts = (account, fields, options, characters) => {
   const alerts = {};
   if (!account?.finishedWorlds?.World1) return alerts;
@@ -543,6 +551,11 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
     }
     if (options?.islands?.collectibleGarbage?.checked && account?.islands?.trashPerDaysAfk >= options?.islands?.collectibleGarbage?.props?.value) {
       islands.collectibleGarbage = account?.islands?.trashPerDaysAfk;
+    }
+    const crystalIsland = getIsland(account, 'Crystal');
+    if (options?.islands?.crystalIsland?.checked && crystalIsland?.unlocked
+      && crystalIsland?.unclaimedDays >= options?.islands?.crystalIsland?.props?.value) {
+      islands.crystalIsland = crystalIsland;
     }
     if (Object.keys(islands).length > 0) {
       alerts.islands = islands;

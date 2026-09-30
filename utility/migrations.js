@@ -2003,6 +2003,17 @@ const migration77 = (dashboardConfig) => {
     });
   }
 
+  const islandsOptions = dashboardConfig?.account?.['World 2']?.islands?.options;
+  if (Array.isArray(islandsOptions) && !islandsOptions.some((o) => o?.name === 'crystalIsland')) {
+    islandsOptions.push({
+      name: 'crystalIsland',
+      type: 'input',
+      props: { label: 'Days', value: 13, minValue: 1, maxValue: 14 },
+      checked: true,
+      helperText: 'Alert when Crystal Island has this many unclaimed days. It caps at 14 days, and a capped island spawns fewer giant crystal mobs (15) than 13 days does (27)'
+    });
+  }
+
   dashboardConfig.version = 77;
   return dashboardConfig;
 };

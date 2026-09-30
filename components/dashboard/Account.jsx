@@ -26,7 +26,8 @@ import {
   getWorld4Alerts,
   getWorld5Alerts,
   getWorld6Alerts,
-  getWorld7Alerts
+  getWorld7Alerts,
+  getCrystalIslandAlertTitle
 } from '@utility/dashboard/account';
 import useAlerts from '@hooks/useAlerts';
 import { monsterImage } from '@utility/spriteImages';
@@ -231,6 +232,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 2.islands.collectibleGarbage'}
                   title={`You have around ${alerts?.['World 2']?.islands?.collectibleGarbage} garbage waiting to be collected in trash island`}
                   iconPath={'etc/Trash_Currency'}/> : null}
+              {alerts?.['World 2']?.islands?.crystalIsland ?
+                <Alert target={'World 2.islands.crystalIsland'}
+                  title={getCrystalIslandAlertTitle(alerts['World 2'].islands.crystalIsland)}
+                  iconPath={'data/IslandSail2'}/> : null}
               {alerts?.['World 2']?.alchemy?.bargainTag ?
                 <Alert target={'World 2.alchemy.bargainTag'} title={'You haven\'t use bargain tag even once today'} iconPath={'data/aShopItems10'}/> : null}
               {alerts?.['World 2']?.alchemy?.gems ?

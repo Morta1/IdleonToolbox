@@ -168,6 +168,13 @@ const baseTrackers = {
             props: { label: 'Threshold', value: 80, minValue: 1, maxValue: 100 },
             checked: true,
             helperText: 'A single collection is capped at 100 garbage, anything above it is lost'
+          },
+          {
+            name: 'crystalIsland',
+            type: 'input',
+            props: { label: 'Days', value: 13, minValue: 1, maxValue: 14 },
+            checked: true,
+            helperText: 'Alert when Crystal Island has this many unclaimed days. It caps at 14 days, and a capped island spawns fewer giant crystal mobs (15) than 13 days does (27)'
           }
         ]
       },

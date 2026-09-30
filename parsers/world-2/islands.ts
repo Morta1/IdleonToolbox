@@ -51,6 +51,17 @@ const fractalIslandBonuses = [
   { effect: 'World_7_Bonus..._I_wonder_what_it_will_be...', cost: 6e4 }
 ]
 
+// Each daily reset adds one unclaimed day on Crystal Island, capped at 14. Entering spawns the mobs
+// and resets the days to 0. Past 13 the game switches to a sqrt curve, so a capped island spawns FEWER mobs
+// (13 days = 27, 14 days = 15).
+export const CRYSTAL_ISLAND_MAX_DAYS = 14;
+export const getCrystalIslandMobs = (unclaimedDays: number): number => {
+  if (unclaimedDays <= 0) return 0;
+  return Math.ceil(unclaimedDays < CRYSTAL_ISLAND_MAX_DAYS
+    ? 1 + 2 * unclaimedDays
+    : Math.pow(16 * unclaimedDays, 0.5));
+}
+
 export const getIslands = (account: Account, characters: any[]) => {
   const islandsKeys = ((account as any)?.accountOptions?.[169] || '')?.split('')
   const islandsUnlocked = (account as any)?.accountOptions?.[169]?.length;
@@ -230,6 +241,13 @@ const extraIslandDetails = (account: Account, characters: any[], index: number):
           cost: 200
         }
       ]
+    };
+  } else if (index === 2) {
+    const unclaimedDays = (account as any)?.accountOptions?.[171] ?? 0;
+    result = {
+      unclaimedDays,
+      maxDays: CRYSTAL_ISLAND_MAX_DAYS,
+      mobsWaiting: getCrystalIslandMobs(unclaimedDays)
     };
   } else if (index === 4) {
     const shimmerTrialIndex = (account as any)?.accountOptions?.[183];
