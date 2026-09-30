@@ -34,6 +34,8 @@ const CompanionCard = ({ companion, index, editable, checked, onToggle }) => {
     acquired = '',
     copies = 0,
     tradableCount = 0,
+    upgradedCount = 0,
+    upgradedTradableCount = 0,
     viaToken = false,
     simulated = false,
     upgradeCost = null
@@ -78,6 +80,11 @@ const CompanionCard = ({ companion, index, editable, checked, onToggle }) => {
             {acquired && !viaToken && !simulated && (
               <Typography variant="body2">
                 Tradable: {numberWithCommas(tradableCount)}/{numberWithCommas(copies)}
+              </Typography>
+            )}
+            {upgradedCount > 0 && (
+              <Typography variant="body2">
+                Pet Mart+ tradable: {numberWithCommas(upgradedTradableCount)}/{numberWithCommas(upgradedCount)}
               </Typography>
             )}
             {viaToken && (

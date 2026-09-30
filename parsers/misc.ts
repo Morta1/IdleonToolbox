@@ -1330,18 +1330,30 @@ export const getCompanions = (companionObject: any = {}, accountOptions: any = [
   const companion = companions?.[companionIndex];
   const ownedCompanions = companionObject?.l?.reduce((result: any, comp: any) => {
     const [companionIndex, isTradable, , , levelRaw] = `${comp}`.split(',');
-    const current = result[companionIndex] || { count: 0, tradableCount: 0, nonTradableCount: 0, level: 0 };
+    const current = result[companionIndex] || {
+      count: 0,
+      tradableCount: 0,
+      nonTradableCount: 0,
+      upgradedCount: 0,
+      upgradedTradableCount: 0,
+      level: 0
+    };
     const tradable = isTradable === '1';
     // Field index 4 is the Pet Mart+ upgrade level; the game keeps the max across owned copies.
     // Absent/malformed (pre-patch saves) must resolve to 0, never NaN.
     const parsedLevel = Number(levelRaw);
     const level = Number.isFinite(parsedLevel) ? parsedLevel : 0;
+    // Tradability belongs to a copy, not to the pet: the upgraded copy can be the untradable one
+    // while a base copy is tradable, so the + counts are tracked per copy.
+    const copyUpgraded = level >= 1;
     return {
       ...result,
       [companionIndex]: {
         count: current.count + 1,
         tradableCount: current.tradableCount + (tradable ? 1 : 0),
         nonTradableCount: current.nonTradableCount + (tradable ? 0 : 1),
+        upgradedCount: current.upgradedCount + (copyUpgraded ? 1 : 0),
+        upgradedTradableCount: current.upgradedTradableCount + (copyUpgraded && tradable ? 1 : 0),
         level: Math.max(current.level, level)
       }
     }
@@ -1384,6 +1396,8 @@ export const getCompanions = (companionObject: any = {}, accountOptions: any = [
       copies: ownedCompanions?.[index]?.count ?? 0,
       tradableCount: ownedCompanions?.[index]?.tradableCount ?? 0,
       nonTradableCount: ownedCompanions?.[index]?.nonTradableCount ?? 0,
+      upgradedCount: ownedCompanions?.[index]?.upgradedCount ?? 0,
+      upgradedTradableCount: ownedCompanions?.[index]?.upgradedTradableCount ?? 0,
       level,
       upgraded,
       bonus: upgraded ? (comp?.upgradedBonus ?? comp?.bonus) : comp?.bonus

@@ -18,6 +18,22 @@ describe('Pet Mart+ (CompanionLVz / CompLV2)', () => {
     expect(list[1].bonus).toBe(35);
   });
 
+  it('counts upgraded copies and their tradability per copy, not per pet', () => {
+    // tradable base copy + untradable upgraded copy: the pet is tradable, its + copy is not
+    const { list } = getCompanions({ l: ['1,1,0,0,0', '1,0,0,0,1'] }, []);
+    expect(list[1].tradableCount).toBe(1);
+    expect(list[1].upgradedCount).toBe(1);
+    expect(list[1].upgradedTradableCount).toBe(0);
+
+    const { list: mixed } = getCompanions({ l: ['1,1,0,0,1', '1,0,0,0,1', '1,1,0,0,0'] }, []);
+    expect(mixed[1].upgradedCount).toBe(2);
+    expect(mixed[1].upgradedTradableCount).toBe(1);
+
+    // never-upgraded and unowned pets read 0, never undefined
+    expect(mixed[2].upgradedCount).toBe(0);
+    expect(mixed[2].upgradedTradableCount).toBe(0);
+  });
+
   it('leaves bonus untouched (level 0) when never upgraded', () => {
     const { list } = getCompanions({ l: ['1,1,0,0,0'] }, []);
     expect(list[1].level).toBe(0);

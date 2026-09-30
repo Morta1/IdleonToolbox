@@ -11,7 +11,8 @@ export const patchNotes = [
       'New Jelly Operator page (World 7): your cell board with each cell DPS, passives and neighbour boosts, all obstructions and their bonuses, upgrades with costs, cells, and an Upgrade Optimizer',
       'Jelly Operator obstruction bonuses are now counted everywhere they apply',
       'Dashboard: new Jelly Operator alerts for operations left, slots to unlock, empty slots and Viruses left to place',
-      'Tome: added Successful Jelly Operations'
+      'Tome: added Successful Jelly Operations',
+      'Pets: upgraded pets now show how many of their Pet Mart+ copies are tradable'
     ],
     'fixes': [
       'Royal Guardian: Commander Rank EXP and passive units updated for the new game patch',
