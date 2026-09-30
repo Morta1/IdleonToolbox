@@ -111,12 +111,15 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
       totalAmount
     }) => totalAmount >= calcCost(account?.refinery, rank, quantity, rawName, saltIndex));
     const { squiresCycles } = getRefineryCycles(account, characters, lastUpdated);
-    const { timeLeft } = calcTimeToRankUp(account, characters, lastUpdated, { squiresCycles }, false, rank, powerCap, refined, saltIndex);
-    if ((closestSalt?.timeLeft === 0 || timeLeft < closestSalt?.timeLeft) && hasMaterialsForCycle) {
-      return { timeLeft, icon: rawName }
-    }
-    return closestSalt
-  }, { timeLeft: 0, icon: '' });
+    const { timeLeft, ready } = calcTimeToRankUp(account, characters, lastUpdated, { squiresCycles }, false, rank, powerCap, refined, saltIndex);
+    if (!hasMaterialsForCycle) return closestSalt;
+    // A salt waiting on a manual rank up would otherwise pin the timer at zero, so it only
+    // shows when no other salt is still counting down.
+    const isCloser = closestSalt?.timeLeft === 0
+      || (closestSalt?.ready && !ready)
+      || (closestSalt?.ready === ready && timeLeft < closestSalt?.timeLeft);
+    return isCloser ? { timeLeft, icon: rawName, ready } : closestSalt;
+  }, { timeLeft: 0, icon: '', ready: false });
   const closestTrap = account?.traps?.reduce((closestTrap, traps) => {
     const times = traps?.map(({ timeLeft }) => timeLeft);
     if (times.length === 0) return closestTrap;

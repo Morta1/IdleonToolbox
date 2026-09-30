@@ -245,11 +245,15 @@ export const calcTimeToRankUp = (account: Account, characters: any[], _lastUpdat
     + (includeSquireCycles
     ? (refineryData?.squiresCycles ?? 0)
     : 0);
-  const timeLeft = Math.floor((powerCap - refined) / powerPerCycle) / cyclesPerDay * 24;
+  // The game rounds the remaining cycles and clamps power to the cap, so a salt within half a
+  // cycle of its cap never refines again: it waits for a manual rank up.
+  const cyclesLeft = Math.max(0, Math.round((powerCap - refined) / Math.max(powerPerCycle, 1)));
+  const timeLeft = cyclesLeft / cyclesPerDay * 24;
   const totalTime = ((powerCap - 0) / powerPerCycle) / cyclesPerDay * 24;
   return {
     timeLeft: new Date().getTime() + (timeLeft * 3600 * 1000),
-    totalTime: new Date().getTime() + (totalTime * 3600 * 1000)
+    totalTime: new Date().getTime() + (totalTime * 3600 * 1000),
+    ready: cyclesLeft === 0
   };
 };
 

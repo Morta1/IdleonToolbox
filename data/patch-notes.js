@@ -25,7 +25,8 @@ export const patchNotes = [
       'Sneaking: the sushi Stealth bonus no longer boosts Jade gain',
       'Class EXP now counts the Eggroll pet',
       'Upgrade optimizers no longer show a -80% discount where the Masterclass allowance does not apply',
-      'Cauldrons: brew needed per new bubble attempt and the Future Bubbles tooltip showed the wrong amounts'
+      'Cauldrons: brew needed per new bubble attempt and the Future Bubbles tooltip showed the wrong amounts',
+      'Dashboard: the W3 closest salt timer now skips salts waiting for a manual rank up and shows the next one'
     ]
   },
   {
