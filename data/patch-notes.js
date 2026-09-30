@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.82',
+    'gameVer': '2.3.531',
+    'date': '01/10/2026',
+    'features': [],
+    'fixes': [
+      'Gaming: Sprout Capacity upgrade cost now matches the game at higher levels'
+    ]
+  },
+  {
     'ver': '3.3.81',
     'gameVer': '2.3.531',
     'date': '30/09/2026',

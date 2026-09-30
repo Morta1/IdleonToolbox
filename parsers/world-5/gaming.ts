@@ -567,7 +567,7 @@ const calcFertilizerCost = (index: any, gamingRaw: any, serverVars: any) => {
       const baseMath = 25 * (baseValue + 1) + Math.pow((baseValue) + 1, 3);
       return baseMath * Math.pow(5 + 3.7 * baseValue, baseValue);
     }
-    return 9999 * Math.pow(10, 63);
+    return 9999 * Math.pow(10, 39 + 2 * baseValue);
   }
 }
 
