@@ -784,6 +784,12 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
   const marbleWorldCount = Math.floor((((mapDetails as any[])?.length ?? 1) - 1) / MAPS_PER_WORLD) + 1;
   const marbleDropChance = Array.from({ length: marbleWorldCount },
     (_unused, world) => marbleDropMulti / (1000 + 300 * Math.pow(world, 2)));
+  // game: the kill roll is MarbleDrop(world) * max(1, 100 - RoyalG[3][5]). RoyalG[3][5] counts every
+  // marble ever dropped and only goes up, so the first marble is 99x likelier and the boost fades to
+  // nothing by the 99th. The armory shelf 41 text quotes the unboosted chance, so both are kept.
+  const marblesDropped = toNum(raw?.[3]?.[5]);
+  const marbleEarlyBoost = Math.max(1, 100 - marblesDropped);
+  const marbleDropChanceEffective = marbleDropChance.map((chance) => Math.min(1, chance * marbleEarlyBoost));
 
   // game: the Royal Armory list (N.js MenuType2 == 106 draw loop) overwrites the raw "$" in
   // CustomLists.ArmoryUpg[id][9] with a value it hand-picks per shelf id - there is no shared
@@ -1414,6 +1420,10 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       parchmentDropChance,
       // game: "MarbleDrop", one entry per world because the game keys it off the current map.
       marbleDropChance,
+      marblesDropped,
+      marbleEarlyBoost,
+      // What a kill actually rolls against: the per-world chance with the early-marble boost.
+      marbleDropChanceEffective,
       royalRadius: ROYAL_RADIUS
     },
     resources: detailedResources,

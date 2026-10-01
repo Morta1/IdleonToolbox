@@ -3,7 +3,9 @@ import { CardTitleAndValue } from '@components/common/styles';
 import MenuItem from '@mui/material/MenuItem';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { getTabs, notateNumber, prefix } from '@utility/helpers';
+import { commaNotation, getTabs, notateNumber, prefix } from '@utility/helpers';
+import Tooltip from '@components/Tooltip';
+import InfoIcon from '@mui/icons-material/Info';
 import { NextSeo } from 'next-seo';
 import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
@@ -26,6 +28,8 @@ const RoyalArmory = () => {
   const selectedRoyalGuardian = royalGuardians?.find((character) => character?.playerId === selectedChar)
     ?? royalGuardians?.[0];
   const selectedRogBonus = outpostStats?.rogBonuses?.find((bonus) => bonus?.selected);
+  const { marbleDropChanceEffective, marblesDropped, marbleEarlyBoost } = royalGuardian?.guardian ?? {};
+  const formatMarbleChance = (chance) => chance > 0 ? `1 in ${commaNotation(Math.floor(1 / chance))}` : '-';
 
   return <>
     <NextSeo
@@ -53,6 +57,24 @@ const RoyalArmory = () => {
       <CardTitleAndValue title={'Shelves Unlocked'}
                          value={`${armory?.unlockedSlots ?? 0} / ${armory?.slotToId?.length ?? 0}`}/>
       <CardTitleAndValue title={'Outposts Built'} value={outpostStats?.built ?? 0}/>
+      {marbleDropChanceEffective?.length ? <CardTitleAndValue title={'Marble Chance'}
+                         value={<Stack direction={'row'} alignItems={'center'} gap={1}>
+                           <Tooltip title={<Stack gap={0.5}>
+                             <Typography variant={'body2'}>Per kill on an outpost map, by world:</Typography>
+                             {marbleDropChanceEffective.map((chance, world) => <Stack key={world} direction={'row'}
+                                                                                      alignItems={'center'} gap={1}>
+                               <img src={`${prefix}data/RGshard${world}.png`} alt="" width={24} height={24}/>
+                               <Typography variant={'body2'}>{`W${world + 1}: ${formatMarbleChance(chance)}`}</Typography>
+                             </Stack>)}
+                             <Typography variant={'caption'}>
+                               {marbleEarlyBoost > 1
+                                 ? `${marblesDropped} marbles found so far: ${marbleEarlyBoost}x boost, which drops by 1 per marble until the 99th`
+                                 : `${marblesDropped} marbles found: the early-marble boost is used up`}
+                             </Typography>
+                           </Stack>}>
+                             <InfoIcon sx={{ fontSize: 18 }}/>
+                           </Tooltip>
+                         </Stack>}/> : null}
       {selectedRogBonus ? <CardTitleAndValue title={selectedRogBonus?.name}
                          value={`${notateNumber(selectedRogBonus?.value, 'MultiplierInfo')}x`}/> : null}
     </Stack>

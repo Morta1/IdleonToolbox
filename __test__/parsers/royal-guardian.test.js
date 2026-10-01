@@ -263,6 +263,38 @@ describe('royal guardian with no save', () => {
   });
 });
 
+// game: the kill roll is MarbleDrop(floor(CurrentMap / 50)) * max(1, 100 - RoyalG[3][5]). Read on a
+// live save (2.3.531) with 52 marbles found: boost 48, W1 base 0.002499780740740741 -> 1 in 8.
+describe('royal marble drop chance', () => {
+  const withMarbles = (dropped) => {
+    const royalG = buildRoyalG();
+    royalG[3][5] = dropped;
+    return parse(royalG).guardian;
+  };
+
+  it('keeps the per-world base chance on the game curve', () => {
+    const { marbleDropChance } = withMarbles(0);
+    expect(marbleDropChance.length).toBeGreaterThanOrEqual(7);
+    marbleDropChance.forEach((chance, world) =>
+      close(chance * (1000 + 300 * world ** 2), marbleDropChance[0] * 1000));
+  });
+
+  it('boosts the roll by 100 - marbles found, bottoming out at 1x', () => {
+    const early = withMarbles(52);
+    expect(early.marblesDropped).toBe(52);
+    expect(early.marbleEarlyBoost).toBe(48);
+    early.marbleDropChanceEffective.forEach((chance, world) => close(chance, early.marbleDropChance[world] * 48));
+
+    const late = withMarbles(140);
+    expect(late.marbleEarlyBoost).toBe(1);
+    expect(late.marbleDropChanceEffective).toEqual(late.marbleDropChance);
+  });
+
+  it('a save with no marbles yet gets the full 100x', () => {
+    expect(withMarbles(0).marbleEarlyBoost).toBe(100);
+  });
+});
+
 describe('the contract helpers key off the entry index, not the array position', () => {
   // liveEntries() drops placeholder catalog rows, so a future patch adding one would shift every
   // array position. Simulate that by deleting the rows in front of the ones being looked up.

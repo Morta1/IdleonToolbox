@@ -13,7 +13,8 @@ export const patchNotes = [
       'Dashboard: Royal Guardian Worker alerts now suggest Surveyors too, a new alert for Guards whose range is not needed, and optional alerts for when an outpost reaches a chosen Trade, Intel, Command or Military rank',
       'Sneaking: new Detection tab showing the detection % of every ninja, plus a calculator for any mastery, floor and Funeral Flower count',
       'Storage: your storage coins are now shown at the top of the page, with the exact amount and your account total in the tooltip',
-      'General: the Giant Mob chance now shows how many Giant Mobs spawned this week'
+      'General: the Giant Mob chance now shows how many Giant Mobs spawned this week',
+      'Royal Armory: added a Marble Chance card showing your drop chance per world, including the early marble boost'
     ],
     'fixes': [
       'Gaming: Sprout Capacity upgrade cost now matches the game at higher levels',
