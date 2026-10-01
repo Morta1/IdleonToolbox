@@ -22,7 +22,7 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: 1280 }}>
       {players?.map(({ equipment, floor, activityInfo }, playerIndex) => {
-        // const jade = getJadeRate(characters[playerIndex], account);
+        const ninjaDetection = account?.sneaking?.detection?.ninjas?.[playerIndex];
         const weaponType = equipment?.[1]?.rawName !== 'Blank' && equipment?.[1]?.type;
         const doorHp = (doorMaxHps?.[floor] - doorsCurrentHp?.[floor]);
         const hasDoor = doorHp > 0;
@@ -50,6 +50,9 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
                     <Typography variant={'caption'} color={'text.secondary'} sx={{ lineHeight: 1.1 }}>
                       {activityIcon}
                     </Typography>
+                    {ninjaDetection ? <Typography variant={'caption'} color={'text.secondary'} sx={{ lineHeight: 1.1 }}>
+                      {(100 * ninjaDetection.detection).toFixed(2)}% detection
+                    </Typography> : null}
                   </Stack>
                 </Stack>
                 {hasDoor ? <Stack direction={'row'} alignItems={'center'} gap={1}>

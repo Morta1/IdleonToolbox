@@ -10,7 +10,8 @@ export const patchNotes = [
     'features': [
       'Dashboard: the Arcanist weapon and ring daily drop alerts can now be turned off separately',
       'Leaderboards: added Day Market Levels and Night Market Levels',
-      'Dashboard: Royal Guardian Worker alerts now suggest Surveyors too, a new alert for Guards whose range is not needed, and optional alerts for when an outpost reaches a chosen Trade, Intel, Command or Military rank'
+      'Dashboard: Royal Guardian Worker alerts now suggest Surveyors too, a new alert for Guards whose range is not needed, and optional alerts for when an outpost reaches a chosen Trade, Intel, Command or Military rank',
+      'Sneaking: new Detection tab showing the detection % of every ninja, plus a calculator for any mastery, floor and Funeral Flower count'
     ],
     'fixes': [
       'Gaming: Sprout Capacity upgrade cost now matches the game at higher levels'

@@ -11,6 +11,7 @@ import { NextSeo } from 'next-seo';
 import { Stack, Typography } from '@mui/material';
 import Mastery from '@components/account/Worlds/World6/Sneaking/Mastery';
 import Gemstones from '@components/account/Worlds/World6/Sneaking/Gemstones';
+import Detection from '@components/account/Worlds/World6/Sneaking/Detection';
 import { PAGES } from '@components/constants';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -33,7 +34,8 @@ const Sneaking = () => {
     dailyCharmRollCount,
     remainingPristineRolls,
     remainingSymbolRolls,
-    pristineCharmChance
+    pristineCharmChance,
+    detection
   } = state?.account?.sneaking || {};
 
   return <>
@@ -74,6 +76,7 @@ const Sneaking = () => {
       <Charms charms={pristineCharms}/>
       <Mastery masteryBonuses={ninjaMasteryBonuses} masteryLevel={ninjaMastery}/>
       <Gemstones gemStones={gemStones}/>
+      <Detection detection={detection} characters={state?.characters} ninjaMastery={ninjaMastery}/>
     </Tabber>
   </>
 };

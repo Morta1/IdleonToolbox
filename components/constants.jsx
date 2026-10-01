@@ -233,7 +233,7 @@ export const PAGES = {
         {
           label: 'sneaking',
           icon: 'data/ClassIcons58',
-          tabs: ['Inventory', 'Jade Emporium', 'Upgrades', 'Charms', 'Mastery', 'Gemstones']
+          tabs: ['Inventory', 'Jade Emporium', 'Upgrades', 'Charms', 'Mastery', 'Gemstones', 'Detection']
         },
         { label: 'summoning', icon: 'data/ClassIcons59', tabs: ['Upgrades', 'Winner Bonuses', 'Battles', 'Stones'] },
         { label: 'beanstalk', icon: 'etc/beanstalk1' },

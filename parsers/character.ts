@@ -1575,56 +1575,6 @@ const createTalentPreset = (charClass: any, skillLevels: any, maxSkillLevels: an
   }
 }
 
-const getStealthRate = (character: any, account: any) => {
-  const playerFloor = account?.sneaking?.players?.[character?.playerId]?.floor; // NjaDN1
-  const sneakingLevel = character?.skillsInfo?.sneaking?.level; // NjaDN3
-  const mainStat = mainStatMap?.[character?.class];
-  const bubbleBonus = getBubbleBonus(account, 'STEALTH_CHAPTER', false, mainStat === 'agility');
-  const starSignBonus = getStarSignBonus(character, account, 'Ninja_Twin')
-  const statueBonus = getStatueBonus(account, 26, character?.flatTalents);
-  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Sneaking_Stealth_(Passive)');
-  const ninjaUpgradeBonus = getNinjaUpgradeBonus(account, 'Way_of_Stealth');
-  let stealthMulti = 1;
-  account.sneaking.players?.forEach((player: any, playerIndex: any) => {
-    player?.equipment?.forEach((item: any) => {
-      if (item.name === 'Smoke_Bomb') {
-        if (playerFloor === player.floor && character?.playerId !== playerIndex) {
-          stealthMulti += item.value / 100;
-        }
-      }
-      if (item.name === 'Lotus_Flower') {
-        if (playerFloor === player.floor && character?.playerId !== playerIndex) {
-          stealthMulti += item.value / 100;
-        }
-      }
-    })
-  })
-  const ninjaEquip = getNinjaEquipmentBonus(account, character.playerId, 'Scroll_of_Power');
-  const anotherNinjaEquip = getNinjaEquipmentBonus(account, character.playerId, 'Silk_Veil');
-  const yetAnotherNinjaEquip = getNinjaEquipmentBonus(account, character.playerId, 'Rosaries');
-  const companion163 = isCompanionBonusActive(account, 163) ? (account?.companions?.list?.at(163)?.bonus ?? 0) : 0;
-  const sushiBonus32 = getSushiBonus(account, 32);
-  const jellyBonus16 = getJellyBonus(account, 16);
-  const math = stealthMulti
-    * (1 + ninjaEquip / 100)
-    * (1 + anotherNinjaEquip / 100)
-    * (1 + yetAnotherNinjaEquip / 100)
-    * (1 + (bubbleBonus
-      + starSignBonus) / 100)
-    * (1 + statueBonus / 100)
-    * (1 + passiveCardBonus / 100)
-    * (1 + sushiBonus32 / 100)
-    * (1 + jellyBonus16 / 100)
-    * (1 + 39 * companion163)
-
-  return (10 + ninjaUpgradeBonus * sneakingLevel) * math;
-}
-const getDetectionRate = (character: any, account: any) => {
-  const floor = account?.sneaking?.players?.[character?.playerId]?.floor;
-  const floorDetectionModifier = ninjaExtraInfo[9]?.[floor];
-  return Math.max(0, Math.min(1, 1 - 1.1 * getStealthRate(character, account)
-    / (getStealthRate(character, account) + parseFloat(floorDetectionModifier))));
-}
 export const getJadeRate = (character: any, account: any) => {
   const floor = account?.sneaking?.players?.[character?.playerId]?.floor;
   const floorJadeModifier = ninjaExtraInfo[10]?.[floor];
@@ -1637,7 +1587,7 @@ export const getJadeRate = (character: any, account: any) => {
   const ninjaEquip = getNinjaEquipmentBonus(account, character.playerId, 'Green_Belt') * (floorSolo ? 3 : 1);
   const ninjaEquip1 = getNinjaEquipmentBonus(account, character.playerId, 'Black_Belt') * (floorSolo ? 3 : 1);
   const ninjaEquip2 = getInventoryNinjaItem(account, 'Gold_Coin');
-  const detectionRate = getDetectionRate(character, account);
+  const detectionRate = account?.sneaking?.detection?.ninjas?.[character?.playerId]?.detection ?? 1;
   const ninjaEquip3 = getNinjaEquipmentBonus(account, character.playerId, 'Shiny_Smoke') * (detectionRate <= 0 ? 3 : 1);
   const ninjaEquip4 = getNinjaEquipmentBonus(account, character.playerId, 'Scroll_of_Power');
   const ninjaEquip5 = getNinjaEquipmentBonus(account, character.playerId, 'Goodie_Bag');

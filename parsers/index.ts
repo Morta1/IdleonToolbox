@@ -62,7 +62,7 @@ import { getPostOfficeShipments } from './world-3/postoffice';
 import { getIslands } from './world-2/islands';
 import { getEquinox, getLockedEquinox } from './world-3/equinox';
 import { getTotalizerBonuses, getTotems } from './world-3/worship';
-import { getSneaking } from '@parsers/world-6/sneaking';
+import { getSneaking, getSneakingDetection } from '@parsers/world-6/sneaking';
 import { getFarming, updateFarming } from '@parsers/world-6/farming';
 import { getSummoning } from '@parsers/world-6/summoning';
 import { getTome } from '@parsers/world-4/tome';
@@ -369,6 +369,8 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   (accountData as any).jellyOperator = safeSection<any>('jellyOperator', {}, () => getJellyOperator(idleonData, accountData));
   accountData.bubba = safeSection<any>('bubba', {}, () => getBubba(idleonData, accountData));
   accountData.friendBonusStats = safeSection<any>('friendBonusStats', {}, () => getFriendBonusStats(accountData));
+  // Last: stealth reads emperor, sushi, jelly, tome and caverns, all parsed above.
+  accountData.sneaking.detection = safeSection<any>('sneakingDetection', null, () => getSneakingDetection(idleonData, accountData, charactersData));
 
   return { accountData, charactersData };
 };
