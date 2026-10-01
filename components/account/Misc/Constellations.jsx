@@ -10,10 +10,19 @@ import {
   useMediaQuery
 } from '@mui/material';
 import React, { useState } from 'react';
-import { cleanUnderscore } from 'utility/helpers';
+import { cleanUnderscore, prefix } from 'utility/helpers';
 import CheckIcon from '@mui/icons-material/Check';
 import { mapEnemiesArray, monsters } from '@website-data';
 import { monsterImage } from '@utility/spriteImages';
+
+// Each constellation's shape, cut from the game's StarSign sheet (the lit frame) into public/etc.
+const ConstellationIcon = ({ rawIndex, name }) => rawIndex == null ? null : <img
+  src={`${prefix}etc/Constellation_${rawIndex}.png`}
+  alt={cleanUnderscore(name)}
+  width={32}
+  height={32}
+  style={{ objectFit: 'contain', flexShrink: 0 }}
+/>;
 
 const CHAR_INDEX_MAP = Object.fromEntries('_abcdefghijklmnopqrstuvwxyz'.split('').map((c, i) => [c, i]));
 
@@ -70,7 +79,7 @@ const ConstellationsComp = ({ constellations = [], characters = [] }) => {
         <Grid item md={1} />
       </Grid>
       {constellationList?.map((constellation, index) => {
-        const { name, points, done, requirement, completedChars, requiredPlayers, location, mapIndex } = constellation;
+        const { name, points, done, requirement, completedChars, requiredPlayers, location, mapIndex, rawIndex } = constellation;
         const completedNames = getCompletedNames(completedChars);
         const monsterRaw = mapEnemiesArray?.[mapIndex];
         const monsterName = monsterRaw === 'Nothing' ? null : cleanUnderscore(monsters?.[monsterRaw]?.Name || monsterRaw);
@@ -79,10 +88,12 @@ const ConstellationsComp = ({ constellations = [], characters = [] }) => {
         const wikiLink = `https://idleon.miraheze.org/wiki/Star_Signs#${wikiAnchor}`;
         return <React.Fragment key={name + ' ' + index}>
           <Grid rowGap={2} gap={1} container>
-            {!isMd ? <Grid item xs={1}>
+            {!isMd ? <Grid item xs={1} display={'flex'} flexDirection={'column'} alignItems={'flex-start'} gap={0.5}>
+              <ConstellationIcon rawIndex={rawIndex} name={name}/>
               <Typography variant={'body1'} component={'span'}>{cleanUnderscore(name)}</Typography>
             </Grid> : null}
             <Grid item xs={1} display={'flex'} alignItems={'center'} gap={1}>
+              {isMd ? <ConstellationIcon rawIndex={rawIndex} name={name}/> : null}
               {done ? <CheckIcon color={'success'} /> : <Typography variant={'body1'}
                 component={'span'}>
                 {`${completedChars?.length ?? 0}/${requiredPlayers}`}

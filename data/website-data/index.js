@@ -141,6 +141,7 @@ export const {
   spelunkingChapters,
   spelunkingRocks,
   spelunkingUpgrades,
+  spiceNames,
   starSignByIndexMap,
   starSigns,
   stats,

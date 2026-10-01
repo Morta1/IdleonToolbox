@@ -1,4 +1,4 @@
-import { atomsInfo, cookingMenu, monsters, randomList, randomList2, bonuses } from '@website-data';
+import { atomsInfo, cookingMenu, monsters, randomList, randomList2, bonuses, spiceNames } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getStatsFromGear } from '@parsers/items';
@@ -33,9 +33,8 @@ import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getObolsBonus } from '@parsers/obols';
 import { getButtonBonus } from '@parsers/world-7/button';
-import { SPICE_NAMES } from './spiceNames.mjs';
 
-export const spicesNames = SPICE_NAMES;
+export const spicesNames = spiceNames;
 
 export const getCooking = (idleonData: any, account: any, characters?: any) => {
   const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;

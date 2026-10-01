@@ -20,7 +20,8 @@ export const patchNotes = [
       'Wiki: items now show more of their uses: Glimbo trades and the vault upgrade they raise, Refinery salts and their ingredients, lab chip and jewel recipes, building and prayer costs, and the Beanstalk',
       'Wiki: new Anvil page listing everything it produces, and anvil materials now show which anvil upgrade points they pay for',
       'Wiki: more items now say where to get them: skilling spots, random event bosses, Mob Cosplay Craze hats, the Talent Book Library, and Dungeon, Event, Spelunking, Royal Guardian and Compass items',
-      'Wiki: the menu and home page are now grouped into Encyclopedia, Account and World 1 to 6'
+      'Wiki: the menu and home page are now grouped into Encyclopedia, Account and World 1 to 6',
+      'Constellations: each constellation now shows its in-game shape'
     ],
     'fixes': [
       'Gaming: Sprout Capacity upgrade cost now matches the game at higher levels',

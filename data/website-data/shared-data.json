@@ -16930,7 +16930,8 @@
         },
         {
           "rawName": "CookingSpice20",
-          "amount": 10000
+          "amount": 10000,
+          "name": "Spirit Fields"
         }
       ],
       "effect": "'Slab_Sovereignty'_gives_an_additional_}%_boost_to_all_Slab_Bonuses!",
@@ -16956,7 +16957,8 @@
         },
         {
           "rawName": "CookingSpice21",
-          "amount": 10000
+          "amount": 10000,
+          "name": "Bamboo Forest"
         }
       ],
       "effect": "+}%_higher_effects_from_all_active_bonuses_and_jewels_within_the_Mainframe,_except_for_Spelunker_Obol._@_This_is_a_multiplier,_so_+10%_would_be_1.10x,_ya_feel_me?_@_This_bonus_always_has_a_80px_connection_range_no_matter_what!",
@@ -16982,7 +16984,8 @@
         },
         {
           "rawName": "CookingSpice22",
-          "amount": 10000
+          "amount": 10000,
+          "name": "Lullaby Airway"
         }
       ],
       "effect": "'Depot_Studies_PhD'_gives_an_additional_}%_boost_to_all_Crop_Depot_bonuses!",
@@ -17008,7 +17011,8 @@
         },
         {
           "rawName": "CookingSpice21",
-          "amount": 10000
+          "amount": 10000,
+          "name": "Bamboo Forest"
         }
       ],
       "effect": "+}%_extra_Deathbringer_Bones._@_This_bonus_always_has_a_100px_connection_range_no_matter_what!",
@@ -17034,7 +17038,8 @@
         },
         {
           "rawName": "CookingSpice21",
-          "amount": 10000
+          "amount": 10000,
+          "name": "Bamboo Forest"
         }
       ],
       "effect": "+}%_extra_Windwalker_Dust._@_This_bonus_always_has_a_100px_connection_range_no_matter_what!",
@@ -17060,7 +17065,8 @@
         },
         {
           "rawName": "CookingSpice21",
-          "amount": 10000
+          "amount": 10000,
+          "name": "Bamboo Forest"
         }
       ],
       "effect": "+}%_extra_Arcane_Cultist_Tachyons._@_This_bonus_always_has_a_100px_connection_range_no_matter_what!",
@@ -40331,6 +40337,32 @@
       "x10": "_",
       "x11": "_"
     }
+  ],
+  "spiceNames": [
+    "Grasslands",
+    "Jungle",
+    "Encroaching Forest",
+    "Tree Interior",
+    "Stinky Sewers",
+    "Desert Oasis",
+    "Beach Docks",
+    "Coarse Mountains",
+    "Twilight Desert",
+    "The Crypt",
+    "Frosty Peaks",
+    "Tundra Outback",
+    "Crystal Caverns",
+    "Pristalle Lake",
+    "Nebulon Mantle",
+    "Starfield Skies",
+    "Shores of Eternity",
+    "Molten Bay",
+    "Smokey Lake",
+    "Wurm Catacombs",
+    "Spirit Fields",
+    "Bamboo Forest",
+    "Lullaby Airway",
+    "Dharma Mesa"
   ],
   "starSignByIndexMap": {
     "0": {

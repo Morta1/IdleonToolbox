@@ -45,6 +45,9 @@ const starSignBonuses = (bonuses) => (bonuses || []).reduce((text, { rawName, bo
 const isDeadSign = (sign) => !sign?.starName || /^Filler/i.test(sign.starName) || sign.cost >= 999;
 
 const TREE_NAMES = { chronus: 'Chronus', hydron: 'Hydron', seraph: 'Seraph' };
+// No sign has art of its own: the game draws each as a star in its tree's colour, SignStar1a/1b/1c
+// for Chronus blue, Hydron red and Seraph green.
+const TREE_STARS = { chronus: '/data/SignStar1a.png', hydron: '/data/SignStar1b.png', seraph: '/data/SignStar1c.png' };
 
 export const starSignNodes = (starSigns) => Object.fromEntries((starSigns || [])
   .filter((sign) => !isDeadSign(sign) && sign.bonuses?.length)
@@ -52,7 +55,7 @@ export const starSignNodes = (starSigns) => Object.fromEntries((starSigns || [])
     kind: 'starsign',
     rawName: sign.starName,
     name: sign.starName,
-    icon: '/data/SignStar1b.png',
+    icon: TREE_STARS[sign.tree] || '/data/SignStar1b.png',
     category: TREE_NAMES[sign.tree] || 'Star Signs',
     description: clean(starSignBonuses(sign.bonuses))
   }]));
@@ -68,7 +71,11 @@ export const constellationNodes = (constellations) => Object.fromEntries((conste
     kind: 'constellation',
     rawName: entry.name,
     name: `Constellation_${entry.name}`,
-    icon: '/data/SignStar0a.png',
+    // Cut from the StarSign actor's sheet (sprite-54-41, lit frame 2i+1 for StarQuests index i):
+    // the game ships no standalone file per constellation.
+    icon: `/etc/Constellation_${entry.rawIndex}.png`,
+    // The game's own order, so the listing reads A-1, A-2 ... A-10 rather than A-1, A-10, A-2.
+    order: entry.rawIndex,
     category: worldOf(entry.mapIndex),
     description: clean(`${sentence(entry.requirement)}. Worth ${entry.points} points.`)
   }]));

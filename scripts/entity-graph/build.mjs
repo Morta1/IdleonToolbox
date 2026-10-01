@@ -22,7 +22,6 @@ import { refineryEdges } from './edges/refinery.mjs';
 import { anvilProductEdges } from './edges/anvil.mjs';
 import { stationNodes } from './nodes/stations.mjs';
 import { buildingNodes, chipNodes, jewelNodes, mealNodes, prayerNodes, spiceNodes } from './nodes/systems.mjs';
-import { SPICE_NAMES } from '../../parsers/world-4/spiceNames.mjs';
 import { buildingEdges, labEdges, prayerEdges } from './edges/systems.mjs';
 import { beanstalkEdges } from './edges/beanstalk.mjs';
 import { vaultNodes } from './nodes/vault.mjs';
@@ -120,7 +119,7 @@ const nodes = {
   ...chipNodes(sharedData.chips),
   ...jewelNodes(sharedData.jewels),
   ...mealNodes(sharedData.cookingMenu),
-  ...spiceNodes(SPICE_NAMES),
+  ...spiceNodes(sharedData.spiceNames),
   ...prayerNodes(sharedData.prayers),
   ...buildingNodes(sharedData.towers),
   ...vaultNodes(upgradeVault),

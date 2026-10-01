@@ -3989,6 +3989,7 @@ declare module '@website-data' {
       x10: string;
       x11: string;
     }[];
+  export const spiceNames: string[];
   export const stamps: {
     combat: Record<string, {
         displayName: string;
