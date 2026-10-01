@@ -85,3 +85,58 @@ describe('royal guardian alert list', () => {
     expect(screen.getByText('11 PTS')).toBeTruthy();
   });
 });
+
+describe('royal guardian unit alerts', () => {
+  const bar = (rank, units = 0) => ({ rank, units, unlocked: true, expPerUnit: 10 });
+  const unitAccount = {
+    finishedWorlds: { World6: true },
+    royalGuardian: {
+      unlocked: true,
+      clearingMaps: [],
+      outpostStats: { guardRangeBonus: 25, barsUnlocked: [true, true, true, true, false] },
+      outposts: [
+        {
+          // Two Guards, but one already reaches the only (spent) node; nothing fresh in reach.
+          ...outpost(1, 'Spore Meadows', 1, 'mushG', 'Green Mushroom', 0),
+          freshNodeInReach: false,
+          unitSlots: [2, 2],
+          rangeUncapped: 130,
+          connectedNodes: [{ exhausted: true }],
+          links: [{ distance: 100, slack: 15, live: false }],
+          rankBars: [bar(0), bar(0), bar(6, 2), bar(0)]
+        }
+      ]
+    }
+  };
+  const unitTrackers = {
+    'World 7': {
+      royalGuardian: {
+        checked: true,
+        options: [
+          { name: 'idleGuards', checked: true },
+          { name: 'commandRank', checked: true, props: { value: 6 } }
+        ]
+      }
+    }
+  };
+  const renderUnits = () => render(<ThemeProvider theme={darkTheme}>
+    <Account account={unitAccount} characters={[]} lastUpdated={0} trackers={unitTrackers}/>
+  </ThemeProvider>);
+
+  it('splits spare Guards from the ones only reaching an empty resource', async () => {
+    renderUnits();
+    fireEvent.mouseOver(document.querySelector('img[src*="RGunit2"]'));
+
+    expect(await screen.findByText(/Guards whose range it does not need - Traders or Surveyors/)).toBeTruthy();
+    expect(screen.getByText(/rewire it after the daily reset/)).toBeTruthy();
+    expect(screen.getByText('1 spare Guard, 1 Guard on an empty resource')).toBeTruthy();
+  });
+
+  it('names the rank reached and the units still on it', async () => {
+    renderUnits();
+    fireEvent.mouseOver(document.querySelector('img[src*="RGmilitia"]'));
+
+    expect(await screen.findByText(/reached Command rank 6 with units still on it/)).toBeTruthy();
+    expect(screen.getByText('Rank 6, 2 units')).toBeTruthy();
+  });
+});

@@ -132,6 +132,8 @@ const UNIT_WORLDS = 8;
 const MAP_ANCHOR = [15, 13];
 const NODE_ANCHOR = [28, 26];
 const REACH_SLACK = 15;
+// A Support Camp's links point at other outposts, and the game tests those against range + 8.
+const SUPPORT_REACH_SLACK = 8;
 // MapDetails[map][2] is (9999, 9999) for every map the kingdom screen does not draw.
 const OFF_KINGDOM_MAP = 9999;
 
@@ -318,6 +320,14 @@ export interface OutpostNode {
   drainRate: number;
 }
 
+// One of an outpost's two connections, as the game's reach test sees it. Live is false for a link
+// to an exhausted node, which pays nothing until the daily restock.
+export interface OutpostLink {
+  distance: number;
+  slack: number;
+  live: boolean;
+}
+
 export interface Outpost extends OutpostBase {
   name: string;
   // The map's native AFK target, so a map name can be shown alongside something the player
@@ -334,6 +344,9 @@ export interface Outpost extends OutpostBase {
   supports: number;
   resourceRate: number;
   range: number;
+  // OutpostRange before its floor and 999 cap, so a range without some of its Guards can be priced.
+  rangeUncapped: number;
+  links: OutpostLink[];
   ptsLeft: number;
   ptsSpent: number;
   ptsTotal: number;
@@ -1136,11 +1149,12 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       * Math.min(5, 1 + (10 * Math.max(0, Math.round(expandedBarracks - 5))) / 100);
 
     // game: "OutpostRange" - OutpostLV_Bonuses(1,1) is 250 against a soft L/(L+100) curve.
-    const range = Math.floor(Math.min(999, 80
+    const rangeUncapped = 80
       + orbletBonus(8)
       + 250 * (advancedLogistics / (advancedLogistics + 100))
       + unitSpecEffect[2] * unitCounts[2]
-      + ranks[3] * armoryBonus(74)));
+      + ranks[3] * armoryBonus(74);
+    const range = Math.floor(Math.min(999, rangeUncapped));
 
     // game: the outpost tick pays a bar BarExpRate ONCE PER UNIT feeding it, so a bar with nothing
     // behind it never moves at all. The Trade bar runs on this outpost's own Traders and the Intel
@@ -1234,6 +1248,27 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     const freshNodeInReach = reachableNodes
       .some((nodeIndex) => resources.find(({ index }) => index === nodeIndex)?.exhausted === false);
 
+    // game: changing a unit re-tests both links against the new range and drops any that no longer
+    // reach - a Support Camp's against the other outpost's map, everything else against its node.
+    const links: OutpostLink[] = mode === 1
+      ? outpost.supportLinks.map((targetMap) => {
+        const target = (mapDetails as any)?.[targetMap]?.[2] ?? [];
+        return {
+          distance: Math.sqrt(Math.pow(mapX - (toNum(target?.[0]) + MAP_ANCHOR[0]), 2)
+            + Math.pow(mapY - (toNum(target?.[1]) + MAP_ANCHOR[1]), 2)),
+          slack: SUPPORT_REACH_SLACK,
+          live: true
+        };
+      })
+      : connectedNodes.map(({ index, exhausted }) => {
+        const node = nodeAt(index);
+        return {
+          distance: Math.sqrt(Math.pow(mapX - toNum(node?.anchorX), 2) + Math.pow(mapY - toNum(node?.anchorY), 2)),
+          slack: REACH_SLACK,
+          live: !exhausted
+        };
+      });
+
     return {
       ...outpost,
       name: `${(mapNames as any)?.[`${mapIndex}`] ?? ''}`.replace(/_/g, ' '),
@@ -1248,6 +1283,8 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       supports,
       resourceRate,
       range,
+      rangeUncapped,
+      links,
       ptsLeft,
       ptsSpent,
       ptsTotal,
@@ -1405,6 +1442,8 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       // game: "UnitSpecEffect"(0) - the only unit effect that touches collection, so it is also the
       // lever the "how many Workers does this node actually need" check works against.
       workerRateBonus: unitSpecEffect[0],
+      // game: "UnitSpecEffect"(2) - the range each Guard adds, the only thing a Guard does.
+      guardRangeBonus: unitSpecEffect[2],
       // game: "Peacetime_Milita" pays a clearing unit half rank EXP on an already claimed map;
       // without it such a unit earns nothing. "Resource_Replenish" is what refills spent nodes on
       // the daily reset, so an account without it never gets a node back.
@@ -1455,6 +1494,27 @@ export const getSpareWorkers = (outpost: Outpost, horizonHours: number, workerBo
 
   const minWorkers = Math.max(0, Math.ceil(((current * needed - 1) * 100) / workerBonus - 1e-9));
   return Math.max(0, Math.min(slotWorkers, totalWorkers - minWorkers));
+};
+
+// How many of an outpost's slot Guards could be swapped out. A Guard only adds range, and swapping a
+// unit makes the game drop every link the new range no longer reaches. `spare` Guards hold no link
+// at all; `parked` ones only hold links to exhausted nodes, so swapping them drops those links and
+// they have to be rewired after the restock. Passive Guards occupy no slot, so they never count.
+export const getIdleGuards = (outpost: Outpost, guardBonus: number): { spare: number; parked: number } => {
+  const slotGuards = (outpost?.unitSlots ?? []).filter((unit) => unit === 2).length;
+  const links = outpost?.links ?? [];
+  if (slotGuards <= 0 || !(guardBonus > 0) || links.length === 0) return { spare: 0, parked: 0 };
+  const rangeUncapped = outpost?.rangeUncapped ?? 0;
+  const mostRemovable = (needed: OutpostLink[]) => {
+    let removed = 0;
+    while (removed < slotGuards && needed.every(({ distance, slack }) =>
+      Math.floor(Math.min(999, rangeUncapped - guardBonus * (removed + 1))) + slack >= distance)) {
+      removed++;
+    }
+    return removed;
+  };
+  const spare = mostRemovable(links);
+  return { spare, parked: mostRemovable(links.filter(({ live }) => live)) - spare };
 };
 
 export const getArmoryUpgradeCost = (

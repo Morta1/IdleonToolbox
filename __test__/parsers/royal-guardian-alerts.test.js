@@ -301,7 +301,7 @@ describe('royal guardian dashboard alerts', () => {
     expect(alerts.overkillWorkers.outposts).toEqual([
       {
         name: 'Overkill', mapIndex: 2, world: 1, monsterRawName: 'mushG', monsterName: 'Green Mushroom',
-        workers: 2, expPerHour: 20
+        workers: 2, expPerHour: 20, intelExpPerHour: 0
       }
     ]);
     expect(alerts.overkillWorkers.count).toBe(1);
@@ -400,5 +400,147 @@ describe('royal guardian dashboard alerts', () => {
     // Re-running it must not duplicate what it already inserted.
     const twice = migrateConfig({ version: 74 }, { ...migrated, version: 73 });
     expect(twice.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(OPTION_NAMES);
+  });
+
+  it('offers Surveyors alongside Traders once the Intel bar is unlocked', () => {
+    const account = stubAccount();
+    account.royalGuardian.outpostStats.barsUnlocked = [true, true, false, false, false];
+    account.royalGuardian.outposts.find(({ name }) => name === 'Overkill').rankBars = [{ expPerUnit: 10 }, { expPerUnit: 4 }];
+
+    const alerts = getWorld7Alerts(account, FIELDS, OPTIONS, [])?.royalGuardian;
+
+    expect(alerts.overkillWorkers.surveyors).toBe(true);
+    // The same 2 spare Workers, priced on each bar they could feed instead.
+    expect(alerts.overkillWorkers.outposts[0]).toMatchObject({ workers: 2, expPerHour: 20, intelExpPerHour: 8 });
+    // Without the Intel bar the alert keeps its Trader-only wording.
+    expect(getWorld7Alerts(stubAccount(), FIELDS, OPTIONS, [])?.royalGuardian.overkillWorkers.surveyors).toBe(false);
+  });
+
+  // Guard range 25 each on a base of 80, so one Guard is 105 and two are 130. A node link reaches at
+  // range + 15, a support link at range + 8.
+  const guardOutpost = (name, mapIndex, extra) => ({
+    name, mapIndex, mode: 0, freshNodeInReach: false, rankBars: [], connectedNodes: [],
+    ...extra
+  });
+  const guardAccount = () => {
+    const account = stubAccount();
+    account.royalGuardian.outpostStats.guardRangeBonus = 25;
+    account.royalGuardian.outposts = [
+      // 130 -> 105 still reaches 100, 80 does not: one of the two is spare.
+      guardOutpost('Spare', 20, { unitSlots: [2, 2], rangeUncapped: 130, links: [{ distance: 100, slack: 15, live: true }] }),
+      // Without its Guard the live node at 50 still fits, the spent one at 115 does not.
+      guardOutpost('Parked', 21, {
+        unitSlots: [2], rangeUncapped: 105,
+        connectedNodes: [{ exhausted: false }, { exhausted: true }],
+        links: [{ distance: 50, slack: 15, live: true }, { distance: 115, slack: 15, live: false }]
+      }),
+      // The same, but a fresh node in reach may want that slot, and the Guard to reach it.
+      guardOutpost('ParkedFresh', 22, {
+        unitSlots: [2], rangeUncapped: 105, freshNodeInReach: true,
+        connectedNodes: [{ exhausted: false }, { exhausted: true }],
+        links: [{ distance: 50, slack: 15, live: true }, { distance: 115, slack: 15, live: false }]
+      }),
+      // A live node only the Guard reaches.
+      guardOutpost('Needed', 23, { unitSlots: [2], rangeUncapped: 105, links: [{ distance: 115, slack: 15, live: true }] }),
+      // Everything spent with a fresh node in reach is the idleOutposts case: the Guard may be the way there.
+      guardOutpost('Rewire', 24, {
+        unitSlots: [2], rangeUncapped: 105, freshNodeInReach: true,
+        connectedNodes: [{ exhausted: true }],
+        links: [{ distance: 50, slack: 15, live: false }]
+      }),
+      // A Support Camp's Guard only has to keep its support link, tested at range + 8.
+      guardOutpost('Camp', 25, { mode: 1, unitSlots: [2], rangeUncapped: 105, links: [{ distance: 88, slack: 8, live: true }] }),
+      guardOutpost('CampNeeded', 26, { mode: 1, unitSlots: [2], rangeUncapped: 105, links: [{ distance: 89, slack: 8, live: true }] }),
+      // Passive Guards from Command rank occupy no slot, so they are never offered for a swap.
+      guardOutpost('Passive', 27, { unitSlots: [1], rangeUncapped: 130, links: [{ distance: 10, slack: 15, live: true }] })
+    ];
+    return account;
+  };
+  const guardOptions = () => {
+    const options = resetOptions();
+    options.royalGuardian.idleGuards = { checked: true };
+    return options;
+  };
+
+  it('flags Guards whose range no connection needs, and the ones only holding an empty node', () => {
+    const alerts = getWorld7Alerts(guardAccount(), FIELDS, guardOptions(), [])?.royalGuardian;
+
+    expect(alerts.idleGuards.outposts.map(({ name, spare, parked }) => ({ name, spare, parked }))).toEqual([
+      { name: 'Spare', spare: 1, parked: 0 },
+      { name: 'Parked', spare: 0, parked: 1 },
+      { name: 'Camp', spare: 1, parked: 0 }
+    ]);
+    expect(alerts.idleGuards.count).toBe(3);
+    expect(alerts.idleGuards.parked).toBe(true);
+  });
+
+  it('keeps the idle Guard alert off until asked for', () => {
+    expect(getWorld7Alerts(guardAccount(), FIELDS, resetOptions(), [])?.royalGuardian.idleGuards).toBeUndefined();
+  });
+
+  const rankAccount = () => {
+    const account = stubAccount();
+    const bar = (rank, units = 0, unlocked = true) => ({ rank, units, unlocked, expPerUnit: 1 });
+    account.royalGuardian.outposts = [
+      // Trade 12 on two slot Traders, Command 6 with 2 units sent to it.
+      guardOutpost('Ranked', 30, { unitSlots: [1, 1, 0], rankBars: [bar(12, 3), bar(3, 0), bar(6, 2), bar(20, 1, false)] }),
+      // Command 7 but nothing left feeding it: already moved, so nothing to say.
+      guardOutpost('Moved', 31, { unitSlots: [0], rankBars: [bar(1, 1), bar(0), bar(7, 0), bar(0)] }),
+      // Intel 10 on a slot Surveyor; its only Trader is a passive one, so Trade 15 has nothing to move.
+      guardOutpost('Intel', 32, { unitSlots: [3], rankBars: [bar(15, 1), bar(10, 1), bar(0), bar(0)] })
+    ];
+    return account;
+  };
+  const rankOptions = () => ({
+    royalGuardian: {
+      tradeRank: { checked: true, props: { value: 10 } },
+      intelRank: { checked: true, props: { value: 10 } },
+      commandRank: { checked: true, props: { value: 6 } },
+      militaryRank: { checked: true, props: { value: 10 } }
+    }
+  });
+
+  it('flags outposts that reached a rank while units are still feeding it', () => {
+    const alerts = getWorld7Alerts(rankAccount(), FIELDS, rankOptions(), [])?.royalGuardian;
+
+    expect(alerts.tradeRank.outposts.map(({ name, rank, units }) => ({ name, rank, units })))
+      .toEqual([{ name: 'Ranked', rank: 12, units: 2 }]);
+    expect(alerts.intelRank.outposts.map(({ name, units }) => ({ name, units }))).toEqual([{ name: 'Intel', units: 1 }]);
+    expect(alerts.commandRank).toEqual({
+      count: 1,
+      threshold: 6,
+      outposts: [expect.objectContaining({ name: 'Ranked', rank: 6, units: 2 })]
+    });
+    // A bar the armory has not unlocked yet never alerts, whatever its stored rank.
+    expect(alerts.militaryRank).toBeUndefined();
+  });
+
+  it('adds the guard and rank options in baseTrackers order, refreshing the Worker wording', () => {
+    const stored = {
+      version: 69,
+      account: { 'World 7': { gallery: { checked: true, options: [] } } },
+      characters: {},
+      timers: { 'World 7': {} }
+    };
+    const names = [
+      ...OPTION_NAMES.slice(0, OPTION_NAMES.indexOf('sharedNodes')),
+      'idleGuards',
+      'sharedNodes',
+      'tradeRank',
+      'intelRank',
+      'commandRank',
+      'militaryRank',
+      'restockLocked'
+    ];
+
+    const migrated = migrateConfig({ version: 78 }, stored);
+    const options = migrated.account['World 7'].royalGuardian.options;
+
+    expect(options.map(({ name }) => name)).toEqual(names);
+    expect(options.find(({ name }) => name === 'overkillWorkers').helperText).toContain('Surveyors');
+    expect(options.find(({ name }) => name === 'strandedWorkers').helperText).toContain('Surveyors');
+    expect(options.find(({ name }) => name === 'commandRank')).toMatchObject({ checked: false, props: { value: 6 } });
+    const twice = migrateConfig({ version: 78 }, { ...migrated, version: 77 });
+    expect(twice.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(names);
   });
 });

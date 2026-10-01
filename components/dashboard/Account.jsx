@@ -17,6 +17,8 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
+import LinkIcon from '@mui/icons-material/Link';
+import LockIcon from '@mui/icons-material/Lock';
 import HtmlTooltip from '../Tooltip';
 import {
   getGeneralAlerts,
@@ -45,7 +47,14 @@ const alertBadges = {
   // not power already banked and waiting.
   saltRankUpRoom: { Icon: KeyboardArrowUpIcon, color: '#66bb6a', border: '#3e6b40', size: 24 },
   saltDeficit: { Icon: ArrowDropDownIcon, color: '#d62727', border: '#833b3b', size: 36 },
-  saltMaterials: { Icon: WarningRoundedIcon, color: '#d1921e', border: '#7a5a1e', size: 18 }
+  saltMaterials: { Icon: WarningRoundedIcon, color: '#d1921e', border: '#7a5a1e', size: 18 },
+  // Several Royal Guardian alerts share a sprite, so the badge is what tells them apart: the arrow
+  // marks a rank reached, and Command/Military share the militia helmet, so they get a letter.
+  rankUp: { Icon: ArrowDropUpIcon, color: '#66bb6a', size: 36 },
+  rankCommand: { label: 'C', color: '#ffd54f' },
+  rankMilitary: { label: 'M', color: '#ef5350' },
+  sharedLink: { Icon: LinkIcon, color: '#90caf9', size: 18 },
+  locked: { Icon: LockIcon, color: '#d1921e', size: 15 }
 };
 
 const alertsMap = {
@@ -720,10 +729,14 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                       ? ' has'
                       : 's have'} more Workers than they need to empty their resource ${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.beforeReset
                       ? "before today's reset"
-                      : `within ${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.horizon}h`} - the spare ones would earn Trade rank EXP as Traders`}
+                      : `within ${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.horizon}h`} - the spare ones would earn ${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.surveyors
+                      ? 'rank EXP as Traders or Surveyors'
+                      : 'Trade rank EXP as Traders'}`}
                     entries={alerts?.['World 7']?.royalGuardian?.overkillWorkers?.outposts?.map((outpost) => ({
                       ...outpost,
-                      detail: `${outpost?.workers} Worker${outpost?.workers === 1 ? '' : 's'}, +${notateNumber(outpost?.expPerHour, 'Big')} EXP/hr`
+                      detail: `${outpost?.workers} Worker${outpost?.workers === 1 ? '' : 's'}, +${notateNumber(outpost?.expPerHour, 'Big')}${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.surveyors
+                        ? ` Trade or +${notateNumber(outpost?.intelExpPerHour, 'Big')} Intel`
+                        : ''} EXP/hr`
                     }))}/>}
                   iconPath={'etc/RGunit0'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
               {alerts?.['World 7']?.royalGuardian?.strandedWorkers ?
@@ -731,12 +744,32 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   title={<RoyalGuardianList
                     headline={`${alerts?.['World 7']?.royalGuardian?.strandedWorkers?.count} outpost${alerts?.['World 7']?.royalGuardian?.strandedWorkers?.count === 1
                       ? ' has'
-                      : 's have'} Workers on an empty resource with nothing better in range - Traders would earn Trade rank EXP instead`}
+                      : 's have'} Workers on an empty resource with nothing better in range - ${alerts?.['World 7']?.royalGuardian?.strandedWorkers?.surveyors
+                      ? 'Traders or Surveyors would earn rank EXP instead'
+                      : 'Traders would earn Trade rank EXP instead'}`}
                     entries={alerts?.['World 7']?.royalGuardian?.strandedWorkers?.outposts?.map((outpost) => ({
                       ...outpost,
                       detail: `${outpost?.workers} Worker${outpost?.workers === 1 ? '' : 's'}`
                     }))}/>}
                   iconPath={'etc/RGunit1'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
+              {alerts?.['World 7']?.royalGuardian?.idleGuards ?
+                <Alert target={'World 7.royalGuardian.idleGuards'}
+                  title={<RoyalGuardianList
+                    headline={`${alerts?.['World 7']?.royalGuardian?.idleGuards?.count} outpost${alerts?.['World 7']?.royalGuardian?.idleGuards?.count === 1
+                      ? ' has'
+                      : 's have'} Guards whose range ${alerts?.['World 7']?.royalGuardian?.idleGuards?.count === 1 ? 'it does' : 'they do'} not need - ${alerts?.['World 7']?.royalGuardian?.idleGuards?.surveyors
+                      ? 'Traders or Surveyors would earn rank EXP instead'
+                      : 'Traders would earn Trade rank EXP instead'}${alerts?.['World 7']?.royalGuardian?.idleGuards?.parked
+                      ? '. Swapping a Guard that reaches an empty resource drops that connection, so rewire it after the daily reset'
+                      : ''}`}
+                    entries={alerts?.['World 7']?.royalGuardian?.idleGuards?.outposts?.map((outpost) => ({
+                      ...outpost,
+                      detail: [
+                        outpost?.spare > 0 ? `${outpost?.spare} spare Guard${outpost?.spare === 1 ? '' : 's'}` : null,
+                        outpost?.parked > 0 ? `${outpost?.parked} Guard${outpost?.parked === 1 ? '' : 's'} on an empty resource` : null
+                      ].filter(Boolean).join(', ')
+                    }))}/>}
+                  iconPath={'etc/RGunit2'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
               {alerts?.['World 7']?.royalGuardian?.sharedNodes ?
                 <Alert target={'World 7.royalGuardian.sharedNodes'}
                   title={<RoyalGuardianList
@@ -744,11 +777,23 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                       ? ' is'
                       : 's are'} sharing a resource the other outpost empties within ${alerts?.['World 7']?.royalGuardian?.sharedNodes?.horizon}h on its own, so the connection is spare`}
                     entries={alerts?.['World 7']?.royalGuardian?.sharedNodes?.outposts}/>}
-                  iconPath={'data/RGresB5'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
+                  iconPath={'data/RGresB5'} badge={'sharedLink'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
+              {RG_RANK_ALERTS.map(({ option, rank, holders, unit, iconPath, badge }) => alerts?.['World 7']?.royalGuardian?.[option] ?
+                <Alert target={`World 7.royalGuardian.${option}`}
+                  key={option}
+                  title={<RoyalGuardianList
+                    headline={`${alerts?.['World 7']?.royalGuardian?.[option]?.count} outpost${alerts?.['World 7']?.royalGuardian?.[option]?.count === 1
+                      ? ' has'
+                      : 's have'} reached ${rank} rank ${alerts?.['World 7']?.royalGuardian?.[option]?.threshold} with ${holders} still on it`}
+                    entries={alerts?.['World 7']?.royalGuardian?.[option]?.outposts?.map((outpost) => ({
+                      ...outpost,
+                      detail: `Rank ${outpost?.rank}, ${outpost?.units} ${unit}${outpost?.units === 1 ? '' : 's'}`
+                    }))}/>}
+                  iconPath={iconPath} badge={badge} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null)}
               {alerts?.['World 7']?.royalGuardian?.restockLocked ?
                 <Alert target={'World 7.royalGuardian.restockLocked'}
                   title={'Resource Replenish is unbought, so your empty resources never refill'}
-                  iconPath={'data/UISkillIcon226'}/> : null}
+                  iconPath={'data/UISkillIcon226'} badge={'locked'}/> : null}
               {alerts?.['World 7']?.gallery?.missingTrophies?.length > 0 ?
                 alerts?.['World 7']?.gallery?.missingTrophies?.map(({ itemName, owner, rawName }, index) =>
                   <Alert target={'World 7.gallery.missingTrophies'}
@@ -899,6 +944,13 @@ const MAX_LISTED_OUTPOSTS = 6;
 // line for most entries, and 460 still did for the longer map names.
 const RG_LIST_TOOLTIP_WIDTH = 540;
 
+const RG_RANK_ALERTS = [
+  { option: 'tradeRank', rank: 'Trade', holders: 'Traders', unit: 'Trader', iconPath: 'etc/RGunit1', badge: 'rankUp' },
+  { option: 'intelRank', rank: 'Intel', holders: 'Surveyors', unit: 'Surveyor', iconPath: 'etc/RGunit3', badge: 'rankUp' },
+  { option: 'commandRank', rank: 'Command', holders: 'units', unit: 'unit', iconPath: 'etc/RGmilitia', badge: 'rankCommand' },
+  { option: 'militaryRank', rank: 'Military', holders: 'units', unit: 'unit', iconPath: 'etc/RGmilitia', badge: 'rankMilitary' }
+];
+
 const RoyalGuardianList = ({ headline, entries = [] }) => {
   const listed = entries.slice(0, MAX_LISTED_OUTPOSTS);
   const others = entries.length - listed.length;
@@ -972,7 +1024,13 @@ const Alert = ({
                  maxWidth
                }) => {
   const openSettings = useOpenDashboardSettings();
-  const { Icon: BadgeIcon, color: badgeColor, border: badgeBorder, size: badgeSize } = alertBadges[badge] || {};
+  const {
+    Icon: BadgeIcon,
+    label: badgeLabel,
+    color: badgeColor,
+    border: badgeBorder,
+    size: badgeSize
+  } = alertBadges[badge] || {};
   const badgeImgStyle = badgeBorder ? { border: '1px solid', borderColor: badgeBorder } : {};
   return <HtmlTooltip title={title} maxWidth={maxWidth}>
     <Stack onClick={target ? () => openSettings('account', target) : undefined}
@@ -983,6 +1041,7 @@ const Alert = ({
       <IconImg onError={onError} style={{ ...badgeImgStyle, ...imgStyle }} vial={vial}
                src={`${prefix}${iconPath}.png`} alt=""/>
       {BadgeIcon ? <AlertBadge badgeColor={badgeColor}><BadgeIcon sx={{ fontSize: badgeSize }}/></AlertBadge> : null}
+      {badgeLabel ? <AlertBadge badgeColor={badgeColor}><BadgeLabel>{badgeLabel}</BadgeLabel></AlertBadge> : null}
       {atom || breedability ? <FloatingIcon vial={vial} src={`${prefix}etc/${atom ? 'Particle' : breedability
         ? 'PetHeart'
         : ''}.png`} alt={atom ? 'Particle' : breedability
@@ -1044,6 +1103,12 @@ const AlertBadge = styled.div`
   display: flex;
   color: ${({ badgeColor }) => badgeColor};
   filter: drop-shadow(0 0 1px #000) drop-shadow(0 0 2px #000);
+`;
+
+const BadgeLabel = styled.span`
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
 `;
 
 const FloatingIcon = styled.img`

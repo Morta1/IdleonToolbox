@@ -9,7 +9,8 @@ export const patchNotes = [
     'date': '01/10/2026',
     'features': [
       'Dashboard: the Arcanist weapon and ring daily drop alerts can now be turned off separately',
-      'Leaderboards: added Day Market Levels and Night Market Levels'
+      'Leaderboards: added Day Market Levels and Night Market Levels',
+      'Dashboard: Royal Guardian Worker alerts now suggest Surveyors too, a new alert for Guards whose range is not needed, and optional alerts for when an outpost reaches a chosen Trade, Intel, Command or Military rank'
     ],
     'fixes': [
       'Gaming: Sprout Capacity upgrade cost now matches the game at higher levels'

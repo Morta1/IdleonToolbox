@@ -28,7 +28,7 @@ import { isHatRackEligible } from '@parsers/world-3/hatRack';
 import { getGoldCostToMaxLevel, getStampsPerDay } from '@parsers/world-1/stamps';
 import { getTomeWishPity } from '@parsers/world-4/tome';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
-import { getSpareWorkers } from '@parsers/class-specific/royalGuardian';
+import { getIdleGuards, getSpareWorkers } from '@parsers/class-specific/royalGuardian';
 import { getCompassBonus } from '@parsers/class-specific/compass';
 
 // The game hard caps Arcanist weapon and ring drops at 100 each per day.
@@ -1587,9 +1587,13 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
 
     // A Worker is the only unit in the collection rate, so it is worth nothing beyond the point the
     // node caps. A Trader in its place feeds the Trade rank bar, which is where outpost PTS come
-    // from, so the three checks below all end in "make it a Trader".
-    const workerRateBonus = account?.royalGuardian?.outpostStats?.workerRateBonus ?? 0;
-    const slotWorkersOf = ({ unitSlots }) => (unitSlots ?? []).filter((unit) => unit === 0).length;
+    // from, and once the Intel bar is unlocked a Surveyor feeds that one, so the checks below all
+    // end in "make it a Trader or Surveyor".
+    const outpostStats = account?.royalGuardian?.outpostStats;
+    const workerRateBonus = outpostStats?.workerRateBonus ?? 0;
+    const surveyors = outpostStats?.barsUnlocked?.[1] === true;
+    const slotUnitsOf = ({ unitSlots }, type) => (unitSlots ?? []).filter((unit) => unit === type).length;
+    const slotWorkersOf = (outpost) => slotUnitsOf(outpost, 0);
 
     if (rgOptions?.overkillWorkers?.checked) {
       // game: "RestockRes" only refills a node, and only levels it up, when that node is ALREADY
@@ -1605,10 +1609,17 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
         .map(({ outpost, workers }) => ({
           ...pickOutpostEntry(outpost),
           workers,
-          expPerHour: (outpost.rankBars?.[0]?.expPerUnit ?? 0) * workers
+          expPerHour: (outpost.rankBars?.[0]?.expPerUnit ?? 0) * workers,
+          intelExpPerHour: surveyors ? (outpost.rankBars?.[1]?.expPerUnit ?? 0) * workers : 0
         }));
       if (overkill.length > 0) {
-        royalGuardian.overkillWorkers = { count: overkill.length, horizon, beforeReset: resetHorizon != null, outposts: overkill };
+        royalGuardian.overkillWorkers = {
+          count: overkill.length,
+          horizon,
+          beforeReset: resetHorizon != null,
+          surveyors,
+          outposts: overkill
+        };
       }
     }
 
@@ -1621,9 +1632,54 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
         .map((outpost) => ({ ...pickOutpostEntry(outpost), workers: slotWorkersOf(outpost) }))
         .filter(({ workers }) => workers > 0);
       if (stranded.length > 0) {
-        royalGuardian.strandedWorkers = { count: stranded.length, outposts: stranded };
+        royalGuardian.strandedWorkers = { count: stranded.length, surveyors, outposts: stranded };
       }
     }
+
+    if (rgOptions?.idleGuards?.checked) {
+      const guardRangeBonus = outpostStats?.guardRangeBonus ?? 0;
+      const idleGuards = outposts
+        // An outpost waiting on a rewire to a fresh node in reach may need its Guards to make it,
+        // and idleOutposts already reports that one.
+        .filter(({ mode, connectedNodes, freshNodeInReach }) => mode === 1 || !(freshNodeInReach
+          && connectedNodes?.length > 0 && connectedNodes.every(({ exhausted }) => exhausted)))
+        .map((outpost) => {
+          const { spare, parked } = getIdleGuards(outpost, guardRangeBonus);
+          // Dropping a link to an empty node only pays when nothing fresh in reach wants the slot.
+          return { ...pickOutpostEntry(outpost), spare, parked: outpost.freshNodeInReach ? 0 : parked };
+        })
+        .filter(({ spare, parked }) => spare + parked > 0);
+      if (idleGuards.length > 0) {
+        royalGuardian.idleGuards = {
+          count: idleGuards.length,
+          parked: idleGuards.some(({ parked }) => parked > 0),
+          surveyors,
+          outposts: idleGuards
+        };
+      }
+    }
+
+    // Trade/Intel run on the outpost's own slot Traders/Surveyors and Command/Military on the units
+    // deployed at it - passive units from Command rank occupy no slot, so they cannot move.
+    const RANK_ALERTS = [
+      { option: 'tradeRank', type: 0, unitsOf: (outpost) => slotUnitsOf(outpost, 1) },
+      { option: 'intelRank', type: 1, unitsOf: (outpost) => slotUnitsOf(outpost, 3) },
+      { option: 'commandRank', type: 2, unitsOf: (outpost) => outpost.rankBars?.[2]?.units ?? 0 },
+      { option: 'militaryRank', type: 3, unitsOf: (outpost) => outpost.rankBars?.[3]?.units ?? 0 }
+    ];
+    RANK_ALERTS.forEach(({ option, type, unitsOf }) => {
+      if (!rgOptions?.[option]?.checked) return;
+      const threshold = rgOptions?.[option]?.props?.value ?? 1;
+      // Once the rank is reached, the units still feeding the bar are the ones worth moving, so the
+      // alert clears itself the moment they are.
+      const reached = outposts
+        .filter(({ rankBars }) => rankBars?.[type]?.unlocked && (rankBars?.[type]?.rank ?? 0) >= threshold)
+        .map((outpost) => ({ ...pickOutpostEntry(outpost), rank: outpost.rankBars[type].rank, units: unitsOf(outpost) }))
+        .filter(({ units }) => units > 0);
+      if (reached.length > 0) {
+        royalGuardian[option] = { count: reached.length, threshold, outposts: reached };
+      }
+    });
 
     if (rgOptions?.sharedNodes?.checked) {
       const horizon = rgOptions?.sharedNodes?.props?.value ?? 24;

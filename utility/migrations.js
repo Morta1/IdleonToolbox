@@ -2035,6 +2035,46 @@ const migration78 = (dashboardConfig) => {
     arcanistDrops.props = { ...arcanistDrops.props, value: { weapon: wasOn, ring: wasOn } };
   }
 
+  const rgOptions = dashboardConfig?.account?.['World 7']?.royalGuardian?.options;
+  if (Array.isArray(rgOptions)) {
+    // Surveyors feed the Intel bar the way Traders feed Trade, so the Worker alerts now offer both.
+    const surveyorText = {
+      overkillWorkers: 'Alert when an outpost has more Workers than it needs to empty its resource within this many hours. Workers only add collection rate, so the spare ones could be Traders or Surveyors and earn rank EXP instead',
+      strandedWorkers: 'Alert when an outpost\'s resources are all empty and nothing better is in range, while Workers are still assigned to it. They add collection rate to a resource that has none left, so Traders or Surveyors would earn rank EXP instead'
+    };
+    rgOptions.forEach((option) => {
+      if (surveyorText[option?.name]) option.helperText = surveyorText[option.name];
+    });
+
+    if (!rgOptions.some((option) => option?.name === 'idleGuards')) {
+      const strandedIndex = rgOptions.findIndex((option) => option?.name === 'strandedWorkers');
+      rgOptions.splice(strandedIndex >= 0 ? strandedIndex + 1 : rgOptions.length, 0, {
+        name: 'idleGuards',
+        checked: true,
+        helperText: 'Alert when an outpost has Guards whose range it does not need. Guards only add range, so they could be Traders or Surveyors and earn rank EXP instead. Also lists Guards that only reach an empty resource: swapping them drops that connection, so rewire it after the daily reset'
+      });
+    }
+
+    // Off by default: which rank is worth moving units away at is the player's call.
+    const rankOptions = [
+      ['tradeRank', 'Trade', 10, 'Traders are still assigned to it'],
+      ['intelRank', 'Intel', 10, 'Surveyors are still assigned to it'],
+      ['commandRank', 'Command', 6, 'units are still sent to it'],
+      ['militaryRank', 'Military', 10, 'units are still sent to it']
+    ].filter(([name]) => !rgOptions.some((option) => option?.name === name))
+      .map(([name, label, value, holders]) => ({
+        name,
+        type: 'input',
+        props: { label: `${label} rank`, value, minValue: 1 },
+        checked: false,
+        helperText: `Alert when an outpost reaches this ${label} rank while ${holders}, so you can move them elsewhere`
+      }));
+    if (rankOptions.length > 0) {
+      const restockIndex = rgOptions.findIndex((option) => option?.name === 'restockLocked');
+      rgOptions.splice(restockIndex >= 0 ? restockIndex : rgOptions.length, 0, ...rankOptions);
+    }
+  }
+
   dashboardConfig.version = 78;
   return dashboardConfig;
 };
