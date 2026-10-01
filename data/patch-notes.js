@@ -14,7 +14,8 @@ export const patchNotes = [
       'Sneaking: new Detection tab showing the detection % of every ninja, plus a calculator for any mastery, floor and Funeral Flower count',
       'Storage: your storage coins are now shown at the top of the page, with the exact amount and your account total in the tooltip',
       'General: the Giant Mob chance now shows how many Giant Mobs spawned this week',
-      'Royal Armory: added a Marble Chance card showing your drop chance per world, including the early marble boost'
+      'Royal Armory: added a Marble Chance card showing your drop chance per world, including the early marble boost',
+      'Upgrade Optimizers (Grimoire, Compass, Tesseract, Royal Armory, Clam Work, Jelly): new Game order group mode that lists upgrades in the same order as the in-game menu'
     ],
     'fixes': [
       'Gaming: Sprout Capacity upgrade cost now matches the game at higher levels',

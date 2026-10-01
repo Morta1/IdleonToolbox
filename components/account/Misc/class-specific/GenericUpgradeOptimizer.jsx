@@ -38,7 +38,9 @@ import { useLocalStorage } from '@mantine/hooks';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 
 const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
-const groupModes = ['None', 'Upgrade', 'Summary'];
+// 'Game order' is Summary sorted by in-game list position: reordering single steps would scatter
+// one upgrade's levels across the list, so the only useful in-game ordering is one row per upgrade.
+const groupModes = ['None', 'Upgrade', 'Summary', 'Game order'];
 // Not every upgrade set has a max level - clam work upgrades are uncapped, and "5 / undefined"
 // reads as a bug.
 const formatLevel = (upgrade) => (Number.isFinite(upgrade?.x4)
@@ -77,6 +79,9 @@ const GenericUpgradeOptimizer = ({
   upgradeImagePrefix,
   getResourceType,
   getUpgradeIconIndex,
+  // Position in the in-game upgrade list. The index matches it for linear lists; Compass (paths)
+  // and the Royal Armory (shelf slots) lay out differently and pass their own.
+  getGameOrder = (upgrade) => upgrade.index,
   getResourceAmount,
   tooltipText,
   // A map of resourceType -> resource per hour the consumer derived itself. Royal Guardian income is
@@ -278,7 +283,7 @@ const GenericUpgradeOptimizer = ({
       };
     });
   }
-  else if (groupMode === 'Summary') {
+  else if (groupMode === 'Summary' || groupMode === 'Game order') {
     const grouped = {};
     optimizedUpgrades.forEach((upgrade, index) => {
       if (!grouped[upgrade.name]) {
@@ -309,6 +314,10 @@ const GenericUpgradeOptimizer = ({
       ...g,
       combinedStatChanges: Object.values(g.combinedStatChanges)
     }));
+    if (groupMode === 'Game order') {
+      const position = (upgrade) => getGameOrder(upgrade) ?? Infinity;
+      displayUpgrades.sort((a, b) => position(a) - position(b));
+    }
   }
   else {
     displayUpgrades = optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
@@ -825,18 +834,26 @@ const GenericUpgradeOptimizer = ({
             }}
           />
         )}
-        <FormControl size="small" sx={{ width: 120 }}>
-          <InputLabel>Group mode</InputLabel>
-          <Select
-            value={groupMode}
-            label="Group mode"
-            onChange={(e) => setGroupMode(e.target.value)}
-          >
-            {groupModes.map(group => (
-              <MenuItem key={group} value={group}>{group}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Stack direction="row" alignItems="center" gap={0.5}>
+          <FormControl size="small" sx={{ width: 140 }}>
+            <InputLabel>Group mode</InputLabel>
+            <Select
+              value={groupMode}
+              label="Group mode"
+              onChange={(e) => setGroupMode(e.target.value)}
+            >
+              {groupModes.map(group => (
+                <MenuItem key={group} value={group}>{group}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          {groupMode === 'Game order' && (
+            <Tooltip
+              title="One row per upgrade, listed in the same order as the in-game menu, so you can buy top to bottom. Costs are priced in the recommended order: buying in a different order reaches the same levels, but the daily 80% discount may land on different purchases.">
+              <IconInfoCircleFilled size={16} />
+            </Tooltip>
+          )}
+        </Stack>
         {showSplitByResource && (
           <FormControlLabel
             sx={{ width: 'fit-content' }}

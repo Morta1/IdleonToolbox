@@ -25,6 +25,8 @@ const UpgradeOptimizer = ({ account, characters }) => {
       resourceImageSuffix=""
       upgradeImagePrefix="JellyUpg"
       getResourceType={() => ''}
+      // game: the upgrade menu lists research[44] (display order), not upgrade ids
+      getGameOrder={(upgrade) => upgrade.position}
       usesMasterclassReduction={false}
       showSplitByResource={false}
       showResourcePerHour={false}

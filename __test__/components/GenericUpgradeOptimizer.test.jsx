@@ -314,6 +314,39 @@ describe('GenericUpgradeOptimizer discount marker', () => {
   });
 });
 
+describe('GenericUpgradeOptimizer game order', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  const namedRow = (name, index, level) => ({ ...buildRow({}), name, index, level });
+  const rowNames = (container) => [...container.querySelectorAll('tbody tr')]
+    .map((row) => row.children[2].textContent);
+
+  it('lists one row per upgrade in in-game position, not purchase order', () => {
+    seedSetting('groupMode', 'Game order');
+    seedSetting('viewMode', 'list');
+    const { container } = renderOptimizer([
+      namedRow('Late_Upgrade', 30, 10),
+      namedRow('Early_Upgrade', 2, 5),
+      namedRow('Late_Upgrade', 30, 11),
+      namedRow('Middle_Upgrade', 12, 1)
+    ]);
+    expect(rowNames(container)).toEqual(['Early Upgrade', 'Middle Upgrade', 'Late Upgrade']);
+    expect(container.textContent).toContain('Levels 10 → 11');
+  });
+
+  it('leaves Summary in purchase order', () => {
+    seedSetting('groupMode', 'Summary');
+    seedSetting('viewMode', 'list');
+    const { container } = renderOptimizer([
+      namedRow('Late_Upgrade', 30, 10),
+      namedRow('Early_Upgrade', 2, 5)
+    ]);
+    expect(rowNames(container)).toEqual(['Late Upgrade', 'Early Upgrade']);
+  });
+});
+
 const renderWithAutoRph = (autoResourcePerHour, rows = []) => {
   const calls = [];
   const view = render(
