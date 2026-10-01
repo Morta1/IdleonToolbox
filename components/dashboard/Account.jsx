@@ -235,7 +235,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 2']?.islands?.crystalIsland ?
                 <Alert target={'World 2.islands.crystalIsland'}
                   title={getCrystalIslandAlertTitle(alerts['World 2'].islands.crystalIsland)}
-                  iconPath={'data/IslandSail2'}/> : null}
+                  iconPath={'afk_targets/Crystal_Carrot'}/> : null}
               {alerts?.['World 2']?.alchemy?.bargainTag ?
                 <Alert target={'World 2.alchemy.bargainTag'} title={'You haven\'t use bargain tag even once today'} iconPath={'data/aShopItems10'}/> : null}
               {alerts?.['World 2']?.alchemy?.gems ?
