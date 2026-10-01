@@ -3,7 +3,6 @@ import {
   cardBonuses,
   carryBags,
   classes,
-  classFamilyBonuses,
   divStyles,
   fishingKits,
   gods,
@@ -24,8 +23,6 @@ import {
   getEventShopBonus,
   getFoodBonus,
   getGoldenFoodBonus,
-  getHighestLevelOf,
-  getHighestLevelOfClass,
   getMaterialCapacity,
   getRandomEventItems,
   getSkillMasteryBonusByIndex,
@@ -62,7 +59,7 @@ import { getAnvil } from './world-1/anvil';
 import { getPrayerBonusAndCurse } from './world-3/prayers';
 import { getGuildBonusBonus } from './guild';
 import { getShrineBonus } from './world-3/shrines';
-import { getFamilyBonusBonus, getUpdatedFamilyBonus } from './family';
+import { getFamilyBonusesSeenBy } from './family';
 import { getSaltLickBonus } from './world-3/saltLick';
 import { getDungeonFlurboStatBonus, getDungeonStatBonus } from './dungeons';
 import { getCookingEff, getCookingProwess, getMealsBonusByEffectOrStat } from './world-4/cooking';
@@ -491,21 +488,15 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
   // real value on the later ones.
   character.rgTalentAddedLevelsCap = getArmoryUpgradeBonus(account as any, ARMORY_TALENT_REATTAINMENT);
 
-  // Initial calculation without added levels
-  let familyEffBonus = getUpdatedFamilyBonus(character, charactersLevels);
-  let addedLevels = getTalentAddedLevels(talents, selectedTalentPreset, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
-
-  let iterations = 0;
-  const maxIterations = 3;
-
-  while (iterations < maxIterations) {
-    const tempCharacter = Object.assign({}, character);
-    tempCharacter.talents = applyTalentAddedLevels(talents, null, addedLevels?.value || 0, addedLevels?.superTalentsInfo, selectedTalentPreset, character.rgTalentAddedLevelsCap);
-    familyEffBonus = getUpdatedFamilyBonus(tempCharacter, charactersLevels);
-    addedLevels = getTalentAddedLevels(talents, selectedTalentPreset, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
-
-    iterations++;
-  }
+  // The family walk reads THE_FAMILY_GUY with every added level but the Elemental Sorcerer family
+  // bonus, which is the one the walk is still building.
+  const levelsWithoutFamily = getTalentAddedLevels(talents, selectedTalentPreset, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, 0, account, character);
+  const familyGuy = applyTalentAddedLevels(talents, flatTalents, levelsWithoutFamily?.value, levelsWithoutFamily?.superTalentsInfo, selectedTalentPreset, character.rgTalentAddedLevelsCap)
+    ?.find(({ name }: any) => name === 'THE_FAMILY_GUY');
+  character.familyGuyWithoutFamily = familyGuy && (({ baseLevel, level, funcX, x1, x2 }: any) => ({ baseLevel, level, funcX, x1, x2 }))(familyGuy);
+  character.familyBonuses = getFamilyBonusesSeenBy(charactersLevels, character.playerId, character.familyGuyWithoutFamily);
+  const familyEffBonus = character.familyBonuses[CLASSES.Elemental_Sorcerer] ?? 0;
+  const addedLevels = getTalentAddedLevels(talents, selectedTalentPreset, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
 
   character.addedLevelsBreakdown = addedLevels?.breakdown;
   character.addedLevels = addedLevels?.value;
@@ -535,7 +526,7 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
   character.questCompleted = Object.entries(char?.QuestComplete || {})?.reduce((res, [key, value]) => res + (value === 1
     ? 1
     : 0), 0);
-  character.printerSample = getPrinterSampleRate(character, account, charactersLevels);
+  character.printerSample = getPrinterSampleRate(character, account);
   character.anvil = getAnvil(char, character);
   return character;
 }
@@ -2401,8 +2392,8 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   // this factor right after ArcaneMapMulti_bon in this same chain, before CardBonusREAL(101).
   const royalStatueDropRateBonus = getRoyalStatueBonus(account, 1);
   // FamBonusQTYs[32]: the DNSM key is 2 * classIndex, so 32 is classFamilyBonuses[16],
-  // "+{% DROP RATE MULTIPLIER" - the Royal Guardian class family bonus (see damage.ts).
-  const familyDropRateMulti = getFamilyBonusBonus(classFamilyBonuses, 'DROP_RATE_MULTIPLIER', getHighestLevelOf(characters, CLASSES.Royal_Guardian));
+  // "+{% DROP RATE MULTIPLIER" - the Royal Guardian class family bonus, as the played character sees it.
+  const familyDropRateMulti = character?.familyBonuses?.[CLASSES.Royal_Guardian] ?? 0;
 
   // Game: *= (1+tesseract/100) * (1+royalStatue/100) * (1+cardMulti/100) * (1+famBonus32/100) * (1+0.3*comp168)
   //       * (1+min(0.5,comp132)+0.2*compLV2(132)) * (1+(sushi48+jelly14)/100) * max(1,glimboDR) * (1+tomeMulti/100)
@@ -2423,10 +2414,9 @@ export const getDropRate = (character: any, account: any, characters: any) => {
   // Game: *= (1+charm/100) * (1+equip91/100) * (1+vial7drMulto/100)
   final *= (1 + charmBonus / 100) * (1 + equipmentDrMulti / 100) * (1 + vialDrMulti / 100);
 
-  // Game: *= max(1, min(1.3, 1+comp26) * (1+0.5*comp160)) * max(1, min(1.01, 1+comp50/2500)) - the
-  // Glunko term (comp160) has no game-side cap; the code's min(1.5, ...) is an extra clamp not
-  // present in the live formula.
-  final *= Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate) * Math.min(1.5, 1 + 0.5 * seventhCompanionDropRate));
+  // Game: *= max(1, min(1.3, 1+comp26) * (1+0.5*comp160)) * max(1, min(1.01, 1+comp50/2500)) - only
+  // Mallay (comp26) is capped; the Glunko term (comp160) has no cap.
+  final *= Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate) * (1 + 0.5 * seventhCompanionDropRate));
   final *= Math.max(1, Math.min(1.01, 1 + fourthCompanionDropRate / 2500));
 
   const breakdown = {
@@ -2540,7 +2530,7 @@ export const getDropRate = (character: any, account: any, characters: any) => {
           },
           {
             name: 'Glunko The Massive',
-            value: Math.min(1.5, 1 + 0.5 * seventhCompanionDropRate)
+            value: 1 + 0.5 * seventhCompanionDropRate
           },
           {
             name: 'Santa Snake',
@@ -2646,7 +2636,7 @@ final *= (1 + charmBonus / 100)
   * (1 + vialDrMulti / 100);
 
 final *= Math.max(1, Math.min(1.3, 1 + thirdCompanionDropRate)
-  * Math.min(1.5, 1 + 0.5 * seventhCompanionDropRate));
+  * (1 + 0.5 * seventhCompanionDropRate));
 final *= Math.max(1, Math.min(1.01, 1 + fourthCompanionDropRate / 2500));`
   };
 }
@@ -2895,7 +2885,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
     + vault70 * cardsCollected) / 100)`
   }
 }
-const getPrinterSampleRate = (character: any, account: any, charactersLevels: any) => {
+const getPrinterSampleRate = (character: any, account: any) => {
   const printerSamplingTalent = getTalentBonus(character?.flatStarTalents, 'PRINTER_SAMPLING');
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 0);
   const { value: equipSampling } = getStatsFromGear(character, 60, account);
@@ -2906,8 +2896,8 @@ const getPrinterSampleRate = (character: any, account: any, charactersLevels: an
   const theRoyalSamplerPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'The_Royal_Sampler', account)?.bonus;
   const stampBonus = getStampsBonusByEffect(account, '3D_Printer_Sampling_Size');
   const meritBonus = account?.tasks?.[2]?.[2]?.[4];
-  const highestLevelMaestro = getHighestLevelOfClass(charactersLevels, CLASSES.Voidwalker);
-  const familyPrinterSample = getFamilyBonusBonus(classFamilyBonuses, 'PRINTER_SAMPLE_SIZE', highestLevelMaestro) || 0;
+  // FamBonusQTYs[6], as the played character sees it
+  const familyPrinterSample = character?.familyBonuses?.[CLASSES.Maestro] ?? 0;
   const arcadeSampleBonus = getArcadeBonus(account?.arcade?.shop, 'Sample_Size')?.bonus;
   const postofficeSampleBonus = getPostOfficeBonus(character?.postOffice, 'Utilitarian_Capsule', 0);
 
@@ -3137,10 +3127,10 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
   // null until a branch below claims the afkType, so an unhandled type stays distinguishable from a real 0
   let breakdown: any[] = [], gains: number | null = null;
   const { afkType } = character;
-  const { guild, bribes, shrines, charactersLevels, tasks } = account;
+  const { guild, bribes, shrines, tasks } = account;
   const afkGainsTaskBonus = tasks?.[2]?.[1]?.[2] > character?.playerId ? 2 : 0;
-  const highestLevelBM = getHighestLevelOf(characters, CLASSES.Beast_Master)
-  const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'ALL_SKILL_AFK_GAINS', highestLevelBM);
+  // FamBonusQTYs[50], as the played character sees it
+  const familyBonus = character?.familyBonuses?.[CLASSES.Beast_Master] ?? 0;
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Skill_AFK_gain_rate');
   const cardPassiveBonus = getCardBonusByEffect(account?.cards, 'All_AFK_Gains(Passive)');
   let guildBonus = 0;
@@ -3272,8 +3262,8 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
 
   // Fighting AFK Gains
   if (afkType === 'FIGHTING') {
-    const highestVoidwalker = getHighestLevelOfClass(charactersLevels, CLASSES.Voidwalker);
-    const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'FIGHTING_AFK_GAINS', highestVoidwalker);
+    // FamBonusQTYs[8], as the played character sees it
+    const familyEffBonus = character?.familyBonuses?.[CLASSES.Voidwalker] ?? 0;
     const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Civil_War_Memory_Box', 1);
     const firstTalentBonus = getTalentBonus(character?.flatTalents, 'IDLE_BRAWLING');
     const secondTalentBonus = getTalentBonus(character?.flatTalents, 'IDLE_CASTING');

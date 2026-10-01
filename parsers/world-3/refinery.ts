@@ -1,5 +1,5 @@
 import { growth, tryToParse } from '@utility/helpers';
-import { classFamilyBonuses, items, randomList, refinery } from '@website-data';
+import { items, randomList, refinery } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { calculateItemTotalAmount } from '@parsers/items';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
@@ -9,8 +9,8 @@ import { getShinyBonus } from '@parsers/world-4/breeding';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { constructionMasteryThresholds } from '@parsers/world-3/construction';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
-import { checkCharClass, CLASSES, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
-import { getFamilyBonusBonus } from '@parsers/family';
+import { checkCharClass, CLASSES } from '@parsers/talents';
+import { getFamilyBonusesOfActive } from '@parsers/family';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
@@ -116,12 +116,8 @@ export const getRefineryCycleBonuses = (account: Account, characters: any[]) => 
       : 0
   }
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Refinery_Speed')?.bonus ?? 0;
-  const divineKnightsLevels = charactersLevels?.filter((character: any) =>
-    checkCharClass(character?.class, CLASSES.Divine_Knight))?.map(({ level }: any) => level);
-  const highestLevelDivineKnight = divineKnightsLevels?.length > 0 ? Math.max(...divineKnightsLevels) : 0;
-  const theFamilyGuy = getHighestTalentAcrossCharacters(characters, 'THE_FAMILY_GUY', getBestActiveCharacter(characters))
-  const familyRefinerySpeed = getFamilyBonusBonus(classFamilyBonuses, 'Refinery_Speed', highestLevelDivineKnight);
-  const amplifiedFamilyBonus = (familyRefinerySpeed * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0)
+  // FamBonusQTYs[24]: buffed by the account's best THE_FAMILY_GUY, whoever is played
+  const amplifiedFamilyBonus = getFamilyBonusesOfActive(charactersLevels, characters)?.[CLASSES.Divine_Knight] ?? 0;
   const voteBonus = getVoteBonus(account, 33);
   const researchGridBonus1 = getResearchGridBonus(account, 49, 0);
 

@@ -44,6 +44,11 @@ describe('drop rate multiplicative sources', () => {
     expect(dropRate / base).toBeCloseTo(1.05, 10);
   });
 
+  it('Glunko The Massive (companion 160) has no 1.50x cap', () => {
+    const at = (bonus) => getDropRate(character, withCompanion(160, bonus), characters).dropRate;
+    expect(at(2) / at(1)).toBeCloseTo(2 / 1.5, 10);
+  });
+
   it('Mama Troll (companion 132) adds 100 and multiplies by 1.50 from the same bonus', () => {
     const { breakdown } = getDropRate(character, withCompanion(132, 100), characters);
     const additive = breakdown.categories[0].sources.find((s) => s.name === 'Mama Troll');

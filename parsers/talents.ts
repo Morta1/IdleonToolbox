@@ -1,11 +1,10 @@
 import { growth } from '@utility/helpers';
 import { isTalentBannedForAllLevels } from '@utility/talentBans';
-import { classes, classFamilyBonuses, talents } from '@website-data';
+import { classes, talents } from '@website-data';
 import { getAchievementStatus } from './achievements';
-import { getHighestLevelOfClass, isCompanionBonusActive } from './misc';
+import { isCompanionBonusActive } from './misc';
 import { getMinorDivinityBonus } from './world-5/divinity';
 import { getEquinoxBonus } from './world-3/equinox';
-import { getFamilyBonus, getFamilyBonusBonus } from '@parsers/family';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getGuildBonusBonus } from '@parsers/guild';
 import { getDungeonFlurboStatBonus } from '@parsers/dungeons';
@@ -466,12 +465,6 @@ export const isBookEligibleTalent = (skillIndex: any) => {
   return index < BOOK_ELIGIBLE_MAX_INDEX && !BOOK_INELIGIBLE_INDICES.includes(index);
 }
 
-export const getFamilyBonusValue = function (e: any, t: any, n: any, a: any) {
-  return 10 > e && -1 !== t.indexOf('decay')
-    ? Math.round(100 * e) / 100
-    : 1 > e || ('add' === t && 1 > a && 100 > e) || (25 > e && 'decay' === t) ? Math.round(10 * e) / 10 : Math.round(e);
-}
-
 export const getVoidWalkerTalentEnhancements = (characters: any, account: any, pointsInvested: any, index?: any, character?: any) => {
   const talentList = [];
   if (pointsInvested >= 25) {
@@ -583,13 +576,8 @@ export const calcTotalStarTalent = (characters: any, account: any) => {
     const talentBonus = getTalentBonus(character?.flatTalents, 'STAR_PLAYER');
     const secondTalentBonus = getTalentBonus(character?.flatStarTalents, 'STONKS!');
     const thirdTalentBonus = getTalentBonus(character?.flatTalents, 'SUPERNOVA_PLAYER');
-    const highestLevelElementalSorc = getHighestLevelOfClass(account?.charactersLevels, CLASSES.Elemental_Sorcerer, true);
-    let familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, '_STAR_TAB_TALENT_POINTS', highestLevelElementalSorc);
-    if (checkCharClass(character?.class, CLASSES.Elemental_Sorcerer)) {
-      familyEffBonus *= (1 + getTalentBonus(character?.flatTalents, 'THE_FAMILY_GUY') / 100);
-      const familyBonus = getFamilyBonus(classFamilyBonuses, '_STAR_TAB_TALENT_POINTS');
-      familyEffBonus = getFamilyBonusValue(familyEffBonus, familyBonus?.func, familyBonus?.x1, familyBonus?.x2);
-    }
+    // FamBonusQTYs[64], the Wizard family bonus, as the played character sees it
+    const familyEffBonus = character?.familyBonuses?.[CLASSES.Wizard] ?? 0;
     const stampBonus = getStampsBonusByEffect(account, 'Talent_Points_for_Star_Tab')
     const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 11);
     const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Talent_Pts');

@@ -13,13 +13,11 @@ import {
 } from '@parsers/talents';
 import {
   getGoldenFoodBonus,
-  getHighestLevelOfClass,
   getSkillMasteryBonusByIndex,
   isCompanionBonusActive,
   isMasteryBonusUnlocked
 } from '@parsers/misc';
-import { getFamilyBonusBonus } from '@parsers/family';
-import { bonuses, classFamilyBonuses } from '@website-data';
+import { bonuses } from '@website-data';
 import { calculateItemTotalAmount, getStatsFromGear } from '@parsers/items';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
 import { getCardBonusByEffect, getEquippedCardBonus } from '@parsers/cards';
@@ -84,10 +82,8 @@ export const getAllBaseSkillEff = (character: any, account: any, characters: any
 }
 
 export const getAllEff = (character: any, characters: any, account: any) => {
-  const highestLevelHunter = getHighestLevelOfClass(account?.charactersLevels, CLASSES.Wind_Walker);
-  // const theFamilyGuy = getHighestTalentByClass(characters, CLASSES.Beast_Master, 'THE_FAMILY_GUY');
-  const familyEffBonus = getFamilyBonusBonus(classFamilyBonuses, 'EFFICIENCY_FOR_ALL_SKILLS', highestLevelHunter);
-  // const amplifiedFamilyBonus = familyEffBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1);
+  // FamBonusQTYs[42], as the played character sees it
+  const familyEffBonus = character?.familyBonuses?.[CLASSES.Hunter] ?? 0;
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6SkillEff');
   const { value: effFromEquipment } = getStatsFromGear(character, 48, account);
   const effFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[48]);

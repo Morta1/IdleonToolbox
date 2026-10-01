@@ -24,6 +24,7 @@ export const patchNotes = [
       'Constellations: each constellation now shows its in-game shape'
     ],
     'fixes': [
+      'Family bonuses now match the game when several characters share a class or have The Family Guy: drop rate, damage, HP, kill per kill, efficiency, AFK gains, golden food, star talent points, added talent levels, printer sample size, refinery speed and boat travel time',
       'Gaming: Sprout Capacity upgrade cost now matches the game at higher levels',
       'Slab: greenstack total now matches the game (Zenith Cluster now counts)',
       'Cauldrons: liquid cauldrons no longer all show as Dragonic, and the max liquid tooltip now shows the correct Bleach / Dragonic bonus',

@@ -4,7 +4,6 @@ import {
   bonuses,
   bundles as bundlesData,
   cards as cardsData,
-  classFamilyBonuses,
   companions,
   deathNote,
   generalSpelunky,
@@ -28,7 +27,6 @@ import { getAtomBonus } from './world-3/atomCollider';
 import { getPrayerBonusAndCurse } from './world-3/prayers';
 import { getShrineBonus } from './world-3/shrines';
 import { isSuperbitUnlocked } from './world-5/gaming';
-import { getFamilyBonusBonus } from './family';
 import { getStatsFromGear } from './items';
 import LavaRand from '../utility/lavaRand';
 import { isPast } from 'date-fns';
@@ -662,23 +660,7 @@ export const getHighestLevelOf = (characters: any, className: any) => {
   }, 0);
 }
 
-export const getHighestLevelOfClass = (characters: any, className: any, exactSearch?: any) => {
-  const highest = characters?.reduce((res: any, { level, class: cName }: any) => {
-    if (res?.[cName]) {
-      res[cName] = Math.max(res?.[cName], level);
-    }
-    else {
-      res[cName] = level;
-    }
-    return res;
-  }, {});
-  let allClasses = talentPagesMap?.[className];
-  if (exactSearch) {
-    allClasses = allClasses.filter((cName) => cName === className);
-  }
-  const classAlias = allClasses?.find((cName) => highest?.[cName]);
-  return highest?.[classAlias!] || 0;
-};
+
 
 export const getCharacterByHighestLevel = (characters: any, className: any) => {
   let filteredObjects = characters.filter((obj: any) => obj.class === className);
@@ -857,13 +839,9 @@ export const getGiantMobChance = (character: any, account: any) => {
 }
 
 export const getGoldenFoodMulti = (character: any, account: any, characters: any) => {
-  const highestLevelShaman = account?.charactersLevels?.reduce((max: number, { level, class: cName }: any) => {
-    return checkCharClass(cName, CLASSES.Shaman) ? Math.max(max, level) : max;
-  }, 0) ?? 0;
   const theFamilyGuy = getTalentBonus(character?.flatTalents, 'THE_FAMILY_GUY');
-  const familyBonus = getFamilyBonusBonus(classFamilyBonuses, 'GOLDEN_FOODS', highestLevelShaman);
-  const isShaman = checkCharClass(character?.class, CLASSES.Shaman);
-  const amplifiedFamilyBonus = familyBonus * (theFamilyGuy > 0 ? (1 + theFamilyGuy / 100) : 1) || 0;
+  // FamBonusQTYs[66], the Shaman family bonus, as the played character sees it.
+  const familyBonus = character?.familyBonuses?.[CLASSES.Shaman] ?? 0;
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[8]);
   const { value: gearGoldFoodBonus, newBreakdown: equipmentBonusBreakdown } = getStatsFromGear(character, 8, account);
   const hungryForGoldTalentBonus = getTalentBonus(character?.flatTalents, 'HAUNGRY_FOR_GOLD');
@@ -900,7 +878,7 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
   const apocalypses = deathBringer?.wow?.finished?.at(0) || 0;
   const armorSetBonus = getArmorSetBonus(account, 'SECRET_SET');
   const value = (1 + (armorSetBonus + 50 * companionBonus174) / 100)
-    * (Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
+    * (Math.max(familyBonus, 1)
       + ((gearGoldFoodBonus + obolsBonus)
         + (hungryForGoldTalentBonus
           + (goldenAppleStamp
@@ -928,7 +906,7 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
         sources: [
           {
             name: 'Family Bonus',
-            value: isShaman ? amplifiedFamilyBonus : familyBonus
+            value: familyBonus
           },
           { name: 'The Family Guy', value: theFamilyGuy },
 
@@ -970,7 +948,7 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
     value,
     breakdown,
     expression: `(1 + armorSetBonus / 100)
-* (Math.max(isShaman ? amplifiedFamilyBonus : familyBonus, 1)
+* (Math.max(familyBonus, 1)
 + (gearGoldFoodBonus
 + (hungryForGoldTalentBonus
 + (goldenAppleStamp
