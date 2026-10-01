@@ -53,12 +53,9 @@ const Wiki = () => {
       {/* No heading of its own: the NavBar's PageTitle already renders the page's h1. */}
       <Typography mb={3} color={'text.secondary'}>
         Search any item, monster, NPC, or game system (bubbles, chips, prayers, the Upgrade Vault...) to
-        see how it connects to the rest of the game.
+        see how it connects to the rest of the game, or pick a category below.
       </Typography>
       {!entries || legacyId ? <SimpleLoader message={'Loading wiki data...'}/> : <Stack gap={2}>
-        <Typography color={'text.secondary'}>
-          Search above, or pick a category to browse.
-        </Typography>
         <CategoryTiles searchList={entries} onSelect={(kind) => go(`/wiki/${kind}`)}/>
         {/* The rail carries the changelog on desktop and is hidden below md, and it is not a
             category so no tile leads to it either. Without this row it cannot be reached at all on
