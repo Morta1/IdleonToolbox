@@ -1411,7 +1411,9 @@ export const getCompanions = (companionObject: any = {}, accountOptions: any = [
       upgradedTradableCount: ownedCompanions?.[index]?.upgradedTradableCount ?? 0,
       level,
       upgraded,
-      bonus: upgraded ? (comp?.upgradedBonus ?? comp?.bonus) : comp?.bonus
+      bonus: upgraded ? (comp?.upgradedBonus ?? comp?.bonus) : comp?.bonus,
+      // Game: Stuff2("PetTournyPOW") reads CompanionDB[9] for an upgraded copy, [7] otherwise.
+      tourPower: upgraded ? (comp?.upgradedTourPower ?? comp?.tourPower) : comp?.tourPower
     }
   })
 

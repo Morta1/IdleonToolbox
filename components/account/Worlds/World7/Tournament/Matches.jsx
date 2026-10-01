@@ -3,9 +3,14 @@ import { Box, Button, Card, CardContent, Chip, Collapse, Divider, Stack, Typogra
 import Tooltip from '@components/Tooltip';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import { monsterImage } from '@utility/spriteImages';
+import { companions as companionsData } from '@website-data';
 
 const teamPower = (pets, companions) =>
   pets.reduce((sum, idx) => sum + (companions?.[idx]?.tourPower ?? 0), 0);
+
+// Match strings carry pet indices only, so an opponent's Pet Mart+ upgrades are unknown: their pets
+// read base power from the catalog. The player's own pets use the account list (upgraded power).
+const petLabel = (comp) => `${cleanUnderscore(comp.name)}${comp.upgraded ? '+' : ''}`;
 
 const ResultChip = ({ result }) => {
   if (result === 'win') return <Chip label="Win" size="small" color="success" />;
@@ -30,7 +35,7 @@ const PetGrid = ({ label, pets, companions, totalPower }) => (
         if (!comp) return null;
         return (
           <Stack key={i} alignItems="center" gap={0} sx={{ width: 36 }}>
-            <Box title={cleanUnderscore(comp.name)}>
+            <Box title={petLabel(comp)}>
               <img
                 width={50}
                 height={50}
@@ -59,16 +64,16 @@ const PET_OUTLINE = {
   opponent: 'error.main',
 };
 
-const BattleStep = ({ step, companions }) => {
-  const playerComp = companions?.[step.playerDbIdx];
-  const opponentComp = companions?.[step.opponentDbIdx];
+const BattleStep = ({ step, playerCompanions, opponentCompanions }) => {
+  const playerComp = playerCompanions?.[step.playerDbIdx];
+  const opponentComp = opponentCompanions?.[step.opponentDbIdx];
   if (!playerComp || !opponentComp) return null;
   const totalPower = (playerComp.tourPower ?? 0) + (opponentComp.tourPower ?? 0);
   const playerChance = totalPower > 0 ? Math.round((playerComp.tourPower ?? 0) / totalPower * 100) : 50;
   const opponentChance = 100 - playerChance;
   return (
     <Stack direction="row" alignItems="center" gap={0.5}>
-      <Tooltip title={`${cleanUnderscore(playerComp.name)} — ${playerChance}% to win`}>
+      <Tooltip title={`${petLabel(playerComp)} — ${playerChance}% to win`}>
         <Box sx={{
           opacity: step.playerWins ? 1 : 0.25,
           borderBottom: '2px solid', borderColor: PET_OUTLINE.player,
@@ -79,7 +84,7 @@ const BattleStep = ({ step, companions }) => {
         </Box>
       </Tooltip>
       <Typography variant="caption" color="text.disabled" sx={{ fontSize: 9 }}>vs</Typography>
-      <Tooltip title={`${cleanUnderscore(opponentComp.name)} — ${opponentChance}% to win`}>
+      <Tooltip title={`${petLabel(opponentComp)} — ${opponentChance}% to win`}>
         <Box sx={{
           opacity: step.playerWins ? 0.25 : 1,
           borderBottom: '2px solid', borderColor: PET_OUTLINE.opponent,
@@ -105,7 +110,7 @@ const BattleLegend = () => (
   </Stack>
 );
 
-const BattleRounds = ({ rounds, companions }) => (
+const BattleRounds = ({ rounds, playerCompanions, opponentCompanions }) => (
   <Stack gap={1} pt={0.5}>
     <BattleLegend />
     {rounds.map((round, ri) => (
@@ -115,7 +120,7 @@ const BattleRounds = ({ rounds, companions }) => (
         </Typography>
         <Stack direction="row" gap={0.5} flexWrap="wrap">
           {round.map((step, si) => (
-            <BattleStep key={si} step={step} companions={companions} />
+            <BattleStep key={si} step={step} playerCompanions={playerCompanions} opponentCompanions={opponentCompanions} />
           ))}
         </Stack>
         {ri < rounds.length - 1 && <Divider />}
@@ -127,7 +132,7 @@ const BattleRounds = ({ rounds, companions }) => (
 const MatchCard = ({ match, companionList }) => {
   const [showBattle, setShowBattle] = useState(false);
   const myPower = teamPower(match.playerPets, companionList);
-  const oppPower = teamPower(match.opponentPets, companionList);
+  const oppPower = teamPower(match.opponentPets, companionsData);
   const hasBattle = match.battleRounds?.length > 0;
   return (
     <Card>
@@ -152,7 +157,7 @@ const MatchCard = ({ match, companionList }) => {
             </Stack>
           </Stack>
           <PetGrid label="Your team" pets={match.playerPets} companions={companionList} totalPower={myPower} />
-          <PetGrid label="Opponent's team" pets={match.opponentPets} companions={companionList} totalPower={oppPower} />
+          <PetGrid label="Opponent's team" pets={match.opponentPets} companions={companionsData} totalPower={oppPower} />
           {hasBattle && (
             <>
               <Button size="small" variant="text" sx={{ alignSelf: 'flex-start', p: 0, minWidth: 0, textTransform: 'none' }}
@@ -160,7 +165,7 @@ const MatchCard = ({ match, companionList }) => {
                 {showBattle ? 'Hide' : 'Show'} battle sequence ({match.battleRounds.length} rounds)
               </Button>
               <Collapse in={showBattle}>
-                <BattleRounds rounds={match.battleRounds} companions={companionList} />
+                <BattleRounds rounds={match.battleRounds} playerCompanions={companionList} opponentCompanions={companionsData} />
               </Collapse>
             </>
           )}

@@ -5,7 +5,7 @@ import { monsterImage } from '@utility/spriteImages';
 
 const byPowerDesc = (a, b) => (b.tourPower ?? 0) - (a.tourPower ?? 0);
 
-const PetCard = ({ name, rawName, tourPower }) => (
+const PetCard = ({ name, rawName, tourPower, upgraded }) => (
   <Card key={rawName ?? name} sx={{ width: 100 }}>
     <CardContent sx={{ '&:last-child': { padding: 1 } }}>
       <Stack alignItems={'center'} gap={0.5}>
@@ -16,7 +16,7 @@ const PetCard = ({ name, rawName, tourPower }) => (
           alt={name}
         />
         <Typography variant={'body2'} textAlign={'center'} fontSize={11}>
-          {cleanUnderscore(name)}
+          {cleanUnderscore(name)}{upgraded ? '+' : ''}
         </Typography>
         {tourPower > 0 && (
           <Stack direction={'row'} alignItems={'center'} gap={0.5}>

@@ -27,7 +27,8 @@ export const patchNotes = [
       'Gaming: Sprout Capacity upgrade cost now matches the game at higher levels',
       'Slab: greenstack total now matches the game (Zenith Cluster now counts)',
       'Cauldrons: liquid cauldrons no longer all show as Dragonic, and the max liquid tooltip now shows the correct Bleach / Dragonic bonus',
-      'Wiki: test and placeholder items no longer have pages, and sailing treasure costs no longer show up as Strung Jewels'
+      'Wiki: test and placeholder items no longer have pages, and sailing treasure costs no longer show up as Strung Jewels',
+      'Tournament: upgraded (Pet Mart+) companions now show their upgraded power and a + next to their name'
     ]
   },
   {
