@@ -15,7 +15,8 @@ export const patchNotes = [
     ],
     'fixes': [
       'Gaming: Sprout Capacity upgrade cost now matches the game at higher levels',
-      'Slab: greenstack total now matches the game (Zenith Cluster now counts)'
+      'Slab: greenstack total now matches the game (Zenith Cluster now counts)',
+      'Cauldrons: liquid cauldrons no longer all show as Dragonic, and the max liquid tooltip now shows the correct Bleach / Dragonic bonus'
     ]
   },
   {

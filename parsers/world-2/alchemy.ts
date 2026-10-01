@@ -136,11 +136,10 @@ export const getLiquidCauldrons = (account: any) => {
     const thirdMath = viaductOfGods * (10 + (brewBonus + (vialBonus + (p2wBonus + (firstMath + (stampBonus + Math.ceil(arcadeBonus)))))))
 
     return {
-      isDragonic: account?.accountOptions?.[106] > index,
+      isDragonic: account?.accountOptions?.[123] > index,
       maxLiquid: Math.ceil((1 + secondMath) * thirdMath),
       maxLiquidBreakdown: [
-        { name: 'Bleach Liquid', value: bleachLiquidCauldron > index ? 1.5 : 0 },
-        { name: 'Dragonic', value: account?.accountOptions?.[123] > index ? 2 : 0 },
+        { name: 'Bleach / Dragonic', value: bleachLiquidBonus },
         { name: 'Meal', value: mealBonus / 100 },
         { name: 'Skill Mastery', value: (5 * skillMasteryBonus) / 100 },
         { name: 'Lab', value: viaductOfGods },
