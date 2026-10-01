@@ -849,6 +849,7 @@ export const getGiantMobChance = (character: any, account: any) => {
   }
   return {
     chance,
+    giantsAlreadySpawned,
     crescentShrineBonus,
     giantMobVial,
     glitterbugPrayer

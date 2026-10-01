@@ -7,6 +7,7 @@ import { calcStatueLevels } from '@parsers/world-1/statues';
 import { calcShrineLevels } from '@parsers/world-3/shrines';
 import { calcBubbleLevels } from '@parsers/world-2/alchemy';
 import { getGiantMobChance } from '@parsers/misc';
+import InfoIcon from '@mui/icons-material/Info';
 
 const Totals = ({ account, characters }) => {
 
@@ -44,6 +45,9 @@ const Totals = ({ account, characters }) => {
               <Typography>1
                 in {notateNumber(Math.floor(1 / giantMob?.chance))}</Typography>
             </Stack>
+          </Tooltip>
+          <Tooltip title={`Spawned this week: ${giantMob?.giantsAlreadySpawned ?? 0}`}>
+            <InfoIcon fontSize={'small'}/>
           </Tooltip>
         </Stack>
       </> : null}

@@ -1,7 +1,7 @@
 import { AppContext } from 'components/common/context/AppProvider';
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getTabs, groupByKey, notateNumber, prefix } from 'utility/helpers';
+import { cleanUnderscore, getCoinsArray, getTabs, groupByKey, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import HtmlTooltip from 'components/Tooltip';
 import { NextSeo } from 'next-seo';
@@ -10,6 +10,13 @@ import ItemDisplay from '@components/common/ItemDisplay';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
 import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
+import CoinDisplay from '@components/common/CoinDisplay';
+import InfoIcon from '@mui/icons-material/Info';
+
+// Full digit string: past the top coin tier the icons alone are unreadable
+const exactCoins = (coins) => Number.isFinite(coins)
+  ? BigInt(Math.floor(coins)).toLocaleString('en-US')
+  : '0';
 
 
 const Looty = () => {
@@ -43,6 +50,7 @@ const Looty = () => {
   };
 
   const greenStacksSet = new Set(state?.account?.storage?.greenStacks);
+  const bankMoney = state?.account?.currencies?.bankMoney ?? 0;
 
   const renderItems = (items) => {
     if (!items || !Array.isArray(items)) return null;
@@ -80,6 +88,26 @@ const Looty = () => {
         title="Storage | Idleon Toolbox"
         description="Browse your full storage inventory with item counts, chest slots, and capacity in Legends of Idleon"
       />
+      {state?.account?.currencies ? <Card variant={'outlined'} sx={{ mb: 2, width: 'fit-content', maxWidth: '100%' }}>
+        <CardContent>
+          <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={2} mb={1}>
+            <Stack direction={'row'} alignItems={'baseline'} gap={1}>
+              <Typography>Storage Money</Typography>
+              <Typography variant={'body2'} color={'text.secondary'}>{notateNumber(bankMoney)}</Typography>
+            </Stack>
+            <HtmlTooltip title={<Stack gap={1} sx={{ wordBreak: 'break-all' }}>
+              <Typography variant={'body2'}>Exact: {exactCoins(bankMoney)}</Typography>
+              <Typography variant={'body2'}>
+                Account total (storage + characters): {notateNumber(state?.account?.currencies?.rawMoney)}
+                {' '}({exactCoins(state?.account?.currencies?.rawMoney)})
+              </Typography>
+            </Stack>}>
+              <InfoIcon fontSize={'small'}/>
+            </HtmlTooltip>
+          </Stack>
+          <CoinDisplay title={null} centered={false} variant={'horizontal'} money={getCoinsArray(bankMoney)}/>
+        </CardContent>
+      </Card> : null}
       <Tabber tabs={getTabs(PAGES.ACCOUNT.misc.categories, 'storage')}>
         <Stack>
           <Stack mb={3} direction={'row'} flexWrap={'wrap'}>
@@ -114,7 +142,7 @@ const Looty = () => {
                 {renderItems(items)}
               </Stack>}
         </Stack>
-        <div>
+        <Stack gap={2}>
           <CardWithBreakdown title={'Slots Owned'} value={`${state?.account?.storage?.slots?.value}`}
                              icon={'data/InvStorage1.png'}
                              breakdown={state?.account?.storage?.slots?.breakdown}
@@ -140,8 +168,7 @@ const Looty = () => {
               </Card>
             })}
           </Stack>
-        </div>
-
+        </Stack>
       </Tabber>
     </>
   );

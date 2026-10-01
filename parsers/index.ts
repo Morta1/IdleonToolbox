@@ -312,6 +312,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   }, 0);
   const money = bankMoney + playersMoney;
   accountData.currencies.rawMoney = money;
+  accountData.currencies.bankMoney = bankMoney;
   accountData.currencies.money = getCoinsArray(money);
   accountData.currencies.gems = idleonData?.GemsOwned ?? 0;
   accountData.currencies.KeysAll = safeSection<any>('currencies.KeysAll', [], () => enhanceKeysObject(accountData?.currencies?.KeysAll, charactersData, accountData));
