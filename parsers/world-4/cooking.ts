@@ -33,33 +33,9 @@ import { getGrimoireBonus } from '@parsers/class-specific/grimoire';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getObolsBonus } from '@parsers/obols';
 import { getButtonBonus } from '@parsers/world-7/button';
+import { SPICE_NAMES } from './spiceNames.mjs';
 
-export const spicesNames = [
-  'Grasslands',
-  'Jungle',
-  'Encroaching Forest',
-  'Tree Interior',
-  'Stinky Sewers',
-  'Desert Oasis',
-  'Beach Docks',
-  'Coarse Mountains',
-  'Twilight Desert',
-  'The Crypt',
-  'Frosty Peaks',
-  'Tundra Outback',
-  'Crystal Caverns',
-  'Pristalle Lake',
-  'Nebulon Mantle',
-  'Starfield Skies',
-  'Shores of Eternity',
-  'Molten Bay',
-  'Smokey Lake',
-  'Wurm Catacombs',
-  'Spirit Fields',
-  'Bamboo Forest',
-  'Lullaby Airway',
-  'Dharma Mesa'
-]
+export const spicesNames = SPICE_NAMES;
 
 export const getCooking = (idleonData: any, account: any, characters?: any) => {
   const cookingRaw = tryToParse(idleonData?.Cooking) || idleonData?.Cooking;

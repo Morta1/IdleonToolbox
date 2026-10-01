@@ -6,7 +6,8 @@
 // node per activity, which would put "Dungeon" in the search box as if it were a place.
 //
 // Anvil production is the same shape for a different reason: the fourteen CraftMat items are made
-// at the anvil with no recipe, which is why no craftedFrom edge ever reached them.
+// at the anvil with no recipe, which is why no craftedFrom edge ever reached them. The anvil now
+// has a station page whose `produces` edges source them, so this label only shows if that breaks.
 const ACTIVITIES = [
   { label: 'Dungeon', test: (rawName, item) => item?.Type === 'DUNGEON_EVAPORATE' || /_\(Dungeon\)$/.test(item?.displayName || '') },
   { label: 'Sailing', test: (rawName) => /^SailTr/.test(rawName) },

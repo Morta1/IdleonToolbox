@@ -52,7 +52,8 @@ const Wiki = () => {
       {seo}
       {/* No heading of its own: the NavBar's PageTitle already renders the page's h1. */}
       <Typography mb={3} color={'text.secondary'}>
-        Search any item, monster, NPC or quest to see how it connects to the rest of the game.
+        Search any item, monster, NPC, or game system (bubbles, chips, prayers, the Upgrade Vault...) to
+        see how it connects to the rest of the game.
       </Typography>
       {!entries || legacyId ? <SimpleLoader message={'Loading wiki data...'}/> : <Stack gap={2}>
         <Typography color={'text.secondary'}>

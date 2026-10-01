@@ -156,25 +156,69 @@ const stampInfo = (rawName, stampsByRawName) => {
   };
 };
 
-export const itemNodes = (items, monsters, cards, stamps, craftPrices = new Map()) => {
+// Stand-ins for a count the game keeps outside the inventory, so a bubble can list it as a cost.
+// All 22 are one copied template (displayName Strung_Jewels, W6item0 Error_Item, desc
+// Sail_Treasure), and the game never shows those fields: its spend and owned-count code reads
+// Sailing[1][n], Ninja[102][1], FarmCrop, Summon[2] and Spelunk[19] instead. The name says what
+// the count is, and `navigable: false` keeps a page for the copied template from existing.
+const PROXY_TYPE = 'SAIL_TREASURE';
+const PROXY_CROPS = { W6item1: 4, W6item2: 30, W6item3: 46, W6item4: 72, W6item5: 99 };
+const PROXY_ESSENCES = { W6item6: 'White', W6item7: 'Green', W6item8: 'Yellow', W6item9: 'Blue', W6item10: 'Purple' };
+
+const proxyName = (rawName) => {
+  const sailing = /^SailTr(\d+)$/.exec(rawName);
+  if (sailing) return `Sailing_Treasure_${sailing[1]}`;
+  if (rawName === 'W6item0') return 'Jade_Coins';
+  if (PROXY_CROPS[rawName] != null) return `Farming_Crop_${PROXY_CROPS[rawName]}`;
+  if (PROXY_ESSENCES[rawName]) return `${PROXY_ESSENCES[rawName]}_Essence`;
+  const spelunking = /^W7item(\d+)$/.exec(rawName);
+  if (spelunking) return `Spelunking_Resource_${spelunking[1]}`;
+  return rawName;
+};
+
+// RANDOlist 17 is what the game leaves off The Slab: things a player cannot find. It also holds
+// real legacy and premium items, so membership alone hides nothing. Inside it, a TestObj rawName
+// or a name the developer never filled in marks a placeholder: every one of these has no source
+// and no use anywhere in the graph, and most occur in N.js only in their definition and this list.
+// TestObj1, 3, 7 and 13 are not in it: they are craftable, in recipes and on The Slab, so they stay.
+const NOT_FINDABLE_POOL = 17;
+const PLACEHOLDER_NAMES = new Set([
+  'Filler', // CraftMat15-17, desc 'Filler_text_lol'
+  'FILLER', // NPCtoken8, desc 'eafwef'
+  'Filler_bc_I_messed_up', // Quest8
+  'REPLACE_ME', // EquipmentShirts8-9
+  'Not_Yet', // FillerMaterial: "this material isn't in the game yet", the cost on unreleased bubbles
+  'Wooden_Spear_(Dungeon)' // DungWeaponBow1, Wand1, Sword1: the unnumbered template the real I-V tiers were cut from
+]);
+
+export const isPlaceholderItem = (rawName, item, notFindable) => notFindable.has(rawName)
+  && (/^TestObj\d+$/.test(rawName) || PLACEHOLDER_NAMES.has(item?.displayName));
+
+export const itemNodes = (items, monsters, cards, stamps, craftPrices = new Map(), randomList = []) => {
   const cardsByIndex = indexCardsByCardIndex(cards);
   const stampsByRawName = indexStampsByRawName(stamps);
+  const notFindable = new Set((randomList?.[NOT_FINDABLE_POOL] || []).filter((value) => typeof value === 'string'));
   const nodes = { 'item:COIN': COIN_NODE };
   for (const [rawName, item] of Object.entries(items)) {
+    const proxy = item.Type === PROXY_TYPE;
     nodes[`item:${rawName}`] = {
       kind: 'item',
       rawName,
-      name: item.Type === 'CARD' ? cardName(rawName, item, items, monsters) : item.displayName,
-      icon: `/data/${rawName}.png`,
+      name: proxy ? proxyName(rawName) : item.Type === 'CARD' ? cardName(rawName, item, items, monsters) : item.displayName,
+      // The proxies have no plain art; the _x1 sprite is the one the game draws on the bubble.
+      icon: proxy ? `/data/${rawName}_x1.png` : `/data/${rawName}.png`,
       category: item.Type,
-      description: item.Type === 'STAMP' ? stampBonus(rawName, stampsByRawName) : itemDescription(item),
+      description: proxy ? null : item.Type === 'STAMP' ? stampBonus(rawName, stampsByRawName) : itemDescription(item),
       // In the game's own unit: 6000 is 60 silver, which is the number idleon.wiki prints, and
       // getCoinsArray does that conversion at render time. A craftable item's field is dead data
       // the game never reads, so its recipe price wins: see craft-prices.mjs.
       sellPrice: craftPrices.get(rawName) ?? (item.sellPrice > 1 ? item.sellPrice : null),
       stamp: item.Type === 'STAMP' ? stampInfo(rawName, stampsByRawName) : null,
       stats: itemStats(item),
-      card: item.Type === 'CARD' ? cardBonus(rawName, cardsByIndex) : null
+      card: item.Type === 'CARD' ? cardBonus(rawName, cardsByIndex) : null,
+      // Same treatment as COIN: no page, no search entry, no listing row, and a row that names it
+      // elsewhere renders as text instead of a link.
+      ...(proxy || isPlaceholderItem(rawName, item, notFindable) ? { navigable: false } : {})
     };
   }
   return nodes;

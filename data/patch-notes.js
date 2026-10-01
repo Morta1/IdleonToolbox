@@ -15,12 +15,18 @@ export const patchNotes = [
       'Storage: your storage coins are now shown at the top of the page, with the exact amount and your account total in the tooltip',
       'General: the Giant Mob chance now shows how many Giant Mobs spawned this week',
       'Royal Armory: added a Marble Chance card showing your drop chance per world, including the early marble boost',
-      'Upgrade Optimizers (Grimoire, Compass, Tesseract, Royal Armory, Clam Work, Jelly): new Game order group mode that lists upgrades in the same order as the in-game menu'
+      'Upgrade Optimizers (Grimoire, Compass, Tesseract, Royal Armory, Clam Work, Jelly): new Game order group mode that lists upgrades in the same order as the in-game menu',
+      'Wiki: new pages for game systems, grouped by world: Upgrade Vault, Star Signs, Constellations, Sigils, Post Office Boxes, Arcade Upgrades, Buildings, Prayers, Equinox Upgrades, Lab Chips, Lab Jewels, Meals, Divinity Gods, Sailing Artifacts, Gaming Superbits and the Jade Emporium',
+      'Wiki: items now show more of their uses: Glimbo trades and the vault upgrade they raise, Refinery salts and their ingredients, lab chip and jewel recipes, building and prayer costs, and the Beanstalk',
+      'Wiki: new Anvil page listing everything it produces, and anvil materials now show which anvil upgrade points they pay for',
+      'Wiki: more items now say where to get them: skilling spots, random event bosses, Mob Cosplay Craze hats, the Talent Book Library, and Dungeon, Event, Spelunking, Royal Guardian and Compass items',
+      'Wiki: the menu and home page are now grouped into Encyclopedia, Account and World 1 to 6'
     ],
     'fixes': [
       'Gaming: Sprout Capacity upgrade cost now matches the game at higher levels',
       'Slab: greenstack total now matches the game (Zenith Cluster now counts)',
-      'Cauldrons: liquid cauldrons no longer all show as Dragonic, and the max liquid tooltip now shows the correct Bleach / Dragonic bonus'
+      'Cauldrons: liquid cauldrons no longer all show as Dragonic, and the max liquid tooltip now shows the correct Bleach / Dragonic bonus',
+      'Wiki: test and placeholder items no longer have pages, and sailing treasure costs no longer show up as Strung Jewels'
     ]
   },
   {

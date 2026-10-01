@@ -26,6 +26,29 @@
 // and "what was in that pack" is the question they exist to answer.
 // Achievements ARE worth browsing: 420 of them, banded by world, and the question "what is left to
 // do in World 3" is a list question rather than a search one.
-export const LISTED_KINDS = ['item', 'monster', 'npc', 'world', 'class', 'talent', 'achievement', 'pet', 'bundle', 'bubble', 'vial'];
+//
+// The game systems ARE worth browsing the same way the bubbles are: a lab chip, a meal, a prayer or
+// a building is a bonus somebody wants to compare against the rest of its set. Spices and stations
+// are not: a spice page is a name and the chip that costs it, and the two stations are reached from
+// their items.
+//
+// Grouped, because sixteen flat rows stopped reading as a menu: the encyclopedia of things met
+// anywhere, then the systems under the world that introduces them, which is how a player already
+// files them ("the World 4 lab"). A system added later goes under its world's group, or opens one.
+// The encyclopedia is the one group always open; the rest fold in the rail (`collapsible`).
+export const KIND_GROUPS = [
+  { label: 'Encyclopedia', kinds: ['item', 'monster', 'npc', 'world', 'class', 'talent'] },
+  // What belongs to the account rather than to a place in the game: progress, companions, purchases
+  // and the account-wide vault.
+  { label: 'Account', kinds: ['achievement', 'pet', 'bundle', 'vault'], collapsible: true },
+  { label: 'World 1', kinds: ['starsign', 'constellation'], collapsible: true },
+  { label: 'World 2', kinds: ['bubble', 'vial', 'sigil', 'postbox', 'arcade'], collapsible: true },
+  { label: 'World 3', kinds: ['building', 'prayer', 'equinox'], collapsible: true },
+  { label: 'World 4', kinds: ['chip', 'jewel', 'meal'], collapsible: true },
+  { label: 'World 5', kinds: ['god', 'artifact', 'superbit'], collapsible: true },
+  { label: 'World 6', kinds: ['jade'], collapsible: true }
+];
+
+export const LISTED_KINDS = KIND_GROUPS.flatMap((group) => group.kinds);
 
 export const hasListing = (kind) => LISTED_KINDS.includes(kind);

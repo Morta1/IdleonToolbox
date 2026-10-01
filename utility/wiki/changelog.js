@@ -12,6 +12,8 @@ export const rollupByVersion = (nodes) => {
   const versions = new Map();
 
   for (const node of Object.values(nodes || {})) {
+    // A hidden node has no page, so a changelog line for it would be a dead link.
+    if (node.navigable === false) continue;
     for (const event of node.history || []) {
       if (!versions.has(event.v)) versions.set(event.v, { version: event.v, added: 0, changed: 0, byKind: new Map() });
       const row = versions.get(event.v);

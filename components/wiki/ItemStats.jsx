@@ -55,7 +55,8 @@ const statGroups = (stats, rawName, type) => {
 const ItemStats = ({ node }) => {
   const sellPrice = node?.kind === 'item' ? node.sellPrice : null;
   const obtainedFrom = node?.kind === 'item' ? node.obtainedFrom : null;
-  if (!node?.stats && !sellPrice && !obtainedFrom) return null;
+  const anvilPoints = node?.kind === 'item' ? node.anvilPoints : null;
+  if (!node?.stats && !sellPrice && !obtainedFrom && !anvilPoints) return null;
 
   const groups = node.stats ? statGroups(node.stats, node.rawName, node.category) : [];
   // Where the item comes from when nothing in the graph can point at it: a dungeon run, a voyage,
@@ -63,6 +64,11 @@ const ItemStats = ({ node }) => {
   const other = [];
   if (obtainedFrom) other.push({ label: 'Obtained from', value: obtainedFrom });
   if (sellPrice) other.push({ label: 'Sell Price', value: <CoinAmount amount={sellPrice} size={16}/> });
+  // The anvil's Points From Mats: which of the bought points this material pays for.
+  if (anvilPoints) other.push({
+    label: 'Anvil Points',
+    value: anvilPoints.to == null ? `${anvilPoints.from}+` : `${anvilPoints.from} to ${anvilPoints.to}`
+  });
   if (other.length > 0) groups.push({ title: 'Other Info', rows: other });
   return <InfoBox groups={groups}/>;
 };

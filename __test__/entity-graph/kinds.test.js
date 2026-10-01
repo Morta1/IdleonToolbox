@@ -126,7 +126,7 @@ describe('listed kinds', () => {
   // A kind added to the graph later has no listing until it is named here, which would leave its
   // pages out of the sitemap and off the category grid without anything failing.
   it('lists every other kind the graph carries', () => {
-    const unlisted = new Set(['quest', 'shop', 'map']);
+    const unlisted = new Set(['quest', 'shop', 'station', 'spice', 'map']);
     const kinds = [...new Set(nodes.map(([, node]) => node.kind))].filter((kind) => !unlisted.has(kind));
     expect([...kinds].sort()).toEqual([...LISTED_KINDS].sort());
   });

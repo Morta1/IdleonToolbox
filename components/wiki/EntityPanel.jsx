@@ -33,6 +33,24 @@ export const KIND_LABELS = {
   pet: 'Pet',
   bundle: 'Bundle',
   shop: 'Shop',
+  station: 'Station',
+  chip: 'Lab Chip',
+  jewel: 'Lab Jewel',
+  meal: 'Meal',
+  spice: 'Spice',
+  prayer: 'Prayer',
+  building: 'Building',
+  vault: 'Vault Upgrade',
+  starsign: 'Star Sign',
+  constellation: 'Constellation',
+  postbox: 'Post Office Box',
+  sigil: 'Sigil',
+  arcade: 'Arcade Upgrade',
+  god: 'Divinity God',
+  artifact: 'Sailing Artifact',
+  superbit: 'Gaming Superbit',
+  equinox: 'Equinox Upgrade',
+  jade: 'Jade Emporium Upgrade',
   map: 'Map',
   vial: 'Vial',
   bubble: 'Bubble'
@@ -51,6 +69,24 @@ export const KIND_PLURALS = {
   pet: 'Pets',
   bundle: 'Bundles',
   shop: 'Shops',
+  station: 'Stations',
+  chip: 'Lab Chips',
+  jewel: 'Lab Jewels',
+  meal: 'Meals',
+  spice: 'Spices',
+  prayer: 'Prayers',
+  building: 'Buildings',
+  vault: 'Upgrade Vault',
+  starsign: 'Star Signs',
+  constellation: 'Constellations',
+  postbox: 'Post Office Boxes',
+  sigil: 'Sigils',
+  arcade: 'Arcade Upgrades',
+  god: 'Divinity Gods',
+  artifact: 'Sailing Artifacts',
+  superbit: 'Gaming Superbits',
+  equinox: 'Equinox Upgrades',
+  jade: 'Jade Emporium',
   map: 'Maps',
   vial: 'Vials',
   bubble: 'Bubbles'
@@ -93,6 +129,8 @@ const orderLabel = (meta) => (meta?.order != null ? `#${meta.order}` : '');
 // real rate rather than an even split across the list.
 const yieldLabel = (meta) => (meta?.chance > 0 ? `${meta.chance}%` : '');
 // The trapping efficiency a map wants before it yields anything.
+// A skilling node's resource, and for a fishing spot the depths it is caught at.
+const gatherLabel = (meta) => [meta?.skill, meta?.depths?.length ? `Depth ${meta.depths.join(', ')}` : null].filter(Boolean).join(' · ');
 const harvestLabel = (meta) => (meta?.efficiencyReq > 0 ? `${meta.efficiencyReq.toLocaleString('en-US')} efficiency` : '');
 // A bubble's base cost, which is the level-one price. What it actually costs depends on the
 // bubble's level and on half a dozen account bonuses, none of which a save-less page has.
@@ -110,6 +148,13 @@ const unlockNote = (unlock) => (unlock
   : null);
 
 const costLabel = (meta) => (meta?.baseCost > 0 ? `x${meta.baseCost.toLocaleString('en-US')}` : '');
+// What a Glimbo trade pays out: never an item, always a higher cap on one Upgrade Vault upgrade.
+const vaultUpgradeLabel = (meta) => (meta?.upgrade ? `+Max LV: ${cleanUnderscore(meta.upgrade)}` : '');
+const cycleLabel = (meta) => (meta?.quantity != null ? `x${meta.quantity.toLocaleString('en-US')} / cycle` : '');
+const REFINERY_NOTE = 'Cost at salt rank 1; it grows with every rank.';
+const smithingLabel = (meta) => (meta?.levelReq > 0 ? `Smithing LV ${meta.levelReq}` : '');
+// Level-one costs: every level after it costs more.
+const LEVEL_ONE_NOTE = 'Cost of the first level; each level after it costs more.';
 
 // Every section is one relation read in one direction: `from` follows the edges leaving this
 // entity, `to` follows the edges arriving at it. The same rel therefore appears twice under two
@@ -118,7 +163,12 @@ const costLabel = (meta) => (meta?.baseCost > 0 ? `x${meta.baseCost.toLocaleStri
 // underline is the affordance saying there is something to hover.
 const DropChance = ({ meta, node }) => {
   const odds = dropOdds(meta);
-  if (!odds) return null;
+  // A drop the game splices in at runtime carries no odds, but its gate is still worth showing.
+  if (!odds) {
+    if (meta?.randomEvent) return <Chip size={'small'} variant={'outlined'} label={'Random event'}/>;
+    if (meta?.jadeUnlock) return <Chip size={'small'} variant={'outlined'} label={cleanUnderscore(meta.jadeUnlock)}/>;
+    return null;
+  }
   // Coins carry their amount in the smallest denomination, so the raw quantity is not the number
   // to print; CoinAmount already rendered it beside the name.
   const quantity = isCoin(node) ? '' : dropQuantityLabel(meta);
@@ -128,6 +178,9 @@ const DropChance = ({ meta, node }) => {
     {/* A chip rather than another caption: it qualifies what the row IS, and would otherwise be
         read as part of the run of numbers beside it. */}
     {meta?.recipe ? <Chip size={'small'} variant={'outlined'} label={'Recipe'}/> : null}
+    {/* Drops the game splices in at runtime: only during a random event, or once a Jade upgrade is bought. */}
+    {meta?.randomEvent ? <Chip size={'small'} variant={'outlined'} label={'Random event'}/> : null}
+    {meta?.jadeUnlock ? <Chip size={'small'} variant={'outlined'} label={cleanUnderscore(meta.jadeUnlock)}/> : null}
     {talent ? <Typography variant={'caption'} color={'text.secondary'}>{talent}</Typography> : null}
     {quantity ? <Typography variant={'caption'} color={'text.secondary'}>{quantity}</Typography> : null}
     <Typography variant={'caption'} color={'text.secondary'}>{odds}</Typography>
@@ -141,8 +194,11 @@ const DropChance = ({ meta, node }) => {
 const REL_SECTIONS = {
   item: [
     { title: 'Dropped by', dir: 'to', rel: 'drops', Detail: DropChance },
+    { title: 'Gathered from', dir: 'to', rel: 'gathers', show: gatherLabel },
     { title: 'Crafted from', dir: 'from', rel: 'craftedFrom', show: quantityLabel },
     { title: 'Used in crafting', dir: 'to', rel: 'craftedFrom', show: quantityLabel },
+    { title: 'Refined from', dir: 'from', rel: 'refinedFrom', show: cycleLabel, note: REFINERY_NOTE },
+    { title: 'Used in refinery', dir: 'to', rel: 'refinedFrom', show: cycleLabel, note: REFINERY_NOTE },
     // Quests and achievements both pay out through `rewards`, so this heading names neither.
     { title: 'Reward from', dir: 'to', rel: 'rewards', show: amountLabel },
     { title: 'Required by quest', dir: 'to', rel: 'requires', show: amountLabel },
@@ -151,6 +207,9 @@ const REL_SECTIONS = {
     { title: 'Material', dir: 'from', rel: 'upgradedWith' },
     { title: 'Used in upgrades', dir: 'to', rel: 'upgradedWith', show: costLabel },
     { title: 'Sold by', dir: 'to', rel: 'sells' },
+    { title: 'Produced at', dir: 'to', rel: 'produces', show: smithingLabel },
+    { title: 'Traded to', dir: 'to', rel: 'buys' },
+    { title: 'Raises max level of', dir: 'to', rel: 'maxRaisedBy' },
     // Both ends of a container: the box lists what it can roll, and each obol lists the box it
     // comes out of, which for every obol in the game is its only source.
     { title: 'Opens into', dir: 'from', rel: 'yields', show: yieldLabel },
@@ -163,6 +222,7 @@ const REL_SECTIONS = {
   ],
   monster: [
     { title: 'Drops', dir: 'from', rel: 'drops', Detail: DropChance, tiered: true },
+    { title: 'Gives', dir: 'from', rel: 'gathers', show: gatherLabel },
     { title: 'Found in', dir: 'to', rel: 'spawns', show: spawnLabel },
     { title: 'Achievements', dir: 'to', rel: 'about' }
   ],
@@ -171,11 +231,47 @@ const REL_SECTIONS = {
     // A chain of quests is not a list of names: each step has a brief, a difficulty, objectives and
     // rewards, so it renders as a block of its own rather than through the generic row.
     { title: 'Quests', dir: 'from', rel: 'gives', Row: NpcQuestRow },
+    // Glimbo's Swap Meet. Flat: the table has no column for the upgrade, which is the one thing
+    // each row is there to say.
+    { title: 'Takes in trade', dir: 'from', rel: 'buys', show: vaultUpgradeLabel, flat: true },
     { title: 'Achievements', dir: 'to', rel: 'about' }
   ],
   shop: [
     { title: 'Located in', dir: 'to', rel: 'hasShop' },
     { title: 'Sells', dir: 'from', rel: 'sells' }
+  ],
+  station: [
+    { title: 'Produces', dir: 'from', rel: 'produces', show: smithingLabel },
+    // Flat: the table has no cost column. Only the Beanstalk uses this today, and all 17 foods
+    // share one first-rank cost, which the row still prints.
+    { title: 'Material', dir: 'from', rel: 'upgradedWith', show: costLabel, note: 'Cost of the first rank.', flat: true }
+  ],
+  chip: [
+    { title: 'Crafted from', dir: 'from', rel: 'craftedFrom', show: quantityLabel }
+  ],
+  jewel: [
+    { title: 'Crafted from', dir: 'from', rel: 'craftedFrom', show: quantityLabel }
+  ],
+  meal: [
+    { title: 'Used in crafting', dir: 'to', rel: 'craftedFrom', show: quantityLabel }
+  ],
+  spice: [
+    { title: 'Used in crafting', dir: 'to', rel: 'craftedFrom', show: quantityLabel }
+  ],
+  constellation: [
+    { title: 'Located in', dir: 'from', rel: 'locatedIn' }
+  ],
+  // The items Glimbo takes read as the upgrade's max-level inputs.
+  vault: [
+    { title: 'Max level raised by', dir: 'from', rel: 'maxRaisedBy', note: 'Trade these to Glimbo at his Swap Meet.' }
+  ],
+  prayer: [
+    { title: 'Material', dir: 'from', rel: 'upgradedWith', show: costLabel, note: LEVEL_ONE_NOTE }
+  ],
+  building: [
+    { title: 'Material', dir: 'from', rel: 'upgradedWith', show: costLabel, note: LEVEL_ONE_NOTE },
+    // The Talent Book Library hands out talent books.
+    { title: 'Gives', dir: 'from', rel: 'yields' }
   ],
   map: [
     { title: 'World', dir: 'to', rel: 'contains' },
@@ -183,6 +279,7 @@ const REL_SECTIONS = {
     { title: 'Critters', dir: 'from', rel: 'harvests', show: harvestLabel },
     { title: 'NPCs', dir: 'from', rel: 'hosts' },
     { title: 'Shop', dir: 'from', rel: 'hasShop' },
+    { title: 'Constellations', dir: 'to', rel: 'locatedIn' },
     { title: 'Connects to', dir: 'from', rel: 'connectsTo' },
     { title: 'Reachable from', dir: 'to', rel: 'connectsTo' }
   ],
@@ -356,7 +453,7 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
         size,
         tabular: size > tableThreshold(section) && !section.Row && !section.flat,
         // The gate belongs under the recipe it gates rather than beside the item's own stats.
-        note: section.rel === 'craftedFrom' && section.dir === 'from' ? unlockNote(node.recipeUnlock) : null
+        note: section.rel === 'craftedFrom' && section.dir === 'from' ? unlockNote(node.recipeUnlock) : section.note ?? null
       };
     })
     .filter((section) => section.groups.length > 0);
@@ -406,7 +503,9 @@ const EntityPanel = ({ index, id, onNavigate, onBack, onBrowseKind, hrefFor }) =
               {cleanUnderscore(node.description)}
             </Typography>
             : null}
-      {sections.length === 0 ? <Typography sx={{ mt: 2 }} color={'text.secondary'}>
+      {/* A catalog page (a sigil, an arcade upgrade) is its description and links to nothing by
+          design, so the empty-state line only shows where the page would otherwise be blank. */}
+      {sections.length === 0 && !node.description ? <Typography sx={{ mt: 2 }} color={'text.secondary'}>
         Nothing is linked to this entity yet.
       </Typography> : null}
       {sections.map(({ title, dir, groups, size, show, note, Detail, Row, tabular }) => <Stack key={title} sx={{ mt: 3 }} gap={0.5}>

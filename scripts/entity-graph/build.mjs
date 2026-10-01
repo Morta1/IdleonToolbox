@@ -17,6 +17,19 @@ import { questItemEdges } from './edges/quest-items.mjs';
 import { questNpcEdges } from './edges/quest-npc.mjs';
 import { shopEdges } from './edges/shops.mjs';
 import { currencyShopEdges } from './edges/currency-shops.mjs';
+import { glimboEdges } from './edges/glimbo.mjs';
+import { refineryEdges } from './edges/refinery.mjs';
+import { anvilProductEdges } from './edges/anvil.mjs';
+import { stationNodes } from './nodes/stations.mjs';
+import { buildingNodes, chipNodes, jewelNodes, mealNodes, prayerNodes, spiceNodes } from './nodes/systems.mjs';
+import { SPICE_NAMES } from '../../parsers/world-4/spiceNames.mjs';
+import { buildingEdges, labEdges, prayerEdges } from './edges/systems.mjs';
+import { beanstalkEdges } from './edges/beanstalk.mjs';
+import { vaultNodes } from './nodes/vault.mjs';
+import { vaultEdges } from './edges/vault.mjs';
+import { arcadeNodes, constellationNodes, postBoxNodes, sigilNodes, starSignNodes } from './nodes/catalogs-a.mjs';
+import { constellationEdges } from './edges/catalogs-a.mjs';
+import { artifactNodes, equinoxNodes, godNodes, jadeNodes, superbitNodes } from './nodes/catalogs-b.mjs';
 import { containerEdges } from './edges/containers.mjs';
 import { cardEdges } from './edges/cards.mjs';
 import { harvestEdges } from './edges/harvests.mjs';
@@ -34,10 +47,15 @@ import { mapEdges } from './edges/maps.mjs';
 import { worldEdges } from './edges/worlds.mjs';
 import { alchemyEdges } from './edges/alchemy.mjs';
 import { stampEdges } from './edges/stamps.mjs';
+import { gatherEdges } from './edges/gathering.mjs';
+import { ninjaHatEdges, randomEventEdges } from './edges/injected-drops.mjs';
+import { talentLibraryEdges } from './edges/talent-library.mjs';
+import { typeLabels } from './obtained-from-types.mjs';
 import { resolveEdges } from './resolve.mjs';
 import { assignSlugs } from './slugs.mjs';
 import { obtainedFrom } from './obtained-from.mjs';
 import { recipeUnlocks } from './recipe-unlocks.mjs';
+import { anvilPoints } from './anvil-points.mjs';
 import { aliases } from './aliases.mjs';
 import { ignore } from './ignore.mjs';
 import { attachHistory } from './history.mjs';
@@ -62,6 +80,9 @@ const achievements = readJson('achievements.json');
 const taskUnlocks = readJson('taskUnlocks.json');
 const companions = readJson('companions.json');
 const talents = readJson('talents.json');
+const research = readJson('research.json');
+const artifacts = readJson('artifacts.json');
+const compass = readJson('compass.json');
 // Its own file rather than a shared-data key, so importing it never drags the 1MB bundle onto the
 // builds pages that read the same map.
 const classPromotions = readJson('classPromotions.json');
@@ -83,9 +104,11 @@ const bundleInfo = sharedData.bundles;
 const trappingInfo = sharedData.trappingInfo;
 const dungeonKeychains = sharedData.dungeonKeychains;
 const companionGroups = sharedData.companionGroups;
+const upgradeVault = sharedData.upgradeVault;
+const refinery = sharedData.refinery;
 
 const nodes = {
-  ...itemNodes(items, monsters, cards, stamps, craftSellPrices(crafts, items)),
+  ...itemNodes(items, monsters, cards, stamps, craftSellPrices(crafts, items), randomList),
   ...monsterNodes(monsters, mapNames),
   ...npcQuestNodes(quests),
   // After npcQuestNodes: the roster covers every quest NPC too, and carries a name and an icon
@@ -93,6 +116,24 @@ const nodes = {
   ...npcNodes(npcRoster),
   ...shopNodes(shops, mapNames),
   ...currencyShopNodes(),
+  ...stationNodes(),
+  ...chipNodes(sharedData.chips),
+  ...jewelNodes(sharedData.jewels),
+  ...mealNodes(sharedData.cookingMenu),
+  ...spiceNodes(SPICE_NAMES),
+  ...prayerNodes(sharedData.prayers),
+  ...buildingNodes(sharedData.towers),
+  ...vaultNodes(upgradeVault),
+  ...starSignNodes(sharedData.starSigns),
+  ...constellationNodes(sharedData.constellations),
+  ...postBoxNodes(sharedData.postOffice),
+  ...sigilNodes(sharedData.sigils),
+  ...arcadeNodes(sharedData.arcadeShop),
+  ...godNodes(sharedData.gods),
+  ...artifactNodes(artifacts, sharedData.islands),
+  ...superbitNodes(sharedData.superbitsUpgrades),
+  ...equinoxNodes(sharedData.equinoxUpgrades),
+  ...jadeNodes(sharedData.jadeUpgrades),
   ...bundleNodes(itemSources, bundleInfo, items, bundlePets(), companions),
   ...petNodes(companions, companionGroups),
   ...talentNodes(talents),
@@ -117,6 +158,15 @@ const rawEdges = [
   ...questNpcEdges(quests),
   ...shopEdges(shops, mapNames, items),
   ...currencyShopEdges(gemShop, skullShop, weeklyShop, items),
+  ...glimboEdges(research, upgradeVault),
+  ...vaultEdges(research, upgradeVault),
+  ...refineryEdges(refinery),
+  ...anvilProductEdges(anvilProducts, items),
+  ...labEdges(sharedData.chips, sharedData.jewels),
+  ...prayerEdges(sharedData.prayers),
+  ...buildingEdges(sharedData.towers, sharedData.saltLicks),
+  ...beanstalkEdges(sharedData.ninjaExtraInfo),
+  ...constellationEdges(sharedData.constellations),
   ...containerEdges(randomList),
   ...harvestEdges(trappingInfo),
   ...itemSourceEdges(itemSources, items),
@@ -133,6 +183,10 @@ const rawEdges = [
   ...worldEdges(nodes, sharedData),
   ...alchemyEdges(vials, cauldrons),
   ...stampEdges(stamps),
+  ...gatherEdges(monsters, items, sharedData.fishPools),
+  ...randomEventEdges(randomList, monsters),
+  ...ninjaHatEdges(randomList, sharedData.ninjaEquipment, items, monsters),
+  ...talentLibraryEdges(sharedData.towers, items),
 ];
 
 // A card the monster already drops from its own table needs no edge of its own. cardEdges exists
@@ -226,13 +280,14 @@ for (const edge of edges) {
 // last so it can be limited to the items nothing else reached.
 const sourcedItems = new Set();
 for (const edge of edges) {
-  if (['drops', 'rewards', 'sells', 'yields'].includes(edge.rel) && nodes[edge.to]?.kind === 'item') sourcedItems.add(edge.to);
-  if (edge.rel === 'craftedFrom' && nodes[edge.from]?.kind === 'item') sourcedItems.add(edge.from);
+  if (['drops', 'rewards', 'sells', 'yields', 'produces', 'harvests', 'gathers'].includes(edge.rel) && nodes[edge.to]?.kind === 'item') sourcedItems.add(edge.to);
+  if (['craftedFrom', 'refinedFrom'].includes(edge.rel) && nodes[edge.from]?.kind === 'item') sourcedItems.add(edge.from);
 }
 // The code-derived labels take precedence: "Dungeon" from an actual DropSomething call beside
 // _customBlock_DungeonStat beats the same word guessed from an item's type.
 const labels = new Map([
   ...obtainedFrom(items, anvilProducts, randomList, { dungeonKeychains }),
+  ...typeLabels(items, { mapNames, compass }),
   ...codeGrantLabels(itemSources)
 ]);
 for (const [rawName, label] of labels) {
@@ -249,6 +304,14 @@ for (const [rawName, gate] of recipeUnlocks(taskUnlocks)) {
   if (!node) continue;
   node.recipeUnlock = gate;
   gatedRecipes += 1;
+}
+
+let anvilMaterials = 0;
+for (const [rawName, range] of anvilPoints(sharedData.anvilUpgradeCost)) {
+  const node = nodes[`item:${rawName}`];
+  if (!node) continue;
+  node.anvilPoints = range;
+  anvilMaterials += 1;
 }
 
 const withHistory = attachHistory(nodes, entityHistory, crafts);
@@ -336,6 +399,7 @@ console.log('[entity-graph] nodes:', JSON.stringify(stats.nodes));
 console.log('[entity-graph] edges:', JSON.stringify(stats.edges));
 console.log(`[entity-graph] dropped ${resolvedEdges.length - edges.length} duplicate edges, nulled ${nulledIcons} missing icons`);
 console.log(`[entity-graph] task board gates ${gatedRecipes} recipes`);
+console.log(`[entity-graph] anvil points on ${anvilMaterials} materials`);
 console.log(`[entity-graph] history on ${withHistory} entities`);
 console.log(`[entity-graph] unresolved: ${unresolved.length} (was ${previousCount})`);
 if (unresolved.length !== previousCount) {
