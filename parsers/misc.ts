@@ -400,11 +400,19 @@ export const isEquipmentItem = (item: any): boolean =>
 // check). The Storage Chest is NOT carry-capped, so any item that stacks there can reach the threshold.
 // An item is greenstackable iff it can sit in the Storage Chest as a stack:
 //   1. not equipment - see isEquipmentItem, gear never stacks;
-//   2. actually depositable - hole/cavern resources (Type CURRENCY) and dungeon-only drops (DUNGEON_*)
-//      route to their own banks / evaporate on map exit, so they never get a chest slot.
-const NON_STORABLE_TYPES = new Set(['CURRENCY', 'DUNGEON_EVAPORATE', 'DUNGEON_FOOD', 'DUNGEON_ITEM', 'DUNGEON_KEY']);
+//   2. actually depositable - the game's pickup code banks some drops by name and never puts them in
+//      the inventory, and dungeon drops of the types below evaporate or stay in the dungeon.
+// Type CURRENCY is only a label, the game never checks it: Zenith Cluster and Orblet are CURRENCY
+// and sit in the chest like any other item.
+const NON_STORABLE_TYPES = new Set(['DUNGEON_EVAPORATE', 'DUNGEON_FOOD', 'DUNGEON_ITEM']);
+const NON_STORABLE_ITEMS = new Set([
+  'Motherlode', 'Bug14', 'MotherlodeTREE', 'Fish14', // hole resources
+  'LootDice', 'DungCredits1', 'DungCredits2', 'DungEnhancer0', 'DungEnhancer1', 'DungEnhancer2',
+  'XP', 'XPskill', 'Cash', 'Cashb'
+]);
 const isGreenstackable = (item: any): boolean =>
-  typeof item?.typeGen === 'string' && !isEquipmentItem(item) && !NON_STORABLE_TYPES.has(item?.Type);
+  typeof item?.typeGen === 'string' && !isEquipmentItem(item) && !NON_STORABLE_TYPES.has(item?.Type)
+  && !NON_STORABLE_ITEMS.has(item?.rawName);
 
 export const getSlab = (idleonData: any) => {
   const lootyRaw = idleonData?.Cards?.[1] || tryToParse(idleonData?.Cards1);
@@ -432,8 +440,10 @@ export const getSlab = (idleonData: any) => {
     unrealisticGreenstack: unrealisticGreenstackItems?.[name]
   }));
   const missingItems = slabItems?.filter(({ obtained, unobtainable }) => !obtained && !unobtainable)?.length;
-  const greenstackableItems = slabItems?.filter(({ greenstackable, unobtainable, unrealisticGreenstack }) =>
-    greenstackable && !unobtainable && !unrealisticGreenstack);
+  // The game counts every registered greenstack, so an unrealistic or unobtainable item the account
+  // did stack counts toward both sides; the rest stay out so 100% remains reachable.
+  const greenstackableItems = slabItems?.filter(({ greenstackable, greenStacked, unobtainable, unrealisticGreenstack }) =>
+    greenstackable && (greenStacked || (!unobtainable && !unrealisticGreenstack)));
   const greenstackableCount = greenstackableItems?.length ?? 0;
   const greenstackableStackedCount = greenstackableItems?.filter(({ greenStacked }) => greenStacked)?.length ?? 0;
 

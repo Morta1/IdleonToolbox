@@ -14,7 +14,8 @@ export const patchNotes = [
       'Sneaking: new Detection tab showing the detection % of every ninja, plus a calculator for any mastery, floor and Funeral Flower count'
     ],
     'fixes': [
-      'Gaming: Sprout Capacity upgrade cost now matches the game at higher levels'
+      'Gaming: Sprout Capacity upgrade cost now matches the game at higher levels',
+      'Slab: greenstack total now matches the game (Zenith Cluster now counts)'
     ]
   },
   {

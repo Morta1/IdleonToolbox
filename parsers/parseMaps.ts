@@ -230,7 +230,10 @@ export const unrealisticGreenstackItems = ([
   'Timecandy1', 'Timecandy2', 'Timecandy3', 'Timecandy4', 'Timecandy5', 'Timecandy6',
   'FoodEvent1', 'FoodEvent2', 'FoodEvent3', 'FoodEvent4', // Giftmas event foods, 3-4 stackers
   'ClassSwap', 'ResetBox', 'CardPack6', 'Quest30', 'Quest35', 'Quest36', 'Quest40', 'Quest71', 'Quest89', 'Timecandy8',
-  'EquipmentSmithingTabs4', 'EquipmentSmithingTabs5', 'EquipmentSmithingTabs6'
+  'EquipmentSmithingTabs4', 'EquipmentSmithingTabs5', 'EquipmentSmithingTabs6',
+  // Chest-storable but nowhere near 10M: 0 of 338 leaderboard players stacked them, biggest chest
+  // stacks 117,800 Sesame Seeds (1/100 mimic drop) and 6,042 Orblets
+  'Quest45', 'Orblet'
 ] as any).toSimpleObject();
 
 export const filteredLootyItems = ([
