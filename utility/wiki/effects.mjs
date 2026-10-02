@@ -5,7 +5,7 @@ const roundTwo = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 const cleanUnderscore = (str) => (str ? String(str).replace(/_/g, ' ') : '');
 
 // _customBlock_ArbitraryCode5Inputs
-export const growth = (func, level, x1, x2, shouldRound = true) => {
+export const growth = (func, level, x1, x2, shouldRound = true, _unused5) => {
   let result;
   switch (func) {
     case 'add':
