@@ -14,6 +14,7 @@ import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { isPast } from 'date-fns';
 import RandomEvent from '@components/account/Misc/RandomEvent';
 import Trade from '@components/account/Worlds/World5/Sailing/Trade';
+import BossRespawns from './BossRespawns';
 import { useRouter } from 'next/router';
 import { calcCost, calcTimeToRankUp, getRefineryCycles } from '@parsers/world-3/refinery';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
@@ -69,7 +70,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const minibosses = getMiniBossesData(account);
   const dailyReset = now + account?.timeAway?.ShopRestock * 1000;
   const weeklyReset = now + (account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[39]) * 1000;
-  const allBossesMax = minibosses.every(({ maxed }) => maxed);
   const closestBuilding = account?.towers?.data?.reduce((closestBuilding, building) => {
     const allBlueActive = account?.lab.jewels?.slice(3, 7)?.every(({ active }) => active) ? 1 : 0;
     const jewelTrimmedSlot = account?.lab.jewels?.[3]?.active ? 1 + allBlueActive : 0;
@@ -645,7 +645,10 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
       </Section>}
 
       {trackers?.Etc?.minibosses?.checked && <Section title={'Bosses'}>
-        {minibosses?.length > 0 ? <Stack gap={1} sx={{ width: allBossesMax ? 200 : 250 }}>
+        <Stack gap={2} sx={{ width: 270 }}>
+          <BossRespawns account={account} characters={characters} lastUpdated={lastUpdated} />
+        </Stack>
+        {minibosses?.length > 0 ? <Stack gap={1} sx={{ width: 270 }}>
           <Stack gap={2}
             sx={{ cursor: 'pointer' }}
             onClick={() => router.push({ pathname: '/account/world-3/death-note' })}
