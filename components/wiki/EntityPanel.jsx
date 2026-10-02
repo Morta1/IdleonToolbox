@@ -13,84 +13,14 @@ import { dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, percentLa
 import { entityName } from '@utility/wiki/names';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import { hasListing } from '@utility/wiki/kinds.mjs';
+import { KIND_LABELS, KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { collapseRows, tableThreshold } from '@utility/wiki/relations';
 import RelationTable from './RelationTable';
 import NpcQuestRow from './NpcQuestRow';
 import CoinAmount, { isCoin } from './CoinAmount';
 import Price from './Price';
 
-export { entityName };
-
-export const KIND_LABELS = {
-  item: 'Item',
-  monster: 'Monster',
-  npc: 'NPC',
-  quest: 'Quest',
-  achievement: 'Achievement',
-  world: 'World',
-  class: 'Class',
-  talent: 'Talent',
-  pet: 'Pet',
-  bundle: 'Bundle',
-  shop: 'Shop',
-  station: 'Station',
-  chip: 'Lab Chip',
-  jewel: 'Lab Jewel',
-  meal: 'Meal',
-  spice: 'Spice',
-  prayer: 'Prayer',
-  building: 'Building',
-  vault: 'Vault Upgrade',
-  starsign: 'Star Sign',
-  constellation: 'Constellation',
-  postbox: 'Post Office Box',
-  sigil: 'Sigil',
-  arcade: 'Arcade Upgrade',
-  god: 'Divinity God',
-  artifact: 'Sailing Artifact',
-  superbit: 'Gaming Superbit',
-  equinox: 'Equinox Upgrade',
-  jade: 'Jade Emporium Upgrade',
-  map: 'Map',
-  vial: 'Vial',
-  bubble: 'Bubble'
-};
-
-// NPC pluralises without an s on the label itself, so this cannot be derived from KIND_LABELS.
-export const KIND_PLURALS = {
-  item: 'Items',
-  monster: 'Monsters',
-  npc: 'NPCs',
-  quest: 'Quests',
-  achievement: 'Achievements',
-  world: 'Worlds',
-  class: 'Classes',
-  talent: 'Talents',
-  pet: 'Pets',
-  bundle: 'Bundles',
-  shop: 'Shops',
-  station: 'Stations',
-  chip: 'Lab Chips',
-  jewel: 'Lab Jewels',
-  meal: 'Meals',
-  spice: 'Spices',
-  prayer: 'Prayers',
-  building: 'Buildings',
-  vault: 'Upgrade Vault',
-  starsign: 'Star Signs',
-  constellation: 'Constellations',
-  postbox: 'Post Office Boxes',
-  sigil: 'Sigils',
-  arcade: 'Arcade Upgrades',
-  god: 'Divinity Gods',
-  artifact: 'Sailing Artifacts',
-  superbit: 'Gaming Superbits',
-  equinox: 'Equinox Upgrades',
-  jade: 'Jade Emporium',
-  map: 'Maps',
-  vial: 'Vials',
-  bubble: 'Bubbles'
-};
+export { entityName, KIND_LABELS, KIND_PLURALS };
 
 
 // The panel is reached from search, from a category listing, or from another entity's row, so it

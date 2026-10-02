@@ -4,6 +4,7 @@ import InfoBox from './InfoBox';
 import StarLadder from './StarLadder';
 import { cleanUnderscore, numberWithCommas } from '@utility/helpers';
 import { notateGame } from '@utility/wiki/notate';
+import { cardEffect } from '@utility/wiki/effects.mjs';
 
 const WORLD_NAMES = [
   'Blunder_Hills', 'YumYum_Desert', 'Frostbite_Tundra', 'Hyperion_Nebula',
@@ -40,7 +41,7 @@ const MonsterInfo = ({ node, index, card, cardId, cardDropChance, onNavigate }) 
       value: <Link component={'button'} type={'button'} variant={'body2'} underline={'hover'}
                    onClick={() => onNavigate(cardId)}>{cleanUnderscore(node.name)} Card</Link>
     });
-    cardRows.push({ label: 'Effect', value: cleanUnderscore(card.effect.replace('{', card.bonus)) });
+    cardRows.push({ label: 'Effect', value: cardEffect(card) });
     if (card.category) cardRows.push({ label: 'Category', value: cleanUnderscore(card.category) });
     if (cardDropChance > 0) {
       cardRows.push({ label: 'Dropchance', value: `1 in ${numberWithCommas(Math.round(1 / cardDropChance))}` });

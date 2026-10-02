@@ -4,6 +4,7 @@ import StarLadder from './StarLadder';
 import { calculateAmountToNextLevel } from '@parsers/cardMath';
 import { cleanUnderscore, numberWithCommas } from '@utility/helpers';
 import { notateGame } from '@utility/wiki/notate';
+import { cardEffect } from '@utility/wiki/effects.mjs';
 
 const BONUS_TIERS = [0, 1, 2, 3, 4, 5, 6];
 const REQUIREMENT_TIERS = [0, 1, 2, 3, 4, 5];
@@ -35,7 +36,7 @@ const CardBonus = ({ card, dropChance }) => {
     {
       title: 'Card Bonus',
       content: bonusLadder,
-      rows: [{ label: 'Effect', value: cleanUnderscore(card.effect.replace('{', card.bonus)) }]
+      rows: [{ label: 'Effect', value: cardEffect(card) }]
     },
     { title: 'Tier Requirements', content: requirements },
     { title: 'Other Details', rows: details }

@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import Tabber from '../components/common/Tabber';
 import LeaderboardSection from '../components/Leaderboard';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
@@ -45,7 +45,7 @@ const Leaderboards = () => {
   const [inputValue, setInputValue] = useState('');
   const [searchedChar, setSearchChar] = useState('');
   const router = useRouter();
-  const { t } = router.query;
+  const { t, player } = router.query;
   // Derived during render, never seeded into a useState initialiser: on a statically exported page
   // router.query is {} until isReady, so an initialiser would freeze /leaderboards?t=Skills on the
   // global data while the tab strip, which reads the router live, highlighted Skills. clickedTab
@@ -55,6 +55,10 @@ const Leaderboards = () => {
     ? t.toLowerCase()
     : null;
   const selectedTab = queryTab ?? clickedTab ?? 'global';
+  // ?player= deep link (the Discord bot links here). Derived during render like the tab: the
+  // query is empty until isReady on the static export.
+  const queryPlayer = router.isReady && typeof player === 'string' && player.trim() ? player.trim() : null;
+  const handledPlayer = useRef(new Set());
   const [loadingSearchedChar, setLoadingSearchedChar] = useState(false);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
   // Mantine reads storage in an effect (getInitialValueInEffect is the default), so the export and
@@ -120,30 +124,47 @@ const Leaderboards = () => {
 
     const usersToFetch = [loggedLeaderboardName].filter(Boolean);
     const fetchUsers = async () => {
-      let updated = false;
-      let updatedData = data;
+      const fetched = [];
+      let current = data;
       for (const user of usersToFetch) {
-        const userExists = Object.values(updatedData).some(value => {
+        const userExists = Object.values(current).some(value => {
           const lists = typeof value === 'object' && !Array.isArray(value) ? Object.values(value) : [value];
           return lists.every(list => Array.isArray(list) && list.some(item => item.mainChar === user));
         });
         if (!userExists) {
           const userStats = await fetchUserLeaderboards(tab, user);
           if (userStats && !userStats.error) {
-            updatedData = searchUserAndAppend(updatedData, user, userStats, { isLoggedUser: true });
-            updated = true;
+            fetched.push({ user, userStats });
+            current = searchUserAndAppend(current, user, userStats, { isLoggedUser: true });
           }
         }
       }
-      if (updated) {
+      if (fetched.length) {
+        // Merge into the latest cache, not the snapshot above: a deep-linked search may have
+        // appended its row while these fetches were in flight. Appending dedupes by name.
         queryClient.setQueryData(['leaderboard', tab], (old) => {
-          if (!old) return old;
-          return { ...old, [tab]: updatedData };
+          if (!old?.[tab]) return old;
+          let merged = old[tab];
+          for (const { user, userStats } of fetched) {
+            merged = searchUserAndAppend(merged, user, userStats, { isLoggedUser: true });
+          }
+          return { ...old, [tab]: merged };
         });
       }
     };
     fetchUsers();
   }, [leaderboards, loggedLeaderboardName]);
+
+  // Run the deep-linked search once per tab, after this tab's data is cached: handleUserSearch only
+  // appends to data that is already there.
+  useEffect(() => {
+    const key = `${selectedTab.toLowerCase()}:${queryPlayer}`;
+    if (!queryPlayer || handledPlayer.current.has(key)) return;
+    if (!leaderboards?.[selectedTab.toLowerCase()]) return;
+    handledPlayer.current.add(key);
+    setInputValue(queryPlayer);
+    handleUserSearch(queryPlayer);
+  }, [queryPlayer, leaderboards, selectedTab]);
 
   const handleKeyDown = (event) => {
     if (!inputValue || loadingSearchedChar) return;
@@ -174,9 +195,9 @@ const Leaderboards = () => {
     return newData;
   };
 
-  const handleUserSearch = async () => {
-    if (!inputValue) return;
-    const searchValue = inputValue.trim();
+  const handleUserSearch = async (name = inputValue) => {
+    if (!name) return;
+    const searchValue = name.trim();
     if (!searchValue) return;
 
     const prevSearched = searchedChar;
@@ -236,7 +257,7 @@ const Leaderboards = () => {
           input: {
             endAdornment: <InputAdornment position="end"><IconButton
               loading={loadingSearchedChar}
-              disabled={!leaderboards?.totalUsers || loadingSearchedChar} onClick={handleUserSearch}>
+              disabled={!leaderboards?.totalUsers || loadingSearchedChar} onClick={() => handleUserSearch()}>
               <IconSearch />
             </IconButton></InputAdornment>
           }

@@ -58,6 +58,7 @@ import { anvilPoints } from './anvil-points.mjs';
 import { aliases } from './aliases.mjs';
 import { ignore } from './ignore.mjs';
 import { attachHistory } from './history.mjs';
+import { buildBotIndex } from './bot-index.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(__dirname, '..', '..', 'data');
@@ -379,6 +380,11 @@ const searchIndex = Object.entries(nodes)
   }));
 fs.writeFileSync(path.join(dataDir, 'wiki-search-index.json'), JSON.stringify(searchIndex));
 console.log(`[entity-graph] wiki search index: ${searchIndex.length} entries`);
+
+// The Discord bot's index: the search index plus what a one-message answer needs.
+const botIndex = buildBotIndex(nodes, edges);
+fs.writeFileSync(path.join(dataDir, 'bot-wiki-index.json'), JSON.stringify(botIndex));
+console.log(`[entity-graph] bot wiki index: ${botIndex.length} entries`);
 
 const stats = {
   nodes: Object.values(nodes).reduce((acc, n) => ({ ...acc, [n.kind]: (acc[n.kind] || 0) + 1 }), {}),

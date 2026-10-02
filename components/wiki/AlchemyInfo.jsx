@@ -2,21 +2,10 @@ import React from 'react';
 import InfoBox from './InfoBox';
 import { Box, Stack } from '@mui/material';
 import { prefix } from '@utility/helpers';
-import { cleanUnderscore, growth, numberWithCommas } from '@utility/helpers';
+import { cleanUnderscore, numberWithCommas } from '@utility/helpers';
+import { alchemyEffect } from '@utility/wiki/effects.mjs';
 
-// A vial or bubble's description carries a `{` where its bonus goes, and what fills it is the
-// bonus at the reader's level. A page with no save has no level, so it reads at level one: a real
-// number the game itself would show, rather than a blank or someone else's total.
-const LEVEL = 1;
-
-export const alchemyEffect = (node) => {
-  const { func, x1, x2 } = node?.effect || {};
-  if (!node?.description) return null;
-  if (!func) return cleanUnderscore(node.description);
-  const bonus = growth(func, LEVEL, x1, x2, false);
-  const value = Number.isFinite(bonus) ? Math.round(bonus * 100) / 100 : '';
-  return cleanUnderscore(String(node.description).replace(/[{$]/g, String(value)));
-};
+export { alchemyEffect };
 
 // The liquids have art of their own, and the rest of the site already draws them from Liquid<n>_x1.
 const LiquidIcon = ({ liquid, size = 18 }) => {
