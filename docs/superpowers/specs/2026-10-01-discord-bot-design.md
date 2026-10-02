@@ -252,10 +252,10 @@ Card fields:
 | Rank, total GP, members | `rank`, `total_gp`, `members_count` |
 | Level, max members | `getGuildLevel(total_gp)` and `30 + 4 × level`, ported from `parsers/guild` |
 | Weekly rank change | `rank_history` point closest to 7 days before the latest, minus current rank. No field gives last week's rank directly (`rank_delta_2w` spans two weeks) |
-| GP this week, vs last week | `current_week.gp_this_week`, index `vs_last_wk_pct` |
+| GP this week, vs last week | `current_week.gp_this_week`; the % ports the detail page's `computeVsLastWeekPct` (this week's GP vs the last-week timeseries point at or before latest minus 7 days), not the index's `vs_last_wk_pct`, so the card matches the page it links to |
 | Active this week | members with `gp_earned > 0` (new, not shown on the site) |
-| Top contributors | top 3 members by `gp_earned`; crown for `member_rank` 0 and 1 (`GuildRank0/1.png`) |
-| Icon | `guild_icon`. Verify during implementation what it holds and how the site renders it; fall back to `etc/Guild.png` |
+| Top contributors | top 3 members by `gp_earned`; crown for `member_rank` 0 and 1 (`/etc/GuildRank0.png`, `/etc/GuildRank1.png`) |
+| Icon | `guild_icon` rendered as `/data/G2icon<n>.png`; fall back to `/etc/Guild.png` |
 
 Only the tracked top ~1,000 guilds exist in the API; see "Errors" for the rest.
 
