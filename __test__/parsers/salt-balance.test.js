@@ -41,6 +41,26 @@ describe('getSaltsBalance', () => {
     });
   });
 
+  it('keeps a rank whose cost exactly matches the previous salt output', () => {
+    // Explosive rank 5 makes floor(5^1.3) = 8 per cycle; Spontaneity rank 3 costs floor(3^1.3) * 2 = 8.
+    // A 193s cycle turns the per-hour round trip into 7.999..., which used to drop the answer to 2.
+    const salt = (rawName, rank, cost) => ({ rawName, rank, cost, unlocked: true, active: 1 });
+    const minimalAccount = {
+      refinery: {
+        refinerySaltTaskLevel: 10,
+        salts: [
+          salt('Refinery1', 11, []),
+          salt('Refinery2', 5, [{ rawName: 'Refinery1', quantity: 2 }]),
+          salt('Refinery3', 3, [{ rawName: 'Refinery2', quantity: 2 }])
+        ]
+      }
+    };
+    const result = getSaltsBalance(minimalAccount, [], { combustionTime: 193, synthesisTime: 772, polymerizeTime: 1e5 });
+    expect(result[1].maxSafeRank).toBe(6);
+    expect(result[2].maxSafeRank).toBe(3);
+    expect(result[1].isDeficit).toBe(false);
+  });
+
   it('leaves the balance positive when nothing consumes the salt', () => {
     const lastUnlocked = balances.filter(({ unlocked }) => unlocked).at(-1);
     expect(lastUnlocked.consumedPerHour).toBe(0);

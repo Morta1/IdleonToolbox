@@ -16,7 +16,8 @@ export const patchNotes = [
     'fixes': [
       'Leaderboards: fixed leaderboards not updating since October 1, and the new Day/Night Market, Jelly and Best Sushi Combo leaderboards not showing',
       'Legend Talents: the Obsidian artifact now counts its 6th point at Transcendent tier',
-      'Spelunking: fixed a Meritocracy typo in the Stamina Regen Rate breakdown'
+      'Spelunking: fixed a Meritocracy typo in the Stamina Regen Rate breakdown',
+      'Refinery: fixed max rank (no deficit) sometimes showing one rank lower than it should'
     ]
   },
   {

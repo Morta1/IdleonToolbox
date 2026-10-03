@@ -267,10 +267,12 @@ const getSaltCycleTime = (index: number, cycleTimes: any) => Math.ceil(index <= 
 // Largest rank whose per-cycle cost still fits in what the previous salt produces in that time.
 const solveMaxRank = (allowedCostPerCycle: number, quantity: number, scaling: number) => {
   if (!(quantity > 0) || !(allowedCostPerCycle > 0)) return 0;
+  // Tolerance for salts on different cycle lengths, where the allowance is still a float ratio.
+  const allowed = allowedCostPerCycle + 1e-9;
   const costFor = (rank: number) => Math.floor(Math.pow(rank, scaling)) * quantity;
-  let rank = Math.max(0, Math.floor(Math.pow(allowedCostPerCycle / quantity, 1 / scaling)));
-  while (costFor(rank + 1) <= allowedCostPerCycle) rank++;
-  while (rank > 0 && costFor(rank) > allowedCostPerCycle) rank--;
+  let rank = Math.max(0, Math.floor(Math.pow(allowed / quantity, 1 / scaling)));
+  while (costFor(rank + 1) <= allowed) rank++;
+  while (rank > 0 && costFor(rank) > allowed) rank--;
   return rank;
 }
 
@@ -315,8 +317,13 @@ export const getSaltsBalance = (account: Account, characters: any[], precomputed
     const previousCost = cost?.find((item: any) => item?.rawName === salts?.[index - 1]?.rawName);
     let maxSafeRank = rank;
     if (unlocked) {
+      // Per cycle, not via the per-hour rate: the round trip turns an exact 8 into 7.999... and
+      // rejects a rank whose cost lands exactly on the previous salt's output.
+      const allowedCostPerCycle = (previous?.outputPerHour ?? 0) > 0
+        ? getPowerPerCycle(salts?.[index - 1]?.rank, account) * cycleTime / getSaltCycleTime(index - 1, cycleTimes)
+        : 0;
       maxSafeRank = previousCost
-        ? Math.min(maxUsefulRank, solveMaxRank((previous?.outputPerHour ?? 0) * cycleTime / 3600,
+        ? Math.min(maxUsefulRank, solveMaxRank(allowedCostPerCycle,
           previousCost?.quantity, index <= saltTaskLevel ? 1.3 : 1.5))
         : maxUsefulRank;
     }
