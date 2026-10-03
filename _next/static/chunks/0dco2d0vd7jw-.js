@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/account/world-4/rift", [
+  "static/chunks/3sny7iz9uxmqf.js",
+  "static/chunks/3yeru0xvmrpat.js",
+  "static/chunks/1klziertu8nzf.js",
+  "static/chunks/2-v4_5zeozgmg.js",
+  "static/chunks/0u_7k5rrrnrd7.js",
+  "static/chunks/2iira3vg0_hm9.js",
+  "static/chunks/44fjq5n39noo-.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/2ezcbp6z7v8aa.js",
+  "static/chunks/1ecnu4c927w_v.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/3l9oa-5_x-ne8.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/3vp8quvpyyao1.js",
+  "static/chunks/22mnizqtlupdz.js",
+  "static/chunks/2plqenzq6cdm5.js",
+  "static/chunks/turbopack-04gmd4nee-syg.js"
+])

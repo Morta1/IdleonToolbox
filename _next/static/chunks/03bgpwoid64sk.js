@@ -1,0 +1,23 @@
+__turbopack_load_page_chunks__("/account/class-specific/royal-armory", [
+  "static/chunks/3sny7iz9uxmqf.js",
+  "static/chunks/04esdb9puktkc.js",
+  "static/chunks/1klziertu8nzf.js",
+  "static/chunks/3rijed93n9qw4.js",
+  "static/chunks/24r1a7_bq5rkb.js",
+  "static/chunks/2w-ndt-4_7v0h.js",
+  "static/chunks/2iira3vg0_hm9.js",
+  "static/chunks/2m0wpccmqd5w6.js",
+  "static/chunks/44fjq5n39noo-.js",
+  "static/chunks/2tdaym-y36smg.js",
+  "static/chunks/08vifx8_5enrp.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/1ecnu4c927w_v.js",
+  "static/chunks/2-v4_5zeozgmg.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/148t1r-56n2_b.js",
+  "static/chunks/0zbdww4qyn2wp.js",
+  "static/chunks/2_072zd-tje__.js",
+  "static/chunks/3vp8quvpyyao1.js",
+  "static/chunks/turbopack-0xh5fgenlhyov.js"
+])

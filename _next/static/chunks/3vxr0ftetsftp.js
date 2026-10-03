@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/account/world-5/slab", [
+  "static/chunks/3sny7iz9uxmqf.js",
+  "static/chunks/0zq89q_rgfqox.js",
+  "static/chunks/1klziertu8nzf.js",
+  "static/chunks/2-v4_5zeozgmg.js",
+  "static/chunks/3gvjwtikr7xx0.js",
+  "static/chunks/38_kxiyl6-0x_.js",
+  "static/chunks/2iira3vg0_hm9.js",
+  "static/chunks/3aqo1t5d1byms.js",
+  "static/chunks/3l4_6k216pukm.js",
+  "static/chunks/3vp8quvpyyao1.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/1ecnu4c927w_v.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/44fjq5n39noo-.js",
+  "static/chunks/0cl63vx1vwrda.js",
+  "static/chunks/0id39ozp3-fzh.js",
+  "static/chunks/turbopack-0_wk1dk2-0p6-.js"
+])

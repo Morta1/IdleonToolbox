@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/account/world-2/weekly-bosses", [
+  "static/chunks/3sny7iz9uxmqf.js",
+  "static/chunks/3cizuj0ydj4ga.js",
+  "static/chunks/1klziertu8nzf.js",
+  "static/chunks/2-v4_5zeozgmg.js",
+  "static/chunks/2pm13py9lldgh.js",
+  "static/chunks/2iira3vg0_hm9.js",
+  "static/chunks/0tnkkfnau-rlt.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/3-yytf0i4r1q1.js",
+  "static/chunks/1ecnu4c927w_v.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/1tq_j2cfys36r.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/13_2ydn94uvj2.js",
+  "static/chunks/44fjq5n39noo-.js",
+  "static/chunks/3vp8quvpyyao1.js",
+  "static/chunks/turbopack-3igt9o6ahskla.js"
+])

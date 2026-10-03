@@ -1,0 +1,23 @@
+__turbopack_load_page_chunks__("/account/world-4/tome", [
+  "static/chunks/3sny7iz9uxmqf.js",
+  "static/chunks/1klziertu8nzf.js",
+  "static/chunks/2iira3vg0_hm9.js",
+  "static/chunks/3b-dqjrt8mu6n.js",
+  "static/chunks/2ugkknpvnwu1s.js",
+  "static/chunks/0ccmdkaik7plf.js",
+  "static/chunks/2-v4_5zeozgmg.js",
+  "static/chunks/44fjq5n39noo-.js",
+  "static/chunks/3rijed93n9qw4.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/0fb9mlcfw7tgt.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/1ecnu4c927w_v.js",
+  "static/chunks/3vp8quvpyyao1.js",
+  "static/chunks/3ulqp7rrng4v0.js",
+  "static/chunks/1mx5t20e3j5do.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/0y0_pcnqeqsx9.js",
+  "static/chunks/0k3qoe4ufpup9.js",
+  "static/chunks/2mxe3bgp3su-w.js",
+  "static/chunks/turbopack-3pc5_dso0j1af.js"
+])

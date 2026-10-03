@@ -1,0 +1,22 @@
+__turbopack_load_page_chunks__("/tools/item-browser", [
+  "static/chunks/3sny7iz9uxmqf.js",
+  "static/chunks/3ha07hzm3u6bo.js",
+  "static/chunks/1klziertu8nzf.js",
+  "static/chunks/0hgxbtu3fndsj.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/0-vr7z-6fuidr.js",
+  "static/chunks/2iira3vg0_hm9.js",
+  "static/chunks/2-v4_5zeozgmg.js",
+  "static/chunks/2gwg9geth2m9p.js",
+  "static/chunks/3vp8quvpyyao1.js",
+  "static/chunks/3ooburxnozkoo.js",
+  "static/chunks/2vfnndu_slyq0.js",
+  "static/chunks/0xq1bxircrwf7.js",
+  "static/chunks/1ecnu4c927w_v.js",
+  "static/chunks/2_ax7zpx7xdin.js",
+  "static/chunks/3ac2e5zeh2euc.js",
+  "static/chunks/0746h6a14ixzi.js",
+  "static/chunks/1-z91et4sj-r6.js",
+  "static/chunks/2daldjhkj4p0n.js",
+  "static/chunks/turbopack-0rtbxkdgl4y0y.js"
+])
