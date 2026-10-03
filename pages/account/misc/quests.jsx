@@ -22,6 +22,8 @@ const Quests = () => {
   const [worldQuests, setWorldQuests] = useState();
   const [filteredCharacters, setFilteredCharacters] = useState([0]);
   const [hideCompleted, setHideCompleted] = useState(false);
+  // Counts a quest as done once any selected character finished it, to find quests nobody did yet
+  const [completedByAny, setCompletedByAny] = useState(false);
   const totalQuestsCompleted = state?.account?.totalQuestsCompleted ?? 0;
 
   useEffect(() => {
@@ -40,7 +42,7 @@ const Quests = () => {
             completed,
             progress
           };
-          if (completed.length === filteredCharacters?.length) {
+          if (completedByAny ? completed.length > 0 : completed.length === filteredCharacters?.length) {
             completedQuests++;
           } else if (completed.length > 0) {
             completedQuests += 0.5;
@@ -61,7 +63,7 @@ const Quests = () => {
         const charactersAtTheEnd = (lastQuest?.progress || [])
           .filter(({ status }) => status === 1)
           .map(({ charIndex }) => charIndex);
-        const everyoneFinished = filteredCharacters?.length > 0
+        const everyoneFinished = !completedByAny && filteredCharacters?.length > 0
           && filteredCharacters.every((charIndex) => charactersAtTheEnd.includes(charIndex));
 
         let questsStatus;
@@ -84,7 +86,7 @@ const Quests = () => {
       });
     }
     setWorldQuests(filteredWorldQuests);
-  }, [filteredCharacters, state]);
+  }, [filteredCharacters, state, completedByAny]);
 
   const handleFilteredCharacters = (event, newCharacters) => {
     if (newCharacters.length) {
@@ -135,9 +137,13 @@ const Quests = () => {
                 return (
                   <ToggleButton
                     title={character?.name}
+                    sx={{ height: 'auto', p: '4px' }}
                     value={index}
                     key={character?.name + '' + index}>
                     <img
+                      width={32}
+                      height={32}
+                      style={{ objectFit: 'contain' }}
                       src={`${prefix}data/ClassIcons${character?.classIndex}.png`}
                       alt=""
                     />
@@ -150,15 +156,30 @@ const Quests = () => {
               <ToggleButton
                 onClick={handleSelectAll}
                 title="Select all"
+                sx={{ height: '100%' }}
                 value={'all'}>
                 <FormatAlignCenterIcon/>
               </ToggleButton>
             </ToggleButtonGroup>
+          </Stack>
+          <Stack direction={'row'} mb={2} justifyContent={'center'} alignItems={'center'} flexWrap={'wrap'}
+                 columnGap={3} rowGap={1}>
             <FormControlLabel
-              sx={{ ml: 1 }}
+              sx={{ mr: 0 }}
               control={<Checkbox checked={hideCompleted}
                                  onChange={(e) => setHideCompleted(e.target.checked)}/>}
               label={'Hide completed'}/>
+            <Stack direction={'row'} alignItems={'center'}>
+              <FormControlLabel
+                sx={{ mr: 0.5 }}
+                control={<Checkbox checked={completedByAny}
+                                   onChange={(e) => setCompletedByAny(e.target.checked)}/>}
+                label={'Completed at least once'}/>
+              <HtmlTooltip
+                title={'A quest counts as completed once any of the selected characters finished it, instead of all of them. Select all characters to find the quests no one has done yet.'}>
+                <InfoIcon sx={{ fontSize: 16, cursor: 'pointer' }}/>
+              </HtmlTooltip>
+            </Stack>
           </Stack>
           <Stack mt={6} direction={'row'} justifyContent={'center'} flexWrap={'wrap'} gap={4}>
             <WorldQuest
@@ -168,6 +189,7 @@ const Quests = () => {
               worldName={'Blunder_Hills'}
               worldIndex={0}
               hideCompleted={hideCompleted}
+              completedByAny={completedByAny}
             />
             <WorldQuest
               quests={worldQuests}
@@ -176,6 +198,7 @@ const Quests = () => {
               worldName={'Yum_Yum_Desert'}
               worldIndex={1}
               hideCompleted={hideCompleted}
+              completedByAny={completedByAny}
             />
             <WorldQuest
               quests={worldQuests}
@@ -184,6 +207,7 @@ const Quests = () => {
               worldName={'Frostbite_Tundra'}
               worldIndex={2}
               hideCompleted={hideCompleted}
+              completedByAny={completedByAny}
             />
             <WorldQuest
               quests={worldQuests}
@@ -192,6 +216,7 @@ const Quests = () => {
               worldName={'Hyperion_Nebula'}
               worldIndex={3}
               hideCompleted={hideCompleted}
+              completedByAny={completedByAny}
             />
             <WorldQuest
               quests={worldQuests}
@@ -200,6 +225,7 @@ const Quests = () => {
               worldName={'Smolderin\'_Plateau'}
               worldIndex={4}
               hideCompleted={hideCompleted}
+              completedByAny={completedByAny}
             />
             <WorldQuest
               quests={worldQuests}
@@ -208,6 +234,7 @@ const Quests = () => {
               worldName={'Spirited_Valley'}
               worldIndex={5}
               hideCompleted={hideCompleted}
+              completedByAny={completedByAny}
             />
             <WorldQuest
               quests={worldQuests}
@@ -216,6 +243,7 @@ const Quests = () => {
               worldName={'Shimmerfin_Deep'}
               worldIndex={6}
               hideCompleted={hideCompleted}
+              completedByAny={completedByAny}
             />
           </Stack>
         </>

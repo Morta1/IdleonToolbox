@@ -19,7 +19,10 @@ import CoinDisplay from 'components/common/CoinDisplay';
 import { cleanUnderscore, getCoinsArray, numberWithCommas, prefix, worldColor } from 'utility/helpers';
 import { npcImage } from '@utility/spriteImages';
 
-const WorldQuest = ({ quests, characters, totalCharacters, worldName, worldIndex, hideCompleted }) => {
+const WorldQuest = ({ quests, characters, totalCharacters, worldName, worldIndex, hideCompleted, completedByAny }) => {
+  const isQuestDone = (completed) => completedByAny
+    ? completed?.length > 0
+    : completed?.length === totalCharacters;
   const getQuestIndicator = (status) => {
     switch (status) {
       case 1:
@@ -40,11 +43,11 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName, worldIndex
     let forceCompletion;
     if (npc?.name === 'Picnic_Stowaway') {
       const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Live-Action_Entertainment');
-      forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0;
+      forceCompletion = isQuestDone(repeatable?.completed) ? 1 : 0;
     }
     else if (npc?.name === 'Scripticus') {
       const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Champion_of_the_Grasslands');
-      forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0
+      forceCompletion = isQuestDone(repeatable?.completed) ? 1 : 0
     }
     else if (npc?.name === 'Potti') {
       // const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Spirit_of_the_Hero');
@@ -79,7 +82,7 @@ const WorldQuest = ({ quests, characters, totalCharacters, worldName, worldIndex
                     <Tooltip title={<QuestTooltip {...npcQuest} npcName={npc?.name} />}>
                       <TimelineDot
                         sx={{ width: 15, height: 15 }}
-                        color={completed?.length === totalCharacters
+                        color={isQuestDone(completed)
                           ? 'success'
                           : completed?.length === 0 && progress.length === 0 ? 'grey' : 'warning'} />
                     </Tooltip>
