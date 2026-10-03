@@ -10,7 +10,9 @@ export const patchNotes = [
     'features': [
       'Dashboard: the Bosses card now tracks Dr Defecaus (up after every daily reset) and Baba Yaga (22h 20m respawn timer), with a Killed button and an undo'
     ],
-    'fixes': []
+    'fixes': [
+      'Leaderboards: fixed leaderboards not updating since October 1, and the new Day/Night Market, Jelly and Best Sushi Combo leaderboards not showing'
+    ]
   },
   {
     'ver': '3.3.82',
