@@ -224,7 +224,7 @@ const Refinery = () => {
                     const isCritter = rawName?.includes('Critter');
                     gainValuePerCycle = isCritter ? 0 : isSalt
                       ? previousPowerPerCycle
-                      : (activePrints?.[rawName]?.boostedValue || 0);
+                      : (activePrints?.[rawName]?.boostedValue || 0) * (combustionTime ?? 0) / 3600;
                     gainValuePerHour = isCritter ? 0 : isSalt
                       ? previousSaltPerHour
                       : (activePrints?.[rawName]?.boostedValue || 0);
@@ -318,13 +318,15 @@ const getSaltAction = ({
                          rank,
                          maxSafeRank,
                          outputMaxed,
-                         isDeficit
-                       }, previousSaltName) => {
+                         isDeficit,
+                         limitedBy
+                       }) => {
   if (!unlocked || !active || outputMaxed) return null;
   if (rank >= maxSafeRank) {
-    return previousSaltName
-      ? { label: `Wait for ${cleanUnderscore(previousSaltName)}`, color: 'text.secondary' }
-      : null;
+    if (!limitedBy) return null;
+    return limitedBy.isPrinter
+      ? { label: `Print more ${cleanUnderscore(limitedBy.name)}`, color: 'warning.light' }
+      : { label: `Wait for ${cleanUnderscore(limitedBy.name)}`, color: 'text.secondary' };
   }
   // Auto refine never lets a salt bank power to its cap, so its rank is frozen. Only worth
   // mentioning when something downstream is starving on it - otherwise it's a deliberate setting.
@@ -345,13 +347,21 @@ const SaltChainSummary = ({ balances, salts }) => {
           <TableCell align={'right'}>Produced /hr</TableCell>
           <TableCell align={'right'}>Consumed /hr</TableCell>
           <TableCell align={'right'}>Balance /hr</TableCell>
-          <TableCell align={'right'}>Max rank (no deficit)</TableCell>
+          <TableCell align={'right'}>
+            <Stack direction={'row'} gap={.5} alignItems={'center'} justifyContent={'flex-end'}>
+              Max rank (no deficit)
+              <Tooltip title={'Highest rank the salt above and your printer can both keep up with. Only materials being printed count, stockpiled ones run on the fuel timer'}>
+                <IconInfoCircleFilled size={16}/>
+              </Tooltip>
+            </Stack>
+          </TableCell>
           <TableCell>
             <Stack direction={'row'} gap={.5} alignItems={'center'}>
               Action
               <Tooltip title={<Stack gap={1.5}>
                 {[
-                  { label: 'Rank up', color: 'success.light', text: 'Room to grow before it out-consumes the salt above' },
+                  { label: 'Rank up', color: 'success.light', text: 'Room to grow before it out-consumes the salt above or your printer' },
+                  { label: 'Print more', color: 'warning.light', text: 'Your printer makes less of a material than the next rank needs' },
                   { label: 'Turn auto refine off', color: 'warning.light', text: 'Auto refine freezes the rank' },
                   { label: 'Wait for a salt', color: 'text.secondary', text: 'Ranks are permanent. This one recovers when the salt above grows' }
                 ].map(({ label, color, text }) => <Stack key={label}>
@@ -378,9 +388,10 @@ const SaltChainSummary = ({ balances, salts }) => {
             balancePerHour,
             isDeficit,
             maxSafeRank,
-            outputMaxed
+            outputMaxed,
+            printerLimits
           } = balance;
-          const action = getSaltAction(balance, salts?.[index - 1]?.saltName);
+          const action = getSaltAction(balance);
           const balanceColor = consumedPerHour === 0 ? '' : isDeficit ? 'error.light' : 'success.light';
           // notateNumber leaves negatives unformatted, so notate the magnitude and carry the sign.
           const balanceSign = balancePerHour > 0 ? '+' : balancePerHour < 0 ? '-' : '';
@@ -409,7 +420,14 @@ const SaltChainSummary = ({ balances, salts }) => {
                       <IconInfoCircleFilled size={16}/>
                     </Tooltip>
                   </Stack>
-                  : numberWithCommas(maxSafeRank)}
+                  : <Stack direction={'row'} gap={.5} alignItems={'center'} justifyContent={'flex-end'}>
+                    {numberWithCommas(maxSafeRank)}
+                    {printerLimits?.length > 0
+                      ? <Tooltip title={<MaxRankBreakdown balance={balance} salts={salts}/>}>
+                        <IconInfoCircleFilled size={16}/>
+                      </Tooltip>
+                      : null}
+                  </Stack>}
             </TableCell>
             <TableCell>
               {action
@@ -421,6 +439,32 @@ const SaltChainSummary = ({ balances, salts }) => {
       </TableBody>
     </Table>
   </TableContainer>
+}
+
+const MaxRankBreakdown = ({ balance, salts }) => {
+  const { index, saltMaxSafeRank, printerLimits, maxSafeRank } = balance;
+  const previousSalt = salts?.[index - 1];
+  const rows = [
+    ...(previousSalt ? [{
+      key: previousSalt.rawName,
+      label: cleanUnderscore(previousSalt.saltName),
+      maxRank: saltMaxSafeRank
+    }] : []),
+    ...printerLimits.map(({ rawName, name, printedPerHour, neededPerHour, maxRank }) => ({
+      key: rawName,
+      label: cleanUnderscore(name),
+      detail: `Printing ${notateNumber(printedPerHour)}/hr, needs ${notateNumber(neededPerHour)}/hr`,
+      maxRank
+    }))
+  ];
+  return <Stack gap={1}>
+    {rows.map(({ key, label, detail, maxRank }) => <Stack key={key}>
+      <Typography variant={'body2'} sx={maxRank === maxSafeRank ? boldSx : null}>
+        {label}: {numberWithCommas(maxRank)}
+      </Typography>
+      {detail ? <Typography variant={'caption'} color={'text.secondary'}>{detail}</Typography> : null}
+    </Stack>)}
+  </Stack>
 }
 
 const ItemCell = forwardRef((props, ref) => {

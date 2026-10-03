@@ -289,16 +289,40 @@ export interface SaltBalance {
   balancePerHour: number;
   isDeficit: boolean;
   outputMaxed: boolean;
+  // Lower of the salt limit and every printer limit.
   maxSafeRank: number;
+  saltMaxSafeRank: number;
+  printerLimits: PrinterLimit[];
+  limitedBy: { rawName: string; name: string; isPrinter: boolean } | null;
 }
+
+export interface PrinterLimit {
+  rawName: string;
+  name: string;
+  printedPerHour: number;
+  neededPerHour: number;
+  maxRank: number;
+}
+
+// Printer samples are per-hour rates; only the slots currently printing count.
+const getPrintedPerHour = (account: Account) => ((account as any)?.printer ?? []).reduce((res: Record<string, number>, slots: any[]) => {
+  (slots ?? []).forEach(({ item, active, boostedValue }: any) => {
+    if (!active || !item || item === 'Blank') return;
+    res[item] = (res[item] ?? 0) + (boostedValue ?? 0);
+  });
+  return res;
+}, {});
 
 // Each salt is fuelled by the one before it in the chain, so ranking a salt up raises what it
 // drains from its predecessor. Compares both sides per hour to find the rank where that flips.
+// Printed inputs cap the rank the same way, but only for materials the printer is actually printing:
+// a stockpiled material has no rate to compare against, and the fuel timer covers it.
 export const getSaltsBalance = (account: Account, characters: any[], precomputedCycleTimes?: any): SaltBalance[] => {
   const salts: any[] = account?.refinery?.salts ?? [];
   const cycleTimes = precomputedCycleTimes ?? computeRefineryCycleTimes(account, characters);
   const maxUsefulRank = getMaxUsefulRank(account);
   const saltTaskLevel = account?.refinery?.refinerySaltTaskLevel ?? 0;
+  const printedPerHour = getPrintedPerHour(account);
 
   return salts.reduce((res: SaltBalance[], salt: any, index: number) => {
     const { rawName, saltName, rank, cost, active, autoRefinePercentage, unlocked } = salt;
@@ -315,18 +339,42 @@ export const getSaltsBalance = (account: Account, characters: any[], precomputed
 
     const previous = res?.[index - 1];
     const previousCost = cost?.find((item: any) => item?.rawName === salts?.[index - 1]?.rawName);
-    let maxSafeRank = rank;
+    let saltMaxSafeRank = rank;
     if (unlocked) {
       // Per cycle, not via the per-hour rate: the round trip turns an exact 8 into 7.999... and
       // rejects a rank whose cost lands exactly on the previous salt's output.
       const allowedCostPerCycle = (previous?.outputPerHour ?? 0) > 0
         ? getPowerPerCycle(salts?.[index - 1]?.rank, account) * cycleTime / getSaltCycleTime(index - 1, cycleTimes)
         : 0;
-      maxSafeRank = previousCost
+      saltMaxSafeRank = previousCost
         ? Math.min(maxUsefulRank, solveMaxRank(allowedCostPerCycle,
           previousCost?.quantity, index <= saltTaskLevel ? 1.3 : 1.5))
         : maxUsefulRank;
     }
+
+    const printerLimits: PrinterLimit[] = unlocked ? (cost ?? []).reduce((res: PrinterLimit[], item: any) => {
+      const printed = printedPerHour[item?.rawName] ?? 0;
+      if (item?.rawName?.includes('Refinery') || !(printed > 0)) return res;
+      return [...res, {
+        rawName: item?.rawName,
+        name: item?.name,
+        printedPerHour: printed,
+        neededPerHour: calcCost(account?.refinery, rank, item?.quantity, item?.rawName, index) * 3600 / cycleTime,
+        maxRank: Math.min(maxUsefulRank, solveMaxRank(printed * cycleTime / 3600, item?.quantity, 1.5))
+      }];
+    }, []) : [];
+
+    const tightestPrinter = printerLimits.reduce((min: PrinterLimit | null, limit) =>
+      !min || limit.maxRank < min.maxRank ? limit : min, null);
+    const previousSalt = salts?.[index - 1];
+    const maxSafeRank = tightestPrinter && tightestPrinter.maxRank < saltMaxSafeRank
+      ? tightestPrinter.maxRank
+      : saltMaxSafeRank;
+    const limitedBy = tightestPrinter && tightestPrinter.maxRank < saltMaxSafeRank
+      ? { rawName: tightestPrinter.rawName, name: tightestPrinter.name, isPrinter: true }
+      : previousCost
+        ? { rawName: previousSalt?.rawName, name: previousSalt?.saltName, isPrinter: false }
+        : null;
 
     return [...res, {
       index,
@@ -341,7 +389,10 @@ export const getSaltsBalance = (account: Account, characters: any[], precomputed
       balancePerHour: outputPerHour - consumedPerHour,
       isDeficit: consumedPerHour > outputPerHour,
       outputMaxed: powerPerCycle >= MAX_POWER_PER_CYCLE,
-      maxSafeRank
+      maxSafeRank,
+      saltMaxSafeRank,
+      printerLimits,
+      limitedBy
     }];
   }, []);
 }

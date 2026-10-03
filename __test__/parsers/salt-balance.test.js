@@ -22,7 +22,7 @@ describe('getSaltsBalance', () => {
   it('puts max safe rank exactly on the boundary the game charges at', () => {
     expect(chained.length).toBeGreaterThan(0);
     chained.forEach((balance) => {
-      const { index, maxSafeRank, outputMaxed } = balance;
+      const { index, saltMaxSafeRank: maxSafeRank, outputMaxed } = balance;
       if (outputMaxed) return;
       const previous = balances[index - 1];
       const entry = account?.refinery?.salts?.[index]?.cost?.find(({ rawName }) => rawName === previous.rawName);
@@ -36,7 +36,7 @@ describe('getSaltsBalance', () => {
   });
 
   it('flags a salt as in deficit exactly when its consumer is over its max safe rank', () => {
-    chained.forEach(({ index, rank, maxSafeRank }) => {
+    chained.forEach(({ index, rank, saltMaxSafeRank: maxSafeRank }) => {
       expect(balances[index - 1].isDeficit).toBe(rank > maxSafeRank);
     });
   });
@@ -59,6 +59,35 @@ describe('getSaltsBalance', () => {
     expect(result[1].maxSafeRank).toBe(6);
     expect(result[2].maxSafeRank).toBe(3);
     expect(result[1].isDeficit).toBe(false);
+  });
+
+  it('caps max safe rank at what the printer makes of a printed input', () => {
+    // 3600s cycle, so 100/hr printed allows 100 per cycle: floor(rank^1.5) * 10 <= 100 -> rank 4.
+    const minimalAccount = {
+      printer: [[{ item: 'Copper', active: true, boostedValue: 100 }, { item: 'Copper', active: false, boostedValue: 1e9 }]],
+      refinery: {
+        refinerySaltTaskLevel: 10,
+        salts: [
+          { rawName: 'Refinery1', rank: 2, unlocked: true, active: 1, cost: [{ rawName: 'Copper', name: 'Copper_Ore', quantity: 10 }, { rawName: 'Grasslands1', name: 'Grass_Leaf', quantity: 5 }] }
+        ]
+      }
+    };
+    const [result] = getSaltsBalance(minimalAccount, [], { combustionTime: 3600, synthesisTime: 3600, polymerizeTime: 3600 });
+    expect(result.printerLimits).toHaveLength(1);
+    expect(result.printerLimits[0]).toMatchObject({ rawName: 'Copper', printedPerHour: 100, neededPerHour: 20, maxRank: 4 });
+    expect(result.maxSafeRank).toBe(4);
+    expect(result.limitedBy).toMatchObject({ rawName: 'Copper', isPrinter: true });
+  });
+
+  it('ignores materials the printer is not printing', () => {
+    const minimalAccount = {
+      printer: [],
+      refinery: { refinerySaltTaskLevel: 10, salts: [{ rawName: 'Refinery1', rank: 2, unlocked: true, active: 1, cost: [{ rawName: 'Copper', quantity: 10 }] }] }
+    };
+    const [result] = getSaltsBalance(minimalAccount, [], { combustionTime: 3600, synthesisTime: 3600, polymerizeTime: 3600 });
+    expect(result.printerLimits).toHaveLength(0);
+    expect(result.maxSafeRank).toBe(result.saltMaxSafeRank);
+    expect(result.limitedBy).toBeNull();
   });
 
   it('leaves the balance positive when nothing consumes the salt', () => {
