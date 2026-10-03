@@ -847,7 +847,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 7']?.zenithMarket?.clusterFarming ?
                 <Alert target={'World 7.zenithMarket.clusterFarming'}
                   title={`Zenith Cluster Farming is ${alerts?.['World 7']?.zenithMarket?.clusterFarming}`}
-                  iconPath={'etc/Cluster'}/> : null}
+                  iconPath={'etc/Cluster'}
+                  imgStyle={alerts?.['World 7']?.zenithMarket?.clusterFarming === 'OFF'
+                    ? { filter: 'grayscale(1)' }
+                    : undefined}/> : null}
               {alerts?.['World 7']?.construction?.jeweledCogs ?
                 <Alert target={'World 7.construction.jeweledCogs'}
                   title={`You have ${alerts?.['World 7']?.construction?.jeweledCogs?.available} jeweled cog pull${alerts?.['World 7']?.construction?.jeweledCogs?.available > 1
