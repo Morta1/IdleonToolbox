@@ -13,6 +13,7 @@ const LoreBosses = ({ loreBosses, bestCaveLevels, account }) => {
 
   const amberDenominator = getAmberDenominator(account);
   const amberIndex = getAmberIndex(account);
+  const manicUnlocked = account?.spelunking?.manicUnlocked;
 
   return (
     <Stack gap={3}>
@@ -77,16 +78,16 @@ const LoreBosses = ({ loreBosses, bestCaveLevels, account }) => {
                         </Typography>
                       </Stack>
                     </Grid>
-                    <Grid size={6}>
+                    {manicUnlocked ? <Grid size={6}>
                       <Stack>
                         <Typography variant="body2" color="text.secondary">
-                          Best Cave Level
+                          Best Manic
                         </Typography>
                         <Typography variant="body1">
-                          {boss.bestCaveLevel}
+                          Depth {boss.bestManicCaveLevel}
                         </Typography>
                       </Stack>
-                    </Grid>
+                    </Grid> : null}
                   </Grid>
                   <Divider sx={{ my: 2 }}/>
                   <Typography variant="body1">

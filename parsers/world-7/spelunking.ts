@@ -221,6 +221,7 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
       defeated: (rawSpelunking?.[0]?.[index] ?? 0) > 0,
       biggestHaul: biggestHauls?.[index] ?? 0,
       bestCaveLevel: bestCaveLevels?.[index] ?? 0,
+      bestManicCaveLevel: rawUpgradeExtra47?.[index] ?? 0,
       foundAt: (parseFloat(generalSpelunky?.[7]?.[index]) + 1) || 0,
       grandDiscoveriesFound,
       grandDiscoveryChance
