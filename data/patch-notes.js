@@ -12,7 +12,8 @@ export const patchNotes = [
       'Royal Guardian: the kingdom map now marks nodes that are only in reach thanks to Guards, and shows the Military rank (and ETA) needed to reach each node without Guards'
     ],
     'fixes': [
-      'Leaderboards: fixed leaderboards not updating since October 1, and the new Day/Night Market, Jelly and Best Sushi Combo leaderboards not showing'
+      'Leaderboards: fixed leaderboards not updating since October 1, and the new Day/Night Market, Jelly and Best Sushi Combo leaderboards not showing',
+      'Legend Talents: the Obsidian artifact now counts its 6th point at Transcendent tier'
     ]
   },
   {

@@ -169,7 +169,8 @@ export const getLegendPointsOwned = (accountData: Account = {} as Account, chara
   totalOwned += gemItem42;
 
   const artifactBonus = isArtifactAcquired((accountData as any)?.sailing?.artifacts, 'Obsidian')?.bonus ?? 0;
-  totalOwned += Math.min(5, Math.round(artifactBonus));
+  const artifactPoints = Math.min(6, Math.round(artifactBonus));
+  totalOwned += artifactPoints;
 
   const eventShopBonus = getEventShopBonus(accountData, 32);
   totalOwned += 2 * eventShopBonus;
@@ -184,7 +185,7 @@ export const getLegendPointsOwned = (accountData: Account = {} as Account, chara
       { name: 'Clam Work', value: clamWorkBonus1 + clamWorkBonus4 },
       { name: 'Companion', value: 10 * companionBonus },
       { name: 'Gem Item', value: gemItem42 },
-      { name: 'Artifact', value: Math.min(5, Math.round(artifactBonus)) },
+      { name: 'Artifact', value: artifactPoints },
       { name: 'Event Shop', value: 2 * eventShopBonus },
       { name: 'Sushi Station', value: sushiBonus }
     ]
