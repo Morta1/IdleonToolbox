@@ -363,6 +363,23 @@ export interface Outpost extends OutpostBase {
   freshNodeInReach: boolean;
   // Nodes this outpost could reach but is not wired to: the whole point of buying range.
   reachableNodes: number[];
+  // Range without its slot Guards or its Military rank. Passive Guards stay in: they cost no slot.
+  baseRange: number;
+  // armory 74 (Military_Rank): the px each Military rank adds.
+  militaryRangePerRank: number;
+  // Every live node of the outpost's world, with the Military rank that reaches it without slot Guards.
+  nodeRankNeeds: OutpostNodeRankNeed[];
+}
+
+export interface OutpostNodeRankNeed {
+  nodeIndex: number;
+  distance: number;
+  // In reach right now, counting the slot Guards.
+  inReach: boolean;
+  // Military rank that reaches it without slot Guards. Null when no rank can (999 cap or no armory 74).
+  rankNeeded: number | null;
+  // Hours of Military bar EXP at the current rate until rankNeeded. Null when the bar does not move.
+  etaHours: number | null;
 }
 
 // One deployed unit: what job it is doing and which map it is doing it on.
@@ -1161,6 +1178,9 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       + unitSpecEffect[2] * unitCounts[2]
       + ranks[3] * armoryBonus(74);
     const range = Math.floor(Math.min(999, rangeUncapped));
+    const slotGuards = unitSlots.filter((unit) => unit === 2).length;
+    const militaryRangePerRank = armoryBonus(74);
+    const baseRange = rangeUncapped - unitSpecEffect[2] * slotGuards - ranks[3] * militaryRangePerRank;
 
     // game: the outpost tick pays a bar BarExpRate ONCE PER UNIT feeding it, so a bar with nothing
     // behind it never moves at all. The Trade bar runs on this outpost's own Traders and the Intel
@@ -1251,6 +1271,30 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       .map(({ collected, maxQuantity, drainRate }) =>
         (drainRate > 0 ? (maxQuantity - collected) / drainRate : Infinity))
       .filter((hours) => Number.isFinite(hours));
+    const militaryBar = rankBars[3];
+    const nodeRankNeeds: OutpostNodeRankNeed[] = onKingdomMap
+      ? resources
+        .filter((node) => node.world === outpostWorld && !node.empty)
+        .map((node) => {
+          const distance = Math.sqrt(Math.pow(mapX - node.anchorX, 2) + Math.pow(mapY - node.anchorY, 2));
+          const rankNeeded = getMilitaryRankToReach(distance, baseRange, militaryRangePerRank);
+          // game: a bar at rank r has passed OutpostEXPformula(r - 1), and the thresholds are absolute.
+          const expLeft = rankNeeded != null && rankNeeded > militaryBar.rank
+            ? getOutpostExpFormula(rankNeeded - 1, 3) - militaryBar.exp
+            : 0;
+          return {
+            nodeIndex: node.index,
+            distance,
+            inReach: range + REACH_SLACK >= distance,
+            rankNeeded,
+            etaHours: rankNeeded == null
+              ? null
+              : expLeft <= 0 ? 0 : militaryBar.expPerHour > 0 ? expLeft / militaryBar.expPerHour : null
+          };
+        })
+        .sort((a, b) => a.distance - b.distance)
+      : [];
+
     const freshNodeInReach = reachableNodes
       .some((nodeIndex) => resources.find(({ index }) => index === nodeIndex)?.exhausted === false);
 
@@ -1301,6 +1345,9 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       mapY,
       onKingdomMap,
       reachableNodes,
+      baseRange,
+      militaryRangePerRank,
+      nodeRankNeeds,
       hoursToNodeCap: nodeHours.length > 0 ? Math.min(...nodeHours) : null,
       freshNodeInReach
     };
@@ -1504,6 +1551,20 @@ export const getSpareWorkers = (outpost: Outpost, horizonHours: number, workerBo
 
   const minWorkers = Math.max(0, Math.ceil(((current * needed - 1) * 100) / workerBonus - 1e-9));
   return Math.max(0, Math.min(slotWorkers, totalWorkers - minWorkers));
+};
+
+// game's reach test, inverted: floor(min(999, range)) + 15 >= distance holds exactly when the range
+// is at least ceil(distance - 15), so this is the lowest Military rank whose range clears that.
+export const getMilitaryRankToReach = (distance: number, baseRange: number, perRank: number): number | null => {
+  const needed = Math.ceil(distance - REACH_SLACK);
+  if (needed > 999) return null;
+  if (baseRange >= needed) return 0;
+  if (!(perRank > 0)) return null;
+  let rank = Math.max(0, Math.ceil((needed - baseRange) / perRank));
+  // Float slop on the division, settled against the forward test itself.
+  while (rank > 0 && baseRange + (rank - 1) * perRank >= needed) rank--;
+  while (baseRange + rank * perRank < needed) rank++;
+  return rank;
 };
 
 // How many of an outpost's slot Guards could be swapped out. A Guard only adds range, and swapping a

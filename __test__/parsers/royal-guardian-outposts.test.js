@@ -1,6 +1,7 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import {
+  getMilitaryRankToReach,
   getOutpostExpFormula,
   getRoyalGuardian,
   getRoyalResourcePerHour,
@@ -282,6 +283,34 @@ describe('royal guardian outposts', () => {
     expect(outpostOn(parsed, 2).range).toBe(Math.floor(80 + 250 * (3 / 103) + 45 + 4 * 6));
     expect(outpostOn(parsed, 2).range).toBe(156);
     expect(outpostOn(parsed, 1).range).toBe(80);
+  });
+
+  it('inverts the reach test into the Military rank a node needs without slot Guards', () => {
+    // floor(range) + 15 >= distance: 100 base reaches 115 at rank 0, 116 needs one 6px rank.
+    expect(getMilitaryRankToReach(115, 100, 6)).toBe(0);
+    expect(getMilitaryRankToReach(115.01, 100.5, 6)).toBe(1);
+    expect(getMilitaryRankToReach(121, 100, 6)).toBe(1);
+    expect(getMilitaryRankToReach(122, 100, 6)).toBe(2);
+    expect(getMilitaryRankToReach(150, 100, 0)).toBeNull();
+    // Range caps at 999, so nothing past 1014 is ever reachable.
+    expect(getMilitaryRankToReach(1014, 100, 6)).toBe(150);
+    expect(getMilitaryRankToReach(1015, 100, 6)).toBeNull();
+    for (let distance = 80; distance < 400; distance += 0.37) {
+      const rank = getMilitaryRankToReach(distance, 97.3, 6);
+      expect(Math.floor(Math.min(999, 97.3 + rank * 6)) + 15 >= distance).toBe(true);
+      if (rank > 0) expect(Math.floor(Math.min(999, 97.3 + (rank - 1) * 6)) + 15 >= distance).toBe(false);
+    }
+  });
+
+  it('prices each node against the range without slot Guards or Military rank', () => {
+    const parsed = parse();
+    const froggy = outpostOn(parsed, 2);
+    // Froggy Fields has no slot Guards (its one Guard is passive), so only Military rank comes off.
+    expect(froggy.militaryRangePerRank).toBe(6);
+    close(froggy.baseRange, froggy.rangeUncapped - 4 * 6);
+    for (const need of froggy.nodeRankNeeds) {
+      expect(need.rankNeeded).toBe(getMilitaryRankToReach(need.distance, froggy.baseRange, 6));
+    }
   });
 
   it('prices the three upgrades against the PTS the outpost has earned', () => {

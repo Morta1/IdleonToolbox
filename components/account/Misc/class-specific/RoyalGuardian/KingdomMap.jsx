@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, Divider, Paper, Stack, Typography } from '@mui/material';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import { notateNumber, prefix } from '@utility/helpers';
+import { notateNumber, prefix, secondsToCoarseDuration } from '@utility/helpers';
 import Tooltip from '@components/Tooltip';
 import InfoIcon from '@mui/icons-material/Info';
 
@@ -100,6 +100,27 @@ const KingdomMap = ({ outposts, resources }) => {
     : [];
   const reachList = reachable.slice(0, REACH_SHOWN);
   const reachOverflow = reachable.length - reachList.length;
+
+  // What the focused outpost's Military rank has to be for a node to need no slot Guards. A node
+  // already in reach without them (rank needed at or under the current one) is not worth a row.
+  const militaryRank = focused?.rankBars?.[3]?.rank ?? 0;
+  const rankNeedOf = (nodeIndex) => focused?.nodeRankNeeds?.find((need) => need.nodeIndex === nodeIndex) ?? null;
+  const needsGuards = (need) => need != null && need.inReach && (need.rankNeeded == null || need.rankNeeded > militaryRank);
+  const rankTargets = focused && focused.mode !== 1
+    ? (focused.nodeRankNeeds ?? [])
+      .filter((need) => !focused.connectedNodes?.some(({ index }) => index === need.nodeIndex))
+      .filter((need) => need.rankNeeded == null || need.rankNeeded > militaryRank)
+      .map((need) => ({ need, node: nodeOf(need.nodeIndex) }))
+      .filter(({ node }) => node)
+    : [];
+  const rankList = rankTargets.slice(0, REACH_SHOWN);
+  const rankOverflow = rankTargets.length - rankList.length;
+  const rankText = (need) => {
+    if (need.rankNeeded == null) return 'no Military rank reaches it';
+    const eta = need.etaHours == null ? null : secondsToCoarseDuration(need.etaHours * 3600);
+    return `Military ${need.rankNeeded}${eta ? ` · ~${eta}` : ''}`;
+  };
+  const focusedNodeNeed = focusedNode && focused && focused.mode !== 1 ? rankNeedOf(focusedNode.index) : null;
   // The card parks in the map corner furthest from the marker rather than floating beside it: a
   // marker in the middle band leaves no room for the card on either side, so anchoring to the
   // marker clipped the card's last rows.
@@ -264,6 +285,15 @@ const KingdomMap = ({ outposts, resources }) => {
                 ? `Collected by ${focusedNode.connectedMaps.map((mapIndex) => outpostOf(mapIndex)?.name ?? `map ${mapIndex}`).join(', ')}`
                 : 'Not connected'}
             </Typography>
+            {focusedNodeNeed
+              ? <Typography variant="caption" sx={{ display: 'block', mt: 0.5 }}>
+                {focusedNodeNeed.rankNeeded != null && focusedNodeNeed.rankNeeded <= militaryRank
+                  ? `${focused.name}: in reach without Guards`
+                  : focusedNodeNeed.rankNeeded == null
+                    ? `${focused.name}: no Military rank reaches it without Guards`
+                    : `${focused.name}: ${rankText(focusedNodeNeed)} (now ${militaryRank}) to reach it without Guards`}
+              </Typography>
+              : null}
             {focusedNode.exhausted
               ? <Typography variant="caption" sx={{ display: 'block', color: 'warning.main' }}>
                 Empty: it pays nothing until a restock refills it.
@@ -327,7 +357,7 @@ const KingdomMap = ({ outposts, resources }) => {
                       card clipped its own last entry. */}
                   <NodeIcon node={node}/>
                   <Typography variant="caption">
-                    {`${away}px${node.connected ? ' · taken' : ''}`}
+                    {`${away}px${node.connected ? ' · taken' : ''}${needsGuards(rankNeedOf(node.index)) ? ' · needs Guards' : ''}`}
                   </Typography>
                 </Stack>
               ))
@@ -339,6 +369,24 @@ const KingdomMap = ({ outposts, resources }) => {
                 and {reachOverflow} more
               </Typography>
                 : null}
+            {rankList.length > 0
+              ? <>
+                <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 1 }}>
+                  {`Reach without Guards (Military ${militaryRank})`}
+                </Typography>
+                {rankList.map(({ need, node }) => (
+                  <Stack key={node.index} direction="row" gap={0.75} alignItems="center">
+                    <NodeIcon node={node}/>
+                    <Typography variant="caption">{rankText(need)}</Typography>
+                  </Stack>
+                ))}
+                {rankOverflow > 0
+                  ? <Typography variant="caption" sx={{ opacity: 0.7, display: 'block' }}>
+                    and {rankOverflow} more
+                  </Typography>
+                  : null}
+              </>
+              : null}
             </Paper>
             : null}
       </Box>

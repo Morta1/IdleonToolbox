@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.531',
     'date': '03/10/2026',
     'features': [
-      'Dashboard: the Bosses card now tracks Dr Defecaus (up after every daily reset) and Baba Yaga (22h 20m respawn timer), with a Killed button and an undo'
+      'Dashboard: the Bosses card now tracks Dr Defecaus (up after every daily reset) and Baba Yaga (22h 20m respawn timer), with a Killed button and an undo',
+      'Royal Guardian: the kingdom map now marks nodes that are only in reach thanks to Guards, and shows the Military rank (and ETA) needed to reach each node without Guards'
     ],
     'fixes': [
       'Leaderboards: fixed leaderboards not updating since October 1, and the new Day/Night Market, Jelly and Best Sushi Combo leaderboards not showing'
