@@ -56,11 +56,16 @@ const Traps = () => {
             </MenuItem>)}
           </Select>
         </FormControl> : null}
-        <Typography component={'p'} variant={'caption'}>Collect Rates: {Math.round(collectRate?.critter * 100)}%
-          and {Math.round(collectRate?.exp * 100)}% EXP</Typography>
         <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-          <Typography component={'p'} variant={'caption'}>
-            Shiny: {notateNumber(shiny?.multiplier, 'MultiplierInfo')}x, {shiny?.bundleSize} per drop
+          <Typography component={'p'} variant={'caption'} sx={{ whiteSpace: 'nowrap' }}>Collect Rates: {Math.round(collectRate?.critter * 100)}%
+            and {Math.round(collectRate?.exp * 100)}% EXP</Typography>
+          <Breakdown data={collectRate?.breakdown}>
+            <IconInfoCircleFilled size={16} style={{ cursor: 'pointer', display: 'block' }}/>
+          </Breakdown>
+        </Stack>
+        <Stack direction={'row'} alignItems={'center'} gap={0.5} mt={0.5}>
+          <Typography component={'p'} variant={'caption'} sx={{ whiteSpace: 'nowrap' }}>
+            Shiny Chance: {notateNumber(shiny?.multiplier, 'MultiplierInfo')}x, {shiny?.bundleSize} per drop
           </Typography>
           <Breakdown data={shiny?.breakdown}>
             <IconInfoCircleFilled size={16} style={{ cursor: 'pointer', display: 'block' }}/>

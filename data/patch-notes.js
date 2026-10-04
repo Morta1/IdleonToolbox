@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.84',
+    'gameVer': '2.3.531',
+    'date': '04/10/2026',
+    'features': [
+      'Traps: separated the Shiny Chance line from Collect Rates, and added a breakdown for collect rates'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.83',
     'gameVer': '2.3.531',
     'date': '03/10/2026',

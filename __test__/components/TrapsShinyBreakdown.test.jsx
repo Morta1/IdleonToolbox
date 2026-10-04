@@ -28,28 +28,37 @@ const renderPage = (state) => render(
 describe('Traps shiny chance', () => {
   it('shows the shiny multi under the collect rates', () => {
     renderPage({ characters, account });
-    expect(screen.getByText(/Shiny:/).textContent).toMatch(/Shiny: [\d.,KMBTQ]+x, \d+ per drop/);
+    expect(screen.getByText(/Shiny Chance:/).textContent).toMatch(/Shiny Chance: [\d.,KMBTQ]+x, \d+ per drop/);
   });
 
   it('opens the breakdown from the info icon', () => {
     renderPage({ characters, account });
-    fireEvent.click(screen.getByText(/Shiny:/).parentElement.querySelector('svg'));
+    fireEvent.click(screen.getByText(/Shiny Chance:/).parentElement.querySelector('svg'));
 
     expect(screen.getByText('Shiny Critter Chance')).toBeDefined();
     expect(screen.getByText('On placement')).toBeDefined();
     expect(screen.getByText('On collection')).toBeDefined();
   });
 
+  it('opens the collect rates breakdown from its own info icon', () => {
+    renderPage({ characters, account });
+    fireEvent.click(screen.getByText(/Collect Rates:/).parentElement.querySelector('svg'));
+
+    expect(screen.getByText('Critter Collect Rates')).toBeDefined();
+    expect(screen.getByText(/^Critters \(\d+%\)$/)).toBeDefined();
+    expect(screen.getByText(/^EXP \(\d+%\)$/)).toBeDefined();
+  });
+
   it('renders logged out, with no character to collect as', () => {
     expect(() => renderPage({})).not.toThrow();
-    expect(screen.getByText(/Shiny:/).textContent).toContain('1.00x, 1 per drop');
+    expect(screen.getByText(/Shiny Chance:/).textContent).toContain('1.00x, 1 per drop');
     expect(screen.queryByRole('combobox')).toBeNull();
   });
 });
 
 describe('Traps collector selection', () => {
   const collectRates = () => screen.getByText(/Collect Rates:/).textContent;
-  const shinyMulti = () => screen.getByText(/Shiny:/).textContent;
+  const shinyMulti = () => screen.getByText(/Shiny Chance:/).textContent;
 
   it('defaults to the character with the best critter rate', () => {
     const { perCharacter } = getTrapsBonuses(account, characters);

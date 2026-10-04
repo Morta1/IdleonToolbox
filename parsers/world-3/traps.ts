@@ -57,18 +57,20 @@ export const calcTotalCritters = (account: any, { critter, exp }: any) => {
 }
 
 export const getTrapsBonuses = (account: any, characters: any) => {
-  const critterBonuses = characters?.map((_: any, index: any) => calcCrittersBonus({
+  const critterInfos = characters?.map((_: any, index: any) => calcCrittersBonusInfo({
     currentCharacterIndex: index,
     account,
     characters,
     isExp: false
   }))
-  const expBonuses = characters?.map((_: any, index: any) => calcCrittersBonus({
+  const expInfos = characters?.map((_: any, index: any) => calcCrittersBonusInfo({
     currentCharacterIndex: index,
     account,
     characters,
     isExp: true
   }))
+  const critterBonuses = critterInfos?.map(({ value }: any) => value);
+  const expBonuses = expInfos?.map(({ value }: any) => value);
   const withFallback = (bonuses: any[] | undefined, pick: (...values: number[]) => number) =>
     bonuses?.length ? pick(...bonuses) : 1;
 
@@ -84,22 +86,47 @@ export const getTrapsBonuses = (account: any, characters: any) => {
     perCharacter: characters?.map((character: any, index: any) => ({
       name: character?.name,
       critter: critterBonuses?.[index] ?? 1,
-      exp: expBonuses?.[index] ?? 1
+      exp: expBonuses?.[index] ?? 1,
+      breakdown: {
+        statName: 'Critter Collect Rates',
+        categories: [
+          collectRateCategory('Critters', critterBonuses?.[index] ?? 1, critterInfos?.[index]?.sources),
+          collectRateCategory('EXP', expBonuses?.[index] ?? 1, expInfos?.[index]?.sources)
+        ]
+      }
     })) ?? []
   }
 }
 
-export const calcCrittersBonus = ({ currentCharacterIndex, account, characters, isExp }: any) => {
+const collectRateCategory = (name: string, value: number, sources: any) => ({
+  name: `${name} (${Math.round(value * 100)}%)`,
+  sources: [
+    { name: 'Talent - Eagle Eye', value: sources?.talent, formatted: formatPercent(sources?.talent) },
+    { name: 'Vial - Trapovision', value: sources?.vials, formatted: formatPercent(sources?.vials) },
+    { name: 'Compass', value: sources?.compass, formatted: formatPercent(sources?.compass) },
+    { name: 'Atom - Magnesium', value: sources?.atom, formatted: formatPercent(sources?.atom) },
+    { name: 'Dementia Set', value: sources?.dementiaSet, formatted: formatPercent(sources?.dementiaSet) },
+    { name: 'Palette', value: sources?.palette, formatted: formatPercent(sources?.palette) },
+    { name: 'Minimum', value: sources?.floor, formatted: `${sources?.floor}%` }
+  ].filter(({ value }) => value !== undefined)
+});
+
+export const calcCrittersBonus = (args: any) => calcCrittersBonusInfo(args).value;
+
+const calcCrittersBonusInfo = ({ currentCharacterIndex, account, characters, isExp }: any) => {
   // CollectAllPCT / CollectAllPCTexp
   // The game floors the whole sum at 50 (40 for exp) *after* adding the account-wide bonuses to the
   // Eagle Eye talent, so a low talent can still be carried over the floor by vials/compass/sets.
-  const atomBonus = getAtomBonus(account, 'Magnesium_-_Trap_Compounder') * account?.accountOptions?.[363];
-  const dementiaSetBonus = getArmorSetBonus(account, 'DEMENTIA_SET');
-  const paletteBonus = getPaletteBonus(account, 12);
-  const accountBonuses = isExp
-    ? 0
-    : getVialsBonusByStat(account?.alchemy?.vials, 'TrapOvision') + getCompassBonus(account, 42)
-    + atomBonus + dementiaSetBonus + paletteBonus;
+  const sources: Record<string, number> = isExp
+    ? {}
+    : {
+      vials: getVialsBonusByStat(account?.alchemy?.vials, 'TrapOvision'),
+      compass: getCompassBonus(account, 42),
+      atom: getAtomBonus(account, 'Magnesium_-_Trap_Compounder') * account?.accountOptions?.[363],
+      dementiaSet: getArmorSetBonus(account, 'DEMENTIA_SET'),
+      palette: getPaletteBonus(account, 12)
+    };
+  const accountBonuses = Object.values(sources).reduce((sum, bonus) => sum + bonus, 0);
   let talentBonus = 0;
   if (checkCharClass(characters?.[currentCharacterIndex]?.class, CLASSES.Hunter)) {
     const bestHunter = getCharacterByHighestTalent(characters, CLASSES.Hunter, 'EAGLE_EYE', isExp);
@@ -114,10 +141,12 @@ export const calcCrittersBonus = ({ currentCharacterIndex, account, characters, 
       talentBonus = Math.max(talentBonus, isExp ? Math.min(bonus, 99) : bonus);
     }
   }
-  const moreCritters = Math.max(isExp ? 40 : 50, talentBonus + accountBonuses);
+  const floor = isExp ? 40 : 50;
+  const moreCritters = Math.max(floor, talentBonus + accountBonuses);
   // The result is a multiplier (166% -> 1.66), so it must not be floored - the game only floors the
   // resulting item count, never the rate itself.
-  return Math.min(2e9, isNaN(moreCritters) ? 1 : moreCritters / 100);
+  const value = Math.min(2e9, isNaN(moreCritters) ? 1 : moreCritters / 100);
+  return { value, sources: { ...sources, talent: talentBonus, floor } };
 }
 export interface ShinyChanceCritter {
   rawName: string;
