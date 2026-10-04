@@ -77,6 +77,14 @@ test.describe('static export ships crawlable head tags', () => {
       expect(ogTitles, `${route} must have exactly one og:title`).toBe(1);
       const robots = (html.match(/<meta name="robots"/g) || []).length;
       expect(robots, `${route} must have exactly one robots tag`).toBe(1);
+      // Link previews (Discord, Slack...) read og:*, not <title>. _app once hardcoded them, so every
+      // shared link showed the same generic site embed.
+      const contentOf = (attr) => html.match(new RegExp(`<meta ${attr} content="([^"]*)"`))?.[1];
+      expect(contentOf('property="og:title"'), `${route} og:title must match its <title>`)
+        .toBe(titleOf(html));
+      expect(contentOf('property="og:description"'),
+        `${route} og:description must match its meta description`)
+        .toBe(contentOf('name="description"'));
     });
   }
 });

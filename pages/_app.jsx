@@ -206,8 +206,10 @@ const MyApp = (props) => {
                     locale: 'en_US',
                     url: canonicalUrl,
                     siteName: 'Idleon Toolbox',
-                    title: 'Idleon Toolbox - Essential Tools for Legends of Idleon',
-                    description: 'Power up your Legends of Idleon adventure with Idleon Toolbox\'s essential tools and resources for optimizing gameplay, character builds, crafting, and more.',
+                    // Link previews (Discord etc.) read og:*, and a data page's own NextSeo never
+                    // reaches the export, so the per-page values have to be written here.
+                    title: staticTitle ?? 'Idleon Toolbox - Essential Tools for Legends of Idleon',
+                    description: staticDescription ?? 'Power up your Legends of Idleon adventure with Idleon Toolbox\'s essential tools and resources for optimizing gameplay, character builds, crafting, and more.',
                     images: [
                       {
                         url: 'https://idleontoolbox.com/data/Coins5.png',
