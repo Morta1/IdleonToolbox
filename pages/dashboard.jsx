@@ -19,7 +19,7 @@ import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 import { useLocalStorage } from '@mantine/hooks';
 
 const baseTrackers = {
-  version: 78,
+  version: 79,
   account: {
     General: {
       tasks: {
@@ -406,7 +406,18 @@ const baseTrackers = {
           { name: 'shovel', type: 'input', props: { label: 'Hours threshold', value: 1, minValue: 1 }, checked: true }
         ]
       },
-      sailing: { checked: true, options: [{ name: 'captains', checked: true }, { name: 'chests', checked: true }] },
+      sailing: {
+        checked: true,
+        options: [
+          { name: 'captains', checked: true },
+          { name: 'chests', checked: true },
+          {
+            name: 'alwaysAlertEnderCaptains',
+            checked: false,
+            helperText: 'Alert on every Ender captain in the shop, even when all your captains are already Ender and its stats are not higher'
+          }
+        ]
+      },
       hole: {
         checked: true,
         options: [

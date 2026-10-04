@@ -2079,6 +2079,20 @@ const migration78 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration79 = (dashboardConfig) => {
+  const sailingOptions = dashboardConfig?.account?.['World 5']?.sailing?.options;
+  if (Array.isArray(sailingOptions) && !sailingOptions.some((option) => option?.name === 'alwaysAlertEnderCaptains')) {
+    sailingOptions.push({
+      name: 'alwaysAlertEnderCaptains',
+      checked: false,
+      helperText: 'Alert on every Ender captain in the shop, even when all your captains are already Ender and its stats are not higher'
+    });
+  }
+
+  dashboardConfig.version = 79;
+  return dashboardConfig;
+};
+
 const migrations = {
   2: migrateToVersion2,
   3: migrateToVersion3,
@@ -2157,6 +2171,7 @@ const migrations = {
   76: migration76,
   77: migration77,
   78: migration78,
+  79: migration79,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

@@ -10,7 +10,8 @@ export const patchNotes = [
     'features': [
       'Traps: separated the Shiny Chance line from Collect Rates, and added a breakdown for collect rates',
       'Masterclass upgrade pages: added a Daily Shopping Spree toggle and a Levels ahead selector to preview future upgrade costs',
-      'Bubbles: the Future Bubbles tooltip now always shows the next 15 bubbles after your least progressed cauldron'
+      'Bubbles: the Future Bubbles tooltip now always shows the next 15 bubbles after your least progressed cauldron',
+      'Dashboard: new Sailing option to alert on every Ender captain in the shop, even when its stats are not higher than your current captains'
     ],
     'fixes': []
   },

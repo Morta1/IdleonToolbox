@@ -1111,7 +1111,7 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
   }
   if (fields?.sailing?.checked) {
     const sailing = {};
-    const { captains, chests } = options?.sailing || {};
+    const { captains, chests, alwaysAlertEnderCaptains } = options?.sailing || {};
     if (captains?.checked) {
       const { captains, shopCaptains } = account?.sailing || {};
       const allSlotsEnder = captains?.length > 0 && captains?.every((c) => c?.captainType === 6);
@@ -1153,7 +1153,7 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
           }
           return false;
         });
-        if ((matches?.length > 0 && captainType !== -1) || (captainType === 6 && (!allSlotsEnder || matches?.length > 0))) {
+        if ((matches?.length > 0 && captainType !== -1) || (captainType === 6 && (alwaysAlertEnderCaptains?.checked || !allSlotsEnder || matches?.length > 0))) {
           const isSameValue = firstBonusIndex === secondBonusIndex;
           const temp = {
             captain: shopCaption,
