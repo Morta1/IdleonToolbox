@@ -26,6 +26,7 @@ import usePageDataLoading from '@hooks/usePageDataLoading';
 import PageLoadingProvider, { usePageLoadingState } from '@components/common/context/PageLoadingProvider';
 import ProfileBanner from './ProfileBanner';
 import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
+import { DISCORD_BOT_INSTALL_URL, DISCORD_SERVER_URL } from '@components/discordLinks';
 
 const NavBar = ({ children }) => {
   const { state } = useContext(AppContext);
@@ -102,9 +103,13 @@ const NavBar = ({ children }) => {
                borderColor: 'divider',
                backgroundColor: 'background.paper'
              }}>
-        <Link href="https://discord.gg/8Devcj7FzV" target="_blank" rel="noopener"
+        <Link href={DISCORD_SERVER_URL} target="_blank" rel="noopener"
               variant="caption" color="text.secondary">
           Discord
+        </Link>
+        <Link href={DISCORD_BOT_INSTALL_URL} target="_blank" rel="noopener"
+              variant="caption" color="text.secondary">
+          Discord bot
         </Link>
         <Link href="https://ko-fi.com/S6S7BHLQ4" target="_blank" rel="noopener"
               variant="caption" color="text.secondary">
