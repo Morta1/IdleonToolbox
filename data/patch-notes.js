@@ -9,7 +9,8 @@ export const patchNotes = [
     'date': '04/10/2026',
     'features': [
       'Traps: separated the Shiny Chance line from Collect Rates, and added a breakdown for collect rates',
-      'Masterclass upgrade pages: added a Daily Shopping Spree toggle and a Levels ahead selector to preview future upgrade costs'
+      'Masterclass upgrade pages: added a Daily Shopping Spree toggle and a Levels ahead selector to preview future upgrade costs',
+      'Bubbles: the Future Bubbles tooltip now always shows the next 15 bubbles after your least progressed cauldron'
     ],
     'fixes': []
   },

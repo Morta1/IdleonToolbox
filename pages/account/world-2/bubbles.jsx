@@ -621,26 +621,26 @@ const BubbleTooltip = ({ goalBonus, bubbleName, desc }) => {
   </>;
 }
 
-const FUTURE_BUBBLES_AHEAD = 10;
-const FUTURE_BUBBLES_MAX_ROWS = 30;
+const FUTURE_BUBBLES_ROWS = 15;
 // Shown when there's no cauldron progress to anchor on (logged out)
 const FUTURE_BUBBLES_FALLBACK = 30;
 
-// Brew needed to roll for each upcoming bubble, from the least progressed cauldron's next bubble to a
-// few past the furthest one. The game groups bubbles into worlds of 5.
+// Brew needed to roll for each upcoming bubble, starting at the least progressed cauldron's next
+// bubble: it's the one you're waiting on. The game groups bubbles into worlds of 5.
 const FutureBubblesTooltip = ({ cauldrons }) => {
   const progress = Object.values(cauldrons ?? {})
     .map(({ unlockedBubbles }) => unlockedBubbles)
     .filter((count) => count > 0);
-  const unlocked = progress.length ? progress : [FUTURE_BUBBLES_FALLBACK];
-  const last = Math.max(...unlocked) + FUTURE_BUBBLES_AHEAD;
-  const first = Math.max(Math.min(last, ...unlocked) + 1, last - FUTURE_BUBBLES_MAX_ROWS + 1);
-  const byWorld = Array.from({ length: last - first + 1 }, (_, index) => first + index)
+  const first = Math.min(...(progress.length ? progress : [FUTURE_BUBBLES_FALLBACK])) + 1;
+  const byWorld = Array.from({ length: FUTURE_BUBBLES_ROWS }, (_, index) => first + index)
     .reduce((res, bubble) => {
       const world = Math.ceil(bubble / 5);
       return { ...res, [world]: [...(res[world] ?? []), bubble] };
     }, {});
   return <Stack gap={2}>
+    <Typography variant={'caption'} color={'text.secondary'} sx={{ maxWidth: 220 }}>
+      Next {FUTURE_BUBBLES_ROWS} bubbles after your least progressed cauldron
+    </Typography>
     {Object.entries(byWorld).map(([world, bubbles]) => {
       return <Stack key={world}>
         <Typography sx={{ fontWeight: 'bold' }}>World {world}</Typography>
