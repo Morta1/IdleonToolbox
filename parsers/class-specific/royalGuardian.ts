@@ -1683,12 +1683,12 @@ export const getArmoryCostReduction = (account: Account, forceLegendTalent?: any
 // Total resource to take one armory upgrade from its current level to targetLevel, re-pricing
 // every step with getArmoryUpgradeCost so the id 46/58 flat prices and the jelly slot quirk hold.
 // Only this upgrade's level moves: buying it does not touch any other price on the shelf.
-export const getArmoryCostToLevel = (account: Account, upgrade: ArmoryUpgrade, targetLevel: number): number => {
+export const getArmoryTotalUpgradeCost = (account: Account, upgrade: ArmoryUpgrade, targetLevel: number, forceLegendTalent?: boolean): number => {
   const armory = (account as any)?.royalGuardian?.armory;
   if (!armory || !(upgrade?.slot >= 0)) return 0;
   const armoryLevels: number[] = [];
   (armory.upgrades ?? []).forEach((entry: ArmoryUpgrade) => { armoryLevels[entry.index] = entry.level; });
-  const costReduction = getArmoryCostReduction(account);
+  const costReduction = getArmoryCostReduction(account, forceLegendTalent);
   const cap = upgrade.maxLevel < 999 ? upgrade.maxLevel : Infinity;
   const end = Math.min(targetLevel, cap);
   let total = 0;

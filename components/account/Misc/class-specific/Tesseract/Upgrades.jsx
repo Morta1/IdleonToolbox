@@ -13,12 +13,15 @@ import {
 } from '@mui/material';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import useCheckbox from '@components/common/useCheckbox';
+import { getTesseractTotalUpgradeCost } from '@parsers/class-specific/tesseract';
+import useMasterclassCostControls, { LevelsAheadCaption } from '../useMasterclassCostControls';
 
-const Upgrades = ({ upgrades, tachyons }) => {
+const Upgrades = ({ account, upgrades, tachyons }) => {
   const [sortBy, setSortBy] = useState('default');
   const [searchText, setSearchText] = useState('');
   const [CheckboxEl, hideMaxedUpgrades] = useCheckbox('Hide maxed upgrades');
   const [LockedCheckboxEl, hideLockedUpgrades] = useCheckbox('Hide locked upgrades');
+  const { controls, levelsAhead, forceLegendTalent, isOverridden } = useMasterclassCostControls(account);
 
   const sortUpgrades = (list) => {
     const sorted = [...list];
@@ -48,6 +51,10 @@ const Upgrades = ({ upgrades, tachyons }) => {
     if (hideMaxedUpgrades && level >= x4) return null;
     if (hideLockedUpgrades && !unlocked) return null;
     if (description === 'These_pages_are_missing...') return null;
+    const owned = tachyons?.[tachyonType]?.value || 0;
+    const nextCost = isOverridden ? getTesseractTotalUpgradeCost(account, upgrade, level + 1, forceLegendTalent) : cost;
+    const targetLevel = Math.min(level + levelsAhead, x4);
+    const targetCost = targetLevel > level + 1 ? getTesseractTotalUpgradeCost(account, upgrade, targetLevel, forceLegendTalent) : 0;
 
     return (
       <Card key={name + i}>
@@ -91,9 +98,12 @@ const Upgrades = ({ upgrades, tachyons }) => {
           <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
             <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Tach${tachyonType}_x1.png`} alt=""/>
             {level < x4 ? <Typography>
-              Cost: {notateNumber(tachyons?.[tachyonType]?.value || 0)} / {notateNumber(cost, 'Big')}
+              Cost: {notateNumber(owned)} / {notateNumber(nextCost, 'Big')}
             </Typography> : <Typography>Maxed</Typography>}
           </Stack>
+          {targetLevel > level + 1
+            ? <LevelsAheadCaption targetLevel={targetLevel} targetCost={targetCost} owned={owned}/>
+            : null}
           <Divider sx={{ my: 1 }}/>
           <Typography>Unlocks at: {commaNotation(x6)} levels</Typography>
         </CardContent>
@@ -127,6 +137,7 @@ const Upgrades = ({ upgrades, tachyons }) => {
           onChange={(e) => setSearchText(e.target.value)}
           sx={{ width: 250 }}
         />
+        {controls}
         <CheckboxEl/>
         <LockedCheckboxEl/>
       </Stack>

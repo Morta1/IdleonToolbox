@@ -235,6 +235,16 @@ const getUpgradeCost = ({ index, level, x1, x2, account, forceLegendTalent }: an
   return 3 * Math.pow(1.05, index) * getMasterclassCostReduction(account, forceLegendTalent) * (level + (x1 + level) * Math.pow(x2 + 0.01, level));
 }
 
+// Summed cost of every level from the upgrade's current one up to targetLevel (capped at x4).
+export const getGrimoireTotalUpgradeCost = (account: any, upgrade: any, targetLevel: number, forceLegendTalent?: boolean) => {
+  const end = Math.min(targetLevel, upgrade?.x4 ?? targetLevel);
+  let total = 0;
+  for (let level = upgrade?.level ?? 0; level < end; level++) {
+    total += getUpgradeCost({ ...upgrade, level, account, forceLegendTalent });
+  }
+  return total;
+}
+
 export const getExtraBonesBonus = (character: any, account: any) => {
   const { upgrades } = account?.grimoire || {};
   const grimoire = getTalentBonus(character?.flatTalents, CLASSES.Death_Bringer, 'GRIMOIRE');

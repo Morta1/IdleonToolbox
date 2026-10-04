@@ -100,7 +100,7 @@ const Tesseract = () => {
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'tesseract')}>
-      <Upgrades upgrades={upgrades} tachyons={tachyons}/>
+      <Upgrades account={state?.account} upgrades={upgrades} tachyons={tachyons}/>
       <UpgradeOptimizer account={state?.account} character={state?.characters?.[selectedChar]} />
       <Maps account={state?.account} character={state?.characters?.[selectedChar]} characters={state?.characters}/>
     </Tabber>

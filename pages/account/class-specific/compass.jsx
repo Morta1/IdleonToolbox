@@ -126,7 +126,7 @@ const Compass = () => {
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'compass')}>
-      <Upgrades upgrades={groupedUpgrades} dusts={dusts}/>
+      <Upgrades account={state?.account} upgrades={groupedUpgrades} dusts={dusts}/>
       <UpgradeOptimizer character={selectedWindWalker} account={state?.account}/>
       <Abominations abominations={abominations}/>
       <Medallions medallions={medallions} totalAcquiredMedallions={totalAcquiredMedallions}/>

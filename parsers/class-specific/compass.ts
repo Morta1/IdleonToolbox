@@ -735,6 +735,22 @@ const getUpgradeCost = (upgrades: any[], index: number, serverVars: any, account
   return finalCost;
 }
 
+// Summed cost of every level from the upgrade's current one up to targetLevel (capped at x4).
+// The upgrade's own level feeds its Path surplus and the 36/77 dust discounts, so it is simulated
+// in a copy of the list rather than read off the save.
+export const getCompassTotalUpgradeCost = (account: any, upgrade: any, targetLevel: number, forceLegendTalent?: boolean) => {
+  const upgrades = [...(account?.compass?.upgrades ?? [])];
+  const position = upgrades.findIndex((entry: any) => entry?.index === upgrade?.index);
+  if (position < 0) return 0;
+  const end = Math.min(targetLevel, upgrade?.x4 ?? targetLevel);
+  let total = 0;
+  for (let level = upgrade?.level ?? 0; level < end; level++) {
+    upgrades[position] = { ...upgrades[position], level };
+    total += getUpgradeCost(upgrades, position, account?.serverVars, account, forceLegendTalent);
+  }
+  return total;
+}
+
 export const getOptimizedUpgrades = (character: any, account: any, category: string = 'damage', maxUpgrades: number = 100, options: any = {}) => {
   const categoryInfo = (UPGRADE_CATEGORIES as Record<string, any>)[category];
   if (category === 'dust') {

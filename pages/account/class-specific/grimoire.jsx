@@ -89,7 +89,7 @@ const Grimoire = () => {
     </Stack>
     <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'grimoire')}>
-      <Upgrades upgrades={upgrades} bones={bones}/>
+      <Upgrades account={state?.account} upgrades={upgrades} bones={bones}/>
       <UpgradeOptimizer account={state?.account} character={state?.characters?.[selectedChar]}/>
       <Monsters monsters={monsterDrops}/>
     </Tabber>

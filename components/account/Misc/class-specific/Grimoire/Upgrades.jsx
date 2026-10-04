@@ -13,12 +13,15 @@ import {
 import { cleanUnderscore, commaNotation, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import useCheckbox from '@components/common/useCheckbox';
 import MenuItem from '@mui/material/MenuItem';
+import { getGrimoireTotalUpgradeCost } from '@parsers/class-specific/grimoire';
+import useMasterclassCostControls, { LevelsAheadCaption } from '../useMasterclassCostControls';
 
-const Upgrades = ({ upgrades, bones }) => {
+const Upgrades = ({ account, upgrades, bones }) => {
   const [sortBy, setSortBy] = useState('default');
   const [searchText, setSearchText] = useState('');
   const [CheckboxEl, hideMaxedUpgrades] = useCheckbox('Hide maxed upgrades');
   const [LockedCheckboxEl, hideLockedUpgrades] = useCheckbox('Hide locked upgrades');
+  const { controls, levelsAhead, forceLegendTalent, isOverridden } = useMasterclassCostControls(account);
 
   const sortUpgrades = (list) => {
     const sorted = [...list];
@@ -57,12 +60,14 @@ const Upgrades = ({ upgrades, bones }) => {
           onChange={(e) => setSearchText(e.target.value)}
           sx={{ width: 250 }}
         />
+        {controls}
         <CheckboxEl/>
         <LockedCheckboxEl/>
       </Stack>
 
       <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-        {sortedUpgrades?.map(({
+        {sortedUpgrades?.map((upgrade) => {
+          const {
                                   name,
                                   cost,
                                   description,
@@ -73,9 +78,13 @@ const Upgrades = ({ upgrades, bones }) => {
                                   unlocked,
                                   x4,
                                   index
-                                }) => {
+                                } = upgrade;
           if (hideMaxedUpgrades && level >= x4) return null;
           if (hideLockedUpgrades && !unlocked) return null;
+          const owned = bones?.[boneType] || 0;
+          const nextCost = isOverridden ? getGrimoireTotalUpgradeCost(account, upgrade, level + 1, forceLegendTalent) : cost;
+          const targetLevel = Math.min(level + levelsAhead, x4);
+          const targetCost = targetLevel > level + 1 ? getGrimoireTotalUpgradeCost(account, upgrade, targetLevel, forceLegendTalent) : 0;
 
           return (
             <Card key={name + index}>
@@ -96,8 +105,11 @@ const Upgrades = ({ upgrades, bones }) => {
                 <Divider sx={{ my: 1 }}/>
                 <Stack direction={'row'} gap={1} flexWrap={'wrap'} alignItems={'center'}>
                   <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Bone${boneType}_x1.png`} alt=""/>
-                  <Typography>Cost: {notateNumber(bones?.[boneType] || 0)} / {notateNumber(cost, 'Big')}</Typography>
+                  <Typography>Cost: {notateNumber(owned)} / {notateNumber(nextCost, 'Big')}</Typography>
                 </Stack>
+                {targetLevel > level + 1
+                  ? <LevelsAheadCaption targetLevel={targetLevel} targetCost={targetCost} owned={owned}/>
+                  : null}
                 <Divider sx={{ my: 1 }}/>
                 <Typography>Unlocks at: {commaNotation(unlockLevel)} levels</Typography>
               </CardContent>

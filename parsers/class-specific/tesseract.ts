@@ -613,6 +613,21 @@ const getUpgradeCost = ({ index, x1, x2, level, account, upgrades, forceLegendTa
     * Math.pow(1.04, index) * (level + (x1 + level) * Math.pow(x2 + 0.01, level))
 }
 
+// Summed cost of every level from the upgrade's current one up to targetLevel (capped at x4).
+// Upgrade 49 discounts every tesseract cost, its own included, so its level is simulated too.
+export const getTesseractTotalUpgradeCost = (account: any, upgrade: any, targetLevel: number, forceLegendTalent?: boolean) => {
+  const upgrades = [...(account?.tesseract?.upgrades ?? [])];
+  const position = upgrades.findIndex((entry: any) => entry?.index === upgrade?.index);
+  if (position < 0) return 0;
+  const end = Math.min(targetLevel, upgrade?.x4 ?? targetLevel);
+  let total = 0;
+  for (let level = upgrade?.level ?? 0; level < end; level++) {
+    upgrades[position] = { ...upgrade, level };
+    total += getUpgradeCost({ ...upgrade, index: position, level, account, upgrades, forceLegendTalent });
+  }
+  return total;
+}
+
 const getTesseractBonusAtLevel = (upgrades: any, index: any, levelOverride: any) => {
   const tempUpgrades = upgrades.map((u: any, i: any) =>
     i === index ? { ...u, level: levelOverride } : { ...u }

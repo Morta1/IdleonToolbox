@@ -13,12 +13,15 @@ import {
 } from '@mui/material';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import useCheckbox from '@components/common/useCheckbox';
+import { getCompassTotalUpgradeCost } from '@parsers/class-specific/compass';
+import useMasterclassCostControls, { LevelsAheadCaption } from '../useMasterclassCostControls';
 
-const Upgrades = ({ upgrades, dusts }) => {
+const Upgrades = ({ account, upgrades, dusts }) => {
   const [sortBy, setSortBy] = useState('default');
   const [searchText, setSearchText] = useState('');
   const [CheckboxEl, hideMaxedUpgrades] = useCheckbox('Hide maxed upgrades');
   const [LockedCheckboxEl, hideLockedUpgrades] = useCheckbox('Hide locked upgrades');
+  const { controls, levelsAhead, forceLegendTalent, isOverridden } = useMasterclassCostControls(account);
 
   const sortUpgrades = (list) => {
     const sorted = [...list];
@@ -49,6 +52,10 @@ const Upgrades = ({ upgrades, dusts }) => {
     if (hideMaxedUpgrades && level >= x4) return null;
     if (hideLockedUpgrades && !unlocked) return null;
     if (description === 'Titan_doesnt_exist') return null;
+    const owned = dusts?.[dustType || x3]?.value || 0;
+    const nextCost = isOverridden ? getCompassTotalUpgradeCost(account, upgrade, level + 1, forceLegendTalent) : cost;
+    const targetLevel = Math.min(level + levelsAhead, x4);
+    const targetCost = targetLevel > level + 1 ? getCompassTotalUpgradeCost(account, upgrade, targetLevel, forceLegendTalent) : 0;
 
     let iconIndex = index ?? i;
     if (baseIconIndex != null && baseIconIndex >= 0) iconIndex = baseIconIndex + 106;
@@ -97,9 +104,12 @@ const Upgrades = ({ upgrades, dusts }) => {
           <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
             <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Dust${dustType ?? x3}_x1.png`} alt=""/>
             {level < x4 ? <Typography>
-              Cost: {notateNumber(dusts?.[dustType || x3]?.value || 0)} / {notateNumber(cost, 'Big')}
+              Cost: {notateNumber(owned)} / {notateNumber(nextCost, 'Big')}
             </Typography> : <Typography>Maxed</Typography>}
           </Stack>
+          {targetLevel > level + 1
+            ? <LevelsAheadCaption targetLevel={targetLevel} targetCost={targetCost} owned={owned}/>
+            : null}
           {unlocksAt > 0 ? <>
             <Divider sx={{ my: 1 }}/>
             <Typography>Unlocks at {path}: {unlocksAt}</Typography>
@@ -126,6 +136,7 @@ const Upgrades = ({ upgrades, dusts }) => {
           onChange={(e) => setSearchText(e.target.value)}
           sx={{ width: 250 }}
         />
+        {controls}
         <CheckboxEl/>
         <LockedCheckboxEl/>
       </Stack>

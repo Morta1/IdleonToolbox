@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.531',
     'date': '04/10/2026',
     'features': [
-      'Traps: separated the Shiny Chance line from Collect Rates, and added a breakdown for collect rates'
+      'Traps: separated the Shiny Chance line from Collect Rates, and added a breakdown for collect rates',
+      'Masterclass upgrade pages: added a Daily Shopping Spree toggle and a Levels ahead selector to preview future upgrade costs'
     ],
     'fixes': []
   },

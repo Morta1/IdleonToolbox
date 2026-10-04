@@ -3,7 +3,8 @@ import { Card, CardContent, Chip, Divider, FormControl, InputLabel, Select, Stac
 import MenuItem from '@mui/material/MenuItem';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import useCheckbox from '@components/common/useCheckbox';
-import { getArmoryCostToLevel } from '@parsers/class-specific/royalGuardian';
+import { getArmoryTotalUpgradeCost } from '@parsers/class-specific/royalGuardian';
+import useMasterclassCostControls from '../useMasterclassCostControls';
 import { formatEta } from './formatEta';
 
 // Same stray glyphs Grimoire/Compass/Tesseract strip from their own upgrade text, plus the three
@@ -11,17 +12,14 @@ import { formatEta } from './formatEta';
 const stripGlyphs = (str) => (str ?? '').replace(/[船般航舞製千膛]/g, '');
 const cleanText = (str) => cleanUnderscore(stripGlyphs(str));
 
-// A capped upgrade stops at its cap, so +100 already reaches max on almost every capped one.
-const LEVELS_AHEAD = [1, 5, 10, 25, 100];
-
 // The armory renders every upgrade at its OWN shelf currency icon (RGres{costResourceIndex}.png) -
 // this is the game's own render, not a per-upgrade icon; there is no such asset.
 const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
   const [sortBy, setSortBy] = useState('slot');
-  const [levelsAhead, setLevelsAhead] = useState(1);
   const [searchText, setSearchText] = useState('');
   const [CheckboxEl, hideMaxedUpgrades] = useCheckbox('Hide maxed upgrades');
   const [LockedCheckboxEl, hideLockedUpgrades] = useCheckbox('Hide locked upgrades');
+  const { controls, levelsAhead, forceLegendTalent, isOverridden } = useMasterclassCostControls(account);
 
   // Only the 69 shelf slots are ever shown - the 14 catalog ids with no slot aren't purchasable
   // and have no shelf position to render in (see task C2 brief).
@@ -57,15 +55,7 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
           onChange={(e) => setSearchText(e.target.value)}
           sx={{ width: 250 }}
         />
-        <FormControl size="small" sx={{ width: 150 }}>
-          <InputLabel>Levels ahead</InputLabel>
-          <Select value={levelsAhead} label="Levels ahead" onChange={(e) => setLevelsAhead(e.target.value)}>
-            {LEVELS_AHEAD.map((amount) => (
-              // +1 is the card's own cost row with nothing added, so it reads as the default view.
-              <MenuItem key={amount} value={amount}>{amount === 1 ? 'Current' : `+${amount} levels`}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        {controls}
         <CheckboxEl/>
         <LockedCheckboxEl/>
       </Stack>
@@ -81,7 +71,8 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
           const capped = maxLevel < 999;
           const stored = resourceStorage?.[costResourceIndex] ?? 0;
           const targetLevel = Math.min(level + levelsAhead, capped ? maxLevel : Infinity);
-          const targetCost = maxed ? 0 : getArmoryCostToLevel(account, upgrade, targetLevel);
+          const nextCost = isOverridden && !maxed ? getArmoryTotalUpgradeCost(account, upgrade, level + 1, forceLegendTalent) : cost;
+          const targetCost = maxed ? 0 : getArmoryTotalUpgradeCost(account, upgrade, targetLevel, forceLegendTalent);
           const income = resourcePerHour?.[costResourceIndex] ?? 0;
           const missing = Math.max(0, targetCost - stored);
           const eta = income > 0
@@ -112,8 +103,8 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
                   <img style={{ width: 24, height: 24 }} src={`${prefix}data/${costResourceRawName}.png`} alt=""/>
                   {maxed
                     ? <Typography>Maxed</Typography>
-                    : <Typography color={stored >= cost ? 'success.main' : 'error.light'}>
-                      Cost: {notateNumber(stored)} / {notateNumber(cost, 'Big')}
+                    : <Typography color={stored >= nextCost ? 'success.main' : 'error.light'}>
+                      Cost: {notateNumber(stored)} / {notateNumber(nextCost, 'Big')}
                     </Typography>}
                 </Stack>
                 {/* The next level is always the cost row above; this line only prices the picker's
