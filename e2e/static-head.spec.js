@@ -85,6 +85,11 @@ test.describe('static export ships crawlable head tags', () => {
       expect(contentOf('property="og:description"'),
         `${route} og:description must match its meta description`)
         .toBe(contentOf('name="description"'));
+      // og:image is the page's nav icon, so a typo'd icon in PAGES would ship a broken preview.
+      const ogImage = contentOf('property="og:image"');
+      expect(ogImage, `${route} is missing og:image`).toBeTruthy();
+      const imageResponse = await request.get(new URL(ogImage).pathname);
+      expect(imageResponse.status(), `${route} og:image ${ogImage} does not exist`).toBe(200);
     });
   }
 });
