@@ -42,7 +42,8 @@ const trackerDescriptions = {
 // camelToTitleCase splits on digits too, so names carrying one read wrong ("p2wUpgrades" becomes
 // "P 2w Upgrades"). Names listed here render as written instead.
 const labelOverrides = {
-  p2wUpgrades: 'P2W Upgrades'
+  p2wUpgrades: 'P2W Upgrades',
+  killRoy: 'Killroy'
 };
 
 const getLabel = (name) => labelOverrides[name] ?? name?.camelToTitleCase();
