@@ -798,7 +798,11 @@ export const getPaletteLuck = (paletteFinalBonus: any, ratKing: any, account: an
   const paletteBonus3 = getPaletteBonus(account, 3) ?? 0;
   const loreEpiBonus = getLoreBossBonus(account, 5) ?? 0;
   const superbit38Unlocked = isSuperbitUnlocked(account, 'Colourful_Luck') ? 1 : 0;
-  const gamingLevel = getHighestCharacterSkill(characters, 'gaming') ?? 0;
+  // The game reads Lv0[15], the logged-in character's gaming level, not the account's best gamer
+  const activeCharacter = getBestActiveCharacter(characters);
+  const gamingLevel = (activeCharacter
+    ? activeCharacter?.skillsInfo?.gaming?.level
+    : getHighestCharacterSkill(characters, 'gaming')) ?? 0;
   const superbit45Unlocked = isSuperbitUnlocked(account, 'Gamer_Luck') ? 1 : 0;
   const snailLevel = account?.gaming?.snailLevel ?? 0;
   const superbit28Unlocked = isSuperbitUnlocked(account, 'Lucky_Snail') ? 1 : 0;
@@ -810,6 +814,7 @@ export const getPaletteLuck = (paletteFinalBonus: any, ratKing: any, account: an
   const superbit65Unlocked = isSuperbitUnlocked(account, 'Artistic_Gamer') ? 1 : 0;
   const ratKingBonus = ratKing?.shopUpgrades?.[1]?.bonus ?? 0;
   const spelunkBossDefeated = account?.spelunking?.loreBosses?.[8]?.defeated ? 1 : 0;
+  const sushiBonus = getSushiBonus(account, 42);
 
   const colourfulLuckContent = 4 * gamingLevel * spelunkBossDefeated + paletteFinalBonus + loreEpiBonus;
 
@@ -823,7 +828,7 @@ export const getPaletteLuck = (paletteFinalBonus: any, ratKing: any, account: an
           + (20 * Math.max(0, snailLevel - 25) * superbit28Unlocked
             + (acornShopBonus2 + exoticBonus44
               + (100 * jadeEmporiumBonus + arcadeBonus + gridBonus)))))) / 100)
-    * (1 + getSushiBonus(account, 42) / 100);
+    * (1 + sushiBonus / 100);
 
   return {
     value,
@@ -838,6 +843,7 @@ export const getPaletteLuck = (paletteFinalBonus: any, ratKing: any, account: an
             { name: 'Meritocracy', value: meritocracyBonus },
             { name: 'Rat King', value: ratKingBonus },
             { name: 'Artistic Gamer', value: 0.3 * superbit65Unlocked },
+            { name: 'Sushi Station', value: sushiBonus },
             { name: 'Palette', value: paletteBonus3 },
             { name: 'Colourful Luck', value: colourfulLuckContent * superbit38Unlocked },
             { name: 'Gamer Luck', value: Math.max(0, 3 * (gamingLevel - 200) * superbit45Unlocked) },

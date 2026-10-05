@@ -1,6 +1,6 @@
 import type { IdleonData, Account } from '../types';
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
-import { ninjaExtraInfo } from '@website-data';
+import { mapPortals, ninjaExtraInfo } from '@website-data';
 import { getCosmoBonus } from '@parsers/world-5/hole';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
@@ -11,16 +11,23 @@ import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 
-export const getVoteBallot = (idleonData: IdleonData, accountData: Account) => {
-  return parseVoteBallot(idleonData, accountData);
+export const getVoteBallot = (idleonData: IdleonData, accountData: Account, characters?: any[]) => {
+  return parseVoteBallot(idleonData, accountData, characters);
 }
 
-const parseVoteBallot = (idleonData: IdleonData, accountData: Account) => {
+const parseVoteBallot = (idleonData: IdleonData, accountData: Account, characters?: any[]) => {
   const { votePercent, voteCategories, voteCat2, votePercent2 } = (accountData as any)?.serverVars || {};
   const [selectedCategory, ...currentCategories] = voteCategories || [];
   const [selectedCategory2, ...currentCategories2] = voteCat2 || [];
 
-  // "MeritocBonusz" == e
+  // "MeritocBonuszMulti" == e
+  // Game: 0 >= KillsLeft2Advance[250][0], ie. Spirit Village (the World 6 town) has been reached,
+  // otherwise every meritocracy bonus is 0. character.kills stores kills done, so compare to the requirement.
+  const world6TownReq = parseFloat(mapPortals?.[250]?.[0] as any);
+  const meritocracyUnlocked = characters?.some(({ kills }: any) => kills?.[250] >= world6TownReq) ?? false;
+  // Until the Demonflesh is handed in (OptionsListAccount[472]) the base is 25% instead of 100%
+  const canVote = (accountData as any)?.accountOptions?.[472] === 1 ? 1 : 0;
+  const meritocracyBase = Math.min(1, Math.max(0.25, 0.25 + canVote));
   const companionBonus = isCompanionBonusActive(accountData, 39) ? (accountData as any)?.companions?.list?.at(39)?.bonus : 0;
   const poppyBonus = isCompanionBonusActive(accountData, 161) ? (accountData as any)?.companions?.list?.at(161)?.bonus ?? 0 : 0;
   const arcadeBonus = getArcadeBonus((accountData as any)?.arcade?.shop, 'Meritocracy_Bonus')?.bonus ?? 0;
@@ -29,7 +36,7 @@ const parseVoteBallot = (idleonData: IdleonData, accountData: Account) => {
   const meritocracySushiBonus = getSushiBonus(accountData, 51) ?? 0;
   const meritocracyJellyBonus = getJellyBonus(accountData, 33);
   const meritocracyEventShopBonus = getEventShopBonus(accountData, 23) ?? 0;
-  const meritocracyMult = (1 + poppyBonus / 100) * (1 + (5 * clamWorkBonus
+  const meritocracyMult = !meritocracyUnlocked ? 0 : (1 + poppyBonus / 100) * (meritocracyBase + (5 * clamWorkBonus
     + (companionBonus
       + (legendTalentBonus
         + (arcadeBonus
@@ -47,6 +54,7 @@ const parseVoteBallot = (idleonData: IdleonData, accountData: Account) => {
       {
         name: 'Additive (% bonus)',
         sources: [
+          { name: 'Base (Demonflesh)', value: 100 * meritocracyBase },
           { name: 'Clam Work ', value: 5 * clamWorkBonus },
           { name: 'Companion (Pufferblob)', value: companionBonus },
           { name: 'Legend Talent', value: legendTalentBonus },

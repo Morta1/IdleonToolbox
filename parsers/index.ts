@@ -352,7 +352,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.tome = safeSection<any>('tome', {}, () => getTome(idleonData, accountData, charactersData, serverVars));
   accountData.owl = safeSection<any>('owl', {}, () => getOwl(idleonData, accountData));
   accountData.kangaroo = safeSection<any>('kangaroo', {}, () => getKangaroo(idleonData, accountData));
-  accountData.voteBallot = safeSection<any>('voteBallot', {}, () => getVoteBallot(idleonData, accountData));
+  accountData.voteBallot = safeSection<any>('voteBallot', {}, () => getVoteBallot(idleonData, accountData, charactersData));
   accountData.upgradeVault = safeSection<any>('upgradeVault', {}, () => getUpgradeVault(idleonData, accountData, charactersData));
   accountData.emperor = safeSection<any>('emperor', {}, () => getEmperor(idleonData, accountData));
   accountData.legendTalents = safeSection<any>('legendTalents', {}, () => getLegendTalents(idleonData, accountData, charactersData));
