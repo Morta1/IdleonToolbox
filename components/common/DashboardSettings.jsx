@@ -117,6 +117,13 @@ const DashboardSettings = ({
     } else if (option) {
       const optionRef = sectionRef[trackerName].options[option?.optionIndex];
       optionRef.checked = !optionRef.checked;
+      if (optionRef.name === 'alwaysAlertEnderCaptains' && typeof window.gtag !== 'undefined') {
+        window.gtag('event', 'dashboard_ender_captains_toggled', {
+          event_category: 'engagement',
+          event_label: 'dashboard',
+          enabled: optionRef.checked
+        });
+      }
     } else {
       const tracker = sectionRef[nameClicked];
       tracker.checked = !tracker.checked;
