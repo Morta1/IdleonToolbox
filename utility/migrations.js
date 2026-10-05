@@ -2093,6 +2093,36 @@ const migration79 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration80 = (dashboardConfig) => {
+  const rgOptions = dashboardConfig?.account?.['World 7']?.royalGuardian?.options;
+  if (Array.isArray(rgOptions)) {
+    // Command/Military units are Commanders/Knights, so the helper text names them like Trade/Intel do.
+    const holderText = {
+      commandRank: 'Alert when an outpost reaches this Command rank while Commanders are still sent to it, so you can move them elsewhere',
+      militaryRank: 'Alert when an outpost reaches this Military rank while Knights are still sent to it, so you can move them elsewhere'
+    };
+    rgOptions.forEach((option) => {
+      if (holderText[option?.name]) option.helperText = holderText[option.name];
+    });
+
+    if (!rgOptions.some((option) => option?.name === 'purityRank')) {
+      const militaryIndex = rgOptions.findIndex((option) => option?.name === 'militaryRank');
+      const restockIndex = rgOptions.findIndex((option) => option?.name === 'restockLocked');
+      const insertAt = militaryIndex >= 0 ? militaryIndex + 1 : restockIndex >= 0 ? restockIndex : rgOptions.length;
+      rgOptions.splice(insertAt, 0, {
+        name: 'purityRank',
+        type: 'input',
+        props: { label: 'Purity rank', value: 10, minValue: 1 },
+        checked: false,
+        helperText: 'Alert when an outpost reaches this Purity rank while Priests are still sent to it, so you can move them elsewhere'
+      });
+    }
+  }
+
+  dashboardConfig.version = 80;
+  return dashboardConfig;
+};
+
 const migrations = {
   2: migrateToVersion2,
   3: migrateToVersion3,
@@ -2172,6 +2202,7 @@ const migrations = {
   77: migration77,
   78: migration78,
   79: migration79,
+  80: migration80,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

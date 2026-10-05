@@ -483,7 +483,7 @@ describe('royal guardian dashboard alerts', () => {
     const bar = (rank, units = 0, unlocked = true) => ({ rank, units, unlocked, expPerUnit: 1 });
     account.royalGuardian.outposts = [
       // Trade 12 on two slot Traders, Command 6 with 2 units sent to it.
-      guardOutpost('Ranked', 30, { unitSlots: [1, 1, 0], rankBars: [bar(12, 3), bar(3, 0), bar(6, 2), bar(20, 1, false)] }),
+      guardOutpost('Ranked', 30, { unitSlots: [1, 1, 0], rankBars: [bar(12, 3), bar(3, 0), bar(6, 2), bar(20, 1, false), bar(11, 3)] }),
       // Command 7 but nothing left feeding it: already moved, so nothing to say.
       guardOutpost('Moved', 31, { unitSlots: [0], rankBars: [bar(1, 1), bar(0), bar(7, 0), bar(0)] }),
       // Intel 10 on a slot Surveyor; its only Trader is a passive one, so Trade 15 has nothing to move.
@@ -496,7 +496,8 @@ describe('royal guardian dashboard alerts', () => {
       tradeRank: { checked: true, props: { value: 10 } },
       intelRank: { checked: true, props: { value: 10 } },
       commandRank: { checked: true, props: { value: 6 } },
-      militaryRank: { checked: true, props: { value: 10 } }
+      militaryRank: { checked: true, props: { value: 10 } },
+      purityRank: { checked: true, props: { value: 10 } }
     }
   });
 
@@ -513,6 +514,31 @@ describe('royal guardian dashboard alerts', () => {
     });
     // A bar the armory has not unlocked yet never alerts, whatever its stored rank.
     expect(alerts.militaryRank).toBeUndefined();
+    expect(alerts.purityRank).toEqual({
+      count: 1,
+      threshold: 10,
+      outposts: [expect.objectContaining({ name: 'Ranked', rank: 11, units: 3 })]
+    });
+  });
+
+  it('adds the Purity rank option after Military and names the Command/Military holders', () => {
+    const stored = migrateConfig({ version: 78 }, {
+      version: 69,
+      account: { 'World 7': { gallery: { checked: true, options: [] } } },
+      characters: {},
+      timers: { 'World 7': {} }
+    });
+    const migrated = migrateConfig({ version: 80 }, stored);
+    const options = migrated.account['World 7'].royalGuardian.options;
+    const names = options.map(({ name }) => name);
+
+    expect(names.slice(names.indexOf('militaryRank'), names.indexOf('militaryRank') + 3))
+      .toEqual(['militaryRank', 'purityRank', 'restockLocked']);
+    expect(options.find(({ name }) => name === 'purityRank')).toMatchObject({ checked: false, props: { value: 10 } });
+    expect(options.find(({ name }) => name === 'commandRank').helperText).toContain('Commanders');
+    expect(options.find(({ name }) => name === 'militaryRank').helperText).toContain('Knights');
+    const twice = migrateConfig({ version: 80 }, { ...migrated, version: 79 });
+    expect(twice.account['World 7'].royalGuardian.options.filter(({ name }) => name === 'purityRank')).toHaveLength(1);
   });
 
   it('adds the guard and rank options in baseTrackers order, refreshing the Worker wording', () => {

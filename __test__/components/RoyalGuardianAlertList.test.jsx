@@ -132,11 +132,11 @@ describe('royal guardian unit alerts', () => {
     expect(screen.getByText('1 spare Guard, 1 Guard on an empty resource')).toBeTruthy();
   });
 
-  it('names the rank reached and the units still on it', async () => {
+  it('names the rank reached and the Commanders still on it', async () => {
     renderUnits();
-    fireEvent.mouseOver(document.querySelector('img[src*="RGmilitia"]'));
+    fireEvent.mouseOver(document.querySelector('img[src*="RGcommander"]'));
 
-    expect(await screen.findByText(/reached Command rank 6 with units still on it/)).toBeTruthy();
-    expect(screen.getByText('Rank 6, 2 units')).toBeTruthy();
+    expect(await screen.findByText(/reached Command rank 6 with Commanders still on it/)).toBeTruthy();
+    expect(screen.getByText('Rank 6, 2 Commanders')).toBeTruthy();
   });
 });

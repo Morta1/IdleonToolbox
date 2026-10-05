@@ -19,7 +19,7 @@ import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 import { useLocalStorage } from '@mantine/hooks';
 
 const baseTrackers = {
-  version: 79,
+  version: 80,
   account: {
     General: {
       tasks: {
@@ -643,14 +643,21 @@ const baseTrackers = {
             type: 'input',
             props: { label: 'Command rank', value: 6, minValue: 1 },
             checked: false,
-            helperText: 'Alert when an outpost reaches this Command rank while units are still sent to it, so you can move them elsewhere'
+            helperText: 'Alert when an outpost reaches this Command rank while Commanders are still sent to it, so you can move them elsewhere'
           },
           {
             name: 'militaryRank',
             type: 'input',
             props: { label: 'Military rank', value: 10, minValue: 1 },
             checked: false,
-            helperText: 'Alert when an outpost reaches this Military rank while units are still sent to it, so you can move them elsewhere'
+            helperText: 'Alert when an outpost reaches this Military rank while Knights are still sent to it, so you can move them elsewhere'
+          },
+          {
+            name: 'purityRank',
+            type: 'input',
+            props: { label: 'Purity rank', value: 10, minValue: 1 },
+            checked: false,
+            helperText: 'Alert when an outpost reaches this Purity rank while Priests are still sent to it, so you can move them elsewhere'
           },
           {
             name: 'restockLocked',

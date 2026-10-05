@@ -1666,7 +1666,8 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       { option: 'tradeRank', type: 0, unitsOf: (outpost) => slotUnitsOf(outpost, 1) },
       { option: 'intelRank', type: 1, unitsOf: (outpost) => slotUnitsOf(outpost, 3) },
       { option: 'commandRank', type: 2, unitsOf: (outpost) => outpost.rankBars?.[2]?.units ?? 0 },
-      { option: 'militaryRank', type: 3, unitsOf: (outpost) => outpost.rankBars?.[3]?.units ?? 0 }
+      { option: 'militaryRank', type: 3, unitsOf: (outpost) => outpost.rankBars?.[3]?.units ?? 0 },
+      { option: 'purityRank', type: 4, unitsOf: (outpost) => outpost.rankBars?.[4]?.units ?? 0 }
     ];
     RANK_ALERTS.forEach(({ option, type, unitsOf }) => {
       if (!rgOptions?.[option]?.checked) return;
