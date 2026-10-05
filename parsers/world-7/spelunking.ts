@@ -628,7 +628,7 @@ export const getAmberGain = (account: any, loreBonuses: any) => {
             { name: "Overstim", value: overstimBonus / 100 },
             { name: "Rift Bonus", value: 50 * riftBonus / 100 },
             { name: "Amber on the Brain", value: shopUpg8 / 100 },
-            { name: "Lore", value: loreBonus / 100 },
+            { name: "Tome", value: loreBonus / 100 },
             { name: "Exotic", value: exoticBonus / 100 },
             { name: "Amber from the Depths", value: shopUpg9 / 100 },
             { name: "Amber from 'Em All", value: shopUpg10 / 100 },

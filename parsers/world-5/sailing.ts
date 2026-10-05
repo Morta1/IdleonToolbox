@@ -732,7 +732,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
           { name: 'Jelly Operator', value: 1 + jellyBonus / 100 },
           { name: 'Gem Shop (Davey Jones)', value: daveyJonesBonus },
           { name: 'Lab - Artifact Attraction', value: 1 + labBonus / 100 },
-          { name: 'Lore Episode 3', value: 1 + loreBonus / 100 },
+          { name: 'Tome', value: 1 + loreBonus / 100 },
           { name: 'Sneaking - Glowing Veil', value: 1 + pristineBonus / 100 },
           { name: 'Summoning - Vote Bonus', value: 1 + voteBonus / 100 },
           { name: 'Companion - Litterfish', value: 1 + litterfishCompanion },
