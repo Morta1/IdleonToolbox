@@ -6,6 +6,7 @@ import useCheckbox from '@components/common/useCheckbox';
 import { getArmoryTotalUpgradeCost } from '@parsers/class-specific/royalGuardian';
 import useMasterclassCostControls from '../useMasterclassCostControls';
 import { formatEta } from './formatEta';
+import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 
 // Same stray glyphs Grimoire/Compass/Tesseract strip from their own upgrade text, plus the three
 // that show up in Royal Guardian's own catalogs (statue names, orblet market, armory upgrades).
@@ -25,11 +26,7 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
   // and have no shelf position to render in (see task C2 brief).
   const shelved = (upgrades ?? []).filter((upgrade) => upgrade.slot >= 0);
 
-  const filtered = shelved.filter((upgrade) => {
-    if (!searchText) return true;
-    const needle = searchText.toLowerCase().trim();
-    return upgrade.name?.toLowerCase().includes(needle) || upgrade.description?.toLowerCase().includes(needle);
-  });
+  const filtered = shelved.filter((upgrade) => matchesUpgradeSearch(upgrade, searchText));
 
   const sorted = [...filtered].sort((a, b) => {
     if (sortBy === 'cost') return (a.cost || 0) - (b.cost || 0);

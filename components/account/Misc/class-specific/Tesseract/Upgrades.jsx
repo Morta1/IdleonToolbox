@@ -15,6 +15,7 @@ import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/h
 import useCheckbox from '@components/common/useCheckbox';
 import { getTesseractTotalUpgradeCost } from '@parsers/class-specific/tesseract';
 import useMasterclassCostControls, { LevelsAheadCaption } from '../useMasterclassCostControls';
+import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 
 const Upgrades = ({ account, upgrades, tachyons }) => {
   const [sortBy, setSortBy] = useState('default');
@@ -36,12 +37,7 @@ const Upgrades = ({ account, upgrades, tachyons }) => {
 
   const filterUpgrades = (list) => {
     if (!searchText) return list;
-    return list.filter(upgrade =>
-      (upgrade.description &&
-        cleanUnderscore(upgrade.description).toLowerCase().includes(searchText.toLowerCase().trim())) ||
-      (upgrade.name &&
-        cleanUnderscore(upgrade.name).toLowerCase().includes(searchText.toLowerCase().trim()))
-    );
+    return list.filter(upgrade => matchesUpgradeSearch(upgrade, searchText));
   };
 
   const renderUpgradeCard = (upgrade, i, tachyonType) => {

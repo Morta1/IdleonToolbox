@@ -15,6 +15,7 @@ import useCheckbox from '@components/common/useCheckbox';
 import MenuItem from '@mui/material/MenuItem';
 import { getGrimoireTotalUpgradeCost } from '@parsers/class-specific/grimoire';
 import useMasterclassCostControls, { LevelsAheadCaption } from '../useMasterclassCostControls';
+import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 
 const Upgrades = ({ account, upgrades, bones }) => {
   const [sortBy, setSortBy] = useState('default');
@@ -33,11 +34,7 @@ const Upgrades = ({ account, upgrades, bones }) => {
 
   const filterUpgrades = (list) => {
     if (!searchText) return list;
-    return list.filter(upgrade =>
-      upgrade.description &&
-      upgrade.description.toLowerCase().includes(searchText.toLowerCase().trim()) ||
-      upgrade.name.toLowerCase().includes(searchText.toLowerCase().trim())
-    );
+    return list.filter(upgrade => matchesUpgradeSearch(upgrade, searchText));
   };
 
   const filteredUpgrades = filterUpgrades(upgrades);
