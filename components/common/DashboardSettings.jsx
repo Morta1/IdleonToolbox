@@ -113,6 +113,12 @@ const DashboardSettings = ({
     if (option?.type === 'array') {
       const optionRef = sectionRef[trackerName || option?.name].options[option?.optionIndex];
       optionRef.props.value[nameClicked] = !optionRef.props.value[nameClicked];
+    } else if (option?.type === 'input' && option?.worldKey) {
+      const optionProps = sectionRef[trackerName].options[option?.optionIndex].props;
+      // An empty field drops the override, so that world follows the main value again.
+      if (option.worldKey === 'reset') optionProps.perWorld = {};
+      else if (e?.target?.value === '') delete optionProps.perWorld[option.worldKey];
+      else optionProps.perWorld[option.worldKey] = e?.target?.value;
     } else if (option?.type === 'input' && option?.inputVal) {
       sectionRef[trackerName].options[option?.optionIndex].props.value = e?.target?.value;
     } else if (option) {
@@ -352,6 +358,9 @@ const BaseField = ({ option, trackerName, onChange, configType, section, highlig
                         section={section}/>
           : null}
       </Stack>
+      {type === 'input' && props?.perWorld ?
+        <PerWorldFields option={option} trackerName={trackerName} configType={configType} onChange={onChange}
+                        section={section}/> : null}
       {option?.helperText ? <FormHelperText sx={{ ml: 3, mt: 0 }}>{option?.helperText}</FormHelperText> : null}
     </Stack></>
 }
@@ -369,6 +378,60 @@ const ArrayField = ({ option, onChange, configType, trackerName, section }) => {
     })}
   </Stack>
 }
+// Royal Guardian outposts exist in W1-W7 only (no W8 map is on the kingdom screen).
+const PER_WORLD_KEYS = [1, 2, 3, 4, 5, 6, 7];
+
+// Optional per-world overrides of an input option, folded behind a link so the common
+// single-value setup stays one line. Blank = that world uses the main value.
+const PerWorldFields = ({ option, onChange, configType, trackerName, section }) => {
+  const { value, perWorld, minValue = 0, maxValue } = option?.props;
+  const [open, setOpen] = useState(false);
+  const overrides = PER_WORLD_KEYS.filter((world) => perWorld?.[world] != null);
+  if (!option?.checked) return null;
+  return <Stack sx={{ ml: 3.5, mt: 0.5 }} gap={1}>
+    <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
+      <Button size={'small'} variant={'text'} sx={{ p: 0, minWidth: 0, textTransform: 'none' }}
+              endIcon={open ? <ArrowDropUpIcon/> : <ArrowDropDownIcon/>}
+              onClick={() => setOpen(!open)}>
+        Per world
+      </Button>
+      {overrides.length > 0 ? <>
+        <Typography variant={'caption'} color={'text.secondary'}>
+          {overrides.map((world) => `W${world}: ${perWorld[world]}`).join(' · ')}
+        </Typography>
+        <Button size={'small'} variant={'text'} color={'inherit'}
+                sx={{ p: 0, minWidth: 0, textTransform: 'none', opacity: 0.7 }}
+                onClick={(e) => onChange(e, configType, { ...option, worldKey: 'reset' }, trackerName, section)}>
+          Reset
+        </Button>
+      </> : null}
+    </Stack>
+    <Collapse in={open} unmountOnExit>
+      <Stack direction={'row'} gap={1} flexWrap={'wrap'} sx={{ pt: 0.5 }}>
+        {PER_WORLD_KEYS.map((world) => <TextField
+          key={world}
+          size={'small'}
+          label={`W${world}`}
+          type={'number'}
+          sx={{
+            width: 56,
+            // Default side padding leaves no room for a two-digit rank, and the spinners take the rest.
+            '& input': { px: 1, textAlign: 'center', MozAppearance: 'textfield' },
+            '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': { WebkitAppearance: 'none', m: 0 }
+          }}
+          value={perWorld?.[world] ?? ''}
+          placeholder={`${value}`}
+          slotProps={{
+            inputLabel: { shrink: true },
+            htmlInput: { max: maxValue, min: minValue, autoComplete: 'off' }
+          }}
+          onChange={(e) => onChange(e, configType, { ...option, worldKey: world }, trackerName, section)}/>)}
+      </Stack>
+      <FormHelperText sx={{ m: 0, mt: 0.5 }}>Leave a world blank to use {value}</FormHelperText>
+    </Collapse>
+  </Stack>
+}
+
 const InputField = ({ option, onChange, configType, name, trackerName, section }) => {
   const {
     label,

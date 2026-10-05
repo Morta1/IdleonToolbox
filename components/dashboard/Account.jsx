@@ -780,10 +780,12 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   title={<RoyalGuardianList
                     headline={`${alerts?.['World 7']?.royalGuardian?.[option]?.count} outpost${alerts?.['World 7']?.royalGuardian?.[option]?.count === 1
                       ? ' has'
-                      : 's have'} reached ${rank} rank ${alerts?.['World 7']?.royalGuardian?.[option]?.threshold} with ${holders} still on it`}
+                      : 's have'} reached ${alerts?.['World 7']?.royalGuardian?.[option]?.threshold != null
+                      ? `${rank} rank ${alerts?.['World 7']?.royalGuardian?.[option]?.threshold}`
+                      : `their ${rank} rank target`} with ${holders} still on it`}
                     entries={alerts?.['World 7']?.royalGuardian?.[option]?.outposts?.map((outpost) => ({
                       ...outpost,
-                      detail: `Rank ${outpost?.rank}, ${outpost?.units} ${unit}${outpost?.units === 1 ? '' : 's'}`
+                      detail: `Rank ${outpost?.rank}/${outpost?.threshold}, ${outpost?.units} ${unit}${outpost?.units === 1 ? '' : 's'}`
                     }))}/>}
                   iconPath={iconPath} badge={badge} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null)}
               {alerts?.['World 7']?.royalGuardian?.restockLocked ?

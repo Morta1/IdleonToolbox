@@ -627,35 +627,35 @@ const baseTrackers = {
           {
             name: 'tradeRank',
             type: 'input',
-            props: { label: 'Trade rank', value: 10, minValue: 1 },
+            props: { label: 'Trade rank', value: 10, minValue: 1, perWorld: {} },
             checked: false,
             helperText: 'Alert when an outpost reaches this Trade rank while Traders are still assigned to it, so you can move them elsewhere'
           },
           {
             name: 'intelRank',
             type: 'input',
-            props: { label: 'Intel rank', value: 10, minValue: 1 },
+            props: { label: 'Intel rank', value: 10, minValue: 1, perWorld: {} },
             checked: false,
             helperText: 'Alert when an outpost reaches this Intel rank while Surveyors are still assigned to it, so you can move them elsewhere'
           },
           {
             name: 'commandRank',
             type: 'input',
-            props: { label: 'Command rank', value: 6, minValue: 1 },
+            props: { label: 'Command rank', value: 6, minValue: 1, perWorld: {} },
             checked: false,
             helperText: 'Alert when an outpost reaches this Command rank while Commanders are still sent to it, so you can move them elsewhere'
           },
           {
             name: 'militaryRank',
             type: 'input',
-            props: { label: 'Military rank', value: 10, minValue: 1 },
+            props: { label: 'Military rank', value: 10, minValue: 1, perWorld: {} },
             checked: false,
             helperText: 'Alert when an outpost reaches this Military rank while Knights are still sent to it, so you can move them elsewhere'
           },
           {
             name: 'purityRank',
             type: 'input',
-            props: { label: 'Purity rank', value: 10, minValue: 1 },
+            props: { label: 'Purity rank', value: 10, minValue: 1, perWorld: {} },
             checked: false,
             helperText: 'Alert when an outpost reaches this Purity rank while Priests are still sent to it, so you can move them elsewhere'
           },

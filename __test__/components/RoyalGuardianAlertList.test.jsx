@@ -137,6 +137,28 @@ describe('royal guardian unit alerts', () => {
     fireEvent.mouseOver(document.querySelector('img[src*="RGcommander"]'));
 
     expect(await screen.findByText(/reached Command rank 6 with Commanders still on it/)).toBeTruthy();
-    expect(screen.getByText('Rank 6, 2 Commanders')).toBeTruthy();
+    expect(screen.getByText('Rank 6/6, 2 Commanders')).toBeTruthy();
+  });
+
+  const renderWithCommand = (props) => {
+    const trackers = structuredClone(unitTrackers);
+    trackers['World 7'].royalGuardian.options[1].props = props;
+    return render(<ThemeProvider theme={darkTheme}>
+      <Account account={unitAccount} characters={[]} lastUpdated={0} trackers={trackers}/>
+    </ThemeProvider>);
+  };
+
+  it('uses the world override over the main rank', async () => {
+    renderWithCommand({ value: 10, perWorld: { 1: '5' } });
+    fireEvent.mouseOver(document.querySelector('img[src*="RGcommander"]'));
+
+    expect(await screen.findByText(/reached Command rank 5 with Commanders still on it/)).toBeTruthy();
+    expect(screen.getByText('Rank 6/5, 2 Commanders')).toBeTruthy();
+  });
+
+  it('stays quiet when the world override is above the rank reached', () => {
+    renderWithCommand({ value: 6, perWorld: { 1: '7', 2: '3' } });
+
+    expect(document.querySelector('img[src*="RGcommander"]')).toBeNull();
   });
 });

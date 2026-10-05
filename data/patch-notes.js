@@ -9,7 +9,8 @@ export const patchNotes = [
     'date': '05/10/2026',
     'features': [
       'Research: added a timer until the next Posty Note unlock',
-      'Vote Ballot: added a toggle to show only the current bonus and the choices for next week'
+      'Vote Ballot: added a toggle to show only the current bonus and the choices for next week',
+      'Dashboard: Royal Guardian rank alerts can now take a different rank per world'
     ],
     'fixes': [
       'Meritocracy: bonuses (incl. Palette Luck) are no longer too high before the Demonflesh is handed in, and are 0 before reaching World 6',

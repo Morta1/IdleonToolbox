@@ -2112,11 +2112,19 @@ const migration80 = (dashboardConfig) => {
       rgOptions.splice(insertAt, 0, {
         name: 'purityRank',
         type: 'input',
-        props: { label: 'Purity rank', value: 10, minValue: 1 },
+        props: { label: 'Purity rank', value: 10, minValue: 1, perWorld: {} },
         checked: false,
         helperText: 'Alert when an outpost reaches this Purity rank while Priests are still sent to it, so you can move them elsewhere'
       });
     }
+
+    // Empty map = every world falls back to the single value, so existing setups are unchanged.
+    const rankOptionNames = ['tradeRank', 'intelRank', 'commandRank', 'militaryRank', 'purityRank'];
+    rgOptions.forEach((option) => {
+      if (rankOptionNames.includes(option?.name) && option?.props && !option.props.perWorld) {
+        option.props.perWorld = {};
+      }
+    });
   }
 
   dashboardConfig.version = 80;
