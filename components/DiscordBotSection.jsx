@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import { prefix } from '@utility/helpers';
-import { DISCORD_BOT_INSTALL_URL } from '@components/discordLinks';
+import { DISCORD_BOT_INSTALL_URL, trackBotInstallClick } from '@components/discordLinks';
 
 const COMMANDS = ['/wiki', '/build', '/profile', '/guild'];
 
@@ -79,7 +79,7 @@ const DiscordBotSection = () => (
                                            sx={{ fontFamily: 'monospace' }}/>)}
         </Stack>
         <Button variant={'contained'} startIcon={<DiscordSvg/>} href={DISCORD_BOT_INSTALL_URL}
-                target={'_blank'} rel={'noopener noreferrer'}
+                target={'_blank'} rel={'noopener noreferrer'} onClick={() => trackBotInstallClick('home_section')}
                 sx={{ backgroundColor: '#5865F2', color: '#fff', '&:hover': { backgroundColor: '#4752c4' } }}>
           Add bot to Discord
         </Button>

@@ -26,7 +26,7 @@ import usePageDataLoading from '@hooks/usePageDataLoading';
 import PageLoadingProvider, { usePageLoadingState } from '@components/common/context/PageLoadingProvider';
 import ProfileBanner from './ProfileBanner';
 import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
-import { DISCORD_BOT_INSTALL_URL, DISCORD_SERVER_URL } from '@components/discordLinks';
+import { DISCORD_BOT_INSTALL_URL, DISCORD_SERVER_URL, trackBotInstallClick } from '@components/discordLinks';
 
 const NavBar = ({ children }) => {
   const { state } = useContext(AppContext);
@@ -108,6 +108,7 @@ const NavBar = ({ children }) => {
           Discord
         </Link>
         <Link href={DISCORD_BOT_INSTALL_URL} target="_blank" rel="noopener"
+              onClick={() => trackBotInstallClick('footer')}
               variant="caption" color="text.secondary">
           Discord bot
         </Link>
