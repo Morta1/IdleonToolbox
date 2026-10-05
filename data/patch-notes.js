@@ -7,7 +7,9 @@ export const patchNotes = [
     'ver': '3.3.85',
     'gameVer': '2.3.531',
     'date': '05/10/2026',
-    'features': [],
+    'features': [
+      'Research: added a timer until the next Posty Note unlock'
+    ],
     'fixes': [
       'Meritocracy: bonuses (incl. Palette Luck) are no longer too high before the Demonflesh is handed in, and are 0 before reaching World 6',
       'Palette Luck: Colourful Luck and Gamer Luck now use the gaming level of your last played character, like the game does'

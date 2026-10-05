@@ -42,9 +42,13 @@ const Research = () => {
     researchEXPpercent,
     researchRegistrantOwned,
     timeToLevel,
-    timeToLevelRegistrant
+    timeToLevelRegistrant,
+    nextUnlockResearchLv,
+    timeToNextUnlock,
+    timeToNextUnlockRegistrant
   } = research;
 
+  const allPostyNotesUnlocked = (postyNotes?.length ?? 0) > 0 && postyNotes.every(({ unlocked }) => unlocked);
   const formatEta = (hours) => (hours > 0 ? secondsToShortDuration(hours * 3600, { minUnit: 'minute' }) : '-');
 
   const overview = (
@@ -59,6 +63,19 @@ const Research = () => {
           <span>{formatEta(timeToLevelRegistrant)}</span>
           <Tooltip
             title={`Research Registrant banks 12hrs of research gains every time you register for the tournament. Registering daily is a flat 1.5x rate.${researchRegistrantOwned ? '' : ' You don\'t own this upgrade yet.'}`}>
+            <Stack alignContent="center" sx={{ cursor: 'pointer' }}>
+              <IconInfoCircleFilled size={18}/>
+            </Stack>
+          </Tooltip>
+        </Stack>
+      </CardTitleAndValue>
+      <CardTitleAndValue title={'Time To Next Posty'}>
+        <Stack direction="row" alignItems="center" gap={1}>
+          <span>{allPostyNotesUnlocked ? '-' : formatEta(timeToNextUnlock)}</span>
+          <Tooltip
+            title={allPostyNotesUnlocked
+              ? 'All Posty Notes are unlocked.'
+              : `Next Posty Note unlocks at Research LV ${nextUnlockResearchLv}. Estimate assumes your current EXP rate. With Registrant: ${formatEta(timeToNextUnlockRegistrant)}`}>
             <Stack alignContent="center" sx={{ cursor: 'pointer' }}>
               <IconInfoCircleFilled size={18}/>
             </Stack>

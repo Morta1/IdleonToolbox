@@ -34,7 +34,14 @@ const getRawResearch = (idleonData: any) => {
   return Array.isArray(raw) ? raw : [];
 };
 
-export const getResearch = (idleonData: any, account: any, characters: any) => {
+// Game's ExpReq0[20] formula; A_ResXP is a server var (1.01 at time of writing)
+export const getResearchExpReq = (level: number, aResXP: number = 1) => {
+  return 10 * Math.max(0, level - 1)
+    + 10 * (1 + Math.pow(level, 1 + (level / 10) * 0.4) / 10) * Math.pow(1.1, level)
+    * Math.pow(Math.max(1, aResXP), Math.max(0, level - 20));
+};
+
+export const getResearch = (idleonData: any, account: any, characters: any, serverVars?: any) => {
   const raw = getRawResearch(idleonData);
   const researchLevel = getHighestCharacterSkill(characters, 'research');
 
@@ -256,6 +263,12 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
   // "You'll get +N Point(s) when you reach Research LV. X"
   const pointsGainAtNextLv = 1 + Math.floor((researchLevel % 10) / 9);
   const nextUnlockResearchLv = 10 * (Math.floor(researchLevel / 10) + 1);
+  let researchEXPtoNextUnlock = researchEXPleft;
+  for (let lv = researchLevel + 1; lv < nextUnlockResearchLv; lv++) {
+    researchEXPtoNextUnlock += getResearchExpReq(lv, serverVars?.A_ResXP);
+  }
+  const timeToNextUnlock = researchEXPrateTOT > 0 ? researchEXPtoNextUnlock / researchEXPrateTOT : null;
+  const timeToNextUnlockRegistrant = researchEXPrateTOT > 0 ? researchEXPtoNextUnlock / (researchEXPrateTOT * 1.5) : null;
   const gridCanWeUseButton0 = getResearchGridCanWeUseButton(researchLevel, shapesOwned, 0);
   const gridCanWeUseButton1 = getResearchGridCanWeUseButton(researchLevel, shapesOwned, 1);
 
@@ -333,7 +346,9 @@ export const getResearch = (idleonData: any, account: any, characters: any) => {
     researchEXPpercent,
     researchRegistrantOwned,
     timeToLevel,
-    timeToLevelRegistrant
+    timeToLevelRegistrant,
+    timeToNextUnlock,
+    timeToNextUnlockRegistrant
   };
 };
 
