@@ -25,7 +25,7 @@ const TrackerSwitch = ({ tracker, onAction }) => <Switch
     flexShrink: 0,
     height: { xs: 44, sm: 38 },
     py: { xs: '15px', sm: '12px' },
-    '& .MuiSwitch-switchBase': { top: { xs: 3, sm: 0 } }
+    '& .MuiSwitch-switchBase': { top: 0, height: { xs: 44, sm: 'auto' }, py: { xs: '12px', sm: '9px' } }
   }}/>;
 
 export const CompactRow = ({ tracker, highlight = false, onAction }) => {
