@@ -12,7 +12,8 @@ import Button from '@mui/material/Button';
 import { IconSettingsFilled } from '@tabler/icons-react';
 import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
-import { LEGACY_BACKUP_KEY, loadTrackers, toStoredTrackers } from '@utility/dashboard/trackerStore';
+import DefaultsNote from '@components/dashboard/settings/DefaultsNote';
+import { diffTrackers, LEGACY_BACKUP_KEY, loadTrackers, toStoredTrackers } from '@utility/dashboard/trackerStore';
 
 const Dashboard = () => {
   const { dispatch, state } = useContext(AppContext);
@@ -44,7 +45,13 @@ const Dashboard = () => {
     key: 'dashboard-hide-alertless',
     defaultValue: false
   });
-
+  const [defaultsNoteDismissed, setDefaultsNoteDismissed] = useLocalStorage({
+    key: 'dashboard-defaults-note-dismissed',
+    defaultValue: false
+  });
+  const [initialFilter, setInitialFilter] = useState('all');
+  // Counted once on load: edits made in the window afterwards must not make the note appear.
+  const [editCount] = useState(() => Object.keys(diffTrackers(baseTrackers, initialLoad.config)).length);
 
   const handleOpenSettings = (configType, path) => {
     setSettingsTarget({ configType, path });
@@ -54,6 +61,7 @@ const Dashboard = () => {
   const handleCloseSettings = () => {
     setOpen(false);
     setSettingsTarget(null);
+    setInitialFilter('all');
   };
 
   const handleConfigChange = (updatedConfig) => {
@@ -88,6 +96,13 @@ const Dashboard = () => {
       description="Provides key information about your account and alerts you when there are unfinished tasks"
     />
     <Stack>
+      {!defaultsNoteDismissed && editCount > 0 ? <DefaultsNote count={editCount}
+                                                               onReview={() => {
+                                                                 setInitialFilter('edited');
+                                                                 setSettingsTarget(null);
+                                                                 setOpen(true);
+                                                               }}
+                                                               onDismiss={() => setDefaultsNoteDismissed(true)}/> : null}
       <Stack mb={2} direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'}>
         <ToggleButtonGroup value={filters} onChange={handleFilters}>
           <ToggleButton value="account">Account</ToggleButton>
@@ -117,6 +132,7 @@ const Dashboard = () => {
     </Stack>
     <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open}
                        onClose={handleCloseSettings} config={config} target={settingsTarget}
+                       initialFilter={initialFilter}
                        exportConfig={legacyMode ? config : toStoredTrackers(baseTrackers, config)}
                        hideAlertless={hideAlertless} onHideAlertlessChange={handleHideAlertless}/>
   </>
