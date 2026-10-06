@@ -17,6 +17,11 @@ label and category heading where there is one). "Q" in Notes points at the quest
 
 ## Questions for review
 
+**Resolved 2026-10-07:** all as recommended. Q1 fixed (lastLooted honours its checkbox), Q2 fixed (a
+full shelf alerts at threshold 0), Q3/Q4 wording kept, Q5 buckets min lowered to 0, Q12 help added
+to "Show skills not maxed yet"; the rest kept as written. Q13-Q19 were built into the R2 window, and
+icons (Q19) were settled in a later review.
+
 **Possible bugs found while reading the alert code** (not changed; this pass is labels only)
 
 1. **Q1 Sneaking `lastLooted` ignores its checkbox.** `account.js:1333` checks the minutes but never

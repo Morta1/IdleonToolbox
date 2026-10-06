@@ -1017,7 +1017,8 @@ export const getWorld4Alerts = (account, fields, options) => {
     if (options?.cooking?.ribbons?.checked) {
       const threshold = options?.cooking?.ribbons?.props?.value;
       const emptySlots = account?.grimoire?.ribbons?.slice(0, 28)?.filter((ribbon) => !ribbon);
-      if (emptySlots?.length <= threshold) {
+      // 0 empty slots is a full shelf and must alert too, so the render checks for a number, not truthiness.
+      if (account?.grimoire?.ribbons?.length > 0 && emptySlots?.length <= threshold) {
         cooking.ribbons = emptySlots?.length;
       }
     }
@@ -1340,7 +1341,7 @@ export const getWorld6Alerts = (account, fields, options, characters) => {
     const sneaking = {};
     const { lastLooted, remainingPristineRolls, remainingSymbolRolls } = options?.sneaking || {};
     const minutesSinceLooted = account?.sneaking?.lastLooted / 60;
-    if (minutesSinceLooted >= lastLooted?.props?.value) {
+    if (lastLooted?.checked && minutesSinceLooted >= lastLooted?.props?.value) {
       sneaking.lastLooted = true;
     }
     const used = account?.sneaking?.dailyCharmRollCount || 0;

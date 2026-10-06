@@ -457,9 +457,11 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 4']?.cooking?.spices > 0 ?
                 <Alert target={'World 4.cooking.spices'} title={`You have ${alerts?.['World 4']?.cooking?.spices} spice clicks left`}
                        iconPath={'data/CookingSpice0'}/> : null}
-              {alerts?.['World 4']?.cooking?.ribbons ?
+              {Number.isFinite(alerts?.['World 4']?.cooking?.ribbons) ?
                 <Alert target={'World 4.cooking.ribbons'}
-                  title={`You have reached your threshold of ${alerts?.['World 4']?.cooking?.ribbons} empty ribbon slots`}
+                  title={alerts?.['World 4']?.cooking?.ribbons === 0
+                    ? 'Your ribbon shelf is full'
+                    : `You have reached your threshold of ${alerts?.['World 4']?.cooking?.ribbons} empty ribbon slots`}
                   iconPath={'data/Ribbon0'}/> : null}
               {alerts?.['World 4']?.cooking?.cookingMastery?.purple > 0 ?
                 <Alert target={'World 4.cooking.cookingMastery'}

@@ -923,7 +923,7 @@ export const alertMeta = {
     icon: 'data/UISkillIcon41',
     options: {
       showMaxed: { label: 'Show maxed skills' },
-      showNonMaxed: { label: 'Show skills not maxed yet' },
+      showNonMaxed: { label: 'Show skills not maxed yet', help: 'Turn on at least one of the two to see any skill.' },
       skills: { label: 'Skills to track', help: 'Maestro only.' }
     }
   },

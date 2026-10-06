@@ -411,7 +411,7 @@ export const baseTrackers = {
         options: [
           {
             name: 'buckets', type: 'input',
-            props: { label: 'Sediment threshold', value: 1000, minValue: 1, helperText: 'Set 0 for max' },
+            props: { label: 'Sediment threshold', value: 1000, minValue: 0, helperText: 'Set 0 for max' },
             checked: true
           },
           { name: 'motherlode', checked: true },
