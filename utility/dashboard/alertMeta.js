@@ -114,7 +114,8 @@ export const alertMeta = {
       arcanistDailyDrops: {
         label: 'Arcanist drops left today',
         help: 'Alerts while Arcanist weapon or ring drops remain for today (100 of each a day). Each drop type can be turned off on its own.',
-        group: 'Daily'
+        group: 'Daily',
+        itemIcons: { weapon: 'data/EquipmentWandsArc0', ring: 'data/EquipmentRingsArc0' }
       },
       topOfTheMornin: {
         label: 'Top of the Mornin kills left',
@@ -908,7 +909,16 @@ export const alertMeta = {
   'characters.talents': {
     label: 'Talents',
     options: {
-      talents: { label: 'Cooldown talents ready', help: 'Alerts when a ticked talent is off cooldown.' },
+      talents: {
+        label: 'Cooldown talents ready',
+        help: 'Alerts when a ticked talent is off cooldown.',
+        // Talent ids from relevantTalents (parsers/talents.ts); the game draws a talent as UISkillIcon<id>.
+        itemIcons: {
+          printerGoBrrr: 'data/UISkillIcon32', refineryThrottle: 'data/UISkillIcon130', craniumCooking: 'data/UISkillIcon490',
+          'itsYourBirthday!': 'data/UISkillIcon25', voidTrialRerun: 'data/UISkillIcon45', arenaSpirit: 'data/UISkillIcon370',
+          tasteTest: 'data/UISkillIcon145'
+        }
+      },
       alwaysShowTalents: {
         label: 'Show talents still on cooldown',
         help: 'Shows every ticked talent with its countdown, not only the ready ones.',
@@ -1007,7 +1017,10 @@ export const alertMeta = {
     label: 'Villager level ups',
     icon: 'etc/Villager_0',
     options: {
-      villagers: { label: 'Villagers to show' }
+      villagers: {
+        label: 'Villagers to show',
+        itemIcons: { explore: 'etc/Villager_0', engineer: 'etc/Villager_1', bonuses: 'etc/Villager_2', measure: 'etc/Villager_3', studies: 'etc/Villager_4' }
+      }
     }
   },
   'timers.World 5.coinFill': { label: 'Fountain coin bar', icon: 'data/HoleFountainBar0', options: {} },

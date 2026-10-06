@@ -101,6 +101,9 @@ export const ToggleChips = ({ option, tracker, onAction, disabled }) => <Stack d
                                                                        startIcon={on ? <CheckIcon/> : null}
                                                                        sx={{ textTransform: 'none', minHeight: { xs: 44, sm: 32 } }}
                                                                        onClick={() => onAction('togglePickerItem', tracker, option.name, key)}>
+    {option.itemIcons?.[key]
+      ? <img src={`${prefix}${option.itemIcons[key]}.png`} alt="" width={20} height={20}
+             style={{ objectFit: 'contain', marginRight: 6, opacity: on ? 1 : 0.5 }}/> : null}
     {key.camelToTitleCase && /^[a-z]/.test(key) ? key.camelToTitleCase() : key}
   </Button>)}
 </Stack>;

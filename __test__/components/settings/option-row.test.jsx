@@ -104,4 +104,10 @@ describe('OptionRow', () => {
     fireEvent.blur(container.querySelector('input[aria-label="World 3 value"]'));
     expect(onAction).toHaveBeenCalledWith('setPerWorld', tracker, 'tradeRank', 3, '1');
   });
+
+  it('toggle chips show the item icon when the option has one', () => {
+    const { container } = renderRow(trackerFor('characters.talents'), 'talents');
+    const printer = [...container.querySelectorAll('button[aria-pressed]')].find((b) => b.textContent.includes('Printer Go Brrr'));
+    expect(printer.querySelector('img').getAttribute('src')).toContain('data/UISkillIcon32.png');
+  });
 });

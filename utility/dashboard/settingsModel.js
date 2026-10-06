@@ -32,6 +32,7 @@ const buildTracker = (configType, section, name, tracker, baseTracker, edits) =>
       group: optionMeta.group ?? null,
       dependsOn: optionMeta.dependsOn ?? null,
       foldInto: optionMeta.foldInto ?? null,
+      itemIcons: optionMeta.itemIcons ?? null,
       edited: edits[`${path}.${option.name}`] !== undefined,
       defaultValue: baseOption?.props?.value,
       defaultChecked: Boolean(baseOption?.checked)
