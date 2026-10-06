@@ -20,6 +20,9 @@ import { trackSettingsEvent } from '@utility/dashboard/settingsAnalytics';
 import AlertQuickEdit from '@components/dashboard/settings/AlertQuickEdit';
 import { diffTrackers, LEGACY_BACKUP_KEY, loadTrackers, toStoredTrackers } from '@utility/dashboard/trackerStore';
 
+// Roughly the height of a quick edit popover with a picker in it.
+const QUICK_EDIT_ROOM = 440;
+
 const Dashboard = () => {
   const { dispatch, state } = useContext(AppContext);
   const { characters, account, lastUpdated } = state;
@@ -91,7 +94,11 @@ const Dashboard = () => {
     setQuickEditCount((count) => count + 1);
     setQuickEdit({
       id: quickEditCount + 1, configType, target, extra,
-      anchorPosition: { top: rect.bottom + 4, left: rect.left },
+      // Open below the icon, or above it when the space below is short: MUI would otherwise slide
+      // the popover up over the icon that was clicked.
+      ...(window.innerHeight - rect.bottom < QUICK_EDIT_ROOM && rect.top > window.innerHeight - rect.bottom
+        ? { anchorPosition: { top: rect.top - 4, left: rect.left }, above: true }
+        : { anchorPosition: { top: rect.bottom + 4, left: rect.left }, above: false }),
       // The popover shows the icon that was clicked, not the tracker's own one (The Hole vs Bravery).
       iconSrc: element.querySelector('img')?.getAttribute('src') ?? null,
       snapshot: config
@@ -188,7 +195,7 @@ const Dashboard = () => {
                        initialFilter={initialFilter}
                        exportConfig={legacyMode ? config : toStoredTrackers(baseTrackers, config)}
                        hideAlertless={hideAlertless} onHideAlertlessChange={handleHideAlertless}/>
-    <AlertQuickEdit quickEdit={quickModel} open={Boolean(quickModel)} anchorPosition={quickEdit?.anchorPosition}
+    <AlertQuickEdit quickEdit={quickModel} open={Boolean(quickModel)} anchorPosition={quickEdit?.anchorPosition} above={quickEdit?.above}
                     iconSrc={quickEdit?.iconSrc}
                     // Escape unmounts the popover without blurring its field; blur first so its clamp runs.
                     onClose={() => {

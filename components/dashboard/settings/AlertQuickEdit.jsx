@@ -123,14 +123,14 @@ const Body = ({ quickEdit, onAction }) => {
   </>;
 };
 
-const AlertQuickEdit = ({ quickEdit, open, anchorPosition, iconSrc = null, onClose, onAction, onOpenAll, onUndo }) => {
+const AlertQuickEdit = ({ quickEdit, open, anchorPosition, above = false, iconSrc = null, onClose, onAction, onOpenAll, onUndo }) => {
   if (!quickEdit) return null;
   const { tracker, option, kind, everyCharacter, configType } = quickEdit;
   // The title is the alert that was clicked; the subtitle says where it lives in the settings.
   const title = kind === 'tracker' || !option ? tracker.label : option.label;
   const where = [TAB_LABELS[configType], tracker.section, title === tracker.label ? null : tracker.label].filter(Boolean).join(' · ');
   return <Popover open={open} onClose={onClose} anchorReference="anchorPosition" anchorPosition={anchorPosition}
-                  transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                  transformOrigin={{ vertical: above ? 'bottom' : 'top', horizontal: 'left' }}
                   slotProps={{
                     paper: {
                       role: 'dialog', 'aria-labelledby': TITLE_ID,
