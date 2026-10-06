@@ -92,6 +92,8 @@ const Dashboard = () => {
     setQuickEdit({
       id: quickEditCount + 1, configType, target, extra,
       anchorPosition: { top: rect.bottom + 4, left: rect.left },
+      // The popover shows the icon that was clicked, not the tracker's own one (The Hole vs Bravery).
+      iconSrc: element.querySelector('img')?.getAttribute('src') ?? null,
       snapshot: config
     });
   };
@@ -187,6 +189,7 @@ const Dashboard = () => {
                        exportConfig={legacyMode ? config : toStoredTrackers(baseTrackers, config)}
                        hideAlertless={hideAlertless} onHideAlertlessChange={handleHideAlertless}/>
     <AlertQuickEdit quickEdit={quickModel} open={Boolean(quickModel)} anchorPosition={quickEdit?.anchorPosition}
+                    iconSrc={quickEdit?.iconSrc}
                     // Escape unmounts the popover without blurring its field; blur first so its clamp runs.
                     onClose={() => {
                       document.activeElement?.blur?.();

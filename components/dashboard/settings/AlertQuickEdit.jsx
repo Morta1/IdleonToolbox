@@ -122,7 +122,7 @@ const Body = ({ quickEdit, onAction }) => {
   </>;
 };
 
-const AlertQuickEdit = ({ quickEdit, open, anchorPosition, onClose, onAction, onOpenAll, onUndo }) => {
+const AlertQuickEdit = ({ quickEdit, open, anchorPosition, iconSrc = null, onClose, onAction, onOpenAll, onUndo }) => {
   if (!quickEdit) return null;
   const { tracker, everyCharacter } = quickEdit;
   return <Popover open={open} onClose={onClose} anchorReference="anchorPosition" anchorPosition={anchorPosition}
@@ -135,8 +135,8 @@ const AlertQuickEdit = ({ quickEdit, open, anchorPosition, onClose, onAction, on
                   }}>
     <Stack gap={1.25}>
       <Stack direction="row" alignItems="center" gap={1}>
-        {tracker.icon
-          ? <img src={`${prefix}${tracker.icon}.png`} alt="" width={24} height={24} style={{ objectFit: 'contain' }}/>
+        {iconSrc || tracker.icon
+          ? <img src={iconSrc ?? `${prefix}${tracker.icon}.png`} alt="" width={24} height={24} style={{ objectFit: 'contain' }}/>
           : <LetterBadge label={tracker.label} size={24} radius={1}/>}
         <Typography id={TITLE_ID} variant="subtitle1" component="h2" fontWeight={500}>{tracker.label}</Typography>
       </Stack>

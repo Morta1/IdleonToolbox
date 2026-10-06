@@ -18,7 +18,7 @@ const quickFor = (configType, target, extra, edits = {}) => {
 const open = (quickEdit, props = {}) => {
   render(<ThemeProvider theme={darkTheme}>
     <AlertQuickEdit quickEdit={quickEdit} open anchorPosition={{ top: 10, left: 10 }} onClose={() => {}}
-                    onAction={props.onAction ?? (() => {})} onOpenAll={props.onOpenAll ?? (() => {})} onUndo={props.onUndo}/>
+                    onAction={props.onAction ?? (() => {})} onOpenAll={props.onOpenAll ?? (() => {})} onUndo={props.onUndo} iconSrc={props.iconSrc}/>
   </ThemeProvider>);
   return document.body.querySelector('[role="dialog"]');
 };
@@ -127,5 +127,10 @@ describe('AlertQuickEdit', () => {
     expect(quickEdit.folded.length).toBeGreaterThan(0);
     expect(quickEdit.folded[0].help).toBeTruthy();
     expect(dialog.textContent).toContain(quickEdit.folded[0].help);
+  });
+
+  it('the header shows the icon that was clicked', () => {
+    const dialog = open(quickFor('account', 'General.etc.keys'), { iconSrc: '/data/Bravery.png' });
+    expect(dialog.querySelector('img').getAttribute('src')).toBe('/data/Bravery.png');
   });
 });
