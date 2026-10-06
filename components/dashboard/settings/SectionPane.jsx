@@ -37,12 +37,12 @@ const SectionPane = ({ section, filter, expanded, onToggleExpanded, target, onAc
     </Paper> : null}
     {compact.length ? <Box sx={{ display: 'grid', gap: 1, gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' } }}>
       {compact.map((tracker) => <CompactRow key={tracker.path} tracker={tracker} onAction={onAction}
-                                            highlight={target?.path === tracker.path}/>)}
+                                            highlight={target?.path === tracker.path} highlightKey={target}/>)}
     </Box> : null}
     {cards.map((tracker) => <TrackerCard key={tracker.path} tracker={tracker} onAction={onAction}
                                          expanded={Boolean(expanded[tracker.path])}
                                          onToggleExpanded={() => onToggleExpanded(tracker.path)}
-                                         highlight={target?.path === tracker.path}
+                                         highlight={target?.path === tracker.path} highlightKey={target}
                                          highlightOption={target?.path === tracker.path ? target.optionName : null}/>)}
   </Stack>;
 };

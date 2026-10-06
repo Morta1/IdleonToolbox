@@ -65,6 +65,30 @@ describe('DashboardSettings window', () => {
     expect(document.body.textContent).toContain('Per world');
   });
 
+  it('a deep link into the section already showing tints the alert', () => {
+    const view = render(<Harness/>);
+    expect(document.body.querySelector('[data-highlighted="true"]')).toBeFalsy();
+    view.rerender(<Harness target={{ configType: 'account', path: 'General.guild' }}/>);
+    const tinted = document.body.querySelector('[data-highlighted="true"]');
+    expect(tinted?.textContent).toContain('Guild tasks');
+  });
+
+  it('a nav jump tints the alert', () => {
+    render(<Harness/>);
+    const navButton = (match) => [...document.body.querySelectorAll('nav[aria-label="Account sections"] button')].find(match);
+    fireEvent.click(navButton((b) => b.textContent.startsWith('World 3')));
+    expect(document.body.querySelector('[data-highlighted="true"]')).toBeFalsy();
+    fireEvent.click(navButton((b) => b.textContent === 'Traps'));
+    expect(document.body.querySelector('[data-highlighted="true"]')?.textContent).toContain('Traps');
+  });
+
+  it('reopening without a target leaves nothing tinted', () => {
+    const view = render(<Harness target={{ configType: 'account', path: 'General.guild' }}/>);
+    view.rerender(<Harness open={false} target={{ configType: 'account', path: 'General.guild' }}/>);
+    view.rerender(<Harness/>);
+    expect(document.body.querySelector('[data-highlighted="true"]')).toBeFalsy();
+  });
+
   it('keeps Undo after two quick bulk actions and restores the state before the second', async () => {
     render(<Harness/>);
     fireEvent.click(button('Turn all off'));

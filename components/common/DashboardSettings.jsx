@@ -62,6 +62,8 @@ const DashboardSettings = ({
   useEffect(() => {
     if (!open) {
       setUndo(null);
+      setHighlight(null);
+      setExpanded({});
       return;
     }
     setUndo(null);

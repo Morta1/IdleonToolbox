@@ -28,9 +28,9 @@ const TrackerSwitch = ({ tracker, onAction }) => <Switch
     '& .MuiSwitch-switchBase': { top: 0, height: { xs: 44, sm: 'auto' }, py: { xs: '12px', sm: '9px' } }
   }}/>;
 
-export const CompactRow = ({ tracker, highlight = false, onAction }) => {
-  const [ref, highlighted] = useHighlightTarget(highlight);
-  return <Paper ref={ref} variant="outlined" sx={{
+export const CompactRow = ({ tracker, highlight = false, highlightKey = null, onAction }) => {
+  const [ref, highlighted] = useHighlightTarget(highlight, highlightKey);
+  return <Paper ref={ref} variant="outlined" data-highlighted={highlighted ? 'true' : undefined} sx={{
     display: 'flex', alignItems: 'center', gap: 1.5, px: 1, minHeight: 52,
     transition: 'background-color .4s', bgcolor: highlighted ? 'action.selected' : 'background.paper'
   }}>
@@ -47,7 +47,7 @@ export const CompactRow = ({ tracker, highlight = false, onAction }) => {
   </Paper>;
 };
 
-const OptionList = ({ tracker, highlightOption, onAction }) => {
+const OptionList = ({ tracker, highlightOption, highlightKey, onAction }) => {
   const byName = Object.fromEntries(tracker.options.map((option) => [option.name, option]));
   const unfolded = tracker.options.filter((option) => !option.foldInto && option.name !== tracker.inline);
   // Groups are not contiguous in the saved option order (Royal Guardian lists two Outposts
@@ -69,15 +69,15 @@ const OptionList = ({ tracker, highlightOption, onAction }) => {
       <OptionRow option={option} tracker={tracker} onAction={onAction}
                  foldedOptions={tracker.options.filter(({ foldInto }) => foldInto === option.name)}
                  disabledReason={disabledReason}
-                 highlight={highlightOption === option.name}/>
+                 highlight={highlightOption === option.name} highlightKey={highlightKey}/>
     </React.Fragment>;
   });
 };
 
-const TrackerCard = ({ tracker, expanded, onToggleExpanded, highlightOption = null, highlight = false, onAction }) => {
-  const [ref, highlighted] = useHighlightTarget(highlight && !highlightOption);
+const TrackerCard = ({ tracker, expanded, onToggleExpanded, highlightOption = null, highlight = false, highlightKey = null, onAction }) => {
+  const [ref, highlighted] = useHighlightTarget(highlight && !highlightOption, highlightKey);
   const inline = tracker.inline ? tracker.options.find(({ name }) => name === tracker.inline) : null;
-  return <Paper ref={ref} variant="outlined" sx={{ transition: 'background-color .4s', bgcolor: highlighted ? 'action.selected' : 'background.paper' }}>
+  return <Paper ref={ref} variant="outlined" data-highlighted={highlighted ? 'true' : undefined} sx={{ transition: 'background-color .4s', bgcolor: highlighted ? 'action.selected' : 'background.paper' }}>
     <Stack direction="row" alignItems="center" gap={1.5} sx={{ px: 1, py: 1, minHeight: 56, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
       <TrackerSwitch tracker={tracker} onAction={onAction}/>
       <TrackerIcon tracker={tracker}/>
@@ -99,7 +99,7 @@ const TrackerCard = ({ tracker, expanded, onToggleExpanded, highlightOption = nu
       {!tracker.on ? <Typography variant="body2" sx={{ mt: 1.5, p: 1, borderRadius: 1, bgcolor: 'action.hover' }}>
         {tracker.label} alerts are off. These options are kept and still editable: they apply when you turn it back on.
       </Typography> : null}
-      <OptionList tracker={tracker} highlightOption={highlightOption} onAction={onAction}/>
+      <OptionList tracker={tracker} highlightOption={highlightOption} highlightKey={highlightKey} onAction={onAction}/>
     </Box> : null}
   </Paper>;
 };
