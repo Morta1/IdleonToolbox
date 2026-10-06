@@ -87,4 +87,21 @@ describe('OptionRow', () => {
     expect(container.textContent).toContain('Turn on More Workers than needed to use this.');
     expect(container.querySelector('input[type="checkbox"]').disabled).toBe(true);
   });
+
+  it('a disabled dependent number option cannot be edited', () => {
+    const tracker = trackerFor('account.World 3.library', { 'account.World 3.library.books': { value: 30 } });
+    const { container } = renderRow(tracker, 'books', { disabledReason: 'Turn something on to use this.' });
+    expect(container.querySelector('input[type="number"]').disabled).toBe(true);
+    expect([...container.querySelectorAll('button')].find((b) => b.textContent === 'Reset').disabled).toBe(true);
+  });
+
+  it('clamps a per-world value on blur', () => {
+    const tracker = trackerFor('account.World 7.royalGuardian', {
+      'account.World 7.royalGuardian.tradeRank': { checked: true, perWorld: { 3: '0' } }
+    });
+    const { container, onAction } = renderRow(tracker, 'tradeRank');
+    fireEvent.click([...container.querySelectorAll('button')].find((b) => b.textContent === 'Per world'));
+    fireEvent.blur(container.querySelector('input[aria-label="World 3 value"]'));
+    expect(onAction).toHaveBeenCalledWith('setPerWorld', tracker, 'tradeRank', 3, '1');
+  });
 });

@@ -43,7 +43,7 @@ const rangeText = ({ minValue, maxValue }) => {
   return maxValue !== undefined ? `At most ${maxValue}` : '';
 };
 
-export const NumberField = ({ option, tracker, onAction, ariaLabel }) => {
+export const NumberField = ({ option, tracker, onAction, ariaLabel, disabled = false }) => {
   const error = outOfRange(option);
   return <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
     <TextField
@@ -51,6 +51,7 @@ export const NumberField = ({ option, tracker, onAction, ariaLabel }) => {
       type="number"
       value={option.props.value ?? ''}
       error={error}
+      disabled={disabled}
       sx={{ width: 120 }}
       slotProps={{
         htmlInput: { 'aria-label': ariaLabel ?? option.label, min: option.props.minValue, max: option.props.maxValue },
@@ -63,17 +64,17 @@ export const NumberField = ({ option, tracker, onAction, ariaLabel }) => {
       }}/>
     {option.edited ? <Stack direction="row" alignItems="center" gap={0.75}>
       <Typography variant="caption" color="text.secondary">Default {String(option.defaultValue)} ·</Typography>
-      <Button size="small" sx={{ p: 0, minWidth: 0 }} onClick={() => onAction('resetPath', option.path)}>Reset</Button>
+      <Button size="small" sx={{ p: 0, minWidth: 0 }} disabled={disabled} onClick={() => onAction('resetPath', option.path)}>Reset</Button>
     </Stack> : null}
     {error ? <Typography variant="caption" color="error" role="alert">{rangeText(option.props)}</Typography> : null}
   </Stack>;
 };
 
-const PickerTiles = ({ option, tracker, onAction }) => {
+const PickerTiles = ({ option, tracker, onAction, disabled }) => {
   const entries = Object.entries(option.props.value ?? {});
   const onCount = entries.filter(([, on]) => on).length;
   return <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
-    {entries.map(([key, on]) => <ButtonBase key={key} aria-label={key.camelToTitleCase?.() ?? key} aria-pressed={on}
+    {entries.map(([key, on]) => <ButtonBase key={key} aria-label={key.camelToTitleCase?.() ?? key} aria-pressed={on} disabled={disabled}
                                             onClick={() => onAction('togglePickerItem', tracker, option.name, key)}
                                             sx={{
                                               width: 44, height: 44, borderRadius: 2, position: 'relative',
@@ -87,13 +88,13 @@ const PickerTiles = ({ option, tracker, onAction }) => {
       </Box> : null}
     </ButtonBase>)}
     <Typography variant="caption" color="text.secondary">{onCount}/{entries.length}</Typography>
-    <Button size="small" sx={{ minWidth: 0 }} onClick={() => onAction('setPickerAll', tracker, option.name, true)}>All</Button>
-    <Button size="small" sx={{ minWidth: 0 }} onClick={() => onAction('setPickerAll', tracker, option.name, false)}>None</Button>
+    <Button size="small" sx={{ minWidth: 0 }} disabled={disabled} onClick={() => onAction('setPickerAll', tracker, option.name, true)}>All</Button>
+    <Button size="small" sx={{ minWidth: 0 }} disabled={disabled} onClick={() => onAction('setPickerAll', tracker, option.name, false)}>None</Button>
   </Stack>;
 };
 
-const ToggleChips = ({ option, tracker, onAction }) => <Stack direction="row" gap={1} flexWrap="wrap">
-  {Object.entries(option.props.value ?? {}).map(([key, on]) => <Button key={key} size="small" aria-pressed={on}
+const ToggleChips = ({ option, tracker, onAction, disabled }) => <Stack direction="row" gap={1} flexWrap="wrap">
+  {Object.entries(option.props.value ?? {}).map(([key, on]) => <Button key={key} size="small" aria-pressed={on} disabled={disabled}
                                                                        variant={on ? 'contained' : 'outlined'}
                                                                        color={on ? 'primary' : 'inherit'}
                                                                        startIcon={on ? <CheckIcon/> : null}
@@ -120,7 +121,11 @@ const PerWorld = ({ option, tracker, onAction, disabled }) => {
                                           value={perWorld[world] ?? ''} placeholder={String(option.props.value)}
                                           sx={{ width: 64 }}
                                           slotProps={{ inputLabel: { shrink: true }, htmlInput: { 'aria-label': `World ${world} value` } }}
-                                          onChange={(e) => onAction('setPerWorld', tracker, option.name, world, e.target.value)}/>)}
+                                          onChange={(e) => onAction('setPerWorld', tracker, option.name, world, e.target.value)}
+                                          onBlur={(e) => {
+                                            const clamped = clampValue(option, e.target.value);
+                                            if (clamped !== e.target.value) onAction('setPerWorld', tracker, option.name, world, clamped);
+                                          }}/>)}
       </Stack>
       <Typography variant="caption" color="text.secondary">
         Leave a world blank to use {String(option.props.value)} · <Button size="small" sx={{ p: 0, minWidth: 0 }} onClick={() => onAction('clearPerWorld', tracker, option.name)}>Clear overrides</Button>
@@ -146,21 +151,21 @@ const OptionRow = ({ option, tracker, foldedOptions = [], disabledReason = null,
         <Typography variant="body2" fontWeight={500}>
           {option.label}{option.edited ? <EditedTag/> : null}
         </Typography>
-        {option.type === 'input' ? <Box sx={{ ml: { sm: 'auto' } }}><NumberField option={option} tracker={tracker} onAction={onAction}/></Box> : null}
+        {option.type === 'input' ? <Box sx={{ ml: { sm: 'auto' } }}><NumberField option={option} tracker={tracker} onAction={onAction} disabled={disabled}/></Box> : null}
       </Stack>
       {disabledReason ? <Typography variant="body2" color="text.secondary">{disabledReason}</Typography> : null}
       <Help text={option.help}/>
       {isPicker ? <Box sx={{ mt: 1 }}>
         {option.props?.type === 'img'
-          ? <PickerTiles option={option} tracker={tracker} onAction={onAction}/>
-          : <ToggleChips option={option} tracker={tracker} onAction={onAction}/>}
+          ? <PickerTiles option={option} tracker={tracker} onAction={onAction} disabled={disabled}/>
+          : <ToggleChips option={option} tracker={tracker} onAction={onAction} disabled={disabled}/>}
       </Box> : null}
       {option.type === 'input' && option.props?.perWorld
-        ? <PerWorld option={option} tracker={tracker} onAction={onAction} disabled={!option.checked}/> : null}
+        ? <PerWorld option={option} tracker={tracker} onAction={onAction} disabled={!option.checked || disabled}/> : null}
       {foldedOptions.map((folded) => <Box key={folded.name} sx={{ mt: 1 }}>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>{folded.label}</Typography>
         {folded.type === 'array'
-          ? <ToggleChips option={folded} tracker={tracker} onAction={onAction}/>
+          ? <ToggleChips option={folded} tracker={tracker} onAction={onAction} disabled={disabled}/>
           : <Help text={folded.help}/>}
         <Help text={folded.type === 'array' ? folded.help : null}/>
       </Box>)}
