@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { AppContext } from '@components/common/context/AppProvider';
+import React, { useContext, useEffect, useState } from 'react';
+import { AppContext, writeStored } from '@components/common/context/AppProvider';
 import { Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import Characters from '../components/dashboard/Characters';
 import Account from '../components/dashboard/Account';
@@ -9,10 +9,10 @@ import { NextSeo } from 'next-seo';
 import DashboardSettings from '../components/common/DashboardSettings';
 import { DashboardSettingsProvider } from '@components/common/context/DashboardSettingsProvider';
 import Button from '@mui/material/Button';
-import { migrateConfig } from '@utility/migrations';
 import { IconSettingsFilled } from '@tabler/icons-react';
-import { useLocalStorage } from '@mantine/hooks';
+import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
+import { LEGACY_BACKUP_KEY, loadTrackers, toStoredTrackers } from '@utility/dashboard/trackerStore';
 
 const Dashboard = () => {
   const { dispatch, state } = useContext(AppContext);
@@ -20,16 +20,24 @@ const Dashboard = () => {
   const [open, setOpen] = useState(false);
   // Set when the modal is opened by clicking an alert, so it lands on that alert's own setting.
   const [settingsTarget, setSettingsTarget] = useState(null);
-  const [config, setConfig] = useState(() => {
-    const migratedConfig = migrateConfig(baseTrackers, state?.trackers);
+  const [initialLoad] = useState(() => loadTrackers(baseTrackers, state?.trackers));
+  const [config, setConfig] = useState(initialLoad.config);
+  // Set when the stored config could not be converted: keep saving it the pre-R1 way.
+  const [legacyMode, setLegacyMode] = useState(initialLoad.status === 'failed');
 
-    return {
-      account: migratedConfig.account,
-      characters: migratedConfig.characters,
-      timers: migratedConfig.timers,
-      version: baseTrackers?.version
-    };
-  });
+  useEffect(() => {
+    if (initialLoad.status === 'converted') {
+      if (!readLocalStorageValue({ key: LEGACY_BACKUP_KEY })) writeStored(LEGACY_BACKUP_KEY, initialLoad.legacy);
+      dispatch({ type: 'trackers', data: initialLoad.stored });
+    } else if (initialLoad.status === 'failed' && typeof window.gtag !== 'undefined') {
+      window.gtag('event', 'dashboard_config_conversion_failed', {
+        event_category: 'dashboard',
+        event_label: String(initialLoad.error?.message ?? '').slice(0, 100)
+      });
+    }
+    // Runs once: initialLoad never changes after mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [filters, setFilters] = React.useState(tryToParse(localStorage.getItem('dashboard-filters')) || ['account',
     'characters', 'timers']);
   const [hideAlertless, setHideAlertless] = useLocalStorage({
@@ -50,7 +58,7 @@ const Dashboard = () => {
 
   const handleConfigChange = (updatedConfig) => {
     setConfig(updatedConfig);
-    dispatch({ type: 'trackers', data: updatedConfig })
+    dispatch({ type: 'trackers', data: legacyMode ? updatedConfig : toStoredTrackers(baseTrackers, updatedConfig) });
   }
 
   const handleFilters = (event, newFilters) => {
@@ -68,9 +76,10 @@ const Dashboard = () => {
   }
 
   const handleFileUpload = (data) => {
-    const migratedConfig = migrateConfig(baseTrackers, data);
-    setConfig(migratedConfig);
-    dispatch({ type: 'trackers', data: migratedConfig });
+    const result = loadTrackers(baseTrackers, data);
+    setConfig(result.config);
+    setLegacyMode(result.status === 'failed');
+    dispatch({ type: 'trackers', data: result.stored ?? result.config });
   }
 
   return <>
@@ -108,6 +117,7 @@ const Dashboard = () => {
     </Stack>
     <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open}
                        onClose={handleCloseSettings} config={config} target={settingsTarget}
+                       exportConfig={legacyMode ? config : toStoredTrackers(baseTrackers, config)}
                        hideAlertless={hideAlertless} onHideAlertlessChange={handleHideAlertless}/>
   </>
 };

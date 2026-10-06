@@ -28,6 +28,7 @@ import FileUploadButton from '@components/common/DownloadButton';
 import { IconFileExport } from '@tabler/icons-react';
 import Link from 'next/link';
 import { resolveSettingsTarget } from '@utility/dashboard/settingsTarget';
+import { applySettingChange } from '@utility/dashboard/applySettingChange';
 
 // Static hints that point a tracker's config toggle at the page where its values are set.
 // Kept out of the saved config so it renders for every user regardless of their stored config version.
@@ -88,6 +89,7 @@ const DashboardSettings = ({
   config,
   onChange,
   onFileUpload,
+  exportConfig,
   target,
   hideAlertless,
   onHideAlertlessChange
@@ -106,38 +108,7 @@ const DashboardSettings = ({
   }, [open, target]);
 
   const handleSettingChange = (e, configType, option, trackerName, section) => {
-    const tempConfig = structuredClone(config);
-    const nameClicked = e?.target?.name;
-    const sectionRef = section ? tempConfig[configType][section] : tempConfig[configType];
-
-    if (option?.type === 'array') {
-      const optionRef = sectionRef[trackerName || option?.name].options[option?.optionIndex];
-      optionRef.props.value[nameClicked] = !optionRef.props.value[nameClicked];
-    } else if (option?.type === 'input' && option?.worldKey) {
-      const optionProps = sectionRef[trackerName].options[option?.optionIndex].props;
-      // An empty field drops the override, so that world follows the main value again.
-      if (option.worldKey === 'reset') optionProps.perWorld = {};
-      else if (e?.target?.value === '') delete optionProps.perWorld[option.worldKey];
-      else optionProps.perWorld[option.worldKey] = e?.target?.value;
-    } else if (option?.type === 'input' && option?.inputVal) {
-      sectionRef[trackerName].options[option?.optionIndex].props.value = e?.target?.value;
-    } else if (option) {
-      const optionRef = sectionRef[trackerName].options[option?.optionIndex];
-      optionRef.checked = !optionRef.checked;
-    } else {
-      const tracker = sectionRef[nameClicked];
-      tracker.checked = !tracker.checked;
-      tracker.options = tracker.options.map((opt) => {
-        if (opt?.type === 'array') {
-          const updatedValue = Object.keys(opt.props.value).reduce((result, key) => {
-            return { ...result, [key]: tracker.checked }
-          }, {});
-          return { ...opt, checked: tracker.checked, props: { ...(opt?.props || {}), value: updatedValue } }
-        }
-        return { ...opt, checked: tracker.checked }
-      });
-    }
-    onChange(tempConfig);
+    onChange(applySettingChange(config, e, configType, option, trackerName, section));
   }
 
   const handleExport = () => {
@@ -148,7 +119,7 @@ const DashboardSettings = ({
         value: 1
       });
     }
-    handleDownload(config, 'it-dashboard-config');
+    handleDownload(exportConfig ?? config, 'it-dashboard-config');
   };
 
   return <Dialog open={open} onClose={onClose} fullWidth>
@@ -157,7 +128,7 @@ const DashboardSettings = ({
         <Typography variant={'h6'}>Configuration</Typography>
         <Box display="flex" gap={1}>
           <FileUploadButton onFileUpload={(data) => {
-            if (data?.account && data?.characters) {
+            if (data?.schema === 2 || (data?.account && data?.characters)) {
               onFileUpload(data);
               if (typeof window.gtag !== 'undefined') {
                 window.gtag('event', 'dashboard_config_imported', {
