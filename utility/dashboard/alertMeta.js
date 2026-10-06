@@ -49,6 +49,8 @@ export const alertMeta = {
   },
   'account.General.materialTracker': {
     label: 'Material tracker',
+    // The item thresholds live on the tool's own page, not in this config.
+    link: { text: 'Set item thresholds in', label: 'Tools > Material Tracker', href: '/tools/material-tracker' },
     options: {}
   },
   'account.General.guild': {

@@ -53,6 +53,7 @@ const buildTracker = (configType, section, name, tracker, baseTracker, edits) =>
     // Clicker timers name the character that owns them here (Orion, Poppy, Bubba).
     unit: meta.unit ?? null,
     inline: meta.inline ?? null,
+    link: meta.link ?? null,
     checked: Boolean(tracker.checked),
     on: Boolean(tracker.checked) && (paired ? Boolean(options[0].checked) : true),
     compact,

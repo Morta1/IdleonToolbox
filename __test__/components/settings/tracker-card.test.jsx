@@ -86,6 +86,12 @@ describe('CompactRow', () => {
     expect(container.querySelector('[data-letter-badge]').textContent).toBe('M');
   });
 
+  it('Material tracker points at the tool that holds its thresholds', () => {
+    const container = renderIn(<CompactRow tracker={trackerFor('account.General.materialTracker')} onAction={() => {}}/>);
+    expect(container.textContent).toContain('Set item thresholds in Tools > Material Tracker');
+    expect(container.querySelector('a[href="/tools/material-tracker"]')?.textContent).toBe('Tools > Material Tracker');
+  });
+
   it('edited rows show a Reset for the whole alert', () => {
     const onAction = vi.fn();
     const tracker = trackerFor('characters.bags', { 'characters.bags.unmaxedBags': { checked: false } });

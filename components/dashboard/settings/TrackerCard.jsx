@@ -2,12 +2,14 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
+import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import NextLink from 'next/link';
 import { prefix } from '@utility/helpers';
 import EditedTag, { OffTag } from './EditedTag';
 import OptionRow, { NumberField } from './OptionRow';
@@ -18,7 +20,13 @@ const TrackerIcon = ({ tracker }) => tracker.icon
   ? <img src={`${prefix}${tracker.icon}.png`} alt="" width={28} height={28} style={{ objectFit: 'contain', opacity: tracker.on ? 1 : 0.4 }}/>
   : <LetterBadge label={tracker.label} size={28} radius={1.5} sx={{ opacity: tracker.on ? 1 : 0.4 }}/>;
 
-const TrackerSwitch = ({ tracker, onAction }) => <Switch
+const TrackerLink = ({ tracker }) => tracker.link
+  ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+    {tracker.link.text} <Link component={NextLink} href={tracker.link.href}>{tracker.link.label}</Link>
+  </Typography>
+  : null;
+
+const TrackerSwitch =({ tracker, onAction }) => <Switch
   checked={tracker.on}
   onChange={() => onAction('toggleTracker', tracker)}
   inputProps={{ 'aria-label': `${tracker.label} alerts` }}
@@ -43,6 +51,7 @@ export const CompactRow = ({ tracker, highlight = false, highlightKey = null, on
       </Typography>
       {tracker.options[0] || tracker.unit
         ? <Typography variant="caption" color="text.secondary">{tracker.options[0]?.label ?? tracker.unit}</Typography> : null}
+      <TrackerLink tracker={tracker}/>
     </Box>
     {tracker.edited ? <Button size="small" sx={{ minHeight: { xs: 44 } }} onClick={() => onAction('resetPath', tracker.path)}>Reset</Button> : null}
   </Paper>;
@@ -89,6 +98,7 @@ const TrackerCard = ({ tracker, expanded, onToggleExpanded, highlightOption = nu
           {tracker.label}{tracker.edited ? <EditedTag/> : null}{!tracker.on ? <OffTag kept={tracker.options.length > 0}/> : null}
         </Typography>
         <Typography variant="caption" color="text.secondary">{tracker.onCount} of {tracker.total} options on</Typography>
+        <TrackerLink tracker={tracker}/>
       </Box>
       {inline ? <NumberField option={inline} tracker={tracker} onAction={onAction} ariaLabel={`${tracker.label} ${inline.label}`}/> : null}
       {tracker.edited ? <Button size="small" sx={{ minHeight: { xs: 44 } }} onClick={() => onAction('resetPath', tracker.path)}>Reset</Button> : null}
