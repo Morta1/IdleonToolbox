@@ -178,7 +178,8 @@ const DashboardSettings = ({
       }
     }}/>;
 
-  const chips = <Stack direction="row" gap={1} alignItems="center" sx={{ overflowX: 'auto', pb: 0.5 }}>
+  // Swipeable on a phone without a scrollbar: the bar sat on top of the chips, and the cut-off last chip already shows there is more.
+  const chips = <Stack direction="row" gap={1} alignItems="center" sx={{ overflowX: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
     {FILTERS.map((key) => <Chip key={key} label={`${FILTER_LABELS[key]} ${countFor(key)}`}
                                 color={filter === key ? 'primary' : 'default'} variant={filter === key ? 'filled' : 'outlined'}
                                 aria-pressed={filter === key} onClick={() => setFilter(key)} sx={{ minHeight: { xs: 44, sm: 32 } }}/>)}
