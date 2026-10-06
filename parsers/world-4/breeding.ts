@@ -155,12 +155,18 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
     })
   });
 
+  // Game: _customBlock_Breeding("TotalEggCapacity") = 3 + Egg_Capacity upgrade level + Royal Egg Cap gem
+  // purchases + World 4 merit 3, up to 15. Breeding[0] holds 20 slots; the ones at or past it are locked.
+  const eggCapacity = Math.round(3 + calcUpgradeBonus(petUpgradesList?.[2], 2, account)
+    + (account?.gemShopPurchases?.[119] ?? 0) + (account?.tasks?.[2]?.[3]?.[2] ?? 0));
+
   return {
     rawFencePets,
     eggsPowerRange: getEggsPowerRange(processedData?.charactersData),
     passivesTotals,
     storedPets,
     eggs,
+    eggCapacity,
     genetics,
     deadCells,
     speciesUnlocks,

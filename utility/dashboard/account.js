@@ -969,7 +969,9 @@ export const getWorld4Alerts = (account, fields, options) => {
       }
     }
     if (eggs?.checked) {
-      const eggsAvailable = account?.breeding?.eggs.slice(0, 15).every((eggLv) => eggLv > 0);
+      // Full means every unlocked slot holds an egg; the nest grows from 3 to 15 slots with upgrades.
+      const eggCapacity = account?.breeding?.eggCapacity ?? 0;
+      const eggsAvailable = eggCapacity > 0 && account?.breeding?.eggs?.slice(0, eggCapacity).every((eggLv) => eggLv > 0);
       if (eggsAvailable) {
         breeding.eggs = eggsAvailable
       }
