@@ -16,7 +16,7 @@ import { useHighlightTarget } from './useHighlightTarget';
 const HELP_CLAMP = 90;
 const WORLDS = [1, 2, 3, 4, 5, 6, 7];
 
-const Help = ({ text }) => {
+export const Help = ({ text }) => {
   const [open, setOpen] = useState(false);
   if (!text) return null;
   const long = text.length > HELP_CLAMP;
@@ -70,7 +70,7 @@ export const NumberField = ({ option, tracker, onAction, ariaLabel, disabled = f
   </Stack>;
 };
 
-const PickerTiles = ({ option, tracker, onAction, disabled }) => {
+export const PickerTiles = ({ option, tracker, onAction, disabled }) => {
   const entries = Object.entries(option.props.value ?? {});
   const onCount = entries.filter(([, on]) => on).length;
   return <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
@@ -93,7 +93,7 @@ const PickerTiles = ({ option, tracker, onAction, disabled }) => {
   </Stack>;
 };
 
-const ToggleChips = ({ option, tracker, onAction, disabled }) => <Stack direction="row" gap={1} flexWrap="wrap">
+export const ToggleChips = ({ option, tracker, onAction, disabled }) => <Stack direction="row" gap={1} flexWrap="wrap">
   {Object.entries(option.props.value ?? {}).map(([key, on]) => <Button key={key} size="small" aria-pressed={on} disabled={disabled}
                                                                        variant={on ? 'contained' : 'outlined'}
                                                                        color={on ? 'primary' : 'inherit'}
