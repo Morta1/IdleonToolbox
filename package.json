@@ -73,7 +73,10 @@
     "postcss": "^8.5.23",
     "nanoid": "^3.3.17",
     "js-yaml": "^4.3.1",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.3",
+    "@firebase/firestore": {
+      "@grpc/grpc-js": "1.14.5"
+    }
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
