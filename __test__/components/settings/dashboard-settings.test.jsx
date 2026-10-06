@@ -116,6 +116,30 @@ describe('DashboardSettings window', () => {
     }
   });
 
+  it('mobile Characters: Back lands on a menu that leads back in', () => {
+    const original = window.matchMedia;
+    window.matchMedia = (query) => ({
+      matches: true, media: query, addEventListener: () => {}, removeEventListener: () => {},
+      addListener: () => {}, removeListener: () => {}
+    });
+    try {
+      render(<Harness/>);
+      fireEvent.click(button('Characters'));
+      expect(document.body.textContent).toContain('Hide characters without alerts');
+      fireEvent.click(document.body.querySelector('[aria-label="Back to sections"]'));
+      const navButtons = () => document.body.querySelectorAll('nav[aria-label="Characters sections"] button');
+      expect(navButtons()[0]).toBeTruthy();
+      fireEvent.click(navButtons()[0]);
+      expect(document.body.textContent).toContain('Hide characters without alerts');
+      // A tracker link in the menu opens the section on that alert.
+      fireEvent.click(document.body.querySelector('[aria-label="Back to sections"]'));
+      fireEvent.click(navButtons()[1]);
+      expect(document.body.querySelector('[data-highlighted="true"]')).toBeTruthy();
+    } finally {
+      window.matchMedia = original;
+    }
+  });
+
   it('clears Undo when the window closes', async () => {
     const view = render(<Harness/>);
     fireEvent.click(button('Turn all off'));

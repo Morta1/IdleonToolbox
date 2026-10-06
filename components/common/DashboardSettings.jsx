@@ -120,6 +120,7 @@ const DashboardSettings = ({
     setMobileDetail(true);
   };
   const jumpTo = (path) => {
+    setMobileDetail(true);
     setExpanded((prev) => ({ ...prev, [path]: true }));
     setHighlight({ path, optionName: null });
   };

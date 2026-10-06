@@ -20,7 +20,8 @@ const SettingsNav = ({ model, tabIndex, onTabChange, sectionKey, onSectionChange
         {item.label}{item.edited ? <EditedDot/> : null}
       </ToggleButton>)}
     </ToggleButtonGroup>
-    {tab.sections.length > 1 ? <Stack component="nav" aria-label={`${tab.label} sections`} gap={0.25}>
+    {/* A single-section tab still gets its row: on mobile it is the only way back into the section. */}
+    <Stack component="nav" aria-label={`${tab.label} sections`} gap={0.25}>
       {tab.sections.map((section) => {
         const selected = section.key === sectionKey;
         return <React.Fragment key={section.key}>
@@ -41,7 +42,7 @@ const SettingsNav = ({ model, tabIndex, onTabChange, sectionKey, onSectionChange
             </ButtonBase>) : null}
         </React.Fragment>;
       })}
-    </Stack> : null}
+    </Stack>
   </Stack>;
 };
 
