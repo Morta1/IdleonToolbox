@@ -36,10 +36,16 @@ const Dashboard = () => {
   // Set when the stored config could not be converted: keep saving it the pre-R1 way.
   const [legacyMode, setLegacyMode] = useState(initialLoad.status === 'failed');
 
+  // The defaults note is for users whose old full-copy config was just converted to edits: it holds
+  // how many settings differed at that moment and stays until dismissed. Edits made later never set it.
+  const [defaultsNoteCount, setDefaultsNoteCount] = useLocalStorage({ key: 'dashboard-defaults-note-pending' });
+
   useEffect(() => {
     if (initialLoad.status === 'converted') {
       if (!readLocalStorageValue({ key: LEGACY_BACKUP_KEY })) writeStored(LEGACY_BACKUP_KEY, initialLoad.legacy);
       dispatch({ type: 'trackers', data: initialLoad.stored });
+      const converted = Object.keys(diffTrackers(baseTrackers, initialLoad.config)).length;
+      if (converted > 0) setDefaultsNoteCount(converted);
     } else if (initialLoad.status === 'failed' && typeof window.gtag !== 'undefined') {
       window.gtag('event', 'dashboard_config_conversion_failed', {
         event_category: 'dashboard',
@@ -63,8 +69,6 @@ const Dashboard = () => {
   const [storageRead, setStorageRead] = useState(false);
   useEffect(() => setStorageRead(true), []);
   const [initialFilter, setInitialFilter] = useState('all');
-  // Counted once on load: edits made in the window afterwards must not make the note appear.
-  const [editCount] = useState(() => Object.keys(diffTrackers(baseTrackers, initialLoad.config)).length);
 
   const handleOpenSettings = (configType, path, source) => {
     trackSettingsEvent('alert_settings_opened', { source });
@@ -145,7 +149,7 @@ const Dashboard = () => {
       description="Provides key information about your account and alerts you when there are unfinished tasks"
     />
     <Stack>
-      {storageRead && !defaultsNoteDismissed && editCount > 0 ? <DefaultsNote count={editCount}
+      {storageRead && !defaultsNoteDismissed && defaultsNoteCount > 0 ? <DefaultsNote count={defaultsNoteCount}
                                                                onReview={() => {
                                                                  setInitialFilter('edited');
                                                                  handleOpenSettings(null, null, 'note');
