@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.531',
     'date': '06/10/2026',
     'features': [
-      'Dashboard: the Hole Bell alert is now split per bell (Ring, Ping, Clean, Renew), each with its own ready uses threshold'
+      'Dashboard: the Hole Bell alert is now split per bell (Ring, Ping, Clean, Renew), each with its own ready uses threshold',
+      'Royal Guardian kingdom map: an inner ring shows each outpost reach without its slot Guards, the range Guards add is striped, rings are labelled, nodes are marked by whether they need Guards or are taken, and wide screens show the details in a side panel'
     ],
     'fixes': [
       'Dashboard: the Hole Bell alert now shows when a cavern bell is ready',
