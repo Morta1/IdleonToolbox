@@ -68,6 +68,8 @@ const Dashboard = () => {
 
   const handleOpenSettings = (configType, path, source) => {
     trackSettingsEvent('alert_settings_opened', { source });
+    // The window has its own Undo; a stale popover one would wipe edits made there.
+    setQuickUndo(null);
     setSettingsTarget(configType ? { configType, path } : null);
     setOpen(true);
   };
@@ -174,10 +176,14 @@ const Dashboard = () => {
                        exportConfig={legacyMode ? config : toStoredTrackers(baseTrackers, config)}
                        hideAlertless={hideAlertless} onHideAlertlessChange={handleHideAlertless}/>
     <AlertQuickEdit quickEdit={quickModel} open={Boolean(quickModel)} anchorPosition={quickEdit?.anchorPosition}
-                    onClose={() => setQuickEdit(null)} onAction={handleQuickAction}
+                    // Escape unmounts the popover without blurring its field; blur first so its clamp runs.
+                    onClose={() => {
+                      document.activeElement?.blur?.();
+                      setQuickEdit(null);
+                    }} onAction={handleQuickAction}
                     onOpenAll={() => {
                       setQuickEdit(null);
-                      handleOpenSettings(quickEdit.configType, quickEdit.target, 'alert');
+                      handleOpenSettings(quickEdit.configType, quickEdit.target, 'quick_edit');
                     }}/>
     {quickUndo ? <Snackbar key={quickUndo.id} open autoHideDuration={6000} message={quickUndo.label}
                            ContentProps={{ role: 'status' }}

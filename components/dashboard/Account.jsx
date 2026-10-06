@@ -1038,7 +1038,7 @@ const Alert = ({
   const badgeImgStyle = badgeBorder ? { border: '1px solid', borderColor: badgeBorder } : {};
   return <HtmlTooltip title={title} maxWidth={maxWidth}>
     <Stack {...settingsProps}
-           aria-label={target ? (typeof title === 'string' ? title : 'Alert settings') : undefined}
+           {...(target ? { 'aria-label': typeof title === 'string' ? title : 'Alert settings' } : {})}
            sx={{
              position: 'relative', ...style, alignItems: 'center', justifyContent: 'center',
              ...(target ? { cursor: 'pointer', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', borderRadius: 1 } } : {})
