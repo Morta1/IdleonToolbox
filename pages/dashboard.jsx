@@ -19,7 +19,7 @@ import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 import { useLocalStorage } from '@mantine/hooks';
 
 const baseTrackers = {
-  version: 80,
+  version: 81,
   account: {
     General: {
       tasks: {
@@ -435,7 +435,7 @@ const baseTrackers = {
             type: 'input',
             props: { label: 'Reward multi threshold', value: 1, minValue: 1, helperText: '' }
           },
-          { name: 'theWell', checked: true },
+          { name: 'theBell', checked: true },
           {
             name: 'theHarp',
             checked: true,

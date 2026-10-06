@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.86',
+    'gameVer': '2.3.531',
+    'date': '06/10/2026',
+    'features': [],
+    'fixes': [
+      'Dashboard: the Hole Bell alert now shows when a cavern bell is ready'
+    ]
+  },
+  {
     'ver': '3.3.85',
     'gameVer': '2.3.531',
     'date': '05/10/2026',

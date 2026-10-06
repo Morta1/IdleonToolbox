@@ -2131,6 +2131,20 @@ const migration80 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+const migration81 = (dashboardConfig) => {
+  // The Bell alert reads a `theBell` option, but the Hole tracker shipped it as `theWell`, so the
+  // alert never fired. Renaming keeps whatever the user had it set to.
+  const holeOptions = dashboardConfig?.account?.['World 5']?.hole?.options;
+  if (Array.isArray(holeOptions) && !holeOptions.some((option) => option?.name === 'theBell')) {
+    const wellOption = holeOptions.find((option) => option?.name === 'theWell');
+    if (wellOption) wellOption.name = 'theBell';
+    else holeOptions.push({ name: 'theBell', checked: true });
+  }
+
+  dashboardConfig.version = 81;
+  return dashboardConfig;
+};
+
 const migrations = {
   2: migrateToVersion2,
   3: migrateToVersion3,
@@ -2211,6 +2225,7 @@ const migrations = {
   78: migration78,
   79: migration79,
   80: migration80,
+  81: migration81,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {
