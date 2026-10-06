@@ -31,9 +31,11 @@ describe('AlertQuickEdit', () => {
     const quickEdit = quickFor('account', 'General.etc.keys');
     const dialog = open(quickEdit, { onAction, onOpenAll });
     expect(dialog.getAttribute('aria-labelledby')).toBeTruthy();
-    expect(dialog.textContent).toContain(quickEdit.tracker.label);
+    // Title: the clicked alert. Subtitle: where it lives.
+    expect(dialog.querySelector('h2').textContent).toBe(quickEdit.option.label);
+    expect(dialog.textContent).toContain(`General · ${quickEdit.tracker.label}`);
     expect(dialog.textContent).toContain('Saved automatically');
-    fireEvent.click(byLabel(dialog, quickEdit.option.label));
+    fireEvent.click(byLabel(dialog, 'Show this alert'));
     expect(onAction).toHaveBeenCalledWith('toggleOption', quickEdit.tracker, 'keys');
     fireEvent.click([...dialog.querySelectorAll('button')].find((b) => b.textContent === `All ${quickEdit.tracker.label} settings`));
     expect(onOpenAll).toHaveBeenCalled();

@@ -15,6 +15,7 @@ import { Help, NumberField, PickerTiles, ToggleChips } from './OptionRow';
 import LetterBadge from './LetterBadge';
 
 const TITLE_ID = 'alert-quick-edit-title';
+const TAB_LABELS = { characters: 'Characters', timers: 'Timers' };
 const ROW = { mr: 0, minHeight: { xs: 44, sm: 'auto' } };
 
 const Check = ({ label, checked, disabled = false, onChange }) => <FormControlLabel
@@ -23,8 +24,8 @@ const Check = ({ label, checked, disabled = false, onChange }) => <FormControlLa
   control={<Checkbox size="small" checked={Boolean(checked)} disabled={disabled} onChange={onChange}
                      inputProps={{ 'aria-label': label }}/>}/>;
 
-const OptionCheck = ({ option, tracker, disabled, onAction }) => <Check
-  label={option.label} checked={option.checked} disabled={disabled}
+const OptionCheck = ({ option, tracker, label, disabled, onAction }) => <Check
+  label={label ?? option.label} checked={option.checked} disabled={disabled}
   onChange={() => onAction('toggleOption', tracker, option.name)}/>;
 
 const TrackerToggle = ({ tracker, onAction }) => <FormControlLabel
@@ -95,7 +96,7 @@ const Body = ({ quickEdit, onAction }) => {
   const locked = Boolean(disabledReason);
   const first = trackerSwitch
     ? <TrackerToggle tracker={tracker} onAction={onAction}/>
-    : <OptionCheck option={option} tracker={tracker} disabled={locked} onAction={onAction}/>;
+    : <OptionCheck option={option} tracker={tracker} label="Show this alert" disabled={locked} onAction={onAction}/>;
   return <>
     {parent ? <OptionCheck option={parent} tracker={tracker} onAction={onAction}/> : null}
     <Box sx={parent ? { pl: 3 } : undefined}>{first}</Box>
@@ -124,7 +125,10 @@ const Body = ({ quickEdit, onAction }) => {
 
 const AlertQuickEdit = ({ quickEdit, open, anchorPosition, iconSrc = null, onClose, onAction, onOpenAll, onUndo }) => {
   if (!quickEdit) return null;
-  const { tracker, everyCharacter } = quickEdit;
+  const { tracker, option, kind, everyCharacter, configType } = quickEdit;
+  // The title is the alert that was clicked; the subtitle says where it lives in the settings.
+  const title = kind === 'tracker' || !option ? tracker.label : option.label;
+  const where = [TAB_LABELS[configType], tracker.section, title === tracker.label ? null : tracker.label].filter(Boolean).join(' · ');
   return <Popover open={open} onClose={onClose} anchorReference="anchorPosition" anchorPosition={anchorPosition}
                   transformOrigin={{ vertical: 'top', horizontal: 'left' }}
                   slotProps={{
@@ -138,7 +142,10 @@ const AlertQuickEdit = ({ quickEdit, open, anchorPosition, iconSrc = null, onClo
         {iconSrc || tracker.icon
           ? <img src={iconSrc ?? `${prefix}${tracker.icon}.png`} alt="" width={24} height={24} style={{ objectFit: 'contain' }}/>
           : <LetterBadge label={tracker.label} size={24} radius={1}/>}
-        <Typography id={TITLE_ID} variant="subtitle1" component="h2" fontWeight={500}>{tracker.label}</Typography>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography id={TITLE_ID} variant="subtitle1" component="h2" fontWeight={500} sx={{ lineHeight: 1.3 }}>{title}</Typography>
+          {where ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>{where}</Typography> : null}
+        </Box>
       </Stack>
       <Body quickEdit={quickEdit} onAction={onAction}/>
       {everyCharacter ? <Typography variant="caption" color="text.secondary">Applies to every character</Typography> : null}
