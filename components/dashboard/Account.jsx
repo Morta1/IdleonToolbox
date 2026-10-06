@@ -33,7 +33,7 @@ import {
 } from '@utility/dashboard/account';
 import useAlerts from '@hooks/useAlerts';
 import { monsterImage } from '@utility/spriteImages';
-import { useOpenDashboardSettings } from '@components/common/context/DashboardSettingsProvider';
+import { useAlertSettingsProps } from '@components/common/context/DashboardSettingsProvider';
 
 // Every refinery alert draws the same salt icon, and one salt can raise several of them at once,
 // so a corner glyph says which condition fired without having to hover each copy.
@@ -1022,10 +1022,12 @@ const Alert = ({
                  badge,
                  extra,
                  target,
+                 items,
+                 worlds,
                  // Lists of map names need more room than the 320px default before they wrap.
                  maxWidth
                }) => {
-  const openSettings = useOpenDashboardSettings();
+  const settingsProps = useAlertSettingsProps('account', target, items || worlds ? { items, worlds } : undefined);
   const {
     Icon: BadgeIcon,
     label: badgeLabel,
@@ -1035,10 +1037,11 @@ const Alert = ({
   } = alertBadges[badge] || {};
   const badgeImgStyle = badgeBorder ? { border: '1px solid', borderColor: badgeBorder } : {};
   return <HtmlTooltip title={title} maxWidth={maxWidth}>
-    <Stack onClick={target ? () => openSettings('account', target) : undefined}
+    <Stack {...settingsProps}
+           aria-label={target ? (typeof title === 'string' ? title : 'Alert settings') : undefined}
            sx={{
              position: 'relative', ...style, alignItems: 'center', justifyContent: 'center',
-             ...(target ? { cursor: 'pointer' } : {})
+             ...(target ? { cursor: 'pointer', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', borderRadius: 1 } } : {})
            }}>
       <IconImg onError={onError} style={{ ...badgeImgStyle, ...imgStyle }} vial={vial}
                src={`${prefix}${iconPath}.png`} alt=""/>

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext, writeStored } from '@components/common/context/AppProvider';
-import { Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { Snackbar, Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import Characters from '../components/dashboard/Characters';
 import Account from '../components/dashboard/Account';
 import { tryToParse } from '@utility/helpers';
@@ -13,6 +13,11 @@ import { IconSettingsFilled } from '@tabler/icons-react';
 import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import DefaultsNote from '@components/dashboard/settings/DefaultsNote';
+import { buildModel } from '@utility/dashboard/settingsModel';
+import { runAction } from '@utility/dashboard/settingsActions';
+import { buildQuickEdit } from '@utility/dashboard/quickEdit';
+import { trackSettingsEvent } from '@utility/dashboard/settingsAnalytics';
+import AlertQuickEdit from '@components/dashboard/settings/AlertQuickEdit';
 import { diffTrackers, LEGACY_BACKUP_KEY, loadTrackers, toStoredTrackers } from '@utility/dashboard/trackerStore';
 
 const Dashboard = () => {
@@ -21,6 +26,11 @@ const Dashboard = () => {
   const [open, setOpen] = useState(false);
   // Set when the modal is opened by clicking an alert, so it lands on that alert's own setting.
   const [settingsTarget, setSettingsTarget] = useState(null);
+  // The alert whose popover is open: its target, the extras its call site passed, where it was
+  // clicked, and the config at that moment (what Undo goes back to).
+  const [quickEdit, setQuickEdit] = useState(null);
+  const [quickUndo, setQuickUndo] = useState(null);
+  const [quickEditCount, setQuickEditCount] = useState(0);
   const [initialLoad] = useState(() => loadTrackers(baseTrackers, state?.trackers));
   const [config, setConfig] = useState(initialLoad.config);
   // Set when the stored config could not be converted: keep saving it the pre-R1 way.
@@ -56,9 +66,36 @@ const Dashboard = () => {
   // Counted once on load: edits made in the window afterwards must not make the note appear.
   const [editCount] = useState(() => Object.keys(diffTrackers(baseTrackers, initialLoad.config)).length);
 
-  const handleOpenSettings = (configType, path) => {
-    setSettingsTarget({ configType, path });
+  const handleOpenSettings = (configType, path, source) => {
+    trackSettingsEvent('alert_settings_opened', { source });
+    setSettingsTarget(configType ? { configType, path } : null);
     setOpen(true);
+  };
+
+  const quickEditFor = (current, configType, target, extra) =>
+    buildQuickEdit(current, buildModel(current, baseTrackers, diffTrackers(baseTrackers, current)), configType, target, extra);
+
+  const handleOpenAlert = (element, configType, target, extra = {}) => {
+    if (!quickEditFor(config, configType, target, extra)) {
+      handleOpenSettings(configType, target, 'alert');
+      return;
+    }
+    const rect = element.getBoundingClientRect();
+    setQuickUndo(null);
+    setQuickEditCount((count) => count + 1);
+    setQuickEdit({
+      id: quickEditCount + 1, configType, target, extra,
+      anchorPosition: { top: rect.bottom + 4, left: rect.left },
+      snapshot: config
+    });
+  };
+
+  const quickModel = quickEdit ? quickEditFor(config, quickEdit.configType, quickEdit.target, quickEdit.extra) : null;
+
+  const handleQuickAction = (name, ...args) => {
+    handleConfigChange(runAction(baseTrackers, config, name, ...args));
+    setQuickUndo({ id: quickEdit.id, label: `${quickModel.tracker.label} settings changed`, previous: quickEdit.snapshot });
+    trackSettingsEvent('alert_quick_edit_changed', { kind: quickModel.kind });
   };
 
   const handleCloseSettings = () => {
@@ -102,8 +139,7 @@ const Dashboard = () => {
       {storageRead && !defaultsNoteDismissed && editCount > 0 ? <DefaultsNote count={editCount}
                                                                onReview={() => {
                                                                  setInitialFilter('edited');
-                                                                 setSettingsTarget(null);
-                                                                 setOpen(true);
+                                                                 handleOpenSettings(null, null, 'note');
                                                                }}
                                                                onDismiss={() => setDefaultsNoteDismissed(true)}/> : null}
       <Stack mb={2} direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'}>
@@ -115,14 +151,13 @@ const Dashboard = () => {
         <Button variant={'outlined'} sx={{ textTransform: 'none', height: 32 }}
                 startIcon={<IconSettingsFilled size={20}/>}
                 onClick={() => {
-                  setSettingsTarget(null);
-                  setOpen(true);
+                  handleOpenSettings(null, null, 'button');
                 }}>
           Configure alerts
         </Button>
       </Stack>
       <Stack gap={2}>
-        <DashboardSettingsProvider onOpenSettings={handleOpenSettings}>
+        <DashboardSettingsProvider onOpenAlert={handleOpenAlert}>
           {isDisplayed('account') ? <Account trackers={config?.account} characters={characters}
                                              account={account} lastUpdated={lastUpdated}/> : null}
           {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
@@ -138,6 +173,22 @@ const Dashboard = () => {
                        initialFilter={initialFilter}
                        exportConfig={legacyMode ? config : toStoredTrackers(baseTrackers, config)}
                        hideAlertless={hideAlertless} onHideAlertlessChange={handleHideAlertless}/>
+    <AlertQuickEdit quickEdit={quickModel} open={Boolean(quickModel)} anchorPosition={quickEdit?.anchorPosition}
+                    onClose={() => setQuickEdit(null)} onAction={handleQuickAction}
+                    onOpenAll={() => {
+                      setQuickEdit(null);
+                      handleOpenSettings(quickEdit.configType, quickEdit.target, 'alert');
+                    }}/>
+    {quickUndo ? <Snackbar key={quickUndo.id} open autoHideDuration={6000} message={quickUndo.label}
+                           ContentProps={{ role: 'status' }}
+                           onClose={(e, reason) => {
+                             if (reason !== 'clickaway') setQuickUndo(null);
+                           }}
+                           action={<Button color="primary" size="small" onClick={() => {
+                             handleConfigChange(quickUndo.previous);
+                             setQuickUndo(null);
+                             setQuickEdit(null);
+                           }}>Undo</Button>}/> : null}
   </>
 };
 

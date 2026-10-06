@@ -5,7 +5,7 @@ import { cleanUnderscore, kFormatter, notateNumber, pascalCase, prefix } from '@
 import styled from '@emotion/styled';
 import { getActivityIcon } from '@utility/spriteImages';
 import HtmlTooltip from '../Tooltip';
-import { useOpenDashboardSettings } from '@components/common/context/DashboardSettingsProvider';
+import { useAlertSettingsProps } from '@components/common/context/DashboardSettingsProvider';
 import {
   alchemyAlerts,
   anvilAlerts,
@@ -383,10 +383,11 @@ const BagList = ({ name, bags }) => {
 
 // `target` is the dot path of the alert's own setting - clicking the icon opens the configuration
 // modal on it. See utility/dashboard/settingsTarget.
-const Alert = ({ title, iconPath, style = {}, extra, target }) => {
-  const openSettings = useOpenDashboardSettings();
-  return <Stack onClick={target ? () => openSettings('characters', target) : undefined}
-                sx={{ position: 'relative', ...(target ? { cursor: 'pointer' } : {}) }}>
+const Alert = ({ title, iconPath, style = {}, extra, target, items, worlds }) => {
+  const settingsProps = useAlertSettingsProps('characters', target, items || worlds ? { items, worlds } : undefined);
+  return <Stack {...settingsProps}
+                aria-label={target ? (typeof title === 'string' ? title : 'Alert settings') : undefined}
+                sx={{ position: 'relative', ...(target ? { cursor: 'pointer', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', borderRadius: 1 } } : {}) }}>
     <HtmlTooltip title={title}>
       <IconImg style={style} src={`${prefix}${iconPath}.png`} alt=""/>
     </HtmlTooltip>
