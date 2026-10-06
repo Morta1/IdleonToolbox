@@ -14,6 +14,7 @@ export const patchNotes = [
     ],
     'fixes': [
       'Dashboard: the Hole Bell alert now shows when a cavern bell is ready',
+      'Dashboard: the Egg nest full alert now fires when every unlocked egg slot is filled, not only once all 15 slots are unlocked',
       'Masterclass upgrade cards: long upgrade names now wrap beside the icon instead of below it'
     ]
   },
