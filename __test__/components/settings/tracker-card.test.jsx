@@ -47,6 +47,17 @@ describe('TrackerCard', () => {
     expect(onAction).toHaveBeenCalledWith('resetPath', 'account.World 3.library');
   });
 
+  it('an inline-threshold-only card: a deep link to the threshold tints the card, no empty body', () => {
+    Element.prototype.scrollIntoView = () => {};
+    const tracker = trackerFor('account.World 3.library');
+    const container = renderIn(<TrackerCard tracker={tracker} expanded onToggleExpanded={() => {}} onAction={() => {}}
+                                            highlight highlightOption="books"/>);
+    const card = container.firstChild;
+    expect(card.getAttribute('data-highlighted')).toBe('true');
+    expect(card.children).toHaveLength(1);
+    expect(container.querySelector('[aria-expanded]')).toBeFalsy();
+  });
+
   it('groups Royal Guardian options and disables a dependent while its parent is off', () => {
     const tracker = trackerFor('account.World 7.royalGuardian', { 'account.World 7.royalGuardian.overkillWorkers': { checked: false } });
     const container = renderIn(<TrackerCard tracker={tracker} expanded onToggleExpanded={() => {}} onAction={() => {}}/>);

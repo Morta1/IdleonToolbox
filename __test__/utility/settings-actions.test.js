@@ -35,6 +35,19 @@ describe('settingsActions', () => {
     expect(edits(off)).toEqual({ 'characters.bags': { checked: false } });
   });
 
+  it('an inline-threshold tracker turns both the tracker and its threshold on', () => {
+    const { config, find } = setup({ 'account.World 3.library.books': { checked: false } });
+    expect(edits(toggleTracker(config, find('account.World 3.library')))).toEqual({});
+    const off = toggleTracker(setup().config, setup().find('account.World 3.library'));
+    expect(edits(off)).toEqual({ 'account.World 3.library': { checked: false } });
+  });
+
+  it('setSectionOn(true) also switches inline-threshold trackers on', () => {
+    const { config, model } = setup({ 'account.World 3.library.books': { checked: false } });
+    const world3 = model[0].sections.find(({ section }) => section === 'World 3');
+    expect(edits(setSectionOn(config, world3, true))).toEqual({});
+  });
+
   it('setSectionOn(true) also switches compact rows on', () => {
     const { config, model } = setup({ 'characters.bags.unmaxedBags': { checked: false } });
     const section = model.flatMap((tab) => tab.sections).find(({ trackers }) => trackers.some(({ path }) => path === 'characters.bags'));

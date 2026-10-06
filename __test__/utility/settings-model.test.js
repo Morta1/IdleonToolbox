@@ -52,6 +52,16 @@ describe('buildModel', () => {
     expect(tracker(modelFor(), 'timers.General.daily').compact).toBe(true);
     expect(tracker(modelFor(), 'account.World 3.library').compact).toBe(false);
   });
+
+  it('pairs a tracker whose only option is its inline number: on needs both', () => {
+    ['account.World 3.library', 'account.World 3.atomCollider', 'account.World 6.etc', 'characters.postOffice'].forEach((path) => {
+      expect(tracker(modelFor(), path)?.paired, path).toBe(true);
+    });
+    const thresholdOff = tracker(modelFor({ 'account.World 3.library.books': { checked: false } }), 'account.World 3.library');
+    expect(thresholdOff.checked).toBe(true);
+    expect(thresholdOff.on).toBe(false);
+    expect(tracker(modelFor(), 'account.World 3.construction').paired).toBe(false);
+  });
 });
 
 describe('matchesFilter', () => {

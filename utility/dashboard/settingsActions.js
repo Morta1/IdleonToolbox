@@ -14,9 +14,9 @@ const withOption = (config, tracker, optionName, update) => withTracker(config, 
 });
 
 export const toggleTracker = (config, tracker) => withTracker(config, tracker, (ref) => {
-  // A compact row shows one switch for the tracker and its only option, so turning it on must
+  // A paired tracker shows one switch for itself and its only option, so turning it on must
   // switch both; turning it off only gates the tracker, like every other switch.
-  if (tracker.compact && ref.options?.length === 1 && !tracker.on) {
+  if (tracker.paired && ref.options?.length === 1 && !tracker.on) {
     ref.checked = true;
     ref.options[0].checked = true;
   } else {
@@ -62,9 +62,8 @@ export const setSectionOn = (config, section, on) => {
   section.trackers.forEach((tracker) => {
     const ref = trackerIn(next, tracker);
     ref.checked = on;
-    // Same rule as toggleTracker: a compact row only reads as on when its single switch option is on too.
-    const [only] = ref.options ?? [];
-    if (on && tracker.compact && ref.options.length === 1 && only.type !== 'input' && only.type !== 'array') only.checked = true;
+    // Same rule as toggleTracker: a paired tracker only reads as on when its single option is on too.
+    if (on && tracker.paired && ref.options?.length === 1) ref.options[0].checked = true;
   });
   return next;
 };

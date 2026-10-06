@@ -75,8 +75,10 @@ const OptionList = ({ tracker, highlightOption, highlightKey, onAction }) => {
 };
 
 const TrackerCard = ({ tracker, expanded, onToggleExpanded, highlightOption = null, highlight = false, highlightKey = null, onAction }) => {
-  const [ref, highlighted] = useHighlightTarget(highlight && !highlightOption, highlightKey);
+  // The inline number sits in the header, so a deep link to it lands on the card itself.
+  const [ref, highlighted] = useHighlightTarget(highlight && (!highlightOption || highlightOption === tracker.inline), highlightKey);
   const inline = tracker.inline ? tracker.options.find(({ name }) => name === tracker.inline) : null;
+  const hasBody = tracker.options.length > (inline ? 1 : 0);
   return <Paper ref={ref} variant="outlined" data-highlighted={highlighted ? 'true' : undefined} sx={{ transition: 'background-color .4s', bgcolor: highlighted ? 'action.selected' : 'background.paper' }}>
     <Stack direction="row" alignItems="center" gap={1.5} sx={{ px: 1, py: 1, minHeight: 56, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
       <TrackerSwitch tracker={tracker} onAction={onAction}/>
@@ -89,13 +91,13 @@ const TrackerCard = ({ tracker, expanded, onToggleExpanded, highlightOption = nu
       </Box>
       {inline ? <NumberField option={inline} tracker={tracker} onAction={onAction} ariaLabel={`${tracker.label} ${inline.label}`}/> : null}
       {tracker.edited ? <Button size="small" sx={{ minHeight: { xs: 44 } }} onClick={() => onAction('resetPath', tracker.path)}>Reset</Button> : null}
-      {tracker.options.length > (inline ? 1 : 0)
+      {hasBody
         ? <IconButton aria-label={`${expanded ? 'Hide' : 'Show'} ${tracker.label} options`} aria-expanded={expanded}
                       onClick={onToggleExpanded} sx={{ width: 44, height: 44 }}>
           {expanded ? <ExpandLessIcon/> : <ExpandMoreIcon/>}
         </IconButton> : null}
     </Stack>
-    {expanded ? <Box sx={{ px: { xs: 1.5, sm: 2 }, pb: 2, pl: { sm: 8 }, borderTop: 1, borderColor: 'divider' }}>
+    {expanded && hasBody ? <Box sx={{ px: { xs: 1.5, sm: 2 }, pb: 2, pl: { sm: 8 }, borderTop: 1, borderColor: 'divider' }}>
       {!tracker.on ? <Typography variant="body2" sx={{ mt: 1.5, p: 1, borderRadius: 1, bgcolor: 'action.hover' }}>
         {tracker.label} alerts are off. These options are kept and still editable: they apply when you turn it back on.
       </Typography> : null}

@@ -39,6 +39,10 @@ const buildTracker = (configType, section, name, tracker, baseTracker, edits) =>
   });
   const counted = options.filter((option) => !option.foldInto);
   const compact = options.length === 0 || (options.length === 1 && isOnOff(options[0]));
+  // One switch stands for the tracker and its only option, so the option's checkbox (which the
+  // alert code gates on) is never shown on its own: a compact row, or a card whose only option
+  // is the inline number.
+  const paired = options.length === 1 && (compact || meta.inline === options[0].name);
   return {
     configType,
     section,
@@ -50,8 +54,9 @@ const buildTracker = (configType, section, name, tracker, baseTracker, edits) =>
     unit: meta.unit ?? null,
     inline: meta.inline ?? null,
     checked: Boolean(tracker.checked),
-    on: Boolean(tracker.checked) && (options.length === 1 && compact ? Boolean(options[0].checked) : true),
+    on: Boolean(tracker.checked) && (paired ? Boolean(options[0].checked) : true),
     compact,
+    paired,
     options,
     onCount: counted.filter((option) => option.checked).length,
     total: counted.length,
