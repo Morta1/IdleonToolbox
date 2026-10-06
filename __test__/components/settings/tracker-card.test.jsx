@@ -79,6 +79,13 @@ describe('CompactRow', () => {
     expect(onAction).toHaveBeenCalledWith('toggleTracker', tracker);
   });
 
+  it('an alert without an icon shows the first letter of its label', () => {
+    const tracker = trackerFor('account.General.materialTracker');
+    expect(tracker.icon).toBeNull();
+    const container = renderIn(<CompactRow tracker={tracker} onAction={() => {}}/>);
+    expect(container.querySelector('[data-letter-badge]').textContent).toBe('M');
+  });
+
   it('edited rows show a Reset for the whole alert', () => {
     const onAction = vi.fn();
     const tracker = trackerFor('characters.bags', { 'characters.bags.unmaxedBags': { checked: false } });

@@ -39,12 +39,19 @@ describe('SectionPane', () => {
 });
 
 describe('SettingsNav', () => {
+  it('shows a letter badge where a section has no icon', () => {
+    const model = modelFor();
+    const container = renderIn(<SettingsNav model={model} tabIndex={0} onTabChange={() => {}} sectionKey="account.General" onSectionChange={() => {}} onTrackerJump={() => {}}/>);
+    const badges = [...container.querySelectorAll('[data-letter-badge]')].map((badge) => badge.textContent);
+    expect(badges).toEqual(['G', '1', '2', '3', '4', '5', '6', '7']);
+  });
+
   it('marks edited tabs and sections and switches section', () => {
     const onSectionChange = vi.fn();
     const model = modelFor({ 'account.World 3.library.books': { value: 30 } });
     const container = renderIn(<SettingsNav model={model} tabIndex={0} onTabChange={() => {}} sectionKey="account.General" onSectionChange={onSectionChange} onTrackerJump={() => {}}/>);
     expect(container.textContent).toContain('has edits');
-    fireEvent.click([...container.querySelectorAll('button')].find((b) => b.textContent.startsWith(world3(model).label)));
+    fireEvent.click([...container.querySelectorAll('button')].find((b) => b.textContent.includes(world3(model).label)));
     expect(onSectionChange).toHaveBeenCalledWith('account.World 3');
   });
 });

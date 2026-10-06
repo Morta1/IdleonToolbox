@@ -76,7 +76,7 @@ describe('DashboardSettings window', () => {
   it('a nav jump tints the alert', () => {
     render(<Harness/>);
     const navButton = (match) => [...document.body.querySelectorAll('nav[aria-label="Account sections"] button')].find(match);
-    fireEvent.click(navButton((b) => b.textContent.startsWith('World 3')));
+    fireEvent.click(navButton((b) => b.textContent.includes('World 3')));
     expect(document.body.querySelector('[data-highlighted="true"]')).toBeFalsy();
     fireEvent.click(navButton((b) => b.textContent === 'Traps'));
     expect(document.body.querySelector('[data-highlighted="true"]')?.textContent).toContain('Traps');

@@ -12,10 +12,11 @@ import { prefix } from '@utility/helpers';
 import EditedTag, { OffTag } from './EditedTag';
 import OptionRow, { NumberField } from './OptionRow';
 import { useHighlightTarget } from './useHighlightTarget';
+import LetterBadge from './LetterBadge';
 
 const TrackerIcon = ({ tracker }) => tracker.icon
   ? <img src={`${prefix}${tracker.icon}.png`} alt="" width={28} height={28} style={{ objectFit: 'contain', opacity: tracker.on ? 1 : 0.4 }}/>
-  : <Box sx={{ width: 28, height: 28, borderRadius: 1.5, bgcolor: 'action.hover', flexShrink: 0, opacity: tracker.on ? 1 : 0.4 }}/>;
+  : <LetterBadge label={tracker.label} size={28} radius={1.5} sx={{ opacity: tracker.on ? 1 : 0.4 }}/>;
 
 const TrackerSwitch = ({ tracker, onAction }) => <Switch
   checked={tracker.on}

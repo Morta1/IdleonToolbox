@@ -1,5 +1,4 @@
 import React from 'react';
-import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
 import Stack from '@mui/material/Stack';
 import ToggleButton from '@mui/material/ToggleButton';
@@ -7,6 +6,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography';
 import { prefix } from '@utility/helpers';
 import { EditedDot } from './EditedTag';
+import LetterBadge from './LetterBadge';
 
 const LONG_SECTION = 6;
 
@@ -29,7 +29,7 @@ const SettingsNav = ({ model, tabIndex, onTabChange, sectionKey, onSectionChange
                       sx={{ justifyContent: 'flex-start', gap: 1.25, px: 1.25, minHeight: { xs: 52, sm: 38 }, borderRadius: 1.5, bgcolor: selected ? 'action.selected' : 'transparent' }}>
             {section.icon
               ? <img src={`${prefix}${section.icon}.png`} alt="" width={22} height={22} style={{ objectFit: 'contain' }}/>
-              : <Box sx={{ width: 22, height: 22, borderRadius: 1, bgcolor: 'action.hover' }}/>}
+              : <LetterBadge label={section.label} size={22} radius={1}/>}
             <Typography variant="body2" sx={{ flex: 1, textAlign: 'left' }}>{section.label}</Typography>
             {section.edited ? <EditedDot/> : null}
             <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace' }}>{section.onCount}/{section.total}</Typography>
