@@ -81,3 +81,15 @@ describe('SearchResults', () => {
     expect(container.textContent).toContain('No alerts match "bubbel"');
   });
 });
+
+describe('SearchResults with a paired inline tracker', () => {
+  it('shows the switch and the inline number, not a lone checkbox', () => {
+    const model = modelFor();
+    const results = searchModel(model, 'books').filter(({ tracker }) => tracker.path === 'account.World 3.library');
+    const container = renderIn(<SearchResults results={results} query="books" onAction={() => {}} onShow={() => {}}/>);
+    const library = results[0].tracker;
+    expect(container.querySelector(`[aria-label="${library.label} alerts"]`)).toBeTruthy();
+    expect(container.querySelector('input[type="number"]')).toBeTruthy();
+    expect(container.querySelector(`[aria-label="${library.options[0].label}"]`)).toBeFalsy();
+  });
+});

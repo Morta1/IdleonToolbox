@@ -114,9 +114,13 @@ export const searchModel = (model, query) => {
   const results = [];
   model.forEach((tab) => tab.sections.forEach((section) => section.trackers.forEach((tracker) => {
     if (hit(section.label, tracker.label, tracker.name)) results.push({ tab, section, tracker, option: null });
+    // A paired tracker's only option has no row of its own anywhere, so a hit on it is a hit on the tracker.
+    const trackerListed = () => results.some((result) => result.tracker === tracker && !result.option);
     tracker.options.forEach((option) => {
       if (option.foldInto) return;
-      if (hit(tracker.label, option.label, option.help, option.name)) results.push({ tab, section, tracker, option });
+      if (!hit(tracker.label, option.label, option.help, option.name)) return;
+      if (!tracker.paired) results.push({ tab, section, tracker, option });
+      else if (!trackerListed()) results.push({ tab, section, tracker, option: null });
     });
   })));
   return results;

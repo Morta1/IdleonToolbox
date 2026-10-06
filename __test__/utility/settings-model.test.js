@@ -107,3 +107,12 @@ describe('searchModel', () => {
     expect(searchModel(modelFor(), '   ')).toEqual([]);
   });
 });
+
+describe('searchModel and paired trackers', () => {
+  it('an option hit on a paired tracker returns the tracker once', () => {
+    const model = modelFor();
+    const library = searchModel(model, 'books').filter(({ tracker }) => tracker.path === 'account.World 3.library');
+    expect(library).toHaveLength(1);
+    expect(library[0].option).toBeNull();
+  });
+});

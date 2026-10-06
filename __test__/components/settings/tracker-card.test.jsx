@@ -100,4 +100,11 @@ describe('CompactRow', () => {
     fireEvent.click([...container.querySelectorAll('button')].find((b) => b.textContent === 'Reset'));
     expect(onAction).toHaveBeenCalledWith('resetPath', 'characters.bags');
   });
+
+  it('paired inline cards do not count options', () => {
+    const tracker = trackerFor('account.World 3.library');
+    expect(tracker.paired).toBe(true);
+    const container = renderIn(<TrackerCard tracker={tracker} expanded={false} onToggleExpanded={() => {}} onAction={() => {}}/>);
+    expect(container.textContent).not.toContain('options on');
+  });
 });

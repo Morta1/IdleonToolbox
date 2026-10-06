@@ -93,7 +93,8 @@ const TrackerCard = ({ tracker, expanded, onToggleExpanded, highlightOption = nu
         <Typography variant="body1" fontWeight={500}>
           {tracker.label}{tracker.edited ? <EditedTag/> : null}{!tracker.on ? <OffTag kept={tracker.options.length > 0}/> : null}
         </Typography>
-        <Typography variant="caption" color="text.secondary">{tracker.onCount} of {tracker.total} options on</Typography>
+        {!tracker.paired
+          ? <Typography variant="caption" color="text.secondary">{tracker.onCount} of {tracker.total} options on</Typography> : null}
         <TrackerLink tracker={tracker}/>
       </Box>
       {inline ? <NumberField option={inline} tracker={tracker} onAction={onAction} ariaLabel={`${tracker.label} ${inline.label}`}/> : null}

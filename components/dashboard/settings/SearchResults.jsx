@@ -6,7 +6,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { optionExtras } from '@utility/dashboard/settingsModel';
 import OptionRow from './OptionRow';
-import { CompactRow } from './TrackerCard';
+import TrackerCard, { CompactRow } from './TrackerCard';
 
 const groupKey = ({ tab, section }) => [tab.label, section.section ? section.label : null].filter(Boolean).join(' · ');
 
@@ -33,7 +33,9 @@ const SearchResults = ({ results, query, onAction, onShow }) => {
             <Typography variant="caption" color="text.secondary">{key} › {result.tracker.label}</Typography>
             {result.option
               ? <OptionRow option={result.option} tracker={result.tracker} onAction={onAction} {...optionExtras(result.tracker, result.option)}/>
-              : <CompactRow tracker={result.tracker} onAction={onAction}/>}
+              : result.tracker.inline
+                ? <TrackerCard tracker={result.tracker} expanded={false} onToggleExpanded={() => {}} onAction={onAction}/>
+                : <CompactRow tracker={result.tracker} onAction={onAction}/>}
           </Box>
           <Button size="small" sx={{ whiteSpace: 'nowrap', minHeight: { xs: 44, sm: 30 } }} onClick={() => onShow(result)}>
             Show in {result.section.label}
