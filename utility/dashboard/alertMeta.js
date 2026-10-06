@@ -94,7 +94,11 @@ export const alertMeta = {
         help: 'Alerts when your total character levels unlock another character.',
         group: 'Account'
       },
-      gemsFromBosses: { label: 'Boss kills left for gems', group: 'Account' },
+      gemsFromBosses: {
+        label: 'Daily boss gem fights left',
+        help: 'World boss fights can drop gems for your first 150 fights each day, once you buy the World 2 merit for boss gem drops.',
+        group: 'Account'
+      },
       familyObols: { label: 'Empty family obol slots', group: 'Account' },
       freeCompanion: { label: 'Free companion to claim', group: 'Events' },
       petMartGems: { label: 'Free Pet Mart gems', group: 'Events' },
@@ -201,7 +205,11 @@ export const alertMeta = {
         dependsOn: 'vials',
         group: 'Vials'
       },
-      alternateParticles: { label: 'Alternate particle upgrades available', group: 'Cauldrons' }
+      alternateParticles: {
+        label: 'Particle bubble upgrades left today',
+        help: 'Boron lets you pay particles instead of resources for bubbles costing 100M or more, a few times a day. Unused uses are lost at the daily reset.',
+        group: 'Cauldrons'
+      }
     }
   },
   'account.World 2.islands': {
