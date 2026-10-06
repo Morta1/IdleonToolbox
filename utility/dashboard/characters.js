@@ -119,7 +119,7 @@ export const alchemyAlerts = (account, characters, character, lastUpdated, optio
       alerts.missingBubbles = character?.equippedBubbles?.length < maxEquippedBubbles;
     }
   }
-  if (account?.alchemy?.activities?.[character?.playerId]?.activity === -1) {
+  if (options?.alchemy?.noActivity?.checked && account?.alchemy?.activities?.[character?.playerId]?.activity === -1) {
     alerts.noActivity = true;
   }
   return alerts;
@@ -372,15 +372,17 @@ export const cardsAlert = (account, characters, character, lastUpdated, options)
         text: `${character.name} is skilling but has fighting card set (${cardSetEffect})`
       };
     }
-    const hasPassiveCardsEquipped = character?.cards?.equippedCards?.filter(({ effect }) => effect?.includes('(Passive)') || effect?.includes('(P)'));
-    if (hasPassiveCardsEquipped?.length > 0) {
-      alerts.passiveCards = true;
-    }
     // const hasEmptySlots = character?.cards?.equippedCards?.filter(({ cardName }) => !cardName);
     // if (hasEmptySlots) {
     //   alerts.emptyCards = true;
     // }
     // alerts.cardSet = character?.level >= 50 && character?.cards?.cardSet?.rawName === 'CardSet0';
+  }
+  if (options?.cards?.passiveCards?.checked) {
+    const hasPassiveCardsEquipped = character?.cards?.equippedCards?.filter(({ effect }) => effect?.includes('(Passive)') || effect?.includes('(P)'));
+    if (hasPassiveCardsEquipped?.length > 0) {
+      alerts.passiveCards = true;
+    }
   }
   return alerts;
 }

@@ -1079,11 +1079,11 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
   if (!account?.finishedWorlds?.World4) return alerts;
   if (fields?.gaming?.checked && account?.gaming?.unlocked) {
     const gaming = {};
-    const { shovel, sprouts, squirrel } = options?.gaming || {};
+    const { shovel, sprouts, squirrel, drops } = options?.gaming || {};
     if (sprouts?.checked && account?.gaming?.availableSprouts >= account?.gaming?.sproutsCapacity) {
       gaming.sprouts = account?.gaming?.availableSprouts;
     }
-    if (sprouts?.checked && account?.gaming?.availableDrops >= account?.gaming?.sproutsCapacity) {
+    if (drops?.checked && account?.gaming?.availableDrops >= account?.gaming?.sproutsCapacity) {
       gaming.drops = account?.gaming?.availableDrops;
     }
     const shovelUnlocked = account?.gaming?.imports?.find(({ name, acquired }) => name === 'Dirty_Shovel' && acquired);

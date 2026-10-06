@@ -383,6 +383,7 @@ export const baseTrackers = {
       gaming: {
         checked: true, options: [
           { name: 'sprouts', checked: true },
+          { name: 'drops', checked: true },
           {
             name: 'squirrel',
             type: 'input',
@@ -763,7 +764,7 @@ export const baseTrackers = {
     }
   },
   characters: {
-    cards: { checked: true, options: [{ name: 'cardSet', checked: true }] },
+    cards: { checked: true, options: [{ name: 'cardSet', checked: true }, { name: 'passiveCards', checked: true }] },
     anvil: {
       checked: true,
       options: [
@@ -798,7 +799,7 @@ export const baseTrackers = {
         helperText: 'Alert when a character hasn\'t completed any of the Picnic Stowaway daily quests today'
       }]
     },
-    alchemy: { checked: true, options: [{ name: 'missingBubbles', checked: true }] },
+    alchemy: { checked: true, options: [{ name: 'missingBubbles', checked: true }, { name: 'noActivity', checked: true }] },
     obols: { checked: true, options: [{ name: 'missingObols', checked: true }] },
     postOffice: {
       checked: true,
