@@ -234,6 +234,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
                                                                                                     cooldown
                                                                                                   }, index) => (
         <Alert target={'talents.talents'} key={skillIndex + '-' + index}
+               items={[{ key: name, label: cleanUnderscore(pascalCase(name)) }]}
                style={{ opacity: cooldown > 0 ? .5 : 1 }}
                title={cooldown > 0
                  ? <Timer type={'countdown'}
@@ -277,6 +278,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
           const ready = crystalCountdown > 0 && Math.floor(reduction) >= Math.floor(crystalCountdown);
           if (!showMaxed && ready || !showNonMaxed && (showMaxed && !ready) || (!showNonMaxed && !showMaxed)) return null;
           return <Alert target={'crystalCountdown'} key={icon + '-' + index + '-' + characterIndex}
+                        items={[{ key: icon, label: cleanUnderscore(pascalCase(name)) }]}
                         style={{
                           border: '1px solid',
                           borderColor: ready ? '#66bb6a' : reduction > 0 ? '#d1921e' : '',

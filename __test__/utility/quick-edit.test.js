@@ -133,3 +133,25 @@ describe('buildQuickEdit', () => {
     expect(result.trackerSwitch).toBe(false);
   });
 });
+
+describe('call site key shapes', () => {
+  const cases = [
+    ['account', 'General.etc.arcanistDailyDrops', 'weapon'],
+    ['account', 'General.shops.items', 'CraftMat3'],
+    ['account', 'World 2.postOffice.dailyShipments', 3],
+    ['account', 'World 3.construction.materials', 'Refinery1'],
+    ['account', 'World 3.construction.rankUp', 'Refinery1'],
+    ['account', 'World 3.construction.saltDeficit', 'Refinery1'],
+    ['account', 'World 3.construction.saltRankUpRoom', 'Refinery1'],
+    ['account', 'World 3.printer.atoms', 'Copper'],
+    ['account', 'World 7.minehead.currencyUpgrades', 'MineUpg5'],
+    ['account', 'World 7.sushiStation.shakerUses', 'SushiUpg17'],
+    ['characters', 'talents.talents', 'PRINTER_GO_BRRR'],
+    ['characters', 'crystalCountdown', 'ClassIcons42'],
+    ['timers', 'World 3.closestSalt', 'Refinery1'],
+    ['timers', 'World 5.villagers', 'explore']
+  ];
+  it.each(cases)('%s %s resolves item %s', (configType, target, key) => {
+    expect(quick(configType, target, { items: [{ key }] }).kind).toBe('pickerItems');
+  });
+});
