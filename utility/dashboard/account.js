@@ -221,7 +221,8 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
         etc.newCharacters = newCharactersCounter;
       }
     }
-    if (options?.etc?.gemsFromBosses?.checked) {
+    // Bosses only drop gems once the World 2 merit "World bosses can now drop gems" (Tasks[2][1][4]) is bought.
+    if (options?.etc?.gemsFromBosses?.checked && account?.tasks?.[2]?.[1]?.[4] > 0) {
       const availableKills = Math.max(0, (600 - account?.accountOptions?.[195]) / 4);
       if (availableKills) {
         alerts.gemsFromBosses = availableKills;
