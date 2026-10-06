@@ -214,7 +214,7 @@ export const isTalentReady = (character, options) => {
   const cooldownBonus = getPostOfficeBonus(postOffice, 'Magician_Starterpack', 2);
   const cdReduction = Math.max(0, cooldownBonus);
   const timePassed = (new Date().getTime() - afkTime) / 1000;
-  if (!cooldowns) return [];
+  if (!cooldowns || !talents?.talents?.checked) return [];
   return Object.entries(cooldowns || {})?.reduce((res, [tId, talentCd]) => {
     if (!relevantTalents[tId]) return res;
     const talent = flatTalents?.find(({ talentId }) => parseInt(tId) === talentId);
@@ -233,7 +233,7 @@ export const isTalentReady = (character, options) => {
 }
 export const crystalCooldownSkillsReady = (character, options) => {
   // -1 != e.indexOf("Crystal")
-  if (checkCharClass(character?.class, CLASSES.Maestro)) {
+  if (checkCharClass(character?.class, CLASSES.Maestro) && options?.crystalCountdown?.skills?.checked) {
     return Object.entries(character?.skillsInfo || {})?.reduce((res, [name, data]) => {
       if (data?.index < 10 && name !== 'character' && options?.crystalCountdown?.skills?.props?.value?.[data?.icon]) {
         const crystalCountdown = getTalentBonus(character?.flatTalents, 'CRYSTAL_COUNTDOWN');

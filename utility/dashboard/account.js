@@ -79,7 +79,7 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
     const allTasks = account?.tasksDescriptions?.reduce((acc, tasks, worldIndex) => {
       const ninthTask = tasks?.[8];
       const ninthTaskNotCompleted = ninthTask?.level === 0;
-      if (ninthTaskNotCompleted && tasksOptions?.props?.value?.[worldIndex + 1]) {
+      if (ninthTaskNotCompleted && tasksOptions?.checked && tasksOptions?.props?.value?.[worldIndex + 1]) {
         return [...acc, worldIndex];
       }
       else {
@@ -152,7 +152,9 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
       else if (index === 7 && !account?.finishedWorlds?.World5) {
         return [...res, []];
       }
-      const filtered = shop?.filter(({ rawName }) => options?.shops?.shops?.props?.value?.[rawName]);
+      const filtered = options?.shops?.shops?.checked
+        ? shop?.filter(({ rawName }) => options?.shops?.shops?.props?.value?.[rawName])
+        : [];
       return [...res, filtered];
     }, []);
     const boughtEverything = allShops?.flat()?.length;
@@ -704,7 +706,7 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
       rawName: name,
       ...data
     }));
-    if (atoms.length > 0) {
+    if (includeResource?.checked && atoms.length > 0) {
       printer.atoms = atoms;
     }
     if (Object.keys(printer).length > 0) {

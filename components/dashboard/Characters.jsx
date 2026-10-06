@@ -92,7 +92,13 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
       }), {});
       return { ...result, [trackerName]: { ...rest, ...optionObject } }
     }, {});
+    // An alert switched off computes nothing: since the switch stopped unticking every option, the
+    // trackers?.x checks below would otherwise still show it.
     const alerts = Object.keys(options)?.reduce((result, trackerName) => {
+      if (!options[trackerName]?.checked) {
+        result[trackerName] = {};
+        return result;
+      }
       result[trackerName] = alertsMap?.[trackerName]?.(account, characters, character, lastUpdated, options) || {};
       return result;
     }, {});
