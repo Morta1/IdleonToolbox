@@ -1,0 +1,70 @@
+// @vitest-environment jsdom
+import '../../../polyfills';
+import React from 'react';
+import { describe, expect, it, vi } from 'vitest';
+import { fireEvent, render } from '@testing-library/react';
+import { ThemeProvider } from '@mui/material';
+import darkTheme from '../../../styles/theme/darkTheme';
+import { baseTrackers } from '@utility/dashboard/baseTrackers';
+import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
+import { allTrackers, buildModel } from '@utility/dashboard/settingsModel';
+import TrackerCard, { CompactRow } from '@components/dashboard/settings/TrackerCard';
+
+const trackerFor = (path, edits = {}) => {
+  const config = resolveTrackers(baseTrackers, edits);
+  return allTrackers(buildModel(config, baseTrackers, diffTrackers(baseTrackers, config))).find((t) => t.path === path);
+};
+const renderIn = (node) => render(<ThemeProvider theme={darkTheme}>{node}</ThemeProvider>).container;
+
+describe('TrackerCard', () => {
+  it('collapsed: switch, summary and expand', () => {
+    const onAction = vi.fn();
+    const onToggleExpanded = vi.fn();
+    const tracker = trackerFor('account.World 3.construction');
+    const container = renderIn(<TrackerCard tracker={tracker} expanded={false} onToggleExpanded={onToggleExpanded} onAction={onAction}/>);
+    expect(container.textContent).toContain(`${tracker.onCount} of ${tracker.total} options on`);
+    fireEvent.click(container.querySelector(`[aria-label="${tracker.label} alerts"]`));
+    expect(onAction).toHaveBeenCalledWith('toggleTracker', tracker);
+    fireEvent.click(container.querySelector('[aria-expanded="false"]'));
+    expect(onToggleExpanded).toHaveBeenCalled();
+  });
+
+  it('off with options: tag, note and still editable options', () => {
+    const tracker = trackerFor('account.World 3.construction', { 'account.World 3.construction': { checked: false } });
+    const container = renderIn(<TrackerCard tracker={tracker} expanded onToggleExpanded={() => {}} onAction={() => {}}/>);
+    expect(container.textContent).toContain('Off: settings kept');
+    expect(container.textContent).toContain('These options are kept and still editable');
+    expect([...container.querySelectorAll('input[type="checkbox"]')].some((input) => !input.disabled)).toBe(true);
+  });
+
+  it('edited cards show the tag and a Reset for the whole alert', () => {
+    const onAction = vi.fn();
+    const tracker = trackerFor('account.World 3.library', { 'account.World 3.library.books': { value: 30 } });
+    const container = renderIn(<TrackerCard tracker={tracker} expanded={false} onToggleExpanded={() => {}} onAction={onAction}/>);
+    expect(container.textContent).toContain('Edited');
+    // The inline number has its own Reset; the card-level one comes last in the header.
+    fireEvent.click([...container.querySelectorAll('button')].filter((b) => b.textContent === 'Reset').at(-1));
+    expect(onAction).toHaveBeenCalledWith('resetPath', 'account.World 3.library');
+  });
+
+  it('groups Royal Guardian options and disables a dependent while its parent is off', () => {
+    const tracker = trackerFor('account.World 7.royalGuardian', { 'account.World 7.royalGuardian.overkillWorkers': { checked: false } });
+    const container = renderIn(<TrackerCard tracker={tracker} expanded onToggleExpanded={() => {}} onAction={() => {}}/>);
+    const groups = tracker.options.map(({ group }) => group).filter(Boolean);
+    groups.forEach((group) => expect(container.textContent.toUpperCase()).toContain(group.toUpperCase()));
+    const child = container.querySelector(`input[aria-label="${tracker.options.find(({ name }) => name === 'overkillBeforeReset').label}"]`);
+    expect(child.disabled).toBe(true);
+  });
+});
+
+describe('CompactRow', () => {
+  it('one switch for a single-option alert', () => {
+    const onAction = vi.fn();
+    const tracker = trackerFor('characters.bags');
+    const container = renderIn(<CompactRow tracker={tracker} onAction={onAction}/>);
+    const toggle = container.querySelector(`[aria-label="${tracker.label} alerts"]`);
+    expect(toggle.checked).toBe(true);
+    fireEvent.click(toggle);
+    expect(onAction).toHaveBeenCalledWith('toggleTracker', tracker);
+  });
+});
