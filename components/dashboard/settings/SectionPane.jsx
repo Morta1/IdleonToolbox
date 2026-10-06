@@ -35,7 +35,7 @@ const SectionPane = ({ section, filter, expanded, onToggleExpanded, target, onAc
       <Typography fontWeight={500}>{filter === 'off' ? `Every ${section.label} alert is on` : `No ${section.label} alerts match this filter`}</Typography>
       <Button sx={{ mt: 1.5, ...buttonSx }} variant="outlined" onClick={onShowAll}>Show all alerts</Button>
     </Paper> : null}
-    {compact.length ? <Box sx={{ display: 'grid', gap: 1, gridTemplateColumns: { xs: '1fr', md: compact.length > 1 ? 'repeat(2, minmax(0, 1fr))' : '1fr' } }}>
+    {compact.length ? <Box sx={{ display: 'grid', gap: 1 }}>
       {compact.map((tracker) => <CompactRow key={tracker.path} tracker={tracker} onAction={onAction}
                                             highlight={target?.path === tracker.path} highlightKey={target}/>)}
     </Box> : null}
