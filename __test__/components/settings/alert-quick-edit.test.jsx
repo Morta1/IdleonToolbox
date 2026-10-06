@@ -67,6 +67,8 @@ describe('AlertQuickEdit', () => {
     const dialog = open(quickEdit, { onAction });
     fireEvent.click(byLabel(dialog, 'Watch Frigid Soul'));
     expect(onAction).toHaveBeenCalledWith('togglePickerItem', quickEdit.tracker, 'saltBalance', 'Refinery2');
+    // No checkbox that would turn the alert off for every salt.
+    expect(byLabel(dialog, 'Show this alert')).toBeNull();
   });
 
   it('character alerts say they apply to every character', () => {
@@ -74,11 +76,11 @@ describe('AlertQuickEdit', () => {
     expect(dialog.textContent).toContain('Applies to every character');
   });
 
-  it('single-alert trackers show the tracker switch', () => {
+  it('single-alert trackers show a Show this alert checkbox for the tracker', () => {
     const onAction = vi.fn();
     const quickEdit = quickFor('characters', 'tools');
     const dialog = open(quickEdit, { onAction });
-    fireEvent.click(byLabel(dialog, `${quickEdit.tracker.label} alerts`));
+    fireEvent.click(byLabel(dialog, 'Show this alert'));
     expect(onAction).toHaveBeenCalledWith('toggleTracker', quickEdit.tracker);
   });
 
@@ -116,10 +118,10 @@ describe('AlertQuickEdit', () => {
     expect(dialog.querySelector('input[type="number"]').disabled).toBe(true);
   });
 
-  it('timers with a picker item show the tracker switch and Watch <item>', () => {
+  it('timers with a picker item show Show this alert and Watch <item>', () => {
     const quickEdit = quickFor('timers', 'World 3.closestSalt', { items: [{ key: 'Refinery1', label: 'Redox Salts' }] });
     const dialog = open(quickEdit);
-    expect(byLabel(dialog, `${quickEdit.tracker.label} alerts`)).toBeTruthy();
+    expect(byLabel(dialog, 'Show this alert')).toBeTruthy();
     expect(byLabel(dialog, 'Watch Redox Salts')).toBeTruthy();
   });
 

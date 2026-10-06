@@ -6,7 +6,6 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Drawer from '@mui/material/Drawer';
 import Popover from '@mui/material/Popover';
 import Stack from '@mui/material/Stack';
-import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -30,11 +29,9 @@ const OptionCheck = ({ option, tracker, label, disabled, onAction }) => <Check
   label={label ?? option.label} checked={option.checked} disabled={disabled}
   onChange={() => onAction('toggleOption', tracker, option.name)}/>;
 
-const TrackerToggle = ({ tracker, onAction }) => <FormControlLabel
-  sx={ROW}
-  label={<Typography variant="body2">{tracker.label} alerts</Typography>}
-  control={<Switch checked={tracker.on} onChange={() => onAction('toggleTracker', tracker)}
-                   inputProps={{ 'aria-label': `${tracker.label} alerts` }}/>}/>;
+// The popover shows one alert, so its on/off is the same checkbox whether it maps to the tracker or an option.
+const TrackerToggle = ({ tracker, onAction }) => <Check label="Show this alert" checked={tracker.on}
+                                                        onChange={() => onAction('toggleTracker', tracker)}/>;
 
 const WorldRow = ({ row, option, tracker, disabled, onAction }) => {
   const [draft, setDraft] = useState(null);
@@ -95,12 +92,16 @@ const Body = ({ quickEdit, onAction }) => {
   }
   const { disabledReason } = optionExtras(tracker, option);
   const locked = Boolean(disabledReason);
+  // On an alert about one item, the option checkbox would turn off the alert for every item, so
+  // only its Watch checkbox shows; the whole-option checkbox stays in the full settings.
   const first = trackerSwitch
     ? <TrackerToggle tracker={tracker} onAction={onAction}/>
-    : <OptionCheck option={option} tracker={tracker} label="Show this alert" disabled={locked} onAction={onAction}/>;
+    : kind === 'pickerItems'
+      ? null
+      : <OptionCheck option={option} tracker={tracker} label="Show this alert" disabled={locked} onAction={onAction}/>;
   return <>
     {parent ? <OptionCheck option={parent} tracker={tracker} onAction={onAction}/> : null}
-    <Box sx={parent ? { pl: 3 } : undefined}>{first}</Box>
+    {first ? <Box sx={parent ? { pl: 3 } : undefined}>{first}</Box> : null}
     {disabledReason ? <Typography variant="body2" color="text.secondary">{disabledReason}</Typography> : null}
     {kind === 'threshold' || kind === 'perWorld'
       ? <Stack gap={0.5}>
