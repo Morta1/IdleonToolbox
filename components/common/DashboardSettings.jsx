@@ -33,7 +33,7 @@ import SearchResults from '@components/dashboard/settings/SearchResults';
 
 const TITLE_ID = 'configure-alerts-title';
 const RESET_TEXT_ID = 'configure-alerts-reset-text';
-const TAP = { minWidth: { xs: 44 }, minHeight: { xs: 44 } };
+const TAP = { minWidth: { xs: 44, sm: 'auto' }, minHeight: { xs: 44, sm: 'auto' } };
 const notAConfig = (fileName) => `${fileName} isn't an alert config. Nothing was changed. Pick a file made with Export.`;
 
 const FILTER_LABELS = { all: 'All', on: 'On', off: 'Off', edited: 'Edited', threshold: 'Has threshold' };
@@ -60,7 +60,11 @@ const DashboardSettings = ({
   // The dialog stays mounted while closed, so every opening re-points it: at the alert that
   // opened it, or back to the first section.
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setUndo(null);
+      return;
+    }
+    setUndo(null);
     const resolved = resolveSettingsTarget(config, target?.configType, target?.path);
     setQuery('');
     setImportError(null);
@@ -154,7 +158,7 @@ const DashboardSettings = ({
       htmlInput: { 'aria-label': 'Search alerts' },
       input: {
         startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small"/></InputAdornment>,
-        endAdornment: query ? <IconButton aria-label="Clear search" size="small" sx={TAP} onClick={() => setQuery('')}><CloseIcon fontSize="small"/></IconButton> : null
+        endAdornment: query ? <IconButton aria-label="Clear search" size="small" sx={{ ...TAP, my: { xs: '-4px', sm: 0 } }} onClick={() => setQuery('')}><CloseIcon fontSize="small"/></IconButton> : null
       }
     }}/>;
 
@@ -190,7 +194,7 @@ const DashboardSettings = ({
   return <>
     <Dialog open={open} onClose={onClose} aria-labelledby={TITLE_ID} fullWidth maxWidth="lg" fullScreen={isSm}
             PaperProps={{ sx: { height: { sm: '90vh' } } }}>
-      <DialogTitle component="div" sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pb: 1.5 }}>
+      <DialogTitle component="div" id="configure-alerts-header" sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pb: 1.5 }}>
         <Stack direction="row" alignItems="center" gap={2}>
           {isSm && mobileDetail && !query
             ? <IconButton aria-label="Back to sections" sx={TAP} onClick={() => setMobileDetail(false)}><ArrowBackIcon/></IconButton> : null}
@@ -222,14 +226,15 @@ const DashboardSettings = ({
             <Box sx={{ flex: 1, minWidth: 0, p: 2.5, overflowY: 'auto' }}>{pane}</Box>
           </>}
       </DialogContent>
-    <Snackbar key={undoCount} open={Boolean(undo)} autoHideDuration={6000} onClose={(e, reason) => {
-                if (reason !== 'clickaway') setUndo(null);
-              }} message={undo?.label}
-              ContentProps={{ role: 'status' }}
-              action={<Button color="primary" size="small" onClick={() => {
-                onChange(undo.previous);
-                setUndo(null);
-              }}>Undo</Button>}/>
+      {undo ? <Snackbar key={undoCount} open autoHideDuration={6000} message={undo.label}
+                        onClose={(e, reason) => {
+                          if (reason !== 'clickaway') setUndo(null);
+                        }}
+                        ContentProps={{ role: 'status' }}
+                        action={<Button color="primary" size="small" onClick={() => {
+                          onChange(undo.previous);
+                          setUndo(null);
+                        }}>Undo</Button>}/> : null}
     </Dialog>
     <Dialog open={confirmReset} onClose={() => setConfirmReset(false)} PaperProps={{ role: 'alertdialog', 'aria-describedby': RESET_TEXT_ID }}>
       <DialogTitle>Reset every alert to default?</DialogTitle>

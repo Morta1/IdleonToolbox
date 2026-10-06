@@ -2,7 +2,7 @@
 import '../../../polyfills';
 import React, { useEffect, useState } from 'react';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../../styles/theme/darkTheme';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
@@ -10,13 +10,13 @@ import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import DashboardSettings from '@components/common/DashboardSettings';
 
 let latest;
-const Harness = ({ target = null, edits = {} }) => {
+const Harness = ({ target = null, edits = {}, open = true }) => {
   const [config, setConfig] = useState(resolveTrackers(baseTrackers, edits));
   useEffect(() => {
     latest = config;
   });
   return <ThemeProvider theme={darkTheme}>
-    <DashboardSettings open onClose={() => {}} config={config} onChange={setConfig} onFileUpload={() => {}}
+    <DashboardSettings open={open} onClose={() => {}} config={config} onChange={setConfig} onFileUpload={() => {}}
                        target={target} hideAlertless={false} onHideAlertlessChange={() => {}}/>
   </ThemeProvider>;
 };
@@ -69,6 +69,7 @@ describe('DashboardSettings window', () => {
     render(<Harness/>);
     fireEvent.click(button('Turn all off'));
     const afterFirst = latest;
+    await act(() => new Promise((resolve) => setTimeout(resolve, 0)));
     fireEvent.click(button('Turn all on'));
     await waitFor(() => expect(button('Undo')).toBeTruthy());
     expect(document.body.querySelector('[role="dialog"] [role="status"]')).toBeTruthy();
@@ -89,5 +90,21 @@ describe('DashboardSettings window', () => {
     } finally {
       window.matchMedia = original;
     }
+  });
+
+  it('clears Undo when the window closes', async () => {
+    const view = render(<Harness/>);
+    fireEvent.click(button('Turn all off'));
+    await waitFor(() => expect(button('Undo')).toBeTruthy());
+    view.rerender(<Harness open={false}/>);
+    view.rerender(<Harness/>);
+    expect(button('Undo')).toBeFalsy();
+  });
+
+  it('labels the dialog by the title alone', () => {
+    render(<Harness/>);
+    const titled = document.body.querySelectorAll('#configure-alerts-title');
+    expect(titled).toHaveLength(1);
+    expect(titled[0].tagName).toBe('H1');
   });
 });
