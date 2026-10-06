@@ -16,6 +16,7 @@ export const patchNotes = [
       'Meritocracy: bonuses (incl. Palette Luck) are no longer too high before the Demonflesh is handed in, and are 0 before reaching World 6',
       'Palette Luck: Colourful Luck and Gamer Luck now use the gaming level of your last played character, like the game does',
       'Grimoire, Compass, Tesseract and Royal Armory upgrade search now works with multiple words',
+      'Sailing and Amber breakdowns: the Tome bonus is now labeled Tome',
       'Dashboard: Royal Guardian Command and Military rank alerts now show the Commander and Knight sprites, and a new Purity rank alert was added'
     ]
   },
