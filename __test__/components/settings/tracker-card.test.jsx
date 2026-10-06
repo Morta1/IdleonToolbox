@@ -29,10 +29,10 @@ describe('TrackerCard', () => {
     expect(onToggleExpanded).toHaveBeenCalled();
   });
 
-  it('off with options: tag, note and still editable options', () => {
+  it('off with options: no tag, a note and still editable options', () => {
     const tracker = trackerFor('account.World 3.construction', { 'account.World 3.construction': { checked: false } });
     const container = renderIn(<TrackerCard tracker={tracker} expanded onToggleExpanded={() => {}} onAction={() => {}}/>);
-    expect(container.textContent).toContain('Off: settings kept');
+    expect(container.textContent).not.toContain('Off: settings kept');
     expect(container.textContent).toContain('These options are kept and still editable');
     expect([...container.querySelectorAll('input[type="checkbox"]')].some((input) => !input.disabled)).toBe(true);
   });

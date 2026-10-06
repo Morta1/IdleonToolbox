@@ -12,7 +12,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import NextLink from 'next/link';
 import { prefix } from '@utility/helpers';
 import { optionExtras } from '@utility/dashboard/settingsModel';
-import EditedTag, { OffTag } from './EditedTag';
+import EditedTag from './EditedTag';
 import OptionRow, { NumberField } from './OptionRow';
 import { useHighlightTarget } from './useHighlightTarget';
 import LetterBadge from './LetterBadge';
@@ -48,7 +48,7 @@ export const CompactRow = ({ tracker, highlight = false, highlightKey = null, on
     <TrackerIcon tracker={tracker}/>
     <Box sx={{ minWidth: 0, flex: 1 }}>
       <Typography variant="body2" fontWeight={500}>
-        {tracker.label}{tracker.edited ? <EditedTag/> : null}{!tracker.on ? <OffTag/> : null}
+        {tracker.label}{tracker.edited ? <EditedTag/> : null}
       </Typography>
       {tracker.options[0] || tracker.unit
         ? <Typography variant="caption" color="text.secondary">{tracker.options[0]?.label ?? tracker.unit}</Typography> : null}
@@ -91,7 +91,7 @@ const TrackerCard = ({ tracker, expanded, onToggleExpanded, highlightOption = nu
       <TrackerIcon tracker={tracker}/>
       <Box sx={{ minWidth: 0, flex: '1 1 140px' }}>
         <Typography variant="body1" fontWeight={500}>
-          {tracker.label}{tracker.edited ? <EditedTag/> : null}{!tracker.on ? <OffTag kept={tracker.options.length > 0}/> : null}
+          {tracker.label}{tracker.edited ? <EditedTag/> : null}
         </Typography>
         {/* "1 of 1 options on" says nothing, so a lone option names itself instead. */}
         {!tracker.paired

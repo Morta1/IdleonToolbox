@@ -11,10 +11,6 @@ export const EditedDot = () => <Box component="span" sx={{ display: 'inline-bloc
   <Box component="span" sx={visuallyHidden}>has edits</Box>
 </Box>;
 
-export const OffTag = ({ kept }) => <Box component="span" sx={{ ...tagSx, color: 'text.primary', bgcolor: 'action.hover' }}>
-  {kept ? 'Off: settings kept' : 'Off'}
-</Box>;
-
 const EditedTag = () => <Box component="span" sx={{ ...tagSx, color: 'primary.light', bgcolor: 'action.selected' }}>
   <Box component="span" sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: 'primary.main' }}/>
   Edited
