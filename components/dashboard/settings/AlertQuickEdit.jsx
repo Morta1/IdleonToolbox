@@ -142,10 +142,10 @@ const AlertQuickEdit = ({ quickEdit, open, anchorPosition, onClose, onAction, on
       </Stack>
       <Body quickEdit={quickEdit} onAction={onAction}/>
       {everyCharacter ? <Typography variant="caption" color="text.secondary">Applies to every character</Typography> : null}
-      <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}
+      <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1} flexWrap="wrap"
              sx={{ borderTop: 1, borderColor: 'divider', pt: 1 }}>
         <Stack direction="row" alignItems="center" gap={0.5}>
-          <Typography variant="caption" color="text.secondary">Saved automatically</Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>Saved automatically</Typography>
           {onUndo ? <Button size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }} onClick={onUndo}>Undo</Button> : null}
         </Stack>
         <Button size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }} onClick={onOpenAll}>All {tracker.label} settings</Button>
