@@ -1,0 +1,73 @@
+import { items as itemData } from '@website-data';
+import { resolveSettingsTarget } from './settingsTarget';
+import { allTrackers, fallbackLabel } from './settingsModel';
+
+const WORLDS = [1, 2, 3, 4, 5, 6, 7];
+const loose = (key) => String(key ?? '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+
+export const matchPickerKey = (option, key) => {
+  const keys = Object.keys(option?.props?.value ?? {});
+  if (keys.includes(String(key))) return String(key);
+  return keys.find((candidate) => loose(candidate) === loose(key)) ?? null;
+};
+
+const itemLabel = (key, label) => label
+  ?? itemData?.[key]?.displayName?.replace(/_/g, ' ')
+  ?? fallbackLabel(key);
+
+const watchedItems = (option, items) => items.reduce((res, { key, label }) => {
+  const match = matchPickerKey(option, key);
+  if (!match || res.some((item) => item.key === match)) return res;
+  return [...res, { key: match, label: itemLabel(match, label), on: Boolean(option.props.value[match]) }];
+}, []);
+
+const worldRows = (option, worlds) => {
+  const perWorld = option.props.perWorld ?? {};
+  return WORLDS.filter((world) => worlds.includes(world)).map((world) => {
+    const overridden = perWorld[world] != null && perWorld[world] !== '';
+    return { world, value: overridden ? perWorld[world] : null, overridden };
+  });
+};
+
+const kindOf = (tracker, option, watched, rows) => {
+  if (tracker.paired || !option) return 'tracker';
+  if (option.type === 'array') return watched.length ? 'pickerItems' : 'picker';
+  if (option.type === 'input') return option.props?.perWorld && rows.length ? 'perWorld' : 'threshold';
+  return 'checkbox';
+};
+
+export const buildQuickEdit = (config, model, configType, target, { items = [], worlds = [] } = {}) => {
+  const resolved = resolveSettingsTarget(config, configType, target);
+  if (!resolved?.trackerName) return null;
+  const path = [configType, resolved.section, resolved.trackerName].filter(Boolean).join('.');
+  const tracker = allTrackers(model).find((candidate) => candidate.path === path);
+  if (!tracker) return null;
+
+  const named = tracker.options.find(({ name }) => name === resolved.optionName) ?? null;
+  // Timer targets name only the tracker, so a timer that passes an item finds its picker that way.
+  const option = named ?? (items.length
+    ? tracker.options.find((candidate) => candidate.type === 'array' && items.some(({ key }) => matchPickerKey(candidate, key)))
+    ?? null
+    : null);
+  const watched = option?.type === 'array' ? watchedItems(option, items) : [];
+  const rows = option?.type === 'input' && option.props?.perWorld ? worldRows(option, worlds) : [];
+  const kind = kindOf(tracker, option, watched, rows);
+  const shown = kind === 'tracker'
+    ? tracker.options.find(({ name }) => name === tracker.inline) ?? null
+    : option;
+
+  return {
+    kind,
+    tracker,
+    option: shown,
+    parent: shown?.dependsOn ? tracker.options.find(({ name }) => name === shown.dependsOn) ?? null : null,
+    dependents: shown ? tracker.options.filter(({ dependsOn }) => dependsOn === shown.name) : [],
+    folded: shown ? tracker.options.filter(({ foldInto }) => foldInto === shown.name) : [],
+    items: kind === 'pickerItems' ? watched : [],
+    worlds: kind === 'perWorld' ? rows : [],
+    everyCharacter: configType === 'characters',
+    trackerSwitch: kind === 'tracker' || configType === 'timers',
+    configType,
+    target
+  };
+};
