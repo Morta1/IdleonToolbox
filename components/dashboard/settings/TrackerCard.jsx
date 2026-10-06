@@ -41,7 +41,7 @@ const TrackerSwitch =({ tracker, onAction }) => <Switch
 export const CompactRow = ({ tracker, highlight = false, highlightKey = null, onAction }) => {
   const [ref, highlighted] = useHighlightTarget(highlight, highlightKey);
   return <Paper ref={ref} variant="outlined" data-highlighted={highlighted ? 'true' : undefined} sx={{
-    display: 'flex', alignItems: 'center', gap: 1.5, px: 1, minHeight: 52,
+    display: 'flex', alignItems: 'center', gap: 1.5, px: 1, py: 1, minHeight: 52,
     transition: 'background-color .4s', bgcolor: highlighted ? 'action.selected' : 'background.paper'
   }}>
     <TrackerSwitch tracker={tracker} onAction={onAction}/>

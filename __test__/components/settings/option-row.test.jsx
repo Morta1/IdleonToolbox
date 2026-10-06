@@ -80,12 +80,21 @@ describe('OptionRow', () => {
   });
 
   it('long help clamps with More and a dependent option explains why it is disabled', () => {
+    // jsdom has no layout: report the clamped line as overflowing.
+    const scroll = vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(60);
     const tracker = trackerFor('account.World 7.royalGuardian');
     const { container } = renderRow(tracker, 'overkillBeforeReset', { disabledReason: 'Turn on More Workers than needed to use this.' });
     const more = [...container.querySelectorAll('button')].find((b) => b.textContent === 'More');
     expect(more?.getAttribute('aria-expanded')).toBe('false');
     expect(container.textContent).toContain('Turn on More Workers than needed to use this.');
     expect(container.querySelector('input[type="checkbox"]').disabled).toBe(true);
+    scroll.mockRestore();
+  });
+
+  it('help that fits its line has no More', () => {
+    const tracker = trackerFor('account.World 7.royalGuardian');
+    const { container } = renderRow(tracker, 'overkillBeforeReset');
+    expect([...container.querySelectorAll('button')].some((b) => b.textContent === 'More')).toBe(false);
   });
 
   it('a disabled dependent number option cannot be edited', () => {

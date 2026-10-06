@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ButtonBase from '@mui/material/ButtonBase';
@@ -8,23 +8,33 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 import CheckIcon from '@mui/icons-material/Check';
+import { useViewportSize } from '@mantine/hooks';
 import { prefix } from '@utility/helpers';
 import { clampValue } from '@utility/dashboard/settingsActions';
 import EditedTag from './EditedTag';
 import { useHighlightTarget } from './useHighlightTarget';
 
-const HELP_CLAMP = 90;
 const WORLDS = [1, 2, 3, 4, 5, 6, 7];
 
+// Clamped to one line, with More only when the text really overflows it: a fixed length cut-off
+// showed More on text that already fit a wide window.
 export const Help = ({ text }) => {
   const [open, setOpen] = useState(false);
+  const [overflows, setOverflows] = useState(false);
+  const ref = useRef(null);
+  // The window sets the line width, so re-measure when the viewport changes.
+  const { width } = useViewportSize();
+  useEffect(() => {
+    if (open || !ref.current) return;
+    setOverflows(ref.current.scrollHeight > ref.current.clientHeight + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [width, text, open]);
   if (!text) return null;
-  const long = text.length > HELP_CLAMP;
   return <Box>
-    <Typography variant="body2" color="text.secondary" sx={long && !open
-      ? { display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }
-      : undefined}>{text}</Typography>
-    {long ? <Button size="small" sx={{ p: 0, minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} aria-expanded={open} onClick={() => setOpen(!open)}>
+    <Typography ref={ref} variant="body2" color="text.secondary" sx={open
+      ? undefined
+      : { display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{text}</Typography>
+    {overflows || open ? <Button size="small" sx={{ p: 0, minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} aria-expanded={open} onClick={() => setOpen(!open)}>
       {open ? 'Less' : 'More'}
     </Button> : null}
   </Box>;
@@ -147,12 +157,14 @@ const OptionRow = ({ option, tracker, foldedOptions = [], disabledReason = null,
     borderBottom: 1, borderColor: 'divider', borderRadius: 1,
     transition: 'background-color .4s', bgcolor: highlighted ? 'action.selected' : 'transparent'
   }}>
-    <Checkbox size="small" checked={Boolean(option.checked)} disabled={disabled} sx={{ p: 0.5, alignSelf: 'start' }}
+    <Checkbox size="small" checked={Boolean(option.checked)} disabled={disabled} sx={{ p: 0.5, alignSelf: 'start', mt: option.type === 'input' ? { sm: '6px' } : 0 }}
               inputProps={{ 'aria-label': option.label }}
               onChange={() => onAction('toggleOption', tracker, option.name)}/>
     <Box sx={{ minWidth: 0 }}>
-      <Stack direction="row" alignItems="center" flexWrap="wrap" columnGap={2} rowGap={1}>
-        <Typography variant="body2" fontWeight={500}>
+      {/* The label line shares a center with the checkbox (28 px), or with the 40 px number field
+          beside it, where the checkbox moves down to match. */}
+      <Stack direction="row" alignItems="flex-start" flexWrap="wrap" columnGap={2} rowGap={1}>
+        <Typography variant="body2" fontWeight={500} sx={{ minHeight: option.type === 'input' ? { xs: 28, sm: 40 } : 28, display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
           {option.label}{option.edited ? <EditedTag/> : null}
         </Typography>
         {option.type === 'input' ? <Box sx={{ ml: { sm: 'auto' } }}><NumberField option={option} tracker={tracker} onAction={onAction} disabled={disabled}/></Box> : null}
