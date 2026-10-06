@@ -35,6 +35,12 @@ describe('settingsActions', () => {
     expect(edits(off)).toEqual({ 'characters.bags': { checked: false } });
   });
 
+  it('setSectionOn(true) also switches compact rows on', () => {
+    const { config, model } = setup({ 'characters.bags.unmaxedBags': { checked: false } });
+    const section = model.flatMap((tab) => tab.sections).find(({ trackers }) => trackers.some(({ path }) => path === 'characters.bags'));
+    expect(edits(setSectionOn(config, section, true))).toEqual({});
+  });
+
   it('options, values, pickers and per-world overrides', () => {
     const { config, find } = setup();
     const stamps = find('account.World 1.stamps');

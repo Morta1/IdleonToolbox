@@ -59,7 +59,13 @@ export const clearPerWorld = (config, tracker, optionName) =>
 
 export const setSectionOn = (config, section, on) => {
   const next = structuredClone(config);
-  section.trackers.forEach((tracker) => { trackerIn(next, tracker).checked = on; });
+  section.trackers.forEach((tracker) => {
+    const ref = trackerIn(next, tracker);
+    ref.checked = on;
+    // Same rule as toggleTracker: a compact row only reads as on when its single switch option is on too.
+    const [only] = ref.options ?? [];
+    if (on && tracker.compact && ref.options.length === 1 && only.type !== 'input' && only.type !== 'array') only.checked = true;
+  });
   return next;
 };
 
