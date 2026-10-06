@@ -49,6 +49,7 @@ export const alertMeta = {
   },
   'account.General.materialTracker': {
     label: 'Material tracker',
+    icon: 'data/Refinery1',
     // The item thresholds live on the tool's own page, not in this config.
     link: { text: 'Set item thresholds in', label: 'Tools > Material Tracker', href: '/tools/material-tracker' },
     options: {}
@@ -154,7 +155,7 @@ export const alertMeta = {
   },
   'account.World 1.owl': {
     label: 'Orion the owl',
-    icon: 'etc/Owl_4',
+    icon: 'etc/Owl',
     options: {
       featherRestart: { label: 'Feather Restart affordable' },
       megaFeatherRestart: { label: 'Mega Feather Restart affordable' }
@@ -282,7 +283,7 @@ export const alertMeta = {
   },
   'account.World 2.kangaroo': {
     label: 'Poppy the kangaroo',
-    icon: 'etc/KShiny',
+    icon: 'data/RooA',
     options: {
       shinyThreshold: {
         label: 'Shiny catch progress reached',
@@ -319,7 +320,7 @@ export const alertMeta = {
   },
   'account.World 3.construction': {
     label: 'Construction and refinery',
-    icon: 'data/ConTower0',
+    icon: 'data/ClassIcons49',
     options: {
       flags: { label: 'Finished flags on the board' },
       buildings: { label: 'Buildings ready to build' },
@@ -347,6 +348,7 @@ export const alertMeta = {
   },
   'account.World 3.hatRack': {
     label: 'Hat rack',
+    icon: 'data/HatHelpA',
     options: {
       hatsMissing: { label: 'Owned hats missing from the rack' }
     }
@@ -423,6 +425,7 @@ export const alertMeta = {
   },
   'account.World 4.laboratory': {
     label: 'Laboratory',
+    icon: 'data/ClassIcons53',
     options: {
       chipsRotation: { label: 'Chip to claim in the repository' },
       jewelsRotation: { label: 'Jewel to claim in the repository' }
@@ -540,6 +543,7 @@ export const alertMeta = {
   },
   'account.World 6.beanstalk': {
     label: 'Beanstalk',
+    icon: 'etc/beanstalk1',
     options: {
       readyToPlant: {
         label: 'Golden food ready to rank up',
@@ -593,7 +597,7 @@ export const alertMeta = {
   // Account: World 7
   'account.World 7.royalGuardian': {
     label: 'Royal Guardian',
-    icon: 'etc/Royal_Outpost',
+    icon: 'data/UISkillIcon226',
     options: {
       idleOutposts: {
         label: 'Outposts on an empty resource',
@@ -693,6 +697,7 @@ export const alertMeta = {
   },
   'account.World 7.gallery': {
     label: 'Gallery',
+    icon: 'data/GalleryPodiumA3',
     options: {
       trophiesMissing: { label: 'Owned trophies not on display' },
       nametagsMissing: { label: 'Owned nametags not on display' }
@@ -891,6 +896,7 @@ export const alertMeta = {
   },
   'characters.crystalCountdown': {
     label: 'Crystal Countdown',
+    icon: 'data/UISkillIcon41',
     options: {
       showMaxed: { label: 'Show maxed skills' },
       showNonMaxed: { label: 'Show skills not maxed yet' },
@@ -981,13 +987,13 @@ export const alertMeta = {
   'timers.General.closestFullWorship': { label: 'Closest full worship', icon: 'data/WorshipSkull3', options: {} },
   'timers.General.dungeonHappyHour': { label: 'Dungeon happy hour', icon: 'etc/Happy_Hour', options: {} },
   'timers.General.randomEvents': { label: 'Next random event', icon: 'etc/Mega_Grumblo', options: {} },
-  'timers.General.sailingTrades': { label: 'Next sailing trade', options: {} },
+  'timers.General.sailingTrades': { label: 'Next sailing trade', icon: 'etc/Blob_Trade', options: {} },
 
   // Timers: Other
   'timers.Etc.library': { label: 'Library books', icon: 'data/Libz', options: {} },
   'timers.Etc.minibosses': { label: 'Boss and miniboss respawns', options: {} },
-  'timers.Etc.bonusTimeLeft': { label: 'Vote bonus week', icon: 'etc/Weekly', options: {} },
-  'timers.Etc.meritocracyTimeLeft': { label: 'Meritocracy vote week', icon: 'etc/Weekly', options: {} },
+  'timers.Etc.bonusTimeLeft': { label: 'Vote bonus week', icon: 'etc/VoteBallot', options: {} },
+  'timers.Etc.meritocracyTimeLeft': { label: 'Meritocracy vote week', icon: 'etc/VoteBallot', options: {} },
 
   // Timers: Clickers
   'timers.Clickers.featherRestart': { label: 'Feather Restart', icon: 'etc/Owl_4', unit: 'Orion', options: {} },
@@ -1000,7 +1006,7 @@ export const alertMeta = {
   'timers.World 3.printer': { label: 'Next printer cycle', icon: 'data/ConTower0', options: {} },
   'timers.World 3.closestTrap': { label: 'Closest trap', icon: 'data/TrapBoxSet1', options: {} },
   'timers.World 3.closestFlag': { label: 'Closest flag', icon: 'data/CogFLflag', options: {} },
-  'timers.World 3.closestBuilding': { label: 'Closest building', options: {} },
+  'timers.World 3.closestBuilding': { label: 'Closest building', icon: 'data/ConTower7', options: {} },
   'timers.World 3.closestSalt': {
     label: 'Closest salt',
     options: {

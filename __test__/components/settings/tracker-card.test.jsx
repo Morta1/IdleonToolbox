@@ -80,10 +80,10 @@ describe('CompactRow', () => {
   });
 
   it('an alert without an icon shows the first letter of its label', () => {
-    const tracker = trackerFor('account.General.materialTracker');
+    const tracker = trackerFor('characters.tools');
     expect(tracker.icon).toBeNull();
     const container = renderIn(<CompactRow tracker={tracker} onAction={() => {}}/>);
-    expect(container.querySelector('[data-letter-badge]').textContent).toBe('M');
+    expect(container.querySelector('[data-letter-badge]').textContent).toBe(tracker.label[0]);
   });
 
   it('Material tracker points at the tool that holds its thresholds', () => {
