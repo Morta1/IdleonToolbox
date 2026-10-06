@@ -6,6 +6,8 @@
 // that doesn't line up degrades to the closest thing that does - tracker without option, or section
 // without tracker.
 
+import { alertAliases } from './alertMeta';
+
 const TAB_INDEX = { account: 0, characters: 1, timers: 2 };
 
 // The characters config is a flat list of trackers; account and timers group theirs under sections.
@@ -39,7 +41,10 @@ export const resolveSettingsTarget = (config, configType, target) => {
   // second, "gemsFromBosses" first. The deeper one wins: a tracker can carry an option named after
   // itself ("talents.talents"), which would otherwise swallow "talents.unmaxedTalents".
   const optionNames = tracker?.options?.map((option) => option?.name) ?? [];
-  const optionName = [rest[1], rest[0]].find((name) => name && optionNames.includes(name)) ?? null;
+  const aliases = alertAliases[[configType, section, trackerName].filter(Boolean).join('.')] ?? {};
+  const optionName = [rest[1], rest[0]]
+    .map((name) => aliases[name] ?? name)
+    .find((name) => name && optionNames.includes(name)) ?? null;
 
   return { tab: TAB_INDEX[configType], configType, section, trackerName, optionName };
 };
