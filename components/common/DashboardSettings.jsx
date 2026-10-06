@@ -1,434 +1,234 @@
-import {
-  Checkbox,
-  Collapse,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  FormControlLabel,
-  FormHelperText,
-  formHelperTextClasses,
-  InputAdornment,
-  Stack,
-  TextField,
-  Typography,
-  typographyClasses,
-  useMediaQuery
-} from '@mui/material';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
-import React, { useEffect, useRef, useState } from 'react';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
-import { handleDownload, prefix } from '@utility/helpers';
-import Tabber from './Tabber';
 import Button from '@mui/material/Button';
-import FileUploadButton from '@components/common/DownloadButton';
+import Chip from '@mui/material/Chip';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import Snackbar from '@mui/material/Snackbar';
+import Stack from '@mui/material/Stack';
+import Alert from '@mui/material/Alert';
+import Switch from '@mui/material/Switch';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import CloseIcon from '@mui/icons-material/Close';
+import SearchIcon from '@mui/icons-material/Search';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconFileExport } from '@tabler/icons-react';
-import Link from 'next/link';
+import { handleDownload } from '@utility/helpers';
+import FileUploadButton from '@components/common/DownloadButton';
 import { resolveSettingsTarget } from '@utility/dashboard/settingsTarget';
-import { applySettingChange } from '@utility/dashboard/applySettingChange';
+import { baseTrackers } from '@utility/dashboard/baseTrackers';
+import { diffTrackers, loadTrackers } from '@utility/dashboard/trackerStore';
+import { allTrackers, buildModel, FILTERS, matchesFilter, searchModel } from '@utility/dashboard/settingsModel';
+import * as settingsActions from '@utility/dashboard/settingsActions';
+import SettingsNav from '@components/dashboard/settings/SettingsNav';
+import SectionPane from '@components/dashboard/settings/SectionPane';
+import SearchResults from '@components/dashboard/settings/SearchResults';
 
-// Static hints that point a tracker's config toggle at the page where its values are set.
-// Kept out of the saved config so it renders for every user regardless of their stored config version.
-const trackerDescriptions = {
-  materialTracker: {
-    text: 'Set item thresholds in',
-    linkText: 'Tools → Material Tracker',
-    href: '/tools/material-tracker'
-  }
-};
-
-// camelToTitleCase splits on digits too, so names carrying one read wrong ("p2wUpgrades" becomes
-// "P 2w Upgrades"). Names listed here render as written instead.
-const labelOverrides = {
-  p2wUpgrades: 'P2W Upgrades',
-  killRoy: 'Killroy'
-};
-
-const getLabel = (name) => labelOverrides[name] ?? name?.camelToTitleCase();
-
-// How long the setting an alert pointed at stays tinted after the modal opens on it.
-const HIGHLIGHT_DURATION = 1600;
-
-// Scrolls the row a dashboard alert asked for into view and fades its tint out again. The rows it
-// runs on are mounted expanded (their Collapse starts open), so there is no animation to wait on.
-const useHighlightTarget = (active) => {
-  const ref = useRef(null);
-  const [highlighted, setHighlighted] = useState(active);
-
-  useEffect(() => {
-    if (!active || !ref.current) return;
-    ref.current.scrollIntoView({ block: 'center' });
-    const timeout = setTimeout(() => setHighlighted(false), HIGHLIGHT_DURATION);
-    return () => clearTimeout(timeout);
-  }, [active]);
-
-  return [ref, highlighted];
-};
-
-// The tint needs breathing room around the row's text, so the padding is offset back out with a
-// matching negative margin - every row carries this, highlighted or not, and none of them move.
-const highlightSx = (highlighted) => ({
-  borderRadius: 1,
-  px: 1,
-  mx: -1,
-  py: 0.5,
-  my: -0.5,
-  transition: 'background-color .4s',
-  backgroundColor: highlighted ? 'action.selected' : 'transparent'
-});
-
-// A flat config (characters) has no sections, so both sides are compared as null.
-const sameSection = (a, b) => (a ?? null) === (b ?? null);
+const FILTER_LABELS = { all: 'All', on: 'On', off: 'Off', edited: 'Edited', threshold: 'Has threshold' };
 
 const DashboardSettings = ({
-  open,
-  onClose,
-  config,
-  onChange,
-  onFileUpload,
-  exportConfig,
-  target,
-  hideAlertless,
-  onHideAlertlessChange
+  open, onClose, config, onChange, onFileUpload, exportConfig, target,
+  hideAlertless, onHideAlertlessChange, initialFilter = 'all'
 }) => {
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
-  // Null unless the modal was opened by clicking a dashboard alert.
-  const resolvedTarget = resolveSettingsTarget(config, target?.configType, target?.path);
-  const [selectedTab, setSelectedTab] = useState(0);
+  const edits = diffTrackers(baseTrackers, config);
+  const model = buildModel(config, baseTrackers, edits);
+  const [tabIndex, setTabIndex] = useState(0);
+  const [sectionKey, setSectionKey] = useState(model[0].sections[0].key);
+  const [mobileDetail, setMobileDetail] = useState(false);
+  const [filter, setFilter] = useState(initialFilter);
+  const [query, setQuery] = useState('');
+  const [expanded, setExpanded] = useState({});
+  const [highlight, setHighlight] = useState(null);
+  const [undo, setUndo] = useState(null);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [importError, setImportError] = useState(null);
 
-  // This component stays mounted while the modal is closed, so the tab has to be pointed at each
-  // new target explicitly. Everything below DialogContent unmounts on close and re-reads the
-  // target from its own initial state.
+  // The dialog stays mounted while closed, so every opening re-points it: at the alert that
+  // opened it, or back to the first section.
   useEffect(() => {
-    if (open) setSelectedTab(resolvedTarget?.tab ?? 0);
+    if (!open) return;
+    const resolved = resolveSettingsTarget(config, target?.configType, target?.path);
+    setQuery('');
+    setImportError(null);
+    if (resolved) {
+      const tab = model[resolved.tab];
+      const section = tab.sections.find((item) => item.section === resolved.section) ?? tab.sections[0];
+      const path = [resolved.configType, resolved.section, resolved.trackerName].filter(Boolean).join('.');
+      setTabIndex(resolved.tab);
+      setSectionKey(section.key);
+      setFilter('all');
+      setMobileDetail(true);
+      setExpanded(resolved.trackerName ? { [path]: true } : {});
+      setHighlight(resolved.trackerName ? { path, optionName: resolved.optionName } : null);
+    } else {
+      setFilter(initialFilter);
+      setMobileDetail(false);
+      setHighlight(null);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, target]);
 
-  const handleSettingChange = (e, configType, option, trackerName, section) => {
-    onChange(applySettingChange(config, e, configType, option, trackerName, section));
-  }
+  const run = (name, ...args) => name === 'resetPath'
+    ? settingsActions.resetPath(baseTrackers, config, ...args)
+    : settingsActions[name](config, ...args);
+  const onAction = (name, ...args) => onChange(run(name, ...args));
+  const onBulk = (label, name, ...args) => {
+    setUndo({ label, previous: config });
+    onChange(run(name, ...args));
+  };
+
+  const tab = model[tabIndex];
+  const section = tab.sections.find((item) => item.key === sectionKey) ?? tab.sections[0];
+  const results = searchModel(model, query);
+  const counting = query ? results.map(({ tracker }) => tracker) : allTrackers(model);
+  const countFor = (key) => counting.filter((tracker) => matchesFilter(tracker, key)).length;
+
+  const changeTab = (index) => {
+    setTabIndex(index);
+    setSectionKey(model[index].sections[0].key);
+    setMobileDetail(model[index].sections.length === 1);
+  };
+  const changeSection = (key) => {
+    setSectionKey(key);
+    setMobileDetail(true);
+  };
+  const jumpTo = (path) => {
+    setExpanded((prev) => ({ ...prev, [path]: true }));
+    setHighlight({ path, optionName: null });
+  };
+  const showResult = ({ tab: resultTab, section: resultSection, tracker, option }) => {
+    setQuery('');
+    setTabIndex(model.indexOf(resultTab));
+    setSectionKey(resultSection.key);
+    setMobileDetail(true);
+    setExpanded((prev) => ({ ...prev, [tracker.path]: true }));
+    setHighlight({ path: tracker.path, optionName: option?.name ?? null });
+  };
 
   const handleExport = () => {
     if (typeof window.gtag !== 'undefined') {
-      window.gtag('event', 'dashboard_config_exported', {
-        event_category: 'engagement',
-        event_label: 'dashboard',
-        value: 1
-      });
+      window.gtag('event', 'dashboard_config_exported', { event_category: 'engagement', event_label: 'dashboard', value: 1 });
     }
     handleDownload(exportConfig ?? config, 'it-dashboard-config');
   };
-
-  return <Dialog open={open} onClose={onClose} fullWidth>
-    <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <Stack gap={2} direction={'row'} alignItems={'center'}>
-        <Typography variant={'h6'}>Configuration</Typography>
-        <Box display="flex" gap={1}>
-          <FileUploadButton onFileUpload={(data) => {
-            if (data?.schema === 2 || (data?.account && data?.characters)) {
-              onFileUpload(data);
-              if (typeof window.gtag !== 'undefined') {
-                window.gtag('event', 'dashboard_config_imported', {
-                  event_category: 'engagement',
-                  event_label: 'dashboard',
-                  value: 1
-                });
-              }
-            }
-          }}>
-            Import
-          </FileUploadButton>
-          {isSm ? <IconButton onClick={handleExport} size="small">
-            <IconFileExport size={18}/>
-          </IconButton> : <Button onClick={handleExport} variant="outlined"
-                                  startIcon={<IconFileExport size={18}/>}
-                                  size="small">Export</Button>}
-        </Box>
-      </Stack>
-      <IconButton onClick={onClose}><CloseIcon/></IconButton>
-    </DialogTitle>
-    <DialogContent>
-      {/* Controlled and out of the URL: the tab is picked for the user when an alert opens the
-       modal on its own setting, and the dashboard page's own query has no business changing. */}
-      <Tabber tabs={['Account', 'Character', 'Timers']} disableQuery activeTab={selectedTab}
-              onTabChange={setSelectedTab} keepChildren={false}>
-        <Box><FieldsByType config={config?.account} configType={'account'} onChange={handleSettingChange}
-                           target={resolvedTarget}/></Box>
-        <Box>
-          {/* A display preference rather than an alert, so it sits above the tracker list and is
-           stored per browser instead of in the exported config. */}
-          <Box sx={{ mb: 1 }}>
-            <FormControlLabel
-              sx={{ [`.${typographyClasses.root}`]: { fontSize: 14 } }}
-              control={<Checkbox checked={hideAlertless} size={'small'}/>}
-              onChange={(e) => onHideAlertlessChange(e.target.checked)}
-              label={'Hide characters without alerts'}/>
-            <FormHelperText sx={{ ml: 4, mt: -0.5 }}>
-              Characters with nothing to act on are left out of the dashboard
-            </FormHelperText>
-          </Box>
-          <Divider sx={{ mb: 1 }}/>
-          <FieldsByType config={config?.characters} configType={'characters'} onChange={handleSettingChange}
-                        target={resolvedTarget}/>
-        </Box>
-        <Box><FieldsByType config={config?.timers} configType={'timers'} onChange={handleSettingChange}
-                           target={resolvedTarget}/></Box>
-      </Tabber>
-    </DialogContent>
-  </Dialog>
-};
-
-const FieldsByType = ({ config, onChange, configType, target: rawTarget }) => {
-  const target = rawTarget?.configType === configType ? rawTarget : null;
-  const firstValue = config ? Object.values(config)?.[0] : null;
-  const hasSections = firstValue && typeof firstValue === 'object' && !('checked' in firstValue);
-  const sections = hasSections ? config : { _flat: config };
-
-  const [collapsedSections, setCollapsedSections] = useState(() => {
-    if (!sections) return {};
-    return Object.keys(sections).reduce((acc, section) => {
-      // The section holding the alert's setting opens straight away, so its row is mounted and
-      // can be scrolled to.
-      acc[section] = section !== target?.section;
-      return acc;
-    }, {});
-  });
-
-  const handleSectionCollapse = (section) => {
-    setCollapsedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
+  const handleImport = (data, fileName = 'That file') => {
+    if (!(data?.schema === 2 || (data?.account && data?.characters))) {
+      setImportError(`${fileName} isn't an alert config. Nothing was changed. Pick a file made with Export.`);
+      return;
+    }
+    setImportError(null);
+    const imported = loadTrackers(baseTrackers, data).config;
+    const editCount = Object.keys(diffTrackers(baseTrackers, imported)).length;
+    setUndo({ label: `Imported ${allTrackers(model).length} alerts, ${editCount} edited from default`, previous: config });
+    onFileUpload(data);
+    if (typeof window.gtag !== 'undefined') {
+      window.gtag('event', 'dashboard_config_imported', { event_category: 'engagement', event_label: 'dashboard', value: 1 });
+    }
   };
 
-  return sections && Object.entries(sections)?.map(([section, fields], index) => {
-    if (section === '_flat') {
-      return <Fields key="flat" config={fields} onChange={onChange} configType={configType} target={target}/>;
-    }
-    return <React.Fragment key={`tracker-${index}`}>
-      <Stack sx={{ cursor: 'pointer' }} direction="row" alignItems="center" justifyContent="space-between"
-             onClick={() => handleSectionCollapse(section)}>
-        <Typography variant={'body2'} color={'text.secondary'}>{section}</Typography>
-        <IconButton size="small">
-          {collapsedSections[section] ? <ArrowDropDownIcon/> : <ArrowDropUpIcon/>}
-        </IconButton>
-      </Stack>
-      <Collapse in={!collapsedSections[section]} unmountOnExit>
-        <Fields config={fields} onChange={onChange} configType={configType} section={section} target={target}/>
-      </Collapse>
-    </React.Fragment>;
-  })
-}
-
-const Fields = ({ config, onChange, configType, section, target }) => {
-  // The alert's own tracker starts with its options open, so the option it points at is mounted
-  // and can be scrolled to.
-  const targetTracker = target && sameSection(target.section, section) ? target.trackerName : null;
-  const [showId, setShowId] = useState(targetTracker);
-
-  const handleArrowClick = (trackerName) => {
-    setShowId(showId === trackerName ? null : trackerName)
-  }
-
-  return config && Object.entries(config)?.map(([trackerName, data], index) => {
-    return <TrackerRow key={`tracker-${trackerName}-${index}`}
-                       trackerName={trackerName}
-                       data={data}
-                       onChange={onChange}
-                       configType={configType}
-                       section={section}
-                       showId={showId}
-                       onArrowClick={handleArrowClick}
-                       target={targetTracker === trackerName ? target : null}/>
-  })
-}
-
-const TrackerRow = ({ trackerName, data, onChange, configType, section, showId, onArrowClick, target }) => {
-  // Only one of the two gets tinted: the option the alert names, or the tracker itself when the
-  // alert doesn't map onto a single option.
-  const [rowRef, highlighted] = useHighlightTarget(Boolean(target) && !target?.optionName);
-
-  // mx:0 - the row's own indent is the highlight padding here, so it doesn't need both.
-  return <Box ref={rowRef} sx={{ ...highlightSx(highlighted), mx: 0 }}>
-    {data?.category ? <Typography variant="caption" color="text.secondary">{data.category?.camelToTitleCase()}</Typography> : null}
-    <Stack direction={'row'} justifyContent={'space-between'}>
-      <FormControlLabel
-        sx={{ [`.${typographyClasses.root}`]: { fontSize: 14 } }}
-        control={<Checkbox name={trackerName} checked={data?.checked} size={'small'}/>}
-        onChange={(e) => onChange(e, configType, null, null, section)}
-        label={getLabel(trackerName)}/>
-      {data?.options?.length > 0 ? <IconButton size={'small'}
-                                               onClick={() => onArrowClick(trackerName)}>
-        {showId === trackerName ? <ArrowDropUpIcon/> : <ArrowDropDownIcon/>}
-      </IconButton> : null}
-    </Stack>
-    {trackerDescriptions[trackerName] ? <FormHelperText sx={{ ml: 4, mt: -0.5, mb: 0.5 }}>
-      {trackerDescriptions[trackerName].text}{' '}
-      <Link href={trackerDescriptions[trackerName].href} style={{ textDecoration: 'underline', color: 'inherit' }}>
-        {trackerDescriptions[trackerName].linkText}
-      </Link>
-    </FormHelperText> : null}
-    <Collapse in={showId === trackerName} unmountOnExit>
-      <Stack sx={{ ml: 3, mr: 3 }}>
-        {data?.options?.map((option, optionIndex) => {
-          return <BaseField key={`${option?.name}-${optionIndex}`}
-                            trackerName={trackerName}
-                            option={{ ...option, optionIndex }}
-                            configType={configType}
-                            onChange={onChange}
-                            section={section}
-                            highlight={target?.optionName === option?.name}
-          />
-        })}
-      </Stack>
-    </Collapse>
-  </Box>
-}
-
-// Locks every input to the same x. The widest label sharing a row with an input is 23 characters
-// ("Affordable Stamp Levels"), which fits inside this alongside the checkbox. Checkbox-only rows
-// keep their natural width so the few far longer labels ("Show Gilded When No Atom Discount",
-// 33 characters) stay on one line.
-const INPUT_LABEL_WIDTH = 200;
-
-const BaseField = ({ option, trackerName, onChange, configType, section, highlight }) => {
-  const { type, props } = option || {};
-  const isImageArray = props?.type === 'img';
-  const [rowRef, highlighted] = useHighlightTarget(Boolean(highlight));
-  return <>
-    {option?.category ? <Typography variant={'caption'}>{option?.category?.camelToTitleCase()}</Typography> : null}
-    <Stack ref={rowRef} sx={highlightSx(highlighted)}>
-      {/* The helper sits under the whole row, not beside the label - a long one used to stretch
-       the label column and knock that row's input out of line with every other row. */}
-      <Stack direction={'row'} gap={2}>
-        {type !== 'array' ? <FormControlLabel
-          sx={{
-            minWidth: isImageArray ? 'inherit' : 100,
-            // Only lock the width once there's room for it - on a phone the label keeps its
-            // natural size so the row doesn't overflow sideways.
-            ...(type === 'input' ? { width: { xs: 'auto', sm: INPUT_LABEL_WIDTH }, flexShrink: 0 } : {}),
-            [`.${typographyClasses.root}`]: { fontSize: 14 }
-          }}
-          control={<Checkbox name={option?.name}
-                             checked={option?.checked}
-                             size={'small'}
-          />}
-          onChange={(e) => onChange(e, configType, option, trackerName, section)}
-          label={<>
-            <Typography>{getLabel(option?.name)}</Typography>
-          </>}
-        /> : null}
-        {type === 'input' ?
-          <InputField option={option} trackerName={trackerName} configType={configType} onChange={onChange}
-                      section={section}/> : null}
-        {type === 'array'
-          ? <ArrayField option={option} trackerName={trackerName} configType={configType} onChange={onChange}
-                        section={section}/>
-          : null}
-      </Stack>
-      {type === 'input' && props?.perWorld ?
-        <PerWorldFields option={option} trackerName={trackerName} configType={configType} onChange={onChange}
-                        section={section}/> : null}
-      {option?.helperText ? <FormHelperText sx={{ ml: 3, mt: 0 }}>{option?.helperText}</FormHelperText> : null}
-    </Stack></>
-}
-
-const ArrayField = ({ option, onChange, configType, trackerName, section }) => {
-  const { value, type } = option?.props;
-  return <Stack direction={'row'} flexWrap={'wrap'}>
-    {Object.keys(value)?.map((opt, index) => {
-      return <FormControlLabel
-        key={`${opt}-${index}`}
-        onChange={(e) => onChange(e, configType, option, trackerName, section)}
-        control={<Checkbox name={opt} checked={value?.[opt]} size={'small'}/>}
-        label={type === 'img' ? <img width={24} height={24} src={`${prefix}data/${opt}.png`}
-                                     alt=""/> : opt.camelToTitleCase()}/>
-    })}
-  </Stack>
-}
-// Royal Guardian outposts exist in W1-W7 only (no W8 map is on the kingdom screen).
-const PER_WORLD_KEYS = [1, 2, 3, 4, 5, 6, 7];
-
-// Optional per-world overrides of an input option, folded behind a link so the common
-// single-value setup stays one line. Blank = that world uses the main value.
-const PerWorldFields = ({ option, onChange, configType, trackerName, section }) => {
-  const { value, perWorld, minValue = 0, maxValue } = option?.props;
-  const [open, setOpen] = useState(false);
-  const overrides = PER_WORLD_KEYS.filter((world) => perWorld?.[world] != null);
-  if (!option?.checked) return null;
-  return <Stack sx={{ ml: 3.5, mt: 0.5 }} gap={1}>
-    <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
-      <Button size={'small'} variant={'text'} sx={{ p: 0, minWidth: 0, textTransform: 'none' }}
-              endIcon={open ? <ArrowDropUpIcon/> : <ArrowDropDownIcon/>}
-              onClick={() => setOpen(!open)}>
-        Per world
-      </Button>
-      {overrides.length > 0 ? <>
-        <Typography variant={'caption'} color={'text.secondary'}>
-          {overrides.map((world) => `W${world}: ${perWorld[world]}`).join(' · ')}
-        </Typography>
-        <Button size={'small'} variant={'text'} color={'inherit'}
-                sx={{ p: 0, minWidth: 0, textTransform: 'none', opacity: 0.7 }}
-                onClick={(e) => onChange(e, configType, { ...option, worldKey: 'reset' }, trackerName, section)}>
-          Reset
-        </Button>
-      </> : null}
-    </Stack>
-    <Collapse in={open} unmountOnExit>
-      <Stack direction={'row'} gap={1} flexWrap={'wrap'} sx={{ pt: 0.5 }}>
-        {PER_WORLD_KEYS.map((world) => <TextField
-          key={world}
-          size={'small'}
-          label={`W${world}`}
-          type={'number'}
-          sx={{
-            width: 56,
-            // Default side padding leaves no room for a two-digit rank, and the spinners take the rest.
-            '& input': { px: 1, textAlign: 'center', MozAppearance: 'textfield' },
-            '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': { WebkitAppearance: 'none', m: 0 }
-          }}
-          value={perWorld?.[world] ?? ''}
-          placeholder={`${value}`}
-          slotProps={{
-            inputLabel: { shrink: true },
-            htmlInput: { max: maxValue, min: minValue, autoComplete: 'off' }
-          }}
-          onChange={(e) => onChange(e, configType, { ...option, worldKey: world }, trackerName, section)}/>)}
-      </Stack>
-      <FormHelperText sx={{ m: 0, mt: 0.5 }}>Leave a world blank to use {value}</FormHelperText>
-    </Collapse>
-  </Stack>
-}
-
-const InputField = ({ option, onChange, configType, name, trackerName, section }) => {
-  const {
-    label,
-    value,
-    helperText = '',
-    maxValue,
-    minValue = 0,
-    endAdornment = ''
-  } = option?.props;
-  return <TextField
-    size={'small'}
-    label={label.capitalize()}
-    type={'number'}
-    sx={{ mt: 1, width: 150, [`.${formHelperTextClasses.root}`]: { m: 0 } }}
-    name={name}
-    value={value}
+  const search = <TextField
+    size="small" fullWidth value={query} placeholder={`Search ${allTrackers(model).length} alerts, options and descriptions`}
+    onChange={(e) => setQuery(e.target.value)}
     slotProps={{
+      htmlInput: { 'aria-label': 'Search alerts' },
       input: {
-        endAdornment: endAdornment ? <InputAdornment position="end">{endAdornment}</InputAdornment> : null,
-      },
-      htmlInput: {
-        max: maxValue, min: minValue, autoComplete: 'off'
+        startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small"/></InputAdornment>,
+        endAdornment: query ? <IconButton aria-label="Clear search" size="small" onClick={() => setQuery('')}><CloseIcon fontSize="small"/></IconButton> : null
       }
-    }}
-    onChange={(e) => onChange(e, configType, { ...option, inputVal: true }, trackerName, section)}
-    helperText={helperText}/>
-}
+    }}/>;
+
+  const chips = <Stack direction="row" gap={1} alignItems="center" sx={{ overflowX: 'auto', pb: 0.5 }}>
+    {FILTERS.map((key) => <Chip key={key} label={`${FILTER_LABELS[key]} ${countFor(key)}`}
+                                color={filter === key ? 'primary' : 'default'} variant={filter === key ? 'filled' : 'outlined'}
+                                onClick={() => setFilter(key)} sx={{ minHeight: { xs: 44, sm: 32 } }}/>)}
+    <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', ml: 1 }}>
+      {query ? 'While searching, counts are results' : 'Every count is alerts, not options'}
+    </Typography>
+  </Stack>;
+
+  const hideAlertlessRow = tab.configType === 'characters' ? <Stack direction="row" alignItems="center" gap={1.5}
+                                                                    sx={{ border: 1, borderColor: 'divider', borderRadius: 2, p: 1 }}>
+    <Switch checked={Boolean(hideAlertless)} onChange={(e) => onHideAlertlessChange(e.target.checked)}
+            inputProps={{ 'aria-label': 'Hide characters without alerts' }}/>
+    <Box>
+      <Typography variant="body2" fontWeight={500}>Hide characters without alerts</Typography>
+      <Typography variant="caption" color="text.secondary">Saved in this browser, not in your exported config</Typography>
+    </Box>
+  </Stack> : null;
+
+  const pane = query
+    ? <SearchResults results={results.filter(({ tracker }) => matchesFilter(tracker, filter))} query={query} onAction={onAction} onShow={showResult}/>
+    : <SectionPane section={section} filter={filter} expanded={expanded}
+                   onToggleExpanded={(path) => setExpanded((prev) => ({ ...prev, [path]: !prev[path] }))}
+                   target={highlight} onAction={onAction} onBulk={onBulk} onShowAll={() => setFilter('all')}
+                   extraTop={hideAlertlessRow}/>;
+
+  const nav = <SettingsNav model={model} tabIndex={tabIndex} onTabChange={changeTab} sectionKey={section.key}
+                           onSectionChange={changeSection} onTrackerJump={jumpTo}/>;
+
+  return <>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg" fullScreen={isSm}
+            PaperProps={{ sx: { height: { sm: '90vh' } } }}>
+      <DialogTitle component="div" sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pb: 1.5 }}>
+        <Stack direction="row" alignItems="center" gap={2}>
+          {isSm && mobileDetail && !query
+            ? <IconButton aria-label="Back to sections" onClick={() => setMobileDetail(false)}><ArrowBackIcon/></IconButton> : null}
+          <Typography variant="h6" component="h1" sx={{ whiteSpace: 'nowrap' }}>Configure alerts</Typography>
+          {!isSm ? <Box sx={{ flex: 1, maxWidth: 520 }}>{search}</Box> : null}
+          <Stack direction="row" alignItems="center" gap={0.5} sx={{ ml: 'auto' }}>
+            <FileUploadButton onFileUpload={handleImport}
+                              onInvalidFile={(fileName) => setImportError(`${fileName} isn't an alert config. Nothing was changed. Pick a file made with Export.`)}>
+              Import
+            </FileUploadButton>
+            {isSm ? <IconButton aria-label="Export" onClick={handleExport}><IconFileExport size={18}/></IconButton>
+              : <Button onClick={handleExport} startIcon={<IconFileExport size={18}/>} size="small">Export</Button>}
+            {!isSm ? <Button size="small" color="inherit" onClick={() => setConfirmReset(true)}>Reset all</Button> : null}
+            <IconButton aria-label="Close" onClick={onClose}><CloseIcon/></IconButton>
+          </Stack>
+        </Stack>
+        {isSm ? search : null}
+        {chips}
+        {importError ? <Alert severity="error" onClose={() => setImportError(null)}>{importError}</Alert> : null}
+      </DialogTitle>
+      <DialogContent dividers sx={{ p: 0, display: 'flex', minHeight: 0 }}>
+        {isSm
+          ? <Box sx={{ p: 1.5, width: '100%', overflowY: 'auto' }}>{query || mobileDetail ? pane : nav}</Box>
+          : <>
+            <Box sx={{ width: 288, flexShrink: 0, borderRight: 1, borderColor: 'divider', p: 1.5, overflowY: 'auto' }}>{nav}</Box>
+            <Box sx={{ flex: 1, minWidth: 0, p: 2.5, overflowY: 'auto' }}>{pane}</Box>
+          </>}
+      </DialogContent>
+    </Dialog>
+    <Dialog open={confirmReset} onClose={() => setConfirmReset(false)} PaperProps={{ role: 'alertdialog' }}>
+      <DialogTitle>Reset every alert to default?</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          This turns all {allTrackers(model).length} alerts back to their default and clears your {Object.keys(edits).length} edits. Export first if you want a copy.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setConfirmReset(false)}>Cancel</Button>
+        <Button variant="contained" onClick={() => {
+          setConfirmReset(false);
+          onBulk('All alerts reset to defaults', 'resetPath', null);
+        }}>Reset all</Button>
+      </DialogActions>
+    </Dialog>
+    <Snackbar open={Boolean(undo)} autoHideDuration={6000} onClose={() => setUndo(null)} message={undo?.label}
+              ContentProps={{ role: 'status' }}
+              action={<Button color="primary" size="small" onClick={() => {
+                onChange(undo.previous);
+                setUndo(null);
+              }}>Undo</Button>}/>
+  </>;
+};
 
 export default DashboardSettings;
