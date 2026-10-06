@@ -166,13 +166,16 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
   }
   researchEXPrateTOT *= researchEXPmulti;
 
-  // Research EXP is account-wide: giveEXP(20, ...) adds the same amount to every character, so any
-  // character's Exp0[20] holds the same value. Take the max in case a character entry is stale.
-  const researchSkills = (characters ?? [])
+  // exp and expReq must come from the same character: a stale character still on the previous level
+  // has a higher exp than a fresh one that just leveled, and mixing the two shrinks the EXP left.
+  const researchSkill = (characters ?? [])
     .map(({ skillsInfo }: any) => skillsInfo?.research)
-    .filter((skill: any) => skill);
-  const researchEXP = Math.max(0, ...researchSkills.map(({ exp }: any) => exp ?? 0));
-  const researchEXPreq = Math.max(0, ...researchSkills.map(({ expReq }: any) => expReq ?? 0));
+    .filter((skill: any) => skill)
+    .reduce((best: any, skill: any) => !best
+    || skill.level > best.level
+    || (skill.level === best.level && (skill.exp ?? 0) > (best.exp ?? 0)) ? skill : best, null);
+  const researchEXP = researchSkill?.exp ?? 0;
+  const researchEXPreq = researchSkill?.expReq ?? 0;
   const researchEXPleft = Math.max(0, researchEXPreq - researchEXP);
   const researchEXPpercent = researchEXPreq > 0 ? Math.min(100, (researchEXP / researchEXPreq) * 100) : 0;
   // Registering for the tournament banks 12hrs of research gains, once per tournament day

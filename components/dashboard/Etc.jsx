@@ -4,7 +4,7 @@ import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import { cleanUnderscore, getDuration, getNextCompanionClaim, notateNumber, prefix } from '@utility/helpers';
 import useRealDate from '@hooks/useRealDate';
-import { getCharacterByHighestSkillLevel, getEventShopBonus, getMiniBossesData, getRandomEvents } from '@parsers/misc';
+import { getEventShopBonus, getMiniBossesData, getRandomEvents } from '@parsers/misc';
 import Tooltip from '../Tooltip';
 import Timer from '../common/Timer';
 import { calcHappyHours } from '@parsers/dungeons';
@@ -186,14 +186,11 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
     wisdom: calcMonumentInfo(2)
   } : null;
 
-  const researchRate = account?.research?.researchEXPrateTOT ?? 0;
-  const bestResearchChar = researchRate > 0 ? getCharacterByHighestSkillLevel(characters, null, 'research') : null;
-  const researchExp = bestResearchChar?.skillsInfo?.research?.exp ?? 0;
-  const researchExpReq = bestResearchChar?.skillsInfo?.research?.expReq ?? 0;
-  const researchLevelUpTime = researchRate > 0 && researchExpReq > 0
+  const researchTimeToLevel = account?.research?.timeToLevel;
+  const researchLevelUpTime = researchTimeToLevel != null && account?.research?.researchEXPreq > 0
     ? {
-      time: now + ((researchExpReq - researchExp) / researchRate) * 3600 * 1000,
-      currentLevel: bestResearchChar?.skillsInfo?.research?.level ?? 0
+      time: now + researchTimeToLevel * 3600 * 1000,
+      currentLevel: account?.research?.researchLevel ?? 0
     }
     : null;
 
