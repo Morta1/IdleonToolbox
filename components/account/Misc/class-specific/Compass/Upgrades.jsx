@@ -69,12 +69,12 @@ const Upgrades = ({ account, upgrades, dusts }) => {
             opacity: unlocked ? 1 : 0.5
           }}
         >
-          <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center" sx={{ position: 'relative' }}>
-            <img style={{ width: 32, height: 32, position: 'absolute', left: 0, top: 0 }}
+          <Stack direction="row" gap={2} flexWrap="nowrap" alignItems="center" sx={{ position: 'relative' }}>
+            <img style={{ width: 32, height: 32, position: 'absolute', left: 0, top: '50%', marginTop: -16 }}
                  src={`${prefix}data/${shapeIcon}.png`} alt={shapeIcon}/>
-            <img style={{ width: 32, height: 32, zIndex: 1 }}
+            <img style={{ width: 32, height: 32, zIndex: 1, flexShrink: 0 }}
                  src={`${prefix}data/CompassUpg${iconIndex}.png`} alt=""/>
-            <Typography>
+            <Typography sx={{ minWidth: 0 }}>
               {cleanUnderscore(
                 name
                   .replace(/[船般航舞製]/, '')

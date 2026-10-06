@@ -9,7 +9,8 @@ export const patchNotes = [
     'date': '06/10/2026',
     'features': [],
     'fixes': [
-      'Dashboard: the Hole Bell alert now shows when a cavern bell is ready'
+      'Dashboard: the Hole Bell alert now shows when a cavern bell is ready',
+      'Masterclass upgrade cards: long upgrade names now wrap beside the icon instead of below it'
     ]
   },
   {
