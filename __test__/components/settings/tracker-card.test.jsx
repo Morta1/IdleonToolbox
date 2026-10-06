@@ -80,7 +80,7 @@ describe('CompactRow', () => {
   });
 
   it('an alert without an icon shows the first letter of its label', () => {
-    const tracker = trackerFor('characters.tools');
+    const tracker = { ...trackerFor('characters.tools'), icon: null };
     expect(tracker.icon).toBeNull();
     const container = renderIn(<CompactRow tracker={tracker} onAction={() => {}}/>);
     expect(container.querySelector('[data-letter-badge]').textContent).toBe(tracker.label[0]);

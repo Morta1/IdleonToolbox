@@ -74,6 +74,7 @@ export const alertMeta = {
   },
   'account.General.etc': {
     label: 'Miscellaneous',
+    icon: 'data/CharSlot',
     options: {
       dungeonTraits: { label: 'Dungeon trait not selected', group: 'Account' },
       randomEvents: { label: 'No random event done today', group: 'Daily' },
@@ -134,7 +135,7 @@ export const alertMeta = {
   // Account: World 1
   'account.World 1.stamps': {
     label: 'Stamps',
-    icon: 'data/GildedStamp',
+    icon: 'data/StampA34',
     options: {
       gildedStamps: { label: 'Gilded stamps available' },
       showGildedWhenNoAtomDiscount: {
@@ -408,7 +409,7 @@ export const alertMeta = {
   },
   'account.World 4.cooking': {
     label: 'Cooking',
-    icon: 'data/CookingSpice0',
+    icon: 'data/ClassIcons51',
     options: {
       spices: { label: 'Spice clicks left' },
       ribbons: {
@@ -433,7 +434,7 @@ export const alertMeta = {
   },
   'account.World 4.tome': {
     label: 'Tome',
-    icon: 'data/EquipmentNametag22',
+    icon: 'etc/Tome_0',
     options: {
       nametagClaim: {
         label: 'Ranking nametags to claim',
@@ -445,7 +446,7 @@ export const alertMeta = {
   // Account: World 5
   'account.World 5.gaming': {
     label: 'Gaming',
-    icon: 'etc/Sprouts',
+    icon: 'data/ClassIcons56',
     options: {
       sprouts: { label: 'Sprouts at capacity' },
       drops: { label: 'Sprinkler drops at capacity' },
@@ -530,7 +531,7 @@ export const alertMeta = {
   // Account: World 6
   'account.World 6.sneaking': {
     label: 'Sneaking',
-    icon: 'data/NjUpgI14',
+    icon: 'data/ClassIcons58',
     options: {
       lastLooted: {
         label: 'Sneaking loot not collected',
@@ -572,7 +573,7 @@ export const alertMeta = {
   },
   'account.World 6.summoning': {
     label: 'Summoning',
-    icon: 'data/SumUpgIc2',
+    icon: 'data/ClassIcons59',
     options: {
       familiar: {
         label: 'Familiar upgrade below level',
@@ -705,7 +706,7 @@ export const alertMeta = {
   },
   'account.World 7.spelunking': {
     label: 'Spelunking',
-    icon: 'data/Spelunking0',
+    icon: 'etc/Spelunking',
     options: {
       pageReads: { label: 'Page reads left today' },
       fullStaminaCharacters: {
@@ -755,7 +756,7 @@ export const alertMeta = {
   },
   'account.World 7.research': {
     label: 'Research',
-    icon: 'data/ResObsClip',
+    icon: 'data/ClassIcons61',
     options: {
       insightLevel: {
         label: 'Observation insight level reached',
@@ -905,6 +906,7 @@ export const alertMeta = {
   },
   'characters.tools': {
     label: 'Better tool available',
+    icon: 'data/EquipmentTools1',
     options: {}
   },
   'characters.divinityStyle': {
@@ -914,6 +916,7 @@ export const alertMeta = {
   },
   'characters.talents': {
     label: 'Talents',
+    icon: 'data/TalentBook1',
     options: {
       talents: {
         label: 'Cooldown talents ready',
@@ -991,7 +994,7 @@ export const alertMeta = {
 
   // Timers: Other
   'timers.Etc.library': { label: 'Library books', icon: 'data/Libz', options: {} },
-  'timers.Etc.minibosses': { label: 'Boss and miniboss respawns', options: {} },
+  'timers.Etc.minibosses': { label: 'Boss and miniboss respawns', icon: 'monsters/poopBig/static', options: {} },
   'timers.Etc.bonusTimeLeft': { label: 'Vote bonus week', icon: 'etc/VoteBallot', options: {} },
   'timers.Etc.meritocracyTimeLeft': { label: 'Meritocracy vote week', icon: 'etc/VoteBallot', options: {} },
 
@@ -1009,6 +1012,7 @@ export const alertMeta = {
   'timers.World 3.closestBuilding': { label: 'Closest building', icon: 'data/ConTower7', options: {} },
   'timers.World 3.closestSalt': {
     label: 'Closest salt',
+    icon: 'data/TaskSc6',
     options: {
       salts: { label: 'Salts to include', help: 'Only the ticked salts are considered when picking the closest one.' }
     }
