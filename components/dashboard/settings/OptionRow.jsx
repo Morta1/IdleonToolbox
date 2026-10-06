@@ -24,7 +24,7 @@ const Help = ({ text }) => {
     <Typography variant="body2" color="text.secondary" sx={long && !open
       ? { display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }
       : undefined}>{text}</Typography>
-    {long ? <Button size="small" sx={{ p: 0, minWidth: 0 }} aria-expanded={open} onClick={() => setOpen(!open)}>
+    {long ? <Button size="small" sx={{ p: 0, minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} aria-expanded={open} onClick={() => setOpen(!open)}>
       {open ? 'Less' : 'More'}
     </Button> : null}
   </Box>;
@@ -128,7 +128,7 @@ const PerWorld = ({ option, tracker, onAction, disabled }) => {
                                           }}/>)}
       </Stack>
       <Typography variant="caption" color="text.secondary">
-        Leave a world blank to use {String(option.props.value)} · <Button size="small" sx={{ p: 0, minWidth: 0 }} onClick={() => onAction('clearPerWorld', tracker, option.name)}>Clear overrides</Button>
+        Leave a world blank to use {String(option.props.value)} · <Button size="small" sx={{ p: 0, minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} onClick={() => onAction('clearPerWorld', tracker, option.name)}>Clear overrides</Button>
       </Typography>
     </Box> : null}
   </Box>;

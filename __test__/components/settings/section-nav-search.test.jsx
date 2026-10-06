@@ -67,6 +67,15 @@ describe('SearchResults', () => {
     expect(onShow).toHaveBeenCalledWith(results[0]);
   });
 
+  it('locks a dependent option in the results while its parent is off', () => {
+    const model = modelFor({ 'account.World 7.royalGuardian.overkillWorkers': { checked: false } });
+    const results = searchModel(model, 'royal guardian').filter(({ option }) => option?.name === 'overkillBeforeReset');
+    expect(results).toHaveLength(1);
+    const container = renderIn(<SearchResults results={results} query="royal guardian" onAction={() => {}} onShow={() => {}}/>);
+    expect(container.querySelector(`input[aria-label="${results[0].option.label}"]`).disabled).toBe(true);
+    expect(container.textContent).toContain('to use this.');
+  });
+
   it('says so when nothing matches', () => {
     const container = renderIn(<SearchResults results={[]} query="bubbel" onAction={() => {}} onShow={() => {}}/>);
     expect(container.textContent).toContain('No alerts match "bubbel"');

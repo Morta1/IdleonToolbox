@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
-import { allTrackers, buildModel, matchesFilter, searchModel } from '@utility/dashboard/settingsModel';
+import { allTrackers, buildModel, matchesFilter, optionExtras, searchModel } from '@utility/dashboard/settingsModel';
 
 const modelFor = (edits = {}) => {
   const config = resolveTrackers(baseTrackers, edits);
@@ -61,6 +61,22 @@ describe('buildModel', () => {
     expect(thresholdOff.checked).toBe(true);
     expect(thresholdOff.on).toBe(false);
     expect(tracker(modelFor(), 'account.World 3.construction').paired).toBe(false);
+  });
+});
+
+describe('optionExtras', () => {
+  it('gives folded options and the reason a dependent option is locked', () => {
+    const model = modelFor({ 'account.World 7.royalGuardian.overkillWorkers': { checked: false } });
+    const royal = tracker(model, 'account.World 7.royalGuardian');
+    const child = royal.options.find(({ name }) => name === 'overkillBeforeReset');
+    const parent = royal.options.find(({ name }) => name === 'overkillWorkers');
+    expect(optionExtras(royal, child).disabledReason).toBe(`Turn on ${parent.label} to use this.`);
+    expect(optionExtras(royal, parent).disabledReason).toBeNull();
+    const construction = tracker(model, 'account.World 3.construction');
+    construction.options.filter(({ foldInto }) => foldInto).forEach((folded) => {
+      const host = construction.options.find(({ name }) => name === folded.foldInto);
+      expect(optionExtras(construction, host).foldedOptions).toContain(folded);
+    });
   });
 });
 

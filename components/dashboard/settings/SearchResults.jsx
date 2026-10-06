@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { optionExtras } from '@utility/dashboard/settingsModel';
 import OptionRow from './OptionRow';
 import { CompactRow } from './TrackerCard';
 
@@ -31,7 +32,7 @@ const SearchResults = ({ results, query, onAction, onShow }) => {
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <Typography variant="caption" color="text.secondary">{key} › {result.tracker.label}</Typography>
             {result.option
-              ? <OptionRow option={result.option} tracker={result.tracker} onAction={onAction}/>
+              ? <OptionRow option={result.option} tracker={result.tracker} onAction={onAction} {...optionExtras(result.tracker, result.option)}/>
               : <CompactRow tracker={result.tracker} onAction={onAction}/>}
           </Box>
           <Button size="small" sx={{ whiteSpace: 'nowrap', minHeight: { xs: 44, sm: 30 } }} onClick={() => onShow(result)}>

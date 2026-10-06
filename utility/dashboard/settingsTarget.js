@@ -7,14 +7,9 @@
 // without tracker.
 
 import { alertAliases } from './alertMeta';
+import { isSectioned } from './trackerStore';
 
 const TAB_INDEX = { account: 0, characters: 1, timers: 2 };
-
-// The characters config is a flat list of trackers; account and timers group theirs under sections.
-const hasSections = (root) => {
-  const firstValue = root ? Object.values(root)?.[0] : null;
-  return Boolean(firstValue) && typeof firstValue === 'object' && !('checked' in firstValue);
-};
 
 const findTracker = (fields, name) => {
   if (!fields || !name) return null;
@@ -29,7 +24,7 @@ export const resolveSettingsTarget = (config, configType, target) => {
   if (!root || !target) return null;
 
   const parts = String(target).split('.').filter(Boolean);
-  const sectioned = hasSections(root);
+  const sectioned = isSectioned(root);
   const section = sectioned && root[parts[0]] ? parts[0] : null;
   const rest = section ? parts.slice(1) : parts;
   const fields = section ? root[section] : (sectioned ? null : root);

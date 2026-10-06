@@ -121,3 +121,12 @@ export const searchModel = (model, query) => {
   })));
   return results;
 };
+
+// What an option row needs from its tracker: the options folded into it, and why it is locked.
+export const optionExtras = (tracker, option) => {
+  const parent = option.dependsOn ? tracker.options.find(({ name }) => name === option.dependsOn) : null;
+  return {
+    foldedOptions: tracker.options.filter(({ foldInto }) => foldInto === option.name),
+    disabledReason: parent && !parent.checked ? `Turn on ${parent.label} to use this.` : null
+  };
+};

@@ -11,6 +11,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import NextLink from 'next/link';
 import { prefix } from '@utility/helpers';
+import { optionExtras } from '@utility/dashboard/settingsModel';
 import EditedTag, { OffTag } from './EditedTag';
 import OptionRow, { NumberField } from './OptionRow';
 import { useHighlightTarget } from './useHighlightTarget';
@@ -58,7 +59,6 @@ export const CompactRow = ({ tracker, highlight = false, highlightKey = null, on
 };
 
 const OptionList = ({ tracker, highlightOption, highlightKey, onAction }) => {
-  const byName = Object.fromEntries(tracker.options.map((option) => [option.name, option]));
   const unfolded = tracker.options.filter((option) => !option.foldInto && option.name !== tracker.inline);
   // Groups are not contiguous in the saved option order (Royal Guardian lists two Outposts
   // options after the rank caps), so ungrouped options come first, then each group in the
@@ -72,13 +72,9 @@ const OptionList = ({ tracker, highlightOption, highlightKey, onAction }) => {
   return visible.map((option) => {
     const heading = option.group && option.group !== lastGroup ? option.group : null;
     if (option.group) lastGroup = option.group;
-    const parent = option.dependsOn ? byName[option.dependsOn] : null;
-    const disabledReason = parent && !parent.checked ? `Turn on ${parent.label} to use this.` : null;
     return <React.Fragment key={option.name}>
       {heading ? <Typography variant="overline" color="text.secondary" component="h3" sx={{ mt: 2 }}>{heading}</Typography> : null}
-      <OptionRow option={option} tracker={tracker} onAction={onAction}
-                 foldedOptions={tracker.options.filter(({ foldInto }) => foldInto === option.name)}
-                 disabledReason={disabledReason}
+      <OptionRow option={option} tracker={tracker} onAction={onAction} {...optionExtras(tracker, option)}
                  highlight={highlightOption === option.name} highlightKey={highlightKey}/>
     </React.Fragment>;
   });

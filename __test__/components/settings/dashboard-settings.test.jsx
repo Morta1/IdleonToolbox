@@ -10,14 +10,15 @@ import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import DashboardSettings from '@components/common/DashboardSettings';
 
 let latest;
-const Harness = ({ target = null, edits = {}, open = true }) => {
+const Harness = ({ target = null, edits = {}, open = true, initialFilter }) => {
   const [config, setConfig] = useState(resolveTrackers(baseTrackers, edits));
   useEffect(() => {
     latest = config;
   });
   return <ThemeProvider theme={darkTheme}>
     <DashboardSettings open={open} onClose={() => {}} config={config} onChange={setConfig} onFileUpload={() => {}}
-                       target={target} hideAlertless={false} onHideAlertlessChange={() => {}}/>
+                       target={target} hideAlertless={false} onHideAlertlessChange={() => {}}
+                       initialFilter={initialFilter}/>
   </ThemeProvider>;
 };
 const edits = () => diffTrackers(baseTrackers, latest);
@@ -33,6 +34,22 @@ describe('DashboardSettings window', () => {
     expect(document.body.textContent).toContain('Configure alerts');
     expect(document.body.textContent).toContain('Every count is alerts, not options');
     expect(document.body.textContent).toContain('All 98');
+  });
+
+  it('filter chips say which one is pressed', () => {
+    render(<Harness/>);
+    const chip = (label) => [...document.body.querySelectorAll('[aria-pressed]')].find((el) => el.textContent.startsWith(label));
+    expect(chip('All').getAttribute('aria-pressed')).toBe('true');
+    fireEvent.click(chip('Edited'));
+    expect(chip('Edited').getAttribute('aria-pressed')).toBe('true');
+    expect(chip('All').getAttribute('aria-pressed')).toBe('false');
+  });
+
+  it('Review edits opens on the first section with edits', () => {
+    render(<Harness initialFilter="edited" edits={{ 'timers.World 3.closestSalt': { checked: false } }}/>);
+    expect(document.body.querySelector('h2').textContent).toBe('World 3');
+    const timers = [...document.body.querySelectorAll('button')].find((b) => b.textContent.startsWith('Timers'));
+    expect(timers.getAttribute('aria-pressed')).toBe('true');
   });
 
   it('Turn all off is undoable', async () => {
