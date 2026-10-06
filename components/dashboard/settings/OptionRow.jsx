@@ -52,9 +52,10 @@ export const NumberField = ({ option, tracker, onAction, ariaLabel, disabled = f
       value={option.props.value ?? ''}
       error={error}
       disabled={disabled}
-      sx={{ width: 120 }}
+      // The number gets a fixed width and the field grows with its unit ("attempts" would squeeze a 120 px field to one digit).
+      sx={{ width: option.unit ? 'auto' : 120 }}
       slotProps={{
-        htmlInput: { 'aria-label': ariaLabel ?? option.label, min: option.props.minValue, max: option.props.maxValue },
+        htmlInput: { 'aria-label': ariaLabel ?? option.label, min: option.props.minValue, max: option.props.maxValue, style: option.unit ? { width: '8ch' } : undefined },
         input: { endAdornment: option.unit ? <InputAdornment position="end">{option.unit}</InputAdornment> : null }
       }}
       onChange={(e) => onAction('setOptionValue', tracker, option.name, e.target.value)}
