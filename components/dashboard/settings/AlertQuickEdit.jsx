@@ -122,7 +122,7 @@ const Body = ({ quickEdit, onAction }) => {
   </>;
 };
 
-const AlertQuickEdit = ({ quickEdit, open, anchorPosition, onClose, onAction, onOpenAll }) => {
+const AlertQuickEdit = ({ quickEdit, open, anchorPosition, onClose, onAction, onOpenAll, onUndo }) => {
   if (!quickEdit) return null;
   const { tracker, everyCharacter } = quickEdit;
   return <Popover open={open} onClose={onClose} anchorReference="anchorPosition" anchorPosition={anchorPosition}
@@ -144,7 +144,10 @@ const AlertQuickEdit = ({ quickEdit, open, anchorPosition, onClose, onAction, on
       {everyCharacter ? <Typography variant="caption" color="text.secondary">Applies to every character</Typography> : null}
       <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}
              sx={{ borderTop: 1, borderColor: 'divider', pt: 1 }}>
-        <Typography variant="caption" color="text.secondary">Saved automatically</Typography>
+        <Stack direction="row" alignItems="center" gap={0.5}>
+          <Typography variant="caption" color="text.secondary">Saved automatically</Typography>
+          {onUndo ? <Button size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }} onClick={onUndo}>Undo</Button> : null}
+        </Stack>
         <Button size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }} onClick={onOpenAll}>All {tracker.label} settings</Button>
       </Stack>
     </Stack>

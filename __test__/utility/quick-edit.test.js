@@ -138,6 +138,7 @@ describe('call site key shapes', () => {
   const cases = [
     ['account', 'General.etc.arcanistDailyDrops', 'weapon'],
     ['account', 'General.shops.items', 'CraftMat3'],
+    ['account', 'General.tasks', 1],
     ['account', 'World 2.postOffice.dailyShipments', 3],
     ['account', 'World 3.construction.materials', 'Refinery1'],
     ['account', 'World 3.construction.rankUp', 'Refinery1'],

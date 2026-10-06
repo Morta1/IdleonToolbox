@@ -134,6 +134,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.General?.tasks?.length > 0 ?
                 alerts?.General?.tasks?.map((world) => <Alert target={'General.tasks'} key={'task' + world}
                                                               title={`Daily task in world ${world + 1} not done yet`}
+                                                              items={[{ key: world + 1, label: `World ${world + 1}` }]}
                                                               iconPath={`etc/Merit_${world}`}/>) : null}
               {alerts?.General?.etc?.keys?.length > 0
                 ?

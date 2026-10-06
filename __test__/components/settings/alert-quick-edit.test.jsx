@@ -18,7 +18,7 @@ const quickFor = (configType, target, extra, edits = {}) => {
 const open = (quickEdit, props = {}) => {
   render(<ThemeProvider theme={darkTheme}>
     <AlertQuickEdit quickEdit={quickEdit} open anchorPosition={{ top: 10, left: 10 }} onClose={() => {}}
-                    onAction={props.onAction ?? (() => {})} onOpenAll={props.onOpenAll ?? (() => {})}/>
+                    onAction={props.onAction ?? (() => {})} onOpenAll={props.onOpenAll ?? (() => {})} onUndo={props.onUndo}/>
   </ThemeProvider>);
   return document.body.querySelector('[role="dialog"]');
 };
@@ -37,6 +37,18 @@ describe('AlertQuickEdit', () => {
     expect(onAction).toHaveBeenCalledWith('toggleOption', quickEdit.tracker, 'keys');
     fireEvent.click([...dialog.querySelectorAll('button')].find((b) => b.textContent === `All ${quickEdit.tracker.label} settings`));
     expect(onOpenAll).toHaveBeenCalled();
+  });
+
+  it('the footer Undo button calls onUndo', () => {
+    const onUndo = vi.fn();
+    const dialog = open(quickFor('account', 'General.etc.keys'), { onUndo });
+    fireEvent.click([...dialog.querySelectorAll('button')].find((b) => b.textContent === 'Undo'));
+    expect(onUndo).toHaveBeenCalledTimes(1);
+  });
+
+  it('the footer has no Undo without onUndo', () => {
+    const dialog = open(quickFor('account', 'General.etc.keys'));
+    expect([...dialog.querySelectorAll('button')].some((b) => b.textContent === 'Undo')).toBe(false);
   });
 
   it('a threshold alert edits its number', () => {

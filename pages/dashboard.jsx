@@ -96,8 +96,15 @@ const Dashboard = () => {
 
   const handleQuickAction = (name, ...args) => {
     handleConfigChange(runAction(baseTrackers, config, name, ...args));
+    if (quickUndo?.id !== quickEdit.id) trackSettingsEvent('alert_quick_edit_changed', { kind: quickModel.kind });
+    if (name === 'resetPath') trackSettingsEvent('alert_settings_reset', { scope: 'option' });
     setQuickUndo({ id: quickEdit.id, label: `${quickModel.tracker.label} settings changed`, previous: quickEdit.snapshot });
-    trackSettingsEvent('alert_quick_edit_changed', { kind: quickModel.kind });
+  };
+
+  const undoQuickEdit = () => {
+    handleConfigChange(quickUndo.previous);
+    setQuickUndo(null);
+    setQuickEdit(null);
   };
 
   const handleCloseSettings = () => {
@@ -181,20 +188,17 @@ const Dashboard = () => {
                       document.activeElement?.blur?.();
                       setQuickEdit(null);
                     }} onAction={handleQuickAction}
+                    onUndo={quickUndo?.id === quickEdit?.id ? undoQuickEdit : undefined}
                     onOpenAll={() => {
                       setQuickEdit(null);
                       handleOpenSettings(quickEdit.configType, quickEdit.target, 'quick_edit');
                     }}/>
-    {quickUndo ? <Snackbar key={quickUndo.id} open autoHideDuration={6000} message={quickUndo.label}
+    {quickUndo && !quickEdit ? <Snackbar key={quickUndo.id} open autoHideDuration={6000} message={quickUndo.label}
                            ContentProps={{ role: 'status' }}
                            onClose={(e, reason) => {
                              if (reason !== 'clickaway') setQuickUndo(null);
                            }}
-                           action={<Button color="primary" size="small" onClick={() => {
-                             handleConfigChange(quickUndo.previous);
-                             setQuickUndo(null);
-                             setQuickEdit(null);
-                           }}>Undo</Button>}/> : null}
+                           action={<Button color="primary" size="small" onClick={undoQuickEdit}>Undo</Button>}/> : null}
   </>
 };
 
