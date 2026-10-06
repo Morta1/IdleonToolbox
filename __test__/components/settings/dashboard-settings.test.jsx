@@ -64,4 +64,30 @@ describe('DashboardSettings window', () => {
     expect(document.body.querySelector('[aria-expanded="true"]')).toBeTruthy();
     expect(document.body.textContent).toContain('Per world');
   });
+
+  it('keeps Undo after two quick bulk actions and restores the state before the second', async () => {
+    render(<Harness/>);
+    fireEvent.click(button('Turn all off'));
+    const afterFirst = latest;
+    fireEvent.click(button('Turn all on'));
+    await waitFor(() => expect(button('Undo')).toBeTruthy());
+    expect(document.body.querySelector('[role="dialog"] [role="status"]')).toBeTruthy();
+    fireEvent.click(button('Undo'));
+    expect(latest).toEqual(afterFirst);
+  });
+
+  it('Reset all alerts is on the mobile menu screen', () => {
+    const original = window.matchMedia;
+    window.matchMedia = (query) => ({
+      matches: true, media: query, addEventListener: () => {}, removeEventListener: () => {},
+      addListener: () => {}, removeListener: () => {}
+    });
+    try {
+      render(<Harness/>);
+      fireEvent.click(button('Reset all alerts'));
+      expect(document.body.textContent).toContain('Reset every alert to default?');
+    } finally {
+      window.matchMedia = original;
+    }
+  });
 });

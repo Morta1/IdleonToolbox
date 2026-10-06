@@ -24,12 +24,17 @@ import { handleDownload } from '@utility/helpers';
 import FileUploadButton from '@components/common/DownloadButton';
 import { resolveSettingsTarget } from '@utility/dashboard/settingsTarget';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
-import { diffTrackers, loadTrackers } from '@utility/dashboard/trackerStore';
+import { diffTrackers, loadTrackers, TRACKERS_SCHEMA } from '@utility/dashboard/trackerStore';
 import { allTrackers, buildModel, FILTERS, matchesFilter, searchModel } from '@utility/dashboard/settingsModel';
 import * as settingsActions from '@utility/dashboard/settingsActions';
 import SettingsNav from '@components/dashboard/settings/SettingsNav';
 import SectionPane from '@components/dashboard/settings/SectionPane';
 import SearchResults from '@components/dashboard/settings/SearchResults';
+
+const TITLE_ID = 'configure-alerts-title';
+const RESET_TEXT_ID = 'configure-alerts-reset-text';
+const TAP = { minWidth: { xs: 44 }, minHeight: { xs: 44 } };
+const notAConfig = (fileName) => `${fileName} isn't an alert config. Nothing was changed. Pick a file made with Export.`;
 
 const FILTER_LABELS = { all: 'All', on: 'On', off: 'Off', edited: 'Edited', threshold: 'Has threshold' };
 
@@ -48,6 +53,7 @@ const DashboardSettings = ({
   const [expanded, setExpanded] = useState({});
   const [highlight, setHighlight] = useState(null);
   const [undo, setUndo] = useState(null);
+  const [undoCount, setUndoCount] = useState(0);
   const [confirmReset, setConfirmReset] = useState(false);
   const [importError, setImportError] = useState(null);
 
@@ -70,6 +76,9 @@ const DashboardSettings = ({
       setHighlight(resolved.trackerName ? { path, optionName: resolved.optionName } : null);
     } else {
       setFilter(initialFilter);
+      setTabIndex(0);
+      setSectionKey(model[0].sections[0].key);
+      setExpanded({});
       setMobileDetail(false);
       setHighlight(null);
     }
@@ -80,8 +89,12 @@ const DashboardSettings = ({
     ? settingsActions.resetPath(baseTrackers, config, ...args)
     : settingsActions[name](config, ...args);
   const onAction = (name, ...args) => onChange(run(name, ...args));
-  const onBulk = (label, name, ...args) => {
+  const showUndo = (label) => {
     setUndo({ label, previous: config });
+    setUndoCount((count) => count + 1);
+  };
+  const onBulk = (label, name, ...args) => {
+    showUndo(label);
     onChange(run(name, ...args));
   };
 
@@ -120,14 +133,14 @@ const DashboardSettings = ({
     handleDownload(exportConfig ?? config, 'it-dashboard-config');
   };
   const handleImport = (data, fileName = 'That file') => {
-    if (!(data?.schema === 2 || (data?.account && data?.characters))) {
-      setImportError(`${fileName} isn't an alert config. Nothing was changed. Pick a file made with Export.`);
+    if (!(data?.schema === TRACKERS_SCHEMA || (data?.account && data?.characters))) {
+      setImportError(notAConfig(fileName));
       return;
     }
     setImportError(null);
     const imported = loadTrackers(baseTrackers, data).config;
     const editCount = Object.keys(diffTrackers(baseTrackers, imported)).length;
-    setUndo({ label: `Imported ${allTrackers(model).length} alerts, ${editCount} edited from default`, previous: config });
+    showUndo(`Imported ${allTrackers(model).length} alerts, ${editCount} edited from default`);
     onFileUpload(data);
     if (typeof window.gtag !== 'undefined') {
       window.gtag('event', 'dashboard_config_imported', { event_category: 'engagement', event_label: 'dashboard', value: 1 });
@@ -141,7 +154,7 @@ const DashboardSettings = ({
       htmlInput: { 'aria-label': 'Search alerts' },
       input: {
         startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small"/></InputAdornment>,
-        endAdornment: query ? <IconButton aria-label="Clear search" size="small" onClick={() => setQuery('')}><CloseIcon fontSize="small"/></IconButton> : null
+        endAdornment: query ? <IconButton aria-label="Clear search" size="small" sx={TAP} onClick={() => setQuery('')}><CloseIcon fontSize="small"/></IconButton> : null
       }
     }}/>;
 
@@ -175,23 +188,23 @@ const DashboardSettings = ({
                            onSectionChange={changeSection} onTrackerJump={jumpTo}/>;
 
   return <>
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg" fullScreen={isSm}
+    <Dialog open={open} onClose={onClose} aria-labelledby={TITLE_ID} fullWidth maxWidth="lg" fullScreen={isSm}
             PaperProps={{ sx: { height: { sm: '90vh' } } }}>
       <DialogTitle component="div" sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pb: 1.5 }}>
         <Stack direction="row" alignItems="center" gap={2}>
           {isSm && mobileDetail && !query
-            ? <IconButton aria-label="Back to sections" onClick={() => setMobileDetail(false)}><ArrowBackIcon/></IconButton> : null}
-          <Typography variant="h6" component="h1" sx={{ whiteSpace: 'nowrap' }}>Configure alerts</Typography>
+            ? <IconButton aria-label="Back to sections" sx={TAP} onClick={() => setMobileDetail(false)}><ArrowBackIcon/></IconButton> : null}
+          <Typography id={TITLE_ID} variant="h6" component="h1" sx={{ whiteSpace: 'nowrap' }}>Configure alerts</Typography>
           {!isSm ? <Box sx={{ flex: 1, maxWidth: 520 }}>{search}</Box> : null}
           <Stack direction="row" alignItems="center" gap={0.5} sx={{ ml: 'auto' }}>
-            <FileUploadButton onFileUpload={handleImport}
-                              onInvalidFile={(fileName) => setImportError(`${fileName} isn't an alert config. Nothing was changed. Pick a file made with Export.`)}>
+            <FileUploadButton onFileUpload={handleImport} ariaLabel="Import" iconSx={TAP}
+                              onInvalidFile={(fileName) => setImportError(notAConfig(fileName))}>
               Import
             </FileUploadButton>
-            {isSm ? <IconButton aria-label="Export" onClick={handleExport}><IconFileExport size={18}/></IconButton>
+            {isSm ? <IconButton aria-label="Export" sx={TAP} onClick={handleExport}><IconFileExport size={18}/></IconButton>
               : <Button onClick={handleExport} startIcon={<IconFileExport size={18}/>} size="small">Export</Button>}
             {!isSm ? <Button size="small" color="inherit" onClick={() => setConfirmReset(true)}>Reset all</Button> : null}
-            <IconButton aria-label="Close" onClick={onClose}><CloseIcon/></IconButton>
+            <IconButton aria-label="Close" sx={TAP} onClick={onClose}><CloseIcon/></IconButton>
           </Stack>
         </Stack>
         {isSm ? search : null}
@@ -200,17 +213,28 @@ const DashboardSettings = ({
       </DialogTitle>
       <DialogContent dividers sx={{ p: 0, display: 'flex', minHeight: 0 }}>
         {isSm
-          ? <Box sx={{ p: 1.5, width: '100%', overflowY: 'auto' }}>{query || mobileDetail ? pane : nav}</Box>
+          ? <Box sx={{ p: 1.5, width: '100%', overflowY: 'auto' }}>{query || mobileDetail ? pane : <>
+            {nav}
+            <Button fullWidth color="inherit" sx={{ ...TAP, mt: 2 }} onClick={() => setConfirmReset(true)}>Reset all alerts</Button>
+          </>}</Box>
           : <>
             <Box sx={{ width: 288, flexShrink: 0, borderRight: 1, borderColor: 'divider', p: 1.5, overflowY: 'auto' }}>{nav}</Box>
             <Box sx={{ flex: 1, minWidth: 0, p: 2.5, overflowY: 'auto' }}>{pane}</Box>
           </>}
       </DialogContent>
+    <Snackbar key={undoCount} open={Boolean(undo)} autoHideDuration={6000} onClose={(e, reason) => {
+                if (reason !== 'clickaway') setUndo(null);
+              }} message={undo?.label}
+              ContentProps={{ role: 'status' }}
+              action={<Button color="primary" size="small" onClick={() => {
+                onChange(undo.previous);
+                setUndo(null);
+              }}>Undo</Button>}/>
     </Dialog>
-    <Dialog open={confirmReset} onClose={() => setConfirmReset(false)} PaperProps={{ role: 'alertdialog' }}>
+    <Dialog open={confirmReset} onClose={() => setConfirmReset(false)} PaperProps={{ role: 'alertdialog', 'aria-describedby': RESET_TEXT_ID }}>
       <DialogTitle>Reset every alert to default?</DialogTitle>
       <DialogContent>
-        <DialogContentText>
+        <DialogContentText id={RESET_TEXT_ID}>
           This turns all {allTrackers(model).length} alerts back to their default and clears your {Object.keys(edits).length} edits. Export first if you want a copy.
         </DialogContentText>
       </DialogContent>
@@ -222,13 +246,7 @@ const DashboardSettings = ({
         }}>Reset all</Button>
       </DialogActions>
     </Dialog>
-    <Snackbar open={Boolean(undo)} autoHideDuration={6000} onClose={() => setUndo(null)} message={undo?.label}
-              ContentProps={{ role: 'status' }}
-              action={<Button color="primary" size="small" onClick={() => {
-                onChange(undo.previous);
-                setUndo(null);
-              }}>Undo</Button>}/>
-  </>;
+</>;
 };
 
 export default DashboardSettings;
