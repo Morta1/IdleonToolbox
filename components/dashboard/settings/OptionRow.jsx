@@ -64,7 +64,7 @@ export const NumberField = ({ option, tracker, onAction, ariaLabel, disabled = f
       }}/>
     {option.edited ? <Stack direction="row" alignItems="center" gap={0.75}>
       <Typography variant="caption" color="text.secondary">Default {String(option.defaultValue)} ·</Typography>
-      <Button size="small" sx={{ p: 0, minWidth: 0 }} disabled={disabled} onClick={() => onAction('resetPath', option.path)}>Reset</Button>
+      <Button size="small" sx={{ p: 0, minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={disabled} onClick={() => onAction('resetPath', option.path)}>Reset</Button>
     </Stack> : null}
     {error ? <Typography variant="caption" color="error" role="alert">{rangeText(option.props)}</Typography> : null}
   </Stack>;
@@ -88,8 +88,8 @@ export const PickerTiles = ({ option, tracker, onAction, disabled }) => {
       </Box> : null}
     </ButtonBase>)}
     <Typography variant="caption" color="text.secondary">{onCount}/{entries.length}</Typography>
-    <Button size="small" sx={{ minWidth: 0 }} disabled={disabled} onClick={() => onAction('setPickerAll', tracker, option.name, true)}>All</Button>
-    <Button size="small" sx={{ minWidth: 0 }} disabled={disabled} onClick={() => onAction('setPickerAll', tracker, option.name, false)}>None</Button>
+    <Button size="small" sx={{ minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={disabled} onClick={() => onAction('setPickerAll', tracker, option.name, true)}>All</Button>
+    <Button size="small" sx={{ minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={disabled} onClick={() => onAction('setPickerAll', tracker, option.name, false)}>None</Button>
   </Stack>;
 };
 
@@ -98,7 +98,7 @@ export const ToggleChips = ({ option, tracker, onAction, disabled }) => <Stack d
                                                                        variant={on ? 'contained' : 'outlined'}
                                                                        color={on ? 'primary' : 'inherit'}
                                                                        startIcon={on ? <CheckIcon/> : null}
-                                                                       sx={{ textTransform: 'none', minHeight: 32 }}
+                                                                       sx={{ textTransform: 'none', minHeight: { xs: 44, sm: 32 } }}
                                                                        onClick={() => onAction('togglePickerItem', tracker, option.name, key)}>
     {key.camelToTitleCase && /^[a-z]/.test(key) ? key.camelToTitleCase() : key}
   </Button>)}

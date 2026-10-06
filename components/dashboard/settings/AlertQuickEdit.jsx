@@ -80,6 +80,7 @@ const Dependents = ({ quickEdit, onAction }) => quickEdit.dependents.map((depend
 const Folded = ({ quickEdit, onAction, disabled }) => quickEdit.folded.map((folded) => <Box key={folded.name}>
   <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>{folded.label}</Typography>
   {folded.type === 'array' ? <ToggleChips option={folded} tracker={quickEdit.tracker} onAction={onAction} disabled={disabled}/> : null}
+  <Help text={folded.help}/>
 </Box>);
 
 const Body = ({ quickEdit, onAction }) => {

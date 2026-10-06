@@ -122,4 +122,14 @@ describe('buildQuickEdit', () => {
     const tracker = allTrackers(setup().model).find(({ path }) => path === 'account.General.etc');
     expect(result.tracker.path).toBe(tracker.path);
   });
+
+  it('a timer with an input option keeps that option checkbox instead of the tracker switch', () => {
+    const base = { ...baseTrackers, timers: { ...baseTrackers.timers, Etc: { ...baseTrackers.timers.Etc,
+      library: { checked: true, options: [{ name: 'hours', type: 'input', checked: true, props: { value: 5 } }] } } } };
+    const config = resolveTrackers(base, {});
+    const model = buildModel(config, base, diffTrackers(base, config));
+    const result = buildQuickEdit(config, model, 'timers', 'Etc.library.hours');
+    expect(result.option.name).toBe('hours');
+    expect(result.trackerSwitch).toBe(false);
+  });
 });

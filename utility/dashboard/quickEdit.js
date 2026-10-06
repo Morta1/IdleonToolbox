@@ -66,7 +66,8 @@ export const buildQuickEdit = (config, model, configType, target, { items = [], 
     items: kind === 'pickerItems' ? watched : [],
     worlds: kind === 'perWorld' ? rows : [],
     everyCharacter: configType === 'characters',
-    trackerSwitch: kind === 'tracker' || configType === 'timers',
+    // A timer's switch is its only control, except an input option keeps its own checkbox.
+    trackerSwitch: kind === 'tracker' || (configType === 'timers' && option?.type !== 'input'),
     configType,
     target
   };

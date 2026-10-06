@@ -108,4 +108,12 @@ describe('AlertQuickEdit', () => {
     expect(byLabel(dialog, `${quickEdit.tracker.label} alerts`)).toBeTruthy();
     expect(byLabel(dialog, 'Watch Redox Salts')).toBeTruthy();
   });
+
+  it('shows the help of a folded option', () => {
+    const quickEdit = quickFor('account', 'World 3.construction.saltBalance');
+    const dialog = open(quickEdit);
+    expect(quickEdit.folded.length).toBeGreaterThan(0);
+    expect(quickEdit.folded[0].help).toBeTruthy();
+    expect(dialog.textContent).toContain(quickEdit.folded[0].help);
+  });
 });
