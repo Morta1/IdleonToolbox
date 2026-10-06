@@ -45,10 +45,13 @@ const Dashboard = () => {
     key: 'dashboard-hide-alertless',
     defaultValue: false
   });
+  // No defaultValue: mantine would write it back to storage and a never-set key must stay distinguishable.
   const [defaultsNoteDismissed, setDefaultsNoteDismissed] = useLocalStorage({
-    key: 'dashboard-defaults-note-dismissed',
-    defaultValue: false
+    key: 'dashboard-defaults-note-dismissed'
   });
+  // Storage is read in an effect, so hold the note back until then instead of flashing it for users who dismissed it.
+  const [storageRead, setStorageRead] = useState(false);
+  useEffect(() => setStorageRead(true), []);
   const [initialFilter, setInitialFilter] = useState('all');
   // Counted once on load: edits made in the window afterwards must not make the note appear.
   const [editCount] = useState(() => Object.keys(diffTrackers(baseTrackers, initialLoad.config)).length);
@@ -96,7 +99,7 @@ const Dashboard = () => {
       description="Provides key information about your account and alerts you when there are unfinished tasks"
     />
     <Stack>
-      {!defaultsNoteDismissed && editCount > 0 ? <DefaultsNote count={editCount}
+      {storageRead && !defaultsNoteDismissed && editCount > 0 ? <DefaultsNote count={editCount}
                                                                onReview={() => {
                                                                  setInitialFilter('edited');
                                                                  setSettingsTarget(null);
