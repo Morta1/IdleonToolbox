@@ -1213,7 +1213,6 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
       bravery,
       justice,
       wisdom,
-      theBell,
       theHarp,
       theHive,
       grotto,
@@ -1258,9 +1257,16 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
     if (wisdom?.checked && account?.hole?.caverns?.wisdom?.rewardMulti >= wisdom?.props?.value) {
       hole.wisdom = true;
     }
-    const readyBells = account?.hole?.caverns?.theBell?.bells?.filter(({ exp, expReq }) => exp >= expReq);
-    if (theBell?.checked && readyBells?.length > 0) {
-      hole.theBell = true;
+    const readyBells = account?.hole?.caverns?.theBell?.bells?.map(({ name, readyUses }, index) => ({
+      name,
+      readyUses,
+      index
+    })).filter(({ name, readyUses }) => {
+      const option = options?.hole?.[`bell${name?.capitalize()}`];
+      return option?.checked && readyUses > 0 && readyUses >= (option?.props?.value || 1);
+    });
+    if (readyBells?.length > 0) {
+      hole.bells = readyBells;
     }
     const powerThresholdReached = account?.hole?.caverns?.theHarp?.power >= theHarp?.props?.value;
     if (theHarp?.checked && powerThresholdReached) {

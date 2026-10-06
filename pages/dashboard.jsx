@@ -11,7 +11,7 @@ import { getRawRefinerySalts } from '@parsers/misc';
 import DashboardSettings from '../components/common/DashboardSettings';
 import { DashboardSettingsProvider } from '@components/common/context/DashboardSettingsProvider';
 import Button from '@mui/material/Button';
-import { migrateConfig } from '@utility/migrations';
+import { bellOptions, migrateConfig } from '@utility/migrations';
 import { IconSettingsFilled } from '@tabler/icons-react';
 import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
@@ -19,7 +19,7 @@ import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 import { useLocalStorage } from '@mantine/hooks';
 
 const baseTrackers = {
-  version: 81,
+  version: 82,
   account: {
     General: {
       tasks: {
@@ -435,7 +435,7 @@ const baseTrackers = {
             type: 'input',
             props: { label: 'Reward multi threshold', value: 1, minValue: 1, helperText: '' }
           },
-          { name: 'theBell', checked: true },
+          ...bellOptions,
           {
             name: 'theHarp',
             checked: true,

@@ -36,7 +36,7 @@ const TheBell = ({ hole }) => {
     </Stack>
     <Divider sx={{ my: 2 }}/>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {hole?.caverns?.theBell?.bells?.map(({ name, expRate, expReq, exp, bonus }, index) => {
+      {hole?.caverns?.theBell?.bells?.map(({ name, expRate, expReq, exp, bonus, readyUses }, index) => {
         const timeToFull = (expReq - exp) / expRate.value * 1000 * 3600;
         return <Card key={`bell-${index}`}>
           <CardContent sx={{ width: 300 }}>
@@ -50,7 +50,7 @@ const TheBell = ({ hole }) => {
               </Tooltip>
             </Stack>
             <Typography mt={1}>{notateNumber(exp, 'Big')} / {notateNumber(expReq, 'Big')} Exp</Typography>
-            <Typography mt={1}>Time to full: {timeToFull > 0 ? msToDate(timeToFull) : 'Ready'}</Typography>
+            <Typography mt={1}>Time to full: {timeToFull > 0 ? msToDate(timeToFull) : `Ready${readyUses > 1 ? ` (x${readyUses})` : ''}`}</Typography>
           </CardContent>
         </Card>
       })}

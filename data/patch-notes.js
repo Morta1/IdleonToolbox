@@ -7,7 +7,9 @@ export const patchNotes = [
     'ver': '3.3.86',
     'gameVer': '2.3.531',
     'date': '06/10/2026',
-    'features': [],
+    'features': [
+      'Dashboard: the Hole Bell alert is now split per bell (Ring, Ping, Clean, Renew), each with its own ready uses threshold'
+    ],
     'fixes': [
       'Dashboard: the Hole Bell alert now shows when a cavern bell is ready',
       'Masterclass upgrade cards: long upgrade names now wrap beside the icon instead of below it'
