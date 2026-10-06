@@ -8,7 +8,7 @@ export const RENAMED_PATHS = {};
 const CONFIG_TYPES = ['account', 'characters', 'timers'];
 
 // Characters is a flat map of trackers; account and timers group them under sections.
-const isSectioned = (root) => {
+export const isSectioned = (root) => {
   const first = root ? Object.values(root)[0] : null;
   return Boolean(first) && typeof first === 'object' && !('checked' in first);
 };
