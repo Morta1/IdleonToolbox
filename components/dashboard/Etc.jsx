@@ -2,7 +2,7 @@ import React from 'react';
 import Library from '../account/Worlds/World3/Library';
 import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
 import styled from '@emotion/styled';
-import { cleanUnderscore, getDuration, getNextCompanionClaim, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, getDuration, getNextCompanionClaim, notateNumber, prefix, splitTime } from '@utility/helpers';
 import useRealDate from '@hooks/useRealDate';
 import { getEventShopBonus, getMiniBossesData, getRandomEvents } from '@parsers/misc';
 import Tooltip from '../Tooltip';
@@ -21,6 +21,7 @@ import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getMonumentMaxLinearTime } from '@parsers/world-5/caverns/bravery';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
+import { SMOKER_MAX_QUALITY_SECONDS } from '@parsers/clickers/bubba';
 
 const maxTimeValue = 9.007199254740992e+15;
 const VILLAGER_TABS = ['Explore', 'Engineer', 'Bonuses', 'Measure', 'Study'];
@@ -64,6 +65,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const gcLongDuration = nextGreatestCatch > maxTimeValue || gcDuration?.days > 365;
   const cfDuration = getDuration(now, nextMegaFleshRestart);
   const cfLongDuration = nextMegaFleshRestart > maxTimeValue || cfDuration?.days > 365; 
+  const smokerMaxQuality = now + (SMOKER_MAX_QUALITY_SECONDS - (account?.bubba?.smokerSeconds ?? 0)) * 1000;
   const showEquinoxError = account?.equinox?.upgrades.filter(upgrade => upgrade.unlocked).some(upgrade => upgrade.lvl < upgrade.maxLvl);
   const allPetsAcquired = account?.companions?.list?.every(({ acquired }) => acquired);
   const atomBonus = getAtomBonus(account, 'Nitrogen_-_Construction_Trimmer');
@@ -439,6 +441,17 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             timerPlaceholder={'Mega flesh restart available'}
           />}
         </> : null}
+        {trackers?.Clickers?.smokerMax?.checked && account?.bubba?.smokerUnlocked ? <TimerCard
+          page={'account/clickers/bubba'}
+          tooltipContent={<Stack gap={0.5}>
+            <Typography variant="body2">Smoking for {splitTime((account?.bubba?.smokerSeconds ?? 0) / 3600)}</Typography>
+            <Typography variant="body2">Max smoked meat quality: {getRealDateInMs(smokerMaxQuality)}</Typography>
+          </Stack>}
+          lastUpdated={lastUpdated}
+          time={smokerMaxQuality}
+          icon={'data/BubbaSmokedmeat4.png'}
+          timerPlaceholder={'Smoker ready'}
+        /> : null}
       </Section>}
       {(trackers?.Etc?.bonusTimeLeft?.checked || trackers?.Etc?.meritocracyTimeLeft?.checked) && timeAway && <Section title={'Vote'}>
         {trackers?.Etc?.bonusTimeLeft?.checked && <TimerCard

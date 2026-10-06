@@ -941,6 +941,7 @@ const baseTrackers = {
       fisherooReset: { checked: true, options: [], category: 'Poppy' },
       greatestCatch: { checked: true, options: [] },
       megaFleshRestart: { checked: true, options: [], category: 'Bubba' },
+      smokerMax: { checked: true, options: [] },
     },
     'World 3': {
       printer: { checked: true, options: [] },

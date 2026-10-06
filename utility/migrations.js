@@ -2163,6 +2163,11 @@ const migration82 = (dashboardConfig) => {
     if (bellIndex >= 0) holeOptions.splice(bellIndex, 1, ...newOptions);
     else holeOptions.push(...newOptions);
   }
+  // Bubba Smoker countdown joins the Clickers timers, under Mega Flesh.
+  const clickers = dashboardConfig?.timers?.Clickers;
+  if (clickers && !clickers.smokerMax) {
+    clickers.smokerMax = { checked: true, options: [] };
+  }
 
   dashboardConfig.version = 82;
   return dashboardConfig;
