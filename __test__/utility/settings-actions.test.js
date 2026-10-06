@@ -4,7 +4,7 @@ import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import { allTrackers, buildModel } from '@utility/dashboard/settingsModel';
 import {
-  clampValue, clearPerWorld, resetPath, setOptionValue, setPerWorld, setPickerAll, setSectionOn,
+  clampValue, clearPerWorld, resetPath, runAction, setOptionValue, setPerWorld, setPickerAll, setSectionOn,
   toggleOption, togglePickerItem, toggleTracker
 } from '@utility/dashboard/settingsActions';
 
@@ -103,5 +103,16 @@ describe('settingsActions', () => {
     });
     expect(edits(resetPath(baseTrackers, config, 'account.World 3'))).toEqual({ 'account.World 1.stamps': { checked: false } });
     expect(edits(resetPath(baseTrackers, config, null))).toEqual({});
+  });
+});
+
+describe('runAction', () => {
+  it('dispatches by name and gives resetPath the base', () => {
+    const config = resolveTrackers(baseTrackers, {});
+    const tracker = { configType: 'account', section: 'World 3', name: 'construction', on: true, paired: false };
+    const off = runAction(baseTrackers, config, 'toggleOption', tracker, 'materials');
+    expect(diffTrackers(baseTrackers, off)).toEqual({ 'account.World 3.construction.materials': { checked: false } });
+    const back = runAction(baseTrackers, off, 'resetPath', 'account.World 3.construction');
+    expect(diffTrackers(baseTrackers, back)).toEqual({});
   });
 });

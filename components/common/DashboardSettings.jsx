@@ -16,6 +16,7 @@ import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useDebouncedValue } from '@mantine/hooks';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -26,7 +27,8 @@ import { resolveSettingsTarget } from '@utility/dashboard/settingsTarget';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, loadTrackers, TRACKERS_SCHEMA } from '@utility/dashboard/trackerStore';
 import { allTrackers, buildModel, FILTERS, matchesFilter, searchModel } from '@utility/dashboard/settingsModel';
-import * as settingsActions from '@utility/dashboard/settingsActions';
+import { runAction } from '@utility/dashboard/settingsActions';
+import { resetScope, trackSettingsEvent } from '@utility/dashboard/settingsAnalytics';
 import SettingsNav from '@components/dashboard/settings/SettingsNav';
 import SectionPane from '@components/dashboard/settings/SectionPane';
 import SearchResults from '@components/dashboard/settings/SearchResults';
@@ -50,6 +52,12 @@ const DashboardSettings = ({
   const [mobileDetail, setMobileDetail] = useState(false);
   const [filter, setFilter] = useState(initialFilter);
   const [query, setQuery] = useState('');
+  // One event per pause in typing, carrying only how many results the query found.
+  const [settledQuery] = useDebouncedValue(query.trim(), 1000);
+  useEffect(() => {
+    if (open && settledQuery) trackSettingsEvent('alert_settings_search', { results: searchModel(model, settledQuery).length });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settledQuery]);
   const [expanded, setExpanded] = useState({});
   const [highlight, setHighlight] = useState(null);
   const [undo, setUndo] = useState(null);
@@ -95,9 +103,10 @@ const DashboardSettings = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, target]);
 
-  const run = (name, ...args) => name === 'resetPath'
-    ? settingsActions.resetPath(baseTrackers, config, ...args)
-    : settingsActions[name](config, ...args);
+  const run = (name, ...args) => {
+    if (name === 'resetPath') trackSettingsEvent('alert_settings_reset', { scope: resetScope(model, args[0]) });
+    return runAction(baseTrackers, config, name, ...args);
+  };
   const onAction = (name, ...args) => onChange(run(name, ...args));
   const showUndo = (label) => {
     setUndo({ label, previous: config });

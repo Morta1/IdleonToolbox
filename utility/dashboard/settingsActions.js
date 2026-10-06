@@ -74,3 +74,11 @@ export const resetPath = (base, config, prefix) => {
     .filter(([key]) => key !== prefix && !key.startsWith(`${prefix}.`)));
   return resolveTrackers(base, kept);
 };
+
+const actions = {
+  toggleTracker, toggleOption, setOptionValue, togglePickerItem, setPickerAll, setPerWorld, clearPerWorld, setSectionOn
+};
+
+export const runAction = (base, config, name, ...args) => name === 'resetPath'
+  ? resetPath(base, config, ...args)
+  : actions[name](config, ...args);

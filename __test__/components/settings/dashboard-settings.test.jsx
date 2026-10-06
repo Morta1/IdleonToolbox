@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import '../../../polyfills';
 import React, { useEffect, useState } from 'react';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../../styles/theme/darkTheme';
@@ -171,5 +171,37 @@ describe('DashboardSettings window', () => {
     const titled = document.body.querySelectorAll('#configure-alerts-title');
     expect(titled).toHaveLength(1);
     expect(titled[0].tagName).toBe('H1');
+  });
+});
+
+describe('DashboardSettings analytics', () => {
+  let gtag;
+  beforeAll(() => {
+    Element.prototype.scrollIntoView = () => {};
+  });
+  beforeEach(() => {
+    gtag = vi.fn();
+    window.gtag = gtag;
+  });
+  afterEach(() => {
+    delete window.gtag;
+  });
+
+  it('Reset all sends alert_settings_reset with scope all', () => {
+    render(<Harness edits={{ 'timers.World 3.closestSalt': { checked: false } }}/>);
+    fireEvent.click(button('Reset all'));
+    fireEvent.click([...document.body.querySelectorAll('[role="alertdialog"] button')].find((b) => b.textContent === 'Reset all'));
+    expect(gtag).toHaveBeenCalledWith('event', 'alert_settings_reset', expect.objectContaining({ scope: 'all' }));
+  });
+
+  it('search sends one debounced event with the result count and no query text', async () => {
+    render(<Harness/>);
+    const input = document.body.querySelector('input[aria-label="Search alerts"]');
+    fireEvent.change(input, { target: { value: 'sal' } });
+    fireEvent.change(input, { target: { value: 'salt' } });
+    await waitFor(() => expect(gtag).toHaveBeenCalledWith('event', 'alert_settings_search', expect.objectContaining({ results: expect.any(Number) })), { timeout: 2500 });
+    const calls = gtag.mock.calls.filter(([, name]) => name === 'alert_settings_search');
+    expect(calls).toHaveLength(1);
+    expect(JSON.stringify(calls[0])).not.toContain('salt');
   });
 });
