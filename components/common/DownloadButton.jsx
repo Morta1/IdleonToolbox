@@ -5,7 +5,7 @@ import { IconFileImport } from '@tabler/icons-react';
 import IconButton from '@mui/material/IconButton';
 import { useMediaQuery } from '@mui/material';
 
-const FileUploadButton = ({ children, onFileUpload }) => {
+const FileUploadButton = ({ children, onFileUpload, onInvalidFile }) => {
   const fileInputRef = useRef(null);
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
@@ -17,9 +17,11 @@ const FileUploadButton = ({ children, onFileUpload }) => {
       reader.onload = (e) => {
         const parsed = tryToParse(e.target.result);
         if (typeof parsed !== 'string') {
-          onFileUpload?.(parsed);
-          fileInputRef.current.value = '';
+          onFileUpload?.(parsed, selectedFile.name);
+        } else {
+          onInvalidFile?.(selectedFile.name);
         }
+        fileInputRef.current.value = '';
       };
       reader.readAsText(selectedFile);
     }
