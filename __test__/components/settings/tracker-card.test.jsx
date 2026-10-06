@@ -67,4 +67,13 @@ describe('CompactRow', () => {
     fireEvent.click(toggle);
     expect(onAction).toHaveBeenCalledWith('toggleTracker', tracker);
   });
+
+  it('edited rows show a Reset for the whole alert', () => {
+    const onAction = vi.fn();
+    const tracker = trackerFor('characters.bags', { 'characters.bags.unmaxedBags': { checked: false } });
+    const container = renderIn(<CompactRow tracker={tracker} onAction={onAction}/>);
+    expect(container.textContent).toContain('Edited');
+    fireEvent.click([...container.querySelectorAll('button')].find((b) => b.textContent === 'Reset'));
+    expect(onAction).toHaveBeenCalledWith('resetPath', 'characters.bags');
+  });
 });
