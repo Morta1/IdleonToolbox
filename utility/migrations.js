@@ -2145,6 +2145,34 @@ const migration81 = (dashboardConfig) => {
   return dashboardConfig;
 };
 
+export const bellOptions = ['Ring', 'Ping', 'Clean', 'Renew'].map((bell) => ({
+  name: `bell${bell}`,
+  checked: true,
+  type: 'input',
+  props: { label: 'Ready uses threshold', value: 1, minValue: 1, helperText: '' }
+}));
+
+const migration82 = (dashboardConfig) => {
+  // One alert per bell type: banked Renews kept the single Bell alert on forever.
+  // Each bell inherits the old toggle, with a threshold of 1 so nothing changes until raised.
+  const holeOptions = dashboardConfig?.account?.['World 5']?.hole?.options;
+  if (Array.isArray(holeOptions) && !holeOptions.some((option) => option?.name === 'bellRing')) {
+    const bellIndex = holeOptions.findIndex((option) => option?.name === 'theBell');
+    const checked = bellIndex >= 0 ? holeOptions[bellIndex]?.checked !== false : true;
+    const newOptions = bellOptions.map((option) => ({ ...option, props: { ...option.props }, checked }));
+    if (bellIndex >= 0) holeOptions.splice(bellIndex, 1, ...newOptions);
+    else holeOptions.push(...newOptions);
+  }
+  // Bubba Smoker countdown joins the Clickers timers, under Mega Flesh.
+  const clickers = dashboardConfig?.timers?.Clickers;
+  if (clickers && !clickers.smokerMax) {
+    clickers.smokerMax = { checked: true, options: [] };
+  }
+
+  dashboardConfig.version = 82;
+  return dashboardConfig;
+};
+
 const migrations = {
   2: migrateToVersion2,
   3: migrateToVersion3,
@@ -2226,6 +2254,7 @@ const migrations = {
   79: migration79,
   80: migration80,
   81: migration81,
+  82: migration82,
 };
 
 export const migrateConfig = (baseTrackers, userConfig) => {

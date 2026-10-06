@@ -3,9 +3,10 @@ import { getRawRefinerySalts } from '@parsers/misc';
 import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getCrystalCountdownSkills } from '@parsers/talents';
 import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
+import { bellOptions } from '@utility/migrations';
 
 export const baseTrackers = {
-  version: 81,
+  version: 82,
   account: {
     General: {
       tasks: {
@@ -422,7 +423,7 @@ export const baseTrackers = {
             type: 'input',
             props: { label: 'Reward multi threshold', value: 1, minValue: 1, helperText: '' }
           },
-          { name: 'theBell', checked: true },
+          ...bellOptions,
           {
             name: 'theHarp',
             checked: true,
@@ -928,6 +929,7 @@ export const baseTrackers = {
       fisherooReset: { checked: true, options: [], category: 'Poppy' },
       greatestCatch: { checked: true, options: [] },
       megaFleshRestart: { checked: true, options: [], category: 'Bubba' },
+      smokerMax: { checked: true, options: [] },
     },
     'World 3': {
       printer: { checked: true, options: [] },

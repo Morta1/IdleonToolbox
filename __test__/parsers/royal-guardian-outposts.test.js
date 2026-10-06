@@ -308,6 +308,8 @@ describe('royal guardian outposts', () => {
     // Froggy Fields has no slot Guards (its one Guard is passive), so only Military rank comes off.
     expect(froggy.militaryRangePerRank).toBe(6);
     close(froggy.baseRange, froggy.rangeUncapped - 4 * 6);
+    // No slot Guards to lose, so the reach without them is the reach itself.
+    expect(froggy.rangeWithoutGuards).toBe(froggy.range);
     for (const need of froggy.nodeRankNeeds) {
       expect(need.rankNeeded).toBe(getMilitaryRankToReach(need.distance, froggy.baseRange, 6));
     }

@@ -14,7 +14,7 @@ describe('buildModel', () => {
   it('has the three tabs and every tracker once', () => {
     const model = modelFor();
     expect(model.map(({ configType }) => configType)).toEqual(['account', 'characters', 'timers']);
-    expect(allTrackers(model)).toHaveLength(98);
+    expect(allTrackers(model)).toHaveLength(99);
     expect(model[1].sections).toHaveLength(1);
   });
 

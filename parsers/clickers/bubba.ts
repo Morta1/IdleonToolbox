@@ -86,9 +86,17 @@ const parseBubba = (rawBubba: any, account: any) => {
     bonuses: getBubbaBonusesObject(rawBubba, account),
     totalUpgTypesAvailable,
     megafleshOwned,
-    megaFlesh
+    megaFlesh,
+    // Smoker (upgrade 15) smoking time: banked seconds [0][14] plus pending idle seconds [0][7],
+    // which the game folds into [0][14] next time the Bubba window ticks
+    smokerUnlocked: totalUpgTypesAvailable > 15,
+    smokerSeconds: (rawBubba?.[0]?.[14] || 0) + (rawBubba?.[0]?.[7] || 0)
   };
 }
+
+// The smoked meat tier roll is floor(5 * rand ^ max(0.1, 9 - 10 * t / (7200 + t))).
+// The exponent bottoms out at 0.1 once t / (7200 + t) = 0.89, so waiting longer gains nothing.
+export const SMOKER_MAX_QUALITY_SECONDS = 0.89 * 7200 / 0.11;
 
 const getProgressReq = (totalUpgTypesAvailable: any) => {
   return 50 * Math.pow(2.8 + totalUpgTypesAvailable / 3.55, totalUpgTypesAvailable - Math.min(1, Math.floor(totalUpgTypesAvailable / 4)));

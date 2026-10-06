@@ -93,9 +93,9 @@ const Upgrades = ({ account, upgrades, bones }) => {
                 height: '100%',
                 opacity: unlocked ? 1 : .5
               }}>
-                <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-                  <img style={{ width: 32, height: 32 }} src={`${prefix}data/GrimoireUpg${index}.png`} alt=""/>
-                  <Typography>{cleanUnderscore(name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))} ({numberWithCommas(level)} / {numberWithCommas(x4)})</Typography>
+                <Stack direction={'row'} gap={2} flexWrap={'nowrap'} alignItems={'center'}>
+                  <img style={{ width: 32, height: 32, flexShrink: 0 }} src={`${prefix}data/GrimoireUpg${index}.png`} alt=""/>
+                  <Typography sx={{ minWidth: 0 }}>{cleanUnderscore(name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))} ({numberWithCommas(level)} / {numberWithCommas(x4)})</Typography>
                 </Stack>
                 <Divider sx={{ my: 1 }}/>
                 <Typography>{cleanUnderscore(description.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}</Typography>

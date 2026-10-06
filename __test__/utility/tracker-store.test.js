@@ -12,7 +12,7 @@ describe('resolveTrackers', () => {
     expect(resolved.account).toEqual(baseTrackers.account);
     expect(resolved.characters).toEqual(baseTrackers.characters);
     expect(resolved.timers).toEqual(baseTrackers.timers);
-    expect(resolved.version).toBe(81);
+    expect(resolved.version).toBe(82);
     resolved.account['World 1'].stamps.checked = false;
     expect(baseTrackers.account['World 1'].stamps.checked).toBe(true);
   });

@@ -492,7 +492,30 @@ export const alertMeta = {
         help: 'Alerts when the Bravery reward multi reaches this value.',
         group: 'Monuments'
       },
-      theBell: { label: 'Bell ready to ring', group: 'Other caverns' },
+      bellRing: {
+        label: 'Ring bell ready',
+        help: 'Alerts when the Ring bell has at least this many uses ready.',
+        unit: 'uses',
+        group: 'Other caverns'
+      },
+      bellPing: {
+        label: 'Ping bell ready',
+        help: 'Alerts when the Ping bell has at least this many uses ready.',
+        unit: 'uses',
+        group: 'Other caverns'
+      },
+      bellClean: {
+        label: 'Clean bell ready',
+        help: 'Alerts when the Clean bell has at least this many uses ready.',
+        unit: 'uses',
+        group: 'Other caverns'
+      },
+      bellRenew: {
+        label: 'Renew bell ready',
+        help: 'Alerts when the Renew bell has at least this many uses ready.',
+        unit: 'uses',
+        group: 'Other caverns'
+      },
       theHarp: {
         label: 'Harp power reached',
         help: 'Alerts when Harp power reaches this percent.',
@@ -1004,6 +1027,7 @@ export const alertMeta = {
   'timers.Clickers.fisherooReset': { label: 'Fisheroo Reset', icon: 'etc/KUpga_6', unit: 'Poppy', options: {} },
   'timers.Clickers.greatestCatch': { label: 'Greatest Catch', icon: 'etc/KUpga_11', unit: 'Poppy', options: {} },
   'timers.Clickers.megaFleshRestart': { label: 'Mega Flesh Restart', icon: 'etc/Bubbo_Upgrade_8', unit: 'Bubba', options: {} },
+  'timers.Clickers.smokerMax': { label: 'Smoker at max quality', icon: 'data/BubbaSmokedmeat4', unit: 'Bubba', options: {} },
 
   // Timers: World 3
   'timers.World 3.printer': { label: 'Next printer cycle', icon: 'data/ConTower0', options: {} },

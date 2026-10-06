@@ -147,7 +147,11 @@ describe('legacy conversion', () => {
       config.version = 78;
       config.account['World 5'].sailing.options = config.account['World 5'].sailing.options
         .filter(({ name }) => name !== 'alwaysAlertEnderCaptains');
-      option(config, 'World 5', 'hole', 'theBell').name = 'theWell';
+      // Before v79 the four bell options (v82) were one option, then named theWell.
+      const hole = config.account['World 5'].hole;
+      const firstBell = hole.options.findIndex(({ name }) => name.startsWith('bell'));
+      hole.options = hole.options.filter(({ name }) => !name.startsWith('bell'));
+      hole.options.splice(firstBell, 0, { name: 'theWell', checked: true });
     });
     expect(convertLegacyTrackers(baseTrackers, legacy)).toEqual({});
   });

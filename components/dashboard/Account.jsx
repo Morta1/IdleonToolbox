@@ -563,9 +563,12 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 5.hole.wisdom'} title={`You can play a memory game in the wisdom cavern`}
                        imgStyle={{ objectFit: 'none' }}
                        iconPath={'data/Wisdom_Monument_x1'}/> : null}
-              {alerts?.['World 5']?.hole?.theBell ?
-                <Alert target={'World 5.hole.theBell'} title={`One of your cavern bells is ready`}
-                       iconPath={'etc/TheBell'}/> : null}
+              {alerts?.['World 5']?.hole?.bells?.map(({ name, readyUses, index }) => {
+                const bellName = name?.capitalize();
+                return <Alert key={name} target={`World 5.hole.bell${bellName}`}
+                              title={`${bellName} bell has ${readyUses} ${readyUses === 1 ? 'use' : 'uses'} ready`}
+                              iconPath={`etc/HoleBellReady${index}`}/>
+              })}
               {alerts?.['World 5']?.hole?.theHarp ?
                 <Alert target={'World 5.hole.theHarp'} title={`Harp power has reached the threshold`}
                        iconPath={'etc/TheHarp'}/> : null}

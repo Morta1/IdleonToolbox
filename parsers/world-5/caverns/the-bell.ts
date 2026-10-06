@@ -18,7 +18,8 @@ export const getTheBell = (holesObject: any, accountData: any) => {
     const expReq = getBellExpReq(holesObject, index);
     const exp = holesObject?.bellRelated[2 * index];
     const bonus = getBellBonus({ holesObject, t: index });
-    return { name, expRate, description: bellsDescriptions?.[index], bonus, expReq, exp };
+    const readyUses = getBellReadyUses(holesObject, index);
+    return { name, expRate, description: bellsDescriptions?.[index], bonus, expReq, exp, readyUses };
   })
   const improvementMethods = holesInfo[60].map((description: any, index: any) => {
     const level = holesObject?.bellImprovementMethods?.[index];
@@ -69,15 +70,35 @@ const getImprovementMethodCostType = (holesObject: any, accountData: any, index:
   }
   return { costType: '', owned: 0 };
 }
-const getBellExpReq = (holesObject: any, t: any) => {
+// count = the bell's use counter (bellRelated[2t+1]), overridable to price the uses after the next one
+const getBellExpReq = (holesObject: any, t: any, count = holesObject?.bellRelated?.[2 * t + 1]) => {
   return 0 === t
-    ? (5 + 3 * (holesObject?.bellRelated?.[1])) * Math.pow(1.05, (holesObject?.bellRelated?.[1]))
+    ? (5 + 3 * count) * Math.pow(1.05, count)
     : 1 === t
-      ? (10 + (10 * (holesObject?.bellRelated?.[3]) + Math.pow((holesObject?.bellRelated?.[3]), 2.5)))
-      * Math.pow(1.75, (holesObject?.bellRelated?.[3]))
+      ? (10 + (10 * count + Math.pow(count, 2.5)))
+      * Math.pow(1.75, count)
       : 2 === t
-        ? 100 * Math.pow(3, (holesObject?.bellRelated?.[5]))
+        ? 100 * Math.pow(3, count)
         : 25
+}
+
+// Exp is uncapped and a use subtracts the req, so a bell can bank several uses.
+// Ring/Ping bump their counter on every use, raising the next req. Clean only bumps it when a
+// method unlocks and Renew's req is flat, so both are priced at the current req.
+export const getBellReadyUses = (holesObject: any, t: any) => {
+  let exp = holesObject?.bellRelated?.[2 * t] ?? 0;
+  let count = holesObject?.bellRelated?.[2 * t + 1] ?? 0;
+  let req = getBellExpReq(holesObject, t, count);
+  if (!(req > 0)) return 0;
+  if (t >= 2) return Math.floor(exp / req);
+  let uses = 0;
+  while (exp >= req && uses < 1000) {
+    exp -= req;
+    uses++;
+    count++;
+    req = getBellExpReq(holesObject, t, count);
+  }
+  return uses;
 }
 const getImprovementMethodCost = (holesObject: any, t: any) => {
   const info = holesInfo?.[42];

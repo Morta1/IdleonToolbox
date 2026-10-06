@@ -86,12 +86,12 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
                 height: '100%',
                 opacity: unlocked ? 1 : 0.5
               }}>
-                <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
-                  <img style={{ width: 32, height: 32 }} src={`${prefix}data/${costResourceRawName}.png`} alt=""/>
-                  <Typography>
+                <Stack direction="row" gap={2} flexWrap="nowrap" alignItems="center">
+                  <img style={{ width: 32, height: 32, flexShrink: 0 }} src={`${prefix}data/${costResourceRawName}.png`} alt=""/>
+                  <Typography sx={{ minWidth: 0 }}>
                     {cleanText(name)} ({level}{capped ? ` / ${maxLevel}` : ''})
                   </Typography>
-                  {!unlocked ? <Chip size="small" variant="outlined" label="Locked"/> : null}
+                  {!unlocked ? <Chip size="small" sx={{ flexShrink: 0 }} variant="outlined" label="Locked"/> : null}
                 </Stack>
                 <Divider sx={{ my: 1 }}/>
                 <Typography>{cleanText(description)}</Typography>

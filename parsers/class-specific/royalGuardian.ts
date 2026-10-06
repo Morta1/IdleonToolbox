@@ -346,6 +346,8 @@ export interface Outpost extends OutpostBase {
   range: number;
   // OutpostRange before its floor and 999 cap, so a range without some of its Guards can be priced.
   rangeUncapped: number;
+  // range with every slot Guard swapped out. Military rank and passive Guards stay in.
+  rangeWithoutGuards: number;
   links: OutpostLink[];
   ptsLeft: number;
   ptsSpent: number;
@@ -1181,6 +1183,7 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     const slotGuards = unitSlots.filter((unit) => unit === 2).length;
     const militaryRangePerRank = armoryBonus(74);
     const baseRange = rangeUncapped - unitSpecEffect[2] * slotGuards - ranks[3] * militaryRangePerRank;
+    const rangeWithoutGuards = Math.floor(Math.min(999, rangeUncapped - unitSpecEffect[2] * slotGuards));
 
     // game: the outpost tick pays a bar BarExpRate ONCE PER UNIT feeding it, so a bar with nothing
     // behind it never moves at all. The Trade bar runs on this outpost's own Traders and the Intel
@@ -1334,6 +1337,7 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       resourceRate,
       range,
       rangeUncapped,
+      rangeWithoutGuards,
       links,
       ptsLeft,
       ptsSpent,

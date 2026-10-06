@@ -33,7 +33,7 @@ describe('DashboardSettings window', () => {
     render(<Harness/>);
     expect(document.body.textContent).toContain('Configure alerts');
     expect(document.body.textContent).toContain('Every count is alerts, not options');
-    expect(document.body.textContent).toContain('All 98');
+    expect(document.body.textContent).toContain('All 99');
   });
 
   it('filter chips say which one is pressed', () => {
