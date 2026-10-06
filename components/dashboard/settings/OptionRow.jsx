@@ -18,7 +18,7 @@ const WORLDS = [1, 2, 3, 4, 5, 6, 7];
 
 // Clamped to one line, with More only when the text really overflows it: a fixed length cut-off
 // showed More on text that already fit a wide window.
-export const Help = ({ text }) => {
+export const Help = ({ text, clamp = true }) => {
   const [open, setOpen] = useState(false);
   const [overflows, setOverflows] = useState(false);
   const ref = useRef(null);
@@ -27,9 +27,9 @@ export const Help = ({ text }) => {
   useEffect(() => {
     if (open || !ref.current) return;
     setOverflows(ref.current.scrollHeight > ref.current.clientHeight + 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [width, text, open]);
   if (!text) return null;
+  if (!clamp) return <Typography variant="body2" color="text.secondary">{text}</Typography>;
   return <Box>
     <Typography ref={ref} variant="body2" color="text.secondary" sx={open
       ? undefined

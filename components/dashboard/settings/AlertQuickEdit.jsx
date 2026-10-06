@@ -3,11 +3,13 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import Drawer from '@mui/material/Drawer';
 import Popover from '@mui/material/Popover';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { prefix } from '@utility/helpers';
 import { optionExtras } from '@utility/dashboard/settingsModel';
 import { clampValue } from '@utility/dashboard/settingsActions';
@@ -79,9 +81,8 @@ const Dependents = ({ quickEdit, onAction }) => quickEdit.dependents.map((depend
 });
 
 const Folded = ({ quickEdit, onAction, disabled }) => quickEdit.folded.map((folded) => <Box key={folded.name}>
-  <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>{folded.label}</Typography>
+  <Typography variant="body2" color="text.secondary" sx={{ mb: 0.75 }}>{folded.label}</Typography>
   {folded.type === 'array' ? <ToggleChips option={folded} tracker={quickEdit.tracker} onAction={onAction} disabled={disabled}/> : null}
-  <Help text={folded.help}/>
 </Box>);
 
 const Body = ({ quickEdit, onAction }) => {
@@ -118,46 +119,61 @@ const Body = ({ quickEdit, onAction }) => {
     {kind === 'pickerItems' ? items.map((item) => <Check key={item.key} label={`Watch ${item.label}`} checked={item.on} disabled={locked}
                                                          onChange={() => onAction('togglePickerItem', tracker, option.name, item.key)}/>) : null}
     <Folded quickEdit={quickEdit} onAction={onAction} disabled={locked}/>
-    <Help text={option.help}/>
+    <Help text={option.help} clamp={false}/>
     <Dependents quickEdit={quickEdit} onAction={onAction}/>
   </>;
 };
 
 const AlertQuickEdit = ({ quickEdit, open, anchorPosition, above = false, iconSrc = null, onClose, onAction, onOpenAll, onUndo }) => {
+  const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   if (!quickEdit) return null;
   const { tracker, option, kind, everyCharacter, configType } = quickEdit;
   // The title is the alert that was clicked; the subtitle says where it lives in the settings.
   const title = kind === 'tracker' || !option ? tracker.label : option.label;
   const where = [TAB_LABELS[configType], tracker.section, title === tracker.label ? null : tracker.label].filter(Boolean).join(' · ');
+  const content = <Stack gap={1.5}>
+    <Stack direction="row" alignItems="center" gap={1}>
+      {iconSrc || tracker.icon
+        ? <img src={iconSrc ?? `${prefix}${tracker.icon}.png`} alt="" width={24} height={24} style={{ objectFit: 'contain' }}/>
+        : <LetterBadge label={tracker.label} size={24} radius={1}/>}
+      <Box sx={{ minWidth: 0 }}>
+        <Typography id={TITLE_ID} variant="subtitle1" component="h2" fontWeight={500} sx={{ lineHeight: 1.3 }}>{title}</Typography>
+        {where ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>{where}</Typography> : null}
+      </Box>
+    </Stack>
+    <Stack gap={1.5}>
+      <Body quickEdit={quickEdit} onAction={onAction}/>
+    </Stack>
+    {everyCharacter ? <Typography variant="caption" color="text.secondary">Applies to every character</Typography> : null}
+    <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1} flexWrap="wrap"
+           sx={{ borderTop: 1, borderColor: 'divider', pt: 1 }}>
+      <Stack direction="row" alignItems="center" gap={0.5}>
+        <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>Saved automatically</Typography>
+        {onUndo ? <Button size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }} onClick={onUndo}>Undo</Button> : null}
+      </Stack>
+      <Button size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }} onClick={onOpenAll}>All {tracker.label} settings</Button>
+    </Stack>
+  </Stack>;
+  // A popover beside the icon is too narrow on a phone, so there it slides up from the bottom.
+  if (isPhone) {
+    return <Drawer anchor="bottom" open={open} onClose={onClose}
+                   PaperProps={{
+                     role: 'dialog', 'aria-labelledby': TITLE_ID,
+                     sx: { p: 2, pb: 'calc(16px + env(safe-area-inset-bottom))', maxHeight: '85vh', borderTopLeftRadius: 12, borderTopRightRadius: 12 }
+                   }}>
+      <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: 'divider', mx: 'auto', mb: 1.5 }}/>
+      {content}
+    </Drawer>;
+  }
   return <Popover open={open} onClose={onClose} anchorReference="anchorPosition" anchorPosition={anchorPosition}
                   transformOrigin={{ vertical: above ? 'bottom' : 'top', horizontal: 'left' }}
                   slotProps={{
                     paper: {
                       role: 'dialog', 'aria-labelledby': TITLE_ID,
-                      sx: { width: 340, maxWidth: 'calc(100vw - 32px)', p: 2 }
+                      sx: { width: 360, maxWidth: 'calc(100vw - 32px)', p: 2 }
                     }
                   }}>
-    <Stack gap={1.25}>
-      <Stack direction="row" alignItems="center" gap={1}>
-        {iconSrc || tracker.icon
-          ? <img src={iconSrc ?? `${prefix}${tracker.icon}.png`} alt="" width={24} height={24} style={{ objectFit: 'contain' }}/>
-          : <LetterBadge label={tracker.label} size={24} radius={1}/>}
-        <Box sx={{ minWidth: 0 }}>
-          <Typography id={TITLE_ID} variant="subtitle1" component="h2" fontWeight={500} sx={{ lineHeight: 1.3 }}>{title}</Typography>
-          {where ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>{where}</Typography> : null}
-        </Box>
-      </Stack>
-      <Body quickEdit={quickEdit} onAction={onAction}/>
-      {everyCharacter ? <Typography variant="caption" color="text.secondary">Applies to every character</Typography> : null}
-      <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1} flexWrap="wrap"
-             sx={{ borderTop: 1, borderColor: 'divider', pt: 1 }}>
-        <Stack direction="row" alignItems="center" gap={0.5}>
-          <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>Saved automatically</Typography>
-          {onUndo ? <Button size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }} onClick={onUndo}>Undo</Button> : null}
-        </Stack>
-        <Button size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }} onClick={onOpenAll}>All {tracker.label} settings</Button>
-      </Stack>
-    </Stack>
+    {content}
   </Popover>;
 };
 

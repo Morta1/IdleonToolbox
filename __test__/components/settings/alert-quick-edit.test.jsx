@@ -123,12 +123,14 @@ describe('AlertQuickEdit', () => {
     expect(byLabel(dialog, 'Watch Redox Salts')).toBeTruthy();
   });
 
-  it('shows the help of a folded option', () => {
+  it('shows one help text: the alert help in full, not the folded option help as well', () => {
     const quickEdit = quickFor('account', 'World 3.construction.saltBalance');
     const dialog = open(quickEdit);
-    expect(quickEdit.folded.length).toBeGreaterThan(0);
     expect(quickEdit.folded[0].help).toBeTruthy();
-    expect(dialog.textContent).toContain(quickEdit.folded[0].help);
+    expect(dialog.textContent).toContain(quickEdit.folded[0].label);
+    expect(dialog.textContent).not.toContain(quickEdit.folded[0].help);
+    expect(dialog.textContent).toContain(quickEdit.option.help);
+    expect([...dialog.querySelectorAll('button')].some((b) => b.textContent === 'More')).toBe(false);
   });
 
   it('the header shows the icon that was clicked', () => {
