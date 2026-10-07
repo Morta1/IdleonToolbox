@@ -32,6 +32,7 @@ import { resetScope, trackSettingsEvent } from '@utility/dashboard/settingsAnaly
 import SettingsNav from '@components/dashboard/settings/SettingsNav';
 import SectionPane from '@components/dashboard/settings/SectionPane';
 import SearchResults from '@components/dashboard/settings/SearchResults';
+import { EditedDot } from '@components/dashboard/settings/EditedTag';
 
 const TITLE_ID = 'configure-alerts-title';
 const RESET_TEXT_ID = 'configure-alerts-reset-text';
@@ -186,6 +187,9 @@ const DashboardSettings = ({
     <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', ml: 1 }}>
       {query ? 'While searching, counts are results' : 'Every count is alerts, not options'}
     </Typography>
+    <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 0.75, ml: 1 }}>
+      <EditedDot label={null}/>Changed from default
+    </Typography>
   </Stack>;
 
   const hideAlertlessRow = tab.configType === 'characters' ? <Stack direction="row" alignItems="center" gap={1.5}
@@ -202,6 +206,7 @@ const DashboardSettings = ({
     ? <SearchResults results={results.filter(({ tracker }) => matchesFilter(tracker, filter))} query={query} onAction={onAction} onShow={showResult}/>
     : <SectionPane section={section} filter={filter} expanded={expanded}
                    onToggleExpanded={(path) => setExpanded((prev) => ({ ...prev, [path]: !prev[path] }))}
+                   onSetExpanded={(paths, value) => setExpanded((prev) => ({ ...prev, ...Object.fromEntries(paths.map((path) => [path, value])) }))}
                    target={highlight} onAction={onAction} onBulk={onBulk} onShowAll={() => setFilter('all')}
                    extraTop={hideAlertlessRow}/>;
 

@@ -5,13 +5,15 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { matchesFilter } from '@utility/dashboard/settingsModel';
-import TrackerCard, { CompactRow } from './TrackerCard';
+import TrackerCard, { CompactRow, hasOptionsBody } from './TrackerCard';
 
-const SectionPane = ({ section, filter, expanded, onToggleExpanded, target, onAction, onBulk, onShowAll, extraTop = null }) => {
+const SectionPane = ({ section, filter, expanded, onToggleExpanded, onSetExpanded, target, onAction, onBulk, onShowAll, extraTop = null }) => {
   const visible = section.trackers.filter((tracker) => matchesFilter(tracker, filter) || tracker.path === target?.path);
   const compact = visible.filter(({ compact: isCompact }) => isCompact);
   const cards = visible.filter(({ compact: isCompact }) => !isCompact);
   const allOff = section.onCount === 0;
+  const expandable = cards.filter(hasOptionsBody).map(({ path }) => path);
+  const allExpanded = expandable.length > 0 && expandable.every((path) => expanded[path]);
   const buttonSx = { minHeight: { xs: 44, sm: 30 } };
   return <Stack gap={1.25}>
     <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
@@ -20,6 +22,10 @@ const SectionPane = ({ section, filter, expanded, onToggleExpanded, target, onAc
         <Typography variant="body2" color="text.secondary">{section.total} alerts · {section.onCount} on</Typography>
       </Box>
       <Stack direction="row" gap={0.5} sx={{ ml: 'auto' }}>
+        {expandable.length > 1 ? <Button size="small" color="inherit" sx={buttonSx} aria-expanded={allExpanded}
+                                         onClick={() => onSetExpanded(expandable, !allExpanded)}>
+          {allExpanded ? 'Collapse all' : 'Expand all'}
+        </Button> : null}
         <Button size="small" color="inherit" sx={buttonSx}
                 onClick={() => onBulk(`${section.label} alerts turned ${allOff ? 'on' : 'off'}`, 'setSectionOn', section, allOff)}>
           {allOff ? 'Turn all on' : 'Turn all off'}

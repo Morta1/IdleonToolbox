@@ -80,11 +80,14 @@ const OptionList = ({ tracker, highlightOption, highlightKey, onAction }) => {
   });
 };
 
+// A card expands only when it has options beyond the one shown inline in its header.
+export const hasOptionsBody = (tracker) => tracker.options.length > (tracker.inline && tracker.options.some(({ name }) => name === tracker.inline) ? 1 : 0);
+
 const TrackerCard = ({ tracker, expanded, onToggleExpanded, highlightOption = null, highlight = false, highlightKey = null, onAction }) => {
   // The inline number sits in the header, so a deep link to it lands on the card itself.
   const [ref, highlighted] = useHighlightTarget(highlight && (!highlightOption || highlightOption === tracker.inline), highlightKey);
   const inline = tracker.inline ? tracker.options.find(({ name }) => name === tracker.inline) : null;
-  const hasBody = tracker.options.length > (inline ? 1 : 0);
+  const hasBody = hasOptionsBody(tracker);
   return <Paper ref={ref} variant="outlined" data-highlighted={highlighted ? 'true' : undefined} sx={{ transition: 'background-color .4s', bgcolor: highlighted ? 'action.selected' : 'background.paper' }}>
     <Stack direction="row" alignItems="center" gap={1.5} sx={{ px: 1, py: 1, minHeight: 56, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
       <TrackerSwitch tracker={tracker} onAction={onAction}/>

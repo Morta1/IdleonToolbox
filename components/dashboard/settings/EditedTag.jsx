@@ -7,8 +7,10 @@ const tagSx = {
   borderRadius: 1, fontSize: 11, fontWeight: 500, lineHeight: 1.4, verticalAlign: 2
 };
 
-export const EditedDot = () => <Box component="span" sx={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', bgcolor: 'primary.main', flexShrink: 0 }}>
-  <Box component="span" sx={visuallyHidden}>has edits</Box>
+// label null is for the legend, where the text beside the dot already says what it means.
+export const EditedDot = ({ label = 'has edits' }) => <Box component="span" aria-hidden={label ? undefined : true}
+                                                         sx={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', bgcolor: 'primary.main', flexShrink: 0 }}>
+  {label ? <Box component="span" sx={visuallyHidden}>{label}</Box> : null}
 </Box>;
 
 const EditedTag = () => <Box component="span" sx={{ ...tagSx, color: 'primary.light', bgcolor: 'action.selected' }}>

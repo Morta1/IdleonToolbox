@@ -36,6 +36,22 @@ describe('DashboardSettings window', () => {
     expect(document.body.textContent).toContain('All 99');
   });
 
+  it('the legend says what the blue dot means', () => {
+    render(<Harness/>);
+    expect(document.body.textContent).toContain('Changed from default');
+  });
+
+  it('Expand all opens every card in the section and Collapse all closes them', () => {
+    render(<Harness/>);
+    const toggles = () => [...document.body.querySelectorAll('button[aria-label$=" options"]')];
+    expect(toggles().length).toBeGreaterThan(1);
+    expect(toggles().every((b) => b.getAttribute('aria-expanded') === 'false')).toBe(true);
+    fireEvent.click(button('Expand all'));
+    expect(toggles().every((b) => b.getAttribute('aria-expanded') === 'true')).toBe(true);
+    fireEvent.click(button('Collapse all'));
+    expect(toggles().every((b) => b.getAttribute('aria-expanded') === 'false')).toBe(true);
+  });
+
   it('filter chips say which one is pressed', () => {
     render(<Harness/>);
     const chip = (label) => [...document.body.querySelectorAll('[aria-pressed]')].find((el) => el.textContent.startsWith(label));
