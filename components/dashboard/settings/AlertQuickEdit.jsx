@@ -88,6 +88,7 @@ const Body = ({ quickEdit, onAction }) => {
     return <>
       <TrackerToggle tracker={tracker} onAction={onAction}/>
       {option?.type === 'input' ? <NumberField option={option} tracker={tracker} onAction={onAction} ariaLabel={`${tracker.label} ${option.label}`}/> : null}
+      <Help text={option?.help} clamp={false}/>
     </>;
   }
   const { disabledReason } = optionExtras(tracker, option);

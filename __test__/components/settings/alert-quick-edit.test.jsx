@@ -139,4 +139,11 @@ describe('AlertQuickEdit', () => {
     const dialog = open(quickFor('account', 'General.etc.keys'), { iconSrc: '/data/Bravery.png' });
     expect(dialog.querySelector('img').getAttribute('src')).toBe('/data/Bravery.png');
   });
+
+  it('a single-number alert says what the number means', () => {
+    const quickEdit = quickFor('characters', 'postOffice.unspentPoints');
+    expect(quickEdit.kind).toBe('tracker');
+    const dialog = open(quickEdit);
+    expect(dialog.textContent).toContain('Alerts when a character has more unspent points than this');
+  });
 });

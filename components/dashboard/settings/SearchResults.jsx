@@ -28,19 +28,18 @@ const SearchResults = ({ results, query, onAction, onShow }) => {
     {Object.entries(groups).map(([key, items]) => <Stack key={key} gap={1}>
       <Typography variant="overline" color="text.secondary">{key}</Typography>
       {items.map((result) => <Paper key={result.option?.path ?? result.tracker.path} variant="outlined" sx={{ p: 1.5 }}>
-        <Stack direction="row" alignItems="flex-start" gap={1}>
-          <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="caption" color="text.secondary">{key} › {result.tracker.label}</Typography>
-            {result.option
-              ? <OptionRow option={result.option} tracker={result.tracker} onAction={onAction} {...optionExtras(result.tracker, result.option)}/>
-              : result.tracker.inline
-                ? <TrackerCard tracker={result.tracker} expanded={false} onToggleExpanded={() => {}} onAction={onAction}/>
-                : <CompactRow tracker={result.tracker} onAction={onAction}/>}
-          </Box>
+        {/* The link shares the breadcrumb's row so the result itself gets the full width (a phone squeezed it). */}
+        <Stack direction="row" alignItems="center" gap={1}>
+          <Typography variant="caption" color="text.secondary" sx={{ flex: 1, minWidth: 0 }}>{key} › {result.tracker.label}</Typography>
           <Button size="small" sx={{ whiteSpace: 'nowrap', minHeight: { xs: 44, sm: 30 } }} onClick={() => onShow(result)}>
             Show in {result.section.label}
           </Button>
         </Stack>
+        {result.option
+          ? <OptionRow option={result.option} tracker={result.tracker} onAction={onAction} {...optionExtras(result.tracker, result.option)}/>
+          : result.tracker.inline
+            ? <TrackerCard tracker={result.tracker} expanded={false} onToggleExpanded={() => {}} onAction={onAction}/>
+            : <CompactRow tracker={result.tracker} onAction={onAction}/>}
       </Paper>)}
     </Stack>)}
   </Stack>;
