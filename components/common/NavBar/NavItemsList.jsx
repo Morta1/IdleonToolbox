@@ -11,12 +11,14 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import Kofi from '@components/common/Kofi';
 import ToolsDrawer from '@components/common/NavBar/AppDrawer/ToolsDrawer';
 import { sessionQuery } from '@utility/nav-query';
+import useNavPrefetch from '@hooks/useNavPrefetch';
 
 
 const NavItemsList = ({ drawer }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
   const updateQuery = sessionQuery(router?.query);
+  const prefetch = useNavPrefetch();
   const [openItems, setOpenItems] = useState({});
   const toggleOpen = (key) => {
     setOpenItems((prev) => ({
@@ -68,6 +70,7 @@ const NavItemsList = ({ drawer }) => {
               selected={router?.pathname.includes(navItem)}
               key={`${navItem}-${index}`}
               to={{ pathname: `/${pageName}`, query: updateQuery }}
+              prefetch={prefetch}
               sx={{
                 borderRadius: drawer ? 'inherit' : 2,
                 p: drawer ? '8px 16px' : '0 8px'
