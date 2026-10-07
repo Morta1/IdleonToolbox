@@ -7,10 +7,11 @@ import React, { createContext, useContext } from 'react';
  * callback prop would have to be threaded through every one of them. The context keeps each call
  * site to a `target` prop (plus `items` / `worlds` where the alert needs them).
  */
-const DashboardSettingsContext = createContext(() => { });
+const DashboardSettingsContext = createContext({ openAlert: () => { }, labelFor: () => null });
 
-export const DashboardSettingsProvider = ({ onOpenAlert, children }) => {
-  return <DashboardSettingsContext.Provider value={onOpenAlert}>
+// `labelFor(configType, target, extra)` names the alert for screen readers.
+export const DashboardSettingsProvider = ({ onOpenAlert, labelFor = () => null, children }) => {
+  return <DashboardSettingsContext.Provider value={{ openAlert: onOpenAlert, labelFor }}>
     {children}
   </DashboardSettingsContext.Provider>;
 };
@@ -21,7 +22,7 @@ export const DashboardSettingsProvider = ({ onOpenAlert, children }) => {
  * item or some Royal Guardian worlds.
  */
 export const useAlertSettingsProps = (configType, target, extra) => {
-  const openAlert = useContext(DashboardSettingsContext);
+  const { openAlert, labelFor } = useContext(DashboardSettingsContext);
   if (!target) return {};
   // Timer rows navigate on click, so the icon keeps its click to itself.
   const fire = (event) => {
@@ -31,6 +32,7 @@ export const useAlertSettingsProps = (configType, target, extra) => {
   return {
     role: 'button',
     tabIndex: 0,
+    'aria-label': `${labelFor(configType, target, extra) ?? 'Alert'} settings`,
     'aria-haspopup': 'dialog',
     onClick: fire,
     onKeyDown: (event) => {

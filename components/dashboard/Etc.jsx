@@ -704,7 +704,7 @@ const IconImg = styled.img`
 
 const TimerIcon = ({ src, alt = '', target, items }) => {
   const settingsProps = useAlertSettingsProps('timers', target, items ? { items } : undefined);
-  return <Box component="span" {...settingsProps} aria-label={target ? 'Timer settings' : undefined}
+  return <Box component="span" {...settingsProps}
               sx={{
                 display: 'inline-flex', borderRadius: 1, cursor: target ? 'pointer' : 'inherit',
                 '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main' }

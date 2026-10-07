@@ -9,7 +9,6 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
-import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
 import Switch from '@mui/material/Switch';
@@ -33,6 +32,7 @@ import SettingsNav from '@components/dashboard/settings/SettingsNav';
 import SectionPane from '@components/dashboard/settings/SectionPane';
 import SearchResults from '@components/dashboard/settings/SearchResults';
 import { EditedDot } from '@components/dashboard/settings/EditedTag';
+import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
 
 const TITLE_ID = 'configure-alerts-title';
 const RESET_TEXT_ID = 'configure-alerts-reset-text';
@@ -248,15 +248,11 @@ const DashboardSettings = ({
             <Box sx={{ flex: 1, minWidth: 0, p: 2.5, overflowY: 'auto' }}>{pane}</Box>
           </>}
       </DialogContent>
-      {undo ? <Snackbar key={undoCount} open autoHideDuration={6000} message={undo.label}
-                        onClose={(e, reason) => {
-                          if (reason !== 'clickaway') setUndo(null);
-                        }}
-                        ContentProps={{ role: 'status' }}
-                        action={<Button color="primary" size="small" onClick={() => {
-                          onChange(undo.previous);
-                          setUndo(null);
-                        }}>Undo</Button>}/> : null}
+      {undo ? <UndoSnackbar key={undoCount} label={undo.label} onClose={() => setUndo(null)}
+                            onUndo={() => {
+                              onChange(undo.previous);
+                              setUndo(null);
+                            }}/> : null}
     </Dialog>
     <Dialog open={confirmReset} onClose={() => setConfirmReset(false)} PaperProps={{ role: 'alertdialog', 'aria-describedby': RESET_TEXT_ID }}>
       <DialogTitle>Reset every alert to default?</DialogTitle>

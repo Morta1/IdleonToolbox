@@ -104,9 +104,12 @@ const TrackerCard = ({ tracker, expanded, onToggleExpanded, highlightOption = nu
               : `${tracker.onCount} of ${tracker.total} options on`}
           </Typography> : null}
         <TrackerLink tracker={tracker}/>
+        {/* On a phone a Reset beside the chevron pushed the chevron onto a row of its own, so there it sits under the title. */}
+        {tracker.edited ? <Box><Button size="small" sx={{ display: { xs: 'inline-flex', sm: 'none' }, minWidth: 0, px: 0, minHeight: 36 }}
+                                       onClick={() => onAction('resetPath', tracker.path)}>Reset</Button></Box> : null}
       </Box>
       {inline ? <NumberField option={inline} tracker={tracker} onAction={onAction} ariaLabel={`${tracker.label} ${inline.label}`}/> : null}
-      {tracker.edited ? <Button size="small" sx={{ minHeight: { xs: 44 } }} onClick={() => onAction('resetPath', tracker.path)}>Reset</Button> : null}
+      {tracker.edited ? <Button size="small" sx={{ display: { xs: 'none', sm: 'inline-flex' } }} onClick={() => onAction('resetPath', tracker.path)}>Reset</Button> : null}
       {hasBody
         ? <IconButton aria-label={`${expanded ? 'Hide' : 'Show'} ${tracker.label} options`} aria-expanded={expanded}
                       onClick={onToggleExpanded} sx={{ width: 44, height: 44 }}>

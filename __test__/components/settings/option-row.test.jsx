@@ -119,4 +119,16 @@ describe('OptionRow', () => {
     const printer = [...container.querySelectorAll('button[aria-pressed]')].find((b) => b.textContent.includes('Printer Go Brrr'));
     expect(printer.querySelector('img').getAttribute('src')).toContain('data/UISkillIcon32.png');
   });
+
+  it('item tiles carry the item name and name the tapped item under the grid', () => {
+    const tracker = trackerFor('account.World 3.construction');
+    const { container, onAction } = renderRow(tracker, 'materials');
+    const tile = container.querySelector('button[aria-label="Redox Salts"]');
+    expect(tile).toBeTruthy();
+    expect(container.textContent).toContain('Hover or tap an item to see its name');
+    fireEvent.click(tile);
+    expect(onAction).toHaveBeenCalledWith('togglePickerItem', tracker, 'materials', 'Refinery1');
+    expect(container.textContent).toContain('Redox Salts: watched');
+  });
 });
+

@@ -1,6 +1,7 @@
 import { items as itemData } from '@website-data';
 import { resolveSettingsTarget } from './settingsTarget';
 import { allTrackers, fallbackLabel } from './settingsModel';
+import { alertMeta } from './alertMeta';
 
 const WORLDS = [1, 2, 3, 4, 5, 6, 7];
 const loose = (key) => String(key ?? '').replace(/[^a-z0-9]/gi, '').toLowerCase();
@@ -14,6 +15,21 @@ export const matchPickerKey = (option, key) => {
 const itemLabel = (key, label) => label
   ?? itemData?.[key]?.displayName?.replace(/_/g, ' ')
   ?? fallbackLabel(key);
+
+// The in-game name of a picker item, for tiles that only show its icon.
+export const pickerItemLabel = (key) => itemLabel(key);
+
+// What an alert icon is about, for its accessible name: the same title its quick edit shows, plus
+// the item when the alert is about a single one. Reads the meta only, so it is cheap per icon.
+export const alertLabel = (config, configType, target, { items = [] } = {}) => {
+  const resolved = resolveSettingsTarget(config, configType, target);
+  if (!resolved?.trackerName) return null;
+  const meta = alertMeta[[configType, resolved.section, resolved.trackerName].filter(Boolean).join('.')] ?? {};
+  const label = resolved.optionName
+    ? meta.options?.[resolved.optionName]?.label ?? fallbackLabel(resolved.optionName)
+    : meta.label ?? fallbackLabel(resolved.trackerName);
+  return items.length === 1 ? `${label}: ${itemLabel(items[0].key, items[0].label)}` : label;
+};
 
 const watchedItems = (option, items) => items.reduce((res, { key, label }) => {
   const match = matchPickerKey(option, key);

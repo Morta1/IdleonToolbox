@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import { allTrackers, buildModel } from '@utility/dashboard/settingsModel';
-import { buildQuickEdit, matchPickerKey } from '@utility/dashboard/quickEdit';
+import { alertLabel, buildQuickEdit, matchPickerKey, pickerItemLabel } from '@utility/dashboard/quickEdit';
 
 const setup = (edits = {}) => {
   const config = resolveTrackers(baseTrackers, edits);
@@ -154,5 +154,30 @@ describe('call site key shapes', () => {
   ];
   it.each(cases)('%s %s resolves item %s', (configType, target, key) => {
     expect(quick(configType, target, { items: [{ key }] }).kind).toBe('pickerItems');
+  });
+});
+
+describe('alertLabel', () => {
+  const config = resolveTrackers(baseTrackers, {});
+  it('names an option alert by its option, a tracker alert by its tracker', () => {
+    const { model } = setup();
+    const etc = allTrackers(model).find((t) => t.path === 'account.General.etc');
+    expect(alertLabel(config, 'account', 'General.etc.keys')).toBe(etc.options.find(({ name }) => name === 'keys').label);
+    expect(alertLabel(config, 'characters', 'tools')).toBe(allTrackers(model).find((t) => t.path === 'characters.tools').label);
+  });
+
+  it('adds the item when the alert is about one', () => {
+    expect(alertLabel(config, 'account', 'World 3.construction.saltDeficit', { items: [{ key: 'Refinery1' }] }))
+      .toMatch(/: Redox Salts$/);
+  });
+
+  it('is null for a path that matches nothing', () => {
+    expect(alertLabel(config, 'account', 'Nowhere.nothing')).toBeNull();
+  });
+});
+
+describe('pickerItemLabel', () => {
+  it('uses the in-game item name', () => {
+    expect(pickerItemLabel('Refinery1')).toBe('Redox Salts');
   });
 });

@@ -394,7 +394,7 @@ const BagList = ({ name, bags }) => {
 const Alert = ({ title, iconPath, style = {}, extra, target, items, worlds }) => {
   const settingsProps = useAlertSettingsProps('characters', target, items || worlds ? { items, worlds } : undefined);
   return <Stack {...settingsProps}
-                {...(target ? { 'aria-label': typeof title === 'string' ? title : 'Alert settings' } : {})}
+                {...(target ? { 'aria-label': typeof title === 'string' ? title : settingsProps['aria-label'] } : {})}
                 sx={{ position: 'relative', ...(target ? { cursor: 'pointer', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', borderRadius: 1 } } : {}) }}>
     <HtmlTooltip title={title}>
       <IconImg style={style} src={`${prefix}${iconPath}.png`} alt=""/>

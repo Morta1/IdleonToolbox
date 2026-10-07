@@ -11,6 +11,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import { useViewportSize } from '@mantine/hooks';
 import { prefix } from '@utility/helpers';
 import { clampValue } from '@utility/dashboard/settingsActions';
+import { pickerItemLabel } from '@utility/dashboard/quickEdit';
 import EditedTag from './EditedTag';
 import { useHighlightTarget } from './useHighlightTarget';
 
@@ -84,9 +85,17 @@ export const NumberField = ({ option, tracker, onAction, ariaLabel, disabled = f
 export const PickerTiles = ({ option, tracker, onAction, disabled }) => {
   const entries = Object.entries(option.props.value ?? {});
   const onCount = entries.filter(([, on]) => on).length;
-  return <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
-    {entries.map(([key, on]) => <ButtonBase key={key} aria-label={key.camelToTitleCase?.() ?? key} aria-pressed={on} disabled={disabled}
-                                            onClick={() => onAction('togglePickerItem', tracker, option.name, key)}
+  // Tiles are icons only, and a phone has no hover: the line under them names the item last
+  // hovered, focused or tapped.
+  const [named, setNamed] = useState(null);
+  return <Stack gap={0.75}>
+  <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
+    {entries.map(([key, on]) => <ButtonBase key={key} aria-label={pickerItemLabel(key)} aria-pressed={on} disabled={disabled}
+                                            onMouseEnter={() => setNamed(key)} onFocus={() => setNamed(key)}
+                                            onClick={() => {
+                                              setNamed(key);
+                                              onAction('togglePickerItem', tracker, option.name, key);
+                                            }}
                                             sx={{
                                               width: 44, height: 44, borderRadius: 2, position: 'relative',
                                               border: 1, borderColor: on ? 'primary.main' : 'divider',
@@ -101,6 +110,10 @@ export const PickerTiles = ({ option, tracker, onAction, disabled }) => {
     <Typography variant="caption" color="text.secondary">{onCount}/{entries.length}</Typography>
     <Button size="small" sx={{ minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={disabled} onClick={() => onAction('setPickerAll', tracker, option.name, true)}>All</Button>
     <Button size="small" sx={{ minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={disabled} onClick={() => onAction('setPickerAll', tracker, option.name, false)}>None</Button>
+  </Stack>
+    <Typography variant="caption" color="text.secondary" aria-live="polite">
+      {named ? `${pickerItemLabel(named)}: ${option.props.value?.[named] ? 'watched' : 'not watched'}` : 'Hover or tap an item to see its name'}
+    </Typography>
   </Stack>;
 };
 

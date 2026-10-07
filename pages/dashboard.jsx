@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppContext, writeStored } from '@components/common/context/AppProvider';
-import { Snackbar, Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import Characters from '../components/dashboard/Characters';
 import Account from '../components/dashboard/Account';
 import { tryToParse } from '@utility/helpers';
@@ -15,7 +15,8 @@ import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import DefaultsNote from '@components/dashboard/settings/DefaultsNote';
 import { buildModel } from '@utility/dashboard/settingsModel';
 import { runAction } from '@utility/dashboard/settingsActions';
-import { buildQuickEdit } from '@utility/dashboard/quickEdit';
+import { alertLabel, buildQuickEdit } from '@utility/dashboard/quickEdit';
+import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
 import { trackSettingsEvent } from '@utility/dashboard/settingsAnalytics';
 import AlertQuickEdit from '@components/dashboard/settings/AlertQuickEdit';
 import { diffTrackers, LEGACY_BACKUP_KEY, loadTrackers, toStoredTrackers } from '@utility/dashboard/trackerStore';
@@ -101,9 +102,23 @@ const Dashboard = () => {
         : { anchorPosition: { top: rect.bottom + 4, left: rect.left }, above: false }),
       // The popover shows the icon that was clicked, not the tracker's own one (The Hole vs Bravery).
       iconSrc: element.querySelector('img')?.getAttribute('src') ?? null,
+      element,
       snapshot: config
     });
   };
+
+  // A change that hides the clicked alert removes its icon: close the popover rather than leave it
+  // floating over other icons. The snackbar's Undo takes over. Watched in the DOM because the
+  // alert lists recompute in their own effects, a render after the config change.
+  useEffect(() => {
+    const element = quickEdit?.element;
+    if (!element) return;
+    const observer = new MutationObserver(() => {
+      if (!element.isConnected) setQuickEdit(null);
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [quickEdit]);
 
   const quickModel = quickEdit ? quickEditFor(config, quickEdit.configType, quickEdit.target, quickEdit.extra) : null;
 
@@ -179,7 +194,8 @@ const Dashboard = () => {
         </Button>
       </Stack>
       <Stack gap={2}>
-        <DashboardSettingsProvider onOpenAlert={handleOpenAlert}>
+        <DashboardSettingsProvider onOpenAlert={handleOpenAlert}
+                                   labelFor={(configType, target, extra) => alertLabel(config, configType, target, extra)}>
           {isDisplayed('account') ? <Account trackers={config?.account} characters={characters}
                                              account={account} lastUpdated={lastUpdated}/> : null}
           {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
@@ -207,12 +223,8 @@ const Dashboard = () => {
                       setQuickEdit(null);
                       handleOpenSettings(quickEdit.configType, quickEdit.target, 'quick_edit');
                     }}/>
-    {quickUndo && !quickEdit ? <Snackbar key={quickUndo.id} open autoHideDuration={6000} message={quickUndo.label}
-                           ContentProps={{ role: 'status' }}
-                           onClose={(e, reason) => {
-                             if (reason !== 'clickaway') setQuickUndo(null);
-                           }}
-                           action={<Button color="primary" size="small" onClick={undoQuickEdit}>Undo</Button>}/> : null}
+    {quickUndo && !quickEdit ? <UndoSnackbar key={quickUndo.id} label={quickUndo.label} onUndo={undoQuickEdit}
+                                             onClose={() => setQuickUndo(null)}/> : null}
   </>
 };
 

@@ -39,4 +39,14 @@ describe('useAlertSettingsProps', () => {
     fireEvent.keyDown(icon, { key: 'a' });
     expect(onOpenAlert).toHaveBeenCalledTimes(3);
   });
+
+  it('names the icon after its alert', () => {
+    const labelFor = vi.fn(() => 'Salt balance: Redox Salts');
+    const extra = { items: [{ key: 'Refinery1' }] };
+    const { container } = render(<DashboardSettingsProvider onOpenAlert={() => {}} labelFor={labelFor}>
+      <FakeAlert target="World 3.construction.saltDeficit" extra={extra}/>
+    </DashboardSettingsProvider>);
+    expect(container.querySelector('[data-testid="icon"]').getAttribute('aria-label')).toBe('Salt balance: Redox Salts settings');
+    expect(labelFor).toHaveBeenCalledWith('account', 'World 3.construction.saltDeficit', extra);
+  });
 });
