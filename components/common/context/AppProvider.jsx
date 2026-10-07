@@ -8,6 +8,7 @@ import { getProfile } from '../../../services/profiles';
 import { setRawJson } from '@utility/helpers';
 import { errorMessage, trackEvent } from '@utility/analytics';
 import { readAuthHint, writeAuthHint } from '@utility/auth-hint';
+import { routeNeedsAccount } from '@utility/account-routes';
 import { readLocalStorageValue } from '@mantine/hooks';
 import { simulatedCompanionsKey } from '@components/constants';
 
@@ -237,6 +238,16 @@ const AppProvider = ({ children }) => {
     });
   };
 
+  // An anonymous visit settles on flags alone. The empty account itself is parsed only once the
+  // visitor is on a route that reads it (the effect below), so wiki and other static pages never
+  // download the parsers and website-data.
+  const markAnonymous = () => {
+    dispatch({
+      type: ACTION_TYPES.DATA,
+      data: { signedIn: false, emptyAccount: true, isLoading: false }
+    });
+  };
+
   // clearAuthHint is opt-out for the one caller that is not an actual sign-out: the init effect's
   // error path, which cannot tell a transient firebase failure from an anonymous visitor.
   const logout = async (manualImport, data, { clearAuthHint = true } = {}) => {
@@ -402,7 +413,7 @@ const AppProvider = ({ children }) => {
         // a visitor carrying it has nothing to restore and skips the SDK download. Absent is
         // undecided: ask firebase.
         if (readAuthHint() === 'no') {
-          await loadEmptyAccount();
+          markAnonymous();
           return;
         }
         const { checkUserStatus, subscribe } = await loadFirebase();
@@ -414,6 +425,8 @@ const AppProvider = ({ children }) => {
         if (!state?.account && user) {
           const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
           unsubscribeRef.current = unsub;
+        } else if (!user) {
+          markAnonymous();
         } else {
           await loadEmptyAccount();
         }
@@ -447,6 +460,19 @@ const AppProvider = ({ children }) => {
       }
     };
   }, [router.isReady, state.storageHydrated]);
+
+  // Parses the anonymous visitor's empty account on the first route that reads it: on landing, or
+  // on a client-side navigation from a static page. Once per anonymous session.
+  const emptyParseRequested = useRef(false);
+  useEffect(() => {
+    if (!state.emptyAccount) {
+      emptyParseRequested.current = false;
+      return;
+    }
+    if (state.account || emptyParseRequested.current || !routeNeedsAccount(router.pathname)) return;
+    emptyParseRequested.current = true;
+    loadEmptyAccount();
+  }, [state.emptyAccount, state.account, router.pathname]);
 
   useEffect(() => {
     // Nothing to persist until storage has been merged in: before that, every value here is
@@ -553,7 +579,9 @@ const AppProvider = ({ children }) => {
             window.gtag('event', 'login', {
               action: 'login',
               category: 'engagement',
-              value: state?.emailPasswordLogin ? 'email-password' : state?.appleLogin ? 'apple' : 'google'
+              value: state?.loginType === 'steam'
+                ? 'steam'
+                : state?.emailPasswordLogin ? 'email-password' : state?.appleLogin ? 'apple' : 'google'
             });
           }
           

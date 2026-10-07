@@ -15,6 +15,17 @@ module.exports = {
   assetPrefix: '/',
   output: 'export',
   reactCompiler: true,
+  // The build's type check reports errors only in .ts/.tsx (no checkJs), but tsconfig.json's
+  // include pulls every .js/.jsx into the program for the editor - 3,200 files instead of 1,600,
+  // and roughly 4x the check time. The build config checks the same files the errors come from.
+  typescript: {
+    tsconfigPath: 'tsconfig.build.json'
+  },
+  // Turbopack bundles MUI with emotion's ESM build but leaves _app/_document on the external CJS
+  // build, so the server ran two emotion instances. MUI never saw _app's CacheProvider: every
+  // page inlined its CSS into <body> (some blocks twice) and _document's extraction came back
+  // empty. Bundling emotion puts everything on one instance. vercel/next.js#95834, #91411.
+  transpilePackages: ['@emotion/react', '@emotion/styled', '@emotion/cache', '@emotion/server'],
   env: {
     NEXT_PUBLIC_WORKER_HASH: workerHash
   },

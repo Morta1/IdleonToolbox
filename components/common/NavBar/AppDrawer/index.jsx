@@ -17,9 +17,11 @@ import ToolsDrawer from './ToolsDrawer';
 import { prefix, shouldDisplayDrawer } from '@utility/helpers';
 import useProfileBannerState from '@hooks/useProfileBannerState';
 import { sessionQuery } from '@utility/nav-query';
+import useNavPrefetch from '@hooks/useNavPrefetch';
 
 const AppDrawer = ({ permanent }) => {
   const router = useRouter();
+  const prefetch = useNavPrefetch();
   const { isVisible: showProfileBanner } = useProfileBannerState();
   const [open, setOpen] = useState(false);
 
@@ -49,7 +51,7 @@ const AppDrawer = ({ permanent }) => {
       <MenuIcon/>
     </IconButton>
     {!permanent ? <Stack>
-      <Link to={{ pathname: '/', query: sessionQuery(router.query) }}
+      <Link to={{ pathname: '/', query: sessionQuery(router.query) }} prefetch={prefetch}
             underline="none" component={NextLinkComposed}
             sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1 }}
             color="inherit" noWrap variant={'h6'}

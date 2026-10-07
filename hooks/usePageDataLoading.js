@@ -30,12 +30,13 @@ const usePageDataLoading = () => {
       return { loading: true, message: 'Loading account data...', isDataPage };
     }
   } else if (isCharactersPage) {
-    const isDataLoaded = !!state?.characters?.length || state?.emptyAccount;
+    // An anonymous visitor's flags arrive before the empty account is parsed: wait for the parse.
+    const isDataLoaded = !!state?.characters?.length || (state?.emptyAccount && !!state?.account);
     if (state.isLoading || !isDataLoaded) {
       return { loading: true, message: 'Loading character data...', isDataPage };
     }
   } else if (isDashboardPage) {
-    const isDataLoaded = (!!state?.account && !!state?.characters?.length) || state?.emptyAccount;
+    const isDataLoaded = (!!state?.account && !!state?.characters?.length) || (state?.emptyAccount && !!state?.account);
     if (state.isLoading || !isDataLoaded) {
       return { loading: true, message: 'Loading dashboard data...', isDataPage };
     }

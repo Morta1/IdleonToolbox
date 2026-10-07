@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # postbuild derives each page's sitemap <lastmod> from that file's last commit date.
           # The default fetch-depth of 1 leaves one commit of history, which would give every
@@ -18,30 +18,29 @@ jobs:
           fetch-depth: 0
 
       - name: Use Node.js 24
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: 'npm'
 
-      - name: Restore Next.js Build Cache
-        uses: actions/cache@v4
+      # Turbopack does not write .next/cache on a build, so the old cache of it held 177 KB of nothing.
+      # node_modules is what costs: a fresh install took 75 of the job's ~340 seconds.
+      - name: Restore node_modules
+        id: node-modules
+        uses: actions/cache@v6
         with:
-          # Cache the .next/cache folder
-          path: |
-            .next/cache
-          # Generate a new cache whenever package-lock.json changes
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.[jt]s', '**/*.[jt]sx') }}
-          # If no exact match, try to restore the last available cache
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+          path: node_modules
+          key: ${{ runner.os }}-node24-modules-${{ hashFiles('package-lock.json') }}
+
+      - name: Install
+        if: steps.node-modules.outputs.cache-hit != 'true'
+        run: npm ci --legacy-peer-deps --include=dev --no-audit --no-fund
 
       - name: Build
         env:
           NODE_ENV: production
 
-        run: |
-          npm install --legacy-peer-deps --include=dev
-          npm run build
+        run: npm run build
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4

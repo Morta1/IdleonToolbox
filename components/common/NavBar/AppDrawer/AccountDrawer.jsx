@@ -12,6 +12,7 @@ import useFormatDate from '@hooks/useFormatDate';
 import ListItemButton from '@mui/material/ListItemButton';
 import { PAGES } from '@components/constants';
 import { sessionQuery } from '@utility/nav-query';
+import useNavPrefetch from '@hooks/useNavPrefetch';
 
 const nestedOptionPadding = 35;
 
@@ -20,6 +21,7 @@ const AccountDrawer = ({ fromList }) => {
   const formatDate = useFormatDate();
   const [accordions, setAccordions] = useState({});
   const router = useRouter();
+  const prefetch = useNavPrefetch();
 
   const updatedQuery = sessionQuery(router.query);
 
@@ -66,7 +68,8 @@ const AccountDrawer = ({ fromList }) => {
                 selected={selectedSection}
                 {...(categories ? {} : {
                   component: NextLink,
-                  href: { pathname: buildUrl('', key), query: updatedQuery }
+                  href: { pathname: buildUrl('', key), query: updatedQuery },
+                  prefetch
                 })}
                 onClick={() => handleClick(key, categories)}>
                 <ListItemIcon sx={{ minWidth: 32 }}>
@@ -84,6 +87,7 @@ const AccountDrawer = ({ fromList }) => {
                     (<ListItemButton
                       component={NextLink}
                       href={{ pathname: buildUrl(key, label), query: updatedQuery }}
+                      prefetch={prefetch}
                       selected={selectedSubSection}
                       data-cy={label}
                       key={category + ' ' + categoryIndex}

@@ -8,11 +8,13 @@ import ListItemButton from '@mui/material/ListItemButton';
 import { PAGES } from '@components/constants';
 import { prefix } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
+import useNavPrefetch from '@hooks/useNavPrefetch';
 
 export const offlineTools = { cardSearch: true, builds: true, itemBrowser: true, itemPlanner: true, wardrobe: true };
 
 const ToolsDrawer = ({ fromList }) => {
   const router = useRouter();
+  const prefetch = useNavPrefetch();
 
   const updatedQuery = sessionQuery(router.query);
 
@@ -43,6 +45,7 @@ const ToolsDrawer = ({ fromList }) => {
         return <ListItemButton key={key + ' ' + index} selected={selected}
                                component={NextLink}
                                href={{ pathname: `/tools/${keyUri}`, query: updatedQuery }}
+                               prefetch={prefetch}
                                onClick={() => trackNav(keyUri)}>
           <ListItemIcon sx={{ minWidth: 32 }}>
             <img style={{ objectFit: 'contain' }} width={32} height={32} src={`${prefix}${icon}.png`} alt=""/>
