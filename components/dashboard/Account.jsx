@@ -34,6 +34,7 @@ import {
 import useAlerts from '@hooks/useAlerts';
 import { monsterImage } from '@utility/spriteImages';
 import { useAlertSettingsProps } from '@components/common/context/DashboardSettingsProvider';
+import { pickerItemLabel } from '@utility/dashboard/quickEdit';
 
 // Every refinery alert draws the same salt icon, and one salt can raise several of them at once,
 // so a corner glyph says which condition fired without having to hover each copy.
@@ -172,6 +173,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   <Alert target={'General.shops.items'} key={'shop' + index + shop?.[0]?.rawName}
                          items={shop.map(({ rawName }) => ({ key: rawName }))}
                          title={<ShopTitle shop={shop}/>}
+                         ariaLabel={`Shop stock: ${shop.map(({ rawName }) => pickerItemLabel(rawName)).join(', ')}`}
                          iconPath={index === 8 ? `etc/ShopEZ${index}` : `data/ShopEZ${index}`}/> : null) : null}
               {alerts?.General?.guild?.daily ?
                 <Alert target={'General.guild.daily'} title={`You have ${alerts?.General?.guild?.daily} uncompleted daily tasks`} iconPath={`etc/GP`}
@@ -1042,7 +1044,9 @@ const Alert = ({
                  items,
                  worlds,
                  // Lists of map names need more room than the 320px default before they wrap.
-                 maxWidth
+                 maxWidth,
+                 // Names the icon for screen readers when the title is not plain text.
+                 ariaLabel
                }) => {
   const settingsProps = useAlertSettingsProps('account', target, items || worlds ? { items, worlds } : undefined);
   const {
@@ -1055,7 +1059,7 @@ const Alert = ({
   const badgeImgStyle = badgeBorder ? { border: '1px solid', borderColor: badgeBorder } : {};
   return <HtmlTooltip title={title} maxWidth={maxWidth}>
     <Stack {...settingsProps}
-           {...(target ? { 'aria-label': typeof title === 'string' ? title : settingsProps['aria-label'] } : {})}
+           {...(target ? { 'aria-label': ariaLabel ?? (typeof title === 'string' ? title : settingsProps['aria-label']) } : {})}
            sx={{
              position: 'relative', ...style, alignItems: 'center', justifyContent: 'center',
              ...(target ? { cursor: 'pointer', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', borderRadius: 1 } } : {})

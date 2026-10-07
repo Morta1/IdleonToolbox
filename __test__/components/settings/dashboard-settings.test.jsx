@@ -92,6 +92,13 @@ describe('DashboardSettings window', () => {
     expect(document.body.textContent).toContain('Timers · World 3');
   });
 
+  it('spaces alone are not a search', () => {
+    render(<Harness/>);
+    fireEvent.change(document.body.querySelector('input[aria-label="Search alerts"]'), { target: { value: '   ' } });
+    expect(document.body.textContent).toContain('Every count is alerts, not options');
+    expect(document.body.textContent).toContain('All 99');
+  });
+
   it('a deep link opens the section with the alert expanded', () => {
     render(<Harness target={{ configType: 'account', path: 'World 7.royalGuardian.tradeRank' }}/>);
     expect(document.body.querySelector('[aria-expanded="true"]')).toBeTruthy();

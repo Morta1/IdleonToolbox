@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AppContext, writeStored } from '@components/common/context/AppProvider';
 import { Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import Characters from '../components/dashboard/Characters';
@@ -110,11 +110,16 @@ const Dashboard = () => {
   // A change that hides the clicked alert removes its icon: close the popover rather than leave it
   // floating over other icons. The snackbar's Undo takes over. Watched in the DOM because the
   // alert lists recompute in their own effects, a render after the config change.
+  // Only after a checkbox: a threshold hides and shows its alert on every keystroke while typing.
+  const closeOnHide = useRef(false);
   useEffect(() => {
     const element = quickEdit?.element;
     if (!element) return;
     const observer = new MutationObserver(() => {
-      if (!element.isConnected) setQuickEdit(null);
+      if (element.isConnected || !closeOnHide.current) return;
+      // Closing drops focus to the page, so hand it to the snackbar's Undo.
+      setQuickUndo((undo) => undo ? { ...undo, focus: true } : undo);
+      setQuickEdit(null);
     });
     observer.observe(document.body, { childList: true, subtree: true });
     return () => observer.disconnect();
@@ -123,6 +128,7 @@ const Dashboard = () => {
   const quickModel = quickEdit ? quickEditFor(config, quickEdit.configType, quickEdit.target, quickEdit.extra) : null;
 
   const handleQuickAction = (name, ...args) => {
+    closeOnHide.current = name.startsWith('toggle');
     handleConfigChange(runAction(baseTrackers, config, name, ...args));
     if (quickUndo?.id !== quickEdit.id) trackSettingsEvent('alert_quick_edit_changed', { kind: quickModel.kind });
     if (name === 'resetPath') trackSettingsEvent('alert_settings_reset', { scope: 'option' });
@@ -223,7 +229,7 @@ const Dashboard = () => {
                       setQuickEdit(null);
                       handleOpenSettings(quickEdit.configType, quickEdit.target, 'quick_edit');
                     }}/>
-    {quickUndo && !quickEdit ? <UndoSnackbar key={quickUndo.id} label={quickUndo.label} onUndo={undoQuickEdit}
+    {quickUndo && !quickEdit ? <UndoSnackbar key={quickUndo.id} label={quickUndo.label} onUndo={undoQuickEdit} autoFocus={quickUndo.focus}
                                              onClose={() => setQuickUndo(null)}/> : null}
   </>
 };

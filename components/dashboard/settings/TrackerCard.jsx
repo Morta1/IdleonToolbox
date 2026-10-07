@@ -108,7 +108,8 @@ const TrackerCard = ({ tracker, expanded, onToggleExpanded, highlightOption = nu
         {tracker.edited ? <Box><Button size="small" sx={{ display: { xs: 'inline-flex', sm: 'none' }, minWidth: 0, px: 0, minHeight: 36 }}
                                        onClick={() => onAction('resetPath', tracker.path)}>Reset</Button></Box> : null}
       </Box>
-      {inline ? <NumberField option={inline} tracker={tracker} onAction={onAction} ariaLabel={`${tracker.label} ${inline.label}`}/> : null}
+      {inline ? <NumberField option={inline} tracker={tracker} onAction={onAction} ariaLabel={`${tracker.label} ${inline.label}`}
+                             hideReset={tracker.paired}/> : null}
       {tracker.edited ? <Button size="small" sx={{ display: { xs: 'none', sm: 'inline-flex' } }} onClick={() => onAction('resetPath', tracker.path)}>Reset</Button> : null}
       {hasBody
         ? <IconButton aria-label={`${expanded ? 'Hide' : 'Show'} ${tracker.label} options`} aria-expanded={expanded}

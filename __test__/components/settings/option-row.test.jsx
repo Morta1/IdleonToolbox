@@ -50,6 +50,14 @@ describe('OptionRow', () => {
     expect(onAction).toHaveBeenCalledWith('setOptionValue', tracker, 'foodLust', '14');
   });
 
+  it('an emptied number goes back to its default on blur', () => {
+    const tracker = trackerFor('account.World 3.equinox', { 'account.World 3.equinox.foodLust': { value: '' } });
+    const option = tracker.options.find(({ name }) => name === 'foodLust');
+    const { container, onAction } = renderRow(tracker, 'foodLust');
+    fireEvent.blur(container.querySelector('input[type="number"]'));
+    expect(onAction).toHaveBeenCalledWith('setOptionValue', tracker, 'foodLust', String(option.defaultValue));
+  });
+
   it('picker tiles are pressed buttons with All and None', () => {
     const tracker = trackerFor('account.World 3.construction');
     const { container, onAction } = renderRow(tracker, 'materials');

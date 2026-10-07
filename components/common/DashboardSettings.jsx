@@ -120,8 +120,10 @@ const DashboardSettings = ({
 
   const tab = model[tabIndex];
   const section = tab.sections.find((item) => item.key === sectionKey) ?? tab.sections[0];
-  const results = searchModel(model, query);
-  const counting = query ? results.map(({ tracker }) => tracker) : allTrackers(model);
+  // Spaces alone are not a search.
+  const searching = query.trim();
+  const results = searchModel(model, searching);
+  const counting = searching ? results.map(({ tracker }) => tracker) : allTrackers(model);
   const countFor = (key) => counting.filter((tracker) => matchesFilter(tracker, key)).length;
 
   const changeTab = (index) => {
@@ -185,7 +187,7 @@ const DashboardSettings = ({
                                 color={filter === key ? 'primary' : 'default'} variant={filter === key ? 'filled' : 'outlined'}
                                 aria-pressed={filter === key} onClick={() => setFilter(key)} sx={{ minHeight: { xs: 44, sm: 32 } }}/>)}
     <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', ml: 1 }}>
-      {query ? 'While searching, counts are results' : 'Every count is alerts, not options'}
+      {searching ? 'While searching, counts are results' : 'Every count is alerts, not options'}
     </Typography>
     <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 0.75, ml: 1 }}>
       <EditedDot label={null}/>Changed from default
@@ -202,8 +204,8 @@ const DashboardSettings = ({
     </Box>
   </Stack> : null;
 
-  const pane = query
-    ? <SearchResults results={results.filter(({ tracker }) => matchesFilter(tracker, filter))} query={query} onAction={onAction} onShow={showResult}/>
+  const pane = searching
+    ? <SearchResults results={results.filter(({ tracker }) => matchesFilter(tracker, filter))} query={searching} onAction={onAction} onShow={showResult}/>
     : <SectionPane section={section} filter={filter} expanded={expanded}
                    onToggleExpanded={(path) => setExpanded((prev) => ({ ...prev, [path]: !prev[path] }))}
                    onSetExpanded={(paths, value) => setExpanded((prev) => ({ ...prev, ...Object.fromEntries(paths.map((path) => [path, value])) }))}
@@ -218,7 +220,7 @@ const DashboardSettings = ({
             PaperProps={{ sx: { height: { sm: '90vh' } } }}>
       <DialogTitle component="div" id="configure-alerts-header" sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pb: 1.5 }}>
         <Stack direction="row" alignItems="center" gap={2}>
-          {isSm && mobileDetail && !query
+          {isSm && mobileDetail && !searching
             ? <IconButton aria-label="Back to sections" sx={TAP} onClick={() => setMobileDetail(false)}><ArrowBackIcon/></IconButton> : null}
           <Typography id={TITLE_ID} variant="h6" component="h1" sx={{ whiteSpace: 'nowrap' }}>Configure alerts</Typography>
           {!isSm ? <Box sx={{ flex: 1, maxWidth: 520 }}>{search}</Box> : null}
@@ -239,7 +241,7 @@ const DashboardSettings = ({
       </DialogTitle>
       <DialogContent dividers sx={{ p: 0, display: 'flex', minHeight: 0 }}>
         {isSm
-          ? <Box sx={{ p: 1.5, width: '100%', overflowY: 'auto' }}>{query || mobileDetail ? pane : <>
+          ? <Box sx={{ p: 1.5, width: '100%', overflowY: 'auto' }}>{searching || mobileDetail ? pane : <>
             {nav}
             <Button fullWidth color="inherit" sx={{ ...TAP, mt: 2 }} onClick={() => setConfirmReset(true)}>Reset all alerts</Button>
           </>}</Box>
@@ -258,7 +260,7 @@ const DashboardSettings = ({
       <DialogTitle>Reset every alert to default?</DialogTitle>
       <DialogContent>
         <DialogContentText id={RESET_TEXT_ID}>
-          This turns all {allTrackers(model).length} alerts back to their default and clears your {Object.keys(edits).length} edits. Export first if you want a copy.
+          This turns all {allTrackers(model).length} alerts back to their default and clears your {Object.keys(edits).length} {Object.keys(edits).length === 1 ? 'edit' : 'edits'}. Export first if you want a copy.
         </DialogContentText>
       </DialogContent>
       <DialogActions>

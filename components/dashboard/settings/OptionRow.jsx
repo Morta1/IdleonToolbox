@@ -54,7 +54,8 @@ const rangeText = ({ minValue, maxValue }) => {
   return maxValue !== undefined ? `At most ${maxValue}` : '';
 };
 
-export const NumberField = ({ option, tracker, onAction, ariaLabel, disabled = false }) => {
+// hideReset: the card's own Reset already covers it (a number shown inline in the card header).
+export const NumberField = ({ option, tracker, onAction, ariaLabel, disabled = false, hideReset = false }) => {
   const error = outOfRange(option);
   return <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
     <TextField
@@ -71,10 +72,13 @@ export const NumberField = ({ option, tracker, onAction, ariaLabel, disabled = f
       }}
       onChange={(e) => onAction('setOptionValue', tracker, option.name, e.target.value)}
       onBlur={(e) => {
-        const clamped = clampValue(option, e.target.value);
+        // An empty field would hide every alert it gates, so leaving it empty means the default.
+        const clamped = e.target.value === '' && option.defaultValue != null
+          ? String(option.defaultValue)
+          : clampValue(option, e.target.value);
         if (clamped !== e.target.value) onAction('setOptionValue', tracker, option.name, clamped);
       }}/>
-    {option.edited ? <Stack direction="row" alignItems="center" gap={0.75}>
+    {option.edited && !hideReset ? <Stack direction="row" alignItems="center" gap={0.75}>
       <Typography variant="caption" color="text.secondary">Default {String(option.defaultValue)} ·</Typography>
       <Button size="small" sx={{ p: 0, minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={disabled} onClick={() => onAction('resetPath', option.path)}>Reset</Button>
     </Stack> : null}
