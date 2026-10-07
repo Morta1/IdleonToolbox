@@ -553,7 +553,9 @@ const AppProvider = ({ children }) => {
             window.gtag('event', 'login', {
               action: 'login',
               category: 'engagement',
-              value: state?.emailPasswordLogin ? 'email-password' : state?.appleLogin ? 'apple' : 'google'
+              value: state?.loginType === 'steam'
+                ? 'steam'
+                : state?.emailPasswordLogin ? 'email-password' : state?.appleLogin ? 'apple' : 'google'
             });
           }
           

@@ -9,6 +9,7 @@ const SteamLogin = ({ setOpen }) => {
   const { state, dispatch, waitingForAuth, setWaitingForAuth } = useContext(AppContext);
   const [steamUrl, setSteamUrl] = useState('');
   const [error, setError] = useState('');
+  const [verifying, setVerifying] = useState(false);
 
   const handleOpen = () => {
     window.open('https://steamcommunity.com/openid/login?' +
@@ -40,7 +41,7 @@ const SteamLogin = ({ setOpen }) => {
       setError('');
       setSteamUrl(e.target.value)
     }} size={'small'} label={'Steam popup url'}/>
-    <Button sx={{ mt: 2 }} loading={waitingForAuth} variant="contained" color="success" onClick={async () => {
+    <Button sx={{ mt: 2 }} loading={waitingForAuth || verifying} variant="contained" color="success" onClick={async () => {
       if (!steamUrl.startsWith('https://')) {
         return setError('The url should start with "https://"');
       }
@@ -50,15 +51,19 @@ const SteamLogin = ({ setOpen }) => {
       if (!isValidUrl(steamUrl)) {
         return setError('Please enter a valid steam url')
       }
+      setVerifying(true);
       const token = await getSteamParams(steamUrl);
+      setVerifying(false);
+      // Steam sign-in urls are single-use: a reused one (or one the Idleon page already consumed)
+      // comes back as an empty result.
       if (Object.keys(token || {}).length === 0) {
-        return setError('An error occurred while trying to login')
+        return setError('This Steam url has expired or was already used. Click the Steam login button to sign in again, then paste the new url.')
       }
       if (token && !token?.error) {
         setWaitingForAuth(true);
         dispatch({ type: 'login', data: { loginData: { token }, loginType: 'steam' } })
       } else {
-        setError(`An error occurred while trying to login ${`- ${token?.message}` || ''}`)
+        setError(`An error occurred while trying to login${token?.message ? `: ${token.message}` : ''}`)
       }
     }}>Login</Button>
   </Stack>;
