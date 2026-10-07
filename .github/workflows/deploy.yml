@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # postbuild derives each page's sitemap <lastmod> from that file's last commit date.
           # The default fetch-depth of 1 leaves one commit of history, which would give every
@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
 
       - name: Use Node.js 24
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
           cache: 'npm'
@@ -27,7 +27,7 @@ jobs:
       # node_modules is what costs: a fresh install took 75 of the job's ~340 seconds.
       - name: Restore node_modules
         id: node-modules
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: node_modules
           key: ${{ runner.os }}-node24-modules-${{ hashFiles('package-lock.json') }}
