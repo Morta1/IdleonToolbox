@@ -113,7 +113,7 @@ const MyApp = (props) => {
         enableDeclineButton
         cookieName="idleon-consent"
         style={{ zIndex: 9999999, display: 'flex', alignItems: 'center', fontSize: 14 }}
-        contentStyle={{ margin: '8px 15px' }}
+        contentStyle={{ margin: '8px 15px', fontSize: 12 }}
         buttonStyle={{
           margin: '0 15px 0 0',
           borderRadius: '8px',
@@ -135,8 +135,10 @@ const MyApp = (props) => {
           }
         }}
       >
-        We use cookies to enhance your experience, analyze traffic, and personalize ads. You can accept or decline these
-        cookies.{' '}
+        {/* One short line at the buttons' 12px: the full detail is behind Learn more. The notice paints after
+            hydration, and at any larger size its text outweighed a wiki page's own content (a 72px item icon
+            is 5,184px²), which made this banner every static page's LCP on mobile. */}
+        We use cookies for analytics and personalized ads.{' '}
         <Button variant={'contained'} sx={{ height: 24, px: 1, fontSize: 12, textTransform: 'none' }}
                 onClick={() => setOpenPolicy(true)}>Learn
           more</Button>
