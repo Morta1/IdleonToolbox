@@ -63,6 +63,9 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
   }
   const inputRef = useRef(null);
   const picking = useRef(false);
+  // Set by the press that is about to focus the field, so only that click selects the name and a
+  // later click can still place the caret inside it.
+  const pointerFocus = useRef(false);
   const text = input.trim();
   const typing = Boolean(text) && input !== viewingName;
   const [debounced] = useDebouncedValue(typing ? text : '', 250);
@@ -125,12 +128,9 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
         if (reason === 'selectOption' && isTouch()) inputRef.current?.blur();
         picking.current = false;
       }}
-      // Typing replaces the viewed name rather than appending to it; the select waits for the click
-      // that focused the field, which would otherwise drop the selection.
-      onFocus={(event) => {
-        const field = event.target;
-        if (showsViewed) setTimeout(() => field.select?.(), 0);
-      }}
+      // Typing replaces the viewed name rather than appending to it. Keyboard focus selects here; a
+      // click selects on its own click event (below), since its mouseup would drop a selection made now.
+      onFocus={(event) => { if (showsViewed && !pointerFocus.current) event.target.select?.(); }}
       onBlur={() => { if (!picking.current && viewingName && input !== viewingName) setInput(viewingName); }}
       renderOption={(props, option) => {
         const { key, ...optionProps } = props;
@@ -161,6 +161,15 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
             htmlInput: {
               ...params.inputProps, 'aria-label': 'Find a player',
               enterKeyHint: 'search', autoCorrect: 'off', autoCapitalize: 'none', spellCheck: false,
+              onMouseDown: (event) => {
+                params.inputProps.onMouseDown?.(event);
+                pointerFocus.current = document.activeElement !== event.currentTarget;
+              },
+              onClick: (event) => {
+                params.inputProps.onClick?.(event);
+                if (pointerFocus.current && showsViewed) event.currentTarget.select();
+                pointerFocus.current = false;
+              },
               // Escape puts the viewed player back after typing over them.
               onKeyDown: (event) => {
                 params.inputProps.onKeyDown?.(event);
