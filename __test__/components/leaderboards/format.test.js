@@ -72,7 +72,11 @@ describe('formatMetricValue short form', () => {
 
 describe('formatExactValue', () => {
   it('gives full precision where the short form would hide the gap', () => {
-    expect(formatExactValue('default', 93_912_345.6)).toBe('93,912,345');
+    expect(formatExactValue('default', 93_912_345)).toBe('93,912,345');
+    // Fractional scores keep two decimals, so a 0.21 gap is visible.
+    expect(formatExactValue('default', 498506.8800000001)).toBe('498,506.88');
+    expect(formatExactValue('default', 498506.66799999983)).toBe('498,506.67');
+    expect(formatExactValue('default', 100.0000001)).toBe('100');
     expect(formatExactValue('points', 16278.42)).toBe('16,278.42 pts');
     expect(formatExactValue('default', 1.3176090741400986e62)).toBe('1.31761E62');
   });

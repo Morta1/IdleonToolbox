@@ -75,7 +75,11 @@ export const formatExactValue = (notation, value) => {
   if (notation === 'points') return `${numberWithCommas(value.toFixed(2))} pts`;
   if (notation === 'bits') return notateNumber(value, 'bits');
   if (notation === 'multiplier') return numberWithCommas(value.toFixed(2));
-  if (Math.abs(value) < 1e15) return numberWithCommas(Math.floor(value));
+  if (Math.abs(value) < 1e15) {
+    // Some boards store fractional scores (Colosseums): two players a fifth of a point apart would
+    // both read 498,506, so a value that is not whole keeps two decimals.
+    return Math.abs(value - Math.round(value)) < 0.005 ? numberWithCommas(Math.round(value)) : numberWithCommas(value.toFixed(2));
+  }
   return value.toExponential(5).replace('e+', 'E');
 };
 
