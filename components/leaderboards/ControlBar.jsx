@@ -10,7 +10,7 @@ import useProfileBannerState from '@hooks/useProfileBannerState';
 import { navBarHeight, profileBannerHeight } from '@components/constants';
 import { numberWithCommas } from '@utility/helpers';
 import { searchNames } from '../../services/leaderboards';
-import { AGGREGATION_INTERVAL, GLOBAL_METRIC } from './format';
+import { AGGREGATION_INTERVAL, GLOBAL_METRIC, rankText } from './format';
 
 const MIN_QUERY = 2;
 const FIELD_OUTLINE = 'rgba(255,255,255,0.23)';
@@ -26,7 +26,7 @@ const PlayerOption = ({ name, rank, query }) => {
       <Box component="span" sx={{ flexGrow: 1, minWidth: 0 }}>
         <b>{name.slice(0, matched)}</b>{name.slice(matched)}
       </Box>
-      {rank != null ? <Typography component="span" sx={{ fontSize: 12, color: 'text.disabled', flexShrink: 0 }}>{`#${rank}`}</Typography> : null}
+      {rank != null ? <Typography component="span" sx={{ fontSize: 12, color: 'text.disabled', flexShrink: 0 }}>{rankText(rank)}</Typography> : null}
     </Stack>
   );
 };

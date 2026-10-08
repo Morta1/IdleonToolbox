@@ -7,7 +7,7 @@ import useHydrated from '@hooks/useHydrated';
 import useFormatDate from '@hooks/useFormatDate';
 import { prefix } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
-import { AGGREGATION_INTERVAL, GLOBAL_METRIC, TABS, formatMetricValue, metaOf, staleUntilNextRun } from './format';
+import { AGGREGATION_INTERVAL, GLOBAL_METRIC, TABS, formatMetricValue, metaOf, rankText, staleUntilNextRun } from './format';
 import { topPercentLabel, withinReach } from './standing';
 import { nextRankText } from './tiers';
 import CategoryTiles from './CategoryTiles';
@@ -34,7 +34,7 @@ const PodiumSlot = ({ row, kind }) => {
     }}>
       {trophy
         ? <Box component="img" src={`${prefix}${trophy}`} alt={`Rank ${row.rank}`} sx={{ width: size, height: size, objectFit: 'contain' }}/>
-        : <Typography color="text.secondary" fontWeight={600} sx={{ fontSize: 14 }}>{`#${row.rank ?? '-'}`}</Typography>}
+        : <Typography color="text.secondary" fontWeight={600} sx={{ fontSize: 14 }}>{rankText(row.rank)}</Typography>}
       <Typography noWrap sx={{ maxWidth: '100%', fontSize: first ? { xs: 13, sm: 18 } : { xs: 12, sm: 15 }, fontWeight: first ? 700 : 600 }}>{row.mainChar}</Typography>
       <Typography color="text.secondary" sx={{ fontSize: 12, display: { xs: 'none', sm: 'block' } }}>{formatMetricValue('points', row.value)}</Typography>
     </Stack>
@@ -122,7 +122,7 @@ const Highlights = ({ picks, kind, index }) => (
     {picks.map((pick) => {
       const meta = metaOf(index, pick.metric);
       // A missing tab (meta down) or value leaves no dangling separator.
-      const sub = [tabOfCategory(meta.category), Number.isFinite(pick.value) ? formatMetricValue(meta.notation, pick.value) : null].filter(Boolean).join(' · ');
+      const sub = [tabOfCategory(meta.category), Number.isFinite(pick.value) ? formatMetricValue(meta.notation, pick.value, { scale: meta.top }) : null].filter(Boolean).join(' · ');
       const top = topPercentLabel(pick.topPercent);
       return (
         <Stack key={pick.metric} direction="row" alignItems="center" gap={1.5} sx={{ py: 1.25, borderTop: 1, borderColor: 'divider' }}>
@@ -132,7 +132,7 @@ const Highlights = ({ picks, kind, index }) => (
             {sub ? <Typography color="text.secondary" sx={{ fontSize: 12 }}>{sub}</Typography> : null}
           </Box>
           <Box sx={{ textAlign: 'right' }}>
-            <Typography sx={{ fontSize: 16, fontWeight: 700 }}>{`#${pick.rank}`}</Typography>
+            <Typography sx={{ fontSize: 16, fontWeight: 700 }}>{rankText(pick.rank)}</Typography>
             {top ? <Typography color="text.disabled" sx={{ fontSize: 11 }}>{top}</Typography> : null}
           </Box>
         </Stack>
@@ -154,7 +154,7 @@ const WithinReach = ({ reach, index, onOpen }) => (
           <Box component="span" sx={{ flexGrow: 1, minWidth: 0, textAlign: 'left' }}>
             <Typography component="span" display="block" sx={{ fontWeight: 600 }}>
               {meta.label}
-              <Box component="span" sx={{ color: 'text.secondary', fontWeight: 400 }}>{` · #${entry.r} · ${formatMetricValue(meta.notation, entry.v)}`}</Box>
+              <Box component="span" sx={{ color: 'text.secondary', fontWeight: 400 }}>{` · ${rankText(entry.r)} · ${formatMetricValue(meta.notation, entry.v, { scale: meta.top })}`}</Box>
             </Typography>
             <Typography component="span" display="block" color="primary" sx={{ fontSize: 13 }}>{nextRankText(entry, meta)}</Typography>
           </Box>

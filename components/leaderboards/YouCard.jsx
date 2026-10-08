@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import { numberWithCommas } from '@utility/helpers';
 import { countAtMax, countStanding, topPercentLabel } from './standing';
 import { HIGHLIGHT } from './RankRow';
+import { formatMetricValue, rankText } from './format';
 
 const LABEL_COLOR = { logged: '#4fc3c9', searched: '#cd861b' };
 
@@ -21,7 +22,7 @@ const YouCard = ({ data, kind, index, onSeeAll }) => {
   // A maxed board is shared by everyone who reached the max, so it is counted apart from the firsts.
   const atMax = countAtMax(Object.keys(ranks ?? {}), ranks, index);
   const topPercent = topPercentLabel(Math.max(0.1, Math.round((player.rank / player.totalUsers) * 1000) / 10));
-  const of = [`of ${numberWithCommas(player.totalUsers)}`, topPercent, `${numberWithCommas(Math.round(player.compositeScore))} pts`].filter(Boolean).join(' · ');
+  const of = [`of ${numberWithCommas(player.totalUsers)}`, topPercent, formatMetricValue('points', player.compositeScore)].filter(Boolean).join(' · ');
   return (
     <Card variant="outlined" sx={{
       height: '100%', boxSizing: 'border-box', p: { xs: '14px', md: '18px 20px' }, borderRadius: 2, bgcolor: '#12141c', border: '2px solid', borderColor: HIGHLIGHT[kind], boxShadow: 'none'
@@ -33,7 +34,7 @@ const YouCard = ({ data, kind, index, onSeeAll }) => {
           <span>{player.mainChar}</span>
         </Typography>
         <Stack direction="row" alignItems="baseline" columnGap={1.25} flexWrap="wrap">
-          <Typography component="p" sx={{ fontSize: { xs: 34, md: 44 }, fontWeight: 700, lineHeight: 1 }}>{`#${numberWithCommas(player.rank)}`}</Typography>
+          <Typography component="p" sx={{ fontSize: { xs: 34, md: 44 }, fontWeight: 700, lineHeight: 1 }}>{rankText(player.rank)}</Typography>
           <Typography color="text.secondary" sx={{ fontSize: { xs: 12, md: 13 } }}>{of}</Typography>
         </Stack>
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 1, mt: 0.5 }}>

@@ -3,7 +3,7 @@ import { Button, Collapse, IconButton, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { IconChevronDown, IconChevronRight, IconChevronsDown, IconChevronsUp, IconInfoCircle } from '@tabler/icons-react';
 import MetricCard from './MetricCard';
-import { metaOf } from './format';
+import { metaOf, rankText } from './format';
 import { bestInSection, countAtMax } from './standing';
 
 const AnonymousNotice = () => (
@@ -45,7 +45,7 @@ const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onO
           const atMax = pinnedBase ? countAtMax(section.metrics, ranks, index) : 0;
           // Open sections breathe; a run of collapsed ones stays a tight list.
           const spaced = at > 0 && (open || !collapsed[sections[at - 1].name]);
-          const sub = `${section.metrics.length} ${section.metrics.length === 1 ? 'board' : 'boards'}${best ? ` · ${bestLabel}: ${metaOf(index, best.key).label} #${best.r}` : ''}${atMax ? ` · ${atMax} at the max` : ''}`;
+          const sub = `${section.metrics.length} ${section.metrics.length === 1 ? 'board' : 'boards'}${best ? ` · ${bestLabel}: ${metaOf(index, best.key).label} ${rankText(best.r)}` : ''}${atMax ? ` · ${atMax} at the max` : ''}`;
           return (
             <Box component="section" key={section.name || 'all'} sx={{ mt: spaced ? 2 : 0 }}>
               {showHeadings ? (

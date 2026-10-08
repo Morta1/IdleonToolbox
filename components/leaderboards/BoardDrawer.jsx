@@ -5,7 +5,7 @@ import { IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { numberWithCommas } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
-import { GLOBAL_METRIC, formatMetricValue, formatStep, metaOf, staleUntilNextRun } from './format';
+import { GLOBAL_METRIC, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun } from './format';
 import MetricIcon from './MetricIcon';
 import RankRow from './RankRow';
 
@@ -41,12 +41,12 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, showAnonymous, onCl
   const above = showAround
     ? around.reduce((best, row) => (row.rank < myRank && (!best || row.rank > best.rank) ? row : best), null)
     : null;
-  const step = above ? `+${formatStep(meta.notation, above.value - mine.value)} to reach ${above.mainChar} (#${above.rank})` : null;
+  const step = above ? `+${formatStep(meta.notation, above.value - mine.value, { scale: meta.top })} to reach ${above.mainChar} (${rankText(above.rank)})` : null;
   const maxed = Boolean(meta.maxed);
   const first = data?.top?.[0] ?? null;
   const players = (metricKey ?? GLOBAL_METRIC) === GLOBAL_METRIC ? index.totalPlayers : meta.players;
   const rowProps = (row, variant) => ({
-    rank: row.rank, name: row.mainChar, value: row.value, notation: meta.notation, variant,
+    rank: row.rank, name: row.mainChar, value: row.value, notation: meta.notation, scale: meta.top, variant,
     kind: isMe(row.mainChar) ? kind : null, plainRank: maxed, globalRank: maxed ? row.globalRank : null
   });
 
@@ -74,7 +74,7 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, showAnonymous, onCl
           </Typography>
         ) : first || players != null ? (
           <Stack direction="row" gap={2} sx={{ fontSize: 12, color: 'text.secondary' }}>
-            {first ? <span>{`#1 ${first.mainChar} · ${formatMetricValue(meta.notation, first.value)}`}</span> : null}
+            {first ? <span>{`#1 ${first.mainChar} · ${formatMetricValue(meta.notation, first.value, { scale: meta.top })}`}</span> : null}
             {players != null ? <span>{`${numberWithCommas(players)} players`}</span> : null}
           </Stack>
         ) : null}

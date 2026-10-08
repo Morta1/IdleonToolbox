@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
-import { TABS, metaOf } from './format';
+import { TABS, metaOf, rankText } from './format';
 import { openOnPlainClick } from './MetricCard';
 import { bestInSection, medianRank } from './standing';
 
@@ -23,8 +23,8 @@ const CategoryTiles = ({ index, ranks, onTab }) => {
               <Typography component="span" sx={{ fontWeight: 700 }}>{tab}</Typography>
               <Typography component="span" color="text.disabled" sx={{ fontSize: 11 }}>{keys.length}</Typography>
             </Box>
-            {median != null ? <Typography color="text.secondary" sx={{ fontSize: 12 }}>{`median #${median}`}</Typography> : null}
-            {best ? <Typography color="primary" noWrap sx={{ fontSize: 12 }}>{`${metaOf(index, best.key).label} #${best.r}`}</Typography> : null}
+            {median != null ? <Typography color="text.secondary" sx={{ fontSize: 12 }}>{`median ${rankText(median)}`}</Typography> : null}
+            {best ? <Typography color="primary" noWrap sx={{ fontSize: 12 }}>{`${metaOf(index, best.key).label} ${rankText(best.r)}`}</Typography> : null}
           </Link>
         );
       })}

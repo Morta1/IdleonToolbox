@@ -2,8 +2,8 @@ import React from 'react';
 import { Link, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { IconCheck } from '@tabler/icons-react';
-import { prefix } from '@utility/helpers';
-import { formatMetricValue, profileUrl } from './format';
+import { numberWithCommas, prefix } from '@utility/helpers';
+import { formatExactValue, formatMetricValue, profileUrl } from './format';
 
 export const HIGHLIGHT = { logged: '#007E85', searched: '#cd861b' };
 export const MEDAL = { 1: '#f0b849', 2: '#9aa3ad', 3: '#b8783a' };
@@ -14,7 +14,7 @@ const RankBadge = ({ rank, plain, strong, dim }) => {
     return <img width={20} height={20} style={{ objectFit: 'contain', flexShrink: 0 }} src={`${prefix}${TROPHIES[rank]}`} alt={`Rank ${rank}`}/>;
   }
   return <Typography component="span" color={strong ? 'text.primary' : dim ? 'text.disabled' : 'text.secondary'} sx={{ fontSize: 12, fontWeight: strong ? 700 : 600 }}>
-    {rank ?? '-'}
+    {rank == null ? '-' : numberWithCommas(rank)}
   </Typography>;
 };
 
@@ -23,7 +23,9 @@ const RankBadge = ({ rank, plain, strong, dim }) => {
 // drawer (left-aligned 34px column); 'around' rows are boxed, so the player's row gets a full outline.
 // dimRank: a quieter rank number (0.5 alpha), for the Overview's ranks 4 to 10.
 // pinned: the player's own row under a card, which reads "(you)" for the logged-in player.
-const RankRow = ({ rank, name, value, notation, kind = null, plainRank = false, globalRank = null, maxCheck = false, pinned = false, variant = 'card', dimRank = false }) => {
+// scale: the board's top value, so every row of a board shares one notation.
+// 'around' rows show the exact value: next to the player the short form would read the same.
+const RankRow = ({ rank, name, value, notation, scale, kind = null, plainRank = false, globalRank = null, maxCheck = false, pinned = false, variant = 'card', dimRank = false }) => {
   const drawer = variant !== 'card';
   const around = variant === 'around';
   const accent = kind ? HIGHLIGHT[kind] : null;
@@ -54,7 +56,9 @@ const RankRow = ({ rank, name, value, notation, kind = null, plainRank = false, 
           max
         </Stack>
       ) : (
-        <Typography color="text.secondary" noWrap sx={{ fontSize: 'inherit' }}>{formatMetricValue(notation, value)}</Typography>
+        <Typography color="text.secondary" noWrap title={formatExactValue(notation, value)} sx={{ fontSize: 'inherit' }}>
+          {around ? formatExactValue(notation, value) : formatMetricValue(notation, value, { scale })}
+        </Typography>
       )}
     </Stack>
   );

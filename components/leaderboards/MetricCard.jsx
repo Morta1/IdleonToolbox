@@ -41,18 +41,18 @@ const MetricCard = ({ meta, entries, highlight, pinned, onOpen }) => {
       </Stack>
       {maxed ? (
         <Typography variant="caption" component="p" color="text.secondary" sx={{ px: 1.75, py: 1.25, lineHeight: 1.5, borderBottom: 1, borderColor: 'divider' }}>
-          <Box component="b" sx={{ color: 'text.primary' }}>{formatMetricValue(meta.notation, meta.top)}</Box>
+          <Box component="b" sx={{ color: 'text.primary' }}>{formatMetricValue(meta.notation, meta.top, { scale: meta.top })}</Box>
           {` is the max · ${numberWithCommas(meta.topTies)} players have it, all tied at #1 · listed by global rank`}
         </Typography>
       ) : null}
       {rows.length === 0
         ? <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>Nothing here yet</Typography>
         : rows.map((row) => (
-          <RankRow key={row.mainChar} rank={row.rank} name={row.mainChar} value={row[meta.key]} notation={meta.notation}
+          <RankRow key={row.mainChar} rank={row.rank} name={row.mainChar} value={row[meta.key]} notation={meta.notation} scale={meta.top}
                    kind={highlight[row.mainChar] ?? null} plainRank={maxed} globalRank={maxed ? row.globalRank : null}/>
         ))}
       {showPinned ? (
-        <RankRow pinned rank={pinned.entry.r} name={pinned.mainChar} value={pinned.entry.v} notation={meta.notation} kind={pinned.kind}
+        <RankRow pinned rank={pinned.entry.r} name={pinned.mainChar} value={pinned.entry.v} notation={meta.notation} scale={meta.top} kind={pinned.kind}
                  plainRank={maxed} globalRank={maxed ? pinned.globalRank : null} maxCheck={maxed && pinned.entry.v >= meta.top}/>
       ) : null}
     </Card>
