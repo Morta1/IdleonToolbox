@@ -4,6 +4,18 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.87',
+    'gameVer': '2.3.531',
+    'date': '08/10/2026',
+    'features': [
+      'Dashboard: redesigned alert settings with search, filters, clearer names and descriptions for every alert, and Undo. Click any alert icon to edit that alert right there'
+    ],
+    'fixes': [
+      'Dashboard: unticked picker items (tasks, shops, printer atoms, talents, Crystal Countdown skills), switched-off character alerts and the Sneaking loot checkbox now hide their alerts',
+      'Dashboard: the ribbon alert now shows when your ribbon shelf is full, and a sediment threshold can now be 0 to alert at its max'
+    ]
+  },
+  {
     'ver': '3.3.86',
     'gameVer': '2.3.531',
     'date': '06/10/2026',

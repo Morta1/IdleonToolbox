@@ -5,7 +5,7 @@ import { cleanUnderscore, kFormatter, notateNumber, pascalCase, prefix } from '@
 import styled from '@emotion/styled';
 import { getActivityIcon } from '@utility/spriteImages';
 import HtmlTooltip from '../Tooltip';
-import { useOpenDashboardSettings } from '@components/common/context/DashboardSettingsProvider';
+import { useAlertSettingsProps } from '@components/common/context/DashboardSettingsProvider';
 import {
   alchemyAlerts,
   anvilAlerts,
@@ -92,7 +92,13 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
       }), {});
       return { ...result, [trackerName]: { ...rest, ...optionObject } }
     }, {});
+    // An alert switched off computes nothing: since the switch stopped unticking every option, the
+    // trackers?.x checks below would otherwise still show it.
     const alerts = Object.keys(options)?.reduce((result, trackerName) => {
+      if (!options[trackerName]?.checked) {
+        result[trackerName] = {};
+        return result;
+      }
       result[trackerName] = alertsMap?.[trackerName]?.(account, characters, character, lastUpdated, options) || {};
       return result;
     }, {});
@@ -234,6 +240,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
                                                                                                     cooldown
                                                                                                   }, index) => (
         <Alert target={'talents.talents'} key={skillIndex + '-' + index}
+               items={[{ key: name, label: cleanUnderscore(pascalCase(name)) }]}
                style={{ opacity: cooldown > 0 ? .5 : 1 }}
                title={cooldown > 0
                  ? <Timer type={'countdown'}
@@ -277,6 +284,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
           const ready = crystalCountdown > 0 && Math.floor(reduction) >= Math.floor(crystalCountdown);
           if (!showMaxed && ready || !showNonMaxed && (showMaxed && !ready) || (!showNonMaxed && !showMaxed)) return null;
           return <Alert target={'crystalCountdown'} key={icon + '-' + index + '-' + characterIndex}
+                        items={[{ key: icon, label: cleanUnderscore(pascalCase(name)) }]}
                         style={{
                           border: '1px solid',
                           borderColor: ready ? '#66bb6a' : reduction > 0 ? '#d1921e' : '',
@@ -383,10 +391,11 @@ const BagList = ({ name, bags }) => {
 
 // `target` is the dot path of the alert's own setting - clicking the icon opens the configuration
 // modal on it. See utility/dashboard/settingsTarget.
-const Alert = ({ title, iconPath, style = {}, extra, target }) => {
-  const openSettings = useOpenDashboardSettings();
-  return <Stack onClick={target ? () => openSettings('characters', target) : undefined}
-                sx={{ position: 'relative', ...(target ? { cursor: 'pointer' } : {}) }}>
+const Alert = ({ title, iconPath, style = {}, extra, target, items, worlds }) => {
+  const settingsProps = useAlertSettingsProps('characters', target, items || worlds ? { items, worlds } : undefined);
+  return <Stack {...settingsProps}
+                {...(target ? { 'aria-label': typeof title === 'string' ? title : settingsProps['aria-label'] } : {})}
+                sx={{ position: 'relative', ...(target ? { cursor: 'pointer', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', borderRadius: 1 } } : {}) }}>
     <HtmlTooltip title={title}>
       <IconImg style={style} src={`${prefix}${iconPath}.png`} alt=""/>
     </HtmlTooltip>

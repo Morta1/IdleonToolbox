@@ -235,6 +235,7 @@ const Settings = () => {
         removeLastUploadParticipation();
       } else {
         localStorage.removeItem(storageKey);
+        if (storageKey === 'trackers') localStorage.removeItem('trackers-legacy-backup');
       }
     });
     router.reload();

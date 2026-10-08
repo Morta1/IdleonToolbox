@@ -40,4 +40,12 @@ describe('dashboard unmaxed bags alert', () => {
     </ThemeProvider>);
     expect(document.querySelectorAll('img[src*="MaxCapBag"]').length).toBe(0);
   });
+
+  it('shows nothing for an alert whose switch is off, even with its options on', () => {
+    const { container } = render(<ThemeProvider theme={darkTheme}>
+      <Characters characters={[character]} account={{}} lastUpdated={0}
+                  trackers={{ bags: { ...trackers.bags, checked: false } }}/>
+    </ThemeProvider>);
+    expect(container.querySelectorAll('img[src*="MaxCapBag"]').length).toBe(0);
+  });
 });
