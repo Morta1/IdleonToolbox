@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Autocomplete, FormControlLabel, IconButton, Menu, Stack, Switch, TextField, Typography, useMediaQuery } from '@mui/material';
+import { Autocomplete, FormControlLabel, IconButton, Popover, Stack, Switch, TextField, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { IconDots } from '@tabler/icons-react';
 import { useDebouncedValue } from '@mantine/hooks';
@@ -49,7 +49,7 @@ const PlayerSearch = ({ onPlayer }) => {
 
 const CATEGORY_LABEL = (category) => category.charAt(0).toUpperCase() + category.slice(1);
 
-const MetricJump = ({ index, onMetric, inputRef }) => {
+const MetricJump = ({ index, onMetric, inputRef = null }) => {
   const options = Object.values(index.byKey).filter((meta) => meta.category && meta.key !== GLOBAL_METRIC);
   return (
     <Autocomplete
@@ -67,7 +67,6 @@ const MetricJump = ({ index, onMetric, inputRef }) => {
 };
 
 const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAnonymous, onPlayer, onMetric, children }) => {
-  const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const { isVisible: showProfileBanner } = useProfileBannerState();
   const hydrated = useHydrated();
   const formatDate = useFormatDate();
@@ -79,9 +78,11 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
     const onKeyDown = (event) => {
       if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey) return;
       if (event.target?.closest?.('input, textarea, select, [contenteditable="true"]')) return;
-      if (!jumpRef.current) return;
-      event.preventDefault();
-      jumpRef.current.focus();
+      const jump = jumpRef.current;
+      if (!jump) return;
+      jump.focus();
+      // On a phone the desktop jump is display:none and cannot take focus; leave the key alone then.
+      if (document.activeElement === jump) event.preventDefault();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
@@ -100,29 +101,33 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
       position: 'sticky', top: navBarHeight + (showProfileBanner ? profileBannerHeight : 0), zIndex: (theme) => theme.zIndex.appBar - 1,
       bgcolor: 'background.default', py: 1.5, mb: 2, borderBottom: 1, borderColor: 'divider'
     }}>
-      {isPhone ? (
-        <Stack direction="row" gap={1} alignItems="flex-start">
-          <PlayerSearch onPlayer={onPlayer}/>
-          <IconButton aria-label="More options" onClick={(event) => setMenuAnchor(event.currentTarget)}><IconDots size={20}/></IconButton>
-          <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
-            <Stack gap={1.5} sx={{ p: 2, width: 300 }}>
-              <MetricJump index={index} inputRef={jumpRef} onMetric={(key) => { setMenuAnchor(null); onMetric(key); }}/>
-              {anonSwitch}
-              {children}
-              {status}
-            </Stack>
-          </Menu>
-        </Stack>
-      ) : (
-        <Stack direction="row" gap={2} alignItems="flex-start" flexWrap="wrap">
-          <PlayerSearch onPlayer={onPlayer}/>
+      <Stack direction="row" gap={{ xs: 1, sm: 2 }} alignItems="flex-start" flexWrap={{ xs: 'nowrap', sm: 'wrap' }}>
+        <PlayerSearch onPlayer={onPlayer}/>
+        {/* Both layouts are in the markup and CSS picks one, so a phone does not reflow after hydration. */}
+        <Box sx={{ display: { xs: 'none', sm: 'contents' } }}>
           <MetricJump index={index} onMetric={onMetric} inputRef={jumpRef}/>
           {anonSwitch}
           {children}
           <Box sx={{ flexGrow: 1 }}/>
           <Box sx={{ alignSelf: 'center' }}>{status}</Box>
+        </Box>
+        <IconButton aria-label="More options" onClick={(event) => setMenuAnchor(event.currentTarget)} sx={{ display: { xs: 'inline-flex', sm: 'none' } }}>
+          <IconDots size={20}/>
+        </IconButton>
+      </Stack>
+      <Popover
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={() => setMenuAnchor(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}>
+        <Stack gap={1.5} sx={{ p: 2, width: 300 }}>
+          <MetricJump index={index} onMetric={(key) => { setMenuAnchor(null); onMetric(key); }}/>
+          {anonSwitch}
+          {children}
+          {status}
         </Stack>
-      )}
+      </Popover>
     </Box>
   );
 };

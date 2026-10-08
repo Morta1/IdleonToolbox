@@ -83,4 +83,28 @@ describe('ControlBar', () => {
     fireEvent.keyDown(search, { key: '/' });
     expect(document.activeElement).toBe(search);
   });
+
+  it('has the desktop controls in the markup at first render, whatever the viewport', () => {
+    // The export cannot know the viewport, so CSS (not a media query hook) picks the layout.
+    const { container } = renderBar();
+    expect(screen.getByLabelText('Jump to board')).toBeTruthy();
+    expect(screen.getByLabelText('Show anonymous')).toBeTruthy();
+    expect(screen.getByLabelText('Find a player')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'More options' })).toBeTruthy();
+    expect(container.querySelectorAll('input[type="text"], input:not([type])')).toHaveLength(2);
+  });
+
+  it('mounts the phone options only while open, as a popover rather than a type-ahead menu', async () => {
+    const onMetric = vi.fn();
+    renderBar({ onMetric });
+    expect(screen.getAllByLabelText('Jump to board')).toHaveLength(1);
+    fireEvent.click(screen.getByRole('button', { name: 'More options' }));
+    expect(await screen.findAllByLabelText('Jump to board')).toHaveLength(2);
+    expect(screen.queryByRole('menu')).toBeNull();
+    const phoneJump = screen.getAllByLabelText('Jump to board')[1];
+    fireEvent.change(phoneJump, { target: { value: 'Min' } });
+    fireEvent.click(await screen.findByText('Mining'));
+    expect(onMetric).toHaveBeenCalledWith('mining');
+    await waitFor(() => expect(screen.getAllByLabelText('Jump to board')).toHaveLength(1));
+  });
 });
