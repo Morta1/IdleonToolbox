@@ -148,6 +148,24 @@ describe('ControlBar', () => {
     expect(onMetric).toHaveBeenCalledWith('mining');
   });
 
+  it('opens the first board match on Enter, matching words in any order and section names', async () => {
+    const onMetric = vi.fn();
+    const boards = buildMetaIndex({ categories: [{ category: 'misc', metrics: [
+      { key: 'w5Colo', label: 'W5 Colosseum', section: 'Colosseum', notation: 'default' },
+      { key: 'dkOrb', label: 'DK Orb Kills', section: 'Kills & Bosses', notation: 'default' }
+    ] }] });
+    renderBar({ index: boards, onMetric });
+    const jump = screen.getByLabelText('Jump to board');
+    act(() => jump.focus());
+    fireEvent.change(jump, { target: { value: 'colosseum w5' } });
+    await screen.findByRole('option', { name: 'W5 Colosseum' });
+    fireEvent.keyDown(jump, { key: 'Enter' });
+    expect(onMetric).toHaveBeenCalledWith('w5Colo');
+    act(() => jump.focus());
+    fireEvent.change(jump, { target: { value: 'bosses' } });
+    expect(await screen.findByRole('option', { name: 'DK Orb Kills' })).toBeTruthy();
+  });
+
   it('focuses the board jump on "/" unless typing', () => {
     renderBar();
     fireEvent.keyDown(document.body, { key: '/' });

@@ -118,6 +118,17 @@ const PlayerSearch = ({ onPlayer }) => {
 
 const CATEGORY_LABEL = (category) => category.charAt(0).toUpperCase() + category.slice(1);
 
+// Every typed word must appear in the board's name or its section, in any order: "colosseum w5"
+// finds W5 Colosseum and "bosses" finds the Kills & Bosses boards.
+const filterBoards = (options, { inputValue }) => {
+  const words = inputValue.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!words.length) return options;
+  return options.filter((option) => {
+    const text = `${option.label} ${option.section ?? ''}`.toLowerCase();
+    return words.every((word) => text.includes(word));
+  });
+};
+
 const KeyHint = () => (
   <InputAdornment position="end">
     <Box aria-hidden component="span" sx={{
@@ -137,6 +148,9 @@ const MetricJump = ({ index, onMetric, inputRef = null, showKeyHint = false, ful
       options={options}
       groupBy={(option) => CATEGORY_LABEL(option.category)}
       getOptionLabel={(option) => option.label}
+      filterOptions={filterBoards}
+      // Enter opens the first match without an arrow key first.
+      autoHighlight
       value={null}
       blurOnSelect
       forcePopupIcon={false}

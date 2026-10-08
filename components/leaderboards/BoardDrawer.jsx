@@ -79,7 +79,8 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
       anchor="right"
       open={open}
       onClose={onClose}
-      SlideProps={{ onExited: () => focusBoardLink(metricKey) }}
+      // MUI hands focus back after onExited, so the check waits for that to land first.
+      SlideProps={{ onExited: () => setTimeout(() => focusBoardLink(metricKey), 50) }}
       sx={{ zIndex: (theme) => theme.zIndex.modal }}
       PaperProps={{
         role: 'dialog', 'aria-modal': true, 'aria-labelledby': titleId,
