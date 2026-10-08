@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bestInSection, countAtMax, countStanding, withinReach } from '@components/leaderboards/standing';
+import { bestInSection, countAtMax, countStanding, medianRank, topPercentLabel, withinReach } from '@components/leaderboards/standing';
 
 const index = { byKey: { logBook: { maxed: true }, mining: { maxed: false }, farming: {}, cooking: {}, bits: {} } };
 const ranks = {
@@ -38,5 +38,33 @@ describe('countAtMax', () => {
     const mine = { logBook: { v: 100 }, shiny: { v: 1300 }, mining: { v: 304 } };
     expect(countAtMax(['logBook', 'shiny', 'mining'], mine, maxedIndex)).toBe(1);
     expect(countAtMax(['logBook', 'shiny'], undefined, maxedIndex)).toBe(0);
+  });
+});
+
+describe('medianRank', () => {
+  const r = (...ranksList) => Object.fromEntries(ranksList.map((rank, i) => [`k${i}`, { r: rank }]));
+  const keys = ['k0', 'k1', 'k2', 'k3', 'missing'];
+
+  it('takes the middle rank of the boards the player has', () => {
+    expect(medianRank(keys, r(30, 5, 100))).toBe(30);
+  });
+
+  it('averages the two middle ranks of an even count, rounded', () => {
+    expect(medianRank(keys, r(5, 8, 20, 100))).toBe(14);
+    expect(medianRank(keys, r(1, 2))).toBe(2);
+  });
+
+  it('is null without any board', () => {
+    expect(medianRank(keys, undefined)).toBeNull();
+    expect(medianRank(keys, {})).toBeNull();
+  });
+});
+
+describe('topPercentLabel', () => {
+  it('shows the upper half only', () => {
+    expect(topPercentLabel(3.5)).toBe('top 3.5%');
+    expect(topPercentLabel(50)).toBe('top 50%');
+    expect(topPercentLabel(50.1)).toBeNull();
+    expect(topPercentLabel(undefined)).toBeNull();
   });
 });

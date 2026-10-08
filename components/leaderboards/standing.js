@@ -30,3 +30,15 @@ export const countAtMax = (keys, ranks, index) => keys
     const meta = index.byKey[key];
     return Boolean(meta?.maxed) && ranks?.[key] != null && ranks[key].v >= meta.top;
   }).length;
+
+// Middle rank of the player's boards among `keys`; an even count takes the mean of the two middle ones.
+export const medianRank = (keys, ranks) => {
+  const sorted = keys.filter((key) => ranks?.[key]).map((key) => ranks[key].r).sort((a, b) => a - b);
+  if (!sorted.length) return null;
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : Math.round((sorted[mid - 1] + sorted[mid]) / 2);
+};
+
+// "top 3.5%" reads as a brag only for the upper half: past 50% it is just noise.
+export const TOP_PERCENT_LIMIT = 50;
+export const topPercentLabel = (percent) => (Number.isFinite(percent) && percent <= TOP_PERCENT_LIMIT ? `top ${percent}%` : null);
