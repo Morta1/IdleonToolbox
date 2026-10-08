@@ -4,6 +4,19 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.88',
+    'gameVer': '2.3.531',
+    'date': '09/10/2026',
+    'features': [
+      'Leaderboards: redesigned page with an Overview tab (global podium, your rank, highlights and boards within reach), boards grouped into sections, and a Top 100 drawer that shows the players around you',
+      'Leaderboards: search any player or Anon# id to see their ranks, and jump to any board with the / key',
+      'Leaderboards: tied players now share a rank, and maxed boards show how many players hold the max'
+    ],
+    'fixes': [
+      'Leaderboards: salt rank boards no longer count salts that are not unlocked yet'
+    ]
+  },
+  {
     'ver': '3.3.87',
     'gameVer': '2.3.531',
     'date': '08/10/2026',
