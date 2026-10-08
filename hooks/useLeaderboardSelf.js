@@ -21,7 +21,8 @@ const useLeaderboardSelf = () => {
   const settled = !uid || readUid === uid;
   return {
     name: settled ? (uid && anonId) || mainChar : null,
-    signedIn: Boolean(uid),
+    // True until the account has loaded (DEFAULT_STATE, so also on the build and first client render).
+    pending: Boolean(state?.isLoading),
     participation: uid && settled ? participation ?? null : null,
     lastUpload: uid && settled ? lastUpload ?? null : null
   };

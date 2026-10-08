@@ -66,6 +66,8 @@ const PlayerPanel = ({ player, self, index, onOpen, onSeeAll, nextRun }) => {
   const hydrated = useHydrated();
   const formatDate = useFormatDate();
   if (!player.context) {
+    // A signed-in account that is still loading has no name yet; the sign-in prompt would flash at them.
+    if (self.pending) return <Skeleton variant="rounded" height={180}/>;
     return <Notice title="See where you stand">
       Log in and upload your profile with leaderboards on in {settingsLink}, or find any player with the search above.
     </Notice>;

@@ -22,7 +22,7 @@ const data = {
   player: { mainChar: 'Baker333', rank: 75, compositeScore: 14901.02, totalUsers: 2608, bestMetrics: [{ metric: 'mining', value: 240, rank: 3, topPercent: 0.2 }] },
   ranks: { mining: { r: 3, v: 240, p: 0.2, t: 1, nr: 2, nv: 250 }, farming: { r: 1, v: 9, p: 0.1, t: 1 } }
 };
-const self = { name: null, signedIn: false, participation: null, lastUpload: null };
+const self = { name: null, pending: false, participation: null, lastUpload: null };
 const renderOverview = (props) => render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
     <ThemeProvider theme={darkTheme}>
@@ -69,6 +69,13 @@ describe('Overview', () => {
     expect(await screen.findByText('See where you stand')).toBeTruthy();
   });
 
+  it('shows a skeleton, not the sign-in notice, while the account loads', async () => {
+    renderOverview({ player: { context: null }, self: { ...self, pending: true } });
+    expect(await screen.findByText('G1')).toBeTruthy();
+    expect(screen.queryByText('See where you stand')).toBeNull();
+    expect(document.querySelector('.MuiSkeleton-root')).toBeTruthy();
+  });
+
   it('shows the player card, highlights and within reach', async () => {
     const onOpen = vi.fn();
     renderOverview({ player: { context: { name: 'Baker333', kind: 'searched' }, data }, onOpen });
@@ -80,13 +87,13 @@ describe('Overview', () => {
   });
 
   it('never shows self copy for a searched player that was not found', () => {
-    renderOverview({ self: { ...self, signedIn: true, participation: 'off' }, player: { context: { name: 'Ghost', kind: 'searched' }, data: null, isLoading: false, isError: false } });
+    renderOverview({ self: { ...self, participation: 'off' }, player: { context: { name: 'Ghost', kind: 'searched' }, data: null, isLoading: false, isError: false } });
     expect(screen.queryByText(/not on the leaderboards/i)).toBeNull();
     expect(screen.queryByText('Almost there')).toBeNull();
   });
 
   it('tells a signed-in player who turned leaderboards off', async () => {
-    renderOverview({ player: { context: { name: 'Me', kind: 'logged' }, data: null }, self: { ...self, name: 'Me', signedIn: true, participation: 'off' } });
+    renderOverview({ player: { context: { name: 'Me', kind: 'logged' }, data: null }, self: { ...self, name: 'Me', participation: 'off' } });
     expect(await screen.findByText('You are not on the leaderboards')).toBeTruthy();
   });
 

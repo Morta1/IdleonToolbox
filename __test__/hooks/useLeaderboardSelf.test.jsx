@@ -13,7 +13,7 @@ describe('useLeaderboardSelf', () => {
   it('uses the first character when there is no anonymous id', async () => {
     const { result } = renderHook(() => useLeaderboardSelf(), { wrapper: wrap({ uid: 'u1', characters: [{ name: 'Baker333' }] }) });
     await waitFor(() => expect(result.current.name).toBe('Baker333'));
-    expect(result.current.signedIn).toBe(true);
+    expect(result.current.pending).toBe(false);
   });
 
   it('prefers the stored Anon# id and reads upload state', async () => {
@@ -21,7 +21,7 @@ describe('useLeaderboardSelf', () => {
     localStorage.setItem('u1/lastUploadParticipation', JSON.stringify('off'));
     localStorage.setItem('u1/lastUpload', JSON.stringify(1234));
     const { result } = renderHook(() => useLeaderboardSelf(), { wrapper: wrap({ uid: 'u1', characters: [{ name: 'Baker333' }] }) });
-    await waitFor(() => expect(result.current).toEqual({ name: 'Anon#ab12cd', signedIn: true, participation: 'off', lastUpload: 1234 }));
+    await waitFor(() => expect(result.current).toEqual({ name: 'Anon#ab12cd', pending: false, participation: 'off', lastUpload: 1234 }));
   });
 
   it('never reports the main character while the stored Anon# id is still unread', async () => {
@@ -38,6 +38,11 @@ describe('useLeaderboardSelf', () => {
 
   it('knows nobody before the account loads', () => {
     const { result } = renderHook(() => useLeaderboardSelf(), { wrapper: wrap({}) });
-    expect(result.current).toEqual({ name: null, signedIn: false, participation: null, lastUpload: null });
+    expect(result.current).toEqual({ name: null, pending: false, participation: null, lastUpload: null });
+  });
+
+  it('is pending while the account is still loading', () => {
+    const { result } = renderHook(() => useLeaderboardSelf(), { wrapper: wrap({ isLoading: true }) });
+    expect(result.current.pending).toBe(true);
   });
 });
