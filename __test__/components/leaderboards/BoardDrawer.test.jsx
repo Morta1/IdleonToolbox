@@ -45,6 +45,22 @@ describe('BoardDrawer', () => {
     expect(screen.queryByText('Around you')).toBeNull();
   });
 
+  it('takes the step from the player entry when the whole window shares their rank', async () => {
+    const tied = Array.from({ length: 11 }, (_, i) => ({ mainChar: i === 5 ? 'Me' : `N${i}`, value: 87 - 1, rank: 118 }));
+    fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: tied });
+    renderDrawer({ rankEntry: { r: 118, v: 86, t: 39, nr: 53, nv: 87 } });
+    expect(await screen.findByText('+1 to reach #53 · 39 tied at #118')).toBeTruthy();
+  });
+
+  it('puts an anonymous player in their place in the public top list', async () => {
+    const publicTop = [{ mainChar: 'A', value: 300, rank: 1 }, { mainChar: 'B', value: 250, rank: 2 }, { mainChar: 'D', value: 200, rank: 4 }];
+    fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top: publicTop, around: [{ mainChar: 'Anon#abc123', value: 220, rank: 3 }] });
+    renderDrawer({ player: 'Anon#abc123', kind: 'searched', showAnonymous: false });
+    await screen.findByText('Anon#abc123');
+    const names = screen.getAllByTestId('rank-row').map((row) => row.querySelector('a').textContent);
+    expect(names).toEqual(['A', 'B', 'Anon#abc123', 'D']);
+  });
+
   it('skips Around you at rank 15 or better', async () => {
     fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: aroundAt(12) });
     renderDrawer();

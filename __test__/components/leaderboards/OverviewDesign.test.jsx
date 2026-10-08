@@ -70,6 +70,16 @@ describe('Overview podium', () => {
     expect(getComputedStyle(slotOf('M2')).borderTopWidth).toBe('1px');
   });
 
+  it('puts an anonymous viewed player in their place when the public list skips them', async () => {
+    fetchBoard.mockResolvedValueOnce({ metric: 'globalRanking', createdAt: 1, around: [],
+      top: [1, 2, 3, 4, 5, 6, 7, 8, 10, 11].map((rank) => ({ mainChar: `P${rank}`, value: 1000 - rank, rank, globalRank: rank })) });
+    const anon = { ...data, player: { ...data.player, mainChar: 'Anon#abc123', rank: 9 } };
+    renderOverview({ player: { context: { name: 'Anon#abc123', kind: 'searched' }, data: anon }, highlight: { 'Anon#abc123': 'searched' } });
+    await screen.findByText('P10');
+    const row = screen.getAllByText('Anon#abc123').map((el) => el.closest('[data-testid="rank-row"]')).find(Boolean);
+    expect(row.textContent).toMatch(/^9Anon#abc123/);
+  });
+
   it('outlines the viewed player slot in their colour', async () => {
     renderOverview({ player: { context: null }, highlight: { G2: 'logged' } });
     await screen.findByText('G1');

@@ -19,9 +19,16 @@ export const openOnPlainClick = (onOpen, key) => (event) => {
 };
 
 const MetricCard = ({ meta, entries, highlight, pinned, onOpen }) => {
-  const rows = entries ?? [];
+  const listed = entries ?? [];
   const maxed = Boolean(meta.maxed);
-  const showPinned = Boolean(pinned?.entry) && !rows.some((row) => row.mainChar === pinned.mainChar);
+  const missing = Boolean(pinned?.entry) && !listed.some((row) => row.mainChar === pinned.mainChar);
+  // A player missing from a list that runs past their rank (an anonymous player while anonymous
+  // players are hidden) goes in their place; below the list they are pinned at the bottom.
+  const inPlace = missing && listed.length > 0 && pinned.entry.r < listed[listed.length - 1].rank;
+  const rows = inPlace
+    ? [...listed, { mainChar: pinned.mainChar, rank: pinned.entry.r, [meta.key]: pinned.entry.v, globalRank: pinned.globalRank }].sort((a, b) => a.rank - b.rank)
+    : listed;
+  const showPinned = missing && !inPlace;
   return (
     <Card variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
       <Stack direction="row" alignItems="center" gap={1} sx={{ px: 1.75, py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
@@ -36,7 +43,7 @@ const MetricCard = ({ meta, entries, highlight, pinned, onOpen }) => {
           }}/>
         ) : null}
         <Box sx={{ flexGrow: 1 }}/>
-        <Link href={boardHref(meta)} onClick={openOnPlainClick(onOpen, meta.key)} underline="hover"
+        <Link href={boardHref(meta)} onClick={openOnPlainClick(onOpen, meta.key)} underline="hover" data-board-link={meta.key}
               sx={{ fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>Top 100 ›</Link>
       </Stack>
       {maxed ? (
@@ -49,7 +56,8 @@ const MetricCard = ({ meta, entries, highlight, pinned, onOpen }) => {
         ? <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>Nothing here yet</Typography>
         : rows.map((row) => (
           <RankRow key={row.mainChar} rank={row.rank} name={row.mainChar} value={row[meta.key]} notation={meta.notation} scale={meta.top}
-                   kind={highlight[row.mainChar] ?? null} plainRank={maxed} globalRank={maxed ? row.globalRank : null}/>
+                   kind={highlight[row.mainChar] ?? (inPlace && row.mainChar === pinned.mainChar ? pinned.kind : null)}
+                   plainRank={maxed} globalRank={maxed ? row.globalRank : null}/>
         ))}
       {showPinned ? (
         <RankRow pinned rank={pinned.entry.r} name={pinned.mainChar} value={pinned.entry.v} notation={meta.notation} scale={meta.top} kind={pinned.kind}

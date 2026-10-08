@@ -97,6 +97,21 @@ describe('leaderboards board drawer', () => {
     expect(routerState.replace).toHaveBeenCalled();
   });
 
+  it('stays on the tab a board jump landed on when the drawer closes', async () => {
+    routerState.push.mockImplementation(({ query }) => { routerState.query = query; });
+    routerState.query = { t: 'Overview' };
+    const { rerender } = renderPage();
+    const jump = await screen.findByLabelText('Jump to board');
+    await waitFor(() => expect(jump.getAttribute('placeholder')).toBe('Jump to a board (1)'));
+    fireEvent.change(jump, { target: { value: 'Min' } });
+    fireEvent.click(await screen.findByText('Mining'));
+    expect(routerState.push).toHaveBeenCalledWith({ pathname: '/leaderboards', query: { t: 'Skills', m: 'mining' } }, undefined, { shallow: true });
+    rerender();
+    fireEvent.click(await screen.findByRole('button', { name: 'Close' }));
+    expect(routerState.back).not.toHaveBeenCalled();
+    expect(routerState.replace).toHaveBeenCalledWith({ pathname: '/leaderboards', query: { t: 'Skills' } }, undefined, { shallow: true });
+  });
+
   it('opens nothing for a key that is not a board, even an inherited one', async () => {
     routerState.query = { t: 'skills', m: 'constructor' };
     renderPage();

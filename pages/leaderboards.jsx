@@ -130,7 +130,10 @@ const Leaderboards = () => {
     const category = index.byKey[metric]?.category;
     if (source === 'jump' && category) next.t = TABS.find((tab) => tab.toLowerCase() === category);
     setQuery(next);
-    pushedOpen.current = signature(next);
+    // A jump to another tab lands there: closing drops the board but stays on that tab, rather than
+    // stepping back to the tab the jump started from.
+    const changedTab = (tabOf(next.t) ?? 'overview') !== selectedTab;
+    pushedOpen.current = changedTab ? null : signature(next);
   };
 
   // Same URL Tabber writes for a click on the strip: the board in the drawer does not follow to another tab.
@@ -230,6 +233,7 @@ const Leaderboards = () => {
       index={index}
       player={playerData?.player.mainChar ?? null}
       kind={context?.kind}
+      rankEntry={playerData?.ranks?.[drawerMetric ?? shownMetric] ?? null}
       showAnonymous={showAnonymous}
       onClose={closeBoard}
     />

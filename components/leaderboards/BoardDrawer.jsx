@@ -19,7 +19,19 @@ const SectionHeading = ({ children, note, sx }) => (
   </Stack>
 );
 
-const BoardDrawer = ({ open, metricKey, index, player, kind, showAnonymous, onClose }) => {
+// A drawer opened from the board jump or a deep link has nothing to hand focus back to, so it goes
+// to the board's own Top 100 link, scrolled into view.
+const focusBoardLink = (metricKey) => {
+  if (document.activeElement && document.activeElement !== document.body) return;
+  const link = document.querySelector(`[data-board-link="${metricKey}"]`);
+  if (!link) return;
+  link.scrollIntoView?.({ block: 'center' });
+  link.focus({ preventScroll: true });
+};
+
+// rankEntry: the player's entry for this board from /player ({ r, v, t, nr, nv }), the fallback
+// for the step when everyone in the around window shares the player's rank.
+const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, showAnonymous, onClose }) => {
   const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const titleId = useId();
   const meta = metaOf(index, metricKey ?? GLOBAL_METRIC);
@@ -41,9 +53,21 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, showAnonymous, onCl
   const above = showAround
     ? around.reduce((best, row) => (row.rank < myRank && (!best || row.rank > best.rank) ? row : best), null)
     : null;
-  const step = above ? `+${formatStep(meta.notation, above.value - mine.value, { scale: meta.top })} to reach ${above.mainChar} (${rankText(above.rank)})` : null;
+  const nextStep = above
+    ? `+${formatStep(meta.notation, above.value - mine.value, { scale: meta.top })} to reach ${above.mainChar} (${rankText(above.rank)})`
+    : showAround && rankEntry?.nv != null
+      ? `+${formatStep(meta.notation, rankEntry.nv - rankEntry.v, { scale: meta.top })} to reach ${rankText(rankEntry.nr)}`
+      : null;
+  const ties = showAround && rankEntry?.t > 1 ? `${numberWithCommas(rankEntry.t)} tied at ${rankText(myRank)}` : null;
+  const step = [nextStep, ties].filter(Boolean).join(' · ') || null;
   const maxed = Boolean(meta.maxed);
   const first = data?.top?.[0] ?? null;
+  // With anonymous players hidden, an anonymous player in context is missing from the public top
+  // 100; they still go in their place.
+  const top = data?.top ?? [];
+  const topRows = mine && top.length && mine.rank < top[top.length - 1].rank && !top.some((row) => isMe(row.mainChar))
+    ? [...top, mine].sort((a, b) => a.rank - b.rank)
+    : top;
   const players = (metricKey ?? GLOBAL_METRIC) === GLOBAL_METRIC ? index.totalPlayers : meta.players;
   const rowProps = (row, variant) => ({
     rank: row.rank, name: row.mainChar, value: row.value, notation: meta.notation, scale: meta.top, variant,
@@ -55,6 +79,7 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, showAnonymous, onCl
       anchor="right"
       open={open}
       onClose={onClose}
+      SlideProps={{ onExited: () => focusBoardLink(metricKey) }}
       sx={{ zIndex: (theme) => theme.zIndex.modal }}
       PaperProps={{
         role: 'dialog', 'aria-modal': true, 'aria-labelledby': titleId,
@@ -100,7 +125,7 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, showAnonymous, onCl
             ) : null}
             <SectionHeading sx={showAround ? { mt: 1.75, pt: 2.25, borderTop: 1, borderColor: 'divider' } : { pt: 1.75 }}>Top 100</SectionHeading>
             <Box sx={{ px: 1.5 }}>
-              {(data?.top ?? []).map((row) => <RankRow key={row.mainChar} {...rowProps(row, 'list')}/>)}
+              {topRows.map((row) => <RankRow key={row.mainChar} {...rowProps(row, 'list')}/>)}
             </Box>
           </>
         )}

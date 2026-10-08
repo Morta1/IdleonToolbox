@@ -59,6 +59,12 @@ describe('MetricCard', () => {
     expect(screen.queryByText('New')).toBeNull();
   });
 
+  it('puts a player missing from the list in their place when the list runs past their rank', () => {
+    renderCard({ meta: mining, entries: [row('A', 300, 1), row('B', 250, 2), row('D', 200, 4)], pinned: { mainChar: 'Anon#abc123', kind: 'searched', globalRank: 9, entry: { r: 3, v: 220, p: 1, t: 1 } } });
+    const names = screen.getAllByTestId('rank-row').map((r) => r.querySelector('a').textContent);
+    expect(names).toEqual(['A', 'B', 'Anon#abc123', 'D']);
+  });
+
   it('opens the board from Top 100', () => {
     const onOpen = vi.fn();
     renderCard({ meta: mining, entries: [row('A', 300, 1)], onOpen });

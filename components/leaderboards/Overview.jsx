@@ -45,7 +45,7 @@ const Podium = ({ rows, highlight, onOpen }) => (
   <Card variant="outlined" sx={{ ...CARD_SX, display: 'flex', flexDirection: 'column', gap: 2 }}>
     <Stack direction="row" alignItems="center">
       <Typography component="h2" sx={{ flexGrow: 1, fontSize: 16, fontWeight: 700 }}>Global ranking</Typography>
-      <Button onClick={() => onOpen(GLOBAL_METRIC, 'overview')} sx={linkButtonSx}>Full top 100 ›</Button>
+      <Button onClick={() => onOpen(GLOBAL_METRIC, 'overview')} sx={linkButtonSx} data-board-link={GLOBAL_METRIC}>Full top 100 ›</Button>
     </Stack>
     <Stack direction="row" gap={1.5} alignItems="flex-end">
       {PODIUM_SLOTS.map((at) => (rows[at] ? <PodiumSlot key={rows[at].mainChar} row={rows[at]} kind={highlight[rows[at].mainChar] ?? null}/> : null))}
@@ -176,6 +176,12 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSee
   const standing = standingOf(player);
   const picks = standing?.data.player.bestMetrics ?? [];
   const reach = standing ? withinReach(standing.data.ranks, index) : [];
+  // An anonymous player in the top 10 is missing from the public list; they still go in their place.
+  const viewed = standing?.data.player;
+  const podiumRows = podium.data?.top ?? [];
+  const rows = viewed && viewed.rank <= 10 && !podiumRows.some((row) => row.mainChar === viewed.mainChar)
+    ? [...podiumRows, { mainChar: viewed.mainChar, rank: viewed.rank, value: viewed.compositeScore }].sort((a, b) => a.rank - b.rank)
+    : podiumRows;
   return (
     // Columns follow the width this page actually gets, which the side rails shrink well below the
     // viewport's: a viewport breakpoint squeezed the podium to 160px on a 1024px screen.
@@ -184,7 +190,7 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSee
         {podium.isError
           ? <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => podium.refetch()}>Retry</Button>}>Could not load the global ranking</Alert>
           : podium.data
-            ? <Podium rows={podium.data.top} highlight={highlight} onOpen={onOpen}/>
+            ? <Podium rows={rows} highlight={highlight} onOpen={onOpen}/>
             : <Skeleton variant="rounded" height={420}/>}
         {/* On a phone the player's own standing comes first. */}
         <Box sx={{ order: -1, '@container (min-width: 860px)': { order: 0 } }}>
