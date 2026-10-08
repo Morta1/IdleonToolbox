@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { errorMessage, gtag, trackEvent, trackPageView } from '@utility/analytics';
+import { errorMessage, gtag, pageViewUrl, trackEvent, trackPageView } from '@utility/analytics';
 
 const entries = () => window.dataLayer.map((args) => Array.from(args));
 
@@ -55,6 +55,53 @@ describe('trackPageView', () => {
 
     expect(raf).not.toHaveBeenCalled();
     expect(entries()).toHaveLength(1);
+  });
+});
+
+describe('pageViewUrl', () => {
+  it('strips player and m from a leaderboards deep link, keeping the rest', () => {
+    expect(pageViewUrl('/leaderboards?t=Skills&m=mining&player=X')).toBe('/leaderboards?t=Skills');
+    expect(pageViewUrl('/leaderboards?player=Some%20Name')).toBe('/leaderboards');
+    expect(pageViewUrl('/leaderboards?m=mining&t=Skills&v=2#top')).toBe('/leaderboards?t=Skills&v=2#top');
+    expect(pageViewUrl('/leaderboards/?player=X')).toBe('/leaderboards/');
+  });
+
+  it('skips a change that only opens or closes a drawer, or searches a player', () => {
+    expect(pageViewUrl('/leaderboards?t=Skills&m=mining', '/leaderboards?t=Skills')).toBeNull();
+    expect(pageViewUrl('/leaderboards?t=Skills', '/leaderboards?t=Skills')).toBeNull();
+    expect(pageViewUrl('/leaderboards?t=Skills&player=X', '/leaderboards?t=Skills')).toBeNull();
+  });
+
+  it('still reports a tab change', () => {
+    expect(pageViewUrl('/leaderboards?t=Tasks&m=x', '/leaderboards?t=Skills')).toBe('/leaderboards?t=Tasks');
+    expect(pageViewUrl('/leaderboards', '/leaderboards?t=Skills')).toBe('/leaderboards');
+  });
+
+  it('reports a first visit and a return from another page', () => {
+    expect(pageViewUrl('/leaderboards?t=Skills', null)).toBe('/leaderboards?t=Skills');
+    expect(pageViewUrl('/leaderboards?t=Skills', '/construction')).toBe('/leaderboards?t=Skills');
+  });
+
+  it('leaves every other route exactly as it was, params included', () => {
+    expect(pageViewUrl('/account/misc/general?profile=Baker&player=X&m=1')).toBe('/account/misc/general?profile=Baker&player=X&m=1');
+    expect(pageViewUrl('/construction?player=X', '/construction?player=X')).toBe('/construction?player=X');
+    expect(pageViewUrl('/leaderboards-old?player=X')).toBe('/leaderboards-old?player=X');
+  });
+});
+
+describe('trackPageView on leaderboards', () => {
+  it('sends the stripped path and location, and nothing for drawer-only changes', () => {
+    trackPageView('/construction');
+    trackPageView('/leaderboards?t=Skills&m=mining&player=X');
+    trackPageView('/leaderboards?t=Skills');
+    trackPageView('/leaderboards?t=Skills&m=farming');
+    trackPageView('/leaderboards?t=Tasks');
+    vi.runAllTimers();
+
+    const views = entries().filter(([, name]) => name === 'page_view').map(([, , params]) => params);
+    expect(views.map((view) => view.page_path)).toEqual(['/construction', '/leaderboards?t=Skills', '/leaderboards?t=Tasks']);
+    expect(views[1].page_location).toBe(`${window.location.origin}/leaderboards?t=Skills`);
+    expect(JSON.stringify(window.dataLayer)).not.toContain('player=');
   });
 });
 
