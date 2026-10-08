@@ -30,7 +30,8 @@ const MetricCard = ({ meta, entries, highlight, pinned, onOpen }) => {
     : listed;
   const showPinned = missing && !inPlace;
   return (
-    <Card variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+    // The card's own border closes the list, so its last row draws none.
+    <Card variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', '& > [data-testid="rank-row"]:last-child': { borderBottom: 0 } }}>
       <Stack direction="row" alignItems="center" gap={1} sx={{ px: 1.75, py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
         <MetricIcon metric={meta.key} label={meta.label} maxed={maxed}/>
         <Typography variant="subtitle2" component="h3" title={meta.label} sx={{

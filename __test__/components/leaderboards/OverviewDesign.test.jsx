@@ -107,6 +107,13 @@ describe('Overview You card', () => {
     expect(document.body.textContent).not.toMatch(/\bcap\b/i);
   });
 
+  it('offers a way back from a searched player on the card itself', async () => {
+    const onClearPlayer = vi.fn();
+    renderOverview({ player: { context: { name: 'Baker333', kind: 'searched' }, data }, self: { ...self, name: 'Me' }, onClearPlayer });
+    fireEvent.click(await screen.findByRole('button', { name: 'Back to you ×' }));
+    expect(onClearPlayer).toHaveBeenCalledTimes(1);
+  });
+
   it('marks a searched player in their own colour, with no tie line when none is at the max', async () => {
     renderOverview({ player: { context: { name: 'Baker333', kind: 'searched' }, data } });
     const label = await screen.findByText('Searched player');

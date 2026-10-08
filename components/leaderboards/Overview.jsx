@@ -85,7 +85,7 @@ const GuestNotice = () => {
 const standingOf = (player) => (player.context && !player.isError && player.data ? { data: player.data, kind: player.context.kind } : null);
 
 // The slot beside the global ranking: the You card, or whatever stands in for it.
-const YouSlot = ({ player, self, index, onSeeAll, nextRun }) => {
+const YouSlot = ({ player, self, index, onSeeAll, onClearPlayer, nextRun }) => {
   const hydrated = useHydrated();
   const formatDate = useFormatDate();
   if (!player.context) {
@@ -114,7 +114,8 @@ const YouSlot = ({ player, self, index, onSeeAll, nextRun }) => {
     }
     return <Notice title="You are not on the leaderboards yet">Upload your profile with leaderboards on in {settingsLink}.</Notice>;
   }
-  return <YouCard data={player.data} kind={player.context.kind} index={index} onSeeAll={onSeeAll}/>;
+  return <YouCard data={player.data} kind={player.context.kind} index={index} onSeeAll={onSeeAll}
+                  onClear={onClearPlayer} clearLabel={self.name ? 'Back to you' : 'Clear'}/>;
 };
 
 const SectionTitle = ({ title, sub }) => (
@@ -175,7 +176,7 @@ const WithinReach = ({ reach, kind, index, onOpen }) => (
   </Card>
 );
 
-const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSeeAll, onTab }) => {
+const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSeeAll, onTab, onClearPlayer }) => {
   const podium = useQuery({
     queryKey: ['lb-podium', !showAnonymous],
     queryFn: () => fetchBoard(GLOBAL_METRIC, { limit: 10, publicOnly: !showAnonymous }),
@@ -203,7 +204,7 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSee
             : <Skeleton variant="rounded" height={420}/>}
         {/* On a phone the player's own standing comes first. */}
         <Box sx={{ order: -1, '@container (min-width: 860px)': { order: 0 } }}>
-          <YouSlot player={player} self={self} index={index} onSeeAll={onSeeAll} nextRun={nextRun}/>
+          <YouSlot player={player} self={self} index={index} onSeeAll={onSeeAll} onClearPlayer={onClearPlayer} nextRun={nextRun}/>
         </Box>
       </Box>
       {picks.length || reach.length ? (

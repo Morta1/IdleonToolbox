@@ -222,6 +222,7 @@ const Leaderboards = () => {
           player={{ context, data: playerQuery.data, isLoading: playerQuery.isLoading, isError: playerQuery.isError, refetch: playerQuery.refetch }}
           onOpen={openBoard}
           onTab={openTab}
+          onClearPlayer={clearPlayer}
         />
       ) : tabQuery.isError ? (
         <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => tabQuery.refetch()}>Retry</Button>}>

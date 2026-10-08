@@ -36,11 +36,13 @@ const RankRow = ({ rank, name, value, notation, scale, kind = null, plainRank = 
   const shape = around
     ? { borderRadius: '6px', border: '2px solid', borderColor: accent ?? 'transparent' }
     : pinned
-      ? { borderTop: 1, borderBottom: 0, borderColor: accent }
+      // The row above draws the line between them.
+      ? { borderTop: 0, borderBottom: 0 }
       : { borderBottom: 1, borderColor: 'divider' };
   return (
     <Stack direction="row" alignItems="center" gap={1.25} data-testid="rank-row" aria-current={kind ? 'true' : undefined} sx={{
-      px: drawer ? 1.25 : 1.75, py: pinned ? 1 : drawer ? 0.875 : 0.75, fontSize: 13, ...shape,
+      // The pinned row keeps the list's rhythm: its tint and left bar already set it apart.
+      px: drawer ? 1.25 : 1.75, py: drawer ? 0.875 : 0.75, fontSize: 13, ...shape,
       bgcolor: kind ? '#12141c' : 'transparent',
       boxShadow: kind && !around ? `inset 3px 0 0 ${accent}` : 'none'
     }}>

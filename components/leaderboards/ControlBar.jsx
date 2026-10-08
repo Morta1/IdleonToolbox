@@ -252,7 +252,9 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
   return (
     <Box ref={barRef} sx={{
       position: 'sticky', top, zIndex: (theme) => theme.zIndex.appBar - 1,
-      bgcolor: 'background.default', py: 1.5, mb: 2, borderBottom: 1, borderColor: 'divider',
+      // No line of its own: the tab strip right under it closes the header with one line, so the
+      // tabs sit centred between the fields and that line.
+      bgcolor: 'background.default', py: 1.5,
       // A landscape phone has no height to spare for pinned bars.
       '@media (max-height: 500px)': { position: 'static' }
     }}>

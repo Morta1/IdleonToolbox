@@ -16,7 +16,8 @@ const Stat = ({ label, value, sub }) => (
   </Box>
 );
 
-const YouCard = ({ data, kind, index, onSeeAll }) => {
+// onClear: leaves a searched player; it reads "Back to you" when the visitor has standing of their own.
+const YouCard = ({ data, kind, index, onSeeAll, onClear, clearLabel = 'Clear' }) => {
   const { player, ranks } = data;
   const counts = countStanding(ranks, index);
   // A maxed board is shared by everyone who reached the max, so it is counted apart from the firsts.
@@ -28,12 +29,17 @@ const YouCard = ({ data, kind, index, onSeeAll }) => {
       height: '100%', boxSizing: 'border-box', p: { xs: '14px', md: '18px 20px' }, borderRadius: 2, bgcolor: '#12141c', border: '2px solid', borderColor: HIGHLIGHT[kind], boxShadow: 'none'
     }}>
       <Stack gap={1.5}>
-        <Typography component="h2" sx={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', color: LABEL_COLOR[kind] }}>
-          <span>{kind === 'logged' ? 'You' : 'Searched player'}</span>
-          {' · '}
-          {/* Names are case-sensitive, so the label's capitals stop at the name. */}
-          <Box component="span" sx={{ textTransform: 'none' }}>{player.mainChar}</Box>
-        </Typography>
+        <Stack direction="row" alignItems="center" gap={1}>
+          <Typography component="h2" sx={{ flexGrow: 1, minWidth: 0, fontSize: 12, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', color: LABEL_COLOR[kind] }}>
+            <span>{kind === 'logged' ? 'You' : 'Searched player'}</span>
+            {' · '}
+            {/* Names are case-sensitive, so the label's capitals stop at the name. */}
+            <Box component="span" sx={{ textTransform: 'none' }}>{player.mainChar}</Box>
+          </Typography>
+          {kind === 'searched' && onClear ? (
+            <Button size="small" onClick={onClear} sx={{ p: 0, minWidth: 0, fontSize: 12, fontWeight: 600, textTransform: 'none', flexShrink: 0 }}>{`${clearLabel} ×`}</Button>
+          ) : null}
+        </Stack>
         <Stack direction="row" alignItems="baseline" columnGap={1.25} flexWrap="wrap">
           <Typography component="p" sx={{ fontSize: { xs: 34, md: 44 }, fontWeight: 700, lineHeight: 1 }}>{rankText(player.rank)}</Typography>
           <Typography color="text.secondary" sx={{ fontSize: { xs: 12, md: 13 } }}>{of}</Typography>
