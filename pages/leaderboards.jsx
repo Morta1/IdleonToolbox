@@ -61,6 +61,9 @@ const Leaderboards = () => {
 
   // A metric that meta doesn't know (old link, typo) opens nothing.
   const drawerMetric = queryMetric && index.byKey[queryMetric] ? queryMetric : null;
+  // The drawer slides out for a moment after drawerMetric clears, so it keeps showing the last board.
+  const [shownMetric, setShownMetric] = useState(null);
+  if (drawerMetric && drawerMetric !== shownMetric) setShownMetric(drawerMetric);
 
   // What the visitor landed with, so URL-entry analytics fire once and never for in-page clicks.
   const urlEntry = useRef(null);
@@ -183,7 +186,8 @@ const Leaderboards = () => {
       )}
     </Tabber>
     <BoardDrawer
-      metricKey={drawerMetric}
+      open={Boolean(drawerMetric)}
+      metricKey={drawerMetric ?? shownMetric}
       index={index}
       player={playerData?.player.mainChar ?? null}
       kind={context?.kind}

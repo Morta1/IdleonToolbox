@@ -16,10 +16,11 @@ const index = buildMetaIndex({ categories: [{ category: 'skills', metrics: [{ ke
 const top = Array.from({ length: 20 }, (_, i) => ({ mainChar: `T${i}`, value: 304 - i, rank: i + 1, globalRank: i + 1 }));
 const aroundAt = (rank) => Array.from({ length: 11 }, (_, i) => ({ mainChar: i === 5 ? 'Me' : `N${i}`, value: 100 - i, rank: rank - 5 + i }));
 
+const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 const renderDrawer = (props = {}) => render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
     <ThemeProvider theme={darkTheme}>
-      <BoardDrawer metricKey="mining" index={index} player="me" kind="logged" showAnonymous onClose={() => {}} {...props}/>
+      <BoardDrawer open metricKey="mining" index={index} player="me" kind="logged" showAnonymous onClose={() => {}} {...props}/>
     </ThemeProvider>
   </QueryClientProvider>
 );
@@ -62,7 +63,30 @@ describe('BoardDrawer', () => {
   });
 
   it('does not fetch while closed', () => {
-    renderDrawer({ metricKey: null });
+    renderDrawer({ open: false });
     expect(fetchBoard).not.toHaveBeenCalled();
+  });
+
+  it('keeps the last board title while it closes', async () => {
+    fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: [] });
+    const tree = (open) => (
+      <QueryClientProvider client={client}>
+        <ThemeProvider theme={darkTheme}>
+          <BoardDrawer open={open} metricKey="mining" index={index} player="me" kind="logged" showAnonymous onClose={() => {}}/>
+        </ThemeProvider>
+      </QueryClientProvider>
+    );
+    const { rerender } = render(tree(true));
+    expect(await screen.findByRole('heading', { name: 'Mining' })).toBeTruthy();
+    rerender(tree(false));
+    expect(screen.getByRole('heading', { name: 'Mining', hidden: true })).toBeTruthy();
+    expect(screen.queryByText('Global ranking')).toBeNull();
+  });
+
+  it('is a dialog labelled by the board title', async () => {
+    fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: [] });
+    renderDrawer();
+    const dialog = await screen.findByRole('dialog', { name: 'Mining' });
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
   });
 });

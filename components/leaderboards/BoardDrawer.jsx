@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { Alert, Button, CircularProgress, Drawer, IconButton, Stack, Typography, useMediaQuery } from '@mui/material';
 import Box from '@mui/material/Box';
 import { IconX } from '@tabler/icons-react';
@@ -12,9 +12,9 @@ import RankRow from './RankRow';
 // At rank 15 or better the window would repeat the top of the Top 100 list.
 const AROUND_SKIP_RANK = 15;
 
-const BoardDrawer = ({ metricKey, index, player, kind, showAnonymous, onClose }) => {
+const BoardDrawer = ({ open, metricKey, index, player, kind, showAnonymous, onClose }) => {
   const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
-  const open = Boolean(metricKey);
+  const titleId = useId();
   const meta = metaOf(index, metricKey ?? GLOBAL_METRIC);
   const { data, isError, isLoading, refetch } = useQuery({
     queryKey: ['lb-board', metricKey, player?.toLowerCase() ?? '', !showAnonymous],
@@ -33,11 +33,15 @@ const BoardDrawer = ({ metricKey, index, player, kind, showAnonymous, onClose })
   });
 
   return (
-    <Drawer anchor="right" open={open} onClose={onClose} slotProps={{ paper: { sx: { width: isPhone ? '100%' : 440 } } }}>
+    <Drawer
+      anchor="right"
+      open={open}
+      onClose={onClose}
+      PaperProps={{ role: 'dialog', 'aria-modal': true, 'aria-labelledby': titleId, sx: { width: isPhone ? '100%' : 440 } }}>
       <Stack direction="row" alignItems="center" gap={1} sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
         <MetricIcon metric={meta.key} label={meta.label} size={28}/>
         <Box sx={{ minWidth: 0, flexGrow: 1 }}>
-          <Typography variant="h6" component="h2" noWrap>{meta.label}</Typography>
+          <Typography id={titleId} variant="h6" component="h2" title={meta.label} noWrap>{meta.label}</Typography>
           {meta.top != null ? (
             <Typography variant="caption" color="text.secondary">
               {maxed

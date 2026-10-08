@@ -1,0 +1,62 @@
+// @vitest-environment jsdom
+import '../../polyfills';
+import React from 'react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { ThemeProvider } from '@mui/material';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import darkTheme from '../../styles/theme/darkTheme';
+
+Element.prototype.scrollIntoView = vi.fn();
+const routerState = { isReady: true, query: {}, push: vi.fn(), replace: vi.fn(), back: vi.fn(), asPath: '/leaderboards', pathname: '/leaderboards' };
+vi.mock('next/router', () => ({ useRouter: () => routerState }));
+vi.mock('next-seo', () => ({ NextSeo: () => null }));
+
+const fetchTab = vi.fn(async () => ({ totalUsers: 10, createdAt: 1, skills: { public: { mining: [] }, anonymous: { mining: [] } } }));
+const fetchMeta = vi.fn(async () => ({ createdAt: 1, totalPlayers: 10, categories: [{ category: 'skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] }));
+const fetchPlayer = vi.fn(async () => null);
+const fetchBoard = vi.fn(async () => ({ metric: 'mining', createdAt: 1, top: [], around: [] }));
+const searchNames = vi.fn(async () => []);
+vi.mock('../../services/leaderboards', () => ({ fetchMeta, fetchPlayer, fetchBoard, fetchTab, searchNames }));
+
+const { AppContext } = await import('@components/common/context/AppProvider');
+const Leaderboards = (await import('../../pages/leaderboards')).default;
+
+const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+const renderPage = (state = {}) => {
+  const page = () => (
+    <QueryClientProvider client={client}>
+      <ThemeProvider theme={darkTheme}>
+        <AppContext.Provider value={{ state }}>
+          <Leaderboards/>
+        </AppContext.Provider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+  const utils = render(page());
+  return { ...utils, rerender: () => utils.rerender(page()) };
+};
+
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+  routerState.query = {};
+  routerState.push.mockReset();
+  routerState.replace.mockReset();
+  routerState.back.mockReset();
+  client.clear();
+  localStorage.clear();
+});
+
+describe('leaderboards board drawer', () => {
+  it('keeps the board it was showing while it closes', async () => {
+    routerState.query = { t: 'skills', m: 'mining' };
+    const { rerender } = renderPage();
+    expect(await screen.findByRole('dialog', { name: 'Mining' })).toBeTruthy();
+
+    routerState.query = { t: 'skills' };
+    rerender();
+    expect(screen.getByRole('heading', { level: 2, name: 'Mining', hidden: true })).toBeTruthy();
+    expect(screen.queryByText('Global ranking')).toBeNull();
+  });
+});
