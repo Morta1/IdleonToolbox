@@ -133,4 +133,13 @@ describe('leaderboards ?player= deep link', () => {
     fireEvent.click(toggle);
     await waitFor(() => expect(localStorage.getItem('leaderboard:showAnonymous')).toBe('false'));
   });
+
+  it('opens a category tile through the tab handling, dropping the open board', async () => {
+    routerState.query = { m: 'mining' };
+    renderPage({ uid: 'u1', characters: [{ name: 'Logged' }] });
+    const tile = await screen.findByRole('link', { name: /Skills/, hidden: true });
+    expect(tile.getAttribute('href')).toBe('?t=Skills');
+    fireEvent.click(tile);
+    expect(routerState.push).toHaveBeenCalledWith({ pathname: '/leaderboards', query: { t: 'Skills' } }, undefined, { shallow: true });
+  });
 });

@@ -7,62 +7,73 @@ import useHydrated from '@hooks/useHydrated';
 import useFormatDate from '@hooks/useFormatDate';
 import { prefix } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
-import { AGGREGATION_INTERVAL, GLOBAL_METRIC, formatMetricValue, metaOf, staleUntilNextRun } from './format';
-import { withinReach } from './standing';
+import { AGGREGATION_INTERVAL, GLOBAL_METRIC, TABS, formatMetricValue, metaOf, staleUntilNextRun } from './format';
+import { topPercentLabel, withinReach } from './standing';
 import { nextRankText } from './tiers';
+import CategoryTiles from './CategoryTiles';
 import MetricIcon from './MetricIcon';
-import RankRow, { HIGHLIGHT, TROPHIES } from './RankRow';
+import RankRow, { HIGHLIGHT, MEDAL, TROPHIES } from './RankRow';
 import YouCard from './YouCard';
 
-// Slots by position, left to right: second, first, third. The trophy follows the row's rank, not its slot.
-const PODIUM = [
-  { at: 1, height: 112 },
-  { at: 0, height: 136 },
-  { at: 2, height: 96 }
-];
+const CARD_SX = { p: '18px 20px', borderRadius: 2 };
+const linkButtonSx = { p: 0, minWidth: 0, fontSize: 13, fontWeight: 600, textTransform: 'none', whiteSpace: 'nowrap', flexShrink: 0 };
+
+// Slots by position, left to right: second, first, third. The medal follows the row's rank, not its slot.
+const PODIUM_SLOTS = [1, 0, 2];
+
+const PodiumSlot = ({ row, kind }) => {
+  const first = row.rank === 1;
+  const medal = MEDAL[row.rank];
+  const trophy = TROPHIES[row.rank];
+  const size = first ? { xs: 22, sm: 28 } : { xs: 18, sm: 22 };
+  return (
+    <Stack data-testid="podium-slot" gap={0.75} alignItems={{ xs: 'center', md: 'flex-start' }} sx={{
+      flex: 1, minWidth: 0, boxSizing: 'border-box', px: { xs: 1, sm: 1.75 }, py: first ? { xs: 2, sm: 2.75 } : { xs: 1.25, sm: 1.75 },
+      bgcolor: '#141A21', borderRadius: 2, border: '1px solid', borderColor: kind ? HIGHLIGHT[kind] : 'divider',
+      ...(medal ? { borderTop: `3px solid ${medal}` } : {}), textAlign: { xs: 'center', md: 'left' }
+    }}>
+      {trophy
+        ? <Box component="img" src={`${prefix}${trophy}`} alt={`Rank ${row.rank}`} sx={{ width: size, height: size, objectFit: 'contain' }}/>
+        : <Typography color="text.secondary" fontWeight={600} sx={{ fontSize: 14 }}>{`#${row.rank ?? '-'}`}</Typography>}
+      <Typography noWrap sx={{ maxWidth: '100%', fontSize: first ? { xs: 13, sm: 18 } : { xs: 12, sm: 15 }, fontWeight: first ? 700 : 600 }}>{row.mainChar}</Typography>
+      <Typography color="text.secondary" sx={{ fontSize: 12, display: { xs: 'none', sm: 'block' } }}>{formatMetricValue('points', row.value)}</Typography>
+    </Stack>
+  );
+};
 
 const Podium = ({ rows, highlight, onOpen }) => (
-  <Card variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-    <Stack direction="row" alignItems="center" sx={{ mb: 2 }}>
-      <Typography variant="h6" component="h2" sx={{ flexGrow: 1 }}>Global ranking</Typography>
-      <Button size="small" onClick={() => onOpen(GLOBAL_METRIC, 'overview')}>Full top 100 ›</Button>
+  <Card variant="outlined" sx={{ ...CARD_SX, display: 'flex', flexDirection: 'column', gap: 2 }}>
+    <Stack direction="row" alignItems="center">
+      <Typography component="h2" sx={{ flexGrow: 1, fontSize: 16, fontWeight: 700 }}>Global ranking</Typography>
+      <Button onClick={() => onOpen(GLOBAL_METRIC, 'overview')} sx={linkButtonSx}>Full top 100 ›</Button>
     </Stack>
-    <Stack direction="row" gap={1} alignItems="flex-end" justifyContent="center" sx={{ mb: 2 }}>
-      {PODIUM.map(({ at, height }) => {
-        const row = rows[at];
-        if (!row) return null;
-        const kind = highlight[row.mainChar] ?? null;
-        return (
-          <Stack key={row.mainChar} alignItems="center" justifyContent="flex-end" gap={0.5} sx={{
-            flex: 1, minWidth: 0, height, p: 1, borderRadius: 2, bgcolor: '#141A21', border: 1, borderColor: kind ? HIGHLIGHT[kind] : 'divider'
-          }}>
-            {TROPHIES[row.rank]
-              ? <img src={`${prefix}${TROPHIES[row.rank]}`} width={28} height={28} style={{ objectFit: 'contain' }} alt={`Rank ${row.rank}`}/>
-              : <Typography variant="body2" color="text.secondary" fontWeight={600} sx={{ height: 28, lineHeight: '28px' }}>{`#${row.rank ?? '-'}`}</Typography>}
-            <Typography variant="body2" fontWeight={700} noWrap sx={{ maxWidth: '100%' }}>{row.mainChar}</Typography>
-            <Typography variant="caption" color="text.secondary">{formatMetricValue('points', row.value)}</Typography>
-          </Stack>
-        );
-      })}
+    <Stack direction="row" gap={1.5} alignItems="flex-end">
+      {PODIUM_SLOTS.map((at) => (rows[at] ? <PodiumSlot key={rows[at].mainChar} row={rows[at]} kind={highlight[rows[at].mainChar] ?? null}/> : null))}
     </Stack>
-    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, columnGap: 2 }}>
-      {rows.slice(3).map((row) => (
-        <RankRow key={row.mainChar} rank={row.rank} name={row.mainChar} value={row.value} notation="points" kind={highlight[row.mainChar] ?? null}/>
+    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, columnGap: 3 }}>
+      {rows.slice(3).map((row, at) => (
+        <Box key={row.mainChar} sx={at >= 4 ? { display: { xs: 'none', sm: 'block' } } : undefined}>
+          <RankRow rank={row.rank} name={row.mainChar} value={row.value} notation="points" kind={highlight[row.mainChar] ?? null} dimRank/>
+        </Box>
       ))}
     </Box>
   </Card>
 );
 
 const Notice = ({ title, children }) => (
-  <Card variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-    <Typography variant="h6" component="h2">{title}</Typography>
+  <Card variant="outlined" sx={{ ...CARD_SX, height: '100%', boxSizing: 'border-box' }}>
+    <Typography component="h2" sx={{ fontSize: 16, fontWeight: 700 }}>{title}</Typography>
     <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{children}</Typography>
   </Card>
 );
 
 const settingsLink = <Link component={NextLink} href="/settings">Settings</Link>;
 
-const PlayerPanel = ({ player, self, index, onOpen, onSeeAll, nextRun }) => {
+// What the player's data allows: a standing to show, or null while the You slot shows a notice instead.
+const standingOf = (player) => (player.context && !player.isError && player.data ? { data: player.data, kind: player.context.kind } : null);
+
+// The slot beside the global ranking: the You card, or whatever stands in for it.
+const YouSlot = ({ player, self, index, onSeeAll, nextRun }) => {
   const hydrated = useHydrated();
   const formatDate = useFormatDate();
   if (!player.context) {
@@ -93,66 +104,98 @@ const PlayerPanel = ({ player, self, index, onOpen, onSeeAll, nextRun }) => {
     }
     return <Notice title="You are not on the leaderboards yet">Upload your profile with leaderboards on in {settingsLink}.</Notice>;
   }
-
-  const { data, context } = player;
-  const reach = withinReach(data.ranks, index);
-  return (
-    <Stack gap={2}>
-      <YouCard data={data} kind={context.kind} index={index} onSeeAll={onSeeAll}/>
-      {data.player.bestMetrics?.length ? (
-        <Card variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-          <Typography variant="subtitle1" component="h3" fontWeight={700}>{context.kind === 'logged' ? 'Your highlights' : 'Highlights'}</Typography>
-          {data.player.bestMetrics.map((pick) => {
-            const meta = metaOf(index, pick.metric);
-            return (
-              <Stack key={pick.metric} direction="row" alignItems="center" gap={1} sx={{ mt: 1 }}>
-                <MetricIcon metric={pick.metric} label={meta.label}/>
-                <Typography variant="body2" sx={{ flexGrow: 1 }}>{meta.label}</Typography>
-                <Typography variant="body2" color="text.secondary">{formatMetricValue(meta.notation, pick.value)}</Typography>
-                <Typography variant="body2" fontWeight={600}>{`#${pick.rank} · top ${pick.topPercent}%`}</Typography>
-              </Stack>
-            );
-          })}
-        </Card>
-      ) : null}
-      {reach.length ? (
-        <Card variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-          <Typography variant="subtitle1" component="h3" fontWeight={700}>Within reach</Typography>
-          {reach.map((entry) => {
-            const meta = metaOf(index, entry.key);
-            return (
-              <Button key={entry.key} color="inherit" fullWidth onClick={() => onOpen(entry.key, 'within_reach')}
-                      sx={{ justifyContent: 'flex-start', textTransform: 'none', gap: 1, mt: 0.5 }}>
-                <MetricIcon metric={entry.key} label={meta.label}/>
-                <Box component="span" sx={{ textAlign: 'left' }}>
-                  <Typography variant="body2" component="span" display="block">{`${meta.label} · #${entry.r}`}</Typography>
-                  <Typography variant="caption" component="span" color="text.secondary" display="block">{nextRankText(entry, meta)}</Typography>
-                </Box>
-              </Button>
-            );
-          })}
-        </Card>
-      ) : null}
-    </Stack>
-  );
+  return <YouCard data={player.data} kind={player.context.kind} index={index} onSeeAll={onSeeAll}/>;
 };
 
-const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSeeAll }) => {
+const SectionTitle = ({ title, sub }) => (
+  <Stack direction="row" alignItems="baseline" gap={1} sx={{ mb: 1.25 }}>
+    <Typography component="h3" sx={{ fontSize: 16, fontWeight: 700 }}>{title}</Typography>
+    <Typography color="text.disabled" sx={{ fontSize: 12 }}>{sub}</Typography>
+  </Stack>
+);
+
+const tabOfCategory = (category) => TABS.find((tab) => tab.toLowerCase() === category) ?? null;
+
+const Highlights = ({ picks, kind, index }) => (
+  <Card variant="outlined" sx={CARD_SX}>
+    <SectionTitle title={kind === 'logged' ? 'Your highlights' : 'Highlights'} sub="your strongest boards"/>
+    {picks.map((pick) => {
+      const meta = metaOf(index, pick.metric);
+      // A missing tab (meta down) or value leaves no dangling separator.
+      const sub = [tabOfCategory(meta.category), Number.isFinite(pick.value) ? formatMetricValue(meta.notation, pick.value) : null].filter(Boolean).join(' · ');
+      const top = topPercentLabel(pick.topPercent);
+      return (
+        <Stack key={pick.metric} direction="row" alignItems="center" gap={1.5} sx={{ py: 1.25, borderTop: 1, borderColor: 'divider' }}>
+          <MetricIcon metric={pick.metric} label={meta.label} size={28}/>
+          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+            <Typography noWrap sx={{ fontWeight: 600 }}>{meta.label}</Typography>
+            {sub ? <Typography color="text.secondary" sx={{ fontSize: 12 }}>{sub}</Typography> : null}
+          </Box>
+          <Box sx={{ textAlign: 'right' }}>
+            <Typography sx={{ fontSize: 16, fontWeight: 700 }}>{`#${pick.rank}`}</Typography>
+            {top ? <Typography color="text.disabled" sx={{ fontSize: 11 }}>{top}</Typography> : null}
+          </Box>
+        </Stack>
+      );
+    })}
+  </Card>
+);
+
+const WithinReach = ({ reach, index, onOpen }) => (
+  <Card variant="outlined" sx={CARD_SX}>
+    <SectionTitle title="Within reach" sub="smallest step to the next rank"/>
+    {reach.map((entry) => {
+      const meta = metaOf(index, entry.key);
+      return (
+        <Button key={entry.key} color="inherit" fullWidth onClick={() => onOpen(entry.key, 'within_reach')} sx={{
+          justifyContent: 'flex-start', textTransform: 'none', gap: 1.5, py: 1.25, px: 0, borderRadius: 0, borderTop: 1, borderColor: 'divider'
+        }}>
+          <MetricIcon metric={entry.key} label={meta.label} size={28}/>
+          <Box component="span" sx={{ flexGrow: 1, minWidth: 0, textAlign: 'left' }}>
+            <Typography component="span" display="block" sx={{ fontWeight: 600 }}>
+              {meta.label}
+              <Box component="span" sx={{ color: 'text.secondary', fontWeight: 400 }}>{` · #${entry.r} · ${formatMetricValue(meta.notation, entry.v)}`}</Box>
+            </Typography>
+            <Typography component="span" display="block" color="primary" sx={{ fontSize: 13 }}>{nextRankText(entry, meta)}</Typography>
+          </Box>
+          <Typography component="span" color="primary" sx={{ fontSize: 13, fontWeight: 600, flexShrink: 0 }}>Around you ›</Typography>
+        </Button>
+      );
+    })}
+  </Card>
+);
+
+const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSeeAll, onTab }) => {
   const podium = useQuery({
     queryKey: ['lb-podium', !showAnonymous],
     queryFn: () => fetchBoard(GLOBAL_METRIC, { limit: 10, publicOnly: !showAnonymous }),
     staleTime: staleUntilNextRun
   });
   const nextRun = index.createdAt ? index.createdAt + AGGREGATION_INTERVAL : null;
+  const standing = standingOf(player);
+  const picks = standing?.data.player.bestMetrics ?? [];
+  const reach = standing ? withinReach(standing.data.ranks, index) : [];
   return (
-    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '3fr 2fr' }, gap: 2, alignItems: 'start' }}>
-      {podium.isError
-        ? <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => podium.refetch()}>Retry</Button>}>Could not load the global ranking</Alert>
-        : podium.data
-          ? <Podium rows={podium.data.top} highlight={highlight} onOpen={onOpen}/>
-          : <Skeleton variant="rounded" height={420}/>}
-      <PlayerPanel player={player} self={self} index={index} onOpen={onOpen} onSeeAll={onSeeAll} nextRun={nextRun}/>
-    </Box>
+    <Stack gap={2.5}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) 420px' }, gap: 2.5 }}>
+        {podium.isError
+          ? <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => podium.refetch()}>Retry</Button>}>Could not load the global ranking</Alert>
+          : podium.data
+            ? <Podium rows={podium.data.top} highlight={highlight} onOpen={onOpen}/>
+            : <Skeleton variant="rounded" height={420}/>}
+        {/* On a phone the player's own standing comes first. */}
+        <Box sx={{ order: { xs: -1, md: 0 } }}>
+          <YouSlot player={player} self={self} index={index} onSeeAll={onSeeAll} nextRun={nextRun}/>
+        </Box>
+      </Box>
+      {picks.length || reach.length ? (
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: picks.length && reach.length ? '1fr 1fr' : '1fr' }, gap: 2.5, alignItems: 'start' }}>
+          {picks.length ? <Highlights picks={picks} kind={standing.kind} index={index}/> : null}
+          {reach.length ? <WithinReach reach={reach} index={index} onOpen={onOpen}/> : null}
+        </Box>
+      ) : null}
+      <CategoryTiles index={index} ranks={standing?.data.ranks} onTab={onTab}/>
+    </Stack>
   );
 };
 

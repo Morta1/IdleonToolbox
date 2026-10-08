@@ -11,8 +11,8 @@ const boardHref = (meta) => {
   return `?${tab ? `t=${tab}&` : ''}m=${encodeURIComponent(meta.key)}`;
 };
 
-// A plain click opens the drawer in place; a modified click keeps the browser's own behaviour.
-const openOnPlainClick = (onOpen, key) => (event) => {
+// A plain click opens the drawer (or tab) in place; a modified click keeps the browser's own behaviour.
+export const openOnPlainClick = (onOpen, key) => (event) => {
   if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
   event.preventDefault();
   onOpen(key);
