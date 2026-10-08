@@ -72,6 +72,13 @@ describe('MetricCard', () => {
     expect(highlighted.textContent).toContain('B(searched player)');
   });
 
+  it('never shows two different values the same on a card', () => {
+    const colo = { key: 'w3Colo', label: 'W3 Colosseum', notation: 'default', maxed: false, top: 13_000_000 };
+    renderCard({ meta: colo, entries: [{ mainChar: 'A', w3Colo: 12_202_870, rank: 1 }, { mainChar: 'B', w3Colo: 12_194_823, rank: 2 }, { mainChar: 'C', w3Colo: 11_000_000, rank: 3 }] });
+    const values = screen.getAllByTestId('rank-row').map((row) => row.lastElementChild.textContent);
+    expect(values).toEqual(['12.20M', '12.19M', '11.00M']);
+  });
+
   it('opens the board from Top 100', () => {
     const onOpen = vi.fn();
     renderCard({ meta: mining, entries: [row('A', 300, 1)], onOpen });

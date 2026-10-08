@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Chip, Link, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { numberWithCommas } from '@utility/helpers';
-import { TABS, formatMetricValue } from './format';
+import { TABS, formatDistinctValues, formatMetricValue } from './format';
 import MetricIcon from './MetricIcon';
 import RankRow from './RankRow';
 
@@ -29,6 +29,9 @@ const MetricCard = ({ meta, entries, highlight, pinned, onOpen, linkPlayer = nul
     ? [...listed, { mainChar: pinned.mainChar, rank: pinned.entry.r, [meta.key]: pinned.entry.v, globalRank: pinned.globalRank }].sort((a, b) => a.rank - b.rank)
     : listed;
   const showPinned = missing && !inPlace;
+  // A card's ten rows (and the pinned one) never read the same for different values: 12.20M next
+  // to 12.19M rather than 12.2M twice, which looks like a tie.
+  const texts = formatDistinctValues(meta.notation, [...rows.map((row) => row[meta.key]), ...(showPinned ? [pinned.entry.v] : [])], { scale: meta.top });
   return (
     // The card's own border closes the list, so its last row draws none.
     <Card variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', '& > [data-testid="rank-row"]:last-child': { borderBottom: 0 } }}>
@@ -55,13 +58,13 @@ const MetricCard = ({ meta, entries, highlight, pinned, onOpen, linkPlayer = nul
       ) : null}
       {rows.length === 0
         ? <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>Nothing here yet</Typography>
-        : rows.map((row) => (
-          <RankRow key={row.mainChar} rank={row.rank} name={row.mainChar} value={row[meta.key]} notation={meta.notation} scale={meta.top}
+        : rows.map((row, at) => (
+          <RankRow key={row.mainChar} rank={row.rank} name={row.mainChar} value={row[meta.key]} notation={meta.notation} scale={meta.top} display={texts[at]}
                    kind={highlight[row.mainChar] ?? (inPlace && row.mainChar === pinned.mainChar ? pinned.kind : null)}
                    plainRank={maxed} globalRank={maxed ? row.globalRank : null}/>
         ))}
       {showPinned ? (
-        <RankRow pinned rank={pinned.entry.r} name={pinned.mainChar} value={pinned.entry.v} notation={meta.notation} scale={meta.top} kind={pinned.kind}
+        <RankRow pinned rank={pinned.entry.r} name={pinned.mainChar} value={pinned.entry.v} notation={meta.notation} scale={meta.top} display={texts[rows.length]} kind={pinned.kind}
                  plainRank={maxed} globalRank={maxed ? pinned.globalRank : null} maxCheck={maxed && pinned.entry.v >= meta.top}/>
       ) : null}
     </Card>

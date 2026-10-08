@@ -180,6 +180,12 @@ describe('formatDistinctValues', () => {
     expect(formatDistinctValues('multiplier', [385_382.06, 369_925.85], { scale: 3.01e9 })).toEqual(['385K', '370K']);
   });
 
+  it('treats float noise as the same value, so a group still aligns', () => {
+    // 11,370.6 and 11,370.8 both round to 11,371, so every row gets decimals, the noisy 11,445 included.
+    expect(formatDistinctValues('default', [11483.3, 11444.999999996, 11445, 11370.8, 11370.6], { scale: 11_666 }))
+      .toEqual(['11,483.30', '11,445.00', '11,445.00', '11,370.80', '11,370.60']);
+  });
+
   it('falls back to the exact figure when only decimals differ', () => {
     expect(formatDistinctValues('default', [498506.88, 498506.668], { scale: 541_225 })).toEqual(['498,506.88', '498,506.67']);
   });

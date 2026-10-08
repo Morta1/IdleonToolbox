@@ -97,7 +97,9 @@ const MAX_PRECISION = 8;
 // up (8,488.00 next to 8,487.60). Returns one string per value; the exact figure is the last resort.
 export const formatDistinctValues = (notation, values, { scale } = {}) => {
   const full = (value) => notation !== 'points' && Math.abs(value) < plainBelow(scale);
-  const distinct = (texts) => values.every((value, at) => values.every((other, to) => value === other || texts[at] !== texts[to]));
+  // Float noise is not a difference: 11,444.999999996 and 11,445 are the same score.
+  const same = (a, b) => Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a));
+  const distinct = (texts) => values.every((value, at) => values.every((other, to) => same(value, other) || texts[at] !== texts[to]));
   const aligned = (texts) => new Set(texts.filter((text, at) => full(values[at])).map((text) => text.includes('.'))).size <= 1;
   const levels = [];
   for (let precision = 3; precision <= MAX_PRECISION; precision++) levels.push({ precision });
@@ -106,7 +108,9 @@ export const formatDistinctValues = (notation, values, { scale } = {}) => {
     const texts = values.map((value) => formatMetricValue(notation, value, { scale, ...level }));
     if (distinct(texts) && aligned(texts)) return texts;
   }
-  return values.map((value) => formatExactValue(notation, value));
+  // Last resort, still aligned: full values share two decimals when any of them has some.
+  const fractional = values.some((value) => full(value) && !isWhole(value));
+  return values.map((value) => (full(value) && fractional ? numberWithCommas(value.toFixed(2)) : formatExactValue(notation, value)));
 };
 
 // Full precision, for the hover title on every value.
