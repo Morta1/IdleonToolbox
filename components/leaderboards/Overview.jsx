@@ -119,7 +119,7 @@ const tabOfCategory = (category) => TABS.find((tab) => tab.toLowerCase() === cat
 
 const Highlights = ({ picks, kind, index }) => (
   <Card variant="outlined" sx={CARD_SX}>
-    <SectionTitle title={kind === 'logged' ? 'Your highlights' : 'Highlights'} sub="your strongest boards"/>
+    <SectionTitle title={kind === 'logged' ? 'Your highlights' : 'Highlights'} sub={kind === 'logged' ? 'your strongest boards' : 'their strongest boards'}/>
     {picks.map((pick) => {
       const meta = metaOf(index, pick.metric);
       // A missing tab (meta down) or value leaves no dangling separator.
@@ -142,7 +142,7 @@ const Highlights = ({ picks, kind, index }) => (
   </Card>
 );
 
-const WithinReach = ({ reach, index, onOpen }) => (
+const WithinReach = ({ reach, kind, index, onOpen }) => (
   <Card variant="outlined" sx={CARD_SX}>
     <SectionTitle title="Within reach" sub="smallest step to the next rank"/>
     {reach.map((entry) => {
@@ -159,7 +159,7 @@ const WithinReach = ({ reach, index, onOpen }) => (
             </Typography>
             <Typography component="span" display="block" color="primary" sx={{ fontSize: 13 }}>{nextRankText(entry, meta)}</Typography>
           </Box>
-          <Typography component="span" color="primary" sx={{ fontSize: 13, fontWeight: 600, flexShrink: 0 }}>Around you ›</Typography>
+          <Typography component="span" color="primary" sx={{ fontSize: 13, fontWeight: 600, flexShrink: 0 }}>{kind === 'logged' ? 'Around you ›' : 'Around them ›'}</Typography>
         </Button>
       );
     })}
@@ -197,7 +197,7 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSee
           '@container (min-width: 760px)': { gridTemplateColumns: picks.length && reach.length ? '1fr 1fr' : '1fr' }
         }}>
           {picks.length ? <Highlights picks={picks} kind={standing.kind} index={index}/> : null}
-          {reach.length ? <WithinReach reach={reach} index={index} onOpen={onOpen}/> : null}
+          {reach.length ? <WithinReach reach={reach} kind={standing.kind} index={index} onOpen={onOpen}/> : null}
         </Box>
       ) : null}
       <CategoryTiles index={index} ranks={standing?.data.ranks} onTab={onTab}/>

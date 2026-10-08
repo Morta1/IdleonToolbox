@@ -36,6 +36,15 @@ describe('BoardDrawer', () => {
     expect(fetchBoard).toHaveBeenCalledWith('mining', { around: 'me', publicOnly: false });
   });
 
+  it('names a searched player instead of saying you', async () => {
+    fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: aroundAt(91) });
+    renderDrawer({ kind: 'searched' });
+    const heading = await screen.findByText(/^Around/);
+    // The row's own spelling, not the searched text.
+    expect(heading.textContent).toBe('Around Me');
+    expect(screen.queryByText('Around you')).toBeNull();
+  });
+
   it('skips Around you at rank 15 or better', async () => {
     fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: aroundAt(12) });
     renderDrawer();

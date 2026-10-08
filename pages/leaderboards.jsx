@@ -139,6 +139,11 @@ const Leaderboards = () => {
     setQuery({ ...rest, t: tab });
   };
 
+  const clearPlayer = () => {
+    const { player, ...rest } = router.query;
+    setQuery(rest);
+  };
+
   const closeBoard = () => {
     const wasPushed = pushedOpen.current === signature(router.query);
     pushedOpen.current = null;
@@ -175,6 +180,8 @@ const Leaderboards = () => {
       onPlayer={lookupPlayer}
       onMetric={(metric) => openBoard(metric, 'jump')}
       onStickyBottom={setStripTop}
+      viewing={queryPlayer ? { name: playerData?.player.mainChar ?? queryPlayer, kind: context.kind } : null}
+      onClearPlayer={clearPlayer}
     />
     <Tabber
       tabs={TABS}

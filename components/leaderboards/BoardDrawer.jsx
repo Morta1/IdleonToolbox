@@ -90,7 +90,9 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, showAnonymous, onCl
           <>
             {showAround ? (
               <>
-                <SectionHeading note={step} sx={{ pt: 1.75 }}>Around you</SectionHeading>
+                <SectionHeading note={step} sx={{ pt: 1.75 }}>
+                  {kind === 'logged' ? 'Around you' : <>Around <Box component="span" sx={{ textTransform: 'none' }}>{mine.mainChar}</Box></>}
+                </SectionHeading>
                 <Box sx={{ px: 1.5 }}>
                   {around.map((row) => <RankRow key={row.mainChar} {...rowProps(row, 'around')}/>)}
                 </Box>

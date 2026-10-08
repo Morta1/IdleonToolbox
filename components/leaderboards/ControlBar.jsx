@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Autocomplete, FormControlLabel, IconButton, InputAdornment, Popover, Stack, Switch, TextField, Typography } from '@mui/material';
+import { Autocomplete, Chip, FormControlLabel, IconButton, InputAdornment, Popover, Stack, Switch, TextField, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { IconDotsVertical, IconListSearch, IconSearch } from '@tabler/icons-react';
 import { useDebouncedValue } from '@mantine/hooks';
@@ -16,7 +16,17 @@ const MIN_QUERY = 2;
 const FIELD_OUTLINE = 'rgba(255,255,255,0.23)';
 const fieldHeight = { xs: 44, sm: 40 };
 
+const NO_MATCH = { noMatch: true, mainChar: '' };
 const optionLabel = (option) => (typeof option === 'string' ? option : option.mainChar);
+
+// The names API matches by prefix, so a list kept from the previous query is cut to what still
+// matches; an exact name goes first, which is what Enter picks.
+const matchesFor = (options, input) => {
+  const query = input.trim().toLowerCase();
+  return options
+    .filter((option) => option.mainChar.toLowerCase().startsWith(query))
+    .sort((a, b) => Number(b.mainChar.toLowerCase() === query) - Number(a.mainChar.toLowerCase() === query));
+};
 
 // Matched prefix in bold, rank on the right when the names API sends one.
 const PlayerOption = ({ name, rank, query }) => {
@@ -33,9 +43,10 @@ const PlayerOption = ({ name, rank, query }) => {
 
 const PlayerSearch = ({ onPlayer }) => {
   const [input, setInput] = useState('');
+  const inputRef = useRef(null);
   const [debounced] = useDebouncedValue(input.trim(), 250);
   const ready = debounced.length >= MIN_QUERY;
-  const { data: players = [] } = useQuery({
+  const { data: players = [], isFetching } = useQuery({
     queryKey: ['lb-names', debounced.toLowerCase()],
     queryFn: () => searchNames(debounced),
     enabled: ready,
@@ -48,7 +59,15 @@ const PlayerSearch = ({ onPlayer }) => {
       size="small"
       options={ready ? players : []}
       getOptionLabel={optionLabel}
-      filterOptions={(options) => options}
+      // Enter picks the highlighted suggestion: typing "gearp" and pressing Enter finds gearperson.
+      autoHighlight
+      getOptionDisabled={(option) => Boolean(option.noMatch)}
+      filterOptions={(options, { inputValue }) => {
+        const matches = matchesFor(options, inputValue);
+        // Anon# ids are left out of the name search by design, so no match is expected for them.
+        const settled = ready && !isFetching && debounced === inputValue.trim() && !/^anon#/i.test(debounced);
+        return matches.length || !settled ? matches : [NO_MATCH];
+      }}
       value={null}
       inputValue={input}
       onInputChange={(event, value, reason) => { if (reason !== 'reset') setInput(value); }}
@@ -59,9 +78,16 @@ const PlayerSearch = ({ onPlayer }) => {
         if (!name) return;
         onPlayer(name, reason === 'selectOption' ? 'typeahead' : 'enter');
         setInput('');
+        // Off the field, so a phone keyboard drops out of the way of the player it just found.
+        inputRef.current?.blur();
       }}
       renderOption={(props, option) => {
         const { key, ...optionProps } = props;
+        if (option.noMatch) {
+          return <li key="no-match" {...optionProps}>
+            <Typography component="span" sx={{ fontSize: 13, color: 'text.secondary' }}>{`No players start with "${debounced}"`}</Typography>
+          </li>;
+        }
         return (
           <li key={key} {...optionProps} aria-label={option.rank != null ? `${option.mainChar}, rank ${option.rank}` : option.mainChar}>
             <PlayerOption name={option.mainChar} rank={option.rank} query={debounced}/>
@@ -71,6 +97,7 @@ const PlayerSearch = ({ onPlayer }) => {
       renderInput={(params) => (
         <TextField
           {...params}
+          inputRef={inputRef}
           placeholder="Find a player or Anon# id"
           slotProps={{
             htmlInput: { ...params.inputProps, 'aria-label': 'Find a player' },
@@ -151,8 +178,20 @@ export const LeaderboardStatus = ({ totalPlayers, createdAt }) => {
   );
 };
 
+// The player the page is showing, with a way out: the search box empties after a pick, so without
+// this nothing on the page says whose ranks are highlighted.
+const ViewingChip = ({ viewing, onClear, sx }) => (
+  <Chip
+    label={<><Box component="span" sx={{ color: 'text.secondary' }}>{viewing.kind === 'logged' ? 'You: ' : 'Viewing: '}</Box>{viewing.name}</>}
+    onDelete={onClear}
+    aria-label={`Viewing ${viewing.name}`}
+    sx={{ height: 32, maxWidth: '100%', alignSelf: 'center', bgcolor: 'rgba(255,255,255,0.08)', '& .MuiChip-deleteIcon': { color: 'text.secondary' }, ...sx }}
+  />
+);
+
 // onStickyBottom: where the bar ends on screen, so the tab strip can pin right under it.
-const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAnonymous, onPlayer, onMetric, onStickyBottom, children }) => {
+// viewing: the ?player= context ({ name, kind }), shown as a chip that clears it.
+const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAnonymous, onPlayer, onMetric, onStickyBottom, viewing, onClearPlayer, children }) => {
   const { isVisible: showProfileBanner } = useProfileBannerState();
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [barHeight, setBarHeight] = useState(0);
@@ -207,6 +246,7 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
         <PlayerSearch onPlayer={onPlayer}/>
         {/* Both layouts are in the markup and CSS picks one, so a phone does not reflow after hydration. */}
         <Box sx={{ display: { xs: 'none', sm: 'contents' } }}>
+          {viewing ? <ViewingChip viewing={viewing} onClear={onClearPlayer} sx={{ minHeight: 32, my: 0.5 }}/> : null}
           <MetricJump index={index} onMetric={onMetric} inputRef={jumpRef} showKeyHint/>
           {anonSwitch}
           {children}
@@ -222,6 +262,7 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
           <IconDotsVertical size={18}/>
         </IconButton>
       </Stack>
+      {viewing ? <ViewingChip viewing={viewing} onClear={onClearPlayer} sx={{ display: { xs: 'inline-flex', sm: 'none' }, mt: 1 }}/> : null}
       <Popover
         anchorEl={menuAnchor}
         open={Boolean(menuAnchor)}

@@ -31,7 +31,8 @@ const YouCard = ({ data, kind, index, onSeeAll }) => {
         <Typography component="h2" sx={{ fontSize: 12, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', color: LABEL_COLOR[kind] }}>
           <span>{kind === 'logged' ? 'You' : 'Searched player'}</span>
           {' · '}
-          <span>{player.mainChar}</span>
+          {/* Names are case-sensitive, so the label's capitals stop at the name. */}
+          <Box component="span" sx={{ textTransform: 'none' }}>{player.mainChar}</Box>
         </Typography>
         <Stack direction="row" alignItems="baseline" columnGap={1.25} flexWrap="wrap">
           <Typography component="p" sx={{ fontSize: { xs: 34, md: 44 }, fontWeight: 700, lineHeight: 1 }}>{rankText(player.rank)}</Typography>

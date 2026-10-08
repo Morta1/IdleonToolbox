@@ -95,6 +95,36 @@ describe('ControlBar', () => {
     expect(stickyTop(renderBar())).toBe('110px');
   });
 
+  it('picks the highlighted suggestion on Enter, so a partial name finds the player', async () => {
+    const onPlayer = vi.fn();
+    renderBar({ onPlayer });
+    const input = screen.getByLabelText('Find a player');
+    act(() => input.focus());
+    fireEvent.change(input, { target: { value: 'bak' } });
+    await screen.findByRole('option', { name: 'Baker333, rank 75' });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onPlayer).toHaveBeenCalledWith('Baker333', 'typeahead');
+    expect(document.activeElement).not.toBe(input);
+  });
+
+  it('says when no player starts with the typed text', async () => {
+    searchNames.mockResolvedValueOnce([]);
+    renderBar();
+    const input = screen.getByLabelText('Find a player');
+    act(() => input.focus());
+    fireEvent.change(input, { target: { value: 'zzq' } });
+    expect(await screen.findByText('No players start with "zzq"')).toBeTruthy();
+  });
+
+  it('shows the viewed player as a chip that clears it', () => {
+    const onClearPlayer = vi.fn();
+    renderBar({ viewing: { name: 'Baker333', kind: 'searched' }, onClearPlayer });
+    const chips = screen.getAllByRole('button', { name: 'Viewing Baker333' });
+    expect(chips[0].textContent).toBe('Viewing: Baker333');
+    fireEvent.click(chips[0].querySelector('.MuiChip-deleteIcon'));
+    expect(onClearPlayer).toHaveBeenCalledTimes(1);
+  });
+
   it('searches free text on Enter, for Anon# ids', () => {
     const onPlayer = vi.fn();
     renderBar({ onPlayer });

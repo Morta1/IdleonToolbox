@@ -55,10 +55,18 @@ describe('leaderboards ?player= deep link', () => {
   it('loads the player once and shows them as the searched player', async () => {
     routerState.query = { player: 'Tester' };
     renderPage();
-    expect(await screen.findByText('Searched player')).toBeTruthy();
-    expect(screen.getByText('Tester')).toBeTruthy();
+    const label = await screen.findByText('Searched player');
+    expect(label.parentElement.textContent).toBe('Searched player · Tester');
     expect(fetchPlayer).toHaveBeenCalledTimes(1);
     expect(fetchPlayer).toHaveBeenCalledWith('Tester');
+  });
+
+  it('names the viewed player in the control bar, and clearing it drops ?player=', async () => {
+    routerState.query = { player: 'Tester', t: 'Skills' };
+    renderPage();
+    const chips = await screen.findAllByRole('button', { name: 'Viewing Tester' });
+    fireEvent.click(chips[0].querySelector('.MuiChip-deleteIcon'));
+    expect(routerState.push).toHaveBeenLastCalledWith({ pathname: '/leaderboards', query: { t: 'Skills' } }, undefined, { shallow: true });
   });
 
   it('drops an unknown player from the URL with a toast', async () => {
