@@ -273,7 +273,8 @@ const Leaderboards = () => {
     {/* At the top, under the bars, near the search it answers: a bottom corner was far from the
         field on a wide screen and under the keyboard on a phone. */}
     <Snackbar open={toast.open} autoHideDuration={6000} onClose={() => setToast({ ...toast, open: false })} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-              sx={{ top: `${navBarHeight + 12}px !important` }}>
+              // Under the pinned control bar and tab strip, so it never covers the search it answers.
+              sx={{ top: `${(stripTop ?? navBarHeight) + 56}px !important` }}>
       <Alert onClose={() => setToast({ ...toast, open: false })} severity={toast.severity} sx={{ width: '100%' }}>{toast.message}</Alert>
     </Snackbar>
   </Box>;

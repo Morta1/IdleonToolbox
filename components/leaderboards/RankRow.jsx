@@ -63,7 +63,8 @@ const RankRow = ({ rank, name, value, notation, scale, display = null, kind = nu
           max
         </Stack>
       ) : (
-        <Typography color="text.secondary" noWrap title={formatExactValue(notation, value)} sx={{ fontSize: 'inherit' }}>
+        // The value never shrinks: on a narrow row the name truncates, not the number.
+        <Typography color="text.secondary" noWrap title={formatExactValue(notation, value)} sx={{ fontSize: 'inherit', flexShrink: 0 }}>
           {display ?? formatMetricValue(notation, value, { scale })}
         </Typography>
       )}

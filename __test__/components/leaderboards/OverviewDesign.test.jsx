@@ -80,6 +80,12 @@ describe('Overview podium', () => {
     expect(row.textContent).toMatch(/^9Anon#abc123/);
   });
 
+  it('renders no stray code text in the Global ranking card', async () => {
+    renderOverview({ player: { context: null } });
+    await screen.findByText('G1');
+    expect(document.body.textContent).not.toMatch(/\/\/|minmax/);
+  });
+
   it('outlines the viewed player slot in their colour', async () => {
     renderOverview({ player: { context: null }, highlight: { G2: 'logged' } });
     await screen.findByText('G1');
