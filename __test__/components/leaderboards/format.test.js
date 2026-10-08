@@ -100,7 +100,15 @@ describe('formatStep', () => {
   it('keeps a small fractional step readable instead of rounding it to 0', () => {
     expect(formatStep('points', 1.8000000001)).toBe('1.80 pts');
     expect(formatStep('default', 0.42)).toBe('0.42');
-    expect(formatStep('default', 0.001)).toBe('0.01');
+    expect(formatStep('default', 0.001)).toBe('0.001');
+    // Never +0.00, and rounded up so it reaches.
+    expect(formatStep('multiplier', 0.000278)).toBe('0.00028');
+    expect(formatStep('default', 0.212)).toBe('0.22');
+    expect(formatStep('default', 0.0113)).toBe('0.012');
+    expect(formatStep('default', 30_546_577, { scale: 1e9 })).toBe('30.6M');
+    expect(formatStep('default', 6.0038e12, { scale: 1e14 })).toBe('6.01T');
+    expect(formatStep('multiplier', 14.9016)).toBe('14.91');
+    expect(formatStep('points', 2.311)).toBe('2.32 pts');
     expect(formatStep('points', 120.4)).toBe('120.40 pts');
     // A step that really reaches: +117 would fall short of a 117.32 gap.
     expect(formatStep('default', 117.32)).toBe('118');
@@ -178,5 +186,23 @@ describe('formatDistinctValues', () => {
 
   it('lets equal values read the same', () => {
     expect(formatDistinctValues('default', [500, 500, 400], { scale: 900 })).toEqual(['500', '500', '400']);
+  });
+});
+
+describe('round 4 value rules', () => {
+  it('rounds an exact half up on its own digits', () => {
+    expect(formatMetricValue('default', 2295, { scale: 1e8 })).toBe('2.30K');
+    expect(formatMetricValue('default', 5225, { scale: 1e8 })).toBe('5.23K');
+  });
+
+  it('keeps two decimals on small values that are not whole', () => {
+    expect(formatMetricValue('default', 1.3, { scale: 1.47e6 })).toBe('1.30');
+    expect(formatMetricValue('default', 3, { scale: 1.47e6 })).toBe('3');
+    expect(formatExactValue('multiplier', 8.6708)).toBe('8.6708');
+  });
+
+  it('separates small multipliers with more decimals and keeps a column aligned', () => {
+    expect(formatDistinctValues('multiplier', [8.6708, 8.6656, 8.8313], { scale: 3.01e9 })).toEqual(['8.671', '8.666', '8.831']);
+    expect(formatDistinctValues('default', [8488, 8487.6, 8475.8], { scale: 11_666 })).toEqual(['8,488.00', '8,487.60', '8,475.80']);
   });
 });
