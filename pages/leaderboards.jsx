@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Box, Button, CircularProgress, Snackbar, Stack } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
+import { navBarHeight } from '@components/constants';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
@@ -269,7 +270,10 @@ const Leaderboards = () => {
       showAnonymous={showAnonymous}
       onClose={closeBoard}
     />
-    <Snackbar open={toast.open} autoHideDuration={6000} onClose={() => setToast({ ...toast, open: false })} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+    {/* At the top, under the bars, near the search it answers: a bottom corner was far from the
+        field on a wide screen and under the keyboard on a phone. */}
+    <Snackbar open={toast.open} autoHideDuration={6000} onClose={() => setToast({ ...toast, open: false })} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+              sx={{ top: `${navBarHeight + 12}px !important` }}>
       <Alert onClose={() => setToast({ ...toast, open: false })} severity={toast.severity} sx={{ width: '100%' }}>{toast.message}</Alert>
     </Snackbar>
   </Box>;

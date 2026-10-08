@@ -110,7 +110,7 @@ describe('Overview You card', () => {
   it('offers a way back from a searched player on the card itself', async () => {
     const onClearPlayer = vi.fn();
     renderOverview({ player: { context: { name: 'Baker333', kind: 'searched' }, data }, self: { ...self, name: 'Me' }, onClearPlayer });
-    fireEvent.click(await screen.findByRole('button', { name: 'Stop viewing Baker333' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Back to you, stop viewing Baker333' }));
     expect(onClearPlayer).toHaveBeenCalledTimes(1);
   });
 

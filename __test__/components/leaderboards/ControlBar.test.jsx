@@ -127,6 +127,17 @@ describe('ControlBar', () => {
     expect(document.activeElement).toBe(input);
   });
 
+  it('stops viewing from the X without the field taking focus on a touch screen', () => {
+    const matchMedia = window.matchMedia;
+    window.matchMedia = (query) => ({ matches: query === '(hover: none)', media: query, addEventListener: () => {}, removeEventListener: () => {} });
+    const onClearPlayer = vi.fn();
+    renderBar({ viewing: { name: 'Baker333', kind: 'searched' }, onClearPlayer });
+    fireEvent.click(screen.getByRole('button', { name: 'Stop viewing Baker333' }));
+    expect(onClearPlayer).toHaveBeenCalledTimes(1);
+    expect(document.activeElement).not.toBe(screen.getByLabelText('Find a player'));
+    window.matchMedia = matchMedia;
+  });
+
   it('puts the viewed player back when the field is left half-typed', () => {
     renderBar({ viewing: { name: 'Baker333', kind: 'searched' } });
     const input = screen.getByLabelText('Find a player');

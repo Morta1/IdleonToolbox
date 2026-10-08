@@ -14,7 +14,7 @@ const AROUND_SKIP_RANK = 15;
 
 const SectionHeading = ({ children, note, action, id, sx }) => (
   <Stack direction="row" alignItems="baseline" columnGap={1} flexWrap="wrap" sx={{ px: 2.5, pb: 0.75, ...sx }}>
-    <Typography component="h3" id={id} color="text.secondary" sx={{ fontSize: 12, letterSpacing: 1, textTransform: 'uppercase' }}>{children}</Typography>
+    <Typography component="h3" id={id} tabIndex={id ? -1 : undefined} color="text.secondary" sx={{ fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', outline: 'none' }}>{children}</Typography>
     {note ? <Typography color="text.disabled" sx={{ fontSize: 12 }}>{note}</Typography> : null}
     {action ? <Box sx={{ ml: 'auto' }}>{action}</Box> : null}
   </Stack>
@@ -74,6 +74,9 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
   const first = topRows[0] ?? null;
   const players = (metricKey ?? GLOBAL_METRIC) === GLOBAL_METRIC ? index.totalPlayers : meta.players;
   const aroundTexts = formatDistinctValues(meta.notation, around.map((row) => row.value), { scale: meta.top });
+  // The drawer is the close look, and a phone has no hover for the exact figure: its list gets the
+  // same treatment, so ranks 16 to 20 never all read 104M.
+  const topTexts = formatDistinctValues(meta.notation, topRows.map((row) => row.value), { scale: meta.top });
   const topHeadingId = `${titleId}-top`;
   const rowProps = (row, variant) => ({
     rank: row.rank, name: row.mainChar, value: row.value, notation: meta.notation, scale: meta.top, variant,
@@ -124,7 +127,12 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
               <>
                 <SectionHeading note={step} sx={{ pt: 1.75 }} action={
                   // The Around block comes first, so the Top 100 the link promised is one tap away.
-                  <Button size="small" onClick={() => document.getElementById(topHeadingId)?.scrollIntoView({ block: 'start', behavior: 'smooth' })}
+                  // Focus follows the scroll, so the next Tab continues in the list rather than above it.
+                  <Button size="small" onClick={() => {
+                    const heading = document.getElementById(topHeadingId);
+                    heading?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                    heading?.focus({ preventScroll: true });
+                  }}
                           sx={{ p: 0, minWidth: 0, fontSize: 12, fontWeight: 600, textTransform: 'none' }}>
                     Top 100<Box component="span" aria-hidden sx={{ ml: 0.5 }}>↓</Box>
                   </Button>
@@ -138,7 +146,7 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
             ) : null}
             <SectionHeading id={topHeadingId} sx={showAround ? { mt: 1.75, pt: 2.25, borderTop: 1, borderColor: 'divider', scrollMarginTop: 8 } : { pt: 1.75 }}>Top 100</SectionHeading>
             <Box sx={{ px: 1.5 }}>
-              {topRows.map((row) => <RankRow key={row.mainChar} {...rowProps(row, 'list')}/>)}
+              {topRows.map((row, at) => <RankRow key={row.mainChar} {...rowProps(row, 'list')} display={topTexts[at]}/>)}
             </Box>
           </>
         )}

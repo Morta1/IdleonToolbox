@@ -150,7 +150,8 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
       slotProps={{
         // MUI drops the highlight on touch screens, which hid the row Enter would pick.
         paper: { sx: { '& .MuiAutocomplete-listbox .MuiAutocomplete-option.Mui-focused': { bgcolor: 'action.hover' } } },
-        listbox: { 'aria-label': 'Player suggestions' }
+        // MUI points the list at a label element this field does not render.
+        listbox: { 'aria-label': 'Player suggestions', 'aria-labelledby': undefined }
       }}
       renderInput={(params) => (
         <TextField
@@ -183,7 +184,10 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
               // must still offer the way out.
               endAdornment: input || viewingName ? (
                 <InputAdornment position="end">
-                  <IconButton size="small" onClick={clear} aria-label={stopsViewing ? `Stop viewing ${viewingName}` : 'Clear search'}
+                  <IconButton size="small" aria-label={stopsViewing ? `Stop viewing ${viewingName}` : 'Clear search'}
+                              // The Autocomplete focuses its input on any click inside it, which would pop a
+                              // phone keyboard right after stopping.
+                              onClick={(event) => { event.stopPropagation(); clear(); }}
                               sx={{ width: { xs: 40, sm: 28 }, height: { xs: 40, sm: 28 }, color: 'text.secondary', mr: { xs: -1, sm: -0.5 } }}>
                     <IconX size={16}/>
                   </IconButton>
