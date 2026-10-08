@@ -1,4 +1,4 @@
-import React, { useId, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Button, ButtonBase, Collapse, Stack, Typography, useMediaQuery } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -21,11 +21,19 @@ const BulkButton = ({ icon: Icon, disabled, onClick, buttonRef, children }) => (
           sx={{ fontSize: 12, color: 'text.secondary', textTransform: 'none', minWidth: 0 }}>{children}</Button>
 );
 
-const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onOpen, showAnonymous = true }) => {
+// revealMetric: the board open in the drawer. A board jumped to inside a collapsed section opens
+// that section, so closing the drawer lands on the card instead of a hidden one.
+// linkPlayer: the ?player= to keep in each card's href, for a middle click or a copied link.
+const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onOpen, showAnonymous = true, revealMetric = null, linkPlayer = null }) => {
   // Per visit: a collapsed section is not worth remembering across loads.
   const [collapsed, setCollapsed] = useState({});
   const baseId = useId();
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  useEffect(() => {
+    if (!revealMetric) return;
+    const section = sections.find((entry) => entry.metrics.includes(revealMetric));
+    if (section && collapsed[section.name]) setCollapsed((current) => ({ ...current, [section.name]: false }));
+  }, [revealMetric]);
   const expandRef = useRef(null);
   const collapseRef = useRef(null);
   // The pressed button disables itself, which would drop keyboard focus on the page body: hand
@@ -83,7 +91,7 @@ const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onO
               <Collapse in={open} id={panelId} timeout={reducedMotion ? 0 : 'auto'}>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 22rem), 1fr))', gap: 2 }}>
                   {section.metrics.map((key) => (
-                    <MetricCard key={key} meta={metaOf(index, key)} entries={lists?.[key]} highlight={highlight}
+                    <MetricCard key={key} meta={metaOf(index, key)} entries={lists?.[key]} highlight={highlight} linkPlayer={linkPlayer}
                                 pinned={pinnedBase ? { ...pinnedBase, entry: ranks?.[key] } : null} onOpen={onOpen}/>
                   ))}
                 </Box>

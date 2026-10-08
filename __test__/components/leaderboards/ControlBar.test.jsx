@@ -137,6 +137,33 @@ describe('ControlBar', () => {
     expect(input.value).toBe('Baker333');
   });
 
+  it('keeps the way out when the field is emptied over a viewed player, and Escape puts the name back', () => {
+    const onClearPlayer = vi.fn();
+    renderBar({ viewing: { name: 'Baker333', kind: 'searched' }, onClearPlayer });
+    const input = screen.getByLabelText('Find a player');
+    act(() => input.focus());
+    fireEvent.change(input, { target: { value: '' } });
+    expect(screen.getByRole('button', { name: 'Stop viewing Baker333' })).toBeTruthy();
+    fireEvent.change(input, { target: { value: 'zz' } });
+    fireEvent.keyDown(input, { key: 'Escape' });
+    expect(input.value).toBe('Baker333');
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Stop viewing Baker333' }));
+    expect(onClearPlayer).toHaveBeenCalledTimes(1);
+  });
+
+  it('answers Enter on a no-match row with the typed text, not a silent first press', async () => {
+    searchNames.mockResolvedValueOnce([]);
+    const onPlayer = vi.fn();
+    renderBar({ onPlayer });
+    const input = screen.getByLabelText('Find a player');
+    act(() => input.focus());
+    fireEvent.change(input, { target: { value: 'zzq' } });
+    await screen.findByText('No players start with "zzq"');
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onPlayer).toHaveBeenCalledWith('zzq', 'enter');
+  });
+
   it('keeps the typed text on Enter when nothing matches', async () => {
     searchNames.mockResolvedValueOnce([]);
     const onPlayer = vi.fn();
@@ -209,6 +236,14 @@ describe('ControlBar', () => {
     act(() => jump.focus());
     fireEvent.change(jump, { target: { value: 'bosses' } });
     expect(await screen.findByRole('option', { name: 'DK Orb Kills' })).toBeTruthy();
+  });
+
+  it('still takes "/" while the anonymous switch has focus', () => {
+    renderBar();
+    const toggle = screen.getByRole('switch', { name: 'Show anonymous' });
+    act(() => toggle.focus());
+    fireEvent.keyDown(toggle, { key: '/' });
+    expect(document.activeElement).toBe(screen.getByLabelText('Jump to board'));
   });
 
   it('focuses the board jump on "/" unless typing', () => {

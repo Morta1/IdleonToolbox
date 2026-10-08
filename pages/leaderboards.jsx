@@ -234,6 +234,7 @@ const Leaderboards = () => {
           onOpen={openBoard}
           onTab={openTab}
           onClearPlayer={clearPlayerFromCard}
+          linkPlayer={queryPlayer}
         />
       ) : tabQuery.isError ? (
         <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => tabQuery.refetch()}>Retry</Button>}>
@@ -252,6 +253,8 @@ const Leaderboards = () => {
           highlight={highlight}
           pinnedBase={pinnedBase}
           onOpen={(metric) => openBoard(metric, 'card')}
+          revealMetric={drawerMetric}
+          linkPlayer={queryPlayer}
         />
       )}
     </Tabber>

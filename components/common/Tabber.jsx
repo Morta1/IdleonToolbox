@@ -82,9 +82,15 @@ const Tabber = ({
     };
     const frame = requestAnimationFrame(reveal);
     const late = setTimeout(reveal, 500);
+    // Tab counts land with the data and widen the tabs after both checks have run; checking again
+    // whenever the strip's content resizes keeps the selected tab in view.
+    const list = tabsRef.current?.querySelector('.MuiTabs-flexContainer');
+    const observer = list && typeof ResizeObserver !== 'undefined' ? new ResizeObserver(reveal) : null;
+    if (observer) observer.observe(list);
     return () => {
       cancelAnimationFrame(frame);
       clearTimeout(late);
+      observer?.disconnect();
     };
   }, [selectedTab, rowStrip]);
   const tabStrip = (

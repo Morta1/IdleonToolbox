@@ -56,6 +56,22 @@ describe('CategoryTab', () => {
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Collapse all' }));
   });
 
+  it('opens a collapsed section when its board is opened in the drawer', () => {
+    const { rerender } = renderTab({ category: 'general' });
+    fireEvent.click(screen.getByRole('button', { name: 'Collapse all' }));
+    expect(screen.getByRole('button', { name: 'Expand 3D Printer Samples' })).toBeTruthy();
+    rerender(<ThemeProvider theme={darkTheme}>
+      <CategoryTab category="general" index={index} lists={lists} ranks={undefined} highlight={{}} pinnedBase={null} onOpen={() => {}} revealMetric="logSample"/>
+    </ThemeProvider>);
+    expect(screen.getByRole('button', { name: 'Collapse 3D Printer Samples' }).getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByRole('button', { name: 'Expand Account' })).toBeTruthy();
+  });
+
+  it('keeps the viewed player in card links', () => {
+    renderTab({ category: 'general', linkPlayer: 'Anon#ab12cd' });
+    expect(screen.getByRole('link', { name: 'Top 100: Total Money' }).getAttribute('href')).toBe('?t=General&m=totalMoney&player=Anon%23ab12cd');
+  });
+
   it('renders no heading for a single-section tab', () => {
     renderTab({ category: 'skills' });
     expect(screen.queryByRole('heading', { level: 2 })).toBeNull();

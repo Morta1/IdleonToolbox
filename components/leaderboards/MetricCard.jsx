@@ -6,9 +6,9 @@ import { TABS, formatMetricValue } from './format';
 import MetricIcon from './MetricIcon';
 import RankRow from './RankRow';
 
-const boardHref = (meta) => {
+export const boardHref = (meta, player = null) => {
   const tab = TABS.find((entry) => entry.toLowerCase() === meta.category);
-  return `?${tab ? `t=${tab}&` : ''}m=${encodeURIComponent(meta.key)}`;
+  return `?${tab ? `t=${tab}&` : ''}m=${encodeURIComponent(meta.key)}${player ? `&player=${encodeURIComponent(player)}` : ''}`;
 };
 
 // A plain click opens the drawer (or tab) in place; a modified click keeps the browser's own behaviour.
@@ -18,7 +18,7 @@ export const openOnPlainClick = (onOpen, key) => (event) => {
   onOpen(key);
 };
 
-const MetricCard = ({ meta, entries, highlight, pinned, onOpen }) => {
+const MetricCard = ({ meta, entries, highlight, pinned, onOpen, linkPlayer = null }) => {
   const listed = entries ?? [];
   const maxed = Boolean(meta.maxed);
   const missing = Boolean(pinned?.entry) && !listed.some((row) => row.mainChar === pinned.mainChar);
@@ -44,7 +44,7 @@ const MetricCard = ({ meta, entries, highlight, pinned, onOpen }) => {
           }}/>
         ) : null}
         <Box sx={{ flexGrow: 1 }}/>
-        <Link href={boardHref(meta)} onClick={openOnPlainClick(onOpen, meta.key)} underline="hover" data-board-link={meta.key} aria-label={`Top 100: ${meta.label}`}
+        <Link href={boardHref(meta, linkPlayer)} onClick={openOnPlainClick(onOpen, meta.key)} underline="hover" data-board-link={meta.key} aria-label={`Top 100: ${meta.label}`}
               sx={{ fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>Top 100 ›</Link>
       </Stack>
       {maxed ? (

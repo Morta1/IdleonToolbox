@@ -36,7 +36,7 @@ const PodiumSlot = ({ row, kind }) => {
       {trophy
         ? <Box component="img" src={`${prefix}${trophy}`} alt={`Rank ${row.rank}`} sx={{ width: size, height: size, objectFit: 'contain' }}/>
         : <Typography color="text.secondary" fontWeight={600} sx={{ fontSize: 14 }}>{rankText(row.rank)}</Typography>}
-      <Typography noWrap sx={{ maxWidth: '100%', fontSize: first ? { xs: 13, sm: 18 } : { xs: 12, sm: 15 }, fontWeight: first ? 700 : 600 }}>{row.mainChar}</Typography>
+      <Typography noWrap title={row.mainChar} sx={{ maxWidth: '100%', fontSize: first ? { xs: 13, sm: 18 } : { xs: 12, sm: 15 }, fontWeight: first ? 700 : 600 }}>{row.mainChar}</Typography>
       <Typography color="text.secondary" title={formatExactValue('points', row.value)} sx={{ fontSize: 12, display: { xs: 'none', sm: 'block' } }}>{formatMetricValue('points', row.value)}</Typography>
     </Stack>
   );
@@ -48,7 +48,7 @@ const Podium = ({ rows, highlight, onOpen }) => (
   <Card variant="outlined" sx={{ ...CARD_SX, display: 'flex', flexDirection: 'column', gap: 2, containerType: 'inline-size' }}>
     <Stack direction="row" alignItems="center">
       <Typography component="h2" sx={{ flexGrow: 1, fontSize: 16, fontWeight: 700 }}>Global ranking</Typography>
-      <Button onClick={() => onOpen(GLOBAL_METRIC, 'overview')} sx={linkButtonSx} data-board-link={GLOBAL_METRIC}>Full top 100 ›</Button>
+      <Button onClick={() => onOpen(GLOBAL_METRIC, 'overview')} sx={linkButtonSx} data-board-link={GLOBAL_METRIC}>Full top 100<Box component="span" aria-hidden sx={{ ml: 0.5 }}>›</Box></Button>
     </Stack>
     <Stack direction="row" gap={1.5} alignItems="flex-end">
       {PODIUM_SLOTS.map((at) => (rows[at] ? <PodiumSlot key={rows[at].mainChar} row={rows[at]} kind={highlight[rows[at].mainChar] ?? null}/> : null))}
@@ -122,7 +122,7 @@ const YouSlot = ({ player, self, index, onSeeAll, onClearPlayer, nextRun }) => {
 
 const SectionTitle = ({ title, sub }) => (
   <Stack direction="row" alignItems="baseline" gap={1} sx={{ mb: 1.25 }}>
-    <Typography component="h3" sx={{ fontSize: 16, fontWeight: 700 }}>{title}</Typography>
+    <Typography component="h2" sx={{ fontSize: 16, fontWeight: 700 }}>{title}</Typography>
     <Typography color="text.disabled" sx={{ fontSize: 12 }}>{sub}</Typography>
   </Stack>
 );
@@ -135,14 +135,20 @@ const Highlights = ({ picks, kind, index }) => (
     {picks.map((pick) => {
       const meta = metaOf(index, pick.metric);
       // A missing tab (meta down) or value leaves no dangling separator.
-      const sub = [tabOfCategory(meta.category), Number.isFinite(pick.value) ? formatMetricValue(meta.notation, pick.value, { scale: meta.top }) : null].filter(Boolean).join(' · ');
+      const tabName = tabOfCategory(meta.category);
+      const valueText = Number.isFinite(pick.value) ? formatMetricValue(meta.notation, pick.value, { scale: meta.top }) : null;
       const top = topPercentLabel(pick.topPercent);
       return (
         <Stack key={pick.metric} direction="row" alignItems="center" gap={1.5} sx={{ py: 1.25, borderTop: 1, borderColor: 'divider' }}>
           <MetricIcon metric={pick.metric} label={meta.label} size={28}/>
           <Box sx={{ flexGrow: 1, minWidth: 0 }}>
             <Typography noWrap sx={{ fontWeight: 600 }}>{meta.label}</Typography>
-            {sub ? <Typography color="text.secondary" title={Number.isFinite(pick.value) ? formatExactValue(meta.notation, pick.value) : undefined} sx={{ fontSize: 12 }}>{sub}</Typography> : null}
+            {tabName || valueText ? (
+              <Typography color="text.secondary" sx={{ fontSize: 12 }}>
+                {tabName}{tabName && valueText ? ' · ' : ''}
+                {valueText ? <span title={formatExactValue(meta.notation, pick.value)}>{valueText}</span> : null}
+              </Typography>
+            ) : null}
           </Box>
           <Box sx={{ textAlign: 'right' }}>
             <Typography sx={{ fontSize: 16, fontWeight: 700 }}>{rankText(pick.rank)}</Typography>
@@ -167,18 +173,21 @@ const WithinReach = ({ reach, kind, index, onOpen }) => (
           <Box component="span" sx={{ flexGrow: 1, minWidth: 0, textAlign: 'left' }}>
             <Typography component="span" display="block" sx={{ fontWeight: 600 }}>
               {meta.label}
-              <Box component="span" title={formatExactValue(meta.notation, entry.v)} sx={{ color: 'text.secondary', fontWeight: 400 }}>{` · ${rankText(entry.r)} · ${formatMetricValue(meta.notation, entry.v, { scale: meta.top })}`}</Box>
+              <Box component="span" sx={{ color: 'text.secondary', fontWeight: 400 }}>
+                {` · ${rankText(entry.r)} · `}
+                <span title={formatExactValue(meta.notation, entry.v)}>{formatMetricValue(meta.notation, entry.v, { scale: meta.top })}</span>
+              </Box>
             </Typography>
             <Typography component="span" display="block" color="primary" sx={{ fontSize: 13 }}>{nextRankText(entry, meta)}</Typography>
           </Box>
-          <Typography component="span" color="primary" sx={{ fontSize: 13, fontWeight: 600, flexShrink: 0 }}>{kind === 'logged' ? 'Around you ›' : 'Around them ›'}</Typography>
+          <Typography component="span" color="primary" sx={{ fontSize: 13, fontWeight: 600, flexShrink: 0 }}>{kind === 'logged' ? 'Around you' : 'Around them'}<Box component="span" aria-hidden sx={{ ml: 0.5 }}>›</Box></Typography>
         </Button>
       );
     })}
   </Card>
 );
 
-const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSeeAll, onTab, onClearPlayer }) => {
+const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSeeAll, onTab, onClearPlayer, linkPlayer = null }) => {
   const podium = useQuery({
     queryKey: ['lb-podium', !showAnonymous],
     queryFn: () => fetchBoard(GLOBAL_METRIC, { limit: 10, publicOnly: !showAnonymous }),
@@ -198,7 +207,7 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSee
     // Columns follow the width this page actually gets, which the side rails shrink well below the
     // viewport's: a viewport breakpoint squeezed the podium to 160px on a 1024px screen.
     <Stack gap={2.5} sx={{ containerType: 'inline-size' }}>
-      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 2.5, '@container (min-width: 860px)': { gridTemplateColumns: 'minmax(0, 1fr) 420px' } }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 2.5, alignItems: 'start', '@container (min-width: 860px)': { gridTemplateColumns: 'minmax(0, 1fr) 420px' } }}>
         {/* The player's own standing comes first in the markup, so narrow screens show it first and
             read it first; side by side it moves to the right column. */}
         <Box sx={{ '@container (min-width: 860px)': { order: 1 } }}>
@@ -219,7 +228,7 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSee
           {reach.length ? <WithinReach reach={reach} kind={standing.kind} index={index} onOpen={onOpen}/> : null}
         </Box>
       ) : null}
-      <CategoryTiles index={index} ranks={standing?.data.ranks} onTab={onTab}/>
+      <CategoryTiles index={index} ranks={standing?.data.ranks} onTab={onTab} linkPlayer={linkPlayer}/>
     </Stack>
   );
 };

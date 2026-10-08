@@ -101,7 +101,7 @@ describe('Overview You card', () => {
     expect(screen.getByText('#75')).toBeTruthy();
     expect(screen.getByText('of 2,608 · top 2.9% · 14,901.02 pts')).toBeTruthy();
     const tile = (name) => screen.getByText(name).parentElement.textContent;
-    expect(tile('First places')).toBe('1First places+1 tied at the max');
+    expect(tile('First places')).toBe('1First places+1 at the max');
     expect(tile('Top 25')).toBe('1Top 25');
     expect(tile('Top 100')).toBe('2Top 100');
     expect(document.body.textContent).not.toMatch(/\bcap\b/i);
@@ -110,7 +110,7 @@ describe('Overview You card', () => {
   it('offers a way back from a searched player on the card itself', async () => {
     const onClearPlayer = vi.fn();
     renderOverview({ player: { context: { name: 'Baker333', kind: 'searched' }, data }, self: { ...self, name: 'Me' }, onClearPlayer });
-    fireEvent.click(await screen.findByRole('button', { name: 'Back to you ×' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Stop viewing Baker333' }));
     expect(onClearPlayer).toHaveBeenCalledTimes(1);
   });
 
@@ -138,7 +138,8 @@ describe('Overview highlights', () => {
 
   it('puts the tab and value under the label and the rank on the right', async () => {
     show([{ metric: 'mining', value: 240, rank: 3, topPercent: 0.2 }]);
-    expect(await screen.findByText('Skills · 240')).toBeTruthy();
+    const value = (await screen.findAllByText('240')).find((el) => el.parentElement.textContent === 'Skills · 240');
+    expect(value.getAttribute('title')).toBe('240');
     expect(screen.getByText('Your highlights')).toBeTruthy();
     expect(screen.getByText('your strongest boards')).toBeTruthy();
     expect(screen.getByText('#3')).toBeTruthy();
@@ -169,7 +170,7 @@ describe('Overview within reach', () => {
     renderOverview({ player: { context: logged, data } });
     const row = await screen.findByRole('button', { name: /Mining · #3 · 240/ });
     expect(row.textContent).toContain('+10 to reach #2');
-    expect(row.textContent).toContain('Around you ›');
+    expect(row.textContent).toContain('Around you›');
     expect(screen.getByText('smallest step to the next rank')).toBeTruthy();
   });
 
@@ -177,7 +178,7 @@ describe('Overview within reach', () => {
     const small = { ...data, ranks: { mining: { r: 3, v: 100.3, p: 0.2, t: 1, nr: 2, nv: 100.7 } } };
     renderOverview({ player: { context: logged, data: small } });
     const row = await screen.findByRole('button', { name: /Mining · #3/ });
-    expect(row.textContent).toContain('+0.4 to reach #2');
+    expect(row.textContent).toContain('+0.40 to reach #2');
     expect(row.textContent).not.toMatch(/\+0 to/);
   });
 });
@@ -202,8 +203,8 @@ describe('Overview category tiles', () => {
     renderOverview({ player: { context: logged, data: rankData } });
     await screen.findByText('G1');
     const [general, skills] = tiles();
-    expect(general.textContent).toBe('General2median #14Log Book #7');
-    expect(skills.textContent).toBe('Skills2median #52Mining #3');
+    expect(general.textContent).toBe('General2median #14#7 Log Book');
+    expect(skills.textContent).toBe('Skills2median #52#3 Mining');
   });
 
   it('switches tab in place on a plain click and leaves modified clicks to the browser', async () => {

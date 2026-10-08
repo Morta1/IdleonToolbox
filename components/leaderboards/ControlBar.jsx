@@ -77,10 +77,13 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
   });
   const showsViewed = Boolean(viewingName) && input === viewingName;
 
+  // Stops viewing when the field shows the viewed player or was emptied over them; otherwise it only
+  // clears the typed text. A touch screen keeps its keyboard down after stopping.
+  const stopsViewing = Boolean(viewingName) && (showsViewed || !input);
   const clear = () => {
-    if (showsViewed) onClear?.();
+    if (stopsViewing) onClear?.();
     else setInput('');
-    inputRef.current?.focus();
+    if (!(stopsViewing && isTouch())) inputRef.current?.focus();
   };
 
   return (
@@ -92,6 +95,9 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
       getOptionLabel={optionLabel}
       // Enter picks the highlighted suggestion: typing "gearp" and pressing Enter finds gearperson.
       autoHighlight
+      // Message rows are not choices: Enter goes past them to the typed text, which the page answers
+      // with "No player named ...", instead of a first Enter that does nothing.
+      getOptionDisabled={(option) => Boolean(option.message)}
       filterOptions={(options, { inputValue }) => {
         const query = inputValue.trim();
         if (!typing) return [];
@@ -114,18 +120,24 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
         if (reason === 'selectOption') setInput(name);
         picking.current = true;
         onPlayer(name, reason === 'selectOption' ? 'typeahead' : 'enter');
-        // A touch keyboard drops out of the way of the player it just found; a keyboard user stays here.
-        if (isTouch()) inputRef.current?.blur();
+        // A touch keyboard drops out of the way of a player picked from the list; typed text may be a
+        // miss, so the field stays ready for a fix. A keyboard user stays here either way.
+        if (reason === 'selectOption' && isTouch()) inputRef.current?.blur();
         picking.current = false;
       }}
-      onFocus={(event) => { if (showsViewed) event.target.select?.(); }}
+      // Typing replaces the viewed name rather than appending to it; the select waits for the click
+      // that focused the field, which would otherwise drop the selection.
+      onFocus={(event) => {
+        const field = event.target;
+        if (showsViewed) setTimeout(() => field.select?.(), 0);
+      }}
       onBlur={() => { if (!picking.current && viewingName && input !== viewingName) setInput(viewingName); }}
       renderOption={(props, option) => {
         const { key, ...optionProps } = props;
         if (option.message) {
-          return <Box component="li" key={option.message} {...optionProps} sx={{ cursor: 'default !important' }}>
+          return <Box component="li" key={option.message} {...optionProps} sx={{ cursor: 'default !important', opacity: '1 !important' }}>
             <Typography component="span" sx={{ fontSize: 13, color: 'text.secondary' }}>
-              {option.message === 'anon' ? 'Type the full Anon# id (Anon# and 6 characters), then Enter' : `No players start with "${debounced}"`}
+              {option.message === 'anon' ? 'Type the full Anon# id (Anon# and 6 characters), then search' : `No players start with "${debounced}"`}
             </Typography>
           </Box>;
         }
@@ -137,7 +149,8 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
       }}
       slotProps={{
         // MUI drops the highlight on touch screens, which hid the row Enter would pick.
-        paper: { sx: { '& .MuiAutocomplete-listbox .MuiAutocomplete-option.Mui-focused': { bgcolor: 'action.hover' } } }
+        paper: { sx: { '& .MuiAutocomplete-listbox .MuiAutocomplete-option.Mui-focused': { bgcolor: 'action.hover' } } },
+        listbox: { 'aria-label': 'Player suggestions' }
       }}
       renderInput={(params) => (
         <TextField
@@ -147,15 +160,22 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
           slotProps={{
             htmlInput: {
               ...params.inputProps, 'aria-label': 'Find a player',
-              enterKeyHint: 'search', autoCorrect: 'off', autoCapitalize: 'none', spellCheck: false
+              enterKeyHint: 'search', autoCorrect: 'off', autoCapitalize: 'none', spellCheck: false,
+              // Escape puts the viewed player back after typing over them.
+              onKeyDown: (event) => {
+                params.inputProps.onKeyDown?.(event);
+                if (event.key === 'Escape' && viewingName && input !== viewingName) setInput(viewingName);
+              }
             },
             input: {
               ...params.InputProps,
               startAdornment: <InputAdornment position="start" sx={{ color: 'text.secondary' }}><IconSearch size={16}/></InputAdornment>,
-              endAdornment: input ? (
+              // Shown while anything is typed, and always while a player is viewed: an emptied field
+              // must still offer the way out.
+              endAdornment: input || viewingName ? (
                 <InputAdornment position="end">
-                  <IconButton size="small" onClick={clear} aria-label={showsViewed ? `Stop viewing ${viewingName}` : 'Clear search'}
-                              sx={{ width: 28, height: 28, color: 'text.secondary', mr: -0.5 }}>
+                  <IconButton size="small" onClick={clear} aria-label={stopsViewing ? `Stop viewing ${viewingName}` : 'Clear search'}
+                              sx={{ width: { xs: 40, sm: 28 }, height: { xs: 40, sm: 28 }, color: 'text.secondary', mr: { xs: -1, sm: -0.5 } }}>
                     <IconX size={16}/>
                   </IconButton>
                 </InputAdornment>
@@ -222,7 +242,7 @@ const MetricJump = ({ index, onMetric, inputRef = null, showKeyHint = false, ful
           inputRef={inputRef}
           placeholder={`Jump to a board (${options.length})`}
           slotProps={{
-            htmlInput: { ...params.inputProps, 'aria-label': 'Jump to board' },
+            htmlInput: { ...params.inputProps, 'aria-label': 'Jump to board', enterKeyHint: 'go', autoCorrect: 'off', autoCapitalize: 'none', spellCheck: false },
             input: {
               ...params.InputProps,
               startAdornment: <InputAdornment position="start" sx={{ color: 'text.secondary' }}><IconListSearch size={16}/></InputAdornment>,
@@ -278,7 +298,8 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
   useEffect(() => {
     const onKeyDown = (event) => {
       if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey) return;
-      if (event.target?.closest?.('input, textarea, select, [contenteditable="true"]')) return;
+      // Only somewhere text can be typed keeps the key; the switch's checkbox does not.
+      if (event.target?.closest?.('input:not([type="checkbox"]):not([type="radio"]), textarea, select, [contenteditable="true"]')) return;
       const jump = jumpRef.current;
       if (!jump) return;
       jump.focus();

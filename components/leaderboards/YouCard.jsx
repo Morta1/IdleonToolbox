@@ -37,7 +37,10 @@ const YouCard = ({ data, kind, index, onSeeAll, onClear, clearLabel = 'Clear' })
             <Box component="span" sx={{ textTransform: 'none' }}>{player.mainChar}</Box>
           </Typography>
           {kind === 'searched' && onClear ? (
-            <Button size="small" onClick={onClear} sx={{ p: 0, minWidth: 0, fontSize: 12, fontWeight: 600, textTransform: 'none', flexShrink: 0 }}>{`${clearLabel} ×`}</Button>
+            <Button size="small" onClick={onClear} aria-label={`Stop viewing ${player.mainChar}`}
+                    sx={{ p: 0, minWidth: 0, fontSize: 12, fontWeight: 600, textTransform: 'none', flexShrink: 0 }}>
+              {clearLabel}<Box component="span" aria-hidden sx={{ ml: 0.5 }}>×</Box>
+            </Button>
           ) : null}
         </Stack>
         <Stack direction="row" alignItems="baseline" columnGap={1.25} flexWrap="wrap">
@@ -45,7 +48,7 @@ const YouCard = ({ data, kind, index, onSeeAll, onClear, clearLabel = 'Clear' })
           <Typography color="text.secondary" sx={{ fontSize: { xs: 12, md: 13 } }}>{of}</Typography>
         </Stack>
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 1, mt: 0.5 }}>
-          <Stat label="First places" value={counts.firsts} sub={atMax ? `+${atMax} tied at the max` : null}/>
+          <Stat label="First places" value={counts.firsts} sub={atMax ? `+${atMax} at the max` : null}/>
           <Stat label="Top 25" value={counts.top25}/>
           <Stat label="Top 100" value={counts.top100}/>
         </Box>
