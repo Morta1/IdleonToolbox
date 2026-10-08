@@ -1,993 +1,28 @@
-import React, { useContext, useState } from 'react';
-import { AppContext } from '@components/common/context/AppProvider';
+import React, { useContext, useEffect, useState } from 'react';
+import { AppContext, writeStored } from '@components/common/context/AppProvider';
 import { Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import Characters from '../components/dashboard/Characters';
 import Account from '../components/dashboard/Account';
 import { tryToParse } from '@utility/helpers';
 import Etc from '../components/dashboard/Etc';
 import { NextSeo } from 'next-seo';
-import { getRawShopItems } from '@parsers/shops';
-import { getRawRefinerySalts } from '@parsers/misc';
 import DashboardSettings from '../components/common/DashboardSettings';
 import { DashboardSettingsProvider } from '@components/common/context/DashboardSettingsProvider';
 import Button from '@mui/material/Button';
-import { bellOptions, migrateConfig } from '@utility/migrations';
 import { IconSettingsFilled } from '@tabler/icons-react';
-import { getPrinterExclusions } from '@parsers/world-3/printer';
-import { getCrystalCountdownSkills } from '@parsers/talents';
-import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
-import { useLocalStorage } from '@mantine/hooks';
+import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks';
+import { baseTrackers } from '@utility/dashboard/baseTrackers';
+import DefaultsNote from '@components/dashboard/settings/DefaultsNote';
+import { buildModel } from '@utility/dashboard/settingsModel';
+import { runAction } from '@utility/dashboard/settingsActions';
+import { alertLabel, buildQuickEdit } from '@utility/dashboard/quickEdit';
+import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
+import { trackSettingsEvent } from '@utility/dashboard/settingsAnalytics';
+import AlertQuickEdit from '@components/dashboard/settings/AlertQuickEdit';
+import { diffTrackers, LEGACY_BACKUP_KEY, loadTrackers, toStoredTrackers } from '@utility/dashboard/trackerStore';
 
-const baseTrackers = {
-  version: 82,
-  account: {
-    General: {
-      tasks: {
-        checked: true,
-        options: [{
-          name: 'tasks',
-          type: 'array',
-          category: 'Worlds',
-          props: { value: [1, 2, 3, 4].toSimpleObject() },
-          checked: true
-        }]
-      },
-      materialTracker: { checked: true, options: [] },
-      guild: { checked: true, options: [{ name: 'daily', checked: true }, { name: 'weekly', checked: true }] },
-      shops: {
-        checked: true,
-        options: [{
-          name: 'shops', type: 'array', props: { value: getRawShopItems(), type: 'img' }, checked: true
-        }]
-      },
-      etc: {
-        checked: true,
-        options: [
-          { name: 'dungeonTraits', checked: true },
-          { name: 'randomEvents', checked: true },
-          { name: 'keys', checked: true },
-          {
-            name: 'miniBosses',
-            type: 'input',
-            props: { label: 'Bosses threshold', value: 2, minValue: 2 },
-            checked: true
-          },
-          { name: 'newCharacters', checked: true },
-          { name: 'gemsFromBosses', checked: true },
-          { name: 'familyObols', checked: true },
-          { name: 'freeCompanion', checked: true },
-          { name: 'petMartGems', checked: true },
-          {
-            name: 'tournamentRegister',
-            checked: true,
-            helperText: 'Alert when you have not registered for the current Pet Tournament'
-          },
-          {
-            name: 'raidRegister',
-            checked: true,
-            helperText: 'Alert when you have not registered for the current Raid'
-          },
-          {
-            name: 'dailyCrystals',
-            checked: true,
-            helperText: 'Alert when daily guaranteed crystal kills remain'
-          },
-          {
-            name: 'arcanistDailyDrops',
-            type: 'array',
-            category: 'arcanistDailyDrops',
-            checked: true,
-            helperText: 'Alert when Arcanist weapon or ring drops remain for today. Each drop type can be turned off on its own',
-            props: { value: { weapon: true, ring: true } }
-          },
-          {
-            name: 'topOfTheMornin',
-            checked: true,
-            helperText: 'Alert when Top of the Mornin\' kills remain for today'
-          },
-          {
-            name: 'glimmerwickCandle',
-            checked: true,
-            helperText: 'Alert when you own a Glimmerwick Candle and haven\'t wished on it today'
-          }
-        ]
-      }
-    },
-    'World 1': {
-      stamps: {
-        checked: true,
-        options: [
-          { name: 'gildedStamps', checked: true },
-          { name: 'showGildedWhenNoAtomDiscount', checked: false },
-          {
-            name: 'affordableStampLevels',
-            type: 'input',
-            checked: true,
-            helperText: 'Stamps you can level with your account coins',
-            props: {
-              label: 'Max coin spend',
-              value: 25,
-              minValue: 1,
-              maxValue: 100,
-              endAdornment: '%',
-              helperText: ''
-            }
-          },
-          {
-            name: 'exaltedStamps',
-            checked: true,
-            helperText: 'Alert when you have compass exalted stamps you haven\'t applied yet'
-          }
-        ]
-      },
-      owl: {
-        checked: true,
-        options: [{ name: 'featherRestart', checked: true }, { name: 'megaFeatherRestart', checked: true }]
-      },
-      forge: {
-        checked: true,
-        options: [{ name: 'emptySlots', checked: true }]
-      }
-    },
-    'World 2': {
-      alchemy: {
-        checked: true,
-        options: [
-          { name: 'bargainTag', checked: true, category: 'liquidShop' },
-          { name: 'gems', checked: true },
-          { name: 'sigils', checked: true, category: 'sigils' },
-          {
-            name: 'liquids',
-            category: 'liquids',
-            type: 'input',
-            props: { label: 'Liquid percent', value: 90, maxValue: 100, minValue: 0 },
-            checked: true
-          },
-          { name: 'vials', category: 'vials', checked: true },
-          { name: 'vialsAttempts', checked: true },
-          {
-            name: 'p2wUpgrades',
-            checked: true,
-            helperText: 'Cauldron and liquid p2w upgrades you can level with your account coins'
-          },
-          { name: 'subtractGreenStacks', checked: true },
-          { name: 'alternateParticles', checked: true }
-        ]
-      },
-      islands: {
-        checked: true,
-        options: [
-          {
-            name: 'unclaimedDays',
-            type: 'input',
-            props: { label: 'Threshold', value: 1, minValue: 1 },
-            checked: true
-          },
-          { name: 'shimmerIsland', checked: true },
-          { name: 'garbageUpgrade', checked: true },
-          {
-            name: 'collectibleGarbage',
-            type: 'input',
-            props: { label: 'Threshold', value: 80, minValue: 1, maxValue: 100 },
-            checked: true,
-            helperText: 'A single collection is capped at 100 garbage, anything above it is lost'
-          },
-          {
-            name: 'crystalIsland',
-            type: 'input',
-            props: { label: 'Days', value: 13, minValue: 1, maxValue: 14 },
-            checked: true,
-            helperText: 'Alert when Crystal Island has this many unclaimed days. It caps at 14 days, and a capped island spawns fewer giant crystal mobs (15) than 13 days does (27)'
-          }
-        ]
-      },
-      postOffice: {
-        checked: true,
-        options: [
-          {
-            name: 'dailyShipments', type: 'array',
-            category: 'dailyShipments', checked: true, props: { value: [1, 2, 3, 4, 5, 6].toSimpleObject() }
-          },
-          { name: 'showAlertOnlyWhen0Shields', checked: false, helperText: 'Daily shipments alert' }
-        ]
-      },
-      arcade: {
-        checked: true, options: [
-          { name: 'balls', checked: true },
-          {
-            name: 'unmaxedRotation',
-            checked: true,
-            helperText: 'Alert when the current arcade shop rotation has upgrades below max level'
-          },
-          {
-            name: 'includeSuper',
-            checked: false,
-            helperText: 'Also alert when a rotation upgrade is maxed but not Super-upgraded (Lv 101)'
-          }
-        ]
-      },
-      weeklyBosses: {
-        checked: true,
-        options: [
-          {
-            name: 'daily',
-            checked: true,
-            helperText: 'Alert when you haven\'t reset the W2 boss raid today (bonus class exp and damage)'
-          },
-          {
-            name: 'trophy',
-            checked: true,
-            helperText: 'Alert until you\'ve beaten 5 skulls this week, the point where trophies stop dropping'
-          }
-        ]
-      },
-      killRoy: {
-        checked: true,
-        options: [
-          { name: 'general', checked: true, helperText: 'Alert when Killroy is available' },
-          {
-            name: 'underHundredKills',
-            checked: true,
-            helperText: 'Alert when current Killroy has monsters below 100 kills (for equinox)'
-          },
-          { name: 'skulls', checked: true, helperText: 'Alert when you have unspent killroy skulls' }
-        ]
-      },
-      kangaroo: {
-        checked: true,
-        options: [
-          {
-            name: 'shinyThreshold',
-            type: 'input',
-            props: { label: 'Shiny Catch %', value: 100, minValue: 100 },
-            checked: true
-          },
-          { name: 'fisherooReset', checked: true },
-          { name: 'greatestCatch', checked: true }]
-      }
-    },
-    'World 3': {
-      printer: {
-        checked: true,
-        options: [
-          {
-            name: 'includeResource',
-            type: 'array',
-            props: { value: getPrinterExclusions(), type: 'img' },
-            checked: true,
-            category: 'atoms',
-            helperText: 'Exclude'
-          },
-          { name: 'showAlertWhenFull', checked: false }]
-      },
-      library: {
-        checked: true,
-        options: [{
-          name: 'books',
-          type: 'input',
-          props: { label: 'Book threshold', value: 20, minValue: 1 },
-          checked: true
-        }]
-      },
-      construction: {
-        checked: true, options: [
-          { name: 'flags', checked: true },
-          { name: 'buildings', checked: true },
-          {
-            name: 'materials', type: 'array', props: { value: getRawRefinerySalts(), type: 'img' },
-            checked: true,
-            category: 'Materials'
-          },
-          {
-            name: 'matsThreshold',
-            type: 'input',
-            props: { label: 'Materials lead time', value: 0, minValue: 0, endAdornment: 'h' },
-            checked: true,
-            helperText: 'Alert this many hours before a salt runs out of materials (0 alerts only once they are gone)'
-          },
-          {
-            name: 'rankUp', type: 'array', props: { value: getRawRefinerySalts(), type: 'img' },
-            checked: true,
-            category: 'Refinery Rank up'
-          },
-          {
-            name: 'saltBalance', type: 'array', props: { value: getRawRefinerySalts(), type: 'img' },
-            checked: true,
-            category: 'Refinery salt balance'
-          },
-          {
-            name: 'saltBalanceDirection',
-            type: 'array',
-            category: 'Alert when a salt is',
-            props: { value: { 'At or past its limit': true, 'Below its limit': false } },
-            checked: true,
-            helperText: 'The limit is the highest rank the previous salt can keep fuelled'
-          }
-        ]
-      },
-      hatRack: {
-        checked: true,
-        options: [{ name: 'hatsMissing', checked: true }]
-      },
-      equinox: {
-        checked: true, options: [
-          { name: 'bar', checked: true },
-          { name: 'challenges', checked: true },
-          {
-            name: 'foodLust',
-            type: 'input',
-            props: { label: 'Stacks threshold', value: 14, minValue: 1, maxValue: 14 },
-            checked: true,
-            helperText: 'Alerts once you hold this many stacks, capped at your Food Lust level, so the default only alerts when Food Lust is maxed'
-          }
-        ]
-      },
-      atomCollider: {
-        checked: true, options: [{
-          name: 'stampReducer',
-          type: 'input',
-          props: { label: 'Threshold', value: 90, maxValue: 90, minValue: 0, endAdornment: '%' },
-          checked: true
-        }]
-      },
-      traps: {
-        checked: true,
-        options: [{ name: 'trapsOverdue', checked: true }]
-      }
-    },
-    'World 4': {
-      breeding: {
-        checked: true,
-        options: [
-          { name: 'eggs', checked: true },
-          {
-            name: 'eggsRarity',
-            type: 'input',
-            props: {
-              label: 'Eggs rarity',
-              value: 1,
-              minValue: 1,
-              helperText: '1=Base, 2=Copper, 3=Iron'
-            },
-            checked: false
-          },
-          { name: 'shinies', type: 'input', props: { label: 'Level threshold', value: 5 }, checked: true },
-          { name: 'breedability', type: 'input', props: { label: 'Level threshold', value: 5 }, checked: true }
-        ]
-      },
-      cooking: {
-        checked: true,
-        options: [
-          { name: 'spices', checked: true },
-          {
-            name: 'ribbons',
-            type: 'input',
-            props: {
-              label: 'Ribbons threshold',
-              value: 0,
-              maxValue: 28,
-              minValue: 0,
-              helperText: 'Empty ribbon slots'
-            },
-            checked: true
-          },
-          { name: 'meals', checked: true, category: 'meals' },
-          { name: 'alertOnlyCookedMeal', checked: false },
-          { name: 'cookingMastery', checked: true }
-        ]
-      },
-      laboratory: {
-        checked: true, options: [
-          { name: 'chipsRotation', checked: true },
-          { name: 'jewelsRotation', checked: true }
-        ]
-      },
-      tome: {
-        checked: true,
-        options: [
-          {
-            name: 'nametagClaim',
-            checked: true,
-            helperText: 'Alert when Tome ranking nametags are available to claim'
-          }
-        ]
-      }
-    },
-    'World 5': {
-      gaming: {
-        checked: true, options: [
-          { name: 'sprouts', checked: true },
-          {
-            name: 'squirrel',
-            type: 'input',
-            props: { label: 'Hours threshold', value: 1, minValue: 1 },
-            checked: true
-          },
-          { name: 'shovel', type: 'input', props: { label: 'Hours threshold', value: 1, minValue: 1 }, checked: true }
-        ]
-      },
-      sailing: {
-        checked: true,
-        options: [
-          { name: 'captains', checked: true },
-          { name: 'chests', checked: true },
-          {
-            name: 'alwaysAlertEnderCaptains',
-            checked: false,
-            helperText: 'Alert on every Ender captain in the shop, even when all your captains are already Ender and its stats are not higher'
-          }
-        ]
-      },
-      hole: {
-        checked: true,
-        options: [
-          {
-            name: 'buckets', type: 'input',
-            props: { label: 'Sediment threshold', value: 1000, minValue: 1, helperText: 'Set 0 for max' },
-            checked: true
-          },
-          { name: 'motherlode', checked: true },
-          { name: 'evertree', checked: true },
-          { name: 'bottomlessTrench', checked: true },
-          {
-            name: 'bravery',
-            checked: true,
-            type: 'input',
-            props: { label: 'Reward multi threshold', value: 1, minValue: 1, helperText: '' }
-          },
-          ...bellOptions,
-          {
-            name: 'theHarp',
-            checked: true,
-            type: 'input',
-            props: { label: 'Power threshold', value: 100, minValue: 1, helperText: '%' }
-          },
-          { name: 'theHive', checked: true },
-          { name: 'grotto', checked: true },
-          {
-            name: 'justice',
-            checked: true,
-            type: 'input',
-            props: { label: 'Reward multi threshold', value: 1, minValue: 1, helperText: '' }
-          },
-          { name: 'villagersLevelUp', checked: true },
-          {
-            name: 'wisdom',
-            checked: true,
-            type: 'input',
-            props: { label: 'Reward multi threshold', value: 1, minValue: 1, helperText: '' }
-          },
-          {
-            name: 'jars',
-            checked: true,
-            type: 'input',
-            props: { label: 'Jars threshold', value: 120, minValue: 1, maxValue: 120, helperText: 'Max of 120 jars' }
-          },
-          { name: 'studyLevelUp', checked: true },
-          { name: 'jarsFull', checked: true },
-          {
-            name: 'lanterns',
-            checked: true,
-            type: 'input',
-            props: {
-              label: 'Remaining lanterns threshold',
-              value: 1,
-              minValue: 1,
-              maxValue: 12,
-              helperText: 'Daily cap is 12'
-            }
-          }
-        ]
-      }
-    },
-    'World 6': {
-      sneaking: {
-        checked: true,
-        options: [
-          {
-            name: 'lastLooted',
-            type: 'input',
-            props: { label: 'Last looted', value: 120, minValue: 0, helperText: 'in minutes' },
-            checked: true
-          },
-          { name: 'remainingPristineRolls', checked: true },
-          { name: 'remainingSymbolRolls', checked: true }
-        ]
-      },
-      beanstalk: {
-        checked: true,
-        options: [{
-          name: 'readyToPlant',
-          checked: true,
-          helperText: 'Alert when you own enough of a golden food to rank it up on the beanstalk'
-        }]
-      },
-      farming: {
-        checked: true,
-        options: [
-          {
-            name: 'plots',
-            type: 'input',
-            props: { label: 'OG Threshold', value: 0, minValue: 0, helperText: '1=x2, 2=x4, 3=x8, 4=x16' },
-            checked: true
-          },
-          {
-            name: 'finishedPlots',
-            type: 'input',
-            checked: false,
-            helperText: 'How long you\'ll wait for a plot to double. Plots slower than this get flagged - collect them to start the doubling over',
-            props: { label: 'Hours', value: 168, minValue: 1, maxValue: 8760, helperText: '' }
-          },
-          {
-            name: 'totalCrops',
-            type: 'input',
-            props: { label: 'Crop Threshold', value: 1, minValue: 1, helperText: '' },
-            checked: false
-          },
-          { name: 'missingPlots', checked: true },
-          {
-            name: 'beanTrade',
-            type: 'input',
-            props: { label: 'Bean trade value', value: 1, minValue: 1, helperText: '' },
-            checked: false
-          },
-          { name: 'exoticPurchases', checked: true }
-        ]
-      },
-      summoning: {
-        checked: true,
-        options: [
-          {
-            name: 'familiar',
-            checked: true,
-            type: 'input',
-            props: { label: 'Threshold', value: 10, minValue: 0, helperText: '' }
-          },
-          { name: 'battleAttempts', checked: true }
-        ]
-      },
-      etc: {
-        checked: true,
-        options: [
-          {
-            name: 'emperor',
-            type: 'input',
-            props: { label: 'Attempts', value: 20 },
-            checked: true,
-            helperText: 'Alerts at this number, or at your attempt cap if it\'s lower'
-          }
-        ]
-      }
-    },
-    'World 7': {
-      royalGuardian: {
-        checked: true,
-        options: [
-          {
-            name: 'idleOutposts',
-            checked: true,
-            helperText: 'Alert when an outpost is connected to an empty resource and another in range still has some'
-          },
-          {
-            name: 'unwiredOutposts',
-            checked: true,
-            helperText: 'Alert when an outpost has no resource connected, and one is in range'
-          },
-          {
-            name: 'idleSupportCamps',
-            checked: true,
-            helperText: 'Alert when a support camp isn\'t boosting any outpost'
-          },
-          {
-            name: 'unspentPts',
-            type: 'input',
-            props: { label: 'Unspent PTS per outpost', value: 12, minValue: 1 },
-            checked: true,
-            helperText: 'Alert when a single outpost holds this many unspent PTS or more'
-          },
-          {
-            name: 'claimableMaps',
-            checked: true,
-            helperText: 'Alert when a map has met its kill requirement and an outpost can be claimed'
-          },
-          {
-            name: 'idleUnits',
-            checked: true,
-            helperText: 'Alert when units are clearing a map you have already claimed, or aren\'t assigned anywhere, while their world still has a map left to clear'
-          },
-          {
-            name: 'overkillWorkers',
-            type: 'input',
-            props: { label: 'Hours to empty within', value: 24, minValue: 1 },
-            checked: true,
-            helperText: 'Alert when an outpost has more Workers than it needs to empty its resource within this many hours. Workers only add collection rate, so the spare ones could be Traders or Surveyors and earn rank EXP instead'
-          },
-          {
-            name: 'overkillBeforeReset',
-            checked: true,
-            helperText: 'Measure that alert against the time left until the daily reset instead of the hours above. A resource only restocks and gains a level if it is already empty when the reset lands, so this is the deadline that actually matters. Falls back to the hours above if your save is older than the reset'
-          },
-          {
-            name: 'strandedWorkers',
-            checked: true,
-            helperText: 'Alert when an outpost\'s resources are all empty and nothing better is in range, while Workers are still assigned to it. They add collection rate to a resource that has none left, so Traders or Surveyors would earn rank EXP instead'
-          },
-          {
-            name: 'idleGuards',
-            checked: true,
-            helperText: 'Alert when an outpost has Guards whose range it does not need. Guards only add range, so they could be Traders or Surveyors and earn rank EXP instead. Also lists Guards that only reach an empty resource: swapping them drops that connection, so rewire it after the daily reset'
-          },
-          {
-            name: 'sharedNodes',
-            type: 'input',
-            props: { label: 'Hours to empty within', value: 24, minValue: 1 },
-            checked: true,
-            helperText: 'Alert when two outposts are wired to the same resource and one of them empties it within this many hours on its own, so the other is spending a connection slot for nothing. Only when that outpost has another resource with something left in range to move the slot to'
-          },
-          {
-            name: 'tradeRank',
-            type: 'input',
-            props: { label: 'Trade rank', value: 10, minValue: 1, perWorld: {} },
-            checked: false,
-            helperText: 'Alert when an outpost reaches this Trade rank while Traders are still assigned to it, so you can move them elsewhere'
-          },
-          {
-            name: 'intelRank',
-            type: 'input',
-            props: { label: 'Intel rank', value: 10, minValue: 1, perWorld: {} },
-            checked: false,
-            helperText: 'Alert when an outpost reaches this Intel rank while Surveyors are still assigned to it, so you can move them elsewhere'
-          },
-          {
-            name: 'commandRank',
-            type: 'input',
-            props: { label: 'Command rank', value: 6, minValue: 1, perWorld: {} },
-            checked: false,
-            helperText: 'Alert when an outpost reaches this Command rank while Commanders are still sent to it, so you can move them elsewhere'
-          },
-          {
-            name: 'militaryRank',
-            type: 'input',
-            props: { label: 'Military rank', value: 10, minValue: 1, perWorld: {} },
-            checked: false,
-            helperText: 'Alert when an outpost reaches this Military rank while Knights are still sent to it, so you can move them elsewhere'
-          },
-          {
-            name: 'purityRank',
-            type: 'input',
-            props: { label: 'Purity rank', value: 10, minValue: 1, perWorld: {} },
-            checked: false,
-            helperText: 'Alert when an outpost reaches this Purity rank while Priests are still sent to it, so you can move them elsewhere'
-          },
-          {
-            name: 'restockLocked',
-            checked: true,
-            helperText: 'Alert until you buy Resource Replenish in the armory, the one-time upgrade that refills empty resources every day. It goes away once bought'
-          }
-        ]
-      },
-      gallery: {
-        checked: true,
-        options: [{ name: 'trophiesMissing', checked: true }, { name: 'nametagsMissing', checked: true }]
-      },
-      spelunking: {
-        checked: true,
-        options: [
-          { name: 'pageReads', checked: true },
-          {
-            name: 'fullStaminaCharacters',
-            type: 'input',
-            props: { label: 'Characters threshold', value: 1, minValue: 1 },
-            checked: true
-          },
-          {
-            name: 'overstimLevel',
-            type: 'input',
-            props: { label: 'Overstim level threshold', value: 1, minValue: 1 },
-            checked: true
-          }
-        ]
-      },
-      legendTalents: {
-        checked: true,
-        options: [{ name: 'pointsLeftToSpend', checked: true }, { name: 'cheaperMasterclassUpgrades', checked: true }]
-      },
-      zenithMarket: {
-        checked: true,
-        options: [
-          { name: 'doubleCluster', checked: true },
-          {
-            name: 'clusterFarming',
-            type: 'array',
-            category: 'Alert when Cluster Farming is',
-            props: { value: { Off: true, On: false } },
-            checked: true
-          }
-        ]
-      },
-      construction: {
-        checked: true,
-        options: [{ name: 'jeweledCogs', checked: true }]
-      },
-      minehead: {
-        checked: true,
-        options: [
-          { name: 'dailyTries', checked: true },
-          {
-            name: 'currencyUpgrades',
-            type: 'array',
-            category: 'Alert when you can afford these mine currency upgrades',
-            props: {
-              value: Object.fromEntries(MINE_CURRENCY_UPGRADE_INDICES.map((index) => [`MineUpg${index}`, true])),
-              type: 'img'
-            },
-            checked: true
-          }
-        ]
-      },
-      research: {
-        checked: true,
-        options: [
-          {
-            name: 'insightLevel',
-            type: 'input',
-            props: { label: 'Insight level threshold', value: 3, minValue: 1 },
-            checked: true
-          },
-          { name: 'observationRollsLeft', checked: true }
-        ]
-      },
-      sushiStation: {
-        checked: true,
-        options: [
-          { name: 'fuelFull', checked: true },
-          {
-            name: 'shakerUses',
-            type: 'array',
-            props: { value: { SushiUpg17: true, SushiUpg18: true, SushiUpg19: true }, type: 'img' },
-            checked: true
-          },
-          { name: 'knowledgeLevelUp', checked: true },
-        ]
-      },
-      jellyOperator: {
-        checked: true,
-        options: [
-          { name: 'operationsLeft', checked: true, helperText: 'Alert when you have Jelly operations left for today' },
-          { name: 'slotsToBuy', checked: true, helperText: 'Alert when you can unlock more Jelly slots' },
-          { name: 'emptySlots', checked: true, helperText: 'Alert when open Jelly slots have no cell on them' },
-          { name: 'virusesUnplaced', checked: true, helperText: 'Alert when you can place more Viruses' }
-        ]
-      },
-      clamWork: {
-        checked: true,
-        options: [{
-          name: 'promotionAffordable',
-          checked: true,
-          helperText: 'Pearls are spent even when the promotion fails, and a successful one resets your pearls and every clam upgrade'
-        }]
-      },
-      theButton: {
-        checked: true,
-        options: [
-          { name: 'instaSkipAvailable', checked: true },
-          { name: 'taskReady', checked: true }
-        ]
-      }
-    }
-  },
-  characters: {
-    cards: { checked: true, options: [{ name: 'cardSet', checked: true }] },
-    anvil: {
-      checked: true,
-      options: [
-        {
-          name: 'unspentPoints',
-          type: 'input',
-          props: { label: 'Points Threshold', value: 1, minValue: 1, helperText: '' },
-          checked: true
-        },
-        { name: 'missingHammers', checked: true },
-        {
-          name: 'anvilOverdue',
-          type: 'input',
-          props: { label: 'Minutes', value: 30, minValue: 1, helperText: 'alert X minutes before' },
-          checked: true
-        }
-      ]
-    },
-    worship: {
-      checked: true,
-      options: [{ name: 'unendingEnergy', checked: true }, { name: 'chargeOverdue', checked: true }]
-    },
-    traps: {
-      checked: true,
-      options: [{ name: 'missingTraps', checked: true }, { name: 'trapsOverdue', checked: true }]
-    },
-    quests: {
-      checked: true,
-      options: [{
-        name: 'picnicDaily',
-        checked: true,
-        helperText: 'Alert when a character hasn\'t completed any of the Picnic Stowaway daily quests today'
-      }]
-    },
-    alchemy: { checked: true, options: [{ name: 'missingBubbles', checked: true }] },
-    obols: { checked: true, options: [{ name: 'missingObols', checked: true }] },
-    postOffice: {
-      checked: true,
-      options: [{
-        name: 'unspentPoints',
-        checked: true,
-        type: 'input',
-        props: { label: 'Number of boxes', value: 1 }
-      }]
-    },
-    starSigns: { checked: true, options: [{ name: 'missingStarSigns', checked: true }] },
-    crystalCountdown: {
-      checked: true, options: [
-        { name: 'showMaxed', checked: true },
-        { name: 'showNonMaxed', checked: true },
-        {
-          category: 'skills',
-          name: 'skills',
-          type: 'array',
-          props: { value: getCrystalCountdownSkills(), type: 'img' },
-          checked: true
-        }
-      ]
-    },
-    tools: { checked: true, options: [] },
-    divinityStyle: { checked: true, options: [] },
-    talents: {
-      checked: true,
-      options: [{
-        name: 'talents',
-        type: 'array',
-        category: 'cooldowns',
-        checked: true,
-        props: {
-          value: {
-            printerGoBrrr: true,
-            refineryThrottle: true,
-            craniumCooking: true,
-            'itsYourBirthday!': true,
-            voidTrialRerun: true,
-            arenaSpirit: true,
-            tasteTest: true
-          }
-        }
-      }, {
-        category: 'Misc',
-        name: 'alwaysShowTalents',
-        checked: false
-      }, {
-        name: 'superTalentLeftToSpend',
-        checked: true
-      }, {
-        name: 'unmaxedTalents',
-        checked: true,
-        helperText: 'Alert when a class talent still has talent points left to spend before its max level'
-      }, {
-        name: 'libraryUpgradableTalents',
-        checked: false,
-        helperText: 'Alert when a maxed class talent could still be raised by a Talent Book Library book'
-      }]
-    },
-    equipment: {
-      checked: true,
-      options: [{ name: 'availableUpgradesSlots', checked: true }, {
-        name: 'emptyGearSlots',
-        type: 'array',
-        category: 'emptyGearSlots',
-        checked: true,
-        helperText: 'Alert when a gear slot is empty. Only the first equipment page is checked - tools, food and the second page are ignored',
-        props: { value: { weapon: true, armor: true, amulet: false, rings: false } }
-      }]
-    },
-    bags: {
-      checked: true,
-      options: [{
-        name: 'unmaxedBags',
-        checked: true,
-        helperText: 'Alert when a carry capacity bag isn\'t at its max tier'
-      }]
-    },
-    classSpecific: {
-      checked: true,
-      options: [
-        {
-          name: 'wrongItems',
-          checked: true,
-          helperText: 'Alert when using class-specific form items while outside form'
-        },
-        {
-          name: 'betterWeapon',
-          checked: true,
-          helperText: 'Alert when there\'s a better form class-specific weapon in your inventory'
-        },
-        {
-          name: 'betterRing',
-          type: 'array',
-          category: 'betterRing',
-          checked: true,
-          helperText: 'Alert when there\'s a better form class-specific ring (same type) in your inventory. Only the checked stats count towards "better" - Wind Walker rings roll a single stat and are always compared on it',
-          props: { value: { arcanistAccuracy: true, extraTachyons: true } }
-        }
-      ]
-    }
-  },
-  timers: {
-    General: {
-      daily: { checked: true, options: [] },
-      weekly: { checked: true, options: [] },
-      serverWeekly: { checked: true, options: [] },
-      companions: { checked: true, options: [] },
-      syphonCharge: { checked: true, options: [] },
-      closestFullWorship: { checked: true, options: [] },
-      dungeonHappyHour: { checked: true, options: [] },
-      randomEvents: { checked: true, options: [] },
-      sailingTrades: { checked: true, options: [] }
-    },
-    Etc: {
-      library: { checked: true, options: [] },
-      minibosses: { checked: true, options: [] },
-      bonusTimeLeft: { checked: true, options: [] },
-      meritocracyTimeLeft: { checked: true, options: [] }
-    },
-    Clickers: {
-      featherRestart: { checked: true, options: [], category: 'Orion' },
-      megaFeatherRestart: { checked: true, options: [] },
-      fisherooReset: { checked: true, options: [], category: 'Poppy' },
-      greatestCatch: { checked: true, options: [] },
-      megaFleshRestart: { checked: true, options: [], category: 'Bubba' },
-      smokerMax: { checked: true, options: [] },
-    },
-    'World 3': {
-      printer: { checked: true, options: [] },
-      closestTrap: { checked: true, options: [] },
-      closestFlag: { checked: true, options: [] },
-      closestBuilding: { checked: true, options: [] },
-      closestSalt: {
-        checked: true,
-        options: [{
-          name: 'salts',
-          type: 'array',
-          props: { value: getRawRefinerySalts(), type: 'img' },
-          checked: true,
-          helperText: 'Only the selected salts are considered when picking the closest one'
-        }]
-      },
-      equinox: { checked: true, options: [] }
-    },
-    'World 5': {
-      bravery: { checked: true, options: [] },
-      justice: { checked: true, options: [] },
-      wisdom: { checked: true, options: [] },
-      villagers: {
-        checked: true,
-        options: [{
-          name: 'villagers',
-          type: 'array',
-          props: { value: { explore: true, engineer: true, bonuses: true, measure: true, studies: true } },
-          checked: true
-        }]
-      },
-      coinFill: { checked: true, options: [] },
-      marbleFill: { checked: true, options: [] }
-    },
-    'World 6': {
-      cropsReady: { checked: true, options: [] }
-    },
-    'World 7': {
-      researchLevelUp: { checked: true, options: [] },
-      sushiFuelFull: { checked: true, options: [] },
-      observationInsight: { checked: true, options: [] },
-      royalNodeCap: { checked: true, options: [] },
-      overstim: { checked: true, options: [] }
-    }
-  }
-}
+// Roughly the height of a quick edit popover with a picker in it.
+const QUICK_EDIT_ROOM = 440;
 
 const Dashboard = () => {
   const { dispatch, state } = useContext(AppContext);
@@ -995,37 +30,110 @@ const Dashboard = () => {
   const [open, setOpen] = useState(false);
   // Set when the modal is opened by clicking an alert, so it lands on that alert's own setting.
   const [settingsTarget, setSettingsTarget] = useState(null);
-  const [config, setConfig] = useState(() => {
-    const migratedConfig = migrateConfig(baseTrackers, state?.trackers);
+  // The alert whose popover is open: its target, the extras its call site passed, where it was
+  // clicked, and the config at that moment (what Undo goes back to).
+  const [quickEdit, setQuickEdit] = useState(null);
+  const [quickUndo, setQuickUndo] = useState(null);
+  const [quickEditCount, setQuickEditCount] = useState(0);
+  const [initialLoad] = useState(() => loadTrackers(baseTrackers, state?.trackers));
+  const [config, setConfig] = useState(initialLoad.config);
+  // Set when the stored config could not be converted: keep saving it the pre-R1 way.
+  const [legacyMode, setLegacyMode] = useState(initialLoad.status === 'failed');
 
-    return {
-      account: migratedConfig.account,
-      characters: migratedConfig.characters,
-      timers: migratedConfig.timers,
-      version: baseTrackers?.version
-    };
-  });
+  // The defaults note is for users whose old full-copy config was just converted to edits: it holds
+  // how many settings differed at that moment and stays until dismissed. Edits made later never set it.
+  const [defaultsNoteCount, setDefaultsNoteCount] = useLocalStorage({ key: 'dashboard-defaults-note-pending' });
+
+  useEffect(() => {
+    if (initialLoad.status === 'converted') {
+      if (!readLocalStorageValue({ key: LEGACY_BACKUP_KEY })) writeStored(LEGACY_BACKUP_KEY, initialLoad.legacy);
+      dispatch({ type: 'trackers', data: initialLoad.stored });
+      const converted = Object.keys(diffTrackers(baseTrackers, initialLoad.config)).length;
+      if (converted > 0) setDefaultsNoteCount(converted);
+    } else if (initialLoad.status === 'failed' && typeof window.gtag !== 'undefined') {
+      window.gtag('event', 'dashboard_config_conversion_failed', {
+        event_category: 'dashboard',
+        event_label: String(initialLoad.error?.message ?? '').slice(0, 100)
+      });
+    }
+    // Runs once: initialLoad never changes after mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [filters, setFilters] = React.useState(tryToParse(localStorage.getItem('dashboard-filters')) || ['account',
     'characters', 'timers']);
   const [hideAlertless, setHideAlertless] = useLocalStorage({
     key: 'dashboard-hide-alertless',
     defaultValue: false
   });
+  // No defaultValue: mantine would write it back to storage and a never-set key must stay distinguishable.
+  const [defaultsNoteDismissed, setDefaultsNoteDismissed] = useLocalStorage({
+    key: 'dashboard-defaults-note-dismissed'
+  });
+  // Storage is read in an effect, so hold the note back until then instead of flashing it for users who dismissed it.
+  const [storageRead, setStorageRead] = useState(false);
+  useEffect(() => setStorageRead(true), []);
+  const [initialFilter, setInitialFilter] = useState('all');
 
-
-  const handleOpenSettings = (configType, path) => {
-    setSettingsTarget({ configType, path });
+  const handleOpenSettings = (configType, path, source) => {
+    trackSettingsEvent('alert_settings_opened', { source });
+    // The window has its own Undo; a stale popover one would wipe edits made there.
+    setQuickUndo(null);
+    setSettingsTarget(configType ? { configType, path } : null);
     setOpen(true);
+  };
+
+  const quickEditFor = (current, configType, target, extra) =>
+    buildQuickEdit(current, buildModel(current, baseTrackers, diffTrackers(baseTrackers, current)), configType, target, extra);
+
+  const handleOpenAlert = (element, configType, target, extra = {}) => {
+    if (!quickEditFor(config, configType, target, extra)) {
+      handleOpenSettings(configType, target, 'alert');
+      return;
+    }
+    const rect = element.getBoundingClientRect();
+    setQuickUndo(null);
+    setQuickEditCount((count) => count + 1);
+    setQuickEdit({
+      id: quickEditCount + 1, configType, target, extra,
+      // Open below the icon, or above it when the space below is short: MUI would otherwise slide
+      // the popover up over the icon that was clicked.
+      ...(window.innerHeight - rect.bottom < QUICK_EDIT_ROOM && rect.top > window.innerHeight - rect.bottom
+        ? { anchorPosition: { top: rect.top - 4, left: rect.left }, above: true }
+        : { anchorPosition: { top: rect.bottom + 4, left: rect.left }, above: false }),
+      // The popover shows the icon that was clicked, not the tracker's own one (The Hole vs Bravery).
+      iconSrc: element.querySelector('img')?.getAttribute('src') ?? null,
+      snapshot: config
+    });
+  };
+
+  const quickModel = quickEdit ? quickEditFor(config, quickEdit.configType, quickEdit.target, quickEdit.extra) : null;
+
+  const handleQuickAction = (name, ...args) => {
+    handleConfigChange(runAction(baseTrackers, config, name, ...args));
+    if (quickUndo?.id !== quickEdit.id) trackSettingsEvent('alert_quick_edit_changed', { kind: quickModel.kind });
+    if (name === 'resetPath') trackSettingsEvent('alert_settings_reset', { scope: 'option' });
+    setQuickUndo({ id: quickEdit.id, label: `Updated: ${quickModel.kind === 'tracker' || !quickModel.option ? quickModel.tracker.label : quickModel.option.label}`, previous: quickEdit.snapshot });
+  };
+
+  // Ticking something off and on again is no change: no Undo for it.
+  const quickChanged = Boolean(quickUndo)
+    && JSON.stringify(diffTrackers(baseTrackers, config)) !== JSON.stringify(diffTrackers(baseTrackers, quickUndo.previous));
+
+  const undoQuickEdit = () => {
+    handleConfigChange(quickUndo.previous);
+    setQuickUndo(null);
+    setQuickEdit(null);
   };
 
   const handleCloseSettings = () => {
     setOpen(false);
     setSettingsTarget(null);
+    setInitialFilter('all');
   };
 
   const handleConfigChange = (updatedConfig) => {
     setConfig(updatedConfig);
-    dispatch({ type: 'trackers', data: updatedConfig })
+    dispatch({ type: 'trackers', data: legacyMode ? updatedConfig : toStoredTrackers(baseTrackers, updatedConfig) });
   }
 
   const handleFilters = (event, newFilters) => {
@@ -1043,9 +151,10 @@ const Dashboard = () => {
   }
 
   const handleFileUpload = (data) => {
-    const migratedConfig = migrateConfig(baseTrackers, data);
-    setConfig(migratedConfig);
-    dispatch({ type: 'trackers', data: migratedConfig });
+    const result = loadTrackers(baseTrackers, data);
+    setConfig(result.config);
+    setLegacyMode(result.status === 'failed');
+    dispatch({ type: 'trackers', data: result.stored ?? result.config });
   }
 
   return <>
@@ -1054,6 +163,12 @@ const Dashboard = () => {
       description="Provides key information about your account and alerts you when there are unfinished tasks"
     />
     <Stack>
+      {storageRead && !defaultsNoteDismissed && defaultsNoteCount > 0 ? <DefaultsNote count={defaultsNoteCount}
+                                                               onReview={() => {
+                                                                 setInitialFilter('edited');
+                                                                 handleOpenSettings(null, null, 'note');
+                                                               }}
+                                                               onDismiss={() => setDefaultsNoteDismissed(true)}/> : null}
       <Stack mb={2} direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'}>
         <ToggleButtonGroup value={filters} onChange={handleFilters}>
           <ToggleButton value="account">Account</ToggleButton>
@@ -1063,14 +178,14 @@ const Dashboard = () => {
         <Button variant={'outlined'} sx={{ textTransform: 'none', height: 32 }}
                 startIcon={<IconSettingsFilled size={20}/>}
                 onClick={() => {
-                  setSettingsTarget(null);
-                  setOpen(true);
+                  handleOpenSettings(null, null, 'button');
                 }}>
           Configure alerts
         </Button>
       </Stack>
       <Stack gap={2}>
-        <DashboardSettingsProvider onOpenSettings={handleOpenSettings}>
+        <DashboardSettingsProvider onOpenAlert={handleOpenAlert}
+                                   labelFor={(configType, target, extra) => alertLabel(config, configType, target, extra)}>
           {isDisplayed('account') ? <Account trackers={config?.account} characters={characters}
                                              account={account} lastUpdated={lastUpdated}/> : null}
           {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
@@ -1083,7 +198,23 @@ const Dashboard = () => {
     </Stack>
     <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open}
                        onClose={handleCloseSettings} config={config} target={settingsTarget}
+                       initialFilter={initialFilter}
+                       exportConfig={legacyMode ? config : toStoredTrackers(baseTrackers, config)}
                        hideAlertless={hideAlertless} onHideAlertlessChange={handleHideAlertless}/>
+    <AlertQuickEdit quickEdit={quickModel} open={Boolean(quickModel)} anchorPosition={quickEdit?.anchorPosition} above={quickEdit?.above}
+                    iconSrc={quickEdit?.iconSrc}
+                    // Escape unmounts the popover without blurring its field; blur first so its clamp runs.
+                    onClose={() => {
+                      document.activeElement?.blur?.();
+                      setQuickEdit(null);
+                    }} onAction={handleQuickAction}
+                    onUndo={quickChanged && quickUndo?.id === quickEdit?.id ? undoQuickEdit : undefined}
+                    onOpenAll={() => {
+                      setQuickEdit(null);
+                      handleOpenSettings(quickEdit.configType, quickEdit.target, 'quick_edit');
+                    }}/>
+    {quickChanged && !quickEdit ? <UndoSnackbar key={quickUndo.id} label={quickUndo.label} onUndo={undoQuickEdit}
+                                             onClose={() => setQuickUndo(null)}/> : null}
   </>
 };
 

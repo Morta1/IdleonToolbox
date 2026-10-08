@@ -6,13 +6,10 @@
 // that doesn't line up degrades to the closest thing that does - tracker without option, or section
 // without tracker.
 
-const TAB_INDEX = { account: 0, characters: 1, timers: 2 };
+import { alertAliases } from './alertMeta';
+import { isSectioned } from './trackerStore';
 
-// The characters config is a flat list of trackers; account and timers group theirs under sections.
-const hasSections = (root) => {
-  const firstValue = root ? Object.values(root)?.[0] : null;
-  return Boolean(firstValue) && typeof firstValue === 'object' && !('checked' in firstValue);
-};
+const TAB_INDEX = { account: 0, characters: 1, timers: 2 };
 
 const findTracker = (fields, name) => {
   if (!fields || !name) return null;
@@ -27,7 +24,7 @@ export const resolveSettingsTarget = (config, configType, target) => {
   if (!root || !target) return null;
 
   const parts = String(target).split('.').filter(Boolean);
-  const sectioned = hasSections(root);
+  const sectioned = isSectioned(root);
   const section = sectioned && root[parts[0]] ? parts[0] : null;
   const rest = section ? parts.slice(1) : parts;
   const fields = section ? root[section] : (sectioned ? null : root);
@@ -39,7 +36,10 @@ export const resolveSettingsTarget = (config, configType, target) => {
   // second, "gemsFromBosses" first. The deeper one wins: a tracker can carry an option named after
   // itself ("talents.talents"), which would otherwise swallow "talents.unmaxedTalents".
   const optionNames = tracker?.options?.map((option) => option?.name) ?? [];
-  const optionName = [rest[1], rest[0]].find((name) => name && optionNames.includes(name)) ?? null;
+  const aliases = alertAliases[[configType, section, trackerName].filter(Boolean).join('.')] ?? {};
+  const optionName = [rest[1], rest[0]]
+    .map((name) => aliases[name] ?? name)
+    .find((name) => name && optionNames.includes(name)) ?? null;
 
   return { tab: TAB_INDEX[configType], configType, section, trackerName, optionName };
 };

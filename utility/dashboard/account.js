@@ -79,7 +79,7 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
     const allTasks = account?.tasksDescriptions?.reduce((acc, tasks, worldIndex) => {
       const ninthTask = tasks?.[8];
       const ninthTaskNotCompleted = ninthTask?.level === 0;
-      if (ninthTaskNotCompleted && tasksOptions?.props?.value?.[worldIndex + 1]) {
+      if (ninthTaskNotCompleted && tasksOptions?.checked && tasksOptions?.props?.value?.[worldIndex + 1]) {
         return [...acc, worldIndex];
       }
       else {
@@ -152,7 +152,9 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
       else if (index === 7 && !account?.finishedWorlds?.World5) {
         return [...res, []];
       }
-      const filtered = shop?.filter(({ rawName }) => options?.shops?.shops?.props?.value?.[rawName]);
+      const filtered = options?.shops?.shops?.checked
+        ? shop?.filter(({ rawName }) => options?.shops?.shops?.props?.value?.[rawName])
+        : [];
       return [...res, filtered];
     }, []);
     const boughtEverything = allShops?.flat()?.length;
@@ -705,7 +707,7 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
       rawName: name,
       ...data
     }));
-    if (atoms.length > 0) {
+    if (includeResource?.checked && atoms.length > 0) {
       printer.atoms = atoms;
     }
     if (Object.keys(printer).length > 0) {
@@ -1016,7 +1018,8 @@ export const getWorld4Alerts = (account, fields, options) => {
     if (options?.cooking?.ribbons?.checked) {
       const threshold = options?.cooking?.ribbons?.props?.value;
       const emptySlots = account?.grimoire?.ribbons?.slice(0, 28)?.filter((ribbon) => !ribbon);
-      if (emptySlots?.length <= threshold) {
+      // 0 empty slots is a full shelf and must alert too, so the render checks for a number, not truthiness.
+      if (account?.grimoire?.ribbons?.length > 0 && emptySlots?.length <= threshold) {
         cooking.ribbons = emptySlots?.length;
       }
     }
@@ -1082,11 +1085,11 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
   if (!account?.finishedWorlds?.World4) return alerts;
   if (fields?.gaming?.checked && account?.gaming?.unlocked) {
     const gaming = {};
-    const { shovel, sprouts, squirrel } = options?.gaming || {};
+    const { shovel, sprouts, squirrel, drops } = options?.gaming || {};
     if (sprouts?.checked && account?.gaming?.availableSprouts >= account?.gaming?.sproutsCapacity) {
       gaming.sprouts = account?.gaming?.availableSprouts;
     }
-    if (sprouts?.checked && account?.gaming?.availableDrops >= account?.gaming?.sproutsCapacity) {
+    if (drops?.checked && account?.gaming?.availableDrops >= account?.gaming?.sproutsCapacity) {
       gaming.drops = account?.gaming?.availableDrops;
     }
     const shovelUnlocked = account?.gaming?.imports?.find(({ name, acquired }) => name === 'Dirty_Shovel' && acquired);
@@ -1339,7 +1342,7 @@ export const getWorld6Alerts = (account, fields, options, characters) => {
     const sneaking = {};
     const { lastLooted, remainingPristineRolls, remainingSymbolRolls } = options?.sneaking || {};
     const minutesSinceLooted = account?.sneaking?.lastLooted / 60;
-    if (minutesSinceLooted >= lastLooted?.props?.value) {
+    if (lastLooted?.checked && minutesSinceLooted >= lastLooted?.props?.value) {
       sneaking.lastLooted = true;
     }
     const used = account?.sneaking?.dailyCharmRollCount || 0;

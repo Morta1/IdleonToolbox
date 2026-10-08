@@ -33,7 +33,8 @@ import {
 } from '@utility/dashboard/account';
 import useAlerts from '@hooks/useAlerts';
 import { monsterImage } from '@utility/spriteImages';
-import { useOpenDashboardSettings } from '@components/common/context/DashboardSettingsProvider';
+import { useAlertSettingsProps } from '@components/common/context/DashboardSettingsProvider';
+import { pickerItemLabel } from '@utility/dashboard/quickEdit';
 
 // Every refinery alert draws the same salt icon, and one salt can raise several of them at once,
 // so a corner glyph says which condition fired without having to hover each copy.
@@ -109,6 +110,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.General?.etc?.arcanistDailyDrops?.length > 0
                 ?
                 alerts?.General?.etc?.arcanistDailyDrops?.map(({ type, remaining }) => <Alert target={'General.etc.arcanistDailyDrops'}
+                  items={[{ key: type, label: `Arcanist ${type}` }]}
                   key={`arcanist-${type}`}
                   title={`You have ${remaining} Arcanist ${type} drop${remaining > 1 ? 's' : ''} remaining today`}
                   iconPath={type === 'weapon' ? 'data/EquipmentWandsArc0' : 'data/EquipmentRingsArc0'}/>)
@@ -133,6 +135,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.General?.tasks?.length > 0 ?
                 alerts?.General?.tasks?.map((world) => <Alert target={'General.tasks'} key={'task' + world}
                                                               title={`Daily task in world ${world + 1} not done yet`}
+                                                              items={[{ key: world + 1, label: `World ${world + 1}` }]}
                                                               iconPath={`etc/Merit_${world}`}/>) : null}
               {alerts?.General?.etc?.keys?.length > 0
                 ?
@@ -168,7 +171,9 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.General?.shops?.items?.length > 0 ?
                 alerts?.General?.shops?.items?.map((shop, index) => shop?.length > 0 ?
                   <Alert target={'General.shops.items'} key={'shop' + index + shop?.[0]?.rawName}
+                         items={shop.map(({ rawName }) => ({ key: rawName }))}
                          title={<ShopTitle shop={shop}/>}
+                         ariaLabel={`Shop stock: ${shop.map(({ rawName }) => pickerItemLabel(rawName)).join(', ')}`}
                          iconPath={index === 8 ? `etc/ShopEZ${index}` : `data/ShopEZ${index}`}/> : null) : null}
               {alerts?.General?.guild?.daily ?
                 <Alert target={'General.guild.daily'} title={`You have ${alerts?.General?.guild?.daily} uncompleted daily tasks`} iconPath={`etc/GP`}
@@ -302,6 +307,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 2']?.postOffice?.dailyShipments?.length > 0
                 ?
                 alerts?.['World 2']?.postOffice?.dailyShipments?.map(({ index }) => <Alert target={'World 2.postOffice.dailyShipments'} key={'shipment' + index}
+                                                                                           items={[{ key: index + 1, label: `shipment #${index + 1}` }]}
                                                                                            title={`You haven't completed an order for shipment #${index + 1} today`}
                                                                                            iconPath={`data/UIlilbox`}/>)
                 : null}
@@ -356,6 +362,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 3']?.construction?.materials?.length > 0
                 ?
                 alerts?.['World 3']?.construction?.materials?.map(({ rawName, missingMats, hoursLeft }) => <Alert target={'World 3.construction.materials'} key={rawName}
+                                                                                                       items={[{ key: rawName }]}
                                                                                                        title={
                                                                                                          <RefineryTitle
                                                                                                            missingMats={missingMats}
@@ -366,6 +373,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 3']?.construction?.rankUp?.length > 0
                 ?
                 alerts?.['World 3']?.construction?.rankUp?.map(({ rawName, saltName }) => <Alert target={'World 3.construction.rankUp'} key={rawName}
+                                                                                                 items={[{ key: rawName, label: cleanUnderscore(saltName) }]}
                                                                                                  title={`${cleanUnderscore(saltName)} is ready to rank up`}
                                                                                                  badge={'saltRankUp'}
                                                                                                  iconPath={`data/${rawName}`}/>)
@@ -379,6 +387,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   maxSafeRank,
                   isDeficit
                 }) => <Alert target={'World 3.construction.saltDeficit'}
+                  items={[{ key: rawName, label: cleanUnderscore(saltName) }]}
                   key={`salt-deficit-${rawName}`}
                   title={isDeficit
                     ? `${cleanUnderscore(saltName)} is consuming more ${cleanUnderscore(previousSaltName)} than you produce (max rank without a deficit: ${maxSafeRank})`
@@ -389,6 +398,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 3']?.construction?.saltRankUpRoom?.length > 0
                 ?
                 alerts?.['World 3']?.construction?.saltRankUpRoom?.map(({ rawName, saltName, maxSafeRank }) => <Alert target={'World 3.construction.saltRankUpRoom'}
+                  items={[{ key: rawName, label: cleanUnderscore(saltName) }]}
                   key={`salt-rank-room-${rawName}`}
                   title={`${cleanUnderscore(saltName)} can be ranked up to ${maxSafeRank} without causing a deficit`}
                   badge={'saltRankUpRoom'}
@@ -403,6 +413,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 3']?.printer?.atoms?.length > 0
                 ?
                 alerts?.['World 3']?.printer?.atoms?.map(({ name, rawName }) => <Alert target={'World 3.printer.atoms'} key={'printer-atoms-' + rawName}
+                                                                                       items={[{ key: rawName, label: cleanUnderscore(name) }]}
                                                                                        title={`Printing is at maximum (storage) capacity for ${cleanUnderscore(name)}`}
                                                                                        atom
                                                                                        iconPath={`data/${rawName}`}/>)
@@ -448,9 +459,11 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 4']?.cooking?.spices > 0 ?
                 <Alert target={'World 4.cooking.spices'} title={`You have ${alerts?.['World 4']?.cooking?.spices} spice clicks left`}
                        iconPath={'data/CookingSpice0'}/> : null}
-              {alerts?.['World 4']?.cooking?.ribbons ?
+              {Number.isFinite(alerts?.['World 4']?.cooking?.ribbons) ?
                 <Alert target={'World 4.cooking.ribbons'}
-                  title={`You have reached your threshold of ${alerts?.['World 4']?.cooking?.ribbons} empty ribbon slots`}
+                  title={alerts?.['World 4']?.cooking?.ribbons === 0
+                    ? 'Your ribbon shelf is full'
+                    : `You have reached your threshold of ${alerts?.['World 4']?.cooking?.ribbons} empty ribbon slots`}
                   iconPath={'data/Ribbon0'}/> : null}
               {alerts?.['World 4']?.cooking?.cookingMastery?.purple > 0 ?
                 <Alert target={'World 4.cooking.cookingMastery'}
@@ -779,6 +792,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/RGresB5'} badge={'sharedLink'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
               {RG_RANK_ALERTS.map(({ option, rank, holders, unit, iconPath, badge }) => alerts?.['World 7']?.royalGuardian?.[option] ?
                 <Alert target={`World 7.royalGuardian.${option}`}
+                  worlds={alerts?.['World 7']?.royalGuardian?.[option]?.outposts?.map(({ world }) => world)}
                   key={option}
                   title={<RoyalGuardianList
                     headline={`${alerts?.['World 7']?.royalGuardian?.[option]?.count} outpost${alerts?.['World 7']?.royalGuardian?.[option]?.count === 1
@@ -864,6 +878,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/MineHead0'}/> : null}
               {alerts?.['World 7']?.minehead?.currencyUpgrades?.length > 0 ?
                 alerts?.['World 7']?.minehead?.currencyUpgrades?.map((upgrade) => <Alert target={'World 7.minehead.currencyUpgrades'}
+                  items={[{ key: `MineUpg${upgrade?.index}`, label: cleanUnderscore(upgrade?.name) }]}
                   key={`minehead-upgrade-${upgrade?.index}`}
                   title={`You can afford ${cleanUnderscore(upgrade?.name)} Lv. ${upgrade?.level + 1} (${notateNumber(upgrade?.cost, 'Big')})`}
                   iconPath={`data/MineUpg${upgrade?.index}`}/>) : null}
@@ -888,6 +903,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 alerts?.['World 7']?.sushiStation?.shakerUses?.map((shaker) => {
                   const iconMap = { Salt: 'SushiUpg17', Pepper: 'SushiUpg18', Saffron: 'SushiUpg19' };
                   return <Alert target={'World 7.sushiStation.shakerUses'}
+                    items={[{ key: iconMap[shaker.name], label: `${shaker.name} Shaker` }]}
                     key={`shaker-${shaker.name}`}
                     title={`${shaker.name} Shaker: ${shaker.uses} use${shaker.uses === 1 ? '' : 's'} available`}
                     iconPath={`data/${iconMap[shaker.name]}`}/>;
@@ -1025,10 +1041,14 @@ const Alert = ({
                  badge,
                  extra,
                  target,
+                 items,
+                 worlds,
                  // Lists of map names need more room than the 320px default before they wrap.
-                 maxWidth
+                 maxWidth,
+                 // Names the icon for screen readers when the title is not plain text.
+                 ariaLabel
                }) => {
-  const openSettings = useOpenDashboardSettings();
+  const settingsProps = useAlertSettingsProps('account', target, items || worlds ? { items, worlds } : undefined);
   const {
     Icon: BadgeIcon,
     label: badgeLabel,
@@ -1038,10 +1058,11 @@ const Alert = ({
   } = alertBadges[badge] || {};
   const badgeImgStyle = badgeBorder ? { border: '1px solid', borderColor: badgeBorder } : {};
   return <HtmlTooltip title={title} maxWidth={maxWidth}>
-    <Stack onClick={target ? () => openSettings('account', target) : undefined}
+    <Stack {...settingsProps}
+           {...(target ? { 'aria-label': ariaLabel ?? (typeof title === 'string' ? title : settingsProps['aria-label']) } : {})}
            sx={{
              position: 'relative', ...style, alignItems: 'center', justifyContent: 'center',
-             ...(target ? { cursor: 'pointer' } : {})
+             ...(target ? { cursor: 'pointer', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', borderRadius: 1 } } : {})
            }}>
       <IconImg onError={onError} style={{ ...badgeImgStyle, ...imgStyle }} vial={vial}
                src={`${prefix}${iconPath}.png`} alt=""/>

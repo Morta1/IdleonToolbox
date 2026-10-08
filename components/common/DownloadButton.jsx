@@ -5,7 +5,7 @@ import { IconFileImport } from '@tabler/icons-react';
 import IconButton from '@mui/material/IconButton';
 import { useMediaQuery } from '@mui/material';
 
-const FileUploadButton = ({ children, onFileUpload }) => {
+const FileUploadButton = ({ children, onFileUpload, onInvalidFile, ariaLabel = 'Import', iconSx }) => {
   const fileInputRef = useRef(null);
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
 
@@ -17,9 +17,11 @@ const FileUploadButton = ({ children, onFileUpload }) => {
       reader.onload = (e) => {
         const parsed = tryToParse(e.target.result);
         if (typeof parsed !== 'string') {
-          onFileUpload?.(parsed);
-          fileInputRef.current.value = '';
+          onFileUpload?.(parsed, selectedFile.name);
+        } else {
+          onInvalidFile?.(selectedFile.name);
         }
+        fileInputRef.current.value = '';
       };
       reader.readAsText(selectedFile);
     }
@@ -31,7 +33,7 @@ const FileUploadButton = ({ children, onFileUpload }) => {
 
   return <>
     <input style={{ display: 'none' }} ref={fileInputRef} type="file" onChange={handleFileChange}/>
-    {isSm ? <IconButton onClick={handleButtonClick} size={'small'}><IconFileImport size={18}/></IconButton> : <Button
+    {isSm ? <IconButton onClick={handleButtonClick} size={'small'} aria-label={ariaLabel} sx={iconSx}><IconFileImport size={18}/></IconButton> : <Button
       startIcon={<IconFileImport size={18}/>} onClick={handleButtonClick} variant={'outlined'}
       size={'small'}>{children}</Button>}
   </>;
