@@ -126,3 +126,61 @@ describe('BoardDrawer', () => {
     expect(screen.getByRole('progressbar')).toBeTruthy();
   });
 });
+
+describe('BoardDrawer header and steps', () => {
+  it('puts the leader and the player count in the meta line', async () => {
+    fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: [] });
+    renderDrawer();
+    expect(await screen.findByText('#1 T0 · 304')).toBeTruthy();
+    expect(screen.getByText('2,100 players')).toBeTruthy();
+  });
+
+  it('gives the Global ranking drawer a meta line from the account total', async () => {
+    const globalIndex = buildMetaIndex({ totalPlayers: 2616, categories: [] });
+    const points = [{ mainChar: 'Yosh6400', value: 16683.4, rank: 1 }, { mainChar: 'Dragami', value: 16559, rank: 2 }];
+    fetchBoard.mockResolvedValue({ metric: 'globalRanking', createdAt: 1, top: points, around: [] });
+    renderDrawer({ metricKey: 'globalRanking', index: globalIndex });
+    expect(await screen.findByText('#1 Yosh6400 · 16,683 pts')).toBeTruthy();
+    expect(screen.getByText('2,616 players')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Global ranking' })).toBeTruthy();
+  });
+
+  it('shows only the player count while the leader is unknown', () => {
+    fetchBoard.mockReturnValue(new Promise(() => {}));
+    renderDrawer();
+    expect(screen.getByText('2,100 players')).toBeTruthy();
+    expect(screen.queryByText(/#1 /)).toBeNull();
+  });
+
+  it('names the nearest rank above you and the step to reach it', async () => {
+    fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: aroundAt(91) });
+    renderDrawer();
+    expect(await screen.findByText('+1 to reach N4 (#90)')).toBeTruthy();
+  });
+
+  it('keeps a fractional points step above zero and skips tied neighbours', async () => {
+    const globalIndex = buildMetaIndex({ totalPlayers: 2616, categories: [] });
+    fetchBoard.mockResolvedValue({ metric: 'globalRanking', createdAt: 1, top, around: [
+      { mainChar: 'Far', value: 15400, rank: 88 }, { mainChar: 'Crezar', value: 15315.8, rank: 90 },
+      { mainChar: 'Tied', value: 15314, rank: 91 }, { mainChar: 'Me', value: 15314, rank: 91 }
+    ] });
+    renderDrawer({ metricKey: 'globalRanking', index: globalIndex });
+    expect(await screen.findByText('+1.8 pts to reach Crezar (#90)')).toBeTruthy();
+  });
+
+  it('shows no step without a row above you', async () => {
+    fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: [{ mainChar: 'Me', value: 100, rank: 91 }, { mainChar: 'Z', value: 90, rank: 92 }] });
+    renderDrawer();
+    await screen.findByText('Around you');
+    expect(screen.queryByText(/to reach/)).toBeNull();
+  });
+
+  it('outlines your row in the Around you list and no other', async () => {
+    fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: aroundAt(91) });
+    renderDrawer();
+    const rowOf = (name) => screen.getByText(name).closest('[data-testid="rank-row"]');
+    await screen.findByText('Me');
+    expect(getComputedStyle(rowOf('Me')).borderTopColor).toBe('rgb(0, 126, 133)');
+    expect(getComputedStyle(rowOf('N0')).borderTopColor).not.toBe('rgb(0, 126, 133)');
+  });
+});
