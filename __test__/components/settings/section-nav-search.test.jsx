@@ -26,7 +26,17 @@ describe('SectionPane', () => {
     const container = renderIn(<SectionPane section={section} filter="all" expanded={{}} onToggleExpanded={() => {}} onAction={() => {}} onBulk={onBulk} onShowAll={() => {}}/>);
     expect(container.textContent).toContain(`${section.total} alerts · ${section.onCount} on`);
     fireEvent.click([...container.querySelectorAll('button')].find((b) => b.textContent === 'Turn all off'));
-    expect(onBulk).toHaveBeenCalledWith(`${section.label} alerts turned off`, 'setSectionOn', section, false);
+    expect(onBulk).toHaveBeenCalledWith('Account · World 3: alerts turned off', 'setSectionOn', section, false);
+  });
+
+  it('with a filter on, the bulk switch only covers the alerts it shows', () => {
+    const onBulk = vi.fn();
+    const section = world3(modelFor({ 'account.World 3.library': { checked: false } }));
+    const container = renderIn(<SectionPane section={section} filter="edited" expanded={{}} onToggleExpanded={() => {}} onAction={() => {}} onBulk={onBulk} onShowAll={() => {}}/>);
+    fireEvent.click([...container.querySelectorAll('button')].find((b) => b.textContent === 'Turn shown on'));
+    const [, , scope, on] = onBulk.mock.calls[0];
+    expect(scope.trackers.map(({ path }) => path)).toEqual(['account.World 3.library']);
+    expect(on).toBe(true);
   });
 
   it('shows an empty state when the filter hides every alert', () => {

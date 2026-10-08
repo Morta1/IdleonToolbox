@@ -54,7 +54,7 @@ const rangeText = ({ minValue, maxValue }) => {
   return maxValue !== undefined ? `At most ${maxValue}` : '';
 };
 
-// hideReset: the card's own Reset already covers it (a number shown inline in the card header).
+// hideReset: the card's own Reset already covers it (a number shown inline in the card header), so only "Default N" shows.
 export const NumberField = ({ option, tracker, onAction, ariaLabel, disabled = false, hideReset = false }) => {
   const error = outOfRange(option);
   return <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
@@ -65,9 +65,9 @@ export const NumberField = ({ option, tracker, onAction, ariaLabel, disabled = f
       error={error}
       disabled={disabled}
       // The number gets a fixed width and the field grows with its unit ("attempts" would squeeze a 120 px field to one digit).
-      sx={{ width: option.unit ? 'auto' : 120 }}
+      sx={{ width: option.unit ? 'auto' : 140 }}
       slotProps={{
-        htmlInput: { 'aria-label': ariaLabel ?? option.label, min: option.props.minValue, max: option.props.maxValue, style: option.unit ? { width: '8ch' } : undefined },
+        htmlInput: { 'aria-label': ariaLabel ?? option.label, min: option.props.minValue, max: option.props.maxValue, style: option.unit ? { width: '10ch' } : undefined },
         input: { endAdornment: option.unit ? <InputAdornment position="end">{option.unit}</InputAdornment> : null }
       }}
       onChange={(e) => onAction('setOptionValue', tracker, option.name, e.target.value)}
@@ -78,9 +78,9 @@ export const NumberField = ({ option, tracker, onAction, ariaLabel, disabled = f
           : clampValue(option, e.target.value);
         if (clamped !== e.target.value) onAction('setOptionValue', tracker, option.name, clamped);
       }}/>
-    {option.edited && !hideReset ? <Stack direction="row" alignItems="center" gap={0.75}>
-      <Typography variant="caption" color="text.secondary">Default {String(option.defaultValue)} ·</Typography>
-      <Button size="small" sx={{ p: 0, minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={disabled} onClick={() => onAction('resetPath', option.path)}>Reset</Button>
+    {option.edited ? <Stack direction="row" alignItems="center" gap={0.75}>
+      <Typography variant="caption" color="text.secondary">Default {String(option.defaultValue)}{hideReset ? '' : ' ·'}</Typography>
+      {hideReset ? null : <Button size="small" sx={{ p: 0, minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={disabled} onClick={() => onAction('resetPath', option.path)}>Reset</Button>}
     </Stack> : null}
     {error ? <Typography variant="caption" color="error" role="alert">{rangeText(option.props)}</Typography> : null}
   </Stack>;

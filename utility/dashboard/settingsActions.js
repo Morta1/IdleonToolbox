@@ -36,7 +36,8 @@ export const clampValue = (option, value) => {
   let number = Number(value);
   if (minValue !== undefined) number = Math.max(minValue, number);
   if (maxValue !== undefined) number = Math.min(maxValue, number);
-  return number === Number(value) ? value : String(number);
+  // String(number) also normalises what a number field lets through, like "1e3" or "05".
+  return String(number);
 };
 
 export const togglePickerItem = (config, tracker, optionName, key) =>

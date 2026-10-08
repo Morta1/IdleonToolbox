@@ -81,6 +81,7 @@ describe('settingsActions', () => {
     expect(clampValue(food, '7')).toBe('7');
     expect(clampValue(food, '')).toBe('');
     expect(clampValue(food, 'abc')).toBe('abc');
+    expect(clampValue(food, '1e1')).toBe('10');
   });
 
   it('setSectionOn switches every alert of a section', () => {

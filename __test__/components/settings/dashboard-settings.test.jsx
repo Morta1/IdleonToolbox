@@ -141,6 +141,11 @@ describe('DashboardSettings window', () => {
     expect(latest).toEqual(afterFirst);
   });
 
+  it('Reset all is disabled with nothing to reset', () => {
+    render(<Harness/>);
+    expect(button('Reset all').disabled).toBe(true);
+  });
+
   it('Reset all alerts is on the mobile menu screen', () => {
     const original = window.matchMedia;
     window.matchMedia = (query) => ({
@@ -148,7 +153,7 @@ describe('DashboardSettings window', () => {
       addListener: () => {}, removeListener: () => {}
     });
     try {
-      render(<Harness/>);
+      render(<Harness edits={{ 'account.World 1.stamps': { checked: false } }}/>);
       fireEvent.click(button('Reset all alerts'));
       expect(document.body.textContent).toContain('Reset every alert to default?');
     } finally {

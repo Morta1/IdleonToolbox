@@ -231,7 +231,7 @@ const DashboardSettings = ({
             </FileUploadButton>
             {isSm ? <IconButton aria-label="Export" sx={TAP} onClick={handleExport}><IconFileExport size={18}/></IconButton>
               : <Button onClick={handleExport} startIcon={<IconFileExport size={18}/>} size="small">Export</Button>}
-            {!isSm ? <Button size="small" color="inherit" onClick={() => setConfirmReset(true)}>Reset all</Button> : null}
+            {!isSm ? <Button size="small" color="inherit" disabled={!Object.keys(edits).length} onClick={() => setConfirmReset(true)}>Reset all</Button> : null}
             <IconButton aria-label="Close" sx={TAP} onClick={onClose}><CloseIcon/></IconButton>
           </Stack>
         </Stack>
@@ -243,7 +243,7 @@ const DashboardSettings = ({
         {isSm
           ? <Box sx={{ p: 1.5, width: '100%', overflowY: 'auto' }}>{searching || mobileDetail ? pane : <>
             {nav}
-            <Button fullWidth color="inherit" sx={{ ...TAP, mt: 2 }} onClick={() => setConfirmReset(true)}>Reset all alerts</Button>
+            <Button fullWidth color="inherit" sx={{ ...TAP, mt: 2 }} disabled={!Object.keys(edits).length} onClick={() => setConfirmReset(true)}>Reset all alerts</Button>
           </>}</Box>
           : <>
             <Box sx={{ width: 288, flexShrink: 0, borderRight: 1, borderColor: 'divider', p: 1.5, overflowY: 'auto' }}>{nav}</Box>

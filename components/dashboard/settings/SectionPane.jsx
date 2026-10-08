@@ -7,11 +7,17 @@ import Typography from '@mui/material/Typography';
 import { matchesFilter } from '@utility/dashboard/settingsModel';
 import TrackerCard, { CompactRow, hasOptionsBody } from './TrackerCard';
 
+const TAB_LABELS = { account: 'Account', characters: 'Characters', timers: 'Timers' };
+
 const SectionPane = ({ section, filter, expanded, onToggleExpanded, onSetExpanded, target, onAction, onBulk, onShowAll, extraTop = null }) => {
   const visible = section.trackers.filter((tracker) => matchesFilter(tracker, filter) || tracker.path === target?.path);
   const compact = visible.filter(({ compact: isCompact }) => isCompact);
   const cards = visible.filter(({ compact: isCompact }) => !isCompact);
-  const allOff = section.onCount === 0;
+  // A filter narrows the bulk switch to the alerts it shows, never ones hidden from view.
+  const filtered = filter !== 'all';
+  const scope = filtered ? { ...section, trackers: visible } : section;
+  const allOff = scope.trackers.every(({ on }) => !on);
+  const where = section.label === TAB_LABELS[section.configType] ? section.label : `${TAB_LABELS[section.configType]} · ${section.label}`;
   const expandable = cards.filter(hasOptionsBody).map(({ path }) => path);
   const allExpanded = expandable.length > 0 && expandable.every((path) => expanded[path]);
   const buttonSx = { minHeight: { xs: 44, sm: 30 } };
@@ -26,12 +32,12 @@ const SectionPane = ({ section, filter, expanded, onToggleExpanded, onSetExpande
                                          onClick={() => onSetExpanded(expandable, !allExpanded)}>
           {allExpanded ? 'Collapse all' : 'Expand all'}
         </Button> : null}
-        <Button size="small" color="inherit" sx={buttonSx}
-                onClick={() => onBulk(`${section.label} alerts turned ${allOff ? 'on' : 'off'}`, 'setSectionOn', section, allOff)}>
-          {allOff ? 'Turn all on' : 'Turn all off'}
-        </Button>
+        {visible.length ? <Button size="small" color="inherit" sx={buttonSx}
+                                  onClick={() => onBulk(`${where}: ${filtered ? 'shown ' : ''}alerts turned ${allOff ? 'on' : 'off'}`, 'setSectionOn', scope, allOff)}>
+          {filtered ? (allOff ? 'Turn shown on' : 'Turn shown off') : (allOff ? 'Turn all on' : 'Turn all off')}
+        </Button> : null}
         {section.edited ? <Button size="small" color="inherit" sx={buttonSx}
-                                  onClick={() => onBulk(`${section.label} reset to defaults`, 'resetPath', section.key)}>
+                                  onClick={() => onBulk(`${where} reset to defaults`, 'resetPath', section.key)}>
           Reset {section.label}
         </Button> : null}
       </Stack>

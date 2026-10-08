@@ -132,7 +132,7 @@ const Dashboard = () => {
     handleConfigChange(runAction(baseTrackers, config, name, ...args));
     if (quickUndo?.id !== quickEdit.id) trackSettingsEvent('alert_quick_edit_changed', { kind: quickModel.kind });
     if (name === 'resetPath') trackSettingsEvent('alert_settings_reset', { scope: 'option' });
-    setQuickUndo({ id: quickEdit.id, label: `${quickModel.tracker.label} settings changed`, previous: quickEdit.snapshot });
+    setQuickUndo({ id: quickEdit.id, label: `Updated: ${quickModel.kind === 'tracker' || !quickModel.option ? quickModel.tracker.label : quickModel.option.label}`, previous: quickEdit.snapshot });
   };
 
   const undoQuickEdit = () => {
