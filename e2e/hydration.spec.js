@@ -36,6 +36,8 @@ const SAMPLES = [
   // A page whose first render depends on router.query: on a static export it is empty until
   // isReady, so anything read from it during render is a mismatch waiting to happen.
   { route: '/leaderboards?t=Skills' },
+  { route: '/leaderboards?player=Baker333' },
+  { route: '/leaderboards?t=skills&m=mining' },
   // Not a 200, but page.goto follows it and the export still has to hydrate.
   { route: '/404' },
   // Data pages export DataLoadingWrapper's loader; the deep link must still hydrate cleanly.
