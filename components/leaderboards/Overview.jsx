@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Alert, Button, Card, Link, Skeleton, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
 import NextLink from 'next/link';
 import useHydrated from '@hooks/useHydrated';
 import useFormatDate from '@hooks/useFormatDate';
+import LoginDialog from '@components/common/NavBar/LoginDialog';
 import { prefix } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
 import { AGGREGATION_INTERVAL, GLOBAL_METRIC, TABS, formatMetricValue, metaOf, rankText, staleUntilNextRun } from './format';
@@ -70,6 +71,16 @@ const Notice = ({ title, children }) => (
 
 const settingsLink = <Link component={NextLink} href="/settings">Settings</Link>;
 
+// Settings has nothing to show a guest, so the way in starts at logging in, right here.
+const GuestNotice = () => {
+  const [loginOpen, setLoginOpen] = useState(false);
+  return <Notice title="See where you stand">
+    <Link component="button" onClick={() => setLoginOpen(true)} sx={{ font: 'inherit', verticalAlign: 'baseline' }}>Log in</Link>
+    {' to get on the boards: upload your profile with leaderboards on from Settings, and you show up after the next refresh (every 30 min). Or find any player with the search above.'}
+    <LoginDialog open={loginOpen} setOpen={setLoginOpen} onClose={() => setLoginOpen(false)}/>
+  </Notice>;
+};
+
 // What the player's data allows: a standing to show, or null while the You slot shows a notice instead.
 const standingOf = (player) => (player.context && !player.isError && player.data ? { data: player.data, kind: player.context.kind } : null);
 
@@ -80,9 +91,7 @@ const YouSlot = ({ player, self, index, onSeeAll, nextRun }) => {
   if (!player.context) {
     // A signed-in account that is still loading has no name yet; the sign-in prompt would flash at them.
     if (self.pending) return <Skeleton variant="rounded" height={180}/>;
-    return <Notice title="See where you stand">
-      Log in and upload your profile with leaderboards on in {settingsLink}, or find any player with the search above.
-    </Notice>;
+    return <GuestNotice/>;
   }
   if (player.isError) {
     return <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => player.refetch()}>Retry</Button>}>

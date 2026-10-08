@@ -67,6 +67,10 @@ describe('Overview', () => {
   it('asks a visitor with no player to log in or search', async () => {
     renderOverview({ player: { context: null } });
     expect(await screen.findByText('See where you stand')).toBeTruthy();
+    // Settings renders nothing for a guest, so the prompt never sends one there.
+    expect(screen.queryByRole('link', { name: 'Settings' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+    expect(await screen.findByRole('dialog')).toBeTruthy();
   });
 
   it('shows a skeleton, not the sign-in notice, while the account loads', async () => {
