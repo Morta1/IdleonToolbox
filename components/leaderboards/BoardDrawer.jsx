@@ -5,17 +5,18 @@ import { IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { numberWithCommas } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
-import { FOCUS_RING, GLOBAL_METRIC, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun } from './format';
+import { FOCUS_RING, GLOBAL_METRIC, formatDistinctValues, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun } from './format';
 import MetricIcon from './MetricIcon';
 import RankRow from './RankRow';
 
 // At rank 15 or better the window would repeat the top of the Top 100 list.
 const AROUND_SKIP_RANK = 15;
 
-const SectionHeading = ({ children, note, sx }) => (
-  <Stack direction="row" alignItems="baseline" gap={1} sx={{ px: 2.5, pb: 0.75, ...sx }}>
-    <Typography component="h3" color="text.secondary" sx={{ fontSize: 12, letterSpacing: 1, textTransform: 'uppercase' }}>{children}</Typography>
+const SectionHeading = ({ children, note, action, id, sx }) => (
+  <Stack direction="row" alignItems="baseline" columnGap={1} flexWrap="wrap" sx={{ px: 2.5, pb: 0.75, ...sx }}>
+    <Typography component="h3" id={id} color="text.secondary" sx={{ fontSize: 12, letterSpacing: 1, textTransform: 'uppercase' }}>{children}</Typography>
     {note ? <Typography color="text.disabled" sx={{ fontSize: 12 }}>{note}</Typography> : null}
+    {action ? <Box sx={{ ml: 'auto' }}>{action}</Box> : null}
   </Stack>
 );
 
@@ -72,6 +73,8 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
   // The header names the same #1 as the list under it.
   const first = topRows[0] ?? null;
   const players = (metricKey ?? GLOBAL_METRIC) === GLOBAL_METRIC ? index.totalPlayers : meta.players;
+  const aroundTexts = formatDistinctValues(meta.notation, around.map((row) => row.value), { scale: meta.top });
+  const topHeadingId = `${titleId}-top`;
   const rowProps = (row, variant) => ({
     rank: row.rank, name: row.mainChar, value: row.value, notation: meta.notation, scale: meta.top, variant,
     kind: isMe(row.mainChar) ? kind : null, plainRank: maxed, globalRank: maxed ? row.globalRank : null
@@ -103,7 +106,7 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
           </Typography>
         ) : first || players != null ? (
           <Stack direction="row" gap={2} sx={{ fontSize: 12, color: 'text.secondary' }}>
-            {first ? <span>{`#1 ${first.mainChar} · ${formatMetricValue(meta.notation, first.value, { scale: meta.top })}`}</span> : null}
+            {first ? <span>{`${rankText(first.rank)} ${first.mainChar} · ${formatMetricValue(meta.notation, first.value, { scale: meta.top })}`}</span> : null}
             {players != null ? <span>{`${numberWithCommas(players)} players`}</span> : null}
           </Stack>
         ) : null}
@@ -119,15 +122,21 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
           <>
             {showAround ? (
               <>
-                <SectionHeading note={step} sx={{ pt: 1.75 }}>
+                <SectionHeading note={step} sx={{ pt: 1.75 }} action={
+                  // The Around block comes first, so the Top 100 the link promised is one tap away.
+                  <Button size="small" onClick={() => document.getElementById(topHeadingId)?.scrollIntoView({ block: 'start', behavior: 'smooth' })}
+                          sx={{ p: 0, minWidth: 0, fontSize: 12, fontWeight: 600, textTransform: 'none' }}>
+                    Top 100<Box component="span" aria-hidden sx={{ ml: 0.5 }}>↓</Box>
+                  </Button>
+                }>
                   {kind === 'logged' ? 'Around you' : <>Around <Box component="span" sx={{ textTransform: 'none' }}>{mine.mainChar}</Box></>}
                 </SectionHeading>
                 <Box sx={{ px: 1.5 }}>
-                  {around.map((row) => <RankRow key={row.mainChar} {...rowProps(row, 'around')}/>)}
+                  {around.map((row, at) => <RankRow key={row.mainChar} {...rowProps(row, 'around')} display={aroundTexts[at]}/>)}
                 </Box>
               </>
             ) : null}
-            <SectionHeading sx={showAround ? { mt: 1.75, pt: 2.25, borderTop: 1, borderColor: 'divider' } : { pt: 1.75 }}>Top 100</SectionHeading>
+            <SectionHeading id={topHeadingId} sx={showAround ? { mt: 1.75, pt: 2.25, borderTop: 1, borderColor: 'divider', scrollMarginTop: 8 } : { pt: 1.75 }}>Top 100</SectionHeading>
             <Box sx={{ px: 1.5 }}>
               {topRows.map((row) => <RankRow key={row.mainChar} {...rowProps(row, 'list')}/>)}
             </Box>

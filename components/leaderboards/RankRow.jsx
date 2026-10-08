@@ -27,8 +27,9 @@ const RankBadge = ({ rank, plain, strong, dim }) => {
 // dimRank: a quieter rank number (0.5 alpha), for the Overview's ranks 4 to 10.
 // pinned: the player's own row under a card, which reads "(you)" for the logged-in player.
 // scale: the board's top value, so every row of a board shares one notation.
-// 'around' rows show the exact value: next to the player the short form would read the same.
-const RankRow = ({ rank, name, value, notation, scale, kind = null, plainRank = false, globalRank = null, maxCheck = false, pinned = false, variant = 'card', dimRank = false }) => {
+// display: the value text when the caller formats a group of rows together (the drawer's Around
+// rows, which need enough figures to tell neighbours apart).
+const RankRow = ({ rank, name, value, notation, scale, display = null, kind = null, plainRank = false, globalRank = null, maxCheck = false, pinned = false, variant = 'card', dimRank = false }) => {
   const drawer = variant !== 'card';
   const around = variant === 'around';
   const accent = kind ? HIGHLIGHT[kind] : null;
@@ -63,7 +64,7 @@ const RankRow = ({ rank, name, value, notation, scale, kind = null, plainRank = 
         </Stack>
       ) : (
         <Typography color="text.secondary" noWrap title={formatExactValue(notation, value)} sx={{ fontSize: 'inherit' }}>
-          {around ? formatExactValue(notation, value) : formatMetricValue(notation, value, { scale })}
+          {display ?? formatMetricValue(notation, value, { scale })}
         </Typography>
       )}
     </Stack>

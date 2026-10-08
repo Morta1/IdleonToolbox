@@ -32,7 +32,8 @@ describe('BoardDrawer', () => {
     fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: aroundAt(91) });
     renderDrawer();
     expect(await screen.findByText('Around you')).toBeTruthy();
-    expect(screen.getByText('Top 100')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Top 100' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Top 100' })).toBeTruthy();
     expect(fetchBoard).toHaveBeenCalledWith('mining', { around: 'me', publicOnly: false });
   });
 
@@ -66,6 +67,13 @@ describe('BoardDrawer', () => {
     fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top: publicTop, around: [{ mainChar: 'Anon#abc123', value: 172221, rank: 1 }] });
     renderDrawer({ player: 'Anon#abc123', kind: 'searched', showAnonymous: false });
     expect(await screen.findByText('#1 Anon#abc123 · 172,221')).toBeTruthy();
+  });
+
+  it('gives the first listed player their real rank when the leader is hidden', async () => {
+    const publicTop = [{ mainChar: 'Frans813', value: 914, rank: 2 }, { mainChar: 'B', value: 900, rank: 3 }];
+    fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top: publicTop, around: [] });
+    renderDrawer({ player: null, showAnonymous: false });
+    expect(await screen.findByText('#2 Frans813 · 914')).toBeTruthy();
   });
 
   it('skips Around you at rank 15 or better', async () => {
@@ -136,7 +144,7 @@ describe('BoardDrawer', () => {
     expect(await screen.findByText('Top 100')).toBeTruthy();
     rerender(tree('me'));
     await waitFor(() => expect(fetchBoard).toHaveBeenCalledTimes(2));
-    expect(screen.getByText('Top 100')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Top 100' })).toBeTruthy();
     expect(screen.queryByRole('progressbar')).toBeNull();
   });
 

@@ -1,6 +1,6 @@
 import '../../../polyfills';
 import { describe, expect, it, vi } from 'vitest';
-import { AGGREGATION_INTERVAL, buildMetaIndex, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
+import { AGGREGATION_INTERVAL, buildMetaIndex, formatDistinctValues, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
 
 const meta = {
   createdAt: 100,
@@ -25,7 +25,7 @@ describe('formatMetricValue', () => {
 
   it('shows exact figures with commas below a million on a board that stays below it', () => {
     expect(formatMetricValue('default', 1724, { scale: 900_000 })).toBe('1,724');
-    expect(formatMetricValue('default', 20184.9, { scale: 900_000 })).toBe('20,184');
+    expect(formatMetricValue('default', 20184.9, { scale: 900_000 })).toBe('20,185');
     expect(formatMetricValue('default', 999_999)).toBe('999,999');
     expect(formatMetricValue('default', 0)).toBe('0');
     expect(formatMetricValue('multiplier', 870329.134, { scale: 900_000 })).toBe('870,329.13');
@@ -155,5 +155,21 @@ describe('untilNextRun', () => {
     expect(at(now - AGGREGATION_INTERVAL - 10 * 60 * 1000)).toBe(2 * 60 * 1000);
     expect(at(null)).toBe(false);
     vi.useRealTimers();
+  });
+});
+
+describe('formatDistinctValues', () => {
+  it('keeps the board style with just enough figures to tell neighbours apart', () => {
+    expect(formatDistinctValues('default', [94_681_382.33, 94_653_886.83, 94_600_000], { scale: 2.04e8 })).toEqual(['94.68M', '94.65M', '94.60M']);
+    expect(formatDistinctValues('default', [7.05237e15, 6.8258e15], { scale: 2.34e17 })).toEqual(['7.05Q', '6.83Q']);
+    expect(formatDistinctValues('multiplier', [385_382.06, 369_925.85], { scale: 3.01e9 })).toEqual(['385K', '370K']);
+  });
+
+  it('falls back to the exact figure when only decimals differ', () => {
+    expect(formatDistinctValues('default', [498506.88, 498506.668], { scale: 541_225 })).toEqual(['498,506.88', '498,506.67']);
+  });
+
+  it('lets equal values read the same', () => {
+    expect(formatDistinctValues('default', [500, 500, 400], { scale: 900 })).toEqual(['500', '500', '400']);
   });
 });
