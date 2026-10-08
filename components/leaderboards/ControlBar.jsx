@@ -3,9 +3,11 @@ import { Autocomplete, FormControlLabel, IconButton, Menu, Stack, Switch, TextFi
 import Box from '@mui/material/Box';
 import { IconDots } from '@tabler/icons-react';
 import { useDebouncedValue } from '@mantine/hooks';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import useHydrated from '@hooks/useHydrated';
 import useFormatDate from '@hooks/useFormatDate';
+import useProfileBannerState from '@hooks/useProfileBannerState';
+import { navBarHeight, profileBannerHeight } from '@components/constants';
 import { numberWithCommas } from '@utility/helpers';
 import { searchNames } from '../../services/leaderboards';
 import { AGGREGATION_INTERVAL, GLOBAL_METRIC } from './format';
@@ -20,7 +22,8 @@ const PlayerSearch = ({ onPlayer }) => {
     queryKey: ['lb-names', debounced.toLowerCase()],
     queryFn: () => searchNames(debounced),
     enabled: ready,
-    staleTime: 5 * 60 * 1000
+    staleTime: 5 * 60 * 1000,
+    placeholderData: keepPreviousData
   });
   return (
     <Autocomplete
@@ -28,13 +31,15 @@ const PlayerSearch = ({ onPlayer }) => {
       size="small"
       options={ready ? players.map((player) => player.mainChar) : []}
       filterOptions={(options) => options}
+      value={null}
       inputValue={input}
-      onInputChange={(event, value) => setInput(value)}
+      onInputChange={(event, value, reason) => { if (reason !== 'reset') setInput(value); }}
       // freeSolo: Enter on free text arrives as 'createOption', which is how Anon# ids get searched
       // (the name search leaves them out by design).
       onChange={(event, value, reason) => {
         if (typeof value !== 'string' || !value.trim()) return;
         onPlayer(value.trim(), reason === 'selectOption' ? 'typeahead' : 'enter');
+        setInput('');
       }}
       renderInput={(params) => <TextField {...params} label="Find a player" helperText="Anonymous players can be found by their Anon# id"/>}
       sx={{ flex: '1 1 240px', minWidth: 200, maxWidth: 360 }}
@@ -63,6 +68,7 @@ const MetricJump = ({ index, onMetric, inputRef }) => {
 
 const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAnonymous, onPlayer, onMetric, children }) => {
   const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+  const { isVisible: showProfileBanner } = useProfileBannerState();
   const hydrated = useHydrated();
   const formatDate = useFormatDate();
   const [menuAnchor, setMenuAnchor] = useState(null);
@@ -91,7 +97,7 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
 
   return (
     <Box sx={{
-      position: 'sticky', top: { xs: 56, sm: 64 }, zIndex: (theme) => theme.zIndex.appBar - 1,
+      position: 'sticky', top: navBarHeight + (showProfileBanner ? profileBannerHeight : 0), zIndex: (theme) => theme.zIndex.appBar - 1,
       bgcolor: 'background.default', py: 1.5, mb: 2, borderBottom: 1, borderColor: 'divider'
     }}>
       {isPhone ? (

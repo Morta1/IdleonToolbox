@@ -2,13 +2,15 @@
 import '../../../polyfills';
 import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import darkTheme from '../../../styles/theme/darkTheme';
 
 const searchNames = vi.fn(async () => [{ mainChar: 'Baker333', rank: 75 }]);
 vi.mock('../../../services/leaderboards', () => ({ searchNames }));
+const bannerState = { isVisible: false };
+vi.mock('@hooks/useProfileBannerState', () => ({ default: () => bannerState }));
 const ControlBar = (await import('@components/leaderboards/ControlBar')).default;
 const { buildMetaIndex } = await import('@components/leaderboards/format');
 
@@ -21,7 +23,7 @@ const renderBar = (props = {}) => render(
   </QueryClientProvider>
 );
 
-afterEach(() => { cleanup(); vi.clearAllMocks(); });
+afterEach(() => { bannerState.isVisible = false; cleanup(); vi.clearAllMocks(); });
 
 describe('ControlBar', () => {
   it('suggests names after two characters and reports a typeahead pick', async () => {
@@ -32,6 +34,26 @@ describe('ControlBar', () => {
     await waitFor(() => expect(searchNames).toHaveBeenCalledWith('ba'));
     fireEvent.click(await screen.findByText('Baker333'));
     expect(onPlayer).toHaveBeenCalledWith('Baker333', 'typeahead');
+  });
+
+  it('reports the same player again when picked twice', async () => {
+    const onPlayer = vi.fn();
+    renderBar({ onPlayer });
+    const input = screen.getByLabelText('Find a player');
+    for (let pick = 1; pick <= 2; pick++) {
+      fireEvent.change(input, { target: { value: 'ba' } });
+      fireEvent.click(await screen.findByText('Baker333'));
+      expect(onPlayer).toHaveBeenCalledTimes(pick);
+    }
+    expect(onPlayer).toHaveBeenNthCalledWith(2, 'Baker333', 'typeahead');
+  });
+
+  it('sticks right below the navbar, and below the profile banner when it shows', () => {
+    const stickyTop = ({ container }) => getComputedStyle(container.firstChild).top;
+    expect(stickyTop(renderBar())).toBe('70px');
+    cleanup();
+    bannerState.isVisible = true;
+    expect(stickyTop(renderBar())).toBe('110px');
   });
 
   it('searches free text on Enter, for Anon# ids', () => {
@@ -57,7 +79,7 @@ describe('ControlBar', () => {
     fireEvent.keyDown(document.body, { key: '/' });
     expect(document.activeElement).toBe(screen.getByLabelText('Jump to board'));
     const search = screen.getByLabelText('Find a player');
-    search.focus();
+    act(() => search.focus());
     fireEvent.keyDown(search, { key: '/' });
     expect(document.activeElement).toBe(search);
   });
