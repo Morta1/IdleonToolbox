@@ -4,6 +4,17 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.88',
+    'gameVer': '2.3.531',
+    'date': '09/10/2026',
+    'features': [
+      'Material Tracker: added a Clear all button'
+    ],
+    'fixes': [
+      'Material Tracker: importing an invalid file no longer adds broken entries that cannot be removed'
+    ]
+  },
+  {
     'ver': '3.3.87',
     'gameVer': '2.3.531',
     'date': '08/10/2026',

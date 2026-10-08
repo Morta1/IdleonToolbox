@@ -3,6 +3,7 @@ import { getBuildCost } from '@parsers/world-3/construction';
 import { CAULDRON_INFO, CAULDRONS_MAX_LEVELS, LIQUID_INFO, MAX_VIAL_LEVEL, vialCostsArray } from '@parsers/world-2/alchemy';
 import { getChipsAndJewels, maxNumberOfSpiceClicks } from '@parsers/world-4/cooking';
 import { cleanUnderscore, getDuration, getNextCompanionClaim, hoursUntilDailyReset, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
+import { getValidTrackedMaterials } from '../materialTracker';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { items, liquidsShop, ninjaExtraInfo } from '@website-data';
 import { getPowerPerCycle, getRefineryCycleTimes, getSaltMatsTimeLeft, getSaltsBalance, hasMissingMats } from '@parsers/world-3/refinery';
@@ -91,7 +92,7 @@ export const getGeneralAlerts = (account, fields, options, characters) => {
     }
   }
   if (fields?.materialTracker?.checked) {
-    const materials = tryToParse(localStorage.getItem('material-tracker'));
+    const materials = getValidTrackedMaterials(tryToParse(localStorage.getItem('material-tracker')));
     if (Object.keys(materials || {}).length > 0) {
       const totalOwnedItems = getCachedAllItems(characters, account);
       const allMaterials = Object.values(materials || {})?.reduce((res, {
