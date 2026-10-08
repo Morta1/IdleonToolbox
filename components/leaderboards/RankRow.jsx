@@ -6,7 +6,7 @@ import { prefix } from '@utility/helpers';
 import { formatMetricValue, profileUrl } from './format';
 
 export const HIGHLIGHT = { logged: '#007E85', searched: '#cd861b' };
-const TROPHIES = { 1: 'data/Trophie.png', 2: 'data/G2icon40.png', 3: 'data/G2icon39.png' };
+export const TROPHIES = { 1: 'data/Trophie.png', 2: 'data/G2icon40.png', 3: 'data/G2icon39.png' };
 
 const RankBadge = ({ rank, plain }) => {
   if (!plain && TROPHIES[rank]) {

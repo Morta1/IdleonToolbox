@@ -43,6 +43,27 @@ describe('Overview', () => {
     expect(onOpen).toHaveBeenCalledWith('globalRanking', 'overview');
   });
 
+  it('gives trophies by rank, not position, when public ranks have gaps', async () => {
+    fetchBoard.mockResolvedValueOnce({ metric: 'globalRanking', createdAt: 1, around: [],
+      top: [2, 3, 5, 6, 7, 8, 9, 10, 11, 12].map((rank) => ({ mainChar: `P${rank}`, value: 1000 - rank, rank, globalRank: rank })) });
+    renderOverview({ player: { context: null } });
+    expect(await screen.findByText('P2')).toBeTruthy();
+    expect(screen.getByAltText('Rank 2')).toBeTruthy();
+    expect(screen.getByAltText('Rank 3')).toBeTruthy();
+    expect(screen.queryByAltText('Rank 1')).toBeNull();
+    expect(screen.queryByAltText('Rank 5')).toBeNull();
+    expect(screen.getByText('#5')).toBeTruthy();
+  });
+
+  it('shows a trophy for each tied first place', async () => {
+    fetchBoard.mockResolvedValueOnce({ metric: 'globalRanking', createdAt: 1, around: [],
+      top: [1, 1, 3, 4, 5, 6, 7, 8, 9, 10].map((rank, i) => ({ mainChar: `T${i}`, value: 1000 - i, rank, globalRank: rank })) });
+    renderOverview({ player: { context: null } });
+    expect(await screen.findByText('T0')).toBeTruthy();
+    expect(screen.getAllByAltText('Rank 1')).toHaveLength(2);
+    expect(screen.getAllByAltText('Rank 3')).toHaveLength(1);
+  });
+
   it('asks a visitor with no player to log in or search', async () => {
     renderOverview({ player: { context: null } });
     expect(await screen.findByText('See where you stand')).toBeTruthy();
@@ -66,7 +87,8 @@ describe('Overview', () => {
   it('offers a retry when the player fetch fails', async () => {
     const refetch = vi.fn();
     renderOverview({ player: { context: { name: 'Me', kind: 'logged' }, isError: true, refetch } });
-    fireEvent.click(await screen.findByRole('button', { name: 'Retry' }));
+    expect(await screen.findByText('Could not load your standing')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(refetch).toHaveBeenCalled();
   });
 });

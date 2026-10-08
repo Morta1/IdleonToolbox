@@ -11,14 +11,14 @@ import { AGGREGATION_INTERVAL, GLOBAL_METRIC, formatMetricValue, metaOf, staleUn
 import { withinReach } from './standing';
 import { nextRankText } from './tiers';
 import MetricIcon from './MetricIcon';
-import RankRow, { HIGHLIGHT } from './RankRow';
+import RankRow, { HIGHLIGHT, TROPHIES } from './RankRow';
 import YouCard from './YouCard';
 
-// #2, #1, #3 left to right; #1 taller.
+// Slots by position, left to right: second, first, third. The trophy follows the row's rank, not its slot.
 const PODIUM = [
-  { at: 1, icon: 'data/G2icon40.png', height: 112 },
-  { at: 0, icon: 'data/Trophie.png', height: 136 },
-  { at: 2, icon: 'data/G2icon39.png', height: 96 }
+  { at: 1, height: 112 },
+  { at: 0, height: 136 },
+  { at: 2, height: 96 }
 ];
 
 const Podium = ({ rows, highlight, onOpen }) => (
@@ -28,7 +28,7 @@ const Podium = ({ rows, highlight, onOpen }) => (
       <Button size="small" onClick={() => onOpen(GLOBAL_METRIC, 'overview')}>Full top 100 ›</Button>
     </Stack>
     <Stack direction="row" gap={1} alignItems="flex-end" justifyContent="center" sx={{ mb: 2 }}>
-      {PODIUM.map(({ at, icon, height }) => {
+      {PODIUM.map(({ at, height }) => {
         const row = rows[at];
         if (!row) return null;
         const kind = highlight[row.mainChar] ?? null;
@@ -36,7 +36,9 @@ const Podium = ({ rows, highlight, onOpen }) => (
           <Stack key={row.mainChar} alignItems="center" justifyContent="flex-end" gap={0.5} sx={{
             flex: 1, minWidth: 0, height, p: 1, borderRadius: 2, bgcolor: '#141A21', border: 1, borderColor: kind ? HIGHLIGHT[kind] : 'divider'
           }}>
-            <img src={`${prefix}${icon}`} width={28} height={28} style={{ objectFit: 'contain' }} alt={`Rank ${row.rank}`}/>
+            {TROPHIES[row.rank]
+              ? <img src={`${prefix}${TROPHIES[row.rank]}`} width={28} height={28} style={{ objectFit: 'contain' }} alt={`Rank ${row.rank}`}/>
+              : <Typography variant="body2" color="text.secondary" fontWeight={600} sx={{ height: 28, lineHeight: '28px' }}>{`#${row.rank ?? '-'}`}</Typography>}
             <Typography variant="body2" fontWeight={700} noWrap sx={{ maxWidth: '100%' }}>{row.mainChar}</Typography>
             <Typography variant="caption" color="text.secondary">{formatMetricValue('points', row.value)}</Typography>
           </Stack>
@@ -69,11 +71,9 @@ const PlayerPanel = ({ player, self, index, onOpen, onSeeAll, nextRun }) => {
     </Notice>;
   }
   if (player.isError) {
-    return <Card variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-      <Skeleton variant="text" width="40%"/>
-      <Skeleton variant="rounded" height={64} sx={{ my: 1 }}/>
-      <Button onClick={() => player.refetch()}>Retry</Button>
-    </Card>;
+    return <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => player.refetch()}>Retry</Button>}>
+      Could not load your standing
+    </Alert>;
   }
   if (player.isLoading || player.data === undefined) {
     return <Skeleton variant="rounded" height={180}/>;
