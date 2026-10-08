@@ -59,4 +59,37 @@ describe('leaderboards board drawer', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Mining', hidden: true })).toBeTruthy();
     expect(screen.queryByText('Global ranking')).toBeNull();
   });
+
+  it('steps back over the entry an in-page open pushed', async () => {
+    routerState.push.mockImplementation(({ query }) => { routerState.query = query; });
+    routerState.query = { t: 'skills' };
+    const { rerender } = renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: /Top 100/ }));
+    expect(routerState.push).toHaveBeenCalledWith({ pathname: '/leaderboards', query: { t: 'skills', m: 'mining' } }, undefined, { shallow: true });
+    rerender();
+    fireEvent.click(await screen.findByRole('button', { name: 'Close' }));
+    expect(routerState.back).toHaveBeenCalledTimes(1);
+    expect(routerState.replace).not.toHaveBeenCalled();
+  });
+
+  it('replaces the URL when the board was opened from the URL', async () => {
+    routerState.query = { t: 'skills', m: 'mining' };
+    renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: 'Close' }));
+    expect(routerState.replace).toHaveBeenCalledWith({ pathname: '/leaderboards', query: { t: 'skills' } }, undefined, { shallow: true });
+    expect(routerState.back).not.toHaveBeenCalled();
+  });
+
+  it('replaces when the URL moved on after the in-page open', async () => {
+    routerState.push.mockImplementation(({ query }) => { routerState.query = query; });
+    routerState.query = { t: 'skills' };
+    const { rerender } = renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: /Top 100/ }));
+    rerender();
+    routerState.query = { t: 'skills', m: 'mining', player: 'Tester' };
+    rerender();
+    fireEvent.click(await screen.findByRole('button', { name: 'Close' }));
+    expect(routerState.back).not.toHaveBeenCalled();
+    expect(routerState.replace).toHaveBeenCalled();
+  });
 });

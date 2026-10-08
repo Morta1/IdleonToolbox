@@ -21,6 +21,8 @@ const tabOf = (value) => {
   return TABS.find((tab) => tab.toLowerCase() === lower)?.toLowerCase() ?? null;
 };
 
+const signature = (query) => JSON.stringify(Object.entries(query).sort(([a], [b]) => (a < b ? -1 : 1)));
+
 const Leaderboards = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -94,6 +96,9 @@ const Leaderboards = () => {
     router.replace({ pathname: router.pathname, query: rest }, undefined, { shallow: true });
   }, [queryPlayer, playerQuery.status, playerQuery.data]);
 
+  // The URL an in-page open pushed, so closing can step back over it instead of stacking a copy.
+  const pushedOpen = useRef(null);
+
   const setQuery = (next, { replace = false } = {}) => {
     const navigate = replace ? router.replace : router.push;
     navigate({ pathname: router.pathname, query: next }, undefined, { shallow: true });
@@ -121,9 +126,16 @@ const Leaderboards = () => {
     const category = index.byKey[metric]?.category;
     if (source === 'jump' && category) next.t = TABS.find((tab) => tab.toLowerCase() === category);
     setQuery(next);
+    pushedOpen.current = signature(next);
   };
 
   const closeBoard = () => {
+    const wasPushed = pushedOpen.current === signature(router.query);
+    pushedOpen.current = null;
+    if (wasPushed) {
+      router.back();
+      return;
+    }
     const { m, ...rest } = router.query;
     setQuery(rest, { replace: true });
   };
