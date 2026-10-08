@@ -10,7 +10,11 @@ const CategoryTiles = ({ index, ranks, onTab }) => {
   const tiles = TABS.map((tab) => ({ tab, keys: index.categories[tab.toLowerCase()]?.metrics ?? [] })).filter(({ keys }) => keys.length);
   if (!tiles.length) return null;
   return (
-    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(3, minmax(0, 1fr))', md: 'repeat(6, minmax(0, 1fr))' }, gap: 1.5 }}>
+    <Box sx={{
+      display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 1.5,
+      '@container (min-width: 520px)': { gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' },
+      '@container (min-width: 900px)': { gridTemplateColumns: 'repeat(6, minmax(0, 1fr))' }
+    }}>
       {tiles.map(({ tab, keys }) => {
         const median = ranks ? medianRank(keys, ranks) : null;
         const best = ranks ? bestInSection(keys, ranks) : null;

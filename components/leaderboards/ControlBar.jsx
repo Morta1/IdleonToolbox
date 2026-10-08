@@ -71,8 +71,7 @@ const PlayerSearch = ({ onPlayer }) => {
       renderInput={(params) => (
         <TextField
           {...params}
-          placeholder="Find a player"
-          helperText="Anonymous players can be found by their Anon# id"
+          placeholder="Find a player or Anon# id"
           slotProps={{
             htmlInput: { ...params.inputProps, 'aria-label': 'Find a player' },
             input: {
@@ -94,11 +93,16 @@ const CATEGORY_LABEL = (category) => category.charAt(0).toUpperCase() + category
 
 const KeyHint = () => (
   <InputAdornment position="end">
-    <Box aria-hidden component="span" sx={{ fontSize: 11, color: 'text.disabled', border: `1px solid ${FIELD_OUTLINE}`, borderRadius: '4px', px: 0.75, lineHeight: '16px' }}>/</Box>
+    <Box aria-hidden component="span" sx={{
+      fontSize: 11, color: 'text.disabled', border: `1px solid ${FIELD_OUTLINE}`, borderRadius: '4px', px: 0.75, lineHeight: '16px',
+      // No keyboard shortcut to hint at on a touch screen.
+      '@media (hover: none)': { display: 'none' }
+    }}>/</Box>
   </InputAdornment>
 );
 
-const MetricJump = ({ index, onMetric, inputRef = null, showKeyHint = false }) => {
+// fullWidth: the phone menu stacks its fields, where a flex basis would turn into a 220px tall gap.
+const MetricJump = ({ index, onMetric, inputRef = null, showKeyHint = false, fullWidth = false }) => {
   const options = Object.values(index.byKey).filter((meta) => meta.category && meta.key !== GLOBAL_METRIC);
   return (
     <Autocomplete
@@ -127,7 +131,7 @@ const MetricJump = ({ index, onMetric, inputRef = null, showKeyHint = false }) =
         />
       )}
       sx={{
-        flex: '1 1 220px', minWidth: 200, maxWidth: { xs: 'none', sm: 320 },
+        ...(fullWidth ? { width: '100%' } : { flex: '1 1 220px', minWidth: 200, maxWidth: { xs: 'none', sm: 320 } }),
         '& .MuiOutlinedInput-root': { height: fieldHeight, py: 0, pr: 1.5 }
       }}
     />
@@ -142,15 +146,31 @@ export const LeaderboardStatus = ({ totalPlayers, createdAt }) => {
   if (!hydrated || !createdAt) return null;
   return (
     <Typography variant="caption" sx={{ fontSize: 12, color: 'text.disabled', whiteSpace: 'nowrap' }}>
-      {`${totalPlayers ? `${numberWithCommas(totalPlayers)} accounts · ` : ''}updated ${formatDate(createdAt, { timeOnly: true, showSeconds: false })} · next ~${formatDate(createdAt + AGGREGATION_INTERVAL, { timeOnly: true, showSeconds: false })}`}
+      {`${totalPlayers ? `${numberWithCommas(totalPlayers)} players · ` : ''}updated ${formatDate(createdAt, { timeOnly: true, showSeconds: false })} · next ~${formatDate(createdAt + AGGREGATION_INTERVAL, { timeOnly: true, showSeconds: false })}`}
     </Typography>
   );
 };
 
-const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAnonymous, onPlayer, onMetric, children }) => {
+// onStickyBottom: where the bar ends on screen, so the tab strip can pin right under it.
+const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAnonymous, onPlayer, onMetric, onStickyBottom, children }) => {
   const { isVisible: showProfileBanner } = useProfileBannerState();
   const [menuAnchor, setMenuAnchor] = useState(null);
+  const [barHeight, setBarHeight] = useState(0);
   const jumpRef = useRef(null);
+  const barRef = useRef(null);
+  const top = navBarHeight + (showProfileBanner ? profileBannerHeight : 0);
+
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => setBarHeight(bar.offsetHeight));
+    observer.observe(bar);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (barHeight) onStickyBottom?.(top + barHeight);
+  }, [top, barHeight]);
 
   // "/" focuses the board jump, registered on this page only and ignored while typing.
   useEffect(() => {
@@ -177,9 +197,11 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
   );
 
   return (
-    <Box sx={{
-      position: 'sticky', top: navBarHeight + (showProfileBanner ? profileBannerHeight : 0), zIndex: (theme) => theme.zIndex.appBar - 1,
-      bgcolor: 'background.default', py: 1.5, mb: 2, borderBottom: 1, borderColor: 'divider'
+    <Box ref={barRef} sx={{
+      position: 'sticky', top, zIndex: (theme) => theme.zIndex.appBar - 1,
+      bgcolor: 'background.default', py: 1.5, mb: 2, borderBottom: 1, borderColor: 'divider',
+      // A landscape phone has no height to spare for pinned bars.
+      '@media (max-height: 500px)': { position: 'static' }
     }}>
       <Stack direction="row" gap={{ xs: 1, sm: 2 }} alignItems="flex-start" flexWrap={{ xs: 'nowrap', sm: 'wrap' }}>
         <PlayerSearch onPlayer={onPlayer}/>
@@ -189,6 +211,9 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
           {anonSwitch}
           {children}
           <Box sx={{ flexGrow: 1 }}/>
+          <Box sx={{ display: { xs: 'none', sm: 'flex', xl: 'none' }, alignItems: 'center', minHeight: fieldHeight }}>
+            <LeaderboardStatus totalPlayers={totalPlayers} createdAt={createdAt}/>
+          </Box>
         </Box>
         <IconButton
           aria-label="More options"
@@ -204,7 +229,7 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}>
         <Stack gap={1.5} sx={{ p: 2, width: 300 }}>
-          <MetricJump index={index} onMetric={(key) => { setMenuAnchor(null); onMetric(key); }}/>
+          <MetricJump fullWidth index={index} onMetric={(key) => { setMenuAnchor(null); onMetric(key); }}/>
           {anonSwitch}
           {children}
           <LeaderboardStatus totalPlayers={totalPlayers} createdAt={createdAt}/>

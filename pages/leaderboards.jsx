@@ -30,6 +30,8 @@ const Leaderboards = () => {
   // Mantine reads storage in an effect, so the export and the first client render show the default.
   const [showAnonymous, setShowAnonymous] = useLocalStorage({ key: 'leaderboard:showAnonymous', defaultValue: true });
   const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
+  // Where the sticky control bar ends: the tab strip pins right under it.
+  const [stripTop, setStripTop] = useState(null);
   const showToast = (severity, message) => setToast({ open: true, severity, message });
 
   // Derived during render, never seeded into useState: router.query is {} until isReady on the
@@ -172,12 +174,16 @@ const Leaderboards = () => {
       onToggleAnonymous={(event, checked) => setShowAnonymous(checked)}
       onPlayer={lookupPlayer}
       onMetric={(metric) => openBoard(metric, 'jump')}
+      onStickyBottom={setStripTop}
     />
     <Tabber
       tabs={TABS}
       components={tabLabels}
       align="start"
-      endSlot={<Box sx={{ display: { xs: 'none', sm: 'block' } }}><LeaderboardStatus totalPlayers={index.totalPlayers} createdAt={statusCreatedAt}/></Box>}
+      stickyTop={stripTop ?? undefined}
+      idPrefix="lb"
+      // The strip has room for the status line only on wide screens; below that it sits in the control bar.
+      endSlot={<Box sx={{ display: { xs: 'none', xl: 'block' } }}><LeaderboardStatus totalPlayers={index.totalPlayers} createdAt={statusCreatedAt}/></Box>}
       activeTab={TABS.findIndex((tab) => tab.toLowerCase() === selectedTab)}
       clearOnChange={['m']}
       keepChildren>

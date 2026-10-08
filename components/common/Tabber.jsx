@@ -22,7 +22,11 @@ const Tabber = ({
                   // Opt-ins for a left-aligned, full-width strip: align="start" drops the centring, endSlot
                   // renders at the right end of the same row. Left out, the strip is unchanged.
                   align,
-                  endSlot
+                  endSlot,
+                  // Also opt-in: the row strip sticks at this offset from the top of the viewport.
+                  stickyTop,
+                  // Also opt-in: ids that tie each tab to one tabpanel wrapping the children.
+                  idPrefix
                 }) => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const router = useRouter();
@@ -56,13 +60,16 @@ const Tabber = ({
   // A parent that renders its own tab content passes one child for every tab, so it must not be
   // filtered down to the selected index here.
   const showAllChildren = keepChildren ?? Boolean(onTabChange);
-  const useScrollable = forceScroll || (isMd && tabs.length >= 4) || tabs.length >= 8;
   const alignStart = align === 'start';
   const rowStrip = alignStart || endSlot != null;
+  // A row strip shares its width with the end slot, so it scrolls whenever its tabs outgrow it.
+  const useScrollable = forceScroll || rowStrip || (isMd && tabs.length >= 4) || tabs.length >= 8;
+  const panelId = idPrefix ? `${idPrefix}-panel` : undefined;
   const tabStrip = (
     <Tabs
       centered={!useScrollable && !alignStart}
-      scrollButtons
+      // A row strip only grows arrows once its tabs overflow; true would reserve their width at all times.
+      scrollButtons={rowStrip ? 'auto' : true}
       allowScrollButtonsMobile
       sx={{
         marginBottom: rowStrip ? 0 : 3,
@@ -83,18 +90,30 @@ const Tabber = ({
           icon={icons?.[index] ? <img src={`${prefix}${icons?.[index]}.png`} alt=""/> : null}
           wrapped label={iconsOnly ? '' : tab}
           sx={alignStart ? { minWidth: 62, minHeight: 44, px: 1.75 } : { minWidth: 62 }}
+          {...(idPrefix ? { id: `${idPrefix}-tab-${index}`, 'aria-controls': panelId } : {})}
           key={`${tabs[index]}-${index}`}/>;
       })}
     </Tabs>
   );
   return <Box sx={orientation === 'vertical' ? { flexGrow: 1, display: 'flex' } : {}}>
     {rowStrip ? (
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3, ...(alignStart ? { borderBottom: '1px solid #2f3641' } : {}) }}>
+      <Box sx={{
+        display: 'flex', alignItems: 'center', gap: 2, mb: 3, ...(alignStart ? { borderBottom: '1px solid #2f3641' } : {}),
+        ...(stickyTop != null ? {
+          position: 'sticky', top: stickyTop, zIndex: (theme) => theme.zIndex.appBar - 2, bgcolor: 'background.default',
+          // A landscape phone has no height to spare for pinned bars.
+          '@media (max-height: 500px)': { position: 'static' }
+        } : {})
+      }}>
         {tabStrip}
         {endSlot != null ? <Box sx={{ flexShrink: 0 }}>{endSlot}</Box> : null}
       </Box>
     ) : tabStrip}
-    {showAllChildren ? children : array?.map((child, index) => {
+    {idPrefix ? (
+      <div role="tabpanel" id={panelId} aria-labelledby={`${idPrefix}-tab-${selectedTab}`}>
+        {showAllChildren ? children : array?.map((child, index) => (index === selectedTab ? child : null))}
+      </div>
+    ) : showAllChildren ? children : array?.map((child, index) => {
       return index === selectedTab ? child : null;
     })}
   </Box>

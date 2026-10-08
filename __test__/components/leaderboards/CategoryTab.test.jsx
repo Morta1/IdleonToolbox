@@ -36,6 +36,26 @@ describe('CategoryTab', () => {
     expect(screen.getByRole('button', { name: 'Expand Account' }).getAttribute('aria-expanded')).toBe('false');
   });
 
+  it('toggles from anywhere on the header row, once per click', () => {
+    renderTab({ category: 'general' });
+    fireEvent.click(screen.getAllByText('1 board')[0]);
+    expect(screen.getByRole('button', { name: 'Expand Account' }).getAttribute('aria-expanded')).toBe('false');
+    fireEvent.click(screen.getByRole('button', { name: 'Expand Account' }));
+    const button = screen.getByRole('button', { name: 'Collapse Account' });
+    expect(button.getAttribute('aria-expanded')).toBe('true');
+    expect(document.getElementById(button.getAttribute('aria-controls'))).toBeTruthy();
+  });
+
+  it('keeps keyboard focus on the opposite bulk button once the pressed one disables itself', () => {
+    renderTab({ category: 'general' });
+    const collapse = screen.getByRole('button', { name: 'Collapse all' });
+    collapse.focus();
+    fireEvent.click(collapse);
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Expand all' }));
+    fireEvent.click(document.activeElement);
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Collapse all' }));
+  });
+
   it('renders no heading for a single-section tab', () => {
     renderTab({ category: 'skills' });
     expect(screen.queryByRole('heading', { level: 2 })).toBeNull();

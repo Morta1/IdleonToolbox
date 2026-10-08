@@ -58,4 +58,21 @@ describe('Tabber', () => {
     expect(plain.querySelector('[data-testid="end"]')).toBeNull();
     expect(plain.querySelector('.MuiTabs-root').parentElement.parentElement).toBe(plain);
   });
+  it('scrolls a row strip, pins it when asked, and ties tabs to one panel', () => {
+    const { container } = renderTabber(7, { align: 'start', endSlot: <span/>, stickyTop: 120, idPrefix: 'lb' });
+    expect(container.querySelector('.MuiTabs-scroller.MuiTabs-scrollableX')).toBeTruthy();
+    const row = container.querySelector('.MuiTabs-root').parentElement;
+    expect(getComputedStyle(row).position).toBe('sticky');
+    expect(getComputedStyle(row).top).toBe('120px');
+    const panel = container.querySelector('[role="tabpanel"]');
+    expect(panel.id).toBe('lb-panel');
+    expect(panel.getAttribute('aria-labelledby')).toBe('lb-tab-0');
+    expect(container.querySelector('#lb-tab-3').getAttribute('aria-controls')).toBe('lb-panel');
+  });
+
+  it('adds no panel wrapper or sticky strip by default', () => {
+    const { container } = renderTabber(7, { align: 'start' });
+    expect(container.querySelector('[role="tabpanel"]')).toBeNull();
+    expect(getComputedStyle(container.querySelector('.MuiTabs-root').parentElement).position).not.toBe('sticky');
+  });
 });

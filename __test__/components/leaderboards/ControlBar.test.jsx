@@ -55,7 +55,7 @@ describe('ControlBar', () => {
   it('labels the fields with placeholders and an aria-label rather than floating labels', () => {
     const { container } = renderBar();
     const search = screen.getByLabelText('Find a player');
-    expect(search.getAttribute('placeholder')).toBe('Find a player');
+    expect(search.getAttribute('placeholder')).toBe('Find a player or Anon# id');
     expect(search.getAttribute('aria-label')).toBe('Find a player');
     const jump = screen.getByLabelText('Jump to board');
     expect(jump.getAttribute('placeholder')).toBe('Jump to a board (1)');
@@ -64,7 +64,8 @@ describe('ControlBar', () => {
     // The "/" shortcut hint sits in the jump field, and the jump has no popup arrow.
     expect(jump.closest('.MuiInputBase-root').textContent.replace(/​/g, '')).toBe('/');
     expect(container.querySelector('.MuiAutocomplete-popupIndicator')).toBeNull();
-    expect(screen.getByText('Anonymous players can be found by their Anon# id')).toBeTruthy();
+    // The Anon# hint lives in the placeholder: a helper line cost the sticky bar a row on phones.
+    expect(screen.queryByText(/can be found by their Anon# id/)).toBeNull();
   });
 
   it('reports the same player again when picked twice', async () => {
@@ -79,11 +80,11 @@ describe('ControlBar', () => {
     expect(onPlayer).toHaveBeenNthCalledWith(2, 'Baker333', 'typeahead');
   });
 
-  it('keeps the status line out of the bar on desktop and in the phone menu', async () => {
+  it('shows the status line in the bar below xl and in the phone menu', async () => {
     renderBar({ createdAt: Date.UTC(2026, 9, 8, 7, 31) });
-    expect(screen.queryByText(/accounts · updated/)).toBeNull();
+    expect(await screen.findByText(/2,608 players · updated/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'More options' }));
-    expect(await screen.findByText(/2,608 accounts · updated/)).toBeTruthy();
+    expect(await screen.findAllByText(/2,608 players · updated/)).toHaveLength(2);
   });
 
   it('sticks right below the navbar, and below the profile banner when it shows', () => {

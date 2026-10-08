@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Button, Collapse, IconButton, Stack, Typography } from '@mui/material';
+import React, { useId, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
+import { Button, ButtonBase, Collapse, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { IconChevronDown, IconChevronRight, IconChevronsDown, IconChevronsUp, IconInfoCircle } from '@tabler/icons-react';
 import MetricCard from './MetricCard';
@@ -15,14 +16,23 @@ const AnonymousNotice = () => (
   </Stack>
 );
 
-const BulkButton = ({ icon: Icon, disabled, onClick, children }) => (
-  <Button size="small" disabled={disabled} onClick={onClick} startIcon={<Icon size={14}/>}
+const BulkButton = ({ icon: Icon, disabled, onClick, buttonRef, children }) => (
+  <Button ref={buttonRef} size="small" disabled={disabled} onClick={onClick} startIcon={<Icon size={14}/>}
           sx={{ fontSize: 12, color: 'text.secondary', textTransform: 'none', minWidth: 0 }}>{children}</Button>
 );
 
 const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onOpen, showAnonymous = true }) => {
   // Per visit: a collapsed section is not worth remembering across loads.
   const [collapsed, setCollapsed] = useState({});
+  const baseId = useId();
+  const expandRef = useRef(null);
+  const collapseRef = useRef(null);
+  // The pressed button disables itself, which would drop keyboard focus on the page body: hand
+  // focus to its opposite, which the same update enables.
+  const setAll = (next, focusRef) => {
+    flushSync(() => setCollapsed(next));
+    focusRef.current?.focus();
+  };
   const sections = index.categories[category]?.sections ?? [{ name: '', metrics: Object.keys(lists ?? {}) }];
   const showHeadings = sections.length > 1;
   const bestLabel = pinnedBase?.kind === 'logged' ? 'your best' : 'best';
@@ -33,9 +43,9 @@ const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onO
       {showAnonymous ? null : <AnonymousNotice/>}
       {showHeadings ? (
         <Stack direction="row" justifyContent="flex-end" gap={0.5}>
-          <BulkButton icon={IconChevronsDown} disabled={allOpen} onClick={() => setCollapsed({})}>Expand all</BulkButton>
-          <BulkButton icon={IconChevronsUp} disabled={allClosed}
-                      onClick={() => setCollapsed(Object.fromEntries(sections.map((section) => [section.name, true])))}>Collapse all</BulkButton>
+          <BulkButton icon={IconChevronsDown} disabled={allOpen} buttonRef={expandRef} onClick={() => setAll({}, collapseRef)}>Expand all</BulkButton>
+          <BulkButton icon={IconChevronsUp} disabled={allClosed} buttonRef={collapseRef}
+                      onClick={() => setAll(Object.fromEntries(sections.map((section) => [section.name, true])), expandRef)}>Collapse all</BulkButton>
         </Stack>
       ) : null}
       <Box>
@@ -46,21 +56,30 @@ const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onO
           // Open sections breathe; a run of collapsed ones stays a tight list.
           const spaced = at > 0 && (open || !collapsed[sections[at - 1].name]);
           const sub = `${section.metrics.length} ${section.metrics.length === 1 ? 'board' : 'boards'}${best ? ` · ${bestLabel}: ${metaOf(index, best.key).label} ${rankText(best.r)}` : ''}${atMax ? ` · ${atMax} at the max` : ''}`;
+          const panelId = `${baseId}-section-${at}`;
+          const toggle = () => setCollapsed({ ...collapsed, [section.name]: open });
           return (
             <Box component="section" key={section.name || 'all'} sx={{ mt: spaced ? 2 : 0 }}>
               {showHeadings ? (
-                <Stack direction="row" alignItems="center" gap={1.5} sx={open ? { mb: 2 } : { py: 1.5, borderTop: 1, borderColor: 'divider' }}>
-                  <IconButton size="small" aria-label={`${open ? 'Collapse' : 'Expand'} ${section.name}`} aria-expanded={open}
-                              onClick={() => setCollapsed({ ...collapsed, [section.name]: open })}
-                              sx={{ width: 28, height: 28, color: 'text.secondary', borderRadius: 1 }}>
-                    {open ? <IconChevronDown size={14} stroke={2.5}/> : <IconChevronRight size={14} stroke={2.5}/>}
-                  </IconButton>
-                  <Typography component="h2" sx={{ fontSize: 15, fontWeight: 700 }}>{section.name}</Typography>
-                  <Typography color="text.disabled" sx={{ fontSize: 12 }}>{sub}</Typography>
-                  {open ? <Box sx={{ flexGrow: 1, height: '1px', bgcolor: 'divider' }}/> : null}
+                // The whole row toggles on a click; the heading's button is the keyboard and screen
+                // reader target, and its own click bubbles here, so a press toggles once.
+                <Stack direction="row" alignItems="center" columnGap={1.5} rowGap={0.25} flexWrap="wrap" onClick={toggle}
+                       sx={{ cursor: 'pointer', ...(open ? { mb: 2 } : { py: 1.5, borderTop: 1, borderColor: 'divider' }) }}>
+                  <Typography component="h2" sx={{ fontSize: 15, fontWeight: 700, minWidth: 0 }}>
+                    <ButtonBase aria-label={`${open ? 'Collapse' : 'Expand'} ${section.name}`} aria-expanded={open} aria-controls={panelId}
+                                sx={{ gap: 1.5, font: 'inherit', textAlign: 'left', borderRadius: 1 }}>
+                      <Box component="span" sx={{ width: 28, height: 28, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'text.secondary' }}>
+                        {open ? <IconChevronDown size={14} stroke={2.5}/> : <IconChevronRight size={14} stroke={2.5}/>}
+                      </Box>
+                      {section.name}
+                    </ButtonBase>
+                  </Typography>
+                  {/* On a phone the summary drops under the title, lined up with it, rather than breaking it mid-phrase. */}
+                  <Typography color="text.disabled" sx={{ fontSize: 12, flexBasis: { xs: '100%', sm: 'auto' }, pl: { xs: 5, sm: 0 } }}>{sub}</Typography>
+                  {open ? <Box sx={{ flexGrow: 1, height: '1px', bgcolor: 'divider', display: { xs: 'none', sm: 'block' } }}/> : null}
                 </Stack>
               ) : null}
-              <Collapse in={open}>
+              <Collapse in={open} id={panelId}>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 22rem), 1fr))', gap: 2 }}>
                   {section.metrics.map((key) => (
                     <MetricCard key={key} meta={metaOf(index, key)} entries={lists?.[key]} highlight={highlight}

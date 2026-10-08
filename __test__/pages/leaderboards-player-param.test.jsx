@@ -114,9 +114,10 @@ describe('leaderboards ?player= deep link', () => {
     renderPage();
     await waitFor(() => expect(screen.getByRole('tab', { name: /Skills/ }).querySelector('span')?.textContent).toBe('1'));
     expect(screen.getByRole('tab', { name: /Skills/ }).textContent).toBe('Skills1');
-    const status = await screen.findByText(/10 accounts · updated/);
-    expect(status.closest('.MuiTabs-root')).toBeNull();
-    expect(status.parentElement.parentElement.parentElement.querySelector('[role="tablist"]')).toBeTruthy();
+    const statuses = await screen.findAllByText(/10 players · updated/);
+    const inStrip = statuses.find((status) => status.parentElement.parentElement.parentElement.querySelector('[role="tablist"]'));
+    expect(inStrip).toBeTruthy();
+    expect(inStrip.closest('.MuiTabs-root')).toBeNull();
   });
 
   it('keeps the logged-in treatment when you search your own name', async () => {

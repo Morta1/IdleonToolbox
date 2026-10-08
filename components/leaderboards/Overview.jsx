@@ -52,7 +52,8 @@ const Podium = ({ rows, highlight, onOpen }) => (
     </Stack>
     <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, columnGap: 3 }}>
       {rows.slice(3).map((row, at) => (
-        <Box key={row.mainChar} sx={at >= 4 ? { display: { xs: 'none', sm: 'block' } } : undefined}>
+        // A phone shows ranks 4 to 7, but never hides the highlighted player.
+        <Box key={row.mainChar} sx={at >= 4 && !highlight[row.mainChar] ? { display: { xs: 'none', sm: 'block' } } : undefined}>
           <RankRow rank={row.rank} name={row.mainChar} value={row.value} notation="points" kind={highlight[row.mainChar] ?? null} dimRank/>
         </Box>
       ))}
@@ -176,20 +177,25 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSee
   const picks = standing?.data.player.bestMetrics ?? [];
   const reach = standing ? withinReach(standing.data.ranks, index) : [];
   return (
-    <Stack gap={2.5}>
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) 420px' }, gap: 2.5 }}>
+    // Columns follow the width this page actually gets, which the side rails shrink well below the
+    // viewport's: a viewport breakpoint squeezed the podium to 160px on a 1024px screen.
+    <Stack gap={2.5} sx={{ containerType: 'inline-size' }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 2.5, '@container (min-width: 860px)': { gridTemplateColumns: 'minmax(0, 1fr) 420px' } }}>
         {podium.isError
           ? <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => podium.refetch()}>Retry</Button>}>Could not load the global ranking</Alert>
           : podium.data
             ? <Podium rows={podium.data.top} highlight={highlight} onOpen={onOpen}/>
             : <Skeleton variant="rounded" height={420}/>}
         {/* On a phone the player's own standing comes first. */}
-        <Box sx={{ order: { xs: -1, md: 0 } }}>
+        <Box sx={{ order: -1, '@container (min-width: 860px)': { order: 0 } }}>
           <YouSlot player={player} self={self} index={index} onSeeAll={onSeeAll} nextRun={nextRun}/>
         </Box>
       </Box>
       {picks.length || reach.length ? (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: picks.length && reach.length ? '1fr 1fr' : '1fr' }, gap: 2.5, alignItems: 'start' }}>
+        <Box sx={{
+          display: 'grid', gridTemplateColumns: '1fr', gap: 2.5, alignItems: 'start',
+          '@container (min-width: 760px)': { gridTemplateColumns: picks.length && reach.length ? '1fr 1fr' : '1fr' }
+        }}>
           {picks.length ? <Highlights picks={picks} kind={standing.kind} index={index}/> : null}
           {reach.length ? <WithinReach reach={reach} index={index} onOpen={onOpen}/> : null}
         </Box>
