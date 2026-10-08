@@ -11,11 +11,26 @@ export const staleUntilNextRun = (query) => {
   return Math.max(createdAt + AGGREGATION_INTERVAL - Date.now(), 0);
 };
 
+// Exact figures read better than K/M below a million; notateNumber takes over from there.
+const EXACT_BELOW = 1e6;
+
 export const formatMetricValue = (notation, value) => {
   if (notation === 'points') return `${numberWithCommas(Math.round(value))} pts`;
   if (notation === 'bits') return notateNumber(value, 'bits');
   if (notation === 'multiplier') return notateNumber(value, 'MultiplierInfo');
+  if (Number.isFinite(value) && Math.abs(value) < EXACT_BELOW) return numberWithCommas(Math.floor(value));
   return notateNumber(value);
+};
+
+// A gap to the next rank: a positive one never reads as 0, so a small fractional step keeps two
+// significant digits instead of rounding away.
+export const formatStep = (notation, diff) => {
+  const plain = notation === 'points' || notation === 'default' || notation == null;
+  if (plain && diff > 0 && diff < 100 && !Number.isInteger(diff)) {
+    const step = Number(diff.toPrecision(2));
+    return notation === 'points' ? `${step} pts` : String(step);
+  }
+  return formatMetricValue(notation, diff);
 };
 
 const GLOBAL_META = { key: GLOBAL_METRIC, label: 'Global ranking', section: '', notation: 'points', category: null };

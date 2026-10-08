@@ -1,7 +1,7 @@
 import '../../../polyfills';
 import { describe, expect, it, vi } from 'vitest';
 import { notateNumber } from '@utility/helpers';
-import { AGGREGATION_INTERVAL, buildMetaIndex, formatMetricValue, metaOf, staleUntilNextRun } from '@components/leaderboards/format';
+import { AGGREGATION_INTERVAL, buildMetaIndex, formatMetricValue, formatStep, metaOf, staleUntilNextRun } from '@components/leaderboards/format';
 
 const meta = {
   createdAt: 100,
@@ -23,6 +23,32 @@ describe('formatMetricValue', () => {
     expect(formatMetricValue('multiplier', 3.2)).toBe(notateNumber(3.2, 'MultiplierInfo'));
     expect(formatMetricValue('default', 240)).toBe(notateNumber(240));
     expect(formatMetricValue(undefined, 240)).toBe(notateNumber(240));
+  });
+});
+
+describe('formatMetricValue below a million', () => {
+  it('shows exact figures with commas, and notates from a million up', () => {
+    expect(formatMetricValue('default', 1724)).toBe('1,724');
+    expect(formatMetricValue('default', 20184.9)).toBe('20,184');
+    expect(formatMetricValue('default', 999_999)).toBe('999,999');
+    expect(formatMetricValue('default', 0)).toBe('0');
+    expect(formatMetricValue('default', 1e6)).toBe(notateNumber(1e6));
+    expect(formatMetricValue('default', 3.2e9)).toBe(notateNumber(3.2e9));
+  });
+
+  it('leaves bits and multipliers alone', () => {
+    expect(formatMetricValue('bits', 5000)).toBe(notateNumber(5000, 'bits'));
+    expect(formatMetricValue('multiplier', 1500)).toBe(notateNumber(1500, 'MultiplierInfo'));
+  });
+});
+
+describe('formatStep', () => {
+  it('keeps a small fractional step readable instead of rounding it to 0', () => {
+    expect(formatStep('points', 1.8000000001)).toBe('1.8 pts');
+    expect(formatStep('default', 0.42)).toBe('0.42');
+    expect(formatStep('points', 120.4)).toBe('120 pts');
+    expect(formatStep('default', 1)).toBe('1');
+    expect(formatStep('default', 2.5e9)).toBe(formatMetricValue('default', 2.5e9));
   });
 });
 
