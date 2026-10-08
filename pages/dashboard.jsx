@@ -115,6 +115,10 @@ const Dashboard = () => {
     setQuickUndo({ id: quickEdit.id, label: `Updated: ${quickModel.kind === 'tracker' || !quickModel.option ? quickModel.tracker.label : quickModel.option.label}`, previous: quickEdit.snapshot });
   };
 
+  // Ticking something off and on again is no change: no Undo for it.
+  const quickChanged = Boolean(quickUndo)
+    && JSON.stringify(diffTrackers(baseTrackers, config)) !== JSON.stringify(diffTrackers(baseTrackers, quickUndo.previous));
+
   const undoQuickEdit = () => {
     handleConfigChange(quickUndo.previous);
     setQuickUndo(null);
@@ -204,12 +208,12 @@ const Dashboard = () => {
                       document.activeElement?.blur?.();
                       setQuickEdit(null);
                     }} onAction={handleQuickAction}
-                    onUndo={quickUndo?.id === quickEdit?.id ? undoQuickEdit : undefined}
+                    onUndo={quickChanged && quickUndo?.id === quickEdit?.id ? undoQuickEdit : undefined}
                     onOpenAll={() => {
                       setQuickEdit(null);
                       handleOpenSettings(quickEdit.configType, quickEdit.target, 'quick_edit');
                     }}/>
-    {quickUndo && !quickEdit ? <UndoSnackbar key={quickUndo.id} label={quickUndo.label} onUndo={undoQuickEdit}
+    {quickChanged && !quickEdit ? <UndoSnackbar key={quickUndo.id} label={quickUndo.label} onUndo={undoQuickEdit}
                                              onClose={() => setQuickUndo(null)}/> : null}
   </>
 };

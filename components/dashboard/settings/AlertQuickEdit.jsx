@@ -126,13 +126,6 @@ const Body = ({ quickEdit, onAction }) => {
   </>;
 };
 
-const isHidden = ({ kind, tracker, option, items, trackerSwitch }) => {
-  if (!tracker.on) return true;
-  if (kind === 'tracker' || trackerSwitch) return false;
-  if (kind === 'pickerItems') return items.every(({ on }) => !on);
-  return !option.checked;
-};
-
 const AlertQuickEdit = ({ quickEdit, open, anchorPosition, above = false, iconSrc = null, onClose, onAction, onOpenAll, onUndo }) => {
   const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   if (!quickEdit) return null;
@@ -153,17 +146,13 @@ const AlertQuickEdit = ({ quickEdit, open, anchorPosition, above = false, iconSr
     <Stack gap={1.5}>
       <Body quickEdit={quickEdit} onAction={onAction}/>
     </Stack>
-    {/* The popover stays open when its alert is turned off, pinned where the icon was: this says why the icon is gone. */}
-    {isHidden(quickEdit) ? <Typography variant="body2" color="text.secondary" role="status"
-                                       sx={{ p: 1, borderRadius: 1, bgcolor: 'action.hover' }}>
-      Hidden from your dashboard. Tick it again to bring it back.
-    </Typography> : null}
     {everyCharacter ? <Typography variant="caption" color="text.secondary">Applies to every character</Typography> : null}
     <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1} flexWrap="wrap"
            sx={{ borderTop: 1, borderColor: 'divider', pt: 1 }}>
       <Stack direction="row" alignItems="center" gap={0.5}>
-        <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>Saved automatically</Typography>
-        {onUndo ? <Button size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }} onClick={onUndo}>Undo</Button> : null}
+        <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>Saved</Typography>
+        {/* Always in its slot, greyed until there is a change: appearing later grew the popover and moved the checkbox under the pointer. */}
+        <Button size="small" sx={{ minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={!onUndo} onClick={onUndo}>Undo</Button>
       </Stack>
       <Button size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }} onClick={onOpenAll}>All {tracker.label} settings</Button>
     </Stack>

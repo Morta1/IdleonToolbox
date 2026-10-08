@@ -34,7 +34,7 @@ describe('AlertQuickEdit', () => {
     // Title: the clicked alert. Subtitle: where it lives.
     expect(dialog.querySelector('h2').textContent).toBe(quickEdit.option.label);
     expect(dialog.textContent).toContain(`General · ${quickEdit.tracker.label}`);
-    expect(dialog.textContent).toContain('Saved automatically');
+    expect(dialog.textContent).toContain('Saved');
     fireEvent.click(byLabel(dialog, 'Show this alert'));
     expect(onAction).toHaveBeenCalledWith('toggleOption', quickEdit.tracker, 'keys');
     fireEvent.click([...dialog.querySelectorAll('button')].find((b) => b.textContent === `All ${quickEdit.tracker.label} settings`));
@@ -48,9 +48,9 @@ describe('AlertQuickEdit', () => {
     expect(onUndo).toHaveBeenCalledTimes(1);
   });
 
-  it('the footer has no Undo without onUndo', () => {
+  it('the footer Undo is there but greyed out without onUndo, so the popover keeps its size', () => {
     const dialog = open(quickFor('account', 'General.etc.keys'));
-    expect([...dialog.querySelectorAll('button')].some((b) => b.textContent === 'Undo')).toBe(false);
+    expect([...dialog.querySelectorAll('button')].find((b) => b.textContent === 'Undo').disabled).toBe(true);
   });
 
   it('a threshold alert edits its number', () => {
@@ -147,19 +147,5 @@ describe('AlertQuickEdit', () => {
     expect(dialog.textContent).toContain('Alerts when a character has more unspent points than this');
   });
 
-  it('says the alert is hidden while it is off', () => {
-    const dialog = open(quickFor('account', 'General.etc.keys', undefined, { 'account.General.etc.keys': { checked: false } }));
-    expect(dialog.textContent).toContain('Hidden from your dashboard');
-  });
-
-  it('says nothing about hiding while the alert is on', () => {
-    expect(open(quickFor('account', 'General.etc.keys')).textContent).not.toContain('Hidden from your dashboard');
-  });
-
-  it('a one-item alert is hidden once its item is unwatched', () => {
-    const quickEdit = quickFor('account', 'World 3.construction.saltDeficit', { items: [{ key: 'Refinery2' }] },
-      { 'account.World 3.construction.saltBalance': { value: { Refinery2: false } } });
-    expect(open(quickEdit).textContent).toContain('Hidden from your dashboard');
-  });
 });
 

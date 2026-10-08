@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
@@ -48,11 +48,14 @@ const DashboardSettings = ({
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const edits = diffTrackers(baseTrackers, config);
   const model = buildModel(config, baseTrackers, edits);
+  // Counted in alerts, like the Edited chip; edits counts options too.
+  const editedCount = allTrackers(model).filter(({ edited }) => edited).length;
   const [tabIndex, setTabIndex] = useState(0);
   const [sectionKey, setSectionKey] = useState(model[0].sections[0].key);
   const [mobileDetail, setMobileDetail] = useState(false);
   const [filter, setFilter] = useState(initialFilter);
   const [query, setQuery] = useState('');
+  const paneRef = useRef(null);
   // One event per pause in typing, carrying only how many results the query found.
   const [settledQuery] = useDebouncedValue(query.trim(), 1000);
   useEffect(() => {
@@ -172,7 +175,11 @@ const DashboardSettings = ({
 
   const search = <TextField
     size="small" fullWidth value={query} placeholder={`Search ${allTrackers(model).length} alerts, options and descriptions`}
-    onChange={(e) => setQuery(e.target.value)}
+    onChange={(e) => {
+      setQuery(e.target.value);
+      // Results replace the pane, so start them at the top rather than at the old scroll position.
+      paneRef.current?.scrollTo?.(0, 0);
+    }}
     slotProps={{
       htmlInput: { 'aria-label': 'Search alerts' },
       input: {
@@ -241,13 +248,13 @@ const DashboardSettings = ({
       </DialogTitle>
       <DialogContent dividers sx={{ p: 0, display: 'flex', minHeight: 0 }}>
         {isSm
-          ? <Box sx={{ p: 1.5, width: '100%', overflowY: 'auto' }}>{searching || mobileDetail ? pane : <>
+          ? <Box ref={paneRef} sx={{ p: 1.5, width: '100%', overflowY: 'auto' }}>{searching || mobileDetail ? pane : <>
             {nav}
             <Button fullWidth color="inherit" sx={{ ...TAP, mt: 2 }} disabled={!Object.keys(edits).length} onClick={() => setConfirmReset(true)}>Reset all alerts</Button>
           </>}</Box>
           : <>
             <Box sx={{ width: 288, flexShrink: 0, borderRight: 1, borderColor: 'divider', p: 1.5, overflowY: 'auto' }}>{nav}</Box>
-            <Box sx={{ flex: 1, minWidth: 0, p: 2.5, overflowY: 'auto' }}>{pane}</Box>
+            <Box ref={paneRef} sx={{ flex: 1, minWidth: 0, p: 2.5, overflowY: 'auto' }}>{pane}</Box>
           </>}
       </DialogContent>
       {undo ? <UndoSnackbar key={undoCount} label={undo.label} onClose={() => setUndo(null)}
@@ -260,7 +267,7 @@ const DashboardSettings = ({
       <DialogTitle>Reset every alert to default?</DialogTitle>
       <DialogContent>
         <DialogContentText id={RESET_TEXT_ID}>
-          This turns all {allTrackers(model).length} alerts back to their default and clears your {Object.keys(edits).length} {Object.keys(edits).length === 1 ? 'edit' : 'edits'}. Export first if you want a copy.
+          This turns all {allTrackers(model).length} alerts back to their default and clears your edits to {editedCount} {editedCount === 1 ? 'alert' : 'alerts'}. Export first if you want a copy.
         </DialogContentText>
       </DialogContent>
       <DialogActions>
