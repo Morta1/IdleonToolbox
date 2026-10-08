@@ -1,12 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const base = process.env.NEXT_PUBLIC_PROFILES_URL;
+const base = 'https://profiles.test/api';
+// The service reads the env at module load, so the stub has to land before the import.
+vi.stubEnv('NEXT_PUBLIC_PROFILES_URL', base);
 const { fetchBoard, fetchMeta, fetchPlayer, fetchTab, searchNames } = await import('../../services/leaderboards');
 
 const respond = (status, body) => vi.fn(async () => ({ status, ok: status < 400, json: async () => body }));
 
 beforeEach(() => { globalThis.fetch = respond(200, { ok: true }); });
-afterEach(() => { vi.restoreAllMocks(); });
+afterEach(() => { vi.restoreAllMocks(); vi.unstubAllEnvs(); });
 
 describe('leaderboards service', () => {
   it('fetches meta', async () => {

@@ -22,6 +22,10 @@ describe('nextRankText', () => {
     expect(nextRankText({ r: 4, v: 2e9, p: 0.2, t: 1, nr: 3, nv: 5.2e9 }, meta)).toBe('×2.6 to reach #3');
   });
 
+  it('shows the gap, not x1, when a large value is nearly tied', () => {
+    expect(nextRankText({ r: 299, v: 1e9, p: 11.5, t: 1, nr: 298, nv: 1.001e9 }, meta)).toBe(`+${notateNumber(1e6)} to reach #298`);
+  });
+
   it('returns null without an entry', () => {
     expect(nextRankText(undefined, meta)).toBeNull();
   });
