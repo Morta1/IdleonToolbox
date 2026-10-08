@@ -104,7 +104,8 @@ describe('ControlBar', () => {
     await screen.findByRole('option', { name: 'Baker333, rank 75' });
     fireEvent.keyDown(input, { key: 'Enter' });
     expect(onPlayer).toHaveBeenCalledWith('Baker333', 'typeahead');
-    expect(document.activeElement).not.toBe(input);
+    // A keyboard user keeps focus in the field (a touch screen blurs it to drop the keyboard).
+    expect(document.activeElement).toBe(input);
   });
 
   it('says when no player starts with the typed text', async () => {
@@ -116,13 +117,46 @@ describe('ControlBar', () => {
     expect(await screen.findByText('No players start with "zzq"')).toBeTruthy();
   });
 
-  it('shows the viewed player as a chip that clears it', () => {
+  it('holds the viewed player in the field, and its X stops viewing them', () => {
     const onClearPlayer = vi.fn();
     renderBar({ viewing: { name: 'Baker333', kind: 'searched' }, onClearPlayer });
-    const chips = screen.getAllByRole('button', { name: 'Viewing Baker333' });
-    expect(chips[0].textContent).toBe('Viewing: Baker333');
-    fireEvent.click(chips[0].querySelector('.MuiChip-deleteIcon'));
+    const input = screen.getByLabelText('Find a player');
+    expect(input.value).toBe('Baker333');
+    fireEvent.click(screen.getByRole('button', { name: 'Stop viewing Baker333' }));
     expect(onClearPlayer).toHaveBeenCalledTimes(1);
+    expect(document.activeElement).toBe(input);
+  });
+
+  it('puts the viewed player back when the field is left half-typed', () => {
+    renderBar({ viewing: { name: 'Baker333', kind: 'searched' } });
+    const input = screen.getByLabelText('Find a player');
+    act(() => input.focus());
+    fireEvent.change(input, { target: { value: 'zz' } });
+    expect(screen.getByRole('button', { name: 'Clear search' })).toBeTruthy();
+    fireEvent.blur(input);
+    expect(input.value).toBe('Baker333');
+  });
+
+  it('keeps the typed text on Enter when nothing matches', async () => {
+    searchNames.mockResolvedValueOnce([]);
+    const onPlayer = vi.fn();
+    renderBar({ onPlayer });
+    const input = screen.getByLabelText('Find a player');
+    act(() => input.focus());
+    fireEvent.change(input, { target: { value: 'zzq' } });
+    await screen.findByText('No players start with "zzq"');
+    fireEvent.keyDown(input, { key: 'Enter' });
+    // The page answers a miss with a message; the text stays for a quick fix.
+    expect(input.value).toBe('zzq');
+  });
+
+  it('says what a partial Anon# id is missing', async () => {
+    renderBar();
+    const input = screen.getByLabelText('Find a player');
+    act(() => input.focus());
+    fireEvent.change(input, { target: { value: 'Anon#ab1' } });
+    expect(await screen.findByText(/Type the full Anon# id/)).toBeTruthy();
+    expect(searchNames).not.toHaveBeenCalled();
   });
 
   it('exposes Show anonymous as a switch', () => {

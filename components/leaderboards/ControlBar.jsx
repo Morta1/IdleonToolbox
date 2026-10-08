@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Autocomplete, Chip, FormControlLabel, IconButton, InputAdornment, Popover, Stack, Switch, TextField, Typography } from '@mui/material';
+import { Autocomplete, FormControlLabel, IconButton, InputAdornment, Popover, Stack, Switch, TextField, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
-import { IconDotsVertical, IconListSearch, IconSearch } from '@tabler/icons-react';
+import { IconDotsVertical, IconListSearch, IconSearch, IconX } from '@tabler/icons-react';
 import { useDebouncedValue } from '@mantine/hooks';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import useHydrated from '@hooks/useHydrated';
@@ -11,12 +11,18 @@ import { navBarHeight, profileBannerHeight } from '@components/constants';
 import { numberWithCommas } from '@utility/helpers';
 import { searchNames } from '../../services/leaderboards';
 import { AGGREGATION_INTERVAL, FOCUS_RING, GLOBAL_METRIC, rankText } from './format';
+import { HIGHLIGHT } from './RankRow';
 
 const MIN_QUERY = 2;
 const FIELD_OUTLINE = 'rgba(255,255,255,0.23)';
 const fieldHeight = { xs: 44, sm: 40 };
 
-const NO_MATCH = { noMatch: true, mainChar: '' };
+// Rows that say something instead of offering a player: Enter or a click on them does nothing, so the
+// typed text stays put.
+const NO_MATCH = { message: 'noMatch', mainChar: '' };
+const ANON_HINT = { message: 'anon', mainChar: '' };
+const ANON_PREFIX = /^anon#/i;
+const ANON_ID = /^anon#[0-9a-f]{6}$/i;
 const optionLabel = (option) => (typeof option === 'string' ? option : option.mainChar);
 
 // The names API matches by prefix, so a list kept from the previous query is cut to what still
@@ -41,11 +47,27 @@ const PlayerOption = ({ name, rank, query }) => {
   );
 };
 
-const PlayerSearch = ({ onPlayer }) => {
-  const [input, setInput] = useState('');
+const isTouch = () => typeof window !== 'undefined' && Boolean(window.matchMedia?.('(hover: none)').matches);
+
+// The field holds the viewed player: their name sits in it, outlined in their highlight colour, and
+// its X stops viewing them. Typing over the name searches for someone else; leaving the field with a
+// half-typed name puts the viewed one back.
+const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
+  const viewingName = viewing?.name ?? '';
+  const [input, setInput] = useState(viewingName);
+  // A new viewed player (or none) replaces whatever the field held.
+  const [shownFor, setShownFor] = useState(viewingName);
+  if (viewingName !== shownFor) {
+    setShownFor(viewingName);
+    setInput(viewingName);
+  }
   const inputRef = useRef(null);
-  const [debounced] = useDebouncedValue(input.trim(), 250);
-  const ready = debounced.length >= MIN_QUERY;
+  const picking = useRef(false);
+  const text = input.trim();
+  const typing = Boolean(text) && input !== viewingName;
+  const [debounced] = useDebouncedValue(typing ? text : '', 250);
+  // Anon# ids are left out of the name search by design.
+  const ready = debounced.length >= MIN_QUERY && !ANON_PREFIX.test(debounced);
   const { data: players = [], isFetching } = useQuery({
     queryKey: ['lb-names', debounced.toLowerCase()],
     queryFn: () => searchNames(debounced),
@@ -53,40 +75,59 @@ const PlayerSearch = ({ onPlayer }) => {
     staleTime: 5 * 60 * 1000,
     placeholderData: keepPreviousData
   });
+  const showsViewed = Boolean(viewingName) && input === viewingName;
+
+  const clear = () => {
+    if (showsViewed) onClear?.();
+    else setInput('');
+    inputRef.current?.focus();
+  };
+
   return (
     <Autocomplete
       freeSolo
       size="small"
+      disableClearable
       options={ready ? players : []}
       getOptionLabel={optionLabel}
       // Enter picks the highlighted suggestion: typing "gearp" and pressing Enter finds gearperson.
       autoHighlight
-      getOptionDisabled={(option) => Boolean(option.noMatch)}
       filterOptions={(options, { inputValue }) => {
-        const matches = matchesFor(options, inputValue);
-        // Anon# ids are left out of the name search by design, so no match is expected for them.
-        const settled = ready && !isFetching && debounced === inputValue.trim() && !/^anon#/i.test(debounced);
+        const query = inputValue.trim();
+        if (!typing) return [];
+        // A full Anon# id is searched as typed on Enter; a partial one says what is missing.
+        if (ANON_PREFIX.test(query)) return ANON_ID.test(query) ? [] : [ANON_HINT];
+        const matches = matchesFor(options, query);
+        const settled = ready && !isFetching && debounced === query;
         return matches.length || !settled ? matches : [NO_MATCH];
       }}
       value={null}
       inputValue={input}
-      onInputChange={(event, value, reason) => { if (reason !== 'reset') setInput(value); }}
-      // freeSolo: Enter on free text arrives as 'createOption', which is how Anon# ids get searched
-      // (the name search leaves them out by design).
+      // Only typing changes the text: a pick sets it in onChange, and a message row must not blank it.
+      onInputChange={(event, value, reason) => { if (reason === 'input' || reason === 'clear') setInput(value); }}
+      // freeSolo: Enter on free text arrives as 'createOption', which is how Anon# ids get searched.
+      // A miss keeps the typed text, so a typo is one key away from fixed.
       onChange={(event, value, reason) => {
+        if (value?.message) return;
         const name = value == null ? '' : optionLabel(value).trim();
-        if (!name) return;
+        if (!name || name === viewingName) return;
+        if (reason === 'selectOption') setInput(name);
+        picking.current = true;
         onPlayer(name, reason === 'selectOption' ? 'typeahead' : 'enter');
-        setInput('');
-        // Off the field, so a phone keyboard drops out of the way of the player it just found.
-        inputRef.current?.blur();
+        // A touch keyboard drops out of the way of the player it just found; a keyboard user stays here.
+        if (isTouch()) inputRef.current?.blur();
+        picking.current = false;
       }}
+      onFocus={(event) => { if (showsViewed) event.target.select?.(); }}
+      onBlur={() => { if (!picking.current && viewingName && input !== viewingName) setInput(viewingName); }}
       renderOption={(props, option) => {
         const { key, ...optionProps } = props;
-        if (option.noMatch) {
-          return <li key="no-match" {...optionProps}>
-            <Typography component="span" sx={{ fontSize: 13, color: 'text.secondary' }}>{`No players start with "${debounced}"`}</Typography>
-          </li>;
+        if (option.message) {
+          return <Box component="li" key={option.message} {...optionProps} sx={{ cursor: 'default !important' }}>
+            <Typography component="span" sx={{ fontSize: 13, color: 'text.secondary' }}>
+              {option.message === 'anon' ? 'Type the full Anon# id (Anon# and 6 characters), then Enter' : `No players start with "${debounced}"`}
+            </Typography>
+          </Box>;
         }
         return (
           <li key={key} {...optionProps} aria-label={option.rank != null ? `${option.mainChar}, rank ${option.rank}` : option.mainChar}>
@@ -94,23 +135,42 @@ const PlayerSearch = ({ onPlayer }) => {
           </li>
         );
       }}
+      slotProps={{
+        // MUI drops the highlight on touch screens, which hid the row Enter would pick.
+        paper: { sx: { '& .MuiAutocomplete-listbox .MuiAutocomplete-option.Mui-focused': { bgcolor: 'action.hover' } } }
+      }}
       renderInput={(params) => (
         <TextField
           {...params}
           inputRef={inputRef}
           placeholder="Find a player or Anon# id"
           slotProps={{
-            htmlInput: { ...params.inputProps, 'aria-label': 'Find a player' },
+            htmlInput: {
+              ...params.inputProps, 'aria-label': 'Find a player',
+              enterKeyHint: 'search', autoCorrect: 'off', autoCapitalize: 'none', spellCheck: false
+            },
             input: {
               ...params.InputProps,
-              startAdornment: <InputAdornment position="start" sx={{ color: 'text.secondary' }}><IconSearch size={16}/></InputAdornment>
+              startAdornment: <InputAdornment position="start" sx={{ color: 'text.secondary' }}><IconSearch size={16}/></InputAdornment>,
+              endAdornment: input ? (
+                <InputAdornment position="end">
+                  <IconButton size="small" onClick={clear} aria-label={showsViewed ? `Stop viewing ${viewingName}` : 'Clear search'}
+                              sx={{ width: 28, height: 28, color: 'text.secondary', mr: -0.5 }}>
+                    <IconX size={16}/>
+                  </IconButton>
+                </InputAdornment>
+              ) : null
             }
           }}
         />
       )}
       sx={{
         flex: '1 1 240px', minWidth: 200, maxWidth: { xs: 'none', sm: 360 },
-        '& .MuiOutlinedInput-root': { height: fieldHeight, py: 0 }
+        '& .MuiOutlinedInput-root': { height: fieldHeight, py: 0, pr: '8px !important' },
+        ...(showsViewed ? {
+          '& .MuiOutlinedInput-notchedOutline': { borderColor: `${HIGHLIGHT[viewing.kind]} !important` },
+          '& .MuiInputBase-input': { fontWeight: 600 }
+        } : {})
       }}
     />
   );
@@ -192,19 +252,8 @@ export const LeaderboardStatus = ({ totalPlayers, createdAt }) => {
   );
 };
 
-// The player the page is showing, with a way out: the search box empties after a pick, so without
-// this nothing on the page says whose ranks are highlighted.
-const ViewingChip = ({ viewing, onClear, sx }) => (
-  <Chip
-    label={<><Box component="span" sx={{ color: 'text.secondary' }}>{viewing.kind === 'logged' ? 'You: ' : 'Viewing: '}</Box>{viewing.name}</>}
-    onDelete={onClear}
-    aria-label={`Viewing ${viewing.name}`}
-    sx={{ height: 32, maxWidth: '100%', alignSelf: 'center', bgcolor: 'rgba(255,255,255,0.08)', '& .MuiChip-deleteIcon': { color: 'text.secondary' }, ...sx }}
-  />
-);
-
 // onStickyBottom: where the bar ends on screen, so the tab strip can pin right under it.
-// viewing: the ?player= context ({ name, kind }), shown as a chip that clears it.
+// viewing: the ?player= context ({ name, kind }), held by the search field, which clears it.
 const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAnonymous, onPlayer, onMetric, onStickyBottom, viewing, onClearPlayer, children }) => {
   const { isVisible: showProfileBanner } = useProfileBannerState();
   const [menuAnchor, setMenuAnchor] = useState(null);
@@ -259,10 +308,9 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
       '@media (max-height: 500px)': { position: 'static' }
     }}>
       <Stack direction="row" gap={{ xs: 1, sm: 2 }} alignItems="flex-start" flexWrap={{ xs: 'nowrap', sm: 'wrap' }}>
-        <PlayerSearch onPlayer={onPlayer}/>
+        <PlayerSearch onPlayer={onPlayer} viewing={viewing} onClear={onClearPlayer}/>
         {/* Both layouts are in the markup and CSS picks one, so a phone does not reflow after hydration. */}
         <Box sx={{ display: { xs: 'none', sm: 'contents' } }}>
-          {viewing ? <ViewingChip viewing={viewing} onClear={onClearPlayer} sx={{ minHeight: 32, my: 0.5 }}/> : null}
           <MetricJump index={index} onMetric={onMetric} inputRef={jumpRef} showKeyHint/>
           {anonSwitch}
           {children}
@@ -278,7 +326,6 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
           <IconDotsVertical size={18}/>
         </IconButton>
       </Stack>
-      {viewing ? <ViewingChip viewing={viewing} onClear={onClearPlayer} sx={{ display: { xs: 'inline-flex', sm: 'none' }, mt: 1 }}/> : null}
       <Popover
         anchorEl={menuAnchor}
         open={Boolean(menuAnchor)}

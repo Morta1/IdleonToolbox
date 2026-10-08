@@ -67,11 +67,11 @@ describe('leaderboards ?player= deep link', () => {
     await waitFor(() => expect(screen.getByRole('status').textContent).toMatch(/^Showing Tester, global rank #/));
   });
 
-  it('names the viewed player in the control bar, and clearing it drops ?player=', async () => {
+  it('holds the viewed player in the search field, and its X drops ?player=', async () => {
     routerState.query = { player: 'Tester', t: 'Skills' };
     renderPage();
-    const chips = await screen.findAllByRole('button', { name: 'Viewing Tester' });
-    fireEvent.click(chips[0].querySelector('.MuiChip-deleteIcon'));
+    await waitFor(() => expect(screen.getByLabelText('Find a player').value).toBe('Tester'));
+    fireEvent.click(screen.getByRole('button', { name: 'Stop viewing Tester' }));
     expect(routerState.push).toHaveBeenLastCalledWith({ pathname: '/leaderboards', query: { t: 'Skills' } }, undefined, { shallow: true });
   });
 

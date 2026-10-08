@@ -159,6 +159,13 @@ const Leaderboards = () => {
     setQuery(rest);
   };
 
+  // From the card's "Back to you" / "Clear", focus lands on the search field rather than the page
+  // body; a touch screen is left alone so no keyboard pops up.
+  const clearPlayerFromCard = () => {
+    clearPlayer();
+    if (!window.matchMedia?.('(hover: none)').matches) document.querySelector('input[aria-label="Find a player"]')?.focus();
+  };
+
   const closeBoard = () => {
     const wasPushed = pushedOpen.current === signature(router.query);
     pushedOpen.current = null;
@@ -222,7 +229,7 @@ const Leaderboards = () => {
           player={{ context, data: playerQuery.data, isLoading: playerQuery.isLoading, isError: playerQuery.isError, refetch: playerQuery.refetch }}
           onOpen={openBoard}
           onTab={openTab}
-          onClearPlayer={clearPlayer}
+          onClearPlayer={clearPlayerFromCard}
         />
       ) : tabQuery.isError ? (
         <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => tabQuery.refetch()}>Retry</Button>}>
