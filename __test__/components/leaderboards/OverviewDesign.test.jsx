@@ -99,7 +99,7 @@ describe('Overview You card', () => {
     const label = await screen.findByText('You');
     expect(label.parentElement.textContent).toBe('You · Baker333');
     expect(screen.getByText('#75')).toBeTruthy();
-    expect(screen.getByText('of 2,608 · top 2.9% · 14,901.0 pts')).toBeTruthy();
+    expect(screen.getByText('of 2,608 · top 2.9% · 14,901.02 pts')).toBeTruthy();
     const tile = (name) => screen.getByText(name).parentElement.textContent;
     expect(tile('First places')).toBe('1First places+1 tied at the max');
     expect(tile('Top 25')).toBe('1Top 25');
@@ -124,12 +124,12 @@ describe('Overview You card', () => {
 
   it('drops top percent past 50 and keeps points', async () => {
     renderOverview({ player: { context: logged, data: rankedAs(2000) } });
-    expect(await screen.findByText('of 2,608 · 14,901.0 pts')).toBeTruthy();
+    expect(await screen.findByText('of 2,608 · 14,901.02 pts')).toBeTruthy();
   });
 
   it('keeps top percent at exactly 50', async () => {
     renderOverview({ player: { context: logged, data: rankedAs(1304) } });
-    expect(await screen.findByText('of 2,608 · top 50% · 14,901.0 pts')).toBeTruthy();
+    expect(await screen.findByText('of 2,608 · top 50% · 14,901.02 pts')).toBeTruthy();
   });
 });
 

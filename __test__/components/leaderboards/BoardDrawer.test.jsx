@@ -165,7 +165,7 @@ describe('BoardDrawer header and steps', () => {
     const points = [{ mainChar: 'Yosh6400', value: 16683.4, rank: 1 }, { mainChar: 'Dragami', value: 16559, rank: 2 }];
     fetchBoard.mockResolvedValue({ metric: 'globalRanking', createdAt: 1, top: points, around: [] });
     renderDrawer({ metricKey: 'globalRanking', index: globalIndex });
-    expect(await screen.findByText('#1 Yosh6400 · 16,683.4 pts')).toBeTruthy();
+    expect(await screen.findByText('#1 Yosh6400 · 16,683.40 pts')).toBeTruthy();
     expect(screen.getByText('2,616 players')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Global ranking' })).toBeTruthy();
   });

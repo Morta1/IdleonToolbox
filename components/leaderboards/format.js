@@ -1,4 +1,4 @@
-import { notateNumber, numberWithCommas } from '@utility/helpers';
+import { numberWithCommas } from '@utility/helpers';
 
 export const TABS = ['Overview', 'General', 'Tasks', 'Skills', 'Character', 'Misc', 'Caverns'];
 export const GLOBAL_METRIC = 'globalRanking';
@@ -25,10 +25,11 @@ export const RUN_QUERY_KEYS = ['leaderboard', 'lb-player', 'lb-board', 'lb-podiu
 
 // Exact figures read better than K/M below a million; the short form takes over from there.
 const EXACT_BELOW = 1e6;
-// notateNumber's suffix ladder ends at QQ; past it a value reads as a power of ten.
+// Past QQ a value reads as a power of ten.
 const SCIENTIFIC_FROM = 1e21;
-const SUFFIXES = [[1e18, 'QQ'], [1e15, 'Q'], [1e12, 'T'], [1e9, 'B'], [1e6, 'M']];
+const SUFFIXES = [[1e18, 'QQ'], [1e15, 'Q'], [1e12, 'T'], [1e9, 'B'], [1e6, 'M'], [1e3, 'K']];
 
+// Two decimals on the mantissa, kept even when zero, so a column of values lines up.
 const scientific = (value) => {
   let exponent = Math.floor(Math.log10(Math.abs(value)));
   let mantissa = Math.round((value / 10 ** exponent) * 100) / 100;
@@ -36,36 +37,42 @@ const scientific = (value) => {
     mantissa /= 10;
     exponent += 1;
   }
-  return `${mantissa}E${exponent}`;
+  return `${mantissa.toFixed(2)}E${exponent}`;
 };
 
-// Three significant figures, rounded to the nearest. notateNumber rounds its suffixes up and cuts
-// its E form down, so two neighbouring ranks could read in the wrong order.
+// Three significant figures, rounded to the nearest and keeping trailing zeros (35.0M, 1.90M):
+// notateNumber rounds its suffixes up, cuts its E form down and drops zeros, so neighbouring ranks
+// could read in the wrong order and a column would not line up.
 const shortNumber = (value, scientificFrom) => {
   const abs = Math.abs(value);
   if (abs >= scientificFrom) return scientific(value);
   for (let at = 0; at < SUFFIXES.length; at++) {
     const [base, suffix] = SUFFIXES[at];
     if (abs < base) continue;
-    const rounded = Number((value / base).toPrecision(3));
-    if (Math.abs(rounded) < 1000) return `${rounded}${suffix}`;
+    const digits = (value / base).toPrecision(3);
+    if (Math.abs(Number(digits)) < 1000) return `${digits}${suffix}`;
     // 999.6M rounds up into the next suffix.
-    return at > 0 ? `${Number((value / SUFFIXES[at - 1][0]).toPrecision(3))}${SUFFIXES[at - 1][1]}` : scientific(value);
+    return at > 0 ? `${(value / SUFFIXES[at - 1][0]).toPrecision(3)}${SUFFIXES[at - 1][1]}` : scientific(value);
   }
   return numberWithCommas(Math.floor(value));
 };
 
-const multiplier = (value) => (Math.abs(value) < EXACT_BELOW ? numberWithCommas(value.toFixed(2)) : shortNumber(value, SCIENTIFIC_FROM));
+// Bits are compared as plain numbers: the game's own bit tiers mean nothing without their icon.
+const plainNotation = (notation) => (notation === 'bits' ? 'default' : notation);
 
-// `scale` is the board's top value: a board that reaches E notation uses it for every short value,
-// so one card never mixes 1.57E25 with 51.1QQ.
+// `scale` is the board's top value, so every row of a board shares one style: a board that reaches a
+// million shows each value short (870K, never 870,329.13 under 2.97M), and one that reaches E
+// notation uses it for every value from a million up.
 export const formatMetricValue = (notation, value, { scale } = {}) => {
   if (!Number.isFinite(value)) return '-';
-  if (notation === 'points') return `${numberWithCommas(value.toFixed(1))} pts`;
-  if (notation === 'bits') return notateNumber(value, 'bits');
-  if (notation === 'multiplier') return multiplier(value);
-  if (Math.abs(value) < EXACT_BELOW) return numberWithCommas(Math.floor(value));
-  return shortNumber(value, scale >= SCIENTIFIC_FROM ? EXACT_BELOW : SCIENTIFIC_FROM);
+  if (notation === 'points') return `${numberWithCommas(value.toFixed(2))} pts`;
+  const kind = plainNotation(notation);
+  const short = scale >= EXACT_BELOW;
+  const scientificFrom = scale >= SCIENTIFIC_FROM ? EXACT_BELOW : SCIENTIFIC_FROM;
+  if (Math.abs(value) < (short ? 1000 : EXACT_BELOW)) {
+    return kind === 'multiplier' ? numberWithCommas(value.toFixed(2)) : numberWithCommas(Math.floor(value));
+  }
+  return shortNumber(value, scientificFrom);
 };
 
 // Full precision, for rows next to the player where the short form would read the same, and for
@@ -73,7 +80,6 @@ export const formatMetricValue = (notation, value, { scale } = {}) => {
 export const formatExactValue = (notation, value) => {
   if (!Number.isFinite(value)) return '-';
   if (notation === 'points') return `${numberWithCommas(value.toFixed(2))} pts`;
-  if (notation === 'bits') return notateNumber(value, 'bits');
   if (notation === 'multiplier') return numberWithCommas(value.toFixed(2));
   if (Math.abs(value) < 1e15) {
     // Some boards store fractional scores (Colosseums): two players a fifth of a point apart would
@@ -85,16 +91,17 @@ export const formatExactValue = (notation, value) => {
 
 export const rankText = (rank) => (rank == null ? '#-' : `#${numberWithCommas(rank)}`);
 
-// A gap to the next rank: a positive one never reads as 0, so a small fractional step keeps two
-// significant digits instead of rounding away.
-export const formatStep = (notation, diff, options) => {
-  const plain = notation === 'points' || notation === 'default' || notation == null;
-  if (plain && diff > 0 && diff < 100 && !Number.isInteger(diff)) {
+// A gap to the next rank, exact below a million whatever the board's style: "+2,333", not "+2.33K".
+// A positive one never reads as 0, so a small fractional step keeps two significant digits.
+export const formatStep = (notation, diff, { scale } = {}) => {
+  const kind = plainNotation(notation);
+  if (diff > 0 && diff < 100 && !Number.isInteger(diff) && kind !== 'multiplier') {
     const step = Number(diff.toPrecision(2));
-    return notation === 'points' ? `${step} pts` : String(step);
+    return kind === 'points' ? `${step} pts` : String(step);
   }
-  if (notation === 'points') return `${numberWithCommas(Math.round(diff))} pts`;
-  return formatMetricValue(notation, diff, options);
+  if (kind === 'points') return `${numberWithCommas(Math.round(diff))} pts`;
+  if (Math.abs(diff) < EXACT_BELOW) return kind === 'multiplier' ? numberWithCommas(diff.toFixed(2)) : numberWithCommas(Math.round(diff));
+  return shortNumber(diff, scale >= SCIENTIFIC_FROM ? EXACT_BELOW : SCIENTIFIC_FROM);
 };
 
 const GLOBAL_META = { key: GLOBAL_METRIC, label: 'Global ranking', section: '', notation: 'points', category: null };

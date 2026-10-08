@@ -8,7 +8,7 @@ import useFormatDate from '@hooks/useFormatDate';
 import LoginDialog from '@components/common/NavBar/LoginDialog';
 import { prefix } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
-import { AGGREGATION_INTERVAL, GLOBAL_METRIC, TABS, formatMetricValue, metaOf, rankText, staleUntilNextRun } from './format';
+import { AGGREGATION_INTERVAL, GLOBAL_METRIC, TABS, formatExactValue, formatMetricValue, metaOf, rankText, staleUntilNextRun } from './format';
 import { topPercentLabel, withinReach } from './standing';
 import { nextRankText } from './tiers';
 import CategoryTiles from './CategoryTiles';
@@ -37,7 +37,7 @@ const PodiumSlot = ({ row, kind }) => {
         ? <Box component="img" src={`${prefix}${trophy}`} alt={`Rank ${row.rank}`} sx={{ width: size, height: size, objectFit: 'contain' }}/>
         : <Typography color="text.secondary" fontWeight={600} sx={{ fontSize: 14 }}>{rankText(row.rank)}</Typography>}
       <Typography noWrap sx={{ maxWidth: '100%', fontSize: first ? { xs: 13, sm: 18 } : { xs: 12, sm: 15 }, fontWeight: first ? 700 : 600 }}>{row.mainChar}</Typography>
-      <Typography color="text.secondary" sx={{ fontSize: 12, display: { xs: 'none', sm: 'block' } }}>{formatMetricValue('points', row.value)}</Typography>
+      <Typography color="text.secondary" title={formatExactValue('points', row.value)} sx={{ fontSize: 12, display: { xs: 'none', sm: 'block' } }}>{formatMetricValue('points', row.value)}</Typography>
     </Stack>
   );
 };
@@ -140,7 +140,7 @@ const Highlights = ({ picks, kind, index }) => (
           <MetricIcon metric={pick.metric} label={meta.label} size={28}/>
           <Box sx={{ flexGrow: 1, minWidth: 0 }}>
             <Typography noWrap sx={{ fontWeight: 600 }}>{meta.label}</Typography>
-            {sub ? <Typography color="text.secondary" sx={{ fontSize: 12 }}>{sub}</Typography> : null}
+            {sub ? <Typography color="text.secondary" title={Number.isFinite(pick.value) ? formatExactValue(meta.notation, pick.value) : undefined} sx={{ fontSize: 12 }}>{sub}</Typography> : null}
           </Box>
           <Box sx={{ textAlign: 'right' }}>
             <Typography sx={{ fontSize: 16, fontWeight: 700 }}>{rankText(pick.rank)}</Typography>
@@ -165,7 +165,7 @@ const WithinReach = ({ reach, kind, index, onOpen }) => (
           <Box component="span" sx={{ flexGrow: 1, minWidth: 0, textAlign: 'left' }}>
             <Typography component="span" display="block" sx={{ fontWeight: 600 }}>
               {meta.label}
-              <Box component="span" sx={{ color: 'text.secondary', fontWeight: 400 }}>{` · ${rankText(entry.r)} · ${formatMetricValue(meta.notation, entry.v, { scale: meta.top })}`}</Box>
+              <Box component="span" title={formatExactValue(meta.notation, entry.v)} sx={{ color: 'text.secondary', fontWeight: 400 }}>{` · ${rankText(entry.r)} · ${formatMetricValue(meta.notation, entry.v, { scale: meta.top })}`}</Box>
             </Typography>
             <Typography component="span" display="block" color="primary" sx={{ fontSize: 13 }}>{nextRankText(entry, meta)}</Typography>
           </Box>

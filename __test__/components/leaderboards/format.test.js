@@ -1,6 +1,5 @@
 import '../../../polyfills';
 import { describe, expect, it, vi } from 'vitest';
-import { notateNumber } from '@utility/helpers';
 import { AGGREGATION_INTERVAL, buildMetaIndex, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
 
 const meta = {
@@ -18,55 +17,60 @@ const meta = {
 
 describe('formatMetricValue', () => {
   it('applies each notation', () => {
-    expect(formatMetricValue('points', 14901.02)).toBe('14,901.0 pts');
-    expect(formatMetricValue('bits', 5e9)).toBe(notateNumber(5e9, 'bits'));
+    expect(formatMetricValue('points', 14901.02)).toBe('14,901.02 pts');
     expect(formatMetricValue('multiplier', 3.2)).toBe('3.20');
-    expect(formatMetricValue('default', 240)).toBe(notateNumber(240));
-    expect(formatMetricValue(undefined, 240)).toBe(notateNumber(240));
+    expect(formatMetricValue('default', 240)).toBe('240');
+    expect(formatMetricValue(undefined, 240)).toBe('240');
   });
-});
 
-describe('formatMetricValue below a million', () => {
-  it('shows exact figures with commas, and notates from a million up', () => {
-    expect(formatMetricValue('default', 1724)).toBe('1,724');
-    expect(formatMetricValue('default', 20184.9)).toBe('20,184');
+  it('shows exact figures with commas below a million on a board that stays below it', () => {
+    expect(formatMetricValue('default', 1724, { scale: 900_000 })).toBe('1,724');
+    expect(formatMetricValue('default', 20184.9, { scale: 900_000 })).toBe('20,184');
     expect(formatMetricValue('default', 999_999)).toBe('999,999');
     expect(formatMetricValue('default', 0)).toBe('0');
-    expect(formatMetricValue('default', 1e6)).toBe('1M');
-    expect(formatMetricValue('default', 3.2e9)).toBe('3.2B');
+    expect(formatMetricValue('multiplier', 870329.134, { scale: 900_000 })).toBe('870,329.13');
   });
 
-  it('leaves bits alone and gives multipliers separators and two decimals', () => {
-    expect(formatMetricValue('bits', 5000)).toBe(notateNumber(5000, 'bits'));
-    expect(formatMetricValue('multiplier', 1500)).toBe('1,500.00');
-    expect(formatMetricValue('multiplier', 870329.134)).toBe('870,329.13');
-    expect(formatMetricValue('multiplier', 3009320000)).toBe('3.01B');
+  it('shows every value short on a board that reaches a million', () => {
+    expect(formatMetricValue('multiplier', 3_009_320_000, { scale: 3.01e9 })).toBe('3.01B');
+    expect(formatMetricValue('multiplier', 870329.134, { scale: 3.01e9 })).toBe('870K');
+    expect(formatMetricValue('multiplier', 400.66, { scale: 3.01e9 })).toBe('400.66');
+    expect(formatMetricValue('default', 990_882, { scale: 1.23e6 })).toBe('991K');
+    expect(formatMetricValue('default', 4200, { scale: 1.57e25 })).toBe('4.20K');
+    expect(formatMetricValue('default', 999, { scale: 1.57e25 })).toBe('999');
+  });
+
+  it('treats bits as plain numbers', () => {
+    expect(formatMetricValue('bits', 2.7576e119, { scale: 2.7576e119 })).toBe('2.76E119');
+    expect(formatExactValue('bits', 2.7576e119)).toBe('2.75760E119');
+  });
+
+  it('shows a dash for a missing value', () => {
+    expect(formatMetricValue('default', undefined)).toBe('-');
   });
 });
 
 describe('formatMetricValue short form', () => {
-  it('rounds to the nearest, never up or down only', () => {
+  it('rounds to the nearest with three significant figures, trailing zeros kept', () => {
     expect(formatMetricValue('default', 56_831_731)).toBe('56.8M');
     expect(formatMetricValue('default', 96_517_910)).toBe('96.5M');
-    expect(formatMetricValue('default', 2_331_690)).toBe('2.33M');
-    expect(formatMetricValue('default', 4.9047e18)).toBe('4.9QQ');
+    expect(formatMetricValue('default', 35_000_000)).toBe('35.0M');
+    expect(formatMetricValue('default', 1e6)).toBe('1.00M');
+    expect(formatMetricValue('default', 4.9047e18)).toBe('4.90QQ');
     expect(formatMetricValue('default', 1.3176e62)).toBe('1.32E62');
-    expect(formatMetricValue('default', 9.996e62)).toBe('1E63');
+    expect(formatMetricValue('default', 6.9e36)).toBe('6.90E36');
+    expect(formatMetricValue('default', 9.996e62)).toBe('1.00E63');
   });
 
   it('moves to the next suffix when rounding reaches 1000', () => {
-    expect(formatMetricValue('default', 999_600_000)).toBe('1B');
-    expect(formatMetricValue('default', 999.7e18)).toBe('1E21');
+    expect(formatMetricValue('default', 999_600_000)).toBe('1.00B');
+    expect(formatMetricValue('default', 999_700, { scale: 2e6 })).toBe('1.00M');
+    expect(formatMetricValue('default', 999.7e18)).toBe('1.00E21');
   });
 
   it('keeps one notation across a board that reaches E notation', () => {
     expect(formatMetricValue('default', 5.11e19)).toBe('51.1QQ');
     expect(formatMetricValue('default', 5.11e19, { scale: 1.57e25 })).toBe('5.11E19');
-    expect(formatMetricValue('default', 4200, { scale: 1.57e25 })).toBe('4,200');
-  });
-
-  it('shows a dash for a missing value', () => {
-    expect(formatMetricValue('default', undefined)).toBe('-');
   });
 });
 
@@ -97,7 +101,9 @@ describe('formatStep', () => {
     expect(formatStep('points', 120.4)).toBe('120 pts');
     expect(formatStep('default', 2333, { scale: 1e8 })).toBe('2,333');
     expect(formatStep('default', 1)).toBe('1');
-    expect(formatStep('default', 2.5e9)).toBe(formatMetricValue('default', 2.5e9));
+    expect(formatStep('default', 2.5e9)).toBe('2.50B');
+    expect(formatStep('default', 2333, { scale: 1e8 })).toBe('2,333');
+    expect(formatStep('bits', 5.69e20, { scale: 2.7e119 })).toBe('5.69E20');
   });
 });
 
