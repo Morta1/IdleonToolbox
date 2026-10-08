@@ -61,6 +61,13 @@ describe('BoardDrawer', () => {
     expect(names).toEqual(['A', 'B', 'Anon#abc123', 'D']);
   });
 
+  it('names the same #1 in the header as the list under it when an anonymous player leads', async () => {
+    const publicTop = [{ mainChar: 'Shironee', value: 165918, rank: 2 }, { mainChar: 'B', value: 150000, rank: 3 }];
+    fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top: publicTop, around: [{ mainChar: 'Anon#abc123', value: 172221, rank: 1 }] });
+    renderDrawer({ player: 'Anon#abc123', kind: 'searched', showAnonymous: false });
+    expect(await screen.findByText('#1 Anon#abc123 · 172,221')).toBeTruthy();
+  });
+
   it('skips Around you at rank 15 or better', async () => {
     fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: aroundAt(12) });
     renderDrawer();

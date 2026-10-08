@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Tab, Tabs, useMediaQuery } from '@mui/material';
 import { prefix } from '@utility/helpers';
 import Box from '@mui/material/Box';
@@ -65,8 +65,31 @@ const Tabber = ({
   // A row strip shares its width with the end slot, so it scrolls whenever its tabs outgrow it.
   const useScrollable = forceScroll || rowStrip || (isMd && tabs.length >= 4) || tabs.length >= 8;
   const panelId = idPrefix ? `${idPrefix}-panel` : undefined;
+  const tabsRef = useRef(null);
+
+  // MUI scrolls the selected tab into view when it changes, but not when the strip itself settles
+  // later (a deep link renders before the end slot and fonts land), which left it off-screen.
+  useEffect(() => {
+    if (!rowStrip) return;
+    const reveal = () => {
+      const scroller = tabsRef.current?.querySelector('.MuiTabs-scroller');
+      const tab = scroller?.querySelector('[role="tab"][aria-selected="true"]');
+      if (!tab) return;
+      const left = tab.offsetLeft - scroller.scrollLeft;
+      if (left < 0 || left + tab.offsetWidth > scroller.clientWidth) {
+        scroller.scrollLeft = tab.offsetLeft - (scroller.clientWidth - tab.offsetWidth) / 2;
+      }
+    };
+    const frame = requestAnimationFrame(reveal);
+    const late = setTimeout(reveal, 500);
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(late);
+    };
+  }, [selectedTab, rowStrip]);
   const tabStrip = (
     <Tabs
+      ref={tabsRef}
       centered={!useScrollable && !alignStart}
       // A row strip only grows arrows once its tabs overflow; true would reserve their width at all times.
       scrollButtons={rowStrip ? 'auto' : true}

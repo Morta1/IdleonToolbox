@@ -291,7 +291,9 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
 
   const anonSwitch = (
     <FormControlLabel
-      control={<Switch checked={showAnonymous} onChange={onToggleAnonymous} inputProps={{ role: 'switch' }}/>}
+      control={<Switch checked={showAnonymous} onChange={onToggleAnonymous} inputProps={{ role: 'switch' }}
+                       // Its input is invisible, so the ring goes on the switch itself.
+                       sx={{ borderRadius: 2, '&:has(.Mui-focusVisible)': { outline: '2px solid #90caf9', outlineOffset: '-4px' } }}/>}
       label="Show anonymous"
       slotProps={{ typography: { sx: { fontSize: 13, color: 'text.secondary' } } }}
       sx={{ minHeight: fieldHeight, my: 0 }}
@@ -321,6 +323,9 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
         </Box>
         <IconButton
           aria-label="More options"
+          aria-haspopup="dialog"
+          aria-expanded={Boolean(menuAnchor)}
+          aria-controls={menuAnchor ? 'lb-more-options' : undefined}
           onClick={(event) => setMenuAnchor(event.currentTarget)}
           sx={{ display: { xs: 'inline-flex', sm: 'none' }, width: 44, height: 44, flexShrink: 0, bgcolor: 'rgba(255,255,255,0.08)', color: 'common.white' }}>
           <IconDotsVertical size={18}/>
@@ -332,7 +337,7 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
         onClose={() => setMenuAnchor(null)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        slotProps={{ paper: { sx: FOCUS_RING } }}>
+        slotProps={{ paper: { id: 'lb-more-options', role: 'dialog', 'aria-label': 'More options', sx: FOCUS_RING } }}>
         <Stack gap={1.5} sx={{ p: 2, width: 300 }}>
           <MetricJump fullWidth index={index} onMetric={(key) => { setMenuAnchor(null); onMetric(key); }}/>
           {anonSwitch}

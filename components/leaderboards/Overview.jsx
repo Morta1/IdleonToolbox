@@ -43,7 +43,9 @@ const PodiumSlot = ({ row, kind }) => {
 };
 
 const Podium = ({ rows, highlight, onOpen }) => (
-  <Card variant="outlined" sx={{ ...CARD_SX, display: 'flex', flexDirection: 'column', gap: 2 }}>
+  // Its own container: the two-column list follows the card's width, which the You column beside
+  // it takes 420px from, not the viewport's (ranks 5, 7, 9 lost their points at 1280px).
+  <Card variant="outlined" sx={{ ...CARD_SX, display: 'flex', flexDirection: 'column', gap: 2, containerType: 'inline-size' }}>
     <Stack direction="row" alignItems="center">
       <Typography component="h2" sx={{ flexGrow: 1, fontSize: 16, fontWeight: 700 }}>Global ranking</Typography>
       <Button onClick={() => onOpen(GLOBAL_METRIC, 'overview')} sx={linkButtonSx} data-board-link={GLOBAL_METRIC}>Full top 100 ›</Button>
@@ -51,7 +53,7 @@ const Podium = ({ rows, highlight, onOpen }) => (
     <Stack direction="row" gap={1.5} alignItems="flex-end">
       {PODIUM_SLOTS.map((at) => (rows[at] ? <PodiumSlot key={rows[at].mainChar} row={rows[at]} kind={highlight[rows[at].mainChar] ?? null}/> : null))}
     </Stack>
-    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, columnGap: 3 }}>
+    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', columnGap: 3, '@container (min-width: 520px)': { gridTemplateColumns: '1fr 1fr' } }}>
       {rows.slice(3).map((row, at) => (
         // A phone shows ranks 4 to 7, but never hides the highlighted player.
         <Box key={row.mainChar} sx={at >= 4 && !highlight[row.mainChar] ? { display: { xs: 'none', sm: 'block' } } : undefined}>
@@ -197,15 +199,16 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSee
     // viewport's: a viewport breakpoint squeezed the podium to 160px on a 1024px screen.
     <Stack gap={2.5} sx={{ containerType: 'inline-size' }}>
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 2.5, '@container (min-width: 860px)': { gridTemplateColumns: 'minmax(0, 1fr) 420px' } }}>
+        {/* The player's own standing comes first in the markup, so narrow screens show it first and
+            read it first; side by side it moves to the right column. */}
+        <Box sx={{ '@container (min-width: 860px)': { order: 1 } }}>
+          <YouSlot player={player} self={self} index={index} onSeeAll={onSeeAll} onClearPlayer={onClearPlayer} nextRun={nextRun}/>
+        </Box>
         {podium.isError
           ? <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => podium.refetch()}>Retry</Button>}>Could not load the global ranking</Alert>
           : podium.data
             ? <Podium rows={rows} highlight={highlight} onOpen={onOpen}/>
             : <Skeleton variant="rounded" height={420}/>}
-        {/* On a phone the player's own standing comes first. */}
-        <Box sx={{ order: -1, '@container (min-width: 860px)': { order: 0 } }}>
-          <YouSlot player={player} self={self} index={index} onSeeAll={onSeeAll} onClearPlayer={onClearPlayer} nextRun={nextRun}/>
-        </Box>
       </Box>
       {picks.length || reach.length ? (
         <Box sx={{

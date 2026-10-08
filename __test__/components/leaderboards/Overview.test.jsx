@@ -73,6 +73,13 @@ describe('Overview', () => {
     expect(await screen.findByRole('dialog')).toBeTruthy();
   });
 
+  it('puts the standing card before the global ranking in reading order', async () => {
+    renderOverview({ player: { context: null } });
+    const notice = await screen.findByText('See where you stand');
+    const ranking = await screen.findByText('Global ranking');
+    expect(notice.compareDocumentPosition(ranking) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it('shows a skeleton, not the sign-in notice, while the account loads', async () => {
     renderOverview({ player: { context: null }, self: { ...self, pending: true } });
     expect(await screen.findByText('G1')).toBeTruthy();

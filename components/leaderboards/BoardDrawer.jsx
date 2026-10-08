@@ -21,8 +21,10 @@ const SectionHeading = ({ children, note, sx }) => (
 
 // A drawer opened from the board jump or a deep link has nothing to hand focus back to, so it goes
 // to the board's own Top 100 link, scrolled into view.
-const focusBoardLink = (metricKey) => {
-  if (document.activeElement && document.activeElement !== document.body) return;
+// force: the drawer was opened from somewhere that is gone or meaningless to return to (the phone
+// menu's More button, the board jump), so focus goes to the board even when MUI restored it elsewhere.
+const focusBoardLink = (metricKey, force) => {
+  if (!force && document.activeElement && document.activeElement !== document.body) return;
   const link = document.querySelector(`[data-board-link="${metricKey}"]`);
   if (!link) return;
   link.scrollIntoView?.({ block: 'center' });
@@ -31,7 +33,7 @@ const focusBoardLink = (metricKey) => {
 
 // rankEntry: the player's entry for this board from /player ({ r, v, t, nr, nv }), the fallback
 // for the step when everyone in the around window shares the player's rank.
-const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, showAnonymous, onClose }) => {
+const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, showAnonymous, focusBoardOnClose = false, onClose }) => {
   const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const titleId = useId();
   const meta = metaOf(index, metricKey ?? GLOBAL_METRIC);
@@ -61,13 +63,14 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
   const ties = showAround && rankEntry?.t > 1 ? `${numberWithCommas(rankEntry.t)} tied at ${rankText(myRank)}` : null;
   const step = [nextStep, ties].filter(Boolean).join(' · ') || null;
   const maxed = Boolean(meta.maxed);
-  const first = data?.top?.[0] ?? null;
   // With anonymous players hidden, an anonymous player in context is missing from the public top
   // 100; they still go in their place.
   const top = data?.top ?? [];
   const topRows = mine && top.length && mine.rank < top[top.length - 1].rank && !top.some((row) => isMe(row.mainChar))
     ? [...top, mine].sort((a, b) => a.rank - b.rank)
     : top;
+  // The header names the same #1 as the list under it.
+  const first = topRows[0] ?? null;
   const players = (metricKey ?? GLOBAL_METRIC) === GLOBAL_METRIC ? index.totalPlayers : meta.players;
   const rowProps = (row, variant) => ({
     rank: row.rank, name: row.mainChar, value: row.value, notation: meta.notation, scale: meta.top, variant,
@@ -80,7 +83,7 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
       open={open}
       onClose={onClose}
       // MUI hands focus back after onExited, so the check waits for that to land first.
-      SlideProps={{ onExited: () => setTimeout(() => focusBoardLink(metricKey), 50) }}
+      SlideProps={{ onExited: () => setTimeout(() => focusBoardLink(metricKey, focusBoardOnClose), 50) }}
       sx={{ zIndex: (theme) => theme.zIndex.modal }}
       PaperProps={{
         role: 'dialog', 'aria-modal': true, 'aria-labelledby': titleId,

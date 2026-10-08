@@ -159,6 +159,17 @@ describe('ControlBar', () => {
     expect(searchNames).not.toHaveBeenCalled();
   });
 
+  it('tells assistive tech the phone menu is a labelled dialog and whether it is open', () => {
+    renderBar();
+    const more = screen.getByRole('button', { name: 'More options' });
+    expect(more.getAttribute('aria-haspopup')).toBe('dialog');
+    expect(more.getAttribute('aria-expanded')).toBe('false');
+    fireEvent.click(more);
+    expect(more.getAttribute('aria-expanded')).toBe('true');
+    const dialog = screen.getByRole('dialog', { name: 'More options' });
+    expect(more.getAttribute('aria-controls')).toBe(dialog.id);
+  });
+
   it('exposes Show anonymous as a switch', () => {
     renderBar();
     expect(screen.getByRole('switch', { name: 'Show anonymous' })).toBeTruthy();

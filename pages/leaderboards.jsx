@@ -33,6 +33,9 @@ const Leaderboards = () => {
   const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
   // Where the sticky control bar ends: the tab strip pins right under it.
   const [stripTop, setStripTop] = useState(null);
+  // How the open board was opened. A card or link click gets focus back from MUI; the board jump and a
+  // deep link have nothing useful to return to, so closing focuses the board instead.
+  const [openSource, setOpenSource] = useState(null);
   const showToast = (severity, message) => setToast({ open: true, severity, message });
 
   // Derived during render, never seeded into useState: router.query is {} until isReady on the
@@ -138,6 +141,7 @@ const Leaderboards = () => {
 
   const openBoard = (metric, source) => {
     trackLeaderboardEvent('lb_board_open', { metric, source });
+    setOpenSource(source);
     const next = { ...router.query, m: metric };
     const category = index.byKey[metric]?.category;
     if (source === 'jump' && category) next.t = TABS.find((tab) => tab.toLowerCase() === category);
@@ -258,6 +262,7 @@ const Leaderboards = () => {
       player={playerData?.player.mainChar ?? null}
       kind={context?.kind}
       rankEntry={playerData?.ranks?.[drawerMetric ?? shownMetric] ?? null}
+      focusBoardOnClose={openSource == null || openSource === 'jump'}
       showAnonymous={showAnonymous}
       onClose={closeBoard}
     />
