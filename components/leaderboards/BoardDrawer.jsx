@@ -20,6 +20,9 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, showAnonymous, onCl
     queryKey: ['lb-board', metricKey, player?.toLowerCase() ?? '', !showAnonymous],
     queryFn: () => fetchBoard(metricKey, { around: player ?? undefined, publicOnly: !showAnonymous }),
     enabled: open,
+    // A deep link asks again once the player's name arrives: keep that board's first answer on
+    // screen meanwhile, but never another board's rows under this title.
+    placeholderData: (previous, previousQuery) => (previousQuery?.queryKey[1] === metricKey ? previous : undefined),
     staleTime: staleUntilNextRun
   });
   const isMe = (name) => Boolean(player) && name.toLowerCase() === player.toLowerCase();

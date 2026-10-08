@@ -189,6 +189,7 @@ const Leaderboards = () => {
         <Stack alignItems="center" justifyContent="center" mt={3}><CircularProgress/></Stack>
       ) : (
         <CategoryTab
+          key={selectedTab}
           category={selectedTab}
           index={index}
           lists={showAnonymous ? tabData.anonymous : tabData.public}

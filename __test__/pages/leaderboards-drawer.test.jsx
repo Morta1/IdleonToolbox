@@ -12,8 +12,10 @@ const routerState = { isReady: true, query: {}, push: vi.fn(), replace: vi.fn(),
 vi.mock('next/router', () => ({ useRouter: () => routerState }));
 vi.mock('next-seo', () => ({ NextSeo: () => null }));
 
-const fetchTab = vi.fn(async () => ({ totalUsers: 10, createdAt: 1, skills: { public: { mining: [] }, anonymous: { mining: [] } } }));
-const fetchMeta = vi.fn(async () => ({ createdAt: 1, totalPlayers: 10, categories: [{ category: 'skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] }));
+const defaultTab = async () => ({ totalUsers: 10, createdAt: 1, skills: { public: { mining: [] }, anonymous: { mining: [] } } });
+const defaultMeta = async () => ({ createdAt: 1, totalPlayers: 10, categories: [{ category: 'skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] });
+const fetchTab = vi.fn(defaultTab);
+const fetchMeta = vi.fn(defaultMeta);
 const fetchPlayer = vi.fn(async () => null);
 const fetchBoard = vi.fn(async () => ({ metric: 'mining', createdAt: 1, top: [], around: [] }));
 const searchNames = vi.fn(async () => []);
@@ -44,6 +46,8 @@ afterEach(() => {
   routerState.push.mockReset();
   routerState.replace.mockReset();
   routerState.back.mockReset();
+  fetchTab.mockImplementation(defaultTab);
+  fetchMeta.mockImplementation(defaultMeta);
   client.clear();
   localStorage.clear();
 });
@@ -119,5 +123,40 @@ describe('leaderboards board drawer', () => {
     rerender();
     expect(await screen.findByRole('dialog', { name: 'Mining' })).toBeTruthy();
     await waitFor(() => expect(fetchBoard).toHaveBeenCalledWith('mining', expect.any(Object)));
+  });
+
+  it('does not carry a collapsed section over to another tab', async () => {
+    const sectioned = { createdAt: 1, totalPlayers: 10, categories: ['skills', 'tasks'].map((category) => ({
+      category, metrics: [
+        { key: `${category}A`, label: `${category} A`, section: 'First', notation: 'default' },
+        { key: `${category}B`, label: `${category} B`, section: 'Second', notation: 'default' }
+      ]
+    })) };
+    fetchMeta.mockResolvedValue(sectioned);
+    fetchTab.mockImplementation(async (tab) => {
+      const lists = { [`${tab}A`]: [], [`${tab}B`]: [] };
+      return { totalUsers: 10, createdAt: 1, [tab]: { public: lists, anonymous: lists } };
+    });
+    // Tasks is fetched first so that coming back to it is instant: a spinner in between would
+    // unmount the tab and hide a leak.
+    routerState.query = { t: 'tasks' };
+    const { rerender } = renderPage();
+    await screen.findByRole('button', { name: 'Collapse First' });
+    routerState.query = { t: 'skills' };
+    rerender();
+    await waitFor(() => expect(fetchTab).toHaveBeenCalledWith('skills'));
+    fireEvent.click(await screen.findByRole('button', { name: 'Collapse First' }));
+    expect(screen.getByRole('button', { name: 'Expand First' }).getAttribute('aria-expanded')).toBe('false');
+
+    routerState.query = { t: 'tasks' };
+    rerender();
+    expect(await screen.findByRole('button', { name: 'Collapse First' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Expand First' })).toBeNull();
+  });
+
+  it('keeps the podium query apart from the global board drawer', async () => {
+    renderPage();
+    await waitFor(() => expect(client.getQueryCache().find({ queryKey: ['lb-podium', false] })).toBeTruthy());
+    expect(client.getQueryCache().find({ queryKey: ['lb-board', 'globalRanking', 'top10', false] })).toBeUndefined();
   });
 });

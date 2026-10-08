@@ -25,7 +25,7 @@ const renderDrawer = (props = {}) => render(
   </QueryClientProvider>
 );
 
-afterEach(() => { cleanup(); vi.clearAllMocks(); });
+afterEach(() => { cleanup(); client.clear(); vi.clearAllMocks(); });
 
 describe('BoardDrawer', () => {
   it('shows Around you first when the player is below rank 15', async () => {
@@ -88,5 +88,41 @@ describe('BoardDrawer', () => {
     renderDrawer();
     const dialog = await screen.findByRole('dialog', { name: 'Mining' });
     expect(dialog.getAttribute('aria-modal')).toBe('true');
+  });
+
+  it('keeps the rows on screen while a deep link asks again with the player', async () => {
+    fetchBoard.mockResolvedValueOnce({ metric: 'mining', createdAt: 1, top, around: [] });
+    fetchBoard.mockReturnValueOnce(new Promise(() => {}));
+    const tree = (player) => (
+      <QueryClientProvider client={client}>
+        <ThemeProvider theme={darkTheme}>
+          <BoardDrawer open metricKey="mining" index={index} player={player} kind="logged" showAnonymous onClose={() => {}}/>
+        </ThemeProvider>
+      </QueryClientProvider>
+    );
+    const { rerender } = render(tree(null));
+    expect(await screen.findByText('Top 100')).toBeTruthy();
+    rerender(tree('me'));
+    await waitFor(() => expect(fetchBoard).toHaveBeenCalledTimes(2));
+    expect(screen.getByText('Top 100')).toBeTruthy();
+    expect(screen.queryByRole('progressbar')).toBeNull();
+  });
+
+  it('shows a spinner, not the old board, when another board opens', async () => {
+    fetchBoard.mockResolvedValueOnce({ metric: 'mining', createdAt: 1, top, around: [] });
+    fetchBoard.mockReturnValueOnce(new Promise(() => {}));
+    const tree = (metricKey) => (
+      <QueryClientProvider client={client}>
+        <ThemeProvider theme={darkTheme}>
+          <BoardDrawer open metricKey={metricKey} index={index} player="me" kind="logged" showAnonymous onClose={() => {}}/>
+        </ThemeProvider>
+      </QueryClientProvider>
+    );
+    const { rerender } = render(tree('mining'));
+    expect(await screen.findByText('Top 100')).toBeTruthy();
+    rerender(tree('farming'));
+    await waitFor(() => expect(fetchBoard).toHaveBeenCalledTimes(2));
+    expect(screen.queryByText('Top 100')).toBeNull();
+    expect(screen.getByRole('progressbar')).toBeTruthy();
   });
 });

@@ -74,7 +74,7 @@ const PlayerPanel = ({ player, self, index, onOpen, onSeeAll, nextRun }) => {
   }
   if (player.isError) {
     return <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => player.refetch()}>Retry</Button>}>
-      Could not load your standing
+      {player.context.kind === 'searched' ? 'Could not load this player' : 'Could not load your standing'}
     </Alert>;
   }
   if (player.isLoading || player.data === undefined) {
@@ -139,7 +139,7 @@ const PlayerPanel = ({ player, self, index, onOpen, onSeeAll, nextRun }) => {
 
 const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onSeeAll }) => {
   const podium = useQuery({
-    queryKey: ['lb-board', GLOBAL_METRIC, 'top10', !showAnonymous],
+    queryKey: ['lb-podium', !showAnonymous],
     queryFn: () => fetchBoard(GLOBAL_METRIC, { limit: 10, publicOnly: !showAnonymous }),
     staleTime: staleUntilNextRun
   });

@@ -104,4 +104,10 @@ describe('Overview', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(refetch).toHaveBeenCalled();
   });
+
+  it('words the error for a searched player as theirs, not yours', async () => {
+    renderOverview({ player: { context: { name: 'Other', kind: 'searched' }, isError: true, refetch: () => {} } });
+    expect(await screen.findByText('Could not load this player')).toBeTruthy();
+    expect(screen.queryByText('Could not load your standing')).toBeNull();
+  });
 });
