@@ -6,6 +6,8 @@ describe('leaderboard icons', () => {
     expect(metricIcon('mining')).toBe('data/ClassIcons42');
     expect(metricIcon('research')).toBe('data/ClassIcons61');
     expect(metricIcon('totalMoney')).toBeNull();
+    expect(metricIcon('constructor')).toBeNull();
+    expect(metricIcon('__proto__')).toBeNull();
   });
 
   it('builds a monogram from the first meaningful word', () => {

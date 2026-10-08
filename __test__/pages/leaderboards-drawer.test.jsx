@@ -92,4 +92,32 @@ describe('leaderboards board drawer', () => {
     expect(routerState.back).not.toHaveBeenCalled();
     expect(routerState.replace).toHaveBeenCalled();
   });
+
+  it('opens nothing for a key that is not a board, even an inherited one', async () => {
+    routerState.query = { t: 'skills', m: 'constructor' };
+    renderPage();
+    await waitFor(() => expect(fetchMeta).toHaveBeenCalled());
+    expect(await screen.findByRole('button', { name: /Top 100/ })).toBeTruthy();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(fetchBoard).not.toHaveBeenCalled();
+  });
+
+  it('opens nothing for an unknown key once meta has loaded', async () => {
+    routerState.query = { t: 'skills', m: 'nope' };
+    renderPage();
+    expect(await screen.findByRole('button', { name: /Top 100/ })).toBeTruthy();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(fetchBoard).not.toHaveBeenCalled();
+  });
+
+  it('still opens a board from a card when meta is down', async () => {
+    fetchMeta.mockRejectedValueOnce(new Error('meta down'));
+    routerState.push.mockImplementation(({ query }) => { routerState.query = query; });
+    routerState.query = { t: 'skills' };
+    const { rerender } = renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: /Top 100/ }));
+    rerender();
+    expect(await screen.findByRole('dialog', { name: 'Mining' })).toBeTruthy();
+    await waitFor(() => expect(fetchBoard).toHaveBeenCalledWith('mining', expect.any(Object)));
+  });
 });

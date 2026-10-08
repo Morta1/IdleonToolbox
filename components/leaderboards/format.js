@@ -23,7 +23,8 @@ const GLOBAL_META = { key: GLOBAL_METRIC, label: 'Global ranking', section: '', 
 // Without meta (fetch failed) every lookup falls back to metaOf's title-cased key and the tab shows
 // one unnamed section, so cards still render.
 export const buildMetaIndex = (meta) => {
-  const byKey = { [GLOBAL_METRIC]: GLOBAL_META };
+  // No prototype, so a key from the URL (constructor, __proto__) is never found by inheritance.
+  const byKey = Object.assign(Object.create(null), { [GLOBAL_METRIC]: GLOBAL_META });
   const categories = {};
   for (const { category, metrics } of meta?.categories ?? []) {
     const sections = [];

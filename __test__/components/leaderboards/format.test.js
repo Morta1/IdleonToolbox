@@ -27,6 +27,15 @@ describe('formatMetricValue', () => {
 });
 
 describe('buildMetaIndex', () => {
+  it('finds only its own keys, never inherited ones', () => {
+    const index = buildMetaIndex(meta);
+    for (const key of ['constructor', '__proto__', 'toString', 'hasOwnProperty']) {
+      expect(index.byKey[key]).toBeUndefined();
+      expect(Object.hasOwn(index.byKey, key)).toBe(false);
+    }
+    expect(Object.hasOwn(index.byKey, 'mining')).toBe(true);
+  });
+
   it('groups sections by first appearance and keeps board order', () => {
     const index = buildMetaIndex(meta);
     expect(index.categories.general.sections).toEqual([

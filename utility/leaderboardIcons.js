@@ -5,7 +5,7 @@ const SKILL_ICONS = {
   sneaking: 58, summoning: 59, spelunking: 60, research: 61
 };
 
-export const metricIcon = (metric) => (SKILL_ICONS[metric] ? `data/ClassIcons${SKILL_ICONS[metric]}` : null);
+export const metricIcon = (metric) => (Object.hasOwn(SKILL_ICONS, metric) ? `data/ClassIcons${SKILL_ICONS[metric]}` : null);
 
 const FILLER = new Set(['Total', 'Highest', 'Best', 'Most', 'Biggest']);
 

@@ -61,8 +61,10 @@ const Leaderboards = () => {
   });
   const playerData = playerQuery.data ?? null;
 
-  // A metric that meta doesn't know (old link, typo) opens nothing.
-  const drawerMetric = queryMetric && index.byKey[queryMetric] ? queryMetric : null;
+  // A metric that meta doesn't know (old link, typo) opens nothing. Without meta there is nothing to
+  // check against, so boards stay reachable and the drawer falls back to the key-derived title.
+  const canOpen = (metric) => Boolean(metric) && (metaQuery.isError || Object.hasOwn(index.byKey, metric));
+  const drawerMetric = canOpen(queryMetric) ? queryMetric : null;
   // The drawer slides out for a moment after drawerMetric clears, so it keeps showing the last board.
   const [shownMetric, setShownMetric] = useState(null);
   if (drawerMetric && drawerMetric !== shownMetric) setShownMetric(drawerMetric);
@@ -76,7 +78,7 @@ const Leaderboards = () => {
 
   useEffect(() => {
     const entry = urlEntry.current;
-    if (!entry?.metric || entry.metricTracked || drawerMetric !== entry.metric) return;
+    if (!entry?.metric || entry.metricTracked || drawerMetric !== entry.metric || !Object.hasOwn(index.byKey, drawerMetric)) return;
     entry.metricTracked = true;
     trackLeaderboardEvent('lb_board_open', { metric: drawerMetric, source: 'url' });
   }, [drawerMetric]);
