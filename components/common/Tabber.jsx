@@ -18,7 +18,11 @@ const Tabber = ({
                   clearOnChange = [],
                   disableQuery = false,
                   keepChildren,
-                  activeTab
+                  activeTab,
+                  // Opt-ins for a left-aligned, full-width strip: align="start" drops the centring, endSlot
+                  // renders at the right end of the same row. Left out, the strip is unchanged.
+                  align,
+                  endSlot
                 }) => {
   const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const router = useRouter();
@@ -53,17 +57,23 @@ const Tabber = ({
   // filtered down to the selected index here.
   const showAllChildren = keepChildren ?? Boolean(onTabChange);
   const useScrollable = forceScroll || (isMd && tabs.length >= 4) || tabs.length >= 8;
-  return <Box sx={orientation === 'vertical' ? { flexGrow: 1, display: 'flex' } : {}}>
+  const alignStart = align === 'start';
+  const rowStrip = alignStart || endSlot != null;
+  const tabStrip = (
     <Tabs
-      centered={!useScrollable}
+      centered={!useScrollable && !alignStart}
       scrollButtons
       allowScrollButtonsMobile
       sx={{
-        marginBottom: 3,
+        marginBottom: rowStrip ? 0 : 3,
+        ...(rowStrip ? { flex: '1 1 auto', minWidth: 0 } : {}),
+        ...(alignStart ? { minHeight: 44 } : {}),
         // MUI drops `centered` for scrollable tabs. `safe center` keeps them centred while they
         // fit and falls back to flex-start the moment they overflow, so the leading tabs never
         // get clipped past the left edge where nothing can scroll them back into view.
-        ...(useScrollable ? { '& .MuiTabs-flexContainer': { justifyContent: 'safe center' } } : {})
+        ...(alignStart
+          ? { '& .MuiTabs-flexContainer': { justifyContent: 'flex-start' } }
+          : useScrollable ? { '& .MuiTabs-flexContainer': { justifyContent: 'safe center' } } : {})
       }}
       variant={useScrollable ? 'scrollable' : 'standard'}
       value={selectedTab} onChange={handleOnClick}>
@@ -72,10 +82,18 @@ const Tabber = ({
           iconPosition="start"
           icon={icons?.[index] ? <img src={`${prefix}${icons?.[index]}.png`} alt=""/> : null}
           wrapped label={iconsOnly ? '' : tab}
-          sx={{ minWidth: 62 }}
-          key={`${tab?.[index]}-${index}`}/>;
+          sx={alignStart ? { minWidth: 62, minHeight: 44, px: 1.75 } : { minWidth: 62 }}
+          key={`${tabs[index]}-${index}`}/>;
       })}
     </Tabs>
+  );
+  return <Box sx={orientation === 'vertical' ? { flexGrow: 1, display: 'flex' } : {}}>
+    {rowStrip ? (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3, ...(alignStart ? { borderBottom: '1px solid #2f3641' } : {}) }}>
+        {tabStrip}
+        {endSlot != null ? <Box sx={{ flexShrink: 0 }}>{endSlot}</Box> : null}
+      </Box>
+    ) : tabStrip}
     {showAllChildren ? children : array?.map((child, index) => {
       return index === selectedTab ? child : null;
     })}
