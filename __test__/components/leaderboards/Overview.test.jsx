@@ -79,6 +79,12 @@ describe('Overview', () => {
     expect(onOpen).toHaveBeenCalledWith('mining', 'within_reach');
   });
 
+  it('never shows self copy for a searched player that was not found', () => {
+    renderOverview({ self: { ...self, signedIn: true, participation: 'off' }, player: { context: { name: 'Ghost', kind: 'searched' }, data: null, isLoading: false, isError: false } });
+    expect(screen.queryByText(/not on the leaderboards/i)).toBeNull();
+    expect(screen.queryByText('Almost there')).toBeNull();
+  });
+
   it('tells a signed-in player who turned leaderboards off', async () => {
     renderOverview({ player: { context: { name: 'Me', kind: 'logged' }, data: null }, self: { ...self, name: 'Me', signedIn: true, participation: 'off' } });
     expect(await screen.findByText('You are not on the leaderboards')).toBeTruthy();

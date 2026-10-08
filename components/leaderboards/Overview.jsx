@@ -79,7 +79,9 @@ const PlayerPanel = ({ player, self, index, onOpen, onSeeAll, nextRun }) => {
     return <Skeleton variant="rounded" height={180}/>;
   }
   if (!player.data) {
-    // Only the logged-in player gets here: a searched 404 is sent back to plain Boards by the page.
+    // A searched 404 is sent back to plain Boards by the page; until that lands it must not read
+    // as the visitor's own standing.
+    if (player.context.kind === 'searched') return <Skeleton variant="rounded" height={180}/>;
     if (self.participation === 'off') {
       return <Notice title="You are not on the leaderboards">Turn leaderboards on in {settingsLink} and upload again.</Notice>;
     }

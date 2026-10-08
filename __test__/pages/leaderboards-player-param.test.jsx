@@ -2,7 +2,7 @@
 import '../../polyfills';
 import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import darkTheme from '../../styles/theme/darkTheme';
@@ -26,20 +26,29 @@ vi.mock('../../services/leaderboards', () => ({ fetchMeta, fetchPlayer, fetchBoa
 const { AppContext } = await import('@components/common/context/AppProvider');
 const Leaderboards = (await import('../../pages/leaderboards')).default;
 
-const renderPage = (state = {}) => render(
-  <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-    <ThemeProvider theme={darkTheme}>
-      <AppContext.Provider value={{ state }}>
-        <Leaderboards/>
-      </AppContext.Provider>
-    </ThemeProvider>
-  </QueryClientProvider>
-);
+const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+const renderPage = (state = {}) => {
+  // A fresh element each call, or React bails out of the rerender: the router mock is a plain object.
+  const page = () => (
+    <QueryClientProvider client={client}>
+      <ThemeProvider theme={darkTheme}>
+        <AppContext.Provider value={{ state }}>
+          <Leaderboards/>
+        </AppContext.Provider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+  const utils = render(page());
+  return { ...utils, rerender: () => utils.rerender(page()) };
+};
 
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
   routerState.query = {};
+  routerState.push.mockReset();
+  client.clear();
+  localStorage.clear();
 });
 
 describe('leaderboards ?player= deep link', () => {
@@ -83,5 +92,45 @@ describe('leaderboards ?player= deep link', () => {
     renderPage();
     await waitFor(() => expect(fetchBoard).toHaveBeenCalled());
     expect(fetchTab).not.toHaveBeenCalled();
+  });
+
+  it('decides the tab from the URL alone, so back to a URL without ?t= shows Overview', async () => {
+    routerState.push.mockImplementation(({ query }) => { routerState.query = query; });
+    const { rerender } = renderPage();
+    expect(await screen.findByText('See where you stand')).toBeTruthy();
+    fireEvent.click(await screen.findByRole('tab', { name: /Skills/ }));
+    rerender();
+    expect(await screen.findByText('Mining')).toBeTruthy();
+    expect(fetchTab).toHaveBeenCalledTimes(1);
+
+    routerState.query = {};
+    rerender();
+    expect(await screen.findByText('See where you stand')).toBeTruthy();
+    expect(screen.queryByText('Mining')).toBeNull();
+    expect(fetchTab).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the logged-in treatment when you search your own name', async () => {
+    routerState.query = { player: 'logged' };
+    renderPage({ uid: 'u1', characters: [{ name: 'Logged' }] });
+    expect(await screen.findByText('You')).toBeTruthy();
+    expect(screen.queryByText('Searched player')).toBeNull();
+  });
+
+  it('offers a retry when a tab fails to load', async () => {
+    fetchTab.mockRejectedValueOnce(new Error('boom'));
+    routerState.query = { t: 'skills' };
+    renderPage();
+    expect(await screen.findByText('Could not load these boards')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(await screen.findByText('Mining')).toBeTruthy();
+    expect(fetchTab).toHaveBeenCalledTimes(2);
+  });
+
+  it('stores the anonymous switch value it is given', async () => {
+    renderPage();
+    const toggle = await screen.findByLabelText('Show anonymous');
+    fireEvent.click(toggle);
+    await waitFor(() => expect(localStorage.getItem('leaderboard:showAnonymous')).toBe('false'));
   });
 });

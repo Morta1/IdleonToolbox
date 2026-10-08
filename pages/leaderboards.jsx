@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, CircularProgress, Snackbar, Stack, Typography } from '@mui/material';
+import { Alert, Button, CircularProgress, Snackbar, Stack } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
@@ -8,7 +8,6 @@ import Tabber from '../components/common/Tabber';
 import { fetchMeta, fetchPlayer, fetchTab } from '../services/leaderboards';
 import { trackLeaderboardEvent } from '@components/leaderboards/analytics';
 import useLeaderboardSelf from '@hooks/useLeaderboardSelf';
-import useHydrated from '@hooks/useHydrated';
 import { TABS, buildMetaIndex, staleUntilNextRun } from '@components/leaderboards/format';
 import ControlBar from '@components/leaderboards/ControlBar';
 import Overview from '@components/leaderboards/Overview';
@@ -25,23 +24,23 @@ const tabOf = (value) => {
 const Leaderboards = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const hydrated = useHydrated();
   const self = useLeaderboardSelf();
   // Mantine reads storage in an effect, so the export and the first client render show the default.
   const [showAnonymous, setShowAnonymous] = useLocalStorage({ key: 'leaderboard:showAnonymous', defaultValue: true });
-  const [clickedTab, setClickedTab] = useState(null);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
   const showToast = (severity, message) => setToast({ open: true, severity, message });
 
   // Derived during render, never seeded into useState: router.query is {} until isReady on the
   // static export, and an initialiser would freeze a deep link on the fallback.
   const query = router.isReady ? router.query : {};
-  const selectedTab = tabOf(query.t) ?? clickedTab ?? 'overview';
+  // The URL alone decides the tab, so back and forward to a URL without ?t= land on Overview.
+  const selectedTab = tabOf(query.t) ?? 'overview';
   const queryPlayer = typeof query.player === 'string' && query.player.trim() ? query.player.trim() : null;
   const queryMetric = typeof query.m === 'string' && query.m ? query.m : null;
-  // The self name is the main character for one render before the stored Anon# id lands: wait for
-  // hydration so /player is never asked for the wrong name.
-  const context = queryPlayer ? { name: queryPlayer, kind: 'searched' } : hydrated && self.name ? { name: self.name, kind: 'logged' } : null;
+  // Searching your own name keeps the "You" treatment. self.name is null until the stored Anon# id
+  // has been read, so /player is never asked for the main character by mistake.
+  const searchedSelf = Boolean(queryPlayer && self.name && queryPlayer.toLowerCase() === self.name.toLowerCase());
+  const context = queryPlayer ? { name: queryPlayer, kind: searchedSelf ? 'logged' : 'searched' } : self.name ? { name: self.name, kind: 'logged' } : null;
 
   const metaQuery = useQuery({ queryKey: ['lb-meta'], queryFn: fetchMeta, staleTime: staleUntilNextRun });
   const index = buildMetaIndex(metaQuery.data);
@@ -128,7 +127,7 @@ const Leaderboards = () => {
 
   const highlight = {};
   if (self.name) highlight[self.name] = 'logged';
-  if (queryPlayer && playerData) highlight[playerData.player.mainChar] = 'searched';
+  if (context?.kind === 'searched' && playerData) highlight[playerData.player.mainChar] = 'searched';
   const pinnedBase = playerData && context ? { mainChar: playerData.player.mainChar, kind: context.kind, globalRank: playerData.player.rank } : null;
   const tabData = tabQuery.data?.[selectedTab];
   const tabLabels = TABS.map((tab) => {
@@ -146,7 +145,7 @@ const Leaderboards = () => {
       totalPlayers={index.totalPlayers}
       createdAt={index.createdAt ?? tabQuery.data?.createdAt ?? null}
       showAnonymous={showAnonymous}
-      onToggleAnonymous={() => setShowAnonymous(!showAnonymous)}
+      onToggleAnonymous={(event, checked) => setShowAnonymous(checked)}
       onPlayer={lookupPlayer}
       onMetric={(metric) => openBoard(metric, 'jump')}
     />
@@ -155,7 +154,7 @@ const Leaderboards = () => {
       components={tabLabels}
       activeTab={TABS.findIndex((tab) => tab.toLowerCase() === selectedTab)}
       clearOnChange={['m']}
-      onTabChange={(selected) => setClickedTab(TABS[selected].toLowerCase())}>
+      keepChildren>
       {selectedTab === 'overview' ? (
         <Overview
           index={index}
@@ -166,7 +165,9 @@ const Leaderboards = () => {
           onOpen={openBoard}
         />
       ) : tabQuery.isError ? (
-        <Typography color="error.light" textAlign="center" variant="h6">Error has occurred while getting leaderboards</Typography>
+        <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => tabQuery.refetch()}>Retry</Button>}>
+          Could not load these boards
+        </Alert>
       ) : !tabData ? (
         <Stack alignItems="center" justifyContent="center" mt={3}><CircularProgress/></Stack>
       ) : (
