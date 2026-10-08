@@ -23,3 +23,10 @@ export const bestInSection = (keys, ranks) => keys
   .filter((key) => ranks?.[key])
   .map((key) => ({ key, ...ranks[key] }))
   .sort((a, b) => a.p - b.p || a.r - b.r)[0] ?? null;
+
+// Boards among `keys` where the player holds the max.
+export const countAtMax = (keys, ranks, index) => keys
+  .filter((key) => {
+    const meta = index.byKey[key];
+    return Boolean(meta?.maxed) && ranks?.[key] != null && ranks[key].v >= meta.top;
+  }).length;

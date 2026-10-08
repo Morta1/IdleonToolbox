@@ -193,6 +193,7 @@ const Leaderboards = () => {
           category={selectedTab}
           index={index}
           lists={showAnonymous ? tabData.anonymous : tabData.public}
+          showAnonymous={showAnonymous}
           ranks={playerData?.ranks}
           highlight={highlight}
           pinnedBase={pinnedBase}

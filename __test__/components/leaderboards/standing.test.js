@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bestInSection, countStanding, withinReach } from '@components/leaderboards/standing';
+import { bestInSection, countAtMax, countStanding, withinReach } from '@components/leaderboards/standing';
 
 const index = { byKey: { logBook: { maxed: true }, mining: { maxed: false }, farming: {}, cooking: {}, bits: {} } };
 const ranks = {
@@ -28,5 +28,15 @@ describe('bestInSection', () => {
   it('picks the lowest top percent, then rank', () => {
     expect(bestInSection(['farming', 'cooking', 'smithing'], ranks)).toMatchObject({ key: 'farming', r: 24 });
     expect(bestInSection(['smithing'], ranks)).toBeNull();
+  });
+});
+
+describe('countAtMax', () => {
+  const maxedIndex = { byKey: { logBook: { maxed: true, top: 100 }, shiny: { maxed: true, top: 1360 }, mining: { maxed: false, top: 304 } } };
+
+  it('counts only maxed boards where the player holds the max', () => {
+    const mine = { logBook: { v: 100 }, shiny: { v: 1300 }, mining: { v: 304 } };
+    expect(countAtMax(['logBook', 'shiny', 'mining'], mine, maxedIndex)).toBe(1);
+    expect(countAtMax(['logBook', 'shiny'], undefined, maxedIndex)).toBe(0);
   });
 });
