@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { bestInSection, countAtMax, countStanding, medianRank, topPercentLabel, withinReach } from '@components/leaderboards/standing';
 
-const index = { byKey: { logBook: { maxed: true }, mining: { maxed: false }, farming: {}, cooking: {}, bits: {} } };
+const index = { byKey: { logBook: { maxed: true, top: 100 }, mining: { maxed: false }, farming: {}, cooking: {}, bits: {} } };
 const ranks = {
   logBook: { r: 1, v: 100, p: 5.6, t: 146 },
   mining: { r: 1, v: 304, p: 0.1, t: 1 },
@@ -12,8 +12,13 @@ const ranks = {
 
 describe('countStanding', () => {
   it('counts first places without maxed boards, and top 25 / top 100 by rank', () => {
-    expect(countStanding(ranks, index)).toEqual({ firsts: 1, top25: 3, top100: 4 });
+    expect(countStanding(ranks, index)).toEqual({ firsts: 1, top25: 2, top100: 3 });
     expect(countStanding(undefined, index)).toEqual({ firsts: 0, top25: 0, top100: 0 });
+  });
+
+  it('counts a maxed board by rank while the player is still short of the max', () => {
+    const short = { logBook: { r: 12, v: 90, p: 1, t: 1 } };
+    expect(countStanding(short, index)).toEqual({ firsts: 0, top25: 1, top100: 1 });
   });
 });
 

@@ -1,11 +1,14 @@
-// Counters for the You card and the report card header. A maxed board is not a first place: most
-// of its players share #1.
+// Counters for the You card and the report card header. Holding the max on a maxed board is
+// shared with everyone else who has it, so it counts once, as "tied at the max", and never as a
+// first place or a top 25 / top 100 finish.
 export const countStanding = (ranks, index) => {
   let firsts = 0;
   let top25 = 0;
   let top100 = 0;
-  for (const [key, { r }] of Object.entries(ranks ?? {})) {
-    if (r === 1 && !index.byKey[key]?.maxed) firsts++;
+  for (const [key, { r, v }] of Object.entries(ranks ?? {})) {
+    const meta = index.byKey[key];
+    if (meta?.maxed && v >= meta.top) continue;
+    if (r === 1 && !meta?.maxed) firsts++;
     if (r <= 25) top25++;
     if (r <= 100) top100++;
   }

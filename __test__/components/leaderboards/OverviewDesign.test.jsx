@@ -92,8 +92,8 @@ describe('Overview You card', () => {
     expect(screen.getByText('of 2,608 · top 2.9% · 14,901.0 pts')).toBeTruthy();
     const tile = (name) => screen.getByText(name).parentElement.textContent;
     expect(tile('First places')).toBe('1First places+1 tied at the max');
-    expect(tile('Top 25')).toBe('2Top 25');
-    expect(tile('Top 100')).toBe('3Top 100');
+    expect(tile('Top 25')).toBe('1Top 25');
+    expect(tile('Top 100')).toBe('2Top 100');
     expect(document.body.textContent).not.toMatch(/\bcap\b/i);
   });
 
