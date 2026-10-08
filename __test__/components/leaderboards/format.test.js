@@ -81,6 +81,8 @@ describe('formatExactValue', () => {
     expect(formatExactValue('default', 498506.8800000001)).toBe('498,506.88');
     expect(formatExactValue('default', 498506.66799999983)).toBe('498,506.67');
     expect(formatExactValue('default', 100.0000001)).toBe('100');
+    // Past a trillion a double has no real decimals.
+    expect(formatExactValue('default', 980059689370745.6)).toBe('980,059,689,370,746');
     expect(formatExactValue('points', 16278.42)).toBe('16,278.42 pts');
     expect(formatExactValue('default', 1.3176090741400986e62)).toBe('1.31761E62');
   });
@@ -96,9 +98,14 @@ describe('rankText', () => {
 
 describe('formatStep', () => {
   it('keeps a small fractional step readable instead of rounding it to 0', () => {
-    expect(formatStep('points', 1.8000000001)).toBe('1.8 pts');
+    expect(formatStep('points', 1.8000000001)).toBe('1.80 pts');
     expect(formatStep('default', 0.42)).toBe('0.42');
-    expect(formatStep('points', 120.4)).toBe('120 pts');
+    expect(formatStep('default', 0.001)).toBe('0.01');
+    expect(formatStep('points', 120.4)).toBe('120.40 pts');
+    // A step that really reaches: +117 would fall short of a 117.32 gap.
+    expect(formatStep('default', 117.32)).toBe('118');
+    expect(formatStep('default', 117.00000000001)).toBe('117');
+    expect(formatStep('multiplier', 380.07)).toBe('380.07');
     expect(formatStep('default', 2333, { scale: 1e8 })).toBe('2,333');
     expect(formatStep('default', 1)).toBe('1');
     expect(formatStep('default', 2.5e9)).toBe('2.50B');

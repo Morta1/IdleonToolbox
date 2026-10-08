@@ -205,7 +205,7 @@ describe('BoardDrawer header and steps', () => {
       { mainChar: 'Tied', value: 15314, rank: 91 }, { mainChar: 'Me', value: 15314, rank: 91 }
     ] });
     renderDrawer({ metricKey: 'globalRanking', index: globalIndex });
-    expect(await screen.findByText('+1.8 pts to reach Crezar (#90)')).toBeTruthy();
+    expect(await screen.findByText('+1.80 pts to reach Crezar (#90)')).toBeTruthy();
   });
 
   it('shows no step without a row above you', async () => {

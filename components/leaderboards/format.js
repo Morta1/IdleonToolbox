@@ -100,25 +100,27 @@ export const formatExactValue = (notation, value) => {
   if (notation === 'multiplier') return numberWithCommas(value.toFixed(2));
   if (Math.abs(value) < 1e15) {
     // Some boards store fractional scores (Colosseums): two players a fifth of a point apart would
-    // both read 498,506, so a value that is not whole keeps two decimals.
-    return Math.abs(value - Math.round(value)) < 0.005 ? numberWithCommas(Math.round(value)) : numberWithCommas(value.toFixed(2));
+    // both read 498,506, so a value that is not whole keeps two decimals. Past a trillion a double
+    // has no real decimals left to show.
+    const whole = Math.abs(value) >= 1e12 || Math.abs(value - Math.round(value)) < 0.005;
+    return whole ? numberWithCommas(Math.round(value)) : numberWithCommas(value.toFixed(2));
   }
   return value.toExponential(5).replace('e+', 'E');
 };
 
 export const rankText = (rank) => (rank == null ? '#-' : `#${numberWithCommas(rank)}`);
 
-// A gap to the next rank, exact below a million whatever the board's style: "+2,333", not "+2.33K".
-// A positive one never reads as 0, so a small fractional step keeps two significant digits.
+// A gap to the next rank, and one that really reaches it: a whole-number board rounds a fractional
+// gap up (117.32 reads +118, since +117 falls short), a gap under 1 keeps two decimals, points and
+// multipliers always keep two. Exact below a million whatever the board's style ("+2,333").
 export const formatStep = (notation, diff, { scale } = {}) => {
   const kind = plainNotation(notation);
-  if (diff > 0 && diff < 100 && !Number.isInteger(diff) && kind !== 'multiplier') {
-    const step = Number(diff.toPrecision(2));
-    return kind === 'points' ? `${step} pts` : String(step);
-  }
-  if (kind === 'points') return `${numberWithCommas(Math.round(diff))} pts`;
-  if (Math.abs(diff) < EXACT_BELOW) return numberWithCommas(Math.round(diff));
-  return shortNumber(diff, scale >= SCIENTIFIC_FROM ? EXACT_BELOW : SCIENTIFIC_FROM);
+  if (kind === 'points') return `${numberWithCommas(diff.toFixed(2))} pts`;
+  if (Math.abs(diff) >= EXACT_BELOW) return shortNumber(diff, scale >= SCIENTIFIC_FROM ? EXACT_BELOW : SCIENTIFIC_FROM);
+  if (kind === 'multiplier') return numberWithCommas(diff.toFixed(2));
+  if (diff > 0 && diff < 1) return Math.max(diff, 0.01).toFixed(2);
+  // The epsilon keeps float noise (117.00000000001) from rounding a whole gap up.
+  return numberWithCommas(Math.ceil(diff - 1e-9));
 };
 
 const GLOBAL_META = { key: GLOBAL_METRIC, label: 'Global ranking', section: '', notation: 'points', category: null };

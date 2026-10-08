@@ -33,11 +33,11 @@ describe('nextRankText', () => {
 
 describe('nextRankText small steps', () => {
   it('never shows a positive step as +0', () => {
-    expect(nextRankText({ r: 9, v: 100.3, p: 1, t: 1, nr: 8, nv: 100.7 }, meta)).toBe('+0.4 to reach #8');
+    expect(nextRankText({ r: 9, v: 100.3, p: 1, t: 1, nr: 8, nv: 100.7 }, meta)).toBe('+0.40 to reach #8');
     expect(nextRankText({ r: 9, v: 10, p: 1, t: 1, nr: 8, nv: 10.04 }, meta)).toBe('+0.04 to reach #8');
   });
 
   it('keeps the points unit on a fractional points gap', () => {
-    expect(nextRankText({ r: 91, v: 15313, p: 3.5, t: 1, nr: 90, nv: 15314.8 }, { notation: 'points' })).toBe('+1.8 pts to reach #90');
+    expect(nextRankText({ r: 91, v: 15313, p: 3.5, t: 1, nr: 90, nv: 15314.8 }, { notation: 'points' })).toBe('+1.80 pts to reach #90');
   });
 });
