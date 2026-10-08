@@ -110,6 +110,15 @@ describe('leaderboards ?player= deep link', () => {
     expect(fetchTab).toHaveBeenCalledTimes(1);
   });
 
+  it('puts the board count in its own span on the tab and the status line in the tab strip', async () => {
+    renderPage();
+    await waitFor(() => expect(screen.getByRole('tab', { name: /Skills/ }).querySelector('span')?.textContent).toBe('1'));
+    expect(screen.getByRole('tab', { name: /Skills/ }).textContent).toBe('Skills1');
+    const status = await screen.findByText(/10 accounts · updated/);
+    expect(status.closest('.MuiTabs-root')).toBeNull();
+    expect(status.parentElement.parentElement.parentElement.querySelector('[role="tablist"]')).toBeTruthy();
+  });
+
   it('keeps the logged-in treatment when you search your own name', async () => {
     routerState.query = { player: 'logged' };
     renderPage({ uid: 'u1', characters: [{ name: 'Logged' }] });

@@ -32,8 +32,39 @@ describe('ControlBar', () => {
     const input = screen.getByLabelText('Find a player');
     fireEvent.change(input, { target: { value: 'ba' } });
     await waitFor(() => expect(searchNames).toHaveBeenCalledWith('ba'));
-    fireEvent.click(await screen.findByText('Baker333'));
+    fireEvent.click(await screen.findByRole('option', { name: /Baker333/ }));
     expect(onPlayer).toHaveBeenCalledWith('Baker333', 'typeahead');
+  });
+
+  it('shows the matched prefix in bold and the rank on the right of each name option', async () => {
+    renderBar();
+    fireEvent.change(screen.getByLabelText('Find a player'), { target: { value: 'ba' } });
+    const option = await screen.findByRole('option', { name: /Baker333/ });
+    await waitFor(() => expect(option.querySelector('b')?.textContent).toBe('Ba'));
+    expect(option.textContent).toBe('Baker333#75');
+  });
+
+  it('leaves the rank out when the names API does not send one', async () => {
+    searchNames.mockResolvedValueOnce([{ mainChar: 'Baker333' }]);
+    renderBar();
+    fireEvent.change(screen.getByLabelText('Find a player'), { target: { value: 'ba' } });
+    const option = await screen.findByRole('option', { name: /Baker333/ });
+    expect(option.textContent).toBe('Baker333');
+  });
+
+  it('labels the fields with placeholders and an aria-label rather than floating labels', () => {
+    const { container } = renderBar();
+    const search = screen.getByLabelText('Find a player');
+    expect(search.getAttribute('placeholder')).toBe('Find a player');
+    expect(search.getAttribute('aria-label')).toBe('Find a player');
+    const jump = screen.getByLabelText('Jump to board');
+    expect(jump.getAttribute('placeholder')).toBe('Jump to a board (1)');
+    expect(jump.getAttribute('aria-label')).toBe('Jump to board');
+    expect(container.querySelector('label.MuiInputLabel-root')).toBeNull();
+    // The "/" shortcut hint sits in the jump field, and the jump has no popup arrow.
+    expect(jump.closest('.MuiInputBase-root').textContent.replace(/​/g, '')).toBe('/');
+    expect(container.querySelector('.MuiAutocomplete-popupIndicator')).toBeNull();
+    expect(screen.getByText('Anonymous players can be found by their Anon# id')).toBeTruthy();
   });
 
   it('reports the same player again when picked twice', async () => {
@@ -42,10 +73,17 @@ describe('ControlBar', () => {
     const input = screen.getByLabelText('Find a player');
     for (let pick = 1; pick <= 2; pick++) {
       fireEvent.change(input, { target: { value: 'ba' } });
-      fireEvent.click(await screen.findByText('Baker333'));
+      fireEvent.click(await screen.findByRole('option', { name: /Baker333/ }));
       expect(onPlayer).toHaveBeenCalledTimes(pick);
     }
     expect(onPlayer).toHaveBeenNthCalledWith(2, 'Baker333', 'typeahead');
+  });
+
+  it('keeps the status line out of the bar on desktop and in the phone menu', async () => {
+    renderBar({ createdAt: Date.UTC(2026, 9, 8, 7, 31) });
+    expect(screen.queryByText(/accounts · updated/)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'More options' }));
+    expect(await screen.findByText(/2,608 accounts · updated/)).toBeTruthy();
   });
 
   it('sticks right below the navbar, and below the profile banner when it shows', () => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Button, CircularProgress, Snackbar, Stack } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Snackbar, Stack } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
@@ -9,7 +9,7 @@ import { fetchMeta, fetchPlayer, fetchTab } from '../services/leaderboards';
 import { trackLeaderboardEvent } from '@components/leaderboards/analytics';
 import useLeaderboardSelf from '@hooks/useLeaderboardSelf';
 import { TABS, buildMetaIndex, staleUntilNextRun } from '@components/leaderboards/format';
-import ControlBar from '@components/leaderboards/ControlBar';
+import ControlBar, { LeaderboardStatus } from '@components/leaderboards/ControlBar';
 import Overview from '@components/leaderboards/Overview';
 import CategoryTab from '@components/leaderboards/CategoryTab';
 import BoardDrawer from '@components/leaderboards/BoardDrawer';
@@ -153,9 +153,10 @@ const Leaderboards = () => {
   if (context?.kind === 'searched' && playerData) highlight[playerData.player.mainChar] = 'searched';
   const pinnedBase = playerData && context ? { mainChar: playerData.player.mainChar, kind: context.kind, globalRank: playerData.player.rank } : null;
   const tabData = tabQuery.data?.[selectedTab];
+  const statusCreatedAt = index.createdAt ?? tabQuery.data?.createdAt ?? null;
   const tabLabels = TABS.map((tab) => {
     const count = index.categories[tab.toLowerCase()]?.metrics.length;
-    return count ? `${tab} (${count})` : tab;
+    return count ? <>{tab}<Box component="span" sx={{ ml: 0.75, fontSize: 11, color: 'text.disabled', display: { xs: 'none', sm: 'inline' } }}>{count}</Box></> : tab;
   });
 
   return <>
@@ -166,7 +167,7 @@ const Leaderboards = () => {
     <ControlBar
       index={index}
       totalPlayers={index.totalPlayers}
-      createdAt={index.createdAt ?? tabQuery.data?.createdAt ?? null}
+      createdAt={statusCreatedAt}
       showAnonymous={showAnonymous}
       onToggleAnonymous={(event, checked) => setShowAnonymous(checked)}
       onPlayer={lookupPlayer}
@@ -175,6 +176,8 @@ const Leaderboards = () => {
     <Tabber
       tabs={TABS}
       components={tabLabels}
+      align="start"
+      endSlot={<Box sx={{ display: { xs: 'none', sm: 'block' } }}><LeaderboardStatus totalPlayers={index.totalPlayers} createdAt={statusCreatedAt}/></Box>}
       activeTab={TABS.findIndex((tab) => tab.toLowerCase() === selectedTab)}
       clearOnChange={['m']}
       keepChildren>
