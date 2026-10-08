@@ -146,4 +146,20 @@ describe('AlertQuickEdit', () => {
     const dialog = open(quickEdit);
     expect(dialog.textContent).toContain('Alerts when a character has more unspent points than this');
   });
+
+  it('says the alert is hidden while it is off', () => {
+    const dialog = open(quickFor('account', 'General.etc.keys', undefined, { 'account.General.etc.keys': { checked: false } }));
+    expect(dialog.textContent).toContain('Hidden from your dashboard');
+  });
+
+  it('says nothing about hiding while the alert is on', () => {
+    expect(open(quickFor('account', 'General.etc.keys')).textContent).not.toContain('Hidden from your dashboard');
+  });
+
+  it('a one-item alert is hidden once its item is unwatched', () => {
+    const quickEdit = quickFor('account', 'World 3.construction.saltDeficit', { items: [{ key: 'Refinery2' }] },
+      { 'account.World 3.construction.saltBalance': { value: { Refinery2: false } } });
+    expect(open(quickEdit).textContent).toContain('Hidden from your dashboard');
+  });
 });
+
