@@ -5,9 +5,14 @@ describe('leaderboard icons', () => {
   it('maps skills to their class icons', () => {
     expect(metricIcon('mining')).toBe('data/ClassIcons42');
     expect(metricIcon('research')).toBe('data/ClassIcons61');
-    expect(metricIcon('totalMoney')).toBeNull();
     expect(metricIcon('constructor')).toBeNull();
     expect(metricIcon('__proto__')).toBeNull();
+  });
+
+  it('maps hand-picked boards to their sprites and leaves the rest to the monogram', () => {
+    expect(metricIcon('totalMoney')).toBe('data/Coins1');
+    expect(metricIcon('highestConstructExp/hr')).toBe('data/ClassIcons49');
+    expect(metricIcon('agility')).toBeNull();
   });
 
   it('builds a monogram from the first meaningful word', () => {
