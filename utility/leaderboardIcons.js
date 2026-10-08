@@ -34,6 +34,7 @@ const METRIC_ICONS = {
   fliesSample: 'data/Bug1',
   fractalHours: 'data/IslandSail5',
   glimboTotalTrades: 'afk_targets/Glimbo',
+  globalRanking: 'data/Trophie',
   godRank: 'data/DivGod0',
   goldFishSample: 'data/Fish1',
   greenMushroomKills: 'monsters/mushG/static',

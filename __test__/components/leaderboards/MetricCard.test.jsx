@@ -42,7 +42,7 @@ describe('MetricCard', () => {
     const breed = { key: 'totalBreedabilityLevels', label: 'Total Breedability Levels', notation: 'default', maxed: true, top: 612, topTies: 146 };
     const entries = [{ mainChar: 'Yosh', totalBreedabilityLevels: 612, rank: 1, globalRank: 1 }];
     renderCard({ meta: breed, entries, pinned: { mainChar: 'Baker333', kind: 'logged', globalRank: 91, entry: { r: 1, v: 612, p: 5.6, t: 146 } } });
-    expect(screen.getByText('Baker333')).toBeTruthy();
+    expect(screen.getByText('Baker333 (you)')).toBeTruthy();
     expect(screen.getByText('global #91')).toBeTruthy();
     expect(screen.getByLabelText('Has the max')).toBeTruthy();
     cleanup();
@@ -62,8 +62,45 @@ describe('MetricCard', () => {
   it('opens the board from Top 100', () => {
     const onOpen = vi.fn();
     renderCard({ meta: mining, entries: [row('A', 300, 1)], onOpen });
-    fireEvent.click(screen.getByRole('button', { name: /Top 100/ }));
+    fireEvent.click(screen.getByRole('link', { name: /Top 100/ }));
     expect(onOpen).toHaveBeenCalledWith('mining');
+  });
+
+  it('links Top 100 to the board and leaves a modified click to the browser', () => {
+    const onOpen = vi.fn();
+    renderCard({ meta: { ...mining, category: 'skills' }, entries: [row('A', 300, 1)], onOpen });
+    const link = screen.getByRole('link', { name: /Top 100/ });
+    expect(link.getAttribute('href')).toBe('?t=Skills&m=mining');
+    document.addEventListener('click', (event) => event.preventDefault(), { once: true });
+    fireEvent.click(link, { ctrlKey: true });
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+
+  it('keeps the full label in a title attribute for a clamped heading', () => {
+    const label = 'Highest Construction Experience Gained Per Hour Across All Characters';
+    renderCard({ meta: { ...mining, label }, entries: [row('A', 300, 1)] });
+    expect(screen.getByRole('heading', { name: label }).getAttribute('title')).toBe(label);
+  });
+
+  it('adds (you) to the pinned row of the logged-in player only', () => {
+    const entry = { r: 40, v: 120, p: 2, t: 1, nr: 39, nv: 121 };
+    renderCard({ meta: mining, entries: [row('A', 300, 1)], pinned: { mainChar: 'Baker333', kind: 'logged', globalRank: 9, entry } });
+    expect(screen.getByText('Baker333 (you)')).toBeTruthy();
+    cleanup();
+    renderCard({ meta: mining, entries: [row('A', 300, 1)], pinned: { mainChar: 'Baker333', kind: 'searched', globalRank: 9, entry } });
+    expect(screen.getByText('Baker333')).toBeTruthy();
+    expect(screen.queryByText(/\(you\)/)).toBeNull();
+  });
+
+  it('shows exact figures with commas below a million, and a max tick instead of the value on a maxed pin', () => {
+    renderCard({ meta: mining, entries: [row('A', 1_724_000, 1), row('B', 20_184, 2)] });
+    expect(screen.getByText('20,184')).toBeTruthy();
+    expect(screen.queryByText('1,724,000')).toBeNull();
+    cleanup();
+    const breed = { key: 'totalBreedabilityLevels', label: 'Breed', notation: 'default', maxed: true, top: 1360, topTies: 146 };
+    renderCard({ meta: breed, entries: [], pinned: { mainChar: 'Me', kind: 'logged', globalRank: 91, entry: { r: 1, v: 1360, p: 5, t: 146 } } });
+    expect(screen.getByText('max')).toBeTruthy();
+    expect(screen.getAllByText(/1,360/)).toHaveLength(1);
   });
 
   it('says so when a board is empty', () => {

@@ -47,7 +47,7 @@ describe('leaderboards analytics', () => {
   it('fires lb_board_open with source card from a card', async () => {
     routerState.query = { t: 'Skills' };
     renderPage();
-    fireEvent.click(await screen.findByRole('button', { name: /Top 100/ }));
+    fireEvent.click(await screen.findByRole('link', { name: /Top 100/ }));
     expect(events('lb_board_open')).toEqual([{ metric: 'mining', source: 'card' }]);
   });
 

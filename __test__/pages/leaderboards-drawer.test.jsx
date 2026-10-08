@@ -68,7 +68,7 @@ describe('leaderboards board drawer', () => {
     routerState.push.mockImplementation(({ query }) => { routerState.query = query; });
     routerState.query = { t: 'skills' };
     const { rerender } = renderPage();
-    fireEvent.click(await screen.findByRole('button', { name: /Top 100/ }));
+    fireEvent.click(await screen.findByRole('link', { name: /Top 100/ }));
     expect(routerState.push).toHaveBeenCalledWith({ pathname: '/leaderboards', query: { t: 'skills', m: 'mining' } }, undefined, { shallow: true });
     rerender();
     fireEvent.click(await screen.findByRole('button', { name: 'Close' }));
@@ -88,7 +88,7 @@ describe('leaderboards board drawer', () => {
     routerState.push.mockImplementation(({ query }) => { routerState.query = query; });
     routerState.query = { t: 'skills' };
     const { rerender } = renderPage();
-    fireEvent.click(await screen.findByRole('button', { name: /Top 100/ }));
+    fireEvent.click(await screen.findByRole('link', { name: /Top 100/ }));
     rerender();
     routerState.query = { t: 'skills', m: 'mining', player: 'Tester' };
     rerender();
@@ -101,7 +101,7 @@ describe('leaderboards board drawer', () => {
     routerState.query = { t: 'skills', m: 'constructor' };
     renderPage();
     await waitFor(() => expect(fetchMeta).toHaveBeenCalled());
-    expect(await screen.findByRole('button', { name: /Top 100/ })).toBeTruthy();
+    expect(await screen.findByRole('link', { name: /Top 100/ })).toBeTruthy();
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(fetchBoard).not.toHaveBeenCalled();
   });
@@ -109,7 +109,7 @@ describe('leaderboards board drawer', () => {
   it('opens nothing for an unknown key once meta has loaded', async () => {
     routerState.query = { t: 'skills', m: 'nope' };
     renderPage();
-    expect(await screen.findByRole('button', { name: /Top 100/ })).toBeTruthy();
+    expect(await screen.findByRole('link', { name: /Top 100/ })).toBeTruthy();
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(fetchBoard).not.toHaveBeenCalled();
   });
@@ -119,7 +119,7 @@ describe('leaderboards board drawer', () => {
     routerState.push.mockImplementation(({ query }) => { routerState.query = query; });
     routerState.query = { t: 'skills' };
     const { rerender } = renderPage();
-    fireEvent.click(await screen.findByRole('button', { name: /Top 100/ }));
+    fireEvent.click(await screen.findByRole('link', { name: /Top 100/ }));
     rerender();
     expect(await screen.findByRole('dialog', { name: 'Mining' })).toBeTruthy();
     await waitFor(() => expect(fetchBoard).toHaveBeenCalledWith('mining', expect.any(Object)));

@@ -13,6 +13,7 @@ describe('leaderboard icons', () => {
     expect(metricIcon('totalMoney')).toBe('data/Coins1');
     expect(metricIcon('highestConstructExp/hr')).toBe('data/ClassIcons49');
     expect(metricIcon('agility')).toBeNull();
+    expect(metricIcon('globalRanking')).toBe('data/Trophie');
   });
 
   it('builds a monogram from the first meaningful word', () => {
