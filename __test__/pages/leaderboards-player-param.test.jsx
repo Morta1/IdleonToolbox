@@ -61,6 +61,12 @@ describe('leaderboards ?player= deep link', () => {
     expect(fetchPlayer).toHaveBeenCalledWith('Tester');
   });
 
+  it('announces the player it loaded', async () => {
+    routerState.query = { player: 'Tester' };
+    renderPage();
+    await waitFor(() => expect(screen.getByRole('status').textContent).toMatch(/^Showing Tester, global rank #/));
+  });
+
   it('names the viewed player in the control bar, and clearing it drops ?player=', async () => {
     routerState.query = { player: 'Tester', t: 'Skills' };
     renderPage();

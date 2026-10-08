@@ -108,4 +108,7 @@ export const buildMetaIndex = (meta) => {
 export const metaOf = (index, key) => index.byKey[key]
   ?? { key, label: key.camelToTitleCase(), section: '', notation: 'default', category: null };
 
+// MUI's ripple is the only focus cue on its buttons, and too faint on this background.
+export const FOCUS_RING = { '& :focus-visible': { outline: '2px solid #90caf9', outlineOffset: '2px' } };
+
 export const profileUrl = (name) => `${process.env.NEXT_PUBLIC_IT_URL}/account/misc/general?profile=${encodeURIComponent(name)}`;

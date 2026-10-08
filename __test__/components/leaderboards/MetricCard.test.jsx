@@ -65,6 +65,13 @@ describe('MetricCard', () => {
     expect(names).toEqual(['A', 'B', 'Anon#abc123', 'D']);
   });
 
+  it('names each Top 100 link after its board, and marks the highlighted row in words', () => {
+    renderCard({ meta: mining, entries: [row('A', 300, 1), row('B', 250, 2)], highlight: { B: 'searched' } });
+    expect(screen.getByRole('link', { name: 'Top 100: Mining' })).toBeTruthy();
+    const highlighted = screen.getAllByTestId('rank-row').find((r) => r.getAttribute('aria-current') === 'true');
+    expect(highlighted.textContent).toContain('B(searched player)');
+  });
+
   it('opens the board from Top 100', () => {
     const onOpen = vi.fn();
     renderCard({ meta: mining, entries: [row('A', 300, 1)], onOpen });

@@ -125,6 +125,11 @@ describe('ControlBar', () => {
     expect(onClearPlayer).toHaveBeenCalledTimes(1);
   });
 
+  it('exposes Show anonymous as a switch', () => {
+    renderBar();
+    expect(screen.getByRole('switch', { name: 'Show anonymous' })).toBeTruthy();
+  });
+
   it('searches free text on Enter, for Anon# ids', () => {
     const onPlayer = vi.fn();
     renderBar({ onPlayer });

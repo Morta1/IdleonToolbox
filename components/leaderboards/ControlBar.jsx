@@ -10,7 +10,7 @@ import useProfileBannerState from '@hooks/useProfileBannerState';
 import { navBarHeight, profileBannerHeight } from '@components/constants';
 import { numberWithCommas } from '@utility/helpers';
 import { searchNames } from '../../services/leaderboards';
-import { AGGREGATION_INTERVAL, GLOBAL_METRIC, rankText } from './format';
+import { AGGREGATION_INTERVAL, FOCUS_RING, GLOBAL_METRIC, rankText } from './format';
 
 const MIN_QUERY = 2;
 const FIELD_OUTLINE = 'rgba(255,255,255,0.23)';
@@ -228,7 +228,7 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
 
   const anonSwitch = (
     <FormControlLabel
-      control={<Switch checked={showAnonymous} onChange={onToggleAnonymous}/>}
+      control={<Switch checked={showAnonymous} onChange={onToggleAnonymous} inputProps={{ role: 'switch' }}/>}
       label="Show anonymous"
       slotProps={{ typography: { sx: { fontSize: 13, color: 'text.secondary' } } }}
       sx={{ minHeight: fieldHeight, my: 0 }}
@@ -268,7 +268,8 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
         open={Boolean(menuAnchor)}
         onClose={() => setMenuAnchor(null)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}>
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        slotProps={{ paper: { sx: FOCUS_RING } }}>
         <Stack gap={1.5} sx={{ p: 2, width: 300 }}>
           <MetricJump fullWidth index={index} onMetric={(key) => { setMenuAnchor(null); onMetric(key); }}/>
           {anonSwitch}

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Box, Button, CircularProgress, Snackbar, Stack } from '@mui/material';
+import { visuallyHidden } from '@mui/utils';
 import { NextSeo } from 'next-seo';
 import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
@@ -8,7 +9,7 @@ import Tabber from '../components/common/Tabber';
 import { fetchMeta, fetchPlayer, fetchTab } from '../services/leaderboards';
 import { trackLeaderboardEvent } from '@components/leaderboards/analytics';
 import useLeaderboardSelf from '@hooks/useLeaderboardSelf';
-import { TABS, buildMetaIndex, staleUntilNextRun } from '@components/leaderboards/format';
+import { FOCUS_RING, TABS, buildMetaIndex, rankText, staleUntilNextRun } from '@components/leaderboards/format';
 import ControlBar, { LeaderboardStatus } from '@components/leaderboards/ControlBar';
 import Overview from '@components/leaderboards/Overview';
 import CategoryTab from '@components/leaderboards/CategoryTab';
@@ -169,7 +170,11 @@ const Leaderboards = () => {
     return count ? <>{tab}<Box component="span" sx={{ ml: 0.75, fontSize: 11, color: 'text.disabled', display: { xs: 'none', sm: 'inline' } }}>{count}</Box></> : tab;
   });
 
-  return <>
+  // Picking a player changes the whole page without moving focus; this says what changed.
+  const announcement = playerData && context ? `Showing ${playerData.player.mainChar}, global rank ${rankText(playerData.player.rank)}` : '';
+
+  return <Box sx={FOCUS_RING}>
+    <Box role="status" aria-live="polite" sx={visuallyHidden}>{announcement}</Box>
     <NextSeo
       title="Leaderboards | Idleon Toolbox"
       description="View Legends of Idleon leaderboards for skills, tasks, characters, caverns, and more with player rankings and stats"
@@ -240,7 +245,7 @@ const Leaderboards = () => {
     <Snackbar open={toast.open} autoHideDuration={6000} onClose={() => setToast({ ...toast, open: false })} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
       <Alert onClose={() => setToast({ ...toast, open: false })} severity={toast.severity} sx={{ width: '100%' }}>{toast.message}</Alert>
     </Snackbar>
-  </>;
+  </Box>;
 };
 
 export default Leaderboards;

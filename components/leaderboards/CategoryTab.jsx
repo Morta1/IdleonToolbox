@@ -1,6 +1,6 @@
 import React, { useId, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { Button, ButtonBase, Collapse, Stack, Typography } from '@mui/material';
+import { Button, ButtonBase, Collapse, Stack, Typography, useMediaQuery } from '@mui/material';
 import Box from '@mui/material/Box';
 import { IconChevronDown, IconChevronRight, IconChevronsDown, IconChevronsUp, IconInfoCircle } from '@tabler/icons-react';
 import MetricCard from './MetricCard';
@@ -25,6 +25,7 @@ const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onO
   // Per visit: a collapsed section is not worth remembering across loads.
   const [collapsed, setCollapsed] = useState({});
   const baseId = useId();
+  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const expandRef = useRef(null);
   const collapseRef = useRef(null);
   // The pressed button disables itself, which would drop keyboard focus on the page body: hand
@@ -79,7 +80,7 @@ const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onO
                   {open ? <Box sx={{ flexGrow: 1, height: '1px', bgcolor: 'divider', display: { xs: 'none', sm: 'block' } }}/> : null}
                 </Stack>
               ) : null}
-              <Collapse in={open} id={panelId}>
+              <Collapse in={open} id={panelId} timeout={reducedMotion ? 0 : 'auto'}>
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 22rem), 1fr))', gap: 2 }}>
                   {section.metrics.map((key) => (
                     <MetricCard key={key} meta={metaOf(index, key)} entries={lists?.[key]} highlight={highlight}

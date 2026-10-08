@@ -43,7 +43,7 @@ const MetricCard = ({ meta, entries, highlight, pinned, onOpen }) => {
           }}/>
         ) : null}
         <Box sx={{ flexGrow: 1 }}/>
-        <Link href={boardHref(meta)} onClick={openOnPlainClick(onOpen, meta.key)} underline="hover" data-board-link={meta.key}
+        <Link href={boardHref(meta)} onClick={openOnPlainClick(onOpen, meta.key)} underline="hover" data-board-link={meta.key} aria-label={`Top 100: ${meta.label}`}
               sx={{ fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>Top 100 ›</Link>
       </Stack>
       {maxed ? (

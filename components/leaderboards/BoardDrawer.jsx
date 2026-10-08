@@ -5,7 +5,7 @@ import { IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
 import { numberWithCommas } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
-import { GLOBAL_METRIC, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun } from './format';
+import { FOCUS_RING, GLOBAL_METRIC, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun } from './format';
 import MetricIcon from './MetricIcon';
 import RankRow from './RankRow';
 
@@ -83,7 +83,7 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
       sx={{ zIndex: (theme) => theme.zIndex.modal }}
       PaperProps={{
         role: 'dialog', 'aria-modal': true, 'aria-labelledby': titleId,
-        sx: { width: isPhone ? '100%' : 480, bgcolor: 'background.default', backgroundImage: 'none', borderLeft: '1px solid #2f3641' }
+        sx: { width: isPhone ? '100%' : 480, bgcolor: 'background.default', backgroundImage: 'none', borderLeft: '1px solid #2f3641', ...FOCUS_RING }
       }}>
       <Stack gap={1.25} sx={{ flexShrink: 0, px: 2.5, pt: 2.25, pb: 1.75, borderBottom: 1, borderColor: 'divider' }}>
         <Stack direction="row" alignItems="center" gap={1.25}>
