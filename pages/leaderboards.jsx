@@ -9,7 +9,7 @@ import Tabber from '../components/common/Tabber';
 import { fetchMeta, fetchPlayer, fetchTab } from '../services/leaderboards';
 import { trackLeaderboardEvent } from '@components/leaderboards/analytics';
 import useLeaderboardSelf from '@hooks/useLeaderboardSelf';
-import { FOCUS_RING, TABS, buildMetaIndex, rankText, staleUntilNextRun } from '@components/leaderboards/format';
+import { FOCUS_RING, RUN_QUERY_KEYS, TABS, buildMetaIndex, rankText, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
 import ControlBar, { LeaderboardStatus } from '@components/leaderboards/ControlBar';
 import Overview from '@components/leaderboards/Overview';
 import CategoryTab from '@components/leaderboards/CategoryTab';
@@ -47,8 +47,19 @@ const Leaderboards = () => {
   const searchedSelf = Boolean(queryPlayer && self.name && queryPlayer.toLowerCase() === self.name.toLowerCase());
   const context = queryPlayer ? { name: queryPlayer, kind: searchedSelf ? 'logged' : 'searched' } : self.name ? { name: self.name, kind: 'logged' } : null;
 
-  const metaQuery = useQuery({ queryKey: ['lb-meta'], queryFn: fetchMeta, staleTime: staleUntilNextRun });
+  const metaQuery = useQuery({ queryKey: ['lb-meta'], queryFn: fetchMeta, staleTime: staleUntilNextRun, refetchInterval: untilNextRun });
   const index = buildMetaIndex(metaQuery.data);
+
+  // A new run makes every cached tab, board and player stale at once, so the page never shows the
+  // old run's numbers under the new run's time.
+  const seenRun = useRef(null);
+  useEffect(() => {
+    if (!index.createdAt) return;
+    if (seenRun.current && seenRun.current !== index.createdAt) {
+      queryClient.invalidateQueries({ predicate: (query) => RUN_QUERY_KEYS.includes(query.queryKey[0]) });
+    }
+    seenRun.current = index.createdAt;
+  }, [index.createdAt]);
   const tabQuery = useQuery({
     queryKey: ['leaderboard', selectedTab],
     queryFn: () => fetchTab(selectedTab),

@@ -2,7 +2,7 @@
 import '../../polyfills';
 import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import darkTheme from '../../styles/theme/darkTheme';
@@ -110,6 +110,16 @@ describe('leaderboards board drawer', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Close' }));
     expect(routerState.back).not.toHaveBeenCalled();
     expect(routerState.replace).toHaveBeenCalledWith({ pathname: '/leaderboards', query: { t: 'Skills' } }, undefined, { shallow: true });
+  });
+
+  it('reloads the tab when meta reports a new run', async () => {
+    routerState.query = { t: 'skills' };
+    renderPage();
+    await screen.findByText('Mining');
+    expect(fetchTab).toHaveBeenCalledTimes(1);
+    fetchMeta.mockImplementation(async () => ({ ...(await defaultMeta()), createdAt: 2 }));
+    await act(() => client.invalidateQueries({ queryKey: ['lb-meta'] }));
+    await waitFor(() => expect(fetchTab).toHaveBeenCalledTimes(2));
   });
 
   it('opens nothing for a key that is not a board, even an inherited one', async () => {

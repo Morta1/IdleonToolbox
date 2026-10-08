@@ -1,7 +1,7 @@
 import '../../../polyfills';
 import { describe, expect, it, vi } from 'vitest';
 import { notateNumber } from '@utility/helpers';
-import { AGGREGATION_INTERVAL, buildMetaIndex, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun } from '@components/leaderboards/format';
+import { AGGREGATION_INTERVAL, buildMetaIndex, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
 
 const meta = {
   createdAt: 100,
@@ -133,5 +133,17 @@ describe('staleUntilNextRun', () => {
     expect(staleUntilNextRun({ state: { data: { createdAt: 0 } } })).toBe(AGGREGATION_INTERVAL);
     expect(staleUntilNextRun({ state: { data: null } })).toBe(AGGREGATION_INTERVAL);
     vi.restoreAllMocks();
+  });
+});
+
+describe('untilNextRun', () => {
+  it('waits for the next run plus a grace, then polls every two minutes, and never without data', () => {
+    const now = Date.UTC(2026, 9, 8, 20, 0);
+    vi.useFakeTimers({ now });
+    const at = (createdAt) => untilNextRun({ state: { data: createdAt == null ? undefined : { createdAt } } });
+    expect(at(now)).toBe(AGGREGATION_INTERVAL + 2 * 60 * 1000);
+    expect(at(now - AGGREGATION_INTERVAL - 10 * 60 * 1000)).toBe(2 * 60 * 1000);
+    expect(at(null)).toBe(false);
+    vi.useRealTimers();
   });
 });

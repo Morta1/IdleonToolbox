@@ -11,6 +11,18 @@ export const staleUntilNextRun = (query) => {
   return Math.max(createdAt + AGGREGATION_INTERVAL - Date.now(), 0);
 };
 
+// The worker lands a little after each half hour. Meta is asked again once the next run is due, then
+// every couple of minutes until a newer createdAt shows up.
+const RUN_GRACE = 2 * 60 * 1000;
+export const untilNextRun = (query) => {
+  const createdAt = query.state.data?.createdAt;
+  if (!createdAt) return false;
+  return Math.max(createdAt + AGGREGATION_INTERVAL + RUN_GRACE - Date.now(), RUN_GRACE);
+};
+
+// Every query that holds one run's data, all dropped together when a new run lands.
+export const RUN_QUERY_KEYS = ['leaderboard', 'lb-player', 'lb-board', 'lb-podium'];
+
 // Exact figures read better than K/M below a million; the short form takes over from there.
 const EXACT_BELOW = 1e6;
 // notateNumber's suffix ladder ends at QQ; past it a value reads as a power of ten.
