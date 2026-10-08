@@ -82,14 +82,23 @@ const Tabber = ({
     };
     const frame = requestAnimationFrame(reveal);
     const late = setTimeout(reveal, 500);
-    // Tab counts land with the data and widen the tabs after both checks have run; checking again
-    // whenever the strip's content resizes keeps the selected tab in view.
+    // Tab counts land with the data and widen the tabs after both checks have run, and the scroll
+    // arrows that then appear narrow the scroller: either resize checks again. The check waits a
+    // moment so it lands after MUI's own scroll-into-view, which runs on the same change and stops
+    // a few pixels short.
+    let settle = null;
+    const revealSoon = () => {
+      clearTimeout(settle);
+      settle = setTimeout(reveal, 150);
+    };
+    const scroller = tabsRef.current?.querySelector('.MuiTabs-scroller');
     const list = tabsRef.current?.querySelector('.MuiTabs-flexContainer');
-    const observer = list && typeof ResizeObserver !== 'undefined' ? new ResizeObserver(reveal) : null;
-    if (observer) observer.observe(list);
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(revealSoon) : null;
+    [scroller, list].forEach((element) => element && observer?.observe(element));
     return () => {
       cancelAnimationFrame(frame);
       clearTimeout(late);
+      clearTimeout(settle);
       observer?.disconnect();
     };
   }, [selectedTab, rowStrip]);
