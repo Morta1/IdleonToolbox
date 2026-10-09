@@ -22,8 +22,12 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import KingdomMap from './KingdomMap';
 import { formatEta } from './formatEta';
+import { OUTPOST_RANK_NAMES } from '@parsers/class-specific/royalGuardian';
 
 const ALL_WORLDS = 'all';
+const ALL_GLORIFIED = 'all';
+// Rank sorts are keyed 'rank<type>', the index into each outpost's rankBars.
+const RANK_SORT_PREFIX = 'rank';
 
 // Indexed by RoyalMaps[10]: Resource Depot, Support Camp, Savage Stronghold.
 const MODE_COLOR = ['text.secondary', 'info.main', 'error.main'];
@@ -49,6 +53,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
   const [sortBy, setSortBy] = useState('map');
   const [world, setWorld] = useState(ALL_WORLDS);
   const [searchText, setSearchText] = useState('');
+  const [glorified, setGlorified] = useState(ALL_GLORIFIED);
   const [GroupEl, groupByWorld] = useCheckbox('Group by world');
   const [view, setView] = useState('cards');
 
@@ -62,6 +67,8 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
 
   const filtered = cards.filter((outpost) => {
     if (world !== ALL_WORLDS && outpost.world !== world) return false;
+    // A clearing map is not an outpost yet, so it is neither glorified nor unglorified.
+    if (glorified !== ALL_GLORIFIED && (outpost.isClearing || outpost.boosted !== (glorified === 'yes'))) return false;
     if (!searchText) return true;
     return outpost.name?.toLowerCase().includes(searchText.toLowerCase().trim());
   });
@@ -72,6 +79,10 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
     if (sortBy === 'rate') return (b.resourceRate || 0) - (a.resourceRate || 0);
     if (sortBy === 'range') return (b.range || 0) - (a.range || 0);
     if (sortBy === 'pts') return (b.ptsLeft || 0) - (a.ptsLeft || 0);
+    if (sortBy.startsWith(RANK_SORT_PREFIX)) {
+      const type = Number(sortBy.slice(RANK_SORT_PREFIX.length));
+      return (b.rankBars?.[type]?.rank || 0) - (a.rankBars?.[type]?.rank || 0) || a.mapIndex - b.mapIndex;
+    }
     return a.mapIndex - b.mapIndex;
   });
 
@@ -345,6 +356,16 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
             <MenuItem value="rate">Collection rate</MenuItem>
             <MenuItem value="range">Connection range</MenuItem>
             <MenuItem value="pts">Unspent PTS</MenuItem>
+            {OUTPOST_RANK_NAMES.map((name, type) => <MenuItem key={name}
+                                                              value={`${RANK_SORT_PREFIX}${type}`}>{name} rank</MenuItem>)}
+          </Select>
+        </FormControl>
+        <FormControl size="small" sx={{ width: 160 }}>
+          <InputLabel>Glorified</InputLabel>
+          <Select value={glorified} label="Glorified" onChange={(e) => setGlorified(e.target.value)}>
+            <MenuItem value={ALL_GLORIFIED}>All</MenuItem>
+            <MenuItem value="yes">Glorified</MenuItem>
+            <MenuItem value="no">Unglorified</MenuItem>
           </Select>
         </FormControl>
         <FormControl size="small" sx={{ width: 140 }}>
@@ -375,7 +396,9 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
 
       {view === 'map' ? null : <>
       {sorted.length === 0
-        ? <Typography>No outposts built yet. Clear a map&apos;s kill requirement to claim it.</Typography>
+        ? <Typography>{cards.length === 0
+          ? "No outposts built yet. Clear a map's kill requirement to claim it."
+          : 'No outposts match these filters.'}</Typography>
         : null}
 
       {groupByWorld
@@ -383,9 +406,9 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
           const inWorld = sorted.filter(({ world: outpostWorld }) => outpostWorld === groupWorld);
           const builtInWorld = inWorld.filter(({ isClearing }) => !isClearing).length;
           const usage = outpostStats?.typesUsedByWorld?.[groupWorld];
-          // Every map of the world that can hold an outpost. A search filter makes the numerator a
-          // subset, so the ratio is only honest while nothing is filtered out.
-          const worldSlots = searchText ? 0 : outpostStats?.slotsByWorld?.[groupWorld];
+          // Every map of the world that can hold an outpost. A search or glorified filter makes the
+          // numerator a subset, so the ratio is only honest while nothing is filtered out.
+          const worldSlots = searchText || glorified !== ALL_GLORIFIED ? 0 : outpostStats?.slotsByWorld?.[groupWorld];
           return (
             <Stack key={groupWorld} direction="column" gap={1.5}>
               <Stack direction="row" gap={1.5} alignItems="baseline" flexWrap="wrap">

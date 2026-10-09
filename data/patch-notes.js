@@ -9,7 +9,8 @@ export const patchNotes = [
     'date': '09/10/2026',
     'features': [
       'Material Tracker: added a Clear all button',
-      'Material Tracker: Add tracker for all greenstacks now only adds missing greenstacks, including past ones below 10M, and keeps your existing bounds'
+      'Material Tracker: Add tracker for all greenstacks now only adds missing greenstacks, including past ones below 10M, and keeps your existing bounds',
+      'Royal Armory Outposts: sort by Trade, Intel, Command, Military or Purity rank, and filter glorified or unglorified outposts'
     ],
     'fixes': [
       'Material Tracker: importing an invalid file no longer adds broken entries that cannot be removed',
