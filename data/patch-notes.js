@@ -14,7 +14,8 @@ export const patchNotes = [
       'Bone Joe Calculator: prayer levels now prefill from your account (still editable for what-if), each prayer can be toggled on or off, and a new Target hits option sizes the pickle cap for killing in N hits',
       'Merged the Active Exp Calculator into the Active Stuff Calculator (Exp section), old link redirects',
       'Bubbles: Future Bubbles can now list from your least or most progressed cauldron',
-      'Dashboard: the alert quick edit now has a button to that alert page, and Ctrl or middle click on an alert opens its page in a new tab'
+      'Dashboard: the alert quick edit now has a button to that alert page, and Ctrl or middle click on an alert opens its page in a new tab',
+      'Cooking Ribbons: shows your daily ribbon count, the chance for each ribbon rank and where they come from, with a slider to preview different Smoky points'
     ],
     'fixes': [
       'Material Tracker: importing an invalid file no longer adds broken entries that cannot be removed',

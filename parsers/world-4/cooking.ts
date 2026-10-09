@@ -7,7 +7,11 @@ import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
 import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from '@parsers/world-2/alchemy';
-import { getEventShopBonus, getHighestCharacterSkill, isArenaBonusActive, isMasteryBonusUnlocked, isCompanionBonusActive, isBundlePurchased } from '@parsers/misc';
+import { getEventShopBonus, getHighestCharacterSkill, isArenaBonusActive, isMasteryBonusUnlocked, isCompanionBonusActive, isCompanionLvl2Active, isBundlePurchased } from '@parsers/misc';
+import { getPaletteBonus } from '@parsers/world-5/gaming';
+import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getArmoryUpgradeBonus } from '@parsers/class-specific/royalGuardian';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getAchievementStatus } from '@parsers/achievements';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getShinyBonus } from '@parsers/world-4/breeding';
@@ -22,7 +26,7 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getIsland } from '@parsers/world-2/islands';
 import { getStarSignBonus } from '@parsers/starSigns';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
-import { getVoteBonus } from '@parsers/world-2/voteBallot';
+import { getMeritocracyBonus, getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
@@ -271,6 +275,7 @@ export interface CookingMastery {
   categories: CookingMasteryCategory[];
   expRateBreakdown: any;
   ribbons: CookingRibbons;
+  dailyRibbons: DailyRibbonInputs;
 }
 
 // Ribbon[0..27] is the Ribbon Shelf (0 = empty slot), Ribbon[28 + mealIndex] is the rank applied
@@ -360,7 +365,7 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
     if (t === 0) return lavaLog(cookMaster?.[1]?.[3] ?? 0) * m;
     if (t === 1) return Math.max(0, sumCookingLevels - 1000) * m;
     if (t === 2) return Math.max(0, meal73Level - 75) * m;
-    if (t === 3) return (m / (25 + m)) * 250;
+    if (t === 3) return getSmokyRibbonBonus(m);
     if (t === 4) return ribbonSum * m;
     return (level + 1) * m;
   };
@@ -450,7 +455,243 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
     },
     categories,
     expRateBreakdown,
-    ribbons
+    ribbons,
+    dailyRibbons: getDailyRibbonInputs(account, characters, {
+      bonus: bonusAmount(3),
+      baseMulti: Number(categoryMultipliers?.[3]) || 0,
+      points: cookMaster?.[2]?.[3] ?? 0,
+      allPoints: categorySpent + Math.max(0, Math.round(purplePoints - categorySpent)),
+      unlocked: level >= (COOKING_MASTERY_RANK_THRESHOLDS[3] ?? 0)
+    })
+  };
+};
+
+// BonusAmountcook(3): the SMOKY category's % bonus for a category multiplier of baseMulti * points.
+export const getSmokyRibbonBonus = (multiplier: number) => multiplier > 0 ? (multiplier / (25 + multiplier)) * 250 : 0;
+
+export interface DailyRibbonSmoky {
+  bonus: number;
+  baseMulti: number;
+  points: number;
+  allPoints: number;
+  unlocked: boolean;
+}
+
+export interface DailyRibbonInputs {
+  unlocked: boolean;
+  meritocracy: number;
+  connoisseur: number;
+  bundleDeathBringer: number;
+  bundleBoaring: number;
+  bundleAnniversary: number;
+  legendTalent: number;
+  talent: number;
+  palette: number;
+  grimoire: number;
+  sushi: number;
+  armory: number;
+  elegantRibbons: number;
+  binGoosey: number;
+  binGooseyUpgraded: number;
+  smoky: DailyRibbonSmoky;
+}
+
+export interface DailyRibbonSource {
+  name: string;
+  value: number;
+}
+
+export interface DailyRibbonBreakdown {
+  statName: string;
+  totalValue: string | number;
+  categories: { name: string; sources: DailyRibbonSource[] }[];
+}
+
+export interface DailyRibbons {
+  unlocked: boolean;
+  count: { min: number; max: number; expected: number; chances: { count: number; chance: number }[] };
+  // Chance for each rank, indexed by rank (index 0 is always 0).
+  rankChances: number[];
+  expectedRank: number;
+  smokyBonus: number;
+  countBreakdown: DailyRibbonBreakdown;
+  rankBreakdown: DailyRibbonBreakdown;
+}
+
+// Inputs for the daily Ribbon Shelf roll (N.js daily reset, the block after Grimoire upgrade 5).
+export const getDailyRibbonInputs = (account: any, characters: any, smoky: DailyRibbonSmoky): DailyRibbonInputs => {
+  const bundleDeathBringer = isBundlePurchased(account?.bundles, 'bun_v') ? 1 : 0;
+  const bundleBoaring = isBundlePurchased(account?.bundles, 'ban_f') ? 1 : 0;
+  const grimoire = getGrimoireBonus(account?.grimoire?.upgrades, 5);
+  const connoisseur = getEventShopBonus(account, 13);
+  return {
+    unlocked: grimoire >= 1 || !!bundleDeathBringer || !!bundleBoaring || connoisseur === 1,
+    meritocracy: getMeritocracyBonus(account, 11) || 0,
+    connoisseur,
+    bundleDeathBringer,
+    bundleBoaring,
+    bundleAnniversary: isBundlePurchased(account?.bundles, 'ban_a') ? 1 : 0,
+    legendTalent: getLegendTalentBonus(account, 13) || 0,
+    talent: getHighestTalentAcrossCharacters(characters, 'RIBBON_WINNING') || 0,
+    palette: getPaletteBonus(account, 33),
+    grimoire,
+    sushi: getSushiBonus(account, 14),
+    armory: getArmoryUpgradeBonus(account, 82),
+    elegantRibbons: getEventShopBonus(account, 51),
+    binGoosey: isCompanionBonusActive(account, 169) ? 1 : 0,
+    binGooseyUpgraded: isCompanionLvl2Active(account, 169) ? 1 : 0,
+    smoky
+  };
+};
+
+// floor(base + rand), rand in [0, 1): base's integer part, +1 with chance equal to its fraction.
+const floorWithRandom = (base: number): { value: number; chance: number }[] => {
+  const whole = Math.floor(base);
+  const fraction = base - whole;
+  return fraction > 0
+    ? [{ value: whole, chance: 1 - fraction }, { value: whole + 1, chance: fraction }]
+    : [{ value: whole, chance: 1 }];
+};
+
+const shiftRanks = (ranks: number[], outcomes: { add: number; chance: number }[]) => {
+  const next = new Array(ranks.length + Math.max(...outcomes.map(({ add }) => add), 0)).fill(0);
+  ranks.forEach((chance, rank) => {
+    if (!chance) return;
+    outcomes.forEach(({ add, chance: outcomeChance }) => next[rank + add] += chance * outcomeChance);
+  });
+  return next;
+};
+
+type RankOutcome = { add: number; chance: number };
+
+const expectedAdd = (outcomes: RankOutcome[]) => outcomes.reduce((sum, { add, chance }) => sum + add * chance, 0);
+
+// Exact odds of the daily ribbon roll. smokyBonus overrides the Smoky % for what-if previews.
+export const calcDailyRibbons = (inputs: DailyRibbonInputs, smokyBonus: number = inputs?.smoky?.bonus ?? 0): DailyRibbons => {
+  const flatCount = 1 + 3 * inputs.connoisseur + Math.min(5, 5 * inputs.bundleDeathBringer)
+    + Math.min(5, 5 * inputs.bundleBoaring) + inputs.legendTalent + inputs.talent / 100;
+  const meritocracyMulti = 1 + inputs.meritocracy / 100;
+
+  // floor(M * (flat + rand + min(3, floor(rand + palette / 100))))
+  const countChances = new Map<number, number>();
+  floorWithRandom(inputs.palette / 100).forEach(({ value, chance }) => {
+    const low = meritocracyMulti * (flatCount + Math.min(3, value));
+    const high = low + meritocracyMulti;
+    for (let count = Math.floor(low); count < high; count++) {
+      const overlap = Math.min(high, count + 1) - Math.max(low, count);
+      if (overlap > 0) countChances.set(count, (countChances.get(count) ?? 0) + chance * overlap / meritocracyMulti);
+    }
+  });
+  const counts = [...countChances.entries()]
+    .map(([count, chance]) => ({ count, chance }))
+    .filter(({ chance }) => chance > 1e-12)
+    .sort((a, b) => a.count - b.count);
+  const unlocked = inputs.unlocked;
+
+  // Rank starts at 1 and gets 7 rolls of +1. Misses on the first two rolls are free, any later
+  // miss ends the streak.
+  const streakChance = Math.min(0.65, 0.1 + (inputs.grimoire + 15 * inputs.bundleDeathBringer) / 100);
+  const freeRoll: RankOutcome[] = [{ add: 0, chance: 1 - streakChance }, { add: 1, chance: streakChance }];
+  const streak: RankOutcome[] = Array.from({ length: 6 }, (_, hits) => ({
+    add: hits,
+    chance: Math.pow(streakChance, hits) * (hits < 5 ? 1 - streakChance : 1)
+  }));
+  const armoryChance = Math.min(1, Math.max(0, (inputs.armory + 25 * inputs.elegantRibbons) / 100));
+  const bonusRolls: { name: string; outcomes: RankOutcome[] }[] = [
+    { name: 'Sushi', outcomes: inputs.sushi >= 1 ? [{ add: 0, chance: 0.9 }, { add: 1, chance: 0.1 }] : [] },
+    { name: '5th Anniversary (Bundle)', outcomes: inputs.bundleAnniversary >= 1 ? [{ add: 1, chance: 1 }] : [] },
+    {
+      name: 'Smoky (Cooking Mastery)',
+      outcomes: smokyBonus > 0
+        ? floorWithRandom(smokyBonus / 100).map(({ value, chance }) => ({ add: Math.min(3, value), chance }))
+        : []
+    },
+    {
+      name: 'Ribbonic Guardian (Armory) + Elegant Ribbons (Event Shop)',
+      outcomes: armoryChance > 0 ? [{ add: 0, chance: 1 - armoryChance }, { add: 1, chance: armoryChance }] : []
+    },
+    {
+      name: 'Bin Goosey (Companion)',
+      outcomes: inputs.binGoosey ? [
+        { add: 5 + 3 * inputs.binGooseyUpgraded, chance: 0.1 },
+        { add: 3 + inputs.binGooseyUpgraded, chance: 0.9 * 0.45 },
+        { add: 1, chance: 0.9 * 0.55 }
+      ] : []
+    }
+  ];
+  const ranks = [freeRoll, freeRoll, streak, ...bonusRolls.map(({ outcomes }) => outcomes)]
+    .filter((outcomes) => outcomes.length > 0)
+    .reduce(shiftRanks, [0, 1]);
+  // The game turns any roll above Rank 20 into a Rank 2 ribbon.
+  const rankChances = new Array(Math.max(21, ranks.length)).fill(0);
+  ranks.forEach((chance, rank) => rankChances[rank > 20 ? 2 : rank] += chance);
+  while (rankChances.length > 21 && !rankChances[rankChances.length - 1]) rankChances.pop();
+
+  const expectedCount = unlocked ? counts.reduce((sum, { count, chance }) => sum + count * chance, 0) : 0;
+  const expectedRank = rankChances.reduce((sum, chance, rank) => sum + rank * chance, 0);
+  const uncappedRank = 1 + 2 * expectedAdd(freeRoll) + expectedAdd(streak)
+    + bonusRolls.reduce((sum, { outcomes }) => sum + expectedAdd(outcomes), 0);
+
+  return {
+    unlocked,
+    count: unlocked ? {
+      min: counts[0]?.count ?? 0,
+      max: counts.at(-1)?.count ?? 0,
+      expected: expectedCount,
+      chances: counts
+    } : { min: 0, max: 0, expected: 0, chances: [] },
+    rankChances,
+    expectedRank,
+    smokyBonus,
+    countBreakdown: {
+      statName: 'Ribbons per day',
+      totalValue: notateNumber(expectedCount, 'Small'),
+      categories: [
+        {
+          name: 'Flat',
+          sources: [
+            { name: 'Base', value: 1 },
+            { name: 'Ribbon Connoisseur (Event Shop)', value: 3 * inputs.connoisseur },
+            { name: 'Death Bringer (Bundle)', value: Math.min(5, 5 * inputs.bundleDeathBringer) },
+            { name: 'Boaring (Bundle)', value: Math.min(5, 5 * inputs.bundleBoaring) },
+            { name: 'Blue Ribbon Certification (Legend Talent)', value: inputs.legendTalent }
+          ]
+        },
+        {
+          // Each 100% is one guaranteed ribbon, the rest is the chance for one more.
+          name: 'Additive',
+          sources: [
+            { name: 'Ribbon Winning (Talent)', value: inputs.talent },
+            { name: 'Balmy Red (Palette)', value: inputs.palette }
+          ]
+        },
+        {
+          name: 'Multiplicative',
+          sources: [
+            { name: 'Meritocracy', value: meritocracyMulti }
+          ]
+        }
+      ]
+    },
+    // Average ranks each source adds, so the sources sum to the average rank.
+    rankBreakdown: {
+      statName: 'Average daily ribbon rank',
+      totalValue: notateNumber(expectedRank, 'Small'),
+      categories: [
+        {
+          name: 'Base',
+          sources: [{ name: 'Starting rank', value: 1 }]
+        },
+        {
+          name: 'Additive',
+          sources: [
+            { name: 'Ribbon Winning (Grimoire)', value: 2 * expectedAdd(freeRoll) + expectedAdd(streak) },
+            ...bonusRolls.map(({ name, outcomes }) => ({ name, value: expectedAdd(outcomes) })),
+            ...(expectedRank < uncappedRank - 1e-9 ? [{ name: 'Above Rank 20 becomes Rank 2', value: expectedRank - uncappedRank }] : [])
+          ]
+        }
+      ]
+    }
   };
 };
 
