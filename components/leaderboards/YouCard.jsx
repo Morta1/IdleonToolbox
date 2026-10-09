@@ -1,27 +1,57 @@
 import React from 'react';
-import { Button, Card, Stack, Typography } from '@mui/material';
+import { Button, Card, IconButton, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
+import InfoIcon from '@mui/icons-material/Info';
+import Tooltip from '@components/Tooltip';
 import { numberWithCommas } from '@utility/helpers';
-import { countAtMax, countStanding, topPercentLabel } from './standing';
+import { countStanding, firstPlaces, topPercentLabel } from './standing';
 import { HIGHLIGHT } from './RankRow';
 import { formatMetricValue, rankText } from './format';
 
 const LABEL_COLOR = { logged: '#4fc3c9', searched: '#cd861b' };
 
-const Stat = ({ label, value, sub }) => (
-  <Box sx={{ bgcolor: '#1C252E', borderRadius: 2, p: 1.25 }}>
+const Stat = ({ label, value, sub, info }) => (
+  <Box data-stat sx={{ bgcolor: '#1C252E', borderRadius: 2, p: 1.25 }}>
     <Typography component="p" sx={{ fontSize: 22, fontWeight: 700, lineHeight: 1.3 }}>{value}</Typography>
-    <Typography color="text.secondary" sx={{ fontSize: 12 }}>{label}</Typography>
-    {sub ? <Typography color="text.disabled" sx={{ fontSize: 11 }}>{sub}</Typography> : null}
+    <Stack direction="row" alignItems="center" gap={0.5}>
+      <Typography color="text.secondary" sx={{ fontSize: 12 }}>{label}</Typography>
+      {info ? (
+        <Tooltip title={info}>
+          <IconButton size="small" aria-label={`About ${label.toLowerCase()}`} sx={{ p: 0.25, color: 'text.secondary' }}>
+            <InfoIcon sx={{ fontSize: 14 }}/>
+          </IconButton>
+        </Tooltip>
+      ) : null}
+    </Stack>
+    {/* One line per part: the tile is narrow, and a wrap mid-part splits "+3 at the / max". */}
+    {(sub ?? []).map((line) => <Typography key={line} color="text.disabled" sx={{ fontSize: 11 }}>{line}</Typography>)}
   </Box>
 );
+
+const SHOWN = 6;
+const boardList = (names) => names.length > SHOWN ? `${names.slice(0, SHOWN).join(', ')} and ${names.length - SHOWN} more` : names.join(', ');
+
+const FirstPlacesInfo = ({ firsts, index }) => {
+  const label = (key) => index.byKey[key]?.label ?? key;
+  return (
+    <Stack gap={0.75}>
+      {firsts.sole.length ? <span>#1 alone: {boardList(firsts.sole.map(label))}</span> : null}
+      {firsts.tied.length ? <span>Tied for #1: {boardList(firsts.tied.map(({ key, t }) => `${label(key)} (${numberWithCommas(t)} players)`))}</span> : null}
+      {firsts.atMax.length ? (
+        <span>At the max: {boardList(firsts.atMax.map(label))}. So many players hold the max on these boards that they are not counted as first places.</span>
+      ) : null}
+    </Stack>
+  );
+};
 
 // onClear: leaves a searched player; it reads "Back to you" when the visitor has standing of their own.
 const YouCard = ({ data, kind, index, onSeeAll, onClear, clearLabel = 'Clear' }) => {
   const { player, ranks } = data;
   const counts = countStanding(ranks, index);
   // A maxed board is shared by everyone who reached the max, so it is counted apart from the firsts.
-  const atMax = countAtMax(Object.keys(ranks ?? {}), ranks, index);
+  const firsts = firstPlaces(ranks, index);
+  const atMax = firsts.atMax.length;
+  const firstsSub = [firsts.tied.length ? `${firsts.tied.length} tied` : null, atMax ? `+${atMax} at the max` : null].filter(Boolean);
   const topPercent = topPercentLabel(Math.max(0.1, Math.round((player.rank / player.totalUsers) * 1000) / 10));
   const of = [`of ${numberWithCommas(player.totalUsers)}`, topPercent, formatMetricValue('points', player.compositeScore)].filter(Boolean).join(' · ');
   return (
@@ -49,7 +79,8 @@ const YouCard = ({ data, kind, index, onSeeAll, onClear, clearLabel = 'Clear' })
           <Typography color="text.secondary" sx={{ fontSize: { xs: 12, md: 13 } }}>{of}</Typography>
         </Stack>
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 1, mt: 0.5 }}>
-          <Stat label="First places" value={counts.firsts} sub={atMax ? `+${atMax} at the max` : null}/>
+          <Stat label="First places" value={counts.firsts} sub={firstsSub}
+                info={counts.firsts || atMax ? <FirstPlacesInfo firsts={firsts} index={index}/> : null}/>
           <Stat label="Top 25" value={counts.top25}/>
           <Stat label="Top 100" value={counts.top100}/>
         </Box>

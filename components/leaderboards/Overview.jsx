@@ -54,8 +54,13 @@ const Podium = ({ rows, highlight, onOpen }) => (
       {PODIUM_SLOTS.map((at) => (rows[at] ? <PodiumSlot key={rows[at].mainChar} row={rows[at]} kind={highlight[rows[at].mainChar] ?? null}/> : null))}
     </Stack>
     {/* minmax(0, ...) lets a row shrink to its track, so a long name truncates instead of the row
-        running past the card at 320px. */}
-    <Box sx={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', columnGap: 3, '& > *': { minWidth: 0 }, '@container (min-width: 520px)': { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' } }}>
+        running past the card at 320px. Two columns read down, then across: 4 to 7, then 8 to 10. */}
+    <Box sx={{
+      display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', columnGap: 3, '& > *': { minWidth: 0 },
+      '@container (min-width: 520px)': {
+        gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gridTemplateRows: `repeat(${Math.ceil(rows.slice(3).length / 2)}, auto)`, gridAutoFlow: 'column'
+      }
+    }}>
       {rows.slice(3).map((row, at) => (
         // A phone shows ranks 4 to 7, but never hides the highlighted player.
         <Box key={row.mainChar} sx={at >= 4 && !highlight[row.mainChar] ? { display: { xs: 'none', sm: 'block' } } : undefined}>

@@ -15,6 +15,21 @@ export const countStanding = (ranks, index) => {
   return { firsts, top25, top100 };
 };
 
+// The You card's first places, split the way a player reads them: alone at #1, sharing #1 (a
+// bare total read as "I have no first place" to a player tied with 87 others), and holding the
+// max on a maxed board, which is counted apart.
+export const firstPlaces = (ranks, index) => {
+  const sole = [];
+  const tied = [];
+  const atMax = [];
+  for (const [key, { r, v, t }] of Object.entries(ranks ?? {})) {
+    const meta = index.byKey[key];
+    if (meta?.maxed && v >= meta.top) atMax.push(key);
+    else if (r === 1 && !meta?.maxed) (t > 1 ? tied.push({ key, t }) : sole.push(key));
+  }
+  return { sole, tied, atMax };
+};
+
 // Smallest relative step to the next rank. Leaders and maxed boards have nothing left to reach.
 export const withinReach = (ranks, index, count = 3) => Object.entries(ranks ?? {})
   .filter(([key, entry]) => entry.nv != null && entry.v > 0 && !index.byKey[key]?.maxed)

@@ -106,11 +106,23 @@ describe('Overview You card', () => {
     expect(label.parentElement.textContent).toBe('You · Baker333');
     expect(screen.getByText('#75')).toBeTruthy();
     expect(screen.getByText('of 2,608 · top 2.9% · 14,901.02 pts')).toBeTruthy();
-    const tile = (name) => screen.getByText(name).parentElement.textContent;
+    const tile = (name) => screen.getByText(name).closest('[data-stat]').textContent;
     expect(tile('First places')).toBe('1First places+1 at the max');
     expect(tile('Top 25')).toBe('1Top 25');
     expect(tile('Top 100')).toBe('2Top 100');
     expect(document.body.textContent).not.toMatch(/\bcap\b/i);
+  });
+
+  it('says which first places are shared, and names the boards behind the counter', async () => {
+    const tiedData = { ...withMax, ranks: { ...withMax.ranks, coins: { r: 1, v: 9, p: 3.4, t: 88 } } };
+    renderOverview({ player: { context: logged, data: tiedData } });
+    await screen.findByText('You');
+    expect(screen.getByText('First places').closest('[data-stat]').textContent).toBe('2First places1 tied+1 at the max');
+    fireEvent.mouseOver(screen.getByRole('button', { name: 'About first places' }));
+    const tip = await screen.findByRole('tooltip');
+    expect(tip.textContent).toMatch(/#1 alone: /);
+    expect(tip.textContent).toMatch(/Tied for #1: .*\(88 players\)/);
+    expect(tip.textContent).toMatch(/At the max: .*not counted as first places/);
   });
 
   it('offers a way back from a searched player on the card itself', async () => {

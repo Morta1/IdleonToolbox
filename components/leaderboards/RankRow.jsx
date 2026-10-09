@@ -16,7 +16,7 @@ const RankBadge = ({ rank, plain, strong, dim }) => {
   if (!plain && TROPHIES[rank]) {
     return <img width={20} height={20} style={{ objectFit: 'contain', flexShrink: 0 }} src={`${prefix}${TROPHIES[rank]}`} alt={`Rank ${rank}`}/>;
   }
-  return <Typography component="span" color={strong ? 'text.primary' : dim ? 'text.disabled' : 'text.secondary'} sx={{ fontSize: 12, fontWeight: strong ? 700 : 600 }}>
+  return <Typography component="span" color={strong ? 'text.primary' : dim ? 'text.disabled' : 'text.secondary'} sx={{ fontSize: { xs: 12, lg: 13 }, fontWeight: strong ? 700 : 600 }}>
     {rank == null ? '-' : numberWithCommas(rank)}
   </Typography>;
 };
@@ -43,7 +43,8 @@ const RankRow = ({ rank, name, value, notation, scale, display = null, kind = nu
   return (
     <Stack direction="row" alignItems="center" gap={1.25} data-testid="rank-row" aria-current={kind ? 'true' : undefined} sx={{
       // The pinned row keeps the list's rhythm: its tint and left bar already set it apart.
-      px: drawer ? 1.25 : 1.75, py: drawer ? 0.875 : 0.75, fontSize: 13, ...shape,
+      // One step up on wide screens, where 13px read small at desktop viewing distance.
+      px: drawer ? 1.25 : 1.75, py: drawer ? 0.875 : 0.75, fontSize: { xs: 13, lg: 14 }, ...shape,
       bgcolor: kind ? '#12141c' : 'transparent',
       boxShadow: kind && !around ? `inset 3px 0 0 ${accent}` : 'none'
     }}>

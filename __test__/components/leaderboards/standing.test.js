@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bestInSection, countAtMax, countStanding, medianRank, topPercentLabel, withinReach } from '@components/leaderboards/standing';
+import { bestInSection, countAtMax, countStanding, firstPlaces, medianRank, topPercentLabel, withinReach } from '@components/leaderboards/standing';
 
 const index = { byKey: { logBook: { maxed: true, top: 100 }, mining: { maxed: false }, farming: {}, cooking: {}, bits: {} } };
 const ranks = {
@@ -43,6 +43,21 @@ describe('countAtMax', () => {
     const mine = { logBook: { v: 100 }, shiny: { v: 1300 }, mining: { v: 304 } };
     expect(countAtMax(['logBook', 'shiny', 'mining'], mine, maxedIndex)).toBe(1);
     expect(countAtMax(['logBook', 'shiny'], undefined, maxedIndex)).toBe(0);
+  });
+});
+
+describe('firstPlaces', () => {
+  const firstIndex = { byKey: { logBook: { maxed: true, top: 100 }, mining: {}, breeding: {}, farming: {} } };
+
+  it('splits rank 1 into sole, tied (with the tie size) and at the max', () => {
+    const mine = {
+      logBook: { r: 1, v: 100, t: 651 },
+      mining: { r: 1, v: 304, t: 1 },
+      breeding: { r: 1, v: 612, t: 88 },
+      farming: { r: 2, v: 5, t: 1 }
+    };
+    expect(firstPlaces(mine, firstIndex)).toEqual({ sole: ['mining'], tied: [{ key: 'breeding', t: 88 }], atMax: ['logBook'] });
+    expect(firstPlaces(undefined, firstIndex)).toEqual({ sole: [], tied: [], atMax: [] });
   });
 });
 

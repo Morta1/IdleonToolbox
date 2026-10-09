@@ -38,7 +38,7 @@ const MetricCard = ({ meta, entries, highlight, pinned, onOpen, linkPlayer = nul
       <Stack direction="row" alignItems="center" gap={1} sx={{ px: 1.75, py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
         <MetricIcon metric={meta.key} label={meta.label} maxed={maxed}/>
         <Typography variant="subtitle2" component="h3" title={meta.label} sx={{
-          minWidth: 0, fontSize: 14, fontWeight: 600, lineHeight: 1.3, overflow: 'hidden',
+          minWidth: 0, fontSize: { xs: 14, lg: 15 }, fontWeight: 600, lineHeight: 1.3, overflow: 'hidden',
           display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'
         }}>{meta.label}</Typography>
         {maxed ? (
