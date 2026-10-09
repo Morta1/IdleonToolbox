@@ -15,7 +15,8 @@ import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import DefaultsNote from '@components/dashboard/settings/DefaultsNote';
 import { buildModel } from '@utility/dashboard/settingsModel';
 import { runAction } from '@utility/dashboard/settingsActions';
-import { alertLabel, buildQuickEdit } from '@utility/dashboard/quickEdit';
+import { alertLabel, alertPage, buildQuickEdit, pageHref } from '@utility/dashboard/quickEdit';
+import { useRouter } from 'next/router';
 import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
 import { trackSettingsEvent } from '@utility/dashboard/settingsAnalytics';
 import AlertQuickEdit from '@components/dashboard/settings/AlertQuickEdit';
@@ -25,6 +26,7 @@ import { diffTrackers, LEGACY_BACKUP_KEY, loadTrackers, toStoredTrackers } from 
 const QUICK_EDIT_ROOM = 440;
 
 const Dashboard = () => {
+  const router = useRouter();
   const { dispatch, state } = useContext(AppContext);
   const { characters, account, lastUpdated } = state;
   const [open, setOpen] = useState(false);
@@ -185,7 +187,11 @@ const Dashboard = () => {
       </Stack>
       <Stack gap={2}>
         <DashboardSettingsProvider onOpenAlert={handleOpenAlert}
-                                   labelFor={(configType, target, extra) => alertLabel(config, configType, target, extra)}>
+                                   labelFor={(configType, target, extra) => alertLabel(config, configType, target, extra)}
+                                   hrefFor={(configType, target) => {
+                                     const page = alertPage(config, configType, target);
+                                     return page ? pageHref(page, router.query) : null;
+                                   }}>
           {isDisplayed('account') ? <Account trackers={config?.account} characters={characters}
                                              account={account} lastUpdated={lastUpdated}/> : null}
           {isDisplayed('characters') ? <Characters trackers={config?.characters} characters={characters}
@@ -203,6 +209,7 @@ const Dashboard = () => {
                        hideAlertless={hideAlertless} onHideAlertlessChange={handleHideAlertless}/>
     <AlertQuickEdit quickEdit={quickModel} open={Boolean(quickModel)} anchorPosition={quickEdit?.anchorPosition} above={quickEdit?.above}
                     iconSrc={quickEdit?.iconSrc}
+                    pageHref={quickModel?.page ? pageHref(quickModel.page, router.query) : null}
                     // Escape unmounts the popover without blurring its field; blur first so its clamp runs.
                     onClose={() => {
                       document.activeElement?.blur?.();

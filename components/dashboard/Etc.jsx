@@ -279,7 +279,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           icon={'etc/Server.png'}
         /> : null}
         {trackers?.General?.companions?.checked && <TimerCard target="General.companions"
-          page={'account/prem-currency/companions'}
+          page={'/account/prem-currency/pets'}
           tooltipContent={'Next companion claim: ' + getRealDateInMs(nextCompanionClaim)}
           lastUpdated={lastUpdated} time={nextCompanionClaim}
           icon={'afk_targets/Dog.png'}

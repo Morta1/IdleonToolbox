@@ -9,6 +9,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import NextLink from 'next/link';
 import { prefix } from '@utility/helpers';
 import { optionExtras } from '@utility/dashboard/settingsModel';
 import { clampValue } from '@utility/dashboard/settingsActions';
@@ -126,7 +127,7 @@ const Body = ({ quickEdit, onAction }) => {
   </>;
 };
 
-const AlertQuickEdit = ({ quickEdit, open, anchorPosition, above = false, iconSrc = null, onClose, onAction, onOpenAll, onUndo }) => {
+const AlertQuickEdit = ({ quickEdit, open, anchorPosition, above = false, iconSrc = null, pageHref = null, onClose, onAction, onOpenAll, onUndo }) => {
   const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   if (!quickEdit) return null;
   const { tracker, option, kind, everyCharacter, configType } = quickEdit;
@@ -142,6 +143,14 @@ const AlertQuickEdit = ({ quickEdit, open, anchorPosition, above = false, iconSr
         <Typography id={TITLE_ID} variant="subtitle1" component="h2" fontWeight={500} sx={{ lineHeight: 1.3 }}>{title}</Typography>
         {where ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>{where}</Typography> : null}
       </Box>
+      {pageHref ? <Button component={NextLink} href={pageHref} variant="outlined" size="small"
+                          sx={{
+                            ml: 'auto', flexShrink: 0, alignSelf: 'flex-start', whiteSpace: 'nowrap',
+                            // Stays compact on a phone, but the tap area still reaches the 44px the other controls get.
+                            '&::after': { content: '""', position: 'absolute', inset: { xs: '-7px 0', sm: 0 } }
+                          }}>
+        {quickEdit.page.label}<Box component="span" sx={{ display: { xs: 'none', sm: 'inline' }, whiteSpace: 'pre' }}> page</Box>&nbsp;→
+      </Button> : null}
     </Stack>
     <Stack gap={1.5}>
       <Body quickEdit={quickEdit} onAction={onAction}/>

@@ -13,14 +13,16 @@ export const patchNotes = [
       'Royal Armory Outposts: sort by Trade, Intel, Command, Military or Purity rank, and filter glorified or unglorified outposts',
       'Bone Joe Calculator: prayer levels now prefill from your account (still editable for what-if), each prayer can be toggled on or off, and a new Target hits option sizes the pickle cap for killing in N hits',
       'Merged the Active Exp Calculator into the Active Stuff Calculator (Exp section), old link redirects',
-      'Bubbles: Future Bubbles can now list from your least or most progressed cauldron'
+      'Bubbles: Future Bubbles can now list from your least or most progressed cauldron',
+      'Dashboard: the alert quick edit now has a button to that alert page, and Ctrl or middle click on an alert opens its page in a new tab'
     ],
     'fixes': [
       'Material Tracker: importing an invalid file no longer adds broken entries that cannot be removed',
       'Item Planner: importing an invalid file now shows an error instead of breaking the page',
       'Royal Guardian: Territory clear in the Active Stuff Calculator and the clearing ETA in Outposts now account for Militia progress that only lands when the map is opened',
       'Dashboard: Royal Guardian rank cap inputs now say Rank instead of the holder names',
-      'Divinity: Kattlekruk now shows the daily bubble levels and which bubbles they apply to'
+      'Divinity: Kattlekruk now shows the daily bubble levels and which bubbles they apply to',
+      'Dashboard: the companions timer no longer links to a missing page'
     ]
   },
   {

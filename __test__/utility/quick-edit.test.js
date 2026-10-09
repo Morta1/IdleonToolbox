@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import { allTrackers, buildModel } from '@utility/dashboard/settingsModel';
-import { alertLabel, buildQuickEdit, matchPickerKey, pickerItemLabel } from '@utility/dashboard/quickEdit';
+import { alertLabel, alertPage, buildQuickEdit, matchPickerKey, pageHref, pickerItemLabel } from '@utility/dashboard/quickEdit';
 
 const setup = (edits = {}) => {
   const config = resolveTrackers(baseTrackers, edits);
@@ -179,5 +179,32 @@ describe('alertLabel', () => {
 describe('pickerItemLabel', () => {
   it('uses the in-game item name', () => {
     expect(pickerItemLabel('Refinery1')).toBe('Redox Salts');
+  });
+});
+
+describe('alertPage', () => {
+  const { config } = setup();
+  it('merges the option page over the tracker page and names it', () => {
+    expect(alertPage(config, 'account', 'World 7.spelunking.pageReads'))
+      .toEqual({ pathname: '/account/world-7/spelunking', query: { t: 'Lore' }, label: 'Lore' });
+  });
+
+  it('falls back to the tracker page and label', () => {
+    const page = alertPage(config, 'account', 'World 1.stamps');
+    expect(page.pathname).toBe('/account/world-1/stamps');
+    expect(page.label).toBe(alertLabel(config, 'account', 'World 1.stamps'));
+  });
+
+  it('is null for alerts without a page, or that match nothing', () => {
+    expect(alertPage(config, 'timers', 'General.daily')).toBeNull();
+    expect(alertPage(config, 'account', 'Nowhere.nothing')).toBeNull();
+  });
+});
+
+describe('pageHref', () => {
+  it('adds the tab and keeps only the session params of the current route', () => {
+    const page = { pathname: '/account/world-7/spelunking', query: { t: 'Lore' } };
+    expect(pageHref(page, { demo: 'true', t: 'Account', slug: 'x' })).toBe('/account/world-7/spelunking?demo=true&t=Lore');
+    expect(pageHref({ pathname: '/account/world-1/stamps', query: {} }, {})).toBe('/account/world-1/stamps');
   });
 });

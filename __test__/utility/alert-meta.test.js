@@ -1,5 +1,7 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { alertAliases, alertMeta, sectionMeta } from '@utility/dashboard/alertMeta';
 
@@ -80,6 +82,19 @@ describe('alertMeta', () => {
     Object.keys(sectionMeta).forEach((key) => {
       const [configType, section] = key.split('.');
       expect(baseTrackers[configType]?.[section], key).toBeDefined();
+    });
+  });
+
+  it('points every page at a real route, merging option pages over the tracker page', () => {
+    const routeExists = (pathname) => ['.jsx', '.js', '/index.jsx', '/index.js']
+      .some((ext) => existsSync(join(process.cwd(), 'pages', `${pathname}${ext}`)));
+    Object.entries(alertMeta).forEach(([path, meta]) => {
+      const pages = [meta.page, ...Object.values(meta?.options ?? {}).map(({ page }) => page && { ...meta.page, ...page })]
+        .filter(Boolean);
+      pages.forEach((page) => {
+        expect(page.pathname, `${path} page`).toMatch(/^\/[a-z0-9/-]+$/);
+        expect(routeExists(page.pathname), `${path} -> ${page.pathname}`).toBe(true);
+      });
     });
   });
 

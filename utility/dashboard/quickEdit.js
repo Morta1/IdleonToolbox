@@ -2,6 +2,7 @@ import { items as itemData } from '@website-data';
 import { resolveSettingsTarget } from './settingsTarget';
 import { allTrackers, fallbackLabel } from './settingsModel';
 import { alertMeta } from './alertMeta';
+import { sessionQuery } from '@utility/nav-query';
 
 const WORLDS = [1, 2, 3, 4, 5, 6, 7];
 const loose = (key) => String(key ?? '').replace(/[^a-z0-9]/gi, '').toLowerCase();
@@ -29,6 +30,23 @@ export const alertLabel = (config, configType, target, { items = [] } = {}) => {
     ? meta.options?.[resolved.optionName]?.label ?? fallbackLabel(resolved.optionName)
     : meta.label ?? fallbackLabel(resolved.trackerName);
   return items.length === 1 ? `${label}: ${itemLabel(items[0].key, items[0].label)}` : label;
+};
+
+// Where an alert's page lives: the tracker's page with the option's own page merged over it, so an
+// option usually only names its tab. Null when neither names a pathname.
+export const alertPage = (config, configType, target) => {
+  const resolved = resolveSettingsTarget(config, configType, target);
+  if (!resolved?.trackerName) return null;
+  const meta = alertMeta[[configType, resolved.section, resolved.trackerName].filter(Boolean).join('.')] ?? {};
+  const page = { ...meta.page, ...meta.options?.[resolved.optionName]?.page };
+  if (!page.pathname) return null;
+  return { pathname: page.pathname, query: page.query ?? {}, label: page.label ?? meta.label ?? fallbackLabel(resolved.trackerName) };
+};
+
+// `query` is the current route's, so a demo or profile session survives the hop.
+export const pageHref = (page, query) => {
+  const params = new URLSearchParams({ ...sessionQuery(query), ...page.query }).toString();
+  return params ? `${page.pathname}?${params}` : page.pathname;
 };
 
 const watchedItems = (option, items) => items.reduce((res, { key, label }) => {
@@ -84,6 +102,7 @@ export const buildQuickEdit = (config, model, configType, target, { items = [], 
     everyCharacter: configType === 'characters',
     // A timer's switch is its only control, except an input option keeps its own checkbox.
     trackerSwitch: kind === 'tracker' || (configType === 'timers' && option?.type !== 'input'),
+    page: alertPage(config, configType, target),
     configType,
     target
   };

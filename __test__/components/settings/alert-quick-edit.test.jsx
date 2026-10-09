@@ -2,7 +2,7 @@
 import '../../../polyfills';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { fireEvent, render } from '@testing-library/react';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../../styles/theme/darkTheme';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
@@ -18,7 +18,8 @@ const quickFor = (configType, target, extra, edits = {}) => {
 const open = (quickEdit, props = {}) => {
   render(<ThemeProvider theme={darkTheme}>
     <AlertQuickEdit quickEdit={quickEdit} open anchorPosition={{ top: 10, left: 10 }} onClose={() => {}}
-                    onAction={props.onAction ?? (() => {})} onOpenAll={props.onOpenAll ?? (() => {})} onUndo={props.onUndo} iconSrc={props.iconSrc}/>
+                    onAction={props.onAction ?? (() => {})} onOpenAll={props.onOpenAll ?? (() => {})} onUndo={props.onUndo} iconSrc={props.iconSrc}
+                    pageHref={props.pageHref}/>
   </ThemeProvider>);
   return document.body.querySelector('[role="dialog"]');
 };
@@ -39,6 +40,16 @@ describe('AlertQuickEdit', () => {
     expect(onAction).toHaveBeenCalledWith('toggleOption', quickEdit.tracker, 'keys');
     fireEvent.click([...dialog.querySelectorAll('button')].find((b) => b.textContent === `All ${quickEdit.tracker.label} settings`));
     expect(onOpenAll).toHaveBeenCalled();
+  });
+
+  it('links to the alert page when there is one, and shows no link otherwise', () => {
+    const quickEdit = { ...quickFor('account', 'General.etc.keys'), page: { pathname: '/account/world-7/spelunking', query: {}, label: 'Lore' } };
+    let dialog = open(quickEdit, { pageHref: '/account/world-7/spelunking?t=Lore' });
+    const link = [...dialog.querySelectorAll('a')].find((a) => a.textContent.replace(/\s/g, ' ') === 'Lore page →');
+    expect(link?.getAttribute('href')).toBe('/account/world-7/spelunking?t=Lore');
+    cleanup();
+    dialog = open(quickEdit);
+    expect([...dialog.querySelectorAll('a')].some((a) => a.textContent.endsWith('page →'))).toBe(false);
   });
 
   it('the footer Undo button calls onUndo', () => {

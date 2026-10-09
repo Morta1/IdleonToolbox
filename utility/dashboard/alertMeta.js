@@ -43,6 +43,7 @@ export const alertMeta = {
   'account.General.tasks': {
     label: 'Daily tasks',
     icon: 'etc/Merit_0',
+    page: { pathname: '/account/task-board/tasks', label: 'Tasks' },
     options: {
       tasks: { label: 'Worlds to check', help: 'Alerts when the daily task of a ticked world is not done yet.' }
     }
@@ -50,6 +51,7 @@ export const alertMeta = {
   'account.General.materialTracker': {
     label: 'Material tracker',
     icon: 'data/Refinery1',
+    page: { pathname: '/tools/material-tracker' },
     // The item thresholds live on the tool's own page, not in this config.
     link: { text: 'Set item thresholds in', label: 'Tools > Material Tracker', href: '/tools/material-tracker' },
     options: {}
@@ -57,6 +59,7 @@ export const alertMeta = {
   'account.General.guild': {
     label: 'Guild tasks',
     icon: 'etc/GP',
+    page: { pathname: '/account/misc/guild', label: 'Guild' },
     options: {
       daily: { label: 'Daily guild tasks left' },
       weekly: { label: 'Weekly guild tasks left' }
@@ -76,8 +79,8 @@ export const alertMeta = {
     label: 'Miscellaneous',
     icon: 'data/CharSlot',
     options: {
-      dungeonTraits: { label: 'Dungeon trait not selected', group: 'Account' },
-      randomEvents: { label: 'No random event done today', group: 'Daily' },
+      dungeonTraits: { label: 'Dungeon trait not selected', group: 'Account', page: { pathname: '/account/misc/dungeons', query: { t: 'Traits' }, label: 'Dungeons' } },
+      randomEvents: { label: 'No random event done today', group: 'Daily', page: { pathname: '/account/misc/random-events', label: 'Random events' } },
       keys: {
         label: 'Keys and tickets ready',
         help: 'Alerts when keys or colosseum tickets have not been picked up for 3 days or more.',
@@ -87,7 +90,8 @@ export const alertMeta = {
         label: 'Miniboss kills stacked',
         help: 'Alerts when a miniboss has this many kills available. The lowest value is 2.',
         unit: 'kills',
-        group: 'Account'
+        group: 'Account',
+        page: { pathname: '/account/world-3/death-note', label: 'Death note' }
       },
       newCharacters: {
         label: 'New character slot available',
@@ -100,12 +104,13 @@ export const alertMeta = {
         group: 'Account'
       },
       familyObols: { label: 'Empty family obol slots', group: 'Account' },
-      freeCompanion: { label: 'Free companion to claim', group: 'Events' },
-      petMartGems: { label: 'Free Pet Mart gems', group: 'Events' },
+      freeCompanion: { label: 'Free companion to claim', group: 'Events', page: { pathname: '/account/prem-currency/pets', label: 'Pets' } },
+      petMartGems: { label: 'Free Pet Mart gems', group: 'Events', page: { pathname: '/account/misc/tournament', query: { t: 'Pet Mart' }, label: 'Pet Mart' } },
       tournamentRegister: {
         label: 'Not registered for the Pet Tournament',
         help: 'Alerts when you have not registered for the current Pet Tournament.',
-        group: 'Events'
+        group: 'Events',
+        page: { pathname: '/account/misc/tournament', label: 'Tournament' }
       },
       raidRegister: {
         label: 'Not registered for the Raid',
@@ -140,6 +145,7 @@ export const alertMeta = {
   'account.World 1.stamps': {
     label: 'Stamps',
     icon: 'data/StampA34',
+    page: { pathname: '/account/world-1/stamps' },
     options: {
       gildedStamps: { label: 'Gilded stamps available' },
       showGildedWhenNoAtomDiscount: {
@@ -161,6 +167,7 @@ export const alertMeta = {
   'account.World 1.owl': {
     label: 'Orion the owl',
     icon: 'etc/Owl',
+    page: { pathname: '/account/clickers/owl', label: 'Owl' },
     options: {
       featherRestart: { label: 'Feather Restart affordable' },
       megaFeatherRestart: { label: 'Mega Feather Restart affordable' }
@@ -169,6 +176,7 @@ export const alertMeta = {
   'account.World 1.forge': {
     label: 'Forge',
     icon: 'data/ForgeA',
+    page: { pathname: '/account/world-1/forge' },
     options: {
       emptySlots: { label: 'Empty forge slots' }
     }
@@ -178,21 +186,23 @@ export const alertMeta = {
   'account.World 2.alchemy': {
     label: 'Alchemy',
     icon: 'data/aJarB0',
+    page: { pathname: '/account/world-2/cauldrons', label: 'Cauldrons' },
     options: {
       bargainTag: { label: 'Bargain Tag not bought today', group: 'Liquid shop' },
       gems: { label: 'Alchemy gems not bought today', group: 'Liquid shop' },
-      sigils: { label: 'Sigils ready to level up', group: 'Cauldrons' },
+      sigils: { label: 'Sigils ready to level up', group: 'Cauldrons', page: { pathname: '/account/world-2/sigils', label: 'Sigils' } },
       liquids: {
         label: 'Liquid almost full',
         help: 'Alerts when a liquid cauldron is filled to this percent of its capacity.',
         unit: '%',
         group: 'Cauldrons'
       },
-      vials: { label: 'Vials you can level up', group: 'Vials' },
+      vials: { label: 'Vials you can level up', group: 'Vials', page: { pathname: '/account/world-2/vials', label: 'Vials' } },
       vialsAttempts: {
         label: 'Vial attempts left',
         help: 'Alerts when you have vial attempts and own the item a locked vial needs.',
-        group: 'Vials'
+        group: 'Vials',
+        page: { pathname: '/account/world-2/vials', label: 'Vials' }
       },
       p2wUpgrades: {
         label: 'Affordable P2W upgrades',
@@ -208,13 +218,15 @@ export const alertMeta = {
       alternateParticles: {
         label: 'Particle bubble upgrades left today',
         help: 'Boron lets you pay particles instead of resources for bubbles costing 100M or more, a few times a day. Unused uses are lost at the daily reset.',
-        group: 'Cauldrons'
+        group: 'Cauldrons',
+        page: { pathname: '/account/world-2/bubbles', label: 'Bubbles' }
       }
     }
   },
   'account.World 2.islands': {
     label: 'Islands',
     icon: 'data/Island1',
+    page: { pathname: '/account/world-2/islands' },
     options: {
       unclaimedDays: {
         label: 'Island days unclaimed',
@@ -251,6 +263,7 @@ export const alertMeta = {
   'account.World 2.arcade': {
     label: 'Arcade',
     icon: 'data/PachiBall0',
+    page: { pathname: '/account/world-2/arcade-shop', label: 'Arcade shop' },
     options: {
       balls: { label: 'Ball capacity almost full', help: 'Alerts within 5% of your max ball capacity.' },
       unmaxedRotation: {
@@ -267,6 +280,7 @@ export const alertMeta = {
   'account.World 2.weeklyBosses': {
     label: 'W2 boss raid',
     icon: 'data/Trophie',
+    page: { pathname: '/account/world-2/weekly-bosses', label: 'Weekly bosses' },
     options: {
       daily: {
         label: 'Daily boss raid not done',
@@ -281,11 +295,13 @@ export const alertMeta = {
   'account.World 2.killRoy': {
     label: 'Killroy',
     icon: 'etc/Killroy',
+    page: { pathname: '/account/world-2/killroy' },
     options: {
       general: { label: 'Killroy available', help: 'Alerts when you have not done a Killroy run this week.' },
       underHundredKills: {
         label: 'Monsters under 100 kills',
-        help: 'Alerts when the current Killroy has monsters below 100 Killroy kills (for equinox).'
+        help: 'Alerts when the current Killroy has monsters below 100 Killroy kills (for equinox).',
+        page: { query: { t: 'Monsters' }, label: 'Killroy monsters' }
       },
       skulls: { label: 'Unspent Killroy skulls' }
     }
@@ -293,6 +309,7 @@ export const alertMeta = {
   'account.World 2.kangaroo': {
     label: 'Poppy the kangaroo',
     icon: 'data/RooA',
+    page: { pathname: '/account/clickers/kangaroo', label: 'Kangaroo' },
     options: {
       shinyThreshold: {
         label: 'Shiny catch progress reached',
@@ -308,6 +325,7 @@ export const alertMeta = {
   'account.World 3.printer': {
     label: '3D printer',
     icon: 'data/ConTower0',
+    page: { pathname: '/account/world-3/printer' },
     options: {
       includeResource: {
         label: 'Watched printed items',
@@ -330,12 +348,14 @@ export const alertMeta = {
   'account.World 3.construction': {
     label: 'Construction and refinery',
     icon: 'data/ClassIcons49',
+    page: { pathname: '/account/world-3/construction', label: 'Construction' },
     options: {
       flags: { label: 'Finished flags on the board' },
-      buildings: { label: 'Buildings ready to build' },
+      buildings: { label: 'Buildings ready to build', page: { pathname: '/account/world-3/buildings', label: 'Buildings' } },
       materials: {
         label: 'Salts out of materials',
-        help: 'Alerts when a ticked salt has run out of materials, or will within the lead time below.'
+        help: 'Alerts when a ticked salt has run out of materials, or will within the lead time below.',
+        page: { pathname: '/account/world-3/refinery', label: 'Refinery' }
       },
       matsThreshold: {
         label: 'Warn ahead of time',
@@ -343,10 +363,11 @@ export const alertMeta = {
         unit: 'h',
         dependsOn: 'materials'
       },
-      rankUp: { label: 'Salts ready to rank up' },
+      rankUp: { label: 'Salts ready to rank up', page: { pathname: '/account/world-3/refinery', label: 'Refinery' } },
       saltBalance: {
         label: 'Salt balance',
-        help: 'Compares each ticked salt to the highest rank the previous salt can keep fuelled.'
+        help: 'Compares each ticked salt to the highest rank the previous salt can keep fuelled.',
+        page: { pathname: '/account/world-3/refinery', label: 'Refinery' }
       },
       saltBalanceDirection: {
         label: 'Alert when a salt is',
@@ -358,6 +379,7 @@ export const alertMeta = {
   'account.World 3.hatRack': {
     label: 'Hat rack',
     icon: 'data/HatHelpA',
+    page: { pathname: '/account/world-3/hat-rack' },
     options: {
       hatsMissing: { label: 'Owned hats missing from the rack' }
     }
@@ -365,9 +387,10 @@ export const alertMeta = {
   'account.World 3.equinox': {
     label: 'Equinox',
     icon: 'data/Quest78',
+    page: { pathname: '/account/world-3/equinox' },
     options: {
       bar: { label: 'Equinox bar full', help: 'Only while an unlocked upgrade is still below max level.' },
-      challenges: { label: 'Completed challenges to claim' },
+      challenges: { label: 'Completed challenges to claim', page: { query: { t: 'Challenges' }, label: 'Challenges' } },
       foodLust: {
         label: 'Food Lust stacks',
         help: 'Alerts once you hold this many stacks, capped at your Food Lust level, so the default only alerts when Food Lust is maxed.',
@@ -378,6 +401,7 @@ export const alertMeta = {
   'account.World 3.atomCollider': {
     label: 'Atom collider',
     icon: 'data/Atom0',
+    page: { pathname: '/account/world-3/atom-collider' },
     inline: 'stampReducer',
     options: {
       stampReducer: {
@@ -390,6 +414,7 @@ export const alertMeta = {
   'account.World 3.traps': {
     label: 'Traps',
     icon: 'data/TrapBoxSet1',
+    page: { pathname: '/account/world-3/traps' },
     options: {
       trapsOverdue: { label: 'Traps ready to collect' }
     }
@@ -399,6 +424,7 @@ export const alertMeta = {
   'account.World 4.breeding': {
     label: 'Breeding',
     icon: 'data/PetEgg1',
+    page: { pathname: '/account/world-4/breeding' },
     options: {
       eggs: { label: 'Egg nest full' },
       eggsRarity: {
@@ -407,34 +433,39 @@ export const alertMeta = {
       },
       shinies: {
         label: 'Shiny level reached',
-        help: 'Alerts when a fenced shiny pet reaches this shiny level.'
+        help: 'Alerts when a fenced shiny pet reaches this shiny level.',
+        page: { query: { t: 'Mobs', nt: 'Shinies' }, label: 'Shinies' }
       },
       breedability: {
         label: 'Breedability level reached',
-        help: 'Alerts when a fenced pet reaches this breedability level.'
+        help: 'Alerts when a fenced pet reaches this breedability level.',
+        page: { query: { t: 'Mobs', nt: 'Breedability' }, label: 'Breedability' }
       }
     }
   },
   'account.World 4.cooking': {
     label: 'Cooking',
     icon: 'data/ClassIcons51',
+    page: { pathname: '/account/world-4/cooking' },
     options: {
-      spices: { label: 'Spice clicks left' },
+      spices: { label: 'Spice clicks left', page: { query: { t: 'Kitchens' }, label: 'Kitchens' } },
       ribbons: {
         label: 'Empty ribbon slots',
-        help: 'Alerts when the ribbon shelf has this many empty slots or fewer (28 slots).'
+        help: 'Alerts when the ribbon shelf has this many empty slots or fewer (28 slots).',
+        page: { query: { t: 'Ribbons' }, label: 'Ribbons' }
       },
       meals: { label: 'Meals ready to level up' },
       alertOnlyCookedMeal: {
         label: 'Only meals a kitchen is cooking',
         dependsOn: 'meals'
       },
-      cookingMastery: { label: 'Unspent Cooking Mastery points' }
+      cookingMastery: { label: 'Unspent Cooking Mastery points', page: { query: { t: 'Mastery' }, label: 'Cooking mastery' } }
     }
   },
   'account.World 4.laboratory': {
     label: 'Laboratory',
     icon: 'data/ClassIcons53',
+    page: { pathname: '/account/world-4/laboratory', query: { t: 'Chips And Jewels Rotation' }, label: 'Chip rotation' },
     options: {
       chipsRotation: { label: 'Chip to claim in the repository' },
       jewelsRotation: { label: 'Jewel to claim in the repository' }
@@ -443,6 +474,7 @@ export const alertMeta = {
   'account.World 4.tome': {
     label: 'Tome',
     icon: 'etc/Tome_0',
+    page: { pathname: '/account/world-4/tome' },
     options: {
       nametagClaim: {
         label: 'Ranking nametags to claim',
@@ -455,6 +487,7 @@ export const alertMeta = {
   'account.World 5.gaming': {
     label: 'Gaming',
     icon: 'data/ClassIcons56',
+    page: { pathname: '/account/world-5/gaming' },
     options: {
       sprouts: { label: 'Sprouts at capacity' },
       drops: { label: 'Sprinkler drops at capacity' },
@@ -473,9 +506,10 @@ export const alertMeta = {
   'account.World 5.sailing': {
     label: 'Sailing',
     icon: 'npcs/Chesty',
+    page: { pathname: '/account/world-5/sailing' },
     options: {
-      captains: { label: 'Better captain in the shop' },
-      chests: { label: 'Chest capacity full' },
+      captains: { label: 'Better captain in the shop', page: { query: { t: 'Boats and Captains' }, label: 'Captains' } },
+      chests: { label: 'Chest capacity full', page: { query: { t: 'Chests' }, label: 'Chests' } },
       alwaysAlertEnderCaptains: {
         label: 'Every Ender captain in the shop',
         help: 'Alerts on every Ender captain in the shop, even when all your captains are already Ender and its stats are not higher.',
@@ -486,71 +520,82 @@ export const alertMeta = {
   'account.World 5.hole': {
     label: 'The Hole',
     icon: 'data/HoleWellBucket0',
+    page: { pathname: '/account/world-5/hole' },
     options: {
       buckets: {
         label: 'Sediment reached',
         help: 'Alerts when a well sediment reaches this amount. 0 uses its max.',
-        group: 'Resource caverns'
+        group: 'Resource caverns',
+        page: { query: { t: 'Explore', nt: 'The well' }, label: 'The Well' }
       },
-      motherlode: { label: 'Motherlode layer ready to break', group: 'Resource caverns' },
-      evertree: { label: 'Evertree layer ready to break', group: 'Resource caverns' },
-      bottomlessTrench: { label: 'Bottomless Trench layer ready to break', group: 'Resource caverns' },
+      motherlode: { label: 'Motherlode layer ready to break', group: 'Resource caverns', page: { query: { t: 'Explore', nt: 'Motherlode' }, label: 'Motherlode' } },
+      evertree: { label: 'Evertree layer ready to break', group: 'Resource caverns', page: { query: { t: 'Explore', nt: 'Evertree' }, label: 'Evertree' } },
+      bottomlessTrench: { label: 'Bottomless Trench layer ready to break', group: 'Resource caverns', page: { query: { t: 'Explore', nt: 'The Bottomless Trench' }, label: 'Bottomless Trench' } },
       bravery: {
         label: 'Bravery story ready',
         help: 'Alerts when the Bravery reward multi reaches this value.',
-        group: 'Monuments'
+        group: 'Monuments',
+        page: { query: { t: 'Explore', nt: 'Bravery' }, label: 'Bravery' }
       },
       bellRing: {
         label: 'Ring bell ready',
         help: 'Alerts when the Ring bell has at least this many uses ready.',
         unit: 'uses',
-        group: 'Other caverns'
+        group: 'Other caverns',
+        page: { query: { t: 'Explore', nt: 'The bell' }, label: 'The Bell' }
       },
       bellPing: {
         label: 'Ping bell ready',
         help: 'Alerts when the Ping bell has at least this many uses ready.',
         unit: 'uses',
-        group: 'Other caverns'
+        group: 'Other caverns',
+        page: { query: { t: 'Explore', nt: 'The bell' }, label: 'The Bell' }
       },
       bellClean: {
         label: 'Clean bell ready',
         help: 'Alerts when the Clean bell has at least this many uses ready.',
         unit: 'uses',
-        group: 'Other caverns'
+        group: 'Other caverns',
+        page: { query: { t: 'Explore', nt: 'The bell' }, label: 'The Bell' }
       },
       bellRenew: {
         label: 'Renew bell ready',
         help: 'Alerts when the Renew bell has at least this many uses ready.',
         unit: 'uses',
-        group: 'Other caverns'
+        group: 'Other caverns',
+        page: { query: { t: 'Explore', nt: 'The bell' }, label: 'The Bell' }
       },
       theHarp: {
         label: 'Harp power reached',
         help: 'Alerts when Harp power reaches this percent.',
         unit: '%',
-        group: 'Other caverns'
+        group: 'Other caverns',
+        page: { query: { t: 'Explore', nt: 'The harp' }, label: 'The Harp' }
       },
-      theHive: { label: 'Hive layer ready to break', group: 'Resource caverns' },
-      grotto: { label: 'Monarch ready to fight', group: 'Other caverns' },
+      theHive: { label: 'Hive layer ready to break', group: 'Resource caverns', page: { query: { t: 'Explore', nt: 'The hive' }, label: 'The Hive' } },
+      grotto: { label: 'Monarch ready to fight', group: 'Other caverns', page: { query: { t: 'Explore', nt: 'Grotto' }, label: 'Grotto' } },
       justice: {
         label: 'Justice story ready',
         help: 'Alerts when the Justice reward multi reaches this value.',
-        group: 'Monuments'
+        group: 'Monuments',
+        page: { query: { t: 'Explore', nt: 'Justice' }, label: 'Justice' }
       },
       villagersLevelUp: { label: 'Villagers ready to level up', group: 'Villagers and studies' },
       wisdom: {
         label: 'Wisdom game ready',
         help: 'Alerts when the Wisdom reward multi reaches this value.',
-        group: 'Monuments'
+        group: 'Monuments',
+        page: { query: { t: 'Explore', nt: 'Wisdom' }, label: 'Wisdom' }
       },
       jars: {
         label: 'Jars to break',
         help: 'Alerts when you have this many jars. The max is 120.',
         unit: 'jars',
-        group: 'Other caverns'
+        group: 'Other caverns',
+        page: { query: { t: 'Explore', nt: 'The Jars' }, label: 'The Jars' }
       },
-      studyLevelUp: { label: 'Studies ready to level up', group: 'Villagers and studies' },
-      jarsFull: { label: 'Jar slots full', group: 'Other caverns' },
+      studyLevelUp: { label: 'Studies ready to level up', group: 'Villagers and studies', page: { query: { t: 'Study' }, label: 'Study' } },
+      jarsFull: { label: 'Jar slots full', group: 'Other caverns', page: { query: { t: 'Explore', nt: 'The Jars' }, label: 'The Jars' } },
       lanterns: {
         label: 'Blinding Lanterns left today',
         help: 'Alerts when at least this many lantern uses remain today. The daily cap is 12.',
@@ -563,6 +608,7 @@ export const alertMeta = {
   'account.World 6.sneaking': {
     label: 'Sneaking',
     icon: 'data/ClassIcons58',
+    page: { pathname: '/account/world-6/sneaking' },
     options: {
       lastLooted: {
         label: 'Sneaking loot not collected',
@@ -576,6 +622,7 @@ export const alertMeta = {
   'account.World 6.beanstalk': {
     label: 'Beanstalk',
     icon: 'etc/beanstalk1',
+    page: { pathname: '/account/world-6/beanstalk' },
     options: {
       readyToPlant: {
         label: 'Golden food ready to rank up',
@@ -586,6 +633,7 @@ export const alertMeta = {
   'account.World 6.farming': {
     label: 'Farming',
     icon: 'data/FarmPlant1',
+    page: { pathname: '/account/world-6/farming' },
     options: {
       plots: {
         label: 'Plots at OG level',
@@ -599,23 +647,25 @@ export const alertMeta = {
       totalCrops: { label: 'Crops ready to collect', help: 'Alerts when your plots hold this many crops in total.' },
       missingPlots: { label: 'Empty plots' },
       beanTrade: { label: 'Bean trade value reached', help: 'Alerts when your bean trade reaches this value.' },
-      exoticPurchases: { label: 'Exotic market purchases left' }
+      exoticPurchases: { label: 'Exotic market purchases left', page: { query: { t: 'Exotic Market' }, label: 'Exotic Market' } }
     }
   },
   'account.World 6.summoning': {
     label: 'Summoning',
     icon: 'data/ClassIcons59',
+    page: { pathname: '/account/world-6/summoning' },
     options: {
       familiar: {
         label: 'Familiar upgrade below level',
         help: 'Alerts while the familiar upgrade is below this level and not maxed.'
       },
-      battleAttempts: { label: 'Battle attempts left' }
+      battleAttempts: { label: 'Battle attempts left', page: { query: { t: 'Battles' }, label: 'Battles' } }
     }
   },
   'account.World 6.etc': {
     label: 'Emperor',
     icon: 'data/Boss6',
+    page: { pathname: '/account/world-6/emperor' },
     inline: 'emperor',
     options: {
       emperor: {
@@ -630,6 +680,7 @@ export const alertMeta = {
   'account.World 7.royalGuardian': {
     label: 'Royal Guardian',
     icon: 'data/UISkillIcon226',
+    page: { pathname: '/account/class-specific/royal-armory', query: { t: 'Outposts' }, label: 'Outposts' },
     options: {
       idleOutposts: {
         label: 'Outposts on an empty resource',
@@ -723,23 +774,26 @@ export const alertMeta = {
       restockLocked: {
         label: 'Resource Replenish not bought',
         help: 'Alerts until you buy Resource Replenish in the armory, the one-time upgrade that refills empty resources every day.',
-        group: 'Outposts'
+        group: 'Outposts',
+        page: { query: { t: 'Armory' }, label: 'Armory' }
       }
     }
   },
   'account.World 7.gallery': {
     label: 'Gallery',
     icon: 'data/GalleryPodiumA3',
+    page: { pathname: '/account/world-7/gallery' },
     options: {
       trophiesMissing: { label: 'Owned trophies not on display' },
-      nametagsMissing: { label: 'Owned nametags not on display' }
+      nametagsMissing: { label: 'Owned nametags not on display', page: { query: { t: 'Nametags' }, label: 'Nametags' } }
     }
   },
   'account.World 7.spelunking': {
     label: 'Spelunking',
     icon: 'etc/Spelunking',
+    page: { pathname: '/account/world-7/spelunking' },
     options: {
-      pageReads: { label: 'Page reads left today' },
+      pageReads: { label: 'Page reads left today', page: { query: { t: 'Lore' }, label: 'Lore' } },
       fullStaminaCharacters: {
         label: 'Characters at full stamina',
         help: 'Alerts when at least this many characters have full stamina.',
@@ -751,6 +805,7 @@ export const alertMeta = {
   'account.World 7.legendTalents': {
     label: 'Legend talents',
     icon: 'data/LegendTalentIcon0',
+    page: { pathname: '/account/world-7/legend-talents' },
     options: {
       pointsLeftToSpend: { label: 'Unspent legend talent points' },
       cheaperMasterclassUpgrades: { label: 'Cheaper masterclass upgrades left' }
@@ -759,6 +814,7 @@ export const alertMeta = {
   'account.World 7.zenithMarket': {
     label: 'Zenith market',
     icon: 'etc/Cluster',
+    page: { pathname: '/account/world-7/zenith-market' },
     options: {
       doubleCluster: { label: 'Double Clusters affordable' },
       clusterFarming: {
@@ -770,6 +826,7 @@ export const alertMeta = {
   'account.World 7.construction': {
     label: 'Jeweled cogs',
     icon: 'data/CogCry0',
+    page: { pathname: '/account/world-3/construction', label: 'Construction' },
     options: {
       jeweledCogs: { label: 'Jeweled cog pulls left' }
     }
@@ -777,6 +834,7 @@ export const alertMeta = {
   'account.World 7.minehead': {
     label: 'Minehead',
     icon: 'data/MineHead0',
+    page: { pathname: '/account/world-7/minehead' },
     options: {
       dailyTries: { label: 'Daily attempts left' },
       currencyUpgrades: {
@@ -788,6 +846,7 @@ export const alertMeta = {
   'account.World 7.research': {
     label: 'Research',
     icon: 'data/ClassIcons61',
+    page: { pathname: '/account/world-7/research', query: { t: 'Observations' }, label: 'Observations' },
     options: {
       insightLevel: {
         label: 'Observation insight level reached',
@@ -799,6 +858,7 @@ export const alertMeta = {
   'account.World 7.sushiStation': {
     label: 'Sushi station',
     icon: 'data/Sushi6',
+    page: { pathname: '/account/world-7/sushi-station' },
     options: {
       fuelFull: { label: 'Fuel full' },
       shakerUses: { label: 'Shakers with uses left', help: 'Alerts when a ticked shaker has uses available.' },
@@ -808,6 +868,7 @@ export const alertMeta = {
   'account.World 7.jellyOperator': {
     label: 'Jelly operator',
     icon: 'data/JellyUnit0',
+    page: { pathname: '/account/world-7/jelly-operator' },
     options: {
       operationsLeft: { label: 'Operations left today' },
       slotsToBuy: { label: 'Slots you can unlock' },
@@ -818,6 +879,7 @@ export const alertMeta = {
   'account.World 7.clamWork': {
     label: 'Clam work',
     icon: 'data/ClamPearl0',
+    page: { pathname: '/account/world-7/clam-work' },
     options: {
       promotionAffordable: {
         label: 'Promotion affordable',
@@ -828,6 +890,7 @@ export const alertMeta = {
   'account.World 7.theButton': {
     label: 'The Button',
     icon: 'etc/ButtonG',
+    page: { pathname: '/account/world-7/the-button' },
     options: {
       instaSkipAvailable: { label: 'Insta-skip available' },
       taskReady: { label: 'Task ready' }
@@ -838,6 +901,7 @@ export const alertMeta = {
   'characters.cards': {
     label: 'Cards',
     icon: 'data/CardSet0',
+    page: { pathname: '/characters', label: 'Characters' },
     options: {
       cardSet: {
         label: 'Wrong card set',
@@ -849,6 +913,7 @@ export const alertMeta = {
   'characters.anvil': {
     label: 'Anvil',
     icon: 'data/ClassIcons43',
+    page: { pathname: '/account/world-1/anvil' },
     options: {
       unspentPoints: {
         label: 'Unspent anvil points',
@@ -866,6 +931,7 @@ export const alertMeta = {
   'characters.worship': {
     label: 'Worship',
     icon: 'data/ClassIcons50',
+    page: { pathname: '/account/world-3/worship' },
     options: {
       unendingEnergy: {
         label: 'Unending Energy past 10 hours',
@@ -877,6 +943,7 @@ export const alertMeta = {
   'characters.traps': {
     label: 'Traps',
     icon: 'data/TrapBoxSet1',
+    page: { pathname: '/account/world-3/traps' },
     options: {
       missingTraps: { label: 'Trap slot unused' },
       trapsOverdue: { label: 'Traps ready to collect' }
@@ -885,6 +952,7 @@ export const alertMeta = {
   'characters.quests': {
     label: 'Quests',
     icon: 'etc/Picnic_Stowaway',
+    page: { pathname: '/account/misc/quests' },
     options: {
       picnicDaily: {
         label: 'Picnic Stowaway daily not done',
@@ -895,6 +963,7 @@ export const alertMeta = {
   'characters.alchemy': {
     label: 'Alchemy',
     icon: 'data/aJarB0',
+    page: { pathname: '/characters', label: 'Characters' },
     options: {
       missingBubbles: { label: 'Active bubble slot empty' },
       noActivity: { label: 'No alchemy activity' }
@@ -903,6 +972,7 @@ export const alertMeta = {
   'characters.obols': {
     label: 'Obols',
     icon: 'data/ObolLocked1',
+    page: { pathname: '/characters', label: 'Characters' },
     options: {
       missingObols: { label: 'Empty obol slots' }
     }
@@ -910,6 +980,7 @@ export const alertMeta = {
   'characters.postOffice': {
     label: 'Post office',
     icon: 'data/UIboxUpg0',
+    page: { pathname: '/characters', label: 'Characters' },
     inline: 'unspentPoints',
     options: {
       unspentPoints: {
@@ -922,6 +993,7 @@ export const alertMeta = {
   'characters.starSigns': {
     label: 'Star signs',
     icon: 'data/SignStar1b',
+    page: { pathname: '/account/misc/constellations', query: { t: 'Star Signs' }, label: 'Star signs' },
     options: {
       missingStarSigns: { label: 'Empty star sign slots', help: 'Stops once every star sign is infinite.' }
     }
@@ -929,6 +1001,7 @@ export const alertMeta = {
   'characters.crystalCountdown': {
     label: 'Crystal Countdown',
     icon: 'data/UISkillIcon41',
+    page: { pathname: '/characters', label: 'Characters' },
     options: {
       showMaxed: { label: 'Show maxed skills' },
       showNonMaxed: { label: 'Show skills not maxed yet', help: 'Turn on at least one of the two to see any skill.' },
@@ -938,16 +1011,19 @@ export const alertMeta = {
   'characters.tools': {
     label: 'Better tool available',
     icon: 'data/EquipmentTools1',
+    page: { pathname: '/characters', label: 'Characters' },
     options: {}
   },
   'characters.divinityStyle': {
     label: 'Divinity style',
     icon: 'etc/Div_Style_7',
+    page: { pathname: '/account/world-5/divinity', query: { t: 'Styles' }, label: 'Divinity styles' },
     options: {}
   },
   'characters.talents': {
     label: 'Talents',
     icon: 'data/TalentBook1',
+    page: { pathname: '/characters', label: 'Characters' },
     options: {
       talents: {
         label: 'Cooldown talents ready',
@@ -978,6 +1054,7 @@ export const alertMeta = {
   'characters.equipment': {
     label: 'Equipment',
     icon: 'data/EquipmentTransparent1',
+    page: { pathname: '/characters', label: 'Characters' },
     options: {
       availableUpgradesSlots: { label: 'Items with upgrade slots left' },
       emptyGearSlots: {
@@ -989,6 +1066,7 @@ export const alertMeta = {
   'characters.bags': {
     label: 'Carry bags',
     icon: 'data/MaxCapBagM13',
+    page: { pathname: '/characters', label: 'Characters' },
     options: {
       unmaxedBags: { label: 'Carry bags below max tier' }
     }
@@ -996,6 +1074,7 @@ export const alertMeta = {
   'characters.classSpecific': {
     label: 'Class form items',
     icon: 'data/EquipmentWandsArc0',
+    page: { pathname: '/characters', label: 'Characters' },
     options: {
       wrongItems: {
         label: 'Form items used outside form',
@@ -1016,48 +1095,50 @@ export const alertMeta = {
   'timers.General.daily': { label: 'Daily reset', icon: 'etc/Daily', options: {} },
   'timers.General.weekly': { label: 'Weekly reset', icon: 'etc/Weekly', options: {} },
   'timers.General.serverWeekly': { label: 'Server weekly reset', icon: 'etc/Server', options: {} },
-  'timers.General.companions': { label: 'Next free companion', icon: 'afk_targets/Dog', options: {} },
-  'timers.General.syphonCharge': { label: 'Charge Syphon overflow', icon: 'data/UISkillIcon475', options: {} },
-  'timers.General.closestFullWorship': { label: 'Closest full worship', icon: 'data/WorshipSkull3', options: {} },
-  'timers.General.dungeonHappyHour': { label: 'Dungeon happy hour', icon: 'etc/Happy_Hour', options: {} },
-  'timers.General.randomEvents': { label: 'Next random event', icon: 'etc/Mega_Grumblo', options: {} },
-  'timers.General.sailingTrades': { label: 'Next sailing trade', icon: 'etc/Blob_Trade', options: {} },
+  'timers.General.companions': { label: 'Next free companion', icon: 'afk_targets/Dog', page: { pathname: '/account/prem-currency/pets', label: 'Pets' }, options: {} },
+  'timers.General.syphonCharge': { label: 'Charge Syphon overflow', icon: 'data/UISkillIcon475', page: { pathname: '/account/world-3/worship', label: 'Worship' }, options: {} },
+  'timers.General.closestFullWorship': { label: 'Closest full worship', icon: 'data/WorshipSkull3', page: { pathname: '/account/world-3/worship', label: 'Worship' }, options: {} },
+  'timers.General.dungeonHappyHour': { label: 'Dungeon happy hour', icon: 'etc/Happy_Hour', page: { pathname: '/account/misc/dungeons', label: 'Dungeons' }, options: {} },
+  'timers.General.randomEvents': { label: 'Next random event', icon: 'etc/Mega_Grumblo', page: { pathname: '/account/misc/random-events', label: 'Random events' }, options: {} },
+  'timers.General.sailingTrades': { label: 'Next sailing trade', icon: 'etc/Blob_Trade', page: { pathname: '/account/world-5/sailing', query: { t: 'Trades' }, label: 'Sailing trades' }, options: {} },
 
   // Timers: Other
   'timers.Etc.library': { label: 'Library books', icon: 'data/Libz', options: {} },
-  'timers.Etc.minibosses': { label: 'Boss and miniboss respawns', icon: 'monsters/poopBig/static', options: {} },
-  'timers.Etc.bonusTimeLeft': { label: 'Vote bonus week', icon: 'etc/VoteBallot', options: {} },
-  'timers.Etc.meritocracyTimeLeft': { label: 'Meritocracy vote week', icon: 'etc/VoteBallot', options: {} },
+  'timers.Etc.minibosses': { label: 'Boss and miniboss respawns', icon: 'monsters/poopBig/static', page: { pathname: '/account/world-3/death-note', label: 'Death note' }, options: {} },
+  'timers.Etc.bonusTimeLeft': { label: 'Vote bonus week', icon: 'etc/VoteBallot', page: { pathname: '/account/world-2/vote-ballot', query: { t: 'Bonus' }, label: 'Vote ballot' }, options: {} },
+  'timers.Etc.meritocracyTimeLeft': { label: 'Meritocracy vote week', icon: 'etc/VoteBallot', page: { pathname: '/account/world-2/vote-ballot', query: { t: 'Meritocracy' }, label: 'Meritocracy' }, options: {} },
 
   // Timers: Clickers
-  'timers.Clickers.featherRestart': { label: 'Feather Restart', icon: 'etc/Owl_4', unit: 'Orion', options: {} },
-  'timers.Clickers.megaFeatherRestart': { label: 'Mega Feather Restart', icon: 'etc/Owl_8', unit: 'Orion', options: {} },
-  'timers.Clickers.fisherooReset': { label: 'Fisheroo Reset', icon: 'etc/KUpga_6', unit: 'Poppy', options: {} },
-  'timers.Clickers.greatestCatch': { label: 'Greatest Catch', icon: 'etc/KUpga_11', unit: 'Poppy', options: {} },
-  'timers.Clickers.megaFleshRestart': { label: 'Mega Flesh Restart', icon: 'etc/Bubbo_Upgrade_8', unit: 'Bubba', options: {} },
-  'timers.Clickers.smokerMax': { label: 'Smoker at max quality', icon: 'data/BubbaSmokedmeat4', unit: 'Bubba', options: {} },
+  'timers.Clickers.featherRestart': { label: 'Feather Restart', icon: 'etc/Owl_4', page: { pathname: '/account/clickers/owl', label: 'Owl' }, unit: 'Orion', options: {} },
+  'timers.Clickers.megaFeatherRestart': { label: 'Mega Feather Restart', icon: 'etc/Owl_8', page: { pathname: '/account/clickers/owl', label: 'Owl' }, unit: 'Orion', options: {} },
+  'timers.Clickers.fisherooReset': { label: 'Fisheroo Reset', icon: 'etc/KUpga_6', page: { pathname: '/account/clickers/kangaroo', label: 'Kangaroo' }, unit: 'Poppy', options: {} },
+  'timers.Clickers.greatestCatch': { label: 'Greatest Catch', icon: 'etc/KUpga_11', page: { pathname: '/account/clickers/kangaroo', label: 'Kangaroo' }, unit: 'Poppy', options: {} },
+  'timers.Clickers.megaFleshRestart': { label: 'Mega Flesh Restart', icon: 'etc/Bubbo_Upgrade_8', page: { pathname: '/account/clickers/bubba', label: 'Bubba' }, unit: 'Bubba', options: {} },
+  'timers.Clickers.smokerMax': { label: 'Smoker at max quality', icon: 'data/BubbaSmokedmeat4', page: { pathname: '/account/clickers/bubba', label: 'Bubba' }, unit: 'Bubba', options: {} },
 
   // Timers: World 3
-  'timers.World 3.printer': { label: 'Next printer cycle', icon: 'data/ConTower0', options: {} },
-  'timers.World 3.closestTrap': { label: 'Closest trap', icon: 'data/TrapBoxSet1', options: {} },
-  'timers.World 3.closestFlag': { label: 'Closest flag', icon: 'data/CogFLflag', options: {} },
-  'timers.World 3.closestBuilding': { label: 'Closest building', icon: 'data/ConTower7', options: {} },
+  'timers.World 3.printer': { label: 'Next printer cycle', icon: 'data/ConTower0', page: { pathname: '/account/world-3/printer', label: '3D printer' }, options: {} },
+  'timers.World 3.closestTrap': { label: 'Closest trap', icon: 'data/TrapBoxSet1', page: { pathname: '/account/world-3/traps', label: 'Traps' }, options: {} },
+  'timers.World 3.closestFlag': { label: 'Closest flag', icon: 'data/CogFLflag', page: { pathname: '/account/world-3/construction', label: 'Construction' }, options: {} },
+  'timers.World 3.closestBuilding': { label: 'Closest building', icon: 'data/ConTower7', page: { pathname: '/account/world-3/buildings', label: 'Buildings' }, options: {} },
   'timers.World 3.closestSalt': {
     label: 'Closest salt',
     icon: 'data/TaskSc6',
+    page: { pathname: '/account/world-3/refinery', label: 'Refinery' },
     options: {
       salts: { label: 'Salts to include', help: 'Only the ticked salts are considered when picking the closest one.' }
     }
   },
-  'timers.World 3.equinox': { label: 'Equinox bar full', icon: 'data/Quest78', options: {} },
+  'timers.World 3.equinox': { label: 'Equinox bar full', icon: 'data/Quest78', page: { pathname: '/account/world-3/equinox', label: 'Equinox' }, options: {} },
 
   // Timers: World 5
-  'timers.World 5.bravery': { label: 'Bravery monument', icon: 'etc/Bravery_Statue', options: {} },
-  'timers.World 5.justice': { label: 'Justice monument', icon: 'data/Justice_Monument_x1', options: {} },
-  'timers.World 5.wisdom': { label: 'Wisdom monument', icon: 'data/Wisdom_Monument_x1', options: {} },
+  'timers.World 5.bravery': { label: 'Bravery monument', icon: 'etc/Bravery_Statue', page: { pathname: '/account/world-5/hole', query: { t: 'Explore', nt: 'Bravery' }, label: 'Bravery' }, options: {} },
+  'timers.World 5.justice': { label: 'Justice monument', icon: 'data/Justice_Monument_x1', page: { pathname: '/account/world-5/hole', query: { t: 'Explore', nt: 'Justice' }, label: 'Justice' }, options: {} },
+  'timers.World 5.wisdom': { label: 'Wisdom monument', icon: 'data/Wisdom_Monument_x1', page: { pathname: '/account/world-5/hole', query: { t: 'Explore', nt: 'Wisdom' }, label: 'Wisdom' }, options: {} },
   'timers.World 5.villagers': {
     label: 'Villager level ups',
     icon: 'etc/Villager_0',
+    page: { pathname: '/account/world-5/hole', label: 'The Hole' },
     options: {
       villagers: {
         label: 'Villagers to show',
@@ -1065,16 +1146,16 @@ export const alertMeta = {
       }
     }
   },
-  'timers.World 5.coinFill': { label: 'Fountain coin bar', icon: 'data/HoleFountainBar0', options: {} },
-  'timers.World 5.marbleFill': { label: 'Fountain marble bar', icon: 'data/HoleFountainBar1', options: {} },
+  'timers.World 5.coinFill': { label: 'Fountain coin bar', icon: 'data/HoleFountainBar0', page: { pathname: '/account/world-5/hole', query: { t: 'Explore', nt: 'The Fountain' }, label: 'The Fountain' }, options: {} },
+  'timers.World 5.marbleFill': { label: 'Fountain marble bar', icon: 'data/HoleFountainBar1', page: { pathname: '/account/world-5/hole', query: { t: 'Explore', nt: 'The Fountain' }, label: 'The Fountain' }, options: {} },
 
   // Timers: World 6
-  'timers.World 6.cropsReady': { label: 'Next crop fully grown', icon: 'data/FarmPlant6', options: {} },
+  'timers.World 6.cropsReady': { label: 'Next crop fully grown', icon: 'data/FarmPlant6', page: { pathname: '/account/world-6/farming', label: 'Farming' }, options: {} },
 
   // Timers: World 7
-  'timers.World 7.researchLevelUp': { label: 'Research level up', icon: 'data/ClassIcons61', options: {} },
-  'timers.World 7.sushiFuelFull': { label: 'Sushi fuel full', icon: 'etc/Fuel', options: {} },
-  'timers.World 7.observationInsight': { label: 'Observation insight level ups', icon: 'data/ResMagni1', options: {} },
-  'timers.World 7.royalNodeCap': { label: 'Next outpost resource empty', icon: 'data/UISkillIcon226', options: {} },
-  'timers.World 7.overstim': { label: 'Overstim level up', icon: 'data/CaveShopUpg6', options: {} }
+  'timers.World 7.researchLevelUp': { label: 'Research level up', icon: 'data/ClassIcons61', page: { pathname: '/account/world-7/research', label: 'Research' }, options: {} },
+  'timers.World 7.sushiFuelFull': { label: 'Sushi fuel full', icon: 'etc/Fuel', page: { pathname: '/account/world-7/sushi-station', label: 'Sushi station' }, options: {} },
+  'timers.World 7.observationInsight': { label: 'Observation insight level ups', icon: 'data/ResMagni1', page: { pathname: '/account/world-7/research', query: { t: 'Observations' }, label: 'Observations' }, options: {} },
+  'timers.World 7.royalNodeCap': { label: 'Next outpost resource empty', icon: 'data/UISkillIcon226', page: { pathname: '/account/class-specific/royal-armory', query: { t: 'Resources' }, label: 'Resources' }, options: {} },
+  'timers.World 7.overstim': { label: 'Overstim level up', icon: 'data/CaveShopUpg6', page: { pathname: '/account/world-7/spelunking', label: 'Spelunking' }, options: {} }
 };
