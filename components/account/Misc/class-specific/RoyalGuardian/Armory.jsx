@@ -7,6 +7,7 @@ import { getArmoryTotalUpgradeCost } from '@parsers/class-specific/royalGuardian
 import useMasterclassCostControls from '../useMasterclassCostControls';
 import { formatEta } from './formatEta';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
+import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
 
 // Same stray glyphs Grimoire/Compass/Tesseract strip from their own upgrade text, plus the three
 // that show up in Royal Guardian's own catalogs (statue names, orblet market, armory upgrades).
@@ -90,6 +91,7 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour }) => {
                   <img style={{ width: 32, height: 32, flexShrink: 0 }} src={`${prefix}data/${costResourceRawName}.png`} alt=""/>
                   <Typography sx={{ minWidth: 0 }}>
                     {cleanText(name)} ({level}{capped ? ` / ${maxLevel}` : ''})
+                    <UpgradeHelpIcon panel="armory" index={index}/>
                   </Typography>
                   {!unlocked ? <Chip size="small" sx={{ flexShrink: 0 }} variant="outlined" label="Locked"/> : null}
                 </Stack>

@@ -16,6 +16,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { getGrimoireTotalUpgradeCost } from '@parsers/class-specific/grimoire';
 import useMasterclassCostControls, { LevelsAheadCaption } from '../useMasterclassCostControls';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
+import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
 
 const Upgrades = ({ account, upgrades, bones }) => {
   const [sortBy, setSortBy] = useState('default');
@@ -95,7 +96,9 @@ const Upgrades = ({ account, upgrades, bones }) => {
               }}>
                 <Stack direction={'row'} gap={2} flexWrap={'nowrap'} alignItems={'center'}>
                   <img style={{ width: 32, height: 32, flexShrink: 0 }} src={`${prefix}data/GrimoireUpg${index}.png`} alt=""/>
-                  <Typography sx={{ minWidth: 0 }}>{cleanUnderscore(name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))} ({numberWithCommas(level)} / {numberWithCommas(x4)})</Typography>
+                  <Typography sx={{ minWidth: 0 }}>{cleanUnderscore(name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(#)', ''))} ({numberWithCommas(level)} / {numberWithCommas(x4)})
+                    <UpgradeHelpIcon panel="grimoire" index={index}/>
+                  </Typography>
                 </Stack>
                 <Divider sx={{ my: 1 }}/>
                 <Typography>{cleanUnderscore(description.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}</Typography>

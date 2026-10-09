@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.89',
+    'gameVer': '2.3.531',
+    'date': '10/10/2026',
+    'features': [
+      'Grimoire, Tesseract, Royal Armory and Upgrade Vault upgrades now show the in-game (?) help text in an info tooltip'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.88',
     'gameVer': '2.3.531',
     'date': '09/10/2026',

@@ -7,6 +7,7 @@ import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import CoinDisplay from '@components/common/CoinDisplay';
 import useCheckbox from '@components/common/useCheckbox';
+import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { NextSeo } from 'next-seo';
 
@@ -94,7 +95,9 @@ const UpgradeVault = () => {
                 <img style={{ width: 32, height: 32 }} src={`${prefix}data/VaultUpg${index}.png`} alt=""/>
                 <Typography>{cleanUnderscore(name.replace(/[船般航舞製]/, '').replace('(Tap_for_more_info)', '').replace('(Tap_for_Info)', '').replace('(#)', ''))} ({maxed
                   ? 'Maxed'
-                  : `${level} / ${maxLevel}`})</Typography>
+                  : `${level} / ${maxLevel}`})
+                  <UpgradeHelpIcon panel="vault" index={index}/>
+                </Typography>
               </Stack>
               <Divider sx={{ my: 1 }}/>
               <Typography sx={{ whiteSpace: 'pre-line' }}>{cleanUnderscore(description?.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}</Typography>

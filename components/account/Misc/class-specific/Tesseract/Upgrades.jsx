@@ -13,9 +13,10 @@ import {
 } from '@mui/material';
 import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
 import useCheckbox from '@components/common/useCheckbox';
-import { getTesseractTotalUpgradeCost } from '@parsers/class-specific/tesseract';
+import { getPrismaMulti, getTesseractTotalUpgradeCost } from '@parsers/class-specific/tesseract';
 import useMasterclassCostControls, { LevelsAheadCaption } from '../useMasterclassCostControls';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
+import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
 
 const Upgrades = ({ account, upgrades, tachyons }) => {
   const [sortBy, setSortBy] = useState('default');
@@ -23,6 +24,13 @@ const Upgrades = ({ account, upgrades, tachyons }) => {
   const [CheckboxEl, hideMaxedUpgrades] = useCheckbox('Hide maxed upgrades');
   const [LockedCheckboxEl, hideLockedUpgrades] = useCheckbox('Hide locked upgrades');
   const { controls, levelsAhead, forceLegendTalent, isOverridden } = useMasterclassCostControls(account);
+  const accountOptions = account?.accountOptions;
+  const helpValues = {
+    prismaFound: commaNotation(Math.round(Number(accountOptions?.[395]) || 0)),
+    prismaMult: notateNumber(Math.max(1, getPrismaMulti(account)?.value ?? 1), 'MultiplierInfo'),
+    weaponDropsLeft: Math.max(0, Math.round(100 - (Number(accountOptions?.[396]) || 0))),
+    ringDropsLeft: Math.max(0, Math.round(100 - (Number(accountOptions?.[397]) || 0)))
+  };
 
   const sortUpgrades = (list) => {
     const sorted = [...list];
@@ -74,6 +82,7 @@ const Upgrades = ({ account, upgrades, tachyons }) => {
                   .replace('(Tap_for_more_info)', '')
                   .replace('(#)', '')
               )} ({level} / {commaNotation(x4)})
+              <UpgradeHelpIcon panel="arcane" index={index} values={helpValues}/>
             </Typography>
           </Stack>
           <Divider sx={{ my: 1 }}/>
