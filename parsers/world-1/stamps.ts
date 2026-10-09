@@ -315,6 +315,7 @@ export const getStampsBonusByStat = (account: any, statName: any, character?: an
   }, 0);
 }
 
+// game: "StampDoubler" - the Exalted stamp multiplier, in percent.
 export const getExaltedStampBonus = (account: any) => {
   const atomBonus = getAtomBonus(account, 'Aluminium_-_Stamp_Supercharger') ?? 0;
   const charmBonusExalted = getCharmBonus(account, 'Jellypick');

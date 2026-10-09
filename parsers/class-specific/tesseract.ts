@@ -561,6 +561,7 @@ export const getPrismaFragChance = (character: any, account: any, upgrades: any)
     * Math.max(1, primoPrisma * Math.pow(1.5, Math.floor((character?.mapIndex ?? 0) / 50)))
 }
 
+// game: "PrismaBonusMult"
 export const getPrismaMulti = (account: any) => {
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Prisma_Bonuses')?.bonus ?? 0;
   const tesseractBonus = getTesseractBonus(account, 45) ?? 0;

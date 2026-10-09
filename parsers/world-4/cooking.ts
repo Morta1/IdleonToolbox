@@ -195,6 +195,7 @@ export const getMealsBonusByEffectOrStat = (account: any, effectName: any, statN
   }, 0) ?? 0;
 }
 
+// game: "RibbonBonus"
 export const getRibbonBonus = (account: any, t: any) => {
   const armorSetBonus = getArmorSetBonus(account, 'EMPEROR_SET');
   const cloudBonus73 = account?.equinox?.challenges?.[73]?.current === -1 ? 1 : 0;

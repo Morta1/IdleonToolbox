@@ -1143,6 +1143,7 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     // up (2.3.531), so each type arrives one rank after the last: rank 1 a Worker, 2 a Trader,
     // 3 a Guard, 4 a Surveyor, then one more of each every 4 ranks.
     const commandRank = ranks[2];
+    // game: "PassiveUnitsz"
     const passiveUnits = ROYAL_UNIT_NAMES.map((_, type) => Math.ceil(Math.max(0, commandRank - type) / 4)
       + (type === 0 ? Math.min(1, toNum(mapRaw?.[12])) : 0));
     const packed = `${mapRaw?.[11] ?? ''}`;

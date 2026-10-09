@@ -11,6 +11,7 @@ import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 
 // The highest sushi tier index: research row 30 is the game's sushi name table, one entry per
 // tier, so the last valid index is its length - 1.
+// game: "MaxTier" (a literal there; the name table here follows it)
 const MAX_TIER = ((researchData as any[])?.[30]?.length ?? 1) - 1;
 
 const getRawSushi = (idleonData: any) => {

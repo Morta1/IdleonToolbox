@@ -21,6 +21,7 @@ const icons = {
   11: 'etc/Owlb_5'
 };
 
+// game: "EmperorBon" - every bonus's total; getEmperorBonus reads them back.
 export const getEmperor = (idleonData: any, account: any) => {
   const highestEmperorShowdown = account?.accountOptions?.[369] ?? 0;
   const cycle = Math.floor(highestEmperorShowdown / 48);
