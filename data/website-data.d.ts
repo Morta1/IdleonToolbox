@@ -906,6 +906,10 @@ declare module '@website-data' {
       }[];
     mineheadUpgradeTables: Record<string, any>;
     royalRecruitClasses: string[];
+    royalRecruitOrder: {
+      role: number[];
+      world: number[];
+    };
     jellyObstructionCells: number[];
     owlBonusPerFeather: number[];
     clamWorkBonusNames: string[];
