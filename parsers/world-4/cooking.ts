@@ -1,4 +1,4 @@
-import { atomsInfo, cookingMenu, monsters, randomList, randomList2, bonuses, spiceNames } from '@website-data';
+import { atomsInfo, cookingMenu, monsters, randomList, randomList2, bonuses, spiceNames, gameTables } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getStatsFromGear } from '@parsers/items';
@@ -204,7 +204,7 @@ export const getRibbonBonus = (account: any, t: any) => {
     + Math.floor(rank / 10) * cloudBonus73 + Math.floor(rank / 20) * getJellyBonus(account, 60)) / 100;
 }
 
-export const COOKING_MASTERY_RANK_THRESHOLDS = [0, 1, 5, 10, 25, 100, 150, 250, 500];
+export const COOKING_MASTERY_RANK_THRESHOLDS: number[] = gameTables.cookingRankRequirement;
 
 export interface CookingMasteryCategory {
   index: number;

@@ -1,6 +1,6 @@
 import type { IdleonData, Account } from '../types';
 import { tryToParse, notateNumber } from '@utility/helpers';
-import { generalSpelunky } from '@website-data';
+import { generalSpelunky, gameTables } from '@website-data';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
 
 const CLAM_UPGRADE_COUNT = 9;
@@ -11,17 +11,7 @@ const CLAM_LEVEL_OPTION_BASE = 455;
 // one point per level, which is what the page showed before the multikill input existed.
 export const DEFAULT_CLAM_MULTIKILL = 1000;
 
-const clamWorkNames = [
-  'PEARL_VALUE',
-  'CLAM_COMRADES',
-  'LUCKY_DAY',
-  'MULTI-SCALPING',
-  'FRUGALITY',
-  'PURE_PEARLS',
-  'ENCYSTATION_UP',
-  'SHINIER_PEARLS',
-  'ANTI_INFLATION'
-];
+const clamWorkNames: string[] = gameTables.clamWorkBonusNames;
 
 export const CLAM_WORK_UPGRADE_CATEGORIES = {
   pearlGain: {

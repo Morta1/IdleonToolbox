@@ -10,7 +10,8 @@ import {
   research,
   royalKillRequirements,
   royalResources as royalResourcesCatalog,
-  statues as statuesCatalog
+  statues as statuesCatalog,
+  gameTables
 } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { getAllMasterclassCostRedux, getAdviceFishBonus, isCompanionBonusActive } from '@parsers/misc';
@@ -42,7 +43,7 @@ const ARMORY_STATUE_FLAIR = 78;
 export const ARMORY_TALENT_REATTAINMENT = 55;
 
 // game: "StatueUpgOdds" - the level-0 upgrade chance is 1 / this, per royal statue.
-const ROYAL_STATUE_FIRST_ODDS = [25, 50, 100, 250, 500, 1000, 2500, 10000];
+const ROYAL_STATUE_FIRST_ODDS: number[] = gameTables.royalStatueFirstOdds;
 
 // game: "SF_maxLV"
 const STATUE_FLAIR_MAX_LEVEL = 3;
@@ -62,7 +63,7 @@ const MARBLE_LORE_CAVE = 9;
 
 // game: "OutpostPTSleft" - the Jelly Operator bonus that adds PTS to every outpost of a world
 // (index = world, W8 reuses W7's).
-const JELLY_OUTPOST_PTS_BY_WORLD = [3, 15, 32, 43, 48, 52, 61, 61];
+const JELLY_OUTPOST_PTS_BY_WORLD: number[] = gameTables.royalOutpostJellyBonus;
 
 // Order matches RoyalG[3][2]; strings taken from the armory tooltip for upgrade 79
 // ("Compounding Outposting"), which is the only place the game names them.
@@ -869,7 +870,7 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
         if (level >= 36) return "None._You've_recruited_them_all!";
         const roleByLevel = '0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,1,1,1,1,0,2,2,2,1,2,2,2,2,2,2,2,0,1,2,2'.split(',');
         const worldByLevel = '1,2,1,2,1,2,3,1,2,3,1,2,3,3,4,3,4,1,2,3,4,1,2,3,4,1,2,3,4,1,2,3,4,4,4,4'.split(',');
-        const role = ['Commander', 'Knight', 'Priest'][toNum(roleByLevel[level])];
+        const role = gameTables.royalRecruitClasses[toNum(roleByLevel[level])];
         return `${role}_for_World_${worldByLevel[level]}`;
       }
       case 71: // Trading_Rank

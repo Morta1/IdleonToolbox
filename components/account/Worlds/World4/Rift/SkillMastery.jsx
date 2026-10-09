@@ -6,6 +6,7 @@ import { getSkillRankColor } from '../../../../../parsers/misc';
 import Tooltip from '@components/Tooltip';
 import { TitleAndValue } from '@components/common/styles';
 import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { gameTables } from '@website-data';
 
 // Bonus texts mirror the game's own skill mastery panel (N.js _GenINFO[95..98])
 const defaultBonuses = [
@@ -36,15 +37,7 @@ const specialBonuses = {
 const passiveCardSkills = ['mining', 'chopping', 'fishing', 'catching', 'trapping', 'worship'];
 
 const extraSpecialBonuses = {
-  spelunking: [
-    '+25%_SPELUNKING_EXP',
-    '+30%_SPELUNKING_EFFICIENCY',
-    'ALL_SPELUNKING_CARDS_ARE_NOW_PASSIVE',
-    '+15_MAX_STAMINA_FOR_EVERYONE',
-    '+3_DAILY_PAGE_READS',
-    '+10%_STAMINA_REGEN_RATE',
-    '1.50X_ALL_AMBER_GAIN'
-  ]
+  spelunking: gameTables.riftSpelunkingMasteryRewards
 }
 
 // research has no rift mastery bonuses in game

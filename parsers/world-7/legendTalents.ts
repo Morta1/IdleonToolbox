@@ -1,6 +1,6 @@
 import type { IdleonData, Account } from '../types';
 import { commaNotation, notateNumber, tryToParse } from '@utility/helpers';
-import { generalSpelunky, legendTalents, researchGridSquares } from '@website-data';
+import { generalSpelunky, legendTalents, researchGridSquares, gameTables } from '@website-data';
 import { getGildedBoostioBonus } from '@parsers/world-3/construction';
 import { getEventShopBonus, getGuaranteedCrystalMobs, isCompanionBonusActive } from '@parsers/misc';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
@@ -14,12 +14,13 @@ export const getLegendTalents = (idleonData: IdleonData, accountData: Account = 
 }
 
 // The "Legendary <color> Fever" research grid squares each raise the max level of 5 legend talents by +1 per square level.
-const LEGEND_TALENT_MAX_LEVEL_GROUPS: { indices: Set<number>; gridIndex: number; color: string }[] = [
-  { indices: new Set([2, 13, 3, 18, 5]), gridIndex: 130, color: 'Yellow' },
-  { indices: new Set([9, 23, 33, 1, 16]), gridIndex: 131, color: 'Red' },
-  { indices: new Set([20, 31, 19, 27, 8]), gridIndex: 132, color: 'Brown' },
-  { indices: new Set([34, 30, 29, 6, 26]), gridIndex: 152, color: 'Green' }
-];
+// The color is the square's own name ("Legendary_Yellow_Fever").
+const LEGEND_TALENT_MAX_LEVEL_GROUPS: { indices: Set<number>; gridIndex: number; color: string }[] =
+  gameTables.legendTalentMaxLevelGroups.map(({ talents, gridSquare }) => ({
+    indices: new Set(talents),
+    gridIndex: gridSquare,
+    color: String((researchGridSquares as any[])?.[gridSquare]?.name ?? '').replace(/^Legendary_|_Fever$/g, '')
+  }));
 
 export interface LegendTalentFever {
   color: string;

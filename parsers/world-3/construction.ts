@@ -1,5 +1,5 @@
 import { number2letter, tryToParse } from '@utility/helpers';
-import { cogKeyMap, flagsReqs, randomList, towers } from '@website-data';
+import { cogKeyMap, flagsReqs, randomList, towers, gameTables } from '@website-data';
 import { createCogstructionData } from '@parsers/world-3/cogstrution';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
@@ -194,7 +194,7 @@ const COG_GRADES: Record<string, string> = {
   A0: '', A1: 'Average', A2: 'Spur', A3: 'Stacked', A4: 'Deckered',
   B0: 'Double', B1: 'Trips', B2: 'Trabble', B3: 'Quad', B4: 'Penta'
 };
-const SMALL_COG_STATS = ['Flaggy', 'Build', 'XP'];
+const SMALL_COG_STATS: string[] = gameTables.constructionCogTypes;
 
 /** What the game calls a cog, e.g. Cog3B0 -> "Ulti Double Cog". */
 export const getCogDisplayName = (rawName?: string): string => {

@@ -1,4 +1,4 @@
-import { owlData } from '@website-data';
+import { owlData, gameTables } from '@website-data';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
@@ -46,7 +46,7 @@ const parseOwl = (account: any) => {
     const bonus1 = Math.pow(Math.round(3 + 2 * megaFeather6), option258 + 1);
 
     const option254PlusI = account?.accountOptions?.[254 + i] || 0;
-    const multiplier = parseInt('1 0 5 10 0 5 1 20 0'.split(' ')[i]) || 0;
+    const multiplier = gameTables.owlBonusPerFeather[i] || 0;
     const bonus2 = multiplier * option254PlusI;
     const bonus3 = Math.floor(1e4 * (1 - 1 / (1 + 10 * option254PlusI / 100))) / 100;
 

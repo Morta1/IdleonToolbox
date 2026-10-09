@@ -1,5 +1,5 @@
 import { tryToParse, commaNotation, notateNumber } from '@utility/helpers';
-import { mineheadUpgrades, upgradeVault, research as researchData, researchGridSquares, items } from '@website-data';
+import { mineheadUpgrades, upgradeVault, research as researchData, researchGridSquares, items, gameTables } from '@website-data';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { isCompanionBonusActive, isCompanionLvl2Active, getEventShopBonus, isBundlePurchased } from '@parsers/misc';
@@ -514,7 +514,7 @@ function getDollarValue(idx: any, getUpgradeQTY: any, getBluecrownMulti: any, ge
       // Multiplier_Madness: shows current tile multiplier
       const qty12 = getUpgradeQTY(12);
       if (qty12 === 0) return null; // description handles the 0 case with a fallback text
-      const multiplierTable = '1.0 1.2 1.4 1.6 2 3 4 5 6 7 8 8 8 8'.split(' ');
+      const multiplierTable: string[] = gameTables.mineheadUpgradeTables[12];
       return (multiplierTable[qty12] ?? '8') + 'x';
     }
 
@@ -528,7 +528,7 @@ function getDollarValue(idx: any, getUpgradeQTY: any, getBluecrownMulti: any, ge
       // Additive tiles: shows current additive %
       const qty17 = getUpgradeQTY(17);
       if (qty17 === 0) return null;
-      const additiveTable = '0 10 20 50 100 200 500 1000 2000 5000 10000'.split(' ');
+      const additiveTable: string[] = gameTables.mineheadUpgradeTables[17];
       return (additiveTable[qty17] ?? '10000') + '%';
     }
 

@@ -1,5 +1,5 @@
 import { tryToParse, commaNotation, notateNumber } from '@utility/helpers';
-import { research as researchData, jellyUpgrades as jellyUpgradesData } from '@website-data';
+import { research as researchData, jellyUpgrades as jellyUpgradesData, gameTables } from '@website-data';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { getResearchGridBonus } from '@parsers/world-7/research';
@@ -24,14 +24,14 @@ const bonusValues: number[] = ((researchData as any)?.[47] ?? []).map(Number);
 const slotGroups: string[] = (researchData as any)?.[50] ?? [];
 
 // game: "MainAtkDMG" / "MainAtkCD" base tables and the hover panel's passive text, one entry per cell.
-const CELL_BASE_DMG = [1, 1.2, 12, 6, 20, 1, 2, 4, 1];
-const CELL_BASE_CD = [145, 60, 400, 160, 750, 200, 10, 20, 30];
+const CELL_BASE_DMG: number[] = gameTables.jellyMainAttackDamage;
+const CELL_BASE_CD: number[] = gameTables.jellyMainAttackCooldown;
 const CELL_PASSIVES = ['+10% All DMG', '+15% All SPD', '+50% All DMG', '+25% All SPD', '', '', '1.5x All SPD', '3x All DMG'];
 const CELL_EFFECTS = ['', '', '', '', 'Takes aggro during Critical Condition', 'Each star multiplies all DMG by +0.1x'];
 const ORGANELLE = 3;
 const VIRUS = 5;
 // game: "ObstAdj" - Proximity Stimulus pays cells dropped on the ring around the obstruction.
-const OBSTRUCTION_ADJACENT_SLOTS = [43, 44, 45, 46, 60, 65, 78, 83, 96, 101, 114, 119, 133, 134, 135, 136];
+const OBSTRUCTION_ADJACENT_SLOTS: number[] = gameTables.jellyObstructionCells;
 // The first 8 upgrades unlock one cell each ("UnitsOwned").
 const CELL_UNLOCK_UPGRADES = 8;
 // The board is 18 x 10 slots, numbered row by row. Four slots are always open, two more open after
@@ -83,9 +83,10 @@ const formatDescription = (desc: string, value: number) => String(desc ?? '')
   .replace(/\}/g, '' + notateNumber(1 + value / 100, 'MultiplierInfo'))
   .replace(/@/g, '\n');
 
-// game: "BossHP"
-const getBossHP = (index: number) => index < 12
-  ? [100, 200, 400, 1000, 2000, 4000, 6000, 10000, 15000, 30000, 50000, 100000][index]
+// game: "BossHP" - a table for the first bosses, a curve after it.
+const BOSS_HP: number[] = gameTables.jellyBossHP;
+const getBossHP = (index: number) => index < BOSS_HP.length
+  ? BOSS_HP[index]
   : 1e5 * Math.pow(1.65, index - 11) * (1 + 0.9 * Math.floor((index - 11) / 12));
 
 export interface JellySave {
