@@ -43,38 +43,6 @@ export const getProfile = async ({ mainChar }) => {
   }
 }
 
-export const fetchLeaderboard = async (leaderboard) => {
-  try {
-    const response = await fetch(`${url}/leaderboards?leaderboard=${leaderboard}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    if (!response) return null
-    return await response?.json();
-  } catch (e) {
-    console.error(`profiles.js -> Error has occurred while getting leaderboards`);
-    throw e;
-  }
-}
-
-export const fetchUserLeaderboards = async (leaderboard, leaderboardUser) => {
-  try {
-    const response = await fetch(`${url}/leaderboards?leaderboard=${encodeURIComponent(leaderboard)}&leaderboardUser=${encodeURIComponent(leaderboardUser)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    if (!response) return null
-    return await response?.json();
-  } catch (e) {
-    console.error(`profiles.js -> Error has occurred while getting leaderboards`);
-    throw e;
-  }
-}
-
 export const fetchTomePercentiles = async () => {
   try {
     const response = await fetch(`${url}/tome-percentiles`, {

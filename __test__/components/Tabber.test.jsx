@@ -2,7 +2,7 @@
 import '../../polyfills';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { render } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 
@@ -10,9 +10,9 @@ vi.mock('next/router', () => ({ useRouter: () => ({ push: vi.fn(), query: {}, pa
 
 const Tabber = (await import('@components/common/Tabber')).default;
 
-const renderTabber = (count) => render(
+const renderTabber = (count, props = {}) => render(
   <ThemeProvider theme={darkTheme}>
-    <Tabber tabs={Array.from({ length: count }, (_, index) => `tab${index}`)}><div/></Tabber>
+    <Tabber tabs={Array.from({ length: count }, (_, index) => `tab${index}`)} {...props}><div/></Tabber>
   </ThemeProvider>
 );
 
@@ -36,5 +36,43 @@ describe('Tabber', () => {
     const { container } = renderTabber(7);
     const flexContainer = container.querySelector('.MuiTabs-flexContainer');
     expect(getComputedStyle(flexContainer).justifyContent).not.toBe('safe center');
+  });
+
+  it('left-aligns the strip only when asked, for either row length', () => {
+    for (const count of [7, 8]) {
+      const { container, unmount } = renderTabber(count, { align: 'start' });
+      expect(container.querySelector('.MuiTabs-centered')).toBeNull();
+      expect(getComputedStyle(container.querySelector('.MuiTabs-flexContainer')).justifyContent).toBe('flex-start');
+      unmount();
+    }
+  });
+
+  it('renders an end slot after the tabs in the same row, and nothing extra by default', () => {
+    const { container } = renderTabber(7, { align: 'start', endSlot: <span data-testid="end">status</span> });
+    const end = container.querySelector('[data-testid="end"]');
+    const row = end.parentElement.parentElement;
+    expect(row.querySelector('.MuiTabs-root')).toBeTruthy();
+    expect(getComputedStyle(row).display).toBe('flex');
+    cleanup();
+    const plain = renderTabber(7).container;
+    expect(plain.querySelector('[data-testid="end"]')).toBeNull();
+    expect(plain.querySelector('.MuiTabs-root').parentElement.parentElement).toBe(plain);
+  });
+  it('scrolls a row strip, pins it when asked, and ties tabs to one panel', () => {
+    const { container } = renderTabber(7, { align: 'start', endSlot: <span/>, stickyTop: 120, idPrefix: 'lb' });
+    expect(container.querySelector('.MuiTabs-scroller.MuiTabs-scrollableX')).toBeTruthy();
+    const row = container.querySelector('.MuiTabs-root').parentElement;
+    expect(getComputedStyle(row).position).toBe('sticky');
+    expect(getComputedStyle(row).top).toBe('120px');
+    const panel = container.querySelector('[role="tabpanel"]');
+    expect(panel.id).toBe('lb-panel');
+    expect(panel.getAttribute('aria-labelledby')).toBe('lb-tab-0');
+    expect(container.querySelector('#lb-tab-3').getAttribute('aria-controls')).toBe('lb-panel');
+  });
+
+  it('adds no panel wrapper or sticky strip by default', () => {
+    const { container } = renderTabber(7, { align: 'start' });
+    expect(container.querySelector('[role="tabpanel"]')).toBeNull();
+    expect(getComputedStyle(container.querySelector('.MuiTabs-root').parentElement).position).not.toBe('sticky');
   });
 });

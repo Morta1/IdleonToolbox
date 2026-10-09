@@ -10,9 +10,14 @@ export const patchNotes = [
     'features': [
       'Grimoire, Tesseract, Royal Armory and Upgrade Vault upgrades now show the in-game (?) help text in an info tooltip',
       'Construction: each step in Steps to apply now shows the selected stat on its cogs, matching the numbers on the board',
-      'New dashboard alert for Cooking: count meals whose next level costs fewer ladles than your threshold, with an option to include Overflowing Ladle'
+      'New dashboard alert for Cooking: count meals whose next level costs fewer ladles than your threshold, with an option to include Overflowing Ladle',
+      'Leaderboards: redesigned page with an Overview tab (global podium, your rank, highlights and boards within reach), boards grouped into sections, and a Top 100 drawer that shows the players around you',
+      'Leaderboards: search any player or Anon# id to see their ranks, and jump to any board with the / key',
+      'Leaderboards: tied players now share a rank, and maxed boards show how many players hold the max'
     ],
-    'fixes': []
+    'fixes': [
+      'Leaderboards: salt rank boards no longer count salts that are not unlocked yet'
+    ]
   },
   {
     'ver': '3.3.88',

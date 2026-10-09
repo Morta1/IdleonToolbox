@@ -1,336 +1,283 @@
-import {
-  Alert,
-  CircularProgress,
-  Divider,
-  FormControlLabel,
-  IconButton,
-  InputAdornment,
-  Skeleton,
-  Snackbar,
-  Stack,
-  Switch,
-  TextField,
-  Typography,
-  useMediaQuery
-} from '@mui/material';
-import Tabber from '../components/common/Tabber';
-import LeaderboardSection from '../components/Leaderboard';
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { useLocalStorage } from '@mantine/hooks';
-import { AppContext } from '@components/common/context/AppProvider';
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, Box, Button, CircularProgress, Snackbar, Stack } from '@mui/material';
+import { visuallyHidden } from '@mui/utils';
+import { navBarHeight } from '@components/constants';
 import { NextSeo } from 'next-seo';
-import { fetchLeaderboard, fetchUserLeaderboards } from '../services/profiles';
-import Box from '@mui/material/Box';
-import { IconSearch } from '@tabler/icons-react';
 import { useRouter } from 'next/router';
-import useFormatDate from '@hooks/useFormatDate';
-import { numberWithCommas } from '@utility/helpers';
+import { useLocalStorage } from '@mantine/hooks';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import Tabber from '../components/common/Tabber';
+import { fetchMeta, fetchPlayer, fetchTab } from '../services/leaderboards';
+import { trackLeaderboardEvent } from '@components/leaderboards/analytics';
+import useLeaderboardSelf from '@hooks/useLeaderboardSelf';
+import { FOCUS_RING, RUN_QUERY_KEYS, TABS, buildMetaIndex, rankText, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
+import ControlBar, { LeaderboardStatus } from '@components/leaderboards/ControlBar';
+import Overview from '@components/leaderboards/Overview';
+import CategoryTab from '@components/leaderboards/CategoryTab';
+import BoardDrawer from '@components/leaderboards/BoardDrawer';
 
-const tabs = ['Global', 'General', 'Tasks', 'Skills', 'Character', 'Misc', 'Caverns'];
+const tabOf = (value) => {
+  if (typeof value !== 'string') return null;
+  const lower = value.toLowerCase();
+  if (lower === 'global') return 'overview'; // links from before the Overview tab
+  return TABS.find((tab) => tab.toLowerCase() === lower)?.toLowerCase() ?? null;
+};
+
+const signature = (query) => JSON.stringify(Object.entries(query).sort(([a], [b]) => (a < b ? -1 : 1)));
+
 const Leaderboards = () => {
-  const { state } = useContext(AppContext);
-  const formatDate = useFormatDate();
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
-  const loggedMainChar = state?.characters?.[0]?.name;
-  const [loggedLeaderboardName, setLoggedLeaderboardName] = useState(loggedMainChar);
-  useEffect(() => {
-    if (state?.uid) {
-      const anonId = localStorage.getItem(`${state.uid}/anonId`);
-      setLoggedLeaderboardName(anonId || loggedMainChar);
-    } else {
-      setLoggedLeaderboardName(loggedMainChar);
-    }
-  }, [state?.uid, loggedMainChar]);
-  const [inputValue, setInputValue] = useState('');
-  const [searchedChar, setSearchChar] = useState('');
   const router = useRouter();
-  const { t, player } = router.query;
-  // Derived during render, never seeded into a useState initialiser: on a statically exported page
-  // router.query is {} until isReady, so an initialiser would freeze /leaderboards?t=Skills on the
-  // global data while the tab strip, which reads the router live, highlighted Skills. clickedTab
-  // covers the moment between a click and Tabber's router.push landing.
-  const [clickedTab, setClickedTab] = useState(null);
-  const queryTab = router.isReady && typeof t === 'string' && tabs.some((tab) => tab.toLowerCase() === t.toLowerCase())
-    ? t.toLowerCase()
-    : null;
-  const selectedTab = queryTab ?? clickedTab ?? 'global';
-  // ?player= deep link (the Discord bot links here). Derived during render like the tab: the
-  // query is empty until isReady on the static export.
-  const queryPlayer = router.isReady && typeof player === 'string' && player.trim() ? player.trim() : null;
-  const handledPlayer = useRef(new Set());
-  const [loadingSearchedChar, setLoadingSearchedChar] = useState(false);
-  const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
-  // Mantine reads storage in an effect (getInitialValueInEffect is the default), so the export and
-  // the first client render both show the default and the stored value lands a render later.
-  const [showAnonymous, setShowAnonymous] = useLocalStorage({ key: 'leaderboard:showAnonymous', defaultValue: true });
   const queryClient = useQueryClient();
+  const self = useLeaderboardSelf();
+  // Mantine reads storage in an effect, so the export and the first client render show the default.
+  const [showAnonymous, setShowAnonymous] = useLocalStorage({ key: 'leaderboard:showAnonymous', defaultValue: true });
+  const [toast, setToast] = useState({ open: false, message: '', severity: 'info' });
+  // Where the sticky control bar ends: the tab strip pins right under it.
+  const [stripTop, setStripTop] = useState(null);
+  // How the open board was opened. A card or link click gets focus back from MUI; the board jump and a
+  // deep link have nothing useful to return to, so closing focuses the board instead.
+  const [openSource, setOpenSource] = useState(null);
+  const showToast = (severity, message) => setToast({ open: true, severity, message });
 
-  const searchUserAndAppend = (data, username, userStats, { isLoggedUser } = {}) => {
-    const appendToList = (list, stat) => {
-      if (!Array.isArray(list)) return list;
-      const tag = isLoggedUser ? { _loggedUser: true } : { _searched: true };
-      if (Array.isArray(stat)) {
-        const newEntries = stat
-          .filter(e => !list.some(item => item.mainChar === e.mainChar))
-          .map(e => ({ ...e, ...tag }));
-        return [...list, ...newEntries].sort((a, b) => (a.rank ?? Infinity) - (b.rank ?? Infinity));
-      }
-      const found = list.some(item => item.mainChar === username);
-      if (found) return list;
-      if (stat !== undefined && stat !== null) {
-        return [...list, { mainChar: username, ...stat, ...tag }];
-      }
-      return [...list, { mainChar: username, ...tag }];
-    };
+  // Derived during render, never seeded into useState: router.query is {} until isReady on the
+  // static export, and an initialiser would freeze a deep link on the fallback.
+  const query = router.isReady ? router.query : {};
+  // The URL alone decides the tab, so back and forward to a URL without ?t= land on Overview.
+  const selectedTab = tabOf(query.t) ?? 'overview';
+  const queryPlayer = typeof query.player === 'string' && query.player.trim() ? query.player.trim() : null;
+  const queryMetric = typeof query.m === 'string' && query.m ? query.m : null;
+  // Searching your own name keeps the "You" treatment. self.name is null until the stored Anon# id
+  // has been read, so /player is never asked for the main character by mistake.
+  const searchedSelf = Boolean(queryPlayer && self.name && queryPlayer.toLowerCase() === self.name.toLowerCase());
+  const context = queryPlayer ? { name: queryPlayer, kind: searchedSelf ? 'logged' : 'searched' } : self.name ? { name: self.name, kind: 'logged' } : null;
 
-    const newData = {};
-    for (const key in data) {
-      const value = data[key];
-      if (value && typeof value === 'object' && !Array.isArray(value)) {
-        const nested = {};
-        for (const stat in value) {
-          nested[stat] = appendToList(value[stat], userStats[stat]);
-        }
-        newData[key] = nested;
-      } else if (Array.isArray(value)) {
-        newData[key] = appendToList(value, userStats[key]);
-      } else {
-        newData[key] = value;
-      }
+  const metaQuery = useQuery({ queryKey: ['lb-meta'], queryFn: fetchMeta, staleTime: staleUntilNextRun, refetchInterval: untilNextRun });
+  const index = buildMetaIndex(metaQuery.data);
+
+  // A new run makes every cached tab, board and player stale at once, so the page never shows the
+  // old run's numbers under the new run's time.
+  const seenRun = useRef(null);
+  useEffect(() => {
+    if (!index.createdAt) return;
+    if (seenRun.current && seenRun.current !== index.createdAt) {
+      queryClient.invalidateQueries({ predicate: (query) => RUN_QUERY_KEYS.includes(query.queryKey[0]) });
     }
-    return newData;
-  }
-
-  const AGGREGATION_INTERVAL = 1000 * 60 * 30; // 30 minutes
-
-  const { data: leaderboards, isLoading, error } = useQuery({
+    seenRun.current = index.createdAt;
+  }, [index.createdAt]);
+  const tabQuery = useQuery({
     queryKey: ['leaderboard', selectedTab],
-    queryFn: () => fetchLeaderboard(selectedTab),
-    staleTime: (query) => {
-      const createdAt = query.state.data?.createdAt;
-      if (!createdAt) return AGGREGATION_INTERVAL;
-      const nextRefresh = createdAt + AGGREGATION_INTERVAL;
-      return Math.max(nextRefresh - Date.now(), 0);
-    }
+    queryFn: () => fetchTab(selectedTab),
+    enabled: selectedTab !== 'overview',
+    staleTime: staleUntilNextRun
   });
+  const playerQuery = useQuery({
+    queryKey: ['lb-player', context?.name.toLowerCase()],
+    queryFn: () => fetchPlayer(context.name),
+    enabled: Boolean(context),
+    staleTime: staleUntilNextRun,
+    retry: false
+  });
+  const playerData = playerQuery.data ?? null;
 
-  // Auto-fetch logged user and searched user after leaderboard data loads
+  // A metric that meta doesn't know (old link, typo) opens nothing. Without meta there is nothing to
+  // check against, so boards stay reachable and the drawer falls back to the key-derived title.
+  const canOpen = (metric) => Boolean(metric) && (metaQuery.isError || Object.hasOwn(index.byKey, metric));
+  const drawerMetric = canOpen(queryMetric) ? queryMetric : null;
+  // The drawer slides out for a moment after drawerMetric clears, so it keeps showing the last board.
+  const [shownMetric, setShownMetric] = useState(null);
+  if (drawerMetric && drawerMetric !== shownMetric) setShownMetric(drawerMetric);
+
+  // What the visitor landed with, so URL-entry analytics fire once and never for in-page clicks.
+  const urlEntry = useRef(null);
   useEffect(() => {
-    if (!leaderboards) return;
-    const tab = selectedTab.toLowerCase();
-    const data = leaderboards[tab];
-    if (!data) return;
+    if (!router.isReady || urlEntry.current) return;
+    urlEntry.current = { player: queryPlayer, metric: queryMetric, playerTracked: false, metricTracked: false };
+  }, [router.isReady]);
 
-    const usersToFetch = [loggedLeaderboardName].filter(Boolean);
-    const fetchUsers = async () => {
-      const fetched = [];
-      let current = data;
-      for (const user of usersToFetch) {
-        const userExists = Object.values(current).some(value => {
-          const lists = typeof value === 'object' && !Array.isArray(value) ? Object.values(value) : [value];
-          return lists.every(list => Array.isArray(list) && list.some(item => item.mainChar === user));
-        });
-        if (!userExists) {
-          const userStats = await fetchUserLeaderboards(tab, user);
-          if (userStats && !userStats.error) {
-            fetched.push({ user, userStats });
-            current = searchUserAndAppend(current, user, userStats, { isLoggedUser: true });
-          }
-        }
-      }
-      if (fetched.length) {
-        // Merge into the latest cache, not the snapshot above: a deep-linked search may have
-        // appended its row while these fetches were in flight. Appending dedupes by name.
-        queryClient.setQueryData(['leaderboard', tab], (old) => {
-          if (!old?.[tab]) return old;
-          let merged = old[tab];
-          for (const { user, userStats } of fetched) {
-            merged = searchUserAndAppend(merged, user, userStats, { isLoggedUser: true });
-          }
-          return { ...old, [tab]: merged };
-        });
-      }
-    };
-    fetchUsers();
-  }, [leaderboards, loggedLeaderboardName]);
-
-  // Run the deep-linked search once per tab, after this tab's data is cached: handleUserSearch only
-  // appends to data that is already there.
   useEffect(() => {
-    const key = `${selectedTab.toLowerCase()}:${queryPlayer}`;
-    if (!queryPlayer || handledPlayer.current.has(key)) return;
-    if (!leaderboards?.[selectedTab.toLowerCase()]) return;
-    handledPlayer.current.add(key);
-    setInputValue(queryPlayer);
-    handleUserSearch(queryPlayer);
-  }, [queryPlayer, leaderboards, selectedTab]);
+    const entry = urlEntry.current;
+    if (!entry?.metric || entry.metricTracked || drawerMetric !== entry.metric || !Object.hasOwn(index.byKey, drawerMetric)) return;
+    entry.metricTracked = true;
+    trackLeaderboardEvent('lb_board_open', { metric: drawerMetric, source: 'url' });
+  }, [drawerMetric]);
 
-  const handleKeyDown = (event) => {
-    if (!inputValue || loadingSearchedChar) return;
-    if (event.key === 'Enter') {
-      handleUserSearch();
-    }
-  }
+  useEffect(() => {
+    const entry = urlEntry.current;
+    if (!entry?.player || entry.playerTracked || queryPlayer !== entry.player || playerQuery.status !== 'success') return;
+    entry.playerTracked = true;
+    trackLeaderboardEvent('lb_player_search', { result: playerQuery.data ? 'found' : 'not_found', via: 'url' });
+  }, [queryPlayer, playerQuery.status, playerQuery.data]);
 
-  const removeSearchedEntries = (data) => {
-    if (!data) return data;
-    const newData = {};
-    for (const key in data) {
-      const value = data[key];
-      if (value && typeof value === 'object' && !Array.isArray(value)) {
-        const nested = {};
-        for (const stat in value) {
-          nested[stat] = Array.isArray(value[stat])
-            ? value[stat].filter(item => !item._searched)
-            : value[stat];
-        }
-        newData[key] = nested;
-      } else if (Array.isArray(value)) {
-        newData[key] = value.filter(item => !item._searched);
-      } else {
-        newData[key] = value;
-      }
-    }
-    return newData;
+  // An unknown ?player (bot link to a renamed or private player): say so, fall back to plain Boards.
+  useEffect(() => {
+    if (!queryPlayer || playerQuery.status !== 'success' || playerQuery.data !== null) return;
+    showToast('warning', `No player named ${queryPlayer} on the leaderboards`);
+    const { player, ...rest } = router.query;
+    router.replace({ pathname: router.pathname, query: rest }, undefined, { shallow: true });
+  }, [queryPlayer, playerQuery.status, playerQuery.data]);
+
+  // The URL an in-page open pushed, so closing can step back over it instead of stacking a copy.
+  const pushedOpen = useRef(null);
+
+  const setQuery = (next, { replace = false } = {}) => {
+    const navigate = replace ? router.replace : router.push;
+    navigate({ pathname: router.pathname, query: next }, undefined, { shallow: true });
   };
 
-  const handleUserSearch = async (name = inputValue) => {
-    if (!name) return;
-    const searchValue = name.trim();
-    if (!searchValue) return;
-
-    const prevSearched = searchedChar;
-    setSearchChar(searchValue);
-
-    const tab = selectedTab.toLowerCase();
-
-    // Remove all previously searched entries (only those added by search, not original top 10)
-    if (prevSearched && prevSearched !== searchValue) {
-      queryClient.setQueryData(['leaderboard', tab], (old) => {
-        if (!old?.[tab]) return old;
-        return { ...old, [tab]: removeSearchedEntries(old[tab]) };
-      });
-    }
-
-    const data = leaderboards?.[tab];
-
-    // Skip fetch if user is already in all visible lists
-    if (data && tab !== 'global') {
-      const isInTopN = Object.values(data).some(value => {
-        const lists = typeof value === 'object' && !Array.isArray(value) ? Object.values(value) : [value];
-        return lists.every(list => Array.isArray(list) && list.some(item => item.mainChar === searchValue));
-      });
-      if (isInTopN) return;
-    }
-
-    setLoadingSearchedChar(true);
-    const response = await fetchUserLeaderboards(tab, searchValue);
-    if (!response || response?.error) {
-      setLoadingSearchedChar(false);
-      setToast({ open: true, message: response?.error || 'Error fetching user data', severity: 'error' });
+  const lookupPlayer = async (name, via) => {
+    let data;
+    try {
+      data = await queryClient.fetchQuery({ queryKey: ['lb-player', name.toLowerCase()], queryFn: () => fetchPlayer(name), staleTime: staleUntilNextRun });
+    } catch {
+      showToast('error', 'Could not reach the leaderboards, try again');
       return;
     }
-    // Update the cached query data
-    queryClient.setQueryData(['leaderboard', tab], (old) => {
-      if (!old?.[tab]) return old;
-      return { ...old, [tab]: searchUserAndAppend(old[tab], searchValue, response) };
-    });
-    setLoadingSearchedChar(false);
-  }
+    trackLeaderboardEvent('lb_player_search', { result: data ? 'found' : 'not_found', via });
+    if (!data) {
+      showToast('warning', `No player named ${name} on the leaderboards`);
+      return;
+    }
+    setQuery({ ...router.query, player: data.player.mainChar });
+  };
 
-  return <>
+  const openBoard = (metric, source) => {
+    trackLeaderboardEvent('lb_board_open', { metric, source });
+    setOpenSource(source);
+    const next = { ...router.query, m: metric };
+    const category = index.byKey[metric]?.category;
+    if (source === 'jump' && category) next.t = TABS.find((tab) => tab.toLowerCase() === category);
+    setQuery(next);
+    // A jump to another tab lands there: closing drops the board but stays on that tab, rather than
+    // stepping back to the tab the jump started from.
+    const changedTab = (tabOf(next.t) ?? 'overview') !== selectedTab;
+    pushedOpen.current = changedTab ? null : signature(next);
+  };
+
+  // Same URL Tabber writes for a click on the strip: the board in the drawer does not follow to another tab.
+  const openTab = (tab) => {
+    const { m, ...rest } = router.query;
+    setQuery({ ...rest, t: tab });
+  };
+
+  const clearPlayer = () => {
+    const { player, ...rest } = router.query;
+    setQuery(rest);
+  };
+
+  // From the card's "Back to you" / "Clear", focus lands on the search field rather than the page
+  // body; a touch screen is left alone so no keyboard pops up.
+  const clearPlayerFromCard = () => {
+    clearPlayer();
+    if (!window.matchMedia?.('(hover: none)').matches) document.querySelector('input[aria-label="Find a player"]')?.focus();
+  };
+
+  const closeBoard = () => {
+    const wasPushed = pushedOpen.current === signature(router.query);
+    pushedOpen.current = null;
+    if (wasPushed) {
+      router.back();
+      return;
+    }
+    const { m, ...rest } = router.query;
+    setQuery(rest, { replace: true });
+  };
+
+  const highlight = {};
+  if (self.name) highlight[self.name] = 'logged';
+  if (context?.kind === 'searched' && playerData) highlight[playerData.player.mainChar] = 'searched';
+  const pinnedBase = playerData && context ? { mainChar: playerData.player.mainChar, kind: context.kind, globalRank: playerData.player.rank } : null;
+  const tabData = tabQuery.data?.[selectedTab];
+  const statusCreatedAt = index.createdAt ?? tabQuery.data?.createdAt ?? null;
+  const tabLabels = TABS.map((tab) => {
+    const count = index.categories[tab.toLowerCase()]?.metrics.length;
+    return count ? <>{tab}<Box component="span" sx={{ ml: 0.75, fontSize: 11, color: 'text.disabled', display: { xs: 'none', sm: 'inline' } }}>{count}</Box></> : tab;
+  });
+
+  // Picking a player changes the whole page without moving focus; this says what changed.
+  const announcement = playerData && context ? `Showing ${playerData.player.mainChar}, global rank ${rankText(playerData.player.rank)}` : '';
+
+  return <Box sx={FOCUS_RING}>
+    <Box role="status" aria-live="polite" sx={visuallyHidden}>{announcement}</Box>
     <NextSeo
       title="Leaderboards | Idleon Toolbox"
       description="View Legends of Idleon leaderboards for skills, tasks, characters, caverns, and more with player rankings and stats"
     />
-    <Box sx={{ maxWidth: '300px', margin: '16px auto 0 auto', border: 'none' }}>
-      <TextField
-        fullWidth
-        size={'small'} value={inputValue || ''}
-        label={isSm ? 'Char name' : 'Character name'}
-        onChange={(event) => {
-          setInputValue(event.target.value);
-        }}
-        onKeyDown={handleKeyDown}
-        slotProps={{
-          input: {
-            endAdornment: <InputAdornment position="end"><IconButton
-              loading={loadingSearchedChar}
-              disabled={!leaderboards?.totalUsers || loadingSearchedChar} onClick={() => handleUserSearch()}>
-              <IconSearch />
-            </IconButton></InputAdornment>
-          }
-        }}
-      />
-      <Typography sx={{ ml: 1 }} variant={'caption'} color={'text.secondary'}>Press Enter to search
-        globally</Typography>
-    </Box>
-    <Box sx={{ maxWidth: '300px', margin: '16px auto', textAlign: 'center' }}>
-      {!leaderboards?.totalUsers ? <Skeleton sx={{ width: 300, margin: '0 auto' }}
-        variant={'text'} /> : <Stack direction={'row'}
-          gap={1}
-          justifyContent={'center'}
-          divider={<Divider
-            flexItem
-            sx={{ bgcolor: '#a9b3a6' }}
-            orientation={'vertical'} />}>
-        <Stack flexWrap={'wrap'} direction={'row'} gap={1} justifyContent={'center'} alignItems={'center'}>
-          <Typography sx={{ fontSize: 14 }} component={'div'}>{numberWithCommas(leaderboards?.totalUsers)}</Typography>
-          <Typography sx={{ fontSize: 14 }}>Accounts</Typography>
-        </Stack>
-        {leaderboards?.createdAt ? <Stack flexWrap={'wrap'} direction={'row'} gap={1} justifyContent={'center'} alignItems={'center'}>
-          <Typography sx={{ fontSize: 14 }}>Updated at</Typography>
-          <Typography sx={{ fontSize: 14 }} component={'div'}>{formatDate(leaderboards?.createdAt, { timeOnly: true })}</Typography>
-        </Stack> : null}
-      </Stack>}
-    </Box>
-    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
-      <FormControlLabel
-        control={<Switch checked={showAnonymous} onChange={() => {
-          setShowAnonymous(!showAnonymous);
-        }} />}
-        label="Show anonymous players"
-      />
-    </Box>
+    <ControlBar
+      index={index}
+      totalPlayers={index.totalPlayers}
+      createdAt={statusCreatedAt}
+      showAnonymous={showAnonymous}
+      onToggleAnonymous={(event, checked) => setShowAnonymous(checked)}
+      onPlayer={lookupPlayer}
+      onMetric={(metric) => openBoard(metric, 'jump')}
+      onStickyBottom={setStripTop}
+      viewing={queryPlayer ? { name: playerData?.player.mainChar ?? queryPlayer, kind: context.kind } : null}
+      onClearPlayer={clearPlayer}
+    />
     <Tabber
-      tabs={tabs} onTabChange={(selected) => {
-        setClickedTab(tabs?.[selected]?.toLowerCase());
-      }}>
-      <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.global?.anonymous : leaderboards?.global?.public}
-        loggedMainChar={loggedLeaderboardName} searchedChar={searchedChar} />
-      <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.general?.anonymous : leaderboards?.general?.public}
-        loggedMainChar={loggedLeaderboardName} searchedChar={searchedChar} />
-      <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.tasks?.anonymous : leaderboards?.tasks?.public}
-        loggedMainChar={loggedLeaderboardName} searchedChar={searchedChar} />
-      <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.skills?.anonymous : leaderboards?.skills?.public}
-        loggedMainChar={loggedLeaderboardName} searchedChar={searchedChar} />
-      <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.character?.anonymous : leaderboards?.character?.public}
-        loggedMainChar={loggedLeaderboardName} searchedChar={searchedChar} />
-      <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.misc?.anonymous : leaderboards?.misc?.public}
-        loggedMainChar={loggedLeaderboardName} searchedChar={searchedChar} />
-      <LeaderboardSection leaderboards={showAnonymous ? leaderboards?.caverns?.anonymous : leaderboards?.caverns?.public}
-        loggedMainChar={loggedLeaderboardName} searchedChar={searchedChar} />
+      tabs={TABS}
+      components={tabLabels}
+      align="start"
+      stickyTop={stripTop ?? undefined}
+      idPrefix="lb"
+      // The strip has room for the status line only on wide screens; below that it sits in the control bar.
+      endSlot={<Box sx={{ display: { xs: 'none', xl: 'block' } }}><LeaderboardStatus totalPlayers={index.totalPlayers} createdAt={statusCreatedAt}/></Box>}
+      activeTab={TABS.findIndex((tab) => tab.toLowerCase() === selectedTab)}
+      clearOnChange={['m']}
+      keepChildren>
+      {selectedTab === 'overview' ? (
+        <Overview
+          index={index}
+          showAnonymous={showAnonymous}
+          highlight={highlight}
+          self={self}
+          player={{ context, data: playerQuery.data, isLoading: playerQuery.isLoading, isError: playerQuery.isError, refetch: playerQuery.refetch }}
+          onOpen={openBoard}
+          onTab={openTab}
+          onClearPlayer={clearPlayerFromCard}
+          linkPlayer={queryPlayer}
+        />
+      ) : tabQuery.isError ? (
+        <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => tabQuery.refetch()}>Retry</Button>}>
+          Could not load these boards
+        </Alert>
+      ) : !tabData ? (
+        <Stack alignItems="center" justifyContent="center" mt={3}><CircularProgress/></Stack>
+      ) : (
+        <CategoryTab
+          key={selectedTab}
+          category={selectedTab}
+          index={index}
+          lists={showAnonymous ? tabData.anonymous : tabData.public}
+          showAnonymous={showAnonymous}
+          ranks={playerData?.ranks}
+          highlight={highlight}
+          pinnedBase={pinnedBase}
+          onOpen={(metric) => openBoard(metric, 'card')}
+          revealMetric={drawerMetric}
+          linkPlayer={queryPlayer}
+        />
+      )}
     </Tabber>
-    {isLoading && !error
-      ? <Stack alignItems={'center'} justifyContent={'center'} mt={3}><CircularProgress /></Stack>
-      : error ?
-        <Typography color={'error.light'} textAlign={'center'} variant={'h6'}>Error has occurred while getting leaderboards</Typography> : null}
-    <Snackbar
-      open={toast.open}
-      autoHideDuration={6000}
-      onClose={() => setToast({ ...toast, open: false })}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-    >
-      <Alert
-        onClose={() => setToast({ ...toast, open: false })}
-        severity={toast.severity}
-        sx={{ width: '100%' }}
-      >
-        {toast.message}
-      </Alert>
+    <BoardDrawer
+      open={Boolean(drawerMetric)}
+      metricKey={drawerMetric ?? shownMetric}
+      index={index}
+      player={playerData?.player.mainChar ?? null}
+      kind={context?.kind}
+      rankEntry={playerData?.ranks?.[drawerMetric ?? shownMetric] ?? null}
+      focusBoardOnClose={openSource == null || openSource === 'jump'}
+      showAnonymous={showAnonymous}
+      onClose={closeBoard}
+    />
+    {/* At the top, under the bars, near the search it answers: a bottom corner was far from the
+        field on a wide screen and under the keyboard on a phone. */}
+    <Snackbar open={toast.open} autoHideDuration={6000} onClose={() => setToast({ ...toast, open: false })} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+              // Under the pinned control bar and tab strip, so it never covers the search it answers.
+              sx={{ top: `${(stripTop ?? navBarHeight) + 56}px !important` }}>
+      <Alert onClose={() => setToast({ ...toast, open: false })} severity={toast.severity} sx={{ width: '100%' }}>{toast.message}</Alert>
     </Snackbar>
-  </>
+  </Box>;
 };
 
 export default Leaderboards;

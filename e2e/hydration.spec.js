@@ -36,6 +36,8 @@ const SAMPLES = [
   // A page whose first render depends on router.query: on a static export it is empty until
   // isReady, so anything read from it during render is a mismatch waiting to happen.
   { route: '/leaderboards?t=Skills' },
+  { route: '/leaderboards?player=Baker333' },
+  { route: '/leaderboards?t=skills&m=mining' },
   // Not a 200, but page.goto follows it and the export still has to hydrate.
   { route: '/404' },
   // Data pages export DataLoadingWrapper's loader; the deep link must still hydrate cleanly.
@@ -120,9 +122,9 @@ test.describe('a tab deep link selects the tab and its data', () => {
 
     await expect(page.locator('[role="tab"][aria-selected="true"]')).toHaveText(/skills/i);
     await expect(page.getByText('Mining', { exact: true })).toBeVisible();
-    // The default request goes out first and is discarded: holding it back with `enabled` would
-    // make isLoading differ between the export and the first client render, which is a hydration
-    // mismatch on the whole page. Only the last request has to be the tab's own.
+    // The first render is Overview (router.query is {} until isReady), which asks for no tab at
+    // all, so the tab's own request is the only one. `.at(-1)` stays so an extra request that
+    // arrives first would not fail this on its own.
     expect(requested.at(-1)).toBe('skills');
   });
 });

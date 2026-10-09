@@ -13,6 +13,43 @@ export const gtag = function () {
 
 export const trackEvent = (name, params) => gtag('event', name, params);
 
+const LEADERBOARDS_PATH = '/leaderboards';
+// A searched player's name and an open board are page state, not pages: the name must never reach GA
+// and the drawer opening or closing is not a visit.
+const LEADERBOARDS_STATE_PARAMS = ['player', 'm'];
+let lastSentUrl = null;
+
+/**
+ * The path, search and hash of a /leaderboards URL without its player and m params, or null for any
+ * other route. The single place the param list is applied.
+ */
+export const stripLeaderboardsState = (url) => {
+  const parsed = new URL(url, 'http://localhost');
+  if (parsed.pathname.replace(/\/$/, '') !== LEADERBOARDS_PATH) return null;
+  LEADERBOARDS_STATE_PARAMS.forEach((param) => parsed.searchParams.delete(param));
+  return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+};
+
+/**
+ * An absolute URL that is safe to hand to GA as page_location: stripped on /leaderboards, untouched
+ * everywhere else.
+ */
+export const safePageLocation = (href) => {
+  const stripped = stripLeaderboardsState(href);
+  return stripped === null ? href : new URL(stripped, href).href;
+};
+
+/**
+ * The URL to report for a navigation, or null to report nothing. Every route is reported as is except
+ * /leaderboards, which loses its player and m params and is skipped when that leaves it equal to the
+ * last URL reported (a drawer or a player search on the same tab).
+ */
+export const pageViewUrl = (url, lastSent = null) => {
+  const stripped = stripLeaderboardsState(url);
+  if (stripped === null) return url;
+  return stripped === lastSent ? null : stripped;
+};
+
 /**
  * send_page_view is off in the config, so every page_view - including the first - comes from here.
  * The title is read a tick late because next/head writes document.title in a commit effect that can
@@ -22,11 +59,17 @@ export const trackEvent = (name, params) => gtag('event', name, params);
  */
 export const trackPageView = (url) => {
   if (typeof window === 'undefined') return;
+  // gtag attaches the document location to every hit (events, web vitals, login), not just page_view,
+  // so the default has to be the stripped one even when the page_view itself is skipped.
+  gtag('set', { page_location: safePageLocation(window.location.href) });
+  const sent = pageViewUrl(url, lastSentUrl);
+  if (sent === null) return;
+  lastSentUrl = sent;
   setTimeout(() => {
     trackEvent('page_view', {
-      page_path: url,
+      page_path: sent,
       page_title: document.title,
-      page_location: window.location.href
+      page_location: sent === url ? window.location.href : new URL(sent, window.location.origin).href
     });
   });
 };

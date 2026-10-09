@@ -223,3 +223,17 @@ test('every page from the slug route gets its own title, not the fallback', asyn
   const buildTitles = titles.filter((t) => / Build — .+ \| /.test(t));
   expect(buildTitles.length, 'no build pages among the exported routes').toBeGreaterThan(1);
 });
+
+// The Discord bot's ?player= links and shared board links must consolidate to the page itself,
+// both in the served bytes and after hydration.
+for (const route of ['/leaderboards?player=Baker333', '/leaderboards?t=skills&m=mining', '/leaderboards?t=global']) {
+  test(`${route} canonicalises to /leaderboards`, async ({ page, request }) => {
+    const html = await (await request.get(route)).text();
+    const raw = [...html.matchAll(/<link rel="canonical" href="([^"]+)"/g)].map((m) => m[1]);
+    expect(raw).toEqual(['https://idleontoolbox.com/leaderboards']);
+    await page.goto(route);
+    await waitForRender(page);
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://idleontoolbox.com/leaderboards');
+  });
+}

@@ -2,7 +2,7 @@
 import '../../polyfills';
 import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act, cleanup, render, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import darkTheme from '../../styles/theme/darkTheme';
@@ -12,82 +12,158 @@ const routerState = { isReady: true, query: {}, push: vi.fn(), replace: vi.fn(),
 vi.mock('next/router', () => ({ useRouter: () => routerState }));
 vi.mock('next-seo', () => ({ NextSeo: () => null }));
 
-const globalData = {
-  totalUsers: 10,
-  createdAt: 1_700_000_000_000,
-  global: {
-    public: { globalRanking: [{ mainChar: 'Top', rank: 1, globalRanking: 900 }] },
-    anonymous: { globalRanking: [{ mainChar: 'Top', rank: 1, globalRanking: 900 }] }
-  },
-  general: {
-    public: { globalRanking: [{ mainChar: 'Top', rank: 1, globalRanking: 900 }] },
-    anonymous: { globalRanking: [{ mainChar: 'Top', rank: 1, globalRanking: 900 }] }
-  }
-};
-const fetchLeaderboard = vi.fn(async () => globalData);
-const fetchUserLeaderboards = vi.fn(async (tab, name) => ({ globalRanking: [{ mainChar: name, rank: name === 'Tester' ? 7 : 8, globalRanking: 300 }] }));
-vi.mock('../../services/profiles', () => ({ fetchLeaderboard, fetchUserLeaderboards }));
+const playerData = (name) => ({
+  createdAt: 1, ranks: { mining: { r: 3, v: 240, p: 0.2, t: 1, nr: 2, nv: 250 } },
+  player: { mainChar: name, rank: 7, compositeScore: 300, totalUsers: 10, bestMetrics: [] }
+});
+const fetchTab = vi.fn(async () => ({ totalUsers: 10, createdAt: 1, skills: { public: { mining: [] }, anonymous: { mining: [] } } }));
+const fetchMeta = vi.fn(async () => ({ createdAt: 1, totalPlayers: 10, categories: [{ category: 'skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] }));
+const fetchPlayer = vi.fn(async (name) => (name === 'Ghost' ? null : playerData(name)));
+const fetchBoard = vi.fn(async () => ({ metric: 'globalRanking', createdAt: 1, top: [], around: [] }));
+const searchNames = vi.fn(async () => []);
+vi.mock('../../services/leaderboards', () => ({ fetchMeta, fetchPlayer, fetchBoard, fetchTab, searchNames }));
 
 const { AppContext } = await import('@components/common/context/AppProvider');
 const Leaderboards = (await import('../../pages/leaderboards')).default;
 
-const page = (state = {}) => (
-  <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-    <ThemeProvider theme={darkTheme}>
-      <AppContext.Provider value={{ state }}>
-        <Leaderboards/>
-      </AppContext.Provider>
-    </ThemeProvider>
-  </QueryClientProvider>
-);
-const renderPage = (state = {}) => render(page(state));
+const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+const renderPage = (state = {}) => {
+  // A fresh element each call, or React bails out of the rerender: the router mock is a plain object.
+  const page = () => (
+    <QueryClientProvider client={client}>
+      <ThemeProvider theme={darkTheme}>
+        <AppContext.Provider value={{ state }}>
+          <Leaderboards/>
+        </AppContext.Provider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+  const utils = render(page());
+  return { ...utils, rerender: () => utils.rerender(page()) };
+};
 
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
   routerState.query = {};
+  routerState.push.mockReset();
+  client.clear();
+  localStorage.clear();
 });
 
 describe('leaderboards ?player= deep link', () => {
-  it('fills the search field and searches the player once on the global tab', async () => {
+  it('loads the player once and shows them as the searched player', async () => {
     routerState.query = { player: 'Tester' };
-    const { container } = renderPage();
-    await waitFor(() => expect(fetchUserLeaderboards).toHaveBeenCalledWith('global', 'Tester'));
-    await waitFor(() => expect(container.textContent).toContain('Tester'));
-    await act(() => new Promise((r) => setTimeout(r, 50)));
-    expect(fetchUserLeaderboards).toHaveBeenCalledTimes(1);
-    expect(container.querySelector('input[type="text"]').value).toBe('Tester');
-  });
-
-  it('searches the deep-linked player once more when the user switches to another tab', async () => {
-    routerState.query = { player: 'Tester' };
-    const { rerender } = renderPage();
-    await waitFor(() => expect(fetchUserLeaderboards).toHaveBeenCalledWith('global', 'Tester'));
-    routerState.query = { player: 'Tester', t: 'General' };
-    rerender(page());
-    await waitFor(() => expect(fetchUserLeaderboards).toHaveBeenCalledWith('general', 'Tester'));
-    await act(() => new Promise((r) => setTimeout(r, 50)));
-    expect(fetchUserLeaderboards).toHaveBeenCalledTimes(2);
-  });
-
-  it('does not search without the parameter', async () => {
     renderPage();
-    await waitFor(() => expect(fetchLeaderboard).toHaveBeenCalled());
-    expect(fetchUserLeaderboards).not.toHaveBeenCalled();
+    const label = await screen.findByText('Searched player');
+    expect(label.parentElement.textContent).toBe('Searched player · Tester');
+    expect(fetchPlayer).toHaveBeenCalledTimes(1);
+    expect(fetchPlayer).toHaveBeenCalledWith('Tester');
   });
-  it('keeps both the logged-in user row and the deep-linked row when their fetches race', async () => {
+
+  it('announces the player it loaded', async () => {
     routerState.query = { player: 'Tester' };
-    // The logged user resolves last, so a stale-snapshot write would drop the searched row.
-    // A re-run of the logged-user effect re-fetches and would self-heal later, so the first write is the one that must be right.
-    let loggedCalls = 0;
-    fetchUserLeaderboards.mockImplementation(async (tab, name) => {
-      if (name === 'Logged') await new Promise((r) => setTimeout(r, ++loggedCalls === 1 ? 60 : 2000));
-      return { globalRanking: [{ mainChar: name, rank: name === 'Tester' ? 7 : 8, globalRanking: 300 }] };
-    });
-    const { container } = renderPage({ characters: [{ name: 'Logged' }] });
-    await waitFor(() => {
-      expect(container.textContent).toContain('Logged');
-      expect(container.textContent).toContain('Tester');
-    });
+    renderPage();
+    await waitFor(() => expect(screen.getByRole('status').textContent).toMatch(/^Showing Tester, global rank #/));
+  });
+
+  it('holds the viewed player in the search field, and its X drops ?player=', async () => {
+    routerState.query = { player: 'Tester', t: 'Skills' };
+    renderPage();
+    await waitFor(() => expect(screen.getByLabelText('Find a player').value).toBe('Tester'));
+    fireEvent.click(screen.getByRole('button', { name: 'Stop viewing Tester' }));
+    expect(routerState.push).toHaveBeenLastCalledWith({ pathname: '/leaderboards', query: { t: 'Skills' } }, undefined, { shallow: true });
+  });
+
+  it('drops an unknown player from the URL with a toast', async () => {
+    routerState.query = { player: 'Ghost', t: 'Skills' };
+    renderPage();
+    expect(await screen.findByText(/No player named Ghost/)).toBeTruthy();
+    expect(routerState.replace).toHaveBeenCalledWith({ pathname: '/leaderboards', query: { t: 'Skills' } }, undefined, { shallow: true });
+  });
+
+  it('loads the logged-in player when there is no parameter', async () => {
+    renderPage({ uid: 'u1', characters: [{ name: 'Logged' }] });
+    await waitFor(() => expect(fetchPlayer).toHaveBeenCalledWith('Logged'));
+    expect(await screen.findByText('You')).toBeTruthy();
+  });
+
+  it('fetches no player for an anonymous visitor', async () => {
+    renderPage();
+    expect(await screen.findByText('See where you stand')).toBeTruthy();
+    expect(fetchPlayer).not.toHaveBeenCalled();
+  });
+
+  it('reads ?t= case-insensitively and fetches that tab', async () => {
+    routerState.query = { t: 'skills' };
+    renderPage();
+    await waitFor(() => expect(fetchTab).toHaveBeenCalledWith('skills'));
+    expect(await screen.findByText('Mining')).toBeTruthy();
+  });
+
+  it('treats ?t=global as the Overview', async () => {
+    routerState.query = { t: 'global' };
+    renderPage();
+    await waitFor(() => expect(fetchBoard).toHaveBeenCalled());
+    expect(fetchTab).not.toHaveBeenCalled();
+  });
+
+  it('decides the tab from the URL alone, so back to a URL without ?t= shows Overview', async () => {
+    routerState.push.mockImplementation(({ query }) => { routerState.query = query; });
+    const { rerender } = renderPage();
+    expect(await screen.findByText('See where you stand')).toBeTruthy();
+    fireEvent.click(await screen.findByRole('tab', { name: /Skills/ }));
+    rerender();
+    expect(await screen.findByText('Mining')).toBeTruthy();
+    expect(fetchTab).toHaveBeenCalledTimes(1);
+
+    routerState.query = {};
+    rerender();
+    expect(await screen.findByText('See where you stand')).toBeTruthy();
+    expect(screen.queryByText('Mining')).toBeNull();
+    expect(fetchTab).toHaveBeenCalledTimes(1);
+  });
+
+  it('puts the board count in its own span on the tab and the status line in the tab strip', async () => {
+    renderPage();
+    await waitFor(() => expect(screen.getByRole('tab', { name: /Skills/ }).querySelector('span')?.textContent).toBe('1'));
+    expect(screen.getByRole('tab', { name: /Skills/ }).textContent).toBe('Skills1');
+    const statuses = await screen.findAllByText(/10 players · updated/);
+    const inStrip = statuses.find((status) => status.parentElement.parentElement.parentElement.querySelector('[role="tablist"]'));
+    expect(inStrip).toBeTruthy();
+    expect(inStrip.closest('.MuiTabs-root')).toBeNull();
+  });
+
+  it('keeps the logged-in treatment when you search your own name', async () => {
+    routerState.query = { player: 'logged' };
+    renderPage({ uid: 'u1', characters: [{ name: 'Logged' }] });
+    expect(await screen.findByText('You')).toBeTruthy();
+    expect(screen.queryByText('Searched player')).toBeNull();
+  });
+
+  it('offers a retry when a tab fails to load', async () => {
+    fetchTab.mockRejectedValueOnce(new Error('boom'));
+    routerState.query = { t: 'skills' };
+    renderPage();
+    expect(await screen.findByText('Could not load these boards')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    expect(await screen.findByText('Mining')).toBeTruthy();
+    expect(fetchTab).toHaveBeenCalledTimes(2);
+  });
+
+  it('stores the anonymous switch value it is given', async () => {
+    renderPage();
+    const toggle = await screen.findByLabelText('Show anonymous');
+    fireEvent.click(toggle);
+    await waitFor(() => expect(localStorage.getItem('leaderboard:showAnonymous')).toBe('false'));
+  });
+
+  it('opens a category tile through the tab handling, dropping the open board', async () => {
+    routerState.query = { m: 'mining' };
+    renderPage({ uid: 'u1', characters: [{ name: 'Logged' }] });
+    const tile = await screen.findByRole('link', { name: /Skills/, hidden: true });
+    expect(tile.getAttribute('href')).toBe('?t=Skills');
+    fireEvent.click(tile);
+    expect(routerState.push).toHaveBeenCalledWith({ pathname: '/leaderboards', query: { t: 'Skills' } }, undefined, { shallow: true });
   });
 });
