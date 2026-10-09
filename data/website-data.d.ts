@@ -910,6 +910,8 @@ declare module '@website-data' {
       role: number[];
       world: number[];
     };
+    galleryBonusStats: string[];
+    galleryNametagMultipliers: number[];
     jellyObstructionCells: number[];
     owlBonusPerFeather: number[];
     clamWorkBonusNames: string[];

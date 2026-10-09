@@ -9670,6 +9670,21 @@
         4
       ]
     },
+    "galleryBonusStats": [
+      "Weapon_Power",
+      "STR",
+      "AGI",
+      "WIS",
+      "LUK",
+      "Defence"
+    ],
+    "galleryNametagMultipliers": [
+      1,
+      1.6,
+      2,
+      2.3,
+      2.5
+    ],
     "jellyObstructionCells": [
       43,
       44,
