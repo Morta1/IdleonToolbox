@@ -298,9 +298,6 @@ export const PAGES = {
     'formulas': {
       icon: 'data/EquipmentStatues29'
     },
-    'activeExpCalculator': {
-      icon: 'data/StatusExp'
-    },
     'godPlanner': {
       icon: 'data/DivGod1'
     },

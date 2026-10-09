@@ -295,6 +295,8 @@ async function generateSitemap() {
     // 404. It is noindex and canonicals to /royal-armory, so listing it here would ask Google to
     // crawl a page that only points at another one.
     '!pages/account/class-specific/royal-guardian.jsx',
+    // Same, for the Active Exp Calculator folded into the Active Stuff Calculator.
+    '!pages/tools/active-exp-calculator.jsx',
   ])
 
   const routeOf = (page) =>

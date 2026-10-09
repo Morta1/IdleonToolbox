@@ -95,7 +95,7 @@ export const PAGE_SEO = {
   "/patch-notes": { title: "Patch Notes | Idleon Toolbox", description: "View the latest Idleon Toolbox patch notes, new features, bug fixes, and changelog for every version" },
   "/settings": { title: "Settings | Idleon Toolbox", description: "Configure your Idleon Toolbox preferences and manage your profile" },
   "/statistics": { title: "Statistics | Idleon Toolbox", description: "Explore community statistics and visualizations for Legends of Idleon including class distribution, skill levels, and player progression data" },
-  "/tools/active-exp-calculator": { title: "Active Exp Calculator | Idleon Toolbox", description: "Calculate how much experience you get when playing actively" },
+  "/tools/active-exp-calculator": { title: "Active Stuff Calculator | Idleon Toolbox", description: "Calculate active gameplay item drops, resource gains, and efficiency for your Legends of Idleon characters", noindex: true },
   "/tools/active-stuff-calculator": { title: "Active Stuff Calculator | Idleon Toolbox", description: "Calculate active gameplay item drops, resource gains, and efficiency for your Legends of Idleon characters" },
   "/tools/bone-joe-calculator": { title: "Bone Joe Calculator | Idleon Toolbox", description: "Work out miniboss HP for any Bone Joe Pickle count and prayer setup, and how many pickles each of your characters can carry" },
   "/tools/builds": { title: "Builds | Idleon Toolbox", description: "Browse and share optimized talent builds for every class and subclass in Legends of Idleon" },
