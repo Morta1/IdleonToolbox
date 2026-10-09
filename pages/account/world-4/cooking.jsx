@@ -8,7 +8,7 @@ import Ribbons from '@components/account/Worlds/World4/Ribbons';
 import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';
 import { getTabs, tryToParse } from '@utility/helpers';
-import { parseKitchens } from '@parsers/world-4/cooking';
+import { getTotalMealSpeed, parseKitchens } from '@parsers/world-4/cooking';
 import MenuItem from '@mui/material/MenuItem';
 import { getPlayerLabChipBonus } from '@parsers/world-4/lab';
 import InfoIcon from '@mui/icons-material/Info';
@@ -44,9 +44,7 @@ const Cooking = () => {
     kitchens = cooking?.kitchens;
   }
 
-  const totalMealSpeed = kitchens?.reduce((sum, kitchen) => sum + (kitchen.status === 3
-    ? 0
-    : kitchen.mealSpeed), 0);
+  const totalMealSpeed = getTotalMealSpeed(kitchens);
 
   return (
     <>

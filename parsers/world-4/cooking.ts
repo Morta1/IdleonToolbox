@@ -2,7 +2,7 @@ import { atomsInfo, cookingMenu, monsters, randomList, randomList2, bonuses, spi
 import { liveEntries } from '@parsers/catalog';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getStatsFromGear } from '@parsers/items';
-import { lavaLog, notateNumber, tryToParse } from '@utility/helpers';
+import { growth, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
@@ -16,7 +16,7 @@ import { getAchievementStatus } from '@parsers/achievements';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getShinyBonus } from '@parsers/world-4/breeding';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
-import { getTalentBonus, getVoidWalkerTalentEnhancements, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
+import { getTalentBonus, getVoidWalkerTalentEnhancements, getBestActiveCharacter, getHighestTalentAcrossCharacters, checkCharClass, CLASSES } from '@parsers/talents';
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
 import LavaRand from '@utility/lavaRand';
 import { allProwess, getAllBaseSkillEff, getAllEff } from '@parsers/efficiency';
@@ -1035,6 +1035,26 @@ export const getMealLevelCost = (level: any, achievements: any, account?: any, l
 
 export const calcTimeToNextLevel = (amountNeeded: any, cookReq: any, totalMealSpeed: any) => {
   return amountNeeded * cookReq / totalMealSpeed;
+}
+
+// Kitchens with status 3 are idle and add no speed.
+export const getTotalMealSpeed = (kitchens: any) => {
+  return kitchens?.reduce((sum: number, kitchen: any) => sum + (kitchen?.status === 3 ? 0 : (kitchen?.mealSpeed ?? 0)), 0) ?? 0;
+}
+
+export const getHighestOverflowingLadle = (characters: any) => {
+  const bloodBerserkers = characters?.filter((character: any) => checkCharClass(character?.class, CLASSES.Blood_Berserker));
+  return bloodBerserkers?.reduce((res: any, { talents, name }: any) => {
+    const overflowingLadle = talents?.[3]?.orderedTalents.find((talent: any) => talent?.name === 'OVERFLOWING_LADLE');
+    const lv = overflowingLadle?.level > overflowingLadle?.maxLevel
+      ? overflowingLadle?.level
+      : overflowingLadle?.maxLevel;
+    const bonus = growth(overflowingLadle?.funcX, lv, overflowingLadle?.x1, overflowingLadle?.x2, false);
+    if (bonus > res.value) {
+      return { value: bonus, character: name };
+    }
+    return res;
+  }, { value: 0, character: '' }) ?? { value: 0, character: '' };
 }
 
 export interface NoMealLeftBehindProc {

@@ -459,7 +459,15 @@ export const alertMeta = {
         label: 'Only meals a kitchen is cooking',
         dependsOn: 'meals'
       },
-      cookingMastery: { label: 'Unspent Cooking Mastery points', page: { query: { t: 'Mastery' }, label: 'Cooking mastery' } }
+      cookingMastery: { label: 'Unspent Cooking Mastery points', page: { query: { t: 'Mastery' }, label: 'Cooking mastery' } },
+      mealLadleCost: {
+        label: 'Meals below a ladle cost',
+        help: 'Counts meals whose next level costs fewer ladles than this. A ladle is one hour of cooking at your total meal speed. Meals ready to level up are left out.'
+      },
+      includeOverflowingLadle: {
+        label: 'Include Overflowing Ladle',
+        dependsOn: 'mealLadleCost'
+      }
     }
   },
   'account.World 4.laboratory': {

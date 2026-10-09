@@ -361,7 +361,14 @@ export const baseTrackers = {
           },
           { name: 'meals', checked: true, category: 'meals' },
           { name: 'alertOnlyCookedMeal', checked: false },
-          { name: 'cookingMastery', checked: true }
+          { name: 'cookingMastery', checked: true },
+          {
+            name: 'mealLadleCost',
+            type: 'input',
+            props: { label: 'Ladles threshold', value: 1, minValue: 0, helperText: 'Next level cost in ladles' },
+            checked: false
+          },
+          { name: 'includeOverflowingLadle', checked: false }
         ]
       },
       laboratory: {

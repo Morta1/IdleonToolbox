@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   calcMealTime,
   calcTimeToNextLevel,
+  getHighestOverflowingLadle,
   getMealLevelCost,
   getNoMealLeftBehindLevels,
   getNoMealLeftBehindQueue,
@@ -12,7 +13,6 @@ import {
   cleanUnderscore,
   commaNotation,
   getTimeAsDays,
-  growth,
   kFormatter,
   notateNumber,
   numberWithCommas,
@@ -40,7 +40,6 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import MenuItem from '@mui/material/MenuItem';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
-import { checkCharClass, CLASSES } from '@parsers/talents';
 import { isCompanionBonusActive } from '@parsers/misc';
 
 const maxTimeValue = 8.64e15;
@@ -148,21 +147,7 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
   }
 
 
-  const getHighestOverflowingLadle = () => {
-    const bloodBerserkers = characters?.filter((character) => checkCharClass(character?.class, CLASSES.Blood_Berserker));
-    return bloodBerserkers?.reduce((res, { talents, name }) => {
-      const overflowingLadle = talents?.[3]?.orderedTalents.find((talent) => talent?.name === 'OVERFLOWING_LADLE');
-      const lv = overflowingLadle?.level > overflowingLadle?.maxLevel
-        ? overflowingLadle?.level
-        : overflowingLadle?.maxLevel;
-      const bonus = growth(overflowingLadle?.funcX, lv, overflowingLadle?.x1, overflowingLadle?.x2, false);
-      if (bonus > res.value) {
-        return { value: bonus, character: name };
-      }
-      return res;
-    }, { value: 0, character: '' });
-  }
-  const overflowingLadleBonus = getHighestOverflowingLadle();
+  const overflowingLadleBonus = getHighestOverflowingLadle(characters);
   const calcMeals = (meals, overflow) => {
     if (!meals) return []
     return meals?.map((meal) => {

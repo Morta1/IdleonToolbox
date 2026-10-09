@@ -9,7 +9,8 @@ export const patchNotes = [
     'date': '10/10/2026',
     'features': [
       'Grimoire, Tesseract, Royal Armory and Upgrade Vault upgrades now show the in-game (?) help text in an info tooltip',
-      'Construction: each step in Steps to apply now shows the selected stat on its cogs, matching the numbers on the board'
+      'Construction: each step in Steps to apply now shows the selected stat on its cogs, matching the numbers on the board',
+      'New dashboard alert for Cooking: count meals whose next level costs fewer ladles than your threshold, with an option to include Overflowing Ladle'
     ],
     'fixes': []
   },

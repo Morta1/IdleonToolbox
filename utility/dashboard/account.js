@@ -1,7 +1,13 @@
 import { getMaxClaimTime, getSecPerBall } from '@parsers/dungeons';
 import { getBuildCost } from '@parsers/world-3/construction';
 import { CAULDRON_INFO, CAULDRONS_MAX_LEVELS, LIQUID_INFO, MAX_VIAL_LEVEL, vialCostsArray } from '@parsers/world-2/alchemy';
-import { getChipsAndJewels, maxNumberOfSpiceClicks } from '@parsers/world-4/cooking';
+import {
+  calcTimeToNextLevel,
+  getChipsAndJewels,
+  getHighestOverflowingLadle,
+  getTotalMealSpeed,
+  maxNumberOfSpiceClicks
+} from '@parsers/world-4/cooking';
 import { cleanUnderscore, getDuration, getNextCompanionClaim, hoursUntilDailyReset, notateNumber, totalHoursBetweenDates, tryToParse } from '../helpers';
 import { getValidTrackedMaterials } from '../materialTracker';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
@@ -940,7 +946,7 @@ export const getWorld3Alerts = (account, fields, options, characters) => {
   }
   return alerts;
 };
-export const getWorld4Alerts = (account, fields, options) => {
+export const getWorld4Alerts = (account, fields, options, characters) => {
   const alerts = {};
   if (!account?.finishedWorlds?.World3) return alerts;
   if (fields?.breeding?.checked) {
@@ -1009,6 +1015,21 @@ export const getWorld4Alerts = (account, fields, options) => {
       });
       if (readyMeals?.length > 0) {
         cooking.meals = readyMeals;
+      }
+    }
+    if (options?.cooking?.mealLadleCost?.checked) {
+      const threshold = Number(options?.cooking?.mealLadleCost?.props?.value);
+      const mealSpeed = getTotalMealSpeed(account?.cooking?.kitchens);
+      const overflowMulti = options?.cooking?.includeOverflowingLadle?.checked
+        ? 1 + getHighestOverflowingLadle(characters).value / 100
+        : 1;
+      // Meals already affordable have their own alert, so only the ones still costing ladles count.
+      const cheapMeals = mealSpeed > 0 && threshold > 0 ? account?.cooking?.meals?.filter((meal) => {
+        if (!meal || meal.level >= account?.cooking?.mealMaxLevel || meal.amount >= meal.levelCost) return false;
+        return calcTimeToNextLevel(meal.levelCost - meal.amount, meal.cookReq, mealSpeed) / overflowMulti < threshold;
+      }) : [];
+      if (cheapMeals?.length > 0) {
+        cooking.mealLadleCost = { count: cheapMeals.length, threshold };
       }
     }
     if (options?.cooking?.spices?.checked) {

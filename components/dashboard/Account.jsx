@@ -465,6 +465,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                     ? 'Your ribbon shelf is full'
                     : `You have reached your threshold of ${alerts?.['World 4']?.cooking?.ribbons} empty ribbon slots`}
                   iconPath={'data/Ribbon0'}/> : null}
+              {alerts?.['World 4']?.cooking?.mealLadleCost?.count > 0 ?
+                <Alert target={'World 4.cooking.mealLadleCost'}
+                  title={`${alerts?.['World 4']?.cooking?.mealLadleCost?.count} meal${alerts?.['World 4']?.cooking?.mealLadleCost?.count > 1 ? 's are' : ' is'} below ${notateNumber(alerts?.['World 4']?.cooking?.mealLadleCost?.threshold, 'Big')} ladle${alerts?.['World 4']?.cooking?.mealLadleCost?.threshold === 1 ? '' : 's'} to level up`}
+                  iconPath={'data/Ladle'}/> : null}
               {alerts?.['World 4']?.cooking?.cookingMastery?.purple > 0 ?
                 <Alert target={'World 4.cooking.cookingMastery'}
                   title={`You have ${alerts?.['World 4']?.cooking?.cookingMastery?.purple} unspent purple Cooking Mastery point${alerts?.['World 4']?.cooking?.cookingMastery?.purple > 1 ? 's' : ''}`}
