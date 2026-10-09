@@ -893,6 +893,25 @@ declare module '@website-data' {
       }[];
   };
   export const flagsReqs: number[];
+  export const gameTables: {
+    jellyBossHP: number[];
+    jellyMainAttackCooldown: number[];
+    jellyMainAttackDamage: number[];
+    cookingRankRequirement: number[];
+    royalStatueFirstOdds: number[];
+    royalOutpostJellyBonus: number[];
+    legendTalentMaxLevelGroups: {
+        talents: number[];
+        gridSquare: number;
+      }[];
+    mineheadUpgradeTables: Record<string, any>;
+    royalRecruitClasses: string[];
+    jellyObstructionCells: number[];
+    owlBonusPerFeather: number[];
+    clamWorkBonusNames: string[];
+    riftSpelunkingMasteryRewards: string[];
+    constructionCogTypes: string[];
+  };
   export const gamingImports: {
       boxName: string;
       boxDescription: string;
@@ -3241,22 +3260,6 @@ declare module '@website-data' {
         EquipmentNametag20: number;
         EquipmentNametag31: number;
       };
-      bon_y: {
-        Quest38: number;
-        PremiumGem: number;
-        InvStorage5: number;
-        ClassSwap: number;
-        ResetBox: number;
-        Island0: number;
-        TixCol: number;
-        EquipmentNametag29: number;
-        NPCtoken15: number;
-        Key1: number;
-        COIN: number;
-        Trophy7: number;
-        Key2: number;
-        CardsB14: number;
-      };
     };
     dungeon: {
       CardsX21: number;
@@ -3305,10 +3308,6 @@ declare module '@website-data' {
       requirements: {
           rawName: string;
           name: string;
-          amount: number;
-        }[] | {
-          rawName: string;
-          name: string | null;
           amount: number;
         }[];
       effect: string;

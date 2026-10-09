@@ -9446,6 +9446,207 @@
     50000000,
     250000000
   ],
+  "gameTables": {
+    "jellyBossHP": [
+      100,
+      200,
+      400,
+      1000,
+      2000,
+      4000,
+      6000,
+      10000,
+      15000,
+      30000,
+      50000,
+      100000
+    ],
+    "jellyMainAttackCooldown": [
+      145,
+      60,
+      400,
+      160,
+      750,
+      200,
+      10,
+      20,
+      30
+    ],
+    "jellyMainAttackDamage": [
+      1,
+      1.2,
+      12,
+      6,
+      20,
+      1,
+      2,
+      4,
+      1
+    ],
+    "cookingRankRequirement": [
+      0,
+      1,
+      5,
+      10,
+      25,
+      100,
+      150,
+      250,
+      500
+    ],
+    "royalStatueFirstOdds": [
+      25,
+      50,
+      100,
+      250,
+      500,
+      1000,
+      2500,
+      10000
+    ],
+    "royalOutpostJellyBonus": [
+      3,
+      15,
+      32,
+      43,
+      48,
+      52,
+      61,
+      61
+    ],
+    "legendTalentMaxLevelGroups": [
+      {
+        "talents": [
+          2,
+          13,
+          3,
+          18,
+          5
+        ],
+        "gridSquare": 130
+      },
+      {
+        "talents": [
+          9,
+          23,
+          33,
+          1,
+          16
+        ],
+        "gridSquare": 131
+      },
+      {
+        "talents": [
+          20,
+          31,
+          19,
+          27,
+          8
+        ],
+        "gridSquare": 132
+      },
+      {
+        "talents": [
+          34,
+          30,
+          29,
+          6,
+          26
+        ],
+        "gridSquare": 152
+      }
+    ],
+    "mineheadUpgradeTables": {
+      "12": [
+        "1.0",
+        "1.2",
+        "1.4",
+        "1.6",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "8",
+        "8",
+        "8"
+      ],
+      "17": [
+        "0",
+        "10",
+        "20",
+        "50",
+        "100",
+        "200",
+        "500",
+        "1000",
+        "2000",
+        "5000",
+        "10000"
+      ]
+    },
+    "royalRecruitClasses": [
+      "Commander",
+      "Knight",
+      "Priest"
+    ],
+    "jellyObstructionCells": [
+      43,
+      44,
+      45,
+      46,
+      60,
+      65,
+      78,
+      83,
+      96,
+      101,
+      114,
+      119,
+      133,
+      134,
+      135,
+      136
+    ],
+    "owlBonusPerFeather": [
+      1,
+      0,
+      5,
+      10,
+      0,
+      5,
+      1,
+      20,
+      0
+    ],
+    "clamWorkBonusNames": [
+      "PEARL_VALUE",
+      "CLAM_COMRADES",
+      "LUCKY_DAY",
+      "MULTI-SCALPING",
+      "FRUGALITY",
+      "PURE_PEARLS",
+      "ENCYSTATION_UP",
+      "SHINIER_PEARLS",
+      "ANTI_INFLATION"
+    ],
+    "riftSpelunkingMasteryRewards": [
+      "+25%_SPELUNKING_EXP",
+      "+30%_SPELUNKING_EFFICIENCY",
+      "ALL_SPELUNKING_CARDS_ARE_NOW_PASSIVE",
+      "+15_MAX_STAMINA_FOR_EVERYONE",
+      "+3_DAILY_PAGE_READS",
+      "+10%_STAMINA_REGEN_RATE",
+      "1.50X_ALL_AMBER_GAIN"
+    ],
+    "constructionCogTypes": [
+      "Flaggy",
+      "Build",
+      "XP"
+    ]
+  },
   "gamingImports": [
     {
       "boxName": "Half_Opened_Box",
@@ -15604,22 +15805,6 @@
         "EquipmentNametag17": 1,
         "EquipmentNametag20": 1,
         "EquipmentNametag31": 1
-      },
-      "bon_y": {
-        "Quest38": 1,
-        "PremiumGem": 104,
-        "InvStorage5": 1,
-        "ClassSwap": 3,
-        "ResetBox": 5,
-        "Island0": 1,
-        "TixCol": 2,
-        "EquipmentNametag29": 1,
-        "NPCtoken15": 1,
-        "Key1": 1,
-        "COIN": 1,
-        "Trophy7": 1,
-        "Key2": 1,
-        "CardsB14": 10
       }
     },
     "dungeon": {
@@ -16930,8 +17115,8 @@
         },
         {
           "rawName": "CookingSpice20",
-          "amount": 10000,
-          "name": "Spirit Fields"
+          "name": "Spirit Fields",
+          "amount": 10000
         }
       ],
       "effect": "'Slab_Sovereignty'_gives_an_additional_}%_boost_to_all_Slab_Bonuses!",
@@ -16957,8 +17142,8 @@
         },
         {
           "rawName": "CookingSpice21",
-          "amount": 10000,
-          "name": "Bamboo Forest"
+          "name": "Bamboo Forest",
+          "amount": 10000
         }
       ],
       "effect": "+}%_higher_effects_from_all_active_bonuses_and_jewels_within_the_Mainframe,_except_for_Spelunker_Obol._@_This_is_a_multiplier,_so_+10%_would_be_1.10x,_ya_feel_me?_@_This_bonus_always_has_a_80px_connection_range_no_matter_what!",
@@ -16984,8 +17169,8 @@
         },
         {
           "rawName": "CookingSpice22",
-          "amount": 10000,
-          "name": "Lullaby Airway"
+          "name": "Lullaby Airway",
+          "amount": 10000
         }
       ],
       "effect": "'Depot_Studies_PhD'_gives_an_additional_}%_boost_to_all_Crop_Depot_bonuses!",
@@ -17011,8 +17196,8 @@
         },
         {
           "rawName": "CookingSpice21",
-          "amount": 10000,
-          "name": "Bamboo Forest"
+          "name": "Bamboo Forest",
+          "amount": 10000
         }
       ],
       "effect": "+}%_extra_Deathbringer_Bones._@_This_bonus_always_has_a_100px_connection_range_no_matter_what!",
@@ -17038,8 +17223,8 @@
         },
         {
           "rawName": "CookingSpice21",
-          "amount": 10000,
-          "name": "Bamboo Forest"
+          "name": "Bamboo Forest",
+          "amount": 10000
         }
       ],
       "effect": "+}%_extra_Windwalker_Dust._@_This_bonus_always_has_a_100px_connection_range_no_matter_what!",
@@ -17065,8 +17250,8 @@
         },
         {
           "rawName": "CookingSpice21",
-          "amount": 10000,
-          "name": "Bamboo Forest"
+          "name": "Bamboo Forest",
+          "amount": 10000
         }
       ],
       "effect": "+}%_extra_Arcane_Cultist_Tachyons._@_This_bonus_always_has_a_100px_connection_range_no_matter_what!",

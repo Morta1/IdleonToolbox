@@ -76,6 +76,7 @@ export const {
   exoticMarketInfo,
   fishingKits,
   flagsReqs,
+  gameTables,
   gamingImports,
   gamingPalette,
   gamingUpgrades,

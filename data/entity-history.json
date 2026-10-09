@@ -136,6 +136,22 @@
           "to": "{30%_AFK_gains_for_World_7_skills,_and_{1_Worldclass_Showcase_Slot_in_Gallery"
         }
       ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 300
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 40
+        }
+      ]
     }
   ],
   "companions/33": [
@@ -152,6 +168,22 @@
           "field": "bonus",
           "from": 3,
           "to": 1
+        }
+      ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 150
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 1.5
         }
       ]
     }
@@ -1421,6 +1453,22 @@
           "to": 2
         }
       ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 130
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 3
+        }
+      ]
     }
   ],
   "companions/35": [
@@ -1437,6 +1485,22 @@
           "field": "bonus",
           "from": 3,
           "to": 1
+        }
+      ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 155
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 2
         }
       ]
     }
@@ -1457,12 +1521,44 @@
           "to": 200
         }
       ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 160
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 300
+        }
+      ]
     }
   ],
   "companions/49": [
     {
       "v": "2.3.48",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 280
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 50
+        }
+      ]
     }
   ],
   "cards/xmasEvent4": [
@@ -1512,12 +1608,44 @@
           "to": "{100%_Drop_Rate_and_Class_Exp"
         }
       ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 150
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 130
+        }
+      ]
     }
   ],
   "companions/50": [
     {
       "v": "2.3.49",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 80
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 50
+        }
+      ]
     }
   ],
   "monsters/w6c2b": [
@@ -1530,6 +1658,22 @@
     {
       "v": "2.3.491",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 225
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 4
+        }
+      ]
     }
   ],
   "bundles/bon_p": [
@@ -1554,6 +1698,19 @@
     {
       "v": "2.3.492",
       "t": "added"
+    }
+  ],
+  "items/StampB10": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc_line1",
+          "from": "BaseMinEff,add,2,0,10,EquipmentToolsHatchet1,1,2,35000,1.4,\\t1,{}_Mining_Efficiency,0",
+          "to": "BaseMinEff,add,2,0,10,EquipmentToolsHatchet1,1,2,35000,1.4,\t1,{}_Mining_Efficiency,0"
+        }
+      ]
     }
   ],
   "items/StampB41": [
@@ -1698,6 +1855,19 @@
     {
       "v": "2.3.492",
       "t": "added"
+    }
+  ],
+  "items/Quest80": [
+    {
+      "v": "2.3.492",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "desc_line1",
+          "from": "Drop_this_on_the_Legumulyte_(found_deep_in_Bamboo_Forest",
+          "to": "Drop_this_on_the_Legumulyte_(found_deep_in_Bamboo_Forest)_to_trade_in_ALL_your_crops_for_magic_beans_(Crop_Scientist_progress_wont_be_lost)_Or,_hold_down_on_ticket_to_see_how_many_beans_you_will_get_(you_wont_lose_anything_doing_this)"
+        }
+      ]
     }
   ],
   "items/Quest96": [
@@ -2173,12 +2343,44 @@
     {
       "v": "2.3.492",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 180
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 0.8
+        }
+      ]
     }
   ],
   "companions/53": [
     {
       "v": "2.3.492",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 220
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 199
+        }
+      ]
     }
   ],
   "companions/54": [
@@ -2194,6 +2396,17 @@
           "field": "effect",
           "from": "+1_new_Research_Shape,_shows_up_after_you_get_Research_LV._20",
           "to": "{1_new_Research_Shape,_shows_up_after_you_get_Research_LV._20"
+        }
+      ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 250
         }
       ]
     }
@@ -2218,12 +2431,39 @@
           "to": 15
         }
       ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 300
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 20
+        }
+      ]
     }
   ],
   "companions/56": [
     {
       "v": "2.3.492",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 370
+        }
+      ]
     }
   ],
   "companions/57": [
@@ -2257,12 +2497,39 @@
           "to": 80
         }
       ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 430
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 93.34
+        }
+      ]
     }
   ],
   "companions/58": [
     {
       "v": "2.3.492",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 600
+        }
+      ]
     }
   ],
   "companions/59": [
@@ -2453,6 +2720,22 @@
           "to": 160
         }
       ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 240
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 1.5
+        }
+      ]
     }
   ],
   "companions/88": [
@@ -2479,6 +2762,22 @@
           "field": "effect",
           "from": "Not_officially_in_the_game_and_may_never_be",
           "to": "{50%_Prisma_Bubble_bonus_multi_and_{5_Prisma_Bubbles"
+        }
+      ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 255
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 1.5
         }
       ]
     }
@@ -2572,6 +2871,22 @@
           "field": "bonus",
           "from": 1,
           "to": 50
+        }
+      ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 140
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 75
         }
       ]
     }
@@ -2707,6 +3022,22 @@
           "field": "tourPower",
           "from": 100,
           "to": 60
+        }
+      ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 100
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 150
         }
       ]
     }
@@ -2874,6 +3205,22 @@
           "to": "{100%_Class_EXP_and_1.50x_Class_EXP_Multi"
         }
       ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 140
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 300
+        }
+      ]
     }
   ],
   "companions/129": [
@@ -2919,6 +3266,22 @@
           "to": 175
         }
       ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 265
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 300
+        }
+      ]
     }
   ],
   "companions/133": [
@@ -2956,6 +3319,22 @@
           "field": "tourPower",
           "from": 100,
           "to": 195
+        }
+      ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 300
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 200
         }
       ]
     }
@@ -3013,6 +3392,16 @@
           "field": "tourPower",
           "from": 100,
           "to": 200
+        },
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 310
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 4
         }
       ]
     }
@@ -3027,6 +3416,22 @@
     {
       "v": "2.3.492",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 280
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 30
+        }
+      ]
     }
   ],
   "companions/144": [
@@ -3060,6 +3465,22 @@
           "to": 180
         }
       ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 275
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 3
+        }
+      ]
     }
   ],
   "companions/146": [
@@ -3091,6 +3512,22 @@
           "field": "tourPower",
           "from": 100,
           "to": 160
+        }
+      ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 240
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 75
         }
       ]
     }
@@ -3174,6 +3611,17 @@
           "to": "Congratulations_on_winning_the_Tournament!"
         }
       ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 12
+        }
+      ]
     }
   ],
   "companions/151": [
@@ -3191,6 +3639,17 @@
           "to": "Congratulations_on_winning_the_Tournament!"
         }
       ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 12
+        }
+      ]
     }
   ],
   "companions/152": [
@@ -3206,6 +3665,17 @@
           "field": "effect",
           "from": "Congratulations_on_winning_the_Gold_Tournament_in_Season_1!",
           "to": "Congratulations_on_winning_the_Tournament!"
+        }
+      ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 12
         }
       ]
     }
@@ -3236,12 +3706,34 @@
           "to": "{10_Research_PTS,_{20%_Research_AFK_Gains,_2x_Research_EXP_Gain,_and_{1_Magnifier"
         }
       ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 325
+        }
+      ]
     }
   ],
   "companions/154": [
     {
       "v": "2.3.492",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 230
+        }
+      ]
     }
   ],
   "crafts/Torn_Jeans": [
@@ -4380,6 +4872,22 @@
     {
       "v": "2.3.493",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 250
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 4000
+        }
+      ]
     }
   ],
   "companions/156": [
@@ -4395,6 +4903,22 @@
           "field": "name",
           "from": "Valentslime",
           "to": "Valenslime"
+        }
+      ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 90
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 25
         }
       ]
     }
@@ -5535,6 +6059,22 @@
     {
       "v": "2.3.493a",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 175
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 200
+        }
+      ]
     }
   ],
   "crafts/Prehistoric_Netting": [
@@ -5643,32 +6183,6 @@
           "field": "MoveSPEED",
           "from": 4,
           "to": 3
-        }
-      ]
-    }
-  ],
-  "items/StampB10": [
-    {
-      "v": "2.3.495",
-      "t": "changed",
-      "fields": [
-        {
-          "field": "desc_line1",
-          "from": "BaseMinEff,add,2,0,10,EquipmentToolsHatchet1,1,2,35000,1.4,\\t1,{}_Mining_Efficiency,0",
-          "to": "BaseMinEff,add,2,0,10,EquipmentToolsHatchet1,1,2,35000,1.4,\t1,{}_Mining_Efficiency,0"
-        }
-      ]
-    }
-  ],
-  "items/Quest80": [
-    {
-      "v": "2.3.495",
-      "t": "changed",
-      "fields": [
-        {
-          "field": "desc_line1",
-          "from": "Drop_this_on_the_Legumulyte_(found_deep_in_Bamboo_Forest",
-          "to": "Drop_this_on_the_Legumulyte_(found_deep_in_Bamboo_Forest)_to_trade_in_ALL_your_crops_for_magic_beans_(Crop_Scientist_progress_wont_be_lost)_Or,_hold_down_on_ticket_to_see_how_many_beans_you_will_get_(you_wont_lose_anything_doing_this)"
         }
       ]
     }
@@ -5783,18 +6297,61 @@
     {
       "v": "2.3.495",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 100
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 20
+        }
+      ]
     }
   ],
   "companions/159": [
     {
       "v": "2.3.495",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 170
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 3
+        }
+      ]
     }
   ],
   "companions/160": [
     {
       "v": "2.3.495",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 350
+        }
+      ]
     }
   ],
   "cards/luckEvent1": [
@@ -6362,6 +6919,22 @@
           "to": "4x_Coins_from_monsters,_and_4x_Masterclass_drops"
         }
       ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 200
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 5
+        }
+      ]
     }
   ],
   "bundles/bin_m": [
@@ -6489,18 +7062,66 @@
     {
       "v": "2.3.503",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 380
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 150
+        }
+      ]
     }
   ],
   "companions/162": [
     {
       "v": "2.3.503",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 245
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 1.6
+        }
+      ]
     }
   ],
   "companions/163": [
     {
       "v": "2.3.503",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 290
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 1.5
+        }
+      ]
     }
   ],
   "cards/anni5Event1": [
@@ -6598,18 +7219,51 @@
     {
       "v": "2.3.504",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 12
+        }
+      ]
     }
   ],
   "companions/165": [
     {
       "v": "2.3.504",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 12
+        }
+      ]
     }
   ],
   "companions/166": [
     {
       "v": "2.3.504",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 12
+        }
+      ]
     }
   ],
   "items/w7B12b": [
@@ -6661,6 +7315,11 @@
           "field": "effect",
           "from": "Thank_you_for_rescuing_me_from_the_Fortune_Mill!",
           "to": "Thanks_a_million_for_rescuing_me_from_the_Fortune_Mill!"
+        },
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 277
         }
       ]
     }
@@ -6782,6 +7441,22 @@
     {
       "v": "2.3.511",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 310
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 1.5
+        }
+      ]
     }
   ],
   "cards/caveD": [
@@ -6882,12 +7557,39 @@
           "to": 170
         }
       ]
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 250
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 25
+        }
+      ]
     }
   ],
   "companions/169": [
     {
       "v": "2.3.523",
       "t": "added"
+    },
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 380
+        }
+      ]
     }
   ],
   "bundles/ban_f": [
@@ -7060,6 +7762,714 @@
     {
       "v": "2.3.525",
       "t": "added"
+    }
+  ],
+  "companions/0": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 240
+        }
+      ]
+    }
+  ],
+  "companions/1": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 180
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 35
+        }
+      ]
+    }
+  ],
+  "companions/2": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 170
+        }
+      ]
+    }
+  ],
+  "companions/4": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 130
+        }
+      ]
+    }
+  ],
+  "companions/5": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 100
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 8
+        }
+      ]
+    }
+  ],
+  "companions/6": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 90
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 8
+        }
+      ]
+    }
+  ],
+  "companions/7": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 80
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 2
+        }
+      ]
+    }
+  ],
+  "companions/8": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 80
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 20
+        }
+      ]
+    }
+  ],
+  "companions/9": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 75
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 30
+        }
+      ]
+    }
+  ],
+  "companions/10": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 70
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 15
+        }
+      ]
+    }
+  ],
+  "companions/11": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 11
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 10
+        }
+      ]
+    }
+  ],
+  "companions/12": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 230
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 14
+        }
+      ]
+    }
+  ],
+  "companions/13": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 200
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 1.34
+        }
+      ]
+    }
+  ],
+  "companions/14": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 185
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 1.5
+        }
+      ]
+    }
+  ],
+  "companions/15": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 160
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 4
+        }
+      ]
+    }
+  ],
+  "companions/16": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 160
+        }
+      ]
+    }
+  ],
+  "companions/17": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 150
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 2
+        }
+      ]
+    }
+  ],
+  "companions/18": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 125
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 35
+        }
+      ]
+    }
+  ],
+  "companions/19": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 120
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 8
+        }
+      ]
+    }
+  ],
+  "companions/20": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 100
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 40
+        }
+      ]
+    }
+  ],
+  "companions/21": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 80
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 20
+        }
+      ]
+    }
+  ],
+  "companions/22": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 70
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 20
+        }
+      ]
+    }
+  ],
+  "companions/23": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 60
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 20
+        }
+      ]
+    }
+  ],
+  "companions/24": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 150
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 5
+        }
+      ]
+    }
+  ],
+  "companions/25": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 150
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 70
+        }
+      ]
+    }
+  ],
+  "companions/26": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 150
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 0.5
+        }
+      ]
+    }
+  ],
+  "companions/27": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 240
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 1.5
+        }
+      ]
+    }
+  ],
+  "companions/29": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 170
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 0.75
+        }
+      ]
+    }
+  ],
+  "companions/30": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 160
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 1.5
+        }
+      ]
+    }
+  ],
+  "companions/32": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 189
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 1.5
+        }
+      ]
+    }
+  ],
+  "companions/37": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 250
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 1.5
+        }
+      ]
+    }
+  ],
+  "companions/39": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 170
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 75
+        }
+      ]
+    }
+  ],
+  "companions/40": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 160
+        }
+      ]
+    }
+  ],
+  "companions/41": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 150
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 50
+        }
+      ]
+    }
+  ],
+  "companions/42": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 140
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 3
+        }
+      ]
+    }
+  ],
+  "companions/43": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 125
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 0.5
+        }
+      ]
+    }
+  ],
+  "companions/44": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 120
+        }
+      ]
+    }
+  ],
+  "companions/45": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 100
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 1.5
+        }
+      ]
+    }
+  ],
+  "companions/46": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 90
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 25
+        }
+      ]
+    }
+  ],
+  "companions/47": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 80
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 15
+        }
+      ]
+    }
+  ],
+  "companions/48": [
+    {
+      "v": "2.3.525",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "upgradedTourPower",
+          "from": 0,
+          "to": 70
+        },
+        {
+          "field": "upgradedBonus",
+          "from": null,
+          "to": 7
+        }
+      ]
     }
   ],
   "companions/170": [
