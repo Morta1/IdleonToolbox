@@ -1069,21 +1069,23 @@ const getEventType = (index: any) => {
 }
 
 export const getHighestCapacityCharacter = (item: any, characters: any, account: any, forceMaxCapacity: any) => {
-  return characters?.reduce((res: any, character: any) => {
+  const ranked = (characters ?? []).map((character: any) => {
     const itemCapacity = item?.itemType === 'Equip'
       ? 1
       : getItemCapacity(item?.typeGen, character, account, forceMaxCapacity)?.value;
-    const maxCapacity = character?.inventorySlots * itemCapacity;
-    if (maxCapacity > res?.maxCapacity) {
-      res = {
-        capacityPerSlot: itemCapacity,
-        maxCapacity,
-        character: character?.name,
-        skillsInfoArray: character?.skillsInfoArray
-      }
-    }
-    return res;
-  }, { capacityPerSlot: 0, maxCapacity: 0, character: '' })
+    return {
+      capacityPerSlot: itemCapacity,
+      maxCapacity: character?.inventorySlots * itemCapacity,
+      character: character?.name,
+      skillsInfoArray: character?.skillsInfoArray
+    };
+  }).filter(({ maxCapacity }: any) => maxCapacity > 0)
+    .sort((a: any, b: any) => b.maxCapacity - a.maxCapacity);
+  return {
+    ...(ranked[0] ?? { capacityPerSlot: 0, maxCapacity: 0, character: '' }),
+    // VMan's Extra Bags always wins, so the runners-up show who can realistically carry it
+    topCharacters: ranked.slice(0, 3).map(({ character, maxCapacity }: any) => ({ character, maxCapacity }))
+  };
 }
 export const getAllCap = (character: any, account: any, forceMaxCapacity: any) => {
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 2);

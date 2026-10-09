@@ -18,6 +18,7 @@ export const patchNotes = [
       'Cooking Ribbons: shows your daily ribbon count, the chance for each ribbon rank and where they come from, with a slider to preview different Smoky points'
     ],
     'fixes': [
+      'Stamps: the Max capacity tooltip now lists the top 3 characters, not just the best one',
       'Material Tracker: importing an invalid file no longer adds broken entries that cannot be removed',
       'Item Planner: importing an invalid file now shows an error instead of breaking the page',
       'Royal Guardian: Territory clear in the Active Stuff Calculator and the clearing ETA in Outposts now account for Militia progress that only lands when the map is opened',

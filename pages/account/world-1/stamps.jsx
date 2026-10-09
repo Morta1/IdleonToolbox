@@ -421,7 +421,6 @@ const StampInfo = ({
                      minReduction,
                      currentReduction
                    }) => {
-  const storageColor = enoughPlayerStorage ? '' : '#e57373';
   const materialColor = hasMaterials ? '' : '#e57373';
   const mode = level < maxLevel ? 'money' : 'material';
   return <Box sx={{ p: 1 }}>
@@ -450,9 +449,11 @@ const StampInfo = ({
       <Stack direction={'row'} gap={2}>
         <div>
           <Typography mt={2} variant={'subtitle2'} gutterBottom>Max capacity</Typography>
-          <Typography
-            color={storageColor}
-            variant={'body2'}>{bestCharacter?.character} ({notateNumber(bestCharacter?.maxCapacity ?? 0, 'Big')})</Typography>
+          {(bestCharacter?.topCharacters ?? []).map(({ character, maxCapacity }, index) =>
+            <Typography
+              key={`${character}-${index}`}
+              color={maxCapacity >= materialCost ? '' : '#e57373'}
+              variant={'body2'}>{character} ({notateNumber(maxCapacity ?? 0, 'Big')})</Typography>)}
         </div>
         {mode === 'material' ? <div>
           <Typography mt={2} variant={'subtitle2'} gutterBottom>Storage Amount</Typography>
