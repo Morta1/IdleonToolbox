@@ -178,10 +178,17 @@ const Pets = () => {
   // Pets the game has not put in a group yet but already priced for Pet Mart+: they are in the
   // data ahead of release, and the price is the one thing worth knowing about them early. The
   // 9999-priced filler entries read null and stay hidden; this is only the handful with a real cost.
+  // The game also leaves some live pets out of every set (Glowfish): a real effect, rather than the
+  // placeholder text, is what tells them apart from the unreleased ones.
   const groupedIndices = new Set((companionGroups || []).flatMap((group) => group.indices));
-  const unreleasedIndices = indexedCompanions
-    .filter((comp) => !groupedIndices.has(comp.index) && comp.upgradeCost > 0)
-    .map((comp) => comp.index);
+  const ungrouped = indexedCompanions.filter((comp) => !groupedIndices.has(comp.index) && comp.upgradeCost > 0);
+  const isUnreleased = (comp) => comp.effect === 'Not_officially_in_the_game_and_may_never_be';
+  const unreleasedIndices = ungrouped.filter(isUnreleased).map((comp) => comp.index);
+  const otherIndices = ungrouped.filter((comp) => !isUnreleased(comp)).map((comp) => comp.index);
+  const groups = [
+    ...(companionGroups || []),
+    ...(otherIndices.length > 0 ? [{ name: 'Not in a set', indices: otherIndices }] : [])
+  ];
 
   return <>
     <NextSeo
@@ -226,7 +233,7 @@ const Pets = () => {
       </Alert>}
     </Stack>}
     <Stack gap={4}>
-      {(companionGroups || []).map((group) => (
+      {groups.map((group) => (
         <CompanionList
           key={group.name}
           title={group.name}
@@ -245,7 +252,7 @@ const Pets = () => {
           onToggle={toggleDraft}
         />
       )}
-      {(companionGroups || []).every((group) => filterCompanions(group.indices).length === 0) && (
+      {groups.every((group) => filterCompanions(group.indices).length === 0) && (
         <Typography variant="body2" color="text.secondary">No pets match the selected filter</Typography>
       )}
     </Stack>
