@@ -173,7 +173,10 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
         <Typography variant="body2">Per
           day: {numberWithCommas(getPerHour(getKills(snapshottedChar) - getKills(state?.characters?.[selectedChar])) * 24)}</Typography>
         {currentClearing && snapshotClearing
-          ? <TerritoryClear current={currentClearing} snapshot={snapshotClearing} getPerHour={getPerHour}/>
+          ? <TerritoryClear current={currentClearing} snapshot={snapshotClearing}
+                            currentSaveTime={state?.account?.timeAway?.Player}
+                            snapshotSaveTime={snapshottedAcc?.timeAway?.Player}
+                            getPerHour={getPerHour}/>
           : null}
         {isDivineKnight ? <>
           <Divider sx={{ my: 1 }}/>
@@ -216,18 +219,32 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
   );
 };
 
-// The clear counter moves from two sources at once: the Royal Guardian's own kills on the map and
-// the Clearing units sent at it. The measured diff has both; the militia half is the formula rate.
-const TerritoryClear = ({ current, snapshot, getPerHour }) => {
-  const measuredPerHour = Math.max(0, getPerHour(current.kills - snapshot.kills));
+// The clear counter moves from two sources: the Royal Guardian's own kills on the map and the
+// Clearing units sent at it. Militia kills are banked (RoyalG[3][0] seconds) and only land when the
+// map screen is opened, so the share of the measured diff that is militia comes from how much of the
+// save-to-save time was paid out, not from the formula rate alone.
+const TerritoryClear = ({ current, snapshot, currentSaveTime, snapshotSaveTime, getPerHour }) => {
+  const measuredKills = current.kills - snapshot.kills;
+  const measuredPerHour = Math.max(0, getPerHour(measuredKills));
   const militiaPerHour = current.militiaRate ?? 0;
-  const ownPerHour = Math.max(0, measuredPerHour - militiaPerHour);
-  const remaining = Math.max(0, current.killsRequired - current.kills);
+  const saveSeconds = currentSaveTime - snapshotSaveTime;
+  const canTrackBank = Number.isFinite(current.bankedSeconds) && Number.isFinite(snapshot.bankedSeconds)
+    && Number.isFinite(saveSeconds) && saveSeconds >= 0;
+  // A snapshot taken before the bank was parsed falls back to assuming the militia landed in full.
+  const militiaLanded = canTrackBank
+    ? Math.max(0, militiaPerHour * (saveSeconds + snapshot.bankedSeconds - current.bankedSeconds) / 3600)
+    : null;
+  const ownPerHour = Math.max(0, militiaLanded != null
+    ? getPerHour(measuredKills - militiaLanded)
+    : measuredPerHour - militiaPerHour);
+  const bankedKills = current.bankedKills ?? 0;
+  const remaining = Math.max(0, current.killsRequired - current.kills - bankedKills);
+  const totalPerHour = ownPerHour + militiaPerHour;
   return <>
     <Divider sx={{ my: 1 }}/>
     <Stack direction="row" alignItems="center" gap={0.5}>
       <Typography variant="body1">Territory clear</Typography>
-      <Tooltip title={'Measured is how far the clear counter of the map moved since the snapshot, your kills and your Clearing units together. Militia is the rate your Clearing units add on their own.'}>
+      <Tooltip title={'Measured is how far the clear counter of the map moved since the snapshot. Militia kills are banked and only land when you open the map, so the calculator subtracts just the militia kills that actually landed between the two saves. Map open or closed, Yours stays your own rate.'}>
         <IconInfoCircleFilled size={18}/>
       </Tooltip>
     </Stack>
@@ -240,13 +257,19 @@ const TerritoryClear = ({ current, snapshot, getPerHour }) => {
     <Typography variant="body2">
       Militia: {notateNumber(militiaPerHour, 'Big')} / hr ({current.militiaUnits ?? 0} unit{current.militiaUnits === 1 ? '' : 's'})
     </Typography>
+    {militiaLanded != null ? <Typography variant="body2">
+      Militia landed: {notateNumber(militiaLanded, 'Big')} since snapshot
+    </Typography> : null}
+    {bankedKills > 0 ? <Typography variant="body2">
+      Militia banked: {notateNumber(bankedKills, 'Big')} (lands when you open the map)
+    </Typography> : null}
     <Typography variant="body2">Yours: {notateNumber(ownPerHour, 'Big')} / hr</Typography>
     <Typography variant="body2">
       {remaining <= 0
-        ? 'Ready to claim'
-        : measuredPerHour > 0
-          ? `Clears in ${formatEta(remaining / measuredPerHour)}`
-          : militiaPerHour > 0 ? `Clears in ${formatEta(remaining / militiaPerHour)} (militia only)` : 'No clear progress yet'}
+        ? current.kills >= current.killsRequired ? 'Ready to claim' : 'Ready once you open the map'
+        : totalPerHour > 0
+          ? `Clears in ${formatEta(remaining / totalPerHour)}${ownPerHour > 0 ? '' : ' (militia only)'}`
+          : 'No clear progress yet'}
     </Typography>
   </>;
 };

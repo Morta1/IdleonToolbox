@@ -283,6 +283,10 @@ export interface RoyalClearingMap {
   progress: number;
   militiaUnits: number;
   militiaRate: number;
+  // game: RoyalG[3][0] - seconds banked since the last collect (it only runs while the map screen is
+  // open). Militia kills land in one lump, militiaRate * bankedSeconds / 3600, at the next collect.
+  bankedSeconds: number;
+  bankedKills: number;
   hoursToClear: number | null;
 }
 
@@ -1407,11 +1411,16 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     const militiaUnits = deployments
       .filter(({ job, mapIndex }) => job === UNIT_JOB_CLEAR && mapIndex === clearingMap.mapIndex).length;
     const militiaRate = militiaUnits * militiaClearRate;
-    const remaining = Math.max(0, clearingMap.killsRequired - clearingMap.kills);
+    const bankedSeconds = Math.max(0, toNum(progression?.[0]));
+    const bankedKills = militiaRate * bankedSeconds / 3600;
+    // Banked kills are already owed, so they come off what is left before the ETA.
+    const remaining = Math.max(0, clearingMap.killsRequired - clearingMap.kills - bankedKills);
     return {
       ...clearingMap,
       militiaUnits,
       militiaRate,
+      bankedSeconds,
+      bankedKills,
       hoursToClear: remaining <= 0 ? 0 : militiaRate > 0 ? remaining / militiaRate : null
     };
   });

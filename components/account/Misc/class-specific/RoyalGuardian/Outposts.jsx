@@ -129,7 +129,9 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
           {militiaUnits > 0
             ? `${militiaUnits} Clearing unit${militiaUnits > 1 ? 's' : ''} · ${notateNumber(militiaRate, 'Big')}/hr`
             : 'No Clearing units sent here'}
-          {progress < 1 && hoursToClear != null ? ` · clears in ${formatEta(hoursToClear)}` : ''}
+          {progress < 1 && hoursToClear != null
+            ? hoursToClear <= 0 ? ' · ready once you open the map' : ` · clears in ${formatEta(hoursToClear)}`
+            : ''}
         </Typography>
       </CardContent>
     </Card>
