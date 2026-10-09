@@ -2,13 +2,14 @@ import { describe, it, expect } from 'vitest';
 import * as data from '@website-data';
 
 describe('website-data barrel', () => {
-  // 155 keys come from z-processing (26 in their own file, 129 inside shared-data.json);
+  // 157 keys come from z-processing (26 in their own file, 131 inside shared-data.json);
   // itemsArray is derived in the barrel. A missing name is a build break for whichever
   // importing file needed it.
-  it('exports 160 names', () => {
+  it('exports 162 names', () => {
     // 2.3.531 added jellyUpgrades; spiceNames moved here from a hand-kept frontend copy;
-    // gameTables holds the lists parsers used to copy from the game code by hand.
-    expect(Object.keys(data)).toHaveLength(160);
+    // gameTables holds the lists parsers used to copy from the game code by hand;
+    // upgradeHelp / upgradeHelpPlaceholders hold the (?) help text of upgrade panels.
+    expect(Object.keys(data)).toHaveLength(162);
   });
 
   it('has no empty export', () => {

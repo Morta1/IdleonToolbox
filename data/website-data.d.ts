@@ -10732,6 +10732,24 @@ declare module '@website-data' {
         exp: number;
         trapType: number;
       }[])[];
+  export const upgradeHelp: {
+    vault: Record<string, string>;
+    grimoire: Record<string, string>;
+    arcane: Record<string, string>;
+    armory: Record<string, string>;
+  };
+  export const upgradeHelpPlaceholders: {
+    'arcane:3': {
+      prismaFound: string;
+      prismaMult: string;
+    };
+    'arcane:5': {
+      weaponDropsLeft: string;
+    };
+    'arcane:23': {
+      ringDropsLeft: string;
+    };
+  };
   export const upgradeVault: {
       name: string;
       x1: number;

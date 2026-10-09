@@ -29,7 +29,7 @@ describe('getGrimoire', () => {
 
   it('carries catalog fields through', () => {
     const [first] = getGrimoire(undefined, [], {}).upgrades;
-    expect(first.name).toBe('Wraith_Damage_製_(Tap_for_more_info)');
+    expect(first.name).toBe('Wraith_Damage');
   });
 
   it('applies save levels at the right indexes (synthetic, unconditional)', () => {

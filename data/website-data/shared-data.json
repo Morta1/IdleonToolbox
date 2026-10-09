@@ -11066,7 +11066,7 @@
   ],
   "grimoire": [
     {
-      "name": "Wraith_Damage_製_(Tap_for_more_info)",
+      "name": "Wraith_Damage",
       "x1": 8,
       "x2": 1.1,
       "boneType": 0,
@@ -11126,7 +11126,7 @@
       "description": "Unlocks_Ribbons_for_Meals,_found_at_Le_Menu_in_W4"
     },
     {
-      "name": "Ribbon_Winning_製",
+      "name": "Ribbon_Winning",
       "x1": 50,
       "x2": 1.6,
       "boneType": 0,
@@ -11222,7 +11222,7 @@
       "description": "+{_Base_Accuracy_in_Wraith_Form"
     },
     {
-      "name": "Knockout!_(#)_製",
+      "name": "Knockout!_(#)",
       "x1": 450,
       "x2": 1.45,
       "boneType": 1,
@@ -11318,7 +11318,7 @@
       "description": "+{%_Crit_DMG_in_Wraith_Form"
     },
     {
-      "name": "Elimination!_(#)_製",
+      "name": "Elimination!_(#)",
       "x1": 6250,
       "x2": 1.45,
       "boneType": 1,
@@ -11354,7 +11354,7 @@
       "description": "+{%_Extra_Bones"
     },
     {
-      "name": "Skull_of_Major_Experience_製",
+      "name": "Skull_of_Major_Experience",
       "x1": 8500,
       "x2": 1.03,
       "boneType": 1,
@@ -11438,7 +11438,7 @@
       "description": "+{_Base_Defence_in_Wraith_Form"
     },
     {
-      "name": "Annihilation!_(#)_製",
+      "name": "Annihilation!_(#)",
       "x1": 16500,
       "x2": 1.55,
       "boneType": 2,
@@ -11486,7 +11486,7 @@
       "description": "+{_Base_HP_in_Wraith_Form"
     },
     {
-      "name": "Skull_of_Major_Damage_製",
+      "name": "Skull_of_Major_Damage",
       "x1": 23000,
       "x2": 1.04,
       "boneType": 2,
@@ -11534,7 +11534,7 @@
       "description": "+{%_Accuracy,_Defence,_and_HP_in_Wraith_Form"
     },
     {
-      "name": "Skull_of_Major_Talent_製",
+      "name": "Skull_of_Major_Talent",
       "x1": 50000,
       "x2": 1.65,
       "boneType": 3,
@@ -11594,7 +11594,7 @@
       "description": "+{%_Total_Damage_in_Wraith_form"
     },
     {
-      "name": "Skull_of_Major_Droprate_製",
+      "name": "Skull_of_Major_Droprate",
       "x1": 100000,
       "x2": 1.08,
       "boneType": 3,
@@ -46182,7 +46182,7 @@
   ],
   "tesseract": [
     {
-      "name": "Arcanist_Damage_製_(Tap_for_more_info)",
+      "name": "Arcanist_Damage",
       "x1": 8,
       "x2": 1.08,
       "x3": 0,
@@ -46218,7 +46218,7 @@
       "description": "+{_Base_Defence_in_Arcanist_Form"
     },
     {
-      "name": "The_Prisma_Bubble_is_Real_製",
+      "name": "The_Prisma_Bubble_is_Real",
       "x1": 10,
       "x2": 1.07,
       "x3": 0,
@@ -46242,7 +46242,7 @@
       "description": "+{%_Total_Damage_in_Arcanist_Form"
     },
     {
-      "name": "Wand_Drops_製",
+      "name": "Wand_Drops",
       "x1": 50,
       "x2": 1.2,
       "x3": 0,
@@ -46398,7 +46398,7 @@
       "description": "+{%_Extra_Tachyons"
     },
     {
-      "name": "Parallel_Statues_製",
+      "name": "Parallel_Statues",
       "x1": 2000,
       "x2": 1.55,
       "x3": 2,
@@ -46458,7 +46458,7 @@
       "description": "+{%_Defence_and_Accuracy_in_Arcanist_Form"
     },
     {
-      "name": "Ring_Drops_製",
+      "name": "Ring_Drops",
       "x1": 7500,
       "x2": 1.2,
       "x3": 3,
@@ -46542,7 +46542,7 @@
       "description": "+{_Base_Defence_in_Arcanist_Form"
     },
     {
-      "name": "Parallel_Golden_Food_製",
+      "name": "Parallel_Golden_Food",
       "x1": 7000,
       "x2": 1.55,
       "x3": 3,
@@ -46770,7 +46770,7 @@
       "description": "All_bonuses_from_defeating_The_Emperor_are_}x_higher"
     },
     {
-      "name": "Massivon_Hoarding_製",
+      "name": "Massivon_Hoarding",
       "x1": 300000,
       "x2": 1.35,
       "x3": 3,
@@ -46794,7 +46794,7 @@
       "description": "+{_Base_Damage_in_Arcanist_Form"
     },
     {
-      "name": "Drop_Rate_Crossfire_製",
+      "name": "Drop_Rate_Crossfire",
       "x1": 600000,
       "x2": 1.5,
       "x3": 4,
@@ -46830,7 +46830,7 @@
       "description": "+{%_Total_Damage_in_Arcanist_Form"
     },
     {
-      "name": "Endless_Reductions_製",
+      "name": "Endless_Reductions",
       "x1": 1200000,
       "x2": 1.8,
       "x3": 5,
@@ -46878,7 +46878,7 @@
       "description": "+{_Talent_LVs_for_all_characters,_always!"
     },
     {
-      "name": "Beyond_All_Limits_製",
+      "name": "Beyond_All_Limits",
       "x1": 5000000,
       "x2": 200,
       "x3": 5,
@@ -48765,6 +48765,89 @@
       }
     ]
   ],
+  "upgradeHelp": {
+    "vault": {
+      "1": "These_talent_points_are_just_for_the_1st_Tab.",
+      "4": {
+        "beginner": "As_a_Beginner_you..._wait,_why_are_you_a_beginner?_Go_get_a_class!",
+        "warrior": "As_a_Warrior,_you_get_most_of_your_Accuracy_from_the_WIS_stat!",
+        "archer": "As_an_Archer,_you_get_most_of_your_Accuracy_from_the_STR_stat!",
+        "mage": "As_a_Mage,_you_get_most_of_your_Accuracy_from_the_AGI_stat!"
+      },
+      "6": "These_talent_points_are_just_for_the_2nd_Tab.",
+      "10": "You_can_actually_craft_from_ANYWHERE!_Open_your_Codex,_go_to_Quik_Ref_tab,_then_click_Anvil!_Boom!",
+      "11": "Seriously,_craft_the_Max_Carry_Bags_at_the_anvil_whenever_you_can!_Being_able_to_carry_1000s_of_items_in_each_slot_is_baller!",
+      "12": "Create_more_characters_at_the_Main_Menu!_Open_MENU\\SWAP_PLAYERS\\_PLAYER_MENU_in_the_top_left_corner!_Ez_Pz!",
+      "14": "POW_10_means_Power_of_10._So_you_get_more_bonus_at_100,_1000,_and_so_on!_ALSO,_this_counts_kills_from_ALL_your_players!",
+      "15": "A_Knockout,_or_KO,_is_when_you_kill_the_target_monster_in_a_single_hit_using_your_bare_hands,_no_weapon_equipped!",
+      "17": "This_bonus_INCREASES_for_every_ore_you_mine!_It_also_counts_ores_mined_from_any_player,_so_go_make_a_2nd_player!",
+      "19": "He_a_happy_boi!",
+      "20": "POW_10_means_Power_of_10._So_you_get_more_bonus_at_100,_1000,_and_so_on!_ALSO,_this_counts_kills_from_ALL_your_players!",
+      "21": "Orion_the_Owl_can_be_found_in_the_SECRET_portal_on_the_Bored_Beans_map!_Ok,_it's_not_really_a_secret,_but_like_whatever...",
+      "24": "Click_the_PRODUCE_tab_at_the_anvil,_it_will_flash_if_you_haven't_found_it_yet!",
+      "27": "POW_10_means_Power_of_10._So_you_get_more_bonus_at_100,_1000,_and_so_on!_ALSO,_this_counts_kills_from_ALL_your_players!",
+      "31": "Can't_find_poops?__The_sewer_entrance_is_literally_where_you_started_the_game!",
+      "34": "Talk_to_Grasslands_Gary_in_World_1_town,_then_UNLOCKS_in_the_top_right._Spend_trophies_from_completing_tasks_to_get_new_Anvil_Recipes!",
+      "35": "You_don't_know_how_to_fish?_World_2_my_friend,_left_of_town_can't_miss_it!",
+      "37": "This_bonus_only_counts_the_first_100_Levels_of_each_bubble._Sorry_endgamers,_those_big_ahh_bubbles_you_got_dont_count!",
+      "42": "Find_vials_in_the_3rd_tab_at_the_top_of_ALCHEMY!",
+      "44": "These_are_the_first_of_MANY_cards_you_will_turn_passive!_You'll_find_more_ways_in_the_RIFT_in_World_4!",
+      "45": "Poppy_the_Kangaroo_Mouse_is_over_at_the_SECRET_oasis,_buy_the_Map_from_the_bottom_of_the_World_2_town_shop_to_go_find_them!!!",
+      "48": "Construction_is_a_World_3_feature._Sheepies_are_also_World_3._Just_tellin'_ya_incase_you're_still_in_World_2!",
+      "49": "This_star_talent_tracks_how_many_different_quests_you've_done_on_ANY_player._No_need_to_do_the_same_quest_twice!!!",
+      "50": "These_will_become_a_LOT_easier_to_collect_after_building_the_Automation_Arm_in_Construction!_A_LOT_less_running_around!",
+      "75": "Captains_gain_EXP_at_the_end_of_each_sailing_voyage,_based_on_how_far_the_trip_was._Leveling_them_up_increases_their_bonuses,_as_shown_in_the_CREW_tab.",
+      "76": "Divinity_Blessings_are_the_passive,_permanent_upgrades_that_each_Divinity_has._You'll_see_them_underneath_the_MINOR_bonus_description_of_each_Divinity.",
+      "78": "Crop_Evo_chance_is_the_chance_that_a_crop_evolves_to_the_next_type._You_want_this_to_happen_so_you_can_collect_more_and_more_crop_types,_for_bigger_bonuses!",
+      "79": "The_Crop_Depot_bonuses_can_be_found_by_clicking_on_the_Scientist_Blobulyte._He's_the_one_with_the_giant_pencil,_left_of_the_Farmer's_Market!",
+      "83": "You_can_find_the_Summoning_Upgrades_by_clicking_on_the_floating_White_Stone._It's_on_the_left_side_of_the_World_6_town_map!",
+      "85": "Get_Magic_Beans_by_buying_the_'Crop_Transfer_Ticket'_from_W6_Town_Shop,_and_dropping_it_on_Legumulyte_found_in_the_Mama_Troll_map_deep_in_the_Bamboo_Forest_of_World_6!"
+    },
+    "grimoire": {
+      "0": "Enter_Wraith_Form_using_the_other_Talent._It_lets_you_get_bones_from_killing_monsters!_Exit_Wraith_Form_by_reusing_the_talent.",
+      "5": "You_only_get_ribbons_on_days_you_play_IdleOn._If_your_Shelf_is_full,_the_new_ribbon_will_try_to_combine_with_another.",
+      "13": "A_Knockout,_or_KO,_is_when_you_kill_the_target_monster_in_a_single_hit_using_your_bare_hands,_no_spears_allowed!",
+      "21": "An_Elimination_is_when_you_defeat_the_entire_map_of_target_monsters_before_any_of_them_respawn!",
+      "24": "This_bonus_affects_all_your_players,_all_the_time!_It_has_nothing_to_do_with_Wraith_Form_or_your_Death_Bringer.",
+      "31": "An_Annihilation_is_when_you_defeat_200_target_monsters_within_60_seconds_of_entering_their_map!",
+      "35": "This_bonus_affects_all_your_players,_all_the_time!_It_has_nothing_to_do_with_Wraith_Form_or_your_Death_Bringer.",
+      "39": "This_bonus_affects_all_your_players,_all_the_time!_It_has_nothing_to_do_with_Wraith_Form_or_your_Death_Bringer.",
+      "44": "This_bonus_affects_all_your_players,_all_the_time!_It_has_nothing_to_do_with_Wraith_Form_or_your_Death_Bringer."
+    },
+    "arcane": {
+      "0": "Enter_Arcanist_Form_to_collect_Tachyons_from_monsters!_Defeat_Arcane_Monsters_spawned_by_your_Crystal_Talent_within_the_timer_to_unlock_the_next_map._If_you_run_out_of_time,_arcane_mobs_will_despawn_and_your_crystal_will_lose_its_charge.",
+      "3": "This_chance_goes_down_with_each_Prisma_Bubble_you_get._Also,_drop_chance_increases_based_on_your_current_World._@___@_You_have_found_{prismaFound}_Prisma_bubbles_so_far!_@___@_Your_Prisma_Bubbles_currently_give_{prismaMult}x_higher_Bonuses!",
+      "5": "Quality_is_a_rough_idea_of_how_powerful_a_weapon_is._Only_the_stats_themselves_matter._@_Every_Weapon_Power_gives_a_1.04x_DMG_multi_stack._@_Mobs_will_only_drop_up_to_100_Arcanist_weapons_a_day._@_Only_{weaponDropsLeft}_more_Weapon_drops_today!",
+      "18": "2x_Quantity_just_means_that_if_a_monster_drops_3_statues,_you'll_get_6_instead!_This_also_affects_Statues_dropped_from_AFK_gains.",
+      "23": "Quality_is_a_rough_idea_of_how_powerful_a_ring_is._Only_the_stats_themselves_matter._@_Mobs_will_only_drop_up_to_100_Arcanist_rings_a_day._@_Only_{ringDropsLeft}_more_Ring_drops_today!",
+      "30": "2x_Quantity_just_means_that_if_a_monster_drops_17_golden_food,_you'll_get_34_instead!_This_also_affects_Gold_Food_dropped_from_AFK_gains.",
+      "49": "'Upgrades'_here_means_Tesseract_Upgrades,_as_you_might_have_assumed...",
+      "51": "For_example,_if_your_normal_Drop_Rate_is_20x,_and_this_upgrade_is_25%,_it_would_give_you_5x_Prisma_drop_chance!",
+      "54": "Endless_mode_is_accessed_in_the_Top_Right_of_the_Summoner's_Table",
+      "58": "Higher_than_what,_you_ask?_Well,_higher_than_the_amount_shown_in_the_Overwhelming_Energy_talent."
+    },
+    "armory": {
+      "0": "A_resource's_Grade_is_shown_by_its_border,_and_its_Collection_Rate_bonus_is_applied_to_all_Outposts_connected_to_it!",
+      "9": "This_isn't_the_only_way_to_earn_Outpost_PTS!_Once_you_unlock_the_Trader,_you_can_earn_PTS_for_each_Outpost_by_increasing_their_respective_TRADE_Ranks!",
+      "17": "This_peacetime_militia_EXP_rate_is_based_on_the_EXP_rate_of_the_Knight_unit._More_specifically,_it's_exactly_half!",
+      "37": "Parchments_do_not_drop_from_AFK_Gains,_only_from_active_kills_while_online._Fighting_on_AUTO_works_of_course!",
+      "46": "Royal_Guardians_only_get_Talent_Points_from_the_Royal_Armory,_other_Masterclasses,_and_several_other_small_sources._@_Importantly,_Class_LV_does_not_give_any_talent_points.",
+      "53": "Top_of_list_resources_are_literally_the_resources_at_the_top_of_each_World_list,_like_Wheat_for_World_1!",
+      "73": "Each_rank_adds_a_new_stationary_unit!_These_are_not_adjustable,_and_the_type_of_unit_you_get_is_in_the_order_of_Worker,_Trader,_Guard,_then_Surveyor"
+    }
+  },
+  "upgradeHelpPlaceholders": {
+    "arcane:3": {
+      "prismaFound": "Math.round(GA.OptionsListAccount[395] + this._GenINFO[43])",
+      "prismaMult": "y.replace(\"\" + NotateNumber(Math.max(1, ArcaneType(\"PrismaBonusMult\", 0, 0)), \"MultiplierInfo\"), \"#\", \"\")"
+    },
+    "arcane:5": {
+      "weaponDropsLeft": "Math.round(100 - GA.OptionsListAccount[396])"
+    },
+    "arcane:23": {
+      "ringDropsLeft": "Math.round(100 - GA.OptionsListAccount[397])"
+    }
+  },
   "upgradeVault": [
     {
       "name": "Bigger_Damage",
@@ -48779,7 +48862,7 @@
       "description": "+{_Damage._Monsters_hate_this_upgrade!__"
     },
     {
-      "name": "Natural_Talent_製_(Tap_for_Info)",
+      "name": "Natural_Talent",
       "x1": 14,
       "x2": 1.15,
       "x3": 0,
@@ -48815,7 +48898,7 @@
       "description": "+{%_Class_EXP_Gain._Leveling_up_gives_you_Talent_Pts!"
     },
     {
-      "name": "Bullseye_製",
+      "name": "Bullseye",
       "x1": 25,
       "x2": 1.15,
       "x3": 0,
@@ -48839,7 +48922,7 @@
       "description": "+{_Defence._Useful_when_monsters_start_hurting!__"
     },
     {
-      "name": "Evolving_Talent_製",
+      "name": "Evolving_Talent",
       "x1": 90,
       "x2": 1.18,
       "x3": 0,
@@ -48887,7 +48970,7 @@
       "description": "Fireball_casts_in_both_directions_at_the_same_time!__"
     },
     {
-      "name": "Weapon_Craft_製",
+      "name": "Weapon_Craft",
       "x1": 170,
       "x2": 7.5,
       "x3": 0,
@@ -48899,7 +48982,7 @@
       "description": "All_crafted_weapons_give_+{%_more_damage._Go_craft_a_new_weapon_at_the_Anvil_in_Codex"
     },
     {
-      "name": "Carry_Capacity_製",
+      "name": "Carry_Capacity",
       "x1": 200,
       "x2": 1.35,
       "x3": 0,
@@ -48911,7 +48994,7 @@
       "description": "Can_carry_+{_more_resources_per_slot!_Craft_Bags_at_the_anvil_to_boost_this_way_more!"
     },
     {
-      "name": "Baby_on_Board_製",
+      "name": "Baby_on_Board",
       "x1": 250,
       "x2": 1.08,
       "x3": 0,
@@ -48935,7 +49018,7 @@
       "description": "All_upgrades_in_the_Vault_are_$%_cheaper__"
     },
     {
-      "name": "Bored_to_Death_製",
+      "name": "Bored_to_Death",
       "x1": 300,
       "x2": 4.5,
       "x3": 0,
@@ -48947,7 +49030,7 @@
       "description": "+{%_Coins_from_Monsters_per_POW_10_Bean_Kills._$%_Coins"
     },
     {
-      "name": "Knockout!_製",
+      "name": "Knockout!",
       "x1": 1000,
       "x2": 6,
       "x3": 0,
@@ -48971,7 +49054,7 @@
       "description": "}x_higher_bonuses_from_Sword,_Heart,_Target,_and_Shield_Stamps"
     },
     {
-      "name": "Mining_Payday$_製",
+      "name": "Mining_Payday$",
       "x1": 650,
       "x2": 1.28,
       "x3": 0,
@@ -48995,7 +49078,7 @@
       "description": "+{%_Drop_Rate,_also_known_by_the_IdleOn_community_as_DR"
     },
     {
-      "name": "Happy_Doggy_製",
+      "name": "Happy_Doggy",
       "x1": 800,
       "x2": 1.25,
       "x3": 0,
@@ -49007,7 +49090,7 @@
       "description": "+{%_Dog_Happiness"
     },
     {
-      "name": "Slice_N_Dice_製",
+      "name": "Slice_N_Dice",
       "x1": 900,
       "x2": 1.1,
       "x3": 0,
@@ -49019,7 +49102,7 @@
       "description": "+{_Base_Damage_per_POW_10_Carrot_Kills._$_Dmg"
     },
     {
-      "name": "Go_Go_Secret_Owl_製",
+      "name": "Go_Go_Secret_Owl",
       "x1": 400,
       "x2": 1.1,
       "x3": 0,
@@ -49055,7 +49138,7 @@
       "description": "+{%_AFK_Gains_for_Fighting_and_Skilling__"
     },
     {
-      "name": "Production_Revolution_製",
+      "name": "Production_Revolution",
       "x1": 1300,
       "x2": 1.15,
       "x3": 0,
@@ -49091,7 +49174,7 @@
       "description": "+{%_higher_Forge_Capacity__"
     },
     {
-      "name": "Stick_Snapping_製",
+      "name": "Stick_Snapping",
       "x1": 1800,
       "x2": 1.13,
       "x3": 0,
@@ -49139,7 +49222,7 @@
       "description": "+{%_Fishing_EXP_Gain__"
     },
     {
-      "name": "Dirty_Money_製",
+      "name": "Dirty_Money",
       "x1": 3000,
       "x2": 1.1,
       "x3": 0,
@@ -49175,7 +49258,7 @@
       "description": "+{_more_slots_in_your_Storage_Chest!_Great_for_moving_items_between_players!"
     },
     {
-      "name": "Recipe_for_Profit_製",
+      "name": "Recipe_for_Profit",
       "x1": 8000,
       "x2": 1.35,
       "x3": 0,
@@ -49187,7 +49270,7 @@
       "description": "+{%_Coins_per_recipe_unlocked_from_Taskboard!_Total_bonus:+$%_Coins"
     },
     {
-      "name": "Schoolin'_the_Fish$_製",
+      "name": "Schoolin'_the_Fish$",
       "x1": 15000,
       "x2": 1.5,
       "x3": 0,
@@ -49211,7 +49294,7 @@
       "description": "You_can_now_deposit_resources_from_AFK_straight_to_storage._Other_items_will_still_drop_on_the_ground."
     },
     {
-      "name": "Bubble_Money_製",
+      "name": "Bubble_Money",
       "x1": 36000,
       "x2": 1.7,
       "x3": 0,
@@ -49271,7 +49354,7 @@
       "description": "+{%_Total_Damage_per_POW_10_bugs_caught._Total_Bonus:+$%_DMG"
     },
     {
-      "name": "Vial_Overtune_製",
+      "name": "Vial_Overtune",
       "x1": 245000,
       "x2": 25,
       "x3": 0,
@@ -49295,7 +49378,7 @@
       "description": "Killing_monsters_open_portals_}x_faster_while_the_game_is_open."
     },
     {
-      "name": "Card_Retirement_製",
+      "name": "Card_Retirement",
       "x1": 50000000,
       "x2": 1,
       "x3": 0,
@@ -49307,7 +49390,7 @@
       "description": "Cards_that_give_Card_Drop_Rate_bonuses_become_PASSIVE,_so_you_never_need_to_equip_them_again!"
     },
     {
-      "name": "Go_Go_Secret_Kangaroo_Mouse_製",
+      "name": "Go_Go_Secret_Kangaroo_Mouse",
       "x1": 580000,
       "x2": 1.1,
       "x3": 0,
@@ -49343,7 +49426,7 @@
       "description": "Get_{_Post_Office_boxes_every_day_you_open_up_IdleOn_and_play_it!"
     },
     {
-      "name": "Buildie_Sheepie_製",
+      "name": "Buildie_Sheepie",
       "x1": 1500000,
       "x2": 1.65,
       "x3": 0,
@@ -49355,7 +49438,7 @@
       "description": "+{%_Construction_SPD_per_POW_10_Sheepie_Kills._$%_Build_SPD"
     },
     {
-      "name": "Quest_KAPOW!_製",
+      "name": "Quest_KAPOW!",
       "x1": 2200000,
       "x2": 1.08,
       "x3": 0,
@@ -49367,7 +49450,7 @@
       "description": "Raises_the_max_LV_of_the_star_talent_to_{_You'll_see_this_star_talent_on_Page_1."
     },
     {
-      "name": "Critters_'n_Souls_製",
+      "name": "Critters_'n_Souls",
       "x1": 3500000,
       "x2": 1.06,
       "x3": 0,
@@ -49667,7 +49750,7 @@
       "description": "All_Slab_bonuses_are_}x_larger._You_can_see_these_at_the_top_of_your_Slab_in_W5_town."
     },
     {
-      "name": "Better_Captains_製",
+      "name": "Better_Captains",
       "x1": 25000000000000,
       "x2": 1.35,
       "x3": 0,
@@ -49679,7 +49762,7 @@
       "description": "You_Sailing_Captains_gain_+{%_more_EXP_from_each_trip_they_make!"
     },
     {
-      "name": "Big_Blessings_製",
+      "name": "Big_Blessings",
       "x1": 45000000000000,
       "x2": 3.5,
       "x3": 0,
@@ -49703,7 +49786,7 @@
       "description": "+{%_Farming_EXP_Gain__"
     },
     {
-      "name": "Croppius_Evolvius_製",
+      "name": "Croppius_Evolvius",
       "x1": 220000000000000,
       "x2": 1.23,
       "x3": 0,
@@ -49715,7 +49798,7 @@
       "description": "}x_higher_Evo_Chance_for_all_Farming_crops!__"
     },
     {
-      "name": "Properly_Funded_Research_製",
+      "name": "Properly_Funded_Research",
       "x1": 450000000000000,
       "x2": 40,
       "x3": 0,
@@ -49763,7 +49846,7 @@
       "description": "+{%_Seanking_EXP_Gain__"
     },
     {
-      "name": "White_Essentials_製",
+      "name": "White_Essentials",
       "x1": 65000000000000000,
       "x2": 1.2,
       "x3": 0,
@@ -49787,7 +49870,7 @@
       "description": "+{%_Summoning_EXP_Gain__"
     },
     {
-      "name": "Bigger_Better_Beans_製",
+      "name": "Bigger_Better_Beans",
       "x1": 2500000000000000000,
       "x2": 2.5,
       "x3": 0,

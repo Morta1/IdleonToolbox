@@ -36,7 +36,7 @@ describe('getTesseract', () => {
 
   it('carries catalog fields through', () => {
     const [first] = getTesseract(undefined, [], {}).upgrades;
-    expect(first.name).toBe('Arcanist_Damage_製_(Tap_for_more_info)');
+    expect(first.name).toBe('Arcanist_Damage');
   });
 
   it('applies save levels at the right indexes (synthetic, unconditional)', () => {

@@ -1,7 +1,7 @@
 [
   {
     "index": 0,
-    "name": "Resource_Grades_製",
+    "name": "Resource_Grades",
     "baseCost": 1,
     "costScaling": 1,
     "costResourceIndex": 0,
@@ -118,7 +118,7 @@
   },
   {
     "index": 9,
-    "name": "Blunder_Outpost_PTS_製",
+    "name": "Blunder_Outpost_PTS",
     "baseCost": 1,
     "costScaling": 1.5,
     "costResourceIndex": 2,
@@ -222,7 +222,7 @@
   },
   {
     "index": 17,
-    "name": "Peacetime_Milita_製",
+    "name": "Peacetime_Milita",
     "baseCost": 1,
     "costScaling": 1,
     "costResourceIndex": 5,
@@ -482,7 +482,7 @@
   },
   {
     "index": 37,
-    "name": "Parchment_of_Enchantment_製",
+    "name": "Parchment_of_Enchantment",
     "baseCost": 1,
     "costScaling": 1,
     "costResourceIndex": 20,
@@ -599,7 +599,7 @@
   },
   {
     "index": 46,
-    "name": "Royal_Talent_Points_I_製",
+    "name": "Royal_Talent_Points_I",
     "baseCost": 0.2,
     "costScaling": 1.13,
     "costResourceIndex": 22,
@@ -690,7 +690,7 @@
   },
   {
     "index": 53,
-    "name": "Tip-Top_'sources_製",
+    "name": "Tip-Top_'sources",
     "baseCost": 1,
     "costScaling": 750,
     "costResourceIndex": 26,
@@ -950,7 +950,7 @@
   },
   {
     "index": 73,
-    "name": "Command_Rank_製",
+    "name": "Command_Rank",
     "baseCost": 1,
     "costScaling": 1000000,
     "costResourceIndex": 9,

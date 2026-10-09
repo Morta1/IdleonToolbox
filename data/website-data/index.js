@@ -160,6 +160,8 @@ export const {
   towers,
   trappingInfo,
   traps,
+  upgradeHelp,
+  upgradeHelpPlaceholders,
   upgradeVault,
   vialCosts,
   weeklyBosses,
