@@ -25,7 +25,8 @@ export const patchNotes = [
       'Royal Guardian: Territory clear in the Active Stuff Calculator and the clearing ETA in Outposts now account for Militia progress that only lands when the map is opened',
       'Dashboard: Royal Guardian rank cap inputs now say Rank instead of the holder names',
       'Divinity: Kattlekruk now shows the daily bubble levels and which bubbles they apply to',
-      'Dashboard: the companions timer no longer links to a missing page'
+      'Dashboard: the companions timer no longer links to a missing page',
+      'Active Stuff Calculator and Royal Armory: clear and ready timers now show hours up to 5 days instead of rounding to days'
     ]
   },
   {
