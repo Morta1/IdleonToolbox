@@ -865,11 +865,10 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
         return militiaClearRate > 1e7
           ? String(notateNumber(militiaClearRate, 'Big'))
           : commaNotation(militiaClearRate);
-      case 68: { // Kingdom_Sovereignty - next recruit, keyed off the upgrade's OWN level (max 36)
+      case 68: { // Kingdom_Sovereignty - next recruit, keyed off the upgrade's OWN level (one per recruit)
         const level = toNum(armoryLevels?.[68]);
-        if (level >= 36) return "None._You've_recruited_them_all!";
-        const roleByLevel = '0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,1,1,1,1,0,2,2,2,1,2,2,2,2,2,2,2,0,1,2,2'.split(',');
-        const worldByLevel = '1,2,1,2,1,2,3,1,2,3,1,2,3,3,4,3,4,1,2,3,4,1,2,3,4,1,2,3,4,1,2,3,4,4,4,4'.split(',');
+        const { role: roleByLevel, world: worldByLevel } = gameTables.royalRecruitOrder;
+        if (level >= roleByLevel.length) return "None._You've_recruited_them_all!";
         const role = gameTables.royalRecruitClasses[toNum(roleByLevel[level])];
         return `${role}_for_World_${worldByLevel[level]}`;
       }
