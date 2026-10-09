@@ -54,9 +54,11 @@ const Podium = ({ rows, highlight, onOpen }) => (
       {PODIUM_SLOTS.map((at) => (rows[at] ? <PodiumSlot key={rows[at].mainChar} row={rows[at]} kind={highlight[rows[at].mainChar] ?? null}/> : null))}
     </Stack>
     {/* minmax(0, ...) lets a row shrink to its track, so a long name truncates instead of the row
-        running past the card at 320px. Two columns read down, then across: 4 to 7, then 8 to 10. */}
+        running past the card at 320px. Two columns read down, then across: 4 to 7, then 8 to 10.
+        The rows stay at 13px on wide screens: every one carries "16,367.49 pts", and at 14px a
+        14-letter name was cut at 1440px. */}
     <Box sx={{
-      display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', columnGap: 3, '& > *': { minWidth: 0 },
+      display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', columnGap: 3, '& > *': { minWidth: 0 }, '& [data-testid="rank-row"]': { fontSize: 13 },
       '@container (min-width: 520px)': {
         gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gridTemplateRows: `repeat(${Math.ceil(rows.slice(3).length / 2)}, auto)`, gridAutoFlow: 'column'
       }
