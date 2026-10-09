@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   Accordion,
   AccordionDetails,
+  Alert,
   AccordionSummary,
   Autocomplete,
   Badge,
@@ -19,6 +20,7 @@ import {
   InputAdornment,
   Radio,
   RadioGroup,
+  Snackbar,
   Stack,
   TextField,
   Typography
@@ -40,6 +42,7 @@ import { NextSeo } from 'next-seo';
 import StructuredData, { createHowToData } from '@components/common/StructuredData';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
+import { getValidPlannerSections } from 'utility/itemPlanner';
 
 const filterOptions = createFilterOptions({
   trim: true
@@ -49,7 +52,8 @@ const defaultItem = { rawName: 'EquipmentTransparent108' };
 
 const ItemPlanner = ({}) => {
   const { state, lastUpdated, dispatch } = useContext(AppContext);
-  const { planner = { sections: [] } } = state;
+  const planner = { ...state?.planner, sections: getValidPlannerSections(state?.planner) };
+  const [importError, setImportError] = useState(null);
   const [labels] = useState(Object.keys(crafts));
   const [value, setValue] = useState({ '0': '' });
   const [myItems, setMyItems] = useState([]);
@@ -85,17 +89,16 @@ const ItemPlanner = ({}) => {
 
   const handleFileChange = async (e) => {
     const fileObject = e.target.files[0];
-    if (!fileObject || fileObject?.type !== 'application/json') {
-      console.error('File isn\'t a json file');
+    // Reset so re-picking the same file fires onChange again
+    e.target.value = '';
+    if (!fileObject) return;
+    const content = tryToParse(await fileObject.text());
+    const sections = getValidPlannerSections(content);
+    if (!Array.isArray(content?.sections) || (content.sections.length > 0 && sections.length === 0)) {
+      setImportError('That file doesn\'t contain item planner sections');
       return;
     }
-    let content = await fileObject.text();
-    if (content) {
-      content = tryToParse(content);
-      if (content?.sections) {
-        dispatch({ type: 'planner', data: { sections: content?.sections } });
-      }
-    }
+    dispatch({ type: 'planner', data: { sections } });
   }
 
   const onItemChange = (newValue, sectionIndex) => {
@@ -430,6 +433,16 @@ const ItemPlanner = ({}) => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={Boolean(importError)}
+        autoHideDuration={5000}
+        onClose={() => setImportError(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity={'error'} variant="filled" onClose={() => setImportError(null)}>
+          {importError}
+        </Alert>
+      </Snackbar>
     </TodoStyle>)
   );
 };

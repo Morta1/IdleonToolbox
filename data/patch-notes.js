@@ -11,7 +11,8 @@ export const patchNotes = [
       'Material Tracker: added a Clear all button'
     ],
     'fixes': [
-      'Material Tracker: importing an invalid file no longer adds broken entries that cannot be removed'
+      'Material Tracker: importing an invalid file no longer adds broken entries that cannot be removed',
+      'Item Planner: importing an invalid file now shows an error instead of breaking the page'
     ]
   },
   {
