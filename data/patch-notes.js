@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.531',
     'date': '09/10/2026',
     'features': [
-      'Material Tracker: added a Clear all button'
+      'Material Tracker: added a Clear all button',
+      'Material Tracker: Add tracker for all greenstacks now only adds missing greenstacks, including past ones below 10M, and keeps your existing bounds'
     ],
     'fixes': [
       'Material Tracker: importing an invalid file no longer adds broken entries that cannot be removed',

@@ -55,7 +55,7 @@ const MaterialTracker = () => {
   const [hoverIcons, setHoverIcons] = useState({});
   const [storedItems, setTrackedItems] = useLocalStorage({ key: 'material-tracker', defaultValue: {} });
   const trackedItems = getValidTrackedMaterials(storedItems);
-  const [importResult, setImportResult] = useState(null);
+  const [result, setResult] = useState(null);
   const [confirmClear, setConfirmClear] = useState(false);
   const items = itemsArray.filter(({
                                                    itemType,
@@ -67,8 +67,22 @@ const MaterialTracker = () => {
   const totalOwnedItems = getAllItems(state?.characters, state?.account);
   const [errors, setErrors] = useState({ material: false, lowerBound: false, upperBound: false });
 
+  const getUntrackedGreenStacks = () => {
+    // A greenstack stays registered after the stack drops below 10M, so the game's registry is the
+    // source; 10M+ owned covers stacks the game hasn't registered yet
+    const rawNames = new Set([
+      ...(state?.account?.looty?.greenStacks || []),
+      ...totalOwnedItems.filter(({ amount }) => amount >= 10e6).map(({ rawName }) => rawName)
+    ]);
+    return items.filter(({ rawName }) => rawNames.has(rawName) && !trackedItems[rawName]);
+  }
+
   const handleAddTracker = (allGreenStacks) => {
-    const greenStacks = totalOwnedItems.filter(({ amount }) => amount >= 10e6);
+    const greenStacks = allGreenStacks ? getUntrackedGreenStacks() : [];
+    if (allGreenStacks && greenStacks.length === 0) {
+      setResult({ severity: 'info', message: 'All your greenstacks are already tracked' });
+      return;
+    }
     const tempErrors = {};
     if (value.length > 0 || (allGreenStacks && greenStacks.length > 0)) {
       tempErrors.material = false;
@@ -88,7 +102,7 @@ const MaterialTracker = () => {
     const updated = { ...trackedItems };
     (allGreenStacks ? greenStacks : value).forEach((item) => {
       updated[item?.rawName] = {
-        item,
+        item: { rawName: item?.rawName, displayName: item?.displayName },
         lowerBound: tempLowerBound ? parseInt(tempLowerBound) : '',
         upperBound: tempUpperBound ? parseInt(tempUpperBound) : '',
         includeNearly,
@@ -96,6 +110,12 @@ const MaterialTracker = () => {
       }
     })
     setTrackedItems(updated)
+    if (allGreenStacks) {
+      setResult({
+        severity: 'success',
+        message: `Added ${greenStacks.length} greenstack${greenStacks.length === 1 ? '' : 's'}`
+      });
+    }
     setValue([]);
     setBounds({ lowerBound: '', upperBound: '' });
     setNote('');
@@ -112,11 +132,11 @@ const MaterialTracker = () => {
     const validItems = getValidTrackedMaterials(data);
     const count = Object.keys(validItems).length;
     if (count === 0) {
-      setImportResult({ severity: 'error', message: 'That file doesn\'t contain tracked materials' });
+      setResult({ severity: 'error', message: 'That file doesn\'t contain tracked materials' });
       return;
     }
     setTrackedItems(validItems);
-    setImportResult({ severity: 'success', message: `Imported ${count} material${count === 1 ? '' : 's'}` });
+    setResult({ severity: 'success', message: `Imported ${count} material${count === 1 ? '' : 's'}` });
   }
 
   const handleEdit = (rawName) => {
@@ -152,7 +172,7 @@ const MaterialTracker = () => {
     <CardTitleAndValue title={'Utility'} cardSx={{ mb: 3 }}>
       <Stack sx={{ mt: 1 }} direction={'row'} alignItems={'center'} gap={2}>
         <FileUploadButton onFileUpload={handleImport}
-                          onInvalidFile={() => setImportResult({ severity: 'error', message: 'That file isn\'t valid JSON' })}>Import</FileUploadButton>
+                          onInvalidFile={() => setResult({ severity: 'error', message: 'That file isn\'t valid JSON' })}>Import</FileUploadButton>
         <Button onClick={() => handleDownload(trackedItems, 'it-material-tracker')} variant={'outlined'}
                 startIcon={<IconFileExport size={18}/>}
                 size="small">Export</Button>
@@ -335,13 +355,13 @@ const MaterialTracker = () => {
       </DialogActions>
     </Dialog>
     <Snackbar
-      open={Boolean(importResult)}
-      autoHideDuration={importResult?.severity === 'error' ? 5000 : 2000}
-      onClose={() => setImportResult(null)}
+      open={Boolean(result)}
+      autoHideDuration={result?.severity === 'error' ? 5000 : 2000}
+      onClose={() => setResult(null)}
       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
     >
-      <Alert severity={importResult?.severity} variant="filled" onClose={() => setImportResult(null)}>
-        {importResult?.message}
+      <Alert severity={result?.severity} variant="filled" onClose={() => setResult(null)}>
+        {result?.message}
       </Alert>
     </Snackbar>
   </>);
