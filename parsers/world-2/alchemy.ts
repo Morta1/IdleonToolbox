@@ -847,7 +847,7 @@ export const getGrindTimeBubbleDaily = (account: any) => {
     dailyLevels: grindTimeBubble,
   }
 }
-export const getPossibleZenithMarketBubbles = (account: any, characters: any) => {
+export const getKrukBubbles = (account: any) => {
   const allBubblesIndexes = ['_0', 'a0', 'b0', 'c0', 'c9', '_11', 'a11', 'a2'];
   const zenithMarketBonus = getZenithBonus(account, 1);
 
@@ -861,14 +861,17 @@ export const getPossibleZenithMarketBubbles = (account: any, characters: any) =>
       bubblesIndexes.push(allBubblesIndexes[i]);
     }
   }
+  return account?.alchemy?.bubblesFlat?.filter((bubble: any) => bubblesIndexes.includes(bubble.bubbleIndex)) ?? [];
+}
 
+export const getPossibleZenithMarketBubbles = (account: any, characters: any) => {
   const krukLevelsDaily = getKrukBubblesDaily(account);
   const hasKrukLinked = characters?.some((character: any) => character.linkedDeity === 8
     || isGodEnabledBySorcerer(character, 8)
     || character.secondLinkedDeityIndex === 8
     || isCompanionBonusActive(account, 0));
   if (!hasKrukLinked) return [];
-  return account?.alchemy?.bubblesFlat.filter((bubble: any) => bubblesIndexes.includes(bubble.bubbleIndex)).map((bubble: any) => ({ ...bubble, isZenithMarket: true, dailyLevels: krukLevelsDaily.value, dailyLevelsBreakdown: krukLevelsDaily.breakdown }));
+  return getKrukBubbles(account).map((bubble: any) => ({ ...bubble, isZenithMarket: true, dailyLevels: krukLevelsDaily.value, dailyLevelsBreakdown: krukLevelsDaily.breakdown }));
 }
 
 export const getKrukBubblesDaily = (account: any) => {

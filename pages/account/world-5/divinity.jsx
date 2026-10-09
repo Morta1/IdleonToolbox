@@ -9,12 +9,30 @@ import { NextSeo } from 'next-seo';
 import { isCompanionBonusActive } from '../../../parsers/misc';
 import { getMinorDivinityBonus } from '@parsers/world-5/divinity';
 import CoinDisplay from '../../../components/common/CoinDisplay';
-import { getKrukBubblesDaily } from '@parsers/world-2/alchemy';
+import { getKrukBubbles, getKrukBubblesDaily } from '@parsers/world-2/alchemy';
 import Tabber from '@components/common/Tabber';
 import { getTabs } from '@utility/helpers';
 import { PAGES } from '@components/constants';
 import CoralKidUpgrades from '@components/account/Worlds/World7/CoralReef/CoralKidUpgrades';
 import DivinityStyles from '@components/account/Worlds/World5/DivinityStyles';
+
+// The game's markup: '@' breaks a line, '#' draws the Kattlekruk bubble icons
+const MajorBonus = ({ majorBonus, account }) => {
+  const lines = cleanUnderscore(majorBonus)
+    .replace('$', getKrukBubblesDaily(account)?.value)
+    .split('@')
+    .map((line) => line.trim())
+    .filter(Boolean);
+  return <Stack sx={{ minHeight: 100 }}>
+    {lines.map((line, index) => line === '#'
+      ? <Stack key={index} direction={'row'} flexWrap={'wrap'} gap={.5} my={.5}>
+        {getKrukBubbles(account).map(({ rawName, bubbleName }) => <Tooltip key={rawName} title={cleanUnderscore(bubbleName)}>
+          <img style={{ width: 32, height: 32 }} src={`${prefix}data/${rawName}.png`} alt={bubbleName}/>
+        </Tooltip>)}
+      </Stack>
+      : <Typography key={index} variant={'body1'}>{line}</Typography>)}
+  </Stack>
+}
 
 const Divinity = () => {
   const { state } = useContext(AppContext);
@@ -76,7 +94,7 @@ const Divinity = () => {
                       <Cost title={'Cost To Max'} {...cost} cost={cost?.costToMax}/>
                     </> : null}
                     <Divider sx={{ my: 2 }}/>
-                    <Typography sx={{ minHeight: 100 }} variant={'body1'}>{cleanUnderscore(majorBonus).replace('$', getKrukBubblesDaily(state?.account))}</Typography>
+                    <MajorBonus majorBonus={majorBonus} account={state?.account}/>
                   </Stack>
                   {hasLinks ? <>
                     <Divider sx={{ my: 2 }}/>
