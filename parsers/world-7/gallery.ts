@@ -1,5 +1,5 @@
 import { tryToParse, notateNumber } from '@utility/helpers';
-import { items, itemsArray } from '@website-data';
+import { items, itemsArray, gameTables } from '@website-data';
 import { getJadeEmporiumBonus } from '@parsers/world-6/sneaking';
 import { getLoreBonus } from '@parsers/world-7/spelunking';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
@@ -160,8 +160,7 @@ export const getTrophyBonuses = (rawSpelunk: any, account: any, character?: any)
           }
         }
 
-        const statList = 'Weapon_Power,STR,AGI,WIS,LUK,Defence';
-        const stats = statList.split(',');
+        const stats: string[] = gameTables.galleryBonusStats;
         for (let statIndex = 0; statIndex < stats.length; statIndex++) {
           const statName = stats[statIndex];
           const statValue = (trophy as any)?.[statName];
@@ -207,8 +206,7 @@ export const getTrophyBonuses = (rawSpelunk: any, account: any, character?: any)
           }
         }
 
-        const statList = 'Weapon_Power,STR,AGI,WIS,LUK,Defence';
-        const stats = statList.split(',');
+        const stats: string[] = gameTables.galleryBonusStats;
         for (let statIndex = 0; statIndex < stats.length; statIndex++) {
           const statName = stats[statIndex];
           const statValue = (trophy as any)?.[statName];
@@ -234,9 +232,9 @@ export const getTrophyBonuses = (rawSpelunk: any, account: any, character?: any)
 }
 
 const getNametagMultiplier = (nametagOwned: any, rawSpelunk: any, account: any, character?: any) => {
-  const multiplierLevels = '1,1.6,2,2.3,2.5';
-  const levelIndex = Math.min(4, Math.round(nametagOwned - 1));
-  const baseMultiplier = parseFloat(multiplierLevels.split(',')[levelIndex]);
+  const multiplierLevels: number[] = gameTables.galleryNametagMultipliers;
+  const levelIndex = Math.min(multiplierLevels.length - 1, Math.round(nametagOwned - 1));
+  const baseMultiplier = multiplierLevels[levelIndex];
   return baseMultiplier * getGalleryBonusMulti(rawSpelunk, account, character);
 }
 
@@ -280,8 +278,7 @@ export const getNametagBonuses = (rawSpelunk: any, account: any, character?: any
             nametagBonusesObj[uqText] = (nametagBonusesObj[uqText] ?? 0) + uqBonusValue;
           }
         }
-        const statList = 'Weapon_Power,STR,AGI,WIS,LUK,Defence';
-        const stats = statList.split(',');
+        const stats: string[] = gameTables.galleryBonusStats;
         for (let statIndex = 0; statIndex < stats.length; statIndex++) {
           const statName = stats[statIndex];
           const statValue = (nametagItem as any)?.[statName];

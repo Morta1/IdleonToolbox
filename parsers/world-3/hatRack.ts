@@ -1,5 +1,5 @@
 import { tryToParse, notateNumber } from '@utility/helpers';
-import { items, itemsArray } from '@website-data';
+import { items, itemsArray, gameTables } from '@website-data';
 import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
@@ -71,8 +71,7 @@ export const getHatBonuses = (rawSpelunk: any, account: any) => {
         }
 
         // Aggregate stat bonuses
-        const statList = 'Weapon_Power,STR,AGI,WIS,LUK,Defence';
-        const stats = statList.split(',');
+        const stats: string[] = gameTables.galleryBonusStats;
         for (let statIndex = 0; statIndex < stats.length; statIndex++) {
           const statName = stats[statIndex];
           const statValue = (hat as any)?.[statName];
