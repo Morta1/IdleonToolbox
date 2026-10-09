@@ -94,6 +94,10 @@ const Bubbles = () => {
     key: 'bubbles:hidePastLevelThreshold',
     defaultValue: false
   });
+  const [futureAnchor, setFutureAnchor] = useLocalStorage({
+    key: 'bubbles:futureAnchor',
+    defaultValue: 'least'
+  });
   const [bubblesGoals, setBubblesGoals] = useState();
   const myFirstChemSet = state?.account?.lab?.labBonuses?.find(bonus => bonus.name === 'My_1st_Chemistry_Set')?.active;
 
@@ -316,9 +320,20 @@ const Bubbles = () => {
                   </Stack>
                 </Breakdown>
               </Stack>
-              <Stack direction={'row'} gap={1}>
+              <Stack direction={'row'} gap={1} alignItems={'center'}>
                 <Typography variant={'caption'}>Future Bubbles</Typography>
-                <HtmlTooltip title={<FutureBubblesTooltip cauldrons={state?.account?.alchemy?.cauldrons}/>}><IconInfoCircleFilled size={16}/></HtmlTooltip>
+                <HtmlTooltip title={<FutureBubblesTooltip cauldrons={state?.account?.alchemy?.cauldrons}
+                                                          anchor={futureAnchor}/>}><IconInfoCircleFilled
+                  size={16}/></HtmlTooltip>
+                <ToggleButtonGroup
+                  value={futureAnchor}
+                  exclusive
+                  size={'small'}
+                  onChange={(_, val) => val && setFutureAnchor(val)}
+                >
+                  <ToggleButton sx={{ height: 20, py: 0, px: .75, fontSize: '0.75rem' }} value={'least'}>Least</ToggleButton>
+                  <ToggleButton sx={{ height: 20, py: 0, px: .75, fontSize: '0.75rem' }} value={'most'}>Most</ToggleButton>
+                </ToggleButtonGroup>
               </Stack>
             </Section>
             <Stack sx={{ ml: 'auto' }} gap={1} justifyContent={'center'}>
@@ -625,13 +640,14 @@ const FUTURE_BUBBLES_ROWS = 15;
 // Shown when there's no cauldron progress to anchor on (logged out)
 const FUTURE_BUBBLES_FALLBACK = 30;
 
-// Brew needed to roll for each upcoming bubble, starting at the least progressed cauldron's next
-// bubble: it's the one you're waiting on. The game groups bubbles into worlds of 5.
-const FutureBubblesTooltip = ({ cauldrons }) => {
+// Brew needed to roll for each upcoming bubble, starting at the least (the one you're waiting on)
+// or most progressed cauldron's next bubble. The game groups bubbles into worlds of 5.
+const FutureBubblesTooltip = ({ cauldrons, anchor }) => {
   const progress = Object.values(cauldrons ?? {})
     .map(({ unlockedBubbles }) => unlockedBubbles)
     .filter((count) => count > 0);
-  const first = Math.min(...(progress.length ? progress : [FUTURE_BUBBLES_FALLBACK])) + 1;
+  const pick = anchor === 'most' ? Math.max : Math.min;
+  const first = pick(...(progress.length ? progress : [FUTURE_BUBBLES_FALLBACK])) + 1;
   const byWorld = Array.from({ length: FUTURE_BUBBLES_ROWS }, (_, index) => first + index)
     .reduce((res, bubble) => {
       const world = Math.ceil(bubble / 5);
@@ -639,7 +655,7 @@ const FutureBubblesTooltip = ({ cauldrons }) => {
     }, {});
   return <Stack gap={2}>
     <Typography variant={'caption'} color={'text.secondary'} sx={{ maxWidth: 220 }}>
-      Next {FUTURE_BUBBLES_ROWS} bubbles after your least progressed cauldron
+      Next {FUTURE_BUBBLES_ROWS} bubbles after your {anchor === 'most' ? 'most' : 'least'} progressed cauldron
     </Typography>
     {Object.entries(byWorld).map(([world, bubbles]) => {
       return <Stack key={world}>
