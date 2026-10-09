@@ -26,6 +26,9 @@ const TALENTS = [
   ["Siege_Breaker", "THE_FAMILY_GUY", 144, 34.091580502215656],
   ["Divine_Knight", "1000_HOURS_PLAYED", 176, 49.20863309352518],
   ["Divine_Knight", "BITTY_LITTY", 177, 17.045790251107828],
+  // Added with the Daily ribbons section: matches the live client's getbonus2(1, 204, -1) with Nine
+  // active, read 2026-10-09.
+  ["Death_Bringer", "RIBBON_WINNING", 204, 174.6518105849582],
   ["Death_Bringer", "AGRICULTURAL_'PRECIATION", 206, 836],
   ["Death_Bringer", "DANK_RANKS", 207, 2.45872801082544],
   ["Death_Bringer", "WRAITH_OVERLORD", 208, 1.3902439024390243],

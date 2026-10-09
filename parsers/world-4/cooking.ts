@@ -532,7 +532,7 @@ export const getDailyRibbonInputs = (account: any, characters: any, smoky: Daily
     bundleBoaring,
     bundleAnniversary: isBundlePurchased(account?.bundles, 'ban_a') ? 1 : 0,
     legendTalent: getLegendTalentBonus(account, 13) || 0,
-    talent: getHighestTalentAcrossCharacters(characters, 'RIBBON_WINNING') || 0,
+    talent: getHighestTalentAcrossCharacters(characters, 'RIBBON_WINNING', getBestActiveCharacter(characters)) || 0,
     palette: getPaletteBonus(account, 33),
     grimoire,
     sushi: getSushiBonus(account, 14),
