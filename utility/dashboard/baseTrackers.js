@@ -334,7 +334,8 @@ export const baseTrackers = {
               label: 'Eggs rarity',
               value: 1,
               minValue: 1,
-              helperText: '1=Base, 2=Copper, 3=Iron'
+              maxValue: 11,
+              helperText: '1=Base, 2=Copper, 3=Iron ... 9=Starfire, 10=Dreadlo, 11=Godshard'
             },
             checked: false
           },

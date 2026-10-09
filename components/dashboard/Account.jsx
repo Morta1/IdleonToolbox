@@ -480,7 +480,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 4']?.breeding?.eggsRarity
 
                 ? <Alert target={'World 4.breeding.eggsRarity'} key={'breeding-eggsRarity'}
-                         title={`You have reached your desired rarity level of ${alerts?.['World 4']?.breeding?.eggsRarity} with at least one egg`}
+                         title={`Your highest egg has reached rarity level ${alerts?.['World 4']?.breeding?.eggsRarity}`}
                          iconPath={`data/PetEgg${alerts?.['World 4']?.breeding?.eggsRarity}`}/>
                 : null}
               {alerts?.['World 4']?.breeding?.shinies?.pets?.length > 0 ?

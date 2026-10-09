@@ -981,9 +981,10 @@ export const getWorld4Alerts = (account, fields, options) => {
       }
     }
     if (eggsRarity?.checked) {
-      const hasRarity = account?.breeding?.eggs?.some((rarity) => parseInt(eggsRarity?.props?.value) <= rarity);
-      if (hasRarity) {
-        breeding.eggsRarity = parseInt(eggsRarity?.props?.value) > 9 ? 9 : eggsRarity?.props?.value;
+      const highestEgg = Math.max(0, ...(account?.breeding?.eggs ?? []));
+      if (highestEgg > 0 && highestEgg >= parseInt(eggsRarity?.props?.value)) {
+        // Godshard (11) is the top egg tier
+        breeding.eggsRarity = Math.min(highestEgg, 11);
       }
     }
     if (Object.keys(breeding).length > 0) {

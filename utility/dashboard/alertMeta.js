@@ -429,7 +429,7 @@ export const alertMeta = {
       eggs: { label: 'Egg nest full' },
       eggsRarity: {
         label: 'Egg rarity reached',
-        help: 'Alerts when any egg is at least this rarity: 1 is Base, 2 Copper, 3 Iron.'
+        help: 'Alerts when any egg is at least this rarity: 1 is Base, 2 Copper, 3 Iron, up to 9 Starfire, 10 Dreadlo, 11 Godshard.'
       },
       shinies: {
         label: 'Shiny level reached',

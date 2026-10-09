@@ -19,3 +19,34 @@ describe('egg nest full alert', () => {
     expect(eggAlert(slots(20), undefined)).toBeUndefined();
   });
 });
+
+const raritySection = (value) => ({
+  breeding: { checked: true, options: [{ name: 'eggsRarity', checked: true, props: { value } }] }
+});
+const rarityAlert = (eggs, threshold) => {
+  const section = raritySection(threshold);
+  return getWorld4Alerts(
+    { finishedWorlds: { World3: true }, breeding: { eggs, eggCapacity: eggs.length, pets: [] } },
+    section, getOptions(section))?.breeding?.eggsRarity;
+};
+
+describe('egg rarity alert', () => {
+  it('reports tiers 10 and 11 instead of capping at 9', () => {
+    expect(rarityAlert([3, 10, 0], 10)).toBe(10);
+    expect(rarityAlert([11, 2, 9], 11)).toBe(11);
+  });
+
+  it('reports the highest egg, not the threshold', () => {
+    expect(rarityAlert([11, 9], 9)).toBe(11);
+  });
+
+  it('stays quiet when no egg reaches the threshold', () => {
+    expect(rarityAlert([10, 9], 11)).toBeUndefined();
+    expect(rarityAlert([5, 1], 6)).toBeUndefined();
+    expect(rarityAlert([0, 0], 1)).toBeUndefined();
+  });
+
+  it('accepts the threshold as a string from saved settings', () => {
+    expect(rarityAlert([10], '10')).toBe(10);
+  });
+});
