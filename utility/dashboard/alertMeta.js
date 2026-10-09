@@ -693,31 +693,31 @@ export const alertMeta = {
       tradeRank: {
         label: 'Trade rank reached',
         help: 'Alerts when an outpost reaches this Trade rank while Traders are still assigned to it, so you can move them elsewhere.',
-        unit: 'Traders',
+        unit: 'Rank',
         group: 'Rank caps'
       },
       intelRank: {
         label: 'Intel rank reached',
         help: 'Alerts when an outpost reaches this Intel rank while Surveyors are still assigned to it, so you can move them elsewhere.',
-        unit: 'Surveyors',
+        unit: 'Rank',
         group: 'Rank caps'
       },
       commandRank: {
         label: 'Command rank reached',
         help: 'Alerts when an outpost reaches this Command rank while Commanders are still sent to it, so you can move them elsewhere.',
-        unit: 'Commanders',
+        unit: 'Rank',
         group: 'Rank caps'
       },
       militaryRank: {
         label: 'Military rank reached',
         help: 'Alerts when an outpost reaches this Military rank while Knights are still sent to it, so you can move them elsewhere.',
-        unit: 'Knights',
+        unit: 'Rank',
         group: 'Rank caps'
       },
       purityRank: {
         label: 'Purity rank reached',
         help: 'Alerts when an outpost reaches this Purity rank while Priests are still sent to it, so you can move them elsewhere.',
-        unit: 'Priests',
+        unit: 'Rank',
         group: 'Rank caps'
       },
       restockLocked: {

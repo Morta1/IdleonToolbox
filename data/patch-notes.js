@@ -16,7 +16,8 @@ export const patchNotes = [
     'fixes': [
       'Material Tracker: importing an invalid file no longer adds broken entries that cannot be removed',
       'Item Planner: importing an invalid file now shows an error instead of breaking the page',
-      'Royal Guardian: Territory clear in the Active Stuff Calculator and the clearing ETA in Outposts now account for Militia progress that only lands when the map is opened'
+      'Royal Guardian: Territory clear in the Active Stuff Calculator and the clearing ETA in Outposts now account for Militia progress that only lands when the map is opened',
+      'Dashboard: Royal Guardian rank cap inputs now say Rank instead of the holder names'
     ]
   },
   {
