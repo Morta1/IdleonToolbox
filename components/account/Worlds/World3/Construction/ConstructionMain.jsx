@@ -127,6 +127,16 @@ const ConstructionMain = () => {
   // Everyone who could stand on the board: those already on it, plus the rack the spares come from.
   const totalCharacters = countBoardCharacters(state?.account?.construction?.baseBoard)
     + (state?.account?.construction?.spareCogs ?? []).filter(isCharacterCog).length;
+  // The steps list labels each cog with the number the board shows for it right before that swap,
+  // which carries the neighbour boosts of that step. Inventory cogs are never boosted, so their own
+  // stats already are that number.
+  const boardsBeforeStep = moves?.map((_, step) =>
+    getBoardAtStep(current?.baseBoard, current?.spareCogs ?? [], moves, step, state?.characters)?.board);
+  const cogsByOriginalIndex = {};
+  [...(current?.baseBoard ?? []).map((slot) => slot?.cog), ...(current?.spareCogs ?? [])]
+    .forEach((cog) => {
+      if (cog) cogsByOriginalIndex[cog.originalIndex] = cog;
+    });
   const nextMove = moves?.[cursor];
   // Hovering a row previews that swap; otherwise the board points at the one you are up to.
   const highlightSlots = hoverHighlight ?? (nextMove ? [nextMove.fromSlot, nextMove.to] : null);
@@ -442,7 +452,10 @@ const ConstructionMain = () => {
           }}>
             {optimized
               ? <ConstructionMoves moves={moves} cursor={cursor} onCursorChange={setCursor}
-                                   onHover={setHoverHighlight}/>
+                                   onHover={setHoverHighlight}
+                                   view={view}
+                                   boardsBeforeStep={boardsBeforeStep}
+                                   cogsByOriginalIndex={cogsByOriginalIndex}/>
               : <Stack gap={1} sx={{ alignSelf: 'center', mx: 'auto', textAlign: 'center', py: 4 }}>
                 <Typography variant={'h6'}>Steps to apply</Typography>
                 <Typography variant={'body2'} sx={{ color: 'text.secondary', maxWidth: 320 }}>

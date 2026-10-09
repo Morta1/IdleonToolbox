@@ -8,7 +8,8 @@ export const patchNotes = [
     'gameVer': '2.3.531',
     'date': '10/10/2026',
     'features': [
-      'Grimoire, Tesseract, Royal Armory and Upgrade Vault upgrades now show the in-game (?) help text in an info tooltip'
+      'Grimoire, Tesseract, Royal Armory and Upgrade Vault upgrades now show the in-game (?) help text in an info tooltip',
+      'Construction: each step in Steps to apply now shows the selected stat on its cogs, matching the numbers on the board'
     ],
     'fixes': []
   },

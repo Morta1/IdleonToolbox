@@ -13,7 +13,28 @@ import React from 'react';
 import { styled } from '@mui/material/styles';
 import { BOARD_SIZE, BOARD_X, getCogDisplayName } from '@parsers/world-3/construction';
 
-const bonusTextSx = {
+/** The stat a view prints on a cog. Exp falls back to the second exp stat some cogs carry instead. */
+export const getCogViewValue = (cog, view) => {
+  const { a, e, b, d, c, j, f } = cog?.stats || {};
+  switch (view) {
+    case 'build':
+      return a?.value;
+    case 'buildPercent':
+      return e?.value;
+    case 'exp':
+      return b?.value || d?.value;
+    case 'playerExp':
+      return f?.value;
+    case 'flaggy':
+      return c?.value;
+    case 'classExp':
+      return j?.value;
+    default:
+      return undefined;
+  }
+};
+
+export const bonusTextSx = {
   fontSize: 12,
   fontWeight: 400,
   position: 'absolute',
@@ -144,15 +165,7 @@ const ConstructionBoard = ({ view, board, showTooltip, roundedValues, leftColumn
     {slots?.map((slot, index) => {
       if (!slot) return <Box key={index} sx={{ width: 'var(--cog-slot)', height: 'var(--cog-slot)' }}/>;
       const { currentAmount, requiredAmount, flagPlaced, cog, affectedBy, affects, boardPosition } = slot;
-      const {
-        a: buildRate,
-        e: buildPercent,
-        b: exp,
-        d: secondExp,
-        c: flaggyRate,
-        j: classExp,
-        f: playerExp
-      } = cog?.stats || {};
+      const viewValue = getCogViewValue(cog, view);
       const filled = (currentAmount / requiredAmount) * 100;
       const rest = 100 - filled;
       // On an optimized board a cog whose original index sits past the board came out of the inventory.
@@ -186,29 +199,8 @@ const ConstructionBoard = ({ view, board, showTooltip, roundedValues, leftColumn
                 <SlotIcon src={`${prefix}data/${cog?.name?.includes('Player') ? 'headBIG' : cog?.name}.png`}
                           alt=""/> : null}
               {!isProd ? <Typography sx={indexSx}>{cog?.originalIndex}</Typography> : null}
-              {view === 'build' && !flagPlaced && buildRate?.value
-                ?
-                <Typography sx={bonusTextSx}>{notateNumber(buildRate?.value, 'Big') || null}</Typography>
-                : null}
-              {view === 'buildPercent' && !flagPlaced && buildPercent?.value
-                ?
-                <Typography sx={bonusTextSx}>{notateNumber(buildPercent?.value, 'Big') || null}</Typography>
-                : null}
-              {view === 'exp' && !flagPlaced
-                ? <Typography
-                  sx={bonusTextSx}>{(exp?.value && notateNumber(exp?.value, 'Big')) || (secondExp?.value && notateNumber(secondExp?.value, 'Big')) || null}</Typography>
-                : null}
-              {view === 'playerExp' && !flagPlaced
-                ? <Typography
-                  sx={bonusTextSx}>{(playerExp?.value && notateNumber(playerExp?.value, 'Big')) || null}</Typography>
-                : null}
-              {view === 'flaggy' && !flagPlaced && flaggyRate?.value
-                ?
-                <Typography sx={bonusTextSx}>{notateNumber(flaggyRate?.value, 'Big') || null}</Typography>
-                : null}
-              {view === 'classExp' && !flagPlaced && classExp?.value
-                ?
-                <Typography sx={bonusTextSx}>{notateNumber(classExp?.value, 'Big') || null}</Typography>
+              {!flagPlaced && viewValue
+                ? <Typography sx={bonusTextSx}>{notateNumber(viewValue, 'Big') || null}</Typography>
                 : null}
             </SlotBackground>
           </Tooltip>

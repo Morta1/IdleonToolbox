@@ -1,12 +1,19 @@
 import React, { useEffect, useRef } from 'react';
 import { Box, Checkbox, Divider, LinearProgress, Stack, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
-import { prefix } from '@utility/helpers';
+import { notateNumber, prefix } from '@utility/helpers';
 import { cogSlotLabel } from '@parsers/world-3/constructionOptimizer';
 import { getCogDisplayName } from '@parsers/world-3/construction';
 import { navBarHeight } from '@components/constants';
+import { bonusTextSx, getCogViewValue } from './ConstructionBoard';
 
 const cogIcon = (name) => `${prefix}data/${name?.includes('Player') ? 'headBIG' : name}.png`;
+
+// Same number the board prints in the corner, so a cog can be matched by it instead of by its slot.
+const CogIcon = ({ name, value, sx }) => <Box sx={{ position: 'relative', flexShrink: 0, ...sx }}>
+  <Box component={'img'} src={cogIcon(name)} alt={''} sx={{ width: 32, height: 32, display: 'block' }}/>
+  {value ? <Typography sx={bonusTextSx}>{notateNumber(value, 'Big')}</Typography> : null}
+</Box>;
 
 // fromIndex covers every source slot; fromSlot only board ones. Falling back keeps a move off the
 // board labelled correctly rather than calling it "Inventory" if an older worker build is running.
@@ -17,7 +24,7 @@ export const moveSourceLabel = (move) => cogSlotLabel(move?.fromIndex ?? move?.f
  * everything before it is done, the row on it is the swap to make next. Ticking a row moves the
  * cursor to it, which also rewinds the board.
  */
-const ConstructionMoves = ({ moves, cursor, onCursorChange, onHover }) => {
+const ConstructionMoves = ({ moves, cursor, onCursorChange, onHover, view, boardsBeforeStep, cogsByOriginalIndex }) => {
   const listRef = useRef(null);
   const currentRef = useRef(null);
 
@@ -80,6 +87,11 @@ const ConstructionMoves = ({ moves, cursor, onCursorChange, onHover }) => {
       {moves.map((move, index) => {
         const isDone = index < cursor;
         const isCurrent = index === cursor;
+        const board = boardsBeforeStep?.[index];
+        const movingCog = move.fromSlot != null
+          ? board?.[move.fromSlot]?.cog
+          : cogsByOriginalIndex?.[move.originalIndex];
+        const displacedCog = board?.[move.to]?.cog;
         return <Stack key={`${move.from}-${move.to}-${index}`}
                       ref={isCurrent ? currentRef : null}
                       direction={'row'}
@@ -103,7 +115,7 @@ const ConstructionMoves = ({ moves, cursor, onCursorChange, onHover }) => {
           <Checkbox size={'small'} checked={isDone}
                     onChange={() => onCursorChange(isDone ? index : index + 1)}/>
           <Typography variant={'body2'} sx={{ width: 26, color: 'text.secondary' }}>{index + 1}.</Typography>
-          <Box component={'img'} src={cogIcon(move.name)} alt={''} sx={{ width: 32, height: 32 }}/>
+          <CogIcon name={move.name} value={getCogViewValue(movingCog, view)}/>
           <Stack sx={{ flexGrow: 1, minWidth: 0 }}>
             <Typography variant={'body2'} noWrap
                         sx={{ textDecoration: isDone ? 'line-through' : 'none' }}>
@@ -113,7 +125,7 @@ const ConstructionMoves = ({ moves, cursor, onCursorChange, onHover }) => {
               {getCogDisplayName(move.name)} swaps with {getCogDisplayName(move.displacedName)}
             </Typography>
           </Stack>
-          <Box component={'img'} src={cogIcon(move.displacedName)} alt={''} sx={{ width: 32, height: 32, opacity: 0.6 }}/>
+          <CogIcon name={move.displacedName} value={getCogViewValue(displacedCog, view)} sx={{ opacity: 0.6 }}/>
         </Stack>;
       })}
     </Stack>
