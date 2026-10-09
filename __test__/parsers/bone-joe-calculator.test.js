@@ -8,7 +8,7 @@ import {
   getKillCredit,
   getMinibossHp,
   getMinibosses,
-  getOneShotPickleCap,
+  getPickleCapForHits,
   getPickleCount,
   getPrayerHpMulti
 } from '@parsers/misc/boneJoeCalculator';
@@ -74,12 +74,34 @@ describe('bone joe calculator', () => {
     expect(getKillCredit(69)).toBe(70);
   });
 
-  it('caps pickles at the last count still inside one max hit', () => {
+  it('caps pickles at the last count still inside the target hits', () => {
     // 1000 base, no prayers: 1.1^7 = 1.949, 1.1^8 = 2.144
-    expect(getOneShotPickleCap(2000, 1000, 1)).toBe(7);
-    expect(getOneShotPickleCap(1000, 1000, 1)).toBe(0);
-    expect(getOneShotPickleCap(999, 1000, 1)).toBe(-1);
-    expect(getOneShotPickleCap(0, 1000, 1)).toBe(-1);
+    expect(getPickleCapForHits(2000, 1000, 1)).toBe(7);
+    expect(getPickleCapForHits(1000, 1000, 1)).toBe(0);
+    expect(getPickleCapForHits(999, 1000, 1)).toBe(-1);
+    expect(getPickleCapForHits(0, 1000, 1)).toBe(-1);
+    // Two hits doubles the budget: 1.1^14 = 3.797, 1.1^15 = 4.177
+    expect(getPickleCapForHits(2000, 1000, 1, 2)).toBe(14);
+    expect(getPickleCapForHits(999, 1000, 1, 2)).toBe(7);
+    // A target below one is still one hit.
+    expect(getPickleCapForHits(2000, 1000, 1, 0)).toBe(7);
+  });
+
+  it('agrees with the hit count at every target, and only ever climbs with it', () => {
+    let previous = -Infinity;
+    for (let targetHits = 1; targetHits <= 50; targetHits++) {
+      const cap = getPickleCapForHits(1234, 1000, 3.5, targetHits);
+      expect(cap).toBeGreaterThanOrEqual(previous);
+      if (cap >= 0) {
+        expect(getHitsToKill(getMinibossHp(1000, 3.5, cap), 1234)).toBeLessThanOrEqual(targetHits);
+      }
+      expect(getHitsToKill(getMinibossHp(1000, 3.5, cap + 1), 1234)).toBeGreaterThan(targetHits);
+      previous = cap;
+    }
+  });
+
+  it('lands on an exact power of 1.1 rather than one short of it', () => {
+    expect(getPickleCapForHits(1000 * Math.pow(1.1, 20), 1000, 1)).toBe(20);
   });
 
   it('reports hits to kill, and infinity when the character deals no damage', () => {

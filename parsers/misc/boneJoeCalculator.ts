@@ -60,15 +60,22 @@ export const getKillCredit = (pickles: number): number => Math.floor(pickles + P
 export const getHitsToKill = (hp: number, damage: number): number =>
   damage > 0 ? Math.ceil(hp / damage) : Infinity;
 
-// Largest pickle count that still leaves the miniboss inside a single max hit. Below one shot the
-// respawn timer stops being the limit and every extra pickle costs real fighting time, so this is
-// the line worth knowing rather than a rule the game enforces. Returns -1 when even an empty
-// inventory is out of reach.
-export const getOneShotPickleCap = (maxDamage: number, baseHp: number, prayerHpMulti: number): number => {
+// Largest pickle count that still dies within `targetHits` average swings: the line where a heavier
+// miniboss starts to cost real fighting time instead of waiting out the respawn timer. Priced off the
+// same damage as getHitsToKill, so a cap and the hit count beneath it can never disagree, and the cap
+// only ever climbs as the target does. Returns -1 when even an empty inventory is out of reach.
+export const getPickleCapForHits = (damage: number, baseHp: number, prayerHpMulti: number,
+                                    targetHits: number = 1): number => {
   const hpAtZero = baseHp * prayerHpMulti;
-  if (!(maxDamage > 0) || !(hpAtZero > 0)) return -1;
-  if (maxDamage < hpAtZero) return -1;
-  return Math.floor(Math.log(maxDamage / hpAtZero) / Math.log(PICKLE_HP_MULTI));
+  const budget = damage * Math.max(Math.floor(targetHits), 1);
+  if (!(budget > 0) || !(hpAtZero > 0) || !isFinite(budget)) return -1;
+  if (budget < hpAtZero) return -1;
+  let cap = Math.floor(Math.log(budget / hpAtZero) / Math.log(PICKLE_HP_MULTI));
+  // The log lands a hair under a whole number right on an exact power of 1.1, so settle the edge
+  // against the HP formula itself.
+  if (getMinibossHp(baseHp, prayerHpMulti, cap + 1) <= budget) cap += 1;
+  else if (getMinibossHp(baseHp, prayerHpMulti, cap) > budget) cap -= 1;
+  return cap;
 };
 
 // Mega Crit is all that crit chance past 100% buys. The game rolls once against crit chance, and

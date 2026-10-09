@@ -4,6 +4,8 @@ import {
   CardContent,
   Divider,
   FormControlLabel,
+  IconButton,
+  InputAdornment,
   Stack,
   Switch,
   Table,
@@ -13,9 +15,12 @@ import {
   TableHead,
   TableRow,
   TextField,
+  ToggleButton,
   Typography
 } from '@mui/material';
-import { cleanUnderscore, notateNumber, numberWithCommas } from '@utility/helpers';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import Tooltip from '@components/Tooltip';
+import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
 import { getKillCredit, getMinibosses, getMinibossHp } from '@parsers/misc/boneJoeCalculator';
 import { monsterImage } from '@utility/spriteImages';
 
@@ -23,7 +28,9 @@ const MinibossHp = ({
                       pickles,
                       setPickles,
                       activePrayers,
-                      setPrayerLevels,
+                      levelsFromAccount,
+                      setPrayerLevel,
+                      togglePrayer,
                       curse,
                       hpMulti,
                       applyToCharacters,
@@ -34,7 +41,7 @@ const MinibossHp = ({
 
   const handlePrayerLevel = (name, maxLevel) => ({ target }) => {
     const level = Math.min(Math.max(parseInt(target.value, 10) || 0, 0), maxLevel);
-    setPrayerLevels((prev) => ({ ...prev, [name]: level }));
+    setPrayerLevel(name, level);
   };
 
   return <Card sx={{ width: 'fit-content' }}>
@@ -51,15 +58,64 @@ const MinibossHp = ({
             onChange={({ target }) => setPickles(Math.max(parseInt(target.value, 10) || 0, 0))}
           />
           <Divider orientation={'vertical'} flexItem sx={{ display: { xs: 'none', sm: 'block' } }}/>
-          {activePrayers.map((prayer) => <TextField
-            key={prayer?.name}
-            size={'small'}
-            type={'number'}
-            sx={{ width: 150 }}
-            label={cleanUnderscore(prayer?.name)}
-            value={prayer?.level}
-            onChange={handlePrayerLevel(prayer?.name, prayer?.maxLevel)}
-          />)}
+          {activePrayers.map((prayer) => {
+            const levelField = <TextField
+              size={'small'}
+              type={'number'}
+              label={cleanUnderscore(prayer?.name)}
+              value={prayer?.level}
+              onChange={handlePrayerLevel(prayer?.name, prayer?.maxLevel)}
+              sx={{
+                width: levelsFromAccount ? 170 : 150,
+                ...(prayer?.enabled ? {} : { '& .MuiInputBase-input': { color: 'text.disabled' } })
+              }}
+              slotProps={levelsFromAccount && prayer?.level !== prayer?.accountLevel ? {
+                input: {
+                  endAdornment: <InputAdornment position={'end'}>
+                    <Tooltip title={`Reset to account level (Lv ${prayer?.accountLevel})`}>
+                      <IconButton
+                        size={'small'}
+                        edge={'end'}
+                        aria-label={`Reset ${cleanUnderscore(prayer?.name)} to account level`}
+                        onClick={() => setPrayerLevel(prayer?.name, prayer?.accountLevel)}
+                      >
+                        <RestartAltIcon fontSize={'small'}/>
+                      </IconButton>
+                    </Tooltip>
+                  </InputAdornment>
+                }
+              } : undefined}
+            />;
+            if (!levelsFromAccount) return React.cloneElement(levelField, { key: prayer?.name });
+            return <Stack key={prayer?.name} direction={'row'} gap={0.5} alignItems={'center'}>
+              <Tooltip title={prayer?.enabled ? 'Equipped, click to unequip' : 'Not equipped, click to equip'}>
+                <ToggleButton
+                  value={prayer?.name}
+                  size={'small'}
+                  selected={!!prayer?.enabled}
+                  color={'primary'}
+                  aria-label={`Equip ${cleanUnderscore(prayer?.name)}`}
+                  onChange={() => togglePrayer(prayer?.name)}
+                  // Same height and resting border as the level field beside it, so the pair reads as one control.
+                  sx={(theme) => ({
+                    width: 40,
+                    height: 40,
+                    p: 0,
+                    borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
+                    '&.Mui-selected': { borderColor: theme.palette.primary.main }
+                  })}
+                >
+                  <img src={`${prefix}data/Prayer${prayer?.prayerIndex}.png`} alt="" width={24} height={24}
+                       style={{
+                         objectFit: 'contain',
+                         filter: prayer?.enabled ? 'none' : 'grayscale(1)',
+                         opacity: prayer?.enabled ? 1 : 0.5
+                       }}/>
+                </ToggleButton>
+              </Tooltip>
+              {levelField}
+            </Stack>;
+          })}
         </Stack>
         <FormControlLabel
           control={<Switch

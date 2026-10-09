@@ -10,7 +10,8 @@ export const patchNotes = [
     'features': [
       'Material Tracker: added a Clear all button',
       'Material Tracker: Add tracker for all greenstacks now only adds missing greenstacks, including past ones below 10M, and keeps your existing bounds',
-      'Royal Armory Outposts: sort by Trade, Intel, Command, Military or Purity rank, and filter glorified or unglorified outposts'
+      'Royal Armory Outposts: sort by Trade, Intel, Command, Military or Purity rank, and filter glorified or unglorified outposts',
+      'Bone Joe Calculator: prayer levels now prefill from your account (still editable for what-if), each prayer can be toggled on or off, and a new Target hits option sizes the pickle cap for killing in N hits'
     ],
     'fixes': [
       'Material Tracker: importing an invalid file no longer adds broken entries that cannot be removed',

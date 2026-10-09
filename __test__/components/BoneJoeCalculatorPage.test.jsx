@@ -14,11 +14,12 @@ import {
   getSkillDamage,
   getMinibosses,
   getMinibossHp,
-  getOneShotPickleCap,
+  getPickleCapForHits,
   getPickleCount,
   getPrayerHpMulti
 } from '@parsers/misc/boneJoeCalculator';
 import { getMaxDamage } from '@parsers/damage';
+import { getPrayerBonusAndCurse } from '@parsers/world-3/prayers';
 
 // This project does not load jest-dom, so assertions use plain DOM properties.
 vi.mock('next/router', () => ({ useRouter: () => ({ push: vi.fn(), query: {}, asPath: '/' }) }));
@@ -44,6 +45,13 @@ const renderPage = (state) => render(
     </AppContext.Provider>
   </ThemeProvider>
 );
+
+// With an account the prayer levels are prefilled from the save, and each prayer has an equip toggle.
+const accountCurseMulti = (name) => {
+  const prayer = account?.prayers?.find((entry) => entry.name === name);
+  return 1 + getPrayerBonusAndCurse([prayer], name).curse / 100;
+};
+const prayerChip = (name) => screen.getByRole('button', { name: `Equip ${name}` });
 
 const rowCells = (label) => Array.from(screen.getByText(label).closest('tr').querySelectorAll('td'))
   .map((cell) => cell.textContent);
@@ -94,25 +102,58 @@ describe('Bone Joe Calculator page', () => {
     expect(screen.getByLabelText('Big Brain Time').value).toBe('12');
   });
 
+  it('prefills prayer levels from the account and toggles them', () => {
+    renderPage({ characters, account });
+    const midas = account.prayers.find(({ name }) => name === 'Midas_Minded');
+    expect(screen.getByLabelText('Midas Minded').value).toBe(String(midas.level));
+    expect(prayerChip('Midas Minded').getAttribute('aria-pressed')).toBe('false');
+
+    fireEvent.click(prayerChip('Midas Minded'));
+    expect(prayerChip('Midas Minded').getAttribute('aria-pressed')).toBe('true');
+    expect(rowCells('Glunko The Massive')[2]).toBe(notateNumber(10000 * accountCurseMulti('Midas_Minded'), 'Big'));
+
+    fireEvent.click(prayerChip('Midas Minded'));
+    expect(rowCells('Glunko The Massive')[2]).toBe(notateNumber(10000, 'Big'));
+  });
+
+  it('lets a logged in user try a level the account does not have yet', () => {
+    renderPage({ characters, account });
+    const midas = account.prayers.find(({ name }) => name === 'Midas_Minded');
+    const whatIf = midas.level === 50 ? 20 : 50;
+    fireEvent.click(prayerChip('Midas Minded'));
+    fireEvent.change(screen.getByLabelText('Midas Minded'), { target: { value: String(whatIf) } });
+
+    const curse = 250 + 250 * (whatIf - 1) / 10;
+    expect(rowCells('Glunko The Massive')[2]).toBe(notateNumber(10000 * (1 + curse / 100), 'Big'));
+    const reset = screen.getByRole('button', { name: 'Reset Midas Minded to account level' });
+
+    // Resetting drops the override, so the field follows the save again.
+    fireEvent.click(reset);
+    expect(screen.getByLabelText('Midas Minded').value).toBe(String(midas.level));
+    expect(screen.queryByRole('button', { name: 'Reset Midas Minded to account level' })).toBe(null);
+    expect(JSON.parse(localStorage.getItem('boneJoeCalculator:prayerLevelOverrides'))).toEqual({});
+  });
+
   it('does not reprice the characters while the toggle is off', () => {
     renderPage({ characters, account });
     getMaxDamage.mockClear();
 
     fireEvent.change(screen.getByLabelText('Pickles'), { target: { value: '5' } });
-    fireEvent.change(screen.getByLabelText('Midas Minded'), { target: { value: '20' } });
+    fireEvent.click(prayerChip('Midas Minded'));
 
-    // Midas Minded at Lv 20 curses 250 + 250 * 19 / 10 = 725%.
-    expect(rowCells('Glunko The Massive')[2]).toBe(notateNumber(10000 * 8.25 * Math.pow(1.1, 5), 'Big'));
+    expect(rowCells('Glunko The Massive')[2])
+      .toBe(notateNumber(10000 * accountCurseMulti('Midas_Minded') * Math.pow(1.1, 5), 'Big'));
     expect(getMaxDamage).not.toHaveBeenCalled();
   });
 
   it('prices the characters off the configuration once the toggle is on', async () => {
     renderPage({ characters, account });
     const character = characters[0];
-    const { maxDamage } = getMaxDamage(character, characters, account);
+    const effectiveDamage = getEffectiveDamage(getMaxDamage(character, characters, account), character);
+    const hpMulti = accountCurseMulti('Midas_Minded');
 
     fireEvent.change(screen.getByLabelText('Pickles'), { target: { value: '5' } });
-    fireEvent.change(screen.getByLabelText('Midas Minded'), { target: { value: '50' } });
+    fireEvent.click(prayerChip('Midas Minded'));
     fireEvent.click(screen.getByLabelText('Apply to characters'));
 
     // The pickles and the prayer curse reach the table on two SEPARATE debounces, so waiting on the
@@ -120,7 +161,7 @@ describe('Bone Joe Calculator page', () => {
     // does, and the caps are then computed against an uncursed miniboss. Waiting on a cap waits on
     // both, since a cap is only right once the curse has arrived too.
     const capOf = ({ baseHp }) => {
-      const cap = getOneShotPickleCap(maxDamage, baseHp, 15.75);
+      const cap = getPickleCapForHits(effectiveDamage, baseHp, hpMulti);
       return cap < 0 ? '-' : String(cap);
     };
     await waitFor(() => {
@@ -130,6 +171,22 @@ describe('Bone Joe Calculator page', () => {
       });
     });
     expect(screen.getByText(/using the configuration above/)).toBeDefined();
+  });
+
+  it('raises every cap to the target number of hits', async () => {
+    renderPage({ characters, account });
+    const character = characters[0];
+    const effectiveDamage = getEffectiveDamage(getMaxDamage(character, characters, account), character);
+    const prayerHpMulti = getPrayerHpMulti(character, account);
+
+    fireEvent.change(screen.getByLabelText('Target hits'), { target: { value: '5' } });
+    await waitFor(() => {
+      minibosses.forEach(({ baseHp }, index) => {
+        const cap = getPickleCapForHits(effectiveDamage, baseHp, prayerHpMulti, 5);
+        expect(rowCells(character.name)[3 + index]).toContain(cap < 0 ? '-' : String(cap));
+      });
+    });
+    expect(screen.getByText(/within 5 hits/)).toBeDefined();
   });
 
   it('goes back to each character own prayers and pickles when the toggle is off again', async () => {
@@ -145,17 +202,18 @@ describe('Bone Joe Calculator page', () => {
     expect(screen.getByText(/own equipped prayers and carried pickles/)).toBeDefined();
   });
 
-  it('shows a one shot cap per character that matches the parser', () => {
+  it('shows a single hit cap per character that matches the parser', () => {
     renderPage({ characters, account });
     const character = characters[0];
-    const { maxDamage } = getMaxDamage(character, characters, account);
+    const playerInfo = getMaxDamage(character, characters, account);
+    const effectiveDamage = getEffectiveDamage(playerInfo, character);
     const prayerHpMulti = getPrayerHpMulti(character, account);
     const cells = rowCells(character.name);
 
-    expect(cells[1]).toBe(notateNumber(maxDamage, 'Big'));
+    expect(cells[1]).toBe(notateNumber(playerInfo.maxDamage, 'Big'));
     expect(cells[2]).toBe(String(getPickleCount(character)));
     minibosses.forEach(({ baseHp }, index) => {
-      const cap = getOneShotPickleCap(maxDamage, baseHp, prayerHpMulti);
+      const cap = getPickleCapForHits(effectiveDamage, baseHp, prayerHpMulti);
       expect(cells[3 + index]).toContain(cap < 0 ? '-' : String(cap));
     });
   });

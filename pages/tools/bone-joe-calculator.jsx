@@ -9,7 +9,14 @@ import { useBoneJoeConfig } from '@hooks/useBoneJoeConfig';
 
 const BoneJoeCalculator = () => {
   const { state } = useContext(AppContext);
-  const { overridePickles, overrideHpMulti, ...config } = useBoneJoeConfig();
+  const {
+    overridePickles,
+    overrideHpMulti,
+    targetHits,
+    setTargetHits,
+    debouncedTargetHits,
+    ...config
+  } = useBoneJoeConfig(state?.account);
 
   return <>
     <NextSeo
@@ -21,9 +28,9 @@ const BoneJoeCalculator = () => {
       'Use the Bone Joe Calculator to see how Bone Joe Pickles and prayer curses scale miniboss HP.',
       [
         'Enter the number of Bone Joe Pickles you carry',
-        'Set the levels of the three prayers that curse monster HP',
+        'Pick which of the three prayers that curse monster HP are equipped',
         'Read the resulting HP for each of the nine minibosses',
-        'Check the per character table for how many pickles each character can carry and still one shot'
+        'Check the per character table for how many pickles each character can carry and still kill in your target number of hits'
       ]
     )}/>
     <Stack gap={3}>
@@ -38,6 +45,9 @@ const BoneJoeCalculator = () => {
         account={state?.account}
         overridePickles={overridePickles}
         overrideHpMulti={overrideHpMulti}
+        targetHits={targetHits}
+        setTargetHits={setTargetHits}
+        debouncedTargetHits={debouncedTargetHits}
       />
     </Stack>
   </>;

@@ -9,6 +9,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Typography
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
@@ -22,7 +23,7 @@ import {
   getSkillDamage,
   getMinibosses,
   getMinibossHp,
-  getOneShotPickleCap,
+  getPickleCapForHits,
   getPickleCount,
   getPrayerHpMulti
 } from '@parsers/misc/boneJoeCalculator';
@@ -42,94 +43,129 @@ const rangeLabel = (skillHits, basicHits) => {
   return `${notateNumber(skillHits, 'Big')} to ${hitsLabel(basicHits)}`;
 };
 
-const CharacterMinibosses = ({ characters, account, overridePickles, overrideHpMulti }) => {
+const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti, targetHits }) => {
   const minibosses = getMinibosses();
   // Both are null together, but the pair is read rather than the toggle so this component never
   // has to know the toggle exists.
   const usingOverride = overridePickles !== null && overrideHpMulti !== null;
+  const target = targetHits <= 1 ? 'in a single hit' : `within ${targetHits} hits`;
 
-  return <Card>
-    <CardContent>
-      <Stack gap={2}>
-        <Typography variant={'h6'}>Your characters</Typography>
-        {characters?.length ? <>
-          <Typography variant={'caption'}>
-            Each cell shows the most pickles that character can carry and still one shot that miniboss. Underneath is
-            how many hits the kill takes at the pickles in the Pickles column, as a range. The low end
-            assumes every hit is that character's hardest equipped attack, the high end assumes basic
-            attacks only, and a real fight lands between them. Both ends count crits. {usingOverride
-            ? 'Both are using the configuration above, not what each character actually has.'
-            : 'Both are using each character\'s own equipped prayers and carried pickles.'}
-          </Typography>
-          <TableContainer>
-            <Table size={'small'}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Character</TableCell>
-                  <TableCell align={'right'}>Damage</TableCell>
-                  <TableCell align={'right'}>Pickles</TableCell>
-                  {minibosses.map(({ rawName, name }) => <TableCell key={rawName} align={'center'}>
-                    <Tooltip title={cleanUnderscore(name)}>
-                      <img src={monsterImage(name)} alt={cleanUnderscore(name)} width={28} height={28}
-                           style={{ objectFit: 'contain' }}/>
+  return <>
+      <Typography variant={'caption'}>
+        Each cell shows the most pickles that character can carry and still kill that miniboss {target}, counted
+        with basic attacks and crits. Underneath is
+        how many hits the kill takes at the pickles in the Pickles column, as a range. The low end
+        assumes every hit is that character's hardest equipped attack, the high end assumes basic
+        attacks only, and a real fight lands between them. Both ends count crits. {usingOverride
+        ? 'Both are using the configuration above, not what each character actually has.'
+        : 'Both are using each character\'s own equipped prayers and carried pickles.'}
+      </Typography>
+      <TableContainer>
+        <Table size={'small'}>
+          <TableHead>
+            <TableRow>
+              <TableCell>Character</TableCell>
+              <TableCell align={'right'}>Damage</TableCell>
+              <TableCell align={'right'}>Pickles</TableCell>
+              {minibosses.map(({ rawName, name }) => <TableCell key={rawName} align={'center'}>
+                <Tooltip title={cleanUnderscore(name)}>
+                  <img src={monsterImage(name)} alt={cleanUnderscore(name)} width={28} height={28}
+                       style={{ objectFit: 'contain' }}/>
+                </Tooltip>
+              </TableCell>)}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {characters.map((character) => {
+              const playerInfo = getMaxDamage(character, characters, account) || {};
+              const maxDamage = playerInfo?.maxDamage ?? 0;
+              const effectiveDamage = getEffectiveDamage(playerInfo, character);
+              const skillDamage = getSkillDamage(playerInfo, character);
+              const strongest = getStrongestAttack(character);
+              const prayerHpMulti = usingOverride ? overrideHpMulti : getPrayerHpMulti(character, account);
+              const carried = usingOverride ? overridePickles : getPickleCount(character);
+              return <TableRow key={character?.name}>
+                <TableCell>
+                  <Stack direction={'row'} alignItems={'center'} gap={1}>
+                    <img src={`${prefix}data/ClassIcons${character?.classIndex}.png`} alt="" width={24}
+                         height={24}/>
+                    {character?.name}
+                  </Stack>
+                </TableCell>
+                <TableCell align={'right'}>
+                  <Stack direction={'row'} alignItems={'center'} justifyContent={'flex-end'} gap={0.5}>
+                    {notateNumber(maxDamage, 'Big')}
+                    <Tooltip title={strongest
+                      ? `Hit counts run from every hit being ${cleanUnderscore(strongest.name)} at ${notateNumber(strongest.multi * 100, 'Big')}% damage, the hardest of ${strongest.count} equipped attacks, up to basic attacks only. A real fight mixes both.`
+                      : 'No attack equipped, so hit counts are basic attacks only'}>
+                      <InfoIcon fontSize={'small'} sx={{ color: 'text.secondary' }}/>
                     </Tooltip>
-                  </TableCell>)}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {characters.map((character) => {
-                  const playerInfo = getMaxDamage(character, characters, account) || {};
-                  const maxDamage = playerInfo?.maxDamage ?? 0;
-                  const effectiveDamage = getEffectiveDamage(playerInfo, character);
-                  const skillDamage = getSkillDamage(playerInfo, character);
-                  const strongest = getStrongestAttack(character);
-                  const prayerHpMulti = usingOverride ? overrideHpMulti : getPrayerHpMulti(character, account);
-                  const carried = usingOverride ? overridePickles : getPickleCount(character);
-                  return <TableRow key={character?.name}>
-                    <TableCell>
-                      <Stack direction={'row'} alignItems={'center'} gap={1}>
-                        <img src={`${prefix}data/ClassIcons${character?.classIndex}.png`} alt="" width={24}
-                             height={24}/>
-                        {character?.name}
-                      </Stack>
-                    </TableCell>
-                    <TableCell align={'right'}>
-                      <Stack direction={'row'} alignItems={'center'} justifyContent={'flex-end'} gap={0.5}>
-                        {notateNumber(maxDamage, 'Big')}
-                        <Tooltip title={strongest
-                          ? `Hit counts run from every hit being ${cleanUnderscore(strongest.name)} at ${notateNumber(strongest.multi * 100, 'Big')}% damage, the hardest of ${strongest.count} equipped attacks, up to basic attacks only. A real fight mixes both.`
-                          : 'No attack equipped, so hit counts are basic attacks only'}>
-                          <InfoIcon fontSize={'small'} sx={{ color: 'text.secondary' }}/>
-                        </Tooltip>
-                      </Stack>
-                    </TableCell>
-                    <TableCell align={'right'}>{carried}</TableCell>
-                    {minibosses.map(({ rawName, baseHp }) => {
-                      const cap = getOneShotPickleCap(maxDamage, baseHp, prayerHpMulti);
-                      const hp = getMinibossHp(baseHp, prayerHpMulti, carried);
-                      const hits = getHitsToKill(hp, effectiveDamage);
-                      const skillHits = getHitsToKill(hp, skillDamage);
-                      return <TableCell key={rawName} align={'center'}>
-                        <Typography color={cap >= carried ? 'success.main' : 'error.main'}>
-                          {cap < 0 ? '-' : cap}
-                        </Typography>
-                        <Typography variant={'caption'} color={'text.secondary'} component={'div'}>
-                          {rangeLabel(skillHits, hits)}
-                        </Typography>
-                      </TableCell>;
-                    })}
-                  </TableRow>;
+                  </Stack>
+                </TableCell>
+                <TableCell align={'right'}>{carried}</TableCell>
+                {minibosses.map(({ rawName, baseHp }) => {
+                  const cap = getPickleCapForHits(effectiveDamage, baseHp, prayerHpMulti, targetHits);
+                  const hp = getMinibossHp(baseHp, prayerHpMulti, carried);
+                  const hits = getHitsToKill(hp, effectiveDamage);
+                  const skillHits = getHitsToKill(hp, skillDamage);
+                  return <TableCell key={rawName} align={'center'}>
+                    <Typography color={cap >= carried ? 'success.main' : 'error.main'}>
+                      {cap < 0 ? '-' : cap}
+                    </Typography>
+                    <Typography variant={'caption'} color={'text.secondary'} component={'div'}>
+                      {rangeLabel(skillHits, hits)}
+                    </Typography>
+                  </TableCell>;
                 })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </> : <Typography variant={'body2'}>Log in to see how many pickles each of your characters can carry.</Typography>}
-      </Stack>
-    </CardContent>
-  </Card>;
+              </TableRow>;
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+  </>;
 };
 
 // The config inputs sit above this table and re-render the page on every keystroke, while pricing
 // every character's damage here costs far more than one frame. React Compiler would memoize this
 // boundary in the app, but tests run without it, so the guard is explicit rather than implied.
-export default React.memo(CharacterMinibosses);
+const MemoCharacterTable = React.memo(CharacterTable);
+
+const CharacterMinibosses = ({
+                               characters,
+                               account,
+                               overridePickles,
+                               overrideHpMulti,
+                               targetHits,
+                               setTargetHits,
+                               debouncedTargetHits
+                             }) => {
+  return <Card>
+    <CardContent>
+      <Stack gap={2}>
+        <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
+          <Typography variant={'h6'}>Your characters</Typography>
+          {characters?.length ? <TextField
+            size={'small'}
+            type={'number'}
+            label={'Target hits'}
+            sx={{ width: 120 }}
+            slotProps={{ htmlInput: { min: 1 } }}
+            value={targetHits}
+            onChange={({ target }) => setTargetHits(Math.max(parseInt(target.value, 10) || 1, 1))}
+          /> : null}
+        </Stack>
+        {characters?.length
+          ? <MemoCharacterTable
+            characters={characters}
+            account={account}
+            overridePickles={overridePickles}
+            overrideHpMulti={overrideHpMulti}
+            targetHits={debouncedTargetHits}
+          />
+          : <Typography variant={'body2'}>Log in to see how many pickles each of your characters can carry.</Typography>}
+      </Stack>
+    </CardContent>
+  </Card>;
+};
+
+export default CharacterMinibosses;
