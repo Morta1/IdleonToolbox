@@ -111,7 +111,7 @@ import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getSuperTalentLeftToSpend } from '@parsers/world-7/legendTalents';
 import { getAdviceFishBonus, getFriendBonus } from '@parsers/misc';
 import { breakdownCategory, breakdownSubSection, createBreakdown, toFractions } from '@parsers/breakdown';
-import type { BreakdownCategory } from '@parsers/breakdown';
+import type { BreakdownCategory, BreakdownSource, BreakdownSubSection } from '@parsers/breakdown';
 import { getTesseractMapBonus } from '@parsers/class-specific/tesseract';
 import { getMaxDamage } from '@parsers/damage';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
@@ -3258,7 +3258,7 @@ export const getPlayerSpeedBonus = (character: any, characters: any, account: an
 }
 export const getAfkGain = (character: any, characters: any, account: any) => {
   // null until a branch below claims the afkType, so an unhandled type stays distinguishable from a real 0
-  let breakdown: any[] = [], gains: number | null = null;
+  let gains: number | null = null;
   const { afkType } = character;
   const { guild, bribes, shrines, tasks } = account;
   const afkGainsTaskBonus = tasks?.[2]?.[1]?.[2] > character?.playerId ? 2 : 0;
@@ -3277,8 +3277,8 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'DREAM_CATCHER');
   const chipBonus = getPlayerLabChipBonus(character, account, 8);
   const obolsAfkBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[59]);
-  const { value: afkBonuses, breakdown: afkBonusesBreakdown } = getStatsFromGear(character, 59, account);
-  const { value: skillAfkBonuses, breakdown: skillAfkBonusesBreakdown } = getStatsFromGear(character, 24, account);
+  const { value: afkBonuses } = getStatsFromGear(character, 59, account);
+  const { value: skillAfkBonuses } = getStatsFromGear(character, 24, account);
   const skillAfkObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[24]);
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Zerg_Rushogen', account)?.bonus;
   const prayerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Ruck_Sack', account)?.curse;
@@ -3325,22 +3325,25 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
                               + vaultBonus)))))))))))))
     + bundleBonus;
   const actualBaseAfkGains = baseAfkGains + additionalAfkGains;
-  breakdown = [
-    { title: 'Base' },
-    { name: '' },
-    { name: 'Tasks', value: afkGainsTaskBonus },
+  // baseAfkGains minus its task bonus: the pool every skilling type adds, fighting does not
+  const skillAfkPool = breakdownSubSection('Skill AFK gains', [
+    { name: 'Base', value: 2 },
     { name: 'Family', value: familyBonus },
-    { name: 'Cards', value: cardBonus + cardPassiveBonus },
+    { name: 'Card', value: cardBonus },
     { name: 'Guild', value: guildBonus },
     { name: 'Card Set', value: cardSetBonus },
     { name: 'Sleepin On The Job (VW Eclipse)', value: sleepinOnTheJob },
     { name: 'Sigil', value: sigilBonus },
     { name: 'Chips', value: chipBonus },
-    ...afkBonusesBreakdown,
-    ...skillAfkBonusesBreakdown,
-    { name: 'Obols (AFK)', value: obolsAfkBonus },
-    { name: 'Obols (Skill AFK)', value: skillAfkObols },
-    { name: 'Prayers', value: prayerBonus - prayerCurse },
+    { name: 'Gear (AFK gains)', value: afkBonuses },
+    { name: 'Gear (Skill AFK gains)', value: skillAfkBonuses },
+    { name: 'Obols (AFK gains)', value: obolsAfkBonus },
+    { name: 'Obols (Skill AFK gains)', value: skillAfkObols },
+    { name: 'Prayers', value: prayerBonus - prayerCurse }
+  ]);
+  // The task bonus plus additionalAfkGains: added to every AFK type
+  const allAfkPool = breakdownSubSection('All AFK gains', [
+    { name: 'Tasks', value: afkGainsTaskBonus },
     { name: 'Arcade', value: arcadeBonus },
     { name: 'Compass', value: compassBonus },
     { name: 'Void Set', value: voidSetBonus },
@@ -3352,28 +3355,29 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
     { name: 'Rando Event Looty', value: randoEventLooty * randomItemsFound },
     { name: 'Summoning', value: summoningBonus },
     { name: 'Golden Food', value: goldenFoodBonus },
+    { name: 'Passive cards', value: cardPassiveBonus },
+    { name: 'Kangaroo', value: kangarooAfkBonus },
     { name: 'Vote', value: voteBonus },
     { name: 'Event Shop', value: 20 * eventBonus },
     { name: 'Vault', value: vaultBonus },
-    { name: 'Bundle', value: bundleBonus },
-    { name: 'Kangaroo', value: kangarooAfkBonus },
-    { name: '' }
-  ]
+    { name: 'Bundle', value: bundleBonus }
+  ]);
   const bribeAfkGains = bribes?.[24]?.done ? bribes?.[24]?.value : 0;
   const tickTockTalentBonus = getTalentBonus(character?.flatStarTalents, 'TICK_TOCK');
   // AFKgainzzALLmulti - multiplier applied to all AFK types
   const tesseractMapBonus = getTesseractMapBonus(account, characters, character, 2);
-  const { value: equipmentAfkMulti, breakdown: equipmentAfkMultiBreakdown } = getStatsFromGear(character, 92, account);
+  const { value: equipmentAfkMulti } = getStatsFromGear(character, 92, account);
   const afkMulti = (1 + tesseractMapBonus! / 100) * (1 + equipmentAfkMulti / 100);
-  breakdown = [
-    ...breakdown,
-    { title: 'AFK Multi' },
-    { name: '' },
-    { name: 'Tesseract Map', value: tesseractMapBonus },
-    { name: 'Equipment AFK Multi', value: equipmentAfkMulti },
-    ...equipmentAfkMultiBreakdown,
-    { name: '' }
-  ]
+  // Every type is (base + additive%) / 100 * afkMulti; the values here are percent points.
+  const afkCategories = (base: number, entries: (BreakdownSource | BreakdownSubSection)[]) => [
+    breakdownCategory('Base rate', [{ name: 'Base', value: base }]),
+    breakdownCategory('Additive', entries),
+    breakdownCategory('Multiplicative', [
+      { name: 'Tesseract Map', value: 1 + tesseractMapBonus! / 100 },
+      { name: 'Equipment AFK multi', value: 1 + equipmentAfkMulti / 100 }
+    ])
+  ];
+  let categories = afkCategories(0, [skillAfkPool, allAfkPool]);
   const idleSkillingBonus = getTalentBonus(character?.flatTalents, 'IDLE_SKILLING');
   const activeAfkerBonus = getTalentBonus(character?.flatTalents, 'ACTIVE_AFK\'ER');
   const catchingSomeZzzBonus = getTalentBonus(character?.flatTalents, 'CATCHING_SOME_ZZZ\'S');
@@ -3392,7 +3396,7 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
     const bribeBonus = bribes?.[3]?.done ? bribes?.[3]?.value : 0;
     const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet8' ? character?.cards?.cardSet?.bonus : 0;
     const equippedCardBonus = getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[43]);
-    const { value: fightBonuses, breakdown: fightBonusesBreakdown } = getStatsFromGear(character, 20, account);
+    const { value: fightBonuses } = getStatsFromGear(character, 20, account);
     const fightObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[20]);
     const starSignBonus = getStarSignBonus(character, account, 'Fight_AFK_Gain');
     let guildBonus = 0;
@@ -3407,24 +3411,22 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
           + (equippedCardBonus + (fourthTalentBonus + (fightBonuses + afkBonuses + fightObols
             + (starSignBonus + (guildBonus + (prayerBonus - prayerCurse + chipBonus + fightPassiveCardBonus))))))))))) / 100) * afkMulti;
 
-    breakdown = [
-      ...breakdown,
-      { title: 'Fighting' },
-      { name: '' },
+    categories = afkCategories(40, [
       { name: 'Family', value: familyEffBonus },
       { name: 'Post Office', value: postOfficeBonus },
       { name: 'Talents', value: firstTalentBonus + secondTalentBonus + thirdTalentBonus + fourthTalentBonus + tickTockTalentBonus },
       { name: 'Bribe', value: bribeBonus },
       { name: 'Card Set', value: cardSetBonus },
       { name: 'Cards', value: equippedCardBonus + fightPassiveCardBonus },
-      ...fightBonusesBreakdown,
-      ...afkBonusesBreakdown,
+      { name: 'Gear (Fight AFK gains)', value: fightBonuses },
+      { name: 'Gear (AFK gains)', value: afkBonuses },
       { name: 'Obols', value: fightObols },
       { name: 'Prayers', value: prayerBonus - prayerCurse },
       { name: 'Chips', value: chipBonus },
       { name: 'Guild', value: guildBonus },
-      { name: 'Starsign', value: starSignBonus }
-    ]
+      { name: 'Star sign', value: starSignBonus },
+      allAfkPool
+    ]);
   }
   else if (afkType === 'COOKING') {
     const secondTalentBonus = getTalentBonus(character?.flatTalents, 'WAITING_TO_COOL')
@@ -3435,15 +3437,14 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
           + (trappingBonus
             + (starSignBonus
               + (bribeAfkGains + secondTalentBonus))))) / 100) * afkMulti;
-    breakdown = [
-      ...breakdown,
-      { title: 'Cooking' },
-      { name: '' },
+    categories = afkCategories(50, [
       { name: 'Talents', value: idleSkillingBonus + secondTalentBonus + tickTockTalentBonus },
-      { name: 'Starsign', value: starSignBonus },
+      { name: 'Star sign', value: starSignBonus },
       { name: 'Trapping Bonus', value: trappingBonus },
-      { name: 'Bribe', value: bribeAfkGains }
-    ]
+      { name: 'Bribe', value: bribeAfkGains },
+      skillAfkPool,
+      allAfkPool
+    ]);
   }
   else if (afkType === 'MINING') {
     const dwarvenSupliesBonus = getPostOfficeBonus(character?.postOffice, 'Dwarven_Supplies', 2);
@@ -3461,18 +3462,17 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
                 + (bribeAfkGains
                   + bubbleBonus))))))) / 100) * afkMulti;
 
-    breakdown = [
-      ...breakdown,
-      { title: 'Mining' },
-      { name: '' },
+    categories = afkCategories(50, [
       { name: 'Talents', value: idleSkillingBonus + tickTockTalentBonus },
-      { name: 'Starsign', value: starSignBonus },
+      { name: 'Star sign', value: starSignBonus },
       { name: 'Trapping Bonus', value: trappingBonus },
       { name: 'Bribe', value: bribeAfkGains },
       { name: 'Card', value: cardBonus },
       { name: 'Post Office', value: dwarvenSupliesBonus },
-      { name: 'Bubble', value: bubbleBonus }
-    ]
+      { name: 'Bubble', value: bubbleBonus },
+      skillAfkPool,
+      allAfkPool
+    ]);
   }
   else if (afkType === 'CHOPPIN') {
     const tapedUpTimberBonus = getPostOfficeBonus(character?.postOffice, 'Taped_Up_Timber', 2);
@@ -3491,25 +3491,24 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
                 + (bribeAfkGains
                   + bubbleBonus))))))) / 100) * afkMulti;
 
-    breakdown = [
-      ...breakdown,
-      { title: 'Choppin' },
-      { name: '' },
+    categories = afkCategories(50, [
       { name: 'Talents', value: activeAfkerBonus + tickTockTalentBonus },
-      { name: 'Starsign', value: starSignBonus },
+      { name: 'Star sign', value: starSignBonus },
       { name: 'Trapping Bonus', value: trappingBonus },
       { name: 'Bribe', value: bribeAfkGains },
       { name: 'Card', value: cardBonus },
       { name: 'Post Office', value: tapedUpTimberBonus },
-      { name: 'Bubble', value: bubbleBonus }
-    ]
+      { name: 'Bubble', value: bubbleBonus },
+      skillAfkPool,
+      allAfkPool
+    ]);
   }
   else if (afkType === 'FISHING') {
     const sealedFishheadsBonus = getPostOfficeBonus(character?.postOffice, 'Sealed_Fishheads', 2);
     const cardBonus = getSkillCardBonus(character, account, 'fishing', cardBonuses[39]);
     const mainStat = mainStatMap?.[character?.class];
     const bubbleBonus = getBubbleBonus(account, 'DREAM_OF_IRONFISH', false, mainStat === 'strength');
-    const { value: gearBonus, breakdown: gearBonusBreakdown } = getStatsFromGear(character, 64, account);
+    const { value: gearBonus } = getStatsFromGear(character, 64, account);
     const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[64]);
 
     gains = (0.5 +
@@ -3525,20 +3524,19 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
                       + (bubbleBonus
                         + (gearBonus + obolsBonus)))))))))) / 100) * afkMulti;
 
-    breakdown = [
-      ...breakdown,
-      { title: 'Fishing' },
-      { name: '' },
+    categories = afkCategories(50, [
       { name: 'Talents', value: idleSkillingBonus + catchingSomeZzzBonus + tickTockTalentBonus },
-      { name: 'Starsign', value: starSignBonus },
+      { name: 'Star sign', value: starSignBonus },
       { name: 'Trapping Bonus', value: trappingBonus },
       { name: 'Bribe', value: bribeAfkGains },
       { name: 'Card', value: cardBonus },
       { name: 'Post Office', value: sealedFishheadsBonus },
       { name: 'Bubble', value: bubbleBonus },
-      ...gearBonusBreakdown,
-      { name: 'Obols', value: obolsBonus }
-    ]
+      { name: 'Gear (Fishing AFK gains)', value: gearBonus },
+      { name: 'Obols', value: obolsBonus },
+      skillAfkPool,
+      allAfkPool
+    ]);
   }
   else if (afkType === 'CATCHING') {
     const bugHuntingSuppliesBonus = getPostOfficeBonus(character?.postOffice, 'Bug_Hunting_Supplies', 2);
@@ -3546,7 +3544,7 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
     const cardBonus = getSkillCardBonus(character, account, 'catching', cardBonuses[41]);
     const mainStat = mainStatMap?.[character?.class];
     const bubbleBonus = getBubbleBonus(account, 'FLY_IN_MIND', false, mainStat === 'agility');
-    const { value: catchingEquipmentBonus, breakdown: catchingEquipmentBonusBreakdown } = getStatsFromGear(character, 97, account);
+    const { value: catchingEquipmentBonus } = getStatsFromGear(character, 97, account);
     gains = (0.5
       + (sunsetOnTheHivesBonus
         + (trappingBonus
@@ -3558,19 +3556,18 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
                   + (bribeAfkGains
                     + bubbleBonus + catchingEquipmentBonus))))))) / 100) * afkMulti;
 
-    breakdown = [
-      ...breakdown,
-      { title: 'Catching' },
-      { name: '' },
+    categories = afkCategories(50, [
       { name: 'Talents', value: sunsetOnTheHivesBonus + tickTockTalentBonus },
-      { name: 'Starsign', value: starSignBonus },
+      { name: 'Star sign', value: starSignBonus },
       { name: 'Trapping Bonus', value: trappingBonus },
       { name: 'Bribe', value: bribeAfkGains },
       { name: 'Card', value: cardBonus },
       { name: 'Post Office', value: bugHuntingSuppliesBonus },
       { name: 'Bubble', value: bubbleBonus },
-      ...catchingEquipmentBonusBreakdown,
-    ]
+      { name: 'Gear (Catching AFK gains)', value: catchingEquipmentBonus },
+      skillAfkPool,
+      allAfkPool
+    ]);
   }
   else if (afkType === 'LABORATORY') {
     gains = (0.5
@@ -3580,25 +3577,19 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
             + (starSignBonus
               + bribeAfkGains)))) / 100) * afkMulti;
 
-    breakdown = [
-      ...breakdown,
-      { title: 'Laboratory' },
-      { name: '' },
+    categories = afkCategories(50, [
       { name: 'Talents', value: tickTockTalentBonus },
-      { name: 'Starsign', value: starSignBonus },
+      { name: 'Star sign', value: starSignBonus },
       { name: 'Trapping Bonus', value: trappingBonus },
-      { name: 'Bribe', value: bribeAfkGains }
-    ]
+      { name: 'Bribe', value: bribeAfkGains },
+      skillAfkPool,
+      allAfkPool
+    ]);
   }
   else if (afkType === 'DIVINITY') {
     // DIVINITY returns a flat 1 multiplier
     gains = 1;
-    breakdown = [
-      ...breakdown,
-      { title: 'Divinity' },
-      { name: '' },
-      { name: 'Base', value: 1 }
-    ]
+    categories = [breakdownCategory('Base rate', [{ name: 'Flat divinity rate', value: 100 }])];
   }
   else if (afkType === 'SPELUNKING') {
     // game: Spelunk("BigFishBonuses", 2, 0)
@@ -3623,20 +3614,13 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
 
     gains = (0.5 + baseSpelunkingGains + scaledGains) * afkMulti;
 
-    breakdown = [
-      ...breakdown,
-      { title: 'Spelunking' },
-      { name: '' },
+    // The share of the other AFK gains is always 0, so only the spelunking sources show
+    categories = afkCategories(50, [
       { name: 'Big Fish', value: bigFishBonus },
       { name: 'Companion', value: spelunkingCompBonus },
       { name: 'Card', value: spelunkingCardBonus },
-      { name: 'Vial', value: spelunkingVialBonus },
-      { name: 'AFK % scaling', value: spelunkingAfkPct },
-      { name: 'Talents', value: tickTockTalentBonus },
-      { name: 'Starsign', value: starSignBonus },
-      { name: 'Trapping Bonus', value: trappingBonus },
-      { name: 'Bribe', value: bribeAfkGains }
-    ]
+      { name: 'Vial', value: spelunkingVialBonus }
+    ]);
   }
 
   // The game shows no AFK gains rate for these targets, so neither do we: a 1% floor would be a made-up number
@@ -3645,17 +3629,18 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
     return {
       afkGains: null,
       afkGainsUnavailableReason: reason,
-      breakdown: [
-        { title: reason },
-        { name: '' },
-        ...breakdown
-      ]
+      // The shared pools still show, under the reason
+      breakdown: createBreakdown('AFK Gains', 'N/A', [
+        breakdownCategory(reason, [skillAfkPool, allAfkPool]),
+        ...categories.slice(2)
+      ])
     };
   }
 
+  const afkGains = Math.max(.01, gains);
   return {
-    afkGains: Math.max(.01, gains),
-    breakdown
+    afkGains,
+    breakdown: createBreakdown('AFK Gains', `${notateNumber(afkGains * 100, 'MultiplierInfo')}%`, categories)
   };
 }
 

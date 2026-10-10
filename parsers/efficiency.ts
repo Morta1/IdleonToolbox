@@ -37,7 +37,8 @@ import { getShinyBonus } from '@parsers/world-4/breeding';
 import { getObolsBonus } from '@parsers/obols';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
-import { lavaLog } from '@utility/helpers';
+import { lavaLog, notateNumber } from '@utility/helpers';
+import { breakdownCategory, breakdownSubSection, createBreakdown } from '@parsers/breakdown';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 
@@ -68,8 +69,8 @@ export const getNobisectBonus = (character: any, account: any, characters: any, 
         / Math.max(10 * base + 10, 1)) * 0.01, 2)));
 }
 
-// game: "AllBaseSkillEff"
-export const getAllBaseSkillEff = (character: any, account: any, characters: any, playerInfo: any) => {
+// game: "AllBaseSkillEff", a plain sum of these lines
+const getAllBaseSkillEffSources = (character: any, account: any, characters: any, playerInfo: any) => {
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Base_Efficiency_for_All_Skills')
   const stampBonus = getStampsBonusByEffect(account, 'All_Skill_Efficiency', character);
   const blessingBonus = getNobisectBonus(character, account, characters, playerInfo);
@@ -80,17 +81,25 @@ export const getAllBaseSkillEff = (character: any, account: any, characters: any
   const jewelBonus = getJewelBonus(account?.lab.jewels, 12, spelunkerObolMulti);
   const allGreenActive = account.lab.jewels?.slice(11, 16)?.every(({ active }: any) => active) ? 2 : 1;
 
-  return shinyBonus
-    + stampBonus
-    + blessingBonus
-    + postOfficeBonus
-    + chipBonus
-    + (talentBonus
-      + (jewelBonus * allGreenActive));
+  return [
+    { name: 'Shiny', value: shinyBonus },
+    { name: 'Stamp', value: stampBonus },
+    { name: 'Nobisect blessing', value: blessingBonus },
+    { name: 'Post office', value: postOfficeBonus },
+    { name: 'Chip', value: chipBonus },
+    { name: 'Supersource talent', value: talentBonus },
+    { name: 'Jewel', value: jewelBonus * allGreenActive }
+  ];
 }
 
-// game: SkillStats("AllEfficiencies")
-export const getAllEff = (character: any, characters: any, account: any) => {
+export const getAllBaseSkillEff = (character: any, account: any, characters: any, playerInfo: any) =>
+  getAllBaseSkillEffSources(character, account, characters, playerInfo).reduce((total, { value }) => total + value, 0);
+
+export const getAllBaseSkillEffBreakdown = (character: any, account: any, characters: any, playerInfo: any) =>
+  breakdownSubSection('All base skill efficiency', getAllBaseSkillEffSources(character, account, characters, playerInfo));
+
+// game: SkillStats("AllEfficiencies"), the product of these factors
+const getAllEffFactors = (character: any, characters: any, account: any) => {
   // FamBonusQTYs[42], as the played character sees it
   const familyEffBonus = character?.familyBonuses?.[CLASSES.Hunter] ?? 0;
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '6SkillEff');
@@ -124,46 +133,54 @@ export const getAllEff = (character: any, characters: any, account: any) => {
     guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 6);
   }
 
-  return (1 + (familyEffBonus
-      + ((effFromEquipment + effFromObols)
-        + vialBonus
-        + (artifactBonus +
-          Math.min(0.1 * totalQuests, talentBonus)))) / 100)
-    * (1 + (mealBonus
-      + multitoolBonus
-      + (tomeBonus + paletteBonus)
-      + (chipBonus + (3 * cardBonus + friendBonus))
-      + (masteryBonus
-        + (schematicBonus + option422)
-        + (account?.accountOptions?.[180] ?? 0)
-        * account?.islands?.allShimmerBonus)) / 100)
-    * (1 + (chaoticTrollBonus
-      + companionBonus) / 100)
-    * (1 + winnerBonus / 100)
-    * (1 + (guildBonus
-      + (cardSetBonus
-        + prayerBonus)) / 100) *
-    Math.max(1 - (secondTalentBonus +
-      prayerCurse) / 100, 0.01);
+  return [
+    {
+      name: 'Family, gear, obols, vial, artifact, quests',
+      value: 1 + (familyEffBonus + effFromEquipment + effFromObols + vialBonus + artifactBonus
+        + Math.min(0.1 * totalQuests, talentBonus)) / 100
+    },
+    {
+      name: 'Meal, tome, palette, chip, card, mastery, shimmer',
+      value: 1 + (mealBonus + multitoolBonus + tomeBonus + paletteBonus + chipBonus + 3 * cardBonus + friendBonus
+        + masteryBonus + schematicBonus + option422
+        + (account?.accountOptions?.[180] ?? 0) * account?.islands?.allShimmerBonus) / 100
+    },
+    { name: 'Chaotic Troll card, companion', value: 1 + (chaoticTrollBonus + companionBonus) / 100 },
+    { name: 'Summoning', value: 1 + winnerBonus / 100 },
+    { name: 'Guild, card set, prayer', value: 1 + (guildBonus + cardSetBonus + prayerBonus) / 100 },
+    { name: 'Maestro Transfusion, prayer curse', value: Math.max(1 - (secondTalentBonus + prayerCurse) / 100, 0.01) }
+  ];
 }
 
-// game: SkillStats("MiningEfficiency")
-export const getMiningEff = (character: any, characters: any, account: any, playerInfo: any) => {
+export const getAllEff = (character: any, characters: any, account: any) =>
+  getAllEffFactors(character, characters, account).reduce((total, { value }) => total * value, 1);
+
+export const getAllEffBreakdown = (character: any, characters: any, account: any) =>
+  breakdownSubSection('All efficiencies', getAllEffFactors(character, characters, account), { multiplicative: true });
+
+// game: SkillStats("MiningEfficiency"): 12 + base power * every multiplier
+const getMiningEffParts = (character: any, characters: any, account: any, playerInfo: any) => {
   const mainStat = mainStatMap?.[character?.class];
   const effFromTool = character?.tools?.[TOOLS.PICKAXE]?.Weapon_Power || 0;
-  let baseMiningEff = effFromTool;
   const talentBonus = getTalentBonus(character?.flatTalents, 'TOOL_PROFICIENCY');
   const bubbleBonus = getBubbleBonus(account, 'STRONK_TOOLS', false, mainStat === 'strength');
   const miningLevel = character?.skillsInfo?.mining?.level;
-  baseMiningEff = baseMiningEff * (1 + talentBonus * (character?.skillsInfo?.mining?.level / 10) / 100) * (1 + bubbleBonus / 100);
-  baseMiningEff += 4;
+  const scaledTool = effFromTool * (1 + talentBonus * (character?.skillsInfo?.mining?.level / 10) / 100) * (1 + bubbleBonus / 100);
   const statueBonus = getStatueBonus(account, 2, character?.flatTalents);
   const secondBubbleBonus = getBubbleBonus(account, 'SLABI_OREFISH', false, mainStat === 'strength');
   const lootedItems = account?.looty?.rawLootedItems;
   // game: TotalStats("Mining_Power") adds AlchBubbles.W7, ENDGAME_EFF_I scaled by every 10 class levels past 500
   const endgameBubbleBonus = getBubbleBonus(account, 'ENDGAME_EFF_I', false, mainStat === 'strength')
     * Math.max(1, Math.floor((character?.level - 500) / 10));
-  baseMiningEff += effFromTool + statueBonus + (secondBubbleBonus * Math.floor(lootedItems / 100)) + endgameBubbleBonus;
+  const miningPowerSources = [
+    { name: 'Pickaxe (Tool Proficiency, Stronk Tools)', value: scaledTool },
+    { name: 'Base', value: 4 },
+    { name: 'Pickaxe', value: effFromTool },
+    { name: 'Statue', value: statueBonus },
+    { name: 'Slabi Orefish bubble', value: secondBubbleBonus * Math.floor(lootedItems / 100) },
+    { name: 'Endgame Eff I bubble', value: endgameBubbleBonus }
+  ];
+  const baseMiningEff = miningPowerSources.reduce((total, { value }) => total + value, 0);
 
   const secondTalentBonus = getTalentBonus(character?.flatTalents, 'SKILL_STRENGTHEN');
   const stampBonus = getStampsBonusByEffect(account, 'Base_Mining', character);
@@ -187,7 +204,7 @@ export const getMiningEff = (character: any, characters: any, account: any, play
   const copperOwned = calculateItemTotalAmount(account?.storage?.list, 'Copper_Ore', true);
   const allEfficiencies = getAllEff(character, characters, account);
 
-  return 12 + (Math.pow(baseMiningEff, 1.3)
+  const value = 12 + (Math.pow(baseMiningEff, 1.3)
       + (Math.pow(character?.stats?.strength + 1, .6)
         * (1 + secondTalentBonus / 100)
         + (stampBonus
@@ -210,7 +227,55 @@ export const getMiningEff = (character: any, characters: any, account: any, play
     * (1 + fourthTalentBonus
       * (atomBonus
         + lavaLog(copperOwned)) / 100)
-    * allEfficiencies
+    * allEfficiencies;
+
+  const categories = [
+    breakdownCategory('Flat', [{ name: 'Base', value: 12 }]),
+    // Shown for reference: the base power and the pickaxe multiplier below are both built from it
+    breakdownCategory('Mining power', miningPowerSources),
+    breakdownCategory('Base power', [
+      { name: 'Mining power ^ 1.3', value: Math.pow(baseMiningEff, 1.3) },
+      { name: 'Strength', value: Math.pow(character?.stats?.strength + 1, .6) * (1 + secondTalentBonus / 100) },
+      { name: 'Stamp', value: stampBonus },
+      getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
+    ]),
+    breakdownCategory('Multiplicative', [
+      { name: 'Mining level', value: 1 + miningLevel / 200 },
+      { name: 'Strength', value: 1 + Math.pow(character?.stats?.strength / 100, .35) * (1 + secondTalentBonus / 100) },
+      { name: 'Golden food', value: goldenFoodMulti },
+      { name: 'Mining power', value: 1 + baseMiningEff / 100 },
+      { name: 'Hearty Diggy bubble', value: 1 + thirdBubbleBonus * lavaLog(playerInfo?.maxHp) / 100 },
+      { name: 'Copper Collector talent', value: 1 + fourthTalentBonus * (atomBonus + lavaLog(copperOwned)) / 100 },
+      getAllEffBreakdown(character, characters, account)
+    ]),
+    breakdownCategory('Additive: post office, right hand', [
+      { name: 'Post office', value: postOfficeBonus / 100 },
+      { name: 'Right Hand of Action', value: rightHandBonus / 100 }
+    ], { additive: true }),
+    breakdownCategory('Additive: talent, gear, mastery', [
+      { name: 'Brute Efficiency talent', value: thirdTalentBonus / 100 },
+      { name: 'Gear', value: etcFromGear / 100 },
+      { name: 'Obols', value: etcFromObols / 100 },
+      { name: 'Skill mastery', value: 10 * masteryBonus / 100 },
+      { name: 'Vote', value: voteBonus / 100 },
+      { name: 'Copper set', value: copperSetBonus / 100 }
+    ], { additive: true }),
+    breakdownCategory('Additive: card, star sign, vial, monument', [
+      { name: 'Card', value: cardBonus / 100 },
+      { name: 'Star sign', value: starSignBonus / 100 },
+      { name: 'Vial', value: vialBonus / 100 },
+      { name: 'Monument', value: monumentBonus / 100 }
+    ], { additive: true })
+  ];
+  return { value, categories };
+}
+
+export const getMiningEff = (character: any, characters: any, account: any, playerInfo: any) =>
+  getMiningEffParts(character, characters, account, playerInfo).value;
+
+export const getMiningEffBreakdown = (character: any, characters: any, account: any, playerInfo: any) => {
+  const { value, categories } = getMiningEffParts(character, characters, account, playerInfo);
+  return createBreakdown('Mining Efficiency', String(notateNumber(value)), categories);
 }
 
 const getMaestroRightHandBonus = (character: any, skillName: any, characters: any) => {

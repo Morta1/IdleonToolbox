@@ -13,7 +13,6 @@ import {
 } from 'utility/helpers';
 import Timer from '../common/Timer';
 import Tooltip from '../Tooltip';
-import { TitleAndValue } from '../common/styles';
 import { getAfkGain, getCashMulti, getClassExpMulti, getDropRate, getRespawnRate, notateExpMulti } from '../../parsers/character';
 import { getGoldenFoodMulti } from '../../parsers/misc';
 import React from 'react';
@@ -22,6 +21,7 @@ import CoinDisplay from '../common/CoinDisplay';
 import ProgressBar from '@components/common/ProgressBar';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { getPlayerCrystalChance } from '@parsers/character';
+import { getMiningEffBreakdown } from '@parsers/efficiency';
 import GameIconNotation from '@components/common/GameIconNotation';
 
 const colors = {
@@ -108,7 +108,8 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
             <Stat title={'Critical Damage'} value={`${notateNumber(playerInfo?.critDamage, 'MultiplierInfo')}x`}/>
             <Stat title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>
             <Stat title={'Movement Speed'} value={notateNumber(playerInfo?.movementSpeed)}/>
-            <Stat title={'Mining Efficiency'} value={notateNumber(playerInfo?.miningEff)}/>
+            <NewStat title={'Mining Efficiency'} value={notateNumber(playerInfo?.miningEff)}
+                     breakdown={getMiningEffBreakdown(character, characters, account, playerInfo)}/>
             <Stat title={'Damage'} damage value={notateDamage(playerInfo)}
                   breakdownData={playerInfo?.damageBreakdown} breakdownNotation={'ThreeDecimals'}/>
 <NewStat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}
@@ -116,10 +117,9 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
             <NewStat title={'Respawn Time'}
                      value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}
                      breakdown={rtBreakdown} breakdownNotation={'Smaller'}/>
-            <Stat title={'AFK Gains'}
-                  useDoubleColumn
-                  value={afkGains == null ? 'N/A' : `${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}
-                  breakdown={agBreakdown} breakdownNotation={'Smaller'}/>
+            <NewStat title={'AFK Gains'}
+                     value={afkGains == null ? 'N/A' : `${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}
+                     breakdown={agBreakdown}/>
             <Stat title={'Non Consume Chance'}
                   value={`${kFormatter(nonConsumeChance, 2)}%`}
             />
@@ -186,10 +186,9 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
   );
 };
 
-const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', damage, useDoubleColumn, breakdownData, skipNotation }) => {
-  const hasBreakdown = breakdown || breakdownData;
+const Stat = ({ title, value, damage, breakdownData, skipNotation }) => {
   const content = !damage ? (
-    <Typography component={'span'} sx={hasBreakdown
+    <Typography component={'span'} sx={breakdownData
       ? { alignItems: 'center', borderBottom: '1px dotted', lineHeight: 1 }
       : {}}
     >{value}</Typography>
@@ -198,19 +197,11 @@ const Stat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', dam
   );
 
   return (
-    (<Stack direction={'row'} justifyContent={'space-between'} alignItems={hasBreakdown ? 'center' : 'flex-start'}>
+    (<Stack direction={'row'} justifyContent={'space-between'} alignItems={breakdownData ? 'center' : 'flex-start'}>
       <Typography color={'info.light'}>{title}</Typography>
-      {breakdownData ? (
-        <Breakdown data={breakdownData} skipNotation={skipNotation}>
-          {content}
-        </Breakdown>
-      ) : (
-        <Tooltip maxWidth={500}
-                 title={breakdown ? <BreakdownTooltip breakdown={breakdown} useDoubleColumn={useDoubleColumn}
-                                                      notate={breakdownNotation}/> : ''}>
-          {content}
-        </Tooltip>
-      )}
+      <Breakdown data={breakdownData} skipNotation={skipNotation}>
+        {content}
+      </Breakdown>
     </Stack>)
   );
 }
@@ -226,36 +217,6 @@ const NewStat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', 
         </Typography>
       </Breakdown>
     </Stack>)
-  );
-}
-
-const BreakdownTooltip = ({ breakdown, titleWidth = 170, notate = '', useDoubleColumn }) => {
-  if (!breakdown) return '';
-
-  const renderItem = ({ name, value, title }, index, prefix = '') => {
-    if (title) return <Typography sx={{ fontWeight: 500 }} key={`${prefix}${name}-${index}`}>{title}</Typography>;
-    if (!name) return <Divider sx={{ my: 1 }} key={`${prefix}${name}-${index}`}/>;
-
-    return (
-      <TitleAndValue
-        key={`${prefix}${name}-${index}`}
-        titleStyle={{ width: titleWidth }}
-        title={name}
-        value={!isNaN(value) ? notateNumber(value, notate)?.replace('.00', '') : value}
-      />
-    );
-  };
-
-  if (!useDoubleColumn) {
-    return <Stack>{breakdown.map((item, index) => renderItem(item, index))}</Stack>;
-  }
-
-  const midpoint = Math.ceil(24);
-  return (
-    <Stack direction="row" gap={2}>
-      <Stack>{breakdown.slice(0, midpoint).map((item, index) => renderItem(item, index, 'left-'))}</Stack>
-      <Stack>{breakdown.slice(midpoint).map((item, index) => renderItem(item, index, 'right-'))}</Stack>
-    </Stack>
   );
 }
 

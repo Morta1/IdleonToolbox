@@ -25,3 +25,19 @@ describe('AFK gain rates verified against the live game', () => {
     expect(getAfkGain({ ...hunter, afkType }, characters, account).afkGains).toBeCloseTo(value, 9);
   });
 });
+
+describe('AFK gains breakdown', () => {
+  const { account, characters } = parseFixture(latest);
+  const hunter = characters.find(({ name }) => name === 'IAmTheHunterrr');
+  const lines = ({ sources = [], subSections = [] }) => [...sources, ...subSections.flatMap((sub) => sub.sources)];
+
+  // (base + additive) / 100 * multiplicative, with the shared pools as sub-sections
+  it.each(Object.keys(GAME_AFK_RATES))('%s reproduces the rate', (afkType) => {
+    const { afkGains, breakdown } = getAfkGain({ ...hunter, afkType }, characters, account);
+    const category = (name) => breakdown.categories.find((entry) => entry.name === name);
+    const base = category('Base rate').sources[0].value;
+    const additive = lines(category('Additive')).reduce((total, { value }) => total + value, 0);
+    const multi = lines(category('Multiplicative')).reduce((total, { value }) => total * value, 1);
+    expect((base + additive) / 100 * multi / afkGains).toBeCloseTo(1, 9);
+  });
+});
