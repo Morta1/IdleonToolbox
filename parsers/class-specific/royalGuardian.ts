@@ -1687,6 +1687,9 @@ export const getStatueFlairMarbleTotals = (statues: StatueFlair[], getOwned: (co
 export const getStatueFlairExpMulti = (account: Account, statueIndex: number): number =>
   byIndex((account as any)?.royalGuardian?.statueFlair?.statues, statueIndex)?.expMulti ?? 1;
 
+export const getStatueFlairLevel = (account: Account, statueIndex: number): number =>
+  byIndex((account as any)?.royalGuardian?.statueFlair?.statues, statueIndex)?.level ?? 0;
+
 // Thin alias kept for the Upgrade Optimizer (task C2) and the Royal Guardian UI - the shared
 // formula now lives in misc.ts as getAllMasterclassCostRedux. forceLegendTalent is threaded
 // straight through (see getOptimizedArmoryUpgrades below) - it toggles whether

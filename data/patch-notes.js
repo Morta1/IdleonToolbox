@@ -19,7 +19,8 @@ export const patchNotes = [
       'Breakdowns: redesigned drawer with nested groups that show their total, clear % and x values, and inactive bonuses hidden behind a toggle',
       'Characters: click a skill to see its efficiency breakdown next to its EXP multi, for Mining, Choppin, Fishing, Catching, Trapping, Worship, Cooking, Laboratory and Spelunking',
       'Spelunking: the efficiency card now opens a breakdown',
-      'Characters: removed the inaccurate warning on Sneaking EXP'
+      'Characters: removed the inaccurate warning on Sneaking EXP',
+      'Statues on the General page now show their Statue Flair banner'
     ],
     'fixes': [
       'Leaderboards: salt rank boards no longer count salts that are not unlocked yet',
