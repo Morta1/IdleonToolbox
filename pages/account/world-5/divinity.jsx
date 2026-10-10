@@ -7,7 +7,7 @@ import { CardTitleAndValue } from '@components/common/styles';
 import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
 import { NextSeo } from 'next-seo';
 import { isCompanionBonusActive } from '../../../parsers/misc';
-import { getMinorDivinityBonus } from '@parsers/world-5/divinity';
+import { getMinorDivinityBonus, GOD_SLOT } from '@parsers/world-5/divinity';
 import CoinDisplay from '../../../components/common/CoinDisplay';
 import { getKrukBubbles, getKrukBubblesDaily } from '@parsers/world-2/alchemy';
 import Tabber from '@components/common/Tabber';
@@ -87,7 +87,7 @@ const Divinity = () => {
                     <Typography variant={'body1'}>
                       Blessing: {cleanUnderscore(blessing.replace(/{/g, blessingBonus.toFixed(2).replace('.00', '')))}
                     </Typography>
-                    {godIndex === 2 ? <Typography variant={'caption'}>* inaccurate</Typography> : null}
+                    {godIndex === GOD_SLOT.Nobisect ? <Typography variant={'caption'}>* inaccurate</Typography> : null}
                     {cost?.cost !== 'MAX' && showCost ? <>
                       <Cost title={'Cost'} {...cost} cost={cost?.cost}/>
                       <Cost title={'Next Level Cost'} {...cost} cost={cost?.nextLevelCost}/>
@@ -107,7 +107,7 @@ const Divinity = () => {
                         const compBonus = (isCompanionBonusActive(state?.account, 0) && blessingBonus > 0);
                         const isLinked = compBonus || linkedDeities?.[index] === godIndex;
                         const isSecondLinked = compBonus || secondLinkedDeityIndex === godIndex;
-                        if (godIndex === 6 && compBonus && highestDivinityCharacter?.playerId !== playerId) return null;
+                        if (godIndex === GOD_SLOT.Purrmep && compBonus && highestDivinityCharacter?.playerId !== playerId) return null;
                         return compBonus || isLinked || isSecondLinked ?
                           <Tooltip title={<CharDeityDetails name={name}
                                                             divStyle={divStyle}

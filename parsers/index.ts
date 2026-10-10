@@ -53,7 +53,7 @@ import { getTraps } from './world-3/traps';
 import { getQuests, isWorldFinished } from './quests';
 import { getDeathNote, getTopKilledMonsters } from './world-3/deathNote';
 import { addBreedingChance, getBreeding } from './world-4/breeding';
-import { applyGodCost, getDivinity } from './world-5/divinity';
+import { applyGodCost, getDivinity, GOD_SLOT } from './world-5/divinity';
 import { getArtifacts, getLockedSailing, getSailing } from './world-5/sailing';
 import { getGaming } from './world-5/gaming';
 import { getAtoms } from './world-3/atomCollider';
@@ -220,7 +220,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   if (accountData.lab) {
     accountData.lab.connectedPlayers = accountData.lab.connectedPlayers?.map((char: any) => ({
       ...char,
-      isDivinityConnected: accountData?.divinity?.linkedDeities?.[char?.playerId] === 4 || isLabEnabledBySorcererRaw(char, 4)
+      isDivinityConnected: accountData?.divinity?.linkedDeities?.[char?.playerId] === GOD_SLOT.Goharut || isLabEnabledBySorcererRaw(char, GOD_SLOT.Goharut)
     }));
   }
 

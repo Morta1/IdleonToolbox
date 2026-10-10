@@ -1,6 +1,6 @@
 import { gamingImports, gamingPalette, gamingUpgrades, randomList2, superbitsUpgrades } from '@website-data';
 import { commaNotation, notateNumber, number2letter, tryToParse } from '@utility/helpers';
-import { getMinorDivinityBonus } from '@parsers/world-5/divinity';
+import { getMinorDivinityBonus, GOD_SLOT } from '@parsers/world-5/divinity';
 import { getHighestCharacterSkill, getHighestLevelCharacter, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
 import { getMeritocracyBonus, getVoteBonus } from '@parsers/world-2/voteBallot';
@@ -523,8 +523,8 @@ const calcFertilizerBonus = (index: any, gamingRaw: any, gamingSproutRaw: any, c
   }
   else if (index === 1) {
     const baseValue = gamingRaw?.[2];
-    const purrmepPlayer = characters?.find(({ linkedDeity }: any) => linkedDeity === 6); // purrmep is limited to only 1 player linked.
-    const godBonus = getMinorDivinityBonus(purrmepPlayer, account, 6, characters) ?? 0;
+    const purrmepPlayer = characters?.find(({ linkedDeity }: any) => linkedDeity === GOD_SLOT.Purrmep); // purrmep is limited to only 1 player linked.
+    const godBonus = getMinorDivinityBonus(purrmepPlayer, account, GOD_SLOT.Purrmep, characters) ?? 0;
     const baseMath = 1 + (acornShop?.[1]?.bonus + godBonus) / 100;
     const moreMath = 3 + imports?.[4]?.level / 100;
     const baseValue2 = gamingSproutRaw?.[29]?.[1];

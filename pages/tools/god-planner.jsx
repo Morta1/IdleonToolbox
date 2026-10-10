@@ -10,7 +10,7 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '../../components/Tooltip';
 import MinorBonusCalculator from '@components/tools/god-planner/MinorBonusCalculator';
 import {
-  ARCTIS_GOD_SLOT,
+  GOD_SLOT,
   getGodMinorBonusMultiplier,
   getMinorDivinityBonusCap,
   getMinorDivinityBonusValue,
@@ -64,7 +64,7 @@ const getPlanDetails = (build, characters, account, getBonus) => {
 // The bonus means nothing as a bare number, and each god words it differently: Arctis counts whole
 // talent levels, the rest are percentages.
 const formatMinorBonus = (bonus, godSlot, template) => {
-  if (godSlot === ARCTIS_GOD_SLOT) return `+${numberWithCommas(Math.ceil(bonus))} talent LV`;
+  if (godSlot === GOD_SLOT.Arctis) return `+${numberWithCommas(Math.ceil(bonus))} talent LV`;
   return template?.includes('{%') ? `+${bonus.toFixed(2)}%` : `+${bonus.toFixed(2)}`;
 }
 
@@ -241,14 +241,14 @@ const GodPlanner = () => {
                   const bonus = getMinorDivinityBonusValue(bonusInputs);
                   const bonusDesc = minorBonus.replace(/{/g, bonus.toFixed(2));
                   // Only Arctis is ceiled into whole talent levels, so only it has steps to aim for.
-                  const nextStepLevel = godIndex === ARCTIS_GOD_SLOT
+                  const nextStepLevel = godIndex === GOD_SLOT.Arctis
                     ? getRequiredDivinityLevel({ ...bonusInputs, targetBonus: Math.ceil(bonus) })
                     : null;
                   return <Tooltip key={rawName} title={<CharDeityDetails
                     name={name}
                     bonus={bonusDesc}
                     cap={getMinorDivinityBonusCap(bonusInputs)}
-                    talentLevels={godIndex === ARCTIS_GOD_SLOT ? Math.ceil(bonus) : null}
+                    talentLevels={godIndex === GOD_SLOT.Arctis ? Math.ceil(bonus) : null}
                     nextStepLevel={nextStepLevel}
                     divinityLevel={divinityLevel}
                   />}>

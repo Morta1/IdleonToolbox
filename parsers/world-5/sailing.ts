@@ -13,7 +13,7 @@ import { getBubbleBonus, getSigilBonus, getVialsBonusByStat } from '@parsers/wor
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
-import { getGodBlessingBonus, getMinorDivinityBonus } from '@parsers/world-5/divinity';
+import { getGodBlessingBonus, getMinorDivinityBonus, GOD_SLOT } from '@parsers/world-5/divinity';
 import { getStatueBonus } from '@parsers/world-1/statues';
 import { getLabBonus } from '@parsers/world-4/lab';
 import { getShinyBonus } from '@parsers/world-4/breeding';
@@ -383,8 +383,8 @@ const getBoat = (boat: any, boatIndex: any, lootPile: any, captains: any, artifa
 }
 
 const getBaseSpeed = (account: any, characters: any, artifactsList: any) => {
-  const purrmepPlayer = characters?.find(({ linkedDeity }: any) => linkedDeity === 6); // purrmep is limited to only 1 player linked.
-  const divinityMinorBonus = getMinorDivinityBonus(purrmepPlayer, account, 6, characters);
+  const purrmepPlayer = characters?.find(({ linkedDeity }: any) => linkedDeity === GOD_SLOT.Purrmep); // purrmep is limited to only 1 player linked.
+  const divinityMinorBonus = getMinorDivinityBonus(purrmepPlayer, account, GOD_SLOT.Purrmep, characters);
   const cardBonus = getCardBonusByEffect(account?.cards, 'Sailing_Speed_(Passive)');
   const stampBonus = getStampsBonusByEffect(account, 'Sailing_Speed')
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Sailing');
@@ -639,9 +639,9 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
   const fractalIsland = getIsland(account, 'Fractal');
   const fractalBonus = fractalIsland?.shop?.find(({ effect }: any) => effect === '1.20x_Chance_to_find_Sailing_Artifacts')?.unlocked ? 20 : 0;
   const bribeBonus = getBribeBonus(account?.bribes, 'Artifact_Pilfering');
-  const arcadeBonus = account?.arcade?.shop
-    ?.filter(({ effect }: any) => effect?.includes('+{%_Artifact_Find'))
-    ?.reduce((sum: any, { bonus }: any) => sum + (bonus ?? 0), 0) ?? 0;
+  // game: ArcadeBonus(32) + ArcadeBonus(66)
+  const arcadeBonus = (getArcadeBonus(account?.arcade?.shop, 32)?.bonus ?? 0)
+    + (getArcadeBonus(account?.arcade?.shop, 66)?.bonus ?? 0);
   const holeBuildingBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 55, i: 0 });
   const stickerBonus = getStickerBonus(account, 2);
   const researchGridBonus = getResearchGridBonus(account, 109, 0);

@@ -72,7 +72,7 @@ import { lavaLog, notateNumber, commaNotation } from '@utility/helpers';
 import { getArcadeBonus } from './world-2/arcade';
 import { isArtifactAcquired } from './world-5/sailing';
 import { getShinyBonus } from './world-4/breeding';
-import { getDeityLinkedIndex, getDivStylePerHour, getGodByIndex, getMinorDivinityBonus } from './world-5/divinity';
+import { getDeityLinkedIndex, getDivStylePerHour, getGodByIndex, getMinorDivinityBonus, GOD_SLOT } from './world-5/divinity';
 import { getCloudBonus, getEquinoxBonus } from './world-3/equinox';
 import { getConstructMastery } from './world-4/rift';
 import { getAtomBonus } from './world-3/atomCollider';
@@ -109,6 +109,7 @@ import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getSuperTalentLeftToSpend } from '@parsers/world-7/legendTalents';
 import { getAdviceFishBonus, getFriendBonus } from '@parsers/misc';
 import { getTesseractMapBonus } from '@parsers/class-specific/tesseract';
+import { getMaxDamage } from '@parsers/damage';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
@@ -480,7 +481,7 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
   const divStyleIndex = account?.divinity?.linkedStyles?.[character?.playerId];
   const divPerHour = getDivStylePerHour(divStyleIndex);
   character.divStyle = { ...divStyles?.[divStyleIndex], index: divStyleIndex, divPerHour };
-  character.isDivinityConnected = account?.divinity?.linkedDeities?.[character?.playerId] === 4 || isGodEnabledBySorcerer(character, 4);
+  character.isDivinityConnected = account?.divinity?.linkedDeities?.[character?.playerId] === GOD_SLOT.Goharut || isGodEnabledBySorcerer(character, GOD_SLOT.Goharut);
 
   // game: AllTalentLV caps the added levels handed to Royal Guardian talents (ids 225-239) at the
   // Talent Reattainment armory upgrade, so they get none of the account-wide bonus until it is
@@ -1126,7 +1127,7 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
   }
   else if (skillName === 'divinity') {
     const gemShopBonus = account?.gemShopPurchases?.find((value: any, index: any) => index === 130) ?? 0;
-    const purrmepPlayer = characters?.find(({ linkedDeity }) => linkedDeity === 6); // purrmep is limited to only 1 player linked.\
+    const purrmepPlayer = characters?.find(({ linkedDeity }) => linkedDeity === GOD_SLOT.Purrmep); // purrmep is limited to only 1 player linked.\
     const companionBonus = isCompanionBonusActive(account, 16) ? account?.companions?.list?.at(16)?.bonus : 0;
     // game: (1 + 0.25 * CompLV2(0)) - King Doot's Pet Mart+ upgrade, "1.25x Divinity PTS gain".
     const kingDootLvl2 = isCompanionLvl2Active(account, 0) ? 1 : 0;
@@ -1504,9 +1505,9 @@ export const getAllSkillsExp = (character: any, characters: any[], account: any)
   const companionBonus = isCompanionBonusActive(account, 9) ? (account?.companions?.list?.at(9)?.bonus ?? 0) : 0;
   const schematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 49, i: 10 });
   let godBonus = 0;
-  const flutterbisIndexes = getDeityLinkedIndex(account, characters, 7);
+  const flutterbisIndexes = getDeityLinkedIndex(account, characters, GOD_SLOT.Flutterbis);
   if (flutterbisIndexes?.[character?.playerId] !== -1) {
-    godBonus = getGodByIndex(account?.divinity?.linkedDeities, characters, 7) || 0;
+    godBonus = getGodByIndex(account?.divinity?.linkedDeities, characters, GOD_SLOT.Flutterbis) || 0;
   }
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Skill XP');
@@ -1772,11 +1773,9 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const levelBonus = character?.level < 10 ? 150 : character?.level < 30 ? 100 : character?.level < 50 ? 50 : 0;
   expGainLUK2 += levelBonus;
 
-  // game: Bonus_Minor(player, 4) - god index 4 is Omniphau, which sits in god slot 5. Links and
-  // getMinorDivinityBonus both take the slot: 4 is Goharut's, which gave a 5x multiplier, not 100x.
-  const OMNIPHAU_SLOT = 5;
-  const godLinks = getDeityLinkedIndex(account, characters, OMNIPHAU_SLOT);
-  const minorGodBonus = getMinorDivinityBonus(character, account, OMNIPHAU_SLOT, characters);
+  // game: Bonus_Minor(player, 4) - 4 is Omniphau's god index, not its slot.
+  const godLinks = getDeityLinkedIndex(account, characters, GOD_SLOT.Omniphau);
+  const minorGodBonus = getMinorDivinityBonus(character, account, GOD_SLOT.Omniphau, characters);
   if (godLinks.includes(character?.playerId)) {
     expGainLUK2 += minorGodBonus;
   }
@@ -2662,12 +2661,12 @@ export const getCashMulti = (character: any, account: any, characters: any, play
   const statueBonus = getStatueBonus(account, 19, character?.flatTalents);
   const labBonus = getLabBonus(account?.lab.labBonuses, 9);
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Jawbreaker', account)?.bonus;
-  const harriepGodUsers = getDeityLinkedIndex(account, characters, 3);
+  const harriepGodUsers = getDeityLinkedIndex(account, characters, GOD_SLOT.Harriep);
   const divinityMinorBonus = characters?.reduce((sum: any, char: any, index: any) => {
     if (harriepGodUsers?.includes(index)) {
-      return sum + getMinorDivinityBonus(char, account, 3, characters);
+      return sum + getMinorDivinityBonus(char, account, GOD_SLOT.Harriep, characters);
     }
-    if (char?.linkedDeity === 3) {
+    if (char?.linkedDeity === GOD_SLOT.Harriep) {
       return sum + char?.deityMinorBonus;
     }
     return sum;
@@ -2680,14 +2679,15 @@ export const getCashMulti = (character: any, account: any, characters: any, play
   const moltiCardBonus = 7 * getCardLevel(account?.cards, 'w5b1');
   const talentBonus = getTalentBonus(character?.flatTalents, 'CHACHING!');
   const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Monster_Cash');
-  // game: ArcadeBonus(10) + ArcadeBonus(11), both "Cash from Mobs" - by index, since the effect name repeats.
-  const arcadeBonus = account?.arcade?.shop?.[10]?.bonus ?? 0;
-  const secondArcadeBonus = account?.arcade?.shop?.[11]?.bonus ?? 0;
+  // game: ArcadeBonus(10) + ArcadeBonus(11)
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 10)?.bonus ?? 0;
+  const secondArcadeBonus = getArcadeBonus(account?.arcade?.shop, 11)?.bonus ?? 0;
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Utilitarian_Capsule', 2)
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 8);
   // TalentCalc(643) = talent * multikill tiers; TalentCalc(644) = talent * (cookingLv / 10)
   const rawCoinsForCharon = getTalentBonus(character?.flatStarTalents, 'COINS_FOR_CHARON');
-  const multiKillTiers = playerInfo?.multiKillTiers ?? 1;
+  // getMaxDamage records the tiers on the player info it returns, so callers without one still get them.
+  const multiKillTiers = (playerInfo ?? getMaxDamage(character, characters, account))?.multiKillTiers ?? 1;
   const coinsForCharonBonus = rawCoinsForCharon * multiKillTiers;
   const cookingLvPer10 = (character?.skillsInfo?.cooking?.level ?? 0) / 10;
   const americanTipperBonus = getTalentBonus(character?.flatStarTalents, 'AMERICAN_TIPPER') * cookingLvPer10;
@@ -3166,17 +3166,17 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
           + (skillAfkBonuses + afkBonuses + skillAfkObols + obolsAfkBonus + (prayerBonus - prayerCurse)))));
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'AFK_Gains_Rate')?.bonus;
   const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'AFK_Gains');
-  const majorBonus = isCompanionBonusActive(account, 0) || character?.linkedDeity === 0 || character?.secondLinkedDeityIndex === 0
+  const majorBonus = isCompanionBonusActive(account, 0) || character?.linkedDeity === GOD_SLOT.Snehebatu || character?.secondLinkedDeityIndex === GOD_SLOT.Snehebatu
     ? 1
     : 0;
   const divinityMinorBonus = characters?.reduce((sum: any, char: any) => {
     if (isCompanionBonusActive(account, 0)) {
-      return sum + getMinorDivinityBonus(char, account, 4, characters);
+      return sum + getMinorDivinityBonus(char, account, GOD_SLOT.Goharut, characters);
     }
-    if (char?.linkedDeity === 4) {
+    if (char?.linkedDeity === GOD_SLOT.Goharut) {
       return char?.deityMinorBonus > sum ? char?.deityMinorBonus : sum;
     }
-    else if (char?.secondLinkedDeityIndex === 4) {
+    else if (char?.secondLinkedDeityIndex === GOD_SLOT.Goharut) {
       return char?.secondDeityMinorBonus > sum ? char?.secondDeityMinorBonus : sum;
     }
     return sum;

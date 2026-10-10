@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { getCashMulti, getClassExpMulti } from '../../parsers/character';
+import { getMaxDamage } from '../../parsers/damage';
 
 // Totals read from the running game on 10 Oct 2026 for MortasNinth, the character active in the save
 // that latest.json was exported from, through the debug server. The game recomputed what its caches
@@ -17,6 +18,13 @@ describe('formulas verified against the live game', () => {
 
   it('monster cash matches, Molti card and both Cash from Mobs arcade upgrades included', () => {
     within(getCashMulti(character, account, characters, { multiKillTiers: 51 }).cashMulti, GAME_CASH_MULTI, 0.01);
+  });
+
+  it('works out the overkill tiers itself when the caller passes no player info', () => {
+    expect(getCashMulti(character, account, characters).cashMulti)
+      .toBe(getCashMulti(character, account, characters, getMaxDamage(character, characters, account)).cashMulti);
+    expect(getCashMulti(character, account, characters).cashMulti)
+      .toBeGreaterThan(getCashMulti(character, account, characters, { multiKillTiers: 1 }).cashMulti);
   });
 
   it('class EXP matches, with the Omniphau minor bonus read from its god slot (5x vs 100x)', () => {

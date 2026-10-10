@@ -4,6 +4,7 @@ import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from 'components/Tooltip';
 import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
+import { GOD_SLOT } from '@parsers/world-5/divinity';
 import Box from '@mui/material/Box';
 
 const Mainframe = ({ characters, jewels, labBonuses, playersCords, divinity }) => {
@@ -15,7 +16,7 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords, divinity }) =
           if (index > 9) return null;
           const playerName = characters?.[index]?.name;
           const classIndex = characters?.[index]?.classIndex;
-          const connectedByGod = divinity?.linkedDeities?.[index] === 1 || isGodEnabledBySorcerer(characters?.[index], 1);
+          const connectedByGod = divinity?.linkedDeities?.[index] === GOD_SLOT.Arctis || isGodEnabledBySorcerer(characters?.[index], GOD_SLOT.Arctis);
           const isUploaded = characters?.[index]?.afkTarget === 'Laboratory' || connectedByGod;
           return isUploaded ?
             <Card sx={{ width: 200, border: playerCord?.soupedUp ? '1px solid orange' : '' }} variant={'outlined'}

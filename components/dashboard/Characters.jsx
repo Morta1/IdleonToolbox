@@ -411,7 +411,6 @@ const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
     crystalSpawnChance,
     nonConsumeChance
   } = character || {};
-  // getMaxDamage records the overkill tiers Coins for Charon multiplies by, so it runs first.
   const playerInfo = getMaxDamage(character, characters, account) || {};
   const { cashMulti } = getCashMulti(character, account, characters, playerInfo) || {};
   const { dropRate } = getDropRate(character, account, characters) || {};

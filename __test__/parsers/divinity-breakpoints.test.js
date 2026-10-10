@@ -1,5 +1,6 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
+import { gods } from '@website-data';
 import {
   getBigPBubbleBonus,
   getMinCoralKidLevel,
@@ -7,7 +8,9 @@ import {
   getMinorDivinityBonusValue,
   getRequiredBigPLevel,
   getRequiredCoralKidLevel,
-  getRequiredDivinityLevel
+  getRequiredDivinityLevel,
+  GOD_INDEX,
+  GOD_SLOT
 } from '@parsers/world-5/divinity';
 
 // Arctis resolves to a multiplier of 15, and BIG P is a decayMulti x1=0.5 x2=60, so its bonus
@@ -102,5 +105,15 @@ describe('minor divinity breakpoints', () => {
     expect(getRequiredBigPLevel({ targetBonus, divinityLevel: 0, multiplier: ARCTIS, coralKidUpgBonus: 88 })).toBe(null);
     expect(getRequiredCoralKidLevel({ targetBonus, divinityLevel: 0, bigPBubble: 1.5, multiplier: ARCTIS })).toBe(null);
     expect(getRequiredDivinityLevel({ targetBonus, bigPBubble: 1.5, multiplier: 0, coralKidUpgBonus: 88 })).toBe(null);
+  });
+});
+
+describe('god slot and index maps', () => {
+  it('match the gods list, so a reorder in the game data fails here instead of reading another god', () => {
+    expect(Object.keys(GOD_SLOT)).toEqual(gods.map(({ name }) => name));
+    gods.forEach(({ name, godIndex }, slot) => {
+      expect(GOD_SLOT[name]).toBe(slot);
+      expect(GOD_INDEX[name]).toBe(Number(godIndex));
+    });
   });
 });

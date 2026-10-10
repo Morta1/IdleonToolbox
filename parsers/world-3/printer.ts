@@ -1,5 +1,5 @@
 import { lavaLog, notateNumber, tryToParse } from '@utility/helpers';
-import { getDeityLinkedIndex } from '@parsers/world-5/divinity';
+import { getDeityLinkedIndex, GOD_SLOT } from '@parsers/world-5/divinity';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { checkCharClass, CLASSES, getTalentBonus } from '@parsers/talents';
 import { getEventShopBonus, getSkillMasteryBonusByIndex, isCompanionBonusActive } from '@parsers/misc';
@@ -18,7 +18,7 @@ export const getPrinter = (idleonData: IdleonData, charactersData: any[], accoun
 }
 
 const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData: any[], accountData: Account) => {
-  const harriepGodIndex = getDeityLinkedIndex(accountData, charactersData, 3);
+  const harriepGodIndex = getDeityLinkedIndex(accountData, charactersData, GOD_SLOT.Harriep);
   const pocketLinked = accountData?.hole?.godsLinks?.find(({ index }: any) => index === 3);
   const wiredInBonus = accountData?.lab?.labBonuses?.find((bonus: any) => bonus.name === 'Wired_In')?.active;
   const connectedPlayers = accountData?.lab?.connectedPlayers;

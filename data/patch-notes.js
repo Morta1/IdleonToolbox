@@ -20,7 +20,7 @@ export const patchNotes = [
       'Fixed Crystal Glunko Cove upgrade costs missing the 15% study discount, and Coral Reef daily gains counting the Demonblub card bonus when the card is not owned',
       'Monster cash multiplier now includes the Molti passive card and the first Cash from Mobs arcade upgrade',
       'Class EXP multiplier now includes the full Omniphau divinity bonus (it was about 20x too low)',
-      'Dashboard cash multiplier now counts Coins for Charon like the character page',
+      'Cash multiplier on the dashboard, Formulas page and leaderboards now counts Coins for Charon like the character page',
       'Summoning: upgrade bonuses now include Absolute Stardom, Allstar and stone trial multipliers, and upgrade costs now match the game (Essential Essence, Sell Sell Sell and Cost Laundering included, Upgrade Vault sushi discounts no longer applied)',
       'Sailing: Sushi Station now shows in the artifact find breakdown'
     ]

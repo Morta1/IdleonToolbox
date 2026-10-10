@@ -131,18 +131,18 @@ export const getGodBlessingBonus = (gods: any, godName: any) => {
   return gods?.find(({ name }: any) => name === godName)?.blessingBonus ?? 0;
 }
 
-export const getGodByIndex = (linkedDeities: any, characters: any, gIndex: any) => {
-  const char = characters?.find((_: any, index: any) => linkedDeities?.[index] === gIndex)
+export const getGodByIndex = (linkedDeities: any, characters: any, godSlot: any) => {
+  const char = characters?.find((_: any, index: any) => linkedDeities?.[index] === godSlot)
   return char?.deityMinorBonus;
 }
 
-export const getDeityLinkedIndex = (account: any, characters: any, deityIndex: any) => {
-  const coralKidLinked = account?.accountOptions?.[425] > 0 && account?.accountOptions?.[425] === deityIndex;
-  const pocketLinked = account?.hole?.godsLinks?.find(({ index }: any) => index === deityIndex);
-  const normalLink = account?.divinity?.linkedDeities?.map((deity: any, index: any) => deityIndex === deity || (isCompanionBonusActive(account, 0) && account?.finishedWorlds?.World4)
+export const getDeityLinkedIndex = (account: any, characters: any, godSlot: any) => {
+  const coralKidLinked = account?.accountOptions?.[425] > 0 && account?.accountOptions?.[425] === godSlot;
+  const pocketLinked = account?.hole?.godsLinks?.find(({ index }: any) => index === godSlot);
+  const normalLink = account?.divinity?.linkedDeities?.map((deity: any, index: any) => godSlot === deity || (isCompanionBonusActive(account, 0) && account?.finishedWorlds?.World4)
     ? index
     : -1);
-  const esLink = characters.map((character: any, index: any) => isGodEnabledBySorcerer(character, deityIndex) || (isCompanionBonusActive(account, 0) && account?.finishedWorlds?.World4)
+  const esLink = characters.map((character: any, index: any) => isGodEnabledBySorcerer(character, godSlot) || (isCompanionBonusActive(account, 0) && account?.finishedWorlds?.World4)
     ? index
     : -1);
   // Check if pocketLinked exists and add it to the result
@@ -158,11 +158,11 @@ export const getDeityLinkedIndex = (account: any, characters: any, deityIndex: a
   }).filter((index: any) => index !== -1) || [];
 }
 
-export const getMinorDivinityBonus = (character: any, account: any, forcedDivinityIndex?: any, characters?: any) => {
+export const getMinorDivinityBonus = (character: any, account: any, godSlot?: any, characters?: any) => {
   const bigPCharacter = characters?.find((char: any) => char.equippedBubbles?.find(({ bubbleName }: any) => bubbleName === 'BIG_P'));
   const bigPBubble = getActiveBubbleBonus((bigPCharacter || character || characters?.[0])?.equippedBubbles, 'BIG_P', account);
   const divinityLevel = (character || bigPCharacter || characters?.[0])?.skillsInfo?.divinity?.level ?? 0;
-  const linkedDeity = forcedDivinityIndex ?? account?.divinity?.linkedDeities?.[character.playerId];
+  const linkedDeity = godSlot ?? account?.divinity?.linkedDeities?.[character.playerId];
   return getMinorDivinityBonusValue({
     divinityLevel,
     bigPBubble,
@@ -178,8 +178,19 @@ export interface MinorDivinityInputs {
   coralKidUpgBonus: number;
 }
 
-// Arctis' slot in the gods list. Its minor bonus is the only one the game ceils into talent levels.
-export const ARCTIS_GOD_SLOT = 1;
+// A god's slot is its position in the gods list: every link the save stores is one, and every helper
+// here takes one except isMajorDivinityActive. The game's Divinity("Bonus_Minor"/"Bonus_MAJOR", p, i)
+// takes the god's index (GodsInfo[slot][13]) instead, so a number copied from the game into a slot
+// helper reads a different god. Name the god from these maps; divinity-breakpoints.test pins them.
+export const GOD_SLOT = {
+  Snehebatu: 0, Arctis: 1, Nobisect: 2, Harriep: 3, Goharut: 4,
+  Omniphau: 5, Purrmep: 6, Flutterbis: 7, Kattlekruk: 8, Bagur: 9
+} as const;
+
+export const GOD_INDEX = {
+  Snehebatu: 0, Arctis: 2, Nobisect: 7, Harriep: 3, Goharut: 5,
+  Omniphau: 4, Purrmep: 6, Flutterbis: 1, Kattlekruk: 8, Bagur: 9
+} as const;
 
 // Every link the save stores is a god slot, while the minorBonusMultiplier column is in godIndex
 // order, so the multiplier for a slot always comes out of a second lookup.
@@ -319,8 +330,8 @@ export const isMajorDivinityActive = (character: any, account: any, godIndex: nu
   if (getW7ChosenGodIndex(account) === godIndex) return true;
   // Research grid square 173 hands Arctis to everyone, and gem shop item 9 does the same for
   // Snehebatu, whoever the character is actually linked to.
-  if (godIndex === 2 && (account?.research?.gridSquares?.[173]?.bonuses?.[0] ?? 0) >= 1) return true;
-  if (godIndex === 0 && Number(account?.gemShopPurchases?.[9]) > 0) return true;
+  if (godIndex === GOD_INDEX.Arctis && (account?.research?.gridSquares?.[173]?.bonuses?.[0] ?? 0) >= 1) return true;
+  if (godIndex === GOD_INDEX.Snehebatu && Number(account?.gemShopPurchases?.[9]) > 0) return true;
 
   const linkedSlot = account?.divinity?.linkedDeities?.[character?.playerId];
   // An unlinked character gets nothing, and the game does not fall through to the polytheism link.

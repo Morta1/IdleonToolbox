@@ -11,6 +11,7 @@ import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
+import { getArcadeBonus } from '@parsers/world-2/arcade';
 
 // The three mine currency gain upgrades (Miney Farmey I/II, Miney Damagey Synergy). The dashboard
 // alert filter and its `MineUpg{n}` config keys derive from this list; the currency formula below
@@ -179,7 +180,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any) => {
   const grid148Bonus = getResearchGridBonus(account, 148, 0);
   const grid147Bonus = getResearchGridBonus(account, 147, 0); // CurrencyGain uses mode 0
   const grid166Bonus = getResearchGridBonus(account, 166, 0);
-  const arcade62Bonus = account?.arcade?.shop?.[62]?.bonus ?? 0;
+  const arcade62Bonus = getArcadeBonus(account?.arcade?.shop, 'Minehead_Currency')?.bonus ?? 0;
   const atom13Bonus = getAtomBonus(account, 'Silicon_-_Minehead_Currency_Printer') ?? 0;
   const mealMineCurrBonus = getMealsBonusByEffectOrStat(account, null, 'MineCurr') ?? 0;
 

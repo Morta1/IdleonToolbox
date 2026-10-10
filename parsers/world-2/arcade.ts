@@ -41,6 +41,10 @@ const parseArcade = (arcadeRaw: any, account: Account, serverVars: ServerVars) =
   }
 }
 
-export const getArcadeBonus = (list: any[] | undefined, effectName: string) => {
-  return list?.find(({ effect }: { effect: string }) => effect.includes(effectName))
+// The name must match the effect exactly, minus its leading "+{%_": a substring match let 'Drop_Rate'
+// reach Marble Drop Rate. Names the shop repeats (Cash_from_Mobs is 10 and 11, Artifact_Find 32 and
+// 66) go by index, as the game's ArcadeBonus(i) does.
+export const getArcadeBonus = (list: any[] | undefined, effectNameOrIndex: string | number) => {
+  if (typeof effectNameOrIndex === 'number') return list?.[effectNameOrIndex];
+  return list?.find(({ effect }: { effect: string }) => effect.replace(/^[^A-Za-z]*/, '') === effectNameOrIndex);
 }

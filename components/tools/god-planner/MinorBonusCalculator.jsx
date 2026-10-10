@@ -3,7 +3,7 @@ import { Box, Card, CardContent, Divider, MenuItem, Stack, TextField, Typography
 import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
 import { gods } from '@website-data';
 import {
-  ARCTIS_GOD_SLOT,
+  GOD_SLOT,
   getBigPBubbleBonus,
   getBigPBubbleShape,
   getGodMinorBonusMultiplier,
@@ -18,7 +18,7 @@ import {
 const parseLevel = (value) => Math.max(0, parseInt(value, 10) || 0);
 
 const MinorBonusCalculator = ({ characters, account }) => {
-  const [godSlot, setGodSlot] = useState(ARCTIS_GOD_SLOT);
+  const [godSlot, setGodSlot] = useState(GOD_SLOT.Arctis);
   const [characterIndex, setCharacterIndex] = useState(0);
   // Every field starts out following the save, and only stops once it has been typed into.
   const [overrides, setOverrides] = useState({});
@@ -39,7 +39,7 @@ const MinorBonusCalculator = ({ characters, account }) => {
   const currentBonus = getMinorDivinityBonusValue(inputs);
 
   // Arctis is the only god whose bonus lands on whole steps, since it is ceiled into talent levels.
-  const isTalentTarget = godSlot === ARCTIS_GOD_SLOT;
+  const isTalentTarget = godSlot === GOD_SLOT.Arctis;
   const target = overrides?.target ?? Math.ceil(currentBonus) + 1;
   const targetBonus = isTalentTarget ? target - 1 : target;
 

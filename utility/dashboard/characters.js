@@ -3,6 +3,7 @@ import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { carryBags, items, randomList } from '@website-data';
 import { getExpReq, isArenaBonusActive, isCompanionBonusActive } from '../../parsers/misc';
 import { getPlayerAnvil, getTimeTillCap } from '@parsers/world-1/anvil';
+import { GOD_SLOT } from '@parsers/world-5/divinity';
 import {
   checkCharClass,
   CLASSES,
@@ -276,7 +277,7 @@ export const getDivinityAlert = (account, characters, character, lastUpdated, op
   if (!options.divinityStyle.checked) return null;
   const pocketLinked = account?.hole?.godsLinks?.find(({ index }) => index === 4);
   const isMeditating = character?.afkTarget === 'Divinity' || (character?.afkTarget === 'Laboratory' &&
-    (account?.divinity?.linkedDeities?.[character?.playerId] === 4 || character?.secondLinkedDeityIndex === 4 || pocketLinked || isCompanionBonusActive(account, 0)));
+    (account?.divinity?.linkedDeities?.[character?.playerId] === GOD_SLOT.Goharut || character?.secondLinkedDeityIndex === GOD_SLOT.Goharut || pocketLinked || isCompanionBonusActive(account, 0)));
   if (isMeditating && character?.skillsInfo?.divinity?.level >= 80 && character?.divStyle?.name !== 'Mindful') {
     return { text: 'doesn\'t have mindful style equipped', icon: 'Div_Style_7' };
   }

@@ -3,7 +3,7 @@ import { isTalentBannedForAllLevels } from '@utility/talentBans';
 import { classes, talents } from '@website-data';
 import { getAchievementStatus } from './achievements';
 import { isCompanionBonusActive } from './misc';
-import { getMinorDivinityBonus } from './world-5/divinity';
+import { getMinorDivinityBonus, GOD_SLOT } from './world-5/divinity';
 import { getEquinoxBonus } from './world-3/equinox';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getGuildBonusBonus } from '@parsers/guild';
@@ -318,13 +318,13 @@ export const getTalentAddedLevels = (talents: any, presetIndex: any, linkedDeity
 
   const pocketLinked = account?.hole?.godsLinks?.find(({ index }: any) => index === 1);
   if (isCompanionBonusActive(account, 0) || pocketLinked) {
-    addedLevels += Math.ceil(getMinorDivinityBonus(character, account, 1));
+    addedLevels += Math.ceil(getMinorDivinityBonus(character, account, GOD_SLOT.Arctis));
   }
   else {
-    if (linkedDeity === 1) {
+    if (linkedDeity === GOD_SLOT.Arctis) {
       addedLevels += Math.ceil(deityMinorBonus);
     }
-    else if (secondLinkedDeity === 1) {
+    else if (secondLinkedDeity === GOD_SLOT.Arctis) {
       addedLevels += Math.ceil(secondDeityMinorBonus);
     }
   }

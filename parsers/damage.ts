@@ -36,7 +36,7 @@ import { isSuperbitUnlocked } from './world-5/gaming';
 import { constructionMasteryThresholds } from './world-3/construction';
 import { getSaltLickBonus } from './world-3/saltLick';
 import { getAchievementStatus } from './achievements';
-import { getGodBlessingBonus, getMinorDivinityBonus, isMajorDivinityActive } from './world-5/divinity';
+import { getGodBlessingBonus, getMinorDivinityBonus, GOD_INDEX, GOD_SLOT, isMajorDivinityActive } from './world-5/divinity';
 // getEquinoxBonus not used - AdditionExtraDMG uses talent-based calculation
 import { getMiningEff } from '@parsers/efficiency';
 import { getUpgradeVaultBonus } from './misc/upgradeVault';
@@ -651,9 +651,9 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
 
   const hasDoot = isCompanionBonusActive(account, 0);
   const coralKidLinked = Number(account?.accountOptions?.[425]) > 0 && account?.accountOptions?.[425] === 2;
-  const minorBonus = hasDoot || coralKidLinked ? getMinorDivinityBonus(character, account, 2) : character?.linkedDeity === 2
+  const minorBonus = hasDoot || coralKidLinked ? getMinorDivinityBonus(character, account, GOD_SLOT.Nobisect) : character?.linkedDeity === GOD_SLOT.Nobisect
     ? character?.deityMinorBonus
-    : character?.secondLinkedDeityIndex === 2
+    : character?.secondLinkedDeityIndex === GOD_SLOT.Nobisect
       ? character?.secondDeityMinorBonus
       : 0;
 
@@ -936,9 +936,9 @@ const getAccuracy = (character: Character, characters: Character[], account: Acc
   // Snehebatu's minor bonus is the accuracy/defence one, and gem shop item 9 grants it account-wide
   // whoever you are linked to: `GemItemsPurchased[9] == 1 && 0 == i` in the game's Bonus_Minor.
   const snehebatuUnlocked = Number(account?.gemShopPurchases?.[9]) > 0;
-  const minorBonus = hasDoot || snehebatuUnlocked ? getMinorDivinityBonus(character, account, 0)
-    : character?.linkedDeity === 0 ? character?.deityMinorBonus
-      : character?.secondLinkedDeityIndex === 0 ? character?.secondDeityMinorBonus
+  const minorBonus = hasDoot || snehebatuUnlocked ? getMinorDivinityBonus(character, account, GOD_SLOT.Snehebatu)
+    : character?.linkedDeity === GOD_SLOT.Snehebatu ? character?.deityMinorBonus
+      : character?.secondLinkedDeityIndex === GOD_SLOT.Snehebatu ? character?.secondDeityMinorBonus
         : 0;
 
   let accuracy = (character?.stats as any)?.[accuracyStat]
@@ -1306,9 +1306,9 @@ const getPlayerDefence = (character: Character, characters: Character[], account
 
   const snehebatuUnlocked = Number(account?.gemShopPurchases?.[9]) > 0;
   const minorBonus = hasDoot || coralKidLinked || snehebatuUnlocked
-    ? getMinorDivinityBonus(character, account, 0)
-    : character?.linkedDeity === 0 ? character?.deityMinorBonus
-      : character?.secondLinkedDeityIndex === 0 ? character?.secondDeityMinorBonus
+    ? getMinorDivinityBonus(character, account, GOD_SLOT.Snehebatu)
+    : character?.linkedDeity === GOD_SLOT.Snehebatu ? character?.deityMinorBonus
+      : character?.secondLinkedDeityIndex === GOD_SLOT.Snehebatu ? character?.secondDeityMinorBonus
         : 0;
 
   // gearBonus now includes gallery and hatRack bonuses
@@ -1422,7 +1422,7 @@ const getKillPerKill = (character: Character, characters: Character[], account: 
   const labBonus = getLabBonus(account?.lab?.labBonuses, 4);
   // Divinity('Bonus_MAJOR', player, 7) is Nobisect, whose major bonus doubles every kill. A pocket
   // divinity, the World 7 chosen god or the polytheism link can all supply it without a normal link.
-  const majorBonus = isMajorDivinityActive(character, account, 7) ? 1 : 0;
+  const majorBonus = isMajorDivinityActive(character, account, GOD_INDEX.Nobisect) ? 1 : 0;
 
   // KpKDumm2: the three stat talents are switched off entirely from World 7 onwards.
   const strTalentBonus = getTalentBonus(character?.flatTalents, 'CHARRED_SKULLS');

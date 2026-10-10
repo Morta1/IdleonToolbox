@@ -11,7 +11,7 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { calculateItemTotalAmount, getStatsFromGear } from '@parsers/items';
 import { getAllBaseSkillEff, getAllEff } from '@parsers/efficiency';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
-import { isMajorDivinityActive } from '@parsers/world-5/divinity';
+import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
 
 export const getLab = (idleonData: any, charactersData: any, account: any, updatedCharactersData?: any) => {
   const labRaw = tryToParse(idleonData?.Lab) || idleonData?.Lab;
@@ -84,7 +84,7 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
       : character;
   }
   const isInTube = (character: any) => character?.AFKtarget === 'Laboratory'
-    || isMajorDivinityActive(withSecondDeityLink(character), account, 2);
+    || isMajorDivinityActive(withSecondDeityLink(character), account, GOD_INDEX.Arctis);
   const labAfkPlayerIds = charactersData?.reduce((res: any[], character: any) => character?.AFKtarget === 'Laboratory'
     ? [...res, character?.playerId]
     : res, []) ?? [];
@@ -102,7 +102,7 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
     const afkRank = labAfkPlayerIds.indexOf(playerId);
     const souped = afkRank !== -1
       ? afkRank < soupedUpSlots
-      : playerId < soupedUpSlots && isMajorDivinityActive(withSecondDeityLink(character), account, 2);
+      : playerId < soupedUpSlots && isMajorDivinityActive(withSecondDeityLink(character), account, GOD_INDEX.Arctis);
     return souped ? [...res, playerId] : res;
   }, []) ?? [];
 
@@ -240,17 +240,17 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
   };
 }
 
-export const isLabEnabledBySorcererRaw = (charData: any, godIndex: any) => {
+export const isLabEnabledBySorcererRaw = (charData: any, godSlot: any) => {
   if (classes?.[charData?.CharacterClass] === CLASSES.Elemental_Sorcerer) {
     const polytheism = charData?.SkillLevels?.[505];
-    return polytheism % 10 === godIndex;
+    return polytheism % 10 === godSlot;
   }
 }
 
-export const isGodEnabledBySorcerer = (character: any, godIndex: any) => {
+export const isGodEnabledBySorcerer = (character: any, godSlot: any) => {
   if (checkCharClass(character?.class, CLASSES.Elemental_Sorcerer)) {
     const polytheism = character.flatTalents?.find(({ talentId }: any) => talentId === 505);
-    return polytheism?.level % 10 === godIndex;
+    return polytheism?.level % 10 === godSlot;
   }
 }
 

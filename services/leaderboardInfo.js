@@ -8,8 +8,8 @@ import { differenceInYears } from 'date-fns';
 // (9.8MB JSON) with it. Consumers import this module lazily or at page level.
 export const expandLeaderboardInfo = (account, characters) => {
   const dropRate = Math.max(...characters.map(character => getDropRate(character, account, characters)?.dropRate || 0));
-  const cashMulti = Math.max(...characters.map(character => getCashMulti(character, account, characters)?.cashMulti || 0));
   const playersInfo = characters.map(character => getMaxDamage(character, characters, account));
+  const cashMulti = Math.max(...characters.map((character, index) => getCashMulti(character, account, characters, playersInfo[index])?.cashMulti || 0));
   const defence = Math.max(...playersInfo.map(({ defence }) => defence?.value));
   const accuracy = Math.max(...playersInfo.map(({ accuracy }) => accuracy));
   const hp = Math.max(...playersInfo.map(({ maxHp }) => maxHp));

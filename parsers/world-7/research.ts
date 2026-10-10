@@ -27,6 +27,7 @@ import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
+import { getArcadeBonus } from '@parsers/world-2/arcade';
 
 // Save key for Research: game may use idleonData.Research or similar
 const getRawResearch = (idleonData: any) => {
@@ -618,7 +619,7 @@ function getResearchEXPmulti(account: any, research: any) {
   // game: ShopUpgBonus(63, 0) - Spelunking shop upgrade, not a card bonus; it just sits as the
   // last term of the same additive sum right after the card terms (task D5).
   const spelunkingShopUpg63 = getSpelunkingBonus(account, 63);
-  const arcade63 = account?.arcade?.shop?.[63]?.bonus ?? 0;
+  const arcade63 = getArcadeBonus(account?.arcade?.shop, 'Research_XP')?.bonus ?? 0;
   const grid70 = getResearchGridBonusInternal(account, research, 70, 0);
   const grid31 = getResearchGridBonusInternal(account, research, 31, 0);
   const grid51 = getResearchGridBonusInternal(account, research, 51, 0);
