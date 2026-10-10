@@ -25,6 +25,7 @@ export default defineConfig({
       { find: /^utility\//, replacement: `${path.resolve(__dirname, 'utility')}/` },
       { find: /^hooks\//, replacement: `${path.resolve(__dirname, 'hooks')}/` },
       { find: /^services\//, replacement: `${path.resolve(__dirname, 'services')}/` },
+      { find: /^data\//, replacement: `${path.resolve(__dirname, 'data')}/` },
     ],
   },
   esbuild: { jsx: 'automatic' },
@@ -43,12 +44,10 @@ export default defineConfig({
     // vi.mock should have replaced all stayed bound to the first file's document or imports, so
     // which component test failed depended on how files landed on workers. The jsdom files are
     // cheap to load and gain nothing from sharing, so they get their own pool with a fresh worker
-    // per file. It has to be a separate pool: forks takes `isolate` from the root config only, and
-    // a per-project `isolate` resets vite's module cache but not the node_modules those live in.
-    poolOptions: { threads: { isolate: true } },
+    // per file.
     projects: [
       { extends: true, test: { name: 'node', include: [testGlob], exclude: jsdomTests } },
-      { extends: true, test: { name: 'jsdom', include: jsdomTests, pool: 'threads' } },
+      { extends: true, test: { name: 'jsdom', include: jsdomTests, pool: 'threads', isolate: true } },
     ],
   },
 });
