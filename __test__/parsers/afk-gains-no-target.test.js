@@ -32,11 +32,11 @@ describe('getAfkGain with no productive AFK target', () => {
 
     const { breakdown } = getAfkGain(character, characters, account);
 
-    const [reasonCategory] = breakdown.categories;
+    const [reasonGroup] = breakdown.tree;
     expect(breakdown.totalValue).toBe('N/A');
-    expect(reasonCategory.name).toContain('paying respect at a monument');
-    expect(reasonCategory.subSections.flatMap(({ sources }) => sources).some(({ name }) => name === 'Sigil')).toBe(true);
-    expect(breakdown.categories.some(({ name }) => name === 'Multiplicative')).toBe(true);
+    expect(reasonGroup.name).toContain('paying respect at a monument');
+    expect(reasonGroup.children.flatMap(({ children }) => children).some(({ name }) => name === 'Sigil')).toBe(true);
+    expect(breakdown.tree.some(({ name }) => name === 'Multipliers')).toBe(true);
   });
 
   it('still returns a real rate for productive afk types', () => {

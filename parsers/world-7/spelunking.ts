@@ -25,6 +25,7 @@ import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import { getBestActiveCharacter, getHighestTalentAcrossCharacters, getTalentBonus } from '@parsers/talents';
 import { getAllEff } from '@parsers/efficiency';
+import { additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 
 export const getSpelunking = (idleonData: any, account: any, characters: any) => {
   const rawSpelunking = tryToParse(idleonData?.Spelunk) || [];
@@ -141,7 +142,7 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   // game: "SpelunkingEfficiency" - a per-character value; the active/currently-played character is
   // the representative one shown on the account page, matching how the game itself only ever
   // reports one number for whoever is logged in.
-  const spelunkingEfficiency = getSpelunkingEfficiency(activeCharacter, characters, updatedAccount);
+  const { value: spelunkingEfficiency, tree: spelunkingEfficiencyTree } = getSpelunkingEfficiencyParts(activeCharacter, characters, updatedAccount);
   const taxRate = getSpelunkingBonus(account, 19);
   const prismaDropChance = getPrismaDropChance(account, rawSpelunking);
   const exaltedDropChance = getExaltedDropChance(account, rawSpelunking);
@@ -343,7 +344,8 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
     amberDropChance: getAmberDropChance({ spelunking: { upgrades } }),
     amberDropChance2nd: getAmberDropChance2nd({ spelunking: { upgrades } }),
     staminaCostMulti: getStaminaCostMulti({ spelunking: { manicModeFlag } }),
-    spelunkingEfficiency
+    spelunkingEfficiency,
+    spelunkingEfficiencyBreakdown: createBreakdown('Spelunking Efficiency', String(notateNumber(spelunkingEfficiency, 'Big')), spelunkingEfficiencyTree)
   }
 }
 
@@ -1050,7 +1052,7 @@ export const getStaminaRegenRate = (account: any) => {
 // pre-existing formula to amend, so this is a fresh implementation of the game's full formula
 // (per-character, like getMiningEff/getAllEff - AllEfficiencies and the RG talent both read off
 // whichever character is passed in).
-export const getSpelunkingEfficiency = (character: any, characters: any, account: any) => {
+export const getSpelunkingEfficiencyParts = (character: any, characters: any, account: any) => {
   const chapterBonus00 = getChapterBonus(account, 0, 0);
   const chapterBonus10 = getChapterBonus(account, 1, 0);
   // getAllEff assumes a real character (it reaches into character.stats/questCompleted with no
@@ -1074,14 +1076,31 @@ export const getSpelunkingEfficiency = (character: any, characters: any, account
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, '7spelunkeff');
   const bubbleBonus = getBubbleBonus(account, 'SPAPUNKIE', false);
 
-  return (10 + chapterBonus00 + chapterBonus10)
-    * Math.max(1, 1 + (allEff - 1) / 20)
-    * (1 + (30 * riftBonus) / 100)
-    * (1 + shopUpg56 / 100)
-    * (1 + chapterBonus01 / 100)
-    * Math.max(1, talentBonus)
-    * (1 + (stampBonus + cardBonus + vialBonus + bubbleBonus) / 100);
+  const tree = [
+    sumGroup('Base efficiency', [
+      flat('Base', 10),
+      flat('Chapter bonuses', chapterBonus00 + chapterBonus10)
+    ]),
+    productGroup('Multipliers', [
+      // game: max(1, 1 + (AllEfficiencies - 1) / 20) - a twentieth of the usual all-efficiency bonus
+      multiplier('All efficiencies (1/20th)', Math.max(1, 1 + (allEff - 1) / 20)),
+      multiplier('Skill mastery', 1 + (30 * riftBonus) / 100),
+      multiplier('Shop upgrade', 1 + shopUpg56 / 100),
+      multiplier('Chapter bonus', 1 + chapterBonus01 / 100),
+      multiplier("Pit O' Pages talent", Math.max(1, talentBonus)),
+      additiveGroup('Stamp, card, vial and bubble', [
+        percent('Stamp', stampBonus),
+        percent('Card', cardBonus),
+        percent('Vial', vialBonus),
+        percent('Spapunkie bubble', bubbleBonus)
+      ])
+    ])
+  ];
+  return { value: evaluateBreakdownNode(tree[0]) * evaluateBreakdownNode(tree[1]), tree };
 }
+
+export const getSpelunkingEfficiency = (character: any, characters: any, account: any) =>
+  getSpelunkingEfficiencyParts(character, characters, account).value;
 
 // game: "StaminaCostMulti". GenINFO[107][9]/[10] are live per-character combat-actor state, not
 // present in the save (same limitation as getPrismaDropChance/getExaltedDropChance); only the

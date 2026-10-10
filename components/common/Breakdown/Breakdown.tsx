@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useLocalStorage } from "@mantine/hooks";
 import type * as React from "react";
 import {
   Box,
@@ -14,6 +15,8 @@ import {
   useTheme,
   SwipeableDrawer,
   Tooltip,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SearchIcon from "@mui/icons-material/Search";
@@ -23,48 +26,58 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import ImageIcon from "@mui/icons-material/Image";
-import { notateNumber } from "@utility/helpers";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from "@utility/clipboard";
 import useBreakdown from "./Breakdown.hook";
 import GameIconNotation from "@components/common/GameIconNotation";
+import {
+  buildView,
+  collectGroupKeys,
+  defaultExpandedKeys,
+  flattenView,
+  hasInactiveNodes,
+  toBreakdownTree
+} from "./breakdownView";
+import type { AnyBreakdown, ViewNode } from "./breakdownView";
 
-
-interface StatSource {
-  name: string
-  value: number
-  // Pre-rendered display string, used verbatim instead of notation (e.g. percent values)
-  formatted?: string
-}
-
-interface SubSection {
-  name: string
-  sources: StatSource[]
-}
-
-interface StatCategory {
-  name: string
-  sources?: StatSource[]
-  subSections?: SubSection[]
-}
-
-interface StatBreakdownData {
-  statName: string
-  totalValue: number
-  categories: StatCategory[]
-}
-
-interface StatBreakdownTooltipProps {
-  data?: StatBreakdownData
+interface BreakdownProps {
+  // A breakdown tree (parsers/breakdown.ts) or the older categories shape; several open as tabs
+  data?: AnyBreakdown | (AnyBreakdown | undefined | null)[]
   children: React.ReactNode
+  // Notation for lines that carry no unit (the older shape)
   valueNotation?: string
   skipNotation?: boolean
 }
 
-export function Breakdown({ data, children, valueNotation = "MultiplierInfo", skipNotation }: StatBreakdownTooltipProps) {
+export function Breakdown({ data: dataProp, children, valueNotation = "MultiplierInfo", skipNotation }: BreakdownProps) {
+  const datasets = (Array.isArray(dataProp) ? dataProp : [dataProp])
+    .filter((entry): entry is AnyBreakdown => !!entry)
+  const [activeTab, setActiveTab] = useState(0)
+  const data = datasets[Math.min(activeTab, datasets.length - 1)]
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackSeverity, setFeedbackSeverity] = useState<"success" | "error">("success");
-  const { copyImageToClipboard } = useBreakdown({ data, valueNotation, skipNotation })
+  const { copyImageToClipboard } = useBreakdown()
+  const [open, setOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [showInactive, setShowInactive] = useState(false)
+  // null until the first toggle, so each tab starts from its own default
+  const [expandedKeys, setExpandedKeys] = useState<Set<string> | null>(null)
+  // No defaultValue: it would be written back for every breakdown ever opened
+  const [pinnedList, setPinnedList] = useLocalStorage<string[]>({ key: `pinned-sources-${data?.statName}` })
+  const pinned = new Set(pinnedList ?? [])
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+
+  if (!data) return <>{children}</>
+
+  const tree = toBreakdownTree(data, valueNotation, skipNotation)
+  const views = buildView(tree, { valueNotation, skipNotation, query: searchQuery, showInactive, pinned })
+  const expanded = expandedKeys ?? defaultExpandedKeys(data, views)
+  // Searching opens every group that still has a match
+  const isExpanded = (key: string) => !!searchQuery.trim() || expanded.has(key)
+  const canHideInactive = hasInactiveNodes(tree)
 
   const showResult = (succeeded: boolean, successMessage: string) => {
     setFeedbackSeverity(succeeded ? "success" : "error")
@@ -72,210 +85,69 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
     setShowFeedback(true)
   }
 
+  const exportRows = () => flattenView(buildView(tree, { valueNotation, skipNotation, query: "", showInactive, pinned }))
+
   const handleCopyImage = async () => {
-    showResult(await copyImageToClipboard(), "Copied image to clipboard")
-  }
-  const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set([0]))
-  const [expandedSubSections, setExpandedSubSections] = useState<Set<string>>(new Set())
-  const [open, setOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [pinnedSources, setPinnedSources] = useState<Set<string>>(() => {
-    const stored = localStorage.getItem(`pinned-sources-${data?.statName}`)
-    if (stored) {
-      try {
-        return new Set(JSON.parse(stored))
-      } catch (e) {
-        console.error("Failed to load pinned sources", e)
-      }
-    }
-    return new Set()
-  })
-
-  const handleClick = () => {
-    setOpen(true)
-  }
-
-  const handleClose = () => {
-    setOpen(false)
-  }
-
-  useEffect(() => {
-    if (data?.statName) localStorage.setItem(`pinned-sources-${data.statName}`, JSON.stringify(Array.from(pinnedSources)))
-  }, [pinnedSources, data?.statName])
-
-  const toggleCategory = (index: number, event: React.MouseEvent) => {
-    event.stopPropagation()
-    setExpandedCategories((prev) => {
-      const next = new Set(prev)
-      if (next.has(index)) {
-        next.delete(index)
-      } else {
-        next.add(index)
-      }
-      return next
-    })
-  }
-
-  const toggleSubSection = (categoryIdx: number, subSectionIdx: number, event: React.MouseEvent) => {
-    event.stopPropagation()
-    const key = `${categoryIdx}-${subSectionIdx}`
-    setExpandedSubSections((prev) => {
-      const next = new Set(prev)
-      if (next.has(key)) {
-        next.delete(key)
-      } else {
-        next.add(key)
-      }
-      return next
-    })
-  }
-
-  const handleExpandAll = () => {
-    if (!data) return
-    const allCategories = new Set(data.categories.map((_, idx) => idx))
-    setExpandedCategories(allCategories)
-
-    const allSubSections = new Set<string>()
-    data.categories.forEach((category, catIdx) => {
-      category.subSections?.forEach((_, subIdx) => {
-        allSubSections.add(`${catIdx}-${subIdx}`)
-      })
-    })
-    setExpandedSubSections(allSubSections)
-  }
-
-  const handleCollapseAll = () => {
-    setExpandedCategories(new Set())
-    setExpandedSubSections(new Set())
+    const image = { statName: data.statName, totalValue: data.totalValue, rows: exportRows() }
+    showResult(await copyImageToClipboard(image), "Copied image to clipboard")
   }
 
   const handleCopyBreakdown = async () => {
-    if (!data) return
     let text = `${data.statName}: ${data.totalValue}\n\n`
-
-    data.categories.forEach((category) => {
-      text += `${category.name}:\n`
-
-      if (category.sources) {
-        category.sources.forEach((source) => {
-          text += `  ${source.name}: ${source.formatted ?? (skipNotation ? source.value : notateNumber(source.value, valueNotation))}\n`
-        })
-      }
-
-      if (category.subSections) {
-        category.subSections.forEach((subSection) => {
-          text += `  ${subSection.name}:\n`
-          subSection.sources.forEach((source) => {
-            text += `    ${source.name}: ${source.formatted ?? (skipNotation ? source.value : notateNumber(source.value, valueNotation))}\n`
-          })
-        })
-      }
-
-      text += "\n"
+    exportRows().forEach((row) => {
+      text += `${"  ".repeat(row.depth)}${row.name}: ${row.display}\n`
     })
-    
     showResult(await copyText(text), "Copied text to clipboard")
   }
 
-  let filteredData = data
-  if (data && searchQuery.trim()) {
-    const query = searchQuery.toLowerCase()
-    const filteredCategories = data.categories
-      .map((category) => {
-        const categoryMatches = category.name.toLowerCase().includes(query)
-
-        const filteredSources = category.sources?.filter((source) => source.name.toLowerCase().includes(query))
-
-        const filteredSubSections = category.subSections
-          ?.map((subSection) => {
-            const subSectionMatches = subSection.name.toLowerCase().includes(query)
-            const filteredSubSources = subSection.sources.filter((source) => source.name.toLowerCase().includes(query))
-
-            if (subSectionMatches || filteredSubSources.length > 0) {
-              return {
-                ...subSection,
-                sources: subSectionMatches ? subSection.sources : filteredSubSources,
-              }
-            }
-            return null
-          })
-          .filter(Boolean) as SubSection[]
-
-        if (
-          categoryMatches ||
-          (filteredSources && filteredSources.length > 0) ||
-          (filteredSubSections && filteredSubSections.length > 0)
-        ) {
-          return {
-            ...category,
-            sources: categoryMatches ? category.sources : filteredSources,
-            subSections: categoryMatches ? category.subSections : filteredSubSections,
-          }
-        }
-        return null
-      })
-      .filter(Boolean) as StatCategory[]
-
-    filteredData = {
-      ...data,
-      categories: filteredCategories,
-    }
+  const handleTabChange = (_: React.SyntheticEvent, index: number) => {
+    setActiveTab(index)
+    setExpandedKeys(null)
   }
 
-  const sortSources = (sources: StatSource[], prefix: string) => {
-    if (!sources) return [];
-    return [...sources].sort((a, b) => {
-      const aKey = `${prefix}-${a.name}`
-      const bKey = `${prefix}-${b.name}`
-      const aPinned = pinnedSources.has(aKey)
-      const bPinned = pinnedSources.has(bKey)
-      if (aPinned && !bPinned) return -1
-      if (!aPinned && bPinned) return 1
-      return 0
-    })
-  }
-
-  const togglePin = (sourceKey: string, event: React.MouseEvent) => {
+  const toggleGroup = (key: string, event: React.MouseEvent) => {
     event.stopPropagation()
-    setPinnedSources((prev) => {
-      const next = new Set(prev)
-      if (next.has(sourceKey)) {
-        next.delete(sourceKey)
+    const next = new Set(expanded)
+    if (next.has(key)) {
+      next.delete(key)
+    } else {
+      next.add(key)
+    }
+    setExpandedKeys(next)
+  }
+
+  const togglePin = (pinKey: string, event: React.MouseEvent) => {
+    event.stopPropagation()
+    setPinnedList((prev) => {
+      const next = new Set(prev ?? [])
+      if (next.has(pinKey)) {
+        next.delete(pinKey)
       } else {
-        next.add(sourceKey)
+        next.add(pinKey)
       }
-      return next
+      return Array.from(next)
     })
   }
 
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
-
-  if (!data || !filteredData) return <>{children}</>
-
-  const sortedData = {
-    ...filteredData,
-    categories: filteredData.categories.map((category, catIdx) => ({
-      ...category,
-      sources: category.sources ? sortSources(category.sources, `${catIdx}`) : undefined,
-      subSections: category.subSections?.map((subSection, subIdx) => ({
-        ...subSection,
-        sources: sortSources(subSection.sources, `${catIdx}-${subIdx}`),
-      })),
-    })),
-  }
+  const renderNodes = (nodes: ViewNode[]): React.ReactNode => nodes.map((node) => node.children
+    ? <GroupRow key={node.key} node={node} isMobile={isMobile} expanded={isExpanded(node.key)}
+                onToggle={(event) => toggleGroup(node.key, event)}>
+      {renderNodes(node.children)}
+    </GroupRow>
+    : <LineRow key={node.key} node={node} isMobile={isMobile} pinned={pinned.has(node.pinKey)}
+               onPin={(event) => togglePin(node.pinKey, event)}/>)
 
   return (
     <>
-      <Box component="span" sx={{ display: "inline-block", cursor: "pointer" }} onClick={handleClick}>
+      <Box component="span" sx={{ display: "inline-block", cursor: "pointer" }} onClick={() => setOpen(true)}>
         {children}
       </Box>
 
       <SwipeableDrawer
         anchor={isMobile ? "bottom" : "right"}
         open={open}
-        onClose={handleClose}
-        onOpen={handleClick}
+        onClose={() => setOpen(false)}
+        onOpen={() => setOpen(true)}
         // Every instance would add its own edge swipe area, so a swipe opened an arbitrary breakdown
         disableSwipeToOpen
         sx={{
@@ -307,29 +179,12 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
           }}
         >
           {isMobile && (
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                pt: 1,
-                pb: 0.5,
-              }}
-            >
-              <Box
-                sx={{
-                  width: 40,
-                  height: 4,
-                  bgcolor: "divider",
-                  borderRadius: 2,
-                }}
-              />
+            <Box sx={{ display: "flex", justifyContent: "center", pt: 1, pb: 0.5 }}>
+              <Box sx={{ width: 40, height: 4, bgcolor: "divider", borderRadius: 2 }}/>
             </Box>
           )}
 
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
+          <Box
             sx={{
               borderBottom: "1px solid",
               borderColor: "divider",
@@ -340,16 +195,27 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
           >
             <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1.5} width="100%">
               <Typography variant="body1" color="text.secondary" fontWeight={500}>
-                {data?.statName}
+                {data.statName}
               </Typography>
               {typeof data.totalValue === 'string' && /[\[!|棘]/.test(data.totalValue)
                 ? <GameIconNotation value={data.totalValue} sx={{ fontSize: '1.5rem', fontWeight: 700 }}/>
                 : <Typography variant="h5" fontWeight={700}>
-                    {data.totalValue}
-                  </Typography>
+                  {data.totalValue}
+                </Typography>
               }
             </Stack>
-          </Stack>
+          </Box>
+
+          {datasets.length > 1 ? (
+            <Tabs
+              value={Math.min(activeTab, datasets.length - 1)}
+              onChange={handleTabChange}
+              variant="fullWidth"
+              sx={{ borderBottom: "1px solid", borderColor: "divider", bgcolor: "background.default" }}
+            >
+              {datasets.map((dataset) => <Tab key={dataset.statName} label={dataset.label ?? dataset.statName}/>)}
+            </Tabs>
+          ) : null}
 
           <Stack
             direction="row"
@@ -392,258 +258,33 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon sx={{ fontSize: 18, color: "text.secondary" }} />
+                    <SearchIcon sx={{ fontSize: 18, color: "text.secondary" }}/>
                   </InputAdornment>
                 ),
               }}
             />
-            <IconButtonWithTooltip tooltip="Expand All" onClick={handleExpandAll}>
-              <UnfoldMoreIcon fontSize="small" />
+            {canHideInactive ? (
+              <IconButtonWithTooltip tooltip={showInactive ? "Hide inactive" : "Show inactive"}
+                                     onClick={() => setShowInactive(!showInactive)}>
+                {showInactive ? <VisibilityIcon fontSize="small"/> : <VisibilityOffIcon fontSize="small"/>}
+              </IconButtonWithTooltip>
+            ) : null}
+            <IconButtonWithTooltip tooltip="Expand All" onClick={() => setExpandedKeys(new Set(collectGroupKeys(views)))}>
+              <UnfoldMoreIcon fontSize="small"/>
             </IconButtonWithTooltip>
-            <IconButtonWithTooltip tooltip="Collapse All" onClick={handleCollapseAll}>
-              <UnfoldLessIcon fontSize="small" />
+            <IconButtonWithTooltip tooltip="Collapse All" onClick={() => setExpandedKeys(new Set())}>
+              <UnfoldLessIcon fontSize="small"/>
             </IconButtonWithTooltip>
             <IconButtonWithTooltip tooltip="Copy as Text" onClick={handleCopyBreakdown}>
-              <ContentCopyIcon fontSize="small" />
+              <ContentCopyIcon fontSize="small"/>
             </IconButtonWithTooltip>
             <IconButtonWithTooltip tooltip="Copy as Image" onClick={handleCopyImage}>
-              <ImageIcon fontSize="small" />
+              <ImageIcon fontSize="small"/>
             </IconButtonWithTooltip>
           </Stack>
 
-          <Box
-            sx={{
-              flexGrow: 1,
-              overflowY: "auto",
-              WebkitOverflowScrolling: "touch",
-              py: 1,
-            }}
-          >
-            {sortedData.categories.map((category, idx) => {
-              const isExpanded = expandedCategories.has(idx)
-              const itemCount =
-                (category.sources?.length || 0) +
-                (category.subSections?.reduce((sum, sub) => sum + sub.sources.length, 0) || 0)
-
-              return (
-                <Box
-                  key={idx}
-                  sx={{
-                    borderBottom: "1px solid",
-                    borderColor: "divider",
-                    "&:last-child": { borderBottom: 0 },
-                  }}
-                >
-                  <Box
-                    component="button"
-                    onClick={(e) => toggleCategory(idx, e)}
-                    sx={{
-                      width: "100%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      px: isMobile ? 2 : 3,
-                      py: isMobile ? 1.75 : 1.5,
-                      minHeight: isMobile ? 48 : "auto",
-                      bgcolor: "transparent",
-                      border: "none",
-                      cursor: "pointer",
-                      textAlign: "left",
-                      color: "white",
-                      transition: "background-color 0.2s",
-                      "&:hover": {
-                        bgcolor: "rgba(255, 255, 255, 0.05)",
-                      },
-                    }}
-                  >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <ChevronRightIcon
-                        sx={{
-                          fontSize: 20,
-                          color: "text.secondary",
-                          transition: "transform 0.2s",
-                          transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
-                        }}
-                      />
-                      <Typography variant="body2" fontWeight={600}>
-                        {category.name}
-                      </Typography>
-                    </Box>
-                    <Typography variant="caption" color="text.secondary">
-                      {itemCount} sources
-                    </Typography>
-                  </Box>
-
-                  <Collapse in={isExpanded}>
-                    <Box sx={{ pb: 1 }}>
-                      {category.sources && category.sources.length > 0 && (
-                        <Box>
-                          {category.sources.map((source, sourceIdx) => {
-                            const sourceKey = `${idx}-${source.name}`
-                            const isPinned = pinnedSources.has(sourceKey)
-
-                            return (
-                              <Box
-                                key={sourceIdx}
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "space-between",
-                                  px: isMobile ? 3 : 5,
-                                  py: isMobile ? 1.25 : 1,
-                                  minHeight: isMobile ? 44 : "auto",
-                                  transition: "background-color 0.2s",
-                                  bgcolor: isPinned ? "rgba(255, 215, 0, 0.1)" : "transparent",
-                                  "&:hover": {
-                                    bgcolor: isPinned ? "rgba(255, 215, 0, 0.15)" : "rgba(255, 255, 255, 0.05)",
-                                  },
-                                }}
-                              >
-                                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                  <IconButton
-                                    size="small"
-                                    onClick={(e) => togglePin(sourceKey, e)}
-                                    sx={{
-                                      p: 0.5,
-                                      color: isPinned ? "#FFD700" : "text.secondary",
-                                      opacity: isPinned ? 1 : 0.3,
-                                      transition: "opacity 0.2s, color 0.2s",
-                                      "&:hover": {
-                                        opacity: 1,
-                                        bgcolor: "transparent",
-                                      },
-                                    }}
-                                  >
-                                    {isPinned ? (
-                                      <StarIcon sx={{ fontSize: 16 }} />
-                                    ) : (
-                                      <StarBorderIcon sx={{ fontSize: 16 }} />
-                                    )}
-                                  </IconButton>
-                                  <Typography variant="body2" color="text.primary" sx={{ opacity: 0.8 }}>
-                                    {source.name}
-                                  </Typography>
-                                </Box>
-                                <Typography variant="body2">{source.formatted ?? (skipNotation ? source.value : notateNumber(source.value, valueNotation))}</Typography>
-                              </Box>
-                            )
-                          })}
-                        </Box>
-                      )}
-
-                      {category.subSections?.map((subSection, subIdx) => {
-                        const subSectionKey = `${idx}-${subIdx}`
-                        const isSubExpanded = expandedSubSections.has(subSectionKey)
-
-                        return (
-                          <Box key={subIdx} sx={{ mt: 0.5 }}>
-                            <Box
-                              component="button"
-                              onClick={(e) => toggleSubSection(idx, subIdx, e)}
-                              sx={{
-                                width: "100%",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                                px: isMobile ? 3 : 5,
-                                py: isMobile ? 1.25 : 1,
-                                minHeight: isMobile ? 44 : "auto",
-                                bgcolor: "rgba(255, 255, 255, 0.03)",
-                                border: "none",
-                                cursor: "pointer",
-                                textAlign: "left",
-                                transition: "background-color 0.2s",
-                                "&:hover": {
-                                  bgcolor: "rgba(255, 255, 255, 0.08)",
-                                },
-                              }}
-                            >
-                              <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-                                <ChevronRightIcon
-                                  sx={{
-                                    fontSize: 16,
-                                    color: "text.secondary",
-                                    transition: "transform 0.2s",
-                                    transform: isSubExpanded ? "rotate(90deg)" : "rotate(0deg)",
-                                  }}
-                                />
-                                <Typography
-                                  variant="caption"
-                                  fontWeight={500}
-                                  textTransform="uppercase"
-                                  letterSpacing={0.5}
-                                  color="text.secondary"
-                                >
-                                  {subSection.name}
-                                </Typography>
-                              </Box>
-                              <Typography variant="caption" sx={{ color: "text.secondary", opacity: 0.7 }}>
-                                {subSection.sources.length}
-                              </Typography>
-                            </Box>
-
-                            <Collapse in={isSubExpanded}>
-                              <Box>
-                                {subSection.sources.map((source, sourceIdx) => {
-                                  const sourceKey = `${idx}-${subIdx}-${source.name}`
-                                  const isPinned = pinnedSources.has(sourceKey)
-
-                                  return (
-                                    <Box
-                                      key={sourceIdx}
-                                      sx={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        px: isMobile ? 4 : 6,
-                                        py: isMobile ? 1.25 : 1,
-                                        minHeight: isMobile ? 44 : "auto",
-                                        transition: "background-color 0.2s",
-                                        bgcolor: isPinned ? "rgba(255, 215, 0, 0.1)" : "transparent",
-                                        "&:hover": {
-                                          bgcolor: isPinned ? "rgba(255, 215, 0, 0.15)" : "rgba(255, 255, 255, 0.05)",
-                                        },
-                                      }}
-                                    >
-                                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                        <IconButton
-                                          size="small"
-                                          onClick={(e) => togglePin(sourceKey, e)}
-                                          sx={{
-                                            p: 0.5,
-                                            color: isPinned ? "#FFD700" : "text.secondary",
-                                            opacity: isPinned ? 1 : 0.3,
-                                            transition: "opacity 0.2s, color 0.2s",
-                                            "&:hover": {
-                                              opacity: 1,
-                                              bgcolor: "transparent",
-                                            },
-                                          }}
-                                        >
-                                          {isPinned ? (
-                                            <StarIcon sx={{ fontSize: 16 }} />
-                                          ) : (
-                                            <StarBorderIcon sx={{ fontSize: 16 }} />
-                                          )}
-                                        </IconButton>
-                                        <Typography variant="body2" color="text.primary" sx={{ opacity: 0.8 }}>
-                                          {source.name}
-                                        </Typography>
-                                      </Box>
-                                      <Typography variant="body2">{source.formatted ?? (skipNotation ? source.value : notateNumber(source.value, valueNotation))}</Typography>
-                                    </Box>
-                                  )
-                                })}
-                              </Box>
-                            </Collapse>
-                          </Box>
-                        )
-                      })}
-                    </Box>
-                  </Collapse>
-                </Box>
-              )
-            })}
+          <Box sx={{ flexGrow: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", py: 1 }}>
+            {renderNodes(views)}
           </Box>
         </Box>
       </SwipeableDrawer>
@@ -662,14 +303,128 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
   )
 }
 
+const indent = (depth: number, isMobile: boolean) => (isMobile ? 2 : 3) + depth * 2
+
+const GroupRow = ({ node, expanded, onToggle, isMobile, children }: {
+  node: ViewNode,
+  expanded: boolean,
+  onToggle: (event: React.MouseEvent) => void,
+  isMobile: boolean,
+  children: React.ReactNode
+}) => {
+  const topLevel = node.depth === 0
+  const isList = node.combine === "list"
+  return (
+    <Box sx={topLevel ? { borderBottom: "1px solid", borderColor: "divider", "&:last-child": { borderBottom: 0 } } : {}}>
+      <Box
+        component="button"
+        onClick={onToggle}
+        sx={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          pl: indent(node.depth, isMobile),
+          pr: isMobile ? 2 : 3,
+          py: topLevel ? (isMobile ? 1.75 : 1.5) : 1,
+          minHeight: isMobile ? 44 : "auto",
+          bgcolor: topLevel ? "transparent" : "rgba(255, 255, 255, 0.03)",
+          border: "none",
+          cursor: "pointer",
+          textAlign: "left",
+          color: "text.primary",
+          transition: "background-color 0.2s",
+          "&:hover": {
+            bgcolor: "rgba(255, 255, 255, 0.06)",
+          },
+        }}
+      >
+        <ChevronRightIcon
+          sx={{
+            fontSize: topLevel ? 20 : 16,
+            color: "text.secondary",
+            transition: "transform 0.2s",
+            transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
+          }}
+        />
+        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+          <Typography variant="body2" fontWeight={topLevel ? 600 : 500} sx={{ opacity: node.inactive ? 0.5 : 1 }}>
+            {node.name}
+          </Typography>
+          {expanded && node.note ? <Typography variant="caption" color="text.secondary">{node.note}</Typography> : null}
+        </Box>
+        <Typography variant={isList ? "caption" : "body2"} fontWeight={isList ? 400 : 600}
+                    color={isList ? "text.secondary" : "primary.light"} sx={{ whiteSpace: "nowrap" }}>
+          {node.display}
+        </Typography>
+      </Box>
+      <Collapse in={expanded}>
+        <Box sx={{ pb: topLevel ? 1 : 0 }}>{children}</Box>
+      </Collapse>
+    </Box>
+  )
+}
+
+const LineRow = ({ node, pinned, onPin, isMobile }: {
+  node: ViewNode,
+  pinned: boolean,
+  onPin: (event: React.MouseEvent) => void,
+  isMobile: boolean
+}) => (
+  <Box
+    sx={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: 1,
+      pl: indent(node.depth, isMobile),
+      pr: isMobile ? 2 : 3,
+      py: isMobile ? 1.25 : 0.75,
+      minHeight: isMobile ? 44 : "auto",
+      opacity: node.inactive ? 0.5 : 1,
+      transition: "background-color 0.2s",
+      bgcolor: pinned ? "rgba(255, 215, 0, 0.1)" : "transparent",
+      "&:hover": {
+        bgcolor: pinned ? "rgba(255, 215, 0, 0.15)" : "rgba(255, 255, 255, 0.05)",
+      },
+    }}
+  >
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1, minWidth: 0 }}>
+      <IconButton
+        size="small"
+        onClick={onPin}
+        sx={{
+          p: 0.5,
+          color: pinned ? "#FFD700" : "text.secondary",
+          opacity: pinned ? 1 : 0.3,
+          transition: "opacity 0.2s, color 0.2s",
+          "&:hover": {
+            opacity: 1,
+            bgcolor: "transparent",
+          },
+        }}
+      >
+        {pinned ? <StarIcon sx={{ fontSize: 16 }}/> : <StarBorderIcon sx={{ fontSize: 16 }}/>}
+      </IconButton>
+      <Box sx={{ minWidth: 0 }}>
+        <Typography variant="body2" color="text.primary" sx={{ opacity: 0.8 }}>
+          {node.name}
+        </Typography>
+        {node.note ? <Typography variant="caption" color="text.secondary">{node.note}</Typography> : null}
+      </Box>
+    </Box>
+    <Typography variant="body2" sx={{ whiteSpace: "nowrap" }}>{node.display}</Typography>
+  </Box>
+)
+
 const IconButtonWithTooltip = ({ children, tooltip, onClick }: { children: React.ReactNode, tooltip: string, onClick: () => void }) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   return (
-    <Tooltip title={tooltip} >
+    <Tooltip title={tooltip}>
       <IconButton size={isMobile ? "medium" : "small"} onClick={onClick} sx={{
         color: "text.secondary",
-        width: 32, 
+        width: 32,
         height: 32
       }}>
         {children}

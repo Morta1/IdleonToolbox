@@ -15,7 +15,11 @@ export const patchNotes = [
       'Leaderboards: search any player or Anon# id to see their ranks, and jump to any board with the / key',
       'Leaderboards: tied players now share a rank, and maxed boards show how many players hold the max',
       'Characters: click a skill to see its full EXP multiplier breakdown, split into multiplicative and additive bonuses, including every All skill EXP source',
-      'Characters: AFK Gains and Mining Efficiency now open a full breakdown, split into base, additive and multiplicative bonuses'
+      'Characters: AFK Gains now opens a full breakdown, split into base, additive and multiplicative bonuses',
+      'Breakdowns: redesigned drawer with nested groups that show their total, clear % and x values, and inactive bonuses hidden behind a toggle',
+      'Characters: click a skill to see its efficiency breakdown next to its EXP multi, for Mining, Choppin, Fishing, Catching, Trapping, Worship, Cooking, Laboratory and Spelunking',
+      'Spelunking: the efficiency card now opens a breakdown',
+      'Characters: removed the inaccurate warning on Sneaking EXP'
     ],
     'fixes': [
       'Leaderboards: salt rank boards no longer count salts that are not unlocked yet',
@@ -29,7 +33,8 @@ export const patchNotes = [
       'Summoning: upgrade bonuses now include Absolute Stardom, Allstar and stone trial multipliers, and upgrade costs now match the game (Essential Essence, Sell Sell Sell and Cost Laundering included, Upgrade Vault sushi discounts no longer applied)',
       'Sailing: Sushi Station now shows in the artifact find breakdown',
       'Skill EXP multipliers now match the game: they include the account-wide skill EXP bonus, and Farming (far too high), Cooking, Laboratory, Sneaking, Divinity and Construction EXP were corrected',
-      'Mining efficiency, skill efficiency, MSA farming/jade/essence bonuses and worship charge syphon now match the game'
+      'Mining efficiency, skill efficiency, MSA farming/jade/essence bonuses and worship charge syphon now match the game',
+      'Fixed Cooking efficiency using the wrong skill mastery bonus'
     ]
   },
   {

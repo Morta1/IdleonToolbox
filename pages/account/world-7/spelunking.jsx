@@ -5,6 +5,7 @@ import { getTabs } from '@utility/helpers';
 import { PAGES } from '@components/constants';
 import { getAmberIndex, getAmberDenominator } from '@parsers/world-7/spelunking';
 import { CardTitleAndValue } from '@components/common/styles';
+import { CardWithBreakdown } from '@components/account/Worlds/World5/Hole/commons';
 import { Stack, Typography } from '@mui/material';
 import { commaNotation, notateNumber, prefix } from '@utility/helpers';
 import Tabber from '@components/common/Tabber';
@@ -42,7 +43,8 @@ const Spelunking = () => {
     overstimStack,
     overstimQtyREQ2,
     manicModeActive,
-    spelunkingEfficiency
+    spelunkingEfficiency,
+    spelunkingEfficiencyBreakdown
   } = state?.account?.spelunking || {};
   const denominator = getAmberDenominator(state?.account);
   const amberFoundValue = currentAmber < 1e9 ? commaNotation(currentAmber / denominator) : notateNumber(currentAmber / denominator, "Big");
@@ -108,7 +110,8 @@ const Spelunking = () => {
       </CardTitleAndValue>
       <CardTitleAndValue title={'Discoveries'} value={`${discoveriesCount} / ${maxDiscoveries}`} />
       <CardTitleAndValue title={'Grand Discoveries'} value={`${totalGrandDiscoveries}`} />
-      <CardTitleAndValue title={'Spelunking Efficiency'} value={notateNumber(spelunkingEfficiency, "Big")} />
+      <CardWithBreakdown title={'Spelunking Efficiency'} value={notateNumber(spelunkingEfficiency, "Big")}
+                         breakdown={spelunkingEfficiencyBreakdown}/>
       <CardTitleAndValue title={'Overstim Stack'}>
         <Tooltip title={`Next stack at ${commaNotation(overstimQtyREQ2)}`}>
           <Typography>{notateNumber(overstimStack, "Big")}</Typography>

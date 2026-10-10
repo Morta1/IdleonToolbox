@@ -1,6 +1,6 @@
 import { atomsInfo, cookingMenu, monsters, randomList, randomList2, bonuses, spiceNames, gameTables } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
-import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
+import { getStampsBonusByEffect, getStampsBonusByStat } from '@parsers/world-1/stamps';
 import { getStatsFromGear } from '@parsers/items';
 import { growth, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
@@ -19,7 +19,8 @@ import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getTalentBonus, getVoidWalkerTalentEnhancements, getBestActiveCharacter, getHighestTalentAcrossCharacters, checkCharClass, CLASSES } from '@parsers/talents';
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
 import LavaRand from '@utility/lavaRand';
-import { allProwess, getAllBaseSkillEff, getAllEff } from '@parsers/efficiency';
+import { allProwess, getAllBaseSkillEffBreakdown, getAllEffBreakdown } from '@parsers/efficiency';
+import { additiveGroup, evaluateBreakdownNode, flat, percent, productGroup, sumGroup } from '@parsers/breakdown';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
@@ -124,39 +125,40 @@ export const applyMealsMulti = (meals: any, multiplier: any) => {
   return meals?.map((meal: any) => ({ ...meal, multiplier: 1 + multiplier / 100 }));
 }
 
-export const getLadlesPerDay = (character: any, jewels: any, stamps: any, meals: any, playerChips: any, cards: any, guildBonuses: any, charactersLevels: any, bubbles: any) => {
-  const cookingMonster = monsters.Cooking.Defence;
-  const cookingEff = getCookingEff(character, jewels, stamps, meals, playerChips, cards, guildBonuses, charactersLevels);
-  return 15 * Math.floor(Math.max(Math.pow(cookingEff / (10 * (cookingMonster)), .25 + getCookingProwess(character, meals, bubbles)), 1))
-}
 
-export const getCookingEff = (character: any, characters: any, account: any, playerInfo: any, _unused4?: any, _unused5?: any, _unused6?: any, _unused7?: any) => {
-  const allEfficiencies = getAllEff(character, characters, account);
-  const talentBonus = getTalentBonus(character?.flatTalents, 'APOCALYPSE_CHOW');
+// game: SkillStats("CookingEfficiency"): base efficiency * every multiplier
+export const getCookingEffParts = (character: any, characters: any, account: any, playerInfo: any) => {
+  const talents = character?.flatTalents;
   const chows = character?.chow?.finished?.[0] ?? 1;
-  const talentBonus2 = getTalentBonus(character?.flatTalents, 'BRUTE_EFFICIENCY');
-  const { value: equipBonus } = getStatsFromGear(character, 67, account);
-  const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[67]);
-  const talentBonus3 = getTalentBonus(character?.flatTalents, 'SKILL_STRENGTHEN');
-  const stampBonus = getStampsBonusByEffect(account, 'Cooking_Efficiency', character);
-  const { value: equipBonus2 } = getStatsFromGear(character, 62, account);
-  const obolsBonus2 = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[62]);
-  const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.cooking?.rank, 0);
-  const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Chefs_Essentials', 0);
-  const allBaseSkillEff = getAllBaseSkillEff(character, account, characters, playerInfo);
-
-  return allEfficiencies
-    * (1 + ((talentBonus * chows)
-      + (talentBonus2
-        + (equipBonus + obolsBonus))) / 100)
-    * (250 + (Math.pow(character?.stats?.strength, .6)
-      * (1 + talentBonus3 / 100)
-      + (stampBonus
-        + ((equipBonus2 + obolsBonus2)
-          + 10 * masteryBonus
-          + postOfficeBonus))
-      + allBaseSkillEff))
+  const { value: multiplierGear } = getStatsFromGear(character, 67, account);
+  const { value: baseGear } = getStatsFromGear(character, 62, account);
+  const tree = [
+    sumGroup('Base efficiency', [
+      flat('Base', 250, { note: 'Every character starts at 250' }),
+      flat('Strength', Math.pow(character?.stats?.strength, .6) * (1 + getTalentBonus(talents, 'SKILL_STRENGTHEN') / 100)),
+      flat('Stamp', getStampsBonusByStat(account, 'CookingEff', character)),
+      flat('Gear', baseGear),
+      flat('Obols', getObolsBonus(character?.obols, bonuses?.etcBonuses?.[62])),
+      // game: RiftStuff("RiftSkillBonus,9", 1) - the efficiency bonus, not the EXP one
+      flat('Skill mastery', 10 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.cooking?.rank, 1)),
+      flat('Post office', getPostOfficeBonus(character?.postOffice, 'Chefs_Essentials', 0)),
+      getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
+    ]),
+    productGroup('Multipliers', [
+      getAllEffBreakdown(character, characters, account),
+      additiveGroup('Talents and gear', [
+        percent('Apocalypse Chow talent', getTalentBonus(talents, 'APOCALYPSE_CHOW') * chows),
+        percent('Brute Efficiency talent', getTalentBonus(talents, 'BRUTE_EFFICIENCY')),
+        percent('Gear', multiplierGear),
+        percent('Obols', getObolsBonus(character?.obols, bonuses?.etcBonuses?.[67]))
+      ])
+    ])
+  ];
+  return { value: evaluateBreakdownNode(tree[0]) * evaluateBreakdownNode(tree[1]), tree };
 }
+
+export const getCookingEff = (character: any, characters: any, account: any, playerInfo: any) =>
+  getCookingEffParts(character, characters, account, playerInfo).value;
 
 export const getCookingProwess = (character: any, account: any, _unused2?: any) => {
   return allProwess(character, account);

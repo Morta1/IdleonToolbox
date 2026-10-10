@@ -1,13 +1,10 @@
-import { notateNumber } from '@utility/helpers';
 import { copyBlob } from '@utility/clipboard';
 import { useState } from 'react';
 import useFormatDate from '@hooks/useFormatDate';
 
-const useBreakdown = ({
-                        data,
-                        valueNotation = 'MultiplierInfo',
-                        skipNotation
-                      }) => {
+// Draws a breakdown as an image: { statName, totalValue, rows } where rows come from
+// breakdownView's flattenView (name, display, depth, children for groups).
+const useBreakdown = () => {
   const formatDate = useFormatDate();
   const [isExporting, setIsExporting] = useState(false);
 
@@ -24,10 +21,9 @@ const useBreakdown = ({
     })
   }
 
-  const generateImage = async () => {
+  const generateImage = async ({ statName, totalValue, rows }) => {
     setIsExporting(true);
 
-    // Create canvas
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (!ctx) {
@@ -35,174 +31,77 @@ const useBreakdown = ({
       throw new Error('Canvas 2d context unavailable');
     }
 
-    // Canvas dimensions - matching Material UI theme
+    // Matching the Material UI theme
     const width = 500;
     const padding = 40;
     const lineHeight = 24;
-    const sectionSpacing = 16;
-    const categorySpacing = 32;
-
-    // Calculate height needed
-    let estimatedHeight = 280; // Header + padding
-    data.categories.forEach(cat => {
-      estimatedHeight += 40; // Category header
-      if (cat.sources) estimatedHeight += cat.sources.length * lineHeight;
-      if (cat.subSections) {
-        cat.subSections.forEach(sub => {
-          estimatedHeight += 32 + (sub.sources.length * lineHeight);
-        });
-      }
-      estimatedHeight += categorySpacing;
-    });
+    const groupHeight = 32;
+    const indentStep = 16;
+    const headerHeight = 140;
+    const footerHeight = 50;
 
     canvas.width = width;
-    canvas.height = estimatedHeight;
+    canvas.height = headerHeight + 24
+      + rows.reduce((total, row) => total + (row.children ? groupHeight : lineHeight), 0)
+      + 24 + footerHeight;
 
-    // Background - matching MUI theme background.default (#141A21)
+    // Background - MUI background.default
     ctx.fillStyle = '#141A21';
     ctx.fillRect(0, 0, width, canvas.height);
-
-    // Border - subtle like MUI cards
     ctx.strokeStyle = '#2f3641';
     ctx.lineWidth = 1;
     ctx.strokeRect(0.5, 0.5, width - 1, canvas.height - 1);
 
-    let yPos = padding;
-
-    // Header section - matching MUI Card background (#1C252E)
+    // Header - MUI Card background
     ctx.fillStyle = '#1C252E';
-    ctx.fillRect(0, 0, width, 140);
-
-    // Header border bottom
-    ctx.strokeStyle = '#2f3641';
-    ctx.lineWidth = 1;
+    ctx.fillRect(0, 0, width, headerHeight);
     ctx.beginPath();
-    ctx.moveTo(0, 140);
-    ctx.lineTo(width, 140);
+    ctx.moveTo(0, headerHeight);
+    ctx.lineTo(width, headerHeight);
     ctx.stroke();
 
-    // Title - using default MUI text color
     ctx.fillStyle = '#ffffff';
     ctx.font = '600 28px system-ui, -apple-system, sans-serif';
-    ctx.fillText(data.statName, padding, yPos + 20);
+    ctx.fillText(statName, padding, padding + 20);
 
-    // Total value - using MUI multi color (#2087e8) - positioned below title
     ctx.font = '700 38px system-ui, -apple-system, sans-serif';
-    const totalText = data.totalValue;
     ctx.fillStyle = '#2087e8';
-    ctx.fillText(totalText, padding, yPos + 70);
+    ctx.fillText(String(totalValue), padding, padding + 70);
 
-    yPos += 120 + categorySpacing;
-
-    // Categories
-    data.categories.forEach((category, catIdx) => {
-      // Category header background - subtle like accordion
-      ctx.fillStyle = 'rgba(28, 37, 46, 0.3)';
-      ctx.fillRect(0, yPos - 24, width, 40);
-
-      // Category name - using multi color
-      ctx.fillStyle = '#2087e8';
-      ctx.font = '600 18px system-ui, -apple-system, sans-serif';
-      ctx.fillText(category.name, padding, yPos);
-
-      // Item count - muted text
-      const itemCount = (category.sources?.length || 0) +
-        (category.subSections?.reduce((sum, sub) => sum + sub.sources.length, 0) || 0);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-      ctx.font = '400 13px system-ui, -apple-system, sans-serif';
-      const countText = `${itemCount} sources`;
-      const countWidth = ctx.measureText(countText).width;
-      ctx.fillText(countText, width - padding - countWidth, yPos);
-
-      yPos += sectionSpacing;
-
-      // Divider line
-      ctx.strokeStyle = '#2f3641';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(padding, yPos);
-      ctx.lineTo(width - padding, yPos);
-      ctx.stroke();
-
-      yPos += sectionSpacing + 4;
-
-      // Category sources
-      if (category.sources) {
-        category.sources.forEach(source => {
-          // Source name
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.87)';
-          ctx.font = '400 15px system-ui, -apple-system, sans-serif';
-          ctx.fillText(`• ${source.name}`, padding + 16, yPos);
-
-          // Source value
-          const valueText = skipNotation ? source.value : notateNumber(source.value, valueNotation);
-          const valueWidth = ctx.measureText(valueText).width;
-          ctx.fillStyle = '#ffffff';
-          ctx.font = '500 15px system-ui, -apple-system, sans-serif';
-          ctx.fillText(valueText, width - padding - valueWidth, yPos);
-
-          yPos += lineHeight;
-        });
+    let yPos = headerHeight + 24 + 16;
+    rows.forEach((row) => {
+      const x = padding + row.depth * indentStep;
+      if (row.children) {
+        // Group header: name, then its combined value in the accent color
+        ctx.fillStyle = row.depth === 0 ? 'rgba(28, 37, 46, 0.6)' : 'rgba(28, 37, 46, 0.35)';
+        ctx.fillRect(x - 8, yPos - 20, width - x - padding + 16, groupHeight - 4);
+        ctx.fillStyle = row.depth === 0 ? '#2087e8' : '#94baee';
+        ctx.font = `600 ${row.depth === 0 ? 17 : 14}px system-ui, -apple-system, sans-serif`;
+        ctx.fillText(row.name, x, yPos);
+        ctx.font = '600 14px system-ui, -apple-system, sans-serif';
+        const valueWidth = ctx.measureText(row.display).width;
+        ctx.fillText(row.display, width - padding - valueWidth, yPos);
+        yPos += groupHeight;
+        return;
       }
-
-      // Subsections
-      if (category.subSections) {
-        category.subSections.forEach(subSection => {
-          // Subsection background - slightly elevated
-          ctx.fillStyle = 'rgba(28, 37, 46, 0.4)';
-          ctx.fillRect(padding + 12, yPos - 18, width - padding * 2 - 12, 30);
-
-          // Subsection name
-          ctx.fillStyle = '#94baee'; // multiLight color
-          ctx.font = '600 13px system-ui, -apple-system, sans-serif';
-          ctx.fillText(subSection.name.toUpperCase(), padding + 20, yPos);
-
-          // Subsection count
-          const subCountText = `${subSection.sources.length}`;
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-          ctx.font = '400 12px system-ui, -apple-system, sans-serif';
-          const subCountWidth = ctx.measureText(subCountText).width;
-          ctx.fillText(subCountText, width - padding - subCountWidth, yPos);
-
-          yPos += sectionSpacing + 8;
-
-          subSection.sources.forEach(source => {
-            // Nested source name
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.87)';
-            ctx.font = '400 15px system-ui, -apple-system, sans-serif';
-            ctx.fillText(`  • ${source.name}`, padding + 28, yPos);
-
-            // Nested source value
-            const valueText = skipNotation ? source.value : notateNumber(source.value, valueNotation);
-            const valueWidth = ctx.measureText(valueText).width;
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '500 15px system-ui, -apple-system, sans-serif';
-            ctx.fillText(valueText, width - padding - valueWidth, yPos);
-
-            yPos += lineHeight;
-          });
-
-          yPos += sectionSpacing / 2;
-        });
-      }
-
-      yPos += categorySpacing;
+      ctx.fillStyle = row.inactive ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.87)';
+      ctx.font = '400 15px system-ui, -apple-system, sans-serif';
+      ctx.fillText(`• ${row.name}`, x, yPos);
+      ctx.fillStyle = row.inactive ? 'rgba(255, 255, 255, 0.4)' : '#ffffff';
+      ctx.font = '500 15px system-ui, -apple-system, sans-serif';
+      const valueWidth = ctx.measureText(row.display).width;
+      ctx.fillText(row.display, width - padding - valueWidth, yPos);
+      yPos += lineHeight;
     });
 
-    // Footer section
-    const footerHeight = 50;
+    // Footer
     ctx.fillStyle = '#1C252E';
     ctx.fillRect(0, canvas.height - footerHeight, width, footerHeight);
-
-    // Footer border top
     ctx.strokeStyle = '#2f3641';
-    ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, canvas.height - footerHeight);
     ctx.lineTo(width, canvas.height - footerHeight);
     ctx.stroke();
-
-    // Footer text
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
     ctx.font = '400 12px system-ui, -apple-system, sans-serif';
     const footerText = formatDate(new Date(), { showSeconds: false });
@@ -210,24 +109,21 @@ const useBreakdown = ({
     ctx.fillText(footerText, (width - footerWidth) / 2, canvas.height - footerHeight / 2 + 4);
 
     try {
-      const blob = await canvasToBlob(canvas)
-
-      return blob
+      return await canvasToBlob(canvas)
     } finally {
       setIsExporting(false)
     }
   };
 
-  const copyImageToClipboard = async () => {
+  const copyImageToClipboard = async (image) => {
     try {
-      const blob = await generateImage();
+      const blob = await generateImage(image);
       return await copyBlob(blob);
     } catch (err) {
       console.error(err);
       return false;
     }
   }
-
 
   return {
     copyImageToClipboard,

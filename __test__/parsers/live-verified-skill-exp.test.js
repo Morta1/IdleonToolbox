@@ -5,6 +5,7 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 import { getAllSkillsExp, getSkillExpMulti } from '@parsers/character';
 import { getMaxDamage } from '@parsers/damage';
 import { getAllBaseSkillEff } from '@parsers/efficiency';
+import { evaluateBreakdownNode } from '@parsers/breakdown';
 
 // ExpMulti(skill) read from the running game on 10 Oct 2026 for IAmTheHunterrr, the active
 // character, through the debug server; latest.json is the same account's save from that day.
@@ -38,27 +39,20 @@ describe('skill EXP verified against the live game', () => {
     expect(getSkillExpMulti(skill, hunter, characters, account, playerInfo).value / value).toBeCloseTo(1, 9);
   });
 
-  // The drawer must add up: multiplicative factors multiply, additive groups are (1 + sum), the base
-  // category's last line is the term the rest scales, and cooking/smithing add a group after.
+  // The drawer must add up: the top-level groups combine as each breakdown's formula says.
   it.each(Object.keys(GAME_SKILL_EXP))('%s breakdown reproduces the value', (skill) => {
     const { value, breakdown } = getSkillExpMulti(skill, hunter, characters, account, playerInfo);
-    const sum = ({ sources = [], subSections = [] }) => [...sources, ...subSections.flatMap((sub) => sub.sources)]
-      .reduce((total, source) => total + source.value, 0);
-    const product = ({ sources = [], subSections = [] }) => [...sources, ...subSections.flatMap((sub) => sub.sources)]
-      .reduce((total, source) => total * source.value, 1);
-    let total = 1;
-    let added = 0;
-    for (const category of breakdown.categories) {
-      if (category.name === 'Base') total *= category.sources.at(-1).value;
-      else if (category.name.startsWith('Additive')) total *= 1 + sum(category);
-      else if (category.name.startsWith('Added')) added += sum(category);
-      else total *= product(category);
-    }
-    const rebuilt = skill === 'cooking'
-      ? product(breakdown.categories.find(({ name }) => name === 'Multiplicative'))
-      * (breakdown.categories[0].sources.at(-1).value + added)
-      : total + added;
-    expect(rebuilt / value).toBeCloseTo(1, 9);
+    const top = (name) => evaluateBreakdownNode(breakdown.tree.find((node) => node.name === name));
+    const term = (name) => breakdown.tree.find((node) => node.name === 'Efficiency').children
+      .find((line) => line.name === name).value;
+    const productOfAll = () => breakdown.tree.filter((node) => node.combine !== 'list')
+      .reduce((total, node) => total * evaluateBreakdownNode(node), 1);
+    const rebuild = {
+      smithing: () => top('Additive') * top('Multipliers') + top('Added after') / 100,
+      cooking: () => top('Multipliers') * (term('Efficiency term (max 1)') + top('Added to the efficiency term') / 100),
+      laboratory: () => term('Efficiency term') * productOfAll()
+    }[skill] ?? productOfAll;
+    expect(rebuild() / value).toBeCloseTo(1, 9);
   });
 
   it('all skill EXP and all base skill efficiency', () => {

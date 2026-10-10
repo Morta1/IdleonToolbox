@@ -21,7 +21,6 @@ import CoinDisplay from '../common/CoinDisplay';
 import ProgressBar from '@components/common/ProgressBar';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { getPlayerCrystalChance } from '@parsers/character';
-import { getMiningEffBreakdown } from '@parsers/efficiency';
 import GameIconNotation from '@components/common/GameIconNotation';
 
 const colors = {
@@ -108,8 +107,6 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
             <Stat title={'Critical Damage'} value={`${notateNumber(playerInfo?.critDamage, 'MultiplierInfo')}x`}/>
             <Stat title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>
             <Stat title={'Movement Speed'} value={notateNumber(playerInfo?.movementSpeed)}/>
-            <NewStat title={'Mining Efficiency'} value={notateNumber(playerInfo?.miningEff)}
-                     breakdown={getMiningEffBreakdown(character, characters, account, playerInfo)}/>
             <Stat title={'Damage'} damage value={notateDamage(playerInfo)}
                   breakdownData={playerInfo?.damageBreakdown} breakdownNotation={'ThreeDecimals'}/>
 <NewStat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}

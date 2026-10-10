@@ -9,7 +9,8 @@ import { checkCharClass, CLASSES, getTalentBonus, getBestActiveCharacter, getHig
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { calculateItemTotalAmount, getStatsFromGear } from '@parsers/items';
-import { getAllBaseSkillEff, getAllEff } from '@parsers/efficiency';
+import { getAllBaseSkillEffBreakdown, getAllEffBreakdown } from '@parsers/efficiency';
+import { additiveGroup, evaluateBreakdownNode, flat, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
 
@@ -384,27 +385,32 @@ export const getRequirementAmount = (name: any, rawName: any, account: any) => {
 }
 
 // game: SkillStats("LaboratoryEfficiency")
-export const getLabEfficiency = (character: any, characters: any, account: any, playerInfo: any) => {
-  const allEfficiencies = getAllEff(character, characters, account);
-  const talentBonus = getTalentBonus(character?.flatTalents, 'SKILL_WIZ');
-  const talentBonus2 = getTalentBonus(character?.flatTalents, 'UPLOAD_SQUARED');
-  const talentBonus3 = getTalentBonus(character?.flatTalents, 'SMART_EFFICIENCY');
-  const { value: equipBonus } = getStatsFromGear(character, 63, account);
-  const { value: equipBonus2 } = getStatsFromGear(character, 66, account);
-  // game: RiftStuff("RiftSkillBonus,11", 1) - the lab's second mastery bonus
-  const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.laboratory?.rank, 1);
-  const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Science_Spare_Parts', 0);
-  const allBaseSkillEff = getAllBaseSkillEff(character, account, characters, playerInfo);
-
-  return allEfficiencies
-    * (200 + (Math.pow(character?.stats?.wisdom, 0.6)
-      * (1 + talentBonus / 100)
-      + (equipBonus
-        + (allBaseSkillEff
-          + postOfficeBonus))))
-    * (1 + (talentBonus2
-      + (equipBonus2
-        + 10 * masteryBonus)) / 100)
-    * (1 + talentBonus3 / 100)
-
+// game: SkillStats("LaboratoryEfficiency"): base efficiency * every multiplier
+export const getLabEfficiencyParts = (character: any, characters: any, account: any, playerInfo: any) => {
+  const talents = character?.flatTalents;
+  const { value: baseGear } = getStatsFromGear(character, 63, account);
+  const { value: multiplierGear } = getStatsFromGear(character, 66, account);
+  const tree = [
+    sumGroup('Base efficiency', [
+      flat('Base', 200, { note: 'Every character starts at 200' }),
+      flat('Wisdom', Math.pow(character?.stats?.wisdom, 0.6) * (1 + getTalentBonus(talents, 'SKILL_WIZ') / 100)),
+      flat('Gear', baseGear),
+      flat('Post office', getPostOfficeBonus(character?.postOffice, 'Science_Spare_Parts', 0)),
+      getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
+    ]),
+    productGroup('Multipliers', [
+      getAllEffBreakdown(character, characters, account),
+      additiveGroup('Talent, gear and mastery', [
+        percent('Upload Squared talent', getTalentBonus(talents, 'UPLOAD_SQUARED')),
+        percent('Gear', multiplierGear),
+        // game: RiftStuff("RiftSkillBonus,11", 1) - the lab's second mastery bonus
+        percent('Skill mastery', 10 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.laboratory?.rank, 1))
+      ]),
+      multiplier('Smart Efficiency talent', 1 + getTalentBonus(talents, 'SMART_EFFICIENCY') / 100)
+    ])
+  ];
+  return { value: evaluateBreakdownNode(tree[0]) * evaluateBreakdownNode(tree[1]), tree };
 }
+
+export const getLabEfficiency = (character: any, characters: any, account: any, playerInfo: any) =>
+  getLabEfficiencyParts(character, characters, account, playerInfo).value;
