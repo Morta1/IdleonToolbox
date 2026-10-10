@@ -1,6 +1,6 @@
 import { numberWithCommas } from '@utility/helpers';
 
-export const TABS = ['Overview', 'General', 'Tasks', 'Skills', 'Character', 'Misc', 'Caverns'];
+export const TABS = ['Overview', 'General', 'Tasks', 'Skills', 'Character', 'Misc', 'Masterclass', 'Caverns'];
 export const GLOBAL_METRIC = 'globalRanking';
 export const AGGREGATION_INTERVAL = 30 * 60 * 1000;
 

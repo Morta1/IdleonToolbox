@@ -1,6 +1,6 @@
 import '../../../polyfills';
 import { describe, expect, it, vi } from 'vitest';
-import { AGGREGATION_INTERVAL, buildMetaIndex, formatDistinctValues, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
+import { AGGREGATION_INTERVAL, buildMetaIndex, formatDistinctValues, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun, TABS, untilNextRun } from '@components/leaderboards/format';
 
 const meta = {
   createdAt: 100,
@@ -210,5 +210,19 @@ describe('round 4 value rules', () => {
   it('separates small multipliers with more decimals and keeps a column aligned', () => {
     expect(formatDistinctValues('multiplier', [8.6708, 8.6656, 8.8313], { scale: 3.01e9 })).toEqual(['8.671', '8.666', '8.831']);
     expect(formatDistinctValues('default', [8488, 8487.6, 8475.8], { scale: 11_666 })).toEqual(['8,488.00', '8,487.60', '8,475.80']);
+  });
+});
+
+describe('masterclass tab', () => {
+  it('sits after Misc', () => {
+    expect(TABS).toEqual(['Overview', 'General', 'Tasks', 'Skills', 'Character', 'Misc', 'Masterclass', 'Caverns']);
+  });
+
+  it('resolves a moved board to its new category, so an old jump link still opens it', () => {
+    const index = buildMetaIndex({ createdAt: 1, totalPlayers: 1, categories: [
+      { category: 'masterclass', metrics: [{ key: 'totalRoyalStatueLevels', label: 'Total Royal Statue Levels', section: 'Royal Guardian', notation: 'default' }] }
+    ] });
+    expect(index.byKey.totalRoyalStatueLevels.category).toBe('masterclass');
+    expect(TABS.find((tab) => tab.toLowerCase() === index.byKey.totalRoyalStatueLevels.category)).toBe('Masterclass');
   });
 });
