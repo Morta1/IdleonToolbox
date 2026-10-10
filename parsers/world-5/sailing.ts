@@ -619,6 +619,7 @@ const getCaptainExpReq = (captain: any, account?: any) => {
   return math * moreMath * Math.pow(1.5, Math.max(captain?.level - 10, 0));
 }
 
+// game: "CaptainEXPgain"
 export const getCaptainExpGain = (account: any) => {
   return 1 * (1 + getSushiBonus(account, 45) / 100);
 }

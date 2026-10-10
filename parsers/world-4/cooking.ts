@@ -65,6 +65,7 @@ const parseCooking = (mealsRaw: any, territoryRaw: any, cookingRaw: any, account
 }
 
 // Cooking Mastery "yellow" node multiplier for a single meal: BonusMultiCook(mealIndex).
+// game: "BonusMultiCook"
 export const getMealNodeMulti = (nodeLevel: number) => 1 + nodeLevel / (nodeLevel + 5);
 
 const getSpices = (mealsRaw: any, territoryRaw: any, account: any) => {
@@ -468,6 +469,7 @@ export const getCookingMastery = (cookMasterRaw: any, mealsRaw: any, account: an
 };
 
 // BonusAmountcook(3): the SMOKY category's % bonus for a category multiplier of baseMulti * points.
+// game: "BonusAmountcook"
 export const getSmokyRibbonBonus = (multiplier: number) => multiplier > 0 ? (multiplier / (25 + multiplier)) * 250 : 0;
 
 export interface DailyRibbonSmoky {

@@ -214,6 +214,7 @@ export const getAdviceFishBonus = (account: any, upgradeIndex: any) => {
   return account?.adviceFish?.upgrades?.[upgradeIndex]?.bonus ?? 0;
 }
 
+// game: "GuaranteedCrystalMobs"
 export const getGuaranteedCrystalMobs = (account: any) => {
   const meritocracyBonus = getMeritocracyBonus(account, 15);
   const legendPTSBonus = getLegendTalentBonus(account, 37);
@@ -230,7 +231,7 @@ export const getGuaranteedCrystalMobs = (account: any) => {
 export const hasMasterclassDailyDiscount = (account: any): boolean =>
   account?.accountOptions?.[480] < getLegendTalentBonus(account, 23);
 
-// Game: "AllMasterclassCostReduxPrefix" - the pre-2.3.525 whole formula, now just the first factor.
+// game: "AllMasterclassCostReduxPrefix" - the pre-2.3.525 whole formula, now just the first factor.
 const getAllMasterclassCostReduxPrefix = (account: any, forceLegendTalent: any) => {
   const hasBonusBundle = isBundlePurchased(account?.bundles, 'bon_p');
   const hasLegendTalent = forceLegendTalent === undefined
@@ -244,6 +245,7 @@ const getAllMasterclassCostReduxPrefix = (account: any, forceLegendTalent: any) 
 // Game: "AllMasterclassCostRedux" - applied alone by the Royal Armory (ArmoryUpgCost never touches
 // First3MC_CostRedux below). The orblet BARGAIN upgrade (index 7) is new in 2.3.525 and discounts
 // every masterclass, armory included, so it belongs here rather than in the "first 3" factor.
+// game: "AllMasterclassCostRedux"
 export const getAllMasterclassCostRedux = (account: any, forceLegendTalent: any) => {
   const orbletBargain = getOrbletMarketBonus(account, 7);
   return getAllMasterclassCostReduxPrefix(account, forceLegendTalent) * (1 / (1 + orbletBargain / 100));
@@ -253,6 +255,7 @@ export const getAllMasterclassCostRedux = (account: any, forceLegendTalent: any)
 // Outpost ROG-bonus stat index (0-3) - the game multiplies it straight into ArmoryUpgBonus(79)
 // ("Compounding Outposting"), which reads like a copy-paste of the stat selector used elsewhere,
 // but it is the live formula.
+// game: "First3MC_CostRedux"
 const getFirst3MasterclassCostRedux = (account: any) => {
   const selectedRogIndex = account?.royalGuardian?.raw?.[3]?.[2] ?? 0;
   const armoryBonus79 = getArmoryUpgradeBonus(account, 79);
@@ -336,6 +339,7 @@ const calcTimeToXBooks = (bookCount: any, maxCount: any, account: any, character
 }
 
 //  "BookReqTime"
+// game: "BookReqTime"
 export const getTimeToNextBooks = (bookCount: any, account: any, characters: any, idleonData: any) => {
   const towersLevels = tryToParse(idleonData?.Tower) || idleonData?.Tower;
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Lib');
@@ -1677,8 +1681,7 @@ export const getKillroyBonus = (account: any, index: any) => {
   return account?.killroy?.permanentUpgrades?.[index]?.bonus;
 }
 
-// Game: Summoning("AllMasterclassDropz", 0, 0)
-// Shared multiplier applied to AC Tachyons, WW Dust and DB Bones.
+// game: "AllMasterclassDropz" - shared multiplier applied to AC Tachyons, WW Dust and DB Bones.
 export const getAllMasterclassDropz = (character: any, account: any) => {
   const killroy = getKillroyBonus(account, 4) ?? 0;
   const spelunkShop = getSpelunkingBonus(account, 49) ?? 0; // Turquoise Hardhat

@@ -60,6 +60,7 @@ export const parseShrines = (shrinesRaw: any, towersRaw: any, account: any) => {
   });
 }
 
+// game: "ShrineExpBonus"
 export const getShrineExpBonus = (characters: any, account: any) => {
   const total = new Array(9).fill(0);
   let breakdown: any = {};

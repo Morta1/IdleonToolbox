@@ -484,6 +484,7 @@ export const getDiscoveryHp = (discovery: any) => {
   }
 }
 
+// game: "OverstimBonus"
 export const getOverstimBonus = (account: any) => {
   const shopUpg6 = getSpelunkingBonus(account, 6);
   const overstimPerLevel = 30 + shopUpg6;
@@ -535,6 +536,7 @@ export const getLoreBonuses = (account: any) => {
   return loreValues;
 }
 
+// game: "AmberGain"
 export const getAmberGain = (account: any, loreBonuses: any) => {
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Spelunking_Amber')?.bonus;
   const cropBonus = account?.farming?.cropDepot?.spelunky?.value ?? 0;
@@ -650,6 +652,7 @@ export const getAmberGain = (account: any, loreBonuses: any) => {
   };
 }
 
+// game: "AmberDenominator"
 export const getAmberDenominator = (account: any) => {
   const upgrade66 = getSpelunkingBonus(account, 66);
   const upgrade51 = getSpelunkingBonus(account, 51);
@@ -672,12 +675,13 @@ export const getAmberDenominator = (account: any) => {
   }
 }
 
+// game: "AmberIndex"
 export const getAmberIndex = (account: any) => {
   const denominator = getAmberDenominator(account);
   return denominator === 1e36 ? 4 : denominator === 1e21 ? 3 : denominator === 1e9 ? 2 : denominator === 1e3 ? 1 : 0;
 }
 
-// game: AmberDropChance / AmberDropChance2nd. AmberDropChance2nd omits ElixirEffectQTY(6,0) *
+// game: "AmberDropChance" / "AmberDropChance2nd". AmberDropChance2nd omits ElixirEffectQTY(6,0) *
 // GenINFO[107][6] - live per-character actor state absent from the save, the same limitation
 // already accepted by getPrismaDropChance/getExaltedDropChance above.
 //
@@ -691,6 +695,7 @@ export const getAmberDropChance = (account: any) => {
   return Math.min(0.8, (1 / (1 + 9 * shopUpg67)) * ((shopUpg7 + shopUpg52) / 100));
 }
 
+// game: "AmberDropChance2nd"
 export const getAmberDropChance2nd = (account: any) => {
   const shopUpg67 = getSpelunkingBonus(account, 67);
   const shopUpg42 = getSpelunkingBonus(account, 42);
@@ -989,6 +994,7 @@ export const groupUpgradesByColumn = (upgrades: any) => {
   return columns;
 }
 
+// game: "StaminaRegenRate"
 export const getStaminaRegenRate = (account: any) => {
   const baseRate = 5;
   const meritocracyBonus = getMeritocracyBonus(account, 17);

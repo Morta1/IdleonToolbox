@@ -1468,7 +1468,7 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
   }
 }
 
-// "AllSkillxpz" == e
+// game: "AllSkillxpz"
 export const getAllSkillsExp = (character: any, characters: any[], account: any) => {
   const starSignBonus = getStarSignBonus(character, account, 'Skill_EXP_gain');
   const cEfauntCardBonus = getEquippedCardBonus(character?.cards, 'Z7' as any);

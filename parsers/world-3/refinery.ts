@@ -73,6 +73,7 @@ const parseRefinery = (refineryRaw: any[], storage: any[], tasks: any) => {
   }
 }
 
+// game: "PowerCAP"
 export const getPowerCap = (rank: number) => {
   const powerCap = randomList[18];
   return parseFloat(String(Math.max(Number(powerCap?.[Math.min(rank, powerCap?.length - 2)]), 25)))
@@ -80,6 +81,7 @@ export const getPowerCap = (rank: number) => {
 
 const MAX_POWER_PER_CYCLE = 25e4;
 
+// game: "PowerPerCycle"
 export const getPowerPerCycle = (rank: number, account: Account | null = null) => {
   const companionBonus = isCompanionBonusActive(account, 35) ? account?.companions?.list?.at(35)?.bonus : 0;
   return Math.floor(Math.min(MAX_POWER_PER_CYCLE, Math.pow(rank, 1.3) * (1 + (companionBonus ?? 0))));
@@ -260,6 +262,7 @@ export const calcCost = (refinery: any, rank: number, quantity: number, item: st
 
 // The game ceils cycle times (CycleInitialTime), and at high refinery speed that rounding is a
 // meaningful slice of the cycle - round the same way so output and cost land on the game's rates.
+// game: "CycleInitialTime"
 const getSaltCycleTime = (index: number, cycleTimes: any) => Math.ceil(index <= 2
   ? cycleTimes?.combustionTime
   : index <= 5 ? cycleTimes?.synthesisTime : cycleTimes?.polymerizeTime);

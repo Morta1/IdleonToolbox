@@ -95,7 +95,7 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
       x: playersCords?.[character?.playerId]?.x,
       y: playersCords?.[character?.playerId]?.y
     }));
-  // Game: Labb("BonusLineWidth") - a player AFK in the lab is souped by its rank among the lab-AFK
+  // game: "BonusLineWidth" - a player AFK in the lab is souped by its rank among the lab-AFK
   // players, everyone else by its raw player index.
   const soupedTubePlayerIds = charactersData?.reduce((res: any[], character: any) => {
     const playerId = character?.playerId;

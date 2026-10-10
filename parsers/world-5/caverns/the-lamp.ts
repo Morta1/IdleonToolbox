@@ -47,7 +47,7 @@ const getFutureWishCosts = (curLevel: any, maxLevel: any, index: any) => {
   return costs ?? 0;
 }
 
-// 'LampWishCost'
+// game: "LampWishCost"
 const getWishCost = (wishLevel: any, t: any) => {
   return 0 === t
     ? 11 > (wishLevel)
@@ -62,7 +62,7 @@ const getWishCost = (wishLevel: any, t: any) => {
         + (lampWishes[t]?.x1))
 }
 
-// 'LampBonuses'
+// game: "LampBonuses"
 export const getLampBonus = ({ holesObject, t, i, account }: any) => {
   const zenithBonus = 1 + getZenithBonus(account, 2) / 100;
   const raw = '25,10,8;15,40,10;20,35,12;5,1,1;2,2,2';

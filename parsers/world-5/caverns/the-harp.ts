@@ -114,6 +114,7 @@ const getHarpStringBonus = (holesObject: any, t: any) => {
   return Number(holesInfo[47][t]) * (holesObject?.harpRelated?.[Math.round(2 * t)]);
 }
 
+// game: "StringSlots"
 export const getStringSlots = (holesObject: any) => {
   return Math.min(15, Math.round(1 + getCosmoBonus({ majik: holesObject?.holeMajiks, t: 0, i: 1 })
     + (getSchematicBonus({ holesObject, t: 32, i: 1 })

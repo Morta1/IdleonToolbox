@@ -1504,7 +1504,7 @@ const getKillPerKill = (character: Character, characters: Character[], account: 
   return { value, breakdown };
 }
 
-// MultiKill_base: everything that is not multiplied by the overkill tier count.
+// game: "MultiKill_base" - everything that is not multiplied by the overkill tier count.
 export const getMultiKillBase = (character: Character, characters: Character[], account: Account) => {
   const starSignBonus = getStarSignBonus(character, account, 'Total_Multikill');
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 8);
@@ -1540,6 +1540,7 @@ const getVoidRadiusMultiKill = (character: Character) => {
   return speedrunning ? getTalentBonusIfActive(character?.activeBuffs, 'VOID_RADIUS', 'y') : 0;
 }
 
+// game: "MultiKill_perTier"
 export const getMultiKillPerTier = (character: Character, characters: Character[], account: Account, deathNoteIndex?: number) => {
   const noteIndex = deathNoteIndex ?? Math.floor(character?.mapIndex / 50);
   const deathNoteRank = account?.deathNote?.[noteIndex]?.rank || 0;

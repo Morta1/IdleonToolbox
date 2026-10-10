@@ -144,6 +144,7 @@ const parseCoralReef = (rawSpelunking: any, account: any, coralReefLevels: any, 
   };
 }
 
+// game: "CoralKidUpgCost"
 export const getCoralKidUpgCost = (index: any, level: any) => {
   if (index === 1) {
     return 1e7 * Math.pow(6, index) * Math.pow(1.25, level);
@@ -151,6 +152,7 @@ export const getCoralKidUpgCost = (index: any, level: any) => {
   return 1e7 * Math.pow(6, index) * Math.pow(1.1, level);
 }
 
+// game: "CoralKidUpgBonus"
 export const getCoralKidUpgBonus = (account: any, index: any) => {
   const accountOptions = account?.accountOptions || {};
   const levelValue = accountOptions?.[427 + index] || 0;
@@ -173,13 +175,14 @@ export const getCoralKidUpgBonus = (account: any, index: any) => {
   }
 }
 
+// game: "DancingCoralCOST"
 export const getDancingCoralCost = (rawSpelunking: any, index: any) => {
   const baseCost = Number(generalSpelunky?.[22]?.[index]) || 0;
   const overstimLevel = rawSpelunking?.[4]?.[7] ?? 0;
   return baseCost / (1 + (10 * overstimLevel + Math.pow(1.05, overstimLevel)) / 100);
 }
 
-// DancingCoralBonus from Thingies.js line 68-71
+// game: "DancingCoralBonus"
 export const getDancingCoralBonus = (account: any, index: any, secondIndex = 0): any => {
   if (secondIndex === 999) {
     return generalSpelunky?.[24]?.[index] || 0;
@@ -191,7 +194,7 @@ export const getDancingCoralBonus = (account: any, index: any, secondIndex = 0):
   return baseBonus * Math.max(0, coralLevel - 200);
 }
 
-// ReefCost from Thingies.js line 116-117
+// game: "ReefCost"
 export const getReefCost = (account: any, index: any, level: any) => {
   const reefData = coralReef?.[index];
   if (!reefData) return 0;
@@ -202,7 +205,7 @@ export const getReefCost = (account: any, index: any, level: any) => {
   return baseCost * Math.pow(exponent, level);
 }
 
-// ReefDayGains from Thingies.js line 118-130
+// game: "ReefDayGains"
 export const getReefDayGains = (account: any) => {
   const companionBonusValue = isCompanionBonusActive(account, 40) ? account?.companions?.list?.at(40)?.bonus : 0;
   const eventShopBonus = getEventShopBonus(account, 25) || 0;
@@ -275,7 +278,7 @@ export const getReefDayGains = (account: any) => {
   return { value, breakdown }
 }
 
-// GrindTimeDaily from Thingies.js line 131-133
+// game: "GrindTimeDaily"
 export const getGrindTimeDaily = (account: any, coralReefLevels: any) => {
   return Math.floor((10 * (coralReefLevels?.[0] ?? 0)
     + 15 * getClamWorkBonus(account, 6)

@@ -1539,9 +1539,6 @@ const getRoyalStatueOdds = (index: number, level: number): number => {
   return 1 / (10 * Math.ceil(((25 + 15 * Math.pow(index, 2)) * Math.max(1, 1 + (level - 1) / 4)) / 10));
 };
 
-// game: "ArmoryUpgCost" - indexed by display slot; only the level and the two per-upgrade cost
-// factors come from the upgrade id behind that slot. Exported so the Upgrade Optimizer (task C2)
-// can re-price a slot at a hypothetical level without duplicating this formula.
 // How many of an outpost's slot Workers could be swapped for a Trader while every node it is wired
 // to still empties inside `horizonHours`. Workers are the only unit in the collection rate (game:
 // "OutpostResourceRate" multiplies by UnitSpecEffect(0) * TotalUnitsz(map, 0)), so dropping k of
@@ -1602,6 +1599,9 @@ export const getIdleGuards = (outpost: Outpost, guardBonus: number): { spare: nu
   return { spare, parked: mostRemovable(links.filter(({ live }) => live)) - spare };
 };
 
+// game: "ArmoryUpgCost" - indexed by display slot; only the level and the two per-upgrade cost
+// factors come from the upgrade id behind that slot. Exported so the Upgrade Optimizer (task C2)
+// can re-price a slot at a hypothetical level without duplicating this formula.
 export const getArmoryUpgradeCost = (
   slot: number,
   slotToId: number[],
@@ -1639,6 +1639,7 @@ export const getArmoryUpgradeBonus = (account: Account, index: number): number =
 export const getRoyalStatueBonus = (account: Account, index: number): number =>
   (account as any)?.royalGuardian?.royalStatues?.[index]?.bonus ?? 0;
 
+// game: "OrbletMarketBonus"
 export const getOrbletMarketBonus = (account: Account, index: number): number =>
   byIndex((account as any)?.royalGuardian?.orbletMarket, index)?.bonus ?? 0;
 

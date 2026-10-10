@@ -288,6 +288,7 @@ export const getMinCoralKidLevel = ({ targetBonus, multiplier, x1 = 0.5, prismaM
 
 // Holes("PocketDivOwned", i, 0). The two pocket divinity spots live in Holes[11][29] and [11][30]
 // and hold god slots, not god indices. How many of them count is Holes("CosmoBonusQTY", 2, 0).
+// game: "PocketDivOwned"
 const isPocketDivinityOwned = (account: any, godIndex: number) => {
   const holesObject = account?.hole?.holesObject;
   const cosmoUpgrade = Number((cosmoUpgrades as any)?.[2]?.[0]?.x0) || 0;
@@ -299,6 +300,7 @@ const isPocketDivinityOwned = (account: any, godIndex: number) => {
 
 // Divinity("W7divChosen", 0, 0). OptionsListAccount[425] is a 1-based god slot, 0 meaning nobody
 // has been chosen yet.
+// game: "W7divChosen"
 export const getW7ChosenGodIndex = (account: any) => {
   const chosen = Number(account?.accountOptions?.[425]) || 0;
   if (chosen <= 0) return -1;
@@ -310,6 +312,7 @@ export const getW7ChosenGodIndex = (account: any) => {
 // save stores is a god slot, so each comparison goes through gods[slot].godIndex.
 // God indices 6 (Purrmep) and 8 (Kattlekruk) short circuit on their own unlock flags in the game;
 // nothing reads those through here yet, so they are not modelled.
+// game: "Bonus_MAJOR"
 export const isMajorDivinityActive = (character: any, account: any, godIndex: number) => {
   if (isCompanionBonusActive(account, 0)) return true;
   if (isPocketDivinityOwned(account, godIndex)) return true;

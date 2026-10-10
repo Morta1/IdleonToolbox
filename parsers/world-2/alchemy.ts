@@ -333,6 +333,7 @@ export const getActiveBubbleBonus = (equippedBubbles: any, bubbleName: any, acco
   return prismaMultiplier * (growth(bubble?.func, bubble?.level, bubble?.x1, bubble?.x2, false) ?? 0);
 };
 
+// game: "BubbleBonus"
 export const getBubbleBonus = (account: any, bubbleName: any, shouldRound?: any, shouldMultiply?: any) => {
   const targetBubble = account?.alchemy?.bubblesFlat?.find(
     ({ bubbleName: name }: any) => name === bubbleName
@@ -524,12 +525,14 @@ const getCauldrons = (cauldronsProgress: any, cauldronsRaw: any, p2w: any, alche
 
 
 // The game counts only the unbroken run of unlocked bubbles from the first one (NumBubblesUnlocked).
+// game: "NumBubblesUnlocked"
 const getUnlockedBubbleCount = (bubbleLevels: any[] = []) => {
   const firstLocked = bubbleLevels.findIndex((level) => !Number(level));
   return firstLocked === -1 ? bubbleLevels.length : firstLocked;
 }
 
 // Brew needed per new bubble attempt (MaxCauldronQTY)
+// game: "MaxCauldronQTY"
 export const getMaxCauldron = (unlockedBubbles: number) => {
   if (unlockedBubbles < 5) return [0.01, 0.15, 0.75, 5, 20][unlockedBubbles];
   const offset = unlockedBubbles - 3;
@@ -537,6 +540,7 @@ export const getMaxCauldron = (unlockedBubbles: number) => {
 }
 
 // PctChanceNewBubble before the per-cauldron multipliers, in percent
+// game: "PctChanceNewBubble"
 export const getBaseNewBubbleChance = (unlockedBubbles: number) => {
   return 139 * Math.pow(0.73, unlockedBubbles + 1) / Math.max(0.1 * unlockedBubbles + 1, 1);
 }
@@ -874,6 +878,7 @@ export const getPossibleZenithMarketBubbles = (account: any, characters: any) =>
   return getKrukBubbles(account).map((bubble: any) => ({ ...bubble, isZenithMarket: true, dailyLevels: krukLevelsDaily.value, dailyLevelsBreakdown: krukLevelsDaily.breakdown }));
 }
 
+// game: "KrukBubblesDaily"
 export const getKrukBubblesDaily = (account: any) => {
   const stampBonus = getStampsBonusByEffect(account, 'daily_Kattlekruk_bubble_LVs');
   const legendBonus = getLegendTalentBonus(account, 5);

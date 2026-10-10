@@ -164,6 +164,7 @@ export interface ShinyChance {
 // TrappingStuffs("TotalRareChance") without the per-critter base, times the open-time bonuses the
 // game applies in TrappingStuffs("RareBonusOnOpen"). The placed-trap value is a snapshot taken when
 // the trap went into the ground, so this is what a trap placed *now* would roll with.
+// game: "TotalRareChance" / "RareBonusOnOpen"
 const calcShinyMultiplier = (character: any, account: any) => {
   const stampBonus = getStampsBonusByStat(account, 'ShinyChance', character) ?? 0;
   // "Come 'ere Critters!" - +2% shiny chance per completion

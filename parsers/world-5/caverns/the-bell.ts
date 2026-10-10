@@ -184,6 +184,7 @@ const getBellMethodQuantity = (holesObject: any, t: any, _unused2?: any) => {
   return 2 * holesObject?.bellImprovementMethods?.[t]
     * Math.max(1, getSchematicBonus({ holesObject, t: 45, i: 0 }) * Number(holesInfo?.[61]?.[t]));
 }
+// game: "BellBonuss"
 export const getBellBonus = ({ holesObject, t }: any) => {
   const info = holesInfo[59]
   return holesObject?.bellRingLevels[t]

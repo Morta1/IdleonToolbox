@@ -61,6 +61,7 @@ export const getNobisectBonus = (character: any, account: any, characters: any, 
         / Math.max(10 * base + 10, 1)) * 0.01, 2)));
 }
 
+// game: "AllBaseSkillEff"
 export const getAllBaseSkillEff = (character: any, account: any, characters: any, playerInfo: any) => {
   const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Base_Efficiency_for_All_Skills')
   const stampBonus = getStampsBonusByEffect(account, 'All_Skill_Efficiency', character);

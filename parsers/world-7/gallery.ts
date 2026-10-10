@@ -295,6 +295,7 @@ export const getNametagBonuses = (rawSpelunk: any, account: any, character?: any
   };
 }
 
+// game: "GalleryBonusMulti"
 export const getGalleryBonusMulti = (rawSpelunk: any, account: any, character?: any) => {
   const baseValue = rawSpelunk?.[13]?.[4] ?? 0;
   const chipBonus = character ? getPlayerLabChipBonus(character, account, 16) ? 10 : 0 : 0;
@@ -311,6 +312,7 @@ export const getGalleryBonusMulti = (rawSpelunk: any, account: any, character?: 
   return 1 + (3 * baseValue + chipBonus + clamWorkBonus + killroyBonus + bubbleBonus + cardBonus + companionBonus + sushiBonus54) / 100;
 }
 
+// game: "PodiumsOwned"
 export const getPodiumsOwned = (rawSpelunk: any, account: any) => {
   const baseValue = rawSpelunk?.[13]?.[4] ?? 0;
   const emporiumBonus = getJadeEmporiumBonus(account, 'Another_Gallery_Podium') ?? 0;

@@ -561,7 +561,7 @@ const getMeasurementQuantityFound = ({ holesObject, accountData, t, i }: any) =>
   return result;
 }
 
-// MeasurementBonusTOTAL
+// game: "MeasurementBonusTOTAL"
 export const getMeasurementBonus = ({ holesObject, accountData, t }: any) => {
   const base = getMeasurementBaseBonus({ holesObject, t });
   const measureIndexes = holesInfo[52];
@@ -569,6 +569,7 @@ export const getMeasurementBonus = ({ holesObject, accountData, t }: any) => {
   return base * multi;
 }
 
+// game: "Holes:BuildCost"
 const getEngineerUpgradeCost = ({ x2, x3, x4, index, discountWish }: any) => {
   return 1 === x4
     ? Math.max(0.01, Math.pow(0.85, discountWish)) * x3

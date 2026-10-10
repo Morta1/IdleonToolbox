@@ -263,6 +263,7 @@ export const getMonumentMultiplier = ({ holesObject, t }: any): number => {
   return applyMonumentFountain(base, holesObject, t);
 }
 
+// game: "AllMonuments_BonusLVs"
 export const getAllMonumentsBonusLvs = (account: any): number => {
   const bonus = isCompanionBonusActive(account, 135) ? (account?.companions?.list?.at(135)?.bonus ?? 0) : 0;
   return Math.max(1, 1 + bonus / 100);

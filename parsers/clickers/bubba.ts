@@ -12,7 +12,7 @@ export const getBubba = (idleonData: any, account: any) => {
   return parseBubba(rawBubba, account);
 }
 
-// Helper function to get MeatProdREQ
+// game: "MeatProdREQ"
 const getMeatProdREQ = (upgradeTypeIndex: any) => {
   if (upgradeTypeIndex === 0) return 0;
   return 50 * Math.pow(2.8 + upgradeTypeIndex / 3.55, upgradeTypeIndex - Math.min(1, Math.floor(upgradeTypeIndex / 4)));
@@ -20,6 +20,7 @@ const getMeatProdREQ = (upgradeTypeIndex: any) => {
 
 // Helper function to get TotalUpgTypesAvailable
 // This is calculated by checking how many upgrade types can be unlocked based on meat production
+// game: "TotalUpgTypesAvailable"
 const getTotalUpgTypesAvailable = (rawBubba: any) => {
   const meatProduced = rawBubba?.[0]?.[4] || 0;
   let totalAvailable = 1; // Start with at least 1 upgrade type available
@@ -152,27 +153,27 @@ const getUpgradeCost = (rawBubba: any, upgradeIndex: any) => {
     * x1;
 };
 
-// Helper function to get RealLV (level + prestige)
+// game: "RealLV" - level + prestige
 const getRealLV = (rawBubba: any, upgradeIndex: any) => {
   const level = rawBubba?.[1]?.[upgradeIndex] || 0;
   const prestige = rawBubba?.[2]?.[upgradeIndex] || 0;
   return Math.round(level + prestige);
 };
 
-// Helper function to get TotUpgBonus
+// game: "TotUpgBonus"
 const getTotUpgBonus = (rawBubba: any, upgradeIndex: any) => {
   const realLV = getRealLV(rawBubba, upgradeIndex);
   const upgradeBonus = bubbaUpgrades?.[upgradeIndex]?.x3 || 0; // x3 value from bubbaUpgrades
   return realLV * upgradeBonus;
 };
 
-// Helper function to get HappinessBonus
+// game: "HappinessBonus"
 const getHappinessBonus = (rawBubba: any) => {
   const happiness = rawBubba?.[0]?.[1] || 0;
   return 1 + (10 * (lavaLog2(happiness) + 25 * lavaLog(happiness) + Math.pow(happiness, 0.75))) / 100;
 };
 
-// Helper function to get TotalQTYofLVs
+// game: "TotalQTYofLVs"
 const getTotalQTYofLVs = (rawBubba: any) => {
   let total = 0;
   for (let i = 0; i < 28; i++) {
@@ -181,7 +182,7 @@ const getTotalQTYofLVs = (rawBubba: any) => {
   return total;
 };
 
-// Helper function to get CharismaBonus
+// game: "CharismaBonus"
 const getCharismaBonus = (rawBubba: any, traitIndex: any) => {
   const charismaData = generalSpelunky?.[37] || []; // Charisma bonus values
   const selectedTrait = rawBubba?.[0]?.[15] || 0;
@@ -196,7 +197,7 @@ const getCharismaBonus = (rawBubba: any, traitIndex: any) => {
   return charismaLevel * charismaValue * (1 + totUpgBonus13 / 100);
 };
 
-// Helper function to get GiftPassiveBonus
+// game: "GiftPassiveBonus"
 const getGiftPassiveBonus = (rawBubba: any, giftIndex: any, checkAll = false) => {
   const giftPassiveData = generalSpelunky?.[41] || []; // Gift passive bonus values
   const selectedGift1 = rawBubba?.[0]?.[2] || 0;
@@ -211,7 +212,7 @@ const getGiftPassiveBonus = (rawBubba: any, giftIndex: any, checkAll = false) =>
   return giftValue * Math.min(5, 1 + totUpgBonus17 / 100);
 };
 
-// Helper function to get Dice_Multi
+// game: "Dice_Multi"
 const getDiceMulti = (rawBubba: any) => {
   let diceTotal = 0;
   for (let i = 0; i < 8; i++) {
@@ -223,7 +224,7 @@ const getDiceMulti = (rawBubba: any) => {
   return 1 + diceTotal / 100;
 };
 
-// Helper function to get SmokeMeat_Multi
+// game: "SmokeMeat_Multi"
 const getSmokeMeatMulti = (rawBubba: any) => {
   const smokeMeatData = generalSpelunky?.[34]?.[0] || []; // Smoke meat bonus values
   let smokeMeatTotal = 1;
@@ -237,7 +238,7 @@ const getSmokeMeatMulti = (rawBubba: any) => {
   return smokeMeatTotal;
 };
 
-// Helper function to get MegafleshOwned
+// game: "MegafleshOwned"
 const getMegafleshOwned = (rawBubba: any, megafleshIndex: any) => {
   const megafleshLevel = rawBubba?.[1]?.[8] || 0;
   if (megafleshLevel > megafleshIndex) {
@@ -249,7 +250,7 @@ const getMegafleshOwned = (rawBubba: any, megafleshIndex: any) => {
   return 0;
 };
 
-// Helper function to get BubbaRoG_Bonuses (Ring of Greed bonuses)
+// game: "BubbaRoG_Bonuses" - Ring of Greed bonuses
 const getBubbaBonuses = (rawBubba: any, account: any, ringIndex: any) => {
   const rogBonusesData = generalSpelunky?.[33] || [];
   const companionBonus = isCompanionBonusActive(account, 51) ? account?.companions?.list?.at(51)?.bonus : 0;
@@ -278,7 +279,7 @@ const getBubbaBonuses = (rawBubba: any, account: any, ringIndex: any) => {
   return Math.max(0, bonus);
 };
 
-// Helper function to get SpareCoins_Multi
+// game: "SpareCoins_Multi"
 const getSpareCoinsMulti = (rawBubba: any) => {
   const coin1 = rawBubba?.[0]?.[9] || 0;
   const coin2 = rawBubba?.[0]?.[10] || 0;
@@ -287,13 +288,13 @@ const getSpareCoinsMulti = (rawBubba: any) => {
   return 1 + (coin1 + (5 * coin2 + (25 * coin3 + 100 * coin4))) / 100;
 };
 
-// Helper function to get DailyPetting
+// game: "DailyPetting"
 const getDailyPetting = (rawBubba: any) => {
   const realLV1 = getRealLV(rawBubba, 1);
   return Math.ceil(lavaLog2(realLV1) + Math.min(realLV1, 3));
 };
 
-// Helper function to get DailyPet_HappinessFromUpg
+// game: "DailyPet_HappinessFromUpg"
 const getDailyPetHappinessFromUpg = (rawBubba: any) => {
   const totUpgBonus5 = getTotUpgBonus(rawBubba, 5);
   const totUpgBonus20 = getTotUpgBonus(rawBubba, 20);
@@ -383,7 +384,7 @@ const formatUpgradeDescription = (rawBubba: any, upgradeIndex: any) => {
   return replaceLineBreaks(description);
 };
 
-// Calculate MeatsliceRate
+// game: "MeatsliceRate"
 const getMeatsliceRate = (rawBubba: any, account: any) => {
   const baseRate = getTotUpgBonus(rawBubba, 0) + getTotUpgBonus(rawBubba, 7) + getTotUpgBonus(rawBubba, 23);
   const percentageBonus = (getTotUpgBonus(rawBubba, 2)

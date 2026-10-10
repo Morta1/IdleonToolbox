@@ -360,6 +360,7 @@ export const getResearchGridBonus = (account: any, gridIndex: any, mode: any) =>
 }
 
 // Game: Grid_Bonus_Allmulti = 1 + (Companions(55) + 5 * min(1, Research[0][173] * Companions(0)) + CloudBonus(71) + CloudBonus(72) + CloudBonus(76)) / 100
+// game: "Grid_Bonus_Allmulti"
 function getGridBonusAllmulti(account: any, research: any) {
   const companion55 = isCompanionBonusActive(account, 55) ? (account?.companions?.list?.at(55)?.bonus ?? 0) : 0;
   const companion0Active = isCompanionBonusActive(account, 0) ? 1 : 0;
@@ -456,6 +457,7 @@ export function getResearchGridSquareDescription(account: any, research: any, gr
 // Game: _customBlock_ResearchStuff("MagnifiersOwned"). Despite the name this is the TOTAL number of lens
 // slots, covering all three lens types (Magnifying Glass, Optical Monocle, Kaleidoscope) - the game adds
 // KaleidoscopeOwned and OpticalMonocleOwned into the total, then draws ResMagni{type}.png for each slot.
+// game: "MagnifiersOwned"
 function getMagnifiersOwned(account: any, research: any, researchLevel: any, gridBonus91Lv: any) {
   const kaleidoscopeOwned = Math.round(getResearchGridBonusInternal(account, research, 72, 1) + (getEventShopBonus(account, 33) ? 1 : 0));
   const opticalMonocleOwned = Math.round(gridBonus91Lv);
@@ -550,6 +552,7 @@ function getObservationInsightExpREQ(observationIndex: any, insightLevel: any) {
 }
 
 /** Insight EXP rate per hour for an observation (kaleidoscopes on this observation * 3 * (1+(grid92+grid91)/100) * Kalei_MultiTot). */
+// game: "Kalei_MultiTot"
 function getObservationInsightExpRate(account: any, research: any, observationIndex: any) {
   const shapePlacements = research?.shapePlacements ?? [];
   const numShapeSlots = Math.round((shapePlacements?.length ?? 0) / 4);
@@ -567,6 +570,7 @@ function getObservationInsightExpRate(account: any, research: any, observationIn
 }
 
 /** Grid_CanWeSelect: whether this grid square can be selected in the UI. */
+// game: "Grid_CanWeSelect"
 function getResearchGridCanSelect(research: any, gridIndex: any) {
   const gridLevels = research?.gridLevels ?? [];
   const level = Number(gridLevels[gridIndex]) || 0;
@@ -584,6 +588,7 @@ function getResearchGridCanSelect(research: any, gridIndex: any) {
 }
 
 /** Grid_CanWeUseButton(0) = researchLevel >= 10, (1) = researchLevel >= 20 || shapesOwned >= 1 */
+// game: "Grid_CanWeUseButton"
 function getResearchGridCanWeUseButton(researchLevel: any, shapesOwned: any, buttonIndex: any) {
   if (buttonIndex === 0) return researchLevel >= 10 ? 1 : 0;
   if (buttonIndex === 1) return (researchLevel >= 20 || (shapesOwned ?? 0) >= 1) ? 1 : 0;

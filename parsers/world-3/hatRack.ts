@@ -23,6 +23,7 @@ const parseHatRack = (rawSpelunk: any, account: any) => {
   }
 }
 
+// game: "HatrackBonusMulti"
 export const getHatRackBonusMulti = (rawSpelunk: any, account: any) => {
   const hatCount = rawSpelunk?.[46]?.length || 0;
   const eventShopBonus = getEventShopBonus(account, 30);

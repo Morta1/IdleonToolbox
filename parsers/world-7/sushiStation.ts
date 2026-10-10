@@ -440,6 +440,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
  * Game: customBlock_SushiStuff("RoG_BonusQTY", index, 0)
  * If uniqueSushi > index, returns research[37][index]; else 0.
  */
+// game: "SushiStuff:RoG_BonusQTY"
 export const getSushiBonus = (account: any, index: number): number => {
   const uniqueSushi = account?.sushiStation?.uniqueSushi ?? 0;
   if (uniqueSushi <= index) return 0;

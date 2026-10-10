@@ -63,6 +63,7 @@ export const getPrayerBonusAndCurse = (prayers: any[], prayerName: string, accou
   }
 }
 
+// game: "PrayerCost"
 export const calcPrayerCost = (prayer: any) => {
   const { level, costMulti, prayerIndex } = prayer
   if (level < 6) {

@@ -792,6 +792,7 @@ export const getPaletteBonus = (account: any, index: any) => {
   return account?.gaming?.palette?.[index]?.bonus ?? 0;
 }
 
+// game: "PaletteLuck"
 export const getPaletteLuck = (paletteFinalBonus: any, ratKing: any, account: any, characters: any) => {
   const superbit42Unlocked = isSuperbitUnlocked(account, 'Bigger_Palette') ? 1 : 0;
   const meritocracyBonus = getMeritocracyBonus(account, 8) ?? 0;

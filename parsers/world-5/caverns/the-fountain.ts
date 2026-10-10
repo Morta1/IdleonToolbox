@@ -79,6 +79,7 @@ const getFountRoyalChance = (holesObject: any) => {
 
 // Fount_DuckChance: per-fill chance the Rubber Ducky bar grants +1 duck stack.
 // accountOptions[601] = current duck stack count; each stack makes the next 5x rarer (0.2^n).
+// game: "Fount_DuckChance"
 const getFountDuckChance = (holesObject: any, accountData: any) => {
   const stacks = accountData?.accountOptions?.[601] ?? 0;
   return (1 / 3)
@@ -95,7 +96,7 @@ const getFountMarblePerFill = (holesObject: any) => {
   return 100 * (1 + getFountainBonusTotal(holesObject, 1, 10) / 100);
 };
 
-// Fount_CurrencyBaseValue: per-currency base value (0..8 = Bronze..Greane)
+// game: "Fount_CurrencyBaseValue" - per-currency base value (0..8 = Bronze..Greane)
 const getFountCurrencyBaseValue = (holesObject: any, currencyType: number) => {
   const f = (t: number, i: number) => getFountainBonusTotal(holesObject, t, i);
   const wellSediment = holesObject?.wellSediment ?? [];

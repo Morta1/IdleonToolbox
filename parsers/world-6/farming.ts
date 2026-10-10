@@ -432,6 +432,7 @@ const getMarketUpgradeBonusValue = (marketUpgrades: any, cropDepot: any, upgrade
   }
 }
 
+// game: "StickerBonus"
 export const getStickerBonus = (account: any, index: any) => {
   const stickerLevels = account?.research?.stickerLevels ?? [];
   const baseBonusValues = (researchData?.[25] ?? []).map(Number);
@@ -1004,6 +1005,7 @@ export const isCropValueCapped = (account: any) => {
  * productionBoost), so the land-rank optimizer can re-derive the rank-driven part from candidate
  * levels while getTotalCrop and isCropValueCapped take the whole thing.
  */
+// game: "CropsBonusValue"
 const getPlotCropMultiParts = (account: any, market: any, ranks: any) => ({
   constantMulti: Math.max(1, Math.floor(1 + (getProductDoubler(market)?.productDoubler ?? 0) / 100))
     * Math.max(1, getMarketBonus(market, 'VALUE_GMO', 'value')),
