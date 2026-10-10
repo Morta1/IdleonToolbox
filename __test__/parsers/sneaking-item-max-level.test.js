@@ -1,6 +1,7 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
-import latest from '../fixtures/latest.json';
+// Values below are pinned to the 22 Aug 2026 save (latest-2026-08.json), checked against the game then.
+import latest from '../fixtures/latest-2026-08.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { getBestActiveCharacter } from '@parsers/talents';
 

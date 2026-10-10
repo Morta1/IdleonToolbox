@@ -3,7 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import fresh from '../fixtures/fresh.json';
-import latest from '../fixtures/latest.json';
+// Values below are pinned to the 22 Aug 2026 save (latest-2026-08.json), checked against the game then.
+import latest from '../fixtures/latest-2026-08.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { CLASSES, getHighestTalentAcrossCharacters, getHighestTalentByClass } from '@parsers/talents';
 

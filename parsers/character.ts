@@ -2674,10 +2674,13 @@ export const getCashMulti = (character: any, account: any, characters: any, play
   const { value: cashFromGear, newBreakdown: cashFromGearBreakdown } = getStatsFromGear(character, 3, account);
   const cashFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[3])
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Money_from_Monsters');
+  // game: 7 * CardLv("w5b1") - Molti's passive, added next to the equipped card bonus.
+  const moltiCardBonus = 7 * getCardLevel(account?.cards, 'w5b1');
   const talentBonus = getTalentBonus(character?.flatTalents, 'CHACHING!');
   const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Monster_Cash');
-  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Money_from_Monsters')?.bonus ?? 0;
-  const secondArcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Drop_Rate')?.bonus ?? 0;
+  // game: ArcadeBonus(10) + ArcadeBonus(11), both "Cash from Mobs" - by index, since the effect name repeats.
+  const arcadeBonus = account?.arcade?.shop?.[10]?.bonus ?? 0;
+  const secondArcadeBonus = account?.arcade?.shop?.[11]?.bonus ?? 0;
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Utilitarian_Capsule', 2)
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 8);
   // TalentCalc(643) = talent * multikill tiers; TalentCalc(644) = talent * (cookingLv / 10)
@@ -2755,6 +2758,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
       + vialBonus
       + (cashFromGear + cashFromObols)
       + cardBonus
+      + moltiCardBonus
       + talentBonus
       + flurboBonus
       + (arcadeBonus + secondArcadeBonus)
@@ -2811,6 +2815,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
           { name: 'Star talent', value: starTalent },
           { name: 'Vials', value: vialBonus },
           { name: 'Cards', value: cardBonus },
+          { name: 'Molti card', value: moltiCardBonus },
           { name: 'Talents', value: talentBonus + coinsForCharonBonus + americanTipperBonus },
           { name: 'Dungeons', value: flurboBonus },
           { name: 'Arcade', value: arcadeBonus + secondArcadeBonus },

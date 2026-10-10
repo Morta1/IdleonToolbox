@@ -559,6 +559,7 @@ const getCompassBonusAtLevel = (upgrades: any[], index: number, levelOverride: n
 
   return getLocalCompassBonus(tempUpgrades, index);
 };
+// game: "CompassBonus"
 const getLocalCompassBonus = (upgrades: any[], index: number): any => {
   const upgrade = upgrades?.[index];
   return 1 === upgrade?.x9

@@ -135,6 +135,7 @@ export const getActiveBuffs = (activeBuffs: any, talents: any) => {
 const RG_TALENT_FIRST_INDEX = 225;
 const RG_TALENT_LAST_INDEX = 239;
 
+// game: "AllTalentLV" - the range check behind that cap.
 export const isRoyalGuardianTalent = (skillIndex: any) => {
   const index = Number(skillIndex);
   return index >= RG_TALENT_FIRST_INDEX && index <= RG_TALENT_LAST_INDEX;
