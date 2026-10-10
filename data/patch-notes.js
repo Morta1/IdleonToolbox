@@ -4,6 +4,15 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.90',
+    'gameVer': '2.3.531',
+    'date': '11/10/2026',
+    'features': [
+      'Leaderboards: new Masterclass tab with Death Bringer, Wind Walker, Arcane Cultist and Royal Guardian boards, plus new boards for medallions, outposts, best outpost rate and best arcane map multi'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '3.3.89',
     'gameVer': '2.3.531',
     'date': '10/10/2026',
