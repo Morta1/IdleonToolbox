@@ -207,7 +207,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.divinity = safeSection<any>('divinity', {}, () => getDivinity(idleonData, serializedCharactersData, accountData));
   accountData.sneaking = safeSection<any>('sneaking', {}, () => getSneaking(idleonData, serverVars, charactersData, accountData));
   accountData.farming = safeSection<any>('farming', {}, () => getFarming(idleonData, accountData, processedData?.charactersData));
-  accountData.summoning = safeSection<any>('summoning', {}, () => getSummoning(idleonData, accountData, serializedCharactersData));
+  accountData.summoning = safeSection<any>('summoning', {}, () => getSummoning(idleonData, accountData, serializedCharactersData, charactersData));
   accountData.statues = applyStatuesMulti(accountData, charactersData);
   accountData.hole = safeSection<any>('hole', {}, () => getHole(idleonData, accountData));
   accountData.lab = safeSection<any>('lab', {}, () => getLab(idleonData, serializedCharactersData, accountData));

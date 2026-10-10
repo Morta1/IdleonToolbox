@@ -13,7 +13,8 @@ import { getPrinterMulti } from '@parsers/world-3/printer';
 import { getHoopsData, getDartsData } from '@parsers/highScores';
 import { isCompanionBonusActive, getEventShopBonus, getDoubleStatueDrop, getKillRoyShopBonus } from '@parsers/misc';
 import { getCompassBonus } from '@parsers/class-specific/compass';
-import { mainStatMap } from '@parsers/talents';
+import { getBestActiveCharacter, getHighestTalentAcrossCharacters, mainStatMap } from '@parsers/talents';
+import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import raw from '../../data/raw.json';
 
 const parseRaw = () => parseFixture(raw);
@@ -658,17 +659,23 @@ describe('summoning upgrade[originalIndex 0].totalBonus (careerWins[7] fix)', ()
 });
 
 
-const getTotalCostPreFix = (upgrade, flatUpgrades, account) => {
-  const costDeflation = flatUpgrades.find((u) => u.originalIndex === 49);
-  const costCrashing = flatUpgrades.find((u) => u.originalIndex === 57);
+// game: Summoning("UpgCost"), with the raw accountOptions[319] read. Sushi 38/47 are Upgrade Vault
+// discounts and were wrongly applied here before.
+const getTotalCostPreFix = (upgrade, flatUpgrades, account, characters) => {
+  const levelOf = (index) => flatUpgrades.find((u) => u.originalIndex === index)?.value ?? 0;
+  const totalUpgradesLevels = flatUpgrades.reduce((sum, u) => sum + (u?.level ?? 0), 0);
+  const essentialEssence = getHighestTalentAcrossCharacters(characters, 'ESSENTIAL_ESSENCE', getBestActiveCharacter(characters));
   const tesseractBonus = getTesseractBonus(account, 54) * account?.accountOptions?.[319]; // raw, no `?? 0`
-  return (1 / (1 + (costDeflation?.value ?? 0) / 100))
-    * (1 / (1 + (costCrashing?.value ?? 0) / 100))
+  return (1 / (1 + (essentialEssence * Math.max(0, totalUpgradesLevels / 100)) / 100))
+    * (1 / (1 + levelOf(49) / 100))
+    * (1 / (1 + getJellyBonus(account, 27) / 100))
+    * Math.max(0.1, 1 - Math.max(getSushiBonus(account, 9), getSushiBonus(account, 34)) / 100)
     * (1 / (1 + tesseractBonus / 100))
+    * (1 / (1 + levelOf(57) / 100))
+    * (1 / (1 + levelOf(72) / 100))
+    * (1 / (1 + (levelOf(75) * Math.max(0, Math.floor(totalUpgradesLevels / 100))) / 100))
     * upgrade?.cost
-    * Math.pow(upgrade?.costExponent, upgrade?.level)
-    * Math.max(0.1, 1 - Math.max(getSushiBonus(account, 38), getSushiBonus(account, 47)) / 100)
-    * Math.max(0.1, 1 - Math.max(getSushiBonus(account, 9), getSushiBonus(account, 34)) / 100);
+    * Math.pow(upgrade?.costExponent, upgrade?.level);
 };
 
 const getArmyHealthPreFix = (flatUpgrades, totalUpgradesLevels, account) => {
@@ -707,11 +714,11 @@ const getArmyDamagePreFix = (flatUpgrades, totalUpgradesLevels, account) => {
 
 describe('summoning upgrades[].totalCost / armyHealth / armyDamage (raw accountOptions[319] re-read fix)', () => {
   it.each(FIXTURES)('%s: totalCost for every upgrade is byte-identical unless it was previously NaN, and is always finite now', (_name, fixture) => {
-    const { account } = parseFixture(fixture);
+    const { account, characters } = parseFixture(fixture);
     const flat = Object.values(account.summoning.upgrades).flat();
     let assertions = 0;
     flat.forEach((upgrade) => {
-      const before = getTotalCostPreFix(upgrade, flat, account);
+      const before = getTotalCostPreFix(upgrade, flat, account, characters);
       const after = upgrade.totalCost;
       if (Number.isFinite(before)) {
         expect(after).toBe(before);

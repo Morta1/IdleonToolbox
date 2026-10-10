@@ -764,6 +764,8 @@ const getPower = (account: any, _unused1?: any) => {
   const powerMulti = (1 + winnerBonus / 100)
     * (1 + meritBonus / 100)
     * gemItemBonus
+    // The game also multiplies by max(1, 100 * delve[10]) and divides by 1 + min(99, 99 * delve[9]):
+    // per-delve counters from rocks hit this run (reset to 0 on each delve), so 1 outside a delve.
     * chapterBonus1_2 * chapterBonus4_2 * chapterBonus5_0 * Math.max(1, companion143)
     * (1 + shopUpg1 / 100)
     * (1 + dancingCoralBonus / 100)

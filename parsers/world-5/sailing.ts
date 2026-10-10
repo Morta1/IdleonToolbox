@@ -678,6 +678,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
   const discoveriesCount = account?.spelunking?.discoveriesCount ?? 0;
   const spelunkSuperbit = isSuperbitUnlocked(account, 'Artifacto_Discoveries')
     ? Math.pow(1.02, discoveriesCount) : 0;
+  const sushiBonus = getSushiBonus(account, 7);
 
   const total = Math.max(1, (1 + additive / 100))
     * (1 + starSignBonus / 100)
@@ -698,7 +699,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
     * (1 + exoticBonus / 100)
     * (1 + paletteBonus / 100)
     * Math.max(1, spelunkSuperbit)
-    * (1 + getSushiBonus(account, 7) / 100)
+    * (1 + sushiBonus / 100)
     * (1 + getButtonBonus(account, 3) / 100);
 
   const breakdown = {
@@ -741,6 +742,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
           { name: 'Exotic Market', value: 1 + exoticBonus / 100 },
           { name: 'Palette Bonus', value: 1 + paletteBonus / 100 },
           { name: 'Spelunking Discoveries', value: Math.max(1, spelunkSuperbit) },
+          { name: 'Sushi Station', value: 1 + sushiBonus / 100 },
           { name: 'Button Bonus', value: 1 + getButtonBonus(account, 3) / 100 },
         ]
       }

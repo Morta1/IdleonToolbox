@@ -17,7 +17,9 @@ export const patchNotes = [
     ],
     'fixes': [
       'Leaderboards: salt rank boards no longer count salts that are not unlocked yet',
-      'Fixed Crystal Glunko Cove upgrade costs missing the 15% study discount, and Coral Reef daily gains counting the Demonblub card bonus when the card is not owned'
+      'Fixed Crystal Glunko Cove upgrade costs missing the 15% study discount, and Coral Reef daily gains counting the Demonblub card bonus when the card is not owned',
+      'Summoning: upgrade bonuses now include Absolute Stardom, Allstar and stone trial multipliers, and upgrade costs now match the game (Essential Essence, Sell Sell Sell and Cost Laundering included, Upgrade Vault sushi discounts no longer applied)',
+      'Sailing: Sushi Station now shows in the artifact find breakdown'
     ]
   },
   {

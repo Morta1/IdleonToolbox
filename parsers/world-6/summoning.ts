@@ -19,6 +19,7 @@ import { getEmperorBonus } from '@parsers/world-6/emperor';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
+import { getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 
 export const summonEssenceColor = {
   0: 'white',
@@ -40,13 +41,13 @@ const stoneNames = {
   6: 'zephyer'
 }
 
-export const getSummoning = (idleonData: any, accountData: any, serializedCharactersData: any) => {
+export const getSummoning = (idleonData: any, accountData: any, serializedCharactersData: any, characters: any[] = []) => {
   const rawSummon = tryToParse(idleonData?.Summon);
   const killRoyKills = tryToParse(idleonData?.KRbest);
-  return parseSummoning(rawSummon, killRoyKills, accountData, serializedCharactersData);
+  return parseSummoning(rawSummon, killRoyKills, accountData, serializedCharactersData, characters);
 }
 
-const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, serializedCharactersData: any) => {
+const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, serializedCharactersData: any, characters: any[] = []) => {
   const highestEndlessLevel = account?.accountOptions?.[319] ?? 0;
   const upgradesLevels = rawSummon?.[0];
   const totalUpgradesLevels = upgradesLevels?.reduce((sum: any, level: any) => sum + level, 0) ?? 0;
@@ -122,29 +123,46 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
   });
 
   const gambitStuff = account?.hole?.holesObject?.gambitStuff;
+  // game: Summoning("SummUpgBonus") = level * qty * multi. A doubled upgrade's multi is
+  // 2 + ABSOLUTE_STARDOM past 100% + Allstar (78); a Summoning stone trial cleared for the
+  // upgrade's colour multiplies it again, for upgrades flagged in column 10 (`filler`).
+  const absoluteStardom = getHighestTalentAcrossCharacters(characters, 'ABSOLUTE_STARDOM', getBestActiveCharacter(characters));
+  const doubledBase = 2 + Math.max(0, absoluteStardom / 100 - 1);
+  const isDoubled = (index: number) => !!gambitStuff?.includes(index);
+  const allstar = (upgradesLevels?.[78] ?? 0) * (summoningUpgrades[78]?.bonusQty ?? 0) * (isDoubled(78) ? doubledBase : 1);
   let upgrades = summoningUpgrades.map((upgrade, index) => {
-    const doubled = gambitStuff && gambitStuff?.includes(index);
+    const doubled = isDoubled(index);
     const level = upgradesLevels?.[index] ?? 0;
+    const stoneTrials = Number(killRoyKills?.[`SummzTrz${upgrade.colour}`]) || 0;
+    const multi = (doubled ? doubledBase + allstar / 100 : 1)
+      * (stoneTrials > 0 && Number(upgrade.filler) === 1 ? 1 + stoneTrials : 1);
     return {
       ...upgrade,
       originalIndex: index,
       level,
-      value: level * upgrade.bonusQty * (doubled ? 2 : 1),
+      value: level * upgrade.bonusQty * multi,
       doubled
     }
   });
+  // game: Summoning("UpgCost"). ESSENTIAL_ESSENCE scales with every upgrade level bought, Cost
+  // Laundering with each full 100 of them.
+  const essentialEssence = getHighestTalentAcrossCharacters(characters, 'ESSENTIAL_ESSENCE', getBestActiveCharacter(characters));
   upgrades = upgrades.map((upgrade, index) => {
-    const costDeflation = upgrades.find(({ originalIndex }) => originalIndex === 49);
-    const costCrashing = upgrades.find(({ originalIndex }) => originalIndex === 57);
+    const costCrashing = upgrades.find(({ originalIndex }) => originalIndex === 49);
+    const costDeflation = upgrades.find(({ originalIndex }) => originalIndex === 57);
+    const sellSellSell = upgrades.find(({ originalIndex }) => originalIndex === 72);
+    const costLaundering = upgrades.find(({ originalIndex }) => originalIndex === 75);
     const tesseractBonus = getTesseractBonus(account, 54) * highestEndlessLevel;
-    const cost = (1 / (1 + (costDeflation?.value ?? 0) / 100))
+    const cost = (1 / (1 + (essentialEssence * Math.max(0, totalUpgradesLevels / 100)) / 100))
       * (1 / (1 + (costCrashing?.value ?? 0) / 100))
-      * (1 / (1 + tesseractBonus / 100))
       * (1 / (1 + getJellyBonus(account, 27) / 100))
+      * Math.max(0.1, 1 - Math.max(getSushiBonus(account, 9), getSushiBonus(account, 34)) / 100)
+      * (1 / (1 + tesseractBonus / 100))
+      * (1 / (1 + (costDeflation?.value ?? 0) / 100))
+      * (1 / (1 + (sellSellSell?.value ?? 0) / 100))
+      * (1 / (1 + ((costLaundering?.value ?? 0) * Math.max(0, Math.floor(totalUpgradesLevels / 100))) / 100))
       * upgrade?.cost
-      * Math.pow(upgrade?.costExponent, upgrade?.level)
-      * Math.max(0.1, 1 - Math.max(getSushiBonus(account, 38), getSushiBonus(account, 47)) / 100)
-      * Math.max(0.1, 1 - Math.max(getSushiBonus(account, 9), getSushiBonus(account, 34)) / 100);
+      * Math.pow(upgrade?.costExponent, upgrade?.level);
     return { ...upgrade, totalCost: cost }
   });
   upgrades = updateTotalBonuses(upgrades, careerWins, serializedCharactersData, highestEndlessLevel);

@@ -52,7 +52,12 @@ const TALENTS = [
   ["Bubonic_Conjuror", "PURPLE_TUBE", 535, 33.48534201954397],
   ["Bubonic_Conjuror", "GREEN_TUBE", 536, 50.22801302931596],
   ["Arcane_Cultist", "OVERWHELMING_ENERGY", 589, 1.4769874476987448],
+  // Summoning upgrade cost and value. Pinned to the fixture: the live client read 348.901 and 176.2
+  // on 2026-10-10 with Nine active, which is level 508 for both against the fixture's 539 (Nine's
+  // added levels have since dropped by 31), so the lookup agrees and only the account moved.
+  ["Arcane_Cultist", "ESSENTIAL_ESSENCE", 595, 355.07246376811594],
   ["Arcane_Cultist", "PASSION_OF_THE_SUMMON", 596, 4.8545887961859355],
+  ["Arcane_Cultist", "ABSOLUTE_STARDOM", 597, 180.85],
   ["Arcane_Cultist", "TACHYON_TRUTH", 598, 7.508982035928144],
   // Royal Guardian (patch 2.3.525, task D5): no character in this fixture has levelled these, so
   // the pinned values are each talent's level-0 identity (0 for decay, 1 for decayMulti) - still a
