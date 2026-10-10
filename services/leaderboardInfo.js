@@ -1,6 +1,8 @@
 import { getCashMulti, getDropRate } from '@parsers/character';
 import { getMaxDamage } from '@parsers/damage';
 import { calcTotalBoatLevels } from '@parsers/world-5/sailing';
+import { getMaps } from '@parsers/class-specific/tesseract';
+import { highestArcaneMapMulti, outpostInfo } from './leaderboardMasterclass';
 import { differenceInYears } from 'date-fns';
 
 // Kept out of services/profiles.js on purpose: profiles.js is imported eagerly by
@@ -44,9 +46,17 @@ export const expandLeaderboardInfo = (account, characters) => {
     accountAge: differenceInYears(new Date(), new Date(account?.accountCreateTime)),
     currentWorld: account?.currentWorld,
     cashMulti: withDefault(cashMulti),
-    highestSpelunkingPower: withDefault(account?.spelunking?.power?.value)
+    highestSpelunkingPower: withDefault(account?.spelunking?.power?.value),
+    ...outpostInfo(account?.royalGuardian?.outposts),
+    highestArcaneMapMulti: highestArcaneMapMulti(arcaneMaps(account, characters))
   }
 }
+
+// getMaps destructures account.tesseract, so an account without it gets no maps.
+const arcaneMaps = (account, characters) => {
+  if (!account?.tesseract) return [];
+  return characters.map((character) => getMaps(account, characters, character) ?? []);
+};
 
 const withDefault = (value, defaultValue = 0) => {
   return isNaN(value) ? defaultValue : value;
