@@ -82,6 +82,7 @@ import {
   getInventoryNinjaItem,
   getJadeEmporiumBonus,
   getNinjaEquipmentBonus,
+  getNinjaCharmBonus,
   getNinjaUpgradeBonus
 } from '@parsers/world-6/sneaking';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
@@ -95,7 +96,7 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getMeasurementBonus } from '@parsers/world-5/hole';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
-import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
+import { getPaletteBonus, isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getCompassBonus } from '@parsers/class-specific/compass';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
@@ -558,9 +559,11 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const { value: equipBonus, breakdown: equipBonusBreakdown } = getStatsFromGear(character, 55, account);
     const voteBonus = getVoteBonus(account, 13);
     const leftHandTalentBonus = getMaestroHand(character, 'mining', characters, account, 'LEFT_HAND_OF_LEARNING');
+    // game: SkillStats("AllSkillxpMULTI") * (...)
+    const allSkillExpMulti = getAllSkillExpMultiplier(account);
     const value = Math.max(
       0.1,
-      1 +
+      allSkillExpMulti * (1 +
       (
         talentBonus +
         stampBonus +
@@ -578,11 +581,12 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
         allSkillExp?.value +
         leftHandTalentBonus
       ) /
-      100
+      100)
     )
     return {
       value: value,
       breakdown: [
+        { name: 'All skill EXP multi', value: allSkillExpMulti },
         { name: 'All skill exp', value: allSkillExp?.value / 100 },
         { name: 'Talent', value: (talentBonus + happyDudeTalentBonus) / 100 },
         { name: 'Stamps', value: stampBonus / 100 },
@@ -608,17 +612,20 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const voteBonus = getVoteBonus(account, 9);
 
 
-    const value = 1 + (talentBonus
+    // game: SkillStats("AllSkillxpMULTI") * (...)
+    const allSkillExpMulti = getAllSkillExpMultiplier(account);
+    const value = allSkillExpMulti * (1 + (talentBonus
       + (stampBonus
         + (bubbleBonus
           + (cardBonus
             + happyDudeTalentBonus
             + (achievementBonus
               + (25 * masteryBonus
-                + voteBonus)))))) / 100 + (allSkillExp?.value + leftHandTalentBonus) / 100;
+                + voteBonus)))))) / 100 + (allSkillExp?.value + leftHandTalentBonus) / 100);
     return {
       value,
       breakdown: [
+        { name: 'All skill EXP multi', value: allSkillExpMulti },
         { name: 'All skill exp', value: allSkillExp?.value / 100 },
         { name: 'Talent', value: (talentBonus + happyDudeTalentBonus) / 100 },
         { name: 'Stamps', value: stampBonus / 100 },
@@ -685,9 +692,11 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.fishing?.rank, 0);
     const cardBonus = getSkillCardBonus(character, account, 'fishing', 'Fishing_EXP');
     const fishingKit = character?.fishingKit?.bait?.exp + character?.fishingKit?.line?.exp;
+    // game: SkillStats("AllSkillxpMULTI") * (...)
+    const allSkillExpMulti = getAllSkillExpMultiplier(account);
     const value = Math.max(
       0.1,
-      1 +
+      allSkillExpMulti * (1 +
       (
         fishingKit +
         talentBonus +
@@ -710,11 +719,12 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
         allSkillExp?.value +
         leftHandTalentBonus
       ) /
-      100
+      100)
     )
     return {
       value,
       breakdown: [
+        { name: 'All skill EXP multi', value: allSkillExpMulti },
         { name: 'All skill exp', value: allSkillExp?.value / 100 },
         { name: 'Fishing kit', value: (fishingKit) / 100 },
         { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
@@ -785,9 +795,11 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.catching?.rank, 0);
     const cardBonus = getSkillCardBonus(character, account, 'catching', 'Catching_EXP');
 
+    // game: SkillStats("AllSkillxpMULTI") * (...)
+    const allSkillExpMulti = getAllSkillExpMultiplier(account);
     const value = Math.max(
       0.1,
-      1 +
+      allSkillExpMulti * (1 +
       (
         talentBonus +
         talentBonus2 +
@@ -805,12 +817,13 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
         allSkillExp?.value +
         leftHandTalentBonus
       ) /
-      100
+      100)
     );
 
     return {
       value,
       breakdown: [
+        { name: 'All skill EXP multi', value: allSkillExpMulti },
         { name: 'All skill exp', value: allSkillExp?.value / 100 },
         { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
         { name: 'Stamps', value: stampBonus / 100 },
@@ -837,7 +850,9 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const trappingBonus2 = getTrappingStuff('TrapMGbonus', 3, account)
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Trapping_EXP')?.bonus;
 
-    const value = Math.max(0.1, 1 + (talentBonus
+    // game: SkillStats("AllSkillxpMULTI") * (...)
+    const allSkillExpMulti = getAllSkillExpMultiplier(account);
+    const value = Math.max(0.1, allSkillExpMulti * (1 + (talentBonus
       + (stampBonus +
         (talentBonus2 +
           (cardBonus
@@ -849,11 +864,12 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
                       (25 * masteryBonus
                         + voteBonus)))))))))) / 100
       + (allSkillExp?.value
-        + leftHandTalentBonus) / 100);
+        + leftHandTalentBonus) / 100));
 
     return {
       value,
       breakdown: [
+        { name: 'All skill EXP multi', value: allSkillExpMulti },
         { name: 'All skill exp', value: allSkillExp?.value / 100 },
         { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
         { name: 'Stamps', value: stampBonus / 100 },
@@ -868,24 +884,7 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     }
   }
   else if (skillName === 'construction') {
-    const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'CALL_ME_BOB', account);
-    const stampBonus = getStampsBonusByEffect(account, 'Construction_Exp_Gain');
-    const voteBonus = getVoteBonus(account, 18);
-    const statueBonus = getStatueBonus(account, 18, character?.flatTalents);
-
-    const value = 1 + (activeBubbleBonus
-      + (stampBonus
-        + (voteBonus
-          + statueBonus))) / 100
-    return {
-      value,
-      breakdown: [
-        { name: 'Bubble', value: activeBubbleBonus / 100 },
-        { name: 'Stamps', value: stampBonus / 100 },
-        { name: 'Vote', value: voteBonus / 100 },
-        { name: 'Statue', value: statueBonus / 100 }
-      ]
-    }
+    return getConstructionExpMulti(character, account);
   }
   else if (skillName === 'worship') {
     const talentBonus = getTalentBonus(character?.flatTalents, 'BLESS_UP');
@@ -895,7 +894,9 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const voteBonus = getVoteBonus(account, 30);
     const leftHandTalentBonus = getMaestroHand(character, 'worship', characters, account, 'LEFT_HAND_OF_LEARNING');
 
-    const value = Math.max(0.1, 1 + (character?.skillsInfo?.worship?.level / 3
+    // game: SkillStats("AllSkillxpMULTI") * (...)
+    const allSkillExpMulti = getAllSkillExpMultiplier(account);
+    const value = Math.max(0.1, allSkillExpMulti * (1 + (character?.skillsInfo?.worship?.level / 3
       + (talentBonus
         + (talentBonus2
           + (happyDudeTalentBonus
@@ -903,11 +904,12 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
               (25 * masteryBonus +
                 voteBonus)))))) / 100
       + (allSkillExp?.value +
-        leftHandTalentBonus) / 100);
+        leftHandTalentBonus) / 100));
 
     return {
       value,
       breakdown: [
+        { name: 'All skill EXP multi', value: allSkillExpMulti },
         { name: 'All skill exp', value: allSkillExp?.value / 100 },
         { name: 'Skill level', value: (character?.skillsInfo?.worship?.level / 3) / 100 },
         { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
@@ -921,40 +923,43 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
   else if (skillName === 'cooking') {
     const cookingEff = getCookingEff(character, characters, account, playerInfo);
     const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 60);
-    const leftHandTalentBonus = getMaestroHand(character, 'cooking', characters, account, 'LEFT_HAND_OF_LEARNING');
     const mealBonus = getMealsBonusByEffectOrStat(account, null, 'CookExp');
-    const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Cooking_EXP_gain', 1);
+    const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Chefs_Essentials', 1);
     const talentBonus = getTalentBonus(character?.flatTalents, 'APOCALYPSE_CHOW');
     const chows = character?.chow?.finished?.[0] ?? 1;
-    const cardBonus = getCardBonusByEffect(account?.cards, 'Cooking_EXP_gain')
+    // game: CardBonusREAL(85) - equipped cards only, rift mastery never makes cooking cards passive
+    const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[85]);
     const talentBonus2 = getTalentBonus(character?.flatTalents, 'TEMPESTUOUS_EMOTIONS');
     const statueBonus = getStatueBonus(account, 20, character?.flatTalents);
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.cooking?.rank, 0);
     const voteBonus = getVoteBonus(account, 13);
     const cookingDef = monsters?.Cooking?.Defence;
+    const allSkillExpMulti = getAllSkillExpMultiplier(account);
 
-    const value = Math.max(0.1, (1 + upgradeVaultBonus / 100)
+    // game: SkillStats("CookingEXPmulti")
+    const value = Math.max(0.1, allSkillExpMulti * (1 + upgradeVaultBonus / 100)
       * (Math.min(Math.pow(cookingEff / (10 * cookingDef),
         0.25 + getCookingProwess(character, account)), 1)
+        // The game adds CalcTalentMAP[42][9] here for Left Hand of Learning, a slot its 9-entry table
+        // never fills, so cooking gets none.
         + (allSkillExp?.value +
-          (leftHandTalentBonus +
-            (mealBonus +
-              (postOfficeBonus +
-                (cardBonus +
-                  ((talentBonus * chows)
-                    + (talentBonus2
-                      + (statueBonus
-                        + (25 * masteryBonus
-                          + voteBonus))))))))) / 100));
+          (mealBonus +
+            (postOfficeBonus +
+              (cardBonus +
+                ((talentBonus * chows)
+                  + (talentBonus2
+                    + (statueBonus
+                      + (25 * masteryBonus
+                        + voteBonus)))))))) / 100));
 
     return {
       value,
       breakdown: [
+        { name: 'All skill EXP multi', value: allSkillExpMulti },
         { name: 'All skill exp', value: allSkillExp?.value / 100 },
         { name: 'Upgrade vault', value: upgradeVaultBonus / 100 },
         { name: 'Cooking Eff', value: cookingEff / 100 },
         { name: 'Prowess', value: 0.25 + getCookingProwess(character, account) / 100 },
-        { name: 'Left hand', value: leftHandTalentBonus / 100 },
         { name: 'Meal', value: mealBonus / 100 },
         { name: 'Post office', value: postOfficeBonus / 100 },
         { name: 'Card', value: cardBonus / 100 },
@@ -978,7 +983,9 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 59);
 
 
-    const value = Math.max(0.1, 1 + (talentBonus
+    // game: SkillStats("AllSkillxpMULTI") * (...)
+    const allSkillExpMulti = getAllSkillExpMultiplier(account);
+    const value = Math.max(0.1, allSkillExpMulti * (1 + (talentBonus
       + sapphireRhombol
       + (mealBonus
         + (2 * account?.breeding?.petUpgrades?.[0]?.level
@@ -988,11 +995,12 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
                 + (statueBonus +
                   (25 * masteryBonus
                     + (voteBonus
-                      + upgradeVaultBonus))))))))) / 100);
+                      + upgradeVaultBonus))))))))) / 100));
 
     return {
       value,
       breakdown: [
+        { name: 'All skill EXP multi', value: allSkillExpMulti },
         { name: 'Talent', value: talentBonus / 100 },
         { name: 'Jewel', value: sapphireRhombol / 100 },
         { name: 'Meal', value: mealBonus / 100 },
@@ -1035,35 +1043,40 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
       ? 30
       : 0;
     const talentBonus2 = getTalentBonus(character?.flatTalents, 'INNER_PEACE');
+    const allSkillExpMulti = getAllSkillExpMultiplier(account);
+    const legendBonus = getLegendTalentBonus(account, 15);
+    const sushiBonus = getSushiBonus(account, 43);
+    const paletteBonus = getPaletteBonus(account, 27) ?? 0;
 
-    const real = 1 > Math.pow(labEfficiency / (10 * labDefence), 0.25 + prowess)
-      ? Math.max(0.1, Math.pow(prowess / (10 * labDefence), 0.25)
-        * (1 + companionBonus)
-        * (1 + (postOfficeBonus + cardBonus + chipBonus + bubonicGreen + talentBonus
-          + jewelBonus + mealBonus + stampBonus + vialBonus + bubbleBonus
-          + Math.min(100, 4 * soupedPlayerBonus) + equipBonus + sigilBonus + 25 * masteryBonus
-          + starSignBonus + arcadeBonus + voteBonus + lampBonus
-          + vaultUpgradeBonus + armorSetBonus)) / 100)
-      : Math.max(0.1, Math.pow(labEfficiency / (10 * labDefence), 0.25)
-        * (1 + companionBonus)
-        * (1 + (postOfficeBonus + cardBonus + chipBonus + bubonicGreen + talentBonus + talentBonus2
-          + jewelBonus + mealBonus + stampBonus + vialBonus + bubbleBonus
-          + Math.min(100, 4 * soupedPlayerBonus) + equipBonus + sigilBonus + 25 * masteryBonus
-          + starSignBonus + arcadeBonus + voteBonus + lampBonus
-          + vaultUpgradeBonus + armorSetBonus)) / 100);
-
-    const value = (1 + companionBonus)
-      * (1 + (postOfficeBonus + cardBonus + (chipBonus + bubonicGreen + (talentBonus + talentBonus2)
-        + (jewelBonus + (mealBonus + (stampBonus + (vialBonus + (bubbleBonus
-          + (Math.min(100, 4 * soupedPlayerBonus) + (equipBonus + (sigilBonus + (starSignBonus
-            + (arcadeBonus + (voteBonus + (lampBonus + (vaultUpgradeBonus + armorSetBonus))))))))))))))) / 100);
+    // game: SkillStats("LaboratoryEXPmulti"). Below 1 the efficiency term drops the prowess; from 1 up it is
+    // floored, and only that branch counts Inner Peace.
+    const efficiencyPower = Math.pow(labEfficiency / (10 * labDefence), 0.25 + prowess);
+    const belowOne = efficiencyPower < 1;
+    const efficiencyTerm = belowOne
+      ? Math.pow(labEfficiency / (10 * labDefence), 0.25)
+      : Math.floor(Math.max(efficiencyPower, 1));
+    const additive = postOfficeBonus + cardBonus + chipBonus + bubonicGreen + talentBonus + (belowOne ? 0 : talentBonus2)
+      + jewelBonus + mealBonus + stampBonus + vialBonus + bubbleBonus
+      + Math.min(100, 4 * soupedPlayerBonus) + equipBonus + sigilBonus + 25 * masteryBonus
+      + starSignBonus + arcadeBonus + voteBonus + lampBonus
+      + vaultUpgradeBonus + armorSetBonus + paletteBonus;
+    const value = Math.max(0.1, efficiencyTerm
+      * allSkillExpMulti
+      * (1 + companionBonus)
+      * (1 + legendBonus / 100)
+      * (1 + sushiBonus / 100)
+      * (1 + additive / 100));
 
     return {
       value,
-      real,
       breakdown: [
         { name: 'Lab eff', value: labEfficiency },
         { name: 'Prowess', value: 0.25 + prowess },
+        { name: 'Efficiency term', value: efficiencyTerm },
+        { name: 'All skill EXP multi', value: allSkillExpMulti },
+        { name: 'Legend talent', value: legendBonus / 100 },
+        { name: 'Sushi', value: sushiBonus / 100 },
+        { name: 'Palette', value: paletteBonus / 100 },
         { name: 'Companion', value: companionBonus / 100 },
         { name: 'Post Office', value: postOfficeBonus / 100 },
         { name: 'Card', value: cardBonus / 100 },
@@ -1093,21 +1106,25 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'SailXP');
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.sailing?.rank, 0);
     const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
+    const vaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 66);
+    const allSkillExpMulti = getAllSkillExpMultiplier(account);
 
-    const value = 1 + (talentBonus
+    // game: Sailing("SailingExpMulti")
+    const value = allSkillExpMulti * (1 + (talentBonus
       + (vialBonus
         + (10 * account?.tasks?.[2]?.[4]?.[4] +
-          (25 * masteryBonus + guildBonus)))) / 100;
+          (25 * masteryBonus + (guildBonus + vaultBonus))))) / 100);
 
     return {
       value,
       breakdown: [
+        { name: 'All skill EXP multi', value: allSkillExpMulti },
         { name: 'Talent', value: talentBonus / 100 },
         { name: 'Vial', value: vialBonus / 100 },
         { name: 'Task', value: 10 * account?.tasks?.[2]?.[4]?.[4] / 100 },
         { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
-        { name: 'Guild', value: guildBonus / 100 }
-
+        { name: 'Guild', value: guildBonus / 100 },
+        { name: 'Vault', value: vaultBonus / 100 }
       ]
     }
   }
@@ -1115,13 +1132,12 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const gemShopBonus = account?.gemShopPurchases?.find((value: any, index: any) => index === 130) ?? 0;
     const purrmepMajor = isMajorDivinityActive(character, account, GOD_INDEX.Purrmep) ? 1 : 0;
     const companionBonus = isCompanionBonusActive(account, 16) ? account?.companions?.list?.at(16)?.bonus : 0;
-    // game: (1 + 0.25 * CompLV2(0)) - King Doot's Pet Mart+ upgrade, "1.25x Divinity PTS gain".
-    const kingDootLvl2 = isCompanionLvl2Active(account, 0) ? 1 : 0;
     const talentBonus = getHighestTalentAcrossCharacters(characters, 'SHARED_BELIEFS', character);
     const unlockedGods = account?.divinity?.unlockedDeities ?? 0;
     const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Box_of_Gosh', 0);
     const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'DIV_SPIRAL');
-    const cardBonus = getCardBonusByEffect(account?.cards, 'Divinity_EXP')
+    // game: 6 * CardLv("w5a5")
+    const cardBonus = 6 * getCardLevel(account?.cards, 'w5a5');
     const stampBonus = getStampsBonusByEffect(account, 'Divinity_EXP_Gain');
     const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'PIOUS_AT_HEART', account);
     const statueBonus = getStatueBonus(account, 23, character?.flatTalents);
@@ -1136,12 +1152,17 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const voteBonus = getVoteBonus(account, 23);
     const armorSetBonus = getArmorSetBonus(account, 'MAGMA_SET');
     const vaultBonus72 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 72);
-    const sushiBonus46 = getSushiBonus(account, 46);
+    const legendBonus = getLegendTalentBonus(account, 15);
+    const coralKidBonus = getCoralKidUpgBonus(account, 0);
+    const allSkillExpMulti = getAllSkillExpMultiplier(account);
 
+    // game: Divinity("DivPerHr_EXP"). King Doot's Pet Mart+ and sushi bonus 46 belong to the points
+    // formula (DivPerHr, 999), not this one.
     const value = character?.divStyle?.divPerHour
       * (1 + gemShopBonus / 4)
-      * (1 + 0.25 * kingDootLvl2)
-      * (1 + sushiBonus46 / 100)
+      * (1 + legendBonus / 100)
+      * allSkillExpMulti
+      * (1 + coralKidBonus / 100)
       * Math.max(1, 1 + purrmepMajor) *
       (1 + talentBonus / 100) * (1 + companionBonus)
       * (1 + (10 * Math.max(0, unlockedGods - 10)
@@ -1167,8 +1188,9 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
       breakdown: [
         { name: 'Div style', value: character?.divStyle?.divPerHour / 100 },
         { name: 'Gem shop', value: gemShopBonus / 100 },
-        { name: 'King Doot (Pet Mart+)', value: 0.25 * kingDootLvl2 },
-        { name: 'Sushi Station', value: sushiBonus46 / 100 },
+        { name: 'Legend talent', value: legendBonus / 100 },
+        { name: 'All skill EXP multi', value: allSkillExpMulti },
+        { name: 'Coral Kid', value: coralKidBonus / 100 },
         { name: 'Major', value: purrmepMajor / 100 },
         { name: 'Talent', value: (talentBonus + talentBonus2) / 100 },
         { name: 'Companion', value: companionBonus / 100 },
@@ -1243,15 +1265,17 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const achievementBonus2 = getAchievementStatus(account?.achievements, 356);
     const voteBonus = getVoteBonus(account, 29);
     const shinyBonus = getShinyBonus(account?.breeding?.pets, 'Farming_EXP_gain');
-    const landRankBonus = getLandRankTotalBonus(account, 4);
+    const landRankBonus = getLandRankTotalBonus(account, 4, characters, character);
     const talentBonus = getHighestTalentAcrossCharacters(characters, 'AGRICULTURAL_\'PRECIATION', character);
     const vaultBonus77 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 77);
     const exotic21 = getExoticMarketBonus(account, 21);
     const exotic22 = getExoticMarketBonus(account, 22);
     const taskBonus = 2 * (account?.tasks?.[2]?.[5]?.[2] ?? 0);
+    const allSkillExpMulti = getAllSkillExpMultiplier(account);
 
+    // game: FarmingStuffs("FarmingEXP")
     let value = Math.max(1, marketBonus)
-      * allSkillExp?.value
+      * allSkillExpMulti
       * (1 + (marketBonus2
         + (msaBonus + 25
           * skillMasteryBonus
@@ -1293,7 +1317,7 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
           name: 'Multiplicative',
           sources: [
             { name: 'EXP GMO (Market)', value: Math.max(1, marketBonus) },
-            { name: 'All Skill EXP', value: allSkillExp?.value },
+            { name: 'All skill EXP multi', value: allSkillExpMulti },
             { name: 'Smarter Seeds (Market)', value: 1 + marketBonus2 / 100 },
             { name: 'MSA', value: 1 + msaBonus / 100 },
             { name: 'Skill Mastery', value: 1 + (25 * skillMasteryBonus) / 100 },
@@ -1327,7 +1351,7 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const ninjaUpgradeBonus = getNinjaUpgradeBonus(account, 'Respect_for_the_Art');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Sneaking_XP_multi')?.bonus;
     const ninjaEquip = getInventoryNinjaItem(account, 'Gold_Eye');
-    const compassBonus = getCompassBonus(account, 51);
+    const compassBonus = getCompassBonus(account, 49);
     const gemstoneBonus = account?.sneaking?.gemStones?.[4]?.bonus;
     const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, '6SneakEXP');
     const mealBonus = getMealsBonusByEffectOrStat(account, null, 'zSneakExp');
@@ -1339,13 +1363,24 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const starSignBonus = getStarSignBonus(character, account, 'Sneaking_EXP');
     const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
     const talentBonus = getHighestTalentAcrossCharacters(characters, 'SNEAKY_SKILLING', character);
+    // game: getbonus2(2, 431) - the talent's second value, the multiplier at the end
+    const talentMulti = getHighestTalentAcrossCharacters(characters, 'SNEAKY_SKILLING', character, true);
+    const admiringTheArt = getNinjaUpgradeBonus(account, 'Admiring_the_Art');
+    const vaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 82);
+    const allSkillExpMulti = getAllSkillExpMultiplier(account);
     const achievementBonus = getAchievementStatus(account?.achievements, 370);
     const voteBonus = getVoteBonus(account, 25);
     const winBonus = getWinnerBonus(account, '<x Sneak EXP');
     const companion163 = isCompanionBonusActive(account, 163) ? (account?.companions?.list?.at(163)?.bonus ?? 0) : 0;
+    // game: NinjaBonus(t, 13) + (t, 19) + (t, 3) + (t, 7), and the (t, 5) penalty - this ninja's charm slots
+    const charmExpBonus = [13, 19, 3, 7].reduce((sum, subType) => sum + getNinjaCharmBonus(account, character?.playerId, subType), 0);
+    const charmExpPenalty = getNinjaCharmBonus(account, character?.playerId, 5);
 
+    // game: Ninja("xp")
     let value = Number(baseExp) *
+      allSkillExpMulti *
       (1 + ninjaUpgradeBonus / 100) *
+      (1 + admiringTheArt / 100) *
       (1 + arcadeBonus / 100) *
       (1 + ninjaEquip / 100) *
       (1 + compassBonus / 100) *
@@ -1364,26 +1399,26 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
           guildBonus +
           talentBonus +
           10 * achievementBonus +
-          voteBonus
+          voteBonus +
+          vaultBonus
         ) / 100
       ) *
       (
         1 +
-        (
-          0 + //n._customBlock_Ninja('NinjaBonus', t, 13) +
-          0 + //n._customBlock_Ninja('NinjaBonus', t, 19) +
-          0 + //n._customBlock_Ninja('NinjaBonus', t, 3) +
-          0  //n._customBlock_Ninja('NinjaBonus', t, 7)
-        ) / 100
+        charmExpBonus / 100
       ) *
-      Math.max(0, 1 - 100 * 0 * //n._customBlock_Ninja('NinjaBonus', t, 5)) *
-        (1 + winBonus / 100) *
-        (1 + 1.5 * companion163) *
-        Math.max(1, talentBonus));
+      Math.max(0, 1 - 100 * charmExpPenalty) *
+      (1 + winBonus / 100) *
+      (1 + 1.5 * companion163) *
+      Math.max(1, talentMulti);
 
     return {
       value,
       breakdown: [
+        { name: 'All skill EXP multi', value: allSkillExpMulti },
+        { name: 'Admiring the Art', value: admiringTheArt / 100 },
+        { name: 'Vault', value: vaultBonus / 100 },
+        { name: 'Talent multi', value: talentMulti },
         { name: 'Ninja upgrade', value: ninjaUpgradeBonus / 100 },
         { name: 'Arcade', value: arcadeBonus / 100 },
         { name: 'Gold item', value: ninjaEquip / 100 },
@@ -1420,8 +1455,13 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
     const voteBonus = getVoteBonus(account, 28)
     const vaultBonus84 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 84);
+    const allSkillExpMulti = getAllSkillExpMultiplier(account);
+    const companionBonus = isCompanionBonusActive(account, 121) ? (account?.companions?.list?.at(121)?.bonus ?? 0) : 0;
 
+    // game: "SummEXPgain"
     const value = Math.max(1, talentBonus)
+      * allSkillExpMulti
+      * (1 + companionBonus)
       * (1 + (vialBonus
         + (cardBonus +
           (mealBonus
@@ -1437,6 +1477,8 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     return {
       value,
       breakdown: [
+        { name: 'All skill EXP multi', value: allSkillExpMulti },
+        { name: 'Companion', value: companionBonus },
         { name: 'Talent', value: talentBonus / 100 },
         { name: 'Vial', value: vialBonus / 100 },
         { name: 'Card', value: cardBonus / 100 },
@@ -1453,6 +1495,15 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
       ]
     }
   }
+}
+
+// game: SkillStats("AllSkillxpMULTI"), which multiplies the EXP of every skill but smithing, alchemy
+// and construction.
+export const getAllSkillExpMultiplier = (account: any) => {
+  const companionBonus = isCompanionBonusActive(account, 32) ? (account?.companions?.list?.at(32)?.bonus ?? 0) : 0;
+  return (1 + getMeritocracyBonus(account, 10) / 100)
+    * (1 + getLegendTalentBonus(account, 20) / 100)
+    * (1 + companionBonus);
 }
 
 // game: "AllSkillxpz"
@@ -3554,17 +3605,39 @@ export const getPlayerConstructionSpeed = (character: any, account: any) => {
   ...(account?.refinery?.refineryStorage || [])], 'Refinery1', true, true);
   return Math.floor(baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100));
 }
-export const getPlayerConstructionExpPerHour = (character: any, account: any) => {
-  const playerBuildSpeed = character?.constructionSpeed;
-  const activeBubbleBonus = getActiveBubbleBonus(character.equippedBubbles, 'CALL_ME_BOB', account);
+// game: WorkbenchStuff("PlayerConExp") without its per-hour base - the construction EXP multiplier.
+// The small cog EXP total comes from the board, so the first serialize pass reads 1 for it.
+export const getConstructionExpMulti = (character: any, account: any) => {
+  const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'CALL_ME_BOB', account);
   const talentBonus = getTalentBonus(character?.flatTalents, 'SHARPER_SAWS');
   const secondTalentBonus = getTalentBonus(character?.flatTalents, 'TEMPESTUOUS_EMOTIONS');
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'ConsExp');
   const statueBonus = getStatueBonus(account, 18, character?.flatTalents);
   const stampBonus = getStampsBonusByEffect(account, '+{%_Construction_Exp_Gain', character);
+  const voteBonus = getVoteBonus(account, 18);
   const starSignBonus = getStarSignBonus(character, account, 'Construct_Exp');
-  const postOfficeBonus = getPostOfficeBoxLevel(character?.postOffice, 'Construction_Container');
+  const postOfficeBonus = Math.max(0, 0.5 * (getPostOfficeBoxLevel(character?.postOffice, 'Construction_Container') - 100));
+  const smallCogMulti = account?.construction?.boardMultipliers?.exp ?? 1;
+  const value = (1 + (activeBubbleBonus + (talentBonus + secondTalentBonus + (vialBonus + (statueBonus
+    + (stampBonus + voteBonus + (starSignBonus + postOfficeBonus)))))) / 100) * smallCogMulti;
+  return {
+    value,
+    breakdown: [
+      { name: 'Bubble', value: activeBubbleBonus / 100 },
+      { name: 'Talents', value: (talentBonus + secondTalentBonus) / 100 },
+      { name: 'Vial', value: vialBonus / 100 },
+      { name: 'Statue', value: statueBonus / 100 },
+      { name: 'Stamps', value: stampBonus / 100 },
+      { name: 'Vote', value: voteBonus / 100 },
+      { name: 'Star sign', value: starSignBonus / 100 },
+      { name: 'Post office', value: postOfficeBonus / 100 },
+      { name: 'Small cogs', value: smallCogMulti }
+    ]
+  };
+}
+
+export const getPlayerConstructionExpPerHour = (character: any, account: any) => {
+  const playerBuildSpeed = character?.constructionSpeed;
   return Math.ceil((Math.pow(playerBuildSpeed, 0.7) / 2 + (2 + 6 * character?.skillsInfo?.construction?.level))
-    * (1 + (activeBubbleBonus + (talentBonus + secondTalentBonus + (vialBonus + (statueBonus + (stampBonus + (starSignBonus + Math.max(0, 0.5 *
-      ((postOfficeBonus) - 100)))))))) / 100));
+    * getConstructionExpMulti(character, account).value);
 }

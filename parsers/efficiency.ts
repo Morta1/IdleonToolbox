@@ -12,15 +12,22 @@ import {
   mainStatMap
 } from '@parsers/talents';
 import {
-  getGoldenFoodBonus,
+  calcTotalQuestCompleted,
+  getFriendBonus,
+  getGoldenFoodMultiplier,
   getSkillMasteryBonusByIndex,
+  getSkillCardBonus,
   isCompanionBonusActive,
   isMasteryBonusUnlocked
 } from '@parsers/misc';
+import { getVoteBonus } from '@parsers/world-2/voteBallot';
+import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
+import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { bonuses } from '@website-data';
 import { calculateItemTotalAmount, getStatsFromGear } from '@parsers/items';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
-import { getCardBonusByEffect, getEquippedCardBonus } from '@parsers/cards';
+import { getCardBonusByEffect, getCardLevel, getEquippedCardBonus } from '@parsers/cards';
+import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getPrayerBonusAndCurse } from '@parsers/world-3/prayers';
 import { getGuildBonusBonus } from '@parsers/guild';
 import { TOOLS } from '@utility/consts';
@@ -36,7 +43,7 @@ import { getWinnerBonus } from '@parsers/world-6/summoning';
 
 export const allProwess = (character: any, account: any) => {
   const mainStat = mainStatMap?.[character?.class];
-  const prowessBubble = getBubbleBonus(account, 'PROWESESSARY', false, mainStat);
+  const prowessBubble = getBubbleBonus(account, 'PROWESESSARY', false, false);
   const starSignProwess = getStarSignBonus(character, account, 'All_Skill_Prowess');
   const skillProwessMeals = getMealsBonusByEffectOrStat(account, null, 'Sprow');
   return Math.max(0, Math.min(.1, (prowessBubble - 1) / 10 + (.001 * (starSignProwess) + 5e-4 * skillProwessMeals)));
@@ -45,8 +52,8 @@ export const allProwess = (character: any, account: any) => {
 export const getNobisectBonus = (character: any, account: any, characters: any, playerInfo: any) => {
   const mainStat = mainStatMap?.[character?.class];
   const { strength, wisdom, agility } = character?.stats || {};
-  const strBubbleBonus = getBubbleBonus(account, 'HEARTY_DIGGY', false, mainStat);
-  const wisBubbleBonus = getBubbleBonus(account, 'HOCUS_CHOPPUS', false, mainStat);
+  const strBubbleBonus = getBubbleBonus(account, 'HEARTY_DIGGY', false, mainStat === 'strength');
+  const wisBubbleBonus = getBubbleBonus(account, 'HOCUS_CHOPPUS', false, mainStat === 'wisdom');
   const base = Math.max(1, getAllEff(character, characters, account)
     + Math.pow(((strBubbleBonus * lavaLog(playerInfo?.maxHp))
       + (wisBubbleBonus * lavaLog(playerInfo?.maxMp))) / 100, 2)
@@ -82,6 +89,7 @@ export const getAllBaseSkillEff = (character: any, account: any, characters: any
       + (jewelBonus * allGreenActive));
 }
 
+// game: SkillStats("AllEfficiencies")
 export const getAllEff = (character: any, characters: any, account: any) => {
   // FamBonusQTYs[42], as the played character sees it
   const familyEffBonus = character?.familyBonuses?.[CLASSES.Hunter] ?? 0;
@@ -90,10 +98,17 @@ export const getAllEff = (character: any, characters: any, account: any) => {
   const effFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[48]);
   const artifactBonus = isArtifactAcquired(account?.sailing?.artifacts, 'Frost_Relic')?.bonus ?? 0;
   const talentBonus = getTalentBonus(character?.flatStarTalents, 'STUDIOUS_QUESTER');
+  // game: ArbitraryCode("TotalQuestsComplete") - unique quests done across the account (TomeQTY[4])
+  const totalQuests = Number(calcTotalQuestCompleted(characters)) || 0;
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Seff');
   const tomeBonus = account?.tome?.bonuses?.[1]?.bonus ?? 0;
   const chipBonus = account?.lab?.playersChips?.[character?.playerId]?.find((chip: any) => chip.index === 11)?.baseVal ?? 0;
-  const cardBonus = account?.cards?.Crystal_Capybara?.stars ? account?.cards?.Crystal_Capybara?.stars + 1 : 0;
+  // game: 3 * CardLv("Crystal4")
+  const cardBonus = getCardLevel(account?.cards, 'Crystal4');
+  const multitoolBonus = getTalentBonus(character?.flatStarTalents, 'ANCIENT_MULTITOOL');
+  const paletteBonus = getPaletteBonus(account, 10) ?? 0;
+  const friendBonus = getFriendBonus(account, 2) ?? 0;
+  const option422 = Number(account?.accountOptions?.[422]) || 0;
   const masteryBonus = getSkillMasteryBonusByIndex(account?.totalSkillsLevels, account?.rift, 2)
   const schematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 49, i: 15 });
   const chaoticTrollBonus = getEquippedCardBonus(character?.cards, 'Boss4B' as any);
@@ -113,12 +128,13 @@ export const getAllEff = (character: any, characters: any, account: any) => {
       + ((effFromEquipment + effFromObols)
         + vialBonus
         + (artifactBonus +
-          Math.min(0.1 * character?.questCompleted, talentBonus)))) / 100)
+          Math.min(0.1 * totalQuests, talentBonus)))) / 100)
     * (1 + (mealBonus
-      + tomeBonus
-      + (chipBonus + 3 * cardBonus)
+      + multitoolBonus
+      + (tomeBonus + paletteBonus)
+      + (chipBonus + (3 * cardBonus + friendBonus))
       + (masteryBonus
-        + schematicBonus
+        + (schematicBonus + option422)
         + (account?.accountOptions?.[180] ?? 0)
         * account?.islands?.allShimmerBonus)) / 100)
     * (1 + (chaoticTrollBonus
@@ -131,34 +147,41 @@ export const getAllEff = (character: any, characters: any, account: any) => {
       prayerCurse) / 100, 0.01);
 }
 
+// game: SkillStats("MiningEfficiency")
 export const getMiningEff = (character: any, characters: any, account: any, playerInfo: any) => {
   const mainStat = mainStatMap?.[character?.class];
   const effFromTool = character?.tools?.[TOOLS.PICKAXE]?.Weapon_Power || 0;
   let baseMiningEff = effFromTool;
   const talentBonus = getTalentBonus(character?.flatTalents, 'TOOL_PROFICIENCY');
-  const bubbleBonus = getBubbleBonus(account, 'STRONK_TOOLS', false, mainStat);
+  const bubbleBonus = getBubbleBonus(account, 'STRONK_TOOLS', false, mainStat === 'strength');
   const miningLevel = character?.skillsInfo?.mining?.level;
   baseMiningEff = baseMiningEff * (1 + talentBonus * (character?.skillsInfo?.mining?.level / 10) / 100) * (1 + bubbleBonus / 100);
   baseMiningEff += 4;
   const statueBonus = getStatueBonus(account, 2, character?.flatTalents);
-  const secondBubbleBonus = getBubbleBonus(account, 'SLABI_OREFISH', false, mainStat);
+  const secondBubbleBonus = getBubbleBonus(account, 'SLABI_OREFISH', false, mainStat === 'strength');
   const lootedItems = account?.looty?.rawLootedItems;
-  baseMiningEff += effFromTool + statueBonus + (secondBubbleBonus * Math.floor(lootedItems / 100));
+  // game: TotalStats("Mining_Power") adds AlchBubbles.W7, ENDGAME_EFF_I scaled by every 10 class levels past 500
+  const endgameBubbleBonus = getBubbleBonus(account, 'ENDGAME_EFF_I', false, mainStat === 'strength')
+    * Math.max(1, Math.floor((character?.level - 500) / 10));
+  baseMiningEff += effFromTool + statueBonus + (secondBubbleBonus * Math.floor(lootedItems / 100)) + endgameBubbleBonus;
 
   const secondTalentBonus = getTalentBonus(character?.flatTalents, 'SKILL_STRENGTHEN');
   const stampBonus = getStampsBonusByEffect(account, 'Base_Mining', character);
   const allBaseSkillEff = getAllBaseSkillEff(character, account, characters, playerInfo);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Dwarven_Supplies', 0);
   const rightHandBonus = getMaestroHand(character, 'mining', characters, account, 'RIGHT_HAND_OF_ACTION');
-  const goldenFoodBonus = getGoldenFoodBonus('Golden_Peanut', character, account, characters) || 1;
+  const goldenFoodMulti = getGoldenFoodMultiplier('Golden_Peanut', character, account, characters);
   const thirdTalentBonus = getTalentBonus(character?.flatTalents, 'BRUTE_EFFICIENCY');
   const { value: etcFromGear } = getStatsFromGear(character, 10, account);
   const etcFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[10]);
   const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.mining?.rank, 1);
-  const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_Mining_Efficiency');
+  const cardBonus = getSkillCardBonus(character, account, 'mining', 'Total_Mining_Efficiency');
+  const voteBonus = getVoteBonus(account, 7);
+  const copperSetBonus = getArmorSetBonus(account, 'COPPER_SET');
+  const monumentBonus = getMonumentBonus({ holesObject: account?.hole?.holesObject, t: 0, i: 0 });
   const starSignBonus = getStarSignBonus(character, account, 'Mining_Efficency');
   const vialBonus = getVialsBonusByStat(account?.alchemy?.vials, 'MinEff');
-  const thirdBubbleBonus = getBubbleBonus(account, 'HEARTY_DIGGY', false, mainStat);
+  const thirdBubbleBonus = getBubbleBonus(account, 'HEARTY_DIGGY', false, mainStat === 'strength');
   const fourthTalentBonus = getTalentBonus(character?.flatTalents, 'COPPER_COLLECTOR');
   const atomBonus = getAtomBonus(account, 'Helium_-_Talent_Power_Stacker');
   const copperOwned = calculateItemTotalAmount(account?.storage?.list, 'Copper_Ore', true);
@@ -174,13 +197,13 @@ export const getMiningEff = (character: any, characters: any, account: any, play
       + rightHandBonus) / 100)
     * (1 + Math.pow(character?.stats?.strength / 100, .35)
       * (1 + secondTalentBonus / 100))
-    * goldenFoodBonus
+    * goldenFoodMulti
     * (1 + (thirdTalentBonus
       + ((etcFromGear + etcFromObols)
-        + 10 * masteryBonus)) / 100)
+        + (10 * masteryBonus + (voteBonus + copperSetBonus)))) / 100)
     * (1 + (cardBonus
       + (starSignBonus
-        + vialBonus)) / 100)
+        + (vialBonus + monumentBonus))) / 100)
     * (1 + baseMiningEff / 100)
     * 1 // BIG PICK
     * (1 + thirdBubbleBonus * lavaLog(playerInfo?.maxHp) / 100)

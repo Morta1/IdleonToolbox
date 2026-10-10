@@ -34,6 +34,7 @@ export const getTotems = (idleonData: any) => {
 export const getTotalizerBonuses = (account: any) => {
   const totalizerUnlocked = isSuperbitUnlocked(account, 'MSA_Totalizer');
   const totalWaves = Math.floor(account?.towers?.totalWaves / 10);
+  // game: GamingStatType("MSA_Bonus", 6/7/8) - the jade emporium expanders pay 1.75x, 2x and 1.5x of the waves.
 
   return {
     damage: { name: 'DMG', value: (totalizerUnlocked && totalizerUnlocked?.bonus) || 0 },
@@ -53,15 +54,15 @@ export const getTotalizerBonuses = (account: any) => {
     },
     farmingExp: {
       name: 'Farming XP',
-      value: (totalizerUnlocked && isJadeBonusUnlocked(account, 'MSA_Expander_I')) ? totalWaves : 0
+      value: (totalizerUnlocked && isJadeBonusUnlocked(account, 'MSA_Expander_I')) ? 1.75 * totalWaves : 0
     },
     jadeCoin: {
       name: 'Jade Coin',
-      value: (totalizerUnlocked && isJadeBonusUnlocked(account, 'MSA_Expander_II')) ? totalWaves : 0
+      value: (totalizerUnlocked && isJadeBonusUnlocked(account, 'MSA_Expander_II')) ? 2 * totalWaves : 0
     },
     essence: {
       name: 'Essence',
-      value: (totalizerUnlocked && isJadeBonusUnlocked(account, 'MSA_Expander_III')) ? totalWaves : 0
+      value: (totalizerUnlocked && isJadeBonusUnlocked(account, 'MSA_Expander_III')) ? 1.5 * totalWaves : 0
     },
     spelunkingPow: {
       name: 'Spelunking Pow',

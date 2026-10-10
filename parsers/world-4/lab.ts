@@ -383,6 +383,7 @@ export const getRequirementAmount = (name: any, rawName: any, account: any) => {
   return totalAmount;
 }
 
+// game: SkillStats("LaboratoryEfficiency")
 export const getLabEfficiency = (character: any, characters: any, account: any, playerInfo: any) => {
   const allEfficiencies = getAllEff(character, characters, account);
   const talentBonus = getTalentBonus(character?.flatTalents, 'SKILL_WIZ');
@@ -390,7 +391,8 @@ export const getLabEfficiency = (character: any, characters: any, account: any, 
   const talentBonus3 = getTalentBonus(character?.flatTalents, 'SMART_EFFICIENCY');
   const { value: equipBonus } = getStatsFromGear(character, 63, account);
   const { value: equipBonus2 } = getStatsFromGear(character, 66, account);
-  const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.laboratory?.rank, 0);
+  // game: RiftStuff("RiftSkillBonus,11", 1) - the lab's second mastery bonus
+  const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.laboratory?.rank, 1);
   const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Science_Spare_Parts', 0);
   const allBaseSkillEff = getAllBaseSkillEff(character, account, characters, playerInfo);
 

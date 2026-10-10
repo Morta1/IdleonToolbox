@@ -395,8 +395,9 @@ export const getNextOGEta = (crop: any, nextOGChance: number, maxTimeLeft: numbe
   return maxTimeLeft / chance;
 }
 
+// The depot also carries the magic bean count under 'beans' (the market pays in it), which is not a crop.
 const getCropsWithStockEqualOrGreaterThan = (cropDepot: any, stockLimit: any) => {
-  return Object.values(cropDepot)?.filter((value: any) => value >= stockLimit).length;
+  return Object.entries(cropDepot || {}).filter(([type, value]: any) => type !== 'beans' && value >= stockLimit).length;
 }
 
 const getMarketUpgradeBonusValue = (marketUpgrades: any, cropDepot: any, upgradeId: any): any => {
@@ -899,20 +900,23 @@ export const getLandRank = (ranks: any, index: any, characters?: any, activeChar
   return calcRankBonus(index, apocalypseWow, exoticMulti, base, upgradeLevel);
 }
 
-export const getLandRankTotalBonus = (account: any, index: any) => {
-  return 0 === index ? (1 + getLandRank(account?.farming?.ranks, 3) / 100)
-    * (1 + getLandRank(account?.farming?.ranks, 10) / 100) *
-    (1 + getLandRank(account?.farming?.ranks, 15) / 100) :
-    1 === index ? getLandRank(account?.farming?.ranks, 8)
-      + getLandRank(account?.farming?.ranks, 17) :
-      2 === index ? getLandRank(account?.farming?.ranks, 6)
-        + getLandRank(account?.farming?.ranks, 13) :
-        3 === index ? getLandRank(account?.farming?.ranks, 7)
-          + (getLandRank(account?.farming?.ranks, 11)
-            + getLandRank(account?.farming?.ranks, 18))
-          : 4 === index ? getLandRank(account?.farming?.ranks, 5)
-            + (getLandRank(account?.farming?.ranks, 12) +
-              getLandRank(account?.farming?.ranks, 16)) : 1;
+// The ranks scale with DANK_RANKS, which the game reads as the active character sees it: pass the
+// character to get its view, or leave it out for the value stored at parse time.
+export const getLandRankTotalBonus = (account: any, index: any, characters?: any, character?: any) => {
+  const rank = (rankIndex: number) => getLandRank(account?.farming?.ranks, rankIndex, characters, character);
+  return 0 === index ? (1 + rank(3) / 100)
+    * (1 + rank(10) / 100) *
+    (1 + rank(15) / 100) :
+    1 === index ? rank(8)
+      + rank(17) :
+      2 === index ? rank(6)
+        + rank(13) :
+        3 === index ? rank(7)
+          + (rank(11)
+            + rank(18))
+          : 4 === index ? rank(5)
+            + (rank(12) +
+              rank(16)) : 1;
 }
 
 /**

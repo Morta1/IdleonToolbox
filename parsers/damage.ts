@@ -11,6 +11,7 @@ import { bonuses, mapDetails, monsters, randomList } from '@website-data';
 import {
   getFoodBonus,
   getGoldenFoodBonus,
+  getGoldenFoodMultiplier,
   getHealthFoodBonus,
   getHighestLevelOf,
   getMinigameScore,
@@ -651,7 +652,8 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
 
   const minorBonus = getCharacterMinorDivinityBonus(character, account, GOD_INDEX.Nobisect);
 
-  const secondGoldenFoodBonus = getGoldenFoodBonus('Golden_Kebabs', character, account, characters) || 1;
+  const secondGoldenFoodBonus = getGoldenFoodBonus('Golden_Kebabs', character, account, characters) || 0;
+  const goldenKebabMulti = getGoldenFoodMultiplier('Golden_Kebabs', character, account, characters);
 
   const damage = hpMpDamage
     * (dmgPerSmithingMultiplier)
@@ -672,9 +674,8 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
           + (dmgPerDungeonCreditsBonus
             + questBonus))
         + minorBonus)) / 100)
-    * (secondGoldenFoodBonus === 1 ? secondGoldenFoodBonus : 1 + secondGoldenFoodBonus / 100);
+    * goldenKebabMulti;
 
-  const goldenKebabMulti = secondGoldenFoodBonus === 1 ? 1 : 1 + secondGoldenFoodBonus / 100;
   const sources: any[] = [];
   const subSections = [
     {
@@ -682,7 +683,7 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
       sources: [
         { name: 'Smithing Talent', value: (dmgPerSmithingMultiplier - 1) * 100 },
         { name: 'Winner Bonus', value: winnerBonus },
-        { name: 'Golden Kebabs', value: secondGoldenFoodBonus === 1 ? 0 : secondGoldenFoodBonus },
+        { name: 'Golden Kebabs', value: secondGoldenFoodBonus },
       ]
     },
     {
@@ -994,7 +995,7 @@ const getMaxHp = (character: Character, characters: Character[], account: Accoun
   const { value: equipmentBonus } = getStatsFromGear(character, 15, account);
   const obolsBonus = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[15]);
   const shrineBonus = getShrineBonus(account?.shrines, 1, character?.mapIndex, account?.cards, account?.sailing?.artifacts);
-  const goldenFoodBonus = getGoldenFoodBonus('Golden_Jam', character, account, characters) || 1;
+  const goldenFoodMulti = getGoldenFoodMultiplier('Golden_Jam', character, account, characters);
 
   const flatHp = 15 + cardBonus
     + hpBubble + (stampBonus
@@ -1007,7 +1008,7 @@ const getMaxHp = (character: Character, characters: Character[], account: Accoun
     + (agiMaxHpTalentBonus
       + equipmentBonus + obolsBonus)) / 100)
     * (1 + shrineBonus / 100)
-    * (goldenFoodBonus === 1 ? goldenFoodBonus : 1 + goldenFoodBonus / 100)
+    * goldenFoodMulti
     * (1 + postOfficePercentBonus / 100)
     * (1 - activeBuff / 100)
     * (1 + (amplifiedFamilyBonus

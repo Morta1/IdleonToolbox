@@ -161,13 +161,15 @@ describe('getbonus2 added-talent-levels', () => {
     expect(green).not.toBeCloseTo(47.577639751552795, 6);
   });
 
-  // getbonus2(2, 475, -1) === 224000 whoever is playing: bigBase(4000, 1000) at the RAW level 220.
-  // The y-variant is a separate branch that never sees added levels.
-  it.each(['Nine', 'Six', 'Ten', 'Two', 'Seven'])('CHARGE_SYPHON y-bonus ignores added levels (%s playing)', (activeName) => {
-    const bonus = getHighestTalentByClass(characters, CLASSES.Wizard, 'CHARGE_SYPHON', 'y',
-      false, false, false, byName(activeName));
-    expect(bonus).toBeCloseTo(224000, 6);
-  });
+  // The y-variant takes the active character's added levels exactly like the x one: live on
+  // 2026-10-10, getbonus2(2, 475, -1) was 360000 = bigBase(4000, 1000) at MortaWiz's raw 220 + 136
+  // added (AllTalentLVz). So the value moves with whoever is playing.
+  it.each([['Nine', 372000], ['Six', 360000], ['Ten', 362000], ['Two', 365000], ['Seven', 347000]])(
+    'CHARGE_SYPHON y-bonus takes the added levels (%s playing)', (activeName, expected) => {
+      const bonus = getHighestTalentByClass(characters, CLASSES.Wizard, 'CHARGE_SYPHON', 'y',
+        false, false, false, byName(activeName));
+      expect(bonus).toBeCloseTo(expected, 6);
+    });
 
   // The save never names the character being played, but PTimeAway does: the played character's
   // stamp tracks the clock while every other one is frozen at the moment it was left. Confirmed

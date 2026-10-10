@@ -46,7 +46,9 @@ const TALENTS = [
   ["Wind_Walker", "SLAYER_ABOMINATOR", 434, 1.031203007518797],
   // pinned to the fixture (level 220, bigBase(4000, 1000)) rather than to the live client, which
   // reads 372000 now that the account has levelled it further
-  ["Wizard", "CHARGE_SYPHON", 475, 224000, true],
+  // Fixture value with Nine playing: raw 220 plus added levels. The y-variant was verified live on
+  // 2026-10-10 to take added levels (getbonus2(2, 475, -1) = 360000 on the newer save).
+  ["Wizard", "CHARGE_SYPHON", 475, 372000, true],
   ["Elemental_Sorcerer", "SHARED_BELIEFS", 506, 84.27672955974843],
   ["Elemental_Sorcerer", "GODS_CHOSEN_CHILDREN", 507, 7.282608695652174],
   ["Elemental_Sorcerer", "WORMHOLE_EMPEROR", 508, 1.1720116618075802],

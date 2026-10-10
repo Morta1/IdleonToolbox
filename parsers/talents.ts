@@ -227,11 +227,10 @@ export const getHighestTalentByClass = (characters: any, className: any, talentN
       // Mimic game's getbonus2(1, id, -1):
       // - talentIndex >= 100 and the character has levels in it: growth(baseLevel + AllTalentLVz(id))
       // - anything else: growth(baseLevel) - no addedLevels adjustment
-      // The y-variant is a separate branch in the game that reads SkillLevels straight, so added
-      // levels never reach it whatever the talent id.
+      // getbonus2(2, id, -1), the y-variant, takes the same branch (checked live: Sneaky Skilling).
       const talentObj = flatTalents?.find(({ name }: any) => name === talentName);
       if (talentObj) {
-        const level = talentObj.talentId >= 100 && talentObj.baseLevel > 0 && !yBonus
+        const level = talentObj.talentId >= 100 && talentObj.baseLevel > 0
           ? talentObj.baseLevel + getAllTalentAddedLevels(talentObj.talentId, activeCharacter, character)
           : talentObj.baseLevel;
         const func = yBonus ? talentObj.funcY : talentObj.funcX;

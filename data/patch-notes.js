@@ -25,7 +25,9 @@ export const patchNotes = [
       'AFK gain rates now match the game: all activities were slightly too low and Spelunking far too high',
       'Lab mainframe, printer, divinity style alert, Kattlekruk bubbles, AFK gains and Divinity EXP now count King Doot, pocket divinities and the god chosen by Coral Kid for major divinity bonuses',
       'Summoning: upgrade bonuses now include Absolute Stardom, Allstar and stone trial multipliers, and upgrade costs now match the game (Essential Essence, Sell Sell Sell and Cost Laundering included, Upgrade Vault sushi discounts no longer applied)',
-      'Sailing: Sushi Station now shows in the artifact find breakdown'
+      'Sailing: Sushi Station now shows in the artifact find breakdown',
+      'Skill EXP multipliers now match the game: they include the account-wide skill EXP bonus, and Farming (far too high), Cooking, Laboratory, Sneaking, Divinity and Construction EXP were corrected',
+      'Mining efficiency, skill efficiency, MSA farming/jade/essence bonuses and worship charge syphon now match the game'
     ]
   },
   {

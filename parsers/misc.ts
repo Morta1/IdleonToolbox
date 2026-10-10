@@ -1022,6 +1022,11 @@ export const getGoldenFoodBonus = (foodName: any, character: any, account: any, 
   return baseBonus + foodBonus(items?.[beanstalkGoldenFoods[index]]?.Amount, 1e3 * Math.pow(10, rank));
 };
 
+// GoldFoodBonuses returns the bonus itself for additive effects (BaseDamage, Defence, SkillExp, AllAFK,
+// DropRatez...) and 1 + bonus / 100 for the rest (Damage, MaxHPpct, MiningEff, FishingEff, HealthFoods).
+export const getGoldenFoodMultiplier = (foodName: any, character: any, account: any, characters: any) =>
+  1 + (getGoldenFoodBonus(foodName, character, account, characters) || 0) / 100;
+
 export const getRandomEvents = (account: any) => {
   if (!account) return [];
   const { serverVars, timeAway } = account || {};

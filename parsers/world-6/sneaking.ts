@@ -442,7 +442,7 @@ export const getStealthForDetection = (target: number, difficulty: number) => {
 
 // Game: NinjaBonus(t, subType) - the two charm slots (raw 14+4t, 15+4t), boosted by Gold_Scroll and the slot symbol.
 // game: "NinjaBonus"
-const getNinjaCharmBonus = (account: any, playerIndex: number, subType: number) => {
+export const getNinjaCharmBonus = (account: any, playerIndex: number, subType: number) => {
   const goldScroll = getInventoryNinjaItem(account, 'Gold_Scroll');
   const charms = account?.sneaking?.players?.[playerIndex]?.equipment?.slice(2, 4) ?? [];
   return charms.reduce((sum: number, item: any) => item?.subType === subType && item?.name
