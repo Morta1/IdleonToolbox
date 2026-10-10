@@ -1772,9 +1772,11 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const levelBonus = character?.level < 10 ? 150 : character?.level < 30 ? 100 : character?.level < 50 ? 50 : 0;
   expGainLUK2 += levelBonus;
 
-  // Divinity - deity index 4 (Omniphau)
-  const godLinks = getDeityLinkedIndex(account, characters, 4);
-  const minorGodBonus = getMinorDivinityBonus(character, account, 4, characters);
+  // game: Bonus_Minor(player, 4) - god index 4 is Omniphau, which sits in god slot 5. Links and
+  // getMinorDivinityBonus both take the slot: 4 is Goharut's, which gave a 5x multiplier, not 100x.
+  const OMNIPHAU_SLOT = 5;
+  const godLinks = getDeityLinkedIndex(account, characters, OMNIPHAU_SLOT);
+  const minorGodBonus = getMinorDivinityBonus(character, account, OMNIPHAU_SLOT, characters);
   if (godLinks.includes(character?.playerId)) {
     expGainLUK2 += minorGodBonus;
   }

@@ -411,11 +411,12 @@ const CharacterInfo = ({ account, characters, character, lastUpdated }) => {
     crystalSpawnChance,
     nonConsumeChance
   } = character || {};
-  const { cashMulti } = getCashMulti(character, account, characters) || {};
+  // getMaxDamage records the overkill tiers Coins for Charon multiplies by, so it runs first.
+  const playerInfo = getMaxDamage(character, characters, account) || {};
+  const { cashMulti } = getCashMulti(character, account, characters, playerInfo) || {};
   const { dropRate } = getDropRate(character, account, characters) || {};
   const { respawnRate } = getRespawnRate(character, account) || {};
   const { afkGains } = getAfkGain(character, characters, account) || {};
-  const playerInfo = getMaxDamage(character, characters, account) || {};
   const isActive = () => {
     const timePassed = new Date().getTime() + (afkTime - lastUpdated);
     const minutes = differenceInMinutes(new Date(), new Date(timePassed));
