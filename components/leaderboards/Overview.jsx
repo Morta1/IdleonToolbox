@@ -8,7 +8,7 @@ import useFormatDate from '@hooks/useFormatDate';
 import LoginDialog from '@components/common/NavBar/LoginDialog';
 import { prefix } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
-import { AGGREGATION_INTERVAL, GLOBAL_METRIC, TABS, formatExactValue, formatMetricValue, metaOf, rankText, staleUntilNextRun } from './format';
+import { AGGREGATION_INTERVAL, GLOBAL_METRIC, TABS, formatExactValue, formatMetricValue, metaOf, profileUrl, rankText, staleUntilNextRun } from './format';
 import { topPercentLabel, withinReach } from './standing';
 import { nextRankText } from './tiers';
 import CategoryTiles from './CategoryTiles';
@@ -36,7 +36,8 @@ const PodiumSlot = ({ row, kind }) => {
       {trophy
         ? <Box component="img" src={`${prefix}${trophy}`} alt={`Rank ${row.rank}`} sx={{ width: size, height: size, objectFit: 'contain' }}/>
         : <Typography color="text.secondary" fontWeight={600} sx={{ fontSize: 14 }}>{rankText(row.rank)}</Typography>}
-      <Typography noWrap title={row.mainChar} sx={{ maxWidth: '100%', fontSize: first ? { xs: 13, sm: 18 } : { xs: 12, sm: 15 }, fontWeight: first ? 700 : 600 }}>{row.mainChar}</Typography>
+      <Link href={profileUrl(row.mainChar)} target="_blank" underline="hover" color="inherit" noWrap title={row.mainChar}
+            sx={{ maxWidth: '100%', fontSize: first ? { xs: 13, sm: 18 } : { xs: 12, sm: 15 }, fontWeight: first ? 700 : 600 }}>{row.mainChar}</Link>
       <Typography color="text.secondary" title={formatExactValue('points', row.value)} sx={{ fontSize: 12, display: { xs: 'none', sm: 'block' } }}>{formatMetricValue('points', row.value)}</Typography>
     </Stack>
   );

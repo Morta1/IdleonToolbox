@@ -23,6 +23,7 @@ export const patchNotes = [
       'Statues on the General page now show their Statue Flair banner'
     ],
     'fixes': [
+      'Leaderboards: top 3 names in the Global ranking podium now link to their profiles',
       'Alert settings: options that depend on another option now sit indented right under it',
       'Leaderboards: salt rank boards no longer count salts that are not unlocked yet',
       'Fixed Crystal Glunko Cove upgrade costs missing the 15% study discount, and Coral Reef daily gains counting the Demonblub card bonus when the card is not owned',
