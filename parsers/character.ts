@@ -72,7 +72,7 @@ import { lavaLog, notateNumber, commaNotation } from '@utility/helpers';
 import { getArcadeBonus } from './world-2/arcade';
 import { isArtifactAcquired } from './world-5/sailing';
 import { getShinyBonus } from './world-4/breeding';
-import { getDeityLinkedIndex, getDivStylePerHour, getGodByIndex, getMinorDivinityBonus, GOD_SLOT } from './world-5/divinity';
+import { getAccountMinorDivinityBonus, getCharacterMinorDivinityBonus, getDivStylePerHour, getMinorDivinityBonus, GOD_INDEX, GOD_SLOT } from './world-5/divinity';
 import { getCloudBonus, getEquinoxBonus } from './world-3/equinox';
 import { getConstructMastery } from './world-4/rift';
 import { getAtomBonus } from './world-3/atomCollider';
@@ -491,13 +491,13 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
 
   // The family walk reads THE_FAMILY_GUY with every added level but the Elemental Sorcerer family
   // bonus, which is the one the walk is still building.
-  const levelsWithoutFamily = getTalentAddedLevels(talents, selectedTalentPreset, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, 0, account, character);
+  const levelsWithoutFamily = getTalentAddedLevels(talents, selectedTalentPreset, 0, account, character);
   const familyGuy = applyTalentAddedLevels(talents, flatTalents, levelsWithoutFamily?.value, levelsWithoutFamily?.superTalentsInfo, selectedTalentPreset, character.rgTalentAddedLevelsCap)
     ?.find(({ name }: any) => name === 'THE_FAMILY_GUY');
   character.familyGuyWithoutFamily = familyGuy && (({ baseLevel, level, funcX, x1, x2 }: any) => ({ baseLevel, level, funcX, x1, x2 }))(familyGuy);
   character.familyBonuses = getFamilyBonusesSeenBy(charactersLevels, character.playerId, character.familyGuyWithoutFamily);
   const familyEffBonus = character.familyBonuses[CLASSES.Elemental_Sorcerer] ?? 0;
-  const addedLevels = getTalentAddedLevels(talents, selectedTalentPreset, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
+  const addedLevels = getTalentAddedLevels(talents, selectedTalentPreset, familyEffBonus, account, character);
 
   character.addedLevelsBreakdown = addedLevels?.breakdown;
   character.addedLevels = addedLevels?.value;
@@ -506,7 +506,7 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
   character.flatTalents = applyTalentAddedLevels(talents, flatTalents, character.addedLevels, addedLevels?.superTalentsInfo, selectedTalentPreset, character.rgTalentAddedLevelsCap);
   if (talentPresetObject) {
     const otherPresetIndex = selectedTalentPreset === 0 ? 1 : 0;
-    const presetAddedLevels = getTalentAddedLevels(character?.talentPreset?.talents, otherPresetIndex, linkedDeity, character.secondLinkedDeityIndex, character.deityMinorBonus, character.secondDeityMinorBonus, familyEffBonus, account, character);
+    const presetAddedLevels = getTalentAddedLevels(character?.talentPreset?.talents, otherPresetIndex, familyEffBonus, account, character);
     character.talentPreset = {
       ...character.talentPreset,
       talents: applyTalentAddedLevels(character?.talentPreset?.talents, null, presetAddedLevels?.value, presetAddedLevels?.superTalentsInfo, otherPresetIndex, character.rgTalentAddedLevelsCap),
@@ -1504,11 +1504,7 @@ export const getAllSkillsExp = (character: any, characters: any[], account: any)
   // Bloque (9): 20% base, 30% once upgraded - the parsed bonus already resolves upgradedBonus.
   const companionBonus = isCompanionBonusActive(account, 9) ? (account?.companions?.list?.at(9)?.bonus ?? 0) : 0;
   const schematicBonus = getSchematicBonus({ holesObject: account?.hole?.holesObject, t: 49, i: 10 });
-  let godBonus = 0;
-  const flutterbisIndexes = getDeityLinkedIndex(account, characters, GOD_SLOT.Flutterbis);
-  if (flutterbisIndexes?.[character?.playerId] !== -1) {
-    godBonus = getGodByIndex(account?.divinity?.linkedDeities, characters, GOD_SLOT.Flutterbis) || 0;
-  }
+  const godBonus = getCharacterMinorDivinityBonus(character, account, GOD_INDEX.Flutterbis);
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Skill XP');
   const armorSetBonus = getArmorSetBonus(account, 'CHIZOAR_SET');
@@ -1773,12 +1769,8 @@ export const getClassExpMulti = (character: any, account: any, characters: any) 
   const levelBonus = character?.level < 10 ? 150 : character?.level < 30 ? 100 : character?.level < 50 ? 50 : 0;
   expGainLUK2 += levelBonus;
 
-  // game: Bonus_Minor(player, 4) - 4 is Omniphau's god index, not its slot.
-  const godLinks = getDeityLinkedIndex(account, characters, GOD_SLOT.Omniphau);
-  const minorGodBonus = getMinorDivinityBonus(character, account, GOD_SLOT.Omniphau, characters);
-  if (godLinks.includes(character?.playerId)) {
-    expGainLUK2 += minorGodBonus;
-  }
+  const minorGodBonus = getCharacterMinorDivinityBonus(character, account, GOD_INDEX.Omniphau, characters);
+  expGainLUK2 += minorGodBonus;
 
   // Card set 5 (CardSet26)
   const cardSetBonus = character?.cards?.cardSet?.rawName === 'CardSet26' ? character?.cards?.cardSet?.bonus : 0;
@@ -2661,16 +2653,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
   const statueBonus = getStatueBonus(account, 19, character?.flatTalents);
   const labBonus = getLabBonus(account?.lab.labBonuses, 9);
   const prayerBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Jawbreaker', account)?.bonus;
-  const harriepGodUsers = getDeityLinkedIndex(account, characters, GOD_SLOT.Harriep);
-  const divinityMinorBonus = characters?.reduce((sum: any, char: any, index: any) => {
-    if (harriepGodUsers?.includes(index)) {
-      return sum + getMinorDivinityBonus(char, account, GOD_SLOT.Harriep, characters);
-    }
-    if (char?.linkedDeity === GOD_SLOT.Harriep) {
-      return sum + char?.deityMinorBonus;
-    }
-    return sum;
-  }, 0);
+  const divinityMinorBonus = getAccountMinorDivinityBonus(account, characters, GOD_INDEX.Harriep);
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'MonsterCash');
   const { value: cashFromGear, newBreakdown: cashFromGearBreakdown } = getStatsFromGear(character, 3, account);
   const cashFromObols = getObolsBonus(character?.obols, bonuses?.etcBonuses?.[3])
@@ -3169,18 +3152,7 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
   const majorBonus = isCompanionBonusActive(account, 0) || character?.linkedDeity === GOD_SLOT.Snehebatu || character?.secondLinkedDeityIndex === GOD_SLOT.Snehebatu
     ? 1
     : 0;
-  const divinityMinorBonus = characters?.reduce((sum: any, char: any) => {
-    if (isCompanionBonusActive(account, 0)) {
-      return sum + getMinorDivinityBonus(char, account, GOD_SLOT.Goharut, characters);
-    }
-    if (char?.linkedDeity === GOD_SLOT.Goharut) {
-      return char?.deityMinorBonus > sum ? char?.deityMinorBonus : sum;
-    }
-    else if (char?.secondLinkedDeityIndex === GOD_SLOT.Goharut) {
-      return char?.secondDeityMinorBonus > sum ? char?.secondDeityMinorBonus : sum;
-    }
-    return sum;
-  }, 0);
+  const divinityMinorBonus = getAccountMinorDivinityBonus(account, characters, GOD_INDEX.Goharut);
   const compBonus = isCompanionBonusActive(account, 6) ? account?.companions?.list?.at(6)?.bonus : 0;
   const compBonus25 = isCompanionBonusActive(account, 25) ? account?.companions?.list?.at(25)?.bonus : 0;
   const randomItemsFound = getRandomEventItems(account);

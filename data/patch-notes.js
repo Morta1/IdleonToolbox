@@ -21,6 +21,7 @@ export const patchNotes = [
       'Monster cash multiplier now includes the Molti passive card and the first Cash from Mobs arcade upgrade',
       'Class EXP multiplier now includes the full Omniphau divinity bonus (it was about 20x too low)',
       'Cash multiplier on the dashboard, Formulas page and leaderboards now counts Coins for Charon like the character page',
+      'Divinity bonuses now follow the game rules for Coral Kid, King Doot and linked gods, fixing defence, damage, skill and class EXP, cash, AFK gains, printer, sailing speed and statue drop values on affected accounts',
       'Summoning: upgrade bonuses now include Absolute Stardom, Allstar and stone trial multipliers, and upgrade costs now match the game (Essential Essence, Sell Sell Sell and Cost Laundering included, Upgrade Vault sushi discounts no longer applied)',
       'Sailing: Sushi Station now shows in the artifact find breakdown'
     ]

@@ -5,15 +5,14 @@ import { getActivityIcon } from '@utility/spriteImages';
 import Tooltip from '../Tooltip';
 import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
 import { isCompanionBonusActive } from '@parsers/misc';
-import { getDeityLinkedIndex, GOD_SLOT } from '@parsers/world-5/divinity';
+import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
 
 const Activity = ({ playerId, afkTarget, targetMonster, monsterFace, account, divStyle, characters }) => {
   const isLabConnectedByDivinity = () => {
     return account?.lab?.connectedPlayers?.find((char) => char?.playerId === playerId)?.isDivinityConnected;
   }
 
-  const gods = getDeityLinkedIndex(account, characters, GOD_SLOT.Goharut);
-  const hasGoatGod = gods.includes(playerId);
+  const hasGoatGod = isMajorDivinityActive(characters?.[playerId], account, GOD_INDEX.Goharut);
 
   return (
     <Card sx={{ width: 220 }} variant={'outlined'}>

@@ -3,7 +3,7 @@ import { isTalentBannedForAllLevels } from '@utility/talentBans';
 import { classes, talents } from '@website-data';
 import { getAchievementStatus } from './achievements';
 import { isCompanionBonusActive } from './misc';
-import { getMinorDivinityBonus, GOD_SLOT } from './world-5/divinity';
+import { getCharacterMinorDivinityBonus, GOD_INDEX } from './world-5/divinity';
 import { getEquinoxBonus } from './world-3/equinox';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getGuildBonusBonus } from '@parsers/guild';
@@ -287,7 +287,7 @@ export const getSuperTalentAddedLevels = (account: any) => {
   return Math.round(50 + getLegendTalentBonus(account, 7) + getZenithBonus(account, 5));
 }
 
-export const getTalentAddedLevels = (talents: any, presetIndex: any, linkedDeity: any, secondLinkedDeity: any, deityMinorBonus: any, secondDeityMinorBonus: any, familyEffBonus: any, account: any, character: any) => {
+export const getTalentAddedLevels = (talents: any, presetIndex: any, familyEffBonus: any, account: any, character: any) => {
   // "AllTalentLV" == e
   let addedLevels = 0, breakdown;
   const superTalentBonus = getSuperTalentAddedLevels(account);
@@ -316,18 +316,8 @@ export const getTalentAddedLevels = (talents: any, presetIndex: any, linkedDeity
     }
   }
 
-  const pocketLinked = account?.hole?.godsLinks?.find(({ index }: any) => index === 1);
-  if (isCompanionBonusActive(account, 0) || pocketLinked) {
-    addedLevels += Math.ceil(getMinorDivinityBonus(character, account, GOD_SLOT.Arctis));
-  }
-  else {
-    if (linkedDeity === GOD_SLOT.Arctis) {
-      addedLevels += Math.ceil(deityMinorBonus);
-    }
-    else if (secondLinkedDeity === GOD_SLOT.Arctis) {
-      addedLevels += Math.ceil(secondDeityMinorBonus);
-    }
-  }
+  // Arctis' minor bonus is the only one the game ceils into talent levels.
+  addedLevels += Math.ceil(getCharacterMinorDivinityBonus(character, account, GOD_INDEX.Arctis));
   breakdown = [{ name: 'God Bonus', value: Math.ceil(addedLevels) }];
   const symbolTalent = talents?.[3]?.orderedTalents?.find(({ name }: any) => name.includes('SYMBOLS_OF_BEYOND_'));
   let symbolAddedLevel = 0;

@@ -1,4 +1,3 @@
-import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { getActiveBubbleBonus, isPrismaBubble } from '@parsers/world-2/alchemy';
 import { getPrismaMulti } from '@parsers/class-specific/tesseract';
@@ -129,33 +128,6 @@ const getGodCost = ({ name, level, x4, x5, maxLevel = 100 }: any = {}, index: an
 
 export const getGodBlessingBonus = (gods: any, godName: any) => {
   return gods?.find(({ name }: any) => name === godName)?.blessingBonus ?? 0;
-}
-
-export const getGodByIndex = (linkedDeities: any, characters: any, godSlot: any) => {
-  const char = characters?.find((_: any, index: any) => linkedDeities?.[index] === godSlot)
-  return char?.deityMinorBonus;
-}
-
-export const getDeityLinkedIndex = (account: any, characters: any, godSlot: any) => {
-  const coralKidLinked = account?.accountOptions?.[425] > 0 && account?.accountOptions?.[425] === godSlot;
-  const pocketLinked = account?.hole?.godsLinks?.find(({ index }: any) => index === godSlot);
-  const normalLink = account?.divinity?.linkedDeities?.map((deity: any, index: any) => godSlot === deity || (isCompanionBonusActive(account, 0) && account?.finishedWorlds?.World4)
-    ? index
-    : -1);
-  const esLink = characters.map((character: any, index: any) => isGodEnabledBySorcerer(character, godSlot) || (isCompanionBonusActive(account, 0) && account?.finishedWorlds?.World4)
-    ? index
-    : -1);
-  // Check if pocketLinked exists and add it to the result
-  return normalLink?.map((charIndex: any, index: any) => {
-    // First check for pocket link or coral kid link
-    if (pocketLinked || coralKidLinked) {
-      return index;
-    }
-    // Then check for normal and ES links as before
-    return charIndex === -1 && esLink?.[index] !== -1
-      ? esLink?.[index]
-      : charIndex;
-  }).filter((index: any) => index !== -1) || [];
 }
 
 export const getMinorDivinityBonus = (character: any, account: any, godSlot?: any, characters?: any) => {
@@ -324,23 +296,64 @@ export const getW7ChosenGodIndex = (account: any) => {
 // God indices 6 (Purrmep) and 8 (Kattlekruk) short circuit on their own unlock flags in the game;
 // nothing reads those through here yet, so they are not modelled.
 // game: "Bonus_MAJOR"
-export const isMajorDivinityActive = (character: any, account: any, godIndex: number) => {
-  if (isCompanionBonusActive(account, 0)) return true;
-  if (isPocketDivinityOwned(account, godIndex)) return true;
-  if (getW7ChosenGodIndex(account) === godIndex) return true;
-  // Research grid square 173 hands Arctis to everyone, and gem shop item 9 does the same for
-  // Snehebatu, whoever the character is actually linked to.
-  if (godIndex === GOD_INDEX.Arctis && (account?.research?.gridSquares?.[173]?.bonuses?.[0] ?? 0) >= 1) return true;
-  if (godIndex === GOD_INDEX.Snehebatu && Number(account?.gemShopPurchases?.[9]) > 0) return true;
+export const isMajorDivinityActive = (character: any, account: any, godIndex: number) =>
+  isGodGrantedToEveryone(character, account, godIndex)
+  || getW7ChosenGodIndex(account) === godIndex
+  || getLinkedGodSlot(character, account, godIndex) !== -1;
 
+// Divinity("Bonus_Minor", playerIndex, godIndex): the god's minor bonus for one character, 0 when the
+// character doesn't get it. Unlike the major bonus, Coral Kid's chosen god plays no part here.
+// game: "Bonus_Minor"
+export const getCharacterMinorDivinityBonus = (character: any, account: any, godIndex: number, characters?: any) => {
+  const slot = isGodGrantedToEveryone(character, account, godIndex)
+    ? getGodSlotOf(godIndex)
+    : getLinkedGodSlot(character, account, godIndex);
+  return slot === -1 ? 0 : getMinorDivinityBonus(character, account, slot, characters);
+}
+
+// Divinity("Bonus_Minor", -1, godIndex): the minor bonus summed over every character linked to the
+// god. Only for Harriep and Goharut do King Doot, a pocket divinity or Coral Kid hand it to everyone,
+// and Coral Kid counts when OptionsListAccount[425] is godIndex + 1, although 425 is a 1-based slot
+// everywhere else (getW7ChosenGodIndex): for Goharut that is choosing Omniphau. The game has it that
+// way. Polytheism links, grid square 173 and gem shop item 9 don't count here.
+// game: "Bonus_Minor"
+export const getAccountMinorDivinityBonus = (account: any, characters: any, godIndex: number) => {
+  const toEveryone = (godIndex === GOD_INDEX.Harriep || godIndex === GOD_INDEX.Goharut)
+    && ((characters ?? []).some((character: any) => isKingDootActive(character, account))
+      || isPocketDivinityOwned(account, godIndex)
+      || Number(account?.accountOptions?.[425]) === godIndex + 1);
+  return (characters ?? []).reduce((sum: number, character: any) => {
+    const linkedSlot = account?.divinity?.linkedDeities?.[character?.playerId];
+    const slot = toEveryone
+      ? getGodSlotOf(godIndex)
+      : linkedSlot != null && linkedSlot !== -1 && Number((gods as any)?.[linkedSlot]?.godIndex) === godIndex ? linkedSlot : -1;
+    return slot === -1 ? sum : sum + getMinorDivinityBonus(character, account, slot, characters);
+  }, 0);
+}
+
+const getGodSlotOf = (godIndex: number) => (gods as any)?.findIndex((god: any) => Number(god?.godIndex) === godIndex) ?? -1;
+
+// Companions(0) reads 0 while the active character's divinity level is under 2. For one character that
+// character is the active one; account wide the toolbox can't tell, so any character at 2 counts.
+const isKingDootActive = (character: any, account: any) =>
+  !!isCompanionBonusActive(account, 0) && (character?.skillsInfo?.divinity?.level ?? 0) >= 2;
+
+// What hands a god's bonus to every character whoever they are linked to: King Doot, a pocket
+// divinity, research grid square 173 for Arctis and gem shop item 9 for Snehebatu.
+const isGodGrantedToEveryone = (character: any, account: any, godIndex: number) =>
+  isKingDootActive(character, account)
+  || isPocketDivinityOwned(account, godIndex)
+  || (godIndex === GOD_INDEX.Arctis && (account?.research?.gridSquares?.[173]?.bonuses?.[0] ?? 0) >= 1)
+  || (godIndex === GOD_INDEX.Snehebatu && Number(account?.gemShopPurchases?.[9]) > 0);
+
+// The slot linking a character to a god, or -1: its own link, else the Elemental Sorcerer's polytheism
+// link once that slot is unlocked account wide. An unlinked character gets nothing, and the game does
+// not fall through to the polytheism link.
+const getLinkedGodSlot = (character: any, account: any, godIndex: number) => {
   const linkedSlot = account?.divinity?.linkedDeities?.[character?.playerId];
-  // An unlinked character gets nothing, and the game does not fall through to the polytheism link.
-  if (linkedSlot == null || linkedSlot === -1) return false;
-  if (Number((gods as any)?.[linkedSlot]?.godIndex) === godIndex) return true;
-
+  if (linkedSlot == null || linkedSlot === -1) return -1;
+  if (Number((gods as any)?.[linkedSlot]?.godIndex) === godIndex) return linkedSlot;
   const secondSlot = character?.secondLinkedDeityIndex;
-  if (secondSlot == null) return false;
-  if (Number((gods as any)?.[secondSlot]?.godIndex) !== godIndex) return false;
-  // The second link only pays out once that god slot has been unlocked account wide.
-  return (Number(account?.divinity?.unlockedDeities) || 0) > secondSlot;
+  if (secondSlot == null || Number((gods as any)?.[secondSlot]?.godIndex) !== godIndex) return -1;
+  return (Number(account?.divinity?.unlockedDeities) || 0) > secondSlot ? secondSlot : -1;
 }

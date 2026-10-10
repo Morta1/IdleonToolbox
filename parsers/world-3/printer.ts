@@ -1,5 +1,5 @@
 import { lavaLog, notateNumber, tryToParse } from '@utility/helpers';
-import { getDeityLinkedIndex, GOD_SLOT } from '@parsers/world-5/divinity';
+import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { checkCharClass, CLASSES, getTalentBonus } from '@parsers/talents';
 import { getEventShopBonus, getSkillMasteryBonusByIndex, isCompanionBonusActive } from '@parsers/misc';
@@ -18,8 +18,6 @@ export const getPrinter = (idleonData: IdleonData, charactersData: any[], accoun
 }
 
 const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData: any[], accountData: Account) => {
-  const harriepGodIndex = getDeityLinkedIndex(accountData, charactersData, GOD_SLOT.Harriep);
-  const pocketLinked = accountData?.hole?.godsLinks?.find(({ index }: any) => index === 3);
   const wiredInBonus = accountData?.lab?.labBonuses?.find((bonus: any) => bonus.name === 'Wired_In')?.active;
   const connectedPlayers = accountData?.lab?.connectedPlayers;
   const { value: extraPrinting, params } = getPrinterMulti(accountData, charactersData);
@@ -32,6 +30,7 @@ const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData:
   const chunk = 14;
   const extraChunk = 10;
   return charactersData.map((charData, charIndex) => {
+    const harriepMajor = isMajorDivinityActive(charData, accountData, GOD_INDEX.Harriep);
     let relevantPrinterData = printData?.slice(
       charIndex * chunk,
       charIndex * chunk + chunk
@@ -54,10 +53,10 @@ const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData:
           const isPlayerConnected = connectedPlayers?.find(({ playerId }: any) => playerId === charIndex);
 
           const multi = (wiredInBonus && isPlayerConnected ?
-            ((harriepGodIndex.includes(charIndex) || pocketLinked)
+            (harriepMajor
               ? 6 * extraPrinting
               : 2 * extraPrinting)
-            : (harriepGodIndex.includes(charIndex) || pocketLinked)
+            : harriepMajor
               ? 3 * extraPrinting
               : extraPrinting)
 
@@ -67,7 +66,7 @@ const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData:
             { title: 'Multiplicative' },
             { name: '' },
             { name: 'Lab', value: isPlayerConnected && wiredInBonus ? 2 : 0 },
-            { name: 'Harriep God', value: (harriepGodIndex.includes(charIndex) || pocketLinked) ? 3 : 0 },
+            { name: 'Harriep God', value: harriepMajor ? 3 : 0 },
             { name: 'Companion', value: params.companionBonus },
             { name: 'Compass', value: params.compassBonus },
             { name: 'Skill Mastery', value: 1 + params.skillMasteryBonus / 100 },

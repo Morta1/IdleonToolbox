@@ -36,7 +36,7 @@ import { isSuperbitUnlocked } from './world-5/gaming';
 import { constructionMasteryThresholds } from './world-3/construction';
 import { getSaltLickBonus } from './world-3/saltLick';
 import { getAchievementStatus } from './achievements';
-import { getGodBlessingBonus, getMinorDivinityBonus, GOD_INDEX, GOD_SLOT, isMajorDivinityActive } from './world-5/divinity';
+import { getCharacterMinorDivinityBonus, getGodBlessingBonus, GOD_INDEX, isMajorDivinityActive } from './world-5/divinity';
 // getEquinoxBonus not used - AdditionExtraDMG uses talent-based calculation
 import { getMiningEff } from '@parsers/efficiency';
 import { getUpgradeVaultBonus } from './misc/upgradeVault';
@@ -649,13 +649,7 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
   const totalQuestsCompleted = calcTotalQuestCompleted(characters);
   const questBonus = Math.min(totalQuestsCompleted as number, questTalent);
 
-  const hasDoot = isCompanionBonusActive(account, 0);
-  const coralKidLinked = Number(account?.accountOptions?.[425]) > 0 && account?.accountOptions?.[425] === 2;
-  const minorBonus = hasDoot || coralKidLinked ? getMinorDivinityBonus(character, account, GOD_SLOT.Nobisect) : character?.linkedDeity === GOD_SLOT.Nobisect
-    ? character?.deityMinorBonus
-    : character?.secondLinkedDeityIndex === GOD_SLOT.Nobisect
-      ? character?.secondDeityMinorBonus
-      : 0;
+  const minorBonus = getCharacterMinorDivinityBonus(character, account, GOD_INDEX.Nobisect);
 
   const secondGoldenFoodBonus = getGoldenFoodBonus('Golden_Kebabs', character, account, characters) || 1;
 
@@ -932,14 +926,8 @@ const getAccuracy = (character: Character, characters: Character[], account: Acc
   const kangarooBonus = getKangarooBonus(account?.kangaroo?.bonuses, 'Accuracy') || 0;
   const voteBonus = getVoteBonus(account, 3) || 0;
   const amarokSetBonus = getArmorSetBonus(account, 'AMAROK_SET') || 0;
-  const hasDoot = isCompanionBonusActive(account, 0);
-  // Snehebatu's minor bonus is the accuracy/defence one, and gem shop item 9 grants it account-wide
-  // whoever you are linked to: `GemItemsPurchased[9] == 1 && 0 == i` in the game's Bonus_Minor.
-  const snehebatuUnlocked = Number(account?.gemShopPurchases?.[9]) > 0;
-  const minorBonus = hasDoot || snehebatuUnlocked ? getMinorDivinityBonus(character, account, GOD_SLOT.Snehebatu)
-    : character?.linkedDeity === GOD_SLOT.Snehebatu ? character?.deityMinorBonus
-      : character?.secondLinkedDeityIndex === GOD_SLOT.Snehebatu ? character?.secondDeityMinorBonus
-        : 0;
+  // Snehebatu's minor bonus is the accuracy/defence one.
+  const minorBonus = getCharacterMinorDivinityBonus(character, account, GOD_INDEX.Snehebatu);
 
   let accuracy = (character?.stats as any)?.[accuracyStat]
     * (1 + bubbleBonus / 100) *
@@ -1292,8 +1280,6 @@ const getPlayerDefence = (character: Character, characters: Character[], account
   const activeBuff = getTalentBonusIfActive(character?.activeBuffs, 'BALANCED_SPIRIT');
   const flurboBonus = getDungeonFlurboStatBonus(account?.dungeons?.upgrades, 'Defence');
   const chipBonus = getPlayerLabChipBonus(character, account, 0);
-  const hasDoot = isCompanionBonusActive(account, 0);
-  const coralKidLinked = account?.accountOptions?.[425] === 0;
 
   // Missing bonuses from obfuscated code
   const vaultUpgBonus46 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 46) || 0;
@@ -1304,12 +1290,7 @@ const getPlayerDefence = (character: Character, characters: Character[], account
   const vaultUpgBonus5 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 5) || 0;
   const voteBonus3 = getVoteBonus(account, 3) || 0;
 
-  const snehebatuUnlocked = Number(account?.gemShopPurchases?.[9]) > 0;
-  const minorBonus = hasDoot || coralKidLinked || snehebatuUnlocked
-    ? getMinorDivinityBonus(character, account, GOD_SLOT.Snehebatu)
-    : character?.linkedDeity === GOD_SLOT.Snehebatu ? character?.deityMinorBonus
-      : character?.secondLinkedDeityIndex === GOD_SLOT.Snehebatu ? character?.secondDeityMinorBonus
-        : 0;
+  const minorBonus = getCharacterMinorDivinityBonus(character, account, GOD_INDEX.Snehebatu);
 
   // gearBonus now includes gallery and hatRack bonuses
   // The game floors the additive base only, then multiplies - truncating before a ~200x multiplier,

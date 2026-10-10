@@ -44,7 +44,7 @@ import { calcCardBonus, getCardLevel } from '@parsers/cards';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getArmoryUpgradeBonus, getOrbletMarketBonus } from '@parsers/class-specific/royalGuardian';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
-import { getMinorDivinityBonus, GOD_SLOT } from '@parsers/world-5/divinity';
+import { getAccountMinorDivinityBonus, GOD_INDEX } from '@parsers/world-5/divinity';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
 import { getButtonBonus } from '@parsers/world-7/button';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
@@ -59,8 +59,7 @@ export const getRawRefinerySalts = () => {
 export const getDoubleStatueDrop = (account: any, character: any, characters: any) => {
   const tesseractBonus = getTesseractBonus(account, 18);
   const paletteBonus = getPaletteBonus(account, 19);
-  const kattelkrukPlayer = characters?.find(({ linkedDeity }: any) => linkedDeity === GOD_SLOT.Kattlekruk); // kattelkruk is limited to only 1 player linked.
-  const divinityMinorBonus = getMinorDivinityBonus(kattelkrukPlayer, account, GOD_SLOT.Kattlekruk, characters);
+  const divinityMinorBonus = getAccountMinorDivinityBonus(account, characters, GOD_INDEX.Kattlekruk);
   const talentBonus = getTalentBonus(character?.flatStarTalents, 'STATUE_METALLURGY');
   
   return {

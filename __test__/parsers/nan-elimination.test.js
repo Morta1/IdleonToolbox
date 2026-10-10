@@ -407,10 +407,12 @@ describe('accountLevel (empty character-slot level guard)', () => {
 });
 
 
-describe('getDoubleStatueDrop keeps the Kattelkruk minor bonus without a linked player', () => {
+// Divinity("Bonus_Minor", -1, 8) sums only the characters linked to Kattlekruk, King Doot or not:
+// checked against the live game on 10 Oct 2026, where it equalled the one linked character's bonus.
+describe('getDoubleStatueDrop takes the Kattelkruk minor bonus from linked players only', () => {
   const UNLINKED = ['second', 'third', 'fourth'];
 
-  it.each(UNLINKED)('%s: has no Kattelkruk link, and still gets a non-zero divinity bonus', (name) => {
+  it.each(UNLINKED)('%s: has no Kattelkruk link, so no divinity bonus', (name) => {
     const fixture = FIXTURES.find(([fixtureName]) => fixtureName === name);
     expect(fixture).toBeDefined();
     const { account, characters } = parseFixture(fixture[1]);
@@ -419,7 +421,7 @@ describe('getDoubleStatueDrop keeps the Kattelkruk minor bonus without a linked 
 
     const { breakdown } = getDoubleStatueDrop(account, characters?.[0], characters);
     const divinity = breakdown.find(({ name: label }) => label === 'Divinity').value;
-    expect(divinity).toBeGreaterThan(0);
+    expect(divinity).toBe(0);
   });
 
   it('an empty account still gets 0, not NaN, with no guard in getDoubleStatueDrop', () => {

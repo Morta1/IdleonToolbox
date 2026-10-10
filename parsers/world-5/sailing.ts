@@ -13,7 +13,7 @@ import { getBubbleBonus, getSigilBonus, getVialsBonusByStat } from '@parsers/wor
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
-import { getGodBlessingBonus, getMinorDivinityBonus, GOD_SLOT } from '@parsers/world-5/divinity';
+import { getAccountMinorDivinityBonus, getGodBlessingBonus, GOD_INDEX } from '@parsers/world-5/divinity';
 import { getStatueBonus } from '@parsers/world-1/statues';
 import { getLabBonus } from '@parsers/world-4/lab';
 import { getShinyBonus } from '@parsers/world-4/breeding';
@@ -383,8 +383,7 @@ const getBoat = (boat: any, boatIndex: any, lootPile: any, captains: any, artifa
 }
 
 const getBaseSpeed = (account: any, characters: any, artifactsList: any) => {
-  const purrmepPlayer = characters?.find(({ linkedDeity }: any) => linkedDeity === GOD_SLOT.Purrmep); // purrmep is limited to only 1 player linked.
-  const divinityMinorBonus = getMinorDivinityBonus(purrmepPlayer, account, GOD_SLOT.Purrmep, characters);
+  const divinityMinorBonus = getAccountMinorDivinityBonus(account, characters, GOD_INDEX.Purrmep);
   const cardBonus = getCardBonusByEffect(account?.cards, 'Sailing_Speed_(Passive)');
   const stampBonus = getStampsBonusByEffect(account, 'Sailing_Speed')
   const mealBonus = getMealsBonusByEffectOrStat(account, null, 'Sailing');
