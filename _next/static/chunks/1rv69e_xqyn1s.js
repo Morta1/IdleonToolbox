@@ -1,0 +1,19 @@
+__turbopack_load_page_chunks__("/account/misc/constellations", [
+  "static/chunks/3s7fl44flu2qy.js",
+  "static/chunks/3sny7iz9uxmqf.js",
+  "static/chunks/3hgp94-m9hxv2.js",
+  "static/chunks/261jv0cf18sve.js",
+  "static/chunks/17n482ya5ii6y.js",
+  "static/chunks/3ldsmzctqq9v6.js",
+  "static/chunks/0ufelyeti6knt.js",
+  "static/chunks/3-ju7h99kall6.js",
+  "static/chunks/25160f82-ua_u.js",
+  "static/chunks/1t15tc8fsq3x3.js",
+  "static/chunks/00ys_eh-410be.js",
+  "static/chunks/352wzgkwz2xd6.js",
+  "static/chunks/209x0mtko_pzz.js",
+  "static/chunks/2gs0n6lb_psac.js",
+  "static/chunks/1z830xt50wx0o.js",
+  "static/chunks/1wd6qa64zih2f.js",
+  "static/chunks/turbopack-0s6fp-3lyz6n2.js"
+])

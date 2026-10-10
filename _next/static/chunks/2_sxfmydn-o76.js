@@ -1,0 +1,20 @@
+__turbopack_load_page_chunks__("/leaderboards", [
+  "static/chunks/0i5vk2tthndtn.js",
+  "static/chunks/09cwnsfk1rpgm.js",
+  "static/chunks/28o4un0p4mm2m.js",
+  "static/chunks/0_czdd5ukevy4.js",
+  "static/chunks/17n482ya5ii6y.js",
+  "static/chunks/13de92qtct8ah.js",
+  "static/chunks/0lv5vjmocjgqo.js",
+  "static/chunks/1bcf2nlmnfiq7.js",
+  "static/chunks/00hp6_2tp6o__.js",
+  "static/chunks/352wzgkwz2xd6.js",
+  "static/chunks/2rakzwr0vry2u.js",
+  "static/chunks/1t15tc8fsq3x3.js",
+  "static/chunks/26wwxgg83dyeg.js",
+  "static/chunks/209x0mtko_pzz.js",
+  "static/chunks/2urwjm7ecxjyw.js",
+  "static/chunks/3-ju7h99kall6.js",
+  "static/chunks/03zm95qdlyl3_.js",
+  "static/chunks/turbopack-2cpbqv1vkk1h8.js"
+])

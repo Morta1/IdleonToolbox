@@ -1,0 +1,26 @@
+{
+  "name": "Idleon Toolbox",
+  "short_name": "IT",
+  "description": "Essential tools for Legends of Idleon gameplay optimization",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#141A21",
+  "theme_color": "#141A21",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/data/Coins5.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/data/Coins5.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
