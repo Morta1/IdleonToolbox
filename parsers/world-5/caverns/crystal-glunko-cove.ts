@@ -1,6 +1,7 @@
 import { commaNotation, lavaLog, notateNumber } from '@utility/helpers';
 import { items, randomList2 } from '@website-data';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
+import { getStudyBonus } from '@parsers/world-5/hole';
 
 // Cavern 18 — Crystal Glunko Cove. Mirrors N.js customBlock_Holes2 Cglunko_* handlers.
 // Cove upgrade level t (0..23) lives in OptionsListAccount[630 + t]; gooey shapes (the cove currency)
@@ -15,12 +16,14 @@ const SHAPE_OPTION_OFFSET = 654;   // OptionsListAccount[654 + shapeId] = shapes
 export const getCglunkoBonus = (account: any, t: number): number =>
   (account?.accountOptions?.[UPGRADE_OPTION_OFFSET + t] ?? 0) * Number(randomList2?.[13]?.[t] ?? 0);
 
-// game: "Cglunko_upgCost" - pow(costBase, level) + level, discounted by upgrade 7, with a 5x surcharge on odd indices.
-const getCglunkoUpgCost = (account: any, t: number): number => {
+// game: "Cglunko_upgCost" - pow(costBase, level) + level, discounted by upgrade 7, with a 5x surcharge on odd
+// indices, and 15% off while OptionsListAccount[604] is below Study 17's bonus.
+const getCglunkoUpgCost = (holesObject: any, account: any, t: number): number => {
   const level = account?.accountOptions?.[UPGRADE_OPTION_OFFSET + t] ?? 0;
   const costBase = Number(randomList2?.[14]?.[t] ?? 0);
   let cost = (Math.pow(costBase, level) + level) * (1 / (1 + getCglunkoBonus(account, 7) / 100));
   if (t % 2 === 1) cost *= 5;
+  if (Math.round(account?.accountOptions?.[604] ?? 0) < getStudyBonus(holesObject, 17, 0)) cost *= 0.85;
   return cost < 1e6 ? Math.floor(Math.max(1, cost)) : cost;
 };
 
@@ -93,7 +96,7 @@ export const getCrystalGlunkoCove = (holesObject: any, accountData: any) => {
       bonus,
       bonusPerLevel: Number(randomList2?.[13]?.[t] ?? 0),
       costBase: Number(randomList2?.[14]?.[t] ?? 0),
-      cost: getCglunkoUpgCost(accountData, t),
+      cost: getCglunkoUpgCost(holesObject, accountData, t),
       group,
       shapeId,
       shapeName,

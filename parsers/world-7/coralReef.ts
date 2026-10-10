@@ -12,7 +12,7 @@ import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getVialsBonusByEffect } from '@parsers/world-2/alchemy';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
-import { getCardBonusByEffect } from '@parsers/cards';
+import { getCardLevel } from '@parsers/cards';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getStatueBonus } from '@parsers/world-1/statues';
@@ -220,7 +220,8 @@ export const getReefDayGains = (account: any) => {
   const legendTalentBonus = getLegendTalentBonus(account, 0) || 0;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Daily_Coral')?.bonus || 0;
   const emporiumBonus = isJadeBonusUnlocked(account, 'Coral_Conservationism');
-  const passiveCardBonus = getCardBonusByEffect(account?.cards, 'Daily_Coral_(Passive)') || 1;
+  // game: min(2 * CardLv("w7a9"), 15) - the card's raw level, no chip or legend boost, capped at 15.
+  const passiveCardBonus = Math.min(2 * getCardLevel(account?.cards, 'w7a9'), 15);
   const statueBonus = getStatueBonus(account, 31);
 
   const value = 10 * (1 + companionBonusValue)

@@ -16,7 +16,8 @@ export const patchNotes = [
       'Leaderboards: tied players now share a rank, and maxed boards show how many players hold the max'
     ],
     'fixes': [
-      'Leaderboards: salt rank boards no longer count salts that are not unlocked yet'
+      'Leaderboards: salt rank boards no longer count salts that are not unlocked yet',
+      'Fixed Crystal Glunko Cove upgrade costs missing the 15% study discount, and Coral Reef daily gains counting the Demonblub card bonus when the card is not owned'
     ]
   },
   {
