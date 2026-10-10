@@ -110,6 +110,8 @@ import { getDancingCoralBonus, getCoralKidUpgBonus } from '@parsers/world-7/cora
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getSuperTalentLeftToSpend } from '@parsers/world-7/legendTalents';
 import { getAdviceFishBonus, getFriendBonus } from '@parsers/misc';
+import { breakdownCategory, breakdownSubSection, createBreakdown, toFractions } from '@parsers/breakdown';
+import type { BreakdownCategory } from '@parsers/breakdown';
 import { getTesseractMapBonus } from '@parsers/class-specific/tesseract';
 import { getMaxDamage } from '@parsers/damage';
 import { getSpelunkingBonus } from '@parsers/world-7/spelunking';
@@ -535,6 +537,18 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
 }
 
 export const getSkillExpMulti = (skillName: string, character: any, characters: any[], account: any, playerInfo?: any) => {
+  const parts = getSkillExpMultiParts(skillName, character, characters, account, playerInfo);
+  if (!parts) return parts;
+  const { value, categories, formattedValue = notateNumber(value, 'MultiplierInfo') } = parts;
+  const statName = `${skillName.charAt(0).toUpperCase()}${skillName.slice(1)} EXP multi`;
+  return { value, formattedValue, breakdown: createBreakdown(statName, `${formattedValue}x`, categories) };
+}
+
+const getSkillExpMultiParts = (skillName: string, character: any, characters: any[], account: any, playerInfo?: any): {
+  value: number,
+  formattedValue?: string,
+  categories: BreakdownCategory[]
+} | undefined => {
   const mainStat = mainStatMap?.[character?.class];
   const allSkillExp = getAllSkillsExp(character, characters, account);
   const happyDudeTalentBonus = getTalentBonus(character?.flatTalents, 'HAPPY_DUDE');
@@ -556,7 +570,7 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const cardBonus = getSkillCardBonus(character, account, 'mining', 'Mining_EXP');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Mining_EXP_gain')?.bonus;
     const achievementBonus = getAchievementStatus(account?.achievements, 27);
-    const { value: equipBonus, breakdown: equipBonusBreakdown } = getStatsFromGear(character, 55, account);
+    const { value: equipBonus, newBreakdown: equipBonusBreakdown } = getStatsFromGear(character, 55, account);
     const voteBonus = getVoteBonus(account, 13);
     const leftHandTalentBonus = getMaestroHand(character, 'mining', characters, account, 'LEFT_HAND_OF_LEARNING');
     // game: SkillStats("AllSkillxpMULTI") * (...)
@@ -585,19 +599,23 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     )
     return {
       value: value,
-      breakdown: [
-        { name: 'All skill EXP multi', value: allSkillExpMulti },
-        { name: 'All skill exp', value: allSkillExp?.value / 100 },
-        { name: 'Talent', value: (talentBonus + happyDudeTalentBonus) / 100 },
-        { name: 'Stamps', value: stampBonus / 100 },
-        { name: 'Cards', value: cardBonus / 100 },
-        { name: 'Bubble', value: base / 100 },
-        { name: 'Arcade', value: arcadeBonus / 100 },
-        { name: 'Achievement', value: achievementBonus / 100 },
-        ...equipBonusBreakdown,
-        { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
-        { name: 'Vote', value: voteBonus / 100 },
-        { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+      categories: [
+        breakdownCategory('Multiplicative', [
+          getAllSkillExpMultiplierBreakdown(account)
+        ]),
+        breakdownCategory('Additive', [
+          allSkillExp?.breakdown,
+          { name: 'Talent', value: (talentBonus + happyDudeTalentBonus) / 100 },
+          { name: 'Stamps', value: stampBonus / 100 },
+          { name: 'Cards', value: cardBonus / 100 },
+          { name: 'Bubble', value: base / 100 },
+          { name: 'Arcade', value: arcadeBonus / 100 },
+          { name: 'Achievement', value: achievementBonus / 100 },
+          { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
+          { name: 'Vote', value: voteBonus / 100 },
+          { name: 'Left Hand', value: leftHandTalentBonus / 100 },
+          toFractions(equipBonusBreakdown)
+        ], { additive: true })
       ]
     };
   }
@@ -624,17 +642,21 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
                 + voteBonus)))))) / 100 + (allSkillExp?.value + leftHandTalentBonus) / 100);
     return {
       value,
-      breakdown: [
-        { name: 'All skill EXP multi', value: allSkillExpMulti },
-        { name: 'All skill exp', value: allSkillExp?.value / 100 },
-        { name: 'Talent', value: (talentBonus + happyDudeTalentBonus) / 100 },
-        { name: 'Stamps', value: stampBonus / 100 },
-        { name: 'Cards', value: cardBonus / 100 },
-        { name: 'Bubble', value: bubbleBonus / 100 },
-        { name: 'Achievement', value: achievementBonus / 100 },
-        { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
-        { name: 'Vote', value: voteBonus / 100 },
-        { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+      categories: [
+        breakdownCategory('Multiplicative', [
+          getAllSkillExpMultiplierBreakdown(account)
+        ]),
+        breakdownCategory('Additive', [
+          allSkillExp?.breakdown,
+          { name: 'Talent', value: (talentBonus + happyDudeTalentBonus) / 100 },
+          { name: 'Stamps', value: stampBonus / 100 },
+          { name: 'Cards', value: cardBonus / 100 },
+          { name: 'Bubble', value: bubbleBonus / 100 },
+          { name: 'Achievement', value: achievementBonus / 100 },
+          { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
+          { name: 'Vote', value: voteBonus / 100 },
+          { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+        ], { additive: true })
       ]
     }
   }
@@ -657,14 +679,20 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
 
     return {
       value,
-      breakdown: [
-        { name: 'All skill exp', value: allSkillExp?.value / 100 },
-        { name: 'Talent', value: (talentBonus + happyDudeTalentBonus) / 100 },
-        { name: 'Stamps', value: stampBonus / 100 },
-        { name: 'Cards', value: cardBonus / 100 },
-        { name: 'Post office', value: postOfficeBonus / 100 },
-        { name: 'Skill Mastery', value: 25 * skillMasteryBonus / 100 },
-        { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+      categories: [
+        breakdownCategory('Additive', [
+          { name: 'Talent', value: (talentBonus + happyDudeTalentBonus) / 100 },
+          { name: 'Stamps', value: stampBonus / 100 },
+          { name: 'Skill Mastery', value: 25 * skillMasteryBonus / 100 }
+        ], { additive: true }),
+        breakdownCategory('Multiplies the additive group', [
+          { name: 'Cards', value: 1 + cardBonus / 100 },
+          { name: 'Post office', value: 1 + postOfficeBonus / 100 }
+        ]),
+        breakdownCategory('Added after', [
+          allSkillExp?.breakdown,
+          { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+        ])
       ]
     }
   }
@@ -683,7 +711,7 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const stampBonus = getStampsBonusByEffect(account, 'Fishing_Exp_Gain');
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Fishing_EXP_gain')?.bonus;
     const achievementBonus = getAchievementStatus(account?.achievements, 117);
-    const { value: equipBonus, breakdown: equipBonusBreakdown } = getStatsFromGear(character, 49, account);
+    const { value: equipBonus, newBreakdown: equipBonusBreakdown } = getStatsFromGear(character, 49, account);
     const bribeBonus = getBribeBonus(account?.bribes, 'Fishermaster');
     const kangarooBonus = getKangarooBonus(account?.kangaroo?.bonuses, 'Fishing XP');
     const voteBonus = getVoteBonus(account, 8);
@@ -723,23 +751,27 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     )
     return {
       value,
-      breakdown: [
-        { name: 'All skill EXP multi', value: allSkillExpMulti },
-        { name: 'All skill exp', value: allSkillExp?.value / 100 },
-        { name: 'Fishing kit', value: (fishingKit) / 100 },
-        { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
-        { name: 'Stamps', value: stampBonus / 100 },
-        { name: 'Cards', value: cardBonus / 100 },
-        { name: 'Bubble', value: base / 100 },
-        { name: 'Arcade', value: arcadeBonus / 100 },
-        { name: 'Achievement', value: achievementBonus / 100 },
-        ...equipBonusBreakdown,
-        { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
-        { name: 'Bribe', value: 25 * bribeBonus / 100 },
-        { name: 'Kangaroo', value: kangarooBonus / 100 },
-        { name: 'Vote', value: voteBonus / 100 },
-        { name: 'Vault', value: upgradeVaultBonus / 100 },
-        { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+      categories: [
+        breakdownCategory('Multiplicative', [
+          getAllSkillExpMultiplierBreakdown(account)
+        ]),
+        breakdownCategory('Additive', [
+          allSkillExp?.breakdown,
+          { name: 'Fishing kit', value: fishingKit / 100 },
+          { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
+          { name: 'Stamps', value: stampBonus / 100 },
+          { name: 'Cards', value: cardBonus / 100 },
+          { name: 'Bubble', value: base / 100 },
+          { name: 'Arcade', value: arcadeBonus / 100 },
+          { name: 'Achievement', value: achievementBonus / 100 },
+          { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
+          { name: 'Bribe', value: 25 * bribeBonus / 100 },
+          { name: 'Kangaroo', value: kangarooBonus / 100 },
+          { name: 'Vote', value: voteBonus / 100 },
+          { name: 'Vault', value: upgradeVaultBonus / 100 },
+          { name: 'Left Hand', value: leftHandTalentBonus / 100 },
+          toFractions(equipBonusBreakdown)
+        ], { additive: true })
       ]
     };
   }
@@ -769,17 +801,19 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
 
     return {
       value,
-      breakdown: [
-        { name: 'All skill exp', value: allSkillExp?.value / 100 },
-        { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
-        { name: 'P2W Extra Exp', value: (account?.alchemy?.p2w?.player?.extraExp ?? 0) / 100 },
-        { name: 'Stamp', value: stampBonus / 100 },
-        { name: 'Post Office', value: postOfficeBonus / 100 },
-        { name: 'Statue', value: statueBonus / 100 },
-        { name: 'Bubble', value: bubbleBonus / 100 },
-        { name: 'Active Bubble', value: activeBubbleBonus / 100 },
-        { name: 'Vault', value: upgradeVaultBonus / 100 },
-        { name: 'Skill mastery', value: 25 * masteryBonus / 100 }
+      categories: [
+        breakdownCategory('Additive', [
+          allSkillExp?.breakdown,
+          { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
+          { name: 'P2W Extra Exp', value: (account?.alchemy?.p2w?.player?.extraExp ?? 0) / 100 },
+          { name: 'Stamp', value: stampBonus / 100 },
+          { name: 'Post Office', value: postOfficeBonus / 100 },
+          { name: 'Statue', value: statueBonus / 100 },
+          { name: 'Bubble', value: bubbleBonus / 100 },
+          { name: 'Active Bubble', value: activeBubbleBonus / 100 },
+          { name: 'Vault', value: upgradeVaultBonus / 100 },
+          { name: 'Skill mastery', value: 25 * masteryBonus / 100 }
+        ], { additive: true })
       ]
     }
   }
@@ -822,18 +856,22 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
 
     return {
       value,
-      breakdown: [
-        { name: 'All skill EXP multi', value: allSkillExpMulti },
-        { name: 'All skill exp', value: allSkillExp?.value / 100 },
-        { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
-        { name: 'Stamps', value: stampBonus / 100 },
-        { name: 'Cards', value: cardBonus / 100 },
-        { name: 'Arcade', value: arcadeBonus / 100 },
-        { name: 'Achievement', value: achievementBonus / 100 },
-        { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
-        { name: 'Vote', value: voteBonus / 100 },
-        { name: 'Vault', value: upgradeVaultBonus / 100 },
-        { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+      categories: [
+        breakdownCategory('Multiplicative', [
+          getAllSkillExpMultiplierBreakdown(account)
+        ]),
+        breakdownCategory('Additive', [
+          allSkillExp?.breakdown,
+          { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
+          { name: 'Stamps', value: stampBonus / 100 },
+          { name: 'Cards', value: cardBonus / 100 },
+          { name: 'Arcade', value: arcadeBonus / 100 },
+          { name: 'Achievement', value: achievementBonus / 100 },
+          { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
+          { name: 'Vote', value: voteBonus / 100 },
+          { name: 'Vault', value: upgradeVaultBonus / 100 },
+          { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+        ], { additive: true })
       ]
     };
   }
@@ -868,18 +906,22 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
 
     return {
       value,
-      breakdown: [
-        { name: 'All skill EXP multi', value: allSkillExpMulti },
-        { name: 'All skill exp', value: allSkillExp?.value / 100 },
-        { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
-        { name: 'Stamps', value: stampBonus / 100 },
-        { name: 'Cards', value: cardBonus / 100 },
-        { name: 'Post office', value: postOfficeBonus / 100 },
-        { name: 'Trapping', value: (trappingBonus + trappingBonus2) / 100 },
-        { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
-        { name: 'Arcade', value: arcadeBonus / 100 },
-        { name: 'Vote', value: voteBonus / 100 },
-        { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+      categories: [
+        breakdownCategory('Multiplicative', [
+          getAllSkillExpMultiplierBreakdown(account)
+        ]),
+        breakdownCategory('Additive', [
+          allSkillExp?.breakdown,
+          { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
+          { name: 'Stamps', value: stampBonus / 100 },
+          { name: 'Cards', value: cardBonus / 100 },
+          { name: 'Post office', value: postOfficeBonus / 100 },
+          { name: 'Trapping', value: (trappingBonus + trappingBonus2) / 100 },
+          { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
+          { name: 'Arcade', value: arcadeBonus / 100 },
+          { name: 'Vote', value: voteBonus / 100 },
+          { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+        ], { additive: true })
       ]
     }
   }
@@ -908,15 +950,19 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
 
     return {
       value,
-      breakdown: [
-        { name: 'All skill EXP multi', value: allSkillExpMulti },
-        { name: 'All skill exp', value: allSkillExp?.value / 100 },
-        { name: 'Skill level', value: (character?.skillsInfo?.worship?.level / 3) / 100 },
-        { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
-        { name: 'Star sign', value: starSignBonus / 100 },
-        { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
-        { name: 'Vote', value: voteBonus / 100 },
-        { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+      categories: [
+        breakdownCategory('Multiplicative', [
+          getAllSkillExpMultiplierBreakdown(account)
+        ]),
+        breakdownCategory('Additive', [
+          allSkillExp?.breakdown,
+          { name: 'Skill level', value: (character?.skillsInfo?.worship?.level / 3) / 100 },
+          { name: 'Talent', value: (talentBonus + talentBonus2 + happyDudeTalentBonus) / 100 },
+          { name: 'Star sign', value: starSignBonus / 100 },
+          { name: 'Skill Mastery', value: 25 * masteryBonus / 100 },
+          { name: 'Vote', value: voteBonus / 100 },
+          { name: 'Left Hand', value: leftHandTalentBonus / 100 }
+        ], { additive: true })
       ]
     }
   }
@@ -936,10 +982,12 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const cookingDef = monsters?.Cooking?.Defence;
     const allSkillExpMulti = getAllSkillExpMultiplier(account);
 
+    const prowessExponent = 0.25 + getCookingProwess(character, account);
+    const efficiencyTerm = Math.min(Math.pow(cookingEff / (10 * cookingDef), prowessExponent), 1);
+
     // game: SkillStats("CookingEXPmulti")
     const value = Math.max(0.1, allSkillExpMulti * (1 + upgradeVaultBonus / 100)
-      * (Math.min(Math.pow(cookingEff / (10 * cookingDef),
-        0.25 + getCookingProwess(character, account)), 1)
+      * (efficiencyTerm
         // The game adds CalcTalentMAP[42][9] here for Left Hand of Learning, a slot its 9-entry table
         // never fills, so cooking gets none.
         + (allSkillExp?.value +
@@ -954,19 +1002,26 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
 
     return {
       value,
-      breakdown: [
-        { name: 'All skill EXP multi', value: allSkillExpMulti },
-        { name: 'All skill exp', value: allSkillExp?.value / 100 },
-        { name: 'Upgrade vault', value: upgradeVaultBonus / 100 },
-        { name: 'Cooking Eff', value: cookingEff / 100 },
-        { name: 'Prowess', value: 0.25 + getCookingProwess(character, account) / 100 },
-        { name: 'Meal', value: mealBonus / 100 },
-        { name: 'Post office', value: postOfficeBonus / 100 },
-        { name: 'Card', value: cardBonus / 100 },
-        { name: 'Talent', value: (talentBonus * chows) + talentBonus2 / 100 },
-        { name: 'Statue', value: statueBonus / 100 },
-        { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
-        { name: 'Vote', value: voteBonus / 100 }
+      categories: [
+        breakdownCategory('Base', [
+          { name: 'Cooking efficiency', value: cookingEff, formatted: String(notateNumber(cookingEff, 'Big')) },
+          { name: 'Prowess exponent', value: prowessExponent },
+          { name: 'Efficiency term (max 1)', value: efficiencyTerm }
+        ]),
+        breakdownCategory('Multiplicative', [
+          getAllSkillExpMultiplierBreakdown(account),
+          { name: 'Upgrade vault', value: 1 + upgradeVaultBonus / 100 }
+        ]),
+        breakdownCategory('Added to the efficiency term', [
+          allSkillExp?.breakdown,
+          { name: 'Meal', value: mealBonus / 100 },
+          { name: 'Post office', value: postOfficeBonus / 100 },
+          { name: 'Card', value: cardBonus / 100 },
+          { name: 'Talent', value: (talentBonus * chows + talentBonus2) / 100 },
+          { name: 'Statue', value: statueBonus / 100 },
+          { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
+          { name: 'Vote', value: voteBonus / 100 }
+        ])
       ]
     }
   }
@@ -999,19 +1054,23 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
 
     return {
       value,
-      breakdown: [
-        { name: 'All skill EXP multi', value: allSkillExpMulti },
-        { name: 'Talent', value: talentBonus / 100 },
-        { name: 'Jewel', value: sapphireRhombol / 100 },
-        { name: 'Meal', value: mealBonus / 100 },
-        { name: 'Pet upgrade', value: 2 * account?.breeding?.petUpgrades?.[2]?.level / 100 },
-        { name: 'Card', value: Math.min(cardBonus, 50) / 100 },
-        { name: 'Stamp', value: stampBonus / 100 },
-        { name: 'Vial', value: vialBonus / 100 },
-        { name: 'Statue', value: statueBonus / 100 },
-        { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
-        { name: 'Vote', value: voteBonus / 100 },
-        { name: 'Vault', value: upgradeVaultBonus / 100 }
+      categories: [
+        breakdownCategory('Multiplicative', [
+          getAllSkillExpMultiplierBreakdown(account)
+        ]),
+        breakdownCategory('Additive', [
+          { name: 'Talent', value: talentBonus / 100 },
+          { name: 'Jewel', value: sapphireRhombol / 100 },
+          { name: 'Meal', value: mealBonus / 100 },
+          { name: 'Pet upgrade', value: 2 * account?.breeding?.petUpgrades?.[0]?.level / 100 },
+          { name: 'Card (max 50%)', value: Math.min(cardBonus, 50) / 100 },
+          { name: 'Stamp', value: stampBonus / 100 },
+          { name: 'Vial', value: vialBonus / 100 },
+          { name: 'Statue', value: statueBonus / 100 },
+          { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
+          { name: 'Vote', value: voteBonus / 100 },
+          { name: 'Vault', value: upgradeVaultBonus / 100 }
+        ], { additive: true })
       ]
     }
   }
@@ -1030,7 +1089,7 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const stampBonus = getStampsBonusByEffect(account, 'Lab_Exp_Gain');
     const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'LabXP');
     const bubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'MATRIX_EVOLVED', account);
-    const { value: equipBonus, breakdown: equipBonusBreakdown } = getStatsFromGear(character, 65, account);
+    const { value: equipBonus, newBreakdown: equipBonusBreakdown } = getStatsFromGear(character, 65, account);
     const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'LAB_TESSTUBE');
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.laboratory?.rank, 0);
     const starSignBonus = getStarSignBonus(character, account, 'Lab_EXP_Gain');
@@ -1069,35 +1128,41 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
 
     return {
       value,
-      breakdown: [
-        { name: 'Lab eff', value: labEfficiency },
-        { name: 'Prowess', value: 0.25 + prowess },
-        { name: 'Efficiency term', value: efficiencyTerm },
-        { name: 'All skill EXP multi', value: allSkillExpMulti },
-        { name: 'Legend talent', value: legendBonus / 100 },
-        { name: 'Sushi', value: sushiBonus / 100 },
-        { name: 'Palette', value: paletteBonus / 100 },
-        { name: 'Companion', value: companionBonus / 100 },
-        { name: 'Post Office', value: postOfficeBonus / 100 },
-        { name: 'Card', value: cardBonus / 100 },
-        { name: 'Chip', value: chipBonus / 100 },
-        { name: 'Bubonic Green', value: bubonicGreen / 100 },
-        { name: 'Talent', value: (talentBonus + talentBonus2) / 100 },
-        { name: 'Jewel', value: jewelBonus / 100 },
-        { name: 'Meal', value: mealBonus / 100 },
-        { name: 'Stamp', value: stampBonus / 100 },
-        { name: 'Vial', value: vialBonus / 100 },
-        { name: 'Bubble', value: bubbleBonus / 100 },
-        { name: 'Souped Player', value: Math.min(100, soupedPlayerBonus) / 100 },
-        ...equipBonusBreakdown,
-        { name: 'Sigil', value: sigilBonus / 100 },
-        { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
-        { name: 'Star Sign', value: starSignBonus / 100 },
-        { name: 'Arcade', value: arcadeBonus / 100 },
-        { name: 'Vote', value: voteBonus / 100 },
-        { name: 'Lamp', value: lampBonus / 100 },
-        { name: 'Vault Upgrade', value: vaultUpgradeBonus / 100 },
-        { name: 'Armor Set', value: armorSetBonus / 100 }
+      categories: [
+        breakdownCategory('Base', [
+          { name: 'Lab efficiency', value: labEfficiency, formatted: String(notateNumber(labEfficiency, 'Big')) },
+          { name: 'Prowess exponent', value: belowOne ? 0.25 : 0.25 + prowess },
+          { name: 'Efficiency term', value: efficiencyTerm }
+        ]),
+        breakdownCategory('Multiplicative', [
+          getAllSkillExpMultiplierBreakdown(account),
+          { name: 'Companion', value: 1 + companionBonus },
+          { name: 'Legend talent', value: 1 + legendBonus / 100 },
+          { name: 'Sushi', value: 1 + sushiBonus / 100 }
+        ]),
+        breakdownCategory('Additive', [
+          { name: 'Post Office', value: postOfficeBonus / 100 },
+          { name: 'Card', value: cardBonus / 100 },
+          { name: 'Chip', value: chipBonus / 100 },
+          { name: 'Bubonic Green', value: bubonicGreen / 100 },
+          { name: 'Talent', value: (talentBonus + (belowOne ? 0 : talentBonus2)) / 100 },
+          { name: 'Jewel', value: jewelBonus / 100 },
+          { name: 'Meal', value: mealBonus / 100 },
+          { name: 'Stamp', value: stampBonus / 100 },
+          { name: 'Vial', value: vialBonus / 100 },
+          { name: 'Bubble', value: bubbleBonus / 100 },
+          { name: 'Souped Player', value: Math.min(100, 4 * soupedPlayerBonus) / 100 },
+          { name: 'Sigil', value: sigilBonus / 100 },
+          { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
+          { name: 'Star Sign', value: starSignBonus / 100 },
+          { name: 'Arcade', value: arcadeBonus / 100 },
+          { name: 'Vote', value: voteBonus / 100 },
+          { name: 'Lamp', value: lampBonus / 100 },
+          { name: 'Vault Upgrade', value: vaultUpgradeBonus / 100 },
+          { name: 'Armor Set', value: armorSetBonus / 100 },
+          { name: 'Palette', value: paletteBonus / 100 },
+          toFractions(equipBonusBreakdown)
+        ], { additive: true })
       ]
     }
   }
@@ -1117,14 +1182,18 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
 
     return {
       value,
-      breakdown: [
-        { name: 'All skill EXP multi', value: allSkillExpMulti },
-        { name: 'Talent', value: talentBonus / 100 },
-        { name: 'Vial', value: vialBonus / 100 },
-        { name: 'Task', value: 10 * account?.tasks?.[2]?.[4]?.[4] / 100 },
-        { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
-        { name: 'Guild', value: guildBonus / 100 },
-        { name: 'Vault', value: vaultBonus / 100 }
+      categories: [
+        breakdownCategory('Multiplicative', [
+          getAllSkillExpMultiplierBreakdown(account)
+        ]),
+        breakdownCategory('Additive', [
+          { name: 'Talent', value: talentBonus / 100 },
+          { name: 'Vial', value: vialBonus / 100 },
+          { name: 'Task', value: 10 * account?.tasks?.[2]?.[4]?.[4] / 100 },
+          { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
+          { name: 'Guild', value: guildBonus / 100 },
+          { name: 'Vault', value: vaultBonus / 100 }
+        ], { additive: true })
       ]
     }
   }
@@ -1148,7 +1217,7 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
     const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
     const masteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.divinity?.rank, 0);
     const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Divinity_EXP')?.bonus;
-    const { value: equipBonus, breakdown: equipBonusBreakdown } = getStatsFromGear(character, 74, account);
+    const { value: equipBonus, newBreakdown: equipBonusBreakdown } = getStatsFromGear(character, 74, account);
     const voteBonus = getVoteBonus(account, 23);
     const armorSetBonus = getArmorSetBonus(account, 'MAGMA_SET');
     const vaultBonus72 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 72);
@@ -1185,33 +1254,40 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
                                         + vaultBonus72)))))))))))))))))) / 100);
     return {
       value,
-      breakdown: [
-        { name: 'Div style', value: character?.divStyle?.divPerHour / 100 },
-        { name: 'Gem shop', value: gemShopBonus / 100 },
-        { name: 'Legend talent', value: legendBonus / 100 },
-        { name: 'All skill EXP multi', value: allSkillExpMulti },
-        { name: 'Coral Kid', value: coralKidBonus / 100 },
-        { name: 'Major', value: purrmepMajor / 100 },
-        { name: 'Talent', value: (talentBonus + talentBonus2) / 100 },
-        { name: 'Companion', value: companionBonus / 100 },
-        { name: 'Div rank', value: (10 * Math.max(0, unlockedGods - 10)) / 100 },
-        { name: 'Postoffice', value: postOfficeBonus / 100 },
-        { name: 'Sigil', value: sigilBonus / 100 },
-        { name: 'Card', value: cardBonus / 100 },
-        { name: 'Stamp', value: stampBonus / 100 },
-        { name: 'Active bubble', value: activeBubbleBonus / 100 },
-        { name: 'Statue', value: statueBonus / 100 },
-        { name: 'Meal', value: mealBonus / 100 },
-        { name: 'Vial', value: vialBonus / 100 },
-        { name: 'Task', value: 10 * account?.tasks?.[2]?.[4]?.[4] / 100 },
-        { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
-        { name: 'Starsign', value: starSignBonus / 100 },
-        { name: 'Guild', value: guildBonus / 100 },
-        { name: 'Arcade', value: arcadeBonus / 100 },
-        ...equipBonusBreakdown,
-        { name: 'Vote', value: voteBonus / 100 },
-        { name: 'Armor set', value: armorSetBonus / 100 }
-
+      categories: [
+        breakdownCategory('Base', [
+          { name: 'Div style per hour', value: character?.divStyle?.divPerHour }
+        ]),
+        breakdownCategory('Multiplicative', [
+          { name: 'Gem shop', value: 1 + gemShopBonus / 4 },
+          { name: 'Legend talent', value: 1 + legendBonus / 100 },
+          getAllSkillExpMultiplierBreakdown(account),
+          { name: 'Coral Kid', value: 1 + coralKidBonus / 100 },
+          { name: 'Purrmep major link', value: Math.max(1, 1 + purrmepMajor) },
+          { name: 'Shared Beliefs talent', value: 1 + talentBonus / 100 },
+          { name: 'Companion', value: 1 + companionBonus }
+        ]),
+        breakdownCategory('Additive', [
+          { name: 'Unlocked gods', value: (10 * Math.max(0, unlockedGods - 10)) / 100 },
+          { name: 'Post office', value: postOfficeBonus / 100 },
+          { name: 'Sigil', value: sigilBonus / 100 },
+          { name: 'Card', value: cardBonus / 100 },
+          { name: 'Stamp', value: stampBonus / 100 },
+          { name: 'Active bubble', value: activeBubbleBonus / 100 },
+          { name: 'Statue', value: statueBonus / 100 },
+          { name: 'Meal', value: mealBonus / 100 },
+          { name: 'Vial', value: vialBonus / 100 },
+          { name: 'Inner Peace talent', value: talentBonus2 / 100 },
+          { name: 'Task', value: 10 * account?.tasks?.[2]?.[4]?.[4] / 100 },
+          { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
+          { name: 'Star sign', value: starSignBonus / 100 },
+          { name: 'Guild', value: guildBonus / 100 },
+          { name: 'Arcade', value: arcadeBonus / 100 },
+          { name: 'Vote', value: voteBonus / 100 },
+          { name: 'Armor set', value: armorSetBonus / 100 },
+          { name: 'Vault', value: vaultBonus72 / 100 },
+          toFractions(equipBonusBreakdown)
+        ], { additive: true })
       ]
     }
   }
@@ -1235,14 +1311,16 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
 
     return {
       value,
-      breakdown: [
-        { name: 'Stamp', value: stampBonus / 100 },
-        { name: 'Meal', value: mealBonus / 100 },
-        { name: 'Vial', value: vialBonus / 100 },
-        { name: 'Talent', value: (talentBonus + talentBonus2) / 100 },
-        { name: 'Task', value: 10 * account?.tasks?.[2]?.[4]?.[4] / 100 },
-        { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
-        { name: 'Guild', value: guildBonus / 100 }
+      categories: [
+        breakdownCategory('Additive', [
+          { name: 'Stamp', value: stampBonus / 100 },
+          { name: 'Meal', value: mealBonus / 100 },
+          { name: 'Vial', value: vialBonus / 100 },
+          { name: 'Talent', value: (talentBonus + talentBonus2) / 100 },
+          { name: 'Task', value: 10 * account?.tasks?.[2]?.[4]?.[4] / 100 },
+          { name: 'Skill mastery', value: 25 * masteryBonus / 100 },
+          { name: 'Guild', value: guildBonus / 100 }
+        ])
       ]
     }
   }
@@ -1296,53 +1374,54 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
       * (1 + landRankBonus / 100)
       * (1 + talentBonus / 100);
 
-    let formattedValue;
+    let formattedValue: string;
     if (value > 1e8) {
       formattedValue = Math.round(value / 1e6) + 'M'
     }
     else if (value > 1e4) {
-      formattedValue = Math.round(value);
+      formattedValue = String(Math.round(value));
     }
     else {
-      formattedValue = notateNumber(value, 'MultiplierInfo');
+      formattedValue = String(notateNumber(value, 'MultiplierInfo'));
     }
 
     return {
       value,
       formattedValue,
-      breakdown: {
-        statName: 'Farming EXP',
-        totalValue: value,
-        categories: [{
-          name: 'Multiplicative',
-          sources: [
-            { name: 'EXP GMO (Market)', value: Math.max(1, marketBonus) },
-            { name: 'All skill EXP multi', value: allSkillExpMulti },
-            { name: 'Smarter Seeds (Market)', value: 1 + marketBonus2 / 100 },
-            { name: 'MSA', value: 1 + msaBonus / 100 },
-            { name: 'Skill Mastery', value: 1 + (25 * skillMasteryBonus) / 100 },
-            { name: 'Meal', value: 1 + mealBonus / 100 },
-            { name: 'Arcade', value: 1 + arcadeBonus / 100 },
-            { name: 'Vault', value: 1 + vaultBonus77 / 100 },
-            { name: 'Farmer Brain (Exotic)', value: 1 + exotic21 / 100 },
-            { name: 'Farmer Knowhow (Exotic)', value: 1 + exotic22 / 100 },
-            { name: 'Summoning', value: 1 + winnerBonus / 100 },
-            { name: 'Vial', value: 1 + vialBonus / 100 },
-            { name: 'Statue', value: 1 + statueBonus / 100 },
-            { name: 'Card', value: 1 + cardBonus / 100 },
-            { name: 'Charm', value: 1 + charmBonus / 100 },
-            { name: 'Lab', value: 1 + labBonus / 100 },
-            { name: 'Star Sign', value: 1 + starSignBonus / 100 },
-            { name: 'Guild', value: 1 + guildBonus / 100 },
-            { name: 'Achievement', value: 1 + (10 * achievementBonus + 15 * achievementBonus2) / 100 },
-            { name: 'Vote', value: 1 + voteBonus / 100 },
-            { name: 'Shiny', value: 1 + shinyBonus / 100 },
-            { name: 'Task', value: 1 + taskBonus / 100 },
-            { name: 'Land Rank', value: 1 + landRankBonus / 100 },
-            { name: 'Talent', value: 1 + talentBonus / 100 }
-          ]
-        }]
-      }
+      categories: [
+        breakdownCategory('Multiplicative', [
+          { name: 'EXP GMO (Market)', value: Math.max(1, marketBonus) },
+          getAllSkillExpMultiplierBreakdown(account),
+          { name: 'Farmer Knowhow (Exotic)', value: 1 + exotic22 / 100 },
+          { name: 'Summoning', value: 1 + winnerBonus / 100 },
+          { name: 'Land Rank', value: 1 + landRankBonus / 100 },
+          { name: 'Talent', value: 1 + talentBonus / 100 }
+        ]),
+        breakdownCategory('Additive: market and meals', [
+          { name: 'Smarter Seeds (Market)', value: marketBonus2 / 100 },
+          { name: 'MSA', value: msaBonus / 100 },
+          { name: 'Skill Mastery', value: 25 * skillMasteryBonus / 100 },
+          { name: 'Meal', value: mealBonus / 100 },
+          { name: 'Arcade', value: arcadeBonus / 100 },
+          { name: 'Vault', value: vaultBonus77 / 100 },
+          { name: 'Farmer Brain (Exotic)', value: exotic21 / 100 }
+        ], { additive: true }),
+        breakdownCategory('Additive: general', [
+          { name: 'Vial', value: vialBonus / 100 },
+          { name: 'Statue', value: statueBonus / 100 },
+          { name: 'Card', value: cardBonus / 100 },
+          { name: 'Charm', value: charmBonus / 100 },
+          { name: 'Lab', value: labBonus / 100 },
+          { name: 'Star Sign', value: starSignBonus / 100 },
+          { name: 'Guild', value: guildBonus / 100 },
+          { name: 'Achievement', value: (10 * achievementBonus + 15 * achievementBonus2) / 100 },
+          { name: 'Vote', value: voteBonus / 100 }
+        ], { additive: true }),
+        breakdownCategory('Additive: shiny and task', [
+          { name: 'Shiny', value: shinyBonus / 100 },
+          { name: 'Task', value: taskBonus / 100 }
+        ], { additive: true })
+      ]
     }
   }
   else if (skillName === 'sneaking') {
@@ -1414,30 +1493,39 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
 
     return {
       value,
-      breakdown: [
-        { name: 'All skill EXP multi', value: allSkillExpMulti },
-        { name: 'Admiring the Art', value: admiringTheArt / 100 },
-        { name: 'Vault', value: vaultBonus / 100 },
-        { name: 'Talent multi', value: talentMulti },
-        { name: 'Ninja upgrade', value: ninjaUpgradeBonus / 100 },
-        { name: 'Arcade', value: arcadeBonus / 100 },
-        { name: 'Gold item', value: ninjaEquip / 100 },
-        { name: 'Ninja equip', value: 0 / 100 },
-        { name: 'Compass', value: compassBonus / 100 },
-        { name: 'Gemstone', value: gemstoneBonus / 100 },
-        { name: 'Vial', value: vialBonus / 100 },
-        { name: 'Meal', value: mealBonus / 100 },
-        { name: 'Skill mastery', value: 25 * skillMasteryBonus / 100 },
-        { name: 'Charm', value: charmBonus / 100 },
-        { name: 'Card', value: cardBonus / 100 },
-        { name: 'Lab', value: labBonus / 100 },
-        { name: 'Stamp', value: stampBonus / 100 },
-        { name: 'Starsign', value: starSignBonus / 100 },
-        { name: 'Guild', value: guildBonus / 100 },
-        { name: 'Talent', value: talentBonus / 100 },
-        { name: 'Achievement', value: (10 * achievementBonus) / 100 },
-        { name: 'Vote', value: voteBonus / 100 },
-        { name: 'Summoning', value: winBonus / 100 }
+      categories: [
+        breakdownCategory('Base', [
+          { name: 'Floor base EXP', value: Number(baseExp) || 0 }
+        ]),
+        breakdownCategory('Multiplicative', [
+          getAllSkillExpMultiplierBreakdown(account),
+          { name: 'Respect for the Art', value: 1 + ninjaUpgradeBonus / 100 },
+          { name: 'Admiring the Art', value: 1 + admiringTheArt / 100 },
+          { name: 'Arcade', value: 1 + arcadeBonus / 100 },
+          { name: 'Gold item', value: 1 + ninjaEquip / 100 },
+          { name: 'Compass', value: 1 + compassBonus / 100 },
+          { name: 'Gemstone', value: 1 + gemstoneBonus / 100 },
+          { name: 'Ninja charms', value: 1 + charmExpBonus / 100 },
+          { name: 'Ninja charm penalty', value: Math.max(0, 1 - 100 * charmExpPenalty) },
+          { name: 'Summoning', value: 1 + winBonus / 100 },
+          { name: 'Companion', value: 1 + 1.5 * companion163 },
+          { name: 'Sneaky Skilling multi', value: Math.max(1, talentMulti) }
+        ]),
+        breakdownCategory('Additive', [
+          { name: 'Vial', value: vialBonus / 100 },
+          { name: 'Meal', value: mealBonus / 100 },
+          { name: 'Skill mastery', value: 25 * skillMasteryBonus / 100 },
+          { name: 'Charm', value: charmBonus / 100 },
+          { name: 'Card', value: cardBonus / 100 },
+          { name: 'Lab', value: labBonus / 100 },
+          { name: 'Stamp', value: stampBonus / 100 },
+          { name: 'Star sign', value: starSignBonus / 100 },
+          { name: 'Guild', value: guildBonus / 100 },
+          { name: 'Talent', value: talentBonus / 100 },
+          { name: 'Achievement', value: (10 * achievementBonus) / 100 },
+          { name: 'Vote', value: voteBonus / 100 },
+          { name: 'Vault', value: vaultBonus / 100 }
+        ], { additive: true })
       ]
     }
   }
@@ -1476,22 +1564,28 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
               + voteBonus)))) / 100);
     return {
       value,
-      breakdown: [
-        { name: 'All skill EXP multi', value: allSkillExpMulti },
-        { name: 'Companion', value: companionBonus },
-        { name: 'Talent', value: talentBonus / 100 },
-        { name: 'Vial', value: vialBonus / 100 },
-        { name: 'Card', value: cardBonus / 100 },
-        { name: 'Meal', value: mealBonus / 100 },
-        { name: 'Lab', value: labBonus / 100 },
-        { name: 'Arcade', value: arcadeBonus / 100 },
-        { name: 'Shiny', value: shinyBonus / 100 },
-        { name: 'Skill mastery', value: 25 * skillMasteryBonus / 100 },
-        { name: 'Stamp', value: stampBonus / 100 },
-        { name: 'Starsign', value: starSignBonus / 100 },
-        { name: 'Guild', value: guildBonus / 100 },
-        { name: 'Vote', value: voteBonus / 100 },
-        { name: 'Vault', value: vaultBonus84 / 100 }
+      categories: [
+        breakdownCategory('Multiplicative', [
+          { name: 'Passion of the Summon talent', value: Math.max(1, talentBonus) },
+          getAllSkillExpMultiplierBreakdown(account),
+          { name: 'Companion', value: 1 + companionBonus },
+          { name: 'Arcade', value: 1 + arcadeBonus / 100 }
+        ]),
+        breakdownCategory('Additive: alchemy and cooking', [
+          { name: 'Vial', value: vialBonus / 100 },
+          { name: 'Card', value: cardBonus / 100 },
+          { name: 'Meal', value: mealBonus / 100 },
+          { name: 'Lab', value: labBonus / 100 },
+          { name: 'Vault', value: vaultBonus84 / 100 }
+        ], { additive: true }),
+        breakdownCategory('Additive: general', [
+          { name: 'Shiny', value: shinyBonus / 100 },
+          { name: 'Skill mastery', value: 25 * skillMasteryBonus / 100 },
+          { name: 'Stamp', value: stampBonus / 100 },
+          { name: 'Star sign', value: starSignBonus / 100 },
+          { name: 'Guild', value: guildBonus / 100 },
+          { name: 'Vote', value: voteBonus / 100 }
+        ], { additive: true })
       ]
     }
   }
@@ -1499,12 +1593,20 @@ export const getSkillExpMulti = (skillName: string, character: any, characters: 
 
 // game: SkillStats("AllSkillxpMULTI"), which multiplies the EXP of every skill but smithing, alchemy
 // and construction.
-export const getAllSkillExpMultiplier = (account: any) => {
+const getAllSkillExpMultiplierFactors = (account: any) => {
   const companionBonus = isCompanionBonusActive(account, 32) ? (account?.companions?.list?.at(32)?.bonus ?? 0) : 0;
-  return (1 + getMeritocracyBonus(account, 10) / 100)
-    * (1 + getLegendTalentBonus(account, 20) / 100)
-    * (1 + companionBonus);
+  return [
+    { name: 'Meritocracy', value: 1 + getMeritocracyBonus(account, 10) / 100 },
+    { name: 'Legend talent', value: 1 + getLegendTalentBonus(account, 20) / 100 },
+    { name: 'Companion', value: 1 + companionBonus }
+  ];
 }
+
+export const getAllSkillExpMultiplier = (account: any) =>
+  getAllSkillExpMultiplierFactors(account).reduce((total, { value }) => total * value, 1);
+
+export const getAllSkillExpMultiplierBreakdown = (account: any) =>
+  breakdownSubSection('All skill EXP multi', getAllSkillExpMultiplierFactors(account), { multiplicative: true });
 
 // game: "AllSkillxpz"
 export const getAllSkillsExp = (character: any, characters: any[], account: any) => {
@@ -1524,7 +1626,7 @@ export const getAllSkillsExp = (character: any, characters: any[], account: any)
   const balanceOfEffBonus = getPrayerBonusAndCurse(character?.activePrayers, 'Balance_of_Proficiency', account)?.bonus;
   const skilledDimwitCurse = getPrayerBonusAndCurse(character?.activePrayers, 'Skilled_Dimwit', account)?.curse;
   const theRoyalSamplerCurse = getPrayerBonusAndCurse(character?.activePrayers, 'The_Royal_Sampler', account)?.curse;
-  const { value: equipmentBonus, breakdown: equipmentBonusBreakdown } = getStatsFromGear(character, 27, account);
+  const { value: equipmentBonus } = getStatsFromGear(character, 27, account);
   const maestroTransfusionTalentBonus = getTalentBonusIfActive(character?.activeBuffs, 'MAESTRO_TRANSFUSION');
   const saltLickBonus = getSaltLickBonus(account?.saltLick, 3);
   const dungeonSkillExpBonus = getDungeonStatBonus(account?.dungeons?.upgrades, 'Class_Exp');
@@ -1546,42 +1648,46 @@ export const getAllSkillsExp = (character: any, characters: any[], account: any)
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Skill XP');
   const armorSetBonus = getArmorSetBonus(account, 'CHIZOAR_SET');
 
-  const value = starSignBonus
-    + (cEfauntCardBonus
-      + arcadeBonus
-      + goldenFoodBonus
-      + bubonicGreen
-      * Math.min(1, greenTubeEnhancement ? bubonicGreen : 0)
-      + (cardSetBonus
-        + passiveCardBonus
-        + (Math.min(150, 100 * (checkCharClass(character?.class, CLASSES.Maestro)
-          ? Number(luckyCharmEnhancement)
-          : 0)) + shrineBonus)
-        + statueBonus
-        + unendingEnergyBonus
-        + balanceOfEffBonus
-        - skilledDimwitCurse
-        - theRoyalSamplerCurse
-        + (equipmentBonus
-          + (maestroTransfusionTalentBonus
-            + (saltLickBonus
-              + (dungeonSkillExpBonus
-                + (myriadPostOfficeBox
-                  + (godBonus
-                    + (10 * firstAchievementBonus + (25 * secondAchievementBonus
-                      + (10 * thirdAchievementBonus + 15 * fourthAchievementBonus
-                        + (smithingSkillMasteryBonus + (allSkillMasteryBonus
-                          + (shinyBonus + superbitBonus) + companionBonus
-                          + winnerBonus
-                          + guildBonus
-                          + owlBonus
-                          + armorSetBonus
-                          + schematicBonus)))))))))))))
+  const luckyCharmBonus = Math.min(150, 100 * (checkCharClass(character?.class, CLASSES.Maestro)
+    ? Number(luckyCharmEnhancement)
+    : 0));
+  // Every term is a plain addition, so the value is the sum of these lines.
+  const sources = [
+    { name: 'Star sign', value: starSignBonus },
+    { name: 'Cards', value: cEfauntCardBonus + passiveCardBonus },
+    { name: 'Card set', value: cardSetBonus },
+    { name: 'Arcade', value: arcadeBonus },
+    { name: 'Golden food', value: goldenFoodBonus },
+    { name: 'Bubonic green tube', value: bubonicGreen * Math.min(1, greenTubeEnhancement ? bubonicGreen : 0) },
+    { name: 'Lucky Charm (Maestro)', value: luckyCharmBonus },
+    { name: 'Shrine', value: shrineBonus },
+    { name: 'Statue', value: statueBonus },
+    { name: 'Prayers', value: unendingEnergyBonus + balanceOfEffBonus - skilledDimwitCurse - theRoyalSamplerCurse },
+    { name: 'Gear', value: equipmentBonus },
+    { name: 'Maestro Transfusion', value: maestroTransfusionTalentBonus },
+    { name: 'Salt lick', value: saltLickBonus },
+    { name: 'Dungeon', value: dungeonSkillExpBonus },
+    { name: 'Post office', value: myriadPostOfficeBox },
+    { name: 'God (Flutterbis)', value: godBonus },
+    {
+      name: 'Achievements',
+      value: 10 * firstAchievementBonus + 25 * secondAchievementBonus + 10 * thirdAchievementBonus + 15 * fourthAchievementBonus
+    },
+    { name: 'Skill mastery', value: smithingSkillMasteryBonus + allSkillMasteryBonus },
+    { name: 'Shiny', value: shinyBonus },
+    { name: 'Superbit', value: superbitBonus },
+    { name: 'Companion', value: companionBonus },
+    { name: 'Summoning', value: winnerBonus },
+    { name: 'Guild', value: guildBonus },
+    { name: 'Owl', value: owlBonus },
+    { name: 'Armor set', value: armorSetBonus },
+    { name: 'Schematic', value: schematicBonus }
+  ];
+  const value = sources.reduce((total, source) => total + source.value, 0);
   return {
     value,
-    breakdown: [
-      { name: '', value: 1 }
-    ]
+    // Fractions, like the skill EXP additive groups it sits in
+    breakdown: breakdownSubSection('All skill EXP', sources.map((source) => ({ ...source, value: source.value / 100 })))
   }
 }
 
@@ -3622,16 +3728,20 @@ export const getConstructionExpMulti = (character: any, account: any) => {
     + (stampBonus + voteBonus + (starSignBonus + postOfficeBonus)))))) / 100) * smallCogMulti;
   return {
     value,
-    breakdown: [
-      { name: 'Bubble', value: activeBubbleBonus / 100 },
-      { name: 'Talents', value: (talentBonus + secondTalentBonus) / 100 },
-      { name: 'Vial', value: vialBonus / 100 },
-      { name: 'Statue', value: statueBonus / 100 },
-      { name: 'Stamps', value: stampBonus / 100 },
-      { name: 'Vote', value: voteBonus / 100 },
-      { name: 'Star sign', value: starSignBonus / 100 },
-      { name: 'Post office', value: postOfficeBonus / 100 },
-      { name: 'Small cogs', value: smallCogMulti }
+    categories: [
+      breakdownCategory('Multiplicative', [
+        { name: 'Small cogs', value: smallCogMulti }
+      ]),
+      breakdownCategory('Additive', [
+        { name: 'Bubble', value: activeBubbleBonus / 100 },
+        { name: 'Talents', value: (talentBonus + secondTalentBonus) / 100 },
+        { name: 'Vial', value: vialBonus / 100 },
+        { name: 'Statue', value: statueBonus / 100 },
+        { name: 'Stamps', value: stampBonus / 100 },
+        { name: 'Vote', value: voteBonus / 100 },
+        { name: 'Star sign', value: starSignBonus / 100 },
+        { name: 'Post office', value: postOfficeBonus / 100 }
+      ], { additive: true })
     ]
   };
 }

@@ -276,8 +276,8 @@ export function Breakdown({ data, children, valueNotation = "MultiplierInfo", sk
         open={open}
         onClose={handleClose}
         onOpen={handleClick}
-        disableSwipeToOpen={false}
-        swipeAreaWidth={20}
+        // Every instance would add its own edge swipe area, so a swipe opened an arbitrary breakdown
+        disableSwipeToOpen
         sx={{
           zIndex: (theme) => theme.zIndex.drawer + 2,
         }}

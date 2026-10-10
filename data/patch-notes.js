@@ -13,7 +13,8 @@ export const patchNotes = [
       'New dashboard alert for Cooking: count meals whose next level costs fewer ladles than your threshold, with an option to include Overflowing Ladle',
       'Leaderboards: redesigned page with an Overview tab (global podium, your rank, highlights and boards within reach), boards grouped into sections, and a Top 100 drawer that shows the players around you',
       'Leaderboards: search any player or Anon# id to see their ranks, and jump to any board with the / key',
-      'Leaderboards: tied players now share a rank, and maxed boards show how many players hold the max'
+      'Leaderboards: tied players now share a rank, and maxed boards show how many players hold the max',
+      'Characters: click a skill to see its full EXP multiplier breakdown, split into multiplicative and additive bonuses, including every All skill EXP source'
     ],
     'fixes': [
       'Leaderboards: salt rank boards no longer count salts that are not unlocked yet',

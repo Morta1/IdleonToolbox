@@ -6,7 +6,7 @@ import Tooltip from '../Tooltip';
 import React from 'react';
 import ProgressBar from '../common/ProgressBar';
 import { getSkillExpMulti } from '@parsers/character';
-import { Breakdown } from '@components/common/styles';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { getMaxDamage } from '@parsers/damage';
 
 const getRankColor = (rank) => {
@@ -55,13 +55,6 @@ const skillIconStyle = {
   display: 'block'
 };
 
-const normalizeBreakdown = (breakdown) => {
-  if (!breakdown || Array.isArray(breakdown)) return breakdown;
-  return breakdown?.categories?.flatMap((category) => [
-    ...(category?.sources ?? []),
-    ...(category?.subSections?.flatMap((sub) => sub?.sources ?? []) ?? [])
-  ]) ?? [];
-};
 const Skills = ({ skills, charName, account, characters, character, showSkillsRankOneOnly }) => {
   const hasRankOne = Object.keys(skills || {})?.filter((skillName) => skills[skillName]?.rank === 1)?.length > 0;
   const playerInfo = getMaxDamage(character, characters, account);
@@ -89,26 +82,28 @@ const Skills = ({ skills, charName, account, characters, character, showSkillsRa
             const expMulti = getSkillExpMulti(skillName, character, characters, account, playerInfo);
             const showRankBadge = !globalSkills[skillName];
             return <Box key={index} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: '4px' }}>
-              <Tooltip title={<SkillTooltip {...skills?.[skillName]} skillName={skillName} charName={charName}
-                                            expMulti={expMulti}/>}>
-                <Badge
-                  badgeContent={level}
-                  max={999999}
-                  overlap="rectangular"
-                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                  sx={levelBadgeSx}
-                >
+              <Breakdown data={expMulti?.breakdown}>
+                <Tooltip title={<SkillTooltip {...skills?.[skillName]} skillName={skillName} charName={charName}
+                                              expMulti={expMulti}/>}>
                   <Badge
-                    badgeContent={rank}
-                    invisible={!showRankBadge}
+                    badgeContent={level}
+                    max={999999}
                     overlap="rectangular"
-                    anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-                    sx={rankBadgeSx(rank)}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    sx={levelBadgeSx}
                   >
-                    <img src={`${prefix}data/${icon}.png`} style={skillIconStyle} alt=""/>
+                    <Badge
+                      badgeContent={rank}
+                      invisible={!showRankBadge}
+                      overlap="rectangular"
+                      anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                      sx={rankBadgeSx(rank)}
+                    >
+                      <img src={`${prefix}data/${icon}.png`} style={skillIconStyle} alt=""/>
+                    </Badge>
                   </Badge>
-                </Badge>
-              </Tooltip>
+                </Tooltip>
+              </Breakdown>
             </Box>;
           })}
         </Box>
@@ -139,9 +134,9 @@ const SkillTooltip = ({ exp, expReq, expMulti, charName, skillName, level, rank 
         <Divider sx={{ my: 1 }}/>
         <Typography variant={'caption'}>* inaccurate</Typography>
       </> : null}
-      <Divider sx={{ my: 1 }}/>
-      <Breakdown breakdown={normalizeBreakdown(expMulti?.breakdown)} title={'Exp multi breakdown'}
-                 notation={'MultiplierInfo'}/>
+      {expMulti?.breakdown ? <Typography variant={'caption'} color={'text.secondary'}>
+        Click the skill for the breakdown
+      </Typography> : null}
     </>}
 
   </Stack>

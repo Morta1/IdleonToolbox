@@ -38,6 +38,29 @@ describe('skill EXP verified against the live game', () => {
     expect(getSkillExpMulti(skill, hunter, characters, account, playerInfo).value / value).toBeCloseTo(1, 9);
   });
 
+  // The drawer must add up: multiplicative factors multiply, additive groups are (1 + sum), the base
+  // category's last line is the term the rest scales, and cooking/smithing add a group after.
+  it.each(Object.keys(GAME_SKILL_EXP))('%s breakdown reproduces the value', (skill) => {
+    const { value, breakdown } = getSkillExpMulti(skill, hunter, characters, account, playerInfo);
+    const sum = ({ sources = [], subSections = [] }) => [...sources, ...subSections.flatMap((sub) => sub.sources)]
+      .reduce((total, source) => total + source.value, 0);
+    const product = ({ sources = [], subSections = [] }) => [...sources, ...subSections.flatMap((sub) => sub.sources)]
+      .reduce((total, source) => total * source.value, 1);
+    let total = 1;
+    let added = 0;
+    for (const category of breakdown.categories) {
+      if (category.name === 'Base') total *= category.sources.at(-1).value;
+      else if (category.name.startsWith('Additive')) total *= 1 + sum(category);
+      else if (category.name.startsWith('Added')) added += sum(category);
+      else total *= product(category);
+    }
+    const rebuilt = skill === 'cooking'
+      ? product(breakdown.categories.find(({ name }) => name === 'Multiplicative'))
+      * (breakdown.categories[0].sources.at(-1).value + added)
+      : total + added;
+    expect(rebuilt / value).toBeCloseTo(1, 9);
+  });
+
   it('all skill EXP and all base skill efficiency', () => {
     expect(getAllSkillsExp(hunter, characters, account).value).toBeCloseTo(6373.095124031275, 6);
     expect(getAllBaseSkillEff(hunter, account, characters, playerInfo)).toBeCloseTo(2194.437832300863, 6);
