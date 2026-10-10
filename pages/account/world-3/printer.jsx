@@ -5,8 +5,7 @@ import { growth, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import Tooltip from '../../../components/Tooltip';
 import { Breakdown, CardTitleAndValue, TitleAndValue } from '@components/common/styles';
-import { isGodEnabledBySorcerer } from '@parsers/world-4/lab';
-import { GOD_SLOT } from '@parsers/world-5/divinity';
+import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
 import { NextSeo } from 'next-seo';
 import { CLASSES, getCharacterByHighestTalent, getHighestMaxLevelTalentByClass } from '../../../parsers/talents';
 import { getAtomColliderThreshold } from '@parsers/world-3/atomCollider';
@@ -70,8 +69,7 @@ const Printer = () => {
         const playerName = state?.characters?.[index]?.name;
         const printerSample = Math.min(90, state?.characters?.[index]?.printerSample);
         const extraPrinterSample = state?.characters?.[index]?.printerSample - 90;
-        const labBonusActive = (state?.characters?.[index]?.afkTarget === 'Laboratory' || isGodEnabledBySorcerer(state?.characters?.[index], GOD_SLOT.Arctis) ||
-          state?.account?.divinity?.linkedDeities?.[index] === GOD_SLOT.Arctis) && wiredInBonus;
+        const labBonusActive = (state?.characters?.[index]?.afkTarget === 'Laboratory' || isMajorDivinityActive(state?.characters?.[index], state?.account, GOD_INDEX.Arctis)) && wiredInBonus;
         return <Card sx={{ width: 'fit-content' }} key={`printer-row-${index}`}>
           <CardContent>
             <Stack direction="row" alignItems={'center'} gap={3}>

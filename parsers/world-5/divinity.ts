@@ -293,13 +293,16 @@ export const getW7ChosenGodIndex = (account: any) => {
 // Divinity("Bonus_MAJOR", playerIndex, godIndex), which decides whether a character gets a god's
 // major bonus. `godIndex` is the god's bonus id (the GodsInfo[..][13] column), while every link the
 // save stores is a god slot, so each comparison goes through gods[slot].godIndex.
-// God indices 6 (Purrmep) and 8 (Kattlekruk) short circuit on their own unlock flags in the game;
-// nothing reads those through here yet, so they are not modelled.
+// Purrmep and Kattlekruk pay theirs account wide while any character is directly linked to them: the
+// game reads flags (GenINFO[87] and [210]) it sets from every link at load, polytheism not included.
 // game: "Bonus_MAJOR"
-export const isMajorDivinityActive = (character: any, account: any, godIndex: number) =>
-  isGodGrantedToEveryone(character, account, godIndex)
-  || getW7ChosenGodIndex(account) === godIndex
-  || getLinkedGodSlot(character, account, godIndex) !== -1;
+export const isMajorDivinityActive = (character: any, account: any, godIndex: number) => {
+  if (isGodGrantedToEveryone(character, account, godIndex) || getW7ChosenGodIndex(account) === godIndex) return true;
+  if (godIndex === GOD_INDEX.Purrmep || godIndex === GOD_INDEX.Kattlekruk) {
+    return (account?.divinity?.linkedDeities ?? []).some((slot: any) => slot >= 0 && Number((gods as any)?.[slot]?.godIndex) === godIndex);
+  }
+  return getLinkedGodSlot(character, account, godIndex) !== -1;
+}
 
 // Divinity("Bonus_Minor", playerIndex, godIndex): the god's minor bonus for one character, 0 when the
 // character doesn't get it. Unlike the major bonus, Coral Kid's chosen god plays no part here.
@@ -335,8 +338,10 @@ const getGodSlotOf = (godIndex: number) => (gods as any)?.findIndex((god: any) =
 
 // Companions(0) reads 0 while the active character's divinity level is under 2. For one character that
 // character is the active one; account wide the toolbox can't tell, so any character at 2 counts.
+// The lab passes raw save characters, which hold the level in Lv0[14] rather than skillsInfo.
 const isKingDootActive = (character: any, account: any) =>
-  !!isCompanionBonusActive(account, 0) && (character?.skillsInfo?.divinity?.level ?? 0) >= 2;
+  !!isCompanionBonusActive(account, 0)
+  && (Number(character?.skillsInfo?.divinity?.level ?? character?.Lv0?.[14]) || 0) >= 2;
 
 // What hands a god's bonus to every character whoever they are linked to: King Doot, a pocket
 // divinity, research grid square 173 for Arctis and gem shop item 9 for Snehebatu.
@@ -353,7 +358,9 @@ const getLinkedGodSlot = (character: any, account: any, godIndex: number) => {
   const linkedSlot = account?.divinity?.linkedDeities?.[character?.playerId];
   if (linkedSlot == null || linkedSlot === -1) return -1;
   if (Number((gods as any)?.[linkedSlot]?.godIndex) === godIndex) return linkedSlot;
-  const secondSlot = character?.secondLinkedDeityIndex;
+  // Raw save characters (the lab) carry the polytheism talent level instead of the parsed link.
+  const polytheism = Number(character?.SkillLevels?.[505]) || 0;
+  const secondSlot = character?.secondLinkedDeityIndex ?? (polytheism > 0 ? polytheism % 10 : undefined);
   if (secondSlot == null || Number((gods as any)?.[secondSlot]?.godIndex) !== godIndex) return -1;
   return (Number(account?.divinity?.unlockedDeities) || 0) > secondSlot ? secondSlot : -1;
 }

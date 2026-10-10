@@ -75,16 +75,8 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
   });
   const soupedUpSlots = (account?.gemShopPurchases?.find((value: any, index: any) => index === 123) ?? 0) * 2;
   // Game: contains(labAfkList, n) || Divinity("Bonus_MAJOR", n, 2) - Arctis is god bonus index 2.
-  // Lab gets raw save characters, which carry polytheism (talent 505) but not the parsed second
-  // divinity link isMajorDivinityActive reads, so resolve that slot here.
-  const withSecondDeityLink = (character: any) => {
-    const polytheism = Number(character?.SkillLevels?.[505]) || 0;
-    return polytheism > 0
-      ? { ...character, secondLinkedDeityIndex: character?.secondLinkedDeityIndex ?? polytheism % 10 }
-      : character;
-  }
   const isInTube = (character: any) => character?.AFKtarget === 'Laboratory'
-    || isMajorDivinityActive(withSecondDeityLink(character), account, GOD_INDEX.Arctis);
+    || isMajorDivinityActive(character, account, GOD_INDEX.Arctis);
   const labAfkPlayerIds = charactersData?.reduce((res: any[], character: any) => character?.AFKtarget === 'Laboratory'
     ? [...res, character?.playerId]
     : res, []) ?? [];
@@ -102,7 +94,7 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
     const afkRank = labAfkPlayerIds.indexOf(playerId);
     const souped = afkRank !== -1
       ? afkRank < soupedUpSlots
-      : playerId < soupedUpSlots && isMajorDivinityActive(withSecondDeityLink(character), account, GOD_INDEX.Arctis);
+      : playerId < soupedUpSlots && isMajorDivinityActive(character, account, GOD_INDEX.Arctis);
     return souped ? [...res, playerId] : res;
   }, []) ?? [];
 
@@ -238,13 +230,6 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
     totalRawChips: chipRepo.reduce((res: any, amount: any) => res + Math.max(0, amount), 0),
     currentRotation
   };
-}
-
-export const isLabEnabledBySorcererRaw = (charData: any, godSlot: any) => {
-  if (classes?.[charData?.CharacterClass] === CLASSES.Elemental_Sorcerer) {
-    const polytheism = charData?.SkillLevels?.[505];
-    return polytheism % 10 === godSlot;
-  }
 }
 
 export const isGodEnabledBySorcerer = (character: any, godSlot: any) => {

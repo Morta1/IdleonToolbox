@@ -45,7 +45,7 @@ import { getLegendTalents } from './world-7/legendTalents';
 import { getSaltLick } from './world-3/saltLick';
 import { getDungeons } from './dungeons';
 import { applyMealsMulti, getCooking, getKitchens } from './world-4/cooking';
-import { getJewelBonus, getLab, getLabBonus, isLabEnabledBySorcererRaw } from './world-4/lab';
+import { getJewelBonus, getLab, getLabBonus } from './world-4/lab';
 import { classes } from '@website-data';
 import { getGuild, getLockedGuild } from './guild';
 import { getPrinter } from './world-3/printer';
@@ -53,7 +53,7 @@ import { getTraps } from './world-3/traps';
 import { getQuests, isWorldFinished } from './quests';
 import { getDeathNote, getTopKilledMonsters } from './world-3/deathNote';
 import { addBreedingChance, getBreeding } from './world-4/breeding';
-import { applyGodCost, getDivinity, GOD_SLOT } from './world-5/divinity';
+import { applyGodCost, getDivinity } from './world-5/divinity';
 import { getArtifacts, getLockedSailing, getSailing } from './world-5/sailing';
 import { getGaming } from './world-5/gaming';
 import { getAtoms } from './world-3/atomCollider';
@@ -216,13 +216,6 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.statues = statues;
   (accountData as any).statueGrades = grades;
   accountData.zenith = zenith;
-
-  if (accountData.lab) {
-    accountData.lab.connectedPlayers = accountData.lab.connectedPlayers?.map((char: any) => ({
-      ...char,
-      isDivinityConnected: accountData?.divinity?.linkedDeities?.[char?.playerId] === GOD_SLOT.Goharut || isLabEnabledBySorcererRaw(char, GOD_SLOT.Goharut)
-    }));
-  }
 
   accountData.arcade = safeSection<any>('arcade', {}, () => getArcade(idleonData, accountData, serverVars));
 

@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { getAccountMinorDivinityBonus, getCharacterMinorDivinityBonus, GOD_INDEX } from '@parsers/world-5/divinity';
+import { getAccountMinorDivinityBonus, getCharacterMinorDivinityBonus, GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
 
 // Read from the running game on 10 Oct 2026 through the debug server, for the save latest.json was
 // exported from. King Doot is active, so Harriep and Goharut reach every character while Purrmep and
@@ -50,5 +50,16 @@ describe('minor divinity bonuses verified against the live game without King Doo
   it.each(NO_DOOT_CHARACTER)('%s %s', (name, god, value) => {
     const character = characters.find((candidate) => candidate.name === name);
     expect(getCharacterMinorDivinityBonus(character, account, GOD_INDEX[god])).toBeCloseTo(value, 6);
+  });
+
+  // Divinity("Bonus_MAJOR", player, godIndex) for godIndex 0-9, one digit each. Everyone has Snehebatu
+  // (gem shop), Arctis and Omniphau (pocket), Purrmep (someone linked) and Kattlekruk (Coral Kid and a
+  // link); the rest come from each character's own links.
+  it('major bonuses for every character and god', () => {
+    const GAME_MAJOR = ['1010101010', '1010101010', '1110101010', '1010101010', '1011101010', '1010111010',
+      '1010101010', '1011101010', '1010101010', '1010101010', '1010101010'];
+    const toolbox = characters.map((character) =>
+      Array.from({ length: 10 }, (_, godIndex) => isMajorDivinityActive(character, account, godIndex) ? 1 : 0).join(''));
+    expect(toolbox).toEqual(GAME_MAJOR);
   });
 });

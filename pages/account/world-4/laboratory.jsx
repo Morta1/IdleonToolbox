@@ -19,7 +19,7 @@ const Laboratory = () => {
         description="Keep track of your lab upgrades, lab connected players, chips and more"
       />
       <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'laboratory')}>
-        <Mainframe {...lab} characters={state?.characters} divinity={state?.account?.divinity}/>
+        <Mainframe {...lab} characters={state?.characters} account={state?.account}/>
         <Console {...lab} characters={state?.characters}/>
         <LabRotation/>
       </Tabber>

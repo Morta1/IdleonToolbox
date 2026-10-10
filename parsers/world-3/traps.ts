@@ -6,7 +6,7 @@ import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getPrayerBonusAndCurse } from '@parsers/world-3/prayers';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getTrappingStuff } from '@parsers/character';
-import { getFoodBonus, isMasteryBonusUnlocked } from '@parsers/misc';
+import { getFoodBonus, getSkillCardBonus } from '@parsers/misc';
 import { cleanUnderscore, notateNumber } from '@utility/helpers';
 import { checkCharClass, CLASSES, getCharacterByHighestTalent, getTalentBonus } from '@parsers/talents';
 import { getCompassBonus } from '@parsers/class-specific/compass';
@@ -180,10 +180,7 @@ const calcShinyMultiplier = (character: any, account: any) => {
   // signs - skip it entirely when no food is equipped, where the game would sum to 0 anyway.
   const foodBonus = character?.food?.length ? getFoodBonus(character, account, 'TrappingSpeedBoosts') : 0;
   // Trapping mastery tier 2 turns every owned Shiny Critter card into a passive.
-  const cardsArePassives = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.trapping?.rank, 2);
-  const cardBonus = (cardsArePassives
-    ? getCardBonusByEffect(account?.cards, 'Shiny_Critter_Chance')
-    : getCardBonusByEffect(character?.cards?.equippedCards, 'Shiny_Critter_Chance')) ?? 0;
+  const cardBonus = getSkillCardBonus(character, account, 'trapping', 'Shiny_Critter_Chance');
   const minigameBonus = (getTrappingStuff('TrapMGbonus', 2, account) ?? 0) + (getTrappingStuff('TrapMGbonus', 5, account) ?? 0);
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Shiny_Chance')?.bonus ?? 0;
   const onOpenBonus = foodBonus + cardBonus + minigameBonus + arcadeBonus;

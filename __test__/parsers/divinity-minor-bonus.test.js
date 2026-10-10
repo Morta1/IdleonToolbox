@@ -94,6 +94,26 @@ describe('getAccountMinorDivinityBonus', () => {
 });
 
 describe('isMajorDivinityActive', () => {
+  it('reads King Doot\'s level gate off raw save characters too, as the lab passes them', () => {
+    const { account } = setup({ doot: true });
+    expect(isMajorDivinityActive({ playerId: 0, Lv0: Object.assign([], { 14: 50 }) }, account, GOD_INDEX.Arctis)).toBe(true);
+    expect(isMajorDivinityActive({ playerId: 0, Lv0: Object.assign([], { 14: 1 }) }, account, GOD_INDEX.Arctis)).toBe(false);
+  });
+
+  it('pays Purrmep and Kattlekruk to everyone while anyone is directly linked to them', () => {
+    const { account, characters: [harriep] } = setup({ linkedDeities: [GOD_SLOT.Harriep, GOD_SLOT.Purrmep] });
+    expect(isMajorDivinityActive(harriep, account, GOD_INDEX.Purrmep)).toBe(true);
+    expect(isMajorDivinityActive(harriep, account, GOD_INDEX.Kattlekruk)).toBe(false);
+    const sorcerer = character(0, { secondLinkedDeityIndex: GOD_SLOT.Kattlekruk });
+    expect(isMajorDivinityActive(sorcerer, account, GOD_INDEX.Kattlekruk)).toBe(false);
+  });
+
+  it('reads the polytheism link off raw save characters', () => {
+    const { account } = setup();
+    const raw = { playerId: 0, SkillLevels: Object.assign([], { 505: 10 + GOD_SLOT.Flutterbis }) };
+    expect(isMajorDivinityActive(raw, account, GOD_INDEX.Flutterbis)).toBe(true);
+  });
+
   it('reads Coral Kid as a 1-based slot', () => {
     const { account, characters: [, arctis] } = setup({ coralKid: GOD_SLOT.Kattlekruk + 1 });
     expect(isMajorDivinityActive(arctis, account, GOD_INDEX.Kattlekruk)).toBe(true);

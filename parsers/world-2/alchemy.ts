@@ -4,9 +4,9 @@ import { liveEntries } from '@parsers/catalog';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
-import { getJewelBonus, getLabBonus, isGodEnabledBySorcerer } from '@parsers/world-4/lab';
+import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
 import { getEventShopBonus, isBundlePurchased, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
-import { GOD_SLOT } from '@parsers/world-5/divinity';
+import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
@@ -871,10 +871,7 @@ export const getKrukBubbles = (account: any) => {
 
 export const getPossibleZenithMarketBubbles = (account: any, characters: any) => {
   const krukLevelsDaily = getKrukBubblesDaily(account);
-  const hasKrukLinked = characters?.some((character: any) => character.linkedDeity === GOD_SLOT.Kattlekruk
-    || isGodEnabledBySorcerer(character, GOD_SLOT.Kattlekruk)
-    || character.secondLinkedDeityIndex === GOD_SLOT.Kattlekruk
-    || isCompanionBonusActive(account, 0));
+  const hasKrukLinked = characters?.some((character: any) => isMajorDivinityActive(character, account, GOD_INDEX.Kattlekruk));
   if (!hasKrukLinked) return [];
   return getKrukBubbles(account).map((bubble: any) => ({ ...bubble, isZenithMarket: true, dailyLevels: krukLevelsDaily.value, dailyLevelsBreakdown: krukLevelsDaily.breakdown }));
 }

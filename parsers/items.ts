@@ -61,7 +61,7 @@ export const calculateItemTotalAmount = (array: any[], itemName: string, exact: 
   }, 0);
 }
 
-export const getStatsFromGear = (character: any, bonusIndex: any, account?: any, excludeTools = false) => {
+export const getStatsFromGear = (character: any, bonusIndex: any, account: any, excludeTools = false) => {
   if (!character) return { value: 0, breakdown: [] };
   const { equipment, tools } = character || {};
 

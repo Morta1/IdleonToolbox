@@ -40,7 +40,7 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getObolsBonus } from '@parsers/obols';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
-import { calcCardBonus, getCardLevel } from '@parsers/cards';
+import { calcCardBonus, getCardBonusByEffect, getCardLevel } from '@parsers/cards';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getArmoryUpgradeBonus, getOrbletMarketBonus } from '@parsers/class-specific/royalGuardian';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
@@ -774,6 +774,13 @@ const getSkillRank = (level: any) => {
 export const isMasteryBonusUnlocked = (rift: any, skillRank: any, bonusIndex: any) => {
   return rift?.currentRift < 15 ? 0 : skillRank > bonusIndex ? 1 : 0;
 }
+
+// TalentCalc(-4): a skill's card bonus comes from the equipped cards until its rift mastery tier 2,
+// then from every owned card of that skill instead (RiftSkillBonus,N zeroes the equipped copies).
+export const getSkillCardBonus = (character: any, account: any, skillName: string, effectName: string) =>
+  isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.[skillName]?.rank, 2)
+    ? getCardBonusByEffect(account?.cards, effectName)
+    : getCardBonusByEffect(character?.cards?.equippedCards, effectName);
 
 const getSkillRankByIndex = (skills: any, index: any) => {
   for (const [, skillData] of Object.entries(skills) as [string, any][]) {
