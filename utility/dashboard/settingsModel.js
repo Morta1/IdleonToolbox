@@ -127,6 +127,24 @@ export const searchModel = (model, query) => {
   return results;
 };
 
+// Puts each dependent option right under its parent with depth one deeper than it. A child stays
+// where it is when its parent is not in the list (the inline header number) or is in another group,
+// since moving it would split that group's heading.
+export const nestDependents = (options) => {
+  const listed = new Map(options.map((option) => [option.name, option]));
+  const nestsUnder = (option) => {
+    const parent = option.dependsOn ? listed.get(option.dependsOn) : null;
+    return parent && parent.group === option.group ? parent : null;
+  };
+  const result = [];
+  const visit = (option, depth) => {
+    result.push({ option, depth });
+    options.filter((child) => nestsUnder(child) === option).forEach((child) => visit(child, depth + 1));
+  };
+  options.filter((option) => !nestsUnder(option)).forEach((option) => visit(option, 0));
+  return result;
+};
+
 // What an option row needs from its tracker: the options folded into it, and why it is locked.
 export const optionExtras = (tracker, option) => {
   const parent = option.dependsOn ? tracker.options.find(({ name }) => name === option.dependsOn) : null;

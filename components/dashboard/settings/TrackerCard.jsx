@@ -11,7 +11,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import NextLink from 'next/link';
 import { prefix } from '@utility/helpers';
-import { optionExtras } from '@utility/dashboard/settingsModel';
+import { nestDependents, optionExtras } from '@utility/dashboard/settingsModel';
 import EditedTag from './EditedTag';
 import OptionRow, { NumberField } from './OptionRow';
 import { useHighlightTarget } from './useHighlightTarget';
@@ -64,17 +64,17 @@ const OptionList = ({ tracker, highlightOption, highlightKey, onAction }) => {
   // options after the rank caps), so ungrouped options come first, then each group in the
   // order it first appears.
   const groupOrder = [...new Set(unfolded.map(({ group }) => group).filter(Boolean))];
-  const visible = [
+  const visible = nestDependents([
     ...unfolded.filter(({ group }) => !group),
     ...groupOrder.flatMap((group) => unfolded.filter((option) => option.group === group))
-  ];
+  ]);
   let lastGroup = null;
-  return visible.map((option) => {
+  return visible.map(({ option, depth }) => {
     const heading = option.group && option.group !== lastGroup ? option.group : null;
     if (option.group) lastGroup = option.group;
     return <React.Fragment key={option.name}>
       {heading ? <Typography variant="overline" color="text.secondary" component="h3" sx={{ mt: 2 }}>{heading}</Typography> : null}
-      <OptionRow option={option} tracker={tracker} onAction={onAction} {...optionExtras(tracker, option)}
+      <OptionRow option={option} tracker={tracker} onAction={onAction} {...optionExtras(tracker, option)} depth={depth}
                  highlight={highlightOption === option.name} highlightKey={highlightKey}/>
     </React.Fragment>;
   });

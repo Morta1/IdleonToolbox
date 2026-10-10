@@ -165,12 +165,13 @@ const PerWorld = ({ option, tracker, onAction, disabled }) => {
   </Box>;
 };
 
-const OptionRow = ({ option, tracker, foldedOptions = [], disabledReason = null, highlight = false, highlightKey = null, onAction }) => {
+// depth: how many dependsOn parents sit above this row; each level indents it under the one before.
+const OptionRow = ({ option, tracker, foldedOptions = [], disabledReason = null, depth = 0, highlight = false, highlightKey = null, onAction }) => {
   const [rowRef, highlighted] = useHighlightTarget(highlight, highlightKey);
   const disabled = Boolean(disabledReason);
   const isPicker = option.type === 'array';
   return <Box ref={rowRef} data-highlighted={highlighted ? 'true' : undefined} sx={{
-    display: 'grid', gridTemplateColumns: '30px minmax(0, 1fr)', columnGap: 1, py: 1,
+    display: 'grid', gridTemplateColumns: '30px minmax(0, 1fr)', columnGap: 1, py: 1, ml: depth * 3,
     borderBottom: 1, borderColor: 'divider', borderRadius: 1,
     transition: 'background-color .4s', bgcolor: highlighted ? 'action.selected' : 'transparent'
   }}>
