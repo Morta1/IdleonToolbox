@@ -13,7 +13,8 @@ import {
   GOD_SLOT,
   isGainingDivinityPoints,
   isMajorDivinityActive,
-  isMeditatingForDivinity
+  isMeditatingForDivinity,
+  isMeditatingOnClaim
 } from '@parsers/world-5/divinity';
 import { getDivinityAlert } from '@utility/dashboard/characters';
 
@@ -191,9 +192,19 @@ describe('Divinity("DivPerHr"): who meditates', () => {
     expect(lowCharacters.map((character) => isGainingDivinityPoints(character, account, lowCharacters) ? 1 : 0)).toEqual(GAME.divPerHrNoDoot);
   });
 
-  it('the style alert asks every meditating character for Mindful', () => {
+  // Only the Divinity claim and the lab claim with Goharut pay Divinity_PTS, whatever DivPerHr shows.
+  it.each([
+    ['AFK at Divinity', { ...fighter, afkTarget: 'Divinity' }, stub(), true],
+    ['in the lab through King Doot', labber, stub(), false],
+    ['in the lab through King Doot at divinity 2+', { ...labber, skillsInfo: { divinity: { level: 2 } } }, stub(), true],
+    ['fighting with an Arctis pocket', fighter, stub({ hole: { holesObject: { extraCalculations: Object.assign([], { 29: GOD_SLOT.Arctis }) } } }), false]
+  ])('an AFK claim pays the style rate: %s', (_, character, account, expected) => {
+    expect(isMeditatingOnClaim(character, account)).toBe(expected);
+  });
+
+  it('the style alert asks Divinity claimers for Mindful and everyone else for TranQi', () => {
     const options = { divinityStyle: { checked: true } };
     const alerts = characters.map((character) => getDivinityAlert(account, characters, character, 0, options)?.icon ?? null);
-    expect(alerts).toEqual(['Div_Style_7', 'Div_Style_7', null, null, null, null, null, null, null, null, null]);
+    expect(alerts).toEqual([null, 'Div_Style_5', 'Div_Style_5', 'Div_Style_5', 'Div_Style_5', 'Div_Style_5', null, 'Div_Style_5', 'Div_Style_5', 'Div_Style_5', null]);
   });
 });

@@ -2,7 +2,7 @@ import { differenceInHours, differenceInMinutes, isPast } from 'date-fns';
 import { carryBags, items, randomList } from '@website-data';
 import { getExpReq, isArenaBonusActive, isCompanionBonusActive } from '../../parsers/misc';
 import { getPlayerAnvil, getTimeTillCap } from '@parsers/world-1/anvil';
-import { isMeditatingForDivinity } from '@parsers/world-5/divinity';
+import { isMeditatingOnClaim } from '@parsers/world-5/divinity';
 import {
   checkCharClass,
   CLASSES,
@@ -271,7 +271,7 @@ export const hasAvailableToolUpgrade = (character) => {
 }
 export const getDivinityAlert = (account, characters, character, lastUpdated, options) => {
   if (!options.divinityStyle.checked) return null;
-  const isMeditating = isMeditatingForDivinity(character, account, characters);
+  const isMeditating = isMeditatingOnClaim(character, account);
   if (isMeditating && character?.skillsInfo?.divinity?.level >= 80 && character?.divStyle?.name !== 'Mindful') {
     return { text: 'doesn\'t have mindful style equipped', icon: 'Div_Style_7' };
   }

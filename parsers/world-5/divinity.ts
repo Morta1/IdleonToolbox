@@ -331,6 +331,16 @@ export const isMeditatingForDivinity = (character: any, account: any, characters
   return inLab && hasGoharut;
 }
 
+// What an AFK claim actually pays a character's style rate for. DivPerHr above only feeds the "/hr"
+// numbers on the Divinity screen; Divinity_PTS is granted solely by the Divinity claim and by the
+// Laboratory claim with the claimer's own Goharut major, and the claimer is the one logged in.
+// Every other claim pays nothing but the TranQi EXP.
+// game: AFK claim "DIVINITY" / "LABORATORY" branches
+export const isMeditatingOnClaim = (character: any, account: any) =>
+  character?.afkTarget === 'Divinity'
+  || (character?.afkTarget === 'Laboratory'
+    && isMajorDivinityActive(character, account, GOD_INDEX.Goharut, character));
+
 // Divinity("DivPerHr", t) == 1: the TranQi style earns while not meditating.
 // game: "DivPerHr"
 export const isGainingDivinityPoints = (character: any, account: any, characters: any) =>
