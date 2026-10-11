@@ -2,7 +2,7 @@ import { atomsInfo, cookingMenu, monsters, randomList, randomList2, bonuses, spi
 import { liveEntries } from '@parsers/catalog';
 import { getStampsBonusByEffect, getStampsBonusByStat } from '@parsers/world-1/stamps';
 import { getStatsFromGear } from '@parsers/items';
-import { growth, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, growth, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
@@ -183,31 +183,58 @@ export const getSpiceUpgradeCost = (upgradeLevel: any) => {
 }
 
 export const getMealsBonusByEffectOrStat = (account: any, effectName: any, statName: any, _unused3?: any) => {
-  const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16) ?? 0;
-  const shinyMealBonus = getShinyBonus(account?.breeding?.pets, 'Bonuses_from_All_Meals');
-  const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
-  const companion162 = isCompanionBonusActive(account, 162) ? (account?.companions?.list?.at(162)?.bonus ?? 0) : 0;
-  return account?.cooking?.meals?.reduce((sum: any, meal: any, index: any) => {
-    const { level, baseStat, effect, stat } = meal;
+  return account?.cooking?.meals?.reduce((sum: any, meal: any) => {
+    const { effect, stat } = meal;
     if (effectName) {
       if (!effect.includes(effectName)) return sum;
     } else {
       if (stat !== statName) return sum;
     }
-    if (statName === 'PxLine') {
-      return sum + (level * baseStat || 0);
-    }
-    const ribbonBonus = getRibbonBonus(account, account?.grimoire?.ribbons?.[28 + index]);
-    const nodeMulti = meal?.cookingMasteryNode?.multi ?? 1; // BonusMultiCook(meal)
-    return sum + ((1 + (blackDiamondRhinestone + shinyMealBonus) / 100)
-      * (1 + winBonus / 100)
-      * (1 + (25 * companion162) / 100)
-      * ribbonBonus
-      * nodeMulti
-      * level
-      * baseStat || 0);
+    return sum + (getMealBonus(account, meal).value || 0);
   }, 0) ?? 0;
 }
+
+// game: DNSM MealBonusesS (-6) - BonusMultiCook(meal) * CookingMealBonusMultioo * RibbonBonus * level * base.
+// PxLine meals skip every multiplier. `level` defaults to the meal's own, pass level + 1 for a preview.
+export const getMealBonus = (account: any, meal: any, level: number = meal?.level ?? 0): {
+  value: number;
+  breakdown: StatBreakdown
+} => {
+  const base = level * (meal?.baseStat ?? 0);
+  const statName = cleanUnderscore(meal?.name ?? 'Meal');
+  if (meal?.stat === 'PxLine') {
+    return { value: base, breakdown: createBreakdown(statName, formatMealBonus(base), [flat('Meal level bonus', base)]) };
+  }
+  const blackDiamondRhinestone = getJewelBonus(account?.lab?.jewels, 16) ?? 0;
+  const shinyMealBonus = getShinyBonus(account?.breeding?.pets, 'Bonuses_from_All_Meals');
+  const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
+  const companion162 = isCompanionBonusActive(account, 162) ? (account?.companions?.list?.at(162)?.bonus ?? 0) : 0;
+  const ribbonRank = account?.grimoire?.ribbons?.[28 + meal?.index] ?? 0;
+  const ribbonBonus = getRibbonBonus(account, ribbonRank);
+  const nodeMulti = meal?.cookingMasteryNode?.multi ?? 1;
+  const tree = [
+    flat('Meal level bonus', base),
+    additiveGroup('All meal bonuses', [
+      percent('Black Diamond Rhinestone (Jewel)', blackDiamondRhinestone),
+      percent('Shiny Pets', shinyMealBonus)
+    ]),
+    multiplier('Winner Bonus (Summoning)', 1 + winBonus / 100),
+    multiplier('Wickerlight Spirit (Companion)', 1 + (25 * companion162) / 100),
+    multiplier(`Ribbon (Rank ${ribbonRank})`, ribbonBonus),
+    multiplier(`Cooking Mastery node (Lv. ${meal?.cookingMasteryNode?.level ?? 0})`, nodeMulti)
+  ];
+  const value = (1 + (blackDiamondRhinestone + shinyMealBonus) / 100)
+    * (1 + winBonus / 100)
+    * (1 + (25 * companion162) / 100)
+    * ribbonBonus
+    * nodeMulti
+    * base;
+  return { value, breakdown: createBreakdown(statName, formatMealBonus(value), tree) };
+}
+
+// Same notation the meal cards print the bonus with
+export const formatMealBonus = (value: number) => value < 1e7 ? commaNotation(value) : notateNumber(value, 'Big');
+
 
 // game: "RibbonBonus"
 export const getRibbonBonus = (account: any, t: any) => {

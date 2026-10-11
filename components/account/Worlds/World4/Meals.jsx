@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import {
   calcMealTime,
   calcTimeToNextLevel,
   getHighestOverflowingLadle,
+  formatMealBonus,
+  getMealBonus,
   getMealLevelCost,
   getNoMealLeftBehindLevels,
   getNoMealLeftBehindQueue,
@@ -11,7 +13,6 @@ import {
 } from '@parsers/world-4/cooking';
 import {
   cleanUnderscore,
-  commaNotation,
   getTimeAsDays,
   kFormatter,
   notateNumber,
@@ -39,8 +40,9 @@ import InfoIcon from '@mui/icons-material/Info';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import MenuItem from '@mui/material/MenuItem';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
-import { getWinnerBonus } from '@parsers/world-6/summoning';
-import { isCompanionBonusActive } from '@parsers/misc';
+import MealIcon from 'components/common/MealIcon';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { IconInfoCircleFilled } from '@tabler/icons-react';
 
 const maxTimeValue = 8.64e15;
 
@@ -64,7 +66,6 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
     defaultValue: 15
   });
   const spelunkerObolMulti = getLabBonus(lab?.labBonuses, 8); // gem multi
-  const blackDiamondRhinestone = getJewelBonus(lab?.jewels, 16, spelunkerObolMulti);
   const allPurpleActive = lab?.jewels?.slice(0, 3)?.every(({ active }) => active) ? 2 : 1;
   const realAmethystRhinestone = getJewelBonus(lab?.jewels, 0, spelunkerObolMulti) * allPurpleActive;
   const amethystRhinestone = 4.5;
@@ -127,13 +128,9 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
   const getBestMealsSpeedContribute = (meals) => {
     let speedMeals = meals.filter((meal) => (meal?.stat === 'Mcook' || meal?.stat === 'KitchenEff' || meal?.stat === 'zMealFarm') && meal?.level < mealMaxLevel);
     speedMeals = speedMeals.map((meal) => {
-      const { level, baseStat, shinyMulti, timeTillNextLevel, index, cookingMasteryNode } = meal;
-      const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
-      const ribbonBonus = getRibbonBonus(account, account?.grimoire?.ribbons?.[28 + index]);
-      const nodeMulti = cookingMasteryNode?.multi ?? 1;
-      const base = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * ribbonBonus * nodeMulti * baseStat;
-      const currentBonus = base * level;
-      const nextLevelBonus = base * (level + 1);
+      const { level, timeTillNextLevel } = meal;
+      const currentBonus = getMealBonus(account, meal).value;
+      const nextLevelBonus = getMealBonus(account, meal, level + 1).value;
       return {
         ...meal,
         currentLevelBonus: notateNumber(currentBonus, 'MultiplierInfo'),
@@ -295,11 +292,11 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
     <>
       <ToggleButton sx={{ mr: 2, '&:disabled': { color: '#FFFFFF' } }} value={'maxLevel'} disabled>Meal max
         level: {mealMaxLevel}</ToggleButton>
-      {noMealLeftBehind ? <ToggleButton sx={{ mr: 2, '&:disabled': { color: '#FFFFFF' } }} value={'maxLevel'} disabled>
-        <Stack direction={'row'} alignItems={'center'}>
-          <Typography>NMLB:</Typography>
-          <img style={{ marginTop: -30, marginRight: -10 }} src={`${prefix}data/${noMealLeftBehind.rawName}.png`}
-               alt={noMealLeftBehind.rawName}/>
+      {noMealLeftBehind ? <ToggleButton sx={{ mr: 2, py: 0, '&:disabled': { color: '#FFFFFF' } }} value={'maxLevel'}
+                                        disabled>
+        <Stack direction={'row'} alignItems={'center'} gap={1}>
+          NMLB:
+          <MealIcon rawName={noMealLeftBehind.rawName} alt={noMealLeftBehind.rawName} small/>
           {cleanUnderscore(noMealLeftBehind.name)}
         </Stack>
       </ToggleButton> : null}
@@ -369,36 +366,20 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
               timeTillNextLevel
             } = meal;
 
-            return <Card key={`${name}-${index}`} sx={{ width: 350 }}>
-              <CardContent>
-                <Stack direction={'row'} alignItems={'center'}>
-                  <MealAndPlate>
-                    <img src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-                    {level > 0 ?
-                      <img className="plate" src={`${prefix}data/CookingPlate${level - 1}.png`} alt=""/> : null}
-                  </MealAndPlate>
-                  <Stack gap={1}>
-                    <CenteredTypography>
-                      {cleanUnderscore(name)} (Lv. {level} <ArrowForwardIcon fontSize={'small'}/> {level + 1})
-                    </CenteredTypography>
-                    <CenteredTypography>
-                      {currentLevelBonus}% <ArrowForwardIcon fontSize={'small'}/> {nextLevelBonus}%
-                      ({notateNumber(bonusDiff, 'MultiplierInfo')})
-                    </CenteredTypography>
-                    <Typography component={'span'}>
-                      Next Level: {!Number.isFinite(timeTillNextLevel) ? 'Never' :
-                      new Date().getTime() + timeTillNextLevel * 3600 * 1000 < maxTimeValue ?
-                      <Timer date={new Date().getTime() + timeTillNextLevel * 3600 * 1000}
-                             staticTime={true}/> : `${getTimeAsDays(timeTillNextLevel)} days`}
-                    </Typography>
-                    <Stack direction={'row'} alignItems={'center'} gap={1}>
-                      <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={32} height={32}/>
-                      {Number.isFinite(timeTillNextLevel) ? <HtmlTooltip title={numberWithCommas(parseFloat(timeTillNextLevel).toFixed(2))}>
-                        <span>{notateNumber(Math.ceil(timeTillNextLevel), 'Big')}</span>
-                      </HtmlTooltip> : <span>-</span>}
-                    </Stack>
-                  </Stack>
+            return <Card key={`${name}-${index}`} sx={{ width: 300 }}>
+              <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <MealHeader rawName={rawName} name={name} level={level}
+                            subtitle={<>Lv. {level} <InlineArrow/> {level + 1}</>}/>
+                <Stack gap={.5}>
+                  <Typography variant={'body2'}>
+                    {currentLevelBonus}% <InlineArrow/> {nextLevelBonus}%{' '}
+                    <Muted>({notateNumber(bonusDiff, 'MultiplierInfo')})</Muted>
+                  </Typography>
+                  <Typography variant={'body2'}>
+                    <b>Next Level:</b> <TimeToHours hours={timeTillNextLevel}/>
+                  </Typography>
                 </Stack>
+                <LadleRow hours={timeTillNextLevel}/>
               </CardContent>
             </Card>
           })}
@@ -458,98 +439,72 @@ const Meals = ({ account, characters, meals, totalMealSpeed, mealMaxLevel, achie
             rawName,
             effect,
             level,
-            baseStat,
             multiplier,
-            shinyMulti,
             breakpointTimes,
             cookingMasteryNode,
             index: mealIndex
           } = meal;
-          const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
           const ribbonIndex = account?.grimoire?.ribbons?.[28 + mealIndex];
           const ribbonBonus = getRibbonBonus(account, ribbonIndex);
-          const companion162 = isCompanionBonusActive(account, 162)
-            ? (account?.companions?.list?.at(162)?.bonus ?? 0)
-            : 0;
-          const nodeMulti = cookingMasteryNode?.multi ?? 1;
-          const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * (1 + (25 * companion162) / 100) * ribbonBonus * nodeMulti * level * baseStat;
-          const effectNotation = realEffect < 1e7 ? commaNotation(realEffect) : notateNumber(realEffect, 'Big');
+          const { value: realEffect, breakdown: effectBreakdown } = getMealBonus(account, meal);
+          const effectNotation = formatMealBonus(realEffect);
+          const nextLevelNotation = level < mealMaxLevel
+            ? effect?.replace('{', formatMealBonus(getMealBonus(account, meal, level + 1).value)).split('_')[0]
+            : null;
 
           return (
             <Card key={`${name}-${index}`} sx={{ width: 300, opacity: level === 0 ? 0.5 : 1 }}>
-              <CardContent>
-                <Stack direction={'row'} alignItems={'center'}>
-                  <Tooltip
-                    title={<MealTooltip account={account} achievements={achievements}
-                                        blackDiamondRhinestone={blackDiamondRhinestone}
-                                        equinoxUpgrades={localEquinoxUpgrades} {...meal}/>}>
-                    <MealAndPlate>
-                      <img src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-                      {level > 0 ?
-                        <img className="plate" src={`${prefix}data/CookingPlate${level - 1}.png`} alt=""/> : null}
-                    </MealAndPlate>
-                  </Tooltip>
-                  <Stack>
-                    <Typography>{cleanUnderscore(name)} (Lv. {level})</Typography>
-                    <Stack direction={'row'} alignItems={'center'} gap={1}>
-                      {(ribbonIndex - 1) > 0 ? <Tooltip title={`${ribbonBonus}x (Rank ${ribbonIndex})`}>
-                        <img style={{ width: 24 }} src={`${prefix}data/Ribbon${Math.max(0, ribbonIndex - 1)}.png`}
-                             alt={`ribbon-${ribbonIndex}`}/>
-                      </Tooltip> : null}
-                      {cookingMasteryNode?.level > 0 ?
-                        <Tooltip
-                          title={`Cooking Mastery node: Lv. ${cookingMasteryNode.level} (${notateNumber(cookingMasteryNode.multi, 'MultiplierInfo')}x meal bonus)`}>
-                          <img style={{ width: 24, height: 24, objectFit: 'fill' }}
-                               src={`${prefix}etc/CookingMastery.png`}
-                               alt={'cooking-mastery-node'}/>
-                        </Tooltip> : null}
-                    </Stack>
+              <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <MealHeader rawName={rawName} name={name} level={level} subtitle={`Lv. ${level}`}
+                            badges={<>
+                              {(ribbonIndex - 1) > 0 ? <Tooltip title={`${ribbonBonus}x (Rank ${ribbonIndex})`}>
+                                <img src={`${prefix}data/Ribbon${Math.max(0, ribbonIndex - 1)}.png`}
+                                     alt={`ribbon-${ribbonIndex}`}/>
+                              </Tooltip> : null}
+                              {cookingMasteryNode?.level > 0 ?
+                                <Tooltip
+                                  title={`Cooking Mastery node: Lv. ${cookingMasteryNode.level} (${notateNumber(cookingMasteryNode.multi, 'MultiplierInfo')}x meal bonus)`}>
+                                  <img src={`${prefix}etc/CookingMastery.png`} alt={'cooking-mastery-node'}/>
+                                </Tooltip> : null}
+                            </>}/>
+                <Stack gap={.5}>
+                  <Stack direction={'row'} alignItems={'center'} gap={.5}>
+                    <Typography variant={'body2'} sx={{ color: multiplier > 1 ? 'info.light' : '' }}>
+                      {cleanUnderscore(effect?.replace('{', effectNotation))}
+                    </Typography>
+                    {level > 0 ? <Breakdown data={effectBreakdown}>
+                      <Stack><IconInfoCircleFilled size={16}/></Stack>
+                    </Breakdown> : null}
                   </Stack>
+                  {nextLevelNotation ? <Typography variant={'body2'}>
+                    <b>At Lv. {level + 1}:</b> {nextLevelNotation}
+                  </Typography> : null}
                 </Stack>
-                <Stack mt={2} gap={1}>
-                  <Typography
-                    sx={{
-                      color: multiplier > 1
-                        ? 'info.light'
-                        : ''
-                    }}>{cleanUnderscore(effect?.replace('{', effectNotation))}</Typography>
-                  {!filters.includes('minimized') ?
-                    breakpointTimes?.map(({ bpLevel, bpCost, timeToBp }) => {
-                      const timeInMs = timeToBp * 3600 * 1000
-                      return level > 0 && (sortBy === bpLevel || sortBy === -1 && bpLevel === 1) ? <Stack
-                        key={name + bpLevel} gap={1}
-                        flexWrap={'wrap'}>
-                        {amount >= bpCost && bpLevel !== -2 ? <Typography
-                          color={'success.light'}>Breakpoint maxed</Typography> : level >= mealMaxLevel ? <Typography
-                            color={'success.light'}>Maxed</Typography> :
-                          <Typography
-                            sx={{ color: amount >= bpCost ? 'success.light' : level > 0 ? 'error.light' : '' }}>
-                            Progress: {<HtmlTooltip title={parseFloat(amount)}>
-                            <span>{notateNumber(Math.floor(amount), 'Big')}</span>
-                          </HtmlTooltip>} / {<HtmlTooltip title={parseFloat(bpCost)}>
-                            <span>{notateNumber(Math.ceil(bpCost), 'Big')}</span>
-                          </HtmlTooltip>}
-                          </Typography>
-                        }
-                        {level < mealMaxLevel ? <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-                          <Typography>Next Milestone: </Typography>
-                          {!Number.isFinite(timeToBp) ? 'Never' :
-                          new Date().getTime() + timeInMs < maxTimeValue
-                            ? <Timer
-                              date={new Date().getTime() + timeToBp * 3600 * 1000}
-                              staticTime={true}/>
-                            : `${notateNumber(getTimeAsDays(timeToBp), 'Big')} days`
-                          }
-                        </Stack> : null}
-                        <Stack direction={'row'} alignItems={'center'} gap={1}>
-                          <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={32} height={32}/>
-                          {Number.isFinite(timeToBp) ? <HtmlTooltip title={numberWithCommas(parseFloat(timeToBp).toFixed(2))}>
-                            <span>{notateNumber(Math.ceil(timeToBp), 'Big')}</span>
-                          </HtmlTooltip> : <span>-</span>}
-                        </Stack>
-                      </Stack> : null
-                    }) : null}
-                </Stack>
+                {!filters.includes('minimized') ?
+                  breakpointTimes?.map(({ bpLevel, bpCost, timeToBp }) => {
+                    return level > 0 && (sortBy === bpLevel || sortBy === -1 && bpLevel === 1) ? <Fragment
+                      key={name + bpLevel}>
+                      <Stack gap={.5}>
+                      {amount >= bpCost && bpLevel !== -2 ? <Typography variant={'body2'}
+                                                                        color={'success.light'}>Breakpoint
+                        maxed</Typography> : level >= mealMaxLevel ? <Typography variant={'body2'}
+                                                                                  color={'success.light'}>Maxed</Typography> :
+                        <Typography variant={'body2'}
+                                    sx={{ color: amount >= bpCost ? 'success.light' : level > 0 ? 'error.light' : '' }}>
+                          <b>Progress:</b> {<HtmlTooltip title={parseFloat(amount)}>
+                          <span>{notateNumber(Math.floor(amount), 'Big')}</span>
+                        </HtmlTooltip>} / {<HtmlTooltip title={parseFloat(bpCost)}>
+                          <span>{notateNumber(Math.ceil(bpCost), 'Big')}</span>
+                        </HtmlTooltip>}
+                        </Typography>
+                      }
+                      {level < mealMaxLevel ? <Typography variant={'body2'}>
+                        <b>Next Milestone:</b> <TimeToHours hours={timeToBp}/>
+                      </Typography> : null}
+                      </Stack>
+                      <LadleRow hours={timeToBp}/>
+                    </Fragment> : null
+                  }) : null}
               </CardContent>
             </Card>
           );
@@ -610,48 +565,60 @@ const MealsFilterBar = ({ upgradableCount, stats, limited, value, onCommit }) =>
   );
 };
 
-const MealTooltip = ({
-                       account,
-                       level,
-                       baseStat,
-                       effect,
-                       blackDiamondRhinestone,
-                       shinyMulti,
-                       index,
-                       cookingMasteryNode
-                     }) => {
-  const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
-  const ribbonBonus = getRibbonBonus(account, account?.grimoire?.ribbons?.[28 + index]);
-  const companion162 = isCompanionBonusActive(account, 162) ? (account?.companions?.list?.at(162)?.bonus ?? 0) : 0;
-  const nodeMulti = cookingMasteryNode?.multi ?? 1;
-  const realEffect = (1 + (blackDiamondRhinestone + shinyMulti) / 100) * (1 + winBonus / 100) * (1 + (25 * companion162) / 100) * (level + 1) * ribbonBonus * nodeMulti * baseStat;
-  const effectNotation = realEffect < 1e7 ? commaNotation(realEffect) : notateNumber(realEffect, 'Big')
-  return (
-    <>
-      <Typography fontWeight={'bold'}>
-        Next Level Bonus:&nbsp;
-        <Typography component={'span'} sx={{ fontWeight: 400 }}>
-          {cleanUnderscore(effect?.replace('{', effectNotation))}
-        </Typography>
+const MealHeader = ({ rawName, name, level, subtitle, badges }) => {
+  return <Stack direction={'row'} alignItems={'center'} gap={1.5}>
+    <MealIcon rawName={rawName} plateLevel={level} alt={rawName}/>
+    <Stack>
+      <Typography variant={'subtitle1'} sx={{ fontWeight: 'bold', lineHeight: 1.3 }}>
+        {cleanUnderscore(name)}
       </Typography>
-    </>
-  );
+      <Stack direction={'row'} alignItems={'center'} gap={1}>
+        <Typography variant={'body2'} color={'text.secondary'}>{subtitle}</Typography>
+        <Badges>{badges}</Badges>
+      </Stack>
+    </Stack>
+  </Stack>
 };
 
-const MealAndPlate = styled('div')`
-  width: 82px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-right: -20px;
+// Hours until a target, as a countdown when it fits in a Date, otherwise as a notated day count
+const TimeToHours = ({ hours }) => {
+  if (!Number.isFinite(hours)) return 'Never';
+  const date = new Date().getTime() + hours * 3600 * 1000;
+  return date < maxTimeValue
+    ? <Timer date={date} staticTime={true}/>
+    : `${notateNumber(getTimeAsDays(hours), 'Big')} days`;
+};
 
-  & img:nth-of-type(1) {
-    margin-top: -30px;
-  }
+const LadleRow = ({ hours }) => {
+  return <Stack mt={'auto'} gap={1}>
+    <Divider sx={{ mb: .5 }}/>
+    <Stack direction={'row'} alignItems={'center'} gap={1.5}>
+      <img src={`${prefix}data/Ladle.png`} alt="Ladle" width={32} height={32}/>
+      <Typography variant={'body2'}>
+        {Number.isFinite(hours) ? <HtmlTooltip title={numberWithCommas(parseFloat(hours).toFixed(2))}>
+          <span>{notateNumber(Math.ceil(hours), 'Big')}</span>
+        </HtmlTooltip> : '-'}
+      </Typography>
+    </Stack>
+  </Stack>
+};
+
+const InlineArrow = () => <ArrowForwardIcon fontSize={'inherit'} sx={{ verticalAlign: 'middle' }}/>;
+
+const Badges = styled('span')`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 
   & img {
-    margin-left: -30px;
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
   }
+`;
+
+const Muted = styled('span')`
+  opacity: .7;
 `;
 
 const ProcCard = styled(Card)`
@@ -662,12 +629,5 @@ const ProcCard = styled(Card)`
   align-items: center;
   gap: 8px;
 `;
-
-const CenteredTypography = styled(Typography)`
-  & {
-    display: flex;
-    align-items: center;
-  }
-`
 
 export default Meals;

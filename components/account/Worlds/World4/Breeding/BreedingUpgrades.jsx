@@ -3,6 +3,7 @@ import { cleanUnderscore, notateNumber, prefix } from 'utility/helpers';
 import styled from '@emotion/styled';
 import { getTotalKitchenLevels } from '@parsers/world-4/cooking';
 import { calcUpgradeBonus } from '@parsers/world-4/breeding';
+import MealIcon from 'components/common/MealIcon';
 
 const BreedingUpgrades = ({ account, petUpgrades, meals }) => {
   const calcFoodCost = (upgrade) => {
@@ -70,9 +71,7 @@ const BreedingUpgrades = ({ account, petUpgrades, meals }) => {
                 </Typography>
               </CostRow>
               {index > 0 ? <CostRow>
-                <MealIcon>
-                  <img src={`${prefix}data/CookingMB${upgrade?.foodIndex}.png`} alt=""/>
-                </MealIcon>
+                <MealIcon rawName={`CookingMB${upgrade?.foodIndex}`} small/>
                 <Typography variant={'body2'}>
                   {notateNumber(foodAmount)} / {notateNumber(foodUpgradeCost)} <Muted>({foodCostToMax})</Muted>
                 </Typography>
@@ -109,7 +108,7 @@ const CostRow = styled.div`
 
 const CostIcon = styled.div`
   flex-shrink: 0;
-  width: 48px;
+  width: 56px;
   height: 32px;
   display: flex;
   align-items: center;
@@ -119,23 +118,6 @@ const CostIcon = styled.div`
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-  }
-`;
-
-// CookingMB sprites draw the meal in the bottom-center of an 82x56 canvas: crop to it at 1:1
-const MealIcon = styled.div`
-  flex-shrink: 0;
-  width: 48px;
-  height: 32px;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-
-  & img {
-    flex-shrink: 0;
-    width: 82px;
-    height: 56px;
-    margin-top: -26px;
   }
 `;
 

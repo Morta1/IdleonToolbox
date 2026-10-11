@@ -13,12 +13,9 @@ import {
 } from '@parsers/world-4/cooking';
 import styled from '@emotion/styled';
 import ProgressBar from 'components/common/ProgressBar';
-import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
 import { CardTitleAndValue } from '@components/common/styles';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { getWinnerBonus } from '@parsers/world-6/summoning';
-import { getRibbonBonus } from '@parsers/world-4/cooking';
-import { isCompanionBonusActive } from '@parsers/misc';
+import { getMealBonus } from '@parsers/world-4/cooking';
 
 const Kitchens = ({
                     spices,
@@ -213,12 +210,7 @@ const MealTooltip = ({ meal, lab, totalMealSpeed, achievements, equinoxUpgrades,
   const timeTillNextLevel = meal?.amount >= levelCost
     ? '0'
     : calcTimeToNextLevel(levelCost - meal?.amount, meal?.cookReq, totalMealSpeed);
-  const spelunkerObolMulti = getLabBonus(lab?.labBonuses, 8); // gem multi
-  const blackDiamondRhinestone = getJewelBonus(lab?.jewels, 16, spelunkerObolMulti);
-  const winBonus = getWinnerBonus(account, '<x Meal Bonuses');
-  const ribbonBonus = getRibbonBonus(account, account?.grimoire?.ribbons?.[28 + meal?.index]);
-  const companion162 = isCompanionBonusActive(account, 162) ? (account?.companions?.list?.at(162)?.bonus ?? 0) : 0;
-  const realEffect = (1 + (blackDiamondRhinestone + meal?.shinyMulti) / 100) * (1 + winBonus / 100) * (1 + (25 * companion162) / 100) * ribbonBonus * meal?.level * meal?.baseStat;
+  const realEffect = getMealBonus(account, meal).value;
   return <>
     {meal?.level >= 11 || levelCost === diamondCost ? <>
       <Typography sx={{ textAlign: 'center' }}>Next Level in: <Timer

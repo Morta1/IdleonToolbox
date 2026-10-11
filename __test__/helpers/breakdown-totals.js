@@ -15,7 +15,7 @@ import { getPrinterMulti } from '@parsers/world-3/printer';
 import { getRefineryCycles } from '@parsers/world-3/refinery';
 import { getShinyChanceInfo, getTrapsBonuses } from '@parsers/world-3/traps';
 import { calcBreedabilityMulti, calcShinyLvMulti } from '@parsers/world-4/breeding';
-import { calcDailyRibbons } from '@parsers/world-4/cooking';
+import { calcDailyRibbons, getMealBonus } from '@parsers/world-4/cooking';
 import { getBitsMulti } from '@parsers/world-5/gaming';
 import { getCropEvolution } from '@parsers/world-6/farming';
 
@@ -132,6 +132,10 @@ const computedBreakdowns = (account, characters, idleonData) => {
   add('breedability', breedability.breakdown, breedability.value);
   const shinyLv = calcShinyLvMulti(account, characters);
   add('shinyLevel', shinyLv.breakdown, shinyLv.value);
+  (account.cooking?.meals ?? []).forEach((meal, index) => {
+    const mealBonus = getMealBonus(account, meal);
+    add(`meals[${index}]`, mealBonus.breakdown, mealBonus.value);
+  });
   const ribbons = account.cooking?.cookingMastery?.dailyRibbons;
   if (ribbons) {
     const daily = calcDailyRibbons(ribbons);
