@@ -12,7 +12,7 @@ import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getCompassBonus } from '@parsers/class-specific/compass';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
-import { createBreakdown, flat, flatLines, listGroup, percent, sumGroup } from '@parsers/breakdown';
+import { additiveGroup, createBreakdown, flat, flatLines, listGroup, multiplier, percent } from '@parsers/breakdown';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 
 // The enemy HP list: every 5th fight level up to 50
@@ -106,12 +106,17 @@ export const getMonumentAfkBonus = (holesObject: any, accountData: any) => {
               + (arcadeBonus
                 + 10 * getAchievementStatus(accountData?.achievements, 311) + getCompassBonus(accountData, 55)))))));
 
+  // game: MonumentHRbonusMULTI, applied on top of (1 + value / 100) when AFK hours are granted
+  const multi = 1 + getMineheadBonusQTY(accountData, 19) / 100;
+  const effectiveValue = ((1 + afkPercent / 100) * multi - 1) * 100;
+
   return {
     value: afkPercent,
-    // game: MonumentHRbonusMULTI, applied on top of (1 + value / 100) when AFK hours are granted
-    multi: 1 + getMineheadBonusQTY(accountData, 19) / 100,
-    breakdown: createBreakdown('Monument Afk bonus', notateNumber(afkPercent, 'MultiplierInfo'), [
-      sumGroup('Additive', [
+    multi,
+    // What the AFK hours actually get, Minehead multiplier included
+    effectiveValue,
+    breakdown: createBreakdown('Monument Afk bonus', `${notateNumber(effectiveValue, 'MultiplierInfo')}%`, [
+      additiveGroup('Additive', [
         percent('Monument', getMonumentBonus({ holesObject, t: 0, i: 8 })
           + getMonumentBonus({ holesObject, t: 1, i: 8 })
           + getMonumentBonus({ holesObject, t: 2, i: 8 })),
@@ -122,7 +127,8 @@ export const getMonumentAfkBonus = (holesObject: any, accountData: any) => {
         percent('Arcade', arcadeBonus || 0),
         percent('Achievement', 10 * getAchievementStatus(accountData?.achievements, 311)),
         percent('Compass', getCompassBonus(accountData, 55))
-      ])
+      ]),
+      multiplier('Minehead', multi)
     ]),
     expression: `braveryAfkBonus
 + justiceAfkBonus

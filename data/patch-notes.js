@@ -21,7 +21,8 @@ export const patchNotes = [
       'Extra Dust, Bones and Tachyon now include the North Winds, Deadly Wrath and Eternal Energy lab jewels and the right Killroy upgrade',
       'Extra Bones and the Grimoire Wraith stats now count the Death Bringer talents',
       'Villager EXP per hour no longer runs about 1% low',
-      'Monument AFK hours required now include the Minehead multiplier'
+      'Monument AFK hours required now include the Minehead multiplier',
+      'Hole: Total Monument Afk now includes the Minehead multiplier'
     ]
   },
   {

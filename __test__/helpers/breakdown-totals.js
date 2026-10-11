@@ -30,7 +30,8 @@ const STORED_VALUE = {
   'Printer output': (parent) => parent.boostedValue,
   'Equinox fill rate': (parent) => parent.chargeRate,
   'Vault cost reduction': (parent) => parent.cheaperFactor,
-  'Artifact Find Chance': (parent) => parent.rawValue
+  'Artifact Find Chance': (parent) => parent.rawValue,
+  'Monument Afk bonus': (parent) => 1 + parent.effectiveValue / 100
 };
 
 const storedValue = (breakdown, parent, key) => {

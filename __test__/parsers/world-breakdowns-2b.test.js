@@ -39,7 +39,8 @@ describe('world 5-7 breakdowns rebuild their value', () => {
 
   it('monument AFK bonus and hours required', () => {
     const { afkPercent } = account.hole.caverns.bravery;
-    expectRebuilds(afkPercent.breakdown, afkPercent.value);
+    expectRebuilds(afkPercent.breakdown, 1 + afkPercent.effectiveValue / 100);
+    expect(afkPercent.effectiveValue).toBeCloseTo(((1 + afkPercent.value / 100) * afkPercent.multi - 1) * 100, 9);
     ['bravery', 'justice', 'wisdom'].forEach((cavern) => {
       const req = account.hole.caverns[cavern].monumentAfkReq;
       if (!req) return;

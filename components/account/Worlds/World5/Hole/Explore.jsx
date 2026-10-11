@@ -39,8 +39,8 @@ const Explore = ({ hole }) => {
       <CardTitleAndValue title={'Opals invested'} value={explore?.opalInvested || '0'} icon={'data/Opal.png'}
                          imgStyle={{ width: 22, height: 22 }}/>
       <CardTitleAndValue title={'Unlocked caverns'} value={hole?.unlockedCaverns}/>
-      <CardWithBreakdown title={'Total Monument Afk'} value={`${hole?.caverns?.bravery?.afkPercent?.value.toFixed(2)}%`} 
-      breakdown={hole?.caverns?.bravery?.afkPercent?.breakdown} notation={'MultiplierInfo'}/>
+      <CardWithBreakdown title={'Total Monument Afk'} value={`${hole?.caverns?.bravery?.afkPercent?.effectiveValue.toFixed(2)}%`} 
+      breakdown={hole?.caverns?.bravery?.afkPercent?.breakdown}/>
     </Stack>
     <Divider sx={{ mb: 3 }}/>
     <Tabber
